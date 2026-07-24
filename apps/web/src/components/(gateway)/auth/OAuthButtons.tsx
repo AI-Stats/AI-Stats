@@ -43,7 +43,7 @@ function OAuthSubmitButton({
 			type="submit"
 			variant="outline"
 			aria-label={`Continue with ${meta.label}`}
-			className="relative h-12 w-full justify-center"
+			className="relative h-12 w-full justify-center gap-2 px-2"
 			disabled={pending}
 		>
 			{isLastUsed ? (
@@ -82,8 +82,8 @@ function OAuthSubmitButton({
 					</>
 				)}
 			</span>
-			<span className="sr-only">
-				{pending ? `Continuing with ${meta.label}...` : `Continue with ${meta.label}`}
+			<span className="hidden text-sm min-[360px]:inline">
+				{pending ? "Connecting..." : meta.label}
 			</span>
 		</Button>
 	);
@@ -114,14 +114,7 @@ export default function OAuthButtons({
 	}, []);
 
 	return (
-		<div className="grid gap-4">
-			<div className="flex items-center gap-2">
-				<div className="flex-1 border-t border-border" />
-				<span className="px-2 text-sm font-medium">Quick sign-in</span>
-				<div className="flex-1 border-t border-border" />
-			</div>
-
-			<div className="grid grid-cols-3 gap-3">
+		<div className="grid grid-cols-3 gap-2.5">
 				{SOCIAL_PROVIDER_IDS.map((id) => {
 					const meta = META[id];
 					return (
@@ -151,7 +144,6 @@ export default function OAuthButtons({
 						</form>
 					);
 				})}
-			</div>
 		</div>
 	);
 }

@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth/teamSsoSettings";
 import { fetchAccountWebApi } from "@/lib/web-api/client";
 import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountContext";
+import { samlSsoFlag } from "@/lib/flags";
 
 export type { TeamSsoMode, TeamSsoSettingsInput, TeamSsoSettingsRow };
 
@@ -32,6 +33,7 @@ function revalidateWorkspacePaths() {
 }
 
 export async function getTeamSsoSettingsAction(workspaceId: string) {
+	if (!(await samlSsoFlag())) throw new Error("SAML SSO is not enabled yet.");
 	if (!workspaceId || typeof workspaceId !== "string") {
 		throw new Error("Missing workspaceId");
 	}
@@ -45,6 +47,7 @@ export async function updateTeamSsoSettingsAction(
 	workspaceId: string,
 	input: TeamSsoSettingsInput,
 ) {
+	if (!(await samlSsoFlag())) throw new Error("SAML SSO is not enabled yet.");
 	if (!workspaceId || typeof workspaceId !== "string") {
 		throw new Error("Missing workspaceId");
 	}

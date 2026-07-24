@@ -71,7 +71,7 @@ export default function OAuthButtons({
 								type="submit"
 								variant="outline"
 								aria-label={`Continue with ${meta.label}`}
-								className="h-12 w-full justify-center"
+								className="h-12 w-full justify-center gap-2 px-2"
 							>
 								<span className="flex items-center justify-center">
 									{meta.logoId ? (
@@ -106,8 +106,8 @@ export default function OAuthButtons({
 										</>
 									)}
 								</span>
-								<span className="sr-only">
-									Continue with {meta.label}
+								<span className="hidden text-sm min-[360px]:inline">
+									{meta.label}
 								</span>
 							</Button>
 						</form>

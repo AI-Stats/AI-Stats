@@ -26,6 +26,8 @@ export const REALTIME_VOICE_GATE =
 	process.env.NEXT_PUBLIC_STATSIG_REALTIME_VOICE_GATE ?? "gateway_realtime_voice";
 export const GATEWAY_IO_LOGGING_GATE =
 	process.env.NEXT_PUBLIC_STATSIG_GATEWAY_IO_LOGGING_GATE ?? "gateway_io_logging";
+export const SAML_SSO_GATE =
+	process.env.NEXT_PUBLIC_STATSIG_SAML_SSO_GATE ?? "workspace_saml_sso";
 export const NEW_GATEWAY_HERO_GATE = NEW_LANDING_PAGE_GATE;
 export const NEW_GATEWAY_HERO_EXPERIMENT = NEW_LANDING_PAGE_EXPERIMENT;
 export const REALTIME_VOICE_BETA_FEATURE = "chat_realtime_voice";

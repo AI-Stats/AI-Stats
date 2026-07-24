@@ -33,6 +33,7 @@ import {
 	updateTeamAction,
 	deleteTeamAction,
 } from "@/app/(dashboard)/settings/teams/actions";
+import WorkspaceSamlSettingsCard from "./WorkspaceSamlSettingsCard";
 import type { TeamSsoSettingsRow } from "@/lib/auth/teamSsoSettings";
 
 type Team = { id: string; name: string };
@@ -49,6 +50,7 @@ type Props = {
 	personalTeamId?: string | null;
 	walletBalances?: Record<string, number>;
 	teamSsoSettingsByTeam?: Record<string, TeamSsoSettingsRow>;
+	samlSsoEnabled?: boolean;
 };
 
 type Settings = {
@@ -71,6 +73,7 @@ export default function TeamSettingsPanel({
 	personalTeamId,
 	walletBalances,
 	teamSsoSettingsByTeam,
+	samlSsoEnabled = false,
 }: Props) {
 	const fallbackTeamId =
 		(workspaceId && teams.some((t) => t.id === workspaceId)
@@ -295,6 +298,15 @@ export default function TeamSettingsPanel({
 					</div>
 				</CardFooter>
 			</Card>
+
+			{samlSsoEnabled && !isPersonalTeam ? (
+				<WorkspaceSamlSettingsCard
+					key={fallbackTeamId}
+					workspaceId={fallbackTeamId}
+					initialSettings={teamSsoSettingsByTeam?.[fallbackTeamId]}
+					canEdit={canEdit}
+				/>
+			) : null}
 		</section>
 	);
 }

@@ -11,6 +11,56 @@ const emptyTeams = {
 	manageableTeamIds: [], walletBalances: {}, teamSsoSettingsByTeam: {},
 };
 
+const SSO_DOMAIN_PATTERN =
+	/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
+const UUID_PATTERN =
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export function normalizeWorkspaceSsoUpdate(body: Record<string, unknown>) {
+	const requestedMode = String(body.ssoMode ?? "none").trim().toLowerCase();
+	const mode = requestedMode === "saml" || requestedMode === "custom_oidc"
+		? requestedMode
+		: "none";
+	const enabled = Boolean(body.ssoEnabled);
+	const enforced = enabled && Boolean(body.ssoEnforced);
+	const identifier = mode === "none"
+		? null
+		: String(body.ssoProviderIdentifier ?? "").trim() || null;
+	const rawDomains = Array.isArray(body.ssoDomains)
+		? body.ssoDomains.map((value) =>
+				String(value ?? "").trim().toLowerCase().replace(/^\.+|\.+$/g, ""),
+			)
+		: [];
+	const invalidDomain = rawDomains.find(
+		(domain) => domain.length > 0 && !SSO_DOMAIN_PATTERN.test(domain),
+	);
+	if (invalidDomain) return { error: "invalid_sso_domain" as const };
+	const domains = Array.from(
+		new Set(rawDomains.filter((domain) => SSO_DOMAIN_PATTERN.test(domain))),
+	);
+
+	if (enforced) return { error: "sso_enforcement_not_available" as const };
+	if (enabled && mode === "none") return { error: "sso_mode_required" as const };
+	if (mode === "saml" && identifier && !UUID_PATTERN.test(identifier)) {
+		return { error: "invalid_saml_provider_id" as const };
+	}
+	if (mode === "custom_oidc" && identifier && !identifier.startsWith("custom:")) {
+		return { error: "invalid_provider_identifier" as const };
+	}
+	if (enabled && !identifier) return { error: "sso_provider_required" as const };
+	if (enabled && domains.length === 0) return { error: "sso_domain_required" as const };
+
+	return {
+		value: {
+			sso_enabled: enabled,
+			sso_enforced: false,
+			sso_mode: mode,
+			sso_provider_identifier: identifier,
+			sso_domains: domains,
+		},
+	};
+}
+
 function base64ToBytes(value: string): Uint8Array {
 	return Uint8Array.from(atob(value), (character) => character.charCodeAt(0));
 }
@@ -297,13 +347,9 @@ accountSettingsTeamsRouter.put("/teams/:workspaceId/sso", async (c) => {
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId: c.req.param("workspaceId") });
 	if (!context || !["owner", "admin"].includes(context.role.toLowerCase())) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const body: Record<string, unknown> = await c.req.json<Record<string, unknown>>().catch(() => ({}));
-	const mode = ["saml", "custom_oidc"].includes(String(body.ssoMode)) ? String(body.ssoMode) : "none";
-	const enabled = Boolean(body.ssoEnabled);
-	const identifier = mode === "none" ? null : String(body.ssoProviderIdentifier ?? "").trim() || null;
-	if (mode === "custom_oidc" && identifier && !identifier.startsWith("custom:")) return c.json({ error: "invalid_provider_identifier" }, 400, PRIVATE_NO_STORE_HEADERS);
-	const domainPattern = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
-	const domains = Array.from(new Set((Array.isArray(body.ssoDomains) ? body.ssoDomains : []).map((value) => String(value ?? "").trim().toLowerCase().replace(/^\.+|\.+$/g, "")).filter((value) => domainPattern.test(value))));
-	const payload = { workspace_id: context.workspaceId, sso_enabled: enabled, sso_enforced: enabled ? Boolean(body.ssoEnforced) : false, sso_mode: mode, sso_provider_identifier: identifier, sso_domains: domains, updated_at: new Date().toISOString() };
+	const normalized = normalizeWorkspaceSsoUpdate(body);
+	if ("error" in normalized) return c.json({ error: normalized.error }, 400, PRIVATE_NO_STORE_HEADERS);
+	const payload = { workspace_id: context.workspaceId, ...normalized.value, updated_at: new Date().toISOString() };
 	const result = await context.client.from("workspace_settings").upsert(payload, { onConflict: "workspace_id" });
 	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	return c.json({ success: true, workspaceId: context.workspaceId, settings: payload }, 200, PRIVATE_NO_STORE_HEADERS);
