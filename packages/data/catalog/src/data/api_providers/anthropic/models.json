@@ -1318,14 +1318,14 @@
     "provider_api_model_id": "anthropic:anthropic/claude-opus-5",
     "provider_model_slug": "claude-opus-5",
     "internal_model_id": "anthropic/claude-opus-5",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 1000000,
     "max_output_tokens": 128000,
     "effective_from": "2026-05-28T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-07-24T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1405,8 +1405,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": [
         "global",

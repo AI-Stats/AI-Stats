@@ -4247,5 +4247,8 @@
       "notes": null
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id":"bytedance/seed-2.1-turbo","provider_api_model_id":"venice:bytedance/seed-2.1-turbo","provider_model_slug":"seed-2-1-turbo","internal_model_id":"bytedance/seed-2.1-turbo","is_active_gateway":true,"quantization_scheme":null,"input_modalities":"text,image,video","output_modalities":"text","context_length":256000,"max_output_tokens":65536,"effective_from":"2026-07-24T00:00:00","effective_to":null,"capabilities":[{"capability_id":"text.generate","status":"active","params":[],"reasoning":true,"tool_call":true,"structured_output":true,"temperature":null,"attachment":true,"input_modalities":null,"output_modalities":null,"modes":[]}],"routing_status":"active","routable":true,"regions":{"execution":null,"data":null},"service_tiers":[],"api":{"formats":[],"endpoint":null,"deployment":null},"sources":[{"url":"https://api.venice.ai/api/v1/models","kind":"api"}],"verification":{"status":"verified","checked_at":"2026-07-24T00:00:00Z","notes":"Official Venice models API; model id seed-2-1-turbo."},"rate_limits":[]
   }
 ]

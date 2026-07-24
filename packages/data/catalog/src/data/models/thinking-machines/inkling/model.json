@@ -54,11 +54,11 @@
     },
     {
       "name": "availability_note",
-      "value": "Full weights are available on Hugging Face. Tinker exposes Inkling for sampling and fine-tuning, Together AI offers serverless inference, and Baseten offers Model API inference."
+      "value": "Full weights are available on Hugging Face. Tinker exposes Inkling for sampling and fine-tuning, Together AI and DeepInfra offer serverless inference, and Baseten offers Model API inference."
     },
     {
       "name": "confirmed_api_providers",
-      "value": "Tinker (beta sampling and fine-tuning API); Together AI (serverless); Baseten (Model API)"
+      "value": "Tinker (beta sampling and fine-tuning API); Together AI and DeepInfra (serverless); Baseten (Model API)"
     },
     {
       "name": "weights_distribution",
@@ -110,6 +110,12 @@
       "url": "https://thinkingmachines.ai/model-card/inkling/",
       "accessed_at": null,
       "notes": null
+    },
+    {
+      "kind": "api",
+      "url": "https://api.deepinfra.com/models/list",
+      "accessed_at": "2026-07-24T00:00:00Z",
+      "notes": "Official DeepInfra model list confirms thinkingmachines/Inkling availability and limits."
     },
     {
       "kind": "model",
