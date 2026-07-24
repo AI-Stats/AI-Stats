@@ -87,7 +87,7 @@ export default async function Page({
 	const apiProvider = resolved.apiProvider;
 	const header = await fetchProviderMeta(apiProvider);
 
-	// Generate structured data and FAQs for SEO
+	// Generate structured data for the provider page.
 	const generateStructuredData = () => {
 		if (!header) return null;
 
@@ -99,54 +99,6 @@ export default async function Page({
 			"@type": "Organization",
 			"name": providerName,
 			"description": `${providerName} is an AI API provider tracked on Phaseo. View real-world performance analytics, latency metrics, throughput data, and popular models.`,
-		};
-
-		// FAQ Schema
-		const faqSchema = {
-			"@context": "https://schema.org",
-			"@type": "FAQPage",
-			"mainEntity": [
-				{
-					"@type": "Question",
-					"name": `What is ${providerName}?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `${providerName} is an AI API provider that offers access to various AI models. On Phaseo, you can view real-world performance metrics captured by the Phaseo Gateway, including latency, throughput, and reliability data.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `How is ${providerName} performance measured?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `${providerName} performance is measured using real-world data from the Phaseo Gateway. We track metrics including average latency (time to first token and total generation time), throughput (tokens per second), request success rates, and API reliability across different models and endpoints.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `What models are available on ${providerName}?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `${providerName} offers various AI models across different modalities. Check the Top Models section on Phaseo to see which models are most popular, their performance characteristics, and usage statistics. You can also compare models across different providers.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `How does ${providerName} compare to other providers?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `Compare ${providerName} against other AI API providers on Phaseo by viewing side-by-side performance metrics, pricing data, model availability, and real-world usage statistics. Use our comparison tools to find the best provider for your specific use case.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `What apps use ${providerName}?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `See which applications and services rely on ${providerName} in the Top Apps section on Phaseo. We track real-world usage patterns to show you how developers are integrating ${providerName} into their products.`,
-					},
-				},
-			],
 		};
 
 		// Breadcrumb Schema
@@ -175,7 +127,7 @@ export default async function Page({
 			],
 		};
 
-		return { organizationSchema, faqSchema, breadcrumbSchema };
+		return { organizationSchema, breadcrumbSchema };
 	};
 
 	const structuredData = generateStructuredData();
@@ -189,13 +141,6 @@ export default async function Page({
 						type="application/ld+json"
 						dangerouslySetInnerHTML={{
 							__html: JSON.stringify(structuredData.organizationSchema),
-						}}
-					/>
-					<Script
-						id="provider-faq-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.faqSchema),
 						}}
 					/>
 					<Script
