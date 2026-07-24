@@ -5,18 +5,10 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import Script from "next/script";
-
-function parseScore(score: string | number | null | undefined): number | null {
-	if (score == null) return null;
-	if (typeof score === "number") return Number.isFinite(score) ? score : null;
-	if (typeof score === "string") {
-		const match = score.match(/[-+]?[0-9]*\.?[0-9]+/);
-		if (!match) return null;
-		const parsed = Number.parseFloat(match[0]);
-		return Number.isFinite(parsed) ? parsed : null;
-	}
-	return null;
-}
+import {
+	buildBenchmarkMetadataDescription,
+	buildBenchmarkMetadataTitle,
+} from "@/lib/benchmarks/metadata";
 
 async function fetchBenchmark(benchmarkId: string) {
 	try {
@@ -57,51 +49,11 @@ export async function generateMetadata(props: {
 	}
 
 	const cleanName: string = benchmark.name ?? "AI benchmark";
-	const results = benchmark.results ?? [];
-	const orderHints = results
-		.map(
-			(result: any) => result?.benchmark?.order ?? result?.benchmark_order
-		)
-		.filter((value: unknown): value is string => typeof value === "string");
-	const isLowerBetter = orderHints.some(
-		(order) => order.toLowerCase() === "lower"
-	);
-
-	let bestScore: { value: number; modelName: string } | null = null;
-	for (const result of results) {
-		const numericScore = parseScore(result.score);
-		if (numericScore != null) {
-			const shouldReplace =
-				!bestScore ||
-				(isLowerBetter
-					? numericScore < bestScore.value
-					: numericScore > bestScore.value);
-			if (shouldReplace) {
-				bestScore = {
-					value: numericScore,
-					modelName:
-						result.model?.name ??
-						result.model_id ??
-						"Unknown model",
-				};
-			}
-		}
-	}
-
-	const topPerformer = bestScore?.modelName ?? null;
 	const modelCount = benchmark.results?.length ?? 0;
 
-	const descriptionParts: (string | undefined)[] = [
-		`${cleanName} benchmark leaderboard on Phaseo.`,
-		modelCount
-			? `See ${modelCount} scored models, track historical performance, and inspect the underlying methodology.`
-			: undefined,
-		topPerformer ? `Current top model: ${topPerformer}.` : undefined,
-	];
-
 	return buildMetadata({
-		title: `${cleanName} Benchmark`,
-		description: descriptionParts.filter(Boolean).join(" "),
+		title: buildBenchmarkMetadataTitle(cleanName),
+		description: buildBenchmarkMetadataDescription(cleanName, modelCount),
 		path,
 		keywords: [
 			cleanName,
