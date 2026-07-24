@@ -3774,5 +3774,64 @@
       "notes": "Provider support imported from models.dev; routing remains disabled."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.8",
+    "provider_api_model_id": "poe:anthropic/claude-opus-4.8",
+    "provider_model_slug": "anthropic/claude-opus-4.8",
+    "internal_model_id": "anthropic/claude-opus-4.8",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,pdf",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models.dev",
+        "url": "https://models.dev/api.json",
+        "accessed_at": "2026-07-23T09:08:52.190Z",
+        "notes": "Provider model slug: anthropic/claude-opus-4.8"
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-07-23T09:08:52.190Z",
+      "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
   }
 ]

@@ -259,6 +259,16 @@ inline Response ListBatchesAlias(Client& client, const std::map<std::string, std
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListBatchFiles(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batches/files";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListBatchFilesAlias(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batch/files";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListBatchModels(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/batches/models";
 	return client.request("GET", resolved_path, body);
