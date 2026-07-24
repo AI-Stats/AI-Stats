@@ -34,7 +34,6 @@ import type {
 import { modelsCatalogueV2Flag } from "@/lib/flags";
 import { isAdminViewer } from "@/lib/auth/getViewerRole";
 import { withMissingCatalogPricing } from "@/lib/models/withMissingCatalogPricing";
-import Link from "next/link";
 
 export const metadata: Metadata = buildMetadata({
 	title: "Models",
@@ -1489,24 +1488,9 @@ export default async function ModelsPage() {
 	const catalogueVersion: ModelsCatalogueVersion =
 		(await isAdminViewer()) && (await modelsCatalogueV2Flag()) ? "v2" : "v1";
 
-	return (
-		<>
-			{catalogueVersion === "v2" ? (
-				<ModelsDisplay dataPromise={loadModelsPageData("v2")} />
-			) : (
-				<ModelsPageClient />
-			)}
-			<nav
-				aria-label="Model directory"
-				className="border-t border-border/70 px-4 py-6 text-center text-sm lg:px-8"
-			>
-				<Link
-					href="/models/directory"
-					className="font-medium underline underline-offset-4"
-				>
-					Browse the complete alphabetical model directory
-				</Link>
-			</nav>
-		</>
+	return catalogueVersion === "v2" ? (
+		<ModelsDisplay dataPromise={loadModelsPageData("v2")} />
+	) : (
+		<ModelsPageClient />
 	);
 }
