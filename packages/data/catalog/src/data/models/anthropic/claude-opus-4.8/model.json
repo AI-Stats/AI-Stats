@@ -20,11 +20,6 @@
       "url": "https://www.anthropic.com/news/claude-opus-4-8"
     },
     {
-      "title": "Docs",
-      "kind": "docs",
-      "url": "https://docs.anthropic.com/en/docs/about-claude/models/whats-new-claude-4-8"
-    },
-    {
       "title": "Model Card",
       "kind": "model_card",
       "url": "https://www.anthropic.com/claude-opus-4-8-system-card"
