@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import ModelsPageClient from "@/components/(data)/models/Models/ModelsPageClient";
-import { isAdminViewer } from "@/lib/auth/getViewerRole";
-import { modelsCatalogueV2Flag } from "@/lib/flags";
+import { resolveModelsCatalogueVersion } from "@/lib/flags";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -19,9 +18,7 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function ModelsPage() {
-	const isAdmin = await isAdminViewer();
-	const catalogueVersion =
-		isAdmin && (await modelsCatalogueV2Flag()) ? "v2" : "v1";
-
-	return <ModelsPageClient catalogueVersion={catalogueVersion} />;
+	return (
+		<ModelsPageClient catalogueVersion={await resolveModelsCatalogueVersion()} />
+	);
 }

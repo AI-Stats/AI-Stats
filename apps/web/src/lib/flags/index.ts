@@ -3,6 +3,7 @@ import "server-only";
 import { flag } from "flags/next";
 import type { StatsigUser } from "@flags-sdk/statsig";
 
+import { isAdminViewer } from "@/lib/auth/getViewerRole";
 import { getServerStatsigUser, getStatsigFlagsAdapter } from "@/lib/statsig/server";
 import {
 	BATCH_API_GATE,
@@ -33,6 +34,10 @@ export const modelsCatalogueV2Flag = flag<boolean>({
 		);
 	},
 });
+
+export async function resolveModelsCatalogueVersion(): Promise<"v1" | "v2"> {
+	return (await isAdminViewer()) && (await modelsCatalogueV2Flag()) ? "v2" : "v1";
+}
 
 export const gatewayNewHeroFlag = statsigAdapter
 	? flag<boolean, StatsigUser>({

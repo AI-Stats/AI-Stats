@@ -88,6 +88,12 @@ describe("public model routes", () => {
 				gateway_provider_count: 1, gateway_active_provider_count: 1, gateway_endpoints: ["responses"],
 				gateway_input_modalities: ["text"], gateway_output_modalities: ["text"], gateway_features: ["tools"],
 				gateway_tiers: ["standard"], gateway_execution_regions: ["us"], gateway_provider_names: ["OpenAI"],
+				lowest_standard_input_price: 0.3, lowest_standard_input_price_unit: "billing unit",
+				lowest_standard_output_price: 1.2, lowest_standard_output_price_unit: "billing unit",
+				pricing_detail_rows: [
+					{ meter_key: "input_text_tokens", price: 0.3, display_unit: "1M tokens", unit_quantity: 1_000_000 },
+					{ meter_key: "output_text_tokens", price: 1.2, display_unit: "1M tokens", unit_quantity: 1_000_000 },
+				],
 			}]), { status: 200 });
 			if (url.includes("get_public_free_router_overview")) return new Response(JSON.stringify({
 				summary: { eligibleModels: 1, eligibleProviders: 1, routedRequests30d: 10, totalCostNanos30d: 0 },
@@ -114,7 +120,15 @@ describe("public model routes", () => {
 			total: 2,
 			models: [
 				{ model_id: "phaseo/free" },
-				{ model_id: "openai/gpt-test" },
+				{
+					model_id: "openai/gpt-test",
+					lowest_standard_input_price_unit: "1M tokens",
+					lowest_standard_output_price_unit: "1M tokens",
+					pricing_detail_rows: [
+						{ label: "Input Text Tokens", value: "$0.3 / 1M tokens" },
+						{ label: "Output Text Tokens", value: "$1.2 / 1M tokens" },
+					],
+				},
 			],
 			facets: { statusCounts: { active: 2 } },
 		});
@@ -190,6 +204,17 @@ describe("public model routes", () => {
 		expect(payload.models[0].provider).not.toHaveProperty("standardInputPrice");
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("v2_models?"))).toBe(false);
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("data_models?"))).toBe(false);
+
+		const laterPageResponse = await app.request(
+			"https://phaseo.app/api/_web/models?catalogue_version=v2&shape=table&projection=2&limit=10000&offset=20000",
+			{},
+			env,
+		);
+		expect(laterPageResponse.status).toBe(200);
+		await expect(laterPageResponse.json()).resolves.toMatchObject({
+			offset: 20_000,
+			models: [],
+		});
 	});
 
 	it("marks the compatibility catalogue as needing pricing enrichment before the page RPC is deployed", async () => {

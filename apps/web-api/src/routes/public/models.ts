@@ -635,7 +635,11 @@ publicModelsRouter.get("/", async (c) => {
 			1,
 			parseBoundedInt(c.req.query("limit"), 100, shape === "table" ? 10_000 : 2_000),
 		);
-		const offset = parseBoundedInt(c.req.query("offset"), 0, 10_000);
+		const offset = parseBoundedInt(
+			c.req.query("offset"),
+			0,
+			shape === "table" ? Number.MAX_SAFE_INTEGER : 10_000,
+		);
 		const search = c.req.query("search")?.trim();
 		const region = c.req.query("region")?.trim().toLowerCase() || null;
 		const serviceTier = c.req.query("service_tier")?.trim().toLowerCase() || null;

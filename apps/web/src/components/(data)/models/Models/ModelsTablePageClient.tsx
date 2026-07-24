@@ -6,8 +6,8 @@ import {
 	fetchModelsTableData,
 	fetchModelsTableDataV2,
 } from "@/lib/swr/modelsTable";
-import ModelsTableDisplay from "./ModelsTableDisplay";
-import { ModelsTablePageSkeleton } from "./ModelsTablePageSkeleton";
+import ModelsTableDisplay from "@/components/(data)/models/Models/ModelsTableDisplay";
+import { ModelsTablePageSkeleton } from "@/components/(data)/models/Models/ModelsTablePageSkeleton";
 
 type ModelsTablePageClientProps = {
 	catalogueVersion?: "v1" | "v2";

@@ -36,25 +36,30 @@ function sortFeatures(features: string[]): string[] {
 	});
 }
 
+function assertTablePage(
+	page: ModelsTableResponse,
+	expectedVersion: ModelsCatalogueVersion,
+	requireFacets = false,
+): void {
+	if (page.catalogue_version !== expectedVersion) {
+		throw new Error(
+			`Models table API returned catalogue ${page.catalogue_version ?? "unknown"} for ${expectedVersion} request`,
+		);
+	}
+	if (page.shape !== "table") {
+		throw new Error("Models table API returned an invalid response shape");
+	}
+	if (requireFacets && !page.facets) {
+		throw new Error("Models table API response did not include filter facets");
+	}
+}
+
 async function fetchModelsTableDataForVersion(
 	path: string,
 	expectedVersion: ModelsCatalogueVersion,
 ): Promise<ModelsTableData> {
 	const firstPage = await publicSWRFetcher<ModelsTableResponse>(path);
-	if (
-		firstPage.catalogue_version &&
-		firstPage.catalogue_version !== expectedVersion
-	) {
-		throw new Error(
-			`Models table API returned catalogue ${firstPage.catalogue_version} for ${expectedVersion} request`,
-		);
-	}
-	if (firstPage.shape !== "table") {
-		throw new Error("Models table API returned an invalid response shape");
-	}
-	if (!firstPage.facets) {
-		throw new Error("Models table API response did not include filter facets");
-	}
+	assertTablePage(firstPage, expectedVersion, true);
 
 	const pageSize = Math.max(1, firstPage.limit || 10_000);
 	const offsets: number[] = [];
@@ -70,13 +75,14 @@ async function fetchModelsTableDataForVersion(
 			);
 		}),
 	);
+	for (const page of laterPages) assertTablePage(page, expectedVersion);
 
 	return {
 		models: [firstPage, ...laterPages].flatMap((page) => page.models),
-		allEndpoints: firstPage.facets.endpoints ?? [],
-		allModalities: firstPage.facets.modalities ?? [],
-		allFeatures: sortFeatures(firstPage.facets.features ?? []),
-		allStatuses: firstPage.facets.statuses ?? [],
+		allEndpoints: firstPage.facets?.endpoints ?? [],
+		allModalities: firstPage.facets?.modalities ?? [],
+		allFeatures: sortFeatures(firstPage.facets?.features ?? []),
+		allStatuses: firstPage.facets?.statuses ?? [],
 	};
 }
 

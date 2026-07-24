@@ -1,5 +1,8 @@
 import type { MonitorModelTableRow } from "@/lib/fetchers/models/table-view/types";
-import { fetchModelsTableData, fetchModelsTableDataV2 } from "./modelsTable";
+import {
+	fetchModelsTableData,
+	fetchModelsTableDataV2,
+} from "@/lib/swr/modelsTable";
 
 function row(id: string): MonitorModelTableRow {
 	return {
@@ -81,5 +84,22 @@ describe("fetchModelsTableData", () => {
 		await expect(fetchModelsTableDataV2(
 			"/api/_web/models?shape=table&catalogue_version=v2",
 		)).rejects.toThrow("invalid response shape");
+	});
+
+	it("rejects a later page from a different catalogue version", async () => {
+		global.fetch = jest
+			.fn()
+			.mockResolvedValueOnce(new Response(JSON.stringify({
+				models: [row("one")], facets, catalogue_version: "v2", shape: "table",
+				total: 2, limit: 1, offset: 0,
+			})))
+			.mockResolvedValueOnce(new Response(JSON.stringify({
+				models: [row("two")], catalogue_version: "v1", shape: "table",
+				total: 2, limit: 1, offset: 1,
+			})));
+
+		await expect(fetchModelsTableDataV2(
+			"/api/_web/models?limit=1&shape=table&catalogue_version=v2",
+		)).rejects.toThrow("returned catalogue v1 for v2 request");
 	});
 });
