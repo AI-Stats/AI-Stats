@@ -8,6 +8,16 @@ on:
     merge_group:
         types: [checks_requested]
     workflow_dispatch:
+        inputs:
+            importer_mode:
+                description: "Explicit production importer action"
+                required: false
+                type: choice
+                options:
+                    - skip
+                    - dry-run
+                    - run
+                default: skip
 
 permissions:
     contents: read
@@ -225,7 +235,10 @@ jobs:
         needs:
             - data
             - check-paths
-        if: needs.check-paths.outputs.data-changed == 'true' && github.ref == 'refs/heads/main'
+        if: >-
+            always() && needs.data.result == 'success' && github.ref == 'refs/heads/main' &&
+            ((github.event_name == 'push' && needs.check-paths.outputs.data-changed == 'true') ||
+            (github.event_name == 'workflow_dispatch' && inputs.importer_mode != 'skip'))
         env:
             SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
             NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
@@ -277,10 +290,14 @@ jobs:
               shell: bash
               run: |
                   set -euo pipefail
+                  importer_args=(--section=all)
+                  if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.importer_mode }}" == "dry-run" ]]; then
+                    importer_args+=(--dry-run)
+                  fi
                   for attempt in 1 2 3; do
                     echo "Running importer attempt ${attempt}/3"
                     set +e
-                    (cd apps/web && pnpm exec tsx scripts/importer/main.ts --section=all)
+                    (cd apps/web && pnpm exec tsx scripts/importer/main.ts "${importer_args[@]}")
                     exit_code=$?
                     set -e
                     if [ "${exit_code}" -eq 0 ]; then
@@ -301,7 +318,7 @@ jobs:
                   exit 1
 
             - name: Save importer hash state
-              if: success()
+              if: success() && inputs.importer_mode != 'dry-run'
               uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
               with:
                   path: packages/data/catalog/src/data/.import-state.json
@@ -309,7 +326,7 @@ jobs:
 
             - name: Prepare importer state update
               id: importer-state-update
-              if: success() && env.SUPABASE_SERVICE_ROLE_KEY != '' && env.NEXT_PUBLIC_SUPABASE_URL != ''
+              if: success() && inputs.importer_mode != 'dry-run' && env.SUPABASE_SERVICE_ROLE_KEY != '' && env.NEXT_PUBLIC_SUPABASE_URL != ''
               env:
                   GH_TOKEN: ${{ steps.importer-app-token.outputs.token }}
               shell: bash
@@ -567,9 +584,8 @@ jobs:
         # Merge-queue commits can contain PR-controlled code. Keep merge_group
         # for validation jobs, but never give it this job's Vercel credentials.
         if: >
-            github.event_name == 'workflow_dispatch' ||
+            github.event_name == 'pull_request' &&
             (
-                github.event_name == 'pull_request' &&
                 !startsWith(github.head_ref, 'chore/auto-model-statuses') &&
                 github.event.pull_request.head.repo.full_name == github.repository &&
                 contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
@@ -651,7 +667,7 @@ jobs:
         runs-on: ubuntu-latest
         needs:
             - apps
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event_name != 'workflow_dispatch'
         permissions:
             contents: read
         strategy:
@@ -770,7 +786,7 @@ jobs:
             - packages
             - sdk-lifecycle-tests
             - apps
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event_name != 'workflow_dispatch'
         env:
             NPM_CONFIG_PROVENANCE: true
         permissions:
