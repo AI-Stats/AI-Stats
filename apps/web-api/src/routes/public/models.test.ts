@@ -79,6 +79,50 @@ describe("public model routes", () => {
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_public_model_catalogue_rows"))).toBe(false);
 	});
 
+	it("serves the V2 models page from the compact page projection", async () => {
+		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("get_public_models_page_rows")) return new Response(JSON.stringify([{
+				model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", organisation_name: "OpenAI",
+				primary_date: "2026-01-02", gateway_status: "active",
+				gateway_provider_count: 1, gateway_active_provider_count: 1, gateway_endpoints: ["responses"],
+				gateway_input_modalities: ["text"], gateway_output_modalities: ["text"], gateway_features: ["tools"],
+				gateway_tiers: ["standard"], gateway_execution_regions: ["us"], gateway_provider_names: ["OpenAI"],
+			}]), { status: 200 });
+			if (url.includes("get_public_free_router_overview")) return new Response(JSON.stringify({
+				summary: { eligibleModels: 1, eligibleProviders: 1, routedRequests30d: 10, totalCostNanos30d: 0 },
+				models: [{ modelId: "openai/gpt-test", inputModalities: ["text"], outputModalities: ["text"] }],
+			}), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models?catalogue_version=v2&shape=page&projection=6&limit=2000",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get("cache-tag")).toContain("web-api-models-v2");
+		expect(response.headers.get("cache-tag")).toContain("web-api-free-router-overview");
+		await expect(response.json()).resolves.toMatchObject({
+			catalogue_version: "v2",
+			shape: "page",
+			projection: 6,
+			pricing_complete: true,
+			total: 2,
+			models: [
+				{ model_id: "phaseo/free" },
+				{ model_id: "openai/gpt-test" },
+			],
+			facets: { statusCounts: { active: 2 } },
+		});
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_monitor_model_rows"))).toBe(false);
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("v2_models?"))).toBe(false);
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_public_models_page_rows"))).toBe(true);
+	});
+
 	it("marks the compatibility catalogue as needing pricing enrichment before the page RPC is deployed", async () => {
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);

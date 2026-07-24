@@ -39,6 +39,11 @@ overrides:
   zod@^3: ^3.22.3
   '@mintlify/previewing>tar': 7.5.19
 
+patchedDependencies:
+  statsig-node-lite@0.5.2:
+    hash: 4b22479fa440a62c2ffe3ec4dbd760714912cabba77efa9fdf5fb25fea58c6cd
+    path: patches/statsig-node-lite@0.5.2.patch
+
 importers:
 
   .:
@@ -12138,7 +12143,7 @@ snapshots:
     dependencies:
       '@vercel/edge-config': 1.4.3(@opentelemetry/api@1.9.1)(next@16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
       '@vercel/functions': 1.6.0
-      statsig-node-lite: 0.5.2
+      statsig-node-lite: 0.5.2(patch_hash=4b22479fa440a62c2ffe3ec4dbd760714912cabba77efa9fdf5fb25fea58c6cd)
       statsig-node-vercel: 0.7.0(@vercel/edge-config@1.4.3(@opentelemetry/api@1.9.1)(next@16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))
     transitivePeerDependencies:
       - '@aws-sdk/credential-provider-web-identity'
@@ -22329,7 +22334,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  statsig-node-lite@0.5.2:
+  statsig-node-lite@0.5.2(patch_hash=4b22479fa440a62c2ffe3ec4dbd760714912cabba77efa9fdf5fb25fea58c6cd):
     dependencies:
       node-fetch: 2.7.0
       ua-parser-js: 1.0.41

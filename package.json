@@ -164,6 +164,9 @@
 			"yaml": "^2.9.0",
 			"zod@^3": "^3.22.3",
 			"@mintlify/previewing>tar": "7.5.19"
+		},
+		"patchedDependencies": {
+			"statsig-node-lite@0.5.2": "patches/statsig-node-lite@0.5.2.patch"
 		}
 	}
 }

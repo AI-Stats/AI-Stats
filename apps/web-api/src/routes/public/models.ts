@@ -521,9 +521,11 @@ publicModelsRouter.get("/", async (c) => {
 		const search = c.req.query("search")?.trim();
 		const region = c.req.query("region")?.trim().toLowerCase() || null;
 		const serviceTier = c.req.query("service_tier")?.trim().toLowerCase() || null;
-		if (c.req.query("shape") === "page" && catalogueVersion === "v1") {
+		if (c.req.query("shape") === "page") {
 			const projection = parseBoundedInt(c.req.query("projection"), 4, 100);
 			const includeVirtual = projection >= 5;
+			// The compact page RPC is backed by the canonical V2 tables and emits
+			// the stable card contract used by both catalogue versions.
 			const [catalogue, freeRouter] = await Promise.all([
 				fetchModelsPageCatalogue(c.env, { region, serviceTier }),
 				includeVirtual ? fetchFreeRouterOverview(c.env) : Promise.resolve(null),
