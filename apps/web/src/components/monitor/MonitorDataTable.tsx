@@ -597,6 +597,7 @@ export function MonitorDataTable({
 		parse: (value) => (value === "asc" ? "asc" : DEFAULT_SORT_DIRECTION),
 		serialize: (value) => value,
 	});
+	const previousSortRef = useRef(`${sortField}:${sortDirection}`);
 
 	const handleSort = (field: string) => {
 		const defaultDirection: "asc" | "desc" = "desc";
@@ -897,10 +898,24 @@ export function MonitorDataTable({
 	const rowVirtualizer = useWindowVirtualizer({
 		count: filteredSortedData.length,
 		estimateSize: () => 52,
-		overscan: 20,
+		overscan: 8,
 		scrollMargin,
+		scrollPaddingStart: stickyHeaderOffset,
 		enabled: shouldVirtualizeRows,
 	});
+	useEffect(() => {
+		const sortSignature = `${sortField}:${sortDirection}`;
+		if (previousSortRef.current === sortSignature) return;
+		previousSortRef.current = sortSignature;
+		if (!shouldVirtualizeRows || filteredSortedData.length === 0) return;
+		rowVirtualizer.scrollToIndex(0, { align: "start" });
+	}, [
+		filteredSortedData,
+		rowVirtualizer,
+		shouldVirtualizeRows,
+		sortDirection,
+		sortField,
+	]);
 	const virtualRows = rowVirtualizer.getVirtualItems();
 	const deferredVirtualRows = useDeferredValue(virtualRows);
 	const rowsToRender = shouldVirtualizeRows

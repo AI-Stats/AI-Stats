@@ -11,13 +11,27 @@ type PublicModelsResponse = {
 	models: ModelsPageModel[];
 	facets?: ModelsFilterFacets;
 	pricing_complete?: boolean;
+	catalogue_version?: "v1" | "v2";
 	total: number;
 	limit: number;
 	offset: number;
 };
 
-export async function fetchModelsPageData(path: string): Promise<ModelsPageData> {
+type ModelsCatalogueVersion = "v1" | "v2";
+
+async function fetchModelsPageDataForVersion(
+	path: string,
+	expectedVersion: ModelsCatalogueVersion,
+): Promise<ModelsPageData> {
 	const firstPage = await publicSWRFetcher<PublicModelsResponse>(path);
+	if (
+		firstPage.catalogue_version &&
+		firstPage.catalogue_version !== expectedVersion
+	) {
+		throw new Error(
+			`Models API returned catalogue ${firstPage.catalogue_version} for ${expectedVersion} request`,
+		);
+	}
 	const pageSize = Math.max(1, firstPage.limit || 2_000);
 	const pageOffsets: number[] = [];
 	for (let offset = pageSize; offset < firstPage.total; offset += pageSize) {
@@ -47,4 +61,12 @@ export async function fetchModelsPageData(path: string): Promise<ModelsPageData>
 	}
 
 	return { models, facets: firstPage.facets };
+}
+
+export function fetchModelsPageData(path: string): Promise<ModelsPageData> {
+	return fetchModelsPageDataForVersion(path, "v1");
+}
+
+export function fetchModelsPageDataV2(path: string): Promise<ModelsPageData> {
+	return fetchModelsPageDataForVersion(path, "v2");
 }

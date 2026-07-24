@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
 	MonitorDataTable,
 	type ModelData,
@@ -30,8 +31,8 @@ export function MonitorTableClient({
 	stickyHeaderOffset,
 }: MonitorTableClientProps) {
 	// Convert MonitorModelData to ModelData format for the table
-	const modelData: ModelData[] = initialModelData.map((item) => {
-		return {
+	const modelData = useMemo<ModelData[]>(
+		() => initialModelData.map((item) => ({
 			id: item.id,
 			model: formatModelDisplayName(
 				item.model,
@@ -52,8 +53,9 @@ export function MonitorTableClient({
 			added: item.added,
 			retired: item.retired,
 			popularityTokensWeek: item.popularityTokensWeek ?? 0,
-		};
-	});
+		})),
+		[initialModelData],
+	);
 
 	return (
 		<MonitorDataTable

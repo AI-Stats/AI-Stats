@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import {
-	Suspense,
-	use,
 	useCallback,
 	useDeferredValue,
 	useEffect,
@@ -101,8 +99,7 @@ import type {
 } from "./modelsDisplay.types";
 
 interface ModelsDisplayProps {
-	dataPromise?: Promise<ModelsPageData>;
-	modelsPageData?: ModelsPageData;
+	modelsPageData: ModelsPageData;
 	showPrimaryHeader?: boolean;
 }
 
@@ -923,34 +920,12 @@ function OutputModalityButtonRow({
 }
 
 export default function ModelsDisplay({
-	dataPromise,
 	modelsPageData,
 	showPrimaryHeader = true,
 }: ModelsDisplayProps) {
-	return (
-		<Suspense fallback={null}>
-			<ModelsDisplayData
-				dataPromise={dataPromise}
-				modelsPageData={modelsPageData}
-				showPrimaryHeader={showPrimaryHeader}
-			/>
-		</Suspense>
-	);
-}
-
-function ModelsDisplayData({
-	dataPromise,
-	modelsPageData,
-	showPrimaryHeader = true,
-}: ModelsDisplayProps) {
-	const serverData = dataPromise ? use(dataPromise) : undefined;
-	const resolvedModelsPageData = serverData ?? modelsPageData;
-
-	if (!resolvedModelsPageData) return null;
-
 	return (
 		<ModelsDisplayContent
-			modelsPageData={resolvedModelsPageData}
+			modelsPageData={modelsPageData}
 			showPrimaryHeader={showPrimaryHeader}
 		/>
 	);
