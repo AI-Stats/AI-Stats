@@ -361,11 +361,14 @@ export async function fetchGatewayMonitorRows(
 		const modelId = String(row.model_id ?? row.api_model_id ?? "").trim();
 		const providerId = String(row.provider_id ?? "").trim();
 		const apiModelId = String(row.api_model_id ?? "").trim();
+		const providerModelId = String(
+			row.provider_api_model_id ?? row.provider_model_slug ?? apiModelId,
+		).trim();
 		const capabilityId = String(row.capability_id ?? "").trim();
-		if (!modelId || !providerId || !apiModelId || !capabilityId) continue;
+		if (!modelId || !providerId || !apiModelId || !providerModelId || !capabilityId) continue;
 		const params = row.capability_params;
 		const monitorRow = {
-			id: `${modelId}-${providerId}-${capabilityId}`,
+			id: `${modelId}::${providerId}::${providerModelId}::${capabilityId}`,
 			model: String(row.model_name ?? modelId).trim() || modelId,
 			modelId,
 			apiModelId,
@@ -654,6 +657,7 @@ publicModelsRouter.get("/", async (c) => {
 			return response;
 		}
 		if (shape === "table") {
+			const projection = parseBoundedInt(c.req.query("projection"), 2, 100);
 			const payload = buildModelsTablePayload(
 				await fetchGatewayMonitorRows(c.env, catalogueVersion),
 			);
@@ -667,7 +671,7 @@ publicModelsRouter.get("/", async (c) => {
 					offset,
 					catalogue_version: catalogueVersion,
 					shape: "table",
-					projection: 1,
+					projection,
 				}),
 				cataloguePolicy(catalogueVersion),
 			);

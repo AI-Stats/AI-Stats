@@ -50,7 +50,7 @@ describe("fetchModelsTableData", () => {
 		global.fetch = fetchMock;
 
 		const result = await fetchModelsTableData(
-			"/api/_web/models?limit=1&offset=0&shape=table&projection=1",
+			"/api/_web/models?limit=1&offset=0&shape=table&projection=2",
 		);
 
 		expect(result.models.map((model) => model.id)).toEqual(["one", "two"]);

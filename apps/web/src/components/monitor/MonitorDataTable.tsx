@@ -597,6 +597,7 @@ export function MonitorDataTable({
 		parse: (value) => (value === "asc" ? "asc" : DEFAULT_SORT_DIRECTION),
 		serialize: (value) => value,
 	});
+	const previousSortRef = useRef(`${sortField}:${sortDirection}`);
 
 	const handleSort = (field: string) => {
 		const defaultDirection: "asc" | "desc" = "desc";
@@ -901,6 +902,12 @@ export function MonitorDataTable({
 		scrollMargin,
 		enabled: shouldVirtualizeRows,
 	});
+	useEffect(() => {
+		const sortSignature = `${sortField}:${sortDirection}`;
+		if (previousSortRef.current === sortSignature) return;
+		previousSortRef.current = sortSignature;
+		rowVirtualizer.scrollToIndex(0, { align: "start" });
+	}, [rowVirtualizer, sortDirection, sortField]);
 	const virtualRows = rowVirtualizer.getVirtualItems();
 	const deferredVirtualRows = useDeferredValue(virtualRows);
 	const rowsToRender = shouldVirtualizeRows

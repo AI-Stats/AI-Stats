@@ -126,7 +126,8 @@ describe("public model routes", () => {
 	it("serves compact table rows without loading the nested model catalogue", async () => {
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("get_monitor_model_rows")) return new Response(JSON.stringify([{
+			if (url.includes("get_monitor_model_rows")) {
+				const monitorRow = {
 				model_id: "openai/gpt-test", api_model_id: "openai/gpt-test", model_name: "GPT Test",
 				organisation_id: "openai", organisation_name: "OpenAI", provider_id: "openai",
 				api_provider_name: "OpenAI", capability_id: "responses", capability_status: "active",
@@ -135,7 +136,12 @@ describe("public model routes", () => {
 				input_price: 1, output_price: 2, context_length: 128000,
 				provider_max_output_tokens: 4096, weekly_tokens_model: 100,
 				weekly_tokens_model_provider: 250, model_release_date: "2026-01-02",
-			}]), { status: 200 });
+				};
+				return new Response(JSON.stringify([
+					{ ...monitorRow, provider_api_model_id: "provider-model-a" },
+					{ ...monitorRow, provider_api_model_id: "provider-model-b", input_price: 0.5 },
+				]), { status: 200 });
+			}
 			if (url.includes("get_v2_provider_region_map")) return new Response(JSON.stringify([
 				{ provider_slug: "openai", regions: ["US"] },
 			]), { status: 200 });
@@ -147,7 +153,7 @@ describe("public model routes", () => {
 		vi.stubGlobal("fetch", fetchMock);
 
 		const response = await app.request(
-			"https://phaseo.app/api/_web/models?catalogue_version=v2&shape=table&projection=1&limit=10000",
+			"https://phaseo.app/api/_web/models?catalogue_version=v2&shape=table&projection=2&limit=10000",
 			{},
 			env,
 		);
@@ -155,19 +161,23 @@ describe("public model routes", () => {
 		expect(response.status).toBe(200);
 		expect(response.headers.get("cache-tag")).toContain("web-api-models-v2");
 		const payload = await response.json() as {
-			models: Array<{ provider: Record<string, unknown> }>;
+			models: Array<{ id: string; provider: Record<string, unknown> }>;
 			[key: string]: unknown;
 		};
 		expect(payload).toMatchObject({
 			catalogue_version: "v2",
 			shape: "table",
-			projection: 1,
-			total: 1,
+			projection: 2,
+			total: 2,
 			models: [{
+				id: "openai/gpt-test::openai::provider-model-a::responses",
 				modelId: "openai/gpt-test",
 				provider: { id: "openai", inputPrice: 1, outputPrice: 2, executionRegions: ["us"] },
 				endpoint: "responses",
 				popularityTokensWeek: 250,
+			}, {
+				id: "openai/gpt-test::openai::provider-model-b::responses",
+				provider: { inputPrice: 0.5 },
 			}],
 			facets: {
 				endpoints: ["responses"],
@@ -176,6 +186,7 @@ describe("public model routes", () => {
 				statuses: ["active"],
 			},
 		});
+		expect(new Set(payload.models.map((model) => model.id)).size).toBe(2);
 		expect(payload.models[0].provider).not.toHaveProperty("standardInputPrice");
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("v2_models?"))).toBe(false);
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("data_models?"))).toBe(false);
