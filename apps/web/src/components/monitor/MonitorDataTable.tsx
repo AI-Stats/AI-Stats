@@ -897,7 +897,7 @@ export function MonitorDataTable({
 	const rowVirtualizer = useWindowVirtualizer({
 		count: filteredSortedData.length,
 		estimateSize: () => 52,
-		overscan: 20,
+		overscan: 8,
 		scrollMargin,
 		enabled: shouldVirtualizeRows,
 	});

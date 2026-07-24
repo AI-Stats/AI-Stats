@@ -1,0 +1,41 @@
+"use client";
+
+import useSWR from "swr";
+import { publicSWRKeys } from "@/lib/swr/keys";
+import {
+	fetchModelsTableData,
+	fetchModelsTableDataV2,
+} from "@/lib/swr/modelsTable";
+import ModelsTableDisplay from "./ModelsTableDisplay";
+import { ModelsTablePageSkeleton } from "./ModelsTablePageSkeleton";
+
+type ModelsTablePageClientProps = {
+	catalogueVersion?: "v1" | "v2";
+};
+
+export default function ModelsTablePageClient({
+	catalogueVersion = "v1",
+}: ModelsTablePageClientProps) {
+	const swrKey =
+		catalogueVersion === "v2"
+			? publicSWRKeys.modelsTableV2
+			: publicSWRKeys.modelsTable;
+	const fetcher =
+		catalogueVersion === "v2"
+			? fetchModelsTableDataV2
+			: fetchModelsTableData;
+	const { data, error } = useSWR(swrKey, fetcher);
+
+	if (error) throw error;
+	if (!data) return <ModelsTablePageSkeleton />;
+
+	return (
+		<ModelsTableDisplay
+			initialModelData={data.models}
+			allEndpoints={data.allEndpoints}
+			allModalities={data.allModalities}
+			allFeatures={data.allFeatures}
+			allStatuses={data.allStatuses}
+		/>
+	);
+}

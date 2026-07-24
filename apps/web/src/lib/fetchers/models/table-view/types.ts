@@ -68,6 +68,14 @@ export type MonitorModelTableRow = Pick<
     popularityTokensWeek?: number;
 };
 
+export interface ModelsTableData {
+	models: MonitorModelTableRow[];
+	allEndpoints: string[];
+	allModalities: string[];
+	allFeatures: string[];
+	allStatuses: string[];
+}
+
 export interface MonitorModelFilters {
     search?: string;
     inputModalities?: string[];

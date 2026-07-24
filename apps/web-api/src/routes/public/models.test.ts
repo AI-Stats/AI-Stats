@@ -123,6 +123,64 @@ describe("public model routes", () => {
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_public_models_page_rows"))).toBe(true);
 	});
 
+	it("serves compact table rows without loading the nested model catalogue", async () => {
+		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("get_monitor_model_rows")) return new Response(JSON.stringify([{
+				model_id: "openai/gpt-test", api_model_id: "openai/gpt-test", model_name: "GPT Test",
+				organisation_id: "openai", organisation_name: "OpenAI", provider_id: "openai",
+				api_provider_name: "OpenAI", capability_id: "responses", capability_status: "active",
+				is_active_gateway: true, input_modalities: ["text"], output_modalities: ["text"],
+				capability_params: { properties: { temperature: { type: "number" } } },
+				input_price: 1, output_price: 2, context_length: 128000,
+				provider_max_output_tokens: 4096, weekly_tokens_model: 100,
+				weekly_tokens_model_provider: 250, model_release_date: "2026-01-02",
+			}]), { status: 200 });
+			if (url.includes("get_v2_provider_region_map")) return new Response(JSON.stringify([
+				{ provider_slug: "openai", regions: ["US"] },
+			]), { status: 200 });
+			if (url.includes("v2_providers?")) return new Response(JSON.stringify([
+				{ provider_slug: "openai", status: "active" },
+			]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models?catalogue_version=v2&shape=table&projection=1&limit=10000",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get("cache-tag")).toContain("web-api-models-v2");
+		const payload = await response.json() as {
+			models: Array<{ provider: Record<string, unknown> }>;
+			[key: string]: unknown;
+		};
+		expect(payload).toMatchObject({
+			catalogue_version: "v2",
+			shape: "table",
+			projection: 1,
+			total: 1,
+			models: [{
+				modelId: "openai/gpt-test",
+				provider: { id: "openai", inputPrice: 1, outputPrice: 2, executionRegions: ["us"] },
+				endpoint: "responses",
+				popularityTokensWeek: 250,
+			}],
+			facets: {
+				endpoints: ["responses"],
+				modalities: ["text"],
+				features: [],
+				statuses: ["active"],
+			},
+		});
+		expect(payload.models[0].provider).not.toHaveProperty("standardInputPrice");
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("v2_models?"))).toBe(false);
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("data_models?"))).toBe(false);
+	});
+
 	it("marks the compatibility catalogue as needing pricing enrichment before the page RPC is deployed", async () => {
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
