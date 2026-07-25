@@ -32,16 +32,7 @@ export default function ModelNotFoundState({ modelId }: ModelNotFoundStateProps)
 						Recent announcements can arrive before the public catalogue cache catches up. Try again shortly, or tell us where you found the link.
 					</p>
 
-					<div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-						<Button asChild>
-							<Link href="/models">
-								<ArrowLeft className="h-4 w-4" />
-								Browse models
-							</Link>
-						</Button>
-					</div>
-
-					<div className="mt-7 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+					<div className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
 						<span>Request a Model</span>
 						<a
 							href="https://discord.gg/aQyywCvgZ5"
@@ -62,6 +53,15 @@ export default function ModelNotFoundState({ modelId }: ModelNotFoundStateProps)
 							<Image src="/social/github_dark.svg" alt="" width={15} height={15} className="hidden dark:block" />
 							GitHub
 						</a>
+					</div>
+
+					<div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+						<Button asChild variant="outline">
+							<Link href="/models">
+								<ArrowLeft className="h-4 w-4" />
+								Browse models
+							</Link>
+						</Button>
 					</div>
 				</div>
 			</div>
