@@ -348,14 +348,14 @@ export default function ModelFaqSection({
 
 	return (
 		<section id="faq" className="scroll-mt-28 space-y-4 border-t border-border/60 pt-5">
-			<h2 className="text-center text-xl font-semibold tracking-tight">
+			<h2 className="text-center text-lg font-medium tracking-tight">
 				Frequently Asked Questions
 			</h2>
 			<div className="divide-y divide-border/60 border-y border-border/60">
 				{items.map((item) => (
 					<details key={item.question} className="group">
 						<summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3 text-left marker:content-none [&::-webkit-details-marker]:hidden">
-							<h3 className="text-sm font-semibold sm:text-base">{item.question}</h3>
+							<h3 className="text-sm font-medium">{item.question}</h3>
 							<ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-90" />
 						</summary>
 						<p className="max-w-3xl pb-4 pr-8 text-sm leading-6 text-muted-foreground">{item.answer}</p>
