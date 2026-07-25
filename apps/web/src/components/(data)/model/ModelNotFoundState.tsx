@@ -56,7 +56,7 @@ export default function ModelNotFoundState({ modelId }: ModelNotFoundStateProps)
 					</div>
 
 					<div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-						<Button asChild variant="outline">
+						<Button asChild>
 							<Link href="/models">
 								<ArrowLeft className="h-4 w-4" />
 								Browse models
