@@ -26,7 +26,7 @@ export default function ModelNotFoundState({ modelId }: ModelNotFoundStateProps)
 			<div className="container mx-auto flex min-h-[62vh] w-full flex-1 items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
 				<div className="w-full max-w-2xl text-center">
 					<h1 className="mx-auto max-w-2xl text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
-						The model <span className="font-mono text-[0.9em]">&quot;{requestedModelId}&quot;</span> is not available yet
+						The model <code className="font-mono text-[0.9em]">{`\`${requestedModelId}\``}</code> is not available yet
 					</h1>
 					<p className="mx-auto mt-5 max-w-lg text-sm leading-6 text-muted-foreground sm:text-base">
 						Recent announcements can arrive before the public catalogue cache catches up. Try again shortly, or tell us where you found the link.
@@ -52,7 +52,6 @@ export default function ModelNotFoundState({ modelId }: ModelNotFoundStateProps)
 							<Image src="/social/discord.svg" alt="" width={15} height={15} />
 							Discord
 						</a>
-						<span aria-hidden="true" className="text-border">•</span>
 						<a
 							href="https://github.com/phaseoteam/Phaseo/issues/new"
 							target="_blank"
