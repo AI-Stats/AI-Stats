@@ -53,6 +53,7 @@ const labelOverrides: Partial<Record<KnownLogoId, string>> = {
 	n8n: "n8n",
 	opencode: "OpenCode",
 	openwebui: "Open WebUI",
+	sakana: "Sakana AI",
 	stepfun: "StepFun",
 	"spacex-ai": "SpaceXAI",
 	"zai": "Z.ai",

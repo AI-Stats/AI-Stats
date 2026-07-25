@@ -47,4 +47,13 @@ describe("logos", () => {
 			variant: "color",
 		});
 	});
+
+	test("resolves the Sakana AI logo by catalogue id", () => {
+		expect(resolveLogo("sakana")).toMatchObject({
+			id: "sakana",
+			label: "Sakana AI",
+			src: "/logos/sakana.svg",
+			variant: "color",
+		});
+	});
 });

@@ -349,6 +349,9 @@ export const logoManifest = {
 	sambanova: {
 		color: "/logos/sambanova.svg",
 	},
+	sakana: {
+		color: "/logos/sakana.svg",
+	},
 	sourceful: {
 		light: "/logos/sourceful_light.svg",
 		dark: "/logos/sourceful_dark.svg",
