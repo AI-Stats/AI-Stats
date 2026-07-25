@@ -52,3 +52,6 @@ packages/sdk/sdk-ruby/*.gem
 # React Doctor local scan outputs
 /apps/web/.react-doctor-current.json
 /apps/web/react-doctor-report*.json
+
+# Entire local agent/session metadata
+/.entire/
