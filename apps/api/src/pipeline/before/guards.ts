@@ -286,6 +286,7 @@ export type GuardResult<T> = GuardOk<T> | GuardErr;
 
 type GuardAuthOptions = {
     useKvCache?: boolean;
+    allowOAuthJwt?: boolean;
 };
 
 export async function guardAuth(req: Request, options: GuardAuthOptions = {}): Promise<GuardResult<{
@@ -303,7 +304,10 @@ export async function guardAuth(req: Request, options: GuardAuthOptions = {}): P
     scopes?: string[];
 }>> {
     const requestId = generatePublicId();
-    const auth = await authenticate(req, { useKvCache: options.useKvCache });
+    const auth = await authenticate(req, {
+        useKvCache: options.useKvCache,
+        allowOAuthJwt: options.allowOAuthJwt,
+    });
     if (!auth.ok) {
         const reason = (auth as AuthFailure).reason;
         return { ok: false, response: err("unauthorised", { reason, request_id: requestId }) };

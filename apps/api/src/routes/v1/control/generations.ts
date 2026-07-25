@@ -48,7 +48,7 @@ async function handleGeneration(req: Request) {
         return json({ ok: false, error: "missing_id" }, 400, { "Cache-Control": "no-store" });
     }
 
-    const auth = await authenticate(req);
+    const auth = await authenticate(req, { allowOAuthJwt: true });
     if (!auth.ok) {
         const reason = (auth as AuthFailure).reason;
         return json({ ok: false, error: "unauthorised", reason }, 401, { "Cache-Control": "no-store" });

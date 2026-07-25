@@ -252,7 +252,7 @@ async function loadAnalyticsRollupRows(args: {
 }
 
 async function handleAnalytics(req: Request) {
-	const auth = await guardAuth(req);
+	const auth = await guardAuth(req, { allowOAuthJwt: true });
 	if (!auth.ok) {
 		return (auth as GuardErr).response;
 	}
