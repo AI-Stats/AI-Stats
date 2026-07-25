@@ -41,7 +41,7 @@ type AgentDevtoolsEntry = {
 	};
 };
 
-const AGENT_SDK_VERSION = "0.1.2";
+const AGENT_SDK_VERSION = "0.1.3";
 const DEFAULT_DEVTOOLS_DIR = ".phaseo-devtools";
 
 export function createAgentDevtools(

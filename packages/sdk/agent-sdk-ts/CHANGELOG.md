@@ -1,5 +1,12 @@
 # @phaseo/agent-sdk
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`f1ad533`](https://github.com/phaseoteam/Phaseo/commit/f1ad5335aba3f2858156f4632d551834325c0dcd)]:
+  - @phaseo/sdk@2.1.1
+
 ## 0.1.2
 
 ### Patch Changes
