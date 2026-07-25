@@ -97,7 +97,10 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
         return null;
     };
 
+    let completionTimingRecorded = false;
     const recordCompletionTiming = () => {
+        if (completionTimingRecorded) return;
+        completionTimingRecorded = true;
         if (
             ctx.meta.preserve_stream_timing &&
             typeof ctx.meta.latency_ms === "number" &&

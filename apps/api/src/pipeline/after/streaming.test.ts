@@ -150,7 +150,8 @@ describe("passthroughWithPricing", () => {
 
 	it("waits for OpenAI's trailing usage-only frame after finish_reason", async () => {
 		const usageCalls: Array<{ usage: any; info: any }> = [];
-		const upstream = makeSseResponse([
+		const completionTimings: Array<{ generationMs: number; endToEndMs: number }> = [];
+		const upstream = makeDelayedSseResponse([
 			{
 				data: {
 					id: "chatcmpl_usage_after_stop",
@@ -175,18 +176,33 @@ describe("passthroughWithPricing", () => {
 					usage: { prompt_tokens: 11, completion_tokens: 4, total_tokens: 15 },
 				},
 			},
-		]);
+		], 10).response;
+		const ctx = baseCtx({
+			endpoint: "chat.completions",
+			protocol: "openai.chat.completions",
+			meta: {
+				startedAtMs: Date.now() - 50,
+				selectedUpstreamFetchStartMs: Date.now() - 40,
+			},
+		});
 
 		const response = await passthroughWithPricing({
 			upstream,
-			ctx: baseCtx({
-				endpoint: "chat.completions",
-				protocol: "openai.chat.completions",
-			}),
+			ctx,
 			provider: "openai",
 			priceCard: null,
+			onFinalSnapshot: () => {
+				completionTimings.push({
+					generationMs: ctx.meta.generation_ms,
+					endToEndMs: ctx.meta.end_to_end_ms,
+				});
+			},
 			onFinalUsage: (usage, info) => {
 				usageCalls.push({ usage, info });
+				completionTimings.push({
+					generationMs: ctx.meta.generation_ms,
+					endToEndMs: ctx.meta.end_to_end_ms,
+				});
 			},
 		});
 
@@ -196,6 +212,8 @@ describe("passthroughWithPricing", () => {
 			usage: { prompt_tokens: 11, completion_tokens: 4, total_tokens: 15 },
 			info: { aborted: false, sawFinalUsage: true },
 		}]);
+		expect(completionTimings).toHaveLength(2);
+		expect(completionTimings[1]).toEqual(completionTimings[0]);
 	});
 
 	it("keeps draining for trailing OpenAI usage after the client disconnects", async () => {
