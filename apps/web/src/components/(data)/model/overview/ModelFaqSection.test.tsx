@@ -121,8 +121,8 @@ describe("ModelFaqSection", () => {
 		expect(html).toContain("Output Text Tokens at $1.50 per 1M tokens");
 		expect(html).toContain("Output Image at $0.04 per image");
 		expect(html).toContain("Output Video Tokens at $2.00 per 1M tokens");
-		expect(html).toContain("Output Video Seconds at $0.10 per second");
-		expect(html).toContain("Fast Cloud");
+		expect(html).not.toContain("Fast Cloud");
+		expect(html).toContain("lowest base rates currently recorded across providers");
 		expect(html).toContain("<details");
 		expect(html).toContain('href="#pricing"');
 		expect(html).toContain('href="/organisations/acme"');
@@ -156,5 +156,27 @@ describe("ModelFaqSection", () => {
 		);
 
 		expect(html).not.toContain("How much does Alpha 1 cost?");
+	});
+
+	it("uses the SKU billing unit for video-seconds pricing", () => {
+		const videoSecondsPricing: ProviderPricing[] = [
+			{
+				...pricing[0]!,
+				pricing_rules: pricing[0]!.pricing_rules.filter(
+					(rule) => rule.meter === "output_video_seconds",
+				),
+			},
+		];
+		const html = renderToStaticMarkup(
+			<ModelFaqSection
+				model={model}
+				benchmarkCount={0}
+				activeProviderCount={1}
+				isGatewayActive
+				pricing={videoSecondsPricing}
+			/>,
+		);
+
+		expect(html).toContain("Output Video Seconds at $0.10 per second");
 	});
 });

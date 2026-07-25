@@ -48,10 +48,9 @@ function getStatusDescription(status: ModelOverviewPage["status"]): string {
 }
 
 type PricingHighlight = {
+	key: string;
 	label: string;
 	formattedPrice: string;
-	providerId: string;
-	providerName: string;
 };
 
 function isNonNull<T>(value: T | null): value is T {
@@ -155,8 +154,6 @@ function getPricingHighlights(pricing: ProviderPricing[]): PricingHighlight[] {
 				return {
 					meter: rule.meter,
 					...normalized,
-					providerId: provider.provider.api_provider_id,
-					providerName: provider.provider.api_provider_name,
 				};
 			})
 			.filter(isNonNull),
@@ -175,16 +172,15 @@ function getPricingHighlights(pricing: ProviderPricing[]): PricingHighlight[] {
 			const bPriority = PRICING_METER_PRIORITY.indexOf(b.meter);
 			return (aPriority < 0 ? 100 : aPriority) - (bPriority < 0 ? 100 : bPriority);
 		})
-		.slice(0, 8)
+		.slice(0, 4)
 		.map((candidate) => ({
+			key: `${candidate.meter}:${candidate.billingKey}`,
 			label:
 				PRICING_METER_LABELS.get(candidate.meter) ??
 				candidate.meter
 					.replace(/_/g, " ")
 					.replace(/\b\w/g, (letter) => letter.toUpperCase()),
 			formattedPrice: candidate.formattedPrice,
-			providerId: candidate.providerId,
-			providerName: candidate.providerName,
 		}));
 }
 
@@ -232,17 +228,11 @@ export default function ModelFaqSection({
 						question: `How much does ${modelName} cost?`,
 						answer: (
 							<>
-								The lowest base rates currently recorded for {modelName} are{" "}
-								{pricingHighlights.map((highlight, index) => (
-									<span key={`${highlight.label}-${highlight.providerId}`}>
+				The lowest base rates currently recorded across providers for {modelName} are{" "}
+				{pricingHighlights.map((highlight, index) => (
+					<span key={highlight.key}>
 										{index > 0 ? (index === pricingHighlights.length - 1 ? "; and " : "; ") : ""}
-										{highlight.label} at {highlight.formattedPrice} through{" "}
-										<Link
-											href={`/api-providers/${highlight.providerId}`}
-											className="font-medium underline underline-offset-4"
-										>
-											{highlight.providerName}
-										</Link>
+										{highlight.label} at {highlight.formattedPrice}
 									</span>
 								))}
 								. The{" "}
