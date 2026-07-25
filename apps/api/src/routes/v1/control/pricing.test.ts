@@ -61,8 +61,6 @@ describe("pricingRoutes", () => {
 				if (table === "data_api_provider_model_capabilities") return queryResult({ data: [{
 					provider_api_model_id: "pm_1",
 					capability_id: "chat/completions",
-					effective_from: null,
-					effective_to: null,
 				}], error: null });
 				if (table === "data_models") return queryResult({ data: [{
 					model_id: "openai/gpt-test",
