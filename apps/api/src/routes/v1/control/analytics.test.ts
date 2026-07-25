@@ -24,7 +24,7 @@ import { analyticsRoutes } from "./analytics";
 
 function queryResult(result: { data: unknown[]; error: unknown }) {
 	const query: Record<string, unknown> = {};
-	for (const method of ["select", "eq", "gte", "lt", "in"]) {
+	for (const method of ["select", "eq", "gte", "lt", "in", "order", "range"]) {
 		query[method] = vi.fn(() => query);
 	}
 	query.then = (resolve: (value: unknown) => unknown) => Promise.resolve(result).then(resolve);
@@ -49,14 +49,15 @@ describe("analyticsRoutes", () => {
 		const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 		getSupabaseAdminMock.mockReturnValue({
 			from: vi.fn((table: string) => {
-				if (table === "v2_private_usage_daily") return queryResult({ data: [{
-					usage_date: yesterday,
-					model_slug: "openai/gpt-test",
+				if (table === "v2_request_facts") return queryResult({ data: [{
+					occurred_at: `${yesterday}T12:00:00.000Z`,
+					endpoint: "chat/completions",
+					requested_model_slug: "openai/gpt-test",
+					routed_model_slug: "openai/gpt-test",
 					provider_model_id: "openai:gpt-test",
 					cost_nanos: "1500000000",
-					requests: 3,
-					successful_requests: 2,
-					v2_private_usage_daily_meters: [
+					byok: true,
+					v2_request_usage: [
 						{ meter_key: "input_tokens", quantity: 20 },
 						{ meter_key: "output_tokens", quantity: 5 },
 						{ meter_key: "reasoning_tokens", quantity: 2 },
@@ -79,8 +80,10 @@ describe("analyticsRoutes", () => {
 				date: yesterday,
 				model_permaslug: "openai/gpt-test",
 				provider_name: "OpenAI",
+				endpoint_id: "chat/completions",
 				usage: 1.5,
-				requests: 2,
+				byok_usage_inference: 1.5,
+				requests: 1,
 				prompt_tokens: 20,
 				completion_tokens: 5,
 				reasoning_tokens: 2,

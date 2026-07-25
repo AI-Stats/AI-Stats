@@ -117,14 +117,15 @@ function resolveScopedTeamId(args: {
     return { ok: true, workspaceId: requested };
 }
 
-type AnalyticsRollupRow = {
-    usage_date: string | null;
-    model_slug: string | null;
+type AnalyticsFactRow = {
+    occurred_at: string | null;
+    endpoint: string | null;
+    requested_model_slug: string | null;
+    routed_model_slug: string | null;
     provider_model_id: string | null;
     cost_nanos: number | string | null;
-    requests: number | string | null;
-    successful_requests: number | string | null;
-    v2_private_usage_daily_meters: Array<{
+    byok: boolean | null;
+    v2_request_usage: Array<{
         meter_key: string | null;
         quantity: number | string | null;
     }> | null;
@@ -168,28 +169,33 @@ function toRoundedUsage(value: number): number {
     return Number(value.toFixed(9));
 }
 
-async function loadAnalyticsRollupRows(args: {
+async function loadAnalyticsFactRows(args: {
     workspaceId: string;
     startIso: string;
     endIso: string;
-}): Promise<AnalyticsRollupRow[]> {
+}): Promise<AnalyticsFactRow[]> {
     const supabase = getSupabaseAdmin();
-    const startDay = args.startIso.slice(0, 10);
-    const endDay = args.endIso.slice(0, 10);
-    const { data, error } = await supabase
-        .from("v2_private_usage_daily")
-        .select(
-            "usage_date,model_slug,provider_model_id,cost_nanos,requests,successful_requests,v2_private_usage_daily_meters(meter_key,quantity)"
-        )
-        .eq("workspace_id", args.workspaceId)
-        .gte("usage_date", startDay)
-        .lt("usage_date", endDay);
-
-    if (error) {
-        throw new Error(error.message || "Failed to load v2 analytics rollup rows");
+    const rows: AnalyticsFactRow[] = [];
+    const pageSize = 1000;
+    for (let offset = 0; ; offset += pageSize) {
+        const { data, error } = await supabase
+            .from("v2_request_facts")
+            .select(
+                "occurred_at,endpoint,requested_model_slug,routed_model_slug,provider_model_id,cost_nanos,byok,v2_request_usage(meter_key,quantity)"
+            )
+            .eq("workspace_id", args.workspaceId)
+            .gte("occurred_at", args.startIso)
+            .lt("occurred_at", args.endIso)
+            .order("occurred_at", { ascending: true })
+            .range(offset, offset + pageSize - 1);
+        if (error) {
+            throw new Error(error.message || "Failed to load v2 analytics request facts");
+        }
+        const page = (data ?? []) as AnalyticsFactRow[];
+        rows.push(...page);
+        if (page.length < pageSize) break;
     }
-
-    return (data ?? []) as AnalyticsRollupRow[];
+    return rows;
 }
 
 async function loadProviderNames(providerModelIds: string[]): Promise<Map<string, string>> {
@@ -209,9 +215,9 @@ async function loadProviderNames(providerModelIds: string[]): Promise<Map<string
     return names;
 }
 
-function meterQuantity(row: AnalyticsRollupRow, keys: string[]): number {
+function meterQuantity(row: AnalyticsFactRow, keys: string[]): number {
     const wanted = new Set(keys);
-    return (row.v2_private_usage_daily_meters ?? []).reduce((total, meter) => {
+    return (row.v2_request_usage ?? []).reduce((total, meter) => {
         return wanted.has(meter.meter_key ?? "") ? total + (toFiniteNumber(meter.quantity) ?? 0) : total;
     }, 0);
 }
@@ -239,7 +245,7 @@ async function handleAnalytics(req: Request) {
 	const endIso = range.end.toISOString();
 
 	try {
-		const rows = await loadAnalyticsRollupRows({
+		const rows = await loadAnalyticsFactRows({
 			workspaceId,
 			startIso,
             endIso,
@@ -262,17 +268,18 @@ async function handleAnalytics(req: Request) {
 			reasoning_tokens: number;
 		}>();
 		for (const row of rows) {
-			const date = toDayBucket(row.usage_date);
+			const date = toDayBucket(row.occurred_at?.slice(0, 10));
 			if (!date) continue;
-			const modelPermaslug = toNonEmptyString(row.model_slug, "unknown/unknown");
+			const modelPermaslug = toNonEmptyString(row.routed_model_slug ?? row.requested_model_slug, "unknown/unknown");
 			const providerModelId = toNonEmptyString(row.provider_model_id, "unknown");
 			const providerId = providerNames.get(providerModelId) ?? providerModelId.split(":", 1)[0] ?? "unknown";
-			const key = `${date}\u0000${modelPermaslug}\u0000${providerModelId}`;
+			const endpointId = toNonEmptyString(row.endpoint, "unknown");
+			const key = `${date}\u0000${modelPermaslug}\u0000${providerModelId}\u0000${endpointId}`;
 			const existing = grouped.get(key) ?? {
 				date,
 				model: toModelDisplay(modelPermaslug),
 				model_permaslug: modelPermaslug,
-				endpoint_id: "unknown",
+				endpoint_id: endpointId,
 				provider_name: toProviderName(providerId),
 				usage: 0,
 				byok_usage_inference: 0,
@@ -281,8 +288,10 @@ async function handleAnalytics(req: Request) {
 				completion_tokens: 0,
 				reasoning_tokens: 0,
 			};
-			existing.usage += toUsdFromNanos(toFiniteNumber(row.cost_nanos));
-			existing.requests += Math.max(0, Math.round(toFiniteNumber(row.successful_requests ?? row.requests) ?? 0));
+			const usage = toUsdFromNanos(toFiniteNumber(row.cost_nanos));
+			existing.usage += usage;
+			if (row.byok) existing.byok_usage_inference += usage;
+			existing.requests += 1;
 			existing.prompt_tokens += Math.max(0, Math.round(meterQuantity(row, ["input_tokens", "prompt_tokens"])));
 			existing.completion_tokens += Math.max(0, Math.round(meterQuantity(row, ["output_tokens", "completion_tokens"])));
 			existing.reasoning_tokens += Math.max(0, Math.round(meterQuantity(row, ["reasoning_tokens"])));
@@ -290,7 +299,11 @@ async function handleAnalytics(req: Request) {
 		}
 
         const data = Array.from(grouped.values())
-			.map((item) => ({ ...item, usage: toRoundedUsage(item.usage) }))
+			.map((item) => ({
+				...item,
+				usage: toRoundedUsage(item.usage),
+				byok_usage_inference: toRoundedUsage(item.byok_usage_inference),
+			}))
             .sort((a, b) => {
                 if (a.date !== b.date) return b.date.localeCompare(a.date);
                 if (a.usage !== b.usage) return b.usage - a.usage;
