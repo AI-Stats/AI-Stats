@@ -56,4 +56,28 @@ describe("logos", () => {
 			variant: "color",
 		});
 	});
+
+	test.each([
+		["alibaba-cn", "Alibaba Cloud", "/logos/alibaba-cloud.svg"],
+		["cloudflare-ai-gateway", "Cloudflare AI Gateway", "/logos/cloudflare.svg"],
+		["github-models", "Github Models", "/logos/github_light.svg"],
+		["huggingface", "Hugging Face", "/logos/huggingface.svg"],
+		["kilo", "Kilo Code", "/logos/kilo_light.svg"],
+		["lmstudio", "LM Studio", "/logos/lmstudio_light.svg"],
+		["modelscope", "ModelScope", "/logos/modelscope.svg"],
+		["nebius", "Nebius", "/logos/nebius-token-factory_light.svg"],
+		["perplexity-agent", "Perplexity Agent", "/logos/perplexity.svg"],
+		["poe", "Poe", "/logos/poe.svg"],
+		["qiniu-ai", "Qiniu AI", "/logos/qiniu.svg"],
+		["siliconflow-cn", "Siliconflow Cn", "/logos/siliconflow.svg"],
+		["submodel", "SubModel", "/logos/submodel.svg"],
+		["togetherai", "Together AI", "/logos/together.svg"],
+		["wandb", "Weights & Biases", "/logos/weights-and-biases.svg"],
+		["zenmux", "ZenMux", "/logos/zenmux_light.svg"],
+	])("resolves the %s logo mapping", (id, label, src) => {
+		expect(resolveLogo(id, { variant: ["github-models", "kilo", "lmstudio", "nebius", "zenmux"].includes(id) ? "light" : "auto" })).toMatchObject({
+			label,
+			src,
+		});
+	});
 });
