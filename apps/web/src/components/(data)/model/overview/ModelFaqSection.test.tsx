@@ -185,4 +185,29 @@ describe("ModelFaqSection", () => {
 
 		expect(html).toContain("Output Video Seconds at $0.10 per second");
 	});
+
+	it("falls back to USD when a pricing currency code is malformed", () => {
+		const malformedCurrencyPricing: ProviderPricing[] = [
+			{
+				...pricing[0]!,
+				pricing_rules: [
+					{
+						...pricing[0]!.pricing_rules[0]!,
+						currency: "not-a-currency",
+					},
+				],
+			},
+		];
+		const html = renderToStaticMarkup(
+			<ModelFaqSection
+				model={model}
+				benchmarkCount={0}
+				activeProviderCount={1}
+				isGatewayActive
+				pricing={malformedCurrencyPricing}
+			/>,
+		);
+
+		expect(html).toContain("$0.50 per 1M tokens");
+	});
 });

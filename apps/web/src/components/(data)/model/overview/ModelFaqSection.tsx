@@ -109,14 +109,27 @@ const PRICING_METER_PRIORITY = [
 ];
 
 function formatCurrency(amount: number, currency: string): string {
-	const normalizedCurrency = currency.trim().toUpperCase() || "USD";
+	const normalizedCurrency = normalizeCurrencyCode(currency);
 	const fractionDigits = amount === 0 ? 0 : amount < 0.0001 ? 8 : amount < 0.01 ? 4 : 2;
-	return new Intl.NumberFormat("en-US", {
+	const options: Intl.NumberFormatOptions = {
 		style: "currency",
 		currency: normalizedCurrency,
 		minimumFractionDigits: fractionDigits,
 		maximumFractionDigits: fractionDigits,
-	}).format(amount);
+	};
+	try {
+		return new Intl.NumberFormat("en-US", options).format(amount);
+	} catch {
+		return new Intl.NumberFormat("en-US", {
+			...options,
+			currency: "USD",
+		}).format(amount);
+	}
+}
+
+function normalizeCurrencyCode(currency: string): string {
+	const normalized = currency.trim().toUpperCase();
+	return /^[A-Z]{3}$/.test(normalized) ? normalized : "USD";
 }
 
 function normaliseRulePrice(rule: PricingRule): {
@@ -142,7 +155,7 @@ function normaliseRulePrice(rule: PricingRule): {
 		return {
 			price,
 			formattedPrice: `${formatCurrency(price, rule.currency)} per ${millionUnitLabel}`,
-			billingKey: `${rule.currency}:${millionUnitLabel}`,
+			billingKey: `${normalizeCurrencyCode(rule.currency)}:${millionUnitLabel}`,
 		};
 	}
 
@@ -151,7 +164,7 @@ function normaliseRulePrice(rule: PricingRule): {
 	return {
 		price,
 		formattedPrice: `${formatCurrency(price, rule.currency)} per ${unitLabel}`,
-		billingKey: `${rule.currency}:${unitLabel}`,
+		billingKey: `${normalizeCurrencyCode(rule.currency)}:${unitLabel}`,
 	};
 }
 

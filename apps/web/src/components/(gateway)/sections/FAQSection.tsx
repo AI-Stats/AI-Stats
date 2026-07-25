@@ -53,6 +53,8 @@ function FAQItem({ question, answer, isOpen, index, onToggle }: FAQItemProps) {
 				</button>
 			</h2>
 			<div
+				aria-hidden={!isOpen}
+				inert={isOpen ? undefined : true}
 				className={cn(
 					"grid transition-all duration-300",
 					isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
