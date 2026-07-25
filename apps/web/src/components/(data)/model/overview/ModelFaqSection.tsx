@@ -7,6 +7,7 @@ import type {
 	ProviderPricing,
 } from "@/lib/fetchers/models/getModelPricing";
 import { formatModelLifecycleDate } from "@/lib/dates/modelLifecycleDates";
+import { PRICING_METER_OPTIONS } from "@/lib/pricing/meters";
 
 function parseTypes(value: string | null | undefined): string[] {
 	if (!value) return [];
@@ -57,34 +58,58 @@ function isNonNull<T>(value: T | null): value is T {
 	return value !== null;
 }
 
-const PRICING_METER_LABELS: Record<string, string> = {
-	input_text_tokens: "text input",
-	input_tokens: "input",
-	output_text_tokens: "text output",
-	output_tokens: "output",
-	input_audio_tokens: "audio input",
-	output_audio_tokens: "audio output",
-	input_image_tokens: "image input",
-	output_image_tokens: "image output",
-	input_video_tokens: "video input",
-	output_video_tokens: "video output",
-	images: "image generation",
-	requests: "request",
-};
+const PRICING_METER_LABELS: ReadonlyMap<string, string> = new Map(
+	PRICING_METER_OPTIONS.map((option) => [option.value, option.label]),
+);
+
+const PRICING_METER_PRIORITY = [
+	"input_text_tokens",
+	"input_tokens",
+	"output_text_tokens",
+	"output_tokens",
+	"output_reasoning_tokens",
+	"input_image_tokens",
+	"output_image_tokens",
+	"input_image",
+	"output_image",
+	"input_audio_tokens",
+	"output_audio_tokens",
+	"input_audio_seconds",
+	"input_audio_minutes",
+	"output_audio_seconds",
+	"output_audio_minutes",
+	"audio_seconds",
+	"audio_minutes",
+	"input_video_tokens",
+	"output_video_tokens",
+	"input_video_seconds",
+	"output_video_seconds",
+	"output_video",
+	"cached_read_text_tokens",
+	"implicit_cached_input_text_tokens",
+	"cached_write_text_tokens",
+	"cached_write_text_tokens_5m",
+	"cached_write_text_tokens_1h",
+	"cached_read_image_tokens",
+	"cached_read_audio_tokens",
+	"requests",
+];
 
 function formatCurrency(amount: number, currency: string): string {
 	const normalizedCurrency = currency.trim().toUpperCase() || "USD";
+	const fractionDigits = amount === 0 ? 0 : amount < 0.0001 ? 8 : amount < 0.01 ? 4 : 2;
 	return new Intl.NumberFormat("en-US", {
 		style: "currency",
 		currency: normalizedCurrency,
-		minimumFractionDigits: amount === 0 ? 0 : amount < 0.01 ? 4 : 2,
-		maximumFractionDigits: amount > 0 && amount < 0.01 ? 4 : 2,
+		minimumFractionDigits: fractionDigits,
+		maximumFractionDigits: fractionDigits,
 	}).format(amount);
 }
 
 function normaliseRulePrice(rule: PricingRule): {
 	price: number;
 	formattedPrice: string;
+	billingKey: string;
 } | null {
 	const rawPrice = Number(rule.price_per_unit);
 	const unitSize = Number(rule.unit_size);
@@ -92,19 +117,28 @@ function normaliseRulePrice(rule: PricingRule): {
 		return null;
 	}
 
-	const unit = rule.unit.trim().toLowerCase();
-	if (unit === "token" || unit === "tokens" || rule.meter.includes("tokens")) {
+	const unit = rule.unit.trim().toLowerCase().replace(/s$/, "");
+	const millionUnitLabels: Record<string, string> = {
+		token: "1M tokens",
+		pixel: "1M pixels",
+		character: "1M characters",
+	};
+	const millionUnitLabel = millionUnitLabels[unit];
+	if (millionUnitLabel) {
 		const price = rawPrice * (1_000_000 / unitSize);
 		return {
 			price,
-			formattedPrice: `${formatCurrency(price, rule.currency)} per 1M tokens`,
+			formattedPrice: `${formatCurrency(price, rule.currency)} per ${millionUnitLabel}`,
+			billingKey: `${rule.currency}:${millionUnitLabel}`,
 		};
 	}
 
-	const unitLabel = unitSize === 1 ? unit : `${unitSize} ${unit}${unit.endsWith("s") ? "" : "s"}`;
+	const price = rawPrice / unitSize;
+	const unitLabel = unit || "unit";
 	return {
-		price: rawPrice,
-		formattedPrice: `${formatCurrency(rawPrice, rule.currency)} per ${unitLabel}`,
+		price,
+		formattedPrice: `${formatCurrency(price, rule.currency)} per ${unitLabel}`,
+		billingKey: `${rule.currency}:${unitLabel}`,
 	};
 }
 
@@ -130,25 +164,24 @@ function getPricingHighlights(pricing: ProviderPricing[]): PricingHighlight[] {
 
 	const lowestByMeter = new Map<string, (typeof candidates)[number]>();
 	for (const candidate of candidates) {
-		const current = lowestByMeter.get(candidate.meter);
-		if (!current || candidate.price < current.price) lowestByMeter.set(candidate.meter, candidate);
+		const key = `${candidate.meter}:${candidate.billingKey}`;
+		const current = lowestByMeter.get(key);
+		if (!current || candidate.price < current.price) lowestByMeter.set(key, candidate);
 	}
 
-	const meterPriority = [
-		"input_text_tokens",
-		"input_tokens",
-		"output_text_tokens",
-		"output_tokens",
-	];
 	return Array.from(lowestByMeter.values())
 		.sort((a, b) => {
-			const aPriority = meterPriority.indexOf(a.meter);
-			const bPriority = meterPriority.indexOf(b.meter);
+			const aPriority = PRICING_METER_PRIORITY.indexOf(a.meter);
+			const bPriority = PRICING_METER_PRIORITY.indexOf(b.meter);
 			return (aPriority < 0 ? 100 : aPriority) - (bPriority < 0 ? 100 : bPriority);
 		})
-		.slice(0, 3)
+		.slice(0, 8)
 		.map((candidate) => ({
-			label: PRICING_METER_LABELS[candidate.meter] ?? candidate.meter.replace(/_/g, " "),
+			label:
+				PRICING_METER_LABELS.get(candidate.meter) ??
+				candidate.meter
+					.replace(/_/g, " ")
+					.replace(/\b\w/g, (letter) => letter.toUpperCase()),
 			formattedPrice: candidate.formattedPrice,
 			providerId: candidate.providerId,
 			providerName: candidate.providerName,

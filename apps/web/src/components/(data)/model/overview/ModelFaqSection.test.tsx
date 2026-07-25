@@ -39,6 +39,51 @@ const pricing: ProviderPricing[] = [
 				effective_from: "2026-07-01",
 				effective_to: null,
 			},
+			{
+				id: "video-tokens",
+				model_key: "fast-cloud:acme/alpha-1:video",
+				pricing_plan: "standard",
+				meter: "output_video_tokens",
+				unit: "token",
+				unit_size: 1_000_000,
+				price_per_unit: 2,
+				currency: "USD",
+				note: null,
+				match: [],
+				priority: 100,
+				effective_from: "2026-07-01",
+				effective_to: null,
+			},
+			{
+				id: "image",
+				model_key: "fast-cloud:acme/alpha-1:image",
+				pricing_plan: "standard",
+				meter: "output_image",
+				unit: "image",
+				unit_size: 1,
+				price_per_unit: 0.04,
+				currency: "USD",
+				note: null,
+				match: [],
+				priority: 100,
+				effective_from: "2026-07-01",
+				effective_to: null,
+			},
+			{
+				id: "video-seconds",
+				model_key: "fast-cloud:acme/alpha-1:video",
+				pricing_plan: "standard",
+				meter: "output_video_seconds",
+				unit: "second",
+				unit_size: 60,
+				price_per_unit: 6,
+				currency: "USD",
+				note: null,
+				match: [],
+				priority: 100,
+				effective_from: "2026-07-01",
+				effective_to: null,
+			},
 		],
 	},
 ];
@@ -72,8 +117,11 @@ describe("ModelFaqSection", () => {
 		expect(html).toContain("How much does Alpha 1 cost?");
 		expect(html).toContain("2 active Gateway providers");
 		expect(html).toContain("4 benchmark results");
-		expect(html).toContain("text input at $0.50 per 1M tokens");
-		expect(html).toContain("text output at $1.50 per 1M tokens");
+		expect(html).toContain("Input Text Tokens at $0.50 per 1M tokens");
+		expect(html).toContain("Output Text Tokens at $1.50 per 1M tokens");
+		expect(html).toContain("Output Image at $0.04 per image");
+		expect(html).toContain("Output Video Tokens at $2.00 per 1M tokens");
+		expect(html).toContain("Output Video Seconds at $0.10 per second");
 		expect(html).toContain("Fast Cloud");
 		expect(html).toContain("<details");
 		expect(html).toContain('href="#pricing"');
