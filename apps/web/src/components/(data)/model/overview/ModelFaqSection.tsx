@@ -316,23 +316,18 @@ export default function ModelFaqSection({
 	];
 
 	return (
-		<section id="faq" className="scroll-mt-28 space-y-4 border-t border-border/60 pt-6">
-			<div className="space-y-1">
-				<h2 className="text-xl font-semibold tracking-tight">
-					Frequently asked questions
-				</h2>
-				<p className="text-sm text-muted-foreground">
-					Quick answers based on the model and route data currently recorded by Phaseo.
-				</p>
-			</div>
-			<div className="divide-y divide-border/60 rounded-lg border border-border/70 bg-background">
+		<section id="faq" className="scroll-mt-28 space-y-2 border-t border-border/60 pt-4">
+			<h2 className="text-lg font-semibold tracking-tight">
+				Frequently asked questions
+			</h2>
+			<div className="divide-y divide-border/60 rounded-md border border-border/70 bg-background">
 				{items.map((item) => (
-					<details key={item.question} className="group px-4 md:px-5">
-						<summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left marker:content-none [&::-webkit-details-marker]:hidden">
-							<h3 className="text-base font-semibold">{item.question}</h3>
-							<ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+					<details key={item.question} className="group px-3 md:px-4">
+						<summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-2.5 text-left marker:content-none [&::-webkit-details-marker]:hidden">
+							<h3 className="text-sm font-medium">{item.question}</h3>
+							<ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
 						</summary>
-						<p className="pb-4 pr-8 text-sm leading-6 text-muted-foreground">{item.answer}</p>
+						<p className="pb-3 pr-6 text-sm leading-6 text-muted-foreground">{item.answer}</p>
 					</details>
 				))}
 			</div>
