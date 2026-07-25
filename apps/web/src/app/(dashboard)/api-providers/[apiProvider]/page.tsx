@@ -5,11 +5,13 @@ import { fetchFrontendAPIProviderHeader } from "@/lib/fetchers/frontend/fetchPub
 import type { Metadata } from "next";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import Script from "next/script";
+import { notFound } from "next/navigation";
 
 async function fetchProviderMeta(apiProviderId: string) {
 	try {
 		return await fetchFrontendAPIProviderHeader(apiProviderId);
 	} catch (error) {
+		// eslint-disable-next-line no-console
 		console.warn("[seo] failed to load api provider metadata", {
 			apiProviderId,
 			error,
@@ -23,6 +25,7 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
 	const { apiProvider } = await props.params;
 	const header = await fetchProviderMeta(apiProvider);
+	if (!header) notFound();
 	const imagePath = `/og/api-providers/${apiProvider}`;
 
 	// Fallback: provider not found / fetch failed

@@ -6,11 +6,13 @@ import {
 	fetchFrontendOrganisation,
 	fetchFrontendOrganisationModels,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import { notFound } from "next/navigation";
 
 async function fetchOrganisation(organisationId: string) {
 	try {
 		return await fetchFrontendOrganisation(organisationId, 8);
 	} catch (error) {
+		// eslint-disable-next-line no-console
 		console.warn("[seo] failed to load organisation metadata", {
 			organisationId,
 			error,
@@ -77,7 +79,8 @@ export default async function Page({
 }) {
 	const { organisationId } = await params;
 
-	const models = await fetchFrontendOrganisationModels(organisationId);
+	const models = await fetchFrontendOrganisationModels(organisationId).catch(() => null);
+	if (!models) notFound();
 
 	return (
 		<OrganisationDetailShell organisationId={organisationId}>

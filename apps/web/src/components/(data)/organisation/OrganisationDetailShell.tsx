@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { fetchFrontendOrganisationHeader } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import { notFound } from "next/navigation";
 import TabBar from "@/components/(data)/organisation/OrganisationTabs";
 import { Logo } from "@/components/Logo";
 import OrganisationEditButton from "./edit/OrganisationEditButton";
@@ -16,9 +17,10 @@ export default async function OrganisationDetailShell({
 	organisationId,
 	children,
 }: OrganisationDetailShellProps) {
-	const header = await fetchFrontendOrganisationHeader(organisationId);
+	const header = await fetchFrontendOrganisationHeader(organisationId).catch(() => null);
 
 	if (!header) {
+		notFound();
 		return (
 			<main className="flex min-h-screen flex-col">
 				<div className="container mx-auto px-4 py-8">
