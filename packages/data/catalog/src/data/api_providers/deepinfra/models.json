@@ -3653,5 +3653,8 @@
       "notes": null
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id":"thinking-machines/inkling","provider_api_model_id":"deepinfra:thinking-machines/inkling","provider_model_slug":"thinkingmachines/Inkling","internal_model_id":"thinking-machines/inkling","is_active_gateway":true,"quantization_scheme":null,"input_modalities":"text,image,audio","output_modalities":"text","context_length":524288,"max_output_tokens":524288,"effective_from":"2026-07-21T00:00:00","effective_to":null,"capabilities":[{"capability_id":"text.generate","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],"routing_status":"active","routable":true,"regions":{"execution":null,"data":null},"service_tiers":[],"api":{"formats":[],"endpoint":null,"deployment":null},"sources":[{"url":"https://api.deepinfra.com/models/list","kind":"api"}],"verification":{"status":"verified","checked_at":"2026-07-24T00:00:00Z","notes":"Official DeepInfra model list; created 2026-07-21."},"rate_limits":[]
   }
 ]

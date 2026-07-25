@@ -8844,6 +8844,7 @@ components:
         - bytedance/seed-2.0-mini
         - bytedance/seed-2.0-mini-260428
         - bytedance/seed-2.0-pro
+        - bytedance/seed-2.1-turbo
         - bytedance/seed-oss-36b-instruct
         - bytedance/seed-translation
         - bytedance/seedance-2.0
@@ -8920,6 +8921,7 @@ components:
         - inception/mercury-2
         - inception/mercury-edit-2
         - inclusionai/ling-2.6-1t
+        - inclusionai/ling-3.0-flash:free
         - inclusionai/ling-flash-2.0
         - inclusionai/ring-flash-2.0
         - inflection/inflection-3-pi
@@ -8947,6 +8949,7 @@ components:
         - meta/llama-prompt-guard-2-86m
         - microsoft/phi-4
         - microsoft/phi-4-mini
+        - mindai/macaron-v1-venti:free
         - minimax/hailuo-02
         - minimax/hailuo-2.3
         - minimax/hailuo-2.3-fast
@@ -9264,6 +9267,7 @@ components:
         - z-ai/glm-5-turbo
         - z-ai/glm-5.1
         - z-ai/glm-5.2
+        - z-ai/glm-5.2-fast
         - z-ai/glm-5v-turbo
         - zai-org/glm-4.5-air
         - zai/glm-5
