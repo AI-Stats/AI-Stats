@@ -15,11 +15,9 @@ import { cn } from "@/lib/utils";
 const REFRESH_INTERVAL_MS = 60 * 60 * 1000;
 
 const toneClassNames: Record<RelativeCalendarTone, string> = {
-	// Relative dates are inline metadata, not status controls. Keep the tone
-	// hook available without adding a surface behind the text.
-	past: "text-muted-foreground",
-	today: "text-foreground",
-	future: "text-muted-foreground",
+	past: "border-current/10 bg-white/70 dark:bg-black/10",
+	today: "border-current/20 bg-white/90 shadow-sm dark:bg-black/20",
+	future: "border-current/15 bg-white/85 dark:bg-black/15",
 };
 
 type RelativeDateBadgeProps = {
@@ -51,7 +49,7 @@ export default function RelativeDateBadge({
 					suppressHydrationWarning
 					tabIndex={0}
 					className={cn(
-						"inline-flex cursor-help items-center text-[11px] font-medium leading-4",
+						"inline-flex cursor-help items-center rounded-full border px-2 py-0.5 text-[11px] font-medium leading-4",
 						toneClassNames[relativeDate.tone],
 						className,
 					)}

@@ -85,7 +85,7 @@ export default function KeyDates({
 									<span className="text-muted-foreground/50">·</span>
 									<RelativeDateBadge
 										date={value}
-										className="text-muted-foreground hover:text-foreground"
+										className="border-transparent bg-transparent px-0 py-0 text-[11px] font-medium text-muted-foreground hover:text-foreground"
 									/>
 								</>
 							) : (
