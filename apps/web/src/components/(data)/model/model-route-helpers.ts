@@ -177,10 +177,22 @@ export async function resolveModelRouteIds(
 			internalModelId: null,
 		};
 	}
-	const resolved = await fetchFrontendCanonicalModelId(
-		requestedModelId,
-		includeHidden,
-	);
+	let resolved: Awaited<ReturnType<typeof fetchFrontendCanonicalModelId>>;
+	try {
+		resolved = await fetchFrontendCanonicalModelId(
+			requestedModelId,
+			includeHidden,
+		);
+	} catch {
+		// A just-announced model can briefly be ahead of the public catalogue
+		// cache. Let the detail shell turn the subsequent missing header into the
+		// route's designed 404 instead of surfacing an upstream server error.
+		return {
+			requestedModelId,
+			canonicalModelId: requestedModelId,
+			internalModelId: null,
+		};
+	}
 	return {
 		requestedModelId,
 		canonicalModelId: resolved.canonicalModelId ?? requestedModelId,
