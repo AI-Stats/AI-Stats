@@ -1,12 +1,12 @@
 ---
-"@phaseo/sdk": major
-"@phaseo/go-sdk": major
-"@phaseo/py-sdk": major
-"@phaseo/csharp-sdk": major
-"@phaseo/java-sdk": major
-"@phaseo/php-sdk": major
-"@phaseo/ruby-sdk": major
-"@phaseo/rust-sdk": major
+"@phaseo/sdk": patch
+"@phaseo/go-sdk": patch
+"@phaseo/py-sdk": patch
+"@phaseo/csharp-sdk": patch
+"@phaseo/java-sdk": patch
+"@phaseo/php-sdk": patch
+"@phaseo/ruby-sdk": patch
+"@phaseo/rust-sdk": patch
 ---
 
 Refresh generated callable model ID constants from the current OpenAPI snapshot.
