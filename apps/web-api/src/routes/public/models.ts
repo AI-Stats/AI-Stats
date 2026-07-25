@@ -361,11 +361,14 @@ export async function fetchGatewayMonitorRows(
 		const modelId = String(row.model_id ?? row.api_model_id ?? "").trim();
 		const providerId = String(row.provider_id ?? "").trim();
 		const apiModelId = String(row.api_model_id ?? "").trim();
+		const providerModelId = String(
+			row.provider_api_model_id ?? row.provider_model_slug ?? apiModelId,
+		).trim();
 		const capabilityId = String(row.capability_id ?? "").trim();
-		if (!modelId || !providerId || !apiModelId || !capabilityId) continue;
+		if (!modelId || !providerId || !apiModelId || !providerModelId || !capabilityId) continue;
 		const params = row.capability_params;
 		const monitorRow = {
-			id: `${modelId}-${providerId}-${capabilityId}`,
+			id: `${modelId}::${providerId}::${providerModelId}::${capabilityId}`,
 			model: String(row.model_name ?? modelId).trim() || modelId,
 			modelId,
 			apiModelId,
@@ -410,6 +413,117 @@ export async function fetchGatewayMonitorRows(
 		byModelId.set(modelId, [...(byModelId.get(modelId) ?? []), monitorRow]);
 	}
 	return byModelId;
+}
+
+function normaliseRankingKey(value: unknown): string {
+	return String(value ?? "").trim().toLowerCase();
+}
+
+function buildModelsTablePayload(
+	rowsByModelId: Map<string, Record<string, unknown>[]>,
+) {
+	const rows = [...rowsByModelId.values()].flat();
+	const tokensByModel = new Map<string, number>();
+	const tokensByModelProvider = new Map<string, number>();
+	const endpoints = new Set<string>();
+	const modalities = new Set<string>();
+	const features = new Set<string>();
+	const statuses = new Set<string>();
+
+	for (const row of rows) {
+		const modelKey = normaliseRankingKey(row.modelId);
+		const provider = row.provider as Record<string, unknown> | undefined;
+		const providerKey = normaliseRankingKey(provider?.id);
+		const modelTokens = Number(row.weeklyTokensModel ?? 0);
+		const providerTokens = Number(row.weeklyTokensModelProvider ?? 0);
+		if (modelKey && modelKey !== "unknown" && modelKey !== "other") {
+			if (Number.isFinite(modelTokens) && modelTokens >= 0) {
+				tokensByModel.set(
+					modelKey,
+					Math.max(tokensByModel.get(modelKey) ?? 0, modelTokens),
+				);
+			}
+			if (providerKey && Number.isFinite(providerTokens) && providerTokens >= 0) {
+				const compositeKey = `${modelKey}::${providerKey}`;
+				tokensByModelProvider.set(
+					compositeKey,
+					Math.max(tokensByModelProvider.get(compositeKey) ?? 0, providerTokens),
+				);
+			}
+		}
+
+		const endpoint = String(row.endpoint ?? "").trim();
+		if (endpoint) endpoints.add(endpoint);
+		for (const modality of [
+			...toStringList(row.inputModalities),
+			...toStringList(row.outputModalities),
+		]) {
+			modalities.add(modality);
+		}
+		for (const feature of toStringList(provider?.features)) features.add(feature);
+		const status = String(row.gatewayStatus ?? "").trim();
+		if (status) statuses.add(status);
+	}
+
+	const models = rows.map((row) => {
+		const provider = (row.provider ?? {}) as Record<string, unknown>;
+		const providerKey = normaliseRankingKey(provider.id);
+		const modelKeys = [row.modelId, row.apiModelId]
+			.map(normaliseRankingKey)
+			.filter(Boolean);
+		let popularityTokensWeek = 0;
+		for (const modelKey of modelKeys) {
+			const providerTokens = providerKey
+				? tokensByModelProvider.get(`${modelKey}::${providerKey}`)
+				: undefined;
+			if (providerTokens !== undefined) {
+				popularityTokensWeek = providerTokens;
+				break;
+			}
+			popularityTokensWeek = Math.max(
+				popularityTokensWeek,
+				tokensByModel.get(modelKey) ?? 0,
+			);
+		}
+
+		return {
+			id: row.id,
+			model: row.model,
+			modelId: row.modelId,
+			organisationId: row.organisationId,
+			organisationName: row.organisationName,
+			provider: {
+				name: provider.name,
+				id: provider.id,
+				inputPrice: provider.inputPrice,
+				outputPrice: provider.outputPrice,
+				features: provider.features,
+				executionRegions: provider.executionRegions,
+			},
+			endpoint: row.endpoint,
+			gatewayStatus: row.gatewayStatus,
+			inputModalities: row.inputModalities,
+			outputModalities: row.outputModalities,
+			context: row.context,
+			maxOutput: row.maxOutput,
+			quantization: row.quantization,
+			supportedParameters: row.supportedParameters,
+			tier: row.tier,
+			added: row.added,
+			retired: row.retired,
+			popularityTokensWeek,
+		};
+	});
+
+	return {
+		models,
+		facets: {
+			endpoints: [...endpoints].sort(),
+			modalities: [...modalities].sort(),
+			features: [...features].sort(),
+			statuses: [...statuses].sort(),
+		},
+	};
 }
 
 async function matchCachedCatalogue(request: Request): Promise<Response | null> {
@@ -516,14 +630,24 @@ publicModelsRouter.get("/", async (c) => {
 		}
 		const catalogueVersion: ModelsCatalogueVersion =
 			requestedVersion === "v2" ? "v2" : "v1";
-		const limit = Math.max(1, parseBoundedInt(c.req.query("limit"), 100, 2_000));
-		const offset = parseBoundedInt(c.req.query("offset"), 0, 10_000);
+		const shape = c.req.query("shape");
+		const limit = Math.max(
+			1,
+			parseBoundedInt(c.req.query("limit"), 100, shape === "table" ? 10_000 : 2_000),
+		);
+		const offset = parseBoundedInt(
+			c.req.query("offset"),
+			0,
+			shape === "table" ? Number.MAX_SAFE_INTEGER : 10_000,
+		);
 		const search = c.req.query("search")?.trim();
 		const region = c.req.query("region")?.trim().toLowerCase() || null;
 		const serviceTier = c.req.query("service_tier")?.trim().toLowerCase() || null;
-		if (c.req.query("shape") === "page" && catalogueVersion === "v1") {
+		if (shape === "page") {
 			const projection = parseBoundedInt(c.req.query("projection"), 4, 100);
 			const includeVirtual = projection >= 5;
+			// The compact page RPC is backed by the canonical V2 tables and emits
+			// the stable card contract used by both catalogue versions.
 			const [catalogue, freeRouter] = await Promise.all([
 				fetchModelsPageCatalogue(c.env, { region, serviceTier }),
 				includeVirtual ? fetchFreeRouterOverview(c.env) : Promise.resolve(null),
@@ -533,6 +657,28 @@ publicModelsRouter.get("/", async (c) => {
 			const normalizedSearch = search?.toLowerCase();
 			const filtered = normalizedSearch ? allModels.filter((model) => String(model.name ?? "").toLowerCase().includes(normalizedSearch)) : allModels;
 			const response = withPublicCache(c.json({ models: filtered.slice(offset, offset + limit), facets: buildModelsPageFacets(filtered), pricing_complete: catalogue.pricingComplete, total: filtered.length, limit, offset, catalogue_version: catalogueVersion, shape: "page", projection }), cataloguePolicy(catalogueVersion, includeVirtual));
+			await storeCatalogueInCache(c.req.raw, response);
+			return response;
+		}
+		if (shape === "table") {
+			const projection = parseBoundedInt(c.req.query("projection"), 2, 100);
+			const payload = buildModelsTablePayload(
+				await fetchGatewayMonitorRows(c.env, catalogueVersion),
+			);
+			const models = payload.models.slice(offset, offset + limit);
+			const response = withPublicCache(
+				c.json({
+					models,
+					facets: payload.facets,
+					total: payload.models.length,
+					limit,
+					offset,
+					catalogue_version: catalogueVersion,
+					shape: "table",
+					projection,
+				}),
+				cataloguePolicy(catalogueVersion),
+			);
 			await storeCatalogueInCache(c.req.raw, response);
 			return response;
 		}

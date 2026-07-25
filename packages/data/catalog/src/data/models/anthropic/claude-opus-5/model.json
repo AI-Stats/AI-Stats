@@ -3,8 +3,8 @@
   "organisation_id": "anthropic",
   "name": "Claude Opus 5",
   "status": "Available",
-  "previous_model_id": "anthropic/claude-opus-4.7",
-  "description": "Claude Opus 5 is Anthropic's most capable Opus model for complex reasoning, long-horizon agentic coding, and high-autonomy work. It is available at the same price as Opus 4.7 with a 1M token context window and 128K max output.",
+  "previous_model_id": "anthropic/claude-opus-4.8",
+  "description": "Claude Opus 5 is Anthropic's most capable Opus model for complex reasoning, long-horizon agentic coding, and high-autonomy work. It is available at the same price as Opus 4.8 with a 1M token context window and 128K max output.",
   "announced_date": "2026-05-28T00:00:00",
   "release_date": "2026-05-28T00:00:00",
   "deprecation_date": null,
@@ -17,17 +17,12 @@
     {
       "title": "Announcement",
       "kind": "announcement",
-      "url": "https://www.anthropic.com/news/claude-opus-4-8"
-    },
-    {
-      "title": "Docs",
-      "kind": "docs",
-      "url": "https://docs.anthropic.com/en/docs/about-claude/models/whats-new-claude-4-8"
+      "url": "https://www.anthropic.com/news/claude-opus-5"
     },
     {
       "title": "Model Card",
       "kind": "model_card",
-      "url": "https://www.anthropic.com/claude-opus-4-8-system-card"
+      "url": "https://www.anthropic.com/claude-opus-5-system-card"
     }
   ],
   "details": [

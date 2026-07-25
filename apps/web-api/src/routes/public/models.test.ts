@@ -79,6 +79,144 @@ describe("public model routes", () => {
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_public_model_catalogue_rows"))).toBe(false);
 	});
 
+	it("serves the V2 models page from the compact page projection", async () => {
+		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("get_public_models_page_rows")) return new Response(JSON.stringify([{
+				model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", organisation_name: "OpenAI",
+				primary_date: "2026-01-02", gateway_status: "active",
+				gateway_provider_count: 1, gateway_active_provider_count: 1, gateway_endpoints: ["responses"],
+				gateway_input_modalities: ["text"], gateway_output_modalities: ["text"], gateway_features: ["tools"],
+				gateway_tiers: ["standard"], gateway_execution_regions: ["us"], gateway_provider_names: ["OpenAI"],
+				lowest_standard_input_price: 0.3, lowest_standard_input_price_unit: "billing unit",
+				lowest_standard_output_price: 1.2, lowest_standard_output_price_unit: "billing unit",
+				pricing_detail_rows: [
+					{ meter_key: "input_text_tokens", price: 0.3, display_unit: "1M tokens", unit_quantity: 1_000_000 },
+					{ meter_key: "output_text_tokens", price: 1.2, display_unit: "1M tokens", unit_quantity: 1_000_000 },
+				],
+			}]), { status: 200 });
+			if (url.includes("get_public_free_router_overview")) return new Response(JSON.stringify({
+				summary: { eligibleModels: 1, eligibleProviders: 1, routedRequests30d: 10, totalCostNanos30d: 0 },
+				models: [{ modelId: "openai/gpt-test", inputModalities: ["text"], outputModalities: ["text"] }],
+			}), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models?catalogue_version=v2&shape=page&projection=6&limit=2000",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get("cache-tag")).toContain("web-api-models-v2");
+		expect(response.headers.get("cache-tag")).toContain("web-api-free-router-overview");
+		await expect(response.json()).resolves.toMatchObject({
+			catalogue_version: "v2",
+			shape: "page",
+			projection: 6,
+			pricing_complete: true,
+			total: 2,
+			models: [
+				{ model_id: "phaseo/free" },
+				{
+					model_id: "openai/gpt-test",
+					lowest_standard_input_price_unit: "1M tokens",
+					lowest_standard_output_price_unit: "1M tokens",
+					pricing_detail_rows: [
+						{ label: "Input Text Tokens", value: "$0.3 / 1M tokens" },
+						{ label: "Output Text Tokens", value: "$1.2 / 1M tokens" },
+					],
+				},
+			],
+			facets: { statusCounts: { active: 2 } },
+		});
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_monitor_model_rows"))).toBe(false);
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("v2_models?"))).toBe(false);
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_public_models_page_rows"))).toBe(true);
+	});
+
+	it("serves compact table rows without loading the nested model catalogue", async () => {
+		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("get_monitor_model_rows")) {
+				const monitorRow = {
+				model_id: "openai/gpt-test", api_model_id: "openai/gpt-test", model_name: "GPT Test",
+				organisation_id: "openai", organisation_name: "OpenAI", provider_id: "openai",
+				api_provider_name: "OpenAI", capability_id: "responses", capability_status: "active",
+				is_active_gateway: true, input_modalities: ["text"], output_modalities: ["text"],
+				capability_params: { properties: { temperature: { type: "number" } } },
+				input_price: 1, output_price: 2, context_length: 128000,
+				provider_max_output_tokens: 4096, weekly_tokens_model: 100,
+				weekly_tokens_model_provider: 250, model_release_date: "2026-01-02",
+				};
+				return new Response(JSON.stringify([
+					{ ...monitorRow, provider_api_model_id: "provider-model-a" },
+					{ ...monitorRow, provider_api_model_id: "provider-model-b", input_price: 0.5 },
+				]), { status: 200 });
+			}
+			if (url.includes("get_v2_provider_region_map")) return new Response(JSON.stringify([
+				{ provider_slug: "openai", regions: ["US"] },
+			]), { status: 200 });
+			if (url.includes("v2_providers?")) return new Response(JSON.stringify([
+				{ provider_slug: "openai", status: "active" },
+			]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models?catalogue_version=v2&shape=table&projection=2&limit=10000",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get("cache-tag")).toContain("web-api-models-v2");
+		const payload = await response.json() as {
+			models: Array<{ id: string; provider: Record<string, unknown> }>;
+			[key: string]: unknown;
+		};
+		expect(payload).toMatchObject({
+			catalogue_version: "v2",
+			shape: "table",
+			projection: 2,
+			total: 2,
+			models: [{
+				id: "openai/gpt-test::openai::provider-model-a::responses",
+				modelId: "openai/gpt-test",
+				provider: { id: "openai", inputPrice: 1, outputPrice: 2, executionRegions: ["us"] },
+				endpoint: "responses",
+				popularityTokensWeek: 250,
+			}, {
+				id: "openai/gpt-test::openai::provider-model-b::responses",
+				provider: { inputPrice: 0.5 },
+			}],
+			facets: {
+				endpoints: ["responses"],
+				modalities: ["text"],
+				features: [],
+				statuses: ["active"],
+			},
+		});
+		expect(new Set(payload.models.map((model) => model.id)).size).toBe(2);
+		expect(payload.models[0].provider).not.toHaveProperty("standardInputPrice");
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("v2_models?"))).toBe(false);
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("data_models?"))).toBe(false);
+
+		const laterPageResponse = await app.request(
+			"https://phaseo.app/api/_web/models?catalogue_version=v2&shape=table&projection=2&limit=10000&offset=20000",
+			{},
+			env,
+		);
+		expect(laterPageResponse.status).toBe(200);
+		await expect(laterPageResponse.json()).resolves.toMatchObject({
+			offset: 20_000,
+			models: [],
+		});
+	});
+
 	it("marks the compatibility catalogue as needing pricing enrichment before the page RPC is deployed", async () => {
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
