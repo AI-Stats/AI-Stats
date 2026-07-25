@@ -27651,11 +27651,11 @@
       }
     },
     "../../packages/data/catalog/src/data/models/anthropic/claude-opus-5/model.json": {
-      "hash": "a2972d493d5c378b369a9d1668f603c2",
+      "hash": "69105077776e183e04ae1c745187f2cb",
       "meta": {
         "model_id": "anthropic/claude-opus-5",
         "organisation_id": "anthropic",
-        "previous_model_id": "anthropic/claude-opus-4.7",
+        "previous_model_id": "anthropic/claude-opus-4.8",
         "api_model_id": "anthropic/claude-opus-5",
         "has_page_notice": false
       }
