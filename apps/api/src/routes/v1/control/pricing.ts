@@ -44,6 +44,16 @@ function parseModelKey(value?: string | null): {
     return { providerId, apiModelId, capabilityId };
 }
 
+function isWithinEffectiveWindow(
+    effectiveFrom: string | null | undefined,
+    effectiveTo: string | null | undefined,
+    now: Date,
+): boolean {
+    const start = effectiveFrom ? Date.parse(effectiveFrom) : Number.NEGATIVE_INFINITY;
+    const end = effectiveTo ? Date.parse(effectiveTo) : Number.POSITIVE_INFINITY;
+    return (Number.isNaN(start) || start <= now.getTime()) && (Number.isNaN(end) || end > now.getTime());
+}
+
 async function handlePricingModels(req: Request) {
     const auth = await guardAuth(req, { allowOAuthJwt: true });
     if (!auth.ok) {
@@ -54,33 +64,44 @@ async function handlePricingModels(req: Request) {
 
     try {
         const supabase = getSupabaseAdmin();
-        const nowIso = new Date().toISOString();
+        const now = new Date();
+        const nowIso = now.toISOString();
 
-        const { data: providerModels, error: pmError } = await supabase
+        const { data: providerModelRows, error: pmError } = await supabase
             .from("data_api_provider_models")
             .select("provider_api_model_id, provider_id, api_model_id, model_id, is_active_gateway, effective_from, effective_to")
-            .eq("is_active_gateway", true)
-            .lte("effective_from", nowIso)
-            .or(`effective_to.is.null,effective_to.gt.${nowIso}`);
+            .eq("is_active_gateway", true);
 
         if (pmError) {
             throw new Error(pmError.message || "Failed to load provider models");
         }
 
+        const providerModels = (providerModelRows ?? []).filter((row) =>
+            isWithinEffectiveWindow(row.effective_from, row.effective_to, now)
+        );
+
         const providerModelIds = (providerModels ?? [])
             .map((row) => row.provider_api_model_id)
             .filter((id): id is string => Boolean(id));
 
-        const { data: capabilities, error: capError } = await supabase
-            .from("data_api_provider_model_capabilities")
-            .select("provider_api_model_id, capability_id, effective_from, effective_to")
-            .eq("status", "active")
-            .in("provider_api_model_id", providerModelIds)
-            .lte("effective_from", nowIso)
-            .or(`effective_to.is.null,effective_to.gt.${nowIso}`);
-
-        if (capError) {
-            throw new Error(capError.message || "Failed to load provider capabilities");
+        const capabilities: Array<{
+            provider_api_model_id: string | null;
+            capability_id: string | null;
+            effective_from: string | null;
+            effective_to: string | null;
+        }> = [];
+        for (let offset = 0; offset < providerModelIds.length; offset += 200) {
+            const { data, error } = await supabase
+                .from("data_api_provider_model_capabilities")
+                .select("provider_api_model_id, capability_id, effective_from, effective_to")
+                .eq("status", "active")
+                .in("provider_api_model_id", providerModelIds.slice(offset, offset + 200));
+            if (error) {
+                throw new Error(error.message || "Failed to load provider capabilities");
+            }
+            capabilities.push(...(data ?? []).filter((row) =>
+                isWithinEffectiveWindow(row.effective_from, row.effective_to, now)
+            ));
         }
 
         // Get model names
@@ -91,13 +112,16 @@ async function handlePricingModels(req: Request) {
                     .filter(Boolean)
             )
         );
-        const { data: models, error: mError } = await supabase
-            .from("data_models")
-            .select("model_id, name, hidden")
-            .in("model_id", modelIds);
-
-        if (mError) {
-            throw new Error(mError.message || "Failed to load model names");
+        const models: Array<{ model_id: string | null; name: string | null; hidden: boolean | null }> = [];
+        for (let offset = 0; offset < modelIds.length; offset += 200) {
+            const { data, error } = await supabase
+                .from("data_models")
+                .select("model_id, name, hidden")
+                .in("model_id", modelIds.slice(offset, offset + 200));
+            if (error) {
+                throw new Error(error.message || "Failed to load model names");
+            }
+            models.push(...(data ?? []));
         }
 
         const modelNameMap = new Map<string, string>();
