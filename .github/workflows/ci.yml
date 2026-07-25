@@ -335,13 +335,26 @@ jobs:
                     exit 0
                   fi
 
-                  branch="automation/importer-state-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+                  # Keep one moving branch/PR for importer state. The importer is
+                  # serialized above, so force-updating this branch cannot race
+                  # another importer run and avoids accumulating snapshot PRs.
+                  branch="automation/importer-state"
                   git config user.name "github-actions[bot]"
                   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-                  git switch --create "${branch}"
+                  git fetch origin "${branch}" || true
+                  remote_branch_sha=""
+                  if git show-ref --verify --quiet "refs/remotes/origin/${branch}"; then
+                    remote_branch_sha="$(git rev-parse "refs/remotes/origin/${branch}")"
+                  fi
+                  git switch --force-create "${branch}" HEAD
                   git add "${state_file}"
                   git commit -m "chore(data): persist importer state"
-                  git push --set-upstream "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "${branch}"
+                  remote_url="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+                  if [[ -n "${remote_branch_sha}" ]]; then
+                    git push --force-with-lease="${branch}:${remote_branch_sha}" "${remote_url}" "${branch}"
+                  else
+                    git push --set-upstream "${remote_url}" "${branch}"
+                  fi
                   echo "changed=true" >> "${GITHUB_OUTPUT}"
                   echo "branch=${branch}" >> "${GITHUB_OUTPUT}"
 
@@ -352,11 +365,31 @@ jobs:
               shell: bash
               run: |
                   set -euo pipefail
+                  branch="${{ steps.importer-state-update.outputs.branch }}"
+                  existing_pr="$(gh pr list --state open --base main --head "${branch}" --json number --jq '.[0].number')"
+                  if [[ -n "${existing_pr}" ]]; then
+                    echo "Importer state PR #${existing_pr} already exists; updated its branch."
+                    exit 0
+                  fi
                   gh pr create \
                     --base main \
-                    --head "${{ steps.importer-state-update.outputs.branch }}" \
+                    --head "${branch}" \
                     --title "chore(data): persist importer state" \
-                    --body "Automated update of the committed importer hash state after a successful main import."
+                    --body "Automated update of the committed importer hash state after a successful main import. This PR is intentionally reused and updated by subsequent imports."
+
+            - name: Close superseded importer state PRs
+              if: steps.importer-state-update.outputs.changed == 'true'
+              env:
+                  GH_TOKEN: ${{ steps.importer-app-token.outputs.token }}
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  legacy_prs="$(gh pr list --state open --base main --json number,headRefName --limit 100 --jq '[.[] | select(.headRefName | startswith("automation/importer-state-")) | .number] | .[]')"
+                  while IFS= read -r pr_number; do
+                    [[ -z "${pr_number}" ]] && continue
+                    gh pr close "${pr_number}" \
+                      --comment "Superseded by the reusable automation/importer-state PR; future importer runs update that single PR."
+                  done <<< "${legacy_prs}"
 
     sdk-gen:
         name: Generate SDKs
