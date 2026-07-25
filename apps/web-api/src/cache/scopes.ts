@@ -68,9 +68,6 @@ const ALL_PUBLIC_TAGS = [
 	...CATALOGUE_TAGS,
 	"web-api-sources",
 	"web-api-updates",
-	"web-api-updates-web",
-	"web-api-updates-youtube",
-	"web-api-updates-latest",
 	"web-api-model-updates",
 	"web-api-apps",
 	"web-api-app-ids",
@@ -188,11 +185,11 @@ const DEFINITIONS: Record<CacheScopeId, CacheScopeDefinition> = {
 	updates: {
 		id: "updates",
 		label: "Updates",
-		description: "Refresh model, web, YouTube, and latest-update feeds.",
+		description: "Refresh model update feeds.",
 		targetRequired: false,
 		affectsSearch: false,
 		danger: "normal",
-		tags: ["web-api-updates", "web-api-updates-web", "web-api-updates-youtube", "web-api-updates-latest", "web-api-model-updates"],
+		tags: ["web-api-updates", "web-api-model-updates"],
 	},
 	pricing: {
 		id: "pricing",
