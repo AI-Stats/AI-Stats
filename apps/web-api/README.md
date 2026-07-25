@@ -56,7 +56,6 @@ Each model page section will be added as an independent resource rather than ext
 1. Create `apps/web-api/.dev.vars` with the non-production values needed by a route. The account API requires `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`; the local Worker also accepts the existing `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` names used by `apps/api/.dev.vars`.
 	Stripe checkout, billing reads, and webhooks remain owned by the Next.js web application; they are intentionally not configured in this Worker.
 	Authenticated automatic chat issue creation additionally uses `GITHUB_TOKEN` (or `GH_TOKEN`) and optional `GITHUB_REPOSITORY`; anonymous reports fall back to a prefilled GitHub issue URL.
-	Scheduled YouTube ingestion requires `YT_API_KEY`. Watchers can be run locally with `POST /api/internal/watchers/web` or `/youtube` using `Authorization: Bearer $REVALIDATION_SECRET`.
 	Key-management routes require `KEY_PEPPER_ACTIVE`; OAuth client management
 	uses `PHASEO_OAUTH_TOKEN_PEPPER` (falling back to the active key pepper) and
 	`PHASEO_THIRD_PARTY_OAUTH_ENABLED`. BYOK writes require
@@ -84,7 +83,6 @@ the sole cache owner for migrated data.
 ## Deployment prerequisites
 
 - Add the production `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` as Worker environment values/secrets. The service-role key is only available inside Cloudflare and is used to read public catalogue data consistently regardless of Supabase RLS.
-- Add `YT_API_KEY` as a Worker secret for the 30-minute scheduled YouTube watcher. The web watcher needs no provider credential. Successful watcher writes purge `web-api-updates`, the watcher-specific tag, and `web-api-updates-latest`.
 - Provision `KEY_PEPPER_ACTIVE`, `PHASEO_OAUTH_TOKEN_PEPPER`,
   `BYOK_KMS_KEY_V1`, `BYOK_FINGERPRINT_PEPPER`, and
   `ASYNC_WEBHOOK_SECRET_ENCRYPTION_KEY` as Worker secrets before

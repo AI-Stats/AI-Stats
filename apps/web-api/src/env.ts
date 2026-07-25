@@ -32,7 +32,6 @@ export type Env = {
 	GITHUB_REPOSITORY?: string;
 	GITHUB_TOKEN?: string;
 	GH_TOKEN?: string;
-	YT_API_KEY?: string;
 	ENABLE_GATEWAY_USAGE_RAW_FALLBACK?: string;
 	USAGE_MODEL_METADATA_DEBUG?: string;
 	NEXT_PUBLIC_USAGE_MODEL_METADATA_DEBUG?: string;
