@@ -97,7 +97,10 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
         return null;
     };
 
+    let completionTimingRecorded = false;
     const recordCompletionTiming = () => {
+        if (completionTimingRecorded) return;
+        completionTimingRecorded = true;
         if (
             ctx.meta.preserve_stream_timing &&
             typeof ctx.meta.latency_ms === "number" &&
@@ -136,14 +139,24 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
     };
 
     let finalUsageSettled = false;
-    const finalizeUsage = (usage: any, reason: "complete" | "aborted") => {
+    const finalizeUsage = (
+        usage: any,
+        info: { aborted: boolean; sawFinalUsage: boolean },
+    ) => {
         if (finalUsageSettled) return;
         finalUsageSettled = true;
 
         if (!onFinalUsage) return;
 
-        if (reason === "aborted") {
+        if (info.aborted) {
             console.warn("[gateway] Streaming response ended before final usage", {
+                requestId: ctx.requestId,
+                workspaceId: ctx.workspaceId,
+                endpoint: ctx.endpoint,
+                provider,
+            });
+        } else if (!info.sawFinalUsage) {
+            console.warn("[gateway] Streaming response completed without final usage", {
                 requestId: ctx.requestId,
                 workspaceId: ctx.workspaceId,
                 endpoint: ctx.endpoint,
@@ -154,10 +167,7 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
         recordCompletionTiming();
         dispatchBackground(
             Promise.resolve(
-                onFinalUsage(usage, {
-                    aborted: reason === "aborted",
-                    sawFinalUsage: reason === "complete",
-                }),
+                onFinalUsage(usage, info),
             ).catch((err) => {
                 console.error("passthroughWithPricing onFinalUsage error:", err, {
                     requestId: ctx.requestId,
@@ -169,13 +179,13 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
 
     const streamPump = (async () => {
         if (!reader) {
-            finalizeUsage(null, "aborted");
+            finalizeUsage(null, { aborted: true, sawFinalUsage: false });
             try { await writer.close(); } catch { }
             return;
         }
 
         let buf = "";
-        let sawFinalUsage = false;
+        let sawTerminalSnapshot = false;
         let lastSeenUsage: any = null;
 
         try {
@@ -285,7 +295,7 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
 
                     const fallbackTerminal =
                         !terminalByEvents &&
-                        !sawFinalUsage &&
+                        !sawTerminalSnapshot &&
                         (
                             json?.object === "chat.completion" ||
                             json?.response?.object === "chat.completion" ||
@@ -293,10 +303,10 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
                             (json?.response?.object === "response" && json?.response?.status === "completed")
                         );
 
-                    const isFinalSnapshot = !sawFinalUsage && (terminalByEvents || fallbackTerminal);
+                    const isFinalSnapshot = !sawTerminalSnapshot && (terminalByEvents || fallbackTerminal);
 
                     if (isFinalSnapshot) {
-                        sawFinalUsage = true;
+                        sawTerminalSnapshot = true;
                         recordCompletionTiming();
                     }
 
@@ -320,11 +330,16 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
                     let finalUsageAfterWrite: any = null;
                     // Capture terminal state before rewriting the frame, but do not
                     // start persistence until the terminal frame is downstream.
+                    // OpenAI chat streams emit finish_reason first and then a
+                    // separate usage-only frame, so a terminal frame without usage
+                    // must not settle billing before that trailing frame arrives.
                     if (isFinalSnapshot) {
                         if (onFinalSnapshot) {
                             try { onFinalSnapshot(finalSnapshotFromEvents ?? json); } catch { }
                         }
                         finalUsageAfterWrite = usageCandidate ?? lastSeenUsage;
+                    } else if (sawTerminalSnapshot && usageCandidate) {
+                        finalUsageAfterWrite = usageCandidate;
                     }
 
                     for (const outbound of outboundFrames) {
@@ -335,15 +350,21 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
                         await writeJson(frameOut, outbound.eventName ?? null);
                     }
 
-                    if (isFinalSnapshot) {
-                        finalizeUsage(finalUsageAfterWrite, "complete");
+                    if (finalUsageAfterWrite) {
+                        finalizeUsage(finalUsageAfterWrite, {
+                            aborted: false,
+                            sawFinalUsage: true,
+                        });
                     }
 
                 }
             }
         } finally {
-            if (!sawFinalUsage) {
-                finalizeUsage(lastSeenUsage, "aborted");
+            if (!finalUsageSettled) {
+                finalizeUsage(lastSeenUsage, {
+                    aborted: !sawTerminalSnapshot,
+                    sawFinalUsage: false,
+                });
             }
             if (!downstreamClosed) {
                 try { await writer.close(); } catch { }
