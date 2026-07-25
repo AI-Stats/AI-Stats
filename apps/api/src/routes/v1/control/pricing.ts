@@ -87,21 +87,17 @@ async function handlePricingModels(req: Request) {
         const capabilities: Array<{
             provider_api_model_id: string | null;
             capability_id: string | null;
-            effective_from: string | null;
-            effective_to: string | null;
         }> = [];
         for (let offset = 0; offset < providerModelIds.length; offset += 200) {
             const { data, error } = await supabase
                 .from("data_api_provider_model_capabilities")
-                .select("provider_api_model_id, capability_id, effective_from, effective_to")
+                .select("provider_api_model_id, capability_id")
                 .eq("status", "active")
                 .in("provider_api_model_id", providerModelIds.slice(offset, offset + 200));
             if (error) {
                 throw new Error(error.message || "Failed to load provider capabilities");
             }
-            capabilities.push(...(data ?? []).filter((row) =>
-                isWithinEffectiveWindow(row.effective_from, row.effective_to, now)
-            ));
+            capabilities.push(...(data ?? []));
         }
 
         // Get model names
