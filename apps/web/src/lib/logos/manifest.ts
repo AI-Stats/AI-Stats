@@ -233,6 +233,9 @@ export const logoManifest = {
 	minimax: {
 		color: "/logos/minimax.svg",
 	},
+	mindai: {
+		color: "/logos/mindai.svg",
+	},
 	"minimax-lightning": {
 		color: "/logos/minimax.svg",
 	},
@@ -345,6 +348,9 @@ export const logoManifest = {
 	},
 	sambanova: {
 		color: "/logos/sambanova.svg",
+	},
+	sakana: {
+		color: "/logos/sakana.svg",
 	},
 	sourceful: {
 		light: "/logos/sourceful_light.svg",

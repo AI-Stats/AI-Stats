@@ -38,4 +38,22 @@ describe("logos", () => {
 			variant: "dark",
 		});
 	});
+
+	test("resolves the Mind Lab logo by catalogue id", () => {
+		expect(resolveLogo("mindai")).toMatchObject({
+			id: "mindai",
+			label: "Mind Lab",
+			src: "/logos/mindai.svg",
+			variant: "color",
+		});
+	});
+
+	test("resolves the Sakana AI logo by catalogue id", () => {
+		expect(resolveLogo("sakana")).toMatchObject({
+			id: "sakana",
+			label: "Sakana AI",
+			src: "/logos/sakana.svg",
+			variant: "color",
+		});
+	});
 });
