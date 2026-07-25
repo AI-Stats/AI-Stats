@@ -148,6 +148,132 @@ describe("passthroughWithPricing", () => {
 		});
 	});
 
+	it("waits for OpenAI's trailing usage-only frame after finish_reason", async () => {
+		const usageCalls: Array<{ usage: any; info: any }> = [];
+		const completionTimings: Array<{ generationMs: number; endToEndMs: number }> = [];
+		const upstream = makeDelayedSseResponse([
+			{
+				data: {
+					id: "chatcmpl_usage_after_stop",
+					object: "chat.completion.chunk",
+					choices: [{ index: 0, delta: { content: "hello" }, finish_reason: null }],
+					usage: null,
+				},
+			},
+			{
+				data: {
+					id: "chatcmpl_usage_after_stop",
+					object: "chat.completion.chunk",
+					choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
+					usage: null,
+				},
+			},
+			{
+				data: {
+					id: "chatcmpl_usage_after_stop",
+					object: "chat.completion.chunk",
+					choices: [],
+					usage: { prompt_tokens: 11, completion_tokens: 4, total_tokens: 15 },
+				},
+			},
+		], 10).response;
+		const ctx = baseCtx({
+			endpoint: "chat.completions",
+			protocol: "openai.chat.completions",
+			meta: {
+				startedAtMs: Date.now() - 50,
+				selectedUpstreamFetchStartMs: Date.now() - 40,
+			},
+		});
+
+		const response = await passthroughWithPricing({
+			upstream,
+			ctx,
+			provider: "openai",
+			priceCard: null,
+			onFinalSnapshot: () => {
+				completionTimings.push({
+					generationMs: ctx.meta.generation_ms,
+					endToEndMs: ctx.meta.end_to_end_ms,
+				});
+			},
+			onFinalUsage: (usage, info) => {
+				usageCalls.push({ usage, info });
+				completionTimings.push({
+					generationMs: ctx.meta.generation_ms,
+					endToEndMs: ctx.meta.end_to_end_ms,
+				});
+			},
+		});
+
+		await drain(response);
+
+		expect(usageCalls).toEqual([{
+			usage: { prompt_tokens: 11, completion_tokens: 4, total_tokens: 15 },
+			info: { aborted: false, sawFinalUsage: true },
+		}]);
+		expect(completionTimings).toHaveLength(2);
+		expect(completionTimings[1]).toEqual(completionTimings[0]);
+	});
+
+	it("keeps draining for trailing OpenAI usage after the client disconnects", async () => {
+		const usageCalls: Array<{ usage: any; info: any }> = [];
+		let resolveUsage: (() => void) | null = null;
+		const usageSettled = new Promise<void>((resolve) => {
+			resolveUsage = resolve;
+		});
+		const upstream = makeDelayedSseResponse([
+			{
+				data: {
+					id: "chatcmpl_disconnected_usage",
+					object: "chat.completion.chunk",
+					choices: [{ index: 0, delta: { content: "hello" }, finish_reason: null }],
+				},
+			},
+			{
+				data: {
+					id: "chatcmpl_disconnected_usage",
+					object: "chat.completion.chunk",
+					choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
+				},
+			},
+			{
+				data: {
+					id: "chatcmpl_disconnected_usage",
+					object: "chat.completion.chunk",
+					choices: [],
+					usage: { prompt_tokens: 9, completion_tokens: 3, total_tokens: 12 },
+				},
+			},
+		], 10);
+
+		const response = await passthroughWithPricing({
+			upstream: upstream.response,
+			ctx: baseCtx({
+				endpoint: "chat.completions",
+				protocol: "openai.chat.completions",
+			}),
+			provider: "openai",
+			priceCard: null,
+			onFinalUsage: (usage, info) => {
+				usageCalls.push({ usage, info });
+				resolveUsage?.();
+			},
+		});
+
+		const reader = response.body?.getReader();
+		expect(reader).toBeTruthy();
+		await reader?.read();
+		await reader?.cancel();
+		await usageSettled;
+
+		expect(upstream.wasCancelled()).toBe(false);
+		expect(usageCalls).toEqual([{
+			usage: { prompt_tokens: 9, completion_tokens: 3, total_tokens: 12 },
+			info: { aborted: false, sawFinalUsage: true },
+		}]);
+	});
+
 	it("emits canonical stream events while forwarding SSE", async () => {
 		const seenEvents: string[] = [];
 		const upstream = makeSseResponse([
