@@ -233,6 +233,9 @@ export const logoManifest = {
 	minimax: {
 		color: "/logos/minimax.svg",
 	},
+	mindai: {
+		color: "/logos/mindai.svg",
+	},
 	"minimax-lightning": {
 		color: "/logos/minimax.svg",
 	},

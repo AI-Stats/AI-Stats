@@ -38,4 +38,13 @@ describe("logos", () => {
 			variant: "dark",
 		});
 	});
+
+	test("resolves the Mind Lab logo by catalogue id", () => {
+		expect(resolveLogo("mindai")).toMatchObject({
+			id: "mindai",
+			label: "Mind Lab",
+			src: "/logos/mindai.svg",
+			variant: "color",
+		});
+	});
 });
