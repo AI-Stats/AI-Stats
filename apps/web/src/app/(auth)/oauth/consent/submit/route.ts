@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import {
 	approveAuthorizationAction,
 	denyAuthorizationAction,
-} from "@/app/(auth)/oauth/consent/actions";
+} from "../actions";
 
 export async function POST(request: Request) {
 	const origin = request.headers.get("origin");
