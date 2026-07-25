@@ -91,7 +91,7 @@ export const FAQ_ITEMS = [
 		question: "How does Phaseo calculate model pricing?",
 		answer: (
 			<>
-				Pricing is shown by model and provider so that you can inspect the underlying rates rather than rely on a blended estimate. Read <Link href="/how-phaseo-calculates-model-pricing" className="font-medium underline underline-offset-4">how Phaseo calculates model pricing</Link> for the methodology, or use the <Link href="/tools/pricing-calculator" className="font-medium underline underline-offset-4">pricing calculator</Link> to estimate a workload.
+				Phaseo stores each provider route&apos;s meter, unit size, currency, plan, and effective dates. Input and output rates remain separate, and token prices are normalised per 1M tokens for comparison; they are not combined into a blended headline price. Read the <Link href="/how-phaseo-calculates-model-pricing" className="font-medium underline underline-offset-4">pricing methodology</Link> or enter your own token volumes in the <Link href="/tools/pricing-calculator" className="font-medium underline underline-offset-4">pricing calculator</Link>.
 			</>
 		),
 	},
@@ -146,7 +146,7 @@ export const FAQ_ITEMS = [
 ];
 
 export function FAQSection() {
-	const [openIndex, setOpenIndex] = useState<number | null>(0);
+	const [openIndex, setOpenIndex] = useState<number | null>(null);
 
 	const handleToggle = (index: number) => {
 		setOpenIndex(openIndex === index ? null : index);

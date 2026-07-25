@@ -1,6 +1,11 @@
+import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
+import type {
+	PricingRule,
+	ProviderPricing,
+} from "@/lib/fetchers/models/getModelPricing";
 import { formatModelLifecycleDate } from "@/lib/dates/modelLifecycleDates";
 
 function parseTypes(value: string | null | undefined): string[] {
@@ -41,22 +46,134 @@ function getStatusDescription(status: ModelOverviewPage["status"]): string {
 	}
 }
 
+type PricingHighlight = {
+	label: string;
+	formattedPrice: string;
+	providerId: string;
+	providerName: string;
+};
+
+function isNonNull<T>(value: T | null): value is T {
+	return value !== null;
+}
+
+const PRICING_METER_LABELS: Record<string, string> = {
+	input_text_tokens: "text input",
+	input_tokens: "input",
+	output_text_tokens: "text output",
+	output_tokens: "output",
+	input_audio_tokens: "audio input",
+	output_audio_tokens: "audio output",
+	input_image_tokens: "image input",
+	output_image_tokens: "image output",
+	input_video_tokens: "video input",
+	output_video_tokens: "video output",
+	images: "image generation",
+	requests: "request",
+};
+
+function formatCurrency(amount: number, currency: string): string {
+	const normalizedCurrency = currency.trim().toUpperCase() || "USD";
+	return new Intl.NumberFormat("en-US", {
+		style: "currency",
+		currency: normalizedCurrency,
+		minimumFractionDigits: amount === 0 ? 0 : amount < 0.01 ? 4 : 2,
+		maximumFractionDigits: amount > 0 && amount < 0.01 ? 4 : 2,
+	}).format(amount);
+}
+
+function normaliseRulePrice(rule: PricingRule): {
+	price: number;
+	formattedPrice: string;
+} | null {
+	const rawPrice = Number(rule.price_per_unit);
+	const unitSize = Number(rule.unit_size);
+	if (!Number.isFinite(rawPrice) || rawPrice < 0 || !Number.isFinite(unitSize) || unitSize <= 0) {
+		return null;
+	}
+
+	const unit = rule.unit.trim().toLowerCase();
+	if (unit === "token" || unit === "tokens" || rule.meter.includes("tokens")) {
+		const price = rawPrice * (1_000_000 / unitSize);
+		return {
+			price,
+			formattedPrice: `${formatCurrency(price, rule.currency)} per 1M tokens`,
+		};
+	}
+
+	const unitLabel = unitSize === 1 ? unit : `${unitSize} ${unit}${unit.endsWith("s") ? "" : "s"}`;
+	return {
+		price: rawPrice,
+		formattedPrice: `${formatCurrency(rawPrice, rule.currency)} per ${unitLabel}`,
+	};
+}
+
+function getPricingHighlights(pricing: ProviderPricing[]): PricingHighlight[] {
+	const candidates = pricing.flatMap((provider) =>
+		provider.pricing_rules
+			.filter((rule) => {
+				const plan = rule.pricing_plan.trim().toLowerCase();
+				return !plan || plan === "standard" || plan === "free";
+			})
+			.map((rule) => {
+				const normalized = normaliseRulePrice(rule);
+				if (!normalized) return null;
+				return {
+					meter: rule.meter,
+					...normalized,
+					providerId: provider.provider.api_provider_id,
+					providerName: provider.provider.api_provider_name,
+				};
+			})
+			.filter(isNonNull),
+	);
+
+	const lowestByMeter = new Map<string, (typeof candidates)[number]>();
+	for (const candidate of candidates) {
+		const current = lowestByMeter.get(candidate.meter);
+		if (!current || candidate.price < current.price) lowestByMeter.set(candidate.meter, candidate);
+	}
+
+	const meterPriority = [
+		"input_text_tokens",
+		"input_tokens",
+		"output_text_tokens",
+		"output_tokens",
+	];
+	return Array.from(lowestByMeter.values())
+		.sort((a, b) => {
+			const aPriority = meterPriority.indexOf(a.meter);
+			const bPriority = meterPriority.indexOf(b.meter);
+			return (aPriority < 0 ? 100 : aPriority) - (bPriority < 0 ? 100 : bPriority);
+		})
+		.slice(0, 3)
+		.map((candidate) => ({
+			label: PRICING_METER_LABELS[candidate.meter] ?? candidate.meter.replace(/_/g, " "),
+			formattedPrice: candidate.formattedPrice,
+			providerId: candidate.providerId,
+			providerName: candidate.providerName,
+		}));
+}
+
 export default function ModelFaqSection({
 	model,
 	benchmarkCount,
 	activeProviderCount,
 	isGatewayActive,
+	pricing,
 }: {
 	model: ModelOverviewPage;
 	benchmarkCount: number;
 	activeProviderCount: number;
 	isGatewayActive: boolean;
+	pricing: ProviderPricing[];
 }) {
 	const modelName = model.name;
 	const organisationName = model.organisation.name;
 	const releaseDate = model.release_date ?? model.announcement_date ?? null;
 	const inputTypes = parseTypes(model.input_types);
 	const outputTypes = parseTypes(model.output_types);
+	const pricingHighlights = isGatewayActive ? getPricingHighlights(pricing) : [];
 
 	const items = [
 		{
@@ -76,17 +193,30 @@ export default function ModelFaqSection({
 				</>
 			),
 		},
-		...(isGatewayActive
+		...(pricingHighlights.length > 0
 			? [
 					{
 						question: `How much does ${modelName} cost?`,
 						answer: (
 							<>
-								Pricing can vary by provider, capability, and effective date. The{" "}
+								The lowest base rates currently recorded for {modelName} are{" "}
+								{pricingHighlights.map((highlight, index) => (
+									<span key={`${highlight.label}-${highlight.providerId}`}>
+										{index > 0 ? (index === pricingHighlights.length - 1 ? "; and " : "; ") : ""}
+										{highlight.label} at {highlight.formattedPrice} through{" "}
+										<Link
+											href={`/api-providers/${highlight.providerId}`}
+											className="font-medium underline underline-offset-4"
+										>
+											{highlight.providerName}
+										</Link>
+									</span>
+								))}
+								. The{" "}
 								<Link href="#pricing" className="font-medium underline underline-offset-4">
 									pricing section
 								</Link>{" "}
-								compares the currently recorded routes and billing units for {modelName}.
+								shows every recorded provider, pricing plan, meter, and condition.
 							</>
 						),
 					},
@@ -164,10 +294,13 @@ export default function ModelFaqSection({
 			</div>
 			<div className="divide-y divide-border/60 rounded-lg border border-border/70 bg-background">
 				{items.map((item) => (
-					<div key={item.question} className="space-y-2 px-4 py-4 md:px-5">
-						<h3 className="text-base font-semibold">{item.question}</h3>
-						<p className="text-sm leading-6 text-muted-foreground">{item.answer}</p>
-					</div>
+					<details key={item.question} className="group px-4 md:px-5">
+						<summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left marker:content-none [&::-webkit-details-marker]:hidden">
+							<h3 className="text-base font-semibold">{item.question}</h3>
+							<ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+						</summary>
+						<p className="pb-4 pr-8 text-sm leading-6 text-muted-foreground">{item.answer}</p>
+					</details>
 				))}
 			</div>
 		</section>

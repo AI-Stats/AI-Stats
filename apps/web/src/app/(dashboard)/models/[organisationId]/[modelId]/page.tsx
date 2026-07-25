@@ -3,6 +3,7 @@ import {
 	fetchFrontendModelAvailability,
 	fetchFrontendModelOverview,
 	fetchFrontendModelPerformance,
+	fetchFrontendModelPricing,
 	fetchFrontendModelSubscriptionPlans,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
@@ -57,6 +58,31 @@ async function ModelCreatorModelsSectionContent({
 				model={model}
 			/>
 		</div>
+	);
+}
+
+async function ModelFaqSectionContent({
+	model,
+	benchmarkCount,
+	activeProviderCount,
+	isGatewayActive,
+	pricingPromise,
+}: {
+	model: ModelOverviewPage;
+	benchmarkCount: number;
+	activeProviderCount: number;
+	isGatewayActive: boolean;
+	pricingPromise: ReturnType<typeof fetchFrontendModelPricing>;
+}) {
+	const pricing = await pricingPromise;
+	return (
+		<ModelFaqSection
+			model={model}
+			benchmarkCount={benchmarkCount}
+			activeProviderCount={activeProviderCount}
+			isGatewayActive={isGatewayActive}
+			pricing={pricing}
+		/>
 	);
 }
 
@@ -172,6 +198,7 @@ export default async function Page({
 	const benchmarkPromise = fetchFrontendModelBenchmarkHighlights(modelId).catch(() => []);
 	const subscriptionPromise = fetchFrontendModelSubscriptionPlans(modelId).catch(() => []);
 	const availabilityPromise = fetchFrontendModelAvailability(modelId).catch(() => undefined);
+	const pricingPromise = fetchFrontendModelPricing(modelId).catch(() => []);
 	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability] =
 		await Promise.all([
 			modelPromise,
@@ -297,12 +324,15 @@ export default async function Page({
 						</Suspense>
 					)}
 					{modelOverview ? (
-						<ModelFaqSection
-							model={modelOverview}
-							benchmarkCount={benchmarkHighlights.length}
-							activeProviderCount={availability?.activeProviderCount ?? 0}
-							isGatewayActive={isGatewayActive}
-						/>
+						<Suspense fallback={null}>
+							<ModelFaqSectionContent
+								model={modelOverview}
+								benchmarkCount={benchmarkHighlights.length}
+								activeProviderCount={availability?.activeProviderCount ?? 0}
+								isGatewayActive={isGatewayActive}
+								pricingPromise={pricingPromise}
+							/>
+						</Suspense>
 					) : null}
 				</div>
 			</ModelDetailShell>
