@@ -312,6 +312,17 @@ export default async function Page({
 								performancePromise={resolvedPerformancePromise}
 								quickstartRequestContext={quickstartRequestContext}
 							/>
+							{modelOverview ? (
+								<Suspense fallback={null}>
+									<ModelFaqSectionContent
+										model={modelOverview}
+										benchmarkCount={benchmarkHighlights.length}
+										activeProviderCount={availability?.activeProviderCount ?? 0}
+										isGatewayActive={isGatewayActive}
+										pricingPromise={pricingPromise}
+									/>
+								</Suspense>
+							) : null}
 						</div>
 					</div>
 					{isRetired ? null : (
@@ -323,17 +334,6 @@ export default async function Page({
 							/>
 						</Suspense>
 					)}
-					{modelOverview ? (
-						<Suspense fallback={null}>
-							<ModelFaqSectionContent
-								model={modelOverview}
-								benchmarkCount={benchmarkHighlights.length}
-								activeProviderCount={availability?.activeProviderCount ?? 0}
-								isGatewayActive={isGatewayActive}
-								pricingPromise={pricingPromise}
-							/>
-						</Suspense>
-					) : null}
 				</div>
 			</ModelDetailShell>
 		</>
