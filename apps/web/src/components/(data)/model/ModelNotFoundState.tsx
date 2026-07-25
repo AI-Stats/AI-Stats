@@ -42,7 +42,7 @@ export default function ModelNotFoundState({ modelId }: ModelNotFoundStateProps)
 					</div>
 
 					<div className="mt-7 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-						<span>Request a Model:</span>
+						<span>Request a Model</span>
 						<a
 							href="https://discord.gg/aQyywCvgZ5"
 							target="_blank"
