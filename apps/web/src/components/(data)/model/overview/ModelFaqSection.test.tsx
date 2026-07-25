@@ -128,7 +128,8 @@ describe("ModelFaqSection", () => {
 		expect(html).toContain("Output Video Tokens at $2.00 per 1M tokens");
 		expect(html).not.toContain("Fast Cloud");
 		expect(html).toContain("lowest base rates currently recorded across providers");
-		expect(html).toContain("<details");
+		expect(html).toContain('aria-expanded="false"');
+		expect(html).toContain("grid-rows-[0fr]");
 		expect(html).toContain('href="#pricing"');
 		expect(html).toContain('href="/organisations/acme"');
 	});

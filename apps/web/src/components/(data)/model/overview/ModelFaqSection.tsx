@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
@@ -8,6 +7,7 @@ import type {
 } from "@/lib/fetchers/models/getModelPricing";
 import { formatModelLifecycleDate } from "@/lib/dates/modelLifecycleDates";
 import { PRICING_METER_OPTIONS } from "@/lib/pricing/meters";
+import ModelFaqAccordion from "./ModelFaqAccordion";
 
 function parseTypes(value: string | null | undefined): string[] {
 	if (!value) return [];
@@ -351,17 +351,7 @@ export default function ModelFaqSection({
 			<h2 className="text-center text-lg font-medium tracking-tight">
 				Frequently Asked Questions
 			</h2>
-			<div className="divide-y divide-border/60 border-y border-border/60">
-				{items.map((item) => (
-					<details key={item.question} className="group">
-						<summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3 text-left marker:content-none [&::-webkit-details-marker]:hidden">
-							<h3 className="text-sm font-medium">{item.question}</h3>
-							<ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-90" />
-						</summary>
-						<p className="max-w-3xl pb-4 pr-8 text-sm leading-6 text-muted-foreground">{item.answer}</p>
-					</details>
-				))}
-			</div>
+			<ModelFaqAccordion items={items} />
 		</section>
 	);
 }
