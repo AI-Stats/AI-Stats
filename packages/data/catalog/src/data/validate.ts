@@ -815,6 +815,10 @@ function checkOrganisations(state: ValidationState): string[] {
         if (typeof data.name !== 'string' || !data.name.trim()) {
             errors.push(`Organisation ${organisationId} missing name`);
         }
+        const countryCode = typeof data.country_code === 'string' ? data.country_code.trim() : '';
+        if (!/^[A-Z]{2,3}$/.test(countryCode)) {
+            errors.push(`Organisation ${organisationId} has invalid country_code`);
+        }
         const links = Array.isArray(data.organisation_links) ? data.organisation_links : [];
         const seenPlatforms = new Set<string>();
         for (const [index, link] of links.entries()) {
