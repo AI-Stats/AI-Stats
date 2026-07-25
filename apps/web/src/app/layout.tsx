@@ -36,10 +36,6 @@ export const metadata: Metadata = {
 	applicationName: PREFERRED_SITE_NAME,
 	authors: [{ name: SITE_NAME }],
 	metadataBase: METADATA_BASE,
-	icons: {
-		icon: [{ url: "/api/favicon", type: "image/svg+xml", sizes: "any" }],
-		shortcut: [{ url: "/api/favicon", type: "image/svg+xml" }],
-	},
 	openGraph: {
 		type: "website",
 		locale: "en_GB",
@@ -75,11 +71,16 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang="en" className="h-full" suppressHydrationWarning>
-			{/* <head>
-				{process.env.NODE_ENV === "development" ? (
-					<script src="https://unpkg.com/react-scan/dist/auto.global.js" />
-				) : null}
-			</head> */}
+			<head>
+				{/* Use the black/white brand mark for search; the theme client mutates this exact link. */}
+				<link
+					id="phaseo-favicon"
+					rel="icon"
+					href="/api/favicon?theme=dark"
+					type="image/svg+xml"
+					sizes="any"
+				/>
+			</head>
 			<body
 				className={cn(
 					montserrat.className,

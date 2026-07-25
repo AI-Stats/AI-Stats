@@ -88,8 +88,8 @@ function renderStaticFavicon(
 		? `<circle fill="${badgeBackground}" cx="48" cy="48" r="11.5"/><text fill="${mark}" x="48" y="53" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="800">${style.label}</text>`
 		: "";
 
-	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Phaseo ${environment} ${theme} favicon">
-  <rect fill="${background}" width="64" height="64" rx="16"/>
+	return `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Phaseo ${environment} ${theme} favicon">
+  <rect fill="${background}" width="64" height="64"/>
   <path fill="${mark}" d="${phaseoMarkPath}"/>
   ${badge}
 </svg>`;
@@ -101,7 +101,7 @@ function renderSystemFavicon(environment: FaviconEnvironment): string {
 		? `<circle class="badge" cx="48" cy="48" r="11.5"/><text class="badgeText" x="48" y="53" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="800">${style.label}</text>`
 		: "";
 
-	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Phaseo ${environment} favicon">
+	return `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Phaseo ${environment} favicon">
   <style>
     .bg { fill: ${style.lightBackground}; }
     .mark { fill: ${style.lightMark}; }
@@ -114,7 +114,7 @@ function renderSystemFavicon(environment: FaviconEnvironment): string {
       .badgeText { fill: ${style.darkMark}; }
     }
   </style>
-  <rect class="bg" width="64" height="64" rx="16"/>
+  <rect class="bg" width="64" height="64"/>
   <path class="mark" d="${phaseoMarkPath}"/>
   ${badge}
 </svg>`;
