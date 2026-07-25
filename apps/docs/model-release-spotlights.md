@@ -8,6 +8,7 @@ Fable 5 note: Claude Fable 5 remains the 09 June 2026 launch spotlight and has a
 
 | Date | Spotlight model | Releases that day | Other releases |
 | --- | --- | ---: | --- |
+| 24 July 2026 | [Anthropic: Claude Opus 5](https://phaseo.app/models/anthropic/claude-opus-5) | 1 | - |
 | 21 July 2026 | [Poolside: Laguna S 2.1](https://phaseo.app/models/poolside/laguna-s-2.1) | 1 | - |
 | 02 July 2026 | [Poolside: Laguna XS 2.1](https://phaseo.app/models/poolside/laguna-xs-2.1) | 1 | - |
 | 30 June 2026 | [Anthropic: Claude Sonnet 5](https://phaseo.app/models/anthropic/claude-sonnet-5) | 4 | Google: Gemini Omni Flash Preview; Mistral: Leanstral 1.5; Mistral: OCR 4 |
@@ -26,7 +27,7 @@ Fable 5 note: Claude Fable 5 remains the 09 June 2026 launch spotlight and has a
 | 31 May 2026 | [Nvidia: Cosmos3 Super Reasoner](https://phaseo.app/models/nvidia/cosmos3-super-reasoner) | 1 | - |
 | 30 May 2026 | [xAI: Grok Imagine Video 1.5 Preview](https://phaseo.app/models/x-ai/grok-imagine-video-1.5-preview) | 1 | - |
 | 29 May 2026 | [StepFun: Step 3.7 Flash](https://phaseo.app/models/stepfun/step-3.7-flash) | 1 | - |
-| 28 May 2026 | [Anthropic: Claude Opus 4.8](https://phaseo.app/models/anthropic/claude-opus-4.8) | 5 | Anthropic: Claude Opus 5; Google: Gemini 3 Pro Image (Nano Banana Pro); Google: Gemini 3.1 Flash Image (Nano Banana 2); CrofAI: Greg RP |
+| 28 May 2026 | [Anthropic: Claude Opus 4.8](https://phaseo.app/models/anthropic/claude-opus-4.8) | 4 | Google: Gemini 3 Pro Image (Nano Banana Pro); Google: Gemini 3.1 Flash Image (Nano Banana 2); CrofAI: Greg RP |
 | 26 May 2026 | [Qwen: Qwen 3.7 Plus (2026-05-26)](https://phaseo.app/models/qwen/qwen3.7-plus-2026-05-26) | 1 | - |
 | 25 May 2026 | [Qwen: Qwen 3.7 Max (2026-05-17)](https://phaseo.app/models/qwen/qwen3.7-max-2026-05-17) | 2 | Qwen: Qwen 3.7 Max Preview |
 | 21 May 2026 | [Qwen: Qwen 3.7 Max](https://phaseo.app/models/qwen/qwen3.7-max) | 1 | - |
