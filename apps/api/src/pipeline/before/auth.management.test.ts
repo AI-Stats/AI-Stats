@@ -341,6 +341,9 @@ describe("authenticateManagement", () => {
 		const jwt = "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoidTEiLCJ3b3Jrc3BhY2VfaWQiOiJ3MSIsImNsaWVudF9pZCI6ImMxIn0.sig";
 		runtime.oauthAuthorizationRow.value = { revoked_at: null };
 		const { guardAuth } = await import("./guards");
+		const rejected = await guardAuth(buildRequest(jwt));
+		expect(rejected.ok).toBe(false);
+
 		const result = await guardAuth(buildRequest(jwt), { allowOAuthJwt: true });
 		await flushBackground();
 
