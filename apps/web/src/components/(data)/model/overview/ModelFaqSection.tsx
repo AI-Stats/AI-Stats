@@ -1,4 +1,4 @@
-import { ChevronDown } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
@@ -26,6 +26,20 @@ function joinNaturalList(values: string[]): string {
 	if (values.length === 1) return values[0]!;
 	if (values.length === 2) return `${values[0]} and ${values[1]}`;
 	return `${values.slice(0, -1).join(", ")}, and ${values.at(-1)}`;
+}
+
+function getNumericDetail(
+	model: ModelOverviewPage,
+	...keys: string[]
+): number | null {
+	for (const key of keys) {
+		const detail = model.model_details.find(
+			(item) => item.detail_name.trim().toLowerCase() === key,
+		);
+		const value = Number(detail?.detail_value);
+		if (Number.isFinite(value) && value > 0) return value;
+	}
+	return null;
 }
 
 function getStatusDescription(status: ModelOverviewPage["status"]): string {
@@ -202,6 +216,17 @@ export default function ModelFaqSection({
 	const releaseDate = model.release_date ?? model.announcement_date ?? null;
 	const inputTypes = parseTypes(model.input_types);
 	const outputTypes = parseTypes(model.output_types);
+	const inputContextLength = getNumericDetail(
+		model,
+		"input_context_length",
+		"context_length",
+		"max_context_length",
+	);
+	const outputContextLength = getNumericDetail(
+		model,
+		"output_context_length",
+		"max_output_tokens",
+	);
 	const pricingHighlights = isGatewayActive ? getPricingHighlights(pricing) : [];
 
 	const items = [
@@ -216,12 +241,28 @@ export default function ModelFaqSection({
 					>
 						{organisationName}
 					</Link>
-					. This profile brings together its specifications, pricing, provider
-					availability, benchmark results, and performance signals where those
-					data are available.
+					.
 				</>
 			),
 		},
+		...(inputContextLength || outputContextLength
+			? [
+					{
+						question: `What is the context length of ${modelName}?`,
+						answer: (
+							<>
+								{inputContextLength
+									? `${modelName} has a recorded input context length of ${inputContextLength.toLocaleString("en-US")} tokens`
+									: `${modelName} does not have an input context length recorded`}
+								{outputContextLength
+									? ` and a recorded maximum output length of ${outputContextLength.toLocaleString("en-US")} tokens`
+									: ""}
+								.
+							</>
+						),
+					},
+				]
+			: []),
 		...(pricingHighlights.length > 0
 			? [
 					{
@@ -246,12 +287,12 @@ export default function ModelFaqSection({
 				]
 			: []),
 		{
-			question: `Which providers offer ${modelName}?`,
+			question: `What providers serve ${modelName}, and can I use it via API?`,
 			answer: (
 				<>
-					{activeProviderCount > 0
-						? `Phaseo currently records ${activeProviderCount} active Gateway ${activeProviderCount === 1 ? "provider" : "providers"} for ${modelName}. `
-						: "Provider availability can change over time. "}
+					{isGatewayActive && activeProviderCount > 0
+						? `${modelName} is available through the Phaseo API, with ${activeProviderCount} active ${activeProviderCount === 1 ? "provider" : "providers"} currently recorded. `
+						: `${modelName} is not currently marked as active in the Phaseo Gateway. `}
 					The{" "}
 					<Link href="#providers" className="font-medium underline underline-offset-4">
 						providers section
@@ -306,18 +347,18 @@ export default function ModelFaqSection({
 	];
 
 	return (
-		<section id="faq" className="scroll-mt-28 space-y-2 border-t border-border/60 pt-4">
-			<h2 className="text-lg font-semibold tracking-tight">
+		<section id="faq" className="scroll-mt-28 space-y-4 border-t border-border/60 pt-5">
+			<h2 className="text-center text-xl font-semibold tracking-tight">
 				Frequently asked questions
 			</h2>
-			<div className="divide-y divide-border/60 rounded-md border border-border/70 bg-background">
+			<div className="divide-y divide-border/60 border-y border-border/60">
 				{items.map((item) => (
-					<details key={item.question} className="group px-3 md:px-4">
-						<summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-2.5 text-left marker:content-none [&::-webkit-details-marker]:hidden">
-							<h3 className="text-sm font-medium">{item.question}</h3>
-							<ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+					<details key={item.question} className="group">
+						<summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3 text-left marker:content-none [&::-webkit-details-marker]:hidden">
+							<h3 className="text-sm font-semibold sm:text-base">{item.question}</h3>
+							<ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-90" />
 						</summary>
-						<p className="pb-3 pr-6 text-sm leading-6 text-muted-foreground">{item.answer}</p>
+						<p className="max-w-3xl pb-4 pr-8 text-sm leading-6 text-muted-foreground">{item.answer}</p>
 					</details>
 				))}
 			</div>

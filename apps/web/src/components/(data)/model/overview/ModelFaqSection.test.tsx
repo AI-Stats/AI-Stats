@@ -98,7 +98,9 @@ const model: ModelOverviewPage = {
 	output_types: "text",
 	organisation: { name: "Acme" },
 	model_links: [],
-	model_details: [],
+	model_details: [
+		{ detail_name: "input_context_length", detail_value: 131_072 },
+	],
 };
 
 describe("ModelFaqSection", () => {
@@ -115,7 +117,10 @@ describe("ModelFaqSection", () => {
 
 		expect(html).toContain("What is Alpha 1?");
 		expect(html).toContain("How much does Alpha 1 cost?");
-		expect(html).toContain("2 active Gateway providers");
+		expect(html).toContain("What is the context length of Alpha 1?");
+		expect(html).toContain("131,072 tokens");
+		expect(html).toContain("available through the Phaseo API");
+		expect(html).toContain("2 active providers");
 		expect(html).toContain("4 benchmark results");
 		expect(html).toContain("Input Text Tokens at $0.50 per 1M tokens");
 		expect(html).toContain("Output Text Tokens at $1.50 per 1M tokens");
