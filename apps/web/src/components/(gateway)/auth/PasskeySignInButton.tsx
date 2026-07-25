@@ -6,7 +6,13 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/client";
 
-export function PasskeySignInButton({ returnUrl }: { returnUrl?: string }) {
+export function PasskeySignInButton({
+	returnUrl,
+	compact = false,
+}: {
+	returnUrl?: string;
+	compact?: boolean;
+}) {
 	const [pending, setPending] = useState(false);
 
 	async function signIn() {
@@ -46,9 +52,9 @@ export function PasskeySignInButton({ returnUrl }: { returnUrl?: string }) {
 	}
 
 	return (
-		<Button type="button" variant="outline" className="h-12 w-full" onClick={signIn} disabled={pending}>
+		<Button type="button" variant="outline" className="h-11 w-full" onClick={signIn} disabled={pending}>
 			{pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <KeyRound className="mr-2 h-4 w-4" />}
-			{pending ? "Signing in with passkey..." : "Sign in with a passkey"}
+			{pending ? "Signing in..." : compact ? "Passkey" : "Sign in with a passkey"}
 		</Button>
 	);
 }

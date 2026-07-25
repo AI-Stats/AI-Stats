@@ -1,12 +1,16 @@
 import TeamsSettingsContainer from "@/components/(gateway)/settings/teams/TeamsSettingsContainer";
 import { fetchSettingsTeamsInitialData } from "@/lib/fetchers/internal/fetchSettingsTeamsInitialData";
+import { samlSsoFlag } from "@/lib/flags";
 
 export const metadata = {
 	title: "Workspace Settings - Settings",
 };
 
 export default async function WorkspaceSettingsPage() {
-	const data = await fetchSettingsTeamsInitialData();
+	const [data, ssoEnabled] = await Promise.all([
+		fetchSettingsTeamsInitialData(),
+		samlSsoFlag(),
+	]);
 
 	return (
 		<TeamsSettingsContainer
@@ -20,6 +24,7 @@ export default async function WorkspaceSettingsPage() {
 			manageableTeamIds={data.manageableTeamIds}
 			walletBalances={data.walletBalances}
 			teamSsoSettingsByTeam={data.teamSsoSettingsByTeam}
+			samlSsoEnabled={ssoEnabled}
 			tab="settings"
 		/>
 	);

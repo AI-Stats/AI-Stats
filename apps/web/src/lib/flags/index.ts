@@ -10,6 +10,7 @@ import {
 	VIDEO_API_GATE,
 	REALTIME_VOICE_GATE,
 	GATEWAY_IO_LOGGING_GATE,
+	SAML_SSO_GATE,
 	MODELS_CATALOGUE_V2_BETA_KEY,
 	NEW_LANDING_PAGE_EXPERIMENT,
 	NEW_LANDING_PAGE_GATE,
@@ -86,6 +87,17 @@ export const gatewayIoLoggingFlag = statsigAdapter
 		})
 	: flag<boolean>({
 			key: GATEWAY_IO_LOGGING_GATE,
+			decide: () => false,
+		});
+
+export const samlSsoFlag = statsigAdapter
+	? flag<boolean, StatsigUser>({
+			key: SAML_SSO_GATE,
+			identify,
+			adapter: statsigAdapter.featureGate((gate) => gate.value),
+		})
+	: flag<boolean>({
+			key: SAML_SSO_GATE,
 			decide: () => false,
 		});
 

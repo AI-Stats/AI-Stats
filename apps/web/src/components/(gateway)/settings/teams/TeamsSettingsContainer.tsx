@@ -22,6 +22,7 @@ type Props = {
 	manageableTeamIds?: string[];
 	walletBalances?: Record<string, number>;
 	teamSsoSettingsByTeam?: Record<string, TeamSsoSettingsRow>;
+	samlSsoEnabled?: boolean;
 	hideTitle?: boolean;
 	tab?: "members" | "access" | "settings";
 };
@@ -37,6 +38,7 @@ export default function TeamsSettingsContainer({
 	manageableTeamIds,
 	walletBalances,
 	teamSsoSettingsByTeam,
+	samlSsoEnabled = false,
 	hideTitle = false,
 	tab = "members",
 }: Props) {
@@ -89,6 +91,7 @@ export default function TeamsSettingsContainer({
 					personalTeamId={personalTeamId}
 					walletBalances={walletBalances}
 					teamSsoSettingsByTeam={teamSsoSettingsByTeam}
+					samlSsoEnabled={samlSsoEnabled}
 				/>
 			) : tab === "access" ? (
 				<TeamsAccessPanel
