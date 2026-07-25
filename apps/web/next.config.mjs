@@ -105,6 +105,16 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/updates/web",
+        destination: "/updates/models",
+        permanent: true,
+      },
+      {
+        source: "/updates/youtube",
+        destination: "/updates/models",
+        permanent: true,
+      },
+      {
         source: "/how-ai-stats-calculates-model-pricing",
         destination: "/how-phaseo-calculates-model-pricing",
         permanent: true,
