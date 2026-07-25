@@ -201,6 +201,7 @@ export type AuthSuccess = {
 type AuthenticateOptions = {
     useKvCache?: boolean;
     allowResourceBoundOAuthKey?: boolean;
+    allowOAuthJwt?: boolean;
 };
 
 type KeyRow = {
@@ -377,7 +378,10 @@ export async function authenticate(req: Request, options: AuthenticateOptions = 
         if (!isGatewayOAuthJwt(token)) {
             return { ok: false, reason: "invalid_key_format" };
         }
-		return { ok: false, reason: "oauth_delegated_key_required" };
+        if (options.allowOAuthJwt) {
+            return authenticateOAuth(req, token, options);
+        }
+        return { ok: false, reason: "oauth_delegated_key_required" };
     }
 
     const bindings = getBindings();

@@ -45,7 +45,7 @@ function parseModelKey(value?: string | null): {
 }
 
 async function handlePricingModels(req: Request) {
-    const auth = await guardAuth(req);
+    const auth = await guardAuth(req, { allowOAuthJwt: true });
     if (!auth.ok) {
         return (auth as GuardErr).response;
     }
@@ -211,7 +211,7 @@ async function handlePricingModels(req: Request) {
 }
 
 async function handlePricingCalculate(req: Request) {
-    const auth = await guardAuth(req, { useKvCache: false });
+    const auth = await guardAuth(req, { useKvCache: false, allowOAuthJwt: true });
     if (!auth.ok) {
         return (auth as GuardErr).response;
     }
