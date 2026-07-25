@@ -1,5 +1,11 @@
 # @phaseo/sdk
 
+## 2.1.1
+
+### Patch Changes
+
+- [#1251](https://github.com/phaseoteam/Phaseo/pull/1251) [`f1ad533`](https://github.com/phaseoteam/Phaseo/commit/f1ad5335aba3f2858156f4632d551834325c0dcd) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Remove the interactive postinstall hook so clean package installations do not fail or unexpectedly install optional tooling.
+
 ## 2.1.0
 
 ### Minor Changes
