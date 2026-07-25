@@ -349,7 +349,7 @@ export default function ModelFaqSection({
 	return (
 		<section id="faq" className="scroll-mt-28 space-y-4 border-t border-border/60 pt-5">
 			<h2 className="text-center text-xl font-semibold tracking-tight">
-				Frequently asked questions
+				Frequently Asked Questions
 			</h2>
 			<div className="divide-y divide-border/60 border-y border-border/60">
 				{items.map((item) => (
