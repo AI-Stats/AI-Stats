@@ -3,6 +3,7 @@ import {
 	fetchFrontendModelAvailability,
 	fetchFrontendModelOverview,
 	fetchFrontendModelPerformance,
+	fetchFrontendModelPricing,
 	fetchFrontendModelSubscriptionPlans,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
@@ -22,7 +23,10 @@ import {
 	resolveModelRouteIds,
 	type ModelRouteParams,
 } from "@/components/(data)/model/model-route-helpers";
-import { buildModelPageMetadataDescription } from "@/lib/models/modelDescription";
+import {
+	buildModelOverviewMetadataDescription,
+	buildModelOverviewMetadataTitle,
+} from "@/lib/models/modelDescription";
 import { permanentRedirect } from "next/navigation";
 import { Suspense } from "react";
 import { isFreeRouterModelId } from "@/lib/models/freeRouter";
@@ -32,6 +36,7 @@ import {
 	type QuickstartSearchParams,
 } from "@/components/(data)/model/quickstart/requestContext";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
+import ModelFaqSection from "@/components/(data)/model/overview/ModelFaqSection";
 
 async function ModelCreatorModelsSectionContent({
 	modelId,
@@ -56,6 +61,31 @@ async function ModelCreatorModelsSectionContent({
 	);
 }
 
+async function ModelFaqSectionContent({
+	model,
+	benchmarkCount,
+	activeProviderCount,
+	isGatewayActive,
+	pricingPromise,
+}: {
+	model: ModelOverviewPage;
+	benchmarkCount: number;
+	activeProviderCount: number;
+	isGatewayActive: boolean;
+	pricingPromise: ReturnType<typeof fetchFrontendModelPricing>;
+}) {
+	const pricing = await pricingPromise;
+	return (
+		<ModelFaqSection
+			model={model}
+			benchmarkCount={benchmarkCount}
+			activeProviderCount={activeProviderCount}
+			isGatewayActive={isGatewayActive}
+			pricing={pricing}
+		/>
+	);
+}
+
 const baseModelPageTocItems: ModelPageTocItem[] = [
 	{ id: "providers", label: "Providers" },
 	{ id: "performance", label: "Performance" },
@@ -67,6 +97,7 @@ const baseModelPageTocItems: ModelPageTocItem[] = [
 	{ id: "quickstart", label: "Quickstart" },
 	{ id: "about", label: "About" },
 	{ id: "subscriptions", label: "Subscriptions" },
+	{ id: "faq", label: "FAQ" },
 ];
 
 function getModelPageTocItems({
@@ -84,7 +115,7 @@ function getModelPageTocItems({
 		return baseModelPageTocItems.filter((item) => {
 			if (item.id === "benchmarks") return showBenchmarks;
 			if (item.id === "subscriptions") return showSubscriptions;
-			return item.id === "about";
+			return item.id === "about" || item.id === "faq";
 		});
 	}
 
@@ -105,19 +136,17 @@ export async function generateMetadata(props: {
 	params: Promise<ModelRouteParams>;
 }): Promise<Metadata> {
 	const params = await props.params;
-	const { modelId, modelName, organisationName, modelDescription } = await getModelMetadataIdentity(
+	const { modelId, modelName, organisationName } = await getModelMetadataIdentity(
 		params,
 		false,
 	);
 	const path = getModelPath(modelId);
 	const imagePath = `/og/models/${modelId}`;
 	return buildMetadata({
-		title: `${modelName} Pricing, Benchmarks, Latency & Providers`,
-		description: buildModelPageMetadataDescription({
-			modelDescription,
-			suffix:
-				"Compare pricing, benchmarks, providers, latency signals, and compatibility details on Phaseo.",
-			fallback: `Compare pricing, benchmarks, providers, latency signals, and compatibility details for ${modelName} on Phaseo.`,
+		title: buildModelOverviewMetadataTitle(modelName),
+		description: buildModelOverviewMetadataDescription({
+			modelName,
+			organisationName,
 		}),
 		path,
 		keywords: [
@@ -169,6 +198,7 @@ export default async function Page({
 	const benchmarkPromise = fetchFrontendModelBenchmarkHighlights(modelId).catch(() => []);
 	const subscriptionPromise = fetchFrontendModelSubscriptionPlans(modelId).catch(() => []);
 	const availabilityPromise = fetchFrontendModelAvailability(modelId).catch(() => undefined);
+	const pricingPromise = fetchFrontendModelPricing(modelId).catch(() => []);
 	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability] =
 		await Promise.all([
 			modelPromise,
@@ -282,6 +312,17 @@ export default async function Page({
 								performancePromise={resolvedPerformancePromise}
 								quickstartRequestContext={quickstartRequestContext}
 							/>
+							{modelOverview ? (
+								<Suspense fallback={null}>
+									<ModelFaqSectionContent
+										model={modelOverview}
+										benchmarkCount={benchmarkHighlights.length}
+										activeProviderCount={availability?.activeProviderCount ?? 0}
+										isGatewayActive={isGatewayActive}
+										pricingPromise={pricingPromise}
+									/>
+								</Suspense>
+							) : null}
 						</div>
 					</div>
 					{isRetired ? null : (

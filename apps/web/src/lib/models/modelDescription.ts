@@ -222,3 +222,21 @@ export function buildModelPageMetadataDescription(args: {
 	const combined = suffix ? `${description} ${suffix}` : description;
 	return truncateAtWordBoundary(combined, maxLength);
 }
+
+export function buildModelOverviewMetadataTitle(modelName: string): string {
+	const normalizedName = normalizeText(modelName) ?? "AI Model";
+	const detailedTitle = `${normalizedName} Pricing, Benchmarks & Providers`;
+	return detailedTitle.length <= 56
+		? detailedTitle
+		: `${normalizedName} Pricing & Providers`;
+}
+
+export function buildModelOverviewMetadataDescription(args: {
+	modelName: string;
+	organisationName?: string | null;
+}): string {
+	const modelName = normalizeText(args.modelName) ?? "this AI model";
+	const organisationName = normalizeText(args.organisationName);
+	const creatorText = organisationName ? ` from ${organisationName}` : "";
+	return `Compare ${modelName} pricing, providers, benchmark results, latency, and availability. Review specifications and API compatibility${creatorText} on Phaseo.`;
+}

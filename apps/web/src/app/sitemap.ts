@@ -3,6 +3,7 @@ import {
 	getHelpArticleParams,
 	getHelpCategoryParams,
 } from "@/lib/content/helpCenter";
+import { getAnnouncementPosts } from "@/lib/content/announcements";
 import { getMigrationPosts } from "@/lib/content/migrations";
 import {
 	fetchFrontendAPIProviders,
@@ -57,7 +58,8 @@ const staticRoutes: Array<{
         { path: "/how-phaseo-measures-latency-throughput", changeFrequency: "monthly", priority: 0.65 },
         { path: "/how-phaseo-normalises-ai-benchmarks", changeFrequency: "monthly", priority: 0.65 },
         { path: "/how-phaseo-tracks-provider-availability", changeFrequency: "monthly", priority: 0.65 },
-        { path: "/faq", changeFrequency: "monthly", priority: 0.6 },
+		{ path: "/faq", changeFrequency: "monthly", priority: 0.6 },
+		{ path: "/blog", changeFrequency: "weekly", priority: 0.7 },
 		{ path: "/compare", changeFrequency: "weekly", priority: 0.7 },
 		{ path: "/migrate", changeFrequency: "weekly", priority: 0.7 },
 		{ path: "/gateway/marketplace", changeFrequency: "weekly", priority: 0.6 },
@@ -95,6 +97,7 @@ const PROVIDER_SUFFIXES: RouteSuffix[] = [
 
 const ORGANISATION_SUFFIXES: RouteSuffix[] = [
     { suffix: "", changeFrequency: "weekly", priority: 0.7 },
+	{ suffix: "/models", changeFrequency: "weekly", priority: 0.65 },
 ];
 
 const PLAN_SUFFIXES: RouteSuffix[] = [
@@ -297,6 +300,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		modelsResult,
 		helpCategoryResult,
 		helpArticleResult,
+		blogPostsResult,
 	] = await Promise.allSettled([
 		fetchFrontendAPIProviders(),
 		fetchFrontendOrganisations(),
@@ -307,6 +311,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		fetchFrontendModels(),
 		getHelpCategoryParams(),
 		getHelpArticleParams(),
+		getAnnouncementPosts(),
 	]);
 
 	const providersForSitemap = fromSettled(
@@ -459,11 +464,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 				0.5,
 			),
 		);
+	const blogItems = fromSettled(blogPostsResult, "blog posts for sitemap", []).map(
+		(post) =>
+			createItem(
+				`/blog/${post.slug}`,
+				"monthly",
+				0.6,
+				resolveLastModified(post.updatedAt, post.publishedAt),
+			),
+	);
 
 	return [
 		...staticItems,
 		...helpCategoryItems,
 		...helpArticleItems,
+		...blogItems,
 		...dynamicItems,
 		...migrationItems,
 	];
