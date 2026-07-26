@@ -36,7 +36,7 @@ jobs:
               shell: bash
               run: |
                   set -euo pipefail
-                  safe='["ai21","akashml","aion-labs","anthropic","arcee-ai","atlascloud","baseten","chutes","crofai","deepinfra","deepseek","elevenlabs","fireworks","gmicloud","groq","inception","moonshotai","nebius-token-factory","nextbit","novita","openai","perplexity","spacex-ai","stepfun","together","venice","voyage","weights-and-biases","xiaomi","z-ai"]'
+                  safe='["ai21","akashml","aion-labs","ambient","anthropic","arcee-ai","atlascloud","baseten","chutes","cloudflare","crofai","crossmodel","deepinfra","deepseek","digitalocean","elevenlabs","empiriolabs","fireworks","gmicloud","groq","huggingface","inception","kilo","llmgateway","moonshotai","nebius-token-factory","nextbit","novita","openai","openrouter","ovhcloud","perplexity","pioneer","spacex-ai","stepfun","together","venice","vercel","voyage","weights-and-biases","xiaomi","z-ai"]'
                   if [[ "$EVENT_NAME" == "repository_dispatch" ]]; then
                     providers="$(jq -c 'map(strings | ascii_downcase) | map(select(test("^[a-z0-9][a-z0-9-]*$"))) | unique' <<<"$DISPATCH_PROVIDERS")"
                   elif [[ -n "${MANUAL_PROVIDERS:-}" ]]; then
@@ -155,7 +155,7 @@ jobs:
                   branch: ${{ steps.sync-branch.outputs.branch }}
                   base: main
                   delete-branch: false
-                  draft: true
+                  draft: false
                   add-paths: |
                       packages/data/catalog/src/data/api_providers/**
                       packages/data/catalog/src/data/pricing/**

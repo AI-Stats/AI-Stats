@@ -174,10 +174,20 @@ function normalizePathSegment(value: string | undefined): string {
 }
 
 export function resolveProviderModelsEndpoint(provider: ProviderConfig): string {
+	if (provider.modelsEndpoint && provider.modelsEndpointParams) {
+		let endpoint = provider.modelsEndpoint;
+		for (const [name, envNames] of Object.entries(provider.modelsEndpointParams)) {
+			const value = readBindingEnv(envNames);
+			if (!value) throw new Error(`${provider.providerId} models endpoint parameter ${name} missing`);
+			endpoint = endpoint.replaceAll(`{${name}}`, encodeURIComponent(value));
+		}
+		return endpoint;
+	}
+
 	const baseUrlOverride = provider.baseUrlEnv ? readBindingEnv(provider.baseUrlEnv) : null;
 	if (!baseUrlOverride) {
+		if (provider.modelsEndpoint) return provider.modelsEndpoint;
 		if (!provider.baseUrl) {
-			if (provider.modelsEndpoint) return provider.modelsEndpoint;
 			throw new Error(`${provider.providerId} models endpoint missing`);
 		}
 
@@ -560,13 +570,19 @@ export function shouldIncludeDiscoveredModel(providerId: string, row: Record<str
 export function extractDiscoveredModels(providerId: string, payload: unknown): DiscoveredModel[] {
 	const root = asRecord(payload);
 	if (!root && !Array.isArray(payload)) return [];
+	const nestedProviderModels = providerId === "weights-and-biases" && root
+		? Object.values(root).flatMap((provider) => Object.values(asRecord(asRecord(provider)?.models) ?? {}))
+		: [];
 
 	const candidateCollections: unknown[] = [
 		payload,
 		root?.data,
 		root?.models,
 		root?.publisherModels,
+		root?.result,
+		asRecord(root?.result)?.data,
 		asRecord(root?.result)?.models,
+		nestedProviderModels,
 	];
 
 	const output = new Map<string, DiscoveredModel>();
@@ -588,7 +604,9 @@ export function extractDiscoveredModels(providerId: string, payload: unknown): D
 				});
 				continue;
 			}
-			const candidates = [row.id, row.model_id, row.name, row.model, row.slug];
+			const candidates = providerId === "digitalocean"
+				? [row.model_id, row.id, row.name, row.model, row.slug]
+				: [row.id, row.model_id, row.name, row.model, row.slug];
 			for (const value of candidates) {
 				if (typeof value !== "string") continue;
 				const normalized = normalizeModelId(providerId, value);
@@ -759,6 +777,9 @@ export async function fetchProviderModels(provider: ProviderConfig, apiKey?: str
 			case "api_key_authorization":
 				if (!apiKey) throw new Error(`${provider.providerId} api key missing`);
 				headers["Authorization"] = `Api-Key ${apiKey}`;
+				break;
+			case "optional_bearer":
+				if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
 				break;
 			case "none":
 				break;

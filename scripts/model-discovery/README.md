@@ -23,7 +23,11 @@ External upstream discovery checks model sources outside Phaseo, including provi
 
 The pricing pass fingerprints price-bearing content from official provider documentation and normalizes structured prices returned by official provider model APIs. The first successful run establishes a baseline; later changes dispatch only the affected catalog provider. The PR workflow updates exact catalog matches with simple standard pricing and leaves tiered or conditional pricing for review.
 
-Structured official-page adapters currently cover Anthropic, DeepSeek, Moonshot AI, OpenAI, Perplexity, and Together. Other configured official pages remain fingerprint-monitored until a provider-specific parser is added; they never fall back to a third-party catalog. The daily workflow backstop includes every provider with an official API-price normalizer or an official-page parser.
+Structured official-page adapters currently cover Anthropic, DeepSeek, Fireworks, Moonshot AI, OpenAI, Perplexity, StepFun, Together, Voyage, Weights & Biases, Xiaomi, and Z.AI. Other configured official pages remain fingerprint-monitored until a provider-specific parser is added; they never fall back to a third-party catalog. The daily workflow backstop includes every provider with an official API-price normalizer or an official-page parser.
+
+The Worker also watches the public or authenticated catalogs used by models.dev, including aggregator catalogs such as OpenRouter, Kilo, LLM Gateway, Vercel AI Gateway, Hugging Face Router, CrossModel, OVHcloud, and the provider-owned W&B feed. Phaseo fetches these sources directly; models.dev is an implementation reference, not a runtime dependency or pricing source.
+
+See [AUTOMATION_COVERAGE.md](./AUTOMATION_COVERAGE.md) for source parity, credential requirements, automatic-PR safety boundaries, and the explicit manual pricing queue.
 
 Provider `/models` Discord alerts are filtered to provider model IDs already known in the database table `data_api_provider_models` (`provider_model_slug` and the `api_model_id` tail), regardless of `is_active_gateway` status. GitHub issue sync is intentionally not filtered by that allowlist: unknown upstream models are included in triage issues so newly exposed provider or Hugging Face models are not silently discarded.
 

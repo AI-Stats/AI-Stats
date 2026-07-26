@@ -76,4 +76,61 @@ describe("normalizeProviderModelPricing", () => {
 			meters: { input_text_tokens: 0.2, output_text_tokens: 0.8 },
 		});
 	});
+
+	it("normalizes OpenRouter-compatible aggregator pricing", () => {
+		expect(normalizeProviderModelPricing("openrouter", {
+			pricing: {
+				prompt: "0.0000004",
+				completion: "0.0000016",
+				input_cache_read: "0.00000008",
+				input_cache_write: "0.0000005",
+			},
+		})).toEqual({
+			currency: "USD",
+			unit: "per_1m_tokens",
+			meters: {
+				cached_read_text_tokens: 0.08,
+				cached_write_text_tokens: 0.5,
+				input_text_tokens: 0.4,
+				output_text_tokens: 1.6,
+			},
+		});
+	});
+
+	it("normalizes W&B provider-owned catalog costs", () => {
+		expect(normalizeProviderModelPricing("weights-and-biases", {
+			cost: { input: 0.03, output: 0.17, cache_read: 0.03 },
+		})).toMatchObject({
+			meters: {
+				input_text_tokens: 0.03,
+				cached_read_text_tokens: 0.03,
+				output_text_tokens: 0.17,
+			},
+		});
+	});
+
+	it("normalizes DigitalOcean catalog prices whether returned per-token or per-million", () => {
+		expect(normalizeProviderModelPricing("digitalocean", {
+			pricing: {
+				input_price_per_million: 0.0000005,
+				output_price_per_million: 1.6,
+				cache_read_input_price_per_million: 0.00000005,
+			},
+		})).toMatchObject({
+			meters: {
+				input_text_tokens: 0.5,
+				cached_read_text_tokens: 0.05,
+				output_text_tokens: 1.6,
+			},
+		});
+	});
+
+	it("does not flatten EmpirioLabs context tiers into a misleading base price", () => {
+		expect(normalizeProviderModelPricing("empiriolabs", {
+			pricing: [
+				{ prompt: "0.0000005", completion: "0.0000015" },
+				{ min_context: 200_000, prompt: "0.000001", completion: "0.000003" },
+			],
+		})).toBeNull();
+	});
 });

@@ -241,22 +241,34 @@ const PROVIDER_API_PRICING_WATCH_PROVIDER_IDS = new Set<string>([
 	"ai21",
 	"akashml",
 	"aion-labs",
+	"ambient",
 	"arcee-ai",
 	"atlascloud",
 	"baseten",
 	"chutes",
+	"cloudflare",
+	"crossmodel",
 	"crofai",
 	"deepinfra",
+	"digitalocean",
+	"empiriolabs",
 	"nebius-token-factory",
 	"elevenlabs",
 	"gmicloud",
 	"groq",
+	"huggingface",
 	"inception",
+	"kilo",
+	"llmgateway",
 	"nextbit",
 	"novita",
+	"openrouter",
+	"ovhcloud",
 	"spacex-ai",
 	"together",
 	"venice",
+	"vercel",
+	"weights-and-biases",
 ]);
 
 const PROVIDERS: ProviderConfig[] = MODEL_DISCOVERY_PROVIDERS;
@@ -614,7 +626,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 		let providerApiPricingBaselineInitialized = false;
 
 		for (const provider of providers) {
-			const requiresApiKey = (provider.authStyle ?? "bearer") !== "none";
+			const requiresApiKey = !["none", "optional_bearer"].includes(provider.authStyle ?? "bearer");
 			const apiKey = provider.apiKeyEnv ? readBindingEnv(provider.apiKeyEnv) : null;
 			if (requiresApiKey && !apiKey) {
 				results.push({
