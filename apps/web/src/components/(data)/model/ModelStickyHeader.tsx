@@ -98,27 +98,27 @@ export default function ModelStickyHeader({
 						</div>
 						<div className="flex shrink-0 items-center gap-2">
 							{canChat ? (
-								<Button asChild variant="outline" size="sm" className="hidden h-8 px-2.5 text-[13px] sm:inline-flex">
+								<Button asChild variant="outline" size="sm" className="hidden h-8 rounded-lg px-2.5 text-[13px] sm:inline-flex">
 									<Link href={`/chat?model=${modelId}`}>
 										<MessageSquare className="h-4 w-4" />
 										Chat
 									</Link>
 								</Button>
 							) : null}
-							<Button asChild variant="outline" size="sm" className="hidden h-8 px-2.5 text-[13px] sm:inline-flex">
+							<Button asChild variant="outline" size="sm" className="hidden h-8 rounded-lg px-2.5 text-[13px] sm:inline-flex">
 								<Link href={`/compare?models=${modelId}`}>
 									<Scale className="h-4 w-4" />
 									Compare
 								</Link>
 							</Button>
 							{canChat ? (
-								<Button asChild variant="outline" size="icon-sm" className="sm:hidden">
+								<Button asChild variant="outline" size="icon-sm" className="rounded-lg sm:hidden">
 									<Link href={`/chat?model=${modelId}`} aria-label="Chat about this model">
 										<MessageSquare className="h-4 w-4" />
 									</Link>
 								</Button>
 							) : null}
-							<Button asChild variant="outline" size="icon-sm" className="sm:hidden">
+							<Button asChild variant="outline" size="icon-sm" className="rounded-lg sm:hidden">
 								<Link href={`/compare?models=${modelId}`} aria-label="Compare this model">
 									<Scale className="h-4 w-4" />
 								</Link>
