@@ -38,6 +38,18 @@ jobs:
           private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
           owner: phaseoteam
 
+      - name: Resolve GitHub App identity
+        id: app-identity
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          bot="${{ steps.app-token.outputs.app-slug }}[bot]"
+          id="$(gh api "/users/${bot}" --jq .id)"
+          echo "name=${bot}" >> "$GITHUB_OUTPUT"
+          echo "email=${id}+${bot}@users.noreply.github.com" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           fetch-depth: 0
@@ -105,9 +117,13 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.value }}
           GH_APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          GIT_USER_NAME: ${{ steps.app-identity.outputs.name }}
+          GIT_USER_EMAIL: ${{ steps.app-identity.outputs.email }}
         shell: bash
         run: |
           set -euo pipefail
+          git config user.name "$GIT_USER_NAME"
+          git config user.email "$GIT_USER_EMAIL"
           tag="sdk-php/v${VERSION}"
           if git rev-parse "$tag" >/dev/null 2>&1; then
             echo "Tag already exists locally: $tag"
