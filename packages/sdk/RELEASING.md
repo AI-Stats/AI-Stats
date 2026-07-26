@@ -3,7 +3,7 @@
 This repo uses a hybrid release model:
 
 - TypeScript, TypeScript Agent SDK, and Python are auto-released from CI.
-- Python, Go, C#, PHP, and Ruby Agent SDKs publish through the dedicated Agent SDK workflow.
+- Python, Go, PHP, and Ruby Agent SDKs publish through the dedicated Agent SDK workflow; C# shares the existing trusted NuGet workflow.
 - Go/C#/Java/PHP/Ruby publish automatically when their committed package version changes on `main`.
 - Their workflows also support manual dispatch for safe, idempotent recovery.
 - C++/Rust remain excluded until functional end-to-end.
@@ -81,7 +81,7 @@ General policy:
 ## Language SDK Publish Workflows
 
 - Agent SDKs: `.github/workflows/publish-agent-sdks.yml`
-  - Publishes Python, C#, Go, PHP, and Ruby Agent SDKs independently and idempotently
+  - Publishes Python, Go, PHP, and Ruby Agent SDKs independently and idempotently
   - Uses the protected `release` environment
   - Uses OIDC trusted publishing for PyPI, NuGet, and RubyGems
   - Trusted-publisher identity: repository owner `phaseoteam`, repository `Phaseo`, workflow `publish-agent-sdks.yml`, environment `release`
@@ -96,7 +96,7 @@ General policy:
   - Publishes by creating/pushing tag `packages/sdk/sdk-go/vX.Y.Z`
 
 - C#: `.github/workflows/publish-sdk-csharp.yml`
-  - Publishes `.nupkg` and `.snupkg` to NuGet
+  - Publishes base and Agent SDK `.nupkg` and `.snupkg` files to NuGet
   - Uses NuGet trusted publishing (OIDC), no API key secret required
   - Optional repo variable: `NUGET_TRUSTED_PUBLISHING_USER` (defaults to repo owner)
 

@@ -18,11 +18,6 @@ on:
         required: false
         type: boolean
         default: true
-      csharp:
-        description: "Publish the C# Agent SDK"
-        required: false
-        type: boolean
-        default: true
       go:
         description: "Tag the Go Agent SDK"
         required: false
@@ -123,90 +118,6 @@ jobs:
         with:
           packages-dir: dist/python-agent
           skip-existing: true
-
-  build-csharp:
-    name: Build C# Agent SDK
-    if: github.event_name != 'workflow_dispatch' || inputs.csharp
-    runs-on: ubuntu-latest
-    outputs:
-      should-publish: ${{ steps.registry.outputs.should_publish }}
-      version: ${{ steps.registry.outputs.version }}
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
-        with:
-          dotnet-version: "8.0.x"
-      - name: Resolve version and check NuGet
-        id: registry
-        shell: bash
-        run: |
-          set -euo pipefail
-          version="$(python3 - <<'PY'
-          import xml.etree.ElementTree as ET
-          print(ET.parse("packages/sdk/agent-sdk-csharp/Phaseo.AgentSdk.csproj").findtext(".//Version"))
-          PY
-          )"
-          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
-            echo "::error::Invalid C# Agent SDK version: $version"
-            exit 1
-          fi
-          if curl -fsS "https://api.nuget.org/v3-flatcontainer/phaseo.agentsdk/${version}/phaseo.agentsdk.${version}.nupkg" >/dev/null; then
-            should_publish=false
-          else
-            should_publish=true
-          fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "should_publish=$should_publish" >> "$GITHUB_OUTPUT"
-      - name: Test and pack
-        run: |
-          dotnet test packages/sdk/agent-sdk-csharp/tests/Phaseo.AgentSdk.Tests/Phaseo.AgentSdk.Tests.csproj -c Release
-          dotnet pack packages/sdk/agent-sdk-csharp/Phaseo.AgentSdk.csproj \
-            -c Release \
-            -o artifacts/csharp-agent \
-            /p:Version=${{ steps.registry.outputs.version }} \
-            /p:PackageVersion=${{ steps.registry.outputs.version }}
-      - name: Upload NuGet packages
-        if: steps.registry.outputs.should_publish == 'true'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: csharp-agent-sdk-${{ steps.registry.outputs.version }}
-          path: artifacts/csharp-agent/*
-          if-no-files-found: error
-
-  publish-csharp:
-    name: Publish C# Agent SDK
-    if: needs.build-csharp.outputs.should-publish == 'true'
-    needs: build-csharp
-    runs-on: ubuntu-latest
-    environment: release
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        with:
-          name: csharp-agent-sdk-${{ needs.build-csharp.outputs.version }}
-          path: artifacts/csharp-agent
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
-        with:
-          dotnet-version: "8.0.x"
-      - name: NuGet login
-        id: nuget-login
-        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841
-        with:
-          user: ${{ vars.NUGET_TRUSTED_PUBLISHING_USER || github.repository_owner }}
-      - name: Publish to NuGet
-        shell: bash
-        run: |
-          set -euo pipefail
-          dotnet nuget push "artifacts/csharp-agent/Phaseo.AgentSdk.${{ needs.build-csharp.outputs.version }}.nupkg" \
-            --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" \
-            --source "https://api.nuget.org/v3/index.json" \
-            --skip-duplicate
-          dotnet nuget push "artifacts/csharp-agent/Phaseo.AgentSdk.${{ needs.build-csharp.outputs.version }}.snupkg" \
-            --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" \
-            --source "https://api.nuget.org/v3/index.json" \
-            --skip-duplicate
 
   publish-go:
     name: Tag Go Agent SDK
