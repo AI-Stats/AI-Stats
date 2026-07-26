@@ -1,10 +1,10 @@
 ---
-title: "Anthropic: Claude Opus 4.6 to 4.7"
+title: "Anthropic Claude Opus 4.7"
 description: "Model migration notes for upgrading Anthropic Claude Opus 4.6 traffic to Claude Opus 4.7."
 icon: "/icons/brands/anthropic.svg"
 ---
 
-# Anthropic: Claude Opus 4.6 to 4.7
+# Anthropic Claude Opus 4.7
 
 Use this guide when moving from `anthropic/claude-opus-4.6` to `anthropic/claude-opus-4.7`.
 
@@ -27,7 +27,7 @@ To reduce migration breakage, Phaseo accepts legacy Opus 4.6 fields for Opus 4.7
 - Opus 4.7 thinking is always sent as `thinking: { "type": "adaptive", "display": "summarized" }`
 - `reasoning.effort` is still honored and mapped to `output_config.effort` (`xhigh` supported)
 
-## What to change in your integration
+## Migration quickstart
 
 ### 1. Update model ID
 

@@ -1,16 +1,23 @@
 ---
-title: "OpenAI: Migrating to GPT-5.6"
+title: "OpenAI GPT-5.6"
 description: "What to review before moving GPT-5.x traffic to GPT-5.6 Sol, Terra, or Luna."
 icon: "/icons/brands/openai.svg"
 ---
 
-# OpenAI: Migrating to GPT-5.6
+# OpenAI GPT-5.6
 
 Use this guide when you are preparing existing OpenAI traffic for GPT-5.6.
 
 GPT-5.6 is the current OpenAI GPT family for complex production workflows. In AI Stats, the fixed tier IDs map to the OpenAI model IDs `gpt-5.6-sol`, `gpt-5.6-terra`, and `gpt-5.6-luna`.
 
-## Choose the right GPT-5.6 model
+## Migration quickstart
+
+1. Choose the fixed Sol, Terra, or Luna model that matches the workload.
+2. Swap only the model ID and keep the rest of the request stable.
+3. Re-test reasoning effort, structured outputs, tools, latency, and task cost.
+4. Canary the new route with your previous GPT-5 model available as a fallback.
+
+## Choose a model
 
 | Model | Use it for | Reasoning effort |
 | --- | --- | --- |
