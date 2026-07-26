@@ -853,6 +853,9 @@ jobs:
     publish:
         name: Handle Versions
         runs-on: ubuntu-latest
+        concurrency:
+            group: sdk-release-publish
+            cancel-in-progress: false
         needs:
             - sdk-gen
             - packages
