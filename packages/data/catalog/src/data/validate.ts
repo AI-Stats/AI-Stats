@@ -667,6 +667,7 @@ interface ValidationState {
     familyIds: Map<string, string>;
     benchmarkIds: Set<string>;
     apiProviderIds: Set<string>;
+    providerModelKeys: Set<string>;
     modelIds: Map<string, string>;
     modelVariants: Map<string, { baseModelId: string; variantKind: string }>;
     models: ModelEntry[];
@@ -704,6 +705,7 @@ function createState(): ValidationState {
         familyIds: new Map(),
         benchmarkIds: new Set(),
         apiProviderIds: new Set(),
+        providerModelKeys: new Set(),
         modelIds: new Map(),
         modelVariants: new Map(),
         models: [],
@@ -1285,6 +1287,7 @@ function checkApiProviderModels(
                 errors.push(`API provider model ${rowLabel} missing api_model_id`);
                 continue;
             }
+            state.providerModelKeys.add(`${provider}:${apiModelId}`);
 
             if (apiModelId.toLowerCase().endsWith(':free')) {
                 const internalVariant = internalModelId
@@ -1568,9 +1571,13 @@ function checkPricing(state: ValidationState): string[] {
         if (apiProviderId && !state.apiProviderIds.has(apiProviderId)) {
             entryErrors.push(`Unknown api_provider_id ${apiProviderId}`);
         }
-        const modelId = typeof data['model_id'] === 'string' ? data['model_id'] : undefined;
-        if (modelId && !state.modelIds.has(modelId)) {
-            entryErrors.push(`Unknown model_id ${modelId}`);
+        const modelId = typeof data['api_model_id'] === 'string'
+            ? data['api_model_id']
+            : typeof data['model_id'] === 'string'
+                ? data['model_id']
+                : undefined;
+        if (apiProviderId && modelId && !state.providerModelKeys.has(`${apiProviderId}:${modelId}`)) {
+            entryErrors.push(`Missing provider/model route ${apiProviderId}:${modelId}`);
         }
         if (entryErrors.length) {
             errors.push(`${path.relative(DATA_ROOT, filePath)} -> ${entryErrors.join('; ')}`);

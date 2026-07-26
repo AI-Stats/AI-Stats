@@ -716,7 +716,7 @@ describe("public model routes", () => {
 					model_slug: "openai/gpt-test",
 				}]), { status: 200 });
 			}
-			if (url.includes("data_api_model_page_notices")) {
+			if (url.includes("v2_model_page_notices")) {
 				return new Response(JSON.stringify([{
 					api_model_id: "openai/gpt-test",
 					tone: "warning",

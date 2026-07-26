@@ -153,7 +153,7 @@ publicOrganisationsRouter.get("/organisations/:organisationId", async (c) => {
 				.order("released_at", { ascending: false })
 				.limit(limit),
 			// Organisation links do not yet have a V2 table.
-			client.from("data_organisation_links").select("url,platform").eq("organisation_id", organisationId),
+			client.from("v2_lab_links").select("url,platform").eq("lab_slug", organisationId),
 		]);
 		if (organisationResult.error) throw organisationResult.error;
 		if (modelsResult.error) throw modelsResult.error;

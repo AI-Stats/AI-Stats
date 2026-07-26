@@ -1107,9 +1107,9 @@ publicModelsRouter.get("/:modelId/notice", async (c) => {
 			return withPublicCache(c.json({ notice: null }), sectionPolicy("notice", modelId));
 		}
 		const { data, error } = await getDataClient(c.env)
-			.from("data_api_model_page_notices")
-			.select("api_model_id,tone,markdown")
-			.eq("api_model_id", apiModelId)
+			.from("v2_model_page_notices")
+			.select("api_model_id:model_slug,tone,markdown")
+			.eq("model_slug", apiModelId)
 			.maybeSingle();
 		if (error) throw error;
 		const tone = String(data?.tone ?? "").trim();

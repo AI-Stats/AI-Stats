@@ -46,7 +46,7 @@ describe("public reference-data routes", () => {
 	it("preserves the family and subscription-plan payloads consumed by the web app", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("data_model_families")) {
+			if (url.includes("v2_model_families")) {
 				return new Response(JSON.stringify([{
 					family_id: "openai/gpt",
 					family_name: "GPT",

@@ -10,6 +10,7 @@ import {
     preflightV2Models,
     pricingModelPart,
     v2RouteModelSlug,
+    validateJsonPricingRules,
 } from "./v2";
 
 describe("free model variants", () => {
@@ -90,6 +91,34 @@ describe("pricingModelPart", () => {
             providerSlug: "openai",
             apiModelId: "openai/gpt-5",
         });
+    });
+});
+
+describe("validateJsonPricingRules", () => {
+    const baseRule = {
+        model_key: "anthropic:anthropic/claude-3-opus:text.generate",
+        capability_id: "text.generate",
+        pricing_plan: "batch",
+        meter: "output_text_tokens",
+        unit: "token",
+        unit_size: 1_000_000,
+        currency: "USD",
+        match: [],
+        priority: 100,
+    };
+
+    it("accepts multiple meters on one offer", () => {
+        expect(() => validateJsonPricingRules([
+            { ...baseRule, source_key: "input", meter: "input_text_tokens", price_per_unit: 7.5 },
+            { ...baseRule, source_key: "output", price_per_unit: 37.5 },
+        ])).not.toThrow();
+    });
+
+    it("rejects two prices for the same offer and meter", () => {
+        expect(() => validateJsonPricingRules([
+            { ...baseRule, source_key: "wrong", price_per_unit: 2 },
+            { ...baseRule, source_key: "correct", price_per_unit: 37.5 },
+        ])).toThrow("Conflicting JSON pricing rates");
     });
 });
 

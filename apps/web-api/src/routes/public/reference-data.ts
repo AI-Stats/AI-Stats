@@ -279,11 +279,9 @@ publicReferenceDataRouter.get("/sources", async (c) => {
 
 publicReferenceDataRouter.get("/families", async (c) => {
 	try {
-		// Families have no V2 source table yet. Keep this compatibility boundary
-		// explicit instead of silently mixing legacy data into other V2 resources.
 		const { data, error } = await getDataClient(c.env)
-			.from("data_model_families")
-			.select("family_id,family_name,organisation_id,created_at,organisation:data_organisations(name)")
+			.from("v2_model_families")
+			.select("family_id:family_slug,family_name:name,organisation_id:lab_slug,created_at,organisation:v2_labs(name)")
 			.order("created_at", { ascending: false });
 		if (error) throw error;
 		const families = (data ?? []).map((row) => {
@@ -309,12 +307,11 @@ publicReferenceDataRouter.get("/families", async (c) => {
 publicReferenceDataRouter.get("/families/:familyId", async (c) => {
 	const familyId = c.req.param("familyId");
 	try {
-		// See /families: this remains legacy-only until v2_model_families exists.
 		const client = getDataClient(c.env);
 		const { data, error } = await client
-			.from("data_model_families")
-			.select("family_id,family_name")
-			.eq("family_id", familyId)
+			.from("v2_model_families")
+			.select("family_id:family_slug,family_name:name")
+			.eq("family_slug", familyId)
 			.maybeSingle();
 		if (error) throw error;
 		if (!data) return notFound(c, "family");

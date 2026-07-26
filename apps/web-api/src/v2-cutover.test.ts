@@ -2,12 +2,25 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const LEGACY_ONLY_TABLES = new Set([
+const REPLACED_CATALOGUE_TABLES = new Set([
+	"data_api_pricing_rules",
+	"data_api_pricing_skus",
+	"data_api_provider_model_capabilities",
+	"data_api_provider_models",
+	"data_api_providers",
+	"data_benchmark_results",
+	"data_benchmarks",
 	"data_api_model_page_notices",
+	"data_api_model_aliases",
 	"data_model_details",
 	"data_model_families",
 	"data_model_links",
+	"data_models",
 	"data_organisation_links",
+	"data_organisations",
+	"data_subscription_plan_features",
+	"data_subscription_plan_models",
+	"data_subscription_plans",
 ]);
 
 const CURRENT_NON_CATALOGUE_DATA_TABLES = new Set([
@@ -41,19 +54,21 @@ describe("V2 catalogue and analytics cutover", () => {
 		const packageRoot = process.cwd();
 		const roots = [
 			join(packageRoot, "src"),
+			join(packageRoot, "scripts"),
 			join(packageRoot, "..", "api", "src"),
+			join(packageRoot, "..", "api", "scripts"),
 			join(packageRoot, "..", "web", "src", "lib", "fetchers"),
+			join(packageRoot, "..", "web", "scripts"),
+			join(packageRoot, "..", "..", "scripts"),
 		];
 		const violations: string[] = [];
 		for (const file of roots.flatMap(sourceFiles)) {
 			const repoPath = relative(join(packageRoot, "..", ".."), file).replaceAll("\\", "/");
-			// This module is the legacy catalogue mutation adapter. It is not a
-			// read path and will be deleted with the website DB editor.
-			if (repoPath === "apps/web-api/src/models/update-model.ts") continue;
 			for (const [index, line] of readFileSync(file, "utf8").split(/\r?\n/).entries()) {
 				for (const match of line.matchAll(/\.from\("(data_[a-z0-9_]+)"\)/g)) {
 					const table = match[1];
-					if (LEGACY_ONLY_TABLES.has(table) || CURRENT_NON_CATALOGUE_DATA_TABLES.has(table)) continue;
+					if (CURRENT_NON_CATALOGUE_DATA_TABLES.has(table)) continue;
+					if (!REPLACED_CATALOGUE_TABLES.has(table)) continue;
 					if (/\.(?:insert|upsert|update|delete)\s*\(/.test(line.slice(match.index))) continue;
 					violations.push(`${repoPath}:${index + 1} reads ${table}`);
 				}

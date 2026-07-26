@@ -132,7 +132,7 @@ begin
   end if;
 
   -- Resolve alias/model indirection:
-  -- 1) explicit alias table (`data_api_model_aliases`)
+  -- 1) explicit alias table (`v2_model_aliases`)
   -- 2) provider-scoped slug form (`provider/provider_model_slug`)
   resolved_model := coalesce(
     (

@@ -13,7 +13,7 @@ describe("public organisation routes", () => {
 	it("returns parity-shaped detail, header, and model resources", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("data_organisation_links")) return new Response(JSON.stringify([{ platform: "website", url: "https://openai.com" }]), { status: 200 });
+			if (url.includes("v2_lab_links")) return new Response(JSON.stringify([{ platform: "website", url: "https://openai.com" }]), { status: 200 });
 			if (url.includes("/v2_labs?")) {
 				return new Response(JSON.stringify([{
 					lab_slug: "openai",
