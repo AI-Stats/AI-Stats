@@ -9,6 +9,7 @@ type JsonObject = Record<string, any>;
 export type OfficialPriceCandidate = {
 	providerModel: string;
 	capabilityId?: string;
+	currency?: "USD" | "CNY";
 	meters: Record<string, number>;
 };
 
@@ -17,6 +18,7 @@ type OfficialPricingComparison = {
 	apiModelId: string;
 	capabilityId: string;
 	meter: string;
+	currency: string;
 	officialPrice: number;
 	currentPrices: number[];
 	status: "equal" | "different" | "missing" | "complex";
@@ -48,8 +50,11 @@ const SUPPORTED_PROVIDERS = new Set([
 	"moonshotai",
 	"openai",
 	"perplexity",
+	"stepfun",
 	"together",
 	"voyage",
+	"weights-and-biases",
+	"xiaomi",
 	"z-ai",
 ]);
 
@@ -88,6 +93,13 @@ function modelKey(value: unknown): string {
 
 function usd(value: string): number | null {
 	const match = value.match(/\$\s*(\d+(?:\.\d+)?)/);
+	if (!match) return null;
+	const parsed = Number(match[1]);
+	return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+}
+
+function cny(value: string): number | null {
+	const match = value.match(/(\d+(?:\.\d+)?)\s*(?:元|CNY|RMB)/i);
 	if (!match) return null;
 	const parsed = Number(match[1]);
 	return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
@@ -221,12 +233,79 @@ function voyageCandidates(tables: string[][][]): OfficialPriceCandidate[] {
 	return candidates;
 }
 
+function weightsAndBiasesCandidates(tables: string[][][]): OfficialPriceCandidate[] {
+	const headerIndex = tables.findIndex((table) => {
+		const headers = table[0]?.map(normalized) ?? [];
+		return headers.join("|") === "model|input tokens|output tokens|cache hit";
+	});
+	if (headerIndex < 0) return [];
+	const body = tables.slice(headerIndex + 1).find((table) => table.some((row) => row.length === 4));
+	if (!body) return [];
+	return body.flatMap((row) => {
+		const input = usd(row[1] ?? "");
+		const output = usd(row[2] ?? "");
+		const cache = usd(row[3] ?? "");
+		if (!row[0] || input === null || output === null) return [];
+		return [{
+			providerModel: row[0].replace(/^(?:Z\.AI|Moonshot AI|NVIDIA|OpenAI|OpenPipe|Google|IBM|JetBrains|Meta|Microsoft)\s+/i, ""),
+			meters: {
+				input_text_tokens: input,
+				output_text_tokens: output,
+				...(cache === null ? {} : { cached_read_text_tokens: cache }),
+			},
+		}];
+	});
+}
+
+function stepfunCandidates(tables: string[][][]): OfficialPriceCandidate[] {
+	const candidates: OfficialPriceCandidate[] = [];
+	for (const table of tables) {
+		const headers = table[0] ?? [];
+		const modelIndex = headers.findIndex((header) => normalized(header) === "模型");
+		const inputIndex = headers.findIndex((header) => header.includes("输入价格") && header.includes("缓存未命中"));
+		const cacheIndex = headers.findIndex((header) => header.includes("输入价格") && header.includes("缓存命中") && !header.includes("未命中"));
+		const outputIndex = headers.findIndex((header) => header.includes("输出价格"));
+		if ([modelIndex, inputIndex, cacheIndex, outputIndex].some((index) => index < 0)) continue;
+		for (const row of table.slice(1)) {
+			const input = cny(row[inputIndex] ?? "");
+			const cache = cny(row[cacheIndex] ?? "");
+			const output = cny(row[outputIndex] ?? "");
+			if (!row[modelIndex] || input === null || cache === null || output === null) continue;
+			candidates.push({
+				providerModel: row[modelIndex]!,
+				currency: "CNY",
+				meters: {
+					input_text_tokens: input,
+					cached_read_text_tokens: cache,
+					output_text_tokens: output,
+				},
+			});
+		}
+	}
+	return candidates;
+}
+
+function xiaomiCandidates(html: string): OfficialPriceCandidate[] {
+	const text = cellText(html.replace(/<(?:script|style|svg|noscript|template)\b[^>]*>[\s\S]*?<\/(?:script|style|svg|noscript|template)>/gi, " "));
+	return Array.from(text.matchAll(/(?:Xiaomi\s+)?(MiMo-[A-Za-z0-9.-]+)(?:(?!MiMo-[A-Za-z0-9.-]+)[\s\S])*?Input \(cache hit\)\s*\$\s*(\d+(?:\.\d+)?)\s*\/\s*MTok(?:(?!MiMo-[A-Za-z0-9.-]+)[\s\S])*?Input \(cache miss\)\s*\$\s*(\d+(?:\.\d+)?)\s*\/\s*MTok(?:(?!MiMo-[A-Za-z0-9.-]+)[\s\S])*?Output\s*\$\s*(\d+(?:\.\d+)?)\s*\/\s*MTok/gi), (match) => ({
+		providerModel: match[1]!,
+		meters: {
+			cached_read_text_tokens: Number(match[2]),
+			input_text_tokens: Number(match[3]),
+			output_text_tokens: Number(match[4]),
+		},
+	}));
+}
+
 export function extractOfficialPricing(providerId: string, html: string): OfficialPriceCandidate[] {
 	if (providerId === "moonshotai") return moonshotCandidates(html);
+	if (providerId === "xiaomi") return xiaomiCandidates(html);
 	const tables = extractHtmlTableRows(html);
 	if (providerId === "deepseek") return deepseekCandidates(tables);
 	if (providerId === "fireworks") return fireworksCandidates(tables);
+	if (providerId === "stepfun") return stepfunCandidates(tables);
 	if (providerId === "voyage") return voyageCandidates(tables);
+	if (providerId === "weights-and-biases") return weightsAndBiasesCandidates(tables);
 	return horizontalCandidates(tables);
 }
 
@@ -259,13 +338,13 @@ async function writeJsonIfChanged(filePath: string, value: unknown, report: Offi
 	return true;
 }
 
-function pricingRule(meter: string, price: number): JsonObject {
+function pricingRule(meter: string, price: number, currency = "USD"): JsonObject {
 	return {
 		meter,
 		unit: "token",
 		unit_size: 1_000_000,
 		price_per_unit: price,
-		currency: "USD",
+		currency,
 		pricing_plan: "standard",
 		note: null,
 		match: [],
@@ -281,14 +360,15 @@ function pricingFileSlug(value: string): string {
 	return normalized(value).replace(/[^a-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
-export function safeOfficialPricingRules(pricing: JsonObject, meters: Record<string, number>): boolean {
+export function safeOfficialPricingRules(pricing: JsonObject, meters: Record<string, number>, currency = "USD"): boolean {
 	if (!safePricingRules(pricing)) return false;
 	const officialMeters = new Set(Object.keys(meters));
-	return (pricing.rules as JsonObject[])
+	const relevantRules = (pricing.rules as JsonObject[])
 		.filter((rule) => officialMeters.has(String(rule.meter)))
-		.every((rule) => rule.unit === "token"
+	if (currency !== "USD" && relevantRules.length !== officialMeters.size) return false;
+	return relevantRules.every((rule) => rule.unit === "token"
 			&& Number(rule.unit_size) === 1_000_000
-			&& rule.currency === "USD"
+			&& rule.currency === currency
 			&& Number.isFinite(Number(rule.price_per_unit))
 			&& Number(rule.price_per_unit) >= 0);
 }
@@ -343,7 +423,7 @@ async function main(): Promise<void> {
 	}
 	const candidates = new Map<string, OfficialPriceCandidate>();
 	for (const [key, values] of grouped) {
-		const distinct = new Set(values.map((value) => JSON.stringify(value.meters)));
+		const distinct = new Set(values.map((value) => JSON.stringify({ currency: value.currency ?? "USD", meters: value.meters })));
 		if (distinct.size !== 1) {
 			report.ambiguous.push(values[0]!.providerModel);
 			continue;
@@ -387,12 +467,13 @@ async function main(): Promise<void> {
 			continue;
 		}
 		const pricingKey = `${PROVIDER}:${normalized(apiModelId)}:${capabilityId}`;
+		const currency = candidate.currency ?? "USD";
 		const existing = pricingByKey.get(pricingKey);
 		if (existing) {
-			const simple = safeOfficialPricingRules(existing.value, candidate.meters);
+			const simple = safeOfficialPricingRules(existing.value, candidate.meters, currency);
 			for (const [meter, officialPrice] of Object.entries(candidate.meters)) {
 				const currentPrices = (existing.value.rules as JsonObject[])
-					.filter((rule) => rule.meter === meter && rule.pricing_plan === "standard" && !rule.effective_to)
+					.filter((rule) => rule.meter === meter && rule.currency === currency && rule.pricing_plan === "standard" && !rule.effective_to)
 					.map((rule) => Number(rule.price_per_unit))
 					.filter(Number.isFinite)
 					.sort((left, right) => left - right);
@@ -401,6 +482,7 @@ async function main(): Promise<void> {
 					apiModelId,
 					capabilityId,
 					meter,
+					currency,
 					officialPrice,
 					currentPrices,
 					status: !simple ? "complex" : currentPrices.length === 0 ? "missing"
@@ -427,6 +509,7 @@ async function main(): Promise<void> {
 				apiModelId,
 				capabilityId,
 				meter,
+				currency,
 				officialPrice,
 				currentPrices: [],
 				status: "missing",
@@ -439,7 +522,7 @@ async function main(): Promise<void> {
 			provider_slug: PROVIDER,
 			api_model_id: apiModelId,
 			capability_id: capabilityId,
-			rules: Object.entries(candidate.meters).map(([meter, price]) => pricingRule(meter, price)),
+			rules: Object.entries(candidate.meters).map(([meter, price]) => pricingRule(meter, price, currency)),
 			regions: [],
 			service_tiers: ["standard"],
 			sources: [{

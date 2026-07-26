@@ -104,6 +104,57 @@ describe("official pricing extraction", () => {
 		}]);
 	});
 
+	test("extracts W&B hosted model pricing", () => {
+		expect(extractOfficialPricing("weights-and-biases", `
+			<table data-compare="header-table">
+				<tr><th>Model</th><th>Input Tokens</th><th>Output Tokens</th><th>Cache Hit</th></tr>
+			</table>
+			<table data-compare="body-table">
+				<tr><td>Z.AI GLM 5.2</td><td>$0.76</td><td>$2.42</td><td>$0.14</td></tr>
+			</table>
+		`)).toEqual([{
+			providerModel: "GLM 5.2",
+			meters: {
+				input_text_tokens: 0.76,
+				output_text_tokens: 2.42,
+				cached_read_text_tokens: 0.14,
+			},
+		}]);
+	});
+
+	test("extracts Xiaomi pricing cards", () => {
+		expect(extractOfficialPricing("xiaomi", `
+			<section><h4>MiMo-V2.5-Pro</h4><p>Flagship model.</p>
+			<div>Input (cache hit)$0.0036 / MTok</div>
+			<div>Input (cache miss)$0.435 / MTok</div>
+			<div>Output$0.87 / MTok</div></section>
+		`)).toEqual([{
+			providerModel: "MiMo-V2.5-Pro",
+			meters: {
+				cached_read_text_tokens: 0.0036,
+				input_text_tokens: 0.435,
+				output_text_tokens: 0.87,
+			},
+		}]);
+	});
+
+	test("extracts StepFun CNY token pricing without currency conversion", () => {
+		expect(extractOfficialPricing("stepfun", `
+			<table>
+				<tr><th>模型</th><th>计费单位</th><th>输入价格(缓存未命中)</th><th>输入价格(缓存命中)</th><th>输出价格</th></tr>
+				<tr><td>step-3.5-flash</td><td>1M tokens</td><td>0.7元</td><td>0.14元</td><td>2.1元</td></tr>
+			</table>
+		`)).toEqual([{
+			providerModel: "step-3.5-flash",
+			currency: "CNY",
+			meters: {
+				input_text_tokens: 0.7,
+				cached_read_text_tokens: 0.14,
+				output_text_tokens: 2.1,
+			},
+		}]);
+	});
+
 	test("skips conditional short and long context tables", () => {
 		expect(extractOfficialPricing("openai", `
 			<table>
@@ -127,5 +178,37 @@ describe("official pricing extraction", () => {
 				effective_to: null,
 			}],
 		}, { input_text_tokens: 1 })).toBe(false);
+	});
+
+	test("accepts matching CNY catalogue units for CNY candidates", () => {
+		expect(safeOfficialPricingRules({
+			rules: [{
+				meter: "input_text_tokens",
+				unit: "token",
+				unit_size: 1_000_000,
+				currency: "CNY",
+				price_per_unit: 0.7,
+				pricing_plan: "standard",
+				match: [],
+				conditions: [],
+				effective_to: null,
+			}],
+		}, { input_text_tokens: 0.7 }, "CNY")).toBe(true);
+	});
+
+	test("does not add a missing CNY meter through the USD-only generic merger", () => {
+		expect(safeOfficialPricingRules({
+			rules: [{
+				meter: "input_text_tokens",
+				unit: "token",
+				unit_size: 1_000_000,
+				currency: "CNY",
+				price_per_unit: 0.7,
+				pricing_plan: "standard",
+				match: [],
+				conditions: [],
+				effective_to: null,
+			}],
+		}, { input_text_tokens: 0.7, output_text_tokens: 2.1 }, "CNY")).toBe(false);
 	});
 });

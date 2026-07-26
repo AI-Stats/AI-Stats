@@ -37,6 +37,7 @@ type SyncReport = {
 			apiModelId: string;
 			capabilityId: string;
 			meter: string;
+			currency?: string;
 			officialPrice: number;
 			currentPrices: number[];
 			status: string;
@@ -447,7 +448,11 @@ export function renderSyncMarkdown(report: SyncReport): string {
 			...report.officialPricing.comparisons
 				.filter((comparison) => comparison.status !== "equal")
 				.slice(0, 150)
-				.map((comparison) => `- \`${comparison.apiModelId}\` \`${comparison.capabilityId}\` \`${comparison.meter}\`: official **$${comparison.officialPrice}/M**, current **${comparison.currentPrices.length > 0 ? comparison.currentPrices.map((price) => `$${price}/M`).join(", ") : "missing"}** (${comparison.status})`),
+				.map((comparison) => {
+					const currency = comparison.currency ?? "USD";
+					const format = (price: number) => currency === "USD" ? `$${price}/M` : `${currency} ${price}/M`;
+					return `- \`${comparison.apiModelId}\` \`${comparison.capabilityId}\` \`${comparison.meter}\`: official **${format(comparison.officialPrice)}**, current **${comparison.currentPrices.length > 0 ? comparison.currentPrices.map(format).join(", ") : "missing"}** (${comparison.status})`;
+				}),
 			"",
 			"</details>",
 			"",
