@@ -466,7 +466,6 @@ export type KnownModelId =
   | "z-ai/glm-5-turbo"
   | "z-ai/glm-5.1"
   | "z-ai/glm-5.2"
-  | "z-ai/glm-5.2-fast"
   | "z-ai/glm-5v-turbo"
   | "zai-org/glm-4.5-air"
   | "zai/glm-5";
