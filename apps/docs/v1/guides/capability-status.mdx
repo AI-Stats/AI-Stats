@@ -1,0 +1,80 @@
+---
+title: "Capability status"
+description: "Check which Phaseo features are available today, which are in beta, and which still have limitations."
+---
+
+Use this page before committing a production integration to a Phaseo feature. It records the supported product state, not just whether implementation code exists.
+
+Last verified against `main` commit `dbb4520e` on July 26, 2026.
+
+## Status definitions
+
+| Status | Meaning |
+| --- | --- |
+| Available | Publicly supported and suitable for production use within the documented limits. |
+| Beta | Public and usable, but the contract or operational limits may still change. |
+| Partial | A supported path exists, with an important limitation listed here. |
+| Planned | Tracked or implemented in unmerged work, but not part of the supported `main` contract. |
+| Unavailable | No supported Phaseo product path exists yet. |
+
+## Gateway APIs
+
+| Capability | Status | Current contract |
+| --- | --- | --- |
+| Chat Completions, Responses, and Anthropic Messages | Available | Public gateway endpoints with streaming, tools, and structured output support. |
+| Embeddings and reranking | Beta | Public endpoints; model and provider availability varies. |
+| Images, video, speech, transcription, and audio | Beta | Public endpoints; supported operations vary by model and provider. |
+| Files and PDF inputs | Beta | File ownership and retrieval are supported; provider-specific file behavior can differ. |
+| Batch processing | Beta | Create, retrieve, list, and cancel flows are public. |
+| OCR, music, moderation, and realtime sessions | Beta | Dedicated endpoints are available with provider-specific coverage. |
+
+## Routing and model discovery
+
+| Capability | Status | Current contract |
+| --- | --- | --- |
+| Provider order, allow, ignore, and fallback | Available | Supported through the documented provider-routing fields. |
+| Price, latency, throughput, region, and ZDR routing | Beta | Applied when Phaseo has authoritative metadata for the candidate routes. |
+| `data_collection` routing | Unavailable | Requests using this filter are rejected because provider policy metadata is not authoritative yet. |
+| `enforce_distillable_text` routing | Unavailable | Requests using this filter are rejected because provider policy metadata is not authoritative yet. |
+| `quantizations` routing | Unavailable | Requests using this filter are rejected because route-level quantization metadata is not authoritative yet. |
+| Phaseo Free Router | Beta | Available when the workspace has a matching free provider route. |
+| Per-model endpoint and parameter discovery | Planned | Tracked in issue #835 and draft PR #836; do not build against the unmerged route contract. |
+| Private-model lifecycle | Unavailable | Internal discovery support is not a public private-model onboarding and lifecycle product. |
+
+## Controls and enterprise access
+
+| Capability | Status | Current contract |
+| --- | --- | --- |
+| Guardrail creation and enforcement | Beta | Dashboard and management API paths support budgets, routing restrictions, prompt-injection checks, and sensitive-info actions. |
+| Guardrail assignment to keys and members | Beta | Management API and dashboard assignment paths are available. |
+| Guardrails in generated SDKs | Planned | Guardrail routes are not yet part of the published OpenAPI-generated SDK contract. Use the documented REST endpoints. |
+| Workspaces, management keys, and OAuth | Beta | Public control-plane routes are available with capability and workspace-role checks. |
+| Enterprise SAML or custom OIDC sign-in | Partial | Configuration and sign-in paths exist, but team-wide enforcement is not active. |
+| Mandatory SSO enforcement | Planned | The current enforcement hook is intentionally non-blocking. Do not treat the `sso_enforced` setting as an access-control guarantee. |
+| SCIM provisioning | Unavailable | Automated user and group provisioning is not implemented. |
+
+## Observability and tools
+
+| Capability | Status | Current contract |
+| --- | --- | --- |
+| Request, usage, cost, and generation history | Available | Workspace activity and request-detail views are supported. |
+| Per-attempt upstream request records | Partial | Aggregate request and failure details are available on `main`; the separate child-record implementation remains in PR #1043. |
+| Preset feedback analytics | Planned | The consolidated implementation remains in PR #1033. |
+| Hosted datetime, web search, web fetch, advisor, subagent, Fusion, image generation, and apply-patch tools | Beta | Available through the documented server-tool flow where the selected model supports tools. |
+| Hosted shell and model-catalog search tools | Unavailable | These are not supported server tools today. |
+
+## How to use this page
+
+- Build production integrations against **Available** capabilities.
+- Use **Beta** capabilities behind a rollout flag and monitor errors and costs.
+- Read the stated limitation before adopting a **Partial** capability.
+- Do not depend on **Planned** or **Unavailable** capabilities until this page changes.
+
+If runtime behavior contradicts this page, treat that as a documentation defect and report it with the endpoint, request ID, and observed response.
+
+## Related guides
+
+- [Routing and fallbacks](./routing-and-fallbacks)
+- [Guardrails API](../api-reference/endpoint/guardrails)
+- [Feature parity matrix](../migration-guides/feature-parity-matrix)
+

@@ -5,7 +5,7 @@ description: "Understand how ready Phaseo is for migrations from OpenRouter, Ver
 
 Use this page to understand how ready Phaseo is for migrations from OpenRouter, Vercel AI Gateway, and LLMGateway.
 
-This review is based on the current codebase, tests, SDKs, and docs in this repo.
+This review is based on the current codebase, tests, SDKs, and docs in this repo. The [Capability status](../guides/capability-status) page is the controlling reference when a migration depends on a beta, partial, planned, or unavailable feature.
 
 ## Scope reviewed
 
@@ -54,7 +54,7 @@ OpenRouter currently has the deepest repo support among the reviewed competitors
 - OpenRouter-specific compatibility headers in the benchmark flow
 - existing product copy and internal compare UI built around the OpenRouter comparison path
 
-This does not mean every OpenRouter feature is matched. It means Phaseo currently gives you the clearest migration and validation path for that competitor.
+This does not mean every OpenRouter feature is matched. Provider-policy filters, private-model lifecycle, per-model endpoint discovery, mandatory SSO enforcement, and SCIM remain material gaps.
 
 ### 3) Batch and async support is much stronger now
 
@@ -81,7 +81,19 @@ This means the migration story is no longer only "change the base URL." The loca
 
 ## What still needs work
 
-### 1) Competitor comparison tooling is now mostly aligned
+### 1) Provider-policy routing is incomplete
+
+Phaseo supports provider ordering, allow/ignore lists, fallbacks, price, latency, throughput, region, and ZDR controls. It does not currently support routing by data-collection policy, distillable-text policy, or quantization because the route metadata is not authoritative enough.
+
+### 2) Enterprise identity is not at parity
+
+SAML and custom OIDC configuration and sign-in paths exist, but mandatory workspace SSO enforcement is intentionally non-blocking. SCIM provisioning is not implemented.
+
+### 3) Per-model endpoint discovery remains planned
+
+The public model catalogue supports useful filters, but it does not yet expose the complete route-level endpoint, parameter, modality, policy, and quantization contract tracked by issue #835 and draft PR #836.
+
+### 4) Competitor comparison tooling is mostly aligned
 
 The internal benchmark and compare tooling now supports:
 
@@ -92,7 +104,7 @@ The internal benchmark and compare tooling now supports:
 
 That closes the earlier benchmarking gap for Vercel AI Gateway and makes the internal comparison flow more consistent across all three reviewed gateways.
 
-### 2) The parity matrix exists, but not every related capability has a dedicated doc page yet
+### 5) The parity matrix exists, but not every related capability has a dedicated doc page yet
 
 The migration guides now have a dedicated [Feature Parity Matrix](./feature-parity-matrix), but the wider docs still do not give every capability the same level of visibility. The matrix currently tracks:
 
@@ -104,7 +116,7 @@ The migration guides now have a dedicated [Feature Parity Matrix](./feature-pari
 
 The matrix closes the original documentation gap, but the wider docs still need more direct capability pages in a few places.
 
-### 3) Some gaps are still proof gaps, not confirmed product gaps
+### 6) Some gaps are proof gaps rather than confirmed product gaps
 
 For several backlog items, the current weakness is not necessarily "feature absent," but "not strongly documented or validated yet":
 
@@ -126,8 +138,10 @@ Phaseo already has strong evidence for:
 
 The highest-value next work is:
 
-1. Keep the parity matrix current as routing, pricing, async jobs, and replay/retry support evolve.
-2. Keep the competitor comparison flow current as request contracts change.
+1. Ship authoritative provider-policy metadata and per-model endpoint discovery.
+2. Implement mandatory SSO enforcement and SCIM before claiming enterprise identity parity.
+3. Keep the parity matrix current as routing, pricing, async jobs, and replay/retry support evolve.
+4. Keep the competitor comparison flow current as request contracts change.
 
 ## Recommended next steps
 
