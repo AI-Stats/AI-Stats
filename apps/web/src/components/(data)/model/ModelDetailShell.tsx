@@ -167,10 +167,11 @@ export default async function ModelDetailShell({
 								) : null}
 							</div>
 							<div className="mt-2 flex w-full flex-col items-start gap-2">
-								<ModelIdentifierControl
-									defaultIdentifier={header.model_id}
-									aliases={header.aliases}
-								/>
+				<ModelIdentifierControl
+					defaultIdentifier={header.model_id}
+					aliases={header.aliases}
+					variants={header.variants}
+				/>
 							</div>
 						</div>
 					</div>

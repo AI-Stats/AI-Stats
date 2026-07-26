@@ -626,7 +626,38 @@ function v2ModelStatus(value: unknown): string {
 	return "Withheld";
 }
 
-function v2ModelPageShape(row: Record<string, unknown>, aliases: string[], identity: Record<string, unknown> = {}) {
+type ModelVariantSummary = {
+	model_id: string;
+	name: string;
+	variant_kind: string;
+};
+
+async function fetchModelVariants(
+	env: Env,
+	identity: Record<string, unknown>,
+	fallbackModelId: string,
+): Promise<ModelVariantSummary[]> {
+	const currentModelId = String(identity.model_slug ?? fallbackModelId).trim();
+	if (!currentModelId) return [];
+	const result = await getDataClient(env).rpc("get_v2_model_variants", {
+		p_model_slug: currentModelId,
+	});
+	if (result.error) throw result.error;
+
+	return (result.data ?? [])
+		.map((model) => ({
+			model_id: String(model.model_id),
+			name: String(model.name),
+			variant_kind: String(model.variant_kind ?? "standard"),
+		}));
+}
+
+function v2ModelPageShape(
+	row: Record<string, unknown>,
+	aliases: string[],
+	identity: Record<string, unknown> = {},
+	variants: ModelVariantSummary[] = [],
+) {
 	const inputTypes = Array.isArray(row.gateway_input_modalities) ? row.gateway_input_modalities : [];
 	const outputTypes = Array.isArray(row.gateway_output_modalities) ? row.gateway_output_modalities : [];
 	const contextLengths = Array.isArray(row.context_lengths) ? row.context_lengths : [];
@@ -658,6 +689,7 @@ function v2ModelPageShape(row: Record<string, unknown>, aliases: string[], ident
 		model_family: null,
 		model_details: modelDetails,
 		aliases,
+		variants,
 	};
 }
 
@@ -910,7 +942,8 @@ publicModelsRouter.get("/:modelId", async (c) => {
 				.map((row: Record<string, unknown>) => String(row.alias_slug ?? "").trim())
 				.filter(Boolean);
 			const identity = identityResult.data as Record<string, unknown> | null;
-			return withPublicCache(c.json({ model: v2ModelPageShape(v2Overview, aliases, identity ?? {}) }), sectionPolicy("overview", modelId));
+			const variants = await fetchModelVariants(c.env, identity ?? {}, String(v2Overview.model_id));
+			return withPublicCache(c.json({ model: v2ModelPageShape(v2Overview, aliases, identity ?? {}, variants) }), sectionPolicy("overview", modelId));
 		}
 		return notFound(c);
 	} catch (error) {

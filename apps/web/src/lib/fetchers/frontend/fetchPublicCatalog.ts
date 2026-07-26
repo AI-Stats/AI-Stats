@@ -295,6 +295,7 @@ export async function fetchFrontendModelHeader(
 				country_code: model.organisation?.country_code ?? "",
 			},
 			aliases: model.aliases ?? [],
+			variants: model.variants ?? [],
 			family_id: model.family_id ?? undefined,
 			status: model.status ?? null,
 			hidden: false,

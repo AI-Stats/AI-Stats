@@ -649,8 +649,12 @@ describe("public model routes", () => {
 				model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai",
 				organisation_name: "OpenAI", organisation_country_code: "US", model_details: [], model_links: [],
 			}), { status: 200 });
-			if (url.includes("get_v2_model_identity")) return new Response(JSON.stringify({ license: "MIT", license_url: null, limits: { context: 128000 } }), { status: 200 });
+			if (url.includes("get_v2_model_identity")) return new Response(JSON.stringify({ model_slug: "openai/gpt-test", license: "MIT", license_url: null, limits: { context: 128000 } }), { status: 200 });
 			if (url.includes("get_v2_model_aliases")) return new Response(JSON.stringify([]), { status: 200 });
+			if (url.includes("get_v2_model_variants")) return new Response(JSON.stringify([
+				{ model_id: "openai/gpt-test", name: "GPT Test", variant_kind: "standard" },
+				{ model_id: "openai/gpt-test:free", name: "GPT Test (Free)", variant_kind: "free" },
+			]), { status: 200 });
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
 
@@ -668,6 +672,10 @@ describe("public model routes", () => {
 				license: "MIT",
 				model_details: [
 					{ detail_name: "license", detail_value: "MIT" },
+				],
+				variants: [
+					{ model_id: "openai/gpt-test", name: "GPT Test", variant_kind: "standard" },
+					{ model_id: "openai/gpt-test:free", name: "GPT Test (Free)", variant_kind: "free" },
 				],
 			},
 		});
