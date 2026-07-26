@@ -271,24 +271,61 @@ describe('api provider model safety checks', () => {
         expect(veniceE2ee).toBeUndefined();
     });
 
-    test('Kimi K3 links include the official API reference and provider pricing', () => {
+    test('Kimi K3 links include the official API reference, weights, and provider pricing', () => {
         const model = JSON.parse(
             fs.readFileSync(path.join(DATA_ROOT, 'models', 'moonshotai', 'kimi-k3', 'model.json'), 'utf8')
         );
 
-        expect(model.links).toEqual([
+        expect(model.links).toEqual(expect.arrayContaining([
+            {
+                title: 'Kimi K3 Tech Blog',
+                kind: 'announcement',
+                url: 'https://www.kimi.com/blog/kimi-k3',
+            },
             {
                 title: 'API Reference',
                 kind: 'api_reference',
                 url: 'https://platform.kimi.ai/docs/guide/kimi-k3-quickstart',
             },
             {
+                title: 'Model Weights',
+                kind: 'weights',
+                url: 'https://huggingface.co/moonshotai/Kimi-K3',
+            },
+            {
                 title: 'SiliconFlow pricing',
                 kind: 'pricing',
                 url: 'https://siliconflow.cn/pricing',
             },
-        ]);
+        ]));
     });
+
+    test.each(['together', 'baseten', 'fireworks'])(
+        '%s lists Kimi K3 as a verified coming-soon route',
+        (providerId) => {
+            const row = readProviderModels(providerId).find(
+                (candidate: any) => candidate.internal_model_id === 'moonshotai/kimi-k3'
+            );
+
+            expect(row).toMatchObject({
+                is_active_gateway: false,
+                routable: false,
+                effective_from: '2026-07-27T15:00:00Z',
+                verification: {
+                    status: 'verified',
+                    checked_at: '2026-07-26T00:00:00Z',
+                },
+            });
+            expect(row.capabilities).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        capability_id: 'text.generate',
+                        status: 'coming_soon',
+                    }),
+                ])
+            );
+        }
+    );
 
     test('missing provider_model_slug -> error flagged', () => {
         const bad = {
