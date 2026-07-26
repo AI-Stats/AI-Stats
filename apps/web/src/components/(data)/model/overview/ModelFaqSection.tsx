@@ -7,6 +7,7 @@ import type {
 } from "@/lib/fetchers/models/getModelPricing";
 import { formatModelLifecycleDate } from "@/lib/dates/modelLifecycleDates";
 import { PRICING_METER_OPTIONS } from "@/lib/pricing/meters";
+import type { ModelLineageLinks } from "./modelOverviewMetadata";
 import ModelFaqAccordion from "./ModelFaqAccordion";
 
 function parseTypes(value: string | null | undefined): string[] {
@@ -217,12 +218,14 @@ export default function ModelFaqSection({
 	activeProviderCount,
 	isGatewayActive,
 	pricing,
+	relatedModels,
 }: {
 	model: ModelOverviewPage;
 	benchmarkCount: number;
 	activeProviderCount: number;
 	isGatewayActive: boolean;
 	pricing: ProviderPricing[];
+	relatedModels?: ModelLineageLinks;
 }) {
 	const modelName = model.name;
 	const organisationName = model.organisation.name;
@@ -314,6 +317,52 @@ export default function ModelFaqSection({
 				</>
 			),
 		},
+		...(relatedModels?.previous || relatedModels?.next || model.family_id
+			? [
+					{
+						question: `What models are related to ${modelName}?`,
+						answer: (
+							<>
+								{relatedModels?.previous ? (
+									<>
+										Phaseo records{" "}
+										<Link
+											href={`/models/${relatedModels.previous.modelId}`}
+											className="font-medium underline underline-offset-4"
+										>
+											{relatedModels.previous.modelName}
+										</Link>{" "}
+										as the previous model.{" "}
+									</>
+								) : null}
+								{relatedModels?.next ? (
+									<>
+										<Link
+											href={`/models/${relatedModels.next.modelId}`}
+											className="font-medium underline underline-offset-4"
+										>
+											{relatedModels.next.modelName}
+										</Link>{" "}
+										is recorded as the next model.{" "}
+									</>
+								) : null}
+								{model.family_id ? (
+									<>
+										View the{" "}
+										<Link
+											href={`/families/${model.family_id}`}
+											className="font-medium underline underline-offset-4"
+										>
+											model family
+										</Link>{" "}
+										for the complete release history.
+									</>
+								) : null}
+							</>
+						),
+					},
+				]
+			: []),
 		...(benchmarkCount > 0
 			? [
 					{

@@ -937,10 +937,7 @@ export async function ModelAboutSection({
 							href={`/families/${model.family_id}`}
 							className="group flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border/70 bg-card px-3 py-3 transition-colors hover:bg-muted/30"
 						>
-							<div className="min-w-0">
-								<p className="text-xs text-muted-foreground">Model family</p>
-								<p className="truncate text-sm font-semibold">View family graph</p>
-							</div>
+							<span className="truncate text-sm font-semibold">View model family</span>
 							<ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
 						</Link>
 					) : null}
