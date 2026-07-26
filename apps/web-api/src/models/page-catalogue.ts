@@ -136,27 +136,6 @@ export function normalizeModelsPagePricing(row: Row): Row {
 	};
 }
 
-const VARIANT_ARRAY_FIELDS = [
-	"gateway_endpoints",
-	"gateway_input_modalities",
-	"gateway_output_modalities",
-	"gateway_features",
-	"gateway_tiers",
-	"gateway_execution_regions",
-	"gateway_provider_names",
-	"gateway_active_provider_names",
-	"gateway_api_model_ids",
-	"supported_parameters",
-] as const;
-
-const VARIANT_PRICE_FIELDS = [
-	"lowest_input_price",
-	"lowest_output_price",
-	"lowest_standard_input_price",
-	"lowest_standard_output_price",
-	"lowest_from_price",
-] as const;
-
 function baseModelId(row: Row): string {
 	const explicit = String(row.base_model_id ?? row.base_model_slug ?? "").trim();
 	if (explicit) return explicit;
@@ -168,28 +147,6 @@ function variantKind(row: Row): string {
 	const explicit = String(row.variant_kind ?? "").trim().toLowerCase();
 	if (explicit) return explicit;
 	return String(row.model_id ?? "").trim().toLowerCase().endsWith(":free") ? "free" : "standard";
-}
-
-function lowestNumber(left: unknown, right: unknown): number | null {
-	const values = [left, right]
-		.filter((value) => value !== null && value !== undefined)
-		.map(Number)
-		.filter(Number.isFinite);
-	return values.length > 0 ? Math.min(...values) : null;
-}
-
-function sumNumbers(left: unknown, right: unknown): number | null {
-	const values = [left, right]
-		.filter((value) => value !== null && value !== undefined)
-		.map(Number)
-		.filter(Number.isFinite);
-	return values.length > 0 ? values.reduce((total, value) => total + value, 0) : null;
-}
-
-function bestGatewayStatus(left: unknown, right: unknown): string {
-	const rank = new Map([["active", 3], ["coming_soon", 2], ["not_active", 1], ["not_listed", 0]]);
-	const statuses = [String(left ?? "not_listed"), String(right ?? "not_listed")];
-	return statuses.sort((a, b) => (rank.get(b) ?? -1) - (rank.get(a) ?? -1))[0] ?? "not_listed";
 }
 
 function providerDetails(value: unknown): Row[] {
@@ -221,112 +178,43 @@ function withoutExternalProviders(row: Row): Row {
 	};
 }
 
-function usageMetricPriority(value: unknown): number {
-	const metric = String(value ?? "").trim().toLowerCase();
-	if (!metric) return -1;
-	if (metric.includes("token")) return 5;
-	if (metric.includes("second") || metric.includes("image") || metric.includes("character")) return 4;
-	if (metric.includes("request")) return 0;
-	return 2;
-}
+type ModelVariantLink = {
+	model_id: string;
+	name: string;
+};
 
-export function collapseModelsPageVariants(rows: Row[]): Row[] {
-	const models = new Map<string, Row>();
-	const ordered = [...rows].sort((left, right) => Number(variantKind(left) !== "standard") - Number(variantKind(right) !== "standard"));
-	for (const row of ordered) {
-		const modelId = baseModelId(row);
+type ModelVariantLinks = Record<string, ModelVariantLink>;
+
+/**
+ * Keep every callable model variant as its own catalogue row while attaching
+ * stable family links. This lets /models display `:free` separately without
+ * making clients infer relationships from the slug suffix.
+ */
+export function attachModelsPageVariants(rows: Row[]): Row[] {
+	const variantsByBaseModel = new Map<string, ModelVariantLinks>();
+
+	for (const row of rows) {
+		const modelId = String(row.model_id ?? "").trim();
 		if (!modelId) continue;
+		const baseId = baseModelId(row);
 		const kind = variantKind(row);
-		const existing = models.get(modelId);
-		if (!existing) {
-			models.set(modelId, {
-				...row,
-				model_id: modelId,
-				name: kind === "standard"
-					? row.name
-					: String(row.name ?? modelId).replace(/\s*\(Free\)\s*$/i, ""),
-				variant_kind: "standard",
-				base_model_id: null,
-				gateway_features: strings([
-					...strings(row.gateway_features),
-					...(kind === "free" ? ["free"] : []),
-				]),
-				gateway_tiers: strings([
-					...strings(row.gateway_tiers),
-					...(kind === "free" ? ["free"] : []),
-				]),
-			});
-			continue;
-		}
-
-		const merged: Row = {
-			...existing,
-			gateway_status: bestGatewayStatus(existing.gateway_status, row.gateway_status),
-			popularity_tokens_week: sumNumbers(existing.popularity_tokens_week, row.popularity_tokens_week),
-			pricing_detail_rows: [...structuredPricingRows(existing.pricing_detail_rows), ...structuredPricingRows(row.pricing_detail_rows)],
+		const variants = variantsByBaseModel.get(baseId) ?? {};
+		variants[kind] = {
+			model_id: modelId,
+			name: String(row.name ?? modelId).trim() || modelId,
 		};
-		merged.context_lengths = [...new Set([
-			...(Array.isArray(existing.context_lengths) ? existing.context_lengths : []),
-			...(Array.isArray(row.context_lengths) ? row.context_lengths : []),
-		].map(Number).filter(Number.isFinite))].sort((left, right) => left - right);
-		merged.gateway_provider_details = [...new Map(
-			[
-				...providerDetails(existing.gateway_provider_details),
-				...providerDetails(row.gateway_provider_details).map((detail) => kind === "free"
-					? { ...detail, variant_kind: "free", service_tier: "free" }
-					: detail),
-			].map((detail) => [
-				[
-					detail.id,
-					detail.provider_model_slug,
-					detail.service_tier,
-					detail.variant_kind,
-				].join("::"),
-				detail,
-			] as const),
-		).values()];
-		for (const field of VARIANT_ARRAY_FIELDS) {
-			merged[field] = strings([
-				...strings(existing[field]),
-				...strings(row[field]),
-				...(field === "gateway_features" && kind === "free" ? ["free"] : []),
-				...(field === "gateway_tiers" && kind === "free" ? ["free"] : []),
-			]);
-		}
-		for (const field of VARIANT_PRICE_FIELDS) {
-			const left = existing[field] == null ? Number.NaN : Number(existing[field]);
-			const right = row[field] == null ? Number.NaN : Number(row[field]);
-			const rightWins = Number.isFinite(right) && (!Number.isFinite(left) || right < left);
-			merged[field] = lowestNumber(existing[field], row[field]);
-			if (rightWins) {
-				if (field === "lowest_standard_input_price") {
-					merged.lowest_standard_input_price_label = row.lowest_standard_input_price_label;
-					merged.lowest_standard_input_price_unit = row.lowest_standard_input_price_unit;
-				}
-				if (field === "lowest_standard_output_price") {
-					merged.lowest_standard_output_price_label = row.lowest_standard_output_price_label;
-					merged.lowest_standard_output_price_unit = row.lowest_standard_output_price_unit;
-				}
-				if (field === "lowest_from_price") merged.lowest_from_price_unit = row.lowest_from_price_unit;
-			}
-		}
-		if (
-			String(existing.weekly_usage_metric ?? "") === String(row.weekly_usage_metric ?? "")
-			&& String(existing.weekly_usage_unit ?? "") === String(row.weekly_usage_unit ?? "")
-		) {
-			merged.weekly_usage_quantity = sumNumbers(existing.weekly_usage_quantity, row.weekly_usage_quantity);
-		} else if (usageMetricPriority(row.weekly_usage_metric) > usageMetricPriority(existing.weekly_usage_metric)) {
-			merged.weekly_usage_metric = row.weekly_usage_metric;
-			merged.weekly_usage_quantity = row.weekly_usage_quantity;
-			merged.weekly_usage_unit = row.weekly_usage_unit;
-		}
-		const providerNames = strings(merged.gateway_provider_names);
-		const activeProviderNames = strings(merged.gateway_active_provider_names);
-		merged.gateway_provider_count = providerNames.length;
-		merged.gateway_active_provider_count = activeProviderNames.length;
-		models.set(modelId, merged);
+		variantsByBaseModel.set(baseId, variants);
 	}
-	return [...models.values()].map(withoutExternalProviders);
+
+	return rows.map((row) => {
+		const baseId = baseModelId(row);
+		return withoutExternalProviders({
+			...row,
+			base_model_id: baseId,
+			variant_kind: variantKind(row),
+			variants: variantsByBaseModel.get(baseId) ?? {},
+		});
+	});
 }
 
 function modality(value: string): string {
@@ -471,7 +359,7 @@ export async function fetchModelsPageCatalogue(
 		weeklyMetrics(env),
 	]);
 	return {
-		models: collapseModelsPageVariants(mergeModelWeeklyMetrics(
+		models: attachModelsPageVariants(mergeModelWeeklyMetrics(
 			databaseRows.map(normalizeModelsPagePricing),
 			modelWeeklyMetrics,
 		)),

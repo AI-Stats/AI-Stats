@@ -21,6 +21,8 @@ import { handleModels, handleMyModels } from "./models";
 function buildCatalogueModel(overrides: Record<string, unknown> = {}) {
     return {
         model_id: "openai/gpt-4o-mini",
+        base_model_id: "openai/gpt-4o-mini",
+        variant_kind: "standard",
         previous_model_id: null,
         name: "GPT-4o Mini",
         release_date: "2026-01-01",
@@ -724,9 +726,57 @@ describe("handleModels", () => {
                 {
                     model_id: "openai/gpt-4o-mini",
                     name: "GPT-4o Mini",
+                    base_model_id: "openai/gpt-4o-mini",
+                    variant_kind: "standard",
+                    variants: {
+                        standard: {
+                            model_id: "openai/gpt-4o-mini",
+                            name: "GPT-4o Mini",
+                        },
+                    },
                 },
             ],
         });
+    });
+
+    it("returns standard and free variants as separate linked models", async () => {
+        fetchCatalogueMock.mockResolvedValue([
+            buildCatalogueModel({
+                model_id: "poolside/laguna-s-2.1",
+                base_model_id: "poolside/laguna-s-2.1",
+                name: "Laguna S 2.1",
+            }),
+            buildCatalogueModel({
+                model_id: "poolside/laguna-s-2.1:free",
+                base_model_id: "poolside/laguna-s-2.1",
+                variant_kind: "free",
+                name: "Laguna S 2.1 (Free)",
+            }),
+        ]);
+
+        const response = await handleModels(new Request("https://api.example.com/v1/models"));
+
+        expect(response.status).toBe(200);
+        const body = await response.json() as { models: Array<Record<string, unknown>> };
+        expect(body.models).toHaveLength(2);
+        expect(body.models).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                model_id: "poolside/laguna-s-2.1",
+                variant_kind: "standard",
+                variants: {
+                    standard: { model_id: "poolside/laguna-s-2.1", name: "Laguna S 2.1" },
+                    free: { model_id: "poolside/laguna-s-2.1:free", name: "Laguna S 2.1 (Free)" },
+                },
+            }),
+            expect.objectContaining({
+                model_id: "poolside/laguna-s-2.1:free",
+                variant_kind: "free",
+                variants: {
+                    standard: { model_id: "poolside/laguna-s-2.1", name: "Laguna S 2.1" },
+                    free: { model_id: "poolside/laguna-s-2.1:free", name: "Laguna S 2.1 (Free)" },
+                },
+            }),
+        ]));
     });
 
     it("returns a guarded 501 placeholder from /v1/models/me", async () => {
