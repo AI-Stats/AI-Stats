@@ -574,9 +574,10 @@ export function makeMeta(input: {
     providerCapabilitiesBeta?: boolean;
     beta?: RequestBetaOptions;
     beforeContextMs?: number | null;
-    beforeContextCacheStatus?: "hit" | "miss" | "bypass" | null;
+    beforeContextCacheStatus?: "hit" | "miss" | "bypass" | "credit_refresh" | null;
     beforeContextKeyVersionMs?: number | null;
     beforeContextCacheReadMs?: number | null;
+    beforeContextCreditRefreshMs?: number | null;
     beforeContextRpcMs?: number | null;
     beforeContextEnrichMs?: number | null;
     beforeContextCacheWriteMs?: number | null;
@@ -652,6 +653,7 @@ export function makeMeta(input: {
         beforeContextCacheStatus: input.beforeContextCacheStatus ?? undefined,
         beforeContextKeyVersionMs: input.beforeContextKeyVersionMs ?? undefined,
         beforeContextCacheReadMs: input.beforeContextCacheReadMs ?? undefined,
+        beforeContextCreditRefreshMs: input.beforeContextCreditRefreshMs ?? undefined,
         beforeContextRpcMs: input.beforeContextRpcMs ?? undefined,
         beforeContextEnrichMs: input.beforeContextEnrichMs ?? undefined,
         beforeContextCacheWriteMs: input.beforeContextCacheWriteMs ?? undefined,

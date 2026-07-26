@@ -257,7 +257,10 @@ export function mergeCachedContext(args: {
 	credit?: CreditContextCacheEntry | null;
 	endpoint: string;
 }): GatewayContextData {
-	const credit = args.credit?.credit ?? args.dynamic.credit;
+	// Credit is invalidated independently after every wallet mutation. Never
+	// fall back to a legacy credit value embedded in the dynamic entry: that can
+	// re-admit a request using a pre-charge balance after the credit key is gone.
+	const credit = args.credit?.credit;
 	if (!credit) {
 		throw new Error("gateway_context_credit_cache_missing");
 	}
@@ -290,6 +293,10 @@ export function splitContextForCache(value: GatewayContextData): {
 			keyLimit: value.keyLimit,
 			keyEnrichment: value.keyEnrichment ?? null,
 			teamSettings: value.teamSettings ?? null,
+			// Aggregate enrichment is observational rather than an authorization
+			// input. Keep it with the dynamic context so a credit-only refresh can
+			// preserve it while replacing its balance fields authoritatively.
+			teamEnrichment: value.teamEnrichment ?? null,
 		},
 		static: {
 			workspaceId: value.workspaceId,

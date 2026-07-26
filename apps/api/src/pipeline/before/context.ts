@@ -3,7 +3,7 @@
 // Why: Keeps pre-execution logic centralized and consistent.
 // How: Calls RPC/SQL to fetch provider, pricing, and gating context.
 
-import { getSupabaseAdmin, getCache } from "@/runtime/env";
+import { dispatchBackground, getSupabaseAdmin, getCache } from "@/runtime/env";
 import { getProviderResidencyMetadata } from "@/lib/config/providerResidency";
 import { getTextMany, keyVersionToken } from "@/core/kv";
 import { gatewayCreditCacheKey } from "@/core/gateway-credit-cache";
@@ -69,8 +69,70 @@ const PRESET_TTL = 120;      // 2 minutes
 const CONTEXT_INFLIGHT_MAX_ENTRIES = 512;
 const CONTEXT_KEY_VERSION_L1_TTL_MS = 5_000;
 const FREE_ROUTER_MODEL_ID = "phaseo/free";
+const MIN_GATEWAY_CREDIT_NANOS = 1_000_000_000;
 
 const contextInflight = new Map<string, Promise<GatewayContextData>>();
+
+type CreditContextSnapshot = Pick<
+	GatewayContextData,
+	"workspaceId" | "credit" | "teamEnrichment"
+>;
+
+function finiteNonNegativeNanos(value: unknown): number {
+	const parsed = Number(value);
+	return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+}
+
+async function fetchFreshCreditContext(args: {
+	workspaceId: string;
+	teamEnrichment?: GatewayContextData["teamEnrichment"];
+}): Promise<CreditContextSnapshot> {
+	const { data, error } = await getSupabaseAdmin()
+		.from("wallets")
+		.select("balance_nanos,reserved_nanos")
+		.eq("workspace_id", args.workspaceId)
+		.maybeSingle();
+	if (error) {
+		throw new Error(`gateway_credit_refresh_failed:${error.message ?? "unknown"}`);
+	}
+
+	if (!data) {
+		return {
+			workspaceId: args.workspaceId,
+			credit: {
+				ok: false,
+				reason: "wallet_missing",
+				resetAt: null,
+				balanceNanos: 0,
+			},
+			teamEnrichment: args.teamEnrichment ?? null,
+		};
+	}
+
+	const rawBalanceNanos = finiteNonNegativeNanos(data.balance_nanos);
+	const reservedNanos = finiteNonNegativeNanos(data.reserved_nanos);
+	const availableNanos = Math.max(rawBalanceNanos - reservedNanos, 0);
+	const hasMinimumCredit = availableNanos >= MIN_GATEWAY_CREDIT_NANOS;
+	const teamEnrichment = args.teamEnrichment
+		? {
+			...args.teamEnrichment,
+			balance_nanos: availableNanos,
+			balance_usd: Math.round((availableNanos / 1_000_000_000) * 100) / 100,
+			balance_is_low: !hasMinimumCredit,
+		}
+		: null;
+
+	return {
+		workspaceId: args.workspaceId,
+		credit: {
+			ok: hasMinimumCredit,
+			reason: hasMinimumCredit ? null : "insufficient_funds",
+			resetAt: null,
+			balanceNanos: availableNanos,
+		},
+		teamEnrichment,
+	};
+}
 
 async function hydrateByokKeys(
 	context: GatewayContextData,
@@ -827,6 +889,7 @@ export async function fetchGatewayContext(args: {
         totalMs: 0,
         keyVersionMs: null,
         cacheReadMs: null,
+        creditRefreshMs: null,
         rpcMs: null,
         enrichMs: null,
         cacheWriteMs: null,
@@ -877,9 +940,44 @@ export async function fetchGatewayContext(args: {
 					// Request/cost usage changes after every completion. A cached
 					// snapshot can admit subsequent requests past a configured cap,
 					// so only uncapped keys may use the dynamic context snapshot.
-                    const creditParsed = creditCachedRaw ? JSON.parse(creditCachedRaw) : null;
-                    const creditContext = isCreditContextLike(creditParsed) ? creditParsed : null;
-                    const merged = mergeCachedContext({
+					let cacheStatus: ContextFetchTelemetry["cacheStatus"] = "hit";
+					let creditContext: CreditContextSnapshot | null = null;
+					if (creditCachedRaw) {
+						try {
+							const creditParsed = JSON.parse(creditCachedRaw);
+							creditContext = isCreditContextLike(creditParsed) ? creditParsed : null;
+						} catch {
+							creditContext = null;
+						}
+					}
+					if (!creditContext) {
+						const creditRefreshStartedAt = performance.now();
+						creditContext = await fetchFreshCreditContext({
+							workspaceId: args.workspaceId,
+							teamEnrichment: dynamicParsed.teamEnrichment ?? null,
+						});
+						telemetry.creditRefreshMs = round3(
+							performance.now() - creditRefreshStartedAt,
+						);
+						cacheStatus = "credit_refresh";
+						const creditOnlyContext = mergeCachedContext({
+							dynamic: dynamicParsed,
+							static: staticParsed,
+							credit: creditContext,
+							endpoint: args.endpoint,
+						});
+						const creditTtl = clampTtl(
+							computeCreditSnapshotTtlForContext(creditOnlyContext),
+						);
+						dispatchBackground(
+							cache.put(
+								creditCacheKey,
+								JSON.stringify(creditContext),
+								{ expirationTtl: creditTtl },
+							).catch(() => undefined),
+						);
+					}
+					const merged = mergeCachedContext({
                         dynamic: dynamicParsed,
                         static: staticParsed,
                         credit: creditContext,
@@ -889,7 +987,7 @@ export async function fetchGatewayContext(args: {
                         ...merged,
                         contextTelemetry: {
                             ...telemetry,
-                            cacheStatus: "hit",
+                            cacheStatus,
                             totalMs: round3(performance.now() - fetchStartedAt),
                         },
 					}, args.workspaceId);
@@ -1554,7 +1652,11 @@ export async function fetchGatewayContext(args: {
                         cache.put(staticCacheKey, JSON.stringify(split.static), { expirationTtl: staticTtl }),
                     );
                 }
-                await Promise.all(cacheWrites);
+				dispatchBackground(
+					Promise.all(cacheWrites)
+						.then(() => undefined)
+						.catch(() => undefined),
+				);
             } catch {
                 // ignore cache write failures
             } finally {

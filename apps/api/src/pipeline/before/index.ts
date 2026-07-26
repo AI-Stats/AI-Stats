@@ -726,6 +726,7 @@ export async function beforeRequest(
         beforeContextCacheStatus: contextTelemetry?.cacheStatus ?? null,
         beforeContextKeyVersionMs: contextTelemetry?.keyVersionMs ?? null,
         beforeContextCacheReadMs: contextTelemetry?.cacheReadMs ?? null,
+        beforeContextCreditRefreshMs: contextTelemetry?.creditRefreshMs ?? null,
         beforeContextRpcMs: contextTelemetry?.rpcMs ?? null,
         beforeContextEnrichMs: contextTelemetry?.enrichMs ?? null,
         beforeContextCacheWriteMs: contextTelemetry?.cacheWriteMs ?? null,
