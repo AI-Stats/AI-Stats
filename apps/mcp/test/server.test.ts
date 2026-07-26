@@ -6,6 +6,7 @@ vi.mock("agents/mcp", () => ({ createMcpHandler: vi.fn() }));
 
 let worker: typeof import("../src/index").default;
 let createServer: typeof import("../src/index").createServer;
+let normaliseControlPlaneResult: typeof import("../src/index").normaliseControlPlaneResult;
 
 const env = {
 	PHASEO_API_BASE_URL: "https://api.phaseo.app",
@@ -15,7 +16,7 @@ const env = {
 const connectedClients: Client[] = [];
 
 beforeAll(async () => {
-	({ default: worker, createServer } = await import("../src/index"));
+	({ default: worker, createServer, normaliseControlPlaneResult } = await import("../src/index"));
 });
 
 afterEach(async () => {
@@ -29,10 +30,10 @@ describe("Phaseo MCP server metadata", () => {
 			accessToken: "upstream-token",
 			workspaceId: "workspace_1",
 			scopes: [
-				"me:read", "models:read", "providers:read", "pricing:read", "credits:read",
-				"activity:read", "analytics:read", "generations:read", "workspaces:read",
-				"keys:read", "presets:read", "settings:read", "guardrails:read",
-				"management_keys:read", "oauth_clients:read",
+				"models:read", "providers:read", "pricing:read", "credits:read",
+				"activity:read", "analytics:read", "generations:read",
+				"me:read", "keys:read", "workspaces:read", "presets:read",
+				"settings:read", "guardrails:read", "management_keys:read", "oauth_clients:read",
 			],
 		});
 		const client = new Client({ name: "phaseo-mcp-test", version: "1.0.0" });
@@ -47,37 +48,14 @@ describe("Phaseo MCP server metadata", () => {
 		expect(Object.keys(tools)).toEqual([
 			"models_list",
 			"model_get",
-			"pricing_calculate",
 			"providers_list",
 			"cost_estimate",
-			"api_keys_list",
-			"account_get",
-			"organisations_list",
-			"endpoints_list",
-			"pricing_models_list",
 			"credits_get",
 			"activity_list",
 			"analytics_get",
 			"generation_get",
 			"logs_list",
 			"log_get",
-			"workspaces_list",
-			"workspace_get",
-			"workspace_members_list",
-			"api_key_get",
-			"presets_list",
-			"preset_get",
-			"settings_get",
-			"guardrails_list",
-			"guardrail_get",
-			"guardrail_keys_list",
-			"guardrail_members_list",
-			"management_keys_list",
-			"management_key_get",
-			"oauth_clients_list",
-			"oauth_client_get",
-			"webhook_endpoints_list",
-			"webhook_endpoint_get",
 		]);
 		expect(tools.models_list?.outputSchema).toMatchObject({
 			type: "object",
@@ -87,19 +65,67 @@ describe("Phaseo MCP server metadata", () => {
 		expect(tools.models_list?._meta?.securitySchemes).toEqual([
 			{ type: "oauth2", scopes: ["models:read", "pricing:read"] },
 		]);
-		expect(tools.api_keys_list?._meta?.securitySchemes).toEqual([
-			{ type: "oauth2", scopes: ["keys:read"] },
-		]);
+		expect(tools.generation_get?.outputSchema).toMatchObject({
+			type: "object",
+			properties: { generation: { type: "object" } },
+			required: ["generation"],
+		});
+		expect(Object.values(tools).every((tool) => tool.annotations?.readOnlyHint === true)).toBe(true);
+		expect(Object.values(tools).every((tool) => tool.annotations?.destructiveHint === false)).toBe(true);
+		expect(Object.values(tools).every((tool) => tool.annotations?.openWorldHint === true)).toBe(true);
 		expect(Object.keys(tools).some((name) => /(?:create|update|delete|remove)$/.test(name))).toBe(false);
 	});
 
-	it("proxies a scoped control-plane read with the exchanged user token", async () => {
-		const fetchMock = vi.fn().mockResolvedValue(Response.json({ data: { current_workspace_id: "workspace_1" } }));
+	it("normalizes every account-data result to the reviewed public schema", () => {
+		const sensitive = {
+			workspace_id: "workspace_private",
+			user_id: "user_private",
+			key_id: "key_private",
+			prompt: "private prompt",
+			output: "private output",
+		};
+		const results = [
+			normaliseControlPlaneResult("credits_get", { credits: { balance_nanos: 4, ...sensitive } }),
+			normaliseControlPlaneResult("activity_list", { activity: [{ request_id: "req_1", ...sensitive }] }),
+			normaliseControlPlaneResult("analytics_get", { data: [{ date: "2026-07-26", requests: 1, ...sensitive }] }),
+			normaliseControlPlaneResult("generation_get", { request_id: "req_1", ...sensitive }),
+			normaliseControlPlaneResult("logs_list", { data: [{ request_id: "req_1", ...sensitive }] }),
+			normaliseControlPlaneResult("log_get", { data: { request_id: "req_1", ...sensitive } }),
+		];
+		const serialized = JSON.stringify(results);
+		for (const forbidden of ["workspace_private", "user_private", "key_private", "private prompt", "private output"]) {
+			expect(serialized).not.toContain(forbidden);
+		}
+	});
+
+	it("normalizes generation metadata without returning payloads or internal identifiers", async () => {
+		const fetchMock = vi.fn().mockResolvedValue(Response.json({
+			request_id: "req_123",
+			created_at: "2026-07-26T12:00:00.000Z",
+			provider: "openai",
+			model_id: "openai/gpt-5.6-sol",
+			endpoint: "responses",
+			status_code: 200,
+			success: true,
+			usage: {
+				input_tokens: 12,
+				output_tokens: 4,
+				total_tokens: 16,
+				input_tokens_details: { cached_tokens: 3 },
+				output_tokens_details: { reasoning_tokens: 2 },
+			},
+			cost_nanos: 250_000_000,
+			workspace_id: "workspace_1",
+			user_id: "user_private",
+			key_id: "key_private",
+			replay_request: { input: "private prompt" },
+			io_log: { bucket: "private-bucket", payload: { response: "private output" } },
+		}));
 		vi.stubGlobal("fetch", fetchMock);
 		const server = createServer(env, {
 			accessToken: "upstream-token",
 			workspaceId: "workspace_1",
-			scopes: ["me:read"],
+			scopes: ["generations:read"],
 		});
 		const client = new Client({ name: "phaseo-mcp-test", version: "1.0.0" });
 		connectedClients.push(client);
@@ -107,15 +133,68 @@ describe("Phaseo MCP server metadata", () => {
 		await server.connect(serverTransport);
 		await client.connect(clientTransport);
 
-		const result = await client.callTool({ name: "account_get", arguments: {} });
-		expect(result.structuredContent).toEqual({ result: { data: { current_workspace_id: "workspace_1" } } });
+		const result = await client.callTool({ name: "generation_get", arguments: { requestId: "req_123" } });
+		expect(result.structuredContent).toMatchObject({
+			generation: {
+				requestId: "req_123",
+				provider: "openai",
+				model: "openai/gpt-5.6-sol",
+				inputTokens: 12,
+				outputTokens: 4,
+				cachedTokens: 3,
+				reasoningTokens: 2,
+				totalTokens: 16,
+				costUsd: 0.25,
+			},
+		});
+		const serialized = JSON.stringify(result.structuredContent);
+		expect(serialized).not.toContain("workspace_1");
+		expect(serialized).not.toContain("user_private");
+		expect(serialized).not.toContain("key_private");
+		expect(serialized).not.toContain("private prompt");
+		expect(serialized).not.toContain("private output");
 		const request = fetchMock.mock.calls[0]?.[0] as Request;
-		expect(request.url).toBe("https://api.phaseo.app/v1/me");
+		expect(request.url).toBe("https://api.phaseo.app/v1/generations?id=req_123");
 		expect(request.headers.get("authorization")).toBe("Bearer upstream-token");
 	});
 });
 
 describe("Phaseo MCP OAuth discovery", () => {
+	it("serves exactly one configured OpenAI domain-verification token", async () => {
+		const missing = await worker.fetch(
+			new Request("https://mcp.phaseo.app/.well-known/openai-apps-challenge"),
+			env,
+			{} as ExecutionContext,
+		);
+		expect(missing.status).toBe(404);
+
+		const configured = await worker.fetch(
+			new Request("https://mcp.phaseo.app/.well-known/openai-apps-challenge"),
+			{ ...env, OPENAI_APPS_CHALLENGE_TOKEN: "  openai-review-token-123  " },
+			{} as ExecutionContext,
+		);
+		expect(configured.status).toBe(200);
+		expect(configured.headers.get("content-type")).toContain("text/plain");
+		expect(configured.headers.get("cache-control")).toBe("no-store");
+		expect(await configured.text()).toBe("openai-review-token-123");
+
+		const head = await worker.fetch(
+			new Request("https://mcp.phaseo.app/.well-known/openai-apps-challenge", { method: "HEAD" }),
+			{ ...env, OPENAI_APPS_CHALLENGE_TOKEN: "openai-review-token-123" },
+			{} as ExecutionContext,
+		);
+		expect(head.status).toBe(200);
+		expect(await head.text()).toBe("");
+
+		const post = await worker.fetch(
+			new Request("https://mcp.phaseo.app/.well-known/openai-apps-challenge", { method: "POST" }),
+			{ ...env, OPENAI_APPS_CHALLENGE_TOKEN: "openai-review-token-123" },
+			{} as ExecutionContext,
+		);
+		expect(post.status).toBe(405);
+		expect(post.headers.get("allow")).toBe("GET, HEAD");
+	});
+
 	it("enforces the body limit even when Content-Length is absent", async () => {
 		const oversized = new Uint8Array(1024 * 1024 + 1);
 		const body = new ReadableStream<Uint8Array>({
@@ -146,8 +225,10 @@ describe("Phaseo MCP OAuth discovery", () => {
 		expect(response.status).toBe(401);
 		expect(response.headers.get("cache-control")).toBe("no-store");
 		const challenge = response.headers.get("www-authenticate") ?? "";
-		expect(challenge).toContain("me:read models:read providers:read pricing:read credits:read activity:read analytics:read generations:read workspaces:read keys:read presets:read settings:read guardrails:read management_keys:read oauth_clients:read");
+		expect(challenge).toContain("models:read providers:read pricing:read credits:read activity:read analytics:read generations:read");
 		expect(challenge).not.toContain("gateway:access");
+		expect(challenge).not.toContain("keys:read");
+		expect(challenge).not.toContain("oauth_clients:read");
 	});
 
 	it("publishes only the scopes required by the enabled MCP tools", async () => {
@@ -162,7 +243,6 @@ describe("Phaseo MCP OAuth discovery", () => {
 
 		expect(metadata.resource).toBe("https://mcp.phaseo.app/mcp");
 		expect(metadata.scopes_supported).toEqual([
-			"me:read",
 			"models:read",
 			"providers:read",
 			"pricing:read",
@@ -170,13 +250,6 @@ describe("Phaseo MCP OAuth discovery", () => {
 			"activity:read",
 			"analytics:read",
 			"generations:read",
-			"workspaces:read",
-			"keys:read",
-			"presets:read",
-			"settings:read",
-			"guardrails:read",
-			"management_keys:read",
-			"oauth_clients:read",
 		]);
 		expect(response.headers.get("x-content-type-options")).toBe("nosniff");
 		expect(response.headers.get("access-control-allow-origin")).toBe("*");

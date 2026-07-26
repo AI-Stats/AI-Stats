@@ -1,13 +1,11 @@
 ---
 title: "Usage"
-description: "Run a minimal local agent loop on top of Phaseo Gateway with the Go Agent SDK."
+description: "Run tool loops, human review, retries, and resumable agents with the Go Agent SDK."
 ---
 
-## Install
+## Prepare the runtime
 
-```bash
-go get github.com/phaseoteam/Phaseo/packages/sdk/agent-sdk-go@latest
-```
+The Agent SDK does not yet have a public Go module version. Follow the [source installation instructions](./agent-sdk-installation).
 
 ## Quickstart
 
@@ -51,6 +49,14 @@ func main() {
 - `DefineTool(...)`
 - `CreateGatewayAgentClient(...)`
 - a bounded tool loop over the Phaseo `responses` API
+
+## Advanced runtime
+
+Go supports validators and approvals, HITL and manual tools, progress, recoverable errors, replayable channels, stop helpers, dynamic turns, persisted `NextTurnParams`, normalized usage/cost, and `StateAccessor`.
+
+## Streaming and cancellation
+
+`Agent.Stream(...)` and `Agent.ContinueStream(...)` consume the gateway's Responses SSE stream. Read `Text()` or `Events()` more than once when separate consumers need replay, and call `Cancel()` to cancel the request context. Completed steps retain request IDs, provider metadata, finish reasons, warnings, usage, and cost.
 
 ## Related
 

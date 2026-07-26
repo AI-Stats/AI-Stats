@@ -11,6 +11,7 @@ import { readGatewayIoLogObject } from "@pipeline/audit/io-logging";
 import { isGatewayIoLoggingFeatureEnabled } from "@core/feature-flags";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { json, withRuntime } from "../../utils";
+import { requireCapability } from "./route-helpers";
 
 function canReadGenerationIoLog(auth: AuthSuccess): boolean {
 	if (auth.internal) return true;
@@ -48,11 +49,15 @@ async function handleGeneration(req: Request) {
         return json({ ok: false, error: "missing_id" }, 400, { "Cache-Control": "no-store" });
     }
 
-    const auth = await authenticate(req);
+    const auth = await authenticate(req, { allowOAuthJwt: true });
     if (!auth.ok) {
         const reason = (auth as AuthFailure).reason;
         return json({ ok: false, error: "unauthorised", reason }, 401, { "Cache-Control": "no-store" });
     }
+	if (auth.authMethod === "oauth") {
+		const scopeError = requireCapability(auth, CAPABILITIES.GENERATIONS_READ);
+		if (scopeError) return scopeError;
+	}
 
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase

@@ -44,6 +44,7 @@ async function PrivacySettingsContent() {
 			providers={initialData.providers}
 			activeProviderModels={initialData.activeProviderModels}
 			ioLoggingFeatureEnabled={ioLoggingFeatureEnabled}
+			dataContribution={initialData.dataContribution}
 		/>
 	);
 }

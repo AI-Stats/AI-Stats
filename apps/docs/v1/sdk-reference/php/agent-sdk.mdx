@@ -1,13 +1,11 @@
 ---
 title: "Usage"
-description: "Run a minimal local agent loop on top of Phaseo Gateway with the PHP Agent SDK."
+description: "Run tool loops, human review, retries, and resumable agents with the PHP Agent SDK."
 ---
 
-## Install
+## Prepare the runtime
 
-```bash
-composer require phaseo/php-sdk phaseo/agent-sdk-php
-```
+The Agent SDK package is not yet on Packagist. Follow the [source installation instructions](./agent-sdk-installation).
 
 ## Quickstart
 
@@ -38,6 +36,14 @@ echo $result->output . PHP_EOL;
 - `AgentSdk::defineTool(...)`
 - `AgentSdk::createGatewayAgentClient(...)`
 - a bounded tool loop over the Phaseo `responses` API
+
+## Advanced runtime
+
+PHP supports validation and approval callables, HITL and manual tools, progress, recoverable errors, replayable iterators, stop helpers, dynamic turns, persisted next-turn parameters, normalized usage/cost, and `StateAccessor`.
+
+## Streaming and cancellation
+
+`Agent::stream(...)` and `Agent::continueStream(...)` drive the gateway's Responses SSE stream through a Fiber as the returned iterator is consumed. Use `textStream()`, `reasoningStream()`, `itemStream()`, or `fullStream()`; call `cancel()` to stop the Fiber and close the generator. Completed steps retain request IDs, provider metadata, finish reasons, warnings, usage, and cost.
 
 ## Related
 

@@ -7,7 +7,7 @@ import { handleError } from "@core/error-handler";
 import { detectTextProtocol } from "@protocols/detect";
 import { decodeProtocol, encodeProtocol } from "@protocols/index";
 import { doRequestWithIR } from "../execute";
-import { finalizeRequest, settleBillableFailure } from "../after";
+import { finalizeRequest, settleNonBillableFailure } from "../after";
 import { handleFailureAudit, handleSuccessAudit } from "../after/audit";
 import { makeHeaders, createResponse } from "../after/http";
 import { auditFailure } from "../audit";
@@ -810,7 +810,7 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 			}
 		}
 		if (exec.result.kind === "completed" && !hasUsableIRChatResponse(exec.result.ir as IRChatResponse | undefined)) {
-			await settleBillableFailure(pre.ctx, exec.result);
+			await settleNonBillableFailure(pre.ctx, exec.result);
 			await handleFailureAudit(
 				pre.ctx,
 				exec.result,
@@ -1024,7 +1024,7 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 					}
 				}
 				if (followUpResult.kind === "completed" && !hasUsableIRChatResponse(followUpResult.ir as IRChatResponse | undefined)) {
-					await settleBillableFailure(pre.ctx, followUpResult);
+					await settleNonBillableFailure(pre.ctx, followUpResult);
 					await handleFailureAudit(
 						pre.ctx,
 						followUpResult,

@@ -6,14 +6,11 @@ import {
 	authenticatePhaseoUser,
 	type AuthenticatedPhaseoUser,
 	type PhaseoEnv,
-	type PhaseoApiKey,
 	getModel,
-	listApiKeys,
 	listModels,
 	listProviders,
 	PhaseoApiError,
 	readControlPlane,
-	requestPhaseo,
 } from "./phaseo-api";
 
 const MAX_RESULTS = 20;
@@ -62,7 +59,6 @@ async function boundedMcpRequest(request: Request): Promise<Request | Response> 
 	return new Request(request, { headers, body });
 }
 const READ_ONLY_MCP_SCOPES = [
-	"me:read",
 	"models:read",
 	"providers:read",
 	"pricing:read",
@@ -70,13 +66,6 @@ const READ_ONLY_MCP_SCOPES = [
 	"activity:read",
 	"analytics:read",
 	"generations:read",
-	"workspaces:read",
-	"keys:read",
-	"presets:read",
-	"settings:read",
-	"guardrails:read",
-	"management_keys:read",
-	"oauth_clients:read",
 ] as const;
 
 type QueryValue = string | number | boolean | undefined;
@@ -98,39 +87,6 @@ const paginationInputSchema = {
 };
 
 const controlPlaneReadTools: ReadToolDefinition[] = [
-	{
-		name: "account_get",
-		title: "Get the current Phaseo account",
-		description: "Get the authenticated user, current workspace, and workspace memberships. Read-only.",
-		scopes: ["me:read"],
-		inputSchema: {},
-		path: () => "/v1/me",
-	},
-	{
-		name: "organisations_list",
-		title: "List model organisations",
-		description: "List organisations represented in Phaseo's live model catalogue. Read-only.",
-		scopes: ["models:read"],
-		inputSchema: paginationInputSchema,
-		path: () => "/v1/organisations",
-		query: ({ limit, offset }) => ({ limit: limit as number | undefined, offset: offset as number | undefined }),
-	},
-	{
-		name: "endpoints_list",
-		title: "List Phaseo API endpoints",
-		description: "List the inference endpoint families supported by the Phaseo API and sample current model IDs. Read-only; does not run inference.",
-		scopes: ["models:read"],
-		inputSchema: {},
-		path: () => "/v1/endpoints",
-	},
-	{
-		name: "pricing_models_list",
-		title: "List model pricing",
-		description: "Retrieve the current Phaseo model pricing catalogue. Read-only.",
-		scopes: ["pricing:read"],
-		inputSchema: {},
-		path: () => "/v1/pricing/models",
-	},
 	{
 		name: "credits_get",
 		title: "Get Phaseo credit balance",
@@ -174,15 +130,15 @@ const controlPlaneReadTools: ReadToolDefinition[] = [
 		inputSchema: {
 			since: z.string().max(50).optional(), from: z.string().datetime().optional(), to: z.string().datetime().optional(),
 			status: z.string().max(50).optional(), provider: z.string().max(100).optional(), model: z.string().max(200).optional(),
-			endpoint: z.string().max(100).optional(), requestId: z.string().max(200).optional(), keyId: z.string().max(200).optional(),
-			sessionId: z.string().max(200).optional(), errorCode: z.string().max(100).optional(), ...paginationInputSchema,
+			endpoint: z.string().max(100).optional(), requestId: z.string().max(200).optional(),
+			errorCode: z.string().max(100).optional(), ...paginationInputSchema,
 		},
 		path: () => "/v1/logs",
 		query: (input) => ({
 			since: input.since as string | undefined, from: input.from as string | undefined, to: input.to as string | undefined,
 			status: input.status as string | undefined, provider: input.provider as string | undefined, model: input.model as string | undefined,
-			endpoint: input.endpoint as string | undefined, request_id: input.requestId as string | undefined, key_id: input.keyId as string | undefined,
-			session_id: input.sessionId as string | undefined, error_code: input.errorCode as string | undefined,
+			endpoint: input.endpoint as string | undefined, request_id: input.requestId as string | undefined,
+			error_code: input.errorCode as string | undefined,
 			limit: input.limit as number | undefined, offset: input.offset as number | undefined,
 		}),
 	},
@@ -193,113 +149,6 @@ const controlPlaneReadTools: ReadToolDefinition[] = [
 		scopes: ["activity:read"],
 		inputSchema: { requestId: z.string().min(1).max(200) },
 		path: ({ requestId }) => `/v1/logs/${encodeURIComponent(String(requestId))}`,
-	},
-	{
-		name: "workspaces_list",
-		title: "List Phaseo workspaces",
-		description: "List workspaces available to the authenticated user. Read-only.",
-		scopes: ["workspaces:read"],
-		inputSchema: {},
-		path: () => "/v1/workspaces",
-	},
-	{
-		name: "workspace_get",
-		title: "Get a Phaseo workspace",
-		description: "Get one workspace by ID or slug. Read-only.",
-		scopes: ["workspaces:read"],
-		inputSchema: { workspaceId: z.string().min(1).max(200) },
-		path: ({ workspaceId }) => `/v1/workspaces/${encodeURIComponent(String(workspaceId))}`,
-	},
-	{
-		name: "workspace_members_list",
-		title: "List Phaseo workspace members",
-		description: "List members and roles for one workspace. Read-only.",
-		scopes: ["workspaces:read"],
-		inputSchema: { workspaceId: z.string().min(1).max(200) },
-		path: ({ workspaceId }) => `/v1/workspaces/${encodeURIComponent(String(workspaceId))}/members`,
-	},
-	{
-		name: "api_key_get",
-		title: "Get a Phaseo Gateway API key",
-		description: "Get metadata for one Gateway API key without returning its secret. Read-only.",
-		scopes: ["keys:read"],
-		inputSchema: { keyId: z.string().min(1).max(200) },
-		path: ({ keyId }) => `/v1/keys/${encodeURIComponent(String(keyId))}`,
-	},
-	{
-		name: "presets_list",
-		title: "List Phaseo routing presets",
-		description: "List routing presets for the authenticated workspace. Read-only.",
-		scopes: ["presets:read"], inputSchema: {}, path: () => "/v1/presets",
-	},
-	{
-		name: "preset_get",
-		title: "Get a Phaseo routing preset",
-		description: "Get one routing preset by ID, slug, or name. Read-only.",
-		scopes: ["presets:read"], inputSchema: { presetId: z.string().min(1).max(200) },
-		path: ({ presetId }) => `/v1/presets/${encodeURIComponent(String(presetId))}`,
-	},
-	{
-		name: "settings_get", title: "Get Phaseo workspace settings",
-		description: "Get routing and gateway settings for the authenticated workspace. Read-only.",
-		scopes: ["settings:read"], inputSchema: {}, path: () => "/v1/settings",
-	},
-	{
-		name: "guardrails_list", title: "List Phaseo guardrails",
-		description: "List guardrails configured for the authenticated workspace. Read-only.",
-		scopes: ["guardrails:read"], inputSchema: {}, path: () => "/v1/guardrails",
-	},
-	{
-		name: "guardrail_get", title: "Get a Phaseo guardrail",
-		description: "Get one guardrail configuration. Read-only.",
-		scopes: ["guardrails:read"], inputSchema: { guardrailId: z.string().min(1).max(200) },
-		path: ({ guardrailId }) => `/v1/guardrails/${encodeURIComponent(String(guardrailId))}`,
-	},
-	{
-		name: "guardrail_keys_list", title: "List keys assigned to a guardrail",
-		description: "List Gateway API keys assigned to one guardrail. Does not return key secrets. Read-only.",
-		scopes: ["guardrails:read"], inputSchema: { guardrailId: z.string().min(1).max(200) },
-		path: ({ guardrailId }) => `/v1/guardrails/${encodeURIComponent(String(guardrailId))}/keys`,
-	},
-	{
-		name: "guardrail_members_list", title: "List members assigned to a guardrail",
-		description: "List workspace members assigned to one guardrail. Read-only.",
-		scopes: ["guardrails:read"], inputSchema: { guardrailId: z.string().min(1).max(200) },
-		path: ({ guardrailId }) => `/v1/guardrails/${encodeURIComponent(String(guardrailId))}/members`,
-	},
-	{
-		name: "management_keys_list", title: "List Phaseo management keys",
-		description: "List management API key metadata without returning secrets. Read-only.",
-		scopes: ["management_keys:read"], inputSchema: {}, path: () => "/v1/management-keys",
-	},
-	{
-		name: "management_key_get", title: "Get a Phaseo management key",
-		description: "Get metadata and granted scopes for one management API key without returning its secret. Read-only.",
-		scopes: ["management_keys:read"], inputSchema: { keyId: z.string().min(1).max(200) },
-		path: ({ keyId }) => `/v1/management-keys/${encodeURIComponent(String(keyId))}`,
-	},
-	{
-		name: "oauth_clients_list", title: "List Phaseo OAuth clients",
-		description: "List third-party OAuth applications registered in the authenticated workspace. Does not return client secrets. Read-only.",
-		scopes: ["oauth_clients:read"], inputSchema: {}, path: () => "/v1/oauth-clients",
-	},
-	{
-		name: "oauth_client_get", title: "Get a Phaseo OAuth client",
-		description: "Get one registered OAuth application's metadata, redirect URIs, and scopes without returning its secret. Read-only.",
-		scopes: ["oauth_clients:read"], inputSchema: { clientId: z.string().min(1).max(200) },
-		path: ({ clientId }) => `/v1/oauth-clients/${encodeURIComponent(String(clientId))}`,
-	},
-	{
-		name: "webhook_endpoints_list", title: "List Phaseo webhook endpoints",
-		description: "List configured async webhook endpoints without returning signing secrets. Available only where the Batch API feature is enabled. Read-only.",
-		scopes: ["settings:read"], inputSchema: { ...paginationInputSchema, includeDeleted: z.boolean().optional() }, path: () => "/v1/webhook-endpoints",
-		query: ({ limit, offset, includeDeleted }) => ({ limit: limit as number | undefined, offset: offset as number | undefined, include_deleted: includeDeleted as boolean | undefined }),
-	},
-	{
-		name: "webhook_endpoint_get", title: "Get a Phaseo webhook endpoint",
-		description: "Get one async webhook endpoint without returning its signing secret. Available only where the Batch API feature is enabled. Read-only.",
-		scopes: ["settings:read"], inputSchema: { endpointId: z.string().min(1).max(200) },
-		path: ({ endpointId }) => `/v1/webhook-endpoints/${encodeURIComponent(String(endpointId))}`,
 	},
 ];
 
@@ -323,19 +172,6 @@ const providerSchema = {
 	description: z.string().nullable(),
 	link: z.string().nullable(),
 	country_code: z.string().nullable(),
-};
-
-const apiKeySchema = {
-	id: z.string(),
-	name: z.string().nullable(),
-	prefix: z.string().nullable(),
-	status: z.string().nullable(),
-	created_at: z.string().nullable(),
-	last_used_at: z.string().nullable(),
-	expires_at: z.string().nullable(),
-	disabled: z.boolean(),
-	limit: z.number().nullable(),
-	limit_reset: z.enum(["daily", "weekly", "monthly"]).nullable(),
 };
 
 function oauthToolMeta(scopes: readonly string[]) {
@@ -378,21 +214,6 @@ function providerSummary(provider: Awaited<ReturnType<typeof listProviders>>[num
 	};
 }
 
-function apiKeySummary(key: PhaseoApiKey) {
-	return {
-		id: key.id,
-		name: key.name,
-		prefix: key.prefix,
-		status: key.status,
-		created_at: key.created_at,
-		last_used_at: key.last_used_at,
-		expires_at: key.expires_at,
-		disabled: key.disabled,
-		limit: key.limit,
-		limit_reset: key.limit_reset,
-	};
-}
-
 function errorResult(error: unknown) {
 	const message = error instanceof PhaseoApiError ? error.message : "Phaseo could not complete this request.";
 	return { isError: true as const, content: [{ type: "text" as const, text: message }] };
@@ -402,6 +223,211 @@ function hasScopes(authenticatedUser: AuthenticatedPhaseoUser, scopes: readonly 
 	return scopes.every((scope) => authenticatedUser.scopes.includes(scope));
 }
 
+const requestSummarySchema = z.object({
+	requestId: z.string().nullable(),
+	timestamp: z.string().nullable(),
+	provider: z.string().nullable(),
+	model: z.string().nullable(),
+	endpoint: z.string().nullable(),
+	statusCode: z.number().nullable(),
+	success: z.boolean().nullable(),
+	errorCode: z.string().nullable(),
+	latencyMs: z.number().nullable(),
+	generationMs: z.number().nullable(),
+	inputTokens: z.number().nullable(),
+	outputTokens: z.number().nullable(),
+	cachedTokens: z.number().nullable(),
+	reasoningTokens: z.number().nullable(),
+	totalTokens: z.number().nullable(),
+	costUsd: z.number().nullable(),
+	currency: z.string().nullable(),
+	stream: z.boolean().nullable(),
+	byok: z.boolean().nullable(),
+	throughput: z.number().nullable(),
+	location: z.string().nullable(),
+	finishReason: z.string().nullable(),
+});
+
+const submissionControlOutputSchemas: Record<string, z.ZodRawShape> = {
+	credits_get: {
+		credits: z.object({
+			balanceNanos: z.number(),
+			reservedNanos: z.number(),
+			availableNanos: z.number(),
+			thirtyDayUsageNanos: z.number().nullable(),
+			thirtyDayRequests: z.number(),
+		}),
+	},
+	activity_list: {
+		periodDays: z.number(),
+		total: z.number(),
+		limit: z.number(),
+		offset: z.number(),
+		totalCostUsd: z.number(),
+		activity: z.array(requestSummarySchema),
+	},
+	analytics_get: {
+		analytics: z.array(z.object({
+			date: z.string(),
+			model: z.string(),
+			modelId: z.string(),
+			endpoint: z.string(),
+			provider: z.string(),
+			costUsd: z.number(),
+			byokCostUsd: z.number(),
+			requests: z.number(),
+			inputTokens: z.number(),
+			outputTokens: z.number(),
+			reasoningTokens: z.number(),
+		})),
+	},
+	generation_get: { generation: requestSummarySchema },
+	logs_list: {
+		logs: z.array(requestSummarySchema),
+		total: z.number(),
+		limit: z.number(),
+		offset: z.number(),
+		from: z.string(),
+		to: z.string().nullable(),
+	},
+	log_get: { log: requestSummarySchema },
+};
+
+function asRecord(value: unknown): Record<string, unknown> {
+	return value && typeof value === "object" && !Array.isArray(value)
+		? value as Record<string, unknown>
+		: {};
+}
+
+function asRecords(value: unknown): Record<string, unknown>[] {
+	return Array.isArray(value) ? value.map(asRecord) : [];
+}
+
+function firstString(record: Record<string, unknown>, ...keys: string[]): string | null {
+	for (const key of keys) {
+		const value = record[key];
+		if (typeof value === "string" && value.trim()) return value.trim();
+	}
+	return null;
+}
+
+function firstNumber(record: Record<string, unknown>, ...keys: string[]): number | null {
+	for (const key of keys) {
+		const value = record[key];
+		if (typeof value === "number" && Number.isFinite(value)) return value;
+		if (typeof value === "string" && value.trim()) {
+			const parsed = Number(value);
+			if (Number.isFinite(parsed)) return parsed;
+		}
+	}
+	return null;
+}
+
+function firstBoolean(record: Record<string, unknown>, ...keys: string[]): boolean | null {
+	for (const key of keys) {
+		if (typeof record[key] === "boolean") return record[key] as boolean;
+	}
+	return null;
+}
+
+function normaliseRequestSummary(value: unknown) {
+	const record = asRecord(value);
+	const usage = asRecord(record.usage);
+	const inputDetails = asRecord(usage.input_tokens_details ?? usage.prompt_tokens_details);
+	const outputDetails = asRecord(usage.output_tokens_details ?? usage.completion_tokens_details);
+	const inputTokens = firstNumber(usage, "input_tokens", "prompt_tokens");
+	const outputTokens = firstNumber(usage, "output_tokens", "completion_tokens");
+	const cachedTokens = firstNumber(usage, "cached_tokens", "cached_input_tokens")
+		?? firstNumber(inputDetails, "cached_tokens");
+	const reasoningTokens = firstNumber(usage, "reasoning_tokens")
+		?? firstNumber(outputDetails, "reasoning_tokens");
+	const totalTokens = firstNumber(usage, "total_tokens") ?? (
+		inputTokens !== null || outputTokens !== null || reasoningTokens !== null
+			? (inputTokens ?? 0) + (outputTokens ?? 0) + (reasoningTokens ?? 0)
+			: null
+	);
+	const costNanos = firstNumber(record, "cost_nanos");
+	const costCents = firstNumber(record, "cost_cents");
+	return {
+		requestId: firstString(record, "request_id"),
+		timestamp: firstString(record, "created_at", "timestamp"),
+		provider: firstString(record, "provider"),
+		model: firstString(record, "routed_model_id", "canonical_model_id", "model_id", "model"),
+		endpoint: firstString(record, "endpoint"),
+		statusCode: firstNumber(record, "status_code"),
+		success: firstBoolean(record, "success"),
+		errorCode: firstString(record, "error_code"),
+		latencyMs: firstNumber(record, "latency_ms"),
+		generationMs: firstNumber(record, "generation_ms"),
+		inputTokens,
+		outputTokens,
+		cachedTokens,
+		reasoningTokens,
+		totalTokens,
+		costUsd: costNanos !== null ? costNanos / 1_000_000_000 : costCents !== null ? costCents / 100 : null,
+		currency: firstString(record, "currency") ?? (costNanos !== null || costCents !== null ? "USD" : null),
+		stream: firstBoolean(record, "stream"),
+		byok: firstBoolean(record, "byok"),
+		throughput: firstNumber(record, "throughput"),
+		location: firstString(record, "location"),
+		finishReason: firstString(record, "finish_reason"),
+	};
+}
+
+export function normaliseControlPlaneResult(name: string, value: unknown): Record<string, unknown> {
+	const record = asRecord(value);
+	switch (name) {
+		case "credits_get": {
+			const credits = asRecord(record.credits);
+			return { credits: {
+				balanceNanos: firstNumber(credits, "balance_nanos") ?? 0,
+				reservedNanos: firstNumber(credits, "reserved_nanos") ?? 0,
+				availableNanos: firstNumber(credits, "available_nanos", "remaining") ?? 0,
+				thirtyDayUsageNanos: firstNumber(credits, "thirty_day_usage"),
+				thirtyDayRequests: firstNumber(credits, "thirty_day_requests") ?? 0,
+			} };
+		}
+		case "activity_list":
+			return {
+				periodDays: firstNumber(record, "period_days") ?? 0,
+				total: firstNumber(record, "total") ?? 0,
+				limit: firstNumber(record, "limit") ?? 0,
+				offset: firstNumber(record, "offset") ?? 0,
+				totalCostUsd: (firstNumber(record, "total_cost_cents") ?? 0) / 100,
+				activity: asRecords(record.activity).map(normaliseRequestSummary),
+			};
+		case "analytics_get":
+			return { analytics: asRecords(record.data).map((item) => ({
+				date: firstString(item, "date") ?? "unknown",
+				model: firstString(item, "model") ?? "unknown",
+				modelId: firstString(item, "model_permaslug") ?? "unknown/unknown",
+				endpoint: firstString(item, "endpoint_id") ?? "unknown",
+				provider: firstString(item, "provider_name") ?? "unknown",
+				costUsd: firstNumber(item, "usage") ?? 0,
+				byokCostUsd: firstNumber(item, "byok_usage_inference") ?? 0,
+				requests: firstNumber(item, "requests") ?? 0,
+				inputTokens: firstNumber(item, "prompt_tokens") ?? 0,
+				outputTokens: firstNumber(item, "completion_tokens") ?? 0,
+				reasoningTokens: firstNumber(item, "reasoning_tokens") ?? 0,
+			})) };
+		case "generation_get":
+			return { generation: normaliseRequestSummary(record) };
+		case "logs_list":
+			return {
+				logs: asRecords(record.data).map(normaliseRequestSummary),
+				total: firstNumber(record, "total") ?? 0,
+				limit: firstNumber(record, "limit") ?? 0,
+				offset: firstNumber(record, "offset") ?? 0,
+				from: firstString(record, "from") ?? "unknown",
+				to: firstString(record, "to"),
+			};
+		case "log_get":
+			return { log: normaliseRequestSummary(record.data) };
+		default:
+			throw new PhaseoApiError("This Phaseo MCP tool is not available in the public plugin.");
+	}
+}
+
 function registerControlPlaneReadTools(
 	server: McpServer,
 	env: PhaseoEnv,
@@ -409,13 +435,15 @@ function registerControlPlaneReadTools(
 ): void {
 	for (const definition of controlPlaneReadTools) {
 		if (!hasScopes(authenticatedUser, definition.scopes)) continue;
+		const outputSchema = submissionControlOutputSchemas[definition.name];
+		if (!outputSchema) continue;
 		server.registerTool(
 			definition.name,
 			{
 				title: definition.title,
 				description: definition.description,
 				inputSchema: definition.inputSchema,
-				outputSchema: { result: z.record(z.string(), z.unknown()) },
+				outputSchema,
 				annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
 				_meta: oauthToolMeta(definition.scopes),
 			},
@@ -429,7 +457,7 @@ function registerControlPlaneReadTools(
 					);
 					return {
 						content: [{ type: "text" as const, text: `${definition.title} completed.` }],
-						structuredContent: { result },
+						structuredContent: normaliseControlPlaneResult(definition.name, result),
 					};
 				} catch (error) {
 					return errorResult(error);
@@ -441,7 +469,7 @@ function registerControlPlaneReadTools(
 
 export function createServer(env: PhaseoEnv, authenticatedUser: AuthenticatedPhaseoUser): McpServer {
 	const server = new McpServer(
-		{ name: "Phaseo", version: "0.2.0" },
+		{ name: "Phaseo", version: "0.3.0" },
 		{
 			instructions:
 				"Phaseo provides live model, provider, pricing, and authenticated workspace data. For current availability or pricing questions, use Phaseo tools instead of relying on model memory. Treat cost results as estimates. All Phaseo MCP tools are read-only; use the Phaseo dashboard, CLI, or Management API for administrative changes.",
@@ -509,44 +537,6 @@ export function createServer(env: PhaseoEnv, authenticatedUser: AuthenticatedPha
 				const model = await getModel(env, modelId, { accessToken: authenticatedUser.accessToken });
 				if (!model) return { isError: true as const, content: [{ type: "text" as const, text: `No Phaseo model exists with ID "${modelId}".` }] };
 				return { content: [{ type: "text" as const, text: `Retrieved ${model.name} from Phaseo.` }], structuredContent: { model: modelSummary(model) } };
-			} catch (error) { return errorResult(error); }
-		},
-	);
-
-	if (authenticatedUser.scopes.includes("pricing:read")) server.registerTool(
-		"pricing_calculate",
-		{
-			title: "Calculate Phaseo provider pricing",
-			description: "Calculate an exact price-card result for a provider, model, endpoint, and usage payload. This does not run inference or create a billable request.",
-			inputSchema: {
-				provider: z.string().min(1).max(100),
-				model: z.string().min(1).max(200),
-				endpoint: z.string().min(1).max(100),
-				usage: z.record(z.string(), z.unknown()),
-				requestStartedAt: z.string().datetime().optional(),
-				providerAcceptedAt: z.string().datetime().optional(),
-				completedAt: z.string().datetime().optional(),
-			},
-			outputSchema: { result: z.record(z.string(), z.unknown()) },
-			annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
-			_meta: oauthToolMeta(["pricing:read"]),
-		},
-		async ({ provider, model, endpoint, usage, requestStartedAt, providerAcceptedAt, completedAt }) => {
-			try {
-				const result = await requestPhaseo<Record<string, unknown>>(env, "/v1/pricing/calculate", {
-					method: "POST",
-					credentials: { accessToken: authenticatedUser.accessToken },
-					body: {
-						provider, model, endpoint, usage,
-						request_started_at: requestStartedAt,
-						provider_accepted_at: providerAcceptedAt,
-						completed_at: completedAt,
-					},
-				});
-				return {
-					content: [{ type: "text" as const, text: "Calculated the current Phaseo price-card result." }],
-					structuredContent: { result },
-				};
 			} catch (error) { return errorResult(error); }
 		},
 	);
@@ -619,28 +609,6 @@ export function createServer(env: PhaseoEnv, authenticatedUser: AuthenticatedPha
 		},
 	);
 
-	if (authenticatedUser.scopes.includes("keys:read")) server.registerTool(
-		"api_keys_list",
-		{
-			title: "List Phaseo Gateway API keys",
-			description:
-				"List Gateway API keys in the authenticated Phaseo workspace, including their status, limits, and expiry. Does not return key secrets. Requires the keys:read permission.",
-			inputSchema: {},
-			outputSchema: { keys: z.array(z.object(apiKeySchema)) },
-			annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
-			_meta: oauthToolMeta(["keys:read"]),
-		},
-		async () => {
-			try {
-				const keys = (await listApiKeys(env, { accessToken: authenticatedUser.accessToken })).map(apiKeySummary);
-				return {
-					content: [{ type: "text" as const, text: `Found ${keys.length} Gateway API key${keys.length === 1 ? "" : "s"} in the authenticated Phaseo workspace.` }],
-					structuredContent: { keys },
-				};
-			} catch (error) { return errorResult(error); }
-		},
-	);
-
 	registerControlPlaneReadTools(server, env, authenticatedUser);
 
 	return server;
@@ -664,8 +632,8 @@ function resourceMetadata(request: Request, env: PhaseoEnv): Response {
 
 function unauthorised(request: Request, env: PhaseoEnv): Response {
 	const origin = new URL(request.url).origin;
-	// This challenge is the minimum connection grant. Elevated scopes remain
-	// discoverable in resource metadata but are never bundled into first login.
+	// The first connection requests only scopes used by the reviewed public
+	// tool surface. Administrative access remains in the dashboard and CLI.
 	const scopes = READ_ONLY_MCP_SCOPES;
 	return new Response("Phaseo login is required.", {
 		status: 401,
@@ -685,10 +653,47 @@ function secureResponse(response: Response): Response {
 	return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
+function secureMcpResponse(response: Response): Response {
+	const secured = secureResponse(response);
+	const headers = new Headers(secured.headers);
+	headers.set("Cache-Control", "no-store");
+	return new Response(secured.body, {
+		status: secured.status,
+		statusText: secured.statusText,
+		headers,
+	});
+}
+
+function openAiAppsChallenge(env: PhaseoEnv): Response {
+	const token = env.OPENAI_APPS_CHALLENGE_TOKEN?.trim() ?? "";
+	if (!token) return new Response("Not found", { status: 404 });
+	if (token.length > 2_048) return new Response("Challenge token is invalid.", { status: 503 });
+	return new Response(token, {
+		status: 200,
+		headers: {
+			"Content-Type": "text/plain; charset=utf-8",
+			"Cache-Control": "no-store",
+			"X-Content-Type-Options": "nosniff",
+		},
+	});
+}
+
 export default {
 	async fetch(request: Request, env: PhaseoEnv, ctx: ExecutionContext): Promise<Response> {
 		const url = new URL(request.url);
 		if (request.method === "OPTIONS") return secureResponse(new Response(null, { status: 204 }));
+		if (url.pathname === "/.well-known/openai-apps-challenge") {
+			if (request.method !== "GET" && request.method !== "HEAD") {
+				return secureResponse(new Response("Method not allowed", {
+					status: 405,
+					headers: { Allow: "GET, HEAD" },
+				}));
+			}
+			const challenge = secureResponse(openAiAppsChallenge(env));
+			return request.method === "HEAD"
+				? new Response(null, { status: challenge.status, headers: challenge.headers })
+				: challenge;
+		}
 		if (url.pathname === "/health") return secureResponse(Response.json({ status: "ok", service: "phaseo-mcp" }));
 		if (
 			url.pathname === "/.well-known/oauth-protected-resource/mcp" ||
@@ -704,6 +709,6 @@ export default {
 			route: "/mcp",
 			authContext: { props: { workspaceId: authenticatedUser.workspaceId } },
 		})(boundedRequest, env, ctx);
-		return secureResponse(response);
+		return secureMcpResponse(response);
 	},
 } satisfies ExportedHandler<PhaseoEnv>;

@@ -1,14 +1,17 @@
 ---
-title: "Video list (Beta)"
-badge: "Beta"
+title: "List videos"
+sidebarTitle: "List videos"
+tag: "Internal"
 openapi: "GET /videos"
-description: "List owned video generation jobs for the authenticated workspace."
----
-Returns the authenticated workspace's owned video jobs in reverse chronological order.
+description: |-
+  <Info>
+  **Internal testing.** The Video API is available only to enabled workspaces and may be temporarily disabled while its public contract is finalised. The API may change before general availability.
+  </Info>
 
-<Warning>
-The public video routes are currently mounted but temporarily disabled, so this route currently returns `501 not_implemented`.
-</Warning>
+  List owned video generation jobs for the authenticated workspace.
+---
+
+Returns the authenticated workspace's owned video jobs in reverse chronological order.
 
 Use query parameters to narrow the response:
 

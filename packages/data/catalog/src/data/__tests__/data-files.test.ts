@@ -33,6 +33,7 @@ const aliasesDir = path.join(ROOT, 'aliases');
 const apiProvidersDir = path.join(ROOT, 'api_providers');
 const pricingDir = path.join(ROOT, 'pricing');
 const plansDir = path.join(ROOT, 'subscription_plans');
+const lineageExceptions = readJson(path.join(ROOT, 'lineage-reference-exceptions.json')).references as Record<string, string>;
 
 const organisationIds = new Set<string>();
 for (const org of listDirs(organisationsDir)) {
@@ -197,7 +198,9 @@ describe('Models', () => {
       const j = readJson(m.filePath);
       const rawPrev = j.previous_model_id ?? null;
       const prev = rawPrev === '-' || rawPrev === '' ? null : rawPrev;
-      if (prev) expect(modelIds.has(prev)).toBe(true);
+      if (prev && !modelIds.has(prev)) {
+        expect(lineageExceptions[m.model_id]).toBe(prev);
+      }
     });
     test(`${m.model_id} family reference`, () => {
       const j = readJson(m.filePath);

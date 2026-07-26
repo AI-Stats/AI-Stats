@@ -13,10 +13,10 @@
   "input_types": "text,image,video",
   "output_types": "text",
   "api_model_id": "moonshotai/kimi-k3",
-  "family_id": "moonshotai/kimi-k2",
+  "family_id": "moonshotai/kimi-k3",
   "page_notice": {
     "tone": "info",
-    "markdown": "Kimi K3's full model weights are scheduled for release on **July 27, 2026 at 15:00 UTC**. As the weights become available, confirmed inference providers will be onboarded as soon as their serverless endpoints go live. Together AI, Baseten, and Fireworks are currently marked **Coming Soon**."
+    "markdown": "Kimi K3's full model weights are scheduled for release on **July 27, 2026 at 15:00 UTC**. As the weights become available, confirmed inference providers will be onboarded as soon as their hosted endpoints go live. Together AI, Baseten, and Fireworks are currently marked **Coming Soon**."
   },
   "links": [
     {
@@ -99,7 +99,7 @@
     },
     {
       "name": "availability_note",
-      "value": "Moonshot AI, GMI Cloud, Novita, SiliconFlow, and Venice provide Kimi K3 API access. GMI Cloud currently advertises an FP8 route with a 262,144-token context window; Novita advertises text, image, and video input with a 1,048,576-token context and output limit; SiliconFlow advertises text and image input with a 1,048,576-token context and online pricing of $0.30 per million cached input tokens, $3.00 per million input tokens, and $15.00 per million output tokens. Venice exposes the standard kimi-k3 route at $3.75 per million input tokens, $0.375 per million cached input tokens, and $18.75 per million output tokens. Venice's live catalog does not expose an E2EE Kimi K3 model ID, so no E2EE route or pricing is listed. Full model weights are scheduled for July 27, 2026 at 15:00 UTC. Together AI, Baseten, and Fireworks have confirmed planned hosted inference availability and are listed as coming soon until their endpoints go live."
+      "value": "Moonshot AI, GMI Cloud, Novita, SiliconFlow, and Venice provide Kimi K3 API access. GMI Cloud currently advertises an FP8 route with a 262,144-token context window; Novita advertises text, image, and video input with a 1,048,576-token context and output limit; SiliconFlow advertises text and image input with a 1,048,576-token context and online pricing of $0.30 per million cached input tokens, $3.00 per million input tokens, and $15.00 per million output tokens. Venice exposes the standard kimi-k3 route at $3.75 per million input tokens, $0.375 per million cached input tokens, and $18.75 per million output tokens. Venice's live catalog does not expose an E2EE Kimi K3 model ID, so no E2EE route or pricing is listed. Full model weights are scheduled for July 27, 2026 at 15:00 UTC. Together AI and Baseten have announced planned hosted inference availability. Fireworks has published prerelease Kimi K3 serving research, with production route details pending. All three are listed as coming soon until their endpoints go live."
     }
   ],
   "benchmarks": [
@@ -400,7 +400,6 @@
       "rank": 1
     }
   ],
-  "page_notice": null,
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {

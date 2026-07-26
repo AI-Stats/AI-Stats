@@ -15,6 +15,10 @@ function resolveReasoningEnabled(reasoning: any): boolean | undefined {
 
 export const basetenQuirks: ProviderQuirks = {
 	transformRequest: ({ request, ir }) => {
+		// Phaseo uses this field to select Baseten's dedicated Fast model slug.
+		// Baseten does not accept service_tier as an upstream request parameter.
+		delete request.service_tier;
+
 		const enabled = resolveReasoningEnabled(ir.reasoning);
 		if (typeof enabled !== "boolean") return;
 

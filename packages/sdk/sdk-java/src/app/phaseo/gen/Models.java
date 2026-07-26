@@ -1083,13 +1083,23 @@ public final class Models {
 
 	public static class ResponsesResponse {
 		public java.util.List<Object> content;
+		public Integer cost_cents;
+		public Double cost_nanos;
 		public Integer created;
+		public String currency;
+		public String finish_reason;
 		public String id;
+		public Object meta;
 		public String model;
+		public String nativeResponseId;
 		public String object;
 		public java.util.List<Object> output;
 		public java.util.List<Object> output_items;
+		public java.util.List<Object> pricing_lines;
+		public String provider;
+		public String provider_id;
 		public String role;
+		public Object status;
 		public String stop_reason;
 		public String type;
 		public Object usage;

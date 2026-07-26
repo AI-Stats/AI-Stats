@@ -3,11 +3,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	getBatchApiFeatureGateName,
 	getGatewayIoLoggingFeatureGateName,
+	getDataContributionFeatureGateName,
 	getVideoApiFeatureGateName,
 	getRealtimeVoiceFeatureGateName,
 	isBatchApiAccessEnabled,
 	isVideoApiAccessEnabled,
 	isGatewayIoLoggingFeatureEnabled,
+	isDataContributionAccessEnabled,
 	isRealtimeVoiceAccessEnabled,
 } from "./feature-flags";
 import type { AuthSuccess } from "@pipeline/before/auth";
@@ -36,6 +38,8 @@ describe("batch API feature gate", () => {
 		expect(getRealtimeVoiceFeatureGateName({})).toBe("gateway_realtime_voice");
 		expect(getGatewayIoLoggingFeatureGateName({ STATSIG_GATEWAY_IO_LOGGING_GATE: "custom_io_gate" })).toBe("custom_io_gate");
 		expect(getGatewayIoLoggingFeatureGateName({})).toBe("gateway_io_logging");
+		expect(getDataContributionFeatureGateName({ STATSIG_DATA_CONTRIBUTION_GATE: "custom_contribution_gate" })).toBe("custom_contribution_gate");
+		expect(getDataContributionFeatureGateName({})).toBe("gateway_data_contribution");
 	});
 
 	it("checks video access independently with the authenticated workspace", async () => {
@@ -130,6 +134,7 @@ describe("batch API feature gate", () => {
 				headers: expect.objectContaining({
 					"statsig-api-key": "secret-statsig-key",
 				}),
+				signal: expect.any(AbortSignal),
 			}),
 		);
 	});
@@ -169,5 +174,21 @@ describe("batch API feature gate", () => {
 			STATSIG_SERVER_KEY: "secret-statsig-key",
 			STATSIG_ENVIRONMENT_TIER: "staging",
 		})).resolves.toBe(true);
+	});
+
+	it("fails data contribution closed unless its independent gate is enabled", async () => {
+		const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+			const body = JSON.parse(String(init?.body));
+			expect(body).toMatchObject({
+				gateName: "gateway_data_contribution",
+				user: { custom: { workspace_id: "ws_batch_admin", surface: "gateway_data_contribution" } },
+			});
+			return new Response(JSON.stringify({ value: false }));
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		await expect(isDataContributionAccessEnabled(auth, {
+			STATSIG_SERVER_KEY: "secret-statsig-key",
+		})).resolves.toBe(false);
 	});
 });

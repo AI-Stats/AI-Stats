@@ -1,9 +1,20 @@
 ---
 title: "Migrating from LLM Gateway"
+sidebarTitle: "LLM Gateway"
 description: "Move from LLMGateway to Phaseo Gateway with an OpenAI-compatible endpoint swap, model-ID verification, and staged rollout validation."
+icon: "/icons/brands/llmgateway.svg"
 ---
 
 If your app already uses LLM Gateway through an OpenAI-compatible client, most teams can keep their request payloads unchanged and migrate by replacing only the gateway boundary first.
+
+## What changes
+
+| Setting | Before | After |
+| --- | --- | --- |
+| Base URL | `https://api.llmgateway.io/v1` | `https://api.phaseo.app/v1` |
+| API key | `LLM_GATEWAY_API_KEY` | `PHASEO_API_KEY` |
+| Model aliases | Existing gateway aliases | Verify against `GET /v1/models` or normalize in one boundary layer |
+| Request payload | Existing OpenAI-compatible request | Keep unchanged for the first migration pass |
 
 ## Before you start
 
@@ -84,8 +95,8 @@ curl -s "https://api.phaseo.app/v1/models" \
 
 1. Run your golden prompt suite and compare quality, latency, and cost metrics to baseline.
 2. Confirm failed staging requests can be recovered through the replay payload returned by `GET /v1/generations`.
-2. Release behind a canary flag and move from a low percentage of traffic to full traffic once stable.
-3. Observe production metrics for at least one release cycle before removing old configuration.
+3. Release behind a canary flag and move from a low percentage of traffic to full traffic once stable.
+4. Observe production metrics for at least one release cycle before removing old configuration.
 
 ## Validation commands
 

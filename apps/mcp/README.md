@@ -1,7 +1,7 @@
-# Phaseo MCP proof of concept
+# Phaseo MCP server
 
 Authenticated, stateless, read-only MCP server for live Phaseo model,
-provider, pricing, and workspace information.
+provider, pricing, cost, usage, and request-health information.
 
 It reuses Phaseo's OAuth server and control-plane permissions rather than
 creating a second identity or API-key system. Administrative operations remain
@@ -19,19 +19,22 @@ a separate five-minute API JWT. Resource-bound MCP tokens are rejected by
 ordinary Phaseo API routes, preventing cross-service replay and OAuth token
 passthrough.
 
-All MCP tools are permanently read-only. They provide:
+The public plugin surface is intentionally narrow and permanently read-only. It provides:
 
-- account identity and workspace membership
-- models, organisations, providers, endpoint families, and pricing
-- credits, activity, analytics, request logs, and generation metadata
-- workspaces and members
-- Gateway API-key metadata without key secrets
-- presets, settings, guardrails, management-key and OAuth-client metadata
-- webhook endpoint metadata where Batch API access is enabled
+- live model search and model details
+- provider availability
+- model cost estimates
+- credit balance and recent activity
+- aggregated analytics
+- privacy-minimized request logs and generation metadata
 
-Tools are registered only when the exchanged token contains every advertised
-read scope. Billable inference endpoints, secret values, and control-plane
-mutations are intentionally not represented as MCP tools.
+Administrative metadata, billable inference endpoints, secret values, prompt
+or response payloads, and control-plane mutations are not represented as MCP
+tools. Use the Phaseo dashboard, CLI, or Management API for those operations.
+
+Tool responses are normalized at the MCP boundary. They do not pass raw
+control-plane records through to ChatGPT or Codex and omit workspace, user,
+credential, OAuth-client, storage, and replay-payload fields.
 
 When `PHASEO_THIRD_PARTY_OAUTH_ENABLED=true`, Phaseo advertises dynamic client
 registration. Registrations default to the read-only scope set; write scopes
@@ -49,6 +52,27 @@ source.
 
 Production also uses a Cloudflare Service Binding named `PHASEO_API` to reach
 the `phaseo-gateway` Worker without traversing the public internet.
+
+## OpenAI domain verification
+
+The plugin submission portal provides a domain-verification token. Configure it
+on the production MCP Worker without committing it:
+
+```bash
+pnpm --filter @phaseo/mcp exec wrangler secret put OPENAI_APPS_CHALLENGE_TOKEN --env production
+```
+
+The Worker then returns only that token from:
+
+```text
+https://mcp.phaseo.app/.well-known/openai-apps-challenge
+```
+
+Leave the binding unset outside an active submission. The endpoint returns 404
+when no token is configured.
+
+Reviewer-facing listing copy, prompts, test cases, annotation justifications,
+and the launch checklist are in [`submission/openai-plugin.md`](submission/openai-plugin.md).
 
 ## Run locally
 

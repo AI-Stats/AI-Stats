@@ -12,10 +12,11 @@ import {
 } from "@/components/(data)/countries/utils";
 import { fetchFrontendCountry } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { buildMetadata } from "@/lib/seo";
+import { notFound } from "next/navigation";
 
 async function loadCountry(isoInput: string) {
 	const iso = normaliseIso(isoInput);
-	return fetchFrontendCountry(iso);
+	return fetchFrontendCountry(iso).catch(() => null);
 }
 
 export async function generateMetadata({
@@ -74,6 +75,7 @@ export default async function CountryDetailPage({
 	const country = await loadCountry(iso);
 
 	if (!country) {
+		notFound();
 		return (
 			<CountryDetailShell iso={iso} country={undefined}>
 				<div className="rounded-2xl border border-dashed border-zinc-300 bg-white/70 p-6 text-sm text-muted-foreground dark:border-zinc-700 dark:bg-zinc-900/70">

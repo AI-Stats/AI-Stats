@@ -1,10 +1,12 @@
 import {
 	fetchFrontendModelBenchmarkHighlights,
 	fetchFrontendModelAvailability,
+	fetchFrontendModelHeader,
 	fetchFrontendModelOverview,
 	fetchFrontendModelPerformance,
 	fetchFrontendModelPricing,
 	fetchFrontendModelSubscriptionPlans,
+	fetchFrontendModelTimeline,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
 import ModelOverviewSections, {
@@ -37,6 +39,10 @@ import {
 } from "@/components/(data)/model/quickstart/requestContext";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import ModelFaqSection from "@/components/(data)/model/overview/ModelFaqSection";
+import {
+	getModelLineageLinks,
+	resolveModelLineageNames,
+} from "@/components/(data)/model/overview/modelOverviewMetadata";
 
 async function ModelCreatorModelsSectionContent({
 	modelId,
@@ -74,7 +80,17 @@ async function ModelFaqSectionContent({
 	isGatewayActive: boolean;
 	pricingPromise: ReturnType<typeof fetchFrontendModelPricing>;
 }) {
-	const pricing = await pricingPromise;
+	const [pricing, timeline] = await Promise.all([
+		pricingPromise,
+		fetchFrontendModelTimeline(model.model_id).catch(() => null),
+	]);
+	const relatedModels = await resolveModelLineageNames(
+		getModelLineageLinks(timeline?.events, model.previous_model_id),
+		async (relatedModelId) =>
+			(
+				await fetchFrontendModelHeader(relatedModelId).catch(() => null)
+			)?.name,
+	);
 	return (
 		<ModelFaqSection
 			model={model}
@@ -82,6 +98,7 @@ async function ModelFaqSectionContent({
 			activeProviderCount={activeProviderCount}
 			isGatewayActive={isGatewayActive}
 			pricing={pricing}
+			relatedModels={relatedModels}
 		/>
 	);
 }

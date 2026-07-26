@@ -1,14 +1,11 @@
 ---
 title: "Usage"
-description: "Run a minimal local agent loop on top of Phaseo Gateway with the C# Agent SDK."
+description: "Run tool loops, human review, retries, and resumable agents with the C# Agent SDK."
 ---
 
-## Install
+## Prepare the runtime
 
-```bash
-dotnet add package Phaseo.Sdk
-dotnet add package Phaseo.AgentSdk
-```
+The Agent SDK package is not yet on NuGet. Follow the [source installation instructions](./agent-sdk-installation).
 
 ## Quickstart
 
@@ -37,6 +34,14 @@ Console.WriteLine(result.Output);
 - `AgentSdk.DefineTool(...)`
 - `AgentSdk.CreateGatewayAgentClient(...)`
 - a bounded tool loop over the Phaseo `responses` API
+
+## Advanced runtime
+
+C# supports validation and approval delegates, HITL and manual tools, progress, recoverable errors, replayable async enumerables, stop helpers, dynamic turns, persisted `NextTurnParams`, normalized usage/cost, and `IStateAccessor`.
+
+## Streaming and cancellation
+
+`Agent.Stream(...)` and `Agent.ContinueStream(...)` use `IAsyncEnumerable` over the gateway's Responses SSE stream. Consume `TextStream()` or `FullStream()`, and call `Cancel()` to cancel the linked request token. Completed steps retain request IDs, provider metadata, finish reasons, warnings, usage, and cost.
 
 ## Related
 

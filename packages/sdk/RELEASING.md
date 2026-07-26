@@ -3,8 +3,10 @@
 This repo uses a hybrid release model:
 
 - TypeScript, TypeScript Agent SDK, and Python are auto-released from CI.
-- Go/C#/Java/PHP/Ruby use explicit publish workflows per ecosystem.
-- C++/Rust remain excluded until functional end-to-end.
+- Python, Go, PHP, and Ruby Agent SDKs publish through the dedicated Agent SDK workflow; C# shares the existing trusted NuGet workflow; Rust uses its own ordered crates.io workflow.
+- Go/C#/Java/PHP/Ruby publish automatically when their committed package version changes on `main`.
+- Their workflows also support manual dispatch for safe, idempotent recovery.
+- C++ remains excluded until functional end-to-end; Java remains a work in progress until Maven Central credentials are configured.
 - Manual SDK release readiness can be checked with `.github/workflows/sdk-publish-readiness.yml`.
 
 ## Canonical Distribution Targets
@@ -12,11 +14,18 @@ This repo uses a hybrid release model:
 - TypeScript (`@phaseo/sdk`) -> npm
 - TypeScript Agent SDK (`@phaseo/agent-sdk`) -> npm
 - Python (`phaseo`) -> PyPI
-- Go (`github.com/phaseoteam/Phaseo/packages/sdk/sdk-go`) -> Go proxy (`pkg.go.dev`) via git tags
+- Python Agent SDK (`phaseo-agent-sdk`) -> PyPI
+- Go (`github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2`) -> Go proxy (`pkg.go.dev`) via git tags
+- Go Agent SDK (`github.com/phaseoteam/Phaseo/packages/sdk/agent-sdk-go`) -> Go proxy via git tags
 - C# (`Phaseo.Sdk`) -> NuGet
+- C# Agent SDK (`Phaseo.AgentSdk`) -> NuGet
 - Java (`app.phaseo:phaseo-sdk`) -> Maven Central
-- PHP (`phaseo/php-sdk`) -> Packagist
+- PHP (`phaseo/sdk`) -> Packagist
+- PHP Agent SDK (`phaseo/agent-sdk`) -> Packagist
 - Ruby (`phaseo_sdk`) -> RubyGems
+- Ruby Agent SDK (`phaseo_agent_sdk`) -> RubyGems
+- Rust (`phaseo`) -> crates.io
+- Rust Agent SDK (`phaseo-agent`) -> crates.io
 
 ## Auto Release (TS/Python)
 
@@ -71,7 +80,22 @@ General policy:
 - `minor`: backward-compatible feature additions (new optional params/endpoints).
 - `major`: breaking changes (removed/renamed params, signature/shape breaks).
 
-## Manual Publish Workflows (Other SDKs)
+## Language SDK Publish Workflows
+
+- Agent SDKs: `.github/workflows/publish-agent-sdks.yml`
+  - Publishes Python, Go, PHP, and Ruby Agent SDKs independently and idempotently
+  - Uses the protected `release` environment
+  - Uses OIDC trusted publishing for PyPI and RubyGems
+  - Trusted-publisher identity: repository owner `phaseoteam`, repository `Phaseo`, workflow `publish-agent-sdks.yml`, environment `release`
+  - Uses the Phaseo GitHub App for Go tags and the PHP split repository
+  - Refreshes `phaseo/agent-sdk` on Packagist with the required `PACKAGIST_USERNAME` and `PACKAGIST_SAFE_TOKEN` release-environment secrets
+  - Optional repo variable: `PHP_AGENT_SDK_SPLIT_REPO` (defaults to `phaseoteam/phaseo-php-agent-sdk`)
+
+- Rust: `.github/workflows/publish-sdk-rust.yml`
+  - Publishes `phaseo` before the dependent `phaseo-agent` crate
+  - Uses crates.io trusted publishing with repository `phaseoteam/Phaseo`, workflow `publish-sdk-rust.yml`, and environment `release`
+  - Uses the temporary `CRATES_IO_BOOTSTRAP_TOKEN` release secret only for the first publication; remove it after trusted publishing is configured
+  - Creates monorepo tags `packages/sdk/sdk-rust/vX.Y.Z` and `packages/sdk/agent-sdk-rust/vX.Y.Z`
 
 - First npm publish / bootstrap: `.github/workflows/npm-bootstrap-publish.yml`
   - Supports `@phaseo/agent-sdk`, `@phaseo/ai-sdk-provider`, and `@phaseo/devtools-viewer`
@@ -81,8 +105,9 @@ General policy:
   - Publishes by creating/pushing tag `packages/sdk/sdk-go/vX.Y.Z`
 
 - C#: `.github/workflows/publish-sdk-csharp.yml`
-  - Publishes `.nupkg` and `.snupkg` to NuGet
+  - Publishes base and Agent SDK `.nupkg` and `.snupkg` files to NuGet
   - Uses NuGet trusted publishing (OIDC), no API key secret required
+  - Trusted-publisher identity: package owner `Phaseo`, repository `phaseoteam/Phaseo`, workflow `publish-sdk-csharp.yml`
   - Optional repo variable: `NUGET_TRUSTED_PUBLISHING_USER` (defaults to repo owner)
 
 - Java: `.github/workflows/publish-sdk-java.yml`
@@ -96,11 +121,11 @@ General policy:
 - PHP: `.github/workflows/publish-sdk-php.yml`
   - Publishes by creating/pushing monorepo tag `sdk-php/vX.Y.Z`
   - Syncs `packages/sdk/sdk-php` to split repo main and pushes split tag `vX.Y.Z`
-  - Triggers Packagist update against the split repo URL
-  - Required secrets:
+  - Uses the Phaseo GitHub App token to update the split repository
+  - Refreshes `phaseo/sdk` through the Packagist API after publishing the split tag
+  - Required `release` environment secrets:
     - `PACKAGIST_USERNAME`
-    - `PACKAGIST_MAIN_TOKEN`
-    - `PHP_SDK_SPLIT_REPO_TOKEN`
+    - `PACKAGIST_SAFE_TOKEN`
   - Optional repo variable:
     - `PHP_SDK_SPLIT_REPO` (defaults to `phaseoteam/phaseo-php-sdk`)
 
@@ -108,8 +133,8 @@ General policy:
   - Keeps split repo main in sync from monorepo path `packages/sdk/sdk-php/**` on pushes to main
 
 - Ruby: `.github/workflows/publish-sdk-ruby.yml`
-  - Builds gem, creates/pushes tag `sdk-ruby/vX.Y.Z`, pushes to RubyGems
-  - Required secret: `RUBYGEMS_API_KEY`
+  - Builds the gem, publishes through RubyGems trusted publishing, and creates/pushes tag `sdk-ruby/vX.Y.Z`
+  - Uses OIDC; no RubyGems API key is stored
 
 ## Publish Readiness Checks
 

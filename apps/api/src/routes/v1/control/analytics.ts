@@ -6,7 +6,7 @@
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
 import { withRuntime, json } from "../../utils";
-import { getCache, getSupabaseAdmin } from "@/runtime/env";
+import { getSupabaseAdmin } from "@/runtime/env";
 import { guardAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { requireCapability } from "./route-helpers";
@@ -14,8 +14,6 @@ import { requireCapability } from "./route-helpers";
 const COMPLETED_DAYS_WINDOW = 30;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-const ANALYTICS_REFRESH_MARKER_PREFIX = "gateway:analytics:rollup-refresh";
-const ANALYTICS_REFRESH_COOLDOWN_SECONDS = 600;
 
 function startOfUtcDay(date: Date): Date {
     return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
@@ -119,17 +117,18 @@ function resolveScopedTeamId(args: {
     return { ok: true, workspaceId: requested };
 }
 
-type AnalyticsRollupRow = {
-    day_bucket: string | null;
-    model_id: string | null;
+type AnalyticsFactRow = {
+    occurred_at: string | null;
     endpoint: string | null;
-    provider: string | null;
-    usage_nanos: number | string | null;
-    byok_usage_nanos: number | string | null;
-    requests: number | string | null;
-    prompt_tokens: number | string | null;
-    completion_tokens: number | string | null;
-    reasoning_tokens: number | string | null;
+    requested_model_slug: string | null;
+    routed_model_slug: string | null;
+    provider_model_id: string | null;
+    cost_nanos: number | string | null;
+    byok: boolean | null;
+    v2_request_usage: Array<{
+        meter_key: string | null;
+        quantity: number | string | null;
+    }> | null;
 };
 
 function toModelDisplay(permaslug: string): string {
@@ -170,89 +169,61 @@ function toRoundedUsage(value: number): number {
     return Number(value.toFixed(9));
 }
 
-async function refreshAnalyticsRollup(args: {
-	workspaceId: string;
-	startIso: string;
-	endIso: string;
-}): Promise<void> {
-    const supabase = getSupabaseAdmin();
-    const { error } = await supabase.rpc("refresh_gateway_activity_rollup_daily", {
-        p_workspace_id: args.workspaceId,
-        p_start: args.startIso,
-        p_end: args.endIso,
-    });
-    if (error) {
-        throw new Error(error.message || "Failed to refresh analytics rollup");
-	}
-}
-
-function buildRefreshMarkerKey(args: {
-	workspaceId: string;
-	startIso: string;
-	endIso: string;
-}): string {
-	const startDay = args.startIso.slice(0, 10);
-	const endDay = args.endIso.slice(0, 10);
-	return `${ANALYTICS_REFRESH_MARKER_PREFIX}:${args.workspaceId}:${startDay}:${endDay}`;
-}
-
-async function shouldRefreshAnalyticsRollup(args: {
-	workspaceId: string;
-	startIso: string;
-	endIso: string;
-}): Promise<boolean> {
-	try {
-		const cache = getCache();
-		const markerKey = buildRefreshMarkerKey(args);
-		const marker = await cache.get(markerKey, "text");
-		return !marker;
-	} catch {
-		// Fail open if cache is unavailable so analytics data still updates.
-		return true;
-	}
-}
-
-async function markAnalyticsRollupRefresh(args: {
-	workspaceId: string;
-	startIso: string;
-	endIso: string;
-}): Promise<void> {
-	try {
-		const cache = getCache();
-		await cache.put(buildRefreshMarkerKey(args), "1", {
-			expirationTtl: ANALYTICS_REFRESH_COOLDOWN_SECONDS,
-		});
-	} catch {
-		// Ignore marker write failures so successful refreshes still return data.
-	}
-}
-
-async function loadAnalyticsRollupRows(args: {
+async function loadAnalyticsFactRows(args: {
     workspaceId: string;
     startIso: string;
     endIso: string;
-}): Promise<AnalyticsRollupRow[]> {
+}): Promise<AnalyticsFactRow[]> {
     const supabase = getSupabaseAdmin();
-    const startDay = args.startIso.slice(0, 10);
-    const endDay = args.endIso.slice(0, 10);
-    const { data, error } = await supabase
-        .from("gateway_activity_rollup_daily")
-        .select(
-            "day_bucket,model_id,endpoint,provider,usage_nanos,byok_usage_nanos,requests,prompt_tokens,completion_tokens,reasoning_tokens"
-        )
-        .eq("workspace_id", args.workspaceId)
-        .gte("day_bucket", startDay)
-        .lt("day_bucket", endDay);
-
-    if (error) {
-        throw new Error(error.message || "Failed to load analytics rollup rows");
+    const rows: AnalyticsFactRow[] = [];
+    const pageSize = 1000;
+    for (let offset = 0; ; offset += pageSize) {
+        const { data, error } = await supabase
+            .from("v2_request_facts")
+            .select(
+                "occurred_at,endpoint,requested_model_slug,routed_model_slug,provider_model_id,cost_nanos,byok,v2_request_usage(meter_key,quantity)"
+            )
+            .eq("workspace_id", args.workspaceId)
+            .gte("occurred_at", args.startIso)
+            .lt("occurred_at", args.endIso)
+            .order("occurred_at", { ascending: true })
+            .range(offset, offset + pageSize - 1);
+        if (error) {
+            throw new Error(error.message || "Failed to load v2 analytics request facts");
+        }
+        const page = (data ?? []) as AnalyticsFactRow[];
+        rows.push(...page);
+        if (page.length < pageSize) break;
     }
+    return rows;
+}
 
-    return (data ?? []) as AnalyticsRollupRow[];
+async function loadProviderNames(providerModelIds: string[]): Promise<Map<string, string>> {
+    const names = new Map<string, string>();
+    if (providerModelIds.length === 0) return names;
+    const supabase = getSupabaseAdmin();
+    for (let offset = 0; offset < providerModelIds.length; offset += 200) {
+        const { data, error } = await supabase
+            .from("v2_model_provider_routes")
+            .select("provider_model_id,provider_slug")
+            .in("provider_model_id", providerModelIds.slice(offset, offset + 200));
+        if (error) throw new Error(error.message || "Failed to load analytics provider names");
+        for (const row of data ?? []) {
+            if (row.provider_model_id && row.provider_slug) names.set(row.provider_model_id, row.provider_slug);
+        }
+    }
+    return names;
+}
+
+function meterQuantity(row: AnalyticsFactRow, keys: string[]): number {
+    const wanted = new Set(keys);
+    return (row.v2_request_usage ?? []).reduce((total, meter) => {
+        return wanted.has(meter.meter_key ?? "") ? total + (toFiniteNumber(meter.quantity) ?? 0) : total;
+    }, 0);
 }
 
 async function handleAnalytics(req: Request) {
-	const auth = await guardAuth(req);
+	const auth = await guardAuth(req, { allowOAuthJwt: true });
 	if (!auth.ok) {
 		return (auth as GuardErr).response;
 	}
@@ -274,54 +245,65 @@ async function handleAnalytics(req: Request) {
 	const endIso = range.end.toISOString();
 
 	try {
-		if (
-			await shouldRefreshAnalyticsRollup({
-				workspaceId,
-				startIso,
-				endIso,
-			})
-		) {
-			await refreshAnalyticsRollup({
-				workspaceId,
-				startIso,
-				endIso,
-			});
-			await markAnalyticsRollupRefresh({
-				workspaceId,
-				startIso,
-				endIso,
-			});
-		}
-		const rows = await loadAnalyticsRollupRows({
+		const rows = await loadAnalyticsFactRows({
 			workspaceId,
 			startIso,
             endIso,
         });
+		const providerModelIds = Array.from(new Set(rows
+			.map((row) => row.provider_model_id)
+			.filter((value): value is string => Boolean(value))));
+		const providerNames = await loadProviderNames(providerModelIds);
+		const grouped = new Map<string, {
+			date: string;
+			model: string;
+			model_permaslug: string;
+			endpoint_id: string;
+			provider_name: string;
+			usage: number;
+			byok_usage_inference: number;
+			requests: number;
+			prompt_tokens: number;
+			completion_tokens: number;
+			reasoning_tokens: number;
+		}>();
+		for (const row of rows) {
+			const date = toDayBucket(row.occurred_at?.slice(0, 10));
+			if (!date) continue;
+			const modelPermaslug = toNonEmptyString(row.routed_model_slug ?? row.requested_model_slug, "unknown/unknown");
+			const providerModelId = toNonEmptyString(row.provider_model_id, "unknown");
+			const providerId = providerNames.get(providerModelId) ?? providerModelId.split(":", 1)[0] ?? "unknown";
+			const endpointId = toNonEmptyString(row.endpoint, "unknown");
+			const key = `${date}\u0000${modelPermaslug}\u0000${providerModelId}\u0000${endpointId}`;
+			const existing = grouped.get(key) ?? {
+				date,
+				model: toModelDisplay(modelPermaslug),
+				model_permaslug: modelPermaslug,
+				endpoint_id: endpointId,
+				provider_name: toProviderName(providerId),
+				usage: 0,
+				byok_usage_inference: 0,
+				requests: 0,
+				prompt_tokens: 0,
+				completion_tokens: 0,
+				reasoning_tokens: 0,
+			};
+			const usage = toUsdFromNanos(toFiniteNumber(row.cost_nanos));
+			existing.usage += usage;
+			if (row.byok) existing.byok_usage_inference += usage;
+			existing.requests += 1;
+			existing.prompt_tokens += Math.max(0, Math.round(meterQuantity(row, ["input_tokens", "prompt_tokens"])));
+			existing.completion_tokens += Math.max(0, Math.round(meterQuantity(row, ["output_tokens", "completion_tokens"])));
+			existing.reasoning_tokens += Math.max(0, Math.round(meterQuantity(row, ["reasoning_tokens"])));
+			grouped.set(key, existing);
+		}
 
-        const data = rows
-            .map((row) => {
-                const date = toDayBucket(row.day_bucket);
-                if (!date) return null;
-                const modelPermaslug = toNonEmptyString(row.model_id, "unknown/unknown");
-                const endpointId = toNonEmptyString(row.endpoint, "unknown");
-                const providerId = toNonEmptyString(row.provider, "unknown");
-                return {
-                    date,
-                    model: toModelDisplay(modelPermaslug),
-                    model_permaslug: modelPermaslug,
-                    endpoint_id: endpointId,
-                    provider_name: toProviderName(providerId),
-                    usage: toRoundedUsage(toUsdFromNanos(toFiniteNumber(row.usage_nanos))),
-                    byok_usage_inference: toRoundedUsage(
-                        toUsdFromNanos(toFiniteNumber(row.byok_usage_nanos))
-                    ),
-                    requests: Math.max(0, Math.round(toFiniteNumber(row.requests) ?? 0)),
-                    prompt_tokens: Math.max(0, Math.round(toFiniteNumber(row.prompt_tokens) ?? 0)),
-                    completion_tokens: Math.max(0, Math.round(toFiniteNumber(row.completion_tokens) ?? 0)),
-                    reasoning_tokens: Math.max(0, Math.round(toFiniteNumber(row.reasoning_tokens) ?? 0)),
-                };
-            })
-            .filter((item): item is NonNullable<typeof item> => item !== null)
+        const data = Array.from(grouped.values())
+			.map((item) => ({
+				...item,
+				usage: toRoundedUsage(item.usage),
+				byok_usage_inference: toRoundedUsage(item.byok_usage_inference),
+			}))
             .sort((a, b) => {
                 if (a.date !== b.date) return b.date.localeCompare(a.date);
                 if (a.usage !== b.usage) return b.usage - a.usage;

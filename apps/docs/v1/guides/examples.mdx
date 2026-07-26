@@ -1,6 +1,7 @@
 ---
 title: "Examples"
 description: "Copy-paste Phaseo requests, runnable sample projects, and cookbook walkthroughs."
+icon: "code"
 ---
 
 Use this page when you already understand the basics and want working examples to copy into your app.
@@ -65,7 +66,7 @@ import (
   "context"
   "fmt"
 
-  phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go"
+  phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"
 )
 
 func main() {
@@ -136,28 +137,22 @@ response = client.generate_response(
 puts response
 ```
 
-```java Java SDK
-import ai.stats.sdk.Phaseo;
+```rust Rust SDK
+use phaseo::Phaseo;
+use serde_json::json;
 
-Phaseo client = new Phaseo(System.getenv("PHASEO_API_KEY"));
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = Phaseo::from_env()?;
+    let response = client.responses(&json!({
+        "model": "google/gemma-3-27b:free",
+        "input": "Summarize this article in 3 bullet points."
+    }))?;
 
-String body = """
-{
-  "model": "google/gemma-3-27b:free",
-  "input": [
-    {
-      "role": "user",
-      "content": [
-        { "type": "input_text", "text": "Summarize this article in 3 bullet points." }
-      ]
-    }
-  ]
+    println!("{}", response.body);
+    Ok(())
 }
-""";
-
-Object response = client.createResponse(body);
-System.out.println(String.valueOf(response));
 ```
+
 </CodeGroup>
 
 ## Paid chat completion
@@ -214,4 +209,4 @@ If you want a coding agent to generate the first version for you, start here:
 
 ## More SDK examples
 
-Explore the [SDK Reference](../sdk-reference/typescript/overview) for language-specific examples.
+Explore the [SDK Reference](../sdk-reference/typescript/overview) or [Rust SDK guide](../sdk-reference/rust/overview) for language-specific examples.

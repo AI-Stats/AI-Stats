@@ -4,13 +4,21 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phaseo-agent-sdk"
-version = "0.1.0"
+version = "0.2.0"
 description = "Python agent SDK for building agentic applications on top of Phaseo Gateway"
 readme = "README.md"
 requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Phaseo" }]
 dependencies = [
-  "phaseo",
+  "phaseo>=2.0.4",
 ]
+
+[project.urls]
+Homepage = "https://phaseo.app"
+Documentation = "https://docs.phaseo.app"
+Repository = "https://github.com/phaseoteam/Phaseo"
+Issues = "https://github.com/phaseoteam/Phaseo/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

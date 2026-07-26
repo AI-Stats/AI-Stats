@@ -1,13 +1,11 @@
 ---
 title: "Usage"
-description: "Run a minimal local agent loop on top of Phaseo Gateway with the Python Agent SDK."
+description: "Run tool loops, human review, retries, and resumable agents with the Python Agent SDK."
 ---
 
-## Install
+## Prepare the runtime
 
-```bash
-pip install phaseo phaseo-agent-sdk
-```
+The independent package is not yet on PyPI. Follow the [source installation instructions](./agent-sdk-installation).
 
 ## Quickstart
 
@@ -33,7 +31,17 @@ print(result.output)
 - `create_agent(...)`
 - `define_tool(...)`
 - `create_gateway_agent_client(...)`
-- a bounded tool loop over the Phaseo `responses` API
+- retries, concurrent tools, timeouts, and lifecycle events
+- human-review pauses with `continue_run(...)`
+- serializable state and Phaseo Devtools capture
+
+## Advanced runtime
+
+Python supports callable schemas and approvals, HITL and manual tools, progress, recoverable errors, replayable streams, stop helpers, dynamic turns, persisted next-turn overrides, normalized usage/cost, and application-owned state accessors.
+
+## Streaming and cancellation
+
+`agent.stream(...)` and `agent.continue_stream(...)` use the gateway's Responses SSE stream. Consume `text_stream()`, `reasoning_stream()`, `item_stream()`, `tool_stream()`, or `full_stream()`; call `cancel()` to close the active request. Completed steps retain request IDs, provider metadata, finish reasons, warnings, usage, and cost.
 
 ## Related
 

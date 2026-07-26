@@ -633,10 +633,34 @@ export async function fetchFrontendBenchmark(
 }
 
 export async function fetchFrontendFamilies(): Promise<FamilyCard[]> {
-	const payload = await fetchPublicWebApi<{ families: FamilyCard[] }>(
+	type FamilyPayload = Omit<FamilyCard, "organisation_name"> & {
+		organisation_name?: string | null;
+	};
+
+	const payload = await fetchPublicWebApi<{ families: FamilyPayload[] }>(
 		"/api/_web/families",
 	);
-	return payload.families;
+	if (payload.families.every((family) => family.organisation_name)) {
+		return payload.families.map((family) => ({
+			...family,
+			organisation_name: family.organisation_name ?? family.organisation_id,
+		}));
+	}
+
+	const organisations = await fetchFrontendOrganisations();
+	const organisationNames = new Map(
+		organisations.map((organisation) => [
+			organisation.organisation_id,
+			organisation.organisation_name,
+		]),
+	);
+	return payload.families.map((family) => ({
+		...family,
+		organisation_name:
+			family.organisation_name ??
+			organisationNames.get(family.organisation_id) ??
+			family.organisation_id,
+	}));
 }
 
 export async function fetchFrontendFamily(

@@ -150,6 +150,27 @@ describe("ModelFaqSection", () => {
 		expect(html).not.toContain('href="#benchmarks"');
 	});
 
+	it("explains previous, next, and family relationships", () => {
+		const html = renderToStaticMarkup(
+			<ModelFaqSection
+				model={{ ...model, family_id: "acme/alpha" }}
+				benchmarkCount={0}
+				activeProviderCount={1}
+				isGatewayActive
+				pricing={[]}
+				relatedModels={{
+					previous: { modelId: "acme/alpha-0", modelName: "Alpha 0" },
+					next: { modelId: "acme/alpha-2", modelName: "Alpha 2" },
+				}}
+			/>,
+		);
+
+		expect(html).toContain("What models are related to Alpha 1?");
+		expect(html).toContain("Alpha 0");
+		expect(html).toContain("Alpha 2");
+		expect(html).toContain('href="/families/acme/alpha"');
+	});
+
 	it("omits the pricing question when no concrete rates are recorded", () => {
 		const html = renderToStaticMarkup(
 			<ModelFaqSection

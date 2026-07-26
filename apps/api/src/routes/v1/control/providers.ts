@@ -39,7 +39,7 @@ type Provider = {
 };
 
 async function handleProviders(req: Request) {
-    const auth = await guardAuth(req);
+    const auth = await guardAuth(req, { allowOAuthJwt: true });
     if (!auth.ok) {
         return (auth as GuardErr).response;
     }

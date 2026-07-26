@@ -78,7 +78,6 @@ jobs:
         name: OpenAPI lint
         runs-on: ubuntu-latest
         needs: data
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -122,10 +121,9 @@ jobs:
         name: Apps ${{ matrix.app }}
         runs-on: ubuntu-latest
         needs: openapi-lint
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         strategy:
             matrix:
-                app: [api, docs, web, web-api]
+                app: [api, docs, web, web-api, mcp]
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -167,11 +165,17 @@ jobs:
                   pnpm --filter @phaseo/web-api test
                   pnpm --filter @phaseo/web-api build
 
+            - name: MCP typecheck, test & production build
+              if: matrix.app == 'mcp'
+              run: |
+                  pnpm --filter @phaseo/mcp typecheck
+                  pnpm --filter @phaseo/mcp test
+                  pnpm --filter @phaseo/mcp build:production
+
     api-aimock:
         name: API AIMock matrix
         runs-on: ubuntu-latest
         needs: openapi-lint
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -200,7 +204,6 @@ jobs:
         name: Devtools build
         runs-on: ubuntu-latest
         needs: openapi-lint
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -366,7 +369,6 @@ jobs:
         name: Generate SDKs
         runs-on: ubuntu-latest
         needs: openapi-lint
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         strategy:
             fail-fast: false
             matrix:
@@ -443,7 +445,6 @@ jobs:
         name: Build & test SDK packages
         runs-on: ubuntu-latest
         needs: sdk-gen
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -482,7 +483,6 @@ jobs:
         name: CLI package
         runs-on: ubuntu-latest
         needs: sdk-gen
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
               with:
@@ -513,11 +513,10 @@ jobs:
         name: SDK lifecycle tests (${{ matrix.sdk }})
         runs-on: ubuntu-latest
         needs: sdk-gen
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         strategy:
             fail-fast: false
             matrix:
-                sdk: [go, csharp, java, php, ruby]
+                sdk: [go, csharp, java, php, ruby, rust]
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -571,6 +570,10 @@ jobs:
               with:
                   ruby-version: "3.2"
 
+            - name: Setup Rust
+              if: matrix.sdk == 'rust'
+              run: rustup component add clippy rustfmt
+
             - name: Run lifecycle tests
               run: pnpm run test:sdk-${{ matrix.sdk }}
 
@@ -586,7 +589,6 @@ jobs:
         if: >
             github.event_name == 'pull_request' &&
             (
-                !startsWith(github.head_ref, 'chore/auto-model-statuses') &&
                 github.event.pull_request.head.repo.full_name == github.repository &&
                 contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
             )
@@ -671,6 +673,7 @@ jobs:
         permissions:
             contents: read
         strategy:
+            fail-fast: false
             matrix:
                 include:
                     - target: web
@@ -679,6 +682,8 @@ jobs:
                       name: Deploy API
                     - target: web-api
                       name: Deploy Web API
+                    - target: mcp
+                      name: Deploy MCP
                     - target: docs
                       name: Deploy Docs
         steps:
@@ -724,11 +729,11 @@ jobs:
               run: git checkout -- pnpm-lock.yaml
 
             - name: Install dependencies (for Cloudflare Workers)
-              if: matrix.target == 'api' || matrix.target == 'web-api'
+              if: matrix.target == 'api' || matrix.target == 'web-api' || matrix.target == 'mcp'
               run: corepack pnpm install --frozen-lockfile
 
             - name: Validate Cloudflare API deploy secrets
-              if: matrix.target == 'api' || matrix.target == 'web-api'
+              if: matrix.target == 'api' || matrix.target == 'web-api' || matrix.target == 'mcp'
               shell: bash
               env:
                   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -773,18 +778,115 @@ jobs:
                   workingDirectory: apps/web-api
                   command: deploy
 
+            - name: Deploy MCP Worker to Cloudflare
+              if: matrix.target == 'mcp'
+              uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0
+              with:
+                  apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                  workingDirectory: apps/mcp
+                  command: deploy --env production
+
             # ---------- DOCS ----------
             - name: Docs (Mintlify deploy is handled by GitHub App)
               if: matrix.target == 'docs'
               run: echo "Mintlify picks up main branch changes and deploys docs automatically."
 
+    agent-sdk-tests:
+        name: Agent SDK tests (${{ matrix.sdk }})
+        runs-on: ubuntu-latest
+        needs: sdk-gen
+        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
+        strategy:
+            fail-fast: false
+            matrix:
+                sdk: [ts, py, go, csharp, java, php, ruby, rust]
+        steps:
+            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - name: Setup pnpm
+              uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+              with:
+                  version: 10.33.0
+                  run_install: false
+                  standalone: true
+            - name: Setup Node.js
+              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+            - name: Restore lockfile (guard setup-node cache mutation)
+              run: git checkout -- pnpm-lock.yaml
+            - name: Install dependencies
+              run: corepack pnpm install --frozen-lockfile
+            - name: Setup Python
+              if: matrix.sdk == 'py'
+              uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+              with:
+                  python-version: "3.12"
+            - name: Install Python test tooling
+              if: matrix.sdk == 'py'
+              run: |
+                  python -m pip install --upgrade pip pytest
+                  python -m pip install -e packages/sdk/sdk-py -e packages/sdk/agent-sdk-py
+            - name: Setup Go
+              if: matrix.sdk == 'go'
+              uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16
+              with:
+                  go-version: "1.24"
+            - name: Setup .NET
+              if: matrix.sdk == 'csharp'
+              uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+              with:
+                  dotnet-version: "8.0.x"
+            - name: Setup PHP
+              if: matrix.sdk == 'php'
+              uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+              with:
+                  php-version: "8.2"
+            - name: Setup Java
+              if: matrix.sdk == 'java'
+              uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520
+              with:
+                  distribution: temurin
+                  java-version: "17"
+            - name: Setup Ruby
+              if: matrix.sdk == 'ruby'
+              uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9
+              with:
+                  ruby-version: "3.2"
+            - name: Setup Rust
+              if: matrix.sdk == 'rust'
+              run: rustup component add clippy rustfmt
+            - name: Run Agent SDK tests
+              run: pnpm run test:agent-sdk-${{ matrix.sdk }}
+            - name: Check live smoke credentials
+              id: live-smoke-credentials
+              if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+              env:
+                  PHASEO_API_KEY: ${{ secrets.PHASEO_API_KEY }}
+              run: |
+                  if [ -n "$PHASEO_API_KEY" ]; then
+                    echo "available=true" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "available=false" >> "$GITHUB_OUTPUT"
+                  fi
+            - name: Run live GPT 5.6 Luna Agent SDK smoke
+              if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.live-smoke-credentials.outputs.available == 'true'
+              env:
+                  PHASEO_AGENT_LIVE_SMOKE: "true"
+                  PHASEO_API_KEY: ${{ secrets.PHASEO_API_KEY }}
+              run: pnpm run test:agent-sdk-${{ matrix.sdk }}
+
     publish:
         name: Handle Versions
         runs-on: ubuntu-latest
+        concurrency:
+            group: sdk-release-publish
+            cancel-in-progress: false
         needs:
             - sdk-gen
             - packages
             - sdk-lifecycle-tests
+            - agent-sdk-tests
             - apps
         if: github.ref == 'refs/heads/main' && github.event_name != 'workflow_dispatch'
         env:
@@ -866,14 +968,114 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
+            - name: Restore committed TypeScript SDK release state
+              run: git restore --source=HEAD --staged --worktree -- packages/sdk/sdk-ts packages/sdk/agent-sdk-ts
+
+            - name: Check TypeScript core SDK release status
+              id: sdk-npm-release
+              run: |
+                  node --input-type=module <<'NODE'
+                  import fs from "node:fs";
+                  import packageJson from "./packages/sdk/sdk-ts/package.json" with { type: "json" };
+
+                  const packagePath = encodeURIComponent(packageJson.name);
+                  const versionPath = encodeURIComponent(packageJson.version);
+                  const response = await fetch(`https://registry.npmjs.org/${packagePath}/${versionPath}`);
+
+                  if (response.status !== 200 && response.status !== 404) {
+                    throw new Error(`npm registry returned ${response.status} while checking ${packageJson.name}@${packageJson.version}`);
+                  }
+
+                  const shouldPublish = response.status === 404;
+                  fs.appendFileSync(
+                    process.env.GITHUB_OUTPUT,
+                    `package=${packageJson.name}\nversion=${packageJson.version}\nshould_publish=${shouldPublish}\n`,
+                  );
+
+                  const status = shouldPublish ? "is missing from" : "already exists on";
+                  console.log(`${packageJson.name}@${packageJson.version} ${status} npm`);
+                  NODE
+
+            - name: Publish TypeScript core SDK to npm
+              if: steps.sdk-npm-release.outputs.should_publish == 'true'
+              run: pnpm --filter @phaseo/sdk publish --access public --no-git-checks
+
+            - name: Check TypeScript Agent SDK release status
+              id: agent-sdk-npm-release
+              run: |
+                  node --input-type=module <<'NODE'
+                  import fs from "node:fs";
+                  import packageJson from "./packages/sdk/agent-sdk-ts/package.json" with { type: "json" };
+
+                  const packagePath = encodeURIComponent(packageJson.name);
+                  const versionPath = encodeURIComponent(packageJson.version);
+                  const response = await fetch(`https://registry.npmjs.org/${packagePath}/${versionPath}`);
+
+                  if (response.status !== 200 && response.status !== 404) {
+                    throw new Error(`npm registry returned ${response.status} while checking ${packageJson.name}@${packageJson.version}`);
+                  }
+
+                  const shouldPublish = response.status === 404;
+                  fs.appendFileSync(
+                    process.env.GITHUB_OUTPUT,
+                    `package=${packageJson.name}\nversion=${packageJson.version}\nshould_publish=${shouldPublish}\n`,
+                  );
+
+                  const status = shouldPublish ? "is missing from" : "already exists on";
+                  console.log(`${packageJson.name}@${packageJson.version} ${status} npm`);
+                  NODE
+
+            - name: Publish TypeScript Agent SDK to npm
+              if: steps.agent-sdk-npm-release.outputs.should_publish == 'true'
+              run: pnpm --filter @phaseo/agent-sdk publish --access public --no-git-checks
+
             - name: Set up Python (for PyPI publish)
-              if: github.ref == 'refs/heads/main' && steps.changesets.outputs.published == 'true'
               uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
               with:
                   python-version: 3.12
 
+            - name: Restore committed Python SDK release state
+              run: git restore --source=HEAD --staged --worktree -- packages/sdk/sdk-py
+
+            - name: Check Python SDK release status
+              id: pypi-release
+              shell: bash
+              run: |
+                  python - <<'PY'
+                  import json
+                  import os
+                  import pathlib
+                  import tomllib
+                  import urllib.error
+                  import urllib.parse
+                  import urllib.request
+
+                  pyproject_path = pathlib.Path("packages/sdk/sdk-py/pyproject.toml")
+                  project = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))["project"]
+                  package = project["name"]
+                  version = project["version"]
+                  url = f"https://pypi.org/pypi/{urllib.parse.quote(package)}/json"
+
+                  try:
+                      with urllib.request.urlopen(url, timeout=30) as response:
+                          releases = json.load(response).get("releases", {})
+                  except urllib.error.HTTPError as error:
+                      if error.code != 404:
+                          raise
+                      releases = {}
+
+                  should_publish = version not in releases
+                  with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+                      print(f"package={package}", file=output)
+                      print(f"version={version}", file=output)
+                      print(f"should_publish={str(should_publish).lower()}", file=output)
+
+                  status = "is missing from" if should_publish else "already exists on"
+                  print(f"{package} {version} {status} PyPI")
+                  PY
+
             - name: Build Python SDK
-              if: github.ref == 'refs/heads/main' && steps.changesets.outputs.published == 'true'
+              if: steps.pypi-release.outputs.should_publish == 'true'
               working-directory: packages/sdk/sdk-py
               run: |
                   python -m pip install --upgrade pip
@@ -881,7 +1083,7 @@ jobs:
                   python -m build
 
             - name: Publish Python SDK to PyPI (Trusted Publishing)
-              if: github.ref == 'refs/heads/main' && steps.changesets.outputs.published == 'true'
+              if: steps.pypi-release.outputs.should_publish == 'true'
               uses: pypa/gh-action-pypi-publish@ba38be9e461d3875417946c167d0b5f3d385a247
               with:
                   packages-dir: packages/sdk/sdk-py/dist

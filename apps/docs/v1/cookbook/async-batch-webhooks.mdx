@@ -1,5 +1,6 @@
 ---
 title: "Run async batches with webhooks"
+icon: "layers-3"
 description: "Create batch jobs, recover with polling, and consume standardized webhook deliveries without losing lifecycle visibility."
 ---
 
@@ -29,7 +30,7 @@ curl https://api.phaseo.app/v1/batches \
   }'
 ```
 
-## 3. Use the TypeScript SDK helper
+## 2. Use the TypeScript SDK helper
 
 The SDK keeps the create, poll, per-request result, and webhook verification steps together:
 
@@ -56,7 +57,7 @@ const rows = await client.batches.listRequests(completed.id!, {
 
 Use `client.batches.wait(...)` only after you have persisted the batch id. It polls an existing job; it does not create a replacement job.
 
-## 4. Poll status for recovery
+## 3. Poll status for recovery
 
 Always keep your own polling path even when webhooks are enabled:
 
@@ -203,4 +204,4 @@ Put those signals in the same async-jobs dashboard so operators can tell whether
 
 - [API Reference: Batches](../api-reference/endpoint/batches.mdx)
 - [API Reference: Batch Status](../api-reference/endpoint/batches-status.mdx)
-- [API Reference: Async Jobs WebSocket](../api-reference/endpoint/async-jobs-ws.mdx)
+- [Webhooks and job updates](../api-reference/async-lifecycle-updates.mdx)

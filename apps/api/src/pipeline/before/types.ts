@@ -252,6 +252,12 @@ export type TeamSettings = {
     /** Explicit consent to persist gateway request/response payloads. */
     ioLoggingEnabled?: boolean;
     ioLoggingIncludeProviderPayloads?: boolean;
+    /** Explicit consent to contribute a deterministic prompt/response sample. */
+    dataContributionEnabled?: boolean;
+    dataContributionPolicyVersion?: string | null;
+    dataContributionSampleRateBps?: number;
+    dataContributionClassifierSampleRateBps?: number;
+    dataContributionDiscountBps?: number;
     defaultPlugins?: NormalizedGatewayPluginConfig[] | null;
     billingMode: "wallet" | "invoice";
 };

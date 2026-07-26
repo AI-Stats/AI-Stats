@@ -1,12 +1,25 @@
 ---
+icon: "package"
 title: "Installation"
-description: "Install the PHP Agent SDK and its core client dependency."
+description: "Evaluate the PHP Agent SDK from source while its Packagist package is prepared."
 ---
+
+## Requirements
+
+- PHP 8.1 or newer
+- Composer
+- a Phaseo API key
 
 ## Install
 
+<Note type="warning">
+  The PHP Agent SDK is implemented, but `phaseo/agent-sdk` is not yet published to Packagist. Use the repository source for evaluation; the core [`phaseo/sdk`](https://packagist.org/packages/phaseo/sdk) package is public.
+</Note>
+
 ```bash
-composer require phaseo/php-sdk phaseo/agent-sdk-php
+git clone https://github.com/phaseoteam/Phaseo.git
+cd Phaseo/packages/sdk/agent-sdk-php
+composer install
 ```
 
 ## Environment
@@ -20,4 +33,4 @@ export PHASEO_API_KEY="phaseo_v1_sk_..."
 ## Next
 
 - [Overview](./agent-sdk-overview.mdx)
-- [Usage](./agent-sdk.mdx)
+- [Build with the Agent SDK](./agent-sdk.mdx)

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 const auditSuccessMock = vi.fn();
+const auditFailureMock = vi.fn();
 const emitGatewayRequestEventMock = vi.fn();
 const recordUsageAndChargeOnceMock = vi.fn();
 const onCallEndMock = vi.fn();
@@ -11,7 +12,7 @@ const classifyProviderHealthImpactMock = vi.fn();
 
 vi.mock("../audit", () => ({
 	auditSuccess: (...args: any[]) => auditSuccessMock(...args),
-	auditFailure: vi.fn(),
+	auditFailure: (...args: any[]) => auditFailureMock(...args),
 }));
 
 vi.mock("@observability/events", () => ({
@@ -99,6 +100,18 @@ function makeOpenAIStream(): Response {
 	});
 }
 
+function makeIncompleteOpenAIStream(): Response {
+	const frame = {
+		id: "chatcmpl_incomplete",
+		object: "chat.completion.chunk",
+		choices: [{ index: 0, delta: { content: "partial" }, finish_reason: null }],
+	};
+	return new Response(`data: ${JSON.stringify(frame)}\n\n`, {
+		status: 200,
+		headers: { "Content-Type": "text/event-stream" },
+	});
+}
+
 function baseCtx(): any {
 	return {
 		requestId: "req_local_openai_usage_test",
@@ -172,5 +185,38 @@ describe("handleStreamResponse OpenAI usage finalization", () => {
 			output_tokens: 4,
 			total_tokens: 15,
 		});
+	});
+
+	it("does not charge when the upstream stream ends without successful completion", async () => {
+		auditSuccessMock.mockReset().mockResolvedValue(undefined);
+		auditFailureMock.mockReset().mockResolvedValue(undefined);
+		emitGatewayRequestEventMock.mockReset().mockResolvedValue(undefined);
+		recordUsageAndChargeOnceMock.mockReset().mockResolvedValue(undefined);
+		onCallEndMock.mockReset().mockResolvedValue(undefined);
+		reportProbeResultMock.mockReset().mockResolvedValue(undefined);
+		maybeOpenOnRecentErrorsMock.mockReset().mockResolvedValue(undefined);
+		maybeWriteStickyRoutingFromUsageMock.mockReset().mockResolvedValue(undefined);
+		classifyProviderHealthImpactMock.mockReset().mockReturnValue("failure");
+
+		const upstream = makeIncompleteOpenAIStream();
+		const response = await handleStreamResponse(
+			baseCtx(),
+			{
+				kind: "stream",
+				stream: upstream.body,
+				upstream,
+				provider: "openai",
+				usageFinalizer: async () => null,
+				bill: { cost_cents: 10, currency: "USD", usage: { input_tokens: 10 }, finish_reason: null },
+			} as any,
+			null,
+		);
+
+		await response.text();
+		await new Promise((resolve) => setTimeout(resolve, 0));
+
+		expect(recordUsageAndChargeOnceMock).not.toHaveBeenCalled();
+		expect(auditSuccessMock).not.toHaveBeenCalled();
+		expect(auditFailureMock).toHaveBeenCalledTimes(1);
 	});
 });

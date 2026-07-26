@@ -11,8 +11,15 @@ use Phaseo\AgentSdk\ModelClient;
 use Phaseo\AgentSdk\ModelRequest;
 use Phaseo\AgentSdk\ModelResponse;
 use Phaseo\AgentSdk\RuntimeContext;
+use Phaseo\AgentSdk\HumanReviewRequest;
 use Phaseo\AgentSdk\Tool;
 use Phaseo\AgentSdk\ToolCall;
+use Phaseo\AgentSdk\ToolDecision;
+use Phaseo\AgentSdk\ToolOutput;
+use Phaseo\AgentSdk\StreamingModelClient;
+use Phaseo\AgentSdk\StateAccessor;
+use Phaseo\AgentSdk\RunResult;
+use Phaseo\AgentSdk\GatewayAgentClientOptions;
 
 function assert_true(bool $condition, string $message): void
 {
@@ -94,3 +101,73 @@ assert_true($result->steps[0]->requestId === "req_tool", "expected first request
 assert_true($result->steps[1]->requestId === "req_final", "expected second request id");
 
 echo "php agent sdk tests ok" . PHP_EOL;
+
+$reviewClient = new class implements ModelClient {
+    public int $calls = 0;
+    public function generate(ModelRequest $request): ModelResponse
+    {
+        $this->calls++;
+        if ($this->calls === 1) { throw new RuntimeException("temporary gateway failure"); }
+        return new ModelResponse(message: new Message(role: "assistant", content: "Deploy the change"));
+    }
+};
+$events = [];
+$reviewAgent = AgentSdk::createAgent(new AgentDefinition(
+    id: "review-agent",
+    modelRetry: ["max_retries" => 1, "backoff_ms" => 0],
+    humanReview: static function ($context): ?HumanReviewRequest {
+        foreach ($context->messages as $message) {
+            if ($message->role === "user" && $message->content === "approved") { return null; }
+        }
+        return new HumanReviewRequest("Approve deployment", $context->response->message->content);
+    }
+));
+$directory = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "phaseo-agent-" . bin2hex(random_bytes(5));
+$devtools = AgentSdk::createAgentDevtools($directory);
+$handler = static function (array $event) use (&$events): void { $events[] = $event; };
+$paused = $reviewAgent->run("Prepare deployment", $reviewClient, onEvent: $handler, devtools: $devtools);
+assert_true($paused->run->status === "waiting_for_human", "expected human review pause");
+assert_true($paused->steps[0]->modelAttempts === 2, "expected model retry");
+$resumed = $reviewAgent->continueRun($paused, $reviewClient, humanInput: "approved", onEvent: $handler, devtools: $devtools);
+assert_true($resumed->run->status === "completed", "expected resumed run to complete");
+assert_true(count(file($directory . DIRECTORY_SEPARATOR . "generations.jsonl")) === 2, "expected two devtools entries");
+assert_true(in_array("run.resumed", array_column($events, "type"), true), "expected run.resumed event");
+
+echo "php agent sdk advanced tests ok" . PHP_EOL;
+
+$turn = 0; $executed = []; $parityEvents = [];
+$parityClient = new class($turn) implements ModelClient {
+    public int $turn = 0;
+    public function __construct(int $turn) { $this->turn = $turn; }
+    public function generate(ModelRequest $request): ModelResponse {
+        if ($this->turn++ === 0) return new ModelResponse(new Message("assistant", "", [
+            new ToolCall("auto","progress",["value"=>2]), new ToolCall("gate","gated",[]),
+            new ToolCall("manual","manual",[]), new ToolCall("failure","failure",[]),
+        ]), usage:["input_tokens"=>2,"output_tokens"=>1], cost:1);
+        return new ModelResponse(new Message("assistant","done"),cost:1);
+    }
+};
+$parityAgent = AgentSdk::createAgent(new AgentDefinition(id:"parity",tools:[
+    new Tool("progress",function($input,$runtime)use(&$executed){($runtime->emitProgress)(["percent"=>50]);$executed[]="auto";return ["result"=>4];},inputSchema:fn($value)=>$value,outputSchema:fn($value)=>$value),
+    new Tool("gated",function()use(&$executed){$executed[]="gate";return "approved";},requireApproval:true),
+    new Tool("manual",null), new Tool("failure",fn()=>throw new RuntimeException("expected"),onError:"return-to-model"),
+],stopWhen:[fn($state)=>$state["usage"]["cost"]>=2?"max_cost:2":null]));
+$parityHandler=function($event)use(&$parityEvents){$parityEvents[]=$event;};
+$parityPaused=$parityAgent->run("run",$parityClient,onEvent:$parityHandler);
+assert_true(array_map(fn($item)=>$item->call->id,$parityPaused->run->pause->pendingToolCalls)===["gate","manual"],"expected exact pending calls");
+$parityResult=$parityAgent->continueRun($parityPaused,$parityClient,onEvent:$parityHandler,approvals:[new ToolDecision("gate")],toolOutputs:[new ToolOutput("manual","external")]);
+assert_true($parityResult->run->status==="stopped"&&$parityResult->usage["cost"]===2.0,"expected usage stop");
+assert_true($executed===["auto","gate"],"expected gated execution once");
+assert_true(in_array("tool.preliminary_result",array_column($parityEvents,"type"),true),"expected progress event");
+echo "php agent sdk parity tests ok" . PHP_EOL;
+
+$streamClient=new class implements StreamingModelClient{
+    public function generate(ModelRequest $request):ModelResponse{return new ModelResponse(new Message("assistant","fallback"));}
+    public function stream(ModelRequest $request):iterable{yield ["type"=>"response.output_text.delta","delta"=>"hel"];yield ["type"=>"response.output_text.delta","delta"=>"lo"];yield ["type"=>"response.completed","response"=>new ModelResponse(new Message("assistant","hello"))];}
+};
+$memory=new class implements StateAccessor{public ?RunResult $value=null;public function load(string $runId):?RunResult{return $this->value;}public function save(RunResult $result):void{$this->value=$result;}};
+$streamResult=AgentSdk::createAgent(new AgentDefinition(id:"stream"))->stream("run",$streamClient,state:$memory);
+assert_true(implode("",iterator_to_array($streamResult->textStream()))==="hello","expected streamed text");assert_true(implode("",iterator_to_array($streamResult->textStream()))==="hello","expected replayed text");assert_true($streamResult->result->output==="hello"&&$memory->value!==null,"expected stream result state");
+echo "php agent sdk stream tests ok" . PHP_EOL;
+
+if(getenv("PHASEO_AGENT_LIVE_SMOKE")==="true"&&getenv("PHASEO_API_KEY")){$client=AgentSdk::createGatewayAgentClient(new GatewayAgentClientOptions(model:"openai/gpt-5.6-luna",includeMeta:true));$delta=false;$completed=false;foreach($client->stream(new ModelRequest("live-smoke",[new Message("user","Reply with exactly: luna-ok")],[]))as$event){if(($event["type"]??null)==="response.output_text.delta"&&($event["delta"]??"")!=="")$delta=true;if(($event["type"]??null)==="response.completed"&&($event["response"]??null)instanceof ModelResponse)$completed=true;}assert_true($delta&&$completed,"expected live Luna stream");echo "php agent sdk live Luna smoke ok".PHP_EOL;}

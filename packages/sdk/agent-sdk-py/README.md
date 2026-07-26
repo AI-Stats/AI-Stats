@@ -1,13 +1,16 @@
 # Phaseo Agent SDK (Python)
 
-`phaseo-agent-sdk` is a minimal Python agent runtime for Phaseo Gateway.
+`phaseo-agent-sdk` is the native Python runtime for building tool-using applications on Phaseo Gateway.
 
 It provides:
 
 - `create_agent(...)`
 - `define_tool(...)`
 - `create_gateway_agent_client(...)`
-- a bounded tool loop on top of the Phaseo `responses` API
+- bounded and concurrent local tool execution with per-tool timeouts
+- model retry/backoff, lifecycle events, and serializable run state
+- human-review pauses and `continue_run(...)`
+- Phaseo Devtools capture for runs and continuations
 
 ## Install
 

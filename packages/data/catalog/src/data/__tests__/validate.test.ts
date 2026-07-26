@@ -1,9 +1,50 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { checkApiProviderModelEntrySafety, checkPricingEntrySafety, isMajorError } from '@/data/validate';
+import {
+    checkApiProviderModelEntrySafety,
+    checkPreviousModelReference,
+    checkPricingEntrySafety,
+    isMajorError,
+} from '@/data/validate';
 
 const DATA_ROOT = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
+
+describe('model lineage reference checks', () => {
+    test('unknown predecessor IDs fail unless explicitly grandfathered', () => {
+        expect(checkPreviousModelReference({
+            modelId: 'amazon/nova-2-lite',
+            organisationId: 'amazon',
+            previousModelId: 'amazon/not-a-model',
+            previousModelExists: false,
+        })).toEqual([
+            'Model amazon/nova-2-lite references unknown previous_model_id amazon/not-a-model',
+        ]);
+        expect(checkPreviousModelReference({
+            modelId: 'legacy/model',
+            previousModelId: 'legacy/internal-model',
+            previousModelExists: false,
+            isLegacyException: true,
+        })).toEqual([]);
+    });
+
+    test('self-links and cross-organisation predecessors fail', () => {
+        expect(checkPreviousModelReference({
+            modelId: 'amazon/nova',
+            organisationId: 'amazon',
+            previousModelId: 'amazon/nova',
+            previousModelExists: true,
+            previousModelOrganisationId: 'amazon',
+        })).toContain('Model amazon/nova cannot reference itself as previous_model_id');
+        expect(checkPreviousModelReference({
+            modelId: 'amazon/nova',
+            organisationId: 'amazon',
+            previousModelId: 'openai/gpt',
+            previousModelExists: true,
+            previousModelOrganisationId: 'openai',
+        })[0]).toContain('from a different organisation');
+    });
+});
 
 function readPricingJson(relativePath: string) {
     return JSON.parse(fs.readFileSync(path.join(DATA_ROOT, relativePath), 'utf8'));
@@ -298,6 +339,10 @@ describe('api provider model safety checks', () => {
                 url: 'https://siliconflow.cn/pricing',
             },
         ]));
+        expect(model.page_notice).toMatchObject({
+            tone: 'info',
+        });
+        expect(model.page_notice.markdown).toContain('July 27, 2026 at 15:00 UTC');
     });
 
     test.each(['together', 'baseten', 'fireworks'])(
