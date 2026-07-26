@@ -1,30 +1,23 @@
 ---
 icon: "package"
 title: "Ruby SDK Installation"
-description: "Set up the preview Ruby SDK from source."
+description: "Install the Phaseo Ruby SDK from RubyGems."
 ---
 
-<Note type="warning">
-  The Ruby SDK is not published on RubyGems yet. Use it from source for now.
-</Note>
+The SDK is published as [`phaseo_sdk`](https://rubygems.org/gems/phaseo_sdk) on RubyGems.
 
 ## Requirements
 
-- Ruby 3.1+
-- Access to this repository
+- Ruby 3.1 or newer
 
-## Install from local source
-
-1. Regenerate generated files (optional but recommended after API changes):
+## Install
 
 ```bash
-pnpm openapi:gen:ruby
+gem install phaseo_sdk
 ```
 
-2. Load the SDK directly from the repository path:
+Or add it to your `Gemfile`:
 
 ```ruby
-require_relative '../phaseo/packages/sdk/sdk-ruby/lib/index'
+gem "phaseo_sdk"
 ```
-
-This loads the local preview wrapper and generated operations.

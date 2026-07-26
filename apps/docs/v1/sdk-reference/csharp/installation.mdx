@@ -1,31 +1,17 @@
 ---
 icon: "package"
 title: "C# SDK Installation"
-description: "Set up the preview C# SDK from source."
+description: "Install the Phaseo C# SDK from NuGet."
 ---
 
-<Note type="warning">
-  The C# SDK is not published on NuGet yet. Use it from source for now.
-</Note>
+The SDK is published as [`Phaseo.Sdk`](https://www.nuget.org/packages/Phaseo.Sdk) on NuGet.
 
 ## Requirements
 
-- .NET 8+
-- Access to this repository
+- .NET 8 or newer
 
-## Install from local source
-
-1. Regenerate generated files (optional but recommended after API changes):
+## Install
 
 ```bash
-pnpm openapi:gen:csharp
+dotnet add package Phaseo.Sdk
 ```
-
-2. Add these files to your project:
-
-- `packages/sdk/sdk-csharp/Client.cs`
-- `packages/sdk/sdk-csharp/src/gen/Client.cs`
-- `packages/sdk/sdk-csharp/src/gen/Models.cs`
-- `packages/sdk/sdk-csharp/src/gen/Operations.cs`
-
-This gives you the preview wrapper plus generated operations.
