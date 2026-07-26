@@ -241,7 +241,45 @@ function createModelTypeResolver(models: IRModel[]): ModelTypeResolver {
 }
 
 function modelNameTokens(name: string): Set<string> {
-	return new Set(name.match(/[A-Z]+(?![a-z])|[A-Z]?[a-z]+|\d+/g) ?? [name]);
+	const tokens: string[] = [];
+	let tokenStart = 0;
+
+	const isUpper = (character: string | undefined) =>
+		character !== undefined && character >= "A" && character <= "Z";
+	const isLower = (character: string | undefined) =>
+		character !== undefined && character >= "a" && character <= "z";
+	const isDigit = (character: string | undefined) =>
+		character !== undefined && character >= "0" && character <= "9";
+	const isAlphaNumeric = (character: string | undefined) =>
+		isUpper(character) || isLower(character) || isDigit(character);
+	const pushToken = (end: number) => {
+		if (end > tokenStart) tokens.push(name.slice(tokenStart, end));
+	};
+
+	for (let index = 0; index < name.length; index += 1) {
+		const current = name[index];
+		const previous = name[index - 1];
+		const next = name[index + 1];
+
+		if (!isAlphaNumeric(current)) {
+			pushToken(index);
+			tokenStart = index + 1;
+			continue;
+		}
+
+		if (
+			index > tokenStart &&
+			(isDigit(current) !== isDigit(previous) ||
+				(isUpper(current) && isLower(previous)) ||
+				(isUpper(current) && isUpper(previous) && isLower(next)))
+		) {
+			pushToken(index);
+			tokenStart = index;
+		}
+	}
+
+	pushToken(name.length);
+	return new Set(tokens.length > 0 ? tokens : [name]);
 }
 
 function schemaSignature(schema: IRSchema, modelSchemas: Map<string, IRSchema>): string {
