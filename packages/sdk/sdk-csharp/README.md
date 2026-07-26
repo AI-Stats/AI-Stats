@@ -6,10 +6,8 @@ Package ID: `Phaseo.Sdk`
 
 ## Installation
 
-If published in your feed:
-
 ```bash
-dotnet add package Phaseo.Sdk
+dotnet add package Phaseo.Sdk --version 2.0.5
 ```
 
 From this monorepo:

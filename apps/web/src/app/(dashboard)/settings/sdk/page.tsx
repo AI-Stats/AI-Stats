@@ -46,7 +46,7 @@ const SDKS: Sdk[] = [
 	},
 	{
 		name: "Go SDK",
-		packageName: "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go",
+		packageName: "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2",
 		installCommand: "Coming soon",
 		logoId: "go",
 		docsLink: `${DOCS_BASE}/sdk-reference/go/overview`,

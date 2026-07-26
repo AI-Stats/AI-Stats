@@ -236,7 +236,7 @@ function renderPy(items, aliases) {
 }
 
 function renderGo(items, aliases) {
-	const lines = [renderHeader("//").trimEnd(), "", "package phaseo", "", "import gen \"github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/src/gen\"", "", "// ModelIds contains known model IDs for editor autocomplete and hover docs.", "const (",];
+	const lines = [renderHeader("//").trimEnd(), "", "package phaseo", "", "import gen \"github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2/src/gen\"", "", "// ModelIds contains known model IDs for editor autocomplete and hover docs.", "const (",];
 	for (const item of items) {
 		lines.push(
 			`	// Model ID: ${item.id}`,

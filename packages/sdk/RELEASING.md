@@ -3,7 +3,8 @@
 This repo uses a hybrid release model:
 
 - TypeScript, TypeScript Agent SDK, and Python are auto-released from CI.
-- Go/C#/Java/PHP/Ruby use explicit publish workflows per ecosystem.
+- Go/C#/Java/PHP/Ruby publish automatically when their committed package version changes on `main`.
+- Their workflows also support manual dispatch for safe, idempotent recovery.
 - C++/Rust remain excluded until functional end-to-end.
 - Manual SDK release readiness can be checked with `.github/workflows/sdk-publish-readiness.yml`.
 
@@ -12,10 +13,10 @@ This repo uses a hybrid release model:
 - TypeScript (`@phaseo/sdk`) -> npm
 - TypeScript Agent SDK (`@phaseo/agent-sdk`) -> npm
 - Python (`phaseo`) -> PyPI
-- Go (`github.com/phaseoteam/Phaseo/packages/sdk/sdk-go`) -> Go proxy (`pkg.go.dev`) via git tags
+- Go (`github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2`) -> Go proxy (`pkg.go.dev`) via git tags
 - C# (`Phaseo.Sdk`) -> NuGet
 - Java (`app.phaseo:phaseo-sdk`) -> Maven Central
-- PHP (`phaseo/php-sdk`) -> Packagist
+- PHP (`phaseo/sdk`) -> Packagist
 - Ruby (`phaseo_sdk`) -> RubyGems
 
 ## Auto Release (TS/Python)
@@ -71,7 +72,7 @@ General policy:
 - `minor`: backward-compatible feature additions (new optional params/endpoints).
 - `major`: breaking changes (removed/renamed params, signature/shape breaks).
 
-## Manual Publish Workflows (Other SDKs)
+## Language SDK Publish Workflows
 
 - First npm publish / bootstrap: `.github/workflows/npm-bootstrap-publish.yml`
   - Supports `@phaseo/agent-sdk`, `@phaseo/ai-sdk-provider`, and `@phaseo/devtools-viewer`
@@ -96,11 +97,11 @@ General policy:
 - PHP: `.github/workflows/publish-sdk-php.yml`
   - Publishes by creating/pushing monorepo tag `sdk-php/vX.Y.Z`
   - Syncs `packages/sdk/sdk-php` to split repo main and pushes split tag `vX.Y.Z`
-  - Triggers Packagist update against the split repo URL
-  - Required secrets:
+  - Uses the Phaseo GitHub App token to update the split repository
+  - Relies on the split repository's Packagist webhook by default
+  - Optional secrets for an immediate Packagist API refresh:
     - `PACKAGIST_USERNAME`
     - `PACKAGIST_MAIN_TOKEN`
-    - `PHP_SDK_SPLIT_REPO_TOKEN`
   - Optional repo variable:
     - `PHP_SDK_SPLIT_REPO` (defaults to `phaseoteam/phaseo-php-sdk`)
 
@@ -108,8 +109,8 @@ General policy:
   - Keeps split repo main in sync from monorepo path `packages/sdk/sdk-php/**` on pushes to main
 
 - Ruby: `.github/workflows/publish-sdk-ruby.yml`
-  - Builds gem, creates/pushes tag `sdk-ruby/vX.Y.Z`, pushes to RubyGems
-  - Required secret: `RUBYGEMS_API_KEY`
+  - Builds the gem, publishes through RubyGems trusted publishing, and creates/pushes tag `sdk-ruby/vX.Y.Z`
+  - Uses OIDC; no RubyGems API key is stored
 
 ## Publish Readiness Checks
 

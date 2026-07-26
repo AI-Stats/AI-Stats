@@ -9,6 +9,7 @@ permissions:
 jobs:
   sync-php-split:
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: Require main branch
         shell: bash
@@ -19,30 +20,31 @@ jobs:
             exit 1
           fi
 
+      - name: Create GitHub App token (Phaseo Bot)
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
+        with:
+          client-id: ${{ secrets.PHASEO_APP_CLIENT_ID }}
+          private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
+          owner: phaseoteam
+          repositories: |
+            Phaseo
+            phaseo-php-sdk
+
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           fetch-depth: 0
-
-      - name: Verify split repo token
-        env:
-          PHP_SDK_SPLIT_REPO_TOKEN: ${{ secrets.PHP_SDK_SPLIT_REPO_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -z "${PHP_SDK_SPLIT_REPO_TOKEN:-}" ]; then
-            echo "::error::Missing PHP_SDK_SPLIT_REPO_TOKEN secret."
-            exit 1
-          fi
+          persist-credentials: false
 
       - name: Sync subtree to split repo main
         env:
           PHP_SDK_SPLIT_REPO: ${{ vars.PHP_SDK_SPLIT_REPO }}
-          PHP_SDK_SPLIT_REPO_TOKEN: ${{ secrets.PHP_SDK_SPLIT_REPO_TOKEN }}
+          GH_APP_TOKEN: ${{ steps.app-token.outputs.token }}
         shell: bash
         run: |
           set -euo pipefail
           split_repo="${PHP_SDK_SPLIT_REPO:-phaseoteam/phaseo-php-sdk}"
-          split_remote_url="https://x-access-token:${PHP_SDK_SPLIT_REPO_TOKEN}@github.com/${split_repo}.git"
+          split_remote_url="https://x-access-token:${GH_APP_TOKEN}@github.com/${split_repo}.git"
 
           git remote add split "$split_remote_url"
 

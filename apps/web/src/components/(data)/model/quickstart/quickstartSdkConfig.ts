@@ -136,7 +136,7 @@ export function getInstallationCode(language: string): string {
 		case "python-sdk":
 			return "pip install phaseo";
 		case "go-sdk":
-			return "go get github.com/phaseoteam/Phaseo/packages/sdk/sdk-go@latest";
+			return "go get github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2@latest";
 		case "csharp-sdk":
 			return "dotnet add package Phaseo.Sdk";
 		case "php-sdk":
