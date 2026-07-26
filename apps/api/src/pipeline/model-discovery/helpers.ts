@@ -923,7 +923,7 @@ export async function loadLatestPricingTableState(source?: string): Promise<Pric
 export async function fetchLatestPricingUpdatedAt(): Promise<string | null> {
 	const supabase = getSupabaseAdmin();
 	const { data, error } = await supabase
-		.from("data_api_pricing_rules")
+		.from("v2_rpc_pricing_legacy_shape")
 		.select("updated_at")
 		.not("updated_at", "is", null)
 		.order("updated_at", { ascending: false })
@@ -942,7 +942,7 @@ export async function fetchPricingRuleIdsAtTimestamp(updatedAt: string): Promise
 	while (rows.length < MAX_PRICING_ROWS) {
 		const to = from + PRICING_PAGE_SIZE - 1;
 		const { data, error } = await supabase
-			.from("data_api_pricing_rules")
+			.from("v2_rpc_pricing_legacy_shape")
 			.select("rule_id,provider_id,api_model_id,capability_id,pricing_plan,meter,price_per_unit,currency,effective_from,effective_to,updated_at")
 			.eq("updated_at", updatedAt)
 			.order("rule_id", { ascending: true })
@@ -965,7 +965,7 @@ export async function fetchPricingRowsSince(sinceInclusive: string): Promise<Pri
 	while (rows.length < MAX_PRICING_ROWS) {
 		const to = from + PRICING_PAGE_SIZE - 1;
 		const { data, error } = await supabase
-			.from("data_api_pricing_rules")
+			.from("v2_rpc_pricing_legacy_shape")
 			.select("rule_id,provider_id,api_model_id,capability_id,pricing_plan,meter,price_per_unit,currency,effective_from,effective_to,updated_at")
 			.gte("updated_at", sinceInclusive)
 			.order("updated_at", { ascending: true })
@@ -997,7 +997,7 @@ export async function loadConfiguredProviderModelIds(providerIds: string[]): Pro
 	while (true) {
 		const to = from + PRICING_PAGE_SIZE - 1;
 		const { data, error } = await supabase
-			.from("data_api_provider_models")
+			.from("v2_rpc_routes_legacy_shape")
 			.select("provider_id,provider_model_slug,api_model_id")
 			.in("provider_id", lookupProviderIds)
 			.range(from, to);

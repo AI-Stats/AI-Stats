@@ -13,6 +13,7 @@
   "input_types": "text,image,video",
   "output_types": "text",
   "api_model_id": "google/gemma-4-31b",
+  "variants": [{ "model_id": "google/gemma-4-31b:free", "name": "Gemma 4 31B (Free)", "variant_kind": "free" }],
   "links": [],
   "details": [],
   "benchmarks": [

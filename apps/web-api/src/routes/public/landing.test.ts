@@ -13,13 +13,12 @@ describe("public landing routes", () => {
 	it("returns model statistics and selected visible models", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("data_api_provider_models")) {
+			if (url.includes("v2_model_provider_routes")) {
 				return new Response(JSON.stringify([
-					{ model_id: "openai/gpt-test", api_model_id: "gpt-test" },
-					{ model_id: "openai/gpt-test", api_model_id: "gpt-test-alt" },
+					{ model_id: "openai/gpt-test", internal_model_id: "openai/gpt-test", api_model_id: "openai/gpt-test" },
 				]), { status: 200 });
 			}
-			if (url.includes("data_organisations")) {
+			if (url.includes("v2_models") && url.includes("model_slug=in.")) {
 				return new Response(JSON.stringify([{
 					model_id: "openai/gpt-test",
 					name: "GPT Test",
@@ -31,7 +30,7 @@ describe("public landing routes", () => {
 					},
 				}]), { status: 200 });
 			}
-			return new Response(JSON.stringify([
+			if (url.includes("v2_models")) return new Response(JSON.stringify([
 				{
 					model_id: "openai/gpt-test",
 					organisation_id: "openai",
@@ -43,6 +42,7 @@ describe("public landing routes", () => {
 					release_date: "2020-01-01",
 				},
 			]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
 		}));
 
 		const [stats, main] = await Promise.all([

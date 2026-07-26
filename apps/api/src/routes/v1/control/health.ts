@@ -153,7 +153,7 @@ async function handleProviderDerank(req: Request) {
 	try {
 		const supabase = getSupabaseAdmin();
 		const { data, error } = await supabase
-			.from("gateway_requests")
+			.from("v2_web_gateway_requests")
 			.select("model_id, endpoint, created_at")
 			.eq("provider", providerId)
 			.gte("created_at", sinceIso)

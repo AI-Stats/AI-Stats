@@ -29,13 +29,13 @@ describe("account profile settings route", () => {
 			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
 			if (url.includes("/workspaces") && url.includes("owner_user_id")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
 			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ name: "Test Workspace" }]), { status: 200 });
-			if (url.includes("gateway_requests")) return new Response(JSON.stringify([{
+			if (url.includes("v2_web_gateway_requests")) return new Response(JSON.stringify([{
 				created_at: new Date().toISOString(),
 				model_id: "openai/gpt-test",
 				usage: { input_tokens: 10, output_tokens: 5 },
 				cost_nanos: 250_000_000,
 			}]), { status: 200 });
-			if (url.includes("data_models")) return new Response(JSON.stringify([{ model_id: "openai/gpt-test", name: "GPT Test" }]), { status: 200 });
+			if (url.includes("v2_models")) return new Response(JSON.stringify([{ model_id: "openai/gpt-test", name: "GPT Test" }]), { status: 200 });
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
 

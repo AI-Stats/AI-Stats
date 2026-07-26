@@ -3,7 +3,76 @@ jest.mock("./paths", () => ({
     DIR_ALIASES: "",
 }));
 
-import { preflightV2Benchmarks, preflightV2Models, pricingModelPart } from "./v2";
+import {
+    isFreeModelVariant,
+    mergeProviderModels,
+    preflightV2Benchmarks,
+    preflightV2Models,
+    pricingModelPart,
+    v2RouteModelSlug,
+} from "./v2";
+
+describe("free model variants", () => {
+    it("uses the canonical base identity for a free provider route", () => {
+        expect(v2RouteModelSlug(
+            {
+                api_model_id: "z-ai/glm-4-7-flash:free",
+                internal_model_id: "z-ai/glm-4.7-flash",
+            },
+            (value) => String(value),
+            { canonical_model_id: "z-ai/glm-4.7-flash:free" },
+        )).toBe("z-ai/glm-4.7-flash:free");
+    });
+
+    it("does not add the suffix twice", () => {
+        expect(v2RouteModelSlug(
+            { api_model_id: "poolside/laguna-s-2.1:free", model_id: "poolside/laguna-s-2.1:free" },
+            (value) => String(value),
+            { canonical_model_id: "poolside/laguna-s-2.1:free" },
+        )).toBe("poolside/laguna-s-2.1:free");
+    });
+
+    it("rejects a free route whose canonical variant is absent from JSON", () => {
+        expect(() => v2RouteModelSlug(
+            { api_model_id: "poolside/laguna-s-2.1:free", model_id: "poolside/laguna-s-2.1" },
+            (value) => String(value),
+        )).toThrow("missing authored canonical_model_id");
+        expect(isFreeModelVariant("poolside/laguna-s-2.1:FREE")).toBe(true);
+    });
+});
+
+describe("mergeProviderModels", () => {
+    it("keeps authored-only routes and lets JSON override legacy fields", () => {
+        const rows = mergeProviderModels(
+            [{
+                provider_api_model_id: "provider:lab/model",
+                routing_status: "disabled",
+                legacy_only: true,
+            }],
+            new Map([
+                ["provider:lab/model", {
+                    provider_api_model_id: "provider:lab/model",
+                    routing_status: "active",
+                }],
+                ["provider:lab/model:free", {
+                    provider_api_model_id: "provider:lab/model:free",
+                    canonical_model_id: "lab/model:free",
+                }],
+            ]),
+        );
+
+        expect(rows).toHaveLength(2);
+        expect(rows).toContainEqual(expect.objectContaining({
+            provider_api_model_id: "provider:lab/model",
+            routing_status: "active",
+            legacy_only: true,
+        }));
+        expect(rows).toContainEqual(expect.objectContaining({
+            provider_api_model_id: "provider:lab/model:free",
+            canonical_model_id: "lab/model:free",
+        }));
+    });
+});
 
 describe("pricingModelPart", () => {
     it.each([

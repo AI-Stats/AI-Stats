@@ -13,6 +13,7 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "xiaomi/mimo-v2-flash",
+  "variants": [{ "model_id": "xiaomi/mimo-v2-flash:free", "name": "MiMo V2 Flash (Free)", "variant_kind": "free" }],
   "links": [],
   "details": [],
   "benchmarks": [

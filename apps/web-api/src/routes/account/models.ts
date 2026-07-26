@@ -5,6 +5,7 @@ import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
 import { purgeWorkerCacheTags } from "@/http/invalidation";
 import { deleteBenchmarkResultData, deleteModelGraphData, deletePricingRuleData, deleteProviderModelData, updateModelData } from "@/models/update-model";
+import { fetchModelPricingSources } from "@/models/pricing";
 
 export const accountModelsRouter = new Hono<{ Bindings: Env }>();
 
@@ -45,13 +46,13 @@ accountModelsRouter.get("/audit/source", async (c) => {
 		].join(",");
 		const [models, providerRows, benchmarkRows, pricingRows] = await Promise.all([
 			fetchAllRows<any>((from, to) => {
-				let query = client.from("data_models").select("model_id,name,release_date,retirement_date,status,hidden,input_types,output_types,organisation:data_organisations(organisation_id,name)").order("release_date", { ascending: false });
+				let query = client.from("v2_models").select("model_id:model_slug,name,release_date:released_at,retirement_date:retired_at,status,hidden,input_types:input_modalities,output_types:output_modalities,organisation:v2_labs(lab_slug,name)").order("released_at", { ascending: false });
 				if (!includeHidden) query = query.eq("hidden", false);
 				return query.range(from, to);
 			}),
-			fetchAllRows<any>((from, to) => client.from("data_api_provider_models").select("provider_api_model_id,model_id,provider_id,api_model_id,is_active_gateway,effective_from,effective_to,provider:data_api_providers(api_provider_id,api_provider_name),capabilities:data_api_provider_model_capabilities(capability_id,status)").range(from, to)),
-			fetchAllRows<any>((from, to) => client.from("data_benchmark_results").select("model_id,id").range(from, to)),
-			fetchAllRows<any>((from, to) => client.from("data_api_pricing_rules").select("model_key,meter,price_per_unit,unit_size").or(activePricingWindow).range(from, to)),
+			fetchAllRows<any>((from, to) => client.from("v2_rpc_routes_legacy_shape").select("provider_api_model_id,model_id,provider_id,api_model_id,is_active_gateway,effective_from,effective_to").range(from, to)),
+			fetchAllRows<any>((from, to) => client.from("v2_rpc_benchmark_results_legacy_shape").select("model_id,id").range(from, to)),
+			fetchAllRows<any>((from, to) => client.from("v2_rpc_pricing_legacy_shape").select("model_key,meter,price_per_unit,unit_size").or(activePricingWindow).range(from, to)),
 		]);
 		return c.json({ models, providerRows, benchmarkRows, pricingRows }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) {
@@ -69,8 +70,8 @@ accountModelsRouter.get("/provider-audit/source", async (c) => {
 	if (String(roleResult.data?.role ?? "").toLowerCase() !== "admin") return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	try {
 		const [providerModels, pricingRules] = await Promise.all([
-			fetchAllRows<any>((from, to) => client.from("data_api_provider_models").select("provider_api_model_id,provider_id,api_model_id,provider_model_slug,internal_model_id,is_active_gateway,routing_status,effective_from,effective_to,provider:data_api_providers(api_provider_id,api_provider_name,status,routing_status),capabilities:data_api_provider_model_capabilities(capability_id,status,effective_from,effective_to)").range(from, to)),
-			fetchAllRows<any>((from, to) => client.from("data_api_pricing_rules").select("model_key,effective_from,effective_to").range(from, to)),
+			fetchAllRows<any>((from, to) => client.from("v2_rpc_routes_legacy_shape").select("provider_api_model_id,provider_id,api_model_id,provider_model_slug,internal_model_id,is_active_gateway,routing_status,effective_from,effective_to").range(from, to)),
+			fetchAllRows<any>((from, to) => client.from("v2_rpc_pricing_legacy_shape").select("model_key,effective_from,effective_to").range(from, to)),
 		]);
 		return c.json({ providerModels, pricingRules }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) {
@@ -87,10 +88,10 @@ accountModelsRouter.get("/catalog/counts", async (c) => {
 	if (role.error) return c.json({ error: "admin_check_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	if (String(role.data?.role ?? "").toLowerCase() !== "admin") return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const [models, organisations, providers, benchmarks] = await Promise.all([
-		client.from("data_models").select("*", { count: "exact", head: true }),
-		client.from("data_organisations").select("*", { count: "exact", head: true }),
-		client.from("data_api_providers").select("*", { count: "exact", head: true }),
-		client.from("data_benchmarks").select("*", { count: "exact", head: true }),
+		client.from("v2_models").select("*", { count: "exact", head: true }),
+		client.from("v2_labs").select("*", { count: "exact", head: true }),
+		client.from("v2_providers").select("*", { count: "exact", head: true }),
+		client.from("v2_benchmarks").select("*", { count: "exact", head: true }),
 	]);
 	if ([models, organisations, providers, benchmarks].some((result) => result.error)) return c.json({ error: "admin_catalog_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	return c.json({ models: models.count ?? 0, organisations: organisations.count ?? 0, providers: providers.count ?? 0, benchmarks: benchmarks.count ?? 0 }, 200, PRIVATE_NO_STORE_HEADERS);
@@ -104,10 +105,10 @@ accountModelsRouter.get("/catalog/list", async (c) => {
 	if (role.error) return c.json({ error: "admin_check_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	if (String(role.data?.role ?? "").toLowerCase() !== "admin") return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const configs: Record<string, { table: string; select: string; search: string[] }> = {
-		models: { table: "data_models", select: "model_id,name,created_at", search: ["model_id", "name"] },
-		organisations: { table: "data_organisations", select: "organisation_id,name,created_at", search: ["organisation_id", "name"] },
-		providers: { table: "data_api_providers", select: "api_provider_id,api_provider_name,created_at", search: ["api_provider_id", "api_provider_name"] },
-		benchmarks: { table: "data_benchmarks", select: "id,name,category,created_at", search: ["id", "name", "category"] },
+		models: { table: "v2_rpc_models_legacy_shape", select: "model_id,name,created_at", search: ["model_id", "name"] },
+		organisations: { table: "v2_rpc_labs_legacy_shape", select: "organisation_id,name,created_at", search: ["organisation_id", "name"] },
+		providers: { table: "v2_rpc_providers_legacy_shape", select: "api_provider_id,api_provider_name,created_at", search: ["api_provider_id", "api_provider_name"] },
+		benchmarks: { table: "v2_rpc_benchmarks_legacy_shape", select: "id,name,category,created_at", search: ["id", "name", "category"] },
 	};
 	const config = configs[c.req.query("resource") ?? ""];
 	if (!config) return c.json({ error: "invalid_resource" }, 400, PRIVATE_NO_STORE_HEADERS);
@@ -134,16 +135,16 @@ accountModelsRouter.get("/catalog/record", async (c) => {
 	try {
 		if (resource === "organisation") {
 			const [row, links] = await Promise.all([
-				client.from("data_organisations").select("organisation_id,name,description,country_code,colour").eq("organisation_id", id).maybeSingle(),
+				client.from("v2_rpc_labs_legacy_shape").select("organisation_id,name,description,country_code,colour").eq("organisation_id", id).maybeSingle(),
 				client.from("data_organisation_links").select("platform,url").eq("organisation_id", id),
 			]);
 			if (row.error) throw row.error; if (links.error) throw links.error;
 			return c.json({ row: row.data ?? null, links: links.data ?? [] }, 200, PRIVATE_NO_STORE_HEADERS);
 		}
 		const configs: Record<string, { table: string; select: string; column: string }> = {
-			provider: { table: "data_api_providers", select: "api_provider_id,api_provider_name,description,link,country_code,prompt_training_policy,prompt_training_notes,prompt_training_source_url", column: "api_provider_id" },
-			benchmark: { table: "data_benchmarks", select: "id,name,category,link,ascending_order", column: "id" },
-			model: { table: "data_models", select: "model_id,name", column: "model_id" },
+			provider: { table: "v2_rpc_providers_legacy_shape", select: "api_provider_id,api_provider_name,description,link,country_code,prompt_training_policy", column: "api_provider_id" },
+			benchmark: { table: "v2_rpc_benchmarks_legacy_shape", select: "id,name,category,link,ascending_order", column: "id" },
+			model: { table: "v2_rpc_models_legacy_shape", select: "model_id,name", column: "model_id" },
 		};
 		const config = configs[resource ?? ""];
 		if (!config) return c.json({ error: "invalid_resource" }, 400, PRIVATE_NO_STORE_HEADERS);
@@ -164,12 +165,12 @@ accountModelsRouter.get("/catalog/model-form-options", async (c) => {
 	if (role.error) return c.json({ error: "admin_check_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	if (String(role.data?.role ?? "").toLowerCase() !== "admin") return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const [organisations, providers, families, benchmarks, previousModels, subscriptionPlans] = await Promise.all([
-		client.from("data_organisations").select("organisation_id,name").order("name", { ascending: true }),
-		client.from("data_api_providers").select("api_provider_id,api_provider_name").order("api_provider_name", { ascending: true }),
+		client.from("v2_rpc_labs_legacy_shape").select("organisation_id,name").order("name", { ascending: true }),
+		client.from("v2_rpc_providers_legacy_shape").select("api_provider_id,api_provider_name").order("api_provider_name", { ascending: true }),
 		client.from("data_model_families").select("family_id,family_name").order("family_name", { ascending: true }),
-		client.from("data_benchmarks").select("id,name").order("name", { ascending: true }),
-		client.from("data_models").select("model_id,name").order("name", { ascending: true }).limit(500),
-		client.from("data_subscription_plans").select("plan_uuid,plan_id,name,frequency,price,currency").order("name", { ascending: true }).order("frequency", { ascending: true }).limit(1200),
+		client.from("v2_rpc_benchmarks_legacy_shape").select("id,name").order("name", { ascending: true }),
+		client.from("v2_rpc_models_legacy_shape").select("model_id,name").order("name", { ascending: true }).limit(500),
+		client.from("v2_subscription_plans").select("plan_uuid,plan_id,name,frequency,price,currency").order("name", { ascending: true }).order("frequency", { ascending: true }).limit(1200),
 	]);
 	if ([organisations, providers, families, benchmarks, previousModels, subscriptionPlans].some((result) => result.error)) return c.json({ error: "admin_catalog_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	return c.json({ organisations: organisations.data ?? [], providers: providers.data ?? [], families: families.data ?? [], benchmarks: benchmarks.data ?? [], previousModels: previousModels.data ?? [], subscriptionPlans: subscriptionPlans.data ?? [] }, 200, PRIVATE_NO_STORE_HEADERS);
@@ -305,29 +306,26 @@ accountModelsRouter.get("/:modelId/source", async (c) => {
 	const requestedModelId = c.req.param("modelId");
 	try {
 		const [direct, alias, api, providerApi, providerSlug] = await Promise.all([
-			client.from("data_models").select("model_id").eq("model_id", requestedModelId).maybeSingle(),
-			client.from("data_api_model_aliases").select("api_model_id").eq("alias_slug", requestedModelId).eq("is_enabled", true).maybeSingle(),
-			client.from("data_api_models").select("api_model_id").eq("api_model_id", requestedModelId).maybeSingle(),
-			client.from("data_api_provider_models").select("model_id,api_model_id").eq("provider_api_model_id", requestedModelId).limit(1),
-			client.from("data_api_provider_models").select("model_id,api_model_id").eq("provider_model_slug", requestedModelId).limit(1),
+			client.from("v2_rpc_models_legacy_shape").select("model_id").eq("model_id", requestedModelId).maybeSingle(),
+			client.from("v2_model_aliases").select("api_model_id:model_slug").eq("alias_slug", requestedModelId).eq("enabled", true).maybeSingle(),
+			client.from("v2_rpc_models_legacy_shape").select("api_model_id").eq("api_model_id", requestedModelId).maybeSingle(),
+			client.from("v2_rpc_routes_legacy_shape").select("model_id,api_model_id").eq("provider_api_model_id", requestedModelId).limit(1),
+			client.from("v2_rpc_routes_legacy_shape").select("model_id,api_model_id").eq("provider_model_slug", requestedModelId).limit(1),
 		]);
 		for (const result of [direct, alias, api, providerApi, providerSlug]) if (result.error) throw result.error;
 		const canonicalApiId = direct.data?.model_id ?? alias.data?.api_model_id ?? api.data?.api_model_id ?? providerApi.data?.[0]?.api_model_id ?? providerSlug.data?.[0]?.api_model_id ?? requestedModelId;
 		let internalModelId = direct.data?.model_id ?? providerApi.data?.[0]?.model_id ?? providerSlug.data?.[0]?.model_id ?? null;
-		if (!internalModelId) { const mapped = await client.from("data_api_provider_models").select("model_id").eq("api_model_id", canonicalApiId).not("model_id", "is", null).limit(1); if (mapped.error) throw mapped.error; internalModelId = mapped.data?.[0]?.model_id ?? null; }
+		if (!internalModelId) { const mapped = await client.from("v2_rpc_routes_legacy_shape").select("model_id").eq("api_model_id", canonicalApiId).not("model_id", "is", null).limit(1); if (mapped.error) throw mapped.error; internalModelId = mapped.data?.[0]?.model_id ?? null; }
 		const lookupModelId = internalModelId ?? canonicalApiId;
-		const modelResult = await client.from("data_models").select(`model_id,name,description,status,previous_model_id,organisation_id,hidden,announcement_date,release_date,deprecation_date,retirement_date,license,input_types,output_types,family_id,timeline,updated_at,organisation:data_organisations!data_models_organisation_id_fkey(name,country_code),model_links:data_model_links(url,platform,kind,title),model_family:data_model_families(family_name),model_details:data_model_details(detail_name,detail_value),benchmark_results:data_benchmark_results(id,score,is_self_reported,other_info,source_link,created_at,updated_at,benchmark:data_benchmarks(id,name,category,ascending_order,link,type))`).eq("model_id", lookupModelId).maybeSingle();
+		const modelResult = await client.from("v2_models").select(`model_id:model_slug,name,description,status,previous_model_id:previous_model_slug,organisation_id:lab_slug,hidden,announcement_date:announced_at,release_date:released_at,deprecation_date:deprecated_at,retirement_date:retired_at,license,input_types:input_modalities,output_types:output_modalities,family_id:family_slug,timeline:metadata,updated_at,organisation:v2_labs(name,country_code),benchmark_results:v2_benchmark_results(result_id,score,is_self_reported,other_info,source_link,created_at,updated_at,benchmark:v2_benchmarks(benchmark_id,name,category,ascending_order,link,benchmark_type))`).eq("model_slug", lookupModelId).maybeSingle();
 		if (modelResult.error) throw modelResult.error;
-		const providerSelect = `provider_api_model_id,provider_id,api_model_id,model_id,provider_model_slug,is_active_gateway,routing_status,input_modalities,output_modalities,quantization_scheme,context_length,max_output_tokens,prompt_training_policy_override,prompt_training_override_notes,prompt_training_override_source_url,effective_from,effective_to,created_at,updated_at,data_api_provider_model_capabilities(capability_id,params,max_input_tokens,max_output_tokens,status,effective_from,effective_to),data_api_providers(api_provider_name,provider_family_id,offer_label,offer_scope,colour,link,country_code,status,routing_status,residency_mode,default_execution_regions,default_data_regions,zero_data_retention,residency_source_url,residency_notes,regional_pricing_mode,regional_pricing_uplift_percent,pricing_source_url,regional_pricing_notes,prompt_training_policy,prompt_training_notes,prompt_training_source_url,data_policy_tier,data_policy_confidence,data_policy_contract_mode,data_policy_contract_notes,user_identifier_policy,user_identifier_notes,privacy_policy_url,terms_of_service_url)`;
-		const [byInternal, byApi] = await Promise.all([client.from("data_api_provider_models").select(providerSelect).eq("model_id", lookupModelId), client.from("data_api_provider_models").select(providerSelect).eq("api_model_id", canonicalApiId)]);
-		if (byInternal.error) throw byInternal.error; if (byApi.error) throw byApi.error;
-		const providerMap = new Map<string, Record<string, any>>(); for (const row of [...(byInternal.data ?? []), ...(byApi.data ?? [])] as Array<Record<string, any>>) if (row.provider_api_model_id) providerMap.set(row.provider_api_model_id, row); const providerRows = [...providerMap.values()];
-		const modelKeys = providerRows.flatMap((row) => (row.data_api_provider_model_capabilities ?? []).filter((cap: Record<string, unknown>) => cap.capability_id).map((cap: Record<string, unknown>) => `${row.provider_id}:${row.api_model_id}:${cap.capability_id}`));
-		const pricing = modelKeys.length ? await client.from("data_api_pricing_rules").select("rule_id,model_key,capability_id,pricing_plan,meter,unit,unit_size,price_per_unit,currency,note,priority,effective_from,effective_to,match,billing_timestamp_basis,time_windows").in("model_key", modelKeys).order("priority", { ascending: false }).order("effective_from", { ascending: false }) : { data: [], error: null }; if (pricing.error) throw pricing.error;
-		const modelPlans = internalModelId ? await client.from("data_subscription_plan_models").select("plan_uuid,model_info,rate_limit,other_info").eq("model_id", internalModelId) : { data: [], error: null }; if (modelPlans.error) throw modelPlans.error;
-		const planRows = modelPlans.data?.length ? await client.from("data_subscription_plans").select("plan_uuid,plan_id,name,organisation_id,description,frequency,price,currency,link,other_info,created_at,updated_at,organisation:data_organisations!organisation_id(organisation_id,name,colour)").in("plan_uuid", modelPlans.data.map((row) => row.plan_uuid)).order("plan_id", { ascending: true }).order("frequency", { ascending: true }) : { data: [], error: null }; if (planRows.error) throw planRows.error;
+		const pricingSource = await fetchModelPricingSources(c.env, [lookupModelId]);
+		const providerRows = pricingSource.providerRows;
+		const pricing = { data: pricingSource.pricingRows, error: null };
+		const modelPlans = internalModelId ? await client.from("v2_rpc_subscription_models_legacy_shape").select("plan_uuid,model_info,rate_limit,other_info").eq("model_id", internalModelId) : { data: [], error: null }; if (modelPlans.error) throw modelPlans.error;
+		const planRows = modelPlans.data?.length ? await client.from("v2_rpc_subscription_plans_legacy_shape").select("plan_uuid,plan_id,name,organisation_id,description,frequency,price,currency,link,other_info,created_at,updated_at").in("plan_uuid", modelPlans.data.map((row) => row.plan_uuid)).order("plan_id", { ascending: true }).order("frequency", { ascending: true }) : { data: [], error: null }; if (planRows.error) throw planRows.error;
 		const plans = new Map<string, Record<string, any>>(); for (const row of planRows.data ?? []) { const info = modelPlans.data?.find((item) => item.plan_uuid === row.plan_uuid); const plan = plans.get(row.plan_id) ?? { plan_id: row.plan_id, plan_uuid: row.plan_uuid, name: row.name, organisation_id: row.organisation_id, description: row.description, link: row.link, other_info: row.other_info, created_at: row.created_at, updated_at: row.updated_at, organisation: Array.isArray(row.organisation) ? row.organisation[0] : row.organisation, prices: [], model_info: { model_info: info?.model_info, rate_limit: info?.rate_limit, other_info: info?.other_info } }; plan.prices.push({ price: row.price, currency: row.currency, frequency: row.frequency }); plans.set(row.plan_id, plan); }
-		const aliasIds = [...new Set([requestedModelId, canonicalApiId, lookupModelId])]; const aliases = await client.from("data_api_model_aliases").select("api_model_id,alias_slug").in("api_model_id", aliasIds).eq("is_enabled", true).order("alias_slug", { ascending: true }); if (aliases.error) throw aliases.error;
+		const aliasIds = [...new Set([requestedModelId, canonicalApiId, lookupModelId])]; const aliases = await client.from("v2_model_aliases").select("api_model_id:model_slug,alias_slug").in("model_slug", aliasIds).eq("enabled", true).order("alias_slug", { ascending: true }); if (aliases.error) throw aliases.error;
 		return c.json({ source: { requestedModelId, canonicalApiId, internalModelId, model: modelResult.data ?? null, providerRows, pricingRules: pricing.data ?? [], subscriptionPlans: [...plans.values()], aliases: aliases.data ?? [] } }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) { console.error("[web-api/account/models] source failed", { requestedModelId, error }); return c.json({ error: "admin_model_source_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 });

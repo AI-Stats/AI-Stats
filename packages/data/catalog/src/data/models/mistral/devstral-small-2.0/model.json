@@ -13,6 +13,7 @@
   "input_types": "text,image",
   "output_types": "text",
   "api_model_id": "mistral/devstral-small-2.0",
+  "variants": [{ "model_id": "mistral/devstral-small-2.0:free", "name": "Devstral Small 2.0 (Free)", "variant_kind": "free" }],
   "links": [],
   "details": [],
   "benchmarks": [

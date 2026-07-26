@@ -137,7 +137,10 @@ begin
   resolved_model := coalesce(
     (
       select a.api_model_id
-      from public.data_api_model_aliases a
+      from (
+        select alias_slug, model_slug as api_model_id, enabled as is_enabled
+        from public.v2_model_aliases
+      ) a
       where a.alias_slug = base_model
         and a.is_enabled = true
         and a.api_model_id is not null
@@ -145,7 +148,12 @@ begin
     ),
     (
       select m.api_model_id
-      from public.data_api_provider_models m
+      from (
+        select provider_model_id as provider_api_model_id, provider_slug as provider_id,
+          model_slug as api_model_id, provider_model_slug,
+          routing_enabled as is_active_gateway, effective_from, effective_to
+        from public.v2_model_provider_routes
+      ) m
       where position('/' in base_model) > 0
         and m.provider_id = split_part(base_model, '/', 1)
         and m.provider_model_slug = regexp_replace(base_model, '^[^/]+/', '')
@@ -225,7 +233,7 @@ begin
   into
     used_day_reqs, used_wk_reqs, used_mo_reqs,
     used_day_cost, used_wk_cost, used_mo_cost
-  from public.gateway_requests gr
+  from public.v2_rpc_gateway_requests_legacy_shape gr
   where gr.key_id  = gateway_fetch_request_context.api_key_id
     and gr.workspace_id = gateway_fetch_request_context.workspace_id
     and gr.success is true;
@@ -362,7 +370,7 @@ begin
     team_spend_30d_nanos,
     team_requests_1h,
     team_requests_24h
-  from public.gateway_requests gr
+  from public.v2_rpc_gateway_requests_legacy_shape gr
   where gr.workspace_id = gateway_fetch_request_context.workspace_id
     and gr.success is true;
 
@@ -409,7 +417,7 @@ begin
   into
     key_total_requests,
     key_total_spend_nanos
-  from public.gateway_requests gr
+  from public.v2_rpc_gateway_requests_legacy_shape gr
   where gr.key_id = gateway_fetch_request_context.api_key_id
     and gr.success is true;
 
@@ -453,13 +461,24 @@ begin
       c.params as capability_params,
       c.max_input_tokens,
       c.max_output_tokens
-    from public.data_api_provider_models m
-    join public.data_models dm
-      on dm.model_id = coalesce(m.model_id, m.api_model_id)
+    from (
+      select provider_model_id as provider_api_model_id, provider_slug as provider_id,
+        model_slug as api_model_id, model_slug as model_id, provider_model_slug,
+        routing_enabled as is_active_gateway, status as routing_status,
+        input_modalities, output_modalities, effective_from, effective_to
+      from public.v2_model_provider_routes
+    ) m
+    join (
+      select model_slug as model_id, status, hidden, retired_at as retirement_date
+      from public.v2_models
+    ) dm on dm.model_id = coalesce(m.model_id, m.api_model_id)
     join public.v2_providers p
       on p.provider_slug = m.provider_id
-    join public.data_api_provider_model_capabilities c
-      on c.provider_api_model_id = m.provider_api_model_id
+    join (
+      select provider_model_id as provider_api_model_id, capability_id, status,
+        params, max_input_tokens, max_output_tokens, created_at, updated_at
+      from public.v2_route_capabilities
+    ) c on c.provider_api_model_id = m.provider_api_model_id
     where m.api_model_id = resolved_model
       and coalesce(dm.hidden, false) = false
       and (dm.status is null or lower(dm.status) in ('active', 'available', 'deprecated'))
@@ -523,7 +542,23 @@ begin
         (
           with rules as (
             select r.*
-            from public.data_api_pricing_rules r
+            from (
+              select meter.sku_meter_id::text as rule_id,
+                route.provider_slug || ':' || route.model_slug || ':' || sku.operation as model_key,
+                sku.operation as capability_id,
+                coalesce(sku.service_tier_slug, 'standard') as pricing_plan,
+                meter.meter_key as meter, meter.unit, meter.unit_quantity as unit_size,
+                meter.price_nanos / 1000000000.0 as price_per_unit,
+                meter.meter_order as priority, sku.effective_from, sku.effective_to,
+                coalesce(sku.metadata->'match', meter.metadata->'match', '[]'::jsonb) as match,
+                coalesce(sku.metadata->>'billing_timestamp_basis', 'request_start') as billing_timestamp_basis,
+                coalesce(sku.metadata->'time_windows', '[]'::jsonb) as time_windows
+              from public.v2_pricing_skus sku
+              join public.v2_model_provider_routes route
+                on route.provider_model_id = sku.provider_model_id
+              join public.v2_pricing_sku_meters meter on meter.sku_id = sku.sku_id
+              where sku.status = 'active' and meter.billable
+            ) r
             -- TODO: Redesign pricing selection to key on provider_api_model_id or
             -- explicit variant metadata so provider-only SKUs (for example CrofAI
             -- precision tiers) can share a parent internal model without forcing

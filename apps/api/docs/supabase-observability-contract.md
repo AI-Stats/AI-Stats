@@ -1,15 +1,17 @@
 # Supabase gateway observability contract
 
-Supabase is the durable, unsampled analytical and billing projection for every
-production gateway request. Axiom remains the high-cardinality operational
-wide-event destination. Raw request, response, provider, and tool payloads are
-never part of this contract.
+`gateway_requests` is the durable, authoritative operational record for every
+production gateway request. The V2 tables extend that record with normalized,
+unsampled analytical and billing metadata. Axiom remains the high-cardinality
+operational wide-event destination. Raw request, response, provider, and tool
+payloads are never part of this contract.
 
 ## Atomic write path
 
-Each finalized request calls `ingest_v2_gateway_request_with_routing` once. The
-wrapper calls the core ingestion function in the same transaction, takes an
-advisory lock keyed by workspace/request, and atomically replaces:
+After the authoritative `gateway_requests` row is persisted, each finalized
+request calls `ingest_v2_gateway_request_with_routing` once. The wrapper calls
+the core ingestion function in the same transaction, takes an advisory lock
+keyed by workspace/request, and atomically replaces:
 
 - one `v2_request_facts` row;
 - all `v2_request_attempts` rows;
@@ -18,9 +20,10 @@ advisory lock keyed by workspace/request, and atomically replaces:
 - all `v2_request_routing_decisions` rows;
 - one pending `v2_analytics_outbox` marker.
 
-The `(workspace_id, request_id)` identity makes retries idempotent. Child rows
-are replaced inside the same transaction, so a request cannot expose a new fact
-with stale attempts, meters, or pricing lines.
+The fact holds a composite foreign key to the parent request's `(id,
+created_at)`. Its `(workspace_id, request_id)` identity makes extension retries
+idempotent. Child rows are replaced inside the same transaction, so a request
+cannot expose a new fact with stale attempts, meters, or pricing lines.
 
 ## Metric semantics
 
@@ -44,8 +47,10 @@ stronger validation than occurred.
 
 ## Request facts
 
-The request fact stores the dimensions required for private logs, filtering,
-performance queries, and long-term rankings:
+The request fact stores the additional dimensions required for observability,
+performance queries, and long-term rankings. Exact request logs and lifecycle
+operations still start from `gateway_requests` and join the fact when enriched
+metadata is needed:
 
 - workspace, app, API key, session, end user, and auth method;
 - exact requested model input, canonical requested/routed model, and concrete

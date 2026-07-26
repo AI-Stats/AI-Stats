@@ -20,6 +20,12 @@ Every model file carries the v2 fields `model_type`, `knowledge_cutoff`,
 `license_url`, and `verification`. Unknown values are represented explicitly as `null`; an
 empty array means the category is known but has no entries yet.
 
+Offer variants are authored in the base model's `variants` array. A free
+variant must use `{base model_id}:free`, the name `{base name} (Free)`, and
+`variant_kind: "free"`. The provider-model row must reference that exact
+identity with `canonical_model_id`. The validator rejects inferred, missing,
+duplicate, or unreferenced variants; importers do not manufacture them.
+
 Provider files additionally carry `gateway_kind`, `routable`,
 `routing_enabled`, SDK/API metadata, `api_formats`, `service_tiers`, sources,
 and verification. Provider-model entries carry route status, execution/data

@@ -55,6 +55,44 @@ function slug(value: unknown, fallback = "standard"): string {
     return normalized || fallback;
 }
 
+export function isFreeModelVariant(value: unknown): boolean {
+    return String(value ?? "").trim().toLowerCase().endsWith(":free");
+}
+
+export function v2RouteModelSlug(
+    row: Record<string, any>,
+    canonicalModelSlug: (value: unknown) => string,
+    authoredProviderModel?: Record<string, any>,
+): string {
+    const authoredModelSlug = asText(authoredProviderModel?.canonical_model_id);
+    if (authoredModelSlug) return authoredModelSlug;
+    if (isFreeModelVariant(row.api_model_id)) {
+        throw new Error(
+            `Free provider route ${String(row.provider_api_model_id ?? row.api_model_id)} is missing authored canonical_model_id`,
+        );
+    }
+    const baseModelSlug = canonicalModelSlug(
+        row.model_id ?? row.internal_model_id ?? row.api_model_id,
+    );
+    return baseModelSlug;
+}
+
+export function mergeProviderModels(
+    legacyProviderModels: Record<string, any>[],
+    authoredProviderModels: Map<string, Record<string, any>>,
+): Record<string, any>[] {
+    const rowsById = new Map(
+        legacyProviderModels.map(row => [String(row.provider_api_model_id), row]),
+    );
+    for (const [providerModelId, authored] of authoredProviderModels) {
+        rowsById.set(providerModelId, {
+            ...(rowsById.get(providerModelId) ?? {}),
+            ...authored,
+        });
+    }
+    return [...rowsById.values()];
+}
+
 export function pricingModelPart(modelKey: string): { providerSlug: string; apiModelId: string } | null {
     const firstColon = modelKey.indexOf(":");
     const lastColon = modelKey.lastIndexOf(":");
@@ -215,57 +253,68 @@ async function deleteByIds(
 
 function sourceJsonMaps(): {
     models: Map<string, Record<string, any>>;
+    modelVariants: Map<string, Record<string, any>>;
     providers: Map<string, Record<string, any>>;
     providerModels: Map<string, Record<string, any>>;
     aliases: Map<string, string>;
 } {
     const models = new Map<string, Record<string, any>>();
+    const modelVariants = new Map<string, Record<string, any>>();
     const providers = new Map<string, Record<string, any>>();
     const providerModels = new Map<string, Record<string, any>>();
     const aliases = new Map<string, string>();
     const providerRoot = join(DATA_ROOT, "api_providers");
     const aliasRoot = DIR_ALIASES;
     const modelRoot = join(DATA_ROOT, "models");
-    try {
-        for (const providerSlug of readdirSync(providerRoot)) {
-            const providerDir = join(providerRoot, providerSlug);
-            const providerPath = join(providerDir, "api_provider.json");
-            if (existsSync(providerPath)) {
-                const provider = JSON.parse(readFileSync(providerPath, "utf8")) as Record<string, any>;
-                if (provider.api_provider_id) providers.set(String(provider.api_provider_id), provider);
-            }
-            const modelsPath = join(providerDir, "models.json");
-            if (!existsSync(modelsPath)) continue;
-            const entries = JSON.parse(readFileSync(modelsPath, "utf8")) as unknown;
-            for (const entry of Array.isArray(entries) ? entries : []) {
-                if (entry?.provider_api_model_id) providerModels.set(String(entry.provider_api_model_id), entry);
+    for (const providerSlug of readdirSync(providerRoot)) {
+        const providerDir = join(providerRoot, providerSlug);
+        const providerPath = join(providerDir, "api_provider.json");
+        if (existsSync(providerPath)) {
+            const provider = JSON.parse(readFileSync(providerPath, "utf8")) as Record<string, any>;
+            if (provider.api_provider_id) providers.set(String(provider.api_provider_id), provider);
+        }
+        const modelsPath = join(providerDir, "models.json");
+        if (!existsSync(modelsPath)) continue;
+        const entries = JSON.parse(readFileSync(modelsPath, "utf8")) as unknown;
+        for (const entry of Array.isArray(entries) ? entries : []) {
+            if (entry?.provider_api_model_id) {
+                providerModels.set(String(entry.provider_api_model_id), {
+                    ...entry,
+                    provider_id: providerSlug,
+                });
             }
         }
-        const walk = (directory: string) => {
-            for (const entry of readdirSync(directory, { withFileTypes: true })) {
-                const file = join(directory, entry.name);
-                if (entry.isDirectory()) walk(file);
-                else if (entry.name.endsWith(".json")) {
-                    const model = JSON.parse(readFileSync(file, "utf8")) as Record<string, any>;
-                    if (model.model_id) models.set(String(model.model_id), model);
+    }
+    const walk = (directory: string) => {
+        for (const entry of readdirSync(directory, { withFileTypes: true })) {
+            const file = join(directory, entry.name);
+            if (entry.isDirectory()) walk(file);
+            else if (entry.name.endsWith(".json")) {
+                const model = JSON.parse(readFileSync(file, "utf8")) as Record<string, any>;
+                if (model.model_id) {
+                    models.set(String(model.model_id), model);
+                    for (const variant of Array.isArray(model.variants) ? model.variants : []) {
+                        if (!variant?.model_id) continue;
+                        modelVariants.set(String(variant.model_id), {
+                            ...variant,
+                            base_model_id: model.model_id,
+                        });
+                    }
                 }
             }
-        };
-        walk(modelRoot);
-        for (const aliasDir of readdirSync(aliasRoot)) {
-            const aliasPath = join(aliasRoot, aliasDir, "alias.json");
-            if (!existsSync(aliasPath)) continue;
-            const alias = JSON.parse(readFileSync(aliasPath, "utf8")) as Record<string, any>;
-            if (alias.is_enabled === false) continue;
-            if (alias.alias_slug && alias.resolved_model_id) {
-                aliases.set(String(alias.alias_slug), String(alias.resolved_model_id));
-            }
         }
-    } catch {
-        // The legacy importer can still run in environments where authoring
-        // files are mounted elsewhere; the database mirror remains usable.
+    };
+    walk(modelRoot);
+    for (const aliasDir of readdirSync(aliasRoot)) {
+        const aliasPath = join(aliasRoot, aliasDir, "alias.json");
+        if (!existsSync(aliasPath)) continue;
+        const alias = JSON.parse(readFileSync(aliasPath, "utf8")) as Record<string, any>;
+        if (alias.is_enabled === false) continue;
+        if (alias.alias_slug && alias.resolved_model_id) {
+            aliases.set(String(alias.alias_slug), String(alias.resolved_model_id));
+        }
     }
-    return { models, providers, providerModels, aliases };
+    return { models, modelVariants, providers, providerModels, aliases };
 }
 
 export async function syncV2Catalogue(): Promise<void> {
@@ -273,7 +322,7 @@ export async function syncV2Catalogue(): Promise<void> {
     const source = sourceJsonMaps();
 
     const [organisations, models, providers, providerModels, aliases, pricingRules, capabilities, benchmarks, benchmarkResults] = await Promise.all([
-        fetchAll(supa, "data_organisations", "organisation_id,name,country_code,description"),
+        fetchAll(supa, "data_organisations", "organisation_id,name,country_code,description,colour"),
         fetchAll(supa, "data_models", "model_id,organisation_id,name,description,status,hidden,input_types,output_types,family_id,announcement_date,release_date,deprecation_date,retirement_date,previous_model_id,license,api_model_id,id"),
         fetchAll(supa, "data_api_providers", "api_provider_id,api_provider_name,provider_family_id,status,routing_status,country_code,description,link,colour,prompt_training_policy,residency_mode,default_execution_regions,default_data_regions"),
         fetchAll(supa, "data_api_provider_models", "provider_api_model_id,provider_id,api_model_id,provider_model_slug,internal_model_id,is_active_gateway,input_modalities,output_modalities,context_length,max_output_tokens,effective_from,effective_to,routing_status,quantization_scheme,model_id"),
@@ -285,6 +334,15 @@ export async function syncV2Catalogue(): Promise<void> {
     ]);
 
     const organisationIds = new Set(organisations.map(row => String(row.organisation_id)));
+
+    // Provider/model JSON is authoritative. Legacy rows are retained only as a
+    // compatibility source for fields that have not moved into JSON yet.
+    providerModels.splice(
+        0,
+        providerModels.length,
+        ...mergeProviderModels(providerModels, source.providerModels),
+    );
+
     const modelPreflight = preflightV2Models(models, source.aliases);
     const canonicalModels = modelPreflight.models;
     const modelSlugAliases = modelPreflight.modelSlugAliases;
@@ -313,6 +371,7 @@ export async function syncV2Catalogue(): Promise<void> {
             source: "legacy tables after JSON import",
             legacy_models: models.length,
             canonical_models: canonicalModels.length,
+            authored_variant_models: source.modelVariants.size,
             canonicalized_models: modelSlugAliases.size,
             benchmark_results: benchmarkResults.length,
             preflight_issues: [...modelPreflight.issues, ...benchmarkPreflight.issues],
@@ -341,10 +400,15 @@ export async function syncV2Catalogue(): Promise<void> {
         description: row.description ?? null,
         status: "active",
         routable: false,
-        metadata: { source: "json", legacy_organisation_id: row.organisation_id },
+        metadata: {
+            source: "json",
+            legacy_organisation_id: row.organisation_id,
+            colour: row.colour ?? null,
+            display_name: row.name ?? null,
+        },
     })), "lab_slug");
 
-    await upsertChunks(supa, "v2_models", canonicalModels.filter(row => organisationIds.has(String(row.organisation_id))).map(row => ({
+    const baseModelRows = canonicalModels.filter(row => organisationIds.has(String(row.organisation_id))).map(row => ({
         model_slug: row.model_id,
         lab_slug: row.organisation_id,
         name: row.name,
@@ -363,6 +427,8 @@ export async function syncV2Catalogue(): Promise<void> {
         released_at: row.release_date ?? null,
         deprecated_at: row.deprecation_date ?? null,
         retired_at: row.retirement_date ?? null,
+        variant_kind: "standard",
+        base_model_slug: null,
         metadata: {
             source: "json",
             legacy_model_id: row.model_id,
@@ -379,7 +445,29 @@ export async function syncV2Catalogue(): Promise<void> {
             sources: source.models.get(String(row.model_id))?.sources ?? [],
             verification: source.models.get(String(row.model_id))?.verification ?? null,
         },
-    })), "model_slug");
+    }));
+    const baseModelRowsBySlug = new Map(baseModelRows.map(row => [String(row.model_slug), row]));
+    const variantModelRows = [...source.modelVariants.values()].map(variant => {
+        const baseModelSlug = canonicalModelSlug(variant.base_model_id);
+        const base = baseModelRowsBySlug.get(baseModelSlug);
+        if (!base) {
+            throw new Error(`Authored model variant ${String(variant.model_id)} references missing base model ${baseModelSlug}`);
+        }
+        return {
+            ...base,
+            model_slug: String(variant.model_id),
+            name: String(variant.name),
+            variant_kind: String(variant.variant_kind),
+            base_model_slug: baseModelSlug,
+            metadata: {
+                ...base.metadata,
+                variant_kind: variant.variant_kind,
+                base_model_slug: baseModelSlug,
+                source: "json",
+            },
+        };
+    });
+    await upsertChunks(supa, "v2_models", [...baseModelRows, ...variantModelRows], "model_slug");
 
     const providerRows = providers.map(row => {
         const sourceProvider = source.providers.get(String(row.api_provider_id));
@@ -448,7 +536,13 @@ export async function syncV2Catalogue(): Promise<void> {
         description: row.description ?? null,
         status: "active",
         routable: routableLabs.has(String(row.organisation_id)),
-        metadata: { source: "json", legacy_organisation_id: row.organisation_id, routability_derived_from_provider_offers: true },
+        metadata: {
+            source: "json",
+            legacy_organisation_id: row.organisation_id,
+            colour: row.colour ?? null,
+            display_name: row.name ?? null,
+            routability_derived_from_provider_offers: true,
+        },
     })), "lab_slug");
 
     const providerRegions = providerRows.flatMap(row => {
@@ -476,7 +570,11 @@ export async function syncV2Catalogue(): Promise<void> {
 
     const routeRows = providerModels.filter(row => modelById.has(canonicalModelSlug(row.model_id ?? row.internal_model_id ?? row.api_model_id))).map(row => ({
         provider_model_id: row.provider_api_model_id,
-        model_slug: canonicalModelSlug(row.model_id ?? row.internal_model_id ?? row.api_model_id),
+        model_slug: v2RouteModelSlug(
+            row,
+            canonicalModelSlug,
+            source.providerModels.get(String(row.provider_api_model_id)),
+        ),
         provider_slug: row.provider_id,
         provider_model_slug: row.provider_model_slug,
         status: routeStatus(row.routing_status),
@@ -543,13 +641,44 @@ export async function syncV2Catalogue(): Promise<void> {
             },
         })), "provider_model_id,capability_id");
 
-    await upsertChunks(supa, "v2_model_aliases", aliases.filter(row => modelById.has(canonicalModelSlug(row.api_model_id))).map(row => ({
+    const authoredAliasRows = aliases.filter(row => modelById.has(canonicalModelSlug(row.api_model_id))).map(row => ({
         alias_slug: row.alias_slug,
         model_slug: canonicalModelSlug(row.api_model_id),
         alias_type: row.channel ?? "public",
         enabled: row.is_enabled !== false,
         metadata: { source: "json", legacy_api_model_id: row.api_model_id, legacy_channel: row.channel ?? null },
-    })), "alias_slug");
+    }));
+    const freeVariantAliasRows = providerModels.flatMap(row => {
+        if (!isFreeModelVariant(row.api_model_id)) return [];
+        const modelSlug = v2RouteModelSlug(
+            row,
+            canonicalModelSlug,
+            source.providerModels.get(String(row.provider_api_model_id)),
+        );
+        const aliasSlug = String(row.api_model_id ?? "").trim().toLowerCase();
+        if (!aliasSlug || aliasSlug === modelSlug || !source.modelVariants.has(modelSlug)) return [];
+        return [{
+            alias_slug: aliasSlug,
+            model_slug: modelSlug,
+            alias_type: "provider",
+            enabled: true,
+            metadata: {
+                source: "json",
+                provider_model_id: row.provider_api_model_id,
+                free_variant_alias: true,
+            },
+        }];
+    });
+    const v2AliasRows = new Map<string, Record<string, any>>();
+    for (const row of [...authoredAliasRows, ...freeVariantAliasRows]) {
+        v2AliasRows.set(String(row.alias_slug), row);
+    }
+    await upsertChunks(
+        supa,
+        "v2_model_aliases",
+        [...v2AliasRows.values()],
+        "alias_slug",
+    );
 
     const routeByProviderModelId = new Map<string, Record<string, any>>();
     for (const row of providerModels) routeByProviderModelId.set(String(row.provider_api_model_id), row);
@@ -694,5 +823,5 @@ export async function syncV2Catalogue(): Promise<void> {
     if (benchmarkPreflight.issues.length) {
         await upsertChunks(supa, "v2_catalogue_backfill_issues", benchmarkPreflight.issues, "source_type,source_key,issue_code");
     }
-    console.log(`[v2-sync] models=${canonicalModels.length} legacy_models=${models.length} routes=${providerModels.length} pricing_rules=${pricingRules.length} pricing_skus=${pricingRows.length} benchmarks=${benchmarkRows.length} benchmark_results=${benchmarkPreflight.rows.length} preflight_issues=${preflightIssues.length} unresolved_pricing=${unresolved.length}`);
+    console.log(`[v2-sync] models=${canonicalModels.length + variantModelRows.length} base_models=${canonicalModels.length} variant_models=${variantModelRows.length} legacy_models=${models.length} routes=${providerModels.length} pricing_rules=${pricingRules.length} pricing_skus=${pricingRows.length} benchmarks=${benchmarkRows.length} benchmark_results=${benchmarkPreflight.rows.length} preflight_issues=${preflightIssues.length} unresolved_pricing=${unresolved.length}`);
 }

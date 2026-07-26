@@ -41,7 +41,7 @@ function primaryDateFields(releaseDate: unknown, announcementDate: unknown) {
 
 function toModelCard(row: Record<string, unknown>, organisation: OrganisationIdentity) {
 	return {
-		model_id: String(row.model_id ?? ""),
+		model_id: String(row.model_slug ?? row.model_id ?? ""),
 		name: String(row.name ?? ""),
 		organisation_id: organisation.organisation_id,
 		organisation_name: organisation.name,
@@ -49,15 +49,15 @@ function toModelCard(row: Record<string, unknown>, organisation: OrganisationIde
 		description: row.description ?? null,
 		status: row.status ?? null,
 		hidden: Boolean(row.hidden),
-		release_date: row.release_date ?? null,
-		announcement_date: row.announcement_date ?? null,
+		release_date: row.released_at ?? row.release_date ?? null,
+		announcement_date: row.announced_at ?? row.announcement_date ?? null,
 		updated_at: row.updated_at ?? null,
-		api_model_id: row.api_model_id ?? null,
-		input_types: [],
-		output_types: [],
-		input_modalities: [],
-		output_modalities: [],
-		...primaryDateFields(row.release_date, row.announcement_date),
+		api_model_id: row.model_slug ?? row.api_model_id ?? null,
+		input_types: row.input_modalities ?? [],
+		output_types: row.output_modalities ?? [],
+		input_modalities: row.input_modalities ?? [],
+		output_modalities: row.output_modalities ?? [],
+		...primaryDateFields(row.released_at ?? row.release_date, row.announced_at ?? row.announcement_date),
 	};
 }
 
@@ -72,12 +72,16 @@ function cacheTags(organisationId: string, resource: string) {
 
 async function getOrganisationIdentity(env: Env, organisationId: string) {
 	const { data, error } = await getDataClient(env)
-		.from("data_organisations")
-		.select("organisation_id,name,colour")
-		.eq("organisation_id", organisationId)
+		.from("v2_labs")
+		.select("lab_slug,name,metadata")
+		.eq("lab_slug", organisationId)
 		.maybeSingle();
 	if (error) throw error;
-	return data as OrganisationIdentity | null;
+	if (!data) return null;
+	const details = data.metadata && typeof data.metadata === "object" && !Array.isArray(data.metadata)
+		? data.metadata as Record<string, unknown>
+		: {};
+	return { organisation_id: data.lab_slug, name: data.name, colour: typeof details.colour === "string" ? details.colour : null };
 }
 
 export const publicOrganisationsRouter = new Hono<{ Bindings: Env }>();
@@ -86,14 +90,14 @@ publicOrganisationsRouter.get("/organisations/:organisationId/header", async (c)
 	const organisationId = c.req.param("organisationId");
 	try {
 		const { data, error } = await getDataClient(c.env)
-			.from("data_organisations")
-			.select("organisation_id,name,country_code")
-			.eq("organisation_id", organisationId)
+			.from("v2_labs")
+			.select("lab_slug,name,country_code")
+			.eq("lab_slug", organisationId)
 			.maybeSingle();
 		if (error) throw error;
 		if (!data) return c.json({ error: "organisation_not_found" }, 404);
 		return withPublicCache(c.json({ organisation: {
-			organisation_id: data.organisation_id,
+			organisation_id: data.lab_slug,
 			name: data.name ?? "",
 			country_code: data.country_code ?? null,
 		} }), {
@@ -112,11 +116,11 @@ publicOrganisationsRouter.get("/organisations/:organisationId/models", async (c)
 		const organisation = await getOrganisationIdentity(c.env, organisationId);
 		if (!organisation) return c.json({ error: "organisation_not_found" }, 404);
 		const { data, error } = await getDataClient(c.env)
-			.from("data_models")
-			.select("model_id,name,status,release_date,announcement_date,organisation_id,hidden")
-			.eq("organisation_id", organisationId)
+			.from("v2_models")
+			.select("model_slug,name,description,status,released_at,announced_at,lab_slug,hidden,input_modalities,output_modalities,updated_at")
+			.eq("lab_slug", organisationId)
 			.eq("hidden", false)
-			.order("release_date", { ascending: false });
+			.order("released_at", { ascending: false });
 		if (error) throw error;
 		const models = (data ?? []).map((row) => toModelCard(row, organisation));
 		return withPublicCache(c.json({ models }), {
@@ -134,32 +138,37 @@ publicOrganisationsRouter.get("/organisations/:organisationId", async (c) => {
 	const limit = parseLimit(c.req.query("limit"));
 	try {
 		const client = getDataClient(c.env);
-		const [organisationResult, modelsResult] = await Promise.all([
+		const [organisationResult, modelsResult, linksResult] = await Promise.all([
 			client
-				.from("data_organisations")
-				.select("organisation_id,name,country_code,description,colour,updated_at,organisation_links:data_organisation_links(url,platform)")
-				.eq("organisation_id", organisationId)
+				.from("v2_labs")
+				.select("lab_slug,name,country_code,description,metadata,updated_at")
+				.eq("lab_slug", organisationId)
 				.maybeSingle(),
 			client
-				.from("data_models")
-				.select("model_id,name,status,release_date,announcement_date,hidden")
-				.eq("organisation_id", organisationId)
+				.from("v2_models")
+				.select("model_slug,name,description,status,released_at,announced_at,hidden,input_modalities,output_modalities,updated_at")
+				.eq("lab_slug", organisationId)
 				.eq("hidden", false)
-				.not("release_date", "is", null)
-				.not("announcement_date", "is", null)
-				.order("release_date", { ascending: false })
+				.or("released_at.not.is.null,announced_at.not.is.null")
+				.order("released_at", { ascending: false })
 				.limit(limit),
+			// Organisation links do not yet have a V2 table.
+			client.from("data_organisation_links").select("url,platform").eq("organisation_id", organisationId),
 		]);
 		if (organisationResult.error) throw organisationResult.error;
 		if (modelsResult.error) throw modelsResult.error;
+		if (linksResult.error) throw linksResult.error;
 		if (!organisationResult.data) {
 			return c.json({ error: "organisation_not_found" }, 404);
 		}
 		const organisationRow = organisationResult.data;
+		const organisationMetadata = organisationRow.metadata && typeof organisationRow.metadata === "object" && !Array.isArray(organisationRow.metadata)
+			? organisationRow.metadata as Record<string, unknown>
+			: {};
 		const identity: OrganisationIdentity = {
 			organisation_id: organisationId,
 			name: organisationRow.name ?? null,
-			colour: organisationRow.colour ?? null,
+			colour: typeof organisationMetadata.colour === "string" ? organisationMetadata.colour : null,
 		};
 		const models = (modelsResult.data ?? [])
 			.map((row) => toModelCard(row, identity))
@@ -171,15 +180,13 @@ publicOrganisationsRouter.get("/organisations/:organisationId", async (c) => {
 			const status = String(model.status ?? "unknown");
 			(groupedModels[status] ??= []).push(model);
 		}
-		const links = Array.isArray(organisationRow.organisation_links)
-			? organisationRow.organisation_links
-			: [];
+		const links = linksResult.data ?? [];
 		const organisation = {
-			organisation_id: organisationRow.organisation_id ?? organisationId,
+			organisation_id: organisationRow.lab_slug ?? organisationId,
 			name: organisationRow.name ?? organisationId,
 			country_code: organisationRow.country_code ?? null,
 			description: organisationRow.description ?? null,
-			colour: organisationRow.colour ?? null,
+			colour: typeof organisationMetadata.colour === "string" ? organisationMetadata.colour : null,
 			updated_at: organisationRow.updated_at ?? null,
 			organisation_links: links.map((link) => ({
 				platform: link.platform,

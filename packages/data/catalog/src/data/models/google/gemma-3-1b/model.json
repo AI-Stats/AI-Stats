@@ -13,6 +13,7 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "google/gemma-3-1b",
+  "variants": [{ "model_id": "google/gemma-3-1b:free", "name": "Gemma 3 1B (Free)", "variant_kind": "free" }],
   "family_id": "google/gemma-3",
   "links": [
     {

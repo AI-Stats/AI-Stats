@@ -668,6 +668,7 @@ interface ValidationState {
     benchmarkIds: Set<string>;
     apiProviderIds: Set<string>;
     modelIds: Map<string, string>;
+    modelVariants: Map<string, { baseModelId: string; variantKind: string }>;
     models: ModelEntry[];
     pricingEntryCount: number;
     planCount: number;
@@ -704,6 +705,7 @@ function createState(): ValidationState {
         benchmarkIds: new Set(),
         apiProviderIds: new Set(),
         modelIds: new Map(),
+        modelVariants: new Map(),
         models: [],
         pricingEntryCount: 0,
         planCount: 0,
@@ -1127,10 +1129,54 @@ function loadModels(state: ValidationState): string[] {
             } else {
                 state.modelIds.set(modelId, filePath);
             }
+            const apiModelId = normalizeReference(data.api_model_id);
+            if (apiModelId?.toLowerCase().endsWith(':free')) {
+                errors.push(
+                    `Model ${modelId} api_model_id must identify the base model; free offers belong in variants`
+                );
+            }
             if (typeof data.organisation_id !== 'string' || !data.organisation_id.trim()) {
                 errors.push(`Model ${modelId} missing organisation_id`);
             } else if (!state.organisationIds.has(data.organisation_id)) {
                 errors.push(`Model ${modelId} references unknown organisation ${data.organisation_id}`);
+            }
+            if (data.variants !== undefined && !Array.isArray(data.variants)) {
+                errors.push(`Model ${modelId} variants must be an array when present`);
+            }
+            const variants = Array.isArray(data.variants) ? data.variants : [];
+            for (const [index, rawVariant] of variants.entries()) {
+                if (!isPlainObject(rawVariant)) {
+                    errors.push(`Model ${modelId} variant ${index} must be an object`);
+                    continue;
+                }
+                const variantId = normalizeReference(rawVariant.model_id);
+                const variantName = normalizeReference(rawVariant.name);
+                const variantKind = normalizeReference(rawVariant.variant_kind);
+                const expectedVariantId = `${modelId}:free`;
+                const expectedVariantName = `${String(data.name ?? modelId).trim()} (Free)`;
+                if (variantKind !== 'free') {
+                    errors.push(`Model ${modelId} variant ${index} has unsupported variant_kind '${variantKind ?? ''}'`);
+                }
+                if (variantId !== expectedVariantId) {
+                    errors.push(
+                        `Model ${modelId} free variant must use model_id '${expectedVariantId}'`
+                    );
+                }
+                if (variantName !== expectedVariantName) {
+                    errors.push(
+                        `Model ${modelId} free variant must use name '${expectedVariantName}'`
+                    );
+                }
+                if (!variantId) continue;
+                if (state.modelIds.has(variantId)) {
+                    errors.push(`Duplicate model_id detected: ${variantId}`);
+                    continue;
+                }
+                state.modelIds.set(variantId, filePath);
+                state.modelVariants.set(variantId, {
+                    baseModelId: modelId,
+                    variantKind: variantKind ?? '',
+                });
             }
             state.models.push({ filePath, data });
         }
@@ -1158,6 +1204,7 @@ function checkApiProviderModels(
             })
             .filter((entry): entry is readonly [string, ModelEntry] => entry !== null)
     );
+    const referencedVariantIds = new Set<string>();
 
     for (const provider of listDirs(providersDir)) {
         const filePath = path.join(providersDir, provider, 'models.json');
@@ -1198,6 +1245,7 @@ function checkApiProviderModels(
             entryCount += 1;
             const apiModelId = normalizeReference((row as Record<string, unknown>)?.api_model_id);
             const internalModelId = normalizeReference((row as Record<string, unknown>)?.internal_model_id);
+            const canonicalModelId = normalizeReference((row as Record<string, unknown>)?.canonical_model_id);
             const providerApiModelId = normalizeReference((row as Record<string, unknown>)?.provider_api_model_id);
             const rowLabel = `${provider}${providerApiModelId ? ` (${providerApiModelId})` : ''}`;
             const fallbackModelEntry =
@@ -1238,6 +1286,37 @@ function checkApiProviderModels(
                 continue;
             }
 
+            if (apiModelId.toLowerCase().endsWith(':free')) {
+                const internalVariant = internalModelId
+                    ? state.modelVariants.get(internalModelId)
+                    : undefined;
+                const baseModelId = internalVariant?.baseModelId ?? internalModelId;
+                const canonicalVariantId = baseModelId
+                    ? `${baseModelId.replace(/:free$/i, '')}:free`
+                    : apiModelId;
+                if (!canonicalModelId) {
+                    errors.push(
+                        `API provider model ${rowLabel} free offer '${apiModelId}' is missing canonical_model_id`
+                    );
+                } else if (canonicalModelId !== canonicalVariantId) {
+                    errors.push(
+                        `API provider model ${rowLabel} canonical_model_id must be '${canonicalVariantId}'`
+                    );
+                }
+                if (canonicalModelId && !state.modelVariants.has(canonicalModelId)) {
+                    errors.push(
+                        `API provider model ${rowLabel} references free offer '${apiModelId}' ` +
+                        `without authored model variant '${canonicalModelId}'`
+                    );
+                } else if (canonicalModelId) {
+                    referencedVariantIds.add(canonicalModelId);
+                }
+            } else if (canonicalModelId && !state.modelIds.has(canonicalModelId)) {
+                errors.push(
+                    `API provider model ${rowLabel} references unknown canonical_model_id '${canonicalModelId}'`
+                );
+            }
+
             const hasInternalModel = internalModelId ? state.modelIds.has(internalModelId) : false;
             const hasDirectApiModel = state.modelIds.has(apiModelId);
 
@@ -1255,6 +1334,12 @@ function checkApiProviderModels(
                         `but resolves via api_model_id '${apiModelId}'`
                 );
             }
+        }
+    }
+
+    for (const variantId of state.modelVariants.keys()) {
+        if (!referencedVariantIds.has(variantId)) {
+            errors.push(`Authored model variant '${variantId}' is not referenced by any provider model`);
         }
     }
 

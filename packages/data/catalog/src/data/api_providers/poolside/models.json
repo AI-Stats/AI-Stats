@@ -1,6 +1,7 @@
 [
   {
     "api_model_id": "poolside/laguna-m.1:free",
+    "canonical_model_id": "poolside/laguna-m.1:free",
     "provider_api_model_id": "poolside:poolside/laguna-m.1:free",
     "provider_model_slug": "poolside/laguna-m.1",
     "internal_model_id": "poolside/laguna-m.1",
@@ -113,6 +114,7 @@
   },
   {
     "api_model_id": "poolside/laguna-s-2.1:free",
+    "canonical_model_id": "poolside/laguna-s-2.1:free",
     "provider_api_model_id": "poolside:poolside/laguna-s-2.1:free",
     "provider_model_slug": "poolside/laguna-s-2.1",
     "internal_model_id": "poolside/laguna-s-2.1",
@@ -225,6 +227,7 @@
   },
   {
     "api_model_id": "poolside/laguna-xs-2.1:free",
+    "canonical_model_id": "poolside/laguna-xs-2.1:free",
     "provider_api_model_id": "poolside:poolside/laguna-xs-2.1:free",
     "provider_model_slug": "poolside/laguna-xs-2.1",
     "internal_model_id": "poolside/laguna-xs-2.1",
@@ -337,6 +340,7 @@
   },
   {
     "api_model_id": "poolside/laguna-xs.2:free",
+    "canonical_model_id": "poolside/laguna-xs.2:free",
     "provider_api_model_id": "poolside:poolside/laguna-xs.2:free",
     "provider_model_slug": "poolside/laguna-xs.2",
     "internal_model_id": "poolside/laguna-xs.2",

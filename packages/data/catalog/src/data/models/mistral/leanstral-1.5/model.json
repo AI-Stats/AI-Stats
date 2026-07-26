@@ -13,6 +13,7 @@
   "input_types": "text,image",
   "output_types": "text",
   "api_model_id": "mistral/leanstral-1.5",
+  "variants": [{ "model_id": "mistral/leanstral-1.5:free", "name": "Leanstral 1.5 (Free)", "variant_kind": "free" }],
   "links": [
     {
       "title": "Model Card",

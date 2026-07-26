@@ -217,8 +217,8 @@ accountSettingsRouter.get("/privacy", async (c) => {
 	const [teamResult, settingsResult, providersResult, modelsResult, contributionGatewayResult] = await Promise.all([
 		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
 		context.client.from("workspace_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed").eq("workspace_id", workspaceId).maybeSingle(),
-		context.client.from("data_api_providers").select("api_provider_id,api_provider_name,offer_label,offer_scope").order("api_provider_name", { ascending: true }),
-		context.client.from("data_api_provider_models").select("provider_id,api_model_id,internal_model_id,is_active_gateway").eq("is_active_gateway", true),
+		context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name,offer_label,offer_scope").order("name", { ascending: true }),
+		context.client.from("v2_model_provider_routes").select("provider_id:provider_slug,api_model_id:model_slug,internal_model_id:model_slug,is_active_gateway:routing_enabled").eq("routing_enabled", true).in("status", ["active", "degraded"]),
 		callDataContributionGateway({ env: c.env, request: c.req.raw, workspaceId: context.workspaceId }),
 	]);
 	for (const result of [teamResult, settingsResult, providersResult, modelsResult]) {
@@ -494,6 +494,10 @@ accountSettingsRouter.post("/apps/:sourceAppId/merge", async (c) => {
 	if (apps.data!.some((app) => isInternalApp(app.title, app.app_key))) return c.json({ error: "managed_app" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const moved = await context.client.from("gateway_requests").update({ app_id: targetAppId }).eq("app_id", sourceAppId).eq("workspace_id", workspaceId);
 	if (moved.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	// Request facts extend the authoritative gateway request. Keep their app
+	// dimension aligned so analytics remain consistent after the merge.
+	const observabilityMirror = await context.client.from("v2_request_facts").update({ app_id: targetAppId }).eq("app_id", sourceAppId).eq("workspace_id", workspaceId);
+	if (observabilityMirror.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const removed = await context.client.from("api_apps").delete().eq("id", sourceAppId).eq("workspace_id", workspaceId);
 	if (removed.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const dynamic = [sourceAppId, targetAppId].map((id) => `web-api-app-${encodeURIComponent(id).replace(/%/g, "")}`);
@@ -1027,15 +1031,15 @@ accountSettingsRouter.get("/observability/destinations/new/:provider", async (c)
 		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
 		context.client.from("keys").select("id,name,prefix").eq("workspace_id", workspaceId)
 			.neq("status", "deleted").neq("name", "__chat_route_managed_key__").order("created_at", { ascending: false }),
-		context.client.from("data_api_providers").select("api_provider_id,api_provider_name").order("api_provider_name", { ascending: true }),
-		context.client.from("data_api_provider_models").select("provider_id,api_model_id,model_id,is_active_gateway").eq("is_active_gateway", true),
+		context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name").order("name", { ascending: true }),
+		context.client.from("v2_model_provider_routes").select("provider_id:provider_slug,api_model_id:model_slug,model_id:model_slug,is_active_gateway:routing_enabled").eq("routing_enabled", true).in("status", ["active", "degraded"]),
 	]);
 	if ([teamResult, keysResult, providersResult, providerModelsResult].some((result) => result.error)) {
 		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
 	const modelIds = Array.from(new Set((providerModelsResult.data ?? []).map((row) => String(row.model_id ?? "").trim()).filter(Boolean)));
 	const modelsResult = modelIds.length
-		? await context.client.from("data_models").select("model_id,name,organisation_id").in("model_id", modelIds)
+		? await context.client.from("v2_models").select("model_id:model_slug,name,organisation_id:lab_slug").in("model_slug", modelIds)
 		: { data: [], error: null };
 	if (modelsResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const modelsById = new Map((modelsResult.data ?? []).map((row) => [row.model_id, row]));

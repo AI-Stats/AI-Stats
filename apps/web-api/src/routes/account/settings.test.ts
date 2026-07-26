@@ -77,7 +77,7 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 			event_time: "2026-07-13T00:00:00Z", status: "paid", amount_nanos: 10000000000,
 		}]), { status: 200 });
 	}
-	if (url.includes("data_api_providers")) {
+	if (url.includes("v2_providers")) {
 		return new Response(JSON.stringify([{
 			api_provider_id: "openai-eu",
 			api_provider_name: "OpenAI",
@@ -85,7 +85,7 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 			offer_scope: "regional",
 		}]), { status: 200 });
 	}
-	if (url.includes("data_api_provider_models")) {
+	if (url.includes("v2_model_provider_routes")) {
 		return new Response(JSON.stringify([{
 			provider_id: "openai-eu",
 			api_model_id: "gpt-test",
@@ -94,7 +94,7 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 			is_active_gateway: true,
 		}]), { status: 200 });
 	}
-	if (url.includes("data_models")) {
+	if (url.includes("v2_models")) {
 		return new Response(JSON.stringify([{
 			model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai",
 		}]), { status: 200 });
