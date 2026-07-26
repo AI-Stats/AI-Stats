@@ -351,7 +351,10 @@ async function main(): Promise<void> {
 		candidates.set(key, values[0]!);
 	}
 
-	const mappings = await readJson<JsonObject[]>(path.join(PROVIDERS_ROOT, PROVIDER, "models.json")).catch(() => []);
+	const mappings = await readJson<JsonObject[]>(path.join(PROVIDERS_ROOT, PROVIDER, "models.json")).catch((error) => {
+		if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+		return [];
+	});
 	const mappingByKey = new Map<string, JsonObject[]>();
 	for (const mapping of mappings) {
 		for (const value of [mapping.provider_model_slug, mapping.api_model_id, mapping.internal_model_id]) {

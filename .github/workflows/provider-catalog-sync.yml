@@ -36,7 +36,7 @@ jobs:
               shell: bash
               run: |
                   set -euo pipefail
-                  safe='["ai21","akashml","aion-labs","anthropic","arcee-ai","atlascloud","baseten","chutes","crofai","deepinfra","deepseek","fireworks","gmicloud","groq","inception","moonshotai","nextbit","novita","openai","spacex-ai","together","venice","voyage","z-ai"]'
+                  safe='["ai21","akashml","aion-labs","anthropic","arcee-ai","atlascloud","baseten","chutes","crofai","deepinfra","deepseek","elevenlabs","fireworks","gmicloud","groq","inception","moonshotai","nebius-token-factory","nextbit","novita","openai","perplexity","spacex-ai","together","venice","voyage","z-ai"]'
                   if [[ "$EVENT_NAME" == "repository_dispatch" ]]; then
                     providers="$(jq -c 'map(strings | ascii_downcase) | map(select(test("^[a-z0-9][a-z0-9-]*$"))) | unique' <<<"$DISPATCH_PROVIDERS")"
                   elif [[ -n "${MANUAL_PROVIDERS:-}" ]]; then
@@ -83,12 +83,16 @@ jobs:
               with:
                   client-id: ${{ secrets.PHASEO_APP_CLIENT_ID }}
                   private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
+                  permission-contents: write
+                  permission-issues: write
+                  permission-pull-requests: write
 
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
               with:
                   ref: main
                   fetch-depth: 0
                   token: ${{ steps.app-token.outputs.token }}
+                  persist-credentials: false
 
             - name: Setup pnpm
               uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
