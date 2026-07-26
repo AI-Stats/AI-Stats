@@ -1792,7 +1792,7 @@ console.log(response);`
 							<span>Create an API key in</span>
 							<Link
 								href="/settings/keys"
-								className="inline-flex items-center overflow-hidden rounded-lg border border-border/80 bg-background text-foreground shadow-xs transition-colors hover:bg-muted/40"
+								className="inline-flex items-center overflow-hidden rounded-md border border-border/80 bg-background text-foreground shadow-xs transition-colors hover:bg-muted/40"
 							>
 								<span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs">
 									<Settings2 className="h-3 w-3" />

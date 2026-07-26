@@ -266,14 +266,22 @@ publicReferenceDataRouter.get("/families", async (c) => {
 	try {
 		const { data, error } = await getDataClient(c.env)
 			.from("data_model_families")
-			.select("family_id,family_name,organisation_id")
-			.order("family_name", { ascending: true });
+			.select("family_id,family_name,organisation_id,created_at,organisation:data_organisations(name)")
+			.order("created_at", { ascending: false });
 		if (error) throw error;
-		const families = (data ?? []).map((row) => ({
-			family_id: row.family_id,
-			family_name: row.family_name ?? row.family_id,
-			organisation_id: row.organisation_id ?? String(row.family_id ?? "").split("/")[0] ?? "",
-		}));
+		const families = (data ?? []).map((row) => {
+			const organisation = Array.isArray(row.organisation)
+				? row.organisation[0]
+				: row.organisation;
+			const organisationId = row.organisation_id ?? String(row.family_id ?? "").split("/")[0] ?? "";
+			return {
+				family_id: row.family_id,
+				family_name: row.family_name ?? row.family_id,
+				organisation_id: organisationId,
+				organisation_name: organisation?.name ?? organisationId,
+				created_at: row.created_at ?? null,
+			};
+		});
 		return withPublicCache(c.json({ families }), policy("web-api-families"));
 	} catch (error) {
 		console.error("[web-api/reference] families failed", error);

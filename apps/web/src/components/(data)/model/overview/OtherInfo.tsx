@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 
 interface ModelDetail {
 	detail_name: string;
@@ -10,6 +12,7 @@ interface OtherInfoProps {
 	details?: ModelDetail[] | null;
 	showHeading?: boolean;
 	showEmpty?: boolean;
+	licenseUrl?: string | null;
 	extraItems?: Array<{
 		key: string;
 		label: string;
@@ -21,6 +24,7 @@ export default function OtherInfo({
 	details,
 	showHeading = true,
 	showEmpty = false,
+	licenseUrl,
 	extraItems = [],
 }: OtherInfoProps) {
 	const detailsMap: Record<string, string> = {};
@@ -66,7 +70,20 @@ export default function OtherInfo({
 		{
 			key: "license",
 			label: "License",
-			value: license && license.trim().length > 0 ? license : null,
+			value:
+				license && license.trim().length > 0 && licenseUrl ? (
+					<Link
+						href={licenseUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="mt-1 inline-flex min-w-0 items-center gap-1 text-sm font-semibold underline decoration-transparent underline-offset-2 hover:decoration-current"
+					>
+						<span className="truncate">{license}</span>
+						<ExternalLink className="size-3.5 shrink-0 text-muted-foreground" />
+					</Link>
+				) : license && license.trim().length > 0 ? (
+					license
+				) : null,
 		},
 		{
 			key: "training_tokens",
