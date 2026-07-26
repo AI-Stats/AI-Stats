@@ -101,7 +101,7 @@ jobs:
 
   publish-python:
     name: Publish Python Agent SDK
-    if: needs.build-python.outputs.should-publish == 'true'
+    if: github.ref == 'refs/heads/main' && needs.build-python.outputs.should-publish == 'true'
     needs: build-python
     runs-on: ubuntu-latest
     environment: release
@@ -309,7 +309,7 @@ jobs:
 
   publish-ruby:
     name: Publish Ruby Agent SDK
-    if: needs.build-ruby.outputs.should-publish == 'true'
+    if: github.ref == 'refs/heads/main' && needs.build-ruby.outputs.should-publish == 'true'
     needs: build-ruby
     runs-on: ubuntu-latest
     environment: release
