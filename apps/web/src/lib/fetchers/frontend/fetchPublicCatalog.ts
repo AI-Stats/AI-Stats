@@ -270,7 +270,7 @@ export async function fetchFrontendModelOverview(
 	modelId: string,
 ): Promise<ModelOverviewPage | null> {
 	const payload = await fetchOptionalPublicWebApi<{ model: ModelOverviewPage }>(
-		`/api/_web/models/${encodeURIComponent(modelId)}`,
+		`/api/_web/models/${encodeURIComponent(modelId)}?projection=variants-v1`,
 	);
 	return payload?.model ?? null;
 }
@@ -281,7 +281,7 @@ export async function fetchFrontendModelHeader(
 ): Promise<ModelOverviewHeader | null> {
 	if (!includeHidden) {
 		const payload = await fetchOptionalPublicWebApi<{ model: ModelOverviewPage }>(
-			`/api/_web/models/${encodeURIComponent(modelId)}`,
+			`/api/_web/models/${encodeURIComponent(modelId)}?projection=variants-v1`,
 		);
 		const model = payload?.model;
 		if (!model) return null;
@@ -294,6 +294,7 @@ export async function fetchFrontendModelHeader(
 				country_code: model.organisation?.country_code ?? "",
 			},
 			aliases: model.aliases ?? [],
+			variants: model.variants ?? [],
 			family_id: model.family_id ?? undefined,
 			status: model.status ?? null,
 			hidden: false,

@@ -30,6 +30,9 @@ export type ModelsPageModel = Omit<
 	Pick<
 		ModelCard,
 		| "model_id"
+		| "base_model_id"
+		| "variant_kind"
+		| "variants"
 		| "name"
 		| "organisation_id"
 		| "organisation_name"

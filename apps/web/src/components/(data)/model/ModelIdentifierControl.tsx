@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Copy } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
@@ -13,12 +15,19 @@ import { toast } from "sonner";
 interface ModelIdentifierControlProps {
 	defaultIdentifier: string;
 	aliases?: string[];
+	variants?: Array<{
+		model_id: string;
+		name: string;
+		variant_kind: string;
+	}>;
 }
 
 export default function ModelIdentifierControl({
 	defaultIdentifier,
 	aliases = [],
+	variants = [],
 }: ModelIdentifierControlProps) {
+	const router = useRouter();
 	const copyResetTimerRef = useRef<number | null>(null);
 	const options = useMemo<string[]>(
 		() => [
@@ -30,6 +39,8 @@ export default function ModelIdentifierControl({
 		[aliases, defaultIdentifier],
 	);
 	const hasAliases = options.length > 1;
+	const hasVariants = variants.length > 1;
+	const hasMenu = hasAliases || hasVariants;
 
 	const [copied, setCopied] = useState(false);
 
@@ -97,11 +108,11 @@ export default function ModelIdentifierControl({
 
 	const triggerIcon = copied
 		? <Check className="h-3 w-3" />
-		: hasAliases
+		: hasMenu
 			? <ChevronDown className="h-3 w-3" />
 			: <Copy className="h-3 w-3" />;
 
-	if (!hasAliases) {
+	if (!hasMenu) {
 		return (
 			<button
 				type="button"
@@ -132,6 +143,37 @@ export default function ModelIdentifierControl({
 
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="start" className="w-auto min-w-0 max-w-[calc(100vw-2rem)]">
+				{hasVariants ? (
+					<>
+						<div className="px-2 py-1.5 text-[11px] font-medium text-muted-foreground">
+							Model variants
+						</div>
+						{variants.map((variant) => {
+							const isCurrent = variant.model_id === defaultIdentifier;
+							return (
+								<DropdownMenuItem
+									key={variant.model_id}
+									onSelect={() => {
+										if (!isCurrent) router.push(`/models/${variant.model_id}`);
+									}}
+									className="flex items-center justify-between gap-4"
+								>
+									<span className="flex min-w-0 items-center gap-2">
+										<Check className={`h-3.5 w-3.5 shrink-0 ${isCurrent ? "opacity-100" : "opacity-0"}`} />
+										<span className="truncate">{variant.name}</span>
+									</span>
+									<span className="shrink-0 text-[11px] capitalize text-muted-foreground">
+										{variant.variant_kind === "standard" ? "Base" : variant.variant_kind}
+									</span>
+								</DropdownMenuItem>
+							);
+						})}
+						<DropdownMenuSeparator />
+					</>
+				) : null}
+				<div className="px-2 py-1.5 text-[11px] font-medium text-muted-foreground">
+					Identifiers
+				</div>
 				{options.map((option, index) => (
 					<DropdownMenuItem
 						key={option}

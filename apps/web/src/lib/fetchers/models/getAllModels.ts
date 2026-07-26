@@ -7,6 +7,9 @@ import type { ModelPageNotice } from "@/lib/fetchers/models/getModelPageNotice";
 
 export interface ModelCard {
     model_id: string;
+    base_model_id?: string;
+    variant_kind?: string;
+    variants?: Record<string, { model_id: string; name: string }>;
     name: string;
     organisation_id: string;
     organisation_name: string | null;

@@ -1,94 +1,48 @@
 import { describe, expect, it } from "vitest";
 import {
-	collapseModelsPageVariants,
+	attachModelsPageVariants,
 	mergeModelWeeklyMetrics,
 	normalizeModelsPagePricing,
 } from "@/models/page-catalogue";
 
-describe("collapseModelsPageVariants", () => {
-	it("shows one base model while retaining free variant availability", () => {
-		const rows = collapseModelsPageVariants([
+describe("attachModelsPageVariants", () => {
+	it("keeps callable variants separate and links them to one model family", () => {
+		const rows = attachModelsPageVariants([
 			{
 				model_id: "poolside/laguna-s-2.1",
 				name: "Laguna S 2.1",
-				gateway_status: "not_active",
-				gateway_provider_names: ["OpenRouter"],
-				gateway_active_provider_names: [],
-				gateway_provider_details: [{ id: "openrouter", name: "OpenRouter", status: "external", service_tier: "standard" }],
-				gateway_features: [],
-				gateway_tiers: ["standard"],
-				popularity_tokens_week: 100,
-				weekly_usage_metric: "tokens",
-				weekly_usage_quantity: 100,
-				weekly_usage_unit: "tokens",
-				lowest_from_price: 2,
-				lowest_from_price_unit: "1M tokens",
+				gateway_provider_details: [],
 			},
 			{
 				model_id: "poolside/laguna-s-2.1:free",
 				name: "Laguna S 2.1 (Free)",
-				gateway_status: "active",
-				gateway_provider_names: ["Poolside"],
-				gateway_active_provider_names: ["Poolside"],
-				gateway_provider_details: [{ id: "poolside", name: "Poolside", is_active: true, service_tier: "standard" }],
-				gateway_features: [],
-				gateway_tiers: ["standard"],
-				popularity_tokens_week: 25,
-				weekly_usage_metric: "tokens",
-				weekly_usage_quantity: 25,
-				weekly_usage_unit: "tokens",
-				lowest_from_price: 0,
-				lowest_from_price_unit: "1M tokens",
+				variant_kind: "free",
+				base_model_id: "poolside/laguna-s-2.1",
+				gateway_provider_details: [],
 			},
 		]);
 
-		expect(rows).toHaveLength(1);
-		expect(rows[0]).toMatchObject({
-			model_id: "poolside/laguna-s-2.1",
-			name: "Laguna S 2.1",
-			gateway_status: "active",
-			gateway_provider_count: 1,
-			gateway_active_provider_count: 1,
-			gateway_features: ["free"],
-			gateway_tiers: ["free", "standard"],
-			popularity_tokens_week: 125,
-			weekly_usage_quantity: 125,
-			lowest_from_price: 0,
-		});
-		expect(rows[0].gateway_provider_details).toContainEqual(expect.objectContaining({
-			id: "poolside",
-			service_tier: "free",
-			variant_kind: "free",
-		}));
-		expect(rows[0].gateway_provider_names).toEqual(["Poolside"]);
-		expect(rows[0].gateway_provider_details).not.toContainEqual(expect.objectContaining({
-			status: "external",
-		}));
-	});
-
-	it("prefers a modality usage meter over a request-count fallback", () => {
-		const rows = collapseModelsPageVariants([
-			{
+		expect(rows).toHaveLength(2);
+		expect(rows).toEqual([
+			expect.objectContaining({
 				model_id: "poolside/laguna-s-2.1",
-				name: "Laguna S 2.1",
-				weekly_usage_metric: "requests",
-				weekly_usage_quantity: 1,
-				weekly_usage_unit: "requests",
-			},
-			{
+				base_model_id: "poolside/laguna-s-2.1",
+				variant_kind: "standard",
+				variants: {
+					standard: { model_id: "poolside/laguna-s-2.1", name: "Laguna S 2.1" },
+					free: { model_id: "poolside/laguna-s-2.1:free", name: "Laguna S 2.1 (Free)" },
+				},
+			}),
+			expect.objectContaining({
 				model_id: "poolside/laguna-s-2.1:free",
-				name: "Laguna S 2.1 (Free)",
-				weekly_usage_metric: "tokens",
-				weekly_usage_quantity: 694,
-				weekly_usage_unit: "tokens",
-			},
+				base_model_id: "poolside/laguna-s-2.1",
+				variant_kind: "free",
+				variants: {
+					standard: { model_id: "poolside/laguna-s-2.1", name: "Laguna S 2.1" },
+					free: { model_id: "poolside/laguna-s-2.1:free", name: "Laguna S 2.1 (Free)" },
+				},
+			}),
 		]);
-
-		expect(rows[0]).toMatchObject({
-			weekly_usage_metric: "tokens",
-			weekly_usage_quantity: 694,
-			weekly_usage_unit: "tokens",
-		});
 	});
 });
 
