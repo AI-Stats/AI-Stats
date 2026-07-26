@@ -13,7 +13,7 @@
   "input_types": "text,image",
   "output_types": "text",
   "api_model_id": "anthropic/claude-mythos-preview",
-  "family_id": "anthropic/claude-mythos",
+  "family_id": "anthropic/claude-5",
   "links": [
     {
       "title": "Announcement",
