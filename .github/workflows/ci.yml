@@ -939,6 +939,9 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
+            - name: Restore committed TypeScript Agent SDK release state
+              run: git restore --source=HEAD --staged --worktree -- packages/sdk/agent-sdk-ts
+
             - name: Check TypeScript Agent SDK release status
               id: agent-sdk-npm-release
               run: |
