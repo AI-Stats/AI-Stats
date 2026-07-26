@@ -15,7 +15,7 @@ function normalizeModel<T extends { model_details: { detail_name: string; detail
 export default async function getModel(modelId: string, includeHidden: boolean): Promise<ModelPage> {
 	if (includeHidden) { const source = await fetchAdminModelSource(modelId); if (!source.model) throw new Error("Model not found"); const model = normalizeModel(source.model as ModelPage); model.benchmark_results ??= []; model.pricing = pricingRules(source.pricingRules); return model; }
 	const [overview, benchmarks, pricing] = await Promise.all([
-		fetchOptionalPublicWebApi<{ model: ModelPage }>(`/api/_web/models/${encodeURIComponent(modelId)}`),
+		fetchOptionalPublicWebApi<{ model: ModelPage }>(`/api/_web/models/${encodeURIComponent(modelId)}?projection=variants-v1`),
 		fetchOptionalPublicWebApi<{ results: ModelPage["benchmark_results"] }>(`/api/_web/models/${encodeURIComponent(modelId)}/benchmarks`),
 		fetchOptionalPublicWebApi<{ pricing_rules: Array<Record<string, any>> }>(`/api/_web/models/${encodeURIComponent(modelId)}/pricing?shape=source`),
 	]);
@@ -24,7 +24,7 @@ export default async function getModel(modelId: string, includeHidden: boolean):
 
 export async function getModelOverview(modelId: string, includeHidden: boolean): Promise<ModelOverviewPage | null> {
 	if (includeHidden) { const source = await fetchAdminModelSource(modelId); return source.model ? normalizeModel(source.model as ModelOverviewPage) : null; }
-	const payload = await fetchOptionalPublicWebApi<{ model: ModelOverviewPage }>(`/api/_web/models/${encodeURIComponent(modelId)}`); return payload?.model ? normalizeModel(payload.model) : null;
+	const payload = await fetchOptionalPublicWebApi<{ model: ModelOverviewPage }>(`/api/_web/models/${encodeURIComponent(modelId)}?projection=variants-v1`); return payload?.model ? normalizeModel(payload.model) : null;
 }
 
 export async function getModelCached(modelId: string, includeHidden: boolean): Promise<ModelPage> { return getModel(modelId, includeHidden); }

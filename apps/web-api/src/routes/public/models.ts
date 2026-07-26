@@ -634,10 +634,9 @@ type ModelVariantSummary = {
 
 async function fetchModelVariants(
 	env: Env,
-	identity: Record<string, unknown>,
-	fallbackModelId: string,
+	modelId: string,
 ): Promise<ModelVariantSummary[]> {
-	const currentModelId = String(identity.model_slug ?? fallbackModelId).trim();
+	const currentModelId = modelId.trim();
 	if (!currentModelId) return [];
 	const result = await getDataClient(env).rpc("get_v2_model_variants", {
 		p_model_slug: currentModelId,
@@ -932,9 +931,11 @@ publicModelsRouter.get("/:modelId", async (c) => {
 		if (v2Result.error && !/could not find|does not exist|PGRST202/i.test(v2Result.error.message ?? "")) throw v2Result.error;
 		const v2Overview = v2Result.data as Record<string, unknown> | null;
 		if (v2Overview?.model_id) {
-			const [identityResult, aliasesResult] = await Promise.all([
-				client.rpc("get_v2_model_identity", { p_model_slug: String(v2Overview.model_id) }),
-				client.rpc("get_v2_model_aliases", { p_model_slug: String(v2Overview.model_id) }),
+			const canonicalModelId = String(v2Overview.model_id);
+			const [identityResult, aliasesResult, variants] = await Promise.all([
+				client.rpc("get_v2_model_identity", { p_model_slug: canonicalModelId }),
+				client.rpc("get_v2_model_aliases", { p_model_slug: canonicalModelId }),
+				fetchModelVariants(c.env, canonicalModelId),
 			]);
 			if (identityResult.error) throw identityResult.error;
 			if (aliasesResult.error) throw aliasesResult.error;
@@ -942,7 +943,6 @@ publicModelsRouter.get("/:modelId", async (c) => {
 				.map((row: Record<string, unknown>) => String(row.alias_slug ?? "").trim())
 				.filter(Boolean);
 			const identity = identityResult.data as Record<string, unknown> | null;
-			const variants = await fetchModelVariants(c.env, identity ?? {}, String(v2Overview.model_id));
 			return withPublicCache(c.json({ model: v2ModelPageShape(v2Overview, aliases, identity ?? {}, variants) }), sectionPolicy("overview", modelId));
 		}
 		return notFound(c);

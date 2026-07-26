@@ -271,7 +271,7 @@ export async function fetchFrontendModelOverview(
 	modelId: string,
 ): Promise<ModelOverviewPage | null> {
 	const payload = await fetchOptionalPublicWebApi<{ model: ModelOverviewPage }>(
-		`/api/_web/models/${encodeURIComponent(modelId)}`,
+		`/api/_web/models/${encodeURIComponent(modelId)}?projection=variants-v1`,
 	);
 	return payload?.model ?? null;
 }
@@ -282,7 +282,7 @@ export async function fetchFrontendModelHeader(
 ): Promise<ModelOverviewHeader | null> {
 	if (!includeHidden) {
 		const payload = await fetchOptionalPublicWebApi<{ model: ModelOverviewPage }>(
-			`/api/_web/models/${encodeURIComponent(modelId)}`,
+			`/api/_web/models/${encodeURIComponent(modelId)}?projection=variants-v1`,
 		);
 		const model = payload?.model;
 		if (!model) return null;
