@@ -1,8 +1,14 @@
 ---
-title: "Batch status (Beta)"
-badge: "Beta"
+title: "Get a batch"
+sidebarTitle: "Get a batch"
+tag: "Internal"
 openapi: "GET /batches/{batch_id}"
-description: "Retrieve the current status for a previously created batch job."
+description: |-
+  <Info>
+  **Internal testing.** The Batch API is available only to enabled workspaces. Requests from other workspaces return `403`, and the API may change before general availability.
+  </Info>
+
+  Retrieve the current status for a previously created batch job.
 ---
 
 Fetch the latest upstream batch object for a batch created through `POST /batches`.

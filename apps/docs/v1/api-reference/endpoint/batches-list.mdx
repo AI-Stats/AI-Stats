@@ -1,11 +1,17 @@
 ---
-title: "Batch list (Beta)"
-badge: "Beta"
+title: "List batches"
+sidebarTitle: "List batches"
+tag: "Internal"
 openapi: "GET /batches"
-description: "List owned async batch jobs for the authenticated workspace."
+description: |-
+  <Info>
+  **Internal testing.** The Batch API is available only to enabled workspaces. Requests from other workspaces return `403`, and the API may change before general availability.
+  </Info>
+
+  List owned async batch jobs for the authenticated workspace.
 ---
 
-Returns the authenticated workspace's owned batch jobs from Phaseo' persisted async job store.
+Returns the authenticated workspace's owned batch jobs from Phaseo's persisted async job store.
 
 Use query parameters to narrow the response:
 

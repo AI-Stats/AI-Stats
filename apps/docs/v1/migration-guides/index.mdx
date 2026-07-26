@@ -1,6 +1,7 @@
 ---
 title: "Migration Guides"
 description: "Guides for moving between platforms or upgrading from one model to a newer model."
+icon: "compass"
 ---
 
 # Migration Guides
@@ -10,7 +11,16 @@ Phaseo migration guides cover two different upgrade problems:
 - moving from one platform or gateway to Phaseo
 - moving from an older model release to a newer model on the same platform
 
-## 1. Model migrations
+<Columns cols={2}>
+	<Card title="Model migrations" icon="brain-circuit" href="../model-migrations">
+		Upgrade a model while keeping the surrounding integration broadly the same.
+	</Card>
+	<Card title="Platform migrations" icon="arrow-right-left" href="./assistant">
+		Move an SDK, provider, or gateway integration onto Phaseo.
+	</Card>
+</Columns>
+
+## Model migrations
 
 Use model migrations when the integration stays broadly the same but the model changes underneath it.
 
@@ -33,9 +43,13 @@ Current model migration guides:
 - [Google: Nano Banana 1 to Nano Banana 2](../model-migrations/google-nano-banana-1-to-nano-banana-2)
 - [SpaceXAI: Grok 4.20](../model-migrations/xai-grok-4-20)
 
-## 2. Platform migrations
+## Platform migrations
 
 Use platform migrations when you are changing SDKs, providers, or gateways and need to map your current integration onto Phaseo.
+
+<Card title="Build a migration checklist" icon="wand-sparkles" href="./assistant">
+	Choose your current integration and open the interactive migration assistant.
+</Card>
 
 Current platform migration guides:
 
@@ -48,14 +62,14 @@ Current platform migration guides:
 - [Cloudflare AI Gateway Migration](./from-cloudflare)
 - [Helicone AI Gateway Migration](./from-helicone)
 
-Supporting review:
+Plan and validate the rollout:
 
-- [Gateway Parity Review](./gateway-parity-review)
-- [Feature Parity Matrix](./feature-parity-matrix)
+- [Migration Readiness Review](./gateway-parity-review)
+- [Migration Feature Checklist](./feature-parity-matrix)
 
 ## How to use these guides
 
 1. Identify whether you are changing the platform, the model, or both.
 2. Start with the guide that matches the riskiest part of the migration.
-3. Update request shape before comparing output quality.
+3. Verify request parameters and endpoint behavior before comparing output quality.
 4. Run production-like evals before shifting live traffic.

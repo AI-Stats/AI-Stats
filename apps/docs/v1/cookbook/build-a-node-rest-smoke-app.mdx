@@ -1,9 +1,14 @@
 ---
 title: "Build a Node REST Smoke App"
+icon: "server"
 description: "Use the Node quickstart sample as a walkthrough for a raw HTTP integration and smoke-test script."
 ---
 
 Use this page when you want the smallest possible Node integration and you want to see every HTTP request clearly.
+
+**Goal:** Verify Phaseo health, model discovery, and one generation request using raw HTTP.
+
+**Outcome:** A dependency-light script you can keep as a deployment or integration smoke test.
 
 <Prompt
   description="Build a **Node REST smoke app** against Phaseo using raw HTTP."
@@ -57,6 +62,11 @@ Start here when:
 - you do not want SDK abstractions yet
 - you are building a script, worker, or CLI rather than a web UI
 
+## Prerequisites
+
+- Node.js with built-in `fetch` support
+- a Phaseo API key
+
 ## Run the sample
 
 ```bash
@@ -79,6 +89,13 @@ or:
 ```bash
 npm run start
 ```
+
+## Check your work
+
+- Smoke mode confirms that the API is reachable.
+- Model discovery returns at least one model.
+- The full run prints one successful generation response.
+- Authentication and non-200 responses produce clear terminal errors.
 
 ## What to look at in the code
 

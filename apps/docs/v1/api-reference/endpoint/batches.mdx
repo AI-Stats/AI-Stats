@@ -1,8 +1,14 @@
 ---
-title: "Batches (Beta)"
-badge: "Beta"
+title: "Create a batch"
+sidebarTitle: "Create a batch"
+tag: "Internal"
 openapi: "POST /batches"
-description: "Create an async batch job and attach observability metadata such as session ids and webhooks."
+description: |-
+  <Info>
+  **Internal testing.** The Batch API is available only to enabled workspaces. Requests from other workspaces return `403`, and the API may change before general availability.
+  </Info>
+
+  Create an async batch job and attach observability metadata such as session ids and webhooks.
 ---
 
 Creates an async batch job.

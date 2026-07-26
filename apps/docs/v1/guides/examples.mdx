@@ -1,6 +1,7 @@
 ---
 title: "Examples"
 description: "Copy-paste Phaseo requests, runnable sample projects, and cookbook walkthroughs."
+icon: "code"
 ---
 
 Use this page when you already understand the basics and want working examples to copy into your app.
@@ -136,28 +137,6 @@ response = client.generate_response(
 puts response
 ```
 
-```java Java SDK
-import ai.stats.sdk.Phaseo;
-
-Phaseo client = new Phaseo(System.getenv("PHASEO_API_KEY"));
-
-String body = """
-{
-  "model": "google/gemma-3-27b:free",
-  "input": [
-    {
-      "role": "user",
-      "content": [
-        { "type": "input_text", "text": "Summarize this article in 3 bullet points." }
-      ]
-    }
-  ]
-}
-""";
-
-Object response = client.createResponse(body);
-System.out.println(String.valueOf(response));
-```
 </CodeGroup>
 
 ## Paid chat completion

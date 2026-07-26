@@ -1,9 +1,20 @@
 ---
 title: "Migrating from Vercel AI Gateway"
+sidebarTitle: "Vercel AI Gateway"
 description: "Replace Vercel AI Gateway routing with Phaseo Gateway while preserving AI SDK or OpenAI-compatible application behavior."
+icon: "/icons/brands/vercel.svg"
 ---
 
 If you already use Vercel AI Gateway through the Vercel AI SDK or an OpenAI-compatible client, the safest migration path is to keep your app logic the same and swap only the provider boundary first.
+
+## What changes
+
+| Setting | Before | After |
+| --- | --- | --- |
+| Gateway URL | `https://ai-gateway.vercel.sh/v1` | `https://api.phaseo.app/v1` |
+| API key | Vercel AI Gateway key | `PHASEO_API_KEY` |
+| AI SDK provider | Existing provider setup | `@phaseo/ai-sdk-provider` when using the AI SDK directly |
+| Application flow | Existing generation logic | Keep unchanged for the first migration pass |
 
 ## Before you start
 
