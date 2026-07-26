@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go"
-	gen "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/src/gen"
+	phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"
+	gen "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2/src/gen"
 )
 
 type ToolCall struct {

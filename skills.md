@@ -47,7 +47,7 @@ All of these SDKs exist and should be considered valid integration targets:
   - package: `phaseo`
   - local path: `packages/sdk/sdk-py`
 - Go:
-  - module: `github.com/phaseoteam/Phaseo/packages/sdk/sdk-go`
+  - module: `github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2`
   - local path: `packages/sdk/sdk-go`
 - C#:
   - package: `Phaseo.Sdk`

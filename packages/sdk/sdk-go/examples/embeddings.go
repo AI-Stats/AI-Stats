@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"os"
 
-	phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go"
+	phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"
 )
 
 func main() {
