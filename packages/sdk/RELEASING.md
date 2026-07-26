@@ -83,7 +83,7 @@ General policy:
 - Agent SDKs: `.github/workflows/publish-agent-sdks.yml`
   - Publishes Python, Go, PHP, and Ruby Agent SDKs independently and idempotently
   - Uses the protected `release` environment
-  - Uses OIDC trusted publishing for PyPI, NuGet, and RubyGems
+  - Uses OIDC trusted publishing for PyPI and RubyGems
   - Trusted-publisher identity: repository owner `phaseoteam`, repository `Phaseo`, workflow `publish-agent-sdks.yml`, environment `release`
   - Uses the Phaseo GitHub App for Go tags and the PHP split repository
   - Optional repo variable: `PHP_AGENT_SDK_SPLIT_REPO` (defaults to `phaseoteam/phaseo-php-agent-sdk`)
@@ -98,6 +98,7 @@ General policy:
 - C#: `.github/workflows/publish-sdk-csharp.yml`
   - Publishes base and Agent SDK `.nupkg` and `.snupkg` files to NuGet
   - Uses NuGet trusted publishing (OIDC), no API key secret required
+  - Trusted-publisher identity: package owner `Phaseo`, repository `phaseoteam/Phaseo`, workflow `publish-sdk-csharp.yml`
   - Optional repo variable: `NUGET_TRUSTED_PUBLISHING_USER` (defaults to repo owner)
 
 - Java: `.github/workflows/publish-sdk-java.yml`

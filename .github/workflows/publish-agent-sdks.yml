@@ -201,6 +201,9 @@ jobs:
           client-id: ${{ secrets.PHASEO_APP_CLIENT_ID }}
           private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
           owner: phaseoteam
+          repositories: |
+            Phaseo
+            phaseo-php-agent-sdk
       - name: Resolve GitHub App identity
         id: app-identity
         env:
@@ -286,10 +289,20 @@ jobs:
         run: |
           set -euo pipefail
           version="$(ruby -e 'spec = Gem::Specification.load("packages/sdk/agent-sdk-ruby/phaseo_agent_sdk.gemspec"); abort "invalid gemspec" unless spec; print spec.version')"
-          if curl -fsS "https://rubygems.org/api/v2/rubygems/phaseo_agent_sdk/versions/${version}.json" >/dev/null; then
+          if ! status="$(curl -sS -o /dev/null -w '%{http_code}' \
+            --connect-timeout 10 \
+            --max-time 30 \
+            "https://rubygems.org/api/v2/rubygems/phaseo_agent_sdk/versions/${version}.json")"; then
+            echo "::error::Unable to query RubyGems.org release status."
+            exit 1
+          fi
+          if [ "$status" = "200" ]; then
             should_publish=false
-          else
+          elif [ "$status" = "404" ]; then
             should_publish=true
+          else
+            echo "::error::Unexpected RubyGems.org response: HTTP ${status}"
+            exit 1
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "should_publish=$should_publish" >> "$GITHUB_OUTPUT"
