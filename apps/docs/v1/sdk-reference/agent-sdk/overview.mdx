@@ -57,7 +57,7 @@ TypeScript is the reference API design. Python, Go, C#, PHP, and Ruby expose the
 | Composable stop conditions | Yes | Yes | Yes | Yes | Yes | Yes | Step limit |
 | Dynamic turns and mutable context | Yes | Yes | Yes | Yes | Yes | Yes | Per-run model, step limit, and context |
 | Application-owned persisted run state | Yes | Yes | Yes | Yes | Yes | Yes | Serializable `RunResult` |
-| Normalized usage and cost | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Normalized usage and cost | Yes | Yes | Yes | Yes | Yes | Yes | Tokens; custom-client cost only in `0.1` |
 
 PHP and Ruby expose provider stream events through their normal synchronous iteration APIs. They do not require a hosted runtime or a background Phaseo service.
 

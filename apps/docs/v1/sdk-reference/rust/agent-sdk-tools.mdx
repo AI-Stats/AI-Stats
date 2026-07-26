@@ -64,14 +64,17 @@ Resume by exact call ID:
 ```rust
 use phaseo_agent::{ContinueOptions, ToolDecision};
 
-let call_id = paused.run.pause.as_ref().unwrap()
-    .pending_tool_calls[0].call.id.clone();
+let approvals = paused.run.pause.as_ref().unwrap()
+    .pending_tool_calls
+    .iter()
+    .map(|pending| ToolDecision {
+        tool_call_id: pending.call.id.clone(),
+        reason: Some("Approved by the release operator".to_string()),
+    })
+    .collect();
 
 let mut options = ContinueOptions::new(paused);
-options.approvals.push(ToolDecision {
-    tool_call_id: call_id,
-    reason: Some("Approved by the release operator".to_string()),
-});
+options.approvals = approvals;
 
 let completed = agent.continue_run(&mut client, options)?;
 ```
@@ -101,17 +104,20 @@ The pause kind is `external_output` when every pending call needs an external re
 ```rust
 use phaseo_agent::{ContinueOptions, ToolOutput};
 
-let call_id = paused.run.pause.as_ref().unwrap()
-    .pending_tool_calls[0].call.id.clone();
+let outputs = paused.run.pause.as_ref().unwrap()
+    .pending_tool_calls
+    .iter()
+    .map(|pending| ToolOutput {
+        tool_call_id: pending.call.id.clone(),
+        output: json!({
+            "subject": "Provider latency increased",
+            "priority": "high"
+        }),
+    })
+    .collect();
 
 let mut options = ContinueOptions::new(paused);
-options.tool_outputs.push(ToolOutput {
-    tool_call_id: call_id,
-    output: json!({
-        "subject": "Provider latency increased",
-        "priority": "high"
-    }),
-});
+options.tool_outputs = outputs;
 
 let completed = agent.continue_run(&mut client, options)?;
 ```

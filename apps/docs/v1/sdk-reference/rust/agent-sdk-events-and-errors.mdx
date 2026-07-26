@@ -62,9 +62,11 @@ let definition = AgentDefinition::new(
 - `output_tokens`
 - `cached_tokens`
 - `total_tokens`
-- `cost`
+- `cost`, when the model client populates it
 
 Each `RunStep` also contains its own usage summary, request ID, provider, model, and finish reason.
+
+The built-in `0.1` Gateway adapter does not map Gateway `cost_nanos` or `cost_cents` into `UsageSummary.cost`. Read the Gateway response or generation record when exact spend is required.
 
 ## Errors
 

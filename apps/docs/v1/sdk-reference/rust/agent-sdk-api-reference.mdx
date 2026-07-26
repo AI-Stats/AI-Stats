@@ -151,6 +151,8 @@ Each `PendingToolCall` contains the original `ToolCall`, its required input `kin
 
 `UsageSummary` contains `input_tokens`, `output_tokens`, `cached_tokens`, `total_tokens`, and `cost`.
 
+`cost` is model-client supplied. The built-in `0.1` Gateway adapter does not currently map Gateway `cost_nanos` or `cost_cents` into this field.
+
 `RunResult`, `RunRecord`, `RunStep`, `Message`, `ToolCall`, `HumanPause`, `PendingToolCall`, `ToolDecision`, `ToolOutput`, and `UsageSummary` support Serde serialization where their definitions derive `Serialize` and `Deserialize`.
 
 ## Events and errors

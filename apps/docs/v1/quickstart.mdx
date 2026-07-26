@@ -202,7 +202,7 @@ puts response
 
 ```rust Rust SDK
 use phaseo::Phaseo;
-use serde_json::json;
+use serde_json::{json, Value};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Phaseo::from_env()?;
@@ -212,10 +212,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "temperature": 0
     }))?;
 
-    let assistant_text = response
-        .body
-        .pointer("/output/0/content/0/text")
-        .and_then(|value| value.as_str())
+    let assistant_text = response.body
+        .get("output")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter(|item| item.get("type").and_then(Value::as_str) == Some("message"))
+        .flat_map(|item| {
+            item.get("content")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+        })
+        .find_map(|part| {
+            (part.get("type").and_then(Value::as_str) == Some("output_text"))
+                .then(|| part.get("text").and_then(Value::as_str))
+                .flatten()
+        })
         .unwrap_or("");
 
     println!("{assistant_text}");

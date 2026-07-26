@@ -29,10 +29,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 Responses API output is an array. For a simple text result:
 
 ```rust
-let text = response
-    .body
-    .pointer("/output/0/content/0/text")
-    .and_then(|value| value.as_str());
+use serde_json::Value;
+
+let text = response.body
+    .get("output")
+    .and_then(Value::as_array)
+    .into_iter()
+    .flatten()
+    .filter(|item| item.get("type").and_then(Value::as_str) == Some("message"))
+    .flat_map(|item| {
+        item.get("content")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+    })
+    .find_map(|part| {
+        (part.get("type").and_then(Value::as_str) == Some("output_text"))
+            .then(|| part.get("text").and_then(Value::as_str))
+            .flatten()
+    });
 ```
 
 Keep the full `body` when your request can return multiple messages, reasoning items, tool calls, or provider metadata.

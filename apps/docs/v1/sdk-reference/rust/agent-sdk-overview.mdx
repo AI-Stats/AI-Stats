@@ -18,7 +18,7 @@ The Rust Agent SDK builds on the `phaseo` client and runs model turns through th
 | Human review | Yes, with serializable paused run state |
 | Model retries | Yes, with fixed backoff |
 | Lifecycle events | Yes, through callback-based run methods |
-| Usage aggregation | Input, output, cached, total tokens, and cost |
+| Usage aggregation | Input, output, cached, and total tokens; cost when populated by a custom model client |
 | Run limits | Maximum model steps |
 | Gateway adapter | Responses API through `GatewayAgentClient` |
 | Streaming | Not yet supported |
@@ -41,6 +41,8 @@ Each run:
 4. appends results and continues until completion or the step limit
 
 The SDK does not store runs in a Phaseo-hosted service. Persist `RunResult` in your application when a run must survive a process restart.
+
+The `0.1` Gateway adapter does not currently map Gateway `cost_nanos` or `cost_cents` into `UsageSummary.cost`. Use the Gateway response or generation record for spend reporting rather than the Agent SDK cost field.
 
 <Columns cols={2}>
   <Card title="Install the Agent SDK" icon="package" href="./agent-sdk-installation">
