@@ -650,6 +650,53 @@ describe("OAuth route security", () => {
 		expect(state.registeredClients).toEqual([]);
 	});
 
+	it("narrows full authorization-server scope catalogues to resource-bound MCP scopes", async () => {
+		const { oauthRouter } = await import("./oauth");
+		const response = await oauthRouter.request("https://example.com/register", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				client_name: "Codex",
+				redirect_uris: ["http://127.0.0.1:54709/callback/test"],
+				grant_types: ["authorization_code", "refresh_token"],
+				response_types: ["code"],
+				token_endpoint_auth_method: "none",
+				scope: [
+					"openid",
+					"profile",
+					"email",
+					"gateway:access",
+					"me:read",
+					"models:read",
+					"providers:read",
+					"pricing:read",
+					"credits:read",
+					"activity:read",
+					"analytics:read",
+					"generations:read",
+					"workspaces:read",
+					"workspaces:write",
+					"keys:read",
+					"keys:write",
+				].join(" "),
+			}),
+		});
+
+		expect(response.status).toBe(201);
+		expect(state.registeredClients[0]?.allowed_scopes).toEqual([
+			"models:read",
+			"providers:read",
+			"pricing:read",
+			"credits:read",
+			"activity:read",
+			"analytics:read",
+			"generations:read",
+		]);
+		expect(await response.json()).toMatchObject({
+			scope: "models:read providers:read pricing:read credits:read activity:read analytics:read generations:read",
+		});
+	});
+
 	it("defaults dynamic MCP registration to read-only scopes", async () => {
 		const { oauthRouter } = await import("./oauth");
 		const response = await oauthRouter.request("https://example.com/register", {
