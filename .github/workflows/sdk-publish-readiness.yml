@@ -127,18 +127,17 @@ jobs:
         run: |
           composer validate --strict
           php tests/lifecycle_test.php
-      - name: Check Packagist secrets
+      - name: Check optional Packagist refresh credentials
         if: inputs.checkSecrets
         env:
           PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
           PACKAGIST_MAIN_TOKEN: ${{ secrets.PACKAGIST_MAIN_TOKEN }}
-          PHP_SDK_SPLIT_REPO_TOKEN: ${{ secrets.PHP_SDK_SPLIT_REPO_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
-          [ -n "${PACKAGIST_USERNAME:-}" ] || { echo "::error::Missing PACKAGIST_USERNAME"; exit 1; }
-          [ -n "${PACKAGIST_MAIN_TOKEN:-}" ] || { echo "::error::Missing PACKAGIST_MAIN_TOKEN"; exit 1; }
-          [ -n "${PHP_SDK_SPLIT_REPO_TOKEN:-}" ] || { echo "::error::Missing PHP_SDK_SPLIT_REPO_TOKEN"; exit 1; }
+          if [ -z "${PACKAGIST_USERNAME:-}" ] || [ -z "${PACKAGIST_MAIN_TOKEN:-}" ]; then
+            echo "Packagist API refresh credentials are not set; publishing will rely on the repository webhook."
+          fi
 
   ruby:
     name: Ruby readiness
@@ -154,11 +153,6 @@ jobs:
         run: |
           ruby tests/lifecycle_test.rb
           gem build phaseo_sdk.gemspec
-      - name: Check RubyGems secret
+      - name: Trusted publishing note
         if: inputs.checkSecrets
-        env:
-          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          [ -n "${RUBYGEMS_API_KEY:-}" ] || { echo "::error::Missing RUBYGEMS_API_KEY"; exit 1; }
+        run: echo "RubyGems publishing uses OIDC; verify the pending/existing trusted publisher in RubyGems.org."

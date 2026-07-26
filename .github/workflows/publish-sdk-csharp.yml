@@ -1,6 +1,11 @@
 name: Publish C# SDK
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/sdk/sdk-csharp/package.json"
   workflow_dispatch:
     inputs:
       version:
@@ -15,6 +20,7 @@ permissions:
 jobs:
   publish-csharp:
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: Require main branch
         shell: bash
@@ -45,10 +51,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ -n "${INPUT_VERSION:-}" ]; then
-            version="${INPUT_VERSION}"
-          else
-            version="$(node -p "require('./packages/sdk/sdk-csharp/package.json').version")"
+          version="$(node -p "require('./packages/sdk/sdk-csharp/package.json').version")"
+          if [ -n "${INPUT_VERSION:-}" ] && [ "${INPUT_VERSION}" != "${version}" ]; then
+            echo "::error::Requested version ${INPUT_VERSION} does not match committed version ${version}."
+            exit 1
           fi
           if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
             echo "::error::Invalid version: $version"
