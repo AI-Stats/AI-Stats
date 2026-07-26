@@ -23,6 +23,7 @@ import {
 	normalizeDataContributionPolicy,
 	persistDataContribution,
 } from "../classification/data-contribution";
+import { currentDataContributionDiscountNanos } from "../pricing/data-contribution-discount";
 
 function getProviderAttempts(ctx: PipelineContext): Array<Record<string, unknown>> {
     return Array.isArray(ctx.providerAttempts) ? ctx.providerAttempts : [];
@@ -633,6 +634,7 @@ export async function handleSuccessAudit(
 
 	if (!byok && ctx.teamSettings?.dataContributionEnabled === true) {
 		const pricing = (usageWithMultimodal as any)?.pricing;
+		const currentDiscountNanos = currentDataContributionDiscountNanos(pricing, totalNanos);
 		await persistDataContribution({
 			requestId: ctx.requestId,
 			workspaceId: ctx.workspaceId,
@@ -642,7 +644,7 @@ export async function handleSuccessAudit(
 			requestPayload: ctx.rawBody ?? ctx.body ?? null,
 			gatewayResponse: gatewayResponse ?? null,
 			usage: usageWithMultimodal,
-			discountNanos: Number(pricing?.data_contribution_discount_nanos ?? 0),
+			discountNanos: currentDiscountNanos,
 			policy: normalizeDataContributionPolicy(ctx.teamSettings),
 		});
 	}

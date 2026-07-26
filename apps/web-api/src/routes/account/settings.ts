@@ -219,7 +219,7 @@ accountSettingsRouter.get("/privacy", async (c) => {
 		context.client.from("workspace_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed").eq("workspace_id", workspaceId).maybeSingle(),
 		context.client.from("data_api_providers").select("api_provider_id,api_provider_name,offer_label,offer_scope").order("api_provider_name", { ascending: true }),
 		context.client.from("data_api_provider_models").select("provider_id,api_model_id,internal_model_id,is_active_gateway").eq("is_active_gateway", true),
-		callDataContributionGateway({ env: c.env, request: c.req.raw }),
+		callDataContributionGateway({ env: c.env, request: c.req.raw, workspaceId: context.workspaceId }),
 	]);
 	for (const result of [teamResult, settingsResult, providersResult, modelsResult]) {
 		if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);

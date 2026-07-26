@@ -18,6 +18,7 @@ function gatewayOrigin(env: Env): string {
 export async function callDataContributionGateway(args: {
 	env: Env;
 	request: Request;
+	workspaceId: string;
 	method?: string;
 	path?: string;
 	body?: unknown;
@@ -31,6 +32,7 @@ export async function callDataContributionGateway(args: {
 				method: args.method ?? "GET",
 				headers: {
 					authorization,
+					"x-phaseo-workspace-id": args.workspaceId,
 					...(args.body === undefined ? {} : { "Content-Type": "application/json" }),
 				},
 				body: args.body === undefined ? undefined : JSON.stringify(args.body),
@@ -59,6 +61,7 @@ accountSettingsDataContributionRouter.put("/data-contribution", async (c) => {
 	const result = await callDataContributionGateway({
 		env: c.env,
 		request: c.req.raw,
+		workspaceId: String(body.workspaceId ?? ""),
 		method: "PATCH",
 		path: "/consent",
 		body: { enabled: body.enabled, reason: body.reason },
@@ -69,7 +72,7 @@ accountSettingsDataContributionRouter.put("/data-contribution", async (c) => {
 
 accountSettingsDataContributionRouter.post("/data-contribution/classifiers", async (c) => {
 	const body = await c.req.json<Record<string, unknown>>().catch(() => ({} as Record<string, unknown>));
-	const result = await callDataContributionGateway({ env: c.env, request: c.req.raw, method: "POST", path: "/classifiers", body });
+	const result = await callDataContributionGateway({ env: c.env, request: c.req.raw, workspaceId: String(body.workspaceId ?? ""), method: "POST", path: "/classifiers", body });
 	if (result.status < 200 || result.status >= 300) return proxyError(c, result);
 	return c.json({ classifier: result.payload?.data ?? null }, 201, PRIVATE_NO_STORE_HEADERS);
 });
@@ -79,6 +82,7 @@ accountSettingsDataContributionRouter.put("/data-contribution/classifiers/:id", 
 	const result = await callDataContributionGateway({
 		env: c.env,
 		request: c.req.raw,
+		workspaceId: String(body.workspaceId ?? ""),
 		method: "PATCH",
 		path: `/classifiers/${encodeURIComponent(c.req.param("id"))}`,
 		body,
@@ -88,9 +92,11 @@ accountSettingsDataContributionRouter.put("/data-contribution/classifiers/:id", 
 });
 
 accountSettingsDataContributionRouter.delete("/data-contribution/classifiers/:id", async (c) => {
+	const body = await c.req.json<Record<string, unknown>>().catch(() => ({} as Record<string, unknown>));
 	const result = await callDataContributionGateway({
 		env: c.env,
 		request: c.req.raw,
+		workspaceId: String(body.workspaceId ?? ""),
 		method: "DELETE",
 		path: `/classifiers/${encodeURIComponent(c.req.param("id"))}`,
 	});

@@ -3,6 +3,8 @@ import type { Env } from "@/runtime/types";
 import { getSupabaseAdmin } from "@/runtime/env";
 import { setKeyVersion } from "@/core/kv";
 import { isDataContributionAccessEnabled } from "@/core/feature-flags";
+import { getSupabaseActor } from "@/lib/oauth/service";
+import type { AuthSuccess } from "@/pipeline/before/auth";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { json, withRuntime } from "@/routes/utils";
@@ -50,7 +52,82 @@ async function auditConsentDenial(auth: {
 	}
 }
 
+function bearerToken(req: Request): string | null {
+	const authorization = req.headers.get("authorization")?.trim() ?? "";
+	if (!authorization.toLowerCase().startsWith("bearer ")) return null;
+	return authorization.slice(7).trim() || null;
+}
+
+async function requireAdminPreview(
+	auth: AuthSuccess,
+	auditConsentDenials: boolean,
+): Promise<AuthSuccess | Response> {
+	const userId = auth.userId?.trim();
+	if (!userId) {
+		if (auditConsentDenials) await auditConsentDenial(auth, "admin_preview_only");
+		return json({ error: "not_found" }, 404, { "Cache-Control": "no-store" });
+	}
+	const roleResult = await getSupabaseAdmin().from("users")
+		.select("role").eq("user_id", userId).maybeSingle();
+	const isPhaseoAdmin = !roleResult.error && String(roleResult.data?.role ?? "").toLowerCase() === "admin";
+	const featureEnabled = isPhaseoAdmin && await isDataContributionAccessEnabled({
+		workspaceId: auth.workspaceId,
+		apiKeyId: auth.apiKeyId,
+		apiKeyRef: auth.apiKeyRef,
+		apiKeyKid: auth.apiKeyKid,
+		userId,
+		internal: auth.internal,
+	});
+	if (!featureEnabled) {
+		if (auditConsentDenials) await auditConsentDenial(auth, "feature_flag_disabled");
+		return json({ error: "not_found" }, 404, { "Cache-Control": "no-store" });
+	}
+	return auth;
+}
+
+export async function authenticateDashboardDataContribution(
+	req: Request,
+	auditConsentDenials: boolean,
+): Promise<AuthSuccess | Response | null> {
+	const workspaceId = req.headers.get("x-phaseo-workspace-id")?.trim();
+	if (!workspaceId) return null;
+	const token = bearerToken(req);
+	const actor = token ? await getSupabaseActor(token) : null;
+	if (!actor) return json({ error: "unauthorized" }, 401, { "Cache-Control": "no-store" });
+	const client = getSupabaseAdmin();
+	const [membership, workspace] = await Promise.all([
+		client.from("workspace_members").select("role")
+			.eq("workspace_id", workspaceId).eq("user_id", actor.userId).maybeSingle(),
+		client.from("workspaces").select("owner_user_id").eq("id", workspaceId).maybeSingle(),
+	]);
+	if (membership.error || workspace.error || !workspace.data) {
+		return json({ error: "forbidden" }, 403, { "Cache-Control": "no-store" });
+	}
+	const workspaceRole = workspace.data.owner_user_id === actor.userId
+		? "owner"
+		: String(membership.data?.role ?? "").toLowerCase();
+	const auth: AuthSuccess = {
+		ok: true,
+		workspaceId,
+		apiKeyId: `dashboard:${actor.userId}`,
+		apiKeyRef: "dashboard",
+		apiKeyKid: "dashboard",
+		userId: actor.userId,
+		internal: false,
+		authMethod: "oauth",
+		oauthScopes: [CAPABILITIES.SETTINGS_READ, CAPABILITIES.SETTINGS_WRITE],
+		scopes: [CAPABILITIES.SETTINGS_READ, CAPABILITIES.SETTINGS_WRITE],
+	};
+	if (!["owner", "admin"].includes(workspaceRole)) {
+		if (auditConsentDenials) await auditConsentDenial(auth, "insufficient_workspace_role");
+		return json({ error: "forbidden" }, 403, { "Cache-Control": "no-store" });
+	}
+	return requireAdminPreview(auth, auditConsentDenials);
+}
+
 async function authenticate(req: Request, write = false, auditConsentDenials = false) {
+	const dashboardAuth = await authenticateDashboardDataContribution(req, auditConsentDenials);
+	if (dashboardAuth) return dashboardAuth;
 	const auth = await guardManagementAuth(req, { useKvCache: false });
 	if (!auth.ok) return (auth as GuardErr).response;
 	const scopeError = requireCapability(
@@ -70,27 +147,7 @@ async function authenticate(req: Request, write = false, auditConsentDenials = f
 		if (auditConsentDenials) await auditConsentDenial(auth.value, "insufficient_workspace_role");
 		return roleError;
 	}
-	const userId = auth.value.authMethod === "oauth" ? auth.value.userId?.trim() : null;
-	if (!userId) {
-		if (auditConsentDenials) await auditConsentDenial(auth.value, "admin_preview_only");
-		return json({ error: "not_found" }, 404, { "Cache-Control": "no-store" });
-	}
-	const roleResult = await getSupabaseAdmin().from("users")
-		.select("role").eq("user_id", userId).maybeSingle();
-	const isPhaseoAdmin = !roleResult.error && String(roleResult.data?.role ?? "").toLowerCase() === "admin";
-	const featureEnabled = isPhaseoAdmin && await isDataContributionAccessEnabled({
-		workspaceId: auth.value.workspaceId,
-		apiKeyId: auth.value.apiKeyId,
-		apiKeyRef: auth.value.apiKeyRef,
-		apiKeyKid: auth.value.apiKeyKid,
-		userId,
-		internal: auth.value.internal,
-	});
-	if (!featureEnabled) {
-		if (auditConsentDenials) await auditConsentDenial(auth.value, "feature_flag_disabled");
-		return json({ error: "not_found" }, 404, { "Cache-Control": "no-store" });
-	}
-	return auth.value;
+	return requireAdminPreview({ ok: true, ...auth.value }, auditConsentDenials);
 }
 
 async function invalidateWorkspaceKeys(workspaceId: string): Promise<void> {

@@ -10,6 +10,7 @@ describe("data contribution gateway proxy", () => {
 		await expect(callDataContributionGateway({
 			env: { ENV: "production" },
 			request: new Request("https://phaseo.app/api/account/settings/privacy"),
+			workspaceId: "workspace-preview",
 		})).resolves.toEqual({ status: 401, payload: { error: "unauthorized" } });
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
@@ -23,12 +24,16 @@ describe("data contribution gateway proxy", () => {
 		await expect(callDataContributionGateway({
 			env: { ENV: "production", AI_STATS_GATEWAY_URL: "https://api.phaseo.app/" },
 			request,
+			workspaceId: "workspace-preview",
 		})).resolves.toEqual({ status: 404, payload: { error: "not_found" } });
 		expect(fetchMock).toHaveBeenCalledWith(
 			"https://api.phaseo.app/v1/data-contribution",
 			expect.objectContaining({
 				method: "GET",
-				headers: expect.objectContaining({ authorization: "Bearer oauth-token" }),
+				headers: expect.objectContaining({
+					authorization: "Bearer oauth-token",
+					"x-phaseo-workspace-id": "workspace-preview",
+				}),
 			}),
 		);
 	});

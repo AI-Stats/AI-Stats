@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { applyDataContributionDiscount } from "./data-contribution-discount";
+import {
+	applyDataContributionDiscount,
+	currentDataContributionDiscountNanos,
+} from "./data-contribution-discount";
 
 describe("applyDataContributionDiscount", () => {
 	it("applies a visible one percent discount and snapshots it on pricing lines", () => {
@@ -48,5 +51,14 @@ describe("applyDataContributionDiscount", () => {
 		});
 		expect(result.discountNanos).toBe(10);
 		expect(result.pricedUsage.pricing.lines.reduce((sum: number, line: any) => sum + line.line_nanos, 0)).toBe(result.totalNanos);
+	});
+
+	it("does not reuse a cached generation discount on a free cache hit", () => {
+		expect(currentDataContributionDiscountNanos({
+			data_contribution_discount_nanos: 10_000_000,
+		}, 0)).toBe(0);
+		expect(currentDataContributionDiscountNanos({
+			data_contribution_discount_nanos: 10_000_000,
+		}, 990_000_000)).toBe(10_000_000);
 	});
 });

@@ -13,6 +13,15 @@ function boundedBasisPoints(value: unknown, fallback: number): number {
 	return Math.max(0, Math.min(10_000, Math.trunc(numeric)));
 }
 
+export function currentDataContributionDiscountNanos(
+	pricing: unknown,
+	currentTotalNanos: number,
+): number {
+	if (!(Number(currentTotalNanos) > 0)) return 0;
+	const value = Number((pricing as { data_contribution_discount_nanos?: unknown } | null)?.data_contribution_discount_nanos);
+	return Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
+}
+
 /**
  * Applies the contribution discount after provider pricing and before wallet
  * charging. BYOK requests are excluded because their charge is a service fee,
