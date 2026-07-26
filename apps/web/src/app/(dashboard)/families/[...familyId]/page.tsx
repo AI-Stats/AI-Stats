@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
 	ArrowLeft,
+	ArrowRight,
 	ArrowUpRight,
 	Building2,
 	CalendarDays,
@@ -72,14 +73,14 @@ function getReleaseSpan(members: FamilyModelItem[]) {
 		.map(getMemberDate)
 		.filter((date): date is Date => Boolean(date))
 		.sort((left, right) => left.getTime() - right.getTime());
-	if (!dates.length) return "Dates pending";
+	if (!dates.length) return null;
 
 	const first = dates[0];
 	const last = dates[dates.length - 1];
-	if (!first || !last) return "Dates pending";
+	if (!first || !last) return null;
 	const firstLabel = monthYearFormatter.format(first);
 	const lastLabel = monthYearFormatter.format(last);
-	return firstLabel === lastLabel ? firstLabel : `${firstLabel} — ${lastLabel}`;
+	return { firstLabel, lastLabel };
 }
 
 async function fetchFamily(familyId: string) {
@@ -176,9 +177,6 @@ export default async function Page({
 							<h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
 								{family.family_name}
 							</h1>
-							<p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-								Follow the releases in this family from the latest variant back through its history.
-							</p>
 							{primaryOrganisationId ? (
 								<Link
 									href={`/organisations/${primaryOrganisationId}`}
@@ -196,13 +194,31 @@ export default async function Page({
 							{ label: "Models", value: String(members.length) },
 							{ label: "Available", value: String(availableCount) },
 							{ label: "Creators", value: String(organisationCount) },
-							{ label: "Release span", value: releaseSpan },
+							{
+								label: "Release span",
+								value: releaseSpan ? (
+									<span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+										{releaseSpan.firstLabel}
+										{releaseSpan.firstLabel !== releaseSpan.lastLabel ? (
+											<>
+												<ArrowRight
+													className="size-3.5 shrink-0 text-muted-foreground"
+													aria-hidden="true"
+												/>
+												{releaseSpan.lastLabel}
+											</>
+										) : null}
+									</span>
+								) : (
+									"Dates pending"
+								),
+							},
 						].map((stat) => (
 							<div
 								key={stat.label}
 								className="border-b border-r border-border/70 px-4 py-3 even:border-r-0 [&:nth-child(n+3)]:border-b-0"
 							>
-								<dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+								<dt className="text-xs font-medium text-muted-foreground">
 									{stat.label}
 								</dt>
 								<dd className="mt-2 text-sm font-semibold text-foreground">
@@ -216,12 +232,9 @@ export default async function Page({
 				<section className="py-8 md:py-10" aria-labelledby="family-members-heading">
 					<div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
 						<div>
-							<p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-								Release history
-							</p>
 							<h2
 								id="family-members-heading"
-								className="mt-1.5 text-xl font-semibold tracking-tight md:text-2xl"
+								className="text-xl font-semibold tracking-tight md:text-2xl"
 							>
 								Family members
 							</h2>
