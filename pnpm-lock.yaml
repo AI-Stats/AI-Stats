@@ -957,6 +957,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
 
+  packages/sdk/agent-sdk-rust: {}
+
   packages/sdk/agent-sdk-ts:
     dependencies:
       '@phaseo/sdk':

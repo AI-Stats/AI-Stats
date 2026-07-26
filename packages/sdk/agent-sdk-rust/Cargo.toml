@@ -1,0 +1,21 @@
+[package]
+name = "phaseo-agent"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.86"
+description = "Agent runtime for Phaseo Gateway"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/phaseoteam/Phaseo"
+homepage = "https://phaseo.app"
+documentation = "https://docs.rs/phaseo-agent"
+keywords = ["ai", "agents", "llm", "gateway", "phaseo"]
+categories = ["api-bindings", "web-programming::http-client"]
+
+[dependencies]
+phaseo = { version = "0.1.0", path = "../sdk-rust" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+serde_json = "1.0"

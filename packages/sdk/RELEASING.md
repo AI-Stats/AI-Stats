@@ -3,10 +3,10 @@
 This repo uses a hybrid release model:
 
 - TypeScript, TypeScript Agent SDK, and Python are auto-released from CI.
-- Python, Go, PHP, and Ruby Agent SDKs publish through the dedicated Agent SDK workflow; C# shares the existing trusted NuGet workflow.
+- Python, Go, PHP, and Ruby Agent SDKs publish through the dedicated Agent SDK workflow; C# shares the existing trusted NuGet workflow; Rust uses its own ordered crates.io workflow.
 - Go/C#/Java/PHP/Ruby publish automatically when their committed package version changes on `main`.
 - Their workflows also support manual dispatch for safe, idempotent recovery.
-- C++/Rust remain excluded until functional end-to-end.
+- C++ remains excluded until functional end-to-end; Java remains a work in progress until Maven Central credentials are configured.
 - Manual SDK release readiness can be checked with `.github/workflows/sdk-publish-readiness.yml`.
 
 ## Canonical Distribution Targets
@@ -24,6 +24,8 @@ This repo uses a hybrid release model:
 - PHP Agent SDK (`phaseo/agent-sdk`) -> Packagist
 - Ruby (`phaseo_sdk`) -> RubyGems
 - Ruby Agent SDK (`phaseo_agent_sdk`) -> RubyGems
+- Rust (`phaseo`) -> crates.io
+- Rust Agent SDK (`phaseo-agent`) -> crates.io
 
 ## Auto Release (TS/Python)
 
@@ -88,6 +90,12 @@ General policy:
   - Uses the Phaseo GitHub App for Go tags and the PHP split repository
   - Refreshes `phaseo/agent-sdk` on Packagist with the required `PACKAGIST_USERNAME` and `PACKAGIST_SAFE_TOKEN` release-environment secrets
   - Optional repo variable: `PHP_AGENT_SDK_SPLIT_REPO` (defaults to `phaseoteam/phaseo-php-agent-sdk`)
+
+- Rust: `.github/workflows/publish-sdk-rust.yml`
+  - Publishes `phaseo` before the dependent `phaseo-agent` crate
+  - Uses crates.io trusted publishing with repository `phaseoteam/Phaseo`, workflow `publish-sdk-rust.yml`, and environment `release`
+  - Uses the temporary `CRATES_IO_BOOTSTRAP_TOKEN` release secret only for the first publication; remove it after trusted publishing is configured
+  - Creates monorepo tags `packages/sdk/sdk-rust/vX.Y.Z` and `packages/sdk/agent-sdk-rust/vX.Y.Z`
 
 - First npm publish / bootstrap: `.github/workflows/npm-bootstrap-publish.yml`
   - Supports `@phaseo/agent-sdk`, `@phaseo/ai-sdk-provider`, and `@phaseo/devtools-viewer`

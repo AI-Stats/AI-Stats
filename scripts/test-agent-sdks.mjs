@@ -45,6 +45,13 @@ const suites = {
 		],
 	},
 	ruby: { name: "Ruby Agent SDK", steps: [{ command: "ruby", args: ["-Ilib", "-Itests", "tests/agent_loop_test.rb"], cwd: "packages/sdk/agent-sdk-ruby" }] },
+	rust: {
+		name: "Rust Agent SDK",
+		steps: [
+			{ command: "cargo", args: ["test", "--all-targets"], cwd: "packages/sdk/agent-sdk-rust" },
+			{ command: "cargo", args: ["clippy", "--all-targets", "--", "-D", "warnings"], cwd: "packages/sdk/agent-sdk-rust" },
+		],
+	},
 };
 
 const requested = process.argv.slice(2).flatMap((arg) => arg.split(",")).map((arg) => arg.trim()).filter(Boolean);
