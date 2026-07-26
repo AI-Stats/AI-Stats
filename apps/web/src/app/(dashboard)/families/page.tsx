@@ -72,8 +72,15 @@ async function FamiliesSection() {
 									) : null}
 								</div>
 							</div>
-							<span className="min-w-0 flex-1 truncate text-sm font-semibold">
-								{family.family_name}
+							<span className="min-w-0 flex-1 truncate">
+								<span className="text-sm font-semibold">
+									{family.family_name}
+								</span>
+								{family.organisation_id ? (
+									<span className="ml-1.5 text-xs font-normal text-muted-foreground">
+										by {family.organisation_id}
+									</span>
+								) : null}
 							</span>
 							<ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
 						</Link>
