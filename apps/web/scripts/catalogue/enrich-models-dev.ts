@@ -120,7 +120,10 @@ export function modelsDevMeters(model: SourceModel): Record<string, number> | nu
 }
 
 function isSimplePricing(value: JsonObject): boolean {
-	return Array.isArray(value.rules) && value.rules.every((rule: JsonObject) =>
+	if (!Array.isArray(value.rules)) return false;
+	const meters = value.rules.map((rule: JsonObject) => slug(rule?.meter));
+	if (meters.some((meter: string) => !meter) || new Set(meters).size !== meters.length) return false;
+	return value.rules.every((rule: JsonObject) =>
 		rule?.pricing_plan === "standard"
 		&& (!Array.isArray(rule.match) || rule.match.length === 0)
 		&& (!Array.isArray(rule.conditions) || rule.conditions.length === 0)

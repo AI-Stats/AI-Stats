@@ -142,12 +142,26 @@ jobs:
                   gh label create model-sync --color 1D76DB --description "Automated provider model and pricing sync" --force
                   gh label create "provider:${{ matrix.provider }}" --color C5DEF5 --description "Provider-specific catalog change" --force
 
+            - name: Resolve provider branch
+              id: sync-branch
+              env:
+                  GH_TOKEN: ${{ steps.app-token.outputs.token }}
+                  PROVIDER: ${{ matrix.provider }}
+              shell: bash
+              run: |
+                  prefix="automation/provider-catalog-$PROVIDER"
+                  branch="$(gh pr list --state open --json headRefName --jq ".[] | select(.headRefName | startswith(\"$prefix-\")) | .headRefName" | head -n 1)"
+                  if [[ -z "$branch" ]]; then
+                    branch="$prefix-$GITHUB_RUN_ID"
+                  fi
+                  echo "branch=$branch" >> "$GITHUB_OUTPUT"
+
             - name: Create or update provider pull request
               id: pull-request
               uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1
               with:
                   token: ${{ steps.app-token.outputs.token }}
-                  branch: automation/provider-catalog-${{ matrix.provider }}
+                  branch: ${{ steps.sync-branch.outputs.branch }}
                   base: main
                   delete-branch: false
                   draft: true

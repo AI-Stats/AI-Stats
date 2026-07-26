@@ -34,8 +34,6 @@ const PROVIDER_ALIASES: Record<string, string> = {
 	"moonshotai": "moonshotai",
 	"moonshotai-turbo": "moonshotai-turbo",
 	"novitaai": "novita",
-	"spacex-ai": "xai",
-	"weights-and-biases": "wandb",
 };
 
 const DATA_ROOT = path.resolve(process.cwd(), "../../packages/data/catalog/src/data");
@@ -120,7 +118,10 @@ function primaryCapability(model: JsonObject): string {
 }
 
 export function safePricingRules(pricing: JsonObject): boolean {
-	return Array.isArray(pricing.rules) && pricing.rules.every((rule: JsonObject) =>
+	if (!Array.isArray(pricing.rules)) return false;
+	const meters = pricing.rules.map((rule: JsonObject) => normalized(rule?.meter));
+	if (meters.some((meter: string) => !meter) || new Set(meters).size !== meters.length) return false;
+	return pricing.rules.every((rule: JsonObject) =>
 		rule?.pricing_plan === "standard"
 		&& (!Array.isArray(rule.match) || rule.match.length === 0)
 		&& (!Array.isArray(rule.conditions) || rule.conditions.length === 0)

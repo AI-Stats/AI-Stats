@@ -39,6 +39,15 @@ describe("provider discovery catalog sync", () => {
 			rules: [{ pricing_plan: "standard", match: [{ path: "input_tokens", op: "gte", value: 200_000 }] }],
 		})).toBe(false);
 	});
+
+	test("rejects multiple active rules for the same meter", () => {
+		expect(safePricingRules({
+			rules: [
+				{ meter: "input_text_tokens", pricing_plan: "standard", match: [], conditions: [] },
+				{ meter: "input_text_tokens", pricing_plan: "standard", match: [], conditions: [], priority: 90 },
+			],
+		})).toBe(false);
+	});
 });
 
 describe("models.dev pricing enrichment", () => {
@@ -57,5 +66,16 @@ describe("models.dev pricing enrichment", () => {
 			rules: [{ pricing_plan: "standard", match: [{ path: "input_tokens", op: "gte", value: 200_000 }] }],
 		};
 		expect(mergeModelsDevPricing(pricing, { input_text_tokens: 1 }, "2026-07-26T00:00:00Z")).toBe(false);
+	});
+
+	test("does not partially overwrite duplicate-meter pricing", () => {
+		const pricing = {
+			rules: [
+				{ meter: "input_text_tokens", pricing_plan: "standard", price_per_unit: 1, match: [], conditions: [] },
+				{ meter: "input_text_tokens", pricing_plan: "standard", price_per_unit: 2, match: [], conditions: [] },
+			],
+		};
+		expect(mergeModelsDevPricing(pricing, { input_text_tokens: 3 }, "2026-07-26T00:00:00Z")).toBe(false);
+		expect(pricing.rules.map((rule) => rule.price_per_unit)).toEqual([1, 2]);
 	});
 });
