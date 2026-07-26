@@ -3,11 +3,70 @@ import {
 	computeAdaptiveTtlForDynamic,
 	computeStaticTtl,
 	hasConfiguredKeyLimits,
+	mergeCachedContext,
 	normalizeCapabilityStatus,
 	normalizeProviderStatus,
 	normalizeRoutingStatus,
+	splitContextForCache,
 	supportsEndpointViaModalities,
 } from "./context.shared";
+
+describe("credit cache composition", () => {
+	const teamEnrichment = {
+		tier: "basic",
+		created_at: "2026-01-01T00:00:00.000Z",
+		account_age_days: 1,
+		balance_nanos: 5_000_000_000,
+		balance_usd: 5,
+		balance_is_low: false,
+		total_requests: 1,
+		total_spend_nanos: 1,
+		total_spend_usd: 0,
+		spend_24h_nanos: 1,
+		spend_24h_usd: 0,
+		spend_7d_nanos: 1,
+		spend_7d_usd: 0,
+		spend_30d_nanos: 1,
+		spend_30d_usd: 0,
+		requests_1h: 1,
+		requests_24h: 1,
+	};
+
+	it("keeps observational team enrichment in dynamic context", () => {
+		const split = splitContextForCache({
+			workspaceId: "workspace_123",
+			key: { ok: true, reason: null, resetAt: null },
+			keyLimit: { ok: true, reason: null, resetAt: null },
+			credit: { ok: true, reason: null, resetAt: null, balanceNanos: 5_000_000_000 },
+			providers: [],
+			pricing: {},
+			teamEnrichment,
+		} as any);
+
+		expect(split.dynamic.teamEnrichment).toEqual(teamEnrichment);
+	});
+
+	it("does not fall back to stale credit embedded in a legacy dynamic entry", () => {
+		expect(() => mergeCachedContext({
+			dynamic: {
+				workspaceId: "workspace_123",
+				key: { ok: true, reason: null, resetAt: null },
+				keyLimit: { ok: true, reason: null, resetAt: null },
+				credit: { ok: true, reason: null, resetAt: null, balanceNanos: 5_000_000_000 },
+			},
+			static: {
+				workspaceId: "workspace_123",
+				resolvedModel: "openai/gpt-5.4-nano",
+				preset: null,
+				providers: [],
+				pricing: {},
+				testingMode: false,
+			},
+			credit: null,
+			endpoint: "chat.completions",
+		})).toThrow("gateway_context_credit_cache_missing");
+	});
+});
 
 describe("key limit cache policy", () => {
 	it("detects request and spend caps across every supported window", () => {

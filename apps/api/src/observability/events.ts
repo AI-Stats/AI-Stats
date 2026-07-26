@@ -1340,6 +1340,7 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
             before_context_cache_status: ctx?.meta?.beforeContextCacheStatus ?? null,
             before_context_key_version_ms: toNum(ctx?.meta?.beforeContextKeyVersionMs),
             before_context_cache_read_ms: toNum(ctx?.meta?.beforeContextCacheReadMs),
+            before_context_credit_refresh_ms: toNum(ctx?.meta?.beforeContextCreditRefreshMs),
             before_context_rpc_ms: toNum(ctx?.meta?.beforeContextRpcMs),
             before_context_enrich_ms: toNum(ctx?.meta?.beforeContextEnrichMs),
             before_context_cache_write_ms: toNum(ctx?.meta?.beforeContextCacheWriteMs),
