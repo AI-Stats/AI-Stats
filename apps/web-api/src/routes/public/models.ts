@@ -126,6 +126,56 @@ function normaliseGatewayStatus(value: unknown, isActive: unknown): string {
 	return isActive ? "active" : "inactive";
 }
 
+function mergeStandardPricingAvailability(
+	providers: Array<Record<string, unknown>>,
+	standardProviders: Array<Record<string, unknown>>,
+): Array<Record<string, unknown>> {
+	const standardByProviderId = new Map(
+		standardProviders.flatMap((entry) => {
+			const provider = entry.provider as Record<string, unknown> | null;
+			const providerId = String(provider?.api_provider_id ?? "").trim();
+			return providerId ? [[providerId, entry] as const] : [];
+		}),
+	);
+
+	return providers.map((entry) => {
+		const provider = entry.provider as Record<string, unknown> | null;
+		const providerId = String(provider?.api_provider_id ?? "").trim();
+		const standardEntry = standardByProviderId.get(providerId);
+		if (!standardEntry) return entry;
+		const standardProvider = standardEntry.provider as Record<string, unknown> | null;
+		const standardModels = Array.isArray(standardEntry.provider_models)
+			? standardEntry.provider_models as Array<Record<string, unknown>>
+			: [];
+		const standardModelByKey = new Map(standardModels.map((model) => [
+			`${String(model.id ?? "")}::${String(model.endpoint ?? "")}`,
+			model,
+		]));
+		const providerModels = Array.isArray(entry.provider_models)
+			? (entry.provider_models as Array<Record<string, unknown>>).map((model) => {
+				const standardModel = standardModelByKey.get(
+					`${String(model.id ?? "")}::${String(model.endpoint ?? "")}`,
+				);
+				return standardModel ? {
+					...model,
+					is_active_gateway: standardModel.is_active_gateway,
+					routing_status: standardModel.routing_status,
+					capability_status: standardModel.capability_status,
+				} : model;
+			})
+			: entry.provider_models;
+		return {
+			...entry,
+			provider: standardProvider ? {
+				...provider,
+				status: standardProvider.status,
+				routing_status: standardProvider.routing_status,
+			} : provider,
+			provider_models: providerModels,
+		};
+	});
+}
+
 function collectJsonTokens(value: unknown, tokens: string[] = []): string[] {
 	if (Array.isArray(value)) {
 		for (const item of value) collectJsonTokens(item, tokens);
@@ -301,7 +351,7 @@ async function fetchProviderStatuses(env: Env, providerIds: string[]) {
 
 export async function fetchGatewayMonitorRows(
 	env: Env,
-	_catalogueVersion: ModelsCatalogueVersion = "v1",
+	_catalogueVersion: ModelsCatalogueVersion = "v2",
 ): Promise<Map<string, Record<string, unknown>[]>> {
 	const client = getDataClient(env);
 	const rows: Record<string, unknown>[] = [];
@@ -338,6 +388,10 @@ export async function fetchGatewayMonitorRows(
 			? `${baseModelId}:free`
 			: baseModelId;
 		const providerId = String(row.provider_id ?? "").trim();
+		// The /models catalogue describes Phaseo availability. External catalogue
+		// providers remain available on model detail pages, but must not inflate
+		// this page's provider counts or hover lists.
+		if (providerStatusesById.get(providerId) === "external") continue;
 		const apiModelId = String(row.api_model_id ?? "").trim();
 		const providerModelId = String(
 			row.provider_api_model_id ?? row.provider_model_slug ?? apiModelId,
@@ -374,9 +428,7 @@ export async function fetchGatewayMonitorRows(
 				executionRegions: providerRegionsById.get(providerId) ?? [],
 			},
 			endpoint: capabilityId,
-			gatewayStatus: providerStatusesById.get(providerId) === "external"
-				? "external"
-				: normaliseGatewayStatus(row.capability_status, row.is_active_gateway),
+			gatewayStatus: normaliseGatewayStatus(row.capability_status, row.is_active_gateway),
 			inputModalities: toStringList(row.input_modalities).length ? toStringList(row.input_modalities) : toStringList(row.model_input_types),
 			outputModalities: toStringList(row.output_modalities).length ? toStringList(row.output_modalities) : toStringList(row.model_output_types),
 			context: numberOrNull(row.context_length) ?? numberOrNull(row.capability_max_input_tokens) ?? 0,
@@ -1226,13 +1278,33 @@ publicModelsRouter.get("/:modelId/pricing", async (c) => {
 	const modelId = c.req.param("modelId");
 	try {
 		const client = getDataClient(c.env);
-		const v2Pricing = await client.rpc("get_v2_model_pricing", {
+		const requestedServiceTier = c.req.query("service_tier")?.trim().toLowerCase() || null;
+		const v2PricingPromise = client.rpc("get_v2_model_pricing", {
 			p_model_slug: modelId,
 			p_region: c.req.query("region")?.trim().toLowerCase() || null,
-			p_service_tier: c.req.query("service_tier")?.trim().toLowerCase() || null,
+			p_service_tier: requestedServiceTier,
 		});
+		const standardPricingPromise = requestedServiceTier === null
+			? client.rpc("get_v2_model_pricing", {
+				p_model_slug: modelId,
+				p_region: c.req.query("region")?.trim().toLowerCase() || null,
+				p_service_tier: "standard",
+			})
+			: Promise.resolve(null);
+		const [v2Pricing, standardPricing] = await Promise.all([
+			v2PricingPromise,
+			standardPricingPromise,
+		]);
 		if (!v2Pricing.error && Array.isArray(v2Pricing.data)) {
-			const providers = v2Pricing.data as Array<Record<string, unknown>>;
+			const providers = requestedServiceTier === null
+				&& standardPricing
+				&& !standardPricing.error
+				&& Array.isArray(standardPricing.data)
+				? mergeStandardPricingAvailability(
+					v2Pricing.data as Array<Record<string, unknown>>,
+					standardPricing.data as Array<Record<string, unknown>>,
+				)
+				: v2Pricing.data as Array<Record<string, unknown>>;
 			if (c.req.query("shape") === "source") {
 				return withPublicCache(c.json({
 					modelId,

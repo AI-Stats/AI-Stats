@@ -91,6 +91,16 @@ const DYNAMIC_MCP_DEFAULT_SCOPES = [
 	"oauth_clients:read",
 ] as const;
 const DYNAMIC_MCP_SCOPE_SET = new Set<string>(DYNAMIC_MCP_SCOPES);
+const RESOURCE_BOUND_MCP_SCOPES = [
+	"models:read",
+	"providers:read",
+	"pricing:read",
+	"credits:read",
+	"activity:read",
+	"analytics:read",
+	"generations:read",
+] as const;
+const RESOURCE_BOUND_MCP_SCOPE_SET = new Set<string>(RESOURCE_BOUND_MCP_SCOPES);
 const MCP_RESOURCE_SERVER_CLIENT_ID = "phaseo_mcp_resource_server";
 
 class OAuthRequestBodyTooLarge extends Error {}
@@ -270,6 +280,18 @@ function requiresGatewayAccessScope(clientId: string, resource: string, scopes: 
 		&& !scopes.includes(GATEWAY_ACCESS_SCOPE);
 }
 
+function canNarrowResourceBoundMcpScopes(
+	client: { registration_source?: string },
+	resource: string,
+	scopes: string[],
+): boolean {
+	return client.registration_source === "dynamic"
+		&& Boolean(resource)
+		&& !isGatewayOAuthResource(resource)
+		&& scopes.length > 0
+		&& scopes.every((scope) => RESOURCE_BOUND_MCP_SCOPE_SET.has(scope));
+}
+
 export function oauthAuthorizationServerMetadata() {
 	const apiBaseUrl = getApiBaseUrl();
 	return {
@@ -395,7 +417,16 @@ oauthRouter.post(
 		}
 
 		const requestedScopes = normalizeScopes(body.scope, DYNAMIC_MCP_DEFAULT_SCOPES);
-		if (requestedScopes.length === 0 || !requestedScopes.every((scope) => DYNAMIC_MCP_SCOPE_SET.has(scope))) {
+		const includesUnsupportedScopes = requestedScopes.some((scope) => !DYNAMIC_MCP_SCOPE_SET.has(scope));
+		// Some MCP clients register with the authorization server's complete
+		// advertised scope catalogue instead of the protected resource's narrower
+		// scope list. Never grant that broader request. When it also contains the
+		// canonical resource-bound MCP scopes, safely negotiate it down to that
+		// exact read-only set and return the narrowed scope in the response.
+		const grantedScopes = includesUnsupportedScopes
+			? requestedScopes.filter((scope) => RESOURCE_BOUND_MCP_SCOPE_SET.has(scope))
+			: requestedScopes;
+		if (grantedScopes.length === 0) {
 			return oauthError("invalid_scope", "Dynamically registered MCP clients are limited to read-only Phaseo scopes");
 		}
 		const clientId = crypto.randomUUID();
@@ -408,7 +439,7 @@ oauthRouter.post(
 			homepage_url: typeof body.client_uri === "string" ? body.client_uri : null,
 			client_type: "public",
 			redirect_uris: safeRedirectUris,
-			allowed_scopes: requestedScopes,
+			allowed_scopes: grantedScopes,
 			is_first_party: false,
 			beta_status: "public",
 			status: "active",
@@ -425,7 +456,7 @@ oauthRouter.post(
 			// than refresh-token families, so register only the grant we issue.
 			grant_types: ["authorization_code"],
 			token_endpoint_auth_method: "none",
-			scope: requestedScopes.join(" "),
+			scope: grantedScopes.join(" "),
 		}, 201, { "Cache-Control": "no-store" });
 	}),
 );
@@ -527,7 +558,10 @@ oauthRouter.get(
 				: ["openid", "profile", "email", GATEWAY_ACCESS_SCOPE],
 		);
 		const scopes = filterAllowedScopes(client, requestedScopes);
-		if (scopes.length !== requestedScopes.length) {
+		if (
+			scopes.length !== requestedScopes.length
+			&& !canNarrowResourceBoundMcpScopes(client, resource, scopes)
+		) {
 			return oauthError("invalid_scope", "One or more requested scopes are not allowed for this client");
 		}
 		if (requiresGatewayAccessScope(client.id, resource, scopes)) {
@@ -539,6 +573,7 @@ oauthRouter.get(
 			const value = url.searchParams.get(key);
 			if (value) params.set(key, value);
 		}
+		params.set("scope", scopes.join(" "));
 		return Response.redirect(authorizationConsentUrl(params), 302);
 	}),
 );
