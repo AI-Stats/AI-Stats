@@ -72,7 +72,7 @@ export default function ModelStickyHeader({
 						<div className="flex min-w-0 items-center gap-3">
 							<Link
 								href={`/organisations/${organisationId}`}
-								className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-xl border bg-background transition-opacity hover:opacity-80"
+								className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-background transition-opacity hover:opacity-80"
 								aria-label={`View ${organisationName}`}
 							>
 								<div className="relative h-6 w-6">
