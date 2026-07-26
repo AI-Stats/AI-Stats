@@ -931,6 +931,36 @@
 										]
 									}
 								]
+							},
+							{
+								"item": "Rust SDK",
+								"icon": "/icons/languages/rust.svg",
+								"groups": [
+									{
+										"group": "Introduction",
+										"icon": "book-open",
+										"pages": [
+											"v1/sdk-reference/rust/overview",
+											"v1/sdk-reference/rust/installation",
+											"v1/sdk-reference/rust/usage"
+										]
+									},
+									{
+										"group": "Text",
+										"icon": "message-square-text",
+										"pages": [
+											"v1/sdk-reference/rust/responses",
+											"v1/sdk-reference/rust/chat-completions"
+										]
+									},
+									{
+										"group": "Reference",
+										"icon": "book-open",
+										"pages": [
+											"v1/sdk-reference/rust/api-reference"
+										]
+									}
+								]
 							}
 						]
 					},
@@ -1218,6 +1248,43 @@
 										"v1/sdk-reference/ruby/agent-sdk-examples",
 										"v1/sdk-reference/ruby/agent-sdk-observability"
 									]
+									}
+								]
+							},
+							{
+								"item": "Rust Agent SDK",
+								"icon": "/icons/languages/rust.svg",
+								"groups": [
+									{
+										"group": "Start Here",
+										"icon": "book-open",
+										"pages": [
+											"v1/sdk-reference/rust/agent-sdk-overview",
+											"v1/sdk-reference/rust/agent-sdk-installation"
+										]
+									},
+									{
+										"group": "Build",
+										"icon": "workflow",
+										"pages": [
+											"v1/sdk-reference/rust/agent-sdk",
+											"v1/sdk-reference/rust/agent-sdk-tools",
+											"v1/sdk-reference/rust/agent-sdk-state-and-approval"
+										]
+									},
+									{
+										"group": "Observe",
+										"icon": "activity",
+										"pages": [
+											"v1/sdk-reference/rust/agent-sdk-events-and-errors"
+										]
+									},
+									{
+										"group": "Reference",
+										"icon": "book-open",
+										"pages": [
+											"v1/sdk-reference/rust/agent-sdk-api-reference"
+										]
 									}
 								]
 							}
