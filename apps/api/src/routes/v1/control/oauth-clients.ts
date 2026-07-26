@@ -21,9 +21,9 @@ import type { Env } from "@/runtime/types";
 import { getSupabaseAdmin, configureRuntime, clearRuntime } from "@/runtime/env";
 import { z } from "zod";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
-import { CAPABILITIES, normalizeScopeList } from "@/lib/authz/capabilities";
+import { CAPABILITIES, GATEWAY_ACCESS_SCOPE, normalizeScopeList } from "@/lib/authz/capabilities";
 import { requireCapability, requireOAuthWorkspaceRole } from "./route-helpers";
-import { createOpaqueCode, hashOAuthSecret, isThirdPartyOAuthEnabled } from "@/lib/oauth/service";
+import { createOpaqueCode, hashOAuthClientSecret, isThirdPartyOAuthEnabled } from "@/lib/oauth/service";
 
 const app = new Hono<Env>();
 const PAGE_SIZE = 5000;
@@ -31,6 +31,7 @@ const DEFAULT_THIRD_PARTY_ALLOWED_SCOPES = [
 	"openid",
 	"profile",
 	"email",
+	GATEWAY_ACCESS_SCOPE,
 	CAPABILITIES.ME_READ,
 	CAPABILITIES.WORKSPACES_READ,
 	CAPABILITIES.MODELS_READ,
@@ -77,28 +78,55 @@ app.use("*", async (c, next) => {
 	}
 });
 
+function isHttpsUrl(value: string): boolean {
+	try {
+		const url = new URL(value);
+		return url.protocol === "https:" && !url.username && !url.password;
+	} catch {
+		return false;
+	}
+}
+
+function isSafeOAuthRedirect(value: string): boolean {
+	try {
+		const url = new URL(value);
+		if (url.username || url.password || url.hash) return false;
+		if (url.protocol === "https:") return true;
+		return url.protocol === "http:" &&
+			(url.hostname === "127.0.0.1" || url.hostname === "::1" || url.hostname === "[::1]" || url.hostname === "localhost");
+	} catch {
+		return false;
+	}
+}
+
+const httpsUrlSchema = z.string().url().refine(isHttpsUrl, "URL must use HTTPS");
+const oauthRedirectSchema = z.string().url().refine(
+	isSafeOAuthRedirect,
+	"Redirect URI must use HTTPS, except for loopback development callbacks",
+);
+
 // Validation schemas
 const createOAuthClientSchema = z.object({
 	name: z.string().min(3).max(100),
 	client_type: z.enum(["public", "confidential"]).default("confidential"),
 	allowed_scopes: z.array(z.string().trim().min(1)).optional(),
 	description: z.string().optional(),
-	homepage_url: z.string().url().optional(),
-	redirect_uris: z.array(z.string().url()).min(1),
-	logo_url: z.string().url().optional(),
-	privacy_policy_url: z.string().url().optional(),
-	terms_of_service_url: z.string().url().optional(),
+	homepage_url: httpsUrlSchema.optional(),
+	redirect_uris: z.array(oauthRedirectSchema).min(1),
+	logo_url: httpsUrlSchema.optional(),
+	privacy_policy_url: httpsUrlSchema.optional(),
+	terms_of_service_url: httpsUrlSchema.optional(),
 });
 
 const updateOAuthClientSchema = z.object({
 	name: z.string().min(3).max(100).optional(),
 	allowed_scopes: z.array(z.string().trim().min(1)).optional(),
 	description: z.string().optional(),
-	homepage_url: z.string().url().optional(),
-	logo_url: z.string().url().optional(),
-	privacy_policy_url: z.string().url().optional(),
-	terms_of_service_url: z.string().url().optional(),
-	redirect_uris: z.array(z.string().url()).min(1).optional(),
+	homepage_url: httpsUrlSchema.optional(),
+	logo_url: httpsUrlSchema.optional(),
+	privacy_policy_url: httpsUrlSchema.optional(),
+	terms_of_service_url: httpsUrlSchema.optional(),
+	redirect_uris: z.array(oauthRedirectSchema).min(1).optional(),
 });
 
 async function attachOAuthAppStats(
@@ -317,15 +345,12 @@ app.post("/", async (c) => {
 
 		if (clientError || !oauthClient) {
 			console.error("Error creating OAuth client:", clientError);
-			return c.json(
-				{ error: `Failed to create OAuth client: ${clientError?.message || 'Unknown error'}` },
-				500
-			);
+			return c.json({ error: "Failed to create OAuth client" }, 500);
 		}
 
 		const clientSecretHash =
 			typeof oauthClient.client_secret === "string" && oauthClient.client_secret.trim().length > 0
-				? await hashOAuthSecret(oauthClient.client_secret)
+				? await hashOAuthClientSecret(oauthClient.client_secret)
 				: null;
 
 		// Store metadata in database
@@ -354,10 +379,7 @@ app.post("/", async (c) => {
 			// Rollback: delete OAuth client if metadata insert failed
 			await oauthAdmin.deleteClient(oauthClient.client_id);
 			console.error("Error storing OAuth metadata:", metadataError);
-			return c.json(
-				{ error: `Failed to create OAuth app: ${metadataError.message}` },
-				500
-			);
+			return c.json({ error: "Failed to create OAuth app" }, 500);
 		}
 
 		return c.json(
@@ -606,7 +628,20 @@ app.delete("/:clientId", async (c) => {
 			return c.json({ error: "OAuth app not found" }, 404);
 		}
 
-		// Delete from Supabase OAuth first
+		// The OAuth authorization table is not protected by a database foreign-key
+		// cascade in every deployed schema. Revoke first so an already-issued
+		// delegated gateway key stops working even if a later delete step fails.
+		const { error: revokeError } = await supabase
+			.from("oauth_authorizations")
+			.update({ revoked_at: new Date().toISOString() })
+			.eq("client_id", clientId)
+			.is("revoked_at", null);
+		if (revokeError) {
+			console.error("Error revoking OAuth authorizations for client deletion:", revokeError);
+			return c.json({ error: "Failed to revoke OAuth app authorizations" }, 500);
+		}
+
+		// Delete from Supabase OAuth after delegated access has been revoked.
 		const oauthAdmin = (supabase.auth.admin as any).oauth;
 		const { error: clientError } = await oauthAdmin.deleteClient(clientId);
 		if (clientError) {
@@ -614,7 +649,7 @@ app.delete("/:clientId", async (c) => {
 			return c.json({ error: "Failed to delete OAuth client" }, 500);
 		}
 
-		// Delete metadata (this will cascade to authorizations via foreign key)
+		// Delete metadata after all authorizations have been explicitly revoked.
 		const { error: deleteError } = await supabase
 			.from("oauth_app_metadata")
 			.delete()
@@ -673,7 +708,7 @@ app.post("/:clientId/regenerate-secret", async (c) => {
 		}
 
 		const nextSecret = createOpaqueCode();
-		const nextSecretHash = await hashOAuthSecret(nextSecret);
+		const nextSecretHash = await hashOAuthClientSecret(nextSecret);
 		const { error: secretError } = await supabase
 			.from("oauth_app_metadata")
 			.update({

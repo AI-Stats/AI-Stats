@@ -54,6 +54,9 @@ pub mod model_ids {
     /// Model ID: `anthropic/claude-opus-4.8`.
     /// Model page: https://phaseo.app/models/anthropic/claude-opus-4.8
     pub const ANTHROPIC_CLAUDE_OPUS_4_8: &str = "anthropic/claude-opus-4.8";
+    /// Model ID: `anthropic/claude-opus-5`.
+    /// Model page: https://phaseo.app/models/anthropic/claude-opus-5
+    pub const ANTHROPIC_CLAUDE_OPUS_5: &str = "anthropic/claude-opus-5";
     /// Model ID: `anthropic/claude-sonnet-4.5`.
     /// Model page: https://phaseo.app/models/anthropic/claude-sonnet-4.5
     pub const ANTHROPIC_CLAUDE_SONNET_4_5: &str = "anthropic/claude-sonnet-4.5";
@@ -846,6 +849,9 @@ pub mod model_ids {
     /// Model ID: `poolside/laguna-m.1:free`.
     /// Model page: https://phaseo.app/models/poolside/laguna-m.1%3Afree
     pub const POOLSIDE_LAGUNA_M_1_FREE: &str = "poolside/laguna-m.1:free";
+    /// Model ID: `poolside/laguna-s-2.1:free`.
+    /// Model page: https://phaseo.app/models/poolside/laguna-s-2.1%3Afree
+    pub const POOLSIDE_LAGUNA_S_2_1_FREE: &str = "poolside/laguna-s-2.1:free";
     /// Model ID: `poolside/laguna-xs-2.1:free`.
     /// Model page: https://phaseo.app/models/poolside/laguna-xs-2.1%3Afree
     pub const POOLSIDE_LAGUNA_XS_2_1_FREE: &str = "poolside/laguna-xs-2.1:free";
@@ -1393,6 +1399,7 @@ pub mod model_ids {
         ANTHROPIC_CLAUDE_OPUS_4_7,
         ANTHROPIC_CLAUDE_OPUS_4_7_FAST,
         ANTHROPIC_CLAUDE_OPUS_4_8,
+        ANTHROPIC_CLAUDE_OPUS_5,
         ANTHROPIC_CLAUDE_SONNET_4_5,
         ANTHROPIC_CLAUDE_SONNET_4_6,
         ANTHROPIC_CLAUDE_SONNET_5,

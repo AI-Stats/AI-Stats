@@ -5,7 +5,19 @@ on:
         branches: [main]
     pull_request:
         branches: [main]
+    merge_group:
+        types: [checks_requested]
     workflow_dispatch:
+        inputs:
+            importer_mode:
+                description: "Explicit production importer action"
+                required: false
+                type: choice
+                options:
+                    - skip
+                    - dry-run
+                    - run
+                default: skip
 
 permissions:
     contents: read
@@ -21,19 +33,22 @@ jobs:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
               with:
                   version: 10.33.0
                   run_install: false
                   standalone: true
             - name: Setup Node.js
-              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   registry-url: https://registry.npmjs.org
 
             - name: Restore lockfile (guard setup-node cache mutation)
               run: git checkout -- pnpm-lock.yaml
+
+            - name: Validate CI secret boundaries
+              run: pnpm run validate:ci-security
 
             - name: Install dependencies
               run: corepack pnpm install --frozen-lockfile
@@ -63,18 +78,17 @@ jobs:
         name: OpenAPI lint
         runs-on: ubuntu-latest
         needs: data
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
               with:
                   version: 10.33.0
                   run_install: false
                   standalone: true
             - name: Setup Node.js
-              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   registry-url: https://registry.npmjs.org
@@ -107,21 +121,20 @@ jobs:
         name: Apps ${{ matrix.app }}
         runs-on: ubuntu-latest
         needs: openapi-lint
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         strategy:
             matrix:
-                app: [api, docs, web]
+                app: [api, docs, web, web-api]
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
               with:
                   version: 10.33.0
                   run_install: false
                   standalone: true
             - name: Setup Node.js
-              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
@@ -137,36 +150,37 @@ jobs:
                   pnpm run validate:api
                   cd apps/api && pnpm exec tsx scripts/pricing-simulator-cli.ts
 
-            - name: Docs links
+            - name: Docs validation
               if: matrix.app == 'docs'
-              continue-on-error: true
-              run: pnpm run docs:links
+              run: pnpm run validate:docs
 
-            - name: Web lint & typecheck
+            - name: Web validation
               if: matrix.app == 'web'
-              continue-on-error: true
+              run: pnpm --filter @phaseo/web exec next build --experimental-build-mode compile
+
+            - name: Web API lint, test & build
+              if: matrix.app == 'web-api'
               run: |
-                  cd apps/web
-                  pnpm run lint
-                  pnpm run typecheck
+                  pnpm --filter @phaseo/web-api lint
+                  pnpm --filter @phaseo/web-api test
+                  pnpm --filter @phaseo/web-api build
 
     api-aimock:
         name: API AIMock matrix
         runs-on: ubuntu-latest
         needs: openapi-lint
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         steps:
-            - uses: actions/checkout@v7
+            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@v5
+              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
               with:
                   version: 10.33.0
                   run_install: false
                   standalone: true
 
             - name: Setup Node.js
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
                   node-version: 24
 
@@ -183,18 +197,17 @@ jobs:
         name: Devtools build
         runs-on: ubuntu-latest
         needs: openapi-lint
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
               with:
                   version: 10.33.0
                   run_install: false
                   standalone: true
             - name: Setup Node.js
-              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
@@ -212,24 +225,41 @@ jobs:
     importer:
         name: Run importer on main
         runs-on: ubuntu-latest
+        concurrency:
+            group: importer-main
+            cancel-in-progress: false
         needs:
             - data
             - check-paths
-        if: needs.check-paths.outputs.data-changed == 'true' && github.ref == 'refs/heads/main'
+        if: >-
+            always() && needs.data.result == 'success' && github.ref == 'refs/heads/main' &&
+            ((github.event_name == 'push' && needs.check-paths.outputs.data-changed == 'true') ||
+            (github.event_name == 'workflow_dispatch' && inputs.importer_mode != 'skip'))
         env:
             SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
             NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
         steps:
+            - name: Create GitHub App token (Phaseo Bot)
+              id: importer-app-token
+              uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
+              with:
+                  client-id: ${{ secrets.PHASEO_APP_CLIENT_ID }}
+                  private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
+
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+              with:
+                  fetch-depth: 0
+                  persist-credentials: false
+                  token: ${{ steps.importer-app-token.outputs.token }}
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
               with:
                   version: 10.33.0
                   run_install: false
                   standalone: true
             - name: Setup Node.js
-              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
@@ -239,6 +269,15 @@ jobs:
             - name: Install dependencies
               run: corepack pnpm install --frozen-lockfile
 
+            - name: Restore importer hash state
+              id: importer-state-cache
+              uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+              with:
+                  path: packages/data/catalog/src/data/.import-state.json
+                  key: importer-state-main-${{ github.run_id }}
+                  restore-keys: |
+                      importer-state-main-
+
             - name: Run importer (all sections)
               if: ${{ env.SUPABASE_SERVICE_ROLE_KEY != '' && env.NEXT_PUBLIC_SUPABASE_URL != '' }}
               env:
@@ -247,11 +286,23 @@ jobs:
               shell: bash
               run: |
                   set -euo pipefail
+                  importer_args=(--section=all)
+                  if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.importer_mode }}" == "dry-run" ]]; then
+                    importer_args+=(--dry-run)
+                  fi
                   for attempt in 1 2 3; do
                     echo "Running importer attempt ${attempt}/3"
-                    if (cd apps/web && pnpm exec tsx scripts/importer/main.ts --section=all); then
+                    set +e
+                    (cd apps/web && pnpm exec tsx scripts/importer/main.ts "${importer_args[@]}")
+                    exit_code=$?
+                    set -e
+                    if [ "${exit_code}" -eq 0 ]; then
                       echo "Importer succeeded on attempt ${attempt}"
                       exit 0
+                    fi
+                    if [ "${exit_code}" -ne 75 ]; then
+                      echo "Importer failed with a deterministic error (exit ${exit_code}); not retrying."
+                      exit "${exit_code}"
                     fi
                     if [ "${attempt}" -lt 3 ]; then
                       sleep_for=$((attempt * 15))
@@ -262,11 +313,55 @@ jobs:
                   echo "Importer failed after 3 attempts"
                   exit 1
 
+            - name: Save importer hash state
+              if: success() && inputs.importer_mode != 'dry-run'
+              uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+              with:
+                  path: packages/data/catalog/src/data/.import-state.json
+                  key: ${{ steps.importer-state-cache.outputs.cache-primary-key }}
+
+            - name: Prepare importer state update
+              id: importer-state-update
+              if: success() && inputs.importer_mode != 'dry-run' && env.SUPABASE_SERVICE_ROLE_KEY != '' && env.NEXT_PUBLIC_SUPABASE_URL != ''
+              env:
+                  GH_TOKEN: ${{ steps.importer-app-token.outputs.token }}
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  state_file="packages/data/catalog/src/data/.import-state.json"
+                  if git diff --quiet -- "${state_file}"; then
+                    echo "changed=false" >> "${GITHUB_OUTPUT}"
+                    echo "Importer state is already committed."
+                    exit 0
+                  fi
+
+                  branch="automation/importer-state-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                  git switch --create "${branch}"
+                  git add "${state_file}"
+                  git commit -m "chore(data): persist importer state"
+                  git push --set-upstream "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "${branch}"
+                  echo "changed=true" >> "${GITHUB_OUTPUT}"
+                  echo "branch=${branch}" >> "${GITHUB_OUTPUT}"
+
+            - name: Open importer state update PR
+              if: steps.importer-state-update.outputs.changed == 'true'
+              env:
+                  GH_TOKEN: ${{ steps.importer-app-token.outputs.token }}
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  gh pr create \
+                    --base main \
+                    --head "${{ steps.importer-state-update.outputs.branch }}" \
+                    --title "chore(data): persist importer state" \
+                    --body "Automated update of the committed importer hash state after a successful main import."
+
     sdk-gen:
         name: Generate SDKs
         runs-on: ubuntu-latest
         needs: openapi-lint
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         strategy:
             fail-fast: false
             matrix:
@@ -289,13 +384,13 @@ jobs:
                   fetch-depth: 0
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
               with:
                   version: 10.33.0
                   run_install: false
                   standalone: true
             - name: Setup Node.js
-              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
@@ -343,12 +438,11 @@ jobs:
         name: Build & test SDK packages
         runs-on: ubuntu-latest
         needs: sdk-gen
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
             - name: Set up Python for SDK builds
-              uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+              uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
               with:
                   python-version: "3.12"
 
@@ -359,13 +453,13 @@ jobs:
                   python -m pip install -e packages/sdk/sdk-py
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
               with:
                   version: 10.33.0
                   run_install: false
                   standalone: true
             - name: Setup Node.js
-              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
@@ -382,21 +476,20 @@ jobs:
         name: CLI package
         runs-on: ubuntu-latest
         needs: sdk-gen
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
               with:
                   persist-credentials: false
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
               with:
                   version: 10.33.0
                   run_install: false
                   standalone: true
 
             - name: Setup Node.js
-              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
@@ -413,7 +506,6 @@ jobs:
         name: SDK lifecycle tests (${{ matrix.sdk }})
         runs-on: ubuntu-latest
         needs: sdk-gen
-        if: github.event_name == 'push' || !startsWith(github.head_ref, 'chore/auto-model-statuses')
         strategy:
             fail-fast: false
             matrix:
@@ -422,14 +514,14 @@ jobs:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
               with:
                   version: 10.33.0
                   run_install: false
                   standalone: true
 
             - name: Setup Node.js
-              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
@@ -441,19 +533,19 @@ jobs:
 
             - name: Setup Go
               if: matrix.sdk == 'go'
-              uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16
+              uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
               with:
                   go-version: "1.23"
 
             - name: Setup .NET
               if: matrix.sdk == 'csharp'
-              uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+              uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
               with:
                   dotnet-version: "8.0.x"
 
             - name: Setup Java
               if: matrix.sdk == 'java'
-              uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520
+              uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95
               with:
                   distribution: "temurin"
                   java-version: "17"
@@ -467,7 +559,7 @@ jobs:
 
             - name: Setup Ruby
               if: matrix.sdk == 'ruby'
-              uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9
+              uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600
               with:
                   ruby-version: "3.2"
 
@@ -478,24 +570,31 @@ jobs:
         name: Deploy Web (Preview)
         runs-on: ubuntu-latest
         needs: apps
+        concurrency:
+            group: deploy-preview-web-${{ github.event.pull_request.number || github.ref }}
+            cancel-in-progress: true
+        # Merge-queue commits can contain PR-controlled code. Keep merge_group
+        # for validation jobs, but never give it this job's Vercel credentials.
         if: >
             github.event_name == 'pull_request' &&
-            !startsWith(github.head_ref, 'chore/auto-model-statuses') &&
-            github.event.pull_request.head.repo.full_name == github.repository &&
-            contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
+            (
+                github.event.pull_request.head.repo.full_name == github.repository &&
+                contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
+            )
         permissions:
             contents: read
+            pull-requests: write
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
               with:
                   version: 10.33.0
                   run_install: false
                   standalone: true
             - name: Setup Node.js
-              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
@@ -509,6 +608,8 @@ jobs:
               run: npm install --global vercel@latest
 
             - name: Deploy web to Vercel (preview)
+              id: deploy
+              timeout-minutes: 15
               env:
                   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
                   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -516,14 +617,48 @@ jobs:
                   NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
               if: ${{ env.VERCEL_PROJECT_ID != '' }}
               run: |
-                  vercel pull --yes --environment=preview --git-branch="$GITHUB_HEAD_REF" --token=$VERCEL_TOKEN
-                  vercel deploy --yes --archive=tgz --logs --token=$VERCEL_TOKEN
+                  git_branch="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
+                  vercel pull --yes --environment=preview --git-branch="$git_branch" --token=$VERCEL_TOKEN
+                  preview_url="$(vercel deploy --yes --force --archive=tgz --build-env WEB_API_ORIGIN=https://phaseo.app --env WEB_API_ORIGIN=https://phaseo.app --token=$VERCEL_TOKEN)"
+                  echo "url=$preview_url" >> "$GITHUB_OUTPUT"
+
+            - name: Update pull request preview link
+              uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+              if: ${{ github.event_name == 'pull_request' && steps.deploy.outputs.url != '' }}
+              env:
+                  PREVIEW_URL: ${{ steps.deploy.outputs.url }}
+              with:
+                  script: |
+                    const marker = '<!-- phaseo-preview -->'
+                    const body = `${marker}\n### Web preview\n\n[Open the latest preview](${process.env.PREVIEW_URL})\n\nCommit: \`${context.sha.slice(0, 7)}\``
+                    const { data: comments } = await github.rest.issues.listComments({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: context.issue.number,
+                    })
+                    const existing = comments.find((comment) => comment.body?.includes(marker))
+
+                    if (existing) {
+                      await github.rest.issues.updateComment({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        comment_id: existing.id,
+                        body,
+                      })
+                    } else {
+                      await github.rest.issues.createComment({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: context.issue.number,
+                        body,
+                      })
+                    }
 
     deploy:
         runs-on: ubuntu-latest
         needs:
             - apps
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event_name != 'workflow_dispatch'
         permissions:
             contents: read
         strategy:
@@ -533,19 +668,21 @@ jobs:
                       name: Deploy Web
                     - target: api
                       name: Deploy API
+                    - target: web-api
+                      name: Deploy Web API
                     - target: docs
                       name: Deploy Docs
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
               with:
                   version: 10.33.0
                   run_install: false
                   standalone: true
             - name: Setup Node.js
-              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
@@ -577,12 +714,12 @@ jobs:
             - name: Restore lockfile (guard setup-node cache mutation)
               run: git checkout -- pnpm-lock.yaml
 
-            - name: Install dependencies (for API)
-              if: matrix.target == 'api'
+            - name: Install dependencies (for Cloudflare Workers)
+              if: matrix.target == 'api' || matrix.target == 'web-api'
               run: corepack pnpm install --frozen-lockfile
 
             - name: Validate Cloudflare API deploy secrets
-              if: matrix.target == 'api'
+              if: matrix.target == 'api' || matrix.target == 'web-api'
               shell: bash
               env:
                   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -617,6 +754,15 @@ jobs:
                   apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
                   accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
                   workingDirectory: apps/api
+
+            - name: Deploy Web API Worker to Cloudflare
+              if: matrix.target == 'web-api'
+              uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0
+              with:
+                  apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                  workingDirectory: apps/web-api
+                  command: deploy
 
             # ---------- DOCS ----------
             - name: Docs (Mintlify deploy is handled by GitHub App)
@@ -702,12 +848,11 @@ jobs:
             - sdk-lifecycle-tests
             - agent-sdk-tests
             - apps
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event_name != 'workflow_dispatch'
         env:
             NPM_CONFIG_PROVENANCE: true
         permissions:
-            contents: write
-            pull-requests: write
+            contents: read
             id-token: write
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -722,13 +867,13 @@ jobs:
                   private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
               with:
                   version: 10.33.0
                   run_install: false
                   standalone: true
             - name: Setup Node.js
-              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
                   node-version: 24
                   registry-url: https://registry.npmjs.org
@@ -784,13 +929,52 @@ jobs:
                   GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
             - name: Set up Python (for PyPI publish)
-              if: github.ref == 'refs/heads/main' && steps.changesets.outputs.published == 'true'
-              uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+              uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
               with:
                   python-version: 3.12
 
+            - name: Restore committed Python SDK release state
+              run: git restore --source=HEAD --staged --worktree -- packages/sdk/sdk-py
+
+            - name: Check Python SDK release status
+              id: pypi-release
+              shell: bash
+              run: |
+                  python - <<'PY'
+                  import json
+                  import os
+                  import pathlib
+                  import tomllib
+                  import urllib.error
+                  import urllib.parse
+                  import urllib.request
+
+                  pyproject_path = pathlib.Path("packages/sdk/sdk-py/pyproject.toml")
+                  project = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))["project"]
+                  package = project["name"]
+                  version = project["version"]
+                  url = f"https://pypi.org/pypi/{urllib.parse.quote(package)}/json"
+
+                  try:
+                      with urllib.request.urlopen(url, timeout=30) as response:
+                          releases = json.load(response).get("releases", {})
+                  except urllib.error.HTTPError as error:
+                      if error.code != 404:
+                          raise
+                      releases = {}
+
+                  should_publish = version not in releases
+                  with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+                      print(f"package={package}", file=output)
+                      print(f"version={version}", file=output)
+                      print(f"should_publish={str(should_publish).lower()}", file=output)
+
+                  status = "is missing from" if should_publish else "already exists on"
+                  print(f"{package} {version} {status} PyPI")
+                  PY
+
             - name: Build Python SDK
-              if: github.ref == 'refs/heads/main' && steps.changesets.outputs.published == 'true'
+              if: steps.pypi-release.outputs.should_publish == 'true'
               working-directory: packages/sdk/sdk-py
               run: |
                   python -m pip install --upgrade pip
@@ -798,8 +982,8 @@ jobs:
                   python -m build
 
             - name: Publish Python SDK to PyPI (Trusted Publishing)
-              if: github.ref == 'refs/heads/main' && steps.changesets.outputs.published == 'true'
-              uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b
+              if: steps.pypi-release.outputs.should_publish == 'true'
+              uses: pypa/gh-action-pypi-publish@ba38be9e461d3875417946c167d0b5f3d385a247
               with:
                   packages-dir: packages/sdk/sdk-py/dist
                   skip-existing: true

@@ -4,10 +4,291 @@ import { createClient } from '@/utils/supabase/server'
 import { createAdminClient } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { createHash, randomBytes } from 'crypto'
 import { cookies } from 'next/headers'
 import { OBFUSCATE_INFO_COOKIE, serializeObfuscateInfo } from '@/lib/obfuscation'
 import { sendAccountLifecycleDiscordWebhook } from '@/lib/auth/accountLifecycleDiscord'
+import {
+    hasRecentInteractiveAuthentication,
+    hasRecentSignIn,
+} from '@/lib/auth/method'
+import { createClient as createSupabaseAuthClient } from '@supabase/supabase-js'
+import { z } from 'zod'
+
+export type PasskeyMutationFailure = {
+    code:
+        | 'fresh_sign_in_required'
+        | 'incorrect_password'
+        | 'invalid_request'
+        | 'not_authenticated'
+        | 'passkey_error'
+    message: string
+    ok: false
+}
+
+export type PasskeyMutationResult<T = undefined> =
+    | { data: T; ok: true }
+    | PasskeyMutationFailure
+
+const passkeyChallengeIdSchema = z
+    .string()
+    .min(1)
+    .max(256)
+    .regex(/^[A-Za-z0-9_-]+$/)
+
+const passkeyIdSchema = z.string().uuid()
+
+const base64UrlSchema = z
+    .string()
+    .min(1)
+    .max(131_072)
+    .regex(/^[A-Za-z0-9_-]+$/)
+
+const passkeyRegistrationCredentialSchema = z
+    .object({
+        authenticatorAttachment: z.string().max(64).optional(),
+        clientExtensionResults: z.object({}).passthrough(),
+        id: z.string().min(1).max(4096),
+        rawId: z.string().min(1).max(4096),
+        response: z
+            .object({
+                attestationObject: base64UrlSchema,
+                clientDataJSON: base64UrlSchema,
+            })
+            .passthrough(),
+        type: z.literal('public-key'),
+    })
+    .passthrough()
+
+function userHasPassword(user: {
+    app_metadata?: { provider?: unknown }
+}) {
+    const provider = String(user.app_metadata?.provider ?? '').toLowerCase()
+    return !provider || provider === 'email'
+}
+
+async function hasRecentServerAuthentication(
+    supabase: Awaited<ReturnType<typeof createClient>>,
+    lastSignInAt: string | null | undefined
+) {
+    const { data, error } = await supabase.auth.getClaims()
+    return (
+        !error &&
+        (hasRecentInteractiveAuthentication(
+            data?.claims as Record<string, unknown> | undefined
+        ) || hasRecentSignIn(lastSignInAt))
+    )
+}
+
+async function requirePasskeyStepUp(
+    supabase: Awaited<ReturnType<typeof createClient>>,
+    currentPassword?: string
+): Promise<
+    | { ok: true; user: NonNullable<Awaited<ReturnType<typeof supabase.auth.getUser>>['data']['user']> }
+    | { ok: false; result: PasskeyMutationFailure }
+> {
+    const { data: userData, error: userError } = await supabase.auth.getUser()
+    const user = userData.user
+    if (userError || !user) {
+        return {
+            ok: false,
+            result: {
+                code: 'not_authenticated',
+                message: 'Your session has expired. Sign in again to continue.',
+                ok: false,
+            },
+        }
+    }
+
+    const { data: aalData, error: aalError } =
+        await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+    if (aalError) {
+        return {
+            ok: false,
+            result: {
+                code: 'passkey_error',
+                message: 'Could not verify your authentication level.',
+                ok: false,
+            },
+        }
+    }
+    if (aalData?.nextLevel === 'aal2' && aalData.currentLevel !== 'aal2') {
+        return {
+            ok: false,
+            result: {
+                code: 'fresh_sign_in_required',
+                message: 'Complete MFA verification before changing passkeys.',
+                ok: false,
+            },
+        }
+    }
+
+    if (userHasPassword(user)) {
+        if (!user.email || !currentPassword) {
+            return {
+                ok: false,
+                result: {
+                    code: 'incorrect_password',
+                    message: 'Enter your current password.',
+                    ok: false,
+                },
+            }
+        }
+
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        if (!supabaseUrl || !supabaseAnonKey) {
+            return {
+                ok: false,
+                result: {
+                    code: 'passkey_error',
+                    message: 'Passkey verification is unavailable.',
+                    ok: false,
+                },
+            }
+        }
+
+        // Verify the password without replacing or downgrading the user's
+        // existing session (which may already be elevated to AAL2).
+        const passwordVerifier = createSupabaseAuthClient(
+            supabaseUrl,
+            supabaseAnonKey,
+            {
+                auth: {
+                    autoRefreshToken: false,
+                    persistSession: false,
+                },
+            }
+        )
+        const { data, error } = await passwordVerifier.auth.signInWithPassword({
+            email: user.email,
+            password: currentPassword,
+        })
+        if (error || data.user?.id !== user.id) {
+            return {
+                ok: false,
+                result: {
+                    code: 'incorrect_password',
+                    message: 'Current password is incorrect.',
+                    ok: false,
+                },
+            }
+        }
+        return { ok: true, user }
+    }
+
+    if (!(await hasRecentServerAuthentication(supabase, user.last_sign_in_at))) {
+        return {
+            ok: false,
+            result: {
+                code: 'fresh_sign_in_required',
+                message: 'Sign in again before changing passkeys.',
+                ok: false,
+            },
+        }
+    }
+
+    return { ok: true, user }
+}
+
+export async function startPasskeyRegistrationAction(
+    currentPassword?: string
+): Promise<
+    PasskeyMutationResult<{
+        challengeId: string
+        options: unknown
+    }>
+> {
+    const supabase = await createClient()
+    const stepUp = await requirePasskeyStepUp(supabase, currentPassword)
+    if (!stepUp.ok) return stepUp.result
+
+    const { data, error } = await supabase.auth.passkey.startRegistration()
+    if (error || !data) {
+        return {
+            code: 'passkey_error',
+            message: 'Could not start passkey registration.',
+            ok: false,
+        }
+    }
+
+    return {
+        data: {
+            challengeId: data.challenge_id,
+            options: data.options,
+        },
+        ok: true,
+    }
+}
+
+export async function verifyPasskeyRegistrationAction(
+    challengeId: unknown,
+    credential: unknown,
+    currentPassword?: string
+): Promise<PasskeyMutationResult> {
+    const parsedChallengeId = passkeyChallengeIdSchema.safeParse(challengeId)
+    const parsedCredential =
+        passkeyRegistrationCredentialSchema.safeParse(credential)
+    if (!parsedChallengeId.success || !parsedCredential.success) {
+        return {
+            code: 'invalid_request',
+            message: 'The passkey response was invalid.',
+            ok: false,
+        }
+    }
+
+    const supabase = await createClient()
+    const stepUp = await requirePasskeyStepUp(supabase, currentPassword)
+    if (!stepUp.ok) return stepUp.result
+
+    type VerifyRegistrationParams = Parameters<
+        typeof supabase.auth.passkey.verifyRegistration
+    >[0]
+    const { error } = await supabase.auth.passkey.verifyRegistration({
+        challengeId: parsedChallengeId.data,
+        credential:
+            parsedCredential.data as VerifyRegistrationParams['credential'],
+    })
+    if (error) {
+        return {
+            code: 'passkey_error',
+            message: 'Could not verify the new passkey.',
+            ok: false,
+        }
+    }
+
+    return { data: undefined, ok: true }
+}
+
+export async function deletePasskeyAction(
+    passkeyId: unknown,
+    currentPassword?: string
+): Promise<PasskeyMutationResult> {
+    const parsedPasskeyId = passkeyIdSchema.safeParse(passkeyId)
+    if (!parsedPasskeyId.success) {
+        return {
+            code: 'invalid_request',
+            message: 'The passkey identifier was invalid.',
+            ok: false,
+        }
+    }
+
+    const supabase = await createClient()
+    const stepUp = await requirePasskeyStepUp(supabase, currentPassword)
+    if (!stepUp.ok) return stepUp.result
+
+    const { error } = await supabase.auth.passkey.delete({
+        passkeyId: parsedPasskeyId.data,
+    })
+    if (error) {
+        return {
+            code: 'passkey_error',
+            message: 'Could not remove passkey.',
+            ok: false,
+        }
+    }
+
+    return { data: undefined, ok: true }
+}
 
 export async function updateAccount(payload: {
     display_name?: string | null
@@ -45,7 +326,6 @@ export async function updateAccount(payload: {
 
     return { ok: true }
 }
-
 export async function deleteAccount() {
     const supabase = await createClient()
     const { data: authData } = await supabase.auth.getUser()
@@ -127,7 +407,6 @@ export async function changePasswordAction(
     revalidatePath('/settings/account')
     return { success: true }
 }
-
 /**
  * Changes the user's email address after verifying their password.
  * Supabase sends confirmation emails to both old and new addresses.
@@ -229,8 +508,7 @@ export async function enrollMFAAction() {
 }
 
 /**
- * Verifies the TOTP code during MFA enrollment and generates recovery codes.
- * Stores hashed recovery codes in the database.
+ * Verifies the TOTP code during MFA enrollment.
  */
 export async function verifyMFAEnrollmentAction(
     factorId: string,
@@ -284,71 +562,31 @@ export async function verifyMFAEnrollmentAction(
         // Ignore cleanup errors - non-critical
     }
 
-    // Generate 10 recovery codes
-    const recoveryCodes = Array.from({ length: 10 }, () =>
-        generateRecoveryCode()
-    )
-
-    // Hash and store recovery codes
-    const adminClient = createAdminClient()
-    const hashedCodes = recoveryCodes.map((code) => ({
-        user_id: user.id,
-        code_hash: hashRecoveryCode(code),
-        created_at: new Date().toISOString(),
-    }))
-
-    const { error: insertError } = await adminClient
-        .from('user_recovery_codes')
-        .insert(hashedCodes)
-
-    if (insertError) {
-        console.error('Error storing recovery codes:', insertError)
-        // Don't fail enrollment if recovery codes fail to store
-        // MFA is still active, user just won't have recovery codes
-    }
-
     revalidatePath('/settings/account')
 
     return {
         success: true,
-        recoveryCodes, // Return plaintext codes only once
     }
 }
 
 /**
- * Disables MFA for the user after password confirmation.
- * Removes all MFA factors and deletes recovery codes.
- * For OAuth users, password verification is skipped.
+ * Disables MFA for a user who has an AAL2 session.
+ * Supabase requires AAL2 to remove an enrolled factor.
  */
 export async function unenrollMFAAction(
-    factorId: string,
-    currentPassword: string
+    factorId: string
 ) {
     const supabase = await createClient()
     const { data: authData } = await supabase.auth.getUser()
     const user = authData.user
 
-    if (!user?.email) {
-        throw new Error('Not authenticated or no email found')
+    if (!user) {
+        throw new Error('Not authenticated')
     }
 
-    // Only verify password for email/password users (not OAuth users)
-    const provider = user.app_metadata?.provider
-    const isOAuthUser = provider && provider !== 'email'
-
-    if (!isOAuthUser && currentPassword) {
-        // Verify current password for email/password users
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-            email: user.email,
-            password: currentPassword,
-        })
-
-        if (signInError) {
-            if (signInError.message?.includes('Invalid login credentials')) {
-                throw new Error('Current password is incorrect')
-            }
-            throw new Error('Failed to verify current password')
-        }
+    const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+    if (aalData?.currentLevel !== 'aal2') {
+        throw new Error('Complete MFA verification before disabling MFA')
     }
 
     // Unenroll MFA
@@ -361,22 +599,9 @@ export async function unenrollMFAAction(
         throw new Error('Failed to disable MFA')
     }
 
-    // Delete recovery codes
-    const adminClient = createAdminClient()
-    const { error: deleteError } = await adminClient
-        .from('user_recovery_codes')
-        .delete()
-        .eq('user_id', user.id)
-
-    if (deleteError) {
-        console.error('Error deleting recovery codes:', deleteError)
-        // Don't fail unenrollment if recovery code deletion fails
-    }
-
     revalidatePath('/settings/account')
     return { success: true }
 }
-
 /**
  * Cleans up any unverified MFA factors for the current user.
  * Used when user cancels MFA enrollment to keep their account tidy.
@@ -405,116 +630,6 @@ export async function cleanupUnverifiedMFAAction() {
     } catch (error) {
         console.error('Cleanup error:', error)
         // Don't throw - cleanup is best-effort
-    }
-
-    return { success: true }
-}
-
-/**
- * Retrieves unused recovery codes count for the current user.
- * Used for checking if codes exist after initial setup.
- */
-export async function getRecoveryCodesAction() {
-    const supabase = await createClient()
-    const { data: authData } = await supabase.auth.getUser()
-    const user = authData.user
-
-    if (!user) {
-        throw new Error('Not authenticated')
-    }
-
-    // Recovery codes are stored hashed, so we can't return the original codes
-    // This function is mainly for checking if codes exist
-    const { data, error } = await supabase
-        .from('user_recovery_codes')
-        .select('id, created_at, used_at')
-        .eq('user_id', user.id)
-        .is('used_at', null)
-
-    if (error) {
-        console.error('Error fetching recovery codes:', error)
-        throw new Error('Failed to retrieve recovery codes')
-    }
-
-    return {
-        hasRecoveryCodes: (data?.length ?? 0) > 0,
-        unusedCount: data?.length ?? 0,
-    }
-}
-
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
-
-/**
- * Generates a random 8-character recovery code (alphanumeric, no ambiguous chars).
- */
-function generateRecoveryCode(): string {
-    // Use crypto-safe random bytes, convert to alphanumeric (no ambiguous chars)
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789' // No O, 0, I, 1
-    const bytes = randomBytes(8)
-    let code = ''
-
-    for (let i = 0; i < 8; i++) {
-        code += chars[bytes[i] % chars.length]
-    }
-
-    // Format as XXXX-XXXX for readability
-    return `${code.slice(0, 4)}-${code.slice(4)}`
-}
-
-/**
- * Hashes a recovery code for secure storage.
- */
-function hashRecoveryCode(code: string): string {
-    // Remove hyphen and hash with SHA-256
-    const normalized = code.replace(/-/g, '')
-    return createHash('sha256').update(normalized).digest('hex')
-}
-
-/**
- * Verifies a recovery code against stored hash.
- * Used during MFA login verification.
- */
-export async function verifyRecoveryCodeAction(code: string) {
-    const supabase = await createClient()
-    const { data: authData } = await supabase.auth.getUser()
-    const user = authData.user
-
-    if (!user) {
-        throw new Error('Not authenticated')
-    }
-
-    const codeHash = hashRecoveryCode(code)
-
-    // Find matching unused recovery code
-    const { data: codes, error: fetchError } = await supabase
-        .from('user_recovery_codes')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('code_hash', codeHash)
-        .is('used_at', null)
-        .limit(1)
-
-    if (fetchError) {
-        console.error('Error fetching recovery code:', fetchError)
-        throw new Error('Failed to verify recovery code')
-    }
-
-    if (!codes || codes.length === 0) {
-        throw new Error('Invalid or already used recovery code')
-    }
-
-    // Mark code as used
-    const adminClient = createAdminClient()
-    const { error: updateError } = await adminClient
-        .from('user_recovery_codes')
-        .update({ used_at: new Date().toISOString() })
-        .eq('id', codes[0].id)
-
-    if (updateError) {
-        console.error('Error marking recovery code as used:', updateError)
-        throw new Error('Failed to use recovery code')
     }
 
     return { success: true }

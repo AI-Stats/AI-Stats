@@ -5,18 +5,10 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import Script from "next/script";
-
-function parseScore(score: string | number | null | undefined): number | null {
-	if (score == null) return null;
-	if (typeof score === "number") return Number.isFinite(score) ? score : null;
-	if (typeof score === "string") {
-		const match = score.match(/[-+]?[0-9]*\.?[0-9]+/);
-		if (!match) return null;
-		const parsed = Number.parseFloat(match[0]);
-		return Number.isFinite(parsed) ? parsed : null;
-	}
-	return null;
-}
+import {
+	buildBenchmarkMetadataDescription,
+	buildBenchmarkMetadataTitle,
+} from "@/lib/benchmarks/metadata";
 
 async function fetchBenchmark(benchmarkId: string) {
 	try {
@@ -57,51 +49,11 @@ export async function generateMetadata(props: {
 	}
 
 	const cleanName: string = benchmark.name ?? "AI benchmark";
-	const results = benchmark.results ?? [];
-	const orderHints = results
-		.map(
-			(result: any) => result?.benchmark?.order ?? result?.benchmark_order
-		)
-		.filter((value: unknown): value is string => typeof value === "string");
-	const isLowerBetter = orderHints.some(
-		(order) => order.toLowerCase() === "lower"
-	);
-
-	let bestScore: { value: number; modelName: string } | null = null;
-	for (const result of results) {
-		const numericScore = parseScore(result.score);
-		if (numericScore != null) {
-			const shouldReplace =
-				!bestScore ||
-				(isLowerBetter
-					? numericScore < bestScore.value
-					: numericScore > bestScore.value);
-			if (shouldReplace) {
-				bestScore = {
-					value: numericScore,
-					modelName:
-						result.model?.name ??
-						result.model_id ??
-						"Unknown model",
-				};
-			}
-		}
-	}
-
-	const topPerformer = bestScore?.modelName ?? null;
 	const modelCount = benchmark.results?.length ?? 0;
 
-	const descriptionParts: (string | undefined)[] = [
-		`${cleanName} benchmark leaderboard on Phaseo.`,
-		modelCount
-			? `See ${modelCount} scored models, track historical performance, and inspect the underlying methodology.`
-			: undefined,
-		topPerformer ? `Current top model: ${topPerformer}.` : undefined,
-	];
-
 	return buildMetadata({
-		title: `${cleanName} - Benchmark Leaderboard & Model Performance`,
-		description: descriptionParts.filter(Boolean).join(" "),
+		title: buildBenchmarkMetadataTitle(cleanName),
+		description: buildBenchmarkMetadataDescription(cleanName, modelCount),
 		path,
 		keywords: [
 			cleanName,
@@ -128,33 +80,9 @@ export default async function Page({
 		notFound();
 	}
 
-	// Generate structured data and FAQs for SEO
+	// Generate structured data for the benchmark page.
 	const generateStructuredData = () => {
 		const benchmarkName = benchmark.name || "Benchmark";
-		const results = benchmark.results || [];
-		const modelCount = results.length;
-
-		// Find top performer
-		const orderHints = results
-			.map((result: any) => result?.benchmark?.order ?? result?.benchmark_order)
-			.filter((value: unknown): value is string => typeof value === "string");
-		const isLowerBetter = orderHints.some((order) => order.toLowerCase() === "lower");
-
-		let topModel: string | null = null;
-		let bestScore: number | null = null;
-
-		for (const result of results) {
-			const numericScore = parseScore(result.score);
-			if (numericScore != null) {
-				const shouldReplace =
-					bestScore === null ||
-					(isLowerBetter ? numericScore < bestScore : numericScore > bestScore);
-				if (shouldReplace) {
-					bestScore = numericScore;
-					topModel = result.model?.name ?? result.model_id ?? null;
-				}
-			}
-		}
 
 		// Dataset Schema
 		const datasetSchema = {
@@ -163,56 +91,6 @@ export default async function Page({
 			"name": benchmarkName,
 			"description": `${benchmarkName} is an AI benchmark leaderboard tracked on Phaseo. Compare model performance, view historical results, and understand evaluation methodology.`,
 			"keywords": `${benchmarkName}, AI benchmark, model evaluation, leaderboard, AI performance`,
-		};
-
-		// FAQ Schema
-		const faqSchema = {
-			"@context": "https://schema.org",
-			"@type": "FAQPage",
-			"mainEntity": [
-				{
-					"@type": "Question",
-					"name": `What is ${benchmarkName}?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `${benchmarkName} is an AI benchmark used to evaluate model performance. On Phaseo, you can view ${modelCount} scored models, compare results, track historical performance trends, and understand the evaluation methodology.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `Which model performs best on ${benchmarkName}?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": topModel
-							? `Currently, ${topModel} leads the ${benchmarkName} leaderboard with a score of ${bestScore}. Check Phaseo for the full leaderboard, historical performance, and detailed model comparisons.`
-							: `View the ${benchmarkName} leaderboard on Phaseo to see which models perform best. We track ${modelCount} models with detailed scores and historical data.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `How is ${benchmarkName} scored?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `${benchmarkName} uses ${isLowerBetter ? "lower-is-better" : "higher-is-better"} scoring. View the methodology section on Phaseo to understand how models are evaluated, what tasks are tested, and how scores are calculated.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `How often is ${benchmarkName} updated?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `${benchmarkName} results on Phaseo are updated as new model evaluations are published. Check the timeline view to see when models were added and how performance has evolved over time.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `Can I compare models on ${benchmarkName}?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `Yes! Phaseo lets you compare model performance on ${benchmarkName}. View side-by-side scores, filter by organization or model family, and analyze performance trends across ${modelCount} evaluated models.`,
-					},
-				},
-			],
 		};
 
 		// Breadcrumb Schema
@@ -241,7 +119,7 @@ export default async function Page({
 			],
 		};
 
-		return { datasetSchema, faqSchema, breadcrumbSchema };
+		return { datasetSchema, breadcrumbSchema };
 	};
 
 	const structuredData = generateStructuredData();
@@ -255,13 +133,6 @@ export default async function Page({
 						type="application/ld+json"
 						dangerouslySetInnerHTML={{
 							__html: JSON.stringify(structuredData.datasetSchema),
-						}}
-					/>
-					<Script
-						id="benchmark-faq-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.faqSchema),
 						}}
 					/>
 					<Script

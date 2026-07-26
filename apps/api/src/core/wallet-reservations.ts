@@ -3,6 +3,8 @@
 // How: Wraps Supabase RPCs and normalizes idempotent status responses.
 
 import { getSupabaseAdmin } from "@/runtime/env";
+import { invalidateGatewayCreditCache } from "@core/gateway-credit-cache";
+import { setKeyVersion } from "@core/kv";
 
 export type WalletReservationStatus =
 	| "held"
@@ -10,7 +12,18 @@ export type WalletReservationStatus =
 	| "released"
 	| "insufficient_funds"
 	| "insufficient_balance"
+	| "daily_request_limit_reached"
+	| "weekly_request_limit_reached"
+	| "monthly_request_limit_reached"
+	| "daily_cost_limit_reached"
+	| "weekly_cost_limit_reached"
+	| "monthly_cost_limit_reached"
+	| "key_limit_soft_blocked"
+	| "key_not_found"
+	| "key_not_active"
+	| "key_wrong_workspace"
 	| "reserved_balance_mismatch"
+	| "reservation_exceeded"
 	| "not_found"
 	| "unknown";
 
@@ -26,6 +39,8 @@ export type WalletReservationResult = {
 };
 
 type WalletReservationRpcRow = {
+	ok?: boolean | null;
+	reason?: string | null;
 	applied?: boolean | null;
 	already_applied?: boolean | null;
 	status?: string | null;
@@ -44,7 +59,19 @@ type ReservationRpcPayload = {
 	p_hold_ref_id?: string | null;
 	p_capture_ref_id?: string | null;
 	p_release_ref_id?: string | null;
+	p_key_id?: string | null;
+	p_request_count?: number | null;
 };
+
+async function invalidateReservationCaches(workspaceId: string, keyId?: string | null): Promise<void> {
+	await invalidateGatewayCreditCache(workspaceId);
+	if (!keyId) return;
+	try {
+		await setKeyVersion("id", keyId, Date.now());
+	} catch (error) {
+		console.error("wallet_reservation_key_context_invalidation_failed", { workspaceId, error });
+	}
+}
 
 function normalizeStatus(value: unknown): WalletReservationStatus {
 	const status = String(value ?? "").trim().toLowerCase();
@@ -54,7 +81,18 @@ function normalizeStatus(value: unknown): WalletReservationStatus {
 		status === "released" ||
 		status === "insufficient_funds" ||
 		status === "insufficient_balance" ||
+		status === "daily_request_limit_reached" ||
+		status === "weekly_request_limit_reached" ||
+		status === "monthly_request_limit_reached" ||
+		status === "daily_cost_limit_reached" ||
+		status === "weekly_cost_limit_reached" ||
+		status === "monthly_cost_limit_reached" ||
+		status === "key_limit_soft_blocked" ||
+		status === "key_not_found" ||
+		status === "key_not_active" ||
+		status === "key_wrong_workspace" ||
 		status === "reserved_balance_mismatch" ||
+		status === "reservation_exceeded" ||
 		status === "not_found"
 	) {
 		return status;
@@ -67,13 +105,30 @@ function toFinite(value: unknown): number | null {
 	return Number.isFinite(n) ? n : null;
 }
 
-function normalizeResult(data: unknown): WalletReservationResult | null {
+function normalizeResult(data: unknown, successStatus?: "held" | "captured" | "released"): WalletReservationResult | null {
 	const row = (Array.isArray(data) ? data[0] : data) as WalletReservationRpcRow | null | undefined;
 	if (!row || typeof row !== "object") return null;
+	const explicitStatus = normalizeStatus(row.status);
+	const reason = String(row.reason ?? "").trim().toLowerCase();
+	const inferredStatus = explicitStatus !== "unknown"
+		? explicitStatus
+		: reason === "already_reserved" || (successStatus === "held" && row.ok === true)
+			? "held"
+			: reason === "already_captured" || (successStatus === "captured" && row.ok === true)
+				? "captured"
+				: reason === "already_released" || (successStatus === "released" && row.ok === true)
+					? "released"
+					: reason === "reservation_exceeded"
+						? "reservation_exceeded"
+						: normalizeStatus(reason);
 	return {
 		applied: row.applied === true,
-		alreadyApplied: row.already_applied === true,
-		status: normalizeStatus(row.status),
+		alreadyApplied:
+			row.already_applied === true ||
+			reason === "already_reserved" ||
+			reason === "already_captured" ||
+			reason === "already_released",
+		status: inferredStatus,
 		amountNanos: Math.max(0, Number(row.amount_nanos ?? 0) || 0),
 		beforeBalanceNanos: toFinite(row.before_balance_nanos),
 		afterBalanceNanos: toFinite(row.after_balance_nanos),
@@ -119,14 +174,18 @@ export async function reserveWalletCredits(args: {
 	reservationId: string;
 	amountNanos: number;
 	holdRefId?: string | null;
+	keyId?: string | null;
+	requestCount?: number | null;
 }): Promise<WalletReservationResult> {
 	const data = await callReservationRpc("gateway_wallet_reserve_once", {
 		p_workspace_id: args.workspaceId,
 		p_reservation_id: args.reservationId,
 		p_amount_nanos: Math.max(0, Math.trunc(args.amountNanos)),
 		p_hold_ref_id: args.holdRefId ?? null,
+		...(args.keyId ? { p_key_id: args.keyId } : {}),
+		...(args.requestCount != null ? { p_request_count: Math.max(0, Math.trunc(args.requestCount)) } : {}),
 	});
-	return normalizeResult(data) ?? {
+	const normalized = normalizeResult(data, "held") ?? {
 		applied: false,
 		alreadyApplied: false,
 		status: "unknown",
@@ -136,19 +195,22 @@ export async function reserveWalletCredits(args: {
 		beforeReservedNanos: null,
 		afterReservedNanos: null,
 	};
+	if (normalized.applied || normalized.alreadyApplied) await invalidateReservationCaches(args.workspaceId, args.keyId);
+	return normalized;
 }
 
 export async function captureWalletReservation(args: {
 	workspaceId: string;
 	reservationId: string;
 	captureRefId?: string | null;
+	keyId?: string | null;
 }): Promise<WalletReservationResult> {
 	const data = await callReservationRpc("gateway_wallet_capture_once", {
 		p_workspace_id: args.workspaceId,
 		p_reservation_id: args.reservationId,
 		p_capture_ref_id: args.captureRefId ?? null,
 	});
-	return normalizeResult(data) ?? {
+	const normalized = normalizeResult(data, "captured") ?? {
 		applied: false,
 		alreadyApplied: false,
 		status: "unknown",
@@ -158,19 +220,22 @@ export async function captureWalletReservation(args: {
 		beforeReservedNanos: null,
 		afterReservedNanos: null,
 	};
+	if (normalized.applied || normalized.alreadyApplied) await invalidateReservationCaches(args.workspaceId, args.keyId);
+	return normalized;
 }
 
 export async function releaseWalletReservation(args: {
 	workspaceId: string;
 	reservationId: string;
 	releaseRefId?: string | null;
+	keyId?: string | null;
 }): Promise<WalletReservationResult> {
 	const data = await callReservationRpc("gateway_wallet_release_once", {
 		p_workspace_id: args.workspaceId,
 		p_reservation_id: args.reservationId,
 		p_release_ref_id: args.releaseRefId ?? null,
 	});
-	return normalizeResult(data) ?? {
+	const normalized = normalizeResult(data, "released") ?? {
 		applied: false,
 		alreadyApplied: false,
 		status: "unknown",
@@ -180,4 +245,49 @@ export async function releaseWalletReservation(args: {
 		beforeReservedNanos: null,
 		afterReservedNanos: null,
 	};
+	if (normalized.applied || normalized.alreadyApplied) await invalidateReservationCaches(args.workspaceId, args.keyId);
+	return normalized;
+}
+
+export async function settleWalletReservation(args: {
+	workspaceId: string;
+	reservationId: string;
+	actualNanos: number;
+	settleRefId?: string | null;
+	keyId?: string | null;
+}): Promise<WalletReservationResult> {
+	const supabase = getSupabaseAdmin();
+	const result = await supabase.rpc("gateway_wallet_settle_once", {
+		p_workspace_id: args.workspaceId,
+		p_reservation_id: args.reservationId,
+		p_actual_nanos: Math.max(0, Math.trunc(args.actualNanos)),
+		p_settle_ref_id: args.settleRefId ?? null,
+	});
+	if (result.error) throw result.error;
+	const normalized = normalizeResult(result.data, "captured") ?? {
+		applied: false,
+		alreadyApplied: false,
+		status: "unknown",
+		amountNanos: Math.max(0, Math.trunc(args.actualNanos)),
+		beforeBalanceNanos: null,
+		afterBalanceNanos: null,
+		beforeReservedNanos: null,
+		afterReservedNanos: null,
+	};
+	if (normalized.applied || normalized.alreadyApplied) await invalidateReservationCaches(args.workspaceId, args.keyId);
+	return normalized;
+}
+
+export async function releaseStaleOrphanBatchReservations(args?: {
+	olderThanSeconds?: number;
+	limit?: number;
+}): Promise<number> {
+	const result = await getSupabaseAdmin().rpc("gateway_wallet_release_stale_orphan_batch_reservations", {
+		p_older_than_seconds: Math.max(300, Math.trunc(args?.olderThanSeconds ?? 1_800)),
+		p_limit: Math.max(1, Math.min(1_000, Math.trunc(args?.limit ?? 100))),
+	});
+	if (result.error) throw result.error;
+	const released = Number(result.data ?? 0);
+	if (!Number.isFinite(released) || released < 0) throw new Error("invalid_stale_batch_reservation_release_result");
+	return Math.trunc(released);
 }

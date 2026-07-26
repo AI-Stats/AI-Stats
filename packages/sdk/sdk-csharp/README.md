@@ -6,10 +6,8 @@ Package ID: `Phaseo.Sdk`
 
 ## Installation
 
-If published in your feed:
-
 ```bash
-dotnet add package Phaseo.Sdk
+dotnet add package Phaseo.Sdk --version 2.0.5
 ```
 
 From this monorepo:
@@ -25,7 +23,7 @@ using PhaseoSdk;
 
 var client = new Phaseo(
     apiKey: Environment.GetEnvironmentVariable("PHASEO_API_KEY"),
-    basePath: Environment.GetEnvironmentVariable("PHASEO_BASE_URL") ?? "https://api.phaseo.ai/v1"
+    basePath: Environment.GetEnvironmentVariable("PHASEO_BASE_URL") ?? "https://api.phaseo.app/v1"
 );
 
 var response = await client.CreateResponse(new Dictionary<string, object>
@@ -94,7 +92,7 @@ Console.WriteLine(resourceSocketUrl);
 ## Environment variables
 
 - `PHASEO_API_KEY` (required unless passed in code)
-- `PHASEO_BASE_URL` (optional, defaults to `https://api.phaseo.ai/v1`)
+- `PHASEO_BASE_URL` (optional, defaults to `https://api.phaseo.app/v1`)
 
 ## Regeneration and local checks
 

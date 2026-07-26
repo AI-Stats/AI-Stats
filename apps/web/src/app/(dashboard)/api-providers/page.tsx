@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import type { APIProviderCard } from "@/lib/fetchers/api-providers/getAllAPIProviders";
+import type { APIProviderCard } from "@/lib/fetchers/api-providers/providerDataTypes";
 import { fetchFrontendAPIProviders } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import APIProvidersDisplay from "@/components/(data)/api-providers/APIProvidersDisplay";
 import { Skeleton } from "@/components/ui/skeleton";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-	title: "AI API Providers: Pricing, Models & Performance",
+	title: "Providers",
 	description:
 		"Compare AI API providers by pricing, model coverage, latency signals, BYOK support and gateway capabilities.",
 	path: "/api-providers",

@@ -70,7 +70,7 @@ describe("irToAnthropicMessages service controls", () => {
 				raw: {
 					type: "advisor_20260301",
 					name: "advisor",
-					model: "claude-opus-4-8",
+					model: "claude-opus-5",
 					max_tokens: 1400,
 					caching: { type: "ephemeral", ttl: "5m" },
 				},
@@ -83,7 +83,7 @@ describe("irToAnthropicMessages service controls", () => {
 			{
 				type: "advisor_20260301",
 				name: "advisor",
-				model: "claude-opus-4-8",
+				model: "claude-opus-5",
 				max_tokens: 1400,
 				caching: { type: "ephemeral", ttl: "5m" },
 			},
@@ -506,6 +506,14 @@ describe("irToAnthropicMessages service controls", () => {
 
 		expect(resolveAnthropicInferenceGeo("anthropic", request)).toBe("us");
 		expect(resolveAnthropicInferenceGeo("anthropic-us", request)).toBe("us");
+		expect(resolveAnthropicInferenceGeo("anthropic-aws-us", request)).toBe("us");
+		expect(resolveAnthropicInferenceGeo("anthropic-aws", request)).toBe("us");
+	});
+
+	it("defaults only US-scoped Anthropic offers to US inference", () => {
+		const request = createBaseRequest();
+		expect(resolveAnthropicInferenceGeo("anthropic-aws-us", request)).toBe("us");
+		expect(resolveAnthropicInferenceGeo("anthropic-aws", request)).toBeNull();
 	});
 });
 

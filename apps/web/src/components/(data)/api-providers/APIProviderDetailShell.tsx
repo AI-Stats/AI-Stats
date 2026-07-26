@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { fetchFrontendAPIProviderHeader } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import { notFound } from "next/navigation";
 import TabBar from "@/components/(data)/api-providers/APIProviderTabs";
 import { Logo } from "@/components/Logo";
 import APIProviderEditButton from "./edit/APIProviderEditButton";
@@ -16,9 +17,10 @@ export default async function APIProviderDetailShell({
 	apiProviderId,
 	children,
 }: APIProviderDetailShellProps) {
-	const header = await fetchFrontendAPIProviderHeader(apiProviderId);
+	const header = await fetchFrontendAPIProviderHeader(apiProviderId).catch(() => null);
 
 	if (!header) {
+		notFound();
 		return (
 			<main className="flex min-h-screen flex-col">
 				<div className="container mx-auto px-4 py-8">

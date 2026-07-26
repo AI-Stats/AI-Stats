@@ -15,6 +15,12 @@ const configuredAllowedDevOrigins =
     .filter(Boolean) ?? [];
 
 const mintlifyProxyOrigin = "https://aistats.mintlify.site";
+const configuredWebApiOrigin = process.env.WEB_API_ORIGIN?.trim().replace(/\/$/, "");
+// Cloudflare owns /api/_web on phaseo.app, but Vercel preview deployments need
+// an explicit rewrite so browser-side same-origin fetches reach that API.
+const webApiOrigin =
+  configuredWebApiOrigin ||
+  (process.env.VERCEL_ENV === "preview" ? "https://phaseo.app" : "");
 const docsProxyRewrites = [
   {
     source: "/docs",
@@ -32,6 +38,9 @@ const nextConfig = {
     ? { allowedDevOrigins: configuredAllowedDevOrigins }
     : {}),
   cacheComponents: true,
+  images: {
+    qualities: [75, 90],
+  },
   env: {
     NEXT_PUBLIC_DEPLOY_TIME:
       process.env.NEXT_PUBLIC_DEPLOY_TIME ?? new Date().toISOString(),
@@ -45,6 +54,28 @@ const nextConfig = {
   },
   async headers() {
     return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(), payment=(self)",
+          },
+        ],
+      },
+      {
+        source: "/oauth/consent",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "frame-ancestors 'none'; base-uri 'self'; object-src 'none'; img-src 'self' data:",
+          },
+          { key: "Cache-Control", value: "no-store" },
+        ],
+      },
       {
         source: "/",
         headers: [
@@ -64,6 +95,18 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/:path*",
+        has: [{ type: "host", value: "docs.ai-stats.phaseo.app" }],
+        destination: "https://phaseo.app/docs/:path*",
+        permanent: true,
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "ai-stats.phaseo.app" }],
+        destination: "https://phaseo.app/:path*",
+        permanent: true,
+      },
+      {
         source: "/announcements",
         destination: "/blog",
         permanent: true,
@@ -71,6 +114,16 @@ const nextConfig = {
       {
         source: "/announcements/:slug*",
         destination: "/blog/:slug*",
+        permanent: true,
+      },
+      {
+        source: "/updates/web",
+        destination: "/updates/models",
+        permanent: true,
+      },
+      {
+        source: "/updates/youtube",
+        destination: "/updates/models",
         permanent: true,
       },
       {
@@ -93,6 +146,11 @@ const nextConfig = {
         destination: "/how-phaseo-tracks-provider-availability",
         permanent: true,
       },
+      {
+        source: "/status",
+        destination: "https://status.phaseo.app",
+        permanent: true,
+      },
     ];
   },
   async rewrites() {
@@ -104,6 +162,26 @@ const nextConfig = {
         },
       ],
       afterFiles: [
+        ...(webApiOrigin
+          ? [
+              {
+                source: "/api/_web/:path*",
+                destination: `${webApiOrigin}/api/_web/:path*`,
+              },
+              {
+                source: "/api/account/:path*",
+                destination: `${webApiOrigin}/api/account/:path*`,
+              },
+              {
+                source: "/api/chat/:path*",
+                destination: `${webApiOrigin}/api/chat/:path*`,
+              },
+              {
+                source: "/api/internal/:path*",
+                destination: `${webApiOrigin}/api/internal/:path*`,
+              },
+            ]
+          : []),
         ...docsProxyRewrites,
         {
           source: "/ingest/static/:path*",

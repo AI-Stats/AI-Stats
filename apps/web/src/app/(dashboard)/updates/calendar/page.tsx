@@ -1,12 +1,12 @@
 import ModelCalendar from "@/components/(data)/models/ModelCalendar/ModelCalendar";
 import ModelCalendarRouteSwitch from "@/components/updates/ModelCalendarRouteSwitch";
-import type { ModelEvent } from "@/lib/fetchers/updates/getModelUpdates";
+import type { ModelEvent } from "@/lib/fetchers/updates/types";
 import { fetchFrontendModelUpdates } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { buildMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = buildMetadata({
-	title: "AI Model Release Calendar - Announcements & Lifecycle Changes",
+	title: "AI Release Calendar",
 	description:
 		"Visualise every model announcement, release and lifecycle change in one calendar. Explore what happened on any day and see how the AI model ecosystem is evolving over time.",
 	path: "/updates/calendar",

@@ -6,6 +6,7 @@
 export type ErrorCode =
     | "unauthorised"
     | "invalid_json"
+	| "payload_too_large"
     | "validation_error"
     | "not_found"
     | "not_implemented_yet"
@@ -29,9 +30,7 @@ export function json(data: unknown, status = 200) {
 function defaultErrorType(code: ErrorCode): "user" | "system" {
     if (
         code === "upstream_error" ||
-        code === "gateway_error" ||
-        code === "key_limit_exceeded" ||
-        code === "insufficient_funds"
+        code === "gateway_error"
     ) {
         return "system";
     }
@@ -98,6 +97,7 @@ function inferProviderFailureDiagnostics(
 const STATUS: Record<ErrorCode, number> = {
     unauthorised: 401,
     invalid_json: 400,
+	payload_too_large: 413,
     validation_error: 400,
     not_found: 404,
     not_implemented_yet: 501,

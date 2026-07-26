@@ -17,7 +17,7 @@ For text requests, set the sort you want directly on the `provider` object.
 
 <CodeGroup>
 ```bash cURL
-curl https://api.phaseo.ai/v1/responses \
+curl https://api.phaseo.app/v1/responses \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -70,11 +70,11 @@ import (
   "context"
   "fmt"
 
-  phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go"
+  phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"
 )
 
 func main() {
-  client := phaseo.New("YOUR_API_KEY", "https://api.phaseo.ai/v1")
+  client := phaseo.New("YOUR_API_KEY", "https://api.phaseo.app/v1")
 
   response, err := client.GenerateResponse(context.Background(), phaseo.ResponsesRequest{
     Model: "google/gemini-3.1-flash-lite",
@@ -179,7 +179,7 @@ For example, sort only among one approved set of providers:
 
 <CodeGroup>
 ```bash cURL
-curl https://api.phaseo.ai/v1/responses \
+curl https://api.phaseo.app/v1/responses \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -235,11 +235,11 @@ import (
   "context"
   "fmt"
 
-  phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go"
+  phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"
 )
 
 func main() {
-  client := phaseo.New("YOUR_API_KEY", "https://api.phaseo.ai/v1")
+  client := phaseo.New("YOUR_API_KEY", "https://api.phaseo.app/v1")
 
   response, err := client.GenerateResponse(context.Background(), phaseo.ResponsesRequest{
     Model: "google/gemini-3.1-flash-lite",

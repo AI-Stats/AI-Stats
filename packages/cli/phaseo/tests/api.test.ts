@@ -2,14 +2,19 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
 	authorizeUrl,
+	DEFAULT_API_URL,
 	DEFAULT_LOGIN_SCOPES,
 	normalizeApiRoot,
 	oauthUrl,
 	parseScopeArgument,
+	exchangeAuthorizationCode,
 	revokeRefreshToken,
 	v1Url,
 } from "../src/api.ts";
 import {
+	buildLogsListPath,
+	buildModelsListPath,
+	callbackListenHost,
 	helpKeyForCommand,
 	parseArgs,
 	renderVersionText,
@@ -19,7 +24,9 @@ import {
 	renderLoginBanner,
 	renderLoginMenu,
 	renderHelp,
+	renderOneTimeClientSecret,
 	windowsBrowserOpenArgs,
+	validateLoopbackRedirectUri,
 } from "../src/index.ts";
 import {
 	compareVersions,
@@ -27,9 +34,15 @@ import {
 	installCommandFor,
 	updateCommandFor,
 } from "../src/release.ts";
+import { sanitizeTerminalText } from "../src/output.ts";
 
 test("normalizes API roots for oauth and v1 endpoints", () => {
+	assert.equal(DEFAULT_API_URL, "https://api.phaseo.app");
 	assert.equal(normalizeApiRoot("https://api.example.com/v1/"), "https://api.example.com");
+	assert.equal(normalizeApiRoot("http://127.0.0.1:8788/v1"), "http://127.0.0.1:8788");
+	assert.equal(normalizeApiRoot("http://[::1]:8788/v1"), "http://[::1]:8788");
+	assert.throws(() => normalizeApiRoot("http://api.example.com"), /must use HTTPS/);
+	assert.throws(() => normalizeApiRoot("file:///tmp/phaseo"), /must use HTTPS/);
 	assert.equal(oauthUrl("https://api.example.com", "/token"), "https://api.example.com/oauth/token");
 	assert.equal(v1Url("https://api.example.com", "/me"), "https://api.example.com/v1/me");
 });
@@ -95,13 +108,37 @@ test("surfaces refresh-token revocation failures", async () => {
 	}
 });
 
-test("quotes Windows browser-launch URLs so cmd does not truncate query params", () => {
+test("rejects an authorization exchange that is not a refreshable CLI session", async () => {
+	const originalFetch = globalThis.fetch;
+	globalThis.fetch = (async () =>
+		new Response(JSON.stringify({
+			access_token: "phaseo_v1_sk_test",
+			refresh_token: "refresh-token",
+			expires_in: "900",
+			token_type: "Bearer",
+		}), {
+			status: 200,
+			headers: { "content-type": "application/json" },
+		})) as typeof fetch;
+	try {
+		await assert.rejects(
+			() => exchangeAuthorizationCode("https://api.example.com", {
+				code: "code",
+				redirectUri: "http://127.0.0.1:8976/callback",
+				codeVerifier: "verifier",
+			}),
+			/not return a refreshable CLI session/,
+		);
+	} finally {
+		globalThis.fetch = originalFetch;
+	}
+});
+
+test("passes Windows browser-launch URLs without a command interpreter", () => {
 	const fullUrl = "http://127.0.0.1:8788/oauth/authorize?response_type=code&client_id=phaseo_cli&redirect_uri=http%3A%2F%2F127.0.0.1%3A8976%2Fcallback";
 	assert.deepEqual(windowsBrowserOpenArgs(fullUrl), [
-		"-NoProfile",
-		"-NonInteractive",
-		"-Command",
-		`Start-Process -FilePath '${fullUrl}'`,
+		"url.dll,FileProtocolHandler",
+		fullUrl,
 	]);
 });
 
@@ -144,6 +181,41 @@ test("ignores callback hits until an authorization code is present", () => {
 		code: "abc123",
 		state: "state-123",
 	});
+
+	const unrelatedError = new URL("http://127.0.0.1:8976/callback?error=access_denied&state=wrong");
+	assert.deepEqual(inspectCallbackRequest(unrelatedError, "state-123"), {
+		ok: false,
+		pending: true,
+	});
+	const unrelatedCode = new URL("http://127.0.0.1:8976/callback?code=forged&state=wrong");
+	assert.deepEqual(inspectCallbackRequest(unrelatedCode, "state-123"), {
+		ok: false,
+		pending: true,
+	});
+});
+
+test("removes terminal control characters from human-readable errors", () => {
+	assert.equal(sanitizeTerminalText("bad\u001b[31mname\u0007"), "bad [31mname ");
+	assert.equal(sanitizeTerminalText("first\n\tsecond\r\nthird"), "first\n\tsecond\r\nthird");
+});
+
+test("only accepts loopback browser callback URLs", () => {
+	assert.equal(
+		validateLoopbackRedirectUri("http://127.0.0.1:8976/callback"),
+		"http://127.0.0.1:8976/callback",
+	);
+	assert.equal(
+		validateLoopbackRedirectUri("http://[::1]:8976/callback"),
+		"http://[::1]:8976/callback",
+	);
+	assert.throws(() => validateLoopbackRedirectUri("https://example.com/callback"), /HTTP loopback/);
+	assert.throws(() => validateLoopbackRedirectUri("http://0.0.0.0:8976/callback"), /HTTP loopback/);
+	assert.throws(() => validateLoopbackRedirectUri("http://127.0.0.1:8976/callback?next=evil"), /HTTP loopback/);
+});
+
+test("normalizes a bracketed IPv6 loopback callback host for Node", () => {
+	assert.equal(callbackListenHost("http://[::1]:8976/callback"), "::1");
+	assert.equal(callbackListenHost("http://127.0.0.1:8976/callback"), "127.0.0.1");
 });
 
 test("resolves help text for command groups and leaf commands", () => {
@@ -152,6 +224,46 @@ test("resolves help text for command groups and leaf commands", () => {
 	assert.match(renderHelp(["keys", "create"]), /phaseo keys create --name <name>/);
 	assert.match(renderHelp(["pricing"]), /phaseo pricing calculate --provider <provider>/);
 	assert.match(renderHelp(["login"]), /--scopes <csv>/);
+	assert.equal(helpKeyForCommand(["logs", "list"]), "logs list");
+	assert.match(renderHelp(["logs", "list"]), /--status <success\|error\|2xx\|4xx\|5xx\|code>/);
+	assert.match(renderHelp(["oauth-clients", "create"]), /--show-secret/);
+	assert.match(renderHelp(["oauth-clients", "regenerate-secret"]), /--show-secret/);
+	assert.match(renderHelp(["organisations"]), /phaseo organisations list/);
+	assert.match(renderHelp(["endpoints"]), /phaseo endpoints list/);
+	assert.match(renderHelp(["webhooks", "create"]), /--show-secret/);
+	assert.match(renderHelp(["models", "get"]), /phaseo models get <model-id>/);
+});
+
+test("builds logs list filters for the API", () => {
+	assert.equal(
+		buildLogsListPath({
+			since: "2h",
+			status: "5xx",
+			provider: "openai",
+			model: "gpt-5-mini",
+			endpoint: "/responses",
+			"request-id": "req_1",
+			"key-id": "key_1",
+			"session-id": "session_1",
+			"error-code": "upstream_error",
+			limit: "25",
+			offset: "5",
+		}),
+		"/logs?since=2h&status=5xx&provider=openai&model=gpt-5-mini&endpoint=%2Fresponses&request_id=req_1&key_id=key_1&session_id=session_1&error_code=upstream_error&limit=25&offset=5",
+	);
+});
+
+test("hides one-time OAuth client secrets unless explicitly requested", () => {
+	const secret = "oauth-secret-value";
+	const hidden = renderOneTimeClientSecret(secret, false);
+	assert.doesNotMatch(hidden, new RegExp(secret));
+	assert.match(hidden, /Client secret hidden/);
+	assert.equal(renderOneTimeClientSecret(secret, true), `Client secret: ${secret}\n`);
+});
+
+test("builds model catalogue paths for the public v1 routes", () => {
+	assert.equal(buildModelsListPath({ limit: "3", offset: "1" }), "/models?limit=3&offset=1");
+	assert.equal(buildModelsListPath({ mine: true, all: true }), "/models/me?availability=all");
 });
 
 test("treats short and long root flags as flags instead of commands", () => {

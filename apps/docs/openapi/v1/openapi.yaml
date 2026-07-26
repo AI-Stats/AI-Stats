@@ -10,7 +10,7 @@ info:
     url: https://phaseo.app
     email: danielbutler500@gmail.com
 servers:
-  - url: https://api.phaseo.ai/v1
+  - url: https://api.phaseo.app/v1
 security:
   - BearerAuth: []
 paths:
@@ -1148,8 +1148,34 @@ paths:
       operationId: uploadFile
       summary: Upload file
       description: >-
-        Uploads a file for batch processing and returns the upstream file
-        metadata.
+        Compatibility alias for `/batches/files`. Uploads a file for batch
+        processing and returns the upstream file metadata. Pass `model` so AI
+        Stats can infer the upstream provider. Defaults to OpenAI for legacy
+        clients that omit both `model` and `provider`.
+      parameters:
+        - name: model
+          in: query
+          required: false
+          description: Model id used to infer the upstream batch file provider.
+          schema:
+            $ref: '#/components/schemas/ModelId'
+        - name: provider
+          in: query
+          required: false
+          description: Advanced provider override for the upstream file upload.
+          schema:
+            type: string
+            enum:
+              - openai
+              - groq
+              - together
+              - mistral
+        - name: x-ai-stats-provider
+          in: header
+          required: false
+          description: Header alternative to the `provider` query parameter.
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -1327,9 +1353,12 @@ paths:
       operationId: createBatch
       summary: Create batch
       description: >-
-        Creates an async batch job and returns the upstream batch object. The
-        gateway also accepts `session_id` and `webhook` for observability and
-        async notifications.
+        Creates an async batch job and returns the upstream batch object. Batch
+        creation supports OpenAI, Anthropic, Google Gemini, Mistral, xAI, Groq,
+        and Together AI through the requested `model`. The gateway infers the
+        upstream provider from the model and also accepts `session_id` and
+        `webhook` for observability and async notifications. Use `provider` only
+        as an advanced routing constraint.
       requestBody:
         required: true
         content:
@@ -1388,6 +1417,183 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /batches/capabilities:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: listBatchCapabilities
+      summary: List batch provider capabilities
+      description: >-
+        Returns provider-level batch input mode support for file upload and
+        request-list batch creation.
+      responses:
+        '200':
+          description: Batch provider capability list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    example: list
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BatchProviderCapability'
+  /batches/files:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: listBatchFiles
+      summary: List batch files
+      description: >-
+        Returns an error because listing shared gateway-key files is not
+        supported. Retrieve workspace-owned files directly by id instead.
+      responses:
+        '400':
+          description: File listing is not supported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: uploadBatchFile
+      summary: Upload batch file
+      description: >-
+        Uploads a provider file for batch processing and stores ownership in the
+        authenticated workspace. Pass `model` so Phaseo can infer the upstream
+        provider. Defaults to OpenAI when both `model` and `provider` are
+        omitted.
+      parameters:
+        - name: model
+          in: query
+          required: false
+          description: Model id used to infer the upstream batch file provider.
+          schema:
+            $ref: '#/components/schemas/ModelId'
+        - name: provider
+          in: query
+          required: false
+          description: Advanced provider override for the upstream file upload.
+          schema:
+            type: string
+            enum:
+              - openai
+              - groq
+              - together
+              - mistral
+        - name: x-phaseo-provider
+          in: header
+          required: false
+          description: Header alternative to the `provider` query parameter.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FileUploadRequest'
+      responses:
+        '200':
+          description: Uploaded file metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Upstream provider error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /batches/files/{file_id}:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: retrieveBatchFile
+      summary: Retrieve batch file
+      description: >-
+        Retrieves metadata for a batch file owned by the authenticated
+        workspace.
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: File not found or not owned by the workspace
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /batches/files/{file_id}/content:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: retrieveBatchFileContent
+      summary: Retrieve batch file content
+      description: Retrieves content for a batch file owned by the authenticated workspace.
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File content
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /batches/{batch_id}:
     get:
       x-beta: true
@@ -1424,6 +1630,64 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '501':
           description: Batch status refresh is not supported for this provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /batches/{batch_id}/requests:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: listBatchRequests
+      summary: List batch request rows
+      description: Lists tracked per-request rows for an owned batch job.
+      parameters:
+        - name: batch_id
+          in: path
+          required: true
+          description: The ID of the batch.
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Batch request row list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    example: list
+                  batch_id:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BatchRequestRow'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Batch not found
           content:
             application/json:
               schema:
@@ -2718,6 +2982,170 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /batch/capabilities:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: listBatchCapabilitiesAlias
+      summary: List batch provider capabilities (alias)
+      description: Alias of /batches/capabilities.
+      responses:
+        '200':
+          description: Batch provider capability list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    example: list
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BatchProviderCapability'
+  /batch/files:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: listBatchFilesAlias
+      summary: List batch files (alias)
+      description: Alias of GET /batches/files.
+      responses:
+        '400':
+          description: File listing is not supported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: uploadBatchFileAlias
+      summary: Upload batch file (alias)
+      description: Alias of /batches/files.
+      parameters:
+        - name: model
+          in: query
+          required: false
+          description: Model id used to infer the upstream batch file provider.
+          schema:
+            $ref: '#/components/schemas/ModelId'
+        - name: provider
+          in: query
+          required: false
+          description: Advanced provider override for the upstream file upload.
+          schema:
+            type: string
+        - name: x-ai-stats-provider
+          in: header
+          required: false
+          description: Header alternative to the `provider` query parameter.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FileUploadRequest'
+      responses:
+        '200':
+          description: Uploaded file metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Upstream provider error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /batch/files/{file_id}:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: retrieveBatchFileAlias
+      summary: Retrieve batch file (alias)
+      description: Alias of /batches/files/{file_id}.
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          description: The ID of the file to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: File not found or not owned by the workspace
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /batch/files/{file_id}/content:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: retrieveBatchFileContentAlias
+      summary: Retrieve batch file content (alias)
+      description: Alias of /batches/files/{file_id}/content.
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          description: The ID of the file to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File content
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /batch/{id}:
     get:
       x-beta: true
@@ -2753,6 +3181,63 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '501':
           description: Batch status refresh is not supported for this provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /batch/{id}/requests:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: listBatchRequestsAlias
+      summary: List batch request rows (alias)
+      description: Alias of /batches/{batch_id}/requests.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Batch request row list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    example: list
+                  batch_id:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BatchRequestRow'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Batch not found
           content:
             application/json:
               schema:
@@ -3621,7 +4106,22 @@ components:
         usage:
           type: boolean
         provider:
-          $ref: '#/components/schemas/ProviderRoutingOptions'
+          oneOf:
+            - type: string
+              enum:
+                - openai
+                - anthropic
+                - google-ai-studio
+                - gemini
+                - mistral
+                - x-ai
+                - xai
+                - groq
+                - together
+            - $ref: '#/components/schemas/ProviderRoutingOptions'
+          description: >-
+            Provider selector. Use a string for a single provider, or routing
+            options such as `{ "only": ["groq"] }`.
         provider_options:
           $ref: '#/components/schemas/ProviderOptions'
         user_id:
@@ -5924,14 +6424,52 @@ components:
       additionalProperties: true
     BatchRequest:
       type: object
-      required:
-        - input_file_id
-        - endpoint
       properties:
+        model:
+          type: string
+          description: >-
+            Model id used to infer the upstream batch provider. Request rows may
+            also include body.model; the top-level model is preferred.
+        prompts:
+          type: array
+          description: >-
+            Simple prompt shorthand. Phaseo compiles each prompt into a
+            provider-native batch row for the selected model.
+          items:
+            type: string
+        items:
+          type: array
+          description: >-
+            Structured prompt shorthand. Items may include `id`, `custom_id`,
+            `prompt`, `messages`, `input`, `system`, `max_tokens`,
+            `temperature`, or an advanced `body`.
+          items:
+            type: object
+            additionalProperties: true
+        system:
+          type: string
+          description: Optional system instruction applied to prompt shorthand rows.
+        max_tokens:
+          type: integer
+          description: Optional max token limit applied to prompt shorthand rows.
+        temperature:
+          type: number
+          description: Optional sampling temperature applied to prompt shorthand rows.
         input_file_id:
           type: string
+          description: Existing provider file ID for file-upload batch creation.
+        requests:
+          type: array
+          description: >-
+            Advanced batch request rows. Provide exactly one of `prompts`,
+            `items`, `requests`, or `input_file_id`.
+          items:
+            $ref: '#/components/schemas/BatchRequestItem'
         endpoint:
           type: string
+          description: >-
+            Optional provider endpoint path. Phaseo chooses a default from the
+            model when omitted.
         completion_window:
           type: string
         metadata:
@@ -5946,6 +6484,9 @@ components:
         webhook:
           type: object
           properties:
+            endpoint_id:
+              type: string
+              description: Workspace-managed webhook endpoint ID.
             url:
               type: string
               format: uri
@@ -5968,10 +6509,126 @@ components:
                 event lists are rejected.
               items:
                 type: string
+        webhook_endpoint_id:
+          type: string
+          description: Convenience alias for webhook.endpoint_id.
         debug:
           $ref: '#/components/schemas/DebugOptions'
         provider:
-          $ref: '#/components/schemas/ProviderRoutingOptions'
+          allOf:
+            - $ref: '#/components/schemas/ProviderRoutingOptions'
+          description: >-
+            Advanced routing constraint. Most requests should rely on
+            model-based provider inference.
+    BatchRequestItem:
+      type: object
+      required:
+        - body
+      properties:
+        custom_id:
+          type: string
+        method:
+          type: string
+          default: POST
+        url:
+          type: string
+          description: Provider endpoint path. Defaults to the parent batch endpoint.
+        body:
+          type: object
+          additionalProperties: true
+    BatchProviderCapability:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum:
+            - active
+            - planned
+        gateway_input_modes:
+          type: array
+          items:
+            type: string
+            enum:
+              - file
+              - requests
+        native_input_modes:
+          type: array
+          items:
+            type: string
+            enum:
+              - file
+              - requests
+        documentation_url:
+          type: string
+          format: uri
+        notes:
+          type: string
+          nullable: true
+    BatchRequestRow:
+      type: object
+      properties:
+        id:
+          type: string
+        custom_id:
+          type: string
+        request_index:
+          type: integer
+        provider:
+          type: string
+        native_batch_id:
+          type: string
+          nullable: true
+        method:
+          type: string
+          nullable: true
+        endpoint:
+          type: string
+          nullable: true
+        model:
+          type: string
+          nullable: true
+        status:
+          type: string
+        request_body_hash:
+          type: string
+          nullable: true
+        response_status:
+          type: integer
+          nullable: true
+        response_body:
+          type: object
+          nullable: true
+          additionalProperties: true
+        error_body:
+          type: object
+          nullable: true
+          additionalProperties: true
+        usage:
+          type: object
+          nullable: true
+          additionalProperties: true
+        cost_nanos:
+          type: integer
+          nullable: true
+        cost_usd:
+          type: number
+          nullable: true
+        meta:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          nullable: true
+        updated_at:
+          type: string
+          nullable: true
+        completed_at:
+          type: string
+          nullable: true
     BatchResponse:
       type: object
       properties:
@@ -6363,6 +7020,7 @@ components:
       enum:
         - 2-bench-retail
         - 2-bench-telecom
+        - aa-briefcase
         - aa-index
         - aa-intelligence-index-v4
         - aa-lcr
@@ -6401,6 +7059,7 @@ components:
         - arc-agi
         - arc-agi-1
         - arc-agi-2
+        - arc-agi-3
         - arc-c
         - arc-e
         - arcagi1-image
@@ -6417,6 +7076,7 @@ components:
         - automationbench
         - babe
         - babyvision
+        - babyvision-python
         - balrog-ai
         - bbh
         - bcflv4
@@ -6461,6 +7121,7 @@ components:
         - charxiv-r
         - charxiv-reasoning
         - charxiv-rq
+        - charxiv-rq-python
         - chest-imagenome-anatomy-iou
         - chexpert-cxr-top5-macro-f1
         - chinese-simpleqa
@@ -6501,6 +7162,7 @@ components:
         - cybersecurity-ctfs
         - da-2k
         - dailyomni
+        - deck-bench
         - deep-planning
         - deepconsult
         - deepplanning-v1.1-avg-acc
@@ -6560,10 +7222,13 @@ components:
         - flteval-pass-8
         - frames
         - frontier-math
+        - frontierbench-v0.1
+        - frontiercode-1.1-main
         - frontiercode-diamond
         - frontiermath
         - frontiersci-olympiad
         - frontiersci-research
+        - frontierswe
         - fsc-147-down
         - fullstackbench-en
         - fullstackbench-zh
@@ -6595,6 +7260,7 @@ components:
         - healthbench
         - healthbench-concensus
         - healthbench-hard
+        - healthbench-professional
         - hellaswag
         - hiddenmath
         - hipho
@@ -6615,6 +7281,7 @@ components:
         - humaneval+
         - humanevalfim-average
         - humanitys-last-exam
+        - humanitys-last-exam-tools
         - hypersim
         - if
         - if-bench
@@ -6640,6 +7307,7 @@ components:
         - ivebench-overall-vs-kling-o1
         - ivebench-overall-vs-runway-aleph
         - jobbench
+        - kimi-code-bench-2
         - korbench
         - lbpp-(v2)
         - legal-agent-benchmark
@@ -6682,6 +7350,7 @@ components:
         - mathkangaroo
         - mathverse-mini
         - mathvision
+        - mathvision-python
         - mathvista
         - mathvista-mini
         - maxife
@@ -6709,6 +7378,7 @@ components:
         - misguided-attention
         - mle-bench
         - mle-bench-lite
+        - mls-bench-lite
         - mlvu
         - mlvu-m
         - mm-browsecomp
@@ -6743,6 +7413,7 @@ components:
         - mmmu-(val)
         - mmmu-(validation)
         - mmmu-pro
+        - mmmu-pro-python
         - mmmuval
         - mmsearch
         - mmsearch-plus
@@ -6801,6 +7472,7 @@ components:
         - olympiadbench
         - omnibench
         - omnibench-music
+        - omnidocbench
         - omnidocbench-1-5-down
         - omnidocbench-1.5
         - omnigaia
@@ -6815,11 +7487,13 @@ components:
         - openbookqa
         - openrca
         - os-world
+        - osworld-2.0
         - osworld-g
         - ovbench
         - ovobench
         - paperbench
         - pathmcqa-accuracy
+        - perceptionbench
         - perceptiontest
         - phibench
         - phybench
@@ -6834,7 +7508,9 @@ components:
         - polymath-en
         - pope
         - popqa
+        - posttrain-bench
         - procbench
+        - program-bench
         - protocolqa
         - qasper
         - qmsum
@@ -6875,6 +7551,7 @@ components:
         - social-iqa
         - solo-bench
         - spider
+        - spreadsheetbench-2
         - spreadsheetbench-verified
         - squality
         - summscreenfd
@@ -6889,6 +7566,7 @@ components:
         - swe-bench-pro
         - swe-evo
         - swe-lancer
+        - swe-marathon
         - swe-perf
         - swe-review
         - swt-bench
@@ -6988,6 +7666,7 @@ components:
         - zebralogic
         - zerobench
         - zerobench-main
+        - zerobench-main-python
         - zerobench-sub
     ErrorResponse:
       type: object
@@ -8171,6 +8850,7 @@ components:
         - anthropic/claude-opus-4.7
         - anthropic/claude-opus-4.7-fast
         - anthropic/claude-opus-4.8
+        - anthropic/claude-opus-5
         - anthropic/claude-sonnet-4.5
         - anthropic/claude-sonnet-4.6
         - anthropic/claude-sonnet-5
@@ -8194,6 +8874,7 @@ components:
         - bytedance/seed-2.0-mini
         - bytedance/seed-2.0-mini-260428
         - bytedance/seed-2.0-pro
+        - bytedance/seed-2.1-turbo
         - bytedance/seed-oss-36b-instruct
         - bytedance/seed-translation
         - bytedance/seedance-2.0
@@ -8241,11 +8922,14 @@ components:
         - google/gemini-3.1-flash-lite
         - google/gemini-3.1-flash-lite-image
         - google/gemini-3.1-flash-lite-preview
+        - google/gemini-3.1-flash-live-preview
         - google/gemini-3.1-flash-tts-preview
         - google/gemini-3.1-pro-preview
         - google/gemini-3.1-pro-preview-customtools
         - google/gemini-3.5-flash
+        - google/gemini-3.5-flash-lite
         - google/gemini-3.5-pro
+        - google/gemini-3.6-flash
         - google/gemini-embedding-001
         - google/gemini-embedding-2
         - google/gemini-embedding-2-preview
@@ -8267,6 +8951,7 @@ components:
         - inception/mercury-2
         - inception/mercury-edit-2
         - inclusionai/ling-2.6-1t
+        - inclusionai/ling-3.0-flash:free
         - inclusionai/ling-flash-2.0
         - inclusionai/ring-flash-2.0
         - inflection/inflection-3-pi
@@ -8294,6 +8979,7 @@ components:
         - meta/llama-prompt-guard-2-86m
         - microsoft/phi-4
         - microsoft/phi-4-mini
+        - mindai/macaron-v1-venti:free
         - minimax/hailuo-02
         - minimax/hailuo-2.3
         - minimax/hailuo-2.3-fast
@@ -8324,6 +9010,7 @@ components:
         - mistral/mistral-medium-3.5
         - mistral/mistral-moderation
         - mistral/mistral-moderation-2
+        - mistral/mistral-nemo
         - mistral/mistral-nemo-12b
         - mistral/mistral-nemo-2407
         - mistral/mistral-small-24b-2501
@@ -8331,7 +9018,6 @@ components:
         - mistral/mistral-small-4
         - mistral/mixtral-8x7b
         - mistral/pixtral-large
-        - mistralai/mistral-nemo
         - moonshotai/kimi-k2
         - moonshotai/kimi-k2-0905
         - moonshotai/kimi-k2-instruct
@@ -8341,6 +9027,7 @@ components:
         - moonshotai/kimi-k2.5-lightning
         - moonshotai/kimi-k2.6
         - moonshotai/kimi-k2.7-code
+        - moonshotai/kimi-k3
         - moonshotai/moonshot-v1-128k
         - moonshotai/moonshot-v1-128k-vision-preview
         - moonshotai/moonshot-v1-32k
@@ -8352,7 +9039,6 @@ components:
         - nex-agi/deepseek-v3.1-nex-n1
         - nex-agi/nex-n2-pro
         - nous/hermes-3-llama-3.1-405b
-        - nousresearch/hermes-3-llama-3.1-405b
         - nousresearch/hermes-3-llama-3.1-70b
         - nousresearch/hermes-4-405b
         - nousresearch/hermes-4-70b
@@ -8416,6 +9102,9 @@ components:
         - openai/gpt-oss-120b
         - openai/gpt-oss-20b
         - openai/gpt-oss-safeguard-20b
+        - openai/gpt-realtime
+        - openai/gpt-realtime-1.5
+        - openai/gpt-realtime-2
         - openai/o1
         - openai/o1-mini
         - openai/o1-pro
@@ -8432,6 +9121,7 @@ components:
         - openai/whisper-1
         - phaseo/free
         - poolside/laguna-m.1:free
+        - poolside/laguna-s-2.1:free
         - poolside/laguna-xs-2.1:free
         - qwen/qvq-max
         - qwen/qwen-3.6-plus
@@ -8553,6 +9243,8 @@ components:
         - tencent/hy3
         - tencent/hy3-preview
         - tencent/hy3:free
+        - thinking-machines/inkling
+        - thinking-machines/inkling-64k
         - venice/venice-uncensored
         - venice/venice-uncensored-1.1
         - voyage/rerank-1
@@ -8583,6 +9275,7 @@ components:
         - voyage/voyage-multilingual-2
         - voyage/voyage-multimodal-3
         - voyage/voyage-multimodal-3.5
+        - x-ai/grok-voice-latest
         - xiaomi/mimo-v2-flash
         - xiaomi/mimo-v2.5
         - xiaomi/mimo-v2.5-pro
@@ -8604,6 +9297,7 @@ components:
         - z-ai/glm-5-turbo
         - z-ai/glm-5.1
         - z-ai/glm-5.2
+        - z-ai/glm-5.2-fast
         - z-ai/glm-5v-turbo
         - zai-org/glm-4.5-air
         - zai/glm-5

@@ -1,7 +1,7 @@
 // Types for monitor models functionality
 
 export interface MonitorModelData {
-    id: string; // Canonical API model id + provider + capability key
+    id: string; // Canonical model + provider model variant + capability key
     model: string;
     modelId: string; // Canonical model_id (API model id semantics)
     apiModelId?: string;
@@ -59,13 +59,22 @@ export type MonitorModelTableRow = Pick<
     | "context"
     | "maxOutput"
     | "quantization"
+	| "supportedParameters"
     | "tier"
     | "added"
     | "retired"
 > & {
-    provider: Pick<MonitorModelData["provider"], "name" | "id" | "inputPrice" | "outputPrice" | "features">;
+    provider: Pick<MonitorModelData["provider"], "name" | "id" | "inputPrice" | "outputPrice" | "features" | "executionRegions">;
     popularityTokensWeek?: number;
 };
+
+export interface ModelsTableData {
+	models: MonitorModelTableRow[];
+	allEndpoints: string[];
+	allModalities: string[];
+	allFeatures: string[];
+	allStatuses: string[];
+}
 
 export interface MonitorModelFilters {
     search?: string;

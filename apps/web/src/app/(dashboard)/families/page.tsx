@@ -4,11 +4,11 @@ import { Suspense } from "react";
 import { Logo } from "@/components/Logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { FamilyCard } from "@/lib/fetchers/families/getAllFamilies";
+import type { FamilyCard } from "@/lib/fetchers/families/types";
 import { fetchFrontendFamilies } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 
 export const metadata: Metadata = {
-	title: "AI Model Families - Track Related AI Model Releases",
+	title: "Model Families",
 	description:
 		"Explore AI model families to compare related releases, providers, capabilities, and evolution timelines in one place across the Phaseo model directory.",
 	keywords: [

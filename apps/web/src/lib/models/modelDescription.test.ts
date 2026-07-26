@@ -1,6 +1,8 @@
 import {
 	buildGeneratedModelDescription,
 	buildModelPageMetadataDescription,
+	buildModelOverviewMetadataDescription,
+	buildModelOverviewMetadataTitle,
 	getExplicitModelDescription,
 	markdownToPlainText,
 	resolveModelDescription,
@@ -78,5 +80,32 @@ describe("modelDescription", () => {
 		expect(plainText).toBe(
 			"Performance on par with OpenAI o1, with open reasoning tokens.",
 		);
+	});
+
+	it("builds a concise model overview title", () => {
+		expect(buildModelOverviewMetadataTitle("Aion 3.0")).toBe(
+			"Aion 3.0 Pricing, Benchmarks & Providers",
+		);
+	});
+
+	it("shortens the title pattern for long model names", () => {
+		expect(
+			buildModelOverviewMetadataTitle(
+				"Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image)",
+			),
+		).toBe(
+			"Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image) Pricing & Providers",
+		);
+	});
+
+	it("builds a model overview description around search intent", () => {
+		const description = buildModelOverviewMetadataDescription({
+			modelName: "Aion 3.0",
+			organisationName: "Aion Labs",
+		});
+
+		expect(description).toContain("Aion 3.0 pricing, providers, benchmark results");
+		expect(description).toContain("from Aion Labs on Phaseo");
+		expect(description.length).toBeLessThanOrEqual(160);
 	});
 });

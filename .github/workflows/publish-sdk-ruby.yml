@@ -1,6 +1,11 @@
 name: Publish Ruby SDK
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/sdk/sdk-ruby/package.json"
   workflow_dispatch:
     inputs:
       version:
@@ -10,10 +15,12 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   publish-ruby:
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: Require main branch
         shell: bash
@@ -23,7 +30,6 @@ jobs:
             echo "::error::Run this workflow from refs/heads/main only."
             exit 1
           fi
-
       - name: Create GitHub App token (Phaseo Bot)
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
@@ -37,13 +43,13 @@ jobs:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: "22"
           package-manager-cache: false
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9
+        uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600
         with:
           ruby-version: "3.2"
 
@@ -54,10 +60,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ -n "${INPUT_VERSION:-}" ]; then
-            version="${INPUT_VERSION}"
-          else
-            version="$(node -p "require('./packages/sdk/sdk-ruby/package.json').version")"
+          version="$(node -p "require('./packages/sdk/sdk-ruby/package.json').version")"
+          if [ -n "${INPUT_VERSION:-}" ] && [ "${INPUT_VERSION}" != "${version}" ]; then
+            echo "::error::Requested version ${INPUT_VERSION} does not match committed version ${version}."
+            exit 1
           fi
           if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
             echo "::error::Invalid version: $version"
@@ -65,7 +71,29 @@ jobs:
           fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
 
+      - name: Check RubyGems release status
+        id: registry
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module - <<'NODE'
+          import fs from "node:fs";
+          const version = process.env.VERSION;
+          const response = await fetch("https://rubygems.org/api/v1/versions/phaseo_sdk.json");
+          if (!response.ok && response.status !== 404) {
+            console.error(`::error::Unexpected RubyGems.org response: HTTP ${response.status}`);
+            process.exit(1);
+          }
+          const releases = response.ok ? await response.json() : [];
+          const exists = releases.some((release) => release.number === version);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `should_publish=${exists ? "false" : "true"}\n`);
+          console.log(`phaseo_sdk ${version} ${exists ? "already exists on" : "is missing from"} RubyGems.org.`);
+          NODE
+
       - name: Validate telemetry literals match publish version
+        if: steps.registry.outputs.should_publish == 'true'
         env:
           VERSION: ${{ steps.version.outputs.value }}
         shell: bash
@@ -100,19 +128,29 @@ jobs:
           }
           NODE
 
-      - name: Set gem version
+      - name: Validate committed gem version
+        if: steps.registry.outputs.should_publish == 'true'
         env:
           VERSION: ${{ steps.version.outputs.value }}
         shell: bash
         run: |
           set -euo pipefail
-          ruby -e "f='packages/sdk/sdk-ruby/lib/phaseo_sdk/version.rb'; s=File.read(f); s=s.gsub(/VERSION\\s*=\\s*\"[^\"]+\"/, 'VERSION = \"' + ENV.fetch('VERSION') + '\"'); File.write(f,s)"
+          ruby -e 'require_relative "./packages/sdk/sdk-ruby/lib/phaseo_sdk/version"; abort("Committed gem version #{PhaseoSdk::VERSION} does not match release version #{ENV.fetch("VERSION")}") unless PhaseoSdk::VERSION == ENV.fetch("VERSION")'
 
       - name: Build gem
+        if: steps.registry.outputs.should_publish == 'true'
         working-directory: packages/sdk/sdk-ruby
         run: |
           ruby tests/lifecycle_test.rb
           gem build phaseo_sdk.gemspec
+
+      - name: Configure RubyGems trusted publishing credentials
+        if: steps.registry.outputs.should_publish == 'true'
+        uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a
+
+      - name: Publish to RubyGems
+        if: steps.registry.outputs.should_publish == 'true'
+        run: gem push packages/sdk/sdk-ruby/phaseo_sdk-${{ steps.version.outputs.value }}.gem
 
       - name: Create and push SDK tag
         env:
@@ -132,21 +170,3 @@ jobs:
           else
             git push "https://x-access-token:${GH_APP_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$tag"
           fi
-
-      - name: Publish to RubyGems
-        env:
-          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -z "${RUBYGEMS_API_KEY:-}" ]; then
-            echo "::error::Missing RUBYGEMS_API_KEY secret."
-            exit 1
-          fi
-          mkdir -p ~/.gem
-          cat > ~/.gem/credentials <<EOF
-          ---
-          :rubygems_api_key: ${RUBYGEMS_API_KEY}
-          EOF
-          chmod 0600 ~/.gem/credentials
-          gem push packages/sdk/sdk-ruby/phaseo_sdk-${{ steps.version.outputs.value }}.gem

@@ -1,5 +1,8 @@
 import type { ProviderPricing } from "@/lib/fetchers/models/getModelPricing";
-import { buildProviderSections } from "./pricingHelpers";
+import {
+	buildProviderSections,
+	buildProviderTablePriceSummary,
+} from "./pricingHelpers";
 
 function makeProviderPricing(): ProviderPricing {
 	return {
@@ -124,24 +127,120 @@ function makeProviderPricing(): ProviderPricing {
 }
 
 describe("buildProviderSections", () => {
-	test("matches priority context ranges to standard pricing semantically", () => {
+	test("does not compare marked-up priority pricing with standard", () => {
 		const sections = buildProviderSections(makeProviderPricing(), "priority");
 		const inputTiers = sections.textTokens?.in ?? [];
 
 		expect(inputTiers).toHaveLength(2);
 		expect(inputTiers[0]).toMatchObject({
 			per1M: 12.5,
-			basePer1M: 5,
-			comparisonKind: "vs-standard",
-			comparisonDirection: "pricier",
+			basePer1M: null,
+			comparisonKind: null,
+			comparisonDirection: null,
 			label: "< 272k",
 		});
 		expect(inputTiers[1]).toMatchObject({
 			per1M: 25,
-			basePer1M: 10,
-			comparisonKind: "vs-standard",
-			comparisonDirection: "pricier",
+			basePer1M: null,
+			comparisonKind: null,
+			comparisonDirection: null,
 			label: "≥ 272k",
+		});
+	});
+
+	test("does not compare Batch pricing with Standard", () => {
+		const provider = makeProviderPricing();
+		provider.pricing_rules = [
+			{
+				id: "std-input-default",
+				model_key: "openai:openai/gpt-5.5:responses",
+				pricing_plan: "standard",
+				meter: "input_text_tokens",
+				unit: "token",
+				unit_size: 1_000_000,
+				price_per_unit: 5,
+				currency: "USD",
+				note: null,
+				priority: 100,
+				effective_from: "2026-01-01T00:00:00.000Z",
+				effective_to: null,
+				match: [],
+			},
+			{
+				id: "std-input-long",
+				model_key: "openai:openai/gpt-5.5:responses",
+				pricing_plan: "standard",
+				meter: "input_text_tokens",
+				unit: "token",
+				unit_size: 1_000_000,
+				price_per_unit: 10,
+				currency: "USD",
+				note: null,
+				priority: 100,
+				effective_from: "2026-01-01T00:00:00.000Z",
+				effective_to: null,
+				match: [{ path: "input_tokens", op: "gt", value: 272000 }],
+			},
+			{
+				id: "batch-input-short",
+				model_key: "openai:openai/gpt-5.5:batch",
+				pricing_plan: "batch",
+				meter: "input_text_tokens",
+				unit: "token",
+				unit_size: 1_000_000,
+				price_per_unit: 2.5,
+				currency: "USD",
+				note: null,
+				priority: 100,
+				effective_from: "2026-01-01T00:00:00.000Z",
+				effective_to: null,
+				match: [
+					{
+						path: "input_tokens",
+						op: "lt",
+						value: 272000,
+						or_group: 1,
+						and_index: 1,
+					},
+				],
+			},
+			{
+				id: "batch-input-long",
+				model_key: "openai:openai/gpt-5.5:batch",
+				pricing_plan: "batch",
+				meter: "input_text_tokens",
+				unit: "token",
+				unit_size: 1_000_000,
+				price_per_unit: 5,
+				currency: "USD",
+				note: null,
+				priority: 100,
+				effective_from: "2026-01-01T00:00:00.000Z",
+				effective_to: null,
+				match: [
+					{
+						path: "input_tokens",
+						op: "gte",
+						value: 272000,
+						or_group: 1,
+						and_index: 1,
+					},
+				],
+			},
+		];
+
+		const inputTiers = buildProviderSections(provider, "batch").textTokens?.in ?? [];
+
+		expect(inputTiers).toHaveLength(2);
+		expect(inputTiers[0]).toMatchObject({
+			per1M: 2.5,
+			basePer1M: null,
+			comparisonKind: null,
+		});
+		expect(inputTiers[1]).toMatchObject({
+			per1M: 5,
+			basePer1M: null,
+			comparisonKind: null,
 		});
 	});
 
@@ -152,10 +251,10 @@ describe("buildProviderSections", () => {
 		provider.provider.provider_family_id = "venice";
 		provider.provider_models = [
 			{
-				id: "venice:anthropic/claude-opus-4.8:text.generate",
+				id: "venice:anthropic/claude-opus-5:text.generate",
 				api_provider_id: "venice",
-				model_id: "anthropic/claude-opus-4.8",
-				provider_model_slug: "claude-opus-4-8",
+				model_id: "anthropic/claude-opus-5",
+				provider_model_slug: "claude-opus-5",
 				endpoint: "text.generate",
 				capability_status: "active",
 				is_active_gateway: true,
@@ -166,10 +265,10 @@ describe("buildProviderSections", () => {
 				max_output_tokens: 128_000,
 			},
 			{
-				id: "venice:anthropic/claude-opus-4.8-fast:text.generate",
+				id: "venice:anthropic/claude-opus-5-fast:text.generate",
 				api_provider_id: "venice",
-				model_id: "anthropic/claude-opus-4.8-fast",
-				provider_model_slug: "claude-opus-4-8-fast",
+				model_id: "anthropic/claude-opus-5-fast",
+				provider_model_slug: "claude-opus-5-fast",
 				endpoint: "text.generate",
 				capability_status: "deranked_lvl2",
 				is_active_gateway: false,
@@ -183,7 +282,7 @@ describe("buildProviderSections", () => {
 		provider.pricing_rules = [
 			{
 				id: "venice-std-input",
-				model_key: "venice:anthropic/claude-opus-4.8:text.generate",
+				model_key: "venice:anthropic/claude-opus-5:text.generate",
 				pricing_plan: "standard",
 				meter: "input_text_tokens",
 				unit: "token",
@@ -198,7 +297,7 @@ describe("buildProviderSections", () => {
 			},
 			{
 				id: "venice-priority-input",
-				model_key: "venice:anthropic/claude-opus-4.8:text.generate",
+				model_key: "venice:anthropic/claude-opus-5:text.generate",
 				pricing_plan: "priority",
 				meter: "input_text_tokens",
 				unit: "token",
@@ -213,7 +312,7 @@ describe("buildProviderSections", () => {
 			},
 			{
 				id: "venice-hidden-fast-std-input",
-				model_key: "venice:anthropic/claude-opus-4.8-fast:text.generate",
+				model_key: "venice:anthropic/claude-opus-5-fast:text.generate",
 				pricing_plan: "standard",
 				meter: "input_text_tokens",
 				unit: "token",
@@ -236,8 +335,57 @@ describe("buildProviderSections", () => {
 		});
 		expect(prioritySections.textTokens?.in?.[0]).toMatchObject({
 			per1M: 12,
-			basePer1M: 6,
+			basePer1M: null,
+			comparisonKind: null,
 		});
+	});
+
+	test("presents a higher-priority promotional rate as a discount without an end date", () => {
+		const provider = makeProviderPricing();
+		provider.pricing_rules = [
+			{
+				id: "inkling-input-list",
+				model_key: "thinking-machines:thinking-machines/inkling-64k:text.generate",
+				pricing_plan: "standard",
+				meter: "input_text_tokens",
+				unit: "token",
+				unit_size: 1_000_000,
+				price_per_unit: 3.74,
+				currency: "USD",
+				note: "Undiscounted list price",
+				priority: 100,
+				effective_from: "2026-07-15T00:00:00.000Z",
+				effective_to: null,
+				match: [],
+			},
+			{
+				id: "inkling-input-promotion",
+				model_key: "thinking-machines:thinking-machines/inkling-64k:text.generate",
+				pricing_plan: "standard",
+				meter: "input_text_tokens",
+				unit: "token",
+				unit_size: 1_000_000,
+				price_per_unit: 1.87,
+				currency: "USD",
+				note: "Limited-time 50% promotion",
+				priority: 200,
+				effective_from: "2026-07-15T00:00:00.000Z",
+				effective_to: null,
+				match: [],
+			},
+		];
+
+		const sections = buildProviderSections(provider, "standard");
+
+		expect(sections.textTokens?.in).toEqual([
+			expect.objectContaining({
+				per1M: 1.87,
+				basePer1M: 3.74,
+				comparisonKind: "discount",
+				comparisonDirection: "cheaper",
+				discountEndsAt: null,
+			}),
+		]);
 	});
 
 	test("labels split Anthropic cache write TTL pricing clearly", () => {
@@ -283,5 +431,83 @@ describe("buildProviderSections", () => {
 			expect.objectContaining({ per1M: 3.75, label: "5 min TTL" }),
 			expect.objectContaining({ per1M: 6, label: "1 hour TTL" }),
 		]);
+	});
+
+	test("shows off-peak pricing first outside configured UTC windows", () => {
+		const provider = makeProviderPricing();
+		provider.pricing_rules = [{
+			...provider.pricing_rules[0]!,
+			id: "deepseek-input",
+			price_per_unit: 0.28,
+			billing_timestamp_basis: "provider_accept",
+			match: [],
+			time_windows: [
+				{
+					label: "Peak",
+					timezone: "UTC",
+					start_time: "01:00",
+					end_time: "04:00",
+					price_per_unit: 0.87,
+				},
+				{
+					label: "Peak",
+					timezone: "UTC",
+					start_time: "06:00",
+					end_time: "10:00",
+					price_per_unit: 0.87,
+				},
+			],
+		}];
+
+		const sections = buildProviderSections(
+			provider,
+			"standard",
+			new Date("2026-07-17T05:30:00.000Z"),
+		);
+		const tier = sections.textTokens?.in[0];
+
+		expect(tier).toMatchObject({
+			per1M: 0.28,
+		});
+		expect(buildProviderTablePriceSummary(sections, "input").primary).toMatchObject({
+			price: 0.28,
+		});
+	});
+
+	test("shows peak pricing first from the inclusive start to exclusive end", () => {
+		const provider = makeProviderPricing();
+		provider.pricing_rules = [{
+			...provider.pricing_rules[0]!,
+			id: "deepseek-input",
+			price_per_unit: 0.28,
+			billing_timestamp_basis: "provider_accept",
+			match: [],
+			time_windows: [{
+				label: "Peak",
+				timezone: "UTC",
+				start_time: "01:00",
+				end_time: "04:00",
+				price_per_unit: 0.87,
+			}],
+		}];
+
+		const atStart = buildProviderSections(
+			provider,
+			"standard",
+			new Date("2026-07-17T01:00:00.000Z"),
+		);
+		const atEnd = buildProviderSections(
+			provider,
+			"standard",
+			new Date("2026-07-17T04:00:00.000Z"),
+		);
+
+		expect(atStart.textTokens?.in[0]).toMatchObject({
+			per1M: 0.87,
+		});
+		expect(buildProviderTablePriceSummary(atStart, "input")).toMatchObject({
+			sortValue: 0.87,
+		});
+		expect(buildProviderTablePriceSummary(atEnd, "input").sortValue).toBe(0.28);
 	});
 });

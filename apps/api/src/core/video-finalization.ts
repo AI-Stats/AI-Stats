@@ -6,6 +6,7 @@ import { loadPriceCard } from "@pipeline/pricing/loader";
 import { recordUsageAndCharge } from "@pipeline/pricing/persist";
 import { applyByokServiceFee } from "@pipeline/pricing/byok-fee";
 import { getSupabaseAdmin } from "@/runtime/env";
+import { emitGatewayOperationalFailure } from "@/observability/axiom";
 import {
 	getVideoJobMeta,
 	getVideoJobRecord,
@@ -138,6 +139,7 @@ function nanosToUsd(value: number | undefined): number | undefined {
 function resolveDurationMs(args: {
 	createdAtIso?: string | null;
 	createdAtMs?: number | null;
+	providerDispatchedAtMs?: number | null;
 	finalizedAtIso: string;
 }): number | undefined {
 	const finalizedAtMs = Date.parse(args.finalizedAtIso);
@@ -147,9 +149,10 @@ function resolveDurationMs(args: {
 			? Date.parse(args.createdAtIso)
 			: NaN;
 	const sourceCreatedAtMs =
-		Number.isFinite(isoCreatedAtMs)
+		toFiniteNumber(args.providerDispatchedAtMs) ??
+		(Number.isFinite(isoCreatedAtMs)
 			? isoCreatedAtMs
-			: toFiniteNumber(args.createdAtMs);
+			: toFiniteNumber(args.createdAtMs));
 	if (!Number.isFinite(sourceCreatedAtMs ?? NaN)) return undefined;
 	return Math.max(0, Math.round(finalizedAtMs - Number(sourceCreatedAtMs)));
 }
@@ -540,6 +543,7 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 		? resolveDurationMs({
 			createdAtIso: existingJob?.createdAt,
 			createdAtMs: existingJob?.meta?.createdAt ?? null,
+			providerDispatchedAtMs: existingJob?.meta?.providerDispatchedAtMs ?? null,
 			finalizedAtIso,
 		})
 		: undefined;
@@ -548,6 +552,7 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 			...(args.metaPatch ?? {}),
 			finalizedAt: finalizedAtIso,
 			...(typeof durationMs === "number" ? { durationMs } : {}),
+			...(typeof durationMs === "number" ? { generationMs: durationMs } : {}),
 		}
 		: { ...(args.metaPatch ?? {}) };
 	if (currentStatus !== nextStatus || Object.keys(metaPatch).length > 0) {
@@ -1086,6 +1091,13 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 			error: captureErr,
 			workspaceId: args.workspaceId,
 			videoId: args.videoId,
+		});
+		await emitGatewayOperationalFailure({
+			workflow: "video_finalization",
+			workspaceId: args.workspaceId,
+			resourceId: args.videoId,
+			reason: "video_capture_reservation_failed",
+			error: captureErr,
 		});
 		return {
 			status: nextStatus,

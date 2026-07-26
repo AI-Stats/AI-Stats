@@ -59,7 +59,7 @@ export default function EmailPassword({
 				<div className="flex-1 border-t border-border" />
 				<div className="flex items-center gap-2 px-2">
 					<span className="text-sm text-muted-foreground">
-						Or sign in with email
+						or continue with email
 					</span>
 					{showLastUsed ? (
 						<span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-medium leading-none text-muted-foreground">
@@ -80,7 +80,7 @@ export default function EmailPassword({
 						id="email"
 						name="email"
 						type="email"
-						placeholder="phaseo@example.com"
+						placeholder="you@example.com"
 						required
 					/>
 				</div>
@@ -135,18 +135,6 @@ export default function EmailPassword({
 				>
 					Sign up
 				</Link>
-				<div className="mt-2">
-					<Link
-						href={
-							returnUrl
-								? `/sign-in/enterprise?returnUrl=${encodeURIComponent(returnUrl)}`
-								: "/sign-in/enterprise"
-						}
-						className="text-muted-foreground underline underline-offset-4"
-					>
-						Enterprise Login
-					</Link>
-				</div>
 			</div>
 
 			<ForgotPasswordDialog

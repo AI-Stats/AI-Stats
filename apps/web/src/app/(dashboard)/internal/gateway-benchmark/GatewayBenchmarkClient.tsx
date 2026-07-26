@@ -22,6 +22,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { getBrowserAccessToken } from "@/lib/fetchers/internal/accountAuthClient";
+import { fetchInternalWebApi, fetchInternalWebApiResponse } from "@/lib/web-api/client";
 
 type CompareResponse = {
 	config: {
@@ -372,7 +374,7 @@ export default function GatewayBenchmarkClient() {
 	const [runs, setRuns] = useState("5");
 	const [maxCompletionTokens, setMaxCompletionTokens] = useState("64");
 	const [endpoint, setEndpoint] = useState<"chat_completions" | "responses">("chat_completions");
-	const [gatewayBaseUrl, setGatewayBaseUrl] = useState("https://api.phaseo.ai/v1");
+	const [gatewayBaseUrl, setGatewayBaseUrl] = useState("https://api.phaseo.app/v1");
 	const [openRouterBaseUrl, setOpenRouterBaseUrl] = useState("https://openrouter.ai/api/v1");
 	const [llmGatewayBaseUrl, setLlmGatewayBaseUrl] = useState("https://api.llmgateway.io/v1");
 	const [vercelAiGatewayBaseUrl, setVercelAiGatewayBaseUrl] = useState("https://ai-gateway.vercel.sh/v1");
@@ -397,9 +399,8 @@ export default function GatewayBenchmarkClient() {
 	const runSummary = async () => {
 		setIsSummarizing(true);
 		try {
-			const response = await fetch("/api/internal/gateway-benchmark", {
+			const payload = await fetchInternalWebApi<CompareResponse>("/api/internal/gateway-benchmark", (await getBrowserAccessToken()) ?? "", {
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
 					model,
 					prompt,
@@ -412,15 +413,6 @@ export default function GatewayBenchmarkClient() {
 					vercelAiGatewayBaseUrl,
 				}),
 			});
-			const payload = (await response.json()) as CompareResponse & {
-				error?: string;
-				details?: string;
-			};
-			if (!response.ok) {
-				setData(null);
-				setError(payload.details ?? payload.error ?? "Failed to run comparison");
-				return;
-			}
 			setData(payload);
 		} catch (requestError) {
 			setData(null);
@@ -443,9 +435,8 @@ export default function GatewayBenchmarkClient() {
 		});
 		setIsStreaming(true);
 
-		const response = await fetch("/api/internal/gateway-benchmark/live", {
+		const response = await fetchInternalWebApiResponse("/api/internal/gateway-benchmark/live", (await getBrowserAccessToken()) ?? "", {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
 				model,
 				prompt,

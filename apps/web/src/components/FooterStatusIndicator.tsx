@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import useSWR from "swr";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { publicSWRKeys } from "@/lib/swr/keys";
 
 type StatusState =
 	| "operational"
@@ -26,7 +28,7 @@ type StatusSummary = {
 	}>;
 };
 
-const STATUS_PAGE_HREF = "https://phaseo.instatus.com/";
+const STATUS_PAGE_HREF = "https://status.phaseo.app";
 
 const STATUS_STYLES: Record<StatusState, { dot: string; text: string }> = {
 	operational: {
@@ -57,15 +59,14 @@ const STATUS_STYLES: Record<StatusState, { dot: string; text: string }> = {
 
 type StatusComponent = NonNullable<StatusSummary["components"]>[number];
 
-const GROUP_ORDER = ["API", "Platform", "Backend", "Third Party", "Other"];
+const GROUP_ORDER = ["API", "Platform", "Other"];
 const COMPONENT_PRIORITY = [
-	"API",
-	"Models API (/v1/api/models)",
-	"Providers",
-	"Platform",
-	"Web App",
-	"Documentation",
-	"Phaseo Backend",
+	"API health (/v1/health)",
+	"Models API (/v1/models)",
+	"Generation API demo",
+	"Homepage",
+	"Documentation homepage",
+	"Docs page",
 ];
 
 function isAffected(component: StatusComponent) {
@@ -73,123 +74,58 @@ function isAffected(component: StatusComponent) {
 }
 
 function statusGroup(component: StatusComponent) {
-	const haystack = `${component.name} ${component.parent ?? ""}`;
-
-	if (haystack.includes("Third Party:")) return "Third Party";
 	if (
-		component.name === "API" ||
-		component.name.startsWith("API ") ||
+		component.name.includes("API") ||
 		component.name.includes("(/v1/") ||
 		component.parent?.startsWith("API")
 	) {
 		return "API";
 	}
 	if (
-		component.name === "Platform" ||
 		component.parent?.startsWith("Platform") ||
-		component.name === "Web App" ||
-		component.name.startsWith("Web App - ") ||
-		component.name.startsWith("Homepage (/)") ||
-		component.name === "Documentation"
+		component.name === "Homepage" ||
+		component.name.startsWith("Homepage") ||
+		component.name === "Documentation homepage" ||
+		component.name === "Docs page"
 	) {
 		return "Platform";
-	}
-	if (
-		component.name.includes("Backend") ||
-		component.parent?.includes("Backend")
-	) {
-		return "Backend";
 	}
 
 	return "Other";
 }
 
 function shortComponentName(component: StatusComponent) {
-	if (component.name.startsWith("Third Party: ")) {
-		return component.name.replace("Third Party: ", "");
-	}
-	if (component.name.startsWith("Provider: ")) {
-		return component.name.replace("Provider: ", "");
-	}
 	return component.name;
 }
 
 function componentPriority(component: StatusComponent) {
 	const exactIndex = COMPONENT_PRIORITY.indexOf(component.name);
-	if (exactIndex >= 0 && !component.name.startsWith("Third Party: ")) {
+	if (exactIndex >= 0) {
 		return exactIndex;
 	}
-
-	if (component.name.includes("Supabase") && component.name.includes("API Gateway")) {
-		return 20;
-	}
-	if (component.name.includes("Supabase") && component.name.includes("Database")) {
-		return 21;
-	}
-	if (component.name.includes("Supabase") && component.name.includes("Auth")) {
-		return 22;
-	}
-	if (
-		component.name.includes("Supabase") &&
-		component.name.includes("Edge Functions")
-	) {
-		return 23;
-	}
-	if (component.name.includes("Stripe")) return 24;
-	if (component.name.includes("Cloudflare")) return 25;
-	if (component.name.includes("Vercel")) return 26;
-
-	if (component.name.startsWith("Provider: OpenAI")) return 30;
-	if (component.name.startsWith("Provider: Anthropic")) return 31;
-	if (component.name.startsWith("Provider: DeepSeek")) return 32;
-	if (component.name.startsWith("Provider: Baseten")) return 33;
-	if (component.name.startsWith("Provider: ")) return 40;
 
 	return 100;
 }
 
 export function FooterStatusIndicator() {
 	const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-	const [status, setStatus] = useState<StatusSummary>({
-		ok: false,
-		state: "unknown",
-		label: "Checking status",
-		href: STATUS_PAGE_HREF,
-	});
+	const { data, error } = useSWR<StatusSummary>(publicSWRKeys.status);
+	const status: StatusSummary = data
+		? {
+				ok: Boolean(data.ok),
+				state: data.state ?? "unknown",
+				label: data.label || "Status unavailable",
+				href: data.href || STATUS_PAGE_HREF,
+				components: Array.isArray(data.components) ? data.components : [],
+			}
+		: {
+				ok: false,
+				state: "unknown",
+				label: error ? "Status unavailable" : "Checking status",
+				href: STATUS_PAGE_HREF,
+				components: [],
+			};
 	const [open, setOpen] = useState(false);
-
-	useEffect(() => {
-		let active = true;
-
-		void fetch("/api/status/summary", { cache: "no-store" })
-			.then((response) => response.json() as Promise<StatusSummary>)
-			.then((summary) => {
-				if (!active) return;
-				setStatus({
-					ok: Boolean(summary.ok),
-					state: summary.state ?? "unknown",
-					label: summary.label || "Status unavailable",
-					href: summary.href || STATUS_PAGE_HREF,
-					components: Array.isArray(summary.components)
-						? summary.components
-						: [],
-				});
-			})
-			.catch(() => {
-				if (!active) return;
-				setStatus({
-					ok: false,
-					state: "unknown",
-					label: "Status unavailable",
-					href: STATUS_PAGE_HREF,
-					components: [],
-				});
-			});
-
-		return () => {
-			active = false;
-		};
-	}, []);
 
 	useEffect(() => {
 		return () => {
@@ -245,7 +181,7 @@ export function FooterStatusIndicator() {
 
 	return (
 		<span
-			className="group/status relative inline-flex after:absolute after:bottom-full after:left-0 after:h-4 after:w-[min(92vw,32rem)] after:content-['']"
+			className="group/status relative inline-flex after:absolute after:bottom-full after:left-0 after:h-4 after:w-[min(88vw,24rem)] after:content-['']"
 			onPointerEnter={openPopover}
 			onPointerLeave={closePopover}
 			onFocus={openPopover}
@@ -272,7 +208,7 @@ export function FooterStatusIndicator() {
 				<ArrowUpRight className="h-3.5 w-3.5 opacity-55 transition-transform group-hover/status:-translate-y-0.5 group-hover/status:translate-x-0.5 group-hover/status:opacity-100" />
 			</Link>
 			<span
-				className={`absolute bottom-[calc(100%+0.5rem)] left-0 z-50 w-[min(92vw,32rem)] overflow-hidden rounded-xl border border-zinc-200 bg-white text-left shadow-xl shadow-zinc-950/10 dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-black/30 ${
+				className={`absolute bottom-[calc(100%+0.5rem)] left-0 z-50 w-[min(88vw,24rem)] overflow-hidden rounded-xl border border-zinc-200 bg-white text-left shadow-xl shadow-zinc-950/10 dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-black/30 ${
 					open ? "block" : "hidden"
 				}`}
 			>
@@ -299,7 +235,7 @@ export function FooterStatusIndicator() {
 					{hasComponents ? (
 						groupedComponents.map((group) => (
 							<span key={group.group} className="block">
-								<span className="sticky top-0 z-10 flex items-center justify-between bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-zinc-500 dark:bg-zinc-950 dark:text-zinc-400">
+								<span className="sticky top-0 z-10 flex items-center justify-between bg-white px-3 py-1.5 text-[11px] font-semibold text-zinc-500 dark:bg-zinc-950 dark:text-zinc-400">
 									<span>{group.group}</span>
 									{group.affected ? (
 										<span className="normal-case tracking-normal text-amber-700 dark:text-amber-300">

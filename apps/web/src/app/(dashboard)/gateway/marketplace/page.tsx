@@ -31,11 +31,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { fetchFrontendMarketplacePresets } from "@/lib/fetchers/frontend/fetchPublicCatalog";
-import type { MarketplacePreset } from "@/lib/fetchers/gateway/marketplace";
+import type { MarketplacePreset } from "@/lib/fetchers/gateway/marketplaceTypes";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-	title: "Gateway Marketplace - Phaseo",
+	title: "Gateway Marketplace",
 	description:
 		"Browse public Phaseo Gateway presets, copy proven configurations to your workspace, and customize model routing, retries, and policy behavior for your team.",
 	path: "/gateway/marketplace",

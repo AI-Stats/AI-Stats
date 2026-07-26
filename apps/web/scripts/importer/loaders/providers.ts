@@ -30,6 +30,12 @@ type ProviderZeroDataRetentionMode =
     | "unsupported"
     | "optional"
     | "default";
+type ProviderDataPolicyTier = "unknown" | "private" | "logs" | "trains";
+type ProviderDataPolicyConfidence = "unknown" | "confirmed" | "maybe";
+type ProviderDataPolicyContractMode =
+    | "none"
+    | "customer_agreement"
+    | "enterprise_agreement";
 
 const PROVIDER_ORG_ALIASES: Record<string, string> = {
     "amazon-bedrock": "amazon",
@@ -190,6 +196,44 @@ const parseZeroDataRetentionMode = (value: unknown): ProviderZeroDataRetentionMo
     if (raw === "optional") return "optional";
     if (raw === "default") return "default";
     return "unknown";
+};
+
+const parseProviderDataPolicyTier = (value: unknown): ProviderDataPolicyTier => {
+    const raw = String(value ?? "").trim().toLowerCase();
+    if (raw === "private") return "private";
+    if (raw === "logs" || raw === "logged") return "logs";
+    if (raw === "trains" || raw === "train") return "trains";
+    return "unknown";
+};
+
+const parseProviderDataPolicyConfidence = (
+    value: unknown,
+): ProviderDataPolicyConfidence => {
+    const raw = String(value ?? "").trim().toLowerCase();
+    if (raw === "confirmed" || raw === "certain") return "confirmed";
+    if (raw === "maybe" || raw === "uncertain" || raw === "inferred") return "maybe";
+    return "unknown";
+};
+
+const parseProviderDataPolicyContractMode = (
+    value: unknown,
+): ProviderDataPolicyContractMode => {
+    const raw = String(value ?? "").trim().toLowerCase();
+    if (
+        raw === "customer_agreement" ||
+        raw === "customer-agreement" ||
+        raw === "agreement"
+    ) {
+        return "customer_agreement";
+    }
+    if (
+        raw === "enterprise_agreement" ||
+        raw === "enterprise-agreement" ||
+        raw === "enterprise"
+    ) {
+        return "enterprise_agreement";
+    }
+    return "none";
 };
 
 const parseProviderOfferScope = (value: unknown): ProviderOfferScope => {
@@ -633,8 +677,8 @@ export async function loadProviders(
     tracker: ChangeTracker,
     opts?: { modelId?: string | null }
 ) {
-    tracker.touchPrefix(DIR_PROVIDERS);
     const modelFilter = opts?.modelId ?? null;
+    if (!modelFilter) tracker.touchPrefix(DIR_PROVIDERS);
     const dirs = await listDirs(DIR_PROVIDERS);
     const supa = client();
     const organisationColours = await loadOrganisationColours();
@@ -690,10 +734,13 @@ export async function loadProviders(
         notes: string | null;
     }> = [];
     let touched = false;
+    let providerModelsChanged = false;
     for (const d of dirs) {
         const fp = join(d, "api_provider.json");
         const { data: j, hash } = await readJsonWithHash<any>(fp);
-        const change = tracker.track(fp, hash, { api_provider_id: j.api_provider_id });
+        const change = modelFilter
+            ? { status: "unchanged" as const }
+            : tracker.track(fp, hash, { api_provider_id: j.api_provider_id });
 
         const sourceStatus = getProviderStatusFromSource(j as Record<string, unknown>);
         const parsedStatus = parseProviderStatus(sourceStatus.value);
@@ -767,6 +814,18 @@ export async function loadProviders(
                 j.prompt_training_source_url.trim()
                     ? j.prompt_training_source_url.trim()
                     : null,
+            data_policy_tier: parseProviderDataPolicyTier(j.data_policy_tier),
+            data_policy_confidence: parseProviderDataPolicyConfidence(
+                j.data_policy_confidence,
+            ),
+            data_policy_contract_mode: parseProviderDataPolicyContractMode(
+                j.data_policy_contract_mode,
+            ),
+            data_policy_contract_notes:
+                typeof j.data_policy_contract_notes === "string" &&
+                j.data_policy_contract_notes.trim()
+                    ? j.data_policy_contract_notes.trim()
+                    : null,
             user_identifier_policy:
                 typeof j.user_identifier_policy === "string" &&
                 j.user_identifier_policy.trim()
@@ -787,6 +846,32 @@ export async function loadProviders(
                 j.terms_of_service_url.trim()
                     ? j.terms_of_service_url.trim()
                     : null,
+            ...(j.stream_cancellation_support !== undefined ? {
+                stream_cancellation_support:
+                    ["supported", "unsupported", "unknown"].includes(j.stream_cancellation_support)
+                        ? j.stream_cancellation_support
+                        : "unknown",
+                stream_cancellation_stops_provider_billing:
+                    typeof j.stream_cancellation_stops_provider_billing === "boolean"
+                        ? j.stream_cancellation_stops_provider_billing
+                        : null,
+                stream_cancellation_usage_recovery:
+                    ["authoritative", "unknown"].includes(j.stream_cancellation_usage_recovery)
+                        ? j.stream_cancellation_usage_recovery
+                        : "unknown",
+                stream_cancellation_evidence_kind:
+                    ["provider", "aggregator", "none"].includes(j.stream_cancellation_evidence_kind)
+                        ? j.stream_cancellation_evidence_kind
+                        : "none",
+                stream_cancellation_source_url:
+                    typeof j.stream_cancellation_source_url === "string" && j.stream_cancellation_source_url.trim()
+                        ? j.stream_cancellation_source_url.trim()
+                        : null,
+                stream_cancellation_verified_at:
+                    typeof j.stream_cancellation_verified_at === "string" && j.stream_cancellation_verified_at.trim()
+                        ? j.stream_cancellation_verified_at.trim()
+                        : null,
+            } : {}),
         };
         providerIds.add(row.api_provider_id);
         if (change.status !== "unchanged") {
@@ -819,14 +904,22 @@ export async function loadProviders(
                     ]).filter(Boolean)
                 )
             );
-            const modelsChange = tracker.track(modelsPath, modelsHash, {
-                api_provider_id: j.api_provider_id,
-                kind: "provider_models",
-                linked_model_ids: linkedModelIds,
-            });
-            if (modelsChange.status !== "unchanged") touched = true;
+            const modelsChange = modelFilter
+                ? { status: "unchanged" as const }
+                : tracker.track(modelsPath, modelsHash, {
+                    api_provider_id: j.api_provider_id,
+                    kind: "provider_models",
+                    linked_model_ids: linkedModelIds,
+                });
+            if (modelsChange.status !== "unchanged") {
+                touched = true;
+                providerModelsChanged = true;
+            }
             const shouldTouchProviderModels =
-                change.status !== "unchanged" || modelsChange.status !== "unchanged";
+                Boolean(modelFilter) ||
+                tracker.isFullImport() ||
+                change.status !== "unchanged" ||
+                modelsChange.status !== "unchanged";
 
             for (const model of models ?? []) {
                 const apiModelId =
@@ -885,7 +978,7 @@ export async function loadProviders(
                 }
                 const provider_api_model_id = model.provider_api_model_id;
                 providerModelIds.add(provider_api_model_id);
-                providerModelsToUpsert.push({
+                const providerModelRow = {
                     provider_api_model_id,
                     provider_id: j.api_provider_id,
                     api_model_id: apiModelId,
@@ -903,12 +996,16 @@ export async function loadProviders(
                     max_output_tokens: toNullableInt(model.max_output_tokens),
                     effective_from: toNullableIsoTimestamp(model.effective_from),
                     effective_to: toNullableIsoTimestamp(model.effective_to),
-                });
+                };
+                if (shouldTouchProviderModels) {
+                    providerModelsToUpsert.push(providerModelRow);
+                }
 
                 for (const cap of model.capabilities ?? []) {
                     if (!cap?.capability_id) continue;
                     const capability_id = cap.capability_id;
                     capabilityKeys.add(`${provider_api_model_id}::${capability_id}`);
+                    if (!shouldTouchProviderModels) continue;
                     capabilityRowsToUpsert.push({
                         provider_api_model_id,
                         capability_id,
@@ -1019,7 +1116,7 @@ export async function loadProviders(
         );
     }
 
-    const deletions = tracker.getDeleted(DIR_PROVIDERS);
+    const deletions = modelFilter ? [] : tracker.getDeleted(DIR_PROVIDERS);
     for (const deletion of deletions) {
         const linkedModelIds = Array.isArray(deletion.info.meta?.linked_model_ids)
             ? deletion.info.meta.linked_model_ids
@@ -1033,6 +1130,9 @@ export async function loadProviders(
         }
     }
     touched = touched || deletions.length > 0;
+    const shouldPruneProviderModels =
+        !modelFilter &&
+        (tracker.isFullImport() || providerModelsChanged || deletions.length > 0);
 
     if (touched) {
         await pruneRowsByColumn(supa, "data_api_providers", "api_provider_id", providerIds, "data_api_providers");
@@ -1076,7 +1176,7 @@ export async function loadProviders(
         }
     }
 
-    if (providerModelIds.size && !isDryRun() && !modelFilter) {
+    if (providerModelIds.size && !isDryRun() && shouldPruneProviderModels) {
         await pruneRowsByColumn(
             supa,
             "data_api_provider_models",
@@ -1086,7 +1186,7 @@ export async function loadProviders(
         );
     }
 
-    if (capabilityKeys.size && !isDryRun() && !modelFilter) {
+    if (capabilityKeys.size && !isDryRun() && shouldPruneProviderModels) {
         const keys = Array.from(capabilityKeys);
         for (const group of chunk(keys, 500)) {
             const providerIdsChunk = Array.from(

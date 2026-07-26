@@ -14,8 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { MODEL_CAPABILITY_OPTIONS } from "@/lib/models/editorOptions"
+import { getTierFilterMeta } from "@/lib/models/tierFilterStyles"
 import { PRICING_METER_OPTIONS } from "@/lib/pricing/meters"
-import { createClient } from "@/utils/supabase/client"
+import { fetchAdminModelEditorSource } from "@/lib/fetchers/internal/adminModelEditorClient"
 
 type ApplyMode = "and" | "or"
 type ValueType = "text" | "number" | "list"
@@ -322,26 +323,22 @@ export default function PricingTab({ modelId, onPricingRulesChange }: PricingTab
 
   useEffect(() => {
     const fetchData = async () => {
-      const supabase = createClient()
-      const { data: providerModelRows } = await supabase
-        .from("data_api_provider_models")
-        .select("provider_api_model_id, provider_id, api_model_id")
-        .eq("model_id", modelId)
-      const providerModelData = (providerModelRows ?? []) as ProviderModelRef[]
+      const source = await fetchAdminModelEditorSource(modelId)
+      const providerModelRows = source.providerRows ?? []
+      const providerModelData = providerModelRows as ProviderModelRef[]
       setProviderModels(providerModelData)
 
       const providerIds = Array.from(new Set(providerModelData.map((row) => row.provider_id)))
       if (providerIds.length > 0) {
-        const { data: providerRows } = await supabase
-          .from("data_api_providers")
-          .select("api_provider_id, api_provider_name")
-          .in("api_provider_id", providerIds)
         setProviderNames(
           Object.fromEntries(
-            (providerRows ?? []).map((row: any) => [
-              row.api_provider_id,
-              row.api_provider_name ?? row.api_provider_id,
-            ])
+            providerModelRows.map((row: any) => {
+              const provider = Array.isArray(row.data_api_providers) ? row.data_api_providers[0] : row.data_api_providers
+              return [
+				row.provider_id,
+				provider?.api_provider_name ?? row.provider_id,
+			  ]
+            })
           )
         )
       } else {
@@ -353,10 +350,9 @@ export default function PricingTab({ modelId, onPricingRulesChange }: PricingTab
       )
 
       if (providerByApiModelId.size > 0) {
-        const { data: capabilityRows } = await supabase
-          .from("data_api_provider_model_capabilities")
-          .select("provider_api_model_id, capability_id")
-          .in("provider_api_model_id", Array.from(providerByApiModelId.keys()))
+        const capabilityRows = providerModelRows.flatMap((row: any) =>
+          (row.data_api_provider_model_capabilities ?? []).map((capability: any) => ({ ...capability, provider_api_model_id: row.provider_api_model_id }))
+		)
 
         const nextMap = new Map<string, Set<string>>()
         for (const row of capabilityRows ?? []) {
@@ -380,14 +376,10 @@ export default function PricingTab({ modelId, onPricingRulesChange }: PricingTab
       const validPairs = new Set(
         providerModelData.map((row) => `${row.provider_id}:${row.api_model_id}`)
       )
-      const { data: pricingRows } = await supabase
-        .from("data_api_pricing_rules")
-        .select("*")
-        .order("updated_at", { ascending: false })
-        .limit(5000)
+      const pricingRows = source.pricingRules ?? []
 
       setPricingRules(
-        (pricingRows ?? [])
+        pricingRows
           .filter((row: any) => {
             const parsed = parseModelKey(row.model_key ?? "")
             return validPairs.has(`${parsed.provider}:${parsed.apiModel}`) || parsed.apiModel === modelId
@@ -720,11 +712,18 @@ export default function PricingTab({ modelId, onPricingRulesChange }: PricingTab
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {PRICING_PLANS.map((plan) => (
-                      <SelectItem key={plan.value} value={plan.value}>
-                        {plan.label}
-                      </SelectItem>
-                    ))}
+                    {PRICING_PLANS.map((plan) => {
+                      const tierMeta = getTierFilterMeta(plan.value)
+                      const TierIcon = tierMeta.icon
+                      return (
+                        <SelectItem key={plan.value} value={plan.value}>
+                          <span className="inline-flex items-center gap-1.5">
+                            <TierIcon className={`h-3.5 w-3.5 shrink-0 ${tierMeta.iconClassName}`} />
+                            <span>{plan.label}</span>
+                          </span>
+                        </SelectItem>
+                      )
+                    })}
                   </SelectContent>
                 </Select>
               </FieldRow>

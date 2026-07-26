@@ -35,7 +35,7 @@ if (!globalThis.crypto) {
 // Configuration
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const GATEWAY_URL = process.env.GATEWAY_URL || 'https://api.phaseo.ai';
+const GATEWAY_URL = process.env.GATEWAY_URL || 'https://api.phaseo.app';
 const TEST_APP_NAME = `Test OAuth App ${Date.now()}`;
 const TEST_REDIRECT_URI = 'https://localhost:3000/auth/callback';
 
@@ -77,10 +77,16 @@ function logInfo(message) {
 // PKCE utilities
 function generateRandomString(length) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-  const randomValues = crypto.getRandomValues(new Uint8Array(length));
-  return Array.from(randomValues)
-    .map(v => chars[v % chars.length])
-    .join('');
+  const rejectionLimit = 256 - (256 % chars.length);
+  let result = '';
+  while (result.length < length) {
+    const randomValues = crypto.getRandomValues(new Uint8Array(length - result.length));
+    for (const value of randomValues) {
+      if (value < rejectionLimit) result += chars[value % chars.length];
+      if (result.length === length) break;
+    }
+  }
+  return result;
 }
 
 function base64URLEncode(buffer) {

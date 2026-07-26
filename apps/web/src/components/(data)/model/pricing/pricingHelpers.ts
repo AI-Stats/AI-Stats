@@ -8,7 +8,7 @@ import { getProviderPricingRulesForPlan } from "@/components/(data)/model/pricin
 /* ---------- shared types ---------- */
 export type Direction = "input" | "output" | "cached" | "cachewrite" | "other";
 export type Modality = "text" | "image" | "audio" | "video" | "embeddings" | "multimodal" | "other";
-export type UnitClass = "token" | "pixel" | "image" | "video" | "minute" | "second" | "call" | "character" | "unknown";
+export type UnitClass = "token" | "pixel" | "image" | "video" | "minute" | "second" | "page" | "call" | "character" | "unknown";
 
 export type Condition = { op: string; path: string; value: any; or_group?: number; and_index?: number };
 
@@ -19,6 +19,8 @@ export type TokenTier = {
     per1M: number;
     price: number;
     label: string; // range or condition label
+    meter?: string | null;
+    unitLabel?: string | null;
     basePer1M?: number | null;
     basePrice?: number | null;
     comparisonKind?: PriceComparisonKind | null;
@@ -83,6 +85,7 @@ export type PricingSectionKey =
     | "audioTokens"
     | "videoTokens"
     | "videoGen"
+    | "embeddingTokens"
     | "other";
 
 export type UpcomingPricingChange = {
@@ -105,6 +108,7 @@ export type ProviderSections = {
     imageTokens?: TokenTriple;
     audioTokens?: TokenTriple;
     videoTokens?: TokenTriple;
+    embeddingTokens?: TokenTriple;
     imageGen?: QualityRow[];
     videoGen?: ResolutionRow[];
     mediaInputs?: UsageRow[];                // NEW: input_image, input_video_seconds
@@ -190,6 +194,8 @@ export function formatTableUnitShortLabel(label: string) {
                         ? "images"
                         : rawUnit === "pixels"
                             ? "px"
+                            : rawUnit === "pages"
+                                ? "pages"
                             : rawUnit === "calls"
                                 ? "calls"
                                 : rawUnit === "characters"
@@ -208,10 +214,17 @@ export function unitLabel(unit: UnitClass, unitSize?: number | null) {
         case "video": return u === 1 ? "Per video" : `Per ${u} videos`;
         case "second": return u === 1 ? "Per second" : `Per ${u} seconds`;
         case "minute": return u === 1 ? "Per minute" : `Per ${u} minutes`;
+        case "page": return u === 1 ? "Per page" : `Per ${u.toLocaleString("en-US")} pages`;
         case "call": return u === 1 ? "Per call" : `Per ${u} calls`;
         case "character": return u === 1 ? "Per character" : `Per ${u} characters`;
         default: return u === 1 ? "Per unit" : `Per ${u} units`;
     }
+}
+
+function requestUnitLabel(unitSize?: number | null) {
+    const size = Number(unitSize ?? 1);
+    if (!Number.isFinite(size) || size <= 1) return "Per request";
+    return `Per ${size.toLocaleString("en-US")} requests`;
 }
 export function perMillionIfTokens(unit: UnitClass, usdPerUnit: number, unitSize?: number | null) {
     if (unit !== "token") return null;
@@ -255,7 +268,8 @@ export function parseMeter(meter?: string, explicitUnit?: string | null): { dir:
                 (u.includes("video") || u.includes("clip")) ? "video" :
                     u.includes("minute") ? "minute" :
                         u.includes("second") ? "second" :
-                            u.includes("character") ? "character" :
+                            u.includes("page") ? "page" :
+                                u.includes("character") ? "character" :
                                 (u.includes("call") || u.includes("request")) ? "call" :
                                     m.includes("token") ? "token" :
                                         m.includes("pixel") ? "pixel" :
@@ -263,7 +277,8 @@ export function parseMeter(meter?: string, explicitUnit?: string | null): { dir:
                                             m.includes("video") ? "video" :
                                                 m.includes("minute") ? "minute" :
                                                     m.includes("second") ? "second" :
-                                                        m.includes("character") ? "character" :
+                                                        m.includes("page") ? "page" :
+                                                            m.includes("character") ? "character" :
                                                             (m.includes("call") || m.includes("request")) ? "call" : "unknown";
 
     return { dir, mod, unit, raw: m };
@@ -272,6 +287,7 @@ export function parseMeter(meter?: string, explicitUnit?: string | null): { dir:
 function endpointToModality(endpoint?: string | null): Modality | null {
     const normalized = String(endpoint ?? "").trim().toLowerCase();
     if (!normalized) return null;
+	if (normalized.includes("embed")) return "embeddings";
     if (normalized.startsWith("text.")) return "text";
     if (
         normalized.startsWith("chat.") ||
@@ -282,8 +298,7 @@ function endpointToModality(endpoint?: string | null): Modality | null {
     }
     if (normalized.startsWith("image.")) return "image";
     if (normalized.startsWith("audio.")) return "audio";
-    if (normalized.startsWith("video.")) return "video";
-    if (normalized.includes("embed")) return "embeddings";
+	if (normalized.startsWith("video.")) return "video";
     return null;
 }
 
@@ -292,10 +307,11 @@ function classifyMeterWithEndpoint(
     explicitUnit?: string | null,
     endpoint?: string | null,
 ): { dir: Direction; mod: Modality; unit: UnitClass; raw: string } {
-    const parsed = parseMeter(meter, explicitUnit);
-    if (parsed.mod !== "other" || parsed.unit !== "token") return parsed;
-    const endpointModality = endpointToModality(endpoint);
-    return endpointModality ? { ...parsed, mod: endpointModality } : parsed;
+	const parsed = parseMeter(meter, explicitUnit);
+	const endpointModality = endpointToModality(endpoint);
+	if (endpointModality === "embeddings") return { ...parsed, mod: endpointModality };
+	if (parsed.mod !== "other" || parsed.unit !== "token") return parsed;
+	return endpointModality ? { ...parsed, mod: endpointModality } : parsed;
 }
 
 export type ConditionLabelPref = { prefer?: string[] }; // e.g. ['cache_ttl','quality','resolution']
@@ -467,8 +483,8 @@ function modalityLabel(mod: Modality): string | null {
     if (mod === "text") return "Text";
     if (mod === "image") return "Image";
     if (mod === "audio") return "Audio";
-    if (mod === "video") return "Video";
-    if (mod === "embeddings") return "Embeddings";
+	if (mod === "video") return "Video";
+	if (mod === "embeddings") return "Embeddings";
     if (mod === "multimodal") return "Multimodal";
     return null;
 }
@@ -496,7 +512,7 @@ function buildUpcomingChangeLabels(
         }))
         : [];
 
-    if (unit === "token" && ["text", "image", "audio", "video"].includes(mod)) {
+    if (unit === "token" && ["text", "image", "audio", "video", "embeddings"].includes(mod)) {
         const modLabel = modalityLabel(mod) ?? "Token";
         const scope =
             cacheWriteTtlLabelFromMeter(rule.meter) ??
@@ -512,6 +528,8 @@ function buildUpcomingChangeLabels(
                     ? "audioTokens"
                     : mod === "video"
                     ? "videoTokens"
+                    : mod === "embeddings"
+                    ? "embeddingTokens"
                     : "other",
             title: `${modLabel} Tokens${directionLabel(dir) ? ` · ${directionLabel(dir)}` : ""}`,
             subtitle: scope === "All usage" ? null : scope,
@@ -740,12 +758,42 @@ export function ruleMatchCovers(candidateRule: any, targetRule: any): boolean {
     );
 }
 
+export function ruleComparisonMatchSignature(rule: any): string {
+	const conditions = ruleConditions(rule);
+	const hasMultipleConditions = conditions.length > 1;
+    return JSON.stringify(
+        conditions
+            .map((condition) => {
+                const op = String(condition.op ?? "").toLowerCase();
+                return {
+                    path: String(condition.path ?? "").toLowerCase(),
+                    op: isLowerBoundOp(op)
+                        ? "lower-bound"
+                        : isUpperBoundOp(op)
+                            ? "upper-bound"
+                            : op,
+                    value: condition.value,
+					// Group identifiers only describe boolean structure when a rule
+					// contains multiple conditions. Importers may still populate them
+					// on single-condition rules, where they are semantically inert.
+					or_group: hasMultipleConditions ? condition.or_group ?? null : null,
+					and_index: hasMultipleConditions ? condition.and_index ?? null : null,
+                };
+            })
+            .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))),
+    );
+}
+
 /* ---------- section builder (uses fixes) ---------- */
-export function buildProviderSections(p: ProviderPricing, plan: string): ProviderSections {
-    const now = new Date();
+export function buildProviderSections(
+    p: ProviderPricing,
+    plan: string,
+    pricingTime: Date | number = new Date(),
+): ProviderSections {
+    const now = pricingTime instanceof Date ? pricingTime : new Date(pricingTime);
     const nowMs = now.getTime();
+    const pricingTimeUtc = formatUtcPricingMinute(now);
     const normalizedPlan = normalizePricingPlan(plan);
-    const standardRules = getProviderPricingRulesForPlan(p, "standard");
     const rules = getProviderPricingRulesForPlan(p, normalizedPlan);
     const endpointByKey = new Map<string, string>();
     for (const pm of p.provider_models) {
@@ -804,8 +852,6 @@ export function buildProviderSections(p: ProviderPricing, plan: string): Provide
         const endpoint = endpointByKey.get(r.model_key) ?? "unknown";
         return `${endpoint}|${r.meter}|${r.unit}|${r.unit_size}`;
     };
-    const ruleSignatureIgnoringEndpoint = (r: any) =>
-        `${r.meter}|${r.unit}|${r.unit_size}`;
     const currentRulesBySignature = new Map<string, any[]>();
     for (const r of rules as any[]) {
         if (!isCurrentRule(r)) continue;
@@ -814,26 +860,6 @@ export function buildProviderSections(p: ProviderPricing, plan: string): Provide
         list.push(r);
         currentRulesBySignature.set(sig, list);
     }
-    const currentStandardRulesBySignature = new Map<string, any[]>();
-    const currentStandardRulesBySignatureIgnoringEndpoint = new Map<string, any[]>();
-    for (const r of standardRules as any[]) {
-        if (!isCurrentRule(r)) continue;
-        const sig = ruleSignature(r);
-        const list = currentStandardRulesBySignature.get(sig) ?? [];
-        list.push(r);
-        currentStandardRulesBySignature.set(sig, list);
-        const endpointAgnosticSig = ruleSignatureIgnoringEndpoint(r);
-        const endpointAgnosticList =
-            currentStandardRulesBySignatureIgnoringEndpoint.get(
-                endpointAgnosticSig,
-            ) ?? [];
-        endpointAgnosticList.push(r);
-        currentStandardRulesBySignatureIgnoringEndpoint.set(
-            endpointAgnosticSig,
-            endpointAgnosticList,
-        );
-    }
-
     for (const r of rules as any[]) {
         const endpoint = endpointByKey.get(r.model_key) ?? null;
         const matchKey = JSON.stringify(r.match ?? []);
@@ -841,15 +867,6 @@ export function buildProviderSections(p: ProviderPricing, plan: string): Provide
         if (!grouped.has(groupKey)) grouped.set(groupKey, []);
         grouped.get(groupKey)!.push(r);
     }
-    const standardGrouped = new Map<string, any[]>();
-    for (const r of standardRules as any[]) {
-        const endpoint = endpointByKey.get(r.model_key) ?? null;
-        const matchKey = JSON.stringify(r.match ?? []);
-        const groupKey = `${endpoint ?? "unknown"}|${r.meter}|${r.unit}|${r.unit_size}|${matchKey}`;
-        if (!standardGrouped.has(groupKey)) standardGrouped.set(groupKey, []);
-        standardGrouped.get(groupKey)!.push(r);
-    }
-
     const entries: RuleEntry[] = [];
     const upcomingChanges: UpcomingPricingChange[] = [];
     for (const [groupKey, group] of grouped) {
@@ -873,7 +890,10 @@ export function buildProviderSections(p: ProviderPricing, plan: string): Provide
                 nextUpcoming,
                 endpointByKey.get(nextUpcoming.model_key) ?? null,
             );
-            const nextPriceRaw = Number(nextUpcoming.price_per_unit ?? Number.NaN);
+            const nextPriceRaw = resolvePricingMeterPrice(
+                nextUpcoming,
+                pricingTimeUtc,
+            ).pricePerUnit;
             const nextPrice = Number.isFinite(nextPriceRaw) ? nextPriceRaw : null;
             const exactCurrentCandidate = [...currentRules].sort(sortByPriorityAndFromDesc)[0];
             const signatureCurrentPool =
@@ -882,7 +902,9 @@ export function buildProviderSections(p: ProviderPricing, plan: string): Provide
                 .filter((candidate) => ruleMatchCovers(candidate, nextUpcoming))
                 .sort(sortByPriorityAndFromDesc)[0];
             const currentCandidate = exactCurrentCandidate ?? coverageCurrentCandidate;
-            const currentPriceRaw = currentCandidate ? Number(currentCandidate.price_per_unit ?? Number.NaN) : Number.NaN;
+            const currentPriceRaw = currentCandidate
+                ? resolvePricingMeterPrice(currentCandidate, pricingTimeUtc).pricePerUnit
+                : Number.NaN;
             const currentPrice = Number.isFinite(currentPriceRaw) ? currentPriceRaw : null;
             let trend: UpcomingPricingChange["trend"] = null;
             if (nextPrice != null && currentPrice != null) {
@@ -916,7 +938,10 @@ export function buildProviderSections(p: ProviderPricing, plan: string): Provide
 
         const sorted = [...currentRules].sort(sortByPriorityAndFromDesc);
         const current = sorted[0];
-        const currentPrice = Number(current.price_per_unit ?? Number.NaN);
+        const currentPrice = resolvePricingMeterPrice(
+            current,
+            pricingTimeUtc,
+        ).pricePerUnit;
         const currentFrom = toMs(current.effective_from) ?? -Infinity;
 
         let baseCandidates = currentRules.filter((r) => r.priority < current.priority);
@@ -936,7 +961,10 @@ export function buildProviderSections(p: ProviderPricing, plan: string): Provide
                 return (bFrom ?? -Infinity) - (aFrom ?? -Infinity);
             })
             .find((candidate) => {
-                const candidatePrice = Number(candidate.price_per_unit ?? Number.NaN);
+                const candidatePrice = resolvePricingMeterPrice(
+                    candidate,
+                    pricingTimeUtc,
+                ).pricePerUnit;
                 if (!Number.isFinite(candidatePrice) || !Number.isFinite(currentPrice)) {
                     return false;
                 }
@@ -945,7 +973,10 @@ export function buildProviderSections(p: ProviderPricing, plan: string): Provide
         const scheduledBase =
             !base && nextUpcoming
                 ? (() => {
-                      const nextPrice = Number(nextUpcoming.price_per_unit ?? Number.NaN);
+                      const nextPrice = resolvePricingMeterPrice(
+                          nextUpcoming,
+                          pricingTimeUtc,
+                      ).pricePerUnit;
                       if (!Number.isFinite(nextPrice) || !Number.isFinite(currentPrice)) {
                           return null;
                       }
@@ -991,20 +1022,23 @@ export function buildProviderSections(p: ProviderPricing, plan: string): Provide
     for (const entry of filteredEntries) {
         const r = entry.rule;
         const base = entry.base;
+		const parsedMeter = parseMeter(r.meter || "", r.unit || "");
         const { dir, mod, unit } = classifyMeterWithEndpoint(
             r.meter || "",
             r.unit || "",
             entry.endpoint,
         );
         const unitSize = r.unit_size ?? 1;
-        const price = Number(r.price_per_unit ?? 0);
+        const price = resolvePricingMeterPrice(r, pricingTimeUtc).pricePerUnit;
         const per1M = perMillionIfTokens(unit, price, unitSize);
         const current = isCurrentWindow(r.effective_from, r.effective_to);
         const conds: Condition[] = Array.isArray(r.match)
             ? r.match.map((m: any) => ({ op: String(m.op ?? ""), path: String(m.path ?? ""), value: m.value, or_group: m.or_group, and_index: m.and_index }))
             : [];
 
-        const basePriceRaw = base ? Number(base.price_per_unit ?? Number.NaN) : Number.NaN;
+        const basePriceRaw = base
+            ? resolvePricingMeterPrice(base, pricingTimeUtc).pricePerUnit
+            : Number.NaN;
         const basePrice = Number.isFinite(basePriceRaw) ? basePriceRaw : null;
         const effectiveToMs = toMs(r.effective_to);
         const currentPriority = Number(r.priority ?? Number.NaN);
@@ -1018,45 +1052,11 @@ export function buildProviderSections(p: ProviderPricing, plan: string): Provide
             basePrice != null &&
             basePrice > price &&
             (hasFutureEnd || hasPriorityOverride);
-        let displayBasePrice = hasActiveDiscount ? basePrice : null;
-        let comparisonBaseUnitSize = base?.unit_size ?? unitSize;
-        let comparisonKind: PriceComparisonKind | null = hasActiveDiscount ? "discount" : null;
-        let comparisonDirection: PriceComparisonDirection =
+        const displayBasePrice = hasActiveDiscount ? basePrice : null;
+        const comparisonBaseUnitSize = base?.unit_size ?? unitSize;
+        const comparisonKind: PriceComparisonKind | null = hasActiveDiscount ? "discount" : null;
+        const comparisonDirection: PriceComparisonDirection =
             hasActiveDiscount ? "cheaper" : null;
-        if (!hasActiveDiscount && normalizedPlan !== "standard") {
-            const standardCurrentGroup = (standardGrouped.get(entry.groupKey) ?? [])
-                .filter(isCurrentRule)
-                .sort(sortByPriorityAndFromDesc);
-            const exactStandard = standardCurrentGroup[0];
-            const signatureStandardPool =
-                currentStandardRulesBySignature.get(ruleSignature(r)) ?? [];
-            const coveringStandard = signatureStandardPool
-                .filter((candidate) => ruleMatchCovers(candidate, r))
-                .sort(sortByPriorityAndFromDesc)[0];
-            const endpointAgnosticStandardPool =
-                currentStandardRulesBySignatureIgnoringEndpoint.get(
-                    ruleSignatureIgnoringEndpoint(r),
-                ) ?? [];
-            const endpointAgnosticCoveringStandard = endpointAgnosticStandardPool
-                .filter((candidate) => ruleMatchCovers(candidate, r))
-                .sort(sortByPriorityAndFromDesc)[0];
-            const standardBaseRule =
-                exactStandard ??
-                coveringStandard ??
-                endpointAgnosticCoveringStandard;
-            const standardBasePriceRaw = standardBaseRule
-                ? Number(standardBaseRule.price_per_unit ?? Number.NaN)
-                : Number.NaN;
-            const standardBasePrice = Number.isFinite(standardBasePriceRaw)
-                ? standardBasePriceRaw
-                : null;
-            if (standardBasePrice != null && standardBasePrice !== price) {
-                displayBasePrice = standardBasePrice;
-                comparisonBaseUnitSize = standardBaseRule?.unit_size ?? unitSize;
-                comparisonKind = "vs-standard";
-                comparisonDirection = standardBasePrice > price ? "cheaper" : "pricier";
-            }
-        }
         const basePer1M =
             displayBasePrice != null && unit === "token"
                 ? perMillionIfTokens(
@@ -1067,10 +1067,13 @@ export function buildProviderSections(p: ProviderPricing, plan: string): Provide
                 : null;
         const discountEndsAt = hasActiveDiscount && hasFutureEnd ? r.effective_to ?? null : null;
 
-        // 1) token tiles (text/image/audio/video)
-        if (unit === "token" && ["text", "image", "audio", "video"].includes(mod)) {
+        // 1) token tiles (text/image/audio/video/embeddings)
+        if (unit === "token" && ["text", "image", "audio", "video", "embeddings"].includes(mod)) {
             const range = tokenRangeFromConditions(conds);
+			const embeddingSourceLabel =
+				mod === "embeddings" ? modalityLabel(parsedMeter.mod) : null;
             const label =
+				embeddingSourceLabel ??
                 cacheWriteTtlLabelFromMeter(r.meter) ??
                 range ??
                 conciseConditionLabel(conds);  // <-- FIX: show cache_ttl etc. instead of "All usage"
@@ -1115,6 +1118,11 @@ export function buildProviderSections(p: ProviderPricing, plan: string): Provide
                 else if (dir === "cached") out.videoTokens = push(out.videoTokens, "cached");
                 else if (dir === "output") out.videoTokens = push(out.videoTokens, "out");
                 else if (dir === "cachewrite") out.videoTokens = push(out.videoTokens, "write");
+            } else if (mod === "embeddings") {
+                if (dir === "input") out.embeddingTokens = push(out.embeddingTokens, "in");
+                else if (dir === "cached") out.embeddingTokens = push(out.embeddingTokens, "cached");
+                else if (dir === "output") out.embeddingTokens = push(out.embeddingTokens, "out");
+                else if (dir === "cachewrite") out.embeddingTokens = push(out.embeddingTokens, "write");
             }
             continue;
         }
@@ -1210,6 +1218,8 @@ export function buildProviderSections(p: ProviderPricing, plan: string): Provide
                 per1M: 0, // Not applicable for requests
                 price,
                 label,
+                meter: r.meter ?? null,
+                unitLabel: requestUnitLabel(unitSize),
                 basePer1M: null,
                 basePrice: displayBasePrice,
                 comparisonKind,
@@ -1250,6 +1260,7 @@ export function buildProviderSections(p: ProviderPricing, plan: string): Provide
     sortTiers(out.imageTokens);
     sortTiers(out.audioTokens);
     sortTiers(out.videoTokens);
+    sortTiers(out.embeddingTokens);
     out.imageGen?.forEach((q) => q.items.sort((a, b) => a.label.localeCompare(b.label)));
     out.imageGen?.sort((a, b) => {
         const ra = qualityRank(a.quality), rb = qualityRank(b.quality);
@@ -1293,7 +1304,7 @@ function getTablePriceCandidates(
 ): ProviderTablePriceCandidate[] {
     const candidates: ProviderTablePriceCandidate[] = [];
     const pushTokenCandidate = (
-        modality: "text" | "audio" | "image" | "video",
+        modality: "text" | "audio" | "image" | "video" | "embeddings",
         tiers?: TokenTier[] | null,
     ) => {
         const tier = getActiveTokenTier(tiers);
@@ -1310,11 +1321,13 @@ function getTablePriceCandidates(
 
     if (direction === "cached") {
         pushTokenCandidate("text", sections.textTokens?.cached);
+        pushTokenCandidate("embeddings", sections.embeddingTokens?.cached);
         pushTokenCandidate("image", sections.imageTokens?.cached);
         pushTokenCandidate("audio", sections.audioTokens?.cached);
         pushTokenCandidate("video", sections.videoTokens?.cached);
     } else if (direction === "input") {
         pushTokenCandidate("text", sections.textTokens?.in);
+        pushTokenCandidate("embeddings", sections.embeddingTokens?.in);
 
         const imageInput = sections.mediaInputs
             ?.filter((row) => row.mod === "image" && row.isCurrent)
@@ -1349,6 +1362,7 @@ function getTablePriceCandidates(
         pushTokenCandidate("video", sections.videoTokens?.in);
     } else {
         pushTokenCandidate("text", sections.textTokens?.out);
+        pushTokenCandidate("embeddings", sections.embeddingTokens?.out);
 
         const imageOutput = sections.imageGen
             ?.flatMap((row) =>
@@ -1451,6 +1465,12 @@ function isMinuteInsideWindow(minute: number, startMinute: number, endMinute: nu
     if (startMinute === endMinute) return false;
     if (startMinute < endMinute) return minute >= startMinute && minute < endMinute;
     return minute >= startMinute || minute < endMinute;
+}
+
+export function formatUtcPricingMinute(value: Date | number): string {
+    const date = value instanceof Date ? value : new Date(value);
+    if (!Number.isFinite(date.getTime())) return "00:00";
+    return `${String(date.getUTCHours()).padStart(2, "0")}:${String(date.getUTCMinutes()).padStart(2, "0")}`;
 }
 
 export function resolvePricingMeterPrice(

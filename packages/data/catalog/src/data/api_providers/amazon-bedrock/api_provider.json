@@ -1,9 +1,9 @@
 {
   "api_provider_id": "amazon-bedrock",
-  "api_provider_name": "Amazon Bedrock (Converse)",
+  "api_provider_name": "Amazon Bedrock",
   "provider_family_id": "amazon-bedrock",
   "offer_scope": "global",
-  "description": "Amazon Bedrock models served through the Bedrock Runtime and Converse APIs.",
+  "description": "Amazon Bedrock models served through the Bedrock Mantle OpenAI-compatible APIs.",
   "link": "https://aws.amazon.com/bedrock",
   "residency_mode": "customer_selectable",
   "default_execution_regions": [
@@ -24,7 +24,7 @@
   "residency_source_url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html",
   "regional_pricing_mode": "source_region_rates",
   "pricing_source_url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html",
-  "regional_pricing_notes": "Provider-level Bedrock pricing is represented as source-region pricing because this provider includes Claude and non-Claude model families. Claude Sonnet 4.5, Claude Haiku 4.5, Claude Opus 4.5, and future Claude model regional or geographic endpoint premiums are documented on the affected Claude pricing rows.",
+  "regional_pricing_notes": "Bedrock Mantle pricing follows Amazon Bedrock model pricing.",
   "country_code": "US",
   "status": "Alpha",
   "colour": "#FF9900",
@@ -32,5 +32,20 @@
   "terms_of_service_url": "https://aws.amazon.com/service-terms/",
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "AWS says Amazon Bedrock inputs and outputs are never shared with model providers and are not used to train base models.",
-  "prompt_training_source_url": "https://aws.amazon.com/bedrock/security-privacy-responsible-ai/"
+  "prompt_training_source_url": "https://aws.amazon.com/bedrock/security-privacy-responsible-ai/",
+  "gateway_kind": null,
+  "routable": null,
+  "routing_enabled": null,
+  "sdk_package": null,
+  "api_base_url": null,
+  "docs_url": "https://aws.amazon.com/bedrock",
+  "auth_env": null,
+  "api_formats": [],
+  "service_tiers": [],
+  "sources": [],
+  "verification": {
+    "status": "unverified",
+    "checked_at": null,
+    "notes": null
+  }
 }

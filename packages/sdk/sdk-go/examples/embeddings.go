@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"os"
 
-	phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go"
+	phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 	}
 	baseURL := os.Getenv("PHASEO_BASE_URL")
 	if baseURL == "" {
-		baseURL = "https://api.phaseo.ai/v1"
+		baseURL = "https://api.phaseo.app/v1"
 	}
 
 	client := phaseo.NewPhaseo(apiKey, baseURL)

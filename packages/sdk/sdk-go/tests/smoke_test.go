@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	gen "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/src/gen"
+	gen "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2/src/gen"
 )
 
 func TestSmokeChat(t *testing.T) {
@@ -16,7 +16,7 @@ func TestSmokeChat(t *testing.T) {
 	}
 	baseURL := os.Getenv("PHASEO_BASE_URL")
 	if baseURL == "" {
-		baseURL = "https://api.phaseo.ai/v1"
+		baseURL = "https://api.phaseo.app/v1"
 	}
 
 	client := gen.NewClient(baseURL)

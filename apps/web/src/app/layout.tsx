@@ -21,6 +21,8 @@ import { ConsoleEasterEgg } from "@/components/ConsoleEasterEgg";
 import SiteNoticeSlot from "@/components/site-notice/SiteNoticeSlot";
 import ThemeAwareFavicon from "@/components/ThemeAwareFavicon";
 import { Suspense } from "react";
+import { PublicSWRProvider } from "@/components/providers/PublicSWRProvider";
+import AdminDeveloperMenuLauncher from "@/components/developer-menu/AdminDeveloperMenuLauncher";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
@@ -34,10 +36,6 @@ export const metadata: Metadata = {
 	applicationName: PREFERRED_SITE_NAME,
 	authors: [{ name: SITE_NAME }],
 	metadataBase: METADATA_BASE,
-	icons: {
-		icon: [{ url: "/api/favicon", type: "image/svg+xml", sizes: "any" }],
-		shortcut: [{ url: "/api/favicon", type: "image/svg+xml" }],
-	},
 	openGraph: {
 		type: "website",
 		locale: "en_GB",
@@ -73,11 +71,16 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang="en" className="h-full" suppressHydrationWarning>
-			{/* <head>
-				{process.env.NODE_ENV === "development" ? (
-					<script src="https://unpkg.com/react-scan/dist/auto.global.js" />
-				) : null}
-			</head> */}
+			<head>
+				{/* Use the black/white brand mark for search; the theme client mutates this exact link. */}
+				<link
+					id="phaseo-favicon"
+					rel="icon"
+					href="/api/favicon?theme=dark"
+					type="image/svg+xml"
+					sizes="any"
+				/>
+			</head>
 			<body
 				className={cn(
 					montserrat.className,
@@ -97,7 +100,12 @@ export default function RootLayout({
 						<Suspense fallback={null}>
 							<SiteNoticeSlot />
 						</Suspense>
-						<NuqsAdapter>{children}</NuqsAdapter>
+						<Suspense fallback={null}>
+							<PublicSWRProvider>
+								<NuqsAdapter>{children}</NuqsAdapter>
+							</PublicSWRProvider>
+						</Suspense>
+						<AdminDeveloperMenuLauncher />
 						<TailwindIndicator />
 						<Toaster richColors />
 					</TooltipProvider>

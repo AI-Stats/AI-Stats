@@ -1,6 +1,6 @@
 import {
 	fetchFrontendModelBenchmarkHighlights,
-	fetchFrontendModelGatewayMetadata,
+	fetchFrontendModelAvailability,
 	fetchFrontendModelOverview,
 	fetchFrontendModelPerformance,
 	fetchFrontendModelPricing,
@@ -23,8 +23,11 @@ import {
 	resolveModelRouteIds,
 	type ModelRouteParams,
 } from "@/components/(data)/model/model-route-helpers";
-import { buildModelPageMetadataDescription } from "@/lib/models/modelDescription";
-import { permanentRedirect } from "next/navigation";
+import {
+	buildModelOverviewMetadataDescription,
+	buildModelOverviewMetadataTitle,
+} from "@/lib/models/modelDescription";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Suspense } from "react";
 import { isFreeRouterModelId } from "@/lib/models/freeRouter";
 import FreeRouterOverview from "@/components/(data)/model/free-router/FreeRouterOverview";
@@ -33,10 +36,7 @@ import {
 	type QuickstartSearchParams,
 } from "@/components/(data)/model/quickstart/requestContext";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
-import {
-	analyseModelIndexability,
-	robotsForModelIndexability,
-} from "@/lib/seo/modelIndexability";
+import ModelFaqSection from "@/components/(data)/model/overview/ModelFaqSection";
 
 async function ModelCreatorModelsSectionContent({
 	modelId,
@@ -61,6 +61,31 @@ async function ModelCreatorModelsSectionContent({
 	);
 }
 
+async function ModelFaqSectionContent({
+	model,
+	benchmarkCount,
+	activeProviderCount,
+	isGatewayActive,
+	pricingPromise,
+}: {
+	model: ModelOverviewPage;
+	benchmarkCount: number;
+	activeProviderCount: number;
+	isGatewayActive: boolean;
+	pricingPromise: ReturnType<typeof fetchFrontendModelPricing>;
+}) {
+	const pricing = await pricingPromise;
+	return (
+		<ModelFaqSection
+			model={model}
+			benchmarkCount={benchmarkCount}
+			activeProviderCount={activeProviderCount}
+			isGatewayActive={isGatewayActive}
+			pricing={pricing}
+		/>
+	);
+}
+
 const baseModelPageTocItems: ModelPageTocItem[] = [
 	{ id: "providers", label: "Providers" },
 	{ id: "performance", label: "Performance" },
@@ -72,26 +97,35 @@ const baseModelPageTocItems: ModelPageTocItem[] = [
 	{ id: "quickstart", label: "Quickstart" },
 	{ id: "about", label: "About" },
 	{ id: "subscriptions", label: "Subscriptions" },
+	{ id: "faq", label: "FAQ" },
 ];
 
 function getModelPageTocItems({
 	showBenchmarks,
 	showSubscriptions,
 	status,
+	isGatewayActive,
 }: {
 	showBenchmarks: boolean;
 	showSubscriptions: boolean;
 	status?: string | null;
+	isGatewayActive: boolean;
 }): ModelPageTocItem[] {
 	if (status === "Retired") {
 		return baseModelPageTocItems.filter((item) => {
 			if (item.id === "benchmarks") return showBenchmarks;
 			if (item.id === "subscriptions") return showSubscriptions;
-			return item.id === "about";
+			return item.id === "about" || item.id === "faq";
 		});
 	}
 
 	return baseModelPageTocItems.filter((item) => {
+		if (
+			!isGatewayActive &&
+			["performance", "pricing", "activity", "apps", "uptime"].includes(item.id)
+		) {
+			return false;
+		}
 		if (item.id === "benchmarks") return showBenchmarks;
 		if (item.id === "subscriptions") return showSubscriptions;
 		return true;
@@ -102,74 +136,17 @@ export async function generateMetadata(props: {
 	params: Promise<ModelRouteParams>;
 }): Promise<Metadata> {
 	const params = await props.params;
-	const { modelId, modelName, organisationName, modelDescription } = await getModelMetadataIdentity(
+	const { modelId, modelName, organisationName } = await getModelMetadataIdentity(
 		params,
 		false,
 	);
 	const path = getModelPath(modelId);
 	const imagePath = `/og/models/${modelId}`;
-	const [
-		modelOverview,
-		benchmarkHighlights,
-		gatewayMetadata,
-		pricingProviders,
-		subscriptionPlans,
-	] = await Promise.all([
-		fetchFrontendModelOverview(modelId).catch(() => null),
-		fetchFrontendModelBenchmarkHighlights(modelId).catch(() => []),
-		fetchFrontendModelGatewayMetadata(modelId).catch(() => null),
-		fetchFrontendModelPricing(modelId).catch(() => []),
-		fetchFrontendModelSubscriptionPlans(modelId).catch(() => []),
-	]);
-	const indexability = isFreeRouterModelId(modelId)
-		? analyseModelIndexability({
-				modelId,
-				name: modelName,
-				organisationName,
-				description: modelDescription,
-				providerCount: 1,
-				inputTypes: ["text"],
-				outputTypes: ["text"],
-			})
-		: analyseModelIndexability({
-				modelId,
-				name: modelName,
-				organisationName,
-				description: modelDescription,
-				status: modelOverview?.status,
-				releaseDate: modelOverview?.release_date,
-				announcementDate: modelOverview?.announcement_date,
-				updatedAt: modelOverview?.updated_at,
-				apiModelIds: gatewayMetadata?.apiModelIds,
-				inputTypes: modelOverview?.input_types,
-				outputTypes: modelOverview?.output_types,
-				modelDetails: modelOverview?.model_details,
-				modelLinks: modelOverview?.model_links,
-				benchmarkCount: benchmarkHighlights.length,
-				providerCount: gatewayMetadata?.providers.length ?? 0,
-				activeProviderCount: gatewayMetadata?.activeProviders.length ?? 0,
-				pricingRuleCount: pricingProviders.reduce(
-					(total, provider) => total + provider.pricing_rules.length,
-					0,
-				),
-				contextLengths: gatewayMetadata?.providers.map(
-					(provider) => provider.context_length,
-				),
-				supportedParameters: Object.values(
-					gatewayMetadata?.supportedParametersByEndpoint ?? {},
-				).flatMap((parameters) =>
-					parameters.map((parameter) => parameter.param_id),
-				),
-				hasSubscriptionPlans: subscriptionPlans.length > 0,
-			});
-
 	return buildMetadata({
-		title: `${modelName} Pricing, Benchmarks, Latency & Providers`,
-		description: buildModelPageMetadataDescription({
-			modelDescription,
-			suffix:
-				"Compare pricing, benchmarks, providers, latency signals, and compatibility details on Phaseo.",
-			fallback: `Compare pricing, benchmarks, providers, latency signals, and compatibility details for ${modelName} on Phaseo.`,
+		title: buildModelOverviewMetadataTitle(modelName),
+		description: buildModelOverviewMetadataDescription({
+			modelName,
+			organisationName,
 		}),
 		path,
 		keywords: [
@@ -181,7 +158,10 @@ export async function generateMetadata(props: {
 			"AI model comparison",
 		].filter(Boolean) as string[],
 		imagePath,
-		robots: robotsForModelIndexability(indexability),
+		robots: {
+			index: true,
+			follow: true,
+		},
 	});
 }
 
@@ -214,27 +194,49 @@ export default async function Page({
 			</ModelDetailShell>
 		);
 	}
-	const modelPromise = fetchFrontendModelOverview(modelId);
-	const performancePromise = fetchFrontendModelPerformance(modelId, 24).catch(
-		() => null,
-	);
-	const [modelOverview, benchmarkHighlights, subscriptionPlans] =
+	const modelPromise = fetchFrontendModelOverview(modelId).catch(() => null);
+	const benchmarkPromise = fetchFrontendModelBenchmarkHighlights(modelId).catch(() => []);
+	const subscriptionPromise = fetchFrontendModelSubscriptionPlans(modelId).catch(() => []);
+	const availabilityPromise = fetchFrontendModelAvailability(modelId).catch(() => undefined);
+	const pricingPromise = fetchFrontendModelPricing(modelId).catch(() => []);
+	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability] =
 		await Promise.all([
 			modelPromise,
-			fetchFrontendModelBenchmarkHighlights(modelId).catch(() => []),
-			fetchFrontendModelSubscriptionPlans(modelId).catch(() => []),
+			benchmarkPromise,
+			subscriptionPromise,
+			availabilityPromise,
 		]);
+	if (!modelOverview) notFound();
 	const showBenchmarks = benchmarkHighlights.length > 0;
 	const showSubscriptions = subscriptionPlans.length > 0;
+	const isGatewayActive =
+		availability?.isGatewayActive ?? true;
+	const resolvedPerformancePromise = isGatewayActive
+		? fetchFrontendModelPerformance(modelId, 24).catch(() => null)
+		: Promise.resolve(null);
 	const isRetired = modelOverview?.status === "Retired";
 	const modelPageTocItems = getModelPageTocItems({
 		showBenchmarks,
 		showSubscriptions,
 		status: modelOverview?.status,
+		isGatewayActive,
 	});
 	const modelName = modelOverview?.name ?? modelId.split("/").slice(-1)[0] ?? modelId;
 	const organisationName =
 		modelOverview?.organisation?.name ?? routeParams.organisationId;
+	const modelHeader = modelOverview ? {
+		model_id: modelOverview.model_id,
+		name: modelOverview.name,
+		organisation_id: modelOverview.organisation_id,
+		organisation: {
+			name: modelOverview.organisation.name,
+			country_code: modelOverview.organisation.country_code ?? "",
+		},
+		aliases: modelOverview.aliases ?? [],
+		family_id: modelOverview.family_id ?? undefined,
+		status: modelOverview.status,
+		hidden: false,
+	} : undefined;
 	const datasetSchema = {
 		"@context": "https://schema.org",
 		"@type": "Dataset",
@@ -292,7 +294,7 @@ export default async function Page({
 				id="model-breadcrumb-schema"
 				data={breadcrumbSchema}
 			/>
-			<ModelDetailShell modelId={modelId} tab="overview" includeHidden={includeHidden}>
+			<ModelDetailShell modelId={modelId} tab="overview" includeHidden={includeHidden} header={modelHeader} modelOverview={modelOverview}>
 				<div className="space-y-10">
 					<div className="flex flex-col gap-6 lg:flex-row lg:items-start">
 						<ModelPageToc
@@ -307,9 +309,21 @@ export default async function Page({
 								showBenchmarks={showBenchmarks}
 								showSubscriptions={showSubscriptions}
 								status={modelOverview?.status}
-								performancePromise={performancePromise}
+								isGatewayActive={isGatewayActive}
+								performancePromise={resolvedPerformancePromise}
 								quickstartRequestContext={quickstartRequestContext}
 							/>
+							{modelOverview ? (
+								<Suspense fallback={null}>
+									<ModelFaqSectionContent
+										model={modelOverview}
+										benchmarkCount={benchmarkHighlights.length}
+										activeProviderCount={availability?.activeProviderCount ?? 0}
+										isGatewayActive={isGatewayActive}
+										pricingPromise={pricingPromise}
+									/>
+								</Suspense>
+							) : null}
 						</div>
 					</div>
 					{isRetired ? null : (

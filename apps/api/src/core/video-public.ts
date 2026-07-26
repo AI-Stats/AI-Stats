@@ -3,7 +3,7 @@ import { getBindings } from "@/runtime/env";
 export const DEFAULT_VIDEO_POLL_SECONDS = 20;
 export const DEFAULT_VIDEO_DOWNLOAD_TTL_SECONDS = 900;
 export const MAX_VIDEO_DOWNLOAD_TTL_SECONDS = 3600;
-const DEFAULT_GATEWAY_PUBLIC_BASE_URL = "https://api.phaseo.ai";
+const DEFAULT_GATEWAY_PUBLIC_BASE_URL = "https://api.phaseo.app";
 
 function normalizeText(value: unknown): string | null {
 	if (typeof value !== "string") return null;
@@ -39,7 +39,7 @@ async function hmacSha256Hex(secret: string, message: string): Promise<string> {
 
 function resolveVideoDownloadSigningSecret(): string | null {
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
-	return normalizeText(bindings.VIDEO_DOWNLOAD_SIGNING_SECRET) ?? normalizeText(bindings.KEY_PEPPER);
+	return normalizeText(bindings.VIDEO_DOWNLOAD_SIGNING_SECRET) ?? normalizeText(bindings.KEY_PEPPER_ACTIVE);
 }
 
 export function resolveGatewayPublicBaseUrl(requestUrl?: string | null): string {

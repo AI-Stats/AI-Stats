@@ -1,7 +1,7 @@
 {
 	"name": "@phaseo/cli",
 	"description": "Official Phaseo command line interface",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"type": "module",
 	"private": false,
 	"license": "MIT",
@@ -23,6 +23,7 @@
 		"sync:capabilities": "node ./scripts/sync-capabilities.mjs",
 		"build": "pnpm run sync:capabilities && tsc -p tsconfig.json",
 		"test": "pnpm run sync:capabilities && node --test --import tsx tests/*.test.ts",
+		"smoke:oauth-client": "node ./scripts/oauth-client-smoke.mjs",
 		"prepublishOnly": "pnpm run build"
 	},
 	"dependencies": {},

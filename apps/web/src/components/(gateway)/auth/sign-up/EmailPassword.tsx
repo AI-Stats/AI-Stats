@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { handleEmailSignup } from "@/app/(auth)/sign-up/actions";
 import { Check, Eye, EyeOff, X } from "lucide-react";
+import { captureProductEvent } from "@/lib/productAnalytics";
 
 const SYMBOL_REGEX = /[!@#$%^&*()_+\-=[\]{};':"|<>?,./`~]/;
 const LAST_AUTH_PROVIDER_STORAGE_KEY = "phaseo:last-auth-provider";
@@ -90,6 +91,7 @@ export default function EmailPassword({
 		} catch {
 			// Ignore storage failures; auth still proceeds.
 		}
+		captureProductEvent("account_signup_started", { method: "email" });
 		setFormError(null);
 	};
 
@@ -121,7 +123,7 @@ export default function EmailPassword({
 						id="email"
 						name="email"
 						type="email"
-						placeholder="phaseo@example.com"
+						placeholder="you@example.com"
 						value={email}
 						onChange={(event) => setEmail(event.target.value)}
 						required
@@ -228,18 +230,6 @@ export default function EmailPassword({
 				>
 					Sign in
 				</Link>
-				<div className="mt-2">
-					<Link
-						href={
-							returnUrl
-								? `/sign-in/enterprise?returnUrl=${encodeURIComponent(returnUrl)}`
-								: "/sign-in/enterprise"
-						}
-						className="text-muted-foreground underline underline-offset-4"
-					>
-						Enterprise Login
-					</Link>
-				</div>
 			</div>
 		</div>
 	);

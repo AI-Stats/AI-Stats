@@ -1,12 +1,12 @@
 import BenchmarksDisplay from "@/components/(data)/benchmarks/BenchmarksDisplay";
-import type { BenchmarkCard } from "@/lib/fetchers/benchmarks/getAllBenchmarks";
+import type { BenchmarkCard } from "@/lib/fetchers/benchmarks/types";
 import { fetchFrontendBenchmarks } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const metadata: Metadata = {
-	title: "AI Model Benchmarks - Compare Scores & Evaluations",
+	title: "Benchmarks",
 	description:
 		"Explore a comprehensive directory of AI model benchmarks. Compare benchmark scores, see usage statistics, and discover which benchmarks are most popular across state-of-the-art AI models. Make informed decisions with Phaseo.",
 	keywords: [

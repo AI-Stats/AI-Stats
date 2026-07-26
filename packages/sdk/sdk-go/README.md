@@ -4,12 +4,12 @@ Official Go SDK for Phaseo Gateway.
 
 Module path:
 
-`github.com/phaseoteam/Phaseo/packages/sdk/sdk-go`
+`github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2`
 
 ## Installation
 
 ```bash
-go get github.com/phaseoteam/Phaseo/packages/sdk/sdk-go@latest
+go get github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2@latest
 ```
 
 ## Quick start
@@ -21,7 +21,7 @@ import (
 	"context"
 	"fmt"
 
-	phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go"
+	phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"
 )
 
 func main() {
@@ -121,7 +121,7 @@ fmt.Println(batchSocketURL, videoSocketURL, genericSocketURL, resourceSocketURL)
 ## Environment variables
 
 - `PHASEO_API_KEY` (required unless passed in code)
-- `PHASEO_BASE_URL` (optional, defaults to `https://api.phaseo.ai/v1`)
+- `PHASEO_BASE_URL` (optional, defaults to `https://api.phaseo.app/v1`)
 
 ## Regeneration and local checks
 

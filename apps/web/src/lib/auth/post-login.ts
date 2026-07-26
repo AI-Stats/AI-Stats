@@ -107,7 +107,7 @@ async function sendSignupWelcomeEmail(args: {
 				providers_count: 14,
 				models_count: 300,
 				endpoints_count: 9,
-				gateway_base_url: "https://api.phaseo.ai/v1",
+				gateway_base_url: "https://api.phaseo.app/v1",
 				example_model: "openai/gpt-4.1-mini",
 				dashboard_url: dashboardUrl,
 				quickstart_url: getStartedUrl,
@@ -431,8 +431,12 @@ export async function finalizePostLogin(
 		aalData?.currentLevel === "aal1" &&
 		aalData?.nextLevel === "aal2"
 	) {
+		const verifyMfaPath =
+			input.returnUrl === "/"
+				? "/auth/verify-mfa"
+				: `/auth/verify-mfa?returnUrl=${encodeURIComponent(input.returnUrl)}`;
 		return {
-			redirectPath: "/auth/verify-mfa",
+			redirectPath: verifyMfaPath,
 			userId: user.id,
 			createdPersonalTeam: false,
 		};

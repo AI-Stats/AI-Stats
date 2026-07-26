@@ -5,14 +5,20 @@ import type { LucideIcon } from "lucide-react";
 import {
 	Activity,
 	AppWindow,
-	BadgeInfo,
 	Bolt,
 	CircleDollarSign,
+	CircleHelp,
 	CreditCard,
 	Gauge,
+	Image,
+	ImagePlus,
+	Info,
+	PieChart,
 	ScrollText,
 	Store,
 	Trophy,
+	Users,
+	Wrench,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -38,7 +44,13 @@ const sectionIcons: Record<string, LucideIcon> = {
 	activity: Activity,
 	subscriptions: CreditCard,
 	quickstart: Bolt,
-	about: BadgeInfo,
+	about: Info,
+	faq: CircleHelp,
+	"unique-users": Users,
+	"market-share": PieChart,
+	"tool-calls": Wrench,
+	images: Image,
+	"image-output": ImagePlus,
 };
 
 const activeSectionTopOffset = 212;

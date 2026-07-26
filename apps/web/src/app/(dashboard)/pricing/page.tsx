@@ -16,7 +16,7 @@ import {
 import { GATEWAY_TIERS } from "@/components/(gateway)/credits/tiers";
 
 export const metadata: Metadata = buildMetadata({
-	title: "AI Gateway Pricing & Credit Fees",
+	title: "Pricing",
 	description:
 		"See gateway pricing, credit fees, BYOK support and plan differences for Free and Pay As You Go.",
 	path: "/pricing",
@@ -145,8 +145,8 @@ const ENTERPRISE_PREVIEW_ROWS: MatrixRow[] = [
 	},
 	{
 		feature: "SSO / SAML",
-		free: { type: "excluded" },
-		payg: { type: "excluded" },
+		free: { type: "included" },
+		payg: { type: "included" },
 		enterprise: { type: "included" },
 	},
 	{
@@ -438,7 +438,7 @@ const FAQ_SECTIONS: FAQSection[] = [
 				id: "do-you-support-sso",
 				question: "Do you support SSO (SAML)?",
 				answer:
-					"SSO/SAML is currently an enterprise roadmap capability and is being rolled out in limited stages.",
+					"SAML single sign-on is being rolled out as a self-serve workspace feature and will be included for all customers without an enterprise contract or add-on fee.",
 			},
 		],
 	},

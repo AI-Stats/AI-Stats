@@ -1,6 +1,11 @@
 name: Publish Go SDK
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/sdk/sdk-go/package.json"
   workflow_dispatch:
     inputs:
       version:
@@ -14,6 +19,7 @@ permissions:
 jobs:
   publish-go:
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: Require main branch
         shell: bash
@@ -37,13 +43,13 @@ jobs:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: "22"
           package-manager-cache: false
 
       - name: Setup Go
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
         with:
           go-version: "1.23"
 
@@ -54,16 +60,33 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ -n "${INPUT_VERSION:-}" ]; then
-            version="${INPUT_VERSION}"
-          else
-            version="$(node -p "require('./packages/sdk/sdk-go/package.json').version")"
+          version="$(node -p "require('./packages/sdk/sdk-go/package.json').version")"
+          if [ -n "${INPUT_VERSION:-}" ] && [ "${INPUT_VERSION}" != "${version}" ]; then
+            echo "::error::Requested version ${INPUT_VERSION} does not match committed version ${version}."
+            exit 1
           fi
           if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
             echo "::error::Invalid version: $version"
             exit 1
           fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Validate Go major-version module path
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          major="${VERSION%%.*}"
+          module="$(go -C packages/sdk/sdk-go list -m)"
+          expected="github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v${major}"
+          if [ "$major" -lt 2 ]; then
+            expected="github.com/phaseoteam/Phaseo/packages/sdk/sdk-go"
+          fi
+          if [ "$module" != "$expected" ]; then
+            echo "::error::Go module path ${module} does not match v${major} release path ${expected}."
+            exit 1
+          fi
 
       - name: Validate telemetry literal matches publish version
         env:

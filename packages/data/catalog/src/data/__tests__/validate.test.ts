@@ -9,6 +9,12 @@ function readPricingJson(relativePath: string) {
     return JSON.parse(fs.readFileSync(path.join(DATA_ROOT, relativePath), 'utf8'));
 }
 
+function readProviderModels(providerId: string) {
+    return JSON.parse(
+        fs.readFileSync(path.join(DATA_ROOT, 'api_providers', providerId, 'models.json'), 'utf8')
+    );
+}
+
 describe('pricing safety checks', () => {
     test('active on gateway with no rules -> error flagged', () => {
         const bad = {
@@ -176,6 +182,50 @@ describe('pricing safety checks', () => {
         );
     });
 
+    test.each(['gmicloud', 'novita'])('%s Kimi K3 pricing matches the provider catalog', (providerId) => {
+        const pricing = readPricingJson(
+            `pricing/${providerId}/moonshotai-kimi-k3/text.generate/pricing.json`
+        );
+        expect(pricing.rules).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ meter: 'input_text_tokens', price_per_unit: 3 }),
+                expect.objectContaining({ meter: 'cached_read_text_tokens', price_per_unit: 0.3 }),
+                expect.objectContaining({ meter: 'output_text_tokens', price_per_unit: 15 }),
+            ])
+        );
+    });
+
+    test('Venice Kimi K3 pricing matches the live standard route', () => {
+        const pricing = readPricingJson(
+            'pricing/venice/moonshotai-kimi-k3/text.generate/pricing.json'
+        );
+        expect(pricing.rules).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    meter: 'input_text_tokens',
+                    price_per_unit: 3.75,
+                    pricing_plan: 'standard',
+                    unit_size: 1000000,
+                    currency: 'USD',
+                }),
+                expect.objectContaining({
+                    meter: 'cached_read_text_tokens',
+                    price_per_unit: 0.375,
+                    pricing_plan: 'standard',
+                    unit_size: 1000000,
+                    currency: 'USD',
+                }),
+                expect.objectContaining({
+                    meter: 'output_text_tokens',
+                    price_per_unit: 18.75,
+                    pricing_plan: 'standard',
+                    unit_size: 1000000,
+                    currency: 'USD',
+                }),
+            ])
+        );
+    });
+
     test('Google Vertex image model does not advertise flex pricing without executor support', () => {
         const pricing = readPricingJson(
             'pricing/google-vertex/google-gemini-3.1-flash-lite-image/text.generate/pricing.json'
@@ -185,6 +235,102 @@ describe('pricing safety checks', () => {
 });
 
 describe('api provider model safety checks', () => {
+    test('Kimi K3 provider rows retain provider-specific limits and support', () => {
+        const gmi = readProviderModels('gmicloud').find(
+            (row: any) => row.provider_api_model_id === 'gmicloud:moonshotai/kimi-k3'
+        );
+        const novita = readProviderModels('novita').find(
+            (row: any) => row.provider_api_model_id === 'novita:moonshotai/kimi-k3'
+        );
+        const veniceE2ee = readProviderModels('venice-e2ee').find(
+            (row: any) => row.internal_model_id === 'moonshotai/kimi-k3'
+        );
+
+        expect(gmi).toMatchObject({
+            is_active_gateway: true,
+            quantization_scheme: 'FP8',
+            input_modalities: 'text,image,video',
+            output_modalities: 'text',
+            context_length: 262144,
+            max_output_tokens: null,
+        });
+        expect(novita).toMatchObject({
+            is_active_gateway: true,
+            input_modalities: 'text,image,video',
+            output_modalities: 'text',
+            context_length: 1048576,
+            max_output_tokens: 1048576,
+        });
+        expect(novita.capabilities[0].params).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ param_id: 'tools' }),
+                expect.objectContaining({ param_id: 'structured_outputs' }),
+                expect.objectContaining({ param_id: 'include_reasoning' }),
+            ])
+        );
+        expect(veniceE2ee).toBeUndefined();
+    });
+
+    test('Kimi K3 links include the official API reference, weights, and provider pricing', () => {
+        const model = JSON.parse(
+            fs.readFileSync(path.join(DATA_ROOT, 'models', 'moonshotai', 'kimi-k3', 'model.json'), 'utf8')
+        );
+
+        expect(model.links).toEqual(expect.arrayContaining([
+            {
+                title: 'Kimi K3 Tech Blog',
+                kind: 'announcement',
+                url: 'https://www.kimi.com/blog/kimi-k3',
+            },
+            {
+                title: 'API Reference',
+                kind: 'api_reference',
+                url: 'https://platform.kimi.ai/docs/guide/kimi-k3-quickstart',
+            },
+            {
+                title: 'Model Weights',
+                kind: 'weights',
+                url: 'https://huggingface.co/moonshotai/Kimi-K3',
+            },
+            {
+                title: 'SiliconFlow pricing',
+                kind: 'pricing',
+                url: 'https://siliconflow.cn/pricing',
+            },
+        ]));
+        expect(model.page_notice).toMatchObject({
+            tone: 'info',
+        });
+        expect(model.page_notice.markdown).toContain('July 27, 2026 at 15:00 UTC');
+    });
+
+    test.each(['together', 'baseten', 'fireworks'])(
+        '%s lists Kimi K3 as a verified coming-soon route',
+        (providerId) => {
+            const row = readProviderModels(providerId).find(
+                (candidate: any) => candidate.internal_model_id === 'moonshotai/kimi-k3'
+            );
+
+            expect(row).toMatchObject({
+                is_active_gateway: false,
+                routable: false,
+                effective_from: '2026-07-27T15:00:00Z',
+                verification: {
+                    status: 'verified',
+                    checked_at: '2026-07-26T00:00:00Z',
+                },
+            });
+            expect(row.capabilities).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        capability_id: 'text.generate',
+                        status: 'coming_soon',
+                    }),
+                ])
+            );
+        }
+    );
+
     test('missing provider_model_slug -> error flagged', () => {
         const bad = {
             api_model_id: 'z-ai/glm-5.1',

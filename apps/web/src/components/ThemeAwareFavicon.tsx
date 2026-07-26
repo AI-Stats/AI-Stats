@@ -1,36 +1,44 @@
 "use client";
 
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { useTheme } from "next-themes";
 
 const FAVICON_BASE_URL = "/api/favicon";
 
-function upsertFaviconLink(rel: string, href: string) {
-	const selector = `link[rel="${rel}"][data-theme-aware-favicon="true"]`;
-	let link = document.querySelector<HTMLLinkElement>(selector);
+function updateFavicon(href: string) {
+	const links = Array.from(
+		document.querySelectorAll<HTMLLinkElement>(
+			'link[rel="icon"], link[rel="shortcut icon"]',
+		),
+	);
+	let link = document.querySelector<HTMLLinkElement>("#phaseo-favicon");
 
 	if (!link) {
 		link = document.createElement("link");
-		link.rel = rel;
-		link.type = "image/svg+xml";
-		link.dataset.themeAwareFavicon = "true";
+		link.id = "phaseo-favicon";
 		document.head.appendChild(link);
 	}
 
+	link.rel = "icon";
+	link.type = "image/svg+xml";
+	link.setAttribute("sizes", "any");
 	link.href = href;
+
+	for (const duplicate of links) {
+		if (duplicate !== link) duplicate.remove();
+	}
 }
 
 export default function ThemeAwareFavicon() {
 	const { resolvedTheme } = useTheme();
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (resolvedTheme !== "light" && resolvedTheme !== "dark") {
 			return;
 		}
 
-		const href = `${FAVICON_BASE_URL}?theme=${resolvedTheme}&v=${Date.now()}`;
-		upsertFaviconLink("icon", href);
-		upsertFaviconLink("shortcut icon", href);
+		// Stable URLs let the browser reuse each variant instead of fetching on every toggle.
+		updateFavicon(`${FAVICON_BASE_URL}?theme=${resolvedTheme}`);
 	}, [resolvedTheme]);
 
 	return null;
