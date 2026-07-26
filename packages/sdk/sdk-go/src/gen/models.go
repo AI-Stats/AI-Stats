@@ -2364,13 +2364,23 @@ type ResponsesRequest struct {
 
 type ResponsesResponse struct {
 	Content *[]map[string]interface{} `json:"content,omitempty"`
+	CostCents *int `json:"cost_cents,omitempty"`
+	CostNanos *float64 `json:"cost_nanos,omitempty"`
 	Created *int `json:"created,omitempty"`
+	Currency *string `json:"currency,omitempty"`
+	FinishReason *string `json:"finish_reason,omitempty"`
 	Id *string `json:"id,omitempty"`
+	Meta *map[string]interface{} `json:"meta,omitempty"`
 	Model *string `json:"model,omitempty"`
+	NativeResponseId *string `json:"nativeResponseId,omitempty"`
 	Object *string `json:"object,omitempty"`
 	Output *[]map[string]interface{} `json:"output,omitempty"`
 	OutputItems *[]map[string]interface{} `json:"output_items,omitempty"`
+	PricingLines *[]map[string]interface{} `json:"pricing_lines,omitempty"`
+	Provider *string `json:"provider,omitempty"`
+	ProviderId *string `json:"provider_id,omitempty"`
 	Role *string `json:"role,omitempty"`
+	Status *string `json:"status,omitempty"`
 	StopReason *string `json:"stop_reason,omitempty"`
 	Type *string `json:"type,omitempty"`
 	Usage *map[string]interface{} `json:"usage,omitempty"`

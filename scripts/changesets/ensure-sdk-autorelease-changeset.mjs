@@ -18,7 +18,7 @@ const RELEVANT_PATH_PREFIXES = [
   "packages/sdk/sdk-csharp/Client.cs",
   "packages/sdk/sdk-csharp/Phaseo.Sdk.csproj",
   "packages/sdk/sdk-csharp/ModelIds.cs",
-  "packages/sdk/sdk-java/src/gen/",
+  "packages/sdk/sdk-java/src/app/phaseo/gen/",
   "packages/sdk/sdk-java/pom.xml",
   "packages/sdk/sdk-java/src/app/phaseo/sdk/ModelIds.java",
   "packages/sdk/sdk-php/src/gen/",

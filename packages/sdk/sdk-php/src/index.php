@@ -90,7 +90,7 @@ class Phaseo
         $this->warningsAsErrors = $warningsAsErrors;
         $this->logger = $logger;
         $this->lifecycleResolver = $lifecycleResolver;
-        $this->telemetryRecorder = new TelemetryRecorder($devtools, "2.0.5");
+        $this->telemetryRecorder = new TelemetryRecorder($devtools, "2.1.0");
         $this->asyncJobs = new AsyncJobsResource($this);
     }
 
@@ -166,6 +166,11 @@ class Phaseo
     {
         return $this->generateResponse($payload);
     }
+
+	public function streamResponse(array $payload): iterable
+	{
+		$payload["stream"]=true;return $this->client->requestStream("POST","/responses",body:$payload);
+	}
 
     public function createAnthropicMessage(array $payload): mixed
     {

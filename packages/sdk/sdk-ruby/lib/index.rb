@@ -72,7 +72,7 @@ module PhaseoSdk
       @lifecycle_resolver = lifecycle_resolver
       @warned_models = {}
       @model_lifecycle_cache = {}
-      @telemetry_recorder = TelemetryRecorder.new(devtools, "2.0.5")
+      @telemetry_recorder = TelemetryRecorder.new(devtools, "2.1.0")
       @async_jobs = AsyncJobsResource.new(self)
     end
 
@@ -115,6 +115,10 @@ module PhaseoSdk
     def create_response(payload)
       generate_response(payload)
     end
+
+	def stream_response(payload)
+	  @raw_client.request_stream(method:"post",path:"/responses",body:payload.merge(stream:true))
+	end
 
     def create_anthropic_message(payload)
       with_lifecycle_and_telemetry(endpoint: "messages", payload: payload, check_lifecycle: true) do
@@ -726,7 +730,7 @@ module PhaseoSdk
   end
 
   class TelemetryRecorder
-    def initialize(config = nil, sdk_version = "2.0.5")
+    def initialize(config = nil, sdk_version = "2.1.0")
       config ||= {}
       enabled = config.fetch(:enabled, false)
       directory = config.fetch(:directory, ".phaseo-devtools")

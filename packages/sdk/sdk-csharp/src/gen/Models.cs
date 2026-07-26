@@ -2923,14 +2923,32 @@ public sealed class ResponsesResponse
 	[JsonPropertyName("content")]
 	public List<Dictionary<string, object>>? Content { get; set; }
 
+	[JsonPropertyName("cost_cents")]
+	public int? CostCents { get; set; }
+
+	[JsonPropertyName("cost_nanos")]
+	public double? CostNanos { get; set; }
+
 	[JsonPropertyName("created")]
 	public int? Created { get; set; }
+
+	[JsonPropertyName("currency")]
+	public string? Currency { get; set; }
+
+	[JsonPropertyName("finish_reason")]
+	public string? FinishReason { get; set; }
 
 	[JsonPropertyName("id")]
 	public string? Id { get; set; }
 
+	[JsonPropertyName("meta")]
+	public Dictionary<string, object>? Meta { get; set; }
+
 	[JsonPropertyName("model")]
 	public string? Model { get; set; }
+
+	[JsonPropertyName("nativeResponseId")]
+	public string? NativeResponseId { get; set; }
 
 	[JsonPropertyName("object")]
 	public string? Object { get; set; }
@@ -2941,8 +2959,20 @@ public sealed class ResponsesResponse
 	[JsonPropertyName("output_items")]
 	public List<Dictionary<string, object>>? OutputItems { get; set; }
 
+	[JsonPropertyName("pricing_lines")]
+	public List<Dictionary<string, object>>? PricingLines { get; set; }
+
+	[JsonPropertyName("provider")]
+	public string? Provider { get; set; }
+
+	[JsonPropertyName("provider_id")]
+	public string? ProviderId { get; set; }
+
 	[JsonPropertyName("role")]
 	public string? Role { get; set; }
+
+	[JsonPropertyName("status")]
+	public string? Status { get; set; }
 
 	[JsonPropertyName("stop_reason")]
 	public string? StopReason { get; set; }

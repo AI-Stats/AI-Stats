@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Phaseo.Gen;
 
@@ -99,7 +100,7 @@ namespace PhaseoSdk
             _enableDeprecationWarnings = enableDeprecationWarnings;
             _warningsAsErrors = warningsAsErrors;
             _logger = logger;
-            _telemetry = new TelemetryRecorder(devtools, "2.0.5");
+            _telemetry = new TelemetryRecorder(devtools, "2.1.0");
             _lifecycleResolver = lifecycleResolver ?? FetchModelLifecycleAsync;
             AsyncJobs = new AsyncJobsResource(this);
         }
@@ -301,6 +302,12 @@ namespace PhaseoSdk
         {
             return GenerateResponse(request);
         }
+
+		public IAsyncEnumerable<string> StreamResponse(Dictionary<string, object> request, CancellationToken cancellationToken = default)
+		{
+			request = new Dictionary<string, object>(request) { ["stream"] = true };
+			return _client.StreamLinesAsync("POST", "/responses", body: request, cancellationToken: cancellationToken);
+		}
 
         public Task<Dictionary<string, object>?> CreateAnthropicMessage(Dictionary<string, object> request)
         {

@@ -287,7 +287,7 @@ function resolveLangOutDir(lang: string): string | null {
 		php: "packages/sdk/sdk-php/src/gen",
 		ruby: "packages/sdk/sdk-ruby/lib/gen",
 		rb: "packages/sdk/sdk-ruby/lib/gen",
-		java: "packages/sdk/sdk-java/src/gen",
+		java: "packages/sdk/sdk-java/src/app/phaseo/gen",
 		cpp: "packages/sdk/sdk-cpp/src/gen",
 		"c++": "packages/sdk/sdk-cpp/src/gen",
 		rust: "packages/sdk/sdk-rust/src/gen"
@@ -304,7 +304,7 @@ function resolveSdkOutDir(sdk: string): string | null {
 		"sdk-csharp": "packages/sdk/sdk-csharp/src/gen",
 		"sdk-php": "packages/sdk/sdk-php/src/gen",
 		"sdk-ruby": "packages/sdk/sdk-ruby/lib/gen",
-		"sdk-java": "packages/sdk/sdk-java/src/gen",
+		"sdk-java": "packages/sdk/sdk-java/src/app/phaseo/gen",
 		"sdk-cpp": "packages/sdk/sdk-cpp/src/gen",
 		"sdk-rust": "packages/sdk/sdk-rust/src/gen"
 	};
