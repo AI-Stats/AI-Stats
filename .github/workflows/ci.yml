@@ -123,7 +123,7 @@ jobs:
         needs: openapi-lint
         strategy:
             matrix:
-                app: [api, docs, web, web-api]
+                app: [api, docs, web, web-api, mcp]
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -164,6 +164,13 @@ jobs:
                   pnpm --filter @phaseo/web-api lint
                   pnpm --filter @phaseo/web-api test
                   pnpm --filter @phaseo/web-api build
+
+            - name: MCP typecheck, test & production build
+              if: matrix.app == 'mcp'
+              run: |
+                  pnpm --filter @phaseo/mcp typecheck
+                  pnpm --filter @phaseo/mcp test
+                  pnpm --filter @phaseo/mcp build:production
 
     api-aimock:
         name: API AIMock matrix

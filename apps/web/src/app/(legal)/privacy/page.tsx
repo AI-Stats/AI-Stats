@@ -514,10 +514,11 @@ export default async function PrivacyPage() {
 				</p>
 				<p className="mt-2 text-foreground/80">
 					Using the Phaseo plugin does not create a separate long-term
-					copy of your Gateway records within Phaseo. Tool requests are
-					processed against the records already retained for your
-					account and Gateway operations. A connected client may retain
-					tool results under its own retention policy.
+					copy of your Gateway records within Phaseo. Tool requests read
+					or compute against Phaseo data available to the authorized
+					service, including already-retained account and Gateway records
+					where applicable. A connected client may retain tool results
+					under its own retention policy.
 				</p>
 			</section>
 

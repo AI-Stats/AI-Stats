@@ -14,6 +14,22 @@ record portal-only state in the launch checklist at the end.
 - Skills bundle: No for the initial submission
 - Screenshots: Do not submit screenshots because this version has no UI
 
+### OAuth scope allowlist
+
+The canonical scope names are `READ_ONLY_MCP_SCOPES` in
+`apps/mcp/src/index.ts`. Configure the portal and verify the MCP protected
+resource metadata use exactly this allowlist, with no broader permissions:
+
+```text
+models:read
+providers:read
+pricing:read
+credits:read
+activity:read
+analytics:read
+generations:read
+```
+
 ## Listing
 
 - Plugin name: Phaseo
@@ -69,12 +85,12 @@ records.
 
 ## Positive review tests
 
-### 1. Search live models
+### 1. Search live models and providers
 
-- Prompt: Find up to five Phaseo models from OpenAI with text input and at least 128,000 context tokens.
-- Expected tools: `models_list`
-- Expected behavior: Call the live catalogue with provider, modality, context, and limit filters.
-- Expected result: `models[]` contains normalized IDs, names, prices, capabilities, modalities, and available providers; no authenticated account data.
+- Prompt: List Phaseo's current providers, then find up to five models from OpenAI with text input and at least 128,000 context tokens.
+- Expected tools: `providers_list`, then `models_list`
+- Expected behavior: Read the live provider list, then call the live model catalogue with provider, modality, context, and limit filters.
+- Expected result: `providers[]` and `models[]` contain normalized public catalogue data; no authenticated account data.
 
 ### 2. Retrieve one model
 
@@ -92,10 +108,10 @@ records.
 
 ### 4. Summarize authenticated usage
 
-- Prompt: Show my current Phaseo credit balance and summarize usage by model and provider for the latest available reporting period.
-- Expected tools: `credits_get`, then `analytics_get`
+- Prompt: Show my current Phaseo credit balance, recent activity, and usage by model and provider for the latest available reporting period.
+- Expected tools: `credits_get`, `activity_list`, then `analytics_get`
 - Expected behavior: Use only the authenticated workspace represented by the OAuth token.
-- Expected result: Normalized credit totals and aggregated analytics; no user, workspace, credential, or raw request-content fields.
+- Expected result: Normalized credit totals, recent request summaries, and aggregated analytics; no user, workspace, credential, or raw request-content fields.
 
 ### 5. Investigate failed requests
 
@@ -154,6 +170,7 @@ prompt/model-output content.
 - [ ] Confirm the submitter has Apps Management Write (`api.apps.write`).
 - [ ] Create a **With MCP** draft and enter `https://mcp.phaseo.app/mcp`.
 - [ ] Configure OAuth and the reviewer account in the portal.
+- [ ] Confirm the portal and protected-resource metadata advertise exactly the seven OAuth scopes above.
 - [ ] Set the generated domain token as `OPENAI_APPS_CHALLENGE_TOKEN` on the production MCP Worker.
 - [ ] Verify the portal accepts `https://mcp.phaseo.app/.well-known/openai-apps-challenge`.
 - [ ] Select **Scan Tools** and confirm the discovered tool list matches this file.
