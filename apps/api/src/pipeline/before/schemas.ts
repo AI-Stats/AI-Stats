@@ -189,6 +189,28 @@ function toModalityList(value: unknown): string[] | null {
     return null;
 }
 
+function normalizeCapabilityParams(
+    value: Record<string, unknown> | Array<Record<string, unknown>>,
+): Record<string, unknown> {
+    if (!Array.isArray(value)) return value;
+
+    const normalized: Record<string, unknown> = {};
+    for (const descriptor of value) {
+        const paramId = String(descriptor.param_id ?? "").trim();
+        if (!paramId) continue;
+        const { param_id: _paramId, ...metadata } = descriptor;
+        normalized[paramId] = metadata;
+    }
+    return normalized;
+}
+
+const capabilityParamsSchema = z
+    .union([
+        z.record(z.string(), z.any()),
+        z.array(z.record(z.string(), z.any())),
+    ])
+    .transform(normalizeCapabilityParams);
+
 const providerSchema = z
     .object({
         provider_id: z.string(),
@@ -239,7 +261,7 @@ const providerSchema = z
         supports_endpoint: z.boolean().optional().default(true),
         base_weight: z.coerce.number().optional().default(1),
         byok_meta: z.array(byokMetaSchema).optional().default([]),
-        capability_params: z.record(z.string(), z.any()).optional().default({}),
+        capability_params: capabilityParamsSchema.optional().default({}),
         max_input_tokens: z.coerce.number().nullable().optional(),
         max_output_tokens: z.coerce.number().nullable().optional(),
     })
