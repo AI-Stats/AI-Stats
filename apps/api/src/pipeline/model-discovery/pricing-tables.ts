@@ -21,7 +21,7 @@ export type PricingTableFetchResult = {
 };
 
 export const PRICING_TABLE_SOURCES: PricingTableSource[] = [
-	{ providerId: "alibaba", providerName: "Alibaba Cloud Model Studio", sourceUrl: "https://www.alibabacloud.com/help/en/model-studio/model-pricing" },
+	{ providerId: "alibaba", providerName: "Alibaba Cloud Model Studio", sourceUrl: "https://www.alibabacloud.com/help/en/model-studio/model-pricing", extraction: "price-content" },
 	{ providerId: "anthropic", providerName: "Anthropic", sourceUrl: "https://platform.claude.com/docs/en/about-claude/pricing" },
 	{ providerId: "byteplus", providerName: "BytePlus ModelArk", sourceUrl: "https://docs.byteplus.com/en/docs/Byteplus_LAS/Large_model_billing" },
 	{ providerId: "cerebras", providerName: "Cerebras", sourceUrl: "https://www.cerebras.ai/pricing", extraction: "price-content" },

@@ -19,7 +19,7 @@ On subsequent runs, the runner computes per-provider:
 
 ## Private upstream discovery
 
-External upstream discovery checks model sources outside Phaseo, including provider `/models` APIs and watched Hugging Face organisations/models. Provider `/models` checks run from the Cloudflare Worker scheduled runner. Hugging Face checks run from GitHub Actions on an hourly schedule. Both can send Discord notifications and can create or update GitHub triage issues when `GITHUB_TOKEN` or `GH_TOKEN` is available.
+External upstream discovery checks model sources outside Phaseo, including provider `/models` APIs and watched Hugging Face organisations/models. Provider `/models` checks run from the Cloudflare Worker scheduled runner. Hugging Face checks run from GitHub Actions on an hourly schedule. Both can send Discord notifications. Provider model and pricing changes can dispatch `.github/workflows/provider-catalog-sync.yml`, which validates and creates or updates a draft provider-scoped pull request. The Worker requires `GITHUB_TOKEN` or `GH_TOKEN` with repository Contents write permission to send that repository dispatch.
 
 Provider `/models` Discord alerts are filtered to provider model IDs already known in the database table `data_api_provider_models` (`provider_model_slug` and the `api_model_id` tail), regardless of `is_active_gateway` status. GitHub issue sync is intentionally not filtered by that allowlist: unknown upstream models are included in triage issues so newly exposed provider or Hugging Face models are not silently discarded.
 
@@ -69,7 +69,7 @@ pnpm run data:check-new-models:test
 - `DISCORD_MODEL_DISCOVERY_AVATAR_URL` (legacy fallback avatar override when calling internal runner scripts with `--discord-avatar-url`)
 - Watched Hugging Face orgs for the GitHub Actions scheduled runner are currently passed in `.github/workflows/huggingface-model-discovery.yml`
 - `HF_TOKEN` (optional Hugging Face token for orgs/models that require authenticated API access)
-- `GITHUB_TOKEN` or `GH_TOKEN` (optional, enables automatic GitHub issues for external provider and Hugging Face additions/changes/deletions)
+- `GITHUB_TOKEN` or `GH_TOKEN` (enables provider-catalog repository dispatches; also enables legacy issue sync when `MODEL_DISCOVERY_ISSUE_SYNC_ENABLED=true`)
 - `NEXT_PUBLIC_SUPABASE_URL` (required for known provider model DB allowlist)
 - `SUPABASE_SERVICE_ROLE_KEY` (required for known provider model DB allowlist)
 - Provider-specific API keys declared in each provider module.

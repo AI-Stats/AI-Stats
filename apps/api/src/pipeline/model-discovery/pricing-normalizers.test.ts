@@ -67,4 +67,13 @@ describe("normalizeProviderModelPricing", () => {
 			},
 		});
 	});
+
+	it("normalizes the canonical Novita provider id", () => {
+		expect(normalizeProviderModelPricing("novita", {
+			input_token_price_per_m: 0.2,
+			output_token_price_per_m: 0.8,
+		})).toMatchObject({
+			meters: { input_text_tokens: 0.2, output_text_tokens: 0.8 },
+		});
+	});
 });

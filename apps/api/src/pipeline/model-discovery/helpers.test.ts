@@ -1,5 +1,14 @@
 import { afterAll, afterEach, describe, expect, it } from "vitest";
-import { buildDiscordMessage, extractDiscoveredModels, extractProviderApiModelSnapshot, fetchProviderModels, resolveProviderModelsEndpoint } from "./helpers";
+import {
+	assertSafeDiscoverySnapshot,
+	buildDiscordMessage,
+	extractDiscoveredModels,
+	extractProviderApiModelSnapshot,
+	fetchProviderModels,
+	formatPricingSample,
+	parsePricingModelKey,
+	resolveProviderModelsEndpoint,
+} from "./helpers";
 import { installFetchMock, jsonResponse } from "../../../tests/helpers/mock-fetch";
 import { setupRuntimeFromEnv, teardownTestRuntime } from "../../../tests/helpers/runtime";
 
@@ -205,13 +214,63 @@ describe("extractDiscoveredModels", () => {
 });
 
 describe("buildDiscordMessage", () => {
-	it("does not include pricing-only changes", () => {
+	it("includes pricing-only changes", () => {
 		setupRuntimeFromEnv({} as any);
 		expect(buildDiscordMessage({
 			modelChanges: [],
 			pricing: { updatesDetected: 1, providerChanges: [{ providerId: "crofai", updates: 1, samples: ["glm-5.2 | price changed"] }] },
 			providerApiPricing: { updatesDetected: 1, providerChanges: [{ providerId: "deepinfra", updates: 1, samples: ["model | price changed"] }] },
+			pricingTable: { updatesDetected: 0, providerChanges: [], errors: [] },
 			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
-		} as any)).toBe("");
+		} as any)).toContain("Pricing monitor detected 1 updated rule");
+	});
+
+	it("includes pricing source failures", () => {
+		setupRuntimeFromEnv({} as any);
+		expect(buildDiscordMessage({
+			modelChanges: [],
+			pricing: { updatesDetected: 0, providerChanges: [] },
+			providerApiPricing: { updatesDetected: 0, providerChanges: [] },
+			pricingTable: {
+				updatesDetected: 0,
+				providerChanges: [],
+				errors: ["Alibaba pricing source returned no prices"],
+			},
+			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
+		} as any)).toContain("Alibaba pricing source returned no prices");
+	});
+});
+
+describe("pricing model keys", () => {
+	it("parses provider and model from a composite pricing key", () => {
+		expect(parsePricingModelKey("openai:openai/gpt-5.4:text.generate")).toEqual({
+			providerId: "openai",
+			apiModelId: "openai/gpt-5.4",
+		});
+		expect(formatPricingSample({
+			rule_id: "rule-1",
+			model_key: "openai:openai/gpt-5.4:text.generate",
+			capability_id: "text.generate",
+			pricing_plan: "standard",
+			meter: "input_text_tokens",
+			price_per_unit: 2.5,
+			currency: "USD",
+			effective_from: null,
+			effective_to: null,
+			updated_at: "2026-07-26T00:00:00Z",
+		})).toContain("openai/gpt-5.4");
+	});
+});
+
+describe("assertSafeDiscoverySnapshot", () => {
+	it("rejects empty and catastrophic provider snapshots", () => {
+		expect(() => assertSafeDiscoverySnapshot("provider", ["a"], [])).toThrow("returned zero models");
+		expect(() => assertSafeDiscoverySnapshot("provider", ["a", "b", "c", "d", "e", "f", "g", "h"], ["a"])).toThrow(
+			"refusing a destructive snapshot",
+		);
+	});
+
+	it("accepts normal provider churn", () => {
+		expect(() => assertSafeDiscoverySnapshot("provider", ["a", "b", "c", "d", "e"], ["a", "b", "c", "f"])).not.toThrow();
 	});
 });

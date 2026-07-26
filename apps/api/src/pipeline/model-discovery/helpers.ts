@@ -40,8 +40,7 @@ type ProviderApiModelSnapshot = {
 
 type PricingRuleRow = {
 	rule_id: string | null;
-	provider_id: string | null;
-	api_model_id: string | null;
+	model_key: string | null;
 	capability_id: string | null;
 	pricing_plan: string | null;
 	meter: string | null;
@@ -83,6 +82,22 @@ type ProviderApiPricingMonitorSummary = {
 	updatesDetected: number;
 	providersChanged: number;
 	providerChanges: PricingProviderChange[];
+	error?: string | null;
+};
+
+type PricingTableMonitorSummary = {
+	enabled: boolean;
+	executed: boolean;
+	sourcesChecked: number;
+	updatesDetected: number;
+	providerChanges: Array<{
+		providerId: string;
+		providerName: string;
+		sourceUrl: string;
+		tableCount: number;
+		pricingSamples: string[];
+	}>;
+	errors: string[];
 	error?: string | null;
 };
 
@@ -402,13 +417,28 @@ export function normalizePrice(value: number | string | null): string {
 export function pricingRuleIdentity(row: PricingRuleRow): string {
 	if (row.rule_id && row.rule_id.trim()) return row.rule_id.trim();
 	return [
-		safeId(row.provider_id),
-		safeId(row.api_model_id),
+		safeId(row.model_key),
 		safeId(row.capability_id),
 		safeId(row.pricing_plan),
 		safeId(row.meter),
 		safeId(row.updated_at),
 	].join("|");
+}
+
+export function parsePricingModelKey(modelKey: string | null): {
+	providerId: string;
+	apiModelId: string;
+} {
+	const value = modelKey?.trim() ?? "";
+	const firstSeparator = value.indexOf(":");
+	const lastSeparator = value.lastIndexOf(":");
+	if (firstSeparator <= 0 || lastSeparator <= firstSeparator) {
+		return { providerId: "?", apiModelId: value || "?" };
+	}
+	return {
+		providerId: value.slice(0, firstSeparator),
+		apiModelId: value.slice(firstSeparator + 1, lastSeparator),
+	};
 }
 
 export function isNewerTimestamp(a: string, b: string): boolean {
@@ -426,7 +456,7 @@ export function isSameTimestamp(a: string, b: string): boolean {
 }
 
 export function formatPricingSample(row: PricingRuleRow): string {
-	const model = safeId(row.api_model_id);
+	const model = parsePricingModelKey(row.model_key).apiModelId;
 	const capability = safeId(row.capability_id);
 	const plan = safeId(row.pricing_plan);
 	const meter = safeId(row.meter);
@@ -778,6 +808,25 @@ export function diffModelIds(previousIds: string[], currentIds: string[]): { add
 	return { added, removed };
 }
 
+export function assertSafeDiscoverySnapshot(
+	providerId: string,
+	previousIds: string[],
+	currentIds: string[],
+	minimumRetainedRatio = 0.25,
+): void {
+	if (currentIds.length === 0) {
+		throw new Error(`${providerId} returned zero models; refusing to replace the previous snapshot`);
+	}
+	if (previousIds.length < 5) return;
+	const retainedRatio = currentIds.length / previousIds.length;
+	if (retainedRatio < minimumRetainedRatio) {
+		throw new Error(
+			`${providerId} model count fell from ${previousIds.length} to ${currentIds.length} ` +
+			`(${Math.round(retainedRatio * 100)}% retained); refusing a destructive snapshot`,
+		);
+	}
+}
+
 export function parsePricingCursorFromSummary(summary: unknown): PricingCursor | null {
 	const summaryRecord = asRecord(summary);
 	if (!summaryRecord) return null;
@@ -943,7 +992,7 @@ export async function fetchPricingRuleIdsAtTimestamp(updatedAt: string): Promise
 		const to = from + PRICING_PAGE_SIZE - 1;
 		const { data, error } = await supabase
 			.from("data_api_pricing_rules")
-			.select("rule_id,provider_id,api_model_id,capability_id,pricing_plan,meter,price_per_unit,currency,effective_from,effective_to,updated_at")
+			.select("rule_id,model_key,capability_id,pricing_plan,meter,price_per_unit,currency,effective_from,effective_to,updated_at")
 			.eq("updated_at", updatedAt)
 			.order("rule_id", { ascending: true })
 			.range(from, to);
@@ -966,7 +1015,7 @@ export async function fetchPricingRowsSince(sinceInclusive: string): Promise<Pri
 		const to = from + PRICING_PAGE_SIZE - 1;
 		const { data, error } = await supabase
 			.from("data_api_pricing_rules")
-			.select("rule_id,provider_id,api_model_id,capability_id,pricing_plan,meter,price_per_unit,currency,effective_from,effective_to,updated_at")
+			.select("rule_id,model_key,capability_id,pricing_plan,meter,price_per_unit,currency,effective_from,effective_to,updated_at")
 			.gte("updated_at", sinceInclusive)
 			.order("updated_at", { ascending: true })
 			.range(from, to);
@@ -1066,7 +1115,7 @@ export function summarizeMissingConfiguredProviderModels(args: {
 export function summarizePricingChanges(rows: PricingRuleRow[]): PricingProviderChange[] {
 	const providerMap = new Map<string, PricingProviderChange>();
 	for (const row of rows) {
-		const providerId = safeId(row.provider_id);
+		const providerId = safeId(parsePricingModelKey(row.model_key).providerId);
 		const existing = providerMap.get(providerId) ?? { providerId, updates: 0, samples: [] };
 		existing.updates += 1;
 		if (existing.samples.length < MAX_PRICING_SAMPLE_LINES) {
@@ -1172,7 +1221,9 @@ export function buildModelDiscordSection(changes: ProviderChange[]): string {
 }
 
 export function buildPricingDiscordSection(pricing: PricingMonitorSummary): string {
-	if (pricing.updatesDetected === 0 || pricing.providerChanges.length === 0) return "";
+	if (pricing.updatesDetected === 0 || pricing.providerChanges.length === 0) {
+		return pricing.error ? `Pricing monitor failed: ${pricing.error}` : "";
+	}
 	const lines: string[] = [
 		`Pricing monitor detected ${pricing.updatesDetected} updated rule${pricing.updatesDetected === 1 ? "" : "s"} across ${pricing.providerChanges.length} provider${pricing.providerChanges.length === 1 ? "" : "s"}.`,
 		"",
@@ -1193,7 +1244,9 @@ export function buildPricingDiscordSection(pricing: PricingMonitorSummary): stri
 }
 
 export function buildProviderApiPricingDiscordSection(pricing: ProviderApiPricingMonitorSummary): string {
-	if (pricing.updatesDetected === 0 || pricing.providerChanges.length === 0) return "";
+	if (pricing.updatesDetected === 0 || pricing.providerChanges.length === 0) {
+		return pricing.error ? `Provider /models pricing monitor failed: ${pricing.error}` : "";
+	}
 	const lines: string[] = [
 		`Provider /models monitor detected ${pricing.updatesDetected} updated model${pricing.updatesDetected === 1 ? "" : "s"} across ${pricing.providerChanges.length} provider${pricing.providerChanges.length === 1 ? "" : "s"}.`,
 		"",
@@ -1240,11 +1293,37 @@ export function shouldNotifyConfiguredModelCoverage(): boolean {
 
 export function hasDiscordNotifiableChanges(args: {
 	modelChanges: ProviderChange[];
+	pricing: PricingMonitorSummary;
+	providerApiPricing: ProviderApiPricingMonitorSummary;
+	pricingTable: PricingTableMonitorSummary;
 	configuredModelCoverage: ConfiguredModelCoverageMonitorSummary;
 }): boolean {
-	return args.modelChanges.length > 0 || (
+	return args.modelChanges.length > 0
+		|| args.pricing.updatesDetected > 0
+		|| Boolean(args.pricing.error)
+		|| args.providerApiPricing.updatesDetected > 0
+		|| Boolean(args.providerApiPricing.error)
+		|| args.pricingTable.updatesDetected > 0
+		|| args.pricingTable.errors.length > 0
+		|| Boolean(args.pricingTable.error)
+		|| (
 		shouldNotifyConfiguredModelCoverage() && args.configuredModelCoverage.updatesDetected > 0
 	);
+}
+
+export function buildPricingTableDiscordSection(pricing: PricingTableMonitorSummary): string {
+	const lines: string[] = [];
+	if (pricing.updatesDetected > 0) {
+		lines.push(`Pricing page monitor detected ${pricing.updatesDetected} changed provider source${pricing.updatesDetected === 1 ? "" : "s"}.`);
+		for (const change of pricing.providerChanges.slice(0, MAX_PRICING_PROVIDER_LINES)) {
+			lines.push(`- ${change.providerName}: ${change.tableCount} price-bearing section${change.tableCount === 1 ? "" : "s"} (${change.sourceUrl})`);
+		}
+	}
+	if (pricing.error) lines.push(`Pricing page monitor failed: ${pricing.error}`);
+	for (const error of pricing.errors.slice(0, MAX_PRICING_SAMPLE_LINES)) {
+		lines.push(`- Pricing source error: ${error}`);
+	}
+	return lines.join("\n").trim();
 }
 
 const PRIVATE_MODEL_DISCOVERY_USERNAME = "Phaseo Private Model Discovery";
@@ -1252,13 +1331,22 @@ const PRIVATE_MODEL_DISCOVERY_AVATAR_URL = "https://phaseo.app/png_logo_dark.png
 
 export function buildDiscordMessage(args: {
 	modelChanges: ProviderChange[];
+	pricing: PricingMonitorSummary;
+	providerApiPricing: ProviderApiPricingMonitorSummary;
+	pricingTable: PricingTableMonitorSummary;
 	configuredModelCoverage: ConfiguredModelCoverageMonitorSummary;
 }): string {
 	const includeConfiguredCoverageNotifications = shouldNotifyConfiguredModelCoverage();
 	const sections: string[] = [];
 	const modelSection = buildModelDiscordSection(args.modelChanges);
+	const pricingSection = buildPricingDiscordSection(args.pricing);
+	const providerApiPricingSection = buildProviderApiPricingDiscordSection(args.providerApiPricing);
+	const pricingTableSection = buildPricingTableDiscordSection(args.pricingTable);
 	const configuredModelCoverageSection = buildConfiguredModelCoverageDiscordSection(args.configuredModelCoverage);
 	if (modelSection) sections.push(modelSection);
+	if (pricingSection) sections.push(pricingSection);
+	if (providerApiPricingSection) sections.push(providerApiPricingSection);
+	if (pricingTableSection) sections.push(pricingTableSection);
 	if (includeConfiguredCoverageNotifications && configuredModelCoverageSection) {
 		sections.push(configuredModelCoverageSection);
 	}
@@ -1271,6 +1359,7 @@ export async function sendDiscordNotification(args: {
 	modelChanges: ProviderChange[];
 	pricing: PricingMonitorSummary;
 	providerApiPricing: ProviderApiPricingMonitorSummary;
+	pricingTable: PricingTableMonitorSummary;
 	configuredModelCoverage: ConfiguredModelCoverageMonitorSummary;
 }): Promise<{ delivered: boolean; skipped: boolean; reason?: string | null }> {
 	if (!hasDiscordNotifiableChanges(args)) {

@@ -41,4 +41,12 @@ describe("MODEL_DISCOVERY_PROVIDERS", () => {
 		expect(providerIds.has("xai")).toBe(false);
 		expect(providerIds.has("zai")).toBe(false);
 	});
+
+	it("accepts deployed credential aliases for linked providers", () => {
+		const providers = new Map(MODEL_DISCOVERY_PROVIDERS.map((provider) => [provider.providerId, provider]));
+
+		expect(providers.get("gmicloud")?.apiKeyEnv).toContain("GMI_CLOUD_API_KEY");
+		expect(providers.get("nebius-token-factory")?.apiKeyEnv).toContain("NEBIUS_TOKEN_FACTORY_API_KEY");
+		expect(providers.get("amazon-bedrock")?.apiKeyEnv).toContain("AMAZON_BEDROCK_MANTLE_API_KEY");
+	});
 });
