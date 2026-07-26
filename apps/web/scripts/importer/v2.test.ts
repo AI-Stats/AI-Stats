@@ -11,6 +11,7 @@ import {
     pricingModelPart,
     v2RouteModelSlug,
     validateJsonPricingRules,
+    routeStatus,
 } from "./v2";
 
 describe("free model variants", () => {
@@ -39,6 +40,16 @@ describe("free model variants", () => {
             (value) => String(value),
         )).toThrow("missing authored canonical_model_id");
         expect(isFreeModelVariant("poolside/laguna-s-2.1:FREE")).toBe(true);
+    });
+});
+
+describe("routeStatus", () => {
+    it("defaults an authored active gateway route to active", () => {
+        expect(routeStatus(null, true)).toBe("active");
+    });
+
+    it("keeps an explicit disabled status authoritative", () => {
+        expect(routeStatus("disabled", true)).toBe("disabled");
     });
 });
 

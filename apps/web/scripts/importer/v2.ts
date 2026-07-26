@@ -42,12 +42,13 @@ function providerStatus(value: unknown): string {
     }
 }
 
-function routeStatus(value: unknown): string {
+export function routeStatus(value: unknown, isActiveGateway = false): string {
     switch (String(value ?? "").trim().toLowerCase()) {
         case "disabled": return "disabled";
         case "retired": return "retired";
         case "active": return "active";
-        default: return "degraded";
+        case "degraded": return "degraded";
+        default: return isActiveGateway ? "active" : "degraded";
     }
 }
 
@@ -686,15 +687,21 @@ export async function syncV2Catalogue(): Promise<void> {
         }] : [],
     ), row => String(row.model_slug)), "model_slug");
 
+    const providersWithActiveRoutes = new Set(
+        providerModels
+            .filter(row => Boolean(row.is_active_gateway) && !["disabled", "retired"].includes(String(row.routing_status ?? "").toLowerCase()))
+            .map(row => String(row.provider_id)),
+    );
     const providerRows = providers.map(row => {
         const sourceProvider = source.providers.get(String(row.api_provider_id));
         const sourceRoutable = typeof sourceProvider?.routable === "boolean" ? sourceProvider.routable : null;
-        const routable = sourceRoutable ?? String(row.routing_status ?? "").toLowerCase() === "active";
+        const hasActiveRoute = providersWithActiveRoutes.has(String(row.api_provider_id));
+        const routable = sourceRoutable ?? hasActiveRoute;
         const routingEnabled = sourceRoutable === false
             ? false
             : typeof sourceProvider?.routing_enabled === "boolean"
                 ? sourceProvider.routing_enabled
-                : String(row.routing_status ?? "").toLowerCase() === "active";
+                : hasActiveRoute;
         return {
         provider_slug: row.api_provider_id,
         lab_slug: organisationIds.has(String(row.api_provider_id))
@@ -794,8 +801,8 @@ export async function syncV2Catalogue(): Promise<void> {
         ),
         provider_slug: row.provider_id,
         provider_model_slug: row.provider_model_slug,
-        status: routeStatus(row.routing_status),
-        routing_enabled: Boolean(row.is_active_gateway) && String(row.routing_status ?? "").toLowerCase() === "active",
+        status: routeStatus(row.routing_status, Boolean(row.is_active_gateway)),
+        routing_enabled: Boolean(row.is_active_gateway) && !["disabled", "retired"].includes(String(row.routing_status ?? "").toLowerCase()),
         input_modalities: asTextArray(row.input_modalities),
         output_modalities: asTextArray(row.output_modalities),
         context_length: Number(row.context_length) > 0 ? Number(row.context_length) : null,
