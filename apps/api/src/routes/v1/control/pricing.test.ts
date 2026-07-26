@@ -25,7 +25,7 @@ import { pricingRoutes } from "./pricing";
 
 function queryResult(result: { data: unknown[]; error: unknown }) {
 	const query: Record<string, unknown> = {};
-	for (const method of ["select", "eq", "in", "or", "order"]) {
+	for (const method of ["select", "eq", "in", "lte", "or", "order"]) {
 		query[method] = vi.fn(() => query);
 	}
 	query.then = (resolve: (value: unknown) => unknown) => Promise.resolve(result).then(resolve);
@@ -49,35 +49,33 @@ describe("pricingRoutes", () => {
 	it("includes active rows with open effective windows and avoids empty in filters", async () => {
 		getSupabaseAdminMock.mockReturnValue({
 			from: vi.fn((table: string) => {
-				if (table === "data_api_provider_models") return queryResult({ data: [{
-					provider_api_model_id: "pm_1",
-					provider_id: "openai",
-					api_model_id: "gpt-test",
-					model_id: "openai/gpt-test",
-					is_active_gateway: true,
-					effective_from: null,
-					effective_to: null,
+				if (table === "v2_model_provider_routes") return queryResult({ data: [{
+					provider_model_id: "pm_1",
+					provider_slug: "openai",
+					model_slug: "openai/gpt-test",
 				}], error: null });
-				if (table === "data_api_provider_model_capabilities") return queryResult({ data: [{
-					provider_api_model_id: "pm_1",
-					capability_id: "chat/completions",
-				}], error: null });
-				if (table === "data_models") return queryResult({ data: [{
-					model_id: "openai/gpt-test",
+				if (table === "v2_models") return queryResult({ data: [{
+					model_slug: "openai/gpt-test",
 					name: "GPT Test",
 					hidden: false,
+					status: "active",
 				}], error: null });
-				if (table === "data_api_pricing_rules") return queryResult({ data: [{
-					model_key: "openai:gpt-test:chat/completions",
-					capability_id: "chat/completions",
-					pricing_plan: "standard",
-					meter: "input_tokens",
-					unit: "token",
-					unit_size: 1_000_000,
-					price_per_unit: "1.5",
+				if (table === "v2_pricing_skus") return queryResult({ data: [{
+					sku_id: "sku_1",
+					provider_model_id: "pm_1",
+					operation: "chat/completions",
+					service_tier_slug: "standard",
 					currency: "USD",
-					priority: 1,
-					match: [],
+					metadata: {},
+				}], error: null });
+				if (table === "v2_pricing_sku_meters") return queryResult({ data: [{
+					sku_id: "sku_1",
+					meter_key: "input_tokens",
+					unit: "token",
+					unit_quantity: 1_000_000,
+					price_nanos: 1_500_000_000,
+					metadata: {},
+					meter_order: 1,
 				}], error: null });
 				throw new Error(`unexpected table: ${table}`);
 			}),

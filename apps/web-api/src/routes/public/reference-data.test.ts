@@ -15,13 +15,13 @@ describe("public reference-data routes", () => {
 	it("returns stable public datasets with a long-lived edge policy", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("data_organisations")) {
-				return new Response(JSON.stringify([{ organisation_id: "openai", name: "OpenAI", country_code: "US", colour: "#000" }]), { status: 200 });
+			if (url.includes("v2_labs")) {
+				return new Response(JSON.stringify([{ lab_slug: "openai", name: "OpenAI", country_code: "US", metadata: { colour: "#000" } }]), { status: 200 });
 			}
-			if (url.includes("data_benchmarks")) {
-				return new Response(JSON.stringify([{ id: "mmlu", name: "MMLU", total_models: 42 }]), { status: 200 });
+			if (url.includes("v2_benchmarks")) {
+				return new Response(JSON.stringify([{ benchmark_id: "mmlu", name: "MMLU", total_models: 42 }]), { status: 200 });
 			}
-			return new Response(JSON.stringify([{ api_provider_id: "openai", api_provider_name: "OpenAI" }]), { status: 200 });
+			return new Response(JSON.stringify([{ provider_slug: "openai", name: "OpenAI", status: "active", metadata: {} }]), { status: 200 });
 		}));
 
 		const [organisations, benchmarks, providerHeader, sources] = await Promise.all([
@@ -46,7 +46,7 @@ describe("public reference-data routes", () => {
 	it("preserves the family and subscription-plan payloads consumed by the web app", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("data_model_families")) {
+			if (url.includes("v2_model_families")) {
 				return new Response(JSON.stringify([{
 					family_id: "openai/gpt",
 					family_name: "GPT",
@@ -63,7 +63,7 @@ describe("public reference-data routes", () => {
 					}],
 				}]), { status: 200 });
 			}
-			if (url.includes("data_subscription_plan_features")) {
+			if (url.includes("v2_subscription_plan_features")) {
 				return new Response(JSON.stringify([{
 					feature_name: "Requests",
 					feature_value: "1000",
@@ -71,9 +71,9 @@ describe("public reference-data routes", () => {
 					other_info: null,
 				}]), { status: 200 });
 			}
-			if (url.includes("data_subscription_plan_models")) {
+			if (url.includes("v2_subscription_plan_models")) {
 				return new Response(JSON.stringify([{
-					model_id: "openai/gpt-test",
+					model_slug: "openai/gpt-test",
 					model_info: null,
 					rate_limit: null,
 					other_info: null,
@@ -86,21 +86,22 @@ describe("public reference-data routes", () => {
 					},
 				}]), { status: 200 });
 			}
-			if (url.includes("data_subscription_plans")) {
+			if (url.includes("v2_subscription_plans")) {
 				return new Response(JSON.stringify([{
 					plan_uuid: "plan-uuid",
 					plan_id: "pro",
 					name: "Pro",
-					organisation_id: "phaseo",
+					lab_slug: "phaseo",
 					description: "Pro plan",
 					frequency: "month",
 					price: 20,
 					currency: "USD",
 					link: null,
 					other_info: null,
-					organisation: { organisation_id: "phaseo", name: "Phaseo", colour: "#000" },
 				}]), { status: 200 });
 			}
+			if (url.includes("/v2_models?")) return new Response(JSON.stringify([{ model_slug: "openai/gpt-test", name: "GPT Test", lab_slug: "openai", hidden: false, lab: { lab_slug: "openai", name: "OpenAI", metadata: { colour: "#000" } } }]), { status: 200 });
+			if (url.includes("/v2_labs?")) return new Response(JSON.stringify([{ lab_slug: "phaseo", name: "Phaseo", metadata: { colour: "#000" } }]), { status: 200 });
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
 
@@ -140,40 +141,24 @@ describe("public reference-data routes", () => {
 	});
 
 	it("returns a benchmark detail payload without hidden model results", async () => {
-		vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify([{
-			id: "mmlu",
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("v2_benchmark_results")) return new Response(JSON.stringify([{
+				result_id: "visible", model_slug: "openai/gpt-test", benchmark_id: "mmlu", score: 88, is_self_reported: false,
+			}]), { status: 200 });
+			if (url.includes("v2_models")) return new Response(JSON.stringify([{
+				model_slug: "openai/gpt-test", name: "GPT Test", hidden: false, lab_slug: "openai", lab: { lab_slug: "openai", name: "OpenAI", metadata: { colour: "#000" } },
+			}]), { status: 200 });
+			return new Response(JSON.stringify([{
+			benchmark_id: "mmlu",
 			name: "MMLU",
 			category: "Knowledge",
 			ascending_order: false,
 			total_models: 2,
 			link: "https://example.com/mmlu",
 			type: "score",
-			data_benchmark_results: [
-				{
-					id: "visible",
-					model_id: "openai/gpt-test",
-					score: 88,
-					is_self_reported: false,
-					data_models: {
-						model_id: "openai/gpt-test",
-						name: "GPT Test",
-						hidden: false,
-						data_organisations: {
-							organisation_id: "openai",
-							name: "OpenAI",
-							colour: "#000",
-						},
-					},
-				},
-				{
-					id: "hidden",
-					model_id: "internal/model",
-					score: 99,
-					is_self_reported: false,
-					data_models: { model_id: "internal/model", hidden: true },
-				},
-			],
-		}]), { status: 200 })));
+		}]), { status: 200 });
+		}));
 
 		const response = await app.request(
 			"https://phaseo.app/api/_web/benchmarks/mmlu",
@@ -197,7 +182,7 @@ describe("public reference-data routes", () => {
 	it("reuses the compact database-backed catalogue for country models", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("get_public_models_page_rows")) {
+			if (url.includes("get_v2_public_models_page_rows")) {
 				return new Response(JSON.stringify([{
 					model_id: "openai/gpt-test",
 					name: "GPT Test",
@@ -223,18 +208,18 @@ describe("public reference-data routes", () => {
 					output_price: 2,
 				}]), { status: 200 });
 			}
-			if (url.includes("data_api_providers")) {
+			if (url.includes("v2_providers")) {
 				return new Response(JSON.stringify([{
 					api_provider_id: "openai",
 					default_execution_regions: ["us"],
 				}]), { status: 200 });
 			}
-			if (url.includes("data_organisations")) {
+			if (url.includes("v2_labs")) {
 				return new Response(JSON.stringify([{
-					organisation_id: "openai",
+					lab_slug: "openai",
 					name: "OpenAI",
 					country_code: "US",
-					colour: "#000",
+					metadata: { colour: "#000" },
 				}]), { status: 200 });
 			}
 			return new Response(JSON.stringify([{

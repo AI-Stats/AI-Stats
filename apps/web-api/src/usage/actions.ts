@@ -924,16 +924,16 @@ const fetchModelMetadataCached = cache(async (
 	};
 
 	const { data: models } = await supabase
-		.from("data_models")
+		.from("v2_models")
 		.select(
 			`
-			model_id,
+			model_id:model_slug,
 			name,
-			organisation_id,
-			organisation:data_organisations!data_models_organisation_id_fkey(organisation_id, name)
-		`
+			organisation_id:lab_slug,
+			organisation:v2_labs(lab_slug, name)
+			`
 		)
-		.in("model_id", uniqueModelIds);
+		.in("model_slug", uniqueModelIds);
 	if (!models) {
 		console.warn(
 			"Usage metadata debug: no direct model metadata rows found for unique model IDs",
@@ -960,10 +960,10 @@ const fetchModelMetadataCached = cache(async (
 				modelName: typeof m?.name === "string" ? m.name : undefined,
 			};
 
-			addMetadata(m?.model_id, value, "data_models:model_id");
+			addMetadata(m?.model_id, value, "v2_models:model_slug");
 			if (typeof m?.model_id === "string" && m.model_id.includes("/")) {
 				const withoutOrg = m.model_id.split("/").slice(1).join("/");
-				addMetadata(withoutOrg, value, "data_models:without_org");
+				addMetadata(withoutOrg, value, "v2_models:without_lab");
 			}
 		});
 	}
@@ -974,20 +974,20 @@ const fetchModelMetadataCached = cache(async (
 	);
 
 	const { data: apiModels, error: apiModelsError } = await supabase
-		.from("data_models")
+		.from("v2_models")
 		.select(
 			`
-			model_id,
-			api_model_id,
+			model_id:model_slug,
+			api_model_id:model_slug,
 			name,
-			organisation_id,
-			organisation:data_organisations!data_models_organisation_id_fkey(organisation_id, name)
-		`,
+			organisation_id:lab_slug,
+			organisation:v2_labs(lab_slug, name)
+			`,
 		)
-		.in("api_model_id", apiLookupIds);
+		.in("model_slug", apiLookupIds);
 	if (apiModelsError) {
 		console.error(
-			"Usage metadata debug: failed loading data_models by api_model_id",
+			"Usage metadata debug: failed loading v2_models by model_slug",
 			apiModelsError,
 		);
 	}
@@ -1000,9 +1000,9 @@ const fetchModelMetadataCached = cache(async (
 			? apiModel.organisation[0]
 			: apiModel?.organisation;
 		const organisationId =
-			typeof organisationRow?.organisation_id === "string" &&
-			organisationRow.organisation_id.trim().length > 0
-				? organisationRow.organisation_id
+			typeof organisationRow?.lab_slug === "string" &&
+			organisationRow.lab_slug.trim().length > 0
+				? organisationRow.lab_slug
 				: typeof apiModel?.organisation_id === "string" &&
 					  apiModel.organisation_id.trim().length > 0
 				? apiModel.organisation_id
@@ -1018,15 +1018,15 @@ const fetchModelMetadataCached = cache(async (
 				: undefined;
 		const value = { organisationId, organisationName, modelName };
 		for (const variant of normalizeApiId(apiModelId)) {
-			addMetadata(variant, value, `data_models:api_model_id:${apiModelId}`);
+			addMetadata(variant, value, `v2_models:model_slug:${apiModelId}`);
 		}
 		if (typeof apiModel?.model_id === "string" && apiModel.model_id.trim().length > 0) {
-			addMetadata(apiModel.model_id, value, `data_models:model_id_from_api:${apiModelId}`);
+			addMetadata(apiModel.model_id, value, `v2_models:model_slug:${apiModelId}`);
 		}
 	}
 
 	const providerModelSelect =
-		"provider_api_model_id, api_model_id, model_id, internal_model_id, provider_model_slug";
+		"provider_api_model_id:provider_model_id, api_model_id:model_slug, model_id:model_slug, internal_model_id:model_slug, provider_model_slug";
 	const [
 		providerModelsByApiId,
 		providerModelsByCanonicalId,
@@ -1034,19 +1034,19 @@ const fetchModelMetadataCached = cache(async (
 		providerModelsBySlug,
 	] = await Promise.all([
 		supabase
-			.from("data_api_provider_models")
+			.from("v2_model_provider_routes")
 			.select(providerModelSelect)
-			.in("api_model_id", apiLookupIds),
+			.in("model_slug", apiLookupIds),
 		supabase
-			.from("data_api_provider_models")
+			.from("v2_model_provider_routes")
 			.select(providerModelSelect)
-			.in("model_id", apiLookupIds),
+			.in("model_slug", apiLookupIds),
 		supabase
-			.from("data_api_provider_models")
+			.from("v2_model_provider_routes")
 			.select(providerModelSelect)
-			.in("internal_model_id", apiLookupIds),
+			.in("model_slug", apiLookupIds),
 		supabase
-			.from("data_api_provider_models")
+			.from("v2_model_provider_routes")
 			.select(providerModelSelect)
 			.in("provider_model_slug", apiLookupIds),
 	]);
@@ -1107,31 +1107,31 @@ const fetchModelMetadataCached = cache(async (
 	const [canonicalModelsByIdResult, canonicalModelsByApiResult] = await Promise.all([
 		canonicalModelIds.length
 			? supabase
-					.from("data_models")
+					.from("v2_models")
 					.select(
 						`
-						model_id,
-						api_model_id,
+						model_id:model_slug,
+						api_model_id:model_slug,
 						name,
-						organisation_id,
-						organisation:data_organisations!data_models_organisation_id_fkey(organisation_id, name)
-					`,
+						organisation_id:lab_slug,
+						organisation:v2_labs(lab_slug, name)
+						`,
 					)
-					.in("model_id", canonicalModelIds)
+					.in("model_slug", canonicalModelIds)
 			: Promise.resolve({ data: [] as any[], error: null }),
 		canonicalApiIds.length
 			? supabase
-					.from("data_models")
+					.from("v2_models")
 					.select(
 						`
-						model_id,
-						api_model_id,
+						model_id:model_slug,
+						api_model_id:model_slug,
 						name,
-						organisation_id,
-						organisation:data_organisations!data_models_organisation_id_fkey(organisation_id, name)
+						organisation_id:lab_slug,
+						organisation:v2_labs(lab_slug, name)
 					`,
 					)
-					.in("api_model_id", canonicalApiIds)
+					.in("model_slug", canonicalApiIds)
 			: Promise.resolve({ data: [] as any[], error: null }),
 	]);
 	if (canonicalModelsByIdResult.error) {
@@ -1377,7 +1377,7 @@ export async function fetchFunStats(
 	}
 
 	const { data: rows } = await supabase
-		.from("gateway_usage_rollup_15m_workspace_provider_model")
+		.from("v2_web_private_usage_daily")
 		.select(
 			"canonical_model_id, provider, requests, total_cost_nanos, latency_sum_ms, latency_samples",
 		)
@@ -1829,7 +1829,7 @@ export async function fetchChartData(
 			const from = page * pageSize;
 			const to = from + pageSize - 1;
 			let query = supabase
-				.from("gateway_requests")
+				.from("v2_web_gateway_requests")
 				.select("created_at, provider, model_id, usage, cost_nanos")
 				.eq("workspace_id", workspaceId)
 				.eq("success", true)

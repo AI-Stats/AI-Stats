@@ -39,10 +39,10 @@ async function handleListEndpoints(req: Request) {
 	try {
 		const supabase = getSupabaseAdmin();
 		const { data, error } = await supabase
-			.from("data_models")
-			.select("model_id")
+			.from("v2_models")
+			.select("model_id:model_slug")
 			.eq("hidden", false)
-			.order("release_date", { ascending: false })
+			.order("released_at", { ascending: false })
 			.limit(10);
 
 		if (error) {

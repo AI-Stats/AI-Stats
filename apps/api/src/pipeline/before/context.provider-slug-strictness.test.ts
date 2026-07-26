@@ -23,23 +23,26 @@ const runtime = vi.hoisted(() => {
 	}));
 
 	const from = vi.fn((table: string) => {
-		if (table === "data_api_provider_models") {
+		if (table === "v2_model_provider_routes") {
 			return {
 				select: () => ({
 					eq: (column: string, value: string) => {
-						expect(column).toBe("provider_id");
+						expect(column).toBe("provider_slug");
 						expect(value).toBe("poolside");
 						return {
 							eq: (slugColumn: string, slugValue: string) => {
 								expect(slugColumn).toBe("provider_model_slug");
 								expect(slugValue).toBe("laguna-m.1");
 								return {
-									eq: async (activeColumn: string, active: boolean) => {
-										expect(activeColumn).toBe("is_active_gateway");
+									eq: (activeColumn: string, active: boolean) => {
+										expect(activeColumn).toBe("routing_enabled");
 										expect(active).toBe(true);
 										return {
-											data: [],
-											error: null,
+											in: async (statusColumn: string, statuses: string[]) => {
+												expect(statusColumn).toBe("status");
+												expect(statuses).toEqual(["active", "degraded"]);
+												return { data: [], error: null };
+											},
 										};
 									},
 								};

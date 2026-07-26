@@ -91,6 +91,16 @@
       },
       "additionalProperties": true
     },
+    "modelVariant": {
+      "type": "object",
+      "required": ["model_id", "name", "variant_kind"],
+      "properties": {
+        "model_id": { "$ref": "#/$defs/slug" },
+        "name": { "type": "string", "minLength": 1 },
+        "variant_kind": { "type": "string", "enum": ["free"] }
+      },
+      "additionalProperties": false
+    },
     "model": {
       "type": "object",
       "required": ["model_id", "organisation_id", "name", "status"],
@@ -110,6 +120,11 @@
         "input_types": { "type": ["string", "array", "null"] },
         "output_types": { "type": ["string", "array", "null"] },
         "api_model_id": { "type": ["string", "null"] },
+        "variants": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/modelVariant" },
+          "uniqueItems": true
+        },
         "family_id": { "type": ["string", "null"] },
         "links": { "type": "array", "items": { "$ref": "#/$defs/link" } },
         "details": { "type": "array", "items": { "type": "object" } },
@@ -186,6 +201,7 @@
       "properties": {
         "provider_api_model_id": { "type": "string", "minLength": 1 },
         "api_model_id": { "$ref": "#/$defs/slug" },
+        "canonical_model_id": { "$ref": "#/$defs/slug" },
         "provider_model_slug": { "type": "string", "minLength": 1 },
         "internal_model_id": { "type": ["string", "null"] },
         "is_active_gateway": { "type": "boolean" },

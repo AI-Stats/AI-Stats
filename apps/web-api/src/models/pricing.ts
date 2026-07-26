@@ -39,52 +39,103 @@ export async function fetchModelPricingSources(env: Env, modelIds: string[]): Pr
 	const variants = uniqueModelVariants(modelIds);
 	if (variants.length === 0) return { providerRows: [], pricingRows: [] };
 	const client = getDataClient(env);
-	const loadProviderRows = (includePolicy: boolean) => {
-		const providerSelect = includePolicy ? `${PROVIDER_FIELDS},${POLICY_FIELDS}` : PROVIDER_FIELDS;
-		const select = `${PROVIDER_MODEL_FIELDS},data_api_providers(${providerSelect})`;
-		return Promise.all([
-			client.from("data_api_provider_models").select(select).in("model_id", variants),
-			client.from("data_api_provider_models").select(select).in("api_model_id", variants),
-		]);
-	};
-	let [byInternal, byApi] = await loadProviderRows(true);
-	if ((byInternal.error && isMissingSchemaField(byInternal.error, POLICY_FIELDS.split(",")))
-		|| (byApi.error && isMissingSchemaField(byApi.error, POLICY_FIELDS.split(",")))) {
-		[byInternal, byApi] = await loadProviderRows(false);
+	const routesResult = await client.from("v2_model_provider_routes")
+		.select("provider_model_id,provider_slug,model_slug,provider_model_slug,status,routing_enabled,input_modalities,output_modalities,context_length,max_output_tokens,effective_from,effective_to,created_at,updated_at,metadata")
+		.in("model_slug", variants);
+	if (routesResult.error) throw routesResult.error;
+	const routes = (routesResult.data ?? []) as Row[];
+	const routeIds = routes.map((row) => id(row.provider_model_id)).filter(Boolean);
+	const providerIds = [...new Set(routes.map((row) => id(row.provider_slug)).filter(Boolean))];
+	const [capabilitiesResult, providersResult, skusResult] = await Promise.all([
+		routeIds.length ? client.from("v2_route_capabilities").select("provider_model_id,capability_id,params,max_input_tokens,max_output_tokens,status").in("provider_model_id", routeIds) : Promise.resolve({ data: [], error: null }),
+		providerIds.length ? client.from("v2_providers").select("provider_slug,name,provider_family_slug,offer_label,offer_scope,country_code,status,routing_enabled,residency_mode,default_execution_regions,default_data_regions,zero_data_retention,prompt_training_policy,data_policy_tier,data_policy_confidence,data_policy_contract_mode,metadata").in("provider_slug", providerIds) : Promise.resolve({ data: [], error: null }),
+		routeIds.length ? client.from("v2_pricing_skus").select("sku_id,provider_model_id,service_tier_slug,operation,status,currency,effective_from,effective_to,metadata").in("provider_model_id", routeIds) : Promise.resolve({ data: [], error: null }),
+	]);
+	for (const result of [capabilitiesResult, providersResult, skusResult]) if (result.error) throw result.error;
+	const skuIds = (skusResult.data ?? []).map((row) => id(row.sku_id)).filter(Boolean);
+	const metersResult = skuIds.length
+		? await client.from("v2_pricing_sku_meters").select("sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,metadata").in("sku_id", skuIds)
+		: { data: [], error: null };
+	if (metersResult.error) throw metersResult.error;
+	const providerMap = new Map((providersResult.data ?? []).map((row) => [id(row.provider_slug), row as Row]));
+	const capabilitiesByRoute = new Map<string, Row[]>();
+	for (const capability of capabilitiesResult.data ?? []) {
+		if (id(capability.status).toLowerCase() === "internal_testing") continue;
+		const routeId = id(capability.provider_model_id);
+		capabilitiesByRoute.set(routeId, [...(capabilitiesByRoute.get(routeId) ?? []), capability as Row]);
 	}
-	if (byInternal.error) throw byInternal.error;
-	if (byApi.error) throw byApi.error;
-	const providerById = new Map<string, Row>();
-	for (const value of [...(byInternal.data ?? []), ...(byApi.data ?? [])] as unknown[]) {
-		const row = asRow(value);
-		const providerModelId = id(row?.provider_api_model_id);
-		if (!row || !providerModelId) continue;
-		const capabilities = rows(row.data_api_provider_model_capabilities)
-			.filter((capability) => id(capability.status).toLowerCase() !== "internal_testing");
-		providerById.set(providerModelId, { ...row, data_api_provider_model_capabilities: capabilities });
-	}
-	const providerRows = [...providerById.values()];
-	const modelKeys = [...new Set(providerRows.flatMap((row) => rows(row.data_api_provider_model_capabilities)
-		.map((capability) => id(capability.capability_id))
-		.filter(Boolean)
-		.map((capabilityId) => `${id(row.provider_id)}:${id(row.api_model_id)}:${capabilityId}`)))];
-	if (modelKeys.length === 0) return { providerRows, pricingRows: [] };
-	const pricing = await client.from("data_api_pricing_rules").select(PRICING_FIELDS).in("model_key", modelKeys)
-		.order("priority", { ascending: false }).order("effective_from", { ascending: false });
-	let pricingData: unknown[] | null = pricing.data;
-	let pricingError = pricing.error;
-	if (pricing.error && isMissingSchemaField(pricing.error, ["billing_timestamp_basis", "time_windows"])) {
-		const fallback = await client.from("data_api_pricing_rules").select(PRICING_FIELDS_LEGACY).in("model_key", modelKeys)
-			.order("priority", { ascending: false }).order("effective_from", { ascending: false });
-		pricingData = fallback.data;
-		pricingError = fallback.error;
-	}
-	if (pricingError) throw pricingError;
+	const providerRows = routes.map((route) => {
+		const provider = providerMap.get(id(route.provider_slug));
+		const providerMetadata = asRow(provider?.metadata) ?? {};
+		return {
+			provider_api_model_id: route.provider_model_id,
+			provider_id: route.provider_slug,
+			api_model_id: route.model_slug,
+			model_id: route.model_slug,
+			provider_model_slug: route.provider_model_slug,
+			is_active_gateway: Boolean(route.routing_enabled && ["active", "degraded"].includes(id(route.status))),
+			routing_status: route.status,
+			input_modalities: route.input_modalities,
+			output_modalities: route.output_modalities,
+			context_length: route.context_length,
+			max_output_tokens: route.max_output_tokens,
+			effective_from: route.effective_from,
+			effective_to: route.effective_to,
+			created_at: route.created_at,
+			updated_at: route.updated_at,
+			data_api_provider_model_capabilities: capabilitiesByRoute.get(id(route.provider_model_id)) ?? [],
+			data_api_providers: provider ? {
+				api_provider_name: provider.name,
+				provider_family_id: provider.provider_family_slug,
+				offer_label: provider.offer_label,
+				offer_scope: provider.offer_scope,
+				colour: providerMetadata.colour ?? null,
+				link: providerMetadata.link ?? null,
+				country_code: provider.country_code,
+				status: provider.status,
+				routing_status: provider.routing_enabled ? "active" : "disabled",
+				residency_mode: provider.residency_mode,
+				default_execution_regions: provider.default_execution_regions,
+				default_data_regions: provider.default_data_regions,
+				zero_data_retention: provider.zero_data_retention,
+				prompt_training_policy: provider.prompt_training_policy,
+				data_policy_tier: provider.data_policy_tier,
+				data_policy_confidence: provider.data_policy_confidence,
+				data_policy_contract_mode: provider.data_policy_contract_mode,
+				privacy_policy_url: providerMetadata.privacy_policy_url ?? null,
+				terms_of_service_url: providerMetadata.terms_of_service_url ?? null,
+			} : null,
+		};
+	});
+	const skuMap = new Map((skusResult.data ?? []).map((row) => [id(row.sku_id), row as Row]));
 	const now = Date.now();
-	const pricingRows = (pricingData ?? []).map(asRow).filter((row): row is Row => {
-		if (!row) return false;
-		const effectiveTo = row.effective_to ? Date.parse(String(row.effective_to)) : Number.POSITIVE_INFINITY;
-		return now < effectiveTo;
+	const routeMap = new Map(routes.map((row) => [id(row.provider_model_id), row]));
+	const pricingRows = (metersResult.data ?? []).flatMap((meter) => {
+		const sku = skuMap.get(id(meter.sku_id));
+		const route = sku ? routeMap.get(id(sku.provider_model_id)) : null;
+		if (!sku || !route || id(sku.status) === "disabled") return [];
+		const effectiveTo = sku.effective_to ? Date.parse(String(sku.effective_to)) : Number.POSITIVE_INFINITY;
+		if (now >= effectiveTo) return [];
+		const priceNanos = Number(meter.price_nanos);
+		if (!Number.isFinite(priceNanos)) return [];
+		return [{
+			rule_id: meter.sku_meter_id,
+			model_key: `${id(route.provider_slug)}:${id(route.model_slug)}:${id(sku.operation) || "inference"}`,
+			capability_id: sku.operation,
+			pricing_plan: sku.service_tier_slug ?? "standard",
+			meter: meter.meter_key,
+			unit: meter.unit,
+			unit_size: Number(meter.unit_quantity ?? 1),
+			price_per_unit: priceNanos / 1_000_000_000,
+			currency: sku.currency ?? "USD",
+			priority: Number((asRow(meter.metadata) ?? {}).priority ?? meter.meter_order ?? 100),
+			effective_from: sku.effective_from,
+			effective_to: sku.effective_to,
+			note: null,
+			match: [],
+			billing_timestamp_basis: (asRow(sku.metadata) ?? {}).billing_timestamp_basis ?? "request_start",
+			time_windows: (asRow(sku.metadata) ?? {}).time_windows ?? [],
+		}];
 	});
 	return { providerRows, pricingRows };
 }

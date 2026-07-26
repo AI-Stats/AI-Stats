@@ -37,6 +37,9 @@ export const modelsCatalogueV2Flag = flag<boolean>({
 });
 
 export async function resolveModelsCatalogueVersion(): Promise<"v1" | "v2"> {
+	// This branch treats local development as the V2 cutover environment so the
+	// catalogue cannot silently fall back to V1 while it is being validated.
+	if (process.env.NODE_ENV === "development") return "v2";
 	return (await isAdminViewer()) && (await modelsCatalogueV2Flag()) ? "v2" : "v1";
 }
 

@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
         }
 
         const { data: usageRows, error: usageErr } = await supabase
-            .from("gateway_requests")
+		.from("gateway_requests")
             .select("cost_nanos")
             .eq("workspace_id", workspaceId)
             .eq("success", true)

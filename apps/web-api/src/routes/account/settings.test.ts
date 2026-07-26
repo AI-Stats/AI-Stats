@@ -77,7 +77,7 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 			event_time: "2026-07-13T00:00:00Z", status: "paid", amount_nanos: 10000000000,
 		}]), { status: 200 });
 	}
-	if (url.includes("data_api_providers")) {
+	if (url.includes("v2_providers")) {
 		return new Response(JSON.stringify([{
 			api_provider_id: "openai-eu",
 			api_provider_name: "OpenAI",
@@ -85,7 +85,7 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 			offer_scope: "regional",
 		}]), { status: 200 });
 	}
-	if (url.includes("data_api_provider_models")) {
+	if (url.includes("v2_model_provider_routes")) {
 		return new Response(JSON.stringify([{
 			provider_id: "openai-eu",
 			api_model_id: "gpt-test",
@@ -94,7 +94,7 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 			is_active_gateway: true,
 		}]), { status: 200 });
 	}
-	if (url.includes("data_models")) {
+	if (url.includes("v2_models")) {
 		return new Response(JSON.stringify([{
 			model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai",
 		}]), { status: 200 });
@@ -415,6 +415,47 @@ describe("account settings routes", () => {
 		expect(response.status).toBe(200);
 		expect(response.headers.get("cache-control")).toBe("private, no-store");
 		await expect(response.json()).resolves.toEqual({ signedIn: false });
+	});
+
+	it("merges authoritative requests and V2 analytics through one atomic RPC", async () => {
+		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			if (url.includes("api_apps") && url.includes("id=in.")) {
+				return new Response(JSON.stringify([
+					{ id: "source-app", workspace_id: "workspace-1", title: "Source", app_key: "source" },
+					{ id: "target-app", workspace_id: "workspace-1", title: "Target", app_key: "target" },
+				]), { status: 200 });
+			}
+			if (url.includes("/rpc/merge_v2_gateway_app_history")) {
+				return new Response(JSON.stringify({ gateway_requests: 2, request_facts: 2 }), { status: 200 });
+			}
+			return authenticatedFetch(input);
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		const response = await app.request(
+			"https://phaseo.app/api/account/settings/apps/source-app/merge",
+			{
+				method: "POST",
+				headers: { authorization: "Bearer session-token", "content-type": "application/json" },
+				body: JSON.stringify({ targetAppId: "target-app" }),
+			},
+			env,
+			{
+				waitUntil: vi.fn(),
+				passThroughOnException: vi.fn(),
+				props: {},
+			} as unknown as ExecutionContext,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({
+			success: true,
+			merge: { gateway_requests: 2, request_facts: 2 },
+		});
+		const requestedUrls = fetchMock.mock.calls.map(([input]) => input instanceof Request ? input.url : String(input));
+		expect(requestedUrls.some((url) => url.includes("/rpc/merge_v2_gateway_app_history"))).toBe(true);
+		expect(requestedUrls.some((url) => url.includes("/gateway_requests?"))).toBe(false);
 	});
 
 	it("rejects a workspace that is not accessible to the authenticated user", async () => {

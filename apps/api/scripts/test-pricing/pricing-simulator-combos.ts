@@ -4,7 +4,7 @@ import { getSupabaseAdmin } from "../../src/runtime/env";
 export async function loadCombos(options: CLIOptions): Promise<Combo[]> {
     const supabase = getSupabaseAdmin();
     let query = supabase
-        .from("data_api_provider_models")
+        .from("v2_rpc_routes_legacy_shape")
         .select("provider_api_model_id, provider_id, api_model_id, is_active_gateway, effective_from, effective_to");
 
     if (options.provider?.length) query = query.in("provider_id", options.provider);
@@ -20,7 +20,7 @@ export async function loadCombos(options: CLIOptions): Promise<Combo[]> {
         .filter((id): id is string => Boolean(id));
 
     let capQuery = supabase
-        .from("data_api_provider_model_capabilities")
+        .from("v2_rpc_capabilities_legacy_shape")
         .select("provider_api_model_id, capability_id")
         .in("provider_api_model_id", providerModelIds);
     if (options.endpoint) capQuery = capQuery.eq("capability_id", options.endpoint);

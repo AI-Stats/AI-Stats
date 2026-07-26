@@ -136,29 +136,197 @@ export function normalizeModelsPagePricing(row: Row): Row {
 	};
 }
 
-function primaryDate(row: Row): { primary_date: string | null; primary_timestamp: number | null; primary_group_key: string | null } {
-	const value = [row.release_date, row.announcement_date].find((candidate): candidate is string => typeof candidate === "string" && candidate.length > 0) ?? null;
-	if (!value) return { primary_date: null, primary_timestamp: null, primary_group_key: null };
-	const timestamp = Date.parse(value);
-	return { primary_date: value, primary_timestamp: Number.isFinite(timestamp) ? timestamp : null, primary_group_key: Number.isFinite(timestamp) ? new Date(timestamp).toISOString().slice(0, 7) : null };
+const VARIANT_ARRAY_FIELDS = [
+	"gateway_endpoints",
+	"gateway_input_modalities",
+	"gateway_output_modalities",
+	"gateway_features",
+	"gateway_tiers",
+	"gateway_execution_regions",
+	"gateway_provider_names",
+	"gateway_active_provider_names",
+	"gateway_api_model_ids",
+	"supported_parameters",
+] as const;
+
+const VARIANT_PRICE_FIELDS = [
+	"lowest_input_price",
+	"lowest_output_price",
+	"lowest_standard_input_price",
+	"lowest_standard_output_price",
+	"lowest_from_price",
+] as const;
+
+function baseModelId(row: Row): string {
+	const explicit = String(row.base_model_id ?? row.base_model_slug ?? "").trim();
+	if (explicit) return explicit;
+	const modelId = String(row.model_id ?? "").trim();
+	return modelId.toLowerCase().endsWith(":free") ? modelId.slice(0, -5) : modelId;
 }
 
-function modelTail(modelId: string): string {
-	const normalized = modelId.trim().toLowerCase();
-	const tail = normalized.includes("/") ? normalized.split("/").slice(1).join("/") : normalized;
-	return tail.replace(/[._/]+/g, "-").replace(/-\d{4}(?:-\d{2}){0,2}$/g, "").replace(/-(?:latest|stable)$/g, "").replace(/-+/g, "-").replace(/^-|-$/g, "");
+function variantKind(row: Row): string {
+	const explicit = String(row.variant_kind ?? "").trim().toLowerCase();
+	if (explicit) return explicit;
+	return String(row.model_id ?? "").trim().toLowerCase().endsWith(":free") ? "free" : "standard";
 }
 
-function modelName(value: unknown): string {
-	return String(value ?? "").trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ");
+function lowestNumber(left: unknown, right: unknown): number | null {
+	const values = [left, right]
+		.filter((value) => value !== null && value !== undefined)
+		.map(Number)
+		.filter(Number.isFinite);
+	return values.length > 0 ? Math.min(...values) : null;
 }
 
-function displayName(value: unknown, modelId: string): string {
-	const name = String(value ?? modelId).trim() || modelId;
-	if (!modelId.toLowerCase().endsWith(":free")) return name;
-	if (/\(\s*free\s*\)$/i.test(name)) return name.replace(/\(\s*free\s*\)$/i, "(Free)");
-	if (/\s+free$/i.test(name)) return name.replace(/\s+free$/i, " (Free)");
-	return /\bfree\b/i.test(name) ? name : `${name} (Free)`;
+function sumNumbers(left: unknown, right: unknown): number | null {
+	const values = [left, right]
+		.filter((value) => value !== null && value !== undefined)
+		.map(Number)
+		.filter(Number.isFinite);
+	return values.length > 0 ? values.reduce((total, value) => total + value, 0) : null;
+}
+
+function bestGatewayStatus(left: unknown, right: unknown): string {
+	const rank = new Map([["active", 3], ["coming_soon", 2], ["not_active", 1], ["not_listed", 0]]);
+	const statuses = [String(left ?? "not_listed"), String(right ?? "not_listed")];
+	return statuses.sort((a, b) => (rank.get(b) ?? -1) - (rank.get(a) ?? -1))[0] ?? "not_listed";
+}
+
+function providerDetails(value: unknown): Row[] {
+	return Array.isArray(value)
+		? value.filter((detail): detail is Row => Boolean(detail && typeof detail === "object"))
+		: [];
+}
+
+function withoutExternalProviders(row: Row): Row {
+	const details = providerDetails(row.gateway_provider_details);
+	if (details.length === 0) return row;
+	const visibleDetails = details.filter((detail) =>
+		String(detail.status ?? "").trim().toLowerCase() !== "external"
+	);
+	const providerNames = strings(visibleDetails.map((detail) => detail.name));
+	const activeProviderNames = strings(
+		visibleDetails.filter((detail) => detail.is_active === true).map((detail) => detail.name),
+	);
+	return {
+		...row,
+		gateway_provider_details: visibleDetails,
+		gateway_provider_names: providerNames,
+		gateway_active_provider_names: activeProviderNames,
+		gateway_provider_count: providerNames.length,
+		gateway_active_provider_count: activeProviderNames.length,
+		gateway_status: activeProviderNames.length > 0
+			? "active"
+			: String(row.gateway_status ?? "") === "coming_soon" ? "coming_soon" : "not_active",
+	};
+}
+
+function usageMetricPriority(value: unknown): number {
+	const metric = String(value ?? "").trim().toLowerCase();
+	if (!metric) return -1;
+	if (metric.includes("token")) return 5;
+	if (metric.includes("second") || metric.includes("image") || metric.includes("character")) return 4;
+	if (metric.includes("request")) return 0;
+	return 2;
+}
+
+export function collapseModelsPageVariants(rows: Row[]): Row[] {
+	const models = new Map<string, Row>();
+	const ordered = [...rows].sort((left, right) => Number(variantKind(left) !== "standard") - Number(variantKind(right) !== "standard"));
+	for (const row of ordered) {
+		const modelId = baseModelId(row);
+		if (!modelId) continue;
+		const kind = variantKind(row);
+		const existing = models.get(modelId);
+		if (!existing) {
+			models.set(modelId, {
+				...row,
+				model_id: modelId,
+				name: kind === "standard"
+					? row.name
+					: String(row.name ?? modelId).replace(/\s*\(Free\)\s*$/i, ""),
+				variant_kind: "standard",
+				base_model_id: null,
+				gateway_features: strings([
+					...strings(row.gateway_features),
+					...(kind === "free" ? ["free"] : []),
+				]),
+				gateway_tiers: strings([
+					...strings(row.gateway_tiers),
+					...(kind === "free" ? ["free"] : []),
+				]),
+			});
+			continue;
+		}
+
+		const merged: Row = {
+			...existing,
+			gateway_status: bestGatewayStatus(existing.gateway_status, row.gateway_status),
+			popularity_tokens_week: sumNumbers(existing.popularity_tokens_week, row.popularity_tokens_week),
+			pricing_detail_rows: [...structuredPricingRows(existing.pricing_detail_rows), ...structuredPricingRows(row.pricing_detail_rows)],
+		};
+		merged.context_lengths = [...new Set([
+			...(Array.isArray(existing.context_lengths) ? existing.context_lengths : []),
+			...(Array.isArray(row.context_lengths) ? row.context_lengths : []),
+		].map(Number).filter(Number.isFinite))].sort((left, right) => left - right);
+		merged.gateway_provider_details = [...new Map(
+			[
+				...providerDetails(existing.gateway_provider_details),
+				...providerDetails(row.gateway_provider_details).map((detail) => kind === "free"
+					? { ...detail, variant_kind: "free", service_tier: "free" }
+					: detail),
+			].map((detail) => [
+				[
+					detail.id,
+					detail.provider_model_slug,
+					detail.service_tier,
+					detail.variant_kind,
+				].join("::"),
+				detail,
+			] as const),
+		).values()];
+		for (const field of VARIANT_ARRAY_FIELDS) {
+			merged[field] = strings([
+				...strings(existing[field]),
+				...strings(row[field]),
+				...(field === "gateway_features" && kind === "free" ? ["free"] : []),
+				...(field === "gateway_tiers" && kind === "free" ? ["free"] : []),
+			]);
+		}
+		for (const field of VARIANT_PRICE_FIELDS) {
+			const left = existing[field] == null ? Number.NaN : Number(existing[field]);
+			const right = row[field] == null ? Number.NaN : Number(row[field]);
+			const rightWins = Number.isFinite(right) && (!Number.isFinite(left) || right < left);
+			merged[field] = lowestNumber(existing[field], row[field]);
+			if (rightWins) {
+				if (field === "lowest_standard_input_price") {
+					merged.lowest_standard_input_price_label = row.lowest_standard_input_price_label;
+					merged.lowest_standard_input_price_unit = row.lowest_standard_input_price_unit;
+				}
+				if (field === "lowest_standard_output_price") {
+					merged.lowest_standard_output_price_label = row.lowest_standard_output_price_label;
+					merged.lowest_standard_output_price_unit = row.lowest_standard_output_price_unit;
+				}
+				if (field === "lowest_from_price") merged.lowest_from_price_unit = row.lowest_from_price_unit;
+			}
+		}
+		if (
+			String(existing.weekly_usage_metric ?? "") === String(row.weekly_usage_metric ?? "")
+			&& String(existing.weekly_usage_unit ?? "") === String(row.weekly_usage_unit ?? "")
+		) {
+			merged.weekly_usage_quantity = sumNumbers(existing.weekly_usage_quantity, row.weekly_usage_quantity);
+		} else if (usageMetricPriority(row.weekly_usage_metric) > usageMetricPriority(existing.weekly_usage_metric)) {
+			merged.weekly_usage_metric = row.weekly_usage_metric;
+			merged.weekly_usage_quantity = row.weekly_usage_quantity;
+			merged.weekly_usage_unit = row.weekly_usage_unit;
+		}
+		const providerNames = strings(merged.gateway_provider_names);
+		const activeProviderNames = strings(merged.gateway_active_provider_names);
+		merged.gateway_provider_count = providerNames.length;
+		merged.gateway_active_provider_count = activeProviderNames.length;
+		models.set(modelId, merged);
+	}
+	return [...models.values()].map(withoutExternalProviders);
 }
 
 function modality(value: string): string {
@@ -235,43 +403,19 @@ export function buildModelsPageFacets(rows: Row[]): ModelsPageFacets {
 	};
 }
 
-async function aggregatedRows(env: Env): Promise<Row[]> {
-	const rows: Row[] = [];
-	for (let offset = 0; ; offset += 1_000) {
-		const result = await getDataClient(env).rpc("get_public_model_catalogue_rows", { p_include_hidden: false }).range(offset, offset + 999);
-		if (result.error) throw result.error;
-		rows.push(...((result.data ?? []) as Row[]));
-		if ((result.data?.length ?? 0) < 1_000) break;
-	}
-	return rows;
-}
-
-function isMissingPageRpc(error: { code?: string; message?: string } | null): boolean {
-	if (!error) return false;
-	return error.code === "PGRST202"
-		|| /get_public_models_page_rows/i.test(error.message ?? "")
-		&& /could not find|does not exist/i.test(error.message ?? "");
-}
-
 export type ModelsPageQuery = {
 	region?: string | null;
 	serviceTier?: string | null;
 };
 
-async function databasePageRows(env: Env, query: ModelsPageQuery = {}): Promise<Row[] | null> {
+async function databasePageRows(env: Env, query: ModelsPageQuery = {}): Promise<Row[]> {
 	const rows: Row[] = [];
-	const useFilteredV2Rpc = Boolean(query.region || query.serviceTier);
 	for (let offset = 0; ; offset += 1_000) {
 		const result = await getDataClient(env).rpc(
-			useFilteredV2Rpc ? "get_v2_public_models_page_rows" : "get_public_models_page_rows",
-			useFilteredV2Rpc
-				? { p_region: query.region ?? null, p_service_tier: query.serviceTier ?? null }
-				: {},
+			"get_v2_public_models_page_rows",
+			{ p_region: query.region ?? null, p_service_tier: query.serviceTier ?? null },
 		).range(offset, offset + 999);
-		if (result.error) {
-			if (isMissingPageRpc(result.error)) return null;
-			throw result.error;
-		}
+		if (result.error) throw result.error;
 		rows.push(...((result.data ?? []) as Row[]));
 		if ((result.data?.length ?? 0) < 1_000) break;
 	}
@@ -317,127 +461,20 @@ export function mergeModelWeeklyMetrics(rows: Row[], metrics: WeeklyMetricRow[])
 	});
 }
 
-async function baseRows(env: Env): Promise<Row[]> {
-	const rows: Row[] = [];
-	for (let offset = 0; ; offset += 1_000) {
-		const result = await getDataClient(env).from("data_models")
-			.select("model_id,name,organisation_id,status,release_date,announcement_date,updated_at,input_types,output_types,organisation:data_organisations(name,colour)")
-			.eq("hidden", false).order("name", { ascending: true }).range(offset, offset + 999);
-		if (result.error) throw result.error;
-		rows.push(...((result.data ?? []) as Row[]));
-		if ((result.data?.length ?? 0) < 1_000) break;
-	}
-	return rows;
-}
-
-async function providerRegions(env: Env): Promise<Map<string, string[]>> {
-	const result = await getDataClient(env).rpc("get_v2_provider_region_map", { p_provider_slugs: null });
-	if (result.error) throw result.error;
-	return new Map((result.data ?? []).map((row: Row) => [String(row.provider_slug), strings(row.regions).map((region) => region.toLowerCase())]));
-}
-
-function organisation(row: Row | undefined): Row | null {
-	const value = row?.organisation;
-	const candidate = Array.isArray(value) ? value[0] : value;
-	return candidate && typeof candidate === "object" ? candidate as Row : null;
-}
-
-function baseCandidates(row: Row): string[] {
-	return [String(row.model_id ?? ""), ...strings(row.gateway_api_model_ids)].filter(Boolean).flatMap((value) => value.toLowerCase().endsWith(":free") ? [value, value.slice(0, -5)] : [value]);
-}
-
-function gatewayTiers(row: Row): string[] {
-	return strings(row.gateway_features).includes("free") ? ["free", "standard"] : ["standard"];
-}
-
-export async function fetchModelsPageCatalogue(env: Env, query: ModelsPageQuery = {}): Promise<{ models: Row[]; pricingComplete: boolean }> {
+export async function fetchModelsPageCatalogue(
+	env: Env,
+	query: ModelsPageQuery = {},
+	_catalogueVersion: "v1" | "v2" = "v2",
+): Promise<{ models: Row[]; pricingComplete: boolean }> {
 	const [databaseRows, modelWeeklyMetrics] = await Promise.all([
 		databasePageRows(env, query),
 		weeklyMetrics(env),
 	]);
-	if (databaseRows) {
-		return {
-			models: mergeModelWeeklyMetrics(
-				databaseRows.map(normalizeModelsPagePricing),
-				modelWeeklyMetrics,
-			),
-			pricingComplete: true,
-		};
-	}
-
-	const [gatewayRows, catalogueRows, regions] = await Promise.all([aggregatedRows(env), baseRows(env), providerRegions(env)]);
-	const baseById = new Map(catalogueRows.map((row) => [String(row.model_id), row]));
-	const usedBaseIds = new Set<string>();
-
-	const gatewayModels = gatewayRows.map((gateway) => {
-		const modelId = String(gateway.model_id ?? "").trim();
-		const base = baseCandidates(gateway).map((candidate) => baseById.get(candidate)).find(Boolean);
-		if (base?.model_id) usedBaseIds.add(String(base.model_id));
-		const dates = base ? primaryDate(base) : {
-			primary_date: gateway.primary_date ?? null,
-			primary_timestamp: gateway.primary_timestamp == null ? null : Number(gateway.primary_timestamp),
-			primary_group_key: gateway.primary_group_key ?? null,
-		};
-		const providerDetails = Array.isArray(gateway.gateway_provider_details) ? gateway.gateway_provider_details : [];
-		const executionRegions = strings(providerDetails.filter((provider: Row) => provider.is_active).flatMap((provider: Row) => regions.get(String(provider.id)) ?? []));
-		const org = organisation(base);
-		return {
-			...gateway,
-			model_id: modelId,
-			name: displayName(base?.name ?? gateway.name, modelId),
-			organisation_id: base?.organisation_id ?? gateway.organisation_id ?? modelId.split("/")[0] ?? "",
-			organisation_name: org?.name ?? gateway.organisation_name ?? null,
-			organisation_colour: org?.colour ?? gateway.organisation_colour ?? null,
-			...dates,
-			gateway_execution_regions: executionRegions,
-			gateway_tiers: gatewayTiers(gateway),
-			gateway_api_model_ids: strings(gateway.gateway_api_model_ids),
-		};
-	});
-
-	const gatewayTailKeys = new Set<string>();
-	const gatewayNameDateKeys = new Set<string>();
-	for (const row of gatewayModels) {
-		const org = String(row.organisation_id ?? "").trim().toLowerCase();
-		if (!org) continue;
-		const tail = modelTail(String(row.model_id));
-		if (tail) gatewayTailKeys.add(`${org}::${tail}`);
-		const name = modelName(row.name);
-		if (name) gatewayNameDateKeys.add(`${org}::${name}::${String(row.primary_date ?? "")}`);
-	}
-
-	const catalogueOnly = catalogueRows.flatMap((row) => {
-		const id = String(row.model_id ?? "").trim();
-		if (!id || usedBaseIds.has(id)) return [];
-		const orgId = String(row.organisation_id ?? "").trim();
-		const orgKey = orgId.toLowerCase();
-		const dates = primaryDate(row);
-		if (orgKey) {
-			const tail = modelTail(id);
-			if (tail && gatewayTailKeys.has(`${orgKey}::${tail}`)) return [];
-			const name = modelName(row.name);
-			if (name && gatewayNameDateKeys.has(`${orgKey}::${name}::${String(dates.primary_date ?? "")}`)) return [];
-		}
-		const org = organisation(row);
-		return [{
-			model_id: id,
-			name: row.name ?? id,
-			organisation_id: orgId,
-			organisation_name: org?.name ?? null,
-			organisation_colour: org?.colour ?? null,
-			...dates,
-			gateway_status: String(row.status ?? "").toLowerCase() === "announced" ? "coming_soon" : "not_listed",
-			gateway_provider_count: 0, gateway_active_provider_count: 0,
-			gateway_endpoints: [], gateway_input_modalities: strings(row.input_types), gateway_output_modalities: strings(row.output_types),
-			gateway_features: [], gateway_tiers: [], gateway_provider_names: [], gateway_active_provider_names: [], gateway_execution_regions: [], gateway_provider_details: [], gateway_api_model_ids: [], context_lengths: [], supported_parameters: [],
-			lowest_input_price: null, lowest_output_price: null, lowest_standard_input_price: null, lowest_standard_output_price: null,
-			lowest_standard_input_price_label: null, lowest_standard_input_price_unit: null, lowest_standard_output_price_label: null, lowest_standard_output_price_unit: null,
-			lowest_from_price: null, lowest_from_price_unit: null, pricing_detail_rows: [], popularity_tokens_week: null, throughput_week: null, latency_week: null,
-		}];
-	});
-
 	return {
-		models: mergeModelWeeklyMetrics([...gatewayModels, ...catalogueOnly], modelWeeklyMetrics).sort((left, right) => Number(right.primary_timestamp ?? Number.NEGATIVE_INFINITY) - Number(left.primary_timestamp ?? Number.NEGATIVE_INFINITY) || String(left.organisation_name ?? "").localeCompare(String(right.organisation_name ?? "")) || String(left.name ?? "").localeCompare(String(right.name ?? ""))),
-		pricingComplete: false,
+		models: collapseModelsPageVariants(mergeModelWeeklyMetrics(
+			databaseRows.map(normalizeModelsPagePricing),
+			modelWeeklyMetrics,
+		)),
+		pricingComplete: true,
 	};
 }

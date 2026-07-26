@@ -23,7 +23,7 @@ BEGIN
       SUM(r.latency_samples)::bigint AS latency_samples,
       SUM(r.throughput_sum) AS throughput_sum,
       SUM(r.throughput_samples)::bigint AS throughput_samples
-    FROM public.gateway_usage_rollup_15m_model_provider r
+    FROM public.v2_web_public_usage_hourly r
     WHERE r.provider = p_provider
       AND r.bucket_15m >= p_since
       AND r.canonical_model_id IS NOT NULL
@@ -44,10 +44,10 @@ BEGIN
     END AS median_throughput,
     g.total_tokens
   FROM grouped g
-  LEFT JOIN public.data_models dm ON dm.model_id = g.model_id
-  LEFT JOIN public.data_api_provider_models dapm
-    ON dapm.provider_id = p_provider
-   AND (dapm.model_id = g.model_id OR dapm.api_model_id = g.model_id)
+  LEFT JOIN public.v2_models dm ON dm.model_slug = g.model_id
+  LEFT JOIN public.v2_model_provider_routes dapm
+    ON dapm.provider_slug = p_provider
+   AND dapm.model_slug = g.model_id
   GROUP BY
     g.model_id,
     COALESCE(dm.name, g.model_id),

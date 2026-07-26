@@ -44,17 +44,14 @@ describe("public compare routes", () => {
 	it("returns detailed models from one batch endpoint", async () => {
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
-			if (url.pathname.endsWith("/data_models")) return new Response(JSON.stringify([{
-				model_id: "openai/gpt-test",
+			if (url.pathname.endsWith("/v2_models")) return new Response(JSON.stringify([{
+				model_slug: "openai/gpt-test",
 				name: "GPT Test",
-				organisation_id: "openai",
+				lab_slug: "openai",
 				status: "active",
-				input_types: ["text"],
-				output_types: ["text"],
-				organisation: { organisation_id: "openai", name: "OpenAI" },
-				model_details: [],
-				model_links: [],
-				benchmark_results: [],
+				input_modalities: ["text"],
+				output_modalities: ["text"],
+				lab: { lab_slug: "openai", name: "OpenAI" },
 			}]), { status: 200 });
 			return new Response("[]", { status: 200 });
 		});
@@ -68,22 +65,22 @@ describe("public compare routes", () => {
 			models: [{ id: "openai/gpt-test", name: "GPT Test", benchmark_results: [], prices: [] }],
 		});
 		const modelUrls = fetchMock.mock.calls.map(([input]) => String(input));
-		expect(modelUrls.filter((url) => url.includes("/data_models?")).length).toBe(1);
+		expect(modelUrls.filter((url) => url.includes("/v2_models?")).length).toBe(1);
 	});
 
 	it("returns the visible compare catalogue with edge cache headers", async () => {
 		vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify([{
-			model_id: "openai/gpt-test",
+			model_slug: "openai/gpt-test",
 			name: "GPT Test",
-			organisation_id: "openai",
+			lab_slug: "openai",
 			status: "active",
-			announcement_date: "2026-06-01",
-			release_date: "2026-07-01",
-			deprecation_date: null,
-			retirement_date: null,
-			input_types: "text",
-			output_types: "text",
-			organisation: { organisation_id: "openai", name: "OpenAI" },
+			announced_at: "2026-06-01",
+			released_at: "2026-07-01",
+			deprecated_at: null,
+			retired_at: null,
+			input_modalities: ["text"],
+			output_modalities: ["text"],
+			lab: { lab_slug: "openai", name: "OpenAI" },
 		}]), { status: 200 })));
 
 		const response = await app.request("https://phaseo.app/api/_web/compare/models", {}, env);

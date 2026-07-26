@@ -17,14 +17,20 @@ describe("frontend search route", () => {
 			m: [["openai/gpt-test", "GPT Test", "OpenAI", "/models/openai/gpt-test", "openai", "July 2026"]],
 			o: [["openai", "OpenAI", null, "/organisations/openai", "openai"]],
 			b: [],
-			p: [["openai", "OpenAI", "3 active models", "/api-providers/openai", "openai"]],
+			p: [["openai", "OpenAI", null, "/api-providers/openai", "openai"]],
 			s: [],
 			c: [],
 			v: 7,
 		};
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
-			expect(String(input)).toContain("/rpc/get_public_search_index");
-			return new Response(JSON.stringify(payload), {
+			const url = String(input);
+			let value: unknown[];
+			if (url.includes("v2_models")) value = [{ model_slug: "openai/gpt-test", name: "GPT Test", lab_slug: "openai", released_at: "2026-07-01", lab: { name: "OpenAI" } }];
+			else if (url.includes("v2_labs")) value = [{ lab_slug: "openai", name: "OpenAI" }];
+			else if (url.includes("v2_providers")) value = [{ provider_slug: "openai", name: "OpenAI" }];
+			else if (url.includes("web_cache_generations")) value = [{ generation: 7, updated_at: null }];
+			else value = [];
+			return new Response(JSON.stringify(value), {
 				status: 200,
 				headers: { "content-type": "application/json" },
 			});
@@ -38,7 +44,7 @@ describe("frontend search route", () => {
 		);
 
 		expect(response.status).toBe(200);
-		expect(fetchMock).toHaveBeenCalledTimes(1);
+		expect(fetchMock).toHaveBeenCalledTimes(5);
 		expect(response.headers.get("cache-control")).toBe(
 			"public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
 		);

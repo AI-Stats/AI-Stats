@@ -14,8 +14,8 @@ async function loadGuardrailReference(context: AccountWorkspaceContext) {
 		context.client.from("keys").select("id,name,prefix,status,created_at")
 			.eq("workspace_id", context.workspaceId).neq("status", "deleted")
 			.neq("name", "__chat_route_managed_key__").order("created_at", { ascending: false }),
-		context.client.from("data_api_providers").select("api_provider_id,api_provider_name").order("api_provider_name", { ascending: true }),
-		context.client.from("data_api_provider_models").select("provider_id,api_model_id,internal_model_id,is_active_gateway").eq("is_active_gateway", true),
+		context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name").order("name", { ascending: true }),
+		context.client.from("v2_model_provider_routes").select("provider_id:provider_slug,api_model_id:model_slug,internal_model_id:model_slug,is_active_gateway:routing_enabled").eq("routing_enabled", true).in("status", ["active", "degraded"]),
 	]);
 	if ([teamResult, keysResult, providersResult, modelsResult].some((result) => result.error)) throw new Error("settings_unavailable");
 	return {

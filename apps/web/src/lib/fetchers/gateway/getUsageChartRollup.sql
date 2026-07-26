@@ -21,11 +21,13 @@ WITH base AS (
         r.requests,
         r.total_tokens,
         r.total_cost_nanos
-    FROM public.gateway_usage_rollup_15m_workspace_provider_model r
+    FROM public.v2_web_private_usage_daily r
     WHERE r.workspace_id = p_team
       AND r.bucket_15m >= p_from
       AND r.bucket_15m <= p_to
-      AND (p_key_id IS NULL OR r.key_id = p_key_id)
+      -- V2 daily rollups intentionally do not create a key-cardinality
+      -- dimension. Key-scoped charts are served from request facts instead.
+      AND p_key_id IS NULL
 ),
 bucketed AS (
     SELECT

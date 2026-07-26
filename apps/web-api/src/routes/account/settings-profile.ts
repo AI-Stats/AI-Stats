@@ -96,7 +96,7 @@ function profileSlug(displayName: string, userId: string): string {
 async function requestRows(client: ReturnType<typeof getDataClient>, workspaceId: string): Promise<RequestRow[]> {
 	const rows: RequestRow[] = [];
 	for (let offset = 0; ; offset += PAGE_SIZE) {
-		const result = await client.from("gateway_requests").select("created_at,model_id,usage,cost_nanos")
+		const result = await client.from("v2_web_gateway_requests").select("created_at,model_id,usage,cost_nanos")
 			.eq("workspace_id", workspaceId).order("created_at", { ascending: true }).range(offset, offset + PAGE_SIZE - 1);
 		if (result.error) throw new Error(result.error.message || "profile_usage_unavailable");
 		const page = (result.data ?? []) as RequestRow[];
@@ -220,7 +220,7 @@ accountSettingsProfileRouter.get("/profile", async (c) => {
 	const modelIds = [...models.keys()].filter((id) => id !== "unknown");
 	const modelNames = new Map<string, string>();
 	if (modelIds.length) {
-		const result = await client.from("data_models").select("model_id,name").in("model_id", modelIds);
+		const result = await client.from("v2_models").select("model_id:model_slug,name").in("model_slug", modelIds);
 		if (result.error) return c.json({ error: "profile_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 		for (const row of result.data ?? []) modelNames.set(String(row.model_id), String(row.name ?? row.model_id));
 	}

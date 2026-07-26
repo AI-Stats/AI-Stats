@@ -31,16 +31,6 @@ const COMPARE_USAGE_CACHE = {
 
 export const publicCompareRouter = new Hono<{ Bindings: Env }>();
 
-const COMPARE_DETAIL_SELECT = `
-	model_id,name,organisation_id,description,status,previous_model_id,
-	announcement_date,release_date,deprecation_date,retirement_date,license,
-	input_types,output_types,
-	organisation:data_organisations!data_models_organisation_id_fkey(organisation_id,name,country_code),
-	model_links:data_model_links(url,platform,kind),
-	model_details:data_model_details(detail_name,detail_value),
-	benchmark_results:data_benchmark_results(id,benchmark_id,score,is_self_reported,other_info,source_link,rank,benchmark:data_benchmarks(id,name,category,link,ascending_order,type))
-`;
-
 function parseSelection(value: string | undefined): string[] | null {
 	if (!value) return [];
 	const values = [...new Set(value.split(",").map((item) => item.trim()).filter(Boolean))];
@@ -87,26 +77,69 @@ publicCompareRouter.get("/compare/selection", async (c) => {
 	if (modelIds.length === 0) return withPublicCache(c.json({ models: [] }), COMPARE_SELECTION_CACHE);
 	try {
 		const client = getDataClient(c.env);
-		const [modelsResult, modelPlansResult, pricing] = await Promise.all([
-			client.from("data_models").select(COMPARE_DETAIL_SELECT).in("model_id", modelIds).eq("hidden", false),
-			client.from("data_subscription_plan_models").select("model_id,plan_uuid,model_info,rate_limit,other_info").in("model_id", modelIds),
+		const [modelsResult, linksResult, detailsResult, benchmarkResults, modelPlansResult, pricing] = await Promise.all([
+			client.from("v2_models").select("model_slug,name,lab_slug,description,status,previous_model_slug,announced_at,released_at,deprecated_at,retired_at,license,input_modalities,output_modalities,metadata,lab:v2_labs!v2_models_lab_slug_fkey(lab_slug,name,country_code,metadata)").in("model_slug", modelIds).eq("hidden", false),
+			// Links and arbitrary legacy detail rows do not have V2 tables yet.
+			client.from("v2_model_links").select("model_id:model_slug,url,platform:link_kind,kind:link_kind").in("model_slug", modelIds),
+			client.from("v2_model_details").select("model_id:model_slug,detail_name,detail_value").in("model_slug", modelIds),
+			client.from("v2_benchmark_results").select("result_id,model_slug,benchmark_id,score,is_self_reported,other_info,source_link,rank,benchmark:v2_benchmarks!v2_benchmark_results_benchmark_id_fkey(benchmark_id,name,category,link,ascending_order,benchmark_type)").in("model_slug", modelIds),
+			client.from("v2_subscription_plan_models").select("model_slug,plan_uuid,model_info,rate_limit,other_info").in("model_slug", modelIds),
 			fetchModelPricingSources(c.env, modelIds),
 		]);
 		if (modelsResult.error) throw modelsResult.error;
+		if (linksResult.error) throw linksResult.error;
+		if (detailsResult.error) throw detailsResult.error;
+		if (benchmarkResults.error) throw benchmarkResults.error;
 		if (modelPlansResult.error) throw modelPlansResult.error;
 		const planUuids = [...new Set((modelPlansResult.data ?? []).map((row) => String(row.plan_uuid ?? "").trim()).filter(Boolean))];
 		const plansResult = planUuids.length > 0
-			? await client.from("data_subscription_plans")
-				.select("plan_uuid,plan_id,name,organisation_id,description,frequency,price,currency,link,organisation:data_organisations!organisation_id(organisation_id,name,colour)")
+			? await client.from("v2_subscription_plans")
+				.select("plan_uuid,plan_id,name,lab_slug,description,frequency,price,currency,link")
 				.in("plan_uuid", planUuids).order("plan_id", { ascending: true }).order("frequency", { ascending: true })
 			: { data: [], error: null };
 		if (plansResult.error) throw plansResult.error;
+		const planLabSlugs = [...new Set((plansResult.data ?? []).map((row) => row.lab_slug).filter(Boolean))];
+		const planLabsResult = planLabSlugs.length > 0
+			? await client.from("v2_labs").select("lab_slug,name,metadata").in("lab_slug", planLabSlugs)
+			: { data: [], error: null };
+		if (planLabsResult.error) throw planLabsResult.error;
+		const planLabs = new Map((planLabsResult.data ?? []).map((row) => [row.lab_slug, row]));
+		const linksByModel = new Map<string, Array<Record<string, unknown>>>();
+		for (const row of linksResult.data ?? []) linksByModel.set(row.model_id, [...(linksByModel.get(row.model_id) ?? []), row]);
+		const detailsByModel = new Map<string, Array<Record<string, unknown>>>();
+		for (const row of detailsResult.data ?? []) detailsByModel.set(row.model_id, [...(detailsByModel.get(row.model_id) ?? []), row]);
+		const benchmarksByModel = new Map<string, Array<Record<string, unknown>>>();
+		for (const row of benchmarkResults.data ?? []) {
+			const benchmark = Array.isArray(row.benchmark) ? row.benchmark[0] : row.benchmark;
+			benchmarksByModel.set(row.model_slug, [...(benchmarksByModel.get(row.model_slug) ?? []), {
+				id: row.result_id, benchmark_id: row.benchmark_id, score: row.score, is_self_reported: row.is_self_reported,
+				other_info: row.other_info, source_link: row.source_link, rank: row.rank,
+				benchmark: benchmark ? { id: benchmark.benchmark_id, name: benchmark.name, category: benchmark.category, link: benchmark.link, ascending_order: benchmark.ascending_order, type: benchmark.benchmark_type } : null,
+			}]);
+		}
+		const comparisonModelRows = (modelsResult.data ?? []).map((row) => {
+			const lab = Array.isArray(row.lab) ? row.lab[0] : row.lab;
+			return {
+				model_id: row.model_slug, name: row.name, organisation_id: row.lab_slug, description: row.description,
+				status: row.status, previous_model_id: row.previous_model_slug, announcement_date: row.announced_at,
+				release_date: row.released_at, deprecation_date: row.deprecated_at, retirement_date: row.retired_at,
+				license: row.license, input_types: row.input_modalities, output_types: row.output_modalities,
+				organisation: lab ? { organisation_id: lab.lab_slug, name: lab.name, country_code: lab.country_code } : null,
+				model_links: linksByModel.get(row.model_slug) ?? [], model_details: detailsByModel.get(row.model_slug) ?? [],
+				benchmark_results: benchmarksByModel.get(row.model_slug) ?? [],
+			};
+		});
+		const planRows = (plansResult.data ?? []).map((row) => {
+			const lab = planLabs.get(row.lab_slug);
+			const metadata = lab?.metadata && typeof lab.metadata === "object" && !Array.isArray(lab.metadata) ? lab.metadata as Record<string, unknown> : {};
+			return { ...row, organisation_id: row.lab_slug, organisation: lab ? { organisation_id: lab.lab_slug, name: lab.name, colour: metadata.colour ?? null } : null };
+		});
 		const models = composeComparisonModels(modelIds, {
-			models: (modelsResult.data ?? []) as Array<Record<string, unknown>>,
+			models: comparisonModelRows as Array<Record<string, unknown>>,
 			providerRows: pricing.providerRows,
 			pricingRows: pricing.pricingRows,
-			modelPlans: (modelPlansResult.data ?? []) as Array<Record<string, unknown>>,
-			plans: (plansResult.data ?? []) as Array<Record<string, unknown>>,
+			modelPlans: (modelPlansResult.data ?? []).map((row) => ({ ...row, model_id: row.model_slug })) as Array<Record<string, unknown>>,
+			plans: planRows as Array<Record<string, unknown>>,
 		});
 		return withPublicCache(c.json({ models }), COMPARE_SELECTION_CACHE);
 	} catch (error) {
@@ -118,33 +151,31 @@ publicCompareRouter.get("/compare/selection", async (c) => {
 publicCompareRouter.get("/compare/models", async (c) => {
 	try {
 		const { data, error } = await getDataClient(c.env)
-			.from("data_models")
-			.select("model_id,name,organisation_id,status,announcement_date,release_date,deprecation_date,retirement_date,input_types,output_types,organisation:data_organisations!data_models_organisation_id_fkey(organisation_id,name)")
+			.from("v2_models")
+			.select("model_slug,name,lab_slug,status,announced_at,released_at,deprecated_at,retired_at,input_modalities,output_modalities,license,metadata,lab:v2_labs!v2_models_lab_slug_fkey(lab_slug,name,country_code,metadata)")
 			.eq("hidden", false)
 			.order("name", { ascending: true });
 		if (error) throw error;
 
 		const models = (data ?? []).map((row) => {
-			const organisation = Array.isArray(row.organisation)
-				? row.organisation[0]
-				: row.organisation;
+			const organisation = Array.isArray(row.lab) ? row.lab[0] : row.lab;
 			return {
-				id: row.model_id,
+				id: row.model_slug,
 				name: row.name,
 				status: row.status ?? null,
 				previous_model_id: null,
 				description: null,
-				announced_date: row.announcement_date ?? null,
-				release_date: row.release_date ?? null,
-				deprecation_date: row.deprecation_date ?? null,
-				retirement_date: row.retirement_date ?? null,
+				announced_date: row.announced_at ?? null,
+				release_date: row.released_at ?? null,
+				deprecation_date: row.deprecated_at ?? null,
+				retirement_date: row.retired_at ?? null,
 				open_router_model_id: null,
 				input_context_length: null,
 				output_context_length: null,
-				license: null,
+				license: row.license ?? null,
 				multimodal: null,
-				input_types: row.input_types,
-				output_types: row.output_types,
+				input_types: row.input_modalities,
+				output_types: row.output_modalities,
 				web_access: null,
 				reasoning: null,
 				fine_tunable: null,
@@ -159,8 +190,8 @@ publicCompareRouter.get("/compare/models", async (c) => {
 				benchmark_results: null,
 				prices: null,
 				provider: {
-					provider_id: organisation?.organisation_id ?? row.organisation_id,
-					name: organisation?.name ?? row.organisation_id,
+					provider_id: organisation?.lab_slug ?? row.lab_slug,
+					name: organisation?.name ?? row.lab_slug,
 					website: null,
 					country_code: null,
 					description: null,

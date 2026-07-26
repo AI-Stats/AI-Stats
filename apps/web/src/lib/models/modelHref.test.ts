@@ -1,4 +1,8 @@
-import { getModelDetailsHref, getModelRouteSlug } from "./modelHref";
+import {
+	decodeModelRouteSegment,
+	getModelDetailsHref,
+	getModelRouteSlug,
+} from "./modelHref";
 
 describe("model href helpers", () => {
 	it("uses the model id namespace for catalog routes", () => {
@@ -21,5 +25,17 @@ describe("model href helpers", () => {
 		expect(getModelDetailsHref(null, "gpt-5.4")).toBeNull();
 		expect(getModelDetailsHref("openai", null)).toBeNull();
 		expect(getModelRouteSlug("", "openai")).toBe("");
+	});
+
+	it("decodes encoded free-variant route segments exactly once", () => {
+		expect(decodeModelRouteSegment("laguna-s-2.1%3Afree")).toBe(
+			"laguna-s-2.1:free",
+		);
+		expect(decodeModelRouteSegment("laguna-s-2.1:free")).toBe(
+			"laguna-s-2.1:free",
+		);
+		expect(decodeModelRouteSegment("invalid%segment")).toBe(
+			"invalid%segment",
+		);
 	});
 });

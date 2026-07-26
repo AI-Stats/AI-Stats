@@ -42,11 +42,11 @@ publicLandingRouter.get("/landing/stats", async (c) => {
 	try {
 		const client = getDataClient(c.env);
 		const [models, organisations, benchmarks, benchmarkResults, providers, usage] = await Promise.all([
-			client.from("data_models").select("*", { count: "exact", head: true }).eq("hidden", false),
-			client.from("data_organisations").select("*", { count: "exact", head: true }),
-			client.from("data_benchmarks").select("*", { count: "exact", head: true }),
-			client.from("data_benchmark_results").select("*", { count: "exact", head: true }),
-			client.from("data_api_providers").select("*", { count: "exact", head: true }),
+			client.from("v2_models").select("*", { count: "exact", head: true }).eq("hidden", false),
+			client.from("v2_labs").select("*", { count: "exact", head: true }),
+			client.from("v2_benchmarks").select("*", { count: "exact", head: true }),
+			client.from("v2_benchmark_results").select("*", { count: "exact", head: true }),
+			client.from("v2_providers").select("*", { count: "exact", head: true }),
 			client.rpc("get_public_usage_timeseries", { p_time_range: "month", p_bucket_size: "day", p_top_n: 10 }),
 		]);
 		for (const result of [models, organisations, benchmarks, benchmarkResults, providers, usage]) {
@@ -84,7 +84,7 @@ publicLandingRouter.get("/landing/gateway-showcase", async (c) => {
 		const client = getDataClient(c.env);
 		const [rollup, supported, topModels, topApps] = await Promise.all([
 			client.rpc("get_gateway_marketing_rollup", { p_hours: hours }),
-			client.from("data_api_provider_models").select("api_model_id,provider_id,effective_from,effective_to").eq("is_active_gateway", true),
+			client.from("v2_model_provider_routes").select("model_slug,provider_slug,effective_from,effective_to").eq("routing_enabled", true).in("status", ["active", "degraded"]),
 			client.rpc("get_public_top_models_with_metadata", { p_time_range: "week", p_limit: topModelsLimit }),
 			client.rpc("get_public_top_apps", { p_time_range: "week", p_limit: topAppsLimit }),
 		]);
@@ -100,7 +100,7 @@ publicLandingRouter.get("/landing/gateway-showcase", async (c) => {
 			requests += rowRequests; successful += rowSuccessful; tokens += rowTokens; latencySum += rowLatencySum; latencySamples += rowLatencySamples; if (averageLatency != null) latencyAverages.push(averageLatency);
 			points.push({ timestamp, requests: rowRequests, uptimePct: rowRequests > 0 ? rowSuccessful / rowRequests * 100 : null, p50Ms: averageLatency, p95Ms: averageLatency, avgMs: averageLatency, requestsPerMin: rowRequests / 60, tokensPerMin: rowTokens / 60, hoursAgo: offset });
 		}
-		const modelIds = [...new Set(activeSupported.map((row) => row.api_model_id).filter(Boolean))]; const providerIds = [...new Set(activeSupported.map((row) => row.provider_id).filter(Boolean))];
+		const modelIds = [...new Set(activeSupported.map((row) => row.model_slug).filter(Boolean))]; const providerIds = [...new Set(activeSupported.map((row) => row.provider_slug).filter(Boolean))];
 		const metrics = { summary: { uptimePct: requests > 0 ? successful / requests * 100 : null, latencyP95Ms: percentile(latencyAverages, 0.95), latencyP50Ms: percentile(latencyAverages, 0.5), latencyAvgMs: latencySamples > 0 ? latencySum / latencySamples : null, requests24h: requests, successful24h: successful, tokens24h: tokens, requestsPerMinAvg: requests / (hours * 60), supportedModels: modelIds.length || null, supportedProviders: providerIds.length || null }, timeseries: { uptime: points, latency: points, throughput: points }, supported: { modelIds, providerIds }, fallback: requests <= 0 };
 		const topAppRows = (topApps.data ?? []).filter((row) => Number(row.tokens ?? 0) > 0 && row.app_id).sort((a, b) => Number(b.tokens ?? 0) - Number(a.tokens ?? 0)).slice(0, 6);
 		const appIds = [...new Set(topAppRows.map((row) => row.app_id))]; const appImageUrls: Record<string, string | null> = {};
@@ -114,15 +114,15 @@ publicLandingRouter.get("/landing/models/stats", async (c) => {
 		const [models, providerModels] = await Promise.all([
 			fetchAllRows(
 				c.env,
-				"data_models",
-				"model_id,organisation_id,announcement_date,release_date",
+				"v2_models",
+				"model_id:model_slug,organisation_id:lab_slug,announcement_date:announced_at,release_date:released_at",
 				(query) => query.eq("hidden", false),
 			),
 			fetchAllRows(
 				c.env,
-				"data_api_provider_models",
-				"model_id,internal_model_id,api_model_id",
-				(query) => query.eq("is_active_gateway", true),
+				"v2_model_provider_routes",
+				"model_id:model_slug,internal_model_id:model_slug,api_model_id:model_slug",
+				(query) => query.eq("routing_enabled", true).in("status", ["active", "degraded"]),
 			),
 		]);
 		const modelIds = new Set(models.map((model) => String(model.model_id ?? "")).filter(Boolean));
@@ -174,9 +174,9 @@ publicLandingRouter.get("/landing/models/main", async (c) => {
 	}
 	try {
 		const { data, error } = await getDataClient(c.env)
-			.from("data_models")
-			.select("model_id,name,release_date,data_organisations(organisation_id,name,colour)")
-			.in("model_id", modelIds)
+			.from("v2_models")
+			.select("model_id:model_slug,name,release_date:released_at,data_organisations:v2_labs(lab_slug,name,metadata)")
+			.in("model_slug", modelIds)
 			.eq("hidden", false);
 		if (error) throw error;
 		return withPublicCache(c.json({ models: data ?? [] }), {
