@@ -1,5 +1,13 @@
 # @phaseo/go-sdk
 
+## 2.0.6
+
+### Patch Changes
+
+- [#1256](https://github.com/phaseoteam/Phaseo/pull/1256) [`a5039ca`](https://github.com/phaseoteam/Phaseo/commit/a5039ca3aa738803fd7adff684c9539aa80ecd83) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Publish the Go SDK as a valid v2 module and update its imports and installation guidance to use the `/v2` semantic import path.
+
+- [#1257](https://github.com/phaseoteam/Phaseo/pull/1257) [`5a02c19`](https://github.com/phaseoteam/Phaseo/commit/5a02c194d0e64642ddf23cd0d57b2b93983b148c) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Represent Baseten GLM-5.2 Fast as a hidden priority service tier for GLM-5.2 instead of a separate canonical model, and refresh the generated SDK model ID snapshots.
+
 ## 2.0.5
 
 ### Patch Changes

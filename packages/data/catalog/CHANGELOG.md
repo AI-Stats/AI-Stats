@@ -1,5 +1,11 @@
 # @phaseo/data-catalog
 
+## 0.0.2
+
+### Patch Changes
+
+- [#1255](https://github.com/phaseoteam/Phaseo/pull/1255) [`8f8a349`](https://github.com/phaseoteam/Phaseo/commit/8f8a3494c05c0df6641b065b59fd36533f21f7cf) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Prepare Kimi K3 for its public weights release by linking the official Hugging Face repository, surfacing the July 27, 2026 at 15:00 UTC release time, and adding non-routable coming-soon entries for Together, Baseten, and Fireworks.
+
 ## 0.0.1
 
 ### Patch Changes
