@@ -30,6 +30,8 @@ export const GLOBAL_NAVIGATION_ITEMS: readonly GlobalNavigationItem[] = [
 	{ id: "nav-updates", title: "Updates", subtitle: "Browse model and ecosystem updates", href: "/updates", keywords: ["news", "releases", "changelog"] },
 	{ id: "nav-update-calendar", title: "Release Calendar", subtitle: "View releases and retirements by date", href: "/updates/calendar", keywords: ["calendar", "release dates", "deprecations"] },
 	{ id: "nav-model-updates", title: "Model Updates", subtitle: "Browse model release updates", href: "/updates/models", keywords: ["releases", "new models"] },
+	{ id: "nav-web-updates", title: "Web Updates", subtitle: "Browse updates from provider websites", href: "/updates/web", keywords: ["provider news", "web watcher"] },
+	{ id: "nav-youtube-updates", title: "YouTube Updates", subtitle: "Browse tracked AI video updates", href: "/updates/youtube", keywords: ["videos", "youtube watcher"] },
 
 	{ id: "nav-tools", title: "Developer Tools", subtitle: "Open the Phaseo tools collection", href: "/tools", keywords: ["utilities", "developer"] },
 	{ id: "nav-pricing-calculator", title: "Pricing Calculator", subtitle: "Estimate model request costs", href: "/tools/pricing-calculator", keywords: ["cost calculator", "tokens"] },

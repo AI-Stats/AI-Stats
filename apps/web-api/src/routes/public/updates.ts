@@ -48,10 +48,40 @@ const MODEL_EVENT_STYLE = {
 	},
 } as const;
 
+const CARD_STYLES = {
+	web: {
+		cta: "Open",
+		latestCta: "Read",
+		label: "Web Update",
+		latestLabel: "Web Watcher",
+		iconName: "globe",
+		className: "px-2 py-1 text-xs flex items-center gap-1 transition-colors bg-sky-100 text-sky-900 border border-sky-300 hover:bg-sky-200 hover:text-sky-900 hover:border-sky-400 dark:bg-sky-900/60 dark:text-sky-200 dark:border-sky-700 dark:hover:bg-sky-900 dark:hover:text-sky-200 dark:hover:border-sky-600 rounded-full",
+		accentClass: "bg-sky-500",
+	},
+	youtube: {
+		cta: "Watch",
+		latestCta: "Watch",
+		label: "YouTube Watcher",
+		latestLabel: "YouTube Watcher",
+		iconName: "monitor-play",
+		className: "px-2 py-1 text-xs flex items-center gap-1 transition-colors bg-rose-100 text-rose-900 border border-rose-300 hover:bg-rose-200 hover:text-rose-900 hover:border-rose-400 dark:bg-rose-900/60 dark:text-rose-200 dark:border-rose-700 dark:hover:bg-rose-900 dark:hover:text-rose-200 dark:hover:border-rose-600 rounded-full",
+		accentClass: "bg-rose-500",
+	},
+} as const;
+
 function parseLimit(value: string | undefined): number {
 	const parsed = Number(value);
 	if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_LIMIT;
 	return Math.min(MAX_LIMIT, Math.trunc(parsed));
+}
+
+function isExternal(href: string): boolean {
+	try {
+		const url = new URL(href);
+		return url.protocol === "http:" || url.protocol === "https:";
+	} catch {
+		return false;
+	}
 }
 
 function relativeTime(iso: string, nowMs: number): string {
@@ -68,6 +98,11 @@ function relativeTime(iso: string, nowMs: number): string {
 	const months = Math.round(days / 30);
 	if (Math.abs(months) < 12) return formatter.format(-months, "month");
 	return formatter.format(-Math.round(months / 12), "year");
+}
+
+function normaliseUpdateType(type: unknown, link: string): keyof typeof CARD_STYLES {
+	const value = String(type ?? "").toLowerCase();
+	return value === "youtube" || /youtu\.?be/.test(link) ? "youtube" : "web";
 }
 
 function isoDate(value: unknown): string | null {
@@ -149,6 +184,93 @@ async function fetchModelEventRows(
 }
 
 export const publicUpdatesRouter = new Hono<{ Bindings: Env }>();
+
+for (const updateType of ["web", "youtube"] as const) {
+	publicUpdatesRouter.get(`/updates/${updateType}`, async (c) => {
+		const limit = parseLimit(c.req.query("limit"));
+		try {
+			const { data, error } = await getDataClient(c.env)
+				.from("updates")
+				.select("id,type,who,title,link,created_at")
+				.eq("type", updateType)
+				.order("created_at", { ascending: false })
+				.limit(limit);
+			if (error) throw error;
+
+			const style = CARD_STYLES[updateType];
+			const updates = (data ?? []).map((row) => ({
+				id: row.id,
+				title: row.title,
+				subtitle: row.who,
+				link: {
+					href: row.link,
+					external: isExternal(row.link),
+					cta: style.cta,
+				},
+				dateIso: new Date(row.created_at).toISOString(),
+				badges: [{
+					label: style.label,
+					iconName: style.iconName,
+					className: style.className,
+				}],
+				accentClass: style.accentClass,
+			}));
+
+			return withPublicCache(c.json({ updates }), {
+				...UPDATE_CACHE,
+				cacheTags: ["web-api-updates", `web-api-updates-${updateType}`],
+			});
+		} catch (error) {
+			console.error("[web-api/updates] failed", { updateType, error });
+			return c.json({ error: "updates_unavailable" }, 503);
+		}
+	});
+}
+
+publicUpdatesRouter.get("/updates/latest", async (c) => {
+	const limit = parseLimit(c.req.query("limit"));
+	try {
+		const { data, error } = await getDataClient(c.env)
+			.from("updates")
+			.select("id,type,who,title,link,created_at")
+			.order("created_at", { ascending: false })
+			.limit(Math.min(32, limit));
+		if (error) throw error;
+
+		const generatedAt = Date.now();
+		const updates = (data ?? []).map((row) => {
+			const updateType = normaliseUpdateType(row.type, row.link);
+			const style = CARD_STYLES[updateType];
+			const dateIso = new Date(row.created_at).toISOString();
+			return {
+				id: row.id,
+				title: row.title,
+				subtitle: row.who,
+				link: {
+					href: row.link,
+					external: isExternal(row.link),
+					cta: style.latestCta,
+				},
+				dateIso,
+				relative: relativeTime(dateIso, generatedAt),
+				badges: [{
+					label: style.latestLabel,
+					iconName: style.iconName,
+					className: style.className,
+				}],
+				accentClass: style.accentClass,
+			};
+		});
+
+		return withPublicCache(c.json({ updates }), {
+			...UPDATE_CACHE,
+			cacheTags: ["web-api-updates", "web-api-updates-latest"],
+		});
+	} catch (error) {
+		console.error("[web-api/updates] latest failed", error);
+		return c.json({ error: "updates_unavailable" }, 503);
+	}
+});
 
 publicUpdatesRouter.get("/updates/models/cards", async (c) => {
 	const limit = parseLimit(c.req.query("limit"));

@@ -1,0 +1,33 @@
+---
+icon: "compass"
+title: "Overview"
+description: "Build tool-using, resumable agents with the native Java runtime."
+---
+
+The Java Agent SDK is a full local runtime layered on `app.phaseo:phaseo-sdk`. It uses executors, iterable streams, functional interfaces, and application-owned state accessors.
+
+## Native runtime model
+
+- Functional interfaces define tools, validators, approvals, review callbacks, and stop conditions.
+- Executors run bounded concurrent tool work.
+- Iterable streams expose replayable model text and lifecycle events.
+- Exact tool-call IDs make approvals, rejections, and manual outputs safe to resume.
+- `StateAccessor` loads and saves run results through your own storage layer.
+
+## Core capabilities
+
+| Area | Java API |
+| --- | --- |
+| Agents and tools | `AgentSdk.createAgent(...)`, `AgentSdk.defineTool(...)`, `AgentSdk.Tool` |
+| Gateway execution | `AgentSdk.createGatewayAgentClient(...)` |
+| Continuation | `Agent.continueRun(...)`, exact-ID decisions, and manual outputs |
+| Streaming | `Agent.stream(...)`, `textStream()`, `fullStream()`, and `getResult()` |
+| Control | retries, timeouts, executor concurrency, stop conditions, and dynamic turns |
+| Observability | event consumers, normalized usage/cost, and Phaseo Devtools |
+
+Runs stay inside your application. Phaseo handles model requests; your service owns persistence, queues, authorization, and any review UI.
+
+## Next
+
+- [Installation](./agent-sdk-installation)
+- [Build with the Java Agent SDK](./agent-sdk)

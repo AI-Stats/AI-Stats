@@ -104,7 +104,7 @@ export function getPageCacheTarget(pathname: string): PageCacheTarget | null {
 		return { scope: "rankings", label: "Rankings", description: "Model and app rankings", affectsSearch: false };
 	}
 	if (section === "updates") {
-		return { scope: "updates", label: "Updates", description: "Model update feeds", affectsSearch: false };
+		return { scope: "updates", label: "Updates", description: "Model, web, and video update feeds", affectsSearch: false };
 	}
 	if (section === "pricing") {
 		return { scope: "pricing", label: "Pricing", description: "Public pricing projections", affectsSearch: false };

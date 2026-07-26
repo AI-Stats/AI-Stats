@@ -1,58 +1,36 @@
 ---
-title: "Usage"
-description: "Run a minimal local agent loop on top of Phaseo Gateway with the Go Agent SDK."
+icon: "bot"
+title: "Build your first agent"
+description: "Create and run a tool-ready agent with the Go Agent SDK."
 ---
 
-## Install
-
-```bash
-go get github.com/phaseoteam/Phaseo/packages/sdk/agent-sdk-go@latest
-```
-
-## Quickstart
+Use this guide to run a Go agent while keeping tools and state inside your service.
 
 ```go
-package main
-
-import (
-  "context"
-  "fmt"
-
-  phaseoagent "github.com/phaseoteam/Phaseo/packages/sdk/agent-sdk-go"
+client, err := phaseoagent.CreateGatewayAgentClient(
+  phaseoagent.GatewayAgentClientOptions{},
 )
+if err != nil { panic(err) }
 
-func main() {
-  client, err := phaseoagent.CreateGatewayAgentClient(phaseoagent.GatewayAgentClientOptions{})
-  if err != nil {
-    panic(err)
-  }
+agent := phaseoagent.CreateAgent(phaseoagent.AgentDefinition{
+  ID: "quickstart-agent",
+  Model: "openai/gpt-5.4-nano",
+  Instructions: "Answer concisely and helpfully.",
+})
 
-  agent := phaseoagent.CreateAgent(phaseoagent.AgentDefinition{
-    ID:           "quickstart-agent",
-    Model:        "openai/gpt-5.4-nano",
-    Instructions: "Answer concisely and helpfully.",
-  })
+result, err := agent.Run(context.Background(), phaseoagent.RunOptions{
+  Input: "Give me one fun fact about cURL.",
+  Client: client,
+})
+if err != nil { panic(err) }
 
-  result, err := agent.Run(context.Background(), phaseoagent.RunOptions{
-    Input:  "Give me one fun fact about cURL.",
-    Client: client,
-  })
-  if err != nil {
-    panic(err)
-  }
-
-  fmt.Println(result.Output)
-}
+fmt.Println(result.Output)
 ```
 
-## What it ships
+## Next
 
-- `CreateAgent(...)`
-- `DefineTool(...)`
-- `CreateGatewayAgentClient(...)`
-- a bounded tool loop over the Phaseo `responses` API
-
-## Related
-
-- [Agent SDK overview](../agent-sdk/overview.mdx)
-- [TypeScript Agent SDK](../typescript/agent-sdk.mdx)
+- [Define tools](./agent-sdk-tools)
+- [Stream a run](./agent-sdk-streaming)
+- [Pause and continue](./agent-sdk-state-and-approval)
+- [Control a run](./agent-sdk-run-controls)
+- [Observe runs](./agent-sdk-observability)

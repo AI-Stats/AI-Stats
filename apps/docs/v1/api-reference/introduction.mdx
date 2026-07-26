@@ -1,9 +1,21 @@
 ---
-title: "Introduction To The AI Gateway"
-sidebarTitle: "Introduction"
+title: "Gateway API Overview"
+sidebarTitle: "Overview"
 description: "Base URL, authentication, and endpoint families for the Phaseo Gateway."
 icon: "map"
 ---
+
+Use this page to find the correct API path before opening an endpoint reference. All Phaseo Gateway endpoints share one base URL and use bearer authentication.
+
+## Choose your path
+
+| If you want to | Start with |
+| --- | --- |
+| Send your first request | [Quickstart](../quickstart) |
+| Generate text or use tools | [`POST /responses`](./endpoint/responses) |
+| Keep an existing OpenAI-compatible integration | [`POST /chat/completions`](./endpoint/chat-completions) |
+| Browse models and providers | [`GET /models`](./endpoint/models) and [`GET /providers`](./endpoint/providers) |
+| Build an asynchronous media workflow | [Video](./endpoint/video-generation), music, batch, or file endpoints below |
 
 ## Base URL
 
@@ -37,18 +49,23 @@ Authorization: Bearer phaseo_v1_sk_<kid>_<secret>
 
 If authentication fails, the API returns `401`.
 
-## Endpoint families
+## API resources
 
-| Endpoint | Purpose |
+| Resource | What it does |
 | --- | --- |
-| `POST /chat/completions`, `POST /responses`, `POST /messages` | Text generation |
-| `POST /embeddings`, `POST /moderations` | Embeddings and moderation |
-| `POST /audio/speech`, `POST /audio/transcriptions`, `POST /audio/translations` | Speech and audio |
-| `POST /images/generations`, `POST /images/edits` | Image generation and editing |
-| `POST /videos`, `GET /videos`, `GET /videos/models`, `GET /videos/{video_id}` | Video jobs and status |
-| `POST /music/generate`, `GET /music/generate/{music_id}` | Music generation jobs |
-| `POST /ocr`, `POST /batches`, `GET /batches`, `GET /batches/{batch_id}`, `POST /files`, `GET /files/{file_id}` | OCR, batches, and files |
-| `GET /models`, `GET /providers`, `GET /pricing/models`, `POST /pricing/calculate`, `GET /activity` | Discovery, pricing, and activity |
+| Responses API | Generate model responses with tools, structured output, and multimodal input. |
+| Chat Completions | Keep an existing OpenAI-compatible chat integration. |
+| Anthropic Messages | Keep an Anthropic-compatible Messages integration. |
+| Embeddings | Create vector representations for search, retrieval, and classification. |
+| Images | Generate or edit images. |
+| Text-to-Speech | Generate spoken audio from text. |
+| Speech-to-Text | Transcribe or translate audio. |
+| Video Generation | Create video jobs, inspect status, and download completed output. |
+| Music Generation | Create music jobs and inspect their status. |
+| Batches and Files | Upload inputs and run asynchronous batch workloads. |
+| Models, Providers, and Endpoints | Discover what is available through the Gateway. |
+| Pricing, Activity, and Generations | Estimate cost and inspect request outcomes. |
+| API Keys and Workspaces | Manage programmatic access and workspace resources. |
 
 ## Billing and rate limits
 

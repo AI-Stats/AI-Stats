@@ -1,0 +1,40 @@
+---
+icon: "bot"
+title: "Build your first agent"
+description: "Create and run a tool-ready agent with the Java Agent SDK."
+---
+
+Use this guide to run a Java agent while keeping tools and state inside your service.
+
+```java
+var agent = AgentSdk.createAgent(new AgentSdk.AgentDefinition(
+    "support-agent",
+    "openai/gpt-5.4-nano",
+    null,
+    "Use tools when useful and answer concisely.",
+    List.of(),
+    12,
+    null,
+    null,
+    new AgentSdk.ModelRetryConfig(2, Duration.ofMillis(250)),
+    new AgentSdk.ToolExecutionConfig(4)
+));
+
+var result = agent.run(new AgentSdk.RunOptions(
+    "Explain presets",
+    AgentSdk.createGatewayAgentClient(),
+    null, null, null, null, null, null,
+    event -> System.out.println(event.type()),
+    AgentSdk.createAgentDevtools(".phaseo-devtools")
+));
+
+System.out.println(result.output());
+```
+
+## Next
+
+- [Define tools](./agent-sdk-tools)
+- [Stream a run](./agent-sdk-streaming)
+- [Pause and continue](./agent-sdk-state-and-approval)
+- [Control a run](./agent-sdk-run-controls)
+- [Observe runs](./agent-sdk-observability)

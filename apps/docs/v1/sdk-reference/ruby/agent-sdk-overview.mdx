@@ -1,24 +1,31 @@
 ---
+icon: "compass"
 title: "Overview"
-description: "What the Ruby Agent SDK is for and what surface it currently exposes."
+description: "Build tool-using, resumable agents with the native Ruby runtime."
 ---
 
-The Ruby Agent SDK is a minimal local runtime for Phaseo Gateway.
+The Ruby Agent SDK is a full local runtime for Phaseo Gateway. It uses enumerators, thread-backed tools, callback validation, and duck-typed state accessors.
 
-Use it when you want:
+## Native runtime model
 
-- a lightweight bounded tool loop
-- gateway-backed `responses` requests
-- app-owned control over persistence and orchestration
+- Bounded threads execute independent tools concurrently while preserving tool-result order.
+- Enumerators expose replayable text, reasoning, item, and full-event streams.
+- Callbacks validate tool boundaries, approvals, progress events, and final output.
+- Exact tool-call IDs make approvals, rejections, and manual outputs safe to resume.
+- Any object with compatible `load` and `save` methods can own run persistence.
 
-## What it ships
+## Core capabilities
 
-- `PhaseoAgentSdk.create_agent(...)`
-- `PhaseoAgentSdk.define_tool(...)`
-- `PhaseoAgentSdk.create_gateway_agent_client(...)`
-- a bounded tool loop over the Phaseo `responses` API
+| Area | Ruby API |
+| --- | --- |
+| Agents and tools | `PhaseoAgentSdk.create_agent`, `define_tool`, and `Tool` |
+| Gateway execution | `create_gateway_agent_client` |
+| Continuation | `Agent#continue_run`, exact-ID decisions, and manual outputs |
+| Streaming | `Agent#stream`, `text_stream`, `reasoning_stream`, and `full_stream` |
+| Control | retries, timeouts, concurrency, stop predicates, and dynamic turns |
+| Observability | event callbacks, normalized usage/cost, and Phaseo Devtools |
 
 ## Next
 
-- [Installation](./agent-sdk-installation.mdx)
-- [Usage](./agent-sdk.mdx)
+- [Installation](./agent-sdk-installation)
+- [Build with the Ruby Agent SDK](./agent-sdk)

@@ -11,13 +11,74 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("public update routes", () => {
 	it.each([
-		"/api/_web/updates/web",
-		"/api/_web/updates/youtube",
-		"/api/_web/updates/latest",
-		"/api/internal/watchers/web",
-	])("does not expose retired watcher route %s", async (path) => {
-		const response = await app.request(`https://phaseo.app${path}`, {}, env);
-		expect(response.status).toBe(404);
+		["web", "Open", "Web Update", "globe"],
+		["youtube", "Watch", "YouTube Watcher", "monitor-play"],
+	] as const)("maps %s rows to the existing update-card contract", async (
+		updateType,
+		cta,
+		label,
+		iconName,
+	) => {
+		const fetchMock = vi.fn(async () => new Response(JSON.stringify([{
+			id: `${updateType}-1`,
+			type: updateType,
+			who: "Phaseo",
+			title: "An update",
+			link: "https://phaseo.app/updates",
+			created_at: "2026-07-14T12:00:00.000Z",
+		}]), { status: 200 }));
+		vi.stubGlobal("fetch", fetchMock);
+
+		const response = await app.request(
+			`https://phaseo.app/api/_web/updates/${updateType}?limit=1000`,
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get("cloudflare-cdn-cache-control")).toBe(
+			"public, max-age=900, stale-while-revalidate=3600",
+		);
+		expect(response.headers.get("cache-tag")).toContain(
+			`web-api-updates-${updateType}`,
+		);
+		await expect(response.json()).resolves.toMatchObject({
+			updates: [{
+				id: `${updateType}-1`,
+				link: { cta, external: true },
+				badges: [{ label, iconName }],
+			}],
+		});
+
+		const requestUrl = String(fetchMock.mock.calls[0]?.[0]);
+		expect(requestUrl).toContain("limit=100");
+	});
+
+	it("returns the mixed latest-update card contract", async () => {
+		vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify([{
+			id: "youtube-1",
+			type: "youtube",
+			who: "Phaseo",
+			title: "A video",
+			link: "https://youtu.be/example",
+			created_at: "2026-07-14T12:00:00.000Z",
+		}]), { status: 200 })));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/updates/latest?limit=5",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get("cache-tag")).toContain("web-api-updates-latest");
+		await expect(response.json()).resolves.toMatchObject({
+			updates: [{
+				id: "youtube-1",
+				link: { cta: "Watch", external: true },
+				badges: [{ label: "YouTube Watcher", iconName: "monitor-play" }],
+			}],
+		});
 	});
 
 	it("returns model cards, split events, and organisation release events", async () => {

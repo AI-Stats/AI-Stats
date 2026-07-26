@@ -1,5 +1,11 @@
 import type { ComponentType } from "react";
 
+import {
+    UPDATE_ENTRY_META,
+    formatUpdateRelativeTime,
+    type UpdateCategoryId,
+    type UpdateEntry,
+} from "@/lib/content/updates";
 import type {
     EventType,
     ModelEvent,
@@ -28,29 +34,61 @@ export type UpdateCardModel = {
     dateIso: string;
     relative: string;
     accentClass?: string | null;
-    category?: "models";
+    category?: UpdateCategoryId;
 };
 
-function formatUpdateRelativeTime(publishedAt: string): string {
-    const parsed = new Date(publishedAt);
-    if (Number.isNaN(parsed.getTime())) return publishedAt;
+function normalizeBadgeClass(badgeClass?: string) {
+    if (!badgeClass) {
+        return "border px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-700 dark:text-zinc-200";
+    }
+    if (badgeClass.includes("px-") || badgeClass.includes("py-")) {
+        return badgeClass;
+    }
+    return `border px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${badgeClass}`;
+}
 
-    const now = new Date(
-        process.env.NEXT_PUBLIC_DEPLOY_TIME ??
-            process.env.DEPLOY_TIME ??
-            "1970-01-01T00:00:00.000Z"
-    );
-    const diff = parsed.getTime() - now.getTime();
-    const absSeconds = Math.abs(diff) / 1000;
-    const formatter = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+function computeCta(entry: UpdateEntry): string {
+    if (entry.category === "youtube") {
+        return "Watch";
+    }
+    if (entry.external) {
+        return "Open source";
+    }
+    return "Open";
+}
 
-    if (absSeconds < 60) return diff < 0 ? "just now" : "in a moment";
-    if (absSeconds < 3600) return formatter.format(Math.round(diff / 60_000), "minute");
-    if (absSeconds < 86_400) return formatter.format(Math.round(diff / 3_600_000), "hour");
-    if (absSeconds < 2_592_000) return formatter.format(Math.round(diff / 86_400_000), "day");
-    const months = Math.round(diff / 2_592_000_000);
-    if (Math.abs(months) < 12) return formatter.format(months, "month");
-    return parsed.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+export function toUpdateCardModel(entry: UpdateEntry): UpdateCardModel {
+    const meta = UPDATE_ENTRY_META[entry.category];
+    const badgeClass = normalizeBadgeClass(meta?.badgeClass);
+
+    return {
+        id: entry.id,
+        badges: meta
+            ? [
+                {
+                    label: meta.label,
+                    icon: meta.icon,
+                    className: badgeClass,
+                },
+            ]
+            : [],
+        title: entry.title,
+        subtitle: entry.source ?? null,
+        description: entry.description ?? null,
+        link: {
+            href: entry.href,
+            external: entry.external,
+            cta: computeCta(entry),
+        },
+        dateIso: entry.publishedAt,
+        relative: formatUpdateRelativeTime(entry.publishedAt),
+        accentClass: meta?.accentClass,
+        category: entry.category,
+    };
+}
+
+export function toUpdateCardModels(entries: UpdateEntry[]): UpdateCardModel[] {
+    return entries.map(toUpdateCardModel);
 }
 
 type ModelEventBadgeMeta = {

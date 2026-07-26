@@ -1,13 +1,17 @@
 ---
-title: "Video generation (Beta)"
-badge: "Beta"
+title: "Generate a video"
+sidebarTitle: "Generate a video"
+tag: "Internal"
 openapi: "POST /videos"
----
-Creates an async video job and returns the job record immediately.
+description: |-
+  <Info>
+  **Internal testing.** The Video API is available only to enabled workspaces and may be temporarily disabled while its public contract is finalised. The API may change before general availability.
+  </Info>
 
-<Warning>
-The public video routes are currently mounted but temporarily disabled, so requests currently return `501 not_implemented` while this surface is being re-enabled.
-</Warning>
+  Create an async video generation job and poll the returned URL until the job reaches a terminal status.
+---
+
+Creates an async video job and returns the job record immediately.
 
 After creating a job:
 

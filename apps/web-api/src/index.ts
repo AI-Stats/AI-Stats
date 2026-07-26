@@ -5,6 +5,7 @@ import { internalRouter } from "@/routes/internal";
 import { chatRouter } from "@/routes/chat";
 import { publicRouter } from "@/routes/public";
 import { frontendRouter } from "@/routes/frontend";
+import { runScheduledWatchers } from "@/watchers/run";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -16,4 +17,10 @@ app.route("/api/_web", frontendRouter);
 
 app.notFound((c) => c.json({ error: "not_found" }, 404));
 
-export default app;
+const worker = Object.assign(app, {
+	scheduled(_controller: ScheduledController, env: Env, ctx: ExecutionContext) {
+		ctx.waitUntil(runScheduledWatchers(env, ctx));
+	},
+});
+
+export default worker;

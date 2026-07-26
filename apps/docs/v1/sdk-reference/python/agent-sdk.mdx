@@ -1,18 +1,19 @@
 ---
-title: "Usage"
-description: "Run a minimal local agent loop on top of Phaseo Gateway with the Python Agent SDK."
+icon: "bot"
+title: "Build your first agent"
+description: "Create and run a tool-ready agent with the Python Agent SDK."
 ---
 
-## Install
-
-```bash
-pip install phaseo phaseo-agent-sdk
-```
-
-## Quickstart
+Use this guide to run a Python agent while keeping tools and state inside your application.
 
 ```python
+import os
+
 from phaseo_agent import create_agent, create_gateway_agent_client
+
+client = create_gateway_agent_client(
+    client_options={"api_key": os.environ["PHASEO_API_KEY"]}
+)
 
 agent = create_agent({
     "id": "quickstart-agent",
@@ -20,22 +21,14 @@ agent = create_agent({
     "instructions": "Answer concisely and helpfully.",
 })
 
-result = agent.run(
-    input="Give me one fun fact about cURL.",
-    client=create_gateway_agent_client(),
-)
-
+result = agent.run(input="Give me one fun fact about cURL.", client=client)
 print(result.output)
 ```
 
-## What it ships
+## Next
 
-- `create_agent(...)`
-- `define_tool(...)`
-- `create_gateway_agent_client(...)`
-- a bounded tool loop over the Phaseo `responses` API
-
-## Related
-
-- [Agent SDK overview](../agent-sdk/overview.mdx)
-- [TypeScript Agent SDK](../typescript/agent-sdk.mdx)
+- [Define tools](./agent-sdk-tools)
+- [Stream a run](./agent-sdk-streaming)
+- [Pause and continue](./agent-sdk-state-and-approval)
+- [Control a run](./agent-sdk-run-controls)
+- [Observe runs](./agent-sdk-observability)

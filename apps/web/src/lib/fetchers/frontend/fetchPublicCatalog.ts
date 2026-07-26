@@ -702,6 +702,33 @@ export async function fetchFrontendMarketplacePresetDetail(
 	);
 }
 
+export async function fetchFrontendWebUpdates(
+	limit = 100,
+): Promise<UpdateCardProps[]> {
+	const payload = await fetchPublicWebApi<{ updates: UpdateCardProps[] }>(
+		`/api/_web/updates/web?limit=${encodeURIComponent(String(limit))}`,
+	);
+	return payload.updates;
+}
+
+export async function fetchFrontendYouTubeUpdates(
+	limit = 100,
+): Promise<UpdateCardProps[]> {
+	const payload = await fetchPublicWebApi<{ updates: UpdateCardProps[] }>(
+		`/api/_web/updates/youtube?limit=${encodeURIComponent(String(limit))}`,
+	);
+	return payload.updates;
+}
+
+export async function fetchFrontendUpdateCards(
+	limit = 5,
+): Promise<UpdateCardProps[]> {
+	const payload = await fetchPublicWebApi<{ updates: UpdateCardProps[] }>(
+		`/api/_web/updates/latest?limit=${encodeURIComponent(String(limit))}`,
+	);
+	return payload.updates;
+}
+
 export async function fetchFrontendModelUpdateCards(
 	limit = 5,
 	includeHidden = false,

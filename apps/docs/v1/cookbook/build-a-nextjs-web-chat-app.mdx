@@ -1,9 +1,14 @@
 ---
 title: "Build a Next.js Web Chat App"
+icon: "messages-square"
 description: "Use the existing Next.js sample chat app as a full walkthrough, with a copyable build prompt at the top."
 ---
 
 Use this page when you want a small Next.js chat app that feels real, but still keeps your Phaseo API key on the server.
+
+**Goal:** Run a browser chat app that discovers models and sends responses through server-side routes.
+
+**Outcome:** A working local chat interface with no Phaseo credentials exposed to the browser.
 
 <Prompt
   description="Build a **Next.js web chat app** on top of Phaseo Gateway."
@@ -83,6 +88,11 @@ The React client handles:
 
 The server route handles the AI call. The browser just handles the user experience.
 
+## Prerequisites
+
+- Node.js and one supported package manager
+- a Phaseo API key
+
 ## Run the sample
 
 <CodeGroup>
@@ -137,6 +147,13 @@ bun run dev
 </CodeGroup>
 
 Open `http://localhost:3000`.
+
+## Check your work
+
+- The model picker loads models from the server route.
+- Sending a message produces one assistant response.
+- The browser network panel does not expose `PHASEO_API_KEY`.
+- A failed gateway request appears as a useful error state in the UI.
 
 ## How to make it your own
 

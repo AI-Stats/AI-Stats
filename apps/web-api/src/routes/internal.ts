@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
+import { runWatcher, type WatcherKind } from "@/watchers/run";
 import { requireUser } from "@/auth/requireUser";
 import { getDataClient } from "@/data/supabase";
 import { validateCompatibility, type CompatibilityTarget } from "@/compatibility/validators";
@@ -178,6 +179,21 @@ internalRouter.post("/compatibility/validate", async (c) => {
 	if (!["openai.responses", "openai.chat.completions", "anthropic.messages"].includes(String(target))) return c.json({ error: "Invalid target" }, 400, PRIVATE_NO_STORE_HEADERS);
 	try { return c.json(await validateCompatibility(target, body.payload, { openai: c.env.COMPATIBILITY_OPENAI_SPEC_URL, anthropic: c.env.COMPATIBILITY_ANTHROPIC_SPEC_URL }), 200, PRIVATE_NO_STORE_HEADERS); }
 	catch (error) { return c.json({ error: "Failed to validate payload", details: error instanceof Error ? error.message : String(error) }, 500, PRIVATE_NO_STORE_HEADERS); }
+});
+
+internalRouter.post("/watchers/:kind", async (c) => {
+	const authorization = c.req.header("authorization");
+	if (!c.env.REVALIDATION_SECRET || authorization !== `Bearer ${c.env.REVALIDATION_SECRET}`) {
+		return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
+	}
+	const kind = c.req.param("kind") as WatcherKind;
+	if (kind !== "web" && kind !== "youtube") return c.json({ error: "invalid_watcher" }, 400, PRIVATE_NO_STORE_HEADERS);
+	try {
+		return c.json(await runWatcher(kind, c.env, c.executionCtx), 200, PRIVATE_NO_STORE_HEADERS);
+	} catch (error) {
+		console.error("manual_watcher_failed", { kind, error });
+		return c.json({ error: "watcher_failed" }, 500, PRIVATE_NO_STORE_HEADERS);
+	}
 });
 
 /**

@@ -1,15 +1,10 @@
 ---
-title: "Usage"
-description: "Run a minimal local agent loop on top of Phaseo Gateway with the PHP Agent SDK."
+icon: "bot"
+title: "Build your first agent"
+description: "Create and run a tool-ready agent with the PHP Agent SDK."
 ---
 
-## Install
-
-```bash
-composer require phaseo/php-sdk phaseo/agent-sdk-php
-```
-
-## Quickstart
+Use this guide to run a PHP agent while keeping tools and state inside your application.
 
 ```php
 <?php
@@ -32,14 +27,10 @@ $result = $agent->run(
 echo $result->output . PHP_EOL;
 ```
 
-## What it ships
+## Next
 
-- `AgentSdk::createAgent(...)`
-- `AgentSdk::defineTool(...)`
-- `AgentSdk::createGatewayAgentClient(...)`
-- a bounded tool loop over the Phaseo `responses` API
-
-## Related
-
-- [Agent SDK overview](../agent-sdk/overview.mdx)
-- [TypeScript Agent SDK](../typescript/agent-sdk.mdx)
+- [Define tools](./agent-sdk-tools)
+- [Stream a run](./agent-sdk-streaming)
+- [Pause and continue](./agent-sdk-state-and-approval)
+- [Control a run](./agent-sdk-run-controls)
+- [Observe runs](./agent-sdk-observability)

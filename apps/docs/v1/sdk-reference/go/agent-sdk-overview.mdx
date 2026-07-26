@@ -1,24 +1,31 @@
 ---
+icon: "compass"
 title: "Overview"
-description: "What the Go Agent SDK is for and what surface it currently exposes."
+description: "Build tool-using, resumable agents with the native Go runtime."
 ---
 
-The Go Agent SDK is a minimal local runtime for Phaseo Gateway.
+The Go Agent SDK is a full local runtime for Phaseo Gateway. It combines explicit run state with contexts, goroutine-backed tools, channels, and application-owned persistence.
 
-Use it when you want:
+## Native runtime model
 
-- a lightweight bounded tool loop
-- gateway-backed `responses` requests
-- app-owned control over persistence and orchestration
+- `context.Context` carries cancellation and timeout signals through model and tool work.
+- Bounded goroutines execute independent tools concurrently while preserving tool-result order.
+- Channels expose replayable model text and lifecycle events.
+- Validators and approval predicates keep tool boundaries explicit.
+- `StateAccessor` loads and saves run results through your own storage layer.
 
-## What it ships
+## Core capabilities
 
-- `CreateAgent(...)`
-- `DefineTool(...)`
-- `CreateGatewayAgentClient(...)`
-- a bounded tool loop over the Phaseo `responses` API
+| Area | Go API |
+| --- | --- |
+| Agents and tools | `CreateAgent(...)`, `DefineTool(...)`, `Tool` |
+| Gateway execution | `CreateGatewayAgentClient(...)` |
+| Continuation | `Agent.Continue(...)`, exact-ID decisions, and manual outputs |
+| Streaming | `Agent.Stream(...)`, `Text()`, `Events()`, and `Result()` |
+| Control | retries, contexts, timeouts, concurrency, stop conditions, and dynamic turns |
+| Observability | event handlers, normalized usage/cost, and Phaseo Devtools |
 
 ## Next
 
-- [Installation](./agent-sdk-installation.mdx)
-- [Usage](./agent-sdk.mdx)
+- [Installation](./agent-sdk-installation)
+- [Build with the Go Agent SDK](./agent-sdk)

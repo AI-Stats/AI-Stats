@@ -1,4 +1,7 @@
+"use client";
+
 import { ReactNode } from "react";
+import UpdateTabs from "@/components/updates/UpdateTabs";
 
 export default function UpdatesLayout({ children }: { children: ReactNode }) {
 	return (
@@ -9,6 +12,8 @@ export default function UpdatesLayout({ children }: { children: ReactNode }) {
 						Stay on top of the latest in AI
 					</h1>
 				</div>
+
+				<UpdateTabs />
 
 				<div className="my-4">{children}</div>
 			</div>

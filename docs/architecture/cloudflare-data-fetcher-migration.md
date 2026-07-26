@@ -190,6 +190,10 @@ The repository-wide residual audit is tracked in this order:
    consent, post-login lifecycle, compatibility validation, gateway
    benchmarking, and every chat/playground proxy are explicit no-store Worker
    routes.
+5. Web and YouTube watchers are Worker-owned scheduled handlers. They run every
+   30 minutes, write through the Worker service-role client, and purge the
+   affected updates cache tags after successful ingestion.
+
 The residual queue is empty. Supabase use retained in the web application is
 limited to session/authentication transport (session retrieval, password/MFA
 operations, and sign-out); it does not read or mutate application tables.

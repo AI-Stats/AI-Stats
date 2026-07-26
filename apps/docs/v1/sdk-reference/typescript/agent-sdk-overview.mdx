@@ -1,26 +1,40 @@
 ---
+icon: "compass"
 title: "Overview"
-description: "What the TypeScript Agent SDK is for and when to use it."
+description: "Build typed, tool-using agents with the reference Agent SDK runtime."
 ---
 
-Use the TypeScript Agent SDK when your app needs more than one-shot generation:
+The TypeScript Agent SDK defines the shared runtime contract implemented across the supported Agent SDK languages. Use it for typed tools, async streaming, approvals, dynamic turns, and application-owned resumability.
 
-- multi-step local tool loops
-- resumable run state
-- gateway-backed model turns
-- structured outputs and plugin-aware routing
+## Native runtime model
 
-It builds on top of `@phaseo/sdk` and is the most feature-complete Agent SDK in the current language set.
+- Async generators publish tool progress and return a final result.
+- Replayable async streams expose text, reasoning, items, tools, and full events.
+- Runtime schemas validate tool inputs, outputs, progress, and final output.
+- `AbortSignal` carries cancellation and timeout signals into local tools.
+- Async state accessors load and save complete run results through your storage layer.
 
-## What you get
+## Core capabilities
 
-- `createAgent()`
-- `defineTool()`
-- `createGatewayAgentClient()`
-- `continueRun()` and richer lifecycle hooks
-- support for local tool concurrency, human review pauses, and typed output parsing
+| Area | TypeScript API |
+| --- | --- |
+| Agents and tools | `createAgent(...)`, `defineTool(...)` |
+| Gateway execution | `createGatewayAgentClient(...)` |
+| Continuation | `continueRun(...)`, exact-ID decisions, and manual outputs |
+| Streaming | `stream(...)` with replayable text, reasoning, item, tool, and full streams |
+| Control | retries, cancellation, timeouts, concurrency, stop conditions, and dynamic turns |
+| Observability | typed lifecycle events, normalized usage/cost, and Phaseo Devtools |
+
+TypeScript is the API design reference, but Python, Go, C#, Java, PHP, and Ruby implement the same core behavior using their native runtime primitives.
 
 ## Next
 
-- [Installation](./agent-sdk-installation.mdx)
-- [Usage](./agent-sdk.mdx)
+- [Installation](./agent-sdk-installation)
+- [Build your first agent](./agent-sdk)
+- [Define and run tools](./agent-sdk-tools)
+- [Stream agent results](./agent-sdk-streaming)
+- [Render typed run items](./agent-sdk-items)
+- [Change later model turns](./agent-sdk-dynamic-turns)
+- [Stop an agent safely](./agent-sdk-stop-conditions)
+- [Pause, approve, and resume runs](./agent-sdk-state-and-approval)
+- [Browse the API reference](./agent-sdk-api-reference)

@@ -1,9 +1,14 @@
 ---
 title: "Build an OAuth Next.js Workbench"
+icon: "key-round"
 description: "Use the full OAuth Next.js example as a walkthrough for a signed-in gateway app with a unified proxy."
 ---
 
 Use this page when your product needs sign-in, session-backed gateway access, and more than a single chat route.
+
+**Goal:** Run the signed-in workbench and send Phaseo requests through one protected server-side proxy.
+
+**Outcome:** A local application with OAuth sign-in, session-backed tokens, model discovery, chat, and an endpoint tester.
 
 <Prompt
   description="Build a **signed-in Next.js workbench** with OAuth and a unified Phaseo proxy."
@@ -103,6 +108,12 @@ The workbench page is not only chat:
 
 That makes it useful for onboarding, QA, and internal debugging before you build a more polished end-user UI.
 
+## Prerequisites
+
+- Node.js and one supported package manager
+- an OAuth client configured with the local callback URL
+- a strong session secret
+
 ## Run the sample
 
 <CodeGroup>
@@ -161,6 +172,13 @@ bun run dev
 </CodeGroup>
 
 Open `http://localhost:3000`.
+
+## Check your work
+
+- Sign-in returns to the configured callback and creates a session.
+- The dashboard can discover models through the proxy.
+- One Responses API request completes without exposing an access token to the browser.
+- An endpoint outside the proxy allowlist is rejected.
 
 ## How to make it your own
 

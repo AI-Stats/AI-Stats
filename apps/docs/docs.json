@@ -29,34 +29,35 @@
 		}
 	},
 	"navigation": {
-		"versions": [
-			{
-				"version": "V1",
-				"tabs": [
+		"tabs": [
 					{
-						"tab": "Guides",
+						"tab": "Docs",
 						"icon": "book",
 						"groups": [
 							{
-								"group": "Start Here",
-								"icon": "rocket",
+								"group": "Overview",
+								"icon": "compass",
 								"expanded": true,
 								"pages": [
 									"v1/index",
 									"v1/quickstart",
-									"v1/guides/index",
-									"v1/guides/examples"
+									"v1/developers/introduction",
+									"v1/guides/examples",
+									"v1/guides/principles",
+									"v1/developers/authentication",
+									"v1/developers/integrating-with-the-gateway",
+									"v1/community/faq"
 								]
 							},
 							{
-								"group": "Core Concepts",
-								"icon": "compass",
+								"group": "Models & Routing",
+								"icon": "route",
 								"expanded": false,
 								"pages": [
-									"v1/developers/introduction",
-									"v1/developers/authentication",
-									"v1/developers/integrating-with-the-gateway",
-									"v1/guides/principles"
+									"v1/exploring/models",
+									"v1/exploring/api-providers",
+									"v1/guides/routing-and-fallbacks",
+									"v1/guides/provider-statuses"
 								]
 							},
 							{
@@ -64,49 +65,59 @@
 								"icon": "sparkles",
 								"expanded": false,
 								"pages": [
-									"v1/guides/routing-and-fallbacks",
+									"v1/guides/presets",
 									"v1/guides/service-tiers",
 									"v1/guides/prompt-caching",
-									"v1/guides/provider-statuses",
-									"v1/guides/presets",
 									"v1/guides/multimodality",
+									"v1/guides/tool-calling",
 									{
-										"group": "Tooling",
+										"group": "Server Tools",
+										"icon": "sparkles",
 										"expanded": false,
 										"pages": [
-											"v1/guides/tool-calling",
-											{
-												"group": "Server Tools",
-												"expanded": false,
-												"pages": [
-													"v1/guides/server-tools/index",
-													"v1/guides/server-tools/datetime",
-													"v1/guides/server-tools/web-search",
-													"v1/guides/server-tools/web-fetch",
-													"v1/guides/server-tools/advisor",
-													"v1/guides/server-tools/subagent",
-													"v1/guides/server-tools/fusion",
-													"v1/guides/server-tools/image-generation"
-												]
-											},
-											"v1/guides/tool-calling-patterns",
-											"v1/guides/tool-calling-safety",
+											"v1/guides/server-tools/index",
+											"v1/guides/server-tools/datetime",
+											"v1/guides/server-tools/web-search",
+											"v1/guides/server-tools/web-fetch",
+											"v1/guides/server-tools/advisor",
+											"v1/guides/server-tools/subagent",
+											"v1/guides/server-tools/fusion",
+											"v1/guides/server-tools/image-generation",
+											"v1/guides/server-tools/apply-patch"
+										]
+									},
+									{
+										"group": "Structured Outputs",
+										"icon": "braces",
+										"expanded": false,
+										"pages": [
 											"v1/guides/structured-outputs",
 											"v1/guides/structured-outputs-schemas",
 											"v1/guides/structured-outputs-validation"
 										]
 									},
 									{
-										"group": "Streaming",
+										"group": "Advanced Tool Calling",
+										"icon": "workflow",
 										"expanded": false,
 										"pages": [
-											"v1/guides/streaming",
+											"v1/guides/tool-calling-patterns",
+											"v1/guides/tool-calling-safety"
+										]
+									},
+									"v1/guides/streaming",
+									{
+										"group": "Streaming in Production",
+										"icon": "radio",
+										"expanded": false,
+										"pages": [
 											"v1/guides/streaming-sse",
 											"v1/guides/streaming-production"
 										]
 									},
 									{
 										"group": "Model Optimization",
+										"icon": "gauge",
 										"expanded": false,
 										"pages": [
 											"v1/guides/model-quantization",
@@ -129,73 +140,70 @@
 									"v1/guides/integrations/index",
 									"v1/guides/integrations/docs-mcp",
 									"v1/guides/integrations/phaseo-cli",
-									"v1/guides/integrations/openai-sdk",
-									"v1/guides/integrations/anthropic-sdk",
-									"v1/guides/integrations/ai-sdk",
-									"v1/guides/integrations/langchain",
-									"v1/guides/integrations/llamaindex",
-									"v1/guides/integrations/litellm",
-									"v1/guides/integrations/pydanticai",
-									"v1/guides/integrations/mastra",
-									"v1/guides/integrations/tanstack-ai",
-									"v1/guides/integrations/effect-ai",
 									"v1/guides/integrations/observability",
-									"v1/guides/integrations/coding-assistants",
-									"v1/guides/integrations/claude-code",
-									"v1/guides/integrations/codex",
-									"v1/guides/integrations/opencode"
-								]
-							},
-							{
-								"group": "Operations",
-								"icon": "wrench",
-								"expanded": false,
-								"pages": [
 									{
-										"group": "Reliability",
+										"group": "SDKs & Frameworks",
+										"icon": "blocks",
 										"expanded": false,
 										"pages": [
-											"v1/developers/rate-limits",
-											"v1/developers/error-handling",
-											"v1/developers/best-practices"
+											"v1/guides/integrations/openai-sdk",
+											"v1/guides/integrations/anthropic-sdk",
+											"v1/guides/integrations/ai-sdk",
+											"v1/guides/integrations/langchain",
+											"v1/guides/integrations/llamaindex",
+											"v1/guides/integrations/litellm",
+											"v1/guides/integrations/pydanticai",
+											"v1/guides/integrations/mastra",
+											"v1/guides/integrations/tanstack-ai",
+											"v1/guides/integrations/effect-ai"
 										]
 									},
 									{
-										"group": "Management",
+										"group": "Coding Assistants",
+										"icon": "bot",
 										"expanded": false,
 										"pages": [
-											"v1/developers/management-api-keys"
+											"v1/guides/integrations/coding-assistants",
+											"v1/guides/integrations/claude-code",
+											"v1/guides/integrations/codex",
+											"v1/guides/integrations/opencode"
 										]
 									}
 								]
 							},
 							{
-								"group": "Platform & Data",
+								"group": "Workspace & Access",
+								"icon": "users-round",
+								"expanded": false,
+								"pages": [
+									"v1/guides/workspaces",
+									"v1/developers/management-api-keys"
+								]
+							},
+							{
+								"group": "Reliability & Operations",
+								"icon": "shield-check",
+								"expanded": false,
+								"pages": [
+									"v1/developers/rate-limits",
+									"v1/developers/error-handling",
+									"v1/developers/best-practices"
+								]
+							},
+							{
+								"group": "Platform & Research",
 								"icon": "database",
 								"expanded": false,
 								"pages": [
-									{
-										"group": "Platform",
-										"expanded": false,
-										"pages": [
-											"v1/pricing/tiers",
-											"v1/exploring/overview",
-											"v1/exploring/subscription-plans"
-										]
-									},
-									{
-										"group": "Catalog and Benchmarks",
-										"expanded": false,
-										"pages": [
-											"v1/exploring/models",
-											"v1/exploring/organisations",
-											"v1/exploring/api-providers",
-											"v1/exploring/benchmarks",
-											"v1/exploring/pricing-performance"
-										]
-									},
+									"v1/exploring/overview",
+									"v1/pricing/tiers",
+									"v1/exploring/subscription-plans",
+									"v1/exploring/organisations",
+									"v1/exploring/benchmarks",
+									"v1/exploring/pricing-performance",
 									{
 										"group": "Research",
+										"icon": "microscope",
 										"expanded": false,
 										"pages": [
 											"v1/research/benchmark-methodology",
@@ -213,6 +221,7 @@
 									"v1/migration-guides/index",
 									{
 										"group": "Model Migrations",
+										"icon": "brain-circuit",
 										"expanded": false,
 										"pages": [
 											"v1/model-migrations/index",
@@ -230,8 +239,10 @@
 									},
 									{
 										"group": "Platform Migrations",
+										"icon": "arrow-right-left",
 										"expanded": false,
 										"pages": [
+											"v1/migration-guides/assistant",
                                                                         "v1/migration-guides/from-openai",
                                                                         "v1/migration-guides/from-anthropic",
                                                                         "v1/migration-guides/from-openrouter",
@@ -240,9 +251,15 @@
                                                                         "v1/migration-guides/from-cloudflare",
                                                                         "v1/migration-guides/from-helicone",
                                                                         "v1/migration-guides/from-litellm",
-                                                                        "v1/migration-guides/gateway-parity-review",
-                                                                        "v1/migration-guides/feature-parity-matrix",
-                                                                        "v1/migration-guides/assistant"
+											{
+												"group": "Planning & Validation",
+												"icon": "clipboard-check",
+												"expanded": false,
+												"pages": [
+													"v1/migration-guides/gateway-parity-review",
+													"v1/migration-guides/feature-parity-matrix"
+												]
+											}
                                                                         ]
                                                                 }
                                                         ]
@@ -252,32 +269,20 @@
 								"icon": "life-buoy",
 								"expanded": false,
 								"pages": [
+									"v1/community/contact-and-support",
+									"v1/contributing/overview",
 									{
-										"group": "Support",
+										"group": "Contribution Guides",
+										"icon": "handshake",
 										"expanded": false,
 										"pages": [
-											"v1/community/faq",
-											"v1/community/contact-and-support"
-										]
-									},
-									{
-										"group": "Contributing",
-										"expanded": false,
-										"pages": [
-											"v1/contributing/overview",
 											"v1/contributing/how-to-contribute",
 											"v1/contributing/repo-structure",
 											"v1/contributing/editing-a-model",
 											"v1/contributing/editing-an-organisation"
 										]
 									},
-									{
-										"group": "Governance",
-										"expanded": false,
-										"pages": [
-											"v1/community/code-of-conduct"
-										]
-									}
+									"v1/community/code-of-conduct"
 								]
 							}
 						]
@@ -292,121 +297,40 @@
 								"expanded": true,
 								"pages": [
 									"v1/api-reference/introduction",
-									"v1/api-reference/streaming",
-									"v1/api-reference/limits",
 									"v1/api-reference/authentication",
 									"v1/api-reference/parameters",
+									"v1/api-reference/streaming",
+									"v1/api-reference/async-lifecycle-updates",
+									"v1/api-reference/limits",
 									"v1/api-reference/errors"
 								]
 							},
 							{
-								"group": "API Endpoints",
+								"group": "API Reference",
 								"icon": "square-terminal",
 								"expanded": true,
 								"pages": [
 									{
-										"group": "Text",
-										"expanded": true,
+										"group": "Responses API",
+										"expanded": false,
 										"pages": [
-											"v1/api-reference/endpoint/responses",
-											"v1/api-reference/endpoint/chat-completions",
+											"v1/api-reference/endpoint/responses"
+										]
+									},
+									{
+										"group": "Chat",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/chat-completions"
+										]
+									},
+									{
+										"group": "Anthropic Messages",
+										"expanded": false,
+										"pages": [
 											"v1/api-reference/endpoint/anthropic-messages"
 										]
 									},
-									{
-										"group": "Image Generation",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/images-generations",
-											"v1/api-reference/endpoint/images-edits"
-										]
-									},
-									{
-										"group": "Video",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/video-generation",
-											"v1/api-reference/endpoint/video-list",
-											"v1/api-reference/endpoint/video-models",
-											"v1/api-reference/endpoint/video-status",
-											"v1/api-reference/endpoint/video-content",
-											"v1/api-reference/endpoint/video-download-url",
-											"v1/api-reference/endpoint/video-cancel",
-											"v1/api-reference/endpoint/video-delete"
-										]
-									},
-									{
-										"group": "Audio",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/audio-speech",
-											"v1/api-reference/endpoint/audio-transcriptions",
-											"v1/api-reference/endpoint/audio-translations"
-										]
-									},
-									{
-										"group": "Music",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/music-generate",
-											"v1/api-reference/endpoint/music-status"
-										]
-									},
-									{
-										"group": "Embeddings",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/embeddings"
-										]
-									},
-									{
-										"group": "Moderations",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/moderations"
-										]
-									},
-									{
-										"group": "OCR",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/ocr"
-										]
-									},
-									{
-										"group": "Batch",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/batches",
-											"v1/api-reference/endpoint/batches-list",
-											"v1/api-reference/endpoint/batches-models",
-											"v1/api-reference/endpoint/batches-status",
-											"v1/api-reference/endpoint/batches-cancel"
-										]
-									},
-									{
-										"group": "Files",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/files",
-											"v1/api-reference/endpoint/files-list",
-											"v1/api-reference/endpoint/files-retrieve"
-										]
-									},
-									{
-										"group": "Async Jobs",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/async-jobs-ws"
-										]
-									}
-								]
-							},
-							{
-								"group": "Administration APIs",
-								"icon": "settings",
-								"expanded": false,
-								"pages": [
 									{
 										"group": "Models",
 										"expanded": false,
@@ -429,18 +353,81 @@
 										]
 									},
 									{
-										"group": "Organisations",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/organisations"
-										]
-									},
-									{
 										"group": "Pricing",
 										"expanded": false,
 										"pages": [
 											"v1/api-reference/endpoint/pricing-models",
 											"v1/api-reference/endpoint/pricing-calculate"
+										]
+									},
+									{
+										"group": "Embeddings",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/embeddings"
+										]
+									},
+									{
+										"group": "Images",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/images-generations",
+											"v1/api-reference/endpoint/images-edits"
+										]
+									},
+									{
+										"group": "TTS",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/audio-speech"
+										]
+									},
+									{
+										"group": "STT",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/audio-transcriptions",
+											"v1/api-reference/endpoint/audio-translations"
+										]
+									},
+									{
+										"group": "Music Generation",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/music-generate",
+											"v1/api-reference/endpoint/music-status"
+										]
+									},
+									{
+										"group": "Moderations",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/moderations"
+										]
+									},
+									{
+										"group": "OCR",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/ocr"
+										]
+									},
+									{
+										"group": "Files",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/files",
+											"v1/api-reference/endpoint/files-list",
+											"v1/api-reference/endpoint/files-retrieve",
+											"v1/api-reference/endpoint/files-content"
+										]
+									},
+									{
+										"group": "Generations",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/generation"
 										]
 									},
 									{
@@ -455,20 +442,6 @@
 										"expanded": false,
 										"pages": [
 											"v1/api-reference/endpoint/credits"
-										]
-									},
-									{
-										"group": "Guardrails",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/guardrails"
-										]
-									},
-									{
-										"group": "Generation",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/generation"
 										]
 									},
 									{
@@ -493,6 +466,56 @@
 											"v1/api-reference/endpoint/workspaces-delete",
 											"v1/api-reference/endpoint/workspaces-update"
 										]
+									},
+									{
+										"group": "Organisations",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/organisations"
+										]
+									},
+									{
+										"group": "Realtime",
+										"tag": "Internal",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/realtime"
+										]
+									},
+									{
+										"group": "Video Generation",
+										"tag": "Internal",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/video-generation",
+											"v1/api-reference/endpoint/video-list",
+											"v1/api-reference/endpoint/video-models",
+											"v1/api-reference/endpoint/video-status",
+											"v1/api-reference/endpoint/video-content",
+											"v1/api-reference/endpoint/video-download-url",
+											"v1/api-reference/endpoint/video-cancel",
+											"v1/api-reference/endpoint/video-delete"
+										]
+									},
+									{
+										"group": "Batches",
+										"tag": "Internal",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/batches",
+											"v1/api-reference/endpoint/batches-list",
+											"v1/api-reference/endpoint/batches-models",
+											"v1/api-reference/endpoint/batches-status",
+											"v1/api-reference/endpoint/batches-cancel"
+										]
+									},
+									{
+										"group": "Guardrails",
+										"tag": "Coming soon",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/guardrails"
+										]
 									}
 								]
 							}
@@ -504,15 +527,18 @@
 						"menu": [
 							{
 								"item": "AI SDK (Vercel)",
+								"icon": "/icons/brands/vercel.svg",
 								"groups": [
 									{
 										"group": "Introduction",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/sdk/ai-sdk"
 										]
 									},
 									{
 										"group": "Text",
+										"icon": "message-square-text",
 										"pages": [
 											"v1/sdk-reference/sdk/generate-text/index",
 											"v1/sdk-reference/sdk/stream-text/index",
@@ -522,6 +548,7 @@
 									},
 									{
 										"group": "Multimodal",
+										"icon": "shapes",
 										"pages": [
 											"v1/sdk-reference/sdk/embeddings/index",
 											"v1/sdk-reference/sdk/images/index",
@@ -530,6 +557,7 @@
 									},
 									{
 										"group": "Models",
+										"icon": "brain-circuit",
 										"pages": [
 											"v1/sdk-reference/sdk/get-models/index"
 										]
@@ -538,9 +566,11 @@
 							},
 							{
 								"item": "TypeScript SDK",
+								"icon": "/icons/languages/typescript.svg",
 								"groups": [
 									{
 										"group": "Introduction",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/typescript/overview",
 											"v1/sdk-reference/typescript/installation",
@@ -549,6 +579,7 @@
 									},
 									{
 										"group": "Text",
+										"icon": "message-square-text",
 										"pages": [
 											"v1/sdk-reference/typescript/responses",
 											"v1/sdk-reference/typescript/chat-completions"
@@ -556,6 +587,7 @@
 									},
 									{
 										"group": "Image",
+										"icon": "image",
 										"pages": [
 											"v1/sdk-reference/typescript/images-generations",
 											"v1/sdk-reference/typescript/images-edits"
@@ -563,6 +595,7 @@
 									},
 									{
 										"group": "Audio",
+										"icon": "audio-lines",
 										"pages": [
 											"v1/sdk-reference/typescript/audio-speech",
 											"v1/sdk-reference/typescript/audio-transcriptions",
@@ -571,12 +604,14 @@
 									},
 									{
 										"group": "Video",
+										"icon": "video",
 										"pages": [
 											"v1/sdk-reference/typescript/video-generation"
 										]
 									},
 									{
 										"group": "Specialised",
+										"icon": "blocks",
 										"pages": [
 											"v1/sdk-reference/typescript/embeddings",
 											"v1/sdk-reference/typescript/moderations",
@@ -586,6 +621,7 @@
 									},
 									{
 										"group": "Admin",
+										"icon": "settings-2",
 										"pages": [
 											"v1/sdk-reference/typescript/models",
 											"v1/sdk-reference/typescript/generation"
@@ -594,24 +630,12 @@
 								]
 							},
 							{
-								"item": "TypeScript Agent SDK",
-								"groups": [
-									{
-										"group": "Introduction",
-										"pages": [
-											"v1/sdk-reference/agent-sdk/overview",
-											"v1/sdk-reference/typescript/agent-sdk-overview",
-											"v1/sdk-reference/typescript/agent-sdk-installation",
-											"v1/sdk-reference/typescript/agent-sdk"
-										]
-									}
-								]
-							},
-							{
 								"item": "Python SDK",
+								"icon": "/icons/languages/python.svg",
 								"groups": [
 									{
 										"group": "Introduction",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/python/overview",
 											"v1/sdk-reference/python/installation",
@@ -620,6 +644,7 @@
 									},
 									{
 										"group": "Supported Now",
+										"icon": "circle-check",
 										"pages": [
 											"v1/sdk-reference/python/responses",
 											"v1/sdk-reference/python/chat-completions",
@@ -630,6 +655,7 @@
 									},
 									{
 										"group": "Coming Soon in SDK",
+										"icon": "clock-3",
 										"pages": [
 											"v1/sdk-reference/python/images-generations",
 											"v1/sdk-reference/python/images-edits",
@@ -646,9 +672,11 @@
 							},
 							{
 								"item": "Go SDK",
+								"icon": "/icons/languages/go.svg",
 								"groups": [
 									{
 										"group": "Introduction",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/go/overview",
 											"v1/sdk-reference/go/installation",
@@ -657,6 +685,7 @@
 									},
 									{
 										"group": "Text",
+										"icon": "message-square-text",
 										"pages": [
 											"v1/sdk-reference/go/responses",
 											"v1/sdk-reference/go/chat-completions"
@@ -664,6 +693,7 @@
 									},
 									{
 										"group": "Image",
+										"icon": "image",
 										"pages": [
 											"v1/sdk-reference/go/images-generations",
 											"v1/sdk-reference/go/images-edits"
@@ -671,6 +701,7 @@
 									},
 									{
 										"group": "Audio",
+										"icon": "audio-lines",
 										"pages": [
 											"v1/sdk-reference/go/audio-speech",
 											"v1/sdk-reference/go/audio-transcriptions",
@@ -679,12 +710,14 @@
 									},
 									{
 										"group": "Video",
+										"icon": "video",
 										"pages": [
 											"v1/sdk-reference/go/video-generation"
 										]
 									},
 									{
 										"group": "Specialised",
+										"icon": "blocks",
 										"pages": [
 											"v1/sdk-reference/go/embeddings",
 											"v1/sdk-reference/go/moderations",
@@ -694,6 +727,7 @@
 									},
 									{
 										"group": "Admin",
+										"icon": "settings-2",
 										"pages": [
 											"v1/sdk-reference/go/models",
 											"v1/sdk-reference/go/generation"
@@ -703,9 +737,11 @@
 							},
 							{
 								"item": "C# SDK",
+								"icon": "/icons/languages/csharp.svg",
 								"groups": [
 									{
 										"group": "Introduction",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/csharp/overview",
 											"v1/sdk-reference/csharp/installation",
@@ -714,6 +750,7 @@
 									},
 									{
 										"group": "Text",
+										"icon": "message-square-text",
 										"pages": [
 											"v1/sdk-reference/csharp/responses",
 											"v1/sdk-reference/csharp/chat-completions"
@@ -721,6 +758,7 @@
 									},
 									{
 										"group": "Image",
+										"icon": "image",
 										"pages": [
 											"v1/sdk-reference/csharp/images-generations",
 											"v1/sdk-reference/csharp/images-edits"
@@ -728,6 +766,7 @@
 									},
 									{
 										"group": "Audio",
+										"icon": "audio-lines",
 										"pages": [
 											"v1/sdk-reference/csharp/audio-speech",
 											"v1/sdk-reference/csharp/audio-transcriptions",
@@ -736,12 +775,14 @@
 									},
 									{
 										"group": "Video",
+										"icon": "video",
 										"pages": [
 											"v1/sdk-reference/csharp/video-generation"
 										]
 									},
 									{
 										"group": "Specialised",
+										"icon": "blocks",
 										"pages": [
 											"v1/sdk-reference/csharp/embeddings",
 											"v1/sdk-reference/csharp/moderations",
@@ -751,6 +792,7 @@
 									},
 									{
 										"group": "Admin",
+										"icon": "settings-2",
 										"pages": [
 											"v1/sdk-reference/csharp/models",
 											"v1/sdk-reference/csharp/generation"
@@ -760,9 +802,11 @@
 							},
 							{
 								"item": "PHP SDK",
+								"icon": "/icons/languages/php.svg",
 								"groups": [
 									{
 										"group": "Introduction",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/php/overview",
 											"v1/sdk-reference/php/installation",
@@ -771,6 +815,7 @@
 									},
 									{
 										"group": "Text",
+										"icon": "message-square-text",
 										"pages": [
 											"v1/sdk-reference/php/responses",
 											"v1/sdk-reference/php/chat-completions"
@@ -778,6 +823,7 @@
 									},
 									{
 										"group": "Image",
+										"icon": "image",
 										"pages": [
 											"v1/sdk-reference/php/images-generations",
 											"v1/sdk-reference/php/images-edits"
@@ -785,6 +831,7 @@
 									},
 									{
 										"group": "Audio",
+										"icon": "audio-lines",
 										"pages": [
 											"v1/sdk-reference/php/audio-speech",
 											"v1/sdk-reference/php/audio-transcriptions",
@@ -793,12 +840,14 @@
 									},
 									{
 										"group": "Video",
+										"icon": "video",
 										"pages": [
 											"v1/sdk-reference/php/video-generation"
 										]
 									},
 									{
 										"group": "Specialised",
+										"icon": "blocks",
 										"pages": [
 											"v1/sdk-reference/php/embeddings",
 											"v1/sdk-reference/php/moderations",
@@ -808,6 +857,7 @@
 									},
 									{
 										"group": "Admin",
+										"icon": "settings-2",
 										"pages": [
 											"v1/sdk-reference/php/models",
 											"v1/sdk-reference/php/generation"
@@ -817,9 +867,11 @@
 							},
 							{
 								"item": "Ruby SDK",
+								"icon": "/icons/languages/ruby.svg",
 								"groups": [
 									{
 										"group": "Introduction",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/ruby/overview",
 											"v1/sdk-reference/ruby/installation",
@@ -828,6 +880,7 @@
 									},
 									{
 										"group": "Text",
+										"icon": "message-square-text",
 										"pages": [
 											"v1/sdk-reference/ruby/responses",
 											"v1/sdk-reference/ruby/chat-completions"
@@ -835,6 +888,7 @@
 									},
 									{
 										"group": "Image",
+										"icon": "image",
 										"pages": [
 											"v1/sdk-reference/ruby/images-generations",
 											"v1/sdk-reference/ruby/images-edits"
@@ -842,6 +896,7 @@
 									},
 									{
 										"group": "Audio",
+										"icon": "audio-lines",
 										"pages": [
 											"v1/sdk-reference/ruby/audio-speech",
 											"v1/sdk-reference/ruby/audio-transcriptions",
@@ -850,12 +905,14 @@
 									},
 									{
 										"group": "Video",
+										"icon": "video",
 										"pages": [
 											"v1/sdk-reference/ruby/video-generation"
 										]
 									},
 									{
 										"group": "Specialised",
+										"icon": "blocks",
 										"pages": [
 											"v1/sdk-reference/ruby/embeddings",
 											"v1/sdk-reference/ruby/moderations",
@@ -865,6 +922,7 @@
 									},
 									{
 										"group": "Admin",
+										"icon": "settings-2",
 										"pages": [
 											"v1/sdk-reference/ruby/models",
 											"v1/sdk-reference/ruby/generation"
@@ -874,9 +932,11 @@
 							},
 							{
 								"item": "Java SDK",
+								"icon": "/icons/languages/java.svg",
 								"groups": [
 									{
 										"group": "Introduction",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/java/overview",
 											"v1/sdk-reference/java/installation",
@@ -885,6 +945,7 @@
 									},
 									{
 										"group": "Text",
+										"icon": "message-square-text",
 										"pages": [
 											"v1/sdk-reference/java/responses",
 											"v1/sdk-reference/java/chat-completions"
@@ -892,6 +953,7 @@
 									},
 									{
 										"group": "Image",
+										"icon": "image",
 										"pages": [
 											"v1/sdk-reference/java/images-generations",
 											"v1/sdk-reference/java/images-edits"
@@ -899,6 +961,7 @@
 									},
 									{
 										"group": "Audio",
+										"icon": "audio-lines",
 										"pages": [
 											"v1/sdk-reference/java/audio-speech",
 											"v1/sdk-reference/java/audio-transcriptions",
@@ -907,12 +970,14 @@
 									},
 									{
 										"group": "Video",
+										"icon": "video",
 										"pages": [
 											"v1/sdk-reference/java/video-generation"
 										]
 									},
 									{
 										"group": "Specialised",
+										"icon": "blocks",
 										"pages": [
 											"v1/sdk-reference/java/embeddings",
 											"v1/sdk-reference/java/moderations",
@@ -922,6 +987,7 @@
 									},
 									{
 										"group": "Admin",
+										"icon": "settings-2",
 										"pages": [
 											"v1/sdk-reference/java/models",
 											"v1/sdk-reference/java/generation"
@@ -931,9 +997,11 @@
 							},
 							{
 								"item": "Rust SDK",
+								"icon": "/icons/languages/rust.svg",
 								"groups": [
 									{
 										"group": "Introduction",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/rust/overview",
 											"v1/sdk-reference/rust/installation"
@@ -943,9 +1011,11 @@
 							},
 							{
 								"item": "C++ SDK",
+								"icon": "/icons/languages/c-plusplus.svg",
 								"groups": [
 									{
 										"group": "Introduction",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/cpp/overview",
 											"v1/sdk-reference/cpp/installation"
@@ -961,9 +1031,11 @@
 						"menu": [
 							{
 								"item": "Overview",
+								"icon": "compass",
 								"groups": [
 									{
-										"group": "Introduction",
+										"group": "Start Here",
+										"icon": "rocket",
 										"pages": [
 											"v1/sdk-reference/agent-sdk/overview"
 										]
@@ -972,79 +1044,316 @@
 							},
 							{
 								"item": "TypeScript Agent SDK",
+								"icon": "/icons/languages/typescript.svg",
 								"groups": [
 									{
-										"group": "Introduction",
+										"group": "Start Here",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/typescript/agent-sdk-overview",
-											"v1/sdk-reference/typescript/agent-sdk-installation",
-											"v1/sdk-reference/typescript/agent-sdk"
+											"v1/sdk-reference/typescript/agent-sdk-installation"
+										]
+									},
+									{
+										"group": "Build",
+										"icon": "workflow",
+										"pages": [
+											"v1/sdk-reference/typescript/agent-sdk",
+											"v1/sdk-reference/typescript/agent-sdk-tools",
+											"v1/sdk-reference/typescript/agent-sdk-streaming",
+											"v1/sdk-reference/typescript/agent-sdk-items",
+											"v1/sdk-reference/typescript/agent-sdk-dynamic-turns",
+											"v1/sdk-reference/typescript/agent-sdk-stop-conditions",
+											"v1/sdk-reference/typescript/agent-sdk-state-and-approval",
+											"v1/sdk-reference/typescript/agent-sdk-run-controls"
+										]
+									},
+									{
+										"group": "Observe",
+										"icon": "activity",
+										"pages": [
+											"v1/sdk-reference/typescript/agent-sdk-lifecycle-hooks",
+											"v1/sdk-reference/typescript/agent-sdk-devtools"
+										]
+									},
+									{
+										"group": "Reference",
+										"icon": "book-open",
+										"pages": [
+											"v1/sdk-reference/typescript/agent-sdk-api-reference",
+											"v1/sdk-reference/typescript/agent-sdk-examples",
+											"v1/sdk-reference/typescript/agent-sdk-events-and-errors"
 										]
 									}
 								]
 							},
 							{
 								"item": "Python Agent SDK",
+								"icon": "/icons/languages/python.svg",
 								"groups": [
 									{
-										"group": "Introduction",
+										"group": "Start Here",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/python/agent-sdk-overview",
-											"v1/sdk-reference/python/agent-sdk-installation",
-											"v1/sdk-reference/python/agent-sdk"
+											"v1/sdk-reference/python/agent-sdk-installation"
 										]
+									},
+									{
+										"group": "Build",
+										"icon": "workflow",
+										"pages": [
+											"v1/sdk-reference/python/agent-sdk",
+											"v1/sdk-reference/python/agent-sdk-tools",
+											"v1/sdk-reference/python/agent-sdk-streaming",
+											"v1/sdk-reference/python/agent-sdk-items",
+											"v1/sdk-reference/python/agent-sdk-dynamic-turns",
+											"v1/sdk-reference/python/agent-sdk-stop-conditions",
+											"v1/sdk-reference/python/agent-sdk-state-and-approval",
+											"v1/sdk-reference/python/agent-sdk-run-controls"
+										]
+									},
+									{
+										"group": "Observe",
+										"icon": "activity",
+									"pages": [
+										"v1/sdk-reference/python/agent-sdk-lifecycle-hooks",
+										"v1/sdk-reference/python/agent-sdk-devtools"
+									]
+									},
+									{
+										"group": "Reference",
+										"icon": "book-open",
+									"pages": [
+										"v1/sdk-reference/python/agent-sdk-api-reference",
+										"v1/sdk-reference/python/agent-sdk-examples",
+										"v1/sdk-reference/python/agent-sdk-observability"
+									]
 									}
 								]
 							},
 							{
 								"item": "Go Agent SDK",
+								"icon": "/icons/languages/go.svg",
 								"groups": [
 									{
-										"group": "Introduction",
+										"group": "Start Here",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/go/agent-sdk-overview",
-											"v1/sdk-reference/go/agent-sdk-installation",
-											"v1/sdk-reference/go/agent-sdk"
+											"v1/sdk-reference/go/agent-sdk-installation"
 										]
+									},
+									{
+										"group": "Build",
+										"icon": "workflow",
+										"pages": [
+											"v1/sdk-reference/go/agent-sdk",
+											"v1/sdk-reference/go/agent-sdk-tools",
+											"v1/sdk-reference/go/agent-sdk-streaming",
+											"v1/sdk-reference/go/agent-sdk-items",
+											"v1/sdk-reference/go/agent-sdk-dynamic-turns",
+											"v1/sdk-reference/go/agent-sdk-stop-conditions",
+											"v1/sdk-reference/go/agent-sdk-state-and-approval",
+											"v1/sdk-reference/go/agent-sdk-run-controls"
+										]
+									},
+									{
+										"group": "Observe",
+										"icon": "activity",
+									"pages": [
+										"v1/sdk-reference/go/agent-sdk-lifecycle-hooks",
+										"v1/sdk-reference/go/agent-sdk-devtools"
+									]
+									},
+									{
+										"group": "Reference",
+										"icon": "book-open",
+									"pages": [
+										"v1/sdk-reference/go/agent-sdk-api-reference",
+										"v1/sdk-reference/go/agent-sdk-examples",
+										"v1/sdk-reference/go/agent-sdk-observability"
+									]
 									}
 								]
 							},
 							{
 								"item": "C# Agent SDK",
+								"icon": "/icons/languages/csharp.svg",
 								"groups": [
 									{
-										"group": "Introduction",
+										"group": "Start Here",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/csharp/agent-sdk-overview",
-											"v1/sdk-reference/csharp/agent-sdk-installation",
-											"v1/sdk-reference/csharp/agent-sdk"
+											"v1/sdk-reference/csharp/agent-sdk-installation"
 										]
+									},
+									{
+										"group": "Build",
+										"icon": "workflow",
+										"pages": [
+											"v1/sdk-reference/csharp/agent-sdk",
+											"v1/sdk-reference/csharp/agent-sdk-tools",
+											"v1/sdk-reference/csharp/agent-sdk-streaming",
+											"v1/sdk-reference/csharp/agent-sdk-items",
+											"v1/sdk-reference/csharp/agent-sdk-dynamic-turns",
+											"v1/sdk-reference/csharp/agent-sdk-stop-conditions",
+											"v1/sdk-reference/csharp/agent-sdk-state-and-approval",
+											"v1/sdk-reference/csharp/agent-sdk-run-controls"
+										]
+									},
+									{
+										"group": "Observe",
+										"icon": "activity",
+									"pages": [
+										"v1/sdk-reference/csharp/agent-sdk-lifecycle-hooks",
+										"v1/sdk-reference/csharp/agent-sdk-devtools"
+									]
+									},
+									{
+										"group": "Reference",
+										"icon": "book-open",
+									"pages": [
+										"v1/sdk-reference/csharp/agent-sdk-api-reference",
+										"v1/sdk-reference/csharp/agent-sdk-examples",
+										"v1/sdk-reference/csharp/agent-sdk-observability"
+									]
+									}
+								]
+							},
+							{
+								"item": "Java Agent SDK",
+								"icon": "/icons/languages/java.svg",
+								"groups": [
+									{
+										"group": "Start Here",
+										"icon": "book-open",
+										"pages": [
+											"v1/sdk-reference/java/agent-sdk-overview",
+											"v1/sdk-reference/java/agent-sdk-installation"
+										]
+									},
+									{
+										"group": "Build",
+										"icon": "workflow",
+										"pages": [
+											"v1/sdk-reference/java/agent-sdk",
+											"v1/sdk-reference/java/agent-sdk-tools",
+											"v1/sdk-reference/java/agent-sdk-streaming",
+											"v1/sdk-reference/java/agent-sdk-items",
+											"v1/sdk-reference/java/agent-sdk-dynamic-turns",
+											"v1/sdk-reference/java/agent-sdk-stop-conditions",
+											"v1/sdk-reference/java/agent-sdk-state-and-approval",
+											"v1/sdk-reference/java/agent-sdk-run-controls"
+										]
+									},
+									{
+										"group": "Observe",
+										"icon": "activity",
+									"pages": [
+										"v1/sdk-reference/java/agent-sdk-lifecycle-hooks",
+										"v1/sdk-reference/java/agent-sdk-devtools"
+									]
+									},
+									{
+										"group": "Reference",
+										"icon": "book-open",
+									"pages": [
+										"v1/sdk-reference/java/agent-sdk-api-reference",
+										"v1/sdk-reference/java/agent-sdk-examples",
+										"v1/sdk-reference/java/agent-sdk-observability"
+									]
 									}
 								]
 							},
 							{
 								"item": "PHP Agent SDK",
+								"icon": "/icons/languages/php.svg",
 								"groups": [
 									{
-										"group": "Introduction",
+										"group": "Start Here",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/php/agent-sdk-overview",
-											"v1/sdk-reference/php/agent-sdk-installation",
-											"v1/sdk-reference/php/agent-sdk"
+											"v1/sdk-reference/php/agent-sdk-installation"
 										]
+									},
+									{
+										"group": "Build",
+										"icon": "workflow",
+										"pages": [
+											"v1/sdk-reference/php/agent-sdk",
+											"v1/sdk-reference/php/agent-sdk-tools",
+											"v1/sdk-reference/php/agent-sdk-streaming",
+											"v1/sdk-reference/php/agent-sdk-items",
+											"v1/sdk-reference/php/agent-sdk-dynamic-turns",
+											"v1/sdk-reference/php/agent-sdk-stop-conditions",
+											"v1/sdk-reference/php/agent-sdk-state-and-approval",
+											"v1/sdk-reference/php/agent-sdk-run-controls"
+										]
+									},
+									{
+										"group": "Observe",
+										"icon": "activity",
+									"pages": [
+										"v1/sdk-reference/php/agent-sdk-lifecycle-hooks",
+										"v1/sdk-reference/php/agent-sdk-devtools"
+									]
+									},
+									{
+										"group": "Reference",
+										"icon": "book-open",
+									"pages": [
+										"v1/sdk-reference/php/agent-sdk-api-reference",
+										"v1/sdk-reference/php/agent-sdk-examples",
+										"v1/sdk-reference/php/agent-sdk-observability"
+									]
 									}
 								]
 							},
 							{
 								"item": "Ruby Agent SDK",
+								"icon": "/icons/languages/ruby.svg",
 								"groups": [
 									{
-										"group": "Introduction",
+										"group": "Start Here",
+										"icon": "book-open",
 										"pages": [
 											"v1/sdk-reference/ruby/agent-sdk-overview",
-											"v1/sdk-reference/ruby/agent-sdk-installation",
-											"v1/sdk-reference/ruby/agent-sdk"
+											"v1/sdk-reference/ruby/agent-sdk-installation"
 										]
+									},
+									{
+										"group": "Build",
+										"icon": "workflow",
+										"pages": [
+											"v1/sdk-reference/ruby/agent-sdk",
+											"v1/sdk-reference/ruby/agent-sdk-tools",
+											"v1/sdk-reference/ruby/agent-sdk-streaming",
+											"v1/sdk-reference/ruby/agent-sdk-items",
+											"v1/sdk-reference/ruby/agent-sdk-dynamic-turns",
+											"v1/sdk-reference/ruby/agent-sdk-stop-conditions",
+											"v1/sdk-reference/ruby/agent-sdk-state-and-approval",
+											"v1/sdk-reference/ruby/agent-sdk-run-controls"
+										]
+									},
+									{
+										"group": "Observe",
+										"icon": "activity",
+									"pages": [
+										"v1/sdk-reference/ruby/agent-sdk-lifecycle-hooks",
+										"v1/sdk-reference/ruby/agent-sdk-devtools"
+									]
+									},
+									{
+										"group": "Reference",
+										"icon": "book-open",
+									"pages": [
+										"v1/sdk-reference/ruby/agent-sdk-api-reference",
+										"v1/sdk-reference/ruby/agent-sdk-examples",
+										"v1/sdk-reference/ruby/agent-sdk-observability"
+									]
 									}
 								]
 							}
@@ -1060,11 +1369,12 @@
 								"expanded": true,
 								"pages": [
 									"v1/cookbook/index",
-									"v1/cookbook/free-router-first-deploy"
+									"v1/cookbook/free-router-first-deploy",
+									"v1/cookbook/mini-app-starter-prompts"
 								]
 							},
 							{
-								"group": "Project Walkthroughs",
+								"group": "Build Apps",
 								"icon": "folder-open",
 								"expanded": true,
 								"pages": [
@@ -1072,14 +1382,6 @@
 									"v1/cookbook/build-an-oauth-nextjs-workbench",
 									"v1/cookbook/build-a-node-rest-smoke-app",
 									"v1/cookbook/build-a-python-gateway-cli"
-								]
-							},
-							{
-								"group": "Prompt Packs",
-								"icon": "wand-sparkles",
-								"expanded": false,
-								"pages": [
-									"v1/cookbook/mini-app-starter-prompts"
 								]
 							},
 							{
@@ -1109,7 +1411,7 @@
 								]
 							},
 							{
-								"group": "Search, Grounding, and Structured Outputs",
+								"group": "Search & Structured Data",
 								"icon": "search-check",
 								"expanded": false,
 								"pages": [
@@ -1122,55 +1424,25 @@
 								]
 							},
 							{
-								"group": "Agent Workflows",
+								"group": "Agent SDK Quickstarts",
 								"icon": "bot",
 								"expanded": false,
 								"pages": [
 									"v1/cookbook/agent-sdk-durable-loop",
-									"v1/cookbook/agent-sdk-research-brief",
-									"v1/cookbook/agent-sdk-support-triage",
 									"v1/cookbook/agent-sdk-python-structured-extraction",
 									"v1/cookbook/agent-sdk-go-ops-runbook",
 									"v1/cookbook/agent-sdk-csharp-ticket-triage",
 									"v1/cookbook/agent-sdk-php-content-review",
-									"v1/cookbook/agent-sdk-ruby-rag-notes",
-									"v1/cookbook/agent-sdk-coding-review",
-									"v1/cookbook/agent-sdk-parallel-tools",
-									"v1/cookbook/coding-agents-skill-md"
+									"v1/cookbook/agent-sdk-ruby-rag-notes"
 								]
 							},
 							{
-								"group": "All recipes",
-								"icon": "chef-hat",
+								"group": "Advanced Agent Workflows",
+								"icon": "workflow",
 								"expanded": false,
 								"pages": [
-									"v1/cookbook/free-router-first-deploy",
-									"v1/cookbook/preset-rollout-and-routing-debug",
-									"v1/cookbook/sort-providers-by-price-latency-or-throughput",
-									"v1/cookbook/pin-or-ignore-providers-per-request",
-									"v1/cookbook/route-only-to-eu-or-zdr-providers",
-									"v1/cookbook/choose-a-video-generation-model",
-									"v1/cookbook/generate-and-download-a-video-from-text",
-									"v1/cookbook/use-image-inputs-for-video-generation",
-									"v1/cookbook/send-provider-specific-video-options",
-									"v1/cookbook/async-video-webhooks",
-									"v1/cookbook/async-batch-webhooks",
-									"v1/cookbook/guardrails-for-api-keys",
-									"v1/cookbook/response-caching-with-presets",
-									"v1/cookbook/sdk-python-presets-and-json",
-									"v1/cookbook/sdk-typescript-managed-search",
-									"v1/cookbook/web-search-debugging",
-									"v1/cookbook/tool-grounding-with-web-fetch",
-									"v1/cookbook/response-healing-for-structured-json",
-									"v1/cookbook/plugin-defaults-and-response-healing",
-									"v1/cookbook/agent-sdk-durable-loop",
 									"v1/cookbook/agent-sdk-research-brief",
 									"v1/cookbook/agent-sdk-support-triage",
-									"v1/cookbook/agent-sdk-python-structured-extraction",
-									"v1/cookbook/agent-sdk-go-ops-runbook",
-									"v1/cookbook/agent-sdk-csharp-ticket-triage",
-									"v1/cookbook/agent-sdk-php-content-review",
-									"v1/cookbook/agent-sdk-ruby-rag-notes",
 									"v1/cookbook/agent-sdk-coding-review",
 									"v1/cookbook/agent-sdk-parallel-tools",
 									"v1/cookbook/coding-agents-skill-md"
@@ -1183,30 +1455,35 @@
 						"icon": "history",
 						"groups": [
 							{
-								"group": "Latest updates",
+								"group": "2026",
+								"icon": "calendar-days",
 								"pages": [
-									"v1/changelog"
+									"v1/changelog",
+									"v1/changelog/2026-06",
+									"v1/changelog/2026-05",
+									"v1/changelog/2026-04",
+									"v1/changelog/2026-03",
+									"v1/changelog/2026-02",
+									"v1/changelog/2026-01"
+								]
+							},
+							{
+								"group": "Archive",
+								"icon": "archive",
+								"pages": [
+									"v1/changelog/2025",
+									"v1/changelog/2024",
+									"v1/changelog/2023",
+									"v1/changelog/2022",
+									"v1/changelog/2021",
+									"v1/changelog/2020",
+									"v1/changelog/2019",
+									"v1/changelog/2018"
 								]
 							}
 						]
 					}
-				]
-			}
-		],
-		"global": {
-			"anchors": [
-				{
-					"anchor": "GitHub",
-					"href": "https://github.com/phaseoteam/Phaseo",
-					"icon": "github"
-				},
-				{
-					"anchor": "Discord",
-					"href": "https://discord.gg/aQyywCvgZ5",
-					"icon": "discord"
-				}
-			]
-		}
+		]
 	},
 	"logo": {
 		"light": "/logo/light.svg",
@@ -1216,8 +1493,8 @@
 	"navbar": {
 		"links": [
 			{
-				"label": "Migration Guide",
-				"href": "https://phaseo.app/migrate"
+				"label": "Models",
+				"href": "https://phaseo.app/models"
 			},
 			{
 				"label": "Support",
@@ -1242,6 +1519,10 @@
 		"drilldown": false
 	},
 	"redirects": [
+		{
+			"source": "/v1/api-reference/endpoint/async-jobs-ws",
+			"destination": "/v1/api-reference/async-lifecycle-updates"
+		},
 		{
 			"source": "/v1/:slug*.mdx",
 			"destination": "/v1/:slug*"

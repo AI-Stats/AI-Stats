@@ -1,24 +1,31 @@
 ---
+icon: "compass"
 title: "Overview"
-description: "What the PHP Agent SDK is for and what surface it currently exposes."
+description: "Build tool-using, resumable agents with the native PHP runtime."
 ---
 
-The PHP Agent SDK is a minimal local runtime for Phaseo Gateway.
+The PHP Agent SDK is a full local agent state machine for Phaseo Gateway. It uses synchronous callbacks and iteration while retaining the same approval, streaming, stop, state, and usage contract as the other Agent SDKs.
 
-Use it when you want:
+## Native runtime model
 
-- a lightweight bounded tool loop
-- gateway-backed `responses` requests
-- app-owned control over persistence and orchestration
+- Tool callbacks execute synchronously in the standard PHP runtime.
+- Callables validate tool inputs, outputs, progress events, and final output.
+- Iterables expose replayable text, reasoning, item, and full-event streams.
+- Exact tool-call IDs make approvals, rejections, and manual outputs safe to resume.
+- `StateAccessor` loads and saves run results through your own storage layer.
 
-## What it ships
+## Core capabilities
 
-- `AgentSdk::createAgent(...)`
-- `AgentSdk::defineTool(...)`
-- `AgentSdk::createGatewayAgentClient(...)`
-- a bounded tool loop over the Phaseo `responses` API
+| Area | PHP API |
+| --- | --- |
+| Agents and tools | `AgentSdk::createAgent(...)`, `AgentSdk::defineTool(...)`, `Tool` |
+| Gateway execution | `AgentSdk::createGatewayAgentClient(...)` |
+| Continuation | `continueRun(...)`, `continueRunById(...)`, and manual outputs |
+| Streaming | `stream(...)`, `textStream()`, `reasoningStream()`, and `fullStream()` |
+| Control | retries, timeout checks, stop predicates, dynamic turns, and tool-error policy |
+| Observability | event callbacks, normalized usage/cost, and Phaseo Devtools |
 
 ## Next
 
-- [Installation](./agent-sdk-installation.mdx)
-- [Usage](./agent-sdk.mdx)
+- [Installation](./agent-sdk-installation)
+- [Build with the PHP Agent SDK](./agent-sdk)
