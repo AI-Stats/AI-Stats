@@ -250,7 +250,7 @@ jobs:
           split_url="https://github.com/${split_repo}"
           git remote add split "https://x-access-token:${GH_APP_TOKEN}@github.com/${split_repo}.git"
           split_commit="$(git subtree split --prefix=packages/sdk/agent-sdk-php HEAD)"
-          git push --force split "${split_commit}:main"
+          git push --force split "${split_commit}:refs/heads/main"
           if ! git ls-remote --exit-code --tags split "refs/tags/v${version}" >/dev/null 2>&1; then
             git push split "${split_commit}:refs/tags/v${version}"
           fi
