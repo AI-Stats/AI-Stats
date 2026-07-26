@@ -333,10 +333,14 @@ function firstBoolean(record: Record<string, unknown>, ...keys: string[]): boole
 function normaliseRequestSummary(value: unknown) {
 	const record = asRecord(value);
 	const usage = asRecord(record.usage);
+	const inputDetails = asRecord(usage.input_tokens_details ?? usage.prompt_tokens_details);
+	const outputDetails = asRecord(usage.output_tokens_details ?? usage.completion_tokens_details);
 	const inputTokens = firstNumber(usage, "input_tokens", "prompt_tokens");
 	const outputTokens = firstNumber(usage, "output_tokens", "completion_tokens");
-	const cachedTokens = firstNumber(usage, "cached_tokens", "cached_input_tokens");
-	const reasoningTokens = firstNumber(usage, "reasoning_tokens");
+	const cachedTokens = firstNumber(usage, "cached_tokens", "cached_input_tokens")
+		?? firstNumber(inputDetails, "cached_tokens");
+	const reasoningTokens = firstNumber(usage, "reasoning_tokens")
+		?? firstNumber(outputDetails, "reasoning_tokens");
 	const totalTokens = firstNumber(usage, "total_tokens") ?? (
 		inputTokens !== null || outputTokens !== null || reasoningTokens !== null
 			? (inputTokens ?? 0) + (outputTokens ?? 0) + (reasoningTokens ?? 0)
