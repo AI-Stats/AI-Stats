@@ -4,6 +4,8 @@ import {
 	Activity,
 	ALargeSmall,
 	AppWindow,
+	ArrowLeft,
+	ArrowRight,
 	BadgeAlert,
 	Braces,
 	Captions,
@@ -41,6 +43,7 @@ import {
 	fetchFrontendModelOverview,
 	fetchFrontendModelPendingApiReleaseState,
 	fetchFrontendModelPerformance,
+	fetchFrontendModelTimeline,
 	fetchFrontendModelTokenTrajectory,
 	fetchFrontendModelUsageDailyBreakdown,
 	fetchFrontendOrganisationModels,
@@ -64,6 +67,10 @@ import ModelPendingApiReleaseBanner from "@/components/(data)/model/overview/Mod
 import { formatModelLifecycleDate } from "@/lib/dates/modelLifecycleDates";
 import { cn } from "@/lib/utils";
 import { getModalityTone } from "@/lib/models/modalityStyles";
+import {
+	getModelLicenseUrl,
+	getModelLineageLinks,
+} from "@/components/(data)/model/overview/modelOverviewMetadata";
 
 type ModelOverviewSectionsProps = {
 	modelId: string;
@@ -764,6 +771,18 @@ export async function ModelAboutSection({
 	const extraOutputTypes = outputTypes.filter(
 		(type) => !KNOWN_MODALITY_META.some((m) => m.key === type),
 	);
+	const timeline = await withOptionalSectionTimeout(
+		fetchFrontendModelTimeline(model.model_id),
+		null,
+		"model lineage",
+	);
+	const lineage = getModelLineageLinks(
+		timeline?.events,
+		model.previous_model_id,
+	);
+	const hasLineage = Boolean(lineage.previous || lineage.next || model.family_id);
+	const hasDirectionalLineage = Boolean(lineage.previous || lineage.next);
+	const hasBothDirections = Boolean(lineage.previous && lineage.next);
 
 	const renderModalityValue = (kind: "Input" | "Output") => {
 		const isInput = kind === "Input";
@@ -823,28 +842,79 @@ export async function ModelAboutSection({
 				showEmpty
 			/>
 			<div className="space-y-2">
-			<OtherInfo
-				details={model.model_details ?? undefined}
-				showHeading={false}
-				showEmpty
-				extraItems={[
-					{
-						key: "input_modalities",
-						label: "Input",
+				<OtherInfo
+					details={model.model_details ?? undefined}
+					licenseUrl={getModelLicenseUrl(model)}
+					showHeading={false}
+					showEmpty
+					extraItems={[
+						{
+							key: "input_modalities",
+							label: "Input",
 							value: renderModalityValue("Input"),
 						},
 						{
 							key: "output_modalities",
-						label: "Output",
-						value: renderModalityValue("Output"),
-					},
-				]}
-			/>
+							label: "Output",
+							value: renderModalityValue("Output"),
+						},
+					]}
+				/>
 			</div>
 			<div className="space-y-2">
 				<h3 className="text-base font-semibold">Links</h3>
 				<ModelLinks model={model} showEmpty />
 			</div>
+			{hasLineage ? (
+				<div className="space-y-2">
+					<h3 className="text-base font-semibold">Version lineage</h3>
+					{hasDirectionalLineage ? (
+						<div
+							className={cn(
+								"grid overflow-hidden rounded-lg border border-border/70 bg-card sm:overflow-visible sm:border-0 sm:bg-transparent sm:gap-2",
+								hasBothDirections ? "sm:grid-cols-2" : "sm:grid-cols-1",
+							)}
+						>
+						{lineage.previous ? (
+							<Link
+								href={`/models/${lineage.previous.modelId}`}
+								className="group flex min-w-0 items-center gap-3 border-b border-border/70 px-3 py-3 transition-colors last:border-b-0 hover:bg-muted/35 sm:rounded-lg sm:border sm:bg-card sm:hover:bg-muted/30"
+							>
+								<ArrowLeft className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5" />
+								<div className="min-w-0">
+									<p className="text-xs text-muted-foreground">Previous model</p>
+									<p className="truncate text-sm font-semibold">{lineage.previous.modelName}</p>
+								</div>
+							</Link>
+						) : null}
+						{lineage.next ? (
+							<Link
+								href={`/models/${lineage.next.modelId}`}
+								className="group flex min-w-0 items-center justify-between gap-3 border-b border-border/70 px-3 py-3 transition-colors last:border-b-0 hover:bg-muted/35 sm:rounded-lg sm:border sm:bg-card sm:hover:bg-muted/30"
+							>
+								<div className="min-w-0">
+									<p className="text-xs text-muted-foreground">Next model</p>
+									<p className="truncate text-sm font-semibold">{lineage.next.modelName}</p>
+								</div>
+								<ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+							</Link>
+						) : null}
+						</div>
+					) : null}
+					{model.family_id ? (
+						<Link
+							href={`/models/${model.model_id}/family`}
+							className="group flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border/70 bg-card px-3 py-3 transition-colors hover:bg-muted/30"
+						>
+							<div className="min-w-0">
+								<p className="text-xs text-muted-foreground">Model family</p>
+								<p className="truncate text-sm font-semibold">View family graph</p>
+							</div>
+							<ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+						</Link>
+					) : null}
+				</div>
+			) : null}
 		</>
 	);
 }
