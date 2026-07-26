@@ -45,8 +45,10 @@ Last verified against `main` commit `dbb4520e` on July 26, 2026.
 
 | Capability | Status | Current contract |
 | --- | --- | --- |
-| Guardrail creation and enforcement | Beta | Dashboard and management API paths support budgets, routing restrictions, prompt-injection checks, and sensitive-info actions. |
+| Guardrail creation and enforced policies | Beta | Dashboard and management API paths enforce supported privacy, routing, model-restriction, and sensitive-info policies. |
 | Guardrail assignment to keys and members | Beta | Management API and dashboard assignment paths are available. |
+| Guardrail prompt-injection actions | Unavailable | Policy fields can be stored, but assigned guardrails do not activate prompt-injection enforcement in the request pipeline. |
+| Guardrail request and cost budgets | Unavailable | Policy fields can be stored, but assigned guardrails do not apply these limits during request admission; API-key limits remain the enforced path. |
 | Guardrails in generated SDKs | Planned | Guardrail routes are not yet part of the published OpenAPI-generated SDK contract. Use the documented REST endpoints. |
 | Workspaces, management keys, and OAuth | Beta | Public control-plane routes are available with capability and workspace-role checks. |
 | Enterprise SAML or custom OIDC sign-in | Partial | Configuration and sign-in paths exist, but team-wide enforcement is not active. |

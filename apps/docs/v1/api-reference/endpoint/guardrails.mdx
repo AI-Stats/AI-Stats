@@ -48,14 +48,8 @@ curl https://api.phaseo.app/v1/guardrails \
     "name": "Production API policy",
     "enabled": true,
     "privacyZdrOnly": true,
-    "modelRestrictionMode": "allow",
-    "allowedApiModelIds": ["openai/gpt-5.4-mini"],
-    "promptInjectionEnabled": true,
-    "promptInjectionAction": "flag",
-    "budgets": {
-      "dailyRequests": 10000,
-      "monthlyCostNanos": 50000000000
-    }
+    "modelRestrictionMode": "allowlist",
+    "allowedApiModelIds": ["openai/gpt-5.4-mini"]
   }'
 ```
 
@@ -77,16 +71,15 @@ Key IDs must belong to the same workspace and must not be deleted.
 - privacy and ZDR requirements
 - provider allowlists or blocklists
 - model allowlists or blocklists
-- prompt-injection detection and `flag`, `redact`, or `block` actions
 - sensitive-info detection and custom rules
-- daily, weekly, and monthly request budgets
-- daily, weekly, and monthly cost budgets in nanos
 
 Use the dashboard preview before broad rollout, then verify blocks, redactions, and flags in Activity.
 
 ## Current limitations
 
 - The REST routes are not yet represented in the public OpenAPI specification or generated SDKs.
+- Prompt-injection fields can be stored, but assigned guardrails do not currently activate prompt-injection enforcement in the request pipeline.
+- Request and cost budget fields can be stored, but assigned guardrails do not currently apply those limits during request admission. API-key limits remain the enforced budget path.
 - Enterprise SSO enforcement and SCIM are separate capabilities and are not provided by guardrails.
 - Provider routing by data-collection policy, distillable-text policy, or quantization is not available until Phaseo has authoritative route metadata.
 
