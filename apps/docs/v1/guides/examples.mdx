@@ -137,6 +137,22 @@ response = client.generate_response(
 puts response
 ```
 
+```rust Rust SDK
+use phaseo::Phaseo;
+use serde_json::json;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = Phaseo::from_env()?;
+    let response = client.responses(&json!({
+        "model": "google/gemma-3-27b:free",
+        "input": "Summarize this article in 3 bullet points."
+    }))?;
+
+    println!("{}", response.body);
+    Ok(())
+}
+```
+
 </CodeGroup>
 
 ## Paid chat completion
@@ -193,4 +209,4 @@ If you want a coding agent to generate the first version for you, start here:
 
 ## More SDK examples
 
-Explore the [SDK Reference](../sdk-reference/typescript/overview) for language-specific examples.
+Explore the [SDK Reference](../sdk-reference/typescript/overview) or [Rust SDK guide](../sdk-reference/rust/overview) for language-specific examples.
