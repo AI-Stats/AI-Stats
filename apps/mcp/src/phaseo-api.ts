@@ -1,5 +1,6 @@
 export type PhaseoEnv = Cloudflare.Env & {
 	PHASEO_MCP_RESOURCE_SERVER_SECRET: string;
+	OPENAI_APPS_CHALLENGE_TOKEN?: string;
 };
 
 export type GatewayMeter = {
@@ -132,27 +133,6 @@ export async function listProviders(env: PhaseoEnv, credentials?: PhaseoCredenti
 	const payload = await requestPhaseo<ProvidersResponse>(env, "/v1/providers", { query: { limit: 250 }, credentials });
 	if (!payload.ok || !payload.providers) throw new PhaseoApiError(payload.message ?? "Phaseo could not load providers.");
 	return payload.providers;
-}
-
-export type PhaseoApiKey = {
-	id: string;
-	name: string | null;
-	prefix: string | null;
-	status: string | null;
-	created_at: string | null;
-	last_used_at: string | null;
-	expires_at: string | null;
-	disabled: boolean;
-	limit: number | null;
-	limit_reset: "daily" | "weekly" | "monthly" | null;
-};
-
-type KeysResponse = { data?: PhaseoApiKey[]; total_count?: number; error?: string; message?: string };
-
-export async function listApiKeys(env: PhaseoEnv, credentials: PhaseoCredentials): Promise<PhaseoApiKey[]> {
-	const payload = await requestPhaseo<KeysResponse>(env, "/v1/keys", { credentials, query: { limit: 100, include_disabled: 1 } });
-	if (!payload.data) throw new PhaseoApiError(payload.message ?? payload.error ?? "Phaseo could not load API keys.");
-	return payload.data;
 }
 
 export async function authenticatePhaseoUser(request: Request, env: PhaseoEnv): Promise<AuthenticatedPhaseoUser | null> {

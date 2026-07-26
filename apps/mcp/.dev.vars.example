@@ -3,6 +3,6 @@
 # Generate a 64+ character random value and configure the identical secret on
 # the API Worker. Never commit the real value.
 PHASEO_MCP_RESOURCE_SERVER_SECRET="<generate-a-random-64-plus-character-secret>"
-PHASEO_MCP_WRITE_TOOLS_ENABLED="false"
-PHASEO_MCP_DESTRUCTIVE_TOOLS_ENABLED="false"
-PHASEO_MCP_SECRET_TOOLS_ENABLED="false"
+
+# Optional: use a non-production token to verify the OpenAI challenge route.
+# OPENAI_APPS_CHALLENGE_TOKEN="<openai-provided-domain-token>"

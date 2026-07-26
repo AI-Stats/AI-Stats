@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getModel, listApiKeys, listModels, listProviders, requestPhaseo } from "../src/phaseo-api";
+import { getModel, listModels, listProviders, requestPhaseo } from "../src/phaseo-api";
 
 const env = {
 	PHASEO_API_BASE_URL: "https://api.phaseo.app",
@@ -24,16 +24,6 @@ describe("Phaseo API client", () => {
 		expect(request.url).toBe("https://api.phaseo.app/v1/models?limit=250");
 		expect(request.method).toBe("GET");
 		expect(request.headers.get("authorization")).toBe("Bearer oauth-token");
-	});
-
-	it("uses the user's OAuth token for authenticated key operations", async () => {
-		fetchMock.mockResolvedValueOnce(Response.json({ data: [] }));
-		vi.stubGlobal("fetch", fetchMock);
-
-		await expect(listApiKeys(env, { accessToken: "oauth-token" })).resolves.toEqual([]);
-
-		const listRequest = fetchMock.mock.calls[0]?.[0] as Request;
-		expect(listRequest.headers.get("authorization")).toBe("Bearer oauth-token");
 	});
 
 	it("redacts upstream 5xx database details", async () => {

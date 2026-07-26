@@ -123,7 +123,7 @@ jobs:
         needs: openapi-lint
         strategy:
             matrix:
-                app: [api, docs, web, web-api]
+                app: [api, docs, web, web-api, mcp]
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -164,6 +164,13 @@ jobs:
                   pnpm --filter @phaseo/web-api lint
                   pnpm --filter @phaseo/web-api test
                   pnpm --filter @phaseo/web-api build
+
+            - name: MCP typecheck, test & production build
+              if: matrix.app == 'mcp'
+              run: |
+                  pnpm --filter @phaseo/mcp typecheck
+                  pnpm --filter @phaseo/mcp test
+                  pnpm --filter @phaseo/mcp build:production
 
     api-aimock:
         name: API AIMock matrix
@@ -666,6 +673,7 @@ jobs:
         permissions:
             contents: read
         strategy:
+            fail-fast: false
             matrix:
                 include:
                     - target: web
@@ -674,6 +682,8 @@ jobs:
                       name: Deploy API
                     - target: web-api
                       name: Deploy Web API
+                    - target: mcp
+                      name: Deploy MCP
                     - target: docs
                       name: Deploy Docs
         steps:
@@ -719,11 +729,11 @@ jobs:
               run: git checkout -- pnpm-lock.yaml
 
             - name: Install dependencies (for Cloudflare Workers)
-              if: matrix.target == 'api' || matrix.target == 'web-api'
+              if: matrix.target == 'api' || matrix.target == 'web-api' || matrix.target == 'mcp'
               run: corepack pnpm install --frozen-lockfile
 
             - name: Validate Cloudflare API deploy secrets
-              if: matrix.target == 'api' || matrix.target == 'web-api'
+              if: matrix.target == 'api' || matrix.target == 'web-api' || matrix.target == 'mcp'
               shell: bash
               env:
                   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -767,6 +777,15 @@ jobs:
                   accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
                   workingDirectory: apps/web-api
                   command: deploy
+
+            - name: Deploy MCP Worker to Cloudflare
+              if: matrix.target == 'mcp'
+              uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0
+              with:
+                  apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                  workingDirectory: apps/mcp
+                  command: deploy --env production
 
             # ---------- DOCS ----------
             - name: Docs (Mintlify deploy is handled by GitHub App)
