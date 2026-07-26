@@ -1,12 +1,18 @@
 ---
 title: "Installation"
-description: "Install the Go Agent SDK and its core client dependency."
+description: "Evaluate the Go Agent SDK from source while its module release is prepared."
 ---
 
 ## Install
 
+<Note type="warning">
+  The Go Agent SDK is implemented, but it does not yet have a public module version. Use the repository source for evaluation; the core [`sdk-go/v2`](https://pkg.go.dev/github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2) module is public.
+</Note>
+
 ```bash
-go get github.com/phaseoteam/Phaseo/packages/sdk/agent-sdk-go@latest
+git clone https://github.com/phaseoteam/Phaseo.git
+cd Phaseo/packages/sdk/agent-sdk-go
+go test ./...
 ```
 
 ## Environment

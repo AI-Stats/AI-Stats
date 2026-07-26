@@ -25,7 +25,6 @@ The current Agent SDK language set matches the primary client SDK set exposed in
 - [Python](../python/agent-sdk)
 - [Go](../go/agent-sdk)
 - [C#](../csharp/agent-sdk)
-- [Java](../java/agent-sdk)
 - [PHP](../php/agent-sdk)
 - [Ruby](../ruby/agent-sdk)
 
@@ -40,20 +39,24 @@ Each Agent SDK keeps the same runtime model:
 - inspect lifecycle events or a Devtools trace
 - persist the returned run and resume after a human decision
 
-TypeScript is the reference API design. Python, Go, C#, Java, PHP, and Ruby expose the same run states and core controls using language-native callbacks, concurrency, timeout, and cancellation primitives. Rust and C++ Agent SDKs are intentionally deferred.
+TypeScript is the reference API design. Python, Go, C#, PHP, and Ruby expose the same run states and core controls using language-native callbacks, concurrency, timeout, and cancellation primitives. Java remains a work in progress; Rust and C++ Agent SDKs are intentionally deferred.
+
+<Note>
+  Only the TypeScript Agent SDK is currently published to a package registry as [`@phaseo/agent-sdk`](https://www.npmjs.com/package/@phaseo/agent-sdk). Use the source installation pages for the other runtimes until their independent packages are released.
+</Note>
 
 ## Cross-language capability contract
 
-| Capability | TypeScript | Python | Go | C# | Java | PHP | Ruby |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Validated executable tools and recoverable errors | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Exact-ID approvals, HITL, and manual outputs | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Preliminary tool progress | Async generator | Iterator or callback | Callback | Callback | Callback | Callback | Callback |
-| Model streaming and replayable consumers | Async iterable | Iterator | Channel | Async enumerable | Iterable | Iterable | Enumerator |
-| Composable step, token, cost, duration, tool, finish, and custom stops | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Dynamic turns, mutable context, and persisted next-turn overrides | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Application-owned state accessor | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Normalized usage and cost | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Capability | TypeScript | Python | Go | C# | PHP | Ruby |
+| --- | --- | --- | --- | --- | --- | --- |
+| Validated executable tools and recoverable errors | Yes | Yes | Yes | Yes | Yes | Yes |
+| Exact-ID approvals, HITL, and manual outputs | Yes | Yes | Yes | Yes | Yes | Yes |
+| Preliminary tool progress | Async generator | Iterator or callback | Callback | Callback | Callback | Callback |
+| Model streaming and replayable consumers | Async iterable | Iterator | Channel | Async enumerable | Iterable | Enumerator |
+| Composable step, token, cost, duration, tool, finish, and custom stops | Yes | Yes | Yes | Yes | Yes | Yes |
+| Dynamic turns, mutable context, and persisted next-turn overrides | Yes | Yes | Yes | Yes | Yes | Yes |
+| Application-owned state accessor | Yes | Yes | Yes | Yes | Yes | Yes |
+| Normalized usage and cost | Yes | Yes | Yes | Yes | Yes | Yes |
 
 PHP and Ruby expose provider stream events through their normal synchronous iteration APIs. They do not require a hosted runtime or a background Phaseo service.
 

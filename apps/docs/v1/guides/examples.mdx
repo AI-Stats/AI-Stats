@@ -136,28 +136,6 @@ response = client.generate_response(
 puts response
 ```
 
-```java Java SDK
-import ai.stats.sdk.Phaseo;
-
-Phaseo client = new Phaseo(System.getenv("PHASEO_API_KEY"));
-
-String body = """
-{
-  "model": "google/gemma-3-27b:free",
-  "input": [
-    {
-      "role": "user",
-      "content": [
-        { "type": "input_text", "text": "Summarize this article in 3 bullet points." }
-      ]
-    }
-  ]
-}
-""";
-
-Object response = client.createResponse(body);
-System.out.println(String.valueOf(response));
-```
 </CodeGroup>
 
 ## Paid chat completion

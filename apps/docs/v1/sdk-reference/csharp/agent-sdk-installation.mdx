@@ -1,13 +1,18 @@
 ---
 title: "Installation"
-description: "Install the C# Agent SDK and its core client dependency."
+description: "Evaluate the C# Agent SDK from source while its NuGet package is prepared."
 ---
 
 ## Install
 
+<Note type="warning">
+  The C# Agent SDK is implemented, but `Phaseo.AgentSdk` is not yet published to NuGet. Use the repository source for evaluation; the core [`Phaseo.Sdk`](https://www.nuget.org/packages/Phaseo.Sdk) package is public.
+</Note>
+
 ```bash
-dotnet add package Phaseo.Sdk
-dotnet add package Phaseo.AgentSdk
+git clone https://github.com/phaseoteam/Phaseo.git
+cd Phaseo/packages/sdk/agent-sdk-csharp
+dotnet test
 ```
 
 ## Environment

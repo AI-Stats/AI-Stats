@@ -1,36 +1,21 @@
 ---
 title: "Go SDK Installation"
-description: "Set up the preview Go SDK from source."
+description: "Install the Phaseo Go SDK through Go modules."
 ---
 
-<Note type="warning">
-  The Go SDK is not published yet. Use it from source for now.
-</Note>
+The SDK is published as [`sdk-go/v2`](https://pkg.go.dev/github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2).
 
 ## Requirements
 
-- Go 1.23+
-- Access to this repository
+- Go 1.23 or newer
 
-## Install from local source
-
-1. Regenerate the Go SDK (optional but recommended after API changes):
+## Install
 
 ```bash
-pnpm openapi:gen:go
+go get github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2@latest
 ```
 
-2. In your `go.mod`, add a local `replace` to the SDK path:
-
-```go
-go 1.23
-
-require github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2 v2.0.0
-
-replace github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2 => ../phaseo/packages/sdk/sdk-go
-```
-
-3. Import the wrapper:
+Import the v2 module path:
 
 ```go
 import phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"

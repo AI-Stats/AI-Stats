@@ -1,12 +1,18 @@
 ---
 title: "Installation"
-description: "Install the PHP Agent SDK and its core client dependency."
+description: "Evaluate the PHP Agent SDK from source while its Packagist package is prepared."
 ---
 
 ## Install
 
+<Note type="warning">
+  The PHP Agent SDK is implemented, but `phaseo/agent-sdk` is not yet published to Packagist. Use the repository source for evaluation; the core [`phaseo/sdk`](https://packagist.org/packages/phaseo/sdk) package is public.
+</Note>
+
 ```bash
-composer require phaseo/sdk phaseo/agent-sdk
+git clone https://github.com/phaseoteam/Phaseo.git
+cd Phaseo/packages/sdk/agent-sdk-php
+composer install
 ```
 
 ## Environment

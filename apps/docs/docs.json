@@ -871,87 +871,6 @@
 										]
 									}
 								]
-							},
-							{
-								"item": "Java SDK",
-								"groups": [
-									{
-										"group": "Introduction",
-										"pages": [
-											"v1/sdk-reference/java/overview",
-											"v1/sdk-reference/java/installation",
-											"v1/sdk-reference/java/usage"
-										]
-									},
-									{
-										"group": "Text",
-										"pages": [
-											"v1/sdk-reference/java/responses",
-											"v1/sdk-reference/java/chat-completions"
-										]
-									},
-									{
-										"group": "Image",
-										"pages": [
-											"v1/sdk-reference/java/images-generations",
-											"v1/sdk-reference/java/images-edits"
-										]
-									},
-									{
-										"group": "Audio",
-										"pages": [
-											"v1/sdk-reference/java/audio-speech",
-											"v1/sdk-reference/java/audio-transcriptions",
-											"v1/sdk-reference/java/audio-translations"
-										]
-									},
-									{
-										"group": "Video",
-										"pages": [
-											"v1/sdk-reference/java/video-generation"
-										]
-									},
-									{
-										"group": "Specialised",
-										"pages": [
-											"v1/sdk-reference/java/embeddings",
-											"v1/sdk-reference/java/moderations",
-											"v1/sdk-reference/java/batches",
-											"v1/sdk-reference/java/files"
-										]
-									},
-									{
-										"group": "Admin",
-										"pages": [
-											"v1/sdk-reference/java/models",
-											"v1/sdk-reference/java/generation"
-										]
-									}
-								]
-							},
-							{
-								"item": "Rust SDK",
-								"groups": [
-									{
-										"group": "Introduction",
-										"pages": [
-											"v1/sdk-reference/rust/overview",
-											"v1/sdk-reference/rust/installation"
-										]
-									}
-								]
-							},
-							{
-								"item": "C++ SDK",
-								"groups": [
-									{
-										"group": "Introduction",
-										"pages": [
-											"v1/sdk-reference/cpp/overview",
-											"v1/sdk-reference/cpp/installation"
-										]
-									}
-								]
 							}
 						]
 					},
@@ -1018,19 +937,6 @@
 											"v1/sdk-reference/csharp/agent-sdk-overview",
 											"v1/sdk-reference/csharp/agent-sdk-installation",
 											"v1/sdk-reference/csharp/agent-sdk"
-										]
-									}
-								]
-							},
-							{
-								"item": "Java Agent SDK",
-								"groups": [
-									{
-										"group": "Introduction",
-										"pages": [
-											"v1/sdk-reference/java/agent-sdk-overview",
-											"v1/sdk-reference/java/agent-sdk-installation",
-											"v1/sdk-reference/java/agent-sdk"
 										]
 									}
 								]
