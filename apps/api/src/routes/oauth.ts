@@ -280,8 +280,13 @@ function requiresGatewayAccessScope(clientId: string, resource: string, scopes: 
 		&& !scopes.includes(GATEWAY_ACCESS_SCOPE);
 }
 
-function canNarrowResourceBoundMcpScopes(resource: string, scopes: string[]): boolean {
-	return Boolean(resource)
+function canNarrowResourceBoundMcpScopes(
+	client: { registration_source?: string },
+	resource: string,
+	scopes: string[],
+): boolean {
+	return client.registration_source === "dynamic"
+		&& Boolean(resource)
 		&& !isGatewayOAuthResource(resource)
 		&& scopes.length > 0
 		&& scopes.every((scope) => RESOURCE_BOUND_MCP_SCOPE_SET.has(scope));
@@ -555,7 +560,7 @@ oauthRouter.get(
 		const scopes = filterAllowedScopes(client, requestedScopes);
 		if (
 			scopes.length !== requestedScopes.length
-			&& !canNarrowResourceBoundMcpScopes(resource, scopes)
+			&& !canNarrowResourceBoundMcpScopes(client, resource, scopes)
 		) {
 			return oauthError("invalid_scope", "One or more requested scopes are not allowed for this client");
 		}

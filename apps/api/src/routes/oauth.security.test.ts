@@ -674,6 +674,7 @@ describe("OAuth route security", () => {
 			id: "dynamic_mcp_client",
 			name: "Codex",
 			client_type: "public",
+			registration_source: "dynamic",
 			allowed_scopes: mcpScopes,
 		};
 		const requestedScopes = [
@@ -695,6 +696,27 @@ describe("OAuth route security", () => {
 
 		expect(response.status).toBe(302);
 		expect(new URLSearchParams(state.consentParams ?? "").get("scope")).toBe(mcpScopes.join(" "));
+	});
+
+	it("does not narrow broad authorization requests for developer clients", async () => {
+		state.client = {
+			id: "developer_client",
+			name: "Developer client",
+			client_type: "public",
+			registration_source: "developer",
+			allowed_scopes: ["models:read"],
+		};
+		const challenge = "a".repeat(43);
+		const { oauthRouter } = await import("./oauth");
+		const response = await oauthRouter.request(
+			`https://example.com/authorize?client_id=developer_client&redirect_uri=${encodeURIComponent("https://client.example/callback")}&response_type=code&scope=${encodeURIComponent("models:read keys:write")}&code_challenge=${challenge}&code_challenge_method=S256&resource=${encodeURIComponent("https://client.example/resource")}`,
+		);
+
+		expect(response.status).toBe(400);
+		expect(await response.json()).toMatchObject({
+			error: "invalid_scope",
+			error_description: "One or more requested scopes are not allowed for this client",
+		});
 	});
 
 	it("narrows full authorization-server scope catalogues to resource-bound MCP scopes", async () => {
