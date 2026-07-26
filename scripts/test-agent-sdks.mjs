@@ -37,7 +37,13 @@ const suites = {
 			{ command: "mvn", args: ["-q", "test"], cwd: "packages/sdk/agent-sdk-java" },
 		],
 	},
-	php: { name: "PHP Agent SDK", steps: [{ command: "php", args: ["tests/agent_loop_test.php"], cwd: "packages/sdk/agent-sdk-php" }] },
+	php: {
+		name: "PHP Agent SDK",
+		steps: [
+			{ command: "php", args: ["tests/agent_loop_test.php"], cwd: "packages/sdk/agent-sdk-php" },
+			{ command: "php", args: ["tests/composer_install_test.php"], cwd: "packages/sdk/agent-sdk-php" },
+		],
+	},
 	ruby: { name: "Ruby Agent SDK", steps: [{ command: "ruby", args: ["-Ilib", "-Itests", "tests/agent_loop_test.rb"], cwd: "packages/sdk/agent-sdk-ruby" }] },
 };
 
