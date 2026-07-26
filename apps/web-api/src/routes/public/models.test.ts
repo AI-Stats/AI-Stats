@@ -374,7 +374,7 @@ describe("public model routes", () => {
 		});
 	});
 
-	it("preserves external provider status in gateway monitor rows", async () => {
+	it("excludes external providers from models-page monitor rows", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
 			if (url.includes("get_monitor_model_rows")) {
@@ -413,9 +413,7 @@ describe("public model routes", () => {
 			models: [
 				{
 					model_id: "google/gemini-3.5-flash",
-					gateway_monitor_rows: [
-						{ provider: { id: "openrouter" }, gatewayStatus: "external" },
-					],
+					gateway_monitor_rows: [],
 				},
 			],
 		});

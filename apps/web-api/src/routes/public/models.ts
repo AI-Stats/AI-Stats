@@ -301,7 +301,7 @@ async function fetchProviderStatuses(env: Env, providerIds: string[]) {
 
 export async function fetchGatewayMonitorRows(
 	env: Env,
-	_catalogueVersion: ModelsCatalogueVersion = "v1",
+	_catalogueVersion: ModelsCatalogueVersion = "v2",
 ): Promise<Map<string, Record<string, unknown>[]>> {
 	const client = getDataClient(env);
 	const rows: Record<string, unknown>[] = [];
@@ -338,6 +338,10 @@ export async function fetchGatewayMonitorRows(
 			? `${baseModelId}:free`
 			: baseModelId;
 		const providerId = String(row.provider_id ?? "").trim();
+		// The /models catalogue describes Phaseo availability. External catalogue
+		// providers remain available on model detail pages, but must not inflate
+		// this page's provider counts or hover lists.
+		if (providerStatusesById.get(providerId) === "external") continue;
 		const apiModelId = String(row.api_model_id ?? "").trim();
 		const providerModelId = String(
 			row.provider_api_model_id ?? row.provider_model_slug ?? apiModelId,
@@ -374,9 +378,7 @@ export async function fetchGatewayMonitorRows(
 				executionRegions: providerRegionsById.get(providerId) ?? [],
 			},
 			endpoint: capabilityId,
-			gatewayStatus: providerStatusesById.get(providerId) === "external"
-				? "external"
-				: normaliseGatewayStatus(row.capability_status, row.is_active_gateway),
+			gatewayStatus: normaliseGatewayStatus(row.capability_status, row.is_active_gateway),
 			inputModalities: toStringList(row.input_modalities).length ? toStringList(row.input_modalities) : toStringList(row.model_input_types),
 			outputModalities: toStringList(row.output_modalities).length ? toStringList(row.output_modalities) : toStringList(row.model_output_types),
 			context: numberOrNull(row.context_length) ?? numberOrNull(row.capability_max_input_tokens) ?? 0,
