@@ -100,7 +100,6 @@ import {
 	fetchOptionalPublicWebApi,
 	fetchPublicWebApi,
 } from "@/lib/web-api/client";
-import type { PricingModel } from "@/lib/fetchers/pricing/getPricingModels";
 import type {
 	AppsIndexabilitySnapshot,
 	MarketShareData,
@@ -703,10 +702,6 @@ export async function fetchFrontendCountry(
 		`/api/_web/countries/${encodeURIComponent(iso.toUpperCase())}`,
 	);
 	return payload?.country ?? null;
-}
-
-export async function fetchFrontendPricingModels(): Promise<PricingModel[]> {
-	return (await fetchPublicWebApi<{ models: PricingModel[] }>("/api/_web/pricing/models")).models;
 }
 
 export async function fetchFrontendMarketplacePresets(): Promise<

@@ -46,6 +46,7 @@ describe("auth origin helpers", () => {
 	it("never uses an arbitrary URL for preview auth callbacks", () => {
 		expect(
 			resolveVercelPreviewAuthOrigin({
+				NODE_ENV: "production",
 				VERCEL_ENV: "preview",
 				VERCEL_URL: "https://example.com",
 			} as NodeJS.ProcessEnv),

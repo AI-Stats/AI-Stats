@@ -2,9 +2,9 @@ import Link from "next/link";
 import { Suspense } from "react";
 import {
 	ArrowRight,
-	Boxes,
+	CalendarOff,
 	Coins,
-	LockOpen,
+	KeyRound,
 	type LucideIcon,
 } from "lucide-react";
 import type { Metadata } from "next";
@@ -64,19 +64,19 @@ const PRICING_POINTS: Array<{
 	icon: LucideIcon;
 }> = [
 	{
-		title: "Official API rates underneath",
-		body: "Usage pricing follows the official provider rates you would expect if you were calling them directly.",
+		title: "Pay as you go, full stop",
+		body: "No enterprise plan, contract, subscription, minimum spend, or monthly or annual commitment.",
+		icon: CalendarOff,
+	},
+	{
+		title: `${standardFeeText}% credit purchase fee`,
+		body: "Applied when you purchase credits, with a $1 minimum. Usage follows the model prices shown in the catalog.",
 		icon: Coins,
 	},
 	{
-		title: `Flat ${standardFeeText}% gateway fee`,
-		body: "No mandatory seat pricing and no separate plan unlock just to use the core gateway surface.",
-		icon: Boxes,
-	},
-	{
 		title: "Managed credits or BYOK",
-		body: "Start with Phaseo credits, or keep provider relationships intact and route through your own keys when you need to.",
-		icon: LockOpen,
+		body: "BYOK includes one million fee-free requests each month, then a 2.5% service fee on provider-equivalent cost.",
+		icon: KeyRound,
 	},
 ] as const;
 

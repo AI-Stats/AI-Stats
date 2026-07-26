@@ -94,7 +94,7 @@ describe("applyByokServiceFee", () => {
 		expect(result.pricedUsage.pricing.lines).toEqual([]);
 	});
 
-	it("charges 3.5% fee after free-tier threshold", async () => {
+	it("charges 2.5% fee after the one-million-request threshold", async () => {
 		rpcMock.mockResolvedValue({
 			data: [{ month_start: "2026-02-01T00:00:00+00:00", request_count: BYOK_MONTHLY_FREE_REQUESTS + 1 }],
 			error: null,
@@ -120,7 +120,7 @@ describe("applyByokServiceFee", () => {
 
 		expect(result.byokFeeNanos).toBe(expectedFeeNanos);
 		expect(result.totalNanos).toBe(expectedFeeNanos);
-		expect(result.totalCents).toBe(7);
+		expect(result.totalCents).toBe(5);
 		expect(result.pricedUsage.pricing.byok_fee_applied).toBe(true);
 		expect(result.pricedUsage.pricing.lines).toHaveLength(1);
 		expect(result.pricedUsage.pricing.lines[0].meter).toBe("byok_service_fee");
@@ -152,7 +152,7 @@ describe("applyByokServiceFee", () => {
 		});
 
 		expect(result.byokMonthlyRequestCount).toBe(BYOK_MONTHLY_FREE_REQUESTS + 1);
-		expect(result.totalNanos).toBe(105_000_000); // $3 * 3.5%
+		expect(result.totalNanos).toBe(75_000_000); // $3 * 2.5%
 		expect(result.pricedUsage.byok_billing.counter_source).toBe("fallback_read");
 	});
 
@@ -180,8 +180,8 @@ describe("applyByokServiceFee", () => {
 			},
 		});
 
-		expect(result.totalNanos).toBe(105_000_000);
-		expect(result.totalCents).toBe(10);
+		expect(result.totalNanos).toBe(75_000_000);
+		expect(result.totalCents).toBe(7);
 		expect(result.byokMonthlyRequestCount).toBeNull();
 		expect(result.pricedUsage.pricing.byok_fee_applied).toBe(true);
 		expect(result.pricedUsage.byok_billing.counter_source).toBe("unavailable");

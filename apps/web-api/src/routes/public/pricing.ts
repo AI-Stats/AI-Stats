@@ -26,10 +26,29 @@ function rowsOrThrow<T extends Record<string, unknown>>(
 publicPricingRouter.get("/pricing/models", async (c) => {
 	try {
 		const client = getDataClient(c.env); const now = Date.now();
+		const requestedModelIds = [...new Set(
+			(c.req.query("model_ids") ?? "")
+				.split(",")
+				.map((value) => value.trim())
+				.filter(Boolean),
+		)].slice(0, 100);
 		const active = (row: Record<string, unknown>) => { const from = row.effective_from ? Date.parse(String(row.effective_from)) : Number.NEGATIVE_INFINITY; const to = row.effective_to ? Date.parse(String(row.effective_to)) : Number.POSITIVE_INFINITY; return now >= from && now < to; };
-		const providerResult = await client.from("v2_model_provider_routes").select("provider_model_id,provider_slug,provider_model_slug,model_slug,routing_enabled,status,effective_from,effective_to").eq("routing_enabled", true).in("status", ["active", "degraded"]);
-		if (providerResult.error) throw providerResult.error;
-		const providerRows = ((providerResult.data ?? []) as Array<Record<string, unknown>>).filter(active);
+		const providerRows: Array<Record<string, unknown>> = [];
+		for (let offset = 0; ; offset += 1_000) {
+			let query = client
+				.from("v2_model_provider_routes")
+				.select("provider_model_id,provider_slug,provider_model_slug,model_slug,routing_enabled,status,effective_from,effective_to")
+				.eq("routing_enabled", true)
+				.in("status", ["active", "degraded"]);
+			if (requestedModelIds.length > 0) query = query.in("model_slug", requestedModelIds);
+			const providerResult = await query
+				.order("provider_model_id", { ascending: true })
+				.range(offset, offset + 999);
+			if (providerResult.error) throw providerResult.error;
+			const page = (providerResult.data ?? []) as Array<Record<string, unknown>>;
+			providerRows.push(...page.filter(active));
+			if (page.length < 1_000) break;
+		}
 		const routeIds = providerRows.map((row) => String(row.provider_model_id ?? "")).filter(Boolean);
 		const modelIds = [...new Set(providerRows.map((row) => String(row.model_slug ?? "")).filter(Boolean))];
 		const [modelResults, skuResults] = await Promise.all([
