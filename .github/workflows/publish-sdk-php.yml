@@ -108,6 +108,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          git config user.name "phaseo-bot[bot]"
+          git config user.email "phaseo-bot[bot]@users.noreply.github.com"
           tag="sdk-php/v${VERSION}"
           if git rev-parse "$tag" >/dev/null 2>&1; then
             echo "Tag already exists locally: $tag"
