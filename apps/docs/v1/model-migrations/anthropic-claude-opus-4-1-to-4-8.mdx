@@ -1,18 +1,18 @@
 ---
 title: "Anthropic Claude Opus 4.8"
-description: "The concrete migration steps to move deprecated Claude Opus 4.1 traffic onto Claude Opus 4.8."
+description: "What to know when adopting Claude Opus 4.8, including adaptive thinking, sampling controls, and long context."
 icon: "/icons/brands/anthropic.svg"
 ---
 
 # Anthropic Claude Opus 4.8
 
-Use this guide when you are moving from `anthropic/claude-opus-4.1` to `anthropic/claude-opus-4.8`.
+Use this guide to adopt `anthropic/claude-opus-4.8` safely in production.
 
 Anthropic deprecated Claude Opus 4.1 on June 5, 2026 and scheduled retirement for August 5, 2026. Their migration guidance for Opus 4.1 is cumulative: first apply the Claude Opus 4.7 request-shape changes, then review the Claude Opus 4.8 behavior changes.
 
-## What changed
+## What's new
 
-- the target model becomes `claude-opus-4-8`
+- the Phaseo model ID is `anthropic/claude-opus-4.8`
 - Opus 4.7 and later reject non-default sampling params like `temperature`, `top_p`, and `top_k`
 - Opus 4.7 and later reject manual extended-thinking budgets; use adaptive thinking instead
 - Opus 4.8 defaults `output_config.effort` to `high`
@@ -23,13 +23,7 @@ Anthropic deprecated Claude Opus 4.1 on June 5, 2026 and scheduled retirement fo
 
 ### 1. Update the model ID
 
-Move from:
-
-- `anthropic/claude-opus-4.1`
-
-to:
-
-- `anthropic/claude-opus-4.8`
+Set the model ID to `anthropic/claude-opus-4.8`.
 
 ### 2. Remove non-default sampling parameters
 

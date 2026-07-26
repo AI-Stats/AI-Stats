@@ -1,12 +1,12 @@
 ---
 title: "Anthropic Claude Opus 5"
-description: "Upgrade Claude Opus 4.8 workloads to Claude Opus 5 and validate the larger context, output, and agentic behavior."
+description: "What to know when adopting Claude Opus 5 for long-context reasoning, coding, and agentic workloads."
 icon: "/icons/brands/anthropic.svg"
 ---
 
 # Anthropic Claude Opus 5
 
-Use this guide when you are moving from `anthropic/claude-opus-4.8` to `anthropic/claude-opus-5`.
+Use this guide to adopt `anthropic/claude-opus-5` safely in production.
 
 Claude Opus 5 is the current Opus model for complex reasoning, long-horizon agentic coding, and high-autonomy workflows. It keeps the same price as Opus 4.8 while supporting a 1M-token context window and up to 128K output tokens.
 
@@ -29,9 +29,9 @@ Claude Opus 5 is the current Opus model for complex reasoning, long-horizon agen
 }
 ```
 
-## What changed
+## What's new
 
-- the target model becomes `anthropic/claude-opus-5`
+- the Phaseo model ID is `anthropic/claude-opus-5`
 - the context window is 1M tokens
 - the maximum output is 128K tokens
 - the model is positioned for longer-running reasoning, coding, and autonomous tool workflows

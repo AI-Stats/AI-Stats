@@ -1,20 +1,16 @@
 ---
 title: "Mistral Small 4"
-description: "Gateway migration notes for upgrading Mistral Small traffic to Mistral Small 4, including reasoning_effort behavior."
+description: "What to know when adopting Mistral Small 4, including reasoning controls and normalized response fields."
 icon: "/icons/brands/mistral.svg"
 ---
 
 # Mistral Small 4
 
-Use this guide when migrating Mistral Small routes to:
+Use this guide to adopt Mistral Small 4 safely through the Phaseo Gateway:
 
 - `mistral/mistral-small-4-2026-03-16`
 
-Previous common route:
-
-- `mistral/mistral-small-3-2-2025-06-20`
-
-## What changed
+## What's new
 
 - Mistral Small 4 exposes a reasoning mode control via `reasoning_effort`.
 - Gateway sends only two upstream values for this model route:

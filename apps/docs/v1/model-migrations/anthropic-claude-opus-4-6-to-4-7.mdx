@@ -1,16 +1,16 @@
 ---
 title: "Anthropic Claude Opus 4.7"
-description: "Model migration notes for upgrading Anthropic Claude Opus 4.6 traffic to Claude Opus 4.7."
+description: "What to know when adopting Claude Opus 4.7, including adaptive thinking, sampling controls, and token usage."
 icon: "/icons/brands/anthropic.svg"
 ---
 
 # Anthropic Claude Opus 4.7
 
-Use this guide when moving from `anthropic/claude-opus-4.6` to `anthropic/claude-opus-4.7`.
+Use this guide to adopt `anthropic/claude-opus-4.7` safely in production.
 
 Claude Opus 4.7 introduces request-shape changes that can hard-fail old 4.6 patterns if left unchanged.
 
-## What changed
+## What's new
 
 - New effort level: `xhigh` (Messages API)
 - Extended thinking budgets were removed for Opus 4.7 (`thinking: { type: "enabled", budget_tokens: ... }` now fails)
@@ -31,13 +31,7 @@ To reduce migration breakage, Phaseo accepts legacy Opus 4.6 fields for Opus 4.7
 
 ### 1. Update model ID
 
-Move from:
-
-- `anthropic/claude-opus-4.6`
-
-to:
-
-- `anthropic/claude-opus-4.7`
+Set the model ID to `anthropic/claude-opus-4.7`.
 
 ### 2. Move to adaptive thinking with summarized display
 
