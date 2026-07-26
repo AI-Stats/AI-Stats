@@ -86,6 +86,7 @@ General policy:
   - Uses OIDC trusted publishing for PyPI and RubyGems
   - Trusted-publisher identity: repository owner `phaseoteam`, repository `Phaseo`, workflow `publish-agent-sdks.yml`, environment `release`
   - Uses the Phaseo GitHub App for Go tags and the PHP split repository
+  - Refreshes `phaseo/agent-sdk` on Packagist with the required `PACKAGIST_USERNAME` and `PACKAGIST_SAFE_TOKEN` release-environment secrets
   - Optional repo variable: `PHP_AGENT_SDK_SPLIT_REPO` (defaults to `phaseoteam/phaseo-php-agent-sdk`)
 
 - First npm publish / bootstrap: `.github/workflows/npm-bootstrap-publish.yml`
@@ -113,10 +114,10 @@ General policy:
   - Publishes by creating/pushing monorepo tag `sdk-php/vX.Y.Z`
   - Syncs `packages/sdk/sdk-php` to split repo main and pushes split tag `vX.Y.Z`
   - Uses the Phaseo GitHub App token to update the split repository
-  - Relies on the split repository's Packagist webhook by default
-  - Optional secrets for an immediate Packagist API refresh:
+  - Refreshes `phaseo/sdk` through the Packagist API after publishing the split tag
+  - Required `release` environment secrets:
     - `PACKAGIST_USERNAME`
-    - `PACKAGIST_MAIN_TOKEN`
+    - `PACKAGIST_SAFE_TOKEN`
   - Optional repo variable:
     - `PHP_SDK_SPLIT_REPO` (defaults to `phaseoteam/phaseo-php-sdk`)
 

@@ -42,6 +42,24 @@ jobs:
           pnpm run test
           pnpm publish --dry-run --no-git-checks
 
+  packagist-credentials:
+    name: Packagist credentials
+    if: inputs.checkSecrets
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - name: Check required Packagist refresh credentials
+        env:
+          PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
+          PACKAGIST_SAFE_TOKEN: ${{ secrets.PACKAGIST_SAFE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${PACKAGIST_USERNAME:-}" ] || [ -z "${PACKAGIST_SAFE_TOKEN:-}" ]; then
+            echo "::error::Missing PACKAGIST_USERNAME or PACKAGIST_SAFE_TOKEN in the release environment."
+            exit 1
+          fi
+
   go:
     name: Go readiness
     runs-on: ubuntu-latest
@@ -147,18 +165,6 @@ jobs:
           composer validate --strict
           php tests/lifecycle_test.php
           (cd ../agent-sdk-php && composer validate --strict && php tests/agent_loop_test.php)
-      - name: Check optional Packagist refresh credentials
-        if: inputs.checkSecrets
-        env:
-          PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
-          PACKAGIST_MAIN_TOKEN: ${{ secrets.PACKAGIST_MAIN_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -z "${PACKAGIST_USERNAME:-}" ] || [ -z "${PACKAGIST_MAIN_TOKEN:-}" ]; then
-            echo "Packagist API refresh credentials are not set; publishing will rely on the repository webhook."
-          fi
-
   ruby:
     name: Ruby readiness
     runs-on: ubuntu-latest
