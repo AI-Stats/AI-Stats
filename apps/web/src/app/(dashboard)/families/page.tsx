@@ -5,6 +5,7 @@ import { Logo } from "@/components/Logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { FamilyCard } from "@/lib/fetchers/families/types";
+import { sortFamiliesByRecentAddition } from "@/lib/fetchers/families/sortFamilies";
 import { fetchFrontendFamilies } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 
 export const metadata: Metadata = {
@@ -24,7 +25,9 @@ export const metadata: Metadata = {
 };
 
 async function FamiliesSection() {
-	const families = (await fetchFrontendFamilies()) as FamilyCard[];
+	const families = sortFamiliesByRecentAddition(
+		(await fetchFrontendFamilies()) as FamilyCard[],
+	);
 
 	return (
 		<div className="space-y-6">
@@ -32,7 +35,7 @@ async function FamiliesSection() {
 				<div>
 					<h1 className="text-2xl font-semibold">Model families</h1>
 					<p className="text-sm text-muted-foreground">
-						Browse model families and explore related releases.
+						Browse the latest model families added to Phaseo.
 					</p>
 				</div>
 				<span className="text-sm text-muted-foreground">

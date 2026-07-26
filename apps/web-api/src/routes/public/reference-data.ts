@@ -266,13 +266,14 @@ publicReferenceDataRouter.get("/families", async (c) => {
 	try {
 		const { data, error } = await getDataClient(c.env)
 			.from("data_model_families")
-			.select("family_id,family_name,organisation_id")
-			.order("family_name", { ascending: true });
+			.select("family_id,family_name,organisation_id,created_at")
+			.order("created_at", { ascending: false });
 		if (error) throw error;
 		const families = (data ?? []).map((row) => ({
 			family_id: row.family_id,
 			family_name: row.family_name ?? row.family_id,
 			organisation_id: row.organisation_id ?? String(row.family_id ?? "").split("/")[0] ?? "",
+			created_at: row.created_at ?? null,
 		}));
 		return withPublicCache(c.json({ families }), policy("web-api-families"));
 	} catch (error) {

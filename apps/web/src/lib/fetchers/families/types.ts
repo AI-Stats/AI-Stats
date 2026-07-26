@@ -2,6 +2,7 @@ export type FamilyCard = {
 	family_id: string;
 	family_name: string;
 	organisation_id: string;
+	created_at?: string | null;
 };
 
 export type FamilyModelStatus =

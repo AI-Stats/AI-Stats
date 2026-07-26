@@ -1,5 +1,6 @@
 ---
 "@phaseo/web": patch
+"@phaseo/web-api": patch
 ---
 
-Add explicit previous, next, and family navigation to model About sections, and attach model licence sources directly to licence metadata without duplicating them in the generic links grid.
+Add explicit previous, next, and family navigation to model About sections, attach model licence sources directly to licence metadata, and modernise dedicated family pages with recent-first directory and member ordering.

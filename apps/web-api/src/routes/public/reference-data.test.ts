@@ -51,6 +51,7 @@ describe("public reference-data routes", () => {
 					family_id: "openai/gpt",
 					family_name: "GPT",
 					organisation_id: "openai",
+					created_at: "2026-07-01T00:00:00.000Z",
 					models: [{
 						model_id: "openai/gpt-test",
 						name: "GPT Test",
@@ -114,7 +115,11 @@ describe("public reference-data routes", () => {
 			expect(response.headers.get("cache-tag")).toContain("web-api-reference-data");
 		}
 		await expect(families.json()).resolves.toMatchObject({
-			families: [{ family_id: "openai/gpt", organisation_id: "openai" }],
+			families: [{
+				family_id: "openai/gpt",
+				organisation_id: "openai",
+				created_at: "2026-07-01T00:00:00.000Z",
+			}],
 		});
 		await expect(family.json()).resolves.toMatchObject({
 			family_id: "openai/gpt",

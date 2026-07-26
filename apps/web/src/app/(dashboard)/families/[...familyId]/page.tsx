@@ -60,7 +60,7 @@ function sortMembers(members: FamilyModelItem[]) {
 	return [...members].sort((left, right) => {
 		const leftDate = getMemberDate(left);
 		const rightDate = getMemberDate(right);
-		if (leftDate && rightDate) return leftDate.getTime() - rightDate.getTime();
+		if (leftDate && rightDate) return rightDate.getTime() - leftDate.getTime();
 		if (leftDate) return -1;
 		if (rightDate) return 1;
 		return left.name.localeCompare(right.name);
@@ -70,7 +70,8 @@ function sortMembers(members: FamilyModelItem[]) {
 function getReleaseSpan(members: FamilyModelItem[]) {
 	const dates = members
 		.map(getMemberDate)
-		.filter((date): date is Date => Boolean(date));
+		.filter((date): date is Date => Boolean(date))
+		.sort((left, right) => left.getTime() - right.getTime());
 	if (!dates.length) return "Dates pending";
 
 	const first = dates[0];
@@ -146,7 +147,7 @@ export default async function Page({
 
 	return (
 		<main className="min-h-screen">
-			<div className="container mx-auto px-4 py-8 md:py-12">
+			<div className="container mx-auto px-4 py-7 md:py-9">
 				<Link
 					href="/families"
 					className="group inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -155,11 +156,11 @@ export default async function Page({
 					All model families
 				</Link>
 
-				<header className="mt-10 grid gap-8 border-b border-border/70 pb-10 lg:grid-cols-[minmax(0,1fr)_minmax(420px,0.75fr)] lg:items-end">
-					<div className="flex items-start gap-5 md:gap-7">
-						<div className="relative mt-1 flex size-14 shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-background md:size-16">
+				<header className="mt-7 grid gap-6 border-b border-border/70 pb-8 lg:grid-cols-[minmax(0,1fr)_minmax(380px,0.65fr)] lg:items-center">
+					<div className="flex items-start gap-4 md:gap-5">
+						<div className="relative flex size-12 shrink-0 items-center justify-center rounded-xl border border-border/70 bg-background md:size-14">
 							{primaryOrganisationId ? (
-								<div className="relative size-9 md:size-10">
+								<div className="relative size-7 md:size-8">
 									<Logo
 										id={primaryOrganisationId}
 										alt={primaryOrganisationName ?? family.family_name}
@@ -168,23 +169,20 @@ export default async function Page({
 									/>
 								</div>
 							) : (
-								<Layers3 className="size-7 text-muted-foreground" />
+								<Layers3 className="size-6 text-muted-foreground" />
 							)}
 						</div>
 						<div>
-							<p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-								Model family
-							</p>
-							<h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground md:text-6xl">
+							<h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
 								{family.family_name}
 							</h1>
-							<p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
-								Follow the releases in this family from earliest launch to latest variant.
+							<p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
+								Follow the releases in this family from the latest variant back through its history.
 							</p>
 							{primaryOrganisationId ? (
 								<Link
 									href={`/organisations/${primaryOrganisationId}`}
-									className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
+									className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
 								>
 									By {primaryOrganisationName}
 									<ArrowUpRight className="size-3.5" />
@@ -202,7 +200,7 @@ export default async function Page({
 						].map((stat) => (
 							<div
 								key={stat.label}
-								className="border-b border-r border-border/70 px-4 py-4 even:border-r-0 [&:nth-child(n+3)]:border-b-0 lg:first:pl-0"
+								className="border-b border-r border-border/70 px-4 py-3 even:border-r-0 [&:nth-child(n+3)]:border-b-0"
 							>
 								<dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
 									{stat.label}
@@ -215,20 +213,20 @@ export default async function Page({
 					</dl>
 				</header>
 
-				<section className="py-10 md:py-14" aria-labelledby="family-members-heading">
-					<div className="mb-7 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+				<section className="py-8 md:py-10" aria-labelledby="family-members-heading">
+					<div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
 						<div>
 							<p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
 								Release history
 							</p>
 							<h2
 								id="family-members-heading"
-								className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl"
+								className="mt-1.5 text-xl font-semibold tracking-tight md:text-2xl"
 							>
 								Family members
 							</h2>
 						</div>
-						<p className="text-sm text-muted-foreground">Oldest to newest</p>
+						<p className="text-sm text-muted-foreground">Newest to oldest</p>
 					</div>
 
 					{members.length ? (
@@ -245,16 +243,16 @@ export default async function Page({
 									<li key={member.model_id}>
 										<Link
 											href={`/models/${member.model_id}`}
-											className="group grid gap-5 py-6 transition-colors hover:bg-muted/25 sm:grid-cols-[64px_minmax(0,1fr)_180px_150px_24px] sm:items-center sm:px-3 md:py-7"
+											className="group grid gap-4 py-4 transition-colors hover:bg-muted/25 sm:grid-cols-[48px_minmax(0,1fr)_160px_135px_20px] sm:items-center sm:px-3 md:py-5"
 										>
-											<span className="font-mono text-sm text-muted-foreground">
+											<span className="font-mono text-xs text-muted-foreground">
 												{String(index + 1).padStart(2, "0")}
 											</span>
 											<div className="min-w-0">
-												<h3 className="text-lg font-semibold tracking-tight transition-colors group-hover:text-primary md:text-xl">
+												<h3 className="text-base font-semibold tracking-tight transition-colors group-hover:text-primary md:text-lg">
 													{member.name}
 												</h3>
-												<p className="mt-1 text-sm text-muted-foreground">
+												<p className="mt-0.5 text-sm text-muted-foreground">
 													{organisationName}
 												</p>
 											</div>
@@ -286,7 +284,7 @@ export default async function Page({
 					)}
 				</section>
 
-				<footer className="flex flex-col gap-5 border-t border-border/70 py-8 sm:flex-row sm:items-center sm:justify-between">
+				<footer className="flex flex-col gap-4 border-t border-border/70 py-6 sm:flex-row sm:items-center sm:justify-between">
 					<div className="flex items-start gap-3">
 						<Building2 className="mt-0.5 size-5 text-muted-foreground" />
 						<div>
