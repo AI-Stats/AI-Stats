@@ -40,6 +40,7 @@ import {
 	fetchFrontendModelApps,
 	fetchFrontendModelBenchmarkHighlights,
 	fetchFrontendModelGatewayMetadata,
+	fetchFrontendModelHeader,
 	fetchFrontendModelOverview,
 	fetchFrontendModelPendingApiReleaseState,
 	fetchFrontendModelPerformance,
@@ -70,6 +71,7 @@ import { getModalityTone } from "@/lib/models/modalityStyles";
 import {
 	getModelLicenseUrl,
 	getModelLineageLinks,
+	resolveModelLineageNames,
 } from "@/components/(data)/model/overview/modelOverviewMetadata";
 
 type ModelOverviewSectionsProps = {
@@ -699,6 +701,28 @@ export async function ModelLineageSection({
 	model,
 }: ModelSectionSharedProps & { model?: ModelOverviewPage | null }) {
 	const overview = model ?? (await fetchFrontendModelOverview(modelId));
+	const timeline = overview?.previous_model_id
+		? await withOptionalSectionTimeout(
+				fetchFrontendModelTimeline(modelId),
+				null,
+				"model lineage",
+			)
+		: null;
+	const previousLineage = overview
+		? (
+				await resolveModelLineageNames(
+					getModelLineageLinks(timeline?.events, overview.previous_model_id),
+					async (lineageModelId) =>
+						(
+							await withOptionalSectionTimeout(
+								fetchFrontendModelHeader(lineageModelId),
+								null,
+								"lineage model name",
+							)
+						)?.name,
+				)
+			).previous
+		: null;
 
 	return (
 		<Section id="family">
@@ -716,12 +740,12 @@ export async function ModelLineageSection({
 						<p className="text-[11px] uppercase tracking-wide text-muted-foreground">
 							Parent Model
 						</p>
-						{overview.previous_model_id ? (
+						{previousLineage ? (
 							<Link
-								href={`/models/${overview.previous_model_id}`}
+								href={`/models/${previousLineage.modelId}`}
 								className="text-sm font-semibold underline decoration-transparent hover:decoration-current"
 							>
-								{overview.previous_model_id}
+								{previousLineage.modelName}
 							</Link>
 						) : (
 							<p className="text-sm text-muted-foreground">
@@ -735,7 +759,7 @@ export async function ModelLineageSection({
 						</p>
 						{overview.family_id ? (
 							<Link
-								href={`/models/${modelId}/family`}
+								href={`/families/${overview.family_id}`}
 								className="text-sm font-semibold underline decoration-transparent hover:decoration-current"
 							>
 								View family graph
@@ -776,9 +800,16 @@ export async function ModelAboutSection({
 		null,
 		"model lineage",
 	);
-	const lineage = getModelLineageLinks(
-		timeline?.events,
-		model.previous_model_id,
+	const lineage = await resolveModelLineageNames(
+		getModelLineageLinks(timeline?.events, model.previous_model_id),
+		async (lineageModelId) =>
+			(
+				await withOptionalSectionTimeout(
+					fetchFrontendModelHeader(lineageModelId),
+					null,
+					"lineage model name",
+				)
+			)?.name,
 	);
 	const hasLineage = Boolean(lineage.previous || lineage.next || model.family_id);
 	const hasDirectionalLineage = Boolean(lineage.previous || lineage.next);
@@ -903,7 +934,7 @@ export async function ModelAboutSection({
 					) : null}
 					{model.family_id ? (
 						<Link
-							href={`/models/${model.model_id}/family`}
+							href={`/families/${model.family_id}`}
 							className="group flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border/70 bg-card px-3 py-3 transition-colors hover:bg-muted/30"
 						>
 							<div className="min-w-0">

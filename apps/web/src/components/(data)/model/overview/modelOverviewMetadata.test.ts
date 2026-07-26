@@ -3,6 +3,7 @@ import {
 	getModelLineageLinks,
 	getGenericModelLinks,
 	isLicenseModelLink,
+	resolveModelLineageNames,
 } from "./modelOverviewMetadata";
 
 describe("model overview metadata", () => {
@@ -59,5 +60,30 @@ describe("model overview metadata", () => {
 			},
 			next: { modelId: "openai/gpt-next", modelName: "GPT Next" },
 		});
+	});
+
+	it("resolves raw lineage IDs to display names", async () => {
+		const lineage = getModelLineageLinks(
+			[],
+			"amazon/nova-lite-1-0-2024-12-04",
+		);
+		const resolved = await resolveModelLineageNames(lineage, async (modelId) =>
+			modelId === "amazon/nova-lite-1-0-2024-12-04" ? "Nova Lite" : null,
+		);
+
+		expect(resolved.previous).toEqual({
+			modelId: "amazon/nova-lite-1-0-2024-12-04",
+			modelName: "Nova Lite",
+		});
+	});
+
+	it("humanizes the model slug when a catalog name is unavailable", async () => {
+		const lineage = getModelLineageLinks(
+			[],
+			"amazon/nova-lite-1-0-2024-12-04",
+		);
+		const resolved = await resolveModelLineageNames(lineage, async () => null);
+
+		expect(resolved.previous?.modelName).toBe("Nova Lite 1.0");
 	});
 });
