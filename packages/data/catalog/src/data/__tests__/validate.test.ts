@@ -298,6 +298,10 @@ describe('api provider model safety checks', () => {
                 url: 'https://siliconflow.cn/pricing',
             },
         ]));
+        expect(model.page_notice).toMatchObject({
+            tone: 'info',
+        });
+        expect(model.page_notice.markdown).toContain('July 27, 2026 at 15:00 UTC');
     });
 
     test.each(['together', 'baseten', 'fireworks'])(
