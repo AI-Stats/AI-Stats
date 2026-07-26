@@ -37,9 +37,6 @@ jobs:
           client-id: ${{ secrets.PHASEO_APP_CLIENT_ID }}
           private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
           owner: phaseoteam
-          repositories: |
-            Phaseo
-            phaseo-php-sdk
 
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
@@ -75,30 +72,7 @@ jobs:
           fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Check Packagist release status
-        id: registry
-        env:
-          VERSION: ${{ steps.version.outputs.value }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --input-type=module - <<'NODE'
-          import fs from "node:fs";
-          const version = process.env.VERSION;
-          const output = process.env.GITHUB_OUTPUT;
-          const response = await fetch("https://repo.packagist.org/p2/phaseo/sdk.json");
-          if (!response.ok && response.status !== 404) {
-            console.error(`::error::Unexpected Packagist response: HTTP ${response.status}`);
-            process.exit(1);
-          }
-          const releases = response.ok ? (await response.json()).packages?.["phaseo/sdk"] ?? [] : [];
-          const exists = releases.some((release) => release.version_normalized === `${version}.0` || release.version === version);
-          fs.appendFileSync(output, `should_publish=${exists ? "false" : "true"}\n`);
-          console.log(`phaseo/sdk ${version} ${exists ? "already exists on" : "is missing from"} Packagist.`);
-          NODE
-
       - name: Validate telemetry literal matches publish version
-        if: steps.registry.outputs.should_publish == 'true'
         env:
           VERSION: ${{ steps.version.outputs.value }}
         shell: bash
@@ -122,14 +96,12 @@ jobs:
           NODE
 
       - name: Validate composer package
-        if: steps.registry.outputs.should_publish == 'true'
         run: |
           php -v
           php -r "json_decode(file_get_contents('packages/sdk/sdk-php/composer.json')); if (json_last_error()) { fwrite(STDERR, 'Invalid composer.json'.PHP_EOL); exit(1);} "
           php packages/sdk/sdk-php/tests/lifecycle_test.php
 
       - name: Create and push SDK tag
-        if: steps.registry.outputs.should_publish == 'true'
         env:
           VERSION: ${{ steps.version.outputs.value }}
           GH_APP_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -149,7 +121,6 @@ jobs:
           fi
 
       - name: Sync PHP split repo and publish split tag
-        if: steps.registry.outputs.should_publish == 'true'
         id: split_repo
         env:
           VERSION: ${{ steps.version.outputs.value }}
@@ -178,7 +149,6 @@ jobs:
           echo "repo_url=${split_repo_url}" >> "$GITHUB_OUTPUT"
 
       - name: Notify Packagist
-        if: steps.registry.outputs.should_publish == 'true'
         env:
           PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
           PACKAGIST_MAIN_TOKEN: ${{ secrets.PACKAGIST_MAIN_TOKEN }}

@@ -62,31 +62,7 @@ jobs:
           fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Check NuGet release status
-        id: registry
-        env:
-          VERSION: ${{ steps.version.outputs.value }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          status="$(curl -sS -o /dev/null -w '%{http_code}' "https://api.nuget.org/v3-flatcontainer/phaseo.sdk/${VERSION}/phaseo.sdk.${VERSION}.nupkg")"
-          case "$status" in
-            200)
-              echo "should_publish=false" >> "$GITHUB_OUTPUT"
-              echo "Phaseo.Sdk ${VERSION} already exists on NuGet."
-              ;;
-            404)
-              echo "should_publish=true" >> "$GITHUB_OUTPUT"
-              echo "Phaseo.Sdk ${VERSION} is missing from NuGet."
-              ;;
-            *)
-              echo "::error::Unexpected NuGet response: HTTP ${status}"
-              exit 1
-              ;;
-          esac
-
       - name: Validate telemetry literal matches publish version
-        if: steps.registry.outputs.should_publish == 'true'
         env:
           VERSION: ${{ steps.version.outputs.value }}
         shell: bash
@@ -110,7 +86,6 @@ jobs:
           NODE
 
       - name: Build package
-        if: steps.registry.outputs.should_publish == 'true'
         run: |
           dotnet test packages/sdk/sdk-csharp/tests/Phaseo.Sdk.Tests/Phaseo.Sdk.Tests.csproj -c Release
           dotnet pack packages/sdk/sdk-csharp/Phaseo.Sdk.csproj \
@@ -120,14 +95,12 @@ jobs:
             /p:PackageVersion=${{ steps.version.outputs.value }}
 
       - name: NuGet login (OIDC -> temporary API key)
-        if: steps.registry.outputs.should_publish == 'true'
         id: nuget_login
         uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841
         with:
           user: ${{ vars.NUGET_TRUSTED_PUBLISHING_USER || github.repository_owner }}
 
       - name: Publish to NuGet
-        if: steps.registry.outputs.should_publish == 'true'
         run: |
           dotnet nuget push "artifacts/csharp/*.nupkg" \
             --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" \

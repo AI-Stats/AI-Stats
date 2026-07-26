@@ -27,9 +27,6 @@ jobs:
           client-id: ${{ secrets.PHASEO_APP_CLIENT_ID }}
           private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
           owner: phaseoteam
-          repositories: |
-            Phaseo
-            phaseo-php-sdk
 
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
