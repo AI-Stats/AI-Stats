@@ -146,6 +146,7 @@ async function isStatsigGateEnabled(
 				"statsig-api-key": statsigKey,
 			},
 			body: JSON.stringify({ gateName, user }),
+			signal: AbortSignal.timeout(2_000),
 		});
 		if (!response.ok) return false;
 		const payload = (await response.json().catch(() => null)) as StatsigGateResponse | null;

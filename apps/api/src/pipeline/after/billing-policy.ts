@@ -42,10 +42,21 @@ export function applySuccessfulResponseBillingPolicy(args: {
 		};
 	}
 	const pricing = args.pricedUsage?.pricing;
+	const byokBilling = args.pricedUsage?.byok_billing;
 	return {
 		pricedUsage: pricing && typeof pricing === "object"
 			? {
 				...args.pricedUsage,
+				...(byokBilling && typeof byokBilling === "object"
+					? {
+						byok_billing: {
+							...byokBilling,
+							fee_applied: false,
+							fee_nanos: 0,
+							charged_nanos: 0,
+						},
+					}
+					: {}),
 				pricing: {
 					...pricing,
 					subtotal_nanos: Math.max(0, Math.round(args.totalNanos)),

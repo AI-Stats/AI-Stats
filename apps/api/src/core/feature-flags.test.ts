@@ -134,6 +134,7 @@ describe("batch API feature gate", () => {
 				headers: expect.objectContaining({
 					"statsig-api-key": "secret-statsig-key",
 				}),
+				signal: expect.any(AbortSignal),
 			}),
 		);
 	});

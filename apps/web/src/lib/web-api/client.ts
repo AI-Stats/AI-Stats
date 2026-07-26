@@ -63,12 +63,16 @@ export async function fetchAccountWebApi<T>(
 		},
 		cache: "no-store",
 	});
-	const payload = await response.json() as T & { error?: unknown };
+	const payload = await response.json() as T & { error?: unknown; message?: unknown; detail?: unknown };
 	if (!response.ok) {
 		throw new WebApiError(
 			path,
 			response.status,
-			typeof payload?.error === "string" ? payload.error : undefined,
+			typeof payload?.message === "string"
+				? payload.message
+				: typeof payload?.detail === "string"
+					? payload.detail
+					: typeof payload?.error === "string" ? payload.error : undefined,
 		);
 	}
 	return payload;

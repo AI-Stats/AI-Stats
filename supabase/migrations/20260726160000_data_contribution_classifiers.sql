@@ -43,7 +43,7 @@ create index if not exists workspace_settings_data_contribution_actor_idx
 
 create table if not exists public.data_contribution_consent_events (
   id uuid primary key default gen_random_uuid(),
-  workspace_id uuid not null references public.workspaces(id) on delete restrict,
+  workspace_id uuid not null references public.workspaces(id) on delete cascade,
   actor_type text not null check (actor_type in ('user', 'management_key', 'system')),
   actor_user_id uuid references auth.users(id) on delete set null,
   actor_key_id uuid,

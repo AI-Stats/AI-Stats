@@ -25,6 +25,7 @@ export async function callDataContributionGateway(args: {
 }): Promise<GatewayResult> {
 	const authorization = args.request.headers.get("authorization");
 	if (!authorization) return { status: 401, payload: { error: "unauthorized" } };
+	if (!args.workspaceId.trim()) return { status: 400, payload: { error: "bad_request", message: "workspaceId is required" } };
 	try {
 		const response = await fetch(
 			`${gatewayOrigin(args.env)}/v1/data-contribution${args.path ?? ""}`,
@@ -36,6 +37,7 @@ export async function callDataContributionGateway(args: {
 					...(args.body === undefined ? {} : { "Content-Type": "application/json" }),
 				},
 				body: args.body === undefined ? undefined : JSON.stringify(args.body),
+				signal: AbortSignal.timeout(10_000),
 			},
 		);
 		return {

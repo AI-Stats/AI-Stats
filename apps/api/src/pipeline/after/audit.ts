@@ -635,7 +635,7 @@ export async function handleSuccessAudit(
 	if (!byok && ctx.teamSettings?.dataContributionEnabled === true) {
 		const pricing = (usageWithMultimodal as any)?.pricing;
 		const currentDiscountNanos = currentDataContributionDiscountNanos(pricing, totalNanos);
-		await persistDataContribution({
+		const capture = await persistDataContribution({
 			requestId: ctx.requestId,
 			workspaceId: ctx.workspaceId,
 			endpoint: ctx.endpoint,
@@ -647,6 +647,13 @@ export async function handleSuccessAudit(
 			discountNanos: currentDiscountNanos,
 			policy: normalizeDataContributionPolicy(ctx.teamSettings),
 		});
+		if (capture.status === "error") {
+			console.error("data_contribution_capture_unavailable", {
+				requestId: ctx.requestId,
+				workspaceId: ctx.workspaceId,
+				status: capture.status,
+			});
+		}
 	}
 }
 

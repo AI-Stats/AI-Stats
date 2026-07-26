@@ -12,8 +12,10 @@ import {
 	DATA_CONTRIBUTION_POLICY_VERSION,
 } from "@/pipeline/classification/data-contribution";
 import {
+	ALLOWED_CLASSIFIER_MODELS,
 	ensureStarterClassifier,
 	OPENROUTER_TASK_CATEGORIES,
+	STARTER_CLASSIFIER_SLUG,
 } from "@/pipeline/classification/classifier-worker";
 import {
 	isResponse,
@@ -70,7 +72,11 @@ async function requireAdminPreview(
 	const roleResult = await getSupabaseAdmin().from("users")
 		.select("role").eq("user_id", userId).maybeSingle();
 	const isPhaseoAdmin = !roleResult.error && String(roleResult.data?.role ?? "").toLowerCase() === "admin";
-	const featureEnabled = isPhaseoAdmin && await isDataContributionAccessEnabled({
+	if (!isPhaseoAdmin) {
+		if (auditConsentDenials) await auditConsentDenial(auth, "not_phaseo_admin");
+		return json({ error: "not_found" }, 404, { "Cache-Control": "no-store" });
+	}
+	const featureEnabled = await isDataContributionAccessEnabled({
 		workspaceId: auth.workspaceId,
 		apiKeyId: auth.apiKeyId,
 		apiKeyRef: auth.apiKeyRef,
@@ -191,7 +197,11 @@ function classifierPatch(body: Record<string, unknown>, creating: boolean): Reco
 	if (creating || body.categories !== undefined) patch.categories = categoriesFrom(body.categories);
 	if (body.description !== undefined) patch.description = String(body.description ?? "").trim().slice(0, 500) || null;
 	if (body.enabled !== undefined) patch.enabled = body.enabled === true;
-	if (body.model !== undefined) patch.model = String(body.model ?? "").trim().slice(0, 160) || "gpt-5-mini";
+	if (body.model !== undefined) {
+		const model = String(body.model ?? "").trim().replace(/^openai\//, "").slice(0, 160) || "gpt-5-mini";
+		if (!ALLOWED_CLASSIFIER_MODELS.has(model)) throw new Error("classifier model is not approved");
+		patch.model = model;
+	}
 	if (body.serviceTier !== undefined || body.service_tier !== undefined) {
 		const tier = String(body.serviceTier ?? body.service_tier).trim().toLowerCase();
 		if (!["standard", "flex"].includes(tier)) throw new Error("service tier must be standard or flex");
@@ -269,7 +279,14 @@ async function updateConsent(req: Request) {
 			p_discount_bps: DISCOUNT_BPS,
 		});
 		if (settingsError) throw settingsError;
-		await invalidateWorkspaceKeys(auth.workspaceId);
+		try {
+			await invalidateWorkspaceKeys(auth.workspaceId);
+		} catch (error) {
+			console.error("data_contribution_consent_cache_invalidation_failed", {
+				workspaceId: auth.workspaceId,
+				error: error instanceof Error ? error.message : String(error),
+			});
+		}
 		return json({ data: { enabled, policyVersion: DATA_CONTRIBUTION_POLICY_VERSION, sampleRateBps: SAMPLE_RATE_BPS, classifierSampleRateBps: CLASSIFIER_SAMPLE_RATE_BPS, discountBps: DISCOUNT_BPS } }, 200, { "Cache-Control": "no-store" });
 	} catch (error) {
 		return internalServerError("data-contribution.consent", error);
@@ -284,7 +301,7 @@ async function createClassifier(req: Request) {
 	try {
 		const name = String(body.name ?? "").trim();
 		const slugBase = String(body.slug ?? name).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 64);
-		if (!slugBase || slugBase === "openrouter-task-v1") throw new Error("a unique custom slug is required");
+		if (!slugBase || slugBase === STARTER_CLASSIFIER_SLUG) throw new Error("a unique custom slug is required");
 		const { data, error } = await getSupabaseAdmin().from("workspace_classifiers").insert({
 			workspace_id: auth.workspaceId,
 			slug: slugBase,
@@ -330,5 +347,9 @@ export const dataContributionRoutes = new Hono<Env>();
 dataContributionRoutes.get("/", withRuntime(getOverview));
 dataContributionRoutes.patch("/consent", withRuntime(updateConsent));
 dataContributionRoutes.post("/classifiers", withRuntime(createClassifier));
-dataContributionRoutes.patch("/classifiers/:id", withRuntime((req) => updateClassifier(req, new URL(req.url).pathname.split("/").pop() ?? "")));
-dataContributionRoutes.delete("/classifiers/:id", withRuntime((req) => deleteClassifier(req, new URL(req.url).pathname.split("/").pop() ?? "")));
+function classifierId(req: Request): string {
+	return new URL(req.url).pathname.replace(/\/+$/, "").split("/").pop() ?? "";
+}
+
+dataContributionRoutes.patch("/classifiers/:id", withRuntime((req) => updateClassifier(req, classifierId(req))));
+dataContributionRoutes.delete("/classifiers/:id", withRuntime((req) => deleteClassifier(req, classifierId(req))));

@@ -38,6 +38,9 @@ export const OPENROUTER_TASK_CATEGORIES = {
 	general: ["chat", "creative_writing", "translation", "summarization", "question_answering", "other"],
 } as const;
 
+export const STARTER_CLASSIFIER_SLUG = "openrouter-task-v1";
+export const ALLOWED_CLASSIFIER_MODELS = new Set(["gpt-5-mini"]);
+
 export const OPENROUTER_TASK_INSTRUCTIONS = [
 	"Classify the user request by its primary task, not its subject matter.",
 	"Choose exactly one primary category from the supplied taxonomy and zero or more labels.",
@@ -48,7 +51,7 @@ export const OPENROUTER_TASK_INSTRUCTIONS = [
 export function starterClassifierRow(workspaceId: string, createdBy?: string | null) {
 	return {
 		workspace_id: workspaceId,
-		slug: "openrouter-task-v1",
+		slug: STARTER_CLASSIFIER_SLUG,
 		name: "Task categories",
 		description: "OpenRouter-compatible task taxonomy starter preset.",
 		kind: "openrouter_task",
@@ -239,5 +242,9 @@ export async function runDataContributionClassifierJob(args?: { limit?: number; 
 		}
 	});
 	await Promise.all(workers);
+	const publicRollup = await client.rpc("refresh_public_model_task_daily", {
+		p_since: new Date(Date.now() - 86_400_000).toISOString().slice(0, 10),
+	});
+	if (publicRollup.error) throw new Error(publicRollup.error.message || "public classification rollup refresh failed");
 	return { claimed: rows.length, completed, failed };
 }

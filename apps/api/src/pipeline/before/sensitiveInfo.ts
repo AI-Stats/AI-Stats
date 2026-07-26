@@ -437,19 +437,21 @@ function analyzeSensitiveInfoText(
 		});
 }
 
-function redactText(text: string, matches: SensitiveInfoMatch[]): string {
-	if (matches.length === 0) return text;
+function redactText(text: string, matches: SensitiveInfoMatch[]): { text: string; redactionCount: number } {
+	if (matches.length === 0) return { text, redactionCount: 0 };
 	const sorted = matches.slice().sort((a, b) => a.start - b.start || a.end - b.end);
 	let cursor = 0;
 	let output = "";
+	let redactionCount = 0;
 	for (const match of sorted) {
 		if (match.start < cursor) continue;
 		output += text.slice(cursor, match.start);
 		output += match.placeholder;
 		cursor = match.end;
+		redactionCount += 1;
 	}
 	output += text.slice(cursor);
-	return output;
+	return { text: output, redactionCount };
 }
 
 const STORAGE_REDACTION_RULES: SensitiveInfoRule[] = (
@@ -462,10 +464,7 @@ export function redactSensitiveInfoForStorage(text: string): {
 	redactionCount: number;
 } {
 	const matches = analyzeSensitiveInfoText(text, STORAGE_REDACTION_RULES);
-	return {
-		text: redactText(text, matches),
-		redactionCount: matches.length,
-	};
+	return redactText(text, matches);
 }
 
 function resolveActions(matches: SensitiveInfoMatch[]): SensitiveInfoAction[] {
@@ -613,11 +612,11 @@ export function applySensitiveInfoGuardrails(args: {
 			(match) => match.action === "redact",
 		);
 		if (targetMatches.length === 0) continue;
-		const redactedText = redactText(target.text, targetMatches);
-		if (redactedText === target.text) continue;
-		redactionCount += targetMatches.length;
-		setPathValue(nextBody, target.path, redactedText);
-		setPathValue(nextRawBody, target.path, redactedText);
+		const redacted = redactText(target.text, targetMatches);
+		if (redacted.text === target.text) continue;
+		redactionCount += redacted.redactionCount;
+		setPathValue(nextBody, target.path, redacted.text);
+		setPathValue(nextRawBody, target.path, redacted.text);
 	}
 
 	return {

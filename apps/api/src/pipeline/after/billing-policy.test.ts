@@ -43,6 +43,24 @@ describe("suppressFailedResponseBilling", () => {
 		});
 	});
 
+	it("reconciles BYOK billing metadata when a response is suppressed", () => {
+		const result = applySuccessfulResponseBillingPolicy({
+			endpoint: "responses",
+			pricedUsage: {
+				output_tokens: 0,
+				pricing: { total_nanos: 50_000_000 },
+				byok_billing: { fee_applied: true, fee_nanos: 50_000_000, charged_nanos: 50_000_000 },
+			},
+			totalNanos: 50_000_000,
+			totalCents: 5,
+		});
+		expect(result.pricedUsage.byok_billing).toMatchObject({
+			fee_applied: false,
+			fee_nanos: 0,
+			charged_nanos: 0,
+		});
+	});
+
 	it("keeps valid tool and non-text output surfaces billable", () => {
 		expect(applySuccessfulResponseBillingPolicy({
 			endpoint: "responses",

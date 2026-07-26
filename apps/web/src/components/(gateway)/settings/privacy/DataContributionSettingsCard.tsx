@@ -89,11 +89,11 @@ export function DataContributionSettingsCard({ initial }: { initial: DataContrib
 			<div className="grid gap-5 border-b bg-gradient-to-br from-emerald-500/10 via-background to-sky-500/10 p-5 lg:grid-cols-[1fr_auto] lg:items-start">
 				<div className="space-y-2">
 					<div className="flex flex-wrap items-center gap-2">
-						<h2 className="text-base font-semibold">Contribute data, save 1%</h2>
+						<h2 className="text-base font-semibold">Contribute data, save {initial.discountBps / 100}%</h2>
 						<Badge variant={enabled ? "default" : "secondary"}>{enabled ? "Active" : "Opt in"}</Badge>
 					</div>
 					<p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-						Every eligible non-BYOK request receives a 1% discount. Phaseo retains up to 100% of successful prompts and completions
+						Every eligible non-BYOK request receives a {initial.discountBps / 100}% discount. Phaseo retains up to 100% of successful prompts and completions
 						after redacting secrets and personal information, in a dedicated private bucket for no more than 30 days.
 						Only {initial.classifierSampleRateBps / 100}% is currently selected for upstream classification.
 						Only aggregate task statistics appear here; raw content is never published.
@@ -117,7 +117,7 @@ export function DataContributionSettingsCard({ initial }: { initial: DataContrib
 							</div>
 							<DialogFooter>
 								<DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
-								<Button disabled={pending} onClick={() => changeConsent(true)}>Enable and save 1%</Button>
+								<Button disabled={pending} onClick={() => changeConsent(true)}>Enable and save {initial.discountBps / 100}%</Button>
 							</DialogFooter>
 						</DialogContent>
 					</Dialog>

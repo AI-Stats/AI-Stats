@@ -370,11 +370,6 @@ async function handleDataContributionRetentionScheduledEvent(env: GatewayBinding
 }
 
 export async function handleScheduledEvent(event: ScheduledController, env: GatewayBindings): Promise<void> {
-	try {
-		await handleDataContributionClassifierScheduledEvent(env);
-	} catch (error) {
-		console.error("data_contribution_classifier_scheduled_failed", serializeError(error));
-	}
 	if (isDailyRetentionBillingTick(event)) {
 		try {
 			await handleGatewayIoRetentionBillingScheduledEvent(event, env);
@@ -383,6 +378,11 @@ export async function handleScheduledEvent(event: ScheduledController, env: Gate
 		}
 	}
 	if (isCoreJobsTick(event)) {
+		try {
+			await handleDataContributionClassifierScheduledEvent(env);
+		} catch (error) {
+			console.error("data_contribution_classifier_scheduled_failed", serializeError(error));
+		}
 		try {
 			await handleDataContributionRetentionScheduledEvent(env);
 		} catch (error) {

@@ -15,6 +15,19 @@ describe("data contribution gateway proxy", () => {
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 
+	it("rejects a missing workspace before forwarding", async () => {
+		const fetchMock = vi.fn();
+		vi.stubGlobal("fetch", fetchMock);
+		await expect(callDataContributionGateway({
+			env: { ENV: "production" },
+			request: new Request("https://phaseo.app/api/account/settings/privacy", {
+				headers: { authorization: "Bearer oauth-token" },
+			}),
+			workspaceId: "",
+		})).resolves.toEqual({ status: 400, payload: { error: "bad_request", message: "workspaceId is required" } });
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
 	it("forwards authorization to the authoritative gateway gate", async () => {
 		const fetchMock = vi.fn(async () => new Response(JSON.stringify({ error: "not_found" }), { status: 404 }));
 		vi.stubGlobal("fetch", fetchMock);
@@ -34,6 +47,7 @@ describe("data contribution gateway proxy", () => {
 					authorization: "Bearer oauth-token",
 					"x-phaseo-workspace-id": "workspace-preview",
 				}),
+				signal: expect.any(AbortSignal),
 			}),
 		);
 	});

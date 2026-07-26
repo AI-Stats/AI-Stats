@@ -233,35 +233,49 @@ export async function persistDataContribution(
 
 	const bindings = getBindings();
 	const bucket = bindings.DATA_CONTRIBUTIONS_BUCKET;
-	if (!bucket) return { status: "missing_bucket", sampleBucket };
-	const now = new Date();
-	const retentionUntil = new Date(now.getTime() + DEFAULT_RETENTION_DAYS * 86_400_000);
-	const sanitizedRequest = sanitizeDataContributionPayload(input.requestPayload);
-	const sanitizedResponse = sanitizeDataContributionPayload(input.gatewayResponse);
-	const redactionCount = sanitizedRequest.redactionCount + sanitizedResponse.redactionCount;
-	const payload = {
-		schema_version: 1,
-		redaction_version: DATA_CONTRIBUTION_REDACTION_VERSION,
-		redaction_count: redactionCount,
-		request_id: input.requestId,
-		workspace_id: input.workspaceId,
-		endpoint: input.endpoint,
-		model: input.model,
-		provider: input.provider ?? null,
-		request: sanitizedRequest.value,
-		response: sanitizedResponse.value,
-	};
-	const bytes = new TextEncoder().encode(JSON.stringify(payload));
-	const configuredMax = Number(bindings.DATA_CONTRIBUTIONS_MAX_BYTES ?? DEFAULT_MAX_BYTES);
-	const maxBytes = Number.isFinite(configuredMax)
-		? Math.max(64 * 1024, Math.min(5 * 1024 * 1024, Math.trunc(configuredMax)))
-		: DEFAULT_MAX_BYTES;
-	if (bytes.byteLength > maxBytes) return { status: "too_large", sampleBucket };
-
-	const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
-	const sha256 = Array.from(digest).map((byte) => byte.toString(16).padStart(2, "0")).join("");
-	const objectKey = `contributions/${input.workspaceId}/${isoDatePath(now)}/${input.requestId}.json`;
+	if (!bucket) {
+		console.error("data_contribution_bucket_missing", {
+			workspaceId: input.workspaceId,
+			requestId: input.requestId,
+		});
+		return { status: "missing_bucket", sampleBucket };
+	}
 	try {
+		const now = new Date();
+		const retentionUntil = new Date(now.getTime() + DEFAULT_RETENTION_DAYS * 86_400_000);
+		const sanitizedRequest = sanitizeDataContributionPayload(input.requestPayload);
+		const sanitizedResponse = sanitizeDataContributionPayload(input.gatewayResponse);
+		const redactionCount = sanitizedRequest.redactionCount + sanitizedResponse.redactionCount;
+		const payload = {
+			schema_version: 1,
+			redaction_version: DATA_CONTRIBUTION_REDACTION_VERSION,
+			redaction_count: redactionCount,
+			request_id: input.requestId,
+			workspace_id: input.workspaceId,
+			endpoint: input.endpoint,
+			model: input.model,
+			provider: input.provider ?? null,
+			request: sanitizedRequest.value,
+			response: sanitizedResponse.value,
+		};
+		const bytes = new TextEncoder().encode(JSON.stringify(payload));
+		const configuredMax = Number(bindings.DATA_CONTRIBUTIONS_MAX_BYTES ?? DEFAULT_MAX_BYTES);
+		const maxBytes = Number.isFinite(configuredMax)
+			? Math.max(64 * 1024, Math.min(5 * 1024 * 1024, Math.trunc(configuredMax)))
+			: DEFAULT_MAX_BYTES;
+		if (bytes.byteLength > maxBytes) {
+			console.warn("data_contribution_payload_too_large", {
+				workspaceId: input.workspaceId,
+				requestId: input.requestId,
+				payloadBytes: bytes.byteLength,
+				maxBytes,
+			});
+			return { status: "too_large", sampleBucket };
+		}
+
+		const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+		const sha256 = Array.from(digest).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+		const objectKey = `contributions/${input.workspaceId}/${isoDatePath(now)}/${input.requestId}.json`;
 		await bucket.put(objectKey, bytes, {
 			httpMetadata: { contentType: "application/json" },
 			customMetadata: {
