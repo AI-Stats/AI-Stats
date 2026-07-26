@@ -166,6 +166,7 @@ export type GatewayIoLoggingPolicy = WorkspaceIoLoggingSettings & {
 export async function resolveGatewayIoLoggingPolicy(input: {
     workspaceId: string;
     keyId?: string | null;
+    allowContentCapture?: boolean;
 }): Promise<GatewayIoLoggingPolicy> {
     const bindings = getBindings();
     const [featureEnabled, settings] = await Promise.all([
@@ -178,7 +179,7 @@ export async function resolveGatewayIoLoggingPolicy(input: {
     return {
         ...settings,
         featureEnabled,
-        captureEnabled: featureEnabled && settings.enabled,
+        captureEnabled: input.allowContentCapture !== false && featureEnabled && settings.enabled,
     };
 }
 

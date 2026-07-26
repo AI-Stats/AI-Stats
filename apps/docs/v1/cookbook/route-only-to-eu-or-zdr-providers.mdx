@@ -25,8 +25,7 @@ curl https://api.phaseo.app/v1/responses \
     "model": "google/gemini-3.1-flash-lite",
     "input": "Summarize the ticket in one line.",
     "provider": {
-      "required_execution_region": "eu",
-      "required_data_region": "eu",
+      "region": "eu",
       "require_zero_data_retention": true
     }
   }'
@@ -41,8 +40,7 @@ const response = await client.generateResponse({
   model: "google/gemini-3.1-flash-lite",
   input: "Summarize the ticket in one line.",
   provider: {
-    required_execution_region: "eu",
-    required_data_region: "eu",
+    region: "eu",
     require_zero_data_retention: true,
   },
 });
@@ -60,8 +58,7 @@ response = client.generate_response(
         "model": "google/gemini-3.1-flash-lite",
         "input": "Summarize the ticket in one line.",
         "provider": {
-            "required_execution_region": "eu",
-            "required_data_region": "eu",
+            "region": "eu",
             "require_zero_data_retention": True,
         },
     }
@@ -73,6 +70,7 @@ print(response.get("output_text"))
 
 Supported request-level filters for this flow:
 
+- `region` (shorthand for matching execution and data regions)
 - `required_execution_region`
 - `required_data_region`
 - `require_zero_data_retention`
@@ -87,6 +85,8 @@ Examples:
   - `required_execution_region: "eu"`
 - data locality only:
   - `required_data_region: "eu"`
+- matching execution and data locality:
+  - `region: "eu"`
 - ZDR-capable providers only:
   - `require_zero_data_retention: true`
 
@@ -123,4 +123,5 @@ Use the request fields when the rule is:
 ## Related guides
 
 - [Routing and Fallbacks](../guides/routing-and-fallbacks.mdx)
+- [Regional Routing](../guides/regional-routing.mdx)
 - [Presets](../guides/presets.mdx)

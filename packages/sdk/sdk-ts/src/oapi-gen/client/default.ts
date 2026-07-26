@@ -1063,6 +1063,7 @@ export type CreateAnthropicMessageParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -1367,6 +1368,7 @@ export type CreateBatchParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -1669,6 +1671,7 @@ export type CreateBatchAliasParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -2063,6 +2066,7 @@ export type CreateChatCompletionParams = {
                 [key: string]: number;
               };
           quantizations?: string[] | null;
+          region?: string | null;
           require_parameters?: boolean | null;
           require_zero_data_retention?: boolean | null;
           required_data_region?: string | null;
@@ -2486,6 +2490,7 @@ export type CreateEmbeddingParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -2598,6 +2603,7 @@ export type CreateImageParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -2686,6 +2692,7 @@ export type CreateImageEditParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -2787,6 +2794,7 @@ export type CreateModerationParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -2925,6 +2933,7 @@ export type CreateOcrParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -3009,6 +3018,7 @@ export type CreateRerankParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -3172,6 +3182,7 @@ export type CreateResponseParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -3512,6 +3523,7 @@ export type CreateSpeechParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -3580,6 +3592,7 @@ export type CreateTranscriptionParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -3652,6 +3665,7 @@ export type CreateTranslationParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -3740,6 +3754,7 @@ export type CreateVideoParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -4055,6 +4070,7 @@ export type CreateVideoAliasParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -4625,6 +4641,7 @@ export type GenerateMusicParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;
@@ -4730,6 +4747,7 @@ export type GenerateMusicAliasParams = {
             [key: string]: number;
           };
       quantizations?: string[] | null;
+      region?: string | null;
       require_parameters?: boolean | null;
       require_zero_data_retention?: boolean | null;
       required_data_region?: string | null;

@@ -497,11 +497,16 @@ Common fields include:
 | `ignore` | `string[]` | Exclude specific providers. |
 | `include_alpha` | `boolean` | Allow alpha providers in routing decisions. |
 | `sort` | `string` or `object` | Rank providers, often by `price`, `latency`, or `throughput`. |
+| `region` | `string` | Require both execution and data handling in a region, for example `eu`. |
 | `required_execution_region` | `string` | Restrict execution to a required region. |
 | `required_data_region` | `string` | Restrict data handling to a required region. |
 | `require_zero_data_retention` | `boolean` | Require providers that meet zero-data-retention constraints. |
 | `max_price` | `object` | Set ceilings for prompt, completion, image, audio, or request costs. |
 | `quantizations` | `string[]` | Narrow routing to specific quantization variants when supported. |
+
+`region` is the concise form for the common case. For example, `region: "eu"` applies
+EU execution and EU data-handling constraints. Use the two `required_*_region` fields
+when those requirements differ.
 
 <span id="provider_options"></span>
 <h3 id="parameter-provider_options"><code>provider_options</code></h3>

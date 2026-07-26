@@ -9,6 +9,7 @@ import {
 	extractUpstreamUnsupportedParamSignal,
 	handleError,
 } from "./error-handler";
+import { clearRuntime, configureRuntime } from "@/runtime/env";
 
 beforeEach(() => {
 	emitGatewayRequestEventMock.mockReset();
@@ -463,6 +464,47 @@ describe("handleError", () => {
 				model: "anthropic/claude-sonnet-4",
 				requestedModel: "anthropic/claude-sonnet-4",
 			}),
+		);
+	});
+
+	it("suppresses replay and detailed telemetry for early EU content-path failures", async () => {
+		configureRuntime({
+			SUPABASE_URL: "https://example.supabase.co",
+			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+			GATEWAY_CACHE: {} as KVNamespace,
+			EU_CONTENT_PATH_ENABLED: "true",
+			EU_CONTENT_PATH_HOSTNAME: "eu.api.phaseo.app",
+		} as any);
+		let capturedAuditArgs: any = null;
+
+		try {
+			await handleError({
+				stage: "before",
+				res: new Response(JSON.stringify({ error: "validation_error" }), {
+					status: 400,
+					headers: { "content-type": "application/json" },
+				}),
+				endpoint: "responses",
+				req: new Request("https://eu.api.phaseo.app/v1/responses", {
+					method: "POST",
+					headers: { "content-type": "application/json" },
+					body: JSON.stringify({ model: "phaseo/test", input: "private" }),
+				}),
+				auditFailure: async (args) => {
+					capturedAuditArgs = args;
+				},
+			});
+		} finally {
+			clearRuntime();
+		}
+
+		expect(capturedAuditArgs).toMatchObject({
+			allowContentCapture: false,
+			extraJson: null,
+			detailMetadata: { replay_supported: false },
+		});
+		expect(emitGatewayRequestEventMock).toHaveBeenCalledWith(
+			expect.objectContaining({ allowDetailedPayloads: false }),
 		);
 	});
 

@@ -3476,6 +3476,14 @@ components:
           type: boolean
           nullable: true
           description: Require provider support for requested parameters before routing.
+        region:
+          type: string
+          nullable: true
+          description: >-
+            Shorthand that restricts both execution and data handling to the
+            requested region. More specific required_execution_region or
+            required_data_region values take precedence for their respective
+            constraint.
         required_execution_region:
           type: string
           nullable: true

@@ -30,6 +30,26 @@ describe("emitGatewayRequestEvent", () => {
 		clearRuntime();
 	});
 
+	it("forces compact telemetry when detailed payload capture is forbidden", async () => {
+		await emitGatewayRequestEvent({
+			requestId: "req_eu_content_path",
+			workspaceId: "ws_eu_content_path",
+			model: "phaseo/test",
+			endpoint: "chat.completions",
+			statusCode: 500,
+			success: false,
+			requestPayload: { messages: [{ role: "user", content: "private" }] },
+			gatewayResponse: { error: "private failure detail" },
+			allowDetailedPayloads: false,
+		});
+
+		const event = sendAxiomWideEventMock.mock.calls[0]?.[0] as Record<string, unknown>;
+		expect(event.observability_detail_level).toBe("compact");
+		expect(event.observability_emit_reason).toBe("residency_policy");
+		expect(event.request_payload_redacted_json).toBeUndefined();
+		expect(event.gateway_response_redacted_json).toBeUndefined();
+	});
+
 	it("emits provider attempt chains for successful video generation requests", async () => {
 		const ctx = {
 			endpoint: "video.generation",

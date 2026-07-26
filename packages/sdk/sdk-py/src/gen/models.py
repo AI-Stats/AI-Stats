@@ -929,6 +929,7 @@ class ProviderRoutingOptions(TypedDict):
 	preferred_max_latency: NotRequired[Union[float, Dict[str, Any]]]
 	preferred_min_throughput: NotRequired[Union[float, Dict[str, Any]]]
 	quantizations: NotRequired[Optional[List[str]]]
+	region: NotRequired[Optional[str]]
 	require_parameters: NotRequired[Optional[bool]]
 	require_zero_data_retention: NotRequired[Optional[bool]]
 	required_data_region: NotRequired[Optional[str]]

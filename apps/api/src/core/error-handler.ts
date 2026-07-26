@@ -17,6 +17,8 @@ import { emitGatewayRequestEvent } from "@observability/events";
 import { emitGatewayTelemetryDeliveryFailure } from "@observability/axiom";
 import { runGatewayTelemetryPipelines } from "@observability/gateway-telemetry";
 import { sanitizeUrlForLogging } from "@/lib/security/sanitizeUrl";
+import { getBindings } from "@/runtime/env";
+import { resolveIngressResidencyPolicy } from "@pipeline/ingressResidency";
 
 const REDACT_ERROR_KEYS = new Set([
     "messages",
@@ -661,6 +663,15 @@ export async function handleError({
     console.log(`Handling ${stage} error for endpoint ${endpoint}: status ${res.status}`);
 
     const body = await safeJson(res);
+    const ingressResidencyPolicy = (() => {
+        if (!req) return null;
+        try {
+            return resolveIngressResidencyPolicy(req, getBindings());
+        } catch {
+            return null;
+        }
+    })();
+    const allowContentCapture = ctx?.contentCaptureAllowed ?? ingressResidencyPolicy?.enabled !== true;
     const debugHeader = req?.headers.get("x-gateway-debug");
     const debugRequested = (() => {
         if (!debugHeader) return false;
@@ -1037,7 +1048,7 @@ export async function handleError({
         edgeCountry: requestMeta.edgeCountry,
         edgeContinent: requestMeta.edgeContinent,
         edgeAsn: requestMeta.edgeAsn,
-        extraJson: auditExtraJson,
+        extraJson: allowContentCapture ? auditExtraJson : null,
         errorDetailsJson,
         errorPayload: gatewayErrorPayload,
         requestPayload: replayRequestPayload,
@@ -1047,11 +1058,12 @@ export async function handleError({
             stage,
             routing_snapshot: sanitizeForAxiom((ctx as any)?.routingSnapshot ?? null),
             routing_diagnostics: sanitizeForAxiom((ctx as any)?.routingDiagnostics ?? null),
-            replay_supported: Boolean(
+            replay_supported: allowContentCapture && Boolean(
                 replayRequestPayload &&
                     typeof replayRequestPayload === "object"
             ),
         },
+        allowContentCapture,
     };
     if (stage === "execute") {
         auditArgs.stream = ctx?.stream;
@@ -1105,6 +1117,7 @@ export async function handleError({
         providerResponse: body,
         providerResponseHeaders: headersToRecord(res.headers),
         gatewayResponse: errorPayload,
+        allowDetailedPayloads: allowContentCapture,
         }),
         onDeliveryFailure: emitGatewayTelemetryDeliveryFailure,
     });

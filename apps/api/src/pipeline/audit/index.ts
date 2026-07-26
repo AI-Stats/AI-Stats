@@ -702,6 +702,7 @@ export async function auditSuccess(args: {
     providerRequest?: unknown;
     providerResponse?: unknown;
     detailMetadata?: Record<string, unknown> | null;
+    allowContentCapture?: boolean;
     // Wide event enrichment
     teamEnrichment?: any | null;
     keyEnrichment?: any | null;
@@ -847,6 +848,7 @@ export async function auditSuccess(args: {
             const ioLoggingPolicy = await resolveGatewayIoLoggingPolicy({
                 workspaceId: args.workspaceId,
                 keyId: args.keyId ?? null,
+                allowContentCapture: args.allowContentCapture,
             });
             if (ioLoggingPolicy.captureEnabled) {
                 await persistGatewayIoLog({
@@ -942,6 +944,7 @@ type AuditFailureBefore = {
     gatewayResponse?: unknown;
     providerResponse?: unknown;
     detailMetadata?: Record<string, unknown> | null;
+    allowContentCapture?: boolean;
 };
 type AuditFailureExecute = {
     stage: "execute";
@@ -991,6 +994,7 @@ type AuditFailureExecute = {
     providerRequest?: unknown;
     providerResponse?: unknown;
     detailMetadata?: Record<string, unknown> | null;
+    allowContentCapture?: boolean;
     usage?: Record<string, unknown> | null;
     currency?: string | null;
     pricingLines?: unknown[] | null;
@@ -1097,6 +1101,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                     const ioLoggingPolicy = await resolveGatewayIoLoggingPolicy({
                         workspaceId: args.workspaceId,
                         keyId: args.keyId ?? null,
+                        allowContentCapture: args.allowContentCapture,
                     });
                     if (ioLoggingPolicy.captureEnabled) {
                         await persistGatewayIoLog({
@@ -1255,6 +1260,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                 const ioLoggingPolicy = await resolveGatewayIoLoggingPolicy({
                     workspaceId: args.workspaceId,
                     keyId: args.keyId ?? null,
+                    allowContentCapture: args.allowContentCapture,
                 });
                 if (ioLoggingPolicy.captureEnabled) {
                     await persistGatewayIoLog({

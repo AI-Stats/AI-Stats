@@ -77,6 +77,20 @@ describe("persistGatewayIoLog", () => {
 		]);
 	});
 
+	it("disables payload capture when the ingress residency policy forbids it", async () => {
+		const { resolveGatewayIoLoggingPolicy } = await import("./io-logging");
+
+		const policy = await resolveGatewayIoLoggingPolicy({
+			workspaceId: "workspace_1",
+			allowContentCapture: false,
+		});
+
+		expect(policy).toMatchObject({
+			enabled: true,
+			captureEnabled: false,
+		});
+	});
+
 	it("stores private structured payloads with durable object metadata", async () => {
 		const { persistGatewayIoLog } = await import("./io-logging");
 

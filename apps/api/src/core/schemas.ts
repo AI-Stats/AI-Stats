@@ -25,6 +25,7 @@ const ProviderRoutingSchema = z.object({
     allowFallbacks: z.boolean().nullable().optional(),
     require_parameters: z.boolean().nullable().optional(),
     requireParameters: z.boolean().nullable().optional(),
+    region: z.string().nullable().optional(),
     required_execution_region: z.string().nullable().optional(),
     requiredExecutionRegion: z.string().nullable().optional(),
     required_data_region: z.string().nullable().optional(),

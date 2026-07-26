@@ -1031,6 +1031,7 @@ pub struct ProviderRoutingOptions {
 	pub preferred_max_latency: Option<String>,
 	pub preferred_min_throughput: Option<String>,
 	pub quantizations: Option<Option<Vec<String>>>,
+	pub region: Option<Option<String>>,
 	pub require_parameters: Option<Option<bool>>,
 	pub require_zero_data_retention: Option<Option<bool>>,
 	pub required_data_region: Option<Option<String>>,

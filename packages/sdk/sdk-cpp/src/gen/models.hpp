@@ -1035,6 +1035,7 @@ struct ProviderRoutingOptions {
 	std::any preferred_max_latency;
 	std::any preferred_min_throughput;
 	std::optional<std::vector<std::string>> quantizations;
+	std::optional<std::string> region;
 	std::optional<bool> require_parameters;
 	std::optional<bool> require_zero_data_retention;
 	std::optional<std::string> required_data_region;

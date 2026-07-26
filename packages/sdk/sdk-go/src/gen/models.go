@@ -2208,6 +2208,7 @@ type ProviderRoutingOptions struct {
 	PreferredMaxLatency interface{} `json:"preferred_max_latency,omitempty"`
 	PreferredMinThroughput interface{} `json:"preferred_min_throughput,omitempty"`
 	Quantizations *[]string `json:"quantizations,omitempty"`
+	Region *string `json:"region,omitempty"`
 	RequireParameters *bool `json:"require_parameters,omitempty"`
 	RequireZeroDataRetention *bool `json:"require_zero_data_retention,omitempty"`
 	RequiredDataRegion *string `json:"required_data_region,omitempty"`

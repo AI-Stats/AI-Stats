@@ -56,6 +56,7 @@ type EventArgs = {
     gatewayResponse?: unknown;
     providerResponse?: unknown;
     providerResponseHeaders?: Record<string, string> | null;
+    allowDetailedPayloads?: boolean;
 };
 
 type ObservabilityDetailLevel = "compact" | "full";
@@ -70,6 +71,7 @@ type ObservabilityPlan = {
         | "slow"
         | "sampled_success"
         | "sampled_success_detail"
+        | "residency_policy"
         | "dropped_success";
     successSampleRate: number;
     detailSampleRate: number;
@@ -149,6 +151,17 @@ export function buildObservabilityPlan(
         toNum(args.result?.generationTimeMs) ??
         resolveBeforeLatencyMs(args.ctx);
     const isSlow = latencyMs !== null && latencyMs >= slowRequestMs;
+
+    if (args.allowDetailedPayloads === false || args.ctx?.contentCaptureAllowed === false) {
+        return {
+            emit: true,
+            detailLevel: "compact",
+            reason: "residency_policy",
+            successSampleRate,
+            detailSampleRate,
+            slowRequestMs,
+        };
+    }
 
     if (!args.success) {
         return {

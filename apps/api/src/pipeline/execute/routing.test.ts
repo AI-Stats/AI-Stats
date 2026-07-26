@@ -303,6 +303,34 @@ describe("routeProviders testing mode", () => {
 		expect(residencyGate?.afterCount).toBe(1);
 	});
 
+	it("filters providers with the provider.region shorthand", async () => {
+		const result = await routeProviders(
+			[
+				candidate({
+					providerId: "eu-provider",
+					executionRegions: ["eu"],
+					dataRegions: ["eu"],
+				}),
+				candidate({
+					providerId: "us-provider",
+					executionRegions: ["us"],
+					dataRegions: ["us"],
+				}),
+			],
+			{
+				endpoint: "responses",
+				model: "example/model",
+				workspaceId: "team_123",
+				body: { provider: { region: "eu" } },
+				testingMode: false,
+			},
+		);
+
+		expect(result.ranked.map((entry) => entry.candidate.providerId)).toEqual([
+			"eu-provider",
+		]);
+	});
+
 	it("uses a distinct ZDR provider variant only when ZDR is required", async () => {
 		const providers = [
 			candidate({

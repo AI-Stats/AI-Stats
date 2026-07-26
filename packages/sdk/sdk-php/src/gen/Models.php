@@ -1835,6 +1835,8 @@ class ProviderRoutingOptions
 	public $preferred_min_throughput;
 	/** @var array|null */
 	public $quantizations;
+	/** @var string|null */
+	public $region;
 	/** @var bool|null */
 	public $require_parameters;
 	/** @var bool|null */

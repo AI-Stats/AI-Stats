@@ -12,9 +12,35 @@ import { oauthRouter } from "@/routes/oauth";
 import { v1Router } from "@/routes/v1";
 import { internalRouter } from "@/routes/internal";
 import { handleScheduledEvent } from "@/scheduled";
+import { resolveIngressResidencyPolicy } from "@pipeline/ingressResidency";
 export { RealtimeRelayDurableObject } from "@core/realtime-relay-durable-object";
 
 const app = new Hono<Env>();
+
+app.use("*", async (context, next) => {
+	const residencyPolicy = resolveIngressResidencyPolicy(
+		context.req.raw,
+		context.env,
+	);
+	if (residencyPolicy && !residencyPolicy.enabled) {
+		return context.json(
+			{
+				status_code: 503,
+				error: "regional_content_path_unavailable",
+				description:
+					"The EU content path is not active. Regional infrastructure must be verified before this hostname can serve requests.",
+			},
+			503,
+			{ "Cache-Control": "no-store" },
+		);
+	}
+
+	await next();
+	if (residencyPolicy) {
+		context.header("x-phaseo-residency-level", "content-path");
+		context.header("x-phaseo-processing-region", residencyPolicy.region);
+	}
+});
 
 app.route("/", rootRouter);
 app.route("/auth", authRouter);

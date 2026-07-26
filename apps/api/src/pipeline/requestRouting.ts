@@ -82,6 +82,23 @@ export type EffectiveRoutingHints = {
 	preferredMaxLatency: number | PlainObject | null;
 };
 
+export type ResidencyPolicyFloor = {
+	region: string;
+	source: "eu_content_path";
+};
+
+export type ResidencyPolicyConflict = {
+	field: "required_execution_region" | "required_data_region";
+	requested: string;
+	required: string;
+};
+
+function normalizeRegion(value: unknown): string | null {
+	if (typeof value !== "string") return null;
+	const normalized = value.trim().toLowerCase();
+	return normalized || null;
+}
+
 export function getEffectiveRoutingHints(body: any): EffectiveRoutingHints {
 	const provider = clonePlainObject(asPlainObject(body?.provider));
 	const routing = clonePlainObject(asPlainObject(body?.routing));
@@ -99,6 +116,7 @@ export function getEffectiveRoutingHints(body: any): EffectiveRoutingHints {
 		readSortMode(routing.sort),
 		readSortMode(provider.sort),
 	) ?? null;
+	const region = normalizeRegion(firstDefined(routing.region, provider.region));
 	const requireZeroDataRetention = (() => {
 		const direct = normalizeBoolean(
 			firstDefined(
@@ -138,19 +156,19 @@ export function getEffectiveRoutingHints(body: any): EffectiveRoutingHints {
 			) ?? false,
 		returnDiagnostics: normalizeBoolean(diagnosticsFlag) ?? false,
 		requiredExecutionRegion:
-			firstDefined(
+			normalizeRegion(firstDefined(
 				routing.required_execution_region,
 				routing.requiredExecutionRegion,
 				provider.required_execution_region,
 				provider.requiredExecutionRegion,
-			) ?? null,
+			)) ?? region,
 		requiredDataRegion:
-			firstDefined(
+			normalizeRegion(firstDefined(
 				routing.required_data_region,
 				routing.requiredDataRegion,
 				provider.required_data_region,
 				provider.requiredDataRegion,
-			) ?? null,
+			)) ?? region,
 		requireZeroDataRetention,
 		dataCollection:
 			firstDefined(
@@ -194,6 +212,47 @@ export function getEffectiveRoutingHints(body: any): EffectiveRoutingHints {
 				provider.preferred_max_latency,
 				provider.preferredMaxLatency,
 			) ?? null,
+	};
+}
+
+export function applyResidencyPolicyFloor(
+	body: any,
+	policy: ResidencyPolicyFloor,
+): { ok: true; body: any } | { ok: false; conflicts: ResidencyPolicyConflict[] } {
+	const requiredRegion = normalizeRegion(policy.region);
+	if (!requiredRegion) return { ok: true, body };
+
+	const hints = getEffectiveRoutingHints(body);
+	const conflicts: ResidencyPolicyConflict[] = [];
+	if (
+		hints.requiredExecutionRegion &&
+		hints.requiredExecutionRegion !== requiredRegion
+	) {
+		conflicts.push({
+			field: "required_execution_region",
+			requested: hints.requiredExecutionRegion,
+			required: requiredRegion,
+		});
+	}
+	if (hints.requiredDataRegion && hints.requiredDataRegion !== requiredRegion) {
+		conflicts.push({
+			field: "required_data_region",
+			requested: hints.requiredDataRegion,
+			required: requiredRegion,
+		});
+	}
+	if (conflicts.length) return { ok: false, conflicts };
+
+	return {
+		ok: true,
+		body: {
+			...body,
+			routing: {
+				...clonePlainObject(asPlainObject(body?.routing)),
+				required_execution_region: requiredRegion,
+				required_data_region: requiredRegion,
+			},
+		},
 	};
 }
 

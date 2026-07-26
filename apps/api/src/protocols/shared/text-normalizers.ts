@@ -228,10 +228,10 @@ export function normalizeProviderGeoPreferences(
 	}
 
 	const requiredExecutionRegion = normalizeNonEmptyString(
-		provider.required_execution_region ?? provider.requiredExecutionRegion,
+		provider.required_execution_region ?? provider.requiredExecutionRegion ?? provider.region,
 	);
 	const requiredDataRegion = normalizeNonEmptyString(
-		provider.required_data_region ?? provider.requiredDataRegion,
+		provider.required_data_region ?? provider.requiredDataRegion ?? provider.region,
 	);
 	const requireZeroDataRetention = normalizeBoolean(
 		provider.require_zero_data_retention ?? provider.requireZeroDataRetention,

@@ -1507,6 +1507,8 @@ module Phaseo
     #   @return [Float, Hash{String => Object}, nil]
     # @!attribute [rw] quantizations
     #   @return [Array<String>, nil]
+    # @!attribute [rw] region
+    #   @return [String, nil]
     # @!attribute [rw] require_parameters
     #   @return [Boolean, nil]
     # @!attribute [rw] require_zero_data_retention
@@ -1519,7 +1521,7 @@ module Phaseo
     #   @return [String, Hash{String => Object}, nil]
     # @!attribute [rw] zdr
     #   @return [Boolean, nil]
-    ProviderRoutingOptions = Struct.new(:allow_fallbacks, :data_collection, :enforce_distillable_text, :ignore, :include_alpha, :max_price, :only, :order, :preferred_max_latency, :preferred_min_throughput, :quantizations, :require_parameters, :require_zero_data_retention, :required_data_region, :required_execution_region, :sort, :zdr, keyword_init: true)
+    ProviderRoutingOptions = Struct.new(:allow_fallbacks, :data_collection, :enforce_distillable_text, :ignore, :include_alpha, :max_price, :only, :order, :preferred_max_latency, :preferred_min_throughput, :quantizations, :region, :require_parameters, :require_zero_data_retention, :required_data_region, :required_execution_region, :sort, :zdr, keyword_init: true)
     # @!attribute [rw] created_at
     #   @return [String, nil]
     # @!attribute [rw] id

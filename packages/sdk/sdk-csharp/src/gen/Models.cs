@@ -2533,6 +2533,9 @@ public sealed class ProviderRoutingOptions
 	[JsonPropertyName("quantizations")]
 	public List<string>? Quantizations { get; set; }
 
+	[JsonPropertyName("region")]
+	public string? Region { get; set; }
+
 	[JsonPropertyName("require_parameters")]
 	public bool? RequireParameters { get; set; }
 

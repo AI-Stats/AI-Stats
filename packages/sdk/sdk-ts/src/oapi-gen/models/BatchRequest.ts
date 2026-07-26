@@ -44,6 +44,7 @@ export interface BatchRequest {
           [key: string]: number;
         };
     quantizations?: string[] | null;
+    region?: string | null;
     require_parameters?: boolean | null;
     require_zero_data_retention?: boolean | null;
     required_data_region?: string | null;

@@ -255,6 +255,8 @@ export type GatewayBindings = {
     GITHUB_TOKEN?: string;
     GH_TOKEN?: string;
     GATEWAY_PUBLIC_BASE_URL?: string;
+    EU_CONTENT_PATH_ENABLED?: string | boolean;
+    EU_CONTENT_PATH_HOSTNAME?: string;
     PHASEO_WEB_BASE_URL?: string;
     PHASEO_OAUTH_PRIVATE_JWK?: string;
     PHASEO_OAUTH_TOKEN_PEPPER_ACTIVE?: string;

@@ -173,7 +173,7 @@ describe("normalizeOpenAIToolChoice", () => {
 	});
 });
 
-describe("normalizeProviderGeoPreferences", () => {
+	describe("normalizeProviderGeoPreferences", () => {
 	it("maps provider routing geo controls into IR geo preferences", () => {
 		expect(
 			normalizeProviderGeoPreferences({
@@ -189,6 +189,17 @@ describe("normalizeProviderGeoPreferences", () => {
 			requiredDataRegion: "de",
 			requireZeroDataRetention: true,
 			inferenceGeo: "us",
+		});
+	});
+
+	it("maps provider.region to both IR residency requirements", () => {
+		expect(
+			normalizeProviderGeoPreferences({ provider: { region: "eu" } }),
+		).toEqual({
+			requiredExecutionRegion: "eu",
+			requiredDataRegion: "eu",
+			requireZeroDataRetention: undefined,
+			inferenceGeo: undefined,
 		});
 	});
 

@@ -27,10 +27,12 @@ import { normalizeGatewayPlugins, resolveGatewayPlugins } from "@/plugins/normal
 import { findUnknownGatewayPluginIds } from "@/plugins/registry";
 import { validateSynchronousTextServiceTierRequest } from "./serviceTierValidation";
 import {
+	applyResidencyPolicyFloor,
 	collectUnsupportedRoutingFields,
 	getEffectiveRoutingHints,
 	normalizeRequestRoutingBody,
 } from "../requestRouting";
+import { resolveIngressResidencyPolicy } from "../ingressResidency";
 import { fetchWorkspacePolicy, applyWorkspacePolicy } from "./workspacePolicy";
 
 function resolveRequestRoutingModeOverride(
@@ -162,6 +164,7 @@ export async function beforeRequest(
     if (!a.ok) return a as { ok: false; response: Response };
     const { requestId, workspaceId, apiKeyId, apiKeyRef, apiKeyKid, userId, internal } = a.value;
 	const bindings = getBindings();
+	const ingressResidencyPolicy = resolveIngressResidencyPolicy(req, bindings);
 	const perfGatewayAccess = resolvePerfGatewayAccess({
 		environment: bindings.ENV,
 		allowedWorkspaceId: bindings.GATEWAY_PERF_WORKSPACE_ID,
@@ -389,6 +392,31 @@ export async function beforeRequest(
         mergedBody,
         context.teamSettings,
     );
+    if (ingressResidencyPolicy?.enabled) {
+        const residencyFloor = applyResidencyPolicyFloor(mergedBody, {
+            region: ingressResidencyPolicy.region,
+            source: "eu_content_path",
+        });
+        if (residencyFloor.ok === false) {
+            return {
+                ok: false,
+                response: err("validation_error", {
+                    reason: "regional_content_path_conflict",
+                    description:
+                        "Request residency settings cannot weaken the EU content-path policy.",
+                    details: residencyFloor.conflicts.map((conflict) => ({
+                        message: `${conflict.field} must be ${conflict.required} on this hostname`,
+                        path: ["provider", conflict.field],
+                        keyword: "regional_content_path_conflict",
+                        params: conflict,
+                    })),
+                    request_id: requestId,
+                    workspace_id: workspaceId,
+                }),
+            };
+        }
+        mergedBody = residencyFloor.body;
+    }
     const unsupportedRoutingFields = collectUnsupportedRoutingFields(mergedBody);
     if (unsupportedRoutingFields.length > 0) {
         return {
@@ -768,6 +796,7 @@ export async function beforeRequest(
         routingMode: resolvedRoutingMode,
         keyId: apiKeyId ?? null,
         testingMode: testingModeEnabled,
+        contentCaptureAllowed: ingressResidencyPolicy?.enabled !== true,
         routingDiagnostics: {
             workspacePolicy: workspacePolicyResult.diagnostics,
         },

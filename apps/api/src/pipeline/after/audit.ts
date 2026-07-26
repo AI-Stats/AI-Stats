@@ -309,11 +309,13 @@ export async function handleFailureAudit(
                     byok_keys: p.byokMeta?.length ?? 0,
                     has_pricing: Boolean(p.pricingCard),
                 })),
-                transform: buildTransformSnapshot(ctx, result, {
-                    gatewayResponse: gatewayFailurePayload,
-                    providerResponse: errorDetails ?? result.rawResponse ?? null,
-                    errorDetails,
-                }),
+                transform: ctx.contentCaptureAllowed === false
+                    ? null
+                    : buildTransformSnapshot(ctx, result, {
+                        gatewayResponse: gatewayFailurePayload,
+                        providerResponse: errorDetails ?? result.rawResponse ?? null,
+                        errorDetails,
+                    }),
                 error_details: sanitizeForAxiom(errorDetails ?? null),
                 gateway_response_sanitized: sanitizeForAxiom(gatewayFailurePayload),
             });
@@ -388,8 +390,9 @@ export async function handleFailureAudit(
                 web_fetch_observability: sanitizeForAxiom(
                     mergeWebFetchObservability(ctx.webFetchObservability ?? null),
                 ),
-                replay_supported: true,
+                replay_supported: ctx.contentCaptureAllowed !== false,
             },
+            allowContentCapture: ctx.contentCaptureAllowed,
             usage: (result.bill?.usage && typeof result.bill.usage === "object")
                 ? result.bill.usage as Record<string, unknown>
                 : {},
@@ -494,10 +497,12 @@ export async function handleSuccessAudit(
                 gating: ctx.gating ?? null,
                 usage: sanitizeForAxiom(usageWithMultimodal ?? null),
                 pricing: sanitizeForAxiom((usageWithMultimodal as any)?.pricing ?? null),
-                transform: buildTransformSnapshot(ctx, result, {
-                    gatewayResponse: gatewayResponse ?? null,
-                    providerResponse: result.rawResponse ?? null,
-                }),
+                transform: ctx.contentCaptureAllowed === false
+                    ? null
+                    : buildTransformSnapshot(ctx, result, {
+                        gatewayResponse: gatewayResponse ?? null,
+                        providerResponse: result.rawResponse ?? null,
+                    }),
             });
         } catch {
             return null;
@@ -598,9 +603,10 @@ export async function handleSuccessAudit(
                 ),
                 search_observability: searchObservability,
                 web_fetch_observability: webFetchObservability,
-                replay_supported: true,
+                replay_supported: ctx.contentCaptureAllowed !== false,
                 guardrail_enforcement_present: Boolean(ctx.guardrailEnforcement),
             },
+            allowContentCapture: ctx.contentCaptureAllowed,
             // Wide event enrichment
             teamEnrichment: ctx.teamEnrichment ?? null,
             keyEnrichment: ctx.keyEnrichment ?? null,
