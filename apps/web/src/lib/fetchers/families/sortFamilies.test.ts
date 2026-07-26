@@ -11,6 +11,7 @@ const family = (
 	family_id: `test/${family_name.toLowerCase()}`,
 	family_name,
 	organisation_id: "test",
+	organisation_name: "Test",
 	created_at,
 });
 

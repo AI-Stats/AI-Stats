@@ -76,9 +76,9 @@ async function FamiliesSection() {
 								<span className="text-sm font-semibold">
 									{family.family_name}
 								</span>
-								{family.organisation_id ? (
+								{family.organisation_name ? (
 									<span className="ml-1.5 text-xs font-normal text-muted-foreground">
-										by {family.organisation_id}
+										by {family.organisation_name}
 									</span>
 								) : null}
 							</span>

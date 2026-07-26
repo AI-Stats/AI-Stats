@@ -51,6 +51,7 @@ describe("public reference-data routes", () => {
 					family_id: "openai/gpt",
 					family_name: "GPT",
 					organisation_id: "openai",
+					organisation: { name: "OpenAI" },
 					created_at: "2026-07-01T00:00:00.000Z",
 					models: [{
 						model_id: "openai/gpt-test",
@@ -118,6 +119,7 @@ describe("public reference-data routes", () => {
 			families: [{
 				family_id: "openai/gpt",
 				organisation_id: "openai",
+				organisation_name: "OpenAI",
 				created_at: "2026-07-01T00:00:00.000Z",
 			}],
 		});
