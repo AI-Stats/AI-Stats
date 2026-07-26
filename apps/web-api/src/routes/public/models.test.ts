@@ -585,6 +585,63 @@ describe("public model routes", () => {
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_v2_model_availability"))).toBe(true);
 	});
 
+	it("uses standard-tier availability without dropping alternate pricing plans", async () => {
+		const fetchMock = vi.fn(async (
+			input: RequestInfo | URL,
+			init?: RequestInit,
+		) => {
+			if (String(input).includes("/rpc/get_v2_model_pricing")) {
+				const body = JSON.parse(String(init?.body));
+				const isStandard = body.p_service_tier === "standard";
+				return new Response(JSON.stringify([{
+					provider: {
+						api_provider_id: "openai",
+						status: "active",
+						routing_status: isStandard ? "active" : "disabled",
+					},
+					provider_models: [{
+						id: "openai:openai/gpt-5.6-sol",
+						endpoint: "text.generate",
+						is_active_gateway: isStandard,
+						routing_status: "active",
+						capability_status: "active",
+					}],
+					pricing_rules: isStandard
+						? [{ id: "standard-price", pricing_plan: "standard" }]
+						: [
+							{ id: "standard-price", pricing_plan: "standard" },
+							{ id: "batch-price", pricing_plan: "batch" },
+						],
+				}]), { status: 200 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/openai%2Fgpt-5.6-sol/pricing",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({
+			providers: [{
+				provider: { routing_status: "active" },
+				provider_models: [{ is_active_gateway: true }],
+				pricing_rules: [
+					{ id: "standard-price", pricing_plan: "standard" },
+					{ id: "batch-price", pricing_plan: "batch" },
+				],
+			}],
+		});
+		const pricingCalls = fetchMock.mock.calls.filter(([input]) =>
+			String(input).includes("/rpc/get_v2_model_pricing")
+		);
+		expect(pricingCalls.map((call) => JSON.parse(String(call[1]?.body)).p_service_tier))
+			.toEqual([null, "standard"]);
+	});
+
 	it("returns the overview shape used by the model page", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
