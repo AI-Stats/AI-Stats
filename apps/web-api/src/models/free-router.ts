@@ -114,10 +114,10 @@ async function v2Overview(env: Env): Promise<FreeRouterOverview> {
 	};
 	const usageRows = await loadUsage();
 	const eventIds = usageRows.map((row) => row.request_event_id);
-	const pricingResult = eventIds.length ? await client.from("v2_request_pricing_lines").select("request_event_id,amount_nanos").in("request_event_id", eventIds) : { data: [], error: null };
+	const pricingResult = eventIds.length ? await client.from("v2_request_pricing_lines").select("request_event_id,charged_nanos").in("request_event_id", eventIds) : { data: [], error: null };
 	if (pricingResult.error) throw pricingResult.error;
 	const costByEvent = new Map<string, number>();
-	for (const row of pricingResult.data ?? []) costByEvent.set(row.request_event_id, (costByEvent.get(row.request_event_id) ?? 0) + Math.max(0, Number(row.amount_nanos ?? 0) || 0));
+	for (const row of pricingResult.data ?? []) costByEvent.set(row.request_event_id, (costByEvent.get(row.request_event_id) ?? 0) + Math.max(0, Number(row.charged_nanos ?? 0) || 0));
 	const usage = new Map<string, FreeRouterModel["usage"]>();
 	for (const row of usageRows) {
 		const modelId = String(row.routed_model_slug ?? "");

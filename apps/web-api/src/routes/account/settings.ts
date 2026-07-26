@@ -492,17 +492,15 @@ accountSettingsRouter.post("/apps/:sourceAppId/merge", async (c) => {
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	if (apps.data!.some((app) => isInternalApp(app.title, app.app_key))) return c.json({ error: "managed_app" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const moved = await context.client.from("gateway_requests").update({ app_id: targetAppId }).eq("app_id", sourceAppId).eq("workspace_id", workspaceId);
-	if (moved.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	// Request facts extend the authoritative gateway request. Keep their app
-	// dimension aligned so analytics remain consistent after the merge.
-	const observabilityMirror = await context.client.from("v2_request_facts").update({ app_id: targetAppId }).eq("app_id", sourceAppId).eq("workspace_id", workspaceId);
-	if (observabilityMirror.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const removed = await context.client.from("api_apps").delete().eq("id", sourceAppId).eq("workspace_id", workspaceId);
-	if (removed.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const merged = await context.client.rpc("merge_v2_gateway_app_history", {
+		p_workspace_id: workspaceId,
+		p_source_app_id: sourceAppId,
+		p_target_app_id: targetAppId,
+	});
+	if (merged.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const dynamic = [sourceAppId, targetAppId].map((id) => `web-api-app-${encodeURIComponent(id).replace(/%/g, "")}`);
 	const cache = await purgeWorkerCacheTags(c.executionCtx, ["web-api-apps", "web-api-app-ids", "web-api-app-images", "web-api-app-rankings", "web-api-landing", ...dynamic]);
-	return c.json({ success: true, cache }, 200, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ success: true, merge: merged.data ?? null, cache }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsRouter.get("/authorized-apps", async (c) => {

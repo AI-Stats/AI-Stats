@@ -128,7 +128,7 @@ export async function fetchModelPricingSources(env: Env, modelIds: string[]): Pr
 			unit_size: Number(meter.unit_quantity ?? 1),
 			price_per_unit: priceNanos / 1_000_000_000,
 			currency: sku.currency ?? "USD",
-			priority: Number(meter.meter_order ?? 100),
+			priority: Number((asRow(meter.metadata) ?? {}).priority ?? meter.meter_order ?? 100),
 			effective_from: sku.effective_from,
 			effective_to: sku.effective_to,
 			note: null,

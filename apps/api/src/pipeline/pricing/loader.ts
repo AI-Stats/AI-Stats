@@ -134,7 +134,7 @@ export async function loadPriceCard(provider: string, model: string, endpoint: s
                 String(priceNanos / 1_000_000_000),
             currency: sku.currency ?? "USD",
             match: Array.isArray(skuMetadata.match) ? skuMetadata.match : Array.isArray(meterMetadata.match) ? meterMetadata.match : [],
-            priority: Number(meter.meter_order ?? 100),
+            priority: Number(meterMetadata.priority ?? meter.meter_order ?? 100),
             billing_timestamp_basis: skuMetadata.billing_timestamp_basis ?? "request_start",
             time_windows: normalizeTimeWindows(skuMetadata.time_windows),
         }];

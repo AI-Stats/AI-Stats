@@ -73,7 +73,8 @@ alter table public.v2_public_usage_daily
   add column if not exists internal_dispatch_sum_ms numeric(30, 3) not null default 0,
   add column if not exists internal_dispatch_count bigint not null default 0,
   add column if not exists upstream_attempts bigint not null default 0,
-  add column if not exists failed_upstream_attempts bigint not null default 0;
+  add column if not exists failed_upstream_attempts bigint not null default 0,
+  add column if not exists cost_nanos numeric(30, 0) not null default 0;
 
 alter table public.v2_public_usage_hourly
   add column if not exists tool_call_requests bigint not null default 0,
@@ -85,7 +86,8 @@ alter table public.v2_public_usage_hourly
   add column if not exists internal_dispatch_sum_ms numeric(30, 3) not null default 0,
   add column if not exists internal_dispatch_count bigint not null default 0,
   add column if not exists upstream_attempts bigint not null default 0,
-  add column if not exists failed_upstream_attempts bigint not null default 0;
+  add column if not exists failed_upstream_attempts bigint not null default 0,
+  add column if not exists cost_nanos numeric(30, 0) not null default 0;
 
 alter table public.v2_private_usage_daily
   add constraint v2_private_usage_daily_observability_counts_check check (
@@ -103,7 +105,7 @@ alter table public.v2_public_usage_daily
     input_tokens >= 0 and gateway_total_sum_ms >= 0 and gateway_total_count >= 0 and
     internal_dispatch_sum_ms >= 0 and internal_dispatch_count >= 0 and
     upstream_attempts >= 0 and failed_upstream_attempts >= 0 and
-    failed_upstream_attempts <= upstream_attempts
+    failed_upstream_attempts <= upstream_attempts and cost_nanos >= 0
   );
 alter table public.v2_public_usage_hourly
   add constraint v2_public_usage_hourly_observability_counts_check check (
@@ -112,7 +114,7 @@ alter table public.v2_public_usage_hourly
     input_tokens >= 0 and gateway_total_sum_ms >= 0 and gateway_total_count >= 0 and
     internal_dispatch_sum_ms >= 0 and internal_dispatch_count >= 0 and
     upstream_attempts >= 0 and failed_upstream_attempts >= 0 and
-    failed_upstream_attempts <= upstream_attempts
+    failed_upstream_attempts <= upstream_attempts and cost_nanos >= 0
   );
 
 comment on column public.v2_public_usage_daily.cached_input_tokens is

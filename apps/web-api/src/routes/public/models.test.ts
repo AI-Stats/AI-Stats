@@ -24,7 +24,12 @@ describe("public model routes", () => {
 				{ provider_slug: "provider-a", provider_model_slug: "gpt-test-a", model_slug: "openai/gpt-test", input_modalities: ["text"], output_modalities: ["text"], routing_enabled: true, status: "active", effective_from: null, effective_to: null },
 				{ provider_slug: "provider-b", provider_model_slug: "gpt-test-b", model_slug: "openai/gpt-test", input_modalities: ["image"], output_modalities: ["text"], routing_enabled: true, status: "active", effective_from: null, effective_to: null },
 			]), { status: 200 });
-			if (url.includes("v2_request_facts")) return new Response(JSON.stringify([]), { status: 200 });
+			if (url.includes("v2_request_facts")) return new Response(JSON.stringify([{
+				request_event_id: "event-1", routed_model_slug: "openai/gpt-test", occurred_at: "2026-07-26T00:00:00Z",
+			}]), { status: 200 });
+			if (url.includes("v2_request_pricing_lines")) return new Response(JSON.stringify([{
+				request_event_id: "event-1", charged_nanos: 125,
+			}]), { status: 200 });
 			return new Response("[]", { status: 200 });
 		}));
 
@@ -36,7 +41,7 @@ describe("public model routes", () => {
 			projection: 5,
 			total: 2,
 			models: [
-				{ model_id: "phaseo/free", gateway_provider_count: 2, gateway_input_modalities: ["image", "text"], router_requests_30d: 0 },
+				{ model_id: "phaseo/free", gateway_provider_count: 2, gateway_input_modalities: ["image", "text"], router_requests_30d: 1, router_spend_nanos_30d: 125 },
 				{ model_id: "openai/gpt-test" },
 			],
 			facets: { statusCounts: { active: 2 }, tierOptions: [{ value: "free", count: 1 }] },
