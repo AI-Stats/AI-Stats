@@ -1,5 +1,16 @@
 # @phaseo/agent-sdk
 
+## 0.2.0
+
+### Minor Changes
+
+- [#1263](https://github.com/phaseoteam/Phaseo/pull/1263) [`cc87f08`](https://github.com/phaseoteam/Phaseo/commit/cc87f081dd40b898c06a957937606a2b73da6ff5) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Expand the Agent SDK runtime with validated tools, exact-ID approvals and manual outputs, HITL callbacks, progress events, recoverable tool errors, real cancellable gateway streams, composable stop conditions, dynamic turns, persisted next-turn overrides, application-owned state accessors, normalized usage, cost, finish reasons, and warnings. Establish equivalent conformance coverage for Python, Go, C#, Java, PHP, and Ruby, update SDK defaults to the current gateway host, and omit unset Python Agent request options instead of sending invalid null fields.
+
+### Patch Changes
+
+- Updated dependencies [[`cc87f08`](https://github.com/phaseoteam/Phaseo/commit/cc87f081dd40b898c06a957937606a2b73da6ff5), [`5a02c19`](https://github.com/phaseoteam/Phaseo/commit/5a02c194d0e64642ddf23cd0d57b2b93983b148c)]:
+  - @phaseo/sdk@2.2.0
+
 ## 0.1.3
 
 ### Patch Changes

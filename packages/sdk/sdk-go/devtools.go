@@ -16,7 +16,7 @@ import (
 	gen "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2/src/gen"
 )
 
-const goSDKVersion = "2.0.5"
+const goSDKVersion = "2.0.6"
 
 type DevtoolsConfig struct {
 	Enabled        bool
