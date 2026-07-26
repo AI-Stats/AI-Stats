@@ -55,15 +55,14 @@ function slug(value: unknown, fallback = "standard"): string {
     return normalized || fallback;
 }
 
-function pricingModelPart(modelKey: string): { providerSlug: string; apiModelId: string } | null {
+export function pricingModelPart(modelKey: string): { providerSlug: string; apiModelId: string } | null {
     const firstColon = modelKey.indexOf(":");
-    if (firstColon <= 0) return null;
+    const lastColon = modelKey.lastIndexOf(":");
+    if (firstColon <= 0 || lastColon <= firstColon + 1) return null;
     const providerSlug = modelKey.slice(0, firstColon);
-    const rest = modelKey.slice(firstColon + 1);
-    const secondColon = rest.indexOf(":");
     return {
         providerSlug,
-        apiModelId: secondColon >= 0 ? rest.slice(0, secondColon) : rest,
+        apiModelId: modelKey.slice(firstColon + 1, lastColon),
     };
 }
 
