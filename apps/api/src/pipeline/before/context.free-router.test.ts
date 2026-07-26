@@ -116,19 +116,21 @@ const runtime = vi.hoisted(() => {
     ];
 
     const from = vi.fn((table: string) => {
-        if (table === "data_api_provider_models") {
+        if (table === "v2_model_provider_routes") {
             return {
                 select: () => ({
                     eq: () => ({
-                        like: async () => ({
-                            data: freeProviderModels,
-                            error: null,
+                        in: () => ({
+                            like: async () => ({
+                                data: freeProviderModels,
+                                error: null,
+                            }),
                         }),
                     }),
                 }),
             };
         }
-        if (table === "data_models") {
+        if (table === "v2_models") {
             return {
                 select: () => ({
                     in: async () => ({
@@ -138,7 +140,7 @@ const runtime = vi.hoisted(() => {
                 }),
             };
         }
-        if (table === "data_api_provider_model_capabilities") {
+        if (table === "v2_route_capabilities") {
             return {
                 select: () => ({
                     eq: () => ({
@@ -152,7 +154,7 @@ const runtime = vi.hoisted(() => {
                 }),
             };
         }
-        if (table === "data_api_providers") {
+        if (table === "v2_providers") {
             return {
                 select: () => ({
                     in: async () => ({

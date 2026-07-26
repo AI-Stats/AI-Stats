@@ -44,9 +44,8 @@ function fromForRange(range: RangeKey): Date {
 
 function missingRollup(error: unknown): boolean {
 	const message = String((error as { message?: unknown })?.message ?? error ?? "");
-	return message.includes("gateway_usage_rollup_daily_app")
-		|| message.includes("gateway_usage_rollup_daily_app_model")
-		|| message.includes("gateway_usage_rollup_15m_app_model");
+	return message.includes("v2_web_public_usage_daily")
+		|| message.includes("v2_web_public_usage_hourly");
 }
 
 async function getPublicApp(env: Env, reference: string) {
@@ -66,7 +65,7 @@ async function fetchGatewayUsage(
 	const rows: Array<Record<string, unknown>> = [];
 	for (let offset = 0; offset < 40 * PAGE_SIZE; offset += PAGE_SIZE) {
 		const { data, error } = await getDataClient(env)
-			.from("gateway_requests")
+			.from("v2_web_gateway_requests")
 			.select("created_at,usage,cost_nanos,model_id,provider,success")
 			.eq("app_id", appId)
 			.gte("created_at", from)
@@ -117,11 +116,12 @@ publicAppsRouter.get("/apps/provider-model-mappings", async (c) => {
 	const providerIds = [...new Set((c.req.query("provider_ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))].slice(0, 100);
 	try {
 		if (modelIds.length === 0) return withPublicCache(c.json({ mappings: [] }), { edgeTtlSeconds: 60 * 60, staleWhileRevalidateSeconds: 24 * 60 * 60, cacheTags: ["web-api-app-model-mappings"] });
-		let query = getDataClient(c.env).from("data_api_provider_models").select("provider_id,api_model_id,model_id").in("api_model_id", modelIds).not("model_id", "is", null);
-		if (providerIds.length) query = query.in("provider_id", providerIds);
+		let query = getDataClient(c.env).from("v2_model_provider_routes").select("provider_slug,provider_model_slug,model_slug").in("provider_model_slug", modelIds);
+		if (providerIds.length) query = query.in("provider_slug", providerIds);
 		const { data, error } = await query;
 		if (error) throw error;
-		return withPublicCache(c.json({ mappings: data ?? [] }), { edgeTtlSeconds: 60 * 60, staleWhileRevalidateSeconds: 24 * 60 * 60, cacheTags: ["web-api-app-model-mappings"] });
+		const mappings = (data ?? []).map((row) => ({ provider_id: row.provider_slug, api_model_id: row.provider_model_slug, model_id: row.model_slug }));
+		return withPublicCache(c.json({ mappings }), { edgeTtlSeconds: 60 * 60, staleWhileRevalidateSeconds: 24 * 60 * 60, cacheTags: ["web-api-app-model-mappings"] });
 	} catch (error) { console.error("[web-api/apps] mappings failed", error); return c.json({ error: "app_model_mappings_unavailable" }, 503); }
 });
 
@@ -178,8 +178,8 @@ publicAppsRouter.get("/apps/:appReference/usage", async (c) => {
 		const nowIso = new Date().toISOString();
 		const daily = ["1w", "4w", "1m", "1y"].includes(range);
 		const table = daily
-			? "gateway_usage_rollup_daily_app_model"
-			: "gateway_usage_rollup_15m_app_model";
+			? "v2_web_public_usage_daily"
+			: "v2_web_public_usage_hourly";
 		const select = daily
 			? "day_bucket,canonical_model_id,requests,success_requests,total_tokens,total_cost_nanos"
 			: "bucket_15m,canonical_model_id,requests,success_requests,total_tokens,total_cost_nanos";
@@ -243,7 +243,7 @@ publicAppsRouter.get("/apps/:appReference/requests/recent", async (c) => {
 		if (!app) return c.json({ error: "app_not_found" }, 404);
 		const appId = String(app.id ?? "");
 		const { data, error } = await getDataClient(c.env)
-			.from("gateway_requests")
+			.from("v2_web_gateway_requests")
 			.select("created_at,usage,cost_nanos,model_id,provider,success")
 			.eq("app_id", appId)
 			.order("created_at", { ascending: false })
@@ -267,7 +267,7 @@ publicAppsRouter.get("/apps/:appReference", async (c) => {
 		if (!app) return c.json({ error: "app_not_found" }, 404);
 		const appId = String(app.id ?? "");
 		const { data: stats, error: statsError } = await getDataClient(c.env)
-			.from("gateway_usage_rollup_daily_app")
+			.from("v2_web_public_usage_daily")
 			.select("requests,success_requests,total_tokens")
 			.eq("app_id", appId);
 		let totalTokens = 0;

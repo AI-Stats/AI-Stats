@@ -6,7 +6,6 @@ import {
 	extractProviderApiModelSnapshot,
 	fetchProviderModels,
 	formatPricingSample,
-	parsePricingModelKey,
 	resolveProviderModelsEndpoint,
 } from "./helpers";
 import { installFetchMock, jsonResponse } from "../../../tests/helpers/mock-fetch";
@@ -241,15 +240,12 @@ describe("buildDiscordMessage", () => {
 	});
 });
 
-describe("pricing model keys", () => {
-	it("parses provider and model from a composite pricing key", () => {
-		expect(parsePricingModelKey("openai:openai/gpt-5.4:text.generate")).toEqual({
-			providerId: "openai",
-			apiModelId: "openai/gpt-5.4",
-		});
+describe("pricing samples", () => {
+	it("formats the model from the v2 legacy pricing projection", () => {
 		expect(formatPricingSample({
 			rule_id: "rule-1",
-			model_key: "openai:openai/gpt-5.4:text.generate",
+			provider_id: "openai",
+			api_model_id: "openai/gpt-5.4",
 			capability_id: "text.generate",
 			pricing_plan: "standard",
 			meter: "input_text_tokens",

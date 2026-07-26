@@ -13,6 +13,7 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "poolside/laguna-m.1",
+  "variants": [{ "model_id": "poolside/laguna-m.1:free", "name": "Laguna M.1 (Free)", "variant_kind": "free" }],
   "links": [
     {
       "title": "Website",

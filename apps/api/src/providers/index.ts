@@ -139,43 +139,21 @@ const ADAPTERS_BY_CAPABILITY: Partial<Record<Endpoint, Record<string, ProviderAd
 
 type CapabilityRow = { provider_id: string };
 
-function isMissingColumnError(error: unknown, column: string, table?: string): boolean {
-    const candidate = error && typeof error === "object" ? error as Record<string, unknown> : null;
-    const code = String(candidate?.code ?? "");
-    const message = String(candidate?.message ?? "");
-    if (code !== "PGRST204" && code !== "42703") return false;
-    if (!message.toLowerCase().includes(column.toLowerCase())) return false;
-    if (!table) return true;
-    return message.toLowerCase().includes(table.toLowerCase());
-}
-
 async function loadCapsFromDB(model: string, endpoint: Endpoint): Promise<CapabilityRow[]> {
     const supabase = getSupabaseAdmin();
     const nowISO = new Date().toISOString();
-    let { data: providerModels, error: pmError }: { data: any[] | null; error: any } = await supabase
-        .from("data_api_provider_models")
-        .select("provider_api_model_id, provider_id, is_active_gateway, effective_from, effective_to")
-        .eq("api_model_id", model)
-        .eq("is_active_gateway", true)
+    const { data: providerModels, error: pmError }: { data: any[] | null; error: any } = await supabase
+        .from("v2_model_provider_routes")
+        .select("provider_api_model_id:provider_model_id, provider_id:provider_slug, effective_from, effective_to")
+        .eq("model_slug", model)
+        .eq("routing_enabled", true)
+        .in("status", ["active", "degraded"])
         .or([
             "and(effective_from.is.null,effective_to.is.null)",
             `and(effective_from.is.null,effective_to.gt.${nowISO})`,
             `and(effective_from.lte.${nowISO},effective_to.is.null)`,
             `and(effective_from.lte.${nowISO},effective_to.gt.${nowISO})`,
         ].join(","));
-    if (
-        pmError &&
-        (isMissingColumnError(pmError, "effective_from", "data_api_provider_models") ||
-            isMissingColumnError(pmError, "effective_to", "data_api_provider_models"))
-    ) {
-        const fallback = await supabase
-            .from("data_api_provider_models")
-            .select("provider_api_model_id, provider_id, is_active_gateway")
-            .eq("api_model_id", model)
-            .eq("is_active_gateway", true);
-        providerModels = fallback.data ?? [];
-        pmError = fallback.error;
-    }
     if (pmError) {
         console.error("Error loading provider models from DB:", pmError);
         return [];
@@ -185,33 +163,18 @@ async function loadCapsFromDB(model: string, endpoint: Endpoint): Promise<Capabi
         .filter((id): id is string => Boolean(id));
     if (!providerModelIds.length) return [];
 
-    let { data: caps, error }: { data: any[] | null; error: any } = await supabase
-        .from("data_api_provider_model_capabilities")
-        .select("provider_api_model_id, capability_id, effective_from, effective_to")
+    const { data: caps, error }: { data: any[] | null; error: any } = await supabase
+        .from("v2_route_capabilities")
+        .select("provider_api_model_id:provider_model_id, capability_id, effective_from, effective_to")
         .eq("capability_id", endpoint)
         .eq("status", "active")
-        .in("provider_api_model_id", providerModelIds)
+        .in("provider_model_id", providerModelIds)
         .or([
             "and(effective_from.is.null,effective_to.is.null)",
             `and(effective_from.is.null,effective_to.gt.${nowISO})`,
             `and(effective_from.lte.${nowISO},effective_to.is.null)`,
             `and(effective_from.lte.${nowISO},effective_to.gt.${nowISO})`,
         ].join(","));
-    if (
-        error &&
-        (isMissingColumnError(error, "effective_from", "data_api_provider_model_capabilities") ||
-            isMissingColumnError(error, "effective_to", "data_api_provider_model_capabilities"))
-    ) {
-        const fallback = await supabase
-            .from("data_api_provider_model_capabilities")
-            .select("provider_api_model_id, capability_id")
-            .eq("capability_id", endpoint)
-            .eq("status", "active")
-            .in("provider_api_model_id", providerModelIds);
-        caps = fallback.data ?? [];
-        error = fallback.error;
-    }
-
     if (error) {
         console.error("Error loading capabilities from DB:", error);
         return [];

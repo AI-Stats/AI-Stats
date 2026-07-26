@@ -1057,6 +1057,7 @@
   },
   {
     "api_model_id": "nex-agi/nex-n2-pro:free",
+    "canonical_model_id": "nex-agi/nex-n2-pro:free",
     "provider_api_model_id": "siliconflow:nex-agi/nex-n2-pro:free",
     "provider_model_slug": "nex-agi/Nex-N2-Pro",
     "internal_model_id": "nex-agi/nex-n2-pro",
@@ -2770,6 +2771,7 @@
   },
   {
     "api_model_id": "tencent/hy3:free",
+    "canonical_model_id": "tencent/hy3:free",
     "provider_api_model_id": "siliconflow:tencent/hy3:free",
     "provider_model_slug": "tencent/Hy3",
     "internal_model_id": "tencent/hy3",

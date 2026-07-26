@@ -9,11 +9,10 @@ describe("public provider routes", () => {
 	it("returns the enriched provider index with stable caching", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
-			if (url.includes("data_api_providers")) return new Response(JSON.stringify([{ api_provider_id: "openai", api_provider_name: "OpenAI", colour: "#000", country_code: "US", provider_family_id: "openai", offer_label: null, offer_scope: "global" }]), { status: 200 });
-			if (url.includes("data_api_provider_models")) return new Response(JSON.stringify([{ provider_id: "openai", model_id: "openai/gpt-test", api_model_id: "gpt-test", provider_api_model_id: "pm-1", provider_model_slug: "gpt-test", is_active_gateway: true, effective_from: "2026-01-01T00:00:00Z", effective_to: null, input_modalities: ["text", "image"], output_modalities: ["text"] }]), { status: 200 });
-			if (url.includes("data_api_pricing_rules")) return new Response(JSON.stringify([{ model_key: "openai:gpt-test:free:chat", effective_from: "2026-01-01T00:00:00Z", effective_to: null }]), { status: 200 });
-			if (url.includes("gateway_usage_rollup_15m_model_provider")) return new Response(JSON.stringify([{ bucket_15m: new Date().toISOString(), provider: "openai", requests: 10, total_tokens: 100 }]), { status: 200 });
-			if (url.includes("data_models")) return new Response(JSON.stringify([{ model_id: "openai/gpt-test", input_types: ["text"], output_types: ["text"] }]), { status: 200 });
+			if (url.includes("v2_providers")) return new Response(JSON.stringify([{ provider_slug: "openai", name: "OpenAI", country_code: "US", lab_slug: "openai", status: "active", routable: true, routing_enabled: true, metadata: { colour: "#000", provider_family_id: "openai", offer_scope: "global" } }]), { status: 200 });
+			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([{ provider_slug: "openai", model_slug: "openai/gpt-test:free", provider_model_id: "pm-1", provider_model_slug: "gpt-test", routing_enabled: true, status: "active", effective_from: "2026-01-01T00:00:00Z", effective_to: null, input_modalities: ["text", "image"], output_modalities: ["text"] }]), { status: 200 });
+			if (url.includes("v2_web_public_usage_hourly")) return new Response(JSON.stringify([{ bucket_15m: new Date().toISOString(), provider: "openai", requests: 10, total_tokens: 100 }]), { status: 200 });
+			if (url.includes("v2_models")) return new Response(JSON.stringify([{ model_slug: "openai/gpt-test:free", input_modalities: ["text", "image"], output_modalities: ["text"], variant_kind: "free" }]), { status: 200 });
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
 		const response = await app.request("https://phaseo.app/api/_web/api-providers", {}, env);
@@ -27,7 +26,7 @@ describe("public provider routes", () => {
 			const url = input instanceof Request ? input.url : String(input);
 			if (url.includes("get_top_models_stats_tokens")) return new Response(JSON.stringify([{ model_id: "openai/gpt-test", model_name: "GPT Test", request_count: "4", total_tokens: "120", median_latency_ms: "12.6", median_throughput: "3.456" }]), { status: 200 });
 			if (url.includes("get_top_apps_stats")) return new Response(JSON.stringify([{ app_id: "app-1", title: "Example", url: "https://example.com", total_tokens: "99" }, { app_id: "unknown", title: "Unknown", total_tokens: 1000 }]), { status: 200 });
-			if (url.includes("data_models")) return new Response(JSON.stringify([{ model_id: "openai/gpt-test", hidden: false }]), { status: 200 });
+			if (url.includes("v2_models")) return new Response(JSON.stringify([{ model_slug: "openai/gpt-test", hidden: false }]), { status: 200 });
 			if (url.includes("api_apps")) return new Response(JSON.stringify([{ id: "app-1", image_url: "https://example.com/app.png" }]), { status: 200 });
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
@@ -49,8 +48,8 @@ describe("public provider routes", () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
 			if (url.includes("get_provider_token_usage")) return new Response(JSON.stringify([{ total_tokens: "500" }]), { status: 200 });
-			if (url.includes("data_api_provider_models")) return new Response(JSON.stringify([{ model_id: "openai/gpt-test", api_model_id: "gpt-test", created_at: release, is_active_gateway: true }]), { status: 200 });
-			if (url.includes("data_models")) return new Response(JSON.stringify([{ model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", release_date: release, announcement_date: null, organisation: { organisation_id: "openai", name: "OpenAI" } }]), { status: 200 });
+			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([{ model_slug: "openai/gpt-test", provider_model_slug: "gpt-test", provider_model_id: "pm-1", created_at: release, routing_enabled: true, status: "active" }]), { status: 200 });
+			if (url.includes("v2_models")) return new Response(JSON.stringify([{ model_slug: "openai/gpt-test", name: "GPT Test", lab_slug: "openai", released_at: release, announced_at: null, lab: { lab_slug: "openai", name: "OpenAI" } }]), { status: 200 });
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
 		const response = await app.request("https://phaseo.app/api/_web/api-providers/openai/updates", {}, env);
@@ -62,11 +61,11 @@ describe("public provider routes", () => {
 	it("aggregates provider rollups into the existing metrics payload", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
-			if (url.includes("gateway_usage_rollup_15m_model_provider")) return new Response(JSON.stringify([{
+			if (url.includes("v2_web_public_usage_hourly")) return new Response(JSON.stringify([{
 				bucket_15m: new Date().toISOString(), canonical_model_id: "openai/gpt-test", requests: 10, success_requests: 9,
 				total_tokens: 100, latency_sum_ms: 500, latency_samples: 10, throughput_sum: 200, throughput_samples: 10,
 			}]), { status: 200 });
-			if (url.includes("data_models")) return new Response(JSON.stringify([{ model_id: "openai/gpt-test", name: "GPT Test" }]), { status: 200 });
+			if (url.includes("v2_models")) return new Response(JSON.stringify([{ model_slug: "openai/gpt-test", name: "GPT Test" }]), { status: 200 });
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
 		const response = await app.request("https://phaseo.app/api/_web/api-providers/openai/metrics?hours=24", {}, env);
@@ -85,9 +84,9 @@ describe("public provider routes", () => {
 			const url = input instanceof Request ? input.url : String(input);
 			if (url.includes("get_top_models_stats_tokens")) return new Response(JSON.stringify([{ model_id: "openai/gpt-test" }]), { status: 200 });
 			if (url.includes("get_top_apps_stats")) return new Response(JSON.stringify([{ app_id: "app-1", title: "Example", url: "https://example.com" }]), { status: 200 });
-			if (url.includes("gateway_usage_rollup_15m_model_provider")) return new Response(JSON.stringify([{ bucket_15m: bucket, canonical_model_id: "openai/gpt-test", total_tokens: 20 }]), { status: 200 });
-			if (url.includes("gateway_usage_rollup_15m_provider_app")) return new Response(JSON.stringify([{ bucket_15m: bucket, app_id: "app-1", total_tokens: 15 }]), { status: 200 });
-			if (url.includes("data_models")) return new Response(JSON.stringify([{ model_id: "openai/gpt-test", name: "GPT Test" }]), { status: 200 });
+			if (url.includes("v2_web_public_usage_hourly") && url.includes("canonical_model_id")) return new Response(JSON.stringify([{ bucket_15m: bucket, canonical_model_id: "openai/gpt-test", total_tokens: 20 }]), { status: 200 });
+			if (url.includes("v2_web_public_usage_hourly")) return new Response(JSON.stringify([{ bucket_15m: bucket, app_id: "app-1", total_tokens: 15 }]), { status: 200 });
+			if (url.includes("v2_models")) return new Response(JSON.stringify([{ model_slug: "openai/gpt-test", name: "GPT Test" }]), { status: 200 });
 			if (url.includes("api_apps")) return new Response(JSON.stringify([{ id: "app-1", title: "Example", url: "https://example.com", image_url: "https://example.com/app.png" }]), { status: 200 });
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
@@ -110,13 +109,14 @@ describe("public provider routes", () => {
 	it("returns the provider model list with merged capabilities and current pricing", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
-			if (url.includes("data_api_provider_models")) return new Response(JSON.stringify([{ provider_api_model_id: "pm-1", provider_id: "openai", api_model_id: "gpt-test", provider_model_slug: "gpt-test", model_id: "openai/gpt-test", is_active_gateway: true, input_modalities: ["text"], output_modalities: ["text"], created_at: "2026-07-01T00:00:00Z" }]), { status: 200 });
-			if (url.includes("data_api_provider_model_capabilities")) return new Response(JSON.stringify([{ provider_api_model_id: "pm-1", capability_id: "chat/completions", params: { temperature: true }, status: "active" }]), { status: 200 });
-			if (url.includes("data_api_pricing_rules")) return new Response(JSON.stringify([
-				{ model_key: "openai:gpt-test:chat/completions", pricing_plan: "standard", meter: "input_text_tokens", unit: "token", unit_size: 1000000, price_per_unit: 2, effective_from: "2026-01-01T00:00:00Z", effective_to: null, priority: 0 },
-				{ model_key: "openai:gpt-test:chat/completions", pricing_plan: "standard", meter: "output_text_tokens", unit: "token", unit_size: 1000000, price_per_unit: 6, effective_from: "2026-01-01T00:00:00Z", effective_to: null, priority: 0 },
+			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([{ provider_model_id: "pm-1", provider_slug: "openai", provider_model_slug: "gpt-test", model_slug: "openai/gpt-test", routing_enabled: true, status: "active", input_modalities: ["text"], output_modalities: ["text"], created_at: "2026-07-01T00:00:00Z" }]), { status: 200 });
+			if (url.includes("v2_route_capabilities")) return new Response(JSON.stringify([{ provider_model_id: "pm-1", capability_id: "chat/completions", params: { temperature: true }, status: "active" }]), { status: 200 });
+			if (url.includes("v2_pricing_skus")) return new Response(JSON.stringify([{ sku_id: "sku-1", provider_model_id: "pm-1", service_tier_slug: "standard", status: "active", effective_from: "2026-01-01T00:00:00Z", effective_to: null }]), { status: 200 });
+			if (url.includes("v2_pricing_sku_meters")) return new Response(JSON.stringify([
+				{ sku_id: "sku-1", meter_key: "input_text_tokens", unit: "token", unit_quantity: 1000000, price_nanos: 2000000000, meter_order: 0 },
+				{ sku_id: "sku-1", meter_key: "output_text_tokens", unit: "token", unit_quantity: 1000000, price_nanos: 6000000000, meter_order: 1 },
 			]), { status: 200 });
-			if (url.includes("data_models")) return new Response(JSON.stringify([{ model_id: "openai/gpt-test", name: "GPT Test", release_date: "2026-06-01", announcement_date: null, hidden: false }]), { status: 200 });
+			if (url.includes("v2_models")) return new Response(JSON.stringify([{ model_slug: "openai/gpt-test", name: "GPT Test", released_at: "2026-06-01", announced_at: null, hidden: false }]), { status: 200 });
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
 		const response = await app.request("https://phaseo.app/api/_web/api-providers/openai/models", {}, env);

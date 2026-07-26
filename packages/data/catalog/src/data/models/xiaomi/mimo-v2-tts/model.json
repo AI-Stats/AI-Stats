@@ -13,6 +13,7 @@
   "input_types": "text",
   "output_types": "audio_tts",
   "api_model_id": "xiaomi/mimo-v2-tts",
+  "variants": [{ "model_id": "xiaomi/mimo-v2-tts:free", "name": "MiMo V2 TTS (Free)", "variant_kind": "free" }],
   "links": [],
   "details": [
     {

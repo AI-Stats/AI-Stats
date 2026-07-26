@@ -9,6 +9,18 @@ backfill and consumer cutover are verified.
 
 - `v2_models.model_slug` is the canonical model identity used by URLs,
   aliases, requests, rollups, and public rankings.
+- Provider offers ending in `:free` materialise as first-class model variants:
+  `{base_model_slug}:free`, displayed as `{base name} (Free)`. The row records
+  `variant_kind = 'free'` and `base_model_slug`, while the base/paid model
+  remains a separate `variant_kind = 'standard'` row. Provider routes,
+  request facts, usage rollups, performance, and health all retain the free
+  identity instead of merging it back into the base model.
+- Free variants are authored explicitly in the base model JSON `variants`
+  array, so static catalogue metadata remains defined once. Provider-model
+  JSON points to the exact variant through `canonical_model_id`. A
+  provider-specific free API ID that differs from the canonical spelling is
+  stored as an alias to the canonical `:free` model. Validation rejects free
+  routes without an authored variant; the importer never manufactures one.
 - `v2_model_aliases` resolves client input to a canonical model slug.
 - `v2_labs` owns model metadata. `v2_providers` represents a provider endpoint
   (including `external` catalogue-only providers) and has global status and
@@ -40,7 +52,11 @@ backfill and consumer cutover are verified.
 
 ## Observability and analytics
 
-- `v2_request_facts` stores one logical request with model resolution, route,
+- `gateway_requests` remains the authoritative operational record that a
+  gateway request occurred. Billing, refunds, lifecycle finalization, exact
+  logs, and request identity always start from that table.
+- `v2_request_facts` is a one-to-one observability extension of an
+  authoritative `gateway_requests` row. It stores model resolution, route,
   timing, status, user-agent/SDK metadata, and the tool-call stop-reason
   count. It never stores prompt, completion, provider body, or tool I/O data.
 - `v2_request_attempts` records failover attempts. `v2_request_artifacts`
@@ -102,3 +118,32 @@ Release timelines and pricing history still retain compatibility fallbacks.
 Benchmarks, subscriptions, and provider health now have v2 RPC paths and
 backfilled data; the fallback remains for deployments where those functions
 have not yet been rolled out.
+
+## V1 retirement boundary
+
+`gateway_requests` is not a V1 retirement candidate. The V2 request tables
+extend it and may be retained or renamed independently of the static catalogue
+cutover.
+
+Runtime catalogue, pricing, routing, public analytics, private usage trends,
+provider-health, benchmark, and subscription reads now use V2 tables or
+explicit `v2_*` SQL projections. Exact request logs continue to use
+`gateway_requests` and can be enriched through
+`get_gateway_request_observability()`. The established rollup refresh RPC names
+are adapters over the V2 analytics outbox.
+
+The old tables cannot be dropped yet. The remaining dependencies are writes or
+entities without a V2 equivalent:
+
+- gateway audit, realtime, and async-finalization lifecycle code owns the
+  authoritative `gateway_requests` record while also writing its V2
+  observability extension;
+- the catalogue administration mutation adapter remains legacy, while the JSON
+  catalogue is the intended authoring surface;
+- model links/details/families, organisation links, and page notices do not yet
+  have V2 replacements;
+- importer staging still writes the JSON catalogue to V1 before synchronising
+  the V2 canonical tables.
+
+Those dependencies must be migrated or deliberately removed before physical V1
+table deletion. They are not used by current website or gateway read paths.

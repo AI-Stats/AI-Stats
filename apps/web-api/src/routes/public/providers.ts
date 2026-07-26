@@ -77,31 +77,31 @@ function providerCards(variants: Variant[]) {
 
 async function providerIndex(env: Env) {
 	const client = getDataClient(env); const now = new Date(); const since = new Date(now.getTime() - 30 * 86_400_000).toISOString();
-	const [providersResult, mappingsResult, freeRulesResult] = await Promise.all([
-		client.from("data_api_providers").select("api_provider_id,api_provider_name,colour,country_code,provider_family_id,offer_label,offer_scope").order("api_provider_name", { ascending: true }),
-		client.from("data_api_provider_models").select("provider_id,model_id,api_model_id,provider_api_model_id,provider_model_slug,is_active_gateway,effective_from,effective_to,input_modalities,output_modalities"),
-		client.from("data_api_pricing_rules").select("model_key,effective_from,effective_to").ilike("model_key", "%:free:%"),
+	const [providersResult, mappingsResult, modelsResult] = await Promise.all([
+		client.from("v2_providers").select("provider_slug,name,country_code,lab_slug,status,routable,routing_enabled,metadata").order("name", { ascending: true }),
+		client.from("v2_model_provider_routes").select("provider_slug,model_slug,provider_model_id,provider_model_slug,routing_enabled,status,effective_from,effective_to,input_modalities,output_modalities,updated_at"),
+		client.from("v2_models").select("model_slug,input_modalities,output_modalities,variant_kind").eq("hidden", false),
 	]);
 	if (providersResult.error || mappingsResult.error) throw providersResult.error ?? mappingsResult.error;
-	const mappings = mappingsResult.data ?? []; const modelIds = Array.from(new Set(mappings.map((row) => row.model_id).filter((id): id is string => Boolean(id)))); const canonical = new Map<string, Record<string, unknown>>();
-	for (let offset = 0; offset < modelIds.length; offset += 100) { const result = await client.from("data_models").select("model_id,input_types,output_types").in("model_id", modelIds.slice(offset, offset + 100)); if (result.error) throw result.error; for (const row of result.data ?? []) canonical.set(row.model_id, row); }
+	if (modelsResult.error) throw modelsResult.error;
+	const mappings = mappingsResult.data ?? [];
+	const canonical = new Map((modelsResult.data ?? []).map((row) => [row.model_slug, row]));
 	const rollups: Array<Record<string, unknown>> = [];
-	for (let offset = 0, page = 0; page < 8; page += 1, offset += 5000) { const result = await client.from("gateway_usage_rollup_15m_model_provider").select("bucket_15m,provider,requests,total_tokens").gte("bucket_15m", since).lte("bucket_15m", now.toISOString()).range(offset, offset + 4999); if (result.error) { if (!missingRelation(result.error)) throw result.error; break; } const rows = result.data ?? []; rollups.push(...rows); if (rows.length < 5000) break; }
+	for (let offset = 0, page = 0; page < 8; page += 1, offset += 5000) { const result = await client.from("v2_web_public_usage_hourly").select("bucket_15m,provider,requests,total_tokens").gte("bucket_15m", since).lte("bucket_15m", now.toISOString()).range(offset, offset + 4999); if (result.error) { if (!missingRelation(result.error)) throw result.error; break; } const rows = result.data ?? []; rollups.push(...rows); if (rows.length < 5000) break; }
 	const total = new Map<string, Set<string>>(); const active = new Map<string, Set<string>>(); const free = new Map<string, Set<string>>(); const updated = new Map<string, string | null>(); const input = new Map<string, Record<Modality, Set<string>>>(); const output = new Map<string, Record<Modality, Set<string>>>();
 	const modalitySets = () => Object.fromEntries(MODALITIES.map((key) => [key, new Set<string>()])) as Record<Modality, Set<string>>;
 	for (const row of mappings) {
-		const provider = String(row.provider_id ?? "").trim(); const modelKey = String(row.api_model_id ?? row.provider_api_model_id ?? "").trim(); if (!provider || !modelKey) continue;
-		total.set(provider, new Set([...(total.get(provider) ?? []), modelKey])); updated.set(provider, latest([updated.get(provider) ?? null, row.effective_from ?? row.effective_to ?? null]));
-		const canonicalModel = canonical.get(String(row.model_id ?? "")); const inputs = stringList(row.input_modalities).length ? stringList(row.input_modalities) : stringList(canonicalModel?.input_types); const outputs = stringList(row.output_modalities).length ? stringList(row.output_modalities) : stringList(canonicalModel?.output_types);
+		const provider = String(row.provider_slug ?? "").trim(); const modelKey = String(row.model_slug ?? "").trim(); if (!provider || !modelKey) continue;
+		total.set(provider, new Set([...(total.get(provider) ?? []), modelKey])); updated.set(provider, latest([updated.get(provider) ?? null, row.updated_at ?? row.effective_from ?? row.effective_to ?? null]));
+		const canonicalModel = canonical.get(modelKey); const inputs = stringList(row.input_modalities).length ? stringList(row.input_modalities) : stringList(canonicalModel?.input_modalities); const outputs = stringList(row.output_modalities).length ? stringList(row.output_modalities) : stringList(canonicalModel?.output_modalities);
 		const inputSets = input.get(provider) ?? modalitySets(); const outputSets = output.get(provider) ?? modalitySets(); for (const value of inputs) { const key = modality(value); if (key) inputSets[key].add(modelKey); } for (const value of outputs) { const key = modality(value); if (key) outputSets[key].add(modelKey); } input.set(provider, inputSets); output.set(provider, outputSets);
-		if (modelKey.toLowerCase().includes(":free") || String(row.provider_model_slug ?? "").toLowerCase().includes("free")) free.set(provider, new Set([...(free.get(provider) ?? []), modelKey]));
-		if (row.is_active_gateway && (!row.effective_from || timeValue(row.effective_from) <= now.getTime()) && (!row.effective_to || timeValue(row.effective_to) > now.getTime())) active.set(provider, new Set([...(active.get(provider) ?? []), modelKey]));
+		if (canonicalModel?.variant_kind === "free" || modelKey.toLowerCase().endsWith(":free")) free.set(provider, new Set([...(free.get(provider) ?? []), modelKey]));
+		if (row.routing_enabled && ["active", "degraded"].includes(String(row.status)) && (!row.effective_from || timeValue(row.effective_from) <= now.getTime()) && (!row.effective_to || timeValue(row.effective_to) > now.getTime())) active.set(provider, new Set([...(active.get(provider) ?? []), modelKey]));
 	}
-	for (const rule of freeRulesResult.data ?? []) { if (!currentRule(rule as PricingRule)) continue; const parts = String(rule.model_key ?? "").split(":"); if (parts.length < 3) continue; const provider = parts.shift()!; parts.pop(); const id = parts.join(":"); free.set(provider, new Set([...(free.get(provider) ?? []), id])); }
 	const dailyRequests = new Map<string, number>(); const dailyTokens = new Map<string, number>(); const monthlyTokens = new Map<string, number>(); const dayStart = now.getTime() - 86_400_000;
 	for (const row of rollups) { const provider = String(row.provider ?? "").trim(); if (!provider) continue; const tokens = numeric(row.total_tokens); monthlyTokens.set(provider, (monthlyTokens.get(provider) ?? 0) + tokens); updated.set(provider, latest([updated.get(provider) ?? null, String(row.bucket_15m ?? "") || null])); if (timeValue(row.bucket_15m) >= dayStart) { dailyRequests.set(provider, (dailyRequests.get(provider) ?? 0) + numeric(row.requests)); dailyTokens.set(provider, (dailyTokens.get(provider) ?? 0) + tokens); } }
 	const hidden = new Set(["inception", "inceptron", "nextbit"]);
-	const variants: Variant[] = (providersResult.data ?? []).filter((row) => row.api_provider_id && !hidden.has(row.api_provider_id.toLowerCase())).map((row) => { const id = row.api_provider_id; const inputSets = input.get(id) ?? modalitySets(); const outputSets = output.get(id) ?? modalitySets(); return { id, name: row.api_provider_name ?? "", colour: row.colour ?? null, country: row.country_code ?? "", family: row.provider_family_id ?? null, offerLabel: row.offer_label ?? null, offerScope: row.offer_scope ?? null, totalIds: Array.from(total.get(id) ?? []), activeIds: Array.from(active.get(id) ?? []), freeIds: Array.from(free.get(id) ?? []), dailyRequests: dailyRequests.get(id) ?? 0, dailyTokens: dailyTokens.get(id) ?? 0, monthlyTokens: monthlyTokens.get(id) ?? 0, updatedAt: updated.get(id) ?? null, modalities: Object.fromEntries(MODALITIES.map((key) => [key, { input: Array.from(inputSets[key]), output: Array.from(outputSets[key]) }])) as Variant["modalities"] }; });
+	const variants: Variant[] = (providersResult.data ?? []).filter((row) => row.provider_slug && !hidden.has(row.provider_slug.toLowerCase())).map((row) => { const id = row.provider_slug; const inputSets = input.get(id) ?? modalitySets(); const outputSets = output.get(id) ?? modalitySets(); const details = row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata) ? row.metadata as Record<string, unknown> : {}; return { id, name: row.name ?? "", colour: typeof details.colour === "string" ? details.colour : null, country: row.country_code ?? "", family: typeof details.provider_family_id === "string" ? details.provider_family_id : row.lab_slug ?? null, offerLabel: typeof details.offer_label === "string" ? details.offer_label : null, offerScope: typeof details.offer_scope === "string" ? details.offer_scope : null, totalIds: Array.from(total.get(id) ?? []), activeIds: Array.from(active.get(id) ?? []), freeIds: Array.from(free.get(id) ?? []), dailyRequests: dailyRequests.get(id) ?? 0, dailyTokens: dailyTokens.get(id) ?? 0, monthlyTokens: monthlyTokens.get(id) ?? 0, updatedAt: updated.get(id) ?? null, modalities: Object.fromEntries(MODALITIES.map((key) => [key, { input: Array.from(inputSets[key]), output: Array.from(outputSets[key]) }])) as Variant["modalities"] }; });
 	return providerCards(variants);
 }
 
@@ -131,7 +131,7 @@ async function providerRollups(env: Env, providerId: string, hours: number, now:
 	const client = getDataClient(env);
 	const fromIso = new Date(now.getTime() - hours * 3_600_000).toISOString();
 	for (let offset = 0, page = 0; page < 8; page += 1, offset += 5000) {
-		const result = await client.from("gateway_usage_rollup_15m_model_provider")
+		const result = await client.from("v2_web_public_usage_hourly")
 			.select("bucket_15m,canonical_model_id,requests,success_requests,total_tokens,latency_sum_ms,latency_samples,throughput_sum,throughput_samples")
 			.eq("provider", providerId).gte("bucket_15m", fromIso).lte("bucket_15m", now.toISOString())
 			.order("bucket_15m", { ascending: true }).range(offset, offset + 4999);
@@ -162,9 +162,9 @@ async function buildProviderMetrics(env: Env, providerId: string, hours: number)
 	const empty = { summary: { uptimePct: null, avgLatencyMs: null, avgThroughput: null, avgGenerationMs: null, requests24h: 0, successful24h: 0 }, timeseries: { latency: [], throughput: [] }, dailyModelLeaderboards: {} };
 	if (!rows.length) return empty;
 	const modelIds = Array.from(new Set(rows.map((row) => String(row.canonical_model_id ?? "").trim()).filter(Boolean)));
-	const labelResult = modelIds.length ? await getDataClient(env).from("data_models").select("model_id,name").in("model_id", modelIds) : { data: [], error: null };
+	const labelResult = modelIds.length ? await getDataClient(env).from("v2_models").select("model_slug,name").in("model_slug", modelIds) : { data: [], error: null };
 	if (labelResult.error) throw labelResult.error;
-	const labels = new Map((labelResult.data ?? []).map((row) => [String(row.model_id), String(row.name ?? row.model_id)]));
+	const labels = new Map((labelResult.data ?? []).map((row) => [String(row.model_slug), String(row.name ?? row.model_slug)]));
 	const totals = emptyAggregate();
 	const days = new Map<string, Aggregate>();
 	const dayModels = new Map<string, Map<string, Aggregate>>();
@@ -195,11 +195,11 @@ function calendarDays(days: number) {
 	return { now, since, buckets, bucketSet: new Set(buckets) };
 }
 
-async function tokenRollups(args: { env: Env; providerId: string; table: "gateway_usage_rollup_15m_model_provider" | "gateway_usage_rollup_15m_provider_app"; idColumn: "canonical_model_id" | "app_id"; ids?: string[]; since: string; to: string; maxPages: number }) {
+async function tokenRollups(args: { env: Env; providerId: string; idColumn: "canonical_model_id" | "app_id"; ids?: string[]; since: string; to: string; maxPages: number }) {
 	if (args.ids && !args.ids.length) return [];
 	const rows: Array<Record<string, unknown>> = [];
 	for (let offset = 0, page = 0; page < args.maxPages; page += 1, offset += 5000) {
-		let query = getDataClient(args.env).from(args.table).select(`bucket_15m,${args.idColumn},total_tokens`).eq("provider", args.providerId)
+		let query = getDataClient(args.env).from("v2_web_public_usage_hourly").select(`bucket_15m,${args.idColumn},total_tokens`).eq("provider", args.providerId)
 			.gte("bucket_15m", args.since).lte("bucket_15m", args.to).order("bucket_15m", { ascending: true }).range(offset, offset + 4999);
 		if (args.ids?.length) query = query.in(args.idColumn, args.ids);
 		const result = await query;
@@ -217,8 +217,8 @@ async function modelTokenSeries(env: Env, providerId: string, days: number, topL
 	const window = calendarDays(days);
 	const topResult = await getDataClient(env).rpc("get_top_models_stats_tokens", { p_provider: providerId, p_since: window.since.toISOString(), p_limit: Math.min(100, Math.max(topLimit * 5, topLimit)) });
 	const preferred = topResult.error ? [] : (topResult.data ?? []).map((row) => String(row.model_id ?? "").trim()).filter(Boolean);
-	let rows = await tokenRollups({ env, providerId, table: "gateway_usage_rollup_15m_model_provider", idColumn: "canonical_model_id", ids: preferred, since: window.since.toISOString(), to: window.now.toISOString(), maxPages: 8 });
-	if (!rows.length) rows = await tokenRollups({ env, providerId, table: "gateway_usage_rollup_15m_model_provider", idColumn: "canonical_model_id", since: window.since.toISOString(), to: window.now.toISOString(), maxPages: 4 });
+	let rows = await tokenRollups({ env, providerId, idColumn: "canonical_model_id", ids: preferred, since: window.since.toISOString(), to: window.now.toISOString(), maxPages: 8 });
+	if (!rows.length) rows = await tokenRollups({ env, providerId, idColumn: "canonical_model_id", since: window.since.toISOString(), to: window.now.toISOString(), maxPages: 4 });
 	const totals = new Map<string, number>(); const daily = new Map<string, Map<string, number>>();
 	for (const row of rows) {
 		const id = String(row.canonical_model_id ?? "").trim(); const tokens = Number(row.total_tokens ?? 0); const day = new Date(String(row.bucket_15m)).toISOString().slice(0, 10);
@@ -226,9 +226,9 @@ async function modelTokenSeries(env: Env, providerId: string, days: number, topL
 		totals.set(id, (totals.get(id) ?? 0) + tokens); const values = daily.get(day) ?? new Map<string, number>(); values.set(id, (values.get(id) ?? 0) + tokens); daily.set(day, values);
 	}
 	const ids = Array.from(totals.entries()).sort((left, right) => right[1] - left[1]).slice(0, topLimit).map(([id]) => id);
-	const namesResult = ids.length ? await getDataClient(env).from("data_models").select("model_id,name").in("model_id", ids) : { data: [], error: null };
+	const namesResult = ids.length ? await getDataClient(env).from("v2_models").select("model_slug,name").in("model_slug", ids) : { data: [], error: null };
 	if (namesResult.error) throw namesResult.error;
-	const names = new Map((namesResult.data ?? []).map((row) => [String(row.model_id), String(row.name ?? row.model_id)]));
+	const names = new Map((namesResult.data ?? []).map((row) => [String(row.model_slug), String(row.name ?? row.model_slug)]));
 	const models = ids.map((modelId) => ({ modelId, modelName: names.get(modelId) ?? modelId, totalTokens: Math.round(totals.get(modelId) ?? 0) }));
 	return { models, points: window.buckets.flatMap((bucket) => models.map((model) => ({ bucket, modelId: model.modelId, tokens: Math.round(daily.get(bucket)?.get(model.modelId) ?? 0) }))) };
 }
@@ -238,8 +238,8 @@ async function appTokenSeries(env: Env, providerId: string, days: number, topLim
 	const topResult = await getDataClient(env).rpc("get_top_apps_stats", { p_provider: providerId, p_since: new Date(Date.now() - periodDays * 86_400_000).toISOString(), p_limit: Math.max(topLimit * 5, topLimit) });
 	const topRows = topResult.error ? [] : (topResult.data ?? []).filter((row) => !unknownApp(String(row.app_id ?? ""), row.title));
 	const preferred = topRows.map((row) => String(row.app_id ?? "").trim()).filter(Boolean);
-	let rows = await tokenRollups({ env, providerId, table: "gateway_usage_rollup_15m_provider_app", idColumn: "app_id", ids: preferred, since: window.since.toISOString(), to: window.now.toISOString(), maxPages: 8 });
-	if (!rows.length) rows = await tokenRollups({ env, providerId, table: "gateway_usage_rollup_15m_provider_app", idColumn: "app_id", since: window.since.toISOString(), to: window.now.toISOString(), maxPages: 4 });
+	let rows = await tokenRollups({ env, providerId, idColumn: "app_id", ids: preferred, since: window.since.toISOString(), to: window.now.toISOString(), maxPages: 8 });
+	if (!rows.length) rows = await tokenRollups({ env, providerId, idColumn: "app_id", since: window.since.toISOString(), to: window.now.toISOString(), maxPages: 4 });
 	const totals = new Map<string, number>(); const daily = new Map<string, Map<string, number>>();
 	for (const row of rows) {
 		const id = String(row.app_id ?? "").trim(); const tokens = Number(row.total_tokens ?? 0); const day = new Date(String(row.bucket_15m)).toISOString().slice(0, 10);
@@ -273,31 +273,31 @@ function lifecycleDate(model: RecentModel): string | null {
 
 async function recentModels(env: Env, providerId: string, since: string | null, limit: number): Promise<RecentModel[]> {
 	const client = getDataClient(env);
-	const providerResult = await client.from("data_api_provider_models")
-		.select("model_id,api_model_id,created_at,is_active_gateway").eq("provider_id", providerId);
+	const providerResult = await client.from("v2_model_provider_routes")
+		.select("model_slug,provider_model_slug,created_at,routing_enabled,status").eq("provider_slug", providerId);
 	if (providerResult.error) throw providerResult.error;
-	const modelIds = Array.from(new Set((providerResult.data ?? []).map((row) => row.model_id).filter((id): id is string => Boolean(id))));
+	const modelIds = Array.from(new Set((providerResult.data ?? []).map((row) => row.model_slug).filter((id): id is string => Boolean(id))));
 	const modelResult = modelIds.length
-		? await client.from("data_models").select("model_id,name,organisation_id,release_date,announcement_date,organisation:data_organisations!data_models_organisation_id_fkey(organisation_id,name)").in("model_id", modelIds)
+		? await client.from("v2_models").select("model_slug,name,lab_slug,released_at,announced_at,lab:v2_labs!v2_models_lab_slug_fkey(lab_slug,name)").in("model_slug", modelIds)
 		: { data: [], error: null };
 	if (modelResult.error) throw modelResult.error;
-	const details = new Map((modelResult.data ?? []).map((row) => [row.model_id, {
+	const details = new Map((modelResult.data ?? []).map((row) => [row.model_slug, {
 		name: row.name ?? null,
-		organisation_id: row.organisation_id ?? null,
-		release_date: row.release_date ?? null,
-		announcement_date: row.announcement_date ?? null,
-		organisation: row.organisation ?? null,
+		organisation_id: row.lab_slug ?? null,
+		release_date: row.released_at ?? null,
+		announcement_date: row.announced_at ?? null,
+		organisation: row.lab ?? null,
 	}]));
 	const merged = new Map<string, RecentModel>();
 	for (const row of providerResult.data ?? []) {
-		const key = row.model_id ?? row.api_model_id;
-		if (!key || !row.api_model_id || !row.created_at) continue;
+		const key = row.model_slug;
+		if (!key || !row.provider_model_slug || !row.created_at) continue;
 		const next: RecentModel = {
 			model_id: key,
-			api_model_id: row.api_model_id,
+			api_model_id: row.provider_model_slug,
 			created_at: row.created_at,
-			is_active_gateway: Boolean(row.is_active_gateway),
-			data_models: row.model_id ? details.get(row.model_id) ?? null : null,
+			is_active_gateway: Boolean(row.routing_enabled && ["active", "degraded"].includes(String(row.status))),
+			data_models: details.get(row.model_slug) ?? null,
 		};
 		const previous = merged.get(key);
 		if (!previous) { merged.set(key, next); continue; }
@@ -336,9 +336,9 @@ publicProvidersRouter.get("/:providerId/top-models", async (c) => {
 			throw result.error;
 		}
 		const ids = (result.data ?? []).map((row) => row.model_id).filter((id): id is string => Boolean(id));
-		const visibility = ids.length ? await client.from("data_models").select("model_id,hidden").in("model_id", ids) : { data: [], error: null };
+		const visibility = ids.length ? await client.from("v2_models").select("model_slug,hidden").in("model_slug", ids) : { data: [], error: null };
 		if (visibility.error) throw visibility.error;
-		const hidden = new Set((visibility.data ?? []).filter((row) => row.hidden).map((row) => row.model_id));
+		const hidden = new Set((visibility.data ?? []).filter((row) => row.hidden).map((row) => row.model_slug));
 		const models = (result.data ?? []).filter((row) => !hidden.has(row.model_id)).map((row) => ({
 			model_id: row.model_id,
 			model_name: row.model_name,
@@ -424,46 +424,64 @@ publicProvidersRouter.get("/:providerId/models", async (c) => {
 	if (["inception", "inceptron", "nextbit"].includes(providerId.toLowerCase())) return withPublicCache(c.json({ models: [] }), providerPolicy(UPDATES_CACHE, providerId));
 	try {
 		const client = getDataClient(c.env);
-		const providerResult = await client.from("data_api_provider_models").select("provider_api_model_id,provider_id,api_model_id,provider_model_slug,model_id,is_active_gateway,input_modalities,output_modalities,created_at").eq("provider_id", providerId).order("created_at", { ascending: false });
+		const providerResult = await client.from("v2_model_provider_routes")
+			.select("provider_model_id,provider_model_slug,model_slug,routing_enabled,status,input_modalities,output_modalities,created_at")
+			.eq("provider_slug", providerId)
+			.order("created_at", { ascending: false });
 		if (providerResult.error) throw providerResult.error;
 		const providerRows = providerResult.data ?? [];
-		const providerModelIds = providerRows.map((row) => row.provider_api_model_id).filter((id): id is string => Boolean(id));
-		const modelIds = Array.from(new Set(providerRows.map((row) => row.model_id).filter((id): id is string => Boolean(id))));
-		const [capsResult, modelsResult, rulesResult] = await Promise.all([
-			providerModelIds.length ? client.from("data_api_provider_model_capabilities").select("provider_api_model_id,capability_id,params,status").in("provider_api_model_id", providerModelIds) : Promise.resolve({ data: [], error: null }),
-			modelIds.length ? client.from("data_models").select("model_id,name,release_date,announcement_date,hidden").in("model_id", modelIds).eq("hidden", false) : Promise.resolve({ data: [], error: null }),
-			client.from("data_api_pricing_rules").select("model_key,pricing_plan,meter,unit,unit_size,price_per_unit,effective_from,effective_to,priority").like("model_key", `${providerId}:%`),
+		const providerModelIds = providerRows.map((row) => row.provider_model_id).filter((id): id is string => Boolean(id));
+		const modelIds = Array.from(new Set(providerRows.map((row) => row.model_slug).filter((id): id is string => Boolean(id))));
+		const [capsResult, modelsResult, skusResult] = await Promise.all([
+			providerModelIds.length ? client.from("v2_route_capabilities").select("provider_model_id,capability_id,params,status").in("provider_model_id", providerModelIds) : Promise.resolve({ data: [], error: null }),
+			modelIds.length ? client.from("v2_models").select("model_slug,name,released_at,announced_at,hidden").in("model_slug", modelIds).eq("hidden", false) : Promise.resolve({ data: [], error: null }),
+			providerModelIds.length ? client.from("v2_pricing_skus").select("sku_id,provider_model_id,service_tier_slug,status,effective_from,effective_to").in("provider_model_id", providerModelIds) : Promise.resolve({ data: [], error: null }),
 		]);
-		if (capsResult.error || modelsResult.error || rulesResult.error) throw capsResult.error ?? modelsResult.error ?? rulesResult.error;
-		const visible = new Set((modelsResult.data ?? []).map((row) => row.model_id)); const modelMeta = new Map((modelsResult.data ?? []).map((row) => [row.model_id, row]));
+		if (capsResult.error || modelsResult.error || skusResult.error) throw capsResult.error ?? modelsResult.error ?? skusResult.error;
+		const skuIds = (skusResult.data ?? []).map((row) => row.sku_id).filter((id): id is string => Boolean(id));
+		const metersResult = skuIds.length
+			? await client.from("v2_pricing_sku_meters").select("sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order").in("sku_id", skuIds)
+			: { data: [], error: null };
+		if (metersResult.error) throw metersResult.error;
+		const visible = new Set((modelsResult.data ?? []).map((row) => row.model_slug)); const modelMeta = new Map((modelsResult.data ?? []).map((row) => [row.model_slug, row]));
 		const capabilities = new Map<string, string[]>(); const params = new Map<string, string[]>();
 		for (const cap of capsResult.data ?? []) {
-			if (cap.status === "disabled" || !cap.provider_api_model_id || !cap.capability_id) continue;
-			capabilities.set(cap.provider_api_model_id, unique(capabilities.get(cap.provider_api_model_id) ?? [], [cap.capability_id]));
+			if (cap.status === "disabled" || !cap.provider_model_id || !cap.capability_id) continue;
+			capabilities.set(cap.provider_model_id, unique(capabilities.get(cap.provider_model_id) ?? [], [cap.capability_id]));
 			const supported = cap.params && typeof cap.params === "object" && !Array.isArray(cap.params) ? Object.keys(cap.params) : [];
-			params.set(cap.provider_api_model_id, unique(params.get(cap.provider_api_model_id) ?? [], supported));
+			params.set(cap.provider_model_id, unique(params.get(cap.provider_model_id) ?? [], supported));
 		}
-		const merged = new Map<string, Record<string, unknown>>(); const apiIds = new Map<string, Set<string>>();
+		const merged = new Map<string, Record<string, unknown>>(); const routeIds = new Map<string, Set<string>>();
 		for (const row of providerRows) {
-			if (row.model_id && !visible.has(row.model_id)) continue;
-			const modelId = row.model_id || row.api_model_id; if (!modelId) continue;
-			if (row.api_model_id) apiIds.set(modelId, new Set([...(apiIds.get(modelId) ?? []), row.api_model_id]));
-			const meta = modelMeta.get(row.model_id ?? ""); const endpoints = capabilities.get(row.provider_api_model_id) ?? []; const supported = params.get(row.provider_api_model_id) ?? [];
+			if (!row.model_slug || !visible.has(row.model_slug)) continue;
+			const modelId = row.model_slug;
+			routeIds.set(modelId, new Set([...(routeIds.get(modelId) ?? []), row.provider_model_id]));
+			const meta = modelMeta.get(modelId); const endpoints = capabilities.get(row.provider_model_id) ?? []; const supported = params.get(row.provider_model_id) ?? [];
 			const existing = merged.get(modelId);
 			if (!existing) {
-				merged.set(modelId, { model_id: modelId, api_model_id: row.api_model_id ?? modelId, model_name: meta?.name ?? row.provider_model_slug ?? row.api_model_id ?? modelId, provider_model_slug: row.provider_model_slug ?? null, endpoints, supported_params: supported, is_active_gateway: Boolean(row.is_active_gateway), input_modalities: stringList(row.input_modalities), output_modalities: stringList(row.output_modalities), release_date: meta?.release_date ?? null, announcement_date: meta?.announcement_date ?? null, created_at: row.created_at ?? null });
+				merged.set(modelId, { model_id: modelId, api_model_id: row.provider_model_slug ?? modelId, model_name: meta?.name ?? row.provider_model_slug ?? modelId, provider_model_slug: row.provider_model_slug ?? null, endpoints, supported_params: supported, is_active_gateway: Boolean(row.routing_enabled && ["active", "degraded"].includes(String(row.status))), input_modalities: stringList(row.input_modalities), output_modalities: stringList(row.output_modalities), release_date: meta?.released_at ?? null, announcement_date: meta?.announced_at ?? null, created_at: row.created_at ?? null });
 				continue;
 			}
 			if (timeValue(row.created_at) > timeValue(existing.created_at)) existing.created_at = row.created_at ?? null;
 			existing.endpoints = unique(stringList(existing.endpoints), endpoints); existing.supported_params = unique(stringList(existing.supported_params), supported);
 			existing.input_modalities = unique(stringList(existing.input_modalities), stringList(row.input_modalities)); existing.output_modalities = unique(stringList(existing.output_modalities), stringList(row.output_modalities));
-			existing.is_active_gateway = Boolean(existing.is_active_gateway || row.is_active_gateway);
+			existing.is_active_gateway = Boolean(existing.is_active_gateway || (row.routing_enabled && ["active", "degraded"].includes(String(row.status))));
 		}
-		const rules = ((rulesResult.data ?? []) as PricingRule[]).filter((rule) => currentRule(rule));
+		const skuById = new Map((skusResult.data ?? []).map((row) => [row.sku_id, row]));
+		const rulesByRoute = new Map<string, PricingRule[]>();
+		for (const meter of metersResult.data ?? []) {
+			const sku = skuById.get(meter.sku_id);
+			if (!sku || sku.status === "disabled") continue;
+			const nanos = Number(meter.price_nanos); const quantity = Number(meter.unit_quantity ?? 1);
+			if (!Number.isFinite(nanos) || !Number.isFinite(quantity) || quantity <= 0) continue;
+			const rule: PricingRule = { model_key: sku.provider_model_id, pricing_plan: sku.service_tier_slug ?? "standard", meter: meter.meter_key, unit: meter.unit, unit_size: quantity, price_per_unit: nanos / 1_000_000_000, effective_from: sku.effective_from, effective_to: sku.effective_to, priority: Number(meter.meter_order ?? 100) };
+			if (!currentRule(rule)) continue;
+			rulesByRoute.set(sku.provider_model_id, [...(rulesByRoute.get(sku.provider_model_id) ?? []), rule]);
+		}
 		const meterOrder = new Map(["input_text_tokens", "output_text_tokens", "cached_read_text_tokens", "cached_write_text_tokens", "cached_write_text_tokens_5m", "cached_write_text_tokens_1h", "total_tokens", "image_pixels", "video_pixels", "output_image", "input_image", "output_video_seconds", "input_video_seconds", "requests"].map((meter, index) => [meter, index]));
 		const results = Array.from(merged.values());
 		for (const model of results) {
-			const ids = apiIds.get(String(model.model_id)) ?? new Set<string>(); const matches = rules.filter((rule) => Array.from(ids).some((id) => rule.model_key?.startsWith(`${providerId}:${id}:`))); if (!matches.length) continue;
+			const ids = routeIds.get(String(model.model_id)) ?? new Set<string>(); const matches = Array.from(ids).flatMap((id) => rulesByRoute.get(id) ?? []); if (!matches.length) continue;
 			const standard = matches.filter((rule) => String(rule.pricing_plan ?? "standard").toLowerCase() === "standard"); const effective = standard.length ? standard : matches;
 			const sorted = [...effective].sort((a, b) => Number(b.priority ?? 0) - Number(a.priority ?? 0) || timeValue(b.effective_from) - timeValue(a.effective_from));
 			const input = effective.filter((rule) => String(rule.meter ?? "").toLowerCase().startsWith("input") && String(rule.meter ?? "").toLowerCase().includes("token")).map(perMillion).filter((value): value is number => value != null);

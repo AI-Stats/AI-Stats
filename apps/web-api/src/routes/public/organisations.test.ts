@@ -13,26 +13,27 @@ describe("public organisation routes", () => {
 	it("returns parity-shaped detail, header, and model resources", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("data_organisations")) {
+			if (url.includes("v2_lab_links")) return new Response(JSON.stringify([{ platform: "website", url: "https://openai.com" }]), { status: 200 });
+			if (url.includes("/v2_labs?")) {
 				return new Response(JSON.stringify([{
-					organisation_id: "openai",
+					lab_slug: "openai",
 					name: "OpenAI",
 					country_code: "US",
 					description: "AI research company",
-					colour: "#000000",
+					metadata: { colour: "#000000" },
 					updated_at: "2026-07-14T00:00:00.000Z",
 					organisation_links: [{ platform: "website", url: "https://openai.com" }],
 				}]), { status: 200 });
 			}
-			if (url.includes("data_models")) {
+			if (url.includes("/v2_models?")) {
 				return new Response(JSON.stringify([{
-					model_id: "openai/gpt-test",
+					model_slug: "openai/gpt-test",
 					name: "GPT Test",
-					status: "Available",
-					organisation_id: "openai",
+					status: "active",
+					lab_slug: "openai",
 					hidden: false,
-					release_date: "2026-07-01",
-					announcement_date: "2026-06-30",
+					released_at: "2026-07-01",
+					announced_at: "2026-06-30",
 				}]), { status: 200 });
 			}
 			return new Response(JSON.stringify([]), { status: 200 });
@@ -60,7 +61,7 @@ describe("public organisation routes", () => {
 					organisation_name: "OpenAI",
 					primary_group_key: "2026-07",
 				}],
-				models: { Available: [{ model_id: "openai/gpt-test" }] },
+				models: { active: [{ model_id: "openai/gpt-test" }] },
 			},
 		});
 		await expect(header.json()).resolves.toEqual({
@@ -71,7 +72,7 @@ describe("public organisation routes", () => {
 			},
 		});
 		await expect(models.json()).resolves.toMatchObject({
-			models: [{ model_id: "openai/gpt-test", status: "Available" }],
+			models: [{ model_id: "openai/gpt-test", status: "active" }],
 		});
 	});
 

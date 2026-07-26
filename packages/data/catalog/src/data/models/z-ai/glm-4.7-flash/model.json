@@ -13,6 +13,7 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "z-ai/glm-4.7-flash",
+  "variants": [{ "model_id": "z-ai/glm-4.7-flash:free", "name": "GLM 4.7 Flash (Free)", "variant_kind": "free" }],
   "links": [],
   "details": [],
   "benchmarks": [

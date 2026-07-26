@@ -57,19 +57,19 @@ export async function metadataForIds(context: Awaited<ReturnType<typeof requireA
 	const providerIds = Array.from(new Set(args.providers ?? [])).filter(Boolean);
 	const appIds = Array.from(new Set(args.apps ?? [])).filter(Boolean);
 	const [modelsResult, mappingsResult, providersResult, appsResult] = await Promise.all([
-		modelIds.length ? context.client.from("data_models").select("model_id,name,organisation_id,organisation:data_organisations!data_models_organisation_id_fkey(name,colour)").in("model_id", modelIds) : Promise.resolve({ data: [], error: null }),
-		modelIds.length ? context.client.from("data_api_provider_models").select("api_model_id,model_id").in("api_model_id", modelIds) : Promise.resolve({ data: [], error: null }),
-		providerIds.length ? context.client.from("data_api_providers").select("api_provider_id,api_provider_name,colour,provider_family_id,offer_label,offer_scope,prompt_training_policy").in("api_provider_id", providerIds) : Promise.resolve({ data: [], error: null }),
+		modelIds.length ? context.client.from("v2_models").select("model_id:model_slug,name,organisation_id:lab_slug,organisation:v2_labs(name,metadata)").in("model_slug", modelIds) : Promise.resolve({ data: [], error: null }),
+		modelIds.length ? context.client.from("v2_model_provider_routes").select("api_model_id:model_slug,model_id:model_slug").in("model_slug", modelIds) : Promise.resolve({ data: [], error: null }),
+		providerIds.length ? context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name,provider_family_id:provider_family_slug,offer_label,offer_scope,prompt_training_policy,metadata").in("provider_slug", providerIds) : Promise.resolve({ data: [], error: null }),
 		appIds.length ? context.client.from("api_apps").select("id,title,app_key,image_url").in("id", appIds) : Promise.resolve({ data: [], error: null }),
 	]);
 	const canonicalIds = Array.from(new Set((mappingsResult.data ?? []).map((row) => row.model_id).filter(Boolean)));
-	const mappedModelsResult = canonicalIds.length ? await context.client.from("data_models").select("model_id,name,organisation_id,organisation:data_organisations!data_models_organisation_id_fkey(name,colour)").in("model_id", canonicalIds) : { data: [], error: null };
+	const mappedModelsResult = canonicalIds.length ? await context.client.from("v2_models").select("model_id:model_slug,name,organisation_id:lab_slug,organisation:v2_labs(name,metadata)").in("model_slug", canonicalIds) : { data: [], error: null };
 	const canonical = new Map<string, Record<string, unknown>>();
 	for (const row of [...(modelsResult.data ?? []), ...(mappedModelsResult.data ?? [])]) canonical.set(row.model_id, row);
 	const modelMetadata = new Map<string, Record<string, unknown>>();
 	const addModel = (key: string, row: Record<string, any>) => {
 		const organisation = Array.isArray(row.organisation) ? row.organisation[0] : row.organisation;
-		modelMetadata.set(key, { organisationId: row.organisation_id ?? "", organisationName: organisation?.name ?? row.organisation_id ?? "", organisationColour: organisation?.colour ?? null, modelName: row.name ?? key });
+		modelMetadata.set(key, { organisationId: row.organisation_id ?? "", organisationName: organisation?.name ?? row.organisation_id ?? "", organisationColour: organisation?.metadata?.colour ?? null, modelName: row.name ?? key });
 	};
 	for (const [id, row] of canonical) addModel(id, row);
 	for (const mapping of mappingsResult.data ?? []) {
@@ -80,7 +80,7 @@ export async function metadataForIds(context: Awaited<ReturnType<typeof requireA
 	const providerMetadata = new Map<string, Record<string, unknown>>();
 	for (const provider of providersResult.data ?? []) {
 		providerNames.set(provider.api_provider_id, provider.api_provider_name ?? provider.api_provider_id);
-		providerMetadata.set(provider.api_provider_id, { id: provider.api_provider_id, name: provider.api_provider_name ?? provider.api_provider_id, colour: provider.colour ?? null, providerFamilyId: provider.provider_family_id ?? null, offerLabel: provider.offer_label ?? null, offerScope: provider.offer_scope ?? null, promptTrainingPolicy: provider.prompt_training_policy ?? null });
+		providerMetadata.set(provider.api_provider_id, { id: provider.api_provider_id, name: provider.api_provider_name ?? provider.api_provider_id, colour: provider.metadata?.colour ?? null, providerFamilyId: provider.provider_family_id ?? null, offerLabel: provider.offer_label ?? null, offerScope: provider.offer_scope ?? null, promptTrainingPolicy: provider.prompt_training_policy ?? null });
 	}
 	const appMetadata = new Map<string, Record<string, unknown>>();
 	const appNames = new Map<string, string>();
@@ -131,7 +131,7 @@ accountSettingsUsageRouter.get("/usage/observability", async (c) => {
 	}
 	const limit = 5000;
 	const loadWindow = async (start: string, end: string) => {
-		const result = await context.client.from("gateway_requests").select(OBSERVABILITY_SELECT)
+		const result = await context.client.from("v2_web_gateway_requests").select(OBSERVABILITY_SELECT)
 			.eq("workspace_id", workspaceId).gte("created_at", start).lte("created_at", end)
 			.not("endpoint", "in", OBSERVABILITY_EXCLUDED_ENDPOINTS).order("created_at", { ascending: true }).limit(limit + 1);
 		if (result.error) throw result.error;
@@ -213,7 +213,7 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 	if (requestsResult.error) return c.json({ error: "usage_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const [uniqueResult, rollupResult, keysResult] = await Promise.all([
 		context.client.from("gateway_requests").select("model_id,provider,app_id").eq("workspace_id", workspaceId).gte("created_at", timeRange.from).lte("created_at", timeRange.to).not("endpoint", "in", '("video.generation","batch","music.generate")'),
-		context.client.from("gateway_usage_rollup_15m_workspace_provider_model").select("canonical_model_id,provider").eq("workspace_id", workspaceId).gte("bucket_15m", timeRange.from).lte("bucket_15m", timeRange.to),
+		context.client.from("v2_web_private_usage_daily").select("canonical_model_id,provider").eq("workspace_id", workspaceId).gte("bucket_15m", timeRange.from).lte("bucket_15m", timeRange.to),
 		context.client.from("keys").select("id,name,prefix").eq("workspace_id", workspaceId).neq("status", "deleted").neq("name", "__chat_route_managed_key__").order("created_at", { ascending: true }),
 	]);
 	const models = Array.from(new Set([...(uniqueResult.data ?? []).map((row) => row.model_id), ...(rollupResult.data ?? []).map((row) => row.canonical_model_id)].filter(Boolean))); const providers = Array.from(new Set([...(uniqueResult.data ?? []).map((row) => row.provider), ...(rollupResult.data ?? []).map((row) => row.provider)].filter(Boolean))); const apps = Array.from(new Set((uniqueResult.data ?? []).map((row) => row.app_id).filter(Boolean)));
@@ -233,10 +233,10 @@ accountSettingsUsageRouter.get("/usage/alerts", async (c) => {
 	const now = Date.now();
 	const windowStart = new Date(now - 7 * 86_400_000).toISOString().slice(0, 10);
 	const windowEnd = new Date(now + 90 * 86_400_000).toISOString().slice(0, 10);
-	const lifecycleResult = await context.client.from("data_models")
-		.select("model_id,name,organisation_id,deprecation_date,retirement_date,previous_model_id")
+	const lifecycleResult = await context.client.from("v2_models")
+		.select("model_id:model_slug,name,organisation_id:lab_slug,deprecation_date:deprecated_at,retirement_date:retired_at,previous_model_id:previous_model_slug")
 		.eq("hidden", false)
-		.or(`and(retirement_date.gte.${windowStart},retirement_date.lte.${windowEnd}),and(deprecation_date.gte.${windowStart},deprecation_date.lte.${windowEnd})`);
+		.or(`and(retired_at.gte.${windowStart},retired_at.lte.${windowEnd}),and(deprecated_at.gte.${windowStart},deprecated_at.lte.${windowEnd})`);
 	if (lifecycleResult.error) return c.json({ error: "usage_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const lifecycleModels = lifecycleResult.data ?? [];
 	const lifecycleIds = lifecycleModels.map((row) => row.model_id).filter(Boolean);
@@ -250,9 +250,9 @@ accountSettingsUsageRouter.get("/usage/alerts", async (c) => {
 	const idMap = new Map<string, string>();
 	if (usedIds.length) {
 		const [apiResult, internalResult, providerResult] = await Promise.all([
-			context.client.from("data_api_provider_models").select("api_model_id,internal_model_id").in("api_model_id", usedIds).limit(5000),
-			context.client.from("data_api_provider_models").select("api_model_id,internal_model_id").in("internal_model_id", usedIds).limit(5000),
-			context.client.from("data_api_provider_models").select("provider_api_model_id,api_model_id,internal_model_id").in("provider_api_model_id", usedIds).limit(5000),
+			context.client.from("v2_model_provider_routes").select("api_model_id:model_slug,internal_model_id:model_slug").in("model_slug", usedIds).limit(5000),
+			context.client.from("v2_model_provider_routes").select("api_model_id:model_slug,internal_model_id:model_slug").in("model_slug", usedIds).limit(5000),
+			context.client.from("v2_model_provider_routes").select("provider_api_model_id:provider_model_id,api_model_id:model_slug,internal_model_id:model_slug").in("provider_model_id", usedIds).limit(5000),
 		]);
 		for (const row of [...(apiResult.data ?? []), ...(internalResult.data ?? [])]) {
 			if (row.api_model_id && row.internal_model_id) idMap.set(row.api_model_id, row.internal_model_id);
@@ -272,8 +272,8 @@ accountSettingsUsageRouter.get("/usage/alerts", async (c) => {
 		const previous = lastUsed.get(internalId);
 		if (!previous || Date.parse(timestamp) > Date.parse(previous)) lastUsed.set(internalId, timestamp);
 	}
-	const replacementsResult = await context.client.from("data_models")
-		.select("model_id,previous_model_id").eq("hidden", false).in("previous_model_id", lifecycleIds);
+	const replacementsResult = await context.client.from("v2_models")
+		.select("model_id:model_slug,previous_model_id:previous_model_slug").eq("hidden", false).in("previous_model_slug", lifecycleIds);
 	const replacementByPrevious = new Map<string, string>();
 	for (const row of replacementsResult.data ?? []) {
 		if (row.previous_model_id && row.model_id && !replacementByPrevious.has(row.previous_model_id)) replacementByPrevious.set(row.previous_model_id, row.model_id);

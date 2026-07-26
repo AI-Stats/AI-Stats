@@ -4,7 +4,7 @@ const client = createAdminClient();
 
 async function main() {
   const { data } = await client
-    .from("gateway_requests")
+    .from("v2_web_gateway_requests")
     .select("model_id, success, created_at")
     .order("created_at", { ascending: false })
     .limit(5);
@@ -14,7 +14,7 @@ async function main() {
 
   // Also check for the specific model
   const { data: modelData } = await client
-    .from("gateway_requests")
+    .from("v2_web_gateway_requests")
     .select("model_id, success, created_at")
     .ilike("model_id", "%gpt-5-nano%")
     .limit(5);

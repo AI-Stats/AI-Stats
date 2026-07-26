@@ -180,7 +180,7 @@ begin
       latency_sum_ms, latency_count, generation_sum_ms, generation_count,
       throughput_sum, throughput_count, gateway_total_sum_ms, gateway_total_count,
       internal_dispatch_sum_ms, internal_dispatch_count,
-      upstream_attempts, failed_upstream_attempts, cached_input_tokens, input_tokens
+      upstream_attempts, failed_upstream_attempts, cached_input_tokens, input_tokens, cost_nanos
     )
     select
       grain.usage_date, grain.app_id, grain.model_slug, grain.provider_model_id, grain.cloudflare_colo,
@@ -197,7 +197,8 @@ begin
       coalesce(sum(fact.gateway_total_ms), 0), count(fact.gateway_total_ms),
       coalesce(sum(fact.internal_dispatch_ms), 0), count(fact.internal_dispatch_ms),
       coalesce(sum(attempts.attempts), 0), coalesce(sum(attempts.failed_attempts), 0),
-      coalesce(sum(usage.cached_input_tokens), 0), coalesce(sum(usage.input_tokens), 0)
+      coalesce(sum(usage.cached_input_tokens), 0), coalesce(sum(usage.input_tokens), 0),
+      coalesce(sum(fact.cost_nanos), 0)
     from public.v2_request_facts fact
     left join lateral (
       select count(*)::bigint as attempts,
@@ -262,7 +263,7 @@ begin
       latency_sum_ms, latency_count, generation_sum_ms, generation_count,
       throughput_sum, throughput_count, gateway_total_sum_ms, gateway_total_count,
       internal_dispatch_sum_ms, internal_dispatch_count,
-      upstream_attempts, failed_upstream_attempts, cached_input_tokens, input_tokens
+      upstream_attempts, failed_upstream_attempts, cached_input_tokens, input_tokens, cost_nanos
     )
     select
       grain.bucket_start, grain.app_id, grain.model_slug, grain.provider_model_id, grain.cloudflare_colo,
@@ -279,7 +280,8 @@ begin
       coalesce(sum(fact.gateway_total_ms), 0), count(fact.gateway_total_ms),
       coalesce(sum(fact.internal_dispatch_ms), 0), count(fact.internal_dispatch_ms),
       coalesce(sum(attempts.attempts), 0), coalesce(sum(attempts.failed_attempts), 0),
-      coalesce(sum(usage.cached_input_tokens), 0), coalesce(sum(usage.input_tokens), 0)
+      coalesce(sum(usage.cached_input_tokens), 0), coalesce(sum(usage.input_tokens), 0),
+      coalesce(sum(fact.cost_nanos), 0)
     from public.v2_request_facts fact
     left join lateral (
       select count(*)::bigint as attempts,

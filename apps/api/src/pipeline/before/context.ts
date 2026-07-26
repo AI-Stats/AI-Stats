@@ -355,13 +355,14 @@ async function backfillProviderModalities(args: {
     const supabase = getSupabaseAdmin();
     const nowMs = Date.now();
     const byApiModelResult = await supabase
-        .from("data_api_provider_models")
+        .from("v2_model_provider_routes")
         .select(
-            "provider_id,provider_model_slug,input_modalities,output_modalities,effective_from,effective_to"
+            "provider_id:provider_slug,provider_model_slug,input_modalities,output_modalities,effective_from,effective_to"
         )
-        .eq("is_active_gateway", true)
-        .in("provider_id", providerIds)
-        .in("api_model_id", modelCandidates);
+        .eq("routing_enabled", true)
+        .in("provider_slug", providerIds)
+        .in("model_slug", modelCandidates)
+        .in("status", ["active", "degraded"]);
 
     if (byApiModelResult.error) return parsed;
 
@@ -426,11 +427,12 @@ async function resolveProviderScopedModelToApiModel(args: {
     const supabase = getSupabaseAdmin();
     const nowMs = Date.now();
     const { data: rows, error } = await supabase
-        .from("data_api_provider_models")
-        .select("provider_api_model_id,api_model_id,effective_from,effective_to")
-        .eq("provider_id", split.providerId)
+        .from("v2_model_provider_routes")
+        .select("provider_api_model_id:provider_model_id,api_model_id:model_slug,effective_from,effective_to")
+        .eq("provider_slug", split.providerId)
         .eq("provider_model_slug", split.providerModelSlug)
-        .eq("is_active_gateway", true);
+        .eq("routing_enabled", true)
+        .in("status", ["active", "degraded"]);
     if (error || !rows?.length) return null;
 
     const inWindow = (rows as ProviderScopedModelRow[])
@@ -452,11 +454,11 @@ async function resolveProviderScopedModelToApiModel(args: {
         args.model,
     );
     const { data: capabilityRows, error: capabilityError } = await supabase
-        .from("data_api_provider_model_capabilities")
-        .select("provider_api_model_id")
+        .from("v2_route_capabilities")
+        .select("provider_api_model_id:provider_model_id")
         .in("capability_id", capabilityCandidates)
         .in("status", [...ROUTABLE_CAPABILITY_STATUSES])
-        .in("provider_api_model_id", providerApiModelIds);
+        .in("provider_model_id", providerApiModelIds);
     if (capabilityError || !capabilityRows?.length) return null;
 
     const supportedIds = new Set(
@@ -499,11 +501,11 @@ async function fetchTestingProviderSnapshots(args: {
     if (!modelCandidates.length) return [];
 
     const byApiModelResult = await supabase
-        .from("data_api_provider_models")
+        .from("v2_model_provider_routes")
         .select(
-            "provider_api_model_id,provider_id,provider_model_slug,is_active_gateway,routing_status,effective_from,effective_to,input_modalities,output_modalities"
+            "provider_api_model_id:provider_model_id,provider_id:provider_slug,provider_model_slug,is_active_gateway:routing_enabled,routing_status:status,effective_from,effective_to,input_modalities,output_modalities"
         )
-        .in("api_model_id", modelCandidates);
+        .in("model_slug", modelCandidates);
 
     if (byApiModelResult.error) return [];
 
@@ -531,13 +533,13 @@ async function fetchTestingProviderSnapshots(args: {
     if (!providerModelIds.length) return [];
 
     const { data: capabilityRows, error: capabilityError } = await supabase
-        .from("data_api_provider_model_capabilities")
+        .from("v2_route_capabilities")
         .select(
-            "provider_api_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at"
+            "provider_api_model_id:provider_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at"
         )
         .in("capability_id", getContextCapabilityCandidates(args.endpoint, args.model))
         .in("status", [...ROUTABLE_CAPABILITY_STATUSES_WITH_TESTING])
-        .in("provider_api_model_id", providerModelIds);
+        .in("provider_model_id", providerModelIds);
     if (capabilityError) return [];
 
     const latestCapabilityByProviderModel = new Map<
@@ -666,12 +668,13 @@ async function fetchFreeRouterProviderPool(args: {
     const supabase = getSupabaseAdmin();
     const nowMs = Date.now();
     const { data: rows, error } = await supabase
-        .from("data_api_provider_models")
+        .from("v2_model_provider_routes")
         .select(
-            "provider_api_model_id,provider_id,provider_model_slug,api_model_id,model_id,is_active_gateway,routing_status,effective_from,effective_to,input_modalities,output_modalities"
+            "provider_api_model_id:provider_model_id,provider_id:provider_slug,provider_model_slug,api_model_id:model_slug,model_id:model_slug,is_active_gateway:routing_enabled,routing_status:status,effective_from,effective_to,input_modalities,output_modalities"
         )
-        .eq("is_active_gateway", true)
-        .like("api_model_id", "%:free");
+        .eq("routing_enabled", true)
+        .in("status", ["active", "degraded"])
+        .like("model_slug", "%:free");
     if (error || !rows?.length) return { providers: [], pricing: {} };
 
     const inWindowRows = (rows as FreeRouterProviderModelRow[])
@@ -691,9 +694,9 @@ async function fetchFreeRouterProviderPool(args: {
     if (!modelIds.length) return { providers: [], pricing: {} };
 
     const { data: modelRows, error: modelError } = await supabase
-        .from("data_models")
-        .select("model_id,hidden,status,deprecation_date,retirement_date")
-        .in("model_id", modelIds);
+        .from("v2_models")
+        .select("model_id:model_slug,hidden,status,deprecation_date:deprecated_at,retirement_date:retired_at")
+        .in("model_slug", modelIds);
     if (modelError) return { providers: [], pricing: {} };
 
     const activeModelIds = new Set(
@@ -714,11 +717,11 @@ async function fetchFreeRouterProviderPool(args: {
     );
     const capabilityId = getContextCapabilityCandidates(args.endpoint, FREE_ROUTER_MODEL_ID)[0] ?? args.endpoint;
     const { data: capabilityRows, error: capabilityError } = await supabase
-        .from("data_api_provider_model_capabilities")
-        .select("provider_api_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at")
+        .from("v2_route_capabilities")
+        .select("provider_api_model_id:provider_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at")
         .eq("capability_id", capabilityId)
         .in("status", [...ROUTABLE_CAPABILITY_STATUSES])
-        .in("provider_api_model_id", providerModelIds);
+        .in("provider_model_id", providerModelIds);
     if (capabilityError) return { providers: [], pricing: {} };
 
     const capabilityByProviderModel = new Map<string, any>();
@@ -736,9 +739,9 @@ async function fetchFreeRouterProviderPool(args: {
         )
     );
     const { data: providerRows, error: providerError } = await supabase
-        .from("data_api_providers")
-        .select("api_provider_id,status,routing_status")
-        .in("api_provider_id", providerIds);
+        .from("v2_providers")
+        .select("api_provider_id:provider_slug,status,routing_status:routing_enabled")
+        .in("provider_slug", providerIds);
     if (providerError) return { providers: [], pricing: {} };
 
     const providerStatusById = new Map<string, { status: ProviderRolloutStatus; routingStatus: RoutingStatus }>();
@@ -747,7 +750,7 @@ async function fetchFreeRouterProviderPool(args: {
         if (typeof providerId !== "string" || !providerId.length) continue;
         providerStatusById.set(providerId, {
             status: normalizeProviderStatus(row?.status),
-            routingStatus: normalizeRoutingStatus(row?.routing_status),
+            routingStatus: row?.routing_status === true ? "active" : "disabled",
         });
     }
 

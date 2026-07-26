@@ -12,7 +12,8 @@
   "license":null,
   "input_types":"text",
   "output_types":"text",
-  "api_model_id":"inclusionai/ling-3.0-flash:free",
+  "api_model_id":"inclusionai/ling-3.0-flash",
+  "variants": [{ "model_id": "inclusionai/ling-3.0-flash:free", "name": "Ling 3.0 Flash (Free)", "variant_kind": "free" }],
   "family_id":null,
   "links":[
     {"title":"Novita model page","kind":"documentation","url":"https://novita.ai/de/models/model-detail/inclusionai-ling-3.0-flash"},

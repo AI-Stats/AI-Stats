@@ -138,14 +138,29 @@ async function fetchModelEventRows(
 	organisationId?: string,
 ): Promise<Array<Record<string, unknown>>> {
 	let query = getDataClient(env)
-		.from("data_models")
-		.select("model_id,name,organisation_id,announcement_date,release_date,deprecation_date,retirement_date,organisation:data_organisations!data_models_organisation_id_fkey(organisation_id,name)")
+		.from("v2_models")
+		.select("model_slug,name,lab_slug,announced_at,released_at,deprecated_at,retired_at,lab:v2_labs!v2_models_lab_slug_fkey(lab_slug,name)")
 		.eq("hidden", false)
-		.or("announcement_date.not.is.null,release_date.not.is.null,deprecation_date.not.is.null,retirement_date.not.is.null");
-	if (organisationId) query = query.eq("organisation_id", organisationId);
+		.or("announced_at.not.is.null,released_at.not.is.null,deprecated_at.not.is.null,retired_at.not.is.null");
+	if (organisationId) query = query.eq("lab_slug", organisationId);
 	const { data, error } = await query;
 	if (error) throw error;
-	return (data ?? []) as Array<Record<string, unknown>>;
+	return (data ?? []).map((row) => {
+		const lab = Array.isArray(row.lab) ? row.lab[0] : row.lab;
+		return {
+			model_id: row.model_slug,
+			name: row.name,
+			organisation_id: row.lab_slug,
+			announcement_date: row.announced_at,
+			release_date: row.released_at,
+			deprecation_date: row.deprecated_at,
+			retirement_date: row.retired_at,
+			organisation: lab ? {
+				organisation_id: lab.lab_slug,
+				name: lab.name,
+			} : null,
+		};
+	});
 }
 
 export const publicUpdatesRouter = new Hono<{ Bindings: Env }>();

@@ -22,14 +22,14 @@ describe("public update routes", () => {
 
 	it("returns model cards, split events, and organisation release events", async () => {
 		vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify([{
-			model_id: "openai/gpt-test",
+			model_slug: "openai/gpt-test",
 			name: "GPT Test",
-			organisation_id: "openai",
-			announcement_date: "2020-01-01",
-			release_date: "2020-02-01",
-			deprecation_date: "2099-01-01",
-			retirement_date: null,
-			organisation: { organisation_id: "openai", name: "OpenAI" },
+			lab_slug: "openai",
+			announced_at: "2020-01-01",
+			released_at: "2020-02-01",
+			deprecated_at: "2099-01-01",
+			retired_at: null,
+			lab: { lab_slug: "openai", name: "OpenAI" },
 		}]), { status: 200 })));
 
 		const [cards, split, releases] = await Promise.all([

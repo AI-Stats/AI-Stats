@@ -13,7 +13,7 @@ describe("public app routes", () => {
 	it("returns IDs, detail, usage, and recent requests with volatility-specific caching", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("gateway_usage_rollup_daily_app_model")) {
+			if (url.includes("v2_web_public_usage_daily") && url.includes("canonical_model_id")) {
 				return new Response(JSON.stringify([{
 					day_bucket: "2026-07-14",
 					canonical_model_id: "openai/gpt-test",
@@ -23,14 +23,14 @@ describe("public app routes", () => {
 					total_cost_nanos: 500,
 				}]), { status: 200 });
 			}
-			if (url.includes("gateway_usage_rollup_daily_app")) {
+			if (url.includes("v2_web_public_usage_daily")) {
 				return new Response(JSON.stringify([{
 					requests: 10,
 					success_requests: 9,
 					total_tokens: 1_000,
 				}]), { status: 200 });
 			}
-			if (url.includes("gateway_requests")) {
+			if (url.includes("v2_web_gateway_requests")) {
 				return new Response(JSON.stringify([{
 					created_at: "2026-07-14T12:00:00.000Z",
 					usage: { total_tokens: 100 },
