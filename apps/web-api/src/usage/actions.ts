@@ -27,6 +27,16 @@ async function requireAuthenticatedUser() { return { supabase: current().account
 // Raw fallback can pull large request windows; keep it opt-in to protect DB egress.
 const rawFallbackEnabled = () => current().env.ENABLE_GATEWAY_USAGE_RAW_FALLBACK === "1";
 
+function numberOrNull(value: unknown): number | null {
+	if (value === null || value === undefined || value === "") return null;
+	const parsed = Number(value);
+	return Number.isFinite(parsed) ? parsed : null;
+}
+
+function stringOrNull(value: unknown): string | null {
+	return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+}
+
 async function requireAuthedTeamContext(
 	supabase: Awaited<ReturnType<typeof createClient>>
 ) {
@@ -163,7 +173,10 @@ export interface RequestRow extends NormalizedRequestUsageColumns {
 	key_id: string | null;
 	pricing_lines: AsyncJobRequestPricingLine[];
 	provider_attempts: Array<{
+		sequence?: number | null;
 		attempt_number: number | null;
+		round_number?: number | null;
+		internal_attempt_number?: number | null;
 		provider: string | null;
 		api_model_id: string | null;
 		provider_model_slug: string | null;
@@ -171,6 +184,15 @@ export interface RequestRow extends NormalizedRequestUsageColumns {
 		status: number | null;
 		status_text: string | null;
 		duration_ms: number | null;
+		latency_ms?: number | null;
+		generation_ms?: number | null;
+		total_ms?: number | null;
+		cost_nanos?: number | null;
+		currency?: string | null;
+		finish_reason?: string | null;
+		provider_finish_reason?: string | null;
+		retryable?: boolean | null;
+		fallback_attempted?: boolean;
 		upstream_error_code: string | null;
 		upstream_error_message: string | null;
 		upstream_error_description: string | null;
@@ -200,6 +222,88 @@ export type GatewayIoLog = {
 	error: string | null;
 	payload: Record<string, unknown> | null;
 };
+
+async function fetchGatewayUpstreamRequests(
+	workspaceId: string,
+	requestId: string,
+): Promise<RequestRow["provider_attempts"]> {
+	const { data, error } = await createAdminClient()
+		.from("gateway_upstream_requests")
+		.select(`
+			sequence,
+			round_number,
+			attempt_number,
+			internal_attempt_number,
+			provider,
+			api_model_id,
+			provider_model_slug,
+			outcome,
+			status_code,
+			status_text,
+			duration_ms,
+			latency_ms,
+			generation_ms,
+			total_ms,
+			cost_nanos,
+			currency,
+			finish_reason,
+			provider_finish_reason,
+			retryable,
+			fallback_attempted,
+			error_code,
+			error_message,
+			error_description
+		`)
+		.eq("workspace_id", workspaceId)
+		.eq("request_id", requestId)
+		.order("sequence", { ascending: true });
+
+	if (error) {
+		const code = String(error.code ?? "");
+		const message = String(error.message ?? "").toLowerCase();
+		if ((code === "PGRST205" || code === "42P01")
+			&& message.includes("gateway_upstream_requests")) {
+			return [];
+		}
+		console.error("Error fetching upstream request rows:", error);
+		return [];
+	}
+
+	return normalizeGatewayUpstreamRows(data ?? []);
+}
+
+export function normalizeGatewayUpstreamRows(
+	rows: unknown[],
+): RequestRow["provider_attempts"] {
+	return rows.map((value) => {
+		const row = value && typeof value === "object" ? value as Record<string, unknown> : {};
+		return {
+		sequence: numberOrNull(row.sequence),
+		round_number: numberOrNull(row.round_number),
+		attempt_number: numberOrNull(row.attempt_number),
+		internal_attempt_number: numberOrNull(row.internal_attempt_number),
+		provider: stringOrNull(row.provider),
+		api_model_id: stringOrNull(row.api_model_id),
+		provider_model_slug: stringOrNull(row.provider_model_slug),
+		outcome: stringOrNull(row.outcome),
+		status: numberOrNull(row.status_code),
+		status_text: stringOrNull(row.status_text),
+		duration_ms: numberOrNull(row.duration_ms),
+		latency_ms: numberOrNull(row.latency_ms),
+		generation_ms: numberOrNull(row.generation_ms),
+		total_ms: numberOrNull(row.total_ms),
+		cost_nanos: numberOrNull(row.cost_nanos),
+		currency: stringOrNull(row.currency),
+		finish_reason: stringOrNull(row.finish_reason),
+		provider_finish_reason: stringOrNull(row.provider_finish_reason),
+		retryable: typeof row.retryable === "boolean" ? row.retryable : null,
+		fallback_attempted: row.fallback_attempted === true,
+		upstream_error_code: stringOrNull(row.error_code),
+		upstream_error_message: stringOrNull(row.error_message),
+		upstream_error_description: stringOrNull(row.error_description),
+		};
+	});
+}
 
 async function fetchGatewayIoLog(
 	workspaceId: string,
@@ -1604,6 +1708,11 @@ export async function investigateGeneration(
 		}
 
 		const request = toRequestRow(fallbackData);
+		const upstreamRequests = await fetchGatewayUpstreamRequests(
+			workspaceId,
+			trimmedRequestId,
+		);
+		if (upstreamRequests.length > 0) request.provider_attempts = upstreamRequests;
 		const providerIds = Array.from(
 			new Set(
 				[
@@ -1652,6 +1761,11 @@ export async function investigateGeneration(
 	}
 
 	const request = toRequestRow(data);
+	const upstreamRequests = await fetchGatewayUpstreamRequests(
+		workspaceId,
+		trimmedRequestId,
+	);
+	if (upstreamRequests.length > 0) request.provider_attempts = upstreamRequests;
 	const providerIds = Array.from(
 		new Set(
 			[
