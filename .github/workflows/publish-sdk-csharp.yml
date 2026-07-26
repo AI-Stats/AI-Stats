@@ -6,10 +6,15 @@ on:
       - main
     paths:
       - "packages/sdk/sdk-csharp/package.json"
+      - "packages/sdk/agent-sdk-csharp/**"
   workflow_dispatch:
     inputs:
       version:
         description: "Version to publish (defaults to packages/sdk/sdk-csharp/package.json version)"
+        required: false
+        type: string
+      agent_version:
+        description: "Agent SDK version to publish (defaults to Phaseo.AgentSdk.csproj version)"
         required: false
         type: string
 
@@ -94,6 +99,37 @@ jobs:
             /p:Version=${{ steps.version.outputs.value }} \
             /p:PackageVersion=${{ steps.version.outputs.value }}
 
+      - name: Resolve Agent SDK version
+        id: agent-version
+        env:
+          INPUT_VERSION: ${{ inputs.agent_version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          print(ET.parse("packages/sdk/agent-sdk-csharp/Phaseo.AgentSdk.csproj").findtext(".//Version"))
+          PY
+          )"
+          if [ -n "${INPUT_VERSION:-}" ] && [ "${INPUT_VERSION}" != "${version}" ]; then
+            echo "::error::Requested Agent SDK version ${INPUT_VERSION} does not match committed version ${version}."
+            exit 1
+          fi
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Invalid Agent SDK version: $version"
+            exit 1
+          fi
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build Agent SDK package
+        run: |
+          dotnet test packages/sdk/agent-sdk-csharp/tests/Phaseo.AgentSdk.Tests/Phaseo.AgentSdk.Tests.csproj -c Release
+          dotnet pack packages/sdk/agent-sdk-csharp/Phaseo.AgentSdk.csproj \
+            -c Release \
+            -o artifacts/csharp-agent \
+            /p:Version=${{ steps.agent-version.outputs.value }} \
+            /p:PackageVersion=${{ steps.agent-version.outputs.value }}
+
       - name: NuGet login (OIDC -> temporary API key)
         id: nuget_login
         uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841
@@ -107,6 +143,14 @@ jobs:
             --source "https://api.nuget.org/v3/index.json" \
             --skip-duplicate
           dotnet nuget push "artifacts/csharp/*.snupkg" \
+            --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
+          dotnet nuget push "artifacts/csharp-agent/*.nupkg" \
+            --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
+          dotnet nuget push "artifacts/csharp-agent/*.snupkg" \
             --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" \
             --source "https://api.nuget.org/v3/index.json" \
             --skip-duplicate
