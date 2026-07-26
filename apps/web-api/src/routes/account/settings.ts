@@ -16,6 +16,8 @@ import { accountSettingsByokRouter } from "./settings-byok";
 import { accountSettingsGuardrailsRouter } from "./settings-guardrails";
 import { accountSettingsBroadcastRouter } from "./settings-broadcast";
 import { accountSettingsWebhooksRouter } from "./settings-webhooks";
+import { accountSettingsDataContributionRouter } from "./settings-data-contribution";
+import { callDataContributionGateway } from "./settings-data-contribution";
 import { purgeWorkerCacheTags } from "@/http/invalidation";
 
 function normalizeBetaFeatures(value: unknown): Record<string, boolean> {
@@ -89,6 +91,7 @@ accountSettingsRouter.route("/", accountSettingsByokRouter);
 accountSettingsRouter.route("/", accountSettingsGuardrailsRouter);
 accountSettingsRouter.route("/", accountSettingsBroadcastRouter);
 accountSettingsRouter.route("/", accountSettingsWebhooksRouter);
+accountSettingsRouter.route("/", accountSettingsDataContributionRouter);
 
 accountSettingsRouter.get("/layout", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
@@ -197,6 +200,12 @@ accountSettingsRouter.get("/privacy", async (c) => {
 		return c.json({
 			activeProviderModels: [], initialGlobal: null, providers: [],
 			teamName: null, workspaceId: null,
+			dataContribution: {
+				available: false,
+				enabled: false, policyVersion: "2026-07-26-v2", consentedAt: null,
+				sampleRateBps: 10000, classifierSampleRateBps: 1000, discountBps: 100, contributions30d: 0,
+				discountNanos30d: 0, classifiers: [], analytics: [],
+			},
 		}, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 	const context = await requireAccountWorkspace({
@@ -205,15 +214,19 @@ accountSettingsRouter.get("/privacy", async (c) => {
 		workspaceId,
 	});
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const [teamResult, settingsResult, providersResult, modelsResult] = await Promise.all([
+	const [teamResult, settingsResult, providersResult, modelsResult, contributionGatewayResult] = await Promise.all([
 		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
 		context.client.from("workspace_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed").eq("workspace_id", workspaceId).maybeSingle(),
 		context.client.from("data_api_providers").select("api_provider_id,api_provider_name,offer_label,offer_scope").order("api_provider_name", { ascending: true }),
 		context.client.from("data_api_provider_models").select("provider_id,api_model_id,internal_model_id,is_active_gateway").eq("is_active_gateway", true),
+		callDataContributionGateway({ env: c.env, request: c.req.raw }),
 	]);
 	for (const result of [teamResult, settingsResult, providersResult, modelsResult]) {
 		if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
+	const contributionData = contributionGatewayResult.status === 200
+		? contributionGatewayResult.payload?.data ?? null
+		: null;
 	return c.json({
 		activeProviderModels: (modelsResult.data ?? []).map((row) => ({
 			apiModelId: row.api_model_id,
@@ -227,6 +240,19 @@ accountSettingsRouter.get("/privacy", async (c) => {
 		})),
 		teamName: teamResult.data?.name ?? null,
 		workspaceId,
+		dataContribution: {
+			available: contributionData !== null,
+			enabled: contributionData?.enabled === true,
+			policyVersion: contributionData?.policyVersion ?? "2026-07-26-v2",
+			consentedAt: contributionData?.consentedAt ?? null,
+			sampleRateBps: Number(contributionData?.sampleRateBps ?? 10000),
+			classifierSampleRateBps: Number(contributionData?.classifierSampleRateBps ?? 1000),
+			discountBps: Number(contributionData?.discountBps ?? 100),
+			contributions30d: Number(contributionData?.last30Days?.contributions ?? 0),
+			discountNanos30d: Number(contributionData?.last30Days?.discountNanos ?? 0),
+			classifiers: contributionData?.classifiers ?? [],
+			analytics: contributionData?.analytics ?? [],
+		},
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 

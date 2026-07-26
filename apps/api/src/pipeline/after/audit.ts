@@ -19,6 +19,10 @@ import {
 	resolveExecuteTotalLatencyMs,
 	resolveNonStreamLatencyMs,
 } from "./timing";
+import {
+	normalizeDataContributionPolicy,
+	persistDataContribution,
+} from "../classification/data-contribution";
 
 function getProviderAttempts(ctx: PipelineContext): Array<Record<string, unknown>> {
     return Array.isArray(ctx.providerAttempts) ? ctx.providerAttempts : [];
@@ -414,6 +418,7 @@ export async function handleFailureAudit(
         }),
         onDeliveryFailure: emitGatewayTelemetryDeliveryFailure,
     });
+
 }
 
 export async function handleSuccessAudit(
@@ -625,6 +630,22 @@ export async function handleSuccessAudit(
         }),
         onDeliveryFailure: emitGatewayTelemetryDeliveryFailure,
     });
+
+	if (!byok && ctx.teamSettings?.dataContributionEnabled === true) {
+		const pricing = (usageWithMultimodal as any)?.pricing;
+		await persistDataContribution({
+			requestId: ctx.requestId,
+			workspaceId: ctx.workspaceId,
+			endpoint: ctx.endpoint,
+			model: ctx.model,
+			provider: result.provider,
+			requestPayload: ctx.rawBody ?? ctx.body ?? null,
+			gatewayResponse: gatewayResponse ?? null,
+			usage: usageWithMultimodal,
+			discountNanos: Number(pricing?.data_contribution_discount_nanos ?? 0),
+			policy: normalizeDataContributionPolicy(ctx.teamSettings),
+		});
+	}
 }
 
 function enrichUsageWithMultimodal(ctx: PipelineContext, result: RequestResult, usagePriced: any): any {

@@ -35,6 +35,46 @@ export type SettingsPrivacyInitialData = {
 	providers: Array<{ id: string; name: string }>;
 	teamName: string | null;
 	workspaceId: string | null;
+	dataContribution: DataContributionSettings;
+};
+
+export type DataContributionClassifier = {
+	id: string;
+	slug: string;
+	name: string;
+	description: string | null;
+	kind: "openrouter_task" | "custom";
+	instructions: string;
+	categories: Record<string, string[]>;
+	model: string;
+	service_tier: "standard" | "flex";
+	sample_rate_bps: number;
+	enabled: boolean;
+	created_at: string;
+	updated_at: string;
+};
+
+export type DataContributionSettings = {
+	available: boolean;
+	enabled: boolean;
+	policyVersion: string;
+	consentedAt: string | null;
+	sampleRateBps: number;
+	classifierSampleRateBps: number;
+	discountBps: number;
+	contributions30d: number;
+	discountNanos30d: number;
+	classifiers: DataContributionClassifier[];
+	analytics: Array<{
+		usage_date: string;
+		classifier_id: string;
+		primary_category: string;
+		model_slug: string;
+		provider_slug: string;
+		request_count: number;
+		input_tokens: number;
+		output_tokens: number;
+	}>;
 };
 
 export type SettingsAccountDangerInitialData = {

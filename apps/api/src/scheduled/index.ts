@@ -18,6 +18,8 @@ import { runVideoReconciliationJob } from "@/pipeline/video-reconciliation";
 import { runGatewayIoRetentionBillingJob } from "@/pipeline/audit/io-retention-billing";
 import { runBatchProviderWebhookReplayJob } from "@/routes/internal/batch-webhooks.helpers";
 import { runRealtimeSessionReconciliationJob } from "@core/realtime-sessions";
+import { runDataContributionClassifierJob } from "@/pipeline/classification/classifier-worker";
+import { pruneExpiredDataContributions } from "@/pipeline/classification/data-contribution";
 
 const MODEL_DISCOVERY_TICKS_PER_DAY = Array.from({ length: 24 }, (_value, hour) =>
 	60 / getModelDiscoveryStepMinutesUtc(hour),
@@ -341,7 +343,38 @@ async function handleV2AnalyticsOutboxScheduledEvent(env: GatewayBindings): Prom
 	}
 }
 
+async function handleDataContributionClassifierScheduledEvent(env: GatewayBindings): Promise<void> {
+	if (!toBool(env.DATA_CONTRIBUTION_CLASSIFIER_ENABLED, false)) return;
+	configureRuntime(env);
+	try {
+		const summary = await runDataContributionClassifierJob({
+			limit: toInt(env.DATA_CONTRIBUTION_CLASSIFIER_LIMIT, 100),
+			concurrency: toInt(env.DATA_CONTRIBUTION_CLASSIFIER_CONCURRENCY, 8),
+		});
+		if (summary.claimed > 0) console.log("data_contribution_classifier_completed", summary);
+	} finally {
+		clearRuntime();
+	}
+}
+
+async function handleDataContributionRetentionScheduledEvent(env: GatewayBindings): Promise<void> {
+	configureRuntime(env);
+	try {
+		const summary = await pruneExpiredDataContributions(
+			toInt(env.DATA_CONTRIBUTION_RETENTION_PRUNE_LIMIT, 1000),
+		);
+		if (summary.deleted > 0 || summary.failed > 0) console.log("data_contribution_retention_completed", summary);
+	} finally {
+		clearRuntime();
+	}
+}
+
 export async function handleScheduledEvent(event: ScheduledController, env: GatewayBindings): Promise<void> {
+	try {
+		await handleDataContributionClassifierScheduledEvent(env);
+	} catch (error) {
+		console.error("data_contribution_classifier_scheduled_failed", serializeError(error));
+	}
 	if (isDailyRetentionBillingTick(event)) {
 		try {
 			await handleGatewayIoRetentionBillingScheduledEvent(event, env);
@@ -350,6 +383,11 @@ export async function handleScheduledEvent(event: ScheduledController, env: Gate
 		}
 	}
 	if (isCoreJobsTick(event)) {
+		try {
+			await handleDataContributionRetentionScheduledEvent(env);
+		} catch (error) {
+			console.error("data_contribution_retention_scheduled_failed", serializeError(error));
+		}
 		try {
 			await handleV2AnalyticsOutboxScheduledEvent(env);
 		} catch (error) {

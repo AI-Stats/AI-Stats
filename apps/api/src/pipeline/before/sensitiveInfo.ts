@@ -452,6 +452,22 @@ function redactText(text: string, matches: SensitiveInfoMatch[]): string {
 	return output;
 }
 
+const STORAGE_REDACTION_RULES: SensitiveInfoRule[] = (
+	Object.keys(SENSITIVE_INFO_RULES) as SensitiveInfoBuiltinRuleId[]
+).map((id) => ({ id, kind: "builtin", action: "redact" }));
+
+/** Conservative built-in PII redaction for retained data-contribution I/O. */
+export function redactSensitiveInfoForStorage(text: string): {
+	text: string;
+	redactionCount: number;
+} {
+	const matches = analyzeSensitiveInfoText(text, STORAGE_REDACTION_RULES);
+	return {
+		text: redactText(text, matches),
+		redactionCount: matches.length,
+	};
+}
+
 function resolveActions(matches: SensitiveInfoMatch[]): SensitiveInfoAction[] {
 	return Array.from(new Set(matches.map((match) => match.action)));
 }
