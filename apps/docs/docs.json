@@ -1023,6 +1023,19 @@
 								]
 							},
 							{
+								"item": "Java Agent SDK",
+								"groups": [
+									{
+										"group": "Introduction",
+										"pages": [
+											"v1/sdk-reference/java/agent-sdk-overview",
+											"v1/sdk-reference/java/agent-sdk-installation",
+											"v1/sdk-reference/java/agent-sdk"
+										]
+									}
+								]
+							},
+							{
 								"item": "PHP Agent SDK",
 								"groups": [
 									{

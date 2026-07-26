@@ -9,6 +9,12 @@ Use the Phaseo Agent SDKs when your application needs more than one-shot generat
 - local runtime tools
 - gateway-backed model turns
 - resumable application-owned run state
+- exact-call approvals, human-in-the-loop tools, manual tools, and resumable continuation
+- runtime validation, progress-producing tools, and recoverable tool errors
+- streamed model output with replayable event consumers
+- dynamic turn configuration, composable stop conditions, and normalized usage/cost
+- model retries, tool timeouts, bounded tool concurrency, and lifecycle events
+- local Phaseo Devtools capture
 - consistent request routing across the same languages as the core client SDKs
 
 ## Supported languages
@@ -19,23 +25,51 @@ The current Agent SDK language set matches the primary client SDK set exposed in
 - [Python](../python/agent-sdk)
 - [Go](../go/agent-sdk)
 - [C#](../csharp/agent-sdk)
+- [Java](../java/agent-sdk)
 - [PHP](../php/agent-sdk)
 - [Ruby](../ruby/agent-sdk)
 
 ## Common model
 
-Each Agent SDK keeps the same minimal mental model:
+Each Agent SDK keeps the same runtime model:
 
 - define one agent
 - define zero or more local tools
 - create a gateway-backed model client
 - run a bounded loop over the `responses` API
+- inspect lifecycle events or a Devtools trace
+- persist the returned run and resume after a human decision
 
-The TypeScript package is still the most feature-complete today and remains the current public launch focus for local tool-driven loops on Phaseo Gateway.
+TypeScript is the reference API design. Python, Go, C#, Java, PHP, and Ruby expose the same run states and core controls using language-native callbacks, concurrency, timeout, and cancellation primitives. Rust and C++ Agent SDKs are intentionally deferred.
 
-## TypeScript-first recipes
+## Cross-language capability contract
 
-The current cookbook recipes are TypeScript-first:
+| Capability | TypeScript | Python | Go | C# | Java | PHP | Ruby |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Validated executable tools and recoverable errors | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Exact-ID approvals, HITL, and manual outputs | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Preliminary tool progress | Async generator | Iterator or callback | Callback | Callback | Callback | Callback | Callback |
+| Model streaming and replayable consumers | Async iterable | Iterator | Channel | Async enumerable | Iterable | Iterable | Enumerator |
+| Composable step, token, cost, duration, tool, finish, and custom stops | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Dynamic turns, mutable context, and persisted next-turn overrides | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Application-owned state accessor | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Normalized usage and cost | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+
+PHP and Ruby expose provider stream events through their normal synchronous iteration APIs. They do not require a hosted runtime or a background Phaseo service.
+
+## Client SDK, Agent SDK, and API
+
+| Use | Choose | What it owns |
+| --- | --- | --- |
+| One API request or full endpoint coverage | Client SDK | Generated API types and transport |
+| Tool-using, multi-step application logic | Agent SDK | Local loop, tools, checkpoints, review, events, and Devtools |
+| Custom transport or an unsupported language | Raw API | HTTP request and response handling |
+
+Agent SDK gateway adapters delegate model turns to the matching Client SDK. An `requestOptions` or language-equivalent configuration hook passes additional Responses API fields through while the Agent SDK continues to own `model`, `input`, `instructions`, and local function tools.
+
+## Recipes
+
+The cookbook includes TypeScript workflows and language-specific starting points:
 
 - [Build a durable agent loop](../../cookbook/agent-sdk-durable-loop)
 - [Research with agent-backed web search](../../cookbook/agent-sdk-research-brief)

@@ -1,13 +1,15 @@
 # Phaseo Agent SDK (C#)
 
-`Phaseo.AgentSdk` is a minimal .NET agent runtime for Phaseo Gateway.
+`Phaseo.AgentSdk` is the native .NET runtime for building tool-using applications on Phaseo Gateway.
 
 It provides:
 
 - `AgentSdk.CreateAgent(...)`
 - `AgentSdk.DefineTool(...)`
 - `AgentSdk.CreateGatewayAgentClient(...)`
-- a bounded tool loop on top of the Phaseo `responses` API
+- task-based concurrent tools, cancellation, timeouts, and model retry/backoff
+- human-review pauses and `Agent.ContinueRun(...)`
+- lifecycle events, serializable run state, and Phaseo Devtools capture
 
 ## Install
 

@@ -1591,7 +1591,6 @@ const (
 	KnownModelIdOpenaiBabbage002 KnownModelId = "openai/babbage-002"
 	KnownModelIdOpenaiChatLatest KnownModelId = "openai/chat-latest"
 	KnownModelIdOpenaiChatgpt4o KnownModelId = "openai/chatgpt-4o"
-	KnownModelIdOpenaiComputerUsePreview KnownModelId = "openai/computer-use-preview"
 	KnownModelIdOpenaiDavinci002 KnownModelId = "openai/davinci-002"
 	KnownModelIdOpenaiGpt35Turbo16k KnownModelId = "openai/gpt-3.5-turbo-16k"
 	KnownModelIdOpenaiGpt35Turbo20230321 KnownModelId = "openai/gpt-3.5-turbo-2023-03-21"
@@ -1610,16 +1609,10 @@ const (
 	KnownModelIdOpenaiGpt4oMiniTts KnownModelId = "openai/gpt-4o-mini-tts"
 	KnownModelIdOpenaiGpt4oTranscribe KnownModelId = "openai/gpt-4o-transcribe"
 	KnownModelIdOpenaiGpt5 KnownModelId = "openai/gpt-5"
-	KnownModelIdOpenaiGpt5Chat KnownModelId = "openai/gpt-5-chat"
-	KnownModelIdOpenaiGpt5Codex KnownModelId = "openai/gpt-5-codex"
 	KnownModelIdOpenaiGpt5Mini KnownModelId = "openai/gpt-5-mini"
 	KnownModelIdOpenaiGpt5Nano KnownModelId = "openai/gpt-5-nano"
 	KnownModelIdOpenaiGpt5Pro KnownModelId = "openai/gpt-5-pro"
 	KnownModelIdOpenaiGpt51 KnownModelId = "openai/gpt-5.1"
-	KnownModelIdOpenaiGpt51Chat KnownModelId = "openai/gpt-5.1-chat"
-	KnownModelIdOpenaiGpt51Codex KnownModelId = "openai/gpt-5.1-codex"
-	KnownModelIdOpenaiGpt51CodexMax KnownModelId = "openai/gpt-5.1-codex-max"
-	KnownModelIdOpenaiGpt51CodexMini KnownModelId = "openai/gpt-5.1-codex-mini"
 	KnownModelIdOpenaiGpt52 KnownModelId = "openai/gpt-5.2"
 	KnownModelIdOpenaiGpt52Chat KnownModelId = "openai/gpt-5.2-chat"
 	KnownModelIdOpenaiGpt52Codex KnownModelId = "openai/gpt-5.2-codex"
@@ -1649,11 +1642,9 @@ const (
 	KnownModelIdOpenaiO1Mini KnownModelId = "openai/o1-mini"
 	KnownModelIdOpenaiO1Pro KnownModelId = "openai/o1-pro"
 	KnownModelIdOpenaiO3 KnownModelId = "openai/o3"
-	KnownModelIdOpenaiO3DeepResearch KnownModelId = "openai/o3-deep-research"
 	KnownModelIdOpenaiO3Mini KnownModelId = "openai/o3-mini"
 	KnownModelIdOpenaiO3Pro KnownModelId = "openai/o3-pro"
 	KnownModelIdOpenaiO4Mini KnownModelId = "openai/o4-mini"
-	KnownModelIdOpenaiO4MiniDeepResearch KnownModelId = "openai/o4-mini-deep-research"
 	KnownModelIdOpenaiOmniModeration KnownModelId = "openai/omni-moderation"
 	KnownModelIdOpenaiSora2 KnownModelId = "openai/sora-2"
 	KnownModelIdOpenaiSora2Pro KnownModelId = "openai/sora-2-pro"
@@ -2289,13 +2280,23 @@ type ResponsesRequest struct {
 
 type ResponsesResponse struct {
 	Content *[]map[string]interface{} `json:"content,omitempty"`
+	CostCents *int `json:"cost_cents,omitempty"`
+	CostNanos *float64 `json:"cost_nanos,omitempty"`
 	Created *int `json:"created,omitempty"`
+	Currency *string `json:"currency,omitempty"`
+	FinishReason *string `json:"finish_reason,omitempty"`
 	Id *string `json:"id,omitempty"`
+	Meta *map[string]interface{} `json:"meta,omitempty"`
 	Model *string `json:"model,omitempty"`
+	NativeResponseId *string `json:"nativeResponseId,omitempty"`
 	Object *string `json:"object,omitempty"`
 	Output *[]map[string]interface{} `json:"output,omitempty"`
 	OutputItems *[]map[string]interface{} `json:"output_items,omitempty"`
+	PricingLines *[]map[string]interface{} `json:"pricing_lines,omitempty"`
+	Provider *string `json:"provider,omitempty"`
+	ProviderId *string `json:"provider_id,omitempty"`
 	Role *string `json:"role,omitempty"`
+	Status *string `json:"status,omitempty"`
 	StopReason *string `json:"stop_reason,omitempty"`
 	Type *string `json:"type,omitempty"`
 	Usage *map[string]interface{} `json:"usage,omitempty"`

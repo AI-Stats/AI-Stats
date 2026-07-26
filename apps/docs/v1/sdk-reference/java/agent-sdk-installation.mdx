@@ -1,0 +1,26 @@
+---
+title: "Installation"
+description: "Install the Java Agent SDK and Phaseo Java Client SDK."
+---
+
+Add both artifacts to your Maven project:
+
+```xml
+<dependency>
+  <groupId>app.phaseo</groupId>
+  <artifactId>phaseo-sdk</artifactId>
+  <version>2.0.4</version>
+</dependency>
+<dependency>
+  <groupId>app.phaseo</groupId>
+  <artifactId>phaseo-agent-sdk</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
+
+Set `PHASEO_API_KEY` in the application environment. `AgentSdk.createGatewayAgentClient()` reads it automatically.
+
+## Next
+
+- [Overview](./agent-sdk-overview)
+- [Usage](./agent-sdk)

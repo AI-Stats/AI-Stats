@@ -1,8 +1,16 @@
 export interface ResponsesResponse {
   content?: {}[];
+  cost_cents?: number;
+  cost_nanos?: number;
   created?: number;
+  currency?: string;
+  finish_reason?: string | null;
   id?: string;
+  meta?: {
+    [key: string]: unknown;
+  };
   model?: string;
+  nativeResponseId?: string | null;
   object?: string;
   output?: {
     arguments?: string;
@@ -64,7 +72,13 @@ export interface ResponsesResponse {
     role?: string;
     type?: string;
   }[];
+  pricing_lines?: {
+    [key: string]: unknown;
+  }[];
+  provider?: string;
+  provider_id?: string;
   role?: string;
+  status?: "completed" | "failed" | "incomplete";
   stop_reason?: string;
   type?: string;
   usage?: {

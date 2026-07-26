@@ -3360,9 +3360,17 @@ export async function createResponse(
   args: CreateResponseParams = {},
 ): Promise<{
   content?: {}[];
+  cost_cents?: number;
+  cost_nanos?: number;
   created?: number;
+  currency?: string;
+  finish_reason?: string | null;
   id?: string;
+  meta?: {
+    [key: string]: unknown;
+  };
   model?: string;
+  nativeResponseId?: string | null;
   object?: string;
   output?: {
     arguments?: string;
@@ -3424,7 +3432,13 @@ export async function createResponse(
     role?: string;
     type?: string;
   }[];
+  pricing_lines?: {
+    [key: string]: unknown;
+  }[];
+  provider?: string;
+  provider_id?: string;
   role?: string;
+  status?: "completed" | "failed" | "incomplete";
   stop_reason?: string;
   type?: string;
   usage?: {
@@ -3442,9 +3456,17 @@ export async function createResponse(
   const resolvedPath = "/responses";
   return client.request<{
     content?: {}[];
+    cost_cents?: number;
+    cost_nanos?: number;
     created?: number;
+    currency?: string;
+    finish_reason?: string | null;
     id?: string;
+    meta?: {
+      [key: string]: unknown;
+    };
     model?: string;
+    nativeResponseId?: string | null;
     object?: string;
     output?: {
       arguments?: string;
@@ -3506,7 +3528,13 @@ export async function createResponse(
       role?: string;
       type?: string;
     }[];
+    pricing_lines?: {
+      [key: string]: unknown;
+    }[];
+    provider?: string;
+    provider_id?: string;
     role?: string;
+    status?: "completed" | "failed" | "incomplete";
     stop_reason?: string;
     type?: string;
     usage?: {

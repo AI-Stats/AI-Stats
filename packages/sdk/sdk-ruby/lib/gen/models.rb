@@ -1662,11 +1662,23 @@ module Phaseo
     ResponsesRequest = Struct.new(:background, :debug, :echo_upstream_request, :image_config, :include, :input, :instructions, :max_output_tokens, :meta, :metadata, :modalities, :model, :parallel_tool_calls, :previous_response_id, :prompt_cache_key, :provider, :provider_options, :reasoning, :safety_identifier, :service_tier, :session_id, :store, :stream, :temperature, :text, :tool_choice, :tools, :top_p, :truncation, :usage, :user, keyword_init: true)
     # @!attribute [rw] content
     #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] cost_cents
+    #   @return [Integer, nil]
+    # @!attribute [rw] cost_nanos
+    #   @return [Float, nil]
     # @!attribute [rw] created
     #   @return [Integer, nil]
+    # @!attribute [rw] currency
+    #   @return [String, nil]
+    # @!attribute [rw] finish_reason
+    #   @return [String, nil]
     # @!attribute [rw] id
     #   @return [String, nil]
+    # @!attribute [rw] meta
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] model
+    #   @return [String, nil]
+    # @!attribute [rw] nativeResponseId
     #   @return [String, nil]
     # @!attribute [rw] object
     #   @return [String, nil]
@@ -1674,7 +1686,15 @@ module Phaseo
     #   @return [Array<Hash{String => Object}>, nil]
     # @!attribute [rw] output_items
     #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] pricing_lines
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] provider
+    #   @return [String, nil]
+    # @!attribute [rw] provider_id
+    #   @return [String, nil]
     # @!attribute [rw] role
+    #   @return [String, nil]
+    # @!attribute [rw] status
     #   @return [String, nil]
     # @!attribute [rw] stop_reason
     #   @return [String, nil]
@@ -1682,7 +1702,7 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] usage
     #   @return [Hash{String => Object}, nil]
-    ResponsesResponse = Struct.new(:content, :created, :id, :model, :object, :output, :output_items, :role, :stop_reason, :type, :usage, keyword_init: true)
+    ResponsesResponse = Struct.new(:content, :cost_cents, :cost_nanos, :created, :currency, :finish_reason, :id, :meta, :model, :nativeResponseId, :object, :output, :output_items, :pricing_lines, :provider, :provider_id, :role, :status, :stop_reason, :type, :usage, keyword_init: true)
     # @!attribute [rw] datetime_requests
     #   @return [Integer, nil]
     # @!attribute [rw] web_fetch_requests

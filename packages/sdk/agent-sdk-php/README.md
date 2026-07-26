@@ -1,13 +1,15 @@
 # Phaseo Agent SDK (PHP)
 
-`phaseo/agent-sdk` is a minimal PHP agent runtime for Phaseo Gateway.
+`phaseo/agent-sdk` is the native PHP runtime for building tool-using applications on Phaseo Gateway.
 
 It provides:
 
 - `AgentSdk::createAgent(...)`
 - `AgentSdk::defineTool(...)`
 - `AgentSdk::createGatewayAgentClient(...)`
-- a bounded tool loop on top of the Phaseo `responses` API
+- bounded local tools, timeout checks, and model retry/backoff
+- human-review pauses and `Agent::continueRun(...)`
+- lifecycle events, serializable run state, and Phaseo Devtools capture
 
 ## Install
 

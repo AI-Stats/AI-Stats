@@ -6,7 +6,7 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 
     <PackageId>Phaseo.AgentSdk</PackageId>
-    <Version>2.0.3</Version>
+    <Version>2.1.0</Version>
     <Authors>Phaseo</Authors>
     <Company>Phaseo</Company>
     <Description>Official Phaseo Agent SDK for .NET.</Description>
@@ -17,6 +17,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>ai;sdk;agent;llm;gateway</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>

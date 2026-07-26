@@ -2026,19 +2026,39 @@ class ResponsesResponse
 	/** @var array|null */
 	public $content;
 	/** @var int|null */
+	public $cost_cents;
+	/** @var float|null */
+	public $cost_nanos;
+	/** @var int|null */
 	public $created;
 	/** @var string|null */
+	public $currency;
+	/** @var string|null */
+	public $finish_reason;
+	/** @var string|null */
 	public $id;
+	/** @var array<string, mixed>|null */
+	public $meta;
 	/** @var string|null */
 	public $model;
+	/** @var string|null */
+	public $nativeResponseId;
 	/** @var string|null */
 	public $object;
 	/** @var array|null */
 	public $output;
 	/** @var array|null */
 	public $output_items;
+	/** @var array|null */
+	public $pricing_lines;
+	/** @var string|null */
+	public $provider;
+	/** @var string|null */
+	public $provider_id;
 	/** @var string|null */
 	public $role;
+	/** @var string|null */
+	public $status;
 	/** @var string|null */
 	public $stop_reason;
 	/** @var string|null */

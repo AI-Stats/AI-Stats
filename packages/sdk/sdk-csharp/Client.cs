@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Phaseo.Gen;
 
@@ -79,7 +80,7 @@ namespace PhaseoSdk
 
         public Phaseo(
             string? apiKey = null,
-            string basePath = "https://api.phaseo.ai/v1",
+            string basePath = "https://api.phaseo.app/v1",
             bool enableDeprecationWarnings = true,
             bool warningsAsErrors = false,
             PhaseoLogger? logger = null,
@@ -94,12 +95,12 @@ namespace PhaseoSdk
             }
 
             var headers = new Dictionary<string, string> { { "Authorization", $"Bearer {apiKey}" } };
-            _basePath = string.IsNullOrWhiteSpace(basePath) ? "https://api.phaseo.ai/v1" : basePath.TrimEnd('/');
+            _basePath = string.IsNullOrWhiteSpace(basePath) ? "https://api.phaseo.app/v1" : basePath.TrimEnd('/');
             _client = new global::Phaseo.Gen.Client(_basePath, httpClient, headers: headers);
             _enableDeprecationWarnings = enableDeprecationWarnings;
             _warningsAsErrors = warningsAsErrors;
             _logger = logger;
-            _telemetry = new TelemetryRecorder(devtools, "2.0.4");
+            _telemetry = new TelemetryRecorder(devtools, "2.1.0");
             _lifecycleResolver = lifecycleResolver ?? FetchModelLifecycleAsync;
             AsyncJobs = new AsyncJobsResource(this);
         }
@@ -301,6 +302,12 @@ namespace PhaseoSdk
         {
             return GenerateResponse(request);
         }
+
+		public IAsyncEnumerable<string> StreamResponse(Dictionary<string, object> request, CancellationToken cancellationToken = default)
+		{
+			request = new Dictionary<string, object>(request) { ["stream"] = true };
+			return _client.StreamLinesAsync("POST", "/responses", body: request, cancellationToken: cancellationToken);
+		}
 
         public Task<Dictionary<string, object>?> CreateAnthropicMessage(Dictionary<string, object> request)
         {

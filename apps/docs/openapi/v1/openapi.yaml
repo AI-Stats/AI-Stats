@@ -4407,6 +4407,36 @@ components:
           type: integer
         model:
           type: string
+        provider:
+          type: string
+        provider_id:
+          type: string
+        nativeResponseId:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+            - completed
+            - failed
+            - incomplete
+        finish_reason:
+          type: string
+          nullable: true
+        meta:
+          type: object
+          additionalProperties: true
+        cost_nanos:
+          type: number
+        cost_cents:
+          type: integer
+        currency:
+          type: string
+        pricing_lines:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
         output:
           type: array
           items:
@@ -8339,7 +8369,6 @@ components:
         - openai/babbage-002
         - openai/chat-latest
         - openai/chatgpt-4o
-        - openai/computer-use-preview
         - openai/davinci-002
         - openai/gpt-3.5-turbo-16k
         - openai/gpt-3.5-turbo-2023-03-21
@@ -8358,16 +8387,10 @@ components:
         - openai/gpt-4o-mini-tts
         - openai/gpt-4o-transcribe
         - openai/gpt-5
-        - openai/gpt-5-chat
-        - openai/gpt-5-codex
         - openai/gpt-5-mini
         - openai/gpt-5-nano
         - openai/gpt-5-pro
         - openai/gpt-5.1
-        - openai/gpt-5.1-chat
-        - openai/gpt-5.1-codex
-        - openai/gpt-5.1-codex-max
-        - openai/gpt-5.1-codex-mini
         - openai/gpt-5.2
         - openai/gpt-5.2-chat
         - openai/gpt-5.2-codex
@@ -8397,11 +8420,9 @@ components:
         - openai/o1-mini
         - openai/o1-pro
         - openai/o3
-        - openai/o3-deep-research
         - openai/o3-mini
         - openai/o3-pro
         - openai/o4-mini
-        - openai/o4-mini-deep-research
         - openai/omni-moderation
         - openai/sora-2
         - openai/sora-2-pro

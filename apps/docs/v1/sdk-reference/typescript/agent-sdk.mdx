@@ -36,6 +36,8 @@ pnpm add @phaseo/sdk @phaseo/agent-sdk
 - `defineTool()`
 - `createGatewayAgentClient()`
 - `continueRun()` for continuing from previously returned run state
+- `stream()` and `continueStream()` for incremental, replayable results
+- stop-condition helpers such as `stepCountIs()`, `maxCost()`, and `hasToolCall()`
 
 ## First agent
 
@@ -119,7 +121,9 @@ Define local runtime tools with:
 - `description`
 - optional JSON `parameters`
 - optional `timeoutMs`
-- `execute()`
+- `inputSchema` and `outputSchema` runtime validators
+- `execute()`, `execute: false`, or human-in-the-loop callbacks
+- `requireApproval`, `onError`, `nextTurnParams`, and progress events
 
 ```typescript
 const fetchTicket = defineTool({
@@ -146,6 +150,116 @@ const fetchTicket = defineTool({
 
 If a timeout fires, the runtime aborts `context.signal`, marks the run as `failed`, and rethrows the timeout error.
 
+Schemas can be a function or any object exposing `parse()` or `safeParse()`. Invalid model arguments and invalid tool results fail before they cross the tool boundary.
+
+## Approval, HITL, and manual tools
+
+Gate a side-effecting tool per call:
+
+```typescript
+const deploy = defineTool({
+  id: "deploy",
+  requireApproval: ({ environment }) => environment === "production",
+  async execute(input: { environment: string }) {
+    return deployRelease(input.environment);
+  },
+});
+```
+
+The run pauses with `run.pause.pendingToolCalls`. Resume by exact call ID so concurrent calls cannot be confused:
+
+```typescript
+const resumed = await agent.continueRun({
+  run: paused,
+  client,
+  approvals: [{ toolCallId: "call_deploy_42" }],
+  rejections: [{ toolCallId: "call_delete_17", reason: "Not authorized" }],
+});
+```
+
+Set `execute: false` for work performed by your application and provide its result through `toolOutputs`. For an interactive tool, return `null` from `onToolCalled`; after continuation, `onResponseReceived` can validate or transform the supplied human response.
+
+## Progress-producing tools
+
+An async generator can publish preliminary results and return one final result:
+
+```typescript
+const indexRepository = defineTool({
+  id: "index-repository",
+  async *execute(input: { path: string }) {
+    yield { phase: "scan" };
+    yield { phase: "embed" };
+    return { indexed: 248 };
+  },
+});
+```
+
+Progress appears as `tool.preliminary_result` events and in the step's `preliminaryResults`.
+
+## Streaming results
+
+`stream()` starts the same state machine with a streaming model client. Its consumers are replayable, so UI, telemetry, and persistence code can read concurrently:
+
+```typescript
+const result = agent.stream({ input, client });
+
+for await (const delta of result.getTextStream()) {
+  process.stdout.write(delta);
+}
+
+const [text, completed] = await Promise.all([result.getText(), result.getResult()]);
+```
+
+Use `getReasoningStream()`, `getItemsStream()`, `getToolStream()`, or `getFullStream()` for more specific consumers. `cancel()` aborts the run.
+
+### Render typed run items
+
+`getItemsStream()` yields `AgentItem<TOutput>`, a discriminated union that is safe to switch on:
+
+```typescript
+for await (const item of result.getItemsStream()) {
+  switch (item.type) {
+    case "message":
+      renderAssistantMessage(item.content);
+      break;
+    case "reasoning":
+      renderReasoning(item.text);
+      break;
+    case "tool_call":
+      renderToolCall(item.toolCallId, item.name, item.input);
+      break;
+    case "tool_result":
+      renderToolResult(item.toolCallId, item.output);
+      break;
+    case "error":
+      renderError(item.message);
+      break;
+    case "output":
+      renderFinalOutput(item.value);
+      break;
+  }
+}
+```
+
+The same ordered item contract is available on `completed.items` after either `run()` or `stream()`. Provider output is normalized into message, reasoning, tool-call, tool-result, error, and final-output items. Provider-specific fields remain available through `rawProviderItem` on normalized provider items.
+
+## Stop conditions and dynamic turns
+
+Stop conditions compose as an array; the first matching condition records its reason and returns a `stopped` run:
+
+```typescript
+import { maxCost, maxTokensUsed, stepCountIs } from "@phaseo/agent-sdk";
+
+const agent = createAgent({
+  id: "bounded-research",
+  stopWhen: [stepCountIs(12), maxTokensUsed(40_000), maxCost(2)],
+  model: ({ context }) => context.fast ? "phaseo/free" : "anthropic/claude-sonnet-4",
+  instructions: ({ numberOfTurns }) => `Research turn ${numberOfTurns}`,
+});
+```
+
+Tools can set application context with `context.setContext()` and override the immediately following turn with `nextTurnParams`.
+
 ### `createGatewayAgentClient()`
 
 Use the gateway-backed adapter when model turns should execute through Phaseo Gateway.
@@ -165,7 +279,7 @@ That lets your app keep routing, search, structured outputs, and plugin defaults
 
 ## Application-owned persistence
 
-If your application needs resumability, persist the returned `AgentRunResult` in your own database, cache, or workflow record.
+If your application needs resumability, persist the returned `AgentRunResult` directly or provide a `state` accessor with asynchronous `load(runId)` and `save(result)` methods. A continued run can then use `runId` without carrying the serialized record through every layer.
 
 The SDK intentionally does not ship persistence adapters or a hosted state backend.
 
@@ -318,7 +432,7 @@ Gateway failures are rethrown as `AgentGatewayError`:
 import { AgentGatewayError } from "@phaseo/agent-sdk";
 
 try {
-  await agent.run({ input, client, store });
+  await agent.run({ input, client });
 } catch (error) {
   if (error instanceof AgentGatewayError) {
     console.error(error.status, error.requestId, error.reason);
@@ -346,6 +460,7 @@ The SDK is intentionally focused on application-building primitives:
 - gateway-backed model turns
 - local tools
 - resumable agent loops
+- per-step normalized token usage, cost, warnings, finish reasons, and tool results
 
 It does not try to be a hosted orchestration platform or ship one opinionated remote persistence backend.
 

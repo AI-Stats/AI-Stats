@@ -238,7 +238,7 @@ export type ChatCompletionsParams = Omit<ChatCompletionsRequest, "model" | "mess
   messages: ChatMessageInput[];
 };
 
-const DEFAULT_BASE_URL = "https://api.phaseo.ai/v1";
+const DEFAULT_BASE_URL = "https://api.phaseo.app/v1";
 
 function trimTrailingSlashes(value: string): string {
   let end = value.length;
@@ -307,6 +307,7 @@ export {
   type VerifyAsyncWebhookSignatureOptions
 } from "./webhooks.js";
 export type PhaseoOptions = Options;
+export type PhaseoRequestOptions = { signal?: AbortSignal };
 
 export class Phaseo {
   private readonly client: Client;
@@ -321,9 +322,9 @@ export class Phaseo {
   private readonly modelLifecycleCache = new Map<string, ModelLifecycleInfo | null>();
 
   readonly responses = {
-    create: async (req: ResponsesRequest): Promise<ResponsesResponse | AsyncGenerator<ResponseStreamChunk>> => {
+    create: async (req: ResponsesRequest, options: PhaseoRequestOptions = {}): Promise<ResponsesResponse | AsyncGenerator<ResponseStreamChunk>> => {
       if ((req as { stream?: boolean }).stream) {
-        return this.streamResponses(req);
+        return this.streamResponses(req, options);
       }
       return this.generateResponse(req);
     },
@@ -848,7 +849,7 @@ export class Phaseo {
     );
   }
 
-  async *streamResponse(req: ResponsesRequest): AsyncGenerator<string> {
+  async *streamResponse(req: ResponsesRequest, options: PhaseoRequestOptions = {}): AsyncGenerator<string> {
     const payload = { ...req, stream: true };
     await this.maybeWarnForPayload(payload);
 
@@ -856,7 +857,8 @@ export class Phaseo {
       const res = await this.fetchImpl(`${this.basePath}/responses`, {
         method: "POST",
         headers: { ...this.headers, "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: options.signal
       });
       if (!res.ok || !res.body) {
         const text = await res.text();
@@ -874,8 +876,8 @@ export class Phaseo {
     );
   }
 
-  async *streamResponses(req: ResponsesRequest): AsyncGenerator<ResponseStreamChunk> {
-    for await (const line of this.streamResponse(req)) {
+  async *streamResponses(req: ResponsesRequest, options: PhaseoRequestOptions = {}): AsyncGenerator<ResponseStreamChunk> {
+    for await (const line of this.streamResponse(req, options)) {
       const chunk = parseResponseStreamLine(line);
       if (!chunk) continue;
       yield chunk;

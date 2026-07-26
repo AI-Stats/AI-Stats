@@ -57,7 +57,7 @@ public class Phaseo {
 	}
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
-	private static final String DEFAULT_BASE_URL = "https://api.phaseo.ai/v1";
+	private static final String DEFAULT_BASE_URL = "https://api.phaseo.app/v1";
 	private static final Set<String> ACTIVE_MODEL_SOURCE_STATUSES = Set.of("active", "available");
 	private static final Set<String> INACTIVE_MODEL_SOURCE_STATUSES = Set.of(
 		"deprecated",
@@ -142,7 +142,7 @@ public class Phaseo {
 		this.enableDeprecationWarnings = enableDeprecationWarnings;
 		this.warningsAsErrors = warningsAsErrors;
 		this.logger = logger;
-		this.telemetry = new TelemetryRecorder(devtoolsConfig, "2.0.4");
+		this.telemetry = new TelemetryRecorder(devtoolsConfig, "2.1.0");
 		this.lifecycleResolver = lifecycleResolver == null ? this::fetchModelLifecycle : lifecycleResolver;
 		this.asyncJobs = new AsyncJobsResource(this);
 	}
@@ -293,6 +293,11 @@ public class Phaseo {
 			true,
 			() -> parse(Operations.createResponse(rawClient, null, null, null, stringify(request)))
 		);
+	}
+
+	public java.util.stream.Stream<String> streamResponse(Object request) throws IOException, InterruptedException {
+		Map<String,Object> payload=MAPPER.convertValue(request,new com.fasterxml.jackson.core.type.TypeReference<Map<String,Object>>(){}); payload.put("stream",true);
+		return rawClient.requestLines("POST","/responses",null,null,stringify(payload));
 	}
 
 	public JsonNode createAnthropicMessage(Object request) throws IOException, InterruptedException {
