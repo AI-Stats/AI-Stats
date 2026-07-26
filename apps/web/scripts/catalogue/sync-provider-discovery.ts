@@ -1,10 +1,20 @@
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { createClient } from "@supabase/supabase-js";
 import { normalizeProviderModelPricing } from "../../../api/src/pipeline/model-discovery/pricing-normalizers";
+import {
+	filesNamed,
+	type JsonObject,
+	mergeSimplePricing,
+	normalized,
+	pricingRule,
+	readJson,
+	safePricingRules,
+	writeJsonIfChanged as writeSharedJsonIfChanged,
+} from "./catalogue-sync-shared";
 
-type JsonObject = Record<string, any>;
+export { mergeSimplePricing, safePricingRules } from "./catalogue-sync-shared";
 
 type DiscoveryRow = {
 	provider_id: string;
@@ -63,10 +73,6 @@ const PRICING_ROOT = path.join(DATA_ROOT, "pricing");
 const DRY_RUN = process.argv.includes("--dry-run");
 const PROVIDER_FILTER = process.argv.find((value) => value.startsWith("--provider="))?.split("=", 2)[1]?.trim();
 
-function normalized(value: unknown): string {
-	return String(value ?? "").trim().toLowerCase();
-}
-
 function fileSlug(value: string): string {
 	return normalized(value).replace(/[^a-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "");
 }
@@ -80,33 +86,8 @@ function positiveInteger(value: unknown): number | null {
 	return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
-async function readJson<T>(filePath: string): Promise<T> {
-	return JSON.parse(await readFile(filePath, "utf8")) as T;
-}
-
-async function filesNamed(root: string, fileName: string): Promise<string[]> {
-	const output: string[] = [];
-	async function visit(directory: string): Promise<void> {
-		for (const entry of await readdir(directory, { withFileTypes: true })) {
-			const entryPath = path.join(directory, entry.name);
-			if (entry.isDirectory()) await visit(entryPath);
-			else if (entry.name === fileName) output.push(entryPath);
-		}
-	}
-	await visit(root);
-	return output.sort();
-}
-
 async function writeJsonIfChanged(filePath: string, value: unknown, report: SyncReport): Promise<boolean> {
-	const next = `${JSON.stringify(value, null, 2)}\n`;
-	const current = await readFile(filePath, "utf8").catch(() => "");
-	if (current === next) return false;
-	report.changedFiles.push(path.relative(DATA_ROOT, filePath).replaceAll("\\", "/"));
-	if (!DRY_RUN) {
-		await mkdir(path.dirname(filePath), { recursive: true });
-		await writeFile(filePath, next, "utf8");
-	}
-	return true;
+	return writeSharedJsonIfChanged(filePath, value, report, { dataRoot: DATA_ROOT, dryRun: DRY_RUN });
 }
 
 function deepPositiveInteger(value: unknown, keys: string[], depth = 0): number | null {
@@ -136,54 +117,6 @@ function primaryCapability(model: JsonObject): string {
 		? model.capabilities.find((entry: JsonObject) => typeof entry?.capability_id === "string")?.capability_id
 		: null;
 	return capability || "text.generate";
-}
-
-export function safePricingRules(pricing: JsonObject): boolean {
-	if (!Array.isArray(pricing.rules)) return false;
-	const meters = pricing.rules.map((rule: JsonObject) => normalized(rule?.meter));
-	if (meters.some((meter: string) => !meter) || new Set(meters).size !== meters.length) return false;
-	return pricing.rules.every((rule: JsonObject) =>
-		rule?.pricing_plan === "standard"
-		&& (!Array.isArray(rule.match) || rule.match.length === 0)
-		&& (!Array.isArray(rule.conditions) || rule.conditions.length === 0)
-		&& !rule.effective_to,
-	);
-}
-
-function pricingRule(meter: string, price: number): JsonObject {
-	return {
-		meter,
-		unit: "token",
-		unit_size: 1_000_000,
-		price_per_unit: price,
-		currency: "USD",
-		pricing_plan: "standard",
-		note: null,
-		match: [],
-		priority: 100,
-		region: null,
-		cache_duration_seconds: null,
-		conditions: [],
-		source: null,
-	};
-}
-
-export function mergeSimplePricing(pricing: JsonObject, meters: Record<string, number>): { value: JsonObject; changed: boolean } {
-	if (!safePricingRules(pricing)) return { value: pricing, changed: false };
-	let changed = false;
-	const byMeter = new Map((pricing.rules as JsonObject[]).map((rule) => [rule.meter, rule]));
-	for (const [meter, price] of Object.entries(meters)) {
-		const current = byMeter.get(meter);
-		if (!current) {
-			(pricing.rules as JsonObject[]).push(pricingRule(meter, price));
-			changed = true;
-		} else if (Number(current.price_per_unit) !== price) {
-			current.price_per_unit = price;
-			changed = true;
-		}
-	}
-	(pricing.rules as JsonObject[]).sort((left, right) => String(left.meter).localeCompare(String(right.meter)));
-	return { value: pricing, changed };
 }
 
 function newProviderModel(providerId: string, canonicalModelId: string, row: DiscoveryRow): JsonObject {

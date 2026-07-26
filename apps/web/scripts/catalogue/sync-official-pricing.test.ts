@@ -138,6 +138,23 @@ describe("official pricing extraction", () => {
 		}]);
 	});
 
+	test("removes script elements whose closing tags contain whitespace", () => {
+		expect(extractOfficialPricing("xiaomi", `
+			<script >MiMo-Fake Input (cache hit)$1 / MTok Input (cache miss)$2 / MTok Output$3 / MTok</script >
+			<section><h4>MiMo-Real</h4>
+			<div>Input (cache hit)$0.01 / MTok</div>
+			<div>Input (cache miss)$0.10 / MTok</div>
+			<div>Output$0.30 / MTok</div></section>
+		`)).toEqual([{
+			providerModel: "MiMo-Real",
+			meters: {
+				cached_read_text_tokens: 0.01,
+				input_text_tokens: 0.1,
+				output_text_tokens: 0.3,
+			},
+		}]);
+	});
+
 	test("extracts StepFun CNY token pricing without currency conversion", () => {
 		expect(extractOfficialPricing("stepfun", `
 			<table>

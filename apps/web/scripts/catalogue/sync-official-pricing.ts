@@ -1,10 +1,17 @@
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { PRICING_TABLE_SOURCES } from "../../../api/src/pipeline/model-discovery/pricing-tables";
-import { mergeSimplePricing, safePricingRules } from "./sync-provider-discovery";
-
-type JsonObject = Record<string, any>;
+import {
+	filesNamed,
+	type JsonObject,
+	mergeSimplePricing,
+	normalized,
+	pricingRule,
+	readJson,
+	safePricingRules,
+	writeJsonIfChanged as writeSharedJsonIfChanged,
+} from "./catalogue-sync-shared";
 
 export type OfficialPriceCandidate = {
 	providerModel: string;
@@ -78,10 +85,6 @@ export function extractHtmlTableRows(html: string): string[][][] {
 			Array.from(row[1]!.matchAll(/<(?:th|td)\b[^>]*>([\s\S]*?)<\/(?:th|td)>/gi), (cell) => cellText(cell[1]!)),
 		).filter((row) => row.length > 0),
 	).filter((table) => table.length > 0);
-}
-
-function normalized(value: unknown): string {
-	return String(value ?? "").trim().toLowerCase();
 }
 
 function modelKey(value: unknown): string {
@@ -286,7 +289,7 @@ function stepfunCandidates(tables: string[][][]): OfficialPriceCandidate[] {
 }
 
 function xiaomiCandidates(html: string): OfficialPriceCandidate[] {
-	const text = cellText(html.replace(/<(?:script|style|svg|noscript|template)\b[^>]*>[\s\S]*?<\/(?:script|style|svg|noscript|template)>/gi, " "));
+	const text = cellText(html.replace(/<(script|style|svg|noscript|template)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, " "));
 	return Array.from(text.matchAll(/(?:Xiaomi\s+)?(MiMo-[A-Za-z0-9.-]+)(?:(?!MiMo-[A-Za-z0-9.-]+)[\s\S])*?Input \(cache hit\)\s*\$\s*(\d+(?:\.\d+)?)\s*\/\s*MTok(?:(?!MiMo-[A-Za-z0-9.-]+)[\s\S])*?Input \(cache miss\)\s*\$\s*(\d+(?:\.\d+)?)\s*\/\s*MTok(?:(?!MiMo-[A-Za-z0-9.-]+)[\s\S])*?Output\s*\$\s*(\d+(?:\.\d+)?)\s*\/\s*MTok/gi), (match) => ({
 		providerModel: match[1]!,
 		meters: {
@@ -309,51 +312,8 @@ export function extractOfficialPricing(providerId: string, html: string): Offici
 	return horizontalCandidates(tables);
 }
 
-async function filesNamed(root: string, fileName: string): Promise<string[]> {
-	const output: string[] = [];
-	async function visit(directory: string): Promise<void> {
-		for (const entry of await readdir(directory, { withFileTypes: true })) {
-			const entryPath = path.join(directory, entry.name);
-			if (entry.isDirectory()) await visit(entryPath);
-			else if (entry.name === fileName) output.push(entryPath);
-		}
-	}
-	await visit(root);
-	return output.sort();
-}
-
-async function readJson<T>(filePath: string): Promise<T> {
-	return JSON.parse(await readFile(filePath, "utf8")) as T;
-}
-
 async function writeJsonIfChanged(filePath: string, value: unknown, report: OfficialPricingReport): Promise<boolean> {
-	const next = `${JSON.stringify(value, null, 2)}\n`;
-	const current = await readFile(filePath, "utf8").catch(() => "");
-	if (current === next) return false;
-	report.changedFiles.push(path.relative(DATA_ROOT, filePath).replaceAll("\\", "/"));
-	if (!DRY_RUN) {
-		await mkdir(path.dirname(filePath), { recursive: true });
-		await writeFile(filePath, next, "utf8");
-	}
-	return true;
-}
-
-function pricingRule(meter: string, price: number, currency = "USD"): JsonObject {
-	return {
-		meter,
-		unit: "token",
-		unit_size: 1_000_000,
-		price_per_unit: price,
-		currency,
-		pricing_plan: "standard",
-		note: null,
-		match: [],
-		priority: 100,
-		region: null,
-		cache_duration_seconds: null,
-		conditions: [],
-		source: null,
-	};
+	return writeSharedJsonIfChanged(filePath, value, report, { dataRoot: DATA_ROOT, dryRun: DRY_RUN });
 }
 
 function pricingFileSlug(value: string): string {
