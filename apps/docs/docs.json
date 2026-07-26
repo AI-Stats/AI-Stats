@@ -57,7 +57,8 @@
 									"v1/exploring/models",
 									"v1/exploring/api-providers",
 									"v1/guides/routing-and-fallbacks",
-									"v1/guides/provider-statuses"
+									"v1/guides/provider-statuses",
+									"v1/guides/capability-status"
 								]
 							},
 							{

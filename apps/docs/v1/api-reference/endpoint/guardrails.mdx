@@ -1,12 +1,96 @@
 ---
 title: "Guardrails"
-tag: "Coming soon"
-description: "Programmatic guardrails management for workspaces and keys."
+badge: "Beta"
+description: "Create workspace guardrails and assign them to API keys or workspace members."
 ---
-<Info>
-**Coming soon.** These endpoints are documented for planning but are not publicly available yet. They will require a management API key rather than a standard Gateway API key.
-</Info>
+<Note>
+This API area requires a management API key. Standard Gateway API keys are not accepted.
+</Note>
 
-Guardrails APIs are coming soon.
+Use the Guardrails API to create reusable workspace policies, attach them to API keys or members, and enforce budgets, routing restrictions, prompt-injection checks, and sensitive-info actions.
 
-When released, guardrails will be part of the elevated control plane alongside credits, activity, key management, and workspace management.
+The REST API is in beta and is not yet included in the published OpenAPI-generated SDKs. Call these endpoints directly until the generated contract is available.
+
+## Permissions
+
+Management keys need the matching capability:
+
+- `guardrails:read` to list and retrieve guardrails and assignments
+- `guardrails:write` to create, update, and assign guardrails
+- `guardrails:delete` to delete guardrails
+
+Workspace members can read guardrails. Only workspace owners and admins can create, update, assign, or delete them.
+
+## Endpoints
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/v1/guardrails` | List workspace guardrails. |
+| `POST` | `/v1/guardrails` | Create a guardrail. |
+| `GET` | `/v1/guardrails/{id}` | Retrieve a guardrail and its assigned key IDs. |
+| `PATCH` | `/v1/guardrails/{id}` | Update supported policy fields. |
+| `DELETE` | `/v1/guardrails/{id}` | Delete a guardrail and its assignments. |
+| `GET` | `/v1/guardrails/{id}/keys` | List assigned API keys. |
+| `POST` | `/v1/guardrails/{id}/keys/add` | Add API-key assignments. |
+| `POST` | `/v1/guardrails/{id}/keys/remove` | Remove API-key assignments. |
+| `PUT` | `/v1/guardrails/{id}/keys` | Replace all API-key assignments. |
+| `GET` | `/v1/guardrails/{id}/members` | List assigned workspace members. |
+| `POST` | `/v1/guardrails/{id}/members/add` | Add member assignments. |
+| `POST` | `/v1/guardrails/{id}/members/remove` | Remove member assignments. |
+
+## Create a guardrail
+
+```bash
+curl https://api.phaseo.app/v1/guardrails \
+  -H "Authorization: Bearer $PHASEO_MANAGEMENT_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Production API policy",
+    "enabled": true,
+    "privacyZdrOnly": true,
+    "modelRestrictionMode": "allow",
+    "allowedApiModelIds": ["openai/gpt-5.4-mini"],
+    "promptInjectionEnabled": true,
+    "promptInjectionAction": "flag",
+    "budgets": {
+      "dailyRequests": 10000,
+      "monthlyCostNanos": 50000000000
+    }
+  }'
+```
+
+The response wraps the created guardrail in `data`.
+
+## Assign the guardrail to API keys
+
+```bash
+curl https://api.phaseo.app/v1/guardrails/GUARDRAIL_ID/keys/add \
+  -H "Authorization: Bearer $PHASEO_MANAGEMENT_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"key_ids":["KEY_ID"]}'
+```
+
+Key IDs must belong to the same workspace and must not be deleted.
+
+## Supported policy groups
+
+- privacy and ZDR requirements
+- provider allowlists or blocklists
+- model allowlists or blocklists
+- prompt-injection detection and `flag`, `redact`, or `block` actions
+- sensitive-info detection and custom rules
+- daily, weekly, and monthly request budgets
+- daily, weekly, and monthly cost budgets in nanos
+
+Use the dashboard preview before broad rollout, then verify blocks, redactions, and flags in Activity.
+
+## Current limitations
+
+- The REST routes are not yet represented in the public OpenAPI specification or generated SDKs.
+- Enterprise SSO enforcement and SCIM are separate capabilities and are not provided by guardrails.
+- Provider routing by data-collection policy, distillable-text policy, or quantization is not available until Phaseo has authoritative route metadata.
+
+## Related guides
+
+- [Roll out guardrails on API keys](../../cookbook/guardrails-for-api-keys)
+- [Capability status](../../guides/capability-status)
