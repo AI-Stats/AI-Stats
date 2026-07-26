@@ -440,7 +440,7 @@
       }
     },
     "../../packages/data/catalog/src/data/api_providers/baseten/models.json": {
-      "hash": "faea0d1872a4fc6d036e8662cb8b8ae9",
+      "hash": "1300ab3493afef04325a1b201765c44c",
       "meta": {
         "api_provider_id": "baseten",
         "kind": "provider_models",
@@ -466,7 +466,8 @@
           "z-ai/glm-5",
           "z-ai/glm-5.1",
           "z-ai/glm-5.2",
-          "z-ai/glm-5.2-fast"
+          "z-ai/glm-5.2-fast",
+          "moonshotai/kimi-k3"
         ]
       }
     },
@@ -808,7 +809,7 @@
       }
     },
     "../../packages/data/catalog/src/data/api_providers/fireworks/models.json": {
-      "hash": "6f7863d89e231b1a721149085ad718c9",
+      "hash": "954a3570d5a8b54f7712c17ad1b275c0",
       "meta": {
         "api_provider_id": "fireworks",
         "kind": "provider_models",
@@ -852,7 +853,8 @@
           "moonshotai/kimi-k2.7-code",
           "minimax/minimax-m3",
           "nvidia/nemotron-3-ultra-550b-a55b",
-          "qwen/qwen3.7-plus"
+          "qwen/qwen3.7-plus",
+          "moonshotai/kimi-k3"
         ]
       }
     },
@@ -1978,7 +1980,7 @@
       }
     },
     "../../packages/data/catalog/src/data/api_providers/together/models.json": {
-      "hash": "69e444b4e6ac48902baf3b7e4519bf41",
+      "hash": "1a0233ff62f45485cf0d19d15a003f3f",
       "meta": {
         "api_provider_id": "together",
         "kind": "provider_models",
@@ -2012,7 +2014,8 @@
           "thinking-machines/inkling",
           "z-ai/glm-5",
           "z-ai/glm-5.1",
-          "z-ai/glm-5.2"
+          "z-ai/glm-5.2",
+          "moonshotai/kimi-k3"
         ]
       }
     },
@@ -29546,7 +29549,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/moonshotai/kimi-k3/model.json": {
-      "hash": "2a646d694f564550c78feee4512b8b4b",
+      "hash": "cc2e057295b4141ef5594b53d615ec8a",
       "meta": {
         "model_id": "moonshotai/kimi-k3",
         "organisation_id": "moonshotai",
