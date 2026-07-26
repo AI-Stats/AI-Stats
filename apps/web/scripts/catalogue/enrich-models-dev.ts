@@ -1,6 +1,6 @@
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { DATA_ROOT } from "../importer/paths";
 
 type JsonObject = Record<string, any>;
 
@@ -12,12 +12,6 @@ type SourceModel = {
 	attachment?: boolean;
 	modalities?: { input?: string[]; output?: string[] };
 	limit?: { context?: number; output?: number };
-	cost?: {
-		input?: number;
-		output?: number;
-		cache_read?: number;
-		cache_write?: number;
-	};
 };
 
 type SourceProvider = {
@@ -34,12 +28,7 @@ type SourceCatalog = Record<string, SourceProvider>;
 
 const SOURCE_URL = "https://models.dev/api.json";
 const CHECK_ONLY = process.argv.includes("--check");
-const PROVIDER_FILTER = process.argv.find((value) => value.startsWith("--provider="))?.split("=", 2)[1]?.trim();
-const CATALOG_PROVIDER = process.argv.find((value) => value.startsWith("--catalog-provider="))?.split("=", 2)[1]?.trim();
-const EXISTING_PROVIDERS_ONLY = process.argv.includes("--existing-providers-only");
-const DATA_ROOT = path.resolve(process.cwd(), "../../packages/data/catalog/src/data");
 const PROVIDERS_ROOT = path.join(DATA_ROOT, "api_providers");
-const PRICING_ROOT = path.join(DATA_ROOT, "pricing");
 
 function slug(value: unknown, fallback = ""): string {
 	const normalized = String(value ?? "")
@@ -84,76 +73,6 @@ function primaryCapability(model: SourceModel): string {
 	if (outputs.includes("audio")) return "audio.generate";
 	if (inputs.includes("embedding") || outputs.includes("embedding")) return "embeddings";
 	return "text.generate";
-}
-
-function pricingFileSlug(value: string): string {
-	return slug(value).replace(/[^a-z0-9._-]+/g, "-");
-}
-
-function pricingRule(meter: string, price: number): JsonObject {
-	return {
-		meter,
-		unit: "token",
-		unit_size: 1_000_000,
-		price_per_unit: price,
-		currency: "USD",
-		pricing_plan: "standard",
-		note: null,
-		match: [],
-		priority: 100,
-		region: null,
-		cache_duration_seconds: null,
-		conditions: [],
-		source: null,
-	};
-}
-
-export function modelsDevMeters(model: SourceModel): Record<string, number> | null {
-	const cost = model.cost;
-	if (!cost || typeof cost.input !== "number" || typeof cost.output !== "number") return null;
-	return Object.fromEntries(Object.entries({
-		input_text_tokens: cost.input,
-		cached_read_text_tokens: cost.cache_read,
-		cached_write_text_tokens: cost.cache_write,
-		output_text_tokens: cost.output,
-	}).filter((entry): entry is [string, number] => typeof entry[1] === "number" && Number.isFinite(entry[1])));
-}
-
-function isSimplePricing(value: JsonObject): boolean {
-	if (!Array.isArray(value.rules)) return false;
-	const meters = value.rules.map((rule: JsonObject) => slug(rule?.meter));
-	if (meters.some((meter: string) => !meter) || new Set(meters).size !== meters.length) return false;
-	return value.rules.every((rule: JsonObject) =>
-		rule?.pricing_plan === "standard"
-		&& (!Array.isArray(rule.match) || rule.match.length === 0)
-		&& (!Array.isArray(rule.conditions) || rule.conditions.length === 0)
-		&& !rule.effective_to,
-	);
-}
-
-export function mergeModelsDevPricing(value: JsonObject, meters: Record<string, number>, accessedAt: string): boolean {
-	if (!isSimplePricing(value)) return false;
-	let changed = false;
-	const byMeter = new Map((value.rules as JsonObject[]).map((rule) => [rule.meter, rule]));
-	for (const [meter, price] of Object.entries(meters)) {
-		const current = byMeter.get(meter);
-		if (!current) {
-			(value.rules as JsonObject[]).push(pricingRule(meter, price));
-			changed = true;
-		} else if (Number(current.price_per_unit) !== price) {
-			current.price_per_unit = price;
-			changed = true;
-		}
-	}
-	if (changed) {
-		(value.rules as JsonObject[]).sort((left, right) => String(left.meter).localeCompare(String(right.meter)));
-		value.verification = {
-			status: "partial",
-			checked_at: accessedAt,
-			notes: "Pricing synchronized from models.dev for review against the provider source.",
-		};
-	}
-	return changed;
 }
 
 function capability(model: SourceModel): JsonObject {
@@ -320,19 +239,10 @@ async function main() {
 	let unmatchedModels = 0;
 	let changedFiles = 0;
 	let createdProviders = 0;
-	let pricingFilesChanged = 0;
-	const pricingByKey = new Map<string, { path: string; value: JsonObject }>();
-	for (const filePath of await jsonFiles(PRICING_ROOT, "pricing.json")) {
-		const pricing = await readJson<JsonObject>(filePath);
-		pricingByKey.set(`${slug(pricing.api_provider_id)}:${slug(pricing.api_model_id)}:${slug(pricing.capability_id)}`, { path: filePath, value: pricing });
-	}
 
-	for (const sourceProvider of Object.values(catalog).filter((provider) =>
-		provider.id && (!PROVIDER_FILTER || slug(provider.id) === slug(PROVIDER_FILTER)),
-	)) {
-		const providerSlug = slug(CATALOG_PROVIDER ?? sourceProvider.id);
+	for (const sourceProvider of Object.values(catalog).filter((provider) => provider.id)) {
+		const providerSlug = slug(sourceProvider.id);
 		const existing = existingProviders.get(providerSlug);
-		if (!existing && EXISTING_PROVIDERS_ONLY) continue;
 		const provider = existing?.provider ?? externalProvider(providerSlug, sourceProvider, accessedAt);
 		const models = [...(existing?.models ?? [])];
 
@@ -346,37 +256,6 @@ async function main() {
 			if (!canonicalModelSlug) {
 				unmatchedModels += 1;
 				continue;
-			}
-			const capabilityId = primaryCapability(sourceModel);
-			const meters = capabilityId === "text.generate" ? modelsDevMeters(sourceModel) : null;
-			if (meters) {
-				const pricingKey = `${providerSlug}:${canonicalModelSlug}:${capabilityId}`;
-				const current = pricingByKey.get(pricingKey);
-				if (current) {
-					if (mergeModelsDevPricing(current.value, meters, accessedAt)) {
-						if (await writeJsonIfChanged(current.path, current.value)) pricingFilesChanged += 1;
-					}
-				} else {
-					const pricing = {
-						key: `${providerSlug}:${canonicalModelSlug}:${capabilityId}`,
-						api_provider_id: providerSlug,
-						provider_slug: providerSlug,
-						api_model_id: canonicalModelSlug,
-						capability_id: capabilityId,
-						rules: Object.entries(meters).map(([meter, price]) => pricingRule(meter, price)),
-						regions: [],
-						service_tiers: ["standard"],
-						sources: [],
-						verification: {
-							status: "partial",
-							checked_at: accessedAt,
-							notes: "Pricing synchronized from models.dev for review against the provider source.",
-						},
-					};
-					const target = path.join(PRICING_ROOT, providerSlug, pricingFileSlug(canonicalModelSlug), capabilityId, "pricing.json");
-					if (await writeJsonIfChanged(target, pricing)) pricingFilesChanged += 1;
-					pricingByKey.set(pricingKey, { path: target, value: pricing });
-				}
 			}
 			const existingIndex = models.findIndex((model) =>
 				slug(model.internal_model_id ?? model.api_model_id) === canonicalModelSlug,
@@ -410,14 +289,11 @@ async function main() {
 		if (await writeJsonIfChanged(path.join(directory, "models.json"), models)) changedFiles += 1;
 	}
 
-	console.log(`[models.dev json] providers_created=${createdProviders} mappings_added=${addedMappings} unmatched_models=${unmatchedModels} changed_files=${changedFiles} pricing_files_changed=${pricingFilesChanged}${CHECK_ONLY ? " check_only=true" : ""}`);
-	if (CHECK_ONLY && (changedFiles || pricingFilesChanged)) process.exitCode = 1;
+	console.log(`[models.dev json] providers_created=${createdProviders} mappings_added=${addedMappings} unmatched_models=${unmatchedModels} changed_files=${changedFiles}${CHECK_ONLY ? " check_only=true" : ""}`);
+	if (CHECK_ONLY && changedFiles) process.exitCode = 1;
 }
 
-const direct = process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
-if (direct) {
-	main().catch((error) => {
-		console.error(error);
-		process.exitCode = 1;
-	});
-}
+main().catch((error) => {
+	console.error(error);
+	process.exitCode = 1;
+});

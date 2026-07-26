@@ -369,7 +369,7 @@ function compactSummary(summary: DiscoveryRunSummary, extra: { notificationError
 			sourcesChecked: summary.pricingTableMonitor.sourcesChecked,
 			updatesDetected: summary.pricingTableMonitor.updatesDetected,
 			providerChanges: summary.pricingTableMonitor.providerChanges.map((source) => ({
-				providerId: source.catalogProviderId ?? source.providerId,
+				providerId: source.providerId,
 				providerName: source.providerName,
 				sourceUrl: source.sourceUrl,
 				tableCount: source.tableCount,
@@ -955,10 +955,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 							detectionSource: args.source,
 						}),
 						...buildPricingTableIssueEntries({
-							changes: pricingTableMonitor.providerChanges.map((change) => ({
-								...change,
-								providerId: change.catalogProviderId ?? change.providerId,
-							})),
+							changes: pricingTableMonitor.providerChanges,
 							detectedAt,
 							detectionSource: args.source,
 						}),
@@ -991,7 +988,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			...changes.map((change) => change.providerId),
 			...pricingMonitor.providerChanges.map((change) => change.providerId),
 			...providerApiPricingMonitor.providerChanges.map((change) => change.providerId),
-			...pricingTableMonitor.providerChanges.map((change) => change.catalogProviderId ?? change.providerId),
+			...pricingTableMonitor.providerChanges.map((change) => change.providerId),
 		];
 		try {
 			catalogSyncDispatch = persistenceDeferredReason

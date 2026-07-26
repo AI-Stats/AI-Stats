@@ -36,7 +36,7 @@ jobs:
               shell: bash
               run: |
                   set -euo pipefail
-                  safe='["ai21","akashml","aion-labs","arcee-ai","atlascloud","baseten","chutes","crofai","deepinfra","gmicloud","groq","inception","nextbit","novita","spacex-ai","together","venice"]'
+                  safe='["ai21","akashml","aion-labs","anthropic","arcee-ai","atlascloud","baseten","chutes","crofai","deepinfra","deepseek","gmicloud","groq","inception","moonshotai","nextbit","novita","openai","spacex-ai","together","venice"]'
                   if [[ "$EVENT_NAME" == "repository_dispatch" ]]; then
                     providers="$(jq -c 'map(strings | ascii_downcase) | map(select(test("^[a-z0-9][a-z0-9-]*$"))) | unique' <<<"$DISPATCH_PROVIDERS")"
                   elif [[ -n "${MANUAL_PROVIDERS:-}" ]]; then
@@ -105,21 +105,8 @@ jobs:
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
 
-            - name: Enrich from models.dev
-              shell: bash
-              run: |
-                  catalog_provider="${{ matrix.provider }}"
-                  source_provider="$catalog_provider"
-                  case "$source_provider" in
-                    cloudflare) source_provider="cloudflare-workers-ai" ;;
-                    google-ai-studio) source_provider="google" ;;
-                    spacex-ai) source_provider="xai" ;;
-                    weights-and-biases) source_provider="wandb" ;;
-                  esac
-                  pnpm --filter @phaseo/web catalog:enrich:models-dev -- \
-                    --provider="$source_provider" \
-                    --catalog-provider="$catalog_provider" \
-                    --existing-providers-only
+            - name: Synchronize official provider pricing
+              run: pnpm --filter @phaseo/web catalog:sync:official-pricing -- --provider="${{ matrix.provider }}"
 
             - name: Synchronize provider discovery state
               env:

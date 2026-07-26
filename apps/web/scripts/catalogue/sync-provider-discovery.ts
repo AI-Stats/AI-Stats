@@ -23,6 +23,15 @@ type SyncReport = {
 	unmatched: string[];
 	skippedPricing: string[];
 	changedFiles: string[];
+	officialPricing?: {
+		rowsParsed: number;
+		pricingCreated: number;
+		pricingUpdated: number;
+		unmatched: string[];
+		ambiguous: string[];
+		skippedComplex: string[];
+		reason?: string;
+	};
 };
 
 const PROVIDER_ALIASES: Record<string, string> = {
@@ -382,6 +391,9 @@ async function main(): Promise<void> {
 	report.skippedPricing = [...new Set(report.skippedPricing)].sort().slice(0, 500);
 	report.changedFiles = [...new Set(report.changedFiles)].sort();
 	await mkdir(path.join(process.cwd(), ".sync"), { recursive: true });
+	report.officialPricing = await readJson<SyncReport["officialPricing"]>(
+		path.join(process.cwd(), ".sync", "official-pricing-sync.json"),
+	).catch(() => undefined);
 	const reportPath = path.join(process.cwd(), ".sync", "provider-catalog-sync.json");
 	await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 	const markdown = [
@@ -395,8 +407,15 @@ async function main(): Promise<void> {
 		`- Pricing files updated: ${report.pricingUpdated}`,
 		`- Unmatched upstream models: ${report.unmatched.length}`,
 		`- Complex pricing records left unchanged: ${report.skippedPricing.length}`,
+		...(report.officialPricing ? [
+			`- Official pricing rows parsed: ${report.officialPricing.rowsParsed}`,
+			`- Official pricing files created: ${report.officialPricing.pricingCreated}`,
+			`- Official pricing files updated: ${report.officialPricing.pricingUpdated}`,
+			`- Official pricing rows requiring review: ${report.officialPricing.unmatched.length + report.officialPricing.ambiguous.length + report.officialPricing.skippedComplex.length}`,
+			...(report.officialPricing.reason ? [`- Official pricing note: ${report.officialPricing.reason}`] : []),
+		] : []),
 		"",
-		"The workflow first enriches exact canonical matches from models.dev, then applies the persisted Cloudflare provider discovery snapshot. New mappings remain non-routable, conditional/tiered pricing is never overwritten, and removals are not automated.",
+		"The workflow applies official provider pricing sources and the persisted Cloudflare provider discovery snapshot. New mappings remain non-routable, conditional/tiered pricing is never overwritten, and removals are not automated.",
 		"",
 		...(report.unmatched.length > 0 ? ["<details><summary>Unmatched upstream models</summary>", "", ...report.unmatched.slice(0, 100).map((value) => `- \`${value}\``), "", "</details>", ""] : []),
 		...(report.skippedPricing.length > 0 ? ["<details><summary>Pricing requiring manual review</summary>", "", ...report.skippedPricing.slice(0, 100).map((value) => `- ${value}`), "", "</details>", ""] : []),
