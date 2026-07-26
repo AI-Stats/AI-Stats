@@ -5,7 +5,6 @@ import {
 	ArrowLeft,
 	ArrowRight,
 	ArrowUpRight,
-	Building2,
 	CalendarDays,
 	ChevronRight,
 	Layers3,
@@ -288,27 +287,6 @@ export default async function Page({
 						</div>
 					)}
 				</section>
-
-				<footer className="flex flex-col gap-4 border-t border-border/70 py-6 sm:flex-row sm:items-center sm:justify-between">
-					<div className="flex items-start gap-3">
-						<Building2 className="mt-0.5 size-5 text-muted-foreground" />
-						<div>
-							<p className="font-medium">Missing a model from this family?</p>
-							<p className="mt-1 text-sm text-muted-foreground">
-								Help us keep the release history complete.
-							</p>
-						</div>
-					</div>
-					<a
-						href="https://github.com/phaseoteam/Phaseo/discussions/new"
-						target="_blank"
-						rel="noreferrer"
-						className="inline-flex items-center gap-1.5 text-sm font-medium underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
-					>
-						Suggest an update
-						<ArrowUpRight className="size-3.5" />
-					</a>
-				</footer>
 			</div>
 		</main>
 	);

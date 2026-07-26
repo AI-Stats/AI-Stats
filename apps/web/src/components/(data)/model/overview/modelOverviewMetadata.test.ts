@@ -65,22 +65,22 @@ describe("model overview metadata", () => {
 	it("resolves raw lineage IDs to display names", async () => {
 		const lineage = getModelLineageLinks(
 			[],
-			"amazon/nova-lite-1-0-2024-12-04",
+			"amazon/nova-lite-1.0",
 		);
 		const resolved = await resolveModelLineageNames(lineage, async (modelId) =>
-			modelId === "amazon/nova-lite-1-0-2024-12-04" ? "Nova Lite" : null,
+			modelId === "amazon/nova-lite-1.0" ? "Nova Lite 1.0" : null,
 		);
 
 		expect(resolved.previous).toEqual({
-			modelId: "amazon/nova-lite-1-0-2024-12-04",
-			modelName: "Nova Lite",
+			modelId: "amazon/nova-lite-1.0",
+			modelName: "Nova Lite 1.0",
 		});
 	});
 
 	it("humanizes the model slug when a catalog name is unavailable", async () => {
 		const lineage = getModelLineageLinks(
 			[],
-			"amazon/nova-lite-1-0-2024-12-04",
+			"amazon/nova-lite-1.0",
 		);
 		const resolved = await resolveModelLineageNames(lineage, async () => null);
 
