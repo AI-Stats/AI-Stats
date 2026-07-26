@@ -898,7 +898,7 @@ export async function ModelAboutSection({
 			</div>
 			{hasLineage ? (
 				<div className="space-y-2">
-					<h3 className="text-base font-semibold">Version lineage</h3>
+					<h3 className="text-base font-semibold">Related models</h3>
 					{hasDirectionalLineage ? (
 						<div
 							className={cn(
