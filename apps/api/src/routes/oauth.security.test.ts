@@ -11,6 +11,7 @@ const state = vi.hoisted(() => ({
 	issuedTokenPairs: [] as Array<Record<string, unknown>>,
 	issuedManagedKeys: [] as Array<Record<string, unknown>>,
 	registeredClients: [] as Array<Record<string, unknown>>,
+	consentParams: null as string | null,
 	oauthAuth: { ok: false, reason: "invalid_token" } as Record<string, unknown>,
 	pollStatus: "ok" as string,
 }));
@@ -129,14 +130,22 @@ vi.mock("@/lib/oauth/service", () => ({
 	CLI_CLIENT_ID: "phaseo_cli",
 	CLI_DEFAULT_SCOPES: ["openid"],
 	assertRedirectAllowed: vi.fn(() => true),
-	authorizationConsentUrl: vi.fn(() => "https://example.com/consent"),
+	authorizationConsentUrl: vi.fn((params: URLSearchParams) => {
+		state.consentParams = params.toString();
+		return "https://example.com/consent";
+	}),
 	bearerToken: vi.fn(() => "user-session"),
 	claimsScopes: vi.fn(() => []),
 	createOpaqueCode: vi.fn(() => "opaque-code"),
 	createUserCode: vi.fn(() => "ABCD-EFGH"),
 	defaultDeviceIntervalSeconds: vi.fn(() => 5),
 	deviceExpiresInSeconds: vi.fn(() => 600),
-	filterAllowedScopes: vi.fn((_client, scopes) => scopes),
+	filterAllowedScopes: vi.fn((client, scopes) => {
+		const allowedScopes = Array.isArray(client?.allowed_scopes)
+			? new Set(client.allowed_scopes.map(String))
+			: null;
+		return allowedScopes ? scopes.filter((scope: string) => allowedScopes.has(scope)) : scopes;
+	}),
 	getApiBaseUrl: vi.fn(() => "https://api.example.com"),
 	getIssuer: vi.fn(() => "https://api.example.com/oauth"),
 	getLocalJwks: vi.fn(async () => ({ keys: [] })),
@@ -196,6 +205,7 @@ describe("OAuth route security", () => {
 		state.issuedTokenPairs.length = 0;
 		state.issuedManagedKeys.length = 0;
 		state.registeredClients.length = 0;
+		state.consentParams = null;
 		state.oauthAuth = { ok: false, reason: "invalid_token" };
 		state.pollStatus = "ok";
 		vi.resetModules();
@@ -648,6 +658,65 @@ describe("OAuth route security", () => {
 			error_description: "Dynamically registered MCP clients are limited to read-only Phaseo scopes",
 		});
 		expect(state.registeredClients).toEqual([]);
+	});
+
+	it("narrows broad authorization requests for a resource-bound MCP client", async () => {
+		const mcpScopes = [
+			"models:read",
+			"providers:read",
+			"pricing:read",
+			"credits:read",
+			"activity:read",
+			"analytics:read",
+			"generations:read",
+		];
+		state.client = {
+			id: "dynamic_mcp_client",
+			name: "Codex",
+			client_type: "public",
+			registration_source: "dynamic",
+			allowed_scopes: mcpScopes,
+		};
+		const requestedScopes = [
+			"openid",
+			"profile",
+			"email",
+			"gateway:access",
+			...mcpScopes,
+			"workspaces:read",
+			"workspaces:write",
+			"keys:read",
+			"keys:write",
+		];
+		const challenge = "a".repeat(43);
+		const { oauthRouter } = await import("./oauth");
+		const response = await oauthRouter.request(
+			`https://example.com/authorize?client_id=dynamic_mcp_client&redirect_uri=${encodeURIComponent("http://127.0.0.1:64726/callback/test")}&response_type=code&scope=${encodeURIComponent(requestedScopes.join(" "))}&code_challenge=${challenge}&code_challenge_method=S256&resource=${encodeURIComponent("https://mcp.phaseo.app/mcp")}`,
+		);
+
+		expect(response.status).toBe(302);
+		expect(new URLSearchParams(state.consentParams ?? "").get("scope")).toBe(mcpScopes.join(" "));
+	});
+
+	it("does not narrow broad authorization requests for developer clients", async () => {
+		state.client = {
+			id: "developer_client",
+			name: "Developer client",
+			client_type: "public",
+			registration_source: "developer",
+			allowed_scopes: ["models:read"],
+		};
+		const challenge = "a".repeat(43);
+		const { oauthRouter } = await import("./oauth");
+		const response = await oauthRouter.request(
+			`https://example.com/authorize?client_id=developer_client&redirect_uri=${encodeURIComponent("https://client.example/callback")}&response_type=code&scope=${encodeURIComponent("models:read keys:write")}&code_challenge=${challenge}&code_challenge_method=S256&resource=${encodeURIComponent("https://client.example/resource")}`,
+		);
+
+		expect(response.status).toBe(400);
+		expect(await response.json()).toMatchObject({
+			error: "invalid_scope",
+			error_description: "One or more requested scopes are not allowed for this client",
+		});
 	});
 
 	it("narrows full authorization-server scope catalogues to resource-bound MCP scopes", async () => {
