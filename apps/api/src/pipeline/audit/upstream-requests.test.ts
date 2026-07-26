@@ -121,9 +121,54 @@ describe("persistGatewayUpstreamRequests", () => {
                 sequence: 1,
                 attempt_number: 1,
                 provider: "anthropic",
+                status_code: 200,
                 success: true,
                 cost_nanos: 50,
                 total_ms: 90,
+            }),
+        ]);
+    });
+
+    it("does not turn missing metrics or a gateway error status into upstream observations", async () => {
+        const insertMock = vi.fn().mockResolvedValue({ error: null });
+        fromMock.mockReturnValue({ insert: insertMock });
+
+        await persistGatewayUpstreamRequests({
+            insertedRow: {
+                id: "request-row-id",
+                created_at: "2026-07-26T12:00:00.000Z",
+                workspace_id: "workspace-id",
+            },
+            requestId: "request-id",
+            workspaceId: "workspace-id",
+            endpoint: "responses",
+            modelId: "openai/gpt-5.4-mini",
+            provider: "provider-a",
+            providerAttempts: [{
+                attempt_number: 1,
+                provider: "provider-a",
+                model: "openai/gpt-5.4-mini",
+                outcome: "blocked",
+                status: null,
+                duration_ms: "",
+                request_build_ms: null,
+            }],
+            statusCode: 503,
+            success: false,
+            latencyMs: null,
+            generationMs: null,
+            totalMs: null,
+            context: "test",
+        });
+
+        expect(insertMock.mock.calls[0][0]).toEqual([
+            expect.objectContaining({
+                status_code: null,
+                duration_ms: null,
+                latency_ms: null,
+                generation_ms: null,
+                total_ms: null,
+                request_build_ms: null,
             }),
         ]);
     });

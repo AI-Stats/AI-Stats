@@ -58,6 +58,7 @@ function isMissingTableError(error: unknown): boolean {
 }
 
 function finiteInteger(value: unknown): number | null {
+    if (value == null || (typeof value === "string" && value.trim() === "")) return null;
     const parsed = Number(value);
     return Number.isFinite(parsed) ? Math.round(parsed) : null;
 }
@@ -88,6 +89,8 @@ function buildAttempts(args: PersistGatewayUpstreamRequestsArgs): ProviderAttemp
 
 function buildRows(args: PersistGatewayUpstreamRequestsArgs) {
     const attempts = buildAttempts(args);
+    const hasRecordedAttempts = Array.isArray(args.providerAttempts)
+        && args.providerAttempts.some((attempt) => attempt && typeof attempt === "object");
     let finalAttemptIndex = -1;
     for (let index = attempts.length - 1; index >= 0; index -= 1) {
         if (isSuccessfulAttempt(attempts[index])) {
@@ -105,7 +108,7 @@ function buildRows(args: PersistGatewayUpstreamRequestsArgs) {
     return attempts.map((attempt, index) => {
         const isFinal = index === finalAttemptIndex;
         const statusCode = finiteInteger(attempt.status)
-            ?? (isFinal ? finiteInteger(args.statusCode) : null);
+            ?? (!hasRecordedAttempts && isFinal ? finiteInteger(args.statusCode) : null);
         const success = isSuccessfulAttempt(attempt)
             || (isFinal && args.success);
         const outcome = typeof attempt.outcome === "string"
