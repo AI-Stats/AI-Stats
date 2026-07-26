@@ -7,10 +7,9 @@ import {
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { Logo } from "@/components/Logo";
 import { Badge } from "@/components/ui/badge";
-import ModelNotFoundState from "@/components/(data)/model/ModelNotFoundState";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Scale } from "lucide-react";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import ModelIdentifierControl from "./ModelIdentifierControl";
 import ModelDescriptionPanel from "./ModelDescriptionPanel";
@@ -35,12 +34,6 @@ interface ModelDetailShellProps {
 	includeHidden?: boolean;
 	header?: ModelOverviewHeader;
 	modelOverview?: ModelOverviewPage | null;
-}
-
-function isModelNotFoundError(error: unknown): boolean {
-	const message = error instanceof Error ? error.message.toLowerCase() : String(error ?? "").toLowerCase();
-	if (message.includes("model not found")) return true;
-	return false;
 }
 
 function getVisibleTabKeys(modelStatus?: string | null): string[] {
@@ -96,12 +89,7 @@ export default async function ModelDetailShell({
 				null,
 			]
 		: await Promise.all([
-				prefetchedHeader ?? fetchFrontendModelHeader(modelId, includeHidden).catch((error) => {
-					if (isModelNotFoundError(error)) {
-						return null;
-					}
-					throw error;
-				}),
+				prefetchedHeader ?? fetchFrontendModelHeader(modelId, includeHidden).catch(() => null),
 				prefetchedModelOverview !== undefined
 					? Promise.resolve(prefetchedModelOverview)
 					: fetchFrontendModelOverview(modelId).catch(() => null),
@@ -109,7 +97,7 @@ export default async function ModelDetailShell({
 			]);
 
 	if (!header) {
-		return <ModelNotFoundState modelId={modelId} />;
+		notFound();
 	}
 	const modelDescription = isFreeRouter
 		? FREE_ROUTER_DESCRIPTION

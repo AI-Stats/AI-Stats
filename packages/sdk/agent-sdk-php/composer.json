@@ -18,12 +18,13 @@
   },
   "require": {
     "php": ">=8.1",
-    "phaseo/sdk": "^2.0.4"
+    "phaseo/sdk": "^2.1.0"
   },
   "autoload": {
     "psr-4": {
       "Phaseo\\AgentSdk\\": "src/"
-    }
+    },
+    "files": ["src/AgentSdk.php"]
   },
   "require-dev": {
     "phpunit/phpunit": "^10.5"

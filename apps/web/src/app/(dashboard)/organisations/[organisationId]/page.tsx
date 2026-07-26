@@ -5,11 +5,13 @@ import OrganisationDetailShell from "@/components/(data)/organisation/Organisati
 import type { Metadata } from "next";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import Script from "next/script";
+import { notFound } from "next/navigation";
 
 async function fetchOrganisation(organisationId: string) {
 	try {
 		return await fetchFrontendOrganisation(organisationId, 12);
 	} catch (error) {
+		// eslint-disable-next-line no-console
 		console.warn("[seo] failed to load organisation metadata", {
 			organisationId,
 			error,
@@ -81,7 +83,7 @@ export default async function Page({
 }) {
 	const { organisationId } = await params;
 
-	const organisation = await fetchFrontendOrganisation(organisationId, 12);
+	const organisation = await fetchFrontendOrganisation(organisationId, 12).catch(() => null);
 
 	// Generate structured data for the organisation page.
 	const generateStructuredData = () => {
@@ -131,6 +133,7 @@ export default async function Page({
 	const structuredData = generateStructuredData();
 
 	if (!organisation) {
+		notFound();
 		return (
 			<main className="flex min-h-screen flex-col">
 				<div className="container mx-auto px-4 py-8">

@@ -1191,13 +1191,23 @@ struct ResponsesRequest {
 
 struct ResponsesResponse {
 	std::vector<std::map<std::string, std::any>> content;
+	std::optional<int> cost_cents;
+	std::optional<double> cost_nanos;
 	std::optional<int> created;
+	std::string currency;
+	std::optional<std::string> finish_reason;
 	std::string id;
+	std::map<std::string, std::any> meta;
 	std::string model;
+	std::optional<std::string> nativeResponseId;
 	std::string object;
 	std::vector<std::map<std::string, std::any>> output;
 	std::vector<std::map<std::string, std::any>> output_items;
+	std::vector<std::map<std::string, std::any>> pricing_lines;
+	std::string provider;
+	std::string provider_id;
 	std::string role;
+	std::any status;
 	std::string stop_reason;
 	std::string type;
 	std::map<std::string, std::any> usage;

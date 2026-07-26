@@ -1,10 +1,15 @@
 ---
-icon: "bot"
-title: "Build your first agent"
-description: "Create and run a tool-ready agent with the Ruby Agent SDK."
+title: "Usage"
+description: "Run tool loops, human review, retries, and resumable agents with the Ruby Agent SDK."
 ---
 
-Use this guide to run a Ruby agent while keeping tools and state inside your application.
+## Install
+
+```bash
+gem install phaseo_sdk phaseo_agent_sdk
+```
+
+## Quickstart
 
 ```ruby
 require "phaseo_agent_sdk"
@@ -23,10 +28,22 @@ result = agent.run(
 puts result.output
 ```
 
-## Next
+## What it ships
 
-- [Define tools](./agent-sdk-tools)
-- [Stream a run](./agent-sdk-streaming)
-- [Pause and continue](./agent-sdk-state-and-approval)
-- [Control a run](./agent-sdk-run-controls)
-- [Observe runs](./agent-sdk-observability)
+- `PhaseoAgentSdk.create_agent(...)`
+- `PhaseoAgentSdk.define_tool(...)`
+- `PhaseoAgentSdk.create_gateway_agent_client(...)`
+- a bounded tool loop over the Phaseo `responses` API
+
+## Advanced runtime
+
+Ruby supports validation and approval callables, HITL and manual tools, progress, recoverable errors, replayable enumerators, stop helpers, dynamic turns, persisted next-turn parameters, normalized usage/cost, and duck-typed state accessors.
+
+## Streaming and cancellation
+
+`Agent#stream(...)` and `Agent#continue_stream(...)` consume the gateway's Responses SSE stream on a worker thread. Use `text_stream`, `reasoning_stream`, `item_stream`, or `full_stream`; call `cancel` to stop the worker and close the HTTP stream. Completed steps retain request IDs, provider metadata, finish reasons, warnings, usage, and cost.
+
+## Related
+
+- [Agent SDK overview](../agent-sdk/overview.mdx)
+- [TypeScript Agent SDK](../typescript/agent-sdk.mdx)

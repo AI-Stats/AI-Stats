@@ -27,7 +27,7 @@ import {
 	buildModelOverviewMetadataDescription,
 	buildModelOverviewMetadataTitle,
 } from "@/lib/models/modelDescription";
-import { permanentRedirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Suspense } from "react";
 import { isFreeRouterModelId } from "@/lib/models/freeRouter";
 import FreeRouterOverview from "@/components/(data)/model/free-router/FreeRouterOverview";
@@ -194,7 +194,7 @@ export default async function Page({
 			</ModelDetailShell>
 		);
 	}
-	const modelPromise = fetchFrontendModelOverview(modelId);
+	const modelPromise = fetchFrontendModelOverview(modelId).catch(() => null);
 	const benchmarkPromise = fetchFrontendModelBenchmarkHighlights(modelId).catch(() => []);
 	const subscriptionPromise = fetchFrontendModelSubscriptionPlans(modelId).catch(() => []);
 	const availabilityPromise = fetchFrontendModelAvailability(modelId).catch(() => undefined);
@@ -206,6 +206,7 @@ export default async function Page({
 			subscriptionPromise,
 			availabilityPromise,
 		]);
+	if (!modelOverview) notFound();
 	const showBenchmarks = benchmarkHighlights.length > 0;
 	const showSubscriptions = subscriptionPlans.length > 0;
 	const isGatewayActive =

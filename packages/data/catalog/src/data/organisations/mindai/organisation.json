@@ -1,7 +1,7 @@
 {
   "organisation_id":"mindai",
   "name":"Mind Lab",
-  "country_code":null,
+  "country_code":"SG",
   "description":"Mind Lab develops the Macaron V1 family of model-specialist systems.",
   "colour":"#6366F1",
   "organisation_links":[{"platform":"website","url":"https://novita.ai/models/model-detail/mindai-macaron-v1-venti"}],

@@ -1,31 +1,24 @@
 ---
-icon: "compass"
 title: "Overview"
-description: "Build tool-using, resumable agents with the native Ruby runtime."
+description: "What the Ruby Agent SDK is for and what surface it currently exposes."
 ---
 
-The Ruby Agent SDK is a full local runtime for Phaseo Gateway. It uses enumerators, thread-backed tools, callback validation, and duck-typed state accessors.
+The Ruby Agent SDK is a full local agent runtime for Phaseo Gateway, including retries, concurrent tools, timeouts, human review, resumable state, lifecycle events, and Devtools capture.
 
-## Native runtime model
+Use it when you want:
 
-- Bounded threads execute independent tools concurrently while preserving tool-result order.
-- Enumerators expose replayable text, reasoning, item, and full-event streams.
-- Callbacks validate tool boundaries, approvals, progress events, and final output.
-- Exact tool-call IDs make approvals, rejections, and manual outputs safe to resume.
-- Any object with compatible `load` and `save` methods can own run persistence.
+- a lightweight bounded tool loop
+- gateway-backed `responses` requests
+- app-owned control over persistence and orchestration
 
-## Core capabilities
+## What it ships
 
-| Area | Ruby API |
-| --- | --- |
-| Agents and tools | `PhaseoAgentSdk.create_agent`, `define_tool`, and `Tool` |
-| Gateway execution | `create_gateway_agent_client` |
-| Continuation | `Agent#continue_run`, exact-ID decisions, and manual outputs |
-| Streaming | `Agent#stream`, `text_stream`, `reasoning_stream`, and `full_stream` |
-| Control | retries, timeouts, concurrency, stop predicates, and dynamic turns |
-| Observability | event callbacks, normalized usage/cost, and Phaseo Devtools |
+- `PhaseoAgentSdk.create_agent(...)`
+- `PhaseoAgentSdk.define_tool(...)`
+- `PhaseoAgentSdk.create_gateway_agent_client(...)`
+- a bounded tool loop over the Phaseo `responses` API
 
 ## Next
 
-- [Installation](./agent-sdk-installation)
-- [Build with the Ruby Agent SDK](./agent-sdk)
+- [Installation](./agent-sdk-installation.mdx)
+- [Usage](./agent-sdk.mdx)

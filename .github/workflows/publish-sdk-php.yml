@@ -1,6 +1,11 @@
 name: Publish PHP SDK
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/sdk/sdk-php/package.json"
   workflow_dispatch:
     inputs:
       version:
@@ -14,6 +19,7 @@ permissions:
 jobs:
   publish-php:
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: Require main branch
         shell: bash
@@ -30,6 +36,19 @@ jobs:
         with:
           client-id: ${{ secrets.PHASEO_APP_CLIENT_ID }}
           private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
+          owner: phaseoteam
+
+      - name: Resolve GitHub App identity
+        id: app-identity
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          bot="${{ steps.app-token.outputs.app-slug }}[bot]"
+          id="$(gh api "/users/${bot}" --jq .id)"
+          echo "name=${bot}" >> "$GITHUB_OUTPUT"
+          echo "email=${id}+${bot}@users.noreply.github.com" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
@@ -54,10 +73,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ -n "${INPUT_VERSION:-}" ]; then
-            version="${INPUT_VERSION}"
-          else
-            version="$(node -p "require('./packages/sdk/sdk-php/package.json').version")"
+          version="$(node -p "require('./packages/sdk/sdk-php/package.json').version")"
+          if [ -n "${INPUT_VERSION:-}" ] && [ "${INPUT_VERSION}" != "${version}" ]; then
+            echo "::error::Requested version ${INPUT_VERSION} does not match committed version ${version}."
+            exit 1
           fi
           if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
             echo "::error::Invalid version: $version"
@@ -98,9 +117,13 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.value }}
           GH_APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          GIT_USER_NAME: ${{ steps.app-identity.outputs.name }}
+          GIT_USER_EMAIL: ${{ steps.app-identity.outputs.email }}
         shell: bash
         run: |
           set -euo pipefail
+          git config user.name "$GIT_USER_NAME"
+          git config user.email "$GIT_USER_EMAIL"
           tag="sdk-php/v${VERSION}"
           if git rev-parse "$tag" >/dev/null 2>&1; then
             echo "Tag already exists locally: $tag"
@@ -118,18 +141,13 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.value }}
           PHP_SDK_SPLIT_REPO: ${{ vars.PHP_SDK_SPLIT_REPO }}
-          PHP_SDK_SPLIT_REPO_TOKEN: ${{ secrets.PHP_SDK_SPLIT_REPO_TOKEN }}
+          GH_APP_TOKEN: ${{ steps.app-token.outputs.token }}
         shell: bash
         run: |
           set -euo pipefail
-          if [ -z "${PHP_SDK_SPLIT_REPO_TOKEN:-}" ]; then
-            echo "::error::Missing PHP_SDK_SPLIT_REPO_TOKEN secret."
-            exit 1
-          fi
-
           split_repo="${PHP_SDK_SPLIT_REPO:-phaseoteam/phaseo-php-sdk}"
           split_repo_url="https://github.com/${split_repo}"
-          split_remote_url="https://x-access-token:${PHP_SDK_SPLIT_REPO_TOKEN}@github.com/${split_repo}.git"
+          split_remote_url="https://x-access-token:${GH_APP_TOKEN}@github.com/${split_repo}.git"
 
           git remote add split "$split_remote_url"
 
@@ -155,8 +173,8 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${PACKAGIST_USERNAME:-}" ] || [ -z "${PACKAGIST_MAIN_TOKEN:-}" ]; then
-            echo "::error::Missing PACKAGIST_USERNAME or PACKAGIST_MAIN_TOKEN."
-            exit 1
+            echo "Packagist credentials are not configured; relying on the repository webhook."
+            exit 0
           fi
           if [ -z "${PACKAGIST_REPOSITORY_URL:-}" ]; then
             echo "::error::Missing split repository URL output."

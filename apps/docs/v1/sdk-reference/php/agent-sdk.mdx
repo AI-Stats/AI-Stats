@@ -1,10 +1,15 @@
 ---
-icon: "bot"
-title: "Build your first agent"
-description: "Create and run a tool-ready agent with the PHP Agent SDK."
+title: "Usage"
+description: "Run tool loops, human review, retries, and resumable agents with the PHP Agent SDK."
 ---
 
-Use this guide to run a PHP agent while keeping tools and state inside your application.
+## Install
+
+```bash
+composer require phaseo/sdk phaseo/agent-sdk
+```
+
+## Quickstart
 
 ```php
 <?php
@@ -27,10 +32,22 @@ $result = $agent->run(
 echo $result->output . PHP_EOL;
 ```
 
-## Next
+## What it ships
 
-- [Define tools](./agent-sdk-tools)
-- [Stream a run](./agent-sdk-streaming)
-- [Pause and continue](./agent-sdk-state-and-approval)
-- [Control a run](./agent-sdk-run-controls)
-- [Observe runs](./agent-sdk-observability)
+- `AgentSdk::createAgent(...)`
+- `AgentSdk::defineTool(...)`
+- `AgentSdk::createGatewayAgentClient(...)`
+- a bounded tool loop over the Phaseo `responses` API
+
+## Advanced runtime
+
+PHP supports validation and approval callables, HITL and manual tools, progress, recoverable errors, replayable iterators, stop helpers, dynamic turns, persisted next-turn parameters, normalized usage/cost, and `StateAccessor`.
+
+## Streaming and cancellation
+
+`Agent::stream(...)` and `Agent::continueStream(...)` drive the gateway's Responses SSE stream through a Fiber as the returned iterator is consumed. Use `textStream()`, `reasoningStream()`, `itemStream()`, or `fullStream()`; call `cancel()` to stop the Fiber and close the generator. Completed steps retain request IDs, provider metadata, finish reasons, warnings, usage, and cost.
+
+## Related
+
+- [Agent SDK overview](../agent-sdk/overview.mdx)
+- [TypeScript Agent SDK](../typescript/agent-sdk.mdx)

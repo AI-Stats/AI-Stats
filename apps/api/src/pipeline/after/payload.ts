@@ -155,6 +155,7 @@ function buildResponsesPayload(ctx: PipelineContext, result: RequestResult): Any
         object: "response",
         created_at: raw?.created_at ?? raw?.created ?? startedAt,
         status,
+        finish_reason: raw?.finish_reason ?? ir?.choices?.[0]?.finishReason ?? null,
         completed_at: raw?.completed_at ?? (status === "completed" ? now : null),
         error: raw?.error ?? null,
         incomplete_details: raw?.incomplete_details ?? null,

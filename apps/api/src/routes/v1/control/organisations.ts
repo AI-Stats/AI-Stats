@@ -39,7 +39,7 @@ type Organisation = {
 };
 
 async function handleOrganisations(req: Request) {
-    const auth = await guardAuth(req, { useKvCache: false });
+    const auth = await guardAuth(req, { useKvCache: false, allowOAuthJwt: true });
     if (!auth.ok) {
         return (auth as GuardErr).response;
     }

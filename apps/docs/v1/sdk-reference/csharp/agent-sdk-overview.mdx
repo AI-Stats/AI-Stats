@@ -1,31 +1,24 @@
 ---
-icon: "compass"
 title: "Overview"
-description: "Build tool-using, resumable agents with the native .NET runtime."
+description: "What the C# Agent SDK is for and what surface it currently exposes."
 ---
 
-The C# Agent SDK is a full local runtime for Phaseo Gateway. It uses tasks, cancellation tokens, async enumerables, delegates, and application-owned state interfaces.
+The C# Agent SDK is a full local agent runtime for Phaseo Gateway, including retries, concurrent tasks, cancellation and timeouts, human review, resumable state, lifecycle events, and Devtools capture.
 
-## Native runtime model
+Use it when you want:
 
-- Tasks execute model turns and local tools without blocking application threads.
-- `CancellationToken` and tool timeouts stop work cleanly.
-- Replayable async enumerables expose model text and lifecycle events.
-- Validation and approval delegates keep tool boundaries explicit.
-- `IStateAccessor` loads and saves run results through your own storage layer.
+- a lightweight bounded tool loop
+- gateway-backed `responses` requests
+- app-owned control over persistence and orchestration
 
-## Core capabilities
+## What it ships
 
-| Area | C# API |
-| --- | --- |
-| Agents and tools | `AgentSdk.CreateAgent(...)`, `AgentSdk.DefineTool(...)`, `Tool` |
-| Gateway execution | `AgentSdk.CreateGatewayAgentClient(...)` |
-| Continuation | `Agent.ContinueRun(...)`, exact-ID decisions, and manual outputs |
-| Streaming | `Agent.Stream(...)`, `TextStream()`, `FullStream()`, and `GetResult()` |
-| Control | retries, cancellation, timeouts, concurrency, stop conditions, and dynamic turns |
-| Observability | event delegates, normalized usage/cost, and Phaseo Devtools |
+- `AgentSdk.CreateAgent(...)`
+- `AgentSdk.DefineTool(...)`
+- `AgentSdk.CreateGatewayAgentClient(...)`
+- a bounded tool loop over the Phaseo `responses` API
 
 ## Next
 
-- [Installation](./agent-sdk-installation)
-- [Build with the C# Agent SDK](./agent-sdk)
+- [Installation](./agent-sdk-installation.mdx)
+- [Usage](./agent-sdk.mdx)

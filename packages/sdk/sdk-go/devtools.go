@@ -13,10 +13,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	gen "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/src/gen"
+	gen "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2/src/gen"
 )
 
-const goSDKVersion = "2.0.4"
+const goSDKVersion = "2.0.5"
 
 type DevtoolsConfig struct {
 	Enabled        bool

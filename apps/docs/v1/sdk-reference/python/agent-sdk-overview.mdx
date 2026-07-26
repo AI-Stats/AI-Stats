@@ -1,31 +1,24 @@
 ---
-icon: "compass"
 title: "Overview"
-description: "Build tool-using, resumable agents with the native Python runtime."
+description: "What the Python Agent SDK is for and what surface it currently exposes."
 ---
 
-The Python Agent SDK is a full local runtime for Phaseo Gateway. Use it to run multi-step tools, stream model output, pause for decisions, and resume work from state stored by your application.
+The Python Agent SDK is a full local agent runtime for Phaseo Gateway, including retries, concurrent tools, timeouts, human review, resumable state, lifecycle events, and Devtools capture.
 
-## Native runtime model
+Use it when you want:
 
-- Python iterators expose replayable text, reasoning, item, tool, and full-event streams.
-- Callable schemas validate tool inputs, outputs, progress events, and final output.
-- Bounded worker threads execute independent tools concurrently while preserving tool-result order.
-- Callbacks handle progress, lifecycle events, approvals, and mutable application context.
-- `AgentStateAccessor` loads and saves serializable run results without a hosted state service.
+- a lightweight bounded tool loop
+- gateway-backed `responses` requests
+- app-owned control over persistence and orchestration
 
-## Core capabilities
+## What it ships
 
-| Area | Python API |
-| --- | --- |
-| Agents and tools | `create_agent(...)`, `define_tool(...)`, `AgentTool` |
-| Gateway execution | `create_gateway_agent_client(...)` |
-| Continuation | `continue_run(...)`, exact-ID approvals, rejections, and manual outputs |
-| Streaming | `stream(...)` with replayable iterator consumers |
-| Control | retries, timeouts, concurrency, stop predicates, and dynamic turns |
-| Observability | lifecycle callbacks, normalized usage/cost, and Phaseo Devtools |
+- `create_agent(...)`
+- `define_tool(...)`
+- `create_gateway_agent_client(...)`
+- a bounded tool loop over the Phaseo `responses` API
 
 ## Next
 
-- [Installation](./agent-sdk-installation)
-- [Build with the Python Agent SDK](./agent-sdk)
+- [Installation](./agent-sdk-installation.mdx)
+- [Usage](./agent-sdk.mdx)

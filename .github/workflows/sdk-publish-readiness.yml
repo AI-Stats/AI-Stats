@@ -33,6 +33,8 @@ jobs:
         run: git checkout -- pnpm-lock.yaml
       - name: Install dependencies
         run: corepack pnpm install --frozen-lockfile
+      - name: Build TypeScript SDK dependency
+        run: pnpm --filter @phaseo/sdk build
       - name: Build, test, and pack
         working-directory: packages/sdk/agent-sdk-ts
         run: |
@@ -48,10 +50,26 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
         with:
-          go-version: "1.23"
+          go-version: "1.24"
       - name: Run tests
-        working-directory: packages/sdk/sdk-go
-        run: go test ./...
+        run: |
+          (cd packages/sdk/sdk-go && go test ./...)
+          (cd packages/sdk/agent-sdk-go && go test ./...)
+
+  python-agent:
+    name: Python Agent SDK readiness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Test and build package
+        run: |
+          python -m pip install pytest build
+          python -m pip install -e packages/sdk/sdk-py -e packages/sdk/agent-sdk-py
+          python -m pytest packages/sdk/agent-sdk-py/tests
+          python -m build packages/sdk/agent-sdk-py
 
   csharp:
     name: C# readiness
@@ -67,6 +85,8 @@ jobs:
           dotnet test packages/sdk/sdk-csharp/tests/Phaseo.Sdk.Tests/Phaseo.Sdk.Tests.csproj -c Release
           dotnet build packages/sdk/sdk-csharp/Phaseo.Sdk.csproj -c Release
           dotnet pack packages/sdk/sdk-csharp/Phaseo.Sdk.csproj -c Release -o artifacts/csharp
+          dotnet test packages/sdk/agent-sdk-csharp/tests/Phaseo.AgentSdk.Tests/Phaseo.AgentSdk.Tests.csproj -c Release
+          dotnet pack packages/sdk/agent-sdk-csharp/Phaseo.AgentSdk.csproj -c Release -o artifacts/csharp-agent
       - name: Check NuGet trusted publishing user (optional override)
         if: inputs.checkSecrets
         shell: bash
@@ -90,7 +110,8 @@ jobs:
       - name: Build
         run: |
           mvn -B -f packages/sdk/sdk-java/pom.xml test
-          mvn -B -f packages/sdk/sdk-java/pom.xml -DskipTests verify
+          mvn -B -f packages/sdk/sdk-java/pom.xml -DskipTests install
+          mvn -B -f packages/sdk/agent-sdk-java/pom.xml verify
       - name: Check Maven Central + GPG secrets
         if: inputs.checkSecrets
         env:
@@ -125,18 +146,18 @@ jobs:
         run: |
           composer validate --strict
           php tests/lifecycle_test.php
-      - name: Check Packagist secrets
+          (cd ../agent-sdk-php && composer validate --strict && php tests/agent_loop_test.php)
+      - name: Check optional Packagist refresh credentials
         if: inputs.checkSecrets
         env:
           PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
           PACKAGIST_MAIN_TOKEN: ${{ secrets.PACKAGIST_MAIN_TOKEN }}
-          PHP_SDK_SPLIT_REPO_TOKEN: ${{ secrets.PHP_SDK_SPLIT_REPO_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
-          [ -n "${PACKAGIST_USERNAME:-}" ] || { echo "::error::Missing PACKAGIST_USERNAME"; exit 1; }
-          [ -n "${PACKAGIST_MAIN_TOKEN:-}" ] || { echo "::error::Missing PACKAGIST_MAIN_TOKEN"; exit 1; }
-          [ -n "${PHP_SDK_SPLIT_REPO_TOKEN:-}" ] || { echo "::error::Missing PHP_SDK_SPLIT_REPO_TOKEN"; exit 1; }
+          if [ -z "${PACKAGIST_USERNAME:-}" ] || [ -z "${PACKAGIST_MAIN_TOKEN:-}" ]; then
+            echo "Packagist API refresh credentials are not set; publishing will rely on the repository webhook."
+          fi
 
   ruby:
     name: Ruby readiness
@@ -152,11 +173,7 @@ jobs:
         run: |
           ruby tests/lifecycle_test.rb
           gem build phaseo_sdk.gemspec
-      - name: Check RubyGems secret
+          (cd ../agent-sdk-ruby && ruby -Ilib -Itests tests/agent_loop_test.rb && gem build phaseo_agent_sdk.gemspec)
+      - name: Trusted publishing note
         if: inputs.checkSecrets
-        env:
-          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          [ -n "${RUBYGEMS_API_KEY:-}" ] || { echo "::error::Missing RUBYGEMS_API_KEY"; exit 1; }
+        run: echo "RubyGems publishing uses OIDC; verify the pending/existing trusted publisher in RubyGems.org."

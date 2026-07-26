@@ -1355,14 +1355,14 @@ print(response)`,
 			description: "Official Phaseo SDK for Go.",
 			lang: "go",
 			installCommand:
-				"go get github.com/phaseoteam/Phaseo/packages/sdk/sdk-go@latest",
+				"go get github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2@latest",
 			code: `package main
 
 import (
     "context"
     "encoding/json"
     "fmt"
-    phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go"
+    phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"
 )
 
 func main() {

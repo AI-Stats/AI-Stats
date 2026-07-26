@@ -1,155 +1,78 @@
 ---
-icon: "compass"
 title: "Agent SDK Overview"
-description: "Build multi-step agents with local tools, resumable runs, and Phaseo model routing."
+description: "Build local, resumable agent loops on top of Phaseo Gateway across the supported Agent SDK languages."
 ---
 
-Use a Phaseo Agent SDK when your application needs to call tools, run more than one model step, or pause and resume work safely.
+Use the Phaseo Agent SDKs when your application needs more than one-shot generation:
 
-The SDK runs inside your application. You choose where it is deployed and where returned run state is stored, while model requests continue to use Phaseo for routing, policy, and usage tracking.
+- multi-step tool loops
+- local runtime tools
+- gateway-backed model turns
+- resumable application-owned run state
+- exact-call approvals, human-in-the-loop tools, manual tools, and resumable continuation
+- runtime validation, progress-producing tools, and recoverable tool errors
+- streamed model output with replayable event consumers
+- dynamic turn configuration, composable stop conditions, and normalized usage/cost
+- model retries, tool timeouts, bounded tool concurrency, and lifecycle events
+- local Phaseo Devtools capture
+- consistent request routing across the same languages as the core client SDKs
 
-TypeScript defines the reference contract. Python, Go, C#, Java, PHP, and Ruby implement the same core runtime behavior through language-native callbacks, streams, concurrency, and state interfaces.
+## Supported languages
 
-## Agent SDK or Client SDK?
+The current Agent SDK language set matches the primary client SDK set exposed in Phaseo quickstart:
 
-| Choose | When you need |
-| --- | --- |
-| **Client SDK** | A direct model request, streaming response, embedding, image, audio, or another API operation that your application controls itself. |
-| **Agent SDK** | A bounded loop in which a model can call local tools, inspect the results, and continue until the task is complete or needs approval. |
+- [TypeScript](../typescript/agent-sdk)
+- [Python](../python/agent-sdk)
+- [Go](../go/agent-sdk)
+- [C#](../csharp/agent-sdk)
+- [Java](../java/agent-sdk)
+- [PHP](../php/agent-sdk)
+- [Ruby](../ruby/agent-sdk)
 
-<Tip>
-  Start with a [Client SDK](../typescript/overview) for a single request. Move to an Agent SDK when your application needs tool execution or multi-step control.
-</Tip>
+## Common model
 
-## What you can build
+Each Agent SDK keeps the same runtime model:
 
-<Columns cols={2}>
-	<Card title="Tool-using assistants" icon="wrench">
-		Connect a model to functions that run inside your own application.
-	</Card>
-	<Card title="Resumable workflows" icon="rotate-ccw">
-		Save returned run state and continue the same task after a pause or process restart.
-	</Card>
-	<Card title="Human review flows" icon="user-check">
-		Pause selected actions for approval before the agent continues.
-	</Card>
-	<Card title="Structured automations" icon="braces">
-		Combine tools and typed output parsing in a bounded workflow.
-	</Card>
-</Columns>
+- define one agent
+- define zero or more local tools
+- create a gateway-backed model client
+- run a bounded loop over the `responses` API
+- inspect lifecycle events or a Devtools trace
+- persist the returned run and resume after a human decision
 
-## Start with TypeScript
-
-Install the client and Agent SDK packages:
-
-<CodeGroup>
-```bash npm
-npm install @phaseo/sdk @phaseo/agent-sdk
-```
-
-```bash pnpm
-pnpm add @phaseo/sdk @phaseo/agent-sdk
-```
-
-```bash yarn
-yarn add @phaseo/sdk @phaseo/agent-sdk
-```
-
-```bash bun
-bun add @phaseo/sdk @phaseo/agent-sdk
-```
-</CodeGroup>
-
-Define one local tool and run an agent:
-
-```typescript
-import {
-  createAgent,
-  createGatewayAgentClient,
-  defineTool,
-} from "@phaseo/agent-sdk";
-
-const lookupOrder = defineTool({
-  id: "lookup-order",
-  description: "Look up an order by ID.",
-  async execute(input: { orderId: string }) {
-    return { orderId: input.orderId, status: "shipped" };
-  },
-});
-
-const supportAgent = createAgent({
-  id: "support-agent",
-  model: "phaseo/free",
-  instructions: "Use the order tool when needed, then answer concisely.",
-  tools: [lookupOrder],
-});
-
-const result = await supportAgent.run({
-  input: "Has order 123 shipped?",
-  client: createGatewayAgentClient({
-    clientOptions: { apiKey: process.env.PHASEO_API_KEY! },
-  }),
-});
-
-console.log(result.output);
-```
-
-The agent can request `lookup-order`, receive the local result, and use it in the final answer. Add persistence or approval rules only when the workflow needs them.
-
-## Choose your language
-
-<Columns cols={2}>
-	<Card title="TypeScript" icon="/icons/languages/typescript.svg" href="../typescript/agent-sdk-overview">
-		Use async iterables, replayable streams, typed outputs, approvals, and concurrent tools.
-	</Card>
-	<Card title="Python" icon="/icons/languages/python.svg" href="../python/agent-sdk-overview">
-		Use Python iterators, callback progress, concurrent tools, and application-owned state.
-	</Card>
-	<Card title="Go" icon="/icons/languages/go.svg" href="../go/agent-sdk-overview">
-		Use contexts, goroutine-backed tools, channels, validators, and explicit state interfaces.
-	</Card>
-	<Card title="C#" icon="/icons/languages/csharp.svg" href="../csharp/agent-sdk-overview">
-		Use tasks, cancellation tokens, async enumerables, delegates, and state interfaces.
-	</Card>
-	<Card title="Java" icon="/icons/languages/java.svg" href="../java/agent-sdk-overview">
-		Use executors, iterable streams, functional interfaces, and application state accessors.
-	</Card>
-	<Card title="PHP" icon="/icons/languages/php.svg" href="../php/agent-sdk-overview">
-		Use synchronous iteration, callback tools, exact-ID continuation, and state accessors.
-	</Card>
-	<Card title="Ruby" icon="/icons/languages/ruby.svg" href="../ruby/agent-sdk-overview">
-		Use enumerators, thread-backed tools, callback validation, and duck-typed state accessors.
-	</Card>
-</Columns>
-
-## How a run works
-
-1. Your application sends the current input and run state to the agent.
-2. The agent requests a model response through Phaseo.
-3. If the model calls a tool, the tool runs inside your application.
-4. The result is added to the next model step.
-5. The run finishes, pauses for approval, or returns state that your application can save and resume.
-
-Use explicit limits for steps, retries, tool execution, and cost wherever the selected SDK supports them.
+TypeScript is the reference API design. Python, Go, C#, Java, PHP, and Ruby expose the same run states and core controls using language-native callbacks, concurrency, timeout, and cancellation primitives. Rust and C++ Agent SDKs are intentionally deferred.
 
 ## Cross-language capability contract
 
-Every supported Agent SDK includes:
+| Capability | TypeScript | Python | Go | C# | Java | PHP | Ruby |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Validated executable tools and recoverable errors | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Exact-ID approvals, HITL, and manual outputs | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Preliminary tool progress | Async generator | Iterator or callback | Callback | Callback | Callback | Callback | Callback |
+| Model streaming and replayable consumers | Async iterable | Iterator | Channel | Async enumerable | Iterable | Iterable | Enumerator |
+| Composable step, token, cost, duration, tool, finish, and custom stops | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Dynamic turns, mutable context, and persisted next-turn overrides | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Application-owned state accessor | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Normalized usage and cost | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 
-- validated executable tools, bounded concurrency, timeouts, and selectable tool-error handling
-- per-tool and conditional approvals, human review, manual tools, and exact tool-call decisions on resume
-- progress-producing tools with preliminary-result events
-- model streaming with replayable text and full-event consumers, plus language-native event projections
-- composable step, duration, token, cost, tool-call, finish-reason, and custom stop conditions
-- dynamic model settings, instructions, sampling parameters, tool sets, and mutable application context
-- serializable run state with an optional application-owned load/save interface
-- normalized token and cost summaries, finish reasons, warnings, lifecycle events, cancellation, retries, and Devtools capture
+PHP and Ruby expose provider stream events through their normal synchronous iteration APIs. They do not require a hosted runtime or a background Phaseo service.
 
-The language pages show the native API for each runtime. Rust and C++ Agent SDKs are intentionally deferred while their Client SDK packaging and release paths mature.
+## Client SDK, Agent SDK, and API
 
-## Next steps
+| Use | Choose | What it owns |
+| --- | --- | --- |
+| One API request or full endpoint coverage | Client SDK | Generated API types and transport |
+| Tool-using, multi-step application logic | Agent SDK | Local loop, tools, checkpoints, review, events, and Devtools |
+| Custom transport or an unsupported language | Raw API | HTTP request and response handling |
 
-- [Install the TypeScript Agent SDK](../typescript/agent-sdk-installation)
+Agent SDK gateway adapters delegate model turns to the matching Client SDK. An `requestOptions` or language-equivalent configuration hook passes additional Responses API fields through while the Agent SDK continues to own `model`, `input`, `instructions`, and local function tools.
+
+## Recipes
+
+The cookbook includes TypeScript workflows and language-specific starting points:
+
 - [Build a durable agent loop](../../cookbook/agent-sdk-durable-loop)
 - [Research with agent-backed web search](../../cookbook/agent-sdk-research-brief)
+- [Triage support with preset-driven agents](../../cookbook/agent-sdk-support-triage)
 - [Review code with local runtime tools](../../cookbook/agent-sdk-coding-review)
+- [Fan out local tools concurrently](../../cookbook/agent-sdk-parallel-tools)

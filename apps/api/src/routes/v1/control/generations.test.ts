@@ -145,6 +145,27 @@ describe("generationsRoutes", () => {
 		expect(isGatewayIoLoggingFeatureEnabledMock).not.toHaveBeenCalled();
 	});
 
+	it("rejects OAuth sessions without the generation-read capability", async () => {
+		authenticateMock.mockResolvedValue({
+			ok: true,
+			workspaceId: "ws_test",
+			apiKeyId: "phaseo_cli",
+			apiKeyRef: null,
+			apiKeyKid: null,
+			authMethod: "oauth",
+			oauthScopes: ["activity:read"],
+		});
+
+		const response = await generationsRoutes.request("https://example.com/?id=gen_123");
+
+		expect(response.status).toBe(403);
+		await expect(response.json()).resolves.toEqual({
+			error: "insufficient_scope",
+			message: "Token requires generations:read",
+		});
+		expect(getSupabaseAdminMock).not.toHaveBeenCalled();
+	});
+
 	it("returns raw I/O logs only with an explicit log-read capability", async () => {
 		authenticateMock.mockResolvedValue({
 			ok: true,

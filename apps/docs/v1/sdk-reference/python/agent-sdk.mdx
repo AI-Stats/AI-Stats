@@ -1,19 +1,18 @@
 ---
-icon: "bot"
-title: "Build your first agent"
-description: "Create and run a tool-ready agent with the Python Agent SDK."
+title: "Usage"
+description: "Run tool loops, human review, retries, and resumable agents with the Python Agent SDK."
 ---
 
-Use this guide to run a Python agent while keeping tools and state inside your application.
+## Install
+
+```bash
+pip install phaseo phaseo-agent-sdk
+```
+
+## Quickstart
 
 ```python
-import os
-
 from phaseo_agent import create_agent, create_gateway_agent_client
-
-client = create_gateway_agent_client(
-    client_options={"api_key": os.environ["PHASEO_API_KEY"]}
-)
 
 agent = create_agent({
     "id": "quickstart-agent",
@@ -21,14 +20,32 @@ agent = create_agent({
     "instructions": "Answer concisely and helpfully.",
 })
 
-result = agent.run(input="Give me one fun fact about cURL.", client=client)
+result = agent.run(
+    input="Give me one fun fact about cURL.",
+    client=create_gateway_agent_client(),
+)
+
 print(result.output)
 ```
 
-## Next
+## What it ships
 
-- [Define tools](./agent-sdk-tools)
-- [Stream a run](./agent-sdk-streaming)
-- [Pause and continue](./agent-sdk-state-and-approval)
-- [Control a run](./agent-sdk-run-controls)
-- [Observe runs](./agent-sdk-observability)
+- `create_agent(...)`
+- `define_tool(...)`
+- `create_gateway_agent_client(...)`
+- retries, concurrent tools, timeouts, and lifecycle events
+- human-review pauses with `continue_run(...)`
+- serializable state and Phaseo Devtools capture
+
+## Advanced runtime
+
+Python supports callable schemas and approvals, HITL and manual tools, progress, recoverable errors, replayable streams, stop helpers, dynamic turns, persisted next-turn overrides, normalized usage/cost, and application-owned state accessors.
+
+## Streaming and cancellation
+
+`agent.stream(...)` and `agent.continue_stream(...)` use the gateway's Responses SSE stream. Consume `text_stream()`, `reasoning_stream()`, `item_stream()`, `tool_stream()`, or `full_stream()`; call `cancel()` to close the active request. Completed steps retain request IDs, provider metadata, finish reasons, warnings, usage, and cost.
+
+## Related
+
+- [Agent SDK overview](../agent-sdk/overview.mdx)
+- [TypeScript Agent SDK](../typescript/agent-sdk.mdx)

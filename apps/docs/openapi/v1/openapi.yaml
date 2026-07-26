@@ -4907,6 +4907,36 @@ components:
           type: integer
         model:
           type: string
+        provider:
+          type: string
+        provider_id:
+          type: string
+        nativeResponseId:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+            - completed
+            - failed
+            - incomplete
+        finish_reason:
+          type: string
+          nullable: true
+        meta:
+          type: object
+          additionalProperties: true
+        cost_nanos:
+          type: number
+        cost_cents:
+          type: integer
+        currency:
+          type: string
+        pricing_lines:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
         output:
           type: array
           items:
@@ -9267,7 +9297,6 @@ components:
         - z-ai/glm-5-turbo
         - z-ai/glm-5.1
         - z-ai/glm-5.2
-        - z-ai/glm-5.2-fast
         - z-ai/glm-5v-turbo
         - zai-org/glm-4.5-air
         - zai/glm-5

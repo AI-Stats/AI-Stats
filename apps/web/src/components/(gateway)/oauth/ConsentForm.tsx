@@ -353,7 +353,7 @@ export default function ConsentForm({
 		setError(null);
 
 		try {
-			const response = await fetch("/api/internal/oauth/consent", {
+			const response = await fetch("/oauth/consent/submit", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -396,7 +396,7 @@ export default function ConsentForm({
 		setError(null);
 
 		try {
-			const response = await fetch("/api/internal/oauth/consent", {
+			const response = await fetch("/oauth/consent/submit", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({

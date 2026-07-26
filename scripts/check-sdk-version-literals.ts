@@ -10,7 +10,7 @@ type Check = {
 };
 
 type Spec = {
-  sdkKey: "ts" | "py" | "go" | "csharp" | "java" | "php" | "ruby";
+  sdkKey: "ts" | "py" | "go" | "csharp" | "java" | "php" | "ruby" | "agent";
   sdkLabel: string;
   packageJsonPath: string;
   checks: Check[];
@@ -24,6 +24,7 @@ const SDK_VERSION_OVERRIDE_ENV: Record<Spec["sdkKey"], string> = {
   java: "PHASEO_SDK_VERSION_OVERRIDE_JAVA",
   php: "PHASEO_SDK_VERSION_OVERRIDE_PHP",
   ruby: "PHASEO_SDK_VERSION_OVERRIDE_RUBY",
+  agent: "PHASEO_SDK_VERSION_OVERRIDE_AGENT",
 };
 
 async function readJson<T>(filePath: string): Promise<T> {
@@ -151,6 +152,18 @@ async function main(): Promise<void> {
           filePath: file("packages", "sdk", "sdk-ruby", "lib", "index.rb"),
           pattern: /def initialize\(config = nil, sdk_version = "([^"]+)"\)/m,
           label: "TelemetryRecorder default version",
+        },
+      ],
+    },
+    {
+      sdkKey: "agent",
+      sdkLabel: "Agent TypeScript",
+      packageJsonPath: file("packages", "sdk", "agent-sdk-ts", "package.json"),
+      checks: [
+        {
+          filePath: file("packages", "sdk", "agent-sdk-ts", "src", "devtools.ts"),
+          pattern: /const AGENT_SDK_VERSION = "([^"]+)"/m,
+          label: "AGENT_SDK_VERSION constant",
         },
       ],
     },

@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Phaseo.Gen;
@@ -100,5 +103,25 @@ public sealed class Client
 			throw new ApiErrorException((int)response.StatusCode, raw, BuildErrorMessage((int)response.StatusCode, raw));
 		}
 		return bytes;
+	}
+
+	public async IAsyncEnumerable<string> StreamLinesAsync(string method, string path, Dictionary<string, string>? query = null, Dictionary<string, string>? headers = null, object? body = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+	{
+		using var request = BuildRequest(method, path, query, headers, body);
+		request.Headers.TryAddWithoutValidation("Accept", "text/event-stream");
+		using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+		if (!response.IsSuccessStatusCode)
+		{
+			var raw = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+			throw new ApiErrorException((int)response.StatusCode, raw, BuildErrorMessage((int)response.StatusCode, raw));
+		}
+		await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+		using var reader = new StreamReader(stream);
+		while (!reader.EndOfStream)
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			var line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+			if (line is not null) yield return line;
+		}
 	}
 }

@@ -1,18 +1,9 @@
 ---
-icon: "package"
 title: "Installation"
 description: "Install the Java Agent SDK and Phaseo Java Client SDK."
 ---
 
-## Requirements
-
-- Java 17 or newer
-- Maven
-- a Phaseo API key
-
-## Maven
-
-Add both artifacts to your project:
+Add both artifacts to your Maven project:
 
 ```xml
 <dependency>
@@ -27,11 +18,9 @@ Add both artifacts to your project:
 </dependency>
 ```
 
-## Environment
-
 Set `PHASEO_API_KEY` in the application environment. `AgentSdk.createGatewayAgentClient()` reads it automatically.
 
 ## Next
 
 - [Overview](./agent-sdk-overview)
-- [Build with the Java Agent SDK](./agent-sdk)
+- [Usage](./agent-sdk)
