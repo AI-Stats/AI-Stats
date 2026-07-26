@@ -867,13 +867,52 @@ jobs:
                   GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
             - name: Set up Python (for PyPI publish)
-              if: github.ref == 'refs/heads/main' && steps.changesets.outputs.published == 'true'
               uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
               with:
                   python-version: 3.12
 
+            - name: Restore committed Python SDK release state
+              run: git restore --source=HEAD --staged --worktree -- packages/sdk/sdk-py
+
+            - name: Check Python SDK release status
+              id: pypi-release
+              shell: bash
+              run: |
+                  python - <<'PY'
+                  import json
+                  import os
+                  import pathlib
+                  import tomllib
+                  import urllib.error
+                  import urllib.parse
+                  import urllib.request
+
+                  pyproject_path = pathlib.Path("packages/sdk/sdk-py/pyproject.toml")
+                  project = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))["project"]
+                  package = project["name"]
+                  version = project["version"]
+                  url = f"https://pypi.org/pypi/{urllib.parse.quote(package)}/json"
+
+                  try:
+                      with urllib.request.urlopen(url, timeout=30) as response:
+                          releases = json.load(response).get("releases", {})
+                  except urllib.error.HTTPError as error:
+                      if error.code != 404:
+                          raise
+                      releases = {}
+
+                  should_publish = version not in releases
+                  with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+                      print(f"package={package}", file=output)
+                      print(f"version={version}", file=output)
+                      print(f"should_publish={str(should_publish).lower()}", file=output)
+
+                  status = "is missing from" if should_publish else "already exists on"
+                  print(f"{package} {version} {status} PyPI")
+                  PY
+
             - name: Build Python SDK
-              if: github.ref == 'refs/heads/main' && steps.changesets.outputs.published == 'true'
+              if: steps.pypi-release.outputs.should_publish == 'true'
               working-directory: packages/sdk/sdk-py
               run: |
                   python -m pip install --upgrade pip
@@ -881,7 +920,7 @@ jobs:
                   python -m build
 
             - name: Publish Python SDK to PyPI (Trusted Publishing)
-              if: github.ref == 'refs/heads/main' && steps.changesets.outputs.published == 'true'
+              if: steps.pypi-release.outputs.should_publish == 'true'
               uses: pypa/gh-action-pypi-publish@ba38be9e461d3875417946c167d0b5f3d385a247
               with:
                   packages-dir: packages/sdk/sdk-py/dist
