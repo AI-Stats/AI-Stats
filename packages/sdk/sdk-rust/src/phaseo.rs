@@ -4,6 +4,7 @@ use std::error::Error;
 use std::fmt;
 
 use serde_json::Value;
+use url::{Host, Url};
 
 const DEFAULT_BASE_URL: &str = "https://api.phaseo.app/v1";
 
@@ -96,15 +97,22 @@ impl Phaseo {
 
     pub fn with_base_url(mut self, base_url: impl Into<String>) -> Result<Self, PhaseoError> {
         let base_url = base_url.into();
-        if !(base_url.starts_with("https://")
-            || base_url.starts_with("http://localhost")
-            || base_url.starts_with("http://127.0.0.1"))
-        {
+        let parsed = Url::parse(&base_url)
+            .map_err(|_| PhaseoError::configuration("Phaseo base URL must be a valid URL"))?;
+        let is_https = parsed.scheme() == "https" && parsed.host().is_some();
+        let is_loopback_http = parsed.scheme() == "http"
+            && match parsed.host() {
+                Some(Host::Domain(host)) => host.eq_ignore_ascii_case("localhost"),
+                Some(Host::Ipv4(address)) => address.is_loopback(),
+                Some(Host::Ipv6(address)) => address.is_loopback(),
+                None => false,
+            };
+        if !is_https && !is_loopback_http {
             return Err(PhaseoError::configuration(
                 "Phaseo base URL must use HTTPS (HTTP is allowed only for localhost)",
             ));
         }
-        self.base_url = base_url.trim_end_matches('/').to_string();
+        self.base_url = parsed.as_str().trim_end_matches('/').to_string();
         Ok(self)
     }
 
@@ -205,6 +213,27 @@ mod tests {
             .with_base_url("http://example.com/v1")
             .unwrap_err();
         assert!(error.message.contains("HTTPS"));
+    }
+
+    #[test]
+    fn rejects_hosts_that_only_start_with_localhost() {
+        let error = Phaseo::new("test")
+            .unwrap()
+            .with_base_url("http://localhost.attacker.example/v1")
+            .unwrap_err();
+        assert!(error.message.contains("HTTPS"));
+    }
+
+    #[test]
+    fn permits_exact_loopback_http_urls() {
+        Phaseo::new("test")
+            .unwrap()
+            .with_base_url("http://localhost:8787/v1")
+            .unwrap();
+        Phaseo::new("test")
+            .unwrap()
+            .with_base_url("http://[::1]:8787/v1")
+            .unwrap();
     }
 
     #[test]

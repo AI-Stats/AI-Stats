@@ -346,6 +346,8 @@ pub struct RunStep {
 pub struct RunRecord {
     pub id: String,
     pub agent_id: String,
+    pub model: String,
+    pub max_steps: usize,
     pub status: String,
     pub input: Value,
     pub context: Value,
@@ -449,11 +451,20 @@ impl Agent {
     ) -> Result<RunResult, AgentError> {
         let timestamp = now_ms();
         let run_id = new_run_id();
+        let model = options
+            .model
+            .unwrap_or_else(|| self.definition.model.clone());
+        let max_steps = options
+            .max_steps
+            .unwrap_or(self.definition.max_steps)
+            .max(1);
         let input = options.input;
         let mut result = RunResult {
             run: RunRecord {
                 id: run_id.clone(),
                 agent_id: self.definition.id.clone(),
+                model,
+                max_steps,
                 status: "running".to_string(),
                 input: input.clone(),
                 context: options.context,
@@ -469,13 +480,7 @@ impl Agent {
             usage: UsageSummary::default(),
         };
         emit(&mut on_event, &result, "run.started", Value::Null);
-        self.drive(
-            client,
-            &mut result,
-            options.model.as_deref(),
-            options.max_steps,
-            &mut on_event,
-        )?;
+        self.drive(client, &mut result, &mut on_event)?;
         Ok(result)
     }
 
@@ -518,7 +523,7 @@ impl Agent {
         result.run.status = "running".to_string();
         result.run.updated_at_ms = now_ms();
         emit(&mut on_event, &result, "run.resumed", Value::Null);
-        self.drive(client, &mut result, None, None, &mut on_event)?;
+        self.drive(client, &mut result, &mut on_event)?;
         Ok(result)
     }
 
@@ -526,13 +531,9 @@ impl Agent {
         &self,
         client: &mut dyn ModelClient,
         result: &mut RunResult,
-        model_override: Option<&str>,
-        max_steps_override: Option<usize>,
         on_event: &mut Option<&mut dyn FnMut(&AgentEvent)>,
     ) -> Result<(), AgentError> {
-        let max_steps = max_steps_override
-            .unwrap_or(self.definition.max_steps)
-            .max(1);
+        let max_steps = result.run.max_steps.max(1);
 
         while result.run.step_count < max_steps {
             let step_index = result.run.step_count;
@@ -545,7 +546,7 @@ impl Agent {
 
             let request = ModelRequest {
                 agent_id: self.definition.id.clone(),
-                model: model_override.unwrap_or(&self.definition.model).to_string(),
+                model: result.run.model.clone(),
                 instructions: self.definition.instructions.clone(),
                 messages: result.messages.clone(),
                 tools: self.definition.tools.iter().map(Tool::spec).collect(),
@@ -578,18 +579,32 @@ impl Agent {
 
             if !response.message.tool_calls.is_empty() {
                 let pending = self.pending_tools(&response.message.tool_calls)?;
+                let automatic: Vec<ToolCall> = response
+                    .message
+                    .tool_calls
+                    .iter()
+                    .filter(|call| !pending.iter().any(|item| item.call.id == call.id))
+                    .cloned()
+                    .collect();
+                self.execute_tools(result, &automatic, on_event)?;
                 if !pending.is_empty() {
+                    let pause_kind = if pending.iter().all(|call| call.kind == "external_output") {
+                        "external_output"
+                    } else if pending.iter().all(|call| call.kind == "approval") {
+                        "tool_approval"
+                    } else {
+                        "tool_input"
+                    };
                     result.run.status = "waiting_for_human".to_string();
                     result.run.pause = Some(HumanPause {
                         reason: "Pending tool calls require input".to_string(),
                         payload: json!({"tool_calls": pending}),
-                        kind: "tool_approval".to_string(),
+                        kind: pause_kind.to_string(),
                         pending_tool_calls: pending,
                     });
                     emit(on_event, result, "run.paused", Value::Null);
                     return Ok(());
                 }
-                self.execute_tools(result, &response.message.tool_calls, on_event)?;
                 continue;
             }
 
@@ -933,7 +948,10 @@ fn model_response_from_body(
         usage: UsageSummary {
             input_tokens,
             output_tokens,
-            cached_tokens: integer(&usage, &["cached_tokens", "cache_read_input_tokens"]),
+            cached_tokens: usage
+                .pointer("/input_tokens_details/cached_tokens")
+                .and_then(Value::as_u64)
+                .unwrap_or_else(|| integer(&usage, &["cached_tokens", "cache_read_input_tokens"])),
             total_tokens,
             cost: body
                 .pointer("/meta/cost")
@@ -1070,11 +1088,13 @@ mod tests {
 
     struct RetryReviewClient {
         calls: usize,
+        models: Vec<String>,
     }
 
     impl ModelClient for RetryReviewClient {
-        fn generate(&mut self, _request: &ModelRequest) -> Result<ModelResponse, AgentError> {
+        fn generate(&mut self, request: &ModelRequest) -> Result<ModelResponse, AgentError> {
             self.calls += 1;
+            self.models.push(request.model.clone());
             if self.calls == 1 {
                 return Err(AgentError::new("temporary failure"));
             }
@@ -1105,19 +1125,104 @@ mod tests {
                     }
                 }),
         );
-        let mut client = RetryReviewClient { calls: 0 };
-        let paused = agent
-            .run(&mut client, RunOptions::new("Prepare deployment"))
-            .unwrap();
+        let mut client = RetryReviewClient {
+            calls: 0,
+            models: Vec::new(),
+        };
+        let mut run_options = RunOptions::new("Prepare deployment");
+        run_options.model = Some("openai/override-model".to_string());
+        run_options.max_steps = Some(3);
+        let paused = agent.run(&mut client, run_options).unwrap();
         assert_eq!(paused.run.status, "waiting_for_human");
         assert_eq!(paused.steps[0].model_attempts, 2);
+        assert_eq!(paused.run.model, "openai/override-model");
+        assert_eq!(paused.run.max_steps, 3);
 
         let mut options = ContinueOptions::new(paused);
         options.human_input = Some("approved".to_string());
         let completed = agent.continue_run(&mut client, options).unwrap();
         assert_eq!(completed.run.status, "completed");
         assert_eq!(completed.output, json!("Deploy the change"));
+        assert!(client
+            .models
+            .iter()
+            .all(|model| model == "openai/override-model"));
         serde_json::to_string(&completed).unwrap();
+    }
+
+    struct MixedToolClient {
+        calls: usize,
+    }
+
+    impl ModelClient for MixedToolClient {
+        fn generate(&mut self, _request: &ModelRequest) -> Result<ModelResponse, AgentError> {
+            self.calls += 1;
+            if self.calls == 1 {
+                return Ok(ModelResponse {
+                    message: Message {
+                        role: "assistant".to_string(),
+                        tool_calls: vec![
+                            ToolCall {
+                                id: "call_local".to_string(),
+                                name: "local".to_string(),
+                                input: json!({"value": 1}),
+                            },
+                            ToolCall {
+                                id: "call_external".to_string(),
+                                name: "external".to_string(),
+                                input: json!({"value": 2}),
+                            },
+                        ],
+                        ..Message::default()
+                    },
+                    ..ModelResponse::default()
+                });
+            }
+            Ok(ModelResponse {
+                message: Message::assistant("Both tool results received."),
+                ..ModelResponse::default()
+            })
+        }
+    }
+
+    #[test]
+    fn executes_automatic_tools_before_pausing_for_external_outputs() {
+        let agent = create_agent(
+            AgentDefinition::new("mixed-tools", "openai/gpt-5.4-nano")
+                .tool(Tool::new(
+                    "local",
+                    "Run locally",
+                    json!({"type": "object"}),
+                    |input, _context| Ok(json!({"local": input["value"]})),
+                ))
+                .tool(Tool::external(
+                    "external",
+                    "Run externally",
+                    json!({"type": "object"}),
+                )),
+        );
+        let mut client = MixedToolClient { calls: 0 };
+        let paused = agent
+            .run(&mut client, RunOptions::new("Use both tools"))
+            .unwrap();
+
+        let pause = paused.run.pause.as_ref().unwrap();
+        assert_eq!(pause.kind, "external_output");
+        assert_eq!(pause.pending_tool_calls.len(), 1);
+        assert_eq!(pause.pending_tool_calls[0].call.id, "call_external");
+        assert!(paused.messages.iter().any(|message| {
+            message.tool_call_id.as_deref() == Some("call_local")
+                && message.content.contains("local")
+        }));
+
+        let mut options = ContinueOptions::new(paused);
+        options.tool_outputs.push(ToolOutput {
+            tool_call_id: "call_external".to_string(),
+            output: json!({"external": 2}),
+        });
+        let completed = agent.continue_run(&mut client, options).unwrap();
+        assert_eq!(completed.run.status, "completed");
+        assert_eq!(completed.output, json!("Both tool results received."));
     }
 
     #[test]
@@ -1140,5 +1245,23 @@ mod tests {
         .unwrap();
         assert_eq!(response.message.tool_calls[0].input["slug"], "rust");
         assert_eq!(response.usage.total_tokens, 5);
+    }
+
+    #[test]
+    fn reads_nested_responses_cached_token_usage() {
+        let response = model_response_from_body(
+            json!({
+                "id": "resp_cached",
+                "output_text": "cached",
+                "usage": {
+                    "input_tokens": 10,
+                    "output_tokens": 2,
+                    "input_tokens_details": {"cached_tokens": 7}
+                }
+            }),
+            None,
+        )
+        .unwrap();
+        assert_eq!(response.usage.cached_tokens, 7);
     }
 }
