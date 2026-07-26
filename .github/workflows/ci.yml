@@ -509,7 +509,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                sdk: [go, csharp, java, php, ruby]
+                sdk: [go, csharp, java, php, ruby, rust]
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
@@ -562,6 +562,10 @@ jobs:
               uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600
               with:
                   ruby-version: "3.2"
+
+            - name: Setup Rust
+              if: matrix.sdk == 'rust'
+              run: rustup component add clippy rustfmt
 
             - name: Run lifecycle tests
               run: pnpm run test:sdk-${{ matrix.sdk }}
@@ -777,7 +781,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                sdk: [ts, py, go, csharp, java, php, ruby]
+                sdk: [ts, py, go, csharp, java, php, ruby, rust]
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
             - name: Setup pnpm
@@ -830,6 +834,9 @@ jobs:
               uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9
               with:
                   ruby-version: "3.2"
+            - name: Setup Rust
+              if: matrix.sdk == 'rust'
+              run: rustup component add clippy rustfmt
             - name: Run Agent SDK tests
               run: pnpm run test:agent-sdk-${{ matrix.sdk }}
             - name: Check live smoke credentials

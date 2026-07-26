@@ -1,0 +1,13 @@
+{
+  "name": "@phaseo/agent-sdk-rust",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Phaseo Agent SDK for Rust",
+  "license": "MIT",
+  "scripts": {
+    "build": "cargo build",
+    "test": "cargo test --all-targets",
+    "lint": "cargo clippy --all-targets -- -D warnings",
+    "package": "cargo package"
+  }
+}

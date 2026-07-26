@@ -15,12 +15,12 @@ second generated client or a hosted orchestration service.
 | Java | Published | Conformant | Executors, iterable streams, functional interfaces, and application state accessors. |
 | PHP | Published | Conformant | Synchronous iteration, callback tools, exact-ID continuation, and application state accessors. |
 | Ruby | Published | Conformant | Enumerators, thread-based tools, callback validation, and duck-typed state accessors. |
-| Rust | Preview/alpha | Not started | Do not add until the base crate has complete package metadata, CI coverage, and a verified crates.io dry run. |
+| Rust | Supported | Supported (synchronous) | Native tool loops, retries, approval/manual-tool pauses, human review, lifecycle events, usage, and serializable run state; async streaming remains additive. |
 | C++ | Transport-only preview | Not started | Do not add until the base SDK has a supported CMake package and distribution strategy. |
 
 ## Shared Agent SDK contract
 
-Every supported language must implement these behaviors, using native naming and
+Every conformant language must implement these behaviors, using native naming and
 iteration primitives where appropriate:
 
 1. Executable tools, deterministic bounded concurrency, timeouts, runtime input/output validation, and selectable fail-run or return-to-model error handling.
@@ -39,6 +39,8 @@ or helper names exist.
 TypeScript is the reference implementation. A new runtime behavior is not considered
 cross-language until the equivalent conformance scenario passes in Python, Go, C#,
 Java, PHP, and Ruby, or the language package documents a runtime limitation.
+Rust 0.1 is supported with an explicitly synchronous contract and will move to
+Conformant after real model streaming and independently replayable streams land.
 
 ## Recommended order
 
@@ -49,14 +51,14 @@ for TypeScript, Python, Go, C#, Java, PHP, and Ruby. New shared behavior starts 
 TypeScript with focused contract tests, then moves to the other languages when the
 contract is stable.
 
-### Deferred: Rust
+### Rust
 
-Use a separate `phaseo-agent-sdk` crate that depends on `phaseo-rust-sdk`.
-Start with the base SDK's synchronous transport model; do not introduce a second
-HTTP client. Define `ModelClient`, `Tool`, `Agent`, `RunResult`, and a gateway
-adapter over `/responses`. Add async only as an additive feature after the base
-crate supports it. Before publishing, populate crate metadata, run `cargo package
---list`, and run `cargo publish --dry-run`.
+The `phaseo-agent` crate depends on `phaseo` and follows the base SDK's synchronous
+transport model. It defines `ModelClient`, `Tool`, `Agent`, `RunResult`, and a
+gateway adapter over `/responses`. Async streaming remains an additive feature;
+the synchronous runtime and its serialized continuation contract remain stable.
+Before publishing, validate crate metadata, package the base crate, and run the
+Rust lifecycle and Agent SDK conformance suites.
 
 ### Deferred: C++
 

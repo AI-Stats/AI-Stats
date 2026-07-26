@@ -1,7 +1,17 @@
 [package]
-name = "phaseo-rust-sdk"
-version = "0.2.1-alpha.0"
+name = "phaseo"
+version = "0.1.0"
 edition = "2021"
+rust-version = "1.86"
+description = "Official Rust SDK for Phaseo Gateway"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/phaseoteam/Phaseo"
+homepage = "https://phaseo.app"
+documentation = "https://docs.rs/phaseo"
+keywords = ["ai", "llm", "gateway", "phaseo"]
+categories = ["api-bindings", "web-programming::http-client"]
+exclude = ["package.json", "tests/smoke_*.rs"]
 
 [dependencies]
 serde_json = "1.0"

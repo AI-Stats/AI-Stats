@@ -74,6 +74,27 @@ jobs:
           (cd packages/sdk/sdk-go && go test ./...)
           (cd packages/sdk/agent-sdk-go && go test ./...)
 
+  rust:
+    name: Rust readiness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - name: Setup Rust checks
+        run: |
+          rustup component add clippy rustfmt
+          rustup toolchain install 1.86.0 --profile minimal
+      - name: Build, test, lint, and package
+        run: |
+          cargo test --manifest-path packages/sdk/sdk-rust/Cargo.toml --all-targets
+          cargo clippy --manifest-path packages/sdk/sdk-rust/Cargo.toml --all-targets -- -D warnings
+          RUSTDOCFLAGS="-D warnings" cargo doc --manifest-path packages/sdk/sdk-rust/Cargo.toml --locked --no-deps
+          cargo +1.86.0 check --manifest-path packages/sdk/sdk-rust/Cargo.toml --locked
+          cargo package --manifest-path packages/sdk/sdk-rust/Cargo.toml
+          cargo test --manifest-path packages/sdk/agent-sdk-rust/Cargo.toml --all-targets
+          cargo clippy --manifest-path packages/sdk/agent-sdk-rust/Cargo.toml --all-targets -- -D warnings
+          RUSTDOCFLAGS="-D warnings" cargo doc --manifest-path packages/sdk/agent-sdk-rust/Cargo.toml --locked --no-deps
+          cargo +1.86.0 check --manifest-path packages/sdk/agent-sdk-rust/Cargo.toml --locked
+
   python-agent:
     name: Python Agent SDK readiness
     runs-on: ubuntu-latest
