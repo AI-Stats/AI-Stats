@@ -138,12 +138,6 @@ export default async function Page({
 	const primaryOrganisationId = members[0]?.organisation_id ?? null;
 	const primaryOrganisationName =
 		members[0]?.organisation?.name ?? primaryOrganisationId;
-	const organisationCount = new Set(
-		members.map((member) => member.organisation_id).filter(Boolean),
-	).size;
-	const availableCount = members.filter(
-		(member) => member.status === "Available",
-	).length;
 	const releaseSpan = getReleaseSpan(members);
 
 	return (
@@ -192,8 +186,6 @@ export default async function Page({
 					<dl className="grid grid-cols-2 border-y border-border/70 lg:border-y-0">
 						{[
 							{ label: "Models", value: String(members.length) },
-							{ label: "Available", value: String(availableCount) },
-							{ label: "Creators", value: String(organisationCount) },
 							{
 								label: "Release span",
 								value: releaseSpan ? (
@@ -216,7 +208,7 @@ export default async function Page({
 						].map((stat) => (
 							<div
 								key={stat.label}
-								className="border-b border-r border-border/70 px-4 py-3 even:border-r-0 [&:nth-child(n+3)]:border-b-0"
+								className="border-r border-border/70 px-4 py-4 last:border-r-0"
 							>
 								<dt className="text-xs font-medium text-muted-foreground">
 									{stat.label}
