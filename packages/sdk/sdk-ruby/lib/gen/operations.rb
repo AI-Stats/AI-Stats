@@ -3,6 +3,18 @@ require_relative "client"
 module Phaseo
   module Gen
     module Operations
+      def self.addGuardrailKeys(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{path["id"]}/keys/add"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.addGuardrailMembers(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{path["id"]}/members/add"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.calculatePricing(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/pricing/calculate"
@@ -66,6 +78,12 @@ module Phaseo
       def self.createEmbedding(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/embeddings"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.createGuardrail(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails"
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -159,6 +177,12 @@ module Phaseo
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.deleteGuardrail(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{path["id"]}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.deleteVideo(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/videos/#{path["video_id"]}"
@@ -222,6 +246,12 @@ module Phaseo
       def self.getGeneration(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/generations"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getGuardrail(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{path["id"]}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -363,6 +393,24 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listGuardrailKeys(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{path["id"]}/keys"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listGuardrailMembers(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{path["id"]}/members"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listGuardrails(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listModelEndpoints(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/models/#{path["author"]}/#{path["slug"]}/endpoints"
@@ -435,6 +483,24 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.removeGuardrailKeys(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{path["id"]}/keys/remove"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.removeGuardrailMembers(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{path["id"]}/members/remove"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.replaceGuardrailKeys(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{path["id"]}/keys"
+        client.request(method: "PUT", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.retrieveBatch(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/batches/#{path["batch_id"]}"
@@ -486,6 +552,12 @@ module Phaseo
       def self.updateApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/keys/#{path["id"]}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateGuardrail(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/guardrails/#{path["id"]}"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 

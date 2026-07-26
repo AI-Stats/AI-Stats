@@ -5,6 +5,16 @@ pub fn no_query() -> HashMap<String, String> {
 	HashMap::new()
 }
 
+pub fn addGuardrailKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}/keys/add", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn addGuardrailMembers<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}/members/add", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn calculatePricing<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/pricing/calculate");
 	client.request("POST", &resolved_path, body)
@@ -57,6 +67,11 @@ pub fn createChatCompletion<T: Transport>(client: &Client<T>, path: &HashMap<Str
 
 pub fn createEmbedding<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/embeddings");
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn createGuardrail<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/guardrails");
 	client.request("POST", &resolved_path, body)
 }
 
@@ -135,6 +150,11 @@ pub fn deleteApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, Str
 	client.request("DELETE", &resolved_path, body)
 }
 
+pub fn deleteGuardrail<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
 pub fn deleteVideo<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/videos/{}", path.get("video_id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
@@ -187,6 +207,11 @@ pub fn getCurrentApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String,
 
 pub fn getGeneration<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/generations");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getGuardrail<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
 }
 
@@ -305,6 +330,21 @@ pub fn listFiles<T: Transport>(client: &Client<T>, path: &HashMap<String, String
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listGuardrailKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}/keys", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listGuardrailMembers<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}/members", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listGuardrails<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/guardrails");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listModelEndpoints<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/models/{}/{}/endpoints", path.get("author").cloned().unwrap_or_default(), path.get("slug").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
@@ -365,6 +405,21 @@ pub fn openAsyncJobWebSocket<T: Transport>(client: &Client<T>, path: &HashMap<St
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn removeGuardrailKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}/keys/remove", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn removeGuardrailMembers<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}/members/remove", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn replaceGuardrailKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}/keys", path.get("id").cloned().unwrap_or_default());
+	client.request("PUT", &resolved_path, body)
+}
+
 pub fn retrieveBatch<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/batches/{}", path.get("batch_id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
@@ -407,6 +462,11 @@ pub fn retrieveFileContent<T: Transport>(client: &Client<T>, path: &HashMap<Stri
 
 pub fn updateApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/keys/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateGuardrail<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/guardrails/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
 }
 

@@ -6,6 +6,16 @@ import java.util.Map;
 public final class Operations {
 	private Operations() {}
 
+	public static Object addGuardrailKeys(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/guardrails/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/keys/add";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Object addGuardrailMembers(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/guardrails/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/members/add";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Object calculatePricing(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/pricing/calculate";
 		return client.request("POST", resolvedPath, query, headers, body);
@@ -58,6 +68,11 @@ public final class Operations {
 
 	public static Object createEmbedding(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/embeddings";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Object createGuardrail(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/guardrails";
 		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
@@ -136,6 +151,11 @@ public final class Operations {
 		return client.request("DELETE", resolvedPath, query, headers, body);
 	}
 
+	public static Object deleteGuardrail(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/guardrails/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("DELETE", resolvedPath, query, headers, body);
+	}
+
 	public static Object deleteVideo(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/videos/" + (path != null && path.containsKey("video_id") ? path.get("video_id") : "");
 		return client.request("DELETE", resolvedPath, query, headers, body);
@@ -188,6 +208,11 @@ public final class Operations {
 
 	public static Object getGeneration(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/generations";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object getGuardrail(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/guardrails/" + (path != null && path.containsKey("id") ? path.get("id") : "");
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
@@ -306,6 +331,21 @@ public final class Operations {
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Object listGuardrailKeys(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/guardrails/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/keys";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object listGuardrailMembers(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/guardrails/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/members";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object listGuardrails(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/guardrails";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Object listModelEndpoints(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/models/" + (path != null && path.containsKey("author") ? path.get("author") : "") + "/" + (path != null && path.containsKey("slug") ? path.get("slug") : "") + "/endpoints";
 		return client.request("GET", resolvedPath, query, headers, body);
@@ -366,6 +406,21 @@ public final class Operations {
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Object removeGuardrailKeys(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/guardrails/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/keys/remove";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Object removeGuardrailMembers(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/guardrails/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/members/remove";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Object replaceGuardrailKeys(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/guardrails/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/keys";
+		return client.request("PUT", resolvedPath, query, headers, body);
+	}
+
 	public static Object retrieveBatch(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/batches/" + (path != null && path.containsKey("batch_id") ? path.get("batch_id") : "");
 		return client.request("GET", resolvedPath, query, headers, body);
@@ -408,6 +463,11 @@ public final class Operations {
 
 	public static Object updateApiKey(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/keys/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("PATCH", resolvedPath, query, headers, body);
+	}
+
+	public static Object updateGuardrail(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/guardrails/" + (path != null && path.containsKey("id") ? path.get("id") : "");
 		return client.request("PATCH", resolvedPath, query, headers, body);
 	}
 

@@ -14,6 +14,18 @@ import type {
   ChatMessage,
   DataModel,
   FileResponse as FileObject,
+  GuardrailCreateRequest,
+  GuardrailKeyAddResponse,
+  GuardrailKeyIdsRequest,
+  GuardrailKeyListResponse,
+  GuardrailKeySetResponse,
+  GuardrailListResponse,
+  GuardrailMemberAddResponse,
+  GuardrailMemberListResponse,
+  GuardrailRemovalResponse,
+  GuardrailResponse,
+  GuardrailUpdateRequest,
+  GuardrailUserIdsRequest,
   ImagesEditRequest,
   ImagesEditResponse,
   ImagesGenerationRequest,
@@ -48,6 +60,14 @@ import type { KnownModelId as GeneratedKnownModelId } from "./modelIds.js";
 import { verifyAsyncWebhookSignature as verifyWebhookSignatureValue } from "./webhooks.js";
 
 export type KnownModelId = GeneratedKnownModelId;
+export type {
+  Guardrail,
+  GuardrailBudgets,
+  GuardrailCreateRequest,
+  GuardrailKeyAssignment,
+  GuardrailMemberAssignment,
+  GuardrailUpdateRequest,
+} from "./oapi-gen/models/index.js";
 export type ModelIdLiteral = KnownModelId;
 /**
  * Model identifier in `provider/model` format (for example: `openai/gpt-5.4`).
@@ -1135,6 +1155,102 @@ export class Phaseo {
       "endpoints.list",
       () => ops.listEndpoints(this.client),
       () => ({})
+    );
+  }
+
+  listGuardrails(params: { offset?: number; limit?: number } = {}): Promise<GuardrailListResponse> {
+    return this.telemetry.wrap(
+      "guardrails.list",
+      () => ops.listGuardrails(this.client, { query: params }),
+      () => params
+    );
+  }
+
+  createGuardrail(body: GuardrailCreateRequest): Promise<GuardrailResponse> {
+    return this.telemetry.wrap(
+      "guardrails.create",
+      () => ops.createGuardrail(this.client, { body }),
+      () => body
+    );
+  }
+
+  getGuardrail(id: string): Promise<GuardrailResponse> {
+    return this.telemetry.wrap(
+      "guardrails.get",
+      () => ops.getGuardrail(this.client, { path: { id } }),
+      () => ({ id })
+    );
+  }
+
+  updateGuardrail(id: string, body: GuardrailUpdateRequest): Promise<GuardrailResponse> {
+    return this.telemetry.wrap(
+      "guardrails.update",
+      () => ops.updateGuardrail(this.client, { path: { id }, body }),
+      () => ({ id, ...body })
+    );
+  }
+
+  deleteGuardrail(id: string): Promise<{ deleted: boolean }> {
+    return this.telemetry.wrap(
+      "guardrails.delete",
+      () => ops.deleteGuardrail(this.client, { path: { id } }),
+      () => ({ id })
+    );
+  }
+
+  listGuardrailKeys(id: string): Promise<GuardrailKeyListResponse> {
+    return this.telemetry.wrap(
+      "guardrails.keys.list",
+      () => ops.listGuardrailKeys(this.client, { path: { id } }),
+      () => ({ id })
+    );
+  }
+
+  replaceGuardrailKeys(id: string, body: GuardrailKeyIdsRequest): Promise<GuardrailKeySetResponse> {
+    return this.telemetry.wrap(
+      "guardrails.keys.replace",
+      () => ops.replaceGuardrailKeys(this.client, { path: { id }, body }),
+      () => ({ id, ...body })
+    );
+  }
+
+  addGuardrailKeys(id: string, body: GuardrailKeyIdsRequest): Promise<GuardrailKeyAddResponse> {
+    return this.telemetry.wrap(
+      "guardrails.keys.add",
+      () => ops.addGuardrailKeys(this.client, { path: { id }, body }),
+      () => ({ id, ...body })
+    );
+  }
+
+  removeGuardrailKeys(id: string, body: GuardrailKeyIdsRequest): Promise<GuardrailRemovalResponse> {
+    return this.telemetry.wrap(
+      "guardrails.keys.remove",
+      () => ops.removeGuardrailKeys(this.client, { path: { id }, body }),
+      () => ({ id, ...body })
+    );
+  }
+
+  listGuardrailMembers(id: string): Promise<GuardrailMemberListResponse> {
+    return this.telemetry.wrap(
+      "guardrails.members.list",
+      () => ops.listGuardrailMembers(this.client, { path: { id } }),
+      () => ({ id })
+    );
+  }
+
+  addGuardrailMembers(id: string, body: GuardrailUserIdsRequest): Promise<GuardrailMemberAddResponse> {
+    return this.telemetry.wrap(
+      "guardrails.members.add",
+      () => ops.addGuardrailMembers(this.client, { path: { id }, body }),
+      () => ({ id, ...body })
+    );
+  }
+
+  removeGuardrailMembers(id: string, body: GuardrailUserIdsRequest): Promise<GuardrailRemovalResponse> {
+    return this.telemetry.wrap(
+      "guardrails.members.remove",
+      () => ops.removeGuardrailMembers(this.client, { path: { id }, body }),
+      () => ({ id, ...body })
     );
   }
 

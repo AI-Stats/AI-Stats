@@ -4,6 +4,16 @@
 #include "client.hpp"
 
 namespace phaseo::gen {
+inline Response AddGuardrailKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/keys/add";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response AddGuardrailMembers(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/members/add";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CalculatePricing(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/pricing/calculate";
 	return client.request("POST", resolved_path, body);
@@ -56,6 +66,11 @@ inline Response CreateChatCompletion(Client& client, const std::map<std::string,
 
 inline Response CreateEmbedding(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/embeddings";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response CreateGuardrail(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails";
 	return client.request("POST", resolved_path, body);
 }
 
@@ -134,6 +149,11 @@ inline Response DeleteApiKey(Client& client, const std::map<std::string, std::st
 	return client.request("DELETE", resolved_path, body);
 }
 
+inline Response DeleteGuardrail(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
 inline Response DeleteVideo(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/videos/" + (path.count("video_id") ? path.at("video_id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
@@ -186,6 +206,11 @@ inline Response GetCurrentApiKey(Client& client, const std::map<std::string, std
 
 inline Response GetGeneration(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/generations";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetGuardrail(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("GET", resolved_path, body);
 }
 
@@ -304,6 +329,21 @@ inline Response ListFiles(Client& client, const std::map<std::string, std::strin
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListGuardrailKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/keys";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListGuardrailMembers(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/members";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListGuardrails(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListModelEndpoints(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/models/" + (path.count("author") ? path.at("author") : std::string{}) + "/" + (path.count("slug") ? path.at("slug") : std::string{}) + "/endpoints";
 	return client.request("GET", resolved_path, body);
@@ -364,6 +404,21 @@ inline Response OpenAsyncJobWebSocket(Client& client, const std::map<std::string
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response RemoveGuardrailKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/keys/remove";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response RemoveGuardrailMembers(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/members/remove";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response ReplaceGuardrailKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{}) + "/keys";
+	return client.request("PUT", resolved_path, body);
+}
+
 inline Response RetrieveBatch(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/batches/" + (path.count("batch_id") ? path.at("batch_id") : std::string{});
 	return client.request("GET", resolved_path, body);
@@ -406,6 +461,11 @@ inline Response RetrieveFileContent(Client& client, const std::map<std::string, 
 
 inline Response UpdateApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateGuardrail(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/guardrails/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
 }
 

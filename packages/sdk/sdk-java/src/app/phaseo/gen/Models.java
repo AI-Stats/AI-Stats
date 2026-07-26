@@ -737,6 +737,172 @@ public final class Models {
 		public Object usage;
 	}
 
+	public static class Guardrail {
+		public java.util.List<String> allowed_api_model_ids;
+		public String created_at;
+		public Integer daily_limit_cost_nanos;
+		public Integer daily_limit_requests;
+		public String description;
+		public Boolean enabled;
+		public String id;
+		public java.util.List<String> key_ids;
+		public Object model_restriction_mode;
+		public Integer monthly_limit_cost_nanos;
+		public Integer monthly_limit_requests;
+		public String name;
+		public Boolean privacy_enable_free_may_publish_prompts;
+		public Boolean privacy_enable_free_may_train;
+		public Boolean privacy_enable_input_output_logging;
+		public Boolean privacy_enable_paid_may_train;
+		public Boolean privacy_zdr_only;
+		public Object prompt_injection_action;
+		public Boolean prompt_injection_enabled;
+		public Boolean provider_restriction_enforce_allowed;
+		public Object provider_restriction_mode;
+		public java.util.List<String> provider_restriction_provider_ids;
+		public Object sensitive_info_default_action;
+		public Boolean sensitive_info_enabled;
+		public java.util.List<Object> sensitive_info_rules;
+		public String updated_at;
+		public Integer weekly_limit_cost_nanos;
+		public Integer weekly_limit_requests;
+		public String workspace_id;
+	}
+
+	public static class GuardrailBudgets {
+		public Integer dailyCostNanos;
+		public Integer dailyRequests;
+		public Integer monthlyCostNanos;
+		public Integer monthlyRequests;
+		public Integer weeklyCostNanos;
+		public Integer weeklyRequests;
+	}
+
+	public static class GuardrailCreateRequest {
+		public java.util.List<String> allowedApiModelIds;
+		public Object budgets;
+		public String description;
+		public Boolean enabled;
+		public Object modelRestrictionMode;
+		public String name;
+		public Boolean privacyEnableFreeMayPublishPrompts;
+		public Boolean privacyEnableFreeMayTrain;
+		public Boolean privacyEnableInputOutputLogging;
+		public Boolean privacyEnablePaidMayTrain;
+		public Boolean privacyZdrOnly;
+		public Object promptInjectionAction;
+		public Boolean promptInjectionEnabled;
+		public Boolean providerRestrictionEnforceAllowed;
+		public Object providerRestrictionMode;
+		public java.util.List<String> providerRestrictionProviderIds;
+		public Object sensitiveInfoDefaultAction;
+		public Boolean sensitiveInfoEnabled;
+		public java.util.List<Object> sensitiveInfoRules;
+	}
+
+	public static class GuardrailKeyAddResponse {
+		public Integer added_count;
+		public java.util.List<Object> data;
+	}
+
+	public static class GuardrailKeyAssignment {
+		public String created_at;
+		public String key_id;
+		public String name;
+		public String prefix;
+		public String status;
+	}
+
+	public static class GuardrailKeyIdsRequest {
+		public java.util.List<String> key_ids;
+	}
+
+	public static class GuardrailKeyListResponse {
+		public java.util.List<Object> data;
+		public Integer total_count;
+	}
+
+	public static class GuardrailKeySetResponse {
+		public Object data;
+	}
+
+	public static class GuardrailListResponse {
+		public java.util.List<Object> data;
+	}
+
+	public static class GuardrailMemberAddResponse {
+		public Integer added_count;
+		public java.util.List<Object> data;
+	}
+
+	public static class GuardrailMemberAssignment {
+		public String display_name;
+		public String joined_at;
+		public String role;
+		public String user_id;
+	}
+
+	public static class GuardrailMemberListResponse {
+		public java.util.List<Object> data;
+		public Integer total_count;
+	}
+
+	public static class GuardrailRemovalResponse {
+		public Integer removed_count;
+	}
+
+	public static class GuardrailResponse {
+		public Object data;
+	}
+
+	public static class GuardrailUpdateRequest {
+		public java.util.List<String> allowedApiModelIds;
+		public Object budgets;
+		public String description;
+		public Boolean enabled;
+		public Object modelRestrictionMode;
+		public String name;
+		public Boolean privacyEnableFreeMayPublishPrompts;
+		public Boolean privacyEnableFreeMayTrain;
+		public Boolean privacyEnableInputOutputLogging;
+		public Boolean privacyEnablePaidMayTrain;
+		public Boolean privacyZdrOnly;
+		public Object promptInjectionAction;
+		public Boolean promptInjectionEnabled;
+		public Boolean providerRestrictionEnforceAllowed;
+		public Object providerRestrictionMode;
+		public java.util.List<String> providerRestrictionProviderIds;
+		public Object sensitiveInfoDefaultAction;
+		public Boolean sensitiveInfoEnabled;
+		public java.util.List<Object> sensitiveInfoRules;
+	}
+
+	public static class GuardrailUserIdsRequest {
+		public java.util.List<String> user_ids;
+	}
+
+	public static class GuardrailWriteFields {
+		public java.util.List<String> allowedApiModelIds;
+		public Object budgets;
+		public String description;
+		public Boolean enabled;
+		public Object modelRestrictionMode;
+		public String name;
+		public Boolean privacyEnableFreeMayPublishPrompts;
+		public Boolean privacyEnableFreeMayTrain;
+		public Boolean privacyEnableInputOutputLogging;
+		public Boolean privacyEnablePaidMayTrain;
+		public Boolean privacyZdrOnly;
+		public Object promptInjectionAction;
+		public Boolean promptInjectionEnabled;
+		public Boolean providerRestrictionEnforceAllowed;
+		public Object providerRestrictionMode;
+		public java.util.List<String> providerRestrictionProviderIds;
+		public Object sensitiveInfoDefaultAction;
+		public Boolean sensitiveInfoEnabled;
+		public java.util.List<Object> sensitiveInfoRules;
+	}
+
 	public static class Image {
 		public String b64_json;
 		public String revised_prompt;

@@ -1,5 +1,97 @@
 import type { Client } from "../../runtime/client.js";
 
+export type AddGuardrailKeysParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    key_ids: string[];
+  };
+};
+
+/**
+ * Adds API keys to a guardrail. Requires `guardrails:write` and an owner or admin role.
+ */
+export async function addGuardrailKeys(
+  client: Client,
+  args: AddGuardrailKeysParams = {},
+): Promise<{
+  added_count: number;
+  data: {
+    created_at?: string | null;
+    key_id: string;
+    name?: string | null;
+    prefix?: string | null;
+    status?: string | null;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}/keys/add`;
+  return client.request<{
+    added_count: number;
+    data: {
+      created_at?: string | null;
+      key_id: string;
+      name?: string | null;
+      prefix?: string | null;
+      status?: string | null;
+    }[];
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type AddGuardrailMembersParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    user_ids: string[];
+  };
+};
+
+/**
+ * Adds workspace members to a guardrail. Requires `guardrails:write` and an owner or admin role.
+ */
+export async function addGuardrailMembers(
+  client: Client,
+  args: AddGuardrailMembersParams = {},
+): Promise<{
+  added_count: number;
+  data: {
+    display_name?: string | null;
+    joined_at?: string | null;
+    role?: string | null;
+    user_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}/members/add`;
+  return client.request<{
+    added_count: number;
+    data: {
+      display_name?: string | null;
+      joined_at?: string | null;
+      role?: string | null;
+      user_id: string;
+    }[];
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CalculatePricingParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -2564,6 +2656,132 @@ export async function createEmbedding(
   });
 }
 
+export type CreateGuardrailParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    allowedApiModelIds?: string[];
+    budgets?: {
+      dailyCostNanos?: number | null;
+      dailyRequests?: number | null;
+      monthlyCostNanos?: number | null;
+      monthlyRequests?: number | null;
+      weeklyCostNanos?: number | null;
+      weeklyRequests?: number | null;
+    };
+    description?: string | null;
+    enabled?: boolean;
+    modelRestrictionMode?: "none" | "allowlist" | "blocklist";
+    name: string;
+    privacyEnableFreeMayPublishPrompts?: boolean;
+    privacyEnableFreeMayTrain?: boolean;
+    privacyEnableInputOutputLogging?: boolean;
+    privacyEnablePaidMayTrain?: boolean;
+    privacyZdrOnly?: boolean;
+    promptInjectionAction?: "flag" | "redact" | "block";
+    promptInjectionEnabled?: boolean;
+    providerRestrictionEnforceAllowed?: boolean;
+    providerRestrictionMode?: "none" | "allowlist" | "blocklist";
+    providerRestrictionProviderIds?: string[];
+    sensitiveInfoDefaultAction?: "flag" | "redact" | "block";
+    sensitiveInfoEnabled?: boolean;
+    sensitiveInfoRules?: {
+      [key: string]: unknown;
+    }[];
+  };
+};
+
+/**
+ * Creates a guardrail. Requires `guardrails:write` and an owner or admin role.
+ */
+export async function createGuardrail(
+  client: Client,
+  args: CreateGuardrailParams = {},
+): Promise<{
+  data: {
+    allowed_api_model_ids?: string[] | null;
+    created_at?: string;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    description?: string | null;
+    enabled?: boolean;
+    id: string;
+    key_ids?: string[];
+    model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    privacy_enable_free_may_publish_prompts?: boolean | null;
+    privacy_enable_free_may_train?: boolean | null;
+    privacy_enable_input_output_logging?: boolean | null;
+    privacy_enable_paid_may_train?: boolean | null;
+    privacy_zdr_only?: boolean | null;
+    prompt_injection_action?: "flag" | "redact" | "block" | null;
+    prompt_injection_enabled?: boolean | null;
+    provider_restriction_enforce_allowed?: boolean | null;
+    provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    provider_restriction_provider_ids?: string[] | null;
+    sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+    sensitive_info_enabled?: boolean | null;
+    sensitive_info_rules?:
+      | {
+          [key: string]: unknown;
+        }[]
+      | null;
+    updated_at?: string;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/guardrails";
+  return client.request<{
+    data: {
+      allowed_api_model_ids?: string[] | null;
+      created_at?: string;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      description?: string | null;
+      enabled?: boolean;
+      id: string;
+      key_ids?: string[];
+      model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      privacy_enable_free_may_publish_prompts?: boolean | null;
+      privacy_enable_free_may_train?: boolean | null;
+      privacy_enable_input_output_logging?: boolean | null;
+      privacy_enable_paid_may_train?: boolean | null;
+      privacy_zdr_only?: boolean | null;
+      prompt_injection_action?: "flag" | "redact" | "block" | null;
+      prompt_injection_enabled?: boolean | null;
+      provider_restriction_enforce_allowed?: boolean | null;
+      provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      provider_restriction_provider_ids?: string[] | null;
+      sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+      sensitive_info_enabled?: boolean | null;
+      sensitive_info_rules?:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      updated_at?: string;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateImageParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -4470,6 +4688,37 @@ export async function deleteApiKey(
   });
 }
 
+export type DeleteGuardrailParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Deletes a guardrail and its assignments. Requires `guardrails:delete` and an owner or admin role.
+ */
+export async function deleteGuardrail(
+  client: Client,
+  args: DeleteGuardrailParams = {},
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteVideoParams = {
   path?: {
     video_id: string;
@@ -5155,6 +5404,105 @@ export async function getGeneration(
       prompt_tokens?: number;
       total_tokens?: number;
     } | null;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetGuardrailParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns a guardrail and its assigned key IDs. Requires `guardrails:read`.
+ */
+export async function getGuardrail(
+  client: Client,
+  args: GetGuardrailParams = {},
+): Promise<{
+  data: {
+    allowed_api_model_ids?: string[] | null;
+    created_at?: string;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    description?: string | null;
+    enabled?: boolean;
+    id: string;
+    key_ids?: string[];
+    model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    privacy_enable_free_may_publish_prompts?: boolean | null;
+    privacy_enable_free_may_train?: boolean | null;
+    privacy_enable_input_output_logging?: boolean | null;
+    privacy_enable_paid_may_train?: boolean | null;
+    privacy_zdr_only?: boolean | null;
+    prompt_injection_action?: "flag" | "redact" | "block" | null;
+    prompt_injection_enabled?: boolean | null;
+    provider_restriction_enforce_allowed?: boolean | null;
+    provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    provider_restriction_provider_ids?: string[] | null;
+    sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+    sensitive_info_enabled?: boolean | null;
+    sensitive_info_rules?:
+      | {
+          [key: string]: unknown;
+        }[]
+      | null;
+    updated_at?: string;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      allowed_api_model_ids?: string[] | null;
+      created_at?: string;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      description?: string | null;
+      enabled?: boolean;
+      id: string;
+      key_ids?: string[];
+      model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      privacy_enable_free_may_publish_prompts?: boolean | null;
+      privacy_enable_free_may_train?: boolean | null;
+      privacy_enable_input_output_logging?: boolean | null;
+      privacy_enable_paid_may_train?: boolean | null;
+      privacy_zdr_only?: boolean | null;
+      prompt_injection_action?: "flag" | "redact" | "block" | null;
+      prompt_injection_enabled?: boolean | null;
+      provider_restriction_enforce_allowed?: boolean | null;
+      provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      provider_restriction_provider_ids?: string[] | null;
+      sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+      sensitive_info_enabled?: boolean | null;
+      sensitive_info_rules?:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      updated_at?: string;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
+      workspace_id: string;
+    };
   }>({
     method: "GET",
     path: resolvedPath,
@@ -7260,6 +7608,194 @@ export async function listFiles(
   });
 }
 
+export type ListGuardrailKeysParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists API keys assigned to a guardrail. Requires `guardrails:read`.
+ */
+export async function listGuardrailKeys(
+  client: Client,
+  args: ListGuardrailKeysParams = {},
+): Promise<{
+  data: {
+    created_at?: string | null;
+    key_id: string;
+    name?: string | null;
+    prefix?: string | null;
+    status?: string | null;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}/keys`;
+  return client.request<{
+    data: {
+      created_at?: string | null;
+      key_id: string;
+      name?: string | null;
+      prefix?: string | null;
+      status?: string | null;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListGuardrailMembersParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists workspace members assigned to a guardrail. Requires `guardrails:read`.
+ */
+export async function listGuardrailMembers(
+  client: Client,
+  args: ListGuardrailMembersParams = {},
+): Promise<{
+  data: {
+    display_name?: string | null;
+    joined_at?: string | null;
+    role?: string | null;
+    user_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}/members`;
+  return client.request<{
+    data: {
+      display_name?: string | null;
+      joined_at?: string | null;
+      role?: string | null;
+      user_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListGuardrailsParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists guardrails in the authenticated workspace. Requires a management API key with `guardrails:read`.
+ */
+export async function listGuardrails(
+  client: Client,
+  args: ListGuardrailsParams = {},
+): Promise<{
+  data: {
+    allowed_api_model_ids?: string[] | null;
+    created_at?: string;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    description?: string | null;
+    enabled?: boolean;
+    id: string;
+    key_ids?: string[];
+    model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    privacy_enable_free_may_publish_prompts?: boolean | null;
+    privacy_enable_free_may_train?: boolean | null;
+    privacy_enable_input_output_logging?: boolean | null;
+    privacy_enable_paid_may_train?: boolean | null;
+    privacy_zdr_only?: boolean | null;
+    prompt_injection_action?: "flag" | "redact" | "block" | null;
+    prompt_injection_enabled?: boolean | null;
+    provider_restriction_enforce_allowed?: boolean | null;
+    provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    provider_restriction_provider_ids?: string[] | null;
+    sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+    sensitive_info_enabled?: boolean | null;
+    sensitive_info_rules?:
+      | {
+          [key: string]: unknown;
+        }[]
+      | null;
+    updated_at?: string;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/guardrails";
+  return client.request<{
+    data: {
+      allowed_api_model_ids?: string[] | null;
+      created_at?: string;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      description?: string | null;
+      enabled?: boolean;
+      id: string;
+      key_ids?: string[];
+      model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      privacy_enable_free_may_publish_prompts?: boolean | null;
+      privacy_enable_free_may_train?: boolean | null;
+      privacy_enable_input_output_logging?: boolean | null;
+      privacy_enable_paid_may_train?: boolean | null;
+      privacy_zdr_only?: boolean | null;
+      prompt_injection_action?: "flag" | "redact" | "block" | null;
+      prompt_injection_enabled?: boolean | null;
+      provider_restriction_enforce_allowed?: boolean | null;
+      provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      provider_restriction_provider_ids?: string[] | null;
+      sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+      sensitive_info_enabled?: boolean | null;
+      sensitive_info_rules?:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      updated_at?: string;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
+      workspace_id: string;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListModelEndpointsParams = {
   path?: {
     author: string;
@@ -9305,6 +9841,111 @@ export async function openAsyncJobWebSocket(
   });
 }
 
+export type RemoveGuardrailKeysParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    key_ids: string[];
+  };
+};
+
+/**
+ * Removes API keys from a guardrail. Requires `guardrails:write` and an owner or admin role.
+ */
+export async function removeGuardrailKeys(
+  client: Client,
+  args: RemoveGuardrailKeysParams = {},
+): Promise<{
+  removed_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}/keys/remove`;
+  return client.request<{
+    removed_count: number;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type RemoveGuardrailMembersParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    user_ids: string[];
+  };
+};
+
+/**
+ * Removes workspace members from a guardrail. Requires `guardrails:write` and an owner or admin role.
+ */
+export async function removeGuardrailMembers(
+  client: Client,
+  args: RemoveGuardrailMembersParams = {},
+): Promise<{
+  removed_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}/members/remove`;
+  return client.request<{
+    removed_count: number;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ReplaceGuardrailKeysParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    key_ids: string[];
+  };
+};
+
+/**
+ * Replaces all API-key assignments. Requires `guardrails:write` and an owner or admin role.
+ */
+export async function replaceGuardrailKeys(
+  client: Client,
+  args: ReplaceGuardrailKeysParams = {},
+): Promise<{
+  data: {
+    guardrail_id: string;
+    key_ids: string[];
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}/keys`;
+  return client.request<{
+    data: {
+      guardrail_id: string;
+      key_ids: string[];
+    };
+  }>({
+    method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type RetrieveBatchParams = {
   path?: {
     batch_id: string;
@@ -10040,6 +10681,134 @@ export async function updateApiKey(
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateGuardrailParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    allowedApiModelIds?: string[];
+    budgets?: {
+      dailyCostNanos?: number | null;
+      dailyRequests?: number | null;
+      monthlyCostNanos?: number | null;
+      monthlyRequests?: number | null;
+      weeklyCostNanos?: number | null;
+      weeklyRequests?: number | null;
+    };
+    description?: string | null;
+    enabled?: boolean;
+    modelRestrictionMode?: "none" | "allowlist" | "blocklist";
+    name?: string;
+    privacyEnableFreeMayPublishPrompts?: boolean;
+    privacyEnableFreeMayTrain?: boolean;
+    privacyEnableInputOutputLogging?: boolean;
+    privacyEnablePaidMayTrain?: boolean;
+    privacyZdrOnly?: boolean;
+    promptInjectionAction?: "flag" | "redact" | "block";
+    promptInjectionEnabled?: boolean;
+    providerRestrictionEnforceAllowed?: boolean;
+    providerRestrictionMode?: "none" | "allowlist" | "blocklist";
+    providerRestrictionProviderIds?: string[];
+    sensitiveInfoDefaultAction?: "flag" | "redact" | "block";
+    sensitiveInfoEnabled?: boolean;
+    sensitiveInfoRules?: {
+      [key: string]: unknown;
+    }[];
+  };
+};
+
+/**
+ * Updates supported fields. Requires `guardrails:write` and an owner or admin role.
+ */
+export async function updateGuardrail(
+  client: Client,
+  args: UpdateGuardrailParams = {},
+): Promise<{
+  data: {
+    allowed_api_model_ids?: string[] | null;
+    created_at?: string;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    description?: string | null;
+    enabled?: boolean;
+    id: string;
+    key_ids?: string[];
+    model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    privacy_enable_free_may_publish_prompts?: boolean | null;
+    privacy_enable_free_may_train?: boolean | null;
+    privacy_enable_input_output_logging?: boolean | null;
+    privacy_enable_paid_may_train?: boolean | null;
+    privacy_zdr_only?: boolean | null;
+    prompt_injection_action?: "flag" | "redact" | "block" | null;
+    prompt_injection_enabled?: boolean | null;
+    provider_restriction_enforce_allowed?: boolean | null;
+    provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    provider_restriction_provider_ids?: string[] | null;
+    sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+    sensitive_info_enabled?: boolean | null;
+    sensitive_info_rules?:
+      | {
+          [key: string]: unknown;
+        }[]
+      | null;
+    updated_at?: string;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/guardrails/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      allowed_api_model_ids?: string[] | null;
+      created_at?: string;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      description?: string | null;
+      enabled?: boolean;
+      id: string;
+      key_ids?: string[];
+      model_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      privacy_enable_free_may_publish_prompts?: boolean | null;
+      privacy_enable_free_may_train?: boolean | null;
+      privacy_enable_input_output_logging?: boolean | null;
+      privacy_enable_paid_may_train?: boolean | null;
+      privacy_zdr_only?: boolean | null;
+      prompt_injection_action?: "flag" | "redact" | "block" | null;
+      prompt_injection_enabled?: boolean | null;
+      provider_restriction_enforce_allowed?: boolean | null;
+      provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      provider_restriction_provider_ids?: string[] | null;
+      sensitive_info_default_action?: "flag" | "redact" | "block" | null;
+      sensitive_info_enabled?: boolean | null;
+      sensitive_info_rules?:
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      updated_at?: string;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
       workspace_id: string;
     };
   }>({

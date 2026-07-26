@@ -3,6 +3,20 @@ declare(strict_types=1);
 
 namespace Phaseo\Gen;
 
+function addGuardrailKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/{$path["id"]}/keys/add";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function addGuardrailMembers(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/{$path["id"]}/members/add";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function calculatePricing(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -77,6 +91,13 @@ function createEmbedding(Client $client, ?array $path = null, ?array $query = nu
 {
 	$path = $path ?? [];
 	$resolvedPath = "/embeddings";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function createGuardrail(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails";
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
@@ -185,6 +206,13 @@ function deleteApiKey(Client $client, ?array $path = null, ?array $query = null,
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
+function deleteGuardrail(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/{$path["id"]}";
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
 function deleteVideo(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -259,6 +287,13 @@ function getGeneration(Client $client, ?array $path = null, ?array $query = null
 {
 	$path = $path ?? [];
 	$resolvedPath = "/generations";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getGuardrail(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/{$path["id"]}";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -423,6 +458,27 @@ function listFiles(Client $client, ?array $path = null, ?array $query = null, ?a
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function listGuardrailKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/{$path["id"]}/keys";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listGuardrailMembers(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/{$path["id"]}/members";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listGuardrails(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function listModelEndpoints(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -507,6 +563,27 @@ function openAsyncJobWebSocket(Client $client, ?array $path = null, ?array $quer
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function removeGuardrailKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/{$path["id"]}/keys/remove";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function removeGuardrailMembers(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/{$path["id"]}/members/remove";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function replaceGuardrailKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/{$path["id"]}/keys";
+	return $client->request("PUT", $resolvedPath, $query, $headers, $body);
+}
+
 function retrieveBatch(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -567,6 +644,13 @@ function updateApiKey(Client $client, ?array $path = null, ?array $query = null,
 {
 	$path = $path ?? [];
 	$resolvedPath = "/keys/{$path["id"]}";
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateGuardrail(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/guardrails/{$path["id"]}";
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 

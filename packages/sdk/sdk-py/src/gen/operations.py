@@ -4,6 +4,32 @@ from typing import Any, Dict, Optional
 from .client import Client
 from . import models
 
+def addGuardrailKeys(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailKeyAddResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}/keys/add"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def addGuardrailMembers(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailMemberAddResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}/members/add"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def calculatePricing(
 	client: Client,
 	*,
@@ -144,6 +170,19 @@ def createEmbedding(
 ) -> EmbeddingsResponse:
 	path = path or {}
 	resolved_path = "/embeddings"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def createGuardrail(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailResponse:
+	path = path or {}
+	resolved_path = "/guardrails"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -342,6 +381,19 @@ def deleteApiKey(
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
+def deleteGuardrail(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> DeletedResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
 def deleteVideo(
 	client: Client,
 	*,
@@ -482,6 +534,19 @@ def getGeneration(
 ) -> GenerationResponse:
 	path = path or {}
 	resolved_path = "/generations"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def getGuardrail(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -784,6 +849,45 @@ def listFiles(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def listGuardrailKeys(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailKeyListResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}/keys"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def listGuardrailMembers(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailMemberListResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}/members"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def listGuardrails(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailListResponse:
+	path = path or {}
+	resolved_path = "/guardrails"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def listModelEndpoints(
 	client: Client,
 	*,
@@ -940,6 +1044,45 @@ def openAsyncJobWebSocket(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def removeGuardrailKeys(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailRemovalResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}/keys/remove"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def removeGuardrailMembers(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailRemovalResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}/members/remove"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def replaceGuardrailKeys(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailKeySetResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}/keys"
+	return client.request("PUT", resolved_path, query=query, headers=headers, body=body)
+
+
 def retrieveBatch(
 	client: Client,
 	*,
@@ -1057,6 +1200,19 @@ def updateApiKey(
 	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
+def updateGuardrail(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> GuardrailResponse:
+	path = path or {}
+	resolved_path = f"/guardrails/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
 def updateWorkspace(
 	client: Client,
 	*,
@@ -1109,4 +1265,4 @@ def uploadFile(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
-operations___all__ = ["calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createOcr", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "deleteApiKey", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listOrganisations", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaces", "openAsyncJobWebSocket", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateWorkspace", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]
+operations___all__ = ["addGuardrailKeys", "addGuardrailMembers", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createEmbedding", "createGuardrail", "createImage", "createImageEdit", "createModeration", "createOcr", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "deleteApiKey", "deleteGuardrail", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getGeneration", "getGuardrail", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listEndpoints", "listFiles", "listGuardrailKeys", "listGuardrailMembers", "listGuardrails", "listModelEndpoints", "listModels", "listOrganisations", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaces", "openAsyncJobWebSocket", "removeGuardrailKeys", "removeGuardrailMembers", "replaceGuardrailKeys", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateGuardrail", "updateWorkspace", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]

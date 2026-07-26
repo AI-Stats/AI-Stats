@@ -1315,6 +1315,304 @@ class GenerationResponse
 	public $usage;
 }
 
+class Guardrail
+{
+	/** @var array|null */
+	public $allowed_api_model_ids;
+	/** @var string|null */
+	public $created_at;
+	/** @var int|null */
+	public $daily_limit_cost_nanos;
+	/** @var int|null */
+	public $daily_limit_requests;
+	/** @var string|null */
+	public $description;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string */
+	public $id;
+	/** @var array|null */
+	public $key_ids;
+	/** @var string|null */
+	public $model_restriction_mode;
+	/** @var int|null */
+	public $monthly_limit_cost_nanos;
+	/** @var int|null */
+	public $monthly_limit_requests;
+	/** @var string */
+	public $name;
+	/** @var bool|null */
+	public $privacy_enable_free_may_publish_prompts;
+	/** @var bool|null */
+	public $privacy_enable_free_may_train;
+	/** @var bool|null */
+	public $privacy_enable_input_output_logging;
+	/** @var bool|null */
+	public $privacy_enable_paid_may_train;
+	/** @var bool|null */
+	public $privacy_zdr_only;
+	/** @var string|null */
+	public $prompt_injection_action;
+	/** @var bool|null */
+	public $prompt_injection_enabled;
+	/** @var bool|null */
+	public $provider_restriction_enforce_allowed;
+	/** @var string|null */
+	public $provider_restriction_mode;
+	/** @var array|null */
+	public $provider_restriction_provider_ids;
+	/** @var string|null */
+	public $sensitive_info_default_action;
+	/** @var bool|null */
+	public $sensitive_info_enabled;
+	/** @var array|null */
+	public $sensitive_info_rules;
+	/** @var string|null */
+	public $updated_at;
+	/** @var int|null */
+	public $weekly_limit_cost_nanos;
+	/** @var int|null */
+	public $weekly_limit_requests;
+	/** @var string */
+	public $workspace_id;
+}
+
+class GuardrailBudgets
+{
+	/** @var int|null */
+	public $dailyCostNanos;
+	/** @var int|null */
+	public $dailyRequests;
+	/** @var int|null */
+	public $monthlyCostNanos;
+	/** @var int|null */
+	public $monthlyRequests;
+	/** @var int|null */
+	public $weeklyCostNanos;
+	/** @var int|null */
+	public $weeklyRequests;
+}
+
+class GuardrailCreateRequest
+{
+	/** @var array|null */
+	public $allowedApiModelIds;
+	/** @var array<string, mixed>|null */
+	public $budgets;
+	/** @var string|null */
+	public $description;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $modelRestrictionMode;
+	/** @var string */
+	public $name;
+	/** @var bool|null */
+	public $privacyEnableFreeMayPublishPrompts;
+	/** @var bool|null */
+	public $privacyEnableFreeMayTrain;
+	/** @var bool|null */
+	public $privacyEnableInputOutputLogging;
+	/** @var bool|null */
+	public $privacyEnablePaidMayTrain;
+	/** @var bool|null */
+	public $privacyZdrOnly;
+	/** @var string|null */
+	public $promptInjectionAction;
+	/** @var bool|null */
+	public $promptInjectionEnabled;
+	/** @var bool|null */
+	public $providerRestrictionEnforceAllowed;
+	/** @var string|null */
+	public $providerRestrictionMode;
+	/** @var array|null */
+	public $providerRestrictionProviderIds;
+	/** @var string|null */
+	public $sensitiveInfoDefaultAction;
+	/** @var bool|null */
+	public $sensitiveInfoEnabled;
+	/** @var array|null */
+	public $sensitiveInfoRules;
+}
+
+class GuardrailKeyAddResponse
+{
+	/** @var int */
+	public $added_count;
+	/** @var array */
+	public $data;
+}
+
+class GuardrailKeyAssignment
+{
+	/** @var string|null */
+	public $created_at;
+	/** @var string */
+	public $key_id;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $prefix;
+	/** @var string|null */
+	public $status;
+}
+
+class GuardrailKeyIdsRequest
+{
+	/** @var array */
+	public $key_ids;
+}
+
+class GuardrailKeyListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class GuardrailKeySetResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class GuardrailListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class GuardrailMemberAddResponse
+{
+	/** @var int */
+	public $added_count;
+	/** @var array */
+	public $data;
+}
+
+class GuardrailMemberAssignment
+{
+	/** @var string|null */
+	public $display_name;
+	/** @var string|null */
+	public $joined_at;
+	/** @var string|null */
+	public $role;
+	/** @var string */
+	public $user_id;
+}
+
+class GuardrailMemberListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class GuardrailRemovalResponse
+{
+	/** @var int */
+	public $removed_count;
+}
+
+class GuardrailResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class GuardrailUpdateRequest
+{
+	/** @var array|null */
+	public $allowedApiModelIds;
+	/** @var array<string, mixed>|null */
+	public $budgets;
+	/** @var string|null */
+	public $description;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $modelRestrictionMode;
+	/** @var string|null */
+	public $name;
+	/** @var bool|null */
+	public $privacyEnableFreeMayPublishPrompts;
+	/** @var bool|null */
+	public $privacyEnableFreeMayTrain;
+	/** @var bool|null */
+	public $privacyEnableInputOutputLogging;
+	/** @var bool|null */
+	public $privacyEnablePaidMayTrain;
+	/** @var bool|null */
+	public $privacyZdrOnly;
+	/** @var string|null */
+	public $promptInjectionAction;
+	/** @var bool|null */
+	public $promptInjectionEnabled;
+	/** @var bool|null */
+	public $providerRestrictionEnforceAllowed;
+	/** @var string|null */
+	public $providerRestrictionMode;
+	/** @var array|null */
+	public $providerRestrictionProviderIds;
+	/** @var string|null */
+	public $sensitiveInfoDefaultAction;
+	/** @var bool|null */
+	public $sensitiveInfoEnabled;
+	/** @var array|null */
+	public $sensitiveInfoRules;
+}
+
+class GuardrailUserIdsRequest
+{
+	/** @var array */
+	public $user_ids;
+}
+
+class GuardrailWriteFields
+{
+	/** @var array|null */
+	public $allowedApiModelIds;
+	/** @var array<string, mixed>|null */
+	public $budgets;
+	/** @var string|null */
+	public $description;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $modelRestrictionMode;
+	/** @var string|null */
+	public $name;
+	/** @var bool|null */
+	public $privacyEnableFreeMayPublishPrompts;
+	/** @var bool|null */
+	public $privacyEnableFreeMayTrain;
+	/** @var bool|null */
+	public $privacyEnableInputOutputLogging;
+	/** @var bool|null */
+	public $privacyEnablePaidMayTrain;
+	/** @var bool|null */
+	public $privacyZdrOnly;
+	/** @var string|null */
+	public $promptInjectionAction;
+	/** @var bool|null */
+	public $promptInjectionEnabled;
+	/** @var bool|null */
+	public $providerRestrictionEnforceAllowed;
+	/** @var string|null */
+	public $providerRestrictionMode;
+	/** @var array|null */
+	public $providerRestrictionProviderIds;
+	/** @var string|null */
+	public $sensitiveInfoDefaultAction;
+	/** @var bool|null */
+	public $sensitiveInfoEnabled;
+	/** @var array|null */
+	public $sensitiveInfoRules;
+}
+
 class Image
 {
 	/** @var string|null */

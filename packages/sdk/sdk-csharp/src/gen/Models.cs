@@ -1825,6 +1825,419 @@ public sealed class GenerationResponse
 
 }
 
+public sealed class Guardrail
+{
+	[JsonPropertyName("allowed_api_model_ids")]
+	public List<string>? AllowedApiModelIds { get; set; }
+
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("daily_limit_cost_nanos")]
+	public int? DailyLimitCostNanos { get; set; }
+
+	[JsonPropertyName("daily_limit_requests")]
+	public int? DailyLimitRequests { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool? Enabled { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("key_ids")]
+	public List<string>? KeyIds { get; set; }
+
+	[JsonPropertyName("model_restriction_mode")]
+	public string? ModelRestrictionMode { get; set; }
+
+	[JsonPropertyName("monthly_limit_cost_nanos")]
+	public int? MonthlyLimitCostNanos { get; set; }
+
+	[JsonPropertyName("monthly_limit_requests")]
+	public int? MonthlyLimitRequests { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("privacy_enable_free_may_publish_prompts")]
+	public bool? PrivacyEnableFreeMayPublishPrompts { get; set; }
+
+	[JsonPropertyName("privacy_enable_free_may_train")]
+	public bool? PrivacyEnableFreeMayTrain { get; set; }
+
+	[JsonPropertyName("privacy_enable_input_output_logging")]
+	public bool? PrivacyEnableInputOutputLogging { get; set; }
+
+	[JsonPropertyName("privacy_enable_paid_may_train")]
+	public bool? PrivacyEnablePaidMayTrain { get; set; }
+
+	[JsonPropertyName("privacy_zdr_only")]
+	public bool? PrivacyZdrOnly { get; set; }
+
+	[JsonPropertyName("prompt_injection_action")]
+	public string? PromptInjectionAction { get; set; }
+
+	[JsonPropertyName("prompt_injection_enabled")]
+	public bool? PromptInjectionEnabled { get; set; }
+
+	[JsonPropertyName("provider_restriction_enforce_allowed")]
+	public bool? ProviderRestrictionEnforceAllowed { get; set; }
+
+	[JsonPropertyName("provider_restriction_mode")]
+	public string? ProviderRestrictionMode { get; set; }
+
+	[JsonPropertyName("provider_restriction_provider_ids")]
+	public List<string>? ProviderRestrictionProviderIds { get; set; }
+
+	[JsonPropertyName("sensitive_info_default_action")]
+	public string? SensitiveInfoDefaultAction { get; set; }
+
+	[JsonPropertyName("sensitive_info_enabled")]
+	public bool? SensitiveInfoEnabled { get; set; }
+
+	[JsonPropertyName("sensitive_info_rules")]
+	public List<Dictionary<string, object>>? SensitiveInfoRules { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+	[JsonPropertyName("weekly_limit_cost_nanos")]
+	public int? WeeklyLimitCostNanos { get; set; }
+
+	[JsonPropertyName("weekly_limit_requests")]
+	public int? WeeklyLimitRequests { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class GuardrailBudgets
+{
+	[JsonPropertyName("dailyCostNanos")]
+	public int? DailyCostNanos { get; set; }
+
+	[JsonPropertyName("dailyRequests")]
+	public int? DailyRequests { get; set; }
+
+	[JsonPropertyName("monthlyCostNanos")]
+	public int? MonthlyCostNanos { get; set; }
+
+	[JsonPropertyName("monthlyRequests")]
+	public int? MonthlyRequests { get; set; }
+
+	[JsonPropertyName("weeklyCostNanos")]
+	public int? WeeklyCostNanos { get; set; }
+
+	[JsonPropertyName("weeklyRequests")]
+	public int? WeeklyRequests { get; set; }
+
+}
+
+public sealed class GuardrailCreateRequest
+{
+	[JsonPropertyName("allowedApiModelIds")]
+	public List<string>? AllowedApiModelIds { get; set; }
+
+	[JsonPropertyName("budgets")]
+	public Dictionary<string, object>? Budgets { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool? Enabled { get; set; }
+
+	[JsonPropertyName("modelRestrictionMode")]
+	public string? ModelRestrictionMode { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("privacyEnableFreeMayPublishPrompts")]
+	public bool? PrivacyEnableFreeMayPublishPrompts { get; set; }
+
+	[JsonPropertyName("privacyEnableFreeMayTrain")]
+	public bool? PrivacyEnableFreeMayTrain { get; set; }
+
+	[JsonPropertyName("privacyEnableInputOutputLogging")]
+	public bool? PrivacyEnableInputOutputLogging { get; set; }
+
+	[JsonPropertyName("privacyEnablePaidMayTrain")]
+	public bool? PrivacyEnablePaidMayTrain { get; set; }
+
+	[JsonPropertyName("privacyZdrOnly")]
+	public bool? PrivacyZdrOnly { get; set; }
+
+	[JsonPropertyName("promptInjectionAction")]
+	public string? PromptInjectionAction { get; set; }
+
+	[JsonPropertyName("promptInjectionEnabled")]
+	public bool? PromptInjectionEnabled { get; set; }
+
+	[JsonPropertyName("providerRestrictionEnforceAllowed")]
+	public bool? ProviderRestrictionEnforceAllowed { get; set; }
+
+	[JsonPropertyName("providerRestrictionMode")]
+	public string? ProviderRestrictionMode { get; set; }
+
+	[JsonPropertyName("providerRestrictionProviderIds")]
+	public List<string>? ProviderRestrictionProviderIds { get; set; }
+
+	[JsonPropertyName("sensitiveInfoDefaultAction")]
+	public string? SensitiveInfoDefaultAction { get; set; }
+
+	[JsonPropertyName("sensitiveInfoEnabled")]
+	public bool? SensitiveInfoEnabled { get; set; }
+
+	[JsonPropertyName("sensitiveInfoRules")]
+	public List<Dictionary<string, object>>? SensitiveInfoRules { get; set; }
+
+}
+
+public sealed class GuardrailKeyAddResponse
+{
+	[JsonPropertyName("added_count")]
+	public int AddedCount { get; set; }
+
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+}
+
+public sealed class GuardrailKeyAssignment
+{
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("key_id")]
+	public string KeyId { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("prefix")]
+	public string? Prefix { get; set; }
+
+	[JsonPropertyName("status")]
+	public string? Status { get; set; }
+
+}
+
+public sealed class GuardrailKeyIdsRequest
+{
+	[JsonPropertyName("key_ids")]
+	public List<string> KeyIds { get; set; }
+
+}
+
+public sealed class GuardrailKeyListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+	[JsonPropertyName("total_count")]
+	public int TotalCount { get; set; }
+
+}
+
+public sealed class GuardrailKeySetResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class GuardrailListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+}
+
+public sealed class GuardrailMemberAddResponse
+{
+	[JsonPropertyName("added_count")]
+	public int AddedCount { get; set; }
+
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+}
+
+public sealed class GuardrailMemberAssignment
+{
+	[JsonPropertyName("display_name")]
+	public string? DisplayName { get; set; }
+
+	[JsonPropertyName("joined_at")]
+	public string? JoinedAt { get; set; }
+
+	[JsonPropertyName("role")]
+	public string? Role { get; set; }
+
+	[JsonPropertyName("user_id")]
+	public string UserId { get; set; }
+
+}
+
+public sealed class GuardrailMemberListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+	[JsonPropertyName("total_count")]
+	public int TotalCount { get; set; }
+
+}
+
+public sealed class GuardrailRemovalResponse
+{
+	[JsonPropertyName("removed_count")]
+	public int RemovedCount { get; set; }
+
+}
+
+public sealed class GuardrailResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class GuardrailUpdateRequest
+{
+	[JsonPropertyName("allowedApiModelIds")]
+	public List<string>? AllowedApiModelIds { get; set; }
+
+	[JsonPropertyName("budgets")]
+	public Dictionary<string, object>? Budgets { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool? Enabled { get; set; }
+
+	[JsonPropertyName("modelRestrictionMode")]
+	public string? ModelRestrictionMode { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("privacyEnableFreeMayPublishPrompts")]
+	public bool? PrivacyEnableFreeMayPublishPrompts { get; set; }
+
+	[JsonPropertyName("privacyEnableFreeMayTrain")]
+	public bool? PrivacyEnableFreeMayTrain { get; set; }
+
+	[JsonPropertyName("privacyEnableInputOutputLogging")]
+	public bool? PrivacyEnableInputOutputLogging { get; set; }
+
+	[JsonPropertyName("privacyEnablePaidMayTrain")]
+	public bool? PrivacyEnablePaidMayTrain { get; set; }
+
+	[JsonPropertyName("privacyZdrOnly")]
+	public bool? PrivacyZdrOnly { get; set; }
+
+	[JsonPropertyName("promptInjectionAction")]
+	public string? PromptInjectionAction { get; set; }
+
+	[JsonPropertyName("promptInjectionEnabled")]
+	public bool? PromptInjectionEnabled { get; set; }
+
+	[JsonPropertyName("providerRestrictionEnforceAllowed")]
+	public bool? ProviderRestrictionEnforceAllowed { get; set; }
+
+	[JsonPropertyName("providerRestrictionMode")]
+	public string? ProviderRestrictionMode { get; set; }
+
+	[JsonPropertyName("providerRestrictionProviderIds")]
+	public List<string>? ProviderRestrictionProviderIds { get; set; }
+
+	[JsonPropertyName("sensitiveInfoDefaultAction")]
+	public string? SensitiveInfoDefaultAction { get; set; }
+
+	[JsonPropertyName("sensitiveInfoEnabled")]
+	public bool? SensitiveInfoEnabled { get; set; }
+
+	[JsonPropertyName("sensitiveInfoRules")]
+	public List<Dictionary<string, object>>? SensitiveInfoRules { get; set; }
+
+}
+
+public sealed class GuardrailUserIdsRequest
+{
+	[JsonPropertyName("user_ids")]
+	public List<string> UserIds { get; set; }
+
+}
+
+public sealed class GuardrailWriteFields
+{
+	[JsonPropertyName("allowedApiModelIds")]
+	public List<string>? AllowedApiModelIds { get; set; }
+
+	[JsonPropertyName("budgets")]
+	public Dictionary<string, object>? Budgets { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool? Enabled { get; set; }
+
+	[JsonPropertyName("modelRestrictionMode")]
+	public string? ModelRestrictionMode { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("privacyEnableFreeMayPublishPrompts")]
+	public bool? PrivacyEnableFreeMayPublishPrompts { get; set; }
+
+	[JsonPropertyName("privacyEnableFreeMayTrain")]
+	public bool? PrivacyEnableFreeMayTrain { get; set; }
+
+	[JsonPropertyName("privacyEnableInputOutputLogging")]
+	public bool? PrivacyEnableInputOutputLogging { get; set; }
+
+	[JsonPropertyName("privacyEnablePaidMayTrain")]
+	public bool? PrivacyEnablePaidMayTrain { get; set; }
+
+	[JsonPropertyName("privacyZdrOnly")]
+	public bool? PrivacyZdrOnly { get; set; }
+
+	[JsonPropertyName("promptInjectionAction")]
+	public string? PromptInjectionAction { get; set; }
+
+	[JsonPropertyName("promptInjectionEnabled")]
+	public bool? PromptInjectionEnabled { get; set; }
+
+	[JsonPropertyName("providerRestrictionEnforceAllowed")]
+	public bool? ProviderRestrictionEnforceAllowed { get; set; }
+
+	[JsonPropertyName("providerRestrictionMode")]
+	public string? ProviderRestrictionMode { get; set; }
+
+	[JsonPropertyName("providerRestrictionProviderIds")]
+	public List<string>? ProviderRestrictionProviderIds { get; set; }
+
+	[JsonPropertyName("sensitiveInfoDefaultAction")]
+	public string? SensitiveInfoDefaultAction { get; set; }
+
+	[JsonPropertyName("sensitiveInfoEnabled")]
+	public bool? SensitiveInfoEnabled { get; set; }
+
+	[JsonPropertyName("sensitiveInfoRules")]
+	public List<Dictionary<string, object>>? SensitiveInfoRules { get; set; }
+
+}
+
 public sealed class Image
 {
 	[JsonPropertyName("b64_json")]

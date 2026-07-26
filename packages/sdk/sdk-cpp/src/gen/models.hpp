@@ -737,6 +737,172 @@ struct GenerationResponse {
 	std::optional<std::map<std::string, std::any>> usage;
 };
 
+struct Guardrail {
+	std::optional<std::vector<std::string>> allowed_api_model_ids;
+	std::string created_at;
+	std::optional<int> daily_limit_cost_nanos;
+	std::optional<int> daily_limit_requests;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::string id;
+	std::vector<std::string> key_ids;
+	std::optional<std::any> model_restriction_mode;
+	std::optional<int> monthly_limit_cost_nanos;
+	std::optional<int> monthly_limit_requests;
+	std::string name;
+	std::optional<bool> privacy_enable_free_may_publish_prompts;
+	std::optional<bool> privacy_enable_free_may_train;
+	std::optional<bool> privacy_enable_input_output_logging;
+	std::optional<bool> privacy_enable_paid_may_train;
+	std::optional<bool> privacy_zdr_only;
+	std::optional<std::any> prompt_injection_action;
+	std::optional<bool> prompt_injection_enabled;
+	std::optional<bool> provider_restriction_enforce_allowed;
+	std::optional<std::any> provider_restriction_mode;
+	std::optional<std::vector<std::string>> provider_restriction_provider_ids;
+	std::optional<std::any> sensitive_info_default_action;
+	std::optional<bool> sensitive_info_enabled;
+	std::optional<std::vector<std::map<std::string, std::any>>> sensitive_info_rules;
+	std::string updated_at;
+	std::optional<int> weekly_limit_cost_nanos;
+	std::optional<int> weekly_limit_requests;
+	std::string workspace_id;
+};
+
+struct GuardrailBudgets {
+	std::optional<int> dailyCostNanos;
+	std::optional<int> dailyRequests;
+	std::optional<int> monthlyCostNanos;
+	std::optional<int> monthlyRequests;
+	std::optional<int> weeklyCostNanos;
+	std::optional<int> weeklyRequests;
+};
+
+struct GuardrailCreateRequest {
+	std::vector<std::string> allowedApiModelIds;
+	std::map<std::string, std::any> budgets;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::any modelRestrictionMode;
+	std::string name;
+	std::optional<bool> privacyEnableFreeMayPublishPrompts;
+	std::optional<bool> privacyEnableFreeMayTrain;
+	std::optional<bool> privacyEnableInputOutputLogging;
+	std::optional<bool> privacyEnablePaidMayTrain;
+	std::optional<bool> privacyZdrOnly;
+	std::any promptInjectionAction;
+	std::optional<bool> promptInjectionEnabled;
+	std::optional<bool> providerRestrictionEnforceAllowed;
+	std::any providerRestrictionMode;
+	std::vector<std::string> providerRestrictionProviderIds;
+	std::any sensitiveInfoDefaultAction;
+	std::optional<bool> sensitiveInfoEnabled;
+	std::vector<std::map<std::string, std::any>> sensitiveInfoRules;
+};
+
+struct GuardrailKeyAddResponse {
+	int added_count;
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct GuardrailKeyAssignment {
+	std::optional<std::string> created_at;
+	std::string key_id;
+	std::optional<std::string> name;
+	std::optional<std::string> prefix;
+	std::optional<std::string> status;
+};
+
+struct GuardrailKeyIdsRequest {
+	std::vector<std::string> key_ids;
+};
+
+struct GuardrailKeyListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct GuardrailKeySetResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct GuardrailListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct GuardrailMemberAddResponse {
+	int added_count;
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct GuardrailMemberAssignment {
+	std::optional<std::string> display_name;
+	std::optional<std::string> joined_at;
+	std::optional<std::string> role;
+	std::string user_id;
+};
+
+struct GuardrailMemberListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct GuardrailRemovalResponse {
+	int removed_count;
+};
+
+struct GuardrailResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct GuardrailUpdateRequest {
+	std::vector<std::string> allowedApiModelIds;
+	std::map<std::string, std::any> budgets;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::any modelRestrictionMode;
+	std::string name;
+	std::optional<bool> privacyEnableFreeMayPublishPrompts;
+	std::optional<bool> privacyEnableFreeMayTrain;
+	std::optional<bool> privacyEnableInputOutputLogging;
+	std::optional<bool> privacyEnablePaidMayTrain;
+	std::optional<bool> privacyZdrOnly;
+	std::any promptInjectionAction;
+	std::optional<bool> promptInjectionEnabled;
+	std::optional<bool> providerRestrictionEnforceAllowed;
+	std::any providerRestrictionMode;
+	std::vector<std::string> providerRestrictionProviderIds;
+	std::any sensitiveInfoDefaultAction;
+	std::optional<bool> sensitiveInfoEnabled;
+	std::vector<std::map<std::string, std::any>> sensitiveInfoRules;
+};
+
+struct GuardrailUserIdsRequest {
+	std::vector<std::string> user_ids;
+};
+
+struct GuardrailWriteFields {
+	std::vector<std::string> allowedApiModelIds;
+	std::map<std::string, std::any> budgets;
+	std::optional<std::string> description;
+	std::optional<bool> enabled;
+	std::any modelRestrictionMode;
+	std::string name;
+	std::optional<bool> privacyEnableFreeMayPublishPrompts;
+	std::optional<bool> privacyEnableFreeMayTrain;
+	std::optional<bool> privacyEnableInputOutputLogging;
+	std::optional<bool> privacyEnablePaidMayTrain;
+	std::optional<bool> privacyZdrOnly;
+	std::any promptInjectionAction;
+	std::optional<bool> promptInjectionEnabled;
+	std::optional<bool> providerRestrictionEnforceAllowed;
+	std::any providerRestrictionMode;
+	std::vector<std::string> providerRestrictionProviderIds;
+	std::any sensitiveInfoDefaultAction;
+	std::optional<bool> sensitiveInfoEnabled;
+	std::vector<std::map<std::string, std::any>> sensitiveInfoRules;
+};
+
 struct Image {
 	std::string b64_json;
 	std::string revised_prompt;
