@@ -3,7 +3,26 @@ jest.mock("./paths", () => ({
     DIR_ALIASES: "",
 }));
 
-import { preflightV2Benchmarks, preflightV2Models } from "./v2";
+import { preflightV2Benchmarks, preflightV2Models, pricingModelPart } from "./v2";
+
+describe("pricingModelPart", () => {
+    it.each([
+        "mindai/macaron-v1-venti:free",
+        "inclusionai/ling-3.0-flash:free",
+    ])("preserves the %s variant when removing the capability suffix", (apiModelId) => {
+        expect(pricingModelPart(`novita:${apiModelId}:text.generate`)).toEqual({
+            providerSlug: "novita",
+            apiModelId,
+        });
+    });
+
+    it("parses standard model keys", () => {
+        expect(pricingModelPart("openai:openai/gpt-5:text.generate")).toEqual({
+            providerSlug: "openai",
+            apiModelId: "openai/gpt-5",
+        });
+    });
+});
 
 describe("preflightV2Models", () => {
     it("canonicalizes authored legacy aliases without mutating the legacy row", () => {
