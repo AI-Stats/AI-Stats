@@ -24,12 +24,23 @@ type SyncReport = {
 	skippedPricing: string[];
 	changedFiles: string[];
 	officialPricing?: {
+		provider: string;
+		sourceUrl: string | null;
 		rowsParsed: number;
 		pricingCreated: number;
 		pricingUpdated: number;
 		unmatched: string[];
 		ambiguous: string[];
 		skippedComplex: string[];
+		comparisons: Array<{
+			providerModel: string;
+			apiModelId: string;
+			capabilityId: string;
+			meter: string;
+			officialPrice: number;
+			currentPrices: number[];
+			status: string;
+		}>;
 		reason?: string;
 	};
 };
@@ -391,12 +402,22 @@ async function main(): Promise<void> {
 	report.skippedPricing = [...new Set(report.skippedPricing)].sort().slice(0, 500);
 	report.changedFiles = [...new Set(report.changedFiles)].sort();
 	await mkdir(path.join(process.cwd(), ".sync"), { recursive: true });
-	report.officialPricing = await readJson<SyncReport["officialPricing"]>(
+	const officialPricing = await readJson<SyncReport["officialPricing"]>(
 		path.join(process.cwd(), ".sync", "official-pricing-sync.json"),
 	).catch(() => undefined);
+	report.officialPricing = officialPricing
+		&& (!PROVIDER_FILTER || normalized(officialPricing.provider) === normalized(PROVIDER_FILTER))
+		? officialPricing
+		: undefined;
 	const reportPath = path.join(process.cwd(), ".sync", "provider-catalog-sync.json");
 	await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
-	const markdown = [
+	const markdown = renderSyncMarkdown(report);
+	await writeFile(path.join(process.cwd(), ".sync", "provider-catalog-sync.md"), markdown, "utf8");
+	console.log(JSON.stringify(report));
+}
+
+export function renderSyncMarkdown(report: SyncReport): string {
+	return [
 		"## Provider catalog synchronization",
 		"",
 		`- Providers checked: ${report.providers}`,
@@ -408,6 +429,7 @@ async function main(): Promise<void> {
 		`- Unmatched upstream models: ${report.unmatched.length}`,
 		`- Complex pricing records left unchanged: ${report.skippedPricing.length}`,
 		...(report.officialPricing ? [
+			...(report.officialPricing.sourceUrl ? [`- Official pricing source: ${report.officialPricing.sourceUrl}`] : []),
 			`- Official pricing rows parsed: ${report.officialPricing.rowsParsed}`,
 			`- Official pricing files created: ${report.officialPricing.pricingCreated}`,
 			`- Official pricing files updated: ${report.officialPricing.pricingUpdated}`,
@@ -419,10 +441,19 @@ async function main(): Promise<void> {
 		"",
 		...(report.unmatched.length > 0 ? ["<details><summary>Unmatched upstream models</summary>", "", ...report.unmatched.slice(0, 100).map((value) => `- \`${value}\``), "", "</details>", ""] : []),
 		...(report.skippedPricing.length > 0 ? ["<details><summary>Pricing requiring manual review</summary>", "", ...report.skippedPricing.slice(0, 100).map((value) => `- ${value}`), "", "</details>", ""] : []),
+		...(report.officialPricing?.comparisons?.some((comparison) => comparison.status !== "equal") ? [
+			"<details><summary>Official pricing comparison</summary>",
+			"",
+			...report.officialPricing.comparisons
+				.filter((comparison) => comparison.status !== "equal")
+				.slice(0, 150)
+				.map((comparison) => `- \`${comparison.apiModelId}\` \`${comparison.capabilityId}\` \`${comparison.meter}\`: official **$${comparison.officialPrice}/M**, current **${comparison.currentPrices.length > 0 ? comparison.currentPrices.map((price) => `$${price}/M`).join(", ") : "missing"}** (${comparison.status})`),
+			"",
+			"</details>",
+			"",
+		] : []),
 		"Created with Codex",
 	].join("\n");
-	await writeFile(path.join(process.cwd(), ".sync", "provider-catalog-sync.md"), markdown, "utf8");
-	console.log(JSON.stringify(report));
 }
 
 const direct = process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;

@@ -1,6 +1,7 @@
 import {
 	extractDiscoveryLimits,
 	mergeSimplePricing,
+	renderSyncMarkdown,
 	safePricingRules,
 } from "./sync-provider-discovery";
 
@@ -46,5 +47,41 @@ describe("provider discovery catalog sync", () => {
 				{ meter: "input_text_tokens", pricing_plan: "standard", match: [], conditions: [], priority: 90 },
 			],
 		})).toBe(false);
+	});
+
+	test("renders official differences with model, capability, meter, and provenance", () => {
+		const markdown = renderSyncMarkdown({
+			providers: 1,
+			rows: 1,
+			mappingsCreated: 0,
+			mappingsUpdated: 0,
+			pricingCreated: 0,
+			pricingUpdated: 1,
+			unmatched: [],
+			skippedPricing: [],
+			changedFiles: [],
+			officialPricing: {
+				provider: "fireworks",
+				sourceUrl: "https://example.com/pricing",
+				rowsParsed: 1,
+				pricingCreated: 0,
+				pricingUpdated: 1,
+				unmatched: [],
+				ambiguous: [],
+				skippedComplex: [],
+				comparisons: [{
+					providerModel: "Example",
+					apiModelId: "example/model",
+					capabilityId: "text.generate",
+					meter: "cached_read_text_tokens",
+					officialPrice: 0.028,
+					currentPrices: [0.03],
+					status: "different",
+				}],
+			},
+		});
+		expect(markdown).toContain("Official pricing source: https://example.com/pricing");
+		expect(markdown).toContain("`example/model` `text.generate` `cached_read_text_tokens`");
+		expect(markdown).toContain("official **$0.028/M**, current **$0.03/M** (different)");
 	});
 });

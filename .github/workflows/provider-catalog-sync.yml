@@ -36,7 +36,7 @@ jobs:
               shell: bash
               run: |
                   set -euo pipefail
-                  safe='["ai21","akashml","aion-labs","anthropic","arcee-ai","atlascloud","baseten","chutes","crofai","deepinfra","deepseek","gmicloud","groq","inception","moonshotai","nextbit","novita","openai","spacex-ai","together","venice"]'
+                  safe='["ai21","akashml","aion-labs","anthropic","arcee-ai","atlascloud","baseten","chutes","crofai","deepinfra","deepseek","fireworks","gmicloud","groq","inception","moonshotai","nextbit","novita","openai","spacex-ai","together","venice","voyage","z-ai"]'
                   if [[ "$EVENT_NAME" == "repository_dispatch" ]]; then
                     providers="$(jq -c 'map(strings | ascii_downcase) | map(select(test("^[a-z0-9][a-z0-9-]*$"))) | unique' <<<"$DISPATCH_PROVIDERS")"
                   elif [[ -n "${MANUAL_PROVIDERS:-}" ]]; then

@@ -8,7 +8,18 @@ type JsonObject = Record<string, any>;
 
 export type OfficialPriceCandidate = {
 	providerModel: string;
+	capabilityId?: string;
 	meters: Record<string, number>;
+};
+
+type OfficialPricingComparison = {
+	providerModel: string;
+	apiModelId: string;
+	capabilityId: string;
+	meter: string;
+	officialPrice: number;
+	currentPrices: number[];
+	status: "equal" | "different" | "missing" | "complex";
 };
 
 type OfficialPricingReport = {
@@ -20,6 +31,7 @@ type OfficialPricingReport = {
 	unmatched: string[];
 	ambiguous: string[];
 	skippedComplex: string[];
+	comparisons: OfficialPricingComparison[];
 	changedFiles: string[];
 	reason?: string;
 };
@@ -29,7 +41,17 @@ const PROVIDERS_ROOT = path.join(DATA_ROOT, "api_providers");
 const PRICING_ROOT = path.join(DATA_ROOT, "pricing");
 const PROVIDER = process.argv.find((value) => value.startsWith("--provider="))?.split("=", 2)[1]?.trim().toLowerCase();
 const DRY_RUN = process.argv.includes("--dry-run");
-const SUPPORTED_PROVIDERS = new Set(["anthropic", "deepseek", "moonshotai", "openai", "perplexity", "together"]);
+const SUPPORTED_PROVIDERS = new Set([
+	"anthropic",
+	"deepseek",
+	"fireworks",
+	"moonshotai",
+	"openai",
+	"perplexity",
+	"together",
+	"voyage",
+	"z-ai",
+]);
 
 function decodeHtml(value: string): string {
 	return value
@@ -73,6 +95,7 @@ function usd(value: string): number | null {
 
 function meterForHeader(header: string): string | null {
 	const value = normalized(header);
+	if (value.includes("storage")) return null;
 	if (value.includes("5m cache") || value.includes("5-minute cache")) return "cached_write_text_tokens_5m";
 	if (value.includes("1h cache") || value.includes("1-hour cache")) return "cached_write_text_tokens_1h";
 	if (value.includes("cache hit") || value.includes("cached input")) return "cached_read_text_tokens";
@@ -159,10 +182,52 @@ function moonshotCandidates(markdown: string): OfficialPriceCandidate[] {
 	}));
 }
 
+function fireworksCandidates(tables: string[][][]): OfficialPriceCandidate[] {
+	const table = tables.find((value) => normalized(value[0]?.[0]) === "model" && normalized(value[0]?.[1]) === "standard");
+	if (!table) return [];
+	return table.slice(1).flatMap((row) => {
+		const prices = Array.from((row[1] ?? "").matchAll(/\$\s*(\d+(?:\.\d+)?)/g), (match) => Number(match[1]));
+		if (!row[0] || prices.length !== 3) return [];
+		return [{
+			providerModel: row[0],
+			meters: {
+				input_text_tokens: prices[0]!,
+				cached_read_text_tokens: prices[1]!,
+				output_text_tokens: prices[2]!,
+			},
+		}];
+	});
+}
+
+function voyageCandidates(tables: string[][][]): OfficialPriceCandidate[] {
+	const candidates: OfficialPriceCandidate[] = [];
+	for (const table of tables) {
+		const headers = table[0]?.map(normalized) ?? [];
+		const priceIndex = headers.findIndex((header) => header === "price per million tokens");
+		if (priceIndex < 0 || normalized(table[0]?.[0]) !== "model") continue;
+		for (const row of table.slice(1)) {
+			const price = usd(row[priceIndex] ?? "");
+			if (price === null) continue;
+			for (const providerModel of (row[0] ?? "").split(/\s+/).filter(Boolean)) {
+				const rerank = providerModel.startsWith("rerank-");
+				candidates.push({
+					providerModel,
+					capabilityId: rerank ? "text.rerank" : "text.embed",
+					meters: { input_text_tokens: price },
+				});
+			}
+		}
+	}
+	return candidates;
+}
+
 export function extractOfficialPricing(providerId: string, html: string): OfficialPriceCandidate[] {
 	if (providerId === "moonshotai") return moonshotCandidates(html);
 	const tables = extractHtmlTableRows(html);
-	return providerId === "deepseek" ? deepseekCandidates(tables) : horizontalCandidates(tables);
+	if (providerId === "deepseek") return deepseekCandidates(tables);
+	if (providerId === "fireworks") return fireworksCandidates(tables);
+	if (providerId === "voyage") return voyageCandidates(tables);
+	return horizontalCandidates(tables);
 }
 
 async function filesNamed(root: string, fileName: string): Promise<string[]> {
@@ -216,6 +281,18 @@ function pricingFileSlug(value: string): string {
 	return normalized(value).replace(/[^a-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
+export function safeOfficialPricingRules(pricing: JsonObject, meters: Record<string, number>): boolean {
+	if (!safePricingRules(pricing)) return false;
+	const officialMeters = new Set(Object.keys(meters));
+	return (pricing.rules as JsonObject[])
+		.filter((rule) => officialMeters.has(String(rule.meter)))
+		.every((rule) => rule.unit === "token"
+			&& Number(rule.unit_size) === 1_000_000
+			&& rule.currency === "USD"
+			&& Number.isFinite(Number(rule.price_per_unit))
+			&& Number(rule.price_per_unit) >= 0);
+}
+
 async function writeReport(report: OfficialPricingReport): Promise<void> {
 	const directory = path.join(process.cwd(), ".sync");
 	await mkdir(directory, { recursive: true });
@@ -234,6 +311,7 @@ async function main(): Promise<void> {
 		unmatched: [],
 		ambiguous: [],
 		skippedComplex: [],
+		comparisons: [],
 		changedFiles: [],
 	};
 	if (!source) {
@@ -260,7 +338,7 @@ async function main(): Promise<void> {
 
 	const grouped = new Map<string, OfficialPriceCandidate[]>();
 	for (const candidate of extracted) {
-		const key = modelKey(candidate.providerModel);
+		const key = `${modelKey(candidate.providerModel)}:${candidate.capabilityId ?? "text.generate"}`;
 		grouped.set(key, [...(grouped.get(key) ?? []), candidate]);
 	}
 	const candidates = new Map<string, OfficialPriceCandidate>();
@@ -291,23 +369,42 @@ async function main(): Promise<void> {
 	}
 
 	const checkedAt = new Date().toISOString();
-	for (const [key, candidate] of candidates) {
-		const matches = [...new Map((mappingByKey.get(key) ?? []).map((mapping) => [mapping.api_model_id, mapping])).values()];
+	for (const candidate of candidates.values()) {
+		const matches = [...new Map((mappingByKey.get(modelKey(candidate.providerModel)) ?? []).map((mapping) => [mapping.api_model_id, mapping])).values()];
 		if (matches.length !== 1) {
 			(matches.length === 0 ? report.unmatched : report.ambiguous).push(candidate.providerModel);
 			continue;
 		}
 		const apiModelId = String(matches[0]!.api_model_id);
-		const supportsTextGeneration = Array.isArray(matches[0]!.capabilities)
-			&& matches[0]!.capabilities.some((capability: JsonObject) => capability?.capability_id === "text.generate");
-		if (!supportsTextGeneration) {
-			report.skippedComplex.push(`${candidate.providerModel} is not mapped as text.generate`);
+		const capabilityId = candidate.capabilityId ?? "text.generate";
+		const supportsCapability = Array.isArray(matches[0]!.capabilities)
+			&& matches[0]!.capabilities.some((capability: JsonObject) => capability?.capability_id === capabilityId);
+		if (!supportsCapability) {
+			report.skippedComplex.push(`${candidate.providerModel} is not mapped as ${capabilityId}`);
 			continue;
 		}
-		const pricingKey = `${PROVIDER}:${normalized(apiModelId)}:text.generate`;
+		const pricingKey = `${PROVIDER}:${normalized(apiModelId)}:${capabilityId}`;
 		const existing = pricingByKey.get(pricingKey);
 		if (existing) {
-			if (!safePricingRules(existing.value)) {
+			const simple = safeOfficialPricingRules(existing.value, candidate.meters);
+			for (const [meter, officialPrice] of Object.entries(candidate.meters)) {
+				const currentPrices = (existing.value.rules as JsonObject[])
+					.filter((rule) => rule.meter === meter && rule.pricing_plan === "standard" && !rule.effective_to)
+					.map((rule) => Number(rule.price_per_unit))
+					.filter(Number.isFinite)
+					.sort((left, right) => left - right);
+				report.comparisons.push({
+					providerModel: candidate.providerModel,
+					apiModelId,
+					capabilityId,
+					meter,
+					officialPrice,
+					currentPrices,
+					status: !simple ? "complex" : currentPrices.length === 0 ? "missing"
+						: currentPrices.length === 1 && currentPrices[0] === officialPrice ? "equal" : "different",
+				});
+			}
+			if (!simple) {
 				report.skippedComplex.push(candidate.providerModel);
 				continue;
 			}
@@ -321,13 +418,24 @@ async function main(): Promise<void> {
 			if (await writeJsonIfChanged(existing.path, existing.value, report)) report.pricingUpdated += 1;
 			continue;
 		}
+		for (const [meter, officialPrice] of Object.entries(candidate.meters)) {
+			report.comparisons.push({
+				providerModel: candidate.providerModel,
+				apiModelId,
+				capabilityId,
+				meter,
+				officialPrice,
+				currentPrices: [],
+				status: "missing",
+			});
+		}
 
 		const pricing: JsonObject = {
-			key: `${PROVIDER}:${apiModelId}:text.generate`,
+			key: `${PROVIDER}:${apiModelId}:${capabilityId}`,
 			api_provider_id: PROVIDER,
 			provider_slug: PROVIDER,
 			api_model_id: apiModelId,
-			capability_id: "text.generate",
+			capability_id: capabilityId,
 			rules: Object.entries(candidate.meters).map(([meter, price]) => pricingRule(meter, price)),
 			regions: [],
 			service_tiers: ["standard"],
@@ -343,13 +451,15 @@ async function main(): Promise<void> {
 				notes: "Pricing synchronized from the official provider source for review.",
 			},
 		};
-		const target = path.join(PRICING_ROOT, PROVIDER, pricingFileSlug(apiModelId), "text.generate", "pricing.json");
+		const target = path.join(PRICING_ROOT, PROVIDER, pricingFileSlug(apiModelId), capabilityId, "pricing.json");
 		if (await writeJsonIfChanged(target, pricing, report)) report.pricingCreated += 1;
 	}
 
 	report.unmatched = [...new Set(report.unmatched)].sort();
 	report.ambiguous = [...new Set(report.ambiguous)].sort();
 	report.skippedComplex = [...new Set(report.skippedComplex)].sort();
+	report.comparisons.sort((left, right) => left.apiModelId.localeCompare(right.apiModelId)
+		|| left.capabilityId.localeCompare(right.capabilityId) || left.meter.localeCompare(right.meter));
 	report.changedFiles = [...new Set(report.changedFiles)].sort();
 	await writeReport(report);
 	console.log(JSON.stringify(report));
