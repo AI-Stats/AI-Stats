@@ -52,6 +52,17 @@ describe("textParamPolicy", () => {
 		]);
 	});
 
+	it("accepts standard OpenAI chat stream options", () => {
+		const body = {
+			model: "openai/gpt-5.4-nano",
+			messages: [{ role: "user", content: "Hello" }],
+			stream: true,
+			stream_options: { include_usage: true },
+		};
+
+		expect(getUnknownTopLevelParams("chat.completions", body)).toEqual([]);
+	});
+
 	it("extracts documented AION responses parameters", () => {
 		const body = {
 			model: "aion-labs/aion-3.0",

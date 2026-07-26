@@ -33,6 +33,7 @@ const TEXT_ENDPOINT_REGISTRY: Record<TextEndpoint, EndpointParamRegistry> = {
 			"presence_penalty",
 			"seed",
 			"stream",
+			"stream_options",
 			"temperature",
 			"tools",
 			"max_tool_calls",
