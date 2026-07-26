@@ -1,4 +1,7 @@
-import { sortFamiliesByRecentAddition } from "@/lib/fetchers/families/sortFamilies";
+import {
+	addFamilyRecencyFallbacks,
+	sortFamiliesByRecentAddition,
+} from "@/lib/fetchers/families/sortFamilies";
 import type { FamilyCard } from "@/lib/fetchers/families/types";
 
 const family = (
@@ -34,5 +37,32 @@ describe("sortFamiliesByRecentAddition", () => {
 				(candidate) => candidate.family_name,
 			),
 		).toEqual(["Alpha", "Zulu"]);
+	});
+
+	it("falls back to the newest family member when the API omits created_at", async () => {
+		const families = [family("Older family", null), family("Newer family", null)];
+		const enriched = await addFamilyRecencyFallbacks(
+			families,
+			async (familyId) => ({
+				family_id: familyId,
+				family_name: familyId,
+				models: [
+					{
+						model_id: `${familyId}/model`,
+						name: "Model",
+						organisation_id: "test",
+						release_date: familyId.includes("newer")
+							? "2026-07-01T00:00:00.000Z"
+							: "2026-06-01T00:00:00.000Z",
+					},
+				],
+			}),
+		);
+
+		expect(
+			sortFamiliesByRecentAddition(enriched).map(
+				(candidate) => candidate.family_name,
+			),
+		).toEqual(["Newer family", "Older family"]);
 	});
 });

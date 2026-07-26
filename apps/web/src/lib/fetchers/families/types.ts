@@ -3,6 +3,7 @@ export type FamilyCard = {
 	family_name: string;
 	organisation_id: string;
 	created_at?: string | null;
+	recent_activity_at?: string | null;
 };
 
 export type FamilyModelStatus =

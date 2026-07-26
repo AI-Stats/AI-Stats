@@ -5,8 +5,14 @@ import { Logo } from "@/components/Logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { FamilyCard } from "@/lib/fetchers/families/types";
-import { sortFamiliesByRecentAddition } from "@/lib/fetchers/families/sortFamilies";
-import { fetchFrontendFamilies } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import {
+	addFamilyRecencyFallbacks,
+	sortFamiliesByRecentAddition,
+} from "@/lib/fetchers/families/sortFamilies";
+import {
+	fetchFrontendFamilies,
+	fetchFrontendFamily,
+} from "@/lib/fetchers/frontend/fetchPublicCatalog";
 
 export const metadata: Metadata = {
 	title: "Model Families",
@@ -26,7 +32,10 @@ export const metadata: Metadata = {
 
 async function FamiliesSection() {
 	const families = sortFamiliesByRecentAddition(
-		(await fetchFrontendFamilies()) as FamilyCard[],
+		await addFamilyRecencyFallbacks(
+			(await fetchFrontendFamilies()) as FamilyCard[],
+			fetchFrontendFamily,
+		),
 	);
 
 	return (
