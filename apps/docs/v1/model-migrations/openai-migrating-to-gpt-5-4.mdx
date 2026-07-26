@@ -1,18 +1,23 @@
 ---
-title: "OpenAI: Migrating to GPT-5.4"
-description: "What materially changes when you move existing OpenAI traffic onto GPT-5.4."
+title: "OpenAI GPT-5.4"
+description: "What to know when adopting GPT-5.4, including reasoning controls, vision, and computer use."
 icon: "/icons/brands/openai.svg"
 ---
 
-# OpenAI: Migrating to GPT-5.4
+# OpenAI GPT-5.4
 
-Use this guide when you are moving existing traffic onto `openai/gpt-5.4`.
-
-This usually means replacing older OpenAI routes such as GPT-4.1, GPT-5, or an earlier GPT-5.x release.
+Use this guide to adopt `openai/gpt-5.4` safely in production.
 
 GPT-5.4 is less about a brand-new request shape and more about updated reasoning controls, vision handling, and tool use. As of March 10, 2026, OpenAI's official GPT-5.4 docs emphasize `reasoning.effort`, improved computer use, and higher-fidelity image input. They do not document a GPT-5.4-specific `phase` parameter.
 
-## What changed
+## Migration quickstart
+
+1. Change the model ID to `openai/gpt-5.4` without changing the rest of the request.
+2. Choose and test the reasoning effort that matches the route's latency budget.
+3. Re-test vision, structured outputs, and computer-use workflows where applicable.
+4. Canary GPT-5.4 with the previous route available as a fallback.
+
+## What's new
 
 - `reasoning.effort` supports `none`, `low`, `medium`, `high`, and `xhigh`
 - GPT-5.4 introduces `original` image input detail for full-fidelity visual perception
