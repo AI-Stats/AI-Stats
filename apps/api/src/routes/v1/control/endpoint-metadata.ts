@@ -27,7 +27,7 @@ const ENDPOINT_METADATA: EndpointMetadata[] = [
         id: "chat.completions",
         public_path: "/v1/chat/completions",
         collection: "text",
-        aliases: ["chat/completions", "text.generate"],
+        aliases: ["chat/completions", "text.generate", "audio"],
     },
     {
         id: "responses",
@@ -45,7 +45,7 @@ const ENDPOINT_METADATA: EndpointMetadata[] = [
         id: "images.generations",
         public_path: "/v1/images/generations",
         collection: "images",
-        aliases: ["images/generations", "image.generate"],
+        aliases: ["images/generations", "image.generate", "image.generations"],
     },
     {
         id: "images.edits",
@@ -57,19 +57,19 @@ const ENDPOINT_METADATA: EndpointMetadata[] = [
         id: "video.generation",
         public_path: "/v1/videos",
         collection: "video",
-        aliases: ["video.generate", "video.generations", "videos"],
+        aliases: ["video.generate", "video.generations", "video.edit", "videos"],
     },
     {
         id: "audio.speech",
         public_path: "/v1/audio/speech",
         collection: "audio",
-        aliases: ["audio/speech"],
+        aliases: ["audio/speech", "audio.generate"],
     },
     {
         id: "audio.transcription",
         public_path: "/v1/audio/transcriptions",
         collection: "audio",
-        aliases: ["audio.transcriptions", "audio/transcriptions"],
+        aliases: ["audio.transcriptions", "audio/transcriptions", "audio.transcribe"],
     },
     {
         id: "audio.translations",
@@ -87,19 +87,19 @@ const ENDPOINT_METADATA: EndpointMetadata[] = [
         id: "embeddings",
         public_path: "/v1/embeddings",
         collection: "embeddings",
-        aliases: [],
+        aliases: ["text.embed"],
     },
     {
         id: "rerank",
         public_path: "/v1/rerank",
         collection: "rerank",
-        aliases: [],
+        aliases: ["text.rerank"],
     },
     {
         id: "moderations",
         public_path: "/v1/moderations",
         collection: "moderation",
-        aliases: ["moderation"],
+        aliases: ["moderation", "text.moderate"],
     },
     {
         id: "ocr",
@@ -159,10 +159,5 @@ export function getEndpointMetadata(endpoint: string): EndpointMetadata {
     if (metadata) {
         return { ...metadata, aliases: [...metadata.aliases] };
     }
-    return {
-        id: endpoint,
-        public_path: endpoint.startsWith("/") ? endpoint : `/v1/${endpoint}`,
-        collection: "text",
-        aliases: [],
-    };
+    throw new Error(`Unsupported public capability metadata: ${endpoint}`);
 }

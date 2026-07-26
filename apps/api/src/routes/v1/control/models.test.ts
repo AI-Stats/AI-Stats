@@ -20,7 +20,7 @@ vi.mock("@pipeline/before/context", () => ({
 import { handleModelEndpoints, handleModels, handleMyModels } from "./models";
 
 function buildCatalogueModel(overrides: Record<string, unknown> = {}) {
-    return {
+    const model = {
         model_id: "openai/gpt-4o-mini",
         previous_model_id: null,
         name: "GPT-4o Mini",
@@ -72,6 +72,8 @@ function buildCatalogueModel(overrides: Record<string, unknown> = {}) {
             meters: {},
         },
         provider_pricing: {},
+        provider_endpoint_pricing: {},
+        provider_endpoint_capabilities: {},
         availability: {
             status: "active",
             provider_count: 1,
@@ -80,6 +82,20 @@ function buildCatalogueModel(overrides: Record<string, unknown> = {}) {
         },
         ...overrides,
     };
+    if (!("provider_endpoint_capabilities" in overrides)) {
+        model.provider_endpoint_capabilities = Object.fromEntries(
+            model.providers.map((provider: any) => [
+                provider.api_provider_id,
+                Object.fromEntries(
+                    provider.endpoints.map((endpoint: string) => [
+                        endpoint,
+                        { ...provider, endpoints: [endpoint] },
+                    ]),
+                ),
+            ]),
+        );
+    }
+    return model;
 }
 
 describe("handleModels", () => {
@@ -639,35 +655,52 @@ describe("handleModels", () => {
             output_types: ["text", "image", "video", "audio"],
         });
         fetchCatalogueMock.mockImplementation(async (filters: { endpoints?: string[] }) => {
-            const endpoint = filters.endpoints?.[0];
-            if (!endpoint) return [baseModel];
-            const definition = endpointDefinitions.find((item) => item.endpoint === endpoint);
-            if (!definition) return [];
+            if (!filters.endpoints?.length) return [baseModel];
+            const definitions = endpointDefinitions.filter((item) =>
+                filters.endpoints?.includes(item.endpoint),
+            );
+            if (!definitions.length) return [];
+            const provider = {
+                api_provider_id: "provider-a",
+                api_provider_name: "Provider A",
+                provider_model_slug: "multimodal-v1",
+                is_active_gateway: true,
+                availability_status: "active",
+                availability_reason: "active",
+                provider_status: "active",
+                provider_routing_status: "active",
+                model_routing_status: "active",
+                capability_status: "active",
+                effective_from: null,
+                effective_to: null,
+                endpoints: definitions.map((item) => item.endpoint),
+                input_modalities: Array.from(new Set(definitions.flatMap((item) => item.input))),
+                output_modalities: Array.from(new Set(definitions.flatMap((item) => item.output))),
+                params: Array.from(new Set(definitions.flatMap((item) => item.params))),
+                params_detail: Object.fromEntries(
+                    definitions.flatMap((item) => item.params).map((param) => [param, { supported: true }]),
+                ),
+            };
             return [buildCatalogueModel({
                 ...baseModel,
-                endpoints: [endpoint],
-                providers: [{
-                    api_provider_id: "provider-a",
-                    api_provider_name: "Provider A",
-                    provider_model_slug: "multimodal-v1",
-                    is_active_gateway: true,
-                    availability_status: "active",
-                    availability_reason: "active",
-                    provider_status: "active",
-                    provider_routing_status: "active",
-                    model_routing_status: "active",
-                    capability_status: "active",
-                    effective_from: null,
-                    effective_to: null,
-                    endpoints: [endpoint],
-                    input_modalities: definition.input,
-                    output_modalities: definition.output,
-                    params: definition.params,
-                    params_detail: Object.fromEntries(
-                        definition.params.map((param) => [param, { supported: true }]),
-                    ),
-                }],
-                supported_params: definition.params,
+                endpoints: definitions.map((item) => item.endpoint),
+                providers: [provider],
+                provider_endpoint_capabilities: {
+                    "provider-a": Object.fromEntries(definitions.map((definition) => [
+                        definition.endpoint,
+                        {
+                            ...provider,
+                            endpoints: [definition.endpoint],
+                            input_modalities: definition.input,
+                            output_modalities: definition.output,
+                            params: definition.params,
+                            params_detail: Object.fromEntries(
+                                definition.params.map((param) => [param, { supported: true }]),
+                            ),
+                        },
+                    ])),
+                },
+                supported_params: provider.params,
                 provider_pricing: {
                     "provider-a": {
                         pricing_plan: "standard",
@@ -682,6 +715,23 @@ describe("handleModels", () => {
                         },
                     },
                 },
+                provider_endpoint_pricing: {
+                    "provider-a": Object.fromEntries(definitions.map((definition) => [
+                        definition.endpoint,
+                        {
+                            pricing_plan: "standard",
+                            meters: definition.endpoint === "responses" ? {
+                                input_tokens: {
+                                    provider_id: "provider-a",
+                                    unit: "token",
+                                    unit_size: 1000,
+                                    price_per_unit: "0.5",
+                                    currency: "USD",
+                                },
+                            } : {},
+                        },
+                    ])),
+                },
             })];
         });
 
@@ -692,6 +742,7 @@ describe("handleModels", () => {
         expect(response.status).toBe(200);
         const payload = await response.json() as { endpoints: Array<Record<string, unknown>> };
         expect(payload.endpoints).toHaveLength(4);
+        expect(fetchCatalogueMock).toHaveBeenCalledTimes(2);
         expect(payload.endpoints).toEqual(expect.arrayContaining([
             expect.objectContaining({
                 endpoint: "responses",

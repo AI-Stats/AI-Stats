@@ -465,6 +465,7 @@ async function buildFreeRouterCatalogueModel(args: {
             input_types: inputTypes,
             output_types: outputTypes,
             providers,
+            provider_endpoint_capabilities: {},
             supported_params: supportedParams,
             supported_params_detail: supportedParamsDetail,
             top_provider: providers[0]?.api_provider_id ?? null,
@@ -479,6 +480,7 @@ async function buildFreeRouterCatalogueModel(args: {
                 }),
             },
             provider_pricing: {},
+            provider_endpoint_pricing: {},
             availability: {
                 status: "active",
                 provider_count: providers.length,
@@ -496,6 +498,8 @@ function toRichModel(model: CatalogueModel, replacementModelId: string | null) {
         previous_model_id: _previousModelId,
         supported_params_detail: _supportedParamsDetail,
         provider_pricing: _providerPricing,
+        provider_endpoint_capabilities: _providerEndpointCapabilities,
+        provider_endpoint_pricing: _providerEndpointPricing,
         ...publicModel
     } = model;
     const legacyTopProvider = model.top_provider;
@@ -771,55 +775,65 @@ export async function handleModelEndpoints(req: Request) {
             );
         }
 
-        const endpointModels = await Promise.all(
-            model.endpoints.map(async (endpoint) => {
-                const catalogue = await fetchCatalogue({
-                    ...sharedFilters,
-                    endpoints: [endpoint],
-                    params,
-                });
-                return { endpoint, model: findCatalogueModel(catalogue, model.model_id) };
-            }),
-        );
+        const canonicalEndpoints = Array.from(new Set(
+            model.endpoints.map((endpoint) => getEndpointMetadata(endpoint).id),
+        ));
+        const filteredCatalogue = await fetchCatalogue({
+            ...sharedFilters,
+            endpoints: canonicalEndpoints,
+            params,
+        });
+        const filteredModel = findCatalogueModel(filteredCatalogue, model.model_id);
+        const endpointModels = canonicalEndpoints.map((endpoint) => ({
+            endpoint,
+            model: filteredModel,
+        }));
 
         const endpoints = endpointModels.flatMap(({ endpoint, model: endpointModel }) => {
             if (!endpointModel) return [];
             const metadata = getEndpointMetadata(endpoint);
-            return endpointModel.providers
-                .filter((provider) => provider.endpoints.includes(endpoint))
-                .map((provider) => {
-                    const pricing = endpointModel.provider_pricing?.[provider.api_provider_id]
-                        ?? scopePricingSummary(endpointModel.pricing, new Set([provider.api_provider_id]));
-                    return {
-                        id: `${provider.api_provider_id}:${endpoint}`,
-                        endpoint,
-                        capability_id: endpoint,
-                        public_path: metadata.public_path,
-                        collection: metadata.collection,
-                        provider_id: provider.api_provider_id,
-                        provider_name: provider.api_provider_name,
-                        provider_model_slug: provider.provider_model_slug,
-                        input_modalities: provider.input_modalities.length
-                            ? [...provider.input_modalities]
-                            : [...model.input_types],
-                        output_modalities: provider.output_modalities.length
-                            ? [...provider.output_modalities]
-                            : [...model.output_types],
-                        is_active_gateway: provider.is_active_gateway,
-                        availability_status: provider.availability_status,
-                        availability_reason: provider.availability_reason,
-                        provider_status: provider.provider_status,
-                        provider_routing_status: provider.provider_routing_status,
-                        model_routing_status: provider.model_routing_status,
-                        capability_status: provider.capability_status,
-                        effective_from: provider.effective_from,
-                        effective_to: provider.effective_to,
-                        supported_parameters: [...provider.params],
-                        supported_parameters_detail: cloneJsonObject(provider.params_detail ?? {}),
-                        pricing: toCompatibilityPricing(pricing),
-                        pricing_detail: pricing,
-                    };
-                });
+            const endpointProviders = Object.entries(
+                endpointModel.provider_endpoint_capabilities ?? {},
+            ).flatMap(([providerId, capabilities]) =>
+                Object.entries(capabilities)
+                    .filter(([capabilityId]) => getEndpointMetadata(capabilityId).id === metadata.id)
+                    .map(([capabilityId, provider]) => ({ providerId, capabilityId, provider })),
+            );
+            return endpointProviders.map(({ providerId, capabilityId, provider }) => {
+                const pricing = endpointModel
+                    .provider_endpoint_pricing?.[providerId]?.[capabilityId]
+                    ?? endpointModel.provider_pricing?.[providerId]
+                    ?? scopePricingSummary(endpointModel.pricing, new Set([providerId]));
+                return {
+                    id: `${providerId}:${metadata.id}`,
+                    endpoint: metadata.id,
+                    capability_id: capabilityId,
+                    public_path: metadata.public_path,
+                    collection: metadata.collection,
+                    provider_id: providerId,
+                    provider_name: provider.api_provider_name,
+                    provider_model_slug: provider.provider_model_slug,
+                    input_modalities: provider.input_modalities.length
+                        ? [...provider.input_modalities]
+                        : [...model.input_types],
+                    output_modalities: provider.output_modalities.length
+                        ? [...provider.output_modalities]
+                        : [...model.output_types],
+                    is_active_gateway: provider.is_active_gateway,
+                    availability_status: provider.availability_status,
+                    availability_reason: provider.availability_reason,
+                    provider_status: provider.provider_status,
+                    provider_routing_status: provider.provider_routing_status,
+                    model_routing_status: provider.model_routing_status,
+                    capability_status: provider.capability_status,
+                    effective_from: provider.effective_from,
+                    effective_to: provider.effective_to,
+                    supported_parameters: [...provider.params],
+                    supported_parameters_detail: cloneJsonObject(provider.params_detail ?? {}),
+                    pricing: toCompatibilityPricing(pricing),
+                    pricing_detail: pricing,
+                };
+            });
         });
 
         return json(

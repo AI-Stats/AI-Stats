@@ -708,7 +708,7 @@ describe("fetchCatalogue", () => {
         expect(models[0]?.model_id).toBe("test/model-active");
     });
 
-    it("filters provider entries by requested providers and recomputes derived model fields", async () => {
+    it("removes provider capabilities that do not support the requested parameter", async () => {
         const state: QueryState = { emptyCapabilityInCalled: false };
         const responses: Record<string, QueryResult[]> = {
             data_models: [
@@ -1011,7 +1011,7 @@ describe("fetchCatalogue", () => {
         getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
-        const models = await fetchCatalogue({ providerIds: ["anthropic"] });
+        const models = await fetchCatalogue({ params: ["top_k"] });
 
         expect(models).toHaveLength(1);
         expect(models[0]).toMatchObject({
@@ -1035,6 +1035,18 @@ describe("fetchCatalogue", () => {
         });
         expect(models[0]?.pricing.meters.input_tokens?.provider_id).toBe("anthropic");
         expect(models[0]?.pricing.meters.output_tokens).toBeNull();
+        expect(models[0]?.provider_endpoint_capabilities).toMatchObject({
+            anthropic: {
+                messages: {
+                    api_provider_id: "anthropic",
+                    params: ["top_k"],
+                },
+            },
+        });
+        expect(models[0]?.provider_endpoint_capabilities).not.toHaveProperty("openai");
+        expect(
+            models[0]?.provider_endpoint_pricing.anthropic?.messages?.meters.input_tokens,
+        ).toMatchObject({ provider_id: "anthropic", price_per_unit: "1" });
     });
 
     it("collapses same-provider availability deterministically when statuses tie", async () => {

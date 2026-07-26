@@ -92,6 +92,31 @@ describe("placeholdersRoutes /endpoints", () => {
 		});
 	});
 
+	it("aggregates capability aliases under one canonical endpoint", async () => {
+		fetchCatalogueMock.mockResolvedValue([
+			{
+				model_id: "phaseo/image-model",
+				endpoints: ["image.generate", "images.generations"],
+				providers: [
+					{ api_provider_id: "provider-a", endpoints: ["image.generate"] },
+					{ api_provider_id: "provider-b", endpoints: ["images.generations"] },
+				],
+			},
+		]);
+
+		const response = await placeholdersRoutes.request("https://example.com/endpoints");
+		const payload = await response.json() as any;
+
+		expect(payload.data.filter((entry: any) => entry.id === "images.generations")).toEqual([{
+			id: "images.generations",
+			capability_id: "images.generations",
+			public_path: "/v1/images/generations",
+			collection: "images",
+			model_count: 1,
+			provider_count: 2,
+		}]);
+	});
+
 	it("requires models:read from OAuth callers", async () => {
 		guardAuthMock.mockResolvedValue({
 			ok: true,

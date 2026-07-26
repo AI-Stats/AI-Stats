@@ -30,8 +30,9 @@ async function handleListEndpoints(req: Request) {
 		}>();
 
 		for (const model of catalogue) {
-			for (const endpoint of model.endpoints) {
-				const metadata = getEndpointMetadata(endpoint);
+			for (const rawEndpoint of model.endpoints) {
+				const metadata = getEndpointMetadata(rawEndpoint);
+				const endpoint = metadata.id;
 				const current = endpointMap.get(endpoint) ?? {
 					id: endpoint,
 					public_path: metadata.public_path,
@@ -41,7 +42,9 @@ async function handleListEndpoints(req: Request) {
 				};
 				current.models.add(model.model_id);
 				for (const provider of model.providers) {
-					if (provider.endpoints.includes(endpoint)) {
+					if (provider.endpoints.some(
+						(providerEndpoint) => getEndpointMetadata(providerEndpoint).id === endpoint,
+					)) {
 						current.providers.add(provider.api_provider_id);
 					}
 				}

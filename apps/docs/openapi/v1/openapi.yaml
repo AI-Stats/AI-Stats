@@ -292,6 +292,13 @@ paths:
             type: array
             items:
               type: string
+        - name: status
+          in: query
+          description: Filter by canonical model lifecycle status.
+          schema:
+            type: array
+            items:
+              type: string
         - name: supported_parameters
           in: query
           description: Filter endpoint rows by supported parameter names or aliases.
@@ -331,6 +338,12 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Model not found for the requested availability and provider filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error
           content:
             application/json:
               schema:

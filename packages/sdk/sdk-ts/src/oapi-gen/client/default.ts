@@ -7274,6 +7274,7 @@ export type ListModelEndpointsParams = {
     provider_availability_status?: string[];
     provider_routing_status?: string[];
     provider_status?: string[];
+    status?: string[];
     supported_parameters?: string[];
   };
   headers?: Record<string, never>;

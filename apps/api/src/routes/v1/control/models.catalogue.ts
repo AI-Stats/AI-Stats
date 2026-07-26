@@ -213,11 +213,13 @@ export type CatalogueModel = {
     input_types: string[];
     output_types: string[];
     providers: ProviderInfo[];
+    provider_endpoint_capabilities: Record<string, Record<string, ProviderInfo>>;
     supported_params: string[];
     supported_params_detail: SupportedParamDetails;
     top_provider: string | null;
     pricing: PricingSummary;
     provider_pricing: Record<string, PricingSummary>;
+    provider_endpoint_pricing: Record<string, Record<string, PricingSummary>>;
     availability: {
         status: "active" | "coming_soon" | "inactive" | "not_listed";
         provider_count: number;
@@ -1308,6 +1310,10 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
 
     const pricingByModel = new Map<string, PricingSummary>();
     const providerPricingByModel = new Map<string, Map<string, PricingSummary>>();
+    const providerEndpointPricingByModel = new Map<
+        string,
+        Map<string, Map<string, PricingSummary>>
+    >();
     const providerMeterByModel = new Map<string, Map<string, Map<string, number>>>();
 
     for (const rule of pricingRows ?? []) {
@@ -1344,6 +1350,20 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
         }
         providerPricing.set(combo.provider_id, providerSummary);
         providerPricingByModel.set(combo.model_id, providerPricing);
+
+        const endpointPricing = providerEndpointPricingByModel.get(combo.model_id)
+            ?? new Map<string, Map<string, PricingSummary>>();
+        const providerEndpointPricing = endpointPricing.get(combo.provider_id)
+            ?? new Map<string, PricingSummary>();
+        const endpointSummary = providerEndpointPricing.get(capabilityId) ?? initPricingSummary();
+        const endpointCandidate = comparePerUnit(rule, endpointSummary.meters[meter]);
+        if (endpointCandidate) {
+            endpointCandidate.provider_id = combo.provider_id;
+            endpointSummary.meters[meter] = endpointCandidate;
+        }
+        providerEndpointPricing.set(capabilityId, endpointSummary);
+        endpointPricing.set(combo.provider_id, providerEndpointPricing);
+        providerEndpointPricingByModel.set(combo.model_id, endpointPricing);
 
         const providerMeters = providerMeterByModel.get(combo.model_id) ?? new Map<string, Map<string, number>>();
         const meterMap = providerMeters.get(combo.provider_id) ?? new Map<string, number>();
@@ -1505,6 +1525,12 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
             ) {
                 return false;
             }
+            if (
+                paramsFilter?.length &&
+                !paramsFilter.some((param) => providerEntrySupportsParam(entry, param))
+            ) {
+                return false;
+            }
             return true;
         });
 
@@ -1541,14 +1567,34 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
             if (!hasOutput) continue;
         }
 
-        if (paramsFilter?.length) {
-            const hasParam = paramsFilter.some((param) =>
-                filteredProviderEntries.some((entry) => providerEntrySupportsParam(entry, param))
-            );
-            if (!hasParam) continue;
-        }
-
         const aliases = aliasMap.get(modelId) ?? [];
+
+        const providerEndpointCapabilities: Record<string, Record<string, ProviderInfo>> = {};
+        for (const entry of filteredProviderEntries) {
+            const providerEndpoints = providerEndpointCapabilities[entry.api_provider_id] ?? {};
+            for (const endpoint of entry.endpoints) {
+                providerEndpoints[endpoint] = {
+                    api_provider_id: entry.api_provider_id,
+                    api_provider_name: entry.api_provider_name,
+                    provider_model_slug: entry.provider_model_slug,
+                    is_active_gateway: entry.is_active_gateway,
+                    availability_status: entry.availability_status,
+                    availability_reason: entry.availability_reason,
+                    provider_status: entry.provider_status,
+                    provider_routing_status: entry.provider_routing_status,
+                    model_routing_status: entry.model_routing_status,
+                    capability_status: entry.capability_status,
+                    effective_from: entry.effective_from,
+                    effective_to: entry.effective_to,
+                    endpoints: [endpoint],
+                    input_modalities: [...entry.input_modalities],
+                    output_modalities: [...entry.output_modalities],
+                    params: [...entry.params].sort((a, b) => a.localeCompare(b)),
+                    params_detail: { ...entry.params_detail },
+                };
+            }
+            providerEndpointCapabilities[entry.api_provider_id] = providerEndpoints;
+        }
 
         const providerMapForModel = new Map<string, ProviderInfo>();
         for (const entry of filteredProviderEntries) {
@@ -1631,6 +1677,20 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
                 providerPricingByModel.get(modelId)?.get(provider.api_provider_id) ?? initPricingSummary(),
             ])
         );
+        const providerEndpointPricing = Object.fromEntries(
+            providerInfos.map((provider) => [
+                provider.api_provider_id,
+                Object.fromEntries(
+                    provider.endpoints.map((endpoint) => [
+                        endpoint,
+                        providerEndpointPricingByModel
+                            .get(modelId)
+                            ?.get(provider.api_provider_id)
+                            ?.get(endpoint) ?? initPricingSummary(),
+                    ]),
+                ),
+            ]),
+        );
         const filteredProviderMeters = new Map(
             Array.from(providerMeterByModel.get(modelId) ?? new Map()).filter(([providerId]) =>
                 filteredProviderIds.has(providerId)
@@ -1655,11 +1715,13 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
             input_types: [...info.input_types],
             output_types: [...info.output_types],
             providers: providerInfos,
+            provider_endpoint_capabilities: providerEndpointCapabilities,
             supported_params: supportedParams,
             supported_params_detail: supportedParamsDetail,
             top_provider: topProvider,
             pricing: scopedPricing,
             provider_pricing: providerPricing,
+            provider_endpoint_pricing: providerEndpointPricing,
             availability: {
                 status: availabilityStatus,
                 provider_count: providerInfos.length,
