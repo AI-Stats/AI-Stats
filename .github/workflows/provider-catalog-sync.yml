@@ -108,14 +108,18 @@ jobs:
             - name: Enrich from models.dev
               shell: bash
               run: |
-                  provider="${{ matrix.provider }}"
-                  case "$provider" in
-                    cloudflare) provider="cloudflare-workers-ai" ;;
-                    google-ai-studio) provider="google" ;;
-                    spacex-ai) provider="xai" ;;
-                    weights-and-biases) provider="wandb" ;;
+                  catalog_provider="${{ matrix.provider }}"
+                  source_provider="$catalog_provider"
+                  case "$source_provider" in
+                    cloudflare) source_provider="cloudflare-workers-ai" ;;
+                    google-ai-studio) source_provider="google" ;;
+                    spacex-ai) source_provider="xai" ;;
+                    weights-and-biases) source_provider="wandb" ;;
                   esac
-                  pnpm --filter @phaseo/web catalog:enrich:models-dev -- --provider="$provider"
+                  pnpm --filter @phaseo/web catalog:enrich:models-dev -- \
+                    --provider="$source_provider" \
+                    --catalog-provider="$catalog_provider" \
+                    --existing-providers-only
 
             - name: Synchronize provider discovery state
               env:

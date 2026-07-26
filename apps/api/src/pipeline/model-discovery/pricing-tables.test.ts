@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { extractMdxPricingText, extractPriceContentText, extractPricingTableText } from "./pricing-tables";
+import {
+	extractMdxPricingText,
+	extractPriceContentText,
+	extractPricingTableText,
+	modelsDevPricingSnapshots,
+} from "./pricing-tables";
 
 describe("extractPricingTableText", () => {
 	it("keeps price-bearing tables and ignores unrelated tables", () => {
@@ -58,5 +63,29 @@ describe("extractPricingTableText", () => {
 			tableCount: 1,
 			text: 'columns={[{ title: "Input Price" }]} rows={[["example", $0.16]]}',
 		});
+	});
+
+	it("creates stable provider pricing fingerprints from models.dev", async () => {
+		const catalog = {
+			xai: {
+				id: "xai",
+				name: "xAI",
+				models: {
+					grok: { id: "grok", cost: { input: 2, output: 10 } },
+					image: { id: "image", cost: { input: 0.1 } },
+				},
+			},
+		};
+		const [snapshot] = await modelsDevPricingSnapshots(catalog);
+
+		expect(snapshot).toMatchObject({
+			providerId: "models-dev:xai",
+			catalogProviderId: "spacex-ai",
+			providerName: "xAI (models.dev)",
+			tableCount: 1,
+			pricingSamples: ["grok: input $2/M, output $10/M"],
+		});
+		expect(snapshot?.fingerprint).toMatch(/^[a-f0-9]{64}$/);
+		expect((await modelsDevPricingSnapshots(catalog))[0]?.fingerprint).toBe(snapshot?.fingerprint);
 	});
 });

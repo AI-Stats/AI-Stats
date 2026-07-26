@@ -10,6 +10,7 @@ export type PricingTableSource = {
 };
 
 export type PricingTableSnapshot = PricingTableSource & {
+	catalogProviderId?: string;
 	fingerprint: string;
 	tableCount: number;
 	pricingSamples: string[];
@@ -31,7 +32,7 @@ export const PRICING_TABLE_SOURCES: PricingTableSource[] = [
 	{ providerId: "fireworks", providerName: "Fireworks", sourceUrl: "https://docs.fireworks.ai/serverless/pricing" },
 	{ providerId: "google-ai-studio", providerName: "Google AI Studio", sourceUrl: "https://ai.google.dev/gemini-api/docs/pricing" },
 	{ providerId: "mistral", providerName: "Mistral", sourceUrl: "https://mistral.ai/pricing/", extraction: "price-content" },
-	{ providerId: "moonshot-ai", providerName: "Moonshot AI", sourceUrl: "https://platform.kimi.ai/docs/pricing/chat-k26.md", extraction: "mdx" },
+	{ providerId: "moonshotai", providerName: "Moonshot AI", sourceUrl: "https://platform.kimi.ai/docs/pricing/chat-k26.md", extraction: "mdx" },
 	{ providerId: "openai", providerName: "OpenAI", sourceUrl: "https://developers.openai.com/api/docs/pricing" },
 	{ providerId: "perplexity", providerName: "Perplexity", sourceUrl: "https://docs.perplexity.ai/docs/getting-started/pricing" },
 	{ providerId: "stepfun", providerName: "StepFun", sourceUrl: "https://platform.stepfun.com/docs/zh/guides/pricing/details" },
@@ -50,6 +51,14 @@ const NON_CONTENT_PATTERN = /<(?:script|style|svg|noscript|template)\b[^>]*>[\s\
 const PRICE_VALUE_PATTERN = /(?:\$|¥|€)\s*\d+(?:\.\d+)?(?:\s*\/?\s*(?:1?m|million|mtok|month|mo|hour|user|1000))?/gi;
 const MDX_TABLE_PATTERN = /<DocTable\b[\s\S]*?\n\s*\/>/gi;
 const MAX_PRICING_SAMPLES = 6;
+const MODELS_DEV_SOURCE_URL = "https://models.dev/api.json";
+const MODELS_DEV_PROVIDER_ALIASES: Record<string, string> = {
+	"cloudflare-workers-ai": "cloudflare",
+	google: "google-ai-studio",
+	moonshotai: "moonshotai",
+	wandb: "weights-and-biases",
+	xai: "spacex-ai",
+};
 
 function decodeHtml(value: string): string {
 	return value
@@ -112,10 +121,55 @@ async function sha256(value: string): Promise<string> {
 	return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
+type ModelsDevCatalog = Record<string, {
+	id?: string;
+	name?: string;
+	models?: Record<string, {
+		id?: string;
+		cost?: { input?: number; output?: number; cache_read?: number; cache_write?: number };
+	}>;
+}>;
+
+export async function modelsDevPricingSnapshots(catalog: ModelsDevCatalog): Promise<PricingTableSnapshot[]> {
+	const snapshots: PricingTableSnapshot[] = [];
+	for (const provider of Object.values(catalog)) {
+		const sourceProviderId = provider.id?.trim().toLowerCase();
+		if (!sourceProviderId) continue;
+		const pricedModels = Object.values(provider.models ?? {}).flatMap((model) => {
+			const modelId = model.id?.trim();
+			const cost = model.cost;
+			if (!modelId || !cost || typeof cost.input !== "number" || !Number.isFinite(cost.input)
+				|| typeof cost.output !== "number" || !Number.isFinite(cost.output)) return [];
+			return [{
+				modelId,
+				input: cost.input,
+				output: cost.output,
+				cacheRead: typeof cost.cache_read === "number" && Number.isFinite(cost.cache_read) ? cost.cache_read : null,
+				cacheWrite: typeof cost.cache_write === "number" && Number.isFinite(cost.cache_write) ? cost.cache_write : null,
+			}];
+		}).sort((left, right) => left.modelId.localeCompare(right.modelId));
+		if (pricedModels.length === 0) continue;
+		const catalogProviderId = MODELS_DEV_PROVIDER_ALIASES[sourceProviderId] ?? sourceProviderId;
+		snapshots.push({
+			providerId: `models-dev:${sourceProviderId}`,
+			catalogProviderId,
+			providerName: `${provider.name?.trim() || sourceProviderId} (models.dev)`,
+			sourceUrl: MODELS_DEV_SOURCE_URL,
+			fingerprint: await sha256(JSON.stringify(pricedModels)),
+			tableCount: pricedModels.length,
+			pricingSamples: pricedModels.slice(0, MAX_PRICING_SAMPLES).map((model) =>
+				`${model.modelId}: input $${model.input}/M, output $${model.output}/M`,
+			),
+		});
+	}
+	return snapshots.sort((left, right) => left.providerId.localeCompare(right.providerId));
+}
+
 export async function fetchPricingTableSnapshots(
 	request: typeof fetch = fetch,
 ): Promise<PricingTableFetchResult> {
-	const results = await Promise.allSettled(
+	const [results, modelsDevResult] = await Promise.all([
+		Promise.allSettled(
 		PRICING_TABLE_SOURCES.map(async (source) => {
 			const response = await request(source.sourceUrl, {
 				headers: { "User-Agent": "Phaseo pricing table monitor" },
@@ -126,13 +180,23 @@ export async function fetchPricingTableSnapshots(
 			if (!text) throw new Error(`${source.providerName} pricing table did not contain price-bearing HTML tables`);
 			return { ...source, fingerprint: await sha256(text), tableCount, pricingSamples: extractPricingSamples(text) };
 		}),
-	);
+		),
+		request(MODELS_DEV_SOURCE_URL, {
+			headers: { Accept: "application/json", "User-Agent": "Phaseo pricing table monitor" },
+			signal: AbortSignal.timeout(30_000),
+		}).then(async (response) => {
+			if (!response.ok) throw new Error(`models.dev pricing registry returned HTTP ${response.status}`);
+			return modelsDevPricingSnapshots(await response.json() as ModelsDevCatalog);
+		}).catch((error): PricingTableSnapshot[] | Error => error instanceof Error ? error : new Error(String(error))),
+	]);
 	const snapshots: PricingTableSnapshot[] = [];
 	const errors: string[] = [];
 	for (const result of results) {
 		if (result.status === "fulfilled") snapshots.push(result.value);
 		else errors.push(result.reason instanceof Error ? result.reason.message : String(result.reason));
 	}
+	if (modelsDevResult instanceof Error) errors.push(modelsDevResult.message);
+	else snapshots.push(...modelsDevResult);
 	if (snapshots.length === 0) throw new Error(errors.join("; ") || "No pricing tables could be fetched");
 	return { snapshots, errors };
 }

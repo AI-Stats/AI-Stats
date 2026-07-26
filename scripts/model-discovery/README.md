@@ -21,6 +21,8 @@ On subsequent runs, the runner computes per-provider:
 
 External upstream discovery checks model sources outside Phaseo, including provider `/models` APIs and watched Hugging Face organisations/models. Provider `/models` checks run from the Cloudflare Worker scheduled runner. Hugging Face checks run from GitHub Actions on an hourly schedule. Both can send Discord notifications. Provider model and pricing changes can dispatch `.github/workflows/provider-catalog-sync.yml`, which validates and creates or updates a draft provider-scoped pull request. The Worker requires `GITHUB_TOKEN` or `GH_TOKEN` with repository Contents write permission to send that repository dispatch.
 
+The pricing pass also fingerprints structured input, output, and cache costs from `https://models.dev/api.json` per provider. The first successful run establishes a baseline; later cost changes dispatch only the affected catalog provider. The PR workflow refuses to create missing providers from this feed, updates only exact canonical matches with simple standard pricing, and leaves tiered or conditional pricing for review.
+
 Provider `/models` Discord alerts are filtered to provider model IDs already known in the database table `data_api_provider_models` (`provider_model_slug` and the `api_model_id` tail), regardless of `is_active_gateway` status. GitHub issue sync is intentionally not filtered by that allowlist: unknown upstream models are included in triage issues so newly exposed provider or Hugging Face models are not silently discarded.
 
 Issue state is stored in `scripts/model-discovery/state/provider-change-issues.json`. Issue threads are grouped by source, provider/org, and action type so provider API and Hugging Face signals cannot collide.

@@ -35,6 +35,8 @@ type SourceCatalog = Record<string, SourceProvider>;
 const SOURCE_URL = "https://models.dev/api.json";
 const CHECK_ONLY = process.argv.includes("--check");
 const PROVIDER_FILTER = process.argv.find((value) => value.startsWith("--provider="))?.split("=", 2)[1]?.trim();
+const CATALOG_PROVIDER = process.argv.find((value) => value.startsWith("--catalog-provider="))?.split("=", 2)[1]?.trim();
+const EXISTING_PROVIDERS_ONLY = process.argv.includes("--existing-providers-only");
 const DATA_ROOT = path.resolve(process.cwd(), "../../packages/data/catalog/src/data");
 const PROVIDERS_ROOT = path.join(DATA_ROOT, "api_providers");
 const PRICING_ROOT = path.join(DATA_ROOT, "pricing");
@@ -325,8 +327,9 @@ async function main() {
 	for (const sourceProvider of Object.values(catalog).filter((provider) =>
 		provider.id && (!PROVIDER_FILTER || slug(provider.id) === slug(PROVIDER_FILTER)),
 	)) {
-		const providerSlug = slug(sourceProvider.id);
+		const providerSlug = slug(CATALOG_PROVIDER ?? sourceProvider.id);
 		const existing = existingProviders.get(providerSlug);
+		if (!existing && EXISTING_PROVIDERS_ONLY) continue;
 		const provider = existing?.provider ?? externalProvider(providerSlug, sourceProvider, accessedAt);
 		const models = [...(existing?.models ?? [])];
 
