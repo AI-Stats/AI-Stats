@@ -881,6 +881,7 @@ function checkFamilies(state: ValidationState): { errors: string[]; warnings: st
             warnings.push(`Family ${familyId} missing family_name`);
         }
     }
+
     return { errors, warnings };
 }
 
@@ -1260,19 +1261,92 @@ function checkApiProviderModels(
     return { errors, warnings, entryCount };
 }
 
+function loadLegacyLineageExceptions(errors: string[]) {
+    const filePath = path.join(DATA_ROOT, 'lineage-reference-exceptions.json');
+    const raw = safeReadJson(filePath, errors, 'Lineage reference exceptions');
+    const references = raw?.references;
+    if (!isPlainObject(references)) {
+        errors.push('Lineage reference exceptions must contain a references object');
+        return new Map<string, string>();
+    }
+    const exceptions = new Map<string, string>();
+    for (const [modelId, previousModelId] of Object.entries(references)) {
+        const normalizedModelId = normalizeReference(modelId);
+        const normalizedPreviousModelId = normalizeReference(previousModelId);
+        if (!normalizedModelId || !normalizedPreviousModelId) {
+            errors.push(`Lineage reference exception ${modelId} must map to a non-empty model ID`);
+            continue;
+        }
+        exceptions.set(normalizedModelId, normalizedPreviousModelId);
+    }
+    return exceptions;
+}
+
+export function checkPreviousModelReference(input: {
+    modelId: string;
+    organisationId?: string | null;
+    previousModelId: string;
+    previousModelExists: boolean;
+    previousModelOrganisationId?: string | null;
+    isLegacyException?: boolean;
+}): string[] {
+    const errors: string[] = [];
+    const label = `Model ${input.modelId}`;
+    if (!input.previousModelExists) {
+        if (!input.isLegacyException) {
+            errors.push(`${label} references unknown previous_model_id ${input.previousModelId}`);
+        }
+        return errors;
+    }
+    if (input.previousModelId === input.modelId) {
+        errors.push(`${label} cannot reference itself as previous_model_id`);
+    }
+    if (
+        input.previousModelOrganisationId &&
+        input.organisationId &&
+        input.previousModelOrganisationId !== input.organisationId
+    ) {
+        errors.push(
+            `${label} references predecessor ${input.previousModelId} from a different organisation (${input.previousModelOrganisationId})`
+        );
+    }
+    return errors;
+}
+
 function checkModelReferences(state: ValidationState): { errors: string[]; warnings: string[] } {
     const errors: string[] = [];
     const warnings: string[] = [];
+    const legacyExceptions = loadLegacyLineageExceptions(errors);
+    const modelsById = new Map(
+        state.models
+            .map((entry) => {
+                const modelId = normalizeReference(entry.data.model_id);
+                return modelId ? ([modelId, entry] as const) : null;
+            })
+            .filter((entry): entry is readonly [string, ModelEntry] => entry !== null)
+    );
     for (const entry of state.models) {
         const { data } = entry;
         const modelId = typeof data.model_id === 'string' ? data.model_id.trim() : '';
         if (!modelId) continue;
         const label = `Model ${modelId}`;
         const prevRef = normalizeReference(data.previous_model_id);
-        if (prevRef && !state.modelIds.has(prevRef)) {
-            warnings.push(
-                `${label} references unknown previous_model_id ${prevRef} (non-blocking: likely internal model reference)`
+        if (prevRef) {
+            const previousModel = modelsById.get(prevRef)?.data;
+            const isLegacyException = legacyExceptions.get(modelId) === prevRef;
+            errors.push(
+                ...checkPreviousModelReference({
+                    modelId,
+                    organisationId: data.organisation_id,
+                    previousModelId: prevRef,
+                    previousModelExists: state.modelIds.has(prevRef),
+                    previousModelOrganisationId: previousModel?.organisation_id,
+                    isLegacyException,
+                })
             );
+            if (!state.modelIds.has(prevRef) && isLegacyException) {
+                warnings.push(`${label} retains grandfathered legacy previous_model_id ${prevRef}`);
+            }
         }
         const familyRef = normalizeReference(data.family_id);
         if (familyRef && !state.familyIds.has(familyRef)) {
@@ -1352,6 +1426,44 @@ function checkModelReferences(state: ValidationState): { errors: string[]; warni
             errors.push(`${label} missing description`);
         } else if (description === GENERIC_MODEL_DESCRIPTION_FALLBACK) {
             errors.push(`${label} uses legacy generic description placeholder`);
+        }
+    }
+
+    for (const [modelId, previousModelId] of legacyExceptions) {
+        const model = modelsById.get(modelId)?.data;
+        if (!model) {
+            errors.push(`Lineage reference exception references unknown model ${modelId}`);
+            continue;
+        }
+        if (normalizeReference(model.previous_model_id) !== previousModelId) {
+            errors.push(`Lineage reference exception for ${modelId} is stale and must be removed or updated`);
+        }
+        if (state.modelIds.has(previousModelId)) {
+            errors.push(
+                `Lineage reference exception for ${modelId} is no longer needed because ${previousModelId} exists`
+            );
+        }
+    }
+
+    const reportedCycles = new Set<string>();
+    for (const modelId of modelsById.keys()) {
+        const pathIds: string[] = [];
+        const pathIndexes = new Map<string, number>();
+        let currentId: string | null = modelId;
+        while (currentId && modelsById.has(currentId)) {
+            const existingIndex = pathIndexes.get(currentId);
+            if (existingIndex !== undefined) {
+                const cycle = pathIds.slice(existingIndex);
+                const cycleKey = [...cycle].sort().join('|');
+                if (!reportedCycles.has(cycleKey)) {
+                    reportedCycles.add(cycleKey);
+                    errors.push(`Model lineage cycle detected: ${[...cycle, currentId].join(' -> ')}`);
+                }
+                break;
+            }
+            pathIndexes.set(currentId, pathIds.length);
+            pathIds.push(currentId);
+            currentId = normalizeReference(modelsById.get(currentId)?.data.previous_model_id);
         }
     }
     return { errors, warnings };
