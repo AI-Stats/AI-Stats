@@ -10,6 +10,7 @@ const drainEmailOutboxMock = vi.fn();
 const runModelDiscoveryJobMock = vi.fn();
 const oauthCleanupRpcMock = vi.fn();
 const runGatewayIoRetentionBillingJobMock = vi.fn();
+const pruneExpiredDataContributionsMock = vi.fn();
 
 vi.mock("@/runtime/env", () => ({
 	clearRuntime: (...args: unknown[]) => clearRuntimeMock(...args),
@@ -49,6 +50,11 @@ vi.mock("@/pipeline/audit/io-retention-billing", () => ({
 		runGatewayIoRetentionBillingJobMock(...args),
 }));
 
+vi.mock("@/pipeline/classification/data-contribution", () => ({
+	pruneExpiredDataContributions: (...args: unknown[]) =>
+		pruneExpiredDataContributionsMock(...args),
+}));
+
 import { handleScheduledEvent } from "./index";
 
 function scheduledEventAt(iso: string): ScheduledController {
@@ -71,6 +77,7 @@ describe("handleScheduledEvent", () => {
 		runModelDiscoveryJobMock.mockReset();
 		oauthCleanupRpcMock.mockReset();
 		runGatewayIoRetentionBillingJobMock.mockReset();
+		pruneExpiredDataContributionsMock.mockReset();
 		oauthCleanupRpcMock.mockResolvedValue({ error: null });
 		runAsyncWebhookRetriesJobMock.mockResolvedValue({
 			startedAt: "2026-06-10T00:05:00.000Z",
@@ -96,6 +103,7 @@ describe("handleScheduledEvent", () => {
 			warningsQueued: 0,
 			failed: 0,
 		});
+		pruneExpiredDataContributionsMock.mockResolvedValue({ deleted: 0, failed: 0 });
 	});
 
 	it("runs async webhook retries on five-minute core job ticks by default", async () => {
@@ -118,6 +126,7 @@ describe("handleScheduledEvent", () => {
 			p_limit: 250,
 		});
 		expect(runModelDiscoveryJobMock).not.toHaveBeenCalled();
+		expect(pruneExpiredDataContributionsMock).toHaveBeenCalledWith(1000);
 	});
 
 	it("allows the v2 analytics outbox batch size to be configured", async () => {

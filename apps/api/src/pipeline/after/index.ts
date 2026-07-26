@@ -19,6 +19,7 @@ import { logDebugEvent, previewValue } from "../debug";
 import { normalizeFinishReason } from "../audit/normalize-finish-reason";
 import { attachToolUsageMetrics, summarizeToolUsage } from "./tool-usage";
 import { applyByokServiceFee } from "../pricing/byok-fee";
+import { applyDataContributionDiscount } from "../pricing/data-contribution-discount";
 import { getBaseModel } from "../execute/utils";
 import { dispatchBackground, ensureRuntimeForBackground, getResponseCache } from "@/runtime/env";
 import { resolveNonStreamLatencyMs } from "./timing";
@@ -28,6 +29,7 @@ import {
 } from "../execute/sticky-routing";
 import { buildCachedResponseRecord } from "@/core/response-cache";
 import { applyResponsePlugins } from "@/plugins/registry";
+import { applySuccessfulResponseBillingPolicy, suppressFailedResponseBilling } from "./billing-policy";
 
 function shouldAttachRoutingDiagnostics(ctx: PipelineContext): boolean {
 	return Boolean(ctx.meta?.debug?.enabled || ctx.meta?.returnRoutingDiagnostics);
@@ -54,45 +56,11 @@ export function shouldReturnBinaryAudio(ctx: PipelineContext): boolean {
 	return true;
 }
 
-export async function settleBillableFailure(
+export async function settleNonBillableFailure(
     ctx: PipelineContext,
     result: RequestResult,
 ): Promise<void> {
-    const usage = {
-        ...((result.bill?.usage && typeof result.bill.usage === "object") ? result.bill.usage : {}),
-        ...((result.ir?.usage && typeof result.ir.usage === "object") ? result.ir.usage : {}),
-        _provider_id: result.provider,
-    };
-    const shapedUsage = shapeUsageForClient(usage, {
-        endpoint: ctx.endpoint,
-        body: ctx.body,
-        includeInternalHints: true,
-    });
-    const card = await loadProviderPricing(ctx, result);
-    const tier = ctx.teamEnrichment?.tier ?? "basic";
-    const priced = await calculatePricing(shapedUsage, card, ctx.body, tier, ctx.meta);
-    const withByok = await applyByokServiceFee({
-        workspaceId: ctx.workspaceId,
-        isByok: (result?.keySource ?? ctx.meta.keySource) === "byok",
-        baseCostNanos: priced.totalNanos,
-        pricedUsage: priced.pricedUsage,
-        currencyHint: priced.currency,
-    });
-    const usageForAudit = shapeUsageForClient(withByok.pricedUsage, {
-        endpoint: ctx.endpoint,
-        body: ctx.body,
-    });
-    if (usageForAudit && typeof usageForAudit === "object") {
-        delete (usageForAudit as any)._provider_id;
-    }
-    result.bill.cost_cents = withByok.totalCents;
-    result.bill.currency = withByok.currency;
-    result.bill.usage = usageForAudit;
-    await recordUsageAndChargeOnce({
-        ctx,
-        costNanos: withByok.totalNanos,
-        endpoint: ctx.endpoint,
-    });
+	suppressFailedResponseBilling({ ctx, result, reason: "empty_response" });
 }
 
 function normalizeWavChunkSizesIfNeeded(bytes: Uint8Array): Uint8Array {
@@ -475,13 +443,31 @@ async function handleNonStreamResponse(
         ctx.meta
     ));
     const isByok = (result?.keySource ?? ctx.meta.keySource) === "byok";
-    const pricedWithByok = await ctx.timer.span("after_apply_byok_fee", () => applyByokServiceFee({
+    const pricedWithByokSubtotal = await ctx.timer.span("after_apply_byok_fee", () => applyByokServiceFee({
         workspaceId: ctx.workspaceId,
         isByok,
         baseCostNanos: totalNanos,
         pricedUsage,
         currencyHint: currency,
     }));
+    const successfulBilling = applySuccessfulResponseBillingPolicy({
+		endpoint: ctx.endpoint,
+		pricedUsage: pricedWithByokSubtotal.pricedUsage,
+		totalNanos: pricedWithByokSubtotal.totalNanos,
+		totalCents: pricedWithByokSubtotal.totalCents,
+	});
+    const contributionDiscount = applyDataContributionDiscount({
+		pricedUsage: successfulBilling.pricedUsage,
+		totalNanos: successfulBilling.totalNanos,
+		enabled: ctx.teamSettings?.dataContributionEnabled === true,
+		isByok,
+		discountBps: ctx.teamSettings?.dataContributionDiscountBps,
+	});
+    const pricedWithByok = {
+		...pricedWithByokSubtotal,
+		...successfulBilling,
+		...contributionDiscount,
+	};
     const pricedUsageFinalRaw = pricedWithByok.pricedUsage;
     const totalCentsFinal = pricedWithByok.totalCents;
     const totalNanosFinal = pricedWithByok.totalNanos;

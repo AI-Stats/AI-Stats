@@ -25,6 +25,7 @@ import { presetsRoutes } from "./presets";
 import { settingsRoutes } from "./settings";
 import { guardrailsRoutes } from "./guardrails";
 import { managementKeysRoutes } from "./management-keys";
+import { dataContributionRoutes } from "./data-contribution";
 
 export const platformRouter = new Hono<Env>();
 
@@ -48,6 +49,7 @@ platformRouter.route("/presets", presetsRoutes);
 platformRouter.route("/settings", settingsRoutes);
 platformRouter.route("/guardrails", guardrailsRoutes);
 platformRouter.route("/management-keys", managementKeysRoutes);
+platformRouter.route("/data-contribution", dataContributionRoutes);
 platformRouter.route("/me", meRoutes);
 platformRouter.route("/", placeholdersRoutes);
 

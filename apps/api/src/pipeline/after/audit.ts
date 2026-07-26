@@ -19,6 +19,11 @@ import {
 	resolveExecuteTotalLatencyMs,
 	resolveNonStreamLatencyMs,
 } from "./timing";
+import {
+	normalizeDataContributionPolicy,
+	persistDataContribution,
+} from "../classification/data-contribution";
+import { currentDataContributionDiscountNanos } from "../pricing/data-contribution-discount";
 
 function getProviderAttempts(ctx: PipelineContext): Array<Record<string, unknown>> {
     return Array.isArray(ctx.providerAttempts) ? ctx.providerAttempts : [];
@@ -414,6 +419,7 @@ export async function handleFailureAudit(
         }),
         onDeliveryFailure: emitGatewayTelemetryDeliveryFailure,
     });
+
 }
 
 export async function handleSuccessAudit(
@@ -625,6 +631,30 @@ export async function handleSuccessAudit(
         }),
         onDeliveryFailure: emitGatewayTelemetryDeliveryFailure,
     });
+
+	if (!byok && ctx.teamSettings?.dataContributionEnabled === true) {
+		const pricing = (usageWithMultimodal as any)?.pricing;
+		const currentDiscountNanos = currentDataContributionDiscountNanos(pricing, totalNanos);
+		const capture = await persistDataContribution({
+			requestId: ctx.requestId,
+			workspaceId: ctx.workspaceId,
+			endpoint: ctx.endpoint,
+			model: ctx.model,
+			provider: result.provider,
+			requestPayload: ctx.rawBody ?? ctx.body ?? null,
+			gatewayResponse: gatewayResponse ?? null,
+			usage: usageWithMultimodal,
+			discountNanos: currentDiscountNanos,
+			policy: normalizeDataContributionPolicy(ctx.teamSettings),
+		});
+		if (capture.status === "error") {
+			console.error("data_contribution_capture_unavailable", {
+				requestId: ctx.requestId,
+				workspaceId: ctx.workspaceId,
+				status: capture.status,
+			});
+		}
+	}
 }
 
 function enrichUsageWithMultimodal(ctx: PipelineContext, result: RequestResult, usagePriced: any): any {
