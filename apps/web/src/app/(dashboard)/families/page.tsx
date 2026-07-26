@@ -1,8 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { ArrowUpRight } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { FamilyCard } from "@/lib/fetchers/families/types";
 import {
@@ -52,44 +52,33 @@ async function FamiliesSection() {
 				</span>
 			</div>
 
-			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{families.map((family) => (
-					<Link
-						key={family.family_id}
-						href={`/families/${family.family_id}`}
-						className="group"
-					>
-						<Card className="h-full transition group-hover:border-primary/60 group-hover:shadow-md">
-							<CardHeader className="flex flex-row items-center gap-3">
-								<div className="w-10 h-10 rounded-xl border bg-background flex items-center justify-center">
-									<div className="relative w-6 h-6">
-										{family.organisation_id ? (
-											<Logo
-												id={family.organisation_id}
-												alt={family.family_name}
-												fill
-												className="object-contain"
-											/>
-										) : null}
-									</div>
+			<div className="overflow-hidden rounded-xl border border-border/70 bg-border/70">
+				<div className="grid grid-cols-1 gap-px sm:grid-cols-2 2xl:grid-cols-3">
+					{families.map((family) => (
+						<Link
+							key={family.family_id}
+							href={`/families/${family.family_id}`}
+							className="group flex min-h-20 items-center gap-3 bg-background px-4 py-3 transition-colors hover:bg-muted/25 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40"
+						>
+							<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border bg-background">
+								<div className="relative h-6 w-6">
+									{family.organisation_id ? (
+										<Logo
+											id={family.organisation_id}
+											alt=""
+											fill
+											className="object-contain"
+										/>
+									) : null}
 								</div>
-								<div className="min-w-0">
-									<CardTitle className="text-base truncate">
-										{family.family_name}
-									</CardTitle>
-									<p className="text-xs text-muted-foreground truncate">
-										{family.family_id}
-									</p>
-								</div>
-							</CardHeader>
-							<CardContent className="text-xs text-muted-foreground">
-								{family.organisation_id
-									? `Organisation: ${family.organisation_id}`
-									: "Organisation not specified"}
-							</CardContent>
-						</Card>
-					</Link>
-				))}
+							</div>
+							<span className="min-w-0 flex-1 truncate text-sm font-semibold">
+								{family.family_name}
+							</span>
+							<ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
+						</Link>
+					))}
+				</div>
 			</div>
 		</div>
 	);
@@ -105,10 +94,15 @@ function FamiliesFallback() {
 				</div>
 				<Skeleton className="h-5 w-36" />
 			</div>
-			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{Array.from({ length: 6 }).map((_, index) => (
-					<Skeleton key={index} className="h-32 w-full rounded-xl" />
-				))}
+			<div className="overflow-hidden rounded-xl border border-border/70">
+				<div className="grid grid-cols-1 gap-px bg-border/70 sm:grid-cols-2 2xl:grid-cols-3">
+					{Array.from({ length: 6 }).map((_, index) => (
+						<div key={index} className="flex h-20 items-center gap-3 bg-background px-4">
+							<Skeleton className="h-10 w-10 rounded-lg" />
+							<Skeleton className="h-4 w-32" />
+						</div>
+					))}
+				</div>
 			</div>
 		</div>
 	);
