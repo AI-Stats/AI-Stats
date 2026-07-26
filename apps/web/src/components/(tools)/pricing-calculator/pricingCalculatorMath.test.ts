@@ -46,6 +46,30 @@ describe("pricing calculator arithmetic", () => {
 		expect(tiers.map((tier) => tier.meters.at(0)?.price_per_unit)).toEqual(["30", "45"]);
 	});
 
+	test("does not guess a conditional rate when a required parameter is unavailable", () => {
+		const meters = [
+			{
+				meter: "output_image",
+				unit: "image",
+				unit_size: 1,
+				price_per_unit: "0.011",
+				currency: "USD",
+				conditions: [{ path: "image_params.quality", op: "eq", value: "low" }],
+			},
+			{
+				meter: "output_image",
+				unit: "image",
+				unit_size: 1,
+				price_per_unit: "0.25",
+				currency: "USD",
+				conditions: [{ path: "image_params.quality", op: "eq", value: "high" }],
+			},
+		];
+
+		expect(selectPricingMetersForUsage(meters, {})).toEqual([]);
+		expect(selectPricingMetersForUsage(meters, { "image_params.quality": "high" }).at(0)?.price_per_unit).toBe("0.25");
+	});
+
 	test("calculates usage cost from the meter unit size", () => {
 		expect(calculateCost(2_000_000, inputTokenMeter)).toBe(10);
 	});

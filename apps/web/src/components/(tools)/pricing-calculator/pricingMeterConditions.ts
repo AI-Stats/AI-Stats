@@ -68,16 +68,21 @@ function conditionMatches(
 	usage: Record<string, string | number | undefined>,
 ): boolean {
 	const path = typeof condition.path === "string" ? condition.path : "";
+	if (!path) return false;
+	if (condition.op === "eq" || condition.op === "neq") {
+		const actual = usage[path];
+		if (actual === undefined) return false;
+		const matches = String(actual) === String(condition.value);
+		return condition.op === "eq" ? matches : !matches;
+	}
 	const expected = Number(condition.value);
-	if (!path || !Number.isFinite(expected)) return false;
+	if (!Number.isFinite(expected)) return false;
 	const actual = numericUsageValue(usage, path);
 	switch (condition.op) {
 		case "gt": return actual > expected;
 		case "gte": return actual >= expected;
 		case "lt": return actual < expected;
 		case "lte": return actual <= expected;
-		case "eq": return actual === expected;
-		case "neq": return actual !== expected;
 		default: return false;
 	}
 }
@@ -116,8 +121,7 @@ export function selectPricingMetersForUsage(
 
 	return [...grouped.values()].map((candidates) => {
 		const matching = candidates.filter((meter) => meterConditionsMatch(meter, usage));
-		const pool = matching.length > 0 ? matching : candidates;
-		return pool.toSorted((a, b) => {
+		return matching.toSorted((a, b) => {
 			const conditionDifference = (b.conditions?.length ?? 0) - (a.conditions?.length ?? 0);
 			if (conditionDifference !== 0) return conditionDifference;
 			const aRate = Number(a.price_per_unit) / (Number(a.unit_size) || 1);

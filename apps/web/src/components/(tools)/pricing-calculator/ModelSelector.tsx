@@ -380,7 +380,7 @@ export function ModelSelector({
 							isItemDisabled={(model) => loadingModelSet.has(model.modelId)}
 							onActiveItemChange={setActiveModelId}
 							onSelectItem={(model) => onAddModel(model.modelId)}
-							estimateItemSize={56}
+							estimateItemSize={64}
 							emptyContent="No models found."
 							renderItem={(model) => {
 									const selectedCount = selectionCountByModelId.get(model.modelId) ?? 0;
