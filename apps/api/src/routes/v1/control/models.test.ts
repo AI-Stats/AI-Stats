@@ -10,13 +10,14 @@ vi.mock("@pipeline/before/guards", () => ({
 
 vi.mock("./models.catalogue", () => ({
     fetchCatalogue: (...args: any[]) => fetchCatalogueMock(...args),
+    scopePricingSummary: (pricing: unknown) => pricing,
 }));
 
 vi.mock("@pipeline/before/context", () => ({
     fetchGatewayContext: (...args: any[]) => fetchGatewayContextMock(...args),
 }));
 
-import { handleModels, handleMyModels } from "./models";
+import { handleModelEndpoints, handleModels, handleMyModels } from "./models";
 
 function buildCatalogueModel(overrides: Record<string, unknown> = {}) {
     return {
@@ -70,6 +71,7 @@ function buildCatalogueModel(overrides: Record<string, unknown> = {}) {
             pricing_plan: "standard",
             meters: {},
         },
+        provider_pricing: {},
         availability: {
             status: "active",
             provider_count: 1,
@@ -602,6 +604,159 @@ describe("handleModels", () => {
                     ],
                 },
             ],
+        });
+    });
+
+    it("accepts public modality and parameter filter aliases", async () => {
+        const response = await handleModels(
+            new Request(
+                "https://api.example.com/?input_modalities=text&output_modalities=image&supported_parameters=quality,size",
+            ),
+        );
+
+        expect(response.status).toBe(200);
+        expect(fetchCatalogueMock).toHaveBeenCalledWith(
+            expect.objectContaining({
+                inputTypes: ["text"],
+                outputTypes: ["image"],
+                params: ["quality", "size"],
+            }),
+        );
+    });
+
+    it("returns provider-specific endpoint capability rows across modalities", async () => {
+        const endpointDefinitions = [
+            { endpoint: "responses", input: ["text"], output: ["text"], params: ["temperature"] },
+            { endpoint: "images.generations", input: ["text"], output: ["image"], params: ["size"] },
+            { endpoint: "video.generation", input: ["text"], output: ["video"], params: ["duration"] },
+            { endpoint: "audio.speech", input: ["text"], output: ["audio"], params: ["voice"] },
+        ];
+        const baseModel = buildCatalogueModel({
+            model_id: "phaseo/multimodal-test",
+            aliases: ["phaseo/multimodal-alias"],
+            endpoints: endpointDefinitions.map((item) => item.endpoint),
+            input_types: ["text"],
+            output_types: ["text", "image", "video", "audio"],
+        });
+        fetchCatalogueMock.mockImplementation(async (filters: { endpoints?: string[] }) => {
+            const endpoint = filters.endpoints?.[0];
+            if (!endpoint) return [baseModel];
+            const definition = endpointDefinitions.find((item) => item.endpoint === endpoint);
+            if (!definition) return [];
+            return [buildCatalogueModel({
+                ...baseModel,
+                endpoints: [endpoint],
+                providers: [{
+                    api_provider_id: "provider-a",
+                    api_provider_name: "Provider A",
+                    provider_model_slug: "multimodal-v1",
+                    is_active_gateway: true,
+                    availability_status: "active",
+                    availability_reason: "active",
+                    provider_status: "active",
+                    provider_routing_status: "active",
+                    model_routing_status: "active",
+                    capability_status: "active",
+                    effective_from: null,
+                    effective_to: null,
+                    endpoints: [endpoint],
+                    input_modalities: definition.input,
+                    output_modalities: definition.output,
+                    params: definition.params,
+                    params_detail: Object.fromEntries(
+                        definition.params.map((param) => [param, { supported: true }]),
+                    ),
+                }],
+                supported_params: definition.params,
+                provider_pricing: {
+                    "provider-a": {
+                        pricing_plan: "standard",
+                        meters: {
+                            input_tokens: {
+                                provider_id: "provider-a",
+                                unit: "token",
+                                unit_size: 1000,
+                                price_per_unit: "0.5",
+                                currency: "USD",
+                            },
+                        },
+                    },
+                },
+            })];
+        });
+
+        const response = await handleModelEndpoints(
+            new Request("https://api.example.com/v1/models/phaseo/multimodal-test/endpoints"),
+        );
+
+        expect(response.status).toBe(200);
+        const payload = await response.json() as { endpoints: Array<Record<string, unknown>> };
+        expect(payload.endpoints).toHaveLength(4);
+        expect(payload.endpoints).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                endpoint: "responses",
+                public_path: "/v1/responses",
+                collection: "text",
+                provider_id: "provider-a",
+                provider_model_slug: "multimodal-v1",
+                input_modalities: ["text"],
+                output_modalities: ["text"],
+                supported_parameters: ["temperature"],
+                pricing: expect.objectContaining({ prompt: "0.0005" }),
+                pricing_detail: expect.objectContaining({
+                    meters: expect.objectContaining({
+                        input_tokens: expect.objectContaining({ provider_id: "provider-a" }),
+                    }),
+                }),
+            }),
+            expect.objectContaining({ endpoint: "images.generations", collection: "images" }),
+            expect.objectContaining({ endpoint: "video.generation", collection: "video" }),
+            expect.objectContaining({ endpoint: "audio.speech", collection: "audio" }),
+        ]));
+    });
+
+    it("includes non-routable endpoint states only when availability=all", async () => {
+        const model = buildCatalogueModel({
+            model_id: "phaseo/preview-model",
+            endpoints: ["responses"],
+            providers: [{
+                api_provider_id: "provider-preview",
+                api_provider_name: "Provider Preview",
+                provider_model_slug: "preview-v1",
+                is_active_gateway: false,
+                availability_status: "coming_soon",
+                availability_reason: "scheduled",
+                provider_status: "beta",
+                provider_routing_status: "active",
+                model_routing_status: "active",
+                capability_status: "coming_soon",
+                effective_from: "2026-08-01T00:00:00Z",
+                effective_to: null,
+                endpoints: ["responses"],
+                input_modalities: ["text"],
+                output_modalities: ["text"],
+                params: [],
+                params_detail: {},
+            }],
+        });
+        fetchCatalogueMock.mockResolvedValue([model]);
+
+        const response = await handleModelEndpoints(
+            new Request("https://api.example.com/v1/models/phaseo/preview-model/endpoints?availability=all"),
+        );
+
+        expect(response.status, JSON.stringify(await response.clone().json())).toBe(200);
+        expect(fetchCatalogueMock).toHaveBeenCalledWith(
+            expect.objectContaining({ availability: "all" }),
+        );
+        await expect(response.json()).resolves.toMatchObject({
+            availability_mode: "all",
+            endpoints: [{
+                availability_status: "coming_soon",
+                availability_reason: "scheduled",
+                capability_status: "coming_soon",
+                is_active_gateway: false,
+            }],
         });
     });
 

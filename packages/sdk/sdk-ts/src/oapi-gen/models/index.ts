@@ -56,6 +56,8 @@ export type { Embedding } from "./Embedding.js";
 export type { EmbeddingsMultimodalInput } from "./EmbeddingsMultimodalInput.js";
 export type { EmbeddingsRequest } from "./EmbeddingsRequest.js";
 export type { EmbeddingsResponse } from "./EmbeddingsResponse.js";
+export type { EndpointCatalogueEntry } from "./EndpointCatalogueEntry.js";
+export type { EndpointCatalogueResponse } from "./EndpointCatalogueResponse.js";
 export type { ErrorFailureSampleItem } from "./ErrorFailureSampleItem.js";
 export type { ErrorProviderCandidateDiagnostics } from "./ErrorProviderCandidateDiagnostics.js";
 export type { ErrorProviderEnablementDiagnostics } from "./ErrorProviderEnablementDiagnostics.js";
@@ -93,6 +95,8 @@ export type { ManagementKeyUpdateResponse } from "./ManagementKeyUpdateResponse.
 export type { MessageContentPart } from "./MessageContentPart.js";
 export type { Model } from "./Model.js";
 export type { ModelAvailability } from "./ModelAvailability.js";
+export type { ModelEndpointCapability } from "./ModelEndpointCapability.js";
+export type { ModelEndpointsResponse } from "./ModelEndpointsResponse.js";
 export type { ModelId } from "./ModelId.js";
 export type { ModelLifecycle } from "./ModelLifecycle.js";
 export type { ModelProviderAvailability } from "./ModelProviderAvailability.js";

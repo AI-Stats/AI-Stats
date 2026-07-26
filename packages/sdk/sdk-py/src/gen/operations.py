@@ -24,9 +24,9 @@ def cancelBatch(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> BatchResponse:
 	path = path or {}
-	resolved_path = f"/batches/{path.get("batch_id", "")}/cancel"
+	resolved_path = f"/batches/{path.get('batch_id', '')}/cancel"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -37,9 +37,9 @@ def cancelBatchAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> BatchResponse:
 	path = path or {}
-	resolved_path = f"/batch/{path.get("id", "")}/cancel"
+	resolved_path = f"/batch/{path.get('id', '')}/cancel"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -50,9 +50,9 @@ def cancelVideo(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> VideoGenerationResponse:
 	path = path or {}
-	resolved_path = f"/videos/{path.get("video_id", "")}/cancel"
+	resolved_path = f"/videos/{path.get('video_id', '')}/cancel"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -63,9 +63,9 @@ def cancelVideoAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> VideoGenerationResponse:
 	path = path or {}
-	resolved_path = f"/video/generations/{path.get("video_id", "")}/cancel"
+	resolved_path = f"/video/generations/{path.get('video_id', '')}/cancel"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -76,7 +76,7 @@ def createAnthropicMessage(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> AnthropicMessagesResponse:
 	path = path or {}
 	resolved_path = "/messages"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -89,7 +89,7 @@ def createApiKey(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> ApiKeyWithValueResponse:
 	path = path or {}
 	resolved_path = "/keys"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -102,7 +102,7 @@ def createBatch(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> BatchResponse:
 	path = path or {}
 	resolved_path = "/batches"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -115,7 +115,7 @@ def createBatchAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> BatchResponse:
 	path = path or {}
 	resolved_path = "/batch"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -128,7 +128,7 @@ def createChatCompletion(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> ChatCompletionsResponse:
 	path = path or {}
 	resolved_path = "/chat/completions"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -141,7 +141,7 @@ def createEmbedding(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> EmbeddingsResponse:
 	path = path or {}
 	resolved_path = "/embeddings"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -167,7 +167,7 @@ def createImageEdit(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> ImagesEditResponse:
 	path = path or {}
 	resolved_path = "/images/edits"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -180,7 +180,7 @@ def createModeration(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> ModerationsResponse:
 	path = path or {}
 	resolved_path = "/moderations"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -193,7 +193,7 @@ def createOcr(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> OcrResponse:
 	path = path or {}
 	resolved_path = "/ocr"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -206,7 +206,7 @@ def createRerank(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> RerankResponse:
 	path = path or {}
 	resolved_path = "/rerank"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -219,7 +219,7 @@ def createResponse(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> ResponsesResponse:
 	path = path or {}
 	resolved_path = "/responses"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -245,7 +245,7 @@ def createTranscription(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> AudioTranscriptionResponse:
 	path = path or {}
 	resolved_path = "/audio/transcriptions"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -258,7 +258,7 @@ def createTranslation(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> AudioTranslationResponse:
 	path = path or {}
 	resolved_path = "/audio/translations"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -271,7 +271,7 @@ def createVideo(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> VideoGenerationResponse:
 	path = path or {}
 	resolved_path = "/videos"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -284,7 +284,7 @@ def createVideoAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> VideoGenerationResponse:
 	path = path or {}
 	resolved_path = "/video/generations"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -299,7 +299,7 @@ def createVideoDownloadUrl(
 	body: Optional[Any] = None,
 ) -> Dict[str, Any]:
 	path = path or {}
-	resolved_path = f"/videos/{path.get("video_id", "")}/download_url"
+	resolved_path = f"/videos/{path.get('video_id', '')}/download_url"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -312,7 +312,7 @@ def createVideoDownloadUrlAlias(
 	body: Optional[Any] = None,
 ) -> Dict[str, Any]:
 	path = path or {}
-	resolved_path = f"/video/generations/{path.get("video_id", "")}/download_url"
+	resolved_path = f"/video/generations/{path.get('video_id', '')}/download_url"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -323,7 +323,7 @@ def createWorkspace(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> WorkspaceResponse:
 	path = path or {}
 	resolved_path = "/workspaces"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -336,9 +336,9 @@ def deleteApiKey(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> DeletedResponse:
 	path = path or {}
-	resolved_path = f"/keys/{path.get("id", "")}"
+	resolved_path = f"/keys/{path.get('id', '')}"
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -349,9 +349,9 @@ def deleteVideo(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> VideoDeleteResponse:
 	path = path or {}
-	resolved_path = f"/videos/{path.get("video_id", "")}"
+	resolved_path = f"/videos/{path.get('video_id', '')}"
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -362,9 +362,9 @@ def deleteVideoAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> VideoDeleteResponse:
 	path = path or {}
-	resolved_path = f"/video/generations/{path.get("video_id", "")}"
+	resolved_path = f"/video/generations/{path.get('video_id', '')}"
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -375,9 +375,9 @@ def deleteWorkspace(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> DeletedResponse:
 	path = path or {}
-	resolved_path = f"/workspaces/{path.get("id", "")}"
+	resolved_path = f"/workspaces/{path.get('id', '')}"
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -388,7 +388,7 @@ def generateMusic(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> MusicGenerateResponse:
 	path = path or {}
 	resolved_path = "/music/generate"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -401,7 +401,7 @@ def generateMusicAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> MusicGenerateResponse:
 	path = path or {}
 	resolved_path = "/music/generations"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -414,7 +414,7 @@ def getActivity(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> WorkspaceActivityResponse:
 	path = path or {}
 	resolved_path = "/activity"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -427,7 +427,7 @@ def getActivityAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> ActivityResponse:
 	path = path or {}
 	resolved_path = "/analytics"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -440,9 +440,9 @@ def getApiKey(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> ApiKeyResponse:
 	path = path or {}
-	resolved_path = f"/keys/{path.get("id", "")}"
+	resolved_path = f"/keys/{path.get('id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -453,7 +453,7 @@ def getCredits(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> CreditsResponse:
 	path = path or {}
 	resolved_path = "/credits"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -466,7 +466,7 @@ def getCurrentApiKey(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> ApiKeyResponse:
 	path = path or {}
 	resolved_path = "/key"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -479,7 +479,7 @@ def getGeneration(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> GenerationResponse:
 	path = path or {}
 	resolved_path = "/generations"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -505,9 +505,9 @@ def getMusicGeneration(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> MusicGenerateResponse:
 	path = path or {}
-	resolved_path = f"/music/generate/{path.get("music_id", "")}"
+	resolved_path = f"/music/generate/{path.get('music_id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -518,9 +518,9 @@ def getMusicGenerationAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> MusicGenerateResponse:
 	path = path or {}
-	resolved_path = f"/music/generations/{path.get("music_id", "")}"
+	resolved_path = f"/music/generations/{path.get('music_id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -533,7 +533,7 @@ def getProviderDerankStatus(
 	body: Optional[Any] = None,
 ) -> Dict[str, Any]:
 	path = path or {}
-	resolved_path = f"/health/providers/{path.get("provider_id", "")}/derank"
+	resolved_path = f"/health/providers/{path.get('provider_id', '')}/derank"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -544,9 +544,9 @@ def getVideo(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> VideoGenerationResponse:
 	path = path or {}
-	resolved_path = f"/videos/{path.get("video_id", "")}"
+	resolved_path = f"/videos/{path.get('video_id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -557,9 +557,9 @@ def getVideoAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> VideoGenerationResponse:
 	path = path or {}
-	resolved_path = f"/video/generations/{path.get("video_id", "")}"
+	resolved_path = f"/video/generations/{path.get('video_id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -572,7 +572,7 @@ def getVideoContent(
 	body: Optional[Any] = None,
 ) -> Any:
 	path = path or {}
-	resolved_path = f"/videos/{path.get("video_id", "")}/content"
+	resolved_path = f"/videos/{path.get('video_id', '')}/content"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -585,7 +585,7 @@ def getVideoContentAlias(
 	body: Optional[Any] = None,
 ) -> Any:
 	path = path or {}
-	resolved_path = f"/video/generations/{path.get("video_id", "")}/content"
+	resolved_path = f"/video/generations/{path.get('video_id', '')}/content"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -596,9 +596,9 @@ def getWorkspace(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> WorkspaceResponse:
 	path = path or {}
-	resolved_path = f"/workspaces/{path.get("id", "")}"
+	resolved_path = f"/workspaces/{path.get('id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -609,7 +609,7 @@ def listApiKeys(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> ApiKeyListResponse:
 	path = path or {}
 	resolved_path = "/keys"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -648,7 +648,7 @@ def listBatches(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> BatchListResponse:
 	path = path or {}
 	resolved_path = "/batches"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -661,7 +661,7 @@ def listBatchesAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> BatchListResponse:
 	path = path or {}
 	resolved_path = "/batch"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -700,7 +700,7 @@ def listBatchModels(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> BatchModelsResponse:
 	path = path or {}
 	resolved_path = "/batches/models"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -713,7 +713,7 @@ def listBatchModelsAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> BatchModelsResponse:
 	path = path or {}
 	resolved_path = "/batch/models"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -728,7 +728,7 @@ def listBatchRequests(
 	body: Optional[Any] = None,
 ) -> Dict[str, Any]:
 	path = path or {}
-	resolved_path = f"/batches/{path.get("batch_id", "")}/requests"
+	resolved_path = f"/batches/{path.get('batch_id', '')}/requests"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -741,7 +741,7 @@ def listBatchRequestsAlias(
 	body: Optional[Any] = None,
 ) -> Dict[str, Any]:
 	path = path or {}
-	resolved_path = f"/batch/{path.get("id", "")}/requests"
+	resolved_path = f"/batch/{path.get('id', '')}/requests"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -765,7 +765,7 @@ def listEndpoints(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> EndpointCatalogueResponse:
 	path = path or {}
 	resolved_path = "/endpoints"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -784,6 +784,19 @@ def listFiles(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def listModelEndpoints(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ModelEndpointsResponse:
+	path = path or {}
+	resolved_path = f"/models/{path.get('author', '')}/{path.get('slug', '')}/endpoints"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def listModels(
 	client: Client,
 	*,
@@ -791,7 +804,7 @@ def listModels(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> GatewayModelsResponse:
 	path = path or {}
 	resolved_path = "/models"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -843,7 +856,7 @@ def listTeamModels(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> GatewayModelsResponse:
 	path = path or {}
 	resolved_path = "/models/me"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -856,7 +869,7 @@ def listVideoModels(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> VideoModelsResponse:
 	path = path or {}
 	resolved_path = "/videos/models"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -869,7 +882,7 @@ def listVideoModelsAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> VideoModelsResponse:
 	path = path or {}
 	resolved_path = "/video/generations/models"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -882,7 +895,7 @@ def listVideos(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> VideoListResponse:
 	path = path or {}
 	resolved_path = "/videos"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -895,7 +908,7 @@ def listVideosAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> VideoListResponse:
 	path = path or {}
 	resolved_path = "/video/generations"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -908,7 +921,7 @@ def listWorkspaces(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> WorkspaceListResponse:
 	path = path or {}
 	resolved_path = "/workspaces"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -923,7 +936,7 @@ def openAsyncJobWebSocket(
 	body: Optional[Any] = None,
 ) -> Any:
 	path = path or {}
-	resolved_path = f"/async/{path.get("kind", "")}/{path.get("id", "")}/ws"
+	resolved_path = f"/async/{path.get('kind', '')}/{path.get('id', '')}/ws"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -934,9 +947,9 @@ def retrieveBatch(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> BatchResponse:
 	path = path or {}
-	resolved_path = f"/batches/{path.get("batch_id", "")}"
+	resolved_path = f"/batches/{path.get('batch_id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -947,9 +960,9 @@ def retrieveBatchAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> BatchResponse:
 	path = path or {}
-	resolved_path = f"/batch/{path.get("id", "")}"
+	resolved_path = f"/batch/{path.get('id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -960,9 +973,9 @@ def retrieveBatchFile(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> FileResponse:
 	path = path or {}
-	resolved_path = f"/batches/files/{path.get("file_id", "")}"
+	resolved_path = f"/batches/files/{path.get('file_id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -973,9 +986,9 @@ def retrieveBatchFileAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> FileResponse:
 	path = path or {}
-	resolved_path = f"/batch/files/{path.get("file_id", "")}"
+	resolved_path = f"/batch/files/{path.get('file_id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -988,7 +1001,7 @@ def retrieveBatchFileContent(
 	body: Optional[Any] = None,
 ) -> Any:
 	path = path or {}
-	resolved_path = f"/batches/files/{path.get("file_id", "")}/content"
+	resolved_path = f"/batches/files/{path.get('file_id', '')}/content"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1001,7 +1014,7 @@ def retrieveBatchFileContentAlias(
 	body: Optional[Any] = None,
 ) -> Any:
 	path = path or {}
-	resolved_path = f"/batch/files/{path.get("file_id", "")}/content"
+	resolved_path = f"/batch/files/{path.get('file_id', '')}/content"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1012,9 +1025,9 @@ def retrieveFile(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> FileResponse:
 	path = path or {}
-	resolved_path = f"/files/{path.get("file_id", "")}"
+	resolved_path = f"/files/{path.get('file_id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1027,7 +1040,7 @@ def retrieveFileContent(
 	body: Optional[Any] = None,
 ) -> Any:
 	path = path or {}
-	resolved_path = f"/files/{path.get("file_id", "")}/content"
+	resolved_path = f"/files/{path.get('file_id', '')}/content"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1038,9 +1051,9 @@ def updateApiKey(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> ApiKeyResponse:
 	path = path or {}
-	resolved_path = f"/keys/{path.get("id", "")}"
+	resolved_path = f"/keys/{path.get('id', '')}"
 	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1051,9 +1064,9 @@ def updateWorkspace(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> WorkspaceResponse:
 	path = path or {}
-	resolved_path = f"/workspaces/{path.get("id", "")}"
+	resolved_path = f"/workspaces/{path.get('id', '')}"
 	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1064,7 +1077,7 @@ def uploadBatchFile(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> FileResponse:
 	path = path or {}
 	resolved_path = "/batches/files"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -1077,7 +1090,7 @@ def uploadBatchFileAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> FileResponse:
 	path = path or {}
 	resolved_path = "/batch/files"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -1090,10 +1103,10 @@ def uploadFile(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> FileResponse:
 	path = path or {}
 	resolved_path = "/files"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
-operations___all__ = ["calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createOcr", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "deleteApiKey", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listEndpoints", "listFiles", "listModels", "listOrganisations", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaces", "openAsyncJobWebSocket", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateWorkspace", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]
+operations___all__ = ["calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createOcr", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "deleteApiKey", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listOrganisations", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaces", "openAsyncJobWebSocket", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateWorkspace", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]

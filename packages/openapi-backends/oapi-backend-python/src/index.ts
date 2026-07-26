@@ -13,13 +13,14 @@ export const backendPython: Backend = {
 	id: "python",
 	async generate(ir: IR, _ctx: BackendContext): Promise<GeneratedFile[]> {
 		const files: GeneratedFile[] = [];
+		const modelTypes = createModelTypeResolver(ir.models);
 		files.push({
 			path: "__init__.py",
 			contents: renderInit()
 		});
 		files.push({
 			path: "models.py",
-			contents: renderModels(ir.models)
+			contents: renderModels(ir.models, modelTypes)
 		});
 		files.push({
 			path: "client.py",
@@ -27,7 +28,7 @@ export const backendPython: Backend = {
 		});
 		files.push({
 			path: "operations.py",
-			contents: renderOperations(ir.operations)
+			contents: renderOperations(ir.operations, modelTypes)
 		});
 		return files.sort((a, b) => a.path.localeCompare(b.path));
 	}
@@ -50,7 +51,7 @@ function renderInit(): string {
 	].join("\n");
 }
 
-function renderModels(models: IRModel[]): string {
+function renderModels(models: IRModel[], modelTypes: ModelTypeResolver): string {
 	const lines: string[] = [
 		"from __future__ import annotations",
 		"",
@@ -61,7 +62,7 @@ function renderModels(models: IRModel[]): string {
 	const exports: string[] = [];
 	for (const model of models) {
 		exports.push(model.name);
-		lines.push(renderModel(model));
+		lines.push(renderModel(model, modelTypes));
 		lines.push("");
 	}
 	lines.push(`models___all__ = [${exports.map((name) => `"${name}"`).join(", ")}]`);
@@ -69,7 +70,7 @@ function renderModels(models: IRModel[]): string {
 	return lines.join("\n");
 }
 
-function renderModel(model: IRModel): string {
+function renderModel(model: IRModel, modelTypes: ModelTypeResolver): string {
 	if (model.schema.kind === "object") {
 		const required = new Set(model.schema.required);
 		const fields = Object.keys(model.schema.properties).sort((a, b) => a.localeCompare(b));
@@ -80,7 +81,7 @@ function renderModel(model: IRModel): string {
 		}
 		for (const field of fields) {
 			const name = sanitizeIdentifier(field);
-			const value = pyType(model.schema.properties[field]);
+			const value = pyType(model.schema.properties[field], modelTypes, model.name);
 			if (required.has(field)) {
 				lines.push(`\t${name}: ${value}`);
 			} else {
@@ -89,7 +90,7 @@ function renderModel(model: IRModel): string {
 		}
 		return lines.join("\n");
 	}
-	return `${model.name} = ${pyType(model.schema)}`;
+	return `${model.name} = ${pyType(model.schema, modelTypes, model.name, true)}`;
 }
 
 function renderClient(): string {
@@ -136,7 +137,7 @@ function renderClient(): string {
 	].join("\n");
 }
 
-function renderOperations(operations: IROperation[]): string {
+function renderOperations(operations: IROperation[], modelTypes: ModelTypeResolver): string {
 	const lines: string[] = [
 		"from __future__ import annotations",
 		"",
@@ -148,7 +149,7 @@ function renderOperations(operations: IROperation[]): string {
 	const exports: string[] = [];
 	for (const operation of operations) {
 		exports.push(operation.operationId);
-		lines.push(renderOperation(operation));
+		lines.push(renderOperation(operation, modelTypes));
 		lines.push("");
 	}
 	lines.push(`operations___all__ = [${exports.map((name) => `"${name}"`).join(", ")}]`);
@@ -156,8 +157,8 @@ function renderOperations(operations: IROperation[]): string {
 	return lines.join("\n");
 }
 
-function renderOperation(operation: IROperation): string {
-	const returnType = pyType(selectSuccessSchema(operation));
+function renderOperation(operation: IROperation, modelTypes: ModelTypeResolver): string {
+	const returnType = pyType(selectSuccessSchema(operation), modelTypes, operation.operationId);
 	const pathParams = operation.params.filter((param) => param.in === "path");
 	const pathTemplate = renderPathTemplate(operation.path, pathParams);
 	return [
@@ -184,7 +185,7 @@ function renderPathTemplate(path: string, params: IROperation["params"]): string
 	const parts = segments.map((segment) => {
 		if (segment.startsWith("{") && segment.endsWith("}")) {
 			const name = sanitizeIdentifier(segment.slice(1, -1));
-			return `{path.get("${name}", "")}`;
+			return `{path.get('${name}', '')}`;
 		}
 		return segment
 			.replace(/\\/g, "\\\\")
@@ -205,7 +206,81 @@ function selectSuccessSchema(operation: IROperation): IRSchema {
 	return { kind: "unknown" };
 }
 
-function pyType(schema: IRSchema): string {
+type ModelTypeResolver = (schema: IRSchema, excludeModelName?: string) => string | undefined;
+
+function createModelTypeResolver(models: IRModel[]): ModelTypeResolver {
+	const namesBySchema = new Map<string, string[]>();
+	const modelSchemas = new Map(models.map((model) => [model.name, model.schema]));
+	for (const model of models) {
+		if (model.schema.kind !== "object") continue;
+		const signature = schemaSignature(model.schema, modelSchemas);
+		const names = namesBySchema.get(signature) ?? [];
+		names.push(model.name);
+		namesBySchema.set(signature, names);
+	}
+
+	return (schema, excludeModelName) => {
+		if (schema.kind !== "object") return undefined;
+		const candidates = (namesBySchema.get(schemaSignature(schema, modelSchemas)) ?? []).filter(
+			(name) => name !== excludeModelName
+		);
+		if (candidates.length === 1) return candidates[0];
+		if (!excludeModelName || candidates.length === 0) return undefined;
+
+		const contextTokens = modelNameTokens(excludeModelName);
+		const ranked = candidates
+			.map((name) => ({
+				name,
+				score: Array.from(modelNameTokens(name)).filter((token) => contextTokens.has(token)).length
+			}))
+			.sort((left, right) => right.score - left.score || left.name.localeCompare(right.name));
+		return ranked[0]?.score && ranked[0].score > (ranked[1]?.score ?? 0)
+			? ranked[0].name
+			: undefined;
+	};
+}
+
+function modelNameTokens(name: string): Set<string> {
+	return new Set(name.match(/[A-Z]+(?![a-z])|[A-Z]?[a-z]+|\d+/g) ?? [name]);
+}
+
+function schemaSignature(schema: IRSchema, modelSchemas: Map<string, IRSchema>): string {
+	return JSON.stringify(canonicalSchemaValue(schema, modelSchemas, new Set()));
+}
+
+function canonicalSchemaValue(
+	value: unknown,
+	modelSchemas: Map<string, IRSchema>,
+	resolvingRefs: Set<string>
+): unknown {
+	if (Array.isArray(value)) {
+		return value.map((item) => canonicalSchemaValue(item, modelSchemas, resolvingRefs));
+	}
+	if (!value || typeof value !== "object") return value;
+
+	const record = value as Record<string, unknown>;
+	if (record.kind === "ref" && typeof record.name === "string") {
+		const target = modelSchemas.get(record.name);
+		if (target && !resolvingRefs.has(record.name)) {
+			const nextRefs = new Set(resolvingRefs);
+			nextRefs.add(record.name);
+			return canonicalSchemaValue(target, modelSchemas, nextRefs);
+		}
+	}
+
+	return Object.fromEntries(
+		Object.entries(record)
+			.sort(([left], [right]) => left.localeCompare(right))
+			.map(([key, item]) => [key, canonicalSchemaValue(item, modelSchemas, resolvingRefs)])
+	);
+}
+
+function pyType(
+	schema: IRSchema,
+	modelTypes: ModelTypeResolver,
+	excludeModelName?: string,
+	quoteModelReferences = false
+): string {
 	switch (schema.kind) {
 		case "primitive":
 			if (schema.type === "boolean") return "bool";
@@ -217,18 +292,31 @@ function pyType(schema: IRSchema): string {
 		case "enum":
 			return `Literal[${schema.values.map((value) => JSON.stringify(value)).join(", ")}]`;
 		case "array":
-			return `List[${pyType(schema.items)}]`;
+			return `List[${pyType(schema.items, modelTypes, excludeModelName, quoteModelReferences)}]`;
 		case "object":
+			{
+				const modelType = modelTypes(schema, excludeModelName);
+				if (modelType) return quoteModelReferences ? JSON.stringify(modelType) : modelType;
+			}
 			if (isModelLifecycleObject(schema)) return "ModelLifecycle";
 			return "Dict[str, Any]";
 		case "union":
-			return `Union[${schema.variants.map(pyType).join(", ")}]`;
+			return `Union[${schema.variants
+				.map((variant) =>
+					pyType(variant, modelTypes, excludeModelName, quoteModelReferences)
+				)
+				.join(", ")}]`;
 		case "intersection":
 			return "Any";
 		case "ref":
-			return schema.name;
+			return quoteModelReferences ? JSON.stringify(schema.name) : schema.name;
 		case "nullable":
-			return `Optional[${pyType(schema.inner)}]`;
+			return `Optional[${pyType(
+				schema.inner,
+				modelTypes,
+				excludeModelName,
+				quoteModelReferences
+			)}]`;
 		case "unknown":
 		default:
 			return "Any";

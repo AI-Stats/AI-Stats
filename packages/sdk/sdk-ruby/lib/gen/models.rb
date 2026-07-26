@@ -852,6 +852,28 @@ module Phaseo
     # @!attribute [rw] usage
     #   @return [Hash{String => Object}, nil]
     EmbeddingsResponse = Struct.new(:data, :model, :object, :usage, keyword_init: true)
+    # @!attribute [rw] capability_id
+    #   @return [String]
+    # @!attribute [rw] collection
+    #   @return [String]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] model_count
+    #   @return [Integer]
+    # @!attribute [rw] provider_count
+    #   @return [Integer]
+    # @!attribute [rw] public_path
+    #   @return [String]
+    EndpointCatalogueEntry = Struct.new(:capability_id, :collection, :id, :model_count, :provider_count, :public_path, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] endpoints
+    #   @return [Array<String>]
+    # @!attribute [rw] ok
+    #   @return [String]
+    # @!attribute [rw] sample_models
+    #   @return [Array<String>]
+    EndpointCatalogueResponse = Struct.new(:data, :endpoints, :ok, :sample_models, keyword_init: true)
     # @!attribute [rw] provider
     #   @return [String, nil]
     # @!attribute [rw] retryable
@@ -1297,6 +1319,74 @@ module Phaseo
     # @!attribute [rw] status
     #   @return [String]
     ModelAvailability = Struct.new(:active_provider_count, :inactive_provider_count, :provider_count, :status, keyword_init: true)
+    # @!attribute [rw] availability_reason
+    #   @return [String]
+    # @!attribute [rw] availability_status
+    #   @return [String]
+    # @!attribute [rw] capability_id
+    #   @return [String]
+    # @!attribute [rw] capability_status
+    #   @return [String]
+    # @!attribute [rw] collection
+    #   @return [String]
+    # @!attribute [rw] effective_from
+    #   @return [String, nil]
+    # @!attribute [rw] effective_to
+    #   @return [String, nil]
+    # @!attribute [rw] endpoint
+    #   @return [String]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] input_modalities
+    #   @return [Array<String>]
+    # @!attribute [rw] is_active_gateway
+    #   @return [Boolean]
+    # @!attribute [rw] model_routing_status
+    #   @return [String]
+    # @!attribute [rw] output_modalities
+    #   @return [Array<String>]
+    # @!attribute [rw] pricing
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] pricing_detail
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] provider_id
+    #   @return [String]
+    # @!attribute [rw] provider_model_slug
+    #   @return [String, nil]
+    # @!attribute [rw] provider_name
+    #   @return [String, nil]
+    # @!attribute [rw] provider_routing_status
+    #   @return [String]
+    # @!attribute [rw] provider_status
+    #   @return [String]
+    # @!attribute [rw] public_path
+    #   @return [String]
+    # @!attribute [rw] supported_parameters
+    #   @return [Array<String>]
+    # @!attribute [rw] supported_parameters_detail
+    #   @return [Hash{String => Object}]
+    ModelEndpointCapability = Struct.new(:availability_reason, :availability_status, :capability_id, :capability_status, :collection, :effective_from, :effective_to, :endpoint, :id, :input_modalities, :is_active_gateway, :model_routing_status, :output_modalities, :pricing, :pricing_detail, :provider_id, :provider_model_slug, :provider_name, :provider_routing_status, :provider_status, :public_path, :supported_parameters, :supported_parameters_detail, keyword_init: true)
+    # @!attribute [rw] architecture
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] availability_mode
+    #   @return [String]
+    # @!attribute [rw] canonical_slug
+    #   @return [String]
+    # @!attribute [rw] created
+    #   @return [Integer, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] endpoints
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] model_id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] ok
+    #   @return [String]
+    ModelEndpointsResponse = Struct.new(:architecture, :availability_mode, :canonical_slug, :created, :description, :endpoints, :id, :model_id, :name, :ok, keyword_init: true)
     ModelId = Object
     # @!attribute [rw] deprecation_date
     #   @return [String, nil]
@@ -1325,14 +1415,20 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] endpoints
     #   @return [Array<String>]
+    # @!attribute [rw] input_modalities
+    #   @return [Array<String>, nil]
     # @!attribute [rw] is_active_gateway
     #   @return [Boolean]
     # @!attribute [rw] model_routing_status
     #   @return [String]
+    # @!attribute [rw] output_modalities
+    #   @return [Array<String>, nil]
     # @!attribute [rw] params
     #   @return [Array<String>]
     # @!attribute [rw] params_detail
     #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] provider_model_slug
+    #   @return [String, nil]
     # @!attribute [rw] provider_routing_status
     #   @return [String]
     # @!attribute [rw] provider_status
@@ -1341,7 +1437,7 @@ module Phaseo
     #   @return [Array<String>, nil]
     # @!attribute [rw] supported_parameters_detail
     #   @return [Hash{String => Object}, nil]
-    ModelProviderAvailability = Struct.new(:api_provider_id, :api_provider_name, :availability_reason, :availability_status, :capability_status, :effective_from, :effective_to, :endpoints, :is_active_gateway, :model_routing_status, :params, :params_detail, :provider_routing_status, :provider_status, :supported_parameters, :supported_parameters_detail, keyword_init: true)
+    ModelProviderAvailability = Struct.new(:api_provider_id, :api_provider_name, :availability_reason, :availability_status, :capability_status, :effective_from, :effective_to, :endpoints, :input_modalities, :is_active_gateway, :model_routing_status, :output_modalities, :params, :params_detail, :provider_model_slug, :provider_routing_status, :provider_status, :supported_parameters, :supported_parameters_detail, keyword_init: true)
     # @!attribute [rw] code
     #   @return [String]
     # @!attribute [rw] error

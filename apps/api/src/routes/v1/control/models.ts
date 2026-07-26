@@ -11,6 +11,7 @@ import { json, withRuntime, cacheHeaders } from "@/routes/utils";
 import { requireCapability } from "./route-helpers";
 import {
     fetchCatalogue,
+    scopePricingSummary,
     type CatalogueModel,
     type PricingMeterSummary,
     type PricingSummary,
@@ -18,6 +19,7 @@ import {
     type SupportedParamDetails,
 } from "./models.catalogue";
 import { buildFeedResponse, parseFeedFormat, type FeedItem } from "./models.feeds";
+import { getEndpointMetadata } from "./endpoint-metadata";
 
 type LifecycleStatus = "active" | "deprecated" | "retired" | null;
 type AvailabilityMode = "active" | "all";
@@ -99,6 +101,32 @@ function parseMultiValue(params: URLSearchParams, name: string): string[] {
     const values = params.getAll(name);
     if (!values.length) return [];
     return values.flatMap((value) => toStringArray(value));
+}
+
+function parseMultiValueAliases(params: URLSearchParams, names: string[]): string[] {
+    return Array.from(new Set(names.flatMap((name) => parseMultiValue(params, name))));
+}
+
+function parsePathSegments(req: Request): string[] {
+    return new URL(req.url).pathname
+        .split("/")
+        .map((segment) => decodeURIComponent(segment))
+        .filter(Boolean);
+}
+
+function parseEndpointRouteModelId(req: Request): string | null {
+    const segments = parsePathSegments(req);
+    const endpointsIndex = segments.lastIndexOf("endpoints");
+    if (endpointsIndex < 2) return null;
+    const author = segments[endpointsIndex - 2];
+    const slug = segments[endpointsIndex - 1];
+    return author && slug ? `${author}/${slug}` : null;
+}
+
+function findCatalogueModel(catalogue: CatalogueModel[], modelId: string): CatalogueModel | null {
+    return catalogue.find(
+        (model) => model.model_id === modelId || model.aliases.includes(modelId),
+    ) ?? null;
 }
 
 function parseAvailabilityMode(raw: string | null): AvailabilityMode | null {
@@ -450,6 +478,7 @@ async function buildFreeRouterCatalogueModel(args: {
                     })),
                 }),
             },
+            provider_pricing: {},
             availability: {
                 status: "active",
                 provider_count: providers.length,
@@ -466,6 +495,7 @@ function toRichModel(model: CatalogueModel, replacementModelId: string | null) {
     const {
         previous_model_id: _previousModelId,
         supported_params_detail: _supportedParamsDetail,
+        provider_pricing: _providerPricing,
         ...publicModel
     } = model;
     const legacyTopProvider = model.top_provider;
@@ -586,9 +616,9 @@ export async function handleModels(req: Request) {
         ...parseMultiValue(url.searchParams, "id"),
     ];
     const organisationIds = parseMultiValue(url.searchParams, "organisation");
-    const inputTypes = parseMultiValue(url.searchParams, "input_types");
-    const outputTypes = parseMultiValue(url.searchParams, "output_types");
-    const params = parseMultiValue(url.searchParams, "params");
+    const inputTypes = parseMultiValueAliases(url.searchParams, ["input_types", "input_modalities"]);
+    const outputTypes = parseMultiValueAliases(url.searchParams, ["output_types", "output_modalities"]);
+    const params = parseMultiValueAliases(url.searchParams, ["params", "supported_parameters"]);
     const availabilityMode = parseAvailabilityMode(url.searchParams.get("availability"));
     if (availabilityMode === null) {
         return json(
@@ -675,6 +705,153 @@ export async function handleModels(req: Request) {
     }
 }
 
+export async function handleModelEndpoints(req: Request) {
+    const url = new URL(req.url);
+    const modelId = parseEndpointRouteModelId(req);
+    if (!modelId) {
+        return json(
+            {
+                ok: false,
+                error: "invalid_request",
+                message: "Model path must be /models/{author}/{slug}/endpoints.",
+            },
+            400,
+            { "Cache-Control": "no-store" },
+        );
+    }
+
+    const auth = await guardAuth(req, { allowOAuthJwt: true });
+    if (!auth.ok) return (auth as GuardErr).response;
+    const scopeError = requireCapability(auth.value, CAPABILITIES.MODELS_READ);
+    if (scopeError) return scopeError;
+
+    const availabilityMode = parseAvailabilityMode(url.searchParams.get("availability"));
+    if (availabilityMode === null) {
+        return json(
+            {
+                ok: false,
+                error: "invalid_request",
+                message: "availability must be one of: active, all",
+            },
+            400,
+            { "Cache-Control": "no-store" },
+        );
+    }
+
+    const providerIds = parseMultiValue(url.searchParams, "provider");
+    const providerStatuses = parseMultiValue(url.searchParams, "provider_status");
+    const providerRoutingStatuses = parseMultiValue(url.searchParams, "provider_routing_status");
+    const modelRoutingStatuses = parseMultiValue(url.searchParams, "model_routing_status");
+    const capabilityStatuses = parseMultiValue(url.searchParams, "capability_status");
+    const providerAvailabilityStatuses = parseMultiValue(url.searchParams, "provider_availability_status");
+    const providerAvailabilityReasons = parseMultiValue(url.searchParams, "provider_availability_reason");
+    const statuses = parseMultiValue(url.searchParams, "status");
+    const params = parseMultiValueAliases(url.searchParams, ["params", "supported_parameters"]);
+
+    const sharedFilters = {
+        providerIds,
+        providerStatuses,
+        providerRoutingStatuses,
+        modelRoutingStatuses,
+        capabilityStatuses,
+        providerAvailabilityStatuses,
+        providerAvailabilityReasons,
+        statuses,
+        availability: availabilityMode,
+    } as const;
+
+    try {
+        const baseCatalogue = await fetchCatalogue(sharedFilters);
+        const model = findCatalogueModel(baseCatalogue, modelId);
+        if (!model) {
+            return json(
+                { ok: false, error: "not_found", message: `Model ${modelId} was not found.` },
+                404,
+                { "Cache-Control": "no-store" },
+            );
+        }
+
+        const endpointModels = await Promise.all(
+            model.endpoints.map(async (endpoint) => {
+                const catalogue = await fetchCatalogue({
+                    ...sharedFilters,
+                    endpoints: [endpoint],
+                    params,
+                });
+                return { endpoint, model: findCatalogueModel(catalogue, model.model_id) };
+            }),
+        );
+
+        const endpoints = endpointModels.flatMap(({ endpoint, model: endpointModel }) => {
+            if (!endpointModel) return [];
+            const metadata = getEndpointMetadata(endpoint);
+            return endpointModel.providers
+                .filter((provider) => provider.endpoints.includes(endpoint))
+                .map((provider) => {
+                    const pricing = endpointModel.provider_pricing?.[provider.api_provider_id]
+                        ?? scopePricingSummary(endpointModel.pricing, new Set([provider.api_provider_id]));
+                    return {
+                        id: `${provider.api_provider_id}:${endpoint}`,
+                        endpoint,
+                        capability_id: endpoint,
+                        public_path: metadata.public_path,
+                        collection: metadata.collection,
+                        provider_id: provider.api_provider_id,
+                        provider_name: provider.api_provider_name,
+                        provider_model_slug: provider.provider_model_slug,
+                        input_modalities: provider.input_modalities.length
+                            ? [...provider.input_modalities]
+                            : [...model.input_types],
+                        output_modalities: provider.output_modalities.length
+                            ? [...provider.output_modalities]
+                            : [...model.output_types],
+                        is_active_gateway: provider.is_active_gateway,
+                        availability_status: provider.availability_status,
+                        availability_reason: provider.availability_reason,
+                        provider_status: provider.provider_status,
+                        provider_routing_status: provider.provider_routing_status,
+                        model_routing_status: provider.model_routing_status,
+                        capability_status: provider.capability_status,
+                        effective_from: provider.effective_from,
+                        effective_to: provider.effective_to,
+                        supported_parameters: [...provider.params],
+                        supported_parameters_detail: cloneJsonObject(provider.params_detail ?? {}),
+                        pricing: toCompatibilityPricing(pricing),
+                        pricing_detail: pricing,
+                    };
+                });
+        });
+
+        return json(
+            {
+                ok: true,
+                id: model.model_id,
+                model_id: model.model_id,
+                canonical_slug: model.model_id,
+                name: model.name,
+                description: buildDescription(model),
+                created: toUnixSeconds(model.release_date),
+                architecture: toCompatibilityArchitecture(model),
+                availability_mode: availabilityMode,
+                endpoints,
+            },
+            200,
+            cacheHeaders({
+                scope: "models:endpoints:shared:v1",
+                ttlSeconds: 1800,
+                staleSeconds: 1800,
+                varyHeaders: [],
+            }),
+        );
+    } catch (error: any) {
+        return json(
+            { ok: false, error: "failed", message: String(error?.message ?? error) },
+            500,
+            { "Cache-Control": "no-store" },
+        );
+    }
+}
+
 export async function handleMyModels(req: Request) {
     const auth = await guardAuth(req, { allowOAuthJwt: true });
     if (!auth.ok) {
@@ -696,5 +873,6 @@ export async function handleMyModels(req: Request) {
 export const modelsRoutes = new Hono<Env>();
 
 modelsRoutes.get("/me", withRuntime((req) => handleMyModels(req)));
+modelsRoutes.get("/:author/:slug/endpoints", withRuntime((req) => handleModelEndpoints(req)));
 modelsRoutes.get("/", withRuntime((req) => handleModels(req)));
 

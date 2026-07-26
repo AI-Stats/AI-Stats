@@ -125,9 +125,10 @@ type CatalogueProvider = {
 export type SupportedParamDetail = Record<string, unknown>;
 export type SupportedParamDetails = Record<string, SupportedParamDetail>;
 
-type ProviderInfo = {
+export type ProviderInfo = {
     api_provider_id: string;
     api_provider_name: string | null;
+    provider_model_slug: string | null;
     is_active_gateway: boolean;
     availability_status: "active" | "coming_soon" | "inactive";
     availability_reason:
@@ -176,6 +177,8 @@ type ProviderInfo = {
     effective_from: string | null;
     effective_to: string | null;
     endpoints: Endpoint[];
+    input_modalities: string[];
+    output_modalities: string[];
     params: string[];
     params_detail: SupportedParamDetails;
 };
@@ -214,6 +217,7 @@ export type CatalogueModel = {
     supported_params_detail: SupportedParamDetails;
     top_provider: string | null;
     pricing: PricingSummary;
+    provider_pricing: Record<string, PricingSummary>;
     availability: {
         status: "active" | "coming_soon" | "inactive" | "not_listed";
         provider_count: number;
@@ -1008,7 +1012,7 @@ function compareProviderInfoCandidate(
     return candidate.params.join(",").localeCompare(current.params.join(","));
 }
 
-function scopePricingSummary(pricing: PricingSummary, visibleProviderIds: Set<string>): PricingSummary {
+export function scopePricingSummary(pricing: PricingSummary, visibleProviderIds: Set<string>): PricingSummary {
     const scopedMeters = Object.fromEntries(
         Object.entries(pricing.meters).map(([meter, summary]) => [
             meter,
@@ -1303,6 +1307,7 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
     }
 
     const pricingByModel = new Map<string, PricingSummary>();
+    const providerPricingByModel = new Map<string, Map<string, PricingSummary>>();
     const providerMeterByModel = new Map<string, Map<string, Map<string, number>>>();
 
     for (const rule of pricingRows ?? []) {
@@ -1329,6 +1334,16 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
             modelPricing.meters[meter] = candidate;
         }
         pricingByModel.set(combo.model_id, modelPricing);
+
+        const providerPricing = providerPricingByModel.get(combo.model_id) ?? new Map<string, PricingSummary>();
+        const providerSummary = providerPricing.get(combo.provider_id) ?? initPricingSummary();
+        const providerCandidate = comparePerUnit(rule, providerSummary.meters[meter]);
+        if (providerCandidate) {
+            providerCandidate.provider_id = combo.provider_id;
+            providerSummary.meters[meter] = providerCandidate;
+        }
+        providerPricing.set(combo.provider_id, providerSummary);
+        providerPricingByModel.set(combo.model_id, providerPricing);
 
         const providerMeters = providerMeterByModel.get(combo.model_id) ?? new Map<string, Map<string, number>>();
         const meterMap = providerMeters.get(combo.provider_id) ?? new Map<string, number>();
@@ -1542,6 +1557,7 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
                 providerMapForModel.set(entry.api_provider_id, {
                     api_provider_id: entry.api_provider_id,
                     api_provider_name: entry.api_provider_name,
+                    provider_model_slug: entry.provider_model_slug,
                     is_active_gateway: entry.is_active_gateway,
                     availability_status: entry.availability_status,
                     availability_reason: entry.availability_reason,
@@ -1552,6 +1568,8 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
                     effective_from: entry.effective_from,
                     effective_to: entry.effective_to,
                     endpoints: [...entry.endpoints],
+                    input_modalities: [...entry.input_modalities],
+                    output_modalities: [...entry.output_modalities],
                     params: [...entry.params].sort((a, b) => a.localeCompare(b)),
                     params_detail: { ...entry.params_detail },
                 });
@@ -1559,6 +1577,12 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
             }
 
             existing.endpoints = Array.from(new Set([...existing.endpoints, ...entry.endpoints])).sort();
+            existing.input_modalities = Array.from(
+                new Set([...existing.input_modalities, ...entry.input_modalities]),
+            ).sort();
+            existing.output_modalities = Array.from(
+                new Set([...existing.output_modalities, ...entry.output_modalities]),
+            ).sort();
             existing.params = Array.from(new Set([...existing.params, ...entry.params])).sort((a, b) => a.localeCompare(b));
             existing.params_detail = mergeParamDetails(existing.params_detail, entry.params_detail);
             if (compareProviderInfoCandidate(entry, existing) < 0) {
@@ -1601,6 +1625,12 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
         const pricing = pricingByModel.get(modelId) ?? initPricingSummary();
         const filteredProviderIds = new Set(providerInfos.map((provider) => provider.api_provider_id));
         const scopedPricing = scopePricingSummary(pricing, filteredProviderIds);
+        const providerPricing = Object.fromEntries(
+            providerInfos.map((provider) => [
+                provider.api_provider_id,
+                providerPricingByModel.get(modelId)?.get(provider.api_provider_id) ?? initPricingSummary(),
+            ])
+        );
         const filteredProviderMeters = new Map(
             Array.from(providerMeterByModel.get(modelId) ?? new Map()).filter(([providerId]) =>
                 filteredProviderIds.has(providerId)
@@ -1629,6 +1659,7 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
             supported_params_detail: supportedParamsDetail,
             top_provider: topProvider,
             pricing: scopedPricing,
+            provider_pricing: providerPricing,
             availability: {
                 status: availabilityStatus,
                 provider_count: providerInfos.length,

@@ -570,6 +570,22 @@ pub struct EmbeddingsResponse {
 	pub usage: Option<HashMap<String, String>>,
 }
 
+pub struct EndpointCatalogueEntry {
+	pub capability_id: String,
+	pub collection: String,
+	pub id: String,
+	pub model_count: i64,
+	pub provider_count: i64,
+	pub public_path: String,
+}
+
+pub struct EndpointCatalogueResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub endpoints: Vec<String>,
+	pub ok: String,
+	pub sample_models: Vec<String>,
+}
+
 pub struct ErrorFailureSampleItem {
 	pub provider: Option<Option<String>>,
 	pub retryable: Option<Option<bool>>,
@@ -883,6 +899,45 @@ pub struct ModelAvailability {
 	pub status: String,
 }
 
+pub struct ModelEndpointCapability {
+	pub availability_reason: String,
+	pub availability_status: String,
+	pub capability_id: String,
+	pub capability_status: String,
+	pub collection: String,
+	pub effective_from: Option<Option<String>>,
+	pub effective_to: Option<Option<String>>,
+	pub endpoint: String,
+	pub id: String,
+	pub input_modalities: Vec<String>,
+	pub is_active_gateway: bool,
+	pub model_routing_status: String,
+	pub output_modalities: Vec<String>,
+	pub pricing: HashMap<String, String>,
+	pub pricing_detail: HashMap<String, String>,
+	pub provider_id: String,
+	pub provider_model_slug: Option<Option<String>>,
+	pub provider_name: Option<Option<String>>,
+	pub provider_routing_status: String,
+	pub provider_status: String,
+	pub public_path: String,
+	pub supported_parameters: Vec<String>,
+	pub supported_parameters_detail: HashMap<String, String>,
+}
+
+pub struct ModelEndpointsResponse {
+	pub architecture: Option<HashMap<String, String>>,
+	pub availability_mode: String,
+	pub canonical_slug: String,
+	pub created: Option<Option<i64>>,
+	pub description: Option<String>,
+	pub endpoints: Vec<HashMap<String, String>>,
+	pub id: String,
+	pub model_id: String,
+	pub name: Option<Option<String>>,
+	pub ok: String,
+}
+
 pub type ModelId = JsonValue;
 
 pub struct ModelLifecycle {
@@ -902,10 +957,13 @@ pub struct ModelProviderAvailability {
 	pub effective_from: Option<Option<String>>,
 	pub effective_to: Option<Option<String>>,
 	pub endpoints: Vec<String>,
+	pub input_modalities: Option<Vec<String>>,
 	pub is_active_gateway: bool,
 	pub model_routing_status: String,
+	pub output_modalities: Option<Vec<String>>,
 	pub params: Vec<String>,
 	pub params_detail: Option<HashMap<String, String>>,
+	pub provider_model_slug: Option<Option<String>>,
 	pub provider_routing_status: String,
 	pub provider_status: String,
 	pub supported_parameters: Option<Vec<String>>,
