@@ -63,6 +63,8 @@ export const ModelIds = {
   BAIDU_ERNIE_4_5_VL_28B_A3B_THINKING: "baidu/ernie-4.5-vl-28b-a3b-thinking",
   /** Model ID: `baidu/ernie-4.5-vl-424b-a47b`. Model page: https://phaseo.app/models/baidu/ernie-4.5-vl-424b-a47b */
   BAIDU_ERNIE_4_5_VL_424B_A47B: "baidu/ernie-4.5-vl-424b-a47b",
+  /** Model ID: `black-forest-labs/flux-1-dev`. Model page: https://phaseo.app/models/black-forest-labs/flux-1-dev */
+  BLACK_FOREST_LABS_FLUX_1_DEV: "black-forest-labs/flux-1-dev",
   /** Model ID: `black-forest-labs/flux-1-schnell`. Model page: https://phaseo.app/models/black-forest-labs/flux-1-schnell */
   BLACK_FOREST_LABS_FLUX_1_SCHNELL: "black-forest-labs/flux-1-schnell",
   /** Model ID: `bytedance/seed-1.6`. Model page: https://phaseo.app/models/bytedance/seed-1.6 */

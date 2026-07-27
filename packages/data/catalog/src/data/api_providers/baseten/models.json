@@ -196,7 +196,7 @@
     "provider_api_model_id": "baseten:moonshotai/kimi-k2",
     "provider_model_slug": "kimi-k2",
     "internal_model_id": "moonshotai/kimi-k2-2025-07-11",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -987,7 +987,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
         "reasoning": true,
         "tool_call": null,
@@ -999,8 +999,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -1021,8 +1021,8 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-07-26T00:00:00Z",
-      "notes": "Official Baseten waitlist confirms day-zero Model API availability; production route details remain pending."
+      "checked_at": "2026-07-27T00:00:00Z",
+      "notes": "Baseten's Kimi K3 Model API card shows the route live at $3.00 per 1M input tokens, $0.30 per 1M cached input tokens, and $15.00 per 1M output tokens, with limits of 100,000 tokens and 15 requests per minute."
     },
     "rate_limits": []
   }

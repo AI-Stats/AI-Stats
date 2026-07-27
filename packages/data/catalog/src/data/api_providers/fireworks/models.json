@@ -4,11 +4,11 @@
     "provider_api_model_id": "fireworks:black-forest-labs/flux-1-dev",
     "provider_model_slug": "accounts/fireworks/models/flux-1-dev-fp8",
     "internal_model_id": "",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "FP8",
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "image",
-    "context_length": null,
+    "context_length": 1048576,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1817,25 +1817,50 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
-        "params": [],
+        "status": "active",
+        "params": [
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Fireworks lists function calling as supported for Kimi K3."
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Fireworks lists function calling as supported for Kimi K3."
+          },
+          {
+            "param_id": "service_tier",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "standard",
+            "notes": "Fireworks offers standard and priority serving paths for Kimi K3."
+          }
+        ],
         "reasoning": true,
-        "tool_call": null,
+        "tool_call": true,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard",
+      "priority"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -1851,8 +1876,8 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-07-26T00:00:00Z",
-      "notes": "Official Fireworks research confirms its Kimi K3 inference work; production route details remain pending."
+      "checked_at": "2026-07-27T00:00:00Z",
+      "notes": "Fireworks lists accounts/fireworks/models/kimi-k3 as a ready serverless vision model with a 1M-token context window and function calling. Its serving-path card lists standard and priority pricing."
     },
     "rate_limits": []
   }
