@@ -7,6 +7,7 @@ import {
 	asRecord,
 	assertSafeDiscoverySnapshot,
 	buildProviderApiModelSnapshotDiff,
+	computeDiscordNotificationFingerprint,
 	computeConfiguredModelCoverageFingerprint,
 	diffModelIds,
 	extractProviderApiModelSnapshot,
@@ -15,6 +16,7 @@ import {
 	hasProviderApiSnapshotValue,
 	loadConfiguredProviderModelIds,
 	loadLatestConfiguredCoverageState,
+	loadLatestDiscordNotificationFingerprint,
 	loadLatestPricingTableState,
 	readBindingEnv,
 	runPricingMonitorCheck,
@@ -199,6 +201,7 @@ type DiscoveryRunSummary = {
 	providerApiPricingMonitor: ProviderApiPricingMonitorSummary;
 	pricingTableMonitor: PricingTableMonitorSummary;
 	configuredModelCoverageMonitor: ConfiguredModelCoverageMonitorSummary;
+	notificationFingerprint: string | null;
 };
 
 type SupabaseSeenModelRow = {
@@ -228,6 +231,7 @@ const MAX_PRICING_PROVIDER_LINES = 20;
 const MAX_PRICING_SAMPLE_LINES = 6;
 const MAX_PRICING_ROWS = 5_000;
 const PRICING_PAGE_SIZE = 500;
+const SEEN_MODELS_PAGE_SIZE = 1_000;
 const RUNS_RETENTION_DAYS = 5;
 const PRICING_KEY_PATTERN = /(price|pricing|cost|billing|currency|rate|meter|unit|token)/i;
 const PRICING_EXTRACTION_MAX_DEPTH = 4;
@@ -328,6 +332,7 @@ function compactSummary(summary: DiscoveryRunSummary, extra: { notificationError
 	return {
 		statePersisted: summary.statePersisted,
 		persistenceDeferredReason: summary.persistenceDeferredReason ?? undefined,
+		notificationFingerprint: summary.notificationFingerprint ?? undefined,
 		results: summary.results.map((result) => ({
 			providerId: result.providerId,
 			status: result.status,
@@ -461,7 +466,7 @@ type PreviousModelsState = {
 	providerApiSnapshotReadyByProvider: Set<string>;
 };
 
-async function fetchPreviousModelsByProviders(providerIds: string[]): Promise<PreviousModelsState> {
+export async function fetchPreviousModelsByProviders(providerIds: string[]): Promise<PreviousModelsState> {
 	const map = new Map<string, PreviousProviderModels>();
 	for (const providerId of providerIds) {
 		map.set(providerId, {
@@ -475,18 +480,28 @@ async function fetchPreviousModelsByProviders(providerIds: string[]): Promise<Pr
 	}
 
 	const supabase = getSupabaseAdmin();
-	const { data, error } = await supabase
-		.from("model_discovery_seen_models")
-		.select("provider_id,model_id,model_details,pricing_details")
-		.in("provider_id", providerIds);
+	const rows: SupabaseSeenModelRow[] = [];
+	for (let offset = 0; ; offset += SEEN_MODELS_PAGE_SIZE) {
+		const { data, error } = await supabase
+			.from("model_discovery_seen_models")
+			.select("provider_id,model_id,model_details,pricing_details")
+			.in("provider_id", providerIds)
+			.order("provider_id", { ascending: true })
+			.order("model_id", { ascending: true })
+			.range(offset, offset + SEEN_MODELS_PAGE_SIZE - 1);
 
-	if (error) {
-		throw new Error(error.message || "Failed to load previous discovered models");
+		if (error) {
+			throw new Error(error.message || "Failed to load previous discovered models");
+		}
+
+		const page = (data ?? []) as SupabaseSeenModelRow[];
+		rows.push(...page);
+		if (page.length < SEEN_MODELS_PAGE_SIZE) break;
 	}
 
 	const providerApiSnapshotReadyByProvider = new Set<string>();
 
-	for (const row of (data ?? []) as SupabaseSeenModelRow[]) {
+	for (const row of rows) {
 		if (typeof row.provider_id !== "string" || typeof row.model_id !== "string") continue;
 		const state = map.get(row.provider_id);
 		if (!state) continue;
@@ -882,6 +897,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 		}
 
 		let notificationError: string | null = null;
+		let notificationFingerprint: string | null = null;
 		let notificationSummary: {
 			delivered: boolean;
 			skipped: boolean;
@@ -891,28 +907,41 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			skipped: true,
 			reason: shouldNotify ? "not attempted" : "notifications disabled",
 		};
-		if (shouldNotify) {
-			try {
-				notificationSummary = await sendDiscordNotification({
-					modelChanges: changes,
-					pricing: pricingMonitor,
-					providerApiPricing: providerApiPricingMonitor,
-					pricingTable: pricingTableMonitor,
-					configuredModelCoverage: configuredModelCoverageNotificationSummary,
-				});
-			} catch (error) {
-				notificationError = error instanceof Error ? error.message : String(error);
-				console.error("[model-discovery] Discord notification failed:", notificationError);
-			}
-		}
-
-		const hasNotifiableChanges = hasDiscordNotifiableChanges({
+		const notificationInput = {
 			modelChanges: changes,
 			pricing: pricingMonitor,
 			providerApiPricing: providerApiPricingMonitor,
 			pricingTable: pricingTableMonitor,
 			configuredModelCoverage: configuredModelCoverageNotificationSummary,
-		});
+		};
+		const hasNotifiableChanges = hasDiscordNotifiableChanges(notificationInput);
+		if (shouldNotify && hasNotifiableChanges) {
+			try {
+				notificationFingerprint = await computeDiscordNotificationFingerprint(notificationInput);
+				let previousFingerprint: string | null = null;
+				try {
+					previousFingerprint = await loadLatestDiscordNotificationFingerprint(args.source);
+				} catch (error) {
+					console.error(
+						"[model-discovery] Failed to compare Discord notification fingerprint:",
+						error instanceof Error ? error.message : String(error),
+					);
+				}
+
+				if (notificationFingerprint && notificationFingerprint === previousFingerprint) {
+					notificationSummary = { delivered: true, skipped: true, reason: "duplicate notification fingerprint" };
+					console.log("[model-discovery] Discord notification skipped: duplicate notification fingerprint");
+				} else {
+					notificationSummary = await sendDiscordNotification(notificationInput);
+					if (!notificationSummary.delivered) notificationFingerprint = null;
+				}
+			} catch (error) {
+				notificationFingerprint = null;
+				notificationError = error instanceof Error ? error.message : String(error);
+				console.error("[model-discovery] Discord notification failed:", notificationError);
+			}
+		}
+
 		const requiresNotificationDelivery = shouldNotify && hasNotifiableChanges;
 		const notificationDelivered = !requiresNotificationDelivery || notificationSummary.delivered;
 		const persistenceDeferredReason = !notificationDelivered
@@ -1048,6 +1077,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			providerApiPricingMonitor,
 			pricingTableMonitor,
 			configuredModelCoverageMonitor,
+			notificationFingerprint,
 		};
 
 		const status: RunStatus =
@@ -1134,6 +1164,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 				providerChanges: [],
 				fingerprint: null,
 			},
+			notificationFingerprint: null,
 		};
 		try {
 			await updateRunFinish(failedSummary, "failed", { error: reason });
