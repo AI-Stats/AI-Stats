@@ -30,7 +30,7 @@ jobs:
         name: Validate data
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
               uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
@@ -66,7 +66,7 @@ jobs:
         outputs:
             data-changed: ${{ steps.filter.outputs.data }}
         steps:
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706
               id: filter
@@ -79,7 +79,7 @@ jobs:
         runs-on: ubuntu-latest
         needs: data
         steps:
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
               uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
@@ -125,7 +125,7 @@ jobs:
             matrix:
                 app: [api, docs, web, web-api, mcp]
         steps:
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
               uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
@@ -177,7 +177,7 @@ jobs:
         runs-on: ubuntu-latest
         needs: openapi-lint
         steps:
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
               uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
@@ -205,7 +205,7 @@ jobs:
         runs-on: ubuntu-latest
         needs: openapi-lint
         steps:
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
               uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
@@ -253,7 +253,7 @@ jobs:
                   client-id: ${{ secrets.PHASEO_APP_CLIENT_ID }}
                   private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
 
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
               with:
                   fetch-depth: 0
                   persist-credentials: false
@@ -386,7 +386,7 @@ jobs:
                     - sdk: ruby
                       name: Generate Ruby SDK
         steps:
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
               with:
                   fetch-depth: 0
 
@@ -446,7 +446,7 @@ jobs:
         runs-on: ubuntu-latest
         needs: sdk-gen
         steps:
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Set up Python for SDK builds
               uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
@@ -484,7 +484,7 @@ jobs:
         runs-on: ubuntu-latest
         needs: sdk-gen
         steps:
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
               with:
                   persist-credentials: false
 
@@ -518,7 +518,7 @@ jobs:
             matrix:
                 sdk: [go, csharp, java, php, ruby, rust]
         steps:
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
               uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
@@ -596,7 +596,7 @@ jobs:
             contents: read
             pull-requests: write
         steps:
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
               uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
@@ -687,7 +687,7 @@ jobs:
                     - target: docs
                       name: Deploy Docs
         steps:
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
               uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
@@ -802,7 +802,7 @@ jobs:
             matrix:
                 sdk: [ts, py, go, csharp, java, php, ruby, rust]
         steps:
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
             - name: Setup pnpm
               uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
               with:
@@ -895,7 +895,7 @@ jobs:
             contents: read
             id-token: write
         steps:
-            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
               with:
                   fetch-depth: 0
 
