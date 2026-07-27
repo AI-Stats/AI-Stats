@@ -2,6 +2,7 @@ import { afterAll, afterEach, describe, expect, it } from "vitest";
 import {
 	assertSafeDiscoverySnapshot,
 	buildDiscordMessage,
+	computeDiscordNotificationFingerprint,
 	extractDiscoveredModels,
 	extractProviderApiModelSnapshot,
 	fetchProviderModels,
@@ -282,6 +283,63 @@ describe("buildDiscordMessage", () => {
 			baseUrl: "https://gateway.example/v1",
 			authStyle: "none",
 		})).toBe("https://catalog.example/models.json");
+	});
+});
+
+describe("extractProviderApiModelSnapshot pricing comparisons", () => {
+	it("ignores volatile raw metadata when canonical prices are unchanged", () => {
+		const previous = extractProviderApiModelSnapshot(
+			"chutes",
+			{ price: { input: { usd: 0.2 }, output: { usd: 0.8 } } },
+			{ price: { input: { usd: 0.2 }, output: { usd: 0.8 } }, refreshed_at: "first" },
+		);
+		const current = extractProviderApiModelSnapshot(
+			"chutes",
+			{ price: { input: { usd: 0.2 }, output: { usd: 0.8 } } },
+			{ price: { input: { usd: 0.2 }, output: { usd: 0.8 } }, refreshed_at: "second" },
+		);
+
+		expect(current.pricingFingerprint).toBe(previous.pricingFingerprint);
+		expect(current.pricingDetails).not.toEqual(previous.pricingDetails);
+	});
+
+	it("detects a changed canonical provider price", () => {
+		const previous = extractProviderApiModelSnapshot(
+			"chutes",
+			{ price: { input: { usd: 0.2 }, output: { usd: 0.8 } } },
+			null,
+		);
+		const current = extractProviderApiModelSnapshot(
+			"chutes",
+			{ price: { input: { usd: 0.25 }, output: { usd: 0.8 } } },
+			null,
+		);
+
+		expect(current.pricingFingerprint).not.toBe(previous.pricingFingerprint);
+	});
+});
+
+describe("computeDiscordNotificationFingerprint", () => {
+	it("is stable for an identical notification and changes with its payload", async () => {
+		setupRuntimeFromEnv({} as any);
+		const input = {
+			modelChanges: [],
+			pricing: { updatesDetected: 0, providerChanges: [] },
+			providerApiPricing: { updatesDetected: 1, providerChanges: [{ providerId: "openrouter", updates: 1, samples: ["model | price changed"] }] },
+			pricingTable: { updatesDetected: 0, providerChanges: [], errors: [] },
+			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
+		} as any;
+
+		const first = await computeDiscordNotificationFingerprint(input);
+		const repeated = await computeDiscordNotificationFingerprint(input);
+		const changed = await computeDiscordNotificationFingerprint({
+			...input,
+			providerApiPricing: { updatesDetected: 2, providerChanges: [{ providerId: "openrouter", updates: 2, samples: ["two prices changed"] }] },
+		});
+
+		expect(first).toMatch(/^[0-9a-f]{64}$/);
+		expect(repeated).toBe(first);
+		expect(changed).not.toBe(first);
 	});
 });
 

@@ -316,6 +316,14 @@ function normalizeProviderApiPricingDetails(
 	return record?.pricing ? normalizeJson(record.pricing) : pricingDetails ?? null;
 }
 
+export function toProviderApiPricingFingerprint(pricingDetails: unknown): string | null {
+	const record = asRecord(pricingDetails);
+	// When a provider has a canonical normalization, compare only that stable shape.
+	// Raw provider payloads are retained for diagnostics, but may include volatile
+	// metadata that is unrelated to the billable rates.
+	return toPricingFingerprint(record?.normalized ?? pricingDetails);
+}
+
 export function toNullableInteger(value: unknown): number | null {
 	if (typeof value === "number") {
 		if (!Number.isFinite(value)) return null;
@@ -340,7 +348,7 @@ export function extractProviderApiModelSnapshot(
 			contextLength: null,
 			maxCompletionTokens: null,
 			pricingDetails: normalizedPricingDetails,
-			pricingFingerprint: toPricingFingerprint(normalizedPricingDetails),
+			pricingFingerprint: toProviderApiPricingFingerprint(normalizedPricingDetails),
 		};
 	}
 
@@ -354,7 +362,7 @@ export function extractProviderApiModelSnapshot(
 		contextLength,
 		maxCompletionTokens,
 		pricingDetails: normalizedPricingDetails,
-		pricingFingerprint: toPricingFingerprint(normalizedPricingDetails),
+		pricingFingerprint: toProviderApiPricingFingerprint(normalizedPricingDetails),
 	};
 }
 
@@ -939,6 +947,29 @@ export async function loadLatestConfiguredCoverageState(source?: string): Promis
 	return null;
 }
 
+export async function loadLatestDiscordNotificationFingerprint(source?: string): Promise<string | null> {
+	const supabase = getSupabaseAdmin();
+	let query = supabase
+		.from("model_discovery_runs")
+		.select("summary,status,started_at")
+		.in("status", ["completed", "completed_with_errors"])
+		.order("started_at", { ascending: false });
+	const sourceValue = typeof source === "string" ? source.trim() : "";
+	if (sourceValue) query = query.eq("source", sourceValue);
+
+	const { data, error } = await query.limit(200);
+	if (error) throw new Error(error.message || "Failed to load Discord notification fingerprint");
+
+	for (const row of data ?? []) {
+		const summary = asRecord((row as Record<string, unknown>).summary);
+		const fingerprint = typeof summary?.notificationFingerprint === "string"
+			? summary.notificationFingerprint.trim()
+			: "";
+		if (fingerprint) return fingerprint;
+	}
+	return null;
+}
+
 export function parsePricingTableStateFromSummary(summary: unknown): PricingTableSnapshotState[] {
 	const summaryRecord = asRecord(summary);
 	const tableMonitor = asRecord(summaryRecord?.pricingTableMonitor);
@@ -1360,6 +1391,13 @@ export function buildDiscordMessage(args: {
 	const text = sections.join("\n\n").trim();
 	if (text.length <= 1900) return text;
 	return `${text.slice(0, 1888)}\n...[truncated]`;
+}
+
+export async function computeDiscordNotificationFingerprint(args: Parameters<typeof buildDiscordMessage>[0]): Promise<string | null> {
+	const message = buildDiscordMessage(args).trim();
+	if (!message) return null;
+	const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(message));
+	return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 export async function sendDiscordNotification(args: {
