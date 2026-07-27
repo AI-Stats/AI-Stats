@@ -22,8 +22,8 @@ export default async function ChatLayout({
 	children: React.ReactNode;
 }) {
 	const [realtimeEnabled, videoEnabled] = await Promise.all([
-		realtimeVoiceFlag(),
-		videoApiFlag(),
+		realtimeVoiceFlag().catch(() => false),
+		videoApiFlag().catch(() => false),
 	]);
 
 	return (
