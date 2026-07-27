@@ -3760,9 +3760,8 @@ export type CreateVideoParams = {
     seed?: number;
     size?: string;
     webhook?: {
+      endpoint_id: string;
       events?: string[];
-      secret?: string;
-      url?: string;
     };
   };
 };
@@ -4075,9 +4074,8 @@ export type CreateVideoAliasParams = {
     seed?: number;
     size?: string;
     webhook?: {
+      endpoint_id: string;
       events?: string[];
-      secret?: string;
-      url?: string;
     };
   };
 };

@@ -92,7 +92,20 @@ export async function hmacSha256Hex(secret: string, message: string): Promise<st
 
 export function resolveVideoDownloadSigningSecret(): string | null {
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
-	return normalizeText(bindings.VIDEO_DOWNLOAD_SIGNING_SECRET) ?? normalizeText(bindings.KEY_PEPPER_ACTIVE);
+	return normalizeText(bindings.VIDEO_DOWNLOAD_SIGNING_SECRET);
+}
+
+async function verifyHmacSha256Hex(secret: string, message: string, signatureHex: string): Promise<boolean> {
+	if (!/^[a-f0-9]{64}$/i.test(signatureHex)) return false;
+	const signature = Uint8Array.from(signatureHex.match(/.{2}/g) ?? [], (value) => Number.parseInt(value, 16));
+	const key = await crypto.subtle.importKey(
+		"raw",
+		new TextEncoder().encode(secret),
+		{ name: "HMAC", hash: "SHA-256" },
+		false,
+		["verify"],
+	);
+	return crypto.subtle.verify("HMAC", key, signature, new TextEncoder().encode(message));
 }
 
 export async function issueSignedVideoDownloadUrl(args: {
@@ -140,8 +153,7 @@ export async function verifySignedVideoDownloadRequest(requestUrl: string): Prom
 	const expiresAtRaw = Number(url.searchParams.get("expires_at") ?? "");
 	if (!token || !signature || !Number.isFinite(expiresAtRaw)) return null;
 	if (Math.floor(Date.now() / 1000) > expiresAtRaw) return null;
-	const expected = await hmacSha256Hex(secret, `${token}.${Math.trunc(expiresAtRaw)}`);
-	if (expected !== signature) return null;
+	if (!await verifyHmacSha256Hex(secret, `${token}.${Math.trunc(expiresAtRaw)}`, signature)) return null;
 	const decoded = base64UrlDecodeText(token);
 	if (!decoded) return null;
 	let payload: Record<string, unknown>;
@@ -190,7 +202,8 @@ export function buildContentHeaders(
 		const filename = normalizeText(options.filename) ?? "video.mp4";
 		out.set("Content-Disposition", `${options.contentDisposition}; filename="${filename}"`);
 	}
-	out.set("Cache-Control", out.get("Cache-Control") ?? "private, no-store");
+	out.set("Cache-Control", "private, no-store");
+	out.set("X-Content-Type-Options", "nosniff");
 	return out;
 }
 

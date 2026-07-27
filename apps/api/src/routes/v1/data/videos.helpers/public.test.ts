@@ -12,7 +12,7 @@ describe("public video response helper", () => {
 	beforeEach(() => {
 		getBindingsMock.mockReset();
 		getBindingsMock.mockReturnValue({
-	KEY_PEPPER_ACTIVE: "test-video-secret",
+			VIDEO_DOWNLOAD_SIGNING_SECRET: "test-video-secret",
 			GATEWAY_PUBLIC_BASE_URL: "https://api.phaseo.app",
 		});
 	});

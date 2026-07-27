@@ -124,7 +124,6 @@ export function decodeOpenAIVideoRequestToIR(body: any): IRVideoGenerationReques
 		generateAudio: body?.generate_audio,
 		enhancePrompt: body?.enhance_prompt,
 		resizeMode: body?.resize_mode,
-		callbackUrl: body?.webhook?.url,
 		outputStorageUri:
 			typeof providerParams?.storageUri === "string"
 				? providerParams.storageUri

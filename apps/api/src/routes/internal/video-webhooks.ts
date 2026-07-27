@@ -6,6 +6,7 @@ import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
 import { dispatchBackground, ensureRuntimeForBackground } from "@/runtime/env";
 import { insertProviderEvent } from "@core/provider-events";
+import { BodyLimitExceededError, readStreamTextWithLimit } from "@core/bounded-stream";
 import { json, withRuntime } from "@/routes/utils";
 
 import {
@@ -23,6 +24,22 @@ import {
 } from "./video-webhooks.helpers";
 
 export const internalVideoWebhookRoutes = new Hono<Env>();
+const MAX_PROVIDER_VIDEO_WEBHOOK_BODY_BYTES = 1024 * 1024;
+
+async function readVideoWebhookBody(req: Request): Promise<string | null> {
+	const declaredLength = Number(req.headers.get("content-length") ?? 0);
+	if (Number.isFinite(declaredLength) && declaredLength > MAX_PROVIDER_VIDEO_WEBHOOK_BODY_BYTES) return null;
+	try {
+		return await readStreamTextWithLimit(
+			req.body,
+			MAX_PROVIDER_VIDEO_WEBHOOK_BODY_BYTES,
+			"video_webhook_body_too_large",
+		);
+	} catch (error) {
+		if (error instanceof BodyLimitExceededError) return null;
+		throw error;
+	}
+}
 
 function processOpenAiVideoWebhookInBackground(args: {
 	eventId: string;
@@ -68,7 +85,10 @@ function processAlibabaVideoWebhookInBackground(args: {
 }
 
 internalVideoWebhookRoutes.post("/openai", withRuntime(async (req) => {
-	const rawBody = await req.text();
+	const rawBody = await readVideoWebhookBody(req);
+	if (rawBody == null) {
+		return json({ ok: false, error: "payload_too_large" }, 413, { "Cache-Control": "no-store" });
+	}
 	const signatureOk = await verifyOpenAiWebhookSignature(req, rawBody);
 	if (!signatureOk) {
 		return json({ ok: false, error: "invalid_signature" }, 401, { "Cache-Control": "no-store" });
@@ -115,7 +135,10 @@ internalVideoWebhookRoutes.post("/alibaba", withRuntime(async (req) => {
 		return json({ ok: false, error: "invalid_signature" }, 401, { "Cache-Control": "no-store" });
 	}
 
-	const rawBody = await req.text();
+	const rawBody = await readVideoWebhookBody(req);
+	if (rawBody == null) {
+		return json({ ok: false, error: "payload_too_large" }, 413, { "Cache-Control": "no-store" });
+	}
 	let payload: any = {};
 	try {
 		payload = rawBody.length ? JSON.parse(rawBody) : {};

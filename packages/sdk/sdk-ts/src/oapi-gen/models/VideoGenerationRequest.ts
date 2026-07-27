@@ -65,8 +65,7 @@ export interface VideoGenerationRequest {
   seed?: number;
   size?: string;
   webhook?: {
+    endpoint_id: string;
     events?: string[];
-    secret?: string;
-    url?: string;
   };
 }

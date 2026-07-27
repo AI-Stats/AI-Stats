@@ -10,6 +10,7 @@ import {
 	listTeamAsyncOperations,
 	markAsyncOperationBilled as markAsyncOperationBilledInDb,
 	patchAsyncOperationMeta,
+	patchAsyncOperationIdentity,
 	setAsyncOperationStatus,
 	updateAsyncOperationReconciliation,
 	upsertAsyncOperation,
@@ -23,6 +24,7 @@ export type VideoJobMeta = {
 	appId?: string | null;
 	model?: string | null;
 	seconds?: number | null;
+	outputCount?: number | null;
 	resolution?: string | null;
 	quality?: string | null;
 	audio?: boolean | null;
@@ -97,6 +99,9 @@ const VIDEO_RECONCILE_STATUSES = [
 	"running",
 	"completed",
 	"failed",
+	"cancelled",
+	"canceled",
+	"expired",
 ];
 
 function nextIsoFromNow(delaySeconds: number): string {
@@ -106,7 +111,7 @@ function nextIsoFromNow(delaySeconds: number): string {
 function initialVideoReconcileAt(status: string): string | null {
 	const normalized = status.toLowerCase();
 	if (normalized === "completed" || normalized === "failed" || normalized === "cancelled" || normalized === "expired") {
-		return null;
+		return nextIsoFromNow(30);
 	}
 	return nextIsoFromNow(45);
 }
@@ -132,6 +137,8 @@ function parseVideoJobMeta(value: unknown): VideoJobMeta | null {
 	if (typeof source.app_id === "string") out.appId = source.app_id;
 	if (typeof source.model === "string") out.model = source.model;
 	if (typeof source.seconds === "number") out.seconds = source.seconds;
+	const outputCount = toNonNegativeInteger(source.outputCount ?? source.output_count);
+	if (outputCount != null && outputCount > 0) out.outputCount = outputCount;
 	if (typeof source.resolution === "string") out.resolution = source.resolution;
 	if (typeof source.quality === "string") out.quality = source.quality;
 	if (typeof source.audio === "boolean") out.audio = source.audio;
@@ -290,6 +297,33 @@ export async function saveVideoJobMeta(
 ): Promise<void> {
 	if (!workspaceId || !videoId) return;
 	const payload = { ...meta, createdAt: meta.createdAt ?? Date.now() };
+	const existing = await getAsyncOperation(workspaceId, "video", videoId);
+	if (existing) {
+		const safeMetaPatch = { ...payload } as Record<string, unknown>;
+		for (const key of ["charged", "costNanos", "costUsd", "billingReason", "finalizedAt", "pricedUsage", "pricingBreakdown", "reservationStatus"]) {
+			delete safeMetaPatch[key];
+		}
+		await setAsyncOperationStatus({
+			workspaceId,
+			kind: "video",
+			internalId: videoId,
+			status,
+			metaPatch: safeMetaPatch,
+			nextReconcileAt: initialVideoReconcileAt(status),
+		});
+		await patchAsyncOperationIdentity({
+			workspaceId,
+			kind: "video",
+			internalId: videoId,
+			requestId: payload.requestId ?? videoId,
+			sessionId: payload.sessionId ?? null,
+			appId: payload.appId ?? null,
+			provider: payload.provider,
+			nativeId: nativeId ?? payload.providerTaskId ?? null,
+			model: payload.model ?? null,
+		});
+		return;
+	}
 	await upsertAsyncOperation({
 		workspaceId,
 		kind: "video",

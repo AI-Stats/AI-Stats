@@ -113,21 +113,6 @@ function resolveWanInputImageCount(requestObject: Record<string, unknown>): numb
 function irToWanRequest(ir: IRVideoGenerationRequest, model: string): any {
 	const rawRequest = (ir.rawRequest ?? {}) as Record<string, any>;
 	const alibabaConfig = extractAlibabaConfig(rawRequest);
-	const passthroughRequest =
-		alibabaConfig.request && typeof alibabaConfig.request === "object" && !Array.isArray(alibabaConfig.request)
-			? { ...(alibabaConfig.request as Record<string, any>) }
-			: {};
-
-	if (Object.keys(passthroughRequest).length > 0) {
-		if (passthroughRequest.model == null) passthroughRequest.model = model;
-		if (passthroughRequest.input == null) {
-			passthroughRequest.input = {
-				prompt: ir.prompt,
-			};
-		}
-		return passthroughRequest;
-	}
-
 	const seconds = toDurationSeconds(ir);
 	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
 	const ratio = toNonEmptyString(alibabaConfig.ratio) ?? ir.aspectRatio ?? ir.ratio;

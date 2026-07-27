@@ -159,7 +159,7 @@ export type VideoCreateRequest = {
   input_references?: VideoInputReference[];
   provider_params?: Record<string, unknown>;
   output?: { access?: VideoOutputAccess };
-  webhook?: { url: string; secret?: string; events?: string[] };
+  webhook?: { endpoint_id: string; events?: string[] };
   provider?: Record<string, unknown>;
   debug?: Record<string, unknown>;
   beta?: Record<string, unknown>;

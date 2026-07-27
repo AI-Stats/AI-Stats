@@ -13,6 +13,8 @@ import { saveVideoJobMeta } from "@core/video-jobs";
 import { isInsufficientVideoReservationStatus, reserveVideoGenerationCredits } from "@core/video-reservations";
 import { releaseWalletReservation } from "@core/wallet-reservations";
 import { buildVideoPricingRequestOptions, resolveVideoSize } from "@core/video-request-options";
+import { readStreamBytesWithLimit } from "@core/bounded-stream";
+import { validateWebhookEndpointUrlForDelivery } from "@core/webhook-endpoints";
 import type { ProviderExecutor } from "../../types";
 
 function normalizePositiveSeconds(value: unknown): string | undefined {
@@ -96,27 +98,12 @@ function buildOpenAiVideoJsonRequest(args: {
 	inputReference?: string;
 }): Record<string, any> {
 	const { ir, model, seconds, size, inputReference } = args;
-	const rawRequest = (ir.rawRequest ?? {}) as Record<string, any>;
-	const openaiConfig =
-		rawRequest?.config?.openai && typeof rawRequest.config.openai === "object"
-			? rawRequest.config.openai
-			: rawRequest?.openai && typeof rawRequest.openai === "object"
-				? rawRequest.openai
-				: rawRequest?.provider_params && typeof rawRequest.provider_params === "object"
-					? rawRequest.provider_params
-					: undefined;
-	const passthroughRequest =
-		openaiConfig?.request && typeof openaiConfig.request === "object" && !Array.isArray(openaiConfig.request)
-			? { ...(openaiConfig.request as Record<string, any>) }
-			: {};
+	const request: Record<string, any> = {
+		model,
+		prompt: ir.prompt,
+	};
 
-	const request: Record<string, any> = Object.keys(passthroughRequest).length > 0
-		? passthroughRequest
-		: {};
-
-	if (request.model == null) request.model = model;
-	if (request.prompt == null) request.prompt = ir.prompt;
-	if (request.seconds == null && seconds != null) request.seconds = seconds;
+	if (seconds != null) request.seconds = seconds;
 	if (request.seconds != null) {
 		const normalizedSeconds = normalizePositiveSeconds(request.seconds);
 		if (normalizedSeconds != null) request.seconds = normalizedSeconds;
@@ -162,16 +149,38 @@ async function resolveInputReferenceBlob(
 		const bytes = Uint8Array.from(atob(dataUrlMatch[2] ?? ""), (c) => c.charCodeAt(0));
 		fileBlob = new Blob([bytes], { type: mimeType });
 	} else if (ref.startsWith("http://") || ref.startsWith("https://")) {
-		const fetched = await (upstreamTiming
-			? upstreamTiming.fetch(ref, undefined, "media")
-			: fetch(ref));
-		if (!fetched.ok) {
-			throw new Error(`openai_video_input_reference_fetch_failed_${fetched.status}`);
+		const validated = await validateWebhookEndpointUrlForDelivery(ref);
+		if (validated.ok === false) throw new Error(`openai_video_input_reference_rejected_${validated.reason}`);
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), 10_000);
+		try {
+			const fetched = await (upstreamTiming
+				? upstreamTiming.fetch(validated.url, { redirect: "manual", signal: controller.signal }, "media")
+				: fetch(validated.url, { redirect: "manual", signal: controller.signal }));
+			if (fetched.status >= 300 && fetched.status < 400) {
+				throw new Error("openai_video_input_reference_redirect_not_allowed");
+			}
+			if (!fetched.ok) {
+				throw new Error(`openai_video_input_reference_fetch_failed_${fetched.status}`);
+			}
+			const declaredLength = Number(fetched.headers.get("content-length") ?? 0);
+			const maxBytes = 25 * 1024 * 1024;
+			if (Number.isFinite(declaredLength) && declaredLength > maxBytes) {
+				throw new Error("openai_video_input_reference_too_large");
+			}
+			const responseType = String(fetched.headers.get("content-type") ?? "").split(";", 1)[0]?.trim().toLowerCase();
+			if (!responseType?.startsWith("image/")) {
+				throw new Error("openai_video_input_reference_invalid_content_type");
+			}
+			const bytes = await readStreamBytesWithLimit(fetched.body, maxBytes, "openai_video_input_reference_too_large");
+			const arrayBuffer = new ArrayBuffer(bytes.byteLength);
+			new Uint8Array(arrayBuffer).set(bytes);
+			fileBlob = new Blob([arrayBuffer], { type: responseType });
+			mimeType = responseType;
+			filename = new URL(validated.url).pathname.split("/").pop() || filename;
+		} finally {
+			clearTimeout(timeoutId);
 		}
-		fileBlob = await fetched.blob();
-		mimeType = fileBlob.type || mimeType;
-		const urlParts = ref.split("/");
-		filename = urlParts[urlParts.length - 1] || filename;
 	} else {
 		const bytes = Uint8Array.from(atob(ref), (c) => c.charCodeAt(0));
 		fileBlob = new Blob([bytes], { type: mimeType });

@@ -1,4 +1,5 @@
 import { getBindings } from "@/runtime/env";
+import { readResponsePreview, readStreamTextWithLimit } from "@core/bounded-stream";
 import { resolveProviderKey } from "@providers/keys";
 import { openAICompatHeaders, openAICompatUrl, resolveOpenAICompatKey } from "@providers/openai-compatible/config";
 import { saveBatchFileMeta, type BatchJobMeta } from "@core/batch-jobs";
@@ -11,6 +12,8 @@ export const X_AI_BATCH_PROVIDER_ID = "x-ai";
 export const JSON_BATCH_CONTENT_TYPE = "application/json";
 export const FILE_BACKED_JSONL_BATCH_PROVIDERS = new Set(["openai", "groq", "together"]);
 const MAX_BATCH_RESULT_ENTRIES = 10_000;
+const MAX_BATCH_OUTPUT_BYTES = 100 * 1024 * 1024;
+const MAX_BATCH_OUTPUT_LINE_CHARS = 8 * 1024 * 1024;
 const X_AI_BATCH_RESULTS_PAGE_SIZE = 1_000;
 
 function providerKeyMissingResponse(providerId: string): Response {
@@ -466,7 +469,7 @@ export async function fetchProviderBatchStatus(providerId: string, nativeBatchId
 		method: "GET",
 	});
 	if (!response.ok) {
-		const preview = await response.text().catch(() => "");
+		const preview = await readResponsePreview(response, 200).catch(() => "");
 		throw new ProviderBatchFetchError({
 			providerId,
 			nativeBatchId,
@@ -567,7 +570,7 @@ export async function fetchProviderFileText(providerId: string, fileIdRaw: strin
 	if (!fileId) throw new Error("missing_output_file_id");
 	const response = await fetchProviderFileContent(providerId, fileId);
 	if (!response.ok) {
-		const preview = await response.text().catch(() => "");
+		const preview = await readResponsePreview(response, 200).catch(() => "");
 		throw new Error(`${providerId}_batch_output_fetch_failed_${response.status}:${preview.slice(0, 200)}`);
 	}
 	const declaredLength = Number(response.headers.get("content-length") ?? 0);
@@ -593,18 +596,21 @@ export async function fetchProviderFileText(providerId: string, fileIdRaw: strin
 }
 
 export function parseProviderBatchInputEntries(text: string): Array<{ body: unknown; endpoint?: string | null }> {
-	return parseJsonLines(text).map((entry) => ({
+	return parseJsonLines(text, MAX_BATCH_RESULT_ENTRIES).map((entry) => ({
 		body: entry?.body ?? entry?.request ?? entry?.params,
 		endpoint: batchText(entry?.url ?? entry?.endpoint),
 	}));
 }
 
-function parseJsonLines(text: string): any[] {
-	return text
-		.split(/\r?\n/)
-		.map((line) => line.trim())
-		.filter(Boolean)
-		.map((line) => JSON.parse(line));
+function parseJsonLines(text: string, maxEntries = MAX_BATCH_RESULT_ENTRIES): any[] {
+	const entries: any[] = [];
+	for (const rawLine of text.split(/\r?\n/)) {
+		const line = rawLine.trim();
+		if (!line) continue;
+		if (entries.length >= maxEntries) throw new Error("batch_result_entries_limit_exceeded");
+		entries.push(JSON.parse(line));
+	}
+	return entries;
 }
 
 function withUsageAlias(body: any): any {
@@ -700,14 +706,113 @@ function normalizeOutputEntry(providerId: string, entry: any, index: number): an
 }
 
 function normalizeOutputEntries(providerId: string, entries: any[]): any[] {
-	return entries.map((entry, index) => normalizeOutputEntry(providerId, entry, index));
+	return entries.map((entry, index) => compactOutputEntry(normalizeOutputEntry(providerId, entry, index), index));
+}
+
+function compactError(value: unknown): Record<string, unknown> | null {
+	if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+	const source = value as Record<string, unknown>;
+	const message = batchText(source.message ?? source.detail ?? source.type);
+	return {
+		...(batchText(source.type) ? { type: batchText(source.type) } : {}),
+		...(batchText(source.code) ? { code: batchText(source.code) } : {}),
+		...(message ? { message: message.slice(0, 500) } : {}),
+	};
+}
+
+function compactOutputEntry(entry: any, index: number): any {
+	if (!entry || typeof entry !== "object" || Array.isArray(entry)) return entry;
+	const body = entry?.response?.body;
+	const statusCode = Number(entry?.response?.status_code ?? entry?.status_code ?? 0);
+	if (body && typeof body === "object" && !Array.isArray(body)) {
+		const dataCount = Array.isArray(body.data) ? body.data.length : 0;
+		return {
+			custom_id: batchText(entry.custom_id ?? entry.customId) ?? `response-${index + 1}`,
+			...(entry.url ? { url: entry.url } : {}),
+			response: {
+				status_code: Number.isFinite(statusCode) && statusCode > 0 ? statusCode : 200,
+				body: {
+					...(batchText(body.model) ? { model: batchText(body.model) } : {}),
+					...(body.usage && typeof body.usage === "object" ? { usage: body.usage } : {}),
+					...(body.metadata && typeof body.metadata === "object" ? { metadata: body.metadata } : {}),
+					...(body.video_metadata && typeof body.video_metadata === "object" ? { video_metadata: body.video_metadata } : {}),
+					...(body.response?.videoMetadata && typeof body.response.videoMetadata === "object"
+						? { response: { videoMetadata: body.response.videoMetadata } }
+						: {}),
+					...(body.seconds != null ? { seconds: body.seconds } : {}),
+					...(body.duration != null ? { duration: body.duration } : {}),
+					...(body.duration_seconds != null ? { duration_seconds: body.duration_seconds } : {}),
+					...(body.size != null ? { size: body.size } : {}),
+					...(body.resolution != null ? { resolution: body.resolution } : {}),
+					...(body.n != null ? { n: body.n } : {}),
+					...(dataCount > 0 ? { data: Array.from({ length: dataCount }, () => null) } : {}),
+				},
+			},
+		};
+	}
+	return {
+		custom_id: batchText(entry.custom_id ?? entry.customId) ?? `response-${index + 1}`,
+		error: compactError(entry.error ?? entry?.response?.error ?? entry?.response?.body?.error) ?? { type: "provider_error" },
+	};
+}
+
+async function fetchProviderFileJsonLines(providerId: string, fileIdRaw: string): Promise<any[]> {
+	const fileId = batchText(fileIdRaw);
+	if (!fileId) throw new Error("missing_output_file_id");
+	const response = await fetchProviderFileContent(providerId, fileId);
+	if (!response.ok) {
+		const preview = await readResponsePreview(response, 200).catch(() => "");
+		throw new Error(`${providerId}_batch_output_fetch_failed_${response.status}:${preview}`);
+	}
+	const declaredLength = Number(response.headers.get("content-length") ?? 0);
+	if (Number.isFinite(declaredLength) && declaredLength > MAX_BATCH_OUTPUT_BYTES) {
+		throw new Error("batch_output_too_large");
+	}
+	if (!response.body) return [];
+	const reader = response.body.getReader();
+	const decoder = new TextDecoder();
+	const entries: any[] = [];
+	let bytesRead = 0;
+	let pending = "";
+	try {
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) break;
+			bytesRead += value.byteLength;
+			if (bytesRead > MAX_BATCH_OUTPUT_BYTES) {
+				await reader.cancel("batch_output_too_large").catch(() => undefined);
+				throw new Error("batch_output_too_large");
+			}
+			pending += decoder.decode(value, { stream: true });
+			let newline = pending.indexOf("\n");
+			while (newline >= 0) {
+				const line = pending.slice(0, newline).trim();
+				pending = pending.slice(newline + 1);
+				if (line) {
+					if (entries.length >= MAX_BATCH_RESULT_ENTRIES) throw new Error("batch_result_entries_limit_exceeded");
+					entries.push(compactOutputEntry(normalizeOutputEntry(providerId, JSON.parse(line), entries.length), entries.length));
+				}
+				newline = pending.indexOf("\n");
+			}
+			if (pending.length > MAX_BATCH_OUTPUT_LINE_CHARS) throw new Error("batch_output_line_too_large");
+		}
+		pending += decoder.decode();
+		const finalLine = pending.trim();
+		if (finalLine) {
+			if (entries.length >= MAX_BATCH_RESULT_ENTRIES) throw new Error("batch_result_entries_limit_exceeded");
+			entries.push(compactOutputEntry(normalizeOutputEntry(providerId, JSON.parse(finalLine), entries.length), entries.length));
+		}
+		return entries;
+	} finally {
+		reader.releaseLock();
+	}
 }
 
 export async function fetchProviderBatchOutputEntries(meta: BatchJobMeta): Promise<any[]> {
 	const providerId = meta.provider || OPENAI_BATCH_PROVIDER_ID;
 	const outputFileId = batchText(meta.outputFileId);
 	if (outputFileId) {
-		return normalizeOutputEntries(providerId, parseJsonLines(await fetchProviderFileText(providerId, outputFileId)));
+		return fetchProviderFileJsonLines(providerId, outputFileId);
 	}
 
 	const nativeBatchId = batchText(meta.nativeBatchId);
@@ -720,10 +825,7 @@ export async function fetchProviderBatchOutputEntries(meta: BatchJobMeta): Promi
 		}
 		const responseFileName = extractGoogleResponseFileName(payload);
 		if (!responseFileName) throw new Error("missing_output_file_id");
-		return normalizeOutputEntries(
-			providerId,
-			parseJsonLines(await fetchProviderFileText(providerId, responseFileName)),
-		);
+		return fetchProviderFileJsonLines(providerId, responseFileName);
 	}
 
 	const resultsPath = buildProviderResultsPath(providerId, nativeBatchId);
@@ -740,7 +842,7 @@ export async function fetchProviderBatchOutputEntries(meta: BatchJobMeta): Promi
 				method: "GET",
 			});
 			if (!response.ok) {
-				const preview = await response.text().catch(() => "");
+				const preview = await readResponsePreview(response, 200).catch(() => "");
 				throw new Error(`${providerId}_batch_results_fetch_failed_${response.status}:${preview.slice(0, 200)}`);
 			}
 			const payload = await parseUpstreamJson(response);
@@ -760,10 +862,10 @@ export async function fetchProviderBatchOutputEntries(meta: BatchJobMeta): Promi
 		method: "GET",
 	});
 	if (!response.ok) {
-		const preview = await response.text().catch(() => "");
+		const preview = await readResponsePreview(response, 200).catch(() => "");
 		throw new Error(`${providerId}_batch_results_fetch_failed_${response.status}:${preview.slice(0, 200)}`);
 	}
-	const text = await response.text();
+	const text = await readStreamTextWithLimit(response.body, MAX_BATCH_OUTPUT_BYTES, "batch_output_too_large");
 	const parsed = (() => {
 		try {
 			return JSON.parse(text);

@@ -108,18 +108,6 @@ function extractAtlasConfig(rawRequest: Record<string, any>): Record<string, any
 function buildAtlasVideoRequest(ir: IRVideoGenerationRequest, model: string): Record<string, any> {
 	const rawRequest = ((ir.rawRequest ?? {}) as Record<string, any>);
 	const atlasConfig = extractAtlasConfig(rawRequest);
-	const passthroughRequest =
-		atlasConfig.request && typeof atlasConfig.request === "object" && !Array.isArray(atlasConfig.request)
-			? { ...(atlasConfig.request as Record<string, any>) }
-			: {};
-	if (Object.keys(passthroughRequest).length > 0) {
-		if (passthroughRequest.model == null) passthroughRequest.model = model;
-		if (passthroughRequest.prompt == null && passthroughRequest.input == null && passthroughRequest.content == null) {
-			passthroughRequest.prompt = ir.prompt;
-		}
-		return passthroughRequest;
-	}
-
 	const seconds = parseDurationSeconds(ir);
 	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
 	const aspectRatio = toNonEmptyString(atlasConfig.aspect_ratio) ?? toNonEmptyString(atlasConfig.aspectRatio) ?? ir.aspectRatio;

@@ -55,6 +55,7 @@ import {
 import { toProviderNativeBatchModelId } from "@core/batch-model-aliases";
 import { finalizeBatchJob, type FinalizeBatchJobResult } from "@core/batch-finalization";
 import { reserveBatchCredits } from "@core/batch-reservations";
+import { normalizeBatchEndpoint } from "@core/batch-endpoints";
 import {
 	fetchProviderFileText,
 	normalizeProviderBatchPayload as normalizeProviderBatchPayloadShared,
@@ -63,6 +64,7 @@ import {
 import { releaseWalletReservation } from "@core/wallet-reservations";
 import { getBatchApiFeatureGateName, isBatchApiAccessEnabled } from "@core/feature-flags";
 import { getWebhookEndpointSigningConfig } from "@core/webhook-endpoints";
+import { BodyLimitExceededError, readStreamTextWithLimit } from "@core/bounded-stream";
 import { filesRoutes as batchFilesRoutes } from "./files";
 import { fetchCatalogue } from "../control/models.catalogue";
 
@@ -74,6 +76,7 @@ const X_AI_PROVIDER_ID = "x-ai";
 const FILE_BACKED_JSONL_BATCH_PROVIDERS = new Set(["openai", "groq", "together"]);
 const JSON_BATCH_CONTENT_TYPE = "application/json";
 const MAX_BATCH_CUSTOM_ID_BYTES = 512;
+const MAX_BATCH_REQUESTS = 10_000;
 const GATEWAY_BATCH_ID_PREFIX = "batch_";
 const MAX_BATCH_CREATE_BODY_BYTES = 20 * 1024 * 1024;
 const DEFAULT_BATCH_MAX_OUTPUT_TOKENS = 16_384;
@@ -405,6 +408,9 @@ async function normalizeBatchRequests(providerId: string, payload: Record<string
 				? payload.items
 				: []
 		: [];
+	if (requests.length > MAX_BATCH_REQUESTS || promptItems.length > MAX_BATCH_REQUESTS) {
+		throw new Error("batch_request_limit_exceeded");
+	}
 	const out: NormalizedBatchRequest[] = [];
 	for (let index = 0; index < requests.length; index += 1) {
 		const raw = requests[index];
@@ -467,13 +473,11 @@ function gatewayModelForBatchPolicy(providerId: string, value: unknown): string 
 	return `${providerId}/${model.replace(/^models\//i, "")}`;
 }
 
-function batchPolicyEndpoint(value: unknown): Endpoint {
-	const path = (toText(value) ?? "/v1/responses")
-		.replace(/^https?:\/\/[^/]+/i, "")
-		.replace(/^\/v1(?=\/|$)/i, "")
-		.toLowerCase();
+export function batchPolicyEndpoint(value: unknown): Endpoint | null {
+	const path = normalizeBatchEndpoint(toText(value)).replace(/^\/v1(?=\/|$)/i, "");
 	if (path === "/chat/completions") return "chat.completions";
 	if (path === "/messages") return "messages";
+	if (path === "/generatecontent") return "responses";
 	if (path === "/embeddings") return "embeddings";
 	if (path === "/moderations") return "moderations";
 	if (path === "/images/generations") return "images.generations";
@@ -483,7 +487,8 @@ function batchPolicyEndpoint(value: unknown): Endpoint {
 	if (path === "/audio/translations") return "audio.translations";
 	if (path === "/rerank") return "rerank";
 	if (path === "/videos" || path === "/video/generations") return "video.generation";
-	return "responses";
+	if (path === "/responses") return "responses";
+	return null;
 }
 
 async function validateBatchRequestPolicies(args: {
@@ -533,6 +538,13 @@ async function validateBatchRequestPolicies(args: {
 			});
 		}
 		const endpoint = batchPolicyEndpoint(row.url);
+		if (!endpoint) {
+			return err("validation_error", {
+				reason: "batch_endpoint_not_supported",
+				request_id: args.requestId,
+				workspace_id: args.auth.workspaceId,
+			});
+		}
 		const capability = resolveCapabilityFromEndpoint(endpoint);
 		const routeKey = `${capability}:${gatewayModel}`;
 		let guarded = contextByRoute.get(routeKey);
@@ -1375,8 +1387,11 @@ async function handleCreate(req: Request) {
 	if (Number.isFinite(declaredLength) && declaredLength > MAX_BATCH_CREATE_BODY_BYTES) {
 		return jsonPayload({ error: { type: "validation_error", reason: "batch_body_too_large" } }, 413);
 	}
-	const rawBody = await req.text();
-	if (new TextEncoder().encode(rawBody).byteLength > MAX_BATCH_CREATE_BODY_BYTES) {
+	let rawBody: string;
+	try {
+		rawBody = await readStreamTextWithLimit(req.body, MAX_BATCH_CREATE_BODY_BYTES, "batch_body_too_large");
+	} catch (error) {
+		if (!(error instanceof BodyLimitExceededError)) throw error;
 		return jsonPayload({ error: { type: "validation_error", reason: "batch_body_too_large" } }, 413);
 	}
 	let payload: Record<string, unknown>;
@@ -1495,6 +1510,7 @@ async function handleCreate(req: Request) {
 	if (inputMode.mode === "file" && directInputFileId) {
 		try {
 			const parsedEntries = parseProviderBatchInputEntries(await fetchProviderFileText(providerId, directInputFileId));
+			if (parsedEntries.length > MAX_BATCH_REQUESTS) throw new Error("batch_request_limit_exceeded");
 			reservationRequests = parsedEntries.map((entry) => ({
 				...entry,
 				endpoint: entry.endpoint ?? toText(payload.endpoint),

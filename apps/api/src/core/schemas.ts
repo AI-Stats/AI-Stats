@@ -202,14 +202,9 @@ const UploadFileSchema = z.custom<File | Blob>(isFileLike, {
 
 // Batch schema
 const BatchWebhookSchema = z.object({
-    url: z.string().url().optional(),
-    endpoint_id: z.string().min(1).optional(),
-    endpointId: z.string().min(1).optional(),
-    secret: z.string().min(1).optional(),
+    endpoint_id: z.string().min(1),
     events: z.array(z.string().min(1)).optional(),
-}).refine((value) => Boolean(value.url || value.endpoint_id || value.endpointId), {
-    message: "webhook requires url or endpoint_id",
-});
+}).strict();
 
 const BatchRequestItemSchema = z.object({
     custom_id: z.string().min(1).optional(),
@@ -1132,7 +1127,9 @@ const VideoInputReferenceContentPartSchema = z.object({
 	role: VideoInputReferenceRoleSchema.optional(),
 	reference_type: VideoReferenceTypeSchema.optional(),
 	image_url: z.object({
-		url: z.string().min(1),
+		url: z.string().url().refine((value) => new URL(value).protocol === "https:", {
+			message: "video input references must use https",
+		}),
 	}),
 }).strict();
 
@@ -1143,8 +1140,7 @@ const VideoOutputConfigSchema = z.object({
 }).default({ access: "both" });
 
 const VideoWebhookSchema = z.object({
-	url: z.string().min(1),
-	secret: z.string().min(1).optional(),
+	endpoint_id: z.string().min(1),
 	events: z.array(z.string().min(1)).optional(),
 }).strict().transform((value, ctx) => {
 	const parsed = parseAsyncWebhookConfig("video", value);
@@ -1158,6 +1154,57 @@ const VideoWebhookSchema = z.object({
 	return parsed;
 });
 
+const VIDEO_PROVIDER_CONTROLLED_KEYS = new Set([
+	"request",
+	"model",
+	"prompt",
+	"input",
+	"content",
+	"duration",
+	"duration_seconds",
+	"durationseconds",
+	"seconds",
+	"size",
+	"resolution",
+	"aspect_ratio",
+	"aspectratio",
+	"ratio",
+	"sample_count",
+	"samplecount",
+	"number_of_videos",
+	"numberofvideos",
+	"callback_url",
+	"callbackurl",
+]);
+
+function rejectVideoProviderControlledFields(
+	value: unknown,
+	ctx: z.RefinementCtx,
+	path: Array<string | number> = [],
+): void {
+	if (!value || typeof value !== "object") return;
+	if (Array.isArray(value)) {
+		value.forEach((entry, index) => rejectVideoProviderControlledFields(entry, ctx, [...path, index]));
+		return;
+	}
+	for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+		const normalizedKey = key.replace(/[-_]/g, "").toLowerCase();
+		if (VIDEO_PROVIDER_CONTROLLED_KEYS.has(key.toLowerCase()) || VIDEO_PROVIDER_CONTROLLED_KEYS.has(normalizedKey)) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: [...path, key],
+				message: `${key} must be supplied through a validated top-level video field`,
+			});
+			continue;
+		}
+		rejectVideoProviderControlledFields(entry, ctx, [...path, key]);
+	}
+}
+
+const VideoProviderParamsSchema = z.record(z.string(), z.any()).superRefine((value, ctx) => {
+	rejectVideoProviderControlledFields(value, ctx);
+});
+
 // Video Generation schema
 export const VideoGenerationSchema = z.object({
 	model: z.string().min(1),
@@ -1167,7 +1214,7 @@ export const VideoGenerationSchema = z.object({
 	resolution: z.string().min(1).optional(),
 	aspect_ratio: z.string().min(1).optional(),
 	seed: z.number().int().optional(),
-	sample_count: z.number().int().positive().optional(),
+	sample_count: z.number().int().min(1).max(4).optional(),
 	negative_prompt: z.string().optional(),
 	generate_audio: z.boolean().optional(),
 	enhance_prompt: z.boolean().optional(),
@@ -1175,7 +1222,7 @@ export const VideoGenerationSchema = z.object({
 	person_generation: z.string().optional(),
 	resize_mode: z.string().optional(),
 	input_references: z.array(VideoInputReferenceSchema).optional(),
-	provider_params: z.record(z.string(), z.any()).optional(),
+	provider_params: VideoProviderParamsSchema.optional(),
 	output: VideoOutputConfigSchema.optional(),
 	webhook: VideoWebhookSchema.optional(),
 	echo_upstream_request: z.boolean().optional(),

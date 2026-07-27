@@ -66,15 +66,14 @@ describe("VideoGenerationSchema", () => {
 			model: "google/veo-3.1",
 			prompt: "Webhook payload",
 			webhook: {
-				url: "https://example.com/hooks/video",
-				secret: "whsec_video",
+				endpoint_id: "whep_video",
 				events: ["completed", "video.failed", "job.cancelled"],
 			},
 		});
 
 		expect(parsed.webhook).toEqual({
-			url: "https://example.com/hooks/video",
-			secret: "whsec_video",
+			endpointId: "whep_video",
+			secret: null,
 			events: ["job.completed", "video.failed", "job.cancelled"],
 		});
 	});
@@ -85,7 +84,7 @@ describe("VideoGenerationSchema", () => {
 				model: "google/veo-3.1",
 				prompt: "Cross-kind webhook",
 				webhook: {
-					url: "https://example.com/hooks/video",
+					endpoint_id: "whep_video",
 					events: ["batch.completed"],
 				},
 			}).success,
@@ -94,10 +93,21 @@ describe("VideoGenerationSchema", () => {
 			VideoGenerationSchema.safeParse({
 				model: "google/veo-3.1",
 				prompt: "Insecure webhook",
-				webhook: {
-					url: "http://example.com/hooks/video",
-				},
+				webhook: { url: "https://example.com/hooks/video" },
 			}).success,
 		).toBe(false);
+	});
+
+	it("rejects provider request overrides and excessive output counts", () => {
+		expect(VideoGenerationSchema.safeParse({
+			model: "google/veo-3.1",
+			prompt: "Safe canonical prompt",
+			provider_params: { request: { prompt: "bypass" } },
+		}).success).toBe(false);
+		expect(VideoGenerationSchema.safeParse({
+			model: "google/veo-3.1",
+			prompt: "Too many outputs",
+			sample_count: 5,
+		}).success).toBe(false);
 	});
 });

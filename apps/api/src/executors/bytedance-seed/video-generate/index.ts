@@ -121,24 +121,11 @@ function normalizeReferenceImages(value: unknown): string[] | undefined {
 function buildSeedanceRequest(ir: IRVideoGenerationRequest, model: string): Record<string, any> {
 	const rawRequest = ((ir.rawRequest ?? {}) as Record<string, any>);
 	const bytedanceConfig = extractBytedanceConfig(rawRequest);
-	const passthroughRequest =
-		bytedanceConfig.request && typeof bytedanceConfig.request === "object" && !Array.isArray(bytedanceConfig.request)
-			? { ...(bytedanceConfig.request as Record<string, any>) }
-			: {};
-
-	if (Object.keys(passthroughRequest).length > 0) {
-		if (passthroughRequest.model == null) passthroughRequest.model = model;
-		if (passthroughRequest.prompt == null && passthroughRequest.input == null && passthroughRequest.content == null) {
-			passthroughRequest.prompt = ir.prompt;
-		}
-		return passthroughRequest;
-	}
-
 	const duration = toPositiveNumber(
+		parseDurationSeconds(ir) ??
 		bytedanceConfig.duration ??
 		bytedanceConfig.duration_seconds ??
-		bytedanceConfig.durationSeconds ??
-		parseDurationSeconds(ir),
+		bytedanceConfig.durationSeconds,
 	);
 	const ratio = toNonEmptyString(bytedanceConfig.ratio) ??
 		toNonEmptyString(bytedanceConfig.aspect_ratio) ??

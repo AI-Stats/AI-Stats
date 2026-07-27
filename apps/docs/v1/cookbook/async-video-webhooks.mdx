@@ -6,6 +6,8 @@ description: "Create long-running video jobs, poll status safely, and consume st
 
 Video generation is asynchronous by design. This recipe shows the minimum application loop you need for a production-safe integration.
 
+Create a workspace-managed webhook endpoint first and store the signing secret returned by that management operation. Video jobs reference only the endpoint ID; Phaseo keeps the secret encrypted and supports rotation without changing job requests.
+
 ## 1. Create the job
 
 <CodeGroup>
@@ -17,9 +19,8 @@ curl https://api.phaseo.app/v1/videos \
     "model": "google/veo-3.1-lite",
     "prompt": "A cinematic sunrise over a mountain lake",
     "webhook": {
-      "url": "https://example.com/api/video-webhook",
-      "events": ["video.completed", "video.failed", "video.cancelled", "video.expired"],
-      "secret": "whsec_your_signing_secret"
+      "endpoint_id": "we_123",
+      "events": ["video.completed", "video.failed", "video.cancelled", "video.expired"]
     }
   }'
 ```
@@ -35,9 +36,8 @@ const response = await fetch("https://api.phaseo.app/v1/videos", {
     model: "google/veo-3.1-lite",
     prompt: "A cinematic sunrise over a mountain lake",
     webhook: {
-      url: "https://example.com/api/video-webhook",
+      endpoint_id: "we_123",
       events: ["video.completed", "video.failed", "video.cancelled", "video.expired"],
-      secret: "whsec_your_signing_secret",
     },
   }),
 });
@@ -59,9 +59,8 @@ response = requests.post(
         "model": "google/veo-3.1-lite",
         "prompt": "A cinematic sunrise over a mountain lake",
         "webhook": {
-            "url": "https://example.com/api/video-webhook",
+            "endpoint_id": "we_123",
             "events": ["video.completed", "video.failed", "video.cancelled", "video.expired"],
-            "secret": "whsec_your_signing_secret",
         },
     },
 )
@@ -84,9 +83,8 @@ func main() {
     "model": "google/veo-3.1-lite",
     "prompt": "A cinematic sunrise over a mountain lake",
     "webhook": {
-      "url": "https://example.com/api/video-webhook",
-      "events": ["video.completed", "video.failed", "video.cancelled", "video.expired"],
-      "secret": "whsec_your_signing_secret"
+      "endpoint_id": "we_123",
+      "events": ["video.completed", "video.failed", "video.cancelled", "video.expired"]
     }
   }`)
 
@@ -116,9 +114,8 @@ var content = new StringContent("""
   "model": "google/veo-3.1-lite",
   "prompt": "A cinematic sunrise over a mountain lake",
   "webhook": {
-    "url": "https://example.com/api/video-webhook",
-    "events": ["video.completed", "video.failed", "video.cancelled", "video.expired"],
-    "secret": "whsec_your_signing_secret"
+    "endpoint_id": "we_123",
+    "events": ["video.completed", "video.failed", "video.cancelled", "video.expired"]
   }
 }
 """, Encoding.UTF8, "application/json");
@@ -141,9 +138,8 @@ curl_setopt_array($ch, [
         'model' => 'google/veo-3.1-lite',
         'prompt' => 'A cinematic sunrise over a mountain lake',
         'webhook' => [
-            'url' => 'https://example.com/api/video-webhook',
+            'endpoint_id' => 'we_123',
             'events' => ['video.completed', 'video.failed', 'video.cancelled', 'video.expired'],
-            'secret' => 'whsec_your_signing_secret',
         ],
     ]),
 ]);
@@ -167,9 +163,8 @@ request.body = {
   model: 'google/veo-3.1-lite',
   prompt: 'A cinematic sunrise over a mountain lake',
   webhook: {
-    url: 'https://example.com/api/video-webhook',
-    events: ['video.completed', 'video.failed', 'video.cancelled', 'video.expired'],
-    secret: 'whsec_your_signing_secret'
+    endpoint_id: 'we_123',
+    events: ['video.completed', 'video.failed', 'video.cancelled', 'video.expired']
   }
 }.to_json
 
@@ -302,7 +297,7 @@ Design your webhook consumer to:
 2. treat deliveries as retryable and idempotent
 3. fetch the latest job status if the webhook payload and local state disagree
 
-When you configure `webhook.secret`, Phaseo signs each delivery with:
+Phaseo signs every managed webhook delivery with the endpoint secret:
 
 - `x-phaseo-timestamp`: Unix timestamp in seconds
 - `x-phaseo-signature`: hex HMAC-SHA256 of `${timestamp}.${rawBody}` using your webhook secret

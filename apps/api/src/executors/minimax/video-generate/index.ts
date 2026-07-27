@@ -118,16 +118,11 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		rawRequest.provider_params ??
 		{}
 	) as Record<string, any>;
-	const passthroughRequest =
-		minimaxExtensions.request &&
-		typeof minimaxExtensions.request === "object" &&
-		!Array.isArray(minimaxExtensions.request)
-			? { ...(minimaxExtensions.request as Record<string, any>) }
-			: {};
-
-	if (passthroughRequest.model == null) passthroughRequest.model = model;
-	if (passthroughRequest.prompt == null) passthroughRequest.prompt = ir.prompt;
-	if (passthroughRequest.duration == null && seconds != null) passthroughRequest.duration = seconds;
+	const passthroughRequest: Record<string, any> = {
+		model,
+		prompt: ir.prompt,
+	};
+	if (seconds != null) passthroughRequest.duration = seconds;
 	if (passthroughRequest.resolution == null) {
 		const resolution =
 			toNonEmptyString(passthroughRequest.size) ??

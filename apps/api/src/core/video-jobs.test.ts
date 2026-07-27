@@ -129,7 +129,7 @@ describe("video-jobs", () => {
 		expect(claimAsyncOperationsForReconciliationMock).toHaveBeenCalledWith({
 			kind: "video",
 			limit: 250,
-			statuses: [null, "queued", "pending", "in_progress", "processing", "running", "completed", "failed"],
+			statuses: [null, "queued", "pending", "in_progress", "processing", "running", "completed", "failed", "cancelled", "canceled", "expired"],
 			workerId: "worker-1",
 			leaseSeconds: 180,
 			shardCount: 8,

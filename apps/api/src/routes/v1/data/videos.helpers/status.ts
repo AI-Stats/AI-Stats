@@ -37,9 +37,10 @@ export function resolveGoogleVideoAuth(rawCredential: string): GoogleVideoAuth {
 	return { kind: "api_key", value: trimmed };
 }
 
-export function redactSensitiveUrl(url: URL): string {
+export function redactSensitiveUrl(url: URL | string): string {
 	const clone = new URL(url.toString());
-	if (clone.searchParams.has("key")) clone.searchParams.set("key", "[redacted]");
+	if (clone.search) clone.search = "?[redacted]";
+	clone.hash = "";
 	return clone.toString();
 }
 

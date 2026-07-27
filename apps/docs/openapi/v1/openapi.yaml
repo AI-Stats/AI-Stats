@@ -5713,6 +5713,8 @@ components:
           type: integer
         sample_count:
           type: integer
+          minimum: 1
+          maximum: 4
         negative_prompt:
           type: string
         generate_audio:
@@ -5732,21 +5734,22 @@ components:
         provider_params:
           type: object
           additionalProperties: true
+          description: >-
+            Provider-specific extensions only. Complete request passthrough and
+            duplicate routing, prompt, callback, or billing fields are rejected.
         output:
           $ref: '#/components/schemas/VideoOutputConfig'
         webhook:
           type: object
+          required:
+            - endpoint_id
+          additionalProperties: false
           properties:
-            url:
+            endpoint_id:
               type: string
-              format: uri
               description: >-
-                HTTPS callback URL for gateway-managed webhooks. Literal
-                private, loopback, link-local, and wildcard hosts are rejected;
-                http://localhost, http://127.0.0.1, and http://[::1] are allowed
-                only for local development callbacks.
-            secret:
-              type: string
+                Active workspace-managed webhook endpoint. Its encrypted,
+                rotatable signing secret is never stored in video job metadata.
             events:
               type: array
               description: >-
