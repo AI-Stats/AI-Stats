@@ -864,6 +864,56 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "moonshotai/kimi-k3",
+    "provider_api_model_id": "nebius-token-factory:moonshotai/kimi-k3",
+    "provider_model_slug": "moonshotai/Kimi-K3",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-27T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-07-27T00:00:00Z",
+      "notes": "Nebius Token Factory's public endpoint card lists the moonshotai/Kimi-K3 route in eu-north1 with FP4 quantization, a 1,024K context window, tool calling, reasoning, and approximately 120 tokens per second."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "nousresearch/hermes-4-405b",
     "provider_api_model_id": "nebius-token-factory:nousresearch/hermes-4-405b",
     "provider_model_slug": "NousResearch/Hermes-4-405B",
