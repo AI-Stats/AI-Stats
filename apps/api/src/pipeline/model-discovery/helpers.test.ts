@@ -1,5 +1,13 @@
 import { afterAll, afterEach, describe, expect, it } from "vitest";
-import { buildDiscordMessage, extractDiscoveredModels, extractProviderApiModelSnapshot, fetchProviderModels, resolveProviderModelsEndpoint } from "./helpers";
+import {
+	assertSafeDiscoverySnapshot,
+	buildDiscordMessage,
+	extractDiscoveredModels,
+	extractProviderApiModelSnapshot,
+	fetchProviderModels,
+	formatPricingSample,
+	resolveProviderModelsEndpoint,
+} from "./helpers";
 import { installFetchMock, jsonResponse } from "../../../tests/helpers/mock-fetch";
 import { setupRuntimeFromEnv, teardownTestRuntime } from "../../../tests/helpers/runtime";
 
@@ -30,6 +38,20 @@ afterAll(() => {
 });
 
 describe("resolveProviderModelsEndpoint", () => {
+	it("interpolates encoded endpoint parameters from Worker bindings", () => {
+		setupRuntimeFromEnv({
+			CLOUDFLARE_ACCOUNT_ID: "account/id",
+		} as any);
+
+		expect(resolveProviderModelsEndpoint({
+			providerId: "cloudflare",
+			providerName: "Cloudflare Workers AI",
+			modelsEndpoint: "https://api.cloudflare.com/client/v4/accounts/{accountId}/ai/models/search?format=openrouter",
+			modelsEndpointParams: { accountId: ["CLOUDFLARE_ACCOUNT_ID"] },
+		})).toBe(
+			"https://api.cloudflare.com/client/v4/accounts/account%2Fid/ai/models/search?format=openrouter",
+		);
+	});
 	it("appends the poolside openai prefix when the base url override is a root domain", () => {
 		setupRuntimeFromEnv({
 			POOLSIDE_BASE_URL: "https://poolside.example",
@@ -52,6 +74,27 @@ describe("resolveProviderModelsEndpoint", () => {
 });
 
 describe("fetchProviderModels", () => {
+	it("uses DigitalOcean model_id instead of the internal catalog UUID", async () => {
+		const fetchMock = installFetchMock([{
+			match: (url) => url.includes("/v2/gen-ai/models/catalog"),
+			response: jsonResponse({
+				data: [{ id: "00000000-0000-0000-0000-000000000029", model_id: "deepseek-v3.2" }],
+			}),
+		}]);
+
+		try {
+			const models = await fetchProviderModels({
+				providerId: "digitalocean",
+				providerName: "DigitalOcean",
+				modelsEndpoint: "https://api.digitalocean.com/v2/gen-ai/models/catalog?limit=200",
+				authStyle: "none",
+			});
+			expect(models.map((model) => model.id)).toEqual(["deepseek-v3.2"]);
+		} finally {
+			fetchMock.restore();
+		}
+	});
+
 	it("uses the resolved poolside models endpoint and extracts standard openai model ids", async () => {
 		setupRuntimeFromEnv({
 			POOLSIDE_API_KEY: "test-poolside-key",
@@ -205,13 +248,86 @@ describe("extractDiscoveredModels", () => {
 });
 
 describe("buildDiscordMessage", () => {
-	it("does not include pricing-only changes", () => {
+	it("includes pricing-only changes", () => {
 		setupRuntimeFromEnv({} as any);
 		expect(buildDiscordMessage({
 			modelChanges: [],
 			pricing: { updatesDetected: 1, providerChanges: [{ providerId: "crofai", updates: 1, samples: ["glm-5.2 | price changed"] }] },
 			providerApiPricing: { updatesDetected: 1, providerChanges: [{ providerId: "deepinfra", updates: 1, samples: ["model | price changed"] }] },
+			pricingTable: { updatesDetected: 0, providerChanges: [], errors: [] },
 			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
-		} as any)).toBe("");
+		} as any)).toContain("Pricing monitor detected 1 updated rule");
+	});
+
+	it("includes pricing source failures", () => {
+		setupRuntimeFromEnv({} as any);
+		expect(buildDiscordMessage({
+			modelChanges: [],
+			pricing: { updatesDetected: 0, providerChanges: [] },
+			providerApiPricing: { updatesDetected: 0, providerChanges: [] },
+			pricingTable: {
+				updatesDetected: 0,
+				providerChanges: [],
+				errors: ["Alibaba pricing source returned no prices"],
+			},
+			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
+		} as any)).toContain("Alibaba pricing source returned no prices");
+	});
+
+	it("prefers an explicit catalog endpoint over the gateway base URL", () => {
+		expect(resolveProviderModelsEndpoint({
+			providerId: "catalog",
+			providerName: "Catalog",
+			modelsEndpoint: "https://catalog.example/models.json",
+			baseUrl: "https://gateway.example/v1",
+			authStyle: "none",
+		})).toBe("https://catalog.example/models.json");
+	});
+});
+
+describe("W&B provider catalog extraction", () => {
+	it("extracts models from the provider-owned nested catalog", () => {
+		expect(extractDiscoveredModels("weights-and-biases", {
+			coreweave: {
+				models: {
+					"openai/gpt-oss-120b": {
+						id: "openai/gpt-oss-120b",
+						name: "OpenAI: gpt-oss-120b",
+						cost: { input: 0.03, output: 0.17, cache_read: 0.03 },
+					},
+				},
+			},
+		})).toEqual([expect.objectContaining({ id: "openai/gpt-oss-120b" })]);
+	});
+});
+
+describe("pricing samples", () => {
+	it("formats the model from the v2 legacy pricing projection", () => {
+		expect(formatPricingSample({
+			rule_id: "rule-1",
+			provider_id: "openai",
+			api_model_id: "openai/gpt-5.4",
+			capability_id: "text.generate",
+			pricing_plan: "standard",
+			meter: "input_text_tokens",
+			price_per_unit: 2.5,
+			currency: "USD",
+			effective_from: null,
+			effective_to: null,
+			updated_at: "2026-07-26T00:00:00Z",
+		})).toContain("openai/gpt-5.4");
+	});
+});
+
+describe("assertSafeDiscoverySnapshot", () => {
+	it("rejects empty and catastrophic provider snapshots", () => {
+		expect(() => assertSafeDiscoverySnapshot("provider", ["a"], [])).toThrow("returned zero models");
+		expect(() => assertSafeDiscoverySnapshot("provider", ["a", "b", "c", "d", "e", "f", "g", "h"], ["a"])).toThrow(
+			"refusing a destructive snapshot",
+		);
+	});
+
+	it("accepts normal provider churn", () => {
+		expect(() => assertSafeDiscoverySnapshot("provider", ["a", "b", "c", "d", "e"], ["a", "b", "c", "f"])).not.toThrow();
 	});
 });

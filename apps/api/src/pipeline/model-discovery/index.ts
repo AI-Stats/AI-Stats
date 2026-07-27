@@ -5,6 +5,7 @@
 import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 import {
 	asRecord,
+	assertSafeDiscoverySnapshot,
 	buildProviderApiModelSnapshotDiff,
 	computeConfiguredModelCoverageFingerprint,
 	diffModelIds,
@@ -32,6 +33,7 @@ import {
 	shouldSyncProviderDiscoveryIssues,
 	syncUpstreamDiscoveryIssues,
 } from "./github-issues";
+import { dispatchProviderCatalogSync, type CatalogSyncDispatchSummary } from "./github-dispatch";
 import { fetchPricingTableSnapshots, type PricingTableSnapshot } from "./pricing-tables";
 import { MODEL_DISCOVERY_PROVIDERS, type ProviderConfig } from "./providers";
 
@@ -190,6 +192,7 @@ type DiscoveryRunSummary = {
 		reason?: string | null;
 		error?: string | null;
 	};
+	catalogSyncDispatch?: CatalogSyncDispatchSummary & { error?: string | null };
 	statePersisted: boolean;
 	persistenceDeferredReason?: string | null;
 	pricingMonitor: PricingMonitorSummary;
@@ -238,22 +241,34 @@ const PROVIDER_API_PRICING_WATCH_PROVIDER_IDS = new Set<string>([
 	"ai21",
 	"akashml",
 	"aion-labs",
+	"ambient",
 	"arcee-ai",
 	"atlascloud",
 	"baseten",
 	"chutes",
+	"cloudflare",
+	"crossmodel",
 	"crofai",
 	"deepinfra",
+	"digitalocean",
+	"empiriolabs",
 	"nebius-token-factory",
 	"elevenlabs",
 	"gmicloud",
 	"groq",
+	"huggingface",
 	"inception",
+	"kilo",
+	"llmgateway",
 	"nextbit",
-	"novitaai",
+	"novita",
+	"openrouter",
+	"ovhcloud",
 	"spacex-ai",
 	"together",
 	"venice",
+	"vercel",
+	"weights-and-biases",
 ]);
 
 const PROVIDERS: ProviderConfig[] = MODEL_DISCOVERY_PROVIDERS;
@@ -393,6 +408,8 @@ function compactSummary(summary: DiscoveryRunSummary, extra: { notificationError
 			fingerprint: summary.configuredModelCoverageMonitor.fingerprint,
 			error: summary.configuredModelCoverageMonitor.error ?? undefined,
 		},
+		issueSync: summary.issueSync,
+		catalogSyncDispatch: summary.catalogSyncDispatch,
 		notificationError: extra.notificationError ?? undefined,
 		error: extra.error ?? undefined,
 	};
@@ -593,6 +610,12 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			skipped: false,
 			reason: "not attempted",
 		};
+		let catalogSyncDispatch: DiscoveryRunSummary["catalogSyncDispatch"] = {
+			dispatched: false,
+			skipped: true,
+			providers: [],
+			reason: "not attempted",
+		};
 		const upsertRows: SeenModelUpsertRow[] = [];
 		const deleteRows: SeenModelDeleteRow[] = [];
 		const discoveredModelIdsByProvider = new Map<string, string[]>();
@@ -603,7 +626,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 		let providerApiPricingBaselineInitialized = false;
 
 		for (const provider of providers) {
-			const requiresApiKey = (provider.authStyle ?? "bearer") !== "none";
+			const requiresApiKey = !["none", "optional_bearer"].includes(provider.authStyle ?? "bearer");
 			const apiKey = provider.apiKeyEnv ? readBindingEnv(provider.apiKeyEnv) : null;
 			if (requiresApiKey && !apiKey) {
 				results.push({
@@ -623,9 +646,10 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			try {
 				const discoveredModels = await fetchProviderModels(provider, apiKey);
 				const currentModelIds = discoveredModels.map((model) => model.id);
-				discoveredModelIdsByProvider.set(provider.providerId, currentModelIds);
 				const previousProviderState = previousState.byProvider.get(provider.providerId);
 				const previousModelIds = previousProviderState?.modelIds ?? [];
+				assertSafeDiscoverySnapshot(provider.providerId, previousModelIds, currentModelIds);
+				discoveredModelIdsByProvider.set(provider.providerId, currentModelIds);
 				const { added, removed } = diffModelIds(previousModelIds, currentModelIds);
 
 				const nowIso = new Date().toISOString();
@@ -873,6 +897,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 					modelChanges: changes,
 					pricing: pricingMonitor,
 					providerApiPricing: providerApiPricingMonitor,
+					pricingTable: pricingTableMonitor,
 					configuredModelCoverage: configuredModelCoverageNotificationSummary,
 				});
 			} catch (error) {
@@ -883,6 +908,9 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 
 		const hasNotifiableChanges = hasDiscordNotifiableChanges({
 			modelChanges: changes,
+			pricing: pricingMonitor,
+			providerApiPricing: providerApiPricingMonitor,
+			pricingTable: pricingTableMonitor,
 			configuredModelCoverage: configuredModelCoverageNotificationSummary,
 		});
 		const requiresNotificationDelivery = shouldNotify && hasNotifiableChanges;
@@ -968,6 +996,35 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			}
 		}
 
+		const catalogSyncProviders = [
+			...changes.map((change) => change.providerId),
+			...pricingMonitor.providerChanges.map((change) => change.providerId),
+			...providerApiPricingMonitor.providerChanges.map((change) => change.providerId),
+			...pricingTableMonitor.providerChanges.map((change) => change.providerId),
+		];
+		try {
+			catalogSyncDispatch = persistenceDeferredReason
+				? {
+					dispatched: false,
+					skipped: true,
+					providers: [...new Set(catalogSyncProviders)].sort(),
+					reason: "discovery state was not persisted",
+				}
+				: await dispatchProviderCatalogSync(catalogSyncProviders);
+			if (catalogSyncDispatch.skipped && catalogSyncProviders.length > 0) {
+				console.log("[model-discovery] Provider catalog sync dispatch skipped:", catalogSyncDispatch.reason);
+			}
+		} catch (error) {
+			const reason = error instanceof Error ? error.message : String(error);
+			catalogSyncDispatch = {
+				dispatched: false,
+				skipped: false,
+				providers: [...new Set(catalogSyncProviders)].sort(),
+				error: reason,
+			};
+			console.error("[model-discovery] Provider catalog sync dispatch failed:", reason);
+		}
+
 		const finishedAt = new Date();
 		const summary: DiscoveryRunSummary = {
 			runId,
@@ -984,6 +1041,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			results,
 			changes,
 			issueSync: issueSyncSummary,
+			catalogSyncDispatch,
 			statePersisted: !persistenceDeferredReason,
 			persistenceDeferredReason,
 			pricingMonitor,
@@ -996,6 +1054,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			summary.providersError > 0 ||
 			notificationError ||
 			Boolean(summary.issueSync?.error) ||
+			Boolean(summary.catalogSyncDispatch?.error) ||
 			Boolean(summary.persistenceDeferredReason) ||
 			Boolean(summary.pricingMonitor.error) ||
 			Boolean(summary.providerApiPricingMonitor.error) ||
@@ -1027,6 +1086,12 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 				created: 0,
 				updated: 0,
 				skipped: false,
+				error: reason,
+			},
+			catalogSyncDispatch: {
+				dispatched: false,
+				skipped: false,
+				providers: [],
 				error: reason,
 			},
 			statePersisted: false,

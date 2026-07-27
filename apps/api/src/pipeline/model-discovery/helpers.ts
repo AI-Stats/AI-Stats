@@ -86,6 +86,22 @@ type ProviderApiPricingMonitorSummary = {
 	error?: string | null;
 };
 
+type PricingTableMonitorSummary = {
+	enabled: boolean;
+	executed: boolean;
+	sourcesChecked: number;
+	updatesDetected: number;
+	providerChanges: Array<{
+		providerId: string;
+		providerName: string;
+		sourceUrl: string;
+		tableCount: number;
+		pricingSamples: string[];
+	}>;
+	errors: string[];
+	error?: string | null;
+};
+
 type ConfiguredModelCoverageMonitorSummary = {
 	enabled: boolean;
 	executed: boolean;
@@ -158,10 +174,20 @@ function normalizePathSegment(value: string | undefined): string {
 }
 
 export function resolveProviderModelsEndpoint(provider: ProviderConfig): string {
+	if (provider.modelsEndpoint && provider.modelsEndpointParams) {
+		let endpoint = provider.modelsEndpoint;
+		for (const [name, envNames] of Object.entries(provider.modelsEndpointParams)) {
+			const value = readBindingEnv(envNames);
+			if (!value) throw new Error(`${provider.providerId} models endpoint parameter ${name} missing`);
+			endpoint = endpoint.replaceAll(`{${name}}`, encodeURIComponent(value));
+		}
+		return endpoint;
+	}
+
 	const baseUrlOverride = provider.baseUrlEnv ? readBindingEnv(provider.baseUrlEnv) : null;
 	if (!baseUrlOverride) {
+		if (provider.modelsEndpoint) return provider.modelsEndpoint;
 		if (!provider.baseUrl) {
-			if (provider.modelsEndpoint) return provider.modelsEndpoint;
 			throw new Error(`${provider.providerId} models endpoint missing`);
 		}
 
@@ -544,13 +570,19 @@ export function shouldIncludeDiscoveredModel(providerId: string, row: Record<str
 export function extractDiscoveredModels(providerId: string, payload: unknown): DiscoveredModel[] {
 	const root = asRecord(payload);
 	if (!root && !Array.isArray(payload)) return [];
+	const nestedProviderModels = providerId === "weights-and-biases" && root
+		? Object.values(root).flatMap((provider) => Object.values(asRecord(asRecord(provider)?.models) ?? {}))
+		: [];
 
 	const candidateCollections: unknown[] = [
 		payload,
 		root?.data,
 		root?.models,
 		root?.publisherModels,
+		root?.result,
+		asRecord(root?.result)?.data,
 		asRecord(root?.result)?.models,
+		nestedProviderModels,
 	];
 
 	const output = new Map<string, DiscoveredModel>();
@@ -572,7 +604,9 @@ export function extractDiscoveredModels(providerId: string, payload: unknown): D
 				});
 				continue;
 			}
-			const candidates = [row.id, row.model_id, row.name, row.model, row.slug];
+			const candidates = providerId === "digitalocean"
+				? [row.model_id, row.id, row.name, row.model, row.slug]
+				: [row.id, row.model_id, row.name, row.model, row.slug];
 			for (const value of candidates) {
 				if (typeof value !== "string") continue;
 				const normalized = normalizeModelId(providerId, value);
@@ -744,6 +778,9 @@ export async function fetchProviderModels(provider: ProviderConfig, apiKey?: str
 				if (!apiKey) throw new Error(`${provider.providerId} api key missing`);
 				headers["Authorization"] = `Api-Key ${apiKey}`;
 				break;
+			case "optional_bearer":
+				if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
+				break;
 			case "none":
 				break;
 			case "bearer":
@@ -776,6 +813,25 @@ export function diffModelIds(previousIds: string[], currentIds: string[]): { add
 	const added = currentIds.filter((id) => !previous.has(id));
 	const removed = previousIds.filter((id) => !current.has(id));
 	return { added, removed };
+}
+
+export function assertSafeDiscoverySnapshot(
+	providerId: string,
+	previousIds: string[],
+	currentIds: string[],
+	minimumRetainedRatio = 0.25,
+): void {
+	if (currentIds.length === 0) {
+		throw new Error(`${providerId} returned zero models; refusing to replace the previous snapshot`);
+	}
+	if (previousIds.length < 5) return;
+	const retainedRatio = currentIds.length / previousIds.length;
+	if (retainedRatio < minimumRetainedRatio) {
+		throw new Error(
+			`${providerId} model count fell from ${previousIds.length} to ${currentIds.length} ` +
+			`(${Math.round(retainedRatio * 100)}% retained); refusing a destructive snapshot`,
+		);
+	}
 }
 
 export function parsePricingCursorFromSummary(summary: unknown): PricingCursor | null {
@@ -1172,7 +1228,9 @@ export function buildModelDiscordSection(changes: ProviderChange[]): string {
 }
 
 export function buildPricingDiscordSection(pricing: PricingMonitorSummary): string {
-	if (pricing.updatesDetected === 0 || pricing.providerChanges.length === 0) return "";
+	if (pricing.updatesDetected === 0 || pricing.providerChanges.length === 0) {
+		return pricing.error ? `Pricing monitor failed: ${pricing.error}` : "";
+	}
 	const lines: string[] = [
 		`Pricing monitor detected ${pricing.updatesDetected} updated rule${pricing.updatesDetected === 1 ? "" : "s"} across ${pricing.providerChanges.length} provider${pricing.providerChanges.length === 1 ? "" : "s"}.`,
 		"",
@@ -1193,7 +1251,9 @@ export function buildPricingDiscordSection(pricing: PricingMonitorSummary): stri
 }
 
 export function buildProviderApiPricingDiscordSection(pricing: ProviderApiPricingMonitorSummary): string {
-	if (pricing.updatesDetected === 0 || pricing.providerChanges.length === 0) return "";
+	if (pricing.updatesDetected === 0 || pricing.providerChanges.length === 0) {
+		return pricing.error ? `Provider /models pricing monitor failed: ${pricing.error}` : "";
+	}
 	const lines: string[] = [
 		`Provider /models monitor detected ${pricing.updatesDetected} updated model${pricing.updatesDetected === 1 ? "" : "s"} across ${pricing.providerChanges.length} provider${pricing.providerChanges.length === 1 ? "" : "s"}.`,
 		"",
@@ -1240,11 +1300,37 @@ export function shouldNotifyConfiguredModelCoverage(): boolean {
 
 export function hasDiscordNotifiableChanges(args: {
 	modelChanges: ProviderChange[];
+	pricing: PricingMonitorSummary;
+	providerApiPricing: ProviderApiPricingMonitorSummary;
+	pricingTable: PricingTableMonitorSummary;
 	configuredModelCoverage: ConfiguredModelCoverageMonitorSummary;
 }): boolean {
-	return args.modelChanges.length > 0 || (
+	return args.modelChanges.length > 0
+		|| args.pricing.updatesDetected > 0
+		|| Boolean(args.pricing.error)
+		|| args.providerApiPricing.updatesDetected > 0
+		|| Boolean(args.providerApiPricing.error)
+		|| args.pricingTable.updatesDetected > 0
+		|| args.pricingTable.errors.length > 0
+		|| Boolean(args.pricingTable.error)
+		|| (
 		shouldNotifyConfiguredModelCoverage() && args.configuredModelCoverage.updatesDetected > 0
 	);
+}
+
+export function buildPricingTableDiscordSection(pricing: PricingTableMonitorSummary): string {
+	const lines: string[] = [];
+	if (pricing.updatesDetected > 0) {
+		lines.push(`Pricing page monitor detected ${pricing.updatesDetected} changed provider source${pricing.updatesDetected === 1 ? "" : "s"}.`);
+		for (const change of pricing.providerChanges.slice(0, MAX_PRICING_PROVIDER_LINES)) {
+			lines.push(`- ${change.providerName}: ${change.tableCount} price-bearing section${change.tableCount === 1 ? "" : "s"} (${change.sourceUrl})`);
+		}
+	}
+	if (pricing.error) lines.push(`Pricing page monitor failed: ${pricing.error}`);
+	for (const error of pricing.errors.slice(0, MAX_PRICING_SAMPLE_LINES)) {
+		lines.push(`- Pricing source error: ${error}`);
+	}
+	return lines.join("\n").trim();
 }
 
 const PRIVATE_MODEL_DISCOVERY_USERNAME = "Phaseo Private Model Discovery";
@@ -1252,13 +1338,22 @@ const PRIVATE_MODEL_DISCOVERY_AVATAR_URL = "https://phaseo.app/png_logo_dark.png
 
 export function buildDiscordMessage(args: {
 	modelChanges: ProviderChange[];
+	pricing: PricingMonitorSummary;
+	providerApiPricing: ProviderApiPricingMonitorSummary;
+	pricingTable: PricingTableMonitorSummary;
 	configuredModelCoverage: ConfiguredModelCoverageMonitorSummary;
 }): string {
 	const includeConfiguredCoverageNotifications = shouldNotifyConfiguredModelCoverage();
 	const sections: string[] = [];
 	const modelSection = buildModelDiscordSection(args.modelChanges);
+	const pricingSection = buildPricingDiscordSection(args.pricing);
+	const providerApiPricingSection = buildProviderApiPricingDiscordSection(args.providerApiPricing);
+	const pricingTableSection = buildPricingTableDiscordSection(args.pricingTable);
 	const configuredModelCoverageSection = buildConfiguredModelCoverageDiscordSection(args.configuredModelCoverage);
 	if (modelSection) sections.push(modelSection);
+	if (pricingSection) sections.push(pricingSection);
+	if (providerApiPricingSection) sections.push(providerApiPricingSection);
+	if (pricingTableSection) sections.push(pricingTableSection);
 	if (includeConfiguredCoverageNotifications && configuredModelCoverageSection) {
 		sections.push(configuredModelCoverageSection);
 	}
@@ -1271,6 +1366,7 @@ export async function sendDiscordNotification(args: {
 	modelChanges: ProviderChange[];
 	pricing: PricingMonitorSummary;
 	providerApiPricing: ProviderApiPricingMonitorSummary;
+	pricingTable: PricingTableMonitorSummary;
 	configuredModelCoverage: ConfiguredModelCoverageMonitorSummary;
 }): Promise<{ delivered: boolean; skipped: boolean; reason?: string | null }> {
 	if (!hasDiscordNotifiableChanges(args)) {
