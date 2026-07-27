@@ -372,6 +372,64 @@ function headersToRecord(headers: Headers | null | undefined): Record<string, st
     return Object.keys(out).length > 0 ? out : null;
 }
 
+const PROVIDER_REQUEST_ID_MAX_LENGTH = 256;
+const PROVIDER_CF_RAY_MAX_LENGTH = 128;
+const PROVIDER_SERVER_TIMING_MAX_LENGTH = 512;
+const PROVIDER_PROCESSING_HEADER_MAX_LENGTH = 64;
+const TRUNCATED_HEADER_SUFFIX = "...[truncated]";
+
+function readProviderHeader(headers: Headers | null | undefined, names: string[]): string | null {
+    if (!headers) return null;
+    try {
+        for (const name of names) {
+            const value = headers.get(name)?.trim();
+            if (value) return value;
+        }
+    } catch {
+        // Observability must never interfere with the gateway response path.
+    }
+    return null;
+}
+
+function readBoundedProviderHeader(
+    headers: Headers | null | undefined,
+    names: string[],
+    maxLength: number,
+): string | null {
+    const value = readProviderHeader(headers, names);
+    if (!value) return null;
+    if (value.length <= maxLength) return value;
+    const prefixLength = Math.max(0, maxLength - TRUNCATED_HEADER_SUFFIX.length);
+    return `${value.slice(0, prefixLength)}${TRUNCATED_HEADER_SUFFIX}`;
+}
+
+function readProviderProcessingMs(headers: Headers | null | undefined): number | null {
+    const value = readProviderHeader(headers, ["openai-processing-ms"]);
+    if (!value || value.length > PROVIDER_PROCESSING_HEADER_MAX_LENGTH) return null;
+    if (!/^\d+(?:\.\d+)?$/.test(value)) return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed >= 0 && parsed <= Number.MAX_SAFE_INTEGER
+        ? parsed
+        : null;
+}
+
+function readProviderHeaderSignals(headers: Headers | null | undefined) {
+    return {
+        processingMs: readProviderProcessingMs(headers),
+        requestId: readBoundedProviderHeader(
+            headers,
+            ["x-request-id", "request-id"],
+            PROVIDER_REQUEST_ID_MAX_LENGTH,
+        ),
+        cfRay: readBoundedProviderHeader(headers, ["cf-ray"], PROVIDER_CF_RAY_MAX_LENGTH),
+        serverTiming: readBoundedProviderHeader(
+            headers,
+            ["server-timing"],
+            PROVIDER_SERVER_TIMING_MAX_LENGTH,
+        ),
+    };
+}
+
 type RoutingDrop = {
     stage: string;
     providerId: string | null;
@@ -1093,6 +1151,7 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
         const sanitizedProviderResponseHeaders = includeDetailedPayloads
             ? sanitizeForAxiom(args.providerResponseHeaders ?? headersToRecord(args.result?.upstream?.headers))
             : null;
+        const providerHeaderSignals = readProviderHeaderSignals(args.result?.upstream?.headers);
         const sanitizedGatewayResponse = includeDetailedPayloads
             ? sanitizeForAxiom(args.gatewayResponse ?? null)
             : null;
@@ -1357,6 +1416,10 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
             time_to_upstream_request_ms: toNum(ctx?.meta?.timeToUpstreamRequestMs),
 			time_to_latest_upstream_request_ms: toNum(ctx?.meta?.timeToLatestUpstreamRequestMs),
 			upstream_headers_ms: toNum(ctx?.meta?.upstreamHeadersMs),
+			provider_processing_ms: providerHeaderSignals.processingMs,
+			provider_request_id: providerHeaderSignals.requestId,
+			provider_cf_ray: providerHeaderSignals.cfRay,
+			provider_server_timing: providerHeaderSignals.serverTiming,
 			provider_duration_ms: toNum(ctx?.meta?.provider_duration_ms),
 			upstream_request_count: toNum(ctx?.meta?.upstreamRequestCount),
 			upstream_poll_count: toNum(ctx?.meta?.upstreamPollCount),
