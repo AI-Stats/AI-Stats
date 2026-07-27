@@ -372,6 +372,81 @@ function headersToRecord(headers: Headers | null | undefined): Record<string, st
     return Object.keys(out).length > 0 ? out : null;
 }
 
+const PROVIDER_REQUEST_ID_MAX_LENGTH = 256;
+const PROVIDER_CF_RAY_MAX_LENGTH = 128;
+const PROVIDER_SERVER_TIMING_MAX_LENGTH = 512;
+const PROVIDER_PROCESSING_HEADER_MAX_LENGTH = 64;
+const TRUNCATED_HEADER_SUFFIX = "...[truncated]";
+
+type ProviderHeaderSource = Headers | Record<string, string>;
+
+function readProviderHeader(
+    headers: ProviderHeaderSource | null | undefined,
+    names: string[],
+): string | null {
+    if (!headers) return null;
+    try {
+        const getHeader = (headers as Headers).get;
+        if (typeof getHeader === "function") {
+            for (const name of names) {
+                const value = getHeader.call(headers, name)?.trim();
+                if (value) return value;
+            }
+            return null;
+        }
+
+        const entries = Object.entries(headers as Record<string, string>);
+        for (const name of names) {
+            const normalizedName = name.toLowerCase();
+            const match = entries.find(([key]) => key.toLowerCase() === normalizedName);
+            const value = typeof match?.[1] === "string" ? match[1].trim() : null;
+            if (value) return value;
+        }
+    } catch {
+        // Observability must never interfere with the gateway response path.
+    }
+    return null;
+}
+
+function readBoundedProviderHeader(
+    headers: ProviderHeaderSource | null | undefined,
+    names: string[],
+    maxLength: number,
+): string | null {
+    const value = readProviderHeader(headers, names);
+    if (!value) return null;
+    if (value.length <= maxLength) return value;
+    const prefixLength = Math.max(0, maxLength - TRUNCATED_HEADER_SUFFIX.length);
+    return `${value.slice(0, prefixLength)}${TRUNCATED_HEADER_SUFFIX}`;
+}
+
+function readProviderProcessingMs(headers: ProviderHeaderSource | null | undefined): number | null {
+    const value = readProviderHeader(headers, ["openai-processing-ms"]);
+    if (!value || value.length > PROVIDER_PROCESSING_HEADER_MAX_LENGTH) return null;
+    if (!/^\d+(?:\.\d+)?$/.test(value)) return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed >= 0 && parsed <= Number.MAX_SAFE_INTEGER
+        ? parsed
+        : null;
+}
+
+function readProviderHeaderSignals(headers: ProviderHeaderSource | null | undefined) {
+    return {
+        processingMs: readProviderProcessingMs(headers),
+        requestId: readBoundedProviderHeader(
+            headers,
+            ["x-request-id", "request-id"],
+            PROVIDER_REQUEST_ID_MAX_LENGTH,
+        ),
+        cfRay: readBoundedProviderHeader(headers, ["cf-ray"], PROVIDER_CF_RAY_MAX_LENGTH),
+        serverTiming: readBoundedProviderHeader(
+            headers,
+            ["server-timing"],
+            PROVIDER_SERVER_TIMING_MAX_LENGTH,
+        ),
+    };
+}
+
 type RoutingDrop = {
     stage: string;
     providerId: string | null;
@@ -1093,6 +1168,9 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
         const sanitizedProviderResponseHeaders = includeDetailedPayloads
             ? sanitizeForAxiom(args.providerResponseHeaders ?? headersToRecord(args.result?.upstream?.headers))
             : null;
+        const providerHeaderSignals = readProviderHeaderSignals(
+            args.result?.upstream?.headers ?? args.providerResponseHeaders,
+        );
         const sanitizedGatewayResponse = includeDetailedPayloads
             ? sanitizeForAxiom(args.gatewayResponse ?? null)
             : null;
@@ -1340,6 +1418,7 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
             before_context_cache_status: ctx?.meta?.beforeContextCacheStatus ?? null,
             before_context_key_version_ms: toNum(ctx?.meta?.beforeContextKeyVersionMs),
             before_context_cache_read_ms: toNum(ctx?.meta?.beforeContextCacheReadMs),
+            before_context_credit_refresh_ms: toNum(ctx?.meta?.beforeContextCreditRefreshMs),
             before_context_rpc_ms: toNum(ctx?.meta?.beforeContextRpcMs),
             before_context_enrich_ms: toNum(ctx?.meta?.beforeContextEnrichMs),
             before_context_cache_write_ms: toNum(ctx?.meta?.beforeContextCacheWriteMs),
@@ -1357,6 +1436,10 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
             time_to_upstream_request_ms: toNum(ctx?.meta?.timeToUpstreamRequestMs),
 			time_to_latest_upstream_request_ms: toNum(ctx?.meta?.timeToLatestUpstreamRequestMs),
 			upstream_headers_ms: toNum(ctx?.meta?.upstreamHeadersMs),
+			provider_processing_ms: providerHeaderSignals.processingMs,
+			provider_request_id: providerHeaderSignals.requestId,
+			provider_cf_ray: providerHeaderSignals.cfRay,
+			provider_server_timing: providerHeaderSignals.serverTiming,
 			provider_duration_ms: toNum(ctx?.meta?.provider_duration_ms),
 			upstream_request_count: toNum(ctx?.meta?.upstreamRequestCount),
 			upstream_poll_count: toNum(ctx?.meta?.upstreamPollCount),
