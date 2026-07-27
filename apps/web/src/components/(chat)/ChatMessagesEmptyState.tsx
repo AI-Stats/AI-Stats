@@ -334,7 +334,7 @@ export function ChatMessagesEmptyState({
 										: `Use ${collection.label}`
 								}
 								className={cn(
-									"group h-full rounded-xl border border-border bg-card p-2 text-left shadow-sm transition sm:p-3 2xl:p-3.5",
+									"group h-full rounded-2xl border border-border bg-card p-2 text-left shadow-sm transition sm:p-3 2xl:p-3.5",
 									"hover:border-foreground/20 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 									allAdded &&
 										"cursor-default border-foreground/20 bg-muted/20 hover:border-foreground/20 hover:bg-muted/20",
@@ -384,7 +384,7 @@ export function ChatMessagesEmptyState({
 						);
 					})}
 					{collections.length === 0 ? (
-						<div className="rounded-xl border border-dashed border-border bg-muted/30 p-4 text-sm text-muted-foreground sm:col-span-3">
+						<div className="rounded-2xl border border-dashed border-border bg-muted/30 p-4 text-sm text-muted-foreground sm:col-span-3">
 							Model sets will appear once the model cache has loaded.
 						</div>
 					) : null}
