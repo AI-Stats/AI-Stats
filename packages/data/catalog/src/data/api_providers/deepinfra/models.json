@@ -3655,6 +3655,149 @@
     "rate_limits": []
   },
   {
-    "api_model_id":"thinking-machines/inkling","provider_api_model_id":"deepinfra:thinking-machines/inkling","provider_model_slug":"thinkingmachines/Inkling","internal_model_id":"thinking-machines/inkling","is_active_gateway":true,"quantization_scheme":null,"input_modalities":"text,image,audio","output_modalities":"text","context_length":524288,"max_output_tokens":524288,"effective_from":"2026-07-21T00:00:00","effective_to":null,"capabilities":[{"capability_id":"text.generate","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],"routing_status":"active","routable":true,"regions":{"execution":null,"data":null},"service_tiers":[],"api":{"formats":[],"endpoint":null,"deployment":null},"sources":[{"url":"https://api.deepinfra.com/models/list","kind":"api"}],"verification":{"status":"verified","checked_at":"2026-07-24T00:00:00Z","notes":"Official DeepInfra model list; created 2026-07-21."},"rate_limits":[]
+    "api_model_id": "thinking-machines/inkling",
+    "provider_api_model_id": "deepinfra:thinking-machines/inkling",
+    "provider_model_slug": "thinkingmachines/Inkling",
+    "internal_model_id": "thinking-machines/inkling",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio",
+    "output_modalities": "text",
+    "context_length": 524288,
+    "max_output_tokens": 524288,
+    "effective_from": "2026-07-21T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://api.deepinfra.com/models/list",
+        "kind": "api"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-24T00:00:00Z",
+      "notes": "Official DeepInfra model list; created 2026-07-21."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k3",
+    "provider_api_model_id": "deepinfra:moonshotai/kimi-k3",
+    "provider_model_slug": "moonshotai/Kimi-K3",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-27T15:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://deepinfra.com/moonshotai/Kimi-K3",
+        "accessed_at": "2026-07-27T19:30:00Z",
+        "notes": "DeepInfra lists live Kimi K3 inference with a 1,024K context window and public token pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-27T19:30:00Z",
+      "notes": "DeepInfra lists live Kimi K3 inference with a 1,024K context window and public token pricing."
+    },
+    "rate_limits": []
   }
 ]

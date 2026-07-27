@@ -1396,8 +1396,8 @@
     "provider_api_model_id": "together:moonshotai/kimi-k3",
     "provider_model_slug": "moonshotai/Kimi-K3",
     "internal_model_id": "moonshotai/kimi-k3",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
+    "is_active_gateway": true,
+    "quantization_scheme": "FP4",
     "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 1048576,
@@ -1407,42 +1407,87 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
-        "params": [],
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Together documents JSON mode for Kimi K3."
+          }
+        ],
         "reasoning": true,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
+        "kind": "api_reference",
         "url": "https://www.together.ai/models/kimi-k3",
-        "kind": "announcement",
-        "accessed_at": "2026-07-26T00:00:00Z",
-        "notes": "Together explicitly lists Kimi K3 as coming soon to its Serverless API."
+        "accessed_at": "2026-07-27T19:30:00Z",
+        "notes": "Together documents Kimi K3 as live on serverless and dedicated infrastructure with vision, JSON mode and function calling."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-07-26T00:00:00Z",
-      "notes": "Official Together model page confirms planned Serverless API availability; production route details remain pending."
+      "checked_at": "2026-07-27T19:30:00Z",
+      "notes": "Together documents Kimi K3 as live on serverless and dedicated infrastructure with vision, JSON mode and function calling."
     },
     "rate_limits": []
   }
