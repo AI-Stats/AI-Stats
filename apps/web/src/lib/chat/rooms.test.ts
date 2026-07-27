@@ -1,10 +1,20 @@
 import {
+	CHAT_ROOM_BY_ID,
+	CHAT_ROOMS,
 	capabilityIdToRoomId,
 	filterModelsForRoom,
 	roomIdsFromCapabilities,
 } from "@/lib/chat/rooms";
 
 describe("chat room capability mapping", () => {
+	it("keeps video visible and Fusion at the bottom of the room picker", () => {
+		expect(CHAT_ROOMS.some((room) => room.id === "video")).toBe(true);
+		expect(CHAT_ROOMS.at(-1)?.id).toBe("fusion");
+		for (const room of CHAT_ROOMS) {
+			expect(CHAT_ROOM_BY_ID[room.id]).toBe(room);
+		}
+	});
+
 	it("maps moderation and embeddings capabilities explicitly", () => {
 		expect(capabilityIdToRoomId("moderations.create")).toBe("moderation");
 		expect(capabilityIdToRoomId("text.moderate")).toBe("moderation");
