@@ -316,12 +316,52 @@ function normalizeProviderApiPricingDetails(
 	return record?.pricing ? normalizeJson(record.pricing) : pricingDetails ?? null;
 }
 
+const CANONICAL_PROVIDER_PRICE_KEYS = new Set([
+	"prompt", "input", "completion", "output", "cache_prompt", "input_cache_read",
+	"input_cache_reads", "cache_input", "cached_input", "input_cache_write",
+	"input_cache_writes", "cache_creation", "cache_write", "input_tokens",
+	"cache_read_tokens", "output_tokens", "input_price_per_million",
+	"cache_read_input_price_per_million", "output_price_per_million",
+	"prompt_text_token_price", "cached_prompt_text_token_price",
+	"completion_text_token_price", "input_token_price_per_m", "output_token_price_per_m",
+	"input_price", "cache_price", "output_price", "cache_read",
+]);
+const VOLATILE_PROVIDER_PRICE_KEYS = new Set([
+	"created", "created_at", "createdat", "updated", "updated_at", "updatedat",
+	"last_updated", "lastupdated", "refreshed_at", "refreshedat", "timestamp",
+	"request_id", "requestid", "generated_at", "generatedat", "fetched_at", "fetchedat",
+]);
+
+function supplementalProviderPricing(value: unknown, key = ""): unknown | null {
+	const normalizedKey = key.trim().toLowerCase();
+	if (CANONICAL_PROVIDER_PRICE_KEYS.has(normalizedKey) || VOLATILE_PROVIDER_PRICE_KEYS.has(normalizedKey)) {
+		return null;
+	}
+	if (Array.isArray(value)) {
+		const entries = value
+			.map((entry) => supplementalProviderPricing(entry))
+			.filter((entry): entry is unknown => entry !== null)
+			.sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)));
+		return entries.length > 0 ? entries : null;
+	}
+	if (value && typeof value === "object") {
+		const entries = Object.entries(value as Record<string, unknown>)
+			.map(([nestedKey, nestedValue]) => [nestedKey, supplementalProviderPricing(nestedValue, nestedKey)] as const)
+			.filter((entry): entry is readonly [string, unknown] => entry[1] !== null)
+			.sort(([left], [right]) => left.localeCompare(right));
+		return entries.length > 0 ? Object.fromEntries(entries) : null;
+	}
+	return value ?? null;
+}
+
 export function toProviderApiPricingFingerprint(pricingDetails: unknown): string | null {
 	const record = asRecord(pricingDetails);
-	// When a provider has a canonical normalization, compare only that stable shape.
-	// Raw provider payloads are retained for diagnostics, but may include volatile
-	// metadata that is unrelated to the billable rates.
-	return toPricingFingerprint(record?.normalized ?? pricingDetails);
+	if (!record?.normalized) return toPricingFingerprint(pricingDetails);
+	const supplemental = supplementalProviderPricing(record.sourcePricing);
+	return toPricingFingerprint({
+		normalized: record.normalized,
+		...(supplemental === null ? {} : { supplemental }),
+	});
 }
 
 export function toNullableInteger(value: unknown): number | null {

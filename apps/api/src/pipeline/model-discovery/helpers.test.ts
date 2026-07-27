@@ -317,6 +317,21 @@ describe("extractProviderApiModelSnapshot pricing comparisons", () => {
 
 		expect(current.pricingFingerprint).not.toBe(previous.pricingFingerprint);
 	});
+
+	it("detects supplemental non-token price changes", () => {
+		const previous = extractProviderApiModelSnapshot(
+			"deepinfra",
+			{ metadata: { pricing: { input_tokens: 0.2, output_tokens: 0.8, per_image_unit: 0.04 } } },
+			{ metadata: { pricing: { input_tokens: 0.2, output_tokens: 0.8, per_image_unit: 0.04 } } },
+		);
+		const current = extractProviderApiModelSnapshot(
+			"deepinfra",
+			{ metadata: { pricing: { input_tokens: 0.2, output_tokens: 0.8, per_image_unit: 0.05 } } },
+			{ metadata: { pricing: { input_tokens: 0.2, output_tokens: 0.8, per_image_unit: 0.05 } } },
+		);
+
+		expect(current.pricingFingerprint).not.toBe(previous.pricingFingerprint);
+	});
 });
 
 describe("computeDiscordNotificationFingerprint", () => {
