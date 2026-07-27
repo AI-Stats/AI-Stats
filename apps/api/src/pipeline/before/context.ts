@@ -969,13 +969,11 @@ export async function fetchGatewayContext(args: {
 						const creditTtl = clampTtl(
 							computeCreditSnapshotTtlForContext(creditOnlyContext),
 						);
-						dispatchBackground(
-							cache.put(
-								creditCacheKey,
-								JSON.stringify(creditContext),
-								{ expirationTtl: creditTtl },
-							).catch(() => undefined),
-						);
+						await cache.put(
+							creditCacheKey,
+							JSON.stringify(creditContext),
+							{ expirationTtl: creditTtl },
+						).catch(() => undefined);
 					}
 					const merged = mergeCachedContext({
                         dynamic: dynamicParsed,
@@ -1641,22 +1639,28 @@ export async function fetchGatewayContext(args: {
                     ? null
                     : clampTtl(isPreset ? Math.min(PRESET_TTL, pricingAwareStaticTtl) : pricingAwareStaticTtl);
                 const creditTtl = clampTtl(computeCreditSnapshotTtlForContext(parsed));
-                const cacheWrites: Promise<void>[] = [
-					...(hasConfiguredKeyLimits(parsed.keyLimit)
-						? []
-						: [cache.put(dynamicCacheKey, JSON.stringify(split.dynamic), { expirationTtl: dynamicTtl })]),
-                    cache.put(creditCacheKey, JSON.stringify(split.credit), { expirationTtl: creditTtl }),
+                await cache.put(
+                    creditCacheKey,
+                    JSON.stringify(split.credit),
+                    { expirationTtl: creditTtl },
+                );
+                const backgroundCacheWrites: Promise<void>[] = [
+                    ...(hasConfiguredKeyLimits(parsed.keyLimit)
+                        ? []
+                        : [cache.put(dynamicCacheKey, JSON.stringify(split.dynamic), { expirationTtl: dynamicTtl })]),
                 ];
                 if (staticTtl !== null) {
-                    cacheWrites.push(
+                    backgroundCacheWrites.push(
                         cache.put(staticCacheKey, JSON.stringify(split.static), { expirationTtl: staticTtl }),
                     );
                 }
-				dispatchBackground(
-					Promise.all(cacheWrites)
-						.then(() => undefined)
-						.catch(() => undefined),
-				);
+                if (backgroundCacheWrites.length > 0) {
+                    dispatchBackground(
+                        Promise.all(backgroundCacheWrites)
+                            .then(() => undefined)
+                            .catch(() => undefined),
+                    );
+                }
             } catch {
                 // ignore cache write failures
             } finally {

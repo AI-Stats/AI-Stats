@@ -378,11 +378,28 @@ const PROVIDER_SERVER_TIMING_MAX_LENGTH = 512;
 const PROVIDER_PROCESSING_HEADER_MAX_LENGTH = 64;
 const TRUNCATED_HEADER_SUFFIX = "...[truncated]";
 
-function readProviderHeader(headers: Headers | null | undefined, names: string[]): string | null {
+type ProviderHeaderSource = Headers | Record<string, string>;
+
+function readProviderHeader(
+    headers: ProviderHeaderSource | null | undefined,
+    names: string[],
+): string | null {
     if (!headers) return null;
     try {
+        const getHeader = (headers as Headers).get;
+        if (typeof getHeader === "function") {
+            for (const name of names) {
+                const value = getHeader.call(headers, name)?.trim();
+                if (value) return value;
+            }
+            return null;
+        }
+
+        const entries = Object.entries(headers as Record<string, string>);
         for (const name of names) {
-            const value = headers.get(name)?.trim();
+            const normalizedName = name.toLowerCase();
+            const match = entries.find(([key]) => key.toLowerCase() === normalizedName);
+            const value = typeof match?.[1] === "string" ? match[1].trim() : null;
             if (value) return value;
         }
     } catch {
@@ -392,7 +409,7 @@ function readProviderHeader(headers: Headers | null | undefined, names: string[]
 }
 
 function readBoundedProviderHeader(
-    headers: Headers | null | undefined,
+    headers: ProviderHeaderSource | null | undefined,
     names: string[],
     maxLength: number,
 ): string | null {
@@ -403,7 +420,7 @@ function readBoundedProviderHeader(
     return `${value.slice(0, prefixLength)}${TRUNCATED_HEADER_SUFFIX}`;
 }
 
-function readProviderProcessingMs(headers: Headers | null | undefined): number | null {
+function readProviderProcessingMs(headers: ProviderHeaderSource | null | undefined): number | null {
     const value = readProviderHeader(headers, ["openai-processing-ms"]);
     if (!value || value.length > PROVIDER_PROCESSING_HEADER_MAX_LENGTH) return null;
     if (!/^\d+(?:\.\d+)?$/.test(value)) return null;
@@ -413,7 +430,7 @@ function readProviderProcessingMs(headers: Headers | null | undefined): number |
         : null;
 }
 
-function readProviderHeaderSignals(headers: Headers | null | undefined) {
+function readProviderHeaderSignals(headers: ProviderHeaderSource | null | undefined) {
     return {
         processingMs: readProviderProcessingMs(headers),
         requestId: readBoundedProviderHeader(
@@ -1151,7 +1168,9 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
         const sanitizedProviderResponseHeaders = includeDetailedPayloads
             ? sanitizeForAxiom(args.providerResponseHeaders ?? headersToRecord(args.result?.upstream?.headers))
             : null;
-        const providerHeaderSignals = readProviderHeaderSignals(args.result?.upstream?.headers);
+        const providerHeaderSignals = readProviderHeaderSignals(
+            args.result?.upstream?.headers ?? args.providerResponseHeaders,
+        );
         const sanitizedGatewayResponse = includeDetailedPayloads
             ? sanitizeForAxiom(args.gatewayResponse ?? null)
             : null;

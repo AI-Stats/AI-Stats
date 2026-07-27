@@ -610,6 +610,32 @@ describe("emitGatewayRequestEvent", () => {
 		expect(JSON.stringify(event)).not.toContain("do-not-copy");
 	});
 
+	it("keeps provider header signals from error records when no result is available", async () => {
+		await emitGatewayRequestEvent({
+			requestId: "req_error_provider_headers_123",
+			workspaceId: "ws_error_provider_headers_123",
+			endpoint: "responses",
+			model: "openai/gpt-5-mini",
+			statusCode: 502,
+			success: false,
+			providerResponseHeaders: {
+				"OpenAI-Processing-Ms": "247.25",
+				"X-Request-ID": "req_openai_error",
+				"CF-Ray": "a216a79dcdd6722a-IAD",
+				"Server-Timing": "edge;dur=3.5, origin;dur=243.75",
+			},
+		});
+
+		expect(sendAxiomWideEventMock).toHaveBeenCalledTimes(1);
+		const event = sendAxiomWideEventMock.mock.calls[0]?.[0] as Record<string, unknown>;
+		expect(event).toMatchObject({
+			provider_processing_ms: 247.25,
+			provider_request_id: "req_openai_error",
+			provider_cf_ray: "a216a79dcdd6722a-IAD",
+			provider_server_timing: "edge;dur=3.5, origin;dur=243.75",
+		});
+	});
+
 	it("rejects malformed processing time and safely bounds provider header signals", async () => {
 		clearRuntime();
 		configureRuntime({

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const runtime = vi.hoisted(() => {
 	const store = new Map<string, string>();
 	const background: Promise<unknown>[] = [];
-	const pendingWriteResolvers: Array<() => void> = [];
+	const pendingWrites: Array<{ key: string; resolve: () => void }> = [];
 	let deferWrites = false;
 	let walletResult: {
 		data: { balance_nanos: number; reserved_nanos: number } | null;
@@ -25,7 +25,7 @@ const runtime = vi.hoisted(() => {
 		}),
 		put: vi.fn(async (key: string, value: string) => {
 			if (deferWrites) {
-				await new Promise<void>((resolve) => pendingWriteResolvers.push(resolve));
+				await new Promise<void>((resolve) => pendingWrites.push({ key, resolve }));
 			}
 			store.set(key, value);
 		}),
@@ -90,7 +90,7 @@ const runtime = vi.hoisted(() => {
 	return {
 		store,
 		background,
-		pendingWriteResolvers,
+		pendingWrites,
 		cache,
 		supabase: { rpc, from },
 		get deferWrites() {
@@ -176,7 +176,7 @@ describe("fetchGatewayContext credit-only cache refresh", () => {
 	beforeEach(() => {
 		runtime.store.clear();
 		runtime.background.length = 0;
-		runtime.pendingWriteResolvers.length = 0;
+		runtime.pendingWrites.length = 0;
 		runtime.deferWrites = false;
 		runtime.walletResult = {
 			data: { balance_nanos: 5_000_000_000, reserved_nanos: 1_000_000_000 },
@@ -217,11 +217,35 @@ describe("fetchGatewayContext credit-only cache refresh", () => {
 		expect(runtime.supabase.rpc).not.toHaveBeenCalled();
 		expect(runtime.supabase.from).toHaveBeenCalledTimes(1);
 		expect(runtime.supabase.from).toHaveBeenCalledWith("wallets");
-		expect(runtime.background).toHaveLength(1);
-		await Promise.all(runtime.background);
+		expect(runtime.background).toHaveLength(0);
 		expect(JSON.parse(runtime.store.get(`gateway:credit:${workspaceId}`) ?? "null")).toMatchObject({
 			credit: { ok: true, balanceNanos: 4_000_000_000 },
 		});
+	});
+
+	it("awaits a refreshed credit snapshot write before returning cached context", async () => {
+		seedContextCache();
+		runtime.deferWrites = true;
+		const { fetchGatewayContext } = await import("./context");
+		let settled = false;
+		const fetchPromise = fetchGatewayContext({
+			workspaceId,
+			model,
+			endpoint,
+			apiKeyId,
+			disableCache: false,
+		}).then((context) => {
+			settled = true;
+			return context;
+		});
+
+		await vi.waitFor(() => expect(runtime.pendingWrites).toHaveLength(1));
+		expect(runtime.pendingWrites[0]?.key).toBe(`gateway:credit:${workspaceId}`);
+		expect(settled).toBe(false);
+
+		runtime.pendingWrites.shift()?.resolve();
+		await fetchPromise;
+		expect(settled).toBe(true);
 	});
 
 	it("ignores stale legacy credit and fails closed using reserved funds", async () => {
@@ -275,7 +299,7 @@ describe("fetchGatewayContext credit-only cache refresh", () => {
 		expect(runtime.supabase.from).not.toHaveBeenCalled();
 	});
 
-	it("does not await full-context KV writes", async () => {
+	it("awaits full-context credit writes but leaves unrelated cache writes in the background", async () => {
 		runtime.store.set(`gateway:keyver:id:${apiKeyId}`, "1");
 		runtime.deferWrites = true;
 		const { fetchGatewayContext } = await import("./context");
@@ -291,13 +315,24 @@ describe("fetchGatewayContext credit-only cache refresh", () => {
 			return context;
 		});
 
-		await vi.waitFor(() => expect(runtime.cache.put).toHaveBeenCalledTimes(3));
-		await Promise.resolve();
-		expect(settled).toBe(true);
-		expect(runtime.background).toHaveLength(1);
+		await vi.waitFor(() => expect(runtime.pendingWrites).toHaveLength(1));
+		expect(runtime.pendingWrites[0]?.key).toBe(`gateway:credit:${workspaceId}`);
+		expect(settled).toBe(false);
 
-		for (const resolve of runtime.pendingWriteResolvers.splice(0)) resolve();
-		await Promise.all(runtime.background);
+		runtime.pendingWrites.shift()?.resolve();
+		await vi.waitFor(() => expect(runtime.cache.put).toHaveBeenCalledTimes(3));
+		await vi.waitFor(() => expect(settled).toBe(true));
+		expect(runtime.background).toHaveLength(1);
+		expect(runtime.pendingWrites.map(({ key }) => key).sort()).toEqual([
+			`gateway:dynamic:default:${workspaceId}:${apiKeyId}:v1`,
+			`gateway:static:v2:default:${workspaceId}:${endpoint}:${model}`,
+		]);
+
 		await fetchPromise;
+		runtime.store.delete(`gateway:credit:${workspaceId}`);
+
+		for (const pending of runtime.pendingWrites.splice(0)) pending.resolve();
+		await Promise.all(runtime.background);
+		expect(runtime.store.has(`gateway:credit:${workspaceId}`)).toBe(false);
 	});
 });
