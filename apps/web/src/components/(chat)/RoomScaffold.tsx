@@ -1,14 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Database, Gauge, LogOut, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChatRoomSwitcher } from "@/components/(chat)/ChatRoomSwitcher";
 import { ThemeSelector } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { fetchClientAuthHeaderData } from "@/lib/fetchers/internal/fetchClientAuthHeaderData";
-import { postClientAuthSignOut } from "@/lib/fetchers/internal/postClientAuthSignOut";
+import { useChatAuth } from "@/components/(chat)/playground/use-chat-auth";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -31,13 +30,6 @@ import {
 
 type RoomScaffoldProps = {
 	children: ReactNode;
-};
-
-type SidebarAuthUser = {
-	id: string;
-	email: string | null;
-	name: string;
-	avatarUrl: string | null;
 };
 
 export const ROOM_SIDEBAR_SLOT_ID = "room-scaffold-sidebar-slot";
@@ -103,14 +95,7 @@ function RoomSidebarDatabaseButton() {
 
 export function RoomScaffold({ children }: RoomScaffoldProps) {
 	const [hasCustomSidebarContent, setHasCustomSidebarContent] = useState(false);
-	const [authUser, setAuthUser] = useState<SidebarAuthUser | null>(null);
-	const [authLoading, setAuthLoading] = useState(true);
-
-	const handleSignOut = useCallback(async () => {
-		await postClientAuthSignOut();
-		setAuthUser(null);
-		window.location.href = "/sign-in";
-	}, []);
+	const { authUser, authLoading, handleSignOut } = useChatAuth();
 
 	useEffect(() => {
 		const slot = document.getElementById(ROOM_SIDEBAR_SLOT_ID);
@@ -125,35 +110,6 @@ export function RoomScaffold({ children }: RoomScaffoldProps) {
 		observer.observe(slot, { childList: true });
 		return () => {
 			observer.disconnect();
-		};
-	}, []);
-
-	useEffect(() => {
-		let mounted = true;
-		const loadUser = async () => {
-			setAuthLoading(true);
-			try {
-				const data = await fetchClientAuthHeaderData();
-				if (!mounted) return;
-				if (!data.isLoggedIn || !data.user) {
-					setAuthUser(null);
-					return;
-				}
-				setAuthUser({
-					id: data.user.id,
-					email: data.user.email,
-					name: data.user.displayName ?? data.user.email ?? "Account",
-					avatarUrl: data.user.avatarUrl,
-				});
-			} catch {
-				if (mounted) setAuthUser(null);
-			} finally {
-				if (mounted) setAuthLoading(false);
-			}
-		};
-		loadUser();
-		return () => {
-			mounted = false;
 		};
 	}, []);
 

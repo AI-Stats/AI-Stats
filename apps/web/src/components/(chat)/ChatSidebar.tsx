@@ -108,7 +108,7 @@ type CreditsBalanceResponse = {
 };
 
 function formatCreditsBalance(value: number | null) {
-	if (value === null || !Number.isFinite(value)) return "Credits";
+	if (value === null || !Number.isFinite(value)) return null;
 	return new Intl.NumberFormat("en-US", {
 		style: "currency",
 		currency: "USD",
@@ -751,17 +751,17 @@ export function ChatSidebar({
 								</DropdownMenuItem>
 								<DropdownMenuItem render={<Link
 										href="/settings/credits"
-										aria-label={`Credits balance: ${creditsLabel}`} />}>
+										aria-label={creditsLabel ? `Credits balance: ${creditsLabel}` : "Credits"} />}>
 
 										<Coins className="mr-2 h-4 w-4" />
 										<span>Credits</span>
 										{creditsLoading ? (
 											<Skeleton className="ml-auto h-3.5 w-16 rounded-sm" />
-										) : (
+										) : creditsLabel ? (
 											<span className="ml-auto font-mono text-xs tabular-nums text-muted-foreground">
 												{creditsLabel}
 											</span>
-										)}
+										) : null}
 
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />

@@ -48,10 +48,10 @@ export function useChatAuth() {
 				setAuthLoading(false);
 				return;
 			}
-			const profile = await fetchClientAuthHeaderData();
+			const profile = await fetchClientAuthHeaderData().catch(() => null);
 			if (!mounted) return;
 			const displayName =
-				profile.user?.displayName ??
+				profile?.user?.displayName ??
 				data.user.user_metadata?.full_name ??
 				data.user.user_metadata?.name ??
 				data.user.email ??
@@ -62,7 +62,7 @@ export function useChatAuth() {
 				name: displayName,
 				avatarUrl: data.user.user_metadata?.avatar_url ?? null,
 			});
-			setUserRole(profile.userRole ?? null);
+			setUserRole(profile?.userRole ?? null);
 			setAuthLoading(false);
 		};
 		loadUser();

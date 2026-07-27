@@ -13,6 +13,7 @@ import {
 	type RefObject,
 } from "react";
 import Link from "next/link";
+import { AIGeneratedNotice } from "@/components/(chat)/AIGeneratedNotice";
 import Image from "next/image";
 import {
 	ArrowLeft,
@@ -3291,6 +3292,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 						</div>
 					</div>
 				</div>
+				<AIGeneratedNotice />
 			</div>
 			</div>
 		</div>

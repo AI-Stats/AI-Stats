@@ -2006,7 +2006,11 @@ export function ChatHeader({
 													id="new-chat-model-preference"
 													className="w-full sm:w-64"
 												>
-													<SelectValue />
+													<SelectValue>
+														{newChatModelPreference === "selected"
+															? "Keep selected model(s)"
+															: "Start without models"}
+													</SelectValue>
 												</SelectTrigger>
 												<SelectContent>
 													<SelectItem value="blank">

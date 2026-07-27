@@ -17,6 +17,30 @@ function getWebApiOrigin(): string {
 	return (process.env.WEB_API_ORIGIN ?? DEFAULT_WEB_API_ORIGIN).replace(/\/+$/, "");
 }
 
+async function readJsonPayload<T>(
+	response: Response,
+	path: string,
+): Promise<
+	(T & { error?: unknown; message?: unknown; detail?: unknown }) | undefined
+> {
+	const body = await response.text();
+	if (!body.trim()) return undefined;
+
+	try {
+		return JSON.parse(body) as T & {
+			error?: unknown;
+			message?: unknown;
+			detail?: unknown;
+		};
+	} catch {
+		throw new WebApiError(
+			path,
+			response.status,
+			`Expected a JSON response but received ${response.headers.get("content-type") || "an unknown content type"}.`,
+		);
+	}
+}
+
 /**
  * Fetch public website data from the Cloudflare Worker.
  *
@@ -63,7 +87,7 @@ export async function fetchAccountWebApi<T>(
 		},
 		cache: "no-store",
 	});
-	const payload = await response.json() as T & { error?: unknown; message?: unknown; detail?: unknown };
+	const payload = await readJsonPayload<T>(response, path);
 	if (!response.ok) {
 		throw new WebApiError(
 			path,
@@ -75,7 +99,7 @@ export async function fetchAccountWebApi<T>(
 					: typeof payload?.error === "string" ? payload.error : undefined,
 		);
 	}
-	return payload;
+	return payload as T;
 }
 
 export async function fetchInternalWebApi<T>(
@@ -88,9 +112,9 @@ export async function fetchInternalWebApi<T>(
 		headers: { Accept: "application/json", ...(init.body ? { "Content-Type": "application/json" } : {}), ...init.headers, Authorization: `Bearer ${accessToken}` },
 		cache: "no-store",
 	});
-	const payload = await response.json() as T & { error?: unknown };
+	const payload = await readJsonPayload<T>(response, path);
 	if (!response.ok) throw new WebApiError(path, response.status, typeof payload?.error === "string" ? payload.error : undefined);
-	return payload;
+	return payload as T;
 }
 
 export async function fetchInternalWebApiResponse(
