@@ -10,6 +10,7 @@ import {
     preflightV2Models,
     pricingModelPart,
     v2RouteModelSlug,
+    v2RouteExecutionRegions,
     validateJsonPricingRules,
     routeStatus,
 } from "./v2";
@@ -50,6 +51,20 @@ describe("routeStatus", () => {
 
     it("keeps an explicit disabled status authoritative", () => {
         expect(routeStatus("disabled", true)).toBe("disabled");
+    });
+});
+
+describe("v2RouteExecutionRegions", () => {
+    it("prefers model-specific execution regions over provider defaults", () => {
+        expect(v2RouteExecutionRegions(
+            ["global"],
+            { regions: { execution: ["EU-NORTH1"] } },
+        )).toEqual(["eu-north1"]);
+    });
+
+    it("falls back to provider defaults when a model has no execution regions", () => {
+        expect(v2RouteExecutionRegions(["US", "us"], { regions: { execution: null } }))
+            .toEqual(["us"]);
     });
 });
 

@@ -909,7 +909,7 @@
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-27T00:00:00Z",
-      "notes": "Nebius Token Factory's public endpoint card lists the moonshotai/Kimi-K3 route in eu-north1 with FP4 quantization, a 1,024K context window, tool calling, reasoning, and approximately 120 tokens per second."
+      "notes": "Nebius Token Factory's public endpoint card lists the moonshotai/Kimi-K3 route in eu-north1 with FP4 quantization, a 1,024K context window, tool calling, reasoning, and approximately 120 tokens per second. Unlike the canonical multimodal model, this provider endpoint intentionally exposes text input only."
     },
     "rate_limits": []
   },

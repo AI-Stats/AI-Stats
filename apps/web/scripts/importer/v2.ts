@@ -52,6 +52,15 @@ export function routeStatus(value: unknown, isActiveGateway = false): string {
     }
 }
 
+export function v2RouteExecutionRegions(
+    providerRegions: unknown,
+    providerModel: Record<string, any> | null | undefined,
+): string[] {
+    const modelRegions = asTextArray(providerModel?.regions?.execution);
+    const selected = modelRegions.length ? modelRegions : asTextArray(providerRegions);
+    return [...new Set(selected.map(region => region.toLowerCase()))];
+}
+
 function slug(value: unknown, fallback = "standard"): string {
     const normalized = String(value ?? "").trim().toLowerCase().replace(/[^a-z0-9._:-]+/g, "-").replace(/^-+|-+$/g, "");
     return normalized || fallback;
@@ -769,7 +778,7 @@ export async function syncV2Catalogue(): Promise<void> {
         },
     })), "lab_slug");
 
-    const providerRegions = providerRows.flatMap(row => {
+    const defaultProviderRegions = providerRows.flatMap(row => {
         const execution = asTextArray(row.metadata?.default_execution_regions);
         const data = new Set(asTextArray(row.metadata?.default_data_regions).map(value => value.toLowerCase()));
         return execution.map(region => ({
@@ -783,6 +792,30 @@ export async function syncV2Catalogue(): Promise<void> {
             metadata: { source: "json", default_execution_region: true },
         }));
     });
+    const modelProviderRegions = providerModels
+        .filter(row => Boolean(row.is_active_gateway) && !["disabled", "retired"].includes(String(row.routing_status ?? "").toLowerCase()))
+        .flatMap(row => {
+            const execution = asTextArray(row.regions?.execution);
+            const data = new Set(asTextArray(row.regions?.data).map(value => value.toLowerCase()));
+            return execution.map(region => ({
+                provider_slug: row.provider_id,
+                region_code: region.toLowerCase(),
+                display_name: region.toUpperCase(),
+                execution_supported: true,
+                data_residency_supported: data.has(region.toLowerCase()),
+                status: "active",
+                routing_enabled: Boolean(row.is_active_gateway),
+                metadata: {
+                    source: "json",
+                    default_execution_region: false,
+                    provider_model_id: row.provider_api_model_id,
+                },
+            }));
+        });
+    const providerRegions = uniqueRows(
+        [...defaultProviderRegions, ...modelProviderRegions],
+        row => `${String(row.provider_slug)}:${String(row.region_code)}`,
+    );
     await upsertChunks(supa, "v2_provider_regions", providerRegions, "provider_slug,region_code");
 
     const providerRegionsByProvider = new Map<string, string[]>();
@@ -809,7 +842,10 @@ export async function syncV2Catalogue(): Promise<void> {
         max_output_tokens: Number(row.max_output_tokens) > 0 ? Number(row.max_output_tokens) : null,
         effective_from: row.effective_from ?? null,
         effective_to: row.effective_to && row.effective_from && new Date(row.effective_to) <= new Date(row.effective_from) ? null : row.effective_to ?? null,
-        regions: providerRegionsByProvider.get(String(row.provider_id)) ?? [],
+        regions: v2RouteExecutionRegions(
+            providerRegionsByProvider.get(String(row.provider_id)) ?? [],
+            source.providerModels.get(String(row.provider_api_model_id)),
+        ),
         metadata: {
             source: "json",
             legacy_provider_api_model_id: row.provider_api_model_id,
@@ -970,9 +1006,9 @@ export async function syncV2Catalogue(): Promise<void> {
 
     await upsertChunks(supa, "v2_pricing_skus", pricingRows, "provider_model_id,sku_code,version");
 
-    const routesForVariants = await fetchAll(supa, "v2_model_provider_routes", "provider_model_id,provider_slug,status,routing_enabled");
+    const routesForVariants = await fetchAll(supa, "v2_model_provider_routes", "provider_model_id,provider_slug,status,routing_enabled,regions");
     const variantRows = routesForVariants.flatMap(route => {
-        const regions = (providerRegionsByProvider.get(String(route.provider_slug)) ?? [])
+        const regions = asTextArray(route.regions)
             .filter(region => region !== "global");
         const sourceTiers = source.providerModels.get(String(route.provider_model_id))?.service_tiers;
         const routeTiers = Array.isArray(sourceTiers) && sourceTiers.length
