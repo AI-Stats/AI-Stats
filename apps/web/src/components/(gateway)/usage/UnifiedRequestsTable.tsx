@@ -37,6 +37,7 @@ import {
 	XCircle,
 	Download,
 	AppWindow,
+	MessageSquareWarning,
 } from "lucide-react";
 import {
 	fetchPaginatedRequests,
@@ -70,6 +71,9 @@ import {
 } from "@/lib/providers/promptTrainingPolicy";
 
 const RequestDetailDialog = dynamic(() => import("./RequestDetailDialog"));
+const GenerationFeedbackDialog = dynamic(
+	() => import("./GenerationFeedbackDialog"),
+);
 
 interface UnifiedRequestsTableProps {
 	timeRange: { from: string; to: string };
@@ -209,6 +213,14 @@ export default function UnifiedRequestsTable({
 		Map<string, ProviderMetadataEntry>
 	>(new Map(providerMetadata));
 	const [dialogOpen, setDialogOpen] = useState(false);
+	const [feedbackRequestId, setFeedbackRequestId] = useState<string | null>(null);
+	const openFeedback = useCallback(
+		(event: React.MouseEvent<HTMLElement>, requestId: string) => {
+			event.stopPropagation();
+			setFeedbackRequestId(requestId);
+		},
+		[],
+	);
 	const prefetchRequestDetail = useCallback(
 		(requestId: string | null | undefined) => {
 			if (!detailBasePath || !requestId) return;
@@ -395,8 +407,6 @@ export default function UnifiedRequestsTable({
 		// Check if current page is already cached
 		if (!pageCache.has(page)) {
 			fetchPage(page, false);
-		} else {
-			setLoading(false);
 		}
 
 		// Prefetch next 2 pages in background
@@ -609,9 +619,10 @@ export default function UnifiedRequestsTable({
 							: null;
 
 						return (
-							<button
+							<div
 								key={rowKey}
-								type="button"
+								role="button"
+								tabIndex={0}
 								className={cn(
 									"w-full rounded-lg border bg-card px-4 py-3 text-left transition-colors hover:bg-muted/40",
 									loading && "opacity-50",
@@ -619,6 +630,13 @@ export default function UnifiedRequestsTable({
 								onMouseEnter={() => prefetchRequestDetail(row.request_id)}
 								onFocus={() => prefetchRequestDetail(row.request_id)}
 								onClick={() => void handleRowClick(row)}
+								onKeyDown={(event) => {
+									if (event.target !== event.currentTarget) return;
+									if (event.key === "Enter" || event.key === " ") {
+										event.preventDefault();
+										void handleRowClick(row);
+									}
+								}}
 							>
 								<div className="flex items-start justify-between gap-3">
 									<div className="min-w-0">
@@ -902,8 +920,17 @@ export default function UnifiedRequestsTable({
 											<span className="truncate">{row.finish_reason || "-"}</span>
 										</div>
 									</div>
+									<Button
+										variant="ghost"
+										size="icon-sm"
+										aria-label="Report feedback for this generation"
+										title="Report feedback"
+										onClick={(event) => openFeedback(event, row.request_id)}
+									>
+										<MessageSquareWarning />
+									</Button>
 								</div>
-							</button>
+							</div>
 						);
 					})}
 				</div>
@@ -997,6 +1024,9 @@ export default function UnifiedRequestsTable({
 									<SortIcon field="success" />
 								</Button>
 							</TableHead>
+							<TableHead className="w-10">
+								<span className="sr-only">Actions</span>
+							</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
@@ -1035,6 +1065,9 @@ export default function UnifiedRequestsTable({
 											<TableCell>
 												<div className="h-5 bg-muted rounded w-16" />
 											</TableCell>
+											<TableCell>
+												<div className="ml-auto size-7 rounded bg-muted" />
+											</TableCell>
 										</TableRow>
 									),
 								)}
@@ -1042,7 +1075,7 @@ export default function UnifiedRequestsTable({
 						) : data.length === 0 ? (
 							<TableRow>
 								<TableCell
-									colSpan={9}
+									colSpan={10}
 									className="py-10 text-center text-muted-foreground"
 								>
 									No requests found
@@ -1551,6 +1584,21 @@ export default function UnifiedRequestsTable({
 													) : null}
 												</div>
 											</TableCell>
+											<TableCell className="py-2 text-right">
+												<Tooltip>
+													<TooltipTrigger asChild>
+														<Button
+															variant="ghost"
+															size="icon-sm"
+															aria-label="Report feedback for this generation"
+															onClick={(event) => openFeedback(event, row.request_id)}
+														>
+															<MessageSquareWarning />
+														</Button>
+													</TooltipTrigger>
+													<TooltipContent>Report feedback</TooltipContent>
+												</Tooltip>
+											</TableCell>
 										</TableRow>
 									);
 								})}
@@ -1632,6 +1680,13 @@ export default function UnifiedRequestsTable({
 						: null
 				}
 				appName={selectedAppName}
+			/>
+			<GenerationFeedbackDialog
+				open={feedbackRequestId !== null}
+				onOpenChange={(open) => {
+					if (!open) setFeedbackRequestId(null);
+				}}
+				requestId={feedbackRequestId}
 			/>
 		</div>
 	);

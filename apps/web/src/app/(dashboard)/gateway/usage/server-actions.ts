@@ -2,6 +2,13 @@
 
 import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountContext";
 import { fetchAccountWebApi } from "@/lib/web-api/client";
+import { PostHog } from "posthog-node";
+import {
+	GENERATION_FEEDBACK_CATEGORIES,
+	GENERATION_FEEDBACK_MAX_COMMENT_LENGTH,
+	buildGenerationFeedbackEvents,
+	type GenerationFeedbackCategory,
+} from "@/lib/generationFeedback";
 
 export interface RequestRow {
 	request_id: string; created_at: string; endpoint: string | null; model_id: string | null; provider: string | null;
@@ -48,6 +55,66 @@ export async function fetchFunStats(timeRange: { from: string; to: string }) { r
 export async function fetchAppNames(appIds: string[]) { return new Map<string, string>(await operation<Array<[string, string]>>("appNames", [appIds])); }
 export async function fetchAppMetadata(appIds: string[]) { return new Map<string, AppMetadata>(await operation<Array<[string, AppMetadata]>>("appMetadata", [appIds])); }
 export async function investigateGeneration(requestId: string): Promise<{ success: boolean; data?: InvestigateGenerationResult; error?: string }> { return operation("investigateGeneration", [requestId]); }
+export async function submitGenerationFeedback(input: {
+	category: GenerationFeedbackCategory;
+	comment?: string;
+	requestId: string;
+}): Promise<{ success: boolean; error?: string }> {
+	const requestId = input.requestId.trim();
+	const comment = input.comment?.trim() ?? "";
+	if (!requestId) return { success: false, error: "Generation ID is required." };
+	if (!GENERATION_FEEDBACK_CATEGORIES.includes(input.category)) {
+		return { success: false, error: "Select a feedback category." };
+	}
+	if (comment.length > GENERATION_FEEDBACK_MAX_COMMENT_LENGTH) {
+		return {
+			success: false,
+			error: `Feedback must be ${GENERATION_FEEDBACK_MAX_COMMENT_LENGTH.toLocaleString()} characters or fewer.`,
+		};
+	}
+
+	const account = await context();
+	if (!account.userId) return { success: false, error: "Unauthorized" };
+	const investigated = await operation<{ success: boolean }>(
+		"investigateGeneration",
+		[requestId],
+	);
+	if (!investigated.success) {
+		return { success: false, error: "Generation not found." };
+	}
+
+	const apiKey =
+		process.env.POSTHOG_PROJECT_API_KEY ?? process.env.NEXT_PUBLIC_POSTHOG_KEY;
+	if (!apiKey) {
+		return { success: false, error: "Feedback is not configured." };
+	}
+
+	const client = new PostHog(apiKey, {
+		host: process.env.POSTHOG_HOST ?? "https://eu.i.posthog.com",
+	});
+	const events = buildGenerationFeedbackEvents({
+		category: input.category,
+		comment,
+		requestId,
+		submissionId: crypto.randomUUID(),
+		workspaceId: account.workspaceId,
+	});
+
+	try {
+		for (const event of events) {
+			await client.captureImmediate({
+				distinctId: account.userId,
+				event: event.event,
+				properties: event.properties,
+			});
+		}
+		return { success: true };
+	} catch {
+		return { success: false, error: "Feedback could not be sent. Try again." };
+	} finally {
+		await client.shutdown().catch(() => undefined);
+	}
+}
 export async function fetchChartData(params: any): Promise<ChartDataResult> { return operation("chartData", [params]); }
 export async function fetchSessionRollups(params: any): Promise<SessionRollupRow[]> { return operation("sessionRollups", [params]); }
 export async function fetchSessionRequests(params: any): Promise<SessionRequestRow[]> { return operation("sessionRequests", [params]); }
