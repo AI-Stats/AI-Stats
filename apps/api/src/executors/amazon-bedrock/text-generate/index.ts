@@ -1,6 +1,6 @@
 // Purpose: Executor for amazon-bedrock / text-generate.
-// Why: Uses the unified Bedrock Mantle OpenAI-compatible endpoint for every model.
-// How: IR -> OpenAI Chat/Responses payload, then protocol shaping is handled by the pipeline.
+// Why: Uses each model's supported Bedrock Mantle API surface.
+// How: IR -> Anthropic Messages or OpenAI Chat/Responses, then protocol shaping is handled by the pipeline.
 
 import type { IRChatRequest } from "@core/ir";
 import type { ExecutorExecuteArgs, ExecutorResult, Bill } from "@executors/types";
@@ -9,10 +9,12 @@ import { buildTextExecutor, cherryPickIRParams } from "@executors/_shared/text-g
 import { resolveStreamForProtocol, bufferStreamToIR } from "@executors/_shared/text-generate/openai-compat";
 import { irToOpenAIChat, openAIChatToIR } from "@executors/_shared/text-generate/openai-compat/transform-chat";
 import { irToOpenAIResponses, openAIResponsesToIR } from "@executors/_shared/text-generate/openai-compat/transform";
+import { irToAnthropicMessages, anthropicMessagesToIR } from "@executors/anthropic/text-generate";
+import { createAnthropicToResponsesStreamTransformer } from "@executors/anthropic/text-generate/stream-transformer";
 import { normalizeTextUsageForPricing } from "@executors/_shared/usage/text";
 import { upstreamTestHeaders } from "@providers/shared/testing";
 import type { ProviderExecutor } from "../../types";
-import { resolveBedrockAuth, signAwsV4Request } from "./bedrock-utils";
+import { resolveMantleAuth, signAwsV4Request } from "./bedrock-utils";
 
 type BedrockCredentials = {
 	accessKeyId: string;
@@ -22,7 +24,7 @@ type BedrockCredentials = {
 	baseUrl?: string;
 };
 
-type BedrockAuth =
+type MantleAuth =
 	| {
 		mode: "sigv4";
 		region: string;
@@ -43,15 +45,125 @@ export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChat
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
 	const irRequest = args.ir as IRChatRequest;
 	const model = args.providerModelSlug ?? irRequest.model;
-	const { keyInfo, auth } = resolveBedrockAuth(args);
-	const route = resolveBedrockTextRoute(args, model);
-	return executeBedrockOpenAI(args, keyInfo, auth, model, route);
+	const { keyInfo, auth } = resolveMantleAuth(args);
+	if (usesBedrockMessagesApi(model, irRequest)) {
+		return executeBedrockMessages(args, keyInfo, auth, model);
+	}
+	const route = resolveMantleTextRoute(args, model);
+	return executeMantleOpenAI(args, keyInfo, auth, model, route);
 }
 
-async function executeBedrockOpenAI(
+async function executeBedrockMessages(
 	args: ExecutorExecuteArgs,
 	keyInfo: { source: "gateway" | "byok"; byokId: string | null },
-	auth: BedrockAuth,
+	auth: MantleAuth,
+	model: string,
+): Promise<ExecutorResult> {
+	const irRequest = args.ir as IRChatRequest;
+	const requestPayload = {
+		...irToAnthropicMessages(irRequest, args.maxOutputTokens, model),
+		model,
+		stream: Boolean(irRequest.stream),
+	};
+	const requestBody = JSON.stringify(requestPayload);
+	const mappedRequest = (args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest) ? requestBody : undefined;
+	const res = await sendMantleRequest(args, auth, {
+		url: buildMantleMessagesUrl(auth.baseUrl),
+		body: requestBody,
+		headers: {
+			"Content-Type": "application/json",
+			Accept: requestPayload.stream ? "text/event-stream" : "application/json",
+			"anthropic-version": "2023-06-01",
+			...upstreamTestHeaders(args.meta),
+		},
+		apiKeyHeader: "x-api-key",
+	});
+	const selectedDispatchAtMs = args.upstreamTiming?.timingFor(res)?.dispatchAtMs ?? Date.now();
+
+	const bill: Bill = {
+		cost_cents: 0,
+		currency: "USD",
+		usage: undefined,
+		upstream_id:
+			res.headers.get("request-id") ??
+			res.headers.get("x-amzn-requestid") ??
+			res.headers.get("x-request-id") ??
+			undefined,
+		finish_reason: null,
+	};
+
+	if (!res.ok) {
+		return {
+			kind: "completed",
+			ir: undefined,
+			bill,
+			upstream: res,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+			mappedRequest,
+		};
+	}
+
+	if (irRequest.stream) {
+		if (!res.body) {
+			throw new Error("bedrock_messages_stream_missing_body");
+		}
+		const responsesStream = res.body.pipeThrough(
+			createAnthropicToResponsesStreamTransformer(args.requestId, model),
+		);
+		const stream = resolveStreamForProtocol(
+			new Response(responsesStream, {
+				status: res.status,
+				headers: res.headers,
+			}),
+			args,
+			"responses",
+		);
+		return {
+			kind: "stream",
+			stream,
+			usageFinalizer: async () => null,
+			bill,
+			upstream: res,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+			mappedRequest,
+			timing: {
+				latencyMs: undefined,
+				generationMs: undefined,
+			},
+		};
+	}
+
+	const json: any = await res.json().catch(() => null);
+	const providerId = args.providerId || "amazon-bedrock";
+	const ir = anthropicMessagesToIR(json ?? {}, args.requestId, model, providerId);
+	const usageMeters = normalizeTextUsageForPricing(json?.usage ?? ir.usage);
+	if (usageMeters) {
+		bill.usage = usageMeters;
+	}
+	bill.finish_reason = ir.choices?.[0]?.finishReason ?? null;
+
+	return {
+		kind: "completed",
+		ir,
+		bill,
+		upstream: res,
+		keySource: keyInfo.source,
+		byokKeyId: keyInfo.byokId,
+		mappedRequest,
+		rawResponse: json,
+		timing: {
+			latencyMs: undefined,
+			generationMs: Math.max(0, Date.now() - selectedDispatchAtMs),
+		},
+	};
+}
+
+async function executeMantleOpenAI(
+	args: ExecutorExecuteArgs,
+	keyInfo: { source: "gateway" | "byok"; byokId: string | null },
+	auth: MantleAuth,
 	model: string,
 	preferredRoute: "chat" | "responses",
 ): Promise<ExecutorResult> {
@@ -77,8 +189,8 @@ async function executeBedrockOpenAI(
 	let requestPayload = buildPayload(route);
 	let requestBody = JSON.stringify(requestPayload);
 	let mappedRequest = (args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest) ? requestBody : undefined;
-	let res = await sendBedrockRequest(args, auth, {
-		url: buildBedrockOpenAIUrl(auth.baseUrl, route),
+	let res = await sendMantleRequest(args, auth, {
+		url: buildMantleOpenAIUrl(auth.baseUrl, route),
 		body: requestBody,
 		headers: {
 			"Content-Type": "application/json",
@@ -197,21 +309,52 @@ export function transformStream(stream: ReadableStream<Uint8Array>): ReadableStr
 }
 
 
-function resolveBedrockTextRoute(
+function resolveMantleTextRoute(
 	args: ExecutorExecuteArgs,
 	model: string,
 ): "chat" | "responses" {
 	const protocol = args.protocol ?? (args.endpoint === "responses" ? "openai.responses" : "openai.chat.completions");
 	const wantsResponses = protocol === "openai.responses" || args.endpoint === "responses";
-	return wantsResponses || isResponsesOnlyBedrockModel(model) ? "responses" : "chat";
+	return wantsResponses || isResponsesOnlyMantleModel(model) ? "responses" : "chat";
 }
 
-function isResponsesOnlyBedrockModel(model: string): boolean {
+function isResponsesOnlyMantleModel(model: string): boolean {
 	const normalized = model.trim().toLowerCase().replaceAll("/", ".");
 	return /(?:^|\.)openai\.gpt-5\.(?:4|5|6)(?:$|[.-])/.test(normalized);
 }
 
-function buildBedrockOpenAIUrl(baseUrl: string, route: "chat" | "responses"): string {
+function usesBedrockMessagesApi(model: string, ir: IRChatRequest): boolean {
+	const normalized = model.trim().toLowerCase().replaceAll("/", ".");
+	// Mantle Messages is the native, recommended surface for Claude. Mantle does
+	// not accept output_config.format, so JSON Schema requests stay on its
+	// OpenAI-compatible Responses endpoint instead of falling back to Converse.
+	return /(?:^|\.)anthropic\.claude(?:$|[.:-])/.test(normalized) &&
+		ir.responseFormat?.type !== "json_schema";
+}
+
+function buildMantleMessagesUrl(baseUrl: string): string {
+	const normalizedBase = baseUrl.replace(/\/+$/, "");
+	const lower = normalizedBase.toLowerCase();
+	if (lower.endsWith("/anthropic/v1/messages")) {
+		return normalizedBase;
+	}
+	if (lower.endsWith("/anthropic/v1")) {
+		return `${normalizedBase}/messages`;
+	}
+	if (lower.endsWith("/anthropic")) {
+		return `${normalizedBase}/v1/messages`;
+	}
+
+	for (const suffix of ["/openai/v1", "/openai", "/v1"]) {
+		if (lower.endsWith(suffix)) {
+			return `${normalizedBase.slice(0, -suffix.length)}/anthropic/v1/messages`;
+		}
+	}
+
+	return `${normalizedBase}/anthropic/v1/messages`;
+}
+
+function buildMantleOpenAIUrl(baseUrl: string, route: "chat" | "responses"): string {
 	const suffix = route === "responses" ? "/responses" : "/chat/completions";
 	const normalizedBase = baseUrl.replace(/\/+$/, "");
 	const lower = normalizedBase.toLowerCase();
@@ -227,10 +370,15 @@ function buildBedrockOpenAIUrl(baseUrl: string, route: "chat" | "responses"): st
 	return `${normalizedBase}/openai/v1${suffix}`;
 }
 
-async function sendBedrockRequest(
+async function sendMantleRequest(
 	executorArgs: ExecutorExecuteArgs,
-	auth: BedrockAuth,
-	args: { url: string; body: string; headers: Record<string, string> },
+	auth: MantleAuth,
+	args: {
+		url: string;
+		body: string;
+		headers: Record<string, string>;
+		apiKeyHeader?: "authorization" | "x-api-key";
+	},
 ): Promise<Response> {
 	const requestHeaders = auth.mode === "sigv4"
 		? await signAwsV4Request({
@@ -244,10 +392,15 @@ async function sendBedrockRequest(
 			sessionToken: auth.credentials.sessionToken,
 			headers: args.headers,
 		})
-		: {
-			Authorization: `Bearer ${auth.token}`,
-			...args.headers,
-		};
+		: args.apiKeyHeader === "x-api-key"
+			? {
+				"x-api-key": auth.token,
+				...args.headers,
+			}
+			: {
+				Authorization: `Bearer ${auth.token}`,
+				...args.headers,
+			};
 
 	return fetchUpstream(executorArgs, args.url, {
 		method: "POST",

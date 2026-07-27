@@ -3,10 +3,9 @@ import os
 import json
 import requests
 from pathlib import Path
-import boto3
-from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 from dotenv import load_dotenv
 import sys
+from urllib.parse import urlparse
 
 # Load environment variables from .env.local
 load_dotenv('.env.local')
@@ -366,16 +365,27 @@ def fetch_cloudflare_models() -> list[str]:
         return []
 
 def fetch_bedrock_models() -> list[str]:
-    access_key = os.getenv('AWS_ACCESS_KEY_ID')
-    secret_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-    region = os.getenv('AWS_REGION', 'us-east-1')
-    if not access_key or not secret_key:
+    api_key = os.getenv('AMAZON_BEDROCK_API_KEY')
+    region = os.getenv('AMAZON_BEDROCK_REGION', 'us-east-1')
+    base_url = os.getenv(
+        'AMAZON_BEDROCK_MANTLE_BASE_URL',
+        f'https://bedrock-mantle.{region}.api.aws',
+    ).rstrip('/')
+    hostname = (urlparse(base_url).hostname or '').lower()
+    if not api_key or not hostname.startswith('bedrock-mantle.') or not hostname.endswith('.api.aws'):
         return []
     try:
-        client = boto3.client('bedrock', region_name=region, aws_access_key_id=access_key, aws_secret_access_key=secret_key)
-        response = client.list_foundation_models()
-        return [f"bedrock/{m['modelId']}" for m in response.get('modelSummaries', [])]
-    except (NoCredentialsError, PartialCredentialsError, Exception):
+        models_url = f'{base_url}/models' if base_url.endswith('/v1') else f'{base_url}/v1/models'
+        response = requests.get(
+            models_url,
+            headers={'Authorization': f'Bearer {api_key}'},
+            timeout=30,
+        )
+        if response.status_code != 200:
+            return []
+        data = response.json()
+        return [f"amazon-bedrock/{model['id']}" for model in data.get('data', []) if model.get('id')]
+    except (requests.RequestException, ValueError):
         return []
 
 def fetch_ai21_models() -> list[str]:
@@ -439,7 +449,7 @@ def fetch_all_provider_models() -> list[dict]:
         {'id': 'chutes', 'name': 'Chutes', 'fetch': fetch_chutes_models},
         {'id': 'fireworks', 'name': 'Fireworks AI', 'fetch': fetch_fireworks_models},
         {'id': 'cloudflare', 'name': 'Cloudflare', 'fetch': fetch_cloudflare_models},
-        {'id': 'bedrock', 'name': 'Amazon Bedrock', 'fetch': fetch_bedrock_models},
+        {'id': 'amazon-bedrock', 'name': 'Amazon Bedrock (Mantle)', 'fetch': fetch_bedrock_models},
         {'id': 'azure', 'name': 'Azure OpenAI', 'fetch': fetch_azure_models},
         {'id': 'ai21', 'name': 'AI21', 'fetch': fetch_ai21_models},
         {'id': 'aion-labs', 'name': 'Aion Labs', 'fetch': fetch_aion_labs_models},
