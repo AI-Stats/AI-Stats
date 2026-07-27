@@ -20,6 +20,9 @@ describe("account policy settings routes", () => {
 			if (url.includes("/workspaces") && url.includes("owner_user_id")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
 			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ id: "workspace-1", name: "Team One" }]), { status: 200 });
 			if (url.includes("workspace_settings")) return new Response(JSON.stringify([{ routing_mode: "latency", response_healing_enabled: true, response_healing_locked: false, response_healing_mode: "strict", alpha_channel_enabled: true, beta_channel_enabled: false }]), { status: 200 });
+			if (url.includes("gateway_dynamic_routes")) return new Response(JSON.stringify([{ id: "route-1", workspace_id: "workspace-1", name: "Production", status: "active", version: 2, config: { cacheAwareRouting: true } }]), { status: 200 });
+			if (url.includes("gateway_dynamic_route_keys")) return new Response(JSON.stringify([{ route_id: "route-1", key_id: "key-1" }]), { status: 200 });
+			if (url.includes("v2_public_provider_health_daily")) return new Response(JSON.stringify([{ provider_slug: "openai", attempt_count: 100, failed_attempts: 12, latency_sum_ms: 450000, latency_count: 100 }]), { status: 200 });
 			if (url.includes("/presets")) return new Response(JSON.stringify([{ id: "preset-1", workspace_id: "workspace-1", name: "Fast" }]), { status: 200 });
 			if (url.includes("/keys")) return new Response(JSON.stringify([{ id: "key-1", name: "Production", prefix: "ph_", status: "active" }]), { status: 200 });
 			if (url.includes("data_api_providers")) return new Response(JSON.stringify([{ api_provider_id: "openai", api_provider_name: "OpenAI" }]), { status: 200 });
@@ -29,13 +32,14 @@ describe("account policy settings routes", () => {
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
 		const init = { headers: { authorization: "Bearer session-token" } };
-		const [routing, presets, guardrails, editor] = await Promise.all([
+		const [routing, presets, guardrails, editor, dynamicRoutes] = await Promise.all([
 			app.request("https://phaseo.app/api/account/settings/routing?workspaceId=workspace-1", init, env),
 			app.request("https://phaseo.app/api/account/settings/presets?workspaceId=workspace-1", init, env),
 			app.request("https://phaseo.app/api/account/settings/guardrails?workspaceId=workspace-1", init, env),
 			app.request("https://phaseo.app/api/account/settings/guardrails/editor?workspaceId=workspace-1&mode=edit&guardrailId=guardrail-1", init, env),
+			app.request("https://phaseo.app/api/account/settings/dynamic-routes?workspaceId=workspace-1", init, env),
 		]);
-		for (const response of [routing, presets, guardrails, editor]) {
+		for (const response of [routing, presets, guardrails, editor, dynamicRoutes]) {
 			expect(response.status).toBe(200);
 			expect(response.headers.get("cache-control")).toBe("private, no-store");
 			expect(response.headers.get("cloudflare-cdn-cache-control")).toBeNull();
@@ -44,5 +48,9 @@ describe("account policy settings routes", () => {
 		await expect(presets.json()).resolves.toMatchObject({ currentUserId: "user-1", teamsWithPresets: [{ id: "workspace-1", presets: [{ id: "preset-1" }] }] });
 		await expect(guardrails.json()).resolves.toMatchObject({ guardrails: [{ id: "guardrail-1" }], guardrailKeyIdsByGuardrailId: { "guardrail-1": ["key-1"] }, keys: [{ id: "key-1" }] });
 		await expect(editor.json()).resolves.toMatchObject({ mode: "edit", guardrail: { id: "guardrail-1" }, initialKeyIds: ["key-1"], teamName: "Team One" });
+		await expect(dynamicRoutes.json()).resolves.toMatchObject({
+			routes: [{ id: "route-1", keyIds: ["key-1"] }],
+			suggestions: [{ providerId: "openai", severity: "warning" }],
+		});
 	});
 });

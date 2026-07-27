@@ -23,6 +23,31 @@ import {
 
 export const accountSettingsUsageActionsRouter = new Hono<{ Bindings: Env }>();
 
+accountSettingsUsageActionsRouter.get("/usage/logs/:requestId", async (c) => {
+	const workspaceId = c.req.query("workspaceId")?.trim() ?? "";
+	const requestId = c.req.param("requestId")?.trim() ?? "";
+	if (!workspaceId) return c.json({ error: "workspace_required" }, 400, PRIVATE_NO_STORE_HEADERS);
+	if (!requestId) return c.json({ error: "request_id_required" }, 400, PRIVATE_NO_STORE_HEADERS);
+	const account = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
+	if (!account) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	try {
+		const result = await runWithUsageContext({ account, env: c.env }, () =>
+			investigateGeneration(requestId),
+		);
+		if (!result.success || !result.data) {
+			return c.json(
+				{ error: result.error ?? "request_not_found" },
+				result.error?.toLowerCase().includes("not found") ? 404 : 503,
+				PRIVATE_NO_STORE_HEADERS,
+			);
+		}
+		return c.json({ data: result.data }, 200, PRIVATE_NO_STORE_HEADERS);
+	} catch (error) {
+		console.error("usage_log_detail_failed", { requestId, error });
+		return c.json({ error: "usage_log_detail_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
+});
+
 accountSettingsUsageActionsRouter.post("/usage/actions", async (c) => {
 	const body: { workspaceId?: unknown; operation?: unknown; args?: unknown[] } = await c.req.json().catch(() => ({}));
 	const workspaceId = String(body.workspaceId ?? "").trim();

@@ -131,11 +131,19 @@ accountSettingsUsageRouter.get("/usage/observability", async (c) => {
 	}
 	const limit = 5000;
 	const loadWindow = async (start: string, end: string) => {
-		const result = await context.client.from("v2_web_gateway_requests").select(OBSERVABILITY_SELECT)
-			.eq("workspace_id", workspaceId).gte("created_at", start).lte("created_at", end)
-			.not("endpoint", "in", OBSERVABILITY_EXCLUDED_ENDPOINTS).order("created_at", { ascending: true }).limit(limit + 1);
-		if (result.error) throw result.error;
-		return { rows: (result.data ?? []).slice(0, limit), isSampled: (result.data?.length ?? 0) > limit, limit };
+		const pageSize = 1000;
+		const rows: any[] = [];
+		for (let offset = 0; rows.length <= limit; offset += pageSize) {
+			const result = await context.client.from("v2_web_gateway_requests").select(OBSERVABILITY_SELECT)
+				.eq("workspace_id", workspaceId).gte("created_at", start).lte("created_at", end)
+				.not("endpoint", "in", OBSERVABILITY_EXCLUDED_ENDPOINTS).order("created_at", { ascending: true })
+				.range(offset, offset + pageSize - 1);
+			if (result.error) throw result.error;
+			const page = result.data ?? [];
+			rows.push(...page);
+			if (page.length < pageSize) break;
+		}
+		return { rows: rows.slice(0, limit), isSampled: rows.length > limit, limit };
 	};
 	try {
 		const [keysResult, current, previous] = await Promise.all([
@@ -150,6 +158,7 @@ accountSettingsUsageRouter.get("/usage/observability", async (c) => {
 		const apps = Array.from(new Set(rows.map((row) => String(row.app_id ?? "").trim()).filter(Boolean)));
 		const metadata = await metadataForIds(context, { models, apps });
 		return c.json({
+			appMetadataEntries: metadata.appMetadataEntries,
 			appNameEntries: metadata.appNameEntries,
 			current,
 			keys: keysResult.data ?? [],
@@ -167,13 +176,98 @@ accountSettingsUsageRouter.get("/usage/observability", async (c) => {
 accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	const url = new URL(c.req.url);
-	const view = ["jobs", "sessions"].includes(url.searchParams.get("view") ?? "") ? url.searchParams.get("view")! : "logs";
+	const view = ["upstream", "jobs", "sessions"].includes(url.searchParams.get("view") ?? "") ? url.searchParams.get("view")! : "logs";
 	if (!user) return c.json({ data: null, signedIn: false, view, workspaceId: null }, 200, PRIVATE_NO_STORE_HEADERS);
 	const workspaceId = stringParam(url, "workspaceId");
 	if (!workspaceId) return c.json({ data: null, signedIn: true, view, workspaceId: null }, 200, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const timeRange = usageTimeRange(c.req.raw);
+	if (view === "upstream") {
+		const v2Result = await context.client
+			.from("v2_request_facts")
+			.select("request_event_id,occurred_at,request_id,key_id,endpoint,requested_model_input,requested_model_slug,routed_model_slug,provider_model_id,status_code,success,error_code,byok,latency_ms,generation_ms,gateway_total_ms,upstream_attempt_count,throughput,cost_nanos,currency,v2_request_attempts(attempt_id,attempt_number,provider_model_id,started_at,completed_at,status_code,success,error_code,failure_class,upstream_response_id,latency_ms,safe_metadata)")
+			.eq("workspace_id", workspaceId)
+			.gte("occurred_at", timeRange.from)
+			.lte("occurred_at", timeRange.to)
+			.order("occurred_at", { ascending: false })
+			.limit(500);
+		const v2UpstreamRequests = (v2Result.data ?? []).flatMap((fact: any) => {
+			const attempts = Array.isArray(fact.v2_request_attempts) ? fact.v2_request_attempts : [];
+			return attempts.map((attempt: any) => {
+				const safeMetadata = attempt.safe_metadata && typeof attempt.safe_metadata === "object" && !Array.isArray(attempt.safe_metadata)
+					? attempt.safe_metadata as Record<string, unknown>
+					: {};
+				const providerModelId = String(attempt.provider_model_id ?? fact.provider_model_id ?? "").trim();
+				const routeSeparator = providerModelId.indexOf(":");
+				const metadataProvider = typeof safeMetadata.provider === "string" ? safeMetadata.provider.trim() : "";
+				const provider = metadataProvider || (routeSeparator > 0 ? providerModelId.slice(0, routeSeparator) : null);
+				const providerModelSlug = routeSeparator > 0 ? providerModelId.slice(routeSeparator + 1) : null;
+				const keySource = safeMetadata.key_source === "byok" || fact.byok === true ? "byok" : "gateway";
+				return {
+					id: attempt.attempt_id,
+					created_at: attempt.started_at ?? fact.occurred_at,
+					gateway_request_id: fact.request_event_id,
+					request_id: fact.request_id,
+					sequence: attempt.attempt_number,
+					round_number: 1,
+					attempt_number: attempt.attempt_number,
+					attempt_count: fact.upstream_attempt_count,
+					internal_attempt_number: null,
+					stage: "upstream",
+					endpoint: fact.endpoint,
+					model_id: fact.routed_model_slug ?? fact.requested_model_slug ?? fact.requested_model_input,
+					provider,
+					api_model_id: providerModelSlug,
+					provider_model_slug: providerModelSlug,
+					status_code: attempt.status_code,
+					status_text: null,
+					success: attempt.success === true,
+					outcome: attempt.success === true ? "success" : attempt.failure_class ?? "error",
+					retryable: typeof safeMetadata.retryable === "boolean" ? safeMetadata.retryable : null,
+					fallback_attempted: Number(attempt.attempt_number ?? 1) > 1,
+					was_probe: safeMetadata.was_probe === true,
+					key_source: keySource,
+					key_id: fact.key_id ?? null,
+					native_response_id: attempt.upstream_response_id,
+					provider_finish_reason: null,
+					finish_reason: null,
+					duration_ms: attempt.latency_ms,
+					latency_ms: attempt.latency_ms,
+					generation_ms: fact.generation_ms,
+					total_ms: fact.gateway_total_ms,
+					usage: {},
+					cost_nanos: fact.cost_nanos,
+					currency: fact.currency,
+					error_code: attempt.error_code ?? fact.error_code,
+					error_type: attempt.failure_class,
+					error_message: null,
+					request_payload: null,
+					response_payload: null,
+					metadata: { ...safeMetadata, throughput: fact.throughput },
+				};
+			});
+		});
+		let upstreamRequests = v2UpstreamRequests;
+		if (upstreamRequests.length === 0) {
+			const legacyResult = await context.client
+				.from("gateway_upstream_requests")
+				.select("id,created_at,gateway_request_id,request_id,sequence,round_number,attempt_number,internal_attempt_number,stage,endpoint,model_id,provider,api_model_id,provider_model_slug,status_code,status_text,success,outcome,retryable,fallback_attempted,was_probe,key_source,key_id,native_response_id,provider_finish_reason,finish_reason,duration_ms,latency_ms,generation_ms,total_ms,request_build_ms,upstream_headers_ms,retry_delay_ms,usage,cost_nanos,currency,error_code,error_type,error_message,error_description,error_param,request_payload,response_payload,metadata")
+				.eq("workspace_id", workspaceId)
+				.gte("created_at", timeRange.from)
+				.lte("created_at", timeRange.to)
+				.order("created_at", { ascending: false })
+				.order("sequence", { ascending: true })
+				.limit(500);
+			if (legacyResult.error && v2Result.error) return c.json({ error: "usage_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+			upstreamRequests = legacyResult.data ?? [];
+		}
+		const models = Array.from(new Set(upstreamRequests.map((row) => String(row.model_id ?? "").trim()).filter(Boolean)));
+		const providers = Array.from(new Set(upstreamRequests.map((row) => String(row.provider ?? "").trim()).filter(Boolean)));
+		const metadata = await metadataForIds(context, { models, providers });
+		const keysResult = await context.client.from("keys").select("id,name,prefix").eq("workspace_id", workspaceId).neq("status", "deleted").neq("name", "__chat_route_managed_key__").order("created_at", { ascending: true });
+		return c.json({ data: { availableKeys: keysResult.data ?? [], modelMetadataEntries: metadata.modelMetadataEntries, providerMetadataEntries: metadata.providerMetadataEntries, providerNameEntries: metadata.providerNameEntries, upstreamRequests }, signedIn: true, view, workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
+	}
 	if (view === "jobs") {
 		let query = context.client.from("gateway_async_operations").select("kind,internal_id,request_id,session_id,app_id,provider,model,status,billed_at,created_at,updated_at,meta").eq("workspace_id", workspaceId).in("kind", ["video", "batch"]).not("internal_id", "like", "__file__:%").gte("created_at", timeRange.from).lte("created_at", timeRange.to);
 		const kind = stringParam(url, "job_kind"); if (kind === "video" || kind === "batch") query = query.eq("kind", kind);

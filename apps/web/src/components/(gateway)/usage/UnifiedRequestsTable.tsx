@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useQueryState } from "nuqs";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
 	Table,
 	TableBody,
@@ -41,7 +40,9 @@ import {
 import {
 	fetchPaginatedRequests,
 	fetchModelMetadata,
+	fetchGenerationLog,
 	PaginatedRequestsParams,
+	type InvestigateGenerationResult,
 	type ProviderMetadataEntry,
 	RequestRow,
 } from "@/app/(dashboard)/gateway/usage/server-actions";
@@ -55,7 +56,6 @@ import {
 	formatDateTime,
 	formatWordyDateTime,
 } from "@/lib/gateway/usage/timeFormatting";
-import { formatErrorListSummary } from "@/lib/gateway/usage/errorListSummary";
 import { registerUsageViewRefresher } from "@/lib/gateway/usage/refreshBus";
 import {
 	buildUsageDisplay,
@@ -145,9 +145,6 @@ export default function UnifiedRequestsTable({
 	detailBasePath,
 	onExportRef,
 }: UnifiedRequestsTableProps) {
-	const router = useRouter();
-	const pathname = usePathname() ?? "";
-	const searchParams = useSearchParams();
 	const userTimeZone =
 		typeof Intl !== "undefined"
 			? Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
@@ -189,6 +186,10 @@ export default function UnifiedRequestsTable({
 	const [statusFilter] = useQueryState("status");
 	const [requestFilter] = useQueryState("req");
 	const [sessionFilter] = useQueryState("session");
+	const [detailRequestId, setDetailRequestId] = useQueryState("request", {
+		history: "push",
+		shallow: true,
+	});
 
 	// Local state
 	const [pageCache, setPageCache] = useState<Map<number, RequestRow[]>>(
@@ -198,7 +199,11 @@ export default function UnifiedRequestsTable({
 	const [totalPages, setTotalPages] = useState(initialTotalPages);
 	const [loading, setLoading] = useState(false);
 	const [isBackgroundLoading, setIsBackgroundLoading] = useState(false);
+	const inFlightPages = React.useRef(new Set<number>());
 	const [selectedRequest, setSelectedRequest] = useState<RequestRow | null>(null);
+	const [selectedDetail, setSelectedDetail] =
+		useState<InvestigateGenerationResult | null>(null);
+	const [detailLoading, setDetailLoading] = useState(false);
 	const [selectedAppName, setSelectedAppName] = useState<string | null>(null);
 	const [resolvedModelMetadata, setResolvedModelMetadata] =
 		useState<ModelMetadataMap>(new Map(modelMetadata));
@@ -209,16 +214,6 @@ export default function UnifiedRequestsTable({
 		Map<string, ProviderMetadataEntry>
 	>(new Map(providerMetadata));
 	const [dialogOpen, setDialogOpen] = useState(false);
-	const prefetchRequestDetail = useCallback(
-		(requestId: string | null | undefined) => {
-			if (!detailBasePath || !requestId) return;
-			const query = searchParams?.toString();
-			const href = `${detailBasePath}/${encodeURIComponent(requestId)}${query ? `?${query}` : ""}`;
-			router.prefetch(href);
-		},
-		[detailBasePath, router, searchParams],
-	);
-
 	// Build cache key from filters
 	const getCacheKey = useCallback(() => {
 		return `${timeRange.from}-${timeRange.to}-${modelFilter}-${providerFilter}-${appFilter}-${endpointFilter}-${finishReasonFilter}-${streamFilter}-${errorCodeFilter}-${statusCodeFilter}-${keyFilter}-${statusFilter}-${requestFilter}-${sessionFilter}-${sortField}-${sortDir}`;
@@ -245,6 +240,9 @@ export default function UnifiedRequestsTable({
 	// Fetch a specific page
 	const fetchPage = useCallback(
 		async (pageNum: number, background = false) => {
+			if (inFlightPages.current.has(pageNum)) return null;
+			inFlightPages.current.add(pageNum);
+
 			if (!background) {
 				setLoading(true);
 			} else {
@@ -327,6 +325,7 @@ export default function UnifiedRequestsTable({
 				}
 				return null;
 			} finally {
+				inFlightPages.current.delete(pageNum);
 				if (!background) {
 					setLoading(false);
 				} else {
@@ -395,8 +394,6 @@ export default function UnifiedRequestsTable({
 		// Check if current page is already cached
 		if (!pageCache.has(page)) {
 			fetchPage(page, false);
-		} else {
-			setLoading(false);
 		}
 
 		// Prefetch next 2 pages in background
@@ -429,39 +426,48 @@ export default function UnifiedRequestsTable({
 	};
 
 	useEffect(() => {
-		if (!detailBasePath) return;
-		for (const row of data.slice(0, 12)) {
-			prefetchRequestDetail(row.request_id);
+		if (!detailBasePath || !detailRequestId) return;
+		let cancelled = false;
+		const row = data.find((item) => item.request_id === detailRequestId) ?? null;
+		if (row) {
+			setSelectedRequest(row);
+			setSelectedAppName(row.app_title ?? null);
+			setDialogOpen(true);
 		}
-	}, [data, detailBasePath, prefetchRequestDetail]);
+		setDetailLoading(true);
+		void fetchGenerationLog(detailRequestId).then((result) => {
+			if (cancelled || !result.success || !result.data) return;
+			setSelectedDetail(result.data);
+			setSelectedRequest(result.data.request);
+			setSelectedAppName(result.data.appName);
+			setDialogOpen(true);
+		}).finally(() => {
+			if (!cancelled) setDetailLoading(false);
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [data, detailBasePath, detailRequestId]);
 
 	const handleRowClick = useCallback((request: RequestRow) => {
-		if (detailBasePath) {
-			const query = searchParams?.toString();
-			router.push(
-				`${detailBasePath}/${encodeURIComponent(request.request_id)}${query ? `?${query}` : ""}`,
-			);
-			return;
-		}
 		setSelectedRequest(request);
+		setSelectedDetail(null);
+		setDetailLoading(Boolean(detailBasePath));
 		setSelectedAppName(request.app_title ?? null);
 		setDialogOpen(true);
-	}, [detailBasePath, router, searchParams]);
+		if (detailBasePath) void setDetailRequestId(request.request_id);
+	}, [detailBasePath, setDetailRequestId]);
 
 	const handleDialogOpenChange = useCallback(
 		(nextOpen: boolean) => {
-			if (
-				!nextOpen &&
-				detailBasePath &&
-				pathname.startsWith(detailBasePath + "/")
-			) {
-				const query = searchParams?.toString();
-				router.push(`${detailBasePath}${query ? `?${query}` : ""}`);
-				return;
-			}
 			setDialogOpen(nextOpen);
+			if (!nextOpen) {
+				setSelectedDetail(null);
+				setDetailLoading(false);
+				if (detailBasePath) void setDetailRequestId(null);
+			}
 		},
-		[detailBasePath, pathname, router, searchParams],
+		[detailBasePath, setDetailRequestId],
 	);
 
 	const handleExport = React.useCallback(
@@ -541,7 +547,7 @@ export default function UnifiedRequestsTable({
 	return (
 		<div className="space-y-3">
 			{loading && data.length === 0 ? (
-				<div className="space-y-3 md:hidden">
+				<div className="space-y-3 lg:hidden">
 					{Array.from({ length: 8 }).map((_, i) => (
 						<div
 							key={`mobile-skeleton-${i}`}
@@ -560,12 +566,11 @@ export default function UnifiedRequestsTable({
 			) : null}
 
 			{data.length > 0 ? (
-				<div className="space-y-3 md:hidden">
+				<div className="space-y-3 lg:hidden">
 					{data.map((row, index) => {
 						const usageDisplay = buildUsageDisplay(
 							buildUsageFromNormalizedRequestFields(row.usage, row),
 						);
-						const errorSummary = row.success ? null : formatErrorListSummary(row);
 						const requestedModelId = getRequestedModelId(row);
 						const routedModelId = getRoutedModelId(row);
 						const routedModelMeta = routedModelId
@@ -615,9 +620,10 @@ export default function UnifiedRequestsTable({
 								className={cn(
 									"w-full rounded-lg border bg-card px-4 py-3 text-left transition-colors hover:bg-muted/40",
 									loading && "opacity-50",
+									detailRequestId === row.request_id &&
+										"border-primary/45 bg-muted/55 ring-1 ring-primary/20",
 								)}
-								onMouseEnter={() => prefetchRequestDetail(row.request_id)}
-								onFocus={() => prefetchRequestDetail(row.request_id)}
+								aria-pressed={detailRequestId === row.request_id}
 								onClick={() => void handleRowClick(row)}
 							>
 								<div className="flex items-start justify-between gap-3">
@@ -759,12 +765,6 @@ export default function UnifiedRequestsTable({
 										</div>
 									</div>
 								</div>
-								{errorSummary ? (
-									<div className="mt-2 text-xs text-rose-700 line-clamp-2">
-										{errorSummary}
-									</div>
-								) : null}
-
 								<div className="mt-3 flex flex-wrap items-center gap-2">
 									{row.provider ? (
 										<UsageEntityHoverCard
@@ -910,8 +910,8 @@ export default function UnifiedRequestsTable({
 			) : null}
 
 			{/* Table */}
-			<div className="hidden rounded-md border md:block">
-				<Table className="text-xs">
+			<div className="hidden min-w-0 max-w-full overflow-hidden rounded-md border lg:block">
+				<Table className="min-w-[1180px] whitespace-nowrap text-xs">
 					<TableHeader>
 						<TableRow className="h-9">
 							<TableHead className="w-[180px]">
@@ -1056,7 +1056,6 @@ export default function UnifiedRequestsTable({
 									const usageDisplay = buildUsageDisplay(
 										buildUsageFromNormalizedRequestFields(row.usage, row),
 									);
-									const errorSummary = row.success ? null : formatErrorListSummary(row);
 									const requestedModelId = getRequestedModelId(row);
 									const routedModelId = getRoutedModelId(row);
 									const rowKey = `${row.request_id}-${row.created_at}-${requestedModelId ?? "no-requested-model"}-${routedModelId ?? "no-routed-model"}-${row.provider ?? "no-provider"}-${index}`;
@@ -1106,9 +1105,10 @@ export default function UnifiedRequestsTable({
 											className={cn(
 												loading && "opacity-50",
 												"cursor-pointer hover:bg-muted/40",
+												detailRequestId === row.request_id &&
+													"bg-muted/65 outline outline-1 -outline-offset-1 outline-primary/40 hover:bg-muted/65",
 											)}
-											onMouseEnter={() => prefetchRequestDetail(row.request_id)}
-											onFocus={() => prefetchRequestDetail(row.request_id)}
+											aria-selected={detailRequestId === row.request_id}
 											onClick={() => void handleRowClick(row)}
 										>
 											<TableCell className="py-2 font-mono text-xs">
@@ -1526,7 +1526,7 @@ export default function UnifiedRequestsTable({
 												{row.finish_reason || "-"}
 											</TableCell>
 											<TableCell className="py-2">
-												<div className="space-y-1">
+												<div>
 													{row.success ? (
 														<Badge
 															variant="outline"
@@ -1544,11 +1544,6 @@ export default function UnifiedRequestsTable({
 															Error
 														</Badge>
 													)}
-													{errorSummary ? (
-														<div className="max-w-[220px] text-xs text-rose-700 line-clamp-2">
-															{errorSummary}
-														</div>
-													) : null}
 												</div>
 											</TableCell>
 										</TableRow>
@@ -1620,18 +1615,21 @@ export default function UnifiedRequestsTable({
 			{/* Detail Dialog */}
 			<RequestDetailDialog
 				open={dialogOpen}
+				loading={detailLoading}
+				presentation={detailBasePath ? "sheet" : undefined}
 				onOpenChange={handleDialogOpenChange}
-				request={selectedRequest}
-				modelMetadata={resolvedModelMetadata}
-				providerNames={resolvedProviderNames}
-				providerMetadata={resolvedProviderMetadata}
+				request={selectedDetail?.request ?? selectedRequest}
+				modelMetadata={selectedDetail ? new Map(selectedDetail.modelMetadata ?? []) : resolvedModelMetadata}
+				providerNames={selectedDetail ? new Map(selectedDetail.providerNames ?? []) : resolvedProviderNames}
+				providerMetadata={selectedDetail ? new Map(selectedDetail.providerMetadata ?? []) : resolvedProviderMetadata}
 				providerName={
-					selectedRequest?.provider
-						? resolvedProviderNames.get(selectedRequest.provider) ||
-							selectedRequest.provider
+					(selectedDetail?.request ?? selectedRequest)?.provider
+						? (selectedDetail ? new Map(selectedDetail.providerNames ?? []) : resolvedProviderNames).get((selectedDetail?.request ?? selectedRequest)!.provider!) ||
+							(selectedDetail?.request ?? selectedRequest)!.provider
 						: null
 				}
-				appName={selectedAppName}
+				appName={selectedDetail?.appName ?? selectedAppName}
+				ioLog={selectedDetail?.ioLog}
 			/>
 		</div>
 	);

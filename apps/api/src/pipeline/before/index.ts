@@ -32,6 +32,11 @@ import {
 	normalizeRequestRoutingBody,
 } from "../requestRouting";
 import { fetchWorkspacePolicy, applyWorkspacePolicy } from "./workspacePolicy";
+import {
+    applyDynamicRouteToBody,
+    evaluateDynamicRoute,
+    type DynamicRouteEvaluation,
+} from "./dynamic-routes";
 
 function resolveRequestRoutingModeOverride(
     body: any,
@@ -153,7 +158,8 @@ export async function beforeRequest(
     req: Request,
     endpoint: Endpoint,
     timer: Timer,
-    zodSchema: z.ZodTypeAny | null = schemaFor(endpoint)
+    zodSchema: z.ZodTypeAny | null = schemaFor(endpoint),
+    options?: { dynamicRouteModelOverride?: string | null },
 ): Promise<{ ok: true; ctx: PipelineContext } | { ok: false; response: Response }> {
     const requestStartedAtMs = timer.startedAtMs();
 
@@ -279,7 +285,82 @@ export async function beforeRequest(
         })
     );
     if (!c.ok) return c as { ok: false; response: Response };
-    const { context, providers, resolvedModel, candidateDiagnostics } = c.value;
+    let { context, providers, resolvedModel, candidateDiagnostics } = c.value;
+
+    const workspacePolicyLoad = await workspacePolicyPromise;
+    if ("error" in workspacePolicyLoad) {
+        const error = workspacePolicyLoad.error;
+        console.error("[beforeRequest] workspace_policy_fetch_failed", {
+            workspaceId,
+            requestId,
+            error: error instanceof Error ? error.message : String(error),
+        });
+        return {
+            ok: false,
+            response: err("gateway_error", {
+                reason: "workspace_policy_fetch_failed",
+                request_id: requestId,
+                workspace_id: workspaceId,
+            }),
+        };
+    }
+    const workspacePolicy = workspacePolicyLoad.value;
+    let dynamicRouteEvaluation: DynamicRouteEvaluation | null = null;
+    if (workspacePolicy.dynamicRoute) {
+        dynamicRouteEvaluation = evaluateDynamicRoute({
+            policy: workspacePolicy.dynamicRoute,
+            endpoint,
+            model: resolvedModel || model,
+            body,
+            headers: req.headers,
+            requestId,
+            usage: context.keyLimit,
+        });
+        const configuredModels = [
+            dynamicRouteEvaluation.action.model,
+            ...(dynamicRouteEvaluation.action.modelFallbacks ?? []),
+        ].filter((candidate): candidate is string => typeof candidate === "string" && candidate.length > 0);
+        const requestedOverride = options?.dynamicRouteModelOverride;
+        const routeModels = requestedOverride && configuredModels.includes(requestedOverride)
+            ? [requestedOverride]
+            : configuredModels;
+        let routedContextFailure: { ok: false; response: Response } | null = null;
+        for (const routedModel of routeModels) {
+            if (routedModel === (resolvedModel || model)) {
+                dynamicRouteEvaluation = {
+                    ...dynamicRouteEvaluation,
+                    action: { ...dynamicRouteEvaluation.action, model: routedModel },
+                };
+                routedContextFailure = null;
+                break;
+            }
+            const routedContext = await timer.span("guardDynamicRouteContext", () =>
+                guardContext({
+                    workspaceId,
+                    apiKeyId,
+                    endpoint,
+                    capability,
+                    model: routedModel,
+                    requestId,
+                    internal,
+                    testingMode: testingModeEnabled,
+                    disableCache: debugEnabled,
+                })
+            );
+            if (!routedContext.ok) {
+                routedContextFailure = routedContext as { ok: false; response: Response };
+                continue;
+            }
+            ({ context, providers, resolvedModel, candidateDiagnostics } = routedContext.value);
+            dynamicRouteEvaluation = {
+                ...dynamicRouteEvaluation,
+                action: { ...dynamicRouteEvaluation.action, model: resolvedModel || routedModel },
+            };
+            routedContextFailure = null;
+            break;
+        }
+        if (routedContextFailure) return routedContextFailure;
+    }
 
     // 5.3) Apply preset configuration if present
     let mergedBody = body;
@@ -409,24 +490,12 @@ export async function beforeRequest(
     }
     mergedBody = normalizeRequestRoutingBody(mergedBody);
 
-    const workspacePolicyLoad = await workspacePolicyPromise;
-    if ("error" in workspacePolicyLoad) {
-        const error = workspacePolicyLoad.error;
-        console.error("[beforeRequest] workspace_policy_fetch_failed", {
-            workspaceId,
-            requestId,
-            error: error instanceof Error ? error.message : String(error),
-        });
-        return {
-            ok: false,
-            response: err("gateway_error", {
-                reason: "workspace_policy_fetch_failed",
-                request_id: requestId,
-                workspace_id: workspaceId,
-            }),
-        };
+    if (dynamicRouteEvaluation) {
+        mergedBody = applyDynamicRouteToBody(mergedBody, dynamicRouteEvaluation);
+        if (dynamicRouteEvaluation.action.routingMode) {
+            resolvedRoutingMode = dynamicRouteEvaluation.action.routingMode;
+        }
     }
-    const workspacePolicy = workspacePolicyLoad.value;
 
     const workspacePolicyResult = applyWorkspacePolicy({
         providers: presetFilteredProviders,
@@ -771,6 +840,7 @@ export async function beforeRequest(
         testingMode: testingModeEnabled,
         routingDiagnostics: {
             workspacePolicy: workspacePolicyResult.diagnostics,
+            dynamicRoute: dynamicRouteEvaluation,
         },
         guardrailEnforcement: sensitiveInfoResult.enforcement,
     };

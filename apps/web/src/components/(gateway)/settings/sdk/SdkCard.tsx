@@ -62,11 +62,11 @@ export function SdkCard({ sdk }: SdkCardProps) {
 									{sdk.name}
 								</h3>
 								{isAlpha ? (
-									<Badge variant="outline" className="h-4 px-1.5 text-[9px] uppercase tracking-wide">
+									<Badge variant="outline" className="h-4 px-1.5 text-[9px]">
 										Alpha
 									</Badge>
 								) : !sdk.supported ? (
-									<Badge variant="outline" className="h-4 px-1.5 text-[9px] uppercase tracking-wide">
+									<Badge variant="outline" className="h-4 px-1.5 text-[9px]">
 										Soon
 									</Badge>
 								) : null}

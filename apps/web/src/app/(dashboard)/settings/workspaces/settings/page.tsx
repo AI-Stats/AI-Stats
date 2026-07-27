@@ -6,9 +6,19 @@ export const metadata = {
 	title: "Workspace Settings - Settings",
 };
 
-export default async function WorkspaceSettingsPage() {
+type SearchParams = Record<string, string | string[] | undefined>;
+
+export default async function WorkspaceSettingsPage({
+	searchParams,
+}: {
+	searchParams: Promise<SearchParams>;
+}) {
+	const params = await searchParams;
+	const preferredWorkspaceId = Array.isArray(params.workspaceId)
+		? params.workspaceId[0]
+		: params.workspaceId;
 	const [data, ssoEnabled] = await Promise.all([
-		fetchSettingsTeamsInitialData(),
+		fetchSettingsTeamsInitialData(preferredWorkspaceId),
 		samlSsoFlag(),
 	]);
 
