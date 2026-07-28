@@ -22,11 +22,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
 	fetchCacheControlState,
-	purgeCacheScope,
 	type CacheControlState,
 	type CachePurgeResult,
 	type CacheScope,
 } from "@/lib/fetchers/internal/cacheControlClient";
+import { purgeCacheScopeAction } from "./actions";
 
 type PendingPurge = { scope: CacheScope; targetId: string };
 
@@ -94,8 +94,8 @@ export default function CacheOpsClient() {
 		const { scope, targetId } = pendingPurge;
 		startTransition(async () => {
 			try {
-				const result = await purgeCacheScope({
-					scope: scope.id,
+				const result = await purgeCacheScopeAction({
+					scope: scope.id as Parameters<typeof purgeCacheScopeAction>[0]["scope"],
 					targetId: targetId || undefined,
 					bumpBrowserGeneration,
 				});
@@ -118,7 +118,7 @@ export default function CacheOpsClient() {
 						{generation ? <Badge variant="secondary">Search generation {generation.generation}</Badge> : null}
 					</div>
 					<p className="max-w-2xl text-sm text-muted-foreground">
-						Purge named Cloudflare Worker cache families without redeploying or exposing Cloudflare credentials.
+						Purge the matching Cloudflare Worker and website cache families in one operation.
 					</p>
 				</div>
 				<div className="flex gap-2">
@@ -148,9 +148,9 @@ export default function CacheOpsClient() {
 			{lastResult ? (
 				<Alert>
 					<CheckCircle2 className="size-4 text-emerald-600" />
-					<AlertTitle>Cloudflare purge completed</AlertTitle>
+					<AlertTitle>Full cache purge completed</AlertTitle>
 					<AlertDescription>
-						Purged {lastResult.tags.length} tags at {formatTimestamp(lastResult.purgedAt)}.
+						Purged {lastResult.tags.length} Worker tags and invalidated the matching website cache at {formatTimestamp(lastResult.purgedAt)}.
 						{lastResult.generation ? ` Search generation is now ${lastResult.generation}.` : ""}
 						{lastResult.generationWarning ? ` ${lastResult.generationWarning}` : ""}
 					</AlertDescription>
@@ -250,7 +250,7 @@ export default function CacheOpsClient() {
 						<AlertDialogTitle>Purge {pendingPurge?.scope.label}?</AlertDialogTitle>
 						<AlertDialogDescription>
 							Cloudflare will evict {pendingPurge?.scope.tagCount ?? 0} named cache tags
-							{pendingPurge?.targetId ? ` for ${pendingPurge.targetId}` : ""}. The next request in each region may rebuild the affected data.
+							{pendingPurge?.targetId ? ` for ${pendingPurge.targetId}` : ""}, and the matching website data and page caches will be expired immediately.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					{pendingPurge?.scope.affectsSearch ? (
