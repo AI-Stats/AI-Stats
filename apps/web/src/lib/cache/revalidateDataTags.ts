@@ -1,6 +1,6 @@
 import { revalidatePath, revalidateTag, updateTag } from "next/cache";
 
-const STALE_WHILE_REVALIDATE = "max" as const;
+const STALE_WHILE_REVALIDATE = { expire: 0 } as const;
 const EXPIRE_IMMEDIATELY = { expire: 0 } as const;
 
 type RevalidateModelDataTagOptions = {
