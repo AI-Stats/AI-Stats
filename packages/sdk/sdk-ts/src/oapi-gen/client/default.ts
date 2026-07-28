@@ -124,6 +124,15 @@ export async function cancelBatch(
   request_id?: string;
   session_id?: string;
   status?: string;
+  usage?: {
+    cost_nanos?: number | null;
+    cost_usd?: number | null;
+    currency?: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    requests?: number | null;
+    total_tokens?: number | null;
+  };
   webhook?: {
     attempts?: {
       attempt_number?: number;
@@ -228,6 +237,15 @@ export async function cancelBatch(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -353,6 +371,15 @@ export async function cancelBatchAlias(
   request_id?: string;
   session_id?: string;
   status?: string;
+  usage?: {
+    cost_nanos?: number | null;
+    cost_usd?: number | null;
+    currency?: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    requests?: number | null;
+    total_tokens?: number | null;
+  };
   webhook?: {
     attempts?: {
       attempt_number?: number;
@@ -457,6 +484,15 @@ export async function cancelBatchAlias(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -1330,7 +1366,12 @@ export type CreateBatchParams = {
       trace?: boolean;
       trace_level?: "summary" | "full";
     };
-    endpoint?: string;
+    endpoint?:
+      | "/v1/chat/completions"
+      | "/v1/responses"
+      | "/v1/messages"
+      | "/v1/embeddings"
+      | "/v1/generateContent";
     input_file_id?: string;
     items?: {
       [key: string]: unknown;
@@ -1383,7 +1424,7 @@ export type CreateBatchParams = {
         [key: string]: unknown;
       };
       custom_id?: string;
-      method?: string;
+      method?: "POST";
       url?: string;
     }[];
     session_id?: string;
@@ -1472,6 +1513,15 @@ export async function createBatch(
   request_id?: string;
   session_id?: string;
   status?: string;
+  usage?: {
+    cost_nanos?: number | null;
+    cost_usd?: number | null;
+    currency?: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    requests?: number | null;
+    total_tokens?: number | null;
+  };
   webhook?: {
     attempts?: {
       attempt_number?: number;
@@ -1576,6 +1626,15 @@ export async function createBatch(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -1632,7 +1691,12 @@ export type CreateBatchAliasParams = {
       trace?: boolean;
       trace_level?: "summary" | "full";
     };
-    endpoint?: string;
+    endpoint?:
+      | "/v1/chat/completions"
+      | "/v1/responses"
+      | "/v1/messages"
+      | "/v1/embeddings"
+      | "/v1/generateContent";
     input_file_id?: string;
     items?: {
       [key: string]: unknown;
@@ -1685,7 +1749,7 @@ export type CreateBatchAliasParams = {
         [key: string]: unknown;
       };
       custom_id?: string;
-      method?: string;
+      method?: "POST";
       url?: string;
     }[];
     session_id?: string;
@@ -1774,6 +1838,15 @@ export async function createBatchAlias(
   request_id?: string;
   session_id?: string;
   status?: string;
+  usage?: {
+    cost_nanos?: number | null;
+    cost_usd?: number | null;
+    currency?: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    requests?: number | null;
+    total_tokens?: number | null;
+  };
   webhook?: {
     attempts?: {
       attempt_number?: number;
@@ -1878,6 +1951,15 @@ export async function createBatchAlias(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -5965,6 +6047,10 @@ export async function listBatchCapabilities(
 ): Promise<{
   data?: {
     documentation_url?: string;
+    endpoints?: {
+      endpoint: string;
+      mode: "native" | "translated";
+    }[];
     gateway_input_modes?: "file" | "requests"[];
     id?: string;
     name?: string;
@@ -5979,6 +6065,10 @@ export async function listBatchCapabilities(
   return client.request<{
     data?: {
       documentation_url?: string;
+      endpoints?: {
+        endpoint: string;
+        mode: "native" | "translated";
+      }[];
       gateway_input_modes?: "file" | "requests"[];
       id?: string;
       name?: string;
@@ -6012,6 +6102,10 @@ export async function listBatchCapabilitiesAlias(
 ): Promise<{
   data?: {
     documentation_url?: string;
+    endpoints?: {
+      endpoint: string;
+      mode: "native" | "translated";
+    }[];
     gateway_input_modes?: "file" | "requests"[];
     id?: string;
     name?: string;
@@ -6026,6 +6120,10 @@ export async function listBatchCapabilitiesAlias(
   return client.request<{
     data?: {
       documentation_url?: string;
+      endpoints?: {
+        endpoint: string;
+        mode: "native" | "translated";
+      }[];
       gateway_input_modes?: "file" | "requests"[];
       id?: string;
       name?: string;
@@ -6128,6 +6226,15 @@ export async function listBatches(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -6243,6 +6350,15 @@ export async function listBatches(
       request_id?: string;
       session_id?: string;
       status?: string;
+      usage?: {
+        cost_nanos?: number | null;
+        cost_usd?: number | null;
+        currency?: string;
+        input_tokens?: number | null;
+        output_tokens?: number | null;
+        requests?: number | null;
+        total_tokens?: number | null;
+      };
       webhook?: {
         attempts?: {
           attempt_number?: number;
@@ -6376,6 +6492,15 @@ export async function listBatchesAlias(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -6491,6 +6616,15 @@ export async function listBatchesAlias(
       request_id?: string;
       session_id?: string;
       status?: string;
+      usage?: {
+        cost_nanos?: number | null;
+        cost_usd?: number | null;
+        currency?: string;
+        input_tokens?: number | null;
+        output_tokens?: number | null;
+        requests?: number | null;
+        total_tokens?: number | null;
+      };
       webhook?: {
         attempts?: {
           attempt_number?: number;
@@ -9205,6 +9339,15 @@ export async function retrieveBatch(
   request_id?: string;
   session_id?: string;
   status?: string;
+  usage?: {
+    cost_nanos?: number | null;
+    cost_usd?: number | null;
+    currency?: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    requests?: number | null;
+    total_tokens?: number | null;
+  };
   webhook?: {
     attempts?: {
       attempt_number?: number;
@@ -9309,6 +9452,15 @@ export async function retrieveBatch(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -9434,6 +9586,15 @@ export async function retrieveBatchAlias(
   request_id?: string;
   session_id?: string;
   status?: string;
+  usage?: {
+    cost_nanos?: number | null;
+    cost_usd?: number | null;
+    currency?: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    requests?: number | null;
+    total_tokens?: number | null;
+  };
   webhook?: {
     attempts?: {
       attempt_number?: number;
@@ -9538,6 +9699,15 @@ export async function retrieveBatchAlias(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
