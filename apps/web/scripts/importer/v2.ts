@@ -317,6 +317,47 @@ async function deleteByIds(
     }
 }
 
+async function deleteByCompositeRows(
+    supa: DbClient,
+    table: string,
+    identityFields: string[],
+    rows: Record<string, any>[],
+) {
+    for (const row of rows) {
+        let query = supa.from(table).delete();
+        for (const field of identityFields) query = query.eq(field, row[field]);
+        assertOk(await query, `v2 sync delete stale ${table}`);
+    }
+}
+
+function childIdentity(row: Record<string, any>, identityFields: string[]): string {
+    return JSON.stringify(identityFields.map(field => row[field] ?? null));
+}
+
+export function staleOwnedModelChildRows(
+    existingRows: Record<string, any>[],
+    desiredRows: Record<string, any>[],
+    ownedModelSlugs: Set<string>,
+    identityFields: string[],
+): Record<string, any>[] {
+    const desiredIdentities = new Set(desiredRows.map(row => childIdentity(row, identityFields)));
+    return existingRows
+        .filter(row => ownedModelSlugs.has(String(row.model_slug ?? "")))
+        .filter(row => !desiredIdentities.has(childIdentity(row, identityFields)));
+}
+
+export function staleJsonProviderRouteIds(
+    existingRows: Record<string, any>[],
+    desiredRouteIds: Set<string>,
+    excludedRouteIds: Set<string>,
+): string[] {
+    return existingRows
+        .filter(row => ["json", "models.dev"].includes(String(row.metadata?.source ?? "")))
+        .filter(row => !desiredRouteIds.has(String(row.provider_model_id)))
+        .filter(row => !excludedRouteIds.has(String(row.provider_model_id)))
+        .map(row => String(row.provider_model_id));
+}
+
 function sourceJsonMaps(): {
     organisations: Record<string, any>[];
     models: Map<string, Record<string, any>>;
@@ -664,7 +705,8 @@ export async function syncV2Catalogue(): Promise<void> {
             }] : [],
         ),
     ), row => `${row.lab_slug}:${row.platform}:${row.url}`), "lab_slug,platform,url");
-    await upsertChunks(supa, "v2_model_links", uniqueRows([...source.models.values()].flatMap(model =>
+    const ownedModelSlugs = new Set(source.models.keys());
+    const modelLinkRows = uniqueRows([...source.models.values()].flatMap(model =>
         (Array.isArray(model.links) ? model.links : []).flatMap((link: Record<string, any>) => {
             const kind = asText(link.kind ?? link.platform);
             const url = asText(link.url);
@@ -677,8 +719,22 @@ export async function syncV2Catalogue(): Promise<void> {
                 metadata: { source: "json" },
             }];
         }),
-    ), row => `${row.model_slug}:${row.link_kind}:${row.url}`), "model_slug,link_kind,url");
-    await upsertChunks(supa, "v2_model_details", uniqueRows([...source.models.values()].flatMap(model =>
+    ), row => `${row.model_slug}:${row.link_kind}:${row.url}`);
+    await upsertChunks(supa, "v2_model_links", modelLinkRows, "model_slug,link_kind,url");
+    const existingModelLinks = await fetchAll(supa, "v2_model_links", "model_slug,link_kind,url,metadata");
+    await deleteByCompositeRows(
+        supa,
+        "v2_model_links",
+        ["model_slug", "link_kind", "url"],
+        staleOwnedModelChildRows(
+            existingModelLinks.filter(row => String(row.metadata?.source ?? "") === "json"),
+            modelLinkRows,
+            ownedModelSlugs,
+            ["model_slug", "link_kind", "url"],
+        ),
+    );
+
+    const modelDetailRows = uniqueRows([...source.models.values()].flatMap(model =>
         (Array.isArray(model.details) ? model.details : []).flatMap((detail: Record<string, any>, index: number) =>
             detail?.name ? [{
                 model_slug: model.model_id,
@@ -687,14 +743,41 @@ export async function syncV2Catalogue(): Promise<void> {
                 detail_order: index,
             }] : [],
         ),
-    ), row => `${row.model_slug}:${row.detail_name}`), "model_slug,detail_name");
-    await upsertChunks(supa, "v2_model_page_notices", uniqueRows([...source.models.values()].flatMap(model =>
+    ), row => `${row.model_slug}:${row.detail_name}`);
+    await upsertChunks(supa, "v2_model_details", modelDetailRows, "model_slug,detail_name");
+    const existingModelDetails = await fetchAll(supa, "v2_model_details", "model_slug,detail_name");
+    await deleteByCompositeRows(
+        supa,
+        "v2_model_details",
+        ["model_slug", "detail_name"],
+        staleOwnedModelChildRows(
+            existingModelDetails,
+            modelDetailRows,
+            ownedModelSlugs,
+            ["model_slug", "detail_name"],
+        ),
+    );
+
+    const modelPageNoticeRows = uniqueRows([...source.models.values()].flatMap(model =>
         model.page_notice?.markdown ? [{
             model_slug: model.model_id,
             tone: model.page_notice.tone ?? "info",
             markdown: model.page_notice.markdown,
         }] : [],
-    ), row => String(row.model_slug)), "model_slug");
+    ), row => String(row.model_slug));
+    await upsertChunks(supa, "v2_model_page_notices", modelPageNoticeRows, "model_slug");
+    const existingModelPageNotices = await fetchAll(supa, "v2_model_page_notices", "model_slug");
+    await deleteByIds(
+        supa,
+        "v2_model_page_notices",
+        "model_slug",
+        staleOwnedModelChildRows(
+            existingModelPageNotices,
+            modelPageNoticeRows,
+            ownedModelSlugs,
+            ["model_slug"],
+        ).map(row => String(row.model_slug)),
+    );
 
     const providersWithActiveRoutes = new Set(
         providerModels
@@ -872,11 +955,7 @@ export async function syncV2Catalogue(): Promise<void> {
         supa,
         "v2_model_provider_routes",
         "provider_model_id",
-        existingRouteRows
-            .filter(row => ["json", "models.dev"].includes(String(row.metadata?.source ?? "")))
-            .filter(row => !desiredRouteIds.has(String(row.provider_model_id)))
-            .filter(row => !excludedRouteIds.has(String(row.provider_model_id)))
-            .map(row => String(row.provider_model_id)),
+        staleJsonProviderRouteIds(existingRouteRows, desiredRouteIds, excludedRouteIds),
     );
 
     await upsertChunks(supa, "v2_route_capabilities", uniqueRows(capabilities
