@@ -11,6 +11,8 @@ import {
 	revalidateProviderDataTags,
 } from "@/lib/cache/revalidateDataTags";
 import { fetchInternalAuthStatus } from "@/lib/fetchers/internal/fetchInternalAuthStatus";
+import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountContext";
+import { fetchInternalWebApi } from "@/lib/web-api/client";
 import {
 	revalidateSingleModelAllAction,
 	revalidateSingleModelApiInfoAction,
@@ -115,6 +117,31 @@ type GatewayCachePurgeResult =
 	| { ok: true; message: string }
 	| { ok: false; message: string };
 
+type CacheScopeId =
+	| "search"
+	| "catalogue"
+	| "model"
+	| "provider"
+	| "organisation"
+	| "benchmark"
+	| "apps"
+	| "landing"
+	| "rankings"
+	| "updates"
+	| "pricing"
+	| "all-public";
+
+type CachePurgeResult = {
+	success: true;
+	scope: string;
+	targetId: string | null;
+	tags: string[];
+	generation: number | null;
+	generationWarning: string | null;
+	browserRefreshEnabled: boolean;
+	purgedAt: string;
+};
+
 async function requireAdmin() {
 	const status = await fetchInternalAuthStatus();
 	if (!status.signedIn || !status.isAdmin) throw new Error("Unauthorized");
@@ -205,6 +232,131 @@ async function runAdminAction(
 					: `${label} failed.`,
 		};
 	}
+}
+
+function expireNextCacheScope(scope: CacheScopeId, targetId: string | null) {
+	switch (scope) {
+		case "catalogue":
+			expirePublicModelCatalogueCache();
+			break;
+		case "model":
+			expirePublicModelCatalogueCache({ modelId: targetId });
+			break;
+		case "provider":
+			revalidateProviderDataTags(
+				targetId ? { providerId: targetId } : {}
+			);
+			revalidatePath("/api-providers", "layout");
+			revalidatePath("/models", "layout");
+			if (targetId) {
+				revalidatePath(`/api-providers/${targetId}`);
+				revalidatePath(`/api-providers/${targetId}/models`);
+			}
+			break;
+		case "organisation":
+			revalidateOrganisationDataTags(
+				targetId ? { organisationId: targetId } : {}
+			);
+			revalidatePath("/organisations", "layout");
+			revalidatePath("/models", "layout");
+			if (targetId) {
+				revalidatePath(`/organisations/${targetId}`);
+				revalidatePath(`/organisations/${targetId}/models`);
+			}
+			break;
+		case "benchmark":
+			revalidateBenchmarkDataTags(
+				targetId ? { benchmarkId: targetId } : {}
+			);
+			revalidatePath("/benchmarks");
+			revalidatePath("/models", "layout");
+			if (targetId) revalidatePath(`/benchmarks/${targetId}`);
+			break;
+		case "apps":
+			revalidateAppDataTags(targetId ? [targetId] : []);
+			revalidatePath("/apps");
+			revalidatePath("/rankings");
+			if (targetId) revalidatePath(`/apps/${targetId}`);
+			break;
+		case "landing":
+			for (const tag of LANDING_TAGS) {
+				revalidateTag(tag, EXPIRE_NOW);
+			}
+			revalidatePath("/");
+			break;
+		case "rankings":
+			for (const tag of RANKINGS_TAGS) {
+				revalidateTag(tag, EXPIRE_NOW);
+			}
+			revalidatePath("/rankings");
+			break;
+		case "updates":
+			for (const tag of [
+				"data:model-updates",
+				"frontend:model-updates",
+				"frontend:model-update-cards",
+				"frontend:update-cards",
+				"frontend:web-updates",
+				"frontend:youtube-updates",
+			] as const) {
+				revalidateTag(tag, EXPIRE_NOW);
+			}
+			revalidatePath("/updates");
+			revalidatePath("/updates/models");
+			break;
+		case "pricing":
+			revalidateModelDataTags();
+			for (const tag of [
+				"data:subscription_plans",
+				"frontend:subscription-plans",
+			] as const) {
+				revalidateTag(tag, EXPIRE_NOW);
+			}
+			revalidatePath("/pricing");
+			revalidatePath("/subscription-plans");
+			revalidatePath("/models", "layout");
+			break;
+		case "all-public":
+			expirePublicModelCatalogueCache();
+			for (const tag of [
+				...APP_FRONTEND_TAGS,
+				...LANDING_TAGS,
+				...RANKINGS_TAGS,
+				...SEARCH_TAGS,
+				...SIGN_IN_TAGS,
+			]) {
+				revalidateTag(tag, EXPIRE_NOW);
+			}
+			revalidatePath("/", "layout");
+			break;
+		case "search":
+			for (const tag of SEARCH_TAGS) {
+				revalidateTag(tag, EXPIRE_NOW);
+			}
+			revalidatePath("/search");
+			break;
+	}
+}
+
+export async function purgeCacheScopeAction(input: {
+	scope: CacheScopeId;
+	targetId?: string;
+	bumpBrowserGeneration: boolean;
+}): Promise<CachePurgeResult> {
+	const { accessToken } = await getServerAccountContext();
+	if (!accessToken) throw new Error("Your admin session is no longer available. Sign in again.");
+
+	const result = await fetchInternalWebApi<CachePurgeResult>(
+		"/api/internal/cache/purge",
+		accessToken,
+		{
+			method: "POST",
+			body: JSON.stringify(input),
+		}
+	);
+
+	expireNextCacheScope(input.scope, result.targetId);
+	return result;
 }
 
 export async function revalidateModelsGlobalDataAction(): Promise<CacheOpResult> {
