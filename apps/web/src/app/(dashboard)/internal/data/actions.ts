@@ -22,6 +22,11 @@ import {
 import { normalizeHttpUrl } from "@/lib/utils/urlSafety";
 import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountContext";
 import { fetchAccountWebApi, fetchInternalWebApi } from "@/lib/web-api/client";
+import {
+	revalidateModelApiInfoTags,
+	revalidateModelDataOnlyTags,
+	revalidateModelDataTags,
+} from "@/lib/cache/revalidateDataTags";
 
 async function callCatalogMutation(path: `/api/account/models/catalog/${string}`, method: "POST" | "PUT" | "DELETE", body?: unknown) {
 	const { accessToken } = await getServerAccountContext();
@@ -771,9 +776,10 @@ export async function deleteModelAction(modelId: string) {
 // react-doctor-disable-next-line
 export async function revalidateSingleModelDataAction(modelId: string) {
 	await revalidateCloudflare(["web-api-models", "web-api-model-details", "web-api-model-benchmarks", "web-api-model-timelines", "web-api-model-subscriptions", "web-api-model-notices", "web-api-search"]);
+	revalidateModelDataOnlyTags({ modelId });
 	revalidatePath(`/internal/data/models/edit/${modelId}`);
 	revalidatePath("/models");
-	revalidatePath("/models/**");
+	revalidatePath(`/models/${modelId}`);
 
 	return { ok: true as const, message: "Model data cache revalidated." };
 }
@@ -781,11 +787,11 @@ export async function revalidateSingleModelDataAction(modelId: string) {
 // react-doctor-disable-next-line
 export async function revalidateSingleModelApiInfoAction(modelId: string) {
 	await revalidateCloudflare(["web-api-models", "web-api-model-pricing", "web-api-model-performance", "web-api-model-provider-health", "web-api-provider-routing-health", "web-api-providers"]);
+	revalidateModelApiInfoTags({ modelId });
 	revalidatePath(`/internal/data/models/edit/${modelId}`);
 	revalidatePath("/models");
-	revalidatePath("/models/**");
-	revalidatePath("/api-providers");
-	revalidatePath("/api-providers/**");
+	revalidatePath(`/models/${modelId}`);
+	revalidatePath("/api-providers", "layout");
 
 	return { ok: true as const, message: "Model API info cache revalidated." };
 }
@@ -793,11 +799,11 @@ export async function revalidateSingleModelApiInfoAction(modelId: string) {
 // react-doctor-disable-next-line
 export async function revalidateSingleModelAllAction(modelId: string) {
 	await revalidateCloudflare(["web-api-models", "web-api-model-details", "web-api-model-benchmarks", "web-api-model-timelines", "web-api-model-subscriptions", "web-api-model-pricing", "web-api-model-performance", "web-api-model-notices", "web-api-providers", "web-api-organisations", "web-api-reference-data", "web-api-search"]);
+	revalidateModelDataTags({ modelId });
 	revalidatePath(`/internal/data/models/edit/${modelId}`);
 	revalidatePath("/models");
-	revalidatePath("/models/**");
-	revalidatePath("/api-providers");
-	revalidatePath("/api-providers/**");
+	revalidatePath(`/models/${modelId}`);
+	revalidatePath("/api-providers", "layout");
 
 	return { ok: true as const, message: "All model caches revalidated." };
 }
