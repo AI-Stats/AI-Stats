@@ -6467,9 +6467,16 @@ components:
             $ref: '#/components/schemas/BatchRequestItem'
         endpoint:
           type: string
+          enum:
+            - /v1/chat/completions
+            - /v1/responses
+            - /v1/messages
+            - /v1/embeddings
+            - /v1/generateContent
           description: >-
-            Optional provider endpoint path. Phaseo chooses a default from the
-            model when omitted.
+            Caller-facing request shape. Every request in a batch uses this
+            endpoint. Phaseo chooses a provider-native default from the model
+            when omitted.
         completion_window:
           type: string
         metadata:
@@ -6530,9 +6537,13 @@ components:
         method:
           type: string
           default: POST
+          enum:
+            - POST
         url:
           type: string
-          description: Provider endpoint path. Defaults to the parent batch endpoint.
+          description: >-
+            Endpoint path for this row. When supplied, it must match the parent
+            batch endpoint. Defaults to the parent batch endpoint.
         body:
           type: object
           additionalProperties: true
@@ -6568,6 +6579,22 @@ components:
         notes:
           type: string
           nullable: true
+        endpoints:
+          type: array
+          description: Batch endpoints supported by this provider.
+          items:
+            type: object
+            required:
+              - endpoint
+              - mode
+            properties:
+              endpoint:
+                type: string
+              mode:
+                type: string
+                enum:
+                  - native
+                  - translated
     BatchRequestRow:
       type: object
       properties:
@@ -6736,6 +6763,30 @@ components:
           items:
             type: object
             additionalProperties: true
+        usage:
+          type: object
+          description: Normalised aggregate usage and cost after finalisation.
+          properties:
+            requests:
+              type: integer
+              nullable: true
+            input_tokens:
+              type: integer
+              nullable: true
+            output_tokens:
+              type: integer
+              nullable: true
+            total_tokens:
+              type: integer
+              nullable: true
+            cost_nanos:
+              type: integer
+              nullable: true
+            cost_usd:
+              type: number
+              nullable: true
+            currency:
+              type: string
         billing:
           $ref: '#/components/schemas/BatchBillingSummary'
     BatchListResponse:
