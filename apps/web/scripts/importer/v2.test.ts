@@ -13,7 +13,56 @@ import {
     v2RouteExecutionRegions,
     validateJsonPricingRules,
     routeStatus,
+    staleJsonProviderRouteIds,
+    staleOwnedModelChildRows,
 } from "./v2";
+
+describe("V2 child reconciliation", () => {
+    it("removes repository-owned notices that disappeared from JSON", () => {
+        expect(staleOwnedModelChildRows(
+            [
+                { model_slug: "moonshotai/kimi-k3" },
+                { model_slug: "external/model" },
+            ],
+            [],
+            new Set(["moonshotai/kimi-k3"]),
+            ["model_slug"],
+        )).toEqual([{ model_slug: "moonshotai/kimi-k3" }]);
+    });
+
+    it("removes stale links and details while preserving desired identities", () => {
+        expect(staleOwnedModelChildRows(
+            [
+                { model_slug: "lab/model", link_kind: "docs", url: "https://old.example" },
+                { model_slug: "lab/model", link_kind: "weights", url: "https://weights.example" },
+            ],
+            [
+                { model_slug: "lab/model", link_kind: "docs", url: "https://new.example" },
+                { model_slug: "lab/model", link_kind: "weights", url: "https://weights.example" },
+            ],
+            new Set(["lab/model"]),
+            ["model_slug", "link_kind", "url"],
+        )).toEqual([
+            { model_slug: "lab/model", link_kind: "docs", url: "https://old.example" },
+        ]);
+    });
+});
+
+describe("V2 provider route reconciliation", () => {
+    it("deletes only stale importer-owned routes", () => {
+        expect(staleJsonProviderRouteIds(
+            [
+                { provider_model_id: "provider:active", metadata: { source: "json" } },
+                { provider_model_id: "provider:disabled", metadata: { source: "json" } },
+                { provider_model_id: "provider:stale", metadata: { source: "models.dev" } },
+                { provider_model_id: "provider:unresolved", metadata: { source: "json" } },
+                { provider_model_id: "provider:manual", metadata: { source: "manual" } },
+            ],
+            new Set(["provider:active", "provider:disabled"]),
+            new Set(["provider:unresolved"]),
+        )).toEqual(["provider:stale"]);
+    });
+});
 
 describe("free model variants", () => {
     it("uses the canonical base identity for a free provider route", () => {
