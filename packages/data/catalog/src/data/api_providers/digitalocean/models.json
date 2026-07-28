@@ -555,7 +555,7 @@
         "modes": []
       }
     ],
-    "routing_status": "disabled",
+    "routing_status": "active",
     "routable": false,
     "regions": {
       "execution": null,
