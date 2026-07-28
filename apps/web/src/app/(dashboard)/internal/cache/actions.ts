@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import {
 	expirePublicModelCatalogueCache,
 	revalidateAppDataTags,
@@ -18,8 +18,6 @@ import {
 	revalidateSingleModelApiInfoAction,
 	revalidateSingleModelDataAction,
 } from "@/app/(dashboard)/internal/data/actions";
-
-const EXPIRE_NOW = { expire: 0 } as const;
 
 const SEARCH_TAGS = [
 	"search:data",
@@ -280,13 +278,13 @@ function expireNextCacheScope(scope: CacheScopeId, targetId: string | null) {
 			break;
 		case "landing":
 			for (const tag of LANDING_TAGS) {
-				revalidateTag(tag, EXPIRE_NOW);
+				updateTag(tag);
 			}
 			revalidatePath("/");
 			break;
 		case "rankings":
 			for (const tag of RANKINGS_TAGS) {
-				revalidateTag(tag, EXPIRE_NOW);
+				updateTag(tag);
 			}
 			revalidatePath("/rankings");
 			break;
@@ -299,7 +297,7 @@ function expireNextCacheScope(scope: CacheScopeId, targetId: string | null) {
 				"frontend:web-updates",
 				"frontend:youtube-updates",
 			] as const) {
-				revalidateTag(tag, EXPIRE_NOW);
+				updateTag(tag);
 			}
 			revalidatePath("/updates");
 			revalidatePath("/updates/models");
@@ -310,7 +308,7 @@ function expireNextCacheScope(scope: CacheScopeId, targetId: string | null) {
 				"data:subscription_plans",
 				"frontend:subscription-plans",
 			] as const) {
-				revalidateTag(tag, EXPIRE_NOW);
+				updateTag(tag);
 			}
 			revalidatePath("/pricing");
 			revalidatePath("/subscription-plans");
@@ -325,13 +323,13 @@ function expireNextCacheScope(scope: CacheScopeId, targetId: string | null) {
 				...SEARCH_TAGS,
 				...SIGN_IN_TAGS,
 			]) {
-				revalidateTag(tag, EXPIRE_NOW);
+				updateTag(tag);
 			}
 			revalidatePath("/", "layout");
 			break;
 		case "search":
 			for (const tag of SEARCH_TAGS) {
-				revalidateTag(tag, EXPIRE_NOW);
+				updateTag(tag);
 			}
 			revalidatePath("/search");
 			break;
@@ -371,7 +369,7 @@ export async function revalidatePublicModelCatalogueAction(): Promise<CacheOpRes
 	return runAdminAction("Public catalogue", async () => {
 		expirePublicModelCatalogueCache();
 		for (const tag of APP_FRONTEND_TAGS) {
-			revalidateTag(tag, EXPIRE_NOW);
+			updateTag(tag);
 		}
 		const gatewayPurge = await purgeGatewayCatalogueCache(["models"]);
 		return {
@@ -448,7 +446,7 @@ export async function revalidateGlobalModelAndProviderAction(): Promise<CacheOpR
 export async function revalidateSearchDataAction(): Promise<CacheOpResult> {
 	return runAdminAction("Search", async () => {
 		for (const tag of SEARCH_TAGS) {
-			revalidateTag(tag, EXPIRE_NOW);
+			updateTag(tag);
 		}
 		revalidatePath("/search");
 	});
@@ -457,7 +455,7 @@ export async function revalidateSearchDataAction(): Promise<CacheOpResult> {
 export async function revalidateLandingDataAction(): Promise<CacheOpResult> {
 	return runAdminAction("Landing", async () => {
 		for (const tag of LANDING_TAGS) {
-			revalidateTag(tag, EXPIRE_NOW);
+			updateTag(tag);
 		}
 		revalidatePath("/");
 	});
@@ -466,7 +464,7 @@ export async function revalidateLandingDataAction(): Promise<CacheOpResult> {
 export async function revalidateSignInCatalogAction(): Promise<CacheOpResult> {
 	return runAdminAction("Sign-in catalog", async () => {
 		for (const tag of SIGN_IN_TAGS) {
-			revalidateTag(tag, EXPIRE_NOW);
+			updateTag(tag);
 		}
 		revalidatePath("/sign-in");
 	});
@@ -475,9 +473,9 @@ export async function revalidateSignInCatalogAction(): Promise<CacheOpResult> {
 export async function revalidateSubscriptionPlansAction(): Promise<CacheOpResult> {
 	return runAdminAction("Subscription plans", async () => {
 		for (const tag of ["data:subscription_plans", "frontend:subscription-plans"] as const) {
-			revalidateTag(tag, EXPIRE_NOW);
+			updateTag(tag);
 		}
-		revalidateTag("search:data", EXPIRE_NOW);
+		updateTag("search:data");
 		revalidatePath("/subscription-plans");
 		revalidatePath("/search");
 	});
@@ -486,7 +484,7 @@ export async function revalidateSubscriptionPlansAction(): Promise<CacheOpResult
 export async function revalidateRankingsAction(): Promise<CacheOpResult> {
 	return runAdminAction("Rankings", async () => {
 		for (const tag of RANKINGS_TAGS) {
-			revalidateTag(tag, EXPIRE_NOW);
+			updateTag(tag);
 		}
 		revalidatePath("/rankings");
 	});
@@ -531,11 +529,11 @@ export async function revalidateCountryDataAction(
 		trimmedIso ? `Country (${trimmedIso})` : "Countries (global)",
 		async () => {
 			for (const tag of COUNTRY_FRONTEND_TAGS) {
-				revalidateTag(tag, EXPIRE_NOW);
+				updateTag(tag);
 			}
 			revalidatePath("/countries");
 			if (trimmedIso) {
-				revalidateTag(`frontend:countries:${trimmedIso}`, EXPIRE_NOW);
+				updateTag(`frontend:countries:${trimmedIso}`);
 				revalidatePath(`/countries/${trimmedIso.toLowerCase()}`);
 				revalidatePath(`/countries/${trimmedIso.toLowerCase()}/models`);
 			}
@@ -558,10 +556,10 @@ export async function revalidateProfileDataAction(
 		trimmedSlug ? `Profile (${trimmedSlug})` : "Profiles (global)",
 		async () => {
 			for (const tag of PROFILE_FRONTEND_TAGS) {
-				revalidateTag(tag, EXPIRE_NOW);
+				updateTag(tag);
 			}
 			if (trimmedSlug) {
-				revalidateTag(`frontend:profile:${trimmedSlug}`, EXPIRE_NOW);
+				updateTag(`frontend:profile:${trimmedSlug}`);
 				revalidatePath(`/profile/${trimmedSlug}`);
 			}
 		}
@@ -640,7 +638,7 @@ export async function revalidateCustomScopeAction(input: {
 
 	return runAdminAction("Custom scope", async () => {
 		for (const tag of tags) {
-			revalidateTag(tag, EXPIRE_NOW);
+			updateTag(tag);
 		}
 		for (const path of paths) {
 			revalidatePath(path);
