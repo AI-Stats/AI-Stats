@@ -14,10 +14,6 @@
   "output_types": "text",
   "api_model_id": "moonshotai/kimi-k3",
   "family_id": "moonshotai/kimi-k3",
-  "page_notice": {
-    "tone": "info",
-    "markdown": "Kimi K3's full model weights are scheduled for release on **July 27, 2026 at 15:00 UTC**. As the weights become available, confirmed inference providers will be onboarded as soon as their hosted endpoints go live. Together AI, Baseten, and Fireworks are currently marked **Coming Soon**."
-  },
   "links": [
     {
       "title": "Kimi K3 Tech Blog",
