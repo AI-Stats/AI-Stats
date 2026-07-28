@@ -773,7 +773,7 @@ export async function revalidateSingleModelDataAction(modelId: string) {
 	await revalidateCloudflare(["web-api-models", "web-api-model-details", "web-api-model-benchmarks", "web-api-model-timelines", "web-api-model-subscriptions", "web-api-model-notices", "web-api-search"]);
 	revalidatePath(`/internal/data/models/edit/${modelId}`);
 	revalidatePath("/models");
-	revalidatePath("/models/**");
+	revalidatePath(`/models/${modelId}`);
 
 	return { ok: true as const, message: "Model data cache revalidated." };
 }
@@ -783,7 +783,7 @@ export async function revalidateSingleModelApiInfoAction(modelId: string) {
 	await revalidateCloudflare(["web-api-models", "web-api-model-pricing", "web-api-model-performance", "web-api-model-provider-health", "web-api-provider-routing-health", "web-api-providers"]);
 	revalidatePath(`/internal/data/models/edit/${modelId}`);
 	revalidatePath("/models");
-	revalidatePath("/models/**");
+	revalidatePath(`/models/${modelId}`);
 	revalidatePath("/api-providers");
 	revalidatePath("/api-providers/**");
 
@@ -795,7 +795,7 @@ export async function revalidateSingleModelAllAction(modelId: string) {
 	await revalidateCloudflare(["web-api-models", "web-api-model-details", "web-api-model-benchmarks", "web-api-model-timelines", "web-api-model-subscriptions", "web-api-model-pricing", "web-api-model-performance", "web-api-model-notices", "web-api-providers", "web-api-organisations", "web-api-reference-data", "web-api-search"]);
 	revalidatePath(`/internal/data/models/edit/${modelId}`);
 	revalidatePath("/models");
-	revalidatePath("/models/**");
+	revalidatePath(`/models/${modelId}`);
 	revalidatePath("/api-providers");
 	revalidatePath("/api-providers/**");
 
