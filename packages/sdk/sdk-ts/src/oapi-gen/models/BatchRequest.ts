@@ -7,7 +7,12 @@ export interface BatchRequest {
     trace?: boolean;
     trace_level?: "summary" | "full";
   };
-  endpoint?: string;
+  endpoint?:
+    | "/v1/chat/completions"
+    | "/v1/responses"
+    | "/v1/messages"
+    | "/v1/embeddings"
+    | "/v1/generateContent";
   input_file_id?: string;
   items?: {
     [key: string]: unknown;
@@ -60,7 +65,7 @@ export interface BatchRequest {
       [key: string]: unknown;
     };
     custom_id?: string;
-    method?: string;
+    method?: "POST";
     url?: string;
   }[];
   session_id?: string;
