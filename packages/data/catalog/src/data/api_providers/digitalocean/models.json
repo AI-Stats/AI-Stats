@@ -528,6 +528,69 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "moonshotai/kimi-k3",
+    "provider_api_model_id": "digitalocean:kimi-k3",
+    "provider_model_slug": "kimi-k3",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-27T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "documentation",
+        "accessed_at": "2026-07-28T00:00:00Z",
+        "notes": "DigitalOcean lists kimi-k3 for serverless inference with native vision and prompt caching."
+      },
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/pricing/",
+        "kind": "pricing",
+        "accessed_at": "2026-07-28T00:00:00Z",
+        "notes": "DigitalOcean publishes Kimi K3 token pricing for input, cached input, and output."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-28T00:00:00Z",
+      "notes": "DigitalOcean's official model catalogue confirms the kimi-k3 serverless route with vision, streaming, tool calling, structured output, and prompt caching. Phaseo routing remains disabled until the DigitalOcean gateway integration is implemented and authenticated."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "nvidia/nemotron-3-nano-omni",
     "provider_api_model_id": "digitalocean:nemotron-3-nano-omni",
     "provider_model_slug": "nemotron-3-nano-omni",
