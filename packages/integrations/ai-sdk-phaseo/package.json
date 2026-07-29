@@ -1,7 +1,7 @@
 {
   "name": "@phaseo/ai-sdk-provider",
   "version": "1.0.1",
-  "description": "Phaseo Gateway provider for Vercel AI SDK",
+  "description": "Phaseo Gateway provider for Vercel AI SDK 7, with AI SDK 6 compatibility",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -52,7 +52,7 @@
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "ai": "^6.0.0"
+    "ai": "^6.0.0 || ^7.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
