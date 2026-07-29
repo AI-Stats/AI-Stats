@@ -5,7 +5,7 @@ Official [Vercel AI SDK](https://sdk.vercel.ai/docs) provider for [Phaseo Gatewa
 ## Features
 
 ✨ **Unified Access** - Use 30+ AI providers (OpenAI, Anthropic, Google, Mistral, DeepSeek, and more) through a single SDK
-🔄 **Full AI SDK v6 Support** - Works with all Vercel AI SDK primitives:
+🔄 **AI SDK v7 Support** - Also compatible with AI SDK v6 and works with all Vercel AI SDK primitives:
 
 -   Text: `generateText`, `streamText`, `generateObject`, `streamObject`
 -   Embeddings: `embed`, `embedMany`
@@ -23,7 +23,14 @@ Official [Vercel AI SDK](https://sdk.vercel.ai/docs) provider for [Phaseo Gatewa
 ## Installation
 
 ```bash
-npm install @phaseo/ai-sdk-provider ai@^6
+# AI SDK 7 (default for new projects)
+npm install @phaseo/ai-sdk-provider ai
+
+# AI SDK 6 compatibility
+npm install @phaseo/ai-sdk-provider ai@ai-v6
+
+# AI SDK 5 compatibility (OpenAI-compatible provider)
+npm install ai@ai-v5 @ai-sdk/openai-compatible@ai-v5
 ```
 
 ## Quick Start
