@@ -18,7 +18,7 @@ import { createPhaseoErrorHandler } from './utils/error-handler.js';
 import { headersToRecord } from './utils/headers.js';
 
 /**
- * Phaseo Language Model implementation for Vercel AI SDK v6
+ * Phaseo Language Model implementation for Vercel AI SDK v6 and v7
  */
 export class PhaseoLanguageModel implements LanguageModelV3 {
   readonly specificationVersion = 'v3' as const;
