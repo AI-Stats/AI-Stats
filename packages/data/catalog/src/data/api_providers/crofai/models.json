@@ -1726,5 +1726,66 @@
       "notes": null
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k3",
+    "provider_api_model_id": "crofai:kimi-k3",
+    "provider_model_slug": "kimi-k3",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": true,
+    "quantization_scheme": "mxfp4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 262144,
+    "effective_from": "2026-07-29T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://crof.ai/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-07-29T00:00:00Z",
+        "notes": "Crof AI lists the live kimi-k3 route at 1,000,000 tokens of context, 262,144 maximum output tokens, and MXFP4 quantization."
+      },
+      {
+        "url": "https://x.com/i/status/2082147079095292074",
+        "kind": "announcement",
+        "accessed_at": "2026-07-29T00:00:00Z",
+        "notes": "Crof AI availability announcement for Kimi K3."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-29T00:00:00Z",
+      "notes": "Crof AI's live pricing catalogue lists kimi-k3 with MXFP4 quantization, a 1,000,000-token context window, a 262,144-token output limit, and published token pricing. Crof AI is already configured as an executable OpenAI-compatible gateway provider in Phaseo."
+    },
+    "rate_limits": []
   }
 ]
