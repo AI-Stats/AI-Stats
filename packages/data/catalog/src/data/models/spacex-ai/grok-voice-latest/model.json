@@ -4,7 +4,7 @@
   "name": "Grok Voice Latest",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Grok Voice Latest is xAI's realtime voice model for low-latency bidirectional audio conversations.",
+  "description": "Grok Voice Latest is xAI's floating alias for its recommended realtime speech-to-speech model, supporting low-latency bidirectional audio, reasoning and tool use.",
   "announced_date": "2026-04-23T00:00:00",
   "release_date": "2026-04-23T00:00:00",
   "deprecation_date": null,
@@ -16,8 +16,13 @@
   "links": [
     {
       "platform": "api_reference",
-      "title": "xAI realtime voice documentation",
-      "url": "https://docs.x.ai/developers/model-capabilities/audio/realtime"
+      "title": "xAI Speech to Speech documentation",
+      "url": "https://docs.x.ai/developers/model-capabilities/audio/voice-agent"
+    },
+    {
+      "platform": "announcement",
+      "title": "Introducing Grok Voice Think Fast 2.0",
+      "url": "https://x.ai/news/grok-voice-think-fast-2"
     }
   ],
   "details": [
@@ -26,8 +31,16 @@
       "value": "grok-voice-think-fast-1.0"
     },
     {
+      "name": "scheduled_alias_target",
+      "value": "grok-voice-think-fast-2.0"
+    },
+    {
+      "name": "scheduled_alias_change",
+      "value": "2026-08-05T00:00:00Z"
+    },
+    {
       "name": "release_note",
-      "value": "xAI documents grok-voice-latest as an alias to the newest voice model, currently grok-voice-think-fast-1.0. AI Stats stores the current target release date from xAI release notes."
+      "value": "xAI will move grok-voice-latest from Grok Voice Think Fast 1.0 to 2.0 on 5 August 2026. Pin a versioned slug for stable production behaviour."
     },
     {
       "name": "voices",
