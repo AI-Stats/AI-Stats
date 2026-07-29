@@ -1,5 +1,87 @@
 [
   {
+    "api_model_id": "x-ai/grok-voice-think-fast-2.0",
+    "provider_api_model_id": "spacex-ai:x-ai/grok-voice-think-fast-2.0",
+    "provider_model_slug": "grok-voice-think-fast-2.0",
+    "internal_model_id": "spacex-ai/grok-voice-think-fast-2.0",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,audio",
+    "output_modalities": "text,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-29T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.realtime",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "reasoning_effort",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "high",
+            "notes": "Supported values: high, none"
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Supports file search, web search, X search, MCP and function tools"
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "us-east-1"
+      ],
+      "data": [
+        "us-east-1"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai-realtime"
+      ],
+      "endpoint": "wss://api.x.ai/v1/realtime",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "type": "announcement",
+        "url": "https://x.ai/news/grok-voice-think-fast-2"
+      },
+      {
+        "type": "docs",
+        "url": "https://docs.x.ai/developers/model-capabilities/audio/voice-agent"
+      },
+      {
+        "type": "pricing",
+        "url": "https://docs.x.ai/developers/pricing"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-29T00:00:00Z",
+      "notes": "Model slug, realtime endpoint, capabilities and pricing verified against xAI documentation."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "x-ai/grok-voice-latest",
     "provider_api_model_id": "spacex-ai:x-ai/grok-voice-latest",
     "provider_model_slug": "grok-voice-latest",
