@@ -15,7 +15,8 @@
       "note": "Realtime voice flat audio duration billing.",
       "match": [],
       "priority": 100,
-      "effective_from": "2026-04-23T00:00:00Z"
+      "effective_from": "2026-04-23T00:00:00Z",
+      "effective_to": "2026-08-05T00:00:00Z"
     },
     {
       "meter": "input_text_messages",
@@ -28,6 +29,18 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-04-23T00:00:00Z"
+    },
+    {
+      "meter": "audio_minutes",
+      "unit": "minute",
+      "unit_size": 1,
+      "price_per_unit": 0.08,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Grok Voice Think Fast 2.0 audio pricing after the grok-voice-latest alias migration.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-05T00:00:00Z"
     }
   ]
 }
