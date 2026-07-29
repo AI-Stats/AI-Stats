@@ -93,7 +93,7 @@ jobs:
           python -m build packages/sdk/agent-sdk-py
       - name: Upload distributions
         if: steps.registry.outputs.should_publish == 'true'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: python-agent-sdk-${{ steps.registry.outputs.version }}
           path: packages/sdk/agent-sdk-py/dist/*
@@ -322,7 +322,7 @@ jobs:
           gem build phaseo_agent_sdk.gemspec
       - name: Upload gem
         if: steps.registry.outputs.should_publish == 'true'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: ruby-agent-sdk-${{ steps.registry.outputs.version }}
           path: packages/sdk/agent-sdk-ruby/phaseo_agent_sdk-*.gem
