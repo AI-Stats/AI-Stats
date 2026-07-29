@@ -1,5 +1,36 @@
+-- Remove the floating grok-voice-latest alias from canonical catalogue data.
+-- Phaseo exposes pinned model versions so routing and pricing cannot change silently.
+
+delete from public.data_api_pricing_rules
+where model_key in (
+  'x-ai:x-ai/grok-voice-latest:audio.realtime',
+  'spacex-ai:x-ai/grok-voice-latest:audio.realtime'
+);
+
+delete from public.data_api_provider_model_capabilities
+where provider_api_model_id in (
+  'x-ai:x-ai/grok-voice-latest',
+  'spacex-ai:x-ai/grok-voice-latest'
+);
+
+delete from public.data_api_provider_models
+where provider_api_model_id in (
+  'x-ai:x-ai/grok-voice-latest',
+  'spacex-ai:x-ai/grok-voice-latest'
+)
+or provider_model_slug = 'grok-voice-latest';
+
+delete from public.data_model_details
+where model_id in ('x-ai/grok-voice-latest', 'spacex-ai/grok-voice-latest');
+
+delete from public.data_model_links
+where model_id in ('x-ai/grok-voice-latest', 'spacex-ai/grok-voice-latest');
+
+delete from public.data_models
+where model_id in ('x-ai/grok-voice-latest', 'spacex-ai/grok-voice-latest');
+
 -- Add Grok Voice Think Fast 2.0 as a pinned, gateway-routable realtime model.
--- Keep grok-voice-latest on 1.0 until xAI's scheduled alias migration on 2026-08-05.
+-- Phaseo exposes the pinned version rather than xAI's floating latest alias.
 
 insert into public.data_models (
   model_id, name, description, organisation_id, status, announcement_date,
