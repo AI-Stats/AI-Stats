@@ -8,7 +8,7 @@ import { mapPhaseoProviderMetadata } from './map-phaseo-provider-metadata.js';
 import { createPhaseoErrorHandler } from './utils/error-handler.js';
 
 /**
- * Phaseo Embedding Model implementation for Vercel AI SDK v6
+ * Phaseo Embedding Model implementation for Vercel AI SDK v6 and v7
  */
 export class PhaseoEmbeddingModel implements EmbeddingModelV3 {
   readonly specificationVersion = 'v3' as const;
