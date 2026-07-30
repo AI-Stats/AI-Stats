@@ -54,7 +54,7 @@ type QuickstartVisual =
 	| { kind: "icon"; icon: LucideIcon; className?: string };
 
 type ServiceTierOption = {
-	value: "standard" | "priority" | "flex" | "batch";
+	value: "standard" | "fast" | "priority" | "flex" | "batch";
 	label: string;
 	disabled?: boolean;
 	hint?: string;
@@ -62,7 +62,8 @@ type ServiceTierOption = {
 
 const SERVICE_TIER_OPTIONS: ServiceTierOption[] = [
 	{ value: "standard", label: "Standard" },
-	{ value: "priority", label: "Priority" },
+	{ value: "fast", label: "Fast" },
+	{ value: "priority", label: "Priority (legacy alias)" },
 	{ value: "flex", label: "Flex" },
 	{ value: "batch", label: "Batch", disabled: true, hint: "Coming soon" },
 ];
@@ -96,7 +97,7 @@ type QuickstartUsageSectionProps = {
 	showStreamingControl?: boolean;
 	supportsServiceTier: boolean;
 	streamingEnabled: boolean;
-	selectedServiceTier: "standard" | "priority" | "flex";
+	selectedServiceTier: "standard" | "fast" | "priority" | "flex";
 	requestModeLabel?: string;
 	serviceTierDocsHref?: string | null;
 	streamingDocsHref?: string | null;
@@ -104,7 +105,7 @@ type QuickstartUsageSectionProps = {
 	onSelectEndpoint: (value: string) => void;
 	onSelectLanguageFamily: (familyId: string) => void;
 	onSelectLanguage: (value: string) => void;
-	onSelectServiceTier: (value: "standard" | "priority" | "flex") => void;
+	onSelectServiceTier: (value: "standard" | "fast" | "priority" | "flex") => void;
 	onToggleStreaming: (enabled: boolean) => void;
 	curlQuickstart: string;
 	typescriptSdkUsage: string | null;
@@ -660,7 +661,7 @@ export function QuickstartUsageSection({
 								<Select
 									value={selectedServiceTier}
 									onValueChange={(value) =>
-										onSelectServiceTier(value as "standard" | "priority" | "flex")
+										onSelectServiceTier(value as "standard" | "fast" | "priority" | "flex")
 									}
 								>
 									<SelectTrigger className="h-8 w-full rounded-lg bg-muted/60 text-xs">
