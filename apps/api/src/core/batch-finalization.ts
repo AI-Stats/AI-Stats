@@ -4,6 +4,8 @@
 
 import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 import { emitGatewayOperationalFailure } from "@/observability/axiom";
+import { enqueueAsyncGenAiOtlpExport } from "@/observability/otlp-export";
+import type { Endpoint } from "@core/types";
 import { resolveCapabilityFromEndpoint } from "@/lib/config/capabilityToEndpoints";
 import { pickFirstFiniteNumber, resolveCanonicalTokenUsage } from "@core/usage-normalization";
 import {
@@ -179,6 +181,58 @@ function resolvePricingCapabilityCandidates(endpoint: unknown): string[] {
 		candidates.push("text.generate");
 	}
 	return [...new Set(candidates.map((value) => value.trim()).filter(Boolean))];
+}
+
+function batchGenAiEndpoint(endpoint: unknown): Endpoint {
+	const path = normalizeBatchEndpointPath(endpoint);
+	if (path === "/chat/completions") return "chat.completions";
+	if (path === "/messages") return "messages";
+	if (path === "/embeddings") return "embeddings";
+	if (path === "/images/generations") return "images.generations";
+	if (path === "/images/edits") return "images.edits";
+	if (path === "/moderations") return "moderations";
+	if (path === "/audio/speech") return "audio.speech";
+	if (path === "/audio/transcriptions") return "audio.transcription";
+	if (path === "/audio/translations") return "audio.translations";
+	if (path === "/videos" || path === "/video/generations") return "video.generation";
+	return path === "/responses" ? "responses" : "batch";
+}
+
+async function emitBatchFinalizationTelemetry(args: {
+	workspaceId: string;
+	batchId: string;
+	meta: BatchJobMeta;
+	status: string;
+	finalizedAtMs: number;
+	costNanos: number;
+	usage?: Record<string, unknown> | null;
+}) {
+	await enqueueAsyncGenAiOtlpExport({
+		requestId: `batch:${args.batchId}`,
+		workspaceId: args.workspaceId,
+		keyId: args.meta.apiKeyId,
+		operation: "batch",
+		phase: "finalize",
+		endpoint: batchGenAiEndpoint(args.meta.endpoint),
+		model: args.meta.model ?? "batch",
+		provider: args.meta.provider,
+		providerModel: args.meta.model,
+		batchId: args.batchId,
+		requestCount: args.meta.requestCounts?.total,
+		completedCount: args.meta.requestCounts?.completed,
+		failedCount: args.meta.requestCounts?.failed,
+		startedAtMs: args.meta.providerDispatchedAtMs ?? args.meta.createdAt ?? args.finalizedAtMs,
+		completedAtMs: args.finalizedAtMs,
+		success: args.status === "completed",
+		errorType: args.status === "completed" ? null : args.status,
+		usage: args.usage ?? args.meta.pricedUsage,
+		costNanos: args.costNanos,
+		currency: "USD",
+		linkContext: args.meta.otelSubmissionContext ?? null,
+	}).catch((error) => console.error("batch_otel_finalize_failed", {
+		batchId: args.batchId,
+		error: error instanceof Error ? error.message : String(error),
+	}));
 }
 
 async function fetchOpenAiFileText(fileIdRaw: string): Promise<string> {
@@ -905,6 +959,15 @@ export async function finalizeBatchJob(args: FinalizeBatchJobArgs): Promise<Fina
 			finalizedAt,
 			billingReason: "already_billed",
 		});
+		await emitBatchFinalizationTelemetry({
+			workspaceId: args.workspaceId,
+			batchId: args.batchId,
+			meta: record.meta,
+			status,
+			finalizedAtMs,
+			costNanos: Math.max(0, Number(record.meta.costNanos ?? 0) || 0),
+			usage: record.meta.pricedUsage,
+		});
 		return {
 			status,
 			charged: false,
@@ -971,6 +1034,14 @@ export async function finalizeBatchJob(args: FinalizeBatchJobArgs): Promise<Fina
 			reservationStatus: releaseReason,
 		});
 		await markBatchJobBilled(args.workspaceId, args.batchId);
+		await emitBatchFinalizationTelemetry({
+			workspaceId: args.workspaceId,
+			batchId: args.batchId,
+			meta: record.meta,
+			status,
+			finalizedAtMs,
+			costNanos: 0,
+		});
 		return {
 			status,
 			charged: false,
@@ -1136,6 +1207,17 @@ export async function finalizeBatchJob(args: FinalizeBatchJobArgs): Promise<Fina
 	}
 	if (chargeApplied) {
 		await markBatchJobBilled(args.workspaceId, args.batchId);
+	}
+	if (chargeApplied) {
+		await emitBatchFinalizationTelemetry({
+			workspaceId: args.workspaceId,
+			batchId: args.batchId,
+			meta: record.meta,
+			status,
+			finalizedAtMs,
+			costNanos: settlement.costNanos,
+			usage: settlement.pricedUsage,
+		});
 	}
 	return {
 		status,

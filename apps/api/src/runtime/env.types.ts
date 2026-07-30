@@ -23,6 +23,8 @@ export type GatewayBindings = {
 	GATEWAY_IO_RETENTION_PRUNE_LIMIT?: string;
 	V2_ANALYTICS_OUTBOX_ENABLED?: string;
 	V2_ANALYTICS_OUTBOX_LIMIT?: string;
+	OTEL_EXPORT_ENABLED?: string;
+	OTEL_EXPORT_OUTBOX_LIMIT?: string;
     OAUTH_STRICT_RATE_LIMITER?: RateLimit;
     OAUTH_TOKEN_RATE_LIMITER?: RateLimit;
     REALTIME_RELAY?: DurableObjectNamespace;

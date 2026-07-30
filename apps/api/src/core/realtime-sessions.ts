@@ -10,6 +10,7 @@ import { ulid } from "@pipeline/before/genId";
 import { fetchGatewayContext } from "@pipeline/before/context";
 import { buildProviderCandidatesWithDiagnostics } from "@pipeline/before/utils";
 import { applyWorkspacePolicy, fetchWorkspacePolicy } from "@pipeline/before/workspacePolicy";
+import { enqueueAsyncGenAiOtlpExport } from "@observability/otlp-export";
 
 export const REALTIME_INITIAL_HOLD_NANOS = 5_000_000_000;
 export const REALTIME_HOLD_INCREMENT_NANOS = 5_000_000_000;
@@ -33,6 +34,32 @@ const GOOGLE_LIVE_CONSTRAINED_URL =
 export type RealtimeProvider = "openai" | "x-ai" | "spacex-ai" | "google-ai-studio";
 export type RealtimeSource = "api" | "chat";
 export type RealtimeTerminalStatus = "completed" | "failed" | "cancelled" | "expired";
+
+export type RealtimeOtelContext = {
+	traceId: string;
+	parentSpanId: string;
+	traceFlags: number;
+	traceState?: string | null;
+};
+
+export function realtimeOtelContext(
+	session: Pick<RealtimeSessionRow, "metadata">,
+	key: "submission" | "parent" = "submission",
+): RealtimeOtelContext | null {
+	const metadata = session.metadata && typeof session.metadata === "object" ? session.metadata : {};
+	const raw = metadata[`phaseo_otel_${key}_context`];
+	if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+	const value = raw as Record<string, unknown>;
+	const traceId = String(value.traceId ?? "");
+	const parentSpanId = String(value.parentSpanId ?? "");
+	if (!/^[0-9a-f]{32}$/.test(traceId) || !/^[0-9a-f]{16}$/.test(parentSpanId)) return null;
+	return {
+		traceId,
+		parentSpanId,
+		traceFlags: Number(value.traceFlags ?? 1) & 1,
+		traceState: typeof value.traceState === "string" ? value.traceState : null,
+	};
+}
 
 export function realtimeMaxDurationSeconds(provider: RealtimeProvider): number {
 	return provider === "google-ai-studio"
@@ -732,6 +759,7 @@ export async function createRealtimeSession(args: {
 	instructions?: string | null;
 	source?: RealtimeSource;
 	metadata?: Record<string, unknown>;
+	otelTraceContext?: RealtimeOtelContext | null;
 	relay?: boolean;
 }): Promise<{
 	session: RealtimeSessionRow;
@@ -739,6 +767,7 @@ export async function createRealtimeSession(args: {
 	connect: ProviderSession["connect"];
 	raw: unknown;
 }> {
+	const telemetryStartedAtMs = Date.now();
 	const provider = providerFromModel(args.model, args.provider);
 	if (!provider) throw new Error("realtime_provider_required");
 	const modelId = canonicalModel(provider, args.model);
@@ -755,9 +784,20 @@ export async function createRealtimeSession(args: {
 	const useRelay = args.relay !== false || !args.auth.internal;
 	const relaySecret = useRelay ? `rtsec_${ulid().toLowerCase()}${ulid().toLowerCase()}` : null;
 	const secretHash = relaySecret ? await sha256Hex(relaySecret) : null;
+	const submissionSpanId = crypto.randomUUID().replaceAll("-", "").slice(0, 16);
+	const submissionTraceId = args.otelTraceContext?.traceId
+		?? crypto.randomUUID().replaceAll("-", "");
+	const submissionContext: RealtimeOtelContext = {
+		traceId: submissionTraceId,
+		parentSpanId: submissionSpanId,
+		traceFlags: args.otelTraceContext?.traceFlags ?? 1,
+		traceState: args.otelTraceContext?.traceState ?? null,
+	};
 	const sessionMetadata = {
 		...(args.metadata ?? {}),
 		...(useRelay ? { relay: true, instructions: args.instructions ?? null } : {}),
+		phaseo_otel_parent_context: args.otelTraceContext ?? null,
+		phaseo_otel_submission_context: submissionContext,
 	};
 	const createRpc = await supabase.rpc("gateway_realtime_create_with_hold", {
 		p_workspace_id: args.auth.workspaceId,
@@ -783,6 +823,33 @@ export async function createRealtimeSession(args: {
 	if (createRpc.error) throw createRpc.error;
 	const created = (Array.isArray(createRpc.data) ? createRpc.data[0] : createRpc.data) as RealtimeSessionRow | null;
 	if (!created) throw new Error("realtime_session_create_empty");
+	await enqueueAsyncGenAiOtlpExport({
+		requestId: args.auth.requestId,
+		workspaceId: args.auth.workspaceId,
+		keyId: args.auth.apiKeyId,
+		userId: args.auth.userId,
+		operation: "realtime",
+		phase: "submit",
+		endpoint: "audio.realtime",
+		model: modelId,
+		provider,
+		providerModel: providerModelId,
+		sessionId,
+		startedAtMs: telemetryStartedAtMs,
+		completedAtMs: Date.now(),
+		success: true,
+		statusCode: 201,
+		traceContext: args.otelTraceContext ?? null,
+		spanId: submissionSpanId,
+		requestPayload: {
+			model: modelId,
+			voice,
+			instructions: args.instructions ?? null,
+		},
+	}).catch((error) => console.error("realtime_otel_submit_failed", {
+		sessionId,
+		error: error instanceof Error ? error.message : String(error),
+	}));
 	if (useRelay) {
 		return {
 			session: created,
@@ -1055,6 +1122,7 @@ export async function settleRealtimeSession(args: {
 	assertRealtimeSettlementAuthority(args.auth);
 	if (["completed", "failed", "cancelled", "expired"].includes(session.status)) {
 		await syncRealtimeGatewayRequestSummary(session);
+		await emitRealtimeFinalizationTelemetry(session);
 		return {
 			session,
 			settlement: {
@@ -1113,8 +1181,40 @@ export async function settleRealtimeSession(args: {
 	if (settlement.applied === true || settlement.already_applied === true) {
 		await syncRealtimeGatewayRequestSummary(updated as RealtimeSessionRow);
 	}
+	if (settlement.applied === true) {
+		await emitRealtimeFinalizationTelemetry(updated as RealtimeSessionRow);
+	}
 
 	return { session: updated as RealtimeSessionRow, settlement, pricedUsage };
+}
+
+async function emitRealtimeFinalizationTelemetry(completed: RealtimeSessionRow) {
+	await enqueueAsyncGenAiOtlpExport({
+		requestId: `realtime:${completed.session_id}`,
+		workspaceId: completed.workspace_id,
+		keyId: completed.key_id,
+		userId: completed.user_id,
+		operation: "realtime",
+		phase: "finalize",
+		endpoint: "audio.realtime",
+		model: completed.model_id,
+		provider: completed.provider,
+		providerModel: completed.provider_model_id,
+		sessionId: completed.session_id,
+		startedAtMs: Date.parse(completed.started_at),
+		completedAtMs: Date.parse(completed.ended_at ?? "") || Date.now(),
+		success: completed.status === "completed",
+		errorType: completed.status === "completed"
+			? null
+			: completed.error_code ?? completed.disconnect_reason ?? completed.status,
+		usage: completed.usage,
+		costNanos: completed.final_cost_nanos,
+		currency: completed.currency,
+		linkContext: realtimeOtelContext(completed),
+	}).catch((otelError) => console.error("realtime_otel_finalize_failed", {
+		sessionId: completed.session_id,
+		error: otelError instanceof Error ? otelError.message : String(otelError),
+	}));
 }
 
 async function syncRealtimeGatewayRequestSummary(session: RealtimeSessionRow) {

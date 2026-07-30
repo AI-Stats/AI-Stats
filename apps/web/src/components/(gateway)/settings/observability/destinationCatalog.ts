@@ -167,7 +167,7 @@ export const AVAILABLE_DESTINATIONS: DestinationDefinition[] = [
 	{
 		id: "otel_collector",
 		label: "OpenTelemetry Collector",
-		description: "Stream traces over OTLP HTTP/gRPC to your collector.",
+		description: "Export GenAI traces over OTLP/HTTP JSON to your collector.",
 		fields: [
 			{
 				key: "otlp_endpoint",

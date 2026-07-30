@@ -10,6 +10,7 @@ import type { AuthFailure, AuthSuccess } from "@pipeline/before/auth";
 import { err } from "@pipeline/before/http";
 import { generatePublicId } from "@pipeline/before/genId";
 import { guardContext } from "@pipeline/before/guards";
+import { parseW3cTraceContext } from "@observability/trace-context";
 import { applyPromptInjectionGuardrails } from "@pipeline/before/promptInjection";
 import { applySensitiveInfoGuardrails } from "@pipeline/before/sensitiveInfo";
 import { applyWorkspacePolicy, fetchWorkspacePolicy } from "@pipeline/before/workspacePolicy";
@@ -17,6 +18,7 @@ import type { Endpoint } from "@core/types";
 import { getBindings } from "@/runtime/env";
 import { resolveCapabilityFromEndpoint } from "@/lib/config/capabilityToEndpoints";
 import { emitGatewayOperationalFailure } from "@/observability/axiom";
+import { enqueueAsyncGenAiOtlpExport } from "@/observability/otlp-export";
 import { resolveProviderKey } from "@providers/keys";
 import { openAICompatHeaders, openAICompatUrl, resolveOpenAICompatKey } from "@providers/openai-compatible/config";
 import {
@@ -1362,12 +1364,23 @@ async function handleModels(req: Request) {
 }
 
 async function handleCreate(req: Request) {
+	const telemetryStartedAtMs = Date.now();
 	const requestId = generatePublicId();
 	const auth = await authenticate(req);
 	if (!auth.ok) {
 		const reason = (auth as AuthFailure).reason;
 		return err("unauthorised", { reason, request_id: requestId });
 	}
+	const otelParentContext = parseW3cTraceContext(
+		req.headers.get("traceparent"),
+		req.headers.get("tracestate"),
+	);
+	const otelSubmissionContext = {
+		traceId: otelParentContext?.traceId ?? crypto.randomUUID().replaceAll("-", ""),
+		parentSpanId: crypto.randomUUID().replaceAll("-", "").slice(0, 16),
+		traceFlags: otelParentContext?.traceFlags ?? 1,
+		traceState: otelParentContext?.traceState ?? null,
+	};
 	const accessDenied = await requireBatchApiAccess(auth, requestId);
 	if (accessDenied) return accessDenied;
 
@@ -1717,6 +1730,8 @@ async function handleCreate(req: Request) {
 		reservationStatus: reservation.status,
 		reservationEstimate: reservation.estimate,
 		submissionOutcome: null,
+		otelParentContext,
+		otelSubmissionContext,
 	});
 	try {
 		await saveBatchJobMeta(auth.workspaceId, batchId, submissionMeta);
@@ -1884,6 +1899,8 @@ async function handleCreate(req: Request) {
 				providerDispatchedAtMs,
 				reservationEstimate: reservation.estimate,
 				submissionOutcome: "accepted",
+				otelParentContext,
+				otelSubmissionContext,
 			});
 			try {
 				await saveBatchJobMeta(auth.workspaceId, batchId, persistedMeta);
@@ -1981,6 +1998,30 @@ async function handleCreate(req: Request) {
 				internalId: batchId,
 				phase: "created",
 			});
+			await enqueueAsyncGenAiOtlpExport({
+				requestId,
+				workspaceId: auth.workspaceId,
+				keyId: auth.apiKeyId,
+				operation: "batch",
+				phase: "submit",
+				endpoint: "batch",
+				model: toText(payload.model) ?? "batch",
+				provider: providerId,
+				providerModel: toText(payload.model),
+				batchId,
+				requestCount: requestRows?.length ?? reservationRequests.length,
+				startedAtMs: telemetryStartedAtMs,
+				completedAtMs: Date.now(),
+				success: true,
+				statusCode: upstream.status,
+				traceContext: otelParentContext,
+				spanId: otelSubmissionContext.parentSpanId,
+				requestPayload: payload,
+				responsePayload: upstreamJson,
+			}).catch((otelError) => console.error("batch_otel_submit_failed", {
+				batchId,
+				error: otelError instanceof Error ? otelError.message : String(otelError),
+			}));
 		}
 		if (upstreamJson) {
 			return toDecoratedJsonResponse(upstream, decorateBatchPayload({

@@ -544,11 +544,13 @@ async function attemptProviderWithIR(
 ): Promise<{ ok: true; result: IRRequestResult } | { ok: false; skip?: string }> {
 	const attemptErrors: Array<Record<string, unknown>> = (ctx.attemptErrors ??= []);
 	const attemptPrefix = `attempt_${attemptNumber}`;
+	const attemptStartedAtEpochMs = Date.now();
 	const attemptStartedAt = performance.now();
 
 	// Extract candidate from RoutedCandidate
 	const candidate = routed.candidate;
 	const credentialLog = {
+		started_at_unix_ms: attemptStartedAtEpochMs,
 		credential_phase: credentialPhase,
 		key_source: credential.kind === "byok" ? "byok" as const : "gateway" as const,
 		byok_key_id: credential.kind === "byok" ? credential.key.id : null,
@@ -1120,7 +1122,6 @@ async function attemptProviderWithIR(
 		return { ok: false };
 	}
 }
-
 
 
 

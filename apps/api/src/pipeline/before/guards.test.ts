@@ -1,6 +1,28 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { guardJson, makeMeta } from "./guards";
+import { guardJson, makeMeta, parseW3cTraceContext } from "./guards";
 import { clearRuntime, configureRuntime } from "@/runtime/env";
+
+describe("parseW3cTraceContext", () => {
+	it("accepts version 00 and preserves valid tracestate", () => {
+		expect(parseW3cTraceContext(
+			`00-${"1".repeat(32)}-${"2".repeat(16)}-03`,
+			"vendor=value,other=opaque",
+		)).toEqual({
+			traceId: "1".repeat(32),
+			parentSpanId: "2".repeat(16),
+			traceFlags: 1,
+			traceState: "vendor=value,other=opaque",
+		});
+	});
+
+	it("accepts additive future versions and rejects invalid identifiers", () => {
+		expect(parseW3cTraceContext(
+			`01-${"1".repeat(32)}-${"2".repeat(16)}-01-extra`,
+		)).toMatchObject({ traceFlags: 1 });
+		expect(parseW3cTraceContext(`00-${"0".repeat(32)}-${"2".repeat(16)}-01`)).toBeNull();
+		expect(parseW3cTraceContext(`ff-${"1".repeat(32)}-${"2".repeat(16)}-01`)).toBeNull();
+	});
+});
 
 describe("guardJson", () => {
 	it("parses multipart form-data bodies including files and array fields", async () => {

@@ -47,6 +47,12 @@ export type RequestMeta = {
     requestUserId?: string | null;
     sessionId?: string | null;
     trace?: Record<string, unknown> | null;
+    otelTraceContext?: {
+        traceId: string;
+        parentSpanId: string;
+        traceFlags: number;
+        traceState?: string | null;
+    } | null;
     testId?: string | null;
     requestMethod?: string | null;
     accept?: string | null;

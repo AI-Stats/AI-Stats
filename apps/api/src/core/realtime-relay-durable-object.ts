@@ -17,6 +17,7 @@ import {
 	normalizeRealtimeUsage,
 	pcm16Base64DurationMs,
 	realtimeReconciliationToken,
+	realtimeOtelContext,
 	resolveGoogleKey,
 	resolveOpenAIKey,
 	resolveXAIKey,
@@ -27,6 +28,7 @@ import {
 	type RealtimeProvider,
 	type RealtimeSessionRow,
 } from "@core/realtime-sessions";
+import { enqueueAsyncGenAiOtlpExport } from "@observability/otlp-export";
 
 const GOOGLE_LIVE_URL =
 	"wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent";
@@ -347,6 +349,7 @@ export class RealtimeRelayDurableObject {
 	private audioStartedAt = 0;
 	private settling = false;
 	private inputSinceLastResponse = false;
+	private turnStartedAtMs = 0;
 
 	constructor(state: DurableObjectState, env: GatewayBindings) {
 		this.state = state;
@@ -658,11 +661,15 @@ export class RealtimeRelayDurableObject {
 				await this.persistUsage();
 			}
 			this.providerCompletedResponseSeen = true;
+			await this.emitTurnTelemetry(usage ?? {}, responseId || null);
 			this.markResponseComplete();
 		}
 
 		if (type === "response.output_audio.done" && provider === "x-ai") {
 			await this.persistUsage();
+			if (!this.providerCompletedResponseSeen) {
+				await this.emitTurnTelemetry({}, null);
+			}
 			this.providerCompletedResponseSeen = true;
 			this.markResponseComplete();
 		}
@@ -719,12 +726,14 @@ export class RealtimeRelayDurableObject {
 		this.providerState.googleTurnComplete = false;
 		this.providerState.googleTurnUsage = {};
 		this.providerCompletedResponseSeen = true;
+		await this.emitTurnTelemetry(turnUsage, null);
 		await this.persistProviderState();
 		await this.persistUsage();
 		this.markResponseComplete();
 	}
 
 	private markResponseInFlight() {
+		if (!this.responseInFlight) this.turnStartedAtMs = Date.now();
 		this.responseInFlight = true;
 		this.usage.assistant_response_in_flight = true;
 		void this.state.storage.put(STORAGE_USAGE, this.usage);
@@ -732,6 +741,32 @@ export class RealtimeRelayDurableObject {
 			clearTimeout(this.drainTimer);
 			this.drainTimer = null;
 		}
+	}
+
+	private async emitTurnTelemetry(usage: Record<string, unknown>, responseId: string | null) {
+		if (!this.session) return;
+		const turnId = responseId ?? `${this.session.session_id}:${crypto.randomUUID()}`;
+		await enqueueAsyncGenAiOtlpExport({
+			requestId: `realtime-turn:${turnId}`,
+			workspaceId: this.session.workspace_id,
+			keyId: this.session.key_id,
+			userId: this.session.user_id,
+			operation: "realtime",
+			phase: "turn",
+			endpoint: "audio.realtime",
+			model: this.session.model_id,
+			provider: this.session.provider,
+			providerModel: this.session.provider_model_id,
+			sessionId: this.session.session_id,
+			startedAtMs: this.turnStartedAtMs || Date.now(),
+			completedAtMs: Date.now(),
+			success: true,
+			usage,
+			traceContext: realtimeOtelContext(this.session),
+		}).catch((error) => console.error("realtime_otel_turn_failed", {
+			sessionId: this.session?.session_id,
+			error: error instanceof Error ? error.message : String(error),
+		}));
 	}
 
 	private markResponseComplete() {

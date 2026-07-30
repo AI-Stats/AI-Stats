@@ -427,6 +427,7 @@ export type ProviderEnablementDiagnostics = {
 
 export type ProviderAttemptLog = {
     attempt_number: number;
+    started_at_unix_ms?: number | null;
     provider: string;
     endpoint: Endpoint;
     model: string;
@@ -674,4 +675,3 @@ export type PipelineContext = {
     keyId?: string | null;
     testingMode?: boolean;
 };
-

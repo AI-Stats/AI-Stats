@@ -21,6 +21,8 @@ import { authenticate, authenticateManagement, type AuthFailure } from "./auth";
 import { readAttributionHeaders } from "../after/attribution";
 import type { ProviderCandidateBuildDiagnostics } from "./types";
 import type { PriceCard } from "../pricing";
+import { parseW3cTraceContext } from "@observability/trace-context";
+export { parseW3cTraceContext } from "@observability/trace-context";
 
 const MIN_CREDIT_AMOUNT = 1.0;
 const TRUTHY_VALUES = new Set(["1", "true", "yes"]);
@@ -603,6 +605,10 @@ export function makeMeta(input: {
             128,
         );
     const trace = normalizeTraceObject(rawBody?.trace);
+    const otelTraceContext = parseW3cTraceContext(
+        input.req.headers.get("traceparent"),
+        input.req.headers.get("tracestate"),
+    );
     const nodeEnv = String(getBindings().NODE_ENV ?? "").trim().toLowerCase();
     const testId = nodeEnv === "test"
         ? normalizeBoundedString(input.req.headers.get("x-test-id"), 128)
@@ -665,6 +671,7 @@ export function makeMeta(input: {
         requestUserId,
         sessionId,
         trace,
+        otelTraceContext,
         testId,
         requestMethod: input.req.method ?? null,
         accept,
