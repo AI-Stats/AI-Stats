@@ -3422,9 +3422,7 @@
       "batch"
     ],
     "api": {
-      "formats": [
-        "interactions"
-      ],
+      "formats": [],
       "endpoint": "https://generativelanguage.googleapis.com/v1beta/interactions",
       "deployment": null
     },
@@ -3475,9 +3473,7 @@
         "output_modalities": [
           "text"
         ],
-        "modes": [
-          "streaming"
-        ]
+        "modes": []
       }
     ],
     "routing_status": "active",
@@ -3494,9 +3490,7 @@
       "standard"
     ],
     "api": {
-      "formats": [
-        "live"
-      ],
+      "formats": [],
       "endpoint": null,
       "deployment": null
     },
