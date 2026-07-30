@@ -4,7 +4,7 @@
     "provider_api_model_id": "wafer:GLM-5.1",
     "provider_model_slug": "GLM-5.1",
     "internal_model_id": "z-ai/glm-5.1",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "",
     "output_modalities": "text",
@@ -27,8 +27,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -52,7 +52,7 @@
     "provider_api_model_id": "wafer:GLM-5.2",
     "provider_model_slug": "GLM-5.2",
     "internal_model_id": "z-ai/glm-5.2",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "",
     "output_modalities": "text",
@@ -75,8 +75,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -100,7 +100,7 @@
     "provider_api_model_id": "wafer:Kimi-K2.6",
     "provider_model_slug": "Kimi-K2.6",
     "internal_model_id": "moonshotai/kimi-k2.6",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "",
     "output_modalities": "text",
@@ -123,8 +123,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -148,7 +148,7 @@
     "provider_api_model_id": "wafer:MiniMax-M3",
     "provider_model_slug": "MiniMax-M3",
     "internal_model_id": "minimax/minimax-m3",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "",
     "output_modalities": "text",
@@ -171,8 +171,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -196,7 +196,7 @@
     "provider_api_model_id": "wafer:glm5.2-fast",
     "provider_model_slug": "glm5.2-fast",
     "internal_model_id": "z-ai/glm-5.2",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "",
     "output_modalities": "text",
@@ -219,8 +219,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -244,7 +244,7 @@
     "provider_api_model_id": "wafer:Qwen3.5-397B-A17B",
     "provider_model_slug": "Qwen3.5-397B-A17B",
     "internal_model_id": "qwen/qwen3.5-397b-a17b",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "",
     "output_modalities": "text",
@@ -267,8 +267,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -303,7 +303,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "coming_soon",
         "params": [],
         "reasoning": true,
         "tool_call": null,
@@ -337,8 +337,8 @@
     ],
     "verification": {
       "status": "unverified",
-      "checked_at": "2026-07-29T00:00:00Z",
-      "notes": "Provider model discovery detected Kimi-K3. Kept catalogue-only because Phaseo does not currently have a Wafer gateway executor, base URL, or credential configuration."
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Wafer model discovery detected Kimi-K3, but this deployment remains coming soon and is excluded from gateway routing until the upstream route is confirmed ready. Phaseo's Wafer OpenAI-compatible gateway integration is already implemented."
     },
     "rate_limits": []
   }
