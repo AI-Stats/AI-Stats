@@ -87,7 +87,6 @@ where route.provider_availability_status = 'unknown';
 
 update public.v2_model_provider_routes as route
 set phaseo_status = case
-  when route.routing_enabled then 'enabled'
   when exists (
     select 1
     from public.v2_route_capabilities as capability
@@ -100,6 +99,7 @@ set phaseo_status = case
     where capability.provider_model_id = route.provider_model_id
       and lower(coalesce(capability.metadata->'capability_evidence'->>'status', '')) = 'coming_soon'
   ) then 'planned'
+  when route.routing_enabled then 'enabled'
   else 'disabled'
 end
 where route.phaseo_status = 'disabled';
