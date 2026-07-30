@@ -1,0 +1,34 @@
+import { describe, expect, it } from "vitest";
+import { calculateOutputPerformanceMetrics } from "./performance-metrics";
+
+describe("calculateOutputPerformanceMetrics", () => {
+	it("separates full-duration throughput from post-TTFT output speed", () => {
+		expect(calculateOutputPerformanceMetrics({
+			outputTokens: 101,
+			providerDurationMs: 2_000,
+			providerTtftMs: 500,
+			gatewayE2eMs: 2_080,
+		})).toEqual({
+			effectiveThroughputTps: 50.5,
+			outputSpeedTps: 100 / 1.5,
+			tpotMs: 15,
+			itlMs: 15,
+			phaseoOverheadMs: 80,
+		});
+	});
+
+	it("does not invent post-first-token metrics without streaming timing", () => {
+		expect(calculateOutputPerformanceMetrics({
+			outputTokens: 25,
+			providerDurationMs: 1_000,
+			providerTtftMs: null,
+			gatewayE2eMs: 1_040,
+		})).toEqual({
+			effectiveThroughputTps: 25,
+			outputSpeedTps: null,
+			tpotMs: null,
+			itlMs: null,
+			phaseoOverheadMs: 40,
+		});
+	});
+});

@@ -9,6 +9,7 @@ import type {
 } from "@/lib/fetchers/models/getModelPerformance";
 import ModelProviderTrendChart from "./ModelProviderTrendChart";
 import ModelQualityTrendChart from "./ModelQualityTrendChart";
+import ModelRequestVolumeChart from "./ModelRequestVolumeChart";
 
 function MetricCard({
 	children,
@@ -47,15 +48,28 @@ export default function ModelPerformanceCards({
 	const hasStructuredOutputQuality = qualitySeries.some((point) => point.structuredOutputSuccessPct != null);
 	const hasCacheQuality = qualitySeries.some((point) => point.cacheHitRatePct != null);
 	const chartData = chartProviderDaily7d ?? providerDaily7d;
-	const maxSeries = chartProviderDaily7d ? 5 : 3;
+	const maxSeries = chartProviderDaily7d ? 9 : 3;
 
 	return (
 		<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 			<MetricCard>
+				<ModelRequestVolumeChart data={hourly} />
+			</MetricCard>
+			<MetricCard>
 				<ModelProviderTrendChart
-					title="Throughput"
+					title="Effective throughput"
 					data={chartData}
 					metric="throughput"
+					maxSeries={maxSeries}
+					activeDay={activeDay}
+					onActiveDayChange={setActiveDay}
+				/>
+			</MetricCard>
+			<MetricCard>
+				<ModelProviderTrendChart
+					title="Output speed"
+					data={chartData}
+					metric="outputSpeed"
 					maxSeries={maxSeries}
 					activeDay={activeDay}
 					onActiveDayChange={setActiveDay}
@@ -74,7 +88,7 @@ export default function ModelPerformanceCards({
 
 			<MetricCard>
 				<ModelProviderTrendChart
-					title="Latency"
+					title="Time to first token"
 					data={chartData}
 					metric="latency"
 					maxSeries={maxSeries}
@@ -85,9 +99,39 @@ export default function ModelPerformanceCards({
 
 			<MetricCard>
 				<ModelProviderTrendChart
-					title="E2E Latency"
+					title="Provider duration"
 					data={chartData}
 					metric="generation"
+					maxSeries={maxSeries}
+					activeDay={activeDay}
+					onActiveDayChange={setActiveDay}
+				/>
+			</MetricCard>
+			<MetricCard>
+				<ModelProviderTrendChart
+					title="Phaseo overhead"
+					data={chartData}
+					metric="overhead"
+					maxSeries={maxSeries}
+					activeDay={activeDay}
+					onActiveDayChange={setActiveDay}
+				/>
+			</MetricCard>
+			<MetricCard>
+				<ModelProviderTrendChart
+					title="TPOT"
+					data={chartData}
+					metric="tpot"
+					maxSeries={maxSeries}
+					activeDay={activeDay}
+					onActiveDayChange={setActiveDay}
+				/>
+			</MetricCard>
+			<MetricCard>
+				<ModelProviderTrendChart
+					title="ITL"
+					data={chartData}
+					metric="itl"
 					maxSeries={maxSeries}
 					activeDay={activeDay}
 					onActiveDayChange={setActiveDay}
@@ -97,7 +141,7 @@ export default function ModelPerformanceCards({
 			{!hasHourly ? (
 				<p className="text-xs text-muted-foreground md:col-span-2 lg:col-span-3">
 					Low sample volume in the last 24 hours. Trend lines reflect {chartProviderDaily7d
-						? "P50, P75, P90, P95, and P99 over the last 7 days."
+						? "P01, P05, P10, P25, P50, P75, P90, P95, and P99 over the last 7 days."
 						: "up to 3 active providers over the last 7 days."}
 				</p>
 			) : null}

@@ -181,6 +181,12 @@ async function upsertV2RequestFact(args: {
     finishReason?: string | null;
     latencyMs?: number | null;
     generationMs?: number | null;
+    providerTtftMs?: number | null;
+    gatewayTtftMs?: number | null;
+    outputSpeedTps?: number | null;
+    tpotMs?: number | null;
+    itlMs?: number | null;
+    phaseoOverheadMs?: number | null;
     internalDispatchMs?: number | null;
     gatewayTotalMs?: number | null;
     throughput?: number | null;
@@ -380,6 +386,12 @@ async function upsertV2RequestFact(args: {
             byok: args.byok,
             latency_ms: args.latencyMs == null ? null : Math.max(0, Math.round(args.latencyMs)),
             generation_ms: args.generationMs == null ? null : Math.max(0, Math.round(args.generationMs)),
+            provider_ttft_ms: args.providerTtftMs == null ? null : Math.max(0, Math.round(args.providerTtftMs)),
+            gateway_ttft_ms: args.gatewayTtftMs == null ? null : Math.max(0, Math.round(args.gatewayTtftMs)),
+            output_speed_tps: args.outputSpeedTps == null ? null : Math.max(0, args.outputSpeedTps),
+            tpot_ms: args.tpotMs == null ? null : Math.max(0, args.tpotMs),
+            itl_ms: args.itlMs == null ? null : Math.max(0, args.itlMs),
+            phaseo_overhead_ms: args.phaseoOverheadMs == null ? null : Math.max(0, args.phaseoOverheadMs),
             internal_dispatch_ms: args.internalDispatchMs == null ? null : Math.max(0, args.internalDispatchMs),
             gateway_total_ms: args.gatewayTotalMs == null ? null : Math.max(0, args.gatewayTotalMs),
             throughput: args.throughput == null ? null : Math.max(0, args.throughput),
@@ -409,6 +421,14 @@ async function upsertV2RequestFact(args: {
                 stream_cancellation_support: args.streamCancellationSupport ?? "unknown",
                 stream_provider_billing_on_cancel: args.streamProviderBillingOnCancel ?? "unknown",
                 stream_disconnect_action: args.streamDisconnectAction ?? null,
+                performance: {
+                    provider_ttft_ms: args.providerTtftMs ?? null,
+                    gateway_ttft_ms: args.gatewayTtftMs ?? null,
+                    output_speed_tps: args.outputSpeedTps ?? null,
+                    tpot_ms: args.tpotMs ?? null,
+                    itl_ms: args.itlMs ?? null,
+                    phaseo_overhead_ms: args.phaseoOverheadMs ?? null,
+                },
             },
     };
     const client = supaAdmin();
@@ -541,6 +561,9 @@ function buildSupaRow(args: {
     errorPayload?: Record<string, unknown> | null;
     appId?: string | null; keyId?: string | null;
     latencyMs?: number | null; generationMs?: number | null;
+    providerTtftMs?: number | null; gatewayTtftMs?: number | null;
+    outputSpeedTps?: number | null; tpotMs?: number | null;
+    itlMs?: number | null; phaseoOverheadMs?: number | null;
     usage?: any | null; costNanos?: number | null; currency?: string | null;
     pricingLines?: any[] | null; throughput?: number | null;
     finishReason?: string | null;
@@ -587,6 +610,12 @@ function buildSupaRow(args: {
                 : null,
         latency_ms: args.latencyMs ?? null,
         generation_ms: args.generationMs ?? null,
+        provider_ttft_ms: args.providerTtftMs ?? null,
+        gateway_ttft_ms: args.gatewayTtftMs ?? null,
+        output_speed_tps: args.outputSpeedTps ?? null,
+        tpot_ms: args.tpotMs ?? null,
+        itl_ms: args.itlMs ?? null,
+        phaseo_overhead_ms: args.phaseoOverheadMs ?? null,
         usage: args.usage ?? {},
         ...usageColumns,
         ...(args.costNanos != null ? { cost_nanos: Math.round(args.costNanos as number) } : {}),
@@ -690,6 +719,9 @@ export async function auditSuccess(args: {
     edgeContinent?: string | null;
     edgeAsn?: number | null;
     generationMs?: number | null; latencyMs?: number | null;
+    providerTtftMs?: number | null; gatewayTtftMs?: number | null;
+    outputSpeedTps?: number | null; tpotMs?: number | null;
+    itlMs?: number | null; phaseoOverheadMs?: number | null;
     internalLatencyMs?: number | null;
     endToEndMs?: number | null;
     usagePriced: any; totalCents: number; totalNanos?: number | null; currency: "USD" | string;
@@ -760,6 +792,12 @@ export async function auditSuccess(args: {
             keyId: args.keyId ?? null,
             latencyMs: args.latencyMs ?? null,
             generationMs: args.generationMs ?? null,
+            providerTtftMs: args.providerTtftMs ?? null,
+            gatewayTtftMs: args.gatewayTtftMs ?? null,
+            outputSpeedTps: args.outputSpeedTps ?? null,
+            tpotMs: args.tpotMs ?? null,
+            itlMs: args.itlMs ?? null,
+            phaseoOverheadMs: args.phaseoOverheadMs ?? null,
             usage: strippedUsage ?? {},
             requestPayload: args.requestPayload,
             gatewayResponse: args.gatewayResponse,
@@ -802,6 +840,12 @@ export async function auditSuccess(args: {
                     finishReason: args.finishReason ?? null,
                     latencyMs: args.latencyMs ?? null,
                     generationMs: args.generationMs ?? null,
+                    providerTtftMs: args.providerTtftMs ?? null,
+                    gatewayTtftMs: args.gatewayTtftMs ?? null,
+                    outputSpeedTps: args.outputSpeedTps ?? null,
+                    tpotMs: args.tpotMs ?? null,
+                    itlMs: args.itlMs ?? null,
+                    phaseoOverheadMs: args.phaseoOverheadMs ?? null,
                     internalDispatchMs: args.internalLatencyMs ?? null,
                     gatewayTotalMs: args.endToEndMs ?? null,
                     throughput: args.throughput ?? null,
@@ -1308,8 +1352,6 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
         releaseRuntime();
     }
 }
-
-
 
 
 

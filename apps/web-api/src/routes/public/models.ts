@@ -1379,10 +1379,22 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 	const modelId = c.req.param("modelId");
 	const cloudflareColo = c.req.query("colo")?.trim().toUpperCase() || null;
 	const percentile = parsePercentile(c.req.query("percentile"));
+	const streamMode = ["stream", "non_stream"].includes(c.req.query("stream") ?? "")
+		? c.req.query("stream")
+		: "all";
+	const contextBucket = ["lte_4k", "4k_16k", "16k_64k", "gt_64k"].includes(c.req.query("context") ?? "")
+		? c.req.query("context")
+		: "all";
 	try {
 		const client = getDataClient(c.env);
 		const [v2, health] = await Promise.all([
-			client.rpc("get_v2_model_performance_overview", { p_model_slug: modelId, p_cloudflare_colo: cloudflareColo, p_percentile: percentile / 100 }),
+			client.rpc("get_v2_model_performance_metrics", {
+				p_model_slug: modelId,
+				p_cloudflare_colo: cloudflareColo,
+				p_percentile: percentile / 100,
+				p_stream_mode: streamMode,
+				p_context_bucket: contextBucket,
+			}),
 			client.rpc("get_v2_model_provider_health_metrics", { p_model_slug: modelId, p_window_days: 3, p_percentile: percentile / 100 }),
 		]);
 		let performance: Record<string, any> | null = null;
@@ -1412,10 +1424,10 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 			provider_daily_7d: (performance.provider_daily_7d ?? []).filter(isKnownProvider),
 		};
 		const number = (value: unknown) => { const parsed = Number(value); return value == null || !Number.isFinite(parsed) ? null : parsed; };
-		const summary = (value: Record<string, unknown> | null | undefined) => ({ avgThroughput: number(value?.avg_throughput), avgLatencyMs: number(value?.avg_latency_ms), avgGenerationMs: number(value?.avg_generation_ms), uptimePct: number(value?.uptime_pct), totalRequests: Number(value?.total_requests ?? 0), successfulRequests: Number(value?.successful_requests ?? 0) });
-		const hourly = (performance.hourly_24h ?? []).map((value: Record<string, unknown>) => ({ bucket: value.bucket ?? "", avgThroughput: number(value.avg_throughput), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), requests: Number(value.requests ?? 0), successPct: number(value.success_pct) }));
+		const summary = (value: Record<string, unknown> | null | undefined) => ({ avgThroughput: number(value?.avg_throughput), avgOutputSpeed: number(value?.output_speed_tps), avgLatencyMs: number(value?.avg_latency_ms), avgGenerationMs: number(value?.avg_generation_ms), avgPhaseoOverheadMs: number(value?.phaseo_overhead_ms), avgTpotMs: number(value?.tpot_ms), avgItlMs: number(value?.itl_ms), uptimePct: number(value?.uptime_pct), totalRequests: Number(value?.total_requests ?? 0), successfulRequests: Number(value?.successful_requests ?? 0) });
+		const hourly = (performance.hourly_24h ?? []).map((value: Record<string, unknown>) => ({ bucket: value.bucket ?? "", avgThroughput: number(value.avg_throughput), avgOutputSpeed: number(value.output_speed_tps), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), avgPhaseoOverheadMs: number(value.phaseo_overhead_ms), avgTpotMs: number(value.tpot_ms), avgItlMs: number(value.itl_ms), requests: Number(value.requests ?? 0), successPct: number(value.success_pct) }));
 		const providerPerformance = (performance.provider_uptime_24h ?? []).map((value: Record<string, any>) => ({ provider: value.provider ?? "", providerName: value.provider_name ?? value.provider ?? "", providerColor: null, avgThroughput: number(value.avg_throughput), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), requests: Number(value.requests ?? 0), uptimePct: number(value.uptime_pct), uptimeBuckets: (value.uptime_buckets ?? []).map((bucket: Record<string, unknown>) => ({ start: bucket.start ?? "", end: bucket.end ?? "", successPct: number(bucket.success_pct) })) }));
-		const providerDaily7d = (performance.provider_daily_7d ?? []).map((value: Record<string, unknown>) => ({ day: value.day ?? "", provider: value.provider ?? "", providerName: value.provider_name ?? value.provider ?? "", providerColor: null, avgThroughput: number(value.avg_throughput), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), requests: Number(value.requests ?? 0) }));
+		const providerDaily7d = (performance.provider_daily_7d ?? []).map((value: Record<string, unknown>) => ({ day: value.day ?? "", provider: value.provider ?? "", providerName: value.provider_name ?? value.provider ?? "", providerColor: null, avgThroughput: number(value.avg_throughput), avgOutputSpeed: number(value.output_speed_tps), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), avgPhaseoOverheadMs: number(value.phaseo_overhead_ms), avgTpotMs: number(value.tpot_ms), avgItlMs: number(value.itl_ms), requests: Number(value.requests ?? 0) }));
 		const providerCount = providerPerformance.filter((provider: Record<string, unknown>) => Number(provider.requests ?? 0) > 0).length;
 		const sevenDayProviderCount = new Set(
 			providerDaily7d
@@ -1423,28 +1435,38 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 				.map((provider) => provider.provider),
 		).size;
 		const percentileSeries = sevenDayProviderCount === 1
-			? await client.rpc("get_v2_model_provider_percentile_series", { p_model_slug: modelId, p_cloudflare_colo: cloudflareColo })
+			? await client.rpc("get_v2_model_provider_percentile_series_v2", {
+				p_model_slug: modelId,
+				p_cloudflare_colo: cloudflareColo,
+				p_stream_mode: streamMode,
+				p_context_bucket: contextBucket,
+			})
 			: { data: [], error: null };
 		if (percentileSeries.error && !/could not find|does not exist|PGRST202/i.test(percentileSeries.error.message ?? "")) {
 			throw percentileSeries.error;
 		}
 		const successSeries = (performance.hourly_24h ?? []).map((value: Record<string, unknown>) => ({ bucket: value.bucket ?? "", overallSuccessPct: number(value.success_pct), worstProviderSuccessPct: providerCount > 1 ? number(value.worst_provider_success_pct) : null, providerCount, requests: Number(value.requests ?? 0) }));
 		const timeOfDay = (performance.time_of_day_5d ?? []).map((value: Record<string, unknown>) => ({ hour: Number(value.hour ?? 0), avgThroughput: number(value.avg_throughput), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), sampleCount: Number(value.sample_count ?? 0) }));
-		const providerPercentileDaily7d = (Array.isArray(percentileSeries.data) ? percentileSeries.data : []).flatMap((value: Record<string, unknown>) =>
-			([50, 75, 90, 95, 99] as const).map((seriesPercentile) => ({
+		const providerPercentileDaily7d = (Array.isArray(percentileSeries.data) ? percentileSeries.data : []).map((value: Record<string, unknown>) => {
+			const seriesPercentile = Number(value.percentile);
+			return {
 				day: value.usage_day ?? "",
 				provider: value.provider_id ?? "",
 				providerName: value.provider_name ?? value.provider_id ?? "",
 				providerColor: null,
 				percentile: seriesPercentile,
-				avgThroughput: number(value[`throughput_p${seriesPercentile}`]),
-				avgLatencyMs: number(value[`latency_p${seriesPercentile}`]),
-				avgGenerationMs: number(value[`generation_p${seriesPercentile}`]),
+				avgThroughput: number(value.effective_throughput_tps),
+				avgOutputSpeed: number(value.output_speed_tps),
+				avgLatencyMs: number(value.gateway_ttft_ms),
+				avgGenerationMs: number(value.provider_duration_ms),
+				avgPhaseoOverheadMs: number(value.phaseo_overhead_ms),
+				avgTpotMs: number(value.tpot_ms),
+				avgItlMs: number(value.itl_ms),
 				requests: Number(value.requests ?? 0),
-			})),
-		).filter((value) => String(value.provider).trim().length > 0);
+			};
+		}).filter((value) => String(value.provider).trim().length > 0);
 		const qualitySeries = (performance.quality_series ?? []).map((value: Record<string, unknown>) => ({ bucket: value.bucket ?? "", toolCallSuccessPct: number(value.tool_call_success_pct), structuredOutputSuccessPct: number(value.structured_output_success_pct), cacheHitRatePct: number(value.cache_hit_rate_pct), requests: Number(value.requests ?? 0) }));
-		const metrics = { cloudflareColo: performance.cloudflare_colo ?? cloudflareColo, percentile, summary: summary(performance.last_24h), prevSummary: summary(performance.prev_24h), hourly, successSeries, timeOfDay, providerPerformance, providerDaily7d, providerPercentileDaily7d, qualitySeries, dataRange: hourly.length ? { start: hourly[0]?.bucket ?? "", end: hourly[hourly.length - 1]?.bucket ?? "" } : { start: "", end: "" }, cumulativeTokens: number(performance.cumulative_tokens?.total_tokens), releaseDate: performance.cumulative_tokens?.release_date ?? null };
+		const metrics = { cloudflareColo: performance.cloudflare_colo ?? cloudflareColo, percentile, streamMode, contextBucket, summary: summary(performance.last_24h), prevSummary: performance.prev_24h ? summary(performance.prev_24h) : null, hourly, successSeries, timeOfDay, providerPerformance, providerDaily7d, providerPercentileDaily7d, qualitySeries, dataRange: hourly.length ? { start: hourly[0]?.bucket ?? "", end: hourly[hourly.length - 1]?.bucket ?? "" } : { start: "", end: "" }, cumulativeTokens: number(performance.cumulative_tokens?.total_tokens), releaseDate: performance.cumulative_tokens?.release_date ?? null };
 		const activity = { summary: metrics.summary, providerPerformance, cumulativeTokens: metrics.cumulativeTokens };
 		return withPublicCache(c.json({ modelId, performance, metrics, activity }), sectionPolicy("performance", modelId));
 	} catch (error) {

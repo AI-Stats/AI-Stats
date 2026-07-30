@@ -71,29 +71,35 @@ This gives a more realistic “per-call” cost when comparing across models and
 
 ## Measuring performance
 
-Phaseo tracks three main performance metrics for every model and provider:
+Phaseo tracks the following performance metrics for routed requests:
 
-| Metric                 | Description                                                                                        | Example             |
-| ---------------------- | -------------------------------------------------------------------------------------------------- | ------------------- |
-| **Throughput**         | The average number of tokens processed per second (TPS).                                           | e.g. 400 tokens/sec |
-| **Latency**            | The time between sending a request and receiving the **first token** (TTFT - time-to-first-token). | e.g. 800ms          |
-| **End-to-End Latency** | The total duration from request to the last token in the response.                                 | e.g. 3.2s           |
+| Metric | Description |
+| --- | --- |
+| **Gateway TTFT** | Gateway request start to the first content-bearing generated output. Metadata-only stream frames do not count. |
+| **Provider TTFT** | Selected provider dispatch to the first content-bearing generated output. |
+| **Provider duration** | Selected provider dispatch to the terminal response. |
+| **Gateway E2E** | Gateway request start to completion. |
+| **Phaseo overhead** | Gateway E2E minus provider duration. |
+| **Effective throughput** | All output tokens divided by the full provider duration. |
+| **Output speed** | Output tokens after the first divided by the provider time after TTFT. |
+| **TPOT / ITL** | Request-level average time per token / inter-token latency after the first token. |
 
-Together, these metrics reflect **responsiveness and efficiency** — critical for interactive or production workloads.
+TTFT, output speed, TPOT, and ITL are only reported when a streaming response exposes a content-bearing first output. Non-streaming responses retain duration and effective-throughput measurements without inventing a TTFT.
 
 ---
 
 ## How we measure it
 
-Phaseo uses **standardised benchmarking scripts** to gather real-world performance data for each model and provider.
+Phaseo aggregates **operational requests routed through the gateway**. These are production observations, not controlled benchmark runs.
 
-Each test includes:
+Performance views can be segmented by:
 
--   Repeated requests with consistent prompts (to reduce variance).
--   Averaged results across multiple time periods.
--   Measurements from different regions when applicable.
+- Streaming versus non-streaming responses.
+- Input context length buckets.
+- Provider route.
+- Cloudflare execution location.
 
-For transparency, raw performance data is often available through the open [Performance Dataset](https://github.com/phaseoteam/Phaseo) and the catalog endpoints documented in the Phaseo Gateway API reference.
+Charts support P01, P05, P10, P25, P50, P75, P90, P95, and P99. P99 is the value at or below which 99% of observations fall. Lower latency is better; higher throughput is better, so lower throughput percentiles show the slow tail.
 
 ---
 
@@ -118,9 +124,13 @@ Use Phaseo’ performance charts to visualise these trade-offs interactively.
 	"provider": "OpenAI",
 	"input_price_usd_per_1k": 0.005,
 	"output_price_usd_per_1k": 0.015,
-	"throughput_tps": 420,
-	"latency_first_token_ms": 700,
-	"latency_total_ms": 3100,
+	"effective_throughput_tps": 420,
+	"output_speed_tps": 510,
+	"gateway_ttft_ms": 700,
+	"provider_duration_ms": 3100,
+	"phaseo_overhead_ms": 35,
+	"tpot_ms": 1.96,
+	"itl_ms": 1.96,
 	"uptime_percent": 99.97
 }
 ```

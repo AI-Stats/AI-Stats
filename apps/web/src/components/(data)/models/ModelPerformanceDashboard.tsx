@@ -80,20 +80,52 @@ export default function ModelPerformanceDashboard({
 			? metrics.percentile
 			: DEFAULT_MODEL_PERCENTILE,
 	);
+	const [streamMode, setStreamMode] = useState<"all" | "stream" | "non_stream">(
+		metrics.streamMode ?? "all",
+	);
+	const [contextBucket, setContextBucket] = useState<
+		"all" | "lte_4k" | "4k_16k" | "16k_64k" | "gt_64k"
+	>(metrics.contextBucket ?? "all");
 	const [regionMetrics, setRegionMetrics] = useState<ModelPerformanceMetrics | null>(null);
 	const [isLoadingRegion, setIsLoadingRegion] = useState(false);
 	const [isLoadingPercentile, setIsLoadingPercentile] = useState(false);
 	const activeMetrics = regionMetrics ?? metrics;
 
-	const fetchSelectedMetrics = async (colo: string | null, percentile: number) => {
+	const fetchSelectedMetrics = async (
+		colo: string | null,
+		percentile: number,
+		nextStreamMode = streamMode,
+		nextContextBucket = contextBucket,
+	) => {
 		const query = new URLSearchParams({ percentile: String(percentile) });
 		if (colo) query.set("colo", colo);
+		if (nextStreamMode !== "all") query.set("stream", nextStreamMode);
+		if (nextContextBucket !== "all") query.set("context", nextContextBucket);
 		const payload = await fetchOptionalPublicWebApi<{
 			metrics: ModelPerformanceMetrics | null;
 		}>(
 			`/api/_web/models/${encodeURIComponent(modelId)}/performance?${query.toString()}`,
 		);
 		return payload?.metrics ?? null;
+	};
+
+	const handleSegmentationChange = async (
+		nextStreamMode: "all" | "stream" | "non_stream",
+		nextContextBucket: "all" | "lte_4k" | "4k_16k" | "16k_64k" | "gt_64k",
+	) => {
+		setStreamMode(nextStreamMode);
+		setContextBucket(nextContextBucket);
+		setIsLoadingRegion(true);
+		try {
+			setRegionMetrics(await fetchSelectedMetrics(
+				selectedColo,
+				selectedPercentile,
+				nextStreamMode,
+				nextContextBucket,
+			));
+		} finally {
+			setIsLoadingRegion(false);
+		}
 	};
 
 	const handleColoChange = async (value: string) => {
@@ -163,6 +195,38 @@ export default function ModelPerformanceDashboard({
 					<p className="text-sm text-muted-foreground">{headerDescription}</p>
 				</div>
 				<div className="flex items-center gap-2">
+				<label className="sr-only" htmlFor="performance-stream-mode">Streaming mode</label>
+				<select
+					id="performance-stream-mode"
+					className="h-8 rounded-md border bg-background px-2 text-xs"
+					value={streamMode}
+					disabled={isLoadingRegion}
+					onChange={(event) => void handleSegmentationChange(
+						event.target.value as "all" | "stream" | "non_stream",
+						contextBucket,
+					)}
+				>
+					<option value="all">All responses</option>
+					<option value="stream">Streaming</option>
+					<option value="non_stream">Non-streaming</option>
+				</select>
+				<label className="sr-only" htmlFor="performance-context-bucket">Context length</label>
+				<select
+					id="performance-context-bucket"
+					className="h-8 rounded-md border bg-background px-2 text-xs"
+					value={contextBucket}
+					disabled={isLoadingRegion}
+					onChange={(event) => void handleSegmentationChange(
+						streamMode,
+						event.target.value as "all" | "lte_4k" | "4k_16k" | "16k_64k" | "gt_64k",
+					)}
+				>
+					<option value="all">All contexts</option>
+					<option value="lte_4k">≤ 4K input</option>
+					<option value="4k_16k">4K–16K input</option>
+					<option value="16k_64k">16K–64K input</option>
+					<option value="gt_64k">&gt; 64K input</option>
+				</select>
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<span className="inline-flex" tabIndex={0}>
