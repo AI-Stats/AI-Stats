@@ -35,7 +35,7 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -67,7 +67,7 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "output_text_tokens",
@@ -99,7 +99,7 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "input_text_tokens",
@@ -131,7 +131,7 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -163,7 +163,7 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "output_text_tokens",
@@ -195,7 +195,7 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "input_text_tokens",
@@ -227,7 +227,7 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -259,7 +259,7 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "output_text_tokens",
@@ -291,7 +291,7 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "input_text_tokens",
@@ -323,7 +323,7 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -355,7 +355,8 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": null,
+      "effective_to": "2026-07-30T00:00:00Z"
     },
     {
       "meter": "output_text_tokens",
@@ -387,7 +388,7 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "input_text_tokens",
@@ -419,7 +420,8 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": null,
+      "effective_to": "2026-07-30T00:00:00Z"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -451,7 +453,8 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": null,
+      "effective_to": "2026-07-30T00:00:00Z"
     },
     {
       "meter": "output_text_tokens",
@@ -483,7 +486,8 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": null,
+      "effective_to": "2026-07-30T00:00:00Z"
     },
     {
       "meter": "input_text_tokens",
@@ -515,7 +519,8 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": null,
+      "effective_to": "2026-07-30T00:00:00Z"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -547,7 +552,8 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": null,
+      "effective_to": "2026-07-30T00:00:00Z"
     },
     {
       "meter": "output_text_tokens",
@@ -579,7 +585,140 @@
           "value": 272000
         }
       ],
-      "source": null
+      "source": null,
+      "effective_to": "2026-07-30T00:00:00Z"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 5,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://developers.openai.com/api/docs/pricing",
+      "effective_to": null
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.5,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://developers.openai.com/api/docs/pricing",
+      "effective_to": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 30,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://developers.openai.com/api/docs/pricing",
+      "effective_to": null
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.25,
+      "currency": "USD",
+      "pricing_plan": "flex",
+      "note": "Long-context Flex cached-input pricing from OpenAI's current pricing table.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://developers.openai.com/api/docs/pricing",
+      "effective_to": null
     }
   ],
   "regions": [],
@@ -588,10 +727,12 @@
     "flex",
     "priority"
   ],
-  "sources": [],
+  "sources": [
+    "https://developers.openai.com/api/docs/pricing"
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-07-30T00:00:00Z",
+    "notes": "Verified against OpenAI's July 30, 2026 pricing. Phaseo keeps Priority as the canonical tier name and accepts fast as an OpenAI-compatible alias."
   }
 }
