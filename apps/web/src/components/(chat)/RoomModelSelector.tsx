@@ -182,7 +182,7 @@ function buildModelOptions(models: GatewaySupportedModel[]) {
 		const existing = map.get(selectorModelId);
 		const orgId = model.organisationId?.trim() || getOrgId(selectorModelId);
 		const orgName =
-			model.organisationName ?? model.providerName ?? formatOrgLabel(orgId);
+			model.organisationName ?? formatOrgLabel(orgId);
 		const label = model.modelName ?? formatModelLabel(selectorModelId);
 		const releaseDate = model.releaseDate ?? model.announcementDate ?? null;
 
