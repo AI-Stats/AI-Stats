@@ -94,6 +94,12 @@ function availability(row: Row, capability: Row, provider: Row | null, now: numb
 	const to = row.effective_to ? Date.parse(String(row.effective_to)) : Number.POSITIVE_INFINITY;
 	if (now >= to) return "inactive";
 	if (now < from) return "coming_soon";
+	const providerAvailability = status(row.provider_availability_status);
+	if (providerAvailability === "coming_soon") return "coming_soon";
+	if (providerAvailability && !["available", "preview", "limited_access"].includes(providerAvailability)) return "inactive";
+	const phaseo = status(row.phaseo_status);
+	if (phaseo && ["planned", "implementing", "testing"].includes(phaseo)) return "coming_soon";
+	if (phaseo && phaseo !== "enabled") return "inactive";
 	const providerStatus = status(provider?.status);
 	if (providerStatus === "beta" || providerStatus === "alpha") return "coming_soon";
 	if (!row.is_active_gateway || (providerStatus && providerStatus !== "active") || !publicRouting(provider?.routing_status) || !publicRouting(row.routing_status)) return "inactive";
@@ -107,6 +113,10 @@ function availabilityReason(row: Row, capability: Row, provider: Row | null, now
 	const to = row.effective_to ? Date.parse(String(row.effective_to)) : Number.POSITIVE_INFINITY;
 	if (now >= to) return "retired";
 	if (now < from) return "scheduled";
+	const providerAvailability = status(row.provider_availability_status);
+	if (providerAvailability && providerAvailability !== "available") return `provider_${providerAvailability}`;
+	const phaseo = status(row.phaseo_status);
+	if (phaseo && phaseo !== "enabled") return `phaseo_${phaseo}`;
 	const providerStatus = status(provider?.status);
 	if (providerStatus === "beta" || providerStatus === "alpha") return "preview_only";
 	if (providerStatus && providerStatus !== "active") return ["not_ready", "gated", "access_limited", "region_limited", "project_limited", "paused", "soft_blocked"].includes(providerStatus) ? providerStatus : "provider_inactive";
@@ -131,6 +141,16 @@ export async function fetchGatewayMetadataSource(env: Env, modelId: string): Pro
 		p_service_tier: "standard",
 	});
 	if (!v2Pricing.error && Array.isArray(v2Pricing.data)) {
+		const routeStatusResult = await client
+			.from("v2_model_provider_routes")
+			.select("provider_model_id,provider_availability_status,phaseo_status")
+			.eq("model_slug", modelId);
+		const explicitStatusesByRoute = new Map(
+			(routeStatusResult.error ? [] : rows(routeStatusResult.data)).flatMap((route) => {
+				const providerModelId = id(route.provider_model_id);
+				return providerModelId ? [[providerModelId, route] as const] : [];
+			}),
+		);
 		const providerModels = new Map<string, Row>();
 		const caps = new Map<string, Row>();
 		const providers: Row[] = [];
@@ -142,6 +162,7 @@ export async function fetchGatewayMetadataSource(env: Env, modelId: string): Pro
 				const endpoint = id(item.endpoint) ?? "unmapped";
 				if (!providerModelId) continue;
 				const key = `${providerModelId}:${endpoint}`;
+				const explicitStatuses = explicitStatusesByRoute.get(providerModelId);
 				const normalized = {
 					provider_api_model_id: providerModelId,
 					provider_id: item.api_provider_id,
@@ -149,6 +170,8 @@ export async function fetchGatewayMetadataSource(env: Env, modelId: string): Pro
 					model_id: item.model_id,
 					provider_model_slug: item.provider_model_slug,
 					is_active_gateway: item.is_active_gateway,
+					provider_availability_status: explicitStatuses?.provider_availability_status ?? item.provider_availability_status ?? null,
+					phaseo_status: explicitStatuses?.phaseo_status ?? item.phaseo_status ?? null,
 					routing_status: item.routing_status,
 					input_modalities: item.input_modalities,
 					output_modalities: item.output_modalities,
@@ -244,6 +267,8 @@ export function composeGatewayMetadata(modelId: string, source: GatewayMetadataS
 				model_id: id(row.api_model_id) ?? modelId,
 				endpoint: capabilityId,
 				is_active_gateway: Boolean(row.is_active_gateway),
+				provider_availability_status: status(row.provider_availability_status),
+				phaseo_status: status(row.phaseo_status),
 				availability_status: availabilityStatus,
 				availability_reason: availabilityReason(row, cap, provider, now),
 				provider_status: status(provider?.status),
