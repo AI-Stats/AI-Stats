@@ -1,0 +1,35 @@
+{
+  "pricing": {
+    "key": "thinking-machines:thinking-machines/inkling-small:text.generate",
+    "provider": "thinking-machines",
+    "api_model": "thinking-machines/inkling-small",
+    "currency": "USD",
+    "unit": "tokens",
+    "effective_date": "2026-07-30",
+    "rules": [
+      {
+        "type": "token",
+        "input_per_million": 0.3,
+        "cached_input_per_million": 0.06,
+        "output_per_million": 1.2,
+        "service_tier": "standard",
+        "notes": "Tinker serverless inference beta pricing for Inkling Small. The service is in beta and is not recommended for intensive production use."
+      }
+    ],
+    "service_tiers": [
+      "standard"
+    ],
+    "sources": [
+      {
+        "url": "https://tinker-docs.thinkingmachines.ai/tinker/models/",
+        "kind": "pricing",
+        "label": "Tinker models and serverless inference pricing"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "last_updated": "2026-07-30",
+      "notes": "Verified against the official Tinker models documentation."
+    }
+  }
+}
