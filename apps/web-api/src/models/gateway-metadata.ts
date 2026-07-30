@@ -143,7 +143,7 @@ export async function fetchGatewayMetadataSource(env: Env, modelId: string): Pro
 	if (!v2Pricing.error && Array.isArray(v2Pricing.data)) {
 		const routeStatusResult = await client
 			.from("v2_model_provider_routes")
-			.select("provider_model_id,provider_availability_status,phaseo_status")
+			.select("provider_model_id,provider_availability_status,phaseo_status,access_scope")
 			.eq("model_slug", modelId);
 		const explicitStatusesByRoute = new Map(
 			(routeStatusResult.error ? [] : rows(routeStatusResult.data)).flatMap((route) => {
@@ -172,6 +172,7 @@ export async function fetchGatewayMetadataSource(env: Env, modelId: string): Pro
 					is_active_gateway: item.is_active_gateway,
 					provider_availability_status: explicitStatuses?.provider_availability_status ?? item.provider_availability_status ?? null,
 					phaseo_status: explicitStatuses?.phaseo_status ?? item.phaseo_status ?? null,
+					access_scope: explicitStatuses?.access_scope ?? item.access_scope ?? null,
 					routing_status: item.routing_status,
 					input_modalities: item.input_modalities,
 					output_modalities: item.output_modalities,
@@ -269,6 +270,7 @@ export function composeGatewayMetadata(modelId: string, source: GatewayMetadataS
 				is_active_gateway: Boolean(row.is_active_gateway),
 				provider_availability_status: status(row.provider_availability_status),
 				phaseo_status: status(row.phaseo_status),
+				access_scope: status(row.access_scope) ?? "public",
 				availability_status: availabilityStatus,
 				availability_reason: availabilityReason(row, cap, provider, now),
 				provider_status: status(provider?.status),
