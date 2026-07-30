@@ -2795,6 +2795,7 @@
     "morph:text.generate:moonshotai-kimi-k3",
     "morph:text.generate:qwen-qwen3.5-397b-a17b",
     "morph:text.generate:qwen-qwen3.6-27b",
-    "morph:text.generate:z-ai-glm-5.2"
+    "morph:text.generate:z-ai-glm-5.2",
+    "morph:text.generate:moonshotai-kimi-k3-fast"
   ]
 }
