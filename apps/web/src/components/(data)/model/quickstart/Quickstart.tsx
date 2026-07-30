@@ -71,7 +71,7 @@ type LanguageFamilyId =
 	| "php"
 	| "ruby";
 
-type ServiceTier = "standard" | "fast" | "priority" | "flex";
+type ServiceTier = "standard" | "priority" | "flex";
 
 const LANGUAGE_FAMILY_ORDER: LanguageFamilyId[] = [
 	"typescript",
@@ -163,8 +163,7 @@ const LANGUAGE_VARIANT_LABELS: Partial<Record<string, string>> = {
 
 const SERVICE_TIER_LABELS: Record<ServiceTier, string> = {
 	standard: "Standard",
-	fast: "Fast",
-	priority: "Priority (legacy alias)",
+	priority: "Priority",
 	flex: "Flex",
 };
 const STREAMING_SNIPPET_LANGUAGES = new Set([
