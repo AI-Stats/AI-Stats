@@ -3177,7 +3177,7 @@
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
-    "context_length": 1048576,
+    "context_length": 131072,
     "max_output_tokens": 65536,
     "effective_from": "2026-04-14T00:00:00",
     "effective_to": null,
@@ -3187,14 +3187,7 @@
         "status": "active",
         "params": [
           {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
+            "param_id": "include_reasoning",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
@@ -3208,14 +3201,14 @@
             "notes": null
           },
           {
-            "param_id": "temperature",
+            "param_id": "reasoning",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
             "notes": null
           },
           {
-            "param_id": "top_p",
+            "param_id": "response_format",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
@@ -3236,7 +3229,14 @@
             "notes": null
           },
           {
-            "param_id": "tools",
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
@@ -3244,6 +3244,20 @@
           },
           {
             "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
@@ -3272,11 +3286,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://ai.google.dev/gemini-api/docs/models/gemini-robotics-er-1.6-preview",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official model identifier, modalities, token limits, capabilities, and availability."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Verified against Google's official model specification."
     },
     "rate_limits": []
   },
