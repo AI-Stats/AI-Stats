@@ -60,6 +60,27 @@ Stored per provider/model route as
 
 Only `enabled` may have `routing_enabled = true`.
 
+### Access scope
+
+Stored per provider/model route as
+`v2_model_provider_routes.access_scope`.
+
+| Value | Meaning |
+| --- | --- |
+| `public` | Eligible for ordinary customer routing when all other gates pass. |
+| `internal` | Available only through authenticated gateway testing mode. |
+
+Internal access is an audience policy, not a lifecycle. A route may therefore be
+Phaseo `testing` with `access_scope = 'internal'`, or Phaseo `enabled`
+while remaining internal-only. Internal routes never set the public
+`routing_enabled` switch.
+
+The gateway reuses the existing high-entropy internal token and explicit
+testing-mode request. Ordinary requests use the default context-cache segment
+and never execute the internal-route lookup; testing requests use a separate
+cache segment and query only explicitly internal routes whose provider offer is
+usable and whose Phaseo status is `testing` or `enabled`.
+
 ### Routing health
 
 The existing route `status` / `routing_status` remains a routing-health and
@@ -79,8 +100,9 @@ A route is eligible only when all of the following hold:
 1. the model, lab, and provider pass their existing lifecycle and effective-window checks;
 2. `provider_availability_status` is `available`, `preview`, or `limited_access`;
 3. `phaseo_status = 'enabled'`;
-4. provider-, route-, region-, and variant-level routing switches are enabled;
-5. the capability and routing-health states permit routing.
+4. `access_scope = 'public'`;
+5. provider-, route-, region-, and variant-level routing switches are enabled;
+6. the capability and routing-health states permit routing.
 
 Provider availability is therefore necessary but never sufficient.
 
@@ -91,7 +113,7 @@ The rollout is additive:
 - legacy `status`, `routing_status`, `routable`, and
   `is_active_gateway` remain readable;
 - the importer writes the new explicit fields and derives legacy routing
-  switches from `phaseo_status`;
+  switches from `phaseo_status` and `access_scope`;
 - existing active routes backfill to provider `available` and Phaseo
   `enabled`; inactive routes backfill conservatively;
 - missing or unrecognised authored values normalise to `unknown` and do not
