@@ -565,9 +565,13 @@ async function fetchTestingProviderSnapshots(args: {
     const byApiModelResult = await supabase
         .from("v2_model_provider_routes")
         .select(
-            "provider_api_model_id:provider_model_id,provider_id:provider_slug,provider_model_slug,is_active_gateway:routing_enabled,routing_status:status,effective_from,effective_to,input_modalities,output_modalities"
+            "provider_api_model_id:provider_model_id,provider_id:provider_slug,provider_model_slug,is_active_gateway:routing_enabled,routing_status:status,provider_availability_status,phaseo_status,access_scope,effective_from,effective_to,input_modalities,output_modalities"
         )
-        .in("model_slug", modelCandidates);
+        .in("model_slug", modelCandidates)
+        .eq("access_scope", "internal")
+        .in("phaseo_status", ["testing", "enabled"])
+        .in("provider_availability_status", ["available", "preview", "limited_access"])
+        .in("status", ["active", "degraded"]);
 
     if (byApiModelResult.error) return [];
 
