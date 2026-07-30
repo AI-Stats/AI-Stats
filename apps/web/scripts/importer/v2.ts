@@ -98,8 +98,10 @@ function routeCapabilities(row: Record<string, any>): Record<string, any>[] {
 }
 
 export function providerAvailabilityStatus(row: Record<string, any>): string {
-    const explicit = normalizedStatus(row.provider_status ?? row.provider_availability_status);
+    const explicitValue = row.provider_status ?? row.provider_availability_status;
+    const explicit = normalizedStatus(explicitValue);
     if (PROVIDER_AVAILABILITY_STATUSES.has(explicit)) return explicit;
+    if (explicitValue !== null && explicitValue !== undefined && explicit !== "") return "unknown";
     const routing = normalizedStatus(row.routing_status);
     if (routing === "retired") return "removed";
     if (routeCapabilities(row).some(capability => normalizedStatus(capability.status) === "coming_soon")) {
@@ -109,8 +111,10 @@ export function providerAvailabilityStatus(row: Record<string, any>): string {
 }
 
 export function phaseoStatus(row: Record<string, any>, providerIsExternal = false): string {
-    const explicit = normalizedStatus(row.phaseo_status);
+    const explicitValue = row.phaseo_status;
+    const explicit = normalizedStatus(explicitValue);
     if (PHASEO_STATUSES.has(explicit)) return explicit;
+    if (explicitValue !== null && explicitValue !== undefined && explicit !== "") return "disabled";
     if (providerIsExternal || row.routable === false) return "unsupported";
     const capabilities = routeCapabilities(row).map(capability => normalizedStatus(capability.status));
     if (capabilities.includes("internal_testing")) return "testing";
