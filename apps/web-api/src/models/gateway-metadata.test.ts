@@ -41,6 +41,7 @@ describe("composeGatewayMetadata", () => {
 				is_active_gateway: true,
 				provider_availability_status: "available",
 				phaseo_status: "implementing",
+				access_scope: "internal",
 				routing_status: "active",
 				input_modalities: ["text", "audio"],
 				output_modalities: ["audio"],
@@ -67,6 +68,7 @@ describe("composeGatewayMetadata", () => {
 		expect(metadata.comingSoonProviders[0]).toMatchObject({
 			provider_availability_status: "available",
 			phaseo_status: "implementing",
+			access_scope: "internal",
 			availability_reason: "phaseo_implementing",
 		});
 	});
