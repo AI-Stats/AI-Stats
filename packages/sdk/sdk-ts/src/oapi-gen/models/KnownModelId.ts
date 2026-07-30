@@ -445,7 +445,6 @@ export type KnownModelId =
   | "voyage/voyage-multilingual-2"
   | "voyage/voyage-multimodal-3"
   | "voyage/voyage-multimodal-3.5"
-  | "x-ai/grok-voice-latest"
   | "xiaomi/mimo-v2-flash"
   | "xiaomi/mimo-v2.5"
   | "xiaomi/mimo-v2.5-pro"
