@@ -43,6 +43,22 @@ Phaseo status describes our implementation and rollout.
 
 Only `Enabled` integrations can have public routing enabled.
 
+## Internal access
+
+Access scope is separate from Phaseo integration status:
+
+| Scope | Meaning |
+| --- | --- |
+| `Public` | Ordinary customer requests may use the route when every routing gate passes. |
+| `Internal` | Only authenticated Phaseo testing traffic may use the route. |
+
+An internal route requires the high-entropy internal token and an explicit
+testing-mode request. A customer cannot enable it with the testing header alone.
+Ordinary requests do not perform an internal-route database lookup; they use
+the existing default context cache. Internal testing uses a separate cache
+segment and only considers explicitly internal routes whose upstream offer is
+usable and whose Phaseo status is `Testing` or `Enabled`.
+
 ## Routing health
 
 Routing health is a third, operational signal. It answers how an enabled route
