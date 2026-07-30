@@ -41,7 +41,10 @@
   ],
   "benchmarks": [],
   "family_id": null,
-  "page_notice": "Gemini Robotics ER 1.6 is deprecated and will shut down on 31 August 2026. Migrate to Gemini Robotics ER 2 Preview.",
+  "page_notice": {
+    "tone": "warning",
+    "markdown": "Gemini Robotics ER 1.6 is deprecated and will shut down on 31 August 2026. Migrate to Gemini Robotics ER 2 Preview."
+  },
   "model_type": null,
   "knowledge_cutoff": "2025-01",
   "limits": {
