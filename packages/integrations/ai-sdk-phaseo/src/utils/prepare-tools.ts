@@ -1,14 +1,14 @@
 import type {
-  LanguageModelV3ToolChoice,
-  LanguageModelV3FunctionTool,
-  LanguageModelV3ProviderTool,
+  LanguageModelV4ToolChoice,
+  LanguageModelV4FunctionTool,
+  LanguageModelV4ProviderTool,
 } from '@ai-sdk/provider';
 
 /**
  * Converts AI SDK tools to Phaseo Gateway format
  */
 export function prepareTools(
-  tools: Array<LanguageModelV3FunctionTool | LanguageModelV3ProviderTool>
+  tools: Array<LanguageModelV4FunctionTool | LanguageModelV4ProviderTool>
 ): any[] {
   return tools.map((tool) => {
     if (tool.type === 'provider') {
@@ -30,7 +30,7 @@ export function prepareTools(
 /**
  * Converts AI SDK tool choice to gateway format
  */
-export function convertToolChoice(toolChoice: LanguageModelV3ToolChoice): any {
+export function convertToolChoice(toolChoice: LanguageModelV4ToolChoice): any {
   switch (toolChoice.type) {
     case 'auto':
       return 'auto';
@@ -53,3 +53,4 @@ export function convertToolChoice(toolChoice: LanguageModelV3ToolChoice): any {
       return 'auto';
   }
 }
+
