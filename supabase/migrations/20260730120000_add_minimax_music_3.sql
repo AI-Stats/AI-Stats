@@ -1,5 +1,5 @@
--- Add MiniMax Music 3.0 from the official 2026-07-16 release and API documentation.
--- The paid and free model identifiers share the existing MiniMax music-generation executor.
+-- Add the paid MiniMax Music 3.0 route from the official 2026-07-16 release
+-- and API documentation. The free provider variant is intentionally not offered.
 
 insert into public.v2_models (
   model_slug, lab_slug, name, description, status, input_modalities,
@@ -27,17 +27,11 @@ insert into public.v2_model_provider_routes (
   provider_model_id, model_slug, provider_slug, provider_model_slug, status,
   routing_enabled, input_modalities, output_modalities, effective_from, metadata
 )
-values
-  (
-    'minimax:minimax/music-3.0', 'minimax/music-3.0', 'minimax', 'music-3.0',
-    'active', true, array['text'], array['music'], '2026-07-16T00:00:00Z',
-    '{"endpoint":"/v1/music_generation","rate_limit_rpm":120}'::jsonb
-  ),
-  (
-    'minimax:minimax/music-3.0-free', 'minimax/music-3.0', 'minimax', 'music-3.0-free',
-    'active', true, array['text'], array['music'], '2026-07-16T00:00:00Z',
-    '{"endpoint":"/v1/music_generation","rate_limit_rpm":3}'::jsonb
-  )
+values (
+  'minimax:minimax/music-3.0', 'minimax/music-3.0', 'minimax', 'music-3.0',
+  'active', true, array['text'], array['music'], '2026-07-16T00:00:00Z',
+  '{"endpoint":"/v1/music_generation","rate_limit_rpm":120}'::jsonb
+)
 on conflict (provider_model_id) do update set
   model_slug = excluded.model_slug,
   provider_slug = excluded.provider_slug,
@@ -53,17 +47,11 @@ on conflict (provider_model_id) do update set
 insert into public.v2_route_capabilities (
   provider_model_id, capability_id, status, params, effective_from, metadata
 )
-values
-  (
-    'minimax:minimax/music-3.0', 'music.generate', 'active',
-    '{"prompt":{},"lyrics":{},"is_instrumental":{},"duration":{}}'::jsonb,
-    '2026-07-16T00:00:00Z', '{}'::jsonb
-  ),
-  (
-    'minimax:minimax/music-3.0-free', 'music.generate', 'active',
-    '{"prompt":{},"lyrics":{},"is_instrumental":{},"duration":{}}'::jsonb,
-    '2026-07-16T00:00:00Z', '{"rate_limit_rpm":3}'::jsonb
-  )
+values (
+  'minimax:minimax/music-3.0', 'music.generate', 'active',
+  '{"prompt":{},"lyrics":{},"is_instrumental":{},"duration":{}}'::jsonb,
+  '2026-07-16T00:00:00Z', '{}'::jsonb
+)
 on conflict (provider_model_id, capability_id) do update set
   status = excluded.status,
   params = excluded.params,
@@ -72,9 +60,7 @@ on conflict (provider_model_id, capability_id) do update set
   updated_at = now();
 
 insert into public.v2_service_tiers (service_tier_slug, display_name, metadata)
-values
-  ('standard', 'Standard', '{"source":"minimax_music_3"}'::jsonb),
-  ('free', 'Free', '{"source":"minimax_music_3"}'::jsonb)
+values ('standard', 'Standard', '{"source":"minimax_music_3"}'::jsonb)
 on conflict (service_tier_slug) do update set
   display_name = excluded.display_name,
   metadata = public.v2_service_tiers.metadata || excluded.metadata,
@@ -95,19 +81,12 @@ insert into public.v2_pricing_skus (
   provider_model_id, sku_code, version, operation, status, display_name,
   description, currency, effective_from, effective_to, service_tier_slug, metadata
 )
-values
-  (
-    'minimax:minimax/music-3.0', 'payg', 1, 'music.generate', 'active',
-    'Music 3.0 pay as you go', '$0.15 per generated track up to five minutes.',
-    'USD', '2026-07-16T00:00:00Z', null, 'standard',
-    '{"source_url":"https://platform.minimax.io/docs/guides/pricing-paygo"}'::jsonb
-  ),
-  (
-    'minimax:minimax/music-3.0-free', 'free', 1, 'music.generate', 'active',
-    'Music 3.0 free', 'Free Music 3.0 route with a 3 RPM limit.',
-    'USD', '2026-07-16T00:00:00Z', null, 'free',
-    '{"source_url":"https://platform.minimax.io/docs/guides/pricing-paygo"}'::jsonb
-  )
+values (
+  'minimax:minimax/music-3.0', 'payg', 1, 'music.generate', 'active',
+  'Music 3.0 pay as you go', '$0.15 per generated track up to five minutes.',
+  'USD', '2026-07-16T00:00:00Z', null, 'standard',
+  '{"source_url":"https://platform.minimax.io/docs/guides/pricing-paygo"}'::jsonb
+)
 on conflict (provider_model_id, sku_code, version) do update set
   operation = excluded.operation,
   status = excluded.status,
@@ -125,13 +104,12 @@ insert into public.v2_pricing_sku_meters (
   display_label, display_unit, metadata
 )
 select
-  sku.sku_id, 'requests', 'audio', null, 'request', 1,
-  case when sku.sku_code = 'payg' then 150000000 else 0 end,
+  sku.sku_id, 'requests', 'audio', null, 'request', 1, 150000000,
   'Generated tracks', '1 track (up to 5 minutes)',
   '{"source":"minimax_music_3"}'::jsonb
 from public.v2_pricing_skus sku
-where sku.provider_model_id in ('minimax:minimax/music-3.0', 'minimax:minimax/music-3.0-free')
-  and sku.sku_code in ('payg', 'free')
+where sku.provider_model_id = 'minimax:minimax/music-3.0'
+  and sku.sku_code = 'payg'
   and sku.version = 1
 on conflict (sku_id, meter_key) do update set
   modality = excluded.modality,
