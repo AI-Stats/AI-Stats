@@ -1092,7 +1092,7 @@
       "price_per_unit": 10,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "OpenAI Fast mode pricing; service_tier \"priority\" remains a supported alias.",
+      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
       "match": [],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
@@ -1109,7 +1109,7 @@
       "price_per_unit": 1,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "OpenAI Fast mode pricing; service_tier \"priority\" remains a supported alias.",
+      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
       "match": [],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
@@ -1126,7 +1126,7 @@
       "price_per_unit": 12.5,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "OpenAI Fast mode pricing; service_tier \"priority\" remains a supported alias.",
+      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
       "match": [],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
@@ -1143,7 +1143,7 @@
       "price_per_unit": 60,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "OpenAI Fast mode pricing; service_tier \"priority\" remains a supported alias.",
+      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
       "match": [],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
@@ -1158,7 +1158,6 @@
   "service_tiers": [
     "standard",
     "flex",
-    "fast",
     "priority"
   ],
   "sources": [
@@ -1167,6 +1166,6 @@
   "verification": {
     "status": "verified",
     "checked_at": "2026-07-30T00:00:00Z",
-    "notes": "Updated from OpenAI's pricing page for the July 30, 2026 GPT-5.6 price change and Fast mode launch."
+    "notes": "Verified against OpenAI's July 30, 2026 pricing. Phaseo keeps Priority as the canonical tier name and accepts fast as an OpenAI-compatible alias."
   }
 }
