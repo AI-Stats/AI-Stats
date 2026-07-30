@@ -292,21 +292,79 @@
     "provider_api_model_id": "wafer:Kimi-K3",
     "provider_model_slug": "Kimi-K3",
     "internal_model_id": "moonshotai/kimi-k3",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "",
+    "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": 1048576,
-    "max_output_tokens": null,
+    "context_length": 1000000,
+    "max_output_tokens": 262144,
     "effective_from": "2026-07-29T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
         "reasoning": true,
-        "tool_call": null,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard",
+      "priority"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://app.wafer.ai/models",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Wafer model catalogue lists Kimi-K3 and Kimi-K3-Fast serverless rates."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Wafer lists Kimi-K3 at $3.00 input, $0.30 cached input, and $15.00 output per 1M tokens. The existing OpenAI-compatible Wafer adapter routes the upstream Kimi-K3 slug."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k3-fast",
+    "provider_api_model_id": "wafer:Kimi-K3-Fast",
+    "provider_model_slug": "Kimi-K3-Fast",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 262144,
+    "effective_from": "2026-07-30T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
         "structured_output": null,
         "temperature": null,
         "attachment": null,
@@ -321,7 +379,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "priority"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -330,15 +390,15 @@
     "sources": [
       {
         "url": "https://app.wafer.ai/models",
-        "kind": "documentation",
-        "accessed_at": "2026-07-29T00:00:00Z",
-        "notes": "Wafer model discovery reported the Kimi-K3 serverless model slug. The public model page had not yet refreshed in the indexed view at the time of this catalogue update."
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Wafer model catalogue lists Kimi-K3 and Kimi-K3-Fast serverless rates."
       }
     ],
     "verification": {
-      "status": "unverified",
+      "status": "verified",
       "checked_at": "2026-07-30T00:00:00Z",
-      "notes": "Wafer model discovery detected Kimi-K3, but this deployment remains coming soon and is excluded from gateway routing until the upstream route is confirmed ready. Phaseo's Wafer OpenAI-compatible gateway integration is already implemented."
+      "notes": "Hidden provider sibling selected only when moonshotai/kimi-k3 requests use service_tier=priority. Wafer describes Kimi-K3-Fast as the same model served for high TPS."
     },
     "rate_limits": []
   }
