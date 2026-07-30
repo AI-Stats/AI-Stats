@@ -1889,7 +1889,7 @@ const (
 	KnownModelIdVoyageVoyageMultilingual2 KnownModelId = "voyage/voyage-multilingual-2"
 	KnownModelIdVoyageVoyageMultimodal3 KnownModelId = "voyage/voyage-multimodal-3"
 	KnownModelIdVoyageVoyageMultimodal35 KnownModelId = "voyage/voyage-multimodal-3.5"
-	KnownModelIdXAiGrokVoiceLatest KnownModelId = "x-ai/grok-voice-latest"
+	KnownModelIdXAiGrokVoiceThinkFast20 KnownModelId = "x-ai/grok-voice-think-fast-2.0"
 	KnownModelIdXiaomiMimoV2Flash KnownModelId = "xiaomi/mimo-v2-flash"
 	KnownModelIdXiaomiMimoV25 KnownModelId = "xiaomi/mimo-v2.5"
 	KnownModelIdXiaomiMimoV25Pro KnownModelId = "xiaomi/mimo-v2.5-pro"
