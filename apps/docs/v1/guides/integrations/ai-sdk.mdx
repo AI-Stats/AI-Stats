@@ -8,17 +8,21 @@ Phaseo ships an official Vercel AI SDK provider in the `@phaseo/ai-sdk-provider`
 
 ## Install
 
-AI SDK 7 is the default for new projects:
+AI SDK 7 and the native Phaseo `ProviderV4` implementation are the default for new projects:
 
 ```bash
 npm install @phaseo/ai-sdk-provider ai
 ```
 
-The package uses a v3 provider contract that AI SDK 7 supports through its built-in compatibility layer. Existing AI SDK 6 projects can use the same Phaseo package by pinning AI SDK 6:
+### AI SDK 6 maintenance line
+
+AI SDK 6 uses the previous `ProviderV3` contract. Pin Phaseo provider 1.x and AI SDK 6:
 
 ```bash
-npm install @phaseo/ai-sdk-provider ai@ai-v6
+npm install @phaseo/ai-sdk-provider@^1 ai@ai-v6
 ```
+
+Phaseo provider 1.x remains in maintenance while AI SDK 7 is current. When AI SDK 8 reaches a stable release, Phaseo will mark the 1.x line as deprecated on npm. Deprecation will not remove existing releases; any eventual end-of-support decision will be announced separately.
 
 ### AI SDK 5 compatibility
 
@@ -59,4 +63,4 @@ const result = await generateText({
 ## Notes
 
 - Use model ids from the [Models endpoint](../../api-reference/endpoint/models.mdx).
-- The provider supports the AI SDK primitives for text, images, audio, and embeddings.
+- Provider 2.x implements AI SDK 7's native v4 contracts for language, embeddings, images, transcription, and speech.\n- AI SDK 7 reasoning settings and tagged file inputs are translated to the Phaseo gateway format.\n- Provider v4 capabilities that require Phaseo API surfaces not currently exposed—such as managed files, skills, and reranking—are not advertised.
