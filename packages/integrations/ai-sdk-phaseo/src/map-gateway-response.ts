@@ -1,4 +1,4 @@
-import type { LanguageModelV3CallOptions, LanguageModelV3GenerateResult } from '@ai-sdk/provider';
+import type { LanguageModelV4CallOptions, LanguageModelV4GenerateResult } from '@ai-sdk/provider';
 import { mapGatewayFinishReason } from './map-gateway-finish-reason.js';
 import { mapGatewayUsage } from './map-gateway-usage.js';
 import { mapPhaseoProviderMetadata } from './map-phaseo-provider-metadata.js';
@@ -8,10 +8,10 @@ import { mapPhaseoProviderMetadata } from './map-phaseo-provider-metadata.js';
  */
 export function mapGatewayResponse(
   response: any,
-  _options: LanguageModelV3CallOptions,
+  _options: LanguageModelV4CallOptions,
   gatewayRequest: any,
   responseHeaders?: Record<string, string>
-): LanguageModelV3GenerateResult {
+): LanguageModelV4GenerateResult {
   const choice = response.choices?.[0];
 
   if (!choice) {
@@ -71,3 +71,4 @@ export function mapGatewayResponse(
     warnings: [],
   };
 }
+
