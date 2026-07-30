@@ -155,7 +155,7 @@ const PARAMETER_REFERENCE: Record<string, ParameterReference> = {
 		type: "string",
 		defaultValue: "standard",
 		description:
-			"Chooses a supported request tier such as priority or flex when the route supports it.",
+			"Chooses a supported request tier such as fast, priority, or flex when the route supports it.",
 	},
 	stream: {
 		type: "boolean",

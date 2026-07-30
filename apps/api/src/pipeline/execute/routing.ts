@@ -689,7 +689,8 @@ function hasZdrSpecializedSibling(
 }
 
 function normalizeRequestedServiceTier(body: any): string | null {
-	return normalizeTextServiceTier(readRequestedServiceTier(body).value) ?? null;
+	const tier = normalizeTextServiceTier(readRequestedServiceTier(body).value) ?? null;
+	return tier === "fast" ? "priority" : tier;
 }
 
 function hasSpecializedTierSibling(args: {

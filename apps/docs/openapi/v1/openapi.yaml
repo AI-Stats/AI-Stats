@@ -4132,6 +4132,7 @@ components:
           type: string
           enum:
             - standard
+            - fast
             - priority
             - flex
             - batch
@@ -4834,6 +4835,7 @@ components:
           type: string
           enum:
             - standard
+            - fast
             - priority
             - flex
             - batch
