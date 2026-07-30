@@ -1,0 +1,74 @@
+{
+  "key": "morph:moonshotai/kimi-k3-fast:text.generate",
+  "api_provider_id": "morph",
+  "provider_slug": "morph",
+  "api_model_id": "moonshotai/kimi-k3-fast",
+  "capability_id": "text.generate",
+  "rules": [
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Morph Kimi K3 latency-tuned endpoint",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://www.morphllm.com/pricing",
+      "price_per_unit": 4.5
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Morph Kimi K3 latency-tuned endpoint",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://www.morphllm.com/pricing",
+      "price_per_unit": 0.45
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Morph Kimi K3 latency-tuned endpoint",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://www.morphllm.com/pricing",
+      "price_per_unit": 22.5
+    }
+  ],
+  "regions": [
+    "US"
+  ],
+  "service_tiers": [
+    "priority"
+  ],
+  "sources": [
+    {
+      "url": "https://www.morphllm.com/pricing",
+      "kind": "pricing"
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-07-30T00:00:00Z",
+    "notes": "Official Morph pricing lists Kimi K3 Fast at $4.50 input, $0.45 cached input, and $22.50 output per 1M tokens; routing remains disabled while Morph reports is_ready=false."
+  }
+}
