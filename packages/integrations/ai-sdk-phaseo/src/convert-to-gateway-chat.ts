@@ -1,4 +1,4 @@
-import type { LanguageModelV3Prompt, LanguageModelV3CallOptions } from '@ai-sdk/provider';
+import type { LanguageModelV4Prompt, LanguageModelV4CallOptions } from '@ai-sdk/provider';
 import type { PhaseoModelSettings } from './phaseo-settings.js';
 import { prepareTools } from './utils/prepare-tools.js';
 
@@ -6,10 +6,10 @@ import { prepareTools } from './utils/prepare-tools.js';
  * Converts AI SDK prompt format to Phaseo Gateway /chat/completions format
  */
 export function convertToGatewayChatRequest(
-  prompt: LanguageModelV3Prompt,
+  prompt: LanguageModelV4Prompt,
   modelId: string,
   settings: PhaseoModelSettings,
-  options: LanguageModelV3CallOptions
+  options: LanguageModelV4CallOptions
 ): any {
   const messages = prompt
     .map((message) => {
@@ -92,6 +92,14 @@ export function convertToGatewayChatRequest(
   if (options.seed !== undefined) {
     body.seed = options.seed;
   }
+  if (options.reasoning && options.reasoning !== 'provider-default') {
+    body.reasoning_effort = options.reasoning;
+  }
+
+  const phaseoOptions = options.providerOptions?.phaseo;
+  if (phaseoOptions) {
+    Object.assign(body, phaseoOptions);
+  }
 
   // Add settings parameters
   if (settings.user !== undefined) {
@@ -154,7 +162,24 @@ function convertContent(content: any): string | any[] {
             type: 'text',
             text: part.text,
           };
+        case 'reasoning-file':
+          return {
+            type: 'text',
+            text: `[Reasoning file: ${part.mediaType}]`,
+          };
+        case 'custom':
+          return {
+            type: 'text',
+            text: '',
+          };
         case 'file':
+          if (part.data?.type === 'text') {
+            return {
+              type: 'text',
+              text: part.data.text,
+            };
+          }
+
           if (typeof part.mediaType === 'string' && part.mediaType.startsWith('image/')) {
             return {
               type: 'image_url',
@@ -187,6 +212,22 @@ function convertContent(content: any): string | any[] {
 }
 
 function toImageUrl(data: unknown, mediaType: string): string {
+  if (data && typeof data === 'object' && 'type' in data) {
+    const fileData = data as {
+      type: string;
+      data?: Uint8Array | string;
+      url?: URL | string;
+    };
+
+    if (fileData.type === 'url') {
+      return String(fileData.url ?? '');
+    }
+
+    if (fileData.type === 'data') {
+      return toImageUrl(fileData.data, mediaType);
+    }
+  }
+
   if (data instanceof URL) {
     return data.toString();
   }
