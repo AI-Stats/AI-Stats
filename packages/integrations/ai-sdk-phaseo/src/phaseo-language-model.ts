@@ -1,8 +1,8 @@
 import type {
-  LanguageModelV3,
-  LanguageModelV3CallOptions,
-  LanguageModelV3FinishReason,
-  LanguageModelV3StreamPart,
+  LanguageModelV4,
+  LanguageModelV4CallOptions,
+  LanguageModelV4FinishReason,
+  LanguageModelV4StreamPart,
 } from '@ai-sdk/provider';
 import type { PhaseoConfig, PhaseoModelSettings } from './phaseo-settings.js';
 import { convertToGatewayChatRequest } from './convert-to-gateway-chat.js';
@@ -18,10 +18,10 @@ import { createPhaseoErrorHandler } from './utils/error-handler.js';
 import { headersToRecord } from './utils/headers.js';
 
 /**
- * Phaseo Language Model implementation for Vercel AI SDK v6 and v7
+ * Phaseo Language Model implementation for Vercel AI SDK v7
  */
-export class PhaseoLanguageModel implements LanguageModelV3 {
-  readonly specificationVersion = 'v3' as const;
+export class PhaseoLanguageModel implements LanguageModelV4 {
+  readonly specificationVersion = 'v4' as const;
   readonly provider = 'phaseo' as const;
   readonly modelId: string;
   readonly supportedUrls = {};
@@ -43,7 +43,7 @@ export class PhaseoLanguageModel implements LanguageModelV3 {
   /**
    * Generate a non-streaming response
    */
-  async doGenerate(options: LanguageModelV3CallOptions) {
+  async doGenerate(options: LanguageModelV4CallOptions) {
     const { prompt, abortSignal } = options;
 
     // Convert AI SDK prompt to gateway format
@@ -93,7 +93,7 @@ export class PhaseoLanguageModel implements LanguageModelV3 {
   /**
    * Generate a streaming response
    */
-  async doStream(options: LanguageModelV3CallOptions) {
+  async doStream(options: LanguageModelV4CallOptions) {
     const { prompt, abortSignal } = options;
 
     // Convert AI SDK prompt to gateway format
@@ -129,7 +129,7 @@ export class PhaseoLanguageModel implements LanguageModelV3 {
       throw (await errorHandler({ url, requestBodyValues: gatewayRequest, response })).value;
     }
 
-    let finishReason: LanguageModelV3FinishReason = mapGatewayFinishReason(undefined);
+    let finishReason: LanguageModelV4FinishReason = mapGatewayFinishReason(undefined);
     let usage = mapGatewayUsage({});
     const textPartId = 'text-0';
     let textPartStarted = false;
@@ -152,7 +152,7 @@ export class PhaseoLanguageModel implements LanguageModelV3 {
 
     return {
       stream: parseSSEStream(response).pipeThrough(
-        new TransformStream<any, LanguageModelV3StreamPart>({
+        new TransformStream<any, LanguageModelV4StreamPart>({
           transform(chunk, controller) {
             if (chunk?.error) {
               controller.enqueue({
@@ -315,3 +315,4 @@ export class PhaseoLanguageModel implements LanguageModelV3 {
     };
   }
 }
+
