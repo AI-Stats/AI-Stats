@@ -1,17 +1,17 @@
 import type {
-  EmbeddingModelV3,
-  EmbeddingModelV3CallOptions,
-  EmbeddingModelV3Result,
+  EmbeddingModelV4,
+  EmbeddingModelV4CallOptions,
+  EmbeddingModelV4Result,
 } from '@ai-sdk/provider';
 import type { PhaseoConfig, PhaseoModelSettings } from './phaseo-settings.js';
 import { mapPhaseoProviderMetadata } from './map-phaseo-provider-metadata.js';
 import { createPhaseoErrorHandler } from './utils/error-handler.js';
 
 /**
- * Phaseo Embedding Model implementation for Vercel AI SDK v6 and v7
+ * Phaseo Embedding Model implementation for Vercel AI SDK v7
  */
-export class PhaseoEmbeddingModel implements EmbeddingModelV3 {
-  readonly specificationVersion = 'v3' as const;
+export class PhaseoEmbeddingModel implements EmbeddingModelV4 {
+  readonly specificationVersion = 'v4' as const;
   readonly provider = 'phaseo' as const;
   readonly modelId: string;
   readonly maxEmbeddingsPerCall = 2048;
@@ -33,7 +33,7 @@ export class PhaseoEmbeddingModel implements EmbeddingModelV3 {
   /**
    * Generate embeddings for the provided values
    */
-  async doEmbed(options: EmbeddingModelV3CallOptions): Promise<EmbeddingModelV3Result> {
+  async doEmbed(options: EmbeddingModelV4CallOptions): Promise<EmbeddingModelV4Result> {
     const { values, abortSignal, headers, providerOptions } = options;
 
     // Build request payload
@@ -102,3 +102,4 @@ export class PhaseoEmbeddingModel implements EmbeddingModelV3 {
     };
   }
 }
+
