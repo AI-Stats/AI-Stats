@@ -1,5 +1,5 @@
 ---
-"@phaseo/ai-sdk-provider": minor
+"@phaseo/ai-sdk-provider": major
 ---
 
-Support AI SDK 7 as the default installation while retaining AI SDK 6 compatibility. Document the OpenAI-compatible installation path for AI SDK 5 projects.
+Migrate the default Phaseo provider to AI SDK 7's native Provider v4 contracts for language, embeddings, images, transcription, and speech. Forward AI SDK 7 reasoning settings and support its tagged file-data inputs. AI SDK 6 remains available on the Phaseo provider 1.x maintenance line.
