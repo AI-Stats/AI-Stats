@@ -41,12 +41,8 @@
       "value": "120 requests per minute"
     },
     {
-      "name": "free_rate_limit",
-      "value": "3 requests per minute"
-    },
-    {
       "name": "pricing",
-      "value": "$0.15 per generated track up to five minutes; music-3.0-free is free."
+      "value": "$0.15 per generated track up to five minutes."
     }
   ],
   "benchmarks": [],
@@ -90,7 +86,7 @@
       "kind": "api_reference",
       "url": "https://platform.minimax.io/docs/api-reference/music-generation",
       "accessed_at": "2026-07-30T00:00:00Z",
-      "notes": "Documents music-3.0 and music-3.0-free on POST /v1/music_generation, including their rate limits."
+      "notes": "Documents music-3.0 on POST /v1/music_generation with a 120 RPM limit."
     },
     {
       "kind": "pricing",
@@ -102,7 +98,7 @@
   "verification": {
     "status": "verified",
     "checked_at": "2026-07-30T00:00:00Z",
-    "notes": "Release, API identifiers, endpoint, rate limits, and pricing verified against official MiniMax documentation."
+    "notes": "Paid Music 3.0 release, API identifier, endpoint, rate limit, and pricing verified against official MiniMax documentation."
   },
   "last_updated": "2026-07-30T00:00:00Z",
   "removal_date": null,
