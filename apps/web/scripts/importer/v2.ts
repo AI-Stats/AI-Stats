@@ -89,6 +89,8 @@ const PHASEO_STATUSES = new Set([
     "blocked",
 ]);
 
+const ROUTE_ACCESS_SCOPES = new Set(["public", "internal"]);
+
 function normalizedStatus(value: unknown): string {
     return String(value ?? "").trim().toLowerCase().replace(/[\\s-]+/g, "_");
 }
@@ -124,8 +126,17 @@ export function phaseoStatus(row: Record<string, any>, providerIsExternal = fals
     return "disabled";
 }
 
+export function routeAccessScope(row: Record<string, any>, providerIsExternal = false): string {
+    const explicitValue = row.access_scope;
+    const explicit = normalizedStatus(explicitValue);
+    if (ROUTE_ACCESS_SCOPES.has(explicit)) return explicit;
+    if (explicitValue !== null && explicitValue !== undefined && explicit !== "") return "internal";
+    return phaseoStatus(row, providerIsExternal) === "testing" ? "internal" : "public";
+}
+
 export function phaseoRoutingEnabled(row: Record<string, any>, providerIsExternal = false): boolean {
     return phaseoStatus(row, providerIsExternal) === "enabled"
+        && routeAccessScope(row, providerIsExternal) === "public"
         && ["available", "preview", "limited_access"].includes(providerAvailabilityStatus(row))
         && !["disabled", "retired"].includes(normalizedStatus(row.routing_status));
 }
@@ -996,12 +1007,14 @@ export async function syncV2Catalogue(): Promise<void> {
                 ...row,
                 provider_status: authored?.provider_status ?? row.provider_status,
                 phaseo_status: authored?.phaseo_status ?? row.phaseo_status,
+                access_scope: authored?.access_scope ?? row.access_scope,
                 routable: authored?.routable ?? row.routable,
                 capabilities: authored?.capabilities ?? row.capabilities ?? [],
             };
             const providerIsExternal = providerStatusBySlug.get(String(row.provider_id)) === "external";
             const upstreamStatus = providerAvailabilityStatus(statusSource);
             const integrationStatus = phaseoStatus(statusSource, providerIsExternal);
+            const accessScope = routeAccessScope(statusSource, providerIsExternal);
             return {
                 provider_model_id: row.provider_api_model_id,
                 model_slug: v2RouteModelSlug(
@@ -1014,6 +1027,7 @@ export async function syncV2Catalogue(): Promise<void> {
                 status: routeStatus(row.routing_status, Boolean(row.is_active_gateway)),
                 provider_availability_status: upstreamStatus,
                 phaseo_status: integrationStatus,
+                access_scope: accessScope,
                 routing_enabled: phaseoRoutingEnabled(statusSource, providerIsExternal),
                 input_modalities: asTextArray(row.input_modalities),
                 output_modalities: asTextArray(row.output_modalities),
@@ -1031,6 +1045,7 @@ export async function syncV2Catalogue(): Promise<void> {
                     quantization_scheme: row.quantization_scheme ?? null,
                     routing_status: authored?.routing_status ?? null,
                     routable: authored?.routable ?? null,
+                    access_scope: authored?.access_scope ?? null,
                     regions: authored?.regions ?? null,
                     service_tiers: authored?.service_tiers ?? [],
                     api: authored?.api ?? null,
