@@ -60,7 +60,22 @@ const result = await generateText({
 });
 ```
 
-## Notes
+## Supported AI SDK 7 surfaces
 
-- Use model ids from the [Models endpoint](../../api-reference/endpoint/models.mdx).
-- Provider 2.x implements AI SDK 7's native v4 contracts for language, embeddings, images, transcription, and speech.\n- AI SDK 7 reasoning settings and tagged file inputs are translated to the Phaseo gateway format.\n- Provider v4 capabilities that require Phaseo API surfaces not currently exposed—such as managed files, skills, and reranking—are not advertised.
+Provider 2.x implements and tests AI SDK 7's native v4 contracts for:
+
+- Text generation and streaming
+- Provider-agnostic reasoning settings and reasoning output
+- Standard function tools, streamed tool inputs, and tool-result round trips
+- JSON and JSON Schema structured output
+- Text and image file inputs using V7's tagged file-data format
+- URL citation sources
+- Embeddings and image generation
+- Transcription and speech generation
+- Provider metadata, usage, request headers, abort signals, and raw stream chunks
+
+Use model ids from the [Models endpoint](../../api-reference/endpoint/models.mdx). Individual capabilities still depend on the selected model and upstream provider.
+
+## Explicitly unsupported V7 surfaces
+
+ProviderV4 capabilities that require Phaseo API surfaces not currently exposed—managed file uploads and references, skills, reranking, provider-executed tools, and tool-approval flows—are not advertised. Unsupported provider-specific or custom prompt parts fail with a clear error instead of being silently discarded.
