@@ -1,0 +1,111 @@
+{
+  "model_id": "minimax/music-3.0",
+  "organisation_id": "minimax",
+  "name": "Music 3.0",
+  "status": "Available",
+  "previous_model_id": "minimax/music-2.6",
+  "description": "Music 3.0 is MiniMax's released music-generation model for producing complete vocal or instrumental tracks from natural-language prompts and optional lyrics. It improves creative-intent adherence, arrangement, mixing, and vocal expression.",
+  "announced_date": "2026-07-16T00:00:00",
+  "release_date": "2026-07-16T00:00:00",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "audio_music",
+  "api_model_id": "minimax/music-3.0",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Music Generation API",
+      "kind": "api_reference",
+      "url": "https://platform.minimax.io/docs/api-reference/music-generation"
+    },
+    {
+      "title": "Model Release Notes",
+      "kind": "release_notes",
+      "url": "https://platform.minimax.io/docs/release-notes/models"
+    },
+    {
+      "title": "Pay-as-you-go Pricing",
+      "kind": "pricing",
+      "url": "https://platform.minimax.io/docs/guides/pricing-paygo"
+    }
+  ],
+  "details": [
+    {
+      "name": "maximum_track_duration",
+      "value": "5 minutes"
+    },
+    {
+      "name": "paid_rate_limit",
+      "value": "120 requests per minute"
+    },
+    {
+      "name": "free_rate_limit",
+      "value": "3 requests per minute"
+    },
+    {
+      "name": "pricing",
+      "value": "$0.15 per generated track up to five minutes; music-3.0-free is free."
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "audio",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "audio/*"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": false,
+    "web_search": false
+  },
+  "open_weights": false,
+  "sources": [
+    {
+      "kind": "release_notes",
+      "url": "https://platform.minimax.io/docs/release-notes/models",
+      "accessed_at": "2026-07-30T00:00:00Z",
+      "notes": "MiniMax lists Music 3.0 as released on 16 July 2026."
+    },
+    {
+      "kind": "api_reference",
+      "url": "https://platform.minimax.io/docs/api-reference/music-generation",
+      "accessed_at": "2026-07-30T00:00:00Z",
+      "notes": "Documents music-3.0 and music-3.0-free on POST /v1/music_generation, including their rate limits."
+    },
+    {
+      "kind": "pricing",
+      "url": "https://platform.minimax.io/docs/guides/pricing-paygo",
+      "accessed_at": "2026-07-30T00:00:00Z",
+      "notes": "Documents $0.15 per generated track up to five minutes."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-07-30T00:00:00Z",
+    "notes": "Release, API identifiers, endpoint, rate limits, and pricing verified against official MiniMax documentation."
+  },
+  "last_updated": "2026-07-30T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
