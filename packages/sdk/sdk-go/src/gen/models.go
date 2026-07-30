@@ -1859,6 +1859,7 @@ const (
 	KnownModelIdTencentHy3Free KnownModelId = "tencent/hy3:free"
 	KnownModelIdThinkingMachinesInkling KnownModelId = "thinking-machines/inkling"
 	KnownModelIdThinkingMachinesInkling64k KnownModelId = "thinking-machines/inkling-64k"
+	KnownModelIdThinkingMachinesInklingSmall KnownModelId = "thinking-machines/inkling-small"
 	KnownModelIdVeniceVeniceUncensored KnownModelId = "venice/venice-uncensored"
 	KnownModelIdVeniceVeniceUncensored11 KnownModelId = "venice/venice-uncensored-1.1"
 	KnownModelIdVoyageRerank1 KnownModelId = "voyage/rerank-1"

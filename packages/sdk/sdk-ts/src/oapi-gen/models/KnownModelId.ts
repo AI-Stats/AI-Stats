@@ -415,6 +415,7 @@ export type KnownModelId =
   | "tencent/hy3:free"
   | "thinking-machines/inkling"
   | "thinking-machines/inkling-64k"
+  | "thinking-machines/inkling-small"
   | "venice/venice-uncensored"
   | "venice/venice-uncensored-1.1"
   | "voyage/rerank-1"
