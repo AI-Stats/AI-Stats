@@ -29,8 +29,9 @@ duplicate, or unreferenced variants; importers do not manufacture them.
 Provider files additionally carry `gateway_kind`, `routable`,
 `routing_enabled`, SDK/API metadata, `api_formats`, `service_tiers`, sources,
 and verification. Provider-model entries carry `provider_status` for upstream
-offer availability, `phaseo_status` for Phaseo integration readiness, and a
-separate `routing_status` for routing health, plus execution/data regions,
+offer availability, `phaseo_status` for Phaseo integration readiness,
+`access_scope` for public versus internal-only use, and a separate
+`routing_status` for routing health, plus execution/data regions,
 service tiers, API invocation metadata, and capability evidence. Only
 `phaseo_status: "enabled"` can become publicly routable. See
 [`docs/architecture/catalogue-status-model.md`](../../../../docs/architecture/catalogue-status-model.md)
