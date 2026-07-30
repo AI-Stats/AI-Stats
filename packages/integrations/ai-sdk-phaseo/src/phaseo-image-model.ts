@@ -1,4 +1,4 @@
-import type { ImageModelV3, ImageModelV3CallOptions } from '@ai-sdk/provider';
+import type { ImageModelV4, ImageModelV4CallOptions } from '@ai-sdk/provider';
 import type { PhaseoConfig, PhaseoModelSettings } from './phaseo-settings.js';
 import { mapPhaseoProviderMetadata } from './map-phaseo-provider-metadata.js';
 import { createPhaseoErrorHandler } from './utils/error-handler.js';
@@ -7,8 +7,8 @@ import { createPhaseoErrorHandler } from './utils/error-handler.js';
  * Phaseo Image Model implementation for Vercel AI SDK v1
  * Supports image generation via /v1/images/generations
  */
-export class PhaseoImageModel implements ImageModelV3 {
-  readonly specificationVersion = 'v3' as const;
+export class PhaseoImageModel implements ImageModelV4 {
+  readonly specificationVersion = 'v4' as const;
   readonly provider = 'phaseo' as const;
   readonly modelId: string;
   readonly maxImagesPerCall: number | undefined = 10;
@@ -29,7 +29,7 @@ export class PhaseoImageModel implements ImageModelV3 {
   /**
    * Generate images from a text prompt
    */
-  async doGenerate(options: ImageModelV3CallOptions) {
+  async doGenerate(options: ImageModelV4CallOptions) {
     const { prompt, n, size, abortSignal, aspectRatio, providerOptions, headers } = options;
 
     // Build request payload
@@ -138,3 +138,4 @@ export class PhaseoImageModel implements ImageModelV3 {
     };
   }
 }
+
