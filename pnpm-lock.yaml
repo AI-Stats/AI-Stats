@@ -582,7 +582,6 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
-
   packages/data/catalog: {}
   packages/devtools/devtools:
     dependencies:
@@ -932,7 +931,6 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
-
   packages/sdk/agent-sdk-rust: {}
   packages/sdk/agent-sdk-ts:
     dependencies:
@@ -952,21 +950,13 @@ importers:
       vitest:
         specifier: ^4.1.7
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@25.9.5)(@vitest/coverage-v8@4.1.10)(vite@8.1.4(@types/node@25.9.5)(esbuild@0.25.12)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
-
   packages/sdk/sdk-cpp: {}
-
   packages/sdk/sdk-csharp: {}
-
   packages/sdk/sdk-go: {}
-
   packages/sdk/sdk-java: {}
-
   packages/sdk/sdk-php: {}
-
   packages/sdk/sdk-py: {}
-
   packages/sdk/sdk-ruby: {}
-
   packages/sdk/sdk-rust: {}
   packages/sdk/sdk-ts:
     devDependencies:
@@ -9014,6 +9004,7 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 snapshots:
+  '@1password/save-button@1.3.0': {}
   '@ai-sdk/gateway@3.0.148(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 3.0.14
@@ -9051,7 +9042,6 @@ snapshots:
     dependencies:
       ansi-styles: 6.2.3
       is-fullwidth-code-point: 5.1.0
-
   '@alloc/quick-lru@5.2.0': {}
   '@antfu/install-pkg@1.1.0':
     dependencies:
@@ -9066,9 +9056,7 @@ snapshots:
     dependencies:
       '@types/json-schema': 7.0.15
       js-yaml: 4.3.0
-
   '@apidevtools/openapi-schemas@2.1.0': {}
-
   '@apidevtools/swagger-methods@3.0.2': {}
   '@apidevtools/swagger-parser@12.1.0(openapi-types@12.1.3)':
     dependencies:
@@ -9085,9 +9073,7 @@ snapshots:
   '@ark/schema@0.56.2':
     dependencies:
       '@ark/util': 0.56.2
-
   '@ark/util@0.55.0': {}
-
   '@ark/util@0.56.2': {}
   '@asyncapi/parser@3.4.0':
     dependencies:
@@ -9127,7 +9113,6 @@ snapshots:
     dependencies:
       '@babel/helper-validator-identifier': 8.0.4
       js-tokens: 10.0.0
-
   '@babel/compat-data@7.29.7': {}
   '@babel/core@7.29.7':
     dependencies:
@@ -9198,9 +9183,7 @@ snapshots:
       '@babel/helper-skip-transparent-expression-wrappers': 8.0.0
       '@babel/traverse': 8.0.4
       semver: 7.8.5
-
   '@babel/helper-globals@7.29.7': {}
-
   '@babel/helper-globals@8.0.0': {}
   '@babel/helper-member-expression-to-functions@7.29.7':
     dependencies:
@@ -9232,7 +9215,6 @@ snapshots:
   '@babel/helper-optimise-call-expression@8.0.0':
     dependencies:
       '@babel/types': 8.0.4
-
   '@babel/helper-plugin-utils@7.29.7': {}
   '@babel/helper-plugin-utils@8.0.1(@babel/core@7.29.7)':
     dependencies:
@@ -9261,15 +9243,10 @@ snapshots:
     dependencies:
       '@babel/traverse': 8.0.4
       '@babel/types': 8.0.4
-
   '@babel/helper-string-parser@7.29.7': {}
-
   '@babel/helper-string-parser@8.0.0': {}
-
   '@babel/helper-validator-identifier@7.29.7': {}
-
   '@babel/helper-validator-identifier@8.0.4': {}
-
   '@babel/helper-validator-option@7.29.7': {}
   '@babel/helpers@7.29.7':
     dependencies:
@@ -9389,7 +9366,6 @@ snapshots:
   '@babel/runtime-corejs3@7.29.7':
     dependencies:
       core-js-pure: 3.49.0
-
   '@babel/runtime@7.29.7': {}
   '@babel/template@7.29.7':
     dependencies:
@@ -9452,15 +9428,10 @@ snapshots:
       use-sync-external-store: 1.6.0(react@19.2.7)
     optionalDependencies:
       '@types/react': 19.2.17
-
   '@bcoe/v8-coverage@0.2.3': {}
-
   '@bcoe/v8-coverage@1.0.2': {}
-
   '@braintree/sanitize-url@7.1.2': {}
-
   '@canvas/image-data@1.1.0': {}
-
   '@cfworker/json-schema@4.1.1': {}
   '@changesets/apply-release-plan@7.1.1':
     dependencies:
@@ -9558,7 +9529,6 @@ snapshots:
       '@changesets/read': 0.6.7
       '@changesets/types': 6.1.0
       '@manypkg/get-packages': 1.1.3
-
   '@changesets/get-version-range-type@0.4.0': {}
   '@changesets/git@3.0.4':
     dependencies:
@@ -9593,9 +9563,7 @@ snapshots:
     dependencies:
       '@changesets/types': 6.1.0
       '@manypkg/get-packages': 1.1.3
-
   '@changesets/types@4.1.0': {}
-
   '@changesets/types@6.1.0': {}
   '@changesets/write@0.4.0':
     dependencies:
@@ -9603,7 +9571,6 @@ snapshots:
       fs-extra: 7.0.1
       human-id: 4.2.0
       prettier: 2.8.8
-
   '@chevrotain/types@11.1.2': {}
   '@cloudflare/codemode@0.4.2(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))(ai@6.0.224(zod@3.25.76))(zod@3.25.76)':
     dependencies:
@@ -9613,7 +9580,6 @@ snapshots:
       '@modelcontextprotocol/sdk': 1.29.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)
       ai: 6.0.224(zod@3.25.76)
       zod: 3.25.76
-
   '@cloudflare/kv-asset-handler@0.5.0': {}
   '@cloudflare/unenv-preset@2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260708.1)':
     dependencies:
@@ -9630,9 +9596,7 @@ snapshots:
     optional: true
   '@cloudflare/workerd-windows-64@1.20260708.1':
     optional: true
-
   '@cloudflare/workers-types@4.20260702.1': {}
-
   '@cloudflare/workers-types@5.20260713.1': {}
   '@copilotkit/aimock@1.15.1(jest@30.4.2(@types/node@25.9.5)(ts-node@10.9.2(@types/node@25.9.5)(typescript@6.0.3)))(vitest@4.1.10)':
     optionalDependencies:
@@ -9641,9 +9605,7 @@ snapshots:
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
-
   '@date-fns/tz@1.5.0': {}
-
   '@dimforge/rapier3d-compat@0.12.0': {}
   '@dotenvx/dotenvx@1.75.1':
     dependencies:
@@ -9663,16 +9625,12 @@ snapshots:
       undici: 7.28.0
       which: 4.0.0
       yocto-spinner: 1.2.1
-
   '@dotenvx/primitives@0.8.0': {}
-
   '@dqbd/tiktoken@1.0.22': {}
-
   '@drizzle-team/brocli@0.10.2': {}
   '@ecies/ciphers@0.2.6(@noble/ciphers@1.3.0)':
     dependencies:
       '@noble/ciphers': 1.3.0
-
   '@edge-runtime/cookies@5.0.2': {}
   '@emnapi/core@1.10.0':
     dependencies:
@@ -9777,7 +9735,6 @@ snapshots:
     dependencies:
       eslint: 10.7.0(jiti@2.7.0)
       eslint-visitor-keys: 3.4.3
-
   '@eslint-community/regexpp@4.12.2': {}
   '@eslint/config-array@0.23.5':
     dependencies:
@@ -9805,9 +9762,7 @@ snapshots:
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
       - supports-color
-
   '@eslint/js@9.39.5': {}
-
   '@eslint/object-schema@3.0.5': {}
   '@eslint/plugin-kit@0.7.2':
     dependencies:
@@ -9841,18 +9796,13 @@ snapshots:
       '@floating-ui/dom': 1.8.0
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
-
   '@floating-ui/utils@0.2.12': {}
   '@hapi/address@5.1.1':
     dependencies:
       '@hapi/hoek': 11.0.7
-
   '@hapi/formula@3.0.2': {}
-
   '@hapi/hoek@11.0.7': {}
-
   '@hapi/pinpoint@2.0.1': {}
-
   '@hapi/tlds@1.1.7': {}
   '@hapi/topo@6.0.2':
     dependencies:
@@ -9875,20 +9825,15 @@ snapshots:
       '@humanfs/core': 0.19.2
       '@humanfs/types': 0.15.0
       '@humanwhocodes/retry': 0.4.3
-
   '@humanfs/types@0.15.0': {}
-
   '@humanwhocodes/module-importer@1.0.1': {}
-
   '@humanwhocodes/retry@0.4.3': {}
-
   '@iconify/types@2.0.0': {}
   '@iconify/utils@3.1.4':
     dependencies:
       '@antfu/install-pkg': 1.1.0
       '@iconify/types': 2.0.0
       import-meta-resolve: 4.2.0
-
   '@img/colour@1.1.0': {}
   '@img/sharp-darwin-arm64@0.33.5':
     optionalDependencies:
@@ -10016,7 +9961,6 @@ snapshots:
     optional: true
   '@img/sharp-win32-x64@0.34.5':
     optional: true
-
   '@inquirer/ansi@1.0.2': {}
   '@inquirer/checkbox@4.3.2(@types/node@22.19.17)':
     dependencies:
@@ -10112,7 +10056,6 @@ snapshots:
       iconv-lite: 0.7.3
     optionalDependencies:
       '@types/node': 25.9.5
-
   '@inquirer/figures@1.0.15': {}
   '@inquirer/input@4.3.1(@types/node@22.19.17)':
     dependencies:
@@ -10252,7 +10195,6 @@ snapshots:
       get-package-type: 0.1.0
       js-yaml: 4.3.0
       resolve-from: 5.0.0
-
   '@istanbuljs/schema@0.1.6': {}
   '@jest/console@30.4.1':
     dependencies:
@@ -10297,7 +10239,6 @@ snapshots:
       - esbuild-register
       - supports-color
       - ts-node
-
   '@jest/diff-sequences@30.4.0': {}
   '@jest/environment@30.4.1':
     dependencies:
@@ -10322,7 +10263,6 @@ snapshots:
       jest-message-util: 30.4.1
       jest-mock: 30.4.1
       jest-util: 30.4.1
-
   '@jest/get-type@30.1.0': {}
   '@jest/globals@30.4.1':
     dependencies:
@@ -10424,9 +10364,7 @@ snapshots:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
-
   '@jridgewell/resolve-uri@3.1.2': {}
-
   '@jridgewell/sourcemap-codec@1.5.5': {}
   '@jridgewell/trace-mapping@0.3.31':
     dependencies:
@@ -10445,7 +10383,6 @@ snapshots:
   '@jsep-plugin/ternary@1.1.4(jsep@1.4.0)':
     dependencies:
       jsep: 1.4.0
-
   '@leichtgewicht/ip-codec@2.0.5': {}
   '@manypkg/find-root@1.1.0':
     dependencies:
@@ -10500,7 +10437,6 @@ snapshots:
       '@types/mdx': 2.0.14
       '@types/react': 19.2.17
       react: 19.2.7
-
   '@mediapipe/tasks-vision@0.10.17': {}
   '@mermaid-js/parser@1.2.0':
     dependencies:
@@ -10848,7 +10784,6 @@ snapshots:
       '@emnapi/runtime': 1.11.1
       '@tybys/wasm-util': 0.10.3
     optional: true
-
   '@next/env@16.2.11': {}
   '@next/eslint-plugin-next@16.2.11':
     dependencies:
@@ -10874,26 +10809,21 @@ snapshots:
       next: 16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react: 19.2.7
       third-party-capital: 1.0.20
-
   '@noble/ciphers@1.3.0': {}
   '@noble/curves@1.9.7':
     dependencies:
       '@noble/hashes': 1.8.0
-
   '@noble/hashes@1.8.0': {}
-
   '@nodable/entities@2.2.0': {}
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
       run-parallel: 1.2.0
-
   '@nodelib/fs.stat@2.0.5': {}
   '@nodelib/fs.walk@1.2.8':
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
-
   '@nolyfill/is-core-module@1.0.39': {}
   '@number-flow/react@0.6.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
@@ -10979,7 +10909,6 @@ snapshots:
       '@octokit/request': 10.0.11
       '@octokit/types': 16.0.0
       universal-user-agent: 7.0.3
-
   '@octokit/auth-token@6.0.0': {}
   '@octokit/auth-unauthenticated@7.0.3':
     dependencies:
@@ -11013,7 +10942,6 @@ snapshots:
       '@octokit/oauth-methods': 6.0.2
       '@types/aws-lambda': 8.10.162
       universal-user-agent: 7.0.3
-
   '@octokit/oauth-authorization-url@8.0.0': {}
   '@octokit/oauth-methods@6.0.2':
     dependencies:
@@ -11021,9 +10949,7 @@ snapshots:
       '@octokit/request': 10.0.11
       '@octokit/request-error': 7.1.0
       '@octokit/types': 16.0.0
-
   '@octokit/openapi-types@27.0.0': {}
-
   '@octokit/openapi-webhooks-types@12.1.0': {}
   '@octokit/plugin-paginate-graphql@6.0.0(@octokit/core@7.0.6)':
     dependencies:
@@ -11070,7 +10996,6 @@ snapshots:
   '@octokit/types@16.0.0':
     dependencies:
       '@octokit/openapi-types': 27.0.0
-
   '@octokit/webhooks-methods@6.0.0': {}
   '@octokit/webhooks@14.2.0':
     dependencies:
@@ -11080,7 +11005,6 @@ snapshots:
   '@openapi-contrib/openapi-schema-to-json-schema@3.2.0':
     dependencies:
       fast-deep-equal: 3.1.3
-
   '@opentelemetry/api@1.9.1': {}
   '@oxc-parser/binding-android-arm-eabi@0.137.0':
     optional: true
@@ -11126,9 +11050,7 @@ snapshots:
     optional: true
   '@oxc-parser/binding-win32-x64-msvc@0.137.0':
     optional: true
-
   '@oxc-project/types@0.137.0': {}
-
   '@oxc-project/types@0.139.0': {}
   '@oxc-resolver/binding-android-arm-eabi@11.21.3':
     optional: true
@@ -11174,7 +11096,6 @@ snapshots:
     optional: true
   '@pkgjs/parseargs@0.11.0':
     optional: true
-
   '@pkgr/core@0.3.6': {}
   '@playwright/test@1.61.1':
     dependencies:
@@ -11187,7 +11108,6 @@ snapshots:
       '@poppinss/colors': 4.1.6
       '@sindresorhus/is': 7.2.0
       supports-color: 10.2.2
-
   '@poppinss/exception@1.2.3': {}
   '@posthog/core@1.40.2':
     dependencies:
@@ -11195,7 +11115,6 @@ snapshots:
   '@posthog/core@1.7.1':
     dependencies:
       cross-spawn: 7.0.6
-
   '@posthog/types@1.393.0': {}
   '@puppeteer/browsers@2.3.0':
     dependencies:
@@ -11212,9 +11131,7 @@ snapshots:
       - bare-buffer
       - react-native-b4a
       - supports-color
-
   '@radix-ui/number@1.1.2': {}
-
   '@radix-ui/primitive@1.1.5': {}
   '@radix-ui/react-arrow@1.1.11(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -11585,7 +11502,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.17
       '@types/react-dom': 19.2.3(@types/react@19.2.17)
-
   '@radix-ui/rect@1.1.2': {}
   '@raycast/api@1.104.22(@types/node@22.19.17)(@types/react@19.2.17)':
     dependencies:
@@ -11691,7 +11607,6 @@ snapshots:
     dependencies:
       '@rive-app/webgl2': 2.38.5
       react: 19.2.7
-
   '@rive-app/webgl2@2.38.5': {}
   '@rolldown/binding-android-arm64@1.1.5':
     optional: true
@@ -11735,7 +11650,6 @@ snapshots:
     optionalDependencies:
       '@babel/runtime': 7.29.7
       vite: 8.1.4(@types/node@25.9.5)(esbuild@0.25.12)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
-
   '@rolldown/pluginutils@1.0.1': {}
   '@rollup/plugin-commonjs@22.0.2(rollup@2.80.0)':
     dependencies:
@@ -11807,15 +11721,10 @@ snapshots:
     dependencies:
       '@rrweb/types': 2.1.0
       rrweb: 2.0.0-alpha.17
-
   '@rrweb/types@2.1.0': {}
-
   '@rrweb/utils@2.1.0': {}
-
   '@rtsao/scc@1.1.0': {}
-
   '@scarf/scarf@1.4.0': {}
-
   '@sec-ant/readable-stream@0.4.1': {}
   '@shadcn/react@0.1.0(@types/react@19.2.17)(react@19.2.7)':
     optionalDependencies:
@@ -11892,17 +11801,11 @@ snapshots:
     dependencies:
       '@shikijs/vscode-textmate': 10.0.2
       '@types/hast': 3.0.5
-
   '@shikijs/vscode-textmate@10.0.2': {}
-
   '@sinclair/typebox@0.34.52': {}
-
   '@sindresorhus/is@4.6.0': {}
-
   '@sindresorhus/is@5.6.0': {}
-
   '@sindresorhus/is@7.2.0': {}
-
   '@sindresorhus/merge-streams@4.0.0': {}
   '@sindresorhus/slugify@2.2.0':
     dependencies:
@@ -11917,19 +11820,12 @@ snapshots:
   '@sinonjs/fake-timers@15.4.0':
     dependencies:
       '@sinonjs/commons': 3.0.1
-
   '@socket.io/component-emitter@3.1.2': {}
-
   '@speed-highlight/core@1.2.17': {}
-
   '@stablelib/base64@1.0.1': {}
-
   '@standard-schema/spec@1.0.0': {}
-
   '@standard-schema/spec@1.1.0': {}
-
   '@standard-schema/utils@0.3.0': {}
-
   '@statsig/client-core@3.33.3': {}
   '@statsig/js-client@3.33.3':
     dependencies:
@@ -11988,9 +11884,7 @@ snapshots:
       jsonc-parser: 2.2.1
       lodash: 4.18.1
       safe-stable-stringify: 1.1.1
-
   '@stoplight/ordered-object-literal@1.0.5': {}
-
   '@stoplight/path@1.3.2': {}
   '@stoplight/spectral-cli@6.16.1':
     dependencies:
@@ -12179,9 +12073,7 @@ snapshots:
     dependencies:
       '@types/json-schema': 7.0.15
       utility-types: 3.11.0
-
   '@stoplight/yaml-ast-parser@0.0.48': {}
-
   '@stoplight/yaml-ast-parser@0.0.50': {}
   '@stoplight/yaml@4.2.3':
     dependencies:
@@ -12209,7 +12101,6 @@ snapshots:
       prop-types: 15.8.1
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
-
   '@stripe/stripe-js@9.9.0': {}
   '@supabase/auth-js@2.110.3':
     dependencies:
@@ -12233,7 +12124,6 @@ snapshots:
   '@supabase/functions-js@2.110.3':
     dependencies:
       tslib: 2.8.1
-
   '@supabase/phoenix@0.4.4': {}
   '@supabase/postgrest-js@2.110.3':
     dependencies:
@@ -12320,7 +12210,6 @@ snapshots:
       '@tailwindcss/oxide': 4.3.2
       postcss: 8.5.19
       tailwindcss: 4.3.2
-
   '@tanstack/query-core@5.101.2': {}
   '@tanstack/react-query@5.101.2(react@19.2.7)':
     dependencies:
@@ -12336,11 +12225,8 @@ snapshots:
       '@tanstack/virtual-core': 3.17.4
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
-
   '@tanstack/table-core@8.21.3': {}
-
   '@tanstack/virtual-core@3.17.4': {}
-
   '@tokenlens/core@1.3.0': {}
   '@tokenlens/fetch@1.3.0':
     dependencies:
@@ -12352,20 +12238,15 @@ snapshots:
   '@tokenlens/models@1.3.0':
     dependencies:
       '@tokenlens/core': 1.3.0
-
   '@tootallnate/quickjs-emscripten@0.23.0': {}
   '@ts-morph/common@0.27.0':
     dependencies:
       fast-glob: 3.3.3
       minimatch: 10.2.5
       path-browserify: 1.0.1
-
   '@tsconfig/node10@1.0.12': {}
-
   '@tsconfig/node12@1.0.11': {}
-
   '@tsconfig/node14@1.0.3': {}
-
   '@tsconfig/node16@1.0.4': {}
   '@turbo/darwin-64@2.10.4':
     optional: true
@@ -12379,7 +12260,6 @@ snapshots:
     optional: true
   '@turbo/windows-arm64@2.10.4':
     optional: true
-
   '@tweenjs/tween.js@23.1.3': {}
   '@tybys/wasm-util@0.10.3':
     dependencies:
@@ -12388,7 +12268,6 @@ snapshots:
   '@types/acorn@4.0.6':
     dependencies:
       '@types/estree': 1.0.9
-
   '@types/aws-lambda@8.10.162': {}
   '@types/babel__core@7.20.5':
     dependencies:
@@ -12420,9 +12299,7 @@ snapshots:
   '@types/cors@2.8.19':
     dependencies:
       '@types/node': 25.9.5
-
   '@types/css-font-loading-module@0.0.7': {}
-
   '@types/d3-array@3.2.2': {}
   '@types/d3-axis@3.0.6':
     dependencies:
@@ -12430,63 +12307,45 @@ snapshots:
   '@types/d3-brush@3.0.6':
     dependencies:
       '@types/d3-selection': 3.0.11
-
   '@types/d3-chord@3.0.6': {}
-
   '@types/d3-color@3.1.3': {}
   '@types/d3-contour@3.0.6':
     dependencies:
       '@types/d3-array': 3.2.2
       '@types/geojson': 7946.0.16
-
   '@types/d3-delaunay@6.0.4': {}
-
   '@types/d3-dispatch@3.0.7': {}
   '@types/d3-drag@3.0.7':
     dependencies:
       '@types/d3-selection': 3.0.11
-
   '@types/d3-dsv@3.0.7': {}
-
   '@types/d3-ease@3.0.2': {}
   '@types/d3-fetch@3.0.7':
     dependencies:
       '@types/d3-dsv': 3.0.7
-
   '@types/d3-force@3.0.10': {}
-
   '@types/d3-format@3.0.4': {}
   '@types/d3-geo@3.1.0':
     dependencies:
       '@types/geojson': 7946.0.16
-
   '@types/d3-hierarchy@3.1.7': {}
   '@types/d3-interpolate@3.0.4':
     dependencies:
       '@types/d3-color': 3.1.3
-
   '@types/d3-path@3.1.1': {}
-
   '@types/d3-polygon@3.0.2': {}
-
   '@types/d3-quadtree@3.0.6': {}
-
   '@types/d3-random@3.0.4': {}
-
   '@types/d3-scale-chromatic@3.1.0': {}
   '@types/d3-scale@4.0.9':
     dependencies:
       '@types/d3-time': 3.0.4
-
   '@types/d3-selection@3.0.11': {}
   '@types/d3-shape@3.1.8':
     dependencies:
       '@types/d3-path': 3.1.1
-
   '@types/d3-time-format@4.0.3': {}
-
   '@types/d3-time@3.0.4': {}
-
   '@types/d3-timer@3.0.2': {}
   '@types/d3-transition@3.0.9':
     dependencies:
@@ -12530,30 +12389,22 @@ snapshots:
   '@types/debug@4.1.13':
     dependencies:
       '@types/ms': 2.1.0
-
   '@types/deep-eql@4.0.2': {}
-
   '@types/draco3d@1.4.10': {}
   '@types/es-aggregate-error@1.0.6':
     dependencies:
       '@types/node': 25.9.5
-
   '@types/esrecurse@4.3.1': {}
   '@types/estree-jsx@1.0.5':
     dependencies:
       '@types/estree': 1.0.9
-
   '@types/estree@0.0.39': {}
-
   '@types/estree@1.0.9': {}
-
   '@types/geojson@7946.0.16': {}
   '@types/hast@3.0.5':
     dependencies:
       '@types/unist': 3.0.3
-
   '@types/http-cache-semantics@4.2.0': {}
-
   '@types/istanbul-lib-coverage@2.0.6': {}
   '@types/istanbul-lib-report@3.0.3':
     dependencies:
@@ -12565,30 +12416,22 @@ snapshots:
     dependencies:
       expect: 30.4.1
       pretty-format: 30.4.1
-
   '@types/jsesc@2.5.1': {}
-
   '@types/json-schema@7.0.15': {}
-
   '@types/json5@0.0.29': {}
-
   '@types/katex@0.16.8': {}
   '@types/keyv@3.1.4':
     dependencies:
       '@types/node': 25.9.5
-
   '@types/markdown-escape@1.1.3': {}
   '@types/mdast@4.0.4':
     dependencies:
       '@types/unist': 3.0.3
-
   '@types/mdx@2.0.14': {}
-
   '@types/ms@2.1.0': {}
   '@types/nlcst@2.0.3':
     dependencies:
       '@types/unist': 3.0.3
-
   '@types/node@12.20.55': {}
   '@types/node@22.19.17':
     dependencies:
@@ -12596,9 +12439,7 @@ snapshots:
   '@types/node@25.9.5':
     dependencies:
       undici-types: 7.24.6
-
   '@types/offscreencanvas@2019.7.3': {}
-
   '@types/pako@2.0.4': {}
   '@types/raf@3.4.3':
     optional: true
@@ -12614,11 +12455,8 @@ snapshots:
   '@types/responselike@1.0.3':
     dependencies:
       '@types/node': 25.9.5
-
   '@types/sarif@2.1.7': {}
-
   '@types/stack-utils@2.0.3': {}
-
   '@types/stats.js@0.17.4': {}
   '@types/three@0.184.1':
     dependencies:
@@ -12630,22 +12468,15 @@ snapshots:
       meshoptimizer: 1.1.1
   '@types/trusted-types@2.0.7':
     optional: true
-
   '@types/unist@2.0.11': {}
-
   '@types/unist@3.0.3': {}
-
   '@types/urijs@1.19.26': {}
-
   '@types/use-sync-external-store@0.0.6': {}
-
   '@types/validate-npm-package-name@4.0.2': {}
-
   '@types/webxr@0.5.24': {}
   '@types/ws@8.18.1':
     dependencies:
       '@types/node': 25.9.5
-
   '@types/yargs-parser@21.0.3': {}
   '@types/yargs@17.0.35':
     dependencies:
@@ -12758,9 +12589,7 @@ snapshots:
       typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
-
   '@typescript-eslint/types@8.58.1': {}
-
   '@typescript-eslint/types@8.63.0': {}
   '@typescript-eslint/typescript-estree@8.58.1(typescript@6.0.3)':
     dependencies:
@@ -12824,7 +12653,6 @@ snapshots:
       typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
-
   '@ungap/structured-clone@1.3.3': {}
   '@unrs/resolver-binding-android-arm-eabi@1.12.2':
     optional: true
@@ -12888,7 +12716,6 @@ snapshots:
   '@upstash/redis@1.38.0':
     dependencies:
       uncrypto: 0.1.3
-
   '@use-gesture/core@10.3.1': {}
   '@use-gesture/react@10.3.1(react@19.2.7)':
     dependencies:
@@ -12898,7 +12725,6 @@ snapshots:
     optionalDependencies:
       next: 16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react: 19.2.7
-
   '@vercel/edge-config-fs@0.1.0': {}
   '@vercel/edge-config@1.4.3(@opentelemetry/api@1.9.1)(next@16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))':
     dependencies:
@@ -12906,11 +12732,8 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
       next: 16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-
   '@vercel/functions@1.6.0': {}
-
   '@vercel/oidc@3.2.0': {}
-
   '@visulima/tabular@4.0.0': {}
   '@vitejs/plugin-react@6.0.3(@rolldown/plugin-babel@0.2.3(@babel/core@7.29.7)(@babel/runtime@7.29.7)(rolldown@1.1.5)(vite@8.1.4(@types/node@25.9.5)(esbuild@0.25.12)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)))(vite@8.1.4(@types/node@25.9.5)(esbuild@0.25.12)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))':
     dependencies:
@@ -12959,14 +12782,12 @@ snapshots:
       '@vitest/utils': 4.1.10
       magic-string: 0.30.21
       pathe: 2.0.3
-
   '@vitest/spy@4.1.10': {}
   '@vitest/utils@4.1.10':
     dependencies:
       '@vitest/pretty-format': 4.1.10
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
-
   '@xstate/fsm@1.6.5': {}
   '@xyflow/react@12.11.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(immer@11.1.11)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
@@ -13004,20 +12825,15 @@ snapshots:
   acorn-walk@8.3.5:
     dependencies:
       acorn: 8.17.0
-
   acorn@8.11.2: {}
-
   acorn@8.17.0: {}
-
   address@1.2.2: {}
-
   adm-zip@0.6.0: {}
   agent-base@6.0.2:
     dependencies:
       debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
-
   agent-base@7.1.4: {}
   agents@0.17.3(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@cloudflare/workers-types@5.20260713.1)(ai@6.0.224(zod@3.25.76))(react@19.2.7)(rolldown@1.1.5)(vite@8.1.4(@types/node@25.9.5)(esbuild@0.25.12)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(zod@3.25.76):
     dependencies:
@@ -13089,7 +12905,6 @@ snapshots:
       fast-uri: 3.1.3
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
-
   ansi-colors@4.1.3: {}
   ansi-escapes@4.3.2:
     dependencies:
@@ -13097,40 +12912,29 @@ snapshots:
   ansi-escapes@7.3.0:
     dependencies:
       environment: 1.1.0
-
   ansi-regex@5.0.1: {}
-
   ansi-regex@6.2.2: {}
   ansi-styles@4.3.0:
     dependencies:
       color-convert: 2.0.1
-
   ansi-styles@5.2.0: {}
-
   ansi-styles@6.2.3: {}
-
   ansis@3.17.0: {}
-
   any-promise@1.3.0: {}
   anymatch@3.1.3:
     dependencies:
       normalize-path: 3.0.0
       picomatch: 2.3.2
-
   anynum@1.0.1: {}
-
   arg@4.1.3: {}
-
   arg@5.0.2: {}
   argparse@1.0.10:
     dependencies:
       sprintf-js: 1.0.3
-
   argparse@2.0.1: {}
   aria-hidden@1.2.6:
     dependencies:
       tslib: 2.8.1
-
   aria-query@5.3.2: {}
   arkregex@0.0.3:
     dependencies:
@@ -13152,7 +12956,6 @@ snapshots:
     dependencies:
       call-bound: 1.0.4
       is-array-buffer: 3.0.5
-
   array-flatten@1.1.1: {}
   array-includes@3.1.9:
     dependencies:
@@ -13164,9 +12967,7 @@ snapshots:
       get-intrinsic: 1.3.0
       is-string: 1.1.1
       math-intrinsics: 1.1.0
-
   array-iterate@2.0.1: {}
-
   array-union@2.1.0: {}
   array.prototype.findlast@1.2.5:
     dependencies:
@@ -13216,9 +13017,7 @@ snapshots:
   as-table@1.0.55:
     dependencies:
       printable-characters: 1.0.42
-
   assertion-error@2.0.1: {}
-
   ast-types-flow@0.0.8: {}
   ast-types@0.13.4:
     dependencies:
@@ -13234,17 +13033,11 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.31
       estree-walker: 3.0.3
       js-tokens: 10.0.0
-
   astring@1.9.0: {}
-
   async-function@1.0.0: {}
-
   async@3.2.6: {}
-
   asynckit@0.4.0: {}
-
   atomically@1.7.0: {}
-
   auto-bind@5.0.1: {}
   autoprefixer@10.5.2(postcss@8.5.19):
     dependencies:
@@ -13257,9 +13050,7 @@ snapshots:
   available-typed-arrays@1.0.7:
     dependencies:
       possible-typed-array-names: 1.1.0
-
   avsc@5.7.9: {}
-
   axe-core@4.12.1: {}
   axios@1.18.1:
     dependencies:
@@ -13270,9 +13061,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
       - supports-color
-
   axobject-query@4.1.0: {}
-
   b4a@1.8.1: {}
   babel-jest@30.4.1(@babel/core@7.29.7):
     dependencies:
@@ -13321,13 +13110,9 @@ snapshots:
       '@babel/core': 7.29.7
       babel-plugin-jest-hoist: 30.4.0
       babel-preset-current-node-syntax: 1.2.0(@babel/core@7.29.7)
-
   bail@2.0.2: {}
-
   balanced-match@1.0.2: {}
-
   balanced-match@4.0.4: {}
-
   bare-events@2.9.1: {}
   bare-fs@4.7.4:
     dependencies:
@@ -13339,7 +13124,6 @@ snapshots:
     transitivePeerDependencies:
       - bare-abort-controller
       - react-native-b4a
-
   bare-path@3.1.1: {}
   bare-stream@2.13.3(bare-events@2.9.1):
     dependencies:
@@ -13353,17 +13137,11 @@ snapshots:
   bare-url@2.4.5:
     dependencies:
       bare-path: 3.1.1
-
   base64-arraybuffer@1.0.2: {}
-
   base64-js@1.5.1: {}
-
   base64id@2.0.0: {}
-
   baseline-browser-mapping@2.10.43: {}
-
   basic-ftp@5.3.1: {}
-
   before-after-hook@4.0.0: {}
   better-opn@3.0.2:
     dependencies:
@@ -13374,7 +13152,6 @@ snapshots:
   bidi-js@1.0.3:
     dependencies:
       require-from-string: 2.0.2
-
   binary-extensions@2.3.0: {}
   bl@4.1.0:
     dependencies:
@@ -13382,7 +13159,6 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
     optional: true
-
   blake3-wasm@2.1.5: {}
   body-parser@1.20.6:
     dependencies:
@@ -13400,9 +13176,7 @@ snapshots:
       unpipe: 1.0.0
     transitivePeerDependencies:
       - supports-color
-
   boolbase@1.0.0: {}
-
   bottleneck@2.19.5: {}
   brace-expansion@1.1.16:
     dependencies:
@@ -13427,9 +13201,7 @@ snapshots:
   bser@2.1.1:
     dependencies:
       node-int64: 0.4.0
-
   buffer-crc32@0.2.13: {}
-
   buffer-from@1.1.2: {}
   buffer@5.7.1:
     dependencies:
@@ -13439,7 +13211,6 @@ snapshots:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
-
   builtins@1.0.3: {}
   bundle-name@4.1.0:
     dependencies:
@@ -13448,13 +13219,9 @@ snapshots:
     dependencies:
       esbuild: 0.25.12
       load-tsconfig: 0.2.5
-
   bytes@3.1.2: {}
-
   cac@6.7.14: {}
-
   cacheable-lookup@5.0.4: {}
-
   cacheable-lookup@7.0.0: {}
   cacheable-request@10.2.14:
     dependencies:
@@ -13488,20 +13255,14 @@ snapshots:
     dependencies:
       call-bind-apply-helpers: 1.0.2
       get-intrinsic: 1.3.0
-
   call-me-maybe@1.0.2: {}
-
   callsites@3.1.0: {}
-
   camelcase-css@2.0.1: {}
-
   camelcase@5.3.1: {}
-
   camelcase@6.3.0: {}
   camera-controls@3.1.2(three@0.184.0):
     dependencies:
       three: 0.184.0
-
   caniuse-lite@1.0.30001805: {}
   canvg@3.0.11:
     dependencies:
@@ -13514,31 +13275,20 @@ snapshots:
       stackblur-canvas: 2.7.0
       svg-pathdata: 6.0.3
     optional: true
-
   ccount@2.0.1: {}
-
   chai@6.2.2: {}
   chalk@4.1.2:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
-
   chalk@5.2.0: {}
-
   chalk@5.3.0: {}
-
   chalk@5.6.2: {}
-
   char-regex@1.0.2: {}
-
   character-entities-html4@2.1.0: {}
-
   character-entities-legacy@3.0.0: {}
-
   character-entities@2.0.2: {}
-
   character-reference-invalid@2.0.1: {}
-
   chardet@2.2.0: {}
   cheerio-select@2.1.0:
     dependencies:
@@ -13588,7 +13338,6 @@ snapshots:
       readdirp: 4.1.2
   chownr@1.1.4:
     optional: true
-
   chownr@3.0.0: {}
   chromium-bidi@0.6.2(devtools-protocol@0.0.1312386):
     dependencies:
@@ -13596,14 +13345,11 @@ snapshots:
       mitt: 3.0.1
       urlpattern-polyfill: 10.0.0
       zod: 3.25.76
-
   ci-info@4.4.0: {}
-
   cjs-module-lexer@2.2.0: {}
   class-variance-authority@0.7.1:
     dependencies:
       clsx: 2.1.1
-
   classcat@5.0.5: {}
   clean-stack@3.0.1:
     dependencies:
@@ -13611,9 +13357,7 @@ snapshots:
   clean-stack@4.2.0:
     dependencies:
       escape-string-regexp: 5.0.0
-
   cli-boxes@3.0.0: {}
-
   cli-boxes@4.0.1: {}
   cli-cursor@4.0.0:
     dependencies:
@@ -13621,7 +13365,6 @@ snapshots:
   cli-cursor@5.0.0:
     dependencies:
       restore-cursor: 5.1.0
-
   cli-spinners@2.9.2: {}
   cli-truncate@4.0.0:
     dependencies:
@@ -13631,9 +13374,7 @@ snapshots:
     dependencies:
       slice-ansi: 9.0.0
       string-width: 8.2.2
-
   cli-width@4.1.0: {}
-
   client-only@0.0.1: {}
   cliui@7.0.4:
     dependencies:
@@ -13653,7 +13394,6 @@ snapshots:
   clone-response@1.0.3:
     dependencies:
       mimic-response: 1.0.1
-
   clsx@2.1.1: {}
   cmdk@1.1.1(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
@@ -13666,23 +13406,17 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
       - '@types/react-dom'
-
   co@4.6.0: {}
-
   code-block-writer@13.0.3: {}
   code-excerpt@4.0.0:
     dependencies:
       convert-to-spaces: 2.0.1
-
   collapse-white-space@2.1.0: {}
-
   collect-v8-coverage@1.0.3: {}
-
   color-blend@4.0.0: {}
   color-convert@2.0.1:
     dependencies:
       color-name: 1.1.4
-
   color-name@1.1.4: {}
   color-string@1.9.1:
     dependencies:
@@ -13695,23 +13429,14 @@ snapshots:
   combined-stream@1.0.8:
     dependencies:
       delayed-stream: 1.0.0
-
   comma-separated-tokens@2.0.3: {}
-
   commander@11.1.0: {}
-
   commander@14.0.3: {}
-
   commander@2.20.3: {}
-
   commander@4.1.1: {}
-
   commander@7.2.0: {}
-
   commander@8.3.0: {}
-
   commondir@1.0.1: {}
-
   concat-map@0.0.1: {}
   concurrently@10.0.3:
     dependencies:
@@ -13733,30 +13458,19 @@ snapshots:
       onetime: 5.1.2
       pkg-up: 3.1.0
       semver: 7.8.5
-
   confbox@0.1.8: {}
-
   consola@3.4.2: {}
   content-disposition@0.5.4:
     dependencies:
       safe-buffer: 5.2.1
-
   content-type@1.0.5: {}
-
   content-type@2.0.0: {}
-
   convert-source-map@2.0.0: {}
-
   convert-to-spaces@2.0.1: {}
-
   cookie-signature@1.0.7: {}
-
   cookie@0.7.2: {}
-
   core-js-pure@3.49.0: {}
-
   core-js@3.49.0: {}
-
   core-util-is@1.0.3: {}
   cors@2.8.6:
     dependencies:
@@ -13776,9 +13490,7 @@ snapshots:
       parse-json: 5.2.0
     optionalDependencies:
       typescript: 6.0.3
-
   create-require@1.1.1: {}
-
   cron-schedule@6.0.0: {}
   cross-env@7.0.3:
     dependencies:
@@ -13799,13 +13511,9 @@ snapshots:
       domhandler: 5.0.3
       domutils: 3.2.2
       nth-check: 2.1.1
-
   css-what@6.2.2: {}
-
   cssesc@3.0.0: {}
-
   cssfilter@0.0.10: {}
-
   csstype@3.2.3: {}
   cytoscape-cose-bilkent@4.1.0(cytoscape@3.34.0):
     dependencies:
@@ -13815,7 +13523,6 @@ snapshots:
     dependencies:
       cose-base: 2.2.0
       cytoscape: 3.34.0
-
   cytoscape@3.34.0: {}
   d3-array@2.12.1:
     dependencies:
@@ -13823,7 +13530,6 @@ snapshots:
   d3-array@3.2.4:
     dependencies:
       internmap: 2.0.3
-
   d3-axis@3.0.0: {}
   d3-brush@3.0.0:
     dependencies:
@@ -13835,7 +13541,6 @@ snapshots:
   d3-chord@3.0.1:
     dependencies:
       d3-path: 3.1.0
-
   d3-color@3.1.0: {}
   d3-contour@4.0.2:
     dependencies:
@@ -13843,7 +13548,6 @@ snapshots:
   d3-delaunay@6.0.4:
     dependencies:
       delaunator: 5.1.0
-
   d3-dispatch@3.0.1: {}
   d3-drag@3.0.0:
     dependencies:
@@ -13854,7 +13558,6 @@ snapshots:
       commander: 7.2.0
       iconv-lite: 0.6.3
       rw: 1.3.3
-
   d3-ease@3.0.1: {}
   d3-fetch@3.0.1:
     dependencies:
@@ -13864,25 +13567,18 @@ snapshots:
       d3-dispatch: 3.0.1
       d3-quadtree: 3.0.1
       d3-timer: 3.0.1
-
   d3-format@3.1.2: {}
   d3-geo@3.1.1:
     dependencies:
       d3-array: 3.2.4
-
   d3-hierarchy@3.1.2: {}
   d3-interpolate@3.0.1:
     dependencies:
       d3-color: 3.1.0
-
   d3-path@1.0.9: {}
-
   d3-path@3.1.0: {}
-
   d3-polygon@3.0.1: {}
-
   d3-quadtree@3.0.1: {}
-
   d3-random@3.0.1: {}
   d3-sankey@0.12.3:
     dependencies:
@@ -13899,7 +13595,6 @@ snapshots:
       d3-interpolate: 3.0.1
       d3-time: 3.1.0
       d3-time-format: 4.1.0
-
   d3-selection@3.0.0: {}
   d3-shape@1.3.7:
     dependencies:
@@ -13913,7 +13608,6 @@ snapshots:
   d3-time@3.1.0:
     dependencies:
       d3-array: 3.2.4
-
   d3-timer@3.0.1: {}
   d3-transition@3.0.1(d3-selection@3.0.0):
     dependencies:
@@ -13970,11 +13664,8 @@ snapshots:
     dependencies:
       d3: 7.9.0
       lodash-es: 4.18.1
-
   damerau-levenshtein@1.0.8: {}
-
   data-uri-to-buffer@2.0.2: {}
-
   data-uri-to-buffer@6.0.2: {}
   data-view-buffer@1.0.2:
     dependencies:
@@ -13991,11 +13682,8 @@ snapshots:
       call-bound: 1.0.4
       es-errors: 1.3.0
       is-data-view: 1.0.2
-
   dataloader@1.4.0: {}
-
   date-fns@4.4.0: {}
-
   dayjs@1.11.21: {}
   debounce-fn@4.0.0:
     dependencies:
@@ -14014,7 +13702,6 @@ snapshots:
       ms: 2.1.3
     optionalDependencies:
       supports-color: 8.1.1
-
   decimal.js-light@2.5.1: {}
   decode-bmp@0.2.1:
     dependencies:
@@ -14031,30 +13718,23 @@ snapshots:
   decompress-response@6.0.0:
     dependencies:
       mimic-response: 3.1.0
-
   dedent@1.7.2: {}
   deep-extend@0.6.0:
     optional: true
-
   deep-is@0.1.4: {}
-
   deepmerge@4.3.1: {}
-
   default-browser-id@5.0.1: {}
   default-browser@5.5.0:
     dependencies:
       bundle-name: 4.1.0
       default-browser-id: 5.0.1
-
   defer-to-connect@2.0.1: {}
   define-data-property@1.1.4:
     dependencies:
       es-define-property: 1.0.1
       es-errors: 1.3.0
       gopd: 1.2.0
-
   define-lazy-prop@2.0.0: {}
-
   define-lazy-prop@3.0.0: {}
   define-properties@1.2.1:
     dependencies:
@@ -14069,26 +13749,17 @@ snapshots:
   delaunator@5.1.0:
     dependencies:
       robust-predicates: 3.0.3
-
   delayed-stream@1.0.0: {}
-
   depd@2.0.0: {}
-
   dependency-graph@0.11.0: {}
-
   dequal@2.0.3: {}
-
   destroy@1.2.0: {}
   detect-gpu@5.0.70:
     dependencies:
       webgl-constants: 1.1.1
-
   detect-indent@6.1.0: {}
-
   detect-libc@2.1.2: {}
-
   detect-newline@3.1.0: {}
-
   detect-node-es@1.1.0: {}
   detect-port@1.5.1:
     dependencies:
@@ -14099,20 +13770,14 @@ snapshots:
   devlop@1.1.0:
     dependencies:
       dequal: 2.0.3
-
   devtools-protocol@0.0.1312386: {}
-
   diacritics@1.3.0: {}
-
   didyoumean@1.2.2: {}
-
   diff@4.0.4: {}
-
   diff@8.0.4: {}
   dir-glob@3.0.1:
     dependencies:
       path-type: 4.0.0
-
   dlv@1.1.3: {}
   dns-packet@5.6.1:
     dependencies:
@@ -14128,7 +13793,6 @@ snapshots:
       domelementtype: 2.3.0
       domhandler: 5.0.3
       entities: 4.5.0
-
   domelementtype@2.3.0: {}
   domhandler@5.0.3:
     dependencies:
@@ -14153,13 +13817,9 @@ snapshots:
   dotenv-expand@12.0.3:
     dependencies:
       dotenv: 16.6.1
-
   dotenv@16.6.1: {}
-
   dotenv@17.4.2: {}
-
   dotenv@8.6.0: {}
-
   draco3d@1.5.7: {}
   drizzle-kit@0.31.10:
     dependencies:
@@ -14172,7 +13832,6 @@ snapshots:
       call-bind-apply-helpers: 1.0.2
       es-errors: 1.3.0
       gopd: 1.2.0
-
   eastasianwidth@0.2.0: {}
   echarts-for-react@3.0.6(echarts@6.1.0)(react@19.2.7):
     dependencies:
@@ -14190,12 +13849,10 @@ snapshots:
       '@noble/ciphers': 1.3.0
       '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
-
   ee-first@1.1.1: {}
   ejs@3.1.10:
     dependencies:
       jake: 10.9.4
-
   electron-to-chromium@1.5.389: {}
   embla-carousel-react@8.6.0(react@19.2.7):
     dependencies:
@@ -14205,17 +13862,11 @@ snapshots:
   embla-carousel-reactive-utils@8.6.0(embla-carousel@8.6.0):
     dependencies:
       embla-carousel: 8.6.0
-
   embla-carousel@8.6.0: {}
-
   emittery@0.13.1: {}
-
   emoji-regex@10.6.0: {}
-
   emoji-regex@8.0.0: {}
-
   emoji-regex@9.2.2: {}
-
   encodeurl@2.0.0: {}
   encoding-sniffer@0.2.1:
     dependencies:
@@ -14224,7 +13875,6 @@ snapshots:
   end-of-stream@1.4.5:
     dependencies:
       once: 1.4.0
-
   engine.io-parser@5.2.3: {}
   engine.io@6.6.9:
     dependencies:
@@ -14250,20 +13900,14 @@ snapshots:
     dependencies:
       ansi-colors: 4.1.3
       strip-ansi: 6.0.1
-
   entities@4.5.0: {}
-
   entities@6.0.1: {}
-
   entities@7.0.1: {}
-
   env-paths@2.2.1: {}
-
   environment@1.1.0: {}
   error-ex@1.3.4:
     dependencies:
       is-arrayish: 0.2.1
-
   error-stack-parser-es@1.0.5: {}
   es-abstract-get@1.0.0:
     dependencies:
@@ -14337,9 +13981,7 @@ snapshots:
       globalthis: 1.0.4
       has-property-descriptors: 1.0.2
       set-function-name: 2.0.2
-
   es-define-property@1.0.1: {}
-
   es-errors@1.3.0: {}
   es-iterator-helpers@1.4.0:
     dependencies:
@@ -14359,7 +14001,6 @@ snapshots:
       internal-slot: 1.1.0
       iterator.prototype: 1.1.5
       math-intrinsics: 1.1.0
-
   es-module-lexer@2.3.1: {}
   es-object-atoms@1.1.2:
     dependencies:
@@ -14381,7 +14022,6 @@ snapshots:
       is-callable: 1.2.7
       is-date-object: 1.1.0
       is-symbol: 1.1.1
-
   es-toolkit@1.49.0: {}
   es5-ext@0.10.64:
     dependencies:
@@ -14444,15 +14084,10 @@ snapshots:
       '@esbuild/win32-arm64': 0.25.12
       '@esbuild/win32-ia32': 0.25.12
       '@esbuild/win32-x64': 0.25.12
-
   escalade@3.2.0: {}
-
   escape-html@1.0.3: {}
-
   escape-string-regexp@2.0.0: {}
-
   escape-string-regexp@4.0.0: {}
-
   escape-string-regexp@5.0.0: {}
   escodegen@2.1.0:
     dependencies:
@@ -14594,11 +14229,8 @@ snapshots:
       '@types/estree': 1.0.9
       esrecurse: 4.3.0
       estraverse: 5.3.0
-
   eslint-visitor-keys@3.4.3: {}
-
   eslint-visitor-keys@4.2.1: {}
-
   eslint-visitor-keys@5.0.1: {}
   eslint@10.7.0(jiti@2.7.0):
     dependencies:
@@ -14636,7 +14268,6 @@ snapshots:
       jiti: 2.7.0
     transitivePeerDependencies:
       - supports-color
-
   esm-env@1.2.2: {}
   esniff@2.0.1:
     dependencies:
@@ -14654,7 +14285,6 @@ snapshots:
       acorn: 8.17.0
       acorn-jsx: 5.3.2(acorn@8.17.0)
       eslint-visitor-keys: 5.0.1
-
   esprima@4.0.1: {}
   esquery@1.7.0:
     dependencies:
@@ -14662,7 +14292,6 @@ snapshots:
   esrecurse@4.3.0:
     dependencies:
       estraverse: 5.3.0
-
   estraverse@5.3.0: {}
   estree-util-attach-comments@3.0.0:
     dependencies:
@@ -14673,7 +14302,6 @@ snapshots:
       devlop: 1.1.0
       estree-util-is-identifier-name: 3.0.0
       estree-walker: 3.0.3
-
   estree-util-is-identifier-name@3.0.0: {}
   estree-util-scope@1.0.0:
     dependencies:
@@ -14688,31 +14316,24 @@ snapshots:
     dependencies:
       '@types/estree-jsx': 1.0.5
       '@types/unist': 3.0.3
-
   estree-walker@1.0.1: {}
-
   estree-walker@2.0.2: {}
   estree-walker@3.0.3:
     dependencies:
       '@types/estree': 1.0.9
-
   esutils@2.0.3: {}
-
   etag@1.8.1: {}
   event-emitter@0.3.5:
     dependencies:
       d: 1.0.2
       es5-ext: 0.10.64
-
   event-target-polyfill@0.0.4: {}
-
   eventemitter3@5.0.4: {}
   events-universal@1.0.1:
     dependencies:
       bare-events: 2.9.1
     transitivePeerDependencies:
       - bare-abort-controller
-
   eventsource-parser@3.1.0: {}
   eventsource@3.0.7:
     dependencies:
@@ -14742,11 +14363,9 @@ snapshots:
       signal-exit: 4.1.0
       strip-final-newline: 4.0.0
       yoctocolors: 2.1.2
-
   exit-x@0.2.2: {}
   expand-template@2.0.3:
     optional: true
-
   expect-type@1.4.0: {}
   expect@30.4.1:
     dependencies:
@@ -14756,7 +14375,6 @@ snapshots:
       jest-message-util: 30.4.1
       jest-mock: 30.4.1
       jest-util: 30.4.1
-
   expr-eval-fork@3.0.3: {}
   express-rate-limit@8.5.2(express@4.22.2):
     dependencies:
@@ -14800,9 +14418,7 @@ snapshots:
   ext@1.7.0:
     dependencies:
       type: 2.7.3
-
   extend@3.0.2: {}
-
   extendable-error@0.1.7: {}
   extract-zip@2.0.1:
     dependencies:
@@ -14813,9 +14429,7 @@ snapshots:
       '@types/yauzl': 2.10.3
     transitivePeerDependencies:
       - supports-color
-
   fast-deep-equal@3.1.3: {}
-
   fast-fifo@1.3.2: {}
   fast-glob@3.2.12:
     dependencies:
@@ -14838,23 +14452,18 @@ snapshots:
       glob-parent: 5.1.2
       merge2: 1.4.1
       micromatch: 4.0.8
-
   fast-json-stable-stringify@2.1.0: {}
-
   fast-levenshtein@2.0.6: {}
   fast-levenshtein@3.0.0:
     dependencies:
       fastest-levenshtein: 1.0.16
-
   fast-memoize@2.5.2: {}
   fast-png@6.4.0:
     dependencies:
       '@types/pako': 2.0.4
       iobuffer: 5.4.0
       pako: 2.2.0
-
   fast-sha256@1.3.0: {}
-
   fast-uri@3.1.3: {}
   fast-xml-builder@1.3.0:
     dependencies:
@@ -14868,7 +14477,6 @@ snapshots:
       path-expression-matcher: 1.6.2
       strnum: 2.4.1
       xml-naming: 0.3.0
-
   fastest-levenshtein@1.0.16: {}
   fastq@1.20.1:
     dependencies:
@@ -14893,11 +14501,8 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.5):
     optionalDependencies:
       picomatch: 4.0.5
-
   fflate@0.4.8: {}
-
   fflate@0.6.10: {}
-
   fflate@0.8.3: {}
   figures@6.1.0:
     dependencies:
@@ -14951,9 +14556,7 @@ snapshots:
     dependencies:
       flatted: 3.4.2
       keyv: 4.5.4
-
   flatted@3.4.2: {}
-
   follow-redirects@1.16.0: {}
   for-each@0.3.5:
     dependencies:
@@ -14962,7 +14565,6 @@ snapshots:
     dependencies:
       cross-spawn: 7.0.6
       signal-exit: 4.1.0
-
   form-data-encoder@2.1.4: {}
   form-data@4.0.6:
     dependencies:
@@ -14971,14 +14573,11 @@ snapshots:
       es-set-tostringtag: 2.1.0
       hasown: 2.0.4
       mime-types: 2.1.35
-
   format@0.2.2: {}
   formatly@0.3.0:
     dependencies:
       fd-package-json: 2.0.0
-
   forwarded@0.2.0: {}
-
   fraction.js@5.3.4: {}
   framer-motion@12.42.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
@@ -14988,7 +14587,6 @@ snapshots:
     optionalDependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
-
   fresh@0.5.2: {}
   front-matter@4.0.2:
     dependencies:
@@ -15030,13 +14628,11 @@ snapshots:
       graceful-fs: 4.2.11
       jsonfile: 4.0.0
       universalify: 0.1.2
-
   fs.realpath@1.0.0: {}
   fsevents@2.3.2:
     optional: true
   fsevents@2.3.3:
     optional: true
-
   function-bind@1.1.2: {}
   function.prototype.name@1.2.0:
     dependencies:
@@ -15049,21 +14645,13 @@ snapshots:
       hasown: 2.0.4
       is-callable: 1.2.7
       is-document.all: 1.0.0
-
   functions-have-names@1.2.3: {}
-
   fuse.js@7.4.2: {}
-
   fuzzysort@3.1.0: {}
-
   gcd@0.0.1: {}
-
   generator-function@2.0.1: {}
-
   gensync@1.0.0-beta.2: {}
-
   get-caller-file@2.0.5: {}
-
   get-east-asian-width@1.6.0: {}
   get-intrinsic@1.3.0:
     dependencies:
@@ -15077,11 +14665,8 @@ snapshots:
       has-symbols: 1.1.0
       hasown: 2.0.4
       math-intrinsics: 1.1.0
-
   get-nonce@1.0.1: {}
-
   get-own-enumerable-keys@1.0.0: {}
-
   get-package-type@0.1.0: {}
   get-proto@1.0.1:
     dependencies:
@@ -15094,7 +14679,6 @@ snapshots:
   get-stream@5.2.0:
     dependencies:
       pump: 3.0.4
-
   get-stream@6.0.1: {}
   get-stream@9.0.1:
     dependencies:
@@ -15117,7 +14701,6 @@ snapshots:
       - supports-color
   github-from-package@0.0.0:
     optional: true
-
   glicko2@1.2.1: {}
   glob-parent@5.1.2:
     dependencies:
@@ -15154,11 +14737,8 @@ snapshots:
       minimatch: 3.1.5
       once: 1.4.0
       path-is-absolute: 1.0.1
-
   globals@14.0.0: {}
-
   globals@16.4.0: {}
-
   globals@17.7.0: {}
   globalthis@1.0.4:
     dependencies:
@@ -15172,7 +14752,6 @@ snapshots:
       ignore: 5.3.2
       merge2: 1.4.1
       slash: 3.0.0
-
   glsl-noise@0.0.0: {}
   google-play-scraper@10.1.3:
     dependencies:
@@ -15184,7 +14763,6 @@ snapshots:
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
-
   gopd@1.2.0: {}
   got@11.8.6:
     dependencies:
@@ -15225,13 +14803,9 @@ snapshots:
       lowercase-keys: 3.0.0
       p-cancelable: 3.0.0
       responselike: 3.0.0
-
   graceful-fs@4.2.11: {}
-
   hachure-fill@0.5.2: {}
-
   has-bigints@1.1.0: {}
-
   has-flag@4.0.0: {}
   has-property-descriptors@1.0.2:
     dependencies:
@@ -15239,7 +14813,6 @@ snapshots:
   has-proto@1.2.0:
     dependencies:
       dunder-proto: 1.0.1
-
   has-symbols@1.1.0: {}
   has-tostringtag@1.0.2:
     dependencies:
@@ -15435,24 +15008,16 @@ snapshots:
       hast-util-parse-selector: 4.0.0
       property-information: 7.2.0
       space-separated-tokens: 2.0.2
-
   hermes-estree@0.25.1: {}
   hermes-parser@0.25.1:
     dependencies:
       hermes-estree: 0.25.1
-
   hex-rgb@5.0.0: {}
-
   hls.js@1.6.16: {}
-
   hono@4.12.30: {}
-
   hpagent@1.2.0: {}
-
   html-escaper@2.0.2: {}
-
   html-url-attributes@3.0.1: {}
-
   html-void-elements@3.0.0: {}
   html2canvas@1.4.1:
     dependencies:
@@ -15465,7 +15030,6 @@ snapshots:
       domhandler: 5.0.3
       domutils: 3.2.2
       entities: 7.0.1
-
   http-cache-semantics@4.2.0: {}
   http-errors@2.0.1:
     dependencies:
@@ -15500,18 +15064,13 @@ snapshots:
       debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
-
   human-id@4.2.0: {}
-
   human-signals@2.1.0: {}
-
   human-signals@8.0.1: {}
   i18n-iso-countries@7.14.0:
     dependencies:
       diacritics: 1.3.0
-
   iceberg-js@0.8.1: {}
-
   ico-endec@0.1.6: {}
   iconv-lite@0.4.24:
     dependencies:
@@ -15522,19 +15081,12 @@ snapshots:
   iconv-lite@0.7.3:
     dependencies:
       safer-buffer: 2.1.2
-
   ieee754@1.2.1: {}
-
   ignore@5.3.2: {}
-
   ignore@7.0.5: {}
-
   ignore@7.0.6: {}
-
   immediate@3.0.6: {}
-
   immer@11.1.11: {}
-
   immer@9.0.21: {}
   import-fresh@3.3.1:
     dependencies:
@@ -15544,19 +15096,14 @@ snapshots:
     dependencies:
       pkg-dir: 4.2.0
       resolve-cwd: 3.0.0
-
   import-meta-resolve@4.2.0: {}
-
   imurmurhash@0.1.4: {}
-
   indent-string@4.0.0: {}
-
   indent-string@5.0.0: {}
   inflight@1.0.6:
     dependencies:
       once: 1.4.0
       wrappy: 1.0.2
-
   inherits@2.0.4: {}
   ini@1.3.8:
     optional: true
@@ -15629,7 +15176,6 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
-
   inline-style-parser@0.2.7: {}
   input-otp@1.4.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
@@ -15650,19 +15196,12 @@ snapshots:
       es-errors: 1.3.0
       hasown: 2.0.4
       side-channel: 1.1.1
-
   internmap@1.0.1: {}
-
   internmap@2.0.3: {}
-
   iobuffer@5.4.0: {}
-
   ip-address@10.2.0: {}
-
   ip-regex@4.3.0: {}
-
   ipaddr.js@1.9.1: {}
-
   is-alphabetical@2.0.1: {}
   is-alphanumerical@2.0.1:
     dependencies:
@@ -15673,9 +15212,7 @@ snapshots:
       call-bind: 1.0.9
       call-bound: 1.0.4
       get-intrinsic: 1.3.0
-
   is-arrayish@0.2.1: {}
-
   is-arrayish@0.3.4: {}
   is-async-function@2.1.1:
     dependencies:
@@ -15697,7 +15234,6 @@ snapshots:
   is-bun-module@2.0.0:
     dependencies:
       semver: 7.8.5
-
   is-callable@1.2.7: {}
   is-core-module@2.16.2:
     dependencies:
@@ -15711,28 +15247,21 @@ snapshots:
     dependencies:
       call-bound: 1.0.4
       has-tostringtag: 1.0.2
-
   is-decimal@2.0.1: {}
-
   is-docker@2.2.1: {}
-
   is-docker@3.0.0: {}
   is-document.all@1.0.0:
     dependencies:
       call-bound: 1.0.4
-
   is-extglob@2.1.1: {}
   is-finalizationregistry@1.1.1:
     dependencies:
       call-bound: 1.0.4
-
   is-fullwidth-code-point@3.0.0: {}
-
   is-fullwidth-code-point@4.0.0: {}
   is-fullwidth-code-point@5.1.0:
     dependencies:
       get-east-asian-width: 1.6.0
-
   is-generator-fn@2.1.0: {}
   is-generator-function@1.1.2:
     dependencies:
@@ -15744,33 +15273,24 @@ snapshots:
   is-glob@4.0.3:
     dependencies:
       is-extglob: 2.1.1
-
   is-hexadecimal@2.0.1: {}
-
   is-in-ci@2.0.0: {}
-
   is-in-ssh@1.0.0: {}
   is-inside-container@1.0.0:
     dependencies:
       is-docker: 3.0.0
-
   is-interactive@2.0.0: {}
   is-ip@3.1.0:
     dependencies:
       ip-regex: 4.3.0
-
   is-map@2.0.3: {}
-
   is-negative-zero@2.0.3: {}
   is-number-object@1.1.1:
     dependencies:
       call-bound: 1.0.4
       has-tostringtag: 1.0.2
-
   is-number@7.0.0: {}
-
   is-obj@2.0.0: {}
-
   is-obj@3.0.0: {}
   is-online@10.0.0:
     dependencies:
@@ -15778,9 +15298,7 @@ snapshots:
       p-any: 4.0.0
       p-timeout: 5.1.0
       public-ip: 5.0.0
-
   is-plain-obj@4.1.0: {}
-
   is-promise@2.2.2: {}
   is-reference@1.2.1:
     dependencies:
@@ -15791,16 +15309,12 @@ snapshots:
       gopd: 1.2.0
       has-tostringtag: 1.0.2
       hasown: 2.0.4
-
   is-regexp@3.1.0: {}
-
   is-set@2.0.3: {}
   is-shared-array-buffer@1.0.4:
     dependencies:
       call-bound: 1.0.4
-
   is-stream@2.0.1: {}
-
   is-stream@4.0.1: {}
   is-string@1.1.1:
     dependencies:
@@ -15817,13 +15331,9 @@ snapshots:
   is-typed-array@1.1.15:
     dependencies:
       which-typed-array: 1.1.22
-
   is-unicode-supported@1.3.0: {}
-
   is-unicode-supported@2.1.0: {}
-
   is-unsafe@2.0.0: {}
-
   is-weakmap@2.0.2: {}
   is-weakref@1.1.1:
     dependencies:
@@ -15832,7 +15342,6 @@ snapshots:
     dependencies:
       call-bound: 1.0.4
       get-intrinsic: 1.3.0
-
   is-windows@1.0.2: {}
   is-wsl@2.2.0:
     dependencies:
@@ -15840,15 +15349,10 @@ snapshots:
   is-wsl@3.1.1:
     dependencies:
       is-inside-container: 1.0.0
-
   isarray@1.0.0: {}
-
   isarray@2.0.5: {}
-
   isexe@2.0.0: {}
-
   isexe@3.1.5: {}
-
   istanbul-lib-coverage@3.2.2: {}
   istanbul-lib-instrument@6.0.3:
     dependencies:
@@ -16047,7 +15551,6 @@ snapshots:
   jest-pnp-resolver@1.2.3(jest-resolve@30.4.1):
     optionalDependencies:
       jest-resolve: 30.4.1
-
   jest-regex-util@30.4.0: {}
   jest-resolve-dependencies@30.4.2:
     dependencies:
@@ -16187,9 +15690,7 @@ snapshots:
       - esbuild-register
       - supports-color
       - ts-node
-
   jiti@1.21.7: {}
-
   jiti@2.7.0: {}
   joi@18.2.3:
     dependencies:
@@ -16200,17 +15701,11 @@ snapshots:
       '@hapi/tlds': 1.1.7
       '@hapi/topo': 6.0.2
       '@standard-schema/spec': 1.1.0
-
   jose@5.10.0: {}
-
   jose@6.2.3: {}
-
   joycon@3.1.1: {}
-
   js-base64@3.8.1: {}
-
   js-tokens@10.0.0: {}
-
   js-tokens@4.0.0: {}
   js-yaml@3.15.0:
     dependencies:
@@ -16219,38 +15714,25 @@ snapshots:
   js-yaml@4.3.0:
     dependencies:
       argparse: 2.0.1
-
   jsep@1.4.0: {}
-
   jsesc@3.1.0: {}
-
   json-buffer@3.0.1: {}
-
   json-parse-even-better-errors@2.3.1: {}
   json-schema-to-ts@3.1.1:
     dependencies:
       '@babel/runtime': 7.29.7
       ts-algebra: 2.0.0
-
   json-schema-traverse@0.4.1: {}
-
   json-schema-traverse@1.0.0: {}
-
   json-schema-typed@7.0.3: {}
-
   json-schema-typed@8.0.2: {}
-
   json-schema@0.4.0: {}
-
   json-stable-stringify-without-jsonify@1.0.1: {}
-
   json-with-bigint@3.5.10: {}
   json5@1.0.2:
     dependencies:
       minimist: 1.2.8
-
   json5@2.2.3: {}
-
   jsonc-parser@2.2.1: {}
   jsonfile@4.0.0:
     optionalDependencies:
@@ -16265,7 +15747,6 @@ snapshots:
       '@jsep-plugin/assignment': 1.3.0(jsep@1.4.0)
       '@jsep-plugin/regex': 1.0.4(jsep@1.4.0)
       jsep: 1.4.0
-
   jsonpointer@5.0.1: {}
   jspdf-autotable@5.0.8(jspdf@4.2.1):
     dependencies:
@@ -16303,11 +15784,8 @@ snapshots:
   keyv@4.5.4:
     dependencies:
       json-buffer: 3.0.1
-
   khroma@2.1.0: {}
-
   kleur@3.0.3: {}
-
   kleur@4.1.5: {}
   knip@6.26.0:
     dependencies:
@@ -16324,21 +15802,16 @@ snapshots:
       unbash: 4.0.2
       yaml: 2.9.0
       zod: 4.4.3
-
   language-subtag-registry@0.3.23: {}
   language-tags@1.0.9:
     dependencies:
       language-subtag-registry: 0.3.23
-
   layout-base@1.0.2: {}
-
   layout-base@2.0.1: {}
   lcm@0.0.3:
     dependencies:
       gcd: 0.0.1
-
   leven@3.1.0: {}
-
   leven@4.1.0: {}
   levn@0.4.1:
     dependencies:
@@ -16384,11 +15857,8 @@ snapshots:
       lightningcss-linux-x64-musl: 1.32.0
       lightningcss-win32-arm64-msvc: 1.32.0
       lightningcss-win32-x64-msvc: 1.32.0
-
   lilconfig@3.1.3: {}
-
   lines-and-columns@1.2.4: {}
-
   load-tsconfig@0.2.5: {}
   locate-path@3.0.0:
     dependencies:
@@ -16400,35 +15870,25 @@ snapshots:
   locate-path@6.0.0:
     dependencies:
       p-locate: 5.0.0
-
   lodash-es@4.18.1: {}
-
   lodash.startcase@4.4.0: {}
-
   lodash.topath@4.5.2: {}
-
   lodash@4.18.1: {}
   log-symbols@6.0.0:
     dependencies:
       chalk: 5.6.2
       is-unicode-supported: 1.3.0
-
   longest-streak@3.1.0: {}
   loose-envify@1.4.0:
     dependencies:
       js-tokens: 4.0.0
-
   lowercase-keys@2.0.0: {}
-
   lowercase-keys@3.0.0: {}
-
   lru-cache@10.4.3: {}
-
   lru-cache@11.5.2: {}
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
-
   lru-cache@7.18.3: {}
   lru-queue@0.1.0:
     dependencies:
@@ -16454,22 +15914,15 @@ snapshots:
   make-dir@4.0.0:
     dependencies:
       semver: 7.8.5
-
   make-error@1.3.6: {}
   makeerror@1.0.12:
     dependencies:
       tmpl: 1.0.5
-
   markdown-escape@2.0.0: {}
-
   markdown-extensions@2.0.0: {}
-
   markdown-table@3.0.4: {}
-
   marked@16.4.2: {}
-
   marked@17.0.6: {}
-
   math-intrinsics@1.1.0: {}
   mdast-util-find-and-replace@3.0.2:
     dependencies:
@@ -16686,7 +16139,6 @@ snapshots:
   mdast-util-to-string@4.0.0:
     dependencies:
       '@types/mdast': 4.0.4
-
   media-typer@0.3.0: {}
   memoizee@0.4.17:
     dependencies:
@@ -16698,11 +16150,8 @@ snapshots:
       lru-queue: 0.1.0
       next-tick: 1.1.0
       timers-ext: 0.1.8
-
   merge-descriptors@1.0.3: {}
-
   merge-stream@2.0.0: {}
-
   merge2@1.4.1: {}
   mermaid@11.16.0:
     dependencies:
@@ -16730,9 +16179,7 @@ snapshots:
   meshline@3.3.1(three@0.184.0):
     dependencies:
       three: 0.184.0
-
   meshoptimizer@1.1.1: {}
-
   methods@1.1.2: {}
   micromark-core-commonmark@2.0.3:
     dependencies:
@@ -16928,7 +16375,6 @@ snapshots:
       micromark-util-character: 2.1.1
       micromark-util-decode-numeric-character-reference: 2.0.2
       micromark-util-symbol: 2.0.1
-
   micromark-util-encode@2.0.1: {}
   micromark-util-events-to-acorn@2.0.3:
     dependencies:
@@ -16939,7 +16385,6 @@ snapshots:
       micromark-util-symbol: 2.0.1
       micromark-util-types: 2.0.2
       vfile-message: 4.0.3
-
   micromark-util-html-tag-name@2.0.1: {}
   micromark-util-normalize-identifier@2.0.1:
     dependencies:
@@ -16958,9 +16403,7 @@ snapshots:
       micromark-util-chunked: 2.0.1
       micromark-util-symbol: 2.0.1
       micromark-util-types: 2.0.2
-
   micromark-util-symbol@2.0.1: {}
-
   micromark-util-types@2.0.2: {}
   micromark@4.0.2:
     dependencies:
@@ -16987,12 +16430,10 @@ snapshots:
     dependencies:
       braces: 3.0.3
       picomatch: 2.3.2
-
   mime-db@1.52.0: {}
   mime-types@2.1.35:
     dependencies:
       mime-db: 1.52.0
-
   mime@1.6.0: {}
   mimetext@3.0.28:
     dependencies:
@@ -17000,17 +16441,11 @@ snapshots:
       '@babel/runtime-corejs3': 7.29.7
       js-base64: 3.8.1
       mime-types: 2.1.35
-
   mimic-fn@2.1.0: {}
-
   mimic-fn@3.1.0: {}
-
   mimic-function@5.0.1: {}
-
   mimic-response@1.0.1: {}
-
   mimic-response@3.1.0: {}
-
   mimic-response@4.0.0: {}
   miniflare@4.20260708.1:
     dependencies:
@@ -17035,9 +16470,7 @@ snapshots:
   minimatch@9.0.9:
     dependencies:
       brace-expansion: 2.1.2
-
   minimist@1.2.8: {}
-
   minipass@7.1.3: {}
   minizlib@3.1.0:
     dependencies:
@@ -17061,7 +16494,6 @@ snapshots:
       - ts-node
       - typescript
       - utf-8-validate
-
   mitt@3.0.1: {}
   mkdirp-classic@0.5.3:
     optional: true
@@ -17074,7 +16506,6 @@ snapshots:
   motion-dom@12.42.2:
     dependencies:
       motion-utils: 12.39.0
-
   motion-utils@12.39.0: {}
   motion@12.42.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
@@ -17083,34 +16514,23 @@ snapshots:
     optionalDependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
-
   mri@1.2.0: {}
-
   ms@2.0.0: {}
-
   ms@2.1.3: {}
-
   mute-stream@2.0.0: {}
   mz@2.7.0:
     dependencies:
       any-promise: 1.3.0
       object-assign: 4.1.1
       thenify-all: 1.6.0
-
   nanoid@3.3.16: {}
-
   nanoid@5.1.16: {}
   napi-build-utils@2.0.0:
     optional: true
-
   napi-postinstall@0.3.4: {}
-
   natural-compare@1.4.0: {}
-
   negotiator@0.6.3: {}
-
   neotraverse@0.6.18: {}
-
   netmask@2.1.1: {}
   next-mdx-remote-client@1.1.8(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.3))(react@19.2.3)(unified@11.0.5):
     dependencies:
@@ -17145,7 +16565,6 @@ snapshots:
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
-
   next-tick@1.1.0: {}
   next@16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
@@ -17202,21 +16621,15 @@ snapshots:
   node-fetch@2.7.0:
     dependencies:
       whatwg-url: 5.0.0
-
   node-int64@0.4.0: {}
-
   node-releases@2.0.51: {}
   node-sarif-builder@2.0.3:
     dependencies:
       '@types/sarif': 2.1.7
       fs-extra: 10.1.0
-
   non-error@0.1.0: {}
-
   normalize-path@3.0.0: {}
-
   normalize-url@6.1.0: {}
-
   normalize-url@8.1.1: {}
   npm-run-path@4.0.1:
     dependencies:
@@ -17237,17 +16650,11 @@ snapshots:
       react: 19.2.7
     optionalDependencies:
       next: 16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-
   oauth4webapi@3.8.6: {}
-
   object-assign@4.1.1: {}
-
   object-hash@3.0.0: {}
-
   object-inspect@1.13.4: {}
-
   object-keys@1.1.1: {}
-
   object-treeify@1.1.33: {}
   object.assign@4.1.7:
     dependencies:
@@ -17280,7 +16687,6 @@ snapshots:
       call-bound: 1.0.4
       define-properties: 1.2.1
       es-object-atoms: 1.1.2
-
   obug@2.1.3: {}
   octokit@5.0.5:
     dependencies:
@@ -17307,7 +16713,6 @@ snapshots:
   onetime@7.0.0:
     dependencies:
       mimic-function: 5.0.1
-
   oniguruma-parser@0.12.2: {}
   oniguruma-to-es@4.3.6:
     dependencies:
@@ -17331,7 +16736,6 @@ snapshots:
     optionalDependencies:
       ws: 8.21.0
       zod: 4.4.3
-
   openapi-types@12.1.3: {}
   openid-client@6.8.2:
     dependencies:
@@ -17356,7 +16760,6 @@ snapshots:
       stdin-discarder: 0.2.2
       string-width: 7.2.0
       strip-ansi: 7.2.0
-
   outdent@0.5.0: {}
   own-keys@1.0.1:
     dependencies:
@@ -17412,9 +16815,7 @@ snapshots:
     dependencies:
       p-cancelable: 3.0.0
       p-some: 6.0.0
-
   p-cancelable@2.1.1: {}
-
   p-cancelable@3.0.0: {}
   p-filter@2.1.0:
     dependencies:
@@ -17434,15 +16835,12 @@ snapshots:
   p-locate@5.0.0:
     dependencies:
       p-limit: 3.1.0
-
   p-map@2.1.0: {}
   p-some@6.0.0:
     dependencies:
       aggregate-error: 4.0.1
       p-cancelable: 3.0.0
-
   p-timeout@5.1.0: {}
-
   p-try@2.2.0: {}
   pac-proxy-agent@7.2.0:
     dependencies:
@@ -17460,16 +16858,12 @@ snapshots:
     dependencies:
       degenerator: 5.0.1
       netmask: 2.1.1
-
   package-json-from-dist@1.0.1: {}
   package-manager-detector@0.2.11:
     dependencies:
       quansync: 0.2.11
-
   package-manager-detector@1.7.0: {}
-
   pako@1.0.11: {}
-
   pako@2.2.0: {}
   parent-module@1.0.1:
     dependencies:
@@ -17497,7 +16891,6 @@ snapshots:
       unist-util-modify-children: 4.0.0
       unist-util-visit-children: 3.0.0
       vfile: 6.0.3
-
   parse-ms@4.0.0: {}
   parse5-htmlparser2-tree-adapter@7.1.0:
     dependencies:
@@ -17509,7 +16902,6 @@ snapshots:
   parse5@7.3.0:
     dependencies:
       entities: 6.0.1
-
   parseurl@1.3.3: {}
   partyserver@0.5.8(@cloudflare/workers-types@5.20260713.1):
     dependencies:
@@ -17520,25 +16912,15 @@ snapshots:
       event-target-polyfill: 0.0.4
     optionalDependencies:
       react: 19.2.7
-
   patch-console@2.0.0: {}
-
   path-browserify@1.0.1: {}
-
   path-data-parser@0.1.0: {}
-
   path-exists@3.0.0: {}
-
   path-exists@4.0.0: {}
-
   path-expression-matcher@1.6.2: {}
-
   path-is-absolute@1.0.1: {}
-
   path-key@3.1.1: {}
-
   path-key@4.0.0: {}
-
   path-parse@1.0.7: {}
   path-scurry@1.11.1:
     dependencies:
@@ -17548,29 +16930,18 @@ snapshots:
     dependencies:
       lru-cache: 11.5.2
       minipass: 7.1.3
-
   path-to-regexp@0.1.13: {}
-
   path-type@4.0.0: {}
-
   pathe@2.0.3: {}
-
   pend@1.2.0: {}
   performance-now@2.1.0:
     optional: true
-
   picocolors@1.1.1: {}
-
   picomatch@2.3.2: {}
-
   picomatch@4.0.5: {}
-
   pify@2.3.0: {}
-
   pify@4.0.1: {}
-
   pirates@4.0.7: {}
-
   pkce-challenge@5.0.1: {}
   pkg-dir@4.2.0:
     dependencies:
@@ -17583,24 +16954,19 @@ snapshots:
   pkg-up@3.1.0:
     dependencies:
       find-up: 3.0.0
-
   playwright-core@1.61.1: {}
   playwright@1.61.1:
     dependencies:
       playwright-core: 1.61.1
     optionalDependencies:
       fsevents: 2.3.2
-
   points-on-curve@0.2.0: {}
   points-on-path@0.2.1:
     dependencies:
       path-data-parser: 0.1.0
       points-on-curve: 0.2.0
-
   pony-cause@1.1.1: {}
-
   possible-typed-array-names@1.1.0: {}
-
   postal-mime@2.7.4: {}
   postcss-import@15.1.0(postcss@8.5.19):
     dependencies:
@@ -17639,14 +17005,12 @@ snapshots:
     dependencies:
       cssesc: 3.0.0
       util-deprecate: 1.0.2
-
   postcss-value-parser@4.2.0: {}
   postcss@8.5.19:
     dependencies:
       nanoid: 3.3.16
       picocolors: 1.1.1
       source-map-js: 1.2.1
-
   postgres@3.4.9: {}
   posthog-js@1.399.2:
     dependencies:
@@ -17668,11 +17032,8 @@ snapshots:
       '@posthog/core': 1.40.2
     optionalDependencies:
       rxjs: 7.8.2
-
   potpack@1.0.2: {}
-
   powershell-utils@0.1.0: {}
-
   preact@10.29.7: {}
   prebuild-install@7.1.3:
     dependencies:
@@ -17689,11 +17050,8 @@ snapshots:
       tar-fs: 2.1.5
       tunnel-agent: 0.6.0
     optional: true
-
   prelude-ls@1.2.1: {}
-
   prettier@2.8.8: {}
-
   prettier@3.9.5: {}
   pretty-format@30.4.1:
     dependencies:
@@ -17704,11 +17062,8 @@ snapshots:
   pretty-ms@9.3.0:
     dependencies:
       parse-ms: 4.0.0
-
   printable-characters@1.0.42: {}
-
   process-nextick-args@2.0.1: {}
-
   progress@2.0.3: {}
   promise-worker-transferable@1.0.4:
     dependencies:
@@ -17723,9 +17078,7 @@ snapshots:
       loose-envify: 1.4.0
       object-assign: 4.1.1
       react-is: 16.13.1
-
   property-information@6.5.0: {}
-
   property-information@7.2.0: {}
   proxy-addr@2.0.7:
     dependencies:
@@ -17743,9 +17096,7 @@ snapshots:
       socks-proxy-agent: 8.0.5
     transitivePeerDependencies:
       - supports-color
-
   proxy-from-env@1.1.0: {}
-
   proxy-from-env@2.1.0: {}
   psl@1.15.0:
     dependencies:
@@ -17759,7 +17110,6 @@ snapshots:
     dependencies:
       end-of-stream: 1.4.5
       once: 1.4.0
-
   punycode@2.3.1: {}
   puppeteer-core@22.14.0:
     dependencies:
@@ -17789,29 +17139,21 @@ snapshots:
       - supports-color
       - typescript
       - utf-8-validate
-
   pure-rand@7.0.1: {}
   qs@6.15.3:
     dependencies:
       es-define-property: 1.0.1
       side-channel: 1.1.1
-
   quansync@0.2.11: {}
-
   query-selector-shadow-dom@1.0.1: {}
-
   querystringify@2.2.0: {}
-
   queue-microtask@1.2.3: {}
-
   quick-lru@5.1.1: {}
   raf@3.4.1:
     dependencies:
       performance-now: 2.1.0
     optional: true
-
   ramda@0.29.1: {}
-
   range-parser@1.2.1: {}
   raw-body@2.5.3:
     dependencies:
@@ -17854,11 +17196,8 @@ snapshots:
   react-hook-form@7.81.0(react@19.2.7):
     dependencies:
       react: 19.2.7
-
   react-is@16.13.1: {}
-
   react-is@18.3.1: {}
-
   react-is@19.2.7: {}
   react-markdown@10.1.0(@types/react@19.2.17)(react@19.2.7):
     dependencies:
@@ -17950,11 +17289,8 @@ snapshots:
       react: 19.2.7
     optionalDependencies:
       react-dom: 19.2.7(react@19.2.7)
-
   react@19.0.0: {}
-
   react@19.2.3: {}
-
   react@19.2.7: {}
   read-cache@1.0.0:
     dependencies:
@@ -17983,7 +17319,6 @@ snapshots:
   readdirp@3.6.0:
     dependencies:
       picomatch: 2.3.2
-
   readdirp@4.1.2: {}
   recast@0.23.12:
     dependencies:
@@ -18039,7 +17374,6 @@ snapshots:
   redux-thunk@3.1.0(redux@5.0.1):
     dependencies:
       redux: 5.0.1
-
   redux@5.0.1: {}
   reflect.getprototypeof@1.0.10:
     dependencies:
@@ -18056,7 +17390,6 @@ snapshots:
   regex-recursion@6.0.2:
     dependencies:
       regex-utilities: 2.3.0
-
   regex-utilities@2.3.0: {}
   regex@6.1.0:
     dependencies:
@@ -18216,32 +17549,22 @@ snapshots:
       unified: 11.0.5
     transitivePeerDependencies:
       - supports-color
-
   remend@1.3.0: {}
-
   require-directory@2.1.1: {}
-
   require-from-string@2.0.2: {}
-
   requires-port@1.0.0: {}
-
   reselect@5.2.0: {}
   resend@6.17.2:
     dependencies:
       postal-mime: 2.7.4
       standardwebhooks: 1.0.0
-
   reserved@0.1.2: {}
-
   resolve-alpn@1.2.1: {}
   resolve-cwd@3.0.0:
     dependencies:
       resolve-from: 5.0.0
-
   resolve-from@4.0.0: {}
-
   resolve-from@5.0.0: {}
-
   resolve-pkg-maps@1.0.0: {}
   resolve@1.22.12:
     dependencies:
@@ -18292,7 +17615,6 @@ snapshots:
       retext-latin: 4.0.0
       retext-stringify: 4.0.0
       unified: 11.0.5
-
   reusify@1.1.0: {}
   rgbcolor@1.0.1:
     optional: true
@@ -18300,7 +17622,6 @@ snapshots:
     dependencies:
       glob: 13.0.6
       package-json-from-dist: 1.0.1
-
   robust-predicates@3.0.3: {}
   rolldown@1.1.5:
     dependencies:
@@ -18377,14 +17698,11 @@ snapshots:
       mitt: 3.0.1
       rrdom: 2.1.0
       rrweb-snapshot: 2.1.0
-
   run-applescript@7.1.0: {}
-
   run-async@3.0.0: {}
   run-parallel@1.2.0:
     dependencies:
       queue-microtask: 1.2.3
-
   rw@1.3.3: {}
   rxjs@7.8.2:
     dependencies:
@@ -18396,9 +17714,7 @@ snapshots:
       get-intrinsic: 1.3.0
       has-symbols: 1.1.0
       isarray: 2.0.5
-
   safe-buffer@5.1.2: {}
-
   safe-buffer@5.2.1: {}
   safe-push-apply@1.0.0:
     dependencies:
@@ -18409,21 +17725,13 @@ snapshots:
       call-bound: 1.0.4
       es-errors: 1.3.0
       is-regex: 1.2.1
-
   safe-stable-stringify@1.1.1: {}
-
   safer-buffer@2.1.2: {}
-
   sax@1.6.0: {}
-
   scheduler@0.26.0: {}
-
   scheduler@0.27.0: {}
-
   semver@6.3.1: {}
-
   semver@7.7.2: {}
-
   semver@7.8.5: {}
   send@0.19.2:
     dependencies:
@@ -18473,9 +17781,7 @@ snapshots:
       dunder-proto: 1.0.1
       es-errors: 1.3.0
       es-object-atoms: 1.1.2
-
   setimmediate@1.0.5: {}
-
   setprototypeof@1.2.0: {}
   shadcn@4.13.0(@cfworker/json-schema@4.1.1)(typescript@6.0.3):
     dependencies:
@@ -18579,9 +17885,7 @@ snapshots:
   shebang-command@2.0.0:
     dependencies:
       shebang-regex: 3.0.0
-
   shebang-regex@3.0.0: {}
-
   shell-quote@1.8.4: {}
   shiki@3.23.0:
     dependencies:
@@ -18627,11 +17931,8 @@ snapshots:
       side-channel-list: 1.0.1
       side-channel-map: 1.0.1
       side-channel-weakmap: 1.0.2
-
   siginfo@2.0.0: {}
-
   signal-exit@3.0.7: {}
-
   signal-exit@4.1.0: {}
   simple-concat@1.0.1:
     optional: true
@@ -18644,11 +17945,8 @@ snapshots:
   simple-swizzle@0.2.4:
     dependencies:
       is-arrayish: 0.3.4
-
   sisteransi@1.0.5: {}
-
   size-sensor@1.0.3: {}
-
   slash@3.0.0: {}
   slice-ansi@5.0.0:
     dependencies:
@@ -18662,9 +17960,7 @@ snapshots:
     dependencies:
       ansi-styles: 6.2.3
       is-fullwidth-code-point: 5.1.0
-
   smart-buffer@4.2.0: {}
-
   smol-toml@1.7.0: {}
   socket.io-adapter@2.5.8:
     dependencies:
@@ -18708,7 +18004,6 @@ snapshots:
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
-
   source-map-js@1.2.1: {}
   source-map-support@0.5.13:
     dependencies:
@@ -18718,26 +18013,19 @@ snapshots:
     dependencies:
       buffer-from: 1.1.2
       source-map: 0.6.1
-
   source-map@0.6.1: {}
-
   source-map@0.7.6: {}
-
   sourcemap-codec@1.4.8: {}
-
   space-separated-tokens@2.0.2: {}
   spawndamnit@3.0.1:
     dependencies:
       cross-spawn: 7.0.6
       signal-exit: 4.1.0
-
   sprintf-js@1.0.3: {}
-
   stable-hash@0.0.5: {}
   stack-utils@2.0.6:
     dependencies:
       escape-string-regexp: 2.0.0
-
   stackback@0.0.2: {}
   stackblur-canvas@2.7.0:
     optional: true
@@ -18753,7 +18041,6 @@ snapshots:
     dependencies:
       '@types/three': 0.184.1
       three: 0.184.0
-
   stats.js@0.17.0: {}
   statsig-node-lite@0.4.4:
     dependencies:
@@ -18775,11 +18062,8 @@ snapshots:
       statsig-node-lite: 0.4.4
     transitivePeerDependencies:
       - encoding
-
   statuses@2.0.2: {}
-
   std-env@4.2.0: {}
-
   stdin-discarder@0.2.2: {}
   stop-iteration-iterator@1.1.0:
     dependencies:
@@ -18905,19 +18189,13 @@ snapshots:
   strip-ansi@7.2.0:
     dependencies:
       ansi-regex: 6.2.2
-
   strip-bom@3.0.0: {}
-
   strip-bom@4.0.0: {}
-
   strip-final-newline@2.0.0: {}
-
   strip-final-newline@4.0.0: {}
   strip-json-comments@2.0.1:
     optional: true
-
   strip-json-comments@3.1.1: {}
-
   strip-json-comments@5.0.3: {}
   stripe@22.3.1(@types/node@25.9.5):
     optionalDependencies:
@@ -18937,7 +18215,6 @@ snapshots:
       react: 19.2.7
     optionalDependencies:
       '@babel/core': 7.29.7
-
   stylis@4.4.0: {}
   sucrase@3.34.0:
     dependencies:
@@ -18970,7 +18247,6 @@ snapshots:
       '@supabase/cli-linux-x64-musl': 2.109.1
       '@supabase/cli-windows-arm64': 2.109.1
       '@supabase/cli-windows-x64': 2.109.1
-
   supports-color@10.2.2: {}
   supports-color@7.2.0:
     dependencies:
@@ -18978,7 +18254,6 @@ snapshots:
   supports-color@8.1.1:
     dependencies:
       has-flag: 4.0.0
-
   supports-preserve-symlinks-flag@1.0.0: {}
   suspend-react@0.1.3(react@19.2.7):
     dependencies:
@@ -18993,11 +18268,8 @@ snapshots:
   synckit@0.11.13:
     dependencies:
       '@pkgr/core': 0.3.6
-
   systeminformation@5.31.17: {}
-
   tagged-tag@1.0.0: {}
-
   tailwind-merge@3.6.0: {}
   tailwindcss-animate@1.0.7(tailwindcss@4.3.2):
     dependencies:
@@ -19028,9 +18300,7 @@ snapshots:
       sucrase: 3.35.1
     transitivePeerDependencies:
       - ts-node
-
   tailwindcss@4.3.2: {}
-
   tapable@2.3.3: {}
   tar-fs@2.1.5:
     dependencies:
@@ -19081,9 +18351,7 @@ snapshots:
     transitivePeerDependencies:
       - bare-abort-controller
       - react-native-b4a
-
   term-size@2.2.1: {}
-
   terminal-size@4.0.1: {}
   test-exclude@6.0.0:
     dependencies:
@@ -19099,7 +18367,6 @@ snapshots:
     dependencies:
       utrie: 1.0.2
     optional: true
-
   text-table@0.2.0: {}
   thenify-all@1.6.0:
     dependencies:
@@ -19107,7 +18374,6 @@ snapshots:
   thenify@3.3.1:
     dependencies:
       any-promise: 1.3.0
-
   third-party-capital@1.0.20: {}
   three-mesh-bvh@0.8.3(three@0.184.0):
     dependencies:
@@ -19121,38 +18387,27 @@ snapshots:
       fflate: 0.6.10
       potpack: 1.0.2
       three: 0.184.0
-
   three@0.184.0: {}
-
   through@2.3.8: {}
   timers-ext@0.1.8:
     dependencies:
       es5-ext: 0.10.64
       next-tick: 1.1.0
-
   tiny-invariant@1.3.3: {}
-
   tinybench@2.9.0: {}
-
   tinyexec@0.3.2: {}
-
   tinyexec@1.2.4: {}
   tinyglobby@0.2.17:
     dependencies:
       fdir: 6.5.0(picomatch@4.0.5)
       picomatch: 4.0.5
-
   tinyrainbow@3.1.0: {}
-
   tmpl@1.0.5: {}
-
   to-data-view@1.1.0: {}
   to-regex-range@5.0.1:
     dependencies:
       is-number: 7.0.0
-
   toad-cache@3.7.4: {}
-
   toidentifier@1.0.1: {}
   tokenlens@1.3.1:
     dependencies:
@@ -19166,13 +18421,9 @@ snapshots:
       punycode: 2.3.1
       universalify: 0.2.0
       url-parse: 1.5.10
-
   tr46@0.0.3: {}
-
   tree-kill@1.2.2: {}
-
   trim-lines@3.0.1: {}
-
   trim-trailing-lines@2.1.0: {}
   troika-three-text@0.52.4(three@0.184.0):
     dependencies:
@@ -19184,18 +18435,13 @@ snapshots:
   troika-three-utils@0.52.4(three@0.184.0):
     dependencies:
       three: 0.184.0
-
   troika-worker-utils@0.52.0: {}
-
   trough@2.2.0: {}
-
   ts-algebra@2.0.0: {}
   ts-api-utils@2.5.0(typescript@6.0.3):
     dependencies:
       typescript: 6.0.3
-
   ts-dedent@2.3.0: {}
-
   ts-interface-checker@0.1.13: {}
   ts-morph@26.0.0:
     dependencies:
@@ -19229,11 +18475,8 @@ snapshots:
       json5: 2.2.3
       minimist: 1.2.8
       strip-bom: 3.0.0
-
   tslib@1.14.1: {}
-
   tslib@2.3.0: {}
-
   tslib@2.8.1: {}
   tsup@8.5.1(jiti@2.7.0)(postcss@8.5.19)(tsx@4.23.1)(typescript@6.0.3)(yaml@2.9.0):
     dependencies:
@@ -19286,9 +18529,7 @@ snapshots:
       '@turbo/linux-arm64': 2.10.4
       '@turbo/windows-64': 2.10.4
       '@turbo/windows-arm64': 2.10.4
-
   tw-animate-css@1.4.0: {}
-
   twoslash-protocol@0.3.9: {}
   twoslash@0.3.9(typescript@6.0.3):
     dependencies:
@@ -19300,11 +18541,8 @@ snapshots:
   type-check@0.4.0:
     dependencies:
       prelude-ls: 1.2.1
-
   type-detect@4.0.8: {}
-
   type-fest@0.21.3: {}
-
   type-fest@4.41.0: {}
   type-fest@5.8.0:
     dependencies:
@@ -19313,7 +18551,6 @@ snapshots:
     dependencies:
       media-typer: 0.3.0
       mime-types: 2.1.35
-
   type@2.7.3: {}
   typed-array-buffer@1.0.3:
     dependencies:
@@ -19364,13 +18601,9 @@ snapshots:
       typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
-
   typescript@6.0.3: {}
-
   ua-parser-js@1.0.41: {}
-
   ufo@1.6.4: {}
-
   unbash@4.0.2: {}
   unbox-primitive@1.1.0:
     dependencies:
@@ -19382,18 +18615,13 @@ snapshots:
     dependencies:
       buffer: 5.7.1
       through: 2.3.8
-
   uncrypto@0.1.3: {}
-
   undici-types@6.21.0: {}
-
   undici-types@7.24.6: {}
-
   undici@7.28.0: {}
   unenv@2.0.0-rc.24:
     dependencies:
       pathe: 2.0.3
-
   unicorn-magic@0.3.0: {}
   unified@11.0.5:
     dependencies:
@@ -19472,17 +18700,11 @@ snapshots:
       '@types/unist': 3.0.3
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
-
   universal-github-app-jwt@2.2.2: {}
-
   universal-user-agent@7.0.3: {}
-
   universalify@0.1.2: {}
-
   universalify@0.2.0: {}
-
   universalify@2.0.1: {}
-
   unpipe@1.0.0: {}
   unrs-resolver@1.12.2:
     dependencies:
@@ -19518,13 +18740,11 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
-
   urijs@1.19.11: {}
   url-parse@1.5.10:
     dependencies:
       querystringify: 2.2.0
       requires-port: 1.0.0
-
   urlpattern-polyfill@10.0.0: {}
   use-callback-ref@1.3.3(@types/react@19.2.17)(react@19.2.3):
     dependencies:
@@ -19558,19 +18778,14 @@ snapshots:
   use-sync-external-store@1.6.0(react@19.2.7):
     dependencies:
       react: 19.2.7
-
   util-deprecate@1.0.2: {}
-
   utility-types@3.11.0: {}
-
   utils-merge@1.0.1: {}
   utrie@1.0.2:
     dependencies:
       base64-arraybuffer: 1.0.2
     optional: true
-
   uuid@11.1.1: {}
-
   v8-compile-cache-lib@3.0.1: {}
   v8-to-istanbul@9.3.0:
     dependencies:
@@ -19580,9 +18795,7 @@ snapshots:
   validate-npm-package-name@3.0.0:
     dependencies:
       builtins: 1.0.3
-
   validate-npm-package-name@7.0.2: {}
-
   vary@1.1.2: {}
   vaul@1.1.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
@@ -19676,27 +18889,19 @@ snapshots:
     transitivePeerDependencies:
       - debug
       - supports-color
-
   walk-up-path@4.0.0: {}
   walker@1.0.8:
     dependencies:
       makeerror: 1.0.12
-
   web-namespaces@2.0.1: {}
-
   web-vitals@5.0.3: {}
-
   web-vitals@5.3.0: {}
-
   webgl-constants@1.1.1: {}
-
   webgl-sdf-generator@1.1.1: {}
-
   webidl-conversions@3.0.1: {}
   whatwg-encoding@3.1.1:
     dependencies:
       iconv-lite: 0.6.3
-
   whatwg-mimetype@4.0.0: {}
   whatwg-url@5.0.0:
     dependencies:
@@ -19758,9 +18963,7 @@ snapshots:
   widest-line@6.0.0:
     dependencies:
       string-width: 8.2.2
-
   word-wrap@1.2.5: {}
-
   wordwrap@1.0.0: {}
   workerd@1.20260708.1:
     optionalDependencies:
@@ -19826,41 +19029,31 @@ snapshots:
       ansi-styles: 6.2.3
       string-width: 7.2.0
       strip-ansi: 7.2.0
-
   wrappy@1.0.2: {}
   write-file-atomic@5.0.1:
     dependencies:
       imurmurhash: 0.1.4
       signal-exit: 4.1.0
-
   ws@8.21.0: {}
   wsl-utils@0.3.1:
     dependencies:
       is-wsl: 3.1.1
       powershell-utils: 0.1.0
-
   xml-naming@0.3.0: {}
   xml2js@0.6.2:
     dependencies:
       sax: 1.6.0
       xmlbuilder: 11.0.1
-
   xmlbuilder@11.0.1: {}
   xss@1.0.15:
     dependencies:
       commander: 2.20.3
       cssfilter: 0.0.10
-
   y18n@5.0.8: {}
-
   yallist@3.1.1: {}
-
   yallist@5.0.0: {}
-
   yaml@2.9.0: {}
-
   yargs-parser@21.1.1: {}
-
   yargs-parser@22.0.0: {}
   yargs@17.7.1:
     dependencies:
@@ -19892,18 +19085,13 @@ snapshots:
     dependencies:
       buffer-crc32: 0.2.13
       fd-slicer: 1.1.0
-
   yn@3.1.1: {}
-
   yocto-queue@0.1.0: {}
   yocto-spinner@1.2.1:
     dependencies:
       yoctocolors: 2.1.2
-
   yoctocolors-cjs@2.1.3: {}
-
   yoctocolors@2.1.2: {}
-
   yoga-layout@3.2.1: {}
   youch-core@0.3.3:
     dependencies:
@@ -19925,11 +19113,8 @@ snapshots:
   zod-validation-error@4.0.2(zod@3.25.76):
     dependencies:
       zod: 3.25.76
-
   zod@3.25.76: {}
-
   zod@4.3.6: {}
-
   zod@4.4.3: {}
   zrender@6.1.0:
     dependencies:
@@ -19947,7 +19132,6 @@ snapshots:
       immer: 11.1.11
       react: 19.2.7
       use-sync-external-store: 1.6.0(react@19.2.7)
-
   zwitch@2.0.4: {}
   '@ai-sdk/gateway@4.0.31(zod@4.4.3)':
     dependencies:
@@ -19965,10 +19149,6 @@ snapshots:
   '@ai-sdk/provider@4.0.4':
     dependencies:
       json-schema: 0.4.0
-
-  '@babel/helper-string-parser@7.29.7': {}
-
-  '@babel/helper-validator-identifier@7.29.7': {}
   '@esbuild/aix-ppc64@0.28.1':
     optional: true
   '@esbuild/android-arm64@0.28.1':
@@ -20021,14 +19201,6 @@ snapshots:
     optional: true
   '@esbuild/win32-x64@0.28.1':
     optional: true
-
-  '@jridgewell/resolve-uri@3.1.2': {}
-
-  '@jridgewell/sourcemap-codec@1.5.5': {}
-  '@opentelemetry/api@1.9.1':
-    optional: true
-
-  '@oxc-project/types@0.139.0': {}
   '@vitest/mocker@4.1.10(vite@8.1.4(@types/node@25.9.5)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))':
     dependencies:
       '@vitest/spy': 4.1.10
@@ -20036,14 +19208,13 @@ snapshots:
       magic-string: 0.30.21
     optionalDependencies:
       vite: 8.1.4(@types/node@25.9.5)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+  '@workflow/serde@4.1.0': {}
   ai@7.0.41(zod@4.4.3):
     dependencies:
       '@ai-sdk/gateway': 4.0.31(zod@4.4.3)
       '@ai-sdk/provider': 4.0.4
       '@ai-sdk/provider-utils': 5.0.14(zod@4.4.3)
       zod: 4.4.3
-
-  assertion-error@2.0.1: {}
   esbuild@0.28.1:
     optionalDependencies:
       '@esbuild/aix-ppc64': 0.28.1
@@ -20072,14 +19243,6 @@ snapshots:
       '@esbuild/win32-arm64': 0.28.1
       '@esbuild/win32-ia32': 0.28.1
       '@esbuild/win32-x64': 0.28.1
-    optional: true
-  jiti@2.7.0:
-    optional: true
-
-  js-tokens@10.0.0: {}
-
-  json-schema@0.4.0: {}
-  tslib@2.8.1:
     optional: true
   vite@8.1.4(@types/node@25.9.5)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0):
     dependencies:
@@ -20122,7 +19285,3 @@ snapshots:
       '@vitest/coverage-v8': 4.1.10(vitest@4.1.10)
     transitivePeerDependencies:
       - msw
-  yaml@2.9.0:
-    optional: true
-
-  zod@4.4.3: {}
