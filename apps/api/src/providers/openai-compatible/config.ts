@@ -246,6 +246,14 @@ export function resolveOpenAICompatKey(args: ProviderExecuteArgs): ResolvedKey {
 
 export type OpenAICompatRoute = "responses" | "chat";
 
+export function resolveOpenAICompatModel(providerId: string, model?: string | null): string {
+	const value = model?.trim() ?? "";
+	if (providerId !== "poolside" || !value) return value;
+
+	const upstreamModel = value.replace(/:free$/i, "");
+	return upstreamModel.startsWith("poolside/") ? upstreamModel : `poolside/${upstreamModel}`;
+}
+
 function normalizeOpenAIModelName(model?: string | null): string {
 	if (!model) return "";
 	const value = model.trim();

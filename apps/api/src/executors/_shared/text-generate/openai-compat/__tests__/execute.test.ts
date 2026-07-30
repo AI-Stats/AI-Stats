@@ -238,10 +238,10 @@ describe("executeOpenAIWire", () => {
 		args.providerId = "poolside";
 		args.endpoint = "responses";
 		args.protocol = "openai.responses";
-		args.providerModelSlug = "laguna-xs-2.1";
+		args.providerModelSlug = null;
 		args.ir = {
 			...args.ir,
-			model: "poolside/laguna-xs-2.1:free",
+			model: "poolside/laguna-s-2.1:free",
 			stream: false,
 			messages: [
 				{ role: "user", content: [{ type: "text", text: "What is the time?" }] },
@@ -275,7 +275,7 @@ describe("executeOpenAIWire", () => {
 				id: "chatcmpl_laguna_final",
 				object: "chat.completion",
 				created: 1778073915,
-				model: "laguna-xs-2.1",
+				model: "poolside/laguna-s-2.1",
 				choices: [{
 					index: 0,
 					message: { role: "assistant", content: "It is 15:25 UTC." },
@@ -295,6 +295,7 @@ describe("executeOpenAIWire", () => {
 		expect(mock.calls).toHaveLength(1);
 		expect(mock.calls[0]?.url).toBe("https://api.poolside.example/v1/chat/completions");
 		expect(capturedBody?.input).toBeUndefined();
+		expect(capturedBody?.model).toBe("poolside/laguna-s-2.1");
 		expect(capturedBody?.messages).toEqual([
 			{
 				role: "user",

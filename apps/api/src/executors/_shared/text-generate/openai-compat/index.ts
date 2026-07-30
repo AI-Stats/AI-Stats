@@ -15,6 +15,7 @@ import {
 	openAICompatHeaders,
 	openAICompatUrl,
 	resolveOpenAICompatKey,
+	resolveOpenAICompatModel,
 	resolveOpenAICompatRoute,
 } from "@providers/openai-compatible/config";
 import { upstreamTestHeaders } from "@providers/shared/testing";
@@ -79,7 +80,10 @@ export async function executeOpenAIWire(
 	} as any);
 
 	// Choose endpoint based on provider capabilities
-	const modelForRouting = args.providerModelSlug ?? args.ir.model;
+	const modelForRouting = resolveOpenAICompatModel(
+		args.providerId,
+		args.providerModelSlug?.trim() || args.ir.model,
+	);
 	const defaultRoute = resolveOpenAICompatRoute(args.providerId, modelForRouting);
 	let route: "responses" | "chat" = policy.forceChat ? "chat" : defaultRoute;
 
@@ -88,8 +92,8 @@ export async function executeOpenAIWire(
 
 	const buildPayloadForRoute = (targetRoute: "responses" | "chat"): Record<string, any> => {
 		const requestPayload = targetRoute === "responses"
-			? irToOpenAIResponses(args.ir, args.providerModelSlug, args.providerId, args.capabilityParams)
-			: irToOpenAIChat(args.ir, args.providerModelSlug, args.providerId, args.capabilityParams);
+			? irToOpenAIResponses(args.ir, modelForRouting, args.providerId, args.capabilityParams)
+			: irToOpenAIChat(args.ir, modelForRouting, args.providerId, args.capabilityParams);
 
 		const payload: Record<string, any> = {
 			...requestPayload,

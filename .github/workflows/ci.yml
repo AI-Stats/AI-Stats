@@ -144,10 +144,11 @@ jobs:
             - name: Install dependencies
               run: corepack pnpm install --frozen-lockfile
 
-            - name: API lint & build
+            - name: API lint, test & build
               if: matrix.app == 'api'
               run: |
                   pnpm run validate:api
+                  pnpm --filter @phaseo/gateway-api exec vitest run src/executors/_shared/text-generate/openai-compat/__tests__/execute.test.ts
                   cd apps/api && pnpm exec tsx scripts/pricing-simulator-cli.ts
 
             - name: Docs validation
