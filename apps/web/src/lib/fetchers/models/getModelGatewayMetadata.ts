@@ -81,8 +81,21 @@ export interface GatewayProviderModel {
 		| "capability_disabled"
 		| "provider_not_ready"
 		| "provider_inactive"
+		| "provider_unknown"
+		| "provider_preview"
+		| "provider_limited_access"
+		| "provider_deprecated"
+		| "provider_removed"
+		| "phaseo_unsupported"
+		| "phaseo_planned"
+		| "phaseo_implementing"
+		| "phaseo_testing"
+		| "phaseo_disabled"
+		| "phaseo_blocked"
 		| "inactive"
 		| "retired";
+	provider_availability_status?: "unknown" | "coming_soon" | "preview" | "available" | "limited_access" | "deprecated" | "removed" | null;
+	phaseo_status?: "unsupported" | "planned" | "implementing" | "testing" | "enabled" | "disabled" | "blocked" | null;
 	provider_status?: string | null;
 	provider_routing_status?: string | null;
 	model_routing_status?: string | null;
