@@ -1368,9 +1368,9 @@ export function ChatConversationMessages({
 						viewportClassName="overscroll-x-contain"
 					>
 						<div
-							className="grid min-w-max items-stretch gap-x-4 gap-y-5 pr-4"
+							className="grid w-full min-w-max items-stretch gap-x-4 gap-y-5 pr-4"
 							style={{
-								gridTemplateColumns: `repeat(${modelKeys.length}, minmax(0, min(88vw, 32rem)))`,
+								gridTemplateColumns: `repeat(${modelKeys.length}, minmax(min(88vw, 32rem), 1fr))`,
 							}}
 						>
 							{turns.flatMap((turn) =>
