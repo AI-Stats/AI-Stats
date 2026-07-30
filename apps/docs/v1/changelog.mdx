@@ -4,6 +4,33 @@ description: "Recent product updates, SDK changes, and model releases across Pha
 rss: true
 ---
 
+<Update label="July 30, 2026" tags={["Features","Model Releases","Provider Coverage","Pricing","SDKs"]}>
+
+### Model Releases
+
+- [Google: Lyria 3.5](https://phaseo.app/models/google/lyria-3.5)
+- [Google: Gemini Robotics ER 2 Preview](https://phaseo.app/models/google/gemini-robotics-er-2-preview)
+- [Google: Gemini Robotics ER 2 Streaming Preview](https://phaseo.app/models/google/gemini-robotics-er-2-streaming-preview)
+- [xAI: Grok Voice Think Fast 2.0](https://phaseo.app/models/spacex-ai/grok-voice-think-fast-2.0)
+
+### Pricing and Provider Coverage
+
+- [Updated GPT-5.6 pricing and added Fast mode](https://github.com/phaseoteam/Phaseo/pull/1357), then [kept Priority as Phaseo's canonical UI and billing name while accepting `fast` as an API alias and preserving `priority` compatibility](https://github.com/phaseoteam/Phaseo/pull/1359). Superseded rules were end-dated, and current Standard, Batch, Flex, cache-write, long-context, and Priority rates were added across eligible OpenAI models.
+- [Expanded Kimi K3 gateway availability across Nebius Token Factory, Baseten, Fireworks, Wafer, and CrofAI](https://github.com/phaseoteam/Phaseo/pull/1317), added [Standard, Priority, and Flex routing](https://github.com/phaseoteam/Phaseo/pull/1340), and recorded [DigitalOcean's external availability](https://github.com/phaseoteam/Phaseo/pull/1331).
+- [Expanded Morph from specialised code-editing models to a broader inference fleet](https://github.com/phaseoteam/Phaseo/pull/1346), with verified routes and pricing for Kimi K3, GLM-5.2, MiniMax M3, Qwen, DeepSeek, and Gemma models.
+- [Fixed Poolside free-model requests](https://github.com/phaseoteam/Phaseo/pull/1350) so Phaseo's routing-only `:free` suffix is not sent upstream.
+
+### Features and Platform
+
+- [Prepared Phaseo's read-only MCP for OpenAI plugin submission](https://github.com/phaseoteam/Phaseo/pull/1290) with ten reviewed model, cost, usage, and request-health tools, privacy-minimised responses, seven resource-bound OAuth scopes, domain verification, and production deployment. Follow-up fixes made [dynamic registration](https://github.com/phaseoteam/Phaseo/pull/1292) and [authorization negotiation](https://github.com/phaseoteam/Phaseo/pull/1297) compatible with Codex while retaining the read-only security boundary.
+- [Shipped production Agent SDK runtimes for TypeScript, Python, Go, C#, Java, PHP, and Ruby](https://github.com/phaseoteam/Phaseo/pull/1263), followed by the [Phaseo Rust client and Agent SDK](https://github.com/phaseoteam/Phaseo/pull/1287).
+- [Completed the V2 catalogue cutover](https://github.com/phaseoteam/Phaseo/pull/1288), making repository JSON the sole authoring source for 1,238 models, 2,930 routes, 1,978 pricing offers, and 8,249 benchmark results. Subsequent fixes [completed the public models-page cutover](https://github.com/phaseoteam/Phaseo/pull/1345), [restored inactive and coming-soon models](https://github.com/phaseoteam/Phaseo/pull/1347), and [coordinated immediate Worker and website cache purges](https://github.com/phaseoteam/Phaseo/pull/1329) so imported changes appear promptly.
+- [Rebuilt pricing transparency and the comparison calculator](https://github.com/phaseoteam/Phaseo/pull/1299) around normalized V2 pricing, context-dependent rates, PAYG billing, and clearer BYOK terms.
+- [Unified Chat and Fusion into one dashboard workspace](https://github.com/phaseoteam/Phaseo/pull/1313), with shared navigation, a Fusion beta room, AI-generated-content notices, and gated Video and Realtime rooms.
+- [Corrected model author names in chat selectors](https://github.com/phaseoteam/Phaseo/pull/1349) so creators remain distinct from inference providers.
+
+</Update>
+
 <Update label="July 24, 2026" tags={["Model Releases","Provider Coverage","Pricing"]}>
 
 ### Model Releases
