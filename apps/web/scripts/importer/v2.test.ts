@@ -16,6 +16,7 @@ import {
     catalogueStatus,
     providerAvailabilityStatus,
     phaseoStatus,
+    routeAccessScope,
     phaseoRoutingEnabled,
     staleJsonProviderRouteIds,
     staleOwnedModelChildRows,
@@ -146,6 +147,29 @@ describe("explicit catalogue statuses", () => {
         };
         expect(providerAvailabilityStatus(offer)).toBe("unknown");
         expect(phaseoStatus(offer)).toBe("disabled");
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
+    it("restricts testing integrations to internal access without public routing", () => {
+        const offer = {
+            provider_status: "available",
+            phaseo_status: "testing",
+            is_active_gateway: true,
+            routable: true,
+        };
+        expect(routeAccessScope(offer)).toBe("internal");
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
+    it("fails closed to internal access for an unrecognised explicit scope", () => {
+        const offer = {
+            provider_status: "available",
+            phaseo_status: "enabled",
+            access_scope: "staff-ish",
+            is_active_gateway: true,
+            routable: true,
+        };
+        expect(routeAccessScope(offer)).toBe("internal");
         expect(phaseoRoutingEnabled(offer)).toBe(false);
     });
 
