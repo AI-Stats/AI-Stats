@@ -96,6 +96,7 @@ export interface GatewayProviderModel {
 		| "retired";
 	provider_availability_status?: "unknown" | "coming_soon" | "preview" | "available" | "limited_access" | "deprecated" | "removed" | null;
 	phaseo_status?: "unsupported" | "planned" | "implementing" | "testing" | "enabled" | "disabled" | "blocked" | null;
+	access_scope?: "public" | "internal" | null;
 	provider_status?: string | null;
 	provider_routing_status?: string | null;
 	model_routing_status?: string | null;
