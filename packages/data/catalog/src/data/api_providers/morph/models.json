@@ -828,7 +828,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-07-30T00:00:00Z",
-      "notes": "Catalogued and priced, but Morph live model feed reports is_ready=false; gateway routing remains disabled."
+      "notes": "Catalogued with Morph's published pricing source, but Morph's live model feed reports is_ready=false; no Phaseo price card or gateway routing is exposed until it becomes ready."
     },
     "rate_limits": []
   },
@@ -961,6 +961,13 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
+          },
+          {
+            "param_id": "service_tier",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Morph supports standby on GLM-5.2 at standard per-token rates."
           }
         ],
         "reasoning": true,
