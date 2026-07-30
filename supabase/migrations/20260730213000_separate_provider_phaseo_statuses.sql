@@ -37,13 +37,17 @@ where catalogue_status = 'unknown';
 
 alter table public.v2_model_provider_routes
   add column if not exists provider_availability_status text not null default 'unknown',
-  add column if not exists phaseo_status text not null default 'disabled';
+  add column if not exists phaseo_status text not null default 'disabled',
+  add column if not exists access_scope text not null default 'public';
 
 alter table public.v2_model_provider_routes
   drop constraint if exists v2_model_provider_routes_provider_availability_check,
   drop constraint if exists v2_model_provider_routes_phaseo_status_check,
   drop constraint if exists v2_model_provider_routes_phaseo_routing_check,
-  drop constraint if exists v2_model_provider_routes_provider_routing_check;
+  drop constraint if exists v2_model_provider_routes_provider_routing_check,
+  drop constraint if exists v2_model_provider_routes_access_scope_check,
+  drop constraint if exists v2_model_provider_routes_internal_scope_check,
+  drop constraint if exists v2_model_provider_routes_public_routing_check;
 
 alter table public.v2_model_provider_routes
   add constraint v2_model_provider_routes_provider_availability_check check (
@@ -67,6 +71,9 @@ alter table public.v2_model_provider_routes
       'disabled',
       'blocked'
     )
+  ),
+  add constraint v2_model_provider_routes_access_scope_check check (
+    access_scope in ('public', 'internal')
   );
 
 update public.v2_model_provider_routes as route
@@ -105,8 +112,14 @@ end
 where route.phaseo_status = 'disabled';
 
 update public.v2_model_provider_routes
+set access_scope = 'internal'
+where phaseo_status = 'testing'
+  and access_scope = 'public';
+
+update public.v2_model_provider_routes
 set routing_enabled = false
 where phaseo_status <> 'enabled'
+   or access_scope <> 'public'
    or provider_availability_status not in ('available', 'preview', 'limited_access');
 
 alter table public.v2_model_provider_routes
@@ -116,6 +129,12 @@ alter table public.v2_model_provider_routes
   add constraint v2_model_provider_routes_provider_routing_check check (
     not routing_enabled
     or provider_availability_status in ('available', 'preview', 'limited_access')
+  ),
+  add constraint v2_model_provider_routes_internal_scope_check check (
+    access_scope = 'public' or phaseo_status in ('testing', 'enabled')
+  ),
+  add constraint v2_model_provider_routes_public_routing_check check (
+    not routing_enabled or access_scope = 'public'
   );
 
 create index if not exists v2_models_catalogue_status_idx
@@ -126,6 +145,7 @@ create index if not exists v2_model_provider_routes_explicit_status_idx
     model_slug,
     provider_availability_status,
     phaseo_status,
+    access_scope,
     routing_enabled
   );
 
@@ -137,6 +157,9 @@ comment on column public.v2_model_provider_routes.provider_availability_status i
 
 comment on column public.v2_model_provider_routes.phaseo_status is
   'Phaseo integration readiness. Only enabled routes may set routing_enabled=true.';
+
+comment on column public.v2_model_provider_routes.access_scope is
+  'Route audience. Internal routes require authenticated gateway testing mode and are never publicly routing-enabled.';
 
 
 create or replace function public.get_v2_model_identity(p_model_slug text)
