@@ -2,9 +2,9 @@
   "model_id": "bytedance/seedance-2.5",
   "organisation_id": "bytedance",
   "name": "Seedance 2.5",
-  "status": "Announced",
+  "status": "Rumoured",
   "previous_model_id": "bytedance/seedance-2.0",
-  "description": "Seedance 2.5 is ByteDance's announced next-generation video model. A revised launch date is awaiting final approval, so no release date or API availability is recorded yet.",
+  "description": "Seedance 2.5 is a rumoured next-generation ByteDance video model. No official announcement, release date, final specifications, pricing, or API availability has been verified.",
   "announced_date": "2026-06-23T00:00:00",
   "release_date": null,
   "deprecation_date": null,
@@ -15,19 +15,56 @@
   "api_model_id": "bytedance/seedance-2.5",
   "family_id": null,
   "links": [],
-  "details": [{"name": "availability", "value": "A revised launch date is awaiting final approval; no routable API endpoint has been verified."}],
+  "details": [
+    {
+      "name": "release_status",
+      "value": "Rumoured; no official release date or routable API endpoint has been verified."
+    }
+  ],
   "benchmarks": [],
-  "page_notice": {"tone": "info", "markdown": "Seedance 2.5 has a proposed revised release date, but final approval is still pending. Phaseo will publish the date once confirmed."},
+  "page_notice": {
+    "tone": "info",
+    "markdown": "Seedance 2.5 is **rumoured**. Its existence, release timing, final specifications, pricing, and API availability have not been officially confirmed."
+  },
   "model_type": null,
   "knowledge_cutoff": null,
-  "limits": {"context": null, "input": null, "output": null},
-  "modalities": {"input": ["text", "image", "video", "audio"], "output": ["video", "audio"]},
-  "reasoning": {"supported": null, "options": []},
-  "capabilities": {"attachment": true, "tool_call": null, "structured_output": null, "temperature": null, "streaming": null, "web_search": null},
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image",
+      "video",
+      "audio"
+    ],
+    "output": [
+      "video",
+      "audio"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
   "open_weights": null,
   "sources": [],
-  "verification": {"status": "unverified", "checked_at": "2026-07-28T00:00:00Z", "notes": "Release date awaiting final approval; provider endpoint pending."},
-  "last_updated": "2026-07-28T00:00:00Z",
+  "verification": {
+    "status": "unverified",
+    "checked_at": "2026-07-30T00:00:00Z",
+    "notes": "Maintainer-supplied rumour only; official announcement and provider endpoint pending."
+  },
+  "last_updated": "2026-07-30T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null
