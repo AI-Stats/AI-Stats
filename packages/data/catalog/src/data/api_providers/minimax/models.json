@@ -1263,7 +1263,7 @@
     ],
     "provider_status": "available",
     "phaseo_status": "unsupported",
-    "routing_status": "disabled",
+    "routing_status": "active",
     "routable": false,
     "regions": {
       "execution": null,
