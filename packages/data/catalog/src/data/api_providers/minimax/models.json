@@ -1238,7 +1238,7 @@
     "provider_api_model_id": "minimax:minimax/music-3.0",
     "provider_model_slug": "music-3.0",
     "internal_model_id": "minimax/music-3.0",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "music",
@@ -1261,8 +1261,10 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "provider_status": "available",
+    "phaseo_status": "unsupported",
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
