@@ -624,20 +624,15 @@
     "routing_status": "active",
     "routable": true,
     "regions": {
-      "execution": [
-        "US"
-      ],
+      "execution": null,
       "data": null
     },
     "service_tiers": [
       "standard"
     ],
     "api": {
-      "formats": [
-        "openai-chat-completions",
-        "anthropic-messages"
-      ],
-      "endpoint": "https://api.morphllm.com/v1",
+      "formats": [],
+      "endpoint": null,
       "deployment": null
     },
     "sources": [
@@ -805,20 +800,15 @@
     "routing_status": null,
     "routable": false,
     "regions": {
-      "execution": [
-        "US"
-      ],
+      "execution": null,
       "data": null
     },
     "service_tiers": [
       "priority"
     ],
     "api": {
-      "formats": [
-        "openai-chat-completions",
-        "anthropic-messages"
-      ],
-      "endpoint": "https://api.morphllm.com/v1",
+      "formats": [],
+      "endpoint": null,
       "deployment": null
     },
     "sources": [
@@ -986,20 +976,15 @@
     "routing_status": "active",
     "routable": true,
     "regions": {
-      "execution": [
-        "US"
-      ],
+      "execution": null,
       "data": null
     },
     "service_tiers": [
       "standard"
     ],
     "api": {
-      "formats": [
-        "openai-chat-completions",
-        "anthropic-messages"
-      ],
-      "endpoint": "https://api.morphllm.com/v1",
+      "formats": [],
+      "endpoint": null,
       "deployment": null
     },
     "sources": [
@@ -1167,20 +1152,15 @@
     "routing_status": "active",
     "routable": true,
     "regions": {
-      "execution": [
-        "US"
-      ],
+      "execution": null,
       "data": null
     },
     "service_tiers": [
       "standard"
     ],
     "api": {
-      "formats": [
-        "openai-chat-completions",
-        "anthropic-messages"
-      ],
-      "endpoint": "https://api.morphllm.com/v1",
+      "formats": [],
+      "endpoint": null,
       "deployment": null
     },
     "sources": [
@@ -1348,20 +1328,15 @@
     "routing_status": "active",
     "routable": true,
     "regions": {
-      "execution": [
-        "US"
-      ],
+      "execution": null,
       "data": null
     },
     "service_tiers": [
       "standard"
     ],
     "api": {
-      "formats": [
-        "openai-chat-completions",
-        "anthropic-messages"
-      ],
-      "endpoint": "https://api.morphllm.com/v1",
+      "formats": [],
+      "endpoint": null,
       "deployment": null
     },
     "sources": [
@@ -1529,20 +1504,15 @@
     "routing_status": "active",
     "routable": true,
     "regions": {
-      "execution": [
-        "US"
-      ],
+      "execution": null,
       "data": null
     },
     "service_tiers": [
       "standard"
     ],
     "api": {
-      "formats": [
-        "openai-chat-completions",
-        "anthropic-messages"
-      ],
-      "endpoint": "https://api.morphllm.com/v1",
+      "formats": [],
+      "endpoint": null,
       "deployment": null
     },
     "sources": [
@@ -1710,20 +1680,15 @@
     "routing_status": "active",
     "routable": true,
     "regions": {
-      "execution": [
-        "US"
-      ],
+      "execution": null,
       "data": null
     },
     "service_tiers": [
       "standard"
     ],
     "api": {
-      "formats": [
-        "openai-chat-completions",
-        "anthropic-messages"
-      ],
-      "endpoint": "https://api.morphllm.com/v1",
+      "formats": [],
+      "endpoint": null,
       "deployment": null
     },
     "sources": [
@@ -1891,20 +1856,15 @@
     "routing_status": "active",
     "routable": true,
     "regions": {
-      "execution": [
-        "US"
-      ],
+      "execution": null,
       "data": null
     },
     "service_tiers": [
       "standard"
     ],
     "api": {
-      "formats": [
-        "openai-chat-completions",
-        "anthropic-messages"
-      ],
-      "endpoint": "https://api.morphllm.com/v1",
+      "formats": [],
+      "endpoint": null,
       "deployment": null
     },
     "sources": [
