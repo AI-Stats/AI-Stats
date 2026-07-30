@@ -1,10 +1,10 @@
 import type {
-  LanguageModelV3,
-  ProviderV3,
-  EmbeddingModelV3,
-  ImageModelV3,
-  TranscriptionModelV3,
-  SpeechModelV3,
+  LanguageModelV4,
+  ProviderV4,
+  EmbeddingModelV4,
+  ImageModelV4,
+  TranscriptionModelV4,
+  SpeechModelV4,
 } from '@ai-sdk/provider';
 import { PhaseoLanguageModel } from './phaseo-language-model.js';
 import { PhaseoEmbeddingModel } from './phaseo-embedding-model.js';
@@ -18,10 +18,10 @@ import type { PhaseoSettings, PhaseoModelSettings } from './phaseo-settings.js';
  */
 const DEFAULT_BASE_URL = 'https://api.phaseo.app/v1';
 
-export type PhaseoProvider = ProviderV3 & ((
+export type PhaseoProvider = ProviderV4 & ((
   modelId: string,
   modelSettings?: PhaseoModelSettings
-) => LanguageModelV3);
+) => LanguageModelV4);
 
 /**
  * Creates a Phaseo provider instance for use with Vercel AI SDK.
@@ -67,7 +67,7 @@ export function createPhaseo(settings: PhaseoSettings = {}): PhaseoProvider {
   const provider = (
     modelId: string,
     modelSettings?: PhaseoModelSettings
-  ): LanguageModelV3 => {
+  ): LanguageModelV4 => {
     return new PhaseoLanguageModel(
       modelId,
       {
@@ -81,7 +81,7 @@ export function createPhaseo(settings: PhaseoSettings = {}): PhaseoProvider {
   };
 
   // Set the provider ID for debugging
-  provider.specificationVersion = 'v3' as const;
+  provider.specificationVersion = 'v4' as const;
 
   provider.languageModel = (modelId: string, modelSettings?: PhaseoModelSettings) => {
     return provider(modelId, modelSettings);
@@ -90,7 +90,7 @@ export function createPhaseo(settings: PhaseoSettings = {}): PhaseoProvider {
   provider.embeddingModel = (
     modelId: string,
     modelSettings?: PhaseoModelSettings
-  ): EmbeddingModelV3 => {
+  ): EmbeddingModelV4 => {
     return new PhaseoEmbeddingModel(
       modelId,
       {
@@ -106,12 +106,12 @@ export function createPhaseo(settings: PhaseoSettings = {}): PhaseoProvider {
   provider.textEmbeddingModel = (
     modelId: string,
     modelSettings?: PhaseoModelSettings
-  ): EmbeddingModelV3 => provider.embeddingModel(modelId, modelSettings);
+  ): EmbeddingModelV4 => provider.embeddingModel(modelId, modelSettings);
 
   provider.imageModel = (
     modelId: string,
     modelSettings?: PhaseoModelSettings
-  ): ImageModelV3 => {
+  ): ImageModelV4 => {
     return new PhaseoImageModel(
       modelId,
       {
@@ -127,7 +127,7 @@ export function createPhaseo(settings: PhaseoSettings = {}): PhaseoProvider {
   provider.transcriptionModel = (
     modelId: string,
     modelSettings?: PhaseoModelSettings
-  ): TranscriptionModelV3 => {
+  ): TranscriptionModelV4 => {
     return new PhaseoTranscriptionModel(
       modelId,
       {
@@ -143,7 +143,7 @@ export function createPhaseo(settings: PhaseoSettings = {}): PhaseoProvider {
   provider.speechModel = (
     modelId: string,
     modelSettings?: PhaseoModelSettings
-  ): SpeechModelV3 => {
+  ): SpeechModelV4 => {
     return new PhaseoSpeechModel(
       modelId,
       {
@@ -158,3 +158,4 @@ export function createPhaseo(settings: PhaseoSettings = {}): PhaseoProvider {
 
   return provider as PhaseoProvider;
 }
+
