@@ -137,6 +137,18 @@ describe("explicit catalogue statuses", () => {
         expect(phaseoRoutingEnabled(offer)).toBe(false);
     });
 
+    it("fails closed for unrecognised explicit values", () => {
+        const offer = {
+            provider_status: "probably_live",
+            phaseo_status: "ship_it",
+            is_active_gateway: true,
+            routable: true,
+        };
+        expect(providerAvailabilityStatus(offer)).toBe("unknown");
+        expect(phaseoStatus(offer)).toBe("disabled");
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
     it("keeps legacy active routes enabled during migration", () => {
         const offer = {
             is_active_gateway: true,
