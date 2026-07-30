@@ -618,11 +618,15 @@ function notFound(c: { json: (value: unknown, status: number) => Response }) {
 }
 
 function v2ModelStatus(value: unknown): string {
-	const status = String(value ?? "").trim().toLowerCase();
-	if (status === "active") return "Available";
+	const status = String(value ?? "").trim().toLowerCase().replace(/[\\s-]+/g, "_");
+	if (status === "active" || status === "available") return "Available";
+	if (status === "rumoured") return "Rumoured";
+	if (status === "draft" || status === "announced") return "Announced";
+	if (status === "preview") return "Preview";
+	if (status === "limited_access") return "Limited Access";
 	if (status === "deprecated") return "Deprecated";
 	if (status === "retired") return "Retired";
-	if (status === "draft") return "Announced";
+	if (status === "unknown") return "Unknown";
 	return "Withheld";
 }
 
@@ -671,7 +675,7 @@ function v2ModelPageShape(
 		base_model_id: identity.base_model_slug ?? row.base_model_slug ?? null,
 		organisation_id: identity.lab_slug ?? row.organisation_id,
 		description: row.description ?? null,
-		status: v2ModelStatus(identity.status ?? row.gateway_status),
+		status: v2ModelStatus(identity.catalogue_status ?? identity.status ?? row.gateway_status),
 		previous_model_id: identity.previous_model_slug ?? null,
 		announcement_date: identity.announced_at ?? null,
 		release_date: identity.released_at ?? row.primary_date ?? null,
