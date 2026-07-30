@@ -18,7 +18,7 @@ import { createPhaseoErrorHandler } from './utils/error-handler.js';
 import { headersToRecord } from './utils/headers.js';
 
 /**
- * Phaseo Language Model implementation for Vercel AI SDK v7
+ * Phaseo language model implementation for AI SDK 7 / ProviderV4.
  */
 export class PhaseoLanguageModel implements LanguageModelV4 {
   readonly specificationVersion = 'v4' as const;
@@ -40,90 +40,57 @@ export class PhaseoLanguageModel implements LanguageModelV4 {
     this.settings = settings;
   }
 
-  /**
-   * Generate a non-streaming response
-   */
   async doGenerate(options: LanguageModelV4CallOptions) {
-    const { prompt, abortSignal } = options;
-
-    // Convert AI SDK prompt to gateway format
     const gatewayRequest = convertToGatewayChatRequest(
-      prompt,
+      options.prompt,
       this.modelId,
       this.settings,
       options
     );
-
-    // Make the API request
     const url = `${this.config.baseURL}/chat/completions`;
     const fetchImpl = this.config.fetch ?? fetch;
-
     const response = await fetchImpl(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.config.apiKey}`,
-        ...this.config.headers,
-      },
-      body: JSON.stringify({
-        ...gatewayRequest,
-        stream: false,
-      }),
-      signal: abortSignal,
+      headers: this.requestHeaders(options.headers),
+      body: JSON.stringify({ ...gatewayRequest, stream: false }),
+      signal: options.abortSignal,
     });
 
-    // Handle errors
     if (!response.ok) {
       const errorHandler = createPhaseoErrorHandler();
       throw (await errorHandler({ url, requestBodyValues: gatewayRequest, response })).value;
     }
 
-    // Parse and map response
-    const data = await response.json();
-    const mapped = mapGatewayResponse(
-      data,
+    return mapGatewayResponse(
+      await response.json(),
       options,
       gatewayRequest,
       headersToRecord(response.headers)
     );
-
-    return mapped;
   }
 
-  /**
-   * Generate a streaming response
-   */
   async doStream(options: LanguageModelV4CallOptions) {
-    const { prompt, abortSignal } = options;
-
-    // Convert AI SDK prompt to gateway format
     const gatewayRequest = convertToGatewayChatRequest(
-      prompt,
+      options.prompt,
       this.modelId,
       this.settings,
       options
     );
-
-    // Make the API request
+    const requestBody = {
+      ...gatewayRequest,
+      stream: true,
+      stream_options: { include_usage: true },
+    };
+    const requestBodyJson = JSON.stringify(requestBody);
     const url = `${this.config.baseURL}/chat/completions`;
     const fetchImpl = this.config.fetch ?? fetch;
-
     const response = await fetchImpl(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.config.apiKey}`,
-        ...this.config.headers,
-      },
-      body: JSON.stringify({
-        ...gatewayRequest,
-        stream: true,
-        stream_options: { include_usage: true },
-      }),
-      signal: abortSignal,
+      headers: this.requestHeaders(options.headers),
+      body: requestBodyJson,
+      signal: options.abortSignal,
     });
 
-    // Handle errors
     if (!response.ok) {
       const errorHandler = createPhaseoErrorHandler();
       throw (await errorHandler({ url, requestBodyValues: gatewayRequest, response })).value;
@@ -131,12 +98,13 @@ export class PhaseoLanguageModel implements LanguageModelV4 {
 
     let finishReason: LanguageModelV4FinishReason = mapGatewayFinishReason(undefined);
     let usage = mapGatewayUsage({});
-    const textPartId = 'text-0';
-    let textPartStarted = false;
-    let responseMetadataEmitted = false;
     const responseHeaders = headersToRecord(response.headers);
     let providerMetadata = mapPhaseoProviderMetadata(undefined, responseHeaders);
-
+    let responseMetadataEmitted = false;
+    let textStarted = false;
+    let reasoningStarted = false;
+    const textPartId = 'text-0';
+    const reasoningPartId = 'reasoning-0';
     const toolCalls: Array<{
       id: string;
       toolName: string;
@@ -144,69 +112,66 @@ export class PhaseoLanguageModel implements LanguageModelV4 {
       started: boolean;
     }> = [];
 
-    const requestBodyJson = JSON.stringify({
-      ...gatewayRequest,
-      stream: true,
-      stream_options: { include_usage: true },
-    });
-
     return {
       stream: parseSSEStream(response).pipeThrough(
         new TransformStream<any, LanguageModelV4StreamPart>({
+          start(controller) {
+            controller.enqueue({ type: 'stream-start', warnings: [] });
+          },
           transform(chunk, controller) {
             if (chunk?.error) {
-              controller.enqueue({
-                type: 'error',
-                error: chunk.error,
-              });
+              controller.enqueue({ type: 'error', error: chunk.error });
               return;
             }
 
-            if (chunk?.object === 'chat.completion.chunk') {
-              providerMetadata = mergePhaseoProviderMetadata(
-                providerMetadata,
-                mapPhaseoProviderMetadata(chunk, responseHeaders)
-              );
+            providerMetadata = mergePhaseoProviderMetadata(
+              providerMetadata,
+              mapPhaseoProviderMetadata(chunk, responseHeaders)
+            );
 
-              if (
-                !responseMetadataEmitted &&
-                (typeof chunk.id === 'string' ||
-                  typeof chunk.model === 'string' ||
-                  typeof chunk.created === 'number')
-              ) {
-                responseMetadataEmitted = true;
-                controller.enqueue({
-                  type: 'response-metadata',
-                  id: typeof chunk.id === 'string' ? chunk.id : undefined,
-                  modelId: typeof chunk.model === 'string' ? chunk.model : undefined,
-                  timestamp:
-                    typeof chunk.created === 'number'
-                      ? new Date(chunk.created * 1000)
-                      : undefined,
-                });
-              }
-
+            if (
+              !responseMetadataEmitted &&
+              (typeof chunk?.id === 'string' ||
+                typeof chunk?.model === 'string' ||
+                typeof chunk?.created === 'number')
+            ) {
+              responseMetadataEmitted = true;
               controller.enqueue({
-                type: 'raw',
-                rawValue: chunk,
+                type: 'response-metadata',
+                id: typeof chunk.id === 'string' ? chunk.id : undefined,
+                modelId: typeof chunk.model === 'string' ? chunk.model : undefined,
+                timestamp:
+                  typeof chunk.created === 'number'
+                    ? new Date(chunk.created * 1000)
+                    : undefined,
               });
             }
 
-            // Handle stream chunk
-            if (chunk.choices && chunk.choices.length > 0) {
-              const choice = chunk.choices[0];
-              const delta = choice.delta;
+            if (options.includeRawChunks) {
+              controller.enqueue({ type: 'raw', rawValue: chunk });
+            }
 
-              // Emit text deltas
-              if (delta?.content) {
-                if (!textPartStarted) {
-                  textPartStarted = true;
-                  controller.enqueue({
-                    type: 'text-start',
-                    id: textPartId,
-                  });
+            const choice = chunk?.choices?.[0];
+            if (choice) {
+              const delta = choice.delta ?? {};
+              const reasoningDelta = readReasoningDelta(delta);
+              if (reasoningDelta) {
+                if (!reasoningStarted) {
+                  reasoningStarted = true;
+                  controller.enqueue({ type: 'reasoning-start', id: reasoningPartId });
                 }
+                controller.enqueue({
+                  type: 'reasoning-delta',
+                  id: reasoningPartId,
+                  delta: reasoningDelta,
+                });
+              }
 
+              if (typeof delta.content === 'string' && delta.content) {
+                if (!textStarted) {
+                  textStarted = true;
+                  controller.enqueue({ type: 'text-start', id: textPartId });
+                }
                 controller.enqueue({
                   type: 'text-delta',
                   id: textPartId,
@@ -214,89 +179,43 @@ export class PhaseoLanguageModel implements LanguageModelV4 {
                 });
               }
 
-              // Emit tool call deltas
-              if (delta?.tool_calls) {
-                for (const toolCall of delta.tool_calls) {
-                  const index = toolCall.index ?? 0;
-                  const toolId = toolCall.id ?? toolCalls[index]?.id ?? `tool-${index}`;
-                  const toolName = toolCall.function?.name ?? toolCalls[index]?.toolName ?? '';
-
-                  if (!toolCalls[index]) {
-                    toolCalls[index] = {
-                      id: toolId,
-                      toolName,
-                      input: '',
-                      started: false,
-                    };
-                  } else {
-                    toolCalls[index].id = toolId;
-                    if (toolName) {
-                      toolCalls[index].toolName = toolName;
-                    }
-                  }
-
-                  if (!toolCalls[index].started) {
-                    toolCalls[index].started = true;
-                    controller.enqueue({
-                      type: 'tool-input-start',
-                      id: toolCalls[index].id,
-                      toolName: toolCalls[index].toolName,
-                    });
-                  }
-
-                  if (toolCall.function?.arguments) {
-                    toolCalls[index].input += toolCall.function.arguments;
-
-                    controller.enqueue({
-                      type: 'tool-input-delta',
-                      id: toolCalls[index].id,
-                      delta: toolCall.function.arguments,
-                    });
-                  }
-                }
+              if (Array.isArray(delta.tool_calls)) {
+                appendToolCallDeltas(delta.tool_calls, toolCalls, controller);
               }
 
-              // Handle finish reason
+              if (Array.isArray(delta.annotations)) {
+                emitSources(delta.annotations, controller);
+              }
+
               if (choice.finish_reason) {
                 finishReason = mapGatewayFinishReason(choice.finish_reason);
               }
             }
 
-            // Handle usage in final chunk
-            if (chunk.usage) {
-              usage = mapGatewayUsage(chunk.usage);
-            }
+            if (chunk?.usage) usage = mapGatewayUsage(chunk.usage);
           },
-
           flush(controller) {
-            if (textPartStarted) {
-              controller.enqueue({
-                type: 'text-end',
-                id: textPartId,
-              });
+            if (reasoningStarted) {
+              controller.enqueue({ type: 'reasoning-end', id: reasoningPartId });
+            }
+            if (textStarted) {
+              controller.enqueue({ type: 'text-end', id: textPartId });
             }
 
             for (const toolCall of toolCalls) {
-              if (!toolCall) {
-                continue;
-              }
-
+              if (!toolCall) continue;
               if (toolCall.started) {
-                controller.enqueue({
-                  type: 'tool-input-end',
-                  id: toolCall.id,
-                });
+                controller.enqueue({ type: 'tool-input-end', id: toolCall.id });
               }
-
               controller.enqueue({
                 type: 'tool-call',
                 toolCallId: toolCall.id,
                 toolName: toolCall.toolName,
                 input: toolCall.input,
+                providerExecuted: false,
               });
             }
 
-            // Emit finish event
             controller.enqueue({
               type: 'finish',
               finishReason,
@@ -306,13 +225,93 @@ export class PhaseoLanguageModel implements LanguageModelV4 {
           },
         })
       ),
-      response: {
-        headers: responseHeaders,
-      },
-      request: {
-        body: requestBodyJson,
-      },
+      response: { headers: responseHeaders },
+      request: { body: requestBodyJson },
     };
+  }
+
+  private requestHeaders(
+    callHeaders?: Record<string, string | undefined>
+  ): Record<string, string> {
+    return Object.fromEntries(
+      Object.entries({
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.config.apiKey}`,
+        ...this.config.headers,
+        ...callHeaders,
+      }).filter((entry): entry is [string, string] => entry[1] !== undefined)
+    );
   }
 }
 
+function readReasoningDelta(delta: any): string | undefined {
+  if (typeof delta.reasoning_content === 'string') return delta.reasoning_content;
+  if (typeof delta.reasoning === 'string') return delta.reasoning;
+  if (!Array.isArray(delta.reasoning_details)) return undefined;
+
+  const text = delta.reasoning_details
+    .map((detail: any) =>
+      typeof detail?.text === 'string'
+        ? detail.text
+        : typeof detail?.delta === 'string'
+          ? detail.delta
+          : ''
+    )
+    .join('');
+  return text || undefined;
+}
+
+function appendToolCallDeltas(
+  deltas: any[],
+  toolCalls: Array<{ id: string; toolName: string; input: string; started: boolean }>,
+  controller: TransformStreamDefaultController<LanguageModelV4StreamPart>
+): void {
+  for (const delta of deltas) {
+    const index = delta.index ?? 0;
+    const id = delta.id ?? toolCalls[index]?.id ?? `tool-${index}`;
+    const toolName = delta.function?.name ?? toolCalls[index]?.toolName ?? '';
+
+    if (!toolCalls[index]) {
+      toolCalls[index] = { id, toolName, input: '', started: false };
+    } else {
+      toolCalls[index].id = id;
+      if (toolName) toolCalls[index].toolName = toolName;
+    }
+
+    if (!toolCalls[index].started) {
+      toolCalls[index].started = true;
+      controller.enqueue({
+        type: 'tool-input-start',
+        id: toolCalls[index].id,
+        toolName: toolCalls[index].toolName,
+        providerExecuted: false,
+      });
+    }
+
+    if (typeof delta.function?.arguments === 'string' && delta.function.arguments) {
+      toolCalls[index].input += delta.function.arguments;
+      controller.enqueue({
+        type: 'tool-input-delta',
+        id: toolCalls[index].id,
+        delta: delta.function.arguments,
+      });
+    }
+  }
+}
+
+function emitSources(
+  annotations: any[],
+  controller: TransformStreamDefaultController<LanguageModelV4StreamPart>
+): void {
+  annotations.forEach((annotation, index) => {
+    const citation = annotation?.url_citation ?? annotation;
+    if (typeof citation?.url !== 'string') return;
+    controller.enqueue({
+      type: 'source',
+      sourceType: 'url',
+      id: String(citation.id ?? citation.url ?? `source-${index}`),
+      url: citation.url,
+      title: typeof citation.title === 'string' ? citation.title : undefined,
+    });
+  });
+}
