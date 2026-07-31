@@ -86,6 +86,17 @@ type TestRunAccessRow = {
 	baseline_preset_id: string | null;
 };
 
+type FeedbackSummaryRow = {
+	group_value: string;
+	count: number | string;
+	positive: number | string;
+	negative: number | string;
+	partial: number | string;
+	average_score: number | string | null;
+	ratings: Record<string, number | string> | null;
+	last_feedback_at: string | null;
+};
+
 const FEEDBACK_SELECT =
 	"id,workspace_id,request_id,session_id,preset_id,test_run_id,source,rating,score,reason,reason_tags,comment,metadata,metadata_dimensions,end_user_id,created_by_user_id,created_at";
 const EVENT_SELECT =
@@ -312,14 +323,22 @@ function applyTargetFilters(query: any, url: URL) {
 	return query;
 }
 
-function applyMetadataFilters(query: any, url: URL) {
+function collectMetadataFilters(url: URL): Record<string, string> {
+	const filters: Record<string, string> = {};
 	for (const [param, value] of url.searchParams.entries()) {
 		if (!param.startsWith("metadata.")) continue;
 		const key = param.slice("metadata.".length).trim().slice(0, 64);
 		if (!/^[a-zA-Z0-9_.:-]+$/.test(key)) continue;
 		const normalizedValue = value.trim().slice(0, 256);
 		if (!normalizedValue) continue;
-		query = query.contains("metadata_dimensions", { [key]: normalizedValue });
+		filters[key] = normalizedValue;
+	}
+	return filters;
+}
+
+function applyMetadataFilters(query: any, url: URL) {
+	for (const [key, value] of Object.entries(collectMetadataFilters(url))) {
+		query = query.contains("metadata_dimensions", { [key]: value });
 	}
 	return query;
 }
@@ -434,82 +453,51 @@ async function handleFeedbackSummary(req: Request) {
 	if (groupBy === "metadata" && (!metadataKey || !/^[a-zA-Z0-9_.:-]+$/.test(metadataKey))) {
 		return json({ error: "bad_request", message: "metadata_key is required for metadata grouping" }, 400, { "Cache-Control": "no-store" });
 	}
+
 	const limit = parsePositiveInt(url.searchParams.get("limit"), 5000, 10000);
+	const createdSince = normalizeText(
+		url.searchParams.get("created_after") ??
+			url.searchParams.get("created_since") ??
+			url.searchParams.get("since"),
+		64,
+	);
+	const createdUntil = normalizeText(
+		url.searchParams.get("created_before") ??
+			url.searchParams.get("created_until") ??
+			url.searchParams.get("until"),
+		64,
+	);
 
-	let query: any = getSupabaseAdmin()
-		.from("gateway_feedback")
-		.select("preset_id,test_run_id,rating,score,created_at,metadata_dimensions")
-		.eq("workspace_id", auth.workspaceId)
-		.order("created_at", { ascending: false })
-		.limit(limit);
-	if (groupBy === "preset_id") query = query.not("preset_id", "is", null);
-	if (groupBy === "test_run_id") query = query.not("test_run_id", "is", null);
-	query = applyTargetFilters(query, url);
-	query = applyMetadataFilters(query, url);
-	query = applyDateFilters(query, url);
-
-	const { data, error } = await query;
+	const { data, error } = await getSupabaseAdmin().rpc("gateway_feedback_summary", {
+		p_workspace_id: auth.workspaceId,
+		p_group_by: groupBy,
+		p_metadata_key: groupBy === "metadata" ? metadataKey : null,
+		p_request_id: normalizeText(url.searchParams.get("request_id"), 128),
+		p_session_id: normalizeText(url.searchParams.get("session_id"), 128),
+		p_preset_id: normalizeUuid(url.searchParams.get("preset_id")),
+		p_test_run_id: normalizeUuid(url.searchParams.get("test_run_id")),
+		p_created_since: createdSince,
+		p_created_until: createdUntil,
+		p_metadata_filters: collectMetadataFilters(url),
+		p_limit: limit,
+	});
 	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
-
-	const summaries = new Map<string, {
-		id: string;
-		count: number;
-		positive: number;
-		negative: number;
-		partial: number;
-		scoreSum: number;
-		scoreCount: number;
-		ratings: Record<string, number>;
-		last_feedback_at: string | null;
-	}>();
-	for (const row of (data ?? []) as Array<Record<string, any>>) {
-		const dimensions = row.metadata_dimensions && typeof row.metadata_dimensions === "object"
-			? row.metadata_dimensions as Record<string, unknown>
-			: {};
-		const id = groupBy === "metadata" ? String(dimensions[metadataKey as string] ?? "") : String(row[groupBy] ?? "");
-		if (!id) continue;
-		const current = summaries.get(id) ?? {
-			id,
-			count: 0,
-			positive: 0,
-			negative: 0,
-			partial: 0,
-			scoreSum: 0,
-			scoreCount: 0,
-			ratings: {},
-			last_feedback_at: null,
-		};
-		current.count += 1;
-		const rating = String(row.rating ?? "unrated");
-		current.ratings[rating] = (current.ratings[rating] ?? 0) + 1;
-		if (rating === "thumbs_up" || rating === "correct") current.positive += 1;
-		if (rating === "thumbs_down" || rating === "incorrect" || rating === "unsafe") current.negative += 1;
-		if (rating === "partly_correct") current.partial += 1;
-		const score = Number(row.score);
-		if (Number.isFinite(score)) {
-			current.scoreSum += score;
-			current.scoreCount += 1;
-		}
-		const createdAt = typeof row.created_at === "string" ? row.created_at : null;
-		if (createdAt && (!current.last_feedback_at || createdAt > current.last_feedback_at)) {
-			current.last_feedback_at = createdAt;
-		}
-		summaries.set(id, current);
-	}
 
 	return json({
 		group_by: groupBy,
-		data: Array.from(summaries.values()).map((item) => ({
+		data: ((data ?? []) as FeedbackSummaryRow[]).map((row) => ({
 			...(groupBy === "metadata"
-				? { metadata_key: metadataKey, metadata_value: item.id }
-				: { [groupBy]: item.id }),
-			count: item.count,
-			positive: item.positive,
-			negative: item.negative,
-			partial: item.partial,
-			average_score: item.scoreCount ? item.scoreSum / item.scoreCount : null,
-			ratings: item.ratings,
-			last_feedback_at: item.last_feedback_at,
+				? { metadata_key: metadataKey, metadata_value: row.group_value }
+				: { [groupBy]: row.group_value }),
+			count: Number(row.count),
+			positive: Number(row.positive),
+			negative: Number(row.negative),
+			partial: Number(row.partial),
+			average_score: row.average_score == null ? null : Number(row.average_score),
+			ratings: Object.fromEntries(
+				Object.entries(row.ratings ?? {}).map(([rating, count]) => [rating, Number(count)]),
+			),
+			last_feedback_at: row.last_feedback_at,
 		})),
 	}, 200, { "Cache-Control": "no-store" });
 }
