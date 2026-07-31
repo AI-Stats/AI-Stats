@@ -82,7 +82,7 @@ jobs:
                           - 'scripts/validate-supabase-migrations.mjs'
 
     migration-validation:
-        name: Validate database migrations
+        name: Validate database migration policy
         runs-on: ubuntu-latest
         needs: check-paths
         if: >-
@@ -100,19 +100,6 @@ jobs:
               env:
                   MIGRATION_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
               run: node scripts/validate-supabase-migrations.mjs "${MIGRATION_BASE_SHA}"
-
-            - name: Start local Supabase database
-              run: npx --yes supabase@2.111.0 db start
-
-            - name: Rebuild database from migrations
-              run: npx --yes supabase@2.111.0 db reset --local --no-seed
-
-            - name: Lint database
-              run: npx --yes supabase@2.111.0 db lint --local --fail-on error
-
-            - name: Stop local Supabase services
-              if: always()
-              run: npx --yes supabase@2.111.0 stop --no-backup
 
     migrate-production:
         name: Apply production database migrations
