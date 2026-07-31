@@ -260,7 +260,7 @@
             "max_length": 7000
           },
           "duration": {
-            "type": "integer",
+            "type": "number",
             "min": 5,
             "max": 15,
             "aliases": [
