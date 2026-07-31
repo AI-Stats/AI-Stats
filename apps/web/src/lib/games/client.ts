@@ -1,4 +1,5 @@
 import type { DailyPuzzle, GameKey } from "./types";
+import { getBrowserAccessToken } from "@/lib/fetchers/internal/accountAuthClient";
 
 async function jsonRequest<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -21,13 +22,15 @@ export function fetchDailyPuzzle(game: GameKey): Promise<DailyPuzzle> {
   return jsonRequest<DailyPuzzle>(`/api/_web/games/${game}/today`);
 }
 
-export function checkPuzzle<T>(
+export async function checkPuzzle<T>(
   game: GameKey,
   puzzleId: string,
   payload: Record<string, unknown>
 ): Promise<T> {
+  const accessToken = await getBrowserAccessToken().catch(() => null);
   return jsonRequest<T>(`/api/_web/games/${game}/check`, {
     method: "POST",
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
     body: JSON.stringify({ puzzleId, ...payload }),
   });
 }

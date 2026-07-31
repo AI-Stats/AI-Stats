@@ -58,7 +58,7 @@ export function SprintGame({ puzzle }: { puzzle: SprintPuzzle }) {
       const result = await checkPuzzle<{ answers: ModelCandidate[] }>(
         "sprint",
         puzzle.puzzleId,
-        { action: "finish" }
+        { action: "finish", foundIds: state.found.map((model) => model.id) }
       );
       save({ ...state, finished: true, answers: result.answers });
     } finally {

@@ -2,6 +2,8 @@ import { redirect } from "next/navigation"
 
 import ProfileDashboard from "@/components/(gateway)/settings/profile/ProfileDashboard"
 import ProfileShareControls from "@/components/(gateway)/settings/profile/ProfileShareControls"
+import { ProfileGames } from "@/components/(gateway)/settings/profile/ProfileGames"
+import { fetchSettingsProfileGames } from "@/lib/fetchers/internal/fetchSettingsProfileGames"
 import { fetchSettingsProfileInitialData } from "@/lib/fetchers/internal/fetchSettingsProfileInitialData"
 import { fetchSettingsProfileUsageSummary } from "@/lib/fetchers/internal/fetchSettingsProfileUsageSummary"
 import { buildProfileShareCardPayload } from "@/lib/profileShare"
@@ -11,9 +13,10 @@ export const metadata = {
 }
 
 export default async function ProfileSettingsPage() {
-	const [{ profile: profileIdentity, obfuscateInfo }, { usage }] = await Promise.all([
+	const [{ profile: profileIdentity, obfuscateInfo }, { usage }, { games }] = await Promise.all([
 		fetchSettingsProfileInitialData(),
 		fetchSettingsProfileUsageSummary(),
+		fetchSettingsProfileGames(),
 	])
 
 	if (!profileIdentity) {
@@ -33,6 +36,7 @@ export default async function ProfileSettingsPage() {
 				profile={profile}
 				actions={<ProfileShareControls payload={sharePayload} />}
 			/>
+			<ProfileGames summary={games} />
 		</div>
 	)
 }

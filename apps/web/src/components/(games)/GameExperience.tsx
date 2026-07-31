@@ -224,7 +224,7 @@ function ModeleGame({ puzzle }: { puzzle: ModelePuzzle }) {
     const result = await checkPuzzle<{ answer: ModelCandidate }>(
       "modele",
       puzzle.puzzleId,
-      { action: "reveal" }
+      { action: "reveal", attempts: state.guesses.length }
     );
     save({ ...state, answer: result.answer });
   };
@@ -247,7 +247,7 @@ function ModeleGame({ puzzle }: { puzzle: ModelePuzzle }) {
               const result = await checkPuzzle<ModeleResult>(
                 "modele",
                 puzzle.puzzleId,
-                { guessId: candidate.id }
+                { guessId: candidate.id, attempts: state.guesses.length + 1 }
               );
               const nextGuesses = [...state.guesses, result];
               if (result.answer)
@@ -256,7 +256,7 @@ function ModeleGame({ puzzle }: { puzzle: ModelePuzzle }) {
                 const revealed = await checkPuzzle<{ answer: ModelCandidate }>(
                   "modele",
                   puzzle.puzzleId,
-                  { action: "reveal" }
+                  { action: "reveal", attempts: nextGuesses.length }
                 );
                 save({ guesses: nextGuesses, answer: revealed.answer });
               } else save({ guesses: nextGuesses, answer: null });
@@ -388,7 +388,7 @@ function PriceleGame({ puzzle }: { puzzle: PricelePuzzle }) {
               const result = await checkPuzzle<PriceleResult>(
                 "pricele",
                 puzzle.puzzleId,
-                { guessId: candidate.id }
+                { guessId: candidate.id, attempts: state.guesses.length + 1 }
               );
               const guesses = [...state.guesses, result];
               if (result.answer) save({ guesses, answer: result.answer });
@@ -396,7 +396,7 @@ function PriceleGame({ puzzle }: { puzzle: PricelePuzzle }) {
                 const revealed = await checkPuzzle<{ answer: ModelCandidate }>(
                   "pricele",
                   puzzle.puzzleId,
-                  { action: "reveal" }
+                  { action: "reveal", attempts: guesses.length }
                 );
                 save({ guesses, answer: revealed.answer });
               } else save({ guesses, answer: null });
