@@ -4,6 +4,7 @@ import {
 	canonicalizeProviderQualifiedModelRequest,
 	filterProviderQualifiedModelCandidates,
 	parseProviderQualifiedModel,
+	validateProviderQualifiedModelProvider,
 } from "./requestRouting";
 
 function candidate(args: {
@@ -71,6 +72,62 @@ describe("provider-qualified model ids", () => {
 			parseProviderQualifiedModel("google/gemma-4-26b-a4b:free"),
 		).toBeNull();
 		expect(parseProviderQualifiedModel("phaseo/free")).toBeNull();
+	});
+
+	it("reports a malformed provider slug instead of treating it as a model id", () => {
+		const result = canonicalizeProviderQualifiedModelRequest({
+			model: "bad provider:publisher/model",
+		});
+		expect(result.selection).toBeNull();
+		expect(result.syntaxError).toMatchObject({
+			reason: "invalid_provider_slug",
+			providerSlug: "bad provider",
+		});
+	});
+
+	it("reports an empty provider slug", () => {
+		const result = canonicalizeProviderQualifiedModelRequest({
+			model: ":publisher/model",
+		});
+		expect(result.syntaxError).toMatchObject({
+			reason: "invalid_provider_slug",
+			providerSlug: "",
+		});
+	});
+
+	it("reports a malformed provider-qualified model shape", () => {
+		const result = canonicalizeProviderQualifiedModelRequest({
+			model: "baseten:/model",
+		});
+		expect(result.syntaxError).toMatchObject({
+			reason: "invalid_provider_qualified_model",
+			providerSlug: "baseten",
+		});
+	});
+
+	it("rejects an unknown but syntactically valid provider slug", () => {
+		const selection = parseProviderQualifiedModel(
+			"not-a-real-provider:publisher/model",
+		);
+		expect(
+			validateProviderQualifiedModelProvider(selection, [
+				"baseten",
+				"deepinfra",
+			]),
+		).toMatchObject({
+			ok: false,
+			reason: "unknown_provider_slug",
+			providerId: "not-a-real-provider",
+		});
+	});
+
+	it("accepts a known provider slug after alias normalization", () => {
+		const selection = parseProviderQualifiedModel(
+			"NovitaAI:publisher/model",
+		);
+		expect(
+			validateProviderQualifiedModelProvider(selection, ["novita"]),
+		).toEqual({ ok: true });
 	});
 
 	it("canonicalizes the model without mutating the input body", () => {
