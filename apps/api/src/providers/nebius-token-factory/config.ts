@@ -31,7 +31,7 @@ export const NEBIUS_TOKEN_FACTORY_OPENAI_COMPAT_CONFIGS = {
 	},
 	"nebius-token-factory-us-central-1": {
 		providerId: "nebius-token-factory-us-central-1",
-		baseUrl: "https://api.tokenfactory.nebius.com",
+		baseUrl: "https://api.tokenfactory.us-central1.nebius.com",
 		pathPrefix: "/v1",
 		apiKeyEnv: "NEBIUS_API_KEY",
 		baseUrlEnv: "NEBIUS_US_CENTRAL_1_BASE_URL",
