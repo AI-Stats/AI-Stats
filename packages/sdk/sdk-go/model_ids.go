@@ -1445,7 +1445,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDDeepseekDeepseekV32,
 	ModelIDDeepseekDeepseekV32Exp,
 	ModelIDDeepseekDeepseekV32Speciale,
-	ModelIDDeepseekDeepseekV32Thinking,
 	ModelIDDeepseekDeepseekV4Flash,
 	ModelIDDeepseekDeepseekV4Pro,
 	ModelIDDeepseekDeepseekV4ProLightning,
