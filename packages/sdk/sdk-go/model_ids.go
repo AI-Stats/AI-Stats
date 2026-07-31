@@ -202,9 +202,6 @@ const (
 	// Model ID: deepseek/deepseek-v3.2-speciale
 	// Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-speciale
 	ModelIDDeepseekDeepseekV32Speciale gen.ModelId = "deepseek/deepseek-v3.2-speciale"
-	// Model ID: deepseek/deepseek-v3.2-thinking
-	// Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-thinking
-	ModelIDDeepseekDeepseekV32Thinking gen.ModelId = "deepseek/deepseek-v3.2-thinking"
 	// Model ID: deepseek/deepseek-v4-flash
 	// Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash
 	ModelIDDeepseekDeepseekV4Flash gen.ModelId = "deepseek/deepseek-v4-flash"

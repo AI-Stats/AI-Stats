@@ -270,10 +270,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-speciale
     DEEPSEEK_DEEPSEEK_V3_2_SPECIALE: Final[str] = "deepseek/deepseek-v3.2-speciale"
 
-    # Model ID: deepseek/deepseek-v3.2-thinking
-    # Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-thinking
-    DEEPSEEK_DEEPSEEK_V3_2_THINKING: Final[str] = "deepseek/deepseek-v3.2-thinking"
-
     # Model ID: deepseek/deepseek-v4-flash
     # Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash
     DEEPSEEK_DEEPSEEK_V4_FLASH: Final[str] = "deepseek/deepseek-v4-flash"

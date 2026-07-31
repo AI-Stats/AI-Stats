@@ -198,9 +198,6 @@ pub mod model_ids {
     /// Model ID: `deepseek/deepseek-v3.2-speciale`.
     /// Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-speciale
     pub const DEEPSEEK_DEEPSEEK_V3_2_SPECIALE: &str = "deepseek/deepseek-v3.2-speciale";
-    /// Model ID: `deepseek/deepseek-v3.2-thinking`.
-    /// Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-thinking
-    pub const DEEPSEEK_DEEPSEEK_V3_2_THINKING: &str = "deepseek/deepseek-v3.2-thinking";
     /// Model ID: `deepseek/deepseek-v4-flash`.
     /// Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash
     pub const DEEPSEEK_DEEPSEEK_V4_FLASH: &str = "deepseek/deepseek-v4-flash";
