@@ -6783,11 +6783,11 @@
       }
     },
     "../../packages/data/catalog/src/data/models/amazon/nova-2-lite/model.json": {
-      "hash": "62dd92a4c7465003c01350ceedc0f6fd",
+      "hash": "c62e47e5d9fde5f43a0dbc96cc1b14ac",
       "meta": {
         "model_id": "amazon/nova-2-lite",
         "organisation_id": "amazon",
-        "previous_model_id": "amazon/nova-lite-1-0-2024-12-04",
+        "previous_model_id": "amazon/nova-lite-1.0",
         "api_model_id": "amazon/nova-2-lite",
         "has_page_notice": true
       }
@@ -7073,7 +7073,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/anthropic/claude-mythos-preview/model.json": {
-      "hash": "b282e08a88e0a592843d77df8449b2a8",
+      "hash": "21fa353b3bc493d5d0b292fa186e948d",
       "meta": {
         "model_id": "anthropic/claude-mythos-preview",
         "organisation_id": "anthropic",
@@ -28650,7 +28650,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/anthropic/claude-fable-5/model.json": {
-      "hash": "a7d6bad440366c179773474065e3f472",
+      "hash": "5b1470a7c5e7c4f1d9f64ad7b8cf660d",
       "meta": {
         "model_id": "anthropic/claude-fable-5",
         "organisation_id": "anthropic",
@@ -28859,7 +28859,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/anthropic/claude-mythos-5/model.json": {
-      "hash": "6adf809bc09bb6513a1816f5a30b964a",
+      "hash": "fa75af05a3a56470855187ac51490683",
       "meta": {
         "model_id": "anthropic/claude-mythos-5",
         "organisation_id": "anthropic",
@@ -29549,7 +29549,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/moonshotai/kimi-k3/model.json": {
-      "hash": "cc2e057295b4141ef5594b53d615ec8a",
+      "hash": "771ef2b697cf9df7ba1e001dc6ad4d30",
       "meta": {
         "model_id": "moonshotai/kimi-k3",
         "organisation_id": "moonshotai",
@@ -29685,18 +29685,6 @@
       "hash": "d4de1b2337520b3979d057e61eed514a",
       "meta": {
         "family_id": "anthropic/claude-5"
-      }
-    },
-    "../../packages/data/catalog/src/data/families/anthropic-claude-fable/family.json": {
-      "hash": "147d5c10a792972c6675210191d2ba55",
-      "meta": {
-        "family_id": "anthropic/claude-fable"
-      }
-    },
-    "../../packages/data/catalog/src/data/families/anthropic-claude-mythos/family.json": {
-      "hash": "0b18ff07bd41c34faa863c041c5f0079",
-      "meta": {
-        "family_id": "anthropic/claude-mythos"
       }
     },
     "../../packages/data/catalog/src/data/families/google-gemini-3.5/family.json": {
@@ -35390,6 +35378,12 @@
         "capability_id": "text.generate",
         "model_id": "bytedance/seed-2.1-turbo",
         "model_key": "venice:bytedance/seed-2.1-turbo:text.generate"
+      }
+    },
+    "../../packages/data/catalog/src/data/families/moonshotai-kimi-k3/family.json": {
+      "hash": "8b057b3939740c54bbe78c2764c08bca",
+      "meta": {
+        "family_id": "moonshotai/kimi-k3"
       }
     }
   }
