@@ -62,6 +62,133 @@ function normalizeNullableObject(value: unknown): PlainObject | null {
 	return objectValue ? { ...objectValue } : null;
 }
 
+export type ProviderQualifiedModelSelection = {
+	providerId: string;
+	model: string;
+};
+
+export type ProviderQualifiedModelConstraintResult =
+	| { ok: true; body: any }
+	| {
+		ok: false;
+		providerId: string;
+		model: string;
+		field: "provider.only" | "provider.ignore" | "routing.only" | "routing.ignore";
+		values: string[];
+	};
+
+const PROVIDER_QUALIFIER_PATTERN = /^[a-z0-9][a-z0-9._-]{0,127}$/i;
+
+export function parseProviderQualifiedModel(
+	value: unknown,
+): ProviderQualifiedModelSelection | null {
+	if (typeof value !== "string") return null;
+	const input = value.trim();
+	const qualifierSeparator = input.indexOf(":");
+	const modelNamespaceSeparator = input.indexOf("/");
+	if (
+		qualifierSeparator <= 0 ||
+		modelNamespaceSeparator <= qualifierSeparator + 1
+	) {
+		return null;
+	}
+
+	const providerId = input.slice(0, qualifierSeparator).trim();
+	const model = input.slice(qualifierSeparator + 1).trim();
+	if (!PROVIDER_QUALIFIER_PATTERN.test(providerId) || !model.includes("/")) {
+		return null;
+	}
+
+	return {
+		providerId: providerId.toLowerCase(),
+		model,
+	};
+}
+
+export function canonicalizeProviderQualifiedModelRequest(body: any): {
+	body: any;
+	selection: ProviderQualifiedModelSelection | null;
+} {
+	if (!body || typeof body !== "object" || Array.isArray(body)) {
+		return { body, selection: null };
+	}
+	const selection = parseProviderQualifiedModel(body.model);
+	if (!selection) return { body, selection: null };
+	return {
+		body: {
+			...body,
+			model: selection.model,
+		},
+		selection,
+	};
+}
+
+function normalizedProviderConstraintValues(value: unknown): string[] {
+	return (normalizeStringArray(value) ?? []).map((item) => item.toLowerCase());
+}
+
+export function applyProviderQualifiedModelConstraint(
+	body: any,
+	selection: ProviderQualifiedModelSelection | null,
+): ProviderQualifiedModelConstraintResult {
+	if (!selection || !body || typeof body !== "object" || Array.isArray(body)) {
+		return { ok: true, body };
+	}
+
+	const sources: Array<{
+		name: "provider" | "routing";
+		value: PlainObject | null;
+	}> = [
+		{ name: "provider", value: asPlainObject(body.provider) },
+		{ name: "routing", value: asPlainObject(body.routing) },
+	];
+
+	for (const source of sources) {
+		if (!source.value) continue;
+		const only = normalizedProviderConstraintValues(source.value.only);
+		if (only.length > 0 && !only.includes(selection.providerId)) {
+			return {
+				ok: false,
+				providerId: selection.providerId,
+				model: selection.model,
+				field: `${source.name}.only`,
+				values: only,
+			};
+		}
+		const ignore = normalizedProviderConstraintValues(source.value.ignore);
+		if (ignore.includes(selection.providerId)) {
+			return {
+				ok: false,
+				providerId: selection.providerId,
+				model: selection.model,
+				field: `${source.name}.ignore`,
+				values: ignore,
+			};
+		}
+	}
+
+	const provider = {
+		...clonePlainObject(asPlainObject(body.provider)),
+		only: [selection.providerId],
+	};
+	const routing = asPlainObject(body.routing);
+	return {
+		ok: true,
+		body: {
+			...body,
+			provider,
+			...(routing
+				? {
+					routing: {
+						...routing,
+						only: [selection.providerId],
+					},
+				}
+				: {}),
+		},
+	};
+}
+
 export type EffectiveRoutingHints = {
 	provider: PlainObject;
 	routing: PlainObject;
