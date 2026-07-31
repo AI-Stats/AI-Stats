@@ -2,7 +2,7 @@
 
 Database migrations are validated on pull requests without production secrets. After a migration reaches `main`, the CI workflow pauses at the protected `production-database` environment before it can inspect or update production.
 
-Application deployment waits for the migration job. If migration validation, approval, dry-run, or application fails, the application deploy is skipped.
+CI-managed application deployment waits for the migration job. If migration validation, approval, dry-run, or application fails, the application deploy is skipped.
 
 ## One-time GitHub setup
 
@@ -15,7 +15,8 @@ Complete these steps before setting the opt-in variable:
    - `SUPABASE_ACCESS_TOKEN`: a Supabase access token with access to the production organization.
    - `SUPABASE_DB_PASSWORD`: the production database password.
    - `SUPABASE_PROJECT_ID`: the production Supabase project reference.
-5. After the protection rules and secrets are in place, add the repository variable `ENABLE_PRODUCTION_DB_MIGRATIONS=true`.
+5. Verify that Vercel and Cloudflare production deploys do not also run directly from a platform-side Git integration. Any independent deploy bypasses this workflow gate.
+6. After the protection rules, secrets, and deploy path are verified, add the repository variable `ENABLE_PRODUCTION_DB_MIGRATIONS=true`.
 
 The workflow is intentionally fail-closed. When a merge changes migration infrastructure and the opt-in variable is absent, production application deployment is held instead of bypassing the database step.
 
