@@ -2,8 +2,46 @@ import { describe, expect, it } from "vitest";
 import {
 	applyProviderQualifiedModelConstraint,
 	canonicalizeProviderQualifiedModelRequest,
+	filterProviderQualifiedModelCandidates,
 	parseProviderQualifiedModel,
 } from "./requestRouting";
+
+function candidate(args: {
+	providerId: string;
+	pricing?: "free" | "paid" | "missing";
+}) {
+	return {
+		providerId: args.providerId,
+		adapter: { name: args.providerId },
+		baseWeight: 1,
+		byokMeta: [],
+		providerModelSlug: "upstream/model",
+		pricingCard:
+			args.pricing === "missing"
+				? null
+				: {
+					provider: args.providerId,
+					model: "publisher/model:free",
+					endpoint: "responses",
+					effective_from: null,
+					effective_to: null,
+					currency: "USD",
+					version: null,
+					rules: [{
+						pricing_plan:
+							args.pricing === "free" ? "free" : "standard",
+						meter: "input_tokens",
+						unit: "token",
+						unit_size: 1,
+						price_per_unit:
+							args.pricing === "free" ? "0" : "0.000001",
+						currency: "USD",
+						match: [],
+						priority: 100,
+					}],
+				},
+	} as any;
+}
 
 describe("provider-qualified model ids", () => {
 	it("parses an exact provider-model pair", () => {
@@ -119,5 +157,81 @@ describe("provider-qualified model ids", () => {
 			field: "routing.ignore",
 			providerId: "baseten",
 		});
+	});
+
+	it("rejects a provider that is absent for the exact model", () => {
+		const selection = parseProviderQualifiedModel(
+			"baseten:publisher/model:free",
+		);
+		expect(
+			filterProviderQualifiedModelCandidates(
+				[candidate({ providerId: "deepinfra", pricing: "free" })],
+				selection,
+			),
+		).toMatchObject({
+			ok: false,
+			reason: "qualified_provider_unavailable",
+			providerId: "baseten",
+			model: "publisher/model:free",
+		});
+	});
+
+	it("rejects paid pricing for a provider-qualified free model", () => {
+		const selection = parseProviderQualifiedModel(
+			"baseten:publisher/model:free",
+		);
+		expect(
+			filterProviderQualifiedModelCandidates(
+				[candidate({ providerId: "baseten", pricing: "paid" })],
+				selection,
+			),
+		).toMatchObject({
+			ok: false,
+			reason: "qualified_free_provider_unavailable",
+		});
+	});
+
+	it("rejects missing pricing for a provider-qualified free model", () => {
+		const selection = parseProviderQualifiedModel(
+			"baseten:publisher/model:free",
+		);
+		expect(
+			filterProviderQualifiedModelCandidates(
+				[candidate({ providerId: "baseten", pricing: "missing" })],
+				selection,
+			),
+		).toMatchObject({
+			ok: false,
+			reason: "qualified_free_provider_unavailable",
+		});
+	});
+
+	it("accepts only the requested provider when its free route is valid", () => {
+		const selection = parseProviderQualifiedModel(
+			"baseten:publisher/model:free",
+		);
+		const result = filterProviderQualifiedModelCandidates(
+			[
+				candidate({ providerId: "baseten", pricing: "free" }),
+				candidate({ providerId: "deepinfra", pricing: "free" }),
+			],
+			selection,
+		);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.providers.map((provider) => provider.providerId)).toEqual([
+			"baseten",
+		]);
+	});
+
+	it("does not require free pricing for a qualified paid model", () => {
+		const selection = parseProviderQualifiedModel(
+			"baseten:publisher/model",
+		);
+		const result = filterProviderQualifiedModelCandidates(
+			[candidate({ providerId: "baseten", pricing: "paid" })],
+			selection,
+		);
+		expect(result.ok).toBe(true);
 	});
 });
