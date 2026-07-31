@@ -21,7 +21,7 @@ describe("settings UI contracts", () => {
 		const clientOnlySource = readSource(
 			"src/components/(gateway)/settings/SettingsTopTabsClientOnly.tsx",
 		);
-		expect(clientOnlySource).toContain("ssr: false");
+		expect(clientOnlySource).toContain("useSyncExternalStore");\n\t\texpect(clientOnlySource).toContain("getServerSnapshot");\n\t\texpect(clientOnlySource).not.toContain("ssr: false");
 		expect(clientOnlySource).toContain('<div className="h-[52px]" aria-hidden="true" />');
 	});
 
