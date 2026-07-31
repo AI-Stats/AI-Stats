@@ -233,7 +233,7 @@ export default function SettingsTopTabsServer({
 	if (!tabs?.length) {
 		return (
 			<>
-				<nav className="flex h-[52px] items-center md:hidden" aria-label="Settings navigation">
+				<nav className="flex h-[52px] items-center lg:hidden" aria-label="Settings navigation">
 					<Button
 						variant="outline"
 						className="h-9 w-full justify-start px-3"
