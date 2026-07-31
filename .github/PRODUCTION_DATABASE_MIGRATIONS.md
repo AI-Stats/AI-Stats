@@ -25,12 +25,14 @@ The workflow is intentionally fail-closed. When a merge changes migration infras
 For a pull request or merge-queue check that changes `supabase/migrations/**`, CI:
 
 - rejects edits, deletions, or renames of existing migration files;
-- requires timestamped lower-snake-case names and unique versions;
-- requires an explicit justification comment for destructive SQL;
-- rebuilds a clean local database from the migration history; and
-- runs the Supabase database linter.
+- requires timestamped lower-snake-case names and prevents new version collisions; and
+- requires an explicit justification comment for destructive SQL.
 
-For a push to `main`, CI repeats validation, waits for approval, links the production project, runs `supabase db push --dry-run`, then applies `supabase db push`. Production credentials exist only in the approval-gated job.
+For a push to `main`, CI repeats validation, waits for approval, links the production project, runs `supabase db push --dry-run`, then applies `supabase db push`. Production credentials exist only in the approval-gated job. If Supabase rejects a migration, CI-managed application deployment remains blocked.
+
+## Existing history limitation
+
+The repository's historical migration folder is not currently a complete bootstrap: early migrations depend on production-baseline tables such as `public.users` and `public.teams`. This initial workflow therefore enforces migration policy on pull requests and validates against the linked production history after approval. A separate baseline repair is required before clean-database replay can become a required PR check.
 
 ## Authoring rules
 
@@ -55,4 +57,4 @@ That marker makes the operation reviewable; it is not a substitute for a backup,
 
 Database migrations are forward-only. If a production migration fails, application deployment stays blocked. Fix it with a new corrective migration, re-run CI, and approve the environment again. Restore from a database backup only for an incident where a forward repair is unsafe.
 
-The local Docker validation runs on GitHub Actions and does not consume Cloudflare Workers CPU. Only the existing application deployment jobs affect Workers.
+The migration workflow runs on GitHub Actions and does not consume Cloudflare Workers CPU. Only the existing application deployment jobs affect Workers.
