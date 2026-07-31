@@ -121,6 +121,20 @@ export function validateJsonPricingRules(rules: Record<string, any>[]): void {
     }
 }
 
+export function v2PricingMeterMetadata(rule: Record<string, any>): Record<string, any> {
+    return {
+        source: "json",
+        source_key: rule.source_key ?? rule.rule_id,
+        note: rule.note ?? null,
+        priority: rule.priority ?? 100,
+        billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
+        time_windows: rule.time_windows ?? [],
+        ...(rule.included_quantity === undefined
+            ? {}
+            : { included_quantity: Number(rule.included_quantity) }),
+    };
+}
+
 export function isFreeModelVariant(value: unknown): boolean {
     return String(value ?? "").trim().toLowerCase().endsWith(":free");
 }
@@ -1159,14 +1173,7 @@ export async function syncV2Catalogue(): Promise<void> {
             price_nanos: Number(rule.price_per_unit ?? 0) * 1_000_000_000,
             display_label: meter,
             display_unit: `${rule.unit_size ?? 1} ${rule.unit ?? "unit"}`,
-            metadata: {
-                source: "json",
-                source_key: rule.source_key ?? rule.rule_id,
-                note: rule.note ?? null,
-                priority: rule.priority ?? 100,
-                billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
-                time_windows: rule.time_windows ?? [],
-            },
+            metadata: v2PricingMeterMetadata(rule),
         };
         const meterIdentity = `${row.sku_id}:${row.meter_key}`;
         const previous = meterRowsByKey.get(meterIdentity);
