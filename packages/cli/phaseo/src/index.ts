@@ -20,6 +20,7 @@ import { clearSession, readSession, writeSession } from "./session.js";
 import { printError, printJson, sanitizeTerminalText } from "./output.js";
 import { CLI_VERSION } from "./generated/meta.js";
 import { getVersionInfo } from "./release.js";
+import { runCurie } from "./curie.js";
 
 type ParsedArgs = {
 	command: string[];
@@ -190,6 +191,7 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 			"phaseo logs --help",
 			"phaseo analytics --help",
 			"phaseo generation --help",
+			"phaseo curie --help",
 			"phaseo webhooks --help",
 			"phaseo api --help",
 			"",
@@ -207,6 +209,13 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 		],
 	},
 	version: { usage: ["phaseo version [--json]"] },
+	curie: {
+		usage: [
+			"phaseo curie run <config.json> [--repeats <n>] [--report <path>] [--base-url <url>] [--api-key-env <name>] [--dry-run] [--json]",
+		],
+		description: "Run a local model comparison from a JSON configuration.",
+	},
+	"curie run": { usage: ["phaseo curie run <config.json> [--repeats <n>] [--report <path>] [--base-url <url>] [--api-key-env <name>] [--dry-run] [--json]"] },
 	logout: { usage: ["phaseo logout [--json]"] },
 	whoami: { usage: ["phaseo whoami [--json]"] },
 	keys: {
@@ -1803,6 +1812,7 @@ async function main() {
 		else if (first === "logs" && second === "get") action = logsGet(third, parsed.flags);
 		else if (first === "analytics" && second === "get") action = analyticsGet(parsed.flags);
 		else if (first === "generation" && second === "get") action = generationGet(parsed.flags);
+		else if (first === "curie" && second === "run") action = runCurie(third, parsed.flags);
 		else if (first === "webhooks" && second === "list") action = listWebhooks(parsed.flags);
 		else if (first === "webhooks" && second === "create") action = createWebhook(parsed.flags);
 		else if (first === "webhooks" && second === "get") action = getWebhook(third, parsed.flags);
