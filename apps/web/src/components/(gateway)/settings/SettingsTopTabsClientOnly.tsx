@@ -1,11 +1,12 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { useSyncExternalStore } from "react";
 
-const SettingsTopTabs = dynamic(() => import("./SettingsTopTabsServer"), {
-	ssr: false,
-	loading: () => <div className="h-[52px]" aria-hidden="true" />,
-});
+import SettingsTopTabs from "./SettingsTopTabsServer";
+
+const subscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 export default function SettingsTopTabsClientOnly({
 	isEnterpriseInvoiceMode,
@@ -16,6 +17,16 @@ export default function SettingsTopTabsClientOnly({
 	showBroadcast?: boolean;
 	showWebhooks?: boolean;
 }) {
+	const isHydrated = useSyncExternalStore(
+		subscribe,
+		getClientSnapshot,
+		getServerSnapshot,
+	);
+
+	if (!isHydrated) {
+		return <div className="h-[52px]" aria-hidden="true" />;
+	}
+
 	return (
 		<SettingsTopTabs
 			isEnterpriseInvoiceMode={isEnterpriseInvoiceMode}
