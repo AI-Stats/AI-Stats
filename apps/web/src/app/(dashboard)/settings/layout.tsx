@@ -1,6 +1,6 @@
 import SettingsPageSkeleton from "@/components/(gateway)/settings/SettingsPageSkeleton";
 import SettingsSidebar from "@/components/(gateway)/settings/Sidebar";
-import SettingsTopTabsServer from "@/components/(gateway)/settings/SettingsTopTabsServer";
+import SettingsTopTabsClientOnly from "@/components/(gateway)/settings/SettingsTopTabsClientOnly";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { fetchSettingsLayoutInitialData } from "@/lib/fetchers/internal/fetchSettingsLayoutInitialData";
@@ -59,13 +59,11 @@ export default async function SettingsLayout({
 				<SidebarInset className="flex w-0 min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white dark:bg-zinc-950">
 					<div className="container mx-auto flex h-full min-h-0 w-full flex-col px-4 pt-0 sm:px-5 lg:px-6 xl:px-8">
 						<div className="relative z-20 shrink-0 bg-background">
-							<Suspense fallback={<div className="h-[52px]" aria-hidden="true" />}>
-								<SettingsTopTabsServer
-									isEnterpriseInvoiceMode={isEnterpriseInvoiceMode}
-									showBroadcast={showBroadcast}
-									showWebhooks={showWebhooks}
-								/>
-							</Suspense>
+							<SettingsTopTabsClientOnly
+								isEnterpriseInvoiceMode={isEnterpriseInvoiceMode}
+								showBroadcast={showBroadcast}
+								showWebhooks={showWebhooks}
+							/>
 						</div>
 						<div className="min-h-0 w-full flex-1 overflow-y-auto overscroll-contain pb-4 pt-3">
 							<Suspense fallback={<SettingsPageSkeleton />}>

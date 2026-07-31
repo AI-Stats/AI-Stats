@@ -10,7 +10,7 @@ function readSource(relativePath: string): string {
 describe("settings UI contracts", () => {
 	it("keeps the section navigation outside the scrollable settings pane", () => {
 		const layoutSource = readSource("src/app/(dashboard)/settings/layout.tsx");
-		const navigationPosition = layoutSource.indexOf("<SettingsTopTabsServer");
+		const navigationPosition = layoutSource.indexOf("<SettingsTopTabsClientOnly");
 		const scrollPanePosition = layoutSource.indexOf("overflow-y-auto");
 
 		expect(layoutSource).toContain(
@@ -18,9 +18,11 @@ describe("settings UI contracts", () => {
 		);
 		expect(navigationPosition).toBeGreaterThan(-1);
 		expect(scrollPanePosition).toBeGreaterThan(navigationPosition);
-		expect(layoutSource).toContain(
-			'<Suspense fallback={<div className="h-[52px]" aria-hidden="true" />}>',
+		const clientOnlySource = readSource(
+			"src/components/(gateway)/settings/SettingsTopTabsClientOnly.tsx",
 		);
+		expect(clientOnlySource).toContain("ssr: false");
+		expect(clientOnlySource).toContain('<div className="h-[52px]" aria-hidden="true" />');
 	});
 
 	it("renders pages without sibling navigation as a single active tab", () => {
