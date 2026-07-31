@@ -47,7 +47,7 @@ export default async function SettingsLayout({
 		<>
 			<NoFooterStyle />
 
-			<SidebarProvider defaultOpen className="flex h-[calc(100dvh-var(--site-header-height,3.75rem)-var(--site-notice-height,0px))] min-h-0 flex-1 overflow-hidden [&_button:not([data-settings-segment])]:!rounded-lg [&_[data-slot=button]]:!rounded-lg">
+			<SidebarProvider defaultOpen className="fixed inset-x-0 bottom-0 top-[calc(var(--site-header-height,3.75rem)+var(--site-notice-height,0px))] flex min-h-0 overflow-hidden [&_button:not([data-settings-segment])]:!rounded-lg [&_[data-slot=button]]:!rounded-lg">
 				<Sidebar
 					collapsible="icon"
 					desktopClassName="hidden lg:block"

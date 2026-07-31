@@ -14,7 +14,7 @@ describe("settings UI contracts", () => {
 		const scrollPanePosition = layoutSource.indexOf("overflow-y-auto");
 
 		expect(layoutSource).toContain(
-			"h-[calc(100dvh-var(--site-header-height,3.75rem)-var(--site-notice-height,0px))]",
+			"fixed inset-x-0 bottom-0 top-[calc(var(--site-header-height,3.75rem)+var(--site-notice-height,0px))]",
 		);
 		expect(navigationPosition).toBeGreaterThan(-1);
 		expect(scrollPanePosition).toBeGreaterThan(navigationPosition);
