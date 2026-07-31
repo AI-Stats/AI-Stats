@@ -72,14 +72,99 @@ The same page also exposes beta and alpha channel toggles so preview traffic can
 
 In **Dashboard -> Settings -> BYOK**, teams can choose whether a failed BYOK request is allowed to fall back to Phaseo credits. This is the current public control for the common "my own key failed, should the request still complete?" decision.
 
+### Dynamic routes attach policy to API keys
+
+In **Dashboard -> Settings -> Routing**, create a dynamic route when different
+API keys or request classes need different provider behavior. A route can:
+
+- branch on nested request-body fields, request headers, custom metadata,
+  endpoint, model, or session ID
+- split traffic by percentage for A/B tests and gradual rollouts
+- enforce daily, weekly, or monthly request and cost limits using the
+  authenticated key's usage buckets
+- call a different model and choose its routing mode, provider preference, and
+  fallback policy
+- enable cache-aware and session-aware provider affinity
+- attach to one or more inference API keys
+
+Conditions expose true and false outputs. Rate and budget nodes expose within
+and exceeded outputs. Percentage selection is deterministic for a session or
+prompt-cache key, so a rollout does not randomly move the same cached
+conversation between branches.
+
+Saving creates an immutable draft version. Deploying a selected version copies
+that snapshot to the Gateway and invalidates policy caches for attached keys.
+Earlier versions remain available for rollback. Operational provider-health
+recommendations appear under **Insights**, separately from the flow editor.
+
+Custom metadata is available on the OpenAI-compatible text inference surfaces:
+
+```json
+{
+  "model": "openai/gpt-5-mini",
+  "metadata": {
+	    "customer_plan": "pro",
+	    "workspace": "acme"
+  }
+}
+```
+
 ## Fallback behavior
 
 If a provider returns errors or rate limits, the Gateway can retry or route to another provider that supports the same model. You should still handle 429 and 5xx responses with exponential backoff.
+
+Model nodes in a dynamic route can also define an ordered list of fallback
+models. Phaseo first exhausts the eligible provider attempts for the selected
+model. If the resulting response is retryable (`429`, `500`, `502`, `503`, or
+`504`), the Gateway reruns the complete policy and provider-selection pipeline
+for each fallback model in order. Client errors are returned immediately and do
+not switch models.
+
+Each fallback is independently checked against workspace model restrictions,
+guardrails, provider policy, pricing, and capability support. A route can store
+up to eight fallback models.
 
 Read more in:
 
 - [Rate limits](../developers/rate-limits)
 - [Error handling](../developers/error-handling)
+
+## Cache-aware and session-aware affinity
+
+Cache-aware routing is enabled by default on text generation endpoints. After a
+provider reports a real prompt-cache read, Phaseo pins matching context back to
+that provider for 15 minutes, provided the provider remains healthy and allowed
+by the active route, preset, guardrail, and request policy.
+
+When `session_id` is present, the cache affinity is keyed to the session instead
+of only the opening context. Session affinity is refreshed when Phaseo observes
+another cache read and is retained for up to 24 hours of session activity.
+Circuit breakers and policy filters always take precedence over affinity.
+
+Opt out for one request without changing workspace or dynamic-route defaults:
+
+```json
+{
+  "model": "openai/gpt-5",
+  "session_id": "support-session-42",
+  "provider": {
+    "cache_aware_routing": false
+  }
+}
+```
+
+To retain context cache affinity but ignore the session identifier for one
+request, use:
+
+```json
+{
+  "model": "openai/gpt-5",
+  "session_id": "support-session-42",
+  "routing": {
+    "session_affinity": false
+  }
+}
+```
 
 ## BYOK considerations
 

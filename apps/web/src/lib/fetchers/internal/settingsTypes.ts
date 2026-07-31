@@ -6,6 +6,8 @@ export type SettingsLayoutInitialData = {
 	isEnterpriseInvoiceMode: boolean;
 	showBroadcast: boolean;
 	signedIn: boolean;
+	workspaceId: string | null;
+	workspaceName: string | null;
 };
 
 export type SettingsBetaInitialData = {
@@ -310,6 +312,76 @@ export type SettingsRoutingInitialData = {
 	workspaceId: string | null;
 };
 
+export type DynamicRouteMode = "balanced" | "price" | "latency" | "throughput";
+export type DynamicRouteAction = {
+	model?: string | null;
+	modelFallbacks?: string[];
+	routingMode?: DynamicRouteMode;
+	providerOrder: string[];
+	providerOnly: string[];
+	providerIgnore: string[];
+	allowFallbacks: boolean;
+};
+export type DynamicRouteNodeType = "start" | "condition" | "percentage" | "model" | "rate_limit" | "budget_limit" | "end";
+export type DynamicRouteNode = {
+	id: string;
+	type: DynamicRouteNodeType;
+	position?: { x: number; y: number } | null;
+	data: Record<string, any>;
+};
+export type DynamicRouteEdge = { id: string; source: string; target: string; sourceHandle?: string | null };
+export type DynamicRouteRule = {
+	id: string;
+	name: string;
+	enabled: boolean;
+	condition: {
+		field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+		operator: "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+		value?: string | null;
+		metadataKey?: string | null;
+	};
+	action: DynamicRouteAction;
+};
+export type DynamicRouteConfig = {
+	schemaVersion?: 2;
+	entryNodeId?: string | null;
+	nodes?: DynamicRouteNode[];
+	edges?: DynamicRouteEdge[];
+	cacheAwareRouting: boolean;
+	sessionAffinity: boolean;
+	defaultAction: DynamicRouteAction;
+	rules: DynamicRouteRule[];
+};
+export type DynamicRouteRow = {
+	id: string;
+	workspace_id: string;
+	name: string;
+	description: string | null;
+	status: "active" | "paused";
+	version: number;
+	deployed_version?: number | null;
+	config: DynamicRouteConfig;
+	keyIds: string[];
+	created_at: string;
+	updated_at: string;
+	versions?: Array<{ version: number; status: "draft" | "deployed" | "superseded"; created_at: string; created_by?: string | null }>;
+};
+export type SettingsDynamicRoutesInitialData = {
+	workspaceId: string | null;
+	routes: DynamicRouteRow[];
+	keys: Array<{ id: string; name: string; prefix: string; status: string }>;
+	providers: Array<{ id: string; name: string; status?: string | null; routingStatus?: string | null }>;
+	suggestions: Array<{
+		providerId: string;
+		providerName: string;
+		severity: "warning" | "critical";
+		failureRate: number;
+		avgLatencyMs: number;
+		attempts: number;
+		message: string;
+	}>;
+};
+
 export type SettingsPresetsInitialData = {
 	currentUserId: string | undefined;
 	initialTeamId: string | null;
@@ -349,4 +421,52 @@ export type TeamsSettingsData = {
 type UsageLogsPayload = { appNameEntries: Array<[string, string]>; availableKeys: Array<{ id: string; name: string | null; prefix: string | null }>; dedupedModels: string[]; dedupedProviders: string[]; initialRequestsPage: any; modelMetadataEntries: Array<[string, any]>; modelProviderEntries: Array<[string, string[]]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]> };
 type UsageJobsPayload = { appMetadataEntries: Array<[string, any]>; jobProviders: string[]; modelMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]>; recentJobs: any[] };
 type UsageSessionsPayload = { appMetadataEntries: Array<[string, any]>; modelMetadataEntries: Array<[string, any]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]>; sessionAppIds: string[]; sessionModelIds: string[]; sessionProviderIds: string[]; sessions: any[] };
-export type SettingsUsageLogsInitialData = { signedIn: boolean; workspaceId: string | null } & ({ view: "logs"; data: UsageLogsPayload | null } | { view: "jobs"; data: UsageJobsPayload | null } | { view: "sessions"; data: UsageSessionsPayload | null });
+export type UsageUpstreamRequestRow = {
+	id: string;
+	created_at: string;
+	gateway_request_id: string;
+	request_id: string;
+	sequence: number;
+	round_number: number;
+	attempt_number: number | null;
+	attempt_count?: number | null;
+	internal_attempt_number: number | null;
+	stage: string;
+	endpoint: string;
+	model_id: string;
+	provider: string | null;
+	api_model_id: string | null;
+	provider_model_slug: string | null;
+	status_code: number | null;
+	status_text: string | null;
+	success: boolean;
+	outcome: string;
+	retryable: boolean | null;
+	fallback_attempted: boolean;
+	was_probe: boolean;
+	key_source: "gateway" | "byok" | null;
+	key_id: string | null;
+	native_response_id: string | null;
+	provider_finish_reason: string | null;
+	finish_reason: string | null;
+	duration_ms: number | null;
+	latency_ms: number | null;
+	generation_ms: number | null;
+	total_ms: number | null;
+	request_build_ms: number | null;
+	upstream_headers_ms: number | null;
+	retry_delay_ms: number | null;
+	usage: unknown;
+	cost_nanos: number | string | null;
+	currency: string | null;
+	error_code: string | null;
+	error_type: string | null;
+	error_message: string | null;
+	error_description: string | null;
+	error_param: string | null;
+	request_payload: unknown;
+	response_payload: unknown;
+	metadata: unknown;
+};
+type UsageUpstreamPayload = { availableKeys: Array<{ id: string; name: string | null; prefix: string | null }>; modelMetadataEntries: Array<[string, any]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]>; upstreamRequests: UsageUpstreamRequestRow[] };
+export type SettingsUsageLogsInitialData = { signedIn: boolean; workspaceId: string | null } & ({ view: "logs"; data: UsageLogsPayload | null } | { view: "upstream"; data: UsageUpstreamPayload | null } | { view: "jobs"; data: UsageJobsPayload | null } | { view: "sessions"; data: UsageSessionsPayload | null });

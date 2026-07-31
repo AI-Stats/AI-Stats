@@ -18,6 +18,7 @@ import { accountSettingsBroadcastRouter } from "./settings-broadcast";
 import { accountSettingsWebhooksRouter } from "./settings-webhooks";
 import { accountSettingsDataContributionRouter } from "./settings-data-contribution";
 import { callDataContributionGateway } from "./settings-data-contribution";
+import { accountSettingsDynamicRoutesRouter } from "./settings-dynamic-routes";
 import { purgeWorkerCacheTags } from "@/http/invalidation";
 
 function normalizeBetaFeatures(value: unknown): Record<string, boolean> {
@@ -92,6 +93,7 @@ accountSettingsRouter.route("/", accountSettingsGuardrailsRouter);
 accountSettingsRouter.route("/", accountSettingsBroadcastRouter);
 accountSettingsRouter.route("/", accountSettingsWebhooksRouter);
 accountSettingsRouter.route("/", accountSettingsDataContributionRouter);
+accountSettingsRouter.route("/", accountSettingsDynamicRoutesRouter);
 
 accountSettingsRouter.get("/layout", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
@@ -100,6 +102,8 @@ accountSettingsRouter.get("/layout", async (c) => {
 			isEnterpriseInvoiceMode: false,
 			showBroadcast: false,
 			signedIn: false,
+			workspaceId: null,
+			workspaceName: null,
 		}, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 	const workspaceId = c.req.query("workspaceId")?.trim();
@@ -108,6 +112,8 @@ accountSettingsRouter.get("/layout", async (c) => {
 			isEnterpriseInvoiceMode: false,
 			showBroadcast: false,
 			signedIn: true,
+			workspaceId: null,
+			workspaceName: null,
 		}, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 	const context = await requireAccountWorkspace({
@@ -118,7 +124,7 @@ accountSettingsRouter.get("/layout", async (c) => {
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const { data, error } = await context.client
 		.from("workspaces")
-		.select("tier,billing_mode")
+		.select("name,tier,billing_mode")
 		.eq("id", context.workspaceId)
 		.maybeSingle();
 	if (error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
@@ -128,6 +134,8 @@ accountSettingsRouter.get("/layout", async (c) => {
 			String(data?.billing_mode ?? "wallet").toLowerCase() === "invoice",
 		showBroadcast: context.role.toLowerCase() === "admin",
 		signedIn: true,
+		workspaceId: context.workspaceId,
+		workspaceName: data?.name ?? null,
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 

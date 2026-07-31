@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Check, ChevronDown } from "lucide-react";
+import { Building2, Check, ChevronDown, UserRound } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { getActiveSettingsNav, getSettingsSidebar } from "./Sidebar.config";
+import { cn } from "@/lib/utils";
 
 export default function SettingsSidebarTrigger({
 	showBroadcast = true,
@@ -28,6 +29,8 @@ export default function SettingsSidebarTrigger({
 	const navGroups = getSettingsSidebar({ showBroadcast, showWebhooks });
 	const activeNav = getActiveSettingsNav(pathname ?? "", { showBroadcast, showWebhooks });
 	const activeItem = activeNav?.item ?? null;
+	const activeScope = activeNav?.group.scope ?? "personal";
+	const visibleGroups = navGroups.filter((group) => group.scope === activeScope);
 
 	return (
 		<div className="lg:hidden">
@@ -39,11 +42,11 @@ export default function SettingsSidebarTrigger({
 						aria-haspopup="menu"
 					>
 						<span className="flex items-center gap-2 min-w-0">
-							<span className="truncate">{activeItem?.label ?? "Settings"}</span>
+							<span className="truncate"><span className="text-muted-foreground">{activeScope === "personal" ? "My account" : "Workspace"}</span><span className="mx-1.5 text-muted-foreground/60">/</span>{activeItem?.label ?? "Settings"}</span>
 							{activeItem?.badge && (
 								<Badge
 									variant="outline"
-									className="h-5 px-1.5 text-[10px] uppercase tracking-wide"
+									className="h-5 px-1.5 text-[10px] capitalize"
 								>
 									{activeItem.badge}
 								</Badge>
@@ -56,7 +59,12 @@ export default function SettingsSidebarTrigger({
 					align="start"
 					className="w-[min(24rem,calc(100vw-2rem))]"
 				>
-					{navGroups.map((group, index) => (
+					<div className="grid grid-cols-2 gap-1 p-1">
+						<Link href="/settings/profile" className={cn("flex h-9 items-center justify-center gap-2 rounded-md px-2 text-xs font-medium", activeScope === "personal" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/60 hover:text-foreground")}><UserRound className="size-3.5" />My account</Link>
+						<Link href="/settings/workspaces/settings" className={cn("flex h-9 items-center justify-center gap-2 rounded-md px-2 text-xs font-medium", activeScope === "workspace" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/60 hover:text-foreground")}><Building2 className="size-3.5" />Workspace</Link>
+					</div>
+					<DropdownMenuSeparator />
+					{visibleGroups.map((group, index) => (
 						<div key={`${group.heading ?? "group"}-${index}`}>
 							{group.heading ? (
 								<DropdownMenuLabel className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -74,7 +82,7 @@ export default function SettingsSidebarTrigger({
 											{item.badge ? (
 												<Badge
 													variant="outline"
-													className="h-5 px-1.5 text-[10px] uppercase tracking-wide"
+											className="h-5 px-1.5 text-[10px] capitalize"
 												>
 													{item.badge}
 												</Badge>
@@ -84,7 +92,7 @@ export default function SettingsSidebarTrigger({
 									</DropdownMenuItem>
 								);
 							})}
-							{index < navGroups.length - 1 ? <DropdownMenuSeparator /> : null}
+							{index < visibleGroups.length - 1 ? <DropdownMenuSeparator /> : null}
 						</div>
 					))}
 				</DropdownMenuContent>

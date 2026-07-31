@@ -47,6 +47,18 @@ export async function fetchProviderMetadata(providerIds: string[]) { return new 
 export async function fetchFunStats(timeRange: { from: string; to: string }) { return operation<any>("funStats", [timeRange]); }
 export async function fetchAppNames(appIds: string[]) { return new Map<string, string>(await operation<Array<[string, string]>>("appNames", [appIds])); }
 export async function fetchAppMetadata(appIds: string[]) { return new Map<string, AppMetadata>(await operation<Array<[string, AppMetadata]>>("appMetadata", [appIds])); }
+export async function fetchGenerationLog(requestId: string): Promise<{ success: boolean; data?: InvestigateGenerationResult; error?: string }> {
+	try {
+		const value = await context();
+		const response = await fetchAccountWebApi<{ data: InvestigateGenerationResult }>(
+			`/api/account/settings/usage/logs/${encodeURIComponent(requestId)}?workspaceId=${encodeURIComponent(value.workspaceId)}`,
+			value.accessToken,
+		);
+		return { success: true, data: response.data };
+	} catch (error) {
+		return { success: false, error: error instanceof Error ? error.message : "usage_log_detail_unavailable" };
+	}
+}
 export async function investigateGeneration(requestId: string): Promise<{ success: boolean; data?: InvestigateGenerationResult; error?: string }> { return operation("investigateGeneration", [requestId]); }
 export async function fetchChartData(params: any): Promise<ChartDataResult> { return operation("chartData", [params]); }
 export async function fetchSessionRollups(params: any): Promise<SessionRollupRow[]> { return operation("sessionRollups", [params]); }
