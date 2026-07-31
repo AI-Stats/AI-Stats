@@ -15,7 +15,7 @@ import { resolveCapabilityFromEndpoint } from "@/lib/config/capabilityToEndpoint
 import { validateCapabilities } from "./capabilityValidation";
 import { isDebugAllowed } from "../debug";
 import { isProviderCapabilityEnabled, normalizeCapability } from "@/executors";
-import { adapterFor } from "@/providers/index";
+import { adapterFor, allProviderNames } from "@/providers/index";
 import type { ProviderEnablementDiagnostics } from "./types";
 import {
 	isPerfGatewayEndpointAllowed,
@@ -33,6 +33,7 @@ import {
 	collectUnsupportedRoutingFields,
 	getEffectiveRoutingHints,
 	normalizeRequestRoutingBody,
+	validateProviderQualifiedModelProvider,
 } from "../requestRouting";
 import { fetchWorkspacePolicy, applyWorkspacePolicy } from "./workspacePolicy";
 
@@ -222,6 +223,59 @@ export async function beforeRequest(
     let body = v.value;
     const providerQualifiedModelRequest =
         canonicalizeProviderQualifiedModelRequest(body);
+    if (providerQualifiedModelRequest.syntaxError) {
+        const syntaxError = providerQualifiedModelRequest.syntaxError;
+        return {
+            ok: false,
+            response: err("validation_error", {
+                reason: syntaxError.reason,
+                description: syntaxError.message,
+                error_type: "user",
+                error_origin: "user",
+                error_operational_kind: syntaxError.reason,
+                details: [{
+                    message: syntaxError.message,
+                    path: ["model"],
+                    keyword: syntaxError.reason,
+                    params: {
+                        input: syntaxError.input,
+                        provider: syntaxError.providerSlug || null,
+                    },
+                }],
+                request_id: requestId,
+                workspace_id: workspaceId,
+            }),
+        };
+    }
+    const providerSlugValidation = validateProviderQualifiedModelProvider(
+        providerQualifiedModelRequest.selection,
+        allProviderNames(),
+    );
+    if (providerSlugValidation.ok === false) {
+        return {
+            ok: false,
+            response: err("validation_error", {
+                model: providerSlugValidation.model,
+                provider: providerSlugValidation.providerId,
+                reason: providerSlugValidation.reason,
+                description: providerSlugValidation.message,
+                error_type: "user",
+                error_origin: "user",
+                error_operational_kind: providerSlugValidation.reason,
+                details: [{
+                    message: providerSlugValidation.message,
+                    path: ["model"],
+                    keyword: providerSlugValidation.reason,
+                    params: {
+                        provider: providerSlugValidation.providerId,
+                        model: providerSlugValidation.model,
+                    },
+                }],
+                request_id: requestId,
+                workspace_id: workspaceId,
+            }),
+        };
+    }
     body = providerQualifiedModelRequest.body;
 
     const serviceTierValidation = validateSynchronousTextServiceTierRequest({
