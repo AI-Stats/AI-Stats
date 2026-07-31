@@ -30,6 +30,26 @@ describe("settings UI contracts", () => {
 		expect(tabsSource).toContain("border-b-2 border-muted-foreground");
 	});
 
+	it("keeps the complete mobile settings navigation on Base UI", () => {
+		const tabsSource = readSource(
+			"src/components/(gateway)/settings/SettingsTopTabsServer.tsx",
+		);
+		const menuSource = readSource(
+			"src/components/(gateway)/settings/SettingsSidebarTrigger.tsx",
+		);
+
+		expect(tabsSource).toContain("<SettingsSidebarTrigger");
+		expect(tabsSource).toContain("<DropdownMenu>");
+		expect(tabsSource).toContain("<DropdownMenuTrigger");
+		expect(tabsSource).toContain("buttonVariants({ variant: \"outline\" })");
+		expect(tabsSource).toContain("render={");
+		expect(tabsSource).toContain("<Link");
+		expect(tabsSource).not.toContain("asChild");
+		expect(menuSource).not.toContain("asChild");
+		expect(menuSource).toContain("My account");
+		expect(menuSource).toContain("Workspace");
+		expect(menuSource).toContain("visibleGroups.map");
+	});
 	it("provides display-label collections for ID-backed settings selects", () => {
 		const expectedItemCollections: Record<string, string[]> = {
 			"src/components/(gateway)/settings/account/AccountSettingsClient.tsx": [

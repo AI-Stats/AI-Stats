@@ -3,18 +3,17 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { ChevronDown, PanelLeftIcon } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSidebar } from "@/components/ui/sidebar";
 import { getActiveSettingsNav } from "./Sidebar.config";
 import SettingsSidebarTrigger from "./SettingsSidebarTrigger";
 
@@ -154,7 +153,6 @@ export default function SettingsTopTabsServer({
 	const pathname = usePathname() ?? "";
 	const searchParams = useSearchParams();
 	const logsView = searchParams.get("view") ?? "logs";
-	const { toggleSidebar } = useSidebar();
 	const tabs = resolveTabs(pathname, { showBroadcast, showWebhooks });
 	const activeNav = React.useMemo(
 		() => getActiveSettingsNav(pathname, { showBroadcast, showWebhooks }),
@@ -208,7 +206,6 @@ export default function SettingsTopTabsServer({
 						return b.score!.len - a.score!.len;
 					})[0]?.t ?? tabs[0]
 			: null;
-	const mobileSectionLabel = activeNav?.group.scope === "personal" ? "My account" : "Workspace";
 
 	const setIndicatorToHref = React.useCallback((href: string | null) => {
 		const container = containerRef.current;
@@ -267,57 +264,58 @@ export default function SettingsTopTabsServer({
 	return (
 		<>
 			<nav className="flex h-[52px] items-center md:hidden" aria-label="Settings section navigation">
-				<div className="flex items-center gap-2">
-					<Button
-						variant="outline"
-						className="h-9 max-w-[11rem] shrink-0 px-3"
-						onClick={toggleSidebar}
-						aria-haspopup="dialog"
-					>
-						<PanelLeftIcon className="mr-1.5 h-4 w-4" />
-						<span className="truncate">{mobileSectionLabel}</span>
-					</Button>
-					<DropdownMenu>
-						<DropdownMenuTrigger render={<Button
-								variant="outline"
-								className="h-9 flex-1 justify-between min-w-0" />}>
-
-								<span className="truncate">
-									{activeTab?.label ?? "Settings"}
-								</span>
-								<ChevronDown className="h-4 w-4 shrink-0" />
-
-						</DropdownMenuTrigger>
-						<DropdownMenuContent
-							align="end"
-							className="w-[min(20rem,calc(100vw-1rem))]"
-						>
-							{tabs.map((tab) => {
-								const active = tab.href === activeTab?.href;
-								return (
-									<DropdownMenuItem key={tab.href}  render={<Link
-										href={navigationHref(tab)}
-											prefetch={false}
-											aria-current={active ? "page" : undefined}
-											className="flex items-center gap-2" />}>
-
-											<span className={cn("flex-1 truncate", active && "font-semibold")}>
-												{tab.label}
-											</span>
-											{tab.badge ? (
-												<Badge
-													variant="outline"
-											className="h-4 px-1 text-[9px] capitalize"
-												>
-													{tab.badge}
-												</Badge>
-											) : null}
-
-									</DropdownMenuItem>
-								);
-							})}
-						</DropdownMenuContent>
-					</DropdownMenu>
+				<div className="flex w-full items-center gap-2">
+					<div className="min-w-0 flex-1">
+						<SettingsSidebarTrigger
+							showBroadcast={showBroadcast}
+							showWebhooks={showWebhooks}
+						/>
+					</div>
+					<div className="min-w-0 flex-1">
+						<DropdownMenu>
+							<DropdownMenuTrigger
+								className={cn(buttonVariants({ variant: "outline" }), "h-9 w-full min-w-0 justify-between")}
+							>
+									<span className="truncate">
+										{activeTab?.label ?? "Settings"}
+									</span>
+									<ChevronDown className="h-4 w-4 shrink-0" />
+							</DropdownMenuTrigger>
+							<DropdownMenuContent
+								align="end"
+								className="w-[min(20rem,calc(100vw-1rem))]"
+							>
+								{tabs.map((tab) => {
+									const active = tab.href === activeTab?.href;
+									return (
+										<DropdownMenuItem
+											key={tab.href}
+											render={
+												<Link
+												href={navigationHref(tab)}
+												prefetch={false}
+												aria-current={active ? "page" : undefined}
+												className="flex items-center gap-2"
+												/>
+											}
+										>
+												<span className={cn("flex-1 truncate", active && "font-semibold")}>
+													{tab.label}
+												</span>
+												{tab.badge ? (
+													<Badge
+														variant="outline"
+														className="h-4 px-1 text-[9px] capitalize"
+													>
+														{tab.badge}
+													</Badge>
+												) : null}
+										</DropdownMenuItem>
+									);
+								})}
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
 				</div>
 			</nav>
 

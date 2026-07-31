@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Building2, Check, ChevronDown, UserRound } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -35,12 +35,10 @@ export default function SettingsSidebarTrigger({
 	return (
 		<div className="lg:hidden">
 			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
-					<Button
-						variant="outline"
-						className="w-full justify-between"
-						aria-haspopup="menu"
-					>
+				<DropdownMenuTrigger
+					className={cn(buttonVariants({ variant: "outline" }), "w-full justify-between")}
+					aria-haspopup="menu"
+				>
 							<span className="flex min-w-0 items-center gap-2">
 								<span className="truncate">{activeItem?.label ?? "Settings"}</span>
 							{activeItem?.badge && (
@@ -53,7 +51,6 @@ export default function SettingsSidebarTrigger({
 							)}
 						</span>
 						<ChevronDown className="h-4 w-4 shrink-0" aria-hidden="true" />
-					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent
 					align="start"
@@ -74,8 +71,12 @@ export default function SettingsSidebarTrigger({
 							{group.items.map((item) => {
 								const active = activeItem?.href === item.href;
 								return (
-									<DropdownMenuItem key={item.href} asChild>
-										<Link href={item.href} className="flex w-full items-center gap-2">
+									<DropdownMenuItem
+										key={item.href}
+										render={
+											<Link href={item.href} className="flex w-full items-center gap-2" />
+										}
+									>
 											<span className="min-w-0 flex-1 truncate">
 												{item.label}
 											</span>
@@ -88,7 +89,6 @@ export default function SettingsSidebarTrigger({
 												</Badge>
 											) : null}
 											{active ? <Check className="h-4 w-4 shrink-0" /> : null}
-										</Link>
 									</DropdownMenuItem>
 								);
 							})}
