@@ -629,7 +629,7 @@
     "provider_model_slug": "MiniMaxAI/MiniMax-M3",
     "internal_model_id": "minimax/minimax-m3",
     "is_active_gateway": true,
-    "quantization_scheme": "FP8",
+    "quantization_scheme": "FP4",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1048576,
@@ -654,7 +654,9 @@
     "routing_status": "active",
     "routable": true,
     "regions": {
-      "execution": null,
+      "execution": [
+        "us-central1"
+      ],
       "data": null
     },
     "service_tiers": [],
@@ -678,9 +680,9 @@
       }
     ],
     "verification": {
-      "status": "partial",
+      "status": "verified",
       "checked_at": "2026-07-31T00:00:00Z",
-      "notes": "Official Nebius and MiniMax announcements confirm the live route. Current provider catalogues independently agree on the MiniMaxAI/MiniMax-M3 upstream slug, FP8 serving, 1,048,576-token context, reasoning and tool support, and text-only API exposure; the client-rendered Nebius model card could not be independently captured."
+      "notes": "Nebius Token Factory's public endpoint card was captured on 2026-07-31. It lists routing key MiniMaxAI/MiniMax-M3, Base flavor, us-central1, $0.30 per 1M input tokens, $1.20 per 1M output tokens, approximately 248 tokens per second, text-to-text modality, 1,049K context, FP4 quantization, tool calling, and reasoning. The card's OpenAI example uses https://api.tokenfactory.us-central1.nebius.com/v1/."
     },
     "rate_limits": []
   },
