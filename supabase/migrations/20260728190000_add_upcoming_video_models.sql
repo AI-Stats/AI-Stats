@@ -53,7 +53,7 @@ insert into public.v2_route_capabilities (
 )
 values (
   'minimax:minimax/h3', 'video.generate', 'active',
-  '{"prompt":{"type":"string","max_length":7000},"duration":{"type":"integer","min":5,"max":15},"resolution":{"type":"enum","values":["768P","2K"]},"ratio":{"type":"string"},"content":{"type":"array","item_types":["text","image_url","video_url","audio_url"]}}'::jsonb,
+  '{"prompt":{"type":"string","max_length":7000},"duration":{"type":"number","min":5,"max":15},"resolution":{"type":"enum","values":["768P","2K"]},"ratio":{"type":"string"},"content":{"type":"array","item_types":["text","image_url","video_url","audio_url"]}}'::jsonb,
   '2026-07-31T00:00:00Z',
   '{"modes":["text-to-video","image-to-video","first-last-frame","reference-to-video","video-editing"],"gateway_status":"not_routable"}'::jsonb
 )
