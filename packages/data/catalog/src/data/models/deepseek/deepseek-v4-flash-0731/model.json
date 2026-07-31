@@ -4,16 +4,21 @@
   "name": "DeepSeek V4 Flash 0731",
   "status": "Available",
   "previous_model_id": "deepseek/deepseek-v4-flash",
-  "description": "DeepSeek V4 Flash 0731 is the 31 July 2026 API revision of DeepSeek V4 Flash, with substantially stronger agent capabilities, native Responses API support, tool use, structured output, server-side web search, a 1M-token context window, and up to 384K output tokens.",
+  "description": "DeepSeek V4 Flash 0731 is the official 31 July 2026 release that supersedes the V4 Flash preview, with substantially stronger agent capabilities and a DSpark speculative-decoding module. It supports native Responses API use, tool use, structured output, server-side web search, a 1M-token context window, and up to 384K output tokens.",
   "announced_date": "2026-07-31T00:00:00",
   "release_date": "2026-07-31T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
-  "license": null,
+  "license": "MIT",
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "deepseek/deepseek-v4-flash-0731",
   "links": [
+    {
+      "title": "Weights",
+      "kind": "weights",
+      "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731"
+    },
     {
       "title": "DeepSeek V4 Flash 0731 announcement",
       "kind": "announcement",
@@ -108,7 +113,6 @@
     "options": [
       "low",
       "high",
-      "xhigh",
       "max"
     ]
   },
@@ -120,8 +124,14 @@
     "streaming": true,
     "web_search": true
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
+    {
+      "kind": "weights",
+      "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731",
+      "accessed_at": "2026-07-31T00:00:00Z",
+      "notes": "Official DeepSeek V4 Flash 0731 weights; public safetensors release under the MIT licence with a DSpark speculative-decoding module."
+    },
     {
       "kind": "announcement",
       "url": "https://api-docs.deepseek.com/updates/",
@@ -144,7 +154,7 @@
   "verification": {
     "status": "verified",
     "checked_at": "2026-07-31T00:00:00Z",
-    "notes": "Verified against DeepSeek's official update, Responses API and pricing documentation."
+    "notes": "Verified against DeepSeek's official V4 Flash 0731 weights release, update, Responses API and pricing documentation."
   },
   "last_updated": "2026-07-31T00:00:00",
   "removal_date": null,
