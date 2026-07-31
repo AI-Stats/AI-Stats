@@ -30,6 +30,17 @@ describe("settings UI contracts", () => {
 		expect(tabsSource).toContain("border-b-2 border-muted-foreground");
 	});
 
+	it("uses stable mobile settings navigation without a floating menu", () => {
+		const tabsSource = readSource(
+			"src/components/(gateway)/settings/SettingsTopTabsServer.tsx",
+		);
+
+		expect(tabsSource).toContain("<select");
+		expect(tabsSource).toContain("router.push(event.currentTarget.value)");
+		expect(tabsSource).toContain("onClick={toggleSidebar}");
+		expect(tabsSource).not.toContain("<DropdownMenu");
+	});
+
 	it("provides display-label collections for ID-backed settings selects", () => {
 		const expectedItemCollections: Record<string, string[]> = {
 			"src/components/(gateway)/settings/account/AccountSettingsClient.tsx": [
