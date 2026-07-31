@@ -45,7 +45,7 @@
 		"@react-three/drei": "^10.7.6",
 		"@react-three/fiber": "^9.6.1",
 		"@rive-app/react-webgl2": "^4.29.3",
-		"@shadcn/react": "0.1.0",
+		"@shadcn/react": "0.2.1",
 		"@statsig/js-client": "^3.33.3",
 		"@statsig/react-bindings": "^3.33.3",
 		"@statsig/session-replay": "^3.33.3",
