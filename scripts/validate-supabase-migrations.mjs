@@ -6,7 +6,8 @@ import { fileURLToPath } from "node:url";
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = resolve(SCRIPT_DIR, "..");
 const MIGRATIONS_DIRECTORY = join(REPOSITORY_ROOT, "supabase", "migrations");
-const MIGRATION_NAME = /^(\d{14})_[a-z0-9][a-z0-9_]*\.sql$/;
+const MIGRATION_NAME = /^(\d{8}|\d{14})_[a-z0-9][a-z0-9_]*\.sql$/;
+const NEW_MIGRATION_NAME = /^(\d{14})_[a-z0-9][a-z0-9_]*\.sql$/;
 const DESTRUCTIVE_APPROVAL = /^\s*--\s*phaseo:allow-destructive-migration\s+reason:\s*(.+)$/im;
 const DESTRUCTIVE_PATTERNS = [
 	["DROP TABLE", /\bdrop\s+table\b/i],
@@ -36,7 +37,7 @@ function validateNames(files) {
 		const match = file.match(MIGRATION_NAME);
 		if (!match) {
 			errors.push(
-				`${file}: expected YYYYMMDDHHMMSS_lower_snake_case.sql`,
+				`${file}: expected a timestamped lower_snake_case.sql filename`,
 			);
 			continue;
 		}
@@ -90,8 +91,13 @@ function validateAddedMigration(path) {
 		return [`${path}: migration path escaped supabase/migrations`];
 	}
 
+	const file = path.split("/").at(-1) ?? "";
+	if (!NEW_MIGRATION_NAME.test(file)) {
+		errors.push(`${path}: new migrations require YYYYMMDDHHMMSS_lower_snake_case.sql`);
+	}
+
 	const sql = readFileSync(absolutePath, "utf8");
-	if (!sql.trim()) return [`${path}: migration is empty`];
+	if (!sql.trim()) return [...errors, `${path}: migration is empty`];
 
 	const statements = stripSqlComments(sql);
 	const dangerous = DESTRUCTIVE_PATTERNS
