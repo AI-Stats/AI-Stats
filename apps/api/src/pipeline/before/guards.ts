@@ -20,7 +20,8 @@ import type { DebugOptions } from "@core/types";
 import { authenticate, authenticateManagement, type AuthFailure } from "./auth";
 import { readAttributionHeaders } from "../after/attribution";
 import type { ProviderCandidateBuildDiagnostics } from "./types";
-import { isFreePriceCard, type PriceCard } from "../pricing";
+import { isFreePriceCard } from "../pricing/free";
+import type { PriceCard } from "../pricing";
 
 const MIN_CREDIT_AMOUNT = 1.0;
 const TRUTHY_VALUES = new Set(["1", "true", "yes"]);
