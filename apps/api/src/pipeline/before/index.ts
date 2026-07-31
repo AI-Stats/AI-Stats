@@ -14,7 +14,7 @@ import { Timer } from "../telemetry/timer";
 import { resolveCapabilityFromEndpoint } from "@/lib/config/capabilityToEndpoints";
 import { validateCapabilities } from "./capabilityValidation";
 import { isDebugAllowed } from "../debug";
-import { isProviderCapabilityEnabled, normalizeCapability } from "@/executors";
+import { EXECUTORS_BY_PROVIDER, isProviderCapabilityEnabled, normalizeCapability } from "@/executors";
 import { adapterFor } from "@/providers/index";
 import type { ProviderEnablementDiagnostics } from "./types";
 import {
@@ -27,14 +27,19 @@ import { normalizeGatewayPlugins, resolveGatewayPlugins } from "@/plugins/normal
 import { findUnknownGatewayPluginIds } from "@/plugins/registry";
 import { validateSynchronousTextServiceTierRequest } from "./serviceTierValidation";
 import {
+	applyProviderQualifiedModelConstraint,
+	canonicalizeProviderQualifiedModelRequest,
+	filterProviderQualifiedModelCandidates,
 	collectUnsupportedRoutingFields,
 	getEffectiveRoutingHints,
 	normalizeRequestRoutingBody,
+	validateProviderQualifiedModelProvider,
 } from "../requestRouting";
 import { fetchWorkspacePolicy, applyWorkspacePolicy } from "./workspacePolicy";
 import {
     applyDynamicRouteToBody,
     evaluateDynamicRoute,
+    suppressDynamicRouteModelOverrides,
     type DynamicRouteEvaluation,
 } from "./dynamic-routes";
 
@@ -222,7 +227,63 @@ export async function beforeRequest(
     // 3) Zod (route schema: shape depends on request path)
     const v = await timer.span("guardZod", () => guardZod(zodSchema, rawBody, workspaceId, requestId));
     if (!v.ok) return v as { ok: false; response: Response };
-    const body = v.value;
+    let body = v.value;
+    const providerQualifiedModelRequest =
+        canonicalizeProviderQualifiedModelRequest(body);
+    if (providerQualifiedModelRequest.syntaxError) {
+        const syntaxError = providerQualifiedModelRequest.syntaxError;
+        return {
+            ok: false,
+            response: err("validation_error", {
+                reason: syntaxError.reason,
+                description: syntaxError.message,
+                error_type: "user",
+                error_origin: "user",
+                error_operational_kind: syntaxError.reason,
+                details: [{
+                    message: syntaxError.message,
+                    path: ["model"],
+                    keyword: syntaxError.reason,
+                    params: {
+                        input: syntaxError.input,
+                        provider: syntaxError.providerSlug || null,
+                    },
+                }],
+                request_id: requestId,
+                workspace_id: workspaceId,
+            }),
+        };
+    }
+    const providerSlugValidation = validateProviderQualifiedModelProvider(
+        providerQualifiedModelRequest.selection,
+        Object.keys(EXECUTORS_BY_PROVIDER),
+    );
+    if (providerSlugValidation.ok === false) {
+        return {
+            ok: false,
+            response: err("validation_error", {
+                model: providerSlugValidation.model,
+                provider: providerSlugValidation.providerId,
+                reason: providerSlugValidation.reason,
+                description: providerSlugValidation.message,
+                error_type: "user",
+                error_origin: "user",
+                error_operational_kind: providerSlugValidation.reason,
+                details: [{
+                    message: providerSlugValidation.message,
+                    path: ["model"],
+                    keyword: providerSlugValidation.reason,
+                    params: {
+                        provider: providerSlugValidation.providerId,
+                        model: providerSlugValidation.model,
+                    },
+                }],
+                request_id: requestId,
+                workspace_id: workspaceId,
+            }),
+        };
+    }
+    body = providerQualifiedModelRequest.body;
 
     const serviceTierValidation = validateSynchronousTextServiceTierRequest({
         endpoint,
@@ -316,6 +377,14 @@ export async function beforeRequest(
             requestId,
             usage: context.keyLimit,
         });
+        // A provider-qualified model is an exact provider/model request. Keep
+        // non-model route controls, but do not let a route replace that model
+        // or introduce model fallbacks.
+        if (providerQualifiedModelRequest.selection) {
+            dynamicRouteEvaluation = suppressDynamicRouteModelOverrides(
+                dynamicRouteEvaluation,
+            );
+        }
         const configuredModels = [
             dynamicRouteEvaluation.action.model,
             ...(dynamicRouteEvaluation.action.modelFallbacks ?? []),
@@ -496,6 +565,77 @@ export async function beforeRequest(
             resolvedRoutingMode = dynamicRouteEvaluation.action.routingMode;
         }
     }
+
+    // Keep this as the final request-level provider constraint before workspace
+    // policy enforcement. A provider-qualified model is an exact pair, not a
+    // provider preference that presets or other routing hints may widen.
+    const providerQualifiedConstraint =
+        applyProviderQualifiedModelConstraint(
+            mergedBody,
+            providerQualifiedModelRequest.selection,
+        );
+    if (providerQualifiedConstraint.ok === false) {
+        return {
+            ok: false,
+            response: err("validation_error", {
+                details: [{
+                    message:
+                        `Provider-qualified model "${providerQualifiedConstraint.providerId}:${providerQualifiedConstraint.model}" conflicts with ${providerQualifiedConstraint.field}`,
+                    path: providerQualifiedConstraint.field.split("."),
+                    keyword: "provider_qualified_model_conflict",
+                    params: {
+                        provider: providerQualifiedConstraint.providerId,
+                        model: providerQualifiedConstraint.model,
+                        field: providerQualifiedConstraint.field,
+                        values: providerQualifiedConstraint.values,
+                    },
+                }],
+                request_id: requestId,
+                workspace_id: workspaceId,
+            }),
+        };
+    }
+    mergedBody = providerQualifiedConstraint.body;
+
+    const providerQualifiedCandidates =
+        filterProviderQualifiedModelCandidates(
+            presetFilteredProviders,
+            providerQualifiedModelRequest.selection,
+        );
+    if (providerQualifiedCandidates.ok === false) {
+        const qualifiedModel =
+            `${providerQualifiedCandidates.providerId}:${providerQualifiedCandidates.model}`;
+        const freeRouteUnavailable =
+            providerQualifiedCandidates.reason ===
+            "qualified_free_provider_unavailable";
+        const description = freeRouteUnavailable
+            ? `Provider-qualified free model "${qualifiedModel}" does not have an eligible all-zero free pricing route`
+            : `Provider-qualified model "${qualifiedModel}" is not available for this endpoint`;
+        return {
+            ok: false,
+            response: err("validation_error", {
+                model: providerQualifiedCandidates.model,
+                provider: providerQualifiedCandidates.providerId,
+                reason: providerQualifiedCandidates.reason,
+                description,
+                error_type: "user",
+                error_origin: "user",
+                error_operational_kind: providerQualifiedCandidates.reason,
+                details: [{
+                    message: description,
+                    path: ["model"],
+                    keyword: providerQualifiedCandidates.reason,
+                    params: {
+                        provider: providerQualifiedCandidates.providerId,
+                        model: providerQualifiedCandidates.model,
+                    },
+                }],
+                request_id: requestId,
+                workspace_id: workspaceId,
+            }),
+        };
+    }
+    presetFilteredProviders = providerQualifiedCandidates.providers;
 
     const workspacePolicyResult = applyWorkspacePolicy({
         providers: presetFilteredProviders,

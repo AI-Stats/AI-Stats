@@ -25,7 +25,7 @@ describe("account policy settings routes", () => {
 			if (url.includes("v2_public_provider_health_daily")) return new Response(JSON.stringify([{ provider_slug: "openai", attempt_count: 100, failed_attempts: 12, latency_sum_ms: 450000, latency_count: 100 }]), { status: 200 });
 			if (url.includes("/presets")) return new Response(JSON.stringify([{ id: "preset-1", workspace_id: "workspace-1", name: "Fast" }]), { status: 200 });
 			if (url.includes("/keys")) return new Response(JSON.stringify([{ id: "key-1", name: "Production", prefix: "ph_", status: "active" }]), { status: 200 });
-			if (url.includes("data_api_providers")) return new Response(JSON.stringify([{ api_provider_id: "openai", api_provider_name: "OpenAI" }]), { status: 200 });
+			if (url.includes("v2_providers")) return new Response(JSON.stringify([{ api_provider_id: "openai", api_provider_name: "OpenAI", status: "active", routing_enabled: true }]), { status: 200 });
 			if (url.includes("data_api_provider_models")) return new Response(JSON.stringify([{ provider_id: "openai", api_model_id: "gpt-test", internal_model_id: "openai/gpt-test", is_active_gateway: true }]), { status: 200 });
 			if (url.includes("workspace_guardrails")) return new Response(JSON.stringify([{ id: "guardrail-1", workspace_id: "workspace-1", name: "Default", enabled: true }]), { status: 200 });
 			if (url.includes("key_guardrails")) return new Response(JSON.stringify([{ guardrail_id: "guardrail-1", key_id: "key-1" }]), { status: 200 });
@@ -50,6 +50,7 @@ describe("account policy settings routes", () => {
 		await expect(editor.json()).resolves.toMatchObject({ mode: "edit", guardrail: { id: "guardrail-1" }, initialKeyIds: ["key-1"], teamName: "Team One" });
 		await expect(dynamicRoutes.json()).resolves.toMatchObject({
 			routes: [{ id: "route-1", keyIds: ["key-1"] }],
+			providers: [{ id: "openai", name: "OpenAI", status: "active", routingStatus: "active" }],
 			suggestions: [{ providerId: "openai", severity: "warning" }],
 		});
 	});

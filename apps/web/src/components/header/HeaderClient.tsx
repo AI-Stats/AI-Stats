@@ -143,7 +143,7 @@ export default function HeaderClient({
 					open={isMobileNavOpen}
 					onOpenChange={(open) => setIsMobileNavOpen(Boolean(open))}
 				>
-					<ButtonGroup className="h-8 items-stretch overflow-hidden rounded-2xl shadow-xs">
+					<ButtonGroup className="h-8 items-stretch overflow-hidden rounded-lg shadow-xs">
 						<Button asChild className="h-8 rounded-r-none px-4">
 							<Link href="/sign-up" prefetch={false}>
 								Sign Up
@@ -164,7 +164,7 @@ export default function HeaderClient({
 							</Button>
 						</DropdownMenuTrigger>
 					</ButtonGroup>
-					<DropdownMenuContent align="end" className="w-48 rounded-xl p-1">
+					<DropdownMenuContent align="end" className="w-48 rounded-lg p-1">
 						{navLinks.map(({ href, label, icon: Icon }) => {
 							const isActive =
 								pathname === href || pathname.startsWith(href + "/");
@@ -173,7 +173,7 @@ export default function HeaderClient({
 									key={href}
 									asChild
 									className={cn(
-										"rounded-md py-2 text-sm",
+										"rounded-lg py-2 text-sm",
 										isActive && "font-semibold text-primary"
 									)}
 								>
@@ -184,7 +184,7 @@ export default function HeaderClient({
 								</DropdownMenuItem>
 							);
 						})}
-						<DropdownMenuItem asChild className="rounded-md py-2 text-sm">
+						<DropdownMenuItem asChild className="rounded-lg py-2 text-sm">
 							<Link
 								href={docsHref}
 								target="_blank"
@@ -258,10 +258,10 @@ export default function HeaderClient({
 						<CurrentUserAvatar user={user} />
 					</Button>
 				</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="w-56">
+					<DropdownMenuContent align="end" className="w-56 rounded-lg">
 						{(userRole === "editor" || userRole === "admin") && (
 							<>
-								<DropdownMenuItem asChild className="cursor-pointer text-sm">
+								<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 									<Link href="/internal" prefetch={false}>
 										<Lock className="h-4 w-4" />
 										<span>Internal</span>
@@ -283,7 +283,7 @@ export default function HeaderClient({
 										<button
 											type="button"
 											className={cn(
-												"relative flex min-h-7 w-full cursor-pointer select-none items-center gap-2 rounded-xl px-2 py-1.5 text-left text-sm outline-hidden transition-colors",
+												"relative flex min-h-7 w-full cursor-pointer select-none items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm outline-hidden transition-colors",
 												"hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
 												isMobileTeamDialogOpen && "bg-accent text-accent-foreground",
 											)}
@@ -304,7 +304,7 @@ export default function HeaderClient({
 										side="bottom"
 										align="start"
 										sideOffset={6}
-										className="w-56 gap-0 rounded-2xl p-1"
+										className="w-56 gap-0 rounded-lg p-1"
 									>
 										{teams.slice(0, 5).map((team) => {
 											const isActive = team.id === activeWorkspaceId;
@@ -313,7 +313,7 @@ export default function HeaderClient({
 													key={team.id}
 													type="button"
 													className={cn(
-														"flex min-h-7 w-full cursor-pointer select-none items-center gap-2 rounded-xl px-2 py-1.5 text-sm outline-hidden transition-colors",
+														"flex min-h-7 w-full cursor-pointer select-none items-center gap-2 rounded-lg px-2 py-1.5 text-sm outline-hidden transition-colors",
 														"hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
 														isActive && "bg-accent text-accent-foreground",
 													)}
@@ -340,7 +340,7 @@ export default function HeaderClient({
 											href="/settings/workspaces/settings"
 											prefetch={false}
 											className={cn(
-												"flex min-h-7 w-full cursor-pointer select-none items-center gap-2 rounded-xl px-2 py-1.5 text-sm outline-hidden transition-colors",
+												"flex min-h-7 w-full cursor-pointer select-none items-center gap-2 rounded-lg px-2 py-1.5 text-sm outline-hidden transition-colors",
 												"hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
 											)}
 											onClick={() => setIsMobileTeamDialogOpen(false)}
@@ -362,7 +362,7 @@ export default function HeaderClient({
 								key={href}
 								asChild
 								className={cn(
-									"cursor-pointer text-sm",
+									"cursor-pointer rounded-lg text-sm",
 									isActive && "bg-accent font-medium text-accent-foreground",
 								)}
 							>
@@ -378,21 +378,21 @@ export default function HeaderClient({
 
 					{isLoggedIn ? (
 						<>
-							<DropdownMenuItem asChild className="cursor-pointer text-sm">
+							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 								<Link href="/experiments" prefetch={false}>
 									<FlaskConical className="h-4 w-4" />
 									<span>Experiments</span>
 								</Link>
 							</DropdownMenuItem>
 
-							<DropdownMenuItem asChild className="cursor-pointer text-sm">
+							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 								<Link href="/settings/workspaces/settings" prefetch={false}>
 									<Users className="h-4 w-4" />
 									<span>Workspaces</span>
 								</Link>
 							</DropdownMenuItem>
 
-								<DropdownMenuItem asChild className="cursor-pointer text-sm">
+								<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 									<Link href="/settings/account" prefetch={false}>
 										<Settings className="h-4 w-4" />
 									<span>Settings</span>
@@ -401,7 +401,7 @@ export default function HeaderClient({
 
 							<DropdownMenuSeparator />
 
-							<DropdownMenuItem asChild className="cursor-pointer text-sm">
+							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 								<Link
 									href={`/settings/usage?workspace_id=${encodeURIComponent(
 										activeWorkspaceId ?? "",
@@ -412,19 +412,19 @@ export default function HeaderClient({
 									<span>Usage</span>
 								</Link>
 							</DropdownMenuItem>
-							<DropdownMenuItem asChild className="cursor-pointer text-sm">
+							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 								<Link href="/settings/credits" prefetch={false}>
 									<CreditCard className="h-4 w-4" />
 									<span>Credits</span>
 								</Link>
 							</DropdownMenuItem>
-							<DropdownMenuItem asChild className="cursor-pointer text-sm">
+							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 								<Link href="/settings/keys" prefetch={false}>
 									<KeyIcon className="h-4 w-4" />
 									<span>Keys</span>
 								</Link>
 							</DropdownMenuItem>
-								<DropdownMenuItem asChild className="cursor-pointer text-sm">
+								<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 									<Link href="/contact" prefetch={false}>
 										<LifeBuoy className="h-4 w-4" />
 										<span className="flex min-w-0 flex-1 items-center justify-between gap-3">
@@ -449,7 +449,7 @@ export default function HeaderClient({
 										</span>
 									</Link>
 								</DropdownMenuItem>
-								<DropdownMenuItem asChild className="cursor-pointer text-sm">
+								<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 									<Link href={docsHref} target="_blank" rel="noreferrer">
 										<BookOpenText className="h-4 w-4" />
 										<span>Docs</span>
@@ -462,7 +462,7 @@ export default function HeaderClient({
 									<div
 										role="radiogroup"
 										aria-label="Theme mode"
-										className="inline-flex w-full items-center justify-center gap-1 rounded-xl bg-muted/60 p-0.5"
+										className="inline-flex w-full items-center justify-center gap-1 rounded-lg bg-muted/60 p-0.5"
 									>
 										{(["light", "dark", "system"] as const).map((mode) => {
 											const Icon = themeMeta[mode].icon;
@@ -476,7 +476,7 @@ export default function HeaderClient({
 													aria-label={`Set theme: ${themeMeta[mode].label}`}
 													onClick={() => setTheme(mode)}
 													className={cn(
-														"relative flex h-7 flex-1 items-center justify-center rounded-lg text-muted-foreground transition-colors",
+														"relative flex h-7 flex-1 items-center justify-center rounded-md text-muted-foreground transition-colors",
 														"hover:bg-background hover:text-foreground",
 														selected
 															? "bg-background text-foreground shadow-xs"
@@ -495,9 +495,8 @@ export default function HeaderClient({
 
 								<DropdownMenuItem
 									variant="destructive"
-									className="cursor-pointer text-sm"
-								onClick={(event) => {
-									event.preventDefault();
+									className="cursor-pointer rounded-lg text-sm"
+								onClick={() => {
 									void handleSignOut();
 								}}
 							>
@@ -507,7 +506,7 @@ export default function HeaderClient({
 						</>
 					) : (
 						<>
-							<DropdownMenuItem asChild className="cursor-pointer text-sm">
+							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 								<Link href="/sign-up" prefetch={false}>
 									Sign Up
 								</Link>
@@ -517,7 +516,7 @@ export default function HeaderClient({
 								<div
 									role="radiogroup"
 									aria-label="Theme mode"
-									className="inline-flex w-full items-center justify-center gap-1 rounded-xl bg-muted/60 p-0.5"
+									className="inline-flex w-full items-center justify-center gap-1 rounded-lg bg-muted/60 p-0.5"
 								>
 									{(["light", "dark", "system"] as const).map((mode) => {
 										const Icon = themeMeta[mode].icon;
@@ -531,7 +530,7 @@ export default function HeaderClient({
 												aria-label={`Set theme: ${themeMeta[mode].label}`}
 												onClick={() => setTheme(mode)}
 												className={cn(
-													"relative flex h-7 flex-1 items-center justify-center rounded-lg text-muted-foreground transition-colors",
+													"relative flex h-7 flex-1 items-center justify-center rounded-md text-muted-foreground transition-colors",
 													"hover:bg-background hover:text-foreground",
 													selected
 														? "bg-background text-foreground shadow-xs"

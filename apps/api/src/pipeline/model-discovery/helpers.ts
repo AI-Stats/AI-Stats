@@ -316,6 +316,54 @@ function normalizeProviderApiPricingDetails(
 	return record?.pricing ? normalizeJson(record.pricing) : pricingDetails ?? null;
 }
 
+const CANONICAL_PROVIDER_PRICE_KEYS = new Set([
+	"prompt", "input", "completion", "output", "cache_prompt", "input_cache_read",
+	"input_cache_reads", "cache_input", "cached_input", "input_cache_write",
+	"input_cache_writes", "cache_creation", "cache_write", "input_tokens",
+	"cache_read_tokens", "output_tokens", "input_price_per_million",
+	"cache_read_input_price_per_million", "output_price_per_million",
+	"prompt_text_token_price", "cached_prompt_text_token_price",
+	"completion_text_token_price", "input_token_price_per_m", "output_token_price_per_m",
+	"input_price", "cache_price", "output_price", "cache_read",
+]);
+const VOLATILE_PROVIDER_PRICE_KEYS = new Set([
+	"created", "created_at", "createdat", "updated", "updated_at", "updatedat",
+	"last_updated", "lastupdated", "refreshed_at", "refreshedat", "timestamp",
+	"request_id", "requestid", "generated_at", "generatedat", "fetched_at", "fetchedat",
+]);
+
+function supplementalProviderPricing(value: unknown, key = ""): unknown | null {
+	const normalizedKey = key.trim().toLowerCase();
+	if (CANONICAL_PROVIDER_PRICE_KEYS.has(normalizedKey) || VOLATILE_PROVIDER_PRICE_KEYS.has(normalizedKey)) {
+		return null;
+	}
+	if (Array.isArray(value)) {
+		const entries = value
+			.map((entry) => supplementalProviderPricing(entry))
+			.filter((entry): entry is unknown => entry !== null)
+			.sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)));
+		return entries.length > 0 ? entries : null;
+	}
+	if (value && typeof value === "object") {
+		const entries = Object.entries(value as Record<string, unknown>)
+			.map(([nestedKey, nestedValue]) => [nestedKey, supplementalProviderPricing(nestedValue, nestedKey)] as const)
+			.filter((entry): entry is readonly [string, unknown] => entry[1] !== null)
+			.sort(([left], [right]) => left.localeCompare(right));
+		return entries.length > 0 ? Object.fromEntries(entries) : null;
+	}
+	return value ?? null;
+}
+
+export function toProviderApiPricingFingerprint(pricingDetails: unknown): string | null {
+	const record = asRecord(pricingDetails);
+	if (!record?.normalized) return toPricingFingerprint(pricingDetails);
+	const supplemental = supplementalProviderPricing(record.sourcePricing);
+	return toPricingFingerprint({
+		normalized: record.normalized,
+		...(supplemental === null ? {} : { supplemental }),
+	});
+}
+
 export function toNullableInteger(value: unknown): number | null {
 	if (typeof value === "number") {
 		if (!Number.isFinite(value)) return null;
@@ -340,7 +388,7 @@ export function extractProviderApiModelSnapshot(
 			contextLength: null,
 			maxCompletionTokens: null,
 			pricingDetails: normalizedPricingDetails,
-			pricingFingerprint: toPricingFingerprint(normalizedPricingDetails),
+			pricingFingerprint: toProviderApiPricingFingerprint(normalizedPricingDetails),
 		};
 	}
 
@@ -354,7 +402,7 @@ export function extractProviderApiModelSnapshot(
 		contextLength,
 		maxCompletionTokens,
 		pricingDetails: normalizedPricingDetails,
-		pricingFingerprint: toPricingFingerprint(normalizedPricingDetails),
+		pricingFingerprint: toProviderApiPricingFingerprint(normalizedPricingDetails),
 	};
 }
 
@@ -939,6 +987,29 @@ export async function loadLatestConfiguredCoverageState(source?: string): Promis
 	return null;
 }
 
+export async function loadLatestDiscordNotificationFingerprint(source?: string): Promise<string | null> {
+	const supabase = getSupabaseAdmin();
+	let query = supabase
+		.from("model_discovery_runs")
+		.select("summary,status,started_at")
+		.in("status", ["completed", "completed_with_errors"])
+		.order("started_at", { ascending: false });
+	const sourceValue = typeof source === "string" ? source.trim() : "";
+	if (sourceValue) query = query.eq("source", sourceValue);
+
+	const { data, error } = await query.limit(200);
+	if (error) throw new Error(error.message || "Failed to load Discord notification fingerprint");
+
+	for (const row of data ?? []) {
+		const summary = asRecord((row as Record<string, unknown>).summary);
+		const fingerprint = typeof summary?.notificationFingerprint === "string"
+			? summary.notificationFingerprint.trim()
+			: "";
+		if (fingerprint) return fingerprint;
+	}
+	return null;
+}
+
 export function parsePricingTableStateFromSummary(summary: unknown): PricingTableSnapshotState[] {
 	const summaryRecord = asRecord(summary);
 	const tableMonitor = asRecord(summaryRecord?.pricingTableMonitor);
@@ -1360,6 +1431,13 @@ export function buildDiscordMessage(args: {
 	const text = sections.join("\n\n").trim();
 	if (text.length <= 1900) return text;
 	return `${text.slice(0, 1888)}\n...[truncated]`;
+}
+
+export async function computeDiscordNotificationFingerprint(args: Parameters<typeof buildDiscordMessage>[0]): Promise<string | null> {
+	const message = buildDiscordMessage(args).trim();
+	if (!message) return null;
+	const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(message));
+	return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 export async function sendDiscordNotification(args: {

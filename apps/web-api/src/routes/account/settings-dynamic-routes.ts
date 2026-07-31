@@ -174,7 +174,7 @@ accountSettingsDynamicRoutesRouter.get("/dynamic-routes", async (c) => {
 		context.client.from("gateway_dynamic_routes").select("id,workspace_id,name,slug,description,status,version,deployed_version,config,created_at,updated_at").eq("workspace_id", workspaceId).order("updated_at", { ascending: false }),
 		context.client.from("gateway_dynamic_route_keys").select("route_id,key_id"),
 		context.client.from("keys").select("id,name,prefix,status").eq("workspace_id", workspaceId).neq("status", "deleted").neq("name", "__chat_route_managed_key__").order("created_at", { ascending: false }),
-		context.client.from("data_api_providers").select("api_provider_id,api_provider_name,status,routing_status").order("api_provider_name", { ascending: true }),
+		context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name,status,routing_enabled").order("name", { ascending: true }),
 		context.client.from("v2_public_provider_health_daily").select("provider_slug,attempt_count,failed_attempts,latency_sum_ms,latency_count").gte("usage_date", since),
 	]);
 	if ([routesResult, linksResult, keysResult, providersResult, healthResult].some((result) => result.error)) {
@@ -209,7 +209,12 @@ accountSettingsDynamicRoutesRouter.get("/dynamic-routes", async (c) => {
 			};
 		}),
 		keys: keysResult.data ?? [],
-		providers: (providersResult.data ?? []).map((provider) => ({ id: provider.api_provider_id, name: provider.api_provider_name ?? provider.api_provider_id, status: provider.status, routingStatus: provider.routing_status })),
+		providers: (providersResult.data ?? []).map((provider) => ({
+			id: provider.api_provider_id,
+			name: provider.api_provider_name ?? provider.api_provider_id,
+			status: provider.status,
+			routingStatus: provider.routing_enabled ? "active" : "disabled",
+		})),
 		suggestions: buildSuggestions(healthResult.data ?? [], providerNames),
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });

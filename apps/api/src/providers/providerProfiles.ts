@@ -224,8 +224,22 @@ const PROVIDER_PROFILES: ProviderProfile[] = [
 		textOnly: true,
 	},
 	{
+		id: "crofai",
+		textOnly: true,
+		text: {
+			paramPolicy: {
+				supportedParams: ["service_tier"],
+			},
+		},
+	},
+	{
 		id: "wafer",
 		textOnly: true,
+		text: {
+			paramPolicy: {
+				supportedParams: ["service_tier"],
+			},
+		},
 	},
 ];
 

@@ -68,6 +68,19 @@ export type DynamicRouteEvaluation = {
 	sessionAffinity: boolean;
 };
 
+export function suppressDynamicRouteModelOverrides(
+	evaluation: DynamicRouteEvaluation,
+): DynamicRouteEvaluation {
+	return {
+		...evaluation,
+		action: {
+			...evaluation.action,
+			model: null,
+			modelFallbacks: null,
+		},
+	};
+}
+
 const MODES = new Set<DynamicRouteMode>(["balanced", "price", "latency", "throughput"]);
 const NODE_TYPES = new Set<DynamicRouteNodeType>(["start", "condition", "percentage", "model", "rate_limit", "budget_limit", "end"]);
 const CONDITION_SOURCES = new Set<DynamicRouteConditionSource>(["body", "header", "metadata", "endpoint", "model", "session_id"]);

@@ -3,6 +3,7 @@ import {
 	applyDynamicRouteToBody,
 	evaluateDynamicRoute,
 	normalizeDynamicRouteConfig,
+	suppressDynamicRouteModelOverrides,
 } from "./dynamic-routes";
 
 const policy = {
@@ -69,6 +70,27 @@ describe("dynamic route evaluation", () => {
 
 		expect(evaluated.matchedRuleId).toBeNull();
 		expect(evaluated.action.providerOrder).toEqual(["openai", "anthropic"]);
+	});
+
+	it("preserves an exact provider-qualified model while retaining other route controls", () => {
+		const evaluated = evaluateDynamicRoute({
+			policy,
+			endpoint: "responses",
+			model: "openai/gpt-5",
+			body: { metadata: { region: "EU" } },
+		});
+		const constrained = suppressDynamicRouteModelOverrides(evaluated);
+		const body = applyDynamicRouteToBody(
+			{ model: "openai/gpt-5", metadata: { region: "EU" } },
+			constrained,
+		);
+
+		expect(body.model).toBe("openai/gpt-5");
+		expect(body.routing?.model_fallbacks).toBeUndefined();
+		expect(body.provider).toMatchObject({
+			only: ["openai-eu", "azure-eu"],
+			sort: "latency",
+		});
 	});
 
 	it("bounds malformed user configuration", () => {

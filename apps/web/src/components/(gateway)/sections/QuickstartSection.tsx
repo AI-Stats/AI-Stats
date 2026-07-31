@@ -689,13 +689,14 @@ export function QuickstartSection({ metrics }: QuickstartSectionProps) {
 										<ChevronDown className="h-4 w-4" />
 
 								</DropdownMenuTrigger>
-								<DropdownMenuContent align="end">
+								<DropdownMenuContent align="end" className="rounded-lg">
 									{ENDPOINT_CONFIGS.map((config) => (
 										<DropdownMenuItem
 											key={config.id}
-											onSelect={() =>
+											onClick={() =>
 												setSelectedEndpoint(config.id)
 											}
+											className="rounded-lg"
 										>
 											<div className="flex flex-col">
 												<span>{config.label}</span>
@@ -730,15 +731,16 @@ export function QuickstartSection({ metrics }: QuickstartSectionProps) {
 										<ChevronDown className="h-4 w-4" />
 
 								</DropdownMenuTrigger>
-								<DropdownMenuContent>
+								<DropdownMenuContent className="rounded-lg">
 									{LANGUAGE_OPTIONS.map((option) => (
 										<DropdownMenuItem
 											key={option}
-											onSelect={() =>
+											onClick={() =>
 												setSelectedLanguage(
 													option as Language
 												)
 											}
+											className="rounded-lg"
 										>
 											<div className="flex items-center justify-between gap-2">
 												<span>
@@ -811,12 +813,12 @@ export function QuickstartSection({ metrics }: QuickstartSectionProps) {
 													<ChevronDown className="h-4 w-4" />
 
 											</DropdownMenuTrigger>
-											<DropdownMenuContent>
+											<DropdownMenuContent className="rounded-lg">
 												{availableModels.map(
 													(model) => (
 														<DropdownMenuItem
 															key={model}
-															onSelect={() =>
+															onClick={() =>
 																setSelectedModels(
 																	(prev) => ({
 																		...prev,
@@ -825,6 +827,7 @@ export function QuickstartSection({ metrics }: QuickstartSectionProps) {
 																	})
 																)
 															}
+															className="rounded-lg"
 														>
 															{model}
 														</DropdownMenuItem>

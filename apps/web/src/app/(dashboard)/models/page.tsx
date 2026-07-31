@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import ModelsPageClient from "@/components/(data)/models/Models/ModelsPageClient";
-import { resolveModelsCatalogueVersion } from "@/lib/flags";
+import { resolveModelsCatalogueVersion } from "@/lib/models/catalogueVersion";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({

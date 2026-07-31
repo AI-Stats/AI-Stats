@@ -2,6 +2,12 @@ import { describe, expect, it } from "vitest";
 import { crofAIQuirks } from "../../providers/crofai/quirks";
 
 describe("CrofAI quirks", () => {
+	it("does not forward Phaseo service tiers upstream", () => {
+		const request: Record<string, unknown> = { service_tier: "flex" };
+		crofAIQuirks.transformRequest?.({ request, ir: {} as any });
+		expect(request.service_tier).toBeUndefined();
+	});
+
 	it("extracts reasoning_content into reasoning blocks", () => {
 		const result = crofAIQuirks.extractReasoning?.({
 			choice: {

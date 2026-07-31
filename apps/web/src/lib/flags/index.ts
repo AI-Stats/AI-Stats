@@ -3,15 +3,13 @@ import "server-only";
 import { flag } from "flags/next";
 import type { StatsigUser } from "@flags-sdk/statsig";
 
-import { isAdminViewer } from "@/lib/auth/getViewerRole";
-import { getServerStatsigUser, getStatsigFlagsAdapter } from "@/lib/statsig/server";
+import { getStatsigFlagsAdapter } from "@/lib/statsig/server";
 import {
 	BATCH_API_GATE,
 	VIDEO_API_GATE,
 	REALTIME_VOICE_GATE,
 	GATEWAY_IO_LOGGING_GATE,
 	SAML_SSO_GATE,
-	MODELS_CATALOGUE_V2_BETA_KEY,
 	NEW_LANDING_PAGE_EXPERIMENT,
 	NEW_LANDING_PAGE_GATE,
 	type GatewayHeroVariant,
@@ -20,28 +18,6 @@ import {
 import { identify } from "./identify";
 
 const statsigAdapter = getStatsigFlagsAdapter();
-
-export const modelsCatalogueV2Flag = flag<boolean>({
-	key: MODELS_CATALOGUE_V2_BETA_KEY,
-	description: "Use the parallel V2 models catalogue tables.",
-	defaultValue: false,
-	decide: async () => {
-		const user = await getServerStatsigUser();
-		const custom = user.custom as Record<string, unknown> | undefined;
-		const enabledKeys = custom?.betaFeatureKeys;
-		return (
-			Array.isArray(enabledKeys) &&
-			enabledKeys.includes(MODELS_CATALOGUE_V2_BETA_KEY)
-		);
-	},
-});
-
-export async function resolveModelsCatalogueVersion(): Promise<"v1" | "v2"> {
-	// This branch treats local development as the V2 cutover environment so the
-	// catalogue cannot silently fall back to V1 while it is being validated.
-	if (process.env.NODE_ENV === "development") return "v2";
-	return (await isAdminViewer()) && (await modelsCatalogueV2Flag()) ? "v2" : "v1";
-}
 
 export const gatewayNewHeroFlag = statsigAdapter
 	? flag<boolean, StatsigUser>({
