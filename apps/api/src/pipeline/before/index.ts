@@ -39,6 +39,7 @@ import { fetchWorkspacePolicy, applyWorkspacePolicy } from "./workspacePolicy";
 import {
     applyDynamicRouteToBody,
     evaluateDynamicRoute,
+    selectDynamicRouteContextModels,
     suppressDynamicRouteModelOverrides,
     type DynamicRouteEvaluation,
 } from "./dynamic-routes";
@@ -385,14 +386,10 @@ export async function beforeRequest(
                 dynamicRouteEvaluation,
             );
         }
-        const configuredModels = [
-            dynamicRouteEvaluation.action.model,
-            ...(dynamicRouteEvaluation.action.modelFallbacks ?? []),
-        ].filter((candidate): candidate is string => typeof candidate === "string" && candidate.length > 0);
-        const requestedOverride = options?.dynamicRouteModelOverride;
-        const routeModels = requestedOverride && configuredModels.includes(requestedOverride)
-            ? [requestedOverride]
-            : configuredModels;
+        const routeModels = selectDynamicRouteContextModels(
+            dynamicRouteEvaluation.action,
+            options?.dynamicRouteModelOverride,
+        );
         let routedContextFailure: { ok: false; response: Response } | null = null;
         for (const routedModel of routeModels) {
             if (routedModel === (resolvedModel || model)) {

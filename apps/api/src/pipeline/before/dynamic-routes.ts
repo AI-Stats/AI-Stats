@@ -81,6 +81,21 @@ export function suppressDynamicRouteModelOverrides(
 	};
 }
 
+export function selectDynamicRouteContextModels(
+	action: DynamicRouteAction,
+	requestedOverride?: string | null,
+): string[] {
+	const primaryModel = cleanString(action.model, 256);
+	const fallbackModels = cleanModels(action.modelFallbacks);
+	if (
+		requestedOverride &&
+		(primaryModel === requestedOverride || fallbackModels.includes(requestedOverride))
+	) {
+		return [requestedOverride];
+	}
+	return primaryModel ? [primaryModel] : [];
+}
+
 const MODES = new Set<DynamicRouteMode>(["balanced", "price", "latency", "throughput"]);
 const NODE_TYPES = new Set<DynamicRouteNodeType>(["start", "condition", "percentage", "model", "rate_limit", "budget_limit", "end"]);
 const CONDITION_SOURCES = new Set<DynamicRouteConditionSource>(["body", "header", "metadata", "endpoint", "model", "session_id"]);

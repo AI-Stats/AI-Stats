@@ -3,6 +3,7 @@ import {
 	applyDynamicRouteToBody,
 	evaluateDynamicRoute,
 	normalizeDynamicRouteConfig,
+	selectDynamicRouteContextModels,
 	suppressDynamicRouteModelOverrides,
 } from "./dynamic-routes";
 
@@ -91,6 +92,23 @@ describe("dynamic route evaluation", () => {
 			only: ["openai-eu", "azure-eu"],
 			sort: "latency",
 		});
+	});
+
+	it("keeps fallbacks out of the initial context selection", () => {
+		expect(selectDynamicRouteContextModels({
+			modelFallbacks: ["fallback/one", "fallback/two"],
+		})).toEqual([]);
+		expect(selectDynamicRouteContextModels({
+			model: "primary/model",
+			modelFallbacks: ["fallback/model"],
+		})).toEqual(["primary/model"]);
+	});
+
+	it("selects an explicit fallback only after the pipeline requests it", () => {
+		expect(selectDynamicRouteContextModels({
+			model: "primary/model",
+			modelFallbacks: ["fallback/model"],
+		}, "fallback/model")).toEqual(["fallback/model"]);
 	});
 
 	it("bounds malformed user configuration", () => {

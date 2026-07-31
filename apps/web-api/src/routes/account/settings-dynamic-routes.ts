@@ -310,14 +310,12 @@ accountSettingsDynamicRoutesRouter.put("/dynamic-routes/:routeId/keys", async (c
 	if (keys.error || (keys.data ?? []).length !== keyIds.length) return c.json({ error: "invalid_keys" }, 409, PRIVATE_NO_STORE_HEADERS);
 	const previous = await context.client.from("gateway_dynamic_route_keys").select("key_id").eq("route_id", routeId);
 	if (previous.error) return c.json({ error: "route_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const deleteRouteLinks = await context.client.from("gateway_dynamic_route_keys").delete().eq("route_id", routeId);
-	if (deleteRouteLinks.error) return c.json({ error: "route_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
-	if (keyIds.length) {
-		const deleteOtherLinks = await context.client.from("gateway_dynamic_route_keys").delete().in("key_id", keyIds);
-		if (deleteOtherLinks.error) return c.json({ error: "route_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
-		const inserted = await context.client.from("gateway_dynamic_route_keys").insert(keyIds.map((keyId) => ({ route_id: routeId, key_id: keyId, attached_by: user.id })));
-		if (inserted.error) return c.json({ error: "route_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
+	const replaced = await context.client.rpc("replace_gateway_dynamic_route_keys", {
+		p_route_id: routeId,
+		p_key_ids: keyIds,
+		p_attached_by: user.id,
+	});
+	if (replaced.error) return c.json({ error: "route_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const invalidated = [...(previous.data ?? []).map((row) => row.key_id), ...keyIds];
 	c.executionCtx.waitUntil(invalidateKeys(c, invalidated));
 	return c.json({ success: true, keyIds }, 200, PRIVATE_NO_STORE_HEADERS);

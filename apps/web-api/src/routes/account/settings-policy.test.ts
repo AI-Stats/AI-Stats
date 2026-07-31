@@ -54,4 +54,36 @@ describe("account policy settings routes", () => {
 			suggestions: [{ providerId: "openai", severity: "warning" }],
 		});
 	});
+
+	it("replaces dynamic route key assignments through the atomic RPC", async () => {
+		let rpcBody: Record<string, unknown> | null = null;
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const request = input instanceof Request ? input : new Request(input, init);
+			const url = request.url;
+			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
+			if (url.includes("/rpc/replace_gateway_dynamic_route_keys")) {
+				rpcBody = await request.json<Record<string, unknown>>();
+				return new Response("null", { status: 200 });
+			}
+			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
+			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
+			if (url.includes("gateway_dynamic_routes")) return new Response(JSON.stringify([{ id: "route-1", workspace_id: "workspace-1", version: 1 }]), { status: 200 });
+			if (url.includes("gateway_dynamic_route_keys")) return new Response(JSON.stringify([{ key_id: "key-old" }]), { status: 200 });
+			if (url.includes("/keys?")) return new Response(JSON.stringify([{ id: "key-1" }]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request("https://phaseo.app/api/account/settings/dynamic-routes/route-1/keys", {
+			method: "PUT",
+			headers: { authorization: "Bearer session-token", "content-type": "application/json" },
+			body: JSON.stringify({ keyIds: ["key-1"] }),
+		}, env, { waitUntil: vi.fn(), passThroughOnException: vi.fn() } as any);
+
+		expect(response.status).toBe(200);
+		expect(rpcBody).toEqual({
+			p_route_id: "route-1",
+			p_key_ids: ["key-1"],
+			p_attached_by: "user-1",
+		});
+	});
 });
