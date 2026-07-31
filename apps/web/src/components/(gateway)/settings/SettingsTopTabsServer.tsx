@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { ChevronDown, ChevronRight, PanelLeftIcon } from "lucide-react";
+import { ChevronDown, PanelLeftIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -208,7 +208,7 @@ export default function SettingsTopTabsServer({
 						return b.score!.len - a.score!.len;
 					})[0]?.t ?? tabs[0]
 			: null;
-	const mobileSectionLabel = `${activeNav?.group.scope === "personal" ? "My account" : "Workspace"} / ${activeNav?.item.label ?? "Settings"}`;
+	const mobileSectionLabel = activeNav?.group.scope === "personal" ? "My account" : "Workspace";
 
 	const setIndicatorToHref = React.useCallback((href: string | null) => {
 		const container = containerRef.current;
@@ -239,26 +239,27 @@ export default function SettingsTopTabsServer({
 		return (
 			<>
 				<SettingsSidebarTrigger showBroadcast={showBroadcast} showWebhooks={showWebhooks} />
-				<div className="hidden h-[52px] items-center gap-2 border-b border-border px-2 text-sm lg:flex">
-					<span className="font-medium text-muted-foreground">
-						{activeNav?.group.heading ?? "Settings"}
-					</span>
-					<ChevronRight
-						aria-hidden="true"
-						className="h-3.5 w-3.5 shrink-0 text-muted-foreground/70"
-					/>
-					<span className="font-semibold text-foreground">
-						{activeNav?.item.label ?? "Settings"}
-					</span>
-					{activeNav?.item.badge ? (
-						<Badge
-							variant="outline"
-							className="ml-2 h-5 px-1.5 text-[10px] capitalize"
-						>
-							{activeNav.item.badge}
-						</Badge>
-					) : null}
-				</div>
+				<nav
+					className="relative hidden h-[52px] items-end border-b border-border lg:flex"
+					aria-label="Settings section navigation"
+				>
+					<div
+						aria-current="page"
+						className="flex border-b-2 border-muted-foreground px-2 pb-2 text-sm font-medium text-primary"
+					>
+						<span className="flex items-center gap-2">
+							<span>{activeNav?.item.label ?? "Settings"}</span>
+							{activeNav?.item.badge ? (
+								<Badge
+									variant="outline"
+									className="h-5 px-1.5 text-[10px] capitalize"
+								>
+									{activeNav.item.badge}
+								</Badge>
+							) : null}
+						</span>
+					</div>
+				</nav>
 			</>
 		);
 	}
@@ -372,4 +373,3 @@ export default function SettingsTopTabsServer({
 		</>
 	);
 }
-
