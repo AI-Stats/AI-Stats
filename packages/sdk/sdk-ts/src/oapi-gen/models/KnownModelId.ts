@@ -275,6 +275,7 @@ export type KnownModelId =
   | "openai/gpt-realtime"
   | "openai/gpt-realtime-1.5"
   | "openai/gpt-realtime-2"
+  | "openai/gpt-transcribe"
   | "openai/o1"
   | "openai/o1-mini"
   | "openai/o1-pro"
