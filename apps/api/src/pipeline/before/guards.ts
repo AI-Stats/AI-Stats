@@ -20,7 +20,7 @@ import type { DebugOptions } from "@core/types";
 import { authenticate, authenticateManagement, type AuthFailure } from "./auth";
 import { readAttributionHeaders } from "../after/attribution";
 import type { ProviderCandidateBuildDiagnostics } from "./types";
-import type { PriceCard } from "../pricing";
+import { isFreePriceCard, type PriceCard } from "../pricing";
 
 const MIN_CREDIT_AMOUNT = 1.0;
 const TRUTHY_VALUES = new Set(["1", "true", "yes"]);
@@ -30,18 +30,6 @@ const DEFAULT_REQUEST_BODY_LIMIT_BYTES = 16 * 1024 * 1024;
 const MULTIPART_REQUEST_BODY_LIMIT_BYTES = 32 * 1024 * 1024;
 
 class RequestBodyTooLargeError extends Error {}
-
-function isFreePriceCard(card: PriceCard | null | undefined): boolean {
-    if (!card || !Array.isArray(card.rules) || card.rules.length === 0) return false;
-    return card.rules.every((rule) => {
-        const pricingPlan = String(rule.pricing_plan ?? "")
-            .trim()
-            .toLowerCase();
-        const pricePerUnit = Number(rule.price_per_unit);
-
-        return pricingPlan === "free" && Number.isFinite(pricePerUnit) && pricePerUnit <= 0;
-    });
-}
 
 function allowsNoCreditForFreeRequest(args: { model: string; context: any; providers: any[] }): boolean {
     const routableProviders = Array.isArray(args.providers)
