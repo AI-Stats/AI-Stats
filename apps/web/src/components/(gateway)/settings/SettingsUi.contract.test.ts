@@ -30,17 +30,24 @@ describe("settings UI contracts", () => {
 		expect(tabsSource).toContain("border-b-2 border-muted-foreground");
 	});
 
-	it("uses stable mobile settings navigation without a floating menu", () => {
+	it("keeps the complete mobile settings navigation on Base UI", () => {
 		const tabsSource = readSource(
 			"src/components/(gateway)/settings/SettingsTopTabsServer.tsx",
 		);
+		const menuSource = readSource(
+			"src/components/(gateway)/settings/SettingsSidebarTrigger.tsx",
+		);
 
-		expect(tabsSource).toContain("<select");
-		expect(tabsSource).toContain("router.push(event.currentTarget.value)");
-		expect(tabsSource).toContain("onClick={toggleSidebar}");
-		expect(tabsSource).toContain(\n			\'className="flex h-[52px] items-center lg:hidden" aria-label="Settings navigation"\',\n		);\n		expect(tabsSource).not.toContain("<DropdownMenu");
+		expect(tabsSource).toContain("<SettingsSidebarTrigger");
+		expect(tabsSource).toContain("<DropdownMenu>");
+		expect(tabsSource).toContain("<DropdownMenuTrigger asChild>");
+		expect(tabsSource).toContain("<DropdownMenuItem key={tab.href} asChild>");
+		expect(tabsSource).not.toContain("render={<Button");
+		expect(tabsSource).not.toContain("render={<Link");
+		expect(menuSource).toContain("My account");
+		expect(menuSource).toContain("Workspace");
+		expect(menuSource).toContain("visibleGroups.map");
 	});
-
 	it("provides display-label collections for ID-backed settings selects", () => {
 		const expectedItemCollections: Record<string, string[]> = {
 			"src/components/(gateway)/settings/account/AccountSettingsClient.tsx": [
