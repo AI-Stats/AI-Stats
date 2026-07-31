@@ -7,7 +7,7 @@ import { ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -273,16 +273,13 @@ export default function SettingsTopTabsServer({
 					</div>
 					<div className="min-w-0 flex-1">
 						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button
-									variant="outline"
-									className="h-9 w-full min-w-0 justify-between"
-								>
+							<DropdownMenuTrigger
+								className={cn(buttonVariants({ variant: "outline" }), "h-9 w-full min-w-0 justify-between")}
+							>
 									<span className="truncate">
 										{activeTab?.label ?? "Settings"}
 									</span>
 									<ChevronDown className="h-4 w-4 shrink-0" />
-								</Button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent
 								align="end"
@@ -291,13 +288,17 @@ export default function SettingsTopTabsServer({
 								{tabs.map((tab) => {
 									const active = tab.href === activeTab?.href;
 									return (
-										<DropdownMenuItem key={tab.href} asChild>
-											<Link
+										<DropdownMenuItem
+											key={tab.href}
+											render={
+												<Link
 												href={navigationHref(tab)}
 												prefetch={false}
 												aria-current={active ? "page" : undefined}
 												className="flex items-center gap-2"
-											>
+												/>
+											}
+										>
 												<span className={cn("flex-1 truncate", active && "font-semibold")}>
 													{tab.label}
 												</span>
@@ -309,7 +310,6 @@ export default function SettingsTopTabsServer({
 														{tab.badge}
 													</Badge>
 												) : null}
-											</Link>
 										</DropdownMenuItem>
 									);
 								})}
