@@ -196,6 +196,13 @@ describe("validateJsonPricingRules", () => {
             { ...baseRule, source_key: "correct", price_per_unit: 37.5 },
         ])).toThrow("Conflicting JSON pricing rates");
     });
+
+    it("rejects conflicting included quantities for the same offer and meter", () => {
+        expect(() => validateJsonPricingRules([
+            { ...baseRule, source_key: "five-free", price_per_unit: 0.04, included_quantity: 5 },
+            { ...baseRule, source_key: "no-allowance", price_per_unit: 0.04, included_quantity: 0 },
+        ])).toThrow("Conflicting JSON pricing rates");
+    });
 });
 
 describe("v2PricingMeterMetadata", () => {
