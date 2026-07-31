@@ -74,6 +74,19 @@ describe("provider-qualified model ids", () => {
 		expect(result.ok).toBe(true);
 	});
 
+	it("normalizes provider aliases consistently with provider.only", () => {
+		const canonical = canonicalizeProviderQualifiedModelRequest({
+			model: "NovitaAI:deepseek/deepseek-v3",
+			provider: { only: ["novita-ai"] },
+		});
+		expect(canonical.selection?.providerId).toBe("novita");
+		const result = applyProviderQualifiedModelConstraint(
+			canonical.body,
+			canonical.selection,
+		);
+		expect(result.ok).toBe(true);
+	});
+
 	it("rejects a contradictory provider allowlist", () => {
 		const canonical = canonicalizeProviderQualifiedModelRequest({
 			model: "baseten:thinking-machines/inkling-small",
