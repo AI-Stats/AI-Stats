@@ -1513,7 +1513,6 @@ const (
 	KnownModelIdDeepseekDeepseekV32 KnownModelId = "deepseek/deepseek-v3.2"
 	KnownModelIdDeepseekDeepseekV32Exp KnownModelId = "deepseek/deepseek-v3.2-exp"
 	KnownModelIdDeepseekDeepseekV32Speciale KnownModelId = "deepseek/deepseek-v3.2-speciale"
-	KnownModelIdDeepseekDeepseekV32Thinking KnownModelId = "deepseek/deepseek-v3.2-thinking"
 	KnownModelIdDeepseekDeepseekV4Flash KnownModelId = "deepseek/deepseek-v4-flash"
 	KnownModelIdDeepseekDeepseekV4Pro KnownModelId = "deepseek/deepseek-v4-pro"
 	KnownModelIdDeepseekDeepseekV4ProLightning KnownModelId = "deepseek/deepseek-v4-pro-lightning"

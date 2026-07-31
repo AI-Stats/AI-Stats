@@ -202,9 +202,6 @@ public final class ModelIds {
     /** Model ID: <code>deepseek/deepseek-v3.2-speciale</code>. Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-speciale */
     public static final String DEEPSEEK_DEEPSEEK_V3_2_SPECIALE = "deepseek/deepseek-v3.2-speciale";
 
-    /** Model ID: <code>deepseek/deepseek-v3.2-thinking</code>. Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-thinking */
-    public static final String DEEPSEEK_DEEPSEEK_V3_2_THINKING = "deepseek/deepseek-v3.2-thinking";
-
     /** Model ID: <code>deepseek/deepseek-v4-flash</code>. Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash */
     public static final String DEEPSEEK_DEEPSEEK_V4_FLASH = "deepseek/deepseek-v4-flash";
 
