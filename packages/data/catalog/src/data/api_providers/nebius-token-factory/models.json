@@ -624,6 +624,67 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "minimax/minimax-m3",
+    "provider_api_model_id": "nebius-token-factory:minimax/minimax-m3",
+    "provider_model_slug": "MiniMaxAI/MiniMax-M3",
+    "internal_model_id": "minimax/minimax-m3",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-06-01T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://x.com/nebiustf/status/2077793627330232663",
+        "kind": "announcement",
+        "accessed_at": "2026-07-31T00:00:00Z",
+        "notes": "Nebius Token Factory announced its MiniMax M3 launch partnership."
+      },
+      {
+        "url": "https://x.com/MiniMax_AI/status/2077793512763076675",
+        "kind": "announcement",
+        "accessed_at": "2026-07-31T00:00:00Z",
+        "notes": "MiniMax announced MiniMax M3 availability through Nebius Token Factory."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-07-31T00:00:00Z",
+      "notes": "Official Nebius and MiniMax announcements confirm the live route. Current provider catalogues independently agree on the MiniMaxAI/MiniMax-M3 upstream slug, FP8 serving, 1,048,576-token context, reasoning and tool support, and text-only API exposure; the client-rendered Nebius model card could not be independently captured."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "moonshotai/kimi-k2",
     "provider_api_model_id": "nebius-token-factory:moonshotai/kimi-k2",
     "provider_model_slug": "moonshotai/Kimi-K2-Instruct",
