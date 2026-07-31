@@ -94,10 +94,76 @@ export type ProviderQualifiedModelCandidateResult =
 
 const PROVIDER_QUALIFIER_PATTERN = /^[a-z0-9][a-z0-9._-]{0,127}$/i;
 
+export type ProviderQualifiedModelSyntaxError = {
+	reason: "invalid_provider_slug" | "invalid_provider_qualified_model";
+	input: string;
+	providerSlug: string;
+	message: string;
+};
+
+export type ProviderQualifiedModelProviderValidationResult =
+	| { ok: true }
+	| {
+		ok: false;
+		reason: "unknown_provider_slug";
+		providerId: string;
+		model: string;
+		message: string;
+	};
+
+export function validateProviderQualifiedModelSyntax(
+	value: unknown,
+): ProviderQualifiedModelSyntaxError | null {
+	if (typeof value !== "string") return null;
+	const input = value.trim();
+	const qualifierSeparator = input.indexOf(":");
+	const modelNamespaceSeparator = input.indexOf("/");
+
+	// A colon after the namespace slash is a canonical model suffix such as
+	// ":free", not a provider qualifier.
+	if (
+		qualifierSeparator < 0 ||
+		modelNamespaceSeparator < 0 ||
+		qualifierSeparator > modelNamespaceSeparator
+	) {
+		return null;
+	}
+
+	const providerSlug = input.slice(0, qualifierSeparator).trim();
+	if (!PROVIDER_QUALIFIER_PATTERN.test(providerSlug)) {
+		return {
+			reason: "invalid_provider_slug",
+			input,
+			providerSlug,
+			message:
+				`Invalid provider slug "${providerSlug}" in model identifier "${input}". Provider slugs must start with a letter or number and contain only letters, numbers, ".", "_" or "-".`,
+		};
+	}
+
+	const model = input.slice(qualifierSeparator + 1).trim();
+	if (
+		modelNamespaceSeparator <= qualifierSeparator + 1 ||
+		model.startsWith(":") ||
+		model.startsWith("/") ||
+		model.endsWith("/")
+	) {
+		return {
+			reason: "invalid_provider_qualified_model",
+			input,
+			providerSlug,
+			message:
+				`Invalid provider-qualified model identifier "${input}". Expected "<provider>:<publisher>/<model>".`,
+		};
+	}
+
+	return null;
+}
+
 export function parseProviderQualifiedModel(
 	value: unknown,
 ): ProviderQualifiedModelSelection | null {
 	if (typeof value !== "string") return null;
+	if (validateProviderQualifiedModelSyntax(value)) return null;
 	const input = value.trim();
 	const qualifierSeparator = input.indexOf(":");
 	const modelNamespaceSeparator = input.indexOf("/");
@@ -123,18 +189,40 @@ export function parseProviderQualifiedModel(
 export function canonicalizeProviderQualifiedModelRequest(body: any): {
 	body: any;
 	selection: ProviderQualifiedModelSelection | null;
+	syntaxError: ProviderQualifiedModelSyntaxError | null;
 } {
 	if (!body || typeof body !== "object" || Array.isArray(body)) {
-		return { body, selection: null };
+		return { body, selection: null, syntaxError: null };
 	}
+	const syntaxError = validateProviderQualifiedModelSyntax(body.model);
+	if (syntaxError) return { body, selection: null, syntaxError };
 	const selection = parseProviderQualifiedModel(body.model);
-	if (!selection) return { body, selection: null };
+	if (!selection) return { body, selection: null, syntaxError: null };
 	return {
 		body: {
 			...body,
 			model: selection.model,
 		},
 		selection,
+		syntaxError: null,
+	};
+}
+
+export function validateProviderQualifiedModelProvider(
+	selection: ProviderQualifiedModelSelection | null,
+	knownProviderIds: string[],
+): ProviderQualifiedModelProviderValidationResult {
+	if (!selection) return { ok: true };
+	const knownProviders = new Set(normalizeProviderList(knownProviderIds));
+	if (knownProviders.has(selection.providerId)) return { ok: true };
+	const qualifiedModel = `${selection.providerId}:${selection.model}`;
+	return {
+		ok: false,
+		reason: "unknown_provider_slug",
+		providerId: selection.providerId,
+		model: selection.model,
+		message:
+			`Unknown provider slug "${selection.providerId}" in provider-qualified model "${qualifiedModel}". Use a provider slug returned by Phaseo's provider catalogue.`,
 	};
 }
 
