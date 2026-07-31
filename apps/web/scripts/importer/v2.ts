@@ -1188,7 +1188,7 @@ export async function syncV2Catalogue(): Promise<void> {
         } : null;
         if (comparablePrevious && stableJson(comparablePrevious) !== stableJson(comparableRow)) {
             throw new Error(
-                `Conflicting JSON pricing rates for ${meterIdentity}: ${String(previous.metadata?.source_key)} and ${String(row.metadata.source_key)}`,
+                `Conflicting JSON pricing rates for ${meterIdentity}: ${String(previous?.metadata?.source_key)} and ${String(row.metadata.source_key)}`,
             );
         }
         meterRowsByKey.set(meterIdentity, row);
