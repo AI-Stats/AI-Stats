@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "name": "Local comparison",
+  "models": [
+    { "id": "openai/gpt-4.1-mini", "label": "Small" },
+    { "id": "openai/gpt-4.1", "label": "Large" }
+  ],
+  "cases": [
+    {
+      "id": "capital",
+      "input": "Reply with only the capital of France.",
+      "expect": { "equals": "Paris" },
+      "params": { "temperature": 0 }
+    },
+    {
+      "id": "format",
+      "messages": [
+        { "role": "system", "content": "Reply in the requested format only." },
+        { "role": "user", "content": "Write OK followed by a two digit number." }
+      ],
+      "expect": { "regex": "^OK \\d{2}$" }
+    }
+  ],
+  "repeats": 2,
+  "params": { "max_tokens": 32 }
+}
