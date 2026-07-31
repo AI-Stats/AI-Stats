@@ -29,6 +29,7 @@ import { validateSynchronousTextServiceTierRequest } from "./serviceTierValidati
 import {
 	applyProviderQualifiedModelConstraint,
 	canonicalizeProviderQualifiedModelRequest,
+	filterProviderQualifiedModelCandidates,
 	collectUnsupportedRoutingFields,
 	getEffectiveRoutingHints,
 	normalizeRequestRoutingBody,
@@ -444,6 +445,46 @@ export async function beforeRequest(
         };
     }
     mergedBody = providerQualifiedConstraint.body;
+
+    const providerQualifiedCandidates =
+        filterProviderQualifiedModelCandidates(
+            presetFilteredProviders,
+            providerQualifiedModelRequest.selection,
+        );
+    if (providerQualifiedCandidates.ok === false) {
+        const qualifiedModel =
+            `${providerQualifiedCandidates.providerId}:${providerQualifiedCandidates.model}`;
+        const freeRouteUnavailable =
+            providerQualifiedCandidates.reason ===
+            "qualified_free_provider_unavailable";
+        const description = freeRouteUnavailable
+            ? `Provider-qualified free model "${qualifiedModel}" does not have an eligible all-zero free pricing route`
+            : `Provider-qualified model "${qualifiedModel}" is not available for this endpoint`;
+        return {
+            ok: false,
+            response: err("validation_error", {
+                model: providerQualifiedCandidates.model,
+                provider: providerQualifiedCandidates.providerId,
+                reason: providerQualifiedCandidates.reason,
+                description,
+                error_type: "user",
+                error_origin: "user",
+                error_operational_kind: providerQualifiedCandidates.reason,
+                details: [{
+                    message: description,
+                    path: ["model"],
+                    keyword: providerQualifiedCandidates.reason,
+                    params: {
+                        provider: providerQualifiedCandidates.providerId,
+                        model: providerQualifiedCandidates.model,
+                    },
+                }],
+                request_id: requestId,
+                workspace_id: workspaceId,
+            }),
+        };
+    }
+    presetFilteredProviders = providerQualifiedCandidates.providers;
 
     const workspacePolicyLoad = await workspacePolicyPromise;
     if ("error" in workspacePolicyLoad) {
