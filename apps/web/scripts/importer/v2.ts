@@ -110,6 +110,7 @@ export function validateJsonPricingRules(rules: Record<string, any>[]): void {
             unit: rule.unit ?? "unit",
             unit_size: Number(rule.unit_size ?? 1),
             price_per_unit: Number(rule.price_per_unit ?? 0),
+            included_quantity: Number(rule.included_quantity ?? 0),
         };
         const previous = rates.get(identity);
         if (previous && stableJson(previous.comparable) !== stableJson(comparable)) {
@@ -1177,7 +1178,15 @@ export async function syncV2Catalogue(): Promise<void> {
         };
         const meterIdentity = `${row.sku_id}:${row.meter_key}`;
         const previous = meterRowsByKey.get(meterIdentity);
-        if (previous && stableJson({ ...previous, metadata: undefined }) !== stableJson({ ...row, metadata: undefined })) {
+        const comparableRow = {
+            ...row,
+            metadata: { included_quantity: row.metadata.included_quantity ?? 0 },
+        };
+        const comparablePrevious = previous ? {
+            ...previous,
+            metadata: { included_quantity: previous.metadata?.included_quantity ?? 0 },
+        } : null;
+        if (comparablePrevious && stableJson(comparablePrevious) !== stableJson(comparableRow)) {
             throw new Error(
                 `Conflicting JSON pricing rates for ${meterIdentity}: ${String(previous.metadata?.source_key)} and ${String(row.metadata.source_key)}`,
             );
