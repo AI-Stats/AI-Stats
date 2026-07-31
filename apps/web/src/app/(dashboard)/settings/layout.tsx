@@ -59,11 +59,13 @@ export default async function SettingsLayout({
 				<SidebarInset className="flex w-0 min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white dark:bg-zinc-950">
 					<div className="container mx-auto flex h-full min-h-0 w-full flex-col px-4 pt-0 sm:px-5 lg:px-6 xl:px-8">
 						<div className="relative z-20 shrink-0 bg-background">
-							<SettingsTopTabsServer
-								isEnterpriseInvoiceMode={isEnterpriseInvoiceMode}
-								showBroadcast={showBroadcast}
-								showWebhooks={showWebhooks}
-							/>
+							<Suspense fallback={<div className="h-[52px]" aria-hidden="true" />}>
+								<SettingsTopTabsServer
+									isEnterpriseInvoiceMode={isEnterpriseInvoiceMode}
+									showBroadcast={showBroadcast}
+									showWebhooks={showWebhooks}
+								/>
+							</Suspense>
 						</div>
 						<div className="min-h-0 w-full flex-1 overflow-y-auto overscroll-contain pb-4 pt-3">
 							<Suspense fallback={<SettingsPageSkeleton />}>
