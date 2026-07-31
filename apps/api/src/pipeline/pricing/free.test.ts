@@ -50,6 +50,14 @@ describe("isFreePriceCard", () => {
 		).toBe(false);
 	});
 
+	it("rejects negative prices instead of treating them as free", () => {
+		expect(
+			isFreePriceCard(card([
+				{ pricingPlan: "free", pricePerUnit: "-0.000001" },
+			])),
+		).toBe(false);
+	});
+
 	it("rejects zero-priced rules that are not explicitly on the free plan", () => {
 		expect(
 			isFreePriceCard(card([
