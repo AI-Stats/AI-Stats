@@ -29549,7 +29549,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/moonshotai/kimi-k3/model.json": {
-      "hash": "7c775c38f0bfdaa66524b280f1625513",
+      "hash": "771ef2b697cf9df7ba1e001dc6ad4d30",
       "meta": {
         "model_id": "moonshotai/kimi-k3",
         "organisation_id": "moonshotai",
