@@ -43,7 +43,12 @@ const state = {
 		method: string;
 		args: unknown[];
 	}>,
+	rpcCalls: [] as Array<{
+		name: string;
+		args: Record<string, unknown>;
+	}>,
 	feedbackSummaryRows: [] as Array<Record<string, unknown>>,
+	feedbackSummaryRpcRows: [] as Array<Record<string, unknown>>,
 	testRunRow: {
 		id: "66666666-6666-4666-8666-666666666666",
 		preset_id: "55555555-5555-4555-8555-555555555555",
@@ -96,6 +101,16 @@ function buildSelectChain(
 
 function buildSupabaseMock() {
 	return {
+		rpc(name: string, args: Record<string, unknown>) {
+			state.rpcCalls.push({ name, args });
+			if (name !== "gateway_feedback_summary") {
+				throw new Error(`Unexpected RPC: ${name}`);
+			}
+			return Promise.resolve({
+				data: state.feedbackSummaryRpcRows,
+				error: null,
+			});
+		},
 		from(table: string) {
 			if (table === "gateway_feedback") {
 				return {
@@ -173,7 +188,9 @@ describe("feedback control routes", () => {
 	beforeEach(() => {
 		state.insertCalls.length = 0;
 		state.queryCalls.length = 0;
+		state.rpcCalls.length = 0;
 		state.feedbackSummaryRows = [];
+		state.feedbackSummaryRpcRows = [];
 		state.testRunRow = {
 			id: "66666666-6666-4666-8666-666666666666",
 			preset_id: "55555555-5555-4555-8555-555555555555",
@@ -331,19 +348,17 @@ describe("feedback control routes", () => {
 		expect(state.insertCalls).toHaveLength(0);
 	});
 
-	it("summarizes feedback by preset for comparison views", async () => {
-		state.feedbackSummaryRows = [
+	it("summarizes all matching feedback through the SQL RPC", async () => {
+		state.feedbackSummaryRpcRows = [
 			{
-				preset_id: "55555555-5555-4555-8555-555555555555",
-				rating: "correct",
-				score: 1,
-				created_at: "2026-07-05T10:00:00.000Z",
-			},
-			{
-				preset_id: "55555555-5555-4555-8555-555555555555",
-				rating: "partly_correct",
-				score: 0.5,
-				created_at: "2026-07-05T09:00:00.000Z",
+				group_value: "55555555-5555-4555-8555-555555555555",
+				count: 2,
+				positive: 1,
+				negative: 0,
+				partial: 1,
+				average_score: 0.75,
+				ratings: { correct: 1, partly_correct: 1 },
+				last_feedback_at: "2026-07-05T10:00:00.000Z",
 			},
 		];
 
@@ -359,33 +374,39 @@ describe("feedback control routes", () => {
 					positive: 1,
 					partial: 1,
 					average_score: 0.75,
+					ratings: { correct: 1, partly_correct: 1 },
 				}),
 			],
 		});
+		expect(state.rpcCalls).toEqual([
+			expect.objectContaining({
+				name: "gateway_feedback_summary",
+				args: expect.objectContaining({
+					p_workspace_id: "33333333-3333-4333-8333-333333333333",
+					p_group_by: "preset_id",
+					p_limit: 5000,
+				}),
+			}),
+		]);
+		expect(state.queryCalls).toHaveLength(0);
 	});
-
-	it("applies date filters when summarizing preset feedback", async () => {
+	it("passes date and target filters to the summary RPC", async () => {
 		const response = await feedbackRoutes.request(
-			"https://api.example.com/summary?group_by=preset&since=2026-07-01T00:00:00.000Z&until=2026-07-06T00:00:00.000Z",
+			"https://api.example.com/summary?group_by=preset&request_id=gen_123&since=2026-07-01T00:00:00.000Z&until=2026-07-06T00:00:00.000Z",
 		);
 
 		expect(response.status).toBe(200);
-		expect(state.queryCalls).toEqual(
-			expect.arrayContaining([
-				expect.objectContaining({
-					table: "gateway_feedback",
-					method: "gte",
-					args: ["created_at", "2026-07-01T00:00:00.000Z"],
+		expect(state.rpcCalls[0]).toEqual(
+			expect.objectContaining({
+				name: "gateway_feedback_summary",
+				args: expect.objectContaining({
+					p_request_id: "gen_123",
+					p_created_since: "2026-07-01T00:00:00.000Z",
+					p_created_until: "2026-07-06T00:00:00.000Z",
 				}),
-				expect.objectContaining({
-					table: "gateway_feedback",
-					method: "lte",
-					args: ["created_at", "2026-07-06T00:00:00.000Z"],
-				}),
-			]),
+			}),
 		);
 	});
-
 	it("applies metadata dimension filters when listing feedback", async () => {
 		state.feedbackSummaryRows = [
 			{
@@ -438,29 +459,33 @@ describe("feedback control routes", () => {
 		);
 	});
 
-	it("summarizes feedback by indexed metadata dimensions", async () => {
-		state.feedbackSummaryRows = [
+	it("summarizes feedback by indexed metadata dimensions in SQL", async () => {
+		state.feedbackSummaryRpcRows = [
 			{
-				metadata_dimensions: { user_tier: "free" },
-				rating: "thumbs_down",
-				score: 0,
-				created_at: "2026-07-05T10:00:00.000Z",
+				group_value: "free",
+				count: 1,
+				positive: 0,
+				negative: 1,
+				partial: 0,
+				average_score: 0,
+				ratings: { thumbs_down: 1 },
+				last_feedback_at: "2026-07-05T10:00:00.000Z",
 			},
 			{
-				metadata_dimensions: { user_tier: "pro" },
-				rating: "correct",
-				score: 1,
-				created_at: "2026-07-05T09:00:00.000Z",
-			},
-			{
-				metadata_dimensions: { user_tier: "pro" },
-				rating: "partly_correct",
-				score: 0.5,
-				created_at: "2026-07-05T08:00:00.000Z",
+				group_value: "pro",
+				count: 2,
+				positive: 1,
+				negative: 0,
+				partial: 1,
+				average_score: 0.75,
+				ratings: { correct: 1, partly_correct: 1 },
+				last_feedback_at: "2026-07-05T09:00:00.000Z",
 			},
 		];
 
-		const response = await feedbackRoutes.request("https://api.example.com/summary?group_by=metadata&metadata_key=user_tier");
+		const response = await feedbackRoutes.request(
+			"https://api.example.com/summary?group_by=metadata&metadata_key=user_tier&metadata.region=ca",
+		);
 
 		expect(response.status).toBe(200);
 		await expect(response.json()).resolves.toEqual({
@@ -483,5 +508,13 @@ describe("feedback control routes", () => {
 				}),
 			]),
 		});
+		expect(state.rpcCalls[0]?.args).toEqual(
+			expect.objectContaining({
+				p_group_by: "metadata",
+				p_metadata_key: "user_tier",
+				p_metadata_filters: { region: "ca" },
+			}),
+		);
 	});
+
 });
