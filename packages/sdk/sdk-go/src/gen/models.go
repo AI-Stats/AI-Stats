@@ -1718,6 +1718,7 @@ const (
 	KnownModelIdOpenaiGptRealtime KnownModelId = "openai/gpt-realtime"
 	KnownModelIdOpenaiGptRealtime15 KnownModelId = "openai/gpt-realtime-1.5"
 	KnownModelIdOpenaiGptRealtime2 KnownModelId = "openai/gpt-realtime-2"
+	KnownModelIdOpenaiGptTranscribe KnownModelId = "openai/gpt-transcribe"
 	KnownModelIdOpenaiO1 KnownModelId = "openai/o1"
 	KnownModelIdOpenaiO1Mini KnownModelId = "openai/o1-mini"
 	KnownModelIdOpenaiO1Pro KnownModelId = "openai/o1-pro"
