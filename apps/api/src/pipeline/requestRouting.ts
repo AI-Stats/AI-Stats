@@ -3,6 +3,8 @@
 // How: Merges provider/routing hints, resolves aliases, and surfaces explicit routing flags.
 
 import { normalizeProviderId, normalizeProviderList } from "@/lib/config/providerAliases";
+import type { ProviderCandidate } from "./before/types";
+import { isFreePriceCard } from "./pricing";
 
 type PlainObject = Record<string, any>;
 
@@ -77,6 +79,17 @@ export type ProviderQualifiedModelConstraintResult =
 		model: string;
 		field: "provider.only" | "provider.ignore" | "routing.only" | "routing.ignore";
 		values: string[];
+	};
+
+export type ProviderQualifiedModelCandidateResult =
+	| { ok: true; providers: ProviderCandidate[] }
+	| {
+		ok: false;
+		reason:
+			| "qualified_provider_unavailable"
+			| "qualified_free_provider_unavailable";
+		providerId: string;
+		model: string;
 	};
 
 const PROVIDER_QUALIFIER_PATTERN = /^[a-z0-9][a-z0-9._-]{0,127}$/i;
@@ -189,6 +202,46 @@ export function applyProviderQualifiedModelConstraint(
 				: {}),
 		},
 	};
+}
+
+export function filterProviderQualifiedModelCandidates(
+	providers: ProviderCandidate[],
+	selection: ProviderQualifiedModelSelection | null,
+): ProviderQualifiedModelCandidateResult {
+	if (!selection) {
+		return { ok: true, providers };
+	}
+
+	const matchingProviders = providers.filter(
+		(provider) =>
+			normalizeProviderId(provider.providerId) === selection.providerId,
+	);
+	if (matchingProviders.length === 0) {
+		return {
+			ok: false,
+			reason: "qualified_provider_unavailable",
+			providerId: selection.providerId,
+			model: selection.model,
+		};
+	}
+
+	if (!selection.model.toLowerCase().endsWith(":free")) {
+		return { ok: true, providers: matchingProviders };
+	}
+
+	const freeProviders = matchingProviders.filter((provider) =>
+		isFreePriceCard(provider.pricingCard),
+	);
+	if (freeProviders.length === 0) {
+		return {
+			ok: false,
+			reason: "qualified_free_provider_unavailable",
+			providerId: selection.providerId,
+			model: selection.model,
+		};
+	}
+
+	return { ok: true, providers: freeProviders };
 }
 
 export type EffectiveRoutingHints = {
