@@ -14,7 +14,7 @@ export function isFreePriceCard(
 		return (
 			pricingPlan === "free" &&
 			Number.isFinite(pricePerUnit) &&
-			pricePerUnit <= 0
+			pricePerUnit === 0
 		);
 	});
 }
