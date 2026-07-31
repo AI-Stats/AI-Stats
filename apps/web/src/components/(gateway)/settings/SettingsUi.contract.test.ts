@@ -18,6 +18,9 @@ describe("settings UI contracts", () => {
 		);
 		expect(navigationPosition).toBeGreaterThan(-1);
 		expect(scrollPanePosition).toBeGreaterThan(navigationPosition);
+		expect(layoutSource).toContain(
+			'<Suspense fallback={<div className="h-[52px]" aria-hidden="true" />}>',
+		);
 	});
 
 	it("renders pages without sibling navigation as a single active tab", () => {
