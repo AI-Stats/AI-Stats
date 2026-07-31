@@ -29,8 +29,8 @@ insert into public.v2_model_provider_routes (
 )
 values (
   'minimax:minimax/music-3.0', 'minimax/music-3.0', 'minimax', 'music-3.0',
-  'active', true, array['text'], array['music'], '2026-07-16T00:00:00Z',
-  '{"endpoint":"/v1/music_generation","rate_limit_rpm":120}'::jsonb
+  'active', false, array['text'], array['music'], '2026-07-16T00:00:00Z',
+  '{"endpoint":"/v1/music_generation","rate_limit_rpm":120,"provider_status":"available","phaseo_status":"unsupported","gateway_note":"Phaseo music generation routes remain unimplemented."}'::jsonb
 )
 on conflict (provider_model_id) do update set
   model_slug = excluded.model_slug,
