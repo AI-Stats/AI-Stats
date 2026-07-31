@@ -38,13 +38,9 @@ Use `<provider-id>:<canonical-model-id>` when a request must use one specific pr
 }
 ```
 
-The provider qualifier is an exact routing constraint, equivalent to narrowing `provider.only` to that provider. Phaseo will not fall back to a different provider for the request. Canonical model suffixes remain unambiguous because they follow the model id:
+The qualifier disables cross-provider fallback for that request. Model suffixes remain part of the canonical model ID, including in identifiers such as `baseten:google/gemma-4-26b-a4b:free`.
 
-```text
-baseten:google/gemma-4-26b-a4b:free
-```
-
-Workspace policies, presets, endpoint support, provider availability, and privacy controls still apply. If `provider.only` or `provider.ignore` contradicts the qualifier, Phaseo returns a validation error instead of silently choosing one setting.
+Read [Provider-qualified model IDs](./provider-qualified-models) for complete syntax, free-route validation, routing precedence, aliases, error codes, and request examples.
 
 ## Control routing and fallbacks
 
