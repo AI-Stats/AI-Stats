@@ -10,7 +10,11 @@ import {
 	type RefObject,
 } from "react";
 import Link from "next/link";
-import { MessageScroller } from "@shadcn/react/message-scroller";
+import {
+	MessageScroller,
+	useMessageScroller,
+	useMessageScrollerVisibility,
+} from "@shadcn/react/message-scroller";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Streamdown } from "streamdown";
 import { Logo } from "@/components/Logo";
@@ -85,6 +89,11 @@ import type {
 } from "@/components/(chat)/chatPayload";
 import { ChatMessagesEmptyState } from "@/components/(chat)/ChatMessagesEmptyState";
 import { ChatVirtualMessageList } from "@/components/(chat)/ChatVirtualMessageList";
+import { ChatConversationOutline } from "@/components/(chat)/ChatConversationOutline";
+import {
+	getChatConversationOutlineItems,
+	type ChatConversationOutlineItem,
+} from "@/components/(chat)/chatConversationOutline";
 import { markChatUserMessageRendered } from "@/components/(chat)/playground/chat-performance";
 import {
 	chatMarkdownPlugins,
@@ -459,6 +468,15 @@ export function ChatConversationMessages({
 	const metadataProviderLabel =
 		formatProviderIdLabel(metadataProviderId) ?? messageProviderLabel;
 	const messages = activeThread?.messages ?? EMPTY_MESSAGES;
+	const outlineItems = useMemo(
+		() =>
+			responseLayout === "sequential"
+				? getChatConversationOutlineItems(messages)
+				: [],
+		[messages, responseLayout],
+	);
+	const { scrollToMessage } = useMessageScroller();
+	const { currentAnchorId } = useMessageScrollerVisibility();
 	useEffect(() => {
 		const latestUserMessage = messages
 			.slice()
@@ -489,6 +507,30 @@ export function ChatConversationMessages({
 			messageVirtualizer.measureElement(node);
 		},
 		[messageVirtualizer],
+	);
+	const handleOutlineNavigate = useCallback(
+		(item: ChatConversationOutlineItem) => {
+			if (shouldVirtualizeMessages) {
+				messageVirtualizer.scrollToIndex(item.messageIndex, {
+					align: "start",
+				});
+				window.requestAnimationFrame(() => {
+					scrollToMessage(item.id, {
+						align: "start",
+						behavior: "smooth",
+						scrollMargin: 24,
+					});
+				});
+				return;
+			}
+
+			scrollToMessage(item.id, {
+				align: "start",
+				behavior: "smooth",
+				scrollMargin: 24,
+			});
+		},
+		[messageVirtualizer, scrollToMessage, shouldVirtualizeMessages],
 	);
 
 	const messagesContent = useMemo(() => {
@@ -1542,5 +1584,14 @@ export function ChatConversationMessages({
 		onAddModelSet,
 	]);
 
-	return <>{messagesContent}</>;
+	return (
+		<>
+			<ChatConversationOutline
+				activeMessageId={currentAnchorId}
+				items={outlineItems}
+				onNavigate={handleOutlineNavigate}
+			/>
+			{messagesContent}
+		</>
+	);
 }
