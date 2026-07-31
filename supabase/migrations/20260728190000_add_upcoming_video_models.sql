@@ -80,19 +80,25 @@ values
     'minimax:minimax/h3', 'payg-2k', 1, 'video.generate', 'active',
     'MiniMax H3 2K', '$0.13 per output second; reference video input is billed at the same per-second rate.',
     'USD', '2026-07-31T00:00:00Z', null, 'standard',
-    '{"resolution":"2K","source_url":"https://platform.minimax.io/docs/guides/pricing-paygo"}'::jsonb
+    '{"resolution":"2K","match":[{"path":"video_params.resolution","op":"eq","or_group":1,"and_index":1,"value":"2K"}],"source_url":"https://platform.minimax.io/docs/guides/pricing-paygo"}'::jsonb
   ),
   (
     'minimax:minimax/h3', 'payg-768p', 1, 'video.generate', 'active',
     'MiniMax H3 768P', '$0.09 per output second; reference video input is billed at the same per-second rate.',
     'USD', '2026-07-31T00:00:00Z', null, 'standard',
-    '{"resolution":"768P","source_url":"https://platform.minimax.io/docs/guides/pricing-paygo"}'::jsonb
+    '{"resolution":"768P","match":[{"path":"video_params.resolution","op":"eq","or_group":1,"and_index":1,"value":"768P"}],"source_url":"https://platform.minimax.io/docs/guides/pricing-paygo"}'::jsonb
   ),
   (
     'minimax:minimax/h3', 'input-image-overage', 1, 'video.generate', 'active',
     'MiniMax H3 input image overage', '$0.04 for each input image after the first five.',
     'USD', '2026-07-31T00:00:00Z', null, 'standard',
     '{"included_images":5,"input_audio_price":"free","source_url":"https://platform.minimax.io/docs/guides/pricing-paygo"}'::jsonb
+  ),
+  (
+    'minimax:minimax/h3', 'input-audio-free', 1, 'video.generate', 'active',
+    'MiniMax H3 input audio', 'Input audio is free.',
+    'USD', '2026-07-31T00:00:00Z', null, 'standard',
+    '{"source_url":"https://platform.minimax.io/docs/guides/pricing-paygo"}'::jsonb
   )
 on conflict (provider_model_id, sku_code, version) do update set
   operation = excluded.operation,
@@ -116,11 +122,12 @@ select sku.sku_id, meter.meter_key, meter.modality, meter.direction, meter.unit,
 from public.v2_pricing_skus sku
 join (
   values
-    ('payg-2k', 'output_video_seconds', 'video', 'output', 'second', 1::numeric, 130000000::bigint, 'Output video', '1 second', '{"resolution":"2K"}'::jsonb),
-    ('payg-2k', 'input_video_seconds', 'video', 'input', 'second', 1::numeric, 130000000::bigint, 'Reference video input', '1 second', '{"resolution":"2K"}'::jsonb),
-    ('payg-768p', 'output_video_seconds', 'video', 'output', 'second', 1::numeric, 90000000::bigint, 'Output video', '1 second', '{"resolution":"768P"}'::jsonb),
-    ('payg-768p', 'input_video_seconds', 'video', 'input', 'second', 1::numeric, 90000000::bigint, 'Reference video input', '1 second', '{"resolution":"768P"}'::jsonb),
-    ('input-image-overage', 'input_image', 'image', 'input', 'image', 1::numeric, 40000000::bigint, 'Input image overage', '1 image after 5 included', '{"included_quantity":5}'::jsonb)
+    ('payg-2k', 'output_video_seconds', 'video', 'output', 'second', 1::numeric, 130000000::bigint, 'Output video', '1 second', '{"resolution":"2K","match":[{"path":"video_params.resolution","op":"eq","or_group":1,"and_index":1,"value":"2K"}]}'::jsonb),
+    ('payg-2k', 'input_video_seconds', 'video', 'input', 'second', 1::numeric, 130000000::bigint, 'Reference video input', '1 second', '{"resolution":"2K","match":[{"path":"video_params.resolution","op":"eq","or_group":1,"and_index":1,"value":"2K"}]}'::jsonb),
+    ('payg-768p', 'output_video_seconds', 'video', 'output', 'second', 1::numeric, 90000000::bigint, 'Output video', '1 second', '{"resolution":"768P","match":[{"path":"video_params.resolution","op":"eq","or_group":1,"and_index":1,"value":"768P"}]}'::jsonb),
+    ('payg-768p', 'input_video_seconds', 'video', 'input', 'second', 1::numeric, 90000000::bigint, 'Reference video input', '1 second', '{"resolution":"768P","match":[{"path":"video_params.resolution","op":"eq","or_group":1,"and_index":1,"value":"768P"}]}'::jsonb),
+    ('input-image-overage', 'input_image', 'image', 'input', 'image', 1::numeric, 40000000::bigint, 'Input image overage', '1 image after 5 included', '{"included_quantity":5}'::jsonb),
+    ('input-audio-free', 'input_audio_seconds', 'audio', 'input', 'second', 1::numeric, 0::bigint, 'Input audio', '1 second', '{}'::jsonb)
 ) as meter(sku_code, meter_key, modality, direction, unit, unit_quantity, price_nanos, display_label, display_unit, metadata)
   on meter.sku_code = sku.sku_code
 where sku.provider_model_id = 'minimax:minimax/h3'
