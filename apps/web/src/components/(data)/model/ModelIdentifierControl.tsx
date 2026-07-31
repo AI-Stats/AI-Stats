@@ -142,7 +142,7 @@ export default function ModelIdentifierControl({
 					</span>
 
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="start" className="w-auto min-w-0 max-w-[calc(100vw-2rem)]">
+			<DropdownMenuContent align="start" className="w-auto min-w-0 max-w-[calc(100vw-2rem)] rounded-lg">
 				{hasVariants ? (
 					<>
 						<div className="px-2 py-1.5 text-[11px] font-medium text-muted-foreground">
@@ -153,10 +153,10 @@ export default function ModelIdentifierControl({
 							return (
 								<DropdownMenuItem
 									key={variant.model_id}
-									onSelect={() => {
+									onClick={() => {
 										if (!isCurrent) router.push(`/models/${variant.model_id}`);
 									}}
-									className="flex items-center justify-between gap-4"
+									className="flex items-center justify-between gap-4 rounded-lg"
 								>
 									<span className="flex min-w-0 items-center gap-2">
 										<Check className={`h-3.5 w-3.5 shrink-0 ${isCurrent ? "opacity-100" : "opacity-0"}`} />
@@ -177,11 +177,11 @@ export default function ModelIdentifierControl({
 				{options.map((option, index) => (
 					<DropdownMenuItem
 						key={option}
-						onSelect={(event) => {
-							event.preventDefault();
+						closeOnClick={false}
+						onClick={() => {
 							void copyIdentifier(option);
 						}}
-						className="flex items-center justify-between gap-3"
+						className="flex items-center justify-between gap-3 rounded-lg"
 					>
 						<span className="min-w-0 truncate">{option}</span>
 						<span className="shrink-0 text-[11px] text-zinc-500 dark:text-zinc-400">
