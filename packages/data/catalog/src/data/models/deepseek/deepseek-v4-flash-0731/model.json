@@ -89,6 +89,38 @@
       "other_info": "Verified; DeepSeek-V4-Flash-0731",
       "source_link": "https://api-docs.deepseek.com/updates/",
       "rank": null
+    },
+    {
+      "benchmark_id": "agents-last-exam",
+      "score": 25.2,
+      "is_self_reported": true,
+      "other_info": "DeepSeek-V4-Flash-0731",
+      "source_link": "https://api-docs.deepseek.com/updates/",
+      "rank": null
+    },
+    {
+      "benchmark_id": "automationbench",
+      "score": 25.1,
+      "is_self_reported": true,
+      "other_info": "Public subset; DeepSeek-V4-Flash-0731",
+      "source_link": "https://api-docs.deepseek.com/updates/",
+      "rank": null
+    },
+    {
+      "benchmark_id": "dsbench-fullstack",
+      "score": 68.7,
+      "is_self_reported": true,
+      "other_info": "Internal full-stack development test set; DeepSeek-V4-Flash-0731",
+      "source_link": "https://api-docs.deepseek.com/updates/",
+      "rank": null
+    },
+    {
+      "benchmark_id": "dsbench-hard",
+      "score": 59.6,
+      "is_self_reported": true,
+      "other_info": "Internal difficult coding-agent test set; DeepSeek-V4-Flash-0731",
+      "source_link": "https://api-docs.deepseek.com/updates/",
+      "rank": null
     }
   ],
   "family_id": null,
