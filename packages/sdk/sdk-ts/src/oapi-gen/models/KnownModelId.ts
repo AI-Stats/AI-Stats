@@ -69,7 +69,6 @@ export type KnownModelId =
   | "deepseek/deepseek-v3.2"
   | "deepseek/deepseek-v3.2-exp"
   | "deepseek/deepseek-v3.2-speciale"
-  | "deepseek/deepseek-v3.2-thinking"
   | "deepseek/deepseek-v4-flash"
   | "deepseek/deepseek-v4-pro"
   | "deepseek/deepseek-v4-pro-lightning"

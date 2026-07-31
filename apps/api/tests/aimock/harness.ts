@@ -397,7 +397,10 @@ function buildAimockBindings(): Partial<GatewayBindings> {
             bindings[config.apiKeyEnv] = envValue(config.apiKeyEnv, `test-${config.apiKeyEnv.toLowerCase()}`);
         }
         if (config.baseUrlEnv) {
-            bindings[config.baseUrlEnv] = AIMOCK_BASE_URL;
+            // DeepSeek omits /v1 in production, while AIMock exposes Responses under /v1.
+            bindings[config.baseUrlEnv] = config.baseUrlEnv === "DEEPSEEK_BASE_URL"
+                ? `${AIMOCK_BASE_URL}/v1`
+                : AIMOCK_BASE_URL;
         }
     }
 
