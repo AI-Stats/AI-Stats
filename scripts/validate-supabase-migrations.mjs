@@ -31,23 +31,12 @@ function listMigrationFiles() {
 
 function validateNames(files) {
 	const errors = [];
-	const versions = new Map();
 
 	for (const file of files) {
-		const match = file.match(MIGRATION_NAME);
-		if (!match) {
+		if (!MIGRATION_NAME.test(file)) {
 			errors.push(
 				`${file}: expected a timestamped lower_snake_case.sql filename`,
 			);
-			continue;
-		}
-
-		const [, version] = match;
-		const previous = versions.get(version);
-		if (previous) {
-			errors.push(`${file}: duplicates migration version used by ${previous}`);
-		} else {
-			versions.set(version, file);
 		}
 	}
 
@@ -84,7 +73,7 @@ function stripSqlComments(sql) {
 		.replace(/--.*$/gm, " ");
 }
 
-function validateAddedMigration(path) {
+function validateAddedMigration(path, files) {
 	const errors = [];
 	const absolutePath = resolve(REPOSITORY_ROOT, path);
 	if (!absolutePath.startsWith(`${MIGRATIONS_DIRECTORY}${sep}`)) {
@@ -92,8 +81,17 @@ function validateAddedMigration(path) {
 	}
 
 	const file = path.split("/").at(-1) ?? "";
-	if (!NEW_MIGRATION_NAME.test(file)) {
+	const nameMatch = file.match(NEW_MIGRATION_NAME);
+	if (!nameMatch) {
 		errors.push(`${path}: new migrations require YYYYMMDDHHMMSS_lower_snake_case.sql`);
+	} else {
+		const [, version] = nameMatch;
+		const conflict = files.find(
+			(candidate) => candidate !== file && candidate.startsWith(`${version}_`),
+		);
+		if (conflict) {
+			errors.push(`${path}: migration version is already used by ${conflict}`);
+		}
 	}
 
 	const sql = readFileSync(absolutePath, "utf8");
@@ -138,7 +136,7 @@ export function validateSupabaseMigrations(baseSha = "") {
 	}
 
 	for (const path of added) {
-		errors.push(...validateAddedMigration(path));
+		errors.push(...validateAddedMigration(path, files));
 	}
 
 	if (errors.length > 0) {
