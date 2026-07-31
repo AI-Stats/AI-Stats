@@ -4,7 +4,7 @@
   "name": "DeepSeek V4 Flash",
   "status": "Available",
   "previous_model_id": null,
-  "description": "DeepSeek V4 Flash is a 284B-parameter Mixture-of-Experts model with 13B activated parameters. The DeepSeek-V4-Flash-0731 API revision adds substantially stronger agent capabilities, native Responses API support, tool use, structured output, server-side web search, and up to 1M tokens of context.",
+  "description": "DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B activated parameters, supporting a 1M-token context window.",
   "announced_date": "2026-04-24T00:00:00",
   "release_date": "2026-04-24T00:00:00",
   "deprecation_date": null,
@@ -18,21 +18,6 @@
       "title": "Weights",
       "kind": "weights",
       "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash"
-    },
-    {
-      "title": "DeepSeek V4 Flash update",
-      "kind": "announcement",
-      "url": "https://api-docs.deepseek.com/updates/"
-    },
-    {
-      "title": "Responses API",
-      "kind": "api_reference",
-      "url": "https://api-docs.deepseek.com/guides/responses_api/"
-    },
-    {
-      "title": "Models and pricing",
-      "kind": "pricing",
-      "url": "https://api-docs.deepseek.com/quick_start/pricing/"
     }
   ],
   "details": [
@@ -131,6 +116,14 @@
       "rank": 12
     },
     {
+      "benchmark_id": "toolathlon",
+      "score": 47.8,
+      "is_self_reported": true,
+      "other_info": "Pass@1; DeepSeek-V4-Flash Max",
+      "source_link": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash",
+      "rank": 10
+    },
+    {
       "benchmark_id": "livebench",
       "score": 67.25,
       "is_self_reported": false,
@@ -145,46 +138,6 @@
       "other_info": "940 puzzles",
       "source_link": "https://github.com/lechmazur/nyt-connections",
       "rank": 45
-    },
-    {
-      "benchmark_id": "terminal-bench-2.1",
-      "score": 82.7,
-      "is_self_reported": true,
-      "other_info": "DeepSeek Harness minimal mode; max effort; top_p=0.95; temperature=1.0",
-      "source_link": "https://api-docs.deepseek.com/updates/",
-      "rank": null
-    },
-    {
-      "benchmark_id": "nl2repo",
-      "score": 54.2,
-      "is_self_reported": true,
-      "other_info": "DeepSeek-V4-Flash-0731",
-      "source_link": "https://api-docs.deepseek.com/updates/",
-      "rank": null
-    },
-    {
-      "benchmark_id": "cybergym",
-      "score": 76.7,
-      "is_self_reported": true,
-      "other_info": "DeepSeek-V4-Flash-0731",
-      "source_link": "https://api-docs.deepseek.com/updates/",
-      "rank": null
-    },
-    {
-      "benchmark_id": "deepswe",
-      "score": 54.4,
-      "is_self_reported": true,
-      "other_info": "DeepSeek-V4-Flash-0731",
-      "source_link": "https://api-docs.deepseek.com/updates/",
-      "rank": null
-    },
-    {
-      "benchmark_id": "toolathlon",
-      "score": 70.3,
-      "is_self_reported": true,
-      "other_info": "Verified; DeepSeek-V4-Flash-0731",
-      "source_link": "https://api-docs.deepseek.com/updates/",
-      "rank": null
     }
   ],
   "family_id": null,
@@ -194,7 +147,7 @@
   "limits": {
     "context": 1000000,
     "input": 1000000,
-    "output": 384000
+    "output": null
   },
   "modalities": {
     "input": [
@@ -205,55 +158,32 @@
     ]
   },
   "reasoning": {
-    "supported": true,
-    "options": [
-      "low",
-      "high",
-      "xhigh",
-      "max"
-    ]
+    "supported": null,
+    "options": []
   },
   "capabilities": {
-    "attachment": false,
-    "tool_call": true,
-    "structured_output": true,
-    "temperature": true,
-    "streaming": true,
-    "web_search": true
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
   },
-  "open_weights": true,
+  "open_weights": null,
   "sources": [
     {
       "kind": "weights",
       "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash",
-      "accessed_at": "2026-07-31T00:00:00Z",
-      "notes": "Open weights for the unchanged V4 Flash architecture."
-    },
-    {
-      "kind": "announcement",
-      "url": "https://api-docs.deepseek.com/updates/",
-      "accessed_at": "2026-07-31T00:00:00Z",
-      "notes": "Official DeepSeek-V4-Flash-0731 API update and benchmark results."
-    },
-    {
-      "kind": "api_reference",
-      "url": "https://api-docs.deepseek.com/guides/responses_api/",
-      "accessed_at": "2026-07-31T00:00:00Z",
-      "notes": "Responses API compatibility and supported features."
-    },
-    {
-      "kind": "pricing",
-      "url": "https://api-docs.deepseek.com/quick_start/pricing/",
-      "accessed_at": "2026-07-31T00:00:00Z",
-      "notes": "Official context, output limit, model version and pricing."
+      "accessed_at": null,
+      "notes": null
     }
   ],
   "verification": {
-    "status": "verified",
-    "checked_at": "2026-07-31T00:00:00Z",
-    "notes": "Verified against DeepSeek's official update, Responses API and pricing documentation."
+    "status": "unverified",
+    "checked_at": null,
+    "notes": null
   },
-  "last_updated": "2026-07-31T00:00:00",
+  "last_updated": null,
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null
