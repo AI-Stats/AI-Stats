@@ -27,6 +27,25 @@ Configure the workspace default in **Dashboard -> Settings -> Routing**. Use pre
 
 Inspect request outcomes through your activity logs and response metadata when debugging routing behavior.
 
+## Choose an exact provider in the model id
+
+Use `<provider-id>:<canonical-model-id>` when a request must use one specific provider-model pair:
+
+```json
+{
+  "model": "baseten:thinking-machines/inkling-small",
+  "input": "Hello"
+}
+```
+
+The provider qualifier is an exact routing constraint, equivalent to narrowing `provider.only` to that provider. Phaseo will not fall back to a different provider for the request. Canonical model suffixes remain unambiguous because they follow the model id:
+
+```text
+baseten:google/gemma-4-26b-a4b:free
+```
+
+Workspace policies, presets, endpoint support, provider availability, and privacy controls still apply. If `provider.only` or `provider.ignore` contradicts the qualifier, Phaseo returns a validation error instead of silently choosing one setting.
+
 ## Control routing and fallbacks
 
 The current public fallback and routing controls are intentionally explicit:
