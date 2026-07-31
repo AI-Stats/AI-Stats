@@ -181,6 +181,17 @@ describe("openAICompatUrl", () => {
 		);
 	});
 
+	it("builds Nebius US Central 1 chat-completions endpoint", () => {
+		teardownTestRuntime();
+		setupRuntimeFromEnv({
+			NEBIUS_API_KEY: "test-nebius-key",
+		} as any);
+
+		expect(openAICompatUrl("nebius-token-factory-us-central-1", "/chat/completions")).toBe(
+			"https://api.tokenfactory.us-central1.nebius.com/v1/chat/completions",
+		);
+	});
+
 	it("builds baseten chat-completions endpoint with /v1 prefix", () => {
 		teardownTestRuntime();
 		setupRuntimeFromEnv({
