@@ -40,10 +40,12 @@ describe("settings UI contracts", () => {
 
 		expect(tabsSource).toContain("<SettingsSidebarTrigger");
 		expect(tabsSource).toContain("<DropdownMenu>");
-		expect(tabsSource).toContain("<DropdownMenuTrigger asChild>");
-		expect(tabsSource).toContain("<DropdownMenuItem key={tab.href} asChild>");
-		expect(tabsSource).not.toContain("render={<Button");
-		expect(tabsSource).not.toContain("render={<Link");
+		expect(tabsSource).toContain("<DropdownMenuTrigger");
+		expect(tabsSource).toContain("buttonVariants({ variant: \"outline\" })");
+		expect(tabsSource).toContain("render={");
+		expect(tabsSource).toContain("<Link");
+		expect(tabsSource).not.toContain("asChild");
+		expect(menuSource).not.toContain("asChild");
 		expect(menuSource).toContain("My account");
 		expect(menuSource).toContain("Workspace");
 		expect(menuSource).toContain("visibleGroups.map");
