@@ -12,11 +12,11 @@
       "price_per_unit": 0.3,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Current Nebius MiniMax M3 catalogues report $0.30 per 1M input tokens.",
+      "note": "Nebius Token Factory's public MiniMax M3 endpoint card reports $0.30 per 1M input tokens.",
       "match": [],
       "priority": 100,
       "effective_from": "2026-06-01T00:00:00Z",
-      "region": null,
+      "region": "us-central1",
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
@@ -28,24 +28,26 @@
       "price_per_unit": 1.2,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Current Nebius MiniMax M3 catalogues report $1.20 per 1M output tokens.",
+      "note": "Nebius Token Factory's public MiniMax M3 endpoint card reports $1.20 per 1M output tokens.",
       "match": [],
       "priority": 100,
       "effective_from": "2026-06-01T00:00:00Z",
-      "region": null,
+      "region": "us-central1",
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
     }
   ],
-  "regions": [],
+  "regions": [
+    "us-central1"
+  ],
   "service_tiers": [
     "standard"
   ],
   "sources": [],
   "verification": {
-    "status": "partial",
+    "status": "verified",
     "checked_at": "2026-07-31T00:00:00Z",
-    "notes": "Two current independent Nebius catalogues agree on $0.30 per 1M input tokens and $1.20 per 1M output tokens. Nebius documents its live model card as the authoritative price surface, but that client-rendered card was not directly capturable during this verification."
+    "notes": "Pricing and region were transcribed from Nebius Token Factory's public MiniMax M3 endpoint card captured on 2026-07-31."
   }
 }
