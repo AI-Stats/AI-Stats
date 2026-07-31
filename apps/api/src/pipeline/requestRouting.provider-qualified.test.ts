@@ -1,0 +1,110 @@
+import { describe, expect, it } from "vitest";
+import {
+	applyProviderQualifiedModelConstraint,
+	canonicalizeProviderQualifiedModelRequest,
+	parseProviderQualifiedModel,
+} from "./requestRouting";
+
+describe("provider-qualified model ids", () => {
+	it("parses an exact provider-model pair", () => {
+		expect(
+			parseProviderQualifiedModel(
+				"Baseten:thinking-machines/inkling-small",
+			),
+		).toEqual({
+			providerId: "baseten",
+			model: "thinking-machines/inkling-small",
+		});
+	});
+
+	it("preserves canonical model suffixes", () => {
+		expect(
+			parseProviderQualifiedModel(
+				"baseten:google/gemma-4-26b-a4b:free",
+			),
+		).toEqual({
+			providerId: "baseten",
+			model: "google/gemma-4-26b-a4b:free",
+		});
+	});
+
+	it("does not interpret canonical suffixes as provider qualifiers", () => {
+		expect(
+			parseProviderQualifiedModel("google/gemma-4-26b-a4b:free"),
+		).toBeNull();
+		expect(parseProviderQualifiedModel("phaseo/free")).toBeNull();
+	});
+
+	it("canonicalizes the model without mutating the input body", () => {
+		const body = {
+			model: "deepinfra:deepseek/deepseek-v3",
+			input: "Hello",
+		};
+		const result = canonicalizeProviderQualifiedModelRequest(body);
+		expect(result.body).not.toBe(body);
+		expect(result.body.model).toBe("deepseek/deepseek-v3");
+		expect(body.model).toBe("deepinfra:deepseek/deepseek-v3");
+	});
+
+	it("applies the provider as an exact constraint", () => {
+		const canonical = canonicalizeProviderQualifiedModelRequest({
+			model: "baseten:thinking-machines/inkling-small",
+			routing: { mode: "latency" },
+		});
+		const result = applyProviderQualifiedModelConstraint(
+			canonical.body,
+			canonical.selection,
+		);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.body.provider.only).toEqual(["baseten"]);
+		expect(result.body.routing.only).toEqual(["baseten"]);
+		expect(result.body.routing.mode).toBe("latency");
+	});
+
+	it("accepts a matching explicit provider allowlist", () => {
+		const canonical = canonicalizeProviderQualifiedModelRequest({
+			model: "baseten:thinking-machines/inkling-small",
+			provider: { only: ["BASETEN"] },
+		});
+		const result = applyProviderQualifiedModelConstraint(
+			canonical.body,
+			canonical.selection,
+		);
+		expect(result.ok).toBe(true);
+	});
+
+	it("rejects a contradictory provider allowlist", () => {
+		const canonical = canonicalizeProviderQualifiedModelRequest({
+			model: "baseten:thinking-machines/inkling-small",
+			provider: { only: ["deepinfra"] },
+		});
+		expect(
+			applyProviderQualifiedModelConstraint(
+				canonical.body,
+				canonical.selection,
+			),
+		).toMatchObject({
+			ok: false,
+			field: "provider.only",
+			providerId: "baseten",
+		});
+	});
+
+	it("rejects a routing ignore list containing the qualifier", () => {
+		const canonical = canonicalizeProviderQualifiedModelRequest({
+			model: "baseten:thinking-machines/inkling-small",
+			routing: { ignore: ["baseten"] },
+		});
+		expect(
+			applyProviderQualifiedModelConstraint(
+				canonical.body,
+				canonical.selection,
+			),
+		).toMatchObject({
+			ok: false,
+			field: "routing.ignore",
+			providerId: "baseten",
+		});
+	});
+});
