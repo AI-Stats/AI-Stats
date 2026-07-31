@@ -14,8 +14,8 @@ import { Timer } from "../telemetry/timer";
 import { resolveCapabilityFromEndpoint } from "@/lib/config/capabilityToEndpoints";
 import { validateCapabilities } from "./capabilityValidation";
 import { isDebugAllowed } from "../debug";
-import { isProviderCapabilityEnabled, normalizeCapability } from "@/executors";
-import { adapterFor, allProviderNames } from "@/providers/index";
+import { EXECUTORS_BY_PROVIDER, isProviderCapabilityEnabled, normalizeCapability } from "@/executors";
+import { adapterFor } from "@/providers/index";
 import type { ProviderEnablementDiagnostics } from "./types";
 import {
 	isPerfGatewayEndpointAllowed,
@@ -249,7 +249,7 @@ export async function beforeRequest(
     }
     const providerSlugValidation = validateProviderQualifiedModelProvider(
         providerQualifiedModelRequest.selection,
-        allProviderNames(),
+        Object.keys(EXECUTORS_BY_PROVIDER),
     );
     if (providerSlugValidation.ok === false) {
         return {
