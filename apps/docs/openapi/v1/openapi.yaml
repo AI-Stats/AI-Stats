@@ -4132,6 +4132,7 @@ components:
           type: string
           enum:
             - standard
+            - fast
             - priority
             - flex
             - batch
@@ -4834,6 +4835,7 @@ components:
           type: string
           enum:
             - standard
+            - fast
             - priority
             - flex
             - batch
@@ -8900,7 +8902,6 @@ components:
         - deepseek/deepseek-v3.2
         - deepseek/deepseek-v3.2-exp
         - deepseek/deepseek-v3.2-speciale
-        - deepseek/deepseek-v3.2-thinking
         - deepseek/deepseek-v4-flash
         - deepseek/deepseek-v4-pro
         - deepseek/deepseek-v4-pro-lightning
@@ -9247,6 +9248,7 @@ components:
         - tencent/hy3:free
         - thinking-machines/inkling
         - thinking-machines/inkling-64k
+        - thinking-machines/inkling-small
         - venice/venice-uncensored
         - venice/venice-uncensored-1.1
         - voyage/rerank-1
@@ -9277,7 +9279,6 @@ components:
         - voyage/voyage-multilingual-2
         - voyage/voyage-multimodal-3
         - voyage/voyage-multimodal-3.5
-        - x-ai/grok-voice-latest
         - xiaomi/mimo-v2-flash
         - xiaomi/mimo-v2.5
         - xiaomi/mimo-v2.5-pro

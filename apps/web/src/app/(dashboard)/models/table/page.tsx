@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import ModelsTablePageClient from "@/components/(data)/models/Models/ModelsTablePageClient";
-import { resolveModelsCatalogueVersion } from "@/lib/flags";
+import { resolveModelsCatalogueVersion } from "@/lib/models/catalogueVersion";
 
 export const metadata: Metadata = {
 	title: "Models table view",
@@ -19,4 +19,3 @@ export default async function ModelsTablePage() {
 		/>
 	);
 }
-

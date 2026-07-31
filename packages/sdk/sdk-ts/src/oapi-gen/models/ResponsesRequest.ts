@@ -114,7 +114,7 @@ export interface ResponsesRequest {
     summary?: "auto" | "concise" | "detailed";
   };
   safety_identifier?: string | null;
-  service_tier?: "standard" | "priority" | "flex" | "batch";
+  service_tier?: "standard" | "fast" | "priority" | "flex" | "batch";
   session_id?: string;
   store?: boolean;
   stream?: boolean;

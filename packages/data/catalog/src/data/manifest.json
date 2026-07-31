@@ -2786,6 +2786,16 @@
     "z-ai:text.generate:z-ai-glm-5-code",
     "z-ai:text.generate:z-ai-glm-5-turbo",
     "z-ai:text.generate:z-ai-glm-5.2",
-    "z-ai:text.generate:z-ai-glm-5v-turbo"
+    "z-ai:text.generate:z-ai-glm-5v-turbo",
+    "crofai:text.generate:moonshotai-kimi-k3",
+    "wafer:text.generate:moonshotai-kimi-k3",
+    "morph:text.generate:deepseek-deepseek-v4-flash",
+    "morph:text.generate:google-gemma-4-31b",
+    "morph:text.generate:minimax-minimax-m3",
+    "morph:text.generate:moonshotai-kimi-k3",
+    "morph:text.generate:qwen-qwen3.5-397b-a17b",
+    "morph:text.generate:qwen-qwen3.6-27b",
+    "morph:text.generate:z-ai-glm-5.2",
+    "morph:text.generate:moonshotai-kimi-k3-fast"
   ]
 }
