@@ -38,7 +38,7 @@ describe("settings UI contracts", () => {
 		expect(tabsSource).toContain("<select");
 		expect(tabsSource).toContain("router.push(event.currentTarget.value)");
 		expect(tabsSource).toContain("onClick={toggleSidebar}");
-		expect(tabsSource).not.toContain("<DropdownMenu");
+		expect(tabsSource).toContain(\n			\'className="flex h-[52px] items-center lg:hidden" aria-label="Settings navigation"\',\n		);\n		expect(tabsSource).not.toContain("<DropdownMenu");
 	});
 
 	it("provides display-label collections for ID-backed settings selects", () => {
