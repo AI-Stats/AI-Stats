@@ -205,6 +205,9 @@ const (
 	// Model ID: deepseek/deepseek-v4-flash
 	// Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash
 	ModelIDDeepseekDeepseekV4Flash gen.ModelId = "deepseek/deepseek-v4-flash"
+	// Model ID: deepseek/deepseek-v4-flash-0731
+	// Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash-0731
+	ModelIDDeepseekDeepseekV4Flash0731 gen.ModelId = "deepseek/deepseek-v4-flash-0731"
 	// Model ID: deepseek/deepseek-v4-pro
 	// Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro
 	ModelIDDeepseekDeepseekV4Pro gen.ModelId = "deepseek/deepseek-v4-pro"
@@ -1446,6 +1449,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDDeepseekDeepseekV32Exp,
 	ModelIDDeepseekDeepseekV32Speciale,
 	ModelIDDeepseekDeepseekV4Flash,
+	ModelIDDeepseekDeepseekV4Flash0731,
 	ModelIDDeepseekDeepseekV4Pro,
 	ModelIDDeepseekDeepseekV4ProLightning,
 	ModelIDElevenLabsElevenFlashV2,
