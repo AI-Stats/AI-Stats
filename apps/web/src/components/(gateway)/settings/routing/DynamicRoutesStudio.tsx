@@ -246,14 +246,53 @@ function getProviderLogoId(providerId: string): string {
 	return normalized.includes("bedrock") ? "amazon-bedrock" : normalized || "phaseo";
 }
 
+
 function StudioSelect({ value, onChange, options, ariaLabel }: { value: string; onChange: (value: string) => void; options: Array<{ value: string; label: string }>; ariaLabel: string }) {
 	const selectedLabel = options.find((option) => option.value === value)?.label ?? value;
-	return <Select value={value} onValueChange={onChange}><SelectTrigger aria-label={ariaLabel} className="h-9 w-full rounded-md border border-input bg-background"><SelectValue>{selectedLabel}</SelectValue></SelectTrigger><SelectContent align="start">{options.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent></Select>;
+	return (
+		<Select value={value} items={options} onValueChange={onChange}>
+			<SelectTrigger aria-label={ariaLabel} className="h-9 w-full rounded-md border border-input bg-background">
+				<SelectValue>{selectedLabel}</SelectValue>
+			</SelectTrigger>
+			<SelectContent align="start">
+				{options.map((option) => (
+					<SelectItem key={option.value} value={option.value} label={option.label}>
+						{option.label}
+					</SelectItem>
+				))}
+			</SelectContent>
+		</Select>
+	);
 }
 
 function ProviderSelect({ value, onChange, providers }: { value: string; onChange: (value: string) => void; providers: Provider[] }) {
 	const selected = providers.find((provider) => provider.id === value);
-	return <Select value={value} onValueChange={onChange}><SelectTrigger aria-label="Preferred provider" className="h-9 w-full rounded-md border border-input bg-background"><SelectValue><span className="flex min-w-0 items-center gap-2">{selected ? <Logo id={getProviderLogoId(selected.id)} alt={selected.name} width={16} height={16} className="size-4 shrink-0 object-contain" /> : <Route className="size-4 shrink-0 text-muted-foreground" />}<span className="truncate">{selected?.name ?? "Any eligible provider"}</span></span></SelectValue></SelectTrigger><SelectContent align="start"><SelectItem value="__any__"><span className="flex items-center gap-2"><Route className="size-4 text-muted-foreground" />Any eligible provider</span></SelectItem>{providers.map((provider) => <SelectItem key={provider.id} value={provider.id}><span className="flex items-center gap-2"><Logo id={getProviderLogoId(provider.id)} alt={provider.name} width={16} height={16} className="size-4 shrink-0 object-contain" />{provider.name}</span></SelectItem>)}</SelectContent></Select>;
+	const items = [
+		{ value: "__any__", label: "Any eligible provider" },
+		...providers.map((provider) => ({ value: provider.id, label: provider.name })),
+	];
+	return (
+		<Select value={value} items={items} onValueChange={onChange}>
+			<SelectTrigger aria-label="Preferred provider" className="h-9 w-full rounded-md border border-input bg-background">
+				<SelectValue>
+					<span className="flex min-w-0 items-center gap-2">
+						{selected ? <Logo id={getProviderLogoId(selected.id)} alt={selected.name} width={16} height={16} className="size-4 shrink-0 object-contain" /> : <Route className="size-4 shrink-0 text-muted-foreground" />}
+						<span className="truncate">{selected?.name ?? "Any eligible provider"}</span>
+					</span>
+				</SelectValue>
+			</SelectTrigger>
+			<SelectContent align="start">
+				<SelectItem value="__any__" label="Any eligible provider">
+					<span className="flex items-center gap-2"><Route className="size-4 text-muted-foreground" />Any eligible provider</span>
+				</SelectItem>
+				{providers.map((provider) => (
+					<SelectItem key={provider.id} value={provider.id} label={provider.name}>
+						<span className="flex items-center gap-2"><Logo id={getProviderLogoId(provider.id)} alt={provider.name} width={16} height={16} className="size-4 shrink-0 object-contain" />{provider.name}</span>
+					</SelectItem>
+				))}
+			</SelectContent>
+		</Select>
+	);
 }
 
 function GatewayModelCombobox({ value, onChange, options, excludedIds = [], requiredCapabilities = [], ariaLabel, loading, error }: { value: string; onChange: (value: string) => void; options: RoutingModelOption[]; excludedIds?: string[]; requiredCapabilities?: string[]; ariaLabel: string; loading: boolean; error: boolean }) {

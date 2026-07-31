@@ -416,6 +416,7 @@ export default function AccountSettingsClient({
 								{teams && teams.length > 0 ? (
 									<Select
 										value={defaultWorkspaceId ?? ""}
+										items={teams.map((team) => ({ value: team.id, label: team.name }))}
 										onValueChange={(v) => setDefaultTeamId(v || null)}
 									>
 										<SelectTrigger id="defaultTeam" className="w-full">
@@ -423,7 +424,7 @@ export default function AccountSettingsClient({
 										</SelectTrigger>
 										<SelectContent>
 											{teams.map((t) => (
-												<SelectItem key={t.id} value={t.id}>
+												<SelectItem key={t.id} value={t.id} label={t.name}>
 													{t.name}
 												</SelectItem>
 											))}

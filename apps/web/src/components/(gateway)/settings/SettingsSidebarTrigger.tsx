@@ -41,8 +41,8 @@ export default function SettingsSidebarTrigger({
 						className="w-full justify-between"
 						aria-haspopup="menu"
 					>
-						<span className="flex items-center gap-2 min-w-0">
-							<span className="truncate"><span className="text-muted-foreground">{activeScope === "personal" ? "My account" : "Workspace"}</span><span className="mx-1.5 text-muted-foreground/60">/</span>{activeItem?.label ?? "Settings"}</span>
+							<span className="flex min-w-0 items-center gap-2">
+								<span className="truncate">{activeItem?.label ?? "Settings"}</span>
 							{activeItem?.badge && (
 								<Badge
 									variant="outline"
