@@ -1,0 +1,201 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Clock3 } from "lucide-react";
+import { readGameState, writeGameState } from "./gameStorage";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { checkPuzzle } from "@/lib/games/client";
+import type { ModelCandidate, SprintPuzzle } from "@/lib/games/types";
+import { cn } from "@/lib/utils";
+
+type SprintState = {
+  found: ModelCandidate[];
+  startedAt: number | null;
+  finished: boolean;
+  answers: ModelCandidate[] | null;
+};
+
+export function SprintGame({ puzzle }: { puzzle: SprintPuzzle }) {
+  const initial: SprintState = {
+    found: [],
+    startedAt: null,
+    finished: false,
+    answers: null,
+  };
+  const [state, setState] = useState(() =>
+    readGameState("sprint", puzzle.puzzleId, initial)
+  );
+  const [guess, setGuess] = useState("");
+  const [now, setNow] = useState(() => Date.now());
+  const finishingRef = useRef(false);
+  const save = useCallback(
+    (next: SprintState) => {
+      setState(next);
+      writeGameState("sprint", puzzle.puzzleId, next);
+    },
+    [puzzle.puzzleId]
+  );
+  const secondsLeft =
+    state.startedAt == null
+      ? puzzle.durationSeconds
+      : Math.max(
+          0,
+          puzzle.durationSeconds - Math.floor((now - state.startedAt) / 1_000)
+        );
+  const finish = useCallback(async () => {
+    if (state.finished || finishingRef.current) return;
+    finishingRef.current = true;
+    try {
+      const result = await checkPuzzle<{ answers: ModelCandidate[] }>(
+        "sprint",
+        puzzle.puzzleId,
+        { action: "finish" }
+      );
+      save({ ...state, finished: true, answers: result.answers });
+    } finally {
+      finishingRef.current = false;
+    }
+  }, [puzzle.puzzleId, save, state]);
+
+  useEffect(() => {
+    if (state.startedAt == null || state.finished) return;
+    const interval = window.setInterval(() => setNow(Date.now()), 250);
+    return () => window.clearInterval(interval);
+  }, [state.finished, state.startedAt]);
+
+  useEffect(() => {
+    if (state.startedAt != null && !state.finished && secondsLeft === 0) {
+      void finish();
+    }
+  }, [finish, secondsLeft, state.finished, state.startedAt]);
+
+  return (
+    <div className="space-y-5">
+      <Card>
+        <CardHeader>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <CardDescription>Today’s category</CardDescription>
+              <CardTitle className="mt-1 text-2xl">
+                {puzzle.category.label}
+              </CardTitle>
+            </div>
+            <div className="flex items-center gap-2 rounded-2xl bg-muted px-4 py-2 font-mono text-xl font-semibold">
+              <Clock3 className="size-5" />
+              {secondsLeft}s
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {state.startedAt == null ? (
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={() => {
+                const next = { ...state, startedAt: Date.now() };
+                setNow(Date.now());
+                save(next);
+              }}
+            >
+              Start sprint
+            </Button>
+          ) : (
+            <form
+              className="flex gap-2"
+              onSubmit={async (event) => {
+                event.preventDefault();
+                if (!guess.trim() || state.finished) return;
+                const result = await checkPuzzle<{
+                  accepted: boolean;
+                  model?: ModelCandidate;
+                }>("sprint", puzzle.puzzleId, { guess });
+                if (
+                  result.accepted &&
+                  result.model &&
+                  !state.found.some((model) => model.id === result.model?.id)
+                ) {
+                  save({ ...state, found: [...state.found, result.model] });
+                }
+                setGuess("");
+              }}
+            >
+              <Input
+                value={guess}
+                onChange={(event) => setGuess(event.target.value)}
+                disabled={state.finished}
+                autoFocus
+                placeholder="Type an exact model name…"
+                className="h-10"
+              />
+              <Button
+                type="submit"
+                size="lg"
+                disabled={state.finished || !guess.trim()}
+              >
+                Add
+              </Button>
+            </form>
+          )}
+        </CardContent>
+      </Card>
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
+          <strong className="text-foreground">{state.found.length}</strong> of{" "}
+          {puzzle.totalAnswers} found
+        </div>
+        {state.startedAt != null && !state.finished && (
+          <Button variant="ghost" size="sm" onClick={finish}>
+            Finish now
+          </Button>
+        )}
+      </div>
+      {state.found.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {state.found.map((model) => (
+            <Badge key={model.id} variant="secondary">
+              {model.name}
+            </Badge>
+          ))}
+        </div>
+      )}
+      {state.finished && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Sprint complete</CardTitle>
+            <CardDescription>
+              You found {state.found.length} of {puzzle.totalAnswers}. The full
+              answer set is below.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {state.answers?.map((model) => (
+              <div
+                key={model.id}
+                className={cn(
+                  "rounded-xl px-3 py-2 text-sm",
+                  state.found.some((found) => found.id === model.id)
+                    ? "bg-emerald-500/15"
+                    : "bg-muted/50"
+                )}
+              >
+                <div className="font-medium">{model.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {model.labName}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
