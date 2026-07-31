@@ -4,7 +4,7 @@
 
 import { normalizeProviderId, normalizeProviderList } from "@/lib/config/providerAliases";
 import type { ProviderCandidate } from "./before/types";
-import { isFreePriceCard } from "./pricing";
+import { isFreePriceCard } from "./pricing/free";
 
 type PlainObject = Record<string, any>;
 
