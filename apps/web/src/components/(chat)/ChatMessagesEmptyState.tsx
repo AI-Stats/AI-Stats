@@ -80,23 +80,19 @@ function buildStarterCollections(models: ModelOption[]) {
 	const collections: StarterCollection[] = [];
 	const frontierModels = findPreferredModels(activeModels, [
 		{
-			id: "openai-gpt-5.5",
+			id: "openai-gpt-5.6-sol",
 			matches: [
-				(model) => model.modelId === "openai/gpt-5.5",
-				(model) => getSearchText(model).includes("gpt-5.5"),
-				(model) => getSearchText(model).includes("gpt 5.5"),
+				(model) => model.modelId === "openai/gpt-5.6-sol",
+				(model) => getSearchText(model).includes("gpt-5.6-sol"),
+				(model) => getSearchText(model).includes("gpt 5.6 sol"),
 			],
 		},
 		{
-			id: "google-gemini-3.1-pro",
+			id: "google-gemini-3.6-flash",
 			matches: [
-				(model) => model.modelId === "google/gemini-3.1-pro-preview",
-				(model) =>
-					getSearchText(model).includes("gemini-3.1-pro") &&
-					!getSearchText(model).includes("customtools"),
-				(model) =>
-					getSearchText(model).includes("gemini 3.1 pro") &&
-					!getSearchText(model).includes("customtools"),
+				(model) => model.modelId === "google/gemini-3.6-flash",
+				(model) => getSearchText(model).includes("gemini-3.6-flash"),
+				(model) => getSearchText(model).includes("gemini 3.6 flash"),
 			],
 		},
 		{
@@ -108,11 +104,11 @@ function buildStarterCollections(models: ModelOption[]) {
 			],
 		},
 		{
-			id: "spacex-ai-grok-4.3",
+			id: "spacex-ai-grok-4.5",
 			matches: [
-				(model) => model.modelId === "spacex-ai/grok-4.3",
-				(model) => getSearchText(model).includes("grok 4.3"),
-				(model) => getSearchText(model).includes("grok-4.3"),
+				(model) => model.modelId === "spacex-ai/grok-4.5",
+				(model) => getSearchText(model).includes("grok 4.5"),
+				(model) => getSearchText(model).includes("grok-4.5"),
 			],
 		},
 	]);
@@ -157,11 +153,11 @@ function buildStarterCollections(models: ModelOption[]) {
 			],
 		},
 		{
-			id: "moonshot-kimi-k2.7-code",
+			id: "moonshot-kimi-k3",
 			matches: [
-				(model) => model.modelId === "moonshotai/kimi-k2.7-code",
-				(model) => getSearchText(model).includes("kimi k2.7 code"),
-				(model) => getSearchText(model).includes("kimi-k2.7-code"),
+				(model) => model.modelId === "moonshotai/kimi-k3",
+				(model) => getSearchText(model).includes("kimi k3"),
+				(model) => getSearchText(model).includes("kimi-k3"),
 			],
 		},
 	]);
@@ -185,11 +181,11 @@ function buildStarterCollections(models: ModelOption[]) {
 			],
 		},
 		{
-			id: "moonshot-kimi-k2.7-code",
+			id: "moonshot-kimi-k3",
 			matches: [
-				(model) => model.modelId === "moonshotai/kimi-k2.7-code",
-				(model) => getSearchText(model).includes("kimi k2.7 code"),
-				(model) => getSearchText(model).includes("kimi-k2.7-code"),
+				(model) => model.modelId === "moonshotai/kimi-k3",
+				(model) => getSearchText(model).includes("kimi k3"),
+				(model) => getSearchText(model).includes("kimi-k3"),
 			],
 		},
 		{
