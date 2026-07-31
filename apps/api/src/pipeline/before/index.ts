@@ -27,6 +27,8 @@ import { normalizeGatewayPlugins, resolveGatewayPlugins } from "@/plugins/normal
 import { findUnknownGatewayPluginIds } from "@/plugins/registry";
 import { validateSynchronousTextServiceTierRequest } from "./serviceTierValidation";
 import {
+	applyProviderQualifiedModelConstraint,
+	canonicalizeProviderQualifiedModelRequest,
 	collectUnsupportedRoutingFields,
 	getEffectiveRoutingHints,
 	normalizeRequestRoutingBody,
@@ -216,7 +218,10 @@ export async function beforeRequest(
     // 3) Zod (route schema: shape depends on request path)
     const v = await timer.span("guardZod", () => guardZod(zodSchema, rawBody, workspaceId, requestId));
     if (!v.ok) return v as { ok: false; response: Response };
-    const body = v.value;
+    let body = v.value;
+    const providerQualifiedModelRequest =
+        canonicalizeProviderQualifiedModelRequest(body);
+    body = providerQualifiedModelRequest.body;
 
     const serviceTierValidation = validateSynchronousTextServiceTierRequest({
         endpoint,
@@ -408,6 +413,37 @@ export async function beforeRequest(
         };
     }
     mergedBody = normalizeRequestRoutingBody(mergedBody);
+
+    // Keep this as the final request-level provider constraint before workspace
+    // policy enforcement. A provider-qualified model is an exact pair, not a
+    // provider preference that presets or other routing hints may widen.
+    const providerQualifiedConstraint =
+        applyProviderQualifiedModelConstraint(
+            mergedBody,
+            providerQualifiedModelRequest.selection,
+        );
+    if (providerQualifiedConstraint.ok === false) {
+        return {
+            ok: false,
+            response: err("validation_error", {
+                details: [{
+                    message:
+                        `Provider-qualified model "${providerQualifiedConstraint.providerId}:${providerQualifiedConstraint.model}" conflicts with ${providerQualifiedConstraint.field}`,
+                    path: providerQualifiedConstraint.field.split("."),
+                    keyword: "provider_qualified_model_conflict",
+                    params: {
+                        provider: providerQualifiedConstraint.providerId,
+                        model: providerQualifiedConstraint.model,
+                        field: providerQualifiedConstraint.field,
+                        values: providerQualifiedConstraint.values,
+                    },
+                }],
+                request_id: requestId,
+                workspace_id: workspaceId,
+            }),
+        };
+    }
+    mergedBody = providerQualifiedConstraint.body;
 
     const workspacePolicyLoad = await workspacePolicyPromise;
     if ("error" in workspacePolicyLoad) {
