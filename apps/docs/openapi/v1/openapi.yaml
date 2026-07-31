@@ -7031,6 +7031,7 @@ components:
         - ace-bench
         - activitynet
         - aethercode
+        - agents-last-exam
         - agieval
         - ai2-reasoning-challenge-(arc)
         - ai2-sciarena
@@ -7185,6 +7186,8 @@ components:
         - drop
         - ds-arena-code
         - ds-fim-eval
+        - dsbench-fullstack
+        - dsbench-hard
         - dubesor-llm
         - dude
         - dynamath
