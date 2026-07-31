@@ -2,6 +2,8 @@
 // Why: Keeps `provider` compatibility while letting `routing` become the canonical interface.
 // How: Merges provider/routing hints, resolves aliases, and surfaces explicit routing flags.
 
+import { normalizeProviderId, normalizeProviderList } from "@/lib/config/providerAliases";
+
 type PlainObject = Record<string, any>;
 
 export type RoutingModePreference =
@@ -100,7 +102,7 @@ export function parseProviderQualifiedModel(
 	}
 
 	return {
-		providerId: providerId.toLowerCase(),
+		providerId: normalizeProviderId(providerId),
 		model,
 	};
 }
@@ -124,7 +126,7 @@ export function canonicalizeProviderQualifiedModelRequest(body: any): {
 }
 
 function normalizedProviderConstraintValues(value: unknown): string[] {
-	return (normalizeStringArray(value) ?? []).map((item) => item.toLowerCase());
+	return normalizeProviderList(normalizeStringArray(value) ?? []);
 }
 
 export function applyProviderQualifiedModelConstraint(
