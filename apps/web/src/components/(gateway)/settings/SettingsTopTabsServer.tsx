@@ -2,14 +2,20 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronDown, PanelLeftIcon } from "lucide-react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useSidebar } from "@/components/ui/sidebar";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { getActiveSettingsNav } from "./Sidebar.config";
+import SettingsSidebarTrigger from "./SettingsSidebarTrigger";
 
 type Tab = {
 	href: string;
@@ -145,11 +151,8 @@ export default function SettingsTopTabsServer({
 } = {}) {
 	void isEnterpriseInvoiceMode;
 	const pathname = usePathname() ?? "";
-	const router = useRouter();
 	const searchParams = useSearchParams();
-	const mobileSelectId = React.useId();
 	const logsView = searchParams.get("view") ?? "logs";
-	const { toggleSidebar } = useSidebar();
 	const tabs = resolveTabs(pathname, { showBroadcast, showWebhooks });
 	const activeNav = React.useMemo(
 		() => getActiveSettingsNav(pathname, { showBroadcast, showWebhooks }),
@@ -203,7 +206,6 @@ export default function SettingsTopTabsServer({
 						return b.score!.len - a.score!.len;
 					})[0]?.t ?? tabs[0]
 			: null;
-	const mobileSectionLabel = activeNav?.group.scope === "personal" ? "My account" : "Workspace";
 
 	const setIndicatorToHref = React.useCallback((href: string | null) => {
 		const container = containerRef.current;
@@ -233,17 +235,7 @@ export default function SettingsTopTabsServer({
 	if (!tabs?.length) {
 		return (
 			<>
-				<nav className="flex h-[52px] items-center lg:hidden" aria-label="Settings navigation">
-					<Button
-						variant="outline"
-						className="h-9 w-full justify-start px-3"
-						onClick={toggleSidebar}
-						aria-haspopup="dialog"
-					>
-						<PanelLeftIcon className="mr-1.5 h-4 w-4" />
-						<span className="truncate">{activeNav?.item.label ?? "Settings"}</span>
-					</Button>
-				</nav>
+				<SettingsSidebarTrigger showBroadcast={showBroadcast} showWebhooks={showWebhooks} />
 				<nav
 					className="relative hidden h-[52px] items-end border-b border-border lg:flex"
 					aria-label="Settings section navigation"
@@ -273,35 +265,56 @@ export default function SettingsTopTabsServer({
 		<>
 			<nav className="flex h-[52px] items-center md:hidden" aria-label="Settings section navigation">
 				<div className="flex w-full items-center gap-2">
-					<Button
-						variant="outline"
-						className="h-9 max-w-[11rem] shrink-0 px-3"
-						onClick={toggleSidebar}
-						aria-haspopup="dialog"
-					>
-						<PanelLeftIcon className="mr-1.5 h-4 w-4" />
-						<span className="truncate">{mobileSectionLabel}</span>
-					</Button>
-					<div className="relative min-w-0 flex-1">
-						<label htmlFor={mobileSelectId} className="sr-only">
-							Settings subsection
-						</label>
-						<select
-							id={mobileSelectId}
-							value={activeTab ? navigationHref(activeTab) : ""}
-							onChange={(event) => router.push(event.currentTarget.value)}
-							className="h-9 w-full appearance-none rounded-lg border border-border bg-background px-3 pr-9 text-sm font-medium text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
-						>
-							{tabs.map((tab) => (
-								<option key={tab.href} value={navigationHref(tab)}>
-									{tab.label}
-								</option>
-							))}
-						</select>
-						<ChevronDown
-							aria-hidden="true"
-							className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2"
+					<div className="min-w-0 flex-1">
+						<SettingsSidebarTrigger
+							showBroadcast={showBroadcast}
+							showWebhooks={showWebhooks}
 						/>
+					</div>
+					<div className="min-w-0 flex-1">
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button
+									variant="outline"
+									className="h-9 w-full min-w-0 justify-between"
+								>
+									<span className="truncate">
+										{activeTab?.label ?? "Settings"}
+									</span>
+									<ChevronDown className="h-4 w-4 shrink-0" />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent
+								align="end"
+								className="w-[min(20rem,calc(100vw-1rem))]"
+							>
+								{tabs.map((tab) => {
+									const active = tab.href === activeTab?.href;
+									return (
+										<DropdownMenuItem key={tab.href} asChild>
+											<Link
+												href={navigationHref(tab)}
+												prefetch={false}
+												aria-current={active ? "page" : undefined}
+												className="flex items-center gap-2"
+											>
+												<span className={cn("flex-1 truncate", active && "font-semibold")}>
+													{tab.label}
+												</span>
+												{tab.badge ? (
+													<Badge
+														variant="outline"
+														className="h-4 px-1 text-[9px] capitalize"
+													>
+														{tab.badge}
+													</Badge>
+												) : null}
+											</Link>
+										</DropdownMenuItem>
+									);
+								})}
+							</DropdownMenuContent>
+						</DropdownMenu>
 					</div>
 				</div>
 			</nav>
