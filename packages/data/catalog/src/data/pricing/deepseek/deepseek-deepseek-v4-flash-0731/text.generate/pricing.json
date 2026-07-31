@@ -1,8 +1,8 @@
 {
-  "key": "deepseek:deepseek/deepseek-v4-flash:text.generate",
+  "key": "deepseek:deepseek/deepseek-v4-flash-0731:text.generate",
   "api_provider_id": "deepseek",
   "provider_slug": "deepseek",
-  "api_model_id": "deepseek/deepseek-v4-flash",
+  "api_model_id": "deepseek/deepseek-v4-flash-0731",
   "capability_id": "text.generate",
   "rules": [
     {
@@ -16,12 +16,11 @@
       "match": [],
       "priority": 100,
       "billing_timestamp_basis": "provider_accept",
-      "effective_from": "2026-04-24T00:00:00Z",
+      "effective_from": "2026-07-31T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null,
-      "effective_to": "2026-07-31T00:00:00Z"
+      "source": null
     },
     {
       "meter": "cached_read_text_tokens",
@@ -34,12 +33,11 @@
       "match": [],
       "priority": 100,
       "billing_timestamp_basis": "provider_accept",
-      "effective_from": "2026-04-24T00:00:00Z",
+      "effective_from": "2026-07-31T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null,
-      "effective_to": "2026-07-31T00:00:00Z"
+      "source": null
     },
     {
       "meter": "output_text_tokens",
@@ -52,12 +50,11 @@
       "match": [],
       "priority": 100,
       "billing_timestamp_basis": "provider_accept",
-      "effective_from": "2026-04-24T00:00:00Z",
+      "effective_from": "2026-07-31T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null,
-      "effective_to": "2026-07-31T00:00:00Z"
+      "source": null
     }
   ],
   "regions": [],
@@ -69,12 +66,12 @@
       "kind": "pricing",
       "url": "https://api-docs.deepseek.com/quick_start/pricing/",
       "accessed_at": "2026-07-31T00:00:00Z",
-      "notes": "Official DeepSeek V4 Flash token prices; announced peak pricing has no effective date yet."
+      "notes": "Official DeepSeek V4 Flash 0731 token prices; announced peak pricing has no effective date yet."
     }
   ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-07-31T00:00:00Z",
-    "notes": "Confirmed at $0.0028/M cached input, $0.14/M uncached input and $0.28/M output."
+    "notes": "Confirmed for DeepSeek V4 Flash 0731 at $0.0028/M cached input, $0.14/M uncached input and $0.28/M output."
   }
 }

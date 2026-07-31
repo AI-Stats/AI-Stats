@@ -138,6 +138,8 @@ namespace PhaseoSdk
         public const string DeepseekDeepseekV32Speciale = "deepseek/deepseek-v3.2-speciale";
         /// <summary>Model ID: <c>deepseek/deepseek-v4-flash</c>. Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash</summary>
         public const string DeepseekDeepseekV4Flash = "deepseek/deepseek-v4-flash";
+        /// <summary>Model ID: <c>deepseek/deepseek-v4-flash-0731</c>. Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash-0731</summary>
+        public const string DeepseekDeepseekV4Flash0731 = "deepseek/deepseek-v4-flash-0731";
         /// <summary>Model ID: <c>deepseek/deepseek-v4-pro</c>. Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro</summary>
         public const string DeepseekDeepseekV4Pro = "deepseek/deepseek-v4-pro";
         /// <summary>Model ID: <c>deepseek/deepseek-v4-pro-lightning</c>. Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro-lightning</summary>
