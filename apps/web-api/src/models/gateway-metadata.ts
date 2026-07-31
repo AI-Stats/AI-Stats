@@ -98,6 +98,7 @@ function availability(row: Row, capability: Row, provider: Row | null, now: numb
 	if (providerAvailability === "coming_soon") return "coming_soon";
 	if (providerAvailability && !["available", "preview", "limited_access"].includes(providerAvailability)) return "inactive";
 	const phaseo = status(row.phaseo_status);
+	if (status(row.access_scope) === "internal") return "coming_soon";
 	if (phaseo && ["planned", "implementing", "testing"].includes(phaseo)) return "coming_soon";
 	if (phaseo && phaseo !== "enabled") return "inactive";
 	const providerStatus = status(provider?.status);
@@ -114,9 +115,11 @@ function availabilityReason(row: Row, capability: Row, provider: Row | null, now
 	if (now >= to) return "retired";
 	if (now < from) return "scheduled";
 	const providerAvailability = status(row.provider_availability_status);
-	if (providerAvailability && providerAvailability !== "available") return `provider_${providerAvailability}`;
 	const phaseo = status(row.phaseo_status);
+	const accessScope = status(row.access_scope);
+	if (accessScope === "internal" || phaseo === "testing") return "internal_testing";
 	if (phaseo && phaseo !== "enabled") return `phaseo_${phaseo}`;
+	if (providerAvailability && providerAvailability !== "available") return `provider_${providerAvailability}`;
 	const providerStatus = status(provider?.status);
 	if (providerStatus === "beta" || providerStatus === "alpha") return "preview_only";
 	if (providerStatus && providerStatus !== "active") return ["not_ready", "gated", "access_limited", "region_limited", "project_limited", "paused", "soft_blocked"].includes(providerStatus) ? providerStatus : "provider_inactive";

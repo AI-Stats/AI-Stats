@@ -108,6 +108,10 @@ function isRoutableProvider(provider: ProviderPricing): boolean {
 		ROUTABLE_STATUSES.has(
 			resolveGatewayStatus({
 				isActiveGateway: providerModel.is_active_gateway,
+				providerAvailabilityStatus:
+					providerModel.provider_availability_status,
+				phaseoStatus: providerModel.phaseo_status,
+				accessScope: providerModel.access_scope,
 				capabilityStatus: providerModel.capability_status,
 				providerStatus: provider.provider.status,
 				providerRoutingStatus: provider.provider.routing_status,

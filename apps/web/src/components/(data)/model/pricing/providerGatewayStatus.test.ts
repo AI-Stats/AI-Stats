@@ -75,4 +75,33 @@ describe("providerGatewayStatus", () => {
 			}),
 		).toBe("internal_testing");
 	});
+
+	it("uses the explicit provider, Phaseo, and access statuses", () => {
+		expect(
+			resolveGatewayStatus({
+				isActiveGateway: false,
+				providerAvailabilityStatus: "available",
+				phaseoStatus: "implementing",
+				accessScope: "public",
+			}),
+		).toBe("coming_soon");
+
+		expect(
+			resolveGatewayStatus({
+				isActiveGateway: false,
+				providerAvailabilityStatus: "available",
+				phaseoStatus: "testing",
+				accessScope: "internal",
+			}),
+		).toBe("internal_testing");
+
+		expect(
+			resolveGatewayStatus({
+				isActiveGateway: false,
+				providerAvailabilityStatus: "removed",
+				phaseoStatus: "enabled",
+				accessScope: "public",
+			}),
+		).toBe("inactive");
+	});
 });

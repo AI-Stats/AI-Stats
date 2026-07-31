@@ -82,6 +82,7 @@ export interface GatewayProviderModel {
 		| "provider_not_ready"
 		| "provider_inactive"
 		| "provider_unknown"
+		| "provider_coming_soon"
 		| "provider_preview"
 		| "provider_limited_access"
 		| "provider_deprecated"
@@ -215,6 +216,9 @@ function isPublicRoutingStatus(status: string | null): boolean {
 
 function resolveAvailabilityStatus(args: {
 	isActiveGateway: boolean;
+	providerAvailabilityStatus: string | null;
+	phaseoStatus: string | null;
+	accessScope: string | null;
 	providerStatus: string | null;
 	providerRoutingStatus: string | null;
 	modelRoutingStatus: string | null;
@@ -227,6 +231,25 @@ function resolveAvailabilityStatus(args: {
 
 	if (isExpiredEffectiveWindow(args.effectiveTo, now)) return "inactive";
 	if (isFutureEffectiveWindow(args.effectiveFrom, now)) return "coming_soon";
+	if (args.accessScope === "internal" || args.phaseoStatus === "testing") {
+		return "coming_soon";
+	}
+	if (
+		args.providerAvailabilityStatus === "coming_soon" ||
+		args.phaseoStatus === "planned" ||
+		args.phaseoStatus === "implementing"
+	) {
+		return "coming_soon";
+	}
+	if (
+		args.providerAvailabilityStatus &&
+		!["available", "preview", "limited_access"].includes(
+			args.providerAvailabilityStatus,
+		)
+	) {
+		return "inactive";
+	}
+	if (args.phaseoStatus && args.phaseoStatus !== "enabled") return "inactive";
 	if (args.providerStatus === "beta" || args.providerStatus === "alpha") {
 		return "coming_soon";
 	}
@@ -242,6 +265,9 @@ function resolveAvailabilityStatus(args: {
 
 function resolveAvailabilityReason(args: {
 	isActiveGateway: boolean;
+	providerAvailabilityStatus: string | null;
+	phaseoStatus: string | null;
+	accessScope: string | null;
 	providerStatus: string | null;
 	providerRoutingStatus: string | null;
 	modelRoutingStatus: string | null;
@@ -269,12 +295,46 @@ function resolveAvailabilityReason(args: {
 	| "capability_disabled"
 	| "provider_not_ready"
 	| "provider_inactive"
+	| "provider_unknown"
+	| "provider_coming_soon"
+	| "provider_preview"
+	| "provider_limited_access"
+	| "provider_deprecated"
+	| "provider_removed"
+	| "phaseo_unsupported"
+	| "phaseo_planned"
+	| "phaseo_implementing"
+	| "phaseo_disabled"
+	| "phaseo_blocked"
 	| "inactive"
 	| "retired" {
 	const now = args.now ?? new Date();
 
 	if (isExpiredEffectiveWindow(args.effectiveTo, now)) return "retired";
 	if (isFutureEffectiveWindow(args.effectiveFrom, now)) return "scheduled";
+	if (args.accessScope === "internal" || args.phaseoStatus === "testing") {
+		return "internal_testing";
+	}
+	if (args.phaseoStatus && args.phaseoStatus !== "enabled") {
+		return `phaseo_${args.phaseoStatus}` as
+			| "phaseo_unsupported"
+			| "phaseo_planned"
+			| "phaseo_implementing"
+			| "phaseo_disabled"
+			| "phaseo_blocked";
+	}
+	if (
+		args.providerAvailabilityStatus &&
+		args.providerAvailabilityStatus !== "available"
+	) {
+		return `provider_${args.providerAvailabilityStatus}` as
+			| "provider_unknown"
+			| "provider_coming_soon"
+			| "provider_preview"
+			| "provider_limited_access"
+			| "provider_deprecated"
+			| "provider_removed";
+	}
 	if (args.providerStatus === "beta" || args.providerStatus === "alpha")
 		return "preview_only";
 	if (args.providerStatus === "not_ready") return "provider_not_ready";
@@ -320,14 +380,21 @@ export default async function getModelGatewayMetadata(
 		)).metadata;
 	}
 	const source = await fetchAdminModelSource(modelId).then((source) => ({
-            providerModels: source.providerRows,
-            caps: source.providerRows.flatMap((row) => row.data_api_provider_model_capabilities ?? []),
-            providers: Array.from(new Map(source.providerRows.map((row) => {
-                const provider = Array.isArray(row.data_api_providers) ? row.data_api_providers[0] : row.data_api_providers;
-                return [row.provider_id, { api_provider_id: row.provider_id, ...provider }];
-            })).values()),
-            aliases: source.aliases,
-        }));
+		providerModels: source.providerRows,
+		caps: source.providerRows.flatMap((row) =>
+				(row.data_api_provider_model_capabilities ?? []).map(
+					(capability: Record<string, any>) => ({
+						...capability,
+						provider_api_model_id: row.provider_api_model_id,
+					}),
+				),
+			),
+		providers: Array.from(new Map(source.providerRows.map((row) => {
+			const provider = Array.isArray(row.data_api_providers) ? row.data_api_providers[0] : row.data_api_providers;
+			return [row.provider_id, { api_provider_id: row.provider_id, ...provider }];
+		})).values()),
+		aliases: source.aliases,
+	}));
 	const providerModels: ProviderModelRow[] = source.providerModels;
 	const caps = source.caps;
 
@@ -339,8 +406,12 @@ export default async function getModelGatewayMetadata(
 			.map((cap: Record<string, any>) => String(cap.provider_api_model_id ?? "").trim())
 			.filter(Boolean),
 	);
-	const visibleProviderModels = (providerModels ?? []).filter((row) =>
-		visibleProviderModelIds.has(String(row.provider_api_model_id ?? "").trim()),
+	const visibleProviderModels = (providerModels ?? []).filter(
+		(row) =>
+			visibleProviderModelIds.has(
+				String(row.provider_api_model_id ?? "").trim(),
+			) &&
+			(includeInternal || normalizeStatusValue(row.access_scope) !== "internal"),
 	);
 
     const apiModelStats = new Map<
@@ -458,8 +529,16 @@ export default async function getModelGatewayMetadata(
 		);
 		const modelRoutingStatus = normalizeStatusValue(pm.routing_status ?? null);
 		const capabilityStatus = normalizeStatusValue(cap.status ?? null);
+		const providerAvailabilityStatus = normalizeStatusValue(
+			pm.provider_availability_status ?? null,
+		);
+		const phaseoStatus = normalizeStatusValue(pm.phaseo_status ?? null);
+		const accessScope = normalizeStatusValue(pm.access_scope ?? null) ?? "public";
 		const availabilityStatus = resolveAvailabilityStatus({
 			isActiveGateway: Boolean(pm.is_active_gateway),
+			providerAvailabilityStatus,
+			phaseoStatus,
+			accessScope,
 			providerStatus,
 			providerRoutingStatus,
 			modelRoutingStatus,
@@ -517,6 +596,9 @@ export default async function getModelGatewayMetadata(
 			availability_status: availabilityStatus,
 			availability_reason: resolveAvailabilityReason({
 				isActiveGateway: Boolean(pm.is_active_gateway),
+				providerAvailabilityStatus,
+				phaseoStatus,
+				accessScope,
 				providerStatus,
 				providerRoutingStatus,
 				modelRoutingStatus,
@@ -525,6 +607,11 @@ export default async function getModelGatewayMetadata(
 				effectiveTo: pm.effective_to,
 				now,
 			}),
+			provider_availability_status:
+				providerAvailabilityStatus as GatewayProviderModel["provider_availability_status"],
+			phaseo_status:
+				phaseoStatus as GatewayProviderModel["phaseo_status"],
+			access_scope: accessScope as GatewayProviderModel["access_scope"],
 			provider_status: providerStatus,
 			provider_routing_status: providerRoutingStatus,
 			model_routing_status: modelRoutingStatus,
