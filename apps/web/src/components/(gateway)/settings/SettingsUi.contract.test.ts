@@ -55,9 +55,12 @@ describe("settings UI contracts", () => {
 		expect(headerSource.indexOf("<SettingsSidebarTrigger")).toBeLessThan(
 			headerSource.indexOf('aria-label="Phaseo home"'),
 		);
+		expect(headerSource.match(/<SearchWrapper/g)).toHaveLength(1);
 		expect(headerSource.indexOf('<AuthControls variant="mobile"')).toBeLessThan(
-			headerSource.lastIndexOf("<SearchWrapper"),
+			headerSource.indexOf("<SearchWrapper"),
 		);
+		expect(headerSource).toContain('className="order-2 size-');
+		expect(headerSource).toContain("lg:order-1");
 		expect(tabsSource).not.toContain("<SettingsSidebarTrigger");
 		expect(tabsSource).not.toContain("<DropdownMenu");
 		expect(tabsSource).toContain("overflow-x-auto");
