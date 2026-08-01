@@ -592,17 +592,17 @@ function KpiMetric({
 			className="group relative block min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 		>
 			<Card className="h-full rounded-lg py-0 transition-colors group-hover:bg-muted/20">
-			<div className="grid min-h-[112px] grid-cols-[minmax(0,1fr)_80px] items-center gap-3 px-4 py-3">
+			<div className="flex min-h-[136px] min-w-0 flex-col px-3 py-3 sm:grid sm:min-h-[112px] sm:grid-cols-[minmax(0,1fr)_80px] sm:items-center sm:gap-3 sm:px-4">
 				<div className="min-w-0">
-					<CardTitle className="text-xs font-medium text-muted-foreground">
+					<CardTitle className="text-[11px] font-medium leading-tight text-muted-foreground sm:text-xs">
 						{kpi.label}
 					</CardTitle>
-					<div className="mt-1 text-2xl font-semibold tracking-tight">
+					<div className="mt-1 truncate text-xl font-semibold tracking-tight sm:text-2xl">
 						{formatKpiValue(kpi, displayValue)}
 					</div>
 					<div
 						className={cn(
-							"mt-2 inline-flex items-center gap-1 text-xs font-medium",
+							"mt-1.5 inline-flex max-w-full items-center gap-1 text-[11px] font-medium sm:mt-2 sm:text-xs",
 							hoveredPoint
 								? "text-muted-foreground"
 								: positive
@@ -629,7 +629,7 @@ function KpiMetric({
 						)}
 					</div>
 				</div>
-				<div className="min-w-0 text-right">
+				<div className="mt-auto h-8 min-w-0 w-full pt-2 text-right sm:mt-0 sm:h-auto sm:pt-0">
 					<Sparkline
 						data={kpi.sparkline}
 						height={38}
@@ -2432,8 +2432,8 @@ export default function ObservabilityHub({
 		<div className="space-y-6">
 			<div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
 				<div className="min-w-0 flex-1">
-					<h1 className="text-2xl font-semibold tracking-tight">Activity</h1>
-					<p className="mt-1 text-sm text-muted-foreground">Your usage across Phaseo.</p>
+					<h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Activity</h1>
+					<p className="mt-1 text-xs text-muted-foreground sm:text-sm">Your usage across Phaseo.</p>
 				</div>
 				<div className="flex shrink-0 justify-end">
 					<UsageLogsToolbar
