@@ -58,6 +58,7 @@ import {
 
 interface Props {
 	className?: string;
+	mobileGhost?: boolean;
 }
 
 type SearchableItem = PaletteItem;
@@ -603,7 +604,7 @@ function SearchEmptyState({
 	);
 }
 
-export default function Search({ className }: Props) {
+export default function Search({ className, mobileGhost = false }: Props) {
 	const router = useRouter();
 	const pathname = usePathname() ?? "/";
 	const { resolvedTheme, setTheme } = useTheme();
@@ -1148,7 +1149,11 @@ export default function Search({ className }: Props) {
 			<button
 				type="button"
 				onClick={() => setOpen(true)}
-				className="relative flex h-[var(--site-header-control-h,2.25rem)] w-[var(--site-header-control-h,2.25rem)] items-center justify-center rounded-lg border border-zinc-200/80 bg-white px-0 text-left text-sm text-zinc-500 shadow-none transition-[border-color,color,background-color] hover:border-zinc-300 hover:text-zinc-700 xl:w-full xl:justify-start xl:pl-9 xl:pr-12 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-200"
+				className={cn(
+					"relative flex size-9 items-center justify-center rounded-lg border border-zinc-200/80 bg-white px-0 text-left text-sm text-zinc-500 shadow-none transition-[border-color,color,background-color] hover:border-zinc-300 hover:text-zinc-700 xl:w-full xl:justify-start xl:pl-9 xl:pr-12 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-200",
+					mobileGhost &&
+						"border-transparent bg-transparent hover:border-transparent hover:bg-zinc-100/70 lg:border-zinc-200/80 lg:bg-white lg:hover:border-zinc-300 dark:border-transparent dark:bg-transparent dark:hover:border-transparent dark:hover:bg-zinc-900/60 lg:dark:border-zinc-800 lg:dark:bg-zinc-950 lg:dark:hover:border-zinc-700",
+				)}
 				aria-label="Open command palette"
 			>
 				<SearchIcon className="pointer-events-none absolute left-1/2 top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 text-zinc-400 xl:left-3 xl:translate-x-0 dark:text-zinc-500" />
