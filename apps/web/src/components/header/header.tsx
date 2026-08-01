@@ -89,9 +89,9 @@ export default function Header() {
 					}
 				>
 					<SearchWrapper
-					className="size-9 xl:w-[var(--site-header-search-width-xl,15rem)]"
-					mobileGhost
-				/>
+						className="size-9 xl:w-[var(--site-header-search-width-xl,15rem)]"
+						mobileGhost
+					/>
 				</Suspense>
 				<div className="hidden lg:block">
 					<Suspense
