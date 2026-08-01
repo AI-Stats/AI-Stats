@@ -56,6 +56,11 @@ describe("settings UI contracts", () => {
 		expect(menuSource).toContain("My account");
 		expect(menuSource).toContain("Workspace");
 		expect(menuSource).toContain("visibleGroups.map");
+		expect(menuSource).toContain("<DropdownMenuGroup key=");
+		expect(menuSource).toContain("<DropdownMenuLabel");
+		expect(menuSource.indexOf("<DropdownMenuGroup key=")).toBeLessThan(
+			menuSource.indexOf("<DropdownMenuLabel"),
+		);
 	});
 	it("provides display-label collections for ID-backed settings selects", () => {
 		const expectedItemCollections: Record<string, string[]> = {
