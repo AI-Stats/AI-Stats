@@ -45,7 +45,7 @@ With this:
 import { OpenAI } from '@phaseo/sdk/compat/openai';
 
 const client = new OpenAI({
-  apiKey: process.env.PHASEO_API_KEY  // Get your key at phaseo.ai
+  apiKey: process.env.PHASEO_API_KEY  // Get your key at phaseo.app
 });
 
 const completion = await client.chat.completions.create({
@@ -261,7 +261,7 @@ Phaseo uses a provider-prefixed naming convention:
 | `gemini-2.0-flash` | `google-ai-studio/gemini-2.0-flash` |
 | `llama-3.3-70b` | `meta/llama-3.3-70b` |
 
-Browse all 300+ models at [phaseo.ai/models](https://phaseo.app/models)
+Browse all 300+ models at [phaseo.app/models](https://phaseo.app/models)
 
 ---
 
@@ -373,7 +373,7 @@ const analytics = await client.getAnalytics({
 Create a `.env` file:
 
 ```bash
-# Phaseo Gateway API Key (get yours at phaseo.ai)
+# Phaseo Gateway API Key (get yours at phaseo.app)
 PHASEO_API_KEY=your-api-key-here
 
 # Optional: Custom gateway URL (defaults to https://api.phaseo.app/v1)
@@ -384,7 +384,7 @@ PHASEO_BASE_URL=https://api.phaseo.app/v1
 
 ## Getting Your API Key
 
-1. Sign up at [phaseo.ai](https://phaseo.app)
+1. Sign up at [phaseo.app](https://phaseo.app)
 2. Navigate to **Settings → API Keys**
 3. Click **Create API Key**
 4. Copy your key to `.env` as `PHASEO_API_KEY`
@@ -423,20 +423,20 @@ const analytics = await openai.native.getAnalytics();
 
 ### Q: How do I list available models?
 
-**A:** Use `client.models.list()` (OpenAI compat) or visit [phaseo.ai/models](https://phaseo.app/models)
+**A:** Use `client.models.list()` (OpenAI compat) or visit [phaseo.app/models](https://phaseo.app/models)
 
 ### Q: What about pricing?
 
-**A:** Phaseo uses unified pricing across all providers. View pricing at [phaseo.ai/pricing](https://phaseo.app/pricing)
+**A:** Phaseo uses unified pricing across all providers. View pricing at [phaseo.app/pricing](https://phaseo.app/pricing)
 
 ---
 
 ## Support
 
-- 📖 **Documentation**: [phaseo.ai](https://phaseo.app)
+- 📖 **Documentation**: [phaseo.app](https://phaseo.app)
 - 💬 **Discord**: [Join our community](https://discord.gg/phaseo)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/phaseoteam/Phaseo/issues)
-- 📧 **Email**: support@phaseo.ai
+- 📧 **Email**: support@phaseo.app
 
 ---
 

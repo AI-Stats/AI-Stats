@@ -137,7 +137,7 @@ export default function Support() {
 		{
 			key: "email",
 			title: "Email",
-			href: "mailto:support@phaseo.ai",
+			href: "mailto:support@phaseo.app",
 			description: "Private support for billing or account issues.",
 			icon: Mail,
 			badge: "Tracked",

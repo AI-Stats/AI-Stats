@@ -277,7 +277,7 @@ describe("prepareServerToolsForTextRequest", () => {
 							engine: "native",
 							max_content_tokens: 9000,
 							allowed_domains: ["phaseo.app"],
-							blocked_domains: ["internal.phaseo.ai"],
+							blocked_domains: ["internal.phaseo.app"],
 						},
 					},
 				],
@@ -296,7 +296,7 @@ describe("prepareServerToolsForTextRequest", () => {
 				name: "web_fetch",
 				max_content_tokens: 9000,
 				allowed_domains: ["phaseo.app"],
-				blocked_domains: ["internal.phaseo.ai"],
+				blocked_domains: ["internal.phaseo.app"],
 			},
 		]);
 		expect(result.body.tool_choice).toEqual({ type: "tool", name: "web_fetch" });

@@ -96,13 +96,13 @@ const nextConfig = {
     return [
       {
         source: "/:path*",
-        has: [{ type: "host", value: "docs.ai-stats.phaseo.app" }],
+        has: [{ type: "host", value: "docs.phaseo.app" }],
         destination: "https://phaseo.app/docs/:path*",
         permanent: true,
       },
       {
         source: "/:path*",
-        has: [{ type: "host", value: "ai-stats.phaseo.app" }],
+        has: [{ type: "host", value: "phaseo.app" }],
         destination: "https://phaseo.app/:path*",
         permanent: true,
       },
