@@ -1,5 +1,57 @@
 [
   {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "cloudflare:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "@cf/deepseek-ai/deepseek-v4-flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": false,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 384000,
+    "max_output_tokens": 384000,
+    "effective_from": "2026-07-31T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://developers.cloudflare.com/workers-ai/models/",
+        "accessed_at": "2026-08-01T00:00:00Z",
+        "notes": "Cloudflare Workers AI model catalogue and API documentation."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-01T00:00:00Z",
+      "notes": "Deployment availability, FP8 quantisation, limits and supported request parameters confirmed; direct Phaseo routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "meta/llama-3.2-1b-instruct",
     "provider_api_model_id": "cloudflare:@cf/meta/llama-3.2-1b-instruct",
     "provider_model_slug": "@cf/meta/llama-3.2-1b-instruct",
