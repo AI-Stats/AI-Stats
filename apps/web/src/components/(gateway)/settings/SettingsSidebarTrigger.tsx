@@ -97,20 +97,20 @@ export default function SettingsSidebarTrigger({
 							value="personal"
 							closeOnClick={false}
 							className={cn(
-								"h-9 justify-center px-2 text-xs font-medium",
+								"h-9 justify-center px-2 text-xs font-medium [&_[data-slot=dropdown-menu-radio-item-indicator]]:hidden",
 								visibleScope === "personal"
 									? "bg-accent text-accent-foreground"
 									: "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
 							)}
 						>
 							<UserRound className="size-3.5" aria-hidden="true" />
-							My account
+							Account
 						</DropdownMenuRadioItem>
 						<DropdownMenuRadioItem
 							value="workspace"
 							closeOnClick={false}
 							className={cn(
-								"h-9 justify-center px-2 text-xs font-medium",
+								"h-9 justify-center px-2 text-xs font-medium [&_[data-slot=dropdown-menu-radio-item-indicator]]:hidden",
 								visibleScope === "workspace"
 									? "bg-accent text-accent-foreground"
 									: "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
