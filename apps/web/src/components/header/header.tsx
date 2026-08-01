@@ -10,6 +10,7 @@ import { HeaderAnnouncements } from "./HeaderAnnouncements";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import HeaderShell from "./HeaderShell";
+import SettingsSidebarTrigger from "@/components/(gateway)/settings/SettingsSidebarTrigger";
 
 const releaseMessage = "Introducing Phaseo Gateway";
 const docsLink = "https://phaseo.app/docs/v1";
@@ -19,6 +20,9 @@ export default function Header() {
 	const headerContent = (
 		<div className="flex h-[var(--site-header-height,4rem)] items-center justify-between gap-[var(--site-header-gap,1.5rem)]">
 			<div className="flex min-w-0 flex-1 items-center gap-[var(--site-header-left-gap,1.25rem)] overflow-hidden">
+				<Suspense fallback={null}>
+					<SettingsSidebarTrigger />
+				</Suspense>
 				<Link
 					href="/"
 					aria-label="Phaseo home"
