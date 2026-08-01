@@ -79,10 +79,11 @@ describe("settings UI contracts", () => {
 		expect(menuSource).toContain('onOpenChange={handleOpenChange}');
 		expect(menuSource).toContain("const [visibleScope, setVisibleScope]");
 		expect(menuSource).toContain("group.scope === visibleScope");
-		expect(menuSource).toContain('onClick={() => setVisibleScope("personal")}');
-		expect(menuSource).toContain('onClick={() => setVisibleScope("workspace")}');
-		expect(menuSource).toContain('aria-pressed={visibleScope === "personal"}');
-		expect(menuSource).toContain('aria-pressed={visibleScope === "workspace"}');
+		expect(menuSource).toContain("<DropdownMenuRadioGroup");
+		expect(menuSource).toContain("<DropdownMenuRadioItem");
+		expect(menuSource).toContain('value="personal"');
+		expect(menuSource).toContain('value="workspace"');
+		expect(menuSource.match(/closeOnClick=\{false\}/g)).toHaveLength(2);
 		expect(menuSource).not.toContain('<Link href="/settings/profile"');
 		expect(menuSource).not.toContain('<Link href="/settings/workspaces/settings"');
 		expect(menuSource).toContain('"Close settings menu"');
