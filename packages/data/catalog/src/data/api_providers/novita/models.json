@@ -2182,7 +2182,7 @@
   {
     "api_model_id": "deepseek/deepseek-v4-flash-0731",
     "provider_api_model_id": "novita:deepseek/deepseek-v4-flash-0731",
-    "provider_model_slug": "deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek/deepseek-v4-flash",
     "internal_model_id": "deepseek/deepseek-v4-flash-0731",
     "is_active_gateway": true,
     "quantization_scheme": null,
