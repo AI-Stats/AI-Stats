@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSyncExternalStore } from "react";
-import { Building2, Check, Menu as MenuIcon, UserRound } from "lucide-react";
+import { useState, useSyncExternalStore } from "react";
+import { Building2, Check, Menu as MenuIcon, UserRound, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -32,6 +32,7 @@ export default function SettingsSidebarTrigger({
 	showWebhooks?: boolean;
 }) {
 	const pathname = usePathname();
+	const [open, setOpen] = useState(false);
 	const isHydrated = useSyncExternalStore(
 		subscribe,
 		getClientSnapshot,
@@ -47,16 +48,29 @@ export default function SettingsSidebarTrigger({
 
 	return (
 		<div className="lg:hidden">
-			<DropdownMenu>
+			<DropdownMenu open={open} onOpenChange={setOpen}>
 				<DropdownMenuTrigger
 					className={cn(
 						buttonVariants({ variant: "ghost", size: "icon" }),
-						"size-[var(--site-header-control-h,2.25rem)] shrink-0 rounded-lg",
+						"relative size-[var(--site-header-control-h,2.25rem)] shrink-0 rounded-lg",
 					)}
-					aria-label="Open settings menu"
+					aria-label={open ? "Close settings menu" : "Open settings menu"}
 					aria-haspopup="menu"
 				>
-					<MenuIcon className="size-5" aria-hidden="true" />
+					<MenuIcon
+						className={cn(
+							"absolute size-5 transition-[opacity,transform] duration-200",
+							open ? "rotate-90 scale-75 opacity-0" : "rotate-0 scale-100 opacity-100",
+						)}
+						aria-hidden="true"
+					/>
+					<X
+						className={cn(
+							"absolute size-5 transition-[opacity,transform] duration-200",
+							open ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-75 opacity-0",
+						)}
+						aria-hidden="true"
+					/>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent
 					align="start"
@@ -70,7 +84,7 @@ export default function SettingsSidebarTrigger({
 					{visibleGroups.map((group, index) => (
 						<DropdownMenuGroup key={`${group.heading ?? "group"}-${index}`}>
 							{group.heading ? (
-								<DropdownMenuLabel className="text-xs uppercase tracking-wide text-muted-foreground">
+								<DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
 									{group.heading}
 								</DropdownMenuLabel>
 							) : null}

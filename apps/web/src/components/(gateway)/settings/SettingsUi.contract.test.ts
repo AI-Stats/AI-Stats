@@ -55,14 +55,27 @@ describe("settings UI contracts", () => {
 		expect(headerSource.indexOf("<SettingsSidebarTrigger")).toBeLessThan(
 			headerSource.indexOf('aria-label="Phaseo home"'),
 		);
+		expect(headerSource.match(/<SearchWrapper/g)).toHaveLength(1);
+		expect(headerSource.indexOf('<AuthControls variant="mobile"')).toBeLessThan(
+			headerSource.indexOf("<SearchWrapper"),
+		);
+		expect(headerSource).toContain('className="order-2 size-');
+		expect(headerSource).toContain("lg:order-1");
 		expect(tabsSource).not.toContain("<SettingsSidebarTrigger");
 		expect(tabsSource).not.toContain("<DropdownMenu");
 		expect(tabsSource).toContain("overflow-x-auto");
 		expect(tabsSource).toContain("overscroll-x-contain");
 		expect(tabsSource).toContain("shrink-0 whitespace-nowrap");
 		expect(menuSource).not.toContain("asChild");
-		expect(menuSource).toContain('aria-label="Open settings menu"');
+		expect(menuSource).toContain('open={open}');
+		expect(menuSource).toContain('onOpenChange={setOpen}');
+		expect(menuSource).toContain('"Close settings menu"');
+		expect(menuSource).toContain('"Open settings menu"');
 		expect(menuSource).toContain("<MenuIcon");
+		expect(menuSource).toContain("<X");
+		expect(menuSource).toContain("transition-[opacity,transform]");
+		expect(menuSource).not.toContain("uppercase");
+		expect(menuSource).not.toContain("tracking-wide");
 		expect(menuSource).toContain("const Icon = item.icon");
 		expect(menuSource).toContain("<Icon className=");
 		expect(menuSource).toContain("My account");
