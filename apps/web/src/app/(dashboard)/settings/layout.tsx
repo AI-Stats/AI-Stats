@@ -9,6 +9,7 @@ import {
 	SidebarInset,
 	SidebarProvider,
 } from "@/components/ui/sidebar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Suspense } from "react";
 import NoFooterStyle from "@/components/layout/NoFooterStyle";
 import { batchApiFlag } from "@/lib/flags";
@@ -65,11 +66,14 @@ export default async function SettingsLayout({
 								showWebhooks={showWebhooks}
 							/>
 						</div>
-						<div className="min-h-0 w-full flex-1 overflow-y-auto overscroll-contain pb-4 pt-3">
+						<ScrollArea
+							className="min-h-0 w-full flex-1 overscroll-y-contain"
+							viewportClassName="pb-4 pt-3"
+						>
 							<Suspense fallback={<SettingsPageSkeleton />}>
 								{children}
 							</Suspense>
-						</div>
+						</ScrollArea>
 					</div>
 				</SidebarInset>
 			</SidebarProvider>
