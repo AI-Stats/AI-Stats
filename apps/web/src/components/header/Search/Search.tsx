@@ -21,6 +21,7 @@ import {
 	ArrowUp,
 	ArrowUpRight,
 	Bolt,
+	Building2,
 	Compass,
 	CornerDownLeft,
 	ExternalLink,
@@ -45,6 +46,7 @@ import {
 	writePinnedItems,
 } from "./Search.storage";
 import type { PaletteItem } from "./Search.types";
+import { fetchWorkspaceSearchItems } from "./Search.workspaces";
 import type {
 	CompactSearchData,
 	SearchData,
@@ -70,7 +72,8 @@ type SearchRowType =
 	| "context"
 	| "default"
 	| "navigation"
-	| "resource";
+	| "resource"
+	| "workspace";
 
 type DefaultSearchCategory = {
 	key: string;
@@ -107,7 +110,8 @@ type SearchResultCategory = {
 		| "models"
 		| "navigation"
 		| "organisations"
-		| "resources";
+		| "resources"
+		| "workspaces";
 	items: SearchableItem[];
 	score: number;
 };
@@ -525,6 +529,14 @@ function SearchBrowseIcon({
 		);
 	}
 
+	if (effectiveType === "workspace") {
+		return (
+			<div className="flex size-5 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
+				<Building2 className="size-3" />
+			</div>
+		);
+	}
+
 	if (effectiveType === "benchmark") {
 		return (
 			<div className="flex size-5 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
@@ -627,6 +639,17 @@ export default function Search({ className, mobileGhost = false }: Props) {
 		revalidateOnFocus: false,
 		revalidateOnReconnect: false,
 	});
+	const { data: workspaceItems = [] } = useSWR(
+		open ? "/api/search/workspaces" : null,
+		fetchWorkspaceSearchItems,
+		{
+			dedupingInterval: 5 * 60 * 1_000,
+			revalidateIfStale: false,
+			revalidateOnFocus: false,
+			revalidateOnReconnect: false,
+			shouldRetryOnError: false,
+		},
+	);
 	searchGenerationRef.current = searchData?.cacheGeneration ?? 1;
 	const searchDataError = searchDataFetchError
 		? "Unable to load search data."
@@ -860,6 +883,10 @@ export default function Search({ className, mobileGhost = false }: Props) {
 		};
 	}, [searchData]);
 	const contextSearchIndex = useMemo(() => createSearchIndex(contextItems), [contextItems]);
+	const workspaceSearchIndex = useMemo(
+		() => createSearchIndex(workspaceItems),
+		[workspaceItems],
+	);
 
 	const orderedCategories = useMemo<SearchResultCategory[]>(() => {
 		if (!hasQuery) return [];
@@ -896,6 +923,9 @@ export default function Search({ className, mobileGhost = false }: Props) {
 		const benchmarks = searchScope === "all" && searchIndex
 			? filterAndSortIndexed(searchIndex.benchmarks, searchTerm, resultLimit)
 			: [];
+		const workspaces = searchScope === "all"
+			? filterAndSortIndexed(workspaceSearchIndex, searchTerm, 12)
+			: [];
 
 		return [
 			{
@@ -917,6 +947,11 @@ export default function Search({ className, mobileGhost = false }: Props) {
 				name: "resources" as const,
 				items: resources,
 				score: getFirstResultScore(RESOURCE_SEARCH_INDEX, resources, searchTerm),
+			},
+			{
+				name: "workspaces" as const,
+				items: workspaces,
+				score: getFirstResultScore(workspaceSearchIndex, workspaces, searchTerm),
 			},
 			{
 				name: "models" as const,
@@ -949,7 +984,14 @@ export default function Search({ className, mobileGhost = false }: Props) {
 		]
 			.filter((category) => category.items.length > 0)
 			.sort((left, right) => right.score - left.score);
-	}, [contextSearchIndex, hasQuery, searchIndex, searchScope, searchTerm]);
+	}, [
+		contextSearchIndex,
+		hasQuery,
+		searchIndex,
+		searchScope,
+		searchTerm,
+		workspaceSearchIndex,
+	]);
 
 	const defaultCategories = useMemo<DefaultSearchCategory[]>(() => {
 		if (hasQuery) return [];
@@ -959,6 +1001,12 @@ export default function Search({ className, mobileGhost = false }: Props) {
 				key: "pinned",
 				heading: "Pinned",
 				items: pinnedItems,
+			},
+			{
+				key: "workspaces",
+				heading: "Workspaces",
+				items: workspaceItems,
+				type: "workspace" as const,
 			},
 			{
 				key: "models",
@@ -990,7 +1038,7 @@ export default function Search({ className, mobileGhost = false }: Props) {
 				items: searchData?.apiProviders ?? [],
 			},
 		].filter((category) => category.items.length > 0);
-	}, [contextItems, hasQuery, pinnedItems, searchData]);
+	}, [contextItems, hasQuery, pinnedItems, searchData, workspaceItems]);
 
 	const defaultBrowseRows = useMemo<DefaultBrowseRow[]>(() => {
 		if (hasQuery) return [];
@@ -1220,6 +1268,7 @@ export default function Search({ className, mobileGhost = false }: Props) {
 											context: { heading: "On this page", type: "context" as const, showSubtitle: true },
 											navigation: { heading: "Navigation", type: "navigation" as const, showSubtitle: true },
 											resources: { heading: "External resources", type: "resource" as const, showSubtitle: true },
+											workspaces: { heading: "Workspaces", type: "workspace" as const, showSubtitle: true },
 											models: { heading: "Models", type: undefined, showSubtitle: false },
 											apiProviders: { heading: "API Providers", type: undefined, showSubtitle: true },
 											organisations: { heading: "Organisations", type: undefined, showSubtitle: true },
