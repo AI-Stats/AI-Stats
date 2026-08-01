@@ -111,7 +111,7 @@ export function SecretRevealActions({
 		[secret, baseUrl, envVarName],
 	);
 	const onePasswordUrls = React.useMemo(
-		() => ["https://ai-stats.phaseo.app", "https://api.phaseo.app"],
+		() => ["https://phaseo.app", "https://api.phaseo.app"],
 		[],
 	);
 
