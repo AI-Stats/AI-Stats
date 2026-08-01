@@ -40,6 +40,7 @@ describe("settings UI contracts", () => {
 
 	it("keeps the complete mobile settings navigation on Base UI", () => {
 		const headerSource = readSource("src/components/header/header.tsx");
+		const searchSource = readSource("src/components/header/Search/Search.tsx");
 		const tabsSource = readSource(
 			"src/components/(gateway)/settings/SettingsTopTabsServer.tsx",
 		);
@@ -56,11 +57,14 @@ describe("settings UI contracts", () => {
 			headerSource.indexOf('aria-label="Phaseo home"'),
 		);
 		expect(headerSource.match(/<SearchWrapper/g)).toHaveLength(1);
-		expect(headerSource.indexOf('<AuthControls variant="mobile"')).toBeLessThan(
-			headerSource.indexOf("<SearchWrapper"),
+		expect(headerSource.indexOf("<SearchWrapper")).toBeLessThan(
+			headerSource.indexOf('<AuthControls variant="mobile"'),
 		);
-		expect(headerSource).toContain('className="order-2 size-');
-		expect(headerSource).toContain("lg:order-1");
+		expect(headerSource).toContain("mobileGhost");
+		expect(headerSource).toContain('className="size-9');
+		expect(searchSource).toContain("mobileGhost &&");
+		expect(searchSource).toContain("border-transparent bg-transparent");
+		expect(searchSource).toContain("lg:border-zinc-200/80");
 		expect(tabsSource).not.toContain("<SettingsSidebarTrigger");
 		expect(tabsSource).not.toContain("<DropdownMenu");
 		expect(tabsSource).toContain("overflow-x-auto");
@@ -76,6 +80,7 @@ describe("settings UI contracts", () => {
 		expect(menuSource).toContain("transition-[opacity,transform]");
 		expect(menuSource).not.toContain("uppercase");
 		expect(menuSource).not.toContain("tracking-wide");
+		expect(menuSource).toContain('className="flex items-center lg:hidden"');
 		expect(menuSource).toContain("const Icon = item.icon");
 		expect(menuSource).toContain("<Icon className=");
 		expect(menuSource).toContain("My account");

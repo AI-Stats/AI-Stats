@@ -47,7 +47,7 @@ export default function SettingsSidebarTrigger({
 	if (!isHydrated || !pathname?.startsWith("/settings")) return null;
 
 	return (
-		<div className="lg:hidden">
+		<div className="flex items-center lg:hidden">
 			<DropdownMenu open={open} onOpenChange={setOpen}>
 				<DropdownMenuTrigger
 					className={cn(

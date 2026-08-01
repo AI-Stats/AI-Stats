@@ -85,12 +85,15 @@ export default function Header() {
 				</div>
 				<Suspense
 					fallback={
-						<Skeleton className="order-2 size-[var(--site-header-control-h,2.5rem)] rounded-lg lg:order-1 xl:w-[15rem]" />
+						<Skeleton className="size-9 rounded-lg xl:w-[15rem]" />
 					}
 				>
-					<SearchWrapper className="order-2 size-[var(--site-header-control-h,2.25rem)] lg:order-1 xl:w-[var(--site-header-search-width-xl,15rem)]" />
+					<SearchWrapper
+						className="size-9 xl:w-[var(--site-header-search-width-xl,15rem)]"
+						mobileGhost
+					/>
 				</Suspense>
-				<div className="order-1 hidden lg:order-2 lg:block">
+				<div className="hidden lg:block">
 					<Suspense
 						fallback={
 							<div className="flex items-center gap-2">
@@ -102,7 +105,7 @@ export default function Header() {
 						<AuthControls variant="desktop" />
 					</Suspense>
 				</div>
-				<div className="order-1 lg:hidden">
+				<div className="flex items-center lg:hidden">
 					<Suspense
 						fallback={
 							<Skeleton className="size-[var(--site-header-control-h,2.5rem)] rounded-lg" />
