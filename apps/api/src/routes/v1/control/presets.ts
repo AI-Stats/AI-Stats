@@ -57,6 +57,10 @@ function normalizePresetName(name: string): string {
 	return trimmed.startsWith("@") ? trimmed : `@${trimmed}`;
 }
 
+function normalizePresetSlug(value: unknown): string {
+	return String(value ?? "").trim().toLowerCase().replace(/^@+/, "").replace(/[^a-z0-9._:-]+/g, "-").replace(/-{2,}/g, "-").replace(/^[-._:]+|[-._:]+$/g, "");
+}
+
 function validatePresetName(name: string): string | null {
 	const normalized = normalizePresetName(name);
 	if (!normalized || normalized.length < 2) return "name is required";
@@ -182,7 +186,8 @@ async function handleCreatePreset(req: Request) {
 	const nameError = validatePresetName(name);
 	if (nameError) return json({ error: "bad_request", message: nameError }, 400, { "Cache-Control": "no-store" });
 	const description = typeof body.description === "string" ? body.description.trim().slice(0, 500) : null;
-	const slug = typeof body.slug === "string" && body.slug.trim() ? body.slug.trim() : null;
+	const slug = normalizePresetSlug(body.slug ?? name);
+	if (!slug) return json({ error: "bad_request", message: "slug is required" }, 400, { "Cache-Control": "no-store" });
 
 	try {
 		const { data: duplicate, error: duplicateError } = await getSupabaseAdmin()
@@ -278,7 +283,11 @@ async function handleUpdatePreset(req: Request) {
 			}
 			updatePayload.name = name;
 		}
-		if (typeof body.slug === "string") updatePayload.slug = body.slug.trim() || null;
+		if (typeof body.slug === "string") {
+			const slug = normalizePresetSlug(body.slug);
+			if (!slug) return json({ error: "bad_request", message: "slug is required" }, 400, { "Cache-Control": "no-store" });
+			updatePayload.slug = slug;
+		}
 		if (body.description !== undefined) updatePayload.description = typeof body.description === "string" ? body.description.trim().slice(0, 500) || null : null;
 		if (body.config !== undefined) updatePayload.config = { ...normalizeConfig(existing.config), ...normalizeConfig(body.config) };
 		if (body.visibility !== undefined) updatePayload.visibility = normalizeVisibility(body.visibility);
