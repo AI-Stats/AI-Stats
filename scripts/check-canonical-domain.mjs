@@ -18,16 +18,47 @@ const trackedFiles = execFileSync("git", ["ls-files", "-z"], {
 	.split("\0")
 	.filter(Boolean);
 
+function decodeUtf16BigEndian(contents) {
+	const swapped = Buffer.allocUnsafe(contents.length);
+	for (let index = 0; index + 1 < contents.length; index += 2) {
+		swapped[index] = contents[index + 1];
+		swapped[index + 1] = contents[index];
+	}
+	return swapped.toString("utf16le");
+}
+
+function decodeTrackedText(contents) {
+	if (contents.length >= 2 && contents[0] === 0xff && contents[1] === 0xfe) {
+		return contents.subarray(2).toString("utf16le");
+	}
+	if (contents.length >= 2 && contents[0] === 0xfe && contents[1] === 0xff) {
+		return decodeUtf16BigEndian(contents.subarray(2));
+	}
+	if (!contents.includes(0)) return contents.toString("utf8");
+
+	const pairs = Math.floor(contents.length / 2);
+	if (pairs === 0) return null;
+
+	let evenNuls = 0;
+	let oddNuls = 0;
+	for (let index = 0; index + 1 < contents.length; index += 2) {
+		if (contents[index] === 0) evenNuls += 1;
+		if (contents[index + 1] === 0) oddNuls += 1;
+	}
+
+	const evenRatio = evenNuls / pairs;
+	const oddRatio = oddNuls / pairs;
+	if (oddRatio > 0.3 && evenRatio < 0.05) return contents.toString("utf16le");
+	if (evenRatio > 0.3 && oddRatio < 0.05) return decodeUtf16BigEndian(contents);
+	return null;
+}
+
 const violations = [];
 
 for (const path of trackedFiles) {
-	const contents = readFileSync(path);
+	const text = decodeTrackedText(readFileSync(path));
+	if (text === null) continue;
 
-	// Domain references in binary assets are not actionable text and cannot be
-	// safely rewritten. Text files containing NUL bytes are treated as binary.
-	if (contents.includes(0)) continue;
-
-	const text = contents.toString("utf8");
 	for (const { label, pattern } of forbiddenDomains) {
 		for (const match of text.matchAll(pattern)) {
 			const line = text.slice(0, match.index).split("\n").length;
