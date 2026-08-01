@@ -101,12 +101,6 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: "/:path*",
-        has: [{ type: "host", value: "phaseo.app" }],
-        destination: "https://phaseo.app/:path*",
-        permanent: true,
-      },
-      {
         source: "/announcements",
         destination: "/blog",
         permanent: true,
