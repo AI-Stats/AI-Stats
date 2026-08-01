@@ -95,9 +95,9 @@ function buildPresetSlugPreview(value: string): string {
 		.trim()
 		.toLowerCase()
 		.replace(/^@+/, "")
-		.replace(/[^a-z0-9._-]+/g, "-")
+		.replace(/[^a-z0-9._:-]+/g, "-")
 		.replace(/-{2,}/g, "-")
-		.replace(/^[-._]+|[-._]+$/g, "");
+		.replace(/^[-._:]+|[-._:]+$/g, "");
 }
 
 function parseProviderPreferencesInput(value: string): Record<string, number> {
@@ -222,7 +222,7 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 	const providerNames = useMemo(() => {
 		return providers
 			.map((p) => ({
-				id: p.api_provider_name.toLowerCase().replace(/\s+/g, "").replace(/-/g, ""),
+				id: p.api_provider_id,
 				name: p.api_provider_name,
 				logoId: getProviderLogoId(p.api_provider_name),
 			}))
@@ -273,7 +273,10 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 		}
 		setLoading(true);
 
-		const config: Record<string, unknown> = {};
+		const config: Record<string, unknown> = { ...(p.config ?? {}) };
+		for (const key of ["system_prompt", "models", "only_providers", "ignore_providers", "provider_preferences", "plugins", "routing_mode", "response_caching", "parameters", "reasoning"]) {
+			delete config[key];
+		}
 
 		if (systemPrompt) {
 			config.system_prompt = systemPrompt;
