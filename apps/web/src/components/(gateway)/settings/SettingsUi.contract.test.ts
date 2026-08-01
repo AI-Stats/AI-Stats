@@ -38,21 +38,32 @@ describe("settings UI contracts", () => {
 	});
 
 	it("keeps the complete mobile settings navigation on Base UI", () => {
+		const headerSource = readSource("src/components/header/header.tsx");
 		const tabsSource = readSource(
 			"src/components/(gateway)/settings/SettingsTopTabsServer.tsx",
 		);
 		const menuSource = readSource(
 			"src/components/(gateway)/settings/SettingsSidebarTrigger.tsx",
 		);
+		const pageHeaderSource = readSource(
+			"src/components/(gateway)/settings/SettingsPageHeader.tsx",
+		);
+		const keysPageSource = readSource("src/app/(dashboard)/settings/keys/page.tsx");
 
-		expect(tabsSource).toContain("<SettingsSidebarTrigger");
-		expect(tabsSource).toContain("<DropdownMenu>");
-		expect(tabsSource).toContain("<DropdownMenuTrigger");
-		expect(tabsSource).toContain("buttonVariants({ variant: \"outline\" })");
-		expect(tabsSource).toContain("render={");
-		expect(tabsSource).toContain("<Link");
-		expect(tabsSource).not.toContain("asChild");
+		expect(headerSource).toContain("<SettingsSidebarTrigger");
+		expect(headerSource.indexOf("<SettingsSidebarTrigger")).toBeLessThan(
+			headerSource.indexOf('aria-label="Phaseo home"'),
+		);
+		expect(tabsSource).not.toContain("<SettingsSidebarTrigger");
+		expect(tabsSource).not.toContain("<DropdownMenu");
+		expect(tabsSource).toContain("overflow-x-auto");
+		expect(tabsSource).toContain("overscroll-x-contain");
+		expect(tabsSource).toContain("shrink-0 whitespace-nowrap");
 		expect(menuSource).not.toContain("asChild");
+		expect(menuSource).toContain('aria-label="Open settings menu"');
+		expect(menuSource).toContain("<MenuIcon");
+		expect(menuSource).toContain("const Icon = item.icon");
+		expect(menuSource).toContain("<Icon className=");
 		expect(menuSource).toContain("My account");
 		expect(menuSource).toContain("Workspace");
 		expect(menuSource).toContain("visibleGroups.map");
@@ -61,7 +72,13 @@ describe("settings UI contracts", () => {
 		expect(menuSource.indexOf("<DropdownMenuGroup key=")).toBeLessThan(
 			menuSource.indexOf("<DropdownMenuLabel"),
 		);
+		expect(pageHeaderSource).toContain('className={cn("space-y-4", className)}');
+		expect(pageHeaderSource.indexOf("{actions ?")).toBeGreaterThan(
+			pageHeaderSource.indexOf("{description ?"),
+		);
+		expect(keysPageSource).toContain("flex flex-wrap items-center gap-2");
 	});
+
 	it("provides display-label collections for ID-backed settings selects", () => {
 		const expectedItemCollections: Record<string, string[]> = {
 			"src/components/(gateway)/settings/account/AccountSettingsClient.tsx": [
