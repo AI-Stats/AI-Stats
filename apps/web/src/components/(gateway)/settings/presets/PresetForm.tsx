@@ -99,9 +99,9 @@ function buildPresetSlugPreview(value: string): string {
 		.trim()
 		.toLowerCase()
 		.replace(/^@+/, "")
-		.replace(/[^a-z0-9._-]+/g, "-")
+		.replace(/[^a-z0-9._:-]+/g, "-")
 		.replace(/-{2,}/g, "-")
-		.replace(/^[-._]+|[-._]+$/g, "");
+		.replace(/^[-._:]+|[-._:]+$/g, "");
 }
 
 function moveOrderedItem<T>(items: T[], index: number, direction: -1 | 1): T[] {
@@ -269,7 +269,7 @@ export default function PresetForm({
 	const providerList = useMemo(() => {
 		return providers
 			.map((p) => ({
-				id: p.api_provider_name.toLowerCase().replace(/\s+/g, "").replace(/-/g, ""),
+				id: p.api_provider_id,
 				name: p.api_provider_name,
 				logoId: getProviderLogoId(p.api_provider_name),
 			}))
