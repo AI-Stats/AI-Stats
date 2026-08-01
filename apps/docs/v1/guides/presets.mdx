@@ -24,11 +24,10 @@ Keep the caller focused on the user input while the preset supplies stable promp
 curl https://api.phaseo.app/v1/responses \
   -H "Authorization: Bearer $PHASEO_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{
-    "model": "anthropic/claude-sonnet-4-5",
-    "input": "Generate a release summary for the last 24 hours.",
-    "preset": "release-summary"
-  }'
+	  -d '{
+	    "model": "@release-summary",
+	    "input": "Generate a release summary for the last 24 hours."
+	  }'
 ```
 
 ```typescript TypeScript
@@ -37,9 +36,8 @@ import Phaseo from "@phaseo/sdk";
 const client = new Phaseo({ apiKey: process.env.PHASEO_API_KEY! });
 
 const response = await client.generateResponse({
-  model: "anthropic/claude-sonnet-4-5",
-  input: "Generate a release summary for the last 24 hours.",
-  preset: "release-summary",
+	  model: "@release-summary",
+	  input: "Generate a release summary for the last 24 hours.",
 });
 ```
 
@@ -49,9 +47,8 @@ from phaseo import Phaseo
 client = Phaseo(api_key="YOUR_API_KEY")
 
 response = client.generate_response({
-    "model": "anthropic/claude-sonnet-4-5",
-    "input": "Generate a release summary for the last 24 hours.",
-    "preset": "release-summary",
+	    "model": "@release-summary",
+	    "input": "Generate a release summary for the last 24 hours.",
 })
 ```
 </CodeGroup>
@@ -74,6 +71,8 @@ Open the request in **Gateway -> Usage** to confirm which defaults were applied 
 - Optional reasoning defaults for supported models.
 
 Preset names are prefixed with `@` to keep them easy to recognize.
+
+Invoke a preset only through the request's `model` field using `@{slug}`. Phaseo does not expose a separate `preset` request field. Slugs are normalised to lower case and support letters, numbers, hyphens, underscores, periods, and colons.
 
 ## How preset merging works
 
