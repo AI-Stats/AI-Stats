@@ -478,6 +478,8 @@ function Sparkline({
 	onHoverPoint?: (point: ObservabilitySeriesPoint | null) => void;
 }) {
 	const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
+	const activePointerIdRef = React.useRef<number | null>(null);
+	const suppressClickUntilRef = React.useRef(0);
 	const width = 92;
 	const values = data.map((point) => point.value);
 	const min = Math.min(...values, 0);
@@ -498,6 +500,12 @@ function Sparkline({
 	const handlePointerMove = React.useCallback(
 		(event: React.PointerEvent<SVGSVGElement>) => {
 			if (data.length === 0) return;
+			if (
+				event.pointerType !== "mouse" &&
+				activePointerIdRef.current !== event.pointerId
+			) {
+				return;
+			}
 			const rect = event.currentTarget.getBoundingClientRect();
 			const relativeX =
 				rect.width > 0
@@ -518,10 +526,45 @@ function Sparkline({
 		},
 		[data, onHoverPoint],
 	);
-	const handlePointerLeave = React.useCallback(() => {
+	const clearHoveredPoint = React.useCallback(() => {
 		setHoveredIndex(null);
 		onHoverPoint?.(null);
 	}, [onHoverPoint]);
+	const handlePointerDown = React.useCallback(
+		(event: React.PointerEvent<SVGSVGElement>) => {
+			if (event.pointerType === "mouse") return;
+			event.preventDefault();
+			activePointerIdRef.current = event.pointerId;
+			suppressClickUntilRef.current = Date.now() + 750;
+			event.currentTarget.setPointerCapture(event.pointerId);
+			handlePointerMove(event);
+		},
+		[handlePointerMove],
+	);
+	const handlePointerEnd = React.useCallback(
+		(event: React.PointerEvent<SVGSVGElement>) => {
+			if (activePointerIdRef.current !== event.pointerId) return;
+			activePointerIdRef.current = null;
+			if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+				event.currentTarget.releasePointerCapture(event.pointerId);
+			}
+			clearHoveredPoint();
+		},
+		[clearHoveredPoint],
+	);
+	const handlePointerLeave = React.useCallback(() => {
+		if (activePointerIdRef.current !== null) return;
+		clearHoveredPoint();
+	}, [clearHoveredPoint]);
+	const handleClick = React.useCallback(
+		(event: React.MouseEvent<SVGSVGElement>) => {
+			if (Date.now() > suppressClickUntilRef.current) return;
+			event.preventDefault();
+			event.stopPropagation();
+			suppressClickUntilRef.current = 0;
+		},
+		[],
+	);
 
 	if (data.length === 0) {
 		return (
@@ -543,8 +586,13 @@ function Sparkline({
 					? `${titlePoint.label}: ${formatValue(titlePoint.value)}`
 					: "No trend data"
 			}
-			className="h-full min-h-[34px] w-full min-w-[72px] overflow-visible text-blue-500"
+			className="h-full min-h-[34px] w-full min-w-[72px] touch-pan-y select-none overflow-visible text-blue-500"
+			onClick={handleClick}
+			onContextMenu={(event) => event.preventDefault()}
+			onPointerDown={handlePointerDown}
 			onPointerMove={handlePointerMove}
+			onPointerUp={handlePointerEnd}
+			onPointerCancel={handlePointerEnd}
 			onPointerLeave={handlePointerLeave}
 		>
 			<title>
