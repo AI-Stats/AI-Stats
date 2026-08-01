@@ -535,7 +535,6 @@ function Sparkline({
 			if (event.pointerType === "mouse") return;
 			event.preventDefault();
 			activePointerIdRef.current = event.pointerId;
-			suppressClickUntilRef.current = Date.now() + 750;
 			event.currentTarget.setPointerCapture(event.pointerId);
 			handlePointerMove(event);
 		},
@@ -548,6 +547,7 @@ function Sparkline({
 			if (event.currentTarget.hasPointerCapture(event.pointerId)) {
 				event.currentTarget.releasePointerCapture(event.pointerId);
 			}
+			suppressClickUntilRef.current = Date.now() + 1000;
 			clearHoveredPoint();
 		},
 		[clearHoveredPoint],
