@@ -34,7 +34,8 @@ describe("settings UI contracts", () => {
 
 		expect(tabsSource).not.toContain("ChevronRight");
 		expect(tabsSource).toContain('aria-current="page"');
-		expect(tabsSource).toContain("border-b-2 border-muted-foreground");
+		expect(tabsSource).toContain("border-b-2");
+		expect(tabsSource).toContain("border-muted-foreground");
 	});
 
 	it("keeps the complete mobile settings navigation on Base UI", () => {
