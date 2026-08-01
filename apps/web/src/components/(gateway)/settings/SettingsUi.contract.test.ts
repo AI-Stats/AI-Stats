@@ -76,7 +76,16 @@ describe("settings UI contracts", () => {
 		expect(tabsSource).toContain("shrink-0 whitespace-nowrap");
 		expect(menuSource).not.toContain("asChild");
 		expect(menuSource).toContain('open={open}');
-		expect(menuSource).toContain('onOpenChange={setOpen}');
+		expect(menuSource).toContain('onOpenChange={handleOpenChange}');
+		expect(menuSource).toContain("const [visibleScope, setVisibleScope]");
+		expect(menuSource).toContain("group.scope === visibleScope");
+		expect(menuSource).toContain("<DropdownMenuRadioGroup");
+		expect(menuSource).toContain("<DropdownMenuRadioItem");
+		expect(menuSource).toContain('value="personal"');
+		expect(menuSource).toContain('value="workspace"');
+		expect(menuSource.match(/closeOnClick=\{false\}/g)).toHaveLength(2);
+		expect(menuSource).not.toContain('<Link href="/settings/profile"');
+		expect(menuSource).not.toContain('<Link href="/settings/workspaces/settings"');
 		expect(menuSource).toContain('"Close settings menu"');
 		expect(menuSource).toContain('"Open settings menu"');
 		expect(menuSource).toContain("<MenuIcon");

@@ -13,6 +13,8 @@ import {
 	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuLabel,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -42,13 +44,19 @@ export default function SettingsSidebarTrigger({
 	const activeNav = getActiveSettingsNav(pathname ?? "", { showBroadcast, showWebhooks });
 	const activeItem = activeNav?.item ?? null;
 	const activeScope = activeNav?.group.scope ?? "personal";
-	const visibleGroups = navGroups.filter((group) => group.scope === activeScope);
+	const [visibleScope, setVisibleScope] = useState(activeScope);
+	const visibleGroups = navGroups.filter((group) => group.scope === visibleScope);
+
+	const handleOpenChange = (nextOpen: boolean) => {
+		if (nextOpen) setVisibleScope(activeScope);
+		setOpen(nextOpen);
+	};
 
 	if (!isHydrated || !pathname?.startsWith("/settings")) return null;
 
 	return (
 		<div className="flex items-center lg:hidden">
-			<DropdownMenu open={open} onOpenChange={setOpen}>
+			<DropdownMenu open={open} onOpenChange={handleOpenChange}>
 				<DropdownMenuTrigger
 					className={cn(
 						buttonVariants({ variant: "ghost", size: "icon" }),
@@ -76,10 +84,42 @@ export default function SettingsSidebarTrigger({
 					align="start"
 					className="w-[min(24rem,calc(100vw-2rem))]"
 				>
-					<div className="grid grid-cols-2 gap-1 p-1">
-						<Link href="/settings/profile" className={cn("flex h-9 items-center justify-center gap-2 rounded-md px-2 text-xs font-medium", activeScope === "personal" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/60 hover:text-foreground")}><UserRound className="size-3.5" aria-hidden="true" />My account</Link>
-						<Link href="/settings/workspaces/settings" className={cn("flex h-9 items-center justify-center gap-2 rounded-md px-2 text-xs font-medium", activeScope === "workspace" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/60 hover:text-foreground")}><Building2 className="size-3.5" aria-hidden="true" />Workspace</Link>
-					</div>
+					<DropdownMenuRadioGroup
+						value={visibleScope}
+						onValueChange={(value) => {
+							if (value === "personal" || value === "workspace") {
+								setVisibleScope(value);
+							}
+						}}
+						className="grid grid-cols-2 gap-1 p-1"
+					>
+						<DropdownMenuRadioItem
+							value="personal"
+							closeOnClick={false}
+							className={cn(
+								"h-9 justify-center px-2 text-xs font-medium",
+								visibleScope === "personal"
+									? "bg-accent text-accent-foreground"
+									: "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+							)}
+						>
+							<UserRound className="size-3.5" aria-hidden="true" />
+							My account
+						</DropdownMenuRadioItem>
+						<DropdownMenuRadioItem
+							value="workspace"
+							closeOnClick={false}
+							className={cn(
+								"h-9 justify-center px-2 text-xs font-medium",
+								visibleScope === "workspace"
+									? "bg-accent text-accent-foreground"
+									: "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+							)}
+						>
+							<Building2 className="size-3.5" aria-hidden="true" />
+							Workspace
+						</DropdownMenuRadioItem>
+					</DropdownMenuRadioGroup>
 					<DropdownMenuSeparator />
 					{visibleGroups.map((group, index) => (
 						<DropdownMenuGroup key={`${group.heading ?? "group"}-${index}`}>
