@@ -1724,7 +1724,7 @@ function TrendSection({
 
 function Overview({ data }: { data: ObservabilityData }) {
 	return (
-		<div className="space-y-6">
+		<div className="space-y-4 sm:space-y-6">
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-6">
 				{data.kpis.map((kpi) => (
 					<KpiMetric
