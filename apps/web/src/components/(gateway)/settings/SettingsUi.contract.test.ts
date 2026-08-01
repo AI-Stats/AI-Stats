@@ -11,13 +11,17 @@ describe("settings UI contracts", () => {
 	it("keeps the section navigation outside the scrollable settings pane", () => {
 		const layoutSource = readSource("src/app/(dashboard)/settings/layout.tsx");
 		const navigationPosition = layoutSource.indexOf("<SettingsTopTabsClientOnly");
-		const scrollPanePosition = layoutSource.indexOf("overflow-y-auto");
+		const scrollPanePosition = layoutSource.indexOf("<ScrollArea");
 
 		expect(layoutSource).toContain(
 			"fixed inset-x-0 bottom-0 top-[calc(var(--site-header-height,3.75rem)+var(--site-notice-height,0px))]",
 		);
 		expect(navigationPosition).toBeGreaterThan(-1);
 		expect(scrollPanePosition).toBeGreaterThan(navigationPosition);
+		expect(layoutSource).toContain(
+			'import { ScrollArea } from "@/components/ui/scroll-area";',
+		);
+		expect(layoutSource).toContain('viewportClassName="pb-4 pt-3"');
 		const clientOnlySource = readSource(
 			"src/components/(gateway)/settings/SettingsTopTabsClientOnly.tsx",
 		);
