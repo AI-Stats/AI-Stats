@@ -1,5 +1,57 @@
 [
   {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "gmicloud:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": false,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048575,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-31T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://docs.gmicloud.ai/",
+        "accessed_at": "2026-08-01T00:00:00Z",
+        "notes": "GMICloud model availability and OpenAI-compatible MaaS documentation."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-01T00:00:00Z",
+      "notes": "Deployment availability, FP8 quantisation, limits and supported request parameters confirmed; direct Phaseo routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "anthropic/claude-opus-4.6",
     "provider_api_model_id": "gmicloud:anthropic/claude-opus-4.6",
     "provider_model_slug": "anthropic/claude-opus-4.6",
@@ -30,12 +82,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -89,12 +137,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -148,12 +192,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -207,12 +247,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -1365,12 +1401,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -2384,12 +2416,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {

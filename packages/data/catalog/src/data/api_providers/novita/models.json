@@ -2180,6 +2180,58 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "novita:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek/deepseek-v4-flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-31T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "pricing",
+        "url": "https://novita.ai/pricing",
+        "accessed_at": "2026-08-01T00:00:00Z",
+        "notes": "Official Novita pricing page lists the 0731 model separately with its context and token prices."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-01T00:00:00Z",
+      "notes": "Confirmed as a distinct live Novita deployment."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "deepseek/deepseek-v4-pro",
     "provider_api_model_id": "novita:deepseek/deepseek-v4-pro",
     "provider_model_slug": "deepseek/deepseek-v4-pro",
@@ -12637,10 +12689,96 @@
   },
   {
     "canonical_model_id": "inclusionai/ling-3.0-flash:free",
-    "api_model_id":"inclusionai/ling-3.0-flash:free","provider_api_model_id":"novita:inclusionai/ling-3.0-flash:free","provider_model_slug":"inclusionai/ling-3.0-flash","internal_model_id":"inclusionai/ling-3.0-flash","is_active_gateway":true,"quantization_scheme":null,"input_modalities":"text","output_modalities":"text","context_length":262144,"max_output_tokens":null,"effective_from":"2026-07-23T00:00:00","effective_to":null,"capabilities":[{"capability_id":"text.generate","status":"active","params":[],"reasoning":null,"tool_call":true,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],"routing_status":"active","routable":true,"regions":{"execution":null,"data":null},"service_tiers":[],"api":{"formats":[],"endpoint":null,"deployment":null},"sources":[{"url":"https://novita.ai/de/models/model-detail/inclusionai-ling-3.0-flash","kind":"documentation"}],"verification":{"status":"verified","checked_at":"2026-07-24T00:00:00Z","notes":"Official Novita model page."},"rate_limits":[]
+    "api_model_id": "inclusionai/ling-3.0-flash:free",
+    "provider_api_model_id": "novita:inclusionai/ling-3.0-flash:free",
+    "provider_model_slug": "inclusionai/ling-3.0-flash",
+    "internal_model_id": "inclusionai/ling-3.0-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-23T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [],
+    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "sources": [
+      {
+        "url": "https://novita.ai/de/models/model-detail/inclusionai-ling-3.0-flash",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-24T00:00:00Z",
+      "notes": "Official Novita model page."
+    },
+    "rate_limits": []
   },
   {
     "canonical_model_id": "mindai/macaron-v1-venti:free",
-    "api_model_id":"mindai/macaron-v1-venti:free","provider_api_model_id":"novita:mindai/macaron-v1-venti:free","provider_model_slug":"mindai/macaron-v1-venti","internal_model_id":"mindai/macaron-v1-venti","is_active_gateway":true,"quantization_scheme":null,"input_modalities":"text","output_modalities":"text","context_length":1048576,"max_output_tokens":131072,"effective_from":"2026-07-23T00:00:00","effective_to":null,"capabilities":[{"capability_id":"text.generate","status":"active","params":[],"reasoning":true,"tool_call":true,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],"routing_status":"active","routable":true,"regions":{"execution":null,"data":null},"service_tiers":[],"api":{"formats":[],"endpoint":null,"deployment":null},"sources":[{"url":"https://novita.ai/models/model-detail/mindai-macaron-v1-venti","kind":"documentation"}],"verification":{"status":"verified","checked_at":"2026-07-24T00:00:00Z","notes":"Official Novita model page."},"rate_limits":[]
+    "api_model_id": "mindai/macaron-v1-venti:free",
+    "provider_api_model_id": "novita:mindai/macaron-v1-venti:free",
+    "provider_model_slug": "mindai/macaron-v1-venti",
+    "internal_model_id": "mindai/macaron-v1-venti",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-07-23T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [],
+    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "sources": [
+      {
+        "url": "https://novita.ai/models/model-detail/mindai-macaron-v1-venti",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-24T00:00:00Z",
+      "notes": "Official Novita model page."
+    },
+    "rate_limits": []
   }
 ]
