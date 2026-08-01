@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
+	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
@@ -62,7 +63,7 @@ export default function SettingsSidebarTrigger({
 					</div>
 					<DropdownMenuSeparator />
 					{visibleGroups.map((group, index) => (
-						<div key={`${group.heading ?? "group"}-${index}`}>
+						<DropdownMenuGroup key={`${group.heading ?? "group"}-${index}`}>
 							{group.heading ? (
 								<DropdownMenuLabel className="text-xs uppercase tracking-wide text-muted-foreground">
 									{group.heading}
@@ -93,7 +94,7 @@ export default function SettingsSidebarTrigger({
 								);
 							})}
 							{index < visibleGroups.length - 1 ? <DropdownMenuSeparator /> : null}
-						</div>
+						</DropdownMenuGroup>
 					))}
 				</DropdownMenuContent>
 			</DropdownMenu>
