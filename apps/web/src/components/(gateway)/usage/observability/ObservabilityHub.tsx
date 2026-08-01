@@ -592,17 +592,17 @@ function KpiMetric({
 			className="group relative block min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 		>
 			<Card className="h-full rounded-lg py-0 transition-colors group-hover:bg-muted/20">
-			<div className="flex min-h-[136px] min-w-0 flex-col px-3 py-3 sm:grid sm:min-h-[112px] sm:grid-cols-[minmax(0,1fr)_80px] sm:items-center sm:gap-3 sm:px-4">
+			<div className="grid min-h-[124px] min-w-0 grid-cols-[minmax(0,1fr)_minmax(96px,0.8fr)] items-center gap-4 px-4 py-4 sm:min-h-[112px] sm:grid-cols-[minmax(0,1fr)_80px] sm:gap-3 sm:py-3">
 				<div className="min-w-0">
-					<CardTitle className="text-[11px] font-medium leading-tight text-muted-foreground sm:text-xs">
+					<CardTitle className="text-xs font-medium leading-tight text-muted-foreground">
 						{kpi.label}
 					</CardTitle>
-					<div className="mt-1 truncate text-xl font-semibold tracking-tight sm:text-2xl">
+					<div className="mt-1 truncate text-2xl font-semibold tracking-tight">
 						{formatKpiValue(kpi, displayValue)}
 					</div>
 					<div
 						className={cn(
-							"mt-1.5 inline-flex max-w-full items-center gap-1 text-[11px] font-medium sm:mt-2 sm:text-xs",
+							"mt-2 inline-flex max-w-full items-center gap-1 text-xs font-medium",
 							hoveredPoint
 								? "text-muted-foreground"
 								: positive
@@ -629,7 +629,7 @@ function KpiMetric({
 						)}
 					</div>
 				</div>
-				<div className="mt-auto h-8 min-w-0 w-full pt-2 text-right sm:mt-0 sm:h-auto sm:pt-0">
+				<div className="h-10 min-w-0 w-full text-right sm:h-auto">
 					<Sparkline
 						data={kpi.sparkline}
 						height={38}
@@ -1677,7 +1677,7 @@ function TrendSection({
 function Overview({ data }: { data: ObservabilityData }) {
 	return (
 		<div className="space-y-6">
-			<div className="grid grid-cols-2 gap-3 md:grid-cols-3 2xl:grid-cols-6">
+			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-6">
 				{data.kpis.map((kpi) => (
 					<KpiMetric
 						key={kpi.id}
