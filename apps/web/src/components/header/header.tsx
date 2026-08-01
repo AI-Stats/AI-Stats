@@ -100,13 +100,20 @@ export default function Header() {
 				</Suspense>
 			</div>
 
-			<div className="lg:hidden">
+			<div className="flex shrink-0 items-center gap-1 lg:hidden">
 				<Suspense
 					fallback={
 						<Skeleton className="h-[var(--site-header-control-h,2.5rem)] w-[var(--site-header-control-h,2.5rem)] rounded-lg" />
 					}
 				>
 					<AuthControls variant="mobile" />
+				</Suspense>
+				<Suspense
+					fallback={
+						<Skeleton className="size-[var(--site-header-control-h,2.5rem)] rounded-lg" />
+					}
+				>
+					<SearchWrapper className="size-[var(--site-header-control-h,2.25rem)]" />
 				</Suspense>
 			</div>
 		</div>
