@@ -7,6 +7,25 @@ create unique index if not exists presets_public_publisher_slug_key
 comment on index public.presets_public_publisher_slug_key is
   'Public preset slugs are unique per publisher; invoke them as @publisher/slug.';
 
+create or replace function public.marketplace_preset_fork_counts(preset_ids uuid[])
+returns table (preset_id uuid, fork_count bigint)
+language sql
+stable
+security definer
+set search_path = public
+as $function$
+  select p.source_preset_id, count(*)::bigint
+  from public.presets p
+  where p.source_preset_id = any(preset_ids)
+  group by p.source_preset_id;
+$function$;
+
+revoke all on function public.marketplace_preset_fork_counts(uuid[]) from public;
+grant execute on function public.marketplace_preset_fork_counts(uuid[]) to anon, authenticated, service_role;
+
+comment on function public.marketplace_preset_fork_counts(uuid[]) is
+  'Returns direct fork totals for marketplace presets using the indexed source_preset_id relationship.';
+
 -- Patch the function that is installed at migration time rather than recompiling
 -- an older body. This preserves the V2 catalogue substitutions from the runtime
 -- cutover while changing only preset lookup semantics.
