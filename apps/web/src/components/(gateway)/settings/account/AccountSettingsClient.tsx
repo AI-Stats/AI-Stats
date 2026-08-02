@@ -22,6 +22,7 @@ import { PasswordStrengthIndicator } from "./PasswordStrengthIndicator";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CountryCombobox } from "@/components/ui/country-combobox";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -39,6 +40,8 @@ export type UserPayload = {
 	displayName?: string | null;
 	email?: string | null;
 	defaultWorkspaceId?: string | null;
+	declaredCountryCode?: string | null;
+	countryStorageAvailable?: boolean;
 	obfuscateInfo: boolean;
 	createdAt: string;
 };
@@ -58,6 +61,7 @@ const schema = z.object({
 		.max(60, "Display name must be 60 characters or fewer.")
 		.optional()
 		.nullable(),
+	declared_country_code: z.string().length(2).regex(/^[A-Z]{2}$/).nullable(),
 	default_workspace_id: z
 		.string()
 		.trim()
@@ -105,6 +109,7 @@ export default function AccountSettingsClient({
 	const [defaultWorkspaceId, setDefaultTeamId] = React.useState<string | null>(
 		initialDefaultTeam
 	);
+	const [declaredCountryCode, setDeclaredCountryCode] = React.useState(user.declaredCountryCode ?? "");
 	const [obfuscateInfo, setObfuscateInfo] = React.useState<boolean>(
 		!!user.obfuscateInfo
 	);
@@ -171,6 +176,7 @@ export default function AccountSettingsClient({
 		() => ({
 			display_name: user.displayName ?? null,
 			default_workspace_id: user.defaultWorkspaceId ?? null,
+			declared_country_code: user.declaredCountryCode ?? null,
 			obfuscate_info: !!user.obfuscateInfo,
 		}),
 		[user]
@@ -179,6 +185,7 @@ export default function AccountSettingsClient({
 	const current = {
 		display_name: displayName,
 		default_workspace_id: defaultWorkspaceId,
+		declared_country_code: declaredCountryCode || null,
 		obfuscate_info: obfuscateInfo,
 	};
 	const hasChanges = JSON.stringify(initial) !== JSON.stringify(current);
@@ -408,6 +415,24 @@ export default function AccountSettingsClient({
 							</div>
 						) : null}
 
+						{user.countryStorageAvailable !== false ? (
+							<div className="grid gap-3 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-start">
+								<Label htmlFor="account-country" className="text-sm font-medium sm:pt-2">
+									Country
+								</Label>
+								<div className="grid max-w-2xl gap-1.5">
+									<CountryCombobox
+										id="account-country"
+										value={declaredCountryCode}
+										onValueChange={setDeclaredCountryCode}
+									/>
+									<p className="text-xs text-muted-foreground">
+										Your account country helps determine provider and service availability. Billing addresses are managed separately.
+									</p>
+								</div>
+							</div>
+						) : null}
+
 						<div className="grid gap-3 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-start">
 							<Label htmlFor="defaultTeam" className="text-sm font-medium sm:pt-2">
 								Default workspace
@@ -507,6 +532,7 @@ export default function AccountSettingsClient({
 							onClick={() => {
 								setDisplayName(initial.display_name);
 								setDefaultTeamId(initialDefaultTeam);
+								setDeclaredCountryCode(initial.declared_country_code ?? "");
 								setObfuscateInfo(initial.obfuscate_info);
 							}}
 							disabled={!hasChanges || saving}
