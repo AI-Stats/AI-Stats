@@ -11,10 +11,10 @@ const MARKETPLACE_CACHE = {
 export const publicMarketplaceRouter = new Hono<{ Bindings: Env }>();
 
 async function forkCounts(client: ReturnType<typeof getDataClient>, presetIds: string[]) {
-	if (!presetIds.length) return new Map<string, number>();
+	if (!presetIds.length) return new Map<string, { direct: number; descendants: number }>();
 	const result = await client.rpc("marketplace_preset_fork_counts", { preset_ids: presetIds });
 	if (result.error) throw result.error;
-	return new Map((result.data ?? []).map((row: { preset_id: string; fork_count: number | string }) => [String(row.preset_id), Number(row.fork_count) || 0]));
+	return new Map((result.data ?? []).map((row: { preset_id: string; direct_fork_count: number | string; descendant_count: number | string }) => [String(row.preset_id), { direct: Number(row.direct_fork_count) || 0, descendants: Number(row.descendant_count) || 0 }]));
 }
 
 publicMarketplaceRouter.get("/marketplace/presets", async (c) => {
@@ -24,6 +24,7 @@ publicMarketplaceRouter.get("/marketplace/presets", async (c) => {
 			.from("presets")
 			.select("id,name,slug,description,created_at,source_preset_id,created_by")
 			.eq("visibility", "public")
+			.is("archived_at", null)
 			.order("created_at", { ascending: false });
 		if (error) throw error;
 		const userIds = [...new Set((data ?? []).map((preset) => String(preset.created_by ?? "")).filter(Boolean))];
@@ -36,7 +37,8 @@ publicMarketplaceRouter.get("/marketplace/presets", async (c) => {
 		const presets = (data ?? []).flatMap((preset) => {
 			const publisher = byUser.get(String(preset.created_by));
 			const handle = String(publisher?.public_profile_slug ?? "").trim();
-			return handle ? [{ ...preset, forkCount: counts.get(String(preset.id)) ?? 0, canonicalModel: `@${handle}/${preset.slug}`, publisher: { handle, displayName: publisher?.display_name ?? handle } }] : [];
+			const count = counts.get(String(preset.id)) ?? { direct: 0, descendants: 0 };
+			return handle ? [{ ...preset, forkCount: count.direct, descendantCount: count.descendants, canonicalModel: `@${handle}/${preset.slug}`, publisher: { handle, displayName: publisher?.display_name ?? handle } }] : [];
 		});
 		return withPublicCache(c.json({ presets }), {
 			...MARKETPLACE_CACHE,
@@ -57,6 +59,7 @@ publicMarketplaceRouter.get("/marketplace/presets/:presetId", async (c) => {
 			.select("id,name,slug,description,config,visibility,created_at,source_preset_id,created_by")
 			.eq("id", presetId)
 			.eq("visibility", "public")
+			.is("archived_at", null)
 			.maybeSingle();
 		if (error) throw error;
 		if (!preset) return c.json({ error: "preset_not_found" }, 404);
@@ -65,6 +68,17 @@ publicMarketplaceRouter.get("/marketplace/presets/:presetId", async (c) => {
 		const handle = String(profile?.public_profile_slug ?? "").trim();
 		if (!handle) return c.json({ error: "preset_not_found" }, 404);
 		const counts = await forkCounts(client, [preset.id]);
+		const count = counts.get(String(preset.id)) ?? { direct: 0, descendants: 0 };
+		const versionsResult = await client.from("preset_versions").select("id,version_number,release_notes,created_at").eq("preset_id", preset.id).order("version_number", { ascending: false });
+		if (versionsResult.error) throw versionsResult.error;
+		const requestedVersion = Number(c.req.query("version"));
+		let displayedPreset = preset;
+		if (Number.isInteger(requestedVersion) && requestedVersion > 0) {
+			const versionResult = await client.from("preset_versions").select("name,slug,description,config,visibility").eq("preset_id", preset.id).eq("version_number", requestedVersion).maybeSingle();
+			if (versionResult.error) throw versionResult.error;
+			if (!versionResult.data || versionResult.data.visibility !== "public") return c.json({ error: "preset_version_not_found" }, 404);
+			displayedPreset = { ...preset, ...versionResult.data };
+		}
 		let sourcePreset: { id: string; name: string } | null = null;
 		if (preset.source_preset_id) {
 			const { data: source, error: sourceError } = await client
@@ -76,7 +90,7 @@ publicMarketplaceRouter.get("/marketplace/presets/:presetId", async (c) => {
 			if (sourceError) throw sourceError;
 			if (source) sourcePreset = source;
 		}
-		return withPublicCache(c.json({ preset: { ...preset, forkCount: counts.get(String(preset.id)) ?? 0, canonicalModel: `@${handle}/${preset.slug}`, publisher: { handle, displayName: profile?.display_name ?? handle } }, sourcePreset }), {
+		return withPublicCache(c.json({ preset: { ...displayedPreset, forkCount: count.direct, descendantCount: count.descendants, canonicalModel: `@${handle}/${preset.slug}`, publisher: { handle, displayName: profile?.display_name ?? handle } }, versions: versionsResult.data ?? [], sourcePreset }), {
 			...MARKETPLACE_CACHE,
 			cacheTags: [
 				"web-api-marketplace",
