@@ -5,6 +5,7 @@ export type ChatComposerSendAction =
 
 type ChatComposerSendState = {
 	hasComposerContent: boolean;
+	hasComposerText: boolean;
 	hasSelectedModel: boolean;
 	isRecording: boolean;
 	slashMenuOpen: boolean;
@@ -12,6 +13,7 @@ type ChatComposerSendState = {
 
 export function getChatComposerSendAction({
 	hasComposerContent,
+	hasComposerText,
 	hasSelectedModel,
 	isRecording,
 	slashMenuOpen,
@@ -20,5 +22,9 @@ export function getChatComposerSendAction({
 		return "none";
 	}
 
-	return hasSelectedModel ? "submit" : "open-model-selector";
+	if (hasSelectedModel) {
+		return "submit";
+	}
+
+	return hasComposerText ? "open-model-selector" : "none";
 }
