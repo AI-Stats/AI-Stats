@@ -311,8 +311,16 @@ export async function updateAccount(payload: {
     if (payload.declared_country_code !== undefined) {
         const countryCode = normaliseCountryCode(payload.declared_country_code)
         if (!countryCode) throw new Error('Select a valid country')
-        toUpsert.declared_country_code = countryCode
-        toUpsert.country_declared_at = new Date().toISOString()
+        const { data: existingCountry, error: countryError } = await supabase
+            .from('users')
+            .select('declared_country_code')
+            .eq('user_id', authUser.id)
+            .maybeSingle()
+        if (countryError) throw new Error(countryError.message)
+        if (existingCountry?.declared_country_code !== countryCode) {
+            toUpsert.declared_country_code = countryCode
+            toUpsert.country_declared_at = new Date().toISOString()
+        }
     }
     if (payload.obfuscate_info !== undefined) toUpsert.obfuscate_info = payload.obfuscate_info
 
