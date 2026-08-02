@@ -1005,15 +1005,15 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 			setCommandSearch("");
 		}
 	}, [isRecording]);
-	const hasComposerContent =
-		(composer.trim().length > 0 && slashQuery === null) ||
-		attachments.length > 0;
+	const hasComposerText = composer.trim().length > 0 && slashQuery === null;
+	const hasComposerContent = hasComposerText || attachments.length > 0;
 	const hasSelectedModel =
 		selectedModelIds.length > 0 ||
 		selectedModelCount > 0 ||
 		Boolean(selectedModelId);
 	const sendAction = getChatComposerSendAction({
 		hasComposerContent,
+		hasComposerText,
 		hasSelectedModel,
 		isRecording,
 		slashMenuOpen,
