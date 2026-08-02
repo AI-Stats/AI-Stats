@@ -19,6 +19,14 @@ import {
 import { CodeBlock as HighlightedCodeBlock } from "@/components/ai-elements/code-block";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { COUNTRY_OPTIONS } from "@/lib/countryCodes";
 import { CopyButton } from "@/components/ui/copy-button";
 import { SecretRevealActions } from "@/components/(gateway)/settings/keys/SecretRevealActions";
 import {
@@ -338,12 +346,16 @@ function MobileCodeDrawer({ example }: { example: RestCodeExample }) {
 export default function InteractiveOnboarding({
 	initialState,
 	initialCompletedAt,
+	initialCountryCode,
+	countryStorageAvailable,
 	initialWorkspaceId,
 	models,
 	workspaces,
 }: {
 	initialState: Record<string, unknown>;
 	initialCompletedAt: string | null;
+	initialCountryCode: string | null;
+	countryStorageAvailable: boolean;
 	initialWorkspaceId: string | null;
 	models: OnboardingModel[];
 	workspaces: OnboardingWorkspace[];
@@ -354,6 +366,9 @@ export default function InteractiveOnboarding({
 	const firstIncomplete =
 		STEPS.find((step) => !initialSteps.includes(step.id))?.id ?? "request";
 
+	const [countryCode, setCountryCode] = React.useState(initialCountryCode ?? "");
+	const [declaredCountryCode, setDeclaredCountryCode] = React.useState(initialCountryCode ?? "");
+	const [isSavingCountry, setIsSavingCountry] = React.useState(false);
 	const [activeStep, setActiveStep] = React.useState<StepId>(firstIncomplete);
 	const [completedSteps, setCompletedSteps] = React.useState<Set<string>>(
 		() => new Set(initialSteps),
@@ -623,6 +638,24 @@ export default function InteractiveOnboarding({
 		}
 	}
 
+	async function saveCountry() {
+		if (!countryCode) return;
+		try {
+			setIsSavingCountry(true);
+			await saveOnboardingProgressAction({
+				countryCode,
+				completedSteps: ["country"],
+				status: "started",
+			});
+			setDeclaredCountryCode(countryCode);
+			toast.success("Country saved");
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : "Could not save country");
+		} finally {
+			setIsSavingCountry(false);
+		}
+	}
+
 	function renderModelButton(model: OnboardingModel) {
 		return (
 			<button
@@ -654,6 +687,41 @@ export default function InteractiveOnboarding({
 					</div>
 				</div>
 			</button>
+		);
+	}
+
+	if (countryStorageAvailable && !declaredCountryCode) {
+		return (
+			<div className="min-h-[calc(100dvh-var(--site-header-height,4rem))] bg-background px-4 py-10 text-foreground sm:px-6">
+				<div className="mx-auto max-w-lg rounded-xl border bg-card p-6 sm:p-8">
+					<h1 className="text-2xl font-semibold tracking-tight">Select your country</h1>
+					<p className="mt-2 text-sm leading-6 text-muted-foreground">
+						Choose the country where you live. We use this to determine which providers and services are available to your account. This is kept separate from request-location analytics.
+					</p>
+					<div className="mt-6 space-y-2">
+						<label htmlFor="onboarding-country" className="text-sm font-medium">Country</label>
+						<Select value={countryCode || null} onValueChange={setCountryCode}>
+							<SelectTrigger id="onboarding-country" className="h-10 w-full rounded-md border bg-background">
+								<SelectValue placeholder="Select a country" />
+							</SelectTrigger>
+							<SelectContent align="start" className="max-h-80">
+								{COUNTRY_OPTIONS.map((country) => (
+									<SelectItem key={country.code} value={country.code}>
+										{country.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+					<Button className="mt-6 w-full" onClick={saveCountry} disabled={!countryCode || isSavingCountry}>
+						{isSavingCountry ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : null}
+						Continue
+					</Button>
+					<p className="mt-4 text-xs leading-5 text-muted-foreground">
+						Select your actual country. Request access may also be checked against network location where required for security or provider compliance.
+					</p>
+				</div>
+			</div>
 		);
 	}
 
