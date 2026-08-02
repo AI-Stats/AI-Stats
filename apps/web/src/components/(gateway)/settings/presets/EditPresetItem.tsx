@@ -351,7 +351,7 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 
 		try {
 			await updatePresetAction(updates);
-			toast.success("Preset updated successfully");
+			toast.success("Draft saved. Publish a new version when it is ready.");
 		} catch (error) {
 			console.error("Failed to update preset:", error);
 			toast.error(error instanceof Error ? error.message : "Failed to update preset");
