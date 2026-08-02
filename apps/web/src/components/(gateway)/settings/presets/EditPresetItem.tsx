@@ -277,6 +277,7 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 		for (const key of ["system_prompt", "models", "only_providers", "ignore_providers", "provider_preferences", "plugins", "routing_mode", "response_caching", "parameters", "reasoning"]) {
 			delete config[key];
 		}
+		delete config.provider;
 
 		if (systemPrompt) {
 			config.system_prompt = systemPrompt;
