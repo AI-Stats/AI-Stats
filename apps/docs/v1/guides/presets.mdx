@@ -72,7 +72,12 @@ Open the request in **Gateway -> Usage** to confirm which defaults were applied 
 
 Preset names are prefixed with `@` to keep them easy to recognize.
 
-Invoke a preset only through the request's `model` field using `@{slug}`. Phaseo does not expose a separate `preset` request field. Slugs are normalised to lower case and support letters, numbers, hyphens, underscores, periods, and colons.
+Invoke a preset only through the request's `model` field. Phaseo does not expose a separate `preset` request field.
+
+- Private and workspace presets use `@{slug}` and resolve inside the API key's workspace.
+- Public presets use `@{username}/{slug}` and can resolve from any workspace. For example, `@octavia/release-summary`.
+
+Public publishing requires an enabled public profile and username. Public slug conflicts are scoped to that publisher, so two publishers may use the same slug without ambiguity. Usernames are globally unique. Slugs are normalised to lower case and support letters, numbers, hyphens, underscores, periods, and colons.
 
 ## How preset merging works
 
