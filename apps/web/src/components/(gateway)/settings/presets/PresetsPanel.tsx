@@ -103,9 +103,11 @@ export default function PresetsPanel({
 		toast.success("Preset name copied", { duration: 2000 });
 	}
 
-	async function onPublishVersion(id: string) {
+	async function onPublishVersion(preset: any) {
 		const releaseNotes = window.prompt("What changed in this version? (optional)") ?? undefined;
-		try { const result = await publishPresetVersionAction(id, releaseNotes); toast.success(`Published v${result.version?.version_number ?? "next"}`); window.location.reload(); }
+		const versionLabel = preset.versioning_method === "semver" ? window.prompt("Semantic version (for example 1.2.0 or 2.0.0-beta.1)") ?? undefined : undefined;
+		if (preset.versioning_method === "semver" && !versionLabel) return;
+		try { const result = await publishPresetVersionAction(preset.id, releaseNotes, versionLabel); toast.success(`Published ${result.version?.version_label ?? `release ${result.version?.version_number ?? "next"}`}`); window.location.reload(); }
 		catch (error) { toast.error(error instanceof Error ? error.message : "Failed to publish version"); }
 	}
 
@@ -286,7 +288,7 @@ export default function PresetsPanel({
 
 													</DropdownMenuItem>
 											<EditPresetItem p={p} providers={providers} />
-											{p.created_by === currentUserId && <DropdownMenuItem render={<button className="w-full text-left flex items-center gap-2" onClick={() => onPublishVersion(p.id)} />}><Upload className="mr-2 h-4 w-4" />Publish new version</DropdownMenuItem>}
+											{p.created_by === currentUserId && <DropdownMenuItem render={<button className="w-full text-left flex items-center gap-2" onClick={() => onPublishVersion(p)} />}><Upload className="mr-2 h-4 w-4" />Publish new version</DropdownMenuItem>}
 											{p.created_by === currentUserId && p.hasUpstreamUpdate && p.latestUpstreamVersion && <DropdownMenuItem render={<button className="w-full text-left flex items-center gap-2" onClick={() => onApplyUpstream(p.id, p.latestUpstreamVersion.id, p.latestUpstreamVersion.version_number)} />}><GitBranch className="mr-2 h-4 w-4" />Apply upstream v{p.latestUpstreamVersion.version_number} to draft</DropdownMenuItem>}
 											<DeletePresetItem p={p} />
 												</DropdownMenuContent>
