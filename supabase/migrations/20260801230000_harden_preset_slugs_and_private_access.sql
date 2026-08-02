@@ -1,12 +1,12 @@
--- Public marketplace slugs are global; private and team slugs remain workspace-scoped.
-create unique index if not exists presets_public_slug_key
-  on public.presets (slug)
+drop index if exists public.presets_public_slug_key;
+
+create unique index if not exists presets_public_publisher_slug_key
+  on public.presets (created_by, slug)
   where visibility = 'public';
 
-comment on index public.presets_public_slug_key is
-  'Public marketplace preset slugs are globally unique; all preset slugs remain unique inside each workspace.';
+comment on index public.presets_public_publisher_slug_key is
+  'Public preset slugs are unique per publisher; invoke them as @publisher/slug.';
 
--- Private presets may only be invoked through an API key created by the preset owner.
 create or replace function public.gateway_fetch_request_context(
   workspace_id uuid,
   model text,
@@ -63,6 +63,7 @@ declare
   -- Preset handling
   is_preset           boolean := false;
   preset_name         text := null;
+  preset_publisher    text := null;
 
   -- Resolve model from alias if exists
   resolved_model      text := gateway_fetch_request_context.model;
@@ -101,32 +102,35 @@ begin
     is_preset := true;
     preset_name := substring(base_model from 2); -- Remove @ prefix
 
-    -- Fetch preset configuration
-    select
-      jsonb_build_object(
-        'id', p.id,
-        'name', p.name,
+    if position('/' in preset_name) > 0 then
+      preset_publisher := split_part(preset_name, '/', 1);
+      preset_name := substring(preset_name from position('/' in preset_name) + 1);
+      select jsonb_build_object(
+        'id', p.id, 'name', p.name, 'slug', p.slug, 'description', p.description,
+        'config', p.config, 'visibility', p.visibility, 'publisher', u.public_profile_slug
+      ) into preset_data
+      from public.presets p
+      join public.users u on u.user_id = p.created_by
+      where p.slug = preset_name
+        and p.visibility = 'public'
+        and u.public_profile_enabled = true
+        and lower(u.public_profile_slug) = lower(preset_publisher)
+      limit 1;
+    else
+      select jsonb_build_object(
+        'id', p.id, 'name', p.name,
         'slug', coalesce(nullif(p.slug, ''), regexp_replace(p.name, '^@', '')),
-        'description', p.description,
-        'config', p.config,
-        'visibility', p.visibility
-      )
-    into preset_data
-    from public.presets p
-    where coalesce(nullif(p.slug, ''), regexp_replace(p.name, '^@', '')) = preset_name
-      and p.workspace_id = gateway_fetch_request_context.workspace_id
-      and (
-        p.visibility = 'public'
-        or p.visibility = 'team'
-        or p.created_by = (
-          select k.created_by
-          from public.keys k
-          where k.id = gateway_fetch_request_context.api_key_id
-            and k.workspace_id = gateway_fetch_request_context.workspace_id
-          limit 1
+        'description', p.description, 'config', p.config, 'visibility', p.visibility
+      ) into preset_data
+      from public.presets p
+      where coalesce(nullif(p.slug, ''), regexp_replace(p.name, '^@', '')) = preset_name
+        and p.workspace_id = gateway_fetch_request_context.workspace_id
+        and (
+          p.visibility in ('public', 'team')
+          or p.created_by = (select ak.created_by from public.api_keys ak where ak.id = gateway_fetch_request_context.api_key_id)
         )
-      )
-    limit 1;
+      limit 1;
+    end if;
 
     if preset_data is null then
       raise exception using
