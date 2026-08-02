@@ -441,12 +441,12 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 										<SelectContent>
 											<SelectItem value="private">Only me</SelectItem>
 											<SelectItem value="team">Share with workspace</SelectItem>
-											<SelectItem value="public">Make public (future marketplace)</SelectItem>
+											<SelectItem value="public">Publish to marketplace</SelectItem>
 										</SelectContent>
 									</Select>
 									<p className="text-xs text-muted-foreground">
 										Private presets are only visible to you. Workspace presets can be used by
-										anyone in the workspace. Public presets are planned for a future marketplace.
+										anyone in the workspace. Public presets appear in the marketplace under your username.
 									</p>
 								</div>
 
