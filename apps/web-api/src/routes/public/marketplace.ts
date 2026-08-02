@@ -69,7 +69,7 @@ publicMarketplaceRouter.get("/marketplace/presets/:presetId", async (c) => {
 		if (!handle) return c.json({ error: "preset_not_found" }, 404);
 		const counts = await forkCounts(client, [preset.id]);
 		const count = counts.get(String(preset.id)) ?? { direct: 0, descendants: 0 };
-		const versionsResult = await client.from("preset_versions").select("id,version_number,release_notes,created_at").eq("preset_id", preset.id).order("version_number", { ascending: false });
+		const versionsResult = await client.from("preset_versions").select("id,version_number,release_notes,created_at").eq("preset_id", preset.id).eq("visibility", "public").order("version_number", { ascending: false });
 		if (versionsResult.error) throw versionsResult.error;
 		const requestedVersion = Number(c.req.query("version"));
 		let displayedPreset = preset;
