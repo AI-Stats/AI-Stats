@@ -14,6 +14,7 @@ import {
 } from "react";
 import Link from "next/link";
 import { AIGeneratedNotice } from "@/components/(chat)/AIGeneratedNotice";
+import { getChatComposerSendAction } from "@/components/(chat)/chatComposerSendAction";
 import Image from "next/image";
 import {
 	ArrowLeft,
@@ -1004,15 +1005,21 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 			setCommandSearch("");
 		}
 	}, [isRecording]);
-	const hasComposerContent =
-		(composer.trim().length > 0 && slashQuery === null) ||
-		attachments.length > 0;
+	const hasComposerText = composer.trim().length > 0 && slashQuery === null;
+	const hasComposerContent = hasComposerText || attachments.length > 0;
 	const hasSelectedModel =
 		selectedModelIds.length > 0 ||
 		selectedModelCount > 0 ||
 		Boolean(selectedModelId);
-	const canSubmit =
-		!isRecording && hasSelectedModel && !slashMenuOpen && hasComposerContent;
+	const sendAction = getChatComposerSendAction({
+		hasComposerContent,
+		hasComposerText,
+		hasSelectedModel,
+		isRecording,
+		slashMenuOpen,
+	});
+	const canSubmit = sendAction === "submit";
+	const canActivateSendButton = sendAction !== "none";
 	const showChooseModelTooltip = !hasSelectedModel && hasComposerContent;
 	const resetPromptHistoryNavigation = useCallback(() => {
 		setHistoryIndex(null);
@@ -2749,25 +2756,29 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 						: "Send message"
 					: "Choose a model to send"
 			}
-			aria-disabled={!canSubmit}
+			aria-disabled={!canActivateSendButton}
 			data-chat-send-button="true"
 			title={showChooseModelTooltip ? "Choose a model" : undefined}
 			className={cn(
-				canSubmit
+				canActivateSendButton
 					? "cursor-pointer border-transparent hover:brightness-95"
 					: "cursor-default border-transparent opacity-50",
 			)}
 			style={{
 				backgroundColor: accentColor,
 				color: getReadableTextColor(accentColor),
-				cursor: canSubmit ? "pointer" : "default",
+				cursor: canActivateSendButton ? "pointer" : "default",
 			}}
 			onClick={() => {
-				if (canSubmit) {
+				if (sendAction === "open-model-selector") {
+					openSlashSubmenu("model");
+					return;
+				}
+				if (sendAction === "submit") {
 					handleComposerSubmit();
 				}
 			}}
-			tabIndex={canSubmit ? undefined : -1}
+			tabIndex={canActivateSendButton ? undefined : -1}
 		>
 			{isSending ? (
 				<ListPlus className="h-4 w-4" />
