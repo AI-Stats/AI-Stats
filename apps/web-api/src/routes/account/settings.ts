@@ -306,7 +306,7 @@ accountSettingsRouter.get("/account/details", async (c) => {
 		return c.json({ hasPassword: false, teams: [], user: null }, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 	const client = getDataClient(c.env);
-	const [userResult, teamsResult] = await Promise.all([
+	const [userResult, teamsResult, countryResult] = await Promise.all([
 		client
 			.from("users")
 			.select("user_id,display_name,default_workspace_id,obfuscate_info,created_at")
@@ -316,8 +316,17 @@ accountSettingsRouter.get("/account/details", async (c) => {
 			.from("workspace_members")
 			.select("workspace_id,teams:workspaces(id,name)")
 			.eq("user_id", user.id),
+		client
+			.from("users")
+			.select("declared_country_code")
+			.eq("user_id", user.id)
+			.maybeSingle(),
 	]);
-	if (userResult.error || teamsResult.error) {
+	const countryStorageAvailable = !countryResult.error;
+	const countryColumnMissing =
+		countryResult.error?.code === "42703" ||
+		String(countryResult.error?.message ?? "").includes("declared_country_code");
+	if (userResult.error || teamsResult.error || (countryResult.error && !countryColumnMissing)) {
 		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
 	const cookieOverride = c.req.query("obfuscateInfo");
@@ -341,6 +350,8 @@ accountSettingsRouter.get("/account/details", async (c) => {
 			displayName: userResult.data?.display_name ?? null,
 			email: user.email,
 			defaultWorkspaceId: userResult.data?.default_workspace_id ?? null,
+			declaredCountryCode: countryResult.data?.declared_country_code ?? null,
+			countryStorageAvailable,
 			obfuscateInfo,
 			createdAt: userResult.data?.created_at ?? user.createdAt,
 		},
