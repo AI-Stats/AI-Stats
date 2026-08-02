@@ -716,9 +716,10 @@ export async function fetchFrontendMarketplacePresets(): Promise<
 
 export async function fetchFrontendMarketplacePresetDetail(
 	presetId: string,
+	version?: number,
 ): Promise<MarketplacePresetDetail | null> {
 	return fetchOptionalPublicWebApi<MarketplacePresetDetail>(
-		`/api/_web/marketplace/presets/${encodeURIComponent(presetId)}`,
+		`/api/_web/marketplace/presets/${encodeURIComponent(presetId)}${version ? `?version=${encodeURIComponent(String(version))}` : ""}`,
 	);
 }
 
