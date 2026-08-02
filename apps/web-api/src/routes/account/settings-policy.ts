@@ -199,6 +199,7 @@ accountSettingsPolicyRouter.put("/presets/:presetId", async (c) => {
 	if (body.config !== undefined) update.draft_config = body.replaceConfig === true ? (body.config && typeof body.config === "object" ? body.config : {}) : { ...((existing.data.draft_config as Record<string, unknown>) ?? (existing.data.config as Record<string, unknown>) ?? {}), ...(body.config && typeof body.config === "object" ? body.config : {}) };
 	if (body.visibility !== undefined) update.draft_visibility = presetVisibility(body.visibility);
 	if (body.slug !== undefined) update.draft_slug = normalizePresetSlug(body.slug);
+	if (["sequential", "semver", "date"].includes(String(body.versioningMethod))) update.versioning_method = String(body.versioningMethod);
 	const nextSlug = String(update.draft_slug ?? existing.data.draft_slug ?? existing.data.slug ?? ""); const nextVisibility = String(update.draft_visibility ?? existing.data.draft_visibility ?? existing.data.visibility); if (!nextSlug) return c.json({ error: "invalid_preset_slug" }, 400, PRIVATE_NO_STORE_HEADERS);
 	const publisher = nextVisibility === "public" ? await publicPublisher(client, existing.data.created_by).catch(() => null) : null; if (nextVisibility === "public" && !publisher) return c.json({ error: "public_profile_required" }, 409, PRIVATE_NO_STORE_HEADERS);
 	const conflict = await presetSlugConflict(client, existing.data.workspace_id, existing.data.created_by, nextSlug, nextVisibility, id).catch(() => "error"); if (conflict === "error") return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); if (conflict) return c.json({ error: conflict === "public" ? "public_slug_conflict" : "duplicate_preset_slug", slug: nextSlug }, 409, PRIVATE_NO_STORE_HEADERS);
@@ -219,12 +220,12 @@ accountSettingsPolicyRouter.get("/presets/:presetId/versions", async (c) => {
 
 accountSettingsPolicyRouter.post("/presets/:presetId/versions", async (c) => {
 	const user = await requireUser(c.req.raw, c.env); if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
-	const client = getDataClient(c.env); const id = c.req.param("presetId"); const body: { releaseNotes?: string } = await c.req.json<{ releaseNotes?: string }>().catch(() => ({}));
+	const client = getDataClient(c.env); const id = c.req.param("presetId"); const body: { releaseNotes?: string; versionLabel?: string } = await c.req.json<{ releaseNotes?: string; versionLabel?: string }>().catch(() => ({}));
 	const preset = await client.from("presets").select("workspace_id,created_by,draft_visibility").eq("id", id).maybeSingle();
 	if (preset.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); if (!preset.data?.workspace_id) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId: preset.data.workspace_id }); if (!context || preset.data.created_by !== user.id) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	if (preset.data.draft_visibility === "public" && !await publicPublisher(client, user.id).catch(() => null)) return c.json({ error: "public_profile_required" }, 409, PRIVATE_NO_STORE_HEADERS);
-	const published = await client.rpc("publish_preset_version", { target_preset_id: id, actor_user_id: user.id, notes: String(body.releaseNotes ?? "").slice(0, 1000) });
+	const published = await client.rpc("publish_preset_version", { target_preset_id: id, actor_user_id: user.id, notes: String(body.releaseNotes ?? "").slice(0, 1000), requested_label: body.versionLabel ? String(body.versionLabel).slice(0, 100) : null });
 	if (published.error) return c.json({ error: "version_publish_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const version = Array.isArray(published.data) ? published.data[0] : published.data;
 	const cache = await purgePresetCache(c, id); return c.json({ version, cache }, 201, PRIVATE_NO_STORE_HEADERS);
