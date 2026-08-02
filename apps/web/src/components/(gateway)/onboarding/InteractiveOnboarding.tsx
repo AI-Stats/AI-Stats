@@ -19,14 +19,7 @@ import {
 import { CodeBlock as HighlightedCodeBlock } from "@/components/ai-elements/code-block";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { COUNTRY_OPTIONS } from "@/lib/countryCodes";
+import { CountryCombobox } from "@/components/ui/country-combobox";
 import { CopyButton } from "@/components/ui/copy-button";
 import { SecretRevealActions } from "@/components/(gateway)/settings/keys/SecretRevealActions";
 import {
@@ -700,18 +693,12 @@ export default function InteractiveOnboarding({
 					</p>
 					<div className="mt-6 space-y-2">
 						<label htmlFor="onboarding-country" className="text-sm font-medium">Country</label>
-						<Select value={countryCode || null} onValueChange={setCountryCode}>
-							<SelectTrigger id="onboarding-country" className="h-10 w-full rounded-md border bg-background">
-								<SelectValue placeholder="Select a country" />
-							</SelectTrigger>
-							<SelectContent align="start" className="max-h-80">
-								{COUNTRY_OPTIONS.map((country) => (
-									<SelectItem key={country.code} value={country.code}>
-										{country.name}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+						<CountryCombobox
+							id="onboarding-country"
+							value={countryCode}
+							onValueChange={setCountryCode}
+							disabled={isSavingCountry}
+						/>
 					</div>
 					<Button className="mt-6 w-full" onClick={saveCountry} disabled={!countryCode || isSavingCountry}>
 						{isSavingCountry ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : null}
