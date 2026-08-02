@@ -185,6 +185,8 @@ async function upsertV2RequestFact(args: {
     gatewayTotalMs?: number | null;
     throughput?: number | null;
     edgeColo?: string | null;
+    edgeCountry?: string | null;
+    edgeContinent?: string | null;
     sessionId?: string | null;
     endUserId?: string | null;
     authMethod?: "api_key" | "oauth" | null;
@@ -402,6 +404,8 @@ async function upsertV2RequestFact(args: {
             safe_metadata: {
                 provider: args.provider ?? null,
                 routed_model: args.routedModel ?? args.requestedModel,
+                edge_country: args.edgeCountry ? args.edgeCountry.trim().toUpperCase() : null,
+                edge_continent: args.edgeContinent ? args.edgeContinent.trim().toUpperCase() : null,
                 structured_output_success_basis: args.structuredOutputAttempted
                     ? (args.structuredOutputSuccessBasis ?? "unobserved")
                     : null,
@@ -806,6 +810,8 @@ export async function auditSuccess(args: {
                     gatewayTotalMs: args.endToEndMs ?? null,
                     throughput: args.throughput ?? null,
                     edgeColo: args.edgeColo ?? null,
+                    edgeCountry: args.edgeCountry ?? null,
+                    edgeContinent: args.edgeContinent ?? null,
                     sessionId: args.sessionId ?? null,
                     endUserId: args.requestUserId ?? null,
                     authMethod: args.authMethod ?? null,
@@ -1072,6 +1078,8 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                             latencyMs: args.latencyMs ?? null,
                             internalDispatchMs: args.internalLatencyMs ?? null,
                             edgeColo: args.edgeColo ?? null,
+                            edgeCountry: args.edgeCountry ?? null,
+                            edgeContinent: args.edgeContinent ?? null,
                             sessionId: args.sessionId ?? null,
                             endUserId: args.requestUserId ?? null,
                             authMethod: args.authMethod ?? null,
