@@ -66,7 +66,7 @@ export function GeographyUsage({
 								</div>
 								{!publicView ? (
 									<div className="relative sm:col-start-2 sm:col-span-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground">
-										<span>Spend: ${((row.spendNanos ?? 0) / 1e9).toLocaleString("en-GB", { style: "currency", currency: "USD", maximumFractionDigits: 4 })}</span>
+										<span>Spend: {((row.spendNanos ?? 0) / 1e9).toLocaleString("en-GB", { style: "currency", currency: "USD", maximumFractionDigits: 4 })}</span>
 										<span>Average latency: {row.averageLatencyMs == null ? "—" : `${Math.round(row.averageLatencyMs)} ms`}</span>
 									</div>
 								) : null}
