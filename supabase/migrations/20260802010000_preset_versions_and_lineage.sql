@@ -165,6 +165,12 @@ begin
   select * into p from public.presets where id = target_preset_id and archived_at is null for update;
   if not found or p.created_by <> actor_user_id then raise exception 'preset_update_forbidden'; end if;
   if p.source_preset_id is null then raise exception 'preset_has_no_upstream'; end if;
+  if p.draft_name is distinct from p.name
+    or p.draft_slug is distinct from p.slug
+    or p.draft_description is distinct from p.description
+    or p.draft_config is distinct from p.config
+    or p.draft_visibility is distinct from p.visibility
+  then raise exception 'preset_has_local_draft_changes'; end if;
   select * into upstream from public.preset_versions where id = target_version_id and preset_id = p.source_preset_id;
   if not found then raise exception 'upstream_version_not_found'; end if;
   update public.presets set draft_name = upstream.name, draft_slug = upstream.slug,
