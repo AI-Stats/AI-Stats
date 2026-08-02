@@ -382,6 +382,22 @@ export async function updatePresetAction(input: UpdatePresetInput) {
 	return { success: true };
 }
 
+export async function publishPresetVersionAction(id: string, releaseNotes?: string) {
+	if (!id) throw new Error("Valid preset ID is required");
+	const { accessToken } = await getServerAccountContext(); if (!accessToken) throw new Error("Unauthorized");
+	const data = await fetchAccountWebApi<{ version?: { version_number?: number } }>(`/api/account/settings/presets/${encodeURIComponent(id)}/versions`, accessToken, { method: "POST", body: JSON.stringify({ releaseNotes }) });
+	revalidatePath("/settings/presets"); revalidatePath(`/gateway/marketplace/${id}`); revalidatePresetDataCache(id);
+	return data;
+}
+
+export async function applyPresetUpstreamVersionAction(id: string, versionId: string) {
+	if (!id || !versionId) throw new Error("Preset and version are required");
+	const { accessToken } = await getServerAccountContext(); if (!accessToken) throw new Error("Unauthorized");
+	await fetchAccountWebApi(`/api/account/settings/presets/${encodeURIComponent(id)}/upstream`, accessToken, { method: "POST", body: JSON.stringify({ versionId }) });
+	revalidatePath("/settings/presets"); revalidatePresetDataCache(id);
+	return { success: true };
+}
+
 export async function deletePresetAction(id: string, confirmName?: string) {
 	if (!id || typeof id !== "string") {
 		throw new Error("Valid preset ID is required");
