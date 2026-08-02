@@ -16,7 +16,8 @@ export function createWorkspaceSearchItem(
 		id: `workspace:${workspace.id}`,
 		title: workspace.name,
 		subtitle: "Workspace settings",
-		href: `/settings/workspaces/settings?workspaceId=${encodeURIComponent(workspace.id)}`,
+		href: "/settings/workspaces/settings",
+		workspaceId: workspace.id,
 		keywords: ["workspace", "team", workspace.name],
 	};
 }
