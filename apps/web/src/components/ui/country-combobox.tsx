@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	Command,
@@ -78,7 +78,6 @@ export function CountryCombobox({
 									<span aria-hidden="true" className="text-base">{countryFlag(country.code)}</span>
 									<span className="min-w-0 flex-1 truncate">{country.name}</span>
 									<span className="text-xs text-muted-foreground">{country.code}</span>
-									<Check className={cn("size-4", country.code === value ? "opacity-100" : "opacity-0")} />
 								</CommandItem>
 							))}
 						</CommandGroup>
