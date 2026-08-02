@@ -5,6 +5,7 @@ describe("getChatComposerSendAction", () => {
 		expect(
 			getChatComposerSendAction({
 				hasComposerContent: true,
+				hasComposerText: true,
 				hasSelectedModel: false,
 				isRecording: false,
 				slashMenuOpen: false,
@@ -16,6 +17,7 @@ describe("getChatComposerSendAction", () => {
 		expect(
 			getChatComposerSendAction({
 				hasComposerContent: true,
+				hasComposerText: true,
 				hasSelectedModel: true,
 				isRecording: false,
 				slashMenuOpen: false,
@@ -24,9 +26,10 @@ describe("getChatComposerSendAction", () => {
 	});
 
 	it.each([
-		{ hasComposerContent: false, isRecording: false, slashMenuOpen: false },
-		{ hasComposerContent: true, isRecording: true, slashMenuOpen: false },
-		{ hasComposerContent: true, isRecording: false, slashMenuOpen: true },
+		{ hasComposerContent: false, hasComposerText: false, isRecording: false, slashMenuOpen: false },
+		{ hasComposerContent: true, hasComposerText: true, isRecording: true, slashMenuOpen: false },
+		{ hasComposerContent: true, hasComposerText: true, isRecording: false, slashMenuOpen: true },
+		{ hasComposerContent: true, hasComposerText: false, isRecording: false, slashMenuOpen: false },
 	])("does nothing when the composer cannot act: %o", (state) => {
 		expect(
 			getChatComposerSendAction({
