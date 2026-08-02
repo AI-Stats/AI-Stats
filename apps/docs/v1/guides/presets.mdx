@@ -79,6 +79,14 @@ Invoke a preset only through the request's `model` field. Phaseo does not expose
 
 Public publishing requires an enabled public profile and username. Public slug conflicts are scoped to that publisher, so two publishers may use the same slug without ambiguity. Usernames are globally unique. Slugs are normalised to lower case and support letters, numbers, hyphens, underscores, periods, and colons.
 
+## Versions and marketplace forks
+
+Saving changes updates a private draft. Use **Publish new version** when those changes are ready; Phaseo creates an immutable numbered release while retaining every earlier version for review.
+
+Marketplace copies remain pinned to the exact upstream version they copied. When the publisher releases an update, the copied preset shows an update notice. Applying it updates the copy's draft only, so the workspace owner can review and explicitly publish it without an upstream author changing production behaviour.
+
+Phaseo retains both the immediate source and the complete ancestry of every fork. Marketplace pages can therefore distinguish direct forks from all descendants, even when a preset has been copied and republished several times.
+
 ## How preset merging works
 
 When a request resolves with a preset in gateway context, the preset is applied before provider routing:
