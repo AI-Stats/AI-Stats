@@ -12,13 +12,23 @@ export const publicMarketplaceRouter = new Hono<{ Bindings: Env }>();
 
 publicMarketplaceRouter.get("/marketplace/presets", async (c) => {
 	try {
-		const { data, error } = await getDataClient(c.env)
+		const client = getDataClient(c.env);
+		const { data, error } = await client
 			.from("presets")
-			.select("id,name,description,created_at,source_preset_id")
+			.select("id,name,slug,description,created_at,source_preset_id,created_by")
 			.eq("visibility", "public")
 			.order("created_at", { ascending: false });
 		if (error) throw error;
-		return withPublicCache(c.json({ presets: data ?? [] }), {
+		const userIds = [...new Set((data ?? []).map((preset) => String(preset.created_by ?? "")).filter(Boolean))];
+		const profiles = userIds.length ? await client.from("users").select("user_id,display_name,public_profile_slug").eq("public_profile_enabled", true).in("user_id", userIds) : { data: [], error: null };
+		if (profiles.error) throw profiles.error;
+		const byUser = new Map((profiles.data ?? []).map((profile) => [String(profile.user_id), profile]));
+		const presets = (data ?? []).flatMap((preset) => {
+			const publisher = byUser.get(String(preset.created_by));
+			const handle = String(publisher?.public_profile_slug ?? "").trim();
+			return handle ? [{ ...preset, canonicalModel: `@${handle}/${preset.slug}`, publisher: { handle, displayName: publisher?.display_name ?? handle } }] : [];
+		});
+		return withPublicCache(c.json({ presets }), {
 			...MARKETPLACE_CACHE,
 			cacheTags: ["web-api-marketplace", "web-api-marketplace-presets"],
 		});
@@ -34,12 +44,16 @@ publicMarketplaceRouter.get("/marketplace/presets/:presetId", async (c) => {
 		const client = getDataClient(c.env);
 		const { data: preset, error } = await client
 			.from("presets")
-			.select("id,name,description,config,visibility,created_at,source_preset_id")
+			.select("id,name,slug,description,config,visibility,created_at,source_preset_id,created_by")
 			.eq("id", presetId)
 			.eq("visibility", "public")
 			.maybeSingle();
 		if (error) throw error;
 		if (!preset) return c.json({ error: "preset_not_found" }, 404);
+		const { data: profile, error: profileError } = await client.from("users").select("display_name,public_profile_slug").eq("user_id", preset.created_by).eq("public_profile_enabled", true).maybeSingle();
+		if (profileError) throw profileError;
+		const handle = String(profile?.public_profile_slug ?? "").trim();
+		if (!handle) return c.json({ error: "preset_not_found" }, 404);
 		let sourcePreset: { id: string; name: string } | null = null;
 		if (preset.source_preset_id) {
 			const { data: source, error: sourceError } = await client
@@ -51,7 +65,7 @@ publicMarketplaceRouter.get("/marketplace/presets/:presetId", async (c) => {
 			if (sourceError) throw sourceError;
 			if (source) sourcePreset = source;
 		}
-		return withPublicCache(c.json({ preset, sourcePreset }), {
+		return withPublicCache(c.json({ preset: { ...preset, canonicalModel: `@${handle}/${preset.slug}`, publisher: { handle, displayName: profile?.display_name ?? handle } }, sourcePreset }), {
 			...MARKETPLACE_CACHE,
 			cacheTags: [
 				"web-api-marketplace",
