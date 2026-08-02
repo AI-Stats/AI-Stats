@@ -35,6 +35,10 @@ create table if not exists public.preset_versions (
 create index if not exists preset_versions_preset_created_idx
   on public.preset_versions (preset_id, version_number desc);
 
+alter table public.preset_versions enable row level security;
+revoke all on table public.preset_versions from anon, authenticated;
+grant all on table public.preset_versions to service_role;
+
 insert into public.preset_versions (
   preset_id, version_number, version_label, versioning_method, name, slug, description, config, visibility, created_by, created_at
 )
@@ -87,6 +91,10 @@ create table if not exists public.preset_lineage (
 
 create index if not exists preset_lineage_descendant_idx
   on public.preset_lineage (descendant_preset_id, depth);
+
+alter table public.preset_lineage enable row level security;
+revoke all on table public.preset_lineage from anon, authenticated;
+grant all on table public.preset_lineage to service_role;
 
 with recursive ancestry as (
   select p.id as ancestor_id, p.id as descendant_id, 0 as depth, array[p.id] as path
@@ -226,6 +234,8 @@ $function$;
 revoke all on function public.publish_preset_version(uuid, uuid, text, text) from public;
 revoke all on function public.apply_preset_upstream_version(uuid, uuid, uuid) from public;
 revoke all on function public.marketplace_preset_fork_counts(uuid[]) from public;
+revoke all on function public.prepare_preset_lineage() from public, anon, authenticated;
+revoke all on function public.sync_legacy_preset_writes_to_draft() from public, anon, authenticated;
 grant execute on function public.publish_preset_version(uuid, uuid, text, text) to service_role;
 grant execute on function public.apply_preset_upstream_version(uuid, uuid, uuid) to service_role;
 grant execute on function public.marketplace_preset_fork_counts(uuid[]) to anon, authenticated, service_role;
