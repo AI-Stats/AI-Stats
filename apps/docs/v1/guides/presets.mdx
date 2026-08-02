@@ -83,6 +83,14 @@ Public publishing requires an enabled public profile and username. Public slug c
 
 Saving changes updates a private draft. Use **Publish new version** when those changes are ready; Phaseo creates an immutable numbered release while retaining every earlier version for review.
 
+Preset owners can choose how release labels are displayed:
+
+- **Sequential:** `v1`, `v2`, `v3`.
+- **Semantic Versioning:** explicit SemVer labels such as `1.2.0`, `2.0.0-beta.1`, or `1.4.2+build.7`.
+- **Date versioning:** `YYYY.MM.DD`, with a numeric suffix when multiple releases are published on the same date, such as `2026.08.02.2`.
+
+Phaseo maintains a separate monotonic release number internally, so chronology, upstream comparisons, and lineage remain deterministic regardless of the selected public label format.
+
 Marketplace copies remain pinned to the exact upstream version they copied. When the publisher releases an update, the copied preset shows an update notice. Applying it updates the copy's draft only, so the workspace owner can review and explicitly publish it without an upstream author changing production behaviour.
 
 Phaseo retains both the immediate source and the complete ancestry of every fork. Marketplace pages can therefore distinguish direct forks from all descendants, even when a preset has been copied and republished several times.
