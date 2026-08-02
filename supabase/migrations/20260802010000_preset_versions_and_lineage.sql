@@ -11,12 +11,15 @@ alter table public.presets
   add column if not exists upstream_version_id uuid,
   add column if not exists root_preset_id uuid,
   add column if not exists fork_depth integer not null default 0,
+  add column if not exists versioning_method text not null default 'sequential' check (versioning_method in ('sequential', 'semver', 'date')),
   add column if not exists archived_at timestamptz;
 
 create table if not exists public.preset_versions (
   id uuid primary key default gen_random_uuid(),
   preset_id uuid not null references public.presets(id) on delete cascade,
   version_number integer not null check (version_number > 0),
+  version_label text not null,
+  versioning_method text not null check (versioning_method in ('sequential', 'semver', 'date')),
   name text not null,
   slug text not null,
   description text,
@@ -25,16 +28,17 @@ create table if not exists public.preset_versions (
   release_notes text,
   created_by uuid not null references public.users(user_id),
   created_at timestamptz not null default now(),
-  unique (preset_id, version_number)
+  unique (preset_id, version_number),
+  unique (preset_id, version_label)
 );
 
 create index if not exists preset_versions_preset_created_idx
   on public.preset_versions (preset_id, version_number desc);
 
 insert into public.preset_versions (
-  preset_id, version_number, name, slug, description, config, visibility, created_by, created_at
+  preset_id, version_number, version_label, versioning_method, name, slug, description, config, visibility, created_by, created_at
 )
-select p.id, 1, p.name, coalesce(nullif(p.slug, ''), regexp_replace(p.name, '^@', '')),
+select p.id, 1, 'v1', 'sequential', p.name, coalesce(nullif(p.slug, ''), regexp_replace(p.name, '^@', '')),
   p.description, p.config, p.visibility, p.created_by, p.created_at
 from public.presets p
 where not exists (select 1 from public.preset_versions v where v.preset_id = p.id);
@@ -124,8 +128,8 @@ begin
     select ancestor_preset_id, new.id, depth + 1 from public.preset_lineage
     where descendant_preset_id = new.source_preset_id on conflict do nothing;
   end if;
-  insert into public.preset_versions (preset_id, version_number, name, slug, description, config, visibility, created_by)
-  values (new.id, 1, new.name, new.slug, new.description, new.config, new.visibility, new.created_by)
+  insert into public.preset_versions (preset_id, version_number, version_label, versioning_method, name, slug, description, config, visibility, created_by)
+  values (new.id, 1, case new.versioning_method when 'semver' then '1.0.0' when 'date' then to_char(current_date, 'YYYY.MM.DD') else 'v1' end, new.versioning_method, new.name, new.slug, new.description, new.config, new.visibility, new.created_by)
   returning id into initial_version_id;
   update public.presets set
     draft_name = new.name, draft_slug = new.slug, draft_description = new.description,
@@ -141,16 +145,25 @@ drop trigger if exists presets_finish_creation on public.presets;
 create trigger presets_finish_creation after insert on public.presets
 for each row execute function public.finish_preset_creation();
 
-create or replace function public.publish_preset_version(target_preset_id uuid, actor_user_id uuid, notes text default null)
+create or replace function public.publish_preset_version(target_preset_id uuid, actor_user_id uuid, notes text default null, requested_label text default null)
 returns public.preset_versions language plpgsql security definer set search_path = public as $function$
-declare p public.presets%rowtype; next_number integer; published public.preset_versions%rowtype;
+declare p public.presets%rowtype; next_number integer; next_label text; date_base text; date_count integer; published public.preset_versions%rowtype;
 begin
   select * into p from public.presets where id = target_preset_id and archived_at is null for update;
   if not found then raise exception 'preset_not_found'; end if;
   if p.created_by <> actor_user_id then raise exception 'preset_publish_forbidden'; end if;
   select coalesce(max(version_number), 0) + 1 into next_number from public.preset_versions where preset_id = p.id;
-  insert into public.preset_versions (preset_id, version_number, name, slug, description, config, visibility, release_notes, created_by)
-  values (p.id, next_number, p.draft_name, p.draft_slug, p.draft_description, p.draft_config, p.draft_visibility, nullif(trim(notes), ''), actor_user_id)
+  if p.versioning_method = 'semver' then
+    next_label := regexp_replace(trim(coalesce(requested_label, '')), '^v', '');
+    if next_label !~ '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$' then raise exception 'invalid_semver_label'; end if;
+  elsif p.versioning_method = 'date' then
+    date_base := to_char(current_date, 'YYYY.MM.DD');
+    select count(*) into date_count from public.preset_versions where preset_id = p.id and version_label like date_base || '%';
+    next_label := case when date_count = 0 then date_base else date_base || '.' || (date_count + 1)::text end;
+  else next_label := 'v' || next_number::text;
+  end if;
+  insert into public.preset_versions (preset_id, version_number, version_label, versioning_method, name, slug, description, config, visibility, release_notes, created_by)
+  values (p.id, next_number, next_label, p.versioning_method, p.draft_name, p.draft_slug, p.draft_description, p.draft_config, p.draft_visibility, nullif(trim(notes), ''), actor_user_id)
   returning * into published;
   update public.presets set name = published.name, slug = published.slug, description = published.description,
     config = published.config, visibility = published.visibility, active_version_id = published.id, updated_at = now()
@@ -191,10 +204,10 @@ language sql stable security definer set search_path = public as $function$
   from unnest(preset_ids) requested(id);
 $function$;
 
-revoke all on function public.publish_preset_version(uuid, uuid, text) from public;
+revoke all on function public.publish_preset_version(uuid, uuid, text, text) from public;
 revoke all on function public.apply_preset_upstream_version(uuid, uuid, uuid) from public;
 revoke all on function public.marketplace_preset_fork_counts(uuid[]) from public;
-grant execute on function public.publish_preset_version(uuid, uuid, text) to service_role;
+grant execute on function public.publish_preset_version(uuid, uuid, text, text) to service_role;
 grant execute on function public.apply_preset_upstream_version(uuid, uuid, uuid) to service_role;
 grant execute on function public.marketplace_preset_fork_counts(uuid[]) to anon, authenticated, service_role;
 
