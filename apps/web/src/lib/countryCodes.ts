@@ -6,6 +6,11 @@ const ISO_ALPHA3 = Object.fromEntries(
 
 const displayNames = new Intl.DisplayNames(["en-GB"], { type: "region" });
 
+export function normaliseCountryCode(value: unknown) {
+	const code = String(value ?? "").trim().toUpperCase();
+	return ISO_COUNTRY_CODES.includes(code) ? code : null;
+}
+
 export function countryFlag(code: string) {
 	const normalized = code.trim().toUpperCase();
 	if (!/^[A-Z]{2}$/.test(normalized)) return "🌐";
