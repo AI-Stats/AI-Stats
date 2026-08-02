@@ -23,6 +23,12 @@ type PresetRow = {
 	source_preset_id?: string | null;
 	created_at?: string | null;
 	updated_at?: string | null;
+	draft_name?: string | null;
+	draft_slug?: string | null;
+	draft_description?: string | null;
+	draft_config?: unknown;
+	draft_visibility?: string | null;
+	active_version_id?: string | null;
 };
 
 const DEFAULT_LIMIT = 100;
@@ -85,11 +91,12 @@ function formatPreset(row: PresetRow) {
 	return {
 		id: row.id,
 		workspace_id: row.workspace_id,
-		name: row.name ?? null,
-		slug: row.slug ?? null,
-		description: row.description ?? null,
-		config: row.config ?? {},
-		visibility: row.visibility ?? "team",
+		name: row.draft_name ?? row.name ?? null,
+		slug: row.draft_slug ?? row.slug ?? null,
+		description: row.draft_description ?? row.description ?? null,
+		config: row.draft_config ?? row.config ?? {},
+		visibility: row.draft_visibility ?? row.visibility ?? "team",
+		active_version_id: row.active_version_id ?? null,
 		created_by: row.created_by ?? null,
 		source_preset_id: row.source_preset_id ?? null,
 		created_at: row.created_at ?? null,
@@ -107,12 +114,13 @@ async function publicPublisher(userId: string | null | undefined): Promise<strin
 
 async function findPreset(workspaceId: string, identifier: string): Promise<PresetRow | null> {
 	const supabase = getSupabaseAdmin();
-	const select = "id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at";
+	const select = "id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at, draft_name, draft_slug, draft_description, draft_config, draft_visibility, active_version_id";
 	const byId = await supabase
 		.from("presets")
 		.select(select)
 		.eq("workspace_id", workspaceId)
 		.eq("id", identifier)
+		.is("archived_at", null)
 		.maybeSingle();
 	if (byId.error) throw new Error(byId.error.message || "Failed to fetch preset");
 	if (byId.data) return byId.data as PresetRow;
@@ -122,6 +130,7 @@ async function findPreset(workspaceId: string, identifier: string): Promise<Pres
 		.select(select)
 		.eq("workspace_id", workspaceId)
 		.eq("slug", identifier)
+		.is("archived_at", null)
 		.maybeSingle();
 	if (bySlug.error) throw new Error(bySlug.error.message || "Failed to fetch preset");
 	if (bySlug.data) return bySlug.data as PresetRow;
@@ -131,6 +140,7 @@ async function findPreset(workspaceId: string, identifier: string): Promise<Pres
 		.select(select)
 		.eq("workspace_id", workspaceId)
 		.eq("name", normalizePresetName(identifier))
+		.is("archived_at", null)
 		.maybeSingle();
 	if (byName.error) throw new Error(byName.error.message || "Failed to fetch preset");
 	return (byName.data as PresetRow | null) ?? null;
@@ -152,8 +162,9 @@ async function handleListPresets(req: Request) {
 	try {
 		let query = getSupabaseAdmin()
 			.from("presets")
-			.select("id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at")
+			.select("id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at, draft_name, draft_slug, draft_description, draft_config, draft_visibility, active_version_id")
 			.eq("workspace_id", auth.value.workspaceId)
+			.is("archived_at", null)
 			.order("created_at", { ascending: false })
 			.range(offset, offset + limit - 1);
 		query = auth.value.userId
@@ -235,7 +246,7 @@ async function handleCreatePreset(req: Request) {
 				visibility,
 				created_by: auth.value.userId ?? null,
 			})
-			.select("id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at")
+			.select("id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at, draft_name, draft_slug, draft_description, draft_config, draft_visibility, active_version_id")
 			.maybeSingle();
 		if (error) throw new Error(error.message || "Failed to create preset");
 		return json({ data: formatPreset(data as PresetRow), canonical_model: visibility === "public" ? `@${publisher}/${slug}` : `@${slug}` }, 201, { "Cache-Control": "no-store" });
@@ -304,18 +315,18 @@ async function handleUpdatePreset(req: Request) {
 			if (duplicate) {
 				return json({ error: "conflict", message: `Preset "${name}" already exists in this workspace` }, 409, { "Cache-Control": "no-store" });
 			}
-			updatePayload.name = name;
+			updatePayload.draft_name = name;
 		}
 		if (typeof body.slug === "string") {
 			const slug = normalizePresetSlug(body.slug);
 			if (!slug) return json({ error: "bad_request", message: "slug is required" }, 400, { "Cache-Control": "no-store" });
-			updatePayload.slug = slug;
+			updatePayload.draft_slug = slug;
 		}
-		if (body.description !== undefined) updatePayload.description = typeof body.description === "string" ? body.description.trim().slice(0, 500) || null : null;
-		if (body.config !== undefined) updatePayload.config = { ...normalizeConfig(existing.config), ...normalizeConfig(body.config) };
-		if (body.visibility !== undefined) updatePayload.visibility = normalizeVisibility(body.visibility);
-		const nextSlug = String(updatePayload.slug ?? existing.slug ?? "");
-		const nextVisibility = String(updatePayload.visibility ?? existing.visibility ?? "team");
+		if (body.description !== undefined) updatePayload.draft_description = typeof body.description === "string" ? body.description.trim().slice(0, 500) || null : null;
+		if (body.config !== undefined) updatePayload.draft_config = { ...normalizeConfig(existing.draft_config ?? existing.config), ...normalizeConfig(body.config) };
+		if (body.visibility !== undefined) updatePayload.draft_visibility = normalizeVisibility(body.visibility);
+		const nextSlug = String(updatePayload.draft_slug ?? existing.draft_slug ?? existing.slug ?? "");
+		const nextVisibility = String(updatePayload.draft_visibility ?? existing.draft_visibility ?? existing.visibility ?? "team");
 		const publisher = nextVisibility === "public" ? await publicPublisher(existing.created_by) : null;
 		if (nextVisibility === "public" && !publisher) return json({ error: "public_profile_required", message: "Enable a public profile and choose a username before publishing a preset" }, 409, { "Cache-Control": "no-store" });
 		const { data: slugDuplicate, error: slugError } = await getSupabaseAdmin().from("presets").select("id").eq("workspace_id", auth.value.workspaceId).eq("slug", nextSlug).neq("id", existing.id).maybeSingle();
@@ -356,7 +367,7 @@ async function handleDeletePreset(req: Request) {
 		if (!existing) return json({ error: "not_found", message: "Preset not found" }, 404, { "Cache-Control": "no-store" });
 		const { error } = await getSupabaseAdmin()
 			.from("presets")
-			.delete()
+			.update({ archived_at: new Date().toISOString() })
 			.eq("workspace_id", auth.value.workspaceId)
 			.eq("id", existing.id);
 		if (error) throw new Error(error.message || "Failed to delete preset");
@@ -366,10 +377,29 @@ async function handleDeletePreset(req: Request) {
 	}
 }
 
+async function handlePublishPresetVersion(req: Request) {
+	const auth = await guardManagementAuth(req, { useKvCache: false });
+	if (!auth.ok) return (auth as GuardErr).response;
+	const scopeError = requireCapability(auth.value, CAPABILITIES.PRESETS_WRITE); if (scopeError) return scopeError;
+	const roleError = await requireOAuthWorkspaceRole(auth.value, auth.value.workspaceId, ["owner", "admin"]); if (roleError) return roleError;
+	if (!auth.value.userId) return json({ error: "user_identity_required" }, 403, { "Cache-Control": "no-store" });
+	const segments = new URL(req.url).pathname.split("/").filter(Boolean); const presetId = segments.at(-2);
+	if (!presetId) return json({ error: "bad_request" }, 400, { "Cache-Control": "no-store" });
+	const body = await req.json().catch(() => ({})) as { release_notes?: string };
+	try {
+		const preset = await findPreset(auth.value.workspaceId, presetId); if (!preset) return json({ error: "not_found" }, 404, { "Cache-Control": "no-store" });
+		if (preset.created_by !== auth.value.userId) return json({ error: "forbidden" }, 403, { "Cache-Control": "no-store" });
+		const result = await getSupabaseAdmin().rpc("publish_preset_version", { target_preset_id: preset.id, actor_user_id: auth.value.userId, notes: String(body.release_notes ?? "").slice(0, 1000) });
+		if (result.error) throw new Error(result.error.message || "Failed to publish preset version");
+		return json({ data: Array.isArray(result.data) ? result.data[0] : result.data }, 201, { "Cache-Control": "no-store" });
+	} catch (error: any) { return internalServerError("presets.publish-version", error); }
+}
+
 export const presetsRoutes = new Hono<Env>();
 
 presetsRoutes.get("/", withRuntime(handleListPresets));
 presetsRoutes.post("/", withRuntime(handleCreatePreset));
+presetsRoutes.post("/:id/versions", withRuntime(handlePublishPresetVersion));
 presetsRoutes.get("/:id", withRuntime(handleGetPreset));
 presetsRoutes.patch("/:id", withRuntime(handleUpdatePreset));
 presetsRoutes.delete("/:id", withRuntime(handleDeletePreset));
