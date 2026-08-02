@@ -53,6 +53,7 @@ export type PresetConfig = {
 };
 
 export type PresetVisibility = "private" | "team" | "public";
+export type PresetVersioningMethod = "sequential" | "semver" | "date";
 
 export type CreatePresetInput = {
 	name: string;
@@ -62,6 +63,7 @@ export type CreatePresetInput = {
 	workspaceId: string;
 	config: PresetConfig;
 	visibility?: PresetVisibility;
+	versioningMethod?: PresetVersioningMethod;
 };
 
 export type UpdatePresetInput = {
@@ -71,6 +73,7 @@ export type UpdatePresetInput = {
 	description?: string;
 	config?: Partial<PresetConfig>;
 	visibility?: PresetVisibility;
+	versioningMethod?: PresetVersioningMethod;
 };
 
 function validatePresetName(name: string): void {
@@ -372,6 +375,7 @@ export async function updatePresetAction(input: UpdatePresetInput) {
 	if (visibility) {
 		updateObj.visibility = normalizeVisibility(visibility);
 	}
+	if (input.versioningMethod && ["sequential", "semver", "date"].includes(input.versioningMethod)) updateObj.versioningMethod = input.versioningMethod;
 
 	const { accessToken } = await getServerAccountContext(); if (!accessToken) throw new Error("Unauthorized");
 	await fetchAccountWebApi(`/api/account/settings/presets/${encodeURIComponent(id)}`, accessToken, { method: "PUT", body: JSON.stringify(updateObj) });
@@ -382,10 +386,10 @@ export async function updatePresetAction(input: UpdatePresetInput) {
 	return { success: true };
 }
 
-export async function publishPresetVersionAction(id: string, releaseNotes?: string) {
+export async function publishPresetVersionAction(id: string, releaseNotes?: string, versionLabel?: string) {
 	if (!id) throw new Error("Valid preset ID is required");
 	const { accessToken } = await getServerAccountContext(); if (!accessToken) throw new Error("Unauthorized");
-	const data = await fetchAccountWebApi<{ version?: { version_number?: number } }>(`/api/account/settings/presets/${encodeURIComponent(id)}/versions`, accessToken, { method: "POST", body: JSON.stringify({ releaseNotes }) });
+	const data = await fetchAccountWebApi<{ version?: { version_number?: number; version_label?: string } }>(`/api/account/settings/presets/${encodeURIComponent(id)}/versions`, accessToken, { method: "POST", body: JSON.stringify({ releaseNotes, versionLabel }) });
 	revalidatePath("/settings/presets"); revalidatePath(`/gateway/marketplace/${id}`); revalidatePresetDataCache(id);
 	return data;
 }
