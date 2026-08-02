@@ -32,5 +32,11 @@ export async function fetchSettingsGeography(
 	return fetchAccountWebApi<SettingsGeographyData>(
 		`/api/account/settings/usage/geography?${params.toString()}`,
 		context.accessToken,
-	);
+	).catch(() => ({
+		data: [],
+		from: "",
+		to: "",
+		signedIn: true,
+		workspaceId: context.workspaceId,
+	}));
 }
