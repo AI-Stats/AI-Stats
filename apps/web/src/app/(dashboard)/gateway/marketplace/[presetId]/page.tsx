@@ -134,7 +134,7 @@ export default async function PresetMarketplaceDetailPage({
 					<div className="flex flex-wrap items-center gap-2">
 						{versions.map((version) => (
 							<Button key={version.id} size="sm" variant={requestedVersion === version.version_number || (!query.version && version === versions[0]) ? "default" : "outline"} asChild>
-								<Link href={`/gateway/marketplace/${presetId}?version=${version.version_number}`}>v{version.version_number}</Link>
+								<Link href={`/gateway/marketplace/${presetId}?version=${version.version_number}`}>{version.version_label}</Link>
 							</Button>
 						))}
 					</div>
