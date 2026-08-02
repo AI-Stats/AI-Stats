@@ -200,9 +200,14 @@ export default function AccountSettingsClient({
 			return;
 		}
 
+		const updatePayload = { ...parsed.data };
+		if (updatePayload.declared_country_code === initial.declared_country_code) {
+			delete updatePayload.declared_country_code;
+		}
+
 		setSaving(true);
 		try {
-			await toast.promise(updateAccount(parsed.data), {
+			await toast.promise(updateAccount(updatePayload), {
 				loading: "Saving your settings...",
 				success: "Saved [PASS]",
 				error: (err: any) => err?.message || "Could not save settings",
