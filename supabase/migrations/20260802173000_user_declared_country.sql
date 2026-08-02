@@ -15,9 +15,11 @@ alter table public.users
   check (
     declared_country_code is null
     or declared_country_code ~ '^[A-Z]{2}$'
-  );
+  ) not valid;
+alter table public.users
+  validate constraint users_declared_country_code_check;
 
-create index if not exists users_declared_country_code_idx
+create index concurrently if not exists users_declared_country_code_idx
   on public.users (declared_country_code)
   where declared_country_code is not null;
 
