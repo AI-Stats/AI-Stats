@@ -13,6 +13,16 @@ describe("public marketplace routes", () => {
 	it("returns only public preset list and detail data", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
+			if (url.includes("/rpc/marketplace_preset_fork_counts")) {
+				return new Response(JSON.stringify([{ preset_id: "preset-1", fork_count: 7 }]), { status: 200 });
+			}
+			if (url.includes("/users?")) {
+				return new Response(JSON.stringify([{
+					user_id: "user-1",
+					display_name: "Preset Author",
+					public_profile_slug: "author",
+				}]), { status: 200 });
+			}
 			if (url.includes("select=id%2Cname&")) {
 				return new Response(JSON.stringify([{
 					id: "source-1",
@@ -23,19 +33,23 @@ describe("public marketplace routes", () => {
 				return new Response(JSON.stringify([{
 					id: "preset-1",
 					name: "Public preset",
+					slug: "public-preset",
 					description: "A preset",
 					config: { strategy: "quality" },
 					visibility: "public",
 					created_at: "2026-07-14T00:00:00.000Z",
 					source_preset_id: "source-1",
+					created_by: "user-1",
 				}]), { status: 200 });
 			}
 			return new Response(JSON.stringify([{
 				id: "preset-1",
 				name: "Public preset",
+				slug: "public-preset",
 				description: "A preset",
 				created_at: "2026-07-14T00:00:00.000Z",
 				source_preset_id: "source-1",
+				created_by: "user-1",
 			}]), { status: 200 });
 		}));
 
@@ -52,10 +66,10 @@ describe("public marketplace routes", () => {
 			expect(response.headers.get("cache-tag")).toContain("web-api-marketplace");
 		}
 		await expect(list.json()).resolves.toMatchObject({
-			presets: [{ id: "preset-1", name: "Public preset" }],
+			presets: [{ id: "preset-1", name: "Public preset", forkCount: 7, canonicalModel: "@author/public-preset" }],
 		});
 		await expect(detail.json()).resolves.toMatchObject({
-			preset: { id: "preset-1", visibility: "public" },
+			preset: { id: "preset-1", visibility: "public", forkCount: 7, publisher: { handle: "author" } },
 			sourcePreset: { id: "source-1", name: "Source preset" },
 		});
 	});
