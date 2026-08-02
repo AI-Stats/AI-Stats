@@ -29,6 +29,7 @@ type PresetRow = {
 	draft_config?: unknown;
 	draft_visibility?: string | null;
 	active_version_id?: string | null;
+	versioning_method?: string | null;
 };
 
 const DEFAULT_LIMIT = 100;
@@ -97,6 +98,7 @@ function formatPreset(row: PresetRow) {
 		config: row.draft_config ?? row.config ?? {},
 		visibility: row.draft_visibility ?? row.visibility ?? "team",
 		active_version_id: row.active_version_id ?? null,
+		versioning_method: row.versioning_method ?? "sequential",
 		created_by: row.created_by ?? null,
 		source_preset_id: row.source_preset_id ?? null,
 		created_at: row.created_at ?? null,
@@ -114,7 +116,7 @@ async function publicPublisher(userId: string | null | undefined): Promise<strin
 
 async function findPreset(workspaceId: string, identifier: string): Promise<PresetRow | null> {
 	const supabase = getSupabaseAdmin();
-	const select = "id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at, draft_name, draft_slug, draft_description, draft_config, draft_visibility, active_version_id";
+	const select = "id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at, draft_name, draft_slug, draft_description, draft_config, draft_visibility, active_version_id, versioning_method";
 	const byId = await supabase
 		.from("presets")
 		.select(select)
@@ -162,7 +164,7 @@ async function handleListPresets(req: Request) {
 	try {
 		let query = getSupabaseAdmin()
 			.from("presets")
-			.select("id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at, draft_name, draft_slug, draft_description, draft_config, draft_visibility, active_version_id")
+			.select("id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at, draft_name, draft_slug, draft_description, draft_config, draft_visibility, active_version_id, versioning_method")
 			.eq("workspace_id", auth.value.workspaceId)
 			.is("archived_at", null)
 			.order("created_at", { ascending: false })
@@ -245,8 +247,9 @@ async function handleCreatePreset(req: Request) {
 				config: normalizeConfig(body.config),
 				visibility,
 				created_by: auth.value.userId ?? null,
+				versioning_method: ["sequential", "semver", "date"].includes(String(body.versioning_method)) ? body.versioning_method : "sequential",
 			})
-			.select("id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at, draft_name, draft_slug, draft_description, draft_config, draft_visibility, active_version_id")
+			.select("id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at, draft_name, draft_slug, draft_description, draft_config, draft_visibility, active_version_id, versioning_method")
 			.maybeSingle();
 		if (error) throw new Error(error.message || "Failed to create preset");
 		return json({ data: formatPreset(data as PresetRow), canonical_model: visibility === "public" ? `@${publisher}/${slug}` : `@${slug}` }, 201, { "Cache-Control": "no-store" });
@@ -325,6 +328,7 @@ async function handleUpdatePreset(req: Request) {
 		if (body.description !== undefined) updatePayload.draft_description = typeof body.description === "string" ? body.description.trim().slice(0, 500) || null : null;
 		if (body.config !== undefined) updatePayload.draft_config = { ...normalizeConfig(existing.draft_config ?? existing.config), ...normalizeConfig(body.config) };
 		if (body.visibility !== undefined) updatePayload.draft_visibility = normalizeVisibility(body.visibility);
+		if (["sequential", "semver", "date"].includes(String(body.versioning_method))) updatePayload.versioning_method = body.versioning_method;
 		const nextSlug = String(updatePayload.draft_slug ?? existing.draft_slug ?? existing.slug ?? "");
 		const nextVisibility = String(updatePayload.draft_visibility ?? existing.draft_visibility ?? existing.visibility ?? "team");
 		const publisher = nextVisibility === "public" ? await publicPublisher(existing.created_by) : null;
@@ -385,11 +389,11 @@ async function handlePublishPresetVersion(req: Request) {
 	if (!auth.value.userId) return json({ error: "user_identity_required" }, 403, { "Cache-Control": "no-store" });
 	const segments = new URL(req.url).pathname.split("/").filter(Boolean); const presetId = segments.at(-2);
 	if (!presetId) return json({ error: "bad_request" }, 400, { "Cache-Control": "no-store" });
-	const body = await req.json().catch(() => ({})) as { release_notes?: string };
+	const body = await req.json().catch(() => ({})) as { release_notes?: string; version_label?: string };
 	try {
 		const preset = await findPreset(auth.value.workspaceId, presetId); if (!preset) return json({ error: "not_found" }, 404, { "Cache-Control": "no-store" });
 		if (preset.created_by !== auth.value.userId) return json({ error: "forbidden" }, 403, { "Cache-Control": "no-store" });
-		const result = await getSupabaseAdmin().rpc("publish_preset_version", { target_preset_id: preset.id, actor_user_id: auth.value.userId, notes: String(body.release_notes ?? "").slice(0, 1000) });
+		const result = await getSupabaseAdmin().rpc("publish_preset_version", { target_preset_id: preset.id, actor_user_id: auth.value.userId, notes: String(body.release_notes ?? "").slice(0, 1000), requested_label: body.version_label ? String(body.version_label).slice(0, 100) : null });
 		if (result.error) throw new Error(result.error.message || "Failed to publish preset version");
 		return json({ data: Array.isArray(result.data) ? result.data[0] : result.data }, 201, { "Cache-Control": "no-store" });
 	} catch (error: any) { return internalServerError("presets.publish-version", error); }
