@@ -100,12 +100,18 @@ function validPresetName(value: string) { return /^@[a-zA-Z0-9][a-zA-Z0-9_.-]*$/
 function presetVisibility(value: unknown) { return ["private", "team", "public"].includes(String(value)) ? String(value) : "team"; }
 function normalizePresetSlug(value: unknown) { return String(value ?? "").trim().toLowerCase().replace(/^@+/, "").replace(/[^a-z0-9._:-]+/g, "-").replace(/-{2,}/g, "-").replace(/^[-._:]+|[-._:]+$/g, ""); }
 function canWritePreset(context: AccountWorkspaceContext, userId: string, preset: { created_by?: string | null; visibility?: string | null }) { return preset.created_by === userId || (preset.visibility !== "private" && ["owner", "admin"].includes(context.role.toLowerCase())); }
-async function presetSlugConflict(client: ReturnType<typeof getDataClient>, workspaceId: string, slug: string, visibility: string, excludeId?: string) {
+async function presetSlugConflict(client: ReturnType<typeof getDataClient>, workspaceId: string, publisherUserId: string, slug: string, visibility: string, excludeId?: string) {
 	let scoped = client.from("presets").select("id").eq("workspace_id", workspaceId).eq("slug", slug); if (excludeId) scoped = scoped.neq("id", excludeId);
 	const workspace = await scoped.maybeSingle(); if (workspace.error) throw workspace.error; if (workspace.data) return "workspace";
 	if (visibility !== "public") return null;
-	let global = client.from("presets").select("id").eq("visibility", "public").eq("slug", slug); if (excludeId) global = global.neq("id", excludeId);
+	let global = client.from("presets").select("id").eq("visibility", "public").eq("created_by", publisherUserId).eq("slug", slug); if (excludeId) global = global.neq("id", excludeId);
 	const publicResult = await global.maybeSingle(); if (publicResult.error) throw publicResult.error; return publicResult.data ? "public" : null;
+}
+async function publicPublisher(client: ReturnType<typeof getDataClient>, userId: string) {
+	const result = await client.from("users").select("public_profile_enabled,public_profile_slug").eq("user_id", userId).maybeSingle();
+	if (result.error) throw result.error;
+	const handle = String(result.data?.public_profile_slug ?? "").trim().toLowerCase();
+	return result.data?.public_profile_enabled && handle ? handle : null;
 }
 async function purgePresetCache(c: { executionCtx: object }, id?: string) {
 	return purgeWorkerCacheTags(c.executionCtx, ["web-api-marketplace", "web-api-marketplace-presets", ...(id ? [`web-api-marketplace-preset-${encodeURIComponent(id).replace(/%/g, "")}`] : [])]);
@@ -132,13 +138,15 @@ accountSettingsPolicyRouter.post("/presets", async (c) => {
 	const duplicate = await context.client.from("presets").select("id").eq("workspace_id", workspaceId).eq("name", name).maybeSingle();
 	if (duplicate.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	if (duplicate.data) return c.json({ error: "duplicate_preset" }, 409, PRIVATE_NO_STORE_HEADERS);
-	const visibility = presetVisibility(body.visibility); const conflict = await presetSlugConflict(context.client, workspaceId, slug, visibility).catch(() => "error");
+	const visibility = presetVisibility(body.visibility); const publisher = visibility === "public" ? await publicPublisher(context.client, user.id).catch(() => null) : null;
+	if (visibility === "public" && !publisher) return c.json({ error: "public_profile_required" }, 409, PRIVATE_NO_STORE_HEADERS);
+	const conflict = await presetSlugConflict(context.client, workspaceId, user.id, slug, visibility).catch(() => "error");
 	if (conflict === "error") return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	if (conflict) return c.json({ error: conflict === "public" ? "public_slug_conflict" : "duplicate_preset_slug", slug }, 409, PRIVATE_NO_STORE_HEADERS);
 	const result = await context.client.from("presets").insert({ workspace_id: workspaceId, name, slug, created_by: user.id, config: body.config && typeof body.config === "object" ? body.config : {}, visibility, ...(body.description ? { description: String(body.description).trim().slice(0, 500) } : {}) }).select("id,created_at").maybeSingle();
 	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const cache = await purgePresetCache(c, result.data?.id);
-	return c.json({ id: result.data?.id, name, createdAt: result.data?.created_at, cache }, 200, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ id: result.data?.id, name, createdAt: result.data?.created_at, canonicalModel: publisher ? `@${publisher}/${slug}` : `@${slug}`, cache }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsPolicyRouter.get("/presets/:presetId", async (c) => {
@@ -161,7 +169,7 @@ accountSettingsPolicyRouter.post("/presets/:presetId/fork", async (c) => {
 	const existing = new Set((names.data ?? []).map((row) => row.name)); const base = String(source.data.name || "@preset"); let name = base;
 	if (existing.has(name)) { name = `${base}-copy`; for (let i = 2; existing.has(name) && i <= 20; i++) name = `${base}-copy-${i}`; }
 	if (existing.has(name)) return c.json({ error: "name_unavailable" }, 409, PRIVATE_NO_STORE_HEADERS);
-	const baseSlug = normalizePresetSlug(source.data.slug ?? name); let slug = baseSlug; for (let i = 1; await presetSlugConflict(context.client, workspaceId, slug, "private"); i++) slug = `${baseSlug}-copy${i > 1 ? `-${i}` : ""}`;
+	const baseSlug = normalizePresetSlug(source.data.slug ?? name); let slug = baseSlug; for (let i = 1; await presetSlugConflict(context.client, workspaceId, user.id, slug, "private"); i++) slug = `${baseSlug}-copy${i > 1 ? `-${i}` : ""}`;
 	const result = await context.client.from("presets").insert({ workspace_id: workspaceId, name, slug, created_by: user.id, config: source.data.config ?? {}, visibility: "private", source_preset_id: source.data.id, ...(source.data.description ? { description: source.data.description } : {}) }).select("id").maybeSingle();
 	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); const cache = await purgePresetCache(c, source.data.id); if (result.data?.id) await purgePresetCache(c, result.data.id);
 	return c.json({ id: result.data?.id, name, cache }, 200, PRIVATE_NO_STORE_HEADERS);
@@ -180,7 +188,8 @@ accountSettingsPolicyRouter.put("/presets/:presetId", async (c) => {
 	if (body.visibility !== undefined) update.visibility = presetVisibility(body.visibility);
 	if (body.slug !== undefined) update.slug = normalizePresetSlug(body.slug);
 	const nextSlug = String(update.slug ?? existing.data.slug); const nextVisibility = String(update.visibility ?? existing.data.visibility); if (!nextSlug) return c.json({ error: "invalid_preset_slug" }, 400, PRIVATE_NO_STORE_HEADERS);
-	const conflict = await presetSlugConflict(client, existing.data.workspace_id, nextSlug, nextVisibility, id).catch(() => "error"); if (conflict === "error") return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); if (conflict) return c.json({ error: conflict === "public" ? "public_slug_conflict" : "duplicate_preset_slug", slug: nextSlug }, 409, PRIVATE_NO_STORE_HEADERS);
+	const publisher = nextVisibility === "public" ? await publicPublisher(client, existing.data.created_by).catch(() => null) : null; if (nextVisibility === "public" && !publisher) return c.json({ error: "public_profile_required" }, 409, PRIVATE_NO_STORE_HEADERS);
+	const conflict = await presetSlugConflict(client, existing.data.workspace_id, existing.data.created_by, nextSlug, nextVisibility, id).catch(() => "error"); if (conflict === "error") return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); if (conflict) return c.json({ error: conflict === "public" ? "public_slug_conflict" : "duplicate_preset_slug", slug: nextSlug }, 409, PRIVATE_NO_STORE_HEADERS);
 	const result = await client.from("presets").update(update).eq("id", id); if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const cache = await purgePresetCache(c, id); return c.json({ success: true, cache }, 200, PRIVATE_NO_STORE_HEADERS);
 });
