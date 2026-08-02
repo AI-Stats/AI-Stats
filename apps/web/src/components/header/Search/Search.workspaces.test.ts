@@ -14,7 +14,8 @@ describe("workspace search", () => {
 			id: "workspace:workspace/id",
 			title: "Production",
 			subtitle: "Workspace settings",
-			href: "/settings/workspaces/settings?workspaceId=workspace%2Fid",
+			href: "/settings/workspaces/settings",
+			workspaceId: "workspace/id",
 			keywords: ["workspace", "team", "Production"],
 		});
 	});
