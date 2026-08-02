@@ -1233,6 +1233,8 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                         generationMs: args.generationMs ?? null,
                         internalDispatchMs: args.internalLatencyMs ?? null,
                         edgeColo: args.edgeColo ?? null,
+                        edgeCountry: args.edgeCountry ?? null,
+                        edgeContinent: args.edgeContinent ?? null,
                         sessionId: args.sessionId ?? null,
                         endUserId: args.requestUserId ?? null,
                         authMethod: args.authMethod ?? null,
