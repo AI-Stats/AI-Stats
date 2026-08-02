@@ -89,6 +89,7 @@ type ChatConversationProps = {
 	selectedModelIds: string[];
 	modelOptions: ModelOption[];
 	onToggleModel: (modelId: string) => void;
+	onOpenModelPicker: () => void;
 	onAddModelSet: (modelIds: string[]) => void;
 	onAudioAttachmentRequirementChange?: (requiresAudioInput: boolean) => void;
 	requestError?: ChatRequestErrorDetails | null;
@@ -138,6 +139,7 @@ export function ChatConversation({
 	selectedModelIds,
 	modelOptions,
 	onToggleModel,
+	onOpenModelPicker,
 	onAddModelSet,
 	onAudioAttachmentRequirementChange,
 	requestError = null,
@@ -838,6 +840,7 @@ export function ChatConversation({
 				recordingSupported={recordingSupported}
 				onToggleRecording={toggleRecording}
 				onToggleModel={onToggleModel}
+				onOpenModelPicker={onOpenModelPicker}
 				onSubmit={handleSubmit}
 				queuedPrompts={queuedPrompts.map((prompt) => ({
 					id: prompt.id,

@@ -908,6 +908,7 @@ interface ChatConversationComposerProps {
 	recordingSupported: boolean;
 	onToggleRecording: () => void;
 	onToggleModel: (modelId: string) => void;
+	onOpenModelPicker: () => void;
 	onSubmit: () => void;
 	queuedPrompts?: Array<{
 		id: string;
@@ -958,6 +959,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 		recordingSupported,
 		onToggleRecording,
 		onToggleModel,
+		onOpenModelPicker,
 		onSubmit,
 		queuedPrompts = [],
 		onRemoveQueuedPrompt,
@@ -2771,7 +2773,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 			}}
 			onClick={() => {
 				if (sendAction === "open-model-selector") {
-					openSlashSubmenu("model");
+					onOpenModelPicker();
 					return;
 				}
 				if (sendAction === "submit") {
