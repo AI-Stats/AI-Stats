@@ -100,6 +100,10 @@ function profileSlug(displayName: string, userId: string): string {
 	return `${base.slice(0, 40)}-${userId.replace(/-/g, "").slice(0, 8).toLowerCase()}`;
 }
 
+function normalizePublicProfileSlug(value: unknown): string {
+	return String(value ?? "").trim().toLowerCase().replace(/^@+/, "").replace(/[^a-z0-9._-]+/g, "-").replace(/-{2,}/g, "-").replace(/^[-._]+|[-._]+$/g, "");
+}
+
 async function usageAggregateRows(client: ReturnType<typeof getDataClient>, workspaceIds: string[]): Promise<UsageAggregateRow[]> {
 	if (!workspaceIds.length) return [];
 	const rows: UsageAggregateRow[] = [];
@@ -245,13 +249,36 @@ accountSettingsProfileRouter.put("/account/profile", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
 	const body: Record<string, unknown> = await c.req.json<Record<string, unknown>>().catch(() => ({}));
+	const client = getDataClient(c.env);
 	const update: Record<string, unknown> = { user_id: user.id };
 	for (const field of ["display_name", "default_workspace_id", "obfuscate_info"] as const) if (body[field] !== undefined) update[field] = body[field];
+	if (body.public_profile_slug !== undefined) {
+		const slug = normalizePublicProfileSlug(body.public_profile_slug);
+		if (slug.length < 3 || slug.length > 40) return c.json({ error: "invalid_public_profile_slug" }, 400, PRIVATE_NO_STORE_HEADERS);
+		const current = await client.from("users").select("public_profile_slug").eq("user_id", user.id).maybeSingle();
+		if (current.error) return c.json({ error: "profile_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+		const previous = normalizePublicProfileSlug(current.data?.public_profile_slug);
+		if (previous && previous !== slug) {
+			const published = await client.from("presets").select("id").eq("created_by", user.id).eq("visibility", "public").limit(1).maybeSingle();
+			if (published.error) return c.json({ error: "profile_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+			if (published.data) return c.json({ error: "public_profile_slug_in_use" }, 409, PRIVATE_NO_STORE_HEADERS);
+		}
+		update.public_profile_slug = slug;
+	}
+	if (body.public_profile_enabled !== undefined) {
+		if (body.public_profile_enabled && !normalizePublicProfileSlug(update.public_profile_slug)) {
+			const current = await client.from("users").select("public_profile_slug").eq("user_id", user.id).maybeSingle();
+			if (current.error) return c.json({ error: "profile_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+			if (!normalizePublicProfileSlug(current.data?.public_profile_slug)) return c.json({ error: "public_profile_slug_required" }, 400, PRIVATE_NO_STORE_HEADERS);
+		}
+		update.public_profile_enabled = Boolean(body.public_profile_enabled);
+	}
 	if (body.default_workspace_id) {
 		const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId: String(body.default_workspace_id) });
 		if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	}
-	const result = await getDataClient(c.env).from("users").upsert(update, { onConflict: "user_id" });
+	const result = await client.from("users").upsert(update, { onConflict: "user_id" });
+	if (result.error?.code === "23505") return c.json({ error: "public_profile_slug_conflict" }, 409, PRIVATE_NO_STORE_HEADERS);
 	if (result.error) return c.json({ error: result.error.message }, 503, PRIVATE_NO_STORE_HEADERS);
 	return c.json({ ok: true }, 200, PRIVATE_NO_STORE_HEADERS);
 });
@@ -302,11 +329,11 @@ accountSettingsProfileRouter.get("/profile", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ obfuscateInfo: false, profile: null }, 200, PRIVATE_NO_STORE_HEADERS);
 	const client = getDataClient(c.env);
-	const userResult = await client.from("users").select("display_name,default_workspace_id,created_at,obfuscate_info").eq("user_id", user.id).maybeSingle();
+	const userResult = await client.from("users").select("display_name,default_workspace_id,created_at,obfuscate_info,public_profile_enabled,public_profile_slug").eq("user_id", user.id).maybeSingle();
 	if (userResult.error) return c.json({ error: "profile_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const displayName = String(userResult.data?.display_name ?? user.userMetadata.display_name ?? user.userMetadata.name ?? user.email?.split("@")[0] ?? "Phaseo User").trim() || "Phaseo User";
 	const workspaceId = String(userResult.data?.default_workspace_id ?? "").trim() || null;
-	const slug = profileSlug(displayName, user.id);
+	const slug = normalizePublicProfileSlug(userResult.data?.public_profile_slug) || profileSlug(displayName, user.id);
 	let workspaceName: string | null = "Personal";
 	if (workspaceId) {
 		const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
@@ -317,7 +344,7 @@ accountSettingsProfileRouter.get("/profile", async (c) => {
 	}
 	const profile = {
 		userId: user.id, displayName, email: user.email, avatarUrl: typeof user.userMetadata.avatar_url === "string" ? user.userMetadata.avatar_url : null,
-		memberSince: String(userResult.data?.created_at ?? user.createdAt), workspaceName, publicProfileEnabled: false, publicProfileSlug: slug,
+		memberSince: String(userResult.data?.created_at ?? user.createdAt), workspaceName, publicProfileEnabled: Boolean(userResult.data?.public_profile_enabled), publicProfileSlug: slug,
 		shareUrl: `https://phaseo.app/profile/${slug}`,
 		...emptyProfileUsage(),
 	};
