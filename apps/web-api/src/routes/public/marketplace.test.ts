@@ -17,7 +17,7 @@ describe("public marketplace routes", () => {
 				return new Response(JSON.stringify([{ preset_id: "preset-1", direct_fork_count: 7, descendant_count: 12 }]), { status: 200 });
 			}
 			if (url.includes("/preset_versions?")) {
-				return new Response(JSON.stringify([{ id: "version-1", version_number: 1, release_notes: "Initial", created_at: "2026-07-14T00:00:00.000Z" }]), { status: 200 });
+				return new Response(JSON.stringify([{ id: "version-1", version_number: 1, version_label: "1.0.0", versioning_method: "semver", release_notes: "Initial", created_at: "2026-07-14T00:00:00.000Z" }]), { status: 200 });
 			}
 			if (url.includes("/users?")) {
 				return new Response(JSON.stringify([{
@@ -73,7 +73,7 @@ describe("public marketplace routes", () => {
 		});
 		await expect(detail.json()).resolves.toMatchObject({
 			preset: { id: "preset-1", visibility: "public", forkCount: 7, descendantCount: 12, publisher: { handle: "author" } },
-			versions: [{ version_number: 1 }],
+			versions: [{ version_number: 1, version_label: "1.0.0", versioning_method: "semver" }],
 			sourcePreset: { id: "source-1", name: "Source preset" },
 		});
 	});
