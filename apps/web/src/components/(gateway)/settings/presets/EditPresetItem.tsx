@@ -50,6 +50,7 @@ interface APIProviderCard {
 
 type ReasoningEffort = "low" | "medium" | "high";
 type PresetVisibility = "private" | "team" | "public";
+type PresetVersioningMethod = "sequential" | "semver" | "date";
 type PresetRoutingMode = "balanced" | "price" | "latency" | "throughput";
 type ResponseHealingMode = "safe" | "strict";
 
@@ -137,6 +138,7 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 	const [visibility, setVisibility] = useState<PresetVisibility>(
 		(p.visibility as PresetVisibility) || "team"
 	);
+	const [versioningMethod, setVersioningMethod] = useState<PresetVersioningMethod>((p.versioning_method as PresetVersioningMethod) || "sequential");
 	const [routingMode, setRoutingMode] = useState<PresetRoutingMode>(
 		(p.config?.routing_mode as PresetRoutingMode) || "balanced"
 	);
@@ -344,10 +346,9 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 			slug: slugPreview,
 			description,
 			visibility,
+			versioningMethod,
 			config,
 		};
-
-		console.log("Updating preset:", updates);
 
 		try {
 			await updatePresetAction(updates);
@@ -403,6 +404,19 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 											placeholder="my-preset-name"
 										/>
 									</InputGroup>
+								</div>
+
+								<div className="space-y-2">
+									<Label>Version labels</Label>
+									<Select value={versioningMethod} onValueChange={(value: PresetVersioningMethod) => setVersioningMethod(value)}>
+										<SelectTrigger><SelectValue placeholder="Select versioning method" /></SelectTrigger>
+										<SelectContent>
+											<SelectItem value="sequential">Sequential (v1, v2, v3)</SelectItem>
+											<SelectItem value="semver">Semantic (1.0.0)</SelectItem>
+											<SelectItem value="date">Date (YYYY.MM.DD)</SelectItem>
+										</SelectContent>
+									</Select>
+									<p className="text-xs text-muted-foreground">This controls public release labels; Phaseo still keeps an internal release order.</p>
 								</div>
 
 								<div className="space-y-2">
