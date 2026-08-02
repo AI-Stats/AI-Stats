@@ -145,6 +145,24 @@ drop trigger if exists presets_finish_creation on public.presets;
 create trigger presets_finish_creation after insert on public.presets
 for each row execute function public.finish_preset_creation();
 
+-- During a database-first rollout, the previous application release still writes
+-- active columns directly. Mirror those writes only while the corresponding draft
+-- has not diverged, so no edits are lost before the new application is deployed.
+create or replace function public.sync_legacy_preset_writes_to_draft()
+returns trigger language plpgsql set search_path = public as $function$
+begin
+  if new.name is distinct from old.name and old.draft_name is not distinct from old.name then new.draft_name := new.name; end if;
+  if new.slug is distinct from old.slug and old.draft_slug is not distinct from old.slug then new.draft_slug := new.slug; end if;
+  if new.description is distinct from old.description and old.draft_description is not distinct from old.description then new.draft_description := new.description; end if;
+  if new.config is distinct from old.config and old.draft_config is not distinct from old.config then new.draft_config := new.config; end if;
+  if new.visibility is distinct from old.visibility and old.draft_visibility is not distinct from old.visibility then new.draft_visibility := new.visibility; end if;
+  return new;
+end $function$;
+
+drop trigger if exists presets_sync_legacy_writes on public.presets;
+create trigger presets_sync_legacy_writes before update of name, slug, description, config, visibility on public.presets
+for each row execute function public.sync_legacy_preset_writes_to_draft();
+
 create or replace function public.publish_preset_version(target_preset_id uuid, actor_user_id uuid, notes text default null, requested_label text default null)
 returns public.preset_versions language plpgsql security definer set search_path = public as $function$
 declare p public.presets%rowtype; next_number integer; next_label text; date_base text; date_count integer; published public.preset_versions%rowtype;
@@ -195,9 +213,10 @@ end $function$;
 
 drop function if exists public.marketplace_preset_fork_counts(uuid[]);
 create function public.marketplace_preset_fork_counts(preset_ids uuid[])
-returns table (preset_id uuid, direct_fork_count bigint, descendant_count bigint)
+returns table (preset_id uuid, fork_count bigint, direct_fork_count bigint, descendant_count bigint)
 language sql stable security definer set search_path = public as $function$
   select requested.id,
+    (select count(*) from public.presets direct where direct.source_preset_id = requested.id and direct.archived_at is null),
     (select count(*) from public.presets direct where direct.source_preset_id = requested.id and direct.archived_at is null),
     (select count(*) from public.preset_lineage lineage join public.presets child on child.id = lineage.descendant_preset_id
       where lineage.ancestor_preset_id = requested.id and lineage.depth > 0 and child.archived_at is null)
