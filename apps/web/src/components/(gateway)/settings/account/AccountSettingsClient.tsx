@@ -61,7 +61,7 @@ const schema = z.object({
 		.max(60, "Display name must be 60 characters or fewer.")
 		.optional()
 		.nullable(),
-	declared_country_code: z.string().length(2).regex(/^[A-Z]{2}$/).nullable(),
+	declared_country_code: z.string().length(2).regex(/^[A-Z]{2}$/).nullable().optional(),
 	default_workspace_id: z
 		.string()
 		.trim()
@@ -176,7 +176,7 @@ export default function AccountSettingsClient({
 		() => ({
 			display_name: user.displayName ?? null,
 			default_workspace_id: user.defaultWorkspaceId ?? null,
-			declared_country_code: user.declaredCountryCode ?? null,
+			declared_country_code: user.countryStorageAvailable === false ? undefined : user.declaredCountryCode ?? null,
 			obfuscate_info: !!user.obfuscateInfo,
 		}),
 		[user]
@@ -185,7 +185,7 @@ export default function AccountSettingsClient({
 	const current = {
 		display_name: displayName,
 		default_workspace_id: defaultWorkspaceId,
-		declared_country_code: declaredCountryCode || null,
+		declared_country_code: user.countryStorageAvailable === false ? undefined : declaredCountryCode || null,
 		obfuscate_info: obfuscateInfo,
 	};
 	const hasChanges = JSON.stringify(initial) !== JSON.stringify(current);
