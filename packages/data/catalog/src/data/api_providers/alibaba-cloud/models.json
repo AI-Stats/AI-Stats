@@ -4631,5 +4631,64 @@
       "notes": null
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash",
+    "provider_api_model_id": "alibaba-cloud:deepseek/deepseek-v4-flash",
+    "provider_model_slug": "deepseek-v4-flash",
+    "internal_model_id": "deepseek/deepseek-v4-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 393216,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/deepseek-api",
+        "accessed_at": "2026-08-03T00:00:00Z",
+        "notes": "Official Model Studio model ID, context and feature documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-03T00:00:00Z",
+      "notes": "Provider deployment and existing Phaseo executor recorded."
+    },
+    "rate_limits": []
   }
 ]
