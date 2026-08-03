@@ -2,6 +2,7 @@ import {
 	fetchFrontendModelBenchmarkHighlights,
 	fetchFrontendModelAvailability,
 	fetchFrontendModelHeader,
+	fetchFrontendModelGatewayMetadata,
 	fetchFrontendModelOverview,
 	fetchFrontendModelPerformance,
 	fetchFrontendModelPricing,
@@ -73,16 +74,19 @@ async function ModelFaqSectionContent({
 	activeProviderCount,
 	isGatewayActive,
 	pricingPromise,
+	gatewayMetadataPromise,
 }: {
 	model: ModelOverviewPage;
 	benchmarkCount: number;
 	activeProviderCount: number;
 	isGatewayActive: boolean;
 	pricingPromise: ReturnType<typeof fetchFrontendModelPricing>;
+	gatewayMetadataPromise: ReturnType<typeof fetchFrontendModelGatewayMetadata>;
 }) {
-	const [pricing, timeline] = await Promise.all([
+	const [pricing, timeline, gatewayMetadata] = await Promise.all([
 		pricingPromise,
 		fetchFrontendModelTimeline(model.model_id).catch(() => null),
+		gatewayMetadataPromise.catch(() => null),
 	]);
 	const relatedModels = await resolveModelLineageNames(
 		getModelLineageLinks(timeline?.events, model.previous_model_id),
@@ -99,6 +103,7 @@ async function ModelFaqSectionContent({
 			isGatewayActive={isGatewayActive}
 			pricing={pricing}
 			relatedModels={relatedModels}
+			gatewayMetadata={gatewayMetadata}
 		/>
 	);
 }
@@ -216,6 +221,7 @@ export default async function Page({
 	const subscriptionPromise = fetchFrontendModelSubscriptionPlans(modelId).catch(() => []);
 	const availabilityPromise = fetchFrontendModelAvailability(modelId).catch(() => undefined);
 	const pricingPromise = fetchFrontendModelPricing(modelId).catch(() => []);
+	const gatewayMetadataPromise = fetchFrontendModelGatewayMetadata(modelId);
 	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability] =
 		await Promise.all([
 			modelPromise,
@@ -338,6 +344,7 @@ export default async function Page({
 										activeProviderCount={availability?.activeProviderCount ?? 0}
 										isGatewayActive={isGatewayActive}
 										pricingPromise={pricingPromise}
+										gatewayMetadataPromise={gatewayMetadataPromise}
 									/>
 								</Suspense>
 							) : null}
