@@ -1,0 +1,99 @@
+{
+  "model_id": "z-ai/glm-5.3",
+  "organisation_id": "z-ai",
+  "name": "GLM 5.3",
+  "status": "Rumoured",
+  "previous_model_id": "z-ai/glm-5.2",
+  "description": "GLM 5.3 is an unreleased Z.AI model whose identifier appears in a dedicated development branch of Z.AI's official Java SDK. Z.AI has not yet announced its release date, final specifications, pricing, licence, weights, or API availability.",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "z-ai/glm-5.3",
+  "links": [
+    {
+      "title": "Official Java SDK development branch",
+      "kind": "repository",
+      "url": "https://github.com/zai-org/z-ai-sdk-java/tree/glm-5.3"
+    },
+    {
+      "title": "SDK branch comparison",
+      "kind": "repository",
+      "url": "https://github.com/zai-org/z-ai-sdk-java/compare/main...glm-5.3"
+    }
+  ],
+  "details": [
+    {
+      "name": "release_status",
+      "value": "Pre-release evidence only; no official model announcement or routable API endpoint has been verified."
+    },
+    {
+      "name": "sdk_evidence",
+      "value": "Z.AI's official Java SDK has a glm-5.3 branch four commits ahead of main. Its README and runnable chat examples call model identifier glm-5.3, and the branch prepares SDK version 0.3.6."
+    },
+    {
+      "name": "release_window",
+      "value": "No official date. Historical Java SDK support for GLM-4.6 through GLM-5.2 reached main within approximately one day of each model's public release; this is contextual evidence, not a release-date commitment."
+    }
+  ],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": {
+    "tone": "info",
+    "markdown": "GLM 5.3 is **unreleased**. Its model identifier is present in a development branch of Z.AI's official Java SDK, but Z.AI has not announced a release date, final specifications, pricing, licence, weights, or API availability."
+  },
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "repository",
+      "url": "https://github.com/zai-org/z-ai-sdk-java/tree/glm-5.3",
+      "accessed_at": "2026-08-03T00:00:00Z",
+      "notes": "Official Z.AI Java SDK development branch using glm-5.3 in README and runnable samples."
+    },
+    {
+      "kind": "repository",
+      "url": "https://github.com/zai-org/z-ai-sdk-java/compare/main...glm-5.3",
+      "accessed_at": "2026-08-03T00:00:00Z",
+      "notes": "Branch is four commits ahead of main and prepares SDK version 0.3.6 plus JSON Schema response-format support."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-03T00:00:00Z",
+    "notes": "The official SDK evidence and model identifier are verified. Release, provider availability, specifications, pricing, licence and weights remain unverified."
+  },
+  "last_updated": "2026-08-03T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
