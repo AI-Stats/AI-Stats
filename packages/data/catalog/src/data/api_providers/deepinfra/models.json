@@ -3365,12 +3365,14 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [
-        "openai"
+        "openai.chat.completions"
       ],
-      "endpoint": "https://api.deepinfra.com/v1/openai/chat/completions",
+      "endpoint": null,
       "deployment": null
     },
     "sources": [
@@ -3381,7 +3383,7 @@
         "notes": "Official live model metadata and pricing."
       },
       {
-        "kind": "docs",
+        "kind": "pricing",
         "url": "https://deepinfra.com/Qwen/Qwen3.8-Max",
         "accessed_at": "2026-08-03T00:00:00Z",
         "notes": "Official DeepInfra model page."
