@@ -322,6 +322,166 @@
     "rate_limits": []
   },
   {
-    "api_model_id":"sakana/fugu-cyber","provider_api_model_id":"sakana:sakana/fugu-cyber","provider_model_slug":"fugu-cyber-v1.0","internal_model_id":"sakana/fugu-cyber","is_active_gateway":false,"quantization_scheme":null,"input_modalities":"text,image","output_modalities":"text","context_length":1000000,"max_output_tokens":null,"effective_from":"2026-07-21T00:00:00","effective_to":null,"capabilities":[{"capability_id":"text.generate","status":"coming_soon","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],"routing_status":null,"routable":false,"regions":{"execution":null,"data":null},"service_tiers":[],"api":{"formats":[],"endpoint":null,"deployment":null},"sources":[{"url":"https://sakana.ai/fugu-cyber-release/","kind":"announcement"},{"url":"https://sakana.ai/fugu/","kind":"documentation"}],"verification":{"status":"verified","checked_at":"2026-07-24T00:00:00Z","notes":"Official Sakana release and API page."},"rate_limits":[]
+    "api_model_id": "sakana/fugu-cyber",
+    "provider_api_model_id": "sakana:sakana/fugu-cyber",
+    "provider_model_slug": "fugu-cyber-v1.0",
+    "internal_model_id": "sakana/fugu-cyber",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-21T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "coming_soon",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://sakana.ai/fugu-cyber-release/",
+        "kind": "announcement"
+      },
+      {
+        "url": "https://sakana.ai/fugu/",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-24T00:00:00Z",
+      "notes": "Official Sakana release and API page."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "sakana/namazu",
+    "provider_api_model_id": "sakana:sakana-namazu",
+    "provider_model_slug": "sakana-namazu",
+    "internal_model_id": "sakana/namazu",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-03T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "coming_soon",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://sakana.ai/namazu-alpha/",
+        "kind": "announcement"
+      }
+    ],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": "Provider model ID detected through Sakana model discovery on 2026-08-03; limits and API capabilities are not yet documented."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "sakana/namazu",
+    "provider_api_model_id": "sakana:sakana-namazu-v1.0",
+    "provider_model_slug": "sakana-namazu-v1.0",
+    "internal_model_id": "sakana/namazu",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-03T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "coming_soon",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://sakana.ai/namazu-alpha/",
+        "kind": "announcement"
+      }
+    ],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": "Provider model ID detected through Sakana model discovery on 2026-08-03; limits and API capabilities are not yet documented."
+    },
+    "rate_limits": []
   }
 ]
