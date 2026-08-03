@@ -57,7 +57,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1048576,
-    "max_output_tokens": 1048576,
+    "max_output_tokens": 384000,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
