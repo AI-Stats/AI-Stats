@@ -9,7 +9,7 @@
   "release_date": "2026-07-31T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
-  "license": "Proprietary",
+  "license": "MiniMax H3 Community License Agreement",
   "input_types": "text,image,video,audio",
   "output_types": "video",
   "api_model_id": "minimax/h3",
@@ -34,6 +34,16 @@
       "title": "Pricing",
       "kind": "pricing",
       "url": "https://platform.minimax.io/docs/guides/pricing-paygo"
+    },
+    {
+      "title": "Weights",
+      "kind": "weights",
+      "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3"
+    },
+    {
+      "title": "License",
+      "kind": "license",
+      "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/LICENSE"
     }
   ],
   "details": [
@@ -93,7 +103,7 @@
     "streaming": false,
     "web_search": false
   },
-  "open_weights": false,
+  "open_weights": true,
   "sources": [
     {
       "kind": "announcement",
@@ -112,15 +122,27 @@
       "url": "https://platform.minimax.io/docs/guides/pricing-paygo",
       "accessed_at": "2026-07-31T00:00:00Z",
       "notes": "Official 768P and 2K per-second output and input-material pricing."
+    },
+    {
+      "kind": "weights",
+      "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3",
+      "accessed_at": "2026-08-03T00:00:00Z",
+      "notes": "Official open-weight MiniMax H3 repository."
+    },
+    {
+      "kind": "license",
+      "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/LICENSE",
+      "accessed_at": "2026-08-03T00:00:00Z",
+      "notes": "Official MiniMax H3 Community License Agreement. The standard open-weight grant excludes the EU, UK, South Korea and United States."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-07-31T00:00:00Z",
-    "notes": "Release, model identifier MiniMax-H3, V2 endpoint, supported modalities, output specifications and pricing verified against MiniMax's official documentation."
+    "checked_at": "2026-08-03T00:00:00Z",
+    "notes": "Release, model identifier MiniMax-H3, V2 endpoint, modalities, output specifications, pricing, official weights and license verified against MiniMax sources. MiniMax separately states that its hosted API remains globally available despite the open-weight license's excluded territories."
   },
-  "last_updated": "2026-07-31T00:00:00Z",
+  "last_updated": "2026-08-03T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
-  "license_url": null
+  "license_url": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/LICENSE"
 }
