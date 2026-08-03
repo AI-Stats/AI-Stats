@@ -1,0 +1,86 @@
+{
+  "model_id": "sakana/namazu",
+  "organisation_id": "sakana",
+  "name": "Namazu",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Namazu is Sakana AI's family of post-trained language models adapted for Japanese language, culture, values, and safety requirements, and powers Sakana Chat.",
+  "announced_date": "2026-03-24T00:00:00",
+  "release_date": "2026-03-24T00:00:00",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "sakana/namazu",
+  "family_id": "sakana/namazu",
+  "links": [
+    {
+      "title": "Announcement",
+      "kind": "announcement",
+      "url": "https://sakana.ai/namazu-alpha/"
+    },
+    {
+      "title": "Sakana Chat",
+      "kind": "demo",
+      "url": "https://chat.sakana.ai"
+    }
+  ],
+  "details": [
+    {
+      "name": "official_api_model_ids",
+      "value": "sakana-namazu, sakana-namazu-v1.0"
+    },
+    {
+      "name": "localisation",
+      "value": "Post-trained for Japanese language, culture, values, and safety requirements."
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "announcement",
+      "url": "https://sakana.ai/namazu-alpha/",
+      "accessed_at": "2026-08-03T00:00:00Z",
+      "notes": "Official Sakana AI Namazu announcement."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-03T00:00:00Z",
+    "notes": "Namazu identity and release date verified against Sakana AI's official announcement; API capabilities remain unverified."
+  },
+  "last_updated": "2026-08-03T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
