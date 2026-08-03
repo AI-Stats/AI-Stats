@@ -385,7 +385,7 @@
     "internal_model_id": "sakana/namazu",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": null,
     "max_output_tokens": null,
@@ -420,14 +420,22 @@
     },
     "sources": [
       {
-        "url": "https://sakana.ai/namazu-alpha/",
-        "kind": "announcement"
+        "url": "https://console.sakana.ai/get-started",
+        "kind": "documentation"
+      },
+      {
+        "url": "https://console.sakana.ai/pricing",
+        "kind": "pricing"
+      },
+      {
+        "url": "https://console.sakana.ai/terms-of-service",
+        "kind": "terms"
       }
     ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": "Provider model ID detected through Sakana model discovery on 2026-08-03; limits and API capabilities are not yet documented."
+      "status": "verified",
+      "checked_at": "2026-08-03T00:00:00Z",
+      "notes": "API identifier, release availability, pricing, supported inputs and regional restrictions verified against Sakana AI's official API documentation. Phaseo routing remains globally disabled."
     },
     "rate_limits": []
   },
@@ -438,7 +446,7 @@
     "internal_model_id": "sakana/namazu",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": null,
     "max_output_tokens": null,
@@ -473,14 +481,22 @@
     },
     "sources": [
       {
-        "url": "https://sakana.ai/namazu-alpha/",
-        "kind": "announcement"
+        "url": "https://console.sakana.ai/get-started",
+        "kind": "documentation"
+      },
+      {
+        "url": "https://console.sakana.ai/pricing",
+        "kind": "pricing"
+      },
+      {
+        "url": "https://console.sakana.ai/terms-of-service",
+        "kind": "terms"
       }
     ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": "Provider model ID detected through Sakana model discovery on 2026-08-03; limits and API capabilities are not yet documented."
+      "status": "verified",
+      "checked_at": "2026-08-03T00:00:00Z",
+      "notes": "API identifier, release availability, pricing, supported inputs and regional restrictions verified against Sakana AI's official API documentation. Phaseo routing remains globally disabled."
     },
     "rate_limits": []
   }
