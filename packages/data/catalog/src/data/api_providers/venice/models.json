@@ -288,6 +288,102 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "anthropic/claude-opus-4.8",
+    "provider_api_model_id": "venice:anthropic/claude-opus-4.8",
+    "provider_model_slug": "claude-opus-4-8",
+    "internal_model_id": "anthropic/claude-opus-4.8",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-05-29T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "deranked_lvl2",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.8-fast",
+    "provider_api_model_id": "venice:anthropic/claude-opus-4.8-fast",
+    "provider_model_slug": "claude-opus-4-8-fast",
+    "internal_model_id": "anthropic/claude-opus-4.8",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-05-29T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "deranked_lvl2",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "anthropic/claude-opus-5",
     "provider_api_model_id": "venice:anthropic/claude-opus-5",
     "provider_model_slug": "claude-opus-5",
@@ -572,6 +668,59 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "bytedance/seed-2.1-turbo",
+    "provider_api_model_id": "venice:bytedance/seed-2.1-turbo",
+    "provider_model_slug": "seed-2-1-turbo",
+    "internal_model_id": "bytedance/seed-2.1-turbo",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-07-24T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://api.venice.ai/api/v1/models",
+        "kind": "api"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-24T00:00:00Z",
+      "notes": "Official Venice models API; model id seed-2-1-turbo."
     },
     "rate_limits": []
   },
@@ -3481,6 +3630,63 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "qwen/qwen3.8-max",
+    "provider_api_model_id": "venice:qwen/qwen3.8-max",
+    "provider_model_slug": "qwen-3-8-max",
+    "internal_model_id": "qwen/qwen3.8-max",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-07-22T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://api.venice.ai/api/v1/models",
+        "kind": "api"
+      },
+      {
+        "url": "https://docs.venice.ai/guides/features/tee-e2ee-models",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-03T00:00:00Z",
+      "notes": "Official Venice models API; model id qwen-3-8-max. Route is beta and anonymized, with supportsE2EE=false and supportsTeeAttestation=false."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "spacex-ai/grok-4.1-fast",
     "provider_api_model_id": "venice:spacex-ai/grok-4.1-fast",
     "provider_model_slug": "grok-41-fast",
@@ -4151,104 +4357,5 @@
       "notes": null
     },
     "rate_limits": []
-  },
-  {
-    "api_model_id": "anthropic/claude-opus-4.8",
-    "provider_api_model_id": "venice:anthropic/claude-opus-4.8",
-    "provider_model_slug": "claude-opus-4-8",
-    "internal_model_id": "anthropic/claude-opus-4.8",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": 128000,
-    "effective_from": "2026-05-29T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "deranked_lvl2",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "anthropic/claude-opus-4.8-fast",
-    "provider_api_model_id": "venice:anthropic/claude-opus-4.8-fast",
-    "provider_model_slug": "claude-opus-4-8-fast",
-    "internal_model_id": "anthropic/claude-opus-4.8",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": 128000,
-    "effective_from": "2026-05-29T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "deranked_lvl2",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id":"bytedance/seed-2.1-turbo","provider_api_model_id":"venice:bytedance/seed-2.1-turbo","provider_model_slug":"seed-2-1-turbo","internal_model_id":"bytedance/seed-2.1-turbo","is_active_gateway":true,"quantization_scheme":null,"input_modalities":"text,image,video","output_modalities":"text","context_length":256000,"max_output_tokens":65536,"effective_from":"2026-07-24T00:00:00","effective_to":null,"capabilities":[{"capability_id":"text.generate","status":"active","params":[],"reasoning":true,"tool_call":true,"structured_output":true,"temperature":null,"attachment":true,"input_modalities":null,"output_modalities":null,"modes":[]}],"routing_status":"active","routable":true,"regions":{"execution":null,"data":null},"service_tiers":[],"api":{"formats":[],"endpoint":null,"deployment":null},"sources":[{"url":"https://api.venice.ai/api/v1/models","kind":"api"}],"verification":{"status":"verified","checked_at":"2026-07-24T00:00:00Z","notes":"Official Venice models API; model id seed-2-1-turbo."},"rate_limits":[]
   }
 ]
