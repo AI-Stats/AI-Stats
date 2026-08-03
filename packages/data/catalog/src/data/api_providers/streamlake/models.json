@@ -196,7 +196,7 @@
     "provider_api_model_id": "streamlake:deepseek/deepseek-v4-flash",
     "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash",
     "internal_model_id": "deepseek/deepseek-v4-flash",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -219,8 +219,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -246,7 +246,7 @@
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-03T00:00:00Z",
-      "notes": "Provider deployment and existing Phaseo executor recorded."
+      "notes": "Provider deployment recorded; routing remains disabled until an account-specific endpoint deployment ID is configured."
     },
     "rate_limits": []
   }
