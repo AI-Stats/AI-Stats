@@ -1,5 +1,5 @@
 {
-  "key": "sakana:sakana-namazu-v1.0:text.generate",
+  "key": "sakana:sakana/namazu:text.generate",
   "api_provider_id": "sakana",
   "provider_slug": "sakana",
   "api_model_id": "sakana/namazu",
