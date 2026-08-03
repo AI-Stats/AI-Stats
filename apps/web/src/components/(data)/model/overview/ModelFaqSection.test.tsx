@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
+import type { ModelGatewayMetadata } from "@/lib/fetchers/models/getModelGatewayMetadata";
 import type { ProviderPricing } from "@/lib/fetchers/models/getModelPricing";
 import ModelFaqSection from "./ModelFaqSection";
 
@@ -103,6 +104,27 @@ const model: ModelOverviewPage = {
 	],
 };
 
+const gatewayMetadata = {
+	supportedParametersByEndpoint: {
+		"chat.completions": [
+			{
+				param_id: "tools",
+				provider_count_supported: 1,
+				provider_count_total: 2,
+				support_level: "some_providers",
+				providers: [],
+			},
+			{
+				param_id: "structured_outputs",
+				provider_count_supported: 2,
+				provider_count_total: 2,
+				support_level: "all_providers",
+				providers: [],
+			},
+		],
+	},
+} as unknown as ModelGatewayMetadata;
+
 describe("ModelFaqSection", () => {
 	it("renders answers backed by the model-page data", () => {
 		const html = renderToStaticMarkup(
@@ -112,10 +134,15 @@ describe("ModelFaqSection", () => {
 				activeProviderCount={2}
 				isGatewayActive
 				pricing={pricing}
+				gatewayMetadata={gatewayMetadata}
 			/>,
 		);
 
 		expect(html).toContain("What is Alpha 1?");
+		expect(html).toContain("Does Alpha 1 support tool calling?");
+		expect(html).toContain("Does Alpha 1 support structured outputs?");
+		expect(html).toContain("At least one active provider route for Alpha 1 currently advertises tool calling support");
+		expect(html).toContain("At least one active provider route for Alpha 1 currently advertises structured outputs support");
 		expect(html).toContain("How much does Alpha 1 cost?");
 		expect(html).toContain("What is the context length of Alpha 1?");
 		expect(html).toContain("131,072 tokens");
@@ -132,6 +159,44 @@ describe("ModelFaqSection", () => {
 		expect(html).toContain("grid-rows-[0fr]");
 		expect(html).toContain('href="#pricing"');
 		expect(html).toContain('href="/organisations/acme"');
+	});
+
+
+	it("reports unsupported and unknown capabilities without guessing", () => {
+		const unsupported = {
+			...gatewayMetadata,
+			supportedParametersByEndpoint: { "chat.completions": [] },
+		} as ModelGatewayMetadata;
+		const unsupportedHtml = renderToStaticMarkup(
+			<ModelFaqSection
+				model={model}
+				benchmarkCount={0}
+				activeProviderCount={1}
+				isGatewayActive
+				pricing={[]}
+				gatewayMetadata={unsupported}
+			/>,
+		);
+		expect(unsupportedHtml).toContain(
+			"No active provider route for Alpha 1 currently advertises tool calling support",
+		);
+		expect(unsupportedHtml).toContain(
+			"No active provider route for Alpha 1 currently advertises structured outputs support",
+		);
+
+		const unknownHtml = renderToStaticMarkup(
+			<ModelFaqSection
+				model={model}
+				benchmarkCount={0}
+				activeProviderCount={1}
+				isGatewayActive
+				pricing={[]}
+				gatewayMetadata={null}
+			/>,
+		);
+		expect(unknownHtml).toContain(
+			"does not currently have enough active route metadata to confirm whether Alpha 1 supports tool calling",
+		);
 	});
 
 	it("does not link to a pricing section for an inactive model", () => {
