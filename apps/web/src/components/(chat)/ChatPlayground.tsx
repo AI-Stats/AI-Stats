@@ -4493,6 +4493,7 @@ function ChatPlaygroundContent({
 					selectedModelIds={selectedModelIds}
 					modelOptions={modelOptions.active}
 					onToggleModel={toggleComposerModel}
+					onOpenModelPicker={() => setModelPickerOpen(true)}
 					onAddModelSet={addComposerModelSet}
 					onAudioAttachmentRequirementChange={
 						handleAudioAttachmentRequirementChange

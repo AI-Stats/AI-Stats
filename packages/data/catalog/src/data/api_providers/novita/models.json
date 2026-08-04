@@ -2209,10 +2209,15 @@
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": null,
+      "data": null
+    },
     "service_tiers": [],
     "api": {
-      "formats": ["openai.chat.completions"],
+      "formats": [
+        "openai.chat.completions"
+      ],
       "endpoint": null,
       "deployment": null
     },
@@ -12479,6 +12484,63 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "qwen/qwen3.8-max",
+    "provider_api_model_id": "novita:qwen/qwen3.8-max",
+    "provider_model_slug": "qwen/qwen3.8-max",
+    "internal_model_id": "qwen/qwen3.8-max",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-03T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://novita.ai/pricing",
+        "kind": "pricing"
+      },
+      {
+        "url": "https://novita.ai/models/model-detail/qwen-qwen3.8-max",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-03T00:00:00Z",
+      "notes": "Official Novita pricing and model-detail listing; API model id qwen/qwen3.8-max."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "minimax/minimax-m3",
     "provider_api_model_id": "novita:minimax/minimax-m3",
     "provider_model_slug": "minimax/minimax-m3",
@@ -12718,9 +12780,16 @@
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": null,
+      "data": null
+    },
     "service_tiers": [],
-    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
     "sources": [
       {
         "url": "https://novita.ai/de/models/model-detail/inclusionai-ling-3.0-flash",
@@ -12765,9 +12834,16 @@
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": null,
+      "data": null
+    },
     "service_tiers": [],
-    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
     "sources": [
       {
         "url": "https://novita.ai/models/model-detail/mindai-macaron-v1-venti",

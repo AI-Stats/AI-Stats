@@ -5,6 +5,7 @@ import useSWR from "swr";
 import { usePathname, useRouter } from "next/navigation";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useTheme } from "next-themes";
+import { toast } from "sonner";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
 	InputGroup,
@@ -47,6 +48,7 @@ import {
 } from "./Search.storage";
 import type { PaletteItem } from "./Search.types";
 import { fetchWorkspaceSearchItems } from "./Search.workspaces";
+import { SwapTeam } from "@/app/(dashboard)/actions";
 import type {
 	CompactSearchData,
 	SearchData,
@@ -792,6 +794,27 @@ export default function Search({ className, mobileGhost = false }: Props) {
 			return;
 		}
 
+		if (item.workspaceId) {
+			setOpen(false);
+			void SwapTeam(item.workspaceId)
+				.then((result) => {
+					if (!result?.ok) {
+						throw new Error(result?.error ?? "Failed to switch workspace");
+					}
+					router.push("/settings/workspaces/settings");
+					router.refresh();
+					toast.success(`Switched to ${item.title} workspace`, {
+						position: "bottom-right",
+					});
+				})
+				.catch(() => {
+					toast.error(`Failed to switch to ${item.title} workspace`, {
+						position: "bottom-right",
+					});
+				});
+			return;
+		}
+
 		if (!item.href) return;
 		setOpen(false);
 		if (item.external) {
@@ -949,11 +972,6 @@ export default function Search({ className, mobileGhost = false }: Props) {
 				score: getFirstResultScore(RESOURCE_SEARCH_INDEX, resources, searchTerm),
 			},
 			{
-				name: "workspaces" as const,
-				items: workspaces,
-				score: getFirstResultScore(workspaceSearchIndex, workspaces, searchTerm),
-			},
-			{
 				name: "models" as const,
 				items: models,
 				score: searchIndex
@@ -981,9 +999,20 @@ export default function Search({ className, mobileGhost = false }: Props) {
 					? getFirstResultScore(searchIndex.benchmarks, benchmarks, searchTerm)
 					: 0,
 			},
+			{
+				name: "workspaces" as const,
+				items: workspaces,
+				score: getFirstResultScore(workspaceSearchIndex, workspaces, searchTerm),
+			},
 		]
 			.filter((category) => category.items.length > 0)
-			.sort((left, right) => right.score - left.score);
+			.sort((left, right) => {
+				if (left.name === "models") return -1;
+				if (right.name === "models") return 1;
+				if (left.name === "workspaces") return 1;
+				if (right.name === "workspaces") return -1;
+				return right.score - left.score;
+			});
 	}, [
 		contextSearchIndex,
 		hasQuery,
@@ -998,21 +1027,15 @@ export default function Search({ className, mobileGhost = false }: Props) {
 
 		return [
 			{
-				key: "pinned",
-				heading: "Pinned",
-				items: pinnedItems,
-			},
-			{
-				key: "workspaces",
-				heading: "Workspaces",
-				items: workspaceItems,
-				type: "workspace" as const,
-			},
-			{
 				key: "models",
 				heading: "Models",
 				items: searchData?.models ?? [],
 				showSubtitle: false,
+			},
+			{
+				key: "pinned",
+				heading: "Pinned",
+				items: pinnedItems,
 			},
 			{
 				key: "context",
@@ -1025,6 +1048,13 @@ export default function Search({ className, mobileGhost = false }: Props) {
 				heading: "Quick actions",
 				items: GLOBAL_ACTION_ITEMS.slice(0, 7),
 				type: "action" as const,
+			},
+			{
+				key: "workspaces",
+				heading: "Workspaces",
+				items: workspaceItems,
+				type: "workspace" as const,
+				showSubtitle: true,
 			},
 			{
 				key: "resources",

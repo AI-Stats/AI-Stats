@@ -110,6 +110,7 @@ function getTabSet(
 			{ href: "/settings/usage/overview", label: "Overview" },
 			{ href: "/settings/usage/trends", label: "Trends" },
 			{ href: "/settings/usage/explore", label: "Explore" },
+			{ href: "/settings/usage/geography", label: "Geography" },
 			{
 				href: "/settings/usage/alerts",
 				label: "Alerts",
