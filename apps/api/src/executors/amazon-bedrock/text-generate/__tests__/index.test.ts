@@ -399,6 +399,9 @@ describe("amazon-bedrock text executor", () => {
 	it("uses Responses for GPT-5.6 models even on the chat surface", async () => {
 		const mock = installFetchMock([{
 			match: (url) => url.endsWith("/openai/v1/responses"),
+			onRequest: (call) => {
+				expect(call.bodyJson?.store).toBe(false);
+			},
 			response: new Response(new ReadableStream<Uint8Array>(), { status: 200 }),
 		}]);
 

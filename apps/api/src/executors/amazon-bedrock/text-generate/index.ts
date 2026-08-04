@@ -178,6 +178,9 @@ async function executeMantleOpenAI(
 			: irToOpenAIChat(irRequest, model, providerId, args.capabilityParams);
 
 		payload.stream = true;
+		if (route === "responses") {
+			payload.store = false;
+		}
 		if (route === "chat" && payload.stream) {
 			payload.stream_options = {
 				...(payload.stream_options ?? {}),
