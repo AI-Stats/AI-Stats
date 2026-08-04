@@ -33,6 +33,7 @@ export type PricingTimeWindow = {
 export type PricingDimensionKey =
     | "input_tokens"
     | "input_characters"
+    | "input_text_bytes"
     | "input_pages"
     | "input_text_tokens"
     | "input_image_tokens"
