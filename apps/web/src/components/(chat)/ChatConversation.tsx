@@ -737,6 +737,8 @@ export function ChatConversation({
 	const effectiveSendGateType =
 		isAuthenticated && sendGateType === "auth" ? null : sendGateType;
 	const hasNoMessages = (activeThread?.messages.length ?? 0) === 0;
+	const useWideComparisonLayout =
+		responseLayout === "side-by-side" && selectedModelCount > 1;
 	const promptHistory = useMemo(
 		() =>
 			(activeThread?.messages ?? [])
@@ -759,7 +761,7 @@ export function ChatConversation({
 						className="h-full w-full overflow-y-auto overscroll-contain"
 					>
 						<MessageScroller.Content
-							className={`mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-6 md:px-8 ${hasNoMessages ? "min-h-full" : ""}`}
+							className={`mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-6 md:px-8 ${useWideComparisonLayout ? "2xl:max-w-[96rem]" : ""} ${hasNoMessages ? "min-h-full" : ""}`}
 						>
 							<ChatConversationMessages
 								activeThread={activeThread}
