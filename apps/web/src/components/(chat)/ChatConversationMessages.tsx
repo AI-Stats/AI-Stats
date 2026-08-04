@@ -10,11 +10,7 @@ import {
 	type RefObject,
 } from "react";
 import Link from "next/link";
-import {
-	MessageScroller,
-	useMessageScroller,
-	useMessageScrollerVisibility,
-} from "@shadcn/react/message-scroller";
+import { MessageScroller } from "@shadcn/react/message-scroller";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Streamdown } from "streamdown";
 import { Logo } from "@/components/Logo";
@@ -89,11 +85,6 @@ import type {
 } from "@/components/(chat)/chatPayload";
 import { ChatMessagesEmptyState } from "@/components/(chat)/ChatMessagesEmptyState";
 import { ChatVirtualMessageList } from "@/components/(chat)/ChatVirtualMessageList";
-import { ChatConversationOutline } from "@/components/(chat)/ChatConversationOutline";
-import {
-	getChatConversationOutlineItems,
-	type ChatConversationOutlineItem,
-} from "@/components/(chat)/chatConversationOutline";
 import { markChatUserMessageRendered } from "@/components/(chat)/playground/chat-performance";
 import {
 	chatMarkdownPlugins,
@@ -468,15 +459,6 @@ export function ChatConversationMessages({
 	const metadataProviderLabel =
 		formatProviderIdLabel(metadataProviderId) ?? messageProviderLabel;
 	const messages = activeThread?.messages ?? EMPTY_MESSAGES;
-	const outlineItems = useMemo(
-		() =>
-			responseLayout === "sequential"
-				? getChatConversationOutlineItems(messages)
-				: [],
-		[messages, responseLayout],
-	);
-	const { scrollToMessage } = useMessageScroller();
-	const { currentAnchorId } = useMessageScrollerVisibility();
 	useEffect(() => {
 		const latestUserMessage = messages
 			.slice()
@@ -508,31 +490,6 @@ export function ChatConversationMessages({
 		},
 		[messageVirtualizer],
 	);
-	const handleOutlineNavigate = useCallback(
-		(item: ChatConversationOutlineItem) => {
-			if (shouldVirtualizeMessages) {
-				messageVirtualizer.scrollToIndex(item.messageIndex, {
-					align: "start",
-				});
-				window.requestAnimationFrame(() => {
-					scrollToMessage(item.id, {
-						align: "start",
-						behavior: "smooth",
-						scrollMargin: 24,
-					});
-				});
-				return;
-			}
-
-			scrollToMessage(item.id, {
-				align: "start",
-				behavior: "smooth",
-				scrollMargin: 24,
-			});
-		},
-		[messageVirtualizer, scrollToMessage, shouldVirtualizeMessages],
-	);
-
 	const messagesContent = useMemo(() => {
 		if (!activeThread || !messages.length) {
 			return (
@@ -730,7 +687,7 @@ export function ChatConversationMessages({
 				);
 			const hasAccent = Boolean(accentColor);
 			const messagePanelStyle =
-				isUser && hasAccent
+				isUser && hasAccent && !temporaryMode
 					? {
 							backgroundColor: accentColor,
 							color: getReadableTextColor(accentColor),
@@ -810,9 +767,11 @@ export function ChatConversationMessages({
 														inSideBySideGroup
 															? "flex h-full min-h-[180px] w-full flex-col"
 															: "w-fit",
-														hasAccent
-															? ""
-															: "bg-foreground text-background",
+												temporaryMode
+													? "border border-dashed border-foreground/50 bg-background text-foreground shadow-none"
+													: hasAccent
+														? ""
+														: "bg-foreground text-background",
 													)
 												: cn(
 														"w-full max-w-[min(100%,46rem)] px-0 py-1 text-sm leading-relaxed text-foreground",
@@ -1584,14 +1543,5 @@ export function ChatConversationMessages({
 		onAddModelSet,
 	]);
 
-	return (
-		<>
-			<ChatConversationOutline
-				activeMessageId={currentAnchorId}
-				items={outlineItems}
-				onNavigate={handleOutlineNavigate}
-			/>
-			{messagesContent}
-		</>
-	);
+	return <>{messagesContent}</>;
 }
