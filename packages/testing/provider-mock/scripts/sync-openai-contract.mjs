@@ -26,7 +26,12 @@ const paths = {};
 for (const expected of manifest.operations) {
   const upstream = source.paths?.[expected.path]?.[expected.method.toLowerCase()];
   const existingOverlay = existingContract.paths?.[expected.path]?.[expected.method.toLowerCase()];
-  if (!upstream && !existingOverlay) throw new Error(`OpenAI spec is missing ${expected.method.toUpperCase()} ${expected.path}`);
+  if (!upstream && !expected.sourceOverlay) {
+    throw new Error(`OpenAI spec is missing ${expected.method.toUpperCase()} ${expected.path}`);
+  }
+  if (!upstream && !existingOverlay) {
+    throw new Error(`OpenAI overlay is missing ${expected.method.toUpperCase()} ${expected.path}`);
+  }
   paths[expected.path] ??= {};
   paths[expected.path][expected.method.toLowerCase()] = stripDocumentation(upstream ?? existingOverlay);
 }
@@ -76,7 +81,7 @@ await writeFile(path.join(contractDir, "provenance.json"), `${JSON.stringify({
   openapiVersion: source.openapi,
   apiVersion: source.info?.version,
   overlays: manifest.operations
-    .filter((operation) => !source.paths?.[operation.path]?.[operation.method.toLowerCase()])
+    .filter((operation) => operation.sourceOverlay && !source.paths?.[operation.path]?.[operation.method.toLowerCase()])
     .map((operation) => `${operation.method.toUpperCase()} ${operation.path}`),
 }, null, 2)}\n`);
 console.log(`OpenAI contract synced: ${manifest.operations.length} operations, ${copied.size} referenced components, ${output.length} bytes`);
