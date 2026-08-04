@@ -212,7 +212,6 @@ export default function SettingsTopTabsServer({
 					<Link
 						key={tab.href}
 						href={navigationHref(tab)}
-						prefetch={false}
 						aria-current={active ? "page" : undefined}
 						className={cn(
 							"shrink-0 whitespace-nowrap border-b-2 px-2 pb-2 text-sm font-medium transition-colors duration-150",
