@@ -19,7 +19,7 @@ alter table public.users
 alter table public.users
   validate constraint users_declared_country_code_check;
 
-create index concurrently if not exists users_declared_country_code_idx
+create index if not exists users_declared_country_code_idx
   on public.users (declared_country_code)
   where declared_country_code is not null;
 
