@@ -515,6 +515,14 @@ export type IRAudioTranscriptionRequest = {
 	responseFormat?: string;
 	timestampGranularities?: Array<"word" | "segment">;
 	include?: string[];
+	chunkingStrategy?: "auto" | {
+		type: "server_vad";
+		prefix_padding_ms?: number;
+		silence_duration_ms?: number;
+		threshold?: number;
+	};
+	knownSpeakerNames?: string[];
+	knownSpeakerReferences?: string[];
 	rawRequest?: any;
 };
 

@@ -37,6 +37,44 @@ afterAll(() => {
 });
 
 describe("non-text adapter bridge", () => {
+	it("forwards diarization controls through the transcription IR bridge", async () => {
+		let capturedForm: FormData | undefined;
+		const mock = installFetchMock([{
+			match: (url, init) => {
+				capturedForm = init?.body as FormData;
+				return url.includes("/audio/transcriptions");
+			},
+			response: jsonResponse({ text: "hello" }),
+		}]);
+
+		await executeNonTextAdapter({
+			ir: {
+				type: "audio.transcription",
+				model: "openai/gpt-4o-transcribe-diarize",
+				file: new File(["audio"], "sample.wav", { type: "audio/wav" }),
+				responseFormat: "diarized_json",
+				chunkingStrategy: { type: "server_vad", silence_duration_ms: 500 },
+				knownSpeakerNames: ["agent"],
+				knownSpeakerReferences: ["data:audio/wav;base64,AQID"],
+			},
+			requestId: "req_non_text_transcription_1",
+			workspaceId: "team_test",
+			providerId: "openai",
+			endpoint: "audio.transcription",
+			providerModelSlug: "gpt-4o-transcribe-diarize",
+			byokMeta: [],
+			pricingCard: { ...PRICING_CARD, provider: "openai", endpoint: "audio.transcription" },
+			meta: {},
+		} as any);
+
+		mock.restore();
+		expect(capturedForm?.get("chunking_strategy")).toBe(
+			JSON.stringify({ type: "server_vad", silence_duration_ms: 500 }),
+		);
+		expect(capturedForm?.getAll("known_speaker_names[]")).toEqual(["agent"]);
+		expect(capturedForm?.getAll("known_speaker_references[]")).toEqual(["data:audio/wav;base64,AQID"]);
+	});
+
 	it("routes google-ai-studio images to the dedicated provider adapter", async () => {
 		let capturedUrl = "";
 		const mock = installFetchMock([

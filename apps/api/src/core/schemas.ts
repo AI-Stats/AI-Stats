@@ -1124,6 +1124,17 @@ export const AudioTranscriptionSchema = z.object({
     response_format: z.string().optional(),
     timestamp_granularities: z.array(z.enum(["word", "segment"])).optional(),
     include: z.array(z.string()).optional(),
+    chunking_strategy: z.union([
+        z.literal("auto"),
+        z.object({
+            type: z.literal("server_vad"),
+            prefix_padding_ms: z.number().int().nonnegative().optional(),
+            silence_duration_ms: z.number().int().nonnegative().optional(),
+            threshold: z.number().min(0).max(1).optional(),
+        }),
+    ]).optional(),
+    known_speaker_names: z.array(z.string().min(1)).max(4).optional(),
+    known_speaker_references: z.array(z.string().min(1)).max(4).optional(),
     echo_upstream_request: z.boolean().optional(),
     debug: DebugOptionsSchema,
     beta: BetaOptionsSchema,

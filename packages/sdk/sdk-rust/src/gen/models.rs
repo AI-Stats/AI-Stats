@@ -234,6 +234,9 @@ pub struct AudioSpeechRequest {
 pub struct AudioTranscriptionRequest {
 	pub audio_b64: Option<String>,
 	pub audio_url: Option<String>,
+	pub chunking_strategy: Option<String>,
+	pub known_speaker_names: Option<Vec<String>>,
+	pub known_speaker_references: Option<Vec<String>>,
 	pub language: Option<String>,
 	pub model: String,
 	pub provider: Option<HashMap<String, String>>,

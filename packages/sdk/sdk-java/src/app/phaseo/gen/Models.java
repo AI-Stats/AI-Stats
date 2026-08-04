@@ -236,6 +236,9 @@ public final class Models {
 	public static class AudioTranscriptionRequest {
 		public String audio_b64;
 		public String audio_url;
+		public Object chunking_strategy;
+		public java.util.List<String> known_speaker_names;
+		public java.util.List<String> known_speaker_references;
 		public String language;
 		public String model;
 		public Object provider;

@@ -238,6 +238,9 @@ struct AudioSpeechRequest {
 struct AudioTranscriptionRequest {
 	std::string audio_b64;
 	std::string audio_url;
+	std::any chunking_strategy;
+	std::vector<std::string> known_speaker_names;
+	std::vector<std::string> known_speaker_references;
 	std::string language;
 	std::string model;
 	std::map<std::string, std::any> provider;
