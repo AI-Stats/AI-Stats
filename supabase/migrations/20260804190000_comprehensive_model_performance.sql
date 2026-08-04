@@ -47,12 +47,24 @@ as $$
 declare
   performance jsonb := coalesce(new.safe_metadata->'performance', '{}'::jsonb);
 begin
-  new.provider_ttft_ms := nullif(performance->>'provider_ttft_ms', '')::integer;
-  new.gateway_ttft_ms := nullif(performance->>'gateway_ttft_ms', '')::integer;
-  new.output_speed_tps := nullif(performance->>'output_speed_tps', '')::numeric;
-  new.tpot_ms := nullif(performance->>'tpot_ms', '')::numeric;
-  new.itl_ms := nullif(performance->>'itl_ms', '')::numeric;
-  new.phaseo_overhead_ms := nullif(performance->>'phaseo_overhead_ms', '')::integer;
+  if performance ? 'provider_ttft_ms' then
+    new.provider_ttft_ms := greatest(0, round(nullif(performance->>'provider_ttft_ms', '')::numeric))::integer;
+  end if;
+  if performance ? 'gateway_ttft_ms' then
+    new.gateway_ttft_ms := greatest(0, round(nullif(performance->>'gateway_ttft_ms', '')::numeric))::integer;
+  end if;
+  if performance ? 'output_speed_tps' then
+    new.output_speed_tps := greatest(0, nullif(performance->>'output_speed_tps', '')::numeric);
+  end if;
+  if performance ? 'tpot_ms' then
+    new.tpot_ms := greatest(0, nullif(performance->>'tpot_ms', '')::numeric);
+  end if;
+  if performance ? 'itl_ms' then
+    new.itl_ms := greatest(0, nullif(performance->>'itl_ms', '')::numeric);
+  end if;
+  if performance ? 'phaseo_overhead_ms' then
+    new.phaseo_overhead_ms := greatest(0, round(nullif(performance->>'phaseo_overhead_ms', '')::numeric))::integer;
+  end if;
   return new;
 end;
 $$;
@@ -63,13 +75,6 @@ create trigger v2_request_facts_copy_performance_metrics
 before insert or update of safe_metadata
 on public.v2_request_facts
 for each row execute function public.copy_v2_performance_metrics_from_metadata();
-
-create index if not exists v2_request_facts_model_stream_context_time_idx
-  on public.v2_request_facts (
-    coalesce(routed_model_slug, requested_model_slug),
-    stream,
-    occurred_at desc
-  );
 
 comment on column public.v2_request_facts.provider_ttft_ms is
   'Selected provider dispatch to first content-bearing generated output; streaming text requests only.';
@@ -108,10 +113,18 @@ with params as (
     case when lower(p_context_bucket) in ('lte_4k', '4k_16k', '16k_64k', 'gt_64k') then lower(p_context_bucket) else 'all' end context_bucket,
     now() now_ts
 ),
+scoped_facts as (
+  select fact.request_event_id
+  from public.v2_request_facts fact
+  cross join params
+  where coalesce(fact.routed_model_slug, fact.requested_model_slug) = params.model_slug
+    and fact.occurred_at >= params.now_ts - interval '7 days'
+),
 usage_tokens as (
   select usage.request_event_id,
     sum(usage.quantity) filter (where usage.meter_key in ('input_tokens', 'input_text_tokens', 'prompt_tokens'))::numeric input_tokens
   from public.v2_request_usage usage
+  join scoped_facts on scoped_facts.request_event_id = usage.request_event_id
   where usage.meter_key in ('input_tokens', 'input_text_tokens', 'prompt_tokens')
   group by usage.request_event_id
 ),
@@ -264,10 +277,17 @@ as $$
 with percentile_values(percentile) as (
   values (1), (5), (10), (25), (50), (75), (90), (95), (99)
 ),
+scoped_facts as (
+  select fact.request_event_id
+  from public.v2_request_facts fact
+  where coalesce(fact.routed_model_slug, fact.requested_model_slug) = lower(trim(p_model_slug))
+    and fact.occurred_at >= now() - interval '7 days'
+),
 usage_tokens as (
   select usage.request_event_id,
     sum(usage.quantity) filter (where usage.meter_key in ('input_tokens', 'input_text_tokens', 'prompt_tokens'))::numeric input_tokens
   from public.v2_request_usage usage
+  join scoped_facts on scoped_facts.request_event_id = usage.request_event_id
   where usage.meter_key in ('input_tokens', 'input_text_tokens', 'prompt_tokens')
   group by usage.request_event_id
 ),

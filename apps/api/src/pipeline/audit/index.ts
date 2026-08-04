@@ -455,12 +455,12 @@ async function upsertV2RequestFact(args: {
                 stream_provider_billing_on_cancel: args.streamProviderBillingOnCancel ?? "unknown",
                 stream_disconnect_action: args.streamDisconnectAction ?? null,
                 performance: {
-                    provider_ttft_ms: args.providerTtftMs ?? null,
-                    gateway_ttft_ms: args.gatewayTtftMs ?? null,
-                    output_speed_tps: args.outputSpeedTps ?? null,
-                    tpot_ms: args.tpotMs ?? null,
-                    itl_ms: args.itlMs ?? null,
-                    phaseo_overhead_ms: args.phaseoOverheadMs ?? null,
+                    provider_ttft_ms: args.providerTtftMs == null ? null : Math.max(0, Math.round(args.providerTtftMs)),
+                    gateway_ttft_ms: args.gatewayTtftMs == null ? null : Math.max(0, Math.round(args.gatewayTtftMs)),
+                    output_speed_tps: args.outputSpeedTps == null ? null : Math.max(0, args.outputSpeedTps),
+                    tpot_ms: args.tpotMs == null ? null : Math.max(0, args.tpotMs),
+                    itl_ms: args.itlMs == null ? null : Math.max(0, args.itlMs),
+                    phaseo_overhead_ms: args.phaseoOverheadMs == null ? null : Math.max(0, Math.round(args.phaseoOverheadMs)),
                 },
             },
     };

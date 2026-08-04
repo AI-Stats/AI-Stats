@@ -141,7 +141,7 @@ export default function ModelPerformanceCards({
 			{!hasHourly ? (
 				<p className="text-xs text-muted-foreground md:col-span-2 lg:col-span-3">
 					Low sample volume in the last 24 hours. Trend lines reflect {chartProviderDaily7d
-						? "P01, P05, P10, P25, P50, P75, P90, P95, and P99 over the last 7 days."
+						? "available percentile bands over the last 7 days."
 						: "up to 3 active providers over the last 7 days."}
 				</p>
 			) : null}

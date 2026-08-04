@@ -22,6 +22,7 @@ export default function ModelRequestVolumeChart({
 		label: new Date(point.bucket).toLocaleTimeString("en-GB", {
 			hour: "2-digit",
 			minute: "2-digit",
+			timeZone: "UTC",
 		}),
 	}));
 
@@ -29,7 +30,7 @@ export default function ModelRequestVolumeChart({
 		<div className="space-y-3">
 			<div className="flex items-start justify-between gap-3">
 				<p className="text-lg font-medium leading-none text-foreground">Aggregate requests</p>
-				<span className="text-[11px] text-muted-foreground">Last 24 hours</span>
+				<span className="text-[11px] text-muted-foreground">Last 24 hours (UTC)</span>
 			</div>
 			<div className="h-[180px] w-full">
 				<ResponsiveContainer width="100%" height="100%">
@@ -47,7 +48,7 @@ export default function ModelRequestVolumeChart({
 							formatter={(value) => [Number(value).toLocaleString(), "Requests"]}
 							labelFormatter={(_, payload) => {
 								const bucket = payload?.[0]?.payload?.bucket;
-								return bucket ? new Date(bucket).toLocaleString("en-GB") : "";
+								return bucket ? new Date(bucket).toLocaleString("en-GB", { timeZone: "UTC" }) : "";
 							}}
 						/>
 						<Area

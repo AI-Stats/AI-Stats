@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ModelPerformanceCards from "./ModelPerformanceCards";
 import ModelSuccessChart from "./ModelSuccessChart";
 import ModelTokenTrajectoryChart from "./ModelTokenTrajectory";
@@ -89,6 +89,7 @@ export default function ModelPerformanceDashboard({
 	const [regionMetrics, setRegionMetrics] = useState<ModelPerformanceMetrics | null>(null);
 	const [isLoadingRegion, setIsLoadingRegion] = useState(false);
 	const [isLoadingPercentile, setIsLoadingPercentile] = useState(false);
+	const requestGeneration = useRef(0);
 	const activeMetrics = regionMetrics ?? metrics;
 
 	const fetchSelectedMetrics = async (
@@ -113,45 +114,74 @@ export default function ModelPerformanceDashboard({
 		nextStreamMode: "all" | "stream" | "non_stream",
 		nextContextBucket: "all" | "lte_4k" | "4k_16k" | "16k_64k" | "gt_64k",
 	) => {
+		const generation = ++requestGeneration.current;
+		const previousStreamMode = streamMode;
+		const previousContextBucket = contextBucket;
 		setStreamMode(nextStreamMode);
 		setContextBucket(nextContextBucket);
+		setIsLoadingPercentile(false);
 		setIsLoadingRegion(true);
 		try {
-			setRegionMetrics(await fetchSelectedMetrics(
+			const nextMetrics = await fetchSelectedMetrics(
 				selectedColo,
 				selectedPercentile,
 				nextStreamMode,
 				nextContextBucket,
-			));
+			);
+			if (generation !== requestGeneration.current) return;
+			if (!nextMetrics) {
+				setStreamMode(previousStreamMode);
+				setContextBucket(previousContextBucket);
+				return;
+			}
+			setRegionMetrics(nextMetrics);
+		} catch {
+			if (generation === requestGeneration.current) {
+				setStreamMode(previousStreamMode);
+				setContextBucket(previousContextBucket);
+			}
 		} finally {
-			setIsLoadingRegion(false);
+			if (generation === requestGeneration.current) setIsLoadingRegion(false);
 		}
 	};
 
 	const handleColoChange = async (value: string) => {
 		const nextColo = value === "all" ? null : value;
+		const generation = ++requestGeneration.current;
+		const previousColo = selectedColo;
 		setSelectedColo(nextColo);
+		setIsLoadingPercentile(false);
 		setIsLoadingRegion(true);
 		try {
-			setRegionMetrics(await fetchSelectedMetrics(nextColo, selectedPercentile));
+			const nextMetrics = await fetchSelectedMetrics(nextColo, selectedPercentile);
+			if (generation !== requestGeneration.current) return;
+			if (!nextMetrics) {
+				setSelectedColo(previousColo);
+				return;
+			}
+			setRegionMetrics(nextMetrics);
+		} catch {
+			if (generation === requestGeneration.current) setSelectedColo(previousColo);
 		} finally {
-			setIsLoadingRegion(false);
+			if (generation === requestGeneration.current) setIsLoadingRegion(false);
 		}
 	};
 
 	const handlePercentileChange = async (nextPercentile: ModelPercentile) => {
-		if (nextPercentile === selectedPercentile || isLoadingPercentile) return;
+		if (nextPercentile === selectedPercentile) return;
+		const generation = ++requestGeneration.current;
 		const previousPercentile = selectedPercentile;
+		setIsLoadingRegion(false);
 		setIsLoadingPercentile(true);
 		try {
 			const nextMetrics = await fetchSelectedMetrics(selectedColo, nextPercentile);
-			if (!nextMetrics) return;
+			if (generation !== requestGeneration.current || !nextMetrics) return;
 			setRegionMetrics(nextMetrics);
 			setSelectedPercentile(nextPercentile);
 		} catch {
-			setSelectedPercentile(previousPercentile);
+			if (generation === requestGeneration.current) setSelectedPercentile(previousPercentile);
 		} finally {
-			setIsLoadingPercentile(false);
+			if (generation === requestGeneration.current) setIsLoadingPercentile(false);
 		}
 	};
 

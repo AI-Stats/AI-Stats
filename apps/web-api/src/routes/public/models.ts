@@ -1407,7 +1407,15 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 		} else if (v2.error && !/could not find|does not exist|PGRST202/i.test(v2.error.message ?? "")) {
 			throw v2.error;
 		} else throw v2.error ?? new Error("V2 performance query returned an invalid payload");
-		if (!cloudflareColo && !health.error && Array.isArray(health.data) && health.data.length > 0 && performance) {
+		if (
+			!cloudflareColo &&
+			streamMode === "all" &&
+			contextBucket === "all" &&
+			!health.error &&
+			Array.isArray(health.data) &&
+			health.data.length > 0 &&
+			performance
+		) {
 			performance = {
 				...performance,
 				provider_uptime_24h: (health.data as Array<Record<string, unknown>>).map((row) => ({

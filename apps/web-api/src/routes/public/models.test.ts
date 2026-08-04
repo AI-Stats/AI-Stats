@@ -609,6 +609,41 @@ describe("public model routes", () => {
 		expect(payload.metrics.providerPercentileDaily7d).toEqual([]);
 	});
 
+	it("does not replace a filtered cohort with all-traffic provider health", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
+				return new Response(JSON.stringify({
+					last_24h: { total_requests: 1, successful_requests: 1 },
+					hourly_24h: [],
+					provider_uptime_24h: [{ provider: "filtered", requests: 1 }],
+					provider_daily_7d: [],
+				}), { status: 200 });
+			}
+			if (url.includes("/rpc/get_v2_model_provider_health_metrics")) {
+				return new Response(JSON.stringify([
+					{ provider_id: "all-traffic", health_requests: 100 },
+				]), { status: 200 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/test%2Fmodel/performance?stream=stream",
+			{},
+			env,
+		);
+		const payload = await response.json() as any;
+
+		expect(response.status).toBe(200);
+		expect(payload.performance.provider_uptime_24h).toEqual([
+			expect.objectContaining({ provider: "filtered" }),
+		]);
+		expect(payload.performance.provider_uptime_24h).not.toContainEqual(
+			expect.objectContaining({ provider: "all-traffic" }),
+		);
+	});
+
 	it("returns compact gateway availability without loading full metadata", async () => {
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
