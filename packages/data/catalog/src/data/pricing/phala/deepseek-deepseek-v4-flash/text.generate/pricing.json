@@ -1,0 +1,58 @@
+{
+  "key": "phala:deepseek/deepseek-v4-flash:text.generate",
+  "api_provider_id": "phala",
+  "provider_slug": "phala",
+  "api_model_id": "deepseek/deepseek-v4-flash",
+  "capability_id": "text.generate",
+  "rules": [
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.2,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-03T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.4,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-03T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    }
+  ],
+  "regions": [],
+  "service_tiers": [
+    "standard"
+  ],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://phala.com/models/deepseek/deepseek-v4-flash",
+      "accessed_at": "2026-08-03T00:00:00Z",
+      "notes": "Provider deployment pricing recorded for this model route."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-03T00:00:00Z",
+    "notes": "Pricing checked against the provider model or pricing page."
+  }
+}

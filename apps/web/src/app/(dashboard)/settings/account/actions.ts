@@ -13,6 +13,7 @@ import {
 } from '@/lib/auth/method'
 import { createClient as createSupabaseAuthClient } from '@supabase/supabase-js'
 import { z } from 'zod'
+import { normaliseCountryCode } from '@/lib/countryCodes'
 
 export type PasskeyMutationFailure = {
     code:
@@ -293,6 +294,7 @@ export async function deletePasskeyAction(
 export async function updateAccount(payload: {
     display_name?: string | null
     default_workspace_id?: string | null
+    declared_country_code?: string | null
     obfuscate_info?: boolean
 }) {
     const supabase = await createClient()
@@ -306,6 +308,20 @@ export async function updateAccount(payload: {
     const toUpsert: any = {}
     if (payload.display_name !== undefined) toUpsert.display_name = payload.display_name
     if (payload.default_workspace_id !== undefined) toUpsert.default_workspace_id = payload.default_workspace_id
+    if (payload.declared_country_code !== undefined) {
+        const countryCode = normaliseCountryCode(payload.declared_country_code)
+        if (!countryCode) throw new Error('Select a valid country')
+        const { data: existingCountry, error: countryError } = await supabase
+            .from('users')
+            .select('declared_country_code')
+            .eq('user_id', authUser.id)
+            .maybeSingle()
+        if (countryError) throw new Error(countryError.message)
+        if (existingCountry?.declared_country_code !== countryCode) {
+            toUpsert.declared_country_code = countryCode
+            toUpsert.country_declared_at = new Date().toISOString()
+        }
+    }
     if (payload.obfuscate_info !== undefined) toUpsert.obfuscate_info = payload.obfuscate_info
 
     toUpsert.user_id = authUser.id
