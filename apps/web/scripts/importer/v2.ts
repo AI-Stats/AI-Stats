@@ -20,7 +20,7 @@ function asTextArray(value: unknown): string[] {
 }
 
 export function catalogueStatus(value: unknown): string {
-    switch (String(value ?? "").trim().toLowerCase().replace(/[\\s-]+/g, "_")) {
+    switch (String(value ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_")) {
         case "rumoured": return "rumoured";
         case "announced": return "announced";
         case "preview": return "preview";
@@ -92,7 +92,7 @@ const PHASEO_STATUSES = new Set([
 const ROUTE_ACCESS_SCOPES = new Set(["public", "internal"]);
 
 function normalizedStatus(value: unknown): string {
-    return String(value ?? "").trim().toLowerCase().replace(/[\\s-]+/g, "_");
+    return String(value ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_");
 }
 
 function routeCapabilities(row: Record<string, any>): Record<string, any>[] {
