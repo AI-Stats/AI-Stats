@@ -79,11 +79,18 @@ export function ModelSearchDropdown({
                 className="size-[18px] shrink-0 rounded-sm object-contain"
               />
             ) : null}
-            <span className="min-w-0 truncate text-left">
-              {selected
-                ? `${selected.label}${selected.description ? ` · ${selected.description}` : ""}`
-                : placeholder}
-            </span>
+            {selected ? (
+              <span className="flex min-w-0 items-baseline gap-2 truncate text-left">
+                <span className="truncate">{selected.label}</span>
+                {selected.description ? (
+                  <span className="shrink truncate text-xs text-muted-foreground">
+                    {selected.description}
+                  </span>
+                ) : null}
+              </span>
+            ) : (
+              <span className="min-w-0 truncate text-left">{placeholder}</span>
+            )}
           </span>
           <ChevronDown className="size-4 shrink-0 opacity-60" />
         </Button>
@@ -134,7 +141,7 @@ export function ModelSearchDropdown({
                       </span>
                       {option.description ? (
                         <span className="shrink truncate text-xs text-muted-foreground">
-                          · {option.description}
+                          {option.description}
                         </span>
                       ) : null}
                     </span>
