@@ -3,6 +3,6 @@ export interface BatchRequestItem {
     [key: string]: unknown;
   };
   custom_id?: string;
-  method?: string;
+  method?: "POST";
   url?: string;
 }

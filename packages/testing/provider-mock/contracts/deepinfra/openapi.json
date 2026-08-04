@@ -328,6 +328,12 @@
             ],
             "description": "The service tier used for processing the request. 'priority' processes the request with higher priority (premium rate); 'flex' processes it at lower priority for a discount, served only when spare capacity exists and may be retried/timed out under load. Both apply only to models that support the respective tier."
           },
+          "fail_fast": {
+            "type": "boolean",
+            "title": "Fail Fast",
+            "description": "If true, the request is rejected immediately with HTTP 429 when the model has no spare capacity, instead of waiting in the queue. Opt-in; the default (false) keeps standard queueing behavior.",
+            "default": false
+          },
           "model": {
             "type": "string",
             "title": "Model",
@@ -470,7 +476,7 @@
             "anyOf": [
               {
                 "items": {
-                  "$ref": "#/components/schemas/ChatTools"
+                  "$ref": "#/components/schemas/FunctionTool"
                 },
                 "type": "array"
               },
@@ -487,7 +493,7 @@
                 "type": "string"
               },
               {
-                "$ref": "#/components/schemas/ChatTools"
+                "$ref": "#/components/schemas/FunctionTool"
               },
               {
                 "type": "null"
@@ -579,11 +585,13 @@
               {
                 "type": "string",
                 "enum": [
+                  "none",
+                  "minimal",
                   "low",
                   "medium",
                   "high",
                   "xhigh",
-                  "none"
+                  "max"
                 ]
               },
               {
@@ -591,7 +599,7 @@
               }
             ],
             "title": "Reasoning Effort",
-            "description": "Constrains effort on reasoning for reasoning models. Currently supported values are none, low, medium, high, and xhigh. Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response. Setting to none disables reasoning entirely if the model supports."
+            "description": "Constrains effort on reasoning for reasoning models. Currently supported values are none, minimal, low, medium, high, xhigh, and max. Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response. Setting to none disables reasoning entirely if the model supports."
           },
           "reasoning": {
             "anyOf": [
@@ -615,6 +623,17 @@
             ],
             "title": "Prompt Cache Key",
             "description": "A key to identify prompt cache for reuse across requests. If provided, the prompt will be cached and can be reused in subsequent requests with the same key."
+          },
+          "prompt_cache_options": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PromptCacheOptions"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Prompt cache options for this request's prefix, e.g. {\"ttl\": \"1h\"}."
           },
           "chat_template_kwargs": {
             "anyOf": [
@@ -640,6 +659,18 @@
             ],
             "title": "Continue Final Message",
             "description": "If set, the final assistant message is used as a prefix for the model to continue generating from, rather than starting a new turn. Only applicable when the last message in the conversation is an assistant message."
+          },
+          "ignore_eos": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ignore Eos",
+            "description": "Keep generating until max_tokens instead of stopping at the end-of-sequence token. Only honoured on models tagged with the allow_ignore_eos feature flag; ignored otherwise. Intended for benchmarking, where a fixed output length is needed."
           }
         },
         "type": "object",
@@ -674,6 +705,12 @@
               }
             ],
             "description": "The service tier used for processing the request. 'priority' processes the request with higher priority (premium rate); 'flex' processes it at lower priority for a discount, served only when spare capacity exists and may be retried/timed out under load. Both apply only to models that support the respective tier."
+          },
+          "fail_fast": {
+            "type": "boolean",
+            "title": "Fail Fast",
+            "description": "If true, the request is rejected immediately with HTTP 429 when the model has no spare capacity, instead of waiting in the queue. Opt-in; the default (false) keeps standard queueing behavior.",
+            "default": false
           },
           "model": {
             "type": "string",
@@ -1067,7 +1104,7 @@
         ],
         "title": "ChatCompletionSystemMessage"
       },
-      "ChatTools": {
+      "FunctionTool": {
         "properties": {
           "cache_control": {
             "anyOf": [
@@ -1095,7 +1132,7 @@
         "required": [
           "function"
         ],
-        "title": "ChatTools"
+        "title": "FunctionTool"
       },
       "TextResponseFormat": {
         "properties": {
@@ -1185,11 +1222,13 @@
               {
                 "type": "string",
                 "enum": [
+                  "none",
+                  "minimal",
                   "low",
                   "medium",
                   "high",
                   "xhigh",
-                  "none"
+                  "max"
                 ]
               },
               {
@@ -1214,6 +1253,44 @@
         },
         "type": "object",
         "title": "ChatReasoningSettings"
+      },
+      "PromptCacheOptions": {
+        "properties": {
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "explicit",
+                  "implicit"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode",
+            "description": "Prompt caching mode; 'explicit' requests explicit caching."
+          },
+          "ttl": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "5m",
+                  "1h"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ttl",
+            "description": "Requested cache retention for this request's prefix."
+          }
+        },
+        "type": "object",
+        "title": "PromptCacheOptions"
       },
       "ValidationError": {
         "properties": {
@@ -1258,6 +1335,17 @@
           "text": {
             "type": "string",
             "title": "Text"
+          },
+          "prompt_cache_breakpoint": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PromptCacheBreakpoint"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Marks the end of the prefix that prompt_cache_options retention applies to."
           }
         },
         "type": "object",
@@ -1449,6 +1537,25 @@
           "schema"
         ],
         "title": "JsonSchema"
+      },
+      "PromptCacheBreakpoint": {
+        "properties": {
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "explicit"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode",
+            "description": "Breakpoint mode; 'explicit' bounds cache retention to the prompt prefix ending at this content part."
+          }
+        },
+        "type": "object",
+        "title": "PromptCacheBreakpoint"
       },
       "ImageURL": {
         "properties": {

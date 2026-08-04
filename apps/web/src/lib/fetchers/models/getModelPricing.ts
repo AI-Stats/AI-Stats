@@ -82,6 +82,25 @@ export interface ProviderModel {
     endpoint: string;
     capability_status?: string | null;
     routing_status?: string | null;
+	provider_availability_status?:
+		| "unknown"
+		| "coming_soon"
+		| "preview"
+		| "available"
+		| "limited_access"
+		| "deprecated"
+		| "removed"
+		| null;
+	phaseo_status?:
+		| "unsupported"
+		| "planned"
+		| "implementing"
+		| "testing"
+		| "enabled"
+		| "disabled"
+		| "blocked"
+		| null;
+	access_scope?: "public" | "internal" | null;
     is_active_gateway: boolean;
     input_modalities: string;   // CSV in your current schema
     output_modalities: string;  // CSV in your current schema
@@ -500,6 +519,10 @@ export default async function getModelPricing(
                 endpoint: "unmapped",
                 capability_status: null,
                 routing_status: row.routing_status ?? null,
+				provider_availability_status:
+					row.provider_availability_status ?? null,
+				phaseo_status: row.phaseo_status ?? null,
+				access_scope: row.access_scope ?? "public",
                 is_active_gateway: row.is_active_gateway,
                 input_modalities: Array.isArray(row.input_modalities)
                     ? row.input_modalities.join(",")
@@ -541,6 +564,10 @@ export default async function getModelPricing(
                 endpoint: capability.capability_id,
                 capability_status: capability.status ?? null,
                 routing_status: row.routing_status ?? null,
+				provider_availability_status:
+					row.provider_availability_status ?? null,
+				phaseo_status: row.phaseo_status ?? null,
+				access_scope: row.access_scope ?? "public",
                 is_active_gateway: row.is_active_gateway,
                 input_modalities: Array.isArray(row.input_modalities)
                     ? row.input_modalities.join(",")

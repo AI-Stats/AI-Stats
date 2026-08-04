@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- Monorepo managed by pnpm + turbo: `apps/web` (Next.js 15 App Router, Tailwind UI in `src/components` and `components/ui`), `apps/api` (Cloudflare Workers + Hono), `apps/docs` (Mintlify site).
+- Monorepo managed by pnpm + turbo: `apps/web` (Next.js 16 App Router, React 19, Tailwind 4, shared UI in `src/components` and `src/components/ui`), `apps/api` (Cloudflare Workers + Hono), `apps/docs` (Mintlify site).
 - SDKs: `packages/sdk/sdk-ts` TypeScript client (`src`, generated `src/oapi-gen`, builds to `dist`); `packages/sdk/sdk-py` Python client (`src`, tests in `packages/sdk/sdk-py/tests`).
 - Shared tooling lives in `scripts/`, release metadata in `.changeset/`; canonical data/benchmarks sit under `packages/data/catalog/src/data` with Jest cases nearby.
 
@@ -21,7 +21,7 @@
 - Styling via Tailwind; keep globals lean. Follow lint output for spacing/quotes since no repo-wide formatter is enforced.
 
 ## Testing Guidelines
-- Jest for `apps/web` with `*.test.ts(x)` or nearby `__tests__`; cover new logic and data validations with deterministic fixtures.
+- Jest for `apps/web` with `*.test.ts(x)` or nearby `__tests__`; Playwright suites live in `apps/web/tests/e2e`. Cover new logic and data validations with deterministic fixtures.
 - Python SDK tests rely on pytest and `httpx.MockTransport`; keep async cases isolated.
 - TS SDK has local `vitest` compatibility coverage plus optional smoke checks; add targeted unit or smoke tests when changing behavior.
 

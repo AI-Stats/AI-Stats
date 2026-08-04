@@ -26,7 +26,7 @@ describe("azure config", () => {
 		setupRuntimeFromEnv({
 			AZURE_OPENAI_API_KEY: "test-azure-key",
 			AZURE_OPENAI_BASE_URL:
-				"https://ai-stats-resource.cognitiveservices.azure.com/",
+				"https://phaseo-resource.cognitiveservices.azure.com/",
 			AZURE_OPENAI_API_VERSION: "2024-05-01-preview",
 		} as any);
 
@@ -42,7 +42,7 @@ describe("azure config", () => {
 		);
 
 		expect(url).toBe(
-			"https://ai-stats-resource.cognitiveservices.azure.com/openai/deployments/Kimi-K2.5/chat/completions?api-version=2024-05-01-preview",
+			"https://phaseo-resource.cognitiveservices.azure.com/openai/deployments/Kimi-K2.5/chat/completions?api-version=2024-05-01-preview",
 		);
 	});
 
@@ -50,11 +50,11 @@ describe("azure config", () => {
 		const url = azureUrl(
 			"openai/deployments/gpt-4o/chat/completions",
 			"2024-10-21",
-			"https://ai-stats-resource.openai.azure.com/openai/v1/",
+			"https://phaseo-resource.openai.azure.com/openai/v1/",
 		);
 
 		expect(url).toBe(
-			"https://ai-stats-resource.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21",
+			"https://phaseo-resource.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21",
 		);
 	});
 
@@ -63,7 +63,7 @@ describe("azure config", () => {
 		setupRuntimeFromEnv({
 			AZURE_OPENAI_API_KEY: "test-azure-key",
 			AZURE_OPENAI_BASE_URL:
-				"https://ai-stats-resource.cognitiveservices.azure.com",
+				"https://phaseo-resource.cognitiveservices.azure.com",
 		} as any);
 
 		expect(resolveAzureConfig().apiVersion).toBe("2024-10-21");
@@ -74,7 +74,7 @@ describe("azure config", () => {
 		setupRuntimeFromEnv({
 			AZURE_OPENAI_API_KEY: "test-azure-key",
 			AZURE_OPENAI_BASE_URL:
-				"https://ai-stats-resource.cognitiveservices.azure.com",
+				"https://phaseo-resource.cognitiveservices.azure.com",
 			AZURE_OPENAI_API_VERSION: " ",
 		} as any);
 
@@ -116,18 +116,18 @@ describe("azure config", () => {
 		expect(
 			azureOpenAIV1Url(
 				"responses",
-				"https://ai-stats-resource.openai.azure.com/openai/v1/",
+				"https://phaseo-resource.openai.azure.com/openai/v1/",
 			),
-		).toBe("https://ai-stats-resource.openai.azure.com/openai/v1/responses");
+		).toBe("https://phaseo-resource.openai.azure.com/openai/v1/responses");
 	});
 
 	it("builds Azure OpenAI v1 URLs from a resource base URL", () => {
 		expect(
 			azureOpenAIV1Url(
 				"responses",
-				"https://ai-stats-resource.openai.azure.com/",
+				"https://phaseo-resource.openai.azure.com/",
 			),
-		).toBe("https://ai-stats-resource.openai.azure.com/openai/v1/responses");
+		).toBe("https://phaseo-resource.openai.azure.com/openai/v1/responses");
 	});
 
 	it("uses api-key header auth", () => {

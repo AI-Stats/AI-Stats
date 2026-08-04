@@ -1,0 +1,72 @@
+{
+  "key": "crofai:deepseek/deepseek-v4-flash-0731:text.generate",
+  "api_provider_id": "crofai",
+  "provider_slug": "crofai",
+  "api_model_id": "deepseek/deepseek-v4-flash-0731",
+  "capability_id": "text.generate",
+  "rules": [
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.12,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-31T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.003,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "From CrofAI's live pricing payload.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-31T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.21,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-31T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    }
+  ],
+  "regions": [],
+  "service_tiers": ["standard"],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://crof.ai/pricing",
+      "accessed_at": "2026-08-01T00:00:00Z",
+      "notes": "Official live CrofAI model payload."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-01T00:00:00Z",
+    "notes": "Verified at $0.12/M input, $0.003/M cached input and $0.21/M output."
+  }
+}

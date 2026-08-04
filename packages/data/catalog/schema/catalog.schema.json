@@ -108,7 +108,10 @@
         "model_id": { "$ref": "#/$defs/slug" },
         "organisation_id": { "$ref": "#/$defs/slug" },
         "name": { "type": "string", "minLength": 1 },
-        "status": { "type": ["string", "null"] },
+        "status": {
+          "type": ["string", "null"],
+          "enum": [null, "Unknown", "Rumoured", "Announced", "Preview", "Available", "Limited Access", "Deprecated", "Retired", "Withheld"]
+        },
         "previous_model_id": { "type": ["string", "null"] },
         "description": { "$ref": "#/$defs/nullableString" },
         "announced_date": { "$ref": "#/$defs/dateTime" },
@@ -190,7 +193,10 @@
       "required": ["capability_id"],
       "properties": {
         "capability_id": { "type": "string", "minLength": 1 },
-        "status": { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive", "coming_soon", "internal_testing", "disabled", "deranked_lvl1", "deranked_lvl2", "deranked_lvl3"]
+        },
         "params": { "type": "array", "items": { "type": "object" } }
       },
       "additionalProperties": true
@@ -208,7 +214,22 @@
         "input_modalities": { "type": ["string", "array", "null"] },
         "output_modalities": { "type": ["string", "array", "null"] },
         "capabilities": { "type": "array", "items": { "$ref": "#/$defs/capability" } }
-        ,"routing_status": { "type": ["string", "null"] },
+        ,"provider_status": {
+          "type": ["string", "null"],
+          "enum": [null, "unknown", "coming_soon", "preview", "available", "limited_access", "deprecated", "removed"]
+        },
+        "phaseo_status": {
+          "type": ["string", "null"],
+          "enum": [null, "unsupported", "planned", "implementing", "testing", "enabled", "disabled", "blocked"]
+        },
+        "access_scope": {
+          "type": ["string", "null"],
+          "enum": [null, "public", "internal"]
+        },
+        "routing_status": {
+          "type": ["string", "null"],
+          "enum": [null, "active", "degraded", "deranked_lvl1", "deranked_lvl2", "deranked_lvl3", "disabled", "retired"]
+        },
         "routable": { "type": ["boolean", "null"] },
         "regions": {
           "type": ["object", "null"],

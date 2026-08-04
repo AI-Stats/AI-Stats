@@ -7,6 +7,7 @@ const ensureAppIdMock = vi.fn();
 const syncWorkspaceUsageRollupForRequestMock = vi.fn();
 const resolveGatewayIoLoggingPolicyMock = vi.fn();
 const persistGatewayIoLogMock = vi.fn();
+const persistGatewayUpstreamRequestsMock = vi.fn();
 
 vi.mock("@/runtime/env", () => ({
 	getSupabaseAdmin: (...args: any[]) => getSupabaseAdminMock(...args),
@@ -28,6 +29,10 @@ vi.mock("./io-logging", () => ({
 	persistGatewayIoLog: (...args: any[]) => persistGatewayIoLogMock(...args),
 }));
 
+vi.mock("./upstream-requests", () => ({
+	persistGatewayUpstreamRequests: (...args: any[]) => persistGatewayUpstreamRequestsMock(...args),
+}));
+
 import { auditFailure, auditSuccess } from "./index";
 
 describe("audit request detail persistence", () => {
@@ -39,6 +44,8 @@ describe("audit request detail persistence", () => {
 		syncWorkspaceUsageRollupForRequestMock.mockReset();
 		resolveGatewayIoLoggingPolicyMock.mockReset();
 		persistGatewayIoLogMock.mockReset();
+		persistGatewayUpstreamRequestsMock.mockReset();
+		persistGatewayUpstreamRequestsMock.mockResolvedValue(undefined);
 		ensureRuntimeForBackgroundMock.mockReturnValue(() => {});
 		isLocalTestingModeEnabledMock.mockReturnValue(false);
 		ensureAppIdMock.mockResolvedValue("app_resolved");
@@ -410,6 +417,12 @@ describe("audit request detail persistence", () => {
 
 		expect(fromMock).toHaveBeenCalledTimes(1);
 		expect(fromMock).toHaveBeenCalledWith("gateway_requests");
+		expect(persistGatewayUpstreamRequestsMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				requestId: "req_no_io",
+				provider: "openai",
+			}),
+		);
 		expect(rpcMock).toHaveBeenCalledOnce();
 		expect(rpcMock.mock.calls[0]?.[0]).toBe("ingest_v2_gateway_request_with_routing");
 		const event = rpcMock.mock.calls[0]?.[1]?.p_event;

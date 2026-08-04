@@ -84,6 +84,7 @@
 											"v1/guides/server-tools/advisor",
 											"v1/guides/server-tools/subagent",
 											"v1/guides/server-tools/fusion",
+											"v1/guides/server-tools/search-models",
 											"v1/guides/server-tools/image-generation",
 											"v1/guides/server-tools/apply-patch"
 										]
