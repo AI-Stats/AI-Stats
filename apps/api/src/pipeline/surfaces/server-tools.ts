@@ -261,7 +261,6 @@ const SEARCH_MODELS_TOOL_PARAMETERS = {
 		query: { type: "string" },
 		input_modalities: { type: "array", items: { type: "string" } },
 		output_modalities: { type: "array", items: { type: "string" } },
-		min_context_length: { type: "integer" },
 		series: { type: "string" },
 		provider: { type: "string" },
 		required_params: { type: "array", items: { type: "string" } },
