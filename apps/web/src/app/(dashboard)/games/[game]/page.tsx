@@ -16,7 +16,7 @@ export async function generateMetadata({
 }
 
 export default async function GamePage({ params }: GamePageProps) {
-  if (!catalogueGamesEnabled()) notFound();
+  if (!(await catalogueGamesEnabled())) notFound();
   const { game } = await params;
   if (!isGameKey(game)) notFound();
   return <GameExperience game={game} />;

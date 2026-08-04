@@ -2,19 +2,15 @@ import { Hono } from "hono";
 import { requireUser } from "@/auth/requireUser";
 import type { Env } from "@/env";
 import { evaluatePuzzle } from "@/games/engine";
+import { catalogueGamesEnabled } from "@/games/featureFlag";
 import { gameCompletion, persistGameCompletion } from "@/games/results";
 import { resolveDailyPuzzle } from "@/games/store";
 import { isGameKey } from "@/games/types";
 
 export const publicGamesRouter = new Hono<{ Bindings: Env }>();
 
-function gamesEnabled(env: Env): boolean {
-  if (env.ENV !== "production") return true;
-  return /^(1|true|yes)$/i.test(env.PHASEO_GAMES_PREVIEW_ENABLED?.trim() ?? "");
-}
-
 publicGamesRouter.use("*", async (c, next) => {
-  if (!gamesEnabled(c.env)) return c.json({ error: "not_found" }, 404);
+  if (!(await catalogueGamesEnabled(c.env))) return c.json({ error: "not_found" }, 404);
   await next();
 });
 
