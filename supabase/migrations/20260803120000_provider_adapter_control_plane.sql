@@ -54,6 +54,7 @@ create table if not exists public.v2_provider_auth_profiles (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint v2_provider_auth_profiles_key unique (provider_slug, profile_key),
+  constraint v2_provider_auth_profiles_provider_key unique (provider_slug, auth_profile_id),
   constraint v2_provider_auth_profiles_config_check check (jsonb_typeof(config) = 'object'),
   constraint v2_provider_auth_profiles_status_check check (status in ('active', 'deprecated', 'disabled'))
 );
@@ -69,7 +70,7 @@ create table if not exists public.v2_provider_endpoints (
   base_url text not null,
   path_template text not null,
   api_version text,
-  auth_profile_id uuid references public.v2_provider_auth_profiles(auth_profile_id) on delete restrict,
+  auth_profile_id uuid,
   region_code text,
   service_tier_slug text references public.v2_service_tiers(service_tier_slug) on delete restrict,
   timeout_ms integer not null default 120000,
@@ -78,6 +79,9 @@ create table if not exists public.v2_provider_endpoints (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint v2_provider_endpoints_key unique (provider_slug, endpoint_key),
+  constraint v2_provider_endpoints_provider_key unique (provider_slug, provider_endpoint_id),
+  foreign key (provider_slug, auth_profile_id)
+    references public.v2_provider_auth_profiles(provider_slug, auth_profile_id) on delete restrict,
   constraint v2_provider_endpoints_timeout_check check (timeout_ms > 0 and timeout_ms <= 900000),
   constraint v2_provider_endpoints_retry_check check (jsonb_typeof(retry_policy) = 'object'),
   constraint v2_provider_endpoints_status_check check (status in ('active', 'degraded', 'deprecated', 'disabled'))
@@ -91,7 +95,7 @@ create table if not exists public.v2_provider_capability_adapters (
   provider_slug text not null references public.v2_providers(provider_slug) on delete cascade,
   capability_id text not null,
   capability_adapter_id uuid not null references public.v2_capability_adapters(capability_adapter_id) on delete restrict,
-  provider_endpoint_id uuid not null references public.v2_provider_endpoints(provider_endpoint_id) on delete restrict,
+  provider_endpoint_id uuid not null,
   config jsonb not null default '{}'::jsonb,
   status text not null default 'draft',
   effective_from timestamptz,
@@ -99,6 +103,8 @@ create table if not exists public.v2_provider_capability_adapters (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint v2_provider_capability_adapters_key unique (provider_slug, capability_id, capability_adapter_id, provider_endpoint_id),
+  foreign key (provider_slug, provider_endpoint_id)
+    references public.v2_provider_endpoints(provider_slug, provider_endpoint_id) on delete restrict,
   constraint v2_provider_capability_adapters_config_check check (jsonb_typeof(config) = 'object'),
   constraint v2_provider_capability_adapters_status_check check (status in ('draft', 'active', 'deprecated', 'disabled')),
   constraint v2_provider_capability_adapters_window_check check (effective_to is null or effective_from is null or effective_to > effective_from)
@@ -204,18 +210,23 @@ create table if not exists public.v2_control_plane_releases (
 create unique index if not exists v2_control_plane_single_published_idx
   on public.v2_control_plane_releases ((status)) where status = 'published';
 
+create unique index if not exists v2_route_variants_provider_variant_idx
+  on public.v2_route_variants (provider_model_id, variant_id);
+
 create table if not exists public.v2_execution_plans (
   execution_plan_id uuid primary key default gen_random_uuid(),
   release_id uuid not null references public.v2_control_plane_releases(release_id) on delete cascade,
   provider_model_id text not null references public.v2_model_provider_routes(provider_model_id) on delete cascade,
   capability_id text not null,
-  route_variant_id uuid references public.v2_route_variants(variant_id) on delete cascade,
+  route_variant_id uuid,
   plan_version integer not null default 1,
   plan_hash text not null,
   plan jsonb not null,
   created_at timestamptz not null default now(),
   foreign key (provider_model_id, capability_id)
     references public.v2_route_capabilities(provider_model_id, capability_id) on delete cascade,
+  foreign key (provider_model_id, route_variant_id)
+    references public.v2_route_variants(provider_model_id, variant_id) on delete cascade,
   constraint v2_execution_plans_key unique nulls not distinct (release_id, provider_model_id, capability_id, route_variant_id),
   constraint v2_execution_plans_version_check check (plan_version > 0),
   constraint v2_execution_plans_plan_check check (jsonb_typeof(plan) = 'object')
@@ -223,6 +234,72 @@ create table if not exists public.v2_execution_plans (
 
 create index if not exists v2_execution_plans_runtime_lookup_idx
   on public.v2_execution_plans (release_id, provider_model_id, capability_id, route_variant_id);
+
+create or replace function public.prevent_published_control_plane_release_mutation()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if old.status = 'published' then
+    if tg_op = 'UPDATE'
+      and new.status = 'superseded'
+      and new.superseded_at is not null
+      and (to_jsonb(new) - 'status' - 'superseded_at') =
+        (to_jsonb(old) - 'status' - 'superseded_at') then
+      return new;
+    end if;
+    raise exception 'Published control-plane releases are immutable';
+  end if;
+  if tg_op = 'DELETE' then
+    return old;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger prevent_published_control_plane_release_mutation
+  before update or delete on public.v2_control_plane_releases
+  for each row execute function public.prevent_published_control_plane_release_mutation();
+
+create or replace function public.prevent_published_execution_plan_mutation()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+declare
+  old_release_status text;
+  new_release_status text;
+begin
+  if tg_op in ('UPDATE', 'DELETE') then
+    select status into old_release_status
+      from public.v2_control_plane_releases where release_id = old.release_id;
+    if old_release_status = 'published' then
+      raise exception 'Execution plans in published releases are immutable';
+    end if;
+  end if;
+
+  if tg_op in ('INSERT', 'UPDATE') then
+    select status into new_release_status
+      from public.v2_control_plane_releases where release_id = new.release_id;
+    if new_release_status = 'published' then
+      raise exception 'Execution plans in published releases are immutable';
+    end if;
+  end if;
+
+  if tg_op = 'DELETE' then
+    return old;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger prevent_published_execution_plan_mutation
+  before insert or update or delete on public.v2_execution_plans
+  for each row execute function public.prevent_published_execution_plan_mutation();
+
+revoke all on function public.prevent_published_control_plane_release_mutation() from public, anon, authenticated;
+revoke all on function public.prevent_published_execution_plan_mutation() from public, anon, authenticated;
 
 alter table public.v2_adapter_primitives enable row level security;
 alter table public.v2_capability_adapters enable row level security;
