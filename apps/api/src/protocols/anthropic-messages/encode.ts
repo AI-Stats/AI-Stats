@@ -180,7 +180,8 @@ function encodeUsage(
 			typeof anyUsage?._ext?.serverToolUse?.web_fetch_requests === "number" ||
 			typeof anyUsage?._ext?.serverToolUse?.advisor_requests === "number" ||
 			typeof anyUsage?._ext?.serverToolUse?.image_generation_requests === "number" ||
-			typeof anyUsage?._ext?.serverToolUse?.apply_patch_requests === "number"
+			typeof anyUsage?._ext?.serverToolUse?.apply_patch_requests === "number" ||
+			typeof anyUsage?._ext?.serverToolUse?.subagent_requests === "number" || typeof anyUsage?._ext?.serverToolUse?.fusion_requests === "number" || typeof anyUsage?._ext?.serverToolUse?.search_models_requests === "number"
 				? {
 					...(typeof anyUsage?._ext?.serverToolUse?.datetime_requests === "number"
 						? { datetime_requests: anyUsage._ext.serverToolUse.datetime_requests }
@@ -206,6 +207,9 @@ function encodeUsage(
 					...(typeof anyUsage?._ext?.serverToolUse?.apply_patch_requests === "number"
 						? { apply_patch_requests: anyUsage._ext.serverToolUse.apply_patch_requests }
 						: {}),
+					...(typeof anyUsage?._ext?.serverToolUse?.subagent_requests === "number" ? { subagent_requests: anyUsage._ext.serverToolUse.subagent_requests } : {}),
+					...(typeof anyUsage?._ext?.serverToolUse?.fusion_requests === "number" ? { fusion_requests: anyUsage._ext.serverToolUse.fusion_requests } : {}),
+					...(typeof anyUsage?._ext?.serverToolUse?.search_models_requests === "number" ? { search_models_requests: anyUsage._ext.serverToolUse.search_models_requests } : {}),
 				}
 			: null,
 		service_tier: tier,
@@ -278,4 +282,3 @@ function encodeOrderedContentParts(parts: IRContentPart[]): AnthropicResponseCon
 	}
 	return content;
 }
-

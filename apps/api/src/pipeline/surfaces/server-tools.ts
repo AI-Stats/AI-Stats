@@ -8,7 +8,8 @@ import { encodeUnifiedStreamEvent, type StreamProtocol } from "@protocols/stream
 import { extractUnifiedStreamEvents, type UnifiedStreamEvent } from "../after/stream-events";
 import { getBindings } from "@/runtime/env";
 
-export const DATETIME_SERVER_TOOL_TYPE = "gateway:datetime";
+export const DATETIME_SERVER_TOOL_TYPE = "phaseo:datetime";
+export const LEGACY_DATETIME_SERVER_TOOL_TYPE = "gateway:datetime";
 export const DATETIME_SERVER_TOOL_FUNCTION_NAME = "gateway_datetime";
 export const WEB_SEARCH_SERVER_TOOL_TYPE = "phaseo:web_search";
 export const GATEWAY_WEB_SEARCH_SERVER_TOOL_TYPE = "gateway:web_search";
@@ -22,6 +23,12 @@ export const IMAGE_GENERATION_SERVER_TOOL_TYPE = "phaseo:image_generation";
 export const IMAGE_GENERATION_SERVER_TOOL_FUNCTION_NAME = "phaseo_image_generation";
 export const APPLY_PATCH_SERVER_TOOL_TYPE = "phaseo:apply_patch";
 export const APPLY_PATCH_SERVER_TOOL_FUNCTION_NAME = "phaseo_apply_patch";
+export const SUBAGENT_SERVER_TOOL_TYPE = "phaseo:subagent";
+export const SUBAGENT_SERVER_TOOL_FUNCTION_NAME = "phaseo_subagent";
+export const FUSION_SERVER_TOOL_TYPE = "phaseo:fusion";
+export const FUSION_SERVER_TOOL_FUNCTION_NAME = "phaseo_fusion";
+export const SEARCH_MODELS_SERVER_TOOL_TYPE = "phaseo:search_models";
+export const SEARCH_MODELS_SERVER_TOOL_FUNCTION_NAME = "phaseo_search_models";
 const DEFAULT_TIMEZONE = "UTC";
 const MAX_DATETIME_TIMEZONES = 5;
 const DEFAULT_WEB_SEARCH_MAX_RESULTS = 5;
@@ -29,17 +36,18 @@ const MAX_WEB_SEARCH_RESULTS = 25;
 const DEFAULT_WEB_SEARCH_MAX_TOTAL_RESULTS = 25;
 const MAX_WEB_SEARCH_MAX_TOTAL_RESULTS = 100;
 const DEFAULT_WEB_FETCH_MAX_CHARS = 12000;
-const MAX_WEB_FETCH_MAX_CHARS = 50000;
+const MAX_WEB_FETCH_MAX_CHARS = 100000;
 const SERVER_TOOL_FETCH_TIMEOUT_MS = 15000;
 const SERVER_TOOL_DIRECT_FETCH_MAX_REDIRECTS = 5;
 const DEFAULT_EXA_BASE_URL = "https://api.exa.ai";
 const DEFAULT_PARALLEL_BASE_URL = "https://api.parallel.ai";
 const DEFAULT_FIRECRAWL_BASE_URL = "https://api.firecrawl.dev";
+const DEFAULT_PERPLEXITY_BASE_URL = "https://api.perplexity.ai";
 const DEFAULT_WEB_SEARCH_ENGINE = "exa";
 const DEFAULT_WEB_FETCH_ENGINE = "direct";
 const DEFAULT_IMAGE_GENERATION_MODEL = "openai/gpt-image-2";
 
-const WEB_SEARCH_ENGINE_VALUES = ["auto", "native", "exa", "firecrawl", "parallel"] as const;
+const WEB_SEARCH_ENGINE_VALUES = ["auto", "native", "exa", "firecrawl", "parallel", "perplexity"] as const;
 const WEB_FETCH_ENGINE_VALUES = ["auto", "native", "direct", "exa", "firecrawl", "parallel"] as const;
 
 const DATETIME_TOOL_DESCRIPTION =
@@ -133,7 +141,7 @@ const WEB_FETCH_TOOL_PARAMETERS = {
 		},
 		max_chars: {
 			type: "integer",
-			description: "Maximum number of characters to return. Defaults to 12000 and caps at 50000.",
+			description: "Maximum number of characters to return. Defaults to 12000 and caps at 100000.",
 		},
 		max_content_tokens: {
 			type: "integer",
@@ -233,6 +241,43 @@ const APPLY_PATCH_TOOL_PARAMETERS = {
 	additionalProperties: false,
 } as const;
 
+const SUBAGENT_TOOL_DESCRIPTION =
+	"Delegate a self-contained task to a focused worker model and return its result.";
+const SUBAGENT_TOOL_PARAMETERS = {
+	type: "object",
+	properties: {
+		task_name: { type: "string", description: "Short name for the delegated task." },
+		task_description: { type: "string", description: "Complete task, context, and expected output." },
+	},
+	required: ["task_description"],
+	additionalProperties: false,
+} as const;
+
+const SEARCH_MODELS_TOOL_DESCRIPTION =
+	"Search Phaseo's model catalogue by name, capabilities, modalities, context length, provider, price, or availability.";
+const SEARCH_MODELS_TOOL_PARAMETERS = {
+	type: "object",
+	properties: {
+		query: { type: "string" },
+		input_modalities: { type: "array", items: { type: "string" } },
+		output_modalities: { type: "array", items: { type: "string" } },
+		min_context_length: { type: "integer" },
+		series: { type: "string" },
+		provider: { type: "string" },
+		required_params: { type: "array", items: { type: "string" } },
+	},
+	additionalProperties: false,
+} as const;
+
+const FUSION_TOOL_DESCRIPTION =
+	"Run several analysis models in parallel and ask an analyst model to synthesize their findings.";
+const FUSION_TOOL_PARAMETERS = {
+	type: "object",
+	properties: { prompt: { type: "string", description: "Question that benefits from multiple perspectives." } },
+	required: ["prompt"],
+	additionalProperties: false,
+} as const;
+
 export type ImageGenerationServerToolConfig = {
 	model?: string;
 	quality?: string;
@@ -284,6 +329,19 @@ export type AdvisorServerToolConfig = {
 	maxTokens: number;
 	reasoning?: Record<string, unknown>;
 	temperature?: number;
+	tools?: any[];
+};
+
+export type SubagentServerToolConfig = Omit<AdvisorServerToolConfig, "functionName" | "forwardTranscript" | "name"> & {
+	functionName: typeof SUBAGENT_SERVER_TOOL_FUNCTION_NAME;
+};
+
+export type FusionServerToolConfig = {
+	analysisModels: string[];
+	analystModel: string;
+	instructions?: string;
+	maxUses: number;
+	maxTokens: number;
 };
 
 function advisorInputSchema(config: AdvisorServerToolConfig) {
@@ -317,6 +375,7 @@ export type ServerToolConfig = {
 	webSearchEnabled: boolean;
 	webSearchEngine?: WebSearchEngine;
 	webSearchMaxResults: number;
+	webSearchMaxUses?: number;
 	webSearchMaxTotalResults?: number;
 	webSearchContextSize?: WebSearchContextSize;
 	webSearchMaxCharacters?: number;
@@ -327,6 +386,7 @@ export type ServerToolConfig = {
 	webFetchEnabled: boolean;
 	webFetchEngine?: WebFetchEngine;
 	webFetchMaxChars: number;
+	webFetchMaxUses?: number;
 	webFetchAllowedDomains?: string[];
 	webFetchBlockedDomains?: string[];
 	advisorEnabled?: boolean;
@@ -336,6 +396,10 @@ export type ServerToolConfig = {
 	imageGenerationEnabled?: boolean;
 	imageGeneration?: ImageGenerationServerToolConfig;
 	applyPatchEnabled?: boolean;
+	subagent?: SubagentServerToolConfig;
+	fusion?: FusionServerToolConfig;
+	searchModelsMaxResults?: number;
+	usageCounts?: Record<string, number>;
 };
 
 type PrepareRequestResult =
@@ -358,6 +422,9 @@ export type ServerToolExecutionMetrics = {
 	advisorRequests: number;
 	imageGenerationRequests: number;
 	applyPatchRequests: number;
+	subagentRequests: number;
+	fusionRequests: number;
+	searchModelsRequests: number;
 };
 
 export type ServerToolContinuation = {
@@ -385,7 +452,10 @@ export type AdvisorExecutor = (args: {
 	forwardTranscript: boolean;
 	reasoning?: Record<string, unknown>;
 	temperature?: number;
+	tools?: any[];
 }) => Promise<AdvisorExecutionResult>;
+
+export type ModelSearchExecutor = (args: Record<string, unknown> & { maxResults: number }) => Promise<unknown>;
 
 export type ImageGenerationExecutionResult = {
 	ok: true;
@@ -668,6 +738,9 @@ function parseAdvisorToolDefaults(tool: any): AdvisorServerToolConfig | { error:
 			: typeof tool?.temperature === "number"
 				? tool.temperature
 				: undefined;
+	const nestedTools = Array.isArray(parameters?.tools ?? tool?.tools)
+		? (parameters?.tools ?? tool?.tools)
+		: undefined;
 	return {
 		functionName: sanitizeAdvisorFunctionName(name),
 		...(name ? { name } : {}),
@@ -682,6 +755,7 @@ function parseAdvisorToolDefaults(tool: any): AdvisorServerToolConfig | { error:
 			: DEFAULT_ADVISOR_MAX_TOKENS,
 		...(reasoning ? { reasoning } : {}),
 		...(typeof temperature === "number" ? { temperature } : {}),
+		...(nestedTools ? { tools: nestedTools } : {}),
 	};
 }
 
@@ -892,6 +966,23 @@ function collectClientToolFunctionNames(
 
 function rewriteToolChoice(toolChoice: any, protocol: Protocol, advisorFunctionName = ADVISOR_SERVER_TOOL_FUNCTION_NAME): any {
 	if (toolChoice == null) return toolChoice;
+	const requestedName = typeof toolChoice === "string"
+		? toolChoice
+		: toNonEmptyString(toolChoice?.function?.name) ?? toNonEmptyString(toolChoice?.name);
+	const managedName = requestedName === DATETIME_SERVER_TOOL_TYPE || requestedName === LEGACY_DATETIME_SERVER_TOOL_TYPE
+		? DATETIME_SERVER_TOOL_FUNCTION_NAME
+		: requestedName === SUBAGENT_SERVER_TOOL_TYPE
+			? SUBAGENT_SERVER_TOOL_FUNCTION_NAME
+			: requestedName === FUSION_SERVER_TOOL_TYPE
+				? FUSION_SERVER_TOOL_FUNCTION_NAME
+				: requestedName === SEARCH_MODELS_SERVER_TOOL_TYPE
+					? SEARCH_MODELS_SERVER_TOOL_FUNCTION_NAME
+					: null;
+	if (managedName) {
+		return protocol === "anthropic.messages"
+			? { type: "tool", name: managedName }
+			: { type: "function", function: { name: managedName } };
+	}
 	if (typeof toolChoice === "string") {
 		if (toolChoice === DATETIME_SERVER_TOOL_TYPE) {
 			if (protocol === "anthropic.messages") {
@@ -1046,6 +1137,7 @@ export function prepareServerToolsForTextRequest(
 	let webSearchEnabled = false;
 	let webSearchEngine: WebSearchEngine = DEFAULT_WEB_SEARCH_ENGINE;
 	let webSearchMaxResults = DEFAULT_WEB_SEARCH_MAX_RESULTS;
+	let webSearchMaxUses: number | undefined;
 	let webSearchMaxTotalResults = DEFAULT_WEB_SEARCH_MAX_TOTAL_RESULTS;
 	let webSearchContextSize: WebSearchContextSize = "medium";
 	let webSearchMaxCharacters: number | undefined;
@@ -1063,9 +1155,13 @@ export function prepareServerToolsForTextRequest(
 	let imageGenerationEnabled = false;
 	let imageGeneration: ImageGenerationServerToolConfig = {};
 	let applyPatchEnabled = false;
+	let subagent: SubagentServerToolConfig | undefined;
+	let fusion: FusionServerToolConfig | undefined;
+	let searchModelsMaxResults: number | undefined;
 	let webFetchEnabled = false;
 	let webFetchEngine: WebFetchEngine = DEFAULT_WEB_FETCH_ENGINE;
 	let webFetchMaxChars = DEFAULT_WEB_FETCH_MAX_CHARS;
+	let webFetchMaxUses: number | undefined;
 	let webFetchAllowedDomains: string[] = [];
 	let webFetchBlockedDomains: string[] = [];
 	const filteredTools: any[] = [];
@@ -1076,7 +1172,7 @@ export function prepareServerToolsForTextRequest(
 			continue;
 		}
 
-		if (tool.type === DATETIME_SERVER_TOOL_TYPE) {
+		if (tool.type === DATETIME_SERVER_TOOL_TYPE || tool.type === LEGACY_DATETIME_SERVER_TOOL_TYPE) {
 			datetimeEnabled = true;
 			const requested = parseDatetimeToolTimezones(tool);
 			if (requested.tooMany) {
@@ -1111,6 +1207,7 @@ export function prepareServerToolsForTextRequest(
 			webSearchEnabled = true;
 			webSearchEngine = defaults.engine;
 			webSearchMaxResults = defaults.maxResults;
+			webSearchMaxUses = readPositiveIntWithFallback(tool.parameters?.max_uses ?? tool.max_uses, 10, 100);
 			webSearchMaxTotalResults = defaults.maxTotalResults;
 			webSearchContextSize = defaults.searchContextSize;
 			webSearchMaxCharacters = defaults.maxCharacters ?? undefined;
@@ -1140,6 +1237,7 @@ export function prepareServerToolsForTextRequest(
 			webFetchEnabled = true;
 			webFetchEngine = resolvedEngine;
 			webFetchMaxChars = defaults.maxChars;
+			webFetchMaxUses = readPositiveIntWithFallback(tool.parameters?.max_uses ?? tool.max_uses, 10, 100);
 			webFetchAllowedDomains = defaults.allowedDomains;
 			webFetchBlockedDomains = defaults.blockedDomains;
 			continue;
@@ -1182,6 +1280,34 @@ export function prepareServerToolsForTextRequest(
 			continue;
 		}
 
+		if (tool.type === SUBAGENT_SERVER_TOOL_TYPE) {
+			const parsed = parseAdvisorToolDefaults({ ...tool, name: undefined, forward_transcript: false });
+			if ("error" in parsed) return { ok: false, message: parsed.error };
+			subagent = { ...parsed, functionName: SUBAGENT_SERVER_TOOL_FUNCTION_NAME };
+			continue;
+		}
+
+		if (tool.type === FUSION_SERVER_TOOL_TYPE) {
+			const parameters = tool.parameters ?? {};
+			const analysisModels = Array.isArray(parameters.analysis_models)
+				? parameters.analysis_models.filter((entry: unknown): entry is string => typeof entry === "string" && entry.length > 0)
+				: [];
+			if (analysisModels.length < 2) return { ok: false, message: "Fusion requires at least two analysis_models." };
+			fusion = {
+				analysisModels,
+				analystModel: toNonEmptyString(parameters.model) ?? defaultAdvisorModel ?? analysisModels[0],
+				instructions: toNonEmptyString(parameters.instructions) ?? undefined,
+				maxUses: readPositiveIntWithFallback(parameters.max_uses, 1, 4),
+				maxTokens: readPositiveIntWithFallback(parameters.max_completion_tokens, DEFAULT_ADVISOR_MAX_TOKENS, 32000),
+			};
+			continue;
+		}
+
+		if (tool.type === SEARCH_MODELS_SERVER_TOOL_TYPE) {
+			searchModelsMaxResults = readPositiveIntWithFallback(tool.parameters?.max_results, 5, 20);
+			continue;
+		}
+
 		if (tool.type === IMAGE_GENERATION_SERVER_TOOL_TYPE) {
 			imageGenerationEnabled = true;
 			imageGeneration = parseImageGenerationToolDefaults(tool);
@@ -1211,6 +1337,9 @@ export function prepareServerToolsForTextRequest(
 		!advisorEnabled &&
 		!imageGenerationEnabled &&
 		!applyPatchEnabled &&
+		!subagent &&
+		!fusion &&
+		!searchModelsMaxResults &&
 		!nativeWebSearchRequested &&
 		!nativeWebFetchRequested
 	) {
@@ -1349,6 +1478,17 @@ export function prepareServerToolsForTextRequest(
 		}
 	}
 
+	const appendManagedTool = (name: string, description: string, parameters: unknown) => {
+		if (protocol === "anthropic.messages") {
+			if (!hasAnthropicToolNamed(filteredTools, name)) filteredTools.push({ name, description, input_schema: parameters });
+		} else if (!hasOpenAIFunctionToolNamed(filteredTools, name)) {
+			filteredTools.push({ type: "function", function: { name, description, parameters } });
+		}
+	};
+	if (subagent) appendManagedTool(SUBAGENT_SERVER_TOOL_FUNCTION_NAME, SUBAGENT_TOOL_DESCRIPTION, SUBAGENT_TOOL_PARAMETERS);
+	if (fusion) appendManagedTool(FUSION_SERVER_TOOL_FUNCTION_NAME, FUSION_TOOL_DESCRIPTION, FUSION_TOOL_PARAMETERS);
+	if (searchModelsMaxResults) appendManagedTool(SEARCH_MODELS_SERVER_TOOL_FUNCTION_NAME, SEARCH_MODELS_TOOL_DESCRIPTION, SEARCH_MODELS_TOOL_PARAMETERS);
+
 	nextBody.tools = filteredTools;
 	if (nativeWebSearchRequested && isWebSearchAliasToolChoice(nextBody.tool_choice)) {
 		nextBody.tool_choice = nativeWebSearchToolChoice(protocol);
@@ -1364,6 +1504,9 @@ export function prepareServerToolsForTextRequest(
 	if (webFetchEnabled) serverToolNames.add(WEB_FETCH_SERVER_TOOL_FUNCTION_NAME);
 	if (imageGenerationEnabled) serverToolNames.add(IMAGE_GENERATION_SERVER_TOOL_FUNCTION_NAME);
 	if (applyPatchEnabled) serverToolNames.add(APPLY_PATCH_SERVER_TOOL_FUNCTION_NAME);
+	if (subagent) serverToolNames.add(SUBAGENT_SERVER_TOOL_FUNCTION_NAME);
+	if (fusion) serverToolNames.add(FUSION_SERVER_TOOL_FUNCTION_NAME);
+	if (searchModelsMaxResults) serverToolNames.add(SEARCH_MODELS_SERVER_TOOL_FUNCTION_NAME);
 	for (const advisor of Object.values(advisors)) {
 		serverToolNames.add(advisor.functionName);
 	}
@@ -1377,12 +1520,13 @@ export function prepareServerToolsForTextRequest(
 		ok: true,
 		body: nextBody,
 		config: {
-			enabled: datetimeEnabled || webSearchEnabled || webFetchEnabled || advisorEnabled || imageGenerationEnabled || applyPatchEnabled,
+			enabled: datetimeEnabled || webSearchEnabled || webFetchEnabled || advisorEnabled || imageGenerationEnabled || applyPatchEnabled || Boolean(subagent) || Boolean(fusion) || Boolean(searchModelsMaxResults),
 			clientToolFunctionNames,
 			datetimeDefaultTimezones,
 			webSearchEnabled,
 			webSearchEngine,
 			webSearchMaxResults,
+			webSearchMaxUses,
 			webSearchMaxTotalResults,
 			webSearchContextSize,
 			webSearchMaxCharacters,
@@ -1393,6 +1537,7 @@ export function prepareServerToolsForTextRequest(
 			webFetchEnabled,
 			webFetchEngine,
 			webFetchMaxChars,
+			webFetchMaxUses,
 			webFetchAllowedDomains,
 			webFetchBlockedDomains,
 			advisorEnabled,
@@ -1402,6 +1547,10 @@ export function prepareServerToolsForTextRequest(
 			imageGenerationEnabled,
 			imageGeneration,
 			applyPatchEnabled,
+			subagent,
+			fusion,
+			searchModelsMaxResults,
+			usageCounts: {},
 		},
 	};
 }
@@ -1584,6 +1733,18 @@ function resolveFirecrawlSearchConfig(): { apiKey: string; baseUrl: string } | n
 			apiKey,
 			baseUrl: baseUrl.replace(/\/+$/, ""),
 		};
+	} catch {
+		return null;
+	}
+}
+
+function resolvePerplexitySearchConfig(): { apiKey: string; baseUrl: string } | null {
+	try {
+		const bindings = getBindings();
+		const apiKey = String(bindings.PERPLEXITY_API_KEY ?? "").trim();
+		if (!apiKey) return null;
+		const baseUrl = String(bindings.PERPLEXITY_BASE_URL ?? DEFAULT_PERPLEXITY_BASE_URL).trim() || DEFAULT_PERPLEXITY_BASE_URL;
+		return { apiKey, baseUrl: baseUrl.replace(/\/+$/, "") };
 	} catch {
 		return null;
 	}
@@ -2587,6 +2748,21 @@ async function executeWebSearchToolCall(
 	const searchContextSize = readWebSearchContextSize(args.search_context_size ?? config.webSearchContextSize ?? "medium");
 	const maxCharacters = parseWebSearchMaxCharacters(args, config);
 	const { allowedDomains, excludedDomains } = resolveSearchDomains(args, config);
+	if (engine === "perplexity") {
+		const searchConfig = resolvePerplexitySearchConfig();
+		if (!searchConfig) return { toolResult: { toolCallId: call.id, isError: true, content: JSON.stringify({ error: "search_not_configured", engine }) }, webFetchRequests: 0, webSearchResults: 0, webSearchExtraResults: 0 };
+		try {
+			const country = args.user_location && typeof args.user_location === "object" ? toNonEmptyString((args.user_location as Record<string, unknown>).country) : null;
+			const domainFilter = allowedDomains.length ? allowedDomains : excludedDomains.map((domain) => `-${domain}`);
+			const response = await fetchWithTimeout(`${searchConfig.baseUrl}/search`, { method: "POST", headers: { Authorization: `Bearer ${searchConfig.apiKey}`, "Content-Type": "application/json" }, body: JSON.stringify({ query, max_results: Math.min(20, maxResults), search_context_size: searchContextSize, ...(domainFilter.length ? { search_domain_filter: domainFilter } : {}), ...(country ? { country: country.toUpperCase() } : {}) }) });
+			if (!response.ok) return { toolResult: { toolCallId: call.id, isError: true, content: JSON.stringify({ error: "search_request_failed", status: response.status }) }, webFetchRequests: 0, webSearchResults: 0, webSearchExtraResults: 0 };
+			const json = await response.json() as Record<string, any>;
+			const results = (Array.isArray(json.results) ? json.results : []).slice(0, maxResults).map((result: any) => ({ title: toNonEmptyString(result.title), url: toNonEmptyString(result.url), snippet: toNonEmptyString(result.snippet), published_date: toNonEmptyString(result.date), last_updated: toNonEmptyString(result.last_updated) }));
+			return { toolResult: { toolCallId: call.id, content: JSON.stringify({ provider: "perplexity", engine, request_id: toNonEmptyString(json.id), query, results }) }, webFetchRequests: 0, webSearchResults: results.length, webSearchExtraResults: Math.max(0, results.length - 10) };
+		} catch (error) {
+			return { toolResult: { toolCallId: call.id, isError: true, content: JSON.stringify({ error: "search_request_error", message: error instanceof Error ? error.message : String(error) }) }, webFetchRequests: 0, webSearchResults: 0, webSearchExtraResults: 0 };
+		}
+	}
 
 	if (engine === "parallel") {
 		const parallelConfig = resolveParallelSearchConfig();
@@ -2770,6 +2946,7 @@ export async function buildServerToolContinuation(
 	options?: {
 		executeAdvisor?: AdvisorExecutor;
 		executeImageGeneration?: ImageGenerationExecutor;
+		searchModels?: ModelSearchExecutor;
 	},
 ) : Promise<ServerToolContinuation | null> {
 	if (!config.enabled) return null;
@@ -2786,6 +2963,9 @@ export async function buildServerToolContinuation(
 		call?.name === WEB_FETCH_SERVER_TOOL_FUNCTION_NAME ||
 		call?.name === IMAGE_GENERATION_SERVER_TOOL_FUNCTION_NAME ||
 		call?.name === APPLY_PATCH_SERVER_TOOL_FUNCTION_NAME ||
+		call?.name === SUBAGENT_SERVER_TOOL_FUNCTION_NAME ||
+		call?.name === FUSION_SERVER_TOOL_FUNCTION_NAME ||
+		call?.name === SEARCH_MODELS_SERVER_TOOL_FUNCTION_NAME ||
 		Boolean(config.advisors?.[call?.name]);
 	const serverToolCalls = toolCalls.filter(isServerToolCall);
 	if (serverToolCalls.length === 0) return null;
@@ -2809,8 +2989,11 @@ export async function buildServerToolContinuation(
 		advisorRequests: 0,
 		imageGenerationRequests: 0,
 		applyPatchRequests: 0,
+		subagentRequests: 0,
+		fusionRequests: 0,
+		searchModelsRequests: 0,
 	};
-	const advisorCallsUsed = new Map<string, number>();
+	const usageCounts = config.usageCounts ?? (config.usageCounts = {});
 	let remainingSearchResults = config.webSearchMaxTotalResults ?? DEFAULT_WEB_SEARCH_MAX_TOTAL_RESULTS;
 	for (const call of toolCalls) {
 		if (!isServerToolCall(call)) {
@@ -2838,6 +3021,12 @@ export async function buildServerToolContinuation(
 		}
 
 		if (call.name === WEB_SEARCH_SERVER_TOOL_FUNCTION_NAME) {
+			const used = (usageCounts[call.name] ?? 0) + 1;
+			usageCounts[call.name] = used;
+			if (config.webSearchMaxUses && used > config.webSearchMaxUses) {
+				toolResults.push({ toolCallId: call.id, isError: true, content: JSON.stringify({ error: "web_search_max_uses_exceeded" }) });
+				continue;
+			}
 			const executed = await executeWebSearchToolCall(
 				{ id: call.id, arguments: call.arguments },
 				config,
@@ -2853,6 +3042,12 @@ export async function buildServerToolContinuation(
 		}
 
 		if (call.name === WEB_FETCH_SERVER_TOOL_FUNCTION_NAME) {
+			const used = (usageCounts[call.name] ?? 0) + 1;
+			usageCounts[call.name] = used;
+			if (config.webFetchMaxUses && used > config.webFetchMaxUses) {
+				toolResults.push({ toolCallId: call.id, isError: true, content: JSON.stringify({ error: "web_fetch_max_uses_exceeded" }) });
+				continue;
+			}
 			const executed = await executeWebFetchToolCall(
 				{ id: call.id, arguments: call.arguments },
 				config,
@@ -2960,10 +3155,76 @@ export async function buildServerToolContinuation(
 			continue;
 		}
 
+		if (call.name === SEARCH_MODELS_SERVER_TOOL_FUNCTION_NAME) {
+			usage.searchModelsRequests += 1;
+			if (!options?.searchModels) {
+				toolResults.push({ toolCallId: call.id, isError: true, content: JSON.stringify({ error: "model_search_unavailable" }) });
+				continue;
+			}
+			const result = await options.searchModels({ ...parseJsonObject(call.arguments), maxResults: config.searchModelsMaxResults ?? 5 });
+			toolResults.push({ toolCallId: call.id, content: JSON.stringify(result) });
+			continue;
+		}
+
+		if (call.name === SUBAGENT_SERVER_TOOL_FUNCTION_NAME && config.subagent) {
+			const used = (usageCounts[call.name] ?? 0) + 1;
+			usageCounts[call.name] = used;
+			if (used > config.subagent.maxUses) {
+				toolResults.push({ toolCallId: call.id, isError: true, content: JSON.stringify({ error: "subagent_max_uses_exceeded" }) });
+				continue;
+			}
+			usage.subagentRequests += 1;
+			const args = parseJsonObject(call.arguments);
+			const prompt = toNonEmptyString(args.task_description) ?? toNonEmptyString(args.task) ?? toNonEmptyString(args.prompt) ?? toNonEmptyString(args.input);
+			if (!prompt || !options?.executeAdvisor) {
+				toolResults.push({ toolCallId: call.id, isError: true, content: JSON.stringify({ error: "subagent_invalid_request" }) });
+				continue;
+			}
+			const result = await options.executeAdvisor({
+				model: config.subagent.model ?? config.defaultAdvisorModel ?? "openai/gpt-5-nano",
+				prompt,
+				maxTokens: config.subagent.maxTokens,
+				instructions: config.subagent.instructions,
+				forwardTranscript: false,
+				reasoning: config.subagent.reasoning,
+				temperature: config.subagent.temperature,
+				tools: config.subagent.tools,
+			});
+			toolResults.push(result.ok
+				? { toolCallId: call.id, content: JSON.stringify({ status: "ok", model: config.subagent.model, outcome: result.content }) }
+				: { toolCallId: call.id, isError: true, content: JSON.stringify({ error: "subagent_request_failed", message: result.message }) });
+			advisorUsage = mergeIRUsageTotals(advisorUsage, result.ok ? result.usage : undefined);
+			continue;
+		}
+
+		if (call.name === FUSION_SERVER_TOOL_FUNCTION_NAME && config.fusion) {
+			const used = (usageCounts[call.name] ?? 0) + 1;
+			usageCounts[call.name] = used;
+			if (used > config.fusion.maxUses) {
+				toolResults.push({ toolCallId: call.id, isError: true, content: JSON.stringify({ error: "fusion_max_uses_exceeded" }) });
+				continue;
+			}
+			usage.fusionRequests += 1;
+			const prompt = toNonEmptyString(parseJsonObject(call.arguments).prompt);
+			if (!prompt || !options?.executeAdvisor) {
+				toolResults.push({ toolCallId: call.id, isError: true, content: JSON.stringify({ error: "fusion_invalid_request" }) });
+				continue;
+			}
+			const panel = await Promise.all(config.fusion.analysisModels.map(async (model) => ({ model, result: await options.executeAdvisor!({ model, prompt, maxTokens: config.fusion!.maxTokens, instructions: config.fusion!.instructions, forwardTranscript: false }) })));
+			for (const item of panel) if (item.result.ok) advisorUsage = mergeIRUsageTotals(advisorUsage, item.result.usage);
+			const findings = panel.filter((item) => item.result.ok).map((item) => `${item.model}: ${(item.result as { content: string }).content}`).join("\n\n");
+			const analyst = await options.executeAdvisor({ model: config.fusion.analystModel, prompt: `Synthesize these independent findings for the calling model:\n\n${findings}`, maxTokens: config.fusion.maxTokens, instructions: config.fusion.instructions, forwardTranscript: false });
+			if (analyst.ok) advisorUsage = mergeIRUsageTotals(advisorUsage, analyst.usage);
+			toolResults.push(analyst.ok
+				? { toolCallId: call.id, content: JSON.stringify({ status: "ok", analyses: panel.length, analysis: analyst.content }) }
+				: { toolCallId: call.id, isError: true, content: JSON.stringify({ error: "fusion_request_failed", message: analyst.message }) });
+			continue;
+		}
+
 		const advisorConfig = config.advisors?.[call.name];
 		if (advisorConfig) {
-			const used = (advisorCallsUsed.get(advisorConfig.functionName) ?? 0) + 1;
-			advisorCallsUsed.set(advisorConfig.functionName, used);
+			const used = (usageCounts[advisorConfig.functionName] ?? 0) + 1;
+			usageCounts[advisorConfig.functionName] = used;
 			if (used > advisorConfig.maxUses) {
 				toolResults.push({
 					toolCallId: call.id,
@@ -3124,6 +3385,9 @@ export function mergeIRUsageTotals(base?: IRUsage, incoming?: IRUsage): IRUsage 
 					apply_patch_requests:
 						(base._ext?.serverToolUse?.apply_patch_requests ?? 0) +
 						(incoming._ext?.serverToolUse?.apply_patch_requests ?? 0),
+					subagent_requests: (base._ext?.serverToolUse?.subagent_requests ?? 0) + (incoming._ext?.serverToolUse?.subagent_requests ?? 0),
+					fusion_requests: (base._ext?.serverToolUse?.fusion_requests ?? 0) + (incoming._ext?.serverToolUse?.fusion_requests ?? 0),
+					search_models_requests: (base._ext?.serverToolUse?.search_models_requests ?? 0) + (incoming._ext?.serverToolUse?.search_models_requests ?? 0),
 				},
 			}
 			: {
@@ -3152,6 +3416,9 @@ export function mergeIRUsageTotals(base?: IRUsage, incoming?: IRUsage): IRUsage 
 					apply_patch_requests:
 						(base._ext?.serverToolUse?.apply_patch_requests ?? 0) +
 						(incoming._ext?.serverToolUse?.apply_patch_requests ?? 0),
+					subagent_requests: (base._ext?.serverToolUse?.subagent_requests ?? 0) + (incoming._ext?.serverToolUse?.subagent_requests ?? 0),
+					fusion_requests: (base._ext?.serverToolUse?.fusion_requests ?? 0) + (incoming._ext?.serverToolUse?.fusion_requests ?? 0),
+					search_models_requests: (base._ext?.serverToolUse?.search_models_requests ?? 0) + (incoming._ext?.serverToolUse?.search_models_requests ?? 0),
 				},
 			},
 	};
@@ -3170,7 +3437,7 @@ export function attachServerToolUsage(
 		args.webFetchRequests <= 0 &&
 		args.advisorRequests <= 0 &&
 		args.imageGenerationRequests <= 0 &&
-		args.applyPatchRequests <= 0
+		args.applyPatchRequests <= 0 && args.subagentRequests <= 0 && args.fusionRequests <= 0 && args.searchModelsRequests <= 0
 	) return usage;
 	const baseUsage: IRUsage = usage
 		? { ...usage, _ext: usage._ext ? { ...usage._ext } : undefined }
@@ -3195,6 +3462,9 @@ export function attachServerToolUsage(
 				(existing?.image_generation_requests ?? 0) + Math.max(0, args.imageGenerationRequests),
 			apply_patch_requests:
 				(existing?.apply_patch_requests ?? 0) + Math.max(0, args.applyPatchRequests),
+			subagent_requests: (existing?.subagent_requests ?? 0) + Math.max(0, args.subagentRequests),
+			fusion_requests: (existing?.fusion_requests ?? 0) + Math.max(0, args.fusionRequests),
+			search_models_requests: (existing?.search_models_requests ?? 0) + Math.max(0, args.searchModelsRequests),
 		},
 	};
 	return baseUsage;
@@ -3213,7 +3483,7 @@ export function attachServerToolUsageToRawUsage(
 		args.webFetchRequests <= 0 &&
 		args.advisorRequests <= 0 &&
 		args.imageGenerationRequests <= 0 &&
-		args.applyPatchRequests <= 0
+		args.applyPatchRequests <= 0 && args.subagentRequests <= 0 && args.fusionRequests <= 0 && args.searchModelsRequests <= 0
 	) return usage;
 	const base = { ...(usage ?? {}) };
 	const existing = base?.server_tool_use ?? {};
@@ -3235,6 +3505,9 @@ export function attachServerToolUsageToRawUsage(
 			(Number(existing?.image_generation_requests ?? 0) || 0) + Math.max(0, args.imageGenerationRequests),
 		apply_patch_requests:
 			(Number(existing?.apply_patch_requests ?? 0) || 0) + Math.max(0, args.applyPatchRequests),
+		subagent_requests: (Number(existing?.subagent_requests ?? 0) || 0) + Math.max(0, args.subagentRequests),
+		fusion_requests: (Number(existing?.fusion_requests ?? 0) || 0) + Math.max(0, args.fusionRequests),
+		search_models_requests: (Number(existing?.search_models_requests ?? 0) || 0) + Math.max(0, args.searchModelsRequests),
 	};
 	base.server_tool_web_search_requests =
 		(Number(base.server_tool_web_search_requests ?? 0) || 0) + Math.max(0, args.webSearchRequests);
@@ -3248,6 +3521,9 @@ export function attachServerToolUsageToRawUsage(
 		(Number(base.server_tool_image_generation_requests ?? 0) || 0) + Math.max(0, args.imageGenerationRequests);
 	base.server_tool_apply_patch_requests =
 		(Number(base.server_tool_apply_patch_requests ?? 0) || 0) + Math.max(0, args.applyPatchRequests);
+	base.server_tool_subagent_requests = (Number(base.server_tool_subagent_requests ?? 0) || 0) + Math.max(0, args.subagentRequests);
+	base.server_tool_fusion_requests = (Number(base.server_tool_fusion_requests ?? 0) || 0) + Math.max(0, args.fusionRequests);
+	base.server_tool_search_models_requests = (Number(base.server_tool_search_models_requests ?? 0) || 0) + Math.max(0, args.searchModelsRequests);
 	return base;
 }
 

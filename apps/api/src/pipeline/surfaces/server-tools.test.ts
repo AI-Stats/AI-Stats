@@ -610,6 +610,32 @@ describe("prepareServerToolsForTextRequest", () => {
 	});
 });
 
+describe("managed model tools", () => {
+	it.each([
+		["phaseo:subagent", { model: "openai/gpt-5-nano" }, "phaseo_subagent"],
+		["phaseo:fusion", { analysis_models: ["openai/gpt-5-nano", "anthropic/claude-haiku-4.5"] }, "phaseo_fusion"],
+		["phaseo:search_models", { max_results: 3 }, "phaseo_search_models"],
+	])("prepares %s as a managed function", (type, parameters, functionName) => {
+		const result = prepareServerToolsForTextRequest({ tools: [{ type, parameters }], tool_choice: type }, "openai.responses");
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.body.tools[0].function.name).toBe(functionName);
+		expect(result.body.tool_choice.function.name).toBe(functionName);
+	});
+
+	it("executes model catalogue search calls", async () => {
+		const continuation = await buildServerToolContinuation({
+			choices: [{ message: { role: "assistant", content: [], toolCalls: [{ id: "search_1", name: "phaseo_search_models", arguments: JSON.stringify({ query: "vision" }) }] }, finishReason: "tool_calls" }],
+		} as any, {
+			enabled: true, datetimeDefaultTimezones: ["UTC"], webSearchEnabled: false, webSearchMaxResults: 5,
+			webSearchIncludeText: false, webSearchIncludeHighlights: true, webFetchEnabled: false, webFetchMaxChars: 12000,
+			searchModelsMaxResults: 5,
+		}, { searchModels: async () => ({ models: [{ id: "example/vision" }] }) });
+		expect(continuation?.usage.searchModelsRequests).toBe(1);
+		expect(JSON.parse(String(continuation?.toolResults[0]?.content))).toEqual({ models: [{ id: "example/vision" }] });
+	});
+});
+
 describe("buildServerToolContinuation", () => {
 	beforeEach(() => {
 		getBindingsMock.mockReset();
@@ -1939,4 +1965,3 @@ describe("buildServerToolContinuation", () => {
 		}
 	});
 });
-
