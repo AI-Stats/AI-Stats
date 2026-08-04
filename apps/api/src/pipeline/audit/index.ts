@@ -13,6 +13,7 @@ import {
 	stripGatewayRequestUsageColumns,
 } from "../usage-columns";
 import { persistGatewayIoLog, resolveGatewayIoLoggingPolicy } from "./io-logging";
+import { persistGatewayUpstreamRequests } from "./upstream-requests";
 
 function supaAdmin() {
     return getSupabaseAdmin();
@@ -191,6 +192,8 @@ async function upsertV2RequestFact(args: {
     gatewayTotalMs?: number | null;
     throughput?: number | null;
     edgeColo?: string | null;
+    edgeCountry?: string | null;
+    edgeContinent?: string | null;
     sessionId?: string | null;
     endUserId?: string | null;
     authMethod?: "api_key" | "oauth" | null;
@@ -414,6 +417,8 @@ async function upsertV2RequestFact(args: {
             safe_metadata: {
                 provider: args.provider ?? null,
                 routed_model: args.routedModel ?? args.requestedModel,
+                edge_country: args.edgeCountry ? args.edgeCountry.trim().toUpperCase() : null,
+                edge_continent: args.edgeContinent ? args.edgeContinent.trim().toUpperCase() : null,
                 structured_output_success_basis: args.structuredOutputAttempted
                     ? (args.structuredOutputSuccessBasis ?? "unobserved")
                     : null,
@@ -820,6 +825,32 @@ export async function auditSuccess(args: {
                 "supabase_audit_success_insert",
             );
             await syncInsertedRequestRollup(insertedRow, "audit_success");
+            await persistGatewayUpstreamRequests({
+                insertedRow,
+                requestId: args.requestId,
+                workspaceId: args.workspaceId,
+                appId,
+                keyId: args.keyId ?? null,
+                endpoint: args.endpoint,
+                modelId: args.model,
+                provider: args.provider,
+                providerApiModelId: args.providerApiModelId ?? null,
+                providerModelSlug: args.providerModelSlug ?? null,
+                providerAttempts: args.providerAttempts ?? null,
+                statusCode: args.statusCode,
+                success: true,
+                nativeResponseId: args.nativeResponseId ?? null,
+                finishReason: args.finishReason ?? null,
+                usage: strippedUsage,
+                totalNanos: args.totalNanos ?? (
+                    Number.isFinite(args.totalCents) ? Math.round(args.totalCents * 1e7) : null
+                ),
+                currency: args.currency,
+                latencyMs: args.latencyMs ?? null,
+                generationMs: args.generationMs ?? null,
+                totalMs: args.endToEndMs ?? args.latencyMs ?? null,
+                context: "audit_success",
+            });
             let v2PersistenceError: Error | null = null;
             try {
                 await retryWithBackoff(() => upsertV2RequestFact({
@@ -850,6 +881,8 @@ export async function auditSuccess(args: {
                     gatewayTotalMs: args.endToEndMs ?? null,
                     throughput: args.throughput ?? null,
                     edgeColo: args.edgeColo ?? null,
+                    edgeCountry: args.edgeCountry ?? null,
+                    edgeContinent: args.edgeContinent ?? null,
                     sessionId: args.sessionId ?? null,
                     endUserId: args.requestUserId ?? null,
                     authMethod: args.authMethod ?? null,
@@ -1099,6 +1132,22 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                         "supabase_audit_failure_before_insert",
                     );
                     await syncInsertedRequestRollup(insertedRow, "audit_failure_before");
+                    await persistGatewayUpstreamRequests({
+                        insertedRow,
+                        requestId: args.requestId,
+                        workspaceId: args.workspaceId,
+                        appId: resolvedAppId,
+                        keyId: args.keyId ?? null,
+                        endpoint: args.endpoint,
+                        modelId: args.requestedModel ?? args.model ?? "unknown",
+                        providerAttempts: args.providerAttempts ?? null,
+                        statusCode: args.statusCode,
+                        success: false,
+                        totalNanos: 0,
+                        latencyMs: args.latencyMs ?? null,
+                        totalMs: args.latencyMs ?? null,
+                        context: "audit_failure_before",
+                    });
                     let v2PersistenceError: Error | null = null;
                     try {
                         await retryWithBackoff(() => upsertV2RequestFact({
@@ -1116,6 +1165,8 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                             latencyMs: args.latencyMs ?? null,
                             internalDispatchMs: args.internalLatencyMs ?? null,
                             edgeColo: args.edgeColo ?? null,
+                            edgeCountry: args.edgeCountry ?? null,
+                            edgeContinent: args.edgeContinent ?? null,
                             sessionId: args.sessionId ?? null,
                             endUserId: args.requestUserId ?? null,
                             authMethod: args.authMethod ?? null,
@@ -1247,6 +1298,28 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                     "supabase_audit_failure_execute_insert",
                 );
                 await syncInsertedRequestRollup(insertedRow, "audit_failure_execute");
+                await persistGatewayUpstreamRequests({
+                    insertedRow,
+                    requestId: args.requestId,
+                    workspaceId: args.workspaceId,
+                    appId: resolvedAppId,
+                    keyId: args.keyId ?? null,
+                    endpoint: args.endpoint,
+                    modelId: args.model,
+                    provider: args.provider ?? null,
+                    providerApiModelId: args.providerApiModelId ?? null,
+                    providerModelSlug: args.providerModelSlug ?? null,
+                    providerAttempts: args.providerAttempts ?? null,
+                    statusCode: args.statusCode,
+                    success: false,
+                    usage: args.usage ?? {},
+                    totalNanos: 0,
+                    currency: args.currency ?? null,
+                    latencyMs: args.latencyMs ?? null,
+                    generationMs: args.generationMs ?? null,
+                    totalMs: args.latencyMs ?? null,
+                    context: "audit_failure_execute",
+                });
                 let v2PersistenceError: Error | null = null;
                 try {
                     await retryWithBackoff(() => upsertV2RequestFact({
@@ -1269,6 +1342,8 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                         generationMs: args.generationMs ?? null,
                         internalDispatchMs: args.internalLatencyMs ?? null,
                         edgeColo: args.edgeColo ?? null,
+                        edgeCountry: args.edgeCountry ?? null,
+                        edgeContinent: args.edgeContinent ?? null,
                         sessionId: args.sessionId ?? null,
                         endUserId: args.requestUserId ?? null,
                         authMethod: args.authMethod ?? null,

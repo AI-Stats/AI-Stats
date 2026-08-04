@@ -104,6 +104,7 @@ describe('pricing safety checks', () => {
     test('new canonical pricing meters are accepted', () => {
         const allowed = [
             'input_characters',
+            'input_text_bytes',
             'input_pages',
             'input_audio_minutes',
             'output_reasoning_tokens',

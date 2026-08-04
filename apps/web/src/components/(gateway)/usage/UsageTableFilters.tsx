@@ -28,6 +28,12 @@ interface UsageTableFiltersProps {
 	children?: React.ReactNode;
 }
 
+const STATUS_FILTER_ITEMS = [
+	{ value: "all", label: "All requests" },
+	{ value: "success", label: "Successful only" },
+	{ value: "error", label: "Errors only" },
+];
+
 export default function UsageTableFilters({
 	models,
 	providers,
@@ -140,6 +146,36 @@ export default function UsageTableFilters({
 			return a.label.localeCompare(b.label, undefined, { sensitivity: "base" });
 		});
 	}, [models, modelProviders, getProviderLabel]);
+	const modelFilterItems = React.useMemo(
+		() => [
+			{ value: "all", label: "All models" },
+			...models.map((model) => ({
+				value: model,
+				label: getModelDisplayName(model, modelMetadata),
+			})),
+		],
+		[modelMetadata, models],
+	);
+	const providerFilterItems = React.useMemo(
+		() => [
+			{ value: "all", label: "All providers" },
+			...sortedProviders.map((provider) => ({
+				value: provider,
+				label: getProviderLabel(provider),
+			})),
+		],
+		[getProviderLabel, sortedProviders],
+	);
+	const keyFilterItems = React.useMemo(
+		() => [
+			{ value: "all", label: "All keys" },
+			...apiKeys.map((key) => ({
+				value: key.id,
+				label: key.name || key.prefix || key.id.slice(0, 8),
+			})),
+		],
+		[apiKeys],
+	);
 
 	const clearFilters = () => {
 		setModelFilter("");
@@ -158,6 +194,7 @@ export default function UsageTableFilters({
 				<div className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:overflow-x-auto sm:pb-0.5">
 				<Select
 					value={modelFilter || "all"}
+					items={modelFilterItems}
 					onValueChange={(v) => setModelFilter(v === "all" ? "" : v)}
 				>
 					<SelectTrigger
@@ -168,7 +205,7 @@ export default function UsageTableFilters({
 						<SelectValue placeholder="Model (all)" />
 					</SelectTrigger>
 					<SelectContent className="max-h-[320px]">
-						<SelectItem value="all">All models</SelectItem>
+						<SelectItem value="all" label="All models">All models</SelectItem>
 						{groupedModels.map((group) => (
 							<SelectGroup key={group.providerId}>
 								<SelectLabel>
@@ -187,7 +224,11 @@ export default function UsageTableFilters({
 								{group.models.map((model) => {
 									const metadata = modelMetadata.get(model);
 									return (
-										<SelectItem key={model} value={model}>
+										<SelectItem
+											key={model}
+											value={model}
+											label={getModelDisplayName(model, modelMetadata)}
+										>
 											<div className="flex items-center gap-2">
 												{metadata ? (
 													<Logo
@@ -209,6 +250,7 @@ export default function UsageTableFilters({
 
 				<Select
 					value={providerFilter || "all"}
+					items={providerFilterItems}
 					onValueChange={(v) => setProviderFilter(v === "all" ? "" : v)}
 				>
 					<SelectTrigger
@@ -219,9 +261,13 @@ export default function UsageTableFilters({
 						<SelectValue placeholder="Provider (all)" />
 					</SelectTrigger>
 					<SelectContent className="max-h-[320px]">
-						<SelectItem value="all">All providers</SelectItem>
+						<SelectItem value="all" label="All providers">All providers</SelectItem>
 						{sortedProviders.map((provider) => (
-							<SelectItem key={provider} value={provider}>
+							<SelectItem
+								key={provider}
+								value={provider}
+								label={getProviderLabel(provider)}
+							>
 								<div className="flex items-center gap-2">
 									<Logo
 										id={provider}
@@ -240,6 +286,7 @@ export default function UsageTableFilters({
 
 				<Select
 					value={keyFilter || "all"}
+					items={keyFilterItems}
 					onValueChange={(v) => setKeyFilter(v === "all" ? "" : v)}
 				>
 					<SelectTrigger
@@ -250,16 +297,24 @@ export default function UsageTableFilters({
 						<SelectValue placeholder="Key (all)" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="all">All keys</SelectItem>
+						<SelectItem value="all" label="All keys">All keys</SelectItem>
 						{apiKeys.map((key) => (
-							<SelectItem key={key.id} value={key.id}>
+							<SelectItem
+								key={key.id}
+								value={key.id}
+								label={key.name || key.prefix || key.id.slice(0, 8)}
+							>
 								{key.name || key.prefix || key.id.slice(0, 8)}
 							</SelectItem>
 						))}
 					</SelectContent>
 				</Select>
 
-				<Select value={statusFilter} onValueChange={setStatusFilter}>
+				<Select
+					value={statusFilter}
+					items={STATUS_FILTER_ITEMS}
+					onValueChange={setStatusFilter}
+				>
 					<SelectTrigger
 						id="status-filter"
 						className={cn(triggerClassName, "min-w-[150px]")}
@@ -268,9 +323,11 @@ export default function UsageTableFilters({
 						<SelectValue placeholder="Status" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="all">All requests</SelectItem>
-						<SelectItem value="success">Successful only</SelectItem>
-						<SelectItem value="error">Errors only</SelectItem>
+						{STATUS_FILTER_ITEMS.map((item) => (
+							<SelectItem key={item.value} value={item.value} label={item.label}>
+								{item.label}
+							</SelectItem>
+						))}
 					</SelectContent>
 				</Select>
 

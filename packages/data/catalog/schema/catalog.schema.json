@@ -246,6 +246,7 @@
         "unit": { "type": "string", "minLength": 1 },
         "unit_size": { "type": "number", "exclusiveMinimum": 0 },
         "price_per_unit": { "type": "number", "minimum": 0 },
+        "included_quantity": { "type": "number", "minimum": 0 },
         "currency": { "type": "string", "minLength": 3, "maxLength": 3 },
         "pricing_plan": { "type": "string", "minLength": 1 },
         "match": { "type": "array", "items": { "type": "object" } },

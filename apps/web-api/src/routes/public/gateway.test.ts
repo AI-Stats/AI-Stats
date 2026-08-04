@@ -9,12 +9,13 @@ describe("public gateway catalogue", () => {
 			if (url.includes("v2_route_capabilities")) return new Response(JSON.stringify([{ provider_api_model_id: "pm-1", capability_id: "responses", params: { response_format: true }, status: "active" }]), { status: 200 });
 			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([{ provider_api_model_id: "pm-1", provider_id: "openai", api_model_id: "gpt-test", model_id: "openai/gpt-test", is_active_gateway: true }]), { status: 200 });
 			if (url.includes("v2_providers")) return new Response(JSON.stringify([{ api_provider_id: "openai", api_provider_name: "OpenAI" }]), { status: 200 });
-			return new Response(JSON.stringify([{ model_id: "openai/gpt-test", name: "GPT Test", status: "Available", organisation_id: "openai", organisation: { name: "OpenAI" } }]), { status: 200 });
+			if (url.includes("v2_labs")) return new Response(JSON.stringify([{ lab_slug: "openai", name: "OpenAI" }]), { status: 200 });
+			return new Response(JSON.stringify([{ model_id: "openai/gpt-test", name: "GPT Test", status: "Available", organisation_id: "openai" }]), { status: 200 });
 		}));
 		const response = await app.request("https://phaseo.app/api/_web/gateway/models", {}, env);
 		expect(response.status).toBe(200);
 		expect(response.headers.get("cloudflare-cdn-cache-control")).toBe("public, max-age=300, stale-while-revalidate=300");
-		await expect(response.json()).resolves.toMatchObject({ models: [{ modelId: "gpt-test", internalModelId: "openai/gpt-test", providerId: "openai", capabilities: ["responses"], capabilityParamsById: { responses: { response_format: true } }, isAvailable: true }] });
+		await expect(response.json()).resolves.toMatchObject({ models: [{ modelId: "gpt-test", internalModelId: "openai/gpt-test", providerId: "openai", capabilities: ["responses"], capabilityParamsById: { responses: { response_format: true } }, organisationId: "openai", organisationName: "OpenAI", isAvailable: true }] });
 	});
 
 	it("chunks model metadata lookups to keep Supabase URLs bounded", async () => {

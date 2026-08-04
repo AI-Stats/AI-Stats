@@ -549,6 +549,11 @@ begin
                 coalesce(sku.service_tier_slug, 'standard') as pricing_plan,
                 meter.meter_key as meter, meter.unit, meter.unit_quantity as unit_size,
                 meter.price_nanos / 1000000000.0 as price_per_unit,
+                coalesce(
+                  nullif(meter.metadata->>'included_quantity', '')::numeric,
+                  nullif(sku.metadata->>'included_quantity', '')::numeric,
+                  0
+                ) as included_quantity,
                 meter.meter_order as priority, sku.effective_from, sku.effective_to,
                 coalesce(sku.metadata->'match', meter.metadata->'match', '[]'::jsonb) as match,
                 coalesce(sku.metadata->>'billing_timestamp_basis', 'request_start') as billing_timestamp_basis,
@@ -579,6 +584,7 @@ begin
                   'unit', r.unit,
                   'unit_size', r.unit_size,
                   'price_per_unit', r.price_per_unit,
+                  'included_quantity', r.included_quantity,
                   'currency', r.currency,
                   'match', r.match,
                   'priority', r.priority,

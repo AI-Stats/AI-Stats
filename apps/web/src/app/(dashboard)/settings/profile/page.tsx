@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import ProfileDashboard from "@/components/(gateway)/settings/profile/ProfileDashboard"
 import ProfileShareControls from "@/components/(gateway)/settings/profile/ProfileShareControls"
 import { fetchSettingsProfileInitialData } from "@/lib/fetchers/internal/fetchSettingsProfileInitialData"
+import { fetchSettingsProfileUsageSummary } from "@/lib/fetchers/internal/fetchSettingsProfileUsageSummary"
 import { buildProfileShareCardPayload } from "@/lib/profileShare"
 
 export const metadata = {
@@ -10,11 +11,15 @@ export const metadata = {
 }
 
 export default async function ProfileSettingsPage() {
-	const { profile, obfuscateInfo } = await fetchSettingsProfileInitialData()
+	const [{ profile: profileIdentity, obfuscateInfo }, { usage }] = await Promise.all([
+		fetchSettingsProfileInitialData(),
+		fetchSettingsProfileUsageSummary(),
+	])
 
-	if (!profile) {
+	if (!profileIdentity) {
 		redirect("/sign-in")
 	}
+	const profile = usage ? { ...profileIdentity, ...usage } : profileIdentity
 
 	const sharePayload = buildProfileShareCardPayload(profile)
 

@@ -35,6 +35,9 @@ export const metadata: Metadata = {
 		"Discover and compare the world's most comprehensive AI model database and gateway. Browse benchmarks, features, pricing, and access state-of-the-art AI models.",
 	applicationName: PREFERRED_SITE_NAME,
 	authors: [{ name: SITE_NAME }],
+	other: {
+		"google-adsense-account": "ca-pub-5904826500425921",
+	},
 	metadataBase: METADATA_BASE,
 	openGraph: {
 		type: "website",
@@ -115,4 +118,3 @@ export default function RootLayout({
 		</html>
 	);
 }
-

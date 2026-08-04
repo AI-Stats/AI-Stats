@@ -236,6 +236,7 @@
       "deepseek/deepseek-v3.2-exp",
       "deepseek/deepseek-v3.2-speciale",
       "deepseek/deepseek-v4-flash",
+      "deepseek/deepseek-v4-flash-0731",
       "deepseek/deepseek-v4-pro",
       "deepseek/deepseek-vl2",
       "deepseek/deepseek-vl2-small",
@@ -2243,6 +2244,7 @@
     "deepinfra:text.generate:z-ai-glm-5",
     "deepseek:text.generate:deepseek-deepseek-v3.2",
     "deepseek:text.generate:deepseek-deepseek-v3.2-thinking",
+    "deepseek:text.generate:deepseek-deepseek-v4-flash-0731",
     "fireworks:text.generate:black-forest-labs-flux-1-kontext-max",
     "fireworks:text.generate:black-forest-labs-flux-1-kontext-pro",
     "fireworks:text.generate:cogito-cogito-671b-v2.1",
@@ -2788,6 +2790,14 @@
     "z-ai:text.generate:z-ai-glm-5.2",
     "z-ai:text.generate:z-ai-glm-5v-turbo",
     "crofai:text.generate:moonshotai-kimi-k3",
-    "wafer:text.generate:moonshotai-kimi-k3"
+    "wafer:text.generate:moonshotai-kimi-k3",
+    "morph:text.generate:deepseek-deepseek-v4-flash",
+    "morph:text.generate:google-gemma-4-31b",
+    "morph:text.generate:minimax-minimax-m3",
+    "morph:text.generate:moonshotai-kimi-k3",
+    "morph:text.generate:qwen-qwen3.5-397b-a17b",
+    "morph:text.generate:qwen-qwen3.6-27b",
+    "morph:text.generate:z-ai-glm-5.2",
+    "morph:text.generate:moonshotai-kimi-k3-fast"
   ]
 }

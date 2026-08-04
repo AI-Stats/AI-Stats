@@ -8,6 +8,7 @@ import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySup
 import { filterModelsForRoom } from "@/lib/chat/rooms";
 import { fetchChatWebApi } from "@/lib/web-api/client";
 import { getModelDetailsHref } from "@/lib/models/modelHref";
+import { cn } from "@/lib/utils";
 import { APP_HEADERS } from "@/components/(chat)/playground/chat-playground-core";
 import {
 	buildModerationInput,
@@ -27,6 +28,10 @@ import { RoomModelSelector } from "@/components/(chat)/RoomModelSelector";
 import { RoomSearchDialog } from "@/components/(chat)/RoomSearchDialog";
 import { useSidebar } from "@/components/ui/sidebar";
 import { ROOM_SIDEBAR_SLOT_ID } from "@/components/(chat)/RoomScaffold";
+import {
+	CHAT_SIDEBAR_ACTIONS_CLASS,
+	CHAT_SIDEBAR_HISTORY_GROUP_CLASS,
+} from "@/components/(chat)/chatSidebarStyles";
 import {
 	Tooltip,
 	TooltipContent,
@@ -64,9 +69,15 @@ import {
 import { ModerationModelSettingsDialog } from "@/components/(chat)/rooms/settings/ModerationModelSettingsDialog";
 import { RoomErrorNotice } from "@/components/(chat)/rooms/RoomErrorNotice";
 import {
+	RoomComposerFooter,
+	RoomComposerSurface,
+	RoomComposerToolsMenu,
+} from "@/components/(chat)/RoomComposer";
+import {
 	ArrowUpRight,
 	Check,
-	ChevronRight,
+	PanelLeftClose,
+	PanelLeftOpen,
 	Copy,
 	Cpu,
 	Database,
@@ -590,35 +601,6 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 		modelSettingsCompat.selectedProfile ?? modelSettingsCompat.activeModelSettings ?? null;
 	const selectedModelEnabled = selectedProfile?.enabled !== false;
 	const selectedProviderId = selectedProfile?.providerId;
-	const composerSelectedModel = useMemo(
-		() =>
-			filteredModels.find(
-				(model) =>
-					model.modelId === modelId &&
-					(!selectedProviderId || model.providerId === selectedProviderId),
-			) ??
-			filteredModels.find((model) => model.modelId === modelId) ??
-			null,
-		[filteredModels, modelId, selectedProviderId],
-	);
-	const composerModelLogoId =
-		composerSelectedModel?.organisationId?.trim() ||
-		composerSelectedModel?.providerId ||
-		(modelId.split("/")[0] || "phaseo");
-	const composerModelLabel =
-		(modelId &&
-			(modelSettings.modelDisplayNameById[modelId] ||
-				composerSelectedModel?.modelName ||
-				modelId)) ||
-		"Select model";
-	const openComposerModelPicker = () => {
-		const targetModelId = modelId || filteredModels[0]?.modelId;
-		if (!targetModelId) return;
-		if (targetModelId !== modelId) {
-			setModelId(targetModelId);
-		}
-		modelSettings.openModelSettingsForModel(targetModelId);
-	};
 	const dialogModelId: string | null = modelSettingsCompat.modelSettingsModelId ?? null;
 	const dialogProfile =
 		dialogModelId && typeof modelSettingsCompat.getProfileForModel === "function"
@@ -1192,7 +1174,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 									<MoreHorizontal className="h-4 w-4" />
 
 							</DropdownMenuTrigger>
-							<DropdownMenuContent side="right">
+							<DropdownMenuContent side="right" className="rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
 								<DropdownMenuItem
 									onClick={() => {
 										void renameConversation(conversation);
@@ -1230,13 +1212,13 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 	const sidebarHistory = sidebarSlotEl
 		? createPortal(
 				<>
-					<div className="px-2 py-1.5">
+					<div data-chat-sidebar-actions="true" className={CHAT_SIDEBAR_ACTIONS_CLASS}>
 						{collapsed ? (
 							<Tooltip>
 								<TooltipTrigger asChild>
 									<Button
 										variant="ghost"
-										className="h-8 min-w-0 w-full justify-center px-0 text-sm font-medium"
+										className="h-8 min-w-0 w-full justify-start px-2 text-sm font-medium"
 										onClick={startNewConversation}
 										aria-label="New Chat"
 									>
@@ -1263,13 +1245,13 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 								<TooltipTrigger asChild>
 									<Button
 										variant="ghost"
-										className="h-8 min-w-0 w-full justify-center px-0 text-sm font-medium"
+										className="h-8 min-w-0 w-full justify-start px-2 text-sm font-medium"
 										asChild
 										aria-label="Database"
 									>
 										<Link
 											href="/"
-											className="group/db flex w-full min-w-0 items-center justify-center"
+											className="group/db flex w-full min-w-0 items-center justify-start"
 										>
 											<Database className="h-4 w-4 shrink-0" />
 										</Link>
@@ -1298,7 +1280,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 								<TooltipTrigger asChild>
 									<Button
 										variant="ghost"
-										className="h-8 min-w-0 w-full justify-center px-0 text-sm font-medium"
+										className="h-8 min-w-0 w-full justify-start px-2 text-sm font-medium"
 										onClick={() => setConversationSearchOpen(true)}
 										aria-label="Search Chats"
 									>
@@ -1321,9 +1303,9 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 							</Button>
 						)}
 					</div>
-					<SidebarSeparator className="my-0" />
+					<SidebarSeparator className="mx-0 my-0 w-full" />
 					<ScrollArea className="h-full group-data-[collapsible=icon]:hidden">
-						<SidebarGroup className="pt-0 px-2 pb-2">
+						<SidebarGroup className={CHAT_SIDEBAR_HISTORY_GROUP_CLASS}>
 							<SidebarGroupLabel>Chats</SidebarGroupLabel>
 							<SidebarGroupContent className="overflow-hidden">
 								<SidebarMenu>
@@ -1358,16 +1340,15 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 								<Button
 									variant="ghost"
 									size="icon"
-									className="group -ml-1 h-8 w-8"
-									onClick={toggleSidebar}
+								className="-ml-1 h-8 w-8"
+								onClick={toggleSidebar}
+								aria-label={sidebarState === "expanded" ? "Collapse sidebar" : "Open sidebar"}
 								>
-									<ChevronRight
-										className={`h-4 w-4 transition-transform duration-200 ${
-											sidebarState === "expanded"
-												? "rotate-180 group-hover:-translate-x-1"
-												: "group-hover:translate-x-1"
-										}`}
-									/>
+								{sidebarState === "expanded" ? (
+									<PanelLeftClose className="h-4 w-4" />
+								) : (
+									<PanelLeftOpen className="h-4 w-4" />
+								)}
 								</Button>
 							</TooltipTrigger>
 							<TooltipContent side={sidebarState === "collapsed" ? "right" : "bottom"} align="center" sideOffset={8}>Toggle sidebar</TooltipContent>
@@ -1654,7 +1635,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 											</div>
 											{entry.result ? (
 												<div className="space-y-3">
-													<div className="rounded-xl border border-border bg-muted/20 p-3">
+											<div className="rounded-md border border-border bg-muted/20 p-3">
 														<div className="mb-2 flex items-center justify-between">
 															<p className="text-xs font-semibold uppercase text-muted-foreground">
 																Top signal
@@ -1710,7 +1691,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 																					: "Image Only"}
 
 																	</DropdownMenuTrigger>
-																	<DropdownMenuContent align="end" className="w-28">
+																	<DropdownMenuContent align="end" className="w-28 rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
 																		<DropdownMenuItem
 																			onClick={() =>
 																				setCategoryViewByEntryId((prev) => ({
@@ -1920,9 +1901,13 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 				</div>
 			</main>
 
-			<footer className="border-t border-border px-4 py-3 md:px-6">
+			<RoomComposerFooter>
 				<div className="mx-auto w-full max-w-3xl">
-					<div className="rounded-2xl border border-border bg-background px-3 py-2">
+					<RoomComposerSurface className={cn(
+						showImageUrlInput || imageUrl.trim() || imageFile || error
+							? "px-3 py-2"
+							: "flex flex-col gap-1 px-2 py-1 sm:flex-row sm:items-center",
+					)}>
 						<input
 							ref={imageFileInputRef}
 							type="file"
@@ -1941,9 +1926,14 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 									void submit();
 								}
 							}}
-							rows={3}
+							rows={1}
 							placeholder="Text to moderate..."
-							className="min-h-[64px] resize-none border-0 bg-transparent px-1 py-2 shadow-none focus-visible:ring-0"
+							className={cn(
+								"resize-none border-0 !bg-transparent shadow-none focus-visible:ring-0 dark:!bg-transparent",
+								showImageUrlInput || imageUrl.trim() || imageFile || error
+									? "min-h-[64px] px-1 py-2"
+									: "order-1 min-h-9 w-full px-2 py-2 sm:order-2 sm:flex-1",
+							)}
 						/>
 						{showImageUrlInput ? (
 							<div className="px-1 pb-1">
@@ -1986,69 +1976,29 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 							</div>
 						) : null}
 						{error ? <RoomErrorNotice error={error} className="mb-2" /> : null}
-						<div className="flex items-center justify-between pt-2">
-							<div className="flex items-center gap-1.5">
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button
-											type="button"
-											variant="ghost"
-											className="h-8 gap-1.5 px-2"
-											onClick={openComposerModelPicker}
-											disabled={!modelId && filteredModels.length === 0}
-										>
-											{modelId ? (
-												<Logo
-													id={composerModelLogoId}
-													alt={composerModelLabel}
-													width={16}
-													height={16}
-													className="shrink-0 rounded-none"
-												/>
-											) : (
-												<Cpu className="h-4 w-4 text-muted-foreground" />
-											)}
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent side="top">{composerModelLabel}</TooltipContent>
-								</Tooltip>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											className={`h-8 w-8 ${
-												showImageUrlInput || imageUrl.trim()
-													? "bg-muted text-foreground"
-													: ""
-											}`}
-											onClick={() =>
-												setShowImageUrlInput((prev) => !prev)
-											}
-										>
-											<Link2 className="h-4 w-4" />
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent side="top">Add image URL</TooltipContent>
-								</Tooltip>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											className={`h-8 w-8 ${imageFile ? "bg-muted text-foreground" : ""}`}
-											onClick={() => imageFileInputRef.current?.click()}
-										>
-											<ImagePlus className="h-4 w-4" />
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent side="top">Upload image</TooltipContent>
-								</Tooltip>
+						<div className={cn("flex items-center justify-between", showImageUrlInput || imageUrl.trim() || imageFile || error ? "pt-2" : "order-2 w-full sm:contents")}>
+							<div className={cn("flex items-center gap-1.5", !(showImageUrlInput || imageUrl.trim() || imageFile || error) && "order-1")}>
+								<RoomComposerToolsMenu
+									tools={[
+										{
+											id: "image-url",
+											label: "Add image URL",
+											icon: Link2,
+											active: Boolean(showImageUrlInput || imageUrl.trim()),
+											onSelect: () => setShowImageUrlInput((prev) => !prev),
+										},
+										{
+											id: "upload-image",
+											label: "Upload image",
+											icon: ImagePlus,
+											active: Boolean(imageFile),
+											onSelect: () => imageFileInputRef.current?.click(),
+										},
+									]}
+								/>
 							</div>
 							<Button
-								className="ml-auto"
+								className={cn("ml-auto", !(showImageUrlInput || imageUrl.trim() || imageFile || error) && "order-3")}
 								onClick={() => {
 									void submit();
 								}}
@@ -2057,9 +2007,9 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 								{isLoading ? "Moderating..." : "Moderate"}
 							</Button>
 						</div>
-					</div>
+					</RoomComposerSurface>
 				</div>
-			</footer>
+			</RoomComposerFooter>
 			{dialogProfile ? (
 				<ModerationModelSettingsDialog
 					open={modelSettings.modelSettingsOpen}

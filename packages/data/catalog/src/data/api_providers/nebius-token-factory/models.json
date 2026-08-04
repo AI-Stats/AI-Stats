@@ -624,6 +624,69 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "minimax/minimax-m3",
+    "provider_api_model_id": "nebius-token-factory:minimax/minimax-m3",
+    "provider_model_slug": "MiniMaxAI/MiniMax-M3",
+    "internal_model_id": "minimax/minimax-m3",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-06-01T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "us-central1"
+      ],
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://x.com/nebiustf/status/2077793627330232663",
+        "kind": "announcement",
+        "accessed_at": "2026-07-31T00:00:00Z",
+        "notes": "Nebius Token Factory announced its MiniMax M3 launch partnership."
+      },
+      {
+        "url": "https://x.com/MiniMax_AI/status/2077793512763076675",
+        "kind": "announcement",
+        "accessed_at": "2026-07-31T00:00:00Z",
+        "notes": "MiniMax announced MiniMax M3 availability through Nebius Token Factory."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-31T00:00:00Z",
+      "notes": "Nebius Token Factory's public endpoint card was captured on 2026-07-31. It lists routing key MiniMaxAI/MiniMax-M3, Base flavor, us-central1, $0.30 per 1M input tokens, $1.20 per 1M output tokens, approximately 248 tokens per second, text-to-text modality, 1,049K context, FP4 quantization, tool calling, and reasoning. The card's OpenAI example uses https://api.tokenfactory.us-central1.nebius.com/v1/."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "moonshotai/kimi-k2",
     "provider_api_model_id": "nebius-token-factory:moonshotai/kimi-k2",
     "provider_model_slug": "moonshotai/Kimi-K2-Instruct",

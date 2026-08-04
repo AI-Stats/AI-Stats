@@ -135,9 +135,7 @@ export function useChatModelCatalog(args: {
 			const existing = map.get(selectorModelId);
 			const orgId = resolveGatewayModelOrgId(model);
 			const orgName =
-				model.organisationName ??
-				model.providerName ??
-				formatOrgLabel(orgId);
+				model.organisationName ?? formatOrgLabel(orgId);
 			const label = model.modelName ?? formatModelLabel(selectorModelId);
 			const releaseDate =
 				model.releaseDate ?? model.announcementDate ?? null;
@@ -368,9 +366,7 @@ export function useChatModelCatalog(args: {
 			const orgId = resolveGatewayModelOrgId(model);
 			if (!map[orgId]) {
 				map[orgId] =
-					model.organisationName ??
-					model.providerName ??
-					formatOrgLabel(orgId);
+					model.organisationName ?? formatOrgLabel(orgId);
 			}
 		}
 		return map;

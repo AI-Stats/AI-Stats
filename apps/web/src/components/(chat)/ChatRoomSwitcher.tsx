@@ -58,7 +58,7 @@ function isRoomActive(pathname: string, route: string): boolean {
 	return pathname === route || pathname.startsWith(`${route}/`);
 }
 
-export function ChatRoomSwitcher() {
+export function ChatRoomSwitcher({ className }: { className?: string } = {}) {
 	const { realtimeEnabled, videoEnabled } = useChatFeatureFlags();
 	const pathname = usePathname() ?? "/chat";
 	const { state: sidebarState, isMobile } = useSidebar();
@@ -71,71 +71,47 @@ export function ChatRoomSwitcher() {
 	const collapsed = sidebarState === "collapsed" && !isMobile;
 
 	return (
-		<div className="px-2 py-1.5">
+		<div className={cn("px-2 py-1.5", className)}>
 			<DropdownMenu>
-				{collapsed ? (
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<DropdownMenuTrigger render={<Button
-									variant="ghost"
-									className={cn(
-										"h-8 gap-0 px-2 text-sm font-medium",
-										collapsed
-											? "w-8 justify-center px-0"
-											: "w-full justify-between px-2",
-									)}
-									aria-label={activeRoom.label} />}>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<DropdownMenuTrigger render={<Button
+								variant="ghost"
+								className="relative h-8 w-full min-w-0 justify-start gap-0 overflow-hidden rounded-[8px]! px-2 text-sm font-medium group-data-[state=collapsed]:rounded-full!"
+								aria-label={activeRoom.label} />}>
 
-									<span className="inline-flex items-center gap-2">
-										<ActiveIcon className="h-4 w-4 shrink-0" />
-										{!collapsed ? activeRoom.label : null}
-										{!collapsed && activeRoom.beta ? (
-											<Badge variant="outline" className="h-4 px-1.5 text-[9px] uppercase tracking-wide">
-												Beta
-											</Badge>
-										) : null}
-									</span>
-									{!collapsed ? (
-										<ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
-									) : null}
-
-							</DropdownMenuTrigger>
-						</TooltipTrigger>
-						<TooltipContent side="right" align="center" sideOffset={10}>
-							{activeRoom.label}
-						</TooltipContent>
-					</Tooltip>
-				) : (
-					<DropdownMenuTrigger render={<Button
-							variant="ghost"
-							className={cn(
-								"h-8 gap-0 px-2 text-sm font-medium",
-								collapsed
-									? "w-8 justify-center px-0"
-									: "w-full justify-between px-2",
-							)}
-							aria-label={activeRoom.label} />}>
-
-							<span className="inline-flex items-center gap-2">
 								<ActiveIcon className="h-4 w-4 shrink-0" />
-								{!collapsed ? activeRoom.label : null}
-								{!collapsed && activeRoom.beta ? (
-									<Badge variant="outline" className="h-4 px-1.5 text-[9px] uppercase tracking-wide">
-										Beta
-									</Badge>
-								) : null}
-							</span>
-							{!collapsed ? (
-								<ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
-							) : null}
+								<span className="ml-2 inline-flex min-w-0 items-center gap-2 whitespace-nowrap group-data-[collapsible=icon]:hidden">
+									<span>
+										{activeRoom.label}
+									</span>
+									{activeRoom.beta ? (
+										<Badge
+											variant="outline"
+										className="h-4 rounded-[4px]! px-1.5 text-[10px] font-medium"
+										>
+											Beta
+										</Badge>
+									) : null}
+								</span>
+								<ChevronsUpDown className="absolute right-2 h-4 w-4 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden" />
 
-					</DropdownMenuTrigger>
-				)}
+						</DropdownMenuTrigger>
+					</TooltipTrigger>
+					<TooltipContent
+						side="right"
+						align="center"
+						sideOffset={10}
+						hidden={!collapsed || isMobile}
+					>
+						{activeRoom.label}
+					</TooltipContent>
+				</Tooltip>
 				<DropdownMenuContent
 					side={collapsed ? "right" : "bottom"}
 					align="start"
 					sideOffset={8}
-					className="z-[90] w-56"
+					className={cn("z-[90] rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!", collapsed && "w-56")}
 				>
 					{availableRooms.map((room) => {
 						const Icon = ICONS[room.id];
@@ -157,7 +133,7 @@ export function ChatRoomSwitcher() {
 												<span>{room.label}</span>
 												<Badge
 													variant="outline"
-													className="ml-auto h-4 px-1.5 text-[9px] uppercase tracking-wide"
+											className="ml-auto h-4 rounded-[4px]! px-1.5 text-[10px] font-medium"
 												>
 													Coming soon
 												</Badge>
@@ -180,7 +156,7 @@ export function ChatRoomSwitcher() {
 									<Icon className="h-4 w-4" />
 									<span>{room.label}</span>
 									{room.beta ? (
-										<Badge variant="outline" className="ml-auto h-4 px-1.5 text-[9px] uppercase tracking-wide">
+										<Badge variant="outline" className="ml-auto h-4 rounded-[4px]! px-1.5 text-[10px] font-medium">
 											Beta
 										</Badge>
 									) : null}

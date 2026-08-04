@@ -729,6 +729,67 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "thinking-machines/inkling-small",
+    "provider_api_model_id": "baseten:thinkingmachines/inkling-small",
+    "provider_model_slug": "thinkingmachines/inkling-small",
+    "internal_model_id": "thinking-machines/inkling-small",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP4",
+    "input_modalities": "text,image,audio",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-30T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.baseten.co/library/inkling-small/",
+        "kind": "documentation",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Baseten Model API page confirms the route and supported modalities."
+      },
+      {
+        "url": "https://www.baseten.co/pricing/",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Baseten Model API pricing table."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Baseten lists thinkingmachines/inkling-small as a live Model API with 1M context and NVFP4 serving on B200."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "z-ai/glm-4.6",
     "provider_api_model_id": "baseten:z-ai/glm-4.6",
     "provider_model_slug": "zai-org/GLM-4.6",

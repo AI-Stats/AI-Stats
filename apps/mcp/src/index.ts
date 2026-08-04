@@ -1,6 +1,6 @@
-import { createMcpHandler } from "agents/mcp";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
+import { createMcpHandler } from "agents/mcp/server";
+import { McpServer } from "@modelcontextprotocol/server";
+import * as z from "zod/v4";
 
 import {
 	authenticatePhaseoUser,
@@ -17,9 +17,9 @@ const MAX_RESULTS = 20;
 const MAX_MCP_REQUEST_BODY_BYTES = 1024 * 1024;
 const MCP_CORS_HEADERS = {
 	"Access-Control-Allow-Origin": "*",
-	"Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+	"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 	"Access-Control-Allow-Headers":
-		"Authorization, Content-Type, Accept, MCP-Protocol-Version, MCP-Session-Id, Last-Event-ID",
+		"Authorization, Content-Type, Accept, MCP-Protocol-Version, MCP-Session-Id, MCP-Method, MCP-Name, Last-Event-ID, Traceparent, Tracestate, Baggage",
 	"Access-Control-Expose-Headers": "WWW-Authenticate, MCP-Session-Id, MCP-Protocol-Version",
 	"Access-Control-Max-Age": "86400",
 } as const;
@@ -70,13 +70,14 @@ const READ_ONLY_MCP_SCOPES = [
 
 type QueryValue = string | number | boolean | undefined;
 type ReadToolInput = Record<string, unknown>;
+type McpZodRawShape = Record<string, z.ZodType>;
 
 type ReadToolDefinition = {
 	name: string;
 	title: string;
 	description: string;
 	scopes: readonly string[];
-	inputSchema: z.ZodRawShape;
+	inputSchema: McpZodRawShape;
 	path: (input: ReadToolInput) => string;
 	query?: (input: ReadToolInput) => Record<string, QueryValue>;
 };
@@ -248,7 +249,7 @@ const requestSummarySchema = z.object({
 	finishReason: z.string().nullable(),
 });
 
-const submissionControlOutputSchemas: Record<string, z.ZodRawShape> = {
+const submissionControlOutputSchemas: Record<string, McpZodRawShape> = {
 	credits_get: {
 		credits: z.object({
 			balanceNanos: z.number(),
@@ -705,8 +706,12 @@ export default {
 		if (boundedRequest instanceof Response) return secureResponse(boundedRequest);
 		const authenticatedUser = await authenticatePhaseoUser(boundedRequest, env);
 		if (!authenticatedUser) return secureResponse(unauthorised(request, env));
-		const response = await createMcpHandler(createServer(env, authenticatedUser), {
+		const response = await createMcpHandler(() => createServer(env, authenticatedUser), {
 			route: "/mcp",
+			legacy: "stateless",
+			allowedHostnames: ["mcp.phaseo.app"],
+			allowedOriginHostnames: "*",
+			corsOptions: false,
 			authContext: { props: { workspaceId: authenticatedUser.workspaceId } },
 		})(boundedRequest, env, ctx);
 		return secureMcpResponse(response);
