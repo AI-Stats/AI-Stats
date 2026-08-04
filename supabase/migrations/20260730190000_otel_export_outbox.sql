@@ -23,6 +23,11 @@ create index if not exists otel_export_outbox_pending_idx
 
 alter table public.otel_export_outbox enable row level security;
 
+-- Trace payloads are backend-only. Keep the table inaccessible to browser roles
+-- and opt the service role into Data API access explicitly.
+revoke all on table public.otel_export_outbox from public, anon, authenticated;
+grant select, insert, update, delete on table public.otel_export_outbox to service_role;
+
 create or replace function public.claim_otel_export_outbox(p_limit integer default 100)
 returns setof public.otel_export_outbox
 language plpgsql
