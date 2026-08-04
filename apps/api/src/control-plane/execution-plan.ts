@@ -85,6 +85,16 @@ export type ExecutionPlanSource = {
 	evidenceCheckedAt: string | null;
 };
 
+function assertSafeConfigValue(value: unknown): void {
+	if (!value || typeof value !== "object") return;
+	for (const [key, nestedValue] of Object.entries(value)) {
+		if (["__proto__", "prototype", "constructor"].includes(key)) {
+			throw new Error(`Execution-plan config contains unsafe key: ${key}`);
+		}
+		assertSafeConfigValue(nestedValue);
+	}
+}
+
 function mergeConfig(
 	base: Record<string, unknown>,
 	override: Record<string, unknown>,
@@ -94,6 +104,7 @@ function mergeConfig(
 		if (["__proto__", "prototype", "constructor"].includes(key)) {
 			throw new Error(`Execution-plan config contains unsafe key: ${key}`);
 		}
+		assertSafeConfigValue(value);
 		const previous = merged[key];
 		if (
 			previous && value &&
@@ -144,11 +155,10 @@ export function compileExecutionPlan(source: ExecutionPlanSource): ExecutionPlan
 }
 
 export function executionPlanCacheKey(plan: ExecutionPlan): string {
-	return [
-		"execution-plan",
+	return `execution-plan:${JSON.stringify([
 		plan.releaseSequence,
 		plan.providerModelId,
 		plan.capabilityId,
-		plan.routeVariantId ?? "default",
-	].join(":");
+		plan.routeVariantId,
+	])}`;
 }

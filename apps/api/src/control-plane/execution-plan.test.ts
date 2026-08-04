@@ -90,7 +90,14 @@ describe("compileExecutionPlan", () => {
 
 	it("builds a release-addressed cache key", () => {
 		expect(executionPlanCacheKey(compileExecutionPlan(source))).toBe(
-			"execution-plan:7:example/model-a:text.generate:default",
+			'execution-plan:[7,"example/model-a","text.generate",null]',
 		);
+	});
+
+	it("does not collide when variable fields contain colons", () => {
+		const left = compileExecutionPlan({ ...source, providerModelId: "a:b", capabilityId: "c" });
+		const right = compileExecutionPlan({ ...source, providerModelId: "a", capabilityId: "b:c" });
+
+		expect(executionPlanCacheKey(left)).not.toBe(executionPlanCacheKey(right));
 	});
 });

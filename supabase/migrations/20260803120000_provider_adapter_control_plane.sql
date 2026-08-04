@@ -33,6 +33,7 @@ create table if not exists public.v2_capability_adapters (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint v2_capability_adapters_key unique (adapter_key, adapter_version),
+  constraint v2_capability_adapters_capability_key unique (capability_id, capability_adapter_id),
   constraint v2_capability_adapters_adapter_key_check check (adapter_key ~ '^[a-z0-9][a-z0-9._-]*$'),
   constraint v2_capability_adapters_version_check check (adapter_version > 0),
   constraint v2_capability_adapters_bindings_check check (jsonb_typeof(primitive_bindings) = 'object'),
@@ -80,6 +81,7 @@ create table if not exists public.v2_provider_endpoints (
   updated_at timestamptz not null default now(),
   constraint v2_provider_endpoints_key unique (provider_slug, endpoint_key),
   constraint v2_provider_endpoints_provider_key unique (provider_slug, provider_endpoint_id),
+  constraint v2_provider_endpoints_capability_key unique (provider_slug, capability_id, provider_endpoint_id),
   foreign key (provider_slug, auth_profile_id)
     references public.v2_provider_auth_profiles(provider_slug, auth_profile_id) on delete restrict,
   constraint v2_provider_endpoints_timeout_check check (timeout_ms > 0 and timeout_ms <= 900000),
@@ -94,7 +96,7 @@ create table if not exists public.v2_provider_capability_adapters (
   provider_capability_adapter_id uuid primary key default gen_random_uuid(),
   provider_slug text not null references public.v2_providers(provider_slug) on delete cascade,
   capability_id text not null,
-  capability_adapter_id uuid not null references public.v2_capability_adapters(capability_adapter_id) on delete restrict,
+  capability_adapter_id uuid not null,
   provider_endpoint_id uuid not null,
   config jsonb not null default '{}'::jsonb,
   status text not null default 'draft',
@@ -103,8 +105,10 @@ create table if not exists public.v2_provider_capability_adapters (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint v2_provider_capability_adapters_key unique (provider_slug, capability_id, capability_adapter_id, provider_endpoint_id),
-  foreign key (provider_slug, provider_endpoint_id)
-    references public.v2_provider_endpoints(provider_slug, provider_endpoint_id) on delete restrict,
+  foreign key (capability_id, capability_adapter_id)
+    references public.v2_capability_adapters(capability_id, capability_adapter_id) on delete restrict,
+  foreign key (provider_slug, capability_id, provider_endpoint_id)
+    references public.v2_provider_endpoints(provider_slug, capability_id, provider_endpoint_id) on delete restrict,
   constraint v2_provider_capability_adapters_config_check check (jsonb_typeof(config) = 'object'),
   constraint v2_provider_capability_adapters_status_check check (status in ('draft', 'active', 'deprecated', 'disabled')),
   constraint v2_provider_capability_adapters_window_check check (effective_to is null or effective_from is null or effective_to > effective_from)
@@ -144,6 +148,10 @@ create table if not exists public.v2_route_parameter_support (
 create index if not exists v2_route_parameter_support_lookup_idx
   on public.v2_route_parameter_support (capability_id, parameter_key, support_level, provider_model_id);
 
+alter table public.v2_model_provider_routes
+  add constraint v2_model_provider_routes_provider_model_key
+  unique (provider_slug, provider_model_id);
+
 create table if not exists public.v2_capability_constraints (
   constraint_id uuid primary key default gen_random_uuid(),
   provider_slug text references public.v2_providers(provider_slug) on delete cascade,
@@ -158,6 +166,8 @@ create table if not exists public.v2_capability_constraints (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint v2_capability_constraints_scope_check check (provider_slug is not null or provider_model_id is not null),
+  foreign key (provider_slug, provider_model_id)
+    references public.v2_model_provider_routes(provider_slug, provider_model_id) on delete cascade,
   constraint v2_capability_constraints_expression_check check (jsonb_typeof(expression) = 'object'),
   constraint v2_capability_constraints_outcome_check check (outcome in ('reject', 'warn', 'transform')),
   constraint v2_capability_constraints_status_check check (status in ('draft', 'active', 'deprecated', 'disabled')),
@@ -181,6 +191,8 @@ create table if not exists public.v2_capability_evidence (
   notes text,
   created_at timestamptz not null default now(),
   constraint v2_capability_evidence_scope_check check (provider_slug is not null or provider_model_id is not null),
+  foreign key (provider_slug, provider_model_id)
+    references public.v2_model_provider_routes(provider_slug, provider_model_id) on delete cascade,
   constraint v2_capability_evidence_source_check check (source_url ~ '^https://'),
   constraint v2_capability_evidence_type_check check (source_type in ('official_docs', 'official_sdk', 'live_test', 'provider_support', 'inference')),
   constraint v2_capability_evidence_confidence_check check (confidence in ('confirmed', 'high', 'medium', 'low'))
@@ -201,10 +213,11 @@ create table if not exists public.v2_control_plane_releases (
   created_at timestamptz not null default now(),
   reviewed_at timestamptz,
   published_at timestamptz,
+  published_once_at timestamptz,
   superseded_at timestamptz,
   constraint v2_control_plane_releases_status_check check (status in ('draft', 'validated', 'published', 'superseded', 'rejected')),
   constraint v2_control_plane_releases_review_check check (reviewed_by is null or created_by is null or reviewed_by <> created_by),
-  constraint v2_control_plane_releases_publish_check check (status <> 'published' or (reviewed_by is not null and published_at is not null and content_hash is not null))
+  constraint v2_control_plane_releases_publish_check check (status <> 'published' or (reviewed_by is not null and published_at is not null and published_once_at is not null and content_hash is not null))
 );
 
 create unique index if not exists v2_control_plane_single_published_idx
@@ -241,7 +254,7 @@ language plpgsql
 set search_path = public
 as $$
 begin
-  if old.status = 'published' then
+  if old.published_once_at is not null then
     if tg_op = 'UPDATE'
       and new.status = 'superseded'
       and new.superseded_at is not null
@@ -250,6 +263,9 @@ begin
       return new;
     end if;
     raise exception 'Published control-plane releases are immutable';
+  end if;
+  if tg_op = 'UPDATE' and new.status = 'published' then
+    new.published_once_at := coalesce(new.published_once_at, new.published_at, now());
   end if;
   if tg_op = 'DELETE' then
     return old;
@@ -268,21 +284,21 @@ language plpgsql
 set search_path = public
 as $$
 declare
-  old_release_status text;
-  new_release_status text;
+  old_release_published_at timestamptz;
+  new_release_published_at timestamptz;
 begin
   if tg_op in ('UPDATE', 'DELETE') then
-    select status into old_release_status
+    select published_once_at into old_release_published_at
       from public.v2_control_plane_releases where release_id = old.release_id;
-    if old_release_status = 'published' then
+    if old_release_published_at is not null then
       raise exception 'Execution plans in published releases are immutable';
     end if;
   end if;
 
   if tg_op in ('INSERT', 'UPDATE') then
-    select status into new_release_status
+    select published_once_at into new_release_published_at
       from public.v2_control_plane_releases where release_id = new.release_id;
-    if new_release_status = 'published' then
+    if new_release_published_at is not null then
       raise exception 'Execution plans in published releases are immutable';
     end if;
   end if;
