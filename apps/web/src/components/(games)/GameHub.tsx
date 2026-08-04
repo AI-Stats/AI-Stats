@@ -28,12 +28,12 @@ export function GameHub() {
   return (
     <main className="min-h-screen bg-background px-4 py-12 sm:py-16">
       <div className="mx-auto max-w-5xl [&_[data-slot=button]]:rounded-lg">
-        <div className="mb-10 max-w-2xl">
+        <div className="mb-10 w-full">
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
             Catalogue lab
           </p>
           <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">
-            Five ways to know the models.
+            Games
           </h1>
           <p className="mt-4 text-base leading-7 text-muted-foreground">
             Daily games generated from Phaseo’s model catalogue. A new set lands
