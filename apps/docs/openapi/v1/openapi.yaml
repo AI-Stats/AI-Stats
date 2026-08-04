@@ -4056,7 +4056,8 @@ components:
           description: >
             Tool definitions for model function calls and gateway server tools.
             Built-in server tools include datetime, web search, web fetch,
-            Advisor, Subagent, Fusion, model search, image generation, and patch creation.
+            Advisor, Subagent, Fusion, model search, image generation, and patch
+            creation.
           items:
             $ref: '#/components/schemas/TextGenerateTool'
         max_tool_calls:
@@ -4472,47 +4473,59 @@ components:
         - $ref: '#/components/schemas/SearchModelsToolDefinition'
     SubagentToolDefinition:
       type: object
-      required: [type]
+      required:
+        - type
       properties:
         type:
           type: string
-          enum: [phaseo:subagent]
+          enum:
+            - phaseo:subagent
         parameters:
           type: object
           additionalProperties: true
     FusionToolDefinition:
       type: object
-      required: [type]
+      required:
+        - type
       properties:
         type:
           type: string
-          enum: [phaseo:fusion]
+          enum:
+            - phaseo:fusion
         parameters:
           type: object
-          required: [analysis_models]
+          required:
+            - analysis_models
           properties:
             analysis_models:
               type: array
               minItems: 2
               maxItems: 8
-              items: { type: string }
-            model: { type: string }
+              items:
+                type: string
+            model:
+              type: string
           additionalProperties: true
     SearchModelsToolDefinition:
       type: object
-      required: [type]
+      required:
+        - type
       properties:
         type:
           type: string
-          enum: [phaseo:search_models]
+          enum:
+            - phaseo:search_models
         parameters:
           type: object
           properties:
-            max_results: { type: integer, minimum: 1, maximum: 20 }
+            max_results:
+              type: integer
+              minimum: 1
+              maximum: 20
     TextToolChoice:
       description: >
-        Tool selection strategy. Phaseo server-tool types are accepted and rewritten into
-        upstream function/tool targets.
+        Tool selection strategy. Phaseo server-tool types are accepted and
+        rewritten into upstream function/tool targets.
       oneOf:
         - type: string
           enum:
