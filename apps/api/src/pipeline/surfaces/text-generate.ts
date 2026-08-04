@@ -1123,7 +1123,10 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 				serverToolUsage.webFetchRequests > 0 ||
 				serverToolUsage.advisorRequests > 0 ||
 				serverToolUsage.imageGenerationRequests > 0 ||
-				serverToolUsage.applyPatchRequests > 0
+				serverToolUsage.applyPatchRequests > 0 ||
+				serverToolUsage.subagentRequests > 0 ||
+				serverToolUsage.fusionRequests > 0 ||
+				serverToolUsage.searchModelsRequests > 0
 			) {
 				const mergedUsage = attachServerToolUsage(aggregateUsage, {
 					...serverToolUsage,

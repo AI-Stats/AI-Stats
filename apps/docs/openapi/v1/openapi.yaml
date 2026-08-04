@@ -4730,21 +4730,21 @@ components:
           minimum: 1
         tools:
           type: array
-          description: >
-            Anthropic-compatible tools plus gateway server tools. The only
-            built-in gateway server tools are `gateway:datetime`,
-            `gateway:web_search`, and `gateway:web_fetch`.
+          description: |
+            Anthropic-compatible tools plus gateway-managed server tools.
           items:
             oneOf:
               - $ref: '#/components/schemas/AnthropicTool'
               - $ref: '#/components/schemas/GatewayDatetimeToolDefinition'
               - $ref: '#/components/schemas/GatewayWebSearchToolDefinition'
               - $ref: '#/components/schemas/GatewayWebFetchToolDefinition'
+              - $ref: '#/components/schemas/SubagentToolDefinition'
+              - $ref: '#/components/schemas/FusionToolDefinition'
+              - $ref: '#/components/schemas/SearchModelsToolDefinition'
         tool_choice:
           description: >
-            Anthropic tool choice object/string. `gateway:datetime`,
-            `gateway:web_search`, and `gateway:web_fetch` are also accepted and
-            rewritten by the gateway.
+            Anthropic tool choice object/string. Gateway-managed server tool
+            names are also accepted and rewritten by the gateway.
           oneOf:
             - type: object
             - type: string

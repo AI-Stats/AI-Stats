@@ -1155,6 +1155,26 @@ export type CreateAnthropicMessageParams = {
             max_chars?: number;
           };
           type: "phaseo:web_fetch" | "gateway:web_fetch";
+        }
+      | {
+          parameters?: {
+            [key: string]: unknown;
+          };
+          type: "phaseo:subagent";
+        }
+      | {
+          parameters?: {
+            analysis_models: string[];
+            model?: string;
+            [key: string]: unknown;
+          };
+          type: "phaseo:fusion";
+        }
+      | {
+          parameters?: {
+            max_results?: number;
+          };
+          type: "phaseo:search_models";
         }[];
     top_k?: number;
     top_p?: number;

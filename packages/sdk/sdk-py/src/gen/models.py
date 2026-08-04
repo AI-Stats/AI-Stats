@@ -60,7 +60,7 @@ class AnthropicMessagesRequest(TypedDict):
 	system: NotRequired[Union[str, List[Dict[str, Any]]]]
 	temperature: NotRequired[float]
 	tool_choice: NotRequired[Union[Dict[str, Any], str]]
-	tools: NotRequired[List[Union[Dict[str, Any], Dict[str, Any], Dict[str, Any], Dict[str, Any]]]]
+	tools: NotRequired[List[Union[Dict[str, Any], Dict[str, Any], Dict[str, Any], Dict[str, Any], Dict[str, Any], Dict[str, Any], Dict[str, Any]]]]
 	top_k: NotRequired[int]
 	top_p: NotRequired[float]
 	usage: NotRequired[bool]
