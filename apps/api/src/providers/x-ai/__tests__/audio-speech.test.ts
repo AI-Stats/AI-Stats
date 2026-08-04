@@ -52,4 +52,35 @@ describe("xAI audio.speech endpoint", () => {
 		expect(result.upstream.status).toBe(400);
 		expect((await result.upstream.json() as any).error.param).toBe("response_format");
 	});
+
+	it("preserves successful binary audio responses", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1/tts"),
+			response: new Response(new Uint8Array([5, 6, 7]), {
+				status: 200,
+				headers: { "Content-Type": "audio/mpeg" },
+			}),
+		}]);
+
+		const result = await exec(args({ response_format: "mp3" }));
+		mock.restore();
+
+		expect(result.upstream.status).toBe(200);
+		expect([...new Uint8Array(await result.upstream.arrayBuffer())]).toEqual([5, 6, 7]);
+	});
+
+	it.each([
+		["null JSON", null],
+		["invalid base64", { audio: "not base64!" }],
+	])("returns a protocol error for %s", async (_label, payload) => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1/tts"),
+			response: jsonResponse(payload),
+		}]);
+
+		const result = await exec(args({ response_format: "mp3" }));
+		mock.restore();
+
+		expect(result.upstream.status).toBe(502);
+	});
 });

@@ -50,9 +50,14 @@ function invalidParameterResponse(param: string, message: string): Response {
 	);
 }
 
-function decodeBase64Audio(value: string): ArrayBuffer {
-	const bytes = Uint8Array.from(atob(value), (character) => character.charCodeAt(0));
-	return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+function decodeBase64Audio(value: string): ArrayBuffer | undefined {
+	if (value.length % 4 !== 0 || !/^[A-Za-z0-9+/]*={0,2}$/.test(value)) return undefined;
+	try {
+		const bytes = Uint8Array.from(atob(value), (character) => character.charCodeAt(0));
+		return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+	} catch {
+		return undefined;
+	}
 }
 
 export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
@@ -103,14 +108,19 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 
 	let upstream = res;
 	let normalized: AdapterResult["normalized"];
-	if (res.ok) {
-		let payload: Record<string, unknown>;
+	if (res.ok && res.headers.get("content-type")?.toLowerCase().includes("json")) {
+		let payload: Record<string, unknown> = {};
 		try {
-			payload = await res.clone().json() as Record<string, unknown>;
+			const parsed: unknown = await res.clone().json();
+			if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+				payload = parsed as Record<string, unknown>;
+			}
 		} catch {
-			payload = {};
 		}
-		if (typeof payload.audio !== "string" || payload.audio.length === 0) {
+		const audio = typeof payload.audio === "string" && payload.audio.length > 0
+			? decodeBase64Audio(payload.audio)
+			: undefined;
+		if (!audio) {
 			upstream = new Response(JSON.stringify({
 				error: {
 					type: "upstream_protocol_error",
@@ -121,7 +131,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 			const mimeType = typeof payload.content_type === "string"
 				? payload.content_type
 				: mimeTypeForCodec(codec);
-			upstream = new Response(decodeBase64Audio(payload.audio), {
+			upstream = new Response(audio, {
 				status: res.status,
 				headers: { "Content-Type": mimeType },
 			});
