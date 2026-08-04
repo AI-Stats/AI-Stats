@@ -1,7 +1,17 @@
 export interface AudioTranscriptionRequest {
+  chunking_strategy?:
+    | "auto"
+    | {
+        prefix_padding_ms?: number;
+        silence_duration_ms?: number;
+        threshold?: number;
+        type: "server_vad";
+      };
   audio_b64?: string;
   audio_url?: string;
   language?: string;
+  known_speaker_names?: string[];
+  known_speaker_references?: string[];
   model: string;
   provider?: {
     allow_fallbacks?: boolean | null;
