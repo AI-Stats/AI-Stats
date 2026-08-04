@@ -11,6 +11,7 @@ export interface PricingRule {
     unit: string;               // token|image|second|minute|...
     unit_size: number;
     price_per_unit: number;     // numeric -> number (cast below)
+    included_quantity?: number;
     currency: string;           // USD (for now)
     note: string | null;
     match: any[];               // conditions
@@ -624,6 +625,7 @@ export default async function getModelPricing(
         unit: x.unit ?? "token",
         unit_size: Number(x.unit_size ?? 1),
         price_per_unit: Number(x.price_per_unit),
+        included_quantity: Math.max(0, Number(x.included_quantity ?? 0)),
         currency: x.currency ?? "USD",
         note: x.note ?? null,
         match: x.match ?? [],

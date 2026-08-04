@@ -93,7 +93,6 @@ export default function TabBar({ organisationId }: { organisationId: string }) {
 						<Link
 							key={t.key}
 							href={href}
-							prefetch={false} // avoid prefetching heavy pages unless you want it
 							aria-current={isActive ? "page" : undefined}
 							ref={(el) => {
 								tabRefs.current[t.key] = el;

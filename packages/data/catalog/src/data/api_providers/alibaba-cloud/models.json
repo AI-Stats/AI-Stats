@@ -4403,6 +4403,188 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "qwen/qwen3.8-max",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3.8-max",
+    "provider_model_slug": "qwen3.8-max",
+    "internal_model_id": "qwen/qwen3.8-max",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-03T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "auto",
+            "notes": "Thinking mode cannot force a specific tool."
+          },
+          {
+            "param_id": "parallel_tool_calls",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": false,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": 0,
+            "provider_max": 2,
+            "provider_default": null,
+            "notes": "Qwen Cloud documents the range as [0, 2)."
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": 1,
+            "provider_max": 131072,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": 0,
+            "provider_max": 1,
+            "provider_default": null,
+            "notes": "Qwen Cloud documents the range as (0, 1]."
+          },
+          {
+            "param_id": "top_k",
+            "provider_min": 0,
+            "provider_max": null,
+            "provider_default": 20,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": 0,
+            "provider_max": 2147483647,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": -2,
+            "provider_max": 2,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "repetition_penalty",
+            "provider_min": 0,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "text",
+            "notes": "Supports text, json_object and json_schema."
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": 0,
+            "provider_max": 131072,
+            "provider_default": null,
+            "notes": "Supports thinking budgets and effort levels low, medium and xhigh."
+          },
+          {
+            "param_id": "reasoning_effort",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "xhigh",
+            "notes": "Supported values: low, medium, xhigh."
+          },
+          {
+            "param_id": "web_search_options",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": {
+          "style": "tokens",
+          "maxReasoningTokens": 131072
+        },
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": "text,image,video",
+        "output_modalities": "text",
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai",
+        "dashscope"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "release",
+        "url": "https://www.qwencloud.com/models/qwen3.8-max",
+        "accessed_at": "2026-08-03T00:00:00",
+        "notes": "Official model availability, limits and features."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://docs.qwencloud.com/api-reference/chat/dashscope",
+        "accessed_at": "2026-08-03T00:00:00",
+        "notes": "Official API parameter reference."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-03T00:00:00",
+      "notes": "Production API model qwen3.8-max verified on Qwen Cloud."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "qwen/qwen3.8-max-preview",
     "provider_api_model_id": "alibaba-cloud:qwen/qwen3.8-max-preview",
     "provider_model_slug": "qwen3.8-max-preview",
@@ -4447,6 +4629,65 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash",
+    "provider_api_model_id": "alibaba-cloud:deepseek/deepseek-v4-flash",
+    "provider_model_slug": "deepseek-v4-flash",
+    "internal_model_id": "deepseek/deepseek-v4-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 393216,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/deepseek-api",
+        "accessed_at": "2026-08-03T00:00:00Z",
+        "notes": "Official Model Studio model ID, context and feature documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-03T00:00:00Z",
+      "notes": "Provider deployment and existing Phaseo executor recorded."
     },
     "rate_limits": []
   }

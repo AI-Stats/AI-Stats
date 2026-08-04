@@ -174,6 +174,14 @@ export function checkPricingEntrySafety(p: any): string[] {
                     `pricing: invalid price for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}`
                 );
             }
+            if (r?.included_quantity !== undefined) {
+                const includedQuantity = parseNumericValue(r.included_quantity);
+                if (includedQuantity === undefined || includedQuantity < 0) {
+                    errs.push(
+                        `pricing: included_quantity invalid for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}:${meter}`
+                    );
+                }
+            }
             if (r?.bill && typeof r.bill.mode === 'string' && !ALLOWED_BILL_MODES.has(r.bill.mode)) {
                 errs.push(
                     `pricing: bill mode invalid ('${r.bill.mode}') for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}` 

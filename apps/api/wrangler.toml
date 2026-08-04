@@ -1,13 +1,15 @@
 name = "phaseo-gateway"
 main = "src/index.ts"
 compatibility_date = "2025-10-01"
-compatibility_flags = ["global_fetch_strictly_public"]
+compatibility_flags = ["global_fetch_strictly_public", "web_socket_auto_reply_to_close"]
 workers_dev = false
 preview_urls = false
 
 [vars]
 ENV = "prod"
 SUPABASE_URL = "https://xansbgjaduxypzsmjwct.supabase.co"
+AMAZON_BEDROCK_REGION = "us-east-1"
+AMAZON_BEDROCK_MANTLE_BASE_URL = "https://bedrock-mantle.us-east-1.api.aws"
 MODEL_DISCOVERY_ENABLED = "true"
 MODEL_DISCOVERY_RETENTION_DAYS = "7"
 MODEL_DISCOVERY_SHARD_SIZE = "20"

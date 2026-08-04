@@ -120,15 +120,15 @@ export default function PricingPlanSelect({
 						<ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
 
 				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end" className="w-72 p-1.5">
+				<DropdownMenuContent align="end" className="w-72 rounded-lg p-1.5">
 					{plans.map((plan) => {
 						const selected = plan === value;
 						const metaLabel = planMetaLabels[plan] ?? null;
 						return (
 							<DropdownMenuItem
 								key={plan}
-								onSelect={() => onChange(plan)}
-								className="items-start gap-3 rounded-md px-2.5 py-2"
+								onClick={() => onChange(plan)}
+								className="items-start gap-3 rounded-lg px-2.5 py-2"
 							>
 								{renderPlanIcon(plan, "mt-0.5 h-4 w-4 shrink-0 text-muted-foreground")}
 								<span className="min-w-0 flex-1">

@@ -40,6 +40,7 @@ export default function RouteRequestDetailDialog({
 	return (
 		<RequestDetailDialog
 			open
+			presentation="sheet"
 			onOpenChange={(open) => {
 				if (!open) router.push(closeHref);
 			}}

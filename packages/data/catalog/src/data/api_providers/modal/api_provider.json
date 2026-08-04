@@ -1,0 +1,37 @@
+{
+  "api_provider_id": "modal",
+  "api_provider_name": "Modal",
+  "description": "Modal provides serverless AI infrastructure and shared, OpenAI-compatible model inference APIs.",
+  "link": "https://modal.com/docs",
+  "pricing_source_url": "https://modal.com/library/moonshot/kimi-k3",
+  "country_code": "US",
+  "status": "Active",
+  "colour": "#000000",
+  "privacy_policy_url": "https://modal.com/legal/privacy-policy",
+  "terms_of_service_url": "https://modal.com/legal/terms",
+  "prompt_training_policy": "unknown",
+  "prompt_training_notes": "Modal's public Kimi K3 Shared API materials do not currently state a sufficiently specific model-input training policy for this catalogue field.",
+  "prompt_training_source_url": null,
+  "gateway_kind": null,
+  "routable": null,
+  "routing_enabled": null,
+  "sdk_package": null,
+  "api_base_url": null,
+  "docs_url": "https://modal.com/docs",
+  "auth_env": null,
+  "api_formats": [],
+  "service_tiers": [],
+  "sources": [
+    {
+      "kind": "api_reference",
+      "url": "https://modal.com/library/moonshot/kimi-k3",
+      "accessed_at": "2026-07-27T00:00:00Z",
+      "notes": "Modal's Kimi K3 page documents its Shared API and OpenAI-compatible access."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-07-27T00:00:00Z",
+    "notes": "Verified against Modal's public Kimi K3 Shared API listing."
+  }
+}

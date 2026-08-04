@@ -33,7 +33,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
               with:
                   version: 10.33.0
                   run_install: false
@@ -49,6 +49,19 @@ jobs:
 
             - name: Validate CI secret boundaries
               run: pnpm run validate:ci-security
+
+            - name: Validate canonical Phaseo domain
+              run: pnpm run validate:domains
+
+            - name: Validate unique Supabase migration versions
+              shell: bash
+              run: |
+                  duplicates="$(find supabase/migrations -maxdepth 1 -type f -name '*.sql' -printf '%f\n' | sed -E 's/^([0-9]+)_.*/\1/' | sort | uniq -d)"
+                  if [[ -n "$duplicates" ]]; then
+                    echo "::error::Duplicate Supabase migration version(s):"
+                    echo "$duplicates"
+                    exit 1
+                  fi
 
             - name: Install dependencies
               run: corepack pnpm install --frozen-lockfile
@@ -82,7 +95,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
               with:
                   version: 10.33.0
                   run_install: false
@@ -128,7 +141,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
               with:
                   version: 10.33.0
                   run_install: false
@@ -181,7 +194,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
               with:
                   version: 10.33.0
                   run_install: false
@@ -209,7 +222,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
               with:
                   version: 10.33.0
                   run_install: false
@@ -261,7 +274,7 @@ jobs:
                   token: ${{ steps.importer-app-token.outputs.token }}
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
               with:
                   version: 10.33.0
                   run_install: false
@@ -343,13 +356,26 @@ jobs:
                     exit 0
                   fi
 
-                  branch="automation/importer-state-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+                  # Keep one moving branch/PR for importer state. The importer is
+                  # serialized above, so force-updating this branch cannot race
+                  # another importer run and avoids accumulating snapshot PRs.
+                  branch="automation/importer-state"
                   git config user.name "github-actions[bot]"
                   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-                  git switch --create "${branch}"
+                  git fetch origin "${branch}" || true
+                  remote_branch_sha=""
+                  if git show-ref --verify --quiet "refs/remotes/origin/${branch}"; then
+                    remote_branch_sha="$(git rev-parse "refs/remotes/origin/${branch}")"
+                  fi
+                  git switch --force-create "${branch}" HEAD
                   git add "${state_file}"
                   git commit -m "chore(data): persist importer state"
-                  git push --set-upstream "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "${branch}"
+                  remote_url="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+                  if [[ -n "${remote_branch_sha}" ]]; then
+                    git push --force-with-lease="${branch}:${remote_branch_sha}" "${remote_url}" "${branch}"
+                  else
+                    git push --set-upstream "${remote_url}" "${branch}"
+                  fi
                   echo "changed=true" >> "${GITHUB_OUTPUT}"
                   echo "branch=${branch}" >> "${GITHUB_OUTPUT}"
 
@@ -360,11 +386,31 @@ jobs:
               shell: bash
               run: |
                   set -euo pipefail
+                  branch="${{ steps.importer-state-update.outputs.branch }}"
+                  existing_pr="$(gh pr list --state open --base main --head "${branch}" --json number --jq '.[0].number')"
+                  if [[ -n "${existing_pr}" ]]; then
+                    echo "Importer state PR #${existing_pr} already exists; updated its branch."
+                    exit 0
+                  fi
                   gh pr create \
                     --base main \
-                    --head "${{ steps.importer-state-update.outputs.branch }}" \
+                    --head "${branch}" \
                     --title "chore(data): persist importer state" \
-                    --body "Automated update of the committed importer hash state after a successful main import."
+                    --body "Automated update of the committed importer hash state after a successful main import. This PR is intentionally reused and updated by subsequent imports."
+
+            - name: Close superseded importer state PRs
+              if: steps.importer-state-update.outputs.changed == 'true'
+              env:
+                  GH_TOKEN: ${{ steps.importer-app-token.outputs.token }}
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  legacy_prs="$(gh pr list --state open --base main --json number,headRefName --limit 100 --jq '[.[] | select(.headRefName | startswith("automation/importer-state-")) | .number] | .[]')"
+                  while IFS= read -r pr_number; do
+                    [[ -z "${pr_number}" ]] && continue
+                    gh pr close "${pr_number}" \
+                      --comment "Superseded by the reusable automation/importer-state PR; future importer runs update that single PR."
+                  done <<< "${legacy_prs}"
 
     sdk-gen:
         name: Generate SDKs
@@ -392,7 +438,7 @@ jobs:
                   fetch-depth: 0
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
               with:
                   version: 10.33.0
                   run_install: false
@@ -461,7 +507,7 @@ jobs:
                   python -m pip install -e packages/sdk/sdk-py
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
               with:
                   version: 10.33.0
                   run_install: false
@@ -490,7 +536,7 @@ jobs:
                   persist-credentials: false
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
               with:
                   version: 10.33.0
                   run_install: false
@@ -522,7 +568,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
               with:
                   version: 10.33.0
                   run_install: false
@@ -553,7 +599,7 @@ jobs:
 
             - name: Setup Java
               if: matrix.sdk == 'java'
-              uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95
+              uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
               with:
                   distribution: "temurin"
                   java-version: "17"
@@ -600,7 +646,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
               with:
                   version: 10.33.0
                   run_install: false
@@ -691,7 +737,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
               with:
                   version: 10.33.0
                   run_install: false
@@ -805,13 +851,13 @@ jobs:
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
             - name: Setup pnpm
-              uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+              uses: pnpm/action-setup@6fed91f804570c1144bfe1911c348642cb986bd4
               with:
                   version: 10.33.0
                   run_install: false
                   standalone: true
             - name: Setup Node.js
-              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
                   node-version: ${{ env.NODE_VERSION }}
             - name: Restore lockfile (guard setup-node cache mutation)
@@ -845,7 +891,7 @@ jobs:
                   php-version: "8.2"
             - name: Setup Java
               if: matrix.sdk == 'java'
-              uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95
+              uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
               with:
                   distribution: temurin
                   java-version: "17"
@@ -908,7 +954,7 @@ jobs:
                   private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
               with:
                   version: 10.33.0
                   run_install: false
@@ -1085,7 +1131,7 @@ jobs:
 
             - name: Publish Python SDK to PyPI (Trusted Publishing)
               if: steps.pypi-release.outputs.should_publish == 'true'
-              uses: pypa/gh-action-pypi-publish@ba38be9e461d3875417946c167d0b5f3d385a247
+              uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33
               with:
                   packages-dir: packages/sdk/sdk-py/dist
                   skip-existing: true

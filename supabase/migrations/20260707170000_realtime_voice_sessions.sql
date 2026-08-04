@@ -282,7 +282,7 @@ set search_path = public
 as $$
 declare
   v_key_name text;
-  v_chat_app_key constant text := 'https://ai-stats.phaseo.app/chat';
+  v_chat_app_key constant text := 'https://phaseo.app/chat';
   v_app_id uuid;
 begin
   if new.app_id is not null then

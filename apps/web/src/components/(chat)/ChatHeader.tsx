@@ -96,12 +96,13 @@ import {
 	ArrowRight,
 	ChevronsLeft,
 	ChevronDown,
-	ChevronRight,
 	Check,
 	CircleCheck,
 	CircleQuestionMark,
 	Columns2,
 	Database,
+	PanelLeftClose,
+	PanelLeftOpen,
 	Keyboard,
 	List,
 	MessageCircleDashed,
@@ -1380,15 +1381,13 @@ export function ChatHeader({
 							size="icon"
 							className="group -ml-1"
 							onClick={toggleSidebar}
-							aria-label="Toggle sidebar"
+							aria-label={sidebarState === "expanded" ? "Collapse sidebar" : "Open sidebar"}
 						>
-							<ChevronRight
-								className={`h-5 w-5 transition-transform duration-200 ${
-									sidebarState === "expanded"
-										? "rotate-180 group-hover:-translate-x-1"
-										: "group-hover:translate-x-1"
-								}`}
-							/>
+							{sidebarState === "expanded" ? (
+								<PanelLeftClose className="h-5 w-5" />
+							) : (
+								<PanelLeftOpen className="h-5 w-5" />
+							)}
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent
@@ -1396,7 +1395,7 @@ export function ChatHeader({
 						align="center"
 						sideOffset={8}
 					>
-						Toggle sidebar
+						{sidebarState === "expanded" ? "Collapse sidebar" : "Open sidebar"}
 					</TooltipContent>
 				</Tooltip>
 				{selectedModelIds.length > 0 ? (
@@ -1562,7 +1561,7 @@ export function ChatHeader({
 								</div>
 							</TooltipContent>
 						</Tooltip>
-						<DropdownMenuContent align="end" sideOffset={8} className="w-72">
+						<DropdownMenuContent align="end" sideOffset={8} className="w-72 rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
 							<DropdownMenuItem
 								onClick={() => onResponseLayoutChange("sequential")}
 								className="items-start gap-2"
@@ -2205,7 +2204,7 @@ export function ChatHeader({
 													models, and the composer.
 												</p>
 											</div>
-											<div className="rounded-xl border border-border bg-card p-3">
+											<div className="rounded-2xl border border-border bg-card p-3">
 												<ChatShortcutReference />
 											</div>
 										</div>

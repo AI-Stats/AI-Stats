@@ -10,6 +10,7 @@ describe("guardJson", () => {
 		form.append("include[]", "logprobs");
 		form.append("include", "timestamps");
 		form.append("timestamp_granularities[]", "word");
+		form.append("chunking_strategy", JSON.stringify({ type: "server_vad", silence_duration_ms: 500 }));
 		form.append("provider", JSON.stringify({ order: ["openai"] }));
 
 		const req = new Request("https://gateway.local/v1/audio/transcriptions", {
@@ -25,6 +26,7 @@ describe("guardJson", () => {
 		expect(Array.isArray(result.value.include)).toBe(true);
 		expect(result.value.include).toEqual(["logprobs", "timestamps"]);
 		expect(result.value.timestamp_granularities).toEqual(["word"]);
+		expect(result.value.chunking_strategy).toEqual({ type: "server_vad", silence_duration_ms: 500 });
 		expect(result.value.provider).toEqual({ order: ["openai"] });
 		expect(typeof File !== "undefined" && result.value.file instanceof File).toBe(true);
 	});

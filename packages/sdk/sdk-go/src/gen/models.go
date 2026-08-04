@@ -232,6 +232,9 @@ type AudioSpeechRequest struct {
 type AudioTranscriptionRequest struct {
 	AudioB64 *string `json:"audio_b64,omitempty"`
 	AudioUrl *string `json:"audio_url,omitempty"`
+	ChunkingStrategy interface{} `json:"chunking_strategy,omitempty"`
+	KnownSpeakerNames *[]string `json:"known_speaker_names,omitempty"`
+	KnownSpeakerReferences *[]string `json:"known_speaker_references,omitempty"`
 	Language *string `json:"language,omitempty"`
 	Model string `json:"model"`
 	Provider *map[string]interface{} `json:"provider,omitempty"`
@@ -433,6 +436,7 @@ const (
 	BenchmarkIdAceBench BenchmarkId = "ace-bench"
 	BenchmarkIdActivitynet BenchmarkId = "activitynet"
 	BenchmarkIdAethercode BenchmarkId = "aethercode"
+	BenchmarkIdAgentsLastExam BenchmarkId = "agents-last-exam"
 	BenchmarkIdAgieval BenchmarkId = "agieval"
 	BenchmarkIdAi2ReasoningChallengeArc BenchmarkId = "ai2-reasoning-challenge-(arc)"
 	BenchmarkIdAi2Sciarena BenchmarkId = "ai2-sciarena"
@@ -587,6 +591,8 @@ const (
 	BenchmarkIdDrop BenchmarkId = "drop"
 	BenchmarkIdDsArenaCode BenchmarkId = "ds-arena-code"
 	BenchmarkIdDsFimEval BenchmarkId = "ds-fim-eval"
+	BenchmarkIdDsbenchFullstack BenchmarkId = "dsbench-fullstack"
+	BenchmarkIdDsbenchHard BenchmarkId = "dsbench-hard"
 	BenchmarkIdDubesorLlm BenchmarkId = "dubesor-llm"
 	BenchmarkIdDude BenchmarkId = "dude"
 	BenchmarkIdDynamath BenchmarkId = "dynamath"
@@ -1312,6 +1318,11 @@ type FunctionToolDefinition struct {
 	Type string `json:"type"`
 }
 
+type FusionToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
+	Type string `json:"type"`
+}
+
 type GatewayDatetimeToolDefinition struct {
 	Parameters *map[string]interface{} `json:"parameters,omitempty"`
 	Timezone *string `json:"timezone,omitempty"`
@@ -1513,8 +1524,8 @@ const (
 	KnownModelIdDeepseekDeepseekV32 KnownModelId = "deepseek/deepseek-v3.2"
 	KnownModelIdDeepseekDeepseekV32Exp KnownModelId = "deepseek/deepseek-v3.2-exp"
 	KnownModelIdDeepseekDeepseekV32Speciale KnownModelId = "deepseek/deepseek-v3.2-speciale"
-	KnownModelIdDeepseekDeepseekV32Thinking KnownModelId = "deepseek/deepseek-v3.2-thinking"
 	KnownModelIdDeepseekDeepseekV4Flash KnownModelId = "deepseek/deepseek-v4-flash"
+	KnownModelIdDeepseekDeepseekV4Flash0731 KnownModelId = "deepseek/deepseek-v4-flash-0731"
 	KnownModelIdDeepseekDeepseekV4Pro KnownModelId = "deepseek/deepseek-v4-pro"
 	KnownModelIdDeepseekDeepseekV4ProLightning KnownModelId = "deepseek/deepseek-v4-pro-lightning"
 	KnownModelIdElevenLabsElevenFlashV2 KnownModelId = "eleven-labs/eleven-flash-v2"
@@ -1719,6 +1730,7 @@ const (
 	KnownModelIdOpenaiGptRealtime KnownModelId = "openai/gpt-realtime"
 	KnownModelIdOpenaiGptRealtime15 KnownModelId = "openai/gpt-realtime-1.5"
 	KnownModelIdOpenaiGptRealtime2 KnownModelId = "openai/gpt-realtime-2"
+	KnownModelIdOpenaiGptTranscribe KnownModelId = "openai/gpt-transcribe"
 	KnownModelIdOpenaiO1 KnownModelId = "openai/o1"
 	KnownModelIdOpenaiO1Mini KnownModelId = "openai/o1-mini"
 	KnownModelIdOpenaiO1Pro KnownModelId = "openai/o1-pro"
@@ -1836,6 +1848,7 @@ const (
 	KnownModelIdQwenQwen37Max20260517 KnownModelId = "qwen/qwen3.7-max-2026-05-17"
 	KnownModelIdQwenQwen37Plus KnownModelId = "qwen/qwen3.7-plus"
 	KnownModelIdQwenQwen37Plus20260526 KnownModelId = "qwen/qwen3.7-plus-2026-05-26"
+	KnownModelIdQwenQwen38Max KnownModelId = "qwen/qwen3.8-max"
 	KnownModelIdQwenQwq32b KnownModelId = "qwen/qwq-32b"
 	KnownModelIdQwenQwqPlus KnownModelId = "qwen/qwq-plus"
 	KnownModelIdQwenTextEmbeddingV3 KnownModelId = "qwen/text-embedding-v3"
@@ -2387,10 +2400,26 @@ type ResponsesResponse struct {
 	Usage *map[string]interface{} `json:"usage,omitempty"`
 }
 
+type SearchModelsToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
+	Type string `json:"type"`
+}
+
 type ServerToolUsage struct {
+	AdvisorRequests *int `json:"advisor_requests,omitempty"`
+	ApplyPatchRequests *int `json:"apply_patch_requests,omitempty"`
 	DatetimeRequests *int `json:"datetime_requests,omitempty"`
+	FusionRequests *int `json:"fusion_requests,omitempty"`
+	ImageGenerationRequests *int `json:"image_generation_requests,omitempty"`
+	SearchModelsRequests *int `json:"search_models_requests,omitempty"`
+	SubagentRequests *int `json:"subagent_requests,omitempty"`
 	WebFetchRequests *int `json:"web_fetch_requests,omitempty"`
 	WebSearchRequests *int `json:"web_search_requests,omitempty"`
+}
+
+type SubagentToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
+	Type string `json:"type"`
 }
 
 type SupportedParameterDetails struct {

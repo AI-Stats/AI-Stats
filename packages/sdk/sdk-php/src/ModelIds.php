@@ -203,11 +203,11 @@ final class ModelIds
     /** Model ID: deepseek/deepseek-v3.2-speciale. Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-speciale */
     public const DEEPSEEK_DEEPSEEK_V3_2_SPECIALE = 'deepseek/deepseek-v3.2-speciale';
 
-    /** Model ID: deepseek/deepseek-v3.2-thinking. Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-thinking */
-    public const DEEPSEEK_DEEPSEEK_V3_2_THINKING = 'deepseek/deepseek-v3.2-thinking';
-
     /** Model ID: deepseek/deepseek-v4-flash. Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash */
     public const DEEPSEEK_DEEPSEEK_V4_FLASH = 'deepseek/deepseek-v4-flash';
+
+    /** Model ID: deepseek/deepseek-v4-flash-0731. Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash-0731 */
+    public const DEEPSEEK_DEEPSEEK_V4_FLASH_0731 = 'deepseek/deepseek-v4-flash-0731';
 
     /** Model ID: deepseek/deepseek-v4-pro. Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro */
     public const DEEPSEEK_DEEPSEEK_V4_PRO = 'deepseek/deepseek-v4-pro';

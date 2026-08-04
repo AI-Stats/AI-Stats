@@ -143,12 +143,14 @@ type CompareDashboardProps = {
 	models: ExtendedModel[];
 	comparisonData: ExtendedModel[];
 	usageByModel: CompareGatewayUsageByModel;
+	showIntro?: boolean;
 };
 
 export default function CompareDashboard({
 	models,
 	comparisonData,
 	usageByModel,
+	showIntro = true,
 }: CompareDashboardProps) {
 	const searchParams = useSearchParams() ?? new URLSearchParams();
 	const router = useRouter();
@@ -233,7 +235,7 @@ export default function CompareDashboard({
 
 		return (
 			<div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-				<div className="space-y-3">
+				{showIntro ? <div className="space-y-3">
 					<div className="flex flex-wrap items-center gap-2">
 						<Badge variant="secondary" className="text-[11px]">
 							Compare
@@ -255,7 +257,7 @@ export default function CompareDashboard({
 						Build a shareable comparison across benchmarks, pricing, context,
 						availability, and release timelines.
 					</p>
-				</div>
+				</div> : null}
 
 				<div className="grid gap-6 lg:grid-cols-2 items-start">
 					<section className="rounded-2xl border border-border/60 bg-card text-card-foreground p-6 shadow-sm flex flex-col gap-5">

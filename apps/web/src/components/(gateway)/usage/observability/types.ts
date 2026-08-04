@@ -13,19 +13,20 @@ export type ObservabilitySeriesPoint = {
 };
 
 export type ObservabilityKpi = {
-	id: "spend" | "requests" | "tokens" | "cache";
+	id: "spend" | "blended_price" | "requests" | "tokens" | "cache" | "success_rate";
 	label: string;
 	value: number;
 	previous: number;
 	deltaPercent: number | null;
 	sparkline: ObservabilitySeriesPoint[];
-	format: "currency" | "number" | "percent";
+	format: "currency" | "currency_per_million" | "number" | "percent";
 };
 
 export type ObservabilityRankedItem = {
 	id: string;
 	label: string;
 	subtitle?: string | null;
+	imageUrl?: string | null;
 	tokens: number;
 	requests: number;
 	cost: number;

@@ -18,3 +18,6 @@ allowBuilds:
 minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
   - "@shadcn/react"
+  - "@next/*"
+  - "eslint-config-next"
+  - "next"
