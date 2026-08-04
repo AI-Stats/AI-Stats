@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Mistral AI API",
-    "description": "Our Chat Completion and Embeddings APIs specification. Create your account on [La Plateforme](https://console.mistral.ai) to get access and read the [docs](https://docs.mistral.ai) to learn how to use it.",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "description": "Our Chat Completion and Embeddings APIs specification. Create your account on [La Plateforme](https://console.mistral.ai) to get access and read the [docs](https://docs.mistral.ai) to learn how to use it."
   },
   "paths": {
     "/v1/chat/completions": {
@@ -13,7 +13,6 @@
         "tags": [
           "chat"
         ],
-        "security": [],
         "requestBody": {
           "content": {
             "application/json": {
@@ -50,7 +49,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Chat Completion"
       }
     },
     "/v1/embeddings": {
@@ -61,7 +61,6 @@
         "tags": [
           "embeddings"
         ],
-        "security": [],
         "requestBody": {
           "content": {
             "application/json": {
@@ -136,9 +135,12 @@
     },
     "/v1/models": {
       "get": {
+        "operationId": "list_models_v1_models_get",
         "summary": "List Models",
         "description": "List all models available to the user.",
-        "operationId": "list_models_v1_models_get",
+        "tags": [
+          "models"
+        ],
         "parameters": [
           {
             "name": "provider",
@@ -220,11 +222,7 @@
               }
             }
           }
-        },
-        "tags": [
-          "models"
-        ],
-        "security": []
+        }
       }
     },
     "/v1/ocr": {
@@ -234,7 +232,6 @@
         "tags": [
           "ocr"
         ],
-        "security": [],
         "requestBody": {
           "content": {
             "application/json": {
@@ -353,7 +350,8 @@
               }
             }
           }
-        }
+        },
+        "description": "OCR"
       }
     },
     "/v1/audio/transcriptions": {
@@ -363,7 +361,6 @@
         "tags": [
           "audio.transcriptions"
         ],
-        "security": [],
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -401,7 +398,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Create Transcription"
       }
     }
   },
@@ -766,16 +764,16 @@
         }
       },
       "HTTPValidationError": {
+        "type": "object",
         "properties": {
           "detail": {
+            "type": "array",
             "items": {
               "$ref": "#/components/schemas/ValidationError"
             },
-            "type": "array",
             "title": "Detail"
           }
         },
-        "type": "object",
         "title": "HTTPValidationError"
       },
       "EmbeddingRequest": {
@@ -875,6 +873,7 @@
         ]
       },
       "ModelList": {
+        "type": "object",
         "properties": {
           "object": {
             "type": "string",
@@ -882,6 +881,7 @@
             "default": "list"
           },
           "data": {
+            "type": "array",
             "items": {
               "oneOf": [
                 {
@@ -899,11 +899,9 @@
                 }
               }
             },
-            "type": "array",
             "title": "Data"
           }
         },
-        "type": "object",
         "title": "ModelList"
       },
       "OCRRequest": {
@@ -1041,18 +1039,20 @@
           "extract_header": {
             "type": "boolean",
             "title": "Extract Header",
+            "description": "Extract the page header into the response's `header` field and remove it from the markdown content",
             "default": false
           },
           "extract_footer": {
             "type": "boolean",
             "title": "Extract Footer",
+            "description": "Extract the page footer into the response's `footer` field and remove it from the markdown content",
             "default": false
           },
           "include_blocks": {
             "type": "boolean",
             "title": "Include Blocks",
             "description": "Return paragraph-level bounding boxes for all content blocks in the response",
-            "default": false
+            "default": true
           },
           "confidence_scores_granularity": {
             "anyOf": [
@@ -1067,7 +1067,7 @@
                 "type": "null"
               }
             ],
-            "description": "Granularity for confidence scores: 'word' (per-word scores) or 'page' (aggregate only). Defaults to None (no confidence scores) to keep response payload small."
+            "description": "Granularity for confidence scores: 'page' (aggregate only), 'word' (per-word scores). Defaults to None (no confidence scores) to keep response payload small."
           }
         },
         "title": "OCRRequest",
@@ -1115,8 +1115,7 @@
           "pages",
           "model",
           "usage_info"
-        ],
-        "additionalProperties": false
+        ]
       },
       "AudioTranscriptionRequest": {
         "type": "object",
@@ -1905,8 +1904,10 @@
         }
       },
       "ValidationError": {
+        "type": "object",
         "properties": {
           "loc": {
+            "type": "array",
             "items": {
               "anyOf": [
                 {
@@ -1917,7 +1918,6 @@
                 }
               ]
             },
-            "type": "array",
             "title": "Location"
           },
           "msg": {
@@ -1936,13 +1936,12 @@
             "title": "Context"
           }
         },
-        "type": "object",
+        "title": "ValidationError",
         "required": [
           "loc",
           "msg",
           "type"
-        ],
-        "title": "ValidationError"
+        ]
       },
       "EmbeddingDtype": {
         "type": "string",
@@ -2030,6 +2029,7 @@
         ]
       },
       "BaseModelCard": {
+        "type": "object",
         "properties": {
           "id": {
             "type": "string",
@@ -2080,10 +2080,10 @@
             "default": 32768
           },
           "aliases": {
+            "type": "array",
             "items": {
               "type": "string"
             },
-            "type": "array",
             "title": "Aliases",
             "default": []
           },
@@ -2121,21 +2121,26 @@
             ],
             "title": "Default Model Temperature"
           },
+          "internal": {
+            "type": "boolean",
+            "title": "Internal",
+            "default": false
+          },
           "type": {
             "type": "string",
-            "const": "base",
             "title": "Type",
-            "default": "base"
+            "default": "base",
+            "const": "base"
           }
         },
-        "type": "object",
+        "title": "BaseModelCard",
         "required": [
           "id",
           "capabilities"
-        ],
-        "title": "BaseModelCard"
+        ]
       },
       "FTModelCard": {
+        "type": "object",
         "properties": {
           "id": {
             "type": "string",
@@ -2186,10 +2191,10 @@
             "default": 32768
           },
           "aliases": {
+            "type": "array",
             "items": {
               "type": "string"
             },
-            "type": "array",
             "title": "Aliases",
             "default": []
           },
@@ -2227,11 +2232,16 @@
             ],
             "title": "Default Model Temperature"
           },
+          "internal": {
+            "type": "boolean",
+            "title": "Internal",
+            "default": false
+          },
           "type": {
             "type": "string",
-            "const": "fine-tuned",
             "title": "Type",
-            "default": "fine-tuned"
+            "default": "fine-tuned",
+            "const": "fine-tuned"
           },
           "job": {
             "type": "string",
@@ -2247,14 +2257,13 @@
             "default": false
           }
         },
-        "type": "object",
+        "title": "FTModelCard",
         "required": [
           "id",
           "capabilities",
           "job",
           "root"
         ],
-        "title": "FTModelCard",
         "description": "Extra fields for fine-tuned models."
       },
       "FileChunk": {
@@ -2502,8 +2511,7 @@
           "markdown",
           "images",
           "dimensions"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRUsageInfo": {
         "type": "object",
@@ -2530,8 +2538,7 @@
         "title": "OCRUsageInfo",
         "required": [
           "pages_processed"
-        ],
-        "additionalProperties": false
+        ]
       },
       "File": {
         "type": "string",
@@ -3086,6 +3093,7 @@
         }
       },
       "ModelCapabilities": {
+        "type": "object",
         "properties": {
           "completion_chat": {
             "type": "boolean",
@@ -3151,9 +3159,13 @@
             "type": "boolean",
             "title": "Audio Speech",
             "default": false
+          },
+          "unified_resources": {
+            "type": "boolean",
+            "title": "Unified Resources",
+            "default": false
           }
         },
-        "type": "object",
         "title": "ModelCapabilities",
         "description": "This is populated by Harmattan, but some fields have a name\nthat we don't want to expose in the API."
       },
@@ -3273,8 +3285,7 @@
           "top_left_y",
           "bottom_right_x",
           "bottom_right_y"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRTableObject": {
         "type": "object",
@@ -3319,8 +3330,7 @@
           "id",
           "content",
           "format"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRPageDimensions": {
         "type": "object",
@@ -3349,8 +3359,7 @@
           "dpi",
           "height",
           "width"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRPageConfidenceScores": {
         "type": "object",
@@ -3383,7 +3392,6 @@
           "average_page_confidence_score",
           "minimum_page_confidence_score"
         ],
-        "additionalProperties": false,
         "description": "Confidence scores for an OCR page at various granularities.\n\nNote on page-level stats:\n- For 'page' granularity: average/minimum are computed from per-token exp(logprob).\n- For 'word' granularity: average/minimum are computed from per-word confidence,\n  where each word's confidence is exp(mean(token_logprobs)) — a geometric mean\n  over the word's subword tokens."
       },
       "OCRTextBlock": {
@@ -3428,8 +3436,7 @@
           "bottom_right_x",
           "bottom_right_y",
           "content"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRListBlock": {
         "type": "object",
@@ -3473,8 +3480,7 @@
           "bottom_right_x",
           "bottom_right_y",
           "content"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRImageBlock": {
         "type": "object",
@@ -3524,8 +3530,7 @@
           "bottom_right_y",
           "content",
           "image_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRTableBlock": {
         "type": "object",
@@ -3581,8 +3586,7 @@
           "bottom_right_x",
           "bottom_right_y",
           "content"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRTitleBlock": {
         "type": "object",
@@ -3626,8 +3630,7 @@
           "bottom_right_x",
           "bottom_right_y",
           "content"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCREquationBlock": {
         "type": "object",
@@ -3671,8 +3674,7 @@
           "bottom_right_x",
           "bottom_right_y",
           "content"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRCaptionBlock": {
         "type": "object",
@@ -3716,8 +3718,7 @@
           "bottom_right_x",
           "bottom_right_y",
           "content"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRCodeBlock": {
         "type": "object",
@@ -3761,8 +3762,7 @@
           "bottom_right_x",
           "bottom_right_y",
           "content"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRReferencesBlock": {
         "type": "object",
@@ -3806,8 +3806,7 @@
           "bottom_right_x",
           "bottom_right_y",
           "content"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRAsideTextBlock": {
         "type": "object",
@@ -3851,8 +3850,7 @@
           "bottom_right_x",
           "bottom_right_y",
           "content"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRHeaderBlock": {
         "type": "object",
@@ -3896,8 +3894,7 @@
           "bottom_right_x",
           "bottom_right_y",
           "content"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRFooterBlock": {
         "type": "object",
@@ -3941,8 +3938,7 @@
           "bottom_right_x",
           "bottom_right_y",
           "content"
-        ],
-        "additionalProperties": false
+        ]
       },
       "OCRSignatureBlock": {
         "type": "object",
@@ -3987,7 +3983,6 @@
           "bottom_right_y",
           "content"
         ],
-        "additionalProperties": false,
         "description": "Signature region. ``content`` is the transcribed name when legible, else ``\"\"``."
       },
       "TextChunk": {
@@ -4423,7 +4418,6 @@
           "confidence",
           "start_index"
         ],
-        "additionalProperties": false,
         "description": "Confidence score for a token or word in OCR output."
       },
       "ToolReferenceChunk": {
