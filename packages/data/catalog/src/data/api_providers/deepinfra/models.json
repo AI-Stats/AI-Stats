@@ -3306,6 +3306,68 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "qwen/qwen3.8-max",
+    "provider_api_model_id": "deepinfra:qwen/qwen3.8-max",
+    "provider_model_slug": "Qwen/Qwen3.8-Max",
+    "internal_model_id": "qwen/qwen3.8-max",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-03T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api",
+        "url": "https://api.deepinfra.com/models/Qwen/Qwen3.8-Max",
+        "accessed_at": "2026-08-03T00:00:00Z",
+        "notes": "Official live model metadata and pricing."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://deepinfra.com/Qwen/Qwen3.8-Max",
+        "accessed_at": "2026-08-03T00:00:00Z",
+        "notes": "Official DeepInfra model page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-03T00:00:00Z",
+      "notes": "Official DeepInfra model API confirms the public Qwen/Qwen3.8-Max deployment, OpenAI compatibility, tools, structured outputs, non-reasoning mode, and 256K context."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "stepfun/step-3.5-flash",
     "provider_api_model_id": "deepinfra:stepfun/step-3.5-flash",
     "provider_model_slug": "stepfun-ai/Step-3.5-Flash",
@@ -3719,7 +3781,10 @@
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": null,
+      "data": null
+    },
     "service_tiers": [],
     "api": { "formats": [], "endpoint": null, "deployment": null },
     "sources": [
