@@ -95,7 +95,7 @@ function GameScaffold({
 }) {
   const info = GAME_INFO[game];
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,var(--color-muted),transparent_38%)] px-4 py-8 sm:py-12">
+    <main className="min-h-screen bg-background px-4 py-8 sm:py-12">
       <div className="mx-auto max-w-6xl [&_[data-slot=button]]:rounded-lg">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <Button asChild variant="ghost" className="rounded-lg">
