@@ -6,6 +6,10 @@ import { MessageScroller } from "@shadcn/react/message-scroller";
 import { ChatConversationComposer } from "@/components/(chat)/ChatConversationComposer";
 import { ChatConversationMessages } from "@/components/(chat)/ChatConversationMessages";
 import type { ChatRequestErrorDetails } from "@/components/(chat)/ChatRequestErrorNotice";
+import {
+	shouldResetComposerForConversationChange,
+	type ComposerConversationState,
+} from "@/components/(chat)/chatComposerConversationChange";
 import type {
 	ChatServerToolConfigs,
 	ChatServerToolType,
@@ -205,10 +209,29 @@ export function ChatConversation({
 	);
 
 	const activeThreadId = activeThread?.id ?? null;
+	const previousConversationStateRef = useRef<ComposerConversationState | null>(
+		null,
+	);
 	const lastMessageId =
 		activeThread?.messages[activeThread.messages.length - 1]?.id ?? null;
 
 	useEffect(() => {
+		const currentConversationState = {
+			activeThreadId,
+			temporaryMode,
+		};
+		const shouldReset = shouldResetComposerForConversationChange(
+			previousConversationStateRef.current,
+			currentConversationState,
+		);
+		previousConversationStateRef.current = currentConversationState;
+		if (!shouldReset) {
+			if (shouldFocusComposerAfterThreadChange()) {
+				textareaRef.current?.focus();
+			}
+			return;
+		}
+
 		const raf = requestAnimationFrame(() => {
 			setComposer("");
 			setAttachments([]);
@@ -219,7 +242,7 @@ export function ChatConversation({
 			}
 		});
 		return () => cancelAnimationFrame(raf);
-	}, [activeThreadId]);
+	}, [activeThreadId, temporaryMode]);
 
 	useEffect(() => {
 		const requiresAudioInput = attachments.some((attachment) =>
