@@ -285,6 +285,8 @@ describe("account settings routes", () => {
 				displayName: "Test User",
 				email: "user@example.com",
 				defaultWorkspaceId: "workspace-1",
+				declaredCountryCode: null,
+				countryStorageAvailable: true,
 				obfuscateInfo: true,
 				createdAt: "2025-01-01T00:00:00Z",
 			},

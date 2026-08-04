@@ -19,8 +19,22 @@ function asTextArray(value: unknown): string[] {
     return text ? text.split(",").map(item => item.trim()).filter(Boolean) : [];
 }
 
+export function catalogueStatus(value: unknown): string {
+    switch (String(value ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_")) {
+        case "rumoured": return "rumoured";
+        case "announced": return "announced";
+        case "preview": return "preview";
+        case "available": return "available";
+        case "limited_access": return "limited_access";
+        case "deprecated": return "deprecated";
+        case "retired": return "retired";
+        case "withheld": return "withheld";
+        default: return "unknown";
+    }
+}
+
 function modelStatus(value: unknown): string {
-    switch (String(value ?? "").trim().toLowerCase()) {
+    switch (catalogueStatus(value)) {
         case "retired": return "retired";
         case "deprecated": return "deprecated";
         case "withheld": return "disabled";
@@ -47,9 +61,84 @@ export function routeStatus(value: unknown, isActiveGateway = false): string {
         case "disabled": return "disabled";
         case "retired": return "retired";
         case "active": return "active";
-        case "degraded": return "degraded";
+        case "degraded":
+        case "deranked_lvl1":
+        case "deranked_lvl2":
+        case "deranked_lvl3": return "degraded";
         default: return isActiveGateway ? "active" : "degraded";
     }
+}
+
+const PROVIDER_AVAILABILITY_STATUSES = new Set([
+    "unknown",
+    "coming_soon",
+    "preview",
+    "available",
+    "limited_access",
+    "deprecated",
+    "removed",
+]);
+
+const PHASEO_STATUSES = new Set([
+    "unsupported",
+    "planned",
+    "implementing",
+    "testing",
+    "enabled",
+    "disabled",
+    "blocked",
+]);
+
+const ROUTE_ACCESS_SCOPES = new Set(["public", "internal"]);
+
+function normalizedStatus(value: unknown): string {
+    return String(value ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+}
+
+function routeCapabilities(row: Record<string, any>): Record<string, any>[] {
+    return Array.isArray(row.capabilities) ? row.capabilities : [];
+}
+
+export function providerAvailabilityStatus(row: Record<string, any>): string {
+    const explicitValue = row.provider_status ?? row.provider_availability_status;
+    const explicit = normalizedStatus(explicitValue);
+    if (PROVIDER_AVAILABILITY_STATUSES.has(explicit)) return explicit;
+    if (explicitValue !== null && explicitValue !== undefined && explicit !== "") return "unknown";
+    const routing = normalizedStatus(row.routing_status);
+    if (routing === "retired") return "removed";
+    if (routeCapabilities(row).some(capability => normalizedStatus(capability.status) === "coming_soon")) {
+        return "coming_soon";
+    }
+    return "available";
+}
+
+export function phaseoStatus(row: Record<string, any>, providerIsExternal = false): string {
+    const explicitValue = row.phaseo_status;
+    const explicit = normalizedStatus(explicitValue);
+    if (PHASEO_STATUSES.has(explicit)) return explicit;
+    if (explicitValue !== null && explicitValue !== undefined && explicit !== "") return "disabled";
+    if (providerIsExternal || row.routable === false) return "unsupported";
+    const capabilities = routeCapabilities(row).map(capability => normalizedStatus(capability.status));
+    if (capabilities.includes("internal_testing")) return "testing";
+    if (capabilities.includes("coming_soon")) return "planned";
+    const routing = normalizedStatus(row.routing_status);
+    if (Boolean(row.is_active_gateway) && !["disabled", "retired"].includes(routing)) return "enabled";
+    return "disabled";
+}
+
+export function routeAccessScope(row: Record<string, any>, providerIsExternal = false): string {
+    const explicitValue = row.access_scope;
+    const explicit = normalizedStatus(explicitValue);
+    if (ROUTE_ACCESS_SCOPES.has(explicit)) return explicit;
+    if (explicitValue !== null && explicitValue !== undefined && explicit !== "") return "internal";
+    return phaseoStatus(row, providerIsExternal) === "testing" ? "internal" : "public";
+}
+
+export function phaseoRoutingEnabled(row: Record<string, any>, providerIsExternal = false): boolean {
+    return phaseoStatus(row, providerIsExternal) === "enabled"
+        && routeAccessScope(row, providerIsExternal) === "public"
+        && ["available", "preview", "limited_access"].includes(providerAvailabilityStatus(row))
+        && !["disabled", "retired"].includes(normalizedStatus(row.routing_status));
 }
 
 export function v2RouteExecutionRegions(
@@ -649,6 +738,7 @@ export async function syncV2Catalogue(): Promise<void> {
         name: row.name,
         description: row.description ?? null,
         status: modelStatus(row.status),
+        catalogue_status: catalogueStatus(row.status),
         hidden: Boolean(row.hidden),
         input_modalities: asTextArray(row.input_types).map(value => value.toLowerCase()),
         output_modalities: asTextArray(row.output_types).map(value => value.toLowerCase()),
@@ -923,40 +1013,62 @@ export async function syncV2Catalogue(): Promise<void> {
         providerRegionsByProvider.set(region.provider_slug, regions);
     }
 
-    const routeRows = providerModels.filter(row => modelById.has(canonicalModelSlug(row.model_id ?? row.internal_model_id ?? row.api_model_id))).map(row => ({
-        provider_model_id: row.provider_api_model_id,
-        model_slug: v2RouteModelSlug(
-            row,
-            canonicalModelSlug,
-            source.providerModels.get(String(row.provider_api_model_id)),
-        ),
-        provider_slug: row.provider_id,
-        provider_model_slug: row.provider_model_slug,
-        status: routeStatus(row.routing_status, Boolean(row.is_active_gateway)),
-        routing_enabled: Boolean(row.is_active_gateway) && !["disabled", "retired"].includes(String(row.routing_status ?? "").toLowerCase()),
-        input_modalities: asTextArray(row.input_modalities),
-        output_modalities: asTextArray(row.output_modalities),
-        context_length: Number(row.context_length) > 0 ? Number(row.context_length) : null,
-        max_output_tokens: Number(row.max_output_tokens) > 0 ? Number(row.max_output_tokens) : null,
-        effective_from: row.effective_from ?? null,
-        effective_to: row.effective_to && row.effective_from && new Date(row.effective_to) <= new Date(row.effective_from) ? null : row.effective_to ?? null,
-        regions: v2RouteExecutionRegions(
-            providerRegionsByProvider.get(String(row.provider_id)) ?? [],
-            source.providerModels.get(String(row.provider_api_model_id)),
-        ),
-        metadata: {
-            source: "json",
-            legacy_provider_api_model_id: row.provider_api_model_id,
-            quantization_scheme: row.quantization_scheme ?? null,
-            routing_status: source.providerModels.get(String(row.provider_api_model_id))?.routing_status ?? null,
-            routable: source.providerModels.get(String(row.provider_api_model_id))?.routable ?? null,
-            regions: source.providerModels.get(String(row.provider_api_model_id))?.regions ?? null,
-            service_tiers: source.providerModels.get(String(row.provider_api_model_id))?.service_tiers ?? [],
-            api: source.providerModels.get(String(row.provider_api_model_id))?.api ?? null,
-            sources: source.providerModels.get(String(row.provider_api_model_id))?.sources ?? [],
-            verification: source.providerModels.get(String(row.provider_api_model_id))?.verification ?? null,
-        },
-    }));
+    const providerStatusBySlug = new Map(providerRows.map(row => [String(row.provider_slug), String(row.status)]));
+    const routeRows = providerModels
+        .filter(row => modelById.has(canonicalModelSlug(row.model_id ?? row.internal_model_id ?? row.api_model_id)))
+        .map(row => {
+            const authored = source.providerModels.get(String(row.provider_api_model_id));
+            const statusSource = {
+                ...row,
+                provider_status: authored?.provider_status ?? row.provider_status,
+                phaseo_status: authored?.phaseo_status ?? row.phaseo_status,
+                access_scope: authored?.access_scope ?? row.access_scope,
+                routable: authored?.routable ?? row.routable,
+                capabilities: authored?.capabilities ?? row.capabilities ?? [],
+            };
+            const providerIsExternal = providerStatusBySlug.get(String(row.provider_id)) === "external";
+            const upstreamStatus = providerAvailabilityStatus(statusSource);
+            const integrationStatus = phaseoStatus(statusSource, providerIsExternal);
+            const accessScope = routeAccessScope(statusSource, providerIsExternal);
+            return {
+                provider_model_id: row.provider_api_model_id,
+                model_slug: v2RouteModelSlug(
+                    row,
+                    canonicalModelSlug,
+                    authored,
+                ),
+                provider_slug: row.provider_id,
+                provider_model_slug: row.provider_model_slug,
+                status: routeStatus(row.routing_status, Boolean(row.is_active_gateway)),
+                provider_availability_status: upstreamStatus,
+                phaseo_status: integrationStatus,
+                access_scope: accessScope,
+                routing_enabled: phaseoRoutingEnabled(statusSource, providerIsExternal),
+                input_modalities: asTextArray(row.input_modalities),
+                output_modalities: asTextArray(row.output_modalities),
+                context_length: Number(row.context_length) > 0 ? Number(row.context_length) : null,
+                max_output_tokens: Number(row.max_output_tokens) > 0 ? Number(row.max_output_tokens) : null,
+                effective_from: row.effective_from ?? null,
+                effective_to: row.effective_to && row.effective_from && new Date(row.effective_to) <= new Date(row.effective_from) ? null : row.effective_to ?? null,
+                regions: v2RouteExecutionRegions(
+                    providerRegionsByProvider.get(String(row.provider_id)) ?? [],
+                    authored,
+                ),
+                metadata: {
+                    source: "json",
+                    legacy_provider_api_model_id: row.provider_api_model_id,
+                    quantization_scheme: row.quantization_scheme ?? null,
+                    routing_status: authored?.routing_status ?? null,
+                    routable: authored?.routable ?? null,
+                    access_scope: authored?.access_scope ?? null,
+                    regions: authored?.regions ?? null,
+                    service_tiers: authored?.service_tiers ?? [],
+                    api: authored?.api ?? null,
+                    sources: authored?.sources ?? [],
+                    verification: authored?.verification ?? null,
+                },
+            };
+        });
     await upsertChunks(supa, "v2_model_provider_routes", routeRows, "provider_model_id");
     const desiredRouteIds = new Set(routeRows.map(row => String(row.provider_model_id)));
     const excludedRouteIds = new Set(

@@ -28,8 +28,9 @@ export type ProfileSnapshot = ProfileUsageSummary & {
 	memberSince: string;
 	workspaceName: string | null;
 	publicProfileEnabled: boolean;
-	publicProfileSlug: string;
-	shareUrl: string;
+	publicProfileSlug: string | null;
+	suggestedProfileSlug?: string;
+	shareUrl: string | null;
 };
 
 export type SettingsProfileInitialData = {

@@ -127,10 +127,10 @@ export default async function TermsPage() {
 					If you believe your account or keys have been compromised,
 					you must notify us promptly at{" "}
 					<a
-						href="mailto:support@phaseo.ai"
+						href="mailto:support@phaseo.app"
 						className="text-primary underline"
 					>
-						support@phaseo.ai
+						support@phaseo.app
 					</a>
 					. You should also immediately rotate any affected keys in
 					your own systems. We are not responsible for losses arising
@@ -233,10 +233,10 @@ export default async function TermsPage() {
 					To request a refund of unused Credits within the 24-hour
 					window, email{" "}
 					<a
-						href="mailto:support@phaseo.ai"
+						href="mailto:support@phaseo.app"
 						className="text-primary underline"
 					>
-						support@phaseo.ai
+						support@phaseo.app
 					</a>
 					. This voluntary policy does not affect any mandatory
 					consumer rights you may have under applicable law.
@@ -427,10 +427,10 @@ export default async function TermsPage() {
 					You may stop using the Service at any time. You can request
 					closure of your account by contacting us at{" "}
 					<a
-						href="mailto:support@phaseo.ai"
+						href="mailto:support@phaseo.app"
 						className="text-primary underline"
 					>
-						support@phaseo.ai
+						support@phaseo.app
 					</a>
 					.
 				</p>
@@ -751,10 +751,10 @@ export default async function TermsPage() {
 					<li>
 						Email:{" "}
 						<a
-							href="mailto:support@phaseo.ai"
+							href="mailto:support@phaseo.app"
 							className="text-primary underline"
 						>
-							support@phaseo.ai
+							support@phaseo.app
 						</a>
 					</li>
 				</ul>

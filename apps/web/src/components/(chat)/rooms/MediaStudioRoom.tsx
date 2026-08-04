@@ -78,7 +78,12 @@ import { ImageModelSettingsDialog } from "@/components/(chat)/rooms/settings/Ima
 import { VideoModelSettingsDialog } from "@/components/(chat)/rooms/settings/VideoModelSettingsDialog";
 import { RoomErrorNotice } from "@/components/(chat)/rooms/RoomErrorNotice";
 import {
-	ChevronRight,
+	RoomComposerFooter,
+	RoomComposerSurface,
+} from "@/components/(chat)/RoomComposer";
+import {
+	PanelLeftClose,
+	PanelLeftOpen,
 	CircleAlert,
 	Cpu,
 	Download,
@@ -893,42 +898,6 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 	const modelSettingsCompat = modelSettings as any;
 	const selectedProfile =
 		modelSettingsCompat.selectedProfile ?? modelSettingsCompat.activeModelSettings ?? null;
-	const selectedProviderId = selectedProfile?.providerId;
-	const composerSelectedModel = useMemo(
-		() =>
-			filteredModels.find(
-				(model) =>
-					model.modelId === activeModelId &&
-					(!selectedProviderId || model.providerId === selectedProviderId),
-			) ??
-			filteredModels.find((model) => model.modelId === activeModelId) ??
-			null,
-		[activeModelId, filteredModels, selectedProviderId],
-	);
-	const composerModelLogoId =
-		composerSelectedModel?.organisationId?.trim() ||
-		composerSelectedModel?.providerId ||
-		(activeModelId.split("/")[0] || "phaseo");
-	const composerModelLabel =
-		(activeModelId &&
-			(modelSettings.modelDisplayNameById[activeModelId] ||
-				composerSelectedModel?.modelName ||
-				activeModelId)) ||
-		"Select model";
-	const openComposerModelPicker = () => {
-		const targetModelId =
-			activeModelId || selectedModelIds[0] || filteredModels[0]?.modelId;
-		if (!targetModelId) return;
-		if (!selectedModelIds.includes(targetModelId)) {
-			setSelectedModelIds((prev) =>
-				roomId === "video" ? [targetModelId] : [...prev, targetModelId],
-			);
-		}
-		if (targetModelId !== activeModelId) {
-			setActiveModelId(targetModelId);
-		}
-		modelSettings.openModelSettingsForModel(targetModelId);
-	};
 	const dialogModelId: string | null = modelSettingsCompat.modelSettingsModelId ?? null;
 	const dialogProfile =
 		dialogModelId && typeof modelSettingsCompat.getProfileForModel === "function"
@@ -1821,16 +1790,15 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 							<Button
 								variant="ghost"
 								size="icon"
-								className="group -ml-1 h-8 w-8"
-								onClick={toggleSidebar}
+							className="-ml-1 h-8 w-8"
+							onClick={toggleSidebar}
+							aria-label={sidebarState === "expanded" ? "Collapse sidebar" : "Open sidebar"}
 							>
-								<ChevronRight
-									className={`h-4 w-4 transition-transform duration-200 ${
-										sidebarState === "expanded"
-											? "rotate-180 group-hover:-translate-x-1"
-											: "group-hover:translate-x-1"
-									}`}
-								/>
+							{sidebarState === "expanded" ? (
+								<PanelLeftClose className="h-4 w-4" />
+							) : (
+								<PanelLeftOpen className="h-4 w-4" />
+							)}
 							</Button>
 						</TooltipTrigger>
 						<TooltipContent side={sidebarState === "collapsed" ? "right" : "bottom"} align="center" sideOffset={8}>Toggle sidebar</TooltipContent>
@@ -1890,7 +1858,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 					</div>
 				) : null}
 				{entries.length === 0 ? (
-					<div className="flex min-h-[240px] items-center justify-center rounded-xl border border-dashed border-border bg-muted/15 px-6 text-center text-sm text-muted-foreground">
+					<div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-border bg-muted/15 px-6 text-center text-sm text-muted-foreground">
 						{isImageRoom ? "Your generated images will appear here." : "Your generated videos will appear here."}
 					</div>
 				) : isImageRoom ? (
@@ -1901,7 +1869,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 							return (
 								<div
 									key={entry.id}
-									className="overflow-hidden rounded-xl border border-border bg-card"
+									className="overflow-hidden rounded-2xl border border-border bg-card"
 								>
 									<div className="relative aspect-[4/5] bg-muted/20">
 										{entry.status === "failed" ? (
@@ -2042,7 +2010,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 							const modelLabel = modelLabelById.get(entry.modelId) ?? entry.modelId;
 							const pendingState = getPendingGenerationState(entry, "video");
 							return (
-								<div className="flex min-h-[460px] flex-col overflow-hidden rounded-xl border border-border bg-card">
+								<div className="flex min-h-[460px] flex-col overflow-hidden rounded-2xl border border-border bg-card">
 									<div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
 										<div className="min-w-0">
 											<p className="truncate text-sm font-medium text-foreground" title={modelLabel}>
@@ -2137,7 +2105,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 										) : entry.url ? (
 											<MediaPlayer
 												theme="surface"
-												className="h-full w-full overflow-hidden rounded-xl border border-border/70 bg-gradient-to-b from-muted/80 to-background shadow-sm"
+										className="h-full w-full overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-b from-muted/80 to-background shadow-sm"
 											>
 												<div className="flex h-full min-h-[320px] items-center justify-center px-3 pb-2 pt-3">
 													<MediaPlayerVideo
@@ -2189,13 +2157,13 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 						})()}
 					</div>
 				) : (
-					<div className="flex min-h-[240px] items-center justify-center rounded-xl border border-dashed border-border bg-muted/15 px-6 text-center text-sm text-muted-foreground">
+					<div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-border bg-muted/15 px-6 text-center text-sm text-muted-foreground">
 						Your generated videos will appear here.
 					</div>
 				)}
 			</main>
 
-			<footer className="border-t border-border px-4 py-3 md:px-6">
+			<RoomComposerFooter>
 				<div className="mx-auto w-full max-w-3xl space-y-2">
 					{roomId === "video" && hasPendingEntries ? (
 						<p className="text-xs text-muted-foreground">
@@ -2211,7 +2179,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 						</div>
 					) : null}
 					{error ? <RoomErrorNotice error={error} /> : null}
-					<div className="rounded-2xl border border-border bg-background px-3 py-2">
+					<RoomComposerSurface className="flex flex-col gap-1 px-2 py-1 sm:flex-row sm:items-center">
 						<Textarea
 							value={prompt}
 							onChange={(event) => setPrompt(event.target.value)}
@@ -2227,38 +2195,12 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 									: "Describe the video you want to create..."
 							}
 							disabled={roomId === "video" && hasPendingEntries}
-							rows={3}
-							className="min-h-[64px] resize-none border-0 bg-transparent px-1 py-2 shadow-none focus-visible:ring-0"
+							rows={1}
+							className="order-1 min-h-9 w-full resize-none border-0 !bg-transparent px-2 py-2 shadow-none focus-visible:ring-0 sm:order-2 sm:flex-1 dark:!bg-transparent"
 						/>
-						<div className="flex items-center justify-between pt-2">
-							<div className="flex items-center gap-1.5">
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button
-											type="button"
-											variant="ghost"
-											className="h-8 gap-1.5 px-2"
-											onClick={openComposerModelPicker}
-											disabled={filteredModels.length === 0 || (roomId === "video" && hasPendingEntries)}
-										>
-											{activeModelId ? (
-												<Logo
-													id={composerModelLogoId}
-													alt={composerModelLabel}
-													width={16}
-													height={16}
-													className="shrink-0 rounded-none"
-												/>
-											) : (
-												<Cpu className="h-4 w-4 text-muted-foreground" />
-											)}
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent side="top">{composerModelLabel}</TooltipContent>
-								</Tooltip>
-							</div>
+						<div className="order-2 flex w-full items-center justify-between sm:contents">
 							<Button
-								className="ml-auto"
+								className="order-3 ml-auto"
 								onClick={submit}
 								disabled={
 									!prompt.trim() ||
@@ -2276,9 +2218,9 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 										: "Create"}
 							</Button>
 						</div>
-					</div>
+					</RoomComposerSurface>
 				</div>
-			</footer>
+			</RoomComposerFooter>
 			<Dialog
 				open={Boolean(previewEntryId)}
 				onOpenChange={(open) => {
@@ -2301,7 +2243,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 									</DialogHeader>
 								</div>
 								<div className="bg-muted/20 p-4">
-									<div className="flex max-h-[62vh] min-h-[320px] items-center justify-center overflow-hidden rounded-lg border border-border bg-background/60">
+									<div className="flex max-h-[62vh] min-h-[320px] items-center justify-center overflow-hidden rounded-2xl border border-border bg-background/60">
 										<img
 											src={previewEntry.url}
 											alt={previewEntry.prompt || "Generated image"}
@@ -2411,11 +2353,11 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 									</DialogHeader>
 								</div>
 								<div className="bg-muted/20 p-4">
-									<div className="flex min-h-[260px] items-center justify-center overflow-hidden rounded-lg border border-border bg-background/60 p-2">
+									<div className="flex min-h-[260px] items-center justify-center overflow-hidden rounded-2xl border border-border bg-background/60 p-2">
 										{previewEntry.url ? (
 											<MediaPlayer
 												theme="surface"
-												className="w-full overflow-hidden rounded-xl border border-border/70 bg-gradient-to-b from-muted/80 to-background shadow-sm"
+											className="w-full overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-b from-muted/80 to-background shadow-sm"
 											>
 												<div className="flex items-center justify-center px-3 pb-2 pt-3">
 													<div

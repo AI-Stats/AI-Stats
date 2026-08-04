@@ -4,7 +4,7 @@
     "description": "The Venice.ai API.",
     "termsOfService": "https://venice.ai/legal/tos",
     "title": "Venice.ai API",
-    "version": "20260709.204640",
+    "version": "20260804.102938",
     "x-guidance": "Venice.ai is an OpenAI-compatible inference API supporting text, image, audio, and video generation.\n\n**Authentication options:**\n- API Key: Use Bearer token in Authorization header\n- x402 Wallet: Use USDC credits via EVM or Solana wallet (no account required)\n\n**For x402 wallet access:**\n1. POST /x402/top-up without headers to get payment requirements\n2. Choose one of the returned Base or Solana payment options and sign a USDC payment using the x402 SDK\n3. POST /x402/top-up with PAYMENT-SIGNATURE header to add credits\n4. Call any inference endpoint with SIGN-IN-WITH-X header\n\n**Pricing:** Prepaid credits consumed per request. Check /models for available models and their capabilities."
   },
   "paths": {
@@ -284,6 +284,11 @@
                                     "enum": [
                                       "assistant"
                                     ]
+                                  },
+                                  "thought_signature": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Gemini thought signature returned by native GCP transport. For multi-turn conversations (especially with tool calls), pass it back exactly as received to preserve thought signatures."
                                   },
                                   "tool_calls": {
                                     "type": "array",
@@ -577,13 +582,13 @@
                           "example": [
                             {
                               "content": "What&#x27;s the scientific reason behind Earth&#x27;s sky appearing blue to the human eye? And what&#x27;s the real colour of the sky?\n\nSave 30% on the shop price when you subscribe to BBC Sky at Night Magazine today!\n\nIn this article we'll look at the science behind why the sky is blue, or at least why it appears blue to our eyes.\n\nA beautiful blue sky is the sign of a pleasant day ahead. But what makes the sky appear blue?\n\nSo, the sky appears blue because the molecules of nitrogen and oxygen in the atmosphere scatter light in short wavelengths towards the blue end of the visible spectrum.",
-                              "date": "2024-08-13T13:45:16.000Z",
+                              "date": "2024-08-13T13:45:16",
                               "title": "Why is the sky blue? | BBC Sky at Night Magazine",
                               "url": "https://www.skyatnightmagazine.com/space-science/why-is-the-sky-blue"
                             },
                             {
                               "content": "It was around 1870 when the British physicist John William Strutt, better known as Lord Rayleigh, first found an explanation for why the sky is blue: Blue light from the Sun is scattered the most when it passes through the atmosphere.\n\nPublished: January 20, 2025 8:34am EST · Daniel Freedman, University of Wisconsin-Stout · Daniel Freedman · Dean of the College of Science, Technology, Engineering, Mathematics & Management, University of Wisconsin-Stout ·\n\nThe answer has to do with molecules.\n\nIt was around 1870 when the British physicist John William Strutt, better known as Lord Rayleigh, first found an explanation for why the sky is blue: Blue light from the Sun is scattered the most when it passes through the atmosphere.\n\nWhen the Sun is near the horizon, its light passes through a lot more of the atmosphere to reach the Earth’s surface than when it is directly overhead. The blue and green light is scattered so well that you can hardly see it. The sky is colored, instead, with red and orange light.",
-                              "date": "2025-04-16T16:55:11.000Z",
+                              "date": "2025-04-16T16:55:11",
                               "title": "Why is the sky blue?",
                               "url": "https://theconversation.com/why-is-the-sky-blue-246393"
                             }
@@ -2078,6 +2083,11 @@
                         "assistant"
                       ]
                     },
+                    "thought_signature": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Gemini thought signature returned by native GCP transport. For multi-turn conversations (especially with tool calls), pass it back exactly as received to preserve thought signatures."
+                    },
                     "tool_calls": {
                       "type": "array",
                       "nullable": true,
@@ -2503,7 +2513,7 @@
             "description": "Anthropic beta parameter for Claude Fable 5 server-side refusal fallback. Forwarded only for direct Anthropic routes; ignored for other providers.",
             "example": [
               {
-                "model": "claude-opus-5"
+                "model": "claude-opus-4-8"
               }
             ]
           },
@@ -3819,7 +3829,7 @@
             "description": "Anthropic beta parameter for Claude Fable 5 server-side refusal fallback. Forwarded only for direct Anthropic routes; ignored for other providers.",
             "example": [
               {
-                "model": "claude-opus-5"
+                "model": "claude-opus-4-8"
               }
             ]
           },
@@ -4326,7 +4336,7 @@
           "id": {
             "type": "string",
             "description": "Model ID",
-            "example": "zai-org-glm-5-2"
+            "example": "gemini-3-6-flash"
           },
           "model_spec": {
             "type": "object",
@@ -4339,7 +4349,7 @@
               "maxCompletionTokens": {
                 "type": "number",
                 "description": "The maximum number of completion tokens the model can generate. Use this to know the upper bound for the max_completion_tokens request parameter. Only applicable for text models.",
-                "example": 131072
+                "example": 65536
               },
               "beta": {
                 "type": "boolean",
@@ -4504,6 +4514,11 @@
                     "description": "Maximum number of images supported per request. Only present when supportsMultipleImages is true.",
                     "example": 10
                   },
+                  "maxVideos": {
+                    "type": "number",
+                    "description": "Maximum number of video attachments supported per chat request. Only present when supportsVideoInput is true.",
+                    "example": 4
+                  },
                   "supportsVision": {
                     "type": "boolean",
                     "description": "Does the LLM support vision?",
@@ -4656,6 +4671,16 @@
                         "type": "number",
                         "description": "The requested width and height of the image generation must be divisible by this value.",
                         "example": 8
+                      },
+                      "maxStyleReferences": {
+                        "type": "number",
+                        "description": "Maximum number of style_references accepted by POST /image/generate. Only present for models that support style references.",
+                        "example": 3
+                      },
+                      "supportsStyleReferenceStrength": {
+                        "type": "boolean",
+                        "description": "Whether per-reference `strength` is honored. When false, style_references strength is ignored. Only present for models that support style references.",
+                        "example": true
                       }
                     },
                     "required": [
@@ -4845,6 +4870,13 @@
                         "description": "Whether this model supports combining multiple input images.",
                         "example": true
                       },
+                      "maxInputImages": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true,
+                        "description": "Maximum number of input images accepted for combine/multi-edit. Absent means the default of 3 (or 1 when combineImages is false).",
+                        "example": 14
+                      },
                       "singleImageAspectRatio": {
                         "type": "boolean",
                         "description": "If false, output dimensions match the input on single-image edits and `aspect_ratio` is ignored. Multi-image edits are unaffected. Defaults to true.",
@@ -4906,6 +4938,11 @@
                 ],
                 "description": "Constraints that apply to this model."
               },
+              "supportsStyleReferences": {
+                "type": "boolean",
+                "description": "Whether this image model accepts `style_references` on POST /image/generate. Only present for image models.",
+                "example": true
+              },
               "description": {
                 "type": "string",
                 "description": "A human-readable description of the model and its capabilities.",
@@ -4914,12 +4951,12 @@
               "name": {
                 "type": "string",
                 "description": "The name of the model.",
-                "example": "GLM 5.2"
+                "example": "Gemini 3.6 Flash"
               },
               "modelSource": {
                 "type": "string",
                 "description": "The source of the model, such as a URL to the model repository.",
-                "example": "https://huggingface.co/zai-org/GLM-5.2"
+                "example": ""
               },
               "offline": {
                 "type": "boolean",
@@ -5768,6 +5805,11 @@
                 "description": "Whether this audio-generation model supports the force_instrumental request parameter.",
                 "example": true
               },
+              "supports_loop": {
+                "type": "boolean",
+                "description": "Whether this audio-generation model supports the loop request parameter.",
+                "example": true
+              },
               "voices": {
                 "type": "array",
                 "items": {
@@ -5832,6 +5874,11 @@
                 "type": "string",
                 "description": "Default voice for voice-enabled music models.",
                 "example": "Aria"
+              },
+              "supports_custom_voice_id": {
+                "type": "boolean",
+                "description": "Whether this model accepts a caller-supplied provider Voice ID in the `voice` parameter in addition to its curated `voices` (e.g. paste an ElevenLabs Voice ID).",
+                "example": true
               },
               "supports_language_code": {
                 "type": "boolean",

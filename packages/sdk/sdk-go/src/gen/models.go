@@ -232,6 +232,9 @@ type AudioSpeechRequest struct {
 type AudioTranscriptionRequest struct {
 	AudioB64 *string `json:"audio_b64,omitempty"`
 	AudioUrl *string `json:"audio_url,omitempty"`
+	ChunkingStrategy interface{} `json:"chunking_strategy,omitempty"`
+	KnownSpeakerNames *[]string `json:"known_speaker_names,omitempty"`
+	KnownSpeakerReferences *[]string `json:"known_speaker_references,omitempty"`
 	Language *string `json:"language,omitempty"`
 	Model string `json:"model"`
 	Provider *map[string]interface{} `json:"provider,omitempty"`
@@ -316,6 +319,7 @@ type BatchModelsResponse struct {
 
 type BatchProviderCapability struct {
 	DocumentationUrl *string `json:"documentation_url,omitempty"`
+	Endpoints *[]map[string]interface{} `json:"endpoints,omitempty"`
 	GatewayInputModes *[]string `json:"gateway_input_modes,omitempty"`
 	Id *string `json:"id,omitempty"`
 	Name *string `json:"name,omitempty"`
@@ -415,6 +419,7 @@ type BatchResponse struct {
 	RequestId *string `json:"request_id,omitempty"`
 	SessionId *string `json:"session_id,omitempty"`
 	Status *string `json:"status,omitempty"`
+	Usage *map[string]interface{} `json:"usage,omitempty"`
 	Webhook *map[string]interface{} `json:"webhook,omitempty"`
 	WebsocketUrl *string `json:"websocket_url,omitempty"`
 }
@@ -1315,6 +1320,11 @@ type FunctionToolDefinition struct {
 	Type string `json:"type"`
 }
 
+type FusionToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
+	Type string `json:"type"`
+}
+
 type GatewayDatetimeToolDefinition struct {
 	Parameters *map[string]interface{} `json:"parameters,omitempty"`
 	Timezone *string `json:"timezone,omitempty"`
@@ -1840,6 +1850,7 @@ const (
 	KnownModelIdQwenQwen37Max20260517 KnownModelId = "qwen/qwen3.7-max-2026-05-17"
 	KnownModelIdQwenQwen37Plus KnownModelId = "qwen/qwen3.7-plus"
 	KnownModelIdQwenQwen37Plus20260526 KnownModelId = "qwen/qwen3.7-plus-2026-05-26"
+	KnownModelIdQwenQwen38Max KnownModelId = "qwen/qwen3.8-max"
 	KnownModelIdQwenQwq32b KnownModelId = "qwen/qwq-32b"
 	KnownModelIdQwenQwqPlus KnownModelId = "qwen/qwq-plus"
 	KnownModelIdQwenTextEmbeddingV3 KnownModelId = "qwen/text-embedding-v3"
@@ -2391,10 +2402,26 @@ type ResponsesResponse struct {
 	Usage *map[string]interface{} `json:"usage,omitempty"`
 }
 
+type SearchModelsToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
+	Type string `json:"type"`
+}
+
 type ServerToolUsage struct {
+	AdvisorRequests *int `json:"advisor_requests,omitempty"`
+	ApplyPatchRequests *int `json:"apply_patch_requests,omitempty"`
 	DatetimeRequests *int `json:"datetime_requests,omitempty"`
+	FusionRequests *int `json:"fusion_requests,omitempty"`
+	ImageGenerationRequests *int `json:"image_generation_requests,omitempty"`
+	SearchModelsRequests *int `json:"search_models_requests,omitempty"`
+	SubagentRequests *int `json:"subagent_requests,omitempty"`
 	WebFetchRequests *int `json:"web_fetch_requests,omitempty"`
 	WebSearchRequests *int `json:"web_search_requests,omitempty"`
+}
+
+type SubagentToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
+	Type string `json:"type"`
 }
 
 type SupportedParameterDetails struct {

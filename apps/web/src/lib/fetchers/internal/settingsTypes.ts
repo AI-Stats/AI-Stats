@@ -91,6 +91,8 @@ export type SettingsAccountDetailsInitialData = {
 		displayName?: string | null;
 		email?: string | null;
 		defaultWorkspaceId?: string | null;
+		declaredCountryCode?: string | null;
+		countryStorageAvailable?: boolean;
 		obfuscateInfo: boolean;
 		createdAt: string;
 	} | null;

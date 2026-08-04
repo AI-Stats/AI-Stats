@@ -148,7 +148,7 @@ export function VirtualizedModelCatalog<T>({
 											: undefined
 									}
 									className={cn(
-										"relative flex min-h-8 cursor-default select-none items-center gap-2 rounded-xl px-2 py-1 text-sm outline-hidden",
+										"relative flex min-h-8 cursor-default select-none items-center gap-2 rounded-md px-2 py-1 text-sm outline-hidden",
 										"data-[selected=true]:bg-muted data-[selected=true]:text-foreground",
 										isItemDisabled(row.item) &&
 											"pointer-events-none opacity-50",

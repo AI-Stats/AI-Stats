@@ -77,6 +77,24 @@ export default function ModelStatusBanner({
 		);
 	}
 
+	if (status === "Preview") {
+		return (
+			<Alert
+				className={cn(
+					"border-cyan-200 bg-cyan-50 text-cyan-950 dark:border-cyan-900/60 dark:bg-cyan-950/20 dark:text-cyan-50",
+					className,
+				)}
+			>
+				<Info className="h-4 w-4 text-cyan-700 dark:text-cyan-300" />
+				<AlertTitle>Preview Model</AlertTitle>
+				<AlertDescription className="text-cyan-900/90 dark:text-cyan-100/90">
+					This model is released as a preview. Availability, behaviour and pricing
+					may change before general availability.
+				</AlertDescription>
+			</Alert>
+		);
+	}
+
 	if (status === "Limited Access") {
 		return (
 			<Alert

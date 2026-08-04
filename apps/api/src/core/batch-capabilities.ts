@@ -2,6 +2,10 @@ export type BatchInputMode = "file" | "requests";
 export type BatchProviderPreviewReadiness = "validated" | "experimental" | "blocked";
 export type BatchProviderReconciliationMode = "provider_webhook_with_polling" | "polling";
 export type BatchProviderSubmissionRecovery = "metadata_lookup" | "manual_review";
+export type BatchEndpointSupport = {
+	endpoint: string;
+	mode: "native" | "translated";
+};
 
 export type BatchProviderCapability = {
 	providerId: string;
@@ -13,6 +17,7 @@ export type BatchProviderCapability = {
 	previewReadiness: BatchProviderPreviewReadiness;
 	reconciliationMode: BatchProviderReconciliationMode;
 	submissionRecovery: BatchProviderSubmissionRecovery;
+	endpoints: BatchEndpointSupport[];
 	supportsMultipleModelsPerBatch?: boolean;
 	notes?: string;
 };
@@ -32,6 +37,11 @@ export const BATCH_PROVIDER_CAPABILITIES: BatchProviderCapability[] = [
 		previewReadiness: "validated",
 		reconciliationMode: "provider_webhook_with_polling",
 		submissionRecovery: "metadata_lookup",
+		endpoints: [
+			{ endpoint: "/v1/chat/completions", mode: "native" },
+			{ endpoint: "/v1/responses", mode: "native" },
+			{ endpoint: "/v1/embeddings", mode: "native" },
+		],
 		notes: "Gateway requests are converted into a provider batch JSONL file before submission.",
 	},
 	{
@@ -44,6 +54,10 @@ export const BATCH_PROVIDER_CAPABILITIES: BatchProviderCapability[] = [
 		previewReadiness: "validated",
 		reconciliationMode: "polling",
 		submissionRecovery: "manual_review",
+		endpoints: [
+			{ endpoint: "/v1/messages", mode: "native" },
+			{ endpoint: "/v1/chat/completions", mode: "translated" },
+		],
 		supportsMultipleModelsPerBatch: true,
 	},
 	{
@@ -56,6 +70,10 @@ export const BATCH_PROVIDER_CAPABILITIES: BatchProviderCapability[] = [
 		previewReadiness: "validated",
 		reconciliationMode: "provider_webhook_with_polling",
 		submissionRecovery: "metadata_lookup",
+		endpoints: [
+			{ endpoint: "/v1/generateContent", mode: "native" },
+			{ endpoint: "/v1/chat/completions", mode: "translated" },
+		],
 		notes: "Gemini requests are submitted to the native Batch API. File-backed Gemini batches require Google Files API integration.",
 	},
 	{
@@ -68,6 +86,7 @@ export const BATCH_PROVIDER_CAPABILITIES: BatchProviderCapability[] = [
 		previewReadiness: "blocked",
 		reconciliationMode: "polling",
 		submissionRecovery: "metadata_lookup",
+		endpoints: [{ endpoint: "/v1/responses", mode: "native" }],
 		supportsMultipleModelsPerBatch: true,
 		notes: "Requests use xAI's create-batch and add-requests workflow. Production access returned 403 in the latest live matrix.",
 	},
@@ -81,6 +100,7 @@ export const BATCH_PROVIDER_CAPABILITIES: BatchProviderCapability[] = [
 		previewReadiness: "validated",
 		reconciliationMode: "polling",
 		submissionRecovery: "metadata_lookup",
+		endpoints: [{ endpoint: "/v1/chat/completions", mode: "native" }],
 	},
 	{
 		providerId: "groq",
@@ -92,6 +112,7 @@ export const BATCH_PROVIDER_CAPABILITIES: BatchProviderCapability[] = [
 		previewReadiness: "experimental",
 		reconciliationMode: "polling",
 		submissionRecovery: "manual_review",
+		endpoints: [{ endpoint: "/v1/chat/completions", mode: "native" }],
 		supportsMultipleModelsPerBatch: true,
 		notes: "Gateway requests are converted into a provider batch JSONL file before submission.",
 	},
@@ -105,6 +126,7 @@ export const BATCH_PROVIDER_CAPABILITIES: BatchProviderCapability[] = [
 		previewReadiness: "experimental",
 		reconciliationMode: "polling",
 		submissionRecovery: "manual_review",
+		endpoints: [{ endpoint: "/v1/chat/completions", mode: "native" }],
 		supportsMultipleModelsPerBatch: true,
 		notes: "Gateway requests are converted into a provider batch JSONL file before submission.",
 	},

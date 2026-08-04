@@ -258,7 +258,21 @@ describe("OAuth route security", () => {
 			issuer: "https://api.example.com/oauth",
 			authorization_endpoint: "https://api.example.com/oauth/authorize",
 			token_endpoint: "https://api.example.com/oauth/token",
+			authorization_response_iss_parameter_supported: true,
 		});
+	});
+
+	it("binds authorization responses to the advertised issuer", async () => {
+		const { authorizationSuccessUrl } = await import("./oauth");
+		const redirect = new URL(authorizationSuccessUrl(
+			"https://client.example/callback",
+			"authorization-code",
+			"opaque-state",
+		));
+
+		expect(redirect.searchParams.get("code")).toBe("authorization-code");
+		expect(redirect.searchParams.get("iss")).toBe("https://api.example.com/oauth");
+		expect(redirect.searchParams.get("state")).toBe("opaque-state");
 	});
 
 	it("does not let device-code denial overwrite a code that is no longer pending", async () => {
@@ -797,6 +811,38 @@ describe("OAuth route security", () => {
 			"management_keys:read",
 			"oauth_clients:read",
 		]);
+	});
+
+	it("classifies legacy loopback registrations as native clients", async () => {
+		const { oauthRouter } = await import("./oauth");
+		const response = await oauthRouter.request("https://example.com/register", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				client_name: "Local MCP host",
+				redirect_uris: ["http://127.0.0.1:6284/oauth/callback"],
+			}),
+		});
+
+		expect(response.status).toBe(201);
+		await expect(response.json()).resolves.toMatchObject({ application_type: "native" });
+	});
+
+	it("rejects web clients that request HTTP loopback redirects", async () => {
+		const { oauthRouter } = await import("./oauth");
+		const response = await oauthRouter.request("https://example.com/register", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				client_name: "Invalid web MCP host",
+				application_type: "web",
+				redirect_uris: ["http://127.0.0.1:6284/oauth/callback"],
+			}),
+		});
+
+		expect(response.status).toBe(400);
+		await expect(response.json()).resolves.toMatchObject({ error: "invalid_redirect_uri" });
+		expect(state.registeredClients).toEqual([]);
 	});
 
 	it("downgrades dynamic refresh-token requests to the authorization-code grant it issues", async () => {

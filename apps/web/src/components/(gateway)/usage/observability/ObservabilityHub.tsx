@@ -478,6 +478,8 @@ function Sparkline({
 	onHoverPoint?: (point: ObservabilitySeriesPoint | null) => void;
 }) {
 	const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
+	const activePointerIdRef = React.useRef<number | null>(null);
+	const suppressClickUntilRef = React.useRef(0);
 	const width = 92;
 	const values = data.map((point) => point.value);
 	const min = Math.min(...values, 0);
@@ -498,6 +500,12 @@ function Sparkline({
 	const handlePointerMove = React.useCallback(
 		(event: React.PointerEvent<SVGSVGElement>) => {
 			if (data.length === 0) return;
+			if (
+				event.pointerType !== "mouse" &&
+				activePointerIdRef.current !== event.pointerId
+			) {
+				return;
+			}
 			const rect = event.currentTarget.getBoundingClientRect();
 			const relativeX =
 				rect.width > 0
@@ -518,10 +526,45 @@ function Sparkline({
 		},
 		[data, onHoverPoint],
 	);
-	const handlePointerLeave = React.useCallback(() => {
+	const clearHoveredPoint = React.useCallback(() => {
 		setHoveredIndex(null);
 		onHoverPoint?.(null);
 	}, [onHoverPoint]);
+	const handlePointerDown = React.useCallback(
+		(event: React.PointerEvent<SVGSVGElement>) => {
+			if (event.pointerType === "mouse") return;
+			event.preventDefault();
+			activePointerIdRef.current = event.pointerId;
+			event.currentTarget.setPointerCapture(event.pointerId);
+			handlePointerMove(event);
+		},
+		[handlePointerMove],
+	);
+	const handlePointerEnd = React.useCallback(
+		(event: React.PointerEvent<SVGSVGElement>) => {
+			if (activePointerIdRef.current !== event.pointerId) return;
+			activePointerIdRef.current = null;
+			if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+				event.currentTarget.releasePointerCapture(event.pointerId);
+			}
+			suppressClickUntilRef.current = Date.now() + 1000;
+			clearHoveredPoint();
+		},
+		[clearHoveredPoint],
+	);
+	const handlePointerLeave = React.useCallback(() => {
+		if (activePointerIdRef.current !== null) return;
+		clearHoveredPoint();
+	}, [clearHoveredPoint]);
+	const handleClick = React.useCallback(
+		(event: React.MouseEvent<SVGSVGElement>) => {
+			if (Date.now() > suppressClickUntilRef.current) return;
+			event.preventDefault();
+			event.stopPropagation();
+			suppressClickUntilRef.current = 0;
+		},
+		[],
+	);
 
 	if (data.length === 0) {
 		return (
@@ -543,8 +586,13 @@ function Sparkline({
 					? `${titlePoint.label}: ${formatValue(titlePoint.value)}`
 					: "No trend data"
 			}
-			className="h-full min-h-[34px] w-full min-w-[72px] overflow-visible text-blue-500"
+			className="h-full min-h-[34px] w-full min-w-[72px] touch-pan-y select-none overflow-visible text-blue-500"
+			onClick={handleClick}
+			onContextMenu={(event) => event.preventDefault()}
+			onPointerDown={handlePointerDown}
 			onPointerMove={handlePointerMove}
+			onPointerUp={handlePointerEnd}
+			onPointerCancel={handlePointerEnd}
 			onPointerLeave={handlePointerLeave}
 		>
 			<title>
@@ -592,17 +640,17 @@ function KpiMetric({
 			className="group relative block min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 		>
 			<Card className="h-full rounded-lg py-0 transition-colors group-hover:bg-muted/20">
-			<div className="grid min-h-[112px] grid-cols-[minmax(0,1fr)_80px] items-center gap-3 px-4 py-3">
+			<div className="grid min-h-[124px] min-w-0 grid-cols-[minmax(0,1fr)_minmax(96px,0.8fr)] items-center gap-4 px-4 py-4 sm:min-h-[112px] sm:grid-cols-[minmax(0,1fr)_80px] sm:gap-3 sm:py-3">
 				<div className="min-w-0">
-					<CardTitle className="text-xs font-medium text-muted-foreground">
+					<CardTitle className="text-xs font-medium leading-tight text-muted-foreground">
 						{kpi.label}
 					</CardTitle>
-					<div className="mt-1 text-2xl font-semibold tracking-tight">
+					<div className="mt-1 truncate text-2xl font-semibold tracking-tight">
 						{formatKpiValue(kpi, displayValue)}
 					</div>
 					<div
 						className={cn(
-							"mt-2 inline-flex items-center gap-1 text-xs font-medium",
+							"mt-2 inline-flex max-w-full items-center gap-1 text-xs font-medium",
 							hoveredPoint
 								? "text-muted-foreground"
 								: positive
@@ -629,7 +677,7 @@ function KpiMetric({
 						)}
 					</div>
 				</div>
-				<div className="min-w-0 text-right">
+				<div className="h-10 min-w-0 w-full text-right sm:h-auto">
 					<Sparkline
 						data={kpi.sparkline}
 						height={38}
@@ -1676,8 +1724,8 @@ function TrendSection({
 
 function Overview({ data }: { data: ObservabilityData }) {
 	return (
-		<div className="space-y-6">
-			<div className="grid grid-cols-2 gap-3 md:grid-cols-3 2xl:grid-cols-6">
+		<div className="space-y-4 sm:space-y-6">
+			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-6">
 				{data.kpis.map((kpi) => (
 					<KpiMetric
 						key={kpi.id}
@@ -2432,8 +2480,8 @@ export default function ObservabilityHub({
 		<div className="space-y-6">
 			<div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
 				<div className="min-w-0 flex-1">
-					<h1 className="text-2xl font-semibold tracking-tight">Activity</h1>
-					<p className="mt-1 text-sm text-muted-foreground">Your usage across Phaseo.</p>
+					<h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Activity</h1>
+					<p className="mt-1 text-xs text-muted-foreground sm:text-sm">Your usage across Phaseo.</p>
 				</div>
 				<div className="flex shrink-0 justify-end">
 					<UsageLogsToolbar

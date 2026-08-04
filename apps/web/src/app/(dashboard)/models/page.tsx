@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import ModelsPageClient from "@/components/(data)/models/Models/ModelsPageClient";
+import { ModelsPageSkeleton } from "@/components/(data)/models/Models/ModelsPageSkeleton";
 import { resolveModelsCatalogueVersion } from "@/lib/models/catalogueVersion";
 import { buildMetadata } from "@/lib/seo";
 
@@ -17,8 +19,16 @@ export const metadata: Metadata = buildMetadata({
 	],
 });
 
-export default async function ModelsPage() {
+async function ModelsPageContent() {
 	return (
 		<ModelsPageClient catalogueVersion={await resolveModelsCatalogueVersion()} />
+	);
+}
+
+export default function ModelsPage() {
+	return (
+		<Suspense fallback={<ModelsPageSkeleton />}>
+			<ModelsPageContent />
+		</Suspense>
 	);
 }

@@ -13,6 +13,27 @@ import { normalizeDynamicRouteConfig, type DynamicRoutePolicy } from "./dynamic-
 
 type ProviderRestrictionMode = "none" | "allowlist" | "blocklist";
 
+export function isOptionalDynamicRouteSchemaUnavailable(error: unknown): boolean {
+	if (!error || typeof error !== "object") return false;
+	const record = error as Record<string, unknown>;
+	const code = String(record.code ?? "").trim().toUpperCase();
+	const message = [record.message, record.details, record.hint]
+		.filter((value): value is string => typeof value === "string")
+		.join(" ")
+		.toLowerCase();
+	const referencesDynamicRouteSchema =
+		message.includes("gateway_dynamic_route_keys") ||
+		message.includes("gateway_dynamic_routes");
+	if (!referencesDynamicRouteSchema) return false;
+	return (
+		code === "42P01" ||
+		code === "PGRST204" ||
+		code === "PGRST205" ||
+		message.includes("does not exist") ||
+		message.includes("schema cache")
+	);
+}
+
 type WorkspaceSettingsRow = {
 	provider_restriction_mode?: string | null;
 	provider_restriction_provider_ids?: string[] | null;
@@ -473,7 +494,14 @@ export async function fetchWorkspacePolicy(args: {
 		throw new Error(`key_guardrails_lookup_failed:${keyGuardrailsResult.error.message}`);
 	}
 	if (routeLinkResult.error) {
-		throw new Error(`dynamic_route_link_lookup_failed:${routeLinkResult.error.message}`);
+		if (isOptionalDynamicRouteSchemaUnavailable(routeLinkResult.error)) {
+			console.warn("[fetchWorkspacePolicy] dynamic_route_schema_unavailable", {
+				workspaceId: args.workspaceId,
+				code: routeLinkResult.error.code ?? null,
+			});
+		} else {
+			throw new Error(`dynamic_route_link_lookup_failed:${routeLinkResult.error.message}`);
+		}
 	}
 
 	const guardrailIds = (keyGuardrailsResult.data ?? [])
@@ -508,9 +536,16 @@ export async function fetchWorkspacePolicy(args: {
 			.eq("workspace_id", args.workspaceId)
 			.maybeSingle();
 		if (routeResult.error) {
-			throw new Error(`dynamic_route_lookup_failed:${routeResult.error.message}`);
+			if (isOptionalDynamicRouteSchemaUnavailable(routeResult.error)) {
+				console.warn("[fetchWorkspacePolicy] dynamic_route_schema_unavailable", {
+					workspaceId: args.workspaceId,
+					code: routeResult.error.code ?? null,
+				});
+			} else {
+				throw new Error(`dynamic_route_lookup_failed:${routeResult.error.message}`);
+			}
 		}
-		if (routeResult.data && routeResult.data.status === "active" && routeResult.data.deployed_version) {
+		if (!routeResult.error && routeResult.data && routeResult.data.status === "active" && routeResult.data.deployed_version) {
 			dynamicRoute = {
 				id: routeResult.data.id,
 				name: routeResult.data.name,

@@ -79,7 +79,6 @@ export default function AccountTopTabs() {
 					<Link
 						key={tab.href}
 						href={tab.href}
-						prefetch={false}
 						aria-current={active ? "page" : undefined}
 						ref={(el) => {
 							tabRefs.current[tab.href] = el;
@@ -98,4 +97,3 @@ export default function AccountTopTabs() {
 		</nav>
 	);
 }
-

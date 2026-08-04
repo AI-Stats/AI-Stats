@@ -875,7 +875,10 @@ export default function RequestDetailDialog({
 						`Attempt ${index + 1}`;
 					const statusTone = getAttemptStatusTone(attempt);
 					const statusDescription = getAttemptStatusDescription(attempt);
-					const durationMs = Number(attempt.duration_ms ?? 0) || 0;
+					const durationMs = Number(attempt.total_ms ?? attempt.duration_ms ?? 0) || 0;
+					const attemptFinishReason =
+						attempt.provider_finish_reason ?? attempt.finish_reason ?? null;
+					const attemptCostNanos = Number(attempt.cost_nanos ?? 0) || 0;
 					const attemptModelParts = getConcreteModelParts({
 						apiModelId: attempt.api_model_id,
 						providerModelSlug: attempt.provider_model_slug,
@@ -904,6 +907,16 @@ export default function RequestDetailDialog({
 													{value}
 												</code>
 											))}
+										</div>
+									) : null}
+									{attemptFinishReason || attemptCostNanos > 0 ? (
+										<div className="mt-0.5 flex flex-wrap gap-x-2 text-[10px] text-muted-foreground">
+											{attemptFinishReason ? (
+												<span>finish: {attemptFinishReason}</span>
+											) : null}
+											{attemptCostNanos > 0 ? (
+												<span>cost: {formatCost(attemptCostNanos)}</span>
+											) : null}
 										</div>
 									) : null}
 								</div>
