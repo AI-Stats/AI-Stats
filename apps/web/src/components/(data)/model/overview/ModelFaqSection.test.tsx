@@ -121,6 +121,13 @@ const gatewayMetadata = {
 				support_level: "all_providers",
 				providers: [],
 			},
+			{
+				param_id: "native_structured_outputs",
+				provider_count_supported: 1,
+				provider_count_total: 2,
+				support_level: "some_providers",
+				providers: [],
+			},
 		],
 	},
 } as unknown as ModelGatewayMetadata;
@@ -165,8 +172,11 @@ describe("ModelFaqSection", () => {
 	it("reports unsupported and unknown capabilities without guessing", () => {
 		const unsupported = {
 			...gatewayMetadata,
-			supportedParametersByEndpoint: { "chat.completions": [] },
-		} as ModelGatewayMetadata;
+			supportedParametersByEndpoint: { "chat.completions": [
+				{ param_id: "tools", provider_count_supported: 0, provider_count_total: 1, support_level: "no_providers", providers: [] },
+				{ param_id: "native_structured_outputs", provider_count_supported: 0, provider_count_total: 1, support_level: "no_providers", providers: [] },
+			] },
+		} as unknown as ModelGatewayMetadata;
 		const unsupportedHtml = renderToStaticMarkup(
 			<ModelFaqSection
 				model={model}
@@ -197,6 +207,16 @@ describe("ModelFaqSection", () => {
 		expect(unknownHtml).toContain(
 			"does not currently have enough active route metadata to confirm whether Alpha 1 supports tool calling",
 		);
+	});
+
+	it("does not treat legacy structured-output metadata as native schema enforcement", () => {
+		const legacyOnly = {
+			...gatewayMetadata,
+			supportedParametersByEndpoint: { "chat.completions": gatewayMetadata.supportedParametersByEndpoint["chat.completions"].filter(row => row.param_id !== "native_structured_outputs") },
+		} as unknown as ModelGatewayMetadata;
+		const html = renderToStaticMarkup(<ModelFaqSection model={model} benchmarkCount={0} activeProviderCount={1} isGatewayActive pricing={[]} gatewayMetadata={legacyOnly} />);
+
+		expect(html).toContain("does not currently have enough active route metadata to confirm whether Alpha 1 supports structured outputs");
 	});
 
 	it("does not link to a pricing section for an inactive model", () => {

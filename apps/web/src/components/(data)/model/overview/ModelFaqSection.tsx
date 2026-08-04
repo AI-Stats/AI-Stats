@@ -55,6 +55,7 @@ function getCapabilitySupport(
 	const matchingRows = Object.values(metadata.supportedParametersByEndpoint)
 		.flat()
 		.filter((row) => requested.has(row.param_id));
+	if (matchingRows.length === 0) return "unknown";
 	return matchingRows.some((row) => row.provider_count_supported > 0)
 		? "supported"
 		: "unsupported";
@@ -285,7 +286,7 @@ export default function ModelFaqSection({
 	// tool_choice controls selection behaviour but cannot establish tool support alone.
 	const toolCallingSupport = getCapabilitySupport(gatewayMetadata, ["tools"]);
 	const structuredOutputSupport = getCapabilitySupport(gatewayMetadata, [
-		"structured_outputs",
+		"native_structured_outputs",
 	]);
 
 	const items = [
