@@ -411,6 +411,10 @@ export class RealtimeRelayDurableObject {
 		try {
 			await this.connectProvider();
 			if (this.client !== server || this.clientGoneHandled) {
+				// The client may have settled the session while the upstream handshake
+				// was still in flight. Always close the socket that just connected;
+				// settle() intentionally returns early for an already-settled session.
+				this.closeUpstream("client_disconnected_during_provider_connection");
 				await this.settle("cancelled", "client_disconnected_during_provider_connection");
 			} else {
 				this.session = await markRealtimeSessionConnected({
