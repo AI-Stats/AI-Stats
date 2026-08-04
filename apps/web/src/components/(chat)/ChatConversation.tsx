@@ -63,6 +63,7 @@ type ChatConversationProps = {
 	isSending: boolean;
 	isAuthenticated: boolean;
 	temporaryMode?: boolean;
+	temporaryReturnThreadId?: string | null;
 	mode?: "classic" | "unified";
 	webSearchEnabled?: boolean;
 	onWebSearchEnabledChange?: (enabled: boolean) => void;
@@ -113,6 +114,7 @@ export function ChatConversation({
 	isSending,
 	isAuthenticated,
 	temporaryMode = false,
+	temporaryReturnThreadId = null,
 	mode = "classic",
 	webSearchEnabled = false,
 	onWebSearchEnabledChange,
@@ -218,6 +220,7 @@ export function ChatConversation({
 	useEffect(() => {
 		const currentConversationState = {
 			activeThreadId,
+			temporaryReturnThreadId,
 			temporaryMode,
 		};
 		const shouldReset = shouldResetComposerForConversationChange(
@@ -242,7 +245,7 @@ export function ChatConversation({
 			}
 		});
 		return () => cancelAnimationFrame(raf);
-	}, [activeThreadId, temporaryMode]);
+	}, [activeThreadId, temporaryMode, temporaryReturnThreadId]);
 
 	useEffect(() => {
 		const requiresAudioInput = attachments.some((attachment) =>

@@ -4435,6 +4435,7 @@ function ChatPlaygroundContent({
 					activeThread={activeThread}
 					isSending={isSending}
 					temporaryMode={temporaryMode}
+					temporaryReturnThreadId={previousStoredId}
 					mode="unified"
 					webSearchEnabled={
 						activeThread?.settings.webSearchEnabled ?? false
