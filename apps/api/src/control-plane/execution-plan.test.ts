@@ -78,6 +78,16 @@ describe("compileExecutionPlan", () => {
 		})).toThrow("unique precedence");
 	});
 
+	it("rejects prototype-manipulation keys in config layers", () => {
+		const unsafeConfig = JSON.parse('{"nested":{"__proto__":{"polluted":true}}}') as Record<string, unknown>;
+
+		expect(() => compileExecutionPlan({
+			...source,
+			configLayers: [{ precedence: 100, config: unsafeConfig }],
+		})).toThrow("unsafe key: __proto__");
+		expect(({} as { polluted?: boolean }).polluted).toBeUndefined();
+	});
+
 	it("builds a release-addressed cache key", () => {
 		expect(executionPlanCacheKey(compileExecutionPlan(source))).toBe(
 			"execution-plan:7:example/model-a:text.generate:default",

@@ -91,6 +91,9 @@ function mergeConfig(
 ): Record<string, unknown> {
 	const merged = { ...base };
 	for (const [key, value] of Object.entries(override)) {
+		if (["__proto__", "prototype", "constructor"].includes(key)) {
+			throw new Error(`Execution-plan config contains unsafe key: ${key}`);
+		}
 		const previous = merged[key];
 		if (
 			previous && value &&
