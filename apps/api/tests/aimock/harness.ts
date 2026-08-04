@@ -347,8 +347,13 @@ function createXAiTtsMount(): Mountable {
                 return true;
             }
 
-            res.writeHead(200, { "Content-Type": mimeType });
-            res.end(Buffer.from("AIMOCK_TTS_AUDIO"));
+            const audio = Buffer.from("AIMOCK_TTS_AUDIO").toString("base64");
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({
+                audio,
+                content_type: mimeType,
+                duration: 1,
+            }));
             return true;
         },
     };
