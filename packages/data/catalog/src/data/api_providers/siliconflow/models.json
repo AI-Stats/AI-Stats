@@ -432,6 +432,58 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "siliconflow:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 393216,
+    "effective_from": "2026-07-31T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://docs.siliconflow.com/en/userguide/introduction",
+        "accessed_at": "2026-08-01T00:00:00Z",
+        "notes": "SiliconFlow model catalogue and OpenAI-compatible API documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-01T00:00:00Z",
+      "notes": "Distinct 0731 deployment confirmed with FP8 quantisation and published limits."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "deepseek/deepseek-v4-pro",
     "provider_api_model_id": "siliconflow:deepseek/deepseek-v4-pro",
     "provider_model_slug": "deepseek-ai/DeepSeek-V4-Pro",
@@ -1615,12 +1667,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -2346,12 +2394,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -2405,12 +2449,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {

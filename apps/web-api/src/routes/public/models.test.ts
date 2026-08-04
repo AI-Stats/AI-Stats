@@ -15,7 +15,7 @@ describe("public model routes", () => {
 	it("includes the database-composed free router in page projection 5", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("get_v2_public_models_page_rows")) return new Response(JSON.stringify([{
+			if (url.includes("get_public_models_page_rows")) return new Response(JSON.stringify([{
 				model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", gateway_status: "active",
 				gateway_input_modalities: ["text"], gateway_output_modalities: ["text"], gateway_features: [], gateway_tiers: [],
 			}]), { status: 200 });
@@ -48,16 +48,26 @@ describe("public model routes", () => {
 		});
 	});
 
-	it("uses the V2 models page projection by default", async () => {
+	it("uses the complete V2 public catalogue projection by default", async () => {
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("get_v2_public_models_page_rows")) return new Response(JSON.stringify([{
-				model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", organisation_name: "OpenAI",
-				primary_date: "2026-01-02", gateway_status: "active",
-				gateway_provider_count: 1, gateway_active_provider_count: 1, gateway_endpoints: ["responses"],
-				gateway_input_modalities: ["text"], gateway_output_modalities: ["text"], gateway_features: ["tools"],
-				gateway_tiers: ["standard"], gateway_execution_regions: ["us"], gateway_provider_names: ["OpenAI"],
-			}]), { status: 200 });
+			if (url.includes("get_public_models_page_rows")) return new Response(JSON.stringify([
+				{
+					model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", organisation_name: "OpenAI",
+					primary_date: "2026-01-02", gateway_status: "active",
+					gateway_provider_count: 1, gateway_active_provider_count: 1, gateway_endpoints: ["responses"],
+					gateway_input_modalities: ["text"], gateway_output_modalities: ["text"], gateway_features: ["tools"],
+					gateway_tiers: ["standard"], gateway_execution_regions: ["us"], gateway_provider_names: ["OpenAI"],
+				},
+				{
+					model_id: "openai/gpt-coming-soon", name: "GPT Coming Soon", organisation_id: "openai",
+					organisation_name: "OpenAI", gateway_status: "coming_soon",
+				},
+				{
+					model_id: "openai/gpt-inactive", name: "GPT Inactive", organisation_id: "openai",
+					organisation_name: "OpenAI", gateway_status: "not_active",
+				},
+			]), { status: 200 });
 			if (url.includes("get_public_model_catalogue_rows")) return new Response(JSON.stringify([{
 				model_id: "openai/gpt-test", name: "Gateway name", organisation_id: "openai", organisation_name: "OpenAI",
 				gateway_status: "active", gateway_provider_count: 1, gateway_active_provider_count: 1,
@@ -78,18 +88,55 @@ describe("public model routes", () => {
 		const response = await app.request("https://phaseo.app/api/_web/models?shape=page&limit=2000", {}, env);
 		expect(response.status).toBe(200);
 		await expect(response.json()).resolves.toMatchObject({
-			shape: "page", pricing_complete: true, total: 1,
-			models: [{ model_id: "openai/gpt-test", name: "GPT Test", gateway_execution_regions: ["us"], gateway_tiers: ["standard"] }],
+			shape: "page", pricing_complete: true, total: 3,
+			models: [
+				{ model_id: "openai/gpt-test", name: "GPT Test", gateway_execution_regions: ["us"], gateway_tiers: ["standard"] },
+				{ model_id: "openai/gpt-coming-soon", gateway_status: "coming_soon" },
+				{ model_id: "openai/gpt-inactive", gateway_status: "not_active" },
+			],
+			facets: { statusCounts: { active: 1, coming_soon: 1, not_active: 1 } },
 		});
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_monitor_model_rows"))).toBe(false);
-		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_v2_public_models_page_rows"))).toBe(true);
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_public_models_page_rows"))).toBe(true);
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_v2_public_models_page_rows"))).toBe(false);
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_public_model_catalogue_rows"))).toBe(false);
+	});
+
+	it("uses the route-scoped V2 projection for explicit region and service-tier filters", async () => {
+		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("get_v2_public_models_page_rows")) {
+				return new Response(JSON.stringify([{
+					model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai",
+					organisation_name: "OpenAI", gateway_status: "active",
+				}]), { status: 200 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models?shape=page&projection=4&limit=2000&region=ca&service_tier=priority",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		const scopedCall = fetchMock.mock.calls.find(([input]) =>
+			String(input).includes("get_v2_public_models_page_rows")
+		);
+		expect(scopedCall).toBeDefined();
+		expect(JSON.parse(String(scopedCall?.[1]?.body))).toMatchObject({
+			p_region: "ca",
+			p_service_tier: "priority",
+		});
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_public_models_page_rows"))).toBe(false);
 	});
 
 	it("serves the V2 models page from the compact page projection", async () => {
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("get_v2_public_models_page_rows")) return new Response(JSON.stringify([{
+			if (url.includes("get_public_models_page_rows")) return new Response(JSON.stringify([{
 				model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", organisation_name: "OpenAI",
 				primary_date: "2026-01-02", gateway_status: "active",
 				gateway_provider_count: 1, gateway_active_provider_count: 1, gateway_endpoints: ["responses"],
@@ -140,7 +187,7 @@ describe("public model routes", () => {
 		});
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_monitor_model_rows"))).toBe(false);
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("data_models?"))).toBe(false);
-		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_v2_public_models_page_rows"))).toBe(true);
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_public_models_page_rows"))).toBe(true);
 	});
 
 	it("serves compact table rows without loading the nested model catalogue", async () => {
@@ -265,11 +312,11 @@ describe("public model routes", () => {
 		});
 	});
 
-	it("does not fall back to the V1 catalogue when the V2 page RPC is unavailable", async () => {
+	it("does not fall back to the V1 catalogue when the complete V2 page RPC is unavailable", async () => {
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("get_v2_public_models_page_rows")) {
-				return new Response(JSON.stringify({ code: "PGRST202", message: "Could not find the function public.get_v2_public_models_page_rows" }), { status: 404 });
+			if (url.includes("get_public_models_page_rows")) {
+				return new Response(JSON.stringify({ code: "PGRST202", message: "Could not find the function public.get_public_models_page_rows" }), { status: 404 });
 			}
 			if (url.includes("get_public_model_catalogue_rows")) return new Response(JSON.stringify([{
 				model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", gateway_status: "inactive",

@@ -21,7 +21,7 @@ export default function ModelCalendarRouteSwitch({
 				variant={active === "models" ? "default" : "ghost"}
 				className={cn(active !== "models" && "text-muted-foreground")}
 			>
-				<Link href="/updates/models" prefetch={false}>
+				<Link href="/updates/models">
 					Updates
 				</Link>
 			</Button>
@@ -31,7 +31,7 @@ export default function ModelCalendarRouteSwitch({
 				variant={active === "calendar" ? "default" : "ghost"}
 				className={cn(active !== "calendar" && "text-muted-foreground")}
 			>
-				<Link href="/updates/calendar" prefetch={false}>
+				<Link href="/updates/calendar">
 					Calendar
 				</Link>
 			</Button>

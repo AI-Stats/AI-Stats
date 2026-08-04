@@ -18,6 +18,7 @@ export type PaletteItem = {
 	action?: PaletteAction;
 	actionValue?: string;
 	shortcut?: readonly [string, string];
+	workspaceId?: string;
 };
 
 // Types for curated/featured search items.

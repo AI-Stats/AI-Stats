@@ -1,0 +1,57 @@
+[
+  {
+    "api_model_id": "moonshotai/kimi-k3",
+    "provider_api_model_id": "modal:moonshotai/kimi-k3",
+    "provider_model_slug": "moonshotai/Kimi-K3",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": "2026-07-27T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "coming_soon",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": ["openai"],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://modal.com/library/moonshot/kimi-k3",
+        "accessed_at": "2026-07-27T00:00:00Z",
+        "notes": "Modal lists Kimi K3 through its Shared API. Phaseo routing support is marked coming soon."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-27T00:00:00Z",
+      "notes": "Provider availability verified against Modal's public Kimi K3 listing."
+    },
+    "rate_limits": []
+  }
+]

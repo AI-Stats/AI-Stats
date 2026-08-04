@@ -958,7 +958,7 @@ const FAQ_SECTIONS: FAQSection[] = [
 				id: "contact-support",
 				question: "How do I contact support?",
 				answer:
-					"Use the contact page or email support@phaseo.ai for account, billing, and technical questions. Bug reports and feature requests can also be filed through the public GitHub repository.",
+					"Use the contact page or email support@phaseo.app for account, billing, and technical questions. Bug reports and feature requests can also be filed through the public GitHub repository.",
 			},
 		],
 	},
@@ -1213,7 +1213,7 @@ export default function PricingPage() {
 								</Link>
 							</Button>
 							<Button asChild variant="outline" className="h-10 rounded-xl">
-								<Link href="mailto:support@phaseo.ai">
+								<Link href="mailto:support@phaseo.app">
 									Ask a pricing question
 									<ArrowRight className="ml-2 h-4 w-4" />
 								</Link>

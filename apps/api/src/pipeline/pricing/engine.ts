@@ -9,8 +9,8 @@ import { pickFirstFiniteNumber, resolveCanonicalTokenUsage, resolveRequestCountU
 
 const KNOWN_METERS = new Set<string>([
     "input_tokens",
-    "input_characters", "input_pages",
-    "input_text_tokens", "input_text_messages", "input_image_tokens", "input_audio_minutes", "input_audio_seconds", "input_audio_tokens", "input_video_tokens",
+    "input_characters", "input_text_bytes", "input_pages",
+    "input_text_tokens", "input_text_messages", "input_image", "input_image_tokens", "input_audio_minutes", "input_audio_seconds", "input_audio_tokens", "input_video_seconds", "input_video_tokens",
     "output_tokens",
     "output_text_tokens", "output_reasoning_tokens", "output_image_tokens", "output_audio_minutes", "output_audio_seconds", "output_audio_tokens", "output_video_tokens",
     "output_image", "output_video", "output_video_seconds",
@@ -556,15 +556,19 @@ function resolveRulePrice(rule: PriceRule, requestOptions?: Record<string, any>)
 
 function priceWithRule(qty: number, rule: PriceRule, requestOptions?: Record<string, any>) {
     const unitSize = rule.unit_size > 0 ? rule.unit_size : 1;
+    const includedQuantity = Number.isFinite(rule.included_quantity)
+        ? Math.max(0, Number(rule.included_quantity))
+        : 0;
     const resolvedPrice = resolveRulePrice(rule, requestOptions);
     // Pro-rate by unit size (e.g. 8 tokens at a per-1M-token rate).
-    const billableUnits = qty / unitSize;
+    const billableUnits = Math.max(0, qty - includedQuantity) / unitSize;
     const unitPriceNanos = parseUsdToNanos(resolvedPrice.price_per_unit);
     // Keep nanos integral to avoid floating precision drift downstream.
     const lineNanos = Math.round(billableUnits * unitPriceNanos);
 
     logPricingDebug("priceWithRule", {
         quantity: qty,
+        includedQuantity,
         unitSize,
         billableUnits,
         price_per_unit: resolvedPrice.price_per_unit,
@@ -766,7 +770,8 @@ export function computeBillSummary(
             unit_price_usd: priced.unitPriceUsd,
             line_cost_usd: priced.lineCostUsd,
             line_nanos: priced.lineNanos,
-            bill_mode: "all",
+            bill_mode: (rule.included_quantity ?? 0) > 0 ? "over" : "all",
+            included_quantity: rule.included_quantity,
             rule_priority: rule.priority,
             rule_id: rule.id,
             billing_timestamp_basis: priced.billingTimestampBasis,

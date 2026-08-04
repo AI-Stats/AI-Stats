@@ -298,10 +298,15 @@ export type ModelsPageQuery = {
 
 async function databasePageRows(env: Env, query: ModelsPageQuery = {}): Promise<Row[]> {
 	const rows: Row[] = [];
+	const client = getDataClient(env);
 	for (let offset = 0; ; offset += 1_000) {
-		const result = await getDataClient(env).rpc(
-			"get_v2_public_models_page_rows",
-			{ p_region: query.region ?? null, p_service_tier: query.serviceTier ?? null },
+		const result = await (
+			query.region || query.serviceTier
+				? client.rpc(
+					"get_v2_public_models_page_rows",
+					{ p_region: query.region ?? null, p_service_tier: query.serviceTier ?? null },
+				)
+				: client.rpc("get_public_models_page_rows")
 		).range(offset, offset + 999);
 		if (result.error) throw result.error;
 		rows.push(...((result.data ?? []) as Row[]));

@@ -4,7 +4,7 @@ export default defineOpenAICompatibleProvider({
     providerId: "amazon-bedrock",
     name: "Amazon Bedrock",
     apiKeyEnv: "AMAZON_BEDROCK_API_KEY",
-    baseUrlEnv: "AMAZON_BEDROCK_BASE_URL",
+    baseUrlEnv: "AMAZON_BEDROCK_MANTLE_BASE_URL",
     pathPrefix: "/v1",
 });
 

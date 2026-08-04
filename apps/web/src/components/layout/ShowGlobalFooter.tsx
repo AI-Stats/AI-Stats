@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { registerShowFooter } from "@/components/layout/footerVisibility";
 
 export default function ShowGlobalFooter() {
-	useEffect(() => {
+	useLayoutEffect(() => {
 		return registerShowFooter();
 	}, []);
 

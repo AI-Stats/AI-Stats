@@ -126,16 +126,16 @@ export function AppsUsageList({
 								<ChevronDown className="ml-2 h-4 w-4 opacity-60" />
 
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="min-w-32">
+						<DropdownMenuContent align="end" className="min-w-32 rounded-lg">
 							{RANGE_OPTIONS.map((option) => (
 								<DropdownMenuItem
 									key={option.key}
 									disabled={!resolvedDataByRange[option.key]?.length}
-									onSelect={() => {
+									onClick={() => {
 										setRange(option.key);
 										setShowAll(false);
 									}}
-									className="justify-between gap-6"
+									className="justify-between gap-6 rounded-lg"
 								>
 									<span>{option.label}</span>
 									<span className="flex h-4 w-4 items-center justify-center">

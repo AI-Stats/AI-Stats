@@ -1,0 +1,74 @@
+{
+  "key": "thinking-machines:thinking-machines/inkling-small:text.generate",
+  "api_provider_id": "thinking-machines",
+  "provider_slug": "thinking-machines",
+  "api_model_id": "thinking-machines/inkling-small",
+  "capability_id": "text.generate",
+  "rules": [
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.3,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Tinker serverless inference beta rate for Inkling Small input.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.06,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Tinker serverless inference beta rate for cached Inkling Small input.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 1.2,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Tinker serverless inference beta rate for Inkling Small output. Tinker does not recommend the beta service for intensive production use.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    }
+  ],
+  "regions": [],
+  "service_tiers": [
+    "standard"
+  ],
+  "sources": [
+    {
+      "url": "https://tinker-docs.thinkingmachines.ai/tinker/models/",
+      "kind": "pricing",
+      "accessed_at": "2026-07-30T00:00:00Z",
+      "notes": "Official Tinker serverless inference beta model and pricing table."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-07-30T00:00:00Z",
+    "notes": "Input, cached-input, and output rates verified against the official Tinker models documentation."
+  }
+}

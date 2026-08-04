@@ -1,0 +1,28 @@
+{
+  "api_provider_id": "openinference",
+  "api_provider_name": "OpenInference",
+  "description": "OpenAI-compatible hosted model inference API.",
+  "link": "https://openinference.ai/",
+  "country_code": null,
+  "status": "NotReady",
+  "colour": null,
+  "privacy_policy_url": null,
+  "terms_of_service_url": null,
+  "prompt_training_policy": "unknown",
+  "prompt_training_notes": null,
+  "prompt_training_source_url": null,
+  "gateway_kind": null,
+  "routable": false,
+  "routing_enabled": false,
+  "sdk_package": null,
+  "api_base_url": null,
+  "docs_url": null,
+  "auth_env": null,
+  "api_formats": [],
+  "service_tiers": [],
+  "sources": [],
+  "verification": {
+    "status": "partial", "checked_at": "2026-08-03T00:00:00Z",
+    "notes": "Provider-model availability recorded; Phaseo provider onboarding is not ready."
+  }
+}

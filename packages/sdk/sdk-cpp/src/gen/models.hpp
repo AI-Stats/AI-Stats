@@ -238,6 +238,9 @@ struct AudioSpeechRequest {
 struct AudioTranscriptionRequest {
 	std::string audio_b64;
 	std::string audio_url;
+	std::any chunking_strategy;
+	std::vector<std::string> known_speaker_names;
+	std::vector<std::string> known_speaker_references;
 	std::string language;
 	std::string model;
 	std::map<std::string, std::any> provider;
@@ -661,6 +664,11 @@ struct FileUploadRequest {
 
 struct FunctionToolDefinition {
 	std::map<std::string, std::any> function;
+	std::any type;
+};
+
+struct FusionToolDefinition {
+	std::map<std::string, std::any> parameters;
 	std::any type;
 };
 
@@ -1213,10 +1221,26 @@ struct ResponsesResponse {
 	std::map<std::string, std::any> usage;
 };
 
+struct SearchModelsToolDefinition {
+	std::map<std::string, std::any> parameters;
+	std::any type;
+};
+
 struct ServerToolUsage {
+	std::optional<int> advisor_requests;
+	std::optional<int> apply_patch_requests;
 	std::optional<int> datetime_requests;
+	std::optional<int> fusion_requests;
+	std::optional<int> image_generation_requests;
+	std::optional<int> search_models_requests;
+	std::optional<int> subagent_requests;
 	std::optional<int> web_fetch_requests;
 	std::optional<int> web_search_requests;
+};
+
+struct SubagentToolDefinition {
+	std::map<std::string, std::any> parameters;
+	std::any type;
 };
 
 struct SupportedParameterDetails {

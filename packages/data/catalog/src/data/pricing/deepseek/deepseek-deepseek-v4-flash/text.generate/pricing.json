@@ -20,7 +20,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-07-31T00:00:00Z"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -37,7 +38,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-07-31T00:00:00Z"
     },
     {
       "meter": "output_text_tokens",
@@ -54,17 +56,25 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-07-31T00:00:00Z"
     }
   ],
   "regions": [],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "accessed_at": "2026-07-31T00:00:00Z",
+      "notes": "Official DeepSeek V4 Flash token prices; announced peak pricing has no effective date yet."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-07-31T00:00:00Z",
+    "notes": "Confirmed at $0.0028/M cached input, $0.14/M uncached input and $0.28/M output."
   }
 }

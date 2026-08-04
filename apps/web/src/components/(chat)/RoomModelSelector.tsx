@@ -182,7 +182,7 @@ function buildModelOptions(models: GatewaySupportedModel[]) {
 		const existing = map.get(selectorModelId);
 		const orgId = model.organisationId?.trim() || getOrgId(selectorModelId);
 		const orgName =
-			model.organisationName ?? model.providerName ?? formatOrgLabel(orgId);
+			model.organisationName ?? formatOrgLabel(orgId);
 		const label = model.modelName ?? formatModelLabel(selectorModelId);
 		const releaseDate = model.releaseDate ?? model.announcementDate ?? null;
 
@@ -462,13 +462,13 @@ export function RoomModelSelector({
 		const modelEnabled = modelEnabledById?.[modelId] !== false;
 		const canRemoveModel = Boolean(onRemoveModel);
 		return (
-			<div key={modelId} className="relative shrink-0">
+			<div key={modelId} className="relative shrink-0 rounded-2xl">
 				<Button
 					variant="ghost"
 					size="sm"
 					onClick={() => onOpenModelSettingsForModel?.(modelId)}
 					className={cn(
-						"h-8 max-w-[220px] gap-1.5 pl-2",
+						"h-8 max-w-[220px] gap-1.5 rounded-2xl pl-2",
 						!modelEnabled && "opacity-55",
 						canRemoveModel ? "pr-7" : "pr-2",
 					)}
@@ -610,7 +610,7 @@ export function RoomModelSelector({
 						variant="ghost"
 						size="sm"
 						className={cn(
-							"h-8 gap-1.5",
+							"h-8 gap-1.5 rounded-2xl",
 							selectedModelIds.length === 0 ? "px-2 text-xs" : "w-8 px-0",
 						)}
 					>

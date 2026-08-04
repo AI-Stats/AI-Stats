@@ -709,7 +709,7 @@ function applyAnthropicServiceControls(
 	if (typeof controls.serviceTier !== "string") return;
 	const tier = controls.serviceTier.toLowerCase();
 
-	if (tier === "priority") {
+	if (tier === "fast" || tier === "priority") {
 		if (supportsAnthropicFastMode(controls.model)) {
 			request.speed = "fast";
 			return;

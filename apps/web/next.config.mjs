@@ -38,6 +38,7 @@ const nextConfig = {
     ? { allowedDevOrigins: configuredAllowedDevOrigins }
     : {}),
   cacheComponents: true,
+  partialPrefetching: true,
   images: {
     qualities: [75, 90],
   },
@@ -48,9 +49,6 @@ const nextConfig = {
   outputFileTracingRoot: monorepoRoot,
   turbopack: {
     root: monorepoRoot,
-  },
-  experimental: {
-    turbopackFileSystemCacheForDev: true,
   },
   async headers() {
     return [
@@ -96,14 +94,8 @@ const nextConfig = {
     return [
       {
         source: "/:path*",
-        has: [{ type: "host", value: "docs.ai-stats.phaseo.app" }],
+        has: [{ type: "host", value: "docs.phaseo.app" }],
         destination: "https://phaseo.app/docs/:path*",
-        permanent: true,
-      },
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "ai-stats.phaseo.app" }],
-        destination: "https://phaseo.app/:path*",
         permanent: true,
       },
       {

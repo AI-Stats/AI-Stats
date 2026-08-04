@@ -2,18 +2,24 @@ export default function ChatPlaygroundShell() {
     return (
         <div className="flex h-full min-h-0 w-full">
             <aside className="hidden h-full w-64 flex-col border-r border-border bg-background md:flex">
-                <div className="flex flex-1 flex-col gap-4 px-4 py-5">
-                    <div className="h-8 w-28 rounded-md bg-muted/50" />
-                    <div className="h-9 w-full rounded-md bg-muted/40" />
-                    <div className="h-9 w-full rounded-md bg-muted/40" />
-                    <div className="h-9 w-full rounded-md bg-muted/40" />
-                    <div className="mt-2 h-px w-full bg-border" />
-                    <div className="space-y-2">
+                <div className="flex h-[57px] items-center border-b border-border px-2">
+                    <div className="h-8 w-full rounded-md bg-muted/50" />
+                </div>
+                <div className="flex min-h-0 flex-1 flex-col">
+                    <div className="space-y-1 border-b border-border px-2 py-1.5">
+                        <div className="h-8 w-full rounded-md bg-muted/40" />
+                        <div className="h-8 w-full rounded-md bg-muted/40" />
+                        <div className="h-8 w-full rounded-md bg-muted/40" />
+                    </div>
+                    <div className="space-y-2 px-4 py-3">
                         <div className="h-6 w-24 rounded bg-muted/40" />
                         <div className="h-8 w-full rounded-md bg-muted/30" />
                         <div className="h-8 w-full rounded-md bg-muted/30" />
                         <div className="h-8 w-full rounded-md bg-muted/30" />
                     </div>
+                </div>
+                <div className="border-t border-border px-2 py-2">
+                    <div className="h-14 w-full rounded-lg bg-muted/40" />
                 </div>
             </aside>
             <div className="flex min-w-0 flex-1 flex-col">
