@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
+import type { ModelGatewayMetadata } from "@/lib/fetchers/models/getModelGatewayMetadata";
 import type {
 	PricingRule,
 	ProviderPricing,
@@ -43,12 +44,49 @@ function getNumericDetail(
 	return null;
 }
 
+type CapabilitySupport = "supported" | "unsupported" | "unknown";
+
+function getCapabilitySupport(
+	metadata: ModelGatewayMetadata | null | undefined,
+	paramIds: string[],
+): CapabilitySupport {
+	if (!metadata) return "unknown";
+	const requested = new Set(paramIds);
+	const matchingRows = Object.values(metadata.supportedParametersByEndpoint)
+		.flat()
+		.filter((row) => requested.has(row.param_id));
+	if (matchingRows.length === 0) return "unknown";
+	return matchingRows.some((row) => row.provider_count_supported > 0)
+		? "supported"
+		: "unsupported";
+}
+
+function capabilityAnswer(args: {
+	modelName: string;
+	label: string;
+	support: CapabilitySupport;
+	isGatewayActive: boolean;
+}) {
+	if (!args.isGatewayActive) {
+		return `${args.modelName} is not currently active in the Phaseo Gateway, so ${args.label} is not available through the API.`;
+	}
+	if (args.support === "supported") {
+		return `Yes. At least one active provider route for ${args.modelName} currently advertises ${args.label} support. Provider support can vary, so requests are routed only to compatible routes.`;
+	}
+	if (args.support === "unsupported") {
+		return `No active provider route for ${args.modelName} currently advertises ${args.label} support.`;
+	}
+	return `Phaseo does not currently have enough active route metadata to confirm whether ${args.modelName} supports ${args.label}.`;
+}
+
 function getStatusDescription(status: ModelOverviewPage["status"]): string {
 	switch (status) {
 		case "Rumoured":
 			return "a rumoured AI model";
 		case "Announced":
 			return "an announced AI model";
+		case "Preview":
+			return "a preview AI model";
 		case "Limited Access":
 			return "a limited-access AI model";
 		case "Withheld":
@@ -219,6 +257,7 @@ export default function ModelFaqSection({
 	isGatewayActive,
 	pricing,
 	relatedModels,
+	gatewayMetadata,
 }: {
 	model: ModelOverviewPage;
 	benchmarkCount: number;
@@ -226,6 +265,7 @@ export default function ModelFaqSection({
 	isGatewayActive: boolean;
 	pricing: ProviderPricing[];
 	relatedModels?: ModelLineageLinks;
+	gatewayMetadata?: ModelGatewayMetadata | null;
 }) {
 	const modelName = model.name;
 	const organisationName = model.organisation.name;
@@ -244,6 +284,12 @@ export default function ModelFaqSection({
 		"max_output_tokens",
 	);
 	const pricingHighlights = isGatewayActive ? getPricingHighlights(pricing) : [];
+	// Native tool definitions are the minimum requirement for tool calling.
+	// tool_choice controls selection behaviour but cannot establish tool support alone.
+	const toolCallingSupport = getCapabilitySupport(gatewayMetadata, ["tools"]);
+	const structuredOutputSupport = getCapabilitySupport(gatewayMetadata, [
+		"structured_outputs",
+	]);
 
 	const items = [
 		{
@@ -316,6 +362,24 @@ export default function ModelFaqSection({
 					shows the routes and availability currently recorded by Phaseo.
 				</>
 			),
+		},
+		{
+			question: `Does ${modelName} support tool calling?`,
+			answer: capabilityAnswer({
+				modelName,
+				label: "tool calling",
+				support: toolCallingSupport,
+				isGatewayActive,
+			}),
+		},
+		{
+			question: `Does ${modelName} support structured outputs?`,
+			answer: capabilityAnswer({
+				modelName,
+				label: "structured outputs",
+				support: structuredOutputSupport,
+				isGatewayActive,
+			}),
 		},
 		...(relatedModels?.previous || relatedModels?.next || model.family_id
 			? [

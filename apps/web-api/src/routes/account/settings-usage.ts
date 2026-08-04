@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
 import { requireUser } from "@/auth/requireUser";
@@ -111,6 +112,30 @@ accountSettingsUsageRouter.get("/usage/metadata", async (c) => {
 	} catch (error) {
 		console.error("[web-api/settings] usage metadata failed", error);
 		return c.json({ error: "usage_metadata_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
+});
+
+
+accountSettingsUsageRouter.get("/usage/geography", async (c) => {
+	const user = await requireUser(c.req.raw, c.env);
+	if (!user) return c.json({ signedIn: false, workspaceId: null }, 200, PRIVATE_NO_STORE_HEADERS);
+	const url = new URL(c.req.url);
+	const workspaceId = stringParam(url, "workspaceId");
+	if (!workspaceId) return c.json({ signedIn: true, workspaceId: null, data: [] }, 200, PRIVATE_NO_STORE_HEADERS);
+	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
+	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	const { from, to } = usageTimeRange(c.req.raw);
+	try {
+		const { data, error } = await getDataClient(c.env).rpc("get_private_geography_usage", {
+			p_workspace_id: workspaceId,
+			p_from: from,
+			p_to: to,
+		});
+		if (error) throw error;
+		return c.json({ data: data ?? [], from, to, signedIn: true, workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
+	} catch (error) {
+		console.error("[web-api/settings] geography failed", error);
+		return c.json({ error: "usage_geography_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
 });
 

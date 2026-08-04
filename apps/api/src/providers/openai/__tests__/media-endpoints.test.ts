@@ -838,7 +838,7 @@ describe("OpenAI media endpoints", () => {
 		expect(payload?.error?.param).toBe("format");
 	});
 
-	it("defaults transcriptions to json for GPT transcribe and forwards include/timestamp fields", async () => {
+	it("defaults transcriptions to json for GPT transcribe and forwards logprobs", async () => {
 		let responseFormat: string | null = null;
 		let includes: string[] = [];
 		let granularities: string[] = [];
@@ -871,7 +871,6 @@ describe("OpenAI media endpoints", () => {
 				model: "openai/gpt-4o-transcribe",
 				file: audioFile,
 				include: ["logprobs"],
-				timestamp_granularities: ["segment", "word"],
 			},
 			meta: REQUEST_META,
 			workspaceId: "team_test",
@@ -888,8 +887,47 @@ describe("OpenAI media endpoints", () => {
 		expect(result.normalized?.text).toBe("hello");
 		expect(responseFormat).toBe("json");
 		expect(includes).toEqual(["logprobs"]);
-		expect(granularities).toEqual(["segment", "word"]);
+		expect(granularities).toEqual([]);
 		expect(fileName).toBe("audio.wav");
+	});
+
+	it("supports diarized transcription formats and speaker controls", async () => {
+		let capturedForm: FormData | undefined;
+		const mock = installFetchMock([{
+			match: (url, init) => {
+				if (!url.includes("/audio/transcriptions")) return false;
+				capturedForm = init?.body as FormData;
+				return true;
+			},
+			response: jsonResponse({ text: "Agent: hello", segments: [] }),
+		}]);
+
+		const result = await execTranscription({
+			endpoint: "audio.transcription",
+			model: "openai/gpt-4o-transcribe-diarize",
+			body: {
+				model: "openai/gpt-4o-transcribe-diarize",
+				file: makeAudioFile(),
+				response_format: "diarized_json",
+				chunking_strategy: "auto",
+				known_speaker_names: ["agent"],
+				known_speaker_references: ["data:audio/wav;base64,AQID"],
+			},
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "openai",
+			byokMeta: [],
+			pricingCard: { ...PRICING_CARD, endpoint: "audio.transcription" },
+			providerModelSlug: null,
+			stream: false,
+		} as any);
+		mock.restore();
+
+		expect(result.upstream.status).toBe(200);
+		expect(capturedForm?.get("response_format")).toBe("diarized_json");
+		expect(capturedForm?.get("chunking_strategy")).toBe("auto");
+		expect(capturedForm?.getAll("known_speaker_names[]")).toEqual(["agent"]);
+		expect(capturedForm?.getAll("known_speaker_references[]")).toEqual(["data:audio/wav;base64,AQID"]);
 	});
 
 	it("defaults transcriptions to verbose_json for whisper-1", async () => {
@@ -968,9 +1006,9 @@ describe("OpenAI media endpoints", () => {
 		const audioFile = makeAudioFile();
 		const transcription = await execTranscription({
 			endpoint: "audio.transcription",
-			model: "openai/gpt-4o-mini-transcribe",
+			model: "openai/whisper-1",
 			body: {
-				model: "openai/gpt-4o-mini-transcribe",
+				model: "openai/whisper-1",
 				file: audioFile,
 				response_format: "text",
 			},
@@ -985,9 +1023,9 @@ describe("OpenAI media endpoints", () => {
 
 		const translation = await execTranslation({
 			endpoint: "audio.translations",
-			model: "openai/gpt-4o-transcribe",
+			model: "openai/whisper-1",
 			body: {
-				model: "openai/gpt-4o-transcribe",
+				model: "openai/whisper-1",
 				file: audioFile,
 				response_format: "text",
 			},
@@ -1043,9 +1081,9 @@ describe("OpenAI media endpoints", () => {
 
 		const translation = await execTranslation({
 			endpoint: "audio.translations",
-			model: "openai/gpt-4o-mini-transcribe",
+			model: "openai/whisper-1",
 			body: {
-				model: "openai/gpt-4o-mini-transcribe",
+				model: "openai/whisper-1",
 				file: audioFile,
 				prompt: "translate to english",
 			},

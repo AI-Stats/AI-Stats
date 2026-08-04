@@ -145,7 +145,7 @@ export default function HeaderClient({
 				>
 					<ButtonGroup className="h-8 items-stretch overflow-hidden rounded-lg shadow-xs">
 						<Button asChild className="h-8 rounded-r-none px-4">
-							<Link href="/sign-up" prefetch={false}>
+							<Link href="/sign-up">
 								Sign Up
 							</Link>
 						</Button>
@@ -177,7 +177,7 @@ export default function HeaderClient({
 										isActive && "font-semibold text-primary"
 									)}
 								>
-									<Link href={href} prefetch={false} className="flex items-center gap-2">
+									<Link href={href} className="flex items-center gap-2">
 										<Icon className="h-4 w-4" />
 										{label}
 									</Link>
@@ -507,7 +507,7 @@ export default function HeaderClient({
 					) : (
 						<>
 							<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
-								<Link href="/sign-up" prefetch={false}>
+								<Link href="/sign-up">
 									Sign Up
 								</Link>
 							</DropdownMenuItem>
@@ -564,7 +564,7 @@ export default function HeaderClient({
 					/>
 				</>
 			) : (
-				<Link href="/sign-up" prefetch={false}>
+				<Link href="/sign-up">
 					<Button
 						variant="default"
 						className="rounded-lg px-4 py-2 text-xs font-semibold"

@@ -394,6 +394,7 @@ export default function AboutPage() {
 								<ResourceButton href="https://phaseo.app/docs/v1/changelog" label="Announcements" external />
 								<ResourceButton href="/updates/models" label="Model Updates" />
 								<ResourceButton href="/settings/usage" label="Gateway Usage" />
+								<ResourceButton href="/mission" label="Our Mission" />
 								<ResourceButton href="/roadmap" label="Roadmap" />
 								<ResourceButton href="/contact" label="Contact" />
 							<Separator className="my-1 bg-zinc-200/70 dark:bg-zinc-800/70" />

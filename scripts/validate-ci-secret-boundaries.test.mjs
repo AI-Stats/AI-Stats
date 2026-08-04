@@ -142,7 +142,7 @@ test("issue triage requires the exact trusted-maintainer refresh command", () =>
 test("issue triage bounds its paginated snapshot at the trigger comment", () => {
 	assert.match(
 		issueTriageWorkflow,
-		/actions\/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea/,
+		/actions\/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3/,
 	);
 	assert.match(issueTriageWorkflow, /await github\.paginate\(/);
 	assert.match(issueTriageWorkflow, /per_page: 100/);

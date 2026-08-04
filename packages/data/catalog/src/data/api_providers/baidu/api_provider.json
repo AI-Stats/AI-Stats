@@ -1,0 +1,36 @@
+{
+  "api_provider_id": "baidu",
+  "api_provider_name": "Baidu Qianfan",
+  "description": "Baidu AI Cloud Qianfan model inference API.",
+  "link": "https://cloud.baidu.com/product-s/qianfan_home",
+  "country_code": "CN",
+  "status": "NotReady",
+  "colour": "#2932E1",
+  "privacy_policy_url": "https://cloud.baidu.com/doc/Agreements/s/Kjwvy245m",
+  "terms_of_service_url": "https://cloud.baidu.com/doc/Agreements/s/2jwvz9uq9",
+  "prompt_training_policy": "unknown",
+  "prompt_training_notes": null,
+  "prompt_training_source_url": null,
+  "gateway_kind": null,
+  "routable": false,
+  "routing_enabled": false,
+  "sdk_package": null,
+  "api_base_url": "https://qianfan.baidubce.com",
+  "docs_url": "https://cloud.baidu.com/doc/qianfan/index.html",
+  "auth_env": ["BAIDU_API_KEY"],
+  "api_formats": ["openai.chat.completions"],
+  "service_tiers": [],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://cloud.baidu.com/doc/qianfan/s/rmh4stp0j",
+      "accessed_at": "2026-08-03T00:00:00Z",
+      "notes": "Official Qianfan model catalogue."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-03T00:00:00Z",
+    "notes": "Provider adapter exists, but gateway contract validation is not complete."
+  }
+}

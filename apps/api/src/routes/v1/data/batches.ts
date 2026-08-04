@@ -27,6 +27,7 @@ import {
 } from "@core/async-notifications";
 import {
 	buildUnsupportedBatchModePayload,
+	getBatchProviderCapability,
 	listBatchProviderCapabilities,
 	providerSupportsMultipleModelsPerBatch,
 	resolveBatchPreviewProviderIds,
@@ -255,6 +256,26 @@ type NormalizedBatchRequest = {
 	requestBodyHash: string;
 };
 
+const BATCH_ENDPOINT_ALIASES = new Map<string, string>([
+	["/chat/completions", "/v1/chat/completions"],
+	["/v1/chat/completions", "/v1/chat/completions"],
+	["/responses", "/v1/responses"],
+	["/v1/responses", "/v1/responses"],
+	["/messages", "/v1/messages"],
+	["/v1/messages", "/v1/messages"],
+	["/embeddings", "/v1/embeddings"],
+	["/v1/embeddings", "/v1/embeddings"],
+	["/generatecontent", "/v1/generateContent"],
+	["/v1/generatecontent", "/v1/generateContent"],
+]);
+
+export function normalizeBatchEndpoint(value: unknown): string | null {
+	const text = toText(value);
+	if (!text) return null;
+	const path = text.replace(/^https?:\/\/[^/]+/i, "").replace(/\/+$/, "") || "/";
+	return BATCH_ENDPOINT_ALIASES.get(path.toLowerCase()) ?? null;
+}
+
 function defaultBatchEndpointForProvider(providerId: string): string {
 	if (providerId === ANTHROPIC_PROVIDER_ID) return "/v1/messages";
 	if (providerId === GOOGLE_AI_STUDIO_PROVIDER_ID) return "/v1/generateContent";
@@ -263,7 +284,11 @@ function defaultBatchEndpointForProvider(providerId: string): string {
 }
 
 function resolveBatchEndpoint(providerId: string, payload: Record<string, unknown>): string {
-	return toText(payload.endpoint) ?? defaultBatchEndpointForProvider(providerId);
+	const declared = toText(payload.endpoint);
+	if (!declared) return defaultBatchEndpointForProvider(providerId);
+	const endpoint = normalizeBatchEndpoint(declared);
+	if (!endpoint) throw new Error("batch_endpoint_unsupported");
+	return endpoint;
 }
 
 function providerNativeModelId(providerId: string, model: string): string {
@@ -292,7 +317,12 @@ function promptItemRecord(value: unknown): Record<string, unknown> {
 	return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
-function buildBodyFromPromptItem(providerId: string, payload: Record<string, unknown>, raw: unknown): Record<string, unknown> {
+function buildBodyFromPromptItem(
+	providerId: string,
+	endpoint: string,
+	payload: Record<string, unknown>,
+	raw: unknown,
+): Record<string, unknown> {
 	const record = promptItemRecord(raw);
 	const explicitBody = record.body && typeof record.body === "object" && !Array.isArray(record.body)
 		? record.body as Record<string, unknown>
@@ -342,19 +372,15 @@ function buildBodyFromPromptItem(providerId: string, payload: Record<string, unk
 				: [{ role: "user", parts: [{ text: prompt }] }],
 		};
 	}
-	if (providerId === OPENAI_PROVIDER_ID || providerId === X_AI_PROVIDER_ID) {
+	if (endpoint === "/v1/responses") {
 		return {
 			model: nativeModel,
-			...(providerId === OPENAI_PROVIDER_ID
-				? {
-					...(maxOutputTokens !== undefined
-						? { max_output_tokens: maxOutputTokens }
-						: maxTokens !== undefined
-							? { max_output_tokens: maxTokens }
-							: {}),
-					...(temperature !== undefined ? { temperature } : {}),
-				}
-				: common),
+			...(maxOutputTokens !== undefined
+				? { max_output_tokens: maxOutputTokens }
+				: maxTokens !== undefined
+					? { max_output_tokens: maxTokens }
+					: {}),
+			...(temperature !== undefined ? { temperature } : {}),
 			...(messages ? { input: messages } : { input: prompt }),
 		};
 	}
@@ -365,11 +391,41 @@ function buildBodyFromPromptItem(providerId: string, payload: Record<string, unk
 	};
 }
 
-function normalizeRequestBodyForProvider(providerId: string, body: unknown): unknown {
+function validateBatchBodyForEndpoint(endpoint: string, record: Record<string, unknown>): void {
+	if (record.stream === true) throw new Error("batch_streaming_not_supported");
+	if (endpoint === "/v1/responses" && record.input === undefined) {
+		throw new Error("batch_responses_input_required");
+	}
+	if ((endpoint === "/v1/chat/completions" || endpoint === "/v1/messages") && !Array.isArray(record.messages)) {
+		throw new Error("batch_messages_required");
+	}
+	if (endpoint === "/v1/embeddings" && record.input === undefined) {
+		throw new Error("batch_embeddings_input_required");
+	}
+	if (endpoint === "/v1/generateContent" && !Array.isArray(record.contents)) {
+		throw new Error("batch_contents_required");
+	}
+}
+
+function normalizeRequestBodyForProvider(
+	providerId: string,
+	endpoint: string,
+	body: unknown,
+	inheritedModel: string | null,
+): unknown {
 	if (!body || typeof body !== "object" || Array.isArray(body)) return body;
 	const record = body as Record<string, unknown>;
-	const model = toText(record.model);
-	if (!model) return body;
+	const rowModel = toText(record.model);
+	if (
+		rowModel &&
+		inheritedModel &&
+		providerNativeModelId(providerId, rowModel) !== providerNativeModelId(providerId, inheritedModel)
+	) {
+		throw new Error("batch_model_conflict");
+	}
+	const model = rowModel ?? inheritedModel;
+	if (!model) throw new Error("missing_model");
+	validateBatchBodyForEndpoint(endpoint, record);
 	if (providerId === GOOGLE_AI_STUDIO_PROVIDER_ID) {
 		const generationConfig = record.generationConfig && typeof record.generationConfig === "object" && !Array.isArray(record.generationConfig)
 			? record.generationConfig as Record<string, unknown>
@@ -379,24 +435,54 @@ function normalizeRequestBodyForProvider(providerId: string, body: unknown): unk
 		return {
 			...record,
 			model: providerNativeModelId(providerId, model),
+			contents:
+				Array.isArray(record.contents)
+					? record.contents
+					: Array.isArray(record.messages)
+						? record.messages
+						: undefined,
 			generationConfig: {
 				...generationConfig,
 				maxOutputTokens: generationConfig.maxOutputTokens ?? generationConfig.max_output_tokens ?? record.max_output_tokens ?? record.max_tokens ?? DEFAULT_BATCH_MAX_OUTPUT_TOKENS,
 			},
 		};
 	}
-	const usesResponsesLimit = providerId === OPENAI_PROVIDER_ID || providerId === X_AI_PROVIDER_ID;
+	if (providerId === ANTHROPIC_PROVIDER_ID && endpoint === "/v1/chat/completions") {
+		return {
+			...record,
+			model: providerNativeModelId(providerId, model),
+			max_tokens: record.max_tokens ?? record.max_output_tokens ?? DEFAULT_BATCH_MAX_OUTPUT_TOKENS,
+			max_output_tokens: undefined,
+		};
+	}
+	const usesResponsesLimit = endpoint === "/v1/responses";
+	const usesTokenLimit =
+		endpoint === "/v1/chat/completions" ||
+		endpoint === "/v1/messages";
 	return {
 		...record,
 		model: providerNativeModelId(providerId, model),
 		...(usesResponsesLimit
-			? { max_output_tokens: record.max_output_tokens ?? record.max_tokens ?? DEFAULT_BATCH_MAX_OUTPUT_TOKENS }
-			: { max_tokens: record.max_tokens ?? record.max_output_tokens ?? DEFAULT_BATCH_MAX_OUTPUT_TOKENS }),
+			? {
+				max_tokens: undefined,
+				max_output_tokens: record.max_output_tokens ?? record.max_tokens ?? DEFAULT_BATCH_MAX_OUTPUT_TOKENS,
+			}
+			: usesTokenLimit
+				? {
+					max_output_tokens: undefined,
+					max_tokens: record.max_tokens ?? record.max_output_tokens ?? DEFAULT_BATCH_MAX_OUTPUT_TOKENS,
+				}
+				: {}),
 	};
 }
 
 async function normalizeBatchRequests(providerId: string, payload: Record<string, unknown>): Promise<NormalizedBatchRequest[]> {
 	const endpoint = resolveBatchEndpoint(providerId, payload);
+	const capability = getBatchProviderCapability(providerId);
+	if (!capability?.endpoints.some((candidate) => candidate.endpoint === endpoint)) {
+		throw new Error("batch_endpoint_not_supported_by_provider");
+	}
+	const inheritedModel = toText(payload.model);
 	const requests = Array.isArray(payload.requests) ? payload.requests : [];
 	const promptItems = requests.length === 0
 		? Array.isArray(payload.prompts)
@@ -419,11 +505,17 @@ async function normalizeBatchRequests(providerId: string, payload: Record<string
 				: null;
 		if (!body) throw new Error("invalid_request_body");
 		const customId = toText(record.custom_id) ?? toText(record.customId) ?? `request-${index + 1}`;
-		const normalizedBody = normalizeRequestBodyForProvider(providerId, body);
+		const rowEndpointValue = toText(record.url);
+		const rowEndpoint = rowEndpointValue ? normalizeBatchEndpoint(rowEndpointValue) : endpoint;
+		if (!rowEndpoint) throw new Error("batch_endpoint_unsupported");
+		if (rowEndpoint !== endpoint) throw new Error("batch_mixed_endpoints_not_supported");
+		const method = (toText(record.method) ?? "POST").toUpperCase();
+		if (method !== "POST") throw new Error("batch_method_not_supported");
+		const normalizedBody = normalizeRequestBodyForProvider(providerId, endpoint, body, inheritedModel);
 		out.push({
 			customId,
-			method: (toText(record.method) ?? "POST").toUpperCase(),
-			url: toText(record.url) ?? endpoint,
+			method,
+			url: endpoint,
 			body: normalizedBody,
 			gatewayModel: toText((body as Record<string, unknown>).model) ?? toText(payload.model),
 			index,
@@ -433,9 +525,9 @@ async function normalizeBatchRequests(providerId: string, payload: Record<string
 	for (let index = 0; index < promptItems.length; index += 1) {
 		const raw = promptItems[index];
 		const record = promptItemRecord(raw);
-		const body = buildBodyFromPromptItem(providerId, payload, raw);
+		const body = buildBodyFromPromptItem(providerId, endpoint, payload, raw);
 		const customId = toText(record.custom_id) ?? toText(record.customId) ?? toText(record.id) ?? `request-${index + 1}`;
-		const normalizedBody = normalizeRequestBodyForProvider(providerId, body);
+		const normalizedBody = normalizeRequestBodyForProvider(providerId, endpoint, body, inheritedModel);
 		out.push({
 			customId,
 			method: (toText(record.method) ?? "POST").toUpperCase(),
@@ -1048,6 +1140,27 @@ function buildBatchPricingLines(meta: BatchJobMeta | null | undefined): Record<s
 	];
 }
 
+function buildBatchUsage(meta: BatchJobMeta | null | undefined): Record<string, unknown> | null {
+	const usage = meta?.pricedUsage;
+	if (!usage || typeof usage !== "object" || Array.isArray(usage)) return null;
+	const pricing =
+		usage.pricing && typeof usage.pricing === "object" && !Array.isArray(usage.pricing)
+			? usage.pricing as Record<string, unknown>
+			: null;
+	return {
+		requests: typeof usage.requests === "number" ? usage.requests : null,
+		input_tokens: typeof usage.input_tokens === "number" ? usage.input_tokens : null,
+		output_tokens: typeof usage.output_tokens === "number" ? usage.output_tokens : null,
+		total_tokens: typeof usage.total_tokens === "number" ? usage.total_tokens : null,
+		cost_nanos: typeof pricing?.total_nanos === "number" ? pricing.total_nanos : meta?.costNanos ?? null,
+		cost_usd:
+			typeof pricing?.total_usd_str === "string"
+				? Number(pricing.total_usd_str)
+				: meta?.costUsd ?? null,
+		currency: typeof pricing?.currency === "string" ? pricing.currency : "USD",
+	};
+}
+
 function buildBatchBilling(
 	meta: BatchJobMeta | null | undefined,
 	finalization?: FinalizeBatchJobResult | null,
@@ -1138,6 +1251,8 @@ function decorateBatchPayload(args: {
 		out.cancel_url = status && isCancellableBatchStatus(status) ? buildBatchCancelUrl(args.requestUrl, publicBatchId) : null;
 	}
 	out.pricing_lines = buildBatchPricingLines(args.meta);
+	const usage = buildBatchUsage(args.meta);
+	if (usage) out.usage = usage;
 	const billing = buildBatchBilling(args.meta, args.finalization);
 	if (billing) {
 		out.billing = billing;
@@ -2232,6 +2347,7 @@ async function handleCapabilities(req: Request) {
 			preview_readiness: provider.previewReadiness,
 			reconciliation_mode: provider.reconciliationMode,
 			submission_recovery: provider.submissionRecovery,
+			endpoints: provider.endpoints,
 			gateway_input_modes: provider.gatewayInputModes,
 			native_input_modes: provider.nativeInputModes,
 			documentation_url: provider.documentationUrl,

@@ -415,6 +415,12 @@ class AudioTranscriptionRequest
 	public $audio_b64;
 	/** @var string|null */
 	public $audio_url;
+	/** @var string|array<string, mixed>|null */
+	public $chunking_strategy;
+	/** @var array|null */
+	public $known_speaker_names;
+	/** @var array|null */
+	public $known_speaker_references;
 	/** @var string|null */
 	public $language;
 	/** @var string */
@@ -565,6 +571,8 @@ class BatchProviderCapability
 {
 	/** @var string|null */
 	public $documentation_url;
+	/** @var array|null */
+	public $endpoints;
 	/** @var array|null */
 	public $gateway_input_modes;
 	/** @var string|null */
@@ -753,6 +761,8 @@ class BatchResponse
 	public $session_id;
 	/** @var string|null */
 	public $status;
+	/** @var array<string, mixed>|null */
+	public $usage;
 	/** @var array<string, mixed>|null */
 	public $webhook;
 	/** @var string|null */
@@ -1179,6 +1189,14 @@ class FunctionToolDefinition
 {
 	/** @var array<string, mixed> */
 	public $function;
+	/** @var string */
+	public $type;
+}
+
+class FusionToolDefinition
+{
+	/** @var array<string, mixed>|null */
+	public $parameters;
 	/** @var string */
 	public $type;
 }
@@ -2157,14 +2175,42 @@ class ResponsesResponse
 	public $usage;
 }
 
+class SearchModelsToolDefinition
+{
+	/** @var array<string, mixed>|null */
+	public $parameters;
+	/** @var string */
+	public $type;
+}
+
 class ServerToolUsage
 {
 	/** @var int|null */
+	public $advisor_requests;
+	/** @var int|null */
+	public $apply_patch_requests;
+	/** @var int|null */
 	public $datetime_requests;
+	/** @var int|null */
+	public $fusion_requests;
+	/** @var int|null */
+	public $image_generation_requests;
+	/** @var int|null */
+	public $search_models_requests;
+	/** @var int|null */
+	public $subagent_requests;
 	/** @var int|null */
 	public $web_fetch_requests;
 	/** @var int|null */
 	public $web_search_requests;
+}
+
+class SubagentToolDefinition
+{
+	/** @var array<string, mixed>|null */
+	public $parameters;
+	/** @var string */
+	public $type;
 }
 
 class SupportedParameterDetails

@@ -576,6 +576,61 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "deepinfra:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-31T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": ["standard", "priority", "flex"],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "pricing",
+        "url": "https://deepinfra.com/deepseek-ai/DeepSeek-V4-Flash-0731",
+        "accessed_at": "2026-08-01T00:00:00Z",
+        "notes": "Official serverless model page, pricing, context, quantisation and feature support."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-01T00:00:00Z",
+      "notes": "Confirmed as a distinct 0731 serverless deployment on DeepInfra."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "deepseek/deepseek-v4-pro",
     "provider_api_model_id": "deepinfra:deepseek/deepseek-v4-pro",
     "provider_model_slug": "deepseek-ai/DeepSeek-V4-Pro",
@@ -2046,12 +2101,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -2105,12 +2156,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -3076,12 +3123,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -3135,12 +3178,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -3242,12 +3281,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -3267,6 +3302,68 @@
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-max",
+    "provider_api_model_id": "deepinfra:qwen/qwen3.8-max",
+    "provider_model_slug": "Qwen/Qwen3.8-Max",
+    "internal_model_id": "qwen/qwen3.8-max",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-03T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api",
+        "url": "https://api.deepinfra.com/models/Qwen/Qwen3.8-Max",
+        "accessed_at": "2026-08-03T00:00:00Z",
+        "notes": "Official live model metadata and pricing."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://deepinfra.com/Qwen/Qwen3.8-Max",
+        "accessed_at": "2026-08-03T00:00:00Z",
+        "notes": "Official DeepInfra model page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-03T00:00:00Z",
+      "notes": "Official DeepInfra model API confirms the public Qwen/Qwen3.8-Max deployment, OpenAI compatibility, tools, structured outputs, non-reasoning mode, and 256K context."
     },
     "rate_limits": []
   },
@@ -3655,6 +3752,49 @@
     "rate_limits": []
   },
   {
-    "api_model_id":"thinking-machines/inkling","provider_api_model_id":"deepinfra:thinking-machines/inkling","provider_model_slug":"thinkingmachines/Inkling","internal_model_id":"thinking-machines/inkling","is_active_gateway":true,"quantization_scheme":null,"input_modalities":"text,image,audio","output_modalities":"text","context_length":524288,"max_output_tokens":524288,"effective_from":"2026-07-21T00:00:00","effective_to":null,"capabilities":[{"capability_id":"text.generate","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],"routing_status":"active","routable":true,"regions":{"execution":null,"data":null},"service_tiers":[],"api":{"formats":[],"endpoint":null,"deployment":null},"sources":[{"url":"https://api.deepinfra.com/models/list","kind":"api"}],"verification":{"status":"verified","checked_at":"2026-07-24T00:00:00Z","notes":"Official DeepInfra model list; created 2026-07-21."},"rate_limits":[]
+    "api_model_id": "thinking-machines/inkling",
+    "provider_api_model_id": "deepinfra:thinking-machines/inkling",
+    "provider_model_slug": "thinkingmachines/Inkling",
+    "internal_model_id": "thinking-machines/inkling",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio",
+    "output_modalities": "text",
+    "context_length": 524288,
+    "max_output_tokens": 524288,
+    "effective_from": "2026-07-21T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "sources": [
+      { "url": "https://api.deepinfra.com/models/list", "kind": "api" }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-24T00:00:00Z",
+      "notes": "Official DeepInfra model list; created 2026-07-21."
+    },
+    "rate_limits": []
   }
 ]

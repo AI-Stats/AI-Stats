@@ -4055,8 +4055,9 @@ components:
           type: array
           description: >
             Tool definitions for model function calls and gateway server tools.
-            Built-in gateway server tools are `gateway:datetime`,
-            `gateway:web_search`, and `gateway:web_fetch`.
+            Built-in server tools include datetime, web search, web fetch,
+            Advisor, Subagent, Fusion, model search, image generation, and patch
+            creation.
           items:
             $ref: '#/components/schemas/TextGenerateTool'
         max_tool_calls:
@@ -4387,6 +4388,7 @@ components:
         type:
           type: string
           enum:
+            - phaseo:datetime
             - gateway:datetime
         parameters:
           type: object
@@ -4410,6 +4412,7 @@ components:
         type:
           type: string
           enum:
+            - phaseo:web_search
             - gateway:web_search
         parameters:
           type: object
@@ -4444,6 +4447,7 @@ components:
         type:
           type: string
           enum:
+            - phaseo:web_fetch
             - gateway:web_fetch
         parameters:
           type: object
@@ -4451,12 +4455,12 @@ components:
             max_chars:
               type: integer
               minimum: 1
-              maximum: 50000
+              maximum: 100000
           additionalProperties: false
         max_chars:
           type: integer
           minimum: 1
-          maximum: 50000
+          maximum: 100000
       additionalProperties: false
     TextGenerateTool:
       oneOf:
@@ -4464,17 +4468,76 @@ components:
         - $ref: '#/components/schemas/GatewayDatetimeToolDefinition'
         - $ref: '#/components/schemas/GatewayWebSearchToolDefinition'
         - $ref: '#/components/schemas/GatewayWebFetchToolDefinition'
+        - $ref: '#/components/schemas/SubagentToolDefinition'
+        - $ref: '#/components/schemas/FusionToolDefinition'
+        - $ref: '#/components/schemas/SearchModelsToolDefinition'
+    SubagentToolDefinition:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - phaseo:subagent
+        parameters:
+          type: object
+          additionalProperties: true
+    FusionToolDefinition:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - phaseo:fusion
+        parameters:
+          type: object
+          required:
+            - analysis_models
+          properties:
+            analysis_models:
+              type: array
+              minItems: 2
+              maxItems: 8
+              items:
+                type: string
+            model:
+              type: string
+          additionalProperties: true
+    SearchModelsToolDefinition:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - phaseo:search_models
+        parameters:
+          type: object
+          properties:
+            max_results:
+              type: integer
+              minimum: 1
+              maximum: 20
     TextToolChoice:
       description: >
-        Tool selection strategy. `gateway:datetime`, `gateway:web_search`, and
-        `gateway:web_fetch` are accepted and rewritten by the gateway into
-        upstream function/tool targets.
+        Tool selection strategy. Phaseo server-tool types are accepted and
+        rewritten into upstream function/tool targets.
       oneOf:
         - type: string
           enum:
             - auto
             - none
             - required
+            - phaseo:datetime
+            - phaseo:web_search
+            - phaseo:web_fetch
+            - phaseo:subagent
+            - phaseo:fusion
+            - phaseo:search_models
             - gateway:datetime
             - gateway:web_search
             - gateway:web_fetch
@@ -4488,7 +4551,25 @@ components:
         web_search_requests:
           type: integer
           minimum: 0
+        subagent_requests:
+          type: integer
+          minimum: 0
+        fusion_requests:
+          type: integer
+          minimum: 0
+        search_models_requests:
+          type: integer
+          minimum: 0
         web_fetch_requests:
+          type: integer
+          minimum: 0
+        advisor_requests:
+          type: integer
+          minimum: 0
+        image_generation_requests:
+          type: integer
+          minimum: 0
+        apply_patch_requests:
           type: integer
           minimum: 0
       additionalProperties: false
@@ -4649,21 +4730,21 @@ components:
           minimum: 1
         tools:
           type: array
-          description: >
-            Anthropic-compatible tools plus gateway server tools. The only
-            built-in gateway server tools are `gateway:datetime`,
-            `gateway:web_search`, and `gateway:web_fetch`.
+          description: |
+            Anthropic-compatible tools plus gateway-managed server tools.
           items:
             oneOf:
               - $ref: '#/components/schemas/AnthropicTool'
               - $ref: '#/components/schemas/GatewayDatetimeToolDefinition'
               - $ref: '#/components/schemas/GatewayWebSearchToolDefinition'
               - $ref: '#/components/schemas/GatewayWebFetchToolDefinition'
+              - $ref: '#/components/schemas/SubagentToolDefinition'
+              - $ref: '#/components/schemas/FusionToolDefinition'
+              - $ref: '#/components/schemas/SearchModelsToolDefinition'
         tool_choice:
           description: >
-            Anthropic tool choice object/string. `gateway:datetime`,
-            `gateway:web_search`, and `gateway:web_fetch` are also accepted and
-            rewritten by the gateway.
+            Anthropic tool choice object/string. Gateway-managed server tool
+            names are also accepted and rewritten by the gateway.
           oneOf:
             - type: object
             - type: string
@@ -5567,6 +5648,39 @@ components:
           type: string
         language:
           type: string
+        chunking_strategy:
+          oneOf:
+            - type: string
+              enum:
+                - auto
+            - type: object
+              required:
+                - type
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - server_vad
+                prefix_padding_ms:
+                  type: integer
+                  minimum: 0
+                silence_duration_ms:
+                  type: integer
+                  minimum: 0
+                threshold:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+        known_speaker_names:
+          type: array
+          maxItems: 4
+          items:
+            type: string
+        known_speaker_references:
+          type: array
+          maxItems: 4
+          items:
+            type: string
         provider:
           $ref: '#/components/schemas/ProviderRoutingOptions'
     AudioTranscriptionResponse:
@@ -6469,9 +6583,16 @@ components:
             $ref: '#/components/schemas/BatchRequestItem'
         endpoint:
           type: string
+          enum:
+            - /v1/chat/completions
+            - /v1/responses
+            - /v1/messages
+            - /v1/embeddings
+            - /v1/generateContent
           description: >-
-            Optional provider endpoint path. Phaseo chooses a default from the
-            model when omitted.
+            Caller-facing request shape. Every request in a batch uses this
+            endpoint. Phaseo chooses a provider-native default from the model
+            when omitted.
         completion_window:
           type: string
         metadata:
@@ -6532,9 +6653,13 @@ components:
         method:
           type: string
           default: POST
+          enum:
+            - POST
         url:
           type: string
-          description: Provider endpoint path. Defaults to the parent batch endpoint.
+          description: >-
+            Endpoint path for this row. When supplied, it must match the parent
+            batch endpoint. Defaults to the parent batch endpoint.
         body:
           type: object
           additionalProperties: true
@@ -6570,6 +6695,22 @@ components:
         notes:
           type: string
           nullable: true
+        endpoints:
+          type: array
+          description: Batch endpoints supported by this provider.
+          items:
+            type: object
+            required:
+              - endpoint
+              - mode
+            properties:
+              endpoint:
+                type: string
+              mode:
+                type: string
+                enum:
+                  - native
+                  - translated
     BatchRequestRow:
       type: object
       properties:
@@ -6738,6 +6879,30 @@ components:
           items:
             type: object
             additionalProperties: true
+        usage:
+          type: object
+          description: Normalised aggregate usage and cost after finalisation.
+          properties:
+            requests:
+              type: integer
+              nullable: true
+            input_tokens:
+              type: integer
+              nullable: true
+            output_tokens:
+              type: integer
+              nullable: true
+            total_tokens:
+              type: integer
+              nullable: true
+            cost_nanos:
+              type: integer
+              nullable: true
+            cost_usd:
+              type: number
+              nullable: true
+            currency:
+              type: string
         billing:
           $ref: '#/components/schemas/BatchBillingSummary'
     BatchListResponse:
@@ -9229,6 +9394,7 @@ components:
         - qwen/qwen3.7-max-2026-05-17
         - qwen/qwen3.7-plus
         - qwen/qwen3.7-plus-2026-05-26
+        - qwen/qwen3.8-max
         - qwen/qwq-32b
         - qwen/qwq-plus
         - qwen/text-embedding-v3

@@ -110,6 +110,7 @@ function getTabSet(
 			{ href: "/settings/usage/overview", label: "Overview" },
 			{ href: "/settings/usage/trends", label: "Trends" },
 			{ href: "/settings/usage/explore", label: "Explore" },
+			{ href: "/settings/usage/geography", label: "Geography" },
 			{
 				href: "/settings/usage/alerts",
 				label: "Alerts",
@@ -235,7 +236,6 @@ export default function SettingsTopTabs({
 						<Link
 							key={t.href}
 							href={t.href}
-							prefetch={false}
 							aria-current={isActive ? "page" : undefined}
 							ref={(el) => {
 								tabRefs.current[t.href] = el;
