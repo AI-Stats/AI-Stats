@@ -53,6 +53,16 @@ jobs:
             - name: Validate canonical Phaseo domain
               run: pnpm run validate:domains
 
+            - name: Validate unique Supabase migration versions
+              shell: bash
+              run: |
+                  duplicates="$(find supabase/migrations -maxdepth 1 -type f -name '*.sql' -printf '%f\n' | sed -E 's/^([0-9]+)_.*/\1/' | sort | uniq -d)"
+                  if [[ -n "$duplicates" ]]; then
+                    echo "::error::Duplicate Supabase migration version(s):"
+                    echo "$duplicates"
+                    exit 1
+                  fi
+
             - name: Install dependencies
               run: corepack pnpm install --frozen-lockfile
 
