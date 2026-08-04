@@ -334,13 +334,19 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] audio_url
     #   @return [String, nil]
+    # @!attribute [rw] chunking_strategy
+    #   @return [String, Hash{String => Object}, nil]
+    # @!attribute [rw] known_speaker_names
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] known_speaker_references
+    #   @return [Array<String>, nil]
     # @!attribute [rw] language
     #   @return [String, nil]
     # @!attribute [rw] model
     #   @return [String]
     # @!attribute [rw] provider
     #   @return [Hash{String => Object}, nil]
-    AudioTranscriptionRequest = Struct.new(:audio_b64, :audio_url, :language, :model, :provider, keyword_init: true)
+    AudioTranscriptionRequest = Struct.new(:audio_b64, :audio_url, :chunking_strategy, :known_speaker_names, :known_speaker_references, :language, :model, :provider, keyword_init: true)
     # @!attribute [rw] text
     #   @return [String, nil]
     AudioTranscriptionResponse = Struct.new(:text, keyword_init: true)

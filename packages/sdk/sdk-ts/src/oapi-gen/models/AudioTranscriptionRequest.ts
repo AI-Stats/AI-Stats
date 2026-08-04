@@ -1,4 +1,6 @@
 export interface AudioTranscriptionRequest {
+  audio_b64?: string;
+  audio_url?: string;
   chunking_strategy?:
     | "auto"
     | {
@@ -7,11 +9,9 @@ export interface AudioTranscriptionRequest {
         threshold?: number;
         type: "server_vad";
       };
-  audio_b64?: string;
-  audio_url?: string;
-  language?: string;
   known_speaker_names?: string[];
   known_speaker_references?: string[];
+  language?: string;
   model: string;
   provider?: {
     allow_fallbacks?: boolean | null;

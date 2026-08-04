@@ -3672,6 +3672,16 @@ export type CreateTranscriptionParams = {
   body?: {
     audio_b64?: string;
     audio_url?: string;
+    chunking_strategy?:
+      | "auto"
+      | {
+          prefix_padding_ms?: number;
+          silence_duration_ms?: number;
+          threshold?: number;
+          type: "server_vad";
+        };
+    known_speaker_names?: string[];
+    known_speaker_references?: string[];
     language?: string;
     model: string;
     provider?: {

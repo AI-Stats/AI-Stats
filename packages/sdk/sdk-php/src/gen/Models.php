@@ -415,6 +415,12 @@ class AudioTranscriptionRequest
 	public $audio_b64;
 	/** @var string|null */
 	public $audio_url;
+	/** @var string|array<string, mixed>|null */
+	public $chunking_strategy;
+	/** @var array|null */
+	public $known_speaker_names;
+	/** @var array|null */
+	public $known_speaker_references;
 	/** @var string|null */
 	public $language;
 	/** @var string */

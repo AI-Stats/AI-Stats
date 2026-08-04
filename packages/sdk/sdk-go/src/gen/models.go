@@ -232,6 +232,9 @@ type AudioSpeechRequest struct {
 type AudioTranscriptionRequest struct {
 	AudioB64 *string `json:"audio_b64,omitempty"`
 	AudioUrl *string `json:"audio_url,omitempty"`
+	ChunkingStrategy interface{} `json:"chunking_strategy,omitempty"`
+	KnownSpeakerNames *[]string `json:"known_speaker_names,omitempty"`
+	KnownSpeakerReferences *[]string `json:"known_speaker_references,omitempty"`
 	Language *string `json:"language,omitempty"`
 	Model string `json:"model"`
 	Provider *map[string]interface{} `json:"provider,omitempty"`

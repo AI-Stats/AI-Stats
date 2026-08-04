@@ -4891,39 +4891,6 @@ components:
           type: array
           items:
             type: string
-        chunking_strategy:
-          oneOf:
-            - type: string
-              enum:
-                - auto
-            - type: object
-              required:
-                - type
-              properties:
-                type:
-                  type: string
-                  enum:
-                    - server_vad
-                prefix_padding_ms:
-                  type: integer
-                  minimum: 0
-                silence_duration_ms:
-                  type: integer
-                  minimum: 0
-                threshold:
-                  type: number
-                  minimum: 0
-                  maximum: 1
-        known_speaker_names:
-          type: array
-          maxItems: 4
-          items:
-            type: string
-        known_speaker_references:
-          type: array
-          maxItems: 4
-          items:
-            type: string
         instructions:
           type: string
         max_output_tokens:
@@ -5681,6 +5648,39 @@ components:
           type: string
         language:
           type: string
+        chunking_strategy:
+          oneOf:
+            - type: string
+              enum:
+                - auto
+            - type: object
+              required:
+                - type
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - server_vad
+                prefix_padding_ms:
+                  type: integer
+                  minimum: 0
+                silence_duration_ms:
+                  type: integer
+                  minimum: 0
+                threshold:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+        known_speaker_names:
+          type: array
+          maxItems: 4
+          items:
+            type: string
+        known_speaker_references:
+          type: array
+          maxItems: 4
+          items:
+            type: string
         provider:
           $ref: '#/components/schemas/ProviderRoutingOptions'
     AudioTranscriptionResponse:

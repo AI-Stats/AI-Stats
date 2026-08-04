@@ -570,6 +570,15 @@ public sealed class AudioTranscriptionRequest
 	[JsonPropertyName("audio_url")]
 	public string? AudioUrl { get; set; }
 
+	[JsonPropertyName("chunking_strategy")]
+	public object? ChunkingStrategy { get; set; }
+
+	[JsonPropertyName("known_speaker_names")]
+	public List<string>? KnownSpeakerNames { get; set; }
+
+	[JsonPropertyName("known_speaker_references")]
+	public List<string>? KnownSpeakerReferences { get; set; }
+
 	[JsonPropertyName("language")]
 	public string? Language { get; set; }
 

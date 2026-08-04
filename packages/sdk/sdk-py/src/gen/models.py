@@ -210,6 +210,9 @@ class AudioSpeechRequest(TypedDict):
 class AudioTranscriptionRequest(TypedDict):
 	audio_b64: NotRequired[str]
 	audio_url: NotRequired[str]
+	chunking_strategy: NotRequired[Union[Literal["auto"], Dict[str, Any]]]
+	known_speaker_names: NotRequired[List[str]]
+	known_speaker_references: NotRequired[List[str]]
 	language: NotRequired[str]
 	model: str
 	provider: NotRequired[Dict[str, Any]]
