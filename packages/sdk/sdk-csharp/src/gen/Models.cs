@@ -786,6 +786,9 @@ public sealed class BatchProviderCapability
 	[JsonPropertyName("documentation_url")]
 	public string? DocumentationUrl { get; set; }
 
+	[JsonPropertyName("endpoints")]
+	public List<Dictionary<string, object>>? Endpoints { get; set; }
+
 	[JsonPropertyName("gateway_input_modes")]
 	public List<string>? GatewayInputModes { get; set; }
 
@@ -1057,6 +1060,9 @@ public sealed class BatchResponse
 
 	[JsonPropertyName("status")]
 	public string? Status { get; set; }
+
+	[JsonPropertyName("usage")]
+	public Dictionary<string, object>? Usage { get; set; }
 
 	[JsonPropertyName("webhook")]
 	public Dictionary<string, object>? Webhook { get; set; }
