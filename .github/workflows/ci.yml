@@ -73,11 +73,14 @@ jobs:
               run: pnpm run validate:data && pnpm run validate:pricing && pnpm run validate:gateway
 
     check-paths:
-        name: Check for data changes
+        name: Check changed paths
         runs-on: ubuntu-latest
-        if: github.event_name == 'push'
+        permissions:
+            contents: read
+            pull-requests: read
         outputs:
             data-changed: ${{ steps.filter.outputs.data }}
+            migrations-changed: ${{ steps.filter.outputs.migrations }}
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
@@ -86,6 +89,96 @@ jobs:
               with:
                   filters: |
                       data: 'packages/data/catalog/src/data/**'
+                      migrations:
+                          - 'supabase/migrations/**'
+                          - 'supabase/config.toml'
+                          - 'scripts/validate-supabase-migrations.mjs'
+
+    migration-validation:
+        name: Validate database migration policy
+        runs-on: ubuntu-latest
+        needs: check-paths
+        if: >-
+            always() &&
+            needs.check-paths.result == 'success' &&
+            needs.check-paths.outputs.migrations-changed == 'true'
+        permissions:
+            contents: read
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  fetch-depth: 0
+
+            - name: Validate migration history
+              env:
+                  MIGRATION_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
+              run: node scripts/validate-supabase-migrations.mjs "${MIGRATION_BASE_SHA}"
+
+    migrate-production:
+        name: Apply production database migrations
+        runs-on: ubuntu-latest
+        needs:
+            - check-paths
+            - migration-validation
+        if: >-
+            always() &&
+            github.event_name == 'push' &&
+            github.ref == 'refs/heads/main' &&
+            needs.check-paths.result == 'success' &&
+            needs.check-paths.outputs.migrations-changed == 'true' &&
+            needs.migration-validation.result == 'success' &&
+            vars.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true'
+        environment: production-database
+        concurrency:
+            group: production-database-migrations
+            cancel-in-progress: false
+        permissions:
+            contents: read
+        env:
+            SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+            SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+            SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+            SUPABASE_YES: "true"
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+            - name: Validate production migration configuration
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  missing=()
+                  [ -z "${SUPABASE_ACCESS_TOKEN:-}" ] && missing+=("SUPABASE_ACCESS_TOKEN")
+                  [ -z "${SUPABASE_DB_PASSWORD:-}" ] && missing+=("SUPABASE_DB_PASSWORD")
+                  [ -z "${SUPABASE_PROJECT_ID:-}" ] && missing+=("SUPABASE_PROJECT_ID")
+                  if [ "${#missing[@]}" -gt 0 ]; then
+                    echo "::error::Missing production-database environment secret(s): ${missing[*]}"
+                    exit 1
+                  fi
+
+            - name: Link production project
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  npx --yes supabase@2.111.0 link \
+                    --project-ref "${SUPABASE_PROJECT_ID}" \
+                    --password "${SUPABASE_DB_PASSWORD}"
+
+            - name: Preview pending production migrations
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  npx --yes supabase@2.111.0 db push \
+                    --linked \
+                    --dry-run \
+                    --password "${SUPABASE_DB_PASSWORD}"
+
+            - name: Apply pending production migrations
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  npx --yes supabase@2.111.0 db push \
+                    --linked \
+                    --password "${SUPABASE_DB_PASSWORD}"
 
     openapi-lint:
         name: OpenAPI lint
@@ -716,7 +809,16 @@ jobs:
         runs-on: ubuntu-latest
         needs:
             - apps
-        if: github.ref == 'refs/heads/main' && github.event_name != 'workflow_dispatch'
+            - check-paths
+            - migrate-production
+        if: >-
+            always() &&
+            github.ref == 'refs/heads/main' &&
+            github.event_name != 'workflow_dispatch' &&
+            needs.apps.result == 'success' &&
+            needs.check-paths.result == 'success' &&
+            (needs.check-paths.outputs.migrations-changed != 'true' ||
+            needs.migrate-production.result == 'success')
         permissions:
             contents: read
         strategy:
