@@ -264,6 +264,48 @@ function createAnthropicMessagesMount(): Mountable {
     };
 }
 
+function createBedrockMantleMessagesMount(): Mountable {
+    let journal: Journal | null = null;
+    return {
+        setJournal(nextJournal) { journal = nextJournal; },
+        async handleRequest(req: IncomingMessage, res: ServerResponse, pathname: string) {
+            if (pathname !== "/messages" || req.method !== "POST") return false;
+            const body = JSON.parse(await readIncomingBody(req)) as Record<string, any>;
+            const headers = flattenHeaders(req.headers as Record<string, string | string[] | undefined>);
+            const text = JSON.stringify(body).includes("[aimock-structured] person")
+                ? JSON.stringify({ name: "Ava", city: "London" })
+                : "Hello from AIMock via Phaseo.";
+            const payload = {
+                id: "msg_bedrock_mantle_aimock",
+                type: "message",
+                role: "assistant",
+                model: body.model,
+                content: [{ type: "text", text }],
+                stop_reason: "end_turn",
+                stop_sequence: null,
+                usage: { input_tokens: 4, output_tokens: 3 },
+            };
+            journal?.add({ method: req.method, path: req.url ?? pathname, headers, body, service: "chat", response: { status: 200, fixture: null } });
+            if (!body.stream) {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify(payload));
+                return true;
+            }
+            const events = [
+                { type: "message_start", message: { ...payload, content: [], stop_reason: null, usage: { input_tokens: 4, output_tokens: 0 } } },
+                { type: "content_block_start", index: 0, content_block: { type: "text", text: "" } },
+                { type: "content_block_delta", index: 0, delta: { type: "text_delta", text } },
+                { type: "content_block_stop", index: 0 },
+                { type: "message_delta", delta: { stop_reason: "end_turn", stop_sequence: null }, usage: { output_tokens: 3 } },
+                { type: "message_stop" },
+            ];
+            res.writeHead(200, { "Content-Type": "text/event-stream" });
+            res.end(events.map((event) => `event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`).join(""));
+            return true;
+        },
+    };
+}
+
 function mimeTypeForSpeechCodec(codec: unknown): string {
     switch (String(codec ?? "").trim().toLowerCase()) {
         case "wav":
@@ -552,6 +594,7 @@ export async function startAimock(): Promise<LLMock> {
     aimock.mount("/v1/openai", createOpenAIChatMount());
     aimock.mount("/deepseek", createOpenAIChatMount());
     aimock.mount("/api/v1", createOpenAIChatMount());
+    aimock.mount("/anthropic/v1", createBedrockMantleMessagesMount());
     aimock.mount("/v1/projects/aimock-project/locations/us-east5/publishers/anthropic/models", createAnthropicMessagesMount());
 
     await aimock.start();
