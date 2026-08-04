@@ -91,7 +91,7 @@ export function ModelSearchDropdown({
         align="start"
         sideOffset={6}
         className={cn(
-          "w-[min(92vw,32rem)] gap-0 rounded-2xl p-1",
+          "w-(--anchor-width) max-w-[calc(100vw-2rem)] gap-0 rounded-2xl p-1",
           contentClassName
         )}
       >
