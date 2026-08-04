@@ -1,4 +1,4 @@
-drop index concurrently if exists public.presets_public_slug_key;
+drop index if exists public.presets_public_slug_key;
 
 -- Public presets without a publisher cannot be addressed. Preserve them as
 -- workspace presets instead of leaving unreachable marketplace rows behind.
@@ -33,11 +33,11 @@ alter table public.presets
 alter table public.presets
   validate constraint presets_public_requires_creator;
 
-create unique index concurrently if not exists presets_public_publisher_slug_key
+create unique index if not exists presets_public_publisher_slug_key
   on public.presets (created_by, lower(slug))
   where visibility = 'public';
 
-create index concurrently if not exists presets_workspace_slug_ci_idx
+create index if not exists presets_workspace_slug_ci_idx
   on public.presets (workspace_id, lower(slug));
 
 comment on index public.presets_public_publisher_slug_key is
