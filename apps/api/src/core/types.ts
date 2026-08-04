@@ -269,7 +269,6 @@ export type GatewayUsage = {
         subagent_requests?: number;
         fusion_requests?: number;
         search_models_requests?: number;
-        subagent_requests?: number;
         image_generation_requests?: number;
         apply_patch_requests?: number;
     };
@@ -280,7 +279,6 @@ export type GatewayUsage = {
     server_tool_subagent_requests?: number;
     server_tool_fusion_requests?: number;
     server_tool_search_models_requests?: number;
-    server_tool_subagent_requests?: number;
     server_tool_image_generation_requests?: number;
     server_tool_apply_patch_requests?: number;
 

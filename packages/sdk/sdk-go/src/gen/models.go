@@ -1315,6 +1315,11 @@ type FunctionToolDefinition struct {
 	Type string `json:"type"`
 }
 
+type FusionToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
+	Type string `json:"type"`
+}
+
 type GatewayDatetimeToolDefinition struct {
 	Parameters *map[string]interface{} `json:"parameters,omitempty"`
 	Timezone *string `json:"timezone,omitempty"`
@@ -2392,10 +2397,26 @@ type ResponsesResponse struct {
 	Usage *map[string]interface{} `json:"usage,omitempty"`
 }
 
+type SearchModelsToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
+	Type string `json:"type"`
+}
+
 type ServerToolUsage struct {
+	AdvisorRequests *int `json:"advisor_requests,omitempty"`
+	ApplyPatchRequests *int `json:"apply_patch_requests,omitempty"`
 	DatetimeRequests *int `json:"datetime_requests,omitempty"`
+	FusionRequests *int `json:"fusion_requests,omitempty"`
+	ImageGenerationRequests *int `json:"image_generation_requests,omitempty"`
+	SearchModelsRequests *int `json:"search_models_requests,omitempty"`
+	SubagentRequests *int `json:"subagent_requests,omitempty"`
 	WebFetchRequests *int `json:"web_fetch_requests,omitempty"`
 	WebSearchRequests *int `json:"web_search_requests,omitempty"`
+}
+
+type SubagentToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
+	Type string `json:"type"`
 }
 
 type SupportedParameterDetails struct {

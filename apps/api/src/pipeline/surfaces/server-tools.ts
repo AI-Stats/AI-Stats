@@ -3190,10 +3190,13 @@ export async function buildServerToolContinuation(
 				temperature: config.subagent.temperature,
 				tools: config.subagent.tools,
 			});
-			toolResults.push(result.ok
-				? { toolCallId: call.id, content: JSON.stringify({ status: "ok", model: config.subagent.model, outcome: result.content }) }
-				: { toolCallId: call.id, isError: true, content: JSON.stringify({ error: "subagent_request_failed", message: result.message }) });
-			advisorUsage = mergeIRUsageTotals(advisorUsage, result.ok ? result.usage : undefined);
+			if (result.ok) {
+				toolResults.push({ toolCallId: call.id, content: JSON.stringify({ status: "ok", model: config.subagent.model, outcome: result.content }) });
+				advisorUsage = mergeIRUsageTotals(advisorUsage, result.usage);
+			} else {
+				const message = "message" in result ? result.message : "Subagent request failed.";
+				toolResults.push({ toolCallId: call.id, isError: true, content: JSON.stringify({ error: "subagent_request_failed", message }) });
+			}
 			continue;
 		}
 
@@ -3212,12 +3215,23 @@ export async function buildServerToolContinuation(
 			}
 			const panel = await Promise.all(config.fusion.analysisModels.map(async (model) => ({ model, result: await options.executeAdvisor!({ model, prompt, maxTokens: config.fusion!.maxTokens, instructions: config.fusion!.instructions, forwardTranscript: false }) })));
 			for (const item of panel) if (item.result.ok) advisorUsage = mergeIRUsageTotals(advisorUsage, item.result.usage);
-			const findings = panel.filter((item) => item.result.ok).map((item) => `${item.model}: ${(item.result as { content: string }).content}`).join("\n\n");
+			const successfulPanel = panel.filter((item): item is {
+				model: string;
+				result: Extract<AdvisorExecutionResult, { ok: true }>;
+			} => item.result.ok);
+			if (successfulPanel.length === 0) {
+				toolResults.push({ toolCallId: call.id, isError: true, content: JSON.stringify({ error: "fusion_panel_failed", message: "All Fusion analysis models failed." }) });
+				continue;
+			}
+			const findings = successfulPanel.map((item) => `${item.model}: ${item.result.content}`).join("\n\n");
 			const analyst = await options.executeAdvisor({ model: config.fusion.analystModel, prompt: `Synthesize these independent findings for the calling model:\n\n${findings}`, maxTokens: config.fusion.maxTokens, instructions: config.fusion.instructions, forwardTranscript: false });
-			if (analyst.ok) advisorUsage = mergeIRUsageTotals(advisorUsage, analyst.usage);
-			toolResults.push(analyst.ok
-				? { toolCallId: call.id, content: JSON.stringify({ status: "ok", analyses: panel.length, analysis: analyst.content }) }
-				: { toolCallId: call.id, isError: true, content: JSON.stringify({ error: "fusion_request_failed", message: analyst.message }) });
+			if (analyst.ok) {
+				advisorUsage = mergeIRUsageTotals(advisorUsage, analyst.usage);
+				toolResults.push({ toolCallId: call.id, content: JSON.stringify({ status: "ok", analyses: successfulPanel.length, analysis: analyst.content }) });
+			} else {
+				const message = "message" in analyst ? analyst.message : "Fusion analyst request failed.";
+				toolResults.push({ toolCallId: call.id, isError: true, content: JSON.stringify({ error: "fusion_request_failed", message }) });
+			}
 			continue;
 		}
 

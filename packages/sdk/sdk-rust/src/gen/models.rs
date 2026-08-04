@@ -660,6 +660,11 @@ pub struct FunctionToolDefinition {
 	pub r#type: String,
 }
 
+pub struct FusionToolDefinition {
+	pub parameters: Option<HashMap<String, String>>,
+	pub r#type: String,
+}
+
 pub struct GatewayDatetimeToolDefinition {
 	pub parameters: Option<HashMap<String, String>>,
 	pub timezone: Option<String>,
@@ -1209,10 +1214,26 @@ pub struct ResponsesResponse {
 	pub usage: Option<HashMap<String, String>>,
 }
 
+pub struct SearchModelsToolDefinition {
+	pub parameters: Option<HashMap<String, String>>,
+	pub r#type: String,
+}
+
 pub struct ServerToolUsage {
+	pub advisor_requests: Option<i64>,
+	pub apply_patch_requests: Option<i64>,
 	pub datetime_requests: Option<i64>,
+	pub fusion_requests: Option<i64>,
+	pub image_generation_requests: Option<i64>,
+	pub search_models_requests: Option<i64>,
+	pub subagent_requests: Option<i64>,
 	pub web_fetch_requests: Option<i64>,
 	pub web_search_requests: Option<i64>,
+}
+
+pub struct SubagentToolDefinition {
+	pub parameters: Option<HashMap<String, String>>,
+	pub r#type: String,
 }
 
 pub struct SupportedParameterDetails {

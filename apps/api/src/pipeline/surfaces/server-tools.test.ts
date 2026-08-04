@@ -634,6 +634,19 @@ describe("managed model tools", () => {
 		expect(continuation?.usage.searchModelsRequests).toBe(1);
 		expect(JSON.parse(String(continuation?.toolResults[0]?.content))).toEqual({ models: [{ id: "example/vision" }] });
 	});
+
+	it("fails Fusion when every panel model fails", async () => {
+		const continuation = await buildServerToolContinuation({
+			choices: [{ message: { role: "assistant", content: [], toolCalls: [{ id: "fusion_1", name: "phaseo_fusion", arguments: JSON.stringify({ prompt: "Compare approaches" }) }] }, finishReason: "tool_calls" }],
+		} as any, {
+			enabled: true, datetimeDefaultTimezones: ["UTC"], webSearchEnabled: false, webSearchMaxResults: 5,
+			webSearchIncludeText: false, webSearchIncludeHighlights: true, webFetchEnabled: false, webFetchMaxChars: 12000,
+			fusion: { analysisModels: ["example/a", "example/b"], analystModel: "example/judge", maxUses: 1, maxTokens: 1400 },
+		}, { executeAdvisor: async () => ({ ok: false, message: "unavailable" }) });
+
+		expect(continuation?.toolResults[0]?.isError).toBe(true);
+		expect(JSON.parse(String(continuation?.toolResults[0]?.content))).toMatchObject({ error: "fusion_panel_failed" });
+	});
 });
 
 describe("buildServerToolContinuation", () => {
@@ -994,6 +1007,9 @@ describe("buildServerToolContinuation", () => {
 				webSearchExtraResults: 0,
 				webFetchRequests: 0,
 				advisorRequests: 0,
+				subagentRequests: 0,
+				fusionRequests: 0,
+				searchModelsRequests: 0,
 				imageGenerationRequests: 0,
 				applyPatchRequests: 0,
 			});
@@ -1688,6 +1704,9 @@ describe("buildServerToolContinuation", () => {
 				webSearchExtraResults: 0,
 				webFetchRequests: 1,
 				advisorRequests: 0,
+				subagentRequests: 0,
+				fusionRequests: 0,
+				searchModelsRequests: 0,
 				imageGenerationRequests: 0,
 				applyPatchRequests: 0,
 			});
