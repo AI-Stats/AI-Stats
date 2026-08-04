@@ -23,6 +23,7 @@ const DEFAULT_RETRY_ATTEMPTS = 3;
 const DEFAULT_RETRY_DELAY_MS = 250;
 let gatewayRequestsSupportsErrorPayloadColumn: boolean | null = null;
 let gatewayRequestsSupportsUsageColumns: boolean | null = null;
+let gatewayRequestsSupportsTelemetryColumns: boolean | null = null;
 let gatewayRequestDetailsTableAvailable: boolean | null = null;
 let warnedMissingGatewayRequestDetailsTable = false;
 
@@ -108,22 +109,31 @@ async function insertGatewayRequest(row: any) {
         return data as { id: string; created_at: string; workspace_id: string };
     };
 
-    const initialRow =
-        gatewayRequestsSupportsUsageColumns === false
-            ? stripGatewayRequestUsageColumns(
-                gatewayRequestsSupportsErrorPayloadColumn === false
-                    ? (() => {
-                        const { error_payload: _omit, ...legacyRow } = row ?? {};
-                        return legacyRow;
-                    })()
-                    : row,
-            )
-            : gatewayRequestsSupportsErrorPayloadColumn === false
-            ? (() => {
-                const { error_payload: _omit, ...legacyRow } = row ?? {};
-                return legacyRow;
-            })()
-            : row;
+    const stripTelemetryColumns = (payload: any) => {
+        const {
+            provider_ttft_ms: _providerTtftMs,
+            gateway_ttft_ms: _gatewayTtftMs,
+            output_speed_tps: _outputSpeedTps,
+            tpot_ms: _tpotMs,
+            itl_ms: _itlMs,
+            phaseo_overhead_ms: _phaseoOverheadMs,
+            ...compatibleRow
+        } = payload ?? {};
+        return compatibleRow;
+    };
+    const prepareCompatibleRow = (payload: any) => {
+        const telemetryCompatible = gatewayRequestsSupportsTelemetryColumns === false
+            ? stripTelemetryColumns(payload)
+            : payload;
+        const usageCompatible = gatewayRequestsSupportsUsageColumns === false
+            ? stripGatewayRequestUsageColumns(telemetryCompatible)
+            : telemetryCompatible;
+        if (gatewayRequestsSupportsErrorPayloadColumn !== false) return usageCompatible;
+        const { error_payload: _omit, ...errorPayloadCompatible } = usageCompatible ?? {};
+        return errorPayloadCompatible;
+    };
+
+    const initialRow = prepareCompatibleRow(row);
 
     try {
         const inserted = await attemptInsert(initialRow);
@@ -133,8 +143,26 @@ async function insertGatewayRequest(row: any) {
         if (gatewayRequestsSupportsUsageColumns === null && "usage_total_tokens" in row) {
             gatewayRequestsSupportsUsageColumns = true;
         }
+        if (gatewayRequestsSupportsTelemetryColumns === null && "provider_ttft_ms" in row) {
+            gatewayRequestsSupportsTelemetryColumns = true;
+        }
         return inserted;
     } catch (error) {
+        const telemetryColumns = [
+            "provider_ttft_ms",
+            "gateway_ttft_ms",
+            "output_speed_tps",
+            "tpot_ms",
+            "itl_ms",
+            "phaseo_overhead_ms",
+        ];
+        if (
+            gatewayRequestsSupportsTelemetryColumns !== false &&
+            telemetryColumns.some((column) => isMissingColumnError(error, column, "gateway_requests"))
+        ) {
+            gatewayRequestsSupportsTelemetryColumns = false;
+            return attemptInsert(prepareCompatibleRow(row));
+        }
         if (
             gatewayRequestsSupportsUsageColumns !== false &&
             isMissingColumnError(error, "usage_", "gateway_requests")
