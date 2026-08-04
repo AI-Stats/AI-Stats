@@ -609,15 +609,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [
-      "standard",
-      "priority",
-      "flex"
-    ],
+    "service_tiers": ["standard", "priority", "flex"],
     "api": {
-      "formats": [
-        "openai.chat.completions"
-      ],
+      "formats": ["openai.chat.completions"],
       "endpoint": null,
       "deployment": null
     },
@@ -2107,12 +2101,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -2166,12 +2156,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -3137,12 +3123,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -3196,12 +3178,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -3303,12 +3281,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
@@ -3361,10 +3335,7 @@
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
+    "regions": { "execution": null, "data": null },
     "service_tiers": [
       "standard"
     ],
@@ -3815,16 +3786,9 @@
       "data": null
     },
     "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
+    "api": { "formats": [], "endpoint": null, "deployment": null },
     "sources": [
-      {
-        "url": "https://api.deepinfra.com/models/list",
-        "kind": "api"
-      }
+      { "url": "https://api.deepinfra.com/models/list", "kind": "api" }
     ],
     "verification": {
       "status": "verified",
