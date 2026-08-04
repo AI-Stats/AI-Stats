@@ -504,7 +504,7 @@ const FunctionToolSchema = z.object({
 });
 
 const GatewayDatetimeToolSchema = z.object({
-	type: z.literal("gateway:datetime"),
+	type: z.enum(["phaseo:datetime", "gateway:datetime"]),
 	parameters: z.object({
 		timezone: z.string().min(1).optional(),
 		timezones: z.array(z.string().min(1)).max(5).optional(),
@@ -514,11 +514,12 @@ const GatewayDatetimeToolSchema = z.object({
 const GatewayWebSearchToolSchema = z.object({
 	type: z.enum(["phaseo:web_search", "gateway:web_search"]),
 	parameters: z.object({
-		engine: z.enum(["auto", "native", "exa", "firecrawl", "parallel"]).optional(),
+		engine: z.enum(["auto", "native", "exa", "firecrawl", "parallel", "perplexity"]).optional(),
 		max_results: z.number().int().positive().max(25).optional(),
 		max_total_results: z.number().int().positive().max(100).optional(),
 		search_context_size: z.enum(["low", "medium", "high"]).optional(),
-		max_characters: z.number().int().positive().max(50000).optional(),
+		max_characters: z.number().int().positive().max(100000).optional(),
+		max_uses: z.number().int().positive().optional(),
 		allowed_domains: z.array(z.string().min(1)).optional(),
 		excluded_domains: z.array(z.string().min(1)).optional(),
 		include_domains: z.array(z.string().min(1)).optional(),
@@ -527,11 +528,12 @@ const GatewayWebSearchToolSchema = z.object({
 		include_highlights: z.boolean().optional(),
 		user_location: z.record(z.string(), z.any()).optional(),
 	}).optional(),
-	engine: z.enum(["auto", "native", "exa", "firecrawl", "parallel"]).optional(),
+	engine: z.enum(["auto", "native", "exa", "firecrawl", "parallel", "perplexity"]).optional(),
 	max_results: z.number().int().positive().max(25).optional(),
 	max_total_results: z.number().int().positive().max(100).optional(),
 	search_context_size: z.enum(["low", "medium", "high"]).optional(),
-	max_characters: z.number().int().positive().max(50000).optional(),
+	max_characters: z.number().int().positive().max(100000).optional(),
+	max_uses: z.number().int().positive().optional(),
 	allowed_domains: z.array(z.string().min(1)).optional(),
 	excluded_domains: z.array(z.string().min(1)).optional(),
 	include_domains: z.array(z.string().min(1)).optional(),
@@ -545,16 +547,18 @@ const GatewayWebFetchToolSchema = z.object({
 	type: z.enum(["phaseo:web_fetch", "gateway:web_fetch"]),
 	parameters: z.object({
 		engine: z.enum(["auto", "native", "direct", "exa", "firecrawl", "parallel"]).optional(),
-		max_chars: z.number().int().positive().max(50000).optional(),
-		max_content_tokens: z.number().int().positive().max(50000).optional(),
+		max_chars: z.number().int().positive().max(100000).optional(),
+		max_content_tokens: z.number().int().positive().max(100000).optional(),
+		max_uses: z.number().int().positive().optional(),
 		allowed_domains: z.array(z.string().min(1)).optional(),
 		blocked_domains: z.array(z.string().min(1)).optional(),
 		excluded_domains: z.array(z.string().min(1)).optional(),
 	}).optional(),
 	engine: z.enum(["auto", "native", "direct", "exa", "firecrawl", "parallel"]).optional(),
 	url: z.string().url().optional(),
-	max_chars: z.number().int().positive().max(50000).optional(),
-	max_content_tokens: z.number().int().positive().max(50000).optional(),
+	max_chars: z.number().int().positive().max(100000).optional(),
+	max_content_tokens: z.number().int().positive().max(100000).optional(),
+	max_uses: z.number().int().positive().optional(),
 	allowed_domains: z.array(z.string().min(1)).optional(),
 	blocked_domains: z.array(z.string().min(1)).optional(),
 	excluded_domains: z.array(z.string().min(1)).optional(),
@@ -585,7 +589,7 @@ const GatewayAdvisorToolSchema = z.object({
 });
 
 const GatewaySubagentToolSchema = z.object({
-	type: z.enum(["phaseo:subagent", "openrouter:subagent"]),
+	type: z.literal("phaseo:subagent"),
 	parameters: z.object({
 		model: z.string().min(1).optional(),
 		instructions: z.string().min(1).optional(),
@@ -594,7 +598,6 @@ const GatewaySubagentToolSchema = z.object({
 		max_completion_tokens: z.number().int().min(1024).optional(),
 		reasoning: z.record(z.string(), z.unknown()).optional(),
 		temperature: z.number().min(0).max(2).optional(),
-		tools: z.array(z.record(z.string(), z.any())).optional(),
 	}).optional(),
 	model: z.string().min(1).optional(),
 	instructions: z.string().min(1).optional(),
@@ -603,7 +606,24 @@ const GatewaySubagentToolSchema = z.object({
 	max_completion_tokens: z.number().int().min(1024).optional(),
 	reasoning: z.record(z.string(), z.unknown()).optional(),
 	temperature: z.number().min(0).max(2).optional(),
-	tools: z.array(z.record(z.string(), z.any())).optional(),
+});
+
+const GatewayFusionToolSchema = z.object({
+	type: z.literal("phaseo:fusion"),
+	parameters: z.object({
+		analysis_models: z.array(z.string().min(1)).min(2).max(8).optional(),
+		model: z.string().min(1).optional(),
+		instructions: z.string().min(1).optional(),
+		max_uses: z.number().int().positive().max(4).optional(),
+		max_completion_tokens: z.number().int().min(1024).optional(),
+	}).optional(),
+});
+
+const GatewaySearchModelsToolSchema = z.object({
+	type: z.literal("phaseo:search_models"),
+	parameters: z.object({
+		max_results: z.number().int().min(1).max(20).optional(),
+	}).optional(),
 });
 
 const GatewayImageGenerationToolSchema = z.object({
@@ -751,6 +771,8 @@ export const ChatCompletionsSchema = z.object({
 			GatewayWebFetchToolSchema,
 			GatewayAdvisorToolSchema,
 			GatewaySubagentToolSchema,
+			GatewayFusionToolSchema,
+			GatewaySearchModelsToolSchema,
 			GatewayImageGenerationToolSchema,
 			OpenAINativeWebSearchToolSchema,
 		]),
@@ -878,6 +900,8 @@ export const AnthropicMessagesSchema = z.object({
 		GatewayWebFetchToolSchema,
 		GatewayAdvisorToolSchema,
 		GatewaySubagentToolSchema,
+		GatewayFusionToolSchema,
+		GatewaySearchModelsToolSchema,
 		GatewayImageGenerationToolSchema,
 		AnthropicNativeWebSearchToolSchema,
 		AnthropicNativeWebFetchToolSchema,

@@ -1183,6 +1183,14 @@ class FunctionToolDefinition
 	public $type;
 }
 
+class FusionToolDefinition
+{
+	/** @var array<string, mixed>|null */
+	public $parameters;
+	/** @var string */
+	public $type;
+}
+
 class GatewayDatetimeToolDefinition
 {
 	/** @var array<string, mixed>|null */
@@ -2157,14 +2165,42 @@ class ResponsesResponse
 	public $usage;
 }
 
+class SearchModelsToolDefinition
+{
+	/** @var array<string, mixed>|null */
+	public $parameters;
+	/** @var string */
+	public $type;
+}
+
 class ServerToolUsage
 {
 	/** @var int|null */
+	public $advisor_requests;
+	/** @var int|null */
+	public $apply_patch_requests;
+	/** @var int|null */
 	public $datetime_requests;
+	/** @var int|null */
+	public $fusion_requests;
+	/** @var int|null */
+	public $image_generation_requests;
+	/** @var int|null */
+	public $search_models_requests;
+	/** @var int|null */
+	public $subagent_requests;
 	/** @var int|null */
 	public $web_fetch_requests;
 	/** @var int|null */
 	public $web_search_requests;
+}
+
+class SubagentToolDefinition
+{
+	/** @var array<string, mixed>|null */
+	public $parameters;
+	/** @var string */
+	public $type;
 }
 
 class SupportedParameterDetails

@@ -664,6 +664,11 @@ struct FunctionToolDefinition {
 	std::any type;
 };
 
+struct FusionToolDefinition {
+	std::map<std::string, std::any> parameters;
+	std::any type;
+};
+
 struct GatewayDatetimeToolDefinition {
 	std::map<std::string, std::any> parameters;
 	std::string timezone;
@@ -1213,10 +1218,26 @@ struct ResponsesResponse {
 	std::map<std::string, std::any> usage;
 };
 
+struct SearchModelsToolDefinition {
+	std::map<std::string, std::any> parameters;
+	std::any type;
+};
+
 struct ServerToolUsage {
+	std::optional<int> advisor_requests;
+	std::optional<int> apply_patch_requests;
 	std::optional<int> datetime_requests;
+	std::optional<int> fusion_requests;
+	std::optional<int> image_generation_requests;
+	std::optional<int> search_models_requests;
+	std::optional<int> subagent_requests;
 	std::optional<int> web_fetch_requests;
 	std::optional<int> web_search_requests;
+};
+
+struct SubagentToolDefinition {
+	std::map<std::string, std::any> parameters;
+	std::any type;
 };
 
 struct SupportedParameterDetails {

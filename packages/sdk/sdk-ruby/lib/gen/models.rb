@@ -984,6 +984,11 @@ module Phaseo
     FunctionToolDefinition = Struct.new(:function, :type, keyword_init: true)
     # @!attribute [rw] parameters
     #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] type
+    #   @return [String]
+    FusionToolDefinition = Struct.new(:parameters, :type, keyword_init: true)
+    # @!attribute [rw] parameters
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] timezone
     #   @return [String, nil]
     # @!attribute [rw] type
@@ -1784,13 +1789,35 @@ module Phaseo
     # @!attribute [rw] usage
     #   @return [Hash{String => Object}, nil]
     ResponsesResponse = Struct.new(:content, :cost_cents, :cost_nanos, :created, :currency, :finish_reason, :id, :meta, :model, :nativeResponseId, :object, :output, :output_items, :pricing_lines, :provider, :provider_id, :role, :status, :stop_reason, :type, :usage, keyword_init: true)
+    # @!attribute [rw] parameters
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] type
+    #   @return [String]
+    SearchModelsToolDefinition = Struct.new(:parameters, :type, keyword_init: true)
+    # @!attribute [rw] advisor_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] apply_patch_requests
+    #   @return [Integer, nil]
     # @!attribute [rw] datetime_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] fusion_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] image_generation_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] search_models_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] subagent_requests
     #   @return [Integer, nil]
     # @!attribute [rw] web_fetch_requests
     #   @return [Integer, nil]
     # @!attribute [rw] web_search_requests
     #   @return [Integer, nil]
-    ServerToolUsage = Struct.new(:datetime_requests, :web_fetch_requests, :web_search_requests, keyword_init: true)
+    ServerToolUsage = Struct.new(:advisor_requests, :apply_patch_requests, :datetime_requests, :fusion_requests, :image_generation_requests, :search_models_requests, :subagent_requests, :web_fetch_requests, :web_search_requests, keyword_init: true)
+    # @!attribute [rw] parameters
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] type
+    #   @return [String]
+    SubagentToolDefinition = Struct.new(:parameters, :type, keyword_init: true)
     SupportedParameterDetails = Struct.new(:_unused, keyword_init: true)
     # @!attribute [rw] text
     #   @return [String]
