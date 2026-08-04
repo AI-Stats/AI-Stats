@@ -86,6 +86,10 @@ import {
 	type CanonicalGatewayStatus,
 	resolveGatewayStatus,
 } from "@/components/(data)/model/pricing/providerGatewayStatus";
+import {
+	summarizeProviderLifecycle,
+	type ProviderLifecycleStatusInput,
+} from "@/components/(data)/model/pricing/providerLifecycleStatus";
 
 const PROVIDER_STATUSES_DOCS_HREF =
 	"https://phaseo.app/docs/v1/guides/provider-statuses";
@@ -1426,6 +1430,40 @@ const PROVIDER_STATUS_META: Record<
 	},
 };
 
+function ProviderLifecycleDetails({
+	providerModels,
+}: {
+	providerModels: ProviderLifecycleStatusInput[];
+}) {
+	const lifecycle = summarizeProviderLifecycle(providerModels);
+	return (
+		<div className="mt-2 space-y-1 border-t border-zinc-200/70 pt-2 dark:border-zinc-800">
+			{lifecycle.providerAvailability ? (
+				<div className="grid grid-cols-[auto_1fr] gap-x-3">
+					<span className="text-muted-foreground">Provider</span>
+					<span className="text-right font-medium" title={lifecycle.providerAvailability.description}>
+						{lifecycle.providerAvailability.label}
+					</span>
+				</div>
+			) : null}
+			{lifecycle.phaseo ? (
+				<div className="grid grid-cols-[auto_1fr] gap-x-3">
+					<span className="text-muted-foreground">Phaseo</span>
+					<span className="text-right font-medium" title={lifecycle.phaseo.description}>
+						{lifecycle.phaseo.label}
+					</span>
+				</div>
+			) : null}
+			<div className="grid grid-cols-[auto_1fr] gap-x-3">
+				<span className="text-muted-foreground">Access</span>
+				<span className="text-right font-medium">
+					{lifecycle.accessScope === "internal" ? "Internal only" : "Public"}
+				</span>
+			</div>
+		</div>
+	);
+}
+
 export default function ProviderCard({
 	provider,
 	defaultPlan,
@@ -1594,6 +1632,7 @@ export default function ProviderCard({
 		provider,
 		selectedPlan,
 	);
+	const lifecycleStatus = summarizeProviderLifecycle(providerModelsInScope);
 	const tableProviderModelsInScope = getProviderModelScopeForPlan(
 		provider,
 		tablePlan,
@@ -1613,6 +1652,10 @@ export default function ProviderCard({
 	const resolvedGatewayStatuses = providerModelsInScope.map((providerModel) =>
 		resolveGatewayStatus({
 			isActiveGateway: providerModel.is_active_gateway,
+			providerAvailabilityStatus:
+				providerModel.provider_availability_status,
+			phaseoStatus: providerModel.phaseo_status,
+			accessScope: providerModel.access_scope,
 			capabilityStatus: providerModel.capability_status,
 			providerStatus: provider.provider.status,
 			providerRoutingStatus: provider.provider.routing_status,
@@ -1646,6 +1689,10 @@ export default function ProviderCard({
 	const tableResolvedGatewayStatuses = tableProviderModelsInScope.map((providerModel) =>
 		resolveGatewayStatus({
 			isActiveGateway: providerModel.is_active_gateway,
+			providerAvailabilityStatus:
+				providerModel.provider_availability_status,
+			phaseoStatus: providerModel.phaseo_status,
+			accessScope: providerModel.access_scope,
 			capabilityStatus: providerModel.capability_status,
 			providerStatus: provider.provider.status,
 			providerRoutingStatus: provider.provider.routing_status,
@@ -2666,6 +2713,9 @@ export default function ProviderCard({
 									<HoverCardContent align="start" className="w-auto p-2 text-xs">
 										<p className="font-semibold">{tableStatusLabel}</p>
 										<p className="mt-1 text-muted-foreground">{tableStatusDetail}</p>
+										<ProviderLifecycleDetails
+											providerModels={tableProviderModelsInScope}
+										/>
 										{routingHealthSummary ? (
 											<div className="mt-2 border-t border-zinc-200/70 pt-2 dark:border-zinc-800">
 												<p className="font-semibold">{routingHealthSummary.label}</p>
@@ -2875,6 +2925,9 @@ export default function ProviderCard({
 										<HoverCardContent align="start" className="w-auto p-2 text-xs">
 											<p className="font-semibold">{statusLabel}</p>
 											<p className="mt-1 text-muted-foreground">{statusDetail}</p>
+											<ProviderLifecycleDetails
+												providerModels={providerModelsInScope}
+											/>
 											{routingHealthSummary ? (
 												<div className="mt-2 border-t border-zinc-200/70 pt-2 dark:border-zinc-800">
 													<p className="font-semibold">{routingHealthSummary.label}</p>
@@ -3161,6 +3214,28 @@ export default function ProviderCard({
 											{displayProviderModelIds.length === 0 ? (
 												<span className="text-xs text-muted-foreground">No provider model IDs listed.</span>
 											) : null}
+										</div>
+									</div>
+									{lifecycleStatus.providerAvailability ? (
+										<div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4">
+											<div className="text-[11px] text-muted-foreground">Provider availability</div>
+											<div className="text-sm font-medium text-foreground" title={lifecycleStatus.providerAvailability.description}>
+												{lifecycleStatus.providerAvailability.label}
+											</div>
+										</div>
+									) : null}
+									{lifecycleStatus.phaseo ? (
+										<div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4">
+											<div className="text-[11px] text-muted-foreground">Phaseo integration</div>
+											<div className="text-sm font-medium text-foreground" title={lifecycleStatus.phaseo.description}>
+												{lifecycleStatus.phaseo.label}
+											</div>
+										</div>
+									) : null}
+									<div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4">
+										<div className="text-[11px] text-muted-foreground">Access</div>
+										<div className="text-sm font-medium text-foreground">
+											{lifecycleStatus.accessScope === "internal" ? "Internal only" : "Public"}
 										</div>
 									</div>
 								</div>

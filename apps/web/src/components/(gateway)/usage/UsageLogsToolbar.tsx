@@ -55,23 +55,24 @@ function formatDateInput(date: Date): string {
 	return `${year}-${month}-${day}`;
 }
 
-function formatDateTimeInput(date: Date): string {
-	const year = date.getFullYear();
-	const month = String(date.getMonth() + 1).padStart(2, "0");
-	const day = String(date.getDate()).padStart(2, "0");
-	const hours = String(date.getHours()).padStart(2, "0");
-	const minutes = String(date.getMinutes()).padStart(2, "0");
-	return `${year}-${month}-${day} ${hours}:${minutes}`;
-}
-
 function parseAbsoluteDateTimeInput(value: string): string | null {
-	return parseUsageDateInput(value.replace(" ", "T"));
+	const normalized = parseUsageDateInput(value.replace(" ", "T"));
+	if (normalized) return normalized;
+	const match = value.trim().match(/^([A-Za-z]{3})\s+(\d{1,2})(?:,\s*(\d{4}))?,\s*(\d{2}):(\d{2})$/);
+	if (!match) return null;
+	const month = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+		.indexOf((match[1] ?? "").toLowerCase());
+	if (month < 0) return null;
+	const year = Number(match[3] ?? new Date().getFullYear());
+	const date = new Date(year, month, Number(match[2]), Number(match[4]), Number(match[5]));
+	if (Number.isNaN(date.getTime())) return null;
+	return `${formatDateInput(date)}T${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
 function parseTypedRangeInput(value: string): { from: string; to: string } | null {
 	const trimmed = value.trim();
 	if (!trimmed) return null;
-	const parts = trimmed.split(/\s(?:->|to|-)\s/i);
+	const parts = trimmed.split(/\s(?:->|to|-|–)\s/i);
 	if (parts.length !== 2) return null;
 	const from = parseAbsoluteDateTimeInput(parts[0] ?? "");
 	const to = parseAbsoluteDateTimeInput(parts[1] ?? "");
@@ -212,22 +213,28 @@ export default function UsageLogsToolbar({
 
 	const paramKeys = React.useMemo(() => getUsageRangeParamKeys(), []);
 	const displayLabel = React.useMemo(
-		() =>
-			getUsageRangeLabel({
-				preset: effectivePreset,
-				customFrom: effectiveCustomFrom,
-				customTo: effectiveCustomTo,
-			}),
+		() => effectivePreset === "custom"
+			? getUsageRangeTriggerLabel({
+					preset: effectivePreset,
+					customFrom: effectiveCustomFrom,
+					customTo: effectiveCustomTo,
+				})
+			: getUsageRangeLabel({ preset: effectivePreset }),
 		[effectiveCustomFrom, effectiveCustomTo, effectivePreset],
 	);
 	const editableRangeValue = React.useMemo(() => {
-		const { from, to } = resolveUsageTimeRange({
+		return getUsageRangeTriggerLabel({
 			preset: effectivePreset,
 			customFrom: effectiveCustomFrom,
 			customTo: effectiveCustomTo,
 		});
-		return `${formatDateTimeInput(new Date(from))} -> ${formatDateTimeInput(new Date(to))}`;
 	}, [effectiveCustomFrom, effectiveCustomTo, effectivePreset]);
+	const beginEditingRange = React.useCallback((input: HTMLInputElement) => {
+		setIsEditingRangeInput(true);
+		setRangeInputValue(editableRangeValue);
+		setPopoverOpen(true);
+		input.focus();
+	}, [editableRangeValue]);
 
 	const applyParams = React.useCallback(
 		(
@@ -265,6 +272,10 @@ export default function UsageLogsToolbar({
 		(nextPreset: UsageRangePreset) => {
 			setShowCustomRange(nextPreset === "custom");
 			if (nextPreset === "custom") return;
+			setPopoverOpen(false);
+			setIsEditingRangeInput(false);
+			setRangeInputValue("");
+			rangeInputRef.current?.blur();
 			applyParams(
 				{ preset: nextPreset, customFrom: null, customTo: null },
 				{
@@ -273,7 +284,6 @@ export default function UsageLogsToolbar({
 					to: null,
 				},
 			);
-			setPopoverOpen(false);
 		},
 		[applyParams],
 	);
@@ -399,6 +409,7 @@ export default function UsageLogsToolbar({
 		{ preset: "past_2d", badge: "2d" },
 		{ preset: "last_7d", badge: "1w" },
 		{ preset: "last_30d", badge: "1mo" },
+		{ preset: "past_1y", badge: "1y" },
 	];
 
 	const anchoredOptions: Array<{ preset: UsageRangePreset; badge: string }> = [
@@ -463,12 +474,12 @@ export default function UsageLogsToolbar({
 											? `Live | refreshing in ${secondsUntilRefresh}s`
 											: displayLabel
 								}
-								onFocus={(event) => {
-									setIsEditingRangeInput(true);
-									setRangeInputValue(editableRangeValue);
-									window.setTimeout(() => setPopoverOpen(true), 0);
-									window.setTimeout(() => event.target.select(), 0);
-								}}
+							onFocus={(event) => {
+								beginEditingRange(event.currentTarget);
+							}}
+							onClick={(event) => {
+								if (!isEditingRangeInput) beginEditingRange(event.currentTarget);
+							}}
 								onBlur={() => {
 									window.setTimeout(() => {
 										if (!popoverOpen) {
@@ -485,15 +496,16 @@ export default function UsageLogsToolbar({
 									}
 									if (event.key === "Escape") {
 										event.preventDefault();
+										setPopoverOpen(false);
 										setIsEditingRangeInput(false);
 										setRangeInputValue("");
 										rangeInputRef.current?.blur();
 									}
 								}}
 								aria-label="Usage time range"
-								placeholder="YYYY-MM-DD HH:mm -> YYYY-MM-DD HH:mm"
+						placeholder="YYYY-MM-DD HH:mm – YYYY-MM-DD HH:mm"
 								className={cn(
-									"h-9 rounded-2xl border-transparent bg-input/50 pl-9 pr-10 text-sm font-medium text-foreground shadow-none transition-colors hover:bg-input/70 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30",
+									"h-9 rounded-lg border-transparent bg-input/50 pl-9 pr-10 text-sm font-medium text-foreground shadow-none transition-colors hover:bg-input/70 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30",
 									effectivePreset === "live" &&
 										"border-emerald-500/30 bg-emerald-500/10 text-emerald-700 hover:border-emerald-500/40 hover:bg-emerald-500/15 dark:text-emerald-300",
 								)}
@@ -552,7 +564,7 @@ export default function UsageLogsToolbar({
 										type="button"
 										variant="ghost"
 										size="sm"
-										onClick={() => setShowCustomRange(false)}
+										onClick={() => setPopoverOpen(false)}
 									>
 										Cancel
 									</Button>
@@ -600,19 +612,7 @@ export default function UsageLogsToolbar({
 									<RangeOptionButton
 										badge={<CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />}
 										badgeVariant="plain"
-										label={
-											effectivePreset === "custom"
-												? getUsageRangeTriggerLabel({
-														preset: "custom",
-														customFrom: parseUsageDateInput(
-															effectiveCustomFrom,
-														),
-														customTo: parseUsageDateInput(
-															effectiveCustomTo,
-														),
-												  })
-												: "Custom range..."
-										}
+										label="Custom range"
 										active={effectivePreset === "custom"}
 										onClick={() => setShowCustomRange(true)}
 									/>

@@ -88,6 +88,7 @@ const priceRuleSchema = z
         currency: z.string().default("USD"),
         match: z.array(z.any()).optional().default([]),
         priority: z.coerce.number().optional().default(100),
+        included_quantity: z.coerce.number().nonnegative().optional().default(0),
         billing_timestamp_basis: z
             .enum(["request_start", "provider_accept", "completion", "unknown"])
             .optional()
@@ -112,6 +113,7 @@ const priceRuleSchema = z
         currency: rule.currency,
         match: rule.match,
         priority: rule.priority,
+        included_quantity: rule.included_quantity,
         billing_timestamp_basis: rule.billing_timestamp_basis as PricingTimestampBasis,
         time_windows: rule.time_windows.map((window) => ({
             ...window,
@@ -593,4 +595,3 @@ export {
     keyEnrichmentSchema,
     contextSchema,
 };
-

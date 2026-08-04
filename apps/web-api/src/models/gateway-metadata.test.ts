@@ -32,4 +32,79 @@ describe("composeGatewayMetadata", () => {
 			{ param_id: "temperature", provider_count_supported: 1, provider_count_total: 1, support_level: "all_providers" },
 		]);
 	});
+	it("does not treat an upstream-available offer as Phaseo-enabled", () => {
+		const source: GatewayMetadataSource = {
+			providerModels: [{
+				provider_api_model_id: "pm-music",
+				provider_id: "minimax",
+				api_model_id: "minimax/music-3",
+				is_active_gateway: true,
+				provider_availability_status: "available",
+				phaseo_status: "implementing",
+				access_scope: "public",
+				routing_status: "active",
+				input_modalities: ["text", "audio"],
+				output_modalities: ["audio"],
+			}],
+			caps: [{
+				provider_api_model_id: "pm-music",
+				capability_id: "music.generate",
+				status: "active",
+				params: {},
+			}],
+			providers: [{
+				api_provider_id: "minimax",
+				api_provider_name: "MiniMax",
+				status: "active",
+				routing_status: "active",
+			}],
+			aliases: [],
+		};
+
+		const metadata = composeGatewayMetadata("minimax/music-3", source);
+
+		expect(metadata.activeProviders).toHaveLength(0);
+		expect(metadata.comingSoonProviders).toHaveLength(1);
+		expect(metadata.comingSoonProviders[0]).toMatchObject({
+			provider_availability_status: "available",
+			phaseo_status: "implementing",
+			access_scope: "public",
+			availability_reason: "phaseo_implementing",
+		});
+	});
+
+	it("keeps internal testing distinct from public coming-soon routes", () => {
+		const source: GatewayMetadataSource = {
+			providerModels: [{
+				provider_api_model_id: "pm-internal",
+				provider_id: "minimax",
+				api_model_id: "minimax/music-3",
+				is_active_gateway: false,
+				provider_availability_status: "available",
+				phaseo_status: "testing",
+				access_scope: "internal",
+				routing_status: "active",
+			}],
+			caps: [{
+				provider_api_model_id: "pm-internal",
+				capability_id: "music.generate",
+				status: "internal_testing",
+			}],
+			providers: [{
+				api_provider_id: "minimax",
+				api_provider_name: "MiniMax",
+				status: "active",
+				routing_status: "active",
+			}],
+			aliases: [],
+		};
+
+		const metadata = composeGatewayMetadata("minimax/music-3", source);
+		expect(metadata.comingSoonProviders[0]).toMatchObject({
+			phaseo_status: "testing",
+			access_scope: "internal",
+			availability_reason: "internal_testing",
+		});
+	});
+
 });

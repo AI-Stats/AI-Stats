@@ -18,6 +18,7 @@ import {
 } from "recharts";
 import {
 	Blocks,
+	AppWindow,
 	BarChart3,
 	ChevronDown,
 	ChevronUp,
@@ -43,6 +44,7 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup, ButtonGroupSeparator } from "@/components/ui/button-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -135,10 +137,13 @@ function formatNumber(value: number): string {
 }
 
 function formatCurrency(value: number): string {
+	const absoluteValue = Math.abs(value);
+	const maximumFractionDigits =
+		absoluteValue > 0 && absoluteValue < 0.01 ? 5 : absoluteValue >= 100 ? 0 : 2;
 	return new Intl.NumberFormat("en", {
 		style: "currency",
 		currency: "USD",
-		maximumFractionDigits: value >= 100 ? 0 : 2,
+		maximumFractionDigits,
 	}).format(value);
 }
 
@@ -148,6 +153,7 @@ function formatPercent(value: number): string {
 
 function formatKpiValue(kpi: ObservabilityKpi, value = kpi.value): string {
 	if (kpi.format === "currency") return formatCurrency(value);
+	if (kpi.format === "currency_per_million") return `${formatCurrency(value)}/M`;
 	if (kpi.format === "percent") return formatPercent(value);
 	return formatNumber(value);
 }
@@ -208,31 +214,6 @@ function operatorLabel(
 ): string {
 	if (valueCount <= 1) return operator === "include" ? "is" : "is not";
 	return operator === "include" ? "is any of" : "is none of";
-}
-
-function ObservabilityFilters({
-	data,
-}: {
-	data: ObservabilityData;
-}) {
-	const modelCount = data.filterOptions?.models?.length ?? 0;
-	return (
-		<div className="min-w-0 flex-1">
-			<div className="flex min-w-0 flex-wrap items-center gap-2 text-sm text-muted-foreground">
-				<Badge variant="outline" className="gap-1.5">
-					<Workflow className="h-3.5 w-3.5" />
-					Current workspace
-				</Badge>
-				{modelCount > 0 ? (
-					<Badge variant="outline" className="gap-1.5">
-						<Blocks className="h-3.5 w-3.5" />
-						{modelCount} {modelCount === 1 ? "model" : "models"}
-					</Badge>
-				) : null}
-				<span>Use the time range controls to change the server-fetched data.</span>
-			</div>
-		</div>
-	);
 }
 
 function FilterSearchBox({
@@ -497,6 +478,8 @@ function Sparkline({
 	onHoverPoint?: (point: ObservabilitySeriesPoint | null) => void;
 }) {
 	const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
+	const activePointerIdRef = React.useRef<number | null>(null);
+	const suppressClickUntilRef = React.useRef(0);
 	const width = 92;
 	const values = data.map((point) => point.value);
 	const min = Math.min(...values, 0);
@@ -517,6 +500,12 @@ function Sparkline({
 	const handlePointerMove = React.useCallback(
 		(event: React.PointerEvent<SVGSVGElement>) => {
 			if (data.length === 0) return;
+			if (
+				event.pointerType !== "mouse" &&
+				activePointerIdRef.current !== event.pointerId
+			) {
+				return;
+			}
 			const rect = event.currentTarget.getBoundingClientRect();
 			const relativeX =
 				rect.width > 0
@@ -537,10 +526,45 @@ function Sparkline({
 		},
 		[data, onHoverPoint],
 	);
-	const handlePointerLeave = React.useCallback(() => {
+	const clearHoveredPoint = React.useCallback(() => {
 		setHoveredIndex(null);
 		onHoverPoint?.(null);
 	}, [onHoverPoint]);
+	const handlePointerDown = React.useCallback(
+		(event: React.PointerEvent<SVGSVGElement>) => {
+			if (event.pointerType === "mouse") return;
+			event.preventDefault();
+			activePointerIdRef.current = event.pointerId;
+			event.currentTarget.setPointerCapture(event.pointerId);
+			handlePointerMove(event);
+		},
+		[handlePointerMove],
+	);
+	const handlePointerEnd = React.useCallback(
+		(event: React.PointerEvent<SVGSVGElement>) => {
+			if (activePointerIdRef.current !== event.pointerId) return;
+			activePointerIdRef.current = null;
+			if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+				event.currentTarget.releasePointerCapture(event.pointerId);
+			}
+			suppressClickUntilRef.current = Date.now() + 1000;
+			clearHoveredPoint();
+		},
+		[clearHoveredPoint],
+	);
+	const handlePointerLeave = React.useCallback(() => {
+		if (activePointerIdRef.current !== null) return;
+		clearHoveredPoint();
+	}, [clearHoveredPoint]);
+	const handleClick = React.useCallback(
+		(event: React.MouseEvent<SVGSVGElement>) => {
+			if (Date.now() > suppressClickUntilRef.current) return;
+			event.preventDefault();
+			event.stopPropagation();
+			suppressClickUntilRef.current = 0;
+		},
+		[],
+	);
 
 	if (data.length === 0) {
 		return (
@@ -562,8 +586,13 @@ function Sparkline({
 					? `${titlePoint.label}: ${formatValue(titlePoint.value)}`
 					: "No trend data"
 			}
-			className="h-full min-h-[34px] w-full min-w-[72px] overflow-visible text-blue-500"
+			className="h-full min-h-[34px] w-full min-w-[72px] touch-pan-y select-none overflow-visible text-blue-500"
+			onClick={handleClick}
+			onContextMenu={(event) => event.preventDefault()}
+			onPointerDown={handlePointerDown}
 			onPointerMove={handlePointerMove}
+			onPointerUp={handlePointerEnd}
+			onPointerCancel={handlePointerEnd}
 			onPointerLeave={handlePointerLeave}
 		>
 			<title>
@@ -597,45 +626,31 @@ function Sparkline({
 
 function KpiMetric({
 	kpi,
-	index,
-	total,
 }: {
 	kpi: ObservabilityKpi;
-	index: number;
-	total: number;
 }) {
 	const [hoveredPoint, setHoveredPoint] =
 		React.useState<ObservabilitySeriesPoint | null>(null);
 	const positive = (kpi.deltaPercent ?? 0) >= 0;
 	const DeltaIcon = positive ? ChevronUp : ChevronDown;
 	const displayValue = hoveredPoint?.value ?? kpi.value;
-	const showTwoColumnHorizontalSeparator = total > 1;
-	const showDesktopVerticalSeparator = index < total - 1;
 	return (
 		<Link
 			href="/settings/usage/explore"
-			className="group relative block min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+			className="group relative block min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 		>
-			{total > 0 ? (
-				<span className="pointer-events-none absolute inset-x-4 bottom-0 h-0.5 bg-border/90 sm:hidden" />
-			) : null}
-			{showTwoColumnHorizontalSeparator ? (
-				<span className="pointer-events-none absolute inset-x-4 bottom-0 hidden h-0.5 bg-border/90 sm:block lg:hidden" />
-			) : null}
-			{showDesktopVerticalSeparator ? (
-				<span className="pointer-events-none absolute right-0 top-4 hidden h-[calc(100%-2rem)] w-0.5 bg-border/90 lg:block" />
-			) : null}
-			<div className="grid min-h-[96px] grid-cols-[1fr_92px] items-center gap-4 px-4 py-3 transition-colors group-hover:bg-muted/20">
+			<Card className="h-full rounded-lg py-0 transition-colors group-hover:bg-muted/20">
+			<div className="grid min-h-[124px] min-w-0 grid-cols-[minmax(0,1fr)_minmax(96px,0.8fr)] items-center gap-4 px-4 py-4 sm:min-h-[112px] sm:grid-cols-[minmax(0,1fr)_80px] sm:gap-3 sm:py-3">
 				<div className="min-w-0">
-					<CardTitle className="text-xs font-medium text-muted-foreground">
+					<CardTitle className="text-xs font-medium leading-tight text-muted-foreground">
 						{kpi.label}
 					</CardTitle>
-					<div className="mt-1 text-2xl font-semibold tracking-tight">
+					<div className="mt-1 truncate text-2xl font-semibold tracking-tight">
 						{formatKpiValue(kpi, displayValue)}
 					</div>
 					<div
 						className={cn(
-							"mt-2 inline-flex items-center gap-1 text-xs font-medium",
+							"mt-2 inline-flex max-w-full items-center gap-1 text-xs font-medium",
 							hoveredPoint
 								? "text-muted-foreground"
 								: positive
@@ -662,7 +677,7 @@ function KpiMetric({
 						)}
 					</div>
 				</div>
-				<div className="min-w-0 text-right">
+				<div className="h-10 min-w-0 w-full text-right sm:h-auto">
 					<Sparkline
 						data={kpi.sparkline}
 						height={38}
@@ -671,13 +686,14 @@ function KpiMetric({
 					/>
 				</div>
 			</div>
+			</Card>
 		</Link>
 	);
 }
 
 function ExploreButton() {
 	return (
-		<Button asChild variant="ghost" size="sm" className="h-7 px-2 text-xs">
+		<Button asChild variant="ghost" size="sm" className="h-6 gap-1 px-1.5 text-xs">
 			<Link href="/settings/usage/explore">
 				Explore
 				<ArrowUpRight className="h-3.5 w-3.5" />
@@ -699,7 +715,7 @@ function ChartCard({
 }) {
 	return (
 		<Card className={cn("rounded-lg", className)}>
-			<CardHeader className="flex-row items-start justify-between gap-3 pb-2">
+			<CardHeader className="flex flex-row items-start justify-between gap-3 pb-2">
 				<div className="min-w-0">
 					<CardTitle className="text-base">{title}</CardTitle>
 					{subtitle ? (
@@ -1328,19 +1344,21 @@ function LineTrendChart({
 function RankedList({
 	title,
 	items,
+	kind,
 	showDelta = false,
 }: {
 	title: string;
 	items: ObservabilityRankedItem[];
+	kind: "key" | "app";
 	showDelta?: boolean;
 }) {
 	return (
 		<Card className="rounded-lg">
-			<CardHeader className="flex-row items-center justify-between gap-3">
+			<CardHeader className="flex flex-row items-center justify-between gap-3">
 				<CardTitle className="text-base">{title}</CardTitle>
 				<ExploreButton />
 			</CardHeader>
-			<CardContent className="space-y-4">
+			<CardContent className="space-y-0.5">
 				{items.length === 0 ? (
 					<p className="text-sm text-muted-foreground">No usage in this period.</p>
 				) : null}
@@ -1349,6 +1367,7 @@ function RankedList({
 						key={item.id}
 						item={item}
 						color={CHART_COLORS[index % CHART_COLORS.length]}
+						kind={kind}
 						showDelta={showDelta}
 					/>
 				))}
@@ -1360,22 +1379,31 @@ function RankedList({
 function RankedListItem({
 	item,
 	color,
+	kind,
 	showDelta,
 }: {
 	item: ObservabilityRankedItem;
 	color: string;
+	kind: "key" | "app";
 	showDelta: boolean;
 }) {
 	const positive = (item.deltaPercent ?? 0) >= 0;
 	const DeltaIcon = positive ? ChevronUp : ChevronDown;
+	const href = kind === "app"
+		? `/apps/${encodeURIComponent(item.id)}`
+		: "/settings/keys";
 	return (
-		<div className="grid grid-cols-[1fr_120px] items-center gap-3">
+		<Link href={href} className="grid grid-cols-[1fr_110px] items-center gap-2 rounded-md px-1 py-0.5 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
 			<div className="min-w-0">
 				<div className="flex min-w-0 items-center gap-2">
-					<span
-						className="h-2.5 w-2.5 shrink-0 rounded-sm"
-						style={{ backgroundColor: color }}
-					/>
+					{kind === "app" ? (
+						<Avatar className="size-6 rounded-md">
+							{item.imageUrl ? <AvatarImage src={item.imageUrl} alt={item.label} className="rounded-md" /> : null}
+							<AvatarFallback className="rounded-md"><AppWindow className="size-3.5" /></AvatarFallback>
+						</Avatar>
+					) : (
+						<span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: color }} />
+					)}
 					<div className="truncate text-sm font-medium">{item.label}</div>
 				</div>
 				<div className="text-xs text-muted-foreground">
@@ -1401,7 +1429,7 @@ function RankedListItem({
 					</div>
 				) : null}
 			</div>
-		</div>
+		</Link>
 	);
 }
 
@@ -1520,7 +1548,7 @@ function TrendChartPanel({
 			className="cursor-pointer rounded-lg xl:col-span-3"
 			onClick={openExplore}
 		>
-			<CardHeader className="flex-row items-start justify-between gap-3 pb-2">
+			<CardHeader className="flex flex-row items-start justify-between gap-3 pb-2">
 				<div>
 					<CardTitle className="text-base">
 						{trendMetricLabel(metric)} over time
@@ -1593,7 +1621,7 @@ function TrendingPanel({
 }) {
 	return (
 		<Card className="rounded-lg">
-			<CardHeader className="flex-row items-center justify-between gap-3 pb-2">
+			<CardHeader className="flex flex-row items-center justify-between gap-3 pb-2">
 				<CardTitle className="text-base">Top by tokens</CardTitle>
 				<ExploreButton />
 			</CardHeader>
@@ -1696,20 +1724,18 @@ function TrendSection({
 
 function Overview({ data }: { data: ObservabilityData }) {
 	return (
-		<div className="space-y-6">
-			<div className="grid grid-cols-1 overflow-hidden sm:grid-cols-2 lg:grid-cols-4">
-				{data.kpis.map((kpi, index) => (
+		<div className="space-y-4 sm:space-y-6">
+			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-6">
+				{data.kpis.map((kpi) => (
 					<KpiMetric
 						key={kpi.id}
 						kpi={kpi}
-						index={index}
-						total={data.kpis.length}
 					/>
 				))}
 			</div>
 			<div className="grid gap-4 xl:grid-cols-2">
-				<RankedList title="Top API keys by tokens" items={data.topApiKeys} />
-				<RankedList title="Top apps by tokens" items={data.topApps} />
+				<RankedList title="Top API Keys" items={data.topApiKeys} kind="key" />
+				<RankedList title="Top Apps" items={data.topApps} kind="app" />
 			</div>
 			<div className="grid gap-4 xl:grid-cols-2">
 				<ChartCard
@@ -2453,7 +2479,10 @@ export default function ObservabilityHub({
 	return (
 		<div className="space-y-6">
 			<div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-				<ObservabilityFilters data={data} />
+				<div className="min-w-0 flex-1">
+					<h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Activity</h1>
+					<p className="mt-1 text-xs text-muted-foreground sm:text-sm">Your usage across Phaseo.</p>
+				</div>
 				<div className="flex shrink-0 justify-end">
 					<UsageLogsToolbar
 						view="logs"

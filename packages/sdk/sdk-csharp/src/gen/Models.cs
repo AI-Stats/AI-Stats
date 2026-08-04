@@ -570,6 +570,15 @@ public sealed class AudioTranscriptionRequest
 	[JsonPropertyName("audio_url")]
 	public string? AudioUrl { get; set; }
 
+	[JsonPropertyName("chunking_strategy")]
+	public object? ChunkingStrategy { get; set; }
+
+	[JsonPropertyName("known_speaker_names")]
+	public List<string>? KnownSpeakerNames { get; set; }
+
+	[JsonPropertyName("known_speaker_references")]
+	public List<string>? KnownSpeakerReferences { get; set; }
+
 	[JsonPropertyName("language")]
 	public string? Language { get; set; }
 
@@ -776,6 +785,9 @@ public sealed class BatchProviderCapability
 {
 	[JsonPropertyName("documentation_url")]
 	public string? DocumentationUrl { get; set; }
+
+	[JsonPropertyName("endpoints")]
+	public List<Dictionary<string, object>>? Endpoints { get; set; }
 
 	[JsonPropertyName("gateway_input_modes")]
 	public List<string>? GatewayInputModes { get; set; }
@@ -1048,6 +1060,9 @@ public sealed class BatchResponse
 
 	[JsonPropertyName("status")]
 	public string? Status { get; set; }
+
+	[JsonPropertyName("usage")]
+	public Dictionary<string, object>? Usage { get; set; }
 
 	[JsonPropertyName("webhook")]
 	public Dictionary<string, object>? Webhook { get; set; }
@@ -1635,6 +1650,16 @@ public sealed class FunctionToolDefinition
 {
 	[JsonPropertyName("function")]
 	public Dictionary<string, object> Function { get; set; }
+
+	[JsonPropertyName("type")]
+	public string Type { get; set; }
+
+}
+
+public sealed class FusionToolDefinition
+{
+	[JsonPropertyName("parameters")]
+	public Dictionary<string, object>? Parameters { get; set; }
 
 	[JsonPropertyName("type")]
 	public string Type { get; set; }
@@ -2985,16 +3010,54 @@ public sealed class ResponsesResponse
 
 }
 
+public sealed class SearchModelsToolDefinition
+{
+	[JsonPropertyName("parameters")]
+	public Dictionary<string, object>? Parameters { get; set; }
+
+	[JsonPropertyName("type")]
+	public string Type { get; set; }
+
+}
+
 public sealed class ServerToolUsage
 {
+	[JsonPropertyName("advisor_requests")]
+	public int? AdvisorRequests { get; set; }
+
+	[JsonPropertyName("apply_patch_requests")]
+	public int? ApplyPatchRequests { get; set; }
+
 	[JsonPropertyName("datetime_requests")]
 	public int? DatetimeRequests { get; set; }
+
+	[JsonPropertyName("fusion_requests")]
+	public int? FusionRequests { get; set; }
+
+	[JsonPropertyName("image_generation_requests")]
+	public int? ImageGenerationRequests { get; set; }
+
+	[JsonPropertyName("search_models_requests")]
+	public int? SearchModelsRequests { get; set; }
+
+	[JsonPropertyName("subagent_requests")]
+	public int? SubagentRequests { get; set; }
 
 	[JsonPropertyName("web_fetch_requests")]
 	public int? WebFetchRequests { get; set; }
 
 	[JsonPropertyName("web_search_requests")]
 	public int? WebSearchRequests { get; set; }
+
+}
+
+public sealed class SubagentToolDefinition
+{
+	[JsonPropertyName("parameters")]
+	public Dictionary<string, object>? Parameters { get; set; }
+
+	[JsonPropertyName("type")]
+	public string Type { get; set; }
 
 }
 

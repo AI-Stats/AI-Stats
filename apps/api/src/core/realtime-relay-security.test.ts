@@ -5,7 +5,10 @@ import {
 	mergeGoogleUsageSnapshot,
 	validateRealtimeAudioIngress,
 } from "./realtime-relay-durable-object";
-import { validateRealtimeMetadata } from "@/routes/v1/data/realtime-sessions";
+import {
+	isRealtimeSessionId,
+	validateRealtimeMetadata,
+} from "@/routes/v1/data/realtime-sessions";
 
 describe("realtime relay security boundaries", () => {
 	const pcm = (durationMs: number, sampleRate = 24_000) =>
@@ -83,5 +86,12 @@ describe("realtime relay security boundaries", () => {
 			Array.from({ length: 33 }, (_, index) => [`k${index}`, index]),
 		))).toBe(false);
 		expect(validateRealtimeMetadata({ a: { b: { c: { d: { e: true } } } } })).toBe(false);
+	});
+
+	it("rejects malformed relay session identifiers before Durable Object lookup", () => {
+		expect(isRealtimeSessionId("rt_01jz8h3j3f4q5r6s7t8v9w0xyz")).toBe(true);
+		expect(isRealtimeSessionId("rt_01JZ8H3J3F4Q5R6S7T8V9W0XYZ")).toBe(false);
+		expect(isRealtimeSessionId("arbitrary-object-name")).toBe(false);
+		expect(isRealtimeSessionId("rt_01jz8h3j3f4q5r6s7t8v9w0xyi")).toBe(false);
 	});
 });

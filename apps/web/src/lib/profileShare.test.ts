@@ -16,6 +16,7 @@ describe("profile share helpers", () => {
 			publicProfileEnabled: false,
 			publicProfileSlug: "daniel-butler-user1",
 			shareUrl: "http://localhost:3000/profile/daniel-butler-user1",
+			usageWorkspaceCount: 2,
 			requestSeries: [],
 			tokenSeries: [],
 			activitySeries30: [],

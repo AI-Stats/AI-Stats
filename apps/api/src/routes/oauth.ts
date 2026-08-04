@@ -310,6 +310,7 @@ export function oauthAuthorizationServerMetadata() {
 		],
 		token_endpoint_auth_methods_supported: ["client_secret_basic", "client_secret_post", "none"],
 		code_challenge_methods_supported: ["S256"],
+		authorization_response_iss_parameter_supported: true,
 		scopes_supported: [...ALL_SUPPORTED_SCOPES],
 		...(isThirdPartyOAuthEnabled() ? { registration_endpoint: `${apiBaseUrl}/oauth/register` } : {}),
 	};
@@ -377,6 +378,19 @@ oauthRouter.post(
 		const redirectUris = Array.isArray(body.redirect_uris) ? body.redirect_uris : [];
 		if (redirectUris.length === 0 || redirectUris.length > 10 || !redirectUris.every(isDynamicClientRedirectUriAllowed)) {
 			return oauthError("invalid_redirect_uri", "redirect_uris must contain 1-10 HTTPS or loopback callback URLs");
+		}
+		const hasLoopbackRedirect = redirectUris.some((value) => {
+			const url = new URL(String(value));
+			return url.protocol === "http:";
+		});
+		const applicationType = body.application_type === undefined
+			? (hasLoopbackRedirect ? "native" : "web")
+			: String(body.application_type);
+		if (applicationType !== "web" && applicationType !== "native") {
+			return oauthError("invalid_client_metadata", "application_type must be web or native");
+		}
+		if (applicationType === "web" && hasLoopbackRedirect) {
+			return oauthError("invalid_redirect_uri", "HTTP loopback redirect URIs require application_type=native");
 		}
 		if (body.client_uri !== undefined && !isDynamicClientMetadataUrlAllowed(body.client_uri)) {
 			return oauthError("invalid_client_metadata", "client_uri must be an HTTPS URL");
@@ -450,6 +464,7 @@ oauthRouter.post(
 			client_id: clientId,
 			client_id_issued_at: Math.floor(Date.now() / 1000),
 			client_name: clientName,
+			application_type: applicationType,
 			redirect_uris: safeRedirectUris,
 			response_types: ["code"],
 			// Dynamic clients receive resource-bound delegated access keys rather
@@ -460,6 +475,14 @@ oauthRouter.post(
 		}, 201, { "Cache-Control": "no-store" });
 	}),
 );
+
+export function authorizationSuccessUrl(redirectUri: string, code: string, state: string): string {
+	const redirect = new URL(redirectUri);
+	redirect.searchParams.set("code", code);
+	redirect.searchParams.set("iss", getIssuer());
+	if (state) redirect.searchParams.set("state", state);
+	return redirect.toString();
+}
 
 oauthRouter.post(
 	"/device/code",
@@ -669,10 +692,7 @@ oauthRouter.post(
 		});
 		if (insert.error) return oauthStorageError("oauth.authorization_code.insert", insert.error);
 
-		const redirect = new URL(redirectUri);
-		redirect.searchParams.set("code", code);
-		if (state) redirect.searchParams.set("state", state);
-		return json({ redirect_url: redirect.toString() }, 200, { "Cache-Control": "no-store" });
+		return json({ redirect_url: authorizationSuccessUrl(redirectUri, code, state) }, 200, { "Cache-Control": "no-store" });
 	}),
 );
 

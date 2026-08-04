@@ -23,7 +23,7 @@ Service tiers are currently available only for supported text models on supporte
 | Tier | How to request it | Typical use |
 | --- | --- | --- |
 | `Standard` | Default behavior. No extra field required. | General production traffic. |
-| `Priority` | Set `service_tier: "priority"` on the request. | Faster or premium routing where supported. |
+| `Priority` | Set `service_tier: "priority"` on the request. | Faster or premium routing where supported. OpenAI also accepts `fast`. |
 | `Flex` | Set `service_tier: "flex"` on the request. | Lower-cost routing where supported. |
 | `Batch` | Use the Batch API rather than `service_tier`. | Large deferred workloads where latency is less important. |
 
@@ -36,7 +36,7 @@ Use the same `service_tier` field when you call any supported synchronous text A
 - [Responses API reference](../api-reference/endpoint/responses.mdx)
 - [Shared parameter reference](../api-reference/parameters.mdx)
 
-The accepted `service_tier` values are `standard`, `priority`, `flex`, and `batch`. `Standard` is the default behavior when `service_tier` is omitted. `Priority` and `Flex` are opt-in request modes, and `Batch` is handled by the Batch API rather than synchronous text requests.
+The accepted `service_tier` values are `standard`, `fast`, `priority`, `flex`, and `batch`. `Standard` is the default behavior when `service_tier` is omitted. Phaseo uses `Priority` as the canonical premium tier name. For OpenAI routes, `fast` is accepted as a provider-compatible alias and uses the same routing and pricing. `Batch` is handled by the Batch API rather than synchronous text requests.
 
 <Note>
 Phaseo maps the normalized gateway values to provider-native controls internally. For example, an Anthropic route may receive Anthropic-native tier fields upstream, but the client-facing request still uses the gateway values listed here.
@@ -55,7 +55,7 @@ Phaseo maps the normalized gateway values to provider-native controls internally
 
 ## Priority
 
-Use `Priority` when you want the provider's premium or higher-priority offer.
+Use `Priority` when you want the provider's premium or higher-priority offer. Phaseo keeps `priority` as its provider-neutral name. OpenAI calls this Fast mode and accepts both `priority` and `fast` on supported models.
 
 ```json
 {

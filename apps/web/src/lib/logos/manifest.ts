@@ -270,6 +270,9 @@ export const logoManifest = {
 	mistral: {
 		color: "/logos/mistral.svg",
 	},
+	modal: {
+		color: "/logos/modal.svg",
+	},
 	moonshotai: {
 		light: "/logos/moonshotai_light.svg",
 		dark: "/logos/moonshotai_dark.svg",

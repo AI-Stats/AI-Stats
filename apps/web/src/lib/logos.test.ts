@@ -57,6 +57,15 @@ describe("logos", () => {
 		});
 	});
 
+	test("resolves the Modal logo by catalogue id", () => {
+		expect(resolveLogo("modal")).toMatchObject({
+			id: "modal",
+			label: "Modal",
+			src: "/logos/modal.svg",
+			variant: "color",
+		});
+	});
+
 	test.each([
 		["alibaba-cn", "Alibaba Cloud", "/logos/alibaba-cloud.svg"],
 		["cloudflare-ai-gateway", "Cloudflare AI Gateway", "/logos/cloudflare.svg"],

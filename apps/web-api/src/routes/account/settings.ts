@@ -18,6 +18,7 @@ import { accountSettingsBroadcastRouter } from "./settings-broadcast";
 import { accountSettingsWebhooksRouter } from "./settings-webhooks";
 import { accountSettingsDataContributionRouter } from "./settings-data-contribution";
 import { callDataContributionGateway } from "./settings-data-contribution";
+import { accountSettingsDynamicRoutesRouter } from "./settings-dynamic-routes";
 import { purgeWorkerCacheTags } from "@/http/invalidation";
 
 function normalizeBetaFeatures(value: unknown): Record<string, boolean> {
@@ -92,6 +93,7 @@ accountSettingsRouter.route("/", accountSettingsGuardrailsRouter);
 accountSettingsRouter.route("/", accountSettingsBroadcastRouter);
 accountSettingsRouter.route("/", accountSettingsWebhooksRouter);
 accountSettingsRouter.route("/", accountSettingsDataContributionRouter);
+accountSettingsRouter.route("/", accountSettingsDynamicRoutesRouter);
 
 accountSettingsRouter.get("/layout", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
@@ -100,6 +102,8 @@ accountSettingsRouter.get("/layout", async (c) => {
 			isEnterpriseInvoiceMode: false,
 			showBroadcast: false,
 			signedIn: false,
+			workspaceId: null,
+			workspaceName: null,
 		}, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 	const workspaceId = c.req.query("workspaceId")?.trim();
@@ -108,6 +112,8 @@ accountSettingsRouter.get("/layout", async (c) => {
 			isEnterpriseInvoiceMode: false,
 			showBroadcast: false,
 			signedIn: true,
+			workspaceId: null,
+			workspaceName: null,
 		}, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 	const context = await requireAccountWorkspace({
@@ -118,7 +124,7 @@ accountSettingsRouter.get("/layout", async (c) => {
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const { data, error } = await context.client
 		.from("workspaces")
-		.select("tier,billing_mode")
+		.select("name,tier,billing_mode")
 		.eq("id", context.workspaceId)
 		.maybeSingle();
 	if (error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
@@ -128,6 +134,8 @@ accountSettingsRouter.get("/layout", async (c) => {
 			String(data?.billing_mode ?? "wallet").toLowerCase() === "invoice",
 		showBroadcast: context.role.toLowerCase() === "admin",
 		signedIn: true,
+		workspaceId: context.workspaceId,
+		workspaceName: data?.name ?? null,
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -216,7 +224,7 @@ accountSettingsRouter.get("/privacy", async (c) => {
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const [teamResult, settingsResult, providersResult, modelsResult, contributionGatewayResult] = await Promise.all([
 		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
-		context.client.from("workspace_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed").eq("workspace_id", workspaceId).maybeSingle(),
+		context.client.from("workspace_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,response_healing_enabled,response_healing_locked,response_healing_mode").eq("workspace_id", workspaceId).maybeSingle(),
 		context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name,offer_label,offer_scope").order("name", { ascending: true }),
 		context.client.from("v2_model_provider_routes").select("provider_id:provider_slug,api_model_id:model_slug,internal_model_id:model_slug,is_active_gateway:routing_enabled").eq("routing_enabled", true).in("status", ["active", "degraded"]),
 		callDataContributionGateway({ env: c.env, request: c.req.raw, workspaceId: context.workspaceId }),
@@ -298,7 +306,7 @@ accountSettingsRouter.get("/account/details", async (c) => {
 		return c.json({ hasPassword: false, teams: [], user: null }, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 	const client = getDataClient(c.env);
-	const [userResult, teamsResult] = await Promise.all([
+	const [userResult, teamsResult, countryResult] = await Promise.all([
 		client
 			.from("users")
 			.select("user_id,display_name,default_workspace_id,obfuscate_info,created_at")
@@ -308,8 +316,17 @@ accountSettingsRouter.get("/account/details", async (c) => {
 			.from("workspace_members")
 			.select("workspace_id,teams:workspaces(id,name)")
 			.eq("user_id", user.id),
+		client
+			.from("users")
+			.select("declared_country_code")
+			.eq("user_id", user.id)
+			.maybeSingle(),
 	]);
-	if (userResult.error || teamsResult.error) {
+	const countryStorageAvailable = !countryResult.error;
+	const countryColumnMissing =
+		countryResult.error?.code === "42703" ||
+		String(countryResult.error?.message ?? "").includes("declared_country_code");
+	if (userResult.error || teamsResult.error || (countryResult.error && !countryColumnMissing)) {
 		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
 	const cookieOverride = c.req.query("obfuscateInfo");
@@ -333,6 +350,8 @@ accountSettingsRouter.get("/account/details", async (c) => {
 			displayName: userResult.data?.display_name ?? null,
 			email: user.email,
 			defaultWorkspaceId: userResult.data?.default_workspace_id ?? null,
+			declaredCountryCode: countryResult.data?.declared_country_code ?? null,
+			countryStorageAvailable,
 			obfuscateInfo,
 			createdAt: userResult.data?.created_at ?? user.createdAt,
 		},

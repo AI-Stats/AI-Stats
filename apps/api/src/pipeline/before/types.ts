@@ -481,6 +481,7 @@ export type WorkspacePolicy = {
     sensitiveInfoGuardrailIds: string[];
     enforceAllowed: boolean;
     activeGuardrailIds: string[];
+    dynamicRoute?: import("./dynamic-routes").DynamicRoutePolicy | null;
 };
 
 export type GuardrailAction = "flag" | "redact" | "block";

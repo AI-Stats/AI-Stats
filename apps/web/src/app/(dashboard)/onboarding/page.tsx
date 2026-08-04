@@ -134,6 +134,8 @@ export default async function OnboardingPage() {
 			<NoFooterStyle />
 			<InteractiveOnboarding
 				initialState={savedState}
+				initialCountryCode={userRow?.declared_country_code ?? null}
+				countryStorageAvailable={onboarding.countryStorageAvailable !== false}
 				initialCompletedAt={userRow?.onboarding_completed_at ?? null}
 				models={pickModels(allModels)}
 				workspaces={workspaces}

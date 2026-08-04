@@ -49,6 +49,7 @@
 		"validate:pricing": "cd apps/web && pnpm run validate:pricing",
 		"validate:gateway": "cd apps/web && pnpm run validate:gateway",
 		"validate:ci-security": "node --test scripts/validate-ci-secret-boundaries.test.mjs && node scripts/validate-ci-secret-boundaries.mjs",
+		"validate:domains": "node scripts/check-canonical-domain.mjs",
 		"data:update-statuses": "tsx scripts/update-model-statuses.ts",
 		"data:recompute-benchmark-ranks": "pnpm --filter @phaseo/web run catalog:recompute-benchmark-ranks",
 		"data:recompute-benchmark-ranks:db": "pnpm --filter @phaseo/web run db:recompute-benchmark-ranks",

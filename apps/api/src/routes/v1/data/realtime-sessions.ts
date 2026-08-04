@@ -122,6 +122,10 @@ function sessionIdFromPath(req: Request, suffix: string): string {
 	return suffixIndex > 0 ? parts[suffixIndex - 1] ?? "" : "";
 }
 
+export function isRealtimeSessionId(value: string): boolean {
+	return /^rt_[0-9a-hjkmnp-tv-z]{26}$/.test(value);
+}
+
 function errorMessage(error: unknown): string {
 	if (error instanceof Error && error.message.trim()) return error.message;
 	if (typeof error === "string" && error.trim()) return error.trim();
@@ -407,6 +411,9 @@ realtimeSessionsRoutes.get("/:sessionId/relay", async (c) => {
 		return err("gateway_error", { reason: "realtime_relay_not_configured" });
 	}
 	const sessionId = sessionIdFromPath(c.req.raw, "relay");
+	if (!isRealtimeSessionId(sessionId)) {
+		return err("validation_error", { reason: "realtime_session_id_invalid" });
+	}
 	const id = binding.idFromName(sessionId);
 	return binding.get(id).fetch(c.req.raw);
 });

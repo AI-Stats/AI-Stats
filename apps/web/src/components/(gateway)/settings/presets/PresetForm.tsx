@@ -99,9 +99,9 @@ function buildPresetSlugPreview(value: string): string {
 		.trim()
 		.toLowerCase()
 		.replace(/^@+/, "")
-		.replace(/[^a-z0-9._-]+/g, "-")
+		.replace(/[^a-z0-9._:-]+/g, "-")
 		.replace(/-{2,}/g, "-")
-		.replace(/^[-._]+|[-._]+$/g, "");
+		.replace(/^[-._:]+|[-._:]+$/g, "");
 }
 
 function moveOrderedItem<T>(items: T[], index: number, direction: -1 | 1): T[] {
@@ -269,7 +269,7 @@ export default function PresetForm({
 	const providerList = useMemo(() => {
 		return providers
 			.map((p) => ({
-				id: p.api_provider_name.toLowerCase().replace(/\s+/g, "").replace(/-/g, ""),
+				id: p.api_provider_id,
 				name: p.api_provider_name,
 				logoId: getProviderLogoId(p.api_provider_name),
 			}))
@@ -706,12 +706,12 @@ export default function PresetForm({
 								<SelectContent>
 									<SelectItem value="private">Only me</SelectItem>
 									<SelectItem value="team">Share with workspace</SelectItem>
-									<SelectItem value="public">Make public (future marketplace)</SelectItem>
+									<SelectItem value="public">Publish to marketplace</SelectItem>
 								</SelectContent>
 							</Select>
 							<p className="text-xs text-muted-foreground">
 								Private presets are only visible to you. Workspace presets can be used by
-								anyone in the workspace. Public presets are planned for a future marketplace.
+								anyone in the workspace. Public presets appear in the marketplace under your username.
 							</p>
 						</div>
 					</FormSection>
