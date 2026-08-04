@@ -18,6 +18,15 @@ export type ProviderAuditRoutabilityKey =
 	| "model_disabled"
 	| "capability_disabled"
 	| "provider_inactive"
+	| "provider_unknown"
+	| "provider_coming_soon"
+	| "provider_deprecated"
+	| "provider_removed"
+	| "phaseo_unsupported"
+	| "phaseo_planned"
+	| "phaseo_implementing"
+	| "phaseo_disabled"
+	| "phaseo_blocked"
 	| "inactive"
 	| "retired";
 
@@ -45,6 +54,9 @@ export type ProviderAuditAggregateRoutability = {
 
 type ProviderAuditStateInput = {
 	isActiveGateway: boolean;
+	providerAvailabilityStatus?: string | null;
+	phaseoStatus?: string | null;
+	accessScope?: string | null;
 	providerStatus?: string | null;
 	providerRoutingStatus?: string | null;
 	modelRoutingStatus?: string | null;
@@ -174,6 +186,11 @@ export function classifyProviderAuditRoutability(
 ): ProviderAuditRoutability {
 	const now = input.now ?? new Date();
 	const providerStatus = normalizeStatusValue(input.providerStatus);
+	const providerAvailabilityStatus = normalizeStatusValue(
+		input.providerAvailabilityStatus,
+	);
+	const phaseoStatus = normalizeStatusValue(input.phaseoStatus);
+	const accessScope = normalizeStatusValue(input.accessScope);
 	const providerRoutingStatus = normalizeStatusValue(input.providerRoutingStatus);
 	const modelRoutingStatus = normalizeStatusValue(input.modelRoutingStatus);
 	const capabilityStatus = normalizeStatusValue(input.capabilityStatus);
@@ -194,6 +211,90 @@ export function classifyProviderAuditRoutability(
 			label: "Scheduled",
 			detail: "The provider-model mapping is configured for a future effective date.",
 			availability: "coming_soon",
+			isRoutableNow: false,
+		};
+	}
+
+	if (accessScope === "internal" || phaseoStatus === "testing") {
+		return {
+			key: "internal_testing",
+			label: "Internal Testing",
+			detail: "The route requires authenticated internal testing mode and is not publicly routable.",
+			availability: "coming_soon",
+			isRoutableNow: false,
+		};
+	}
+
+	if (phaseoStatus === "planned" || phaseoStatus === "implementing") {
+		return {
+			key: phaseoStatus === "planned" ? "phaseo_planned" : "phaseo_implementing",
+			label: phaseoStatus === "planned" ? "Phaseo Planned" : "Phaseo Implementing",
+			detail:
+				phaseoStatus === "planned"
+					? "Phaseo support is planned, but implementation has not started."
+					: "Phaseo is currently implementing this provider route.",
+			availability: "coming_soon",
+			isRoutableNow: false,
+		};
+	}
+
+	if (
+		phaseoStatus === "unsupported" ||
+		phaseoStatus === "disabled" ||
+		phaseoStatus === "blocked"
+	) {
+		const key = `phaseo_${phaseoStatus}` as
+			| "phaseo_unsupported"
+			| "phaseo_disabled"
+			| "phaseo_blocked";
+		return {
+			key,
+			label: `Phaseo ${phaseoStatus.charAt(0).toUpperCase()}${phaseoStatus.slice(1)}`,
+			detail:
+				phaseoStatus === "unsupported"
+					? "Phaseo does not currently support this provider route."
+					: phaseoStatus === "disabled"
+						? "The Phaseo integration has been disabled."
+						: "The Phaseo integration is blocked from progressing or routing.",
+			availability: "inactive",
+			isRoutableNow: false,
+		};
+	}
+
+	if (providerAvailabilityStatus === "coming_soon") {
+		return {
+			key: "provider_coming_soon",
+			label: "Provider Coming Soon",
+			detail: "The provider has announced this offer, but it is not available yet.",
+			availability: "coming_soon",
+			isRoutableNow: false,
+		};
+	}
+
+	if (
+		providerAvailabilityStatus === "unknown" ||
+		providerAvailabilityStatus === "deprecated" ||
+		providerAvailabilityStatus === "removed"
+	) {
+		const key = `provider_${providerAvailabilityStatus}` as
+			| "provider_unknown"
+			| "provider_deprecated"
+			| "provider_removed";
+		return {
+			key,
+			label:
+				providerAvailabilityStatus === "unknown"
+					? "Provider Availability Unknown"
+					: providerAvailabilityStatus === "deprecated"
+						? "Provider Deprecated"
+						: "Provider Removed",
+			detail:
+				providerAvailabilityStatus === "unknown"
+					? "Upstream availability has not been confirmed."
+					: providerAvailabilityStatus === "deprecated"
+						? "The provider is deprecating this offer."
+						: "The provider no longer offers this model.",
+			availability: "inactive",
 			isRoutableNow: false,
 		};
 	}
