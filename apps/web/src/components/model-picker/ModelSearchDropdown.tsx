@@ -97,7 +97,7 @@ export function ModelSearchDropdown({
       >
         <Command>
           <CommandInput autoFocus placeholder={searchPlaceholder} />
-          <CommandList className="max-h-[min(52vh,24rem)] p-1">
+          <CommandList className="max-h-[min(52vh,24rem)] p-1 [scrollbar-width:thin]! [scrollbar-color:var(--muted-foreground)_transparent] [&::-webkit-scrollbar]:block! [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/35 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/55">
             <CommandEmpty>{emptyMessage}</CommandEmpty>
             <CommandGroup heading="Models">
               {options.map((option) => (

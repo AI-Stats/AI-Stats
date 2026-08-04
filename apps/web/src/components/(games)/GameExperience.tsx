@@ -259,14 +259,19 @@ function ModeleGame({ puzzle }: { puzzle: ModelePuzzle }) {
       <div aria-live="polite" className="text-sm text-muted-foreground">
         {state.guesses.length} / {puzzle.maxGuesses} guesses
       </div>
-      {state.guesses.map((guess) => (
+      {[...state.guesses].reverse().map((guess, reverseIndex) => (
         <Card key={guess.model.id} size="sm">
           <CardHeader>
-            <CardTitle>
-              {guess.model.name}{" "}
-              <span className="font-normal text-muted-foreground">
-                · {guess.model.labName}
+            <CardTitle className="flex flex-wrap items-center justify-between gap-2">
+              <span>
+                {guess.model.name}{" "}
+                <span className="font-normal text-muted-foreground">
+                  · {guess.model.labName}
+                </span>
               </span>
+              <Badge variant="secondary" className="shrink-0">
+                Guess {state.guesses.length - reverseIndex}
+              </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
