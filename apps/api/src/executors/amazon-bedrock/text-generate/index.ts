@@ -46,6 +46,9 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const irRequest = args.ir as IRChatRequest;
 	const model = args.providerModelSlug ?? irRequest.model;
 	const { keyInfo, auth } = resolveMantleAuth(args);
+	if (isClaudeModel(model) && irRequest.responseFormat?.type === "json_schema") {
+		throw new Error("amazon_bedrock_mantle_claude_structured_output_unsupported");
+	}
 	if (usesBedrockMessagesApi(model, irRequest)) {
 		return executeBedrockMessages(args, keyInfo, auth, model);
 	}
@@ -324,12 +327,16 @@ function isResponsesOnlyMantleModel(model: string): boolean {
 }
 
 function usesBedrockMessagesApi(model: string, ir: IRChatRequest): boolean {
-	const normalized = model.trim().toLowerCase().replaceAll("/", ".");
-	// Mantle Messages is the native, recommended surface for Claude. Mantle does
-	// not accept output_config.format, so JSON Schema requests stay on its
-	// OpenAI-compatible Responses endpoint instead of falling back to Converse.
-	return /(?:^|\.)anthropic\.claude(?:$|[.:-])/.test(normalized) &&
+	// Mantle Messages is the native, recommended surface for Claude. Structured
+	// output is rejected before routing because AWS only documents it for
+	// Converse/InvokeModel on Bedrock Runtime, which is intentionally out of scope.
+	return isClaudeModel(model) &&
 		ir.responseFormat?.type !== "json_schema";
+}
+
+function isClaudeModel(model: string): boolean {
+	const normalized = model.trim().toLowerCase().replaceAll("/", ".");
+	return /(?:^|\.)anthropic\.claude(?:$|[.:-])/.test(normalized);
 }
 
 function buildMantleMessagesUrl(baseUrl: string): string {

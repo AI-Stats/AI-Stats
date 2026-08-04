@@ -15,14 +15,16 @@ Responses and Chat Completions at `/v1`, plus Anthropic-native Messages at
 | Request/model | Mantle route |
 | --- | --- |
 | Anthropic Claude without JSON Schema output | `POST /anthropic/v1/messages` |
-| Anthropic Claude with JSON Schema output | `POST /v1/responses` |
+| Anthropic Claude with JSON Schema output | Rejected as unsupported |
 | OpenAI GPT-5.4, GPT-5.5, and GPT-5.6 families | `POST /v1/responses` |
 | Other text models from Chat Completions clients | `POST /v1/chat/completions` |
 | Other text models from Responses clients | `POST /v1/responses` |
 
-JSON Schema is deliberately routed away from Mantle Messages because AWS states
-that `output_config.format` is unsupported on that surface. It remains on the
-Mantle endpoint and never falls back to Converse.
+AWS states that `output_config.format` is unsupported on Mantle Messages and
+documents Claude structured output through Converse or InvokeModel on Bedrock
+Runtime. Because this integration is intentionally Mantle-only, Claude JSON
+Schema requests are rejected explicitly rather than silently leaving Mantle or
+assuming undocumented parity through another Mantle protocol.
 
 ## Configuration
 

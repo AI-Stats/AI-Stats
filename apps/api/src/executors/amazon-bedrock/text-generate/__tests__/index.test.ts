@@ -294,13 +294,8 @@ describe("amazon-bedrock text executor", () => {
 		expect(mock.calls[0]?.url).toContain("/anthropic/v1/messages");
 	});
 
-	it("keeps Claude JSON Schema requests on Mantle Responses", async () => {
-		const mock = installFetchMock([{
-			match: (url) => url.endsWith("/openai/v1/responses"),
-			response: new Response(new ReadableStream<Uint8Array>(), { status: 200 }),
-		}]);
-
-		const result = await execute(buildArgs({
+	it("rejects Claude JSON Schema requests instead of leaving Mantle", async () => {
+		await expect(execute(buildArgs({
 			model: "anthropic.claude-sonnet-5",
 			stream: true,
 			responseFormat: {
@@ -312,11 +307,9 @@ describe("amazon-bedrock text executor", () => {
 		}, {
 			endpoint: "responses",
 			protocol: "openai.responses",
-		}));
-		mock.restore();
-
-		expect(result.kind).toBe("stream");
-		expect(mock.calls[0]?.url).toContain("/openai/v1/responses");
+		}))).rejects.toThrow(
+			"amazon_bedrock_mantle_claude_structured_output_unsupported",
+		);
 	});
 
 	it.each([
