@@ -4,6 +4,7 @@
     "slug": "phaseo",
     "scheme": "phaseo",
     "version": "0.1.0",
+    "platforms": ["ios", "android"],
     "orientation": "default",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

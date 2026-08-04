@@ -8,5 +8,5 @@ import { navigationTheme } from "@/theme";
 
 export default function RootLayout() {
   const dark = useColorScheme() === "dark";
-  return <AppProviders><ThemeProvider value={navigationTheme(dark)}><StatusBar style={dark ? "light" : "dark"} /><Stack screenOptions={{ headerBackButtonDisplayMode: "minimal" }}><Stack.Screen name="(tabs)" options={{ headerShown: false }} /><Stack.Screen name="model/[id]" options={{ title: "Model" }} /></Stack></ThemeProvider></AppProviders>;
+  return <AppProviders><ThemeProvider value={navigationTheme(dark)}><StatusBar style={dark ? "light" : "dark"} /><Stack screenOptions={{ headerBackButtonDisplayMode: "minimal" }}><Stack.Screen name="(tabs)" options={{ headerShown: false }} /><Stack.Screen name="model/[id]" options={{ title: "Model" }} /><Stack.Screen name="sign-in" options={{ title: "Sign in" }} /></Stack></ThemeProvider></AppProviders>;
 }
