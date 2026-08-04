@@ -16,6 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
 export type ModelSearchDropdownOption = {
@@ -97,48 +98,54 @@ export function ModelSearchDropdown({
       >
         <Command>
           <CommandInput autoFocus placeholder={searchPlaceholder} />
-          <CommandList className="max-h-[min(52vh,24rem)] p-1 [scrollbar-width:thin]! [scrollbar-color:var(--muted-foreground)_transparent] [&::-webkit-scrollbar]:block! [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/35 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/55">
-            <CommandEmpty>{emptyMessage}</CommandEmpty>
-            <CommandGroup heading="Models">
-              {options.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.value}
-                  keywords={[option.label, option.description ?? "", ...(option.keywords ?? [])]}
-                  onSelect={() => {
-                    onValueChange(option.value);
-                    onOpenChange?.(false);
-                  }}
-                  className="min-h-11 gap-3 rounded-xl px-3 py-2"
-                >
-                  {option.logoId ? (
-                    <Logo
-                      id={option.logoId}
-                      alt={option.description ?? option.label}
-                      width={20}
-                      height={20}
-                      className="size-5 shrink-0 rounded-sm object-contain"
-                    />
-                  ) : (
-                    <span className="size-5 shrink-0" aria-hidden />
-                  )}
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium">
-                      {option.label}
-                    </span>
-                    {option.description ? (
-                      <span className="block truncate text-xs text-muted-foreground">
-                        {option.description}
+          <ScrollArea
+            className="h-80 max-h-[52vh] [&_[data-slot=scroll-area-thumb]]:bg-muted-foreground/40 hover:[&_[data-slot=scroll-area-thumb]]:bg-muted-foreground/60"
+            viewportClassName="p-1 pr-3"
+            keepScrollbarMounted
+          >
+            <CommandList className="max-h-none overflow-visible p-0">
+              <CommandEmpty>{emptyMessage}</CommandEmpty>
+              <CommandGroup heading="Models">
+                {options.map((option) => (
+                  <CommandItem
+                    key={option.value}
+                    value={option.value}
+                    keywords={[option.label, option.description ?? "", ...(option.keywords ?? [])]}
+                    onSelect={() => {
+                      onValueChange(option.value);
+                      onOpenChange?.(false);
+                    }}
+                    className="min-h-11 gap-3 rounded-xl px-3 py-2"
+                  >
+                    {option.logoId ? (
+                      <Logo
+                        id={option.logoId}
+                        alt={option.description ?? option.label}
+                        width={20}
+                        height={20}
+                        className="size-5 shrink-0 rounded-sm object-contain"
+                      />
+                    ) : (
+                      <span className="size-5 shrink-0" aria-hidden />
+                    )}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium">
+                        {option.label}
                       </span>
+                      {option.description ? (
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {option.description}
+                        </span>
+                      ) : null}
+                    </span>
+                    {selected?.value === option.value ? (
+                      <Check className="size-4 shrink-0" />
                     ) : null}
-                  </span>
-                  {selected?.value === option.value ? (
-                    <Check className="size-4 shrink-0" />
-                  ) : null}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </ScrollArea>
         </Command>
       </PopoverContent>
     </Popover>
