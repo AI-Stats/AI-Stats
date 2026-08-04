@@ -1136,7 +1136,7 @@ export type CreateAnthropicMessageParams = {
             timezone?: string;
           };
           timezone?: string;
-          type: "gateway:datetime";
+          type: "phaseo:datetime" | "gateway:datetime";
         }
       | {
           include_highlights?: boolean;
@@ -1147,14 +1147,34 @@ export type CreateAnthropicMessageParams = {
             include_text?: boolean;
             max_results?: number;
           };
-          type: "gateway:web_search";
+          type: "phaseo:web_search" | "gateway:web_search";
         }
       | {
           max_chars?: number;
           parameters?: {
             max_chars?: number;
           };
-          type: "gateway:web_fetch";
+          type: "phaseo:web_fetch" | "gateway:web_fetch";
+        }
+      | {
+          parameters?: {
+            [key: string]: unknown;
+          };
+          type: "phaseo:subagent";
+        }
+      | {
+          parameters?: {
+            analysis_models: string[];
+            model?: string;
+            [key: string]: unknown;
+          };
+          type: "phaseo:fusion";
+        }
+      | {
+          parameters?: {
+            max_results?: number;
+          };
+          type: "phaseo:search_models";
         }[];
     top_k?: number;
     top_p?: number;
@@ -2127,6 +2147,12 @@ export type CreateChatCompletionParams = {
       | "auto"
       | "none"
       | "required"
+      | "phaseo:datetime"
+      | "phaseo:web_search"
+      | "phaseo:web_fetch"
+      | "phaseo:subagent"
+      | "phaseo:fusion"
+      | "phaseo:search_models"
       | "gateway:datetime"
       | "gateway:web_search"
       | "gateway:web_fetch"
@@ -2146,7 +2172,7 @@ export type CreateChatCompletionParams = {
             timezone?: string;
           };
           timezone?: string;
-          type: "gateway:datetime";
+          type: "phaseo:datetime" | "gateway:datetime";
         }
       | {
           include_highlights?: boolean;
@@ -2157,14 +2183,34 @@ export type CreateChatCompletionParams = {
             include_text?: boolean;
             max_results?: number;
           };
-          type: "gateway:web_search";
+          type: "phaseo:web_search" | "gateway:web_search";
         }
       | {
           max_chars?: number;
           parameters?: {
             max_chars?: number;
           };
-          type: "gateway:web_fetch";
+          type: "phaseo:web_fetch" | "gateway:web_fetch";
+        }
+      | {
+          parameters?: {
+            [key: string]: unknown;
+          };
+          type: "phaseo:subagent";
+        }
+      | {
+          parameters?: {
+            analysis_models: string[];
+            model?: string;
+            [key: string]: unknown;
+          };
+          type: "phaseo:fusion";
+        }
+      | {
+          parameters?: {
+            max_results?: number;
+          };
+          type: "phaseo:search_models";
         }[];
     top_logprobs?: number;
     top_p?: number;
@@ -2257,7 +2303,13 @@ export async function createChatCompletion(
     completion_tokens?: number;
     prompt_tokens?: number;
     server_tool_use?: {
+      advisor_requests?: number;
+      apply_patch_requests?: number;
       datetime_requests?: number;
+      fusion_requests?: number;
+      image_generation_requests?: number;
+      search_models_requests?: number;
+      subagent_requests?: number;
       web_fetch_requests?: number;
       web_search_requests?: number;
     };
@@ -2343,7 +2395,13 @@ export async function createChatCompletion(
       completion_tokens?: number;
       prompt_tokens?: number;
       server_tool_use?: {
+        advisor_requests?: number;
+        apply_patch_requests?: number;
         datetime_requests?: number;
+        fusion_requests?: number;
+        image_generation_requests?: number;
+        search_models_requests?: number;
+        subagent_requests?: number;
         web_fetch_requests?: number;
         web_search_requests?: number;
       };
@@ -2528,7 +2586,13 @@ export async function createEmbedding(
     completion_tokens?: number;
     prompt_tokens?: number;
     server_tool_use?: {
+      advisor_requests?: number;
+      apply_patch_requests?: number;
       datetime_requests?: number;
+      fusion_requests?: number;
+      image_generation_requests?: number;
+      search_models_requests?: number;
+      subagent_requests?: number;
       web_fetch_requests?: number;
       web_search_requests?: number;
     };
@@ -2549,7 +2613,13 @@ export async function createEmbedding(
       completion_tokens?: number;
       prompt_tokens?: number;
       server_tool_use?: {
+        advisor_requests?: number;
+        apply_patch_requests?: number;
         datetime_requests?: number;
+        fusion_requests?: number;
+        image_generation_requests?: number;
+        search_models_requests?: number;
+        subagent_requests?: number;
         web_fetch_requests?: number;
         web_search_requests?: number;
       };
@@ -3056,7 +3126,13 @@ export async function createRerank(
     completion_tokens?: number;
     prompt_tokens?: number;
     server_tool_use?: {
+      advisor_requests?: number;
+      apply_patch_requests?: number;
       datetime_requests?: number;
+      fusion_requests?: number;
+      image_generation_requests?: number;
+      search_models_requests?: number;
+      subagent_requests?: number;
       web_fetch_requests?: number;
       web_search_requests?: number;
     };
@@ -3083,7 +3159,13 @@ export async function createRerank(
       completion_tokens?: number;
       prompt_tokens?: number;
       server_tool_use?: {
+        advisor_requests?: number;
+        apply_patch_requests?: number;
         datetime_requests?: number;
+        fusion_requests?: number;
+        image_generation_requests?: number;
+        search_models_requests?: number;
+        subagent_requests?: number;
         web_fetch_requests?: number;
         web_search_requests?: number;
       };
@@ -3228,6 +3310,12 @@ export type CreateResponseParams = {
       | "auto"
       | "none"
       | "required"
+      | "phaseo:datetime"
+      | "phaseo:web_search"
+      | "phaseo:web_fetch"
+      | "phaseo:subagent"
+      | "phaseo:fusion"
+      | "phaseo:search_models"
       | "gateway:datetime"
       | "gateway:web_search"
       | "gateway:web_fetch"
@@ -3247,7 +3335,7 @@ export type CreateResponseParams = {
             timezone?: string;
           };
           timezone?: string;
-          type: "gateway:datetime";
+          type: "phaseo:datetime" | "gateway:datetime";
         }
       | {
           include_highlights?: boolean;
@@ -3258,14 +3346,34 @@ export type CreateResponseParams = {
             include_text?: boolean;
             max_results?: number;
           };
-          type: "gateway:web_search";
+          type: "phaseo:web_search" | "gateway:web_search";
         }
       | {
           max_chars?: number;
           parameters?: {
             max_chars?: number;
           };
-          type: "gateway:web_fetch";
+          type: "phaseo:web_fetch" | "gateway:web_fetch";
+        }
+      | {
+          parameters?: {
+            [key: string]: unknown;
+          };
+          type: "phaseo:subagent";
+        }
+      | {
+          parameters?: {
+            analysis_models: string[];
+            model?: string;
+            [key: string]: unknown;
+          };
+          type: "phaseo:fusion";
+        }
+      | {
+          parameters?: {
+            max_results?: number;
+          };
+          type: "phaseo:search_models";
         }[];
     top_p?: number;
     truncation?: "auto" | "disabled";
@@ -3367,7 +3475,13 @@ export async function createResponse(
     completion_tokens?: number;
     prompt_tokens?: number;
     server_tool_use?: {
+      advisor_requests?: number;
+      apply_patch_requests?: number;
       datetime_requests?: number;
+      fusion_requests?: number;
+      image_generation_requests?: number;
+      search_models_requests?: number;
+      subagent_requests?: number;
       web_fetch_requests?: number;
       web_search_requests?: number;
     };
@@ -3463,7 +3577,13 @@ export async function createResponse(
       completion_tokens?: number;
       prompt_tokens?: number;
       server_tool_use?: {
+        advisor_requests?: number;
+        apply_patch_requests?: number;
         datetime_requests?: number;
+        fusion_requests?: number;
+        image_generation_requests?: number;
+        search_models_requests?: number;
+        subagent_requests?: number;
         web_fetch_requests?: number;
         web_search_requests?: number;
       };
@@ -3552,6 +3672,16 @@ export type CreateTranscriptionParams = {
   body?: {
     audio_b64?: string;
     audio_url?: string;
+    chunking_strategy?:
+      | "auto"
+      | {
+          prefix_padding_ms?: number;
+          silence_duration_ms?: number;
+          threshold?: number;
+          type: "server_vad";
+        };
+    known_speaker_names?: string[];
+    known_speaker_references?: string[];
     language?: string;
     model: string;
     provider?: {

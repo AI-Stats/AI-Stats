@@ -121,12 +121,6 @@
 	body {
 		@apply bg-background text-foreground;
 	}
-	body[data-hide-footer="true"] #dashboard-shell > footer {
-		display: none !important;
-	}
-	#dashboard-shell:has([data-chat-viewport-root="true"]) > footer {
-		display: none !important;
-	}
 	a[href],
 	button:not(:disabled),
 	[role="button"]:not(:disabled) {

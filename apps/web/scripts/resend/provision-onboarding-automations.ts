@@ -757,8 +757,8 @@ async function upsertAutomation(
 
 async function main(): Promise<void> {
 	const apiKey = requiredEnv("RESEND_API_KEY");
-	const fromEmail = env("RESEND_FROM_EMAIL", "Phaseo <noreply@phaseo.ai>");
-	const replyToEmail = env("RESEND_ONBOARDING_REPLY_TO_EMAIL", "daniel@phaseo.ai");
+	const fromEmail = env("RESEND_FROM_EMAIL", "Phaseo <noreply@phaseo.app>");
+	const replyToEmail = env("RESEND_ONBOARDING_REPLY_TO_EMAIL", "daniel@phaseo.app");
 	const dashboardUrl = env(
 		"RESEND_ONBOARDING_DASHBOARD_URL",
 		env("NEXT_PUBLIC_WEBSITE_URL", "https://phaseo.app"),

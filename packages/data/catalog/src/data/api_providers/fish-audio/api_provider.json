@@ -1,0 +1,30 @@
+{
+  "api_provider_id": "fish-audio",
+  "provider_family_id": "fish-audio",
+  "offer_scope": "global",
+  "api_provider_name": "Fish Audio",
+  "description": "Fish Audio's hosted speech generation, transcription, and voice design API.",
+  "link": "https://fish.audio/developers/",
+  "pricing_source_url": "https://docs.fish.audio/developer-guide/models-pricing/pricing-and-rate-limits",
+  "country_code": null,
+  "status": "NotReady",
+  "colour": "#FF6B4A",
+  "privacy_policy_url": "https://fish.audio/privacy/",
+  "terms_of_service_url": "https://fish.audio/terms/",
+  "prompt_training_policy": "may_train",
+  "prompt_training_notes": "Fish Audio states that free-tier requests may be retained and used to improve model quality; production plans offer stronger data protection commitments.",
+  "prompt_training_source_url": "https://docs.fish.audio/developer-guide/models-pricing/pricing-and-rate-limits",
+  "gateway_kind": null,
+  "routable": false,
+  "routing_enabled": false,
+  "sdk_package": null,
+  "api_base_url": "https://api.fish.audio",
+  "docs_url": "https://docs.fish.audio/",
+  "auth_env": null,
+  "api_formats": [],
+  "service_tiers": ["standard", "free"],
+  "sources": [
+    { "kind": "documentation", "url": "https://docs.fish.audio/developer-guide/models-pricing/models-overview", "accessed_at": "2026-08-01T00:00:00Z", "notes": null }
+  ],
+  "verification": { "status": "verified", "checked_at": "2026-08-01T00:00:00Z", "notes": "Current models and prices verified from official Fish Audio documentation." }
+}

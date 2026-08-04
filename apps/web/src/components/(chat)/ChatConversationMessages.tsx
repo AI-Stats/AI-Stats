@@ -693,6 +693,9 @@ export function ChatConversationMessages({
 							color: getReadableTextColor(accentColor),
 						}
 					: undefined;
+			const temporaryMessageOutline = temporaryMode
+				? "rounded-2xl border border-dashed border-muted-foreground/60"
+				: "";
 			const sentAtLabel = formatMessageSentAt(
 				!isUser && activeVariant?.createdAt
 					? activeVariant.createdAt
@@ -764,6 +767,7 @@ export function ChatConversationMessages({
 											isUser
 												? cn(
 														"max-w-full rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm",
+														temporaryMessageOutline,
 														inSideBySideGroup
 															? "flex h-full min-h-[180px] w-full flex-col"
 															: "w-fit",
@@ -775,6 +779,8 @@ export function ChatConversationMessages({
 													)
 												: cn(
 														"w-full max-w-[min(100%,46rem)] px-0 py-1 text-sm leading-relaxed text-foreground",
+														temporaryMessageOutline,
+														temporaryMode && "px-4 py-3",
 														inSideBySideGroup &&
 															"flex h-full min-h-[180px] flex-col",
 													),
@@ -1541,6 +1547,7 @@ export function ChatConversationMessages({
 		modelOptions,
 		selectedModelIds,
 		onAddModelSet,
+		temporaryMode,
 	]);
 
 	return <>{messagesContent}</>;

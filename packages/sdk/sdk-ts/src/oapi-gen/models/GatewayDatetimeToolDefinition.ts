@@ -7,5 +7,5 @@ export interface GatewayDatetimeToolDefinition {
     timezone?: string;
   };
   timezone?: string;
-  type: "gateway:datetime";
+  type: "phaseo:datetime" | "gateway:datetime";
 }

@@ -1,7 +1,7 @@
 {
   "sourceUrl": "https://docs.together.ai/openapi.yaml",
-  "sourceSha256": "57a72f332ec48a611e1e454b6a688950e0c0b2e3604a6958e1eb64c83cc813f5",
-  "bundleSha256": "b4401ddc777cd2cbf8deca9789ca98dfcbd8a1a6196b3c50c8ef433e2d5dadd3",
+  "sourceSha256": "43e29c4cb2798c8f5a340a123c48120f8fe6867adb82ec241f32a440b5cb0a24",
+  "bundleSha256": "c5a7320a8564d75b7c578c2c6b1a769d4376c862ab701de6696a744700a32140",
   "openapiVersion": "3.1.0",
   "apiVersion": "2.0.0",
   "gatewayPathMappings": [

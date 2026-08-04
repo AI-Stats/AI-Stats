@@ -224,7 +224,7 @@ accountSettingsRouter.get("/privacy", async (c) => {
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const [teamResult, settingsResult, providersResult, modelsResult, contributionGatewayResult] = await Promise.all([
 		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
-		context.client.from("workspace_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed").eq("workspace_id", workspaceId).maybeSingle(),
+		context.client.from("workspace_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,response_healing_enabled,response_healing_locked,response_healing_mode").eq("workspace_id", workspaceId).maybeSingle(),
 		context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name,offer_label,offer_scope").order("name", { ascending: true }),
 		context.client.from("v2_model_provider_routes").select("provider_id:provider_slug,api_model_id:model_slug,internal_model_id:model_slug,is_active_gateway:routing_enabled").eq("routing_enabled", true).in("status", ["active", "degraded"]),
 		callDataContributionGateway({ env: c.env, request: c.req.raw, workspaceId: context.workspaceId }),
@@ -306,7 +306,7 @@ accountSettingsRouter.get("/account/details", async (c) => {
 		return c.json({ hasPassword: false, teams: [], user: null }, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 	const client = getDataClient(c.env);
-	const [userResult, teamsResult] = await Promise.all([
+	const [userResult, teamsResult, countryResult] = await Promise.all([
 		client
 			.from("users")
 			.select("user_id,display_name,default_workspace_id,obfuscate_info,created_at")
@@ -316,8 +316,17 @@ accountSettingsRouter.get("/account/details", async (c) => {
 			.from("workspace_members")
 			.select("workspace_id,teams:workspaces(id,name)")
 			.eq("user_id", user.id),
+		client
+			.from("users")
+			.select("declared_country_code")
+			.eq("user_id", user.id)
+			.maybeSingle(),
 	]);
-	if (userResult.error || teamsResult.error) {
+	const countryStorageAvailable = !countryResult.error;
+	const countryColumnMissing =
+		countryResult.error?.code === "42703" ||
+		String(countryResult.error?.message ?? "").includes("declared_country_code");
+	if (userResult.error || teamsResult.error || (countryResult.error && !countryColumnMissing)) {
 		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
 	const cookieOverride = c.req.query("obfuscateInfo");
@@ -341,6 +350,8 @@ accountSettingsRouter.get("/account/details", async (c) => {
 			displayName: userResult.data?.display_name ?? null,
 			email: user.email,
 			defaultWorkspaceId: userResult.data?.default_workspace_id ?? null,
+			declaredCountryCode: countryResult.data?.declared_country_code ?? null,
+			countryStorageAvailable,
 			obfuscateInfo,
 			createdAt: userResult.data?.created_at ?? user.createdAt,
 		},

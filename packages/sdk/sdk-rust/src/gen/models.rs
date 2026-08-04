@@ -234,6 +234,9 @@ pub struct AudioSpeechRequest {
 pub struct AudioTranscriptionRequest {
 	pub audio_b64: Option<String>,
 	pub audio_url: Option<String>,
+	pub chunking_strategy: Option<String>,
+	pub known_speaker_names: Option<Vec<String>>,
+	pub known_speaker_references: Option<Vec<String>>,
 	pub language: Option<String>,
 	pub model: String,
 	pub provider: Option<HashMap<String, String>>,
@@ -657,6 +660,11 @@ pub struct FileUploadRequest {
 
 pub struct FunctionToolDefinition {
 	pub function: HashMap<String, String>,
+	pub r#type: String,
+}
+
+pub struct FusionToolDefinition {
+	pub parameters: Option<HashMap<String, String>>,
 	pub r#type: String,
 }
 
@@ -1209,10 +1217,26 @@ pub struct ResponsesResponse {
 	pub usage: Option<HashMap<String, String>>,
 }
 
+pub struct SearchModelsToolDefinition {
+	pub parameters: Option<HashMap<String, String>>,
+	pub r#type: String,
+}
+
 pub struct ServerToolUsage {
+	pub advisor_requests: Option<i64>,
+	pub apply_patch_requests: Option<i64>,
 	pub datetime_requests: Option<i64>,
+	pub fusion_requests: Option<i64>,
+	pub image_generation_requests: Option<i64>,
+	pub search_models_requests: Option<i64>,
+	pub subagent_requests: Option<i64>,
 	pub web_fetch_requests: Option<i64>,
 	pub web_search_requests: Option<i64>,
+}
+
+pub struct SubagentToolDefinition {
+	pub parameters: Option<HashMap<String, String>>,
+	pub r#type: String,
 }
 
 pub struct SupportedParameterDetails {
