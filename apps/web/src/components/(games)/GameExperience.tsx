@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { readGameState, writeGameState } from "./gameStorage";
+import { GameModelIdentity } from "./GameModelIdentity";
 import { SprintGame } from "./SprintGame";
 import { checkPuzzle, fetchDailyPuzzle } from "@/lib/games/client";
 import {
@@ -306,12 +307,7 @@ function ModeleGame({ puzzle }: { puzzle: ModelePuzzle }) {
         <Card key={guess.model.id} size="sm" className={GAME_CARD_CLASS}>
           <CardHeader>
             <CardTitle className="flex flex-wrap items-center justify-between gap-2">
-              <span>
-                {guess.model.name}{" "}
-                <span className="font-normal text-muted-foreground">
-                  · {guess.model.labName}
-                </span>
-              </span>
+              <GameModelIdentity model={guess.model} />
               <Badge variant="secondary" className="shrink-0">
                 Guess {state.guesses.length - reverseIndex}
               </Badge>
@@ -386,10 +382,9 @@ function ResultCard({
           {title}
         </CardTitle>
         {answer && (
-          <CardDescription>
-            The answer is{" "}
-            <strong className="text-foreground">{answer.name}</strong> by{" "}
-            {answer.labName}.
+          <CardDescription className="flex items-center gap-2">
+            <span>The answer is</span>
+            <GameModelIdentity model={answer} compact />
           </CardDescription>
         )}
       </CardHeader>
@@ -453,12 +448,7 @@ function PriceleGame({ puzzle }: { puzzle: PricelePuzzle }) {
         {state.guesses.map((guess) => (
           <Card key={guess.model.id} size="sm" className={GAME_CARD_CLASS}>
             <CardContent className="grid gap-3 sm:grid-cols-[1fr_180px_180px] sm:items-center">
-              <div>
-                <div className="font-medium">{guess.model.name}</div>
-                <div className="text-xs text-muted-foreground">
-                  {guess.model.labName}
-                </div>
-              </div>
+              <GameModelIdentity model={guess.model} compact />
               {(["input", "output"] as const).map((direction) => (
                 <div
                   key={direction}
@@ -550,11 +540,12 @@ function TimelineGame({ puzzle }: { puzzle: TimelinePuzzle }) {
                 {index + 1}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="truncate font-medium">{model.name}</div>
-                <div className="truncate text-xs text-muted-foreground">
-                  {model.labName}
-                  {state.result ? ` · ${state.result.dates[model.id]}` : ""}
-                </div>
+                <GameModelIdentity model={model} compact />
+                {state.result ? (
+                  <div className="mt-1 truncate text-xs text-muted-foreground">
+                    {state.result.dates[model.id]}
+                  </div>
+                ) : null}
               </div>
               {!state.result && (
                 <div className="flex gap-1">
@@ -745,15 +736,15 @@ function HeadChoice({
         correct && "bg-emerald-500/15 text-foreground ring-emerald-500/40"
       )}
     >
-      <div className="font-medium sm:text-lg">{candidate.name}</div>
-      <div
+      <GameModelIdentity
+        model={candidate}
         className={cn(
-          "mt-1 text-xs",
-          selected && !correct ? "opacity-70" : "text-muted-foreground"
+          "text-sm sm:text-lg",
+          selected &&
+            !correct &&
+            "[&>span:last-child]:text-background/70"
         )}
-      >
-        {candidate.labName}
-      </div>
+      />
       {value != null && (
         <div className="mt-3 text-sm font-semibold">
           {typeof value === "number" ? value.toLocaleString() : String(value)}

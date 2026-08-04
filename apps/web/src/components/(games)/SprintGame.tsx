@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { checkPuzzle } from "@/lib/games/client";
 import type { ModelCandidate, SprintPuzzle } from "@/lib/games/types";
 import { cn } from "@/lib/utils";
+import { GameModelIdentity } from "./GameModelIdentity";
 
 type SprintState = {
   found: ModelCandidate[];
@@ -165,8 +166,13 @@ export function SprintGame({ puzzle }: { puzzle: SprintPuzzle }) {
       {state.found.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {state.found.map((model) => (
-            <Badge key={model.id} variant="secondary">
-              {model.name}
+            <Badge key={model.id} variant="secondary" className="gap-1.5">
+              <GameModelIdentity
+                model={model}
+                compact
+                className="gap-1.5 [&>span:last-child]:hidden"
+                logoClassName="size-3.5"
+              />
             </Badge>
           ))}
         </div>
@@ -191,10 +197,7 @@ export function SprintGame({ puzzle }: { puzzle: SprintPuzzle }) {
                     : "bg-muted/50"
                 )}
               >
-                <div className="font-medium">{model.name}</div>
-                <div className="text-xs text-muted-foreground">
-                  {model.labName}
-                </div>
+                <GameModelIdentity model={model} compact />
               </div>
             ))}
           </CardContent>
