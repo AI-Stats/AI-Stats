@@ -286,7 +286,7 @@ export default function ModelFaqSection({
 	// tool_choice controls selection behaviour but cannot establish tool support alone.
 	const toolCallingSupport = getCapabilitySupport(gatewayMetadata, ["tools"]);
 	const structuredOutputSupport = getCapabilitySupport(gatewayMetadata, [
-		"native_structured_outputs",
+		"structured_outputs",
 	]);
 
 	const items = [

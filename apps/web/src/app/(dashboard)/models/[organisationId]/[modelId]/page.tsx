@@ -81,7 +81,9 @@ async function ModelFaqSectionContent({
 	activeProviderCount: number;
 	isGatewayActive: boolean;
 	pricingPromise: ReturnType<typeof fetchFrontendModelPricing>;
-	gatewayMetadataPromise: ReturnType<typeof fetchFrontendModelGatewayMetadata>;
+	gatewayMetadataPromise: Promise<
+		Awaited<ReturnType<typeof fetchFrontendModelGatewayMetadata>> | null
+	>;
 }) {
 	const [pricing, timeline, gatewayMetadata] = await Promise.all([
 		pricingPromise,
@@ -221,7 +223,9 @@ export default async function Page({
 	const subscriptionPromise = fetchFrontendModelSubscriptionPlans(modelId).catch(() => []);
 	const availabilityPromise = fetchFrontendModelAvailability(modelId).catch(() => undefined);
 	const pricingPromise = fetchFrontendModelPricing(modelId).catch(() => []);
-	const gatewayMetadataPromise = fetchFrontendModelGatewayMetadata(modelId);
+	const gatewayMetadataPromise = fetchFrontendModelGatewayMetadata(modelId).catch(
+		() => null,
+	);
 	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability] =
 		await Promise.all([
 			modelPromise,

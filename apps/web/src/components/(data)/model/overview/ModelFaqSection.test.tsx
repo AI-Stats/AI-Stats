@@ -174,7 +174,7 @@ describe("ModelFaqSection", () => {
 			...gatewayMetadata,
 			supportedParametersByEndpoint: { "chat.completions": [
 				{ param_id: "tools", provider_count_supported: 0, provider_count_total: 1, support_level: "no_providers", providers: [] },
-				{ param_id: "native_structured_outputs", provider_count_supported: 0, provider_count_total: 1, support_level: "no_providers", providers: [] },
+				{ param_id: "structured_outputs", provider_count_supported: 0, provider_count_total: 1, support_level: "no_providers", providers: [] },
 			] },
 		} as unknown as ModelGatewayMetadata;
 		const unsupportedHtml = renderToStaticMarkup(
@@ -209,14 +209,14 @@ describe("ModelFaqSection", () => {
 		);
 	});
 
-	it("does not treat legacy structured-output metadata as native schema enforcement", () => {
+	it("uses emitted structured-output metadata without claiming native schema enforcement", () => {
 		const legacyOnly = {
 			...gatewayMetadata,
 			supportedParametersByEndpoint: { "chat.completions": gatewayMetadata.supportedParametersByEndpoint["chat.completions"].filter(row => row.param_id !== "native_structured_outputs") },
 		} as unknown as ModelGatewayMetadata;
 		const html = renderToStaticMarkup(<ModelFaqSection model={model} benchmarkCount={0} activeProviderCount={1} isGatewayActive pricing={[]} gatewayMetadata={legacyOnly} />);
 
-		expect(html).toContain("does not currently have enough active route metadata to confirm whether Alpha 1 supports structured outputs");
+		expect(html).toContain("At least one active provider route for Alpha 1 currently advertises structured outputs support");
 	});
 
 	it("does not link to a pricing section for an inactive model", () => {
