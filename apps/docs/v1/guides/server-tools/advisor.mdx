@@ -80,7 +80,6 @@ If `parameters.model` is omitted, the tool call may provide `model`. If neither 
 | `max_tokens` | integer | `1400` | Legacy alias for `max_completion_tokens`. |
 | `reasoning` | object | provider default | Reasoning config forwarded to the Advisor call when supported by the selected model/provider. |
 | `temperature` | number | provider default | Sampling temperature for the Advisor call. |
-| `tools` | array | none | Tools exposed to the Advisor model during its call. |
 
 ## Tool-call arguments
 
@@ -170,7 +169,7 @@ The Advisor model's tokens are included in total usage and can be priced at the 
 ## Current limits
 
 - Advisor advice streaming is not enabled yet.
-- Recursive Advisor calls are blocked by the server-tool loop limits.
+- Advisor calls do not expose additional tools to the consulted model.
 
 ## Related
 

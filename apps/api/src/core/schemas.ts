@@ -576,7 +576,6 @@ const GatewayAdvisorToolSchema = z.object({
 		max_completion_tokens: z.number().int().min(1024).optional(),
 		reasoning: z.record(z.string(), z.unknown()).optional(),
 		temperature: z.number().min(0).max(2).optional(),
-		tools: z.array(z.record(z.string(), z.any())).optional(),
 	}).optional(),
 	name: z.string().trim().min(1).max(64).regex(/^[A-Za-z0-9 _-]+$/).optional(),
 	model: z.string().min(1).optional(),
@@ -587,7 +586,6 @@ const GatewayAdvisorToolSchema = z.object({
 	max_completion_tokens: z.number().int().min(1024).optional(),
 	reasoning: z.record(z.string(), z.unknown()).optional(),
 	temperature: z.number().min(0).max(2).optional(),
-	tools: z.array(z.record(z.string(), z.any())).optional(),
 });
 
 const GatewaySubagentToolSchema = z.object({
@@ -600,7 +598,6 @@ const GatewaySubagentToolSchema = z.object({
 		max_completion_tokens: z.number().int().min(1024).optional(),
 		reasoning: z.record(z.string(), z.unknown()).optional(),
 		temperature: z.number().min(0).max(2).optional(),
-		tools: z.array(z.record(z.string(), z.any())).optional(),
 	}).optional(),
 	model: z.string().min(1).optional(),
 	instructions: z.string().min(1).optional(),
@@ -609,7 +606,6 @@ const GatewaySubagentToolSchema = z.object({
 	max_completion_tokens: z.number().int().min(1024).optional(),
 	reasoning: z.record(z.string(), z.unknown()).optional(),
 	temperature: z.number().min(0).max(2).optional(),
-	tools: z.array(z.record(z.string(), z.any())).optional(),
 });
 
 const GatewayFusionToolSchema = z.object({

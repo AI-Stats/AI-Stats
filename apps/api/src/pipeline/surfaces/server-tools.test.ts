@@ -658,6 +658,40 @@ describe("buildServerToolContinuation", () => {
 		});
 	});
 
+	it("rejects a round that would exceed the remaining server-tool budget before execution", async () => {
+		const continuation = await buildServerToolContinuation(
+			{
+				choices: [{
+					message: {
+						role: "assistant",
+						content: [],
+						toolCalls: [
+							{ id: "call_one", name: "gateway_datetime", arguments: "{}" },
+							{ id: "call_two", name: "gateway_datetime", arguments: "{}" },
+						],
+					},
+					finishReason: "tool_calls",
+				}],
+			} as any,
+			{
+				enabled: true,
+				datetimeDefaultTimezones: ["UTC"],
+				webSearchEnabled: false,
+				webSearchMaxResults: 5,
+				webSearchIncludeText: false,
+				webSearchIncludeHighlights: true,
+				webFetchEnabled: false,
+				webFetchMaxChars: 12000,
+			},
+			{ remainingToolCalls: 1 },
+		);
+
+		expect(continuation?.limitExceeded).toBe(true);
+		expect(continuation?.serverToolCallCount).toBe(2);
+		expect(continuation?.toolResults).toEqual([]);
+		expect(continuation?.usage.datetimeRequests).toBe(0);
+	});
+
 	it("returns datetime results for multiple timezones", async () => {
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date("2026-07-03T09:00:00.123Z"));

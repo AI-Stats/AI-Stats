@@ -329,7 +329,6 @@ export type AdvisorServerToolConfig = {
 	maxTokens: number;
 	reasoning?: Record<string, unknown>;
 	temperature?: number;
-	tools?: any[];
 };
 
 export type SubagentServerToolConfig = Omit<AdvisorServerToolConfig, "functionName" | "forwardTranscript" | "name"> & {
@@ -430,6 +429,8 @@ export type ServerToolExecutionMetrics = {
 export type ServerToolContinuation = {
 	assistantMessage: Extract<IRMessage, { role: "assistant" }>;
 	toolResults: IRToolResult[];
+	serverToolCallCount: number;
+	limitExceeded?: boolean;
 	usage: ServerToolExecutionMetrics;
 	advisorUsage?: IRUsage;
 	imageGenerationUsage?: IRUsage;
@@ -452,7 +453,6 @@ export type AdvisorExecutor = (args: {
 	forwardTranscript: boolean;
 	reasoning?: Record<string, unknown>;
 	temperature?: number;
-	tools?: any[];
 }) => Promise<AdvisorExecutionResult>;
 
 export type ModelSearchExecutor = (args: Record<string, unknown> & { maxResults: number }) => Promise<unknown>;
@@ -738,9 +738,6 @@ function parseAdvisorToolDefaults(tool: any): AdvisorServerToolConfig | { error:
 			: typeof tool?.temperature === "number"
 				? tool.temperature
 				: undefined;
-	const nestedTools = Array.isArray(parameters?.tools ?? tool?.tools)
-		? (parameters?.tools ?? tool?.tools)
-		: undefined;
 	return {
 		functionName: sanitizeAdvisorFunctionName(name),
 		...(name ? { name } : {}),
@@ -755,7 +752,6 @@ function parseAdvisorToolDefaults(tool: any): AdvisorServerToolConfig | { error:
 			: DEFAULT_ADVISOR_MAX_TOKENS,
 		...(reasoning ? { reasoning } : {}),
 		...(typeof temperature === "number" ? { temperature } : {}),
-		...(nestedTools ? { tools: nestedTools } : {}),
 	};
 }
 
@@ -2947,6 +2943,7 @@ export async function buildServerToolContinuation(
 		executeAdvisor?: AdvisorExecutor;
 		executeImageGeneration?: ImageGenerationExecutor;
 		searchModels?: ModelSearchExecutor;
+		remainingToolCalls?: number;
 	},
 ) : Promise<ServerToolContinuation | null> {
 	if (!config.enabled) return null;
@@ -2976,6 +2973,23 @@ export async function buildServerToolContinuation(
 	);
 	// If mixed with advertised client-managed function calls, skip server execution for this turn.
 	if (clientToolCalls.length > 0) return null;
+	if (
+		typeof options?.remainingToolCalls === "number" &&
+		serverToolCalls.length > Math.max(0, options.remainingToolCalls)
+	) {
+		return {
+			assistantMessage: firstChoice.message,
+			toolResults: [],
+			serverToolCallCount: serverToolCalls.length,
+			usage: {
+				datetimeRequests: 0, webSearchRequests: 0, webSearchResults: 0,
+				webSearchExtraResults: 0, webFetchRequests: 0, advisorRequests: 0,
+				imageGenerationRequests: 0, applyPatchRequests: 0, subagentRequests: 0,
+				fusionRequests: 0, searchModelsRequests: 0,
+			},
+			limitExceeded: true,
+		};
+	}
 
 	const toolResults: IRToolResult[] = [];
 	let advisorUsage: IRUsage | undefined;
@@ -3188,7 +3202,6 @@ export async function buildServerToolContinuation(
 				forwardTranscript: false,
 				reasoning: config.subagent.reasoning,
 				temperature: config.subagent.temperature,
-				tools: config.subagent.tools,
 			});
 			if (result.ok) {
 				toolResults.push({ toolCallId: call.id, content: JSON.stringify({ status: "ok", model: config.subagent.model, outcome: result.content }) });
@@ -3332,6 +3345,7 @@ export async function buildServerToolContinuation(
 				: {}),
 		},
 		toolResults,
+		serverToolCallCount: serverToolCalls.length,
 		usage,
 		advisorUsage,
 		imageGenerationUsage,

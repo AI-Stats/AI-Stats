@@ -163,7 +163,6 @@ async function executeAdvisorModel(args: {
 	forwardTranscript: boolean;
 	reasoning?: Record<string, unknown>;
 	temperature?: number;
-	tools?: any[];
 	messages: IRChatRequest["messages"];
 }): Promise<{ ok: true; content: string; usage?: IRChatResponse["usage"] } | { ok: false; message: string }> {
 	const apiKeyId = args.pre.ctx.keyId;
@@ -225,8 +224,8 @@ async function executeAdvisorModel(args: {
 				content: [{ type: "text", text: advisorPrompt }],
 			},
 		],
-		tools: (args.tools ?? []) as any,
-		toolChoice: args.tools?.length ? "auto" : "none",
+		tools: [],
+		toolChoice: "none",
 	};
 	const advisorCtx: PipelineContext = {
 		...args.pre.ctx,
@@ -882,7 +881,6 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 								forwardTranscript: advisorArgs.forwardTranscript,
 								reasoning: advisorArgs.reasoning,
 								temperature: advisorArgs.temperature,
-								tools: advisorArgs.tools,
 								messages: nextIrRequest.messages,
 							}),
 						executeImageGeneration: async (imageArgs) =>
@@ -918,11 +916,11 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 							const matched = filtered.slice(0, searchArgs.maxResults);
 							return { models: matched.map((model) => ({ id: model.model_id, name: model.name, description: model.description, input_modalities: model.input_types, output_modalities: model.output_types, providers: model.providers.map((item) => item.api_provider_id), supported_params: model.supported_params, pricing: model.pricing })), total_results: filtered.length, showing: matched.length };
 						},
+						remainingToolCalls: maxServerToolCalls - serverToolCalls,
 					},
 				);
 				if (!continuation) break;
-				serverToolCalls += continuation.toolResults.length;
-				if (serverToolCalls > maxServerToolCalls) {
+				if ("limitExceeded" in continuation) {
 					const header = timing.timer.header();
 					pre.ctx.timing = timing.timer.snapshot();
 					return await handleError({
@@ -931,6 +929,7 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 						endpoint, ctx: pre.ctx, timingHeader: header || undefined, auditFailure, req,
 					});
 				}
+				serverToolCalls += continuation.serverToolCallCount ?? continuation.toolResults.length;
 				if (serverToolRounds >= maxServerToolRounds) {
 					const header = timing.timer.header();
 					pre.ctx.timing = timing.timer.snapshot();
