@@ -18,6 +18,7 @@ export type ModelCandidate = {
   id: string;
   name: string;
   labName: string;
+  labSlug?: string;
 };
 
 export type GameModel = ModelCandidate & {
@@ -54,5 +55,10 @@ export function isGameKey(value: string): value is GameKey {
 }
 
 export function toCandidate(model: GameModel): ModelCandidate {
-  return { id: model.id, name: model.name, labName: model.labName };
+  return {
+    id: model.id,
+    name: model.name,
+    labName: model.labName,
+    labSlug: model.labSlug,
+  };
 }

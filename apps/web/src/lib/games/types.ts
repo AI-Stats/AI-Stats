@@ -7,7 +7,12 @@ export const GAME_KEYS = [
 ] as const;
 export type GameKey = (typeof GAME_KEYS)[number];
 
-export type ModelCandidate = { id: string; name: string; labName: string };
+export type ModelCandidate = {
+  id: string;
+  name: string;
+  labName: string;
+  labSlug?: string;
+};
 
 type PuzzleBase = { game: GameKey; puzzleId: string; date: string };
 

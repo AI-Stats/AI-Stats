@@ -15,16 +15,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  ModelSelector,
-  ModelSelectorContent,
-  ModelSelectorEmpty,
-  ModelSelectorGroup,
-  ModelSelectorInput,
-  ModelSelectorItem,
-  ModelSelectorList,
-  ModelSelectorTrigger,
-} from "@/components/ai-elements/model-selector";
+import { ModelSearchDropdown } from "@/components/model-picker/ModelSearchDropdown";
 import {
   Card,
   CardContent,
@@ -124,6 +115,16 @@ function ModelPicker({
     [candidates, usedIds]
   );
   const selected = available.find((candidate) => candidate.id === value);
+  const options = useMemo(
+    () =>
+      available.map((candidate) => ({
+        value: candidate.id,
+        label: candidate.name,
+        description: candidate.labName,
+        logoId: candidate.labSlug ?? candidate.id.split("/")[0],
+      })),
+    [available]
+  );
   return (
     <form
       className="flex flex-col gap-2 sm:flex-row"
@@ -140,62 +141,14 @@ function ModelPicker({
       }}
     >
       <div className="min-w-0 flex-1">
-        <ModelSelector open={open} onOpenChange={setOpen}>
-          <ModelSelectorTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={disabled || pending}
-              className={cn(
-                "h-10 w-full justify-between rounded-xl px-3 font-normal",
-                !selected && "text-muted-foreground"
-              )}
-            >
-              <span className="min-w-0 truncate text-left">
-                {selected ? `${selected.name} · ${selected.labName}` : "Select a model"}
-              </span>
-              <ChevronDown className="size-4 shrink-0 opacity-60" />
-            </Button>
-          </ModelSelectorTrigger>
-          <ModelSelectorContent
-            title="Select a model"
-            className="w-[min(92vw,720px)] max-w-2xl"
-          >
-            <ModelSelectorInput placeholder="Search models..." />
-            <ModelSelectorList className="max-h-[min(60vh,30rem)]" viewportClassName="p-2">
-              <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
-              <ModelSelectorGroup
-                heading="Models"
-                className="[&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-foreground"
-              >
-                {available.map((candidate) => (
-                  <ModelSelectorItem
-                    key={candidate.id}
-                    value={candidate.id}
-                    keywords={[candidate.name, candidate.labName]}
-                    onSelect={() => {
-                      setValue(candidate.id);
-                      setOpen(false);
-                    }}
-                    className="flex min-h-10 items-center justify-between gap-3 rounded-lg px-3 py-2"
-                  >
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium">
-                        {candidate.name}
-                      </span>
-                      <span className="block truncate text-xs text-muted-foreground">
-                        {candidate.labName}
-                      </span>
-                    </span>
-                    {selected?.id === candidate.id ? (
-                      <Check className="size-4 shrink-0" />
-                    ) : null}
-                  </ModelSelectorItem>
-                ))}
-              </ModelSelectorGroup>
-            </ModelSelectorList>
-          </ModelSelectorContent>
-        </ModelSelector>
+        <ModelSearchDropdown
+          value={value}
+          onValueChange={setValue}
+          options={options}
+          open={open}
+          onOpenChange={setOpen}
+          disabled={disabled || pending}
+        />
       </div>
       <Button
         type="submit"
