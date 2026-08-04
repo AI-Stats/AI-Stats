@@ -119,6 +119,29 @@ function parseProviderPreferencesInput(value: string): Record<string, number> {
 	);
 }
 
+function normalizeProviderReference(
+	value: string,
+	providers: APIProviderCard[],
+): string {
+	const comparable = (candidate: string) =>
+		candidate.toLowerCase().replace(/[^a-z0-9]/g, "");
+	const normalizedValue = comparable(value);
+	const provider = providers.find(
+		(candidate) =>
+			comparable(candidate.api_provider_id) === normalizedValue ||
+			comparable(candidate.api_provider_name) === normalizedValue ||
+			comparable(getProviderLogoId(candidate.api_provider_name)) === normalizedValue,
+	);
+	return provider?.api_provider_id ?? value;
+}
+
+function normalizeProviderReferences(
+	values: string[] | undefined,
+	providers: APIProviderCard[],
+): string[] {
+	return [...new Set((values ?? []).map((value) => normalizeProviderReference(value, providers)))];
+}
+
 export default function EditPresetItem({ p, providers = [] }: EditPresetItemProps) {
 	const [open, setOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -145,14 +168,17 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 		p.config?.models || []
 	);
 	const [providerOnly, setProviderOnly] = useState<string[]>(
-		p.config?.only_providers || []
+		normalizeProviderReferences(p.config?.only_providers, providers),
 	);
 	const [providerIgnore, setProviderIgnore] = useState<string[]>(
-		p.config?.ignore_providers || []
+		normalizeProviderReferences(p.config?.ignore_providers, providers),
 	);
 	const [providerPreferencesText, setProviderPreferencesText] = useState(
 		Object.entries(p.config?.provider_preferences || {})
-			.map(([providerId, weight]) => `${providerId}=${weight}`)
+			.map(
+				([providerId, weight]) =>
+					`${normalizeProviderReference(providerId, providers)}=${weight}`,
+			)
 			.join("\n"),
 	);
 
