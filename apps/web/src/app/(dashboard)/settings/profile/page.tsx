@@ -7,16 +7,18 @@ import { fetchSettingsProfileGames } from "@/lib/fetchers/internal/fetchSettings
 import { fetchSettingsProfileInitialData } from "@/lib/fetchers/internal/fetchSettingsProfileInitialData"
 import { fetchSettingsProfileUsageSummary } from "@/lib/fetchers/internal/fetchSettingsProfileUsageSummary"
 import { buildProfileShareCardPayload } from "@/lib/profileShare"
+import { catalogueGamesEnabled } from "@/lib/games/preview"
 
 export const metadata = {
 	title: "Profile - Settings",
 }
 
 export default async function ProfileSettingsPage() {
+	const gamesEnabled = await catalogueGamesEnabled()
 	const [{ profile: profileIdentity, obfuscateInfo }, { usage }, { games }] = await Promise.all([
 		fetchSettingsProfileInitialData(),
 		fetchSettingsProfileUsageSummary(),
-		fetchSettingsProfileGames(),
+		gamesEnabled ? fetchSettingsProfileGames() : Promise.resolve({ games: null }),
 	])
 
 	if (!profileIdentity) {
@@ -36,7 +38,7 @@ export default async function ProfileSettingsPage() {
 				profile={profile}
 				actions={<ProfileShareControls payload={sharePayload} />}
 			/>
-			<ProfileGames summary={games} />
+			{gamesEnabled ? <ProfileGames summary={games} /> : null}
 		</div>
 	)
 }

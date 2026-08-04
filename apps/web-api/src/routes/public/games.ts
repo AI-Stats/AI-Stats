@@ -58,16 +58,15 @@ publicGamesRouter.post("/:game/check", async (c) => {
     );
     if (completion) {
       const user = await requireUser(c.req.raw, c.env);
-      if (user) {
-        try {
-          await persistGameCompletion(c.env, user, puzzle, completion);
-        } catch (error) {
-          console.error("[web-api/games] result persistence failed", {
-            game,
-            userId: user.id,
-            error,
-          });
-        }
+      if (!user) return c.json({ error: "unauthorized" }, 401);
+      try {
+        await persistGameCompletion(c.env, user, puzzle, completion);
+      } catch (error) {
+        console.error("[web-api/games] result persistence failed", {
+          game,
+          userId: user.id,
+          error,
+        });
       }
     }
     return c.json(evaluation, 200, {
