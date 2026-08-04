@@ -1,8 +1,44 @@
-drop index if exists public.presets_public_slug_key;
+drop index concurrently if exists public.presets_public_slug_key;
 
-create unique index if not exists presets_public_publisher_slug_key
-  on public.presets (created_by, slug)
+-- Public presets without a publisher cannot be addressed. Preserve them as
+-- workspace presets instead of leaving unreachable marketplace rows behind.
+update public.presets
+set visibility = 'team'
+where visibility = 'public'
+  and created_by is null;
+
+-- Preserve every preset while making existing publisher/slug collisions
+-- deterministic before the case-insensitive unique index is installed.
+with duplicate_slugs as (
+  select id, row_number() over (
+    partition by created_by, lower(slug)
+    order by created_at, id
+  ) as duplicate_number
+  from public.presets
+  where visibility = 'public'
+    and created_by is not null
+    and nullif(slug, '') is not null
+)
+update public.presets p
+set slug = p.slug || '-' || left(p.id::text, 8)
+from duplicate_slugs duplicates
+where p.id = duplicates.id
+  and duplicates.duplicate_number > 1;
+
+alter table public.presets
+  add constraint presets_public_requires_creator
+  check (visibility <> 'public' or created_by is not null)
+  not valid;
+
+alter table public.presets
+  validate constraint presets_public_requires_creator;
+
+create unique index concurrently if not exists presets_public_publisher_slug_key
+  on public.presets (created_by, lower(slug))
   where visibility = 'public';
+
+create index concurrently if not exists presets_workspace_slug_ci_idx
+  on public.presets (workspace_id, lower(slug));
 
 comment on index public.presets_public_publisher_slug_key is
   'Public preset slugs are unique per publisher; invoke them as @publisher/slug.';
@@ -58,7 +94,7 @@ begin
       ) into preset_data
       from public.presets p
       join public.users u on u.user_id = p.created_by
-      where p.slug = preset_name
+      where lower(p.slug) = lower(preset_name)
         and p.visibility = 'public'
         and u.public_profile_enabled = true
         and lower(u.public_profile_slug) = lower(preset_publisher)
@@ -70,7 +106,7 @@ begin
         'description', p.description, 'config', p.config, 'visibility', p.visibility
       ) into preset_data
       from public.presets p
-      where coalesce(nullif(p.slug, ''), regexp_replace(p.name, '^@', '')) = preset_name
+      where lower(coalesce(nullif(p.slug, ''), regexp_replace(p.name, '^@', ''))) = lower(preset_name)
         and p.workspace_id = gateway_fetch_request_context.workspace_id
         and (
           p.visibility in ('public', 'team')

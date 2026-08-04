@@ -100,7 +100,10 @@ function buildPresetSlugPreview(value: string): string {
 		.replace(/^[-._:]+|[-._:]+$/g, "");
 }
 
-function parseProviderPreferencesInput(value: string): Record<string, number> {
+function parseProviderPreferencesInput(
+	value: string,
+	providers: APIProviderCard[] = [],
+): Record<string, number> {
 	return Object.fromEntries(
 		value
 			.split("\n")
@@ -109,7 +112,10 @@ function parseProviderPreferencesInput(value: string): Record<string, number> {
 			.map((line) => line.split(/[=:]/, 2).map((part) => part.trim()))
 			.map(([providerId, weight]) => {
 				const numericWeight = Number.parseFloat(weight ?? "");
-				return [providerId.toLowerCase(), numericWeight] as const;
+				return [
+					normalizeProviderReference(providerId, providers),
+					numericWeight,
+				] as const;
 			})
 			.filter((entry) => {
 				const providerId = entry[0];
@@ -323,6 +329,7 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 
 		const providerPreferences = parseProviderPreferencesInput(
 			providerPreferencesText,
+			providers,
 		);
 		if (Object.keys(providerPreferences).length > 0) {
 			config.provider_preferences = providerPreferences;

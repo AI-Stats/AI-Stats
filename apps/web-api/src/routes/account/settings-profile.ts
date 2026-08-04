@@ -333,7 +333,8 @@ accountSettingsProfileRouter.get("/profile", async (c) => {
 	if (userResult.error) return c.json({ error: "profile_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const displayName = String(userResult.data?.display_name ?? user.userMetadata.display_name ?? user.userMetadata.name ?? user.email?.split("@")[0] ?? "Phaseo User").trim() || "Phaseo User";
 	const workspaceId = String(userResult.data?.default_workspace_id ?? "").trim() || null;
-	const slug = normalizePublicProfileSlug(userResult.data?.public_profile_slug) || profileSlug(displayName, user.id);
+	const storedSlug = normalizePublicProfileSlug(userResult.data?.public_profile_slug) || null;
+	const suggestedSlug = profileSlug(displayName, user.id);
 	let workspaceName: string | null = "Personal";
 	if (workspaceId) {
 		const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
@@ -344,8 +345,9 @@ accountSettingsProfileRouter.get("/profile", async (c) => {
 	}
 	const profile = {
 		userId: user.id, displayName, email: user.email, avatarUrl: typeof user.userMetadata.avatar_url === "string" ? user.userMetadata.avatar_url : null,
-		memberSince: String(userResult.data?.created_at ?? user.createdAt), workspaceName, publicProfileEnabled: Boolean(userResult.data?.public_profile_enabled), publicProfileSlug: slug,
-		shareUrl: `https://phaseo.app/profile/${slug}`,
+		memberSince: String(userResult.data?.created_at ?? user.createdAt), workspaceName, publicProfileEnabled: Boolean(userResult.data?.public_profile_enabled), publicProfileSlug: storedSlug,
+		suggestedProfileSlug: suggestedSlug,
+		shareUrl: storedSlug ? `https://phaseo.app/profile/${storedSlug}` : null,
 		...emptyProfileUsage(),
 	};
 	const override = c.req.query("obfuscateInfo");
