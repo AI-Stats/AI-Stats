@@ -321,6 +321,7 @@ pub struct BatchModelsResponse {
 
 pub struct BatchProviderCapability {
 	pub documentation_url: Option<String>,
+	pub endpoints: Option<Vec<HashMap<String, String>>>,
 	pub gateway_input_modes: Option<Vec<String>>,
 	pub id: Option<String>,
 	pub name: Option<String>,
@@ -420,6 +421,7 @@ pub struct BatchResponse {
 	pub request_id: Option<String>,
 	pub session_id: Option<String>,
 	pub status: Option<String>,
+	pub usage: Option<HashMap<String, String>>,
 	pub webhook: Option<HashMap<String, String>>,
 	pub websocket_url: Option<String>,
 }

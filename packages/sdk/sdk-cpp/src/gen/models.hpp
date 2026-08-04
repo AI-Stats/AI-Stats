@@ -325,6 +325,7 @@ struct BatchModelsResponse {
 
 struct BatchProviderCapability {
 	std::string documentation_url;
+	std::vector<std::map<std::string, std::any>> endpoints;
 	std::vector<std::any> gateway_input_modes;
 	std::string id;
 	std::string name;
@@ -336,7 +337,7 @@ struct BatchProviderCapability {
 struct BatchRequest {
 	std::string completion_window;
 	std::map<std::string, std::any> debug;
-	std::string endpoint;
+	std::any endpoint;
 	std::string input_file_id;
 	std::vector<std::map<std::string, std::any>> items;
 	std::optional<int> max_tokens;
@@ -361,7 +362,7 @@ struct BatchRequestCounts {
 struct BatchRequestItem {
 	std::map<std::string, std::any> body;
 	std::string custom_id;
-	std::string method;
+	std::any method;
 	std::string url;
 };
 
@@ -424,6 +425,7 @@ struct BatchResponse {
 	std::string request_id;
 	std::string session_id;
 	std::string status;
+	std::map<std::string, std::any> usage;
 	std::map<std::string, std::any> webhook;
 	std::string websocket_url;
 };

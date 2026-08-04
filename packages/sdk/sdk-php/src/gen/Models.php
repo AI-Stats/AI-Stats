@@ -572,6 +572,8 @@ class BatchProviderCapability
 	/** @var string|null */
 	public $documentation_url;
 	/** @var array|null */
+	public $endpoints;
+	/** @var array|null */
 	public $gateway_input_modes;
 	/** @var string|null */
 	public $id;
@@ -759,6 +761,8 @@ class BatchResponse
 	public $session_id;
 	/** @var string|null */
 	public $status;
+	/** @var array<string, mixed>|null */
+	public $usage;
 	/** @var array<string, mixed>|null */
 	public $webhook;
 	/** @var string|null */

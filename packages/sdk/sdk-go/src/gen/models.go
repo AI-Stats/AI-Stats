@@ -319,6 +319,7 @@ type BatchModelsResponse struct {
 
 type BatchProviderCapability struct {
 	DocumentationUrl *string `json:"documentation_url,omitempty"`
+	Endpoints *[]map[string]interface{} `json:"endpoints,omitempty"`
 	GatewayInputModes *[]string `json:"gateway_input_modes,omitempty"`
 	Id *string `json:"id,omitempty"`
 	Name *string `json:"name,omitempty"`
@@ -418,6 +419,7 @@ type BatchResponse struct {
 	RequestId *string `json:"request_id,omitempty"`
 	SessionId *string `json:"session_id,omitempty"`
 	Status *string `json:"status,omitempty"`
+	Usage *map[string]interface{} `json:"usage,omitempty"`
 	Webhook *map[string]interface{} `json:"webhook,omitempty"`
 	WebsocketUrl *string `json:"websocket_url,omitempty"`
 }

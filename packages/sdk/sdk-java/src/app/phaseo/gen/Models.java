@@ -323,6 +323,7 @@ public final class Models {
 
 	public static class BatchProviderCapability {
 		public String documentation_url;
+		public java.util.List<Object> endpoints;
 		public java.util.List<Object> gateway_input_modes;
 		public String id;
 		public String name;
@@ -334,7 +335,7 @@ public final class Models {
 	public static class BatchRequest {
 		public String completion_window;
 		public Object debug;
-		public String endpoint;
+		public Object endpoint;
 		public String input_file_id;
 		public java.util.List<Object> items;
 		public Integer max_tokens;
@@ -359,7 +360,7 @@ public final class Models {
 	public static class BatchRequestItem {
 		public Object body;
 		public String custom_id;
-		public String method;
+		public Object method;
 		public String url;
 	}
 
@@ -422,6 +423,7 @@ public final class Models {
 		public String request_id;
 		public String session_id;
 		public String status;
+		public Object usage;
 		public Object webhook;
 		public String websocket_url;
 	}

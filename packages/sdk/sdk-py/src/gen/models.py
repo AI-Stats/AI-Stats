@@ -288,6 +288,7 @@ class BatchModelsResponse(TypedDict):
 
 class BatchProviderCapability(TypedDict):
 	documentation_url: NotRequired[str]
+	endpoints: NotRequired[List[Dict[str, Any]]]
 	gateway_input_modes: NotRequired[List[Literal["file", "requests"]]]
 	id: NotRequired[str]
 	name: NotRequired[str]
@@ -298,7 +299,7 @@ class BatchProviderCapability(TypedDict):
 class BatchRequest(TypedDict):
 	completion_window: NotRequired[str]
 	debug: NotRequired[Dict[str, Any]]
-	endpoint: NotRequired[str]
+	endpoint: NotRequired[Literal["/v1/chat/completions", "/v1/responses", "/v1/messages", "/v1/embeddings", "/v1/generateContent"]]
 	input_file_id: NotRequired[str]
 	items: NotRequired[List[Dict[str, Any]]]
 	max_tokens: NotRequired[int]
@@ -321,7 +322,7 @@ class BatchRequestCounts(TypedDict):
 class BatchRequestItem(TypedDict):
 	body: Dict[str, Any]
 	custom_id: NotRequired[str]
-	method: NotRequired[str]
+	method: NotRequired[Literal["POST"]]
 	url: NotRequired[str]
 
 class BatchRequestRow(TypedDict):
@@ -382,6 +383,7 @@ class BatchResponse(TypedDict):
 	request_id: NotRequired[str]
 	session_id: NotRequired[str]
 	status: NotRequired[str]
+	usage: NotRequired[Dict[str, Any]]
 	webhook: NotRequired[Dict[str, Any]]
 	websocket_url: NotRequired[str]
 
