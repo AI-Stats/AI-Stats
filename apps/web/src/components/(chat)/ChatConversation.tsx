@@ -6,6 +6,10 @@ import { MessageScroller } from "@shadcn/react/message-scroller";
 import { ChatConversationComposer } from "@/components/(chat)/ChatConversationComposer";
 import { ChatConversationMessages } from "@/components/(chat)/ChatConversationMessages";
 import type { ChatRequestErrorDetails } from "@/components/(chat)/ChatRequestErrorNotice";
+import {
+	shouldResetComposerForConversationChange,
+	type ComposerConversationState,
+} from "@/components/(chat)/chatComposerConversationChange";
 import type {
 	ChatServerToolConfigs,
 	ChatServerToolType,
@@ -59,6 +63,7 @@ type ChatConversationProps = {
 	isSending: boolean;
 	isAuthenticated: boolean;
 	temporaryMode?: boolean;
+	temporaryReturnThreadId?: string | null;
 	mode?: "classic" | "unified";
 	webSearchEnabled?: boolean;
 	onWebSearchEnabledChange?: (enabled: boolean) => void;
@@ -109,6 +114,7 @@ export function ChatConversation({
 	isSending,
 	isAuthenticated,
 	temporaryMode = false,
+	temporaryReturnThreadId = null,
 	mode = "classic",
 	webSearchEnabled = false,
 	onWebSearchEnabledChange,
@@ -205,10 +211,30 @@ export function ChatConversation({
 	);
 
 	const activeThreadId = activeThread?.id ?? null;
+	const previousConversationStateRef = useRef<ComposerConversationState | null>(
+		null,
+	);
 	const lastMessageId =
 		activeThread?.messages[activeThread.messages.length - 1]?.id ?? null;
 
 	useEffect(() => {
+		const currentConversationState = {
+			activeThreadId,
+			temporaryReturnThreadId,
+			temporaryMode,
+		};
+		const shouldReset = shouldResetComposerForConversationChange(
+			previousConversationStateRef.current,
+			currentConversationState,
+		);
+		previousConversationStateRef.current = currentConversationState;
+		if (!shouldReset) {
+			if (shouldFocusComposerAfterThreadChange()) {
+				textareaRef.current?.focus();
+			}
+			return;
+		}
+
 		const raf = requestAnimationFrame(() => {
 			setComposer("");
 			setAttachments([]);
@@ -219,7 +245,7 @@ export function ChatConversation({
 			}
 		});
 		return () => cancelAnimationFrame(raf);
-	}, [activeThreadId]);
+	}, [activeThreadId, temporaryMode, temporaryReturnThreadId]);
 
 	useEffect(() => {
 		const requiresAudioInput = attachments.some((attachment) =>
