@@ -27,7 +27,7 @@ const ICONS: Record<GameKey, React.ComponentType<{ className?: string }>> = {
 export function GameHub() {
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,var(--color-muted),transparent_42%)] px-4 py-12 sm:py-16">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-5xl [&_[data-slot=button]]:rounded-lg">
         <div className="mb-10 max-w-2xl">
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
             Catalogue lab
@@ -48,11 +48,11 @@ export function GameHub() {
               <Link
                 key={game}
                 href={info.path}
-                className="group rounded-[24px] outline-none focus-visible:ring-3 focus-visible:ring-ring/30"
+                className="group rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/30"
               >
-                <Card className="h-full transition-transform duration-200 group-hover:-translate-y-1">
+                <Card className="h-full gap-3 rounded-lg py-4 transition-transform duration-200 [--card-spacing:--spacing(4)] group-hover:-translate-y-1">
                   <CardHeader>
-                    <div className="mb-6 flex size-10 items-center justify-center rounded-2xl bg-foreground text-background">
+                    <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-foreground text-background">
                       <Icon className="size-5" />
                     </div>
                     <CardTitle className="text-xl">{info.title}</CardTitle>

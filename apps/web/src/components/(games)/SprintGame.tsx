@@ -24,6 +24,9 @@ type SprintState = {
   answers: ModelCandidate[] | null;
 };
 
+const GAME_CARD_CLASS =
+  "gap-3 rounded-lg py-3 [--card-spacing:--spacing(3)]";
+
 export function SprintGame({ puzzle }: { puzzle: SprintPuzzle }) {
   const initial: SprintState = {
     found: [],
@@ -80,7 +83,7 @@ export function SprintGame({ puzzle }: { puzzle: SprintPuzzle }) {
 
   return (
     <div className="space-y-5">
-      <Card>
+      <Card className={GAME_CARD_CLASS}>
         <CardHeader>
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -89,7 +92,7 @@ export function SprintGame({ puzzle }: { puzzle: SprintPuzzle }) {
                 {puzzle.category.label}
               </CardTitle>
             </div>
-            <div className="flex items-center gap-2 rounded-2xl bg-muted px-4 py-2 font-mono text-xl font-semibold">
+            <div className="flex items-center gap-2 rounded-lg bg-muted px-4 py-2 font-mono text-xl font-semibold">
               <Clock3 className="size-5" />
               {secondsLeft}s
             </div>
@@ -99,7 +102,7 @@ export function SprintGame({ puzzle }: { puzzle: SprintPuzzle }) {
           {state.startedAt == null ? (
             <Button
               size="lg"
-              className="w-full"
+              className="w-full rounded-lg"
               onClick={() => {
                 const next = { ...state, startedAt: Date.now() };
                 setNow(Date.now());
@@ -134,11 +137,12 @@ export function SprintGame({ puzzle }: { puzzle: SprintPuzzle }) {
                 disabled={state.finished}
                 autoFocus
                 placeholder="Type an exact model name…"
-                className="h-10"
+                className="h-10 rounded-lg"
               />
               <Button
                 type="submit"
                 size="lg"
+                className="rounded-lg"
                 disabled={state.finished || !guess.trim()}
               >
                 Add
@@ -153,7 +157,7 @@ export function SprintGame({ puzzle }: { puzzle: SprintPuzzle }) {
           {puzzle.totalAnswers} found
         </div>
         {state.startedAt != null && !state.finished && (
-          <Button variant="ghost" size="sm" onClick={finish}>
+          <Button variant="ghost" size="sm" className="rounded-lg" onClick={finish}>
             Finish now
           </Button>
         )}
@@ -168,7 +172,7 @@ export function SprintGame({ puzzle }: { puzzle: SprintPuzzle }) {
         </div>
       )}
       {state.finished && (
-        <Card>
+        <Card className={GAME_CARD_CLASS}>
           <CardHeader>
             <CardTitle>Sprint complete</CardTitle>
             <CardDescription>
@@ -181,7 +185,7 @@ export function SprintGame({ puzzle }: { puzzle: SprintPuzzle }) {
               <div
                 key={model.id}
                 className={cn(
-                  "rounded-xl px-3 py-2 text-sm",
+                  "rounded-lg px-3 py-2 text-sm",
                   state.found.some((found) => found.id === model.id)
                     ? "bg-emerald-500/15"
                     : "bg-muted/50"

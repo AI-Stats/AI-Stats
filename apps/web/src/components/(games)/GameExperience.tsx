@@ -43,6 +43,47 @@ import {
   type TimelinePuzzle,
 } from "@/lib/games/types";
 
+const GAME_CARD_CLASS =
+  "gap-3 rounded-lg py-3 [--card-spacing:--spacing(3)]";
+
+const GAME_INSTRUCTIONS: Record<GameKey, string> = {
+  modele:
+    "Choose a model, then use developer, origin, access, release, modality, provider and family clues to narrow the answer.",
+  pricele:
+    "Guess the model from its token prices. Arrows show whether the answer’s price is higher or lower.",
+  timeline:
+    "Reorder the five models from oldest to newest, then submit the sequence.",
+  "head-to-head":
+    "Choose the model that wins each catalogue comparison across five rounds.",
+  sprint:
+    "Name as many matching models as possible before the sixty-second timer expires.",
+};
+
+function GameHowTo({ game }: { game: GameKey }) {
+  return (
+    <aside className="mt-10 border-t border-border/70 pt-5 text-sm">
+      <h2 className="font-heading font-medium">How to play</h2>
+      <p className="mt-1 max-w-3xl leading-6 text-muted-foreground">
+        {GAME_INSTRUCTIONS[game]}
+      </p>
+      {game === "modele" ? (
+        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-2">
+            <span className="size-2.5 rounded-sm bg-emerald-500/70" /> Exact
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <span className="size-2.5 rounded-sm bg-amber-500/70" /> Partial
+          </span>
+          <span>↑ ↓ The answer is higher or lower</span>
+        </div>
+      ) : null}
+      <p className="mt-3 text-xs text-muted-foreground/75">
+        Inspired by Wordle and the tradition of daily browser puzzles.
+      </p>
+    </aside>
+  );
+}
+
 function GameScaffold({
   game,
   date,
@@ -55,9 +96,9 @@ function GameScaffold({
   const info = GAME_INFO[game];
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,var(--color-muted),transparent_38%)] px-4 py-8 sm:py-12">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-6xl [&_[data-slot=button]]:rounded-lg">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <Button asChild variant="ghost">
+          <Button asChild variant="ghost" className="rounded-lg">
             <Link href="/games">
               <ArrowLeft data-icon="inline-start" />
               All games
@@ -83,12 +124,14 @@ function GameScaffold({
               asChild
               size="sm"
               variant={key === game ? "default" : "outline"}
+              className="rounded-lg"
             >
               <Link href={GAME_INFO[key].path}>{GAME_INFO[key].title}</Link>
             </Button>
           ))}
         </nav>
         {children}
+        <GameHowTo game={game} />
       </div>
     </main>
   );
@@ -222,7 +265,7 @@ function ModeleGame({ puzzle }: { puzzle: ModelePuzzle }) {
   };
   return (
     <div className="space-y-5">
-      <Card>
+      <Card className={GAME_CARD_CLASS}>
         <CardHeader>
           <CardTitle>Guess today’s model</CardTitle>
           <CardDescription>
@@ -260,7 +303,7 @@ function ModeleGame({ puzzle }: { puzzle: ModelePuzzle }) {
         {state.guesses.length} / {puzzle.maxGuesses} guesses
       </div>
       {[...state.guesses].reverse().map((guess, reverseIndex) => (
-        <Card key={guess.model.id} size="sm">
+        <Card key={guess.model.id} size="sm" className={GAME_CARD_CLASS}>
           <CardHeader>
             <CardTitle className="flex flex-wrap items-center justify-between gap-2">
               <span>
@@ -280,7 +323,7 @@ function ModeleGame({ puzzle }: { puzzle: ModelePuzzle }) {
                 <div
                   key={key}
                   className={cn(
-                    "min-h-20 rounded-2xl p-3 ring-1",
+                    "min-h-16 rounded-lg p-3 ring-1",
                     clueTone(clue.match, clue.direction)
                   )}
                 >
@@ -327,7 +370,12 @@ function ResultCard({
   answer?: ModelCandidate | null;
 }) {
   return (
-    <Card className={success ? "ring-emerald-500/30" : "ring-amber-500/30"}>
+    <Card
+      className={cn(
+        GAME_CARD_CLASS,
+        success ? "ring-emerald-500/30" : "ring-amber-500/30"
+      )}
+    >
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           {success ? (
@@ -369,7 +417,7 @@ function PriceleGame({ puzzle }: { puzzle: PricelePuzzle }) {
   };
   return (
     <div className="space-y-5">
-      <Card>
+      <Card className={GAME_CARD_CLASS}>
         <CardHeader>
           <CardTitle>Follow the price</CardTitle>
           <CardDescription>
@@ -403,7 +451,7 @@ function PriceleGame({ puzzle }: { puzzle: PricelePuzzle }) {
       </Card>
       <div className="grid gap-3">
         {state.guesses.map((guess) => (
-          <Card key={guess.model.id} size="sm">
+          <Card key={guess.model.id} size="sm" className={GAME_CARD_CLASS}>
             <CardContent className="grid gap-3 sm:grid-cols-[1fr_180px_180px] sm:items-center">
               <div>
                 <div className="font-medium">{guess.model.name}</div>
@@ -415,7 +463,7 @@ function PriceleGame({ puzzle }: { puzzle: PricelePuzzle }) {
                 <div
                   key={direction}
                   className={cn(
-                    "rounded-2xl p-3 ring-1",
+                    "rounded-lg p-3 ring-1",
                     clueTone(undefined, guess.prices[direction].direction)
                   )}
                 >
@@ -485,7 +533,7 @@ function TimelineGame({ puzzle }: { puzzle: TimelinePuzzle }) {
     : state.order;
   return (
     <div className="space-y-5">
-      <Card>
+      <Card className={GAME_CARD_CLASS}>
         <CardHeader>
           <CardTitle>Oldest → newest</CardTitle>
           <CardDescription>
@@ -496,7 +544,7 @@ function TimelineGame({ puzzle }: { puzzle: TimelinePuzzle }) {
           {displayed.map((model, index) => (
             <div
               key={model.id}
-              className="flex items-center gap-3 rounded-2xl bg-muted/50 p-3 ring-1 ring-foreground/5"
+              className="flex items-center gap-3 rounded-lg bg-muted/50 p-3 ring-1 ring-foreground/5"
             >
               <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-background text-sm font-semibold ring-1 ring-foreground/10">
                 {index + 1}
@@ -594,7 +642,7 @@ function HeadToHeadGame({ puzzle }: { puzzle: HeadToHeadPuzzle }) {
       {puzzle.rounds.map((round, index) => {
         const result = state.result?.results[round.id];
         return (
-          <Card key={round.id}>
+          <Card key={round.id} className={GAME_CARD_CLASS}>
             <CardHeader>
               <CardDescription>
                 Round {index + 1} of {puzzle.rounds.length}
@@ -690,7 +738,7 @@ function HeadChoice({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "min-w-0 rounded-2xl p-4 text-left ring-1 transition-colors disabled:cursor-default",
+        "min-w-0 rounded-lg p-4 text-left ring-1 transition-colors disabled:cursor-default",
         selected
           ? "bg-foreground text-background ring-foreground"
           : "bg-muted/40 ring-foreground/10 hover:bg-muted",
@@ -742,7 +790,7 @@ export function GameExperience({ game }: { game: GameKey }) {
   if (error)
     return (
       <GameScaffold game={game} date="Today">
-        <Card>
+        <Card className={GAME_CARD_CLASS}>
           <CardHeader>
             <CardTitle>Puzzle unavailable</CardTitle>
             <CardDescription>

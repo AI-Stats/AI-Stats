@@ -64,7 +64,7 @@ export function ModelSearchDropdown({
           aria-expanded={open}
           disabled={disabled}
           className={cn(
-            "h-10 w-full justify-between gap-3 rounded-xl px-3 font-normal",
+            "h-10 w-full justify-between gap-3 rounded-lg px-3 font-normal",
             !selected && "text-muted-foreground",
             className
           )}
@@ -99,7 +99,7 @@ export function ModelSearchDropdown({
         align="start"
         sideOffset={6}
         className={cn(
-          "w-(--anchor-width) max-w-[calc(100vw-2rem)] gap-0 rounded-2xl p-1",
+          "w-(--anchor-width) max-w-[calc(100vw-2rem)] gap-0 rounded-lg p-1",
           contentClassName
         )}
       >
