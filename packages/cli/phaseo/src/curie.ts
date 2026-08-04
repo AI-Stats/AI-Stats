@@ -38,6 +38,8 @@ export type CurieReport = {
 type Flags = Record<string, string | boolean>;
 const stringFlag = (flags: Flags, key: string) => typeof flags[key] === "string" ? flags[key] as string : undefined;
 const boolFlag = (flags: Flags, key: string) => flags[key] === true || flags[key] === "true" || flags[key] === "1";
+const DEFAULT_CURIE_BASE_URL = "https://api.phaseo.app/v1";
+const ALLOWED_CURIE_KEY_ENVS = new Set(["PHASEO_API_KEY", "PHASEO_CURIE_API_KEY"]);
 const modelDetails = (model: CurieModel) => typeof model === "string"
 	? { id: model, label: model }
 	: { id: model.id, label: model.label ?? model.id };
@@ -82,6 +84,34 @@ export function summariseCurieResults(results: CurieResult[]): CurieSummary[] {
 	})).sort((a, b) => b.passRate - a.passRate || a.averageLatencyMs - b.averageLatencyMs);
 }
 
+export function validateCurieEndpoint(
+	baseUrlValue: string,
+	apiKeyEnv: string,
+	allowCustomBaseUrl: boolean,
+): string {
+	if (!ALLOWED_CURIE_KEY_ENVS.has(apiKeyEnv)) {
+		throw new Error("Curie API keys must use PHASEO_API_KEY or PHASEO_CURIE_API_KEY");
+	}
+	let parsed: URL;
+	try {
+		parsed = new URL(baseUrlValue);
+	} catch {
+		throw new Error("Curie base URL must be a valid HTTP(S) URL");
+	}
+	if (!["http:", "https:"].includes(parsed.protocol) || parsed.username || parsed.password || parsed.search || parsed.hash) {
+		throw new Error("Curie base URL must be an HTTP(S) URL without credentials, query parameters, or fragments");
+	}
+	const normalized = parsed.toString().replace(/\/$/, "");
+	if (normalized === DEFAULT_CURIE_BASE_URL) return normalized;
+	if (!allowCustomBaseUrl) {
+		throw new Error("Custom Curie endpoints require --allow-custom-base-url");
+	}
+	if (apiKeyEnv !== "PHASEO_CURIE_API_KEY") {
+		throw new Error("Custom Curie endpoints require the isolated PHASEO_CURIE_API_KEY variable");
+	}
+	return normalized;
+}
+
 function outputText(body: any): string {
 	const content = body.choices?.[0]?.message?.content;
 	if (typeof content === "string") return content;
@@ -96,8 +126,9 @@ function outputCost(body: any): number {
 export async function runCurie(configPath: string | undefined, flags: Flags): Promise<void> {
 	if (!configPath) throw new Error("Configuration path is required");
 	const config = validateCurieConfig(JSON.parse(await readFile(configPath, "utf8")));
-	const baseUrl = (stringFlag(flags, "base-url") ?? config.baseUrl ?? "https://api.phaseo.app/v1").replace(/\/$/, "");
+	const baseUrlValue = stringFlag(flags, "base-url") ?? config.baseUrl ?? DEFAULT_CURIE_BASE_URL;
 	const apiKeyEnv = stringFlag(flags, "api-key-env") ?? config.apiKeyEnv ?? "PHASEO_API_KEY";
+	const baseUrl = validateCurieEndpoint(baseUrlValue, apiKeyEnv, boolFlag(flags, "allow-custom-base-url"));
 	const repeats = stringFlag(flags, "repeats") === undefined ? config.repeats ?? 1 : Number(stringFlag(flags, "repeats"));
 	if (!Number.isInteger(repeats) || repeats < 1 || repeats > 100) throw new Error("--repeats must be an integer between 1 and 100");
 	if (boolFlag(flags, "dry-run")) {

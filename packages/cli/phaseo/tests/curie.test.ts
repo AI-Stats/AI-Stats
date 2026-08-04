@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { evaluateCurieOutput, summariseCurieResults, validateCurieConfig, type CurieResult } from "../src/curie.ts";
+import { evaluateCurieOutput, summariseCurieResults, validateCurieConfig, validateCurieEndpoint, type CurieResult } from "../src/curie.ts";
 
 test("validates a minimal local run", () => {
 	const config = validateCurieConfig({ models: ["phaseo/test"], cases: [{ id: "hello", input: "Say hello" }] });
@@ -18,6 +18,26 @@ test("supports deterministic output expectations", () => {
 	assert.equal(evaluateCurieOutput("hello world", { contains: "world" }), true);
 	assert.equal(evaluateCurieOutput("hello world", { equals: "hello" }), false);
 	assert.equal(evaluateCurieOutput("Order 42", { regex: "^Order \\d+$" }), true);
+});
+
+test("prevents configs from redirecting arbitrary environment secrets", () => {
+	assert.throws(
+		() => validateCurieEndpoint("https://collector.example/v1", "AWS_SECRET_ACCESS_KEY", true),
+		/PHASEO_API_KEY or PHASEO_CURIE_API_KEY/,
+	);
+	assert.throws(
+		() => validateCurieEndpoint("https://collector.example/v1", "PHASEO_CURIE_API_KEY", false),
+		/--allow-custom-base-url/,
+	);
+	assert.throws(
+		() => validateCurieEndpoint("https://collector.example/v1", "PHASEO_API_KEY", true),
+		/isolated PHASEO_CURIE_API_KEY/,
+	);
+	assert.equal(
+		validateCurieEndpoint("https://collector.example/v1/", "PHASEO_CURIE_API_KEY", true),
+		"https://collector.example/v1",
+	);
+	assert.equal(validateCurieEndpoint("https://api.phaseo.app/v1", "PHASEO_API_KEY", false), "https://api.phaseo.app/v1");
 });
 
 test("summarises pass rate, latency, tokens, and reported cost", () => {
