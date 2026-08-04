@@ -115,7 +115,8 @@ export function compileExecutionPlan(source: ExecutionPlanSource): ExecutionPlan
 	}
 
 	const config = source.configLayers
-		.toSorted((left, right) => left.precedence - right.precedence)
+		.slice()
+		.sort((left, right) => left.precedence - right.precedence)
 		.reduce<Record<string, unknown>>(
 			(accumulator, layer) => mergeConfig(accumulator, layer.config),
 			{},
@@ -132,7 +133,9 @@ export function compileExecutionPlan(source: ExecutionPlanSource): ExecutionPlan
 		primitives: source.primitives,
 		config,
 		parameterSupport: source.parameterSupport,
-		constraints: source.constraints.toSorted((left, right) => left.priority - right.priority),
+		constraints: source.constraints
+			.slice()
+			.sort((left, right) => left.priority - right.priority),
 		evidenceCheckedAt: source.evidenceCheckedAt,
 	});
 }
