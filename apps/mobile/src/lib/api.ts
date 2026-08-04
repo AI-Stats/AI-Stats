@@ -57,9 +57,18 @@ async function request(path: string, init?: RequestInit, token?: string): Promis
 }
 
 export async function getModels(query = ""): Promise<PhaseoModel[]> {
-  const raw = await request(`/api/_web/models?shape=page&projection=5&limit=40${query ? `&search=${encodeURIComponent(query)}` : ""}`);
+  const raw = await request(`/api/_web/models?shape=page&projection=5&limit=${query ? 250 : 40}`);
   const parsed = modelsEnvelope.parse(raw);
-  return Array.isArray(parsed) ? parsed : "models" in parsed ? parsed.models : parsed.data;
+  const models = Array.isArray(parsed) ? parsed : "models" in parsed ? parsed.models : parsed.data;
+  if (!query.trim()) return models;
+  const search = query.trim().toLocaleLowerCase();
+  return models.filter(model => [
+    model.id,
+    model.model_id,
+    model.name,
+    model.organisation?.name,
+    model.organisation_name
+  ].some(value => value?.toLocaleLowerCase().includes(search)));
 }
 
 export async function getModel(id: string): Promise<PhaseoModel> {
