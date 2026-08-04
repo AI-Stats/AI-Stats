@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Gateway REST API",
-    "version": "4.259.0"
+    "version": "5.10.0"
   },
   "paths": {
     "/inference/v1/chat/completions": {
@@ -100,7 +100,7 @@
           }
         },
         "tags": [
-          "responses.openapi_other"
+          "responses-harmonized.openapi_other"
         ]
       }
     },
@@ -167,7 +167,7 @@
             },
             "type": "array",
             "title": "Messages",
-            "description": "A list of messages comprising the conversation so far."
+            "description": "A list of messages comprising the conversation so far. When ``prompt_token_ids`` is supplied this field is ignored (the caller is taking responsibility for chat-template rendering and tokenization upstream)."
           },
           "tools": {
             "items": {
@@ -308,6 +308,17 @@
             "title": "Perf Metrics In Response",
             "description": "Whether to include performance metrics in the response body.\n\n**Non-streaming requests:** Performance metrics are always included in response headers (e.g., `fireworks-prompt-tokens`, `fireworks-server-time-to-first-token`). Setting this to `true` additionally includes the same metrics in the response body under the `perf_metrics` field.\n\n**Streaming requests:** Performance metrics are only included in the response body under the `perf_metrics` field in the final chunk (when `finish_reason` is set). This is because headers may not be accessible during streaming.\n\nThe response body `perf_metrics` field contains the following metrics:\n\n**Basic Metrics (all deployments):**\n\n- `prompt-tokens`: Number of tokens in the prompt\n- `cached-prompt-tokens`: Number of cached prompt tokens\n- `server-time-to-first-token`: Time from request start to first token (in seconds)\n- `server-processing-time`: Total processing time (in seconds, only for completed requests)\n\n**Predicted Outputs Metrics:**\n\n- `speculation-prompt-tokens`: Number of speculative prompt tokens\n- `speculation-prompt-matched-tokens`: Number of matched speculative prompt tokens (for completed requests)\n\n**Dedicated Deployment Only Metrics:**\n\n- `speculation-generated-tokens`: Number of speculative generated tokens (for completed requests)\n- `speculation-acceptance`: Speculation acceptance rates by position\n- `backend-host`: Hostname of the backend server\n- `num-concurrent-requests`: Number of concurrent requests\n- `deployment`: Deployment name\n- `tokenizer-queue-duration`: Time spent in tokenizer queue\n- `tokenizer-duration`: Time spent in tokenizer\n- `prefill-queue-duration`: Time spent in prefill queue\n- `prefill-duration`: Time spent in prefill\n- `generation-queue-duration`: Time spent in generation queue\n- `generation-duration`: Time spent in generation",
             "default": false
+          },
+          "stream_options": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StreamOptions"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Options for streaming responses. Only valid with ``stream=true``. Fireworks includes a final SSE chunk carrying usage totals by default; set ``include_usage=false`` to opt out. The ``buffer_tokens`` / ``buffer_ms`` / ``buffer_mode`` fields coalesce SSE chunks by token count and/or time (vLLM backend; override the deployment default)."
           },
           "n": {
             "type": "integer",
@@ -490,7 +501,7 @@
               }
             ],
             "title": "Logprobs",
-            "description": "Include log probabilities in the response. This accepts either a boolean or an integer:\n\nIf set to `true`, log probabilities are included and the number of alternatives can be controlled via `top_logprobs` (OpenAI-compatible behavior).\n\nIf set to an integer N (0-5), include log probabilities for up to N most likely tokens per position in the legacy format.\n\nThe API will always return the logprob of the sampled token, so there may be up to `logprobs+1` elements in the response when an integer is used. The maximum value for the integer form is 5."
+            "description": "Include log probabilities in the response. This accepts either a boolean or an integer:\n\nIf set to `true`, log probabilities are included and the number of alternatives can be controlled via `top_logprobs` (OpenAI-compatible behavior).\n\nIf set to an integer N, include log probabilities for up to N most likely tokens per position in the legacy format. N must be between 0 and the deployment's `--max-logprobs` limit (5 by default).\n\nThe API will always return the logprob of the sampled token, so there may be up to `logprobs+1` elements in the response when an integer is used."
           },
           "top_logprobs": {
             "anyOf": [
@@ -502,7 +513,7 @@
               }
             ],
             "title": "Top Logprobs",
-            "description": "An integer between 0 and 5 specifying the number of most likely tokens to return at each token position, each with an associated log probability. The minimum value is 0 and the maximum value is 5.\n\nWhen `logprobs` is set, `top_logprobs` can be used to modify how many top log probabilities are returned. If `top_logprobs` is not set, the API will return up to `logprobs` tokens per position.\n\nRequired range: `0 <= x <= 5`"
+            "description": "An integer specifying the number of most likely tokens to return at each token position, each with an associated log probability. Must be between 0 and the deployment's `--max-logprobs` limit (5 by default).\n\nWhen `logprobs` is set, `top_logprobs` can be used to modify how many top log probabilities are returned. If `top_logprobs` is not set, the API will return up to `logprobs` tokens per position."
           },
           "sampling_mask": {
             "anyOf": [
@@ -667,7 +678,7 @@
               }
             ],
             "title": "Reasoning History",
-            "description": "Controls how historical assistant reasoning content is included in the prompt for multi-turn conversations.\n\n**Accepted values:**\n\n- `null`: Use model/template default behavior (for **GLM-4.7**, the model/template default is `'interleaved'`, i.e. historical reasoning is cleared by default)\n- `'disabled'`: Strip `reasoning_content` from all messages before prompt construction\n- `'interleaved'`: Strip `reasoning_content` from messages up to (and including) the last user message\n- `'preserved'`: Preserve historical `reasoning_content` across the conversation\n\n**Model support:**\n\n| Model | Default | Supported values |\n| --- | --- | --- |\n| Kimi K2.7 | `'preserved'` | `'disabled'`, `'interleaved'`, `'preserved'` |\n| Kimi K2.6 | `'interleaved'` | `'disabled'`, `'interleaved'`, `'preserved'` |\n| Kimi K2 Instruct | `'preserved'` | `'disabled'`, `'interleaved'`, `'preserved'` |\n| MiniMax M2 | `'interleaved'` | `'disabled'`, `'interleaved'` |\n| GLM-4.7 | `'interleaved'` | `'disabled'`, `'interleaved'`, `'preserved'` |\n| GLM-4.6 | `'interleaved'` | `'disabled'`, `'interleaved'` |\n| Qwen 3.6 | `'preserved'` | `'disabled'`, `'preserved'` |\n| DeepSeek V4 | `'interleaved'` | `'interleaved'` |\n\nFor other models, refer to the model provider's documentation.\n\n**Note:** This parameter controls prompt formatting only. To disable reasoning computation entirely, use `reasoning_effort='none'`."
+            "description": "Controls how historical assistant reasoning content is included in the prompt for multi-turn conversations.\n\n**Accepted values:**\n\n- `null`: Use model/template default behavior (for **GLM-4.7**, the model/template default is `'interleaved'`, i.e. historical reasoning is cleared by default)\n- `'disabled'`: Strip `reasoning_content` from all messages before prompt construction\n- `'interleaved'`: Strip `reasoning_content` from messages up to (and including) the last user message\n- `'preserved'`: Preserve historical `reasoning_content` across the conversation\n\n**Model support:**\n\n| Model | Default | Supported values |\n| --- | --- | --- |\n| Kimi K2.7 | `'preserved'` | `'disabled'`, `'interleaved'`, `'preserved'` |\n| Kimi K2.6 | `'interleaved'` | `'disabled'`, `'interleaved'`, `'preserved'` |\n| Kimi K2 Instruct | `'preserved'` | `'disabled'`, `'interleaved'`, `'preserved'` |\n| MiniMax M2 | `'interleaved'` | `'disabled'`, `'interleaved'` |\n| GLM-5.2 | `'interleaved'` | `'disabled'`, `'interleaved'`, `'preserved'` |\n| GLM-4.7 | `'interleaved'` | `'disabled'`, `'interleaved'`, `'preserved'` |\n| GLM-4.6 | `'interleaved'` | `'disabled'`, `'interleaved'` |\n| Qwen 3.6 | `'preserved'` | `'disabled'`, `'preserved'` |\n| DeepSeek V4 | `'interleaved'` | `'interleaved'` |\n\nFor other models, refer to the model provider's documentation.\n\n**Note:** This parameter controls prompt formatting only. To disable reasoning computation entirely, use `reasoning_effort='none'`."
           },
           "thinking": {
             "anyOf": [
@@ -685,7 +696,7 @@
               }
             ],
             "title": "Thinking",
-            "description": "Configuration for enabling extended thinking (Anthropic-compatible format). This is an alternative to `reasoning_effort` for controlling reasoning behavior.\n\n**Format:**\n\n- `{\"type\": \"enabled\"}` - Enable thinking (equivalent to `reasoning_effort: true`)\n- `{\"type\": \"enabled\", \"budget_tokens\": <int>}` - Enable thinking with a token budget (equivalent to `reasoning_effort: <int>`). Must be >= 1024.\n- `{\"type\": \"enabled\", \"keep\": \"all\"}` - Enable thinking and preserve all historical reasoning content in the prompt (equivalent to `reasoning_history: \"preserved\"`).\n- `{\"type\": \"disabled\"}` - Disable thinking (equivalent to `reasoning_effort: \"none\"`)\n\n**Note:** Cannot be specified together with `reasoning_effort`. If both are provided, a validation error will be raised."
+            "description": "Configuration for enabling extended thinking (Anthropic-compatible format). This is an alternative to `reasoning_effort` for controlling reasoning behavior.\n\n**Format:**\n\n- `{\"type\": \"enabled\"}` - Enable thinking (equivalent to `reasoning_effort: true`)\n- `{\"type\": \"enabled\", \"budget_tokens\": <int>}` - Enable thinking with a token budget (equivalent to `reasoning_effort: <int>`). Must be >= 1024.\n- `{\"type\": \"enabled\", \"keep\": \"all\"}` - Enable thinking and preserve all historical reasoning content in the prompt (equivalent to `reasoning_history: \"preserved\"`).\n- `{\"type\": \"disabled\"}` - Disable thinking (equivalent to `reasoning_effort: \"none\"`)\n\n**Precedence with `reasoning_effort`:** `thinking.effort` (when set) overrides `reasoning_effort`; otherwise, for `type=enabled`, `reasoning_effort` is used as the effort level. `type=disabled` always disables thinking."
           },
           "return_token_ids": {
             "anyOf": [
@@ -699,6 +710,21 @@
             "title": "Return Token Ids",
             "description": "Return token IDs alongside text to avoid retokenization drift.",
             "default": false
+          },
+          "prompt_token_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt Token Ids",
+            "description": "Pre-tokenized prompt. When set, the server skips chat-template rendering and tokenization for the input — the supplied token IDs are fed directly to generation. Generation, the response formatter (incl. ``--formatter-backend vllm`` parsers), and tool-call routing all run as usual on the model's output.\n\nIntended for upstream gateways (e.g. dynamo) that own the tokenizer and chat template, and want this server only to generate and format. Mutually exclusive with ``messages``: passing both is a 400."
           },
           "functions": {
             "items": {
@@ -743,7 +769,7 @@
               }
             ],
             "title": "Safe Tokenization",
-            "description": "When true, special tokens in user-provided content are never interpreted as actual special tokens during tokenization. This prevents prompt injection via special token strings (e.g. <|im_start|>, <｜User｜>). Supported for models using Jinja or HuggingFace chat templates with HuggingFace tokenizers. Returns an error if the model does not support it, or if combined with custom_chat_template on HuggingFace-backed models. Note: prompt_truncate_len is not applied when safe_tokenization is enabled."
+            "description": "When true, special tokens in user-provided content are never interpreted as actual special tokens during tokenization. This prevents prompt injection via special token strings (e.g. <|im_start|>, <｜User｜>). Supported for models using Jinja or HuggingFace chat templates with HuggingFace tokenizers. Explicit true returns an error if the model does not support it, or if combined with custom_chat_template on HuggingFace-backed models. Note: prompt_truncate_len is not applied when safe_tokenization is enabled. When omitted, safe tokenization is enabled by default on a best-effort basis: it is applied only where the model supports it and the request is text-only with no custom_chat_template and no prompt_truncate_len, and otherwise falls back to normal tokenization."
           },
           "function_call": {
             "anyOf": [
@@ -769,7 +795,6 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "messages",
           "model"
         ],
         "title": "ChatCompletionRequest"
@@ -2036,6 +2061,80 @@
         ],
         "title": "ResponseFormat"
       },
+      "StreamOptions": {
+        "properties": {
+          "include_usage": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Include Usage",
+            "description": "Whether to include a trailing SSE chunk with usage totals (with an empty `choices` array). Unlike the OpenAI spec, Fireworks includes usage by default for streaming responses; set this to `false` to opt out. When emitted, usage rides a separate final chunk (before `data: [DONE]`), not the chunk carrying `finish_reason`."
+          },
+          "include_internal_content": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Include Internal Content",
+            "description": "When true, include an `internal_content` object (currently `token_id`) inside each streaming delta — equivalent to `return_token_ids`, emitted under `choices[].delta.internal_content`. Omitted entirely from response chunks when false.",
+            "default": false
+          },
+          "buffer_tokens": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buffer Tokens",
+            "description": "Coalesce streaming SSE chunks until this many text deltas (~tokens) accumulate before flushing a merged chunk. 0 disables the token threshold. Honored only on the vLLM backend; overrides the deployment default when set."
+          },
+          "buffer_ms": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buffer Ms",
+            "description": "Coalesce streaming SSE chunks for up to this many milliseconds before flushing a merged chunk. 0 disables the time threshold. Honored only on the vLLM backend; overrides the deployment default when set."
+          },
+          "buffer_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "any",
+                  "all"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buffer Mode",
+            "description": "When both buffer_tokens and buffer_ms are set: 'any' flushes when either threshold is reached; 'all' flushes only when both are. Overrides the deployment default when set; defaults to 'any'."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "StreamOptions"
+      },
       "PredictedOutput": {
         "properties": {
           "content": {
@@ -2072,7 +2171,8 @@
           "type": {
             "type": "string",
             "const": "enabled",
-            "title": "Type"
+            "title": "Type",
+            "default": "enabled"
           },
           "budget_tokens": {
             "anyOf": [
@@ -2110,13 +2210,37 @@
             ],
             "title": "Budget End Str",
             "description": "Natural-language transition phrase that the model is forced to emit just before the end-thinking token (`</think>`) when `budget_tokens` is exhausted. This produces a more natural conclusion than a hard token slam (matches vLLM's `reasoning_end_str` behavior). Defaults to a built-in phrase. Set to \"\" to disable the bridge and force `</think>` immediately. Only meaningful when `budget_tokens` is set."
+          },
+          "effort": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high",
+                  "xhigh",
+                  "max",
+                  "none",
+                  "adaptive"
+                ]
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effort",
+            "description": "Reasoning effort level (Kimi/Moonshot spec). Accepts the same values as top-level `reasoning_effort`; when set it takes precedence over (overwrites) `reasoning_effort`."
           }
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "type"
-        ],
         "title": "ThinkingConfigEnabled",
         "description": "Configuration for enabling extended thinking (Anthropic-compatible format)."
       },
@@ -2418,6 +2542,18 @@
             "default": null,
             "description": "Token IDs for this chunk (when return_token_ids=true)",
             "title": "Token Ids"
+          },
+          "usage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UsageInfo"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Usage for this choice, emitted on its final (finish) chunk (deployment-gated extension)."
           }
         },
         "required": [
@@ -3601,6 +3737,18 @@
             "description": "The contents of the chunk message",
             "title": "Content"
           },
+          "internal_content": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InternalContent"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Internal model content (currently token_id) when include_internal_content=true."
+          },
           "reasoning_content": {
             "anyOf": [
               {
@@ -4619,6 +4767,30 @@
           "text_offset"
         ],
         "title": "NewLogProbsContent",
+        "type": "object"
+      },
+      "InternalContent": {
+        "additionalProperties": false,
+        "description": "Fireworks extension: internal model content surfaced inside the streaming\ndelta when ``stream_options.include_internal_content=true``.",
+        "properties": {
+          "token_id": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Token IDs for this chunk's delta (when include_internal_content=true)",
+            "title": "Token Id"
+          }
+        },
+        "title": "InternalContent",
         "type": "object"
       },
       "AnthropicResponseCharLocationCitation": {
