@@ -115,26 +115,26 @@ export function ModelSearchDropdown({
                       onValueChange(option.value);
                       onOpenChange?.(false);
                     }}
-                    className="min-h-11 gap-3 rounded-xl px-3 py-2"
+                    className="min-h-9 gap-2.5 rounded-lg px-2.5 py-1.5"
                   >
                     {option.logoId ? (
                       <Logo
                         id={option.logoId}
                         alt={option.description ?? option.label}
-                        width={20}
-                        height={20}
-                        className="size-5 shrink-0 rounded-sm object-contain"
+                        width={18}
+                        height={18}
+                        className="size-[18px] shrink-0 rounded-sm object-contain"
                       />
                     ) : (
-                      <span className="size-5 shrink-0" aria-hidden />
+                      <span className="size-[18px] shrink-0" aria-hidden />
                     )}
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium">
+                    <span className="flex min-w-0 flex-1 items-baseline gap-1.5 truncate">
+                      <span className="truncate text-sm font-medium">
                         {option.label}
                       </span>
                       {option.description ? (
-                        <span className="block truncate text-xs text-muted-foreground">
-                          {option.description}
+                        <span className="shrink truncate text-xs text-muted-foreground">
+                          · {option.description}
                         </span>
                       ) : null}
                     </span>
