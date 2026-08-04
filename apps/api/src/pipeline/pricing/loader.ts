@@ -116,6 +116,10 @@ export async function loadPriceCard(provider: string, model: string, endpoint: s
                 } as PricingTimeWindow;
             });
         };
+        const normalizeIncludedQuantity = (value: unknown): number => {
+            const parsed = Number(value ?? 0);
+            return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+        };
 
         const rules: PriceRule[] = (meterRows as any[]).flatMap((meter) => {
             const sku = skuById.get(String(meter.sku_id));
@@ -135,6 +139,9 @@ export async function loadPriceCard(provider: string, model: string, endpoint: s
             currency: sku.currency ?? "USD",
             match: Array.isArray(skuMetadata.match) ? skuMetadata.match : Array.isArray(meterMetadata.match) ? meterMetadata.match : [],
             priority: Number(meterMetadata.priority ?? meter.meter_order ?? 100),
+            included_quantity: normalizeIncludedQuantity(
+                meterMetadata.included_quantity ?? skuMetadata.included_quantity
+            ),
             billing_timestamp_basis: skuMetadata.billing_timestamp_basis ?? "request_start",
             time_windows: normalizeTimeWindows(skuMetadata.time_windows),
         }];
@@ -184,4 +191,3 @@ export function __resetPricingLoaderCachesForTests(): void {
     pricingL1.clear();
     pricingInflight.clear();
 }
-

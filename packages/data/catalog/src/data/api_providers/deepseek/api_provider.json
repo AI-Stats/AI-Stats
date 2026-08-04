@@ -15,15 +15,34 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
+  "api_base_url": "https://api.deepseek.com",
   "docs_url": "https://api-docs.deepseek.com/",
-  "auth_env": null,
-  "api_formats": [],
+  "auth_env": [
+    "DEEPSEEK_API_KEY"
+  ],
+  "api_formats": [
+    "openai.chat.completions",
+    "openai.responses",
+    "anthropic.messages"
+  ],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "api_reference",
+      "url": "https://api-docs.deepseek.com/",
+      "accessed_at": "2026-07-31T00:00:00Z",
+      "notes": "Official base URLs and supported models."
+    },
+    {
+      "kind": "api_reference",
+      "url": "https://api-docs.deepseek.com/guides/responses_api/",
+      "accessed_at": "2026-07-31T00:00:00Z",
+      "notes": "Responses API support is model-specific."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-07-31T00:00:00Z",
+    "notes": "Provider metadata verified against official DeepSeek documentation."
   }
 }

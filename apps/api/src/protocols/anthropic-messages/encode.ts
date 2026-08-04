@@ -161,9 +161,11 @@ function encodeUsage(
 	const inputTokens = anyUsage.inputTokens ?? anyUsage.promptTokens;
 	const outputTokens = anyUsage.outputTokens ?? anyUsage.completionTokens;
 	const tier =
-		serviceTier === "standard" || serviceTier === "priority" || serviceTier === "batch"
-			? serviceTier
-			: null;
+		serviceTier === "fast"
+			? "priority"
+			: serviceTier === "standard" || serviceTier === "priority" || serviceTier === "batch"
+				? serviceTier
+				: null;
 	return {
 		cache_creation: null,
 		cache_creation_input_tokens: null,

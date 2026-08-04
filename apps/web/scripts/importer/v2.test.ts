@@ -11,6 +11,7 @@ import {
     pricingModelPart,
     v2RouteModelSlug,
     v2RouteExecutionRegions,
+    v2PricingMeterMetadata,
     validateJsonPricingRules,
     routeStatus,
     staleJsonProviderRouteIds,
@@ -194,6 +195,30 @@ describe("validateJsonPricingRules", () => {
             { ...baseRule, source_key: "wrong", price_per_unit: 2 },
             { ...baseRule, source_key: "correct", price_per_unit: 37.5 },
         ])).toThrow("Conflicting JSON pricing rates");
+    });
+
+    it("rejects conflicting included quantities for the same offer and meter", () => {
+        expect(() => validateJsonPricingRules([
+            { ...baseRule, source_key: "five-free", price_per_unit: 0.04, included_quantity: 5 },
+            { ...baseRule, source_key: "no-allowance", price_per_unit: 0.04, included_quantity: 0 },
+        ])).toThrow("Conflicting JSON pricing rates");
+    });
+});
+
+describe("v2PricingMeterMetadata", () => {
+    it("preserves an authored included quantity for pricing imports", () => {
+        expect(v2PricingMeterMetadata({
+            rule_id: "minimax-h3-input-images",
+            included_quantity: 5,
+        })).toEqual(expect.objectContaining({
+            source: "json",
+            included_quantity: 5,
+        }));
+    });
+
+    it("does not invent an allowance when none is authored", () => {
+        expect(v2PricingMeterMetadata({ rule_id: "meter-without-allowance" }))
+            .not.toHaveProperty("included_quantity");
     });
 });
 

@@ -5,6 +5,7 @@ import useSWR from "swr";
 import { usePathname, useRouter } from "next/navigation";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useTheme } from "next-themes";
+import { toast } from "sonner";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
 	InputGroup,
@@ -21,6 +22,7 @@ import {
 	ArrowUp,
 	ArrowUpRight,
 	Bolt,
+	Building2,
 	Compass,
 	CornerDownLeft,
 	ExternalLink,
@@ -45,6 +47,8 @@ import {
 	writePinnedItems,
 } from "./Search.storage";
 import type { PaletteItem } from "./Search.types";
+import { fetchWorkspaceSearchItems } from "./Search.workspaces";
+import { SwapTeam } from "@/app/(dashboard)/actions";
 import type {
 	CompactSearchData,
 	SearchData,
@@ -58,6 +62,7 @@ import {
 
 interface Props {
 	className?: string;
+	mobileGhost?: boolean;
 }
 
 type SearchableItem = PaletteItem;
@@ -69,7 +74,8 @@ type SearchRowType =
 	| "context"
 	| "default"
 	| "navigation"
-	| "resource";
+	| "resource"
+	| "workspace";
 
 type DefaultSearchCategory = {
 	key: string;
@@ -106,7 +112,8 @@ type SearchResultCategory = {
 		| "models"
 		| "navigation"
 		| "organisations"
-		| "resources";
+		| "resources"
+		| "workspaces";
 	items: SearchableItem[];
 	score: number;
 };
@@ -524,6 +531,14 @@ function SearchBrowseIcon({
 		);
 	}
 
+	if (effectiveType === "workspace") {
+		return (
+			<div className="flex size-5 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
+				<Building2 className="size-3" />
+			</div>
+		);
+	}
+
 	if (effectiveType === "benchmark") {
 		return (
 			<div className="flex size-5 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
@@ -603,7 +618,7 @@ function SearchEmptyState({
 	);
 }
 
-export default function Search({ className }: Props) {
+export default function Search({ className, mobileGhost = false }: Props) {
 	const router = useRouter();
 	const pathname = usePathname() ?? "/";
 	const { resolvedTheme, setTheme } = useTheme();
@@ -626,6 +641,17 @@ export default function Search({ className }: Props) {
 		revalidateOnFocus: false,
 		revalidateOnReconnect: false,
 	});
+	const { data: workspaceItems = [] } = useSWR(
+		open ? "/api/search/workspaces" : null,
+		fetchWorkspaceSearchItems,
+		{
+			dedupingInterval: 5 * 60 * 1_000,
+			revalidateIfStale: false,
+			revalidateOnFocus: false,
+			revalidateOnReconnect: false,
+			shouldRetryOnError: false,
+		},
+	);
 	searchGenerationRef.current = searchData?.cacheGeneration ?? 1;
 	const searchDataError = searchDataFetchError
 		? "Unable to load search data."
@@ -768,6 +794,27 @@ export default function Search({ className }: Props) {
 			return;
 		}
 
+		if (item.workspaceId) {
+			setOpen(false);
+			void SwapTeam(item.workspaceId)
+				.then((result) => {
+					if (!result?.ok) {
+						throw new Error(result?.error ?? "Failed to switch workspace");
+					}
+					router.push("/settings/workspaces/settings");
+					router.refresh();
+					toast.success(`Switched to ${item.title} workspace`, {
+						position: "bottom-right",
+					});
+				})
+				.catch(() => {
+					toast.error(`Failed to switch to ${item.title} workspace`, {
+						position: "bottom-right",
+					});
+				});
+			return;
+		}
+
 		if (!item.href) return;
 		setOpen(false);
 		if (item.external) {
@@ -859,6 +906,10 @@ export default function Search({ className }: Props) {
 		};
 	}, [searchData]);
 	const contextSearchIndex = useMemo(() => createSearchIndex(contextItems), [contextItems]);
+	const workspaceSearchIndex = useMemo(
+		() => createSearchIndex(workspaceItems),
+		[workspaceItems],
+	);
 
 	const orderedCategories = useMemo<SearchResultCategory[]>(() => {
 		if (!hasQuery) return [];
@@ -894,6 +945,9 @@ export default function Search({ className }: Props) {
 			: [];
 		const benchmarks = searchScope === "all" && searchIndex
 			? filterAndSortIndexed(searchIndex.benchmarks, searchTerm, resultLimit)
+			: [];
+		const workspaces = searchScope === "all"
+			? filterAndSortIndexed(workspaceSearchIndex, searchTerm, 12)
 			: [];
 
 		return [
@@ -945,25 +999,43 @@ export default function Search({ className }: Props) {
 					? getFirstResultScore(searchIndex.benchmarks, benchmarks, searchTerm)
 					: 0,
 			},
+			{
+				name: "workspaces" as const,
+				items: workspaces,
+				score: getFirstResultScore(workspaceSearchIndex, workspaces, searchTerm),
+			},
 		]
 			.filter((category) => category.items.length > 0)
-			.sort((left, right) => right.score - left.score);
-	}, [contextSearchIndex, hasQuery, searchIndex, searchScope, searchTerm]);
+			.sort((left, right) => {
+				if (left.name === "models") return -1;
+				if (right.name === "models") return 1;
+				if (left.name === "workspaces") return 1;
+				if (right.name === "workspaces") return -1;
+				return right.score - left.score;
+			});
+	}, [
+		contextSearchIndex,
+		hasQuery,
+		searchIndex,
+		searchScope,
+		searchTerm,
+		workspaceSearchIndex,
+	]);
 
 	const defaultCategories = useMemo<DefaultSearchCategory[]>(() => {
 		if (hasQuery) return [];
 
 		return [
 			{
-				key: "pinned",
-				heading: "Pinned",
-				items: pinnedItems,
-			},
-			{
 				key: "models",
 				heading: "Models",
 				items: searchData?.models ?? [],
 				showSubtitle: false,
+			},
+			{
+				key: "pinned",
+				heading: "Pinned",
+				items: pinnedItems,
 			},
 			{
 				key: "context",
@@ -978,6 +1050,13 @@ export default function Search({ className }: Props) {
 				type: "action" as const,
 			},
 			{
+				key: "workspaces",
+				heading: "Workspaces",
+				items: workspaceItems,
+				type: "workspace" as const,
+				showSubtitle: true,
+			},
+			{
 				key: "resources",
 				heading: "Resources",
 				items: EXTERNAL_RESOURCE_ITEMS.slice(0, 4),
@@ -989,7 +1068,7 @@ export default function Search({ className }: Props) {
 				items: searchData?.apiProviders ?? [],
 			},
 		].filter((category) => category.items.length > 0);
-	}, [contextItems, hasQuery, pinnedItems, searchData]);
+	}, [contextItems, hasQuery, pinnedItems, searchData, workspaceItems]);
 
 	const defaultBrowseRows = useMemo<DefaultBrowseRow[]>(() => {
 		if (hasQuery) return [];
@@ -1148,7 +1227,11 @@ export default function Search({ className }: Props) {
 			<button
 				type="button"
 				onClick={() => setOpen(true)}
-				className="relative flex h-[var(--site-header-control-h,2.25rem)] w-[var(--site-header-control-h,2.25rem)] items-center justify-center rounded-lg border border-zinc-200/80 bg-white px-0 text-left text-sm text-zinc-500 shadow-none transition-[border-color,color,background-color] hover:border-zinc-300 hover:text-zinc-700 xl:w-full xl:justify-start xl:pl-9 xl:pr-12 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-200"
+				className={cn(
+					"relative flex size-9 items-center justify-center rounded-lg border border-zinc-200/80 bg-white px-0 text-left text-sm text-zinc-500 shadow-none transition-[border-color,color,background-color] hover:border-zinc-300 hover:text-zinc-700 xl:w-full xl:justify-start xl:pl-9 xl:pr-12 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-200",
+					mobileGhost &&
+						"border-transparent bg-transparent hover:border-transparent hover:bg-zinc-100/70 lg:border-zinc-200/80 lg:bg-white lg:hover:border-zinc-300 dark:border-transparent dark:bg-transparent dark:hover:border-transparent dark:hover:bg-zinc-900/60 lg:dark:border-zinc-800 lg:dark:bg-zinc-950 lg:dark:hover:border-zinc-700",
+				)}
 				aria-label="Open command palette"
 			>
 				<SearchIcon className="pointer-events-none absolute left-1/2 top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 text-zinc-400 xl:left-3 xl:translate-x-0 dark:text-zinc-500" />
@@ -1215,6 +1298,7 @@ export default function Search({ className }: Props) {
 											context: { heading: "On this page", type: "context" as const, showSubtitle: true },
 											navigation: { heading: "Navigation", type: "navigation" as const, showSubtitle: true },
 											resources: { heading: "External resources", type: "resource" as const, showSubtitle: true },
+											workspaces: { heading: "Workspaces", type: "workspace" as const, showSubtitle: true },
 											models: { heading: "Models", type: undefined, showSubtitle: false },
 											apiProviders: { heading: "API Providers", type: undefined, showSubtitle: true },
 											organisations: { heading: "Organisations", type: undefined, showSubtitle: true },

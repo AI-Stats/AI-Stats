@@ -410,6 +410,61 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "fireworks:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "accounts/fireworks/models/deepseek-v4-flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1064960,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-31T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "pricing",
+        "url": "https://fireworks.ai/models/deepseek-ai/deepseek-v4-flash-0731",
+        "accessed_at": "2026-08-01T00:00:00Z",
+        "notes": "Official serverless model page, model path, pricing, context and feature support."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-01T00:00:00Z",
+      "notes": "Confirmed as a distinct 0731 serverless deployment on Fireworks."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "deepseek/deepseek-v4-pro",
     "provider_api_model_id": "fireworks:deepseek/deepseek-v4-pro",
     "provider_model_slug": "accounts/fireworks/models/deepseek-v4-pro",
@@ -1857,10 +1912,7 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [
-      "standard",
-      "priority"
-    ],
+    "service_tiers": ["standard", "priority"],
     "api": {
       "formats": [],
       "endpoint": null,

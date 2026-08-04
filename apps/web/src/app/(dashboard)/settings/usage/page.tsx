@@ -211,6 +211,53 @@ function cacheHitRateByBucket(args: {
 	});
 }
 
+function successRateByBucket(args: {
+	rows: RawRequestRow[];
+	range: ObservabilityRange;
+	from: string;
+	to: string;
+}): ObservabilitySeriesPoint[] {
+	const points = buildEmptySeries(args);
+	const totals = new Map(points.map((point) => [point.bucket, { successful: 0, total: 0 }]));
+	for (const row of args.rows) {
+		const created = new Date(row.created_at);
+		if (Number.isNaN(created.getTime())) continue;
+		const total = totals.get(floorToBucket(created, args.range).toISOString());
+		if (!total) continue;
+		total.total += 1;
+		if (row.success === true) total.successful += 1;
+	}
+	return points.map((point) => {
+		const total = totals.get(point.bucket);
+		return { ...point, value: total && total.total > 0 ? total.successful / total.total : 0 };
+	});
+}
+
+function blendedPriceByBucket(args: {
+	rows: RawRequestRow[];
+	range: ObservabilityRange;
+	from: string;
+	to: string;
+}): ObservabilitySeriesPoint[] {
+	const points = buildEmptySeries(args);
+	const totals = new Map(points.map((point) => [point.bucket, { spend: 0, tokens: 0 }]));
+	for (const row of args.rows) {
+		const created = new Date(row.created_at);
+		if (Number.isNaN(created.getTime())) continue;
+		const total = totals.get(floorToBucket(created, args.range).toISOString());
+		if (!total) continue;
+		total.spend += toNumber(row.cost_nanos) / 1e9;
+		total.tokens += usageTokens(row.usage);
+	}
+	return points.map((point) => {
+		const total = totals.get(point.bucket);
+		return {
+			...point,
+			value: total && total.tokens > 0 ? (total.spend / total.tokens) * 1_000_000 : 0,
+		};
+	});
+}
+
 function makeKpi(args: {
 	id: ObservabilityKpi["id"];
 	label: string;
@@ -246,6 +293,7 @@ function makeRankedItems(args: {
 	getId: (row: RawRequestRow) => string | null;
 	getLabel: (id: string) => string;
 	getSubtitle?: (id: string) => string | null | undefined;
+	getImageUrl?: (id: string) => string | null | undefined;
 	limit?: number;
 }): ObservabilityRankedItem[] {
 	const current = new Map<string, { tokens: number; requests: number; cost: number }>();
@@ -272,6 +320,7 @@ function makeRankedItems(args: {
 			id,
 			label: args.getLabel(id),
 			subtitle: args.getSubtitle?.(id) ?? null,
+			imageUrl: args.getImageUrl?.(id) ?? null,
 			tokens: values.tokens,
 			requests: values.requests,
 			cost: values.cost,
@@ -569,6 +618,7 @@ async function ObservabilityContent({
 	const keyMap = new Map(keys.map((key) => [key.id, key]));
 	const modelMetadata = new Map(initial.modelMetadataEntries);
 	const appNames = new Map(initial.appNameEntries);
+	const appMetadata = new Map(initial.appMetadataEntries);
 
 	const modelLabel = (id: string | null) => {
 		if (!id) return "Unknown model";
@@ -630,6 +680,14 @@ async function ObservabilityContent({
 			metricValue(row.usage, "cache_write_tokens"),
 		0,
 	);
+	const currentBlendedPrice = currentTokens > 0 ? (currentSpend / currentTokens) * 1_000_000 : 0;
+	const previousBlendedPrice = previousTokens > 0 ? (previousSpend / previousTokens) * 1_000_000 : 0;
+	const currentSuccessRate = rawRows.length > 0
+		? rawRows.filter((row) => row.success === true).length / rawRows.length
+		: 0;
+	const previousSuccessRate = previousRows.length > 0
+		? previousRows.filter((row) => row.success === true).length / previousRows.length
+		: 0;
 
 	const kpis: ObservabilityKpi[] = [
 		makeKpi({
@@ -687,6 +745,22 @@ async function ObservabilityContent({
 				to,
 			}),
 		}),
+		makeKpi({
+			id: "success_rate",
+			label: "Success rate",
+			value: currentSuccessRate,
+			previous: previousSuccessRate,
+			format: "percent",
+			sparkline: successRateByBucket({ rows: rawRows, range, from, to }),
+		}),
+		makeKpi({
+			id: "blended_price",
+			label: "Blended price / 1M",
+			value: currentBlendedPrice,
+			previous: previousBlendedPrice,
+			format: "currency_per_million",
+			sparkline: blendedPriceByBucket({ rows: rawRows, range, from, to }),
+		}),
 	];
 
 	const topApiKeys = makeRankedItems({
@@ -698,6 +772,7 @@ async function ObservabilityContent({
 		getId: (row) => row.key_id,
 		getLabel: keyLabel,
 		getSubtitle: keySubtitle,
+		limit: 5,
 	});
 	const topApps = makeRankedItems({
 		rows: rawRows,
@@ -707,6 +782,8 @@ async function ObservabilityContent({
 		to,
 		getId: (row) => row.app_id,
 		getLabel: appLabel,
+		getImageUrl: (id) => appMetadata.get(id)?.imageUrl ?? null,
+		limit: 5,
 	});
 	const trendingModels = makeRankedItems({
 		rows: rawRows,

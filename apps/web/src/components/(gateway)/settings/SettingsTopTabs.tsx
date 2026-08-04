@@ -59,6 +59,7 @@ function getTabSet(
 				label: "Details",
 				match: ["/settings/account", "/settings/account/details"],
 			},
+			{ href: "/settings/account/workspaces", label: "Workspaces" },
 			{ href: "/settings/account/mfa", label: "MFA" },
 			{ href: "/settings/account/danger", label: "Danger Zone" },
 		];
@@ -98,19 +99,18 @@ function getTabSet(
 			{
 				href: "/settings/beta",
 				label: "Feature Preview",
-				badge: "Preview",
 			},
 		];
 	}
 
 	// Usage (separate from Billing)
+	if (pathname.startsWith("/settings/usage/logs")) return null;
 	if (pathname.startsWith("/settings/usage")) {
 		return [
 			{ href: "/settings/usage/overview", label: "Overview" },
 			{ href: "/settings/usage/trends", label: "Trends" },
 			{ href: "/settings/usage/explore", label: "Explore" },
-			{ href: "/settings/usage/guardrails", label: "Guardrails" },
-			{ href: "/settings/usage/logs", label: "Logs" },
+			{ href: "/settings/usage/geography", label: "Geography" },
 			{
 				href: "/settings/usage/alerts",
 				label: "Alerts",
@@ -263,7 +263,7 @@ export default function SettingsTopTabs({
 							{t.badge ? (
 								<Badge
 									variant="outline"
-									className="h-5 px-1.5 text-[10px] uppercase tracking-wide"
+									className="h-5 px-1.5 text-[10px] capitalize"
 								>
 									{t.badge}
 								</Badge>
@@ -288,7 +288,7 @@ export default function SettingsTopTabs({
 									{activeTab?.badge ? (
 										<Badge
 											variant="outline"
-											className="h-5 px-1.5 text-[10px] uppercase tracking-wide"
+										className="h-5 px-1.5 text-[10px] capitalize"
 										>
 											{activeTab.badge}
 										</Badge>

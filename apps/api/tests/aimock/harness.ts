@@ -397,7 +397,10 @@ function buildAimockBindings(): Partial<GatewayBindings> {
             bindings[config.apiKeyEnv] = envValue(config.apiKeyEnv, `test-${config.apiKeyEnv.toLowerCase()}`);
         }
         if (config.baseUrlEnv) {
-            bindings[config.baseUrlEnv] = AIMOCK_BASE_URL;
+            // Keep DeepSeek isolated so its native Responses route uses the deterministic custom mount.
+            bindings[config.baseUrlEnv] = config.baseUrlEnv === "DEEPSEEK_BASE_URL"
+                ? `${AIMOCK_BASE_URL}/deepseek`
+                : AIMOCK_BASE_URL;
         }
     }
 
@@ -542,6 +545,7 @@ export async function startAimock(): Promise<LLMock> {
     aimock.mount("/v1/tts", createXAiTtsMount());
     aimock.mount("/v1beta/interactions", createGoogleInteractionsMount());
     aimock.mount("/v1/openai", createOpenAIChatMount());
+    aimock.mount("/deepseek", createOpenAIChatMount());
     aimock.mount("/api/v1", createOpenAIChatMount());
     aimock.mount("/v1/projects/aimock-project/locations/us-east5/publishers/anthropic/models", createAnthropicMessagesMount());
 
