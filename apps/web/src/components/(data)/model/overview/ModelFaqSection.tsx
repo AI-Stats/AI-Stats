@@ -85,6 +85,8 @@ function getStatusDescription(status: ModelOverviewPage["status"]): string {
 			return "a rumoured AI model";
 		case "Announced":
 			return "an announced AI model";
+		case "Preview":
+			return "a preview AI model";
 		case "Limited Access":
 			return "a limited-access AI model";
 		case "Withheld":

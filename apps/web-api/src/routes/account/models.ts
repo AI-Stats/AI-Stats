@@ -57,7 +57,7 @@ accountModelsRouter.get("/provider-audit/source", async (c) => {
 	if (!client) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	try {
 		const [providerModels, pricingRules] = await Promise.all([
-			fetchAllRows<any>((from, to) => client.from("v2_rpc_routes_legacy_shape").select("provider_api_model_id,provider_id,api_model_id,provider_model_slug,internal_model_id,is_active_gateway,routing_status,effective_from,effective_to").range(from, to)),
+			fetchAllRows<any>((from, to) => client.from("v2_rpc_routes_legacy_shape").select("provider_api_model_id,provider_id,api_model_id,provider_model_slug,internal_model_id,is_active_gateway,routing_status,provider_availability_status,phaseo_status,access_scope,effective_from,effective_to").range(from, to)),
 			fetchAllRows<any>((from, to) => client.from("v2_rpc_pricing_legacy_shape").select("model_key,effective_from,effective_to").range(from, to)),
 		]);
 		return c.json({ providerModels, pricingRules }, 200, PRIVATE_NO_STORE_HEADERS);
@@ -170,7 +170,7 @@ accountModelsRouter.get("/:modelId/source", async (c) => {
 			client.from("v2_models").select("*,lab:v2_labs(*)").eq("model_slug", modelId).maybeSingle(),
 			client.from("v2_model_links").select("link_kind,title,url,metadata").eq("model_slug", modelId),
 			client.from("v2_model_details").select("detail_name,detail_value,detail_order").eq("model_slug", modelId).order("detail_order"),
-			fetchModelPricingSources(c.env, [modelId]),
+			fetchModelPricingSources(c.env, [modelId], true),
 			client.rpc("get_v2_model_subscription_plans", { p_model_slug: modelId }),
 		]);
 		if (model.error) throw model.error;
