@@ -64,7 +64,15 @@ function loadModels(): Map<string, ModelRecord> {
         const model = readJson(filePath) as JsonObject;
         const modelId = nonEmptyString(model.model_id);
         const organisationId = nonEmptyString(model.organisation_id);
-        if (modelId && organisationId) models.set(modelId, { modelId, organisationId });
+        if (!modelId || !organisationId) continue;
+
+        models.set(modelId, { modelId, organisationId });
+        if (!Array.isArray(model.variants)) continue;
+
+        for (const variant of model.variants) {
+            const variantId = nonEmptyString(variant?.model_id);
+            if (variantId) models.set(variantId, { modelId: variantId, organisationId });
+        }
     }
     return models;
 }
@@ -84,13 +92,15 @@ function loadActiveCanonicalModelIds(models: Map<string, ModelRecord>): {
         for (const row of rows) {
             if (row?.is_active_gateway !== true || !isEffectiveNow(row, now)) continue;
 
+            const canonicalModelId = nonEmptyString(row.canonical_model_id);
             const apiModelId = nonEmptyString(row.api_model_id);
             const internalModelId = nonEmptyString(row.internal_model_id);
-            const routeId = internalModelId ?? apiModelId;
+            const routeId = canonicalModelId ?? internalModelId ?? apiModelId;
             if (!routeId) continue;
 
-            const model = (internalModelId ? models.get(internalModelId) : undefined) ??
-                (apiModelId ? models.get(apiModelId) : undefined);
+            const model = [canonicalModelId, internalModelId, apiModelId]
+                .map((modelId) => modelId ? models.get(modelId) : undefined)
+                .find((candidate): candidate is ModelRecord => candidate !== undefined);
             if (!model) {
                 unresolved.add(`${path.basename(path.dirname(filePath))}:${routeId}`);
                 continue;

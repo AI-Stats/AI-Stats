@@ -417,7 +417,9 @@
       "google/gemini-embedding-2",
       "google/gemini-robotics-er-1.6-preview",
       "google/lyria-3-clip-preview",
-      "google/lyria-3-pro-preview"
+      "google/lyria-3-pro-preview",
+      "google/gemma-4-26b-a4b:free",
+      "google/gemma-4-31b:free"
     ],
     "ibm": [
       "ibm/granite-20b-code-instruct-8k",
@@ -474,7 +476,8 @@
       "inclusionai/ling-2.6-1t",
       "inclusionai/ling-3.0-flash",
       "inclusionai/ling-flash-2.0",
-      "inclusionai/ring-flash-2.0"
+      "inclusionai/ring-flash-2.0",
+      "inclusionai/ling-3.0-flash:free"
     ],
     "kwaipilot": [
       "kwaipilot/kat-coder-air-v2.5",
@@ -658,7 +661,8 @@
       "mistral/mistral-medium-3.5",
       "mistral/mistral-nemo",
       "mistral/mistral-nemo-2407",
-      "mistral/mistral-small-24b-2501"
+      "mistral/mistral-small-24b-2501",
+      "mistral/leanstral-1.5:free"
     ],
     "moonshotai": [
       "moonshotai/kimi-k1.5",
@@ -898,7 +902,10 @@
       "poolside/laguna-m.1",
       "poolside/laguna-s-2.1",
       "poolside/laguna-xs-2.1",
-      "poolside/laguna-xs.2"
+      "poolside/laguna-xs.2",
+      "poolside/laguna-m.1:free",
+      "poolside/laguna-s-2.1:free",
+      "poolside/laguna-xs-2.1:free"
     ],
     "prime-intellect": [
       "prime-intellect/intellect-3",
@@ -1124,7 +1131,8 @@
     "tencent": [
       "tencent/hy3",
       "tencent/hunyuan-a13b-instruct",
-      "tencent/hy3-preview"
+      "tencent/hy3-preview",
+      "tencent/hy3:free"
     ],
     "upstage": [
       "upstage/solar-pro",
@@ -1217,7 +1225,8 @@
       "xiaomi/mimo-v2-tts",
       "xiaomi/mimo-v2.5",
       "xiaomi/mimo-v2.5-pro",
-      "xiaomi/mimo-v2.5-tts"
+      "xiaomi/mimo-v2.5-tts",
+      "xiaomi/mimo-v2.5-tts:free"
     ],
     "z-ai": [
       "z-ai/glm-4-32b",
@@ -1244,7 +1253,8 @@
       "z-ai/glm-5.1",
       "z-ai/glm-5.2",
       "z-ai/glm-5v-turbo",
-      "z-ai/glm-image"
+      "z-ai/glm-image",
+      "z-ai/glm-4.7-flash:free"
     ],
     "crofai": [
       "crofai/greg-1-mini",
@@ -1257,7 +1267,8 @@
       "inflection/inflection-3-productivity"
     ],
     "mindai": [
-      "mindai/macaron-v1-venti"
+      "mindai/macaron-v1-venti",
+      "mindai/macaron-v1-venti:free"
     ],
     "morph": [
       "morph/morph-v3-fast",
