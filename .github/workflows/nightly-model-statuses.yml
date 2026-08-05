@@ -59,6 +59,9 @@ jobs:
             - name: Refresh model statuses
               run: pnpm run data:update-statuses
 
+            - name: Test model status refresh
+              run: pnpm exec tsx --test scripts/update-model-statuses.test.ts
+
             - name: Validate data
               run: pnpm run validate:data
 

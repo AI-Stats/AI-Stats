@@ -16,6 +16,7 @@ import { publicMonitorRouter } from "./monitor";
 import { publicPricingRouter } from "./pricing";
 import { publicGatewayRouter } from "./gateway";
 import { publicOgRouter } from "./og";
+import { publicGamesRouter } from "./games";
 
 export const publicRouter = new Hono<{ Bindings: Env }>();
 publicRouter.route("/", publicStatusRouter);
@@ -34,3 +35,4 @@ publicRouter.route("/", publicMonitorRouter);
 publicRouter.route("/", publicPricingRouter);
 publicRouter.route("/", publicGatewayRouter);
 publicRouter.route("/", publicOgRouter);
+publicRouter.route("/games", publicGamesRouter);

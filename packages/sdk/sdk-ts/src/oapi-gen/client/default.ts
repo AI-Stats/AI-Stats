@@ -7458,22 +7458,38 @@ export type ListEndpointsParams = {
 };
 
 /**
- * Lists currently exposed gateway endpoint IDs and sample models.
+ * Lists capability-backed gateway endpoint IDs with public paths, modality collections, model counts, provider counts, and sample models.
  */
 export async function listEndpoints(
   client: Client,
   args: ListEndpointsParams = {},
 ): Promise<{
-  endpoints?: string[];
-  ok?: boolean;
-  sample_models?: string[];
+  data: {
+    capability_id: string;
+    collection: string;
+    id: string;
+    model_count: number;
+    provider_count: number;
+    public_path: string;
+  }[];
+  endpoints: string[];
+  ok: true;
+  sample_models: string[];
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = "/endpoints";
   return client.request<{
-    endpoints?: string[];
-    ok?: boolean;
-    sample_models?: string[];
+    data: {
+      capability_id: string;
+      collection: string;
+      id: string;
+      model_count: number;
+      provider_count: number;
+      public_path: string;
+    }[];
+    endpoints: string[];
+    ok: true;
+    sample_models: string[];
   }>({
     method: "GET",
     path: resolvedPath,
@@ -7508,6 +7524,157 @@ export async function listFiles(
   });
 }
 
+export type ListModelEndpointsParams = {
+  path?: {
+    author: string;
+    slug: string;
+  };
+  query?: {
+    availability?: "active" | "all";
+    capability_status?: string[];
+    model_routing_status?: string[];
+    provider?: string[];
+    provider_availability_reason?: string[];
+    provider_availability_status?: string[];
+    provider_routing_status?: string[];
+    provider_status?: string[];
+    status?: string[];
+    supported_parameters?: string[];
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns provider-specific endpoint rows for one model, including public paths, modalities, supported parameters, availability, routing state, provider model slugs, and endpoint pricing summaries.
+ */
+export async function listModelEndpoints(
+  client: Client,
+  args: ListModelEndpointsParams = {},
+): Promise<{
+  architecture?: {
+    [key: string]: unknown;
+  };
+  availability_mode: "active" | "all";
+  canonical_slug: string;
+  created?: number | null;
+  description?: string;
+  endpoints: {
+    availability_reason: string;
+    availability_status: "active" | "coming_soon" | "inactive";
+    capability_id: string;
+    capability_status: string;
+    collection:
+      | "text"
+      | "images"
+      | "video"
+      | "audio"
+      | "embeddings"
+      | "rerank"
+      | "moderation"
+      | "ocr"
+      | "music"
+      | "batch"
+      | "files";
+    effective_from?: string | null;
+    effective_to?: string | null;
+    endpoint: string;
+    id: string;
+    input_modalities: string[];
+    is_active_gateway: boolean;
+    model_routing_status: string;
+    output_modalities: string[];
+    pricing: {
+      [key: string]: string | null;
+    };
+    pricing_detail: {
+      [key: string]: unknown;
+    };
+    provider_id: string;
+    provider_model_slug?: string | null;
+    provider_name?: string | null;
+    provider_routing_status: string;
+    provider_status: string;
+    public_path: string;
+    supported_parameters: string[];
+    supported_parameters_detail: {
+      [key: string]: {
+        [key: string]: unknown;
+      };
+    };
+  }[];
+  id: string;
+  model_id: string;
+  name?: string | null;
+  ok: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/models/${encodeURIComponent(String(path?.["author"]))}/${encodeURIComponent(String(path?.["slug"]))}/endpoints`;
+  return client.request<{
+    architecture?: {
+      [key: string]: unknown;
+    };
+    availability_mode: "active" | "all";
+    canonical_slug: string;
+    created?: number | null;
+    description?: string;
+    endpoints: {
+      availability_reason: string;
+      availability_status: "active" | "coming_soon" | "inactive";
+      capability_id: string;
+      capability_status: string;
+      collection:
+        | "text"
+        | "images"
+        | "video"
+        | "audio"
+        | "embeddings"
+        | "rerank"
+        | "moderation"
+        | "ocr"
+        | "music"
+        | "batch"
+        | "files";
+      effective_from?: string | null;
+      effective_to?: string | null;
+      endpoint: string;
+      id: string;
+      input_modalities: string[];
+      is_active_gateway: boolean;
+      model_routing_status: string;
+      output_modalities: string[];
+      pricing: {
+        [key: string]: string | null;
+      };
+      pricing_detail: {
+        [key: string]: unknown;
+      };
+      provider_id: string;
+      provider_model_slug?: string | null;
+      provider_name?: string | null;
+      provider_routing_status: string;
+      provider_status: string;
+      public_path: string;
+      supported_parameters: string[];
+      supported_parameters_detail: {
+        [key: string]: {
+          [key: string]: unknown;
+        };
+      };
+    }[];
+    id: string;
+    model_id: string;
+    name?: string | null;
+    ok: true;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListModelsParams = {
   path?: Record<string, never>;
   query?: {
@@ -7516,6 +7683,7 @@ export type ListModelsParams = {
     endpoints?: string[];
     feed?: "json" | "rss" | "atom";
     format?: "json" | "rss" | "atom";
+    input_modalities?: string[];
     input_types?: string[];
     limit?: number;
     model_routing_status?: string[];
@@ -7621,6 +7789,7 @@ export type ListModelsParams = {
       | "windsurf"
       | "xiaomi"
       | "z-ai"[];
+    output_modalities?: string[];
     output_types?: string[];
     params?: string[];
     provider?: string[];
@@ -7629,6 +7798,7 @@ export type ListModelsParams = {
     provider_routing_status?: string[];
     provider_status?: string[];
     status?: string[];
+    supported_parameters?: string[];
   };
   headers?: Record<string, never>;
   body?: never;
@@ -7733,6 +7903,7 @@ export async function listModels(
       effective_from?: string | null;
       effective_to?: string | null;
       endpoints: string[];
+      input_modalities?: string[];
       is_active_gateway: boolean;
       model_routing_status:
         | "active"
@@ -7740,12 +7911,14 @@ export async function listModels(
         | "deranked_lvl2"
         | "deranked_lvl3"
         | "disabled";
+      output_modalities?: string[];
       params: string[];
       params_detail?: {
         [key: string]: {
           [key: string]: unknown;
         };
       };
+      provider_model_slug?: string | null;
       provider_routing_status:
         | "active"
         | "deranked_lvl1"
@@ -7892,6 +8065,7 @@ export async function listModels(
         effective_from?: string | null;
         effective_to?: string | null;
         endpoints: string[];
+        input_modalities?: string[];
         is_active_gateway: boolean;
         model_routing_status:
           | "active"
@@ -7899,12 +8073,14 @@ export async function listModels(
           | "deranked_lvl2"
           | "deranked_lvl3"
           | "disabled";
+        output_modalities?: string[];
         params: string[];
         params_detail?: {
           [key: string]: {
             [key: string]: unknown;
           };
         };
+        provider_model_slug?: string | null;
         provider_routing_status:
           | "active"
           | "deranked_lvl1"
@@ -8328,6 +8504,7 @@ export async function listTeamModels(
       effective_from?: string | null;
       effective_to?: string | null;
       endpoints: string[];
+      input_modalities?: string[];
       is_active_gateway: boolean;
       model_routing_status:
         | "active"
@@ -8335,12 +8512,14 @@ export async function listTeamModels(
         | "deranked_lvl2"
         | "deranked_lvl3"
         | "disabled";
+      output_modalities?: string[];
       params: string[];
       params_detail?: {
         [key: string]: {
           [key: string]: unknown;
         };
       };
+      provider_model_slug?: string | null;
       provider_routing_status:
         | "active"
         | "deranked_lvl1"
@@ -8487,6 +8666,7 @@ export async function listTeamModels(
         effective_from?: string | null;
         effective_to?: string | null;
         endpoints: string[];
+        input_modalities?: string[];
         is_active_gateway: boolean;
         model_routing_status:
           | "active"
@@ -8494,12 +8674,14 @@ export async function listTeamModels(
           | "deranked_lvl2"
           | "deranked_lvl3"
           | "disabled";
+        output_modalities?: string[];
         params: string[];
         params_detail?: {
           [key: string]: {
             [key: string]: unknown;
           };
         };
+        provider_model_slug?: string | null;
         provider_routing_status:
           | "active"
           | "deranked_lvl1"

@@ -35,7 +35,7 @@ import {
 
 export const metadata: Metadata = {
 	...buildMetadata({
-		title: "Phaseo",
+		title: "Phaseo: The AI Gateway for Every Model and Provider",
 		description:
 			"Discover, route, and observe every AI model with an open source AI gateway and model intelligence layer.",
 		path: "/",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
 			"AI providers",
 		],
 	}),
-	title: { absolute: PREFERRED_SITE_NAME },
+	title: { absolute: "Phaseo: The AI Gateway for Every Model and Provider" },
 };
 
 const standardTier =

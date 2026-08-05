@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ModelPerformanceCards from "./ModelPerformanceCards";
 import ModelSuccessChart from "./ModelSuccessChart";
 import ModelTokenTrajectoryChart from "./ModelTokenTrajectory";
@@ -80,14 +80,28 @@ export default function ModelPerformanceDashboard({
 			? metrics.percentile
 			: DEFAULT_MODEL_PERCENTILE,
 	);
+	const [streamMode, setStreamMode] = useState<"all" | "stream" | "non_stream">(
+		metrics.streamMode ?? "all",
+	);
+	const [contextBucket, setContextBucket] = useState<
+		"all" | "lte_4k" | "4k_16k" | "16k_64k" | "gt_64k"
+	>(metrics.contextBucket ?? "all");
 	const [regionMetrics, setRegionMetrics] = useState<ModelPerformanceMetrics | null>(null);
 	const [isLoadingRegion, setIsLoadingRegion] = useState(false);
 	const [isLoadingPercentile, setIsLoadingPercentile] = useState(false);
+	const requestGeneration = useRef(0);
 	const activeMetrics = regionMetrics ?? metrics;
 
-	const fetchSelectedMetrics = async (colo: string | null, percentile: number) => {
+	const fetchSelectedMetrics = async (
+		colo: string | null,
+		percentile: number,
+		nextStreamMode = streamMode,
+		nextContextBucket = contextBucket,
+	) => {
 		const query = new URLSearchParams({ percentile: String(percentile) });
 		if (colo) query.set("colo", colo);
+		if (nextStreamMode !== "all") query.set("stream", nextStreamMode);
+		if (nextContextBucket !== "all") query.set("context", nextContextBucket);
 		const payload = await fetchOptionalPublicWebApi<{
 			metrics: ModelPerformanceMetrics | null;
 		}>(
@@ -96,30 +110,78 @@ export default function ModelPerformanceDashboard({
 		return payload?.metrics ?? null;
 	};
 
-	const handleColoChange = async (value: string) => {
-		const nextColo = value === "all" ? null : value;
-		setSelectedColo(nextColo);
+	const handleSegmentationChange = async (
+		nextStreamMode: "all" | "stream" | "non_stream",
+		nextContextBucket: "all" | "lte_4k" | "4k_16k" | "16k_64k" | "gt_64k",
+	) => {
+		const generation = ++requestGeneration.current;
+		const previousStreamMode = streamMode;
+		const previousContextBucket = contextBucket;
+		setStreamMode(nextStreamMode);
+		setContextBucket(nextContextBucket);
+		setIsLoadingPercentile(false);
 		setIsLoadingRegion(true);
 		try {
-			setRegionMetrics(await fetchSelectedMetrics(nextColo, selectedPercentile));
+			const nextMetrics = await fetchSelectedMetrics(
+				selectedColo,
+				selectedPercentile,
+				nextStreamMode,
+				nextContextBucket,
+			);
+			if (generation !== requestGeneration.current) return;
+			if (!nextMetrics) {
+				setStreamMode(previousStreamMode);
+				setContextBucket(previousContextBucket);
+				return;
+			}
+			setRegionMetrics(nextMetrics);
+		} catch {
+			if (generation === requestGeneration.current) {
+				setStreamMode(previousStreamMode);
+				setContextBucket(previousContextBucket);
+			}
 		} finally {
-			setIsLoadingRegion(false);
+			if (generation === requestGeneration.current) setIsLoadingRegion(false);
+		}
+	};
+
+	const handleColoChange = async (value: string) => {
+		const nextColo = value === "all" ? null : value;
+		const generation = ++requestGeneration.current;
+		const previousColo = selectedColo;
+		setSelectedColo(nextColo);
+		setIsLoadingPercentile(false);
+		setIsLoadingRegion(true);
+		try {
+			const nextMetrics = await fetchSelectedMetrics(nextColo, selectedPercentile);
+			if (generation !== requestGeneration.current) return;
+			if (!nextMetrics) {
+				setSelectedColo(previousColo);
+				return;
+			}
+			setRegionMetrics(nextMetrics);
+		} catch {
+			if (generation === requestGeneration.current) setSelectedColo(previousColo);
+		} finally {
+			if (generation === requestGeneration.current) setIsLoadingRegion(false);
 		}
 	};
 
 	const handlePercentileChange = async (nextPercentile: ModelPercentile) => {
-		if (nextPercentile === selectedPercentile || isLoadingPercentile) return;
+		if (nextPercentile === selectedPercentile) return;
+		const generation = ++requestGeneration.current;
 		const previousPercentile = selectedPercentile;
+		setIsLoadingRegion(false);
 		setIsLoadingPercentile(true);
 		try {
 			const nextMetrics = await fetchSelectedMetrics(selectedColo, nextPercentile);
-			if (!nextMetrics) return;
+			if (generation !== requestGeneration.current || !nextMetrics) return;
 			setRegionMetrics(nextMetrics);
 			setSelectedPercentile(nextPercentile);
 		} catch {
-			setSelectedPercentile(previousPercentile);
+			if (generation === requestGeneration.current) setSelectedPercentile(previousPercentile);
 		} finally {
-			setIsLoadingPercentile(false);
+			if (generation === requestGeneration.current) setIsLoadingPercentile(false);
 		}
 	};
 
@@ -163,6 +225,38 @@ export default function ModelPerformanceDashboard({
 					<p className="text-sm text-muted-foreground">{headerDescription}</p>
 				</div>
 				<div className="flex items-center gap-2">
+				<label className="sr-only" htmlFor="performance-stream-mode">Streaming mode</label>
+				<select
+					id="performance-stream-mode"
+					className="h-8 rounded-md border bg-background px-2 text-xs"
+					value={streamMode}
+					disabled={isLoadingRegion}
+					onChange={(event) => void handleSegmentationChange(
+						event.target.value as "all" | "stream" | "non_stream",
+						contextBucket,
+					)}
+				>
+					<option value="all">All responses</option>
+					<option value="stream">Streaming</option>
+					<option value="non_stream">Non-streaming</option>
+				</select>
+				<label className="sr-only" htmlFor="performance-context-bucket">Context length</label>
+				<select
+					id="performance-context-bucket"
+					className="h-8 rounded-md border bg-background px-2 text-xs"
+					value={contextBucket}
+					disabled={isLoadingRegion}
+					onChange={(event) => void handleSegmentationChange(
+						streamMode,
+						event.target.value as "all" | "lte_4k" | "4k_16k" | "16k_64k" | "gt_64k",
+					)}
+				>
+					<option value="all">All contexts</option>
+					<option value="lte_4k">≤ 4K input</option>
+					<option value="4k_16k">4K–16K input</option>
+					<option value="16k_64k">16K–64K input</option>
+					<option value="gt_64k">&gt; 64K input</option>
+				</select>
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<span className="inline-flex" tabIndex={0}>

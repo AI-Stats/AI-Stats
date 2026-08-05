@@ -1,0 +1,62 @@
+---
+title: "List model endpoint capabilities"
+badge: "Beta"
+openapi: "GET /models/{author}/{slug}/endpoints"
+description: "Inspect the provider routes, modalities, parameters, availability, and pricing available for one model."
+---
+
+Use this endpoint before sending a request when your application needs to confirm that a model, provider, endpoint, and parameter combination is available.
+
+For `openai/gpt-5.4-mini`, use:
+
+```bash
+curl "https://api.phaseo.app/v1/models/openai/gpt-5.4-mini/endpoints" \
+  -H "Authorization: Bearer $PHASEO_API_KEY"
+```
+
+Each row represents one provider and endpoint capability. It includes:
+
+- the canonical capability ID and public API path
+- the provider ID, name, and provider model slug
+- input and output modalities
+- supported parameter names and structured parameter detail
+- provider, model, capability, routing, and availability states
+- effective dates when the route is scheduled or time-bounded
+- an endpoint pricing summary
+
+## Include planned and inactive routes
+
+The default `availability=active` only returns publicly routable rows. Use `availability=all` to inspect coming-soon and inactive routes:
+
+```bash
+curl "https://api.phaseo.app/v1/models/openai/gpt-5.4-mini/endpoints?availability=all" \
+  -H "Authorization: Bearer $PHASEO_API_KEY"
+```
+
+Do not route production traffic to a row unless `availability_status` is `active` and `is_active_gateway` is `true`.
+
+## Filter routes
+
+Use repeatable or comma-separated filters for:
+
+- `provider`
+- `provider_status`
+- `provider_routing_status`
+- `model_routing_status`
+- `capability_status`
+- `provider_availability_status`
+- `provider_availability_reason`
+- `status`
+- `supported_parameters`
+
+For example, this returns OpenAI routes that support `temperature`:
+
+```bash
+curl "https://api.phaseo.app/v1/models/openai/gpt-5.4-mini/endpoints?provider=openai&supported_parameters=temperature" \
+  -H "Authorization: Bearer $PHASEO_API_KEY"
+```
+
+## Related endpoints
+
+- [List models](./models)
+- [List endpoints](./endpoints)
