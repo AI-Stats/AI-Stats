@@ -1523,6 +1523,7 @@ const (
 	KnownModelIdBytedanceSeedance20 KnownModelId = "bytedance/seedance-2.0"
 	KnownModelIdBytedanceSeedance20Fast KnownModelId = "bytedance/seedance-2.0-fast"
 	KnownModelIdBytedanceSeedance20Mini260615 KnownModelId = "bytedance/seedance-2.0-mini-260615"
+	KnownModelIdBytedanceSeedream50Pro KnownModelId = "bytedance/seedream-5.0-pro"
 	KnownModelIdCrofaiGreg1Mini KnownModelId = "crofai/greg-1-mini"
 	KnownModelIdCrofaiGreg2Super KnownModelId = "crofai/greg-2-super"
 	KnownModelIdCrofaiGreg2Ultra KnownModelId = "crofai/greg-2-ultra"

@@ -271,10 +271,14 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	"bytedance-seed": {
 		"text.generate": bytedanceSeedText,
 		"video.generate": bytedanceSeedVideo,
+		"image.generate": nonTextAdapterExecutor,
+		"image.edit": nonTextAdapterExecutor,
 	},
 	byteplus: {
 		"text.generate": byteplusText,
 		"video.generate": bytedanceSeedVideo,
+		"image.generate": nonTextAdapterExecutor,
+		"image.edit": nonTextAdapterExecutor,
 	},
 	cerebras: {
 		"text.generate": cerebrasText,

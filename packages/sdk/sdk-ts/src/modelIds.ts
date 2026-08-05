@@ -97,6 +97,8 @@ export const ModelIds = {
   BYTEDANCE_SEEDANCE_2_0_FAST: "bytedance/seedance-2.0-fast",
   /** Model ID: `bytedance/seedance-2.0-mini-260615`. Model page: https://phaseo.app/models/bytedance/seedance-2.0-mini-260615 */
   BYTEDANCE_SEEDANCE_2_0_MINI_260615: "bytedance/seedance-2.0-mini-260615",
+  /** Model ID: `bytedance/seedream-5.0-pro`. Model page: https://phaseo.app/models/bytedance/seedream-5.0-pro */
+  BYTEDANCE_SEEDREAM_5_0_PRO: "bytedance/seedream-5.0-pro",
   /** Model ID: `crofai/greg-1-mini`. Model page: https://phaseo.app/models/crofai/greg-1-mini */
   CROFAI_GREG_1_MINI: "crofai/greg-1-mini",
   /** Model ID: `crofai/greg-2-super`. Model page: https://phaseo.app/models/crofai/greg-2-super */

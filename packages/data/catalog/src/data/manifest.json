@@ -193,7 +193,8 @@
       "bytedance/seedream-4.5",
       "bytedance/seed-2.1-turbo",
       "bytedance/seedance-2.0",
-      "bytedance/seedance-2.0-fast"
+      "bytedance/seedance-2.0-fast",
+      "bytedance/seedream-5.0-pro"
     ],
     "cohere": [
       "cohere/c4ai-aya-expanse-32b",

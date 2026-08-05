@@ -52,6 +52,14 @@ const IMAGE_OUTPUT_VARIANTS = new Map<number, { quality: string; resolution: str
 	[6208, { quality: "high", resolution: "1536x1024" }],
 ]);
 
+const IMAGE_SIZE_ALIAS_PIXELS = new Map<string, number>([
+	["512", 512 * 512],
+	["1K", 1024 * 1024],
+	["2K", 2048 * 1152],
+	["3K", 3072 * 1728],
+	["4K", 4096 * 2304],
+]);
+
 function toNonEmptyString(value: unknown): string | undefined {
 	if (typeof value !== "string") return undefined;
 	const trimmed = value.trim();
@@ -105,10 +113,22 @@ function normalizeAutoOption(value: string | undefined): string | undefined {
 function normalizeProviderImageSize(value: string | undefined): string | undefined {
 	if (!value) return undefined;
 	const normalized = value.trim().toUpperCase();
-	if (normalized === "512" || normalized === "1K" || normalized === "2K" || normalized === "4K") {
+	if (IMAGE_SIZE_ALIAS_PIXELS.has(normalized)) {
 		return normalized;
 	}
 	return undefined;
+}
+
+function parsePixelDimensions(value: string | undefined): { width: number; height: number } | undefined {
+	if (!value) return undefined;
+	const match = /^(\d+)x(\d+)$/i.exec(value.trim());
+	if (!match) return undefined;
+	const width = Number(match[1]);
+	const height = Number(match[2]);
+	if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+		return undefined;
+	}
+	return { width, height };
 }
 
 export function resolveImageSize(input: ImageOptionInput): string | undefined {
@@ -154,6 +174,18 @@ export function buildImagePricingRequestOptions(
 		// Keep legacy aliases while pricing migrates fully to canonical size.
 		out.resolution = size;
 		out.image_params = { resolution: size };
+		const dimensions = parsePixelDimensions(size);
+		const outputPixels = dimensions
+			? dimensions.width * dimensions.height
+			: IMAGE_SIZE_ALIAS_PIXELS.get(size.trim().toUpperCase()) ??
+				(providerImageSize ? IMAGE_SIZE_ALIAS_PIXELS.get(providerImageSize) : undefined);
+		if (outputPixels) {
+			out.output_pixels = outputPixels;
+			out.image_params = {
+				...(out.image_params as Record<string, unknown>),
+				output_pixels: outputPixels,
+			};
+		}
 	}
 
 	if (providerImageSize) {

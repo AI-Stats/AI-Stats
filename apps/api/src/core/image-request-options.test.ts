@@ -31,9 +31,11 @@ describe("image-request-options", () => {
 		expect(options).toEqual({
 			size: "1024x1024",
 			resolution: "1024x1024",
+			output_pixels: 1048576,
 			quality: "high",
 			image_params: {
 				resolution: "1024x1024",
+				output_pixels: 1048576,
 				quality: "high",
 			},
 		});
@@ -53,9 +55,11 @@ describe("image-request-options", () => {
 		expect(options).toEqual({
 			size: "1024x1024",
 			resolution: "1024x1024",
+			output_pixels: 1048576,
 			quality: "high",
 			image_params: {
 				resolution: "1024x1024",
+				output_pixels: 1048576,
 				quality: "high",
 			},
 		});
@@ -104,9 +108,11 @@ describe("image-request-options", () => {
 		expect(options).toEqual({
 			size: "1024x1536",
 			resolution: "1024x1536",
+			output_pixels: 1572864,
 			quality: "high",
 			image_params: {
 				resolution: "1024x1536",
+				output_pixels: 1572864,
 				quality: "high",
 			},
 		});
@@ -122,10 +128,46 @@ describe("image-request-options", () => {
 			size: "1:1",
 			resolution: "1K",
 			quality: "1K",
+			output_pixels: 1048576,
 			image_params: {
 				resolution: "1K",
 				quality: "1K",
+				output_pixels: 1048576,
 			},
+		});
+	});
+
+	it("derives output pixel count from exact image dimensions for tiered providers", () => {
+		const options = buildImagePricingRequestOptions({
+			size: "2048x2048",
+		});
+
+		expect(options).toMatchObject({
+			output_pixels: 4194304,
+			image_params: {
+				output_pixels: 4194304,
+			},
+		});
+	});
+
+	it("derives output pixel count from provider K-size aliases", () => {
+		expect(buildImagePricingRequestOptions({ size: "2K" })).toMatchObject({
+			output_pixels: 2359296,
+			image_params: { output_pixels: 2359296 },
+		});
+		expect(buildImagePricingRequestOptions({ size: "3K" })).toMatchObject({
+			output_pixels: 5308416,
+			image_params: { output_pixels: 5308416 },
+		});
+	});
+
+	it.each([
+		["3K", 5308416],
+		["4K", 9437184],
+	])("derives output pixels from provider quality alias %s", (quality, outputPixels) => {
+		expect(buildImagePricingRequestOptions({ size: "1:1", quality })).toMatchObject({
+			output_pixels: outputPixels,
+			image_params: { resolution: quality, output_pixels: outputPixels },
 		});
 	});
 });
