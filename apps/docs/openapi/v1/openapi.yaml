@@ -7214,6 +7214,7 @@ components:
         - black-forest-labs
         - bytedance
         - cohere
+        - crofai
         - cursor
         - deepseek
         - eleven-labs
@@ -7223,15 +7224,18 @@ components:
         - ibm
         - inception
         - inclusionai
+        - inflection
         - kwaipilot
         - lg
         - liquid-ai
         - meituan
         - meta
         - microsoft
+        - mindai
         - minimax
         - mistral
         - moonshotai
+        - morph
         - naver-hyperclova
         - nex-agi
         - nous
@@ -7248,7 +7252,9 @@ components:
         - stepfun
         - suno
         - tencent
+        - thinking-machines
         - upstage
+        - venice
         - vercel
         - voyage
         - windsurf
