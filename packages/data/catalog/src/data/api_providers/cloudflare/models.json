@@ -2854,7 +2854,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
         "reasoning": true,
         "tool_call": true,
@@ -2866,7 +2866,7 @@
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "disabled",
     "routable": false,
     "regions": {
       "execution": null,
