@@ -628,7 +628,7 @@
     "provider_api_model_id": "nebius-token-factory:minimax/minimax-m3",
     "provider_model_slug": "MiniMaxAI/MiniMax-M3",
     "internal_model_id": "minimax/minimax-m3",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP4",
     "input_modalities": "text",
     "output_modalities": "text",
