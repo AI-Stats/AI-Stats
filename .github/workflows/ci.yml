@@ -339,6 +339,8 @@ jobs:
     importer:
         name: Run importer on main
         runs-on: ubuntu-latest
+        outputs:
+            state_changed: ${{ steps.importer-state-change.outputs.changed }}
         concurrency:
             group: importer-main
             cancel-in-progress: false
@@ -353,18 +355,10 @@ jobs:
             SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
             NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
         steps:
-            - name: Create GitHub App token (Phaseo Bot)
-              id: importer-app-token
-              uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
-              with:
-                  client-id: ${{ secrets.PHASEO_APP_CLIENT_ID }}
-                  private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
-
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
               with:
                   fetch-depth: 0
                   persist-credentials: false
-                  token: ${{ steps.importer-app-token.outputs.token }}
 
             - name: Setup pnpm
               uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
@@ -434,11 +428,9 @@ jobs:
                   path: packages/data/catalog/src/data/.import-state.json
                   key: ${{ steps.importer-state-cache.outputs.cache-primary-key }}
 
-            - name: Prepare importer state update
-              id: importer-state-update
+            - name: Check importer state update
+              id: importer-state-change
               if: success() && inputs.importer_mode != 'dry-run' && env.SUPABASE_SERVICE_ROLE_KEY != '' && env.NEXT_PUBLIC_SUPABASE_URL != ''
-              env:
-                  GH_TOKEN: ${{ steps.importer-app-token.outputs.token }}
               shell: bash
               run: |
                   set -euo pipefail
@@ -448,10 +440,64 @@ jobs:
                     echo "Importer state is already committed."
                     exit 0
                   fi
+                  echo "changed=true" >> "${GITHUB_OUTPUT}"
 
-                  # Keep one moving branch/PR for importer state. The importer is
-                  # serialized above, so force-updating this branch cannot race
-                  # another importer run and avoids accumulating snapshot PRs.
+            - name: Upload importer state
+              if: steps.importer-state-change.outputs.changed == 'true'
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+              with:
+                  name: importer-state-${{ github.run_id }}-${{ github.run_attempt }}
+                  path: packages/data/catalog/src/data/.import-state.json
+                  if-no-files-found: error
+                  retention-days: 1
+
+    importer-state-pr:
+        name: Publish importer state PR
+        runs-on: ubuntu-latest
+        needs: importer
+        if: needs.importer.result == 'success' && needs.importer.outputs.state_changed == 'true'
+        concurrency:
+            group: importer-state-pr
+            cancel-in-progress: false
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  fetch-depth: 0
+                  persist-credentials: false
+
+            - name: Download importer state
+              uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+              with:
+                  name: importer-state-${{ github.run_id }}-${{ github.run_attempt }}
+                  path: importer-state-artifact
+
+            - name: Validate importer state artifact
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  artifact="importer-state-artifact/.import-state.json"
+                  state_file="packages/data/catalog/src/data/.import-state.json"
+                  [[ -f "${artifact}" && ! -L "${artifact}" ]]
+                  [[ "$(wc -c < "${artifact}")" -le 1048576 ]]
+                  python -m json.tool "${artifact}" >/dev/null
+                  install -m 0644 "${artifact}" "${state_file}"
+
+            - name: Create minimal GitHub App token
+              id: importer-app-token
+              uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
+              with:
+                  client-id: ${{ secrets.PHASEO_APP_CLIENT_ID }}
+                  private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
+                  permission-contents: write
+                  permission-pull-requests: write
+
+            - name: Publish importer state update
+              env:
+                  GH_TOKEN: ${{ steps.importer-app-token.outputs.token }}
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  state_file="packages/data/catalog/src/data/.import-state.json"
                   branch="automation/importer-state"
                   git config user.name "github-actions[bot]"
                   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -469,41 +515,14 @@ jobs:
                   else
                     git push --set-upstream "${remote_url}" "${branch}"
                   fi
-                  echo "changed=true" >> "${GITHUB_OUTPUT}"
-                  echo "branch=${branch}" >> "${GITHUB_OUTPUT}"
-
-            - name: Open importer state update PR
-              if: steps.importer-state-update.outputs.changed == 'true'
-              env:
-                  GH_TOKEN: ${{ steps.importer-app-token.outputs.token }}
-              shell: bash
-              run: |
-                  set -euo pipefail
-                  branch="${{ steps.importer-state-update.outputs.branch }}"
                   existing_pr="$(gh pr list --state open --base main --head "${branch}" --json number --jq '.[0].number')"
-                  if [[ -n "${existing_pr}" ]]; then
-                    echo "Importer state PR #${existing_pr} already exists; updated its branch."
-                    exit 0
+                  if [[ -z "${existing_pr}" ]]; then
+                    gh pr create \
+                      --base main \
+                      --head "${branch}" \
+                      --title "chore(data): persist importer state" \
+                      --body "Automated update of the committed importer hash state after a successful main import. This PR is intentionally reused and updated by subsequent imports."
                   fi
-                  gh pr create \
-                    --base main \
-                    --head "${branch}" \
-                    --title "chore(data): persist importer state" \
-                    --body "Automated update of the committed importer hash state after a successful main import. This PR is intentionally reused and updated by subsequent imports."
-
-            - name: Close superseded importer state PRs
-              if: steps.importer-state-update.outputs.changed == 'true'
-              env:
-                  GH_TOKEN: ${{ steps.importer-app-token.outputs.token }}
-              shell: bash
-              run: |
-                  set -euo pipefail
-                  legacy_prs="$(gh pr list --state open --base main --json number,headRefName --limit 100 --jq '[.[] | select(.headRefName | startswith("automation/importer-state-")) | .number] | .[]')"
-                  while IFS= read -r pr_number; do
-                    [[ -z "${pr_number}" ]] && continue
-                    gh pr close "${pr_number}" \
-                      --comment "Superseded by the reusable automation/importer-state PR; future importer runs update that single PR."
-                  done <<< "${legacy_prs}"
 
     sdk-gen:
         name: Generate SDKs
