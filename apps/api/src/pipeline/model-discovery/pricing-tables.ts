@@ -21,7 +21,7 @@ export type PricingTableFetchResult = {
 };
 
 export const PRICING_TABLE_SOURCES: PricingTableSource[] = [
-	{ providerId: "alibaba", providerName: "Alibaba Cloud Model Studio", sourceUrl: "https://www.alibabacloud.com/help/en/model-studio/model-pricing" },
+	{ providerId: "alibaba", providerName: "Alibaba Cloud Model Studio", sourceUrl: "https://www.alibabacloud.com/help/en/model-studio/model-pricing", extraction: "price-content" },
 	{ providerId: "anthropic", providerName: "Anthropic", sourceUrl: "https://platform.claude.com/docs/en/about-claude/pricing" },
 	{ providerId: "byteplus", providerName: "BytePlus ModelArk", sourceUrl: "https://docs.byteplus.com/en/docs/Byteplus_LAS/Large_model_billing" },
 	{ providerId: "cerebras", providerName: "Cerebras", sourceUrl: "https://www.cerebras.ai/pricing", extraction: "price-content" },
@@ -31,7 +31,7 @@ export const PRICING_TABLE_SOURCES: PricingTableSource[] = [
 	{ providerId: "fireworks", providerName: "Fireworks", sourceUrl: "https://docs.fireworks.ai/serverless/pricing" },
 	{ providerId: "google-ai-studio", providerName: "Google AI Studio", sourceUrl: "https://ai.google.dev/gemini-api/docs/pricing" },
 	{ providerId: "mistral", providerName: "Mistral", sourceUrl: "https://mistral.ai/pricing/", extraction: "price-content" },
-	{ providerId: "moonshot-ai", providerName: "Moonshot AI", sourceUrl: "https://platform.kimi.ai/docs/pricing/chat-k26.md", extraction: "mdx" },
+	{ providerId: "moonshotai", providerName: "Moonshot AI", sourceUrl: "https://platform.kimi.ai/docs/pricing/chat-k26.md", extraction: "mdx" },
 	{ providerId: "openai", providerName: "OpenAI", sourceUrl: "https://developers.openai.com/api/docs/pricing" },
 	{ providerId: "perplexity", providerName: "Perplexity", sourceUrl: "https://docs.perplexity.ai/docs/getting-started/pricing" },
 	{ providerId: "stepfun", providerName: "StepFun", sourceUrl: "https://platform.stepfun.com/docs/zh/guides/pricing/details" },
@@ -45,9 +45,9 @@ export const PRICING_TABLE_SOURCES: PricingTableSource[] = [
 
 const TABLE_PATTERN = /<table\b[^>]*>[\s\S]*?<\/table>/gi;
 const TAG_PATTERN = /<[^>]+>/g;
-const PRICE_TEXT_PATTERN = /(?:pricing|price|\$\s*\d|usd\s*\d|\d\s*usd|per\s*(?:million|1m|mtok)|\/\s*(?:m|mtok)|\u00A5|\u20AC|\u00A3|cny|rmb|\u5143)/i;
+const PRICE_TEXT_PATTERN = /(?:pricing|price|\$\s*\d|usd\s*\d|\d\s*usd|per\s*(?:million|1m|mtok)|\/\s*(?:m|mtok)|¥|cny|rmb|元)/i;
 const NON_CONTENT_PATTERN = /<(?:script|style|svg|noscript|template)\b[^>]*>[\s\S]*?<\/(?:script|style|svg|noscript|template)\b[^>]*>/gi;
-const PRICE_VALUE_PATTERN = /(?:\$|\u00A5|\u20AC|\u00A3)\s*\d+(?:\.\d+)?(?:\s*\/?\s*(?:1?m|million|mtok|month|mo|hour|user|1000))?/gi;
+const PRICE_VALUE_PATTERN = /(?:\$|¥|€)\s*\d+(?:\.\d+)?(?:\s*\/?\s*(?:1?m|million|mtok|month|mo|hour|user|1000))?/gi;
 const MDX_TABLE_PATTERN = /<DocTable\b[\s\S]*?\n\s*\/>/gi;
 const MAX_PRICING_SAMPLES = 6;
 

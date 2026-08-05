@@ -7,6 +7,7 @@ import type {
 	IROperation,
 	IRSchema
 } from "@phaseo/oapi-core";
+import { splitPathTemplate } from "@phaseo/oapi-core";
 
 export const backendRuby: Backend = {
 	id: "ruby",
@@ -88,6 +89,24 @@ function renderClient(): string {
 		"        end",
 		"        response.body.to_s.b",
 		"      end",
+		"",
+		"      def request_stream(method:, path:, query: nil, headers: nil, body: nil)",
+		"        return enum_for(__method__, method:, path:, query:, headers:, body:) unless block_given?",
+		"        http, req = build_request(method:, path:, query:, headers: (headers || {}).merge(\"Accept\" => \"text/event-stream\"), body:)",
+		"        http.request(req) do |response|",
+		"          unless response.is_a?(Net::HTTPSuccess)",
+		"            raise RequestError.new(status_code: response.code.to_i, response_body: response.body.to_s)",
+		"          end",
+		"          buffer = String.new",
+		"          response.read_body do |chunk|",
+		"            buffer << chunk",
+		"            while (index = buffer.index(\"\\n\"))",
+		"              yield buffer.slice!(0, index + 1).sub(/\\r?\\n\\z/, \"\")",
+		"            end",
+		"          end",
+		"          yield buffer unless buffer.empty?",
+		"        end",
+		"      end",
 		"    end",
 		"  end",
 		"end",
@@ -147,17 +166,21 @@ function renderOperation(operation: IROperation): string {
 
 function renderPathTemplate(path: string, params: IROperation["params"]): string {
 	if (params.length === 0) {
-		return `"${path}"`;
+		return `"${escapeRubyDoubleQuoted(path)}"`;
 	}
-	const segments = path.split(/({[^}]+})/g).filter(Boolean);
+	const segments = splitPathTemplate(path);
 	const parts = segments.map((segment) => {
 		if (segment.startsWith("{") && segment.endsWith("}")) {
 			const name = sanitizeIdentifier(segment.slice(1, -1));
 			return `#{path["${name}"]}`;
 		}
-		return segment.replace(/"/g, '\\"');
+		return escapeRubyDoubleQuoted(segment);
 	});
 	return `"${parts.join("")}"`;
+}
+
+function escapeRubyDoubleQuoted(value: string): string {
+	return value.replace(/\\/g, "\\\\").replace(/#/g, "\\#").replace(/"/g, '\\"');
 }
 
 function sanitizeIdentifier(name: string): string {

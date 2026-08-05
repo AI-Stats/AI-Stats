@@ -1,4 +1,4 @@
-export type UsageLogsViewKey = "logs" | "jobs" | "sessions";
+export type UsageLogsViewKey = "logs" | "upstream" | "jobs" | "sessions";
 
 type KnownUsageRangePreset =
 	| "live"
@@ -11,6 +11,7 @@ type KnownUsageRangePreset =
 	| "last_7d"
 	| "last_30d"
 	| "last_90d"
+	| "past_1y"
 	| "today"
 	| "yesterday"
 	| "this_week"
@@ -71,6 +72,7 @@ export function parseUsageRangePreset(value?: string | null): UsageRangePreset {
 		case "last_7d":
 		case "last_30d":
 		case "last_90d":
+		case "past_1y":
 		case "today":
 		case "yesterday":
 		case "this_week":
@@ -242,29 +244,11 @@ function subtractRelativeDuration(date: Date, token: string): Date {
 }
 
 function formatTime(date: Date): string {
-	return new Intl.DateTimeFormat("en-US", {
-		hour: "numeric",
+	return new Intl.DateTimeFormat("en-GB", {
+		hour: "2-digit",
 		minute: "2-digit",
-		hour12: true,
-	})
-		.format(date)
-		.replace("AM", "am")
-		.replace("PM", "pm");
-}
-
-function formatOrdinalDay(day: number): string {
-	const mod100 = day % 100;
-	if (mod100 >= 11 && mod100 <= 13) return `${day}th`;
-	switch (day % 10) {
-		case 1:
-			return `${day}st`;
-		case 2:
-			return `${day}nd`;
-		case 3:
-			return `${day}rd`;
-		default:
-			return `${day}th`;
-	}
+		hour12: false,
+	}).format(date);
 }
 
 function formatFriendlyDate(
@@ -275,8 +259,8 @@ function formatFriendlyDate(
 		month: "short",
 	}).format(date);
 	return includeYear
-		? `${month} ${formatOrdinalDay(date.getDate())}, ${date.getFullYear()}`
-		: `${month} ${formatOrdinalDay(date.getDate())}`;
+		? `${month} ${date.getDate()}, ${date.getFullYear()}`
+		: `${month} ${date.getDate()}`;
 }
 
 function formatFriendlyDateTime(
@@ -298,23 +282,11 @@ function formatFriendlyCustomRange(args: {
 		from.getFullYear() !== to.getFullYear() ||
 		from.getFullYear() !== reference.getFullYear() ||
 		to.getFullYear() !== reference.getFullYear();
-	const sameDay =
-		from.getFullYear() === to.getFullYear() &&
-		from.getMonth() === to.getMonth() &&
-		from.getDate() === to.getDate();
-
-	if (sameDay) {
-		if (includeTime) {
-			return `${formatFriendlyDate(from, { includeYear })}, ${formatTime(from)} - ${formatTime(to)}`;
-		}
-		return formatFriendlyDate(from, { includeYear });
-	}
-
 	if (includeTime) {
-		return `${formatFriendlyDateTime(from, { includeYear })} - ${formatFriendlyDateTime(to, { includeYear })}`;
+		return `${formatFriendlyDateTime(from, { includeYear })} – ${formatFriendlyDateTime(to, { includeYear })}`;
 	}
 
-	return `${formatFriendlyDate(from, { includeYear })} - ${formatFriendlyDate(to, { includeYear })}`;
+	return `${formatFriendlyDate(from, { includeYear })} – ${formatFriendlyDate(to, { includeYear })}`;
 }
 
 function formatRelativeTokenLabel(token: string): string {
@@ -380,6 +352,8 @@ function getRelativePresetToken(preset: UsageRangePreset): string | null {
 			return "1mo";
 		case "last_90d":
 			return "90d";
+		case "past_1y":
+			return "1y";
 		default:
 			return null;
 	}
@@ -488,6 +462,11 @@ export function resolveUsageTimeRange(args: {
 			from.setDate(from.getDate() - 90);
 			return { from: from.toISOString(), to: now.toISOString() };
 		}
+		case "past_1y": {
+			const from = new Date(now);
+			from.setFullYear(from.getFullYear() - 1);
+			return { from: from.toISOString(), to: now.toISOString() };
+		}
 		case "today":
 			return { from: startOfDay(now).toISOString(), to: now.toISOString() };
 		case "yesterday": {
@@ -576,15 +555,17 @@ export function getUsageRangeLabel(args: {
 		case "past_3h":
 			return "Past 3 Hours";
 		case "past_24h":
-			return "Past 1 Day";
+			return "Past 24 Hours";
 		case "past_2d":
-			return "Past 2 Days";
+			return "Past 48 Hours";
 		case "last_7d":
 			return "Past 1 Week";
 		case "last_30d":
 			return "Past 1 Month";
 		case "last_90d":
 			return "Past 90 Days";
+		case "past_1y":
+			return "Past 1 Year";
 		case "today":
 			return "Today";
 		case "yesterday":
@@ -592,15 +573,15 @@ export function getUsageRangeLabel(args: {
 		case "this_week":
 			return "This Week";
 		case "last_week":
-			return "Prev Week";
+			return "Previous Week";
 		case "this_month":
 			return "This Month";
 		case "last_month":
-			return "Prev Month";
+			return "Previous Month";
 		case "this_year":
 			return "This Year";
 		case "last_year":
-			return "Prev Year";
+			return "Previous Year";
 		case "this_quarter":
 			return "This Quarter";
 		case "last_quarter":
@@ -613,7 +594,7 @@ export function getUsageRangeLabel(args: {
 					args.customFrom.includes("T") || args.customTo.includes("T");
 				return formatFriendlyCustomRange({ from, to, includeTime });
 			}
-			return "Custom range...";
+			return "Custom range";
 		default:
 			return "Past 1 Day";
 	}
@@ -629,13 +610,10 @@ export function getUsageRangeTriggerLabel(args: {
 	const { from, to } = resolveUsageTimeRange(args);
 	const start = new Date(from);
 	const end = new Date(to);
-	const includeTime =
-		Boolean(args.customFrom && args.customFrom.includes("T")) ||
-		Boolean(args.customTo && args.customTo.includes("T"));
 	return formatFriendlyCustomRange({
 		from: start,
 		to: end,
-		includeTime,
+		includeTime: true,
 		reference: now,
 	});
 }

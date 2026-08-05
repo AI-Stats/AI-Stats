@@ -5,11 +5,13 @@ import OrganisationDetailShell from "@/components/(data)/organisation/Organisati
 import type { Metadata } from "next";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import Script from "next/script";
+import { notFound } from "next/navigation";
 
 async function fetchOrganisation(organisationId: string) {
 	try {
 		return await fetchFrontendOrganisation(organisationId, 12);
 	} catch (error) {
+		// eslint-disable-next-line no-console
 		console.warn("[seo] failed to load organisation metadata", {
 			organisationId,
 			error,
@@ -81,14 +83,13 @@ export default async function Page({
 }) {
 	const { organisationId } = await params;
 
-	const organisation = await fetchFrontendOrganisation(organisationId, 12);
+	const organisation = await fetchFrontendOrganisation(organisationId, 12).catch(() => null);
 
-	// Generate structured data and FAQs for SEO
+	// Generate structured data for the organisation page.
 	const generateStructuredData = () => {
 		if (!organisation) return null;
 
 		const orgName = organisation.name || "AI Organization";
-		const modelCount = organisation.recent_models?.length || 0;
 		const description = organisation.description || `${orgName} is an AI organization tracked on Phaseo.`;
 
 		// Organization Schema
@@ -98,56 +99,6 @@ export default async function Page({
 			"name": orgName,
 			"description": description,
 			"url": absoluteUrl(`/organisations/${organisationId}`),
-		};
-
-		// FAQ Schema
-		const faqSchema = {
-			"@context": "https://schema.org",
-			"@type": "FAQPage",
-			"mainEntity": [
-				{
-					"@type": "Question",
-					"name": `What is ${orgName}?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `${orgName} is an AI organization tracked on Phaseo. ${description} You can view their models, gateway availability, pricing information, and latest releases on Phaseo.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `What models does ${orgName} offer?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": modelCount
-							? `${orgName} has ${modelCount} models tracked on Phaseo. View the complete model catalog, compare benchmarks, check pricing across providers, and see API availability for each model.`
-							: `${orgName} models are tracked on Phaseo. Check the organization page for their complete model catalog, benchmarks, pricing, and API availability.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `How do I access ${orgName} models?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `${orgName} models can be accessed through various API providers and gateways. Visit the organization page on Phaseo to see which providers offer ${orgName} models, compare pricing, and view API documentation links.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `What are the latest models from ${orgName}?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `See the latest model releases from ${orgName} on Phaseo. We track new model launches, updates, and version releases. Check the Recent Models section for the newest additions to ${orgName}'s lineup.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `How does ${orgName} pricing compare to other providers?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `Compare ${orgName} pricing against other AI organizations on Phaseo. View detailed token pricing, calculate costs with our pricing calculator, and see real-world pricing data across different API providers and deployment options.`,
-					},
-				},
-			],
 		};
 
 		// Breadcrumb Schema
@@ -176,12 +127,13 @@ export default async function Page({
 			],
 		};
 
-		return { organizationSchema, faqSchema, breadcrumbSchema };
+		return { organizationSchema, breadcrumbSchema };
 	};
 
 	const structuredData = generateStructuredData();
 
 	if (!organisation) {
+		notFound();
 		return (
 			<main className="flex min-h-screen flex-col">
 				<div className="container mx-auto px-4 py-8">
@@ -237,13 +189,6 @@ export default async function Page({
 						type="application/ld+json"
 						dangerouslySetInnerHTML={{
 							__html: JSON.stringify(structuredData.organizationSchema),
-						}}
-					/>
-					<Script
-						id="organisation-faq-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.faqSchema),
 						}}
 					/>
 					<Script

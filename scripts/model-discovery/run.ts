@@ -158,13 +158,13 @@ async function loadApiModelAllowlistByProvider(
 
     while (true) {
         const { data, error } = await client
-            .from("data_api_provider_models")
+            .from("v2_rpc_routes_legacy_shape")
             .select("provider_id, provider_model_slug, api_model_id")
             .in("provider_id", uniqueProviderIds)
             .range(from, from + pageSize - 1);
 
         if (error) {
-            throw new Error(error.message || "Failed to load allowlist from data_api_provider_models");
+            throw new Error(error.message || "Failed to load allowlist from V2 provider routes");
         }
 
         const rows = (data ?? []) as ApiProviderModelAllowlistRow[];
@@ -1031,7 +1031,7 @@ async function main(): Promise<void> {
 
         console.log(`[model-discovery] Providers loaded: ${providers.length}`);
         console.log(
-            `[model-discovery] Known provider model allowlist loaded from data_api_provider_models for ${apiModelAllowlistByProvider.size} provider(s).`
+            `[model-discovery] Known provider model allowlist loaded from V2 provider routes for ${apiModelAllowlistByProvider.size} provider(s).`
         );
         if (loadedEnvFiles.length > 0) {
             console.log(`[model-discovery] Loaded local env files: ${loadedEnvFiles.join(", ")}`);

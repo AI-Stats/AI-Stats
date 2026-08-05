@@ -176,7 +176,7 @@ async function loadConfiguredFromDb(): Promise<Map<string, Set<string>>> {
 
 	while (true) {
 		const { data, error } = await supabase
-			.from("data_api_provider_models")
+		.from("v2_rpc_routes_legacy_shape")
 			.select("provider_id, provider_model_slug, api_model_id")
 			.range(from, from + PAGE_SIZE - 1);
 		if (error) throw new Error(error.message || "Failed loading data_api_provider_models");

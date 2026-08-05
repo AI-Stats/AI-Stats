@@ -58,6 +58,9 @@ public final class ModelIds {
     /** Model ID: <code>anthropic/claude-opus-4.8</code>. Model page: https://phaseo.app/models/anthropic/claude-opus-4.8 */
     public static final String ANTHROPIC_CLAUDE_OPUS_4_8 = "anthropic/claude-opus-4.8";
 
+    /** Model ID: <code>anthropic/claude-opus-5</code>. Model page: https://phaseo.app/models/anthropic/claude-opus-5 */
+    public static final String ANTHROPIC_CLAUDE_OPUS_5 = "anthropic/claude-opus-5";
+
     /** Model ID: <code>anthropic/claude-sonnet-4.5</code>. Model page: https://phaseo.app/models/anthropic/claude-sonnet-4.5 */
     public static final String ANTHROPIC_CLAUDE_SONNET_4_5 = "anthropic/claude-sonnet-4.5";
 
@@ -199,11 +202,11 @@ public final class ModelIds {
     /** Model ID: <code>deepseek/deepseek-v3.2-speciale</code>. Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-speciale */
     public static final String DEEPSEEK_DEEPSEEK_V3_2_SPECIALE = "deepseek/deepseek-v3.2-speciale";
 
-    /** Model ID: <code>deepseek/deepseek-v3.2-thinking</code>. Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-thinking */
-    public static final String DEEPSEEK_DEEPSEEK_V3_2_THINKING = "deepseek/deepseek-v3.2-thinking";
-
     /** Model ID: <code>deepseek/deepseek-v4-flash</code>. Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash */
     public static final String DEEPSEEK_DEEPSEEK_V4_FLASH = "deepseek/deepseek-v4-flash";
+
+    /** Model ID: <code>deepseek/deepseek-v4-flash-0731</code>. Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash-0731 */
+    public static final String DEEPSEEK_DEEPSEEK_V4_FLASH_0731 = "deepseek/deepseek-v4-flash-0731";
 
     /** Model ID: <code>deepseek/deepseek-v4-pro</code>. Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro */
     public static final String DEEPSEEK_DEEPSEEK_V4_PRO = "deepseek/deepseek-v4-pro";

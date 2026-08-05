@@ -2,9 +2,10 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { IRChatRequest } from "@core/ir";
 import type { ExecutorExecuteArgs } from "@executors/types";
 import { execute } from "../index";
+import { assertBedrockMantleBaseUrl } from "../bedrock-utils";
 import { installFetchMock, jsonResponse } from "../../../../../tests/helpers/mock-fetch";
 import { setupTestRuntime, teardownTestRuntime } from "../../../../../tests/helpers/runtime";
-import { parseSseJson, readSseFrames } from "../../../../../tests/helpers/sse";
+import { parseSseJson, readSseFrames, sseResponse } from "../../../../../tests/helpers/sse";
 
 function buildArgs(ir: IRChatRequest, overrides: Partial<ExecutorExecuteArgs> = {}): ExecutorExecuteArgs {
 	return {
@@ -153,13 +154,22 @@ describe("amazon-bedrock text executor", () => {
 		teardownTestRuntime();
 	});
 
+	it("rejects a legacy Bedrock Runtime base URL", () => {
+		expect(() => assertBedrockMantleBaseUrl("https://bedrock-runtime.us-east-1.amazonaws.com"))
+			.toThrow("amazon_bedrock_mantle_endpoint_required");
+		expect(() => assertBedrockMantleBaseUrl("https://api.openai.com/v1"))
+			.toThrow("amazon_bedrock_mantle_endpoint_required");
+		expect(() => assertBedrockMantleBaseUrl("https://bedrock-mantle.eu-west-2.api.aws"))
+			.not.toThrow();
+	});
+
 	it("routes OpenAI Bedrock models to /openai/v1/chat/completions", async () => {
 		const mock = installFetchMock([{
 			match: (url) => url.endsWith("/openai/v1/chat/completions"),
 			onRequest: (call) => {
 				expect(call.bodyJson?.model).toBe("openai.gpt-oss-20b-1:0");
 				expect(call.bodyJson?.messages?.[0]?.role).toBe("user");
-				expect(call.bodyJson?.stream).toBe(false);
+				expect(call.bodyJson?.stream).toBe(true);
 			},
 			response: jsonResponse({
 				id: "chatcmpl_bedrock",
@@ -195,63 +205,203 @@ describe("amazon-bedrock text executor", () => {
 	expect(result.ir?.choices?.[0]?.message?.content?.[0]?.type).toBe("text");
 	});
 
-	it("routes all Bedrock models to the unified OpenAI-compatible endpoint", async () => {
+	it.each([
+		{
+			client: "Chat Completions",
+			endpoint: "chat.completions",
+			protocol: "openai.chat.completions",
+		},
+		{
+			client: "Responses",
+			endpoint: "responses",
+			protocol: "openai.responses",
+		},
+	])("routes Claude Sonnet 5 $client requests through Bedrock Messages", async ({ endpoint, protocol }) => {
 		const mock = installFetchMock([{
-			match: (url) => url === "https://api.bedrock.example/openai/v1/chat/completions",
+			match: (url) => url === "https://api.bedrock.example/anthropic/v1/messages",
 			onRequest: (call) => {
-				expect(call.bodyJson?.model).toBe("anthropic.claude-sonnet-5-v1:0");
+				expect(call.headers["x-api-key"]).toBe("test-bedrock-key");
+				expect(call.headers["anthropic-version"]).toBe("2023-06-01");
+				expect(call.headers.Authorization).toBeUndefined();
+				expect(call.bodyJson?.model).toBe("anthropic.claude-sonnet-5");
 				expect(call.bodyJson?.messages?.[0]?.role).toBe("user");
+				expect(call.bodyJson?.messages?.[0]?.content?.[0]?.text).toBe("hello mantle");
+				expect(call.bodyJson?.max_tokens).toBe(512);
 				expect(call.bodyJson?.stream).toBe(false);
 			},
 			response: jsonResponse({
-				id: "chatcmpl_bedrock_mantle",
-				object: "chat.completion",
-				created: 1710000000,
-				model: "anthropic.claude-sonnet-5-v1:0",
-				choices: [{
-					index: 0,
-					message: { role: "assistant", content: "mantle ok" },
-					finish_reason: "stop",
-				}],
+				id: "msg_bedrock_mantle",
+				type: "message",
+				role: "assistant",
+				model: "anthropic.claude-sonnet-5",
+				content: [{ type: "text", text: "mantle ok" }],
+				stop_reason: "end_turn",
+				stop_sequence: null,
 				usage: {
-					prompt_tokens: 4,
-					completion_tokens: 2,
-					total_tokens: 6,
+					input_tokens: 4,
+					output_tokens: 2,
 				},
 			}, {
 				headers: {
-					"x-amzn-requestid": "bedrock-mantle-req",
+					"request-id": "bedrock-mantle-req",
 				},
 			}),
 		}]);
 
 		const result = await execute(buildArgs({
-			model: "anthropic.claude-sonnet-5-v1:0",
+			model: "anthropic.claude-sonnet-5",
 			stream: false,
+			maxTokens: 512,
 			messages: [{ role: "user", content: [{ type: "text", text: "hello mantle" }] }],
 		}, {
-			providerId: "amazon-bedrock",
-			pricingCard: {
-				provider: "amazon-bedrock",
-				model: "anthropic.claude-sonnet-5-v1:0",
-				endpoint: "chat.completions",
-				effective_from: null,
-				effective_to: null,
-				currency: "USD",
-				version: null,
-				rules: [],
-			},
+			endpoint,
+			protocol,
 		}));
 
 		mock.restore();
 
 		expect(result.kind).toBe("completed");
 		expect(result.ir?.choices?.[0]?.message?.content?.[0]?.type).toBe("text");
+		expect((result.ir?.choices?.[0]?.message?.content?.[0] as any)?.text).toBe("mantle ok");
+		expect(result.bill.upstream_id).toBe("bedrock-mantle-req");
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.url).not.toContain("/chat/completions");
+		expect(mock.calls[0]?.url).not.toMatch(/\/v1\/responses$/);
+	});
+
+	it("uses Mantle Messages for Claude models beyond Sonnet 5", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/anthropic/v1/messages"),
+			response: jsonResponse({
+				id: "msg_bedrock_opus",
+				type: "message",
+				role: "assistant",
+				model: "anthropic.claude-opus-4-6-v1:0",
+				content: [{ type: "text", text: "mantle native" }],
+				stop_reason: "end_turn",
+				usage: { input_tokens: 3, output_tokens: 2 },
+			}),
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "anthropic.claude-opus-4-6-v1:0",
+			stream: false,
+			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
+		}));
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls[0]?.url).toContain("/anthropic/v1/messages");
+	});
+
+	it("rejects Claude JSON Schema requests instead of leaving Mantle", async () => {
+		await expect(execute(buildArgs({
+			model: "anthropic.claude-sonnet-5",
+			stream: true,
+			responseFormat: {
+				type: "json_schema",
+				name: "answer",
+				schema: { type: "object", properties: { answer: { type: "string" } } },
+			},
+			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
+		}, {
+			endpoint: "responses",
+			protocol: "openai.responses",
+		}))).rejects.toThrow(
+			"amazon_bedrock_mantle_claude_structured_output_unsupported",
+		);
+	});
+
+	it.each([
+		{
+			client: "Chat Completions",
+			endpoint: "chat.completions",
+			protocol: "openai.chat.completions",
+		},
+		{
+			client: "Responses",
+			endpoint: "responses",
+			protocol: "openai.responses",
+		},
+	])("streams Claude Sonnet 5 Messages responses back to $client clients", async ({ endpoint, protocol }) => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.bedrock.example/anthropic/v1/messages",
+			onRequest: (call) => {
+				expect(call.headers["x-api-key"]).toBe("test-bedrock-key");
+				expect(call.headers["anthropic-version"]).toBe("2023-06-01");
+				expect(call.bodyJson?.model).toBe("anthropic.claude-sonnet-5-v1:0");
+				expect(call.bodyJson?.stream).toBe(true);
+			},
+			response: () => sseResponse([
+				{
+					type: "message_start",
+					message: {
+						id: "msg_bedrock_stream",
+						type: "message",
+						role: "assistant",
+						model: "anthropic.claude-sonnet-5-v1:0",
+						content: [],
+						stop_reason: null,
+						stop_sequence: null,
+						usage: { input_tokens: 4, output_tokens: 0 },
+					},
+				},
+				{
+					type: "content_block_start",
+					index: 0,
+					content_block: { type: "text", text: "" },
+				},
+				{
+					type: "content_block_delta",
+					index: 0,
+					delta: { type: "text_delta", text: "streamed" },
+				},
+				{ type: "content_block_stop", index: 0 },
+				{
+					type: "message_delta",
+					delta: { stop_reason: "end_turn", stop_sequence: null },
+					usage: { output_tokens: 2 },
+				},
+				{ type: "message_stop" },
+			]),
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "anthropic.claude-sonnet-5-v1:0",
+			stream: true,
+			messages: [{ role: "user", content: [{ type: "text", text: "stream please" }] }],
+		}, {
+			endpoint,
+			protocol,
+		}));
+
+		expect(result.kind).toBe("stream");
+		if (result.kind !== "stream") {
+			mock.restore();
+			throw new Error("expected_stream_result");
+		}
+		const frames = await readSseFrames(new Response(result.stream));
+		const payloads = parseSseJson(frames);
+		mock.restore();
+
+		if (protocol === "openai.responses") {
+			expect(payloads.some((payload) => payload?.delta === "streamed")).toBe(true);
+		} else {
+			expect(payloads.some((payload) =>
+				payload?.choices?.some?.((choice: any) => choice?.delta?.content === "streamed"),
+			)).toBe(true);
+		}
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.url).not.toContain("/chat/completions");
+		expect(mock.calls[0]?.url).not.toMatch(/\/v1\/responses$/);
 	});
 
 	it("uses Responses for GPT-5.6 models even on the chat surface", async () => {
 		const mock = installFetchMock([{
 			match: (url) => url.endsWith("/openai/v1/responses"),
+			onRequest: (call) => {
+				expect(call.bodyJson?.store).toBe(false);
+			},
 			response: new Response(new ReadableStream<Uint8Array>(), { status: 200 }),
 		}]);
 
@@ -266,7 +416,7 @@ describe("amazon-bedrock text executor", () => {
 		expect(mock.calls[0]?.url.endsWith("/openai/v1/responses")).toBe(true);
 	});
 
-	it("falls back from /responses to /chat/completions when responses is unavailable", async () => {
+	it("does not change endpoints when /responses is unavailable", async () => {
 		const mock = installFetchMock([
 			{
 				match: (url) => url.endsWith("/openai/v1/responses"),
@@ -275,25 +425,6 @@ describe("amazon-bedrock text executor", () => {
 						message: "unknown endpoint /responses",
 					},
 				}, { status: 404 }),
-			},
-			{
-				match: (url) => url.endsWith("/openai/v1/chat/completions"),
-				response: jsonResponse({
-					id: "chatcmpl_bedrock_fallback",
-					object: "chat.completion",
-					created: 1710000001,
-					model: "openai.gpt-oss-20b-1:0",
-					choices: [{
-						index: 0,
-						message: { role: "assistant", content: "fallback ok" },
-						finish_reason: "stop",
-					}],
-					usage: {
-						prompt_tokens: 4,
-						completion_tokens: 2,
-						total_tokens: 6,
-					},
-				}),
 			},
 		]);
 
@@ -309,9 +440,9 @@ describe("amazon-bedrock text executor", () => {
 		mock.restore();
 
 		expect(mock.calls[0]?.url.endsWith("/openai/v1/responses")).toBe(true);
-		expect(mock.calls[1]?.url.endsWith("/openai/v1/chat/completions")).toBe(true);
+		expect(mock.calls).toHaveLength(1);
 		expect(result.kind).toBe("completed");
-		expect(result.ir?.choices?.[0]?.message?.content?.[0]?.type).toBe("text");
+		expect(result.upstream.status).toBe(404);
 	});
 
 });

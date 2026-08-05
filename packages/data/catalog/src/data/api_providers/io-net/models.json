@@ -1,0 +1,356 @@
+[
+  {
+    "api_model_id": "moonshotai/kimi-k2-thinking",
+    "provider_api_model_id": "io-net:moonshotai/kimi-k2-thinking",
+    "provider_model_slug": "moonshotai/kimi-k2-thinking",
+    "internal_model_id": "moonshotai/kimi-k2-thinking",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 32768,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models.dev",
+        "url": "https://models.dev/api.json",
+        "accessed_at": "2026-07-23T09:08:52.190Z",
+        "notes": "Provider model slug: moonshotai/kimi-k2-thinking"
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-07-23T09:08:52.190Z",
+      "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-oss-120b",
+    "provider_api_model_id": "io-net:openai/gpt-oss-120b",
+    "provider_model_slug": "openai/gpt-oss-120b",
+    "internal_model_id": "openai/gpt-oss-120b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models.dev",
+        "url": "https://models.dev/api.json",
+        "accessed_at": "2026-07-23T09:08:52.190Z",
+        "notes": "Provider model slug: openai/gpt-oss-120b"
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-07-23T09:08:52.190Z",
+      "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-oss-20b",
+    "provider_api_model_id": "io-net:openai/gpt-oss-20b",
+    "provider_model_slug": "openai/gpt-oss-20b",
+    "internal_model_id": "openai/gpt-oss-20b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 64000,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models.dev",
+        "url": "https://models.dev/api.json",
+        "accessed_at": "2026-07-23T09:08:52.190Z",
+        "notes": "Provider model slug: openai/gpt-oss-20b"
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-07-23T09:08:52.190Z",
+      "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-235b-a22b-thinking-2507",
+    "provider_api_model_id": "io-net:qwen/qwen3-235b-a22b-thinking-2507",
+    "provider_model_slug": "qwen/qwen3-235b-a22b-thinking-2507",
+    "internal_model_id": "qwen/qwen3-235b-a22b-thinking-2507",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models.dev",
+        "url": "https://models.dev/api.json",
+        "accessed_at": "2026-07-23T09:08:52.190Z",
+        "notes": "Provider model slug: qwen/qwen3-235b-a22b-thinking-2507"
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-07-23T09:08:52.190Z",
+      "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-next-80b-a3b-instruct",
+    "provider_api_model_id": "io-net:qwen/qwen3-next-80b-a3b-instruct",
+    "provider_model_slug": "qwen/qwen3-next-80b-a3b-instruct",
+    "internal_model_id": "qwen/qwen3-next-80b-a3b-instruct",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models.dev",
+        "url": "https://models.dev/api.json",
+        "accessed_at": "2026-07-23T09:08:52.190Z",
+        "notes": "Provider model slug: qwen/qwen3-next-80b-a3b-instruct"
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-07-23T09:08:52.190Z",
+      "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "io-net:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://io.net/docs/guides/intelligence/io-intelligence",
+        "accessed_at": "2026-08-03T00:00:00Z",
+        "notes": "Deployment recorded; the parent provider remains catalogue-only in Phaseo."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-03T00:00:00Z",
+      "notes": "Provider deployment recorded; routing follows the disabled parent provider."
+    },
+    "rate_limits": []
+  }
+]

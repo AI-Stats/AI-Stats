@@ -175,6 +175,8 @@ function decodeNonTextRequest(endpoint: NonTextEndpoint, body: any): NonTextIRRe
 				size: body?.size,
 				n: body?.n,
 				quality: body?.quality,
+				stream: body?.stream,
+				partialImages: body?.partial_images,
 				responseFormat: body?.response_format,
 				outputFormat: body?.output_format,
 				outputCompression: body?.output_compression,
@@ -214,6 +216,9 @@ function decodeNonTextRequest(endpoint: NonTextEndpoint, body: any): NonTextIRRe
 					? body.timestamp_granularities
 					: undefined,
 				include: Array.isArray(body?.include) ? body.include : undefined,
+				chunkingStrategy: body?.chunking_strategy,
+				knownSpeakerNames: Array.isArray(body?.known_speaker_names) ? body.known_speaker_names : undefined,
+				knownSpeakerReferences: Array.isArray(body?.known_speaker_references) ? body.known_speaker_references : undefined,
 				rawRequest: body,
 			};
 		case "audio.translations":

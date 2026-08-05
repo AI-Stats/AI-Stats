@@ -3,8 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	getBatchApiFeatureGateName,
 	getGatewayIoLoggingFeatureGateName,
+	getDataContributionFeatureGateName,
+	getVideoApiFeatureGateName,
+	getRealtimeVoiceFeatureGateName,
 	isBatchApiAccessEnabled,
+	isVideoApiAccessEnabled,
 	isGatewayIoLoggingFeatureEnabled,
+	isDataContributionAccessEnabled,
+	isRealtimeVoiceAccessEnabled,
 } from "./feature-flags";
 import type { AuthSuccess } from "@pipeline/before/auth";
 
@@ -26,8 +32,66 @@ describe("batch API feature gate", () => {
 	it("uses the configured Statsig gate name", () => {
 		expect(getBatchApiFeatureGateName({ STATSIG_BATCH_API_GATE: "custom_batch_gate" })).toBe("custom_batch_gate");
 		expect(getBatchApiFeatureGateName({})).toBe("gateway_batch_api");
+		expect(getVideoApiFeatureGateName({ STATSIG_VIDEO_API_GATE: "custom_video_gate" })).toBe("custom_video_gate");
+		expect(getVideoApiFeatureGateName({})).toBe("gateway_video_api");
+		expect(getRealtimeVoiceFeatureGateName({ STATSIG_REALTIME_VOICE_GATE: "custom_realtime_gate" })).toBe("custom_realtime_gate");
+		expect(getRealtimeVoiceFeatureGateName({})).toBe("gateway_realtime_voice");
 		expect(getGatewayIoLoggingFeatureGateName({ STATSIG_GATEWAY_IO_LOGGING_GATE: "custom_io_gate" })).toBe("custom_io_gate");
 		expect(getGatewayIoLoggingFeatureGateName({})).toBe("gateway_io_logging");
+		expect(getDataContributionFeatureGateName({ STATSIG_DATA_CONTRIBUTION_GATE: "custom_contribution_gate" })).toBe("custom_contribution_gate");
+		expect(getDataContributionFeatureGateName({})).toBe("gateway_data_contribution");
+	});
+
+	it("checks video access independently with the authenticated workspace", async () => {
+		const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+			const body = JSON.parse(String(init?.body));
+			expect(body).toMatchObject({
+				gateName: "gateway_video_api",
+				user: { custom: { workspace_id: "ws_batch_admin", surface: "gateway_video_api" } },
+			});
+			return new Response(JSON.stringify({ value: true }));
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		await expect(isVideoApiAccessEnabled(auth, {
+			STATSIG_SERVER_KEY: "secret-statsig-key",
+		})).resolves.toBe(true);
+	});
+
+	it("checks realtime voice with the same authenticated Statsig subject", async () => {
+		const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+			const body = JSON.parse(String(init?.body));
+			expect(body).toMatchObject({
+				gateName: "gateway_realtime_voice",
+				user: {
+					userID: "user_admin",
+					customIDs: {
+						workspaceID: "ws_batch_admin",
+						apiKeyID: "key_batch_admin",
+						apiKeyKid: "batch_admin",
+					},
+					custom: {
+						surface: "gateway_realtime_voice",
+					},
+				},
+			});
+			return new Response(JSON.stringify({ name: "gateway_realtime_voice", value: true }), {
+				headers: { "Content-Type": "application/json" },
+			});
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		await expect(isRealtimeVoiceAccessEnabled(auth, {
+			STATSIG_SERVER_KEY: "secret-statsig-key",
+		})).resolves.toBe(true);
+	});
+
+	it("fails realtime voice closed when Statsig is unavailable", async () => {
+		vi.stubGlobal("fetch", vi.fn(async () => new Response("nope", { status: 500 })));
+
+		await expect(isRealtimeVoiceAccessEnabled(auth, {
+			STATSIG_SERVER_KEY: "secret-statsig-key",
+		})).resolves.toBe(false);
 	});
 
 	it("checks the Statsig gate with workspace and API key identifiers", async () => {
@@ -70,6 +134,7 @@ describe("batch API feature gate", () => {
 				headers: expect.objectContaining({
 					"statsig-api-key": "secret-statsig-key",
 				}),
+				signal: expect.any(AbortSignal),
 			}),
 		);
 	});
@@ -109,5 +174,21 @@ describe("batch API feature gate", () => {
 			STATSIG_SERVER_KEY: "secret-statsig-key",
 			STATSIG_ENVIRONMENT_TIER: "staging",
 		})).resolves.toBe(true);
+	});
+
+	it("fails data contribution closed unless its independent gate is enabled", async () => {
+		const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+			const body = JSON.parse(String(init?.body));
+			expect(body).toMatchObject({
+				gateName: "gateway_data_contribution",
+				user: { custom: { workspace_id: "ws_batch_admin", surface: "gateway_data_contribution" } },
+			});
+			return new Response(JSON.stringify({ value: false }));
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		await expect(isDataContributionAccessEnabled(auth, {
+			STATSIG_SERVER_KEY: "secret-statsig-key",
+		})).resolves.toBe(false);
 	});
 });

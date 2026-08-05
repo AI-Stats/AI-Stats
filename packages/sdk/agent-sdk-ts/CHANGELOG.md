@@ -1,5 +1,30 @@
 # @phaseo/agent-sdk
 
+## 0.2.0
+
+### Minor Changes
+
+- [#1263](https://github.com/phaseoteam/Phaseo/pull/1263) [`cc87f08`](https://github.com/phaseoteam/Phaseo/commit/cc87f081dd40b898c06a957937606a2b73da6ff5) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Expand the Agent SDK runtime with validated tools, exact-ID approvals and manual outputs, HITL callbacks, progress events, recoverable tool errors, real cancellable gateway streams, composable stop conditions, dynamic turns, persisted next-turn overrides, application-owned state accessors, normalized usage, cost, finish reasons, and warnings. Establish equivalent conformance coverage for Python, Go, C#, Java, PHP, and Ruby, update SDK defaults to the current gateway host, and omit unset Python Agent request options instead of sending invalid null fields.
+
+### Patch Changes
+
+- Updated dependencies [[`cc87f08`](https://github.com/phaseoteam/Phaseo/commit/cc87f081dd40b898c06a957937606a2b73da6ff5), [`5a02c19`](https://github.com/phaseoteam/Phaseo/commit/5a02c194d0e64642ddf23cd0d57b2b93983b148c)]:
+  - @phaseo/sdk@2.2.0
+
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`f1ad533`](https://github.com/phaseoteam/Phaseo/commit/f1ad5335aba3f2858156f4632d551834325c0dcd)]:
+  - @phaseo/sdk@2.1.1
+
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`b3bbccf`](https://github.com/phaseoteam/Phaseo/commit/b3bbccf8988d6d50f9412d1b91f0518e6a1bcec1), [`b94beae`](https://github.com/phaseoteam/Phaseo/commit/b94beae46483f5b493d6b05dfefca41dfa8b7baa), [`3b53631`](https://github.com/phaseoteam/Phaseo/commit/3b53631222ecbc5b92d712a79edab4be8949c533), [`c420a38`](https://github.com/phaseoteam/Phaseo/commit/c420a389be727d45daa13713658cd341081a5d3b), [`685ef25`](https://github.com/phaseoteam/Phaseo/commit/685ef2572a09663ffe417aed33b38e6521317801), [`50a86ea`](https://github.com/phaseoteam/Phaseo/commit/50a86ead054c28df51fd30bb3267a0c0059205ad), [`343999e`](https://github.com/phaseoteam/Phaseo/commit/343999eb91189dc7a402fb173196c2769816ce8c), [`232c535`](https://github.com/phaseoteam/Phaseo/commit/232c535b651fc1d8988f0867919873646cda0093)]:
+  - @phaseo/sdk@2.1.0
+
 ## 0.1.1
 
 ### Patch Changes

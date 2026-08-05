@@ -11,6 +11,7 @@ type KeyRow = {
 	oauth_client_id?: string | null;
 	oauth_user_id?: string | null;
 	oauth_scopes?: string[] | null;
+	oauth_resource?: string | null;
 };
 
 const runtime = vi.hoisted(() => {
@@ -24,7 +25,7 @@ const runtime = vi.hoisted(() => {
         error: null,
     }));
 	const authorizationMaybeSingle = vi.fn(async () => ({
-		data: { scopes: ["models:read"], revoked_at: null },
+		data: { scopes: ["gateway:access", "models:read"], revoked_at: null },
 		error: null,
 	}));
 	const membershipMaybeSingle = vi.fn(async () => ({
@@ -153,6 +154,16 @@ describe("authenticate hot-path caching", () => {
         vi.useRealTimers();
     });
 
+	it("requires the opaque delegated access token for inference instead of a session JWT", async () => {
+		const jwt = "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoidTEiLCJ3b3Jrc3BhY2VfaWQiOiJ3MSIsImNsaWVudF9pZCI6ImMxIn0.sig";
+		const { authenticate } = await import("./auth");
+		await expect(authenticate(buildRequest(jwt))).resolves.toEqual({
+			ok: false,
+			reason: "oauth_delegated_key_required",
+		});
+		expect(runtime.supabase.from).not.toHaveBeenCalled();
+	});
+
     it("reuses key-version and key-row L1 cache for back-to-back KV-backed auth checks", async () => {
         const kid = "KIDCACHE123";
         const secret = "secret_cache_hit";
@@ -255,7 +266,7 @@ describe("authenticate hot-path caching", () => {
 		expect(runtime.maybeSingle).toHaveBeenCalledTimes(1);
 	});
 
-	it("enforces the current consent scope for an OAuth-managed key", async () => {
+	it("keeps non-API resource-bound OAuth keys off normal API routes", async () => {
 		const kid = "KIDOAUTHSCOPE";
 		const secret = "secret_oauth_scope";
 		runtime.dbRow.value = {
@@ -267,18 +278,105 @@ describe("authenticate hot-path caching", () => {
 			oauth_user_id: "user_oauth",
 			oauth_client_id: "client_oauth",
 			oauth_scopes: ["models:read", "logs:read"],
+			oauth_resource: "https://mcp.phaseo.app/mcp",
 		};
 
 		const { authenticateManagement } = await import("./auth");
-		const result = await authenticateManagement(buildRequest(`phaseo_v1_sk_${kid}_${secret}`), { useKvCache: false });
+		const request = buildRequest(`phaseo_v1_sk_${kid}_${secret}`);
+		const result = await authenticateManagement(request, { useKvCache: false });
+		const exchangeResult = await authenticateManagement(request, {
+			useKvCache: false,
+			allowResourceBoundOAuthKey: true,
+		});
+		await flushBackground();
+
+		expect(result).toEqual({ ok: false, reason: "oauth_resource_token_not_valid_for_api" });
+		expect(exchangeResult).toMatchObject({
+			ok: true,
+			authMethod: "oauth",
+			oauthScopes: ["models:read"],
+			oauthResource: "https://mcp.phaseo.app/mcp",
+			scopes: ["models:read"],
+		});
+	});
+
+	it("rejects Gateway API resource keys without gateway access consent", async () => {
+		const kid = "KIDOAUTHAPIRES";
+		const secret = "secret_oauth_api_resource";
+		runtime.dbRow.value = {
+			id: "key_oauth_api_resource",
+			workspace_id: "team_oauth",
+			status: "active",
+			hash: hashSecret(secret),
+			key_kind: "oauth_delegated",
+			oauth_user_id: "user_oauth",
+			oauth_client_id: "client_oauth",
+			oauth_scopes: ["models:read"],
+			oauth_resource: "https://api.phaseo.app/v1",
+		};
+
+		const { authenticateManagement } = await import("./auth");
+		const result = await authenticateManagement(
+			buildRequest(`phaseo_v1_sk_${kid}_${secret}`),
+			{ useKvCache: false },
+		);
+		await flushBackground();
+
+		expect(result).toEqual({ ok: false, reason: "oauth_gateway_scope_required" });
+	});
+
+	it("accepts Gateway API resource keys with gateway access consent", async () => {
+		const kid = "KIDOAUTHAPIYES";
+		const secret = "secret_oauth_api_resource_allowed";
+		runtime.dbRow.value = {
+			id: "key_oauth_api_resource_allowed",
+			workspace_id: "team_oauth",
+			status: "active",
+			hash: hashSecret(secret),
+			key_kind: "oauth_delegated",
+			oauth_user_id: "user_oauth",
+			oauth_client_id: "client_oauth",
+			oauth_scopes: ["gateway:access", "models:read"],
+			oauth_resource: "https://api.phaseo.app:443/v1/",
+		};
+
+		const { authenticateManagement } = await import("./auth");
+		const result = await authenticateManagement(
+			buildRequest(`phaseo_v1_sk_${kid}_${secret}`),
+			{ useKvCache: false },
+		);
 		await flushBackground();
 
 		expect(result).toMatchObject({
 			ok: true,
 			authMethod: "oauth",
-			oauthScopes: ["models:read"],
-			scopes: ["models:read"],
+			oauthScopes: ["gateway:access", "models:read"],
+			scopes: ["gateway:access", "models:read"],
 		});
+	});
+
+	it("rejects an identity-only OAuth-managed key", async () => {
+		const kid = "KIDOAUTHIDENT";
+		const secret = "secret_oauth_identity";
+		runtime.dbRow.value = {
+			id: "key_oauth_identity",
+			workspace_id: "team_oauth",
+			status: "active",
+			hash: hashSecret(secret),
+			key_kind: "oauth_delegated",
+			oauth_user_id: "user_oauth",
+			oauth_client_id: "client_oauth",
+			oauth_scopes: ["openid"],
+		};
+		runtime.authorizationMaybeSingle.mockResolvedValueOnce({
+			data: { scopes: ["openid"], revoked_at: null },
+			error: null,
+		});
+
+		const { authenticate } = await import("./auth");
+		const result = await authenticate(buildRequest(`phaseo_v1_sk_${kid}_${secret}`), { useKvCache: false });
+
+		expect(result).toEqual({ ok: false, reason: "oauth_gateway_scope_required" });
 	});
 
     it("rejects expired keys when expires_at has passed", async () => {

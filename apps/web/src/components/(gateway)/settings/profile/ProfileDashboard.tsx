@@ -5,9 +5,10 @@ import Link from "next/link"
 import { Camera, ExternalLink, Flame } from "lucide-react"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
-import type { ProfileSnapshot } from "@/lib/fetchers/profile/getProfileSnapshot"
+import type { ProfileSnapshot } from "@/lib/fetchers/profile/types"
 import { formatCompactNumber, formatUsdFromNanos } from "@/lib/profile"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Logo } from "@/components/Logo"
 import {
 	ChartContainer,
@@ -481,6 +482,14 @@ export default function ProfileDashboard({
 						<h2 className="mr-2 text-lg font-semibold text-foreground">
 							Usage summary
 						</h2>
+						{publicView ? null : (
+							<Badge variant="outline" className="h-7 px-2.5 text-xs font-medium">
+								All workspaces
+								<span className="ml-1 text-muted-foreground">
+									({profile.usageWorkspaceCount})
+								</span>
+							</Badge>
+						)}
 						<Select value={range} onValueChange={(value) => setRange(value as TimeRange)}>
 							<SelectTrigger className="h-8 w-36 rounded-lg border-border bg-input/50 text-xs text-foreground shadow-none">
 								<span data-slot="select-value">{RANGE_LABELS[range]}</span>
@@ -595,7 +604,7 @@ export default function ProfileDashboard({
 								href="/settings/usage/overview"
 								className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
 							>
-								View all usage <ExternalLink className="ml-1 inline h-3 w-3" />
+								Open workspace usage <ExternalLink className="ml-1 inline h-3 w-3" />
 							</Link>
 						)}
 					</div>

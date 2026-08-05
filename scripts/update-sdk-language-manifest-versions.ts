@@ -181,6 +181,20 @@ async function syncRubyTelemetryVersion(version: string): Promise<void> {
   }
 }
 
+async function syncAgentTelemetryVersion(version: string): Promise<void> {
+  const devtoolsPath = path.join(ROOT, "packages", "sdk", "agent-sdk-ts", "src", "devtools.ts");
+  const updated = await replaceInFile(
+    devtoolsPath,
+    /const AGENT_SDK_VERSION = "([^"]+)"/m,
+    () => `const AGENT_SDK_VERSION = "${version}"`,
+  );
+  if (updated) {
+    console.log(`[sdk-sync] Updated agent SDK telemetry version to ${version}`);
+  } else {
+    console.log("[sdk-sync] Agent SDK telemetry version already up to date");
+  }
+}
+
 async function syncAll(): Promise<void> {
   const syncConfigs: NpmPackageVersionConfig[] = [
     {
@@ -222,6 +236,10 @@ async function syncAll(): Promise<void> {
     {
       packageJsonPath: path.join(ROOT, "packages", "sdk", "sdk-ruby", "package.json"),
       apply: syncRubyTelemetryVersion,
+    },
+    {
+      packageJsonPath: path.join(ROOT, "packages", "sdk", "agent-sdk-ts", "package.json"),
+      apply: syncAgentTelemetryVersion,
     },
   ];
 

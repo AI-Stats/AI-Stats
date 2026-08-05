@@ -7,8 +7,8 @@ import { handleError } from "@core/error-handler";
 import { detectTextProtocol } from "@protocols/detect";
 import { decodeProtocol, encodeProtocol } from "@protocols/index";
 import { doRequestWithIR } from "../execute";
-import { finalizeRequest } from "../after";
-import { handleSuccessAudit } from "../after/audit";
+import { finalizeRequest, settleNonBillableFailure } from "../after";
+import { handleFailureAudit, handleSuccessAudit } from "../after/audit";
 import { makeHeaders, createResponse } from "../after/http";
 import { auditFailure } from "../audit";
 import type { PipelineRunnerArgs } from "./types";
@@ -92,6 +92,30 @@ function extractAssistantText(response: IRChatResponse): string {
 		.map((part) => part.text)
 		.join("")
 		.trim();
+}
+
+function hasUsableIRChatResponse(response: IRChatResponse | undefined): boolean {
+	if (!response?.choices?.length) return false;
+	return response.choices.some((choice) => {
+		if ((choice.message?.toolCalls?.length ?? 0) > 0) return true;
+		return (choice.message?.content ?? []).some((part) => {
+			if (part.type === "reasoning_text") return false;
+			if (part.type === "text") return part.text.trim().length > 0;
+			return part.type === "image" || part.type === "audio";
+		});
+	});
+}
+
+function emptyProviderResponse(result: { provider?: string; upstream?: Response }): Response {
+	return createJsonErrorResponse(
+		502,
+		"google_empty_response",
+		"The provider returned a successful response without any visible output.",
+		{
+			provider: result.provider ?? null,
+			upstream_status: result.upstream?.status ?? null,
+		},
+	);
 }
 
 function extractAssistantImage(response: IRChatResponse): { imageUrl?: string; b64Json?: string; mimeType?: string } | null {
@@ -767,7 +791,7 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 					model: pre.ctx.model,
 					result: exec.result,
 				});
-			} catch (error) {
+			} catch {
 				const header = timing.timer.header();
 				pre.ctx.timing = timing.timer.snapshot();
 				return await handleError({
@@ -775,7 +799,7 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 					res: createJsonErrorResponse(
 						502,
 						"gateway_stream_materialization_error",
-						error instanceof Error ? error.message : String(error),
+						"The upstream stream could not be materialized.",
 					),
 					endpoint,
 					ctx: pre.ctx,
@@ -784,6 +808,29 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 					req,
 				});
 			}
+		}
+		if (exec.result.kind === "completed" && !hasUsableIRChatResponse(exec.result.ir as IRChatResponse | undefined)) {
+			await settleNonBillableFailure(pre.ctx, exec.result);
+			await handleFailureAudit(
+				pre.ctx,
+				exec.result,
+				502,
+				"gateway",
+				"google_empty_response",
+				"The provider returned a successful response without any visible output.",
+				exec.result.rawResponse,
+			);
+			const header = timing.timer.header();
+			pre.ctx.timing = timing.timer.snapshot();
+			return await handleError({
+				stage: "execute",
+				res: emptyProviderResponse(exec.result),
+				endpoint,
+				ctx: pre.ctx,
+				timingHeader: header || undefined,
+				auditFailure: async () => {},
+				req,
+			});
 		}
 
 		const serverToolTrace: Array<{
@@ -796,7 +843,9 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 
 		if (preparedServerTools.config.enabled && exec.result.kind === "completed" && exec.result.ir) {
 			const maxServerToolRounds = 8;
+			const maxServerToolCalls = Math.min(100, Math.max(1, irForExecution.maxToolCalls ?? 30));
 			let serverToolRounds = 0;
+			let serverToolCalls = 0;
 			const serverToolUsage = {
 				datetimeRequests: 0,
 				webSearchRequests: 0,
@@ -806,6 +855,9 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 				advisorRequests: 0,
 				imageGenerationRequests: 0,
 				applyPatchRequests: 0,
+				subagentRequests: 0,
+				fusionRequests: 0,
+				searchModelsRequests: 0,
 			};
 			let aggregateUsage = (exec.result.ir as IRChatResponse).usage;
 			let latestIrResponse = exec.result.ir as IRChatResponse;
@@ -845,9 +897,39 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 								outputCompression: imageArgs.outputCompression,
 								moderation: imageArgs.moderation,
 							}),
+						searchModels: async (searchArgs) => {
+							const { fetchCatalogue } = await import("@/routes/v1/control/models.catalogue");
+							const models = await fetchCatalogue({ availability: "active" });
+							const query = typeof searchArgs.query === "string" ? searchArgs.query.toLowerCase() : "";
+							const input = Array.isArray(searchArgs.input_modalities) ? searchArgs.input_modalities.map(String) : [];
+							const output = Array.isArray(searchArgs.output_modalities) ? searchArgs.output_modalities.map(String) : [];
+							const required = Array.isArray(searchArgs.required_params) ? searchArgs.required_params.map(String) : [];
+							const provider = typeof searchArgs.provider === "string" ? searchArgs.provider.toLowerCase() : "";
+							const series = typeof searchArgs.series === "string" ? searchArgs.series.toLowerCase() : "";
+							const filtered = models.filter((model) => {
+								const haystack = `${model.model_id} ${model.name ?? ""} ${model.description ?? ""}`.toLowerCase();
+								return (!query || haystack.includes(query)) && (!series || haystack.includes(series)) &&
+									input.every((item) => model.input_types.includes(item)) && output.every((item) => model.output_types.includes(item)) &&
+									required.every((item) => model.supported_params.includes(item)) &&
+									(!provider || model.providers.some((item) => `${item.api_provider_id} ${item.api_provider_name ?? ""}`.toLowerCase().includes(provider)));
+							});
+							const matched = filtered.slice(0, searchArgs.maxResults);
+							return { models: matched.map((model) => ({ id: model.model_id, name: model.name, description: model.description, input_modalities: model.input_types, output_modalities: model.output_types, providers: model.providers.map((item) => item.api_provider_id), supported_params: model.supported_params, pricing: model.pricing })), total_results: filtered.length, showing: matched.length };
+						},
+						remainingToolCalls: maxServerToolCalls - serverToolCalls,
 					},
 				);
 				if (!continuation) break;
+				if ("limitExceeded" in continuation) {
+					const header = timing.timer.header();
+					pre.ctx.timing = timing.timer.snapshot();
+					return await handleError({
+						stage: "execute",
+						res: createJsonErrorResponse(400, "gateway_server_tool_limit", "Server tool execution exceeded max_tool_calls.", { max_tool_calls: maxServerToolCalls }),
+						endpoint, ctx: pre.ctx, timingHeader: header || undefined, auditFailure, req,
+					});
+				}
+				serverToolCalls += continuation.serverToolCallCount ?? continuation.toolResults.length;
 				if (serverToolRounds >= maxServerToolRounds) {
 					const header = timing.timer.header();
 					pre.ctx.timing = timing.timer.snapshot();
@@ -875,6 +957,9 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 				serverToolUsage.advisorRequests += continuation.usage.advisorRequests ?? 0;
 				serverToolUsage.imageGenerationRequests += continuation.usage.imageGenerationRequests ?? 0;
 				serverToolUsage.applyPatchRequests += continuation.usage.applyPatchRequests ?? 0;
+				serverToolUsage.subagentRequests += continuation.usage.subagentRequests ?? 0;
+				serverToolUsage.fusionRequests += continuation.usage.fusionRequests ?? 0;
+				serverToolUsage.searchModelsRequests += continuation.usage.searchModelsRequests ?? 0;
 				const toolCallsById = new Map(
 					(continuation.assistantMessage.toolCalls ?? [])
 						.filter((call) => call.name && call.name !== "tool_call")
@@ -912,6 +997,20 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 					...nextIrRequest,
 					stream: true,
 					toolChoice: "auto",
+					...(latestIrResponse.provider === "google-ai-studio" &&
+						latestIrResponse.nativeId &&
+						latestIrResponse.nativeId !== pre.ctx.requestId &&
+						nextIrRequest.store !== false
+						? {
+							vendor: {
+								...(nextIrRequest.vendor ?? {}),
+								google: {
+									...((nextIrRequest.vendor as any)?.google ?? {}),
+									previous_interaction_id: latestIrResponse.nativeId,
+								},
+							},
+						}
+						: {}),
 					messages: [
 						...nextIrRequest.messages,
 						continuation.assistantMessage,
@@ -921,7 +1020,6 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 						},
 					],
 				};
-
 				const followUpExec = await doRequestWithIR(pre.ctx, nextIrRequest, timing);
 				if (followUpExec instanceof Response) {
 					const header = timing.timer.header();
@@ -945,7 +1043,7 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 							model: pre.ctx.model,
 							result: followUpResult,
 						});
-					} catch (error) {
+					} catch {
 						const header = timing.timer.header();
 						pre.ctx.timing = timing.timer.snapshot();
 						return await handleError({
@@ -953,7 +1051,7 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 							res: createJsonErrorResponse(
 								502,
 								"gateway_stream_materialization_error",
-								error instanceof Error ? error.message : String(error),
+								"The upstream stream could not be materialized.",
 							),
 							endpoint,
 							ctx: pre.ctx,
@@ -962,6 +1060,29 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 							req,
 						});
 					}
+				}
+				if (followUpResult.kind === "completed" && !hasUsableIRChatResponse(followUpResult.ir as IRChatResponse | undefined)) {
+					await settleNonBillableFailure(pre.ctx, followUpResult);
+					await handleFailureAudit(
+						pre.ctx,
+						followUpResult,
+						502,
+						"gateway",
+						"google_empty_response",
+						"The provider returned a successful response without any visible output.",
+						followUpResult.rawResponse,
+					);
+					const header = timing.timer.header();
+					pre.ctx.timing = timing.timer.snapshot();
+					return await handleError({
+						stage: "execute",
+						res: emptyProviderResponse(followUpResult),
+						endpoint,
+						ctx: pre.ctx,
+						timingHeader: header || undefined,
+						auditFailure: async () => {},
+						req,
+					});
 				}
 				if (followUpResult.kind !== "completed" || !followUpResult.ir) {
 					const header = timing.timer.header();
@@ -1002,7 +1123,10 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 				serverToolUsage.webFetchRequests > 0 ||
 				serverToolUsage.advisorRequests > 0 ||
 				serverToolUsage.imageGenerationRequests > 0 ||
-				serverToolUsage.applyPatchRequests > 0
+				serverToolUsage.applyPatchRequests > 0 ||
+				serverToolUsage.subagentRequests > 0 ||
+				serverToolUsage.fusionRequests > 0 ||
+				serverToolUsage.searchModelsRequests > 0
 			) {
 				const mergedUsage = attachServerToolUsage(aggregateUsage, {
 					...serverToolUsage,

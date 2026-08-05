@@ -1,111 +1,110 @@
 ---
 title: "Migrating from OpenAI SDK"
-description: "Step-by-step guide to migrate your OpenAI SDK integration to Phaseo Gateway."
+sidebarTitle: "OpenAI SDK"
+description: "Move an existing OpenAI SDK integration to Phaseo by changing the client configuration, verifying model IDs, and testing the workflows your app uses."
+icon: "/icons/brands/openai.svg"
 ---
 
-# Migrating from OpenAI SDK
+Use this guide to move an existing OpenAI SDK integration to Phaseo without rewriting the rest of your application. Start with the base URL and API key, keep the request itself unchanged, then verify each model and endpoint before shifting production traffic.
 
-This guide will help you migrate your existing OpenAI SDK (Python or Node.js) integration to use the Phaseo Gateway instead.
+## What changes
 
-## Overview
+| Setting | Before | After |
+| --- | --- | --- |
+| Base URL | OpenAI default | `https://api.phaseo.app/v1` |
+| API key | OpenAI key | `PHASEO_API_KEY` |
+| Model | OpenAI model name | A model ID returned by `GET /v1/models` |
+| Request code | Existing SDK call | Usually unchanged |
 
-Phaseo Gateway provides OpenAI-compatible endpoints, making migration straightforward. You'll primarily need to:
+<Steps>
+<Step title="Create a Phaseo API key">
 
--   Change the API base URL
--   Update your API key
--   Update authentication method (from `api_key` to `Authorization: Bearer`)
+Create a key in [Gateway Keys](https://phaseo.app/gateway/keys), then add it to every environment that runs your application.
 
-## Prerequisites
+```bash
+PHASEO_API_KEY=phaseo_v1_sk_...
+```
 
--   A Phaseo account and API key (get one at [Gateway Keys](https://phaseo.app/gateway/keys))
--   Existing OpenAI SDK code
+</Step>
 
-## Migration Steps
+<Step title="Point the client at Phaseo">
 
-### 1. Update API Key and Base URL
-
-Instead of using the OpenAI API key and default base URL, use your Phaseo credentials.
+Keep the OpenAI SDK and change only its credentials and base URL first.
 
 <CodeGroup>
-```bash
-# Before (OpenAI)
-curl https://api.openai.com/v1/chat/completions \
-  -H "Authorization: Bearer sk-your-openai-key" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "gpt-4",
-    "messages": [{"role": "user", "content": "Hello!"}]
-  }'
-
-# After (Phaseo)
-
-curl https://api.phaseo.app/v1/chat/completions \
- -H "Authorization: Bearer your-phaseo-key" \
- -H "Content-Type: application/json" \
- -d '{
-"model": "gpt-4",
-"messages": [{"role": "user", "content": "Hello!"}]
-}'
-
-````
-
-```python
-import openai
-
-# Before
-client = openai.OpenAI(api_key="sk-your-openai-key")
-
-# After
-client = openai.OpenAI(
-    api_key="your-phaseo-key",
-    base_url="https://api.phaseo.app/v1"
-)
-
-response = client.chat.completions.create(
-    model="gpt-4",
-    messages=[{"role": "user", "content": "Hello!"}]
-)
-````
-
-```javascript
+```typescript TypeScript
 import OpenAI from "openai";
 
-// Before
 const client = new OpenAI({
-	apiKey: "sk-your-openai-key",
-});
-
-// After
-const client = new OpenAI({
-	apiKey: "your-phaseo-key",
-	baseURL: "https://api.phaseo.app/v1",
+  apiKey: process.env.PHASEO_API_KEY,
+  baseURL: "https://api.phaseo.app/v1",
 });
 
 const response = await client.chat.completions.create({
-	model: "gpt-4",
-	messages: [{ role: "user", content: "Hello!" }],
+  model: "openai/gpt-4.1-mini",
+  messages: [{ role: "user", content: "Reply with: migration ready" }],
 });
 ```
 
+```python Python
+import os
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ["PHASEO_API_KEY"],
+    base_url="https://api.phaseo.app/v1",
+)
+
+response = client.chat.completions.create(
+    model="openai/gpt-4.1-mini",
+    messages=[{"role": "user", "content": "Reply with: migration ready"}],
+)
+```
+
+```bash cURL
+curl https://api.phaseo.app/v1/chat/completions \
+  -H "Authorization: Bearer $PHASEO_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "openai/gpt-4.1-mini",
+    "messages": [{"role": "user", "content": "Reply with: migration ready"}]
+  }'
+```
 </CodeGroup>
 
-### 3. Test Your Integration
+</Step>
 
-Run your existing code with the updated configuration to ensure it works.
+<Step title="Verify model IDs and endpoint coverage">
 
-### 4. Handle Model Names
+List the models available through Phaseo instead of assuming every previous alias resolves unchanged.
 
-Phaseo supports a wide range of models. Check the [models endpoint](../api-reference/endpoint/models) for available models and their names.
+```bash
+curl https://api.phaseo.app/v1/models \
+  -H "Authorization: Bearer $PHASEO_API_KEY"
+```
 
-Some model names may differ from OpenAI's naming convention.
+Check every production workflow you rely on, including streaming, tools, structured outputs, images, audio, files, or batches. Use the [API Reference](../api-reference/introduction) to confirm the matching endpoint.
 
-## Common Issues
+</Step>
 
--   **Model not found**: Ensure the model name is available in Phaseo. Use the `/models` endpoint to list available models.
--   **Rate limits**: Phaseo may have different rate limits than OpenAI.
--   **Features**: Some OpenAI-specific features may not be available or work differently.
+<Step title="Test and roll out">
 
-## Next Steps
+Run the same representative prompts against your old and new configurations. Compare output shape, latency, token usage, errors, and cost before moving traffic gradually.
 
--   Explore Phaseo' additional features like analytics and multi-provider routing.
--   Check out the [API Reference](../api-reference/introduction) for full documentation.
+</Step>
+</Steps>
+
+## Migration checklist
+
+- The Phaseo key is configured in development, staging, and production.
+- The client base URL is `https://api.phaseo.app/v1`.
+- Every production model ID appears in `GET /v1/models`.
+- Non-streaming and streaming requests pass in staging.
+- Tool calls and structured outputs pass if your application uses them.
+- Rollback remains a configuration-only key and endpoint change.
+
+## Next steps
+
+- [Routing and Fallbacks](../guides/routing-and-fallbacks)
+- [Models](../exploring/models)
+- [Error Handling](../developers/error-handling)

@@ -1,8 +1,14 @@
 ---
-title: "Batch models (Beta)"
-badge: "Beta"
+title: "List batch models"
+sidebarTitle: "List batch models"
+tag: "Internal"
 openapi: "GET /batches/models"
-description: "List batch-capable models and their supported batch parameters."
+description: |-
+  <Info>
+  **Internal testing.** The Batch API is available only to enabled workspaces. Requests from other workspaces return `403`, and the API may change before general availability.
+  </Info>
+
+  List batch-capable models and their supported batch parameters.
 ---
 
 Returns active models that can be used with the Batch API.

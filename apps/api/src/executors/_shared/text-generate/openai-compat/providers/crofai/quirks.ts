@@ -5,6 +5,11 @@
 import type { ProviderQuirks } from "../../quirks/types";
 
 export const crofAIQuirks: ProviderQuirks = {
+	transformRequest: ({ request }) => {
+		if (!request || typeof request !== "object") return;
+		delete request.service_tier;
+	},
+
 	extractReasoning: ({ choice, rawContent }) => {
 		const reasoningContent = choice.message?.reasoning_content;
 

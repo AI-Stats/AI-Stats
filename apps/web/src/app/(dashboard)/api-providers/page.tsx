@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import type { APIProviderCard } from "@/lib/fetchers/api-providers/getAllAPIProviders";
+import type { APIProviderCard } from "@/lib/fetchers/api-providers/providerDataTypes";
 import { fetchFrontendAPIProviders } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import APIProvidersDisplay from "@/components/(data)/api-providers/APIProvidersDisplay";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,13 +24,12 @@ async function APIProvidersSection() {
 	const apiProviders =
 		(await fetchFrontendAPIProviders()) as APIProviderCard[];
 
-	return <APIProvidersDisplay providers={apiProviders} />;
+	return <APIProvidersDisplay providers={apiProviders} showPrimaryHeader={false} />;
 }
 
 function APIProvidersFallback() {
 	return (
 		<div className="space-y-4">
-			<Skeleton className="h-9 w-56" />
 			<Skeleton className="h-11 w-full" />
 			<div className="overflow-hidden rounded-xl border border-border/70">
 				{Array.from({ length: 8 }).map((_, index) => (
@@ -45,6 +44,7 @@ export default function Page() {
 	return (
 		<main className="flex flex-col">
 			<div className="container mx-auto px-4 py-8 space-y-8">
+				<h1 className="text-xl font-bold">API Providers</h1>
 				<Suspense fallback={<APIProvidersFallback />}>
 					<APIProvidersSection />
 				</Suspense>
@@ -52,4 +52,3 @@ export default function Page() {
 		</main>
 	);
 }
-

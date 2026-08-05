@@ -259,6 +259,16 @@ inline Response ListBatchesAlias(Client& client, const std::map<std::string, std
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListBatchFiles(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batches/files";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListBatchFilesAlias(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batch/files";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListBatchModels(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/batches/models";
 	return client.request("GET", resolved_path, body);
@@ -291,6 +301,11 @@ inline Response ListEndpoints(Client& client, const std::map<std::string, std::s
 
 inline Response ListFiles(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/files";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListModelEndpoints(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/models/" + (path.count("author") ? path.at("author") : std::string{}) + "/" + (path.count("slug") ? path.at("slug") : std::string{}) + "/endpoints";
 	return client.request("GET", resolved_path, body);
 }
 

@@ -6,7 +6,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Logo } from "@/components/Logo";
 import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySupportedModelIds";
 import { filterModelsForRoom } from "@/lib/chat/rooms";
+import { fetchChatWebApi } from "@/lib/web-api/client";
 import { getModelDetailsHref } from "@/lib/models/modelHref";
+import { cn } from "@/lib/utils";
 import { APP_HEADERS } from "@/components/(chat)/playground/chat-playground-core";
 import {
 	buildEmbeddingsMultimodalInput,
@@ -28,6 +30,10 @@ import { RoomModelSelector } from "@/components/(chat)/RoomModelSelector";
 import { RoomSearchDialog } from "@/components/(chat)/RoomSearchDialog";
 import { useSidebar } from "@/components/ui/sidebar";
 import { ROOM_SIDEBAR_SLOT_ID } from "@/components/(chat)/RoomScaffold";
+import {
+	CHAT_SIDEBAR_ACTIONS_CLASS,
+	CHAT_SIDEBAR_HISTORY_GROUP_CLASS,
+} from "@/components/(chat)/chatSidebarStyles";
 import {
 	Popover,
 	PopoverContent,
@@ -65,10 +71,16 @@ import {
 import { EmbeddingsModelSettingsDialog } from "@/components/(chat)/rooms/settings/EmbeddingsModelSettingsDialog";
 import { RoomErrorNotice } from "@/components/(chat)/rooms/RoomErrorNotice";
 import {
+	RoomComposerFooter,
+	RoomComposerSurface,
+	RoomComposerToolsMenu,
+} from "@/components/(chat)/RoomComposer";
+import {
 	AudioLines,
 	ArrowUpRight,
 	Check,
-	ChevronRight,
+	PanelLeftClose,
+	PanelLeftOpen,
 	Clapperboard,
 	Copy,
 	Cpu,
@@ -463,35 +475,6 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 		modelSettingsCompat.selectedProfile ?? modelSettingsCompat.activeModelSettings ?? null;
 	const selectedModelEnabled = selectedProfile?.enabled !== false;
 	const selectedProviderId = selectedProfile?.providerId;
-	const composerSelectedModel = useMemo(
-		() =>
-			filteredModels.find(
-				(model) =>
-					model.modelId === modelId &&
-					(!selectedProviderId || model.providerId === selectedProviderId),
-			) ??
-			filteredModels.find((model) => model.modelId === modelId) ??
-			null,
-		[filteredModels, modelId, selectedProviderId],
-	);
-	const composerModelLogoId =
-		composerSelectedModel?.organisationId?.trim() ||
-		composerSelectedModel?.providerId ||
-		(modelId.split("/")[0] || "phaseo");
-	const composerModelLabel =
-		(modelId &&
-			(modelSettings.modelDisplayNameById[modelId] ||
-				composerSelectedModel?.modelName ||
-				modelId)) ||
-		"Select model";
-	const openComposerModelPicker = () => {
-		const targetModelId = modelId || filteredModels[0]?.modelId;
-		if (!targetModelId) return;
-		if (targetModelId !== modelId) {
-			setModelId(targetModelId);
-		}
-		modelSettings.openModelSettingsForModel(targetModelId);
-	};
 	const dialogModelId: string | null = modelSettingsCompat.modelSettingsModelId ?? null;
 	const dialogProfile =
 		dialogModelId && typeof modelSettingsCompat.getProfileForModel === "function"
@@ -816,7 +799,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 				overrides?.forcedConversationTitle ||
 				(temporaryMode ? "Temporary chat" : existingTitle || candidateTitle);
 
-			const response = await fetch("/api/chat/embeddings", {
+			const response = await fetchChatWebApi("/api/chat/embeddings", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -1099,7 +1082,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 									<MoreHorizontal className="h-4 w-4" />
 
 							</DropdownMenuTrigger>
-							<DropdownMenuContent side="right">
+							<DropdownMenuContent side="right" className="rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
 								<DropdownMenuItem
 									onClick={() => {
 										void renameConversation(conversation);
@@ -1137,13 +1120,13 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 	const sidebarHistory = sidebarSlotEl
 		? createPortal(
 				<>
-					<div className="px-2 py-1.5">
+					<div data-chat-sidebar-actions="true" className={CHAT_SIDEBAR_ACTIONS_CLASS}>
 						{collapsed ? (
 							<Tooltip>
 								<TooltipTrigger asChild>
 									<Button
 										variant="ghost"
-										className="h-8 min-w-0 w-full justify-center px-0 text-sm font-medium"
+										className="h-8 min-w-0 w-full justify-start px-2 text-sm font-medium"
 										onClick={startNewConversation}
 										aria-label="New Chat"
 									>
@@ -1170,13 +1153,13 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 								<TooltipTrigger asChild>
 									<Button
 										variant="ghost"
-										className="h-8 min-w-0 w-full justify-center px-0 text-sm font-medium"
+										className="h-8 min-w-0 w-full justify-start px-2 text-sm font-medium"
 										asChild
 										aria-label="Database"
 									>
 										<Link
 											href="/"
-											className="group/db flex w-full min-w-0 items-center justify-center"
+											className="group/db flex w-full min-w-0 items-center justify-start"
 										>
 											<Database className="h-4 w-4 shrink-0" />
 										</Link>
@@ -1205,7 +1188,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 								<TooltipTrigger asChild>
 									<Button
 										variant="ghost"
-										className="h-8 min-w-0 w-full justify-center px-0 text-sm font-medium"
+										className="h-8 min-w-0 w-full justify-start px-2 text-sm font-medium"
 										onClick={() => setConversationSearchOpen(true)}
 										aria-label="Search Chats"
 									>
@@ -1228,9 +1211,9 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 							</Button>
 						)}
 					</div>
-					<SidebarSeparator className="my-0" />
+					<SidebarSeparator className="mx-0 my-0 w-full" />
 					<ScrollArea className="h-full group-data-[collapsible=icon]:hidden">
-						<SidebarGroup className="pt-0 px-2 pb-2">
+						<SidebarGroup className={CHAT_SIDEBAR_HISTORY_GROUP_CLASS}>
 							<SidebarGroupLabel>Chats</SidebarGroupLabel>
 							<SidebarGroupContent className="overflow-hidden">
 								<SidebarMenu>
@@ -1265,16 +1248,15 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 							<Button
 								variant="ghost"
 								size="icon"
-								className="group -ml-1 h-8 w-8"
-								onClick={toggleSidebar}
+							className="-ml-1 h-8 w-8"
+							onClick={toggleSidebar}
+							aria-label={sidebarState === "expanded" ? "Collapse sidebar" : "Open sidebar"}
 							>
-								<ChevronRight
-									className={`h-4 w-4 transition-transform duration-200 ${
-										sidebarState === "expanded"
-											? "rotate-180 group-hover:-translate-x-1"
-											: "group-hover:translate-x-1"
-									}`}
-								/>
+							{sidebarState === "expanded" ? (
+								<PanelLeftClose className="h-4 w-4" />
+							) : (
+								<PanelLeftOpen className="h-4 w-4" />
+							)}
 							</Button>
 						</TooltipTrigger>
 						<TooltipContent side={sidebarState === "collapsed" ? "right" : "bottom"} align="center" sideOffset={8}>Toggle sidebar</TooltipContent>
@@ -1324,7 +1306,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 			<main className="min-h-0 flex-1 overflow-auto overscroll-contain px-4 py-5 md:px-6">
 				<div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
 					{activeEntries.length === 0 ? (
-						<div className="rounded-xl border border-dashed border-border bg-card p-6 text-sm text-muted-foreground">
+						<div className="rounded-2xl border border-dashed border-border bg-card p-6 text-sm text-muted-foreground">
 							No embeddings history yet.
 						</div>
 					) : (
@@ -1690,9 +1672,13 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 				</div>
 			</main>
 
-			<footer className="border-t border-border px-4 py-3 md:px-6">
+			<RoomComposerFooter>
 				<div className="mx-auto w-full max-w-3xl">
-					<div className="rounded-2xl border border-border bg-background px-3 py-2">
+					<RoomComposerSurface className={cn(
+						showImageUrlInput || showAudioUrlInput || showVideoUrlInput || imageUrl.trim() || audioUrl.trim() || videoUrl.trim() || files.length || splitTextModeActive || error
+							? "px-3 py-2"
+							: "flex flex-col gap-1 px-2 py-1 sm:flex-row sm:items-center",
+					)}>
 						<input
 							ref={fileInputRef}
 							type="file"
@@ -1710,9 +1696,14 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 						<Textarea
 							value={textInput}
 							onChange={(event) => setTextInput(event.target.value)}
-							rows={3}
+							rows={1}
 							placeholder="Text input for embeddings (optional if using URLs/files)..."
-							className="min-h-[64px] resize-none border-0 bg-transparent px-1 py-2 shadow-none focus-visible:ring-0"
+							className={cn(
+								"resize-none border-0 !bg-transparent shadow-none focus-visible:ring-0 dark:!bg-transparent",
+								showImageUrlInput || showAudioUrlInput || showVideoUrlInput || imageUrl.trim() || audioUrl.trim() || videoUrl.trim() || files.length || splitTextModeActive || error
+									? "min-h-[64px] px-1 py-2"
+									: "order-1 min-h-9 w-full px-2 py-2 sm:order-2 sm:flex-1",
+							)}
 						/>
 						{splitTextModeActive ? (
 							<p className="px-1 pb-1 text-[11px] text-muted-foreground">
@@ -1800,103 +1791,43 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 							</div>
 						) : null}
 						{error ? <RoomErrorNotice error={error} className="mb-2" /> : null}
-						<div className="flex items-center justify-between pt-2">
-							<div className="flex items-center gap-1.5">
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button
-											type="button"
-											variant="ghost"
-											className="h-8 gap-1.5 px-2"
-											onClick={openComposerModelPicker}
-											disabled={!modelId && filteredModels.length === 0}
-										>
-											{modelId ? (
-												<Logo
-													id={composerModelLogoId}
-													alt={composerModelLabel}
-													width={16}
-													height={16}
-													className="shrink-0 rounded-none"
-												/>
-											) : (
-												<Cpu className="h-4 w-4 text-muted-foreground" />
-											)}
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent side="top">{composerModelLabel}</TooltipContent>
-								</Tooltip>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											className={`h-8 w-8 ${
-												showImageUrlInput || imageUrl.trim()
-													? "bg-muted text-foreground"
-													: ""
-											}`}
-											onClick={() => setShowImageUrlInput((prev) => !prev)}
-										>
-											<ImagePlus className="h-4 w-4" />
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent side="top">Add image URL</TooltipContent>
-								</Tooltip>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											className={`h-8 w-8 ${
-												showAudioUrlInput || audioUrl.trim()
-													? "bg-muted text-foreground"
-													: ""
-											}`}
-											onClick={() => setShowAudioUrlInput((prev) => !prev)}
-										>
-											<AudioLines className="h-4 w-4" />
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent side="top">Add audio URL</TooltipContent>
-								</Tooltip>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											className={`h-8 w-8 ${
-												showVideoUrlInput || videoUrl.trim()
-													? "bg-muted text-foreground"
-													: ""
-											}`}
-											onClick={() => setShowVideoUrlInput((prev) => !prev)}
-										>
-											<Clapperboard className="h-4 w-4" />
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent side="top">Add video URL</TooltipContent>
-								</Tooltip>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											className={`h-8 w-8 ${files.length ? "bg-muted text-foreground" : ""}`}
-											onClick={() => fileInputRef.current?.click()}
-										>
-											<Paperclip className="h-4 w-4" />
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent side="top">Upload files</TooltipContent>
-								</Tooltip>
+						<div className={cn("flex items-center justify-between", showImageUrlInput || showAudioUrlInput || showVideoUrlInput || imageUrl.trim() || audioUrl.trim() || videoUrl.trim() || files.length || splitTextModeActive || error ? "pt-2" : "order-2 w-full sm:contents")}>
+							<div className={cn("flex items-center gap-1.5", !(showImageUrlInput || showAudioUrlInput || showVideoUrlInput || imageUrl.trim() || audioUrl.trim() || videoUrl.trim() || files.length || splitTextModeActive || error) && "order-1")}>
+								<RoomComposerToolsMenu
+									tools={[
+										{
+											id: "image-url",
+											label: "Add image URL",
+											icon: ImagePlus,
+											active: Boolean(showImageUrlInput || imageUrl.trim()),
+											onSelect: () => setShowImageUrlInput((prev) => !prev),
+										},
+										{
+											id: "audio-url",
+											label: "Add audio URL",
+											icon: AudioLines,
+											active: Boolean(showAudioUrlInput || audioUrl.trim()),
+											onSelect: () => setShowAudioUrlInput((prev) => !prev),
+										},
+										{
+											id: "video-url",
+											label: "Add video URL",
+											icon: Clapperboard,
+											active: Boolean(showVideoUrlInput || videoUrl.trim()),
+											onSelect: () => setShowVideoUrlInput((prev) => !prev),
+										},
+										{
+											id: "upload-files",
+											label: "Upload files",
+											icon: Paperclip,
+											active: files.length > 0,
+											onSelect: () => fileInputRef.current?.click(),
+										},
+									]}
+								/>
 							</div>
 							<Button
-								className="ml-auto"
+								className={cn("ml-auto", !(showImageUrlInput || showAudioUrlInput || showVideoUrlInput || imageUrl.trim() || audioUrl.trim() || videoUrl.trim() || files.length || splitTextModeActive || error) && "order-3")}
 								onClick={() => {
 									void submit();
 								}}
@@ -1905,9 +1836,9 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 								{isLoading ? "Embedding..." : "Embed"}
 							</Button>
 						</div>
-					</div>
+					</RoomComposerSurface>
 				</div>
-			</footer>
+			</RoomComposerFooter>
 			{dialogProfile ? (
 				<EmbeddingsModelSettingsDialog
 					open={modelSettings.modelSettingsOpen}

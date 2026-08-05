@@ -7,6 +7,7 @@ import type {
 	IROperation,
 	IRSchema
 } from "@phaseo/oapi-core";
+import { splitPathTemplate } from "@phaseo/oapi-core";
 
 export const backendCsharp: Backend = {
 	id: "csharp",
@@ -25,9 +26,12 @@ function renderClient(): string {
 	return [
 		"using System;",
 		"using System.Collections.Generic;",
+		"using System.IO;",
 		"using System.Net.Http;",
+		"using System.Runtime.CompilerServices;",
 		"using System.Text;",
 		"using System.Text.Json;",
+		"using System.Threading;",
 		"using System.Threading.Tasks;",
 		"",
 		"namespace Phaseo.Gen;",
@@ -126,6 +130,26 @@ function renderClient(): string {
 		"\t\t}",
 		"\t\treturn bytes;",
 		"\t}",
+		"",
+		"\tpublic async IAsyncEnumerable<string> StreamLinesAsync(string method, string path, Dictionary<string, string>? query = null, Dictionary<string, string>? headers = null, object? body = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)",
+		"\t{",
+		"\t\tusing var request = BuildRequest(method, path, query, headers, body);",
+		"\t\trequest.Headers.TryAddWithoutValidation(\"Accept\", \"text/event-stream\");",
+		"\t\tusing var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);",
+		"\t\tif (!response.IsSuccessStatusCode)",
+		"\t\t{",
+		"\t\t\tvar raw = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);",
+		"\t\t\tthrow new ApiErrorException((int)response.StatusCode, raw, BuildErrorMessage((int)response.StatusCode, raw));",
+		"\t\t}",
+		"\t\tawait using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);",
+		"\t\tusing var reader = new StreamReader(stream);",
+		"\t\twhile (!reader.EndOfStream)",
+		"\t\t{",
+		"\t\t\tcancellationToken.ThrowIfCancellationRequested();",
+		"\t\t\tvar line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);",
+		"\t\t\tif (line is not null) yield return line;",
+		"\t\t}",
+		"\t}",
 		"}",
 		""
 	].join("\n");
@@ -206,15 +230,15 @@ function renderOperation(operation: IROperation): string {
 
 function renderPathTemplate(path: string, params: IROperation["params"]): string {
 	if (params.length === 0) {
-		return `\"${path}\"`;
+		return JSON.stringify(path);
 	}
-	const segments = path.split(/({[^}]+})/g).filter(Boolean);
+	const segments = splitPathTemplate(path);
 	const parts = segments.map((segment) => {
 		if (segment.startsWith("{") && segment.endsWith("}")) {
-			const name = segment.slice(1, -1);
-			return `(path != null && path.ContainsKey("${name}") ? path["${name}"] : "")`;
+			const name = JSON.stringify(segment.slice(1, -1));
+			return `(path != null && path.ContainsKey(${name}) ? path[${name}] : "")`;
 		}
-		return `"${segment}"`;
+		return JSON.stringify(segment);
 	});
 	return parts.join(" + ");
 }

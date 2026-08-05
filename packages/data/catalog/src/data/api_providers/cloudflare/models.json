@@ -1,5 +1,57 @@
 [
   {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "cloudflare:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "@cf/deepseek-ai/deepseek-v4-flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": false,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 384000,
+    "max_output_tokens": 384000,
+    "effective_from": "2026-07-31T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://developers.cloudflare.com/workers-ai/models/",
+        "accessed_at": "2026-08-01T00:00:00Z",
+        "notes": "Cloudflare Workers AI model catalogue and API documentation."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-01T00:00:00Z",
+      "notes": "Deployment availability, FP8 quantisation, limits and supported request parameters confirmed; direct Phaseo routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "meta/llama-3.2-1b-instruct",
     "provider_api_model_id": "cloudflare:@cf/meta/llama-3.2-1b-instruct",
     "provider_model_slug": "@cf/meta/llama-3.2-1b-instruct",
@@ -38,9 +90,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "meta/llama-3.2-3b-instruct",
@@ -81,9 +160,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "meta/llama-3.2-11b-vision-instruct",
@@ -124,9 +230,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "meta/llama-3.1-70b-instruct-fp8-fast",
@@ -167,9 +300,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "meta/llama-3.3-70b-instruct-fp8-fast",
@@ -210,9 +370,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "mistral/mistral-7b-instruct-v0.1",
@@ -253,9 +440,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "mistralai/mistral-small-3.1-24b-instruct",
@@ -296,9 +510,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "meta/llama-3.1-8b-instruct-awq",
@@ -339,9 +580,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "meta/llama-3-8b-instruct-awq",
@@ -382,9 +650,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "meta/llama-guard-3-8b",
@@ -425,9 +720,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "meta/llama-4-scout-17b-16e-instruct",
@@ -468,9 +790,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "google/gemma-3-12b-it",
@@ -511,9 +860,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "qwen/qwq-32b",
@@ -554,9 +930,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "qwen/qwen2.5-coder-32b-instruct",
@@ -597,9 +1000,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "qwen/qwen3-30b-a3b-fp8",
@@ -640,9 +1070,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "openai/gpt-oss-120b",
@@ -683,9 +1140,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "openai/gpt-oss-20b",
@@ -726,15 +1210,42 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
-    "api_model_id": "ibm-granite/granite-4.0-h-micro",
+    "api_model_id": "ibm/granite-4.0-h-micro",
     "provider_api_model_id": "cloudflare:@cf/ibm-granite/granite-4.0-h-micro",
     "provider_model_slug": "@cf/ibm-granite/granite-4.0-h-micro",
-    "internal_model_id": "ibm-granite/granite-4.0-h-micro",
+    "internal_model_id": "ibm/granite-4.0-h-micro",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -769,9 +1280,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "zai-org/glm-4.7-flash",
@@ -812,9 +1350,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "zai-org/glm-5.2",
@@ -869,9 +1434,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "nvidia/nemotron-3-120b-a12b",
@@ -912,9 +1504,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "moonshotai/kimi-k2.5",
@@ -955,9 +1574,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "moonshotai/kimi-k2.6",
@@ -998,9 +1644,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "moonshotai/kimi-k2.7-code",
@@ -1055,9 +1728,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "google/gemma-4-26b-a4b-it",
@@ -1098,9 +1798,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "qwen/qwen3-embedding-0.6b",
@@ -1127,9 +1854,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "google/gemma-2b-it-lora",
@@ -1170,9 +1924,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "black-forest-labs/flux-2-klein-9b",
@@ -1191,9 +1972,36 @@
       {
         "capability_id": "image.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "mistral/mistral-7b-instruct-v0.2-lora",
@@ -1234,9 +2042,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "openai/whisper-1",
@@ -1255,9 +2090,36 @@
       {
         "capability_id": "audio.transcribe",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "deepseek/deepseek-r1-distill-qwen-32b",
@@ -1298,9 +2160,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "black-forest-labs/flux-1-schnell",
@@ -1319,9 +2208,36 @@
       {
         "capability_id": "image.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "microsoft/resnet-50",
@@ -1336,7 +2252,26 @@
     "max_output_tokens": null,
     "effective_from": "2026-06-04T00:00:00",
     "effective_to": null,
-    "capabilities": []
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "bytedance/stable-diffusion-xl-lightning",
@@ -1355,9 +2290,36 @@
       {
         "capability_id": "image.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "meta/llama-2-7b-chat",
@@ -1398,9 +2360,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "meta/m2m100-1.2b",
@@ -1441,9 +2430,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "black-forest-labs/flux-2-klein-4b",
@@ -1462,9 +2478,36 @@
       {
         "capability_id": "image.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "black-forest-labs/flux-2-dev",
@@ -1483,9 +2526,36 @@
       {
         "capability_id": "image.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "google/gemma-7b-it-lora",
@@ -1526,9 +2596,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "openai/whisper-tiny-en",
@@ -1547,9 +2644,36 @@
       {
         "capability_id": "audio.transcribe",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "openai/whisper-large-v3-turbo",
@@ -1568,9 +2692,36 @@
       {
         "capability_id": "audio.transcribe",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "google/embeddinggemma-300m",
@@ -1597,8 +2748,151 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash",
+    "provider_api_model_id": "cloudflare:deepseek/deepseek-v4-flash",
+    "provider_model_slug": "@cf/deepseek-ai/deepseek-v4-flash",
+    "internal_model_id": "deepseek/deepseek-v4-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://developers.cloudflare.com/workers-ai/",
+        "accessed_at": "2026-08-03T00:00:00Z",
+        "notes": "Workers AI deployment recorded; direct model-page verification remains partial."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-03T00:00:00Z",
+      "notes": "Provider deployment and existing Phaseo executor recorded."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k3",
+    "provider_api_model_id": "cloudflare:moonshotai/kimi-k3",
+    "provider_model_slug": "moonshotai/kimi-k3",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-27T15:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://developers.cloudflare.com/ai/models/moonshotai/kimi-k3/",
+        "accessed_at": "2026-08-05T00:00:00Z",
+        "notes": "Cloudflare documents a live Workers AI Chat Completions route with 1,048,576-token context, reasoning, tool calling, response formatting and streaming. Phaseo routing remains disabled until public pricing can be imported."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-05T00:00:00Z",
+      "notes": "Cloudflare documents a live route, but directs Kimi K3 pricing to its authenticated dashboard and does not list it on the public Workers AI pricing table. Phaseo routing remains disabled until pricing can be imported."
+    },
+    "rate_limits": []
   }
 ]

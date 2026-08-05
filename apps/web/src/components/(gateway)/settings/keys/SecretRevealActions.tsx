@@ -25,6 +25,8 @@ import {
 	buildEnvFile,
 } from "@/lib/gateway/secretReveal";
 import { OnePasswordSaveButton } from "./OnePasswordSaveButton";
+import { getBrowserAccessToken } from "@/lib/fetchers/internal/accountAuthClient";
+import { fetchAccountWebApi } from "@/lib/web-api/client";
 
 type SecretKind = "api-key" | "management-key";
 
@@ -109,20 +111,18 @@ export function SecretRevealActions({
 		[secret, baseUrl, envVarName],
 	);
 	const onePasswordUrls = React.useMemo(
-		() => ["https://ai-stats.phaseo.app", "https://api.phaseo.app"],
+		() => ["https://phaseo.app", "https://api.phaseo.app"],
 		[],
 	);
 
 	async function testKey() {
 		setTestState("testing");
 		try {
-			const response = await fetch("/api/internal/secret-ux/test-key", {
+			const body = await fetchAccountWebApi<{ ok: boolean; message?: string }>("/api/account/auth/test-key", await getBrowserAccessToken(), {
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ apiKey: secret }),
 			});
-			const body = await response.json().catch(() => ({}));
-			if (!response.ok || body?.ok === false) {
+			if (body?.ok === false) {
 				throw new Error(
 					body?.message || "The key could not be verified right now.",
 				);
@@ -162,16 +162,17 @@ export function SecretRevealActions({
 								<ChevronDown className="h-4 w-4" />
 
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="start">
+						<DropdownMenuContent align="start" className="rounded-lg">
 							{appConfigSnippets.map((snippet) => (
 								<DropdownMenuItem
 									key={snippet.id}
-									onSelect={() => {
+									onClick={() => {
 										void navigator.clipboard
 											.writeText(snippet.value)
 											.then(() => toast.success(`Copied ${snippet.label}`))
 											.catch(() => toast.error("Could not copy config"));
 									}}
+									className="rounded-lg"
 								>
 									{snippet.label}
 								</DropdownMenuItem>
@@ -189,11 +190,11 @@ export function SecretRevealActions({
 								<ChevronDown className="h-4 w-4" />
 
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="start">
+						<DropdownMenuContent align="start" className="rounded-lg">
 							{collectionExports.map((item) => (
 								<DropdownMenuItem
 									key={item.id}
-									onSelect={() => {
+									onClick={() => {
 										downloadTextFile(
 											item.filename,
 											item.content,
@@ -201,6 +202,7 @@ export function SecretRevealActions({
 										);
 										toast.success(`Downloaded ${item.label} collection`);
 									}}
+									className="rounded-lg"
 								>
 									{item.label}
 								</DropdownMenuItem>

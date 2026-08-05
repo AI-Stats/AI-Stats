@@ -294,7 +294,7 @@ def test_list_batches_uses_owned_batch_collection(monkeypatch):
     assert captured == [("GET", "/batches", {"status": "in_progress", "limit": 2})]
 
 
-def test_async_generated_model_annotations_preserve_response_shapes():
+def test_generated_model_annotations_preserve_response_shapes():
     def annotation_value(owner, field: str) -> str:
         annotation = owner.__annotations__[field]
         return getattr(annotation, "__forward_arg__", annotation)
@@ -307,10 +307,14 @@ def test_async_generated_model_annotations_preserve_response_shapes():
     assert annotation_value(models.VideoModelsResponse, "data") == "NotRequired[List[VideoModelCapability]]"
     assert annotation_value(models.BatchModelCapability, "providers") == "NotRequired[List[BatchModelProviderCapability]]"
     assert annotation_value(models.VideoModelCapability, "providers") == "NotRequired[List[VideoModelProviderCapability]]"
+    assert annotation_value(models.EndpointCatalogueResponse, "data") == "List[EndpointCatalogueEntry]"
+    assert annotation_value(models.ModelEndpointsResponse, "endpoints") == "List[ModelEndpointCapability]"
     assert ops.listBatches.__annotations__["return"] == "BatchListResponse"
     assert ops.listVideos.__annotations__["return"] == "VideoListResponse"
     assert ops.listBatchModels.__annotations__["return"] == "BatchModelsResponse"
     assert ops.listVideoModels.__annotations__["return"] == "VideoModelsResponse"
+    assert ops.listEndpoints.__annotations__["return"] == "EndpointCatalogueResponse"
+    assert ops.listModelEndpoints.__annotations__["return"] == "ModelEndpointsResponse"
 
 
 def test_batches_resource_list_uses_parent_helper(monkeypatch):

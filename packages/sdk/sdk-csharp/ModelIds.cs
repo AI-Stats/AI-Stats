@@ -40,6 +40,8 @@ namespace PhaseoSdk
         public const string AnthropicClaudeOpus47Fast = "anthropic/claude-opus-4.7-fast";
         /// <summary>Model ID: <c>anthropic/claude-opus-4.8</c>. Model page: https://phaseo.app/models/anthropic/claude-opus-4.8</summary>
         public const string AnthropicClaudeOpus48 = "anthropic/claude-opus-4.8";
+        /// <summary>Model ID: <c>anthropic/claude-opus-5</c>. Model page: https://phaseo.app/models/anthropic/claude-opus-5</summary>
+        public const string AnthropicClaudeOpus5 = "anthropic/claude-opus-5";
         /// <summary>Model ID: <c>anthropic/claude-sonnet-4.5</c>. Model page: https://phaseo.app/models/anthropic/claude-sonnet-4.5</summary>
         public const string AnthropicClaudeSonnet45 = "anthropic/claude-sonnet-4.5";
         /// <summary>Model ID: <c>anthropic/claude-sonnet-4.6</c>. Model page: https://phaseo.app/models/anthropic/claude-sonnet-4.6</summary>
@@ -134,10 +136,10 @@ namespace PhaseoSdk
         public const string DeepseekDeepseekV32Exp = "deepseek/deepseek-v3.2-exp";
         /// <summary>Model ID: <c>deepseek/deepseek-v3.2-speciale</c>. Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-speciale</summary>
         public const string DeepseekDeepseekV32Speciale = "deepseek/deepseek-v3.2-speciale";
-        /// <summary>Model ID: <c>deepseek/deepseek-v3.2-thinking</c>. Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-thinking</summary>
-        public const string DeepseekDeepseekV32Thinking = "deepseek/deepseek-v3.2-thinking";
         /// <summary>Model ID: <c>deepseek/deepseek-v4-flash</c>. Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash</summary>
         public const string DeepseekDeepseekV4Flash = "deepseek/deepseek-v4-flash";
+        /// <summary>Model ID: <c>deepseek/deepseek-v4-flash-0731</c>. Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash-0731</summary>
+        public const string DeepseekDeepseekV4Flash0731 = "deepseek/deepseek-v4-flash-0731";
         /// <summary>Model ID: <c>deepseek/deepseek-v4-pro</c>. Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro</summary>
         public const string DeepseekDeepseekV4Pro = "deepseek/deepseek-v4-pro";
         /// <summary>Model ID: <c>deepseek/deepseek-v4-pro-lightning</c>. Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro-lightning</summary>

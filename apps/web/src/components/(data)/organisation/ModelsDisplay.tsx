@@ -10,7 +10,7 @@ import {
 	KeyRound,
 } from "lucide-react";
 import type { ModelCard as ModelCardType } from "@/lib/fetchers/models/getAllModels";
-import type { OrganisationOverview as OrganisationPage } from "@/lib/fetchers/organisations/getOrganisation";
+import type { OrganisationOverview as OrganisationPage } from "@/lib/fetchers/organisations/types";
 import {
 	Tooltip,
 	TooltipTrigger,
@@ -79,6 +79,9 @@ export default function ModelsDisplay({
 	const announced: DisplayModel[] = models.filter(
 		(m: DisplayModel) => m.status === "Announced"
 	);
+	const preview: DisplayModel[] = models.filter(
+		(m: DisplayModel) => m.status === "Preview"
+	);
 	const limitedAccess: DisplayModel[] = models.filter(
 		(m: DisplayModel) => m.status === "Limited Access"
 	);
@@ -98,6 +101,7 @@ export default function ModelsDisplay({
 				"Rumoured",
 				"Available",
 				"Announced",
+				"Preview",
 				"Limited Access",
 				"Withheld",
 				"Deprecated",
@@ -129,6 +133,14 @@ export default function ModelsDisplay({
 				<Badge className="bg-blue-100 text-blue-800 border border-blue-300 px-2 py-1 text-xs flex items-center gap-1 transition-colors hover:bg-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800 dark:hover:bg-blue-900 dark:hover:text-blue-200 dark:hover:border-blue-700">
 					<Megaphone size={14} className="mr-1" />
 					Announced
+				</Badge>
+			);
+		}
+		if (status === "Preview") {
+			return (
+				<Badge className="bg-cyan-100 text-cyan-800 border border-cyan-300 px-2 py-1 text-xs flex items-center gap-1 transition-colors hover:bg-cyan-200 dark:bg-cyan-950 dark:text-cyan-300 dark:border-cyan-800 dark:hover:bg-cyan-900">
+					<Rocket size={14} className="mr-1" />
+					Preview
 				</Badge>
 			);
 		}
@@ -221,9 +233,10 @@ export default function ModelsDisplay({
 	return (
 		<div>
 			{showStatusHeadings && renderSection("Rumoured", rumoured)}
-			{showStatusHeadings && renderSection("Available", available)}
 			{showStatusHeadings && renderSection("Announced", announced)}
+			{showStatusHeadings && renderSection("Preview", preview)}
 			{showStatusHeadings && renderSection("Limited Access", limitedAccess)}
+			{showStatusHeadings && renderSection("Available", available)}
 			{showStatusHeadings && renderSection("Withheld", withheld)}
 			{showStatusHeadings && renderSection("Deprecated", deprecated)}
 			{showStatusHeadings && renderSection("Retired", retired)}

@@ -4,6 +4,7 @@ import { Login } from "@/components/(gateway)/auth/Login";
 import { AuthWordmark } from "@/components/(gateway)/auth/AuthWordmark";
 import { sanitizeReturnUrl } from "@/lib/auth/return-url";
 import { AuthSuspenseFallback } from "../AuthSuspenseFallback";
+import { samlSsoFlag } from "@/lib/flags";
 
 type SignInPageProps = {
 	searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -24,6 +25,7 @@ export default function Page({ searchParams }: SignInPageProps) {
 }
 
 async function SignInPageContent({ searchParams }: SignInPageProps) {
+	const ssoEnabled = await samlSsoFlag();
 	const params = (await searchParams) ?? {};
 	const signup = Array.isArray(params.signup) ? params.signup[0] : params.signup;
 	const signupNotice =
@@ -52,6 +54,7 @@ async function SignInPageContent({ searchParams }: SignInPageProps) {
 						signupNotice={signupNotice}
 						authError={authError}
 						returnUrl={returnUrl}
+						ssoEnabled={ssoEnabled}
 					/>
 				</div>
 			</div>

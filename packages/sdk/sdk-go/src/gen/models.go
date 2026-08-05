@@ -232,6 +232,9 @@ type AudioSpeechRequest struct {
 type AudioTranscriptionRequest struct {
 	AudioB64 *string `json:"audio_b64,omitempty"`
 	AudioUrl *string `json:"audio_url,omitempty"`
+	ChunkingStrategy interface{} `json:"chunking_strategy,omitempty"`
+	KnownSpeakerNames *[]string `json:"known_speaker_names,omitempty"`
+	KnownSpeakerReferences *[]string `json:"known_speaker_references,omitempty"`
 	Language *string `json:"language,omitempty"`
 	Model string `json:"model"`
 	Provider *map[string]interface{} `json:"provider,omitempty"`
@@ -316,6 +319,7 @@ type BatchModelsResponse struct {
 
 type BatchProviderCapability struct {
 	DocumentationUrl *string `json:"documentation_url,omitempty"`
+	Endpoints *[]map[string]interface{} `json:"endpoints,omitempty"`
 	GatewayInputModes *[]string `json:"gateway_input_modes,omitempty"`
 	Id *string `json:"id,omitempty"`
 	Name *string `json:"name,omitempty"`
@@ -415,6 +419,7 @@ type BatchResponse struct {
 	RequestId *string `json:"request_id,omitempty"`
 	SessionId *string `json:"session_id,omitempty"`
 	Status *string `json:"status,omitempty"`
+	Usage *map[string]interface{} `json:"usage,omitempty"`
 	Webhook *map[string]interface{} `json:"webhook,omitempty"`
 	WebsocketUrl *string `json:"websocket_url,omitempty"`
 }
@@ -424,6 +429,7 @@ type BenchmarkId string
 const (
 	BenchmarkId2BenchRetail BenchmarkId = "2-bench-retail"
 	BenchmarkId2BenchTelecom BenchmarkId = "2-bench-telecom"
+	BenchmarkIdAaBriefcase BenchmarkId = "aa-briefcase"
 	BenchmarkIdAaIndex BenchmarkId = "aa-index"
 	BenchmarkIdAaIntelligenceIndexV4 BenchmarkId = "aa-intelligence-index-v4"
 	BenchmarkIdAaLcr BenchmarkId = "aa-lcr"
@@ -432,6 +438,7 @@ const (
 	BenchmarkIdAceBench BenchmarkId = "ace-bench"
 	BenchmarkIdActivitynet BenchmarkId = "activitynet"
 	BenchmarkIdAethercode BenchmarkId = "aethercode"
+	BenchmarkIdAgentsLastExam BenchmarkId = "agents-last-exam"
 	BenchmarkIdAgieval BenchmarkId = "agieval"
 	BenchmarkIdAi2ReasoningChallengeArc BenchmarkId = "ai2-reasoning-challenge-(arc)"
 	BenchmarkIdAi2Sciarena BenchmarkId = "ai2-sciarena"
@@ -462,6 +469,7 @@ const (
 	BenchmarkIdArcAgi BenchmarkId = "arc-agi"
 	BenchmarkIdArcAgi1 BenchmarkId = "arc-agi-1"
 	BenchmarkIdArcAgi2 BenchmarkId = "arc-agi-2"
+	BenchmarkIdArcAgi3 BenchmarkId = "arc-agi-3"
 	BenchmarkIdArcC BenchmarkId = "arc-c"
 	BenchmarkIdArcE BenchmarkId = "arc-e"
 	BenchmarkIdArcagi1Image BenchmarkId = "arcagi1-image"
@@ -478,6 +486,7 @@ const (
 	BenchmarkIdAutomationbench BenchmarkId = "automationbench"
 	BenchmarkIdBabe BenchmarkId = "babe"
 	BenchmarkIdBabyvision BenchmarkId = "babyvision"
+	BenchmarkIdBabyvisionPython BenchmarkId = "babyvision-python"
 	BenchmarkIdBalrogAi BenchmarkId = "balrog-ai"
 	BenchmarkIdBbh BenchmarkId = "bbh"
 	BenchmarkIdBcflv4 BenchmarkId = "bcflv4"
@@ -522,6 +531,7 @@ const (
 	BenchmarkIdCharxivR BenchmarkId = "charxiv-r"
 	BenchmarkIdCharxivReasoning BenchmarkId = "charxiv-reasoning"
 	BenchmarkIdCharxivRq BenchmarkId = "charxiv-rq"
+	BenchmarkIdCharxivRqPython BenchmarkId = "charxiv-rq-python"
 	BenchmarkIdChestImagenomeAnatomyIou BenchmarkId = "chest-imagenome-anatomy-iou"
 	BenchmarkIdChexpertCxrTop5MacroF1 BenchmarkId = "chexpert-cxr-top5-macro-f1"
 	BenchmarkIdChineseSimpleqa BenchmarkId = "chinese-simpleqa"
@@ -562,6 +572,7 @@ const (
 	BenchmarkIdCybersecurityCtfs BenchmarkId = "cybersecurity-ctfs"
 	BenchmarkIdDa2k BenchmarkId = "da-2k"
 	BenchmarkIdDailyomni BenchmarkId = "dailyomni"
+	BenchmarkIdDeckBench BenchmarkId = "deck-bench"
 	BenchmarkIdDeepPlanning BenchmarkId = "deep-planning"
 	BenchmarkIdDeepconsult BenchmarkId = "deepconsult"
 	BenchmarkIdDeepplanningV11AvgAcc BenchmarkId = "deepplanning-v1.1-avg-acc"
@@ -582,6 +593,8 @@ const (
 	BenchmarkIdDrop BenchmarkId = "drop"
 	BenchmarkIdDsArenaCode BenchmarkId = "ds-arena-code"
 	BenchmarkIdDsFimEval BenchmarkId = "ds-fim-eval"
+	BenchmarkIdDsbenchFullstack BenchmarkId = "dsbench-fullstack"
+	BenchmarkIdDsbenchHard BenchmarkId = "dsbench-hard"
 	BenchmarkIdDubesorLlm BenchmarkId = "dubesor-llm"
 	BenchmarkIdDude BenchmarkId = "dude"
 	BenchmarkIdDynamath BenchmarkId = "dynamath"
@@ -621,10 +634,13 @@ const (
 	BenchmarkIdFltevalPass8 BenchmarkId = "flteval-pass-8"
 	BenchmarkIdFrames BenchmarkId = "frames"
 	BenchmarkIdFrontierMath BenchmarkId = "frontier-math"
+	BenchmarkIdFrontierbenchV01 BenchmarkId = "frontierbench-v0.1"
+	BenchmarkIdFrontiercode11Main BenchmarkId = "frontiercode-1.1-main"
 	BenchmarkIdFrontiercodeDiamond BenchmarkId = "frontiercode-diamond"
 	BenchmarkIdFrontiermath BenchmarkId = "frontiermath"
 	BenchmarkIdFrontiersciOlympiad BenchmarkId = "frontiersci-olympiad"
 	BenchmarkIdFrontiersciResearch BenchmarkId = "frontiersci-research"
+	BenchmarkIdFrontierswe BenchmarkId = "frontierswe"
 	BenchmarkIdFsc147Down BenchmarkId = "fsc-147-down"
 	BenchmarkIdFullstackbenchEn BenchmarkId = "fullstackbench-en"
 	BenchmarkIdFullstackbenchZh BenchmarkId = "fullstackbench-zh"
@@ -656,6 +672,7 @@ const (
 	BenchmarkIdHealthbench BenchmarkId = "healthbench"
 	BenchmarkIdHealthbenchConcensus BenchmarkId = "healthbench-concensus"
 	BenchmarkIdHealthbenchHard BenchmarkId = "healthbench-hard"
+	BenchmarkIdHealthbenchProfessional BenchmarkId = "healthbench-professional"
 	BenchmarkIdHellaswag BenchmarkId = "hellaswag"
 	BenchmarkIdHiddenmath BenchmarkId = "hiddenmath"
 	BenchmarkIdHipho BenchmarkId = "hipho"
@@ -676,6 +693,7 @@ const (
 	BenchmarkIdHumaneval2 BenchmarkId = "humaneval+"
 	BenchmarkIdHumanevalfimAverage BenchmarkId = "humanevalfim-average"
 	BenchmarkIdHumanitysLastExam BenchmarkId = "humanitys-last-exam"
+	BenchmarkIdHumanitysLastExamTools BenchmarkId = "humanitys-last-exam-tools"
 	BenchmarkIdHypersim BenchmarkId = "hypersim"
 	BenchmarkIdIf BenchmarkId = "if"
 	BenchmarkIdIfBench BenchmarkId = "if-bench"
@@ -701,6 +719,7 @@ const (
 	BenchmarkIdIvebenchOverallVsKlingO1 BenchmarkId = "ivebench-overall-vs-kling-o1"
 	BenchmarkIdIvebenchOverallVsRunwayAleph BenchmarkId = "ivebench-overall-vs-runway-aleph"
 	BenchmarkIdJobbench BenchmarkId = "jobbench"
+	BenchmarkIdKimiCodeBench2 BenchmarkId = "kimi-code-bench-2"
 	BenchmarkIdKorbench BenchmarkId = "korbench"
 	BenchmarkIdLbppV2 BenchmarkId = "lbpp-(v2)"
 	BenchmarkIdLegalAgentBenchmark BenchmarkId = "legal-agent-benchmark"
@@ -743,6 +762,7 @@ const (
 	BenchmarkIdMathkangaroo BenchmarkId = "mathkangaroo"
 	BenchmarkIdMathverseMini BenchmarkId = "mathverse-mini"
 	BenchmarkIdMathvision BenchmarkId = "mathvision"
+	BenchmarkIdMathvisionPython BenchmarkId = "mathvision-python"
 	BenchmarkIdMathvista BenchmarkId = "mathvista"
 	BenchmarkIdMathvistaMini BenchmarkId = "mathvista-mini"
 	BenchmarkIdMaxife BenchmarkId = "maxife"
@@ -770,6 +790,7 @@ const (
 	BenchmarkIdMisguidedAttention BenchmarkId = "misguided-attention"
 	BenchmarkIdMleBench BenchmarkId = "mle-bench"
 	BenchmarkIdMleBenchLite BenchmarkId = "mle-bench-lite"
+	BenchmarkIdMlsBenchLite BenchmarkId = "mls-bench-lite"
 	BenchmarkIdMlvu BenchmarkId = "mlvu"
 	BenchmarkIdMlvuM BenchmarkId = "mlvu-m"
 	BenchmarkIdMmBrowsecomp BenchmarkId = "mm-browsecomp"
@@ -804,6 +825,7 @@ const (
 	BenchmarkIdMmmuVal BenchmarkId = "mmmu-(val)"
 	BenchmarkIdMmmuValidation BenchmarkId = "mmmu-(validation)"
 	BenchmarkIdMmmuPro BenchmarkId = "mmmu-pro"
+	BenchmarkIdMmmuProPython BenchmarkId = "mmmu-pro-python"
 	BenchmarkIdMmmuval BenchmarkId = "mmmuval"
 	BenchmarkIdMmsearch BenchmarkId = "mmsearch"
 	BenchmarkIdMmsearchPlus BenchmarkId = "mmsearch-plus"
@@ -862,6 +884,7 @@ const (
 	BenchmarkIdOlympiadbench BenchmarkId = "olympiadbench"
 	BenchmarkIdOmnibench BenchmarkId = "omnibench"
 	BenchmarkIdOmnibenchMusic BenchmarkId = "omnibench-music"
+	BenchmarkIdOmnidocbench BenchmarkId = "omnidocbench"
 	BenchmarkIdOmnidocbench15Down BenchmarkId = "omnidocbench-1-5-down"
 	BenchmarkIdOmnidocbench15 BenchmarkId = "omnidocbench-1.5"
 	BenchmarkIdOmnigaia BenchmarkId = "omnigaia"
@@ -876,11 +899,13 @@ const (
 	BenchmarkIdOpenbookqa BenchmarkId = "openbookqa"
 	BenchmarkIdOpenrca BenchmarkId = "openrca"
 	BenchmarkIdOsWorld BenchmarkId = "os-world"
+	BenchmarkIdOsworld20 BenchmarkId = "osworld-2.0"
 	BenchmarkIdOsworldG BenchmarkId = "osworld-g"
 	BenchmarkIdOvbench BenchmarkId = "ovbench"
 	BenchmarkIdOvobench BenchmarkId = "ovobench"
 	BenchmarkIdPaperbench BenchmarkId = "paperbench"
 	BenchmarkIdPathmcqaAccuracy BenchmarkId = "pathmcqa-accuracy"
+	BenchmarkIdPerceptionbench BenchmarkId = "perceptionbench"
 	BenchmarkIdPerceptiontest BenchmarkId = "perceptiontest"
 	BenchmarkIdPhibench BenchmarkId = "phibench"
 	BenchmarkIdPhybench BenchmarkId = "phybench"
@@ -895,7 +920,9 @@ const (
 	BenchmarkIdPolymathEn BenchmarkId = "polymath-en"
 	BenchmarkIdPope BenchmarkId = "pope"
 	BenchmarkIdPopqa BenchmarkId = "popqa"
+	BenchmarkIdPosttrainBench BenchmarkId = "posttrain-bench"
 	BenchmarkIdProcbench BenchmarkId = "procbench"
+	BenchmarkIdProgramBench BenchmarkId = "program-bench"
 	BenchmarkIdProtocolqa BenchmarkId = "protocolqa"
 	BenchmarkIdQasper BenchmarkId = "qasper"
 	BenchmarkIdQmsum BenchmarkId = "qmsum"
@@ -936,6 +963,7 @@ const (
 	BenchmarkIdSocialIqa BenchmarkId = "social-iqa"
 	BenchmarkIdSoloBench BenchmarkId = "solo-bench"
 	BenchmarkIdSpider BenchmarkId = "spider"
+	BenchmarkIdSpreadsheetbench2 BenchmarkId = "spreadsheetbench-2"
 	BenchmarkIdSpreadsheetbenchVerified BenchmarkId = "spreadsheetbench-verified"
 	BenchmarkIdSquality BenchmarkId = "squality"
 	BenchmarkIdSummscreenfd BenchmarkId = "summscreenfd"
@@ -950,6 +978,7 @@ const (
 	BenchmarkIdSweBenchPro BenchmarkId = "swe-bench-pro"
 	BenchmarkIdSweEvo BenchmarkId = "swe-evo"
 	BenchmarkIdSweLancer BenchmarkId = "swe-lancer"
+	BenchmarkIdSweMarathon BenchmarkId = "swe-marathon"
 	BenchmarkIdSwePerf BenchmarkId = "swe-perf"
 	BenchmarkIdSweReview BenchmarkId = "swe-review"
 	BenchmarkIdSwtBench BenchmarkId = "swt-bench"
@@ -1049,6 +1078,7 @@ const (
 	BenchmarkIdZebralogic BenchmarkId = "zebralogic"
 	BenchmarkIdZerobench BenchmarkId = "zerobench"
 	BenchmarkIdZerobenchMain BenchmarkId = "zerobench-main"
+	BenchmarkIdZerobenchMainPython BenchmarkId = "zerobench-main-python"
 	BenchmarkIdZerobenchSub BenchmarkId = "zerobench-sub"
 )
 
@@ -1200,6 +1230,22 @@ type EmbeddingsResponse struct {
 	Usage *map[string]interface{} `json:"usage,omitempty"`
 }
 
+type EndpointCatalogueEntry struct {
+	CapabilityId string `json:"capability_id"`
+	Collection string `json:"collection"`
+	Id string `json:"id"`
+	ModelCount int `json:"model_count"`
+	ProviderCount int `json:"provider_count"`
+	PublicPath string `json:"public_path"`
+}
+
+type EndpointCatalogueResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	Endpoints []string `json:"endpoints"`
+	Ok string `json:"ok"`
+	SampleModels []string `json:"sample_models"`
+}
+
 type ErrorFailureSampleItem struct {
 	Provider *string `json:"provider,omitempty"`
 	Retryable *bool `json:"retryable,omitempty"`
@@ -1287,6 +1333,11 @@ type FileUploadRequest struct {
 
 type FunctionToolDefinition struct {
 	Function map[string]interface{} `json:"function"`
+	Type string `json:"type"`
+}
+
+type FusionToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
 	Type string `json:"type"`
 }
 
@@ -1441,6 +1492,7 @@ const (
 	KnownModelIdAnthropicClaudeOpus47 KnownModelId = "anthropic/claude-opus-4.7"
 	KnownModelIdAnthropicClaudeOpus47Fast KnownModelId = "anthropic/claude-opus-4.7-fast"
 	KnownModelIdAnthropicClaudeOpus48 KnownModelId = "anthropic/claude-opus-4.8"
+	KnownModelIdAnthropicClaudeOpus5 KnownModelId = "anthropic/claude-opus-5"
 	KnownModelIdAnthropicClaudeSonnet45 KnownModelId = "anthropic/claude-sonnet-4.5"
 	KnownModelIdAnthropicClaudeSonnet46 KnownModelId = "anthropic/claude-sonnet-4.6"
 	KnownModelIdAnthropicClaudeSonnet5 KnownModelId = "anthropic/claude-sonnet-5"
@@ -1453,6 +1505,7 @@ const (
 	KnownModelIdBaiduErnie45Vl28bA3b KnownModelId = "baidu/ernie-4.5-vl-28b-a3b"
 	KnownModelIdBaiduErnie45Vl28bA3bThinking KnownModelId = "baidu/ernie-4.5-vl-28b-a3b-thinking"
 	KnownModelIdBaiduErnie45Vl424bA47b KnownModelId = "baidu/ernie-4.5-vl-424b-a47b"
+	KnownModelIdBlackForestLabsFlux1Dev KnownModelId = "black-forest-labs/flux-1-dev"
 	KnownModelIdBlackForestLabsFlux1Schnell KnownModelId = "black-forest-labs/flux-1-schnell"
 	KnownModelIdBytedanceSeed16 KnownModelId = "bytedance/seed-1.6"
 	KnownModelIdBytedanceSeed16250915 KnownModelId = "bytedance/seed-1.6-250915"
@@ -1464,6 +1517,7 @@ const (
 	KnownModelIdBytedanceSeed20Mini KnownModelId = "bytedance/seed-2.0-mini"
 	KnownModelIdBytedanceSeed20Mini260428 KnownModelId = "bytedance/seed-2.0-mini-260428"
 	KnownModelIdBytedanceSeed20Pro KnownModelId = "bytedance/seed-2.0-pro"
+	KnownModelIdBytedanceSeed21Turbo KnownModelId = "bytedance/seed-2.1-turbo"
 	KnownModelIdBytedanceSeedOss36bInstruct KnownModelId = "bytedance/seed-oss-36b-instruct"
 	KnownModelIdBytedanceSeedTranslation KnownModelId = "bytedance/seed-translation"
 	KnownModelIdBytedanceSeedance20 KnownModelId = "bytedance/seedance-2.0"
@@ -1488,8 +1542,8 @@ const (
 	KnownModelIdDeepseekDeepseekV32 KnownModelId = "deepseek/deepseek-v3.2"
 	KnownModelIdDeepseekDeepseekV32Exp KnownModelId = "deepseek/deepseek-v3.2-exp"
 	KnownModelIdDeepseekDeepseekV32Speciale KnownModelId = "deepseek/deepseek-v3.2-speciale"
-	KnownModelIdDeepseekDeepseekV32Thinking KnownModelId = "deepseek/deepseek-v3.2-thinking"
 	KnownModelIdDeepseekDeepseekV4Flash KnownModelId = "deepseek/deepseek-v4-flash"
+	KnownModelIdDeepseekDeepseekV4Flash0731 KnownModelId = "deepseek/deepseek-v4-flash-0731"
 	KnownModelIdDeepseekDeepseekV4Pro KnownModelId = "deepseek/deepseek-v4-pro"
 	KnownModelIdDeepseekDeepseekV4ProLightning KnownModelId = "deepseek/deepseek-v4-pro-lightning"
 	KnownModelIdElevenLabsElevenFlashV2 KnownModelId = "eleven-labs/eleven-flash-v2"
@@ -1511,11 +1565,14 @@ const (
 	KnownModelIdGoogleGemini31FlashLite KnownModelId = "google/gemini-3.1-flash-lite"
 	KnownModelIdGoogleGemini31FlashLiteImage KnownModelId = "google/gemini-3.1-flash-lite-image"
 	KnownModelIdGoogleGemini31FlashLitePreview KnownModelId = "google/gemini-3.1-flash-lite-preview"
+	KnownModelIdGoogleGemini31FlashLivePreview KnownModelId = "google/gemini-3.1-flash-live-preview"
 	KnownModelIdGoogleGemini31FlashTtsPreview KnownModelId = "google/gemini-3.1-flash-tts-preview"
 	KnownModelIdGoogleGemini31ProPreview KnownModelId = "google/gemini-3.1-pro-preview"
 	KnownModelIdGoogleGemini31ProPreviewCustomtools KnownModelId = "google/gemini-3.1-pro-preview-customtools"
 	KnownModelIdGoogleGemini35Flash KnownModelId = "google/gemini-3.5-flash"
+	KnownModelIdGoogleGemini35FlashLite KnownModelId = "google/gemini-3.5-flash-lite"
 	KnownModelIdGoogleGemini35Pro KnownModelId = "google/gemini-3.5-pro"
+	KnownModelIdGoogleGemini36Flash KnownModelId = "google/gemini-3.6-flash"
 	KnownModelIdGoogleGeminiEmbedding001 KnownModelId = "google/gemini-embedding-001"
 	KnownModelIdGoogleGeminiEmbedding2 KnownModelId = "google/gemini-embedding-2"
 	KnownModelIdGoogleGeminiEmbedding2Preview KnownModelId = "google/gemini-embedding-2-preview"
@@ -1537,6 +1594,7 @@ const (
 	KnownModelIdInceptionMercury2 KnownModelId = "inception/mercury-2"
 	KnownModelIdInceptionMercuryEdit2 KnownModelId = "inception/mercury-edit-2"
 	KnownModelIdInclusionaiLing261t KnownModelId = "inclusionai/ling-2.6-1t"
+	KnownModelIdInclusionaiLing30FlashFree KnownModelId = "inclusionai/ling-3.0-flash:free"
 	KnownModelIdInclusionaiLingFlash20 KnownModelId = "inclusionai/ling-flash-2.0"
 	KnownModelIdInclusionaiRingFlash20 KnownModelId = "inclusionai/ring-flash-2.0"
 	KnownModelIdInflectionInflection3Pi KnownModelId = "inflection/inflection-3-pi"
@@ -1564,6 +1622,7 @@ const (
 	KnownModelIdMetaLlamaPromptGuard286m KnownModelId = "meta/llama-prompt-guard-2-86m"
 	KnownModelIdMicrosoftPhi4 KnownModelId = "microsoft/phi-4"
 	KnownModelIdMicrosoftPhi4Mini KnownModelId = "microsoft/phi-4-mini"
+	KnownModelIdMindaiMacaronV1VentiFree KnownModelId = "mindai/macaron-v1-venti:free"
 	KnownModelIdMinimaxHailuo02 KnownModelId = "minimax/hailuo-02"
 	KnownModelIdMinimaxHailuo23 KnownModelId = "minimax/hailuo-2.3"
 	KnownModelIdMinimaxHailuo23Fast KnownModelId = "minimax/hailuo-2.3-fast"
@@ -1594,6 +1653,7 @@ const (
 	KnownModelIdMistralMistralMedium35 KnownModelId = "mistral/mistral-medium-3.5"
 	KnownModelIdMistralMistralModeration KnownModelId = "mistral/mistral-moderation"
 	KnownModelIdMistralMistralModeration2 KnownModelId = "mistral/mistral-moderation-2"
+	KnownModelIdMistralMistralNemo KnownModelId = "mistral/mistral-nemo"
 	KnownModelIdMistralMistralNemo12b KnownModelId = "mistral/mistral-nemo-12b"
 	KnownModelIdMistralMistralNemo2407 KnownModelId = "mistral/mistral-nemo-2407"
 	KnownModelIdMistralMistralSmall24b2501 KnownModelId = "mistral/mistral-small-24b-2501"
@@ -1601,7 +1661,6 @@ const (
 	KnownModelIdMistralMistralSmall4 KnownModelId = "mistral/mistral-small-4"
 	KnownModelIdMistralMixtral8x7b KnownModelId = "mistral/mixtral-8x7b"
 	KnownModelIdMistralPixtralLarge KnownModelId = "mistral/pixtral-large"
-	KnownModelIdMistralaiMistralNemo KnownModelId = "mistralai/mistral-nemo"
 	KnownModelIdMoonshotaiKimiK2 KnownModelId = "moonshotai/kimi-k2"
 	KnownModelIdMoonshotaiKimiK20905 KnownModelId = "moonshotai/kimi-k2-0905"
 	KnownModelIdMoonshotaiKimiK2Instruct KnownModelId = "moonshotai/kimi-k2-instruct"
@@ -1611,6 +1670,7 @@ const (
 	KnownModelIdMoonshotaiKimiK25Lightning KnownModelId = "moonshotai/kimi-k2.5-lightning"
 	KnownModelIdMoonshotaiKimiK26 KnownModelId = "moonshotai/kimi-k2.6"
 	KnownModelIdMoonshotaiKimiK27Code KnownModelId = "moonshotai/kimi-k2.7-code"
+	KnownModelIdMoonshotaiKimiK3 KnownModelId = "moonshotai/kimi-k3"
 	KnownModelIdMoonshotaiMoonshotV1128k KnownModelId = "moonshotai/moonshot-v1-128k"
 	KnownModelIdMoonshotaiMoonshotV1128kVisionPreview KnownModelId = "moonshotai/moonshot-v1-128k-vision-preview"
 	KnownModelIdMoonshotaiMoonshotV132k KnownModelId = "moonshotai/moonshot-v1-32k"
@@ -1622,7 +1682,6 @@ const (
 	KnownModelIdNexAgiDeepseekV31NexN1 KnownModelId = "nex-agi/deepseek-v3.1-nex-n1"
 	KnownModelIdNexAgiNexN2Pro KnownModelId = "nex-agi/nex-n2-pro"
 	KnownModelIdNousHermes3Llama31405b KnownModelId = "nous/hermes-3-llama-3.1-405b"
-	KnownModelIdNousresearchHermes3Llama31405b KnownModelId = "nousresearch/hermes-3-llama-3.1-405b"
 	KnownModelIdNousresearchHermes3Llama3170b KnownModelId = "nousresearch/hermes-3-llama-3.1-70b"
 	KnownModelIdNousresearchHermes4405b KnownModelId = "nousresearch/hermes-4-405b"
 	KnownModelIdNousresearchHermes470b KnownModelId = "nousresearch/hermes-4-70b"
@@ -1639,7 +1698,6 @@ const (
 	KnownModelIdOpenaiBabbage002 KnownModelId = "openai/babbage-002"
 	KnownModelIdOpenaiChatLatest KnownModelId = "openai/chat-latest"
 	KnownModelIdOpenaiChatgpt4o KnownModelId = "openai/chatgpt-4o"
-	KnownModelIdOpenaiComputerUsePreview KnownModelId = "openai/computer-use-preview"
 	KnownModelIdOpenaiDavinci002 KnownModelId = "openai/davinci-002"
 	KnownModelIdOpenaiGpt35Turbo16k KnownModelId = "openai/gpt-3.5-turbo-16k"
 	KnownModelIdOpenaiGpt35Turbo20230321 KnownModelId = "openai/gpt-3.5-turbo-2023-03-21"
@@ -1658,16 +1716,10 @@ const (
 	KnownModelIdOpenaiGpt4oMiniTts KnownModelId = "openai/gpt-4o-mini-tts"
 	KnownModelIdOpenaiGpt4oTranscribe KnownModelId = "openai/gpt-4o-transcribe"
 	KnownModelIdOpenaiGpt5 KnownModelId = "openai/gpt-5"
-	KnownModelIdOpenaiGpt5Chat KnownModelId = "openai/gpt-5-chat"
-	KnownModelIdOpenaiGpt5Codex KnownModelId = "openai/gpt-5-codex"
 	KnownModelIdOpenaiGpt5Mini KnownModelId = "openai/gpt-5-mini"
 	KnownModelIdOpenaiGpt5Nano KnownModelId = "openai/gpt-5-nano"
 	KnownModelIdOpenaiGpt5Pro KnownModelId = "openai/gpt-5-pro"
 	KnownModelIdOpenaiGpt51 KnownModelId = "openai/gpt-5.1"
-	KnownModelIdOpenaiGpt51Chat KnownModelId = "openai/gpt-5.1-chat"
-	KnownModelIdOpenaiGpt51Codex KnownModelId = "openai/gpt-5.1-codex"
-	KnownModelIdOpenaiGpt51CodexMax KnownModelId = "openai/gpt-5.1-codex-max"
-	KnownModelIdOpenaiGpt51CodexMini KnownModelId = "openai/gpt-5.1-codex-mini"
 	KnownModelIdOpenaiGpt52 KnownModelId = "openai/gpt-5.2"
 	KnownModelIdOpenaiGpt52Chat KnownModelId = "openai/gpt-5.2-chat"
 	KnownModelIdOpenaiGpt52Codex KnownModelId = "openai/gpt-5.2-codex"
@@ -1693,15 +1745,17 @@ const (
 	KnownModelIdOpenaiGptOss120b KnownModelId = "openai/gpt-oss-120b"
 	KnownModelIdOpenaiGptOss20b KnownModelId = "openai/gpt-oss-20b"
 	KnownModelIdOpenaiGptOssSafeguard20b KnownModelId = "openai/gpt-oss-safeguard-20b"
+	KnownModelIdOpenaiGptRealtime KnownModelId = "openai/gpt-realtime"
+	KnownModelIdOpenaiGptRealtime15 KnownModelId = "openai/gpt-realtime-1.5"
+	KnownModelIdOpenaiGptRealtime2 KnownModelId = "openai/gpt-realtime-2"
+	KnownModelIdOpenaiGptTranscribe KnownModelId = "openai/gpt-transcribe"
 	KnownModelIdOpenaiO1 KnownModelId = "openai/o1"
 	KnownModelIdOpenaiO1Mini KnownModelId = "openai/o1-mini"
 	KnownModelIdOpenaiO1Pro KnownModelId = "openai/o1-pro"
 	KnownModelIdOpenaiO3 KnownModelId = "openai/o3"
-	KnownModelIdOpenaiO3DeepResearch KnownModelId = "openai/o3-deep-research"
 	KnownModelIdOpenaiO3Mini KnownModelId = "openai/o3-mini"
 	KnownModelIdOpenaiO3Pro KnownModelId = "openai/o3-pro"
 	KnownModelIdOpenaiO4Mini KnownModelId = "openai/o4-mini"
-	KnownModelIdOpenaiO4MiniDeepResearch KnownModelId = "openai/o4-mini-deep-research"
 	KnownModelIdOpenaiOmniModeration KnownModelId = "openai/omni-moderation"
 	KnownModelIdOpenaiSora2 KnownModelId = "openai/sora-2"
 	KnownModelIdOpenaiSora2Pro KnownModelId = "openai/sora-2-pro"
@@ -1711,6 +1765,7 @@ const (
 	KnownModelIdOpenaiWhisper1 KnownModelId = "openai/whisper-1"
 	KnownModelIdPhaseoFree KnownModelId = "phaseo/free"
 	KnownModelIdPoolsideLagunaM1Free KnownModelId = "poolside/laguna-m.1:free"
+	KnownModelIdPoolsideLagunaS21Free KnownModelId = "poolside/laguna-s-2.1:free"
 	KnownModelIdPoolsideLagunaXs21Free KnownModelId = "poolside/laguna-xs-2.1:free"
 	KnownModelIdQwenQvqMax KnownModelId = "qwen/qvq-max"
 	KnownModelIdQwenQwen36Plus KnownModelId = "qwen/qwen-3.6-plus"
@@ -1811,6 +1866,7 @@ const (
 	KnownModelIdQwenQwen37Max20260517 KnownModelId = "qwen/qwen3.7-max-2026-05-17"
 	KnownModelIdQwenQwen37Plus KnownModelId = "qwen/qwen3.7-plus"
 	KnownModelIdQwenQwen37Plus20260526 KnownModelId = "qwen/qwen3.7-plus-2026-05-26"
+	KnownModelIdQwenQwen38Max KnownModelId = "qwen/qwen3.8-max"
 	KnownModelIdQwenQwq32b KnownModelId = "qwen/qwq-32b"
 	KnownModelIdQwenQwqPlus KnownModelId = "qwen/qwq-plus"
 	KnownModelIdQwenTextEmbeddingV3 KnownModelId = "qwen/text-embedding-v3"
@@ -1832,6 +1888,9 @@ const (
 	KnownModelIdTencentHy3 KnownModelId = "tencent/hy3"
 	KnownModelIdTencentHy3Preview KnownModelId = "tencent/hy3-preview"
 	KnownModelIdTencentHy3Free KnownModelId = "tencent/hy3:free"
+	KnownModelIdThinkingMachinesInkling KnownModelId = "thinking-machines/inkling"
+	KnownModelIdThinkingMachinesInkling64k KnownModelId = "thinking-machines/inkling-64k"
+	KnownModelIdThinkingMachinesInklingSmall KnownModelId = "thinking-machines/inkling-small"
 	KnownModelIdVeniceVeniceUncensored KnownModelId = "venice/venice-uncensored"
 	KnownModelIdVeniceVeniceUncensored11 KnownModelId = "venice/venice-uncensored-1.1"
 	KnownModelIdVoyageRerank1 KnownModelId = "voyage/rerank-1"
@@ -1979,6 +2038,45 @@ type ModelAvailability struct {
 	Status string `json:"status"`
 }
 
+type ModelEndpointCapability struct {
+	AvailabilityReason string `json:"availability_reason"`
+	AvailabilityStatus string `json:"availability_status"`
+	CapabilityId string `json:"capability_id"`
+	CapabilityStatus string `json:"capability_status"`
+	Collection string `json:"collection"`
+	EffectiveFrom *string `json:"effective_from,omitempty"`
+	EffectiveTo *string `json:"effective_to,omitempty"`
+	Endpoint string `json:"endpoint"`
+	Id string `json:"id"`
+	InputModalities []string `json:"input_modalities"`
+	IsActiveGateway bool `json:"is_active_gateway"`
+	ModelRoutingStatus string `json:"model_routing_status"`
+	OutputModalities []string `json:"output_modalities"`
+	Pricing map[string]interface{} `json:"pricing"`
+	PricingDetail map[string]interface{} `json:"pricing_detail"`
+	ProviderId string `json:"provider_id"`
+	ProviderModelSlug *string `json:"provider_model_slug,omitempty"`
+	ProviderName *string `json:"provider_name,omitempty"`
+	ProviderRoutingStatus string `json:"provider_routing_status"`
+	ProviderStatus string `json:"provider_status"`
+	PublicPath string `json:"public_path"`
+	SupportedParameters []string `json:"supported_parameters"`
+	SupportedParametersDetail map[string]interface{} `json:"supported_parameters_detail"`
+}
+
+type ModelEndpointsResponse struct {
+	Architecture *map[string]interface{} `json:"architecture,omitempty"`
+	AvailabilityMode string `json:"availability_mode"`
+	CanonicalSlug string `json:"canonical_slug"`
+	Created *int `json:"created,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Endpoints []map[string]interface{} `json:"endpoints"`
+	Id string `json:"id"`
+	ModelId string `json:"model_id"`
+	Name *string `json:"name,omitempty"`
+	Ok string `json:"ok"`
+}
+
 type ModelId = string
 
 type ModelLifecycle struct {
@@ -1998,10 +2096,13 @@ type ModelProviderAvailability struct {
 	EffectiveFrom *string `json:"effective_from,omitempty"`
 	EffectiveTo *string `json:"effective_to,omitempty"`
 	Endpoints []string `json:"endpoints"`
+	InputModalities *[]string `json:"input_modalities,omitempty"`
 	IsActiveGateway bool `json:"is_active_gateway"`
 	ModelRoutingStatus string `json:"model_routing_status"`
+	OutputModalities *[]string `json:"output_modalities,omitempty"`
 	Params []string `json:"params"`
 	ParamsDetail *map[string]interface{} `json:"params_detail,omitempty"`
+	ProviderModelSlug *string `json:"provider_model_slug,omitempty"`
 	ProviderRoutingStatus string `json:"provider_routing_status"`
 	ProviderStatus string `json:"provider_status"`
 	SupportedParameters *[]string `json:"supported_parameters,omitempty"`
@@ -2337,22 +2438,48 @@ type ResponsesRequest struct {
 
 type ResponsesResponse struct {
 	Content *[]map[string]interface{} `json:"content,omitempty"`
+	CostCents *int `json:"cost_cents,omitempty"`
+	CostNanos *float64 `json:"cost_nanos,omitempty"`
 	Created *int `json:"created,omitempty"`
+	Currency *string `json:"currency,omitempty"`
+	FinishReason *string `json:"finish_reason,omitempty"`
 	Id *string `json:"id,omitempty"`
+	Meta *map[string]interface{} `json:"meta,omitempty"`
 	Model *string `json:"model,omitempty"`
+	NativeResponseId *string `json:"nativeResponseId,omitempty"`
 	Object *string `json:"object,omitempty"`
 	Output *[]map[string]interface{} `json:"output,omitempty"`
 	OutputItems *[]map[string]interface{} `json:"output_items,omitempty"`
+	PricingLines *[]map[string]interface{} `json:"pricing_lines,omitempty"`
+	Provider *string `json:"provider,omitempty"`
+	ProviderId *string `json:"provider_id,omitempty"`
 	Role *string `json:"role,omitempty"`
+	Status *string `json:"status,omitempty"`
 	StopReason *string `json:"stop_reason,omitempty"`
 	Type *string `json:"type,omitempty"`
 	Usage *map[string]interface{} `json:"usage,omitempty"`
 }
 
+type SearchModelsToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
+	Type string `json:"type"`
+}
+
 type ServerToolUsage struct {
+	AdvisorRequests *int `json:"advisor_requests,omitempty"`
+	ApplyPatchRequests *int `json:"apply_patch_requests,omitempty"`
 	DatetimeRequests *int `json:"datetime_requests,omitempty"`
+	FusionRequests *int `json:"fusion_requests,omitempty"`
+	ImageGenerationRequests *int `json:"image_generation_requests,omitempty"`
+	SearchModelsRequests *int `json:"search_models_requests,omitempty"`
+	SubagentRequests *int `json:"subagent_requests,omitempty"`
 	WebFetchRequests *int `json:"web_fetch_requests,omitempty"`
 	WebSearchRequests *int `json:"web_search_requests,omitempty"`
+}
+
+type SubagentToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
+	Type string `json:"type"`
 }
 
 type SupportedParameterDetails struct {

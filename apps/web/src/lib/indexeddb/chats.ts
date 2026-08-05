@@ -172,6 +172,7 @@ const LEGACY_TEXT_STORE_NAME = "chats";
 const TAG_STORE_NAME = "chat-tags";
 const ROOM_STORE_NAMES: Record<ChatRoomId, string> = {
     text: LEGACY_TEXT_STORE_NAME,
+    fusion: "chats-fusion",
     image: "chats-image",
     video: "chats-video",
     audio: "chats-audio",

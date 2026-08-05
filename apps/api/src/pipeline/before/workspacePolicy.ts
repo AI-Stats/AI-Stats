@@ -1,5 +1,6 @@
 import { normalizeProviderList } from "@/lib/config/providerAliases";
 import { dispatchBackground, getCache, getSupabaseAdmin } from "@/runtime/env";
+import { keyVersionToken } from "@/core/kv";
 import type { PriceCard } from "../pricing";
 import type {
 	ProviderCandidate,
@@ -8,8 +9,30 @@ import type {
 	TeamSettings,
 	WorkspacePolicy,
 } from "./types";
+import { normalizeDynamicRouteConfig, type DynamicRoutePolicy } from "./dynamic-routes";
 
 type ProviderRestrictionMode = "none" | "allowlist" | "blocklist";
+
+export function isOptionalDynamicRouteSchemaUnavailable(error: unknown): boolean {
+	if (!error || typeof error !== "object") return false;
+	const record = error as Record<string, unknown>;
+	const code = String(record.code ?? "").trim().toUpperCase();
+	const message = [record.message, record.details, record.hint]
+		.filter((value): value is string => typeof value === "string")
+		.join(" ")
+		.toLowerCase();
+	const referencesDynamicRouteSchema =
+		message.includes("gateway_dynamic_route_keys") ||
+		message.includes("gateway_dynamic_routes");
+	if (!referencesDynamicRouteSchema) return false;
+	return (
+		code === "42P01" ||
+		code === "PGRST204" ||
+		code === "PGRST205" ||
+		message.includes("does not exist") ||
+		message.includes("schema cache")
+	);
+}
 
 type WorkspaceSettingsRow = {
 	provider_restriction_mode?: string | null;
@@ -66,7 +89,9 @@ export type WorkspacePolicyDiagnostics = {
 		reason:
 			| "input_output_logging_disabled"
 			| "paid_training_disabled"
-			| "free_training_disabled";
+			| "free_training_disabled"
+			| "data_policy_unknown"
+			| "data_policy_unverified";
 		dataPolicyTier: string;
 		dataPolicyConfidence: string;
 		routeCostKind: "free" | "paid" | "unknown";
@@ -161,6 +186,7 @@ function isWorkspacePolicyLike(value: unknown): value is WorkspacePolicy {
 		Array.isArray(policy.sensitiveInfoGuardrailIds) &&
 		policy.sensitiveInfoGuardrailIds.every((item) => typeof item === "string") &&
 		typeof policy.enforceAllowed === "boolean" &&
+		(policy.dynamicRoute === null || policy.dynamicRoute === undefined || typeof policy.dynamicRoute === "object") &&
 		Array.isArray(policy.activeGuardrailIds) &&
 		policy.activeGuardrailIds.every((item) => typeof item === "string")
 	);
@@ -178,6 +204,9 @@ function cloneWorkspacePolicy(policy: WorkspacePolicy): WorkspacePolicy {
 		sensitiveInfoGuardrailIds: [...policy.sensitiveInfoGuardrailIds],
 		enforceAllowed: policy.enforceAllowed,
 		activeGuardrailIds: [...policy.activeGuardrailIds],
+		dynamicRoute: policy.dynamicRoute
+			? { ...policy.dynamicRoute, config: normalizeDynamicRouteConfig(policy.dynamicRoute.config) }
+			: null,
 	};
 }
 
@@ -314,6 +343,7 @@ function extractProviderHints(body: any): ProviderHintSet {
 export function buildWorkspacePolicy(args: {
 	globalSettings?: WorkspaceSettingsRow | null;
 	guardrails?: GuardrailRow[];
+	dynamicRoute?: DynamicRoutePolicy | null;
 }): WorkspacePolicy {
 	let providerAllowlist: Set<string> | null = null;
 	const providerBlocklist = new Set<string>();
@@ -405,6 +435,7 @@ export function buildWorkspacePolicy(args: {
 		sensitiveInfoGuardrailIds,
 		enforceAllowed,
 		activeGuardrailIds: (args.guardrails ?? []).map((guardrail) => guardrail.id),
+		dynamicRoute: args.dynamicRoute ?? null,
 	};
 }
 
@@ -412,7 +443,11 @@ export async function fetchWorkspacePolicy(args: {
 	workspaceId: string;
 	apiKeyId: string;
 }): Promise<WorkspacePolicy> {
-	const versionToken = await getWorkspacePolicyVersionToken(args.workspaceId);
+	const [workspaceVersionToken, apiKeyVersionToken] = await Promise.all([
+		getWorkspacePolicyVersionToken(args.workspaceId),
+		keyVersionToken("id", args.apiKeyId, { useL1Cache: true, l1TtlMs: 5_000 }),
+	]);
+	const versionToken = `${workspaceVersionToken}:${apiKeyVersionToken}`;
 	const cached = readWorkspacePolicyL1(args.workspaceId, args.apiKeyId, versionToken);
 	if (cached) return cached;
 
@@ -433,7 +468,7 @@ export async function fetchWorkspacePolicy(args: {
 	}
 
 	const supabase = getSupabaseAdmin();
-	const [settingsResult, keyGuardrailsResult] = await Promise.all([
+	const [settingsResult, keyGuardrailsResult, routeLinkResult] = await Promise.all([
 		supabase
 			.from("workspace_settings")
 			.select(
@@ -445,6 +480,11 @@ export async function fetchWorkspacePolicy(args: {
 			.from("key_guardrails")
 			.select("guardrail_id")
 			.eq("key_id", args.apiKeyId),
+		supabase
+			.from("gateway_dynamic_route_keys")
+			.select("route_id")
+			.eq("key_id", args.apiKeyId)
+			.maybeSingle(),
 	]);
 
 	if (settingsResult.error) {
@@ -452,6 +492,16 @@ export async function fetchWorkspacePolicy(args: {
 	}
 	if (keyGuardrailsResult.error) {
 		throw new Error(`key_guardrails_lookup_failed:${keyGuardrailsResult.error.message}`);
+	}
+	if (routeLinkResult.error) {
+		if (isOptionalDynamicRouteSchemaUnavailable(routeLinkResult.error)) {
+			console.warn("[fetchWorkspacePolicy] dynamic_route_schema_unavailable", {
+				workspaceId: args.workspaceId,
+				code: routeLinkResult.error.code ?? null,
+			});
+		} else {
+			throw new Error(`dynamic_route_link_lookup_failed:${routeLinkResult.error.message}`);
+		}
 	}
 
 	const guardrailIds = (keyGuardrailsResult.data ?? [])
@@ -476,9 +526,39 @@ export async function fetchWorkspacePolicy(args: {
 		guardrails = (guardrailsResult.data ?? []) as GuardrailRow[];
 	}
 
+	let dynamicRoute: DynamicRoutePolicy | null = null;
+	const routeId = String(routeLinkResult.data?.route_id ?? "").trim();
+	if (routeId) {
+		const routeResult = await supabase
+			.from("gateway_dynamic_routes")
+			.select("id,name,version,deployed_version,config,status")
+			.eq("id", routeId)
+			.eq("workspace_id", args.workspaceId)
+			.maybeSingle();
+		if (routeResult.error) {
+			if (isOptionalDynamicRouteSchemaUnavailable(routeResult.error)) {
+				console.warn("[fetchWorkspacePolicy] dynamic_route_schema_unavailable", {
+					workspaceId: args.workspaceId,
+					code: routeResult.error.code ?? null,
+				});
+			} else {
+				throw new Error(`dynamic_route_lookup_failed:${routeResult.error.message}`);
+			}
+		}
+		if (!routeResult.error && routeResult.data && routeResult.data.status === "active" && routeResult.data.deployed_version) {
+			dynamicRoute = {
+				id: routeResult.data.id,
+				name: routeResult.data.name,
+				version: Number(routeResult.data.deployed_version) || 1,
+				config: normalizeDynamicRouteConfig(routeResult.data.config),
+			};
+		}
+	}
+
 	const policy = buildWorkspacePolicy({
 		globalSettings: (settingsResult.data ?? null) as WorkspaceSettingsRow | null,
 		guardrails,
+		dynamicRoute,
 	});
 	writeWorkspacePolicyL1(args.workspaceId, args.apiKeyId, versionToken, policy);
 	dispatchBackground(
@@ -688,7 +768,11 @@ function applyProviderDataPolicySettings(args: {
 		const costKind = routeCostKind(provider.pricingCard);
 		let reason: WorkspacePolicyDiagnostics["droppedByPrivacy"][number]["reason"] | null = null;
 
-		if (!allowInputOutputLogging && tier === "logs") {
+		if (tier === "unknown") {
+			reason = "data_policy_unknown";
+		} else if (confidence !== "confirmed") {
+			reason = "data_policy_unverified";
+		} else if (!allowInputOutputLogging && tier === "logs") {
 			reason = "input_output_logging_disabled";
 		} else if (tier === "trains") {
 			if (costKind === "free" && !allowFreeMayTrain) {

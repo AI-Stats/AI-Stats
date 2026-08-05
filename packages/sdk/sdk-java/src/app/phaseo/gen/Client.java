@@ -9,6 +9,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class Client {
 	private final String baseUrl;
@@ -83,6 +84,20 @@ public class Client {
 		HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
 		if (response.statusCode() >= 400) {
 			throw new ApiException(response.statusCode(), response.body(), buildErrorMessage(response.statusCode(), response.body()));
+		}
+		return response.body();
+	}
+
+	public Stream<String> requestLines(String method, String path, Map<String, String> query, Map<String, String> extraHeaders, String body) throws IOException, InterruptedException {
+		Map<String, String> streamHeaders = new HashMap<>();
+		if (extraHeaders != null) streamHeaders.putAll(extraHeaders);
+		streamHeaders.put("Accept", "text/event-stream");
+		HttpResponse<Stream<String>> response = http.send(buildRequest(method, path, query, streamHeaders, body), HttpResponse.BodyHandlers.ofLines());
+		if (response.statusCode() >= 400) {
+			try (Stream<String> lines = response.body()) {
+				String raw = String.join("\n", lines.toList());
+				throw new ApiException(response.statusCode(), raw, buildErrorMessage(response.statusCode(), raw));
+			}
 		}
 		return response.body();
 	}

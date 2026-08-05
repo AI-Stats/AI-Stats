@@ -1,5 +1,57 @@
 [
   {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "parasail:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": false,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": "2026-07-31T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://docs.parasail.io/",
+        "accessed_at": "2026-08-01T00:00:00Z",
+        "notes": "Parasail serverless inference and model API documentation."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-01T00:00:00Z",
+      "notes": "Deployment availability, FP8 quantisation, limits and supported request parameters confirmed; provider onboarding is not ready for Phaseo routing."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "moonshotai/kimi-k2.7-code",
     "provider_api_model_id": "parasail:moonshotai/kimi-k2.7-code",
     "provider_model_slug": "moonshotai/Kimi-K2.7-Code",
@@ -16,9 +68,36 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "z-ai/glm-5.2",
@@ -37,8 +116,94 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash",
+    "provider_api_model_id": "parasail:deepseek/deepseek-v4-flash",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash",
+    "internal_model_id": "deepseek/deepseek-v4-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://docs.parasail.io/parasail-docs/serverless-and-models",
+        "accessed_at": "2026-08-03T00:00:00Z",
+        "notes": "Deployment recorded; provider onboarding remains unavailable for Phaseo routing."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-03T00:00:00Z",
+      "notes": "Provider deployment recorded; routing follows the disabled parent provider."
+    },
+    "rate_limits": []
   }
 ]

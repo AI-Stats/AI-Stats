@@ -1,15 +1,16 @@
 ---
-title: "Anthropic: Claude Sonnet 4.5 to 4.6"
-description: "The concrete API and behavior changes to review when upgrading from Claude Sonnet 4.5 to Claude Sonnet 4.6."
+title: "Anthropic Claude Sonnet 4.6"
+description: "What to know when adopting Claude Sonnet 4.6 for coding, computer use, and agent planning."
+icon: "/icons/brands/anthropic.svg"
 ---
 
-# Anthropic: Claude Sonnet 4.5 to 4.6
+# Anthropic Claude Sonnet 4.6
 
-Use this guide when you are moving from `anthropic/claude-sonnet-4.5` to `anthropic/claude-sonnet-4.6`.
+Use this guide to adopt `anthropic/claude-sonnet-4.6` safely in production.
 
 Sonnet 4.6 shares the same migration mechanics as the broader Claude 4.6 line, but it also changes the performance profile enough that prompt and routing assumptions should be revalidated.
 
-## What changed
+## What's new
 
 - assistant prefills are no longer supported on Claude 4.6 models and return `400`
 - structured output moved from `output_format` to `output_config.format`
@@ -18,7 +19,7 @@ Sonnet 4.6 shares the same migration mechanics as the broader Claude 4.6 line, b
 - Sonnet 4.6 is a full upgrade across coding, computer use, long-context reasoning, agent planning, and instruction following
 - Sonnet 4.6 adds a 1M-token context window in beta
 
-## What to change in your integration
+## Migration quickstart
 
 ### 1. Stop using assistant prefills
 

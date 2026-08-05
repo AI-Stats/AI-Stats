@@ -145,6 +145,10 @@ const PROVIDER_PROFILES: ProviderProfile[] = [
 		textOnly: true,
 	},
 	{
+		id: "ambient",
+		textOnly: true,
+	},
+	{
 		id: "mancer",
 		textOnly: true,
 	},
@@ -174,6 +178,10 @@ const PROVIDER_PROFILES: ProviderProfile[] = [
 	},
 	{
 		id: "streamlake",
+		textOnly: true,
+	},
+	{
+		id: "switchpoint",
 		textOnly: true,
 	},
 	{
@@ -214,6 +222,24 @@ const PROVIDER_PROFILES: ProviderProfile[] = [
 	{
 		id: "upstage",
 		textOnly: true,
+	},
+	{
+		id: "crofai",
+		textOnly: true,
+		text: {
+			paramPolicy: {
+				supportedParams: ["service_tier"],
+			},
+		},
+	},
+	{
+		id: "wafer",
+		textOnly: true,
+		text: {
+			paramPolicy: {
+				supportedParams: ["service_tier"],
+			},
+		},
 	},
 ];
 

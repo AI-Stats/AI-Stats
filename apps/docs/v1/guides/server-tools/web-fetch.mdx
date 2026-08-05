@@ -1,4 +1,5 @@
 ---
+icon: "cloud-download"
 title: "Web Fetch Server Tool"
 description: "Let models fetch and read specific URLs during a request."
 ---
@@ -51,6 +52,7 @@ curl https://api.phaseo.app/v1/chat/completions \
 | `engine` | string | surface-dependent | Fetch engine: `auto`, `native`, `direct`, `exa`, `parallel`, or `firecrawl`. |
 | `max_chars` | integer | `12000` | Maximum extracted characters returned to the model. |
 | `max_content_tokens` | integer | none | Token-style alias used when `max_chars` is omitted. |
+| `max_uses` | integer | `10` | Maximum fetch calls across the server-tool loop. |
 | `allowed_domains` | string[] | none | Only allow fetches from these domains. |
 | `blocked_domains` | string[] | none | Reject fetches from these domains. Alias: `excluded_domains`. |
 
@@ -132,4 +134,3 @@ Managed fetch pricing can use `server_tool_web_fetch_requests`. Provider-native 
 - [Web Search](./web-search)
 - [Server Tools](./index)
 - [Tool grounding with web fetch](../../cookbook/tool-grounding-with-web-fetch)
-

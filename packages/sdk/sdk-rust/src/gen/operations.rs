@@ -260,6 +260,16 @@ pub fn listBatchesAlias<T: Transport>(client: &Client<T>, path: &HashMap<String,
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listBatchFiles<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/batches/files");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listBatchFilesAlias<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/batch/files");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listBatchModels<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/batches/models");
 	client.request("GET", &resolved_path, body)
@@ -292,6 +302,11 @@ pub fn listEndpoints<T: Transport>(client: &Client<T>, path: &HashMap<String, St
 
 pub fn listFiles<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/files");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listModelEndpoints<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/models/{}/{}/endpoints", path.get("author").cloned().unwrap_or_default(), path.get("slug").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
 }
 

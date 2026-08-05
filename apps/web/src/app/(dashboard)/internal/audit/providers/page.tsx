@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getProviderAudit } from "@/lib/fetchers/models/table-view/getProviderAudit";
-import { createClient } from "@/utils/supabase/server";
+import { requireInternalAdmin } from "@/lib/auth/requireInternalAdmin";
 
 export const metadata = {
 	title: "Provider Audit - Internal",
@@ -38,32 +37,21 @@ function badgeClassNameForAvailability(
 	return "border-zinc-200 bg-zinc-50 text-zinc-700";
 }
 
+function formatStatus(value: string | null): string {
+	if (!value) return "Not set";
+	return value
+		.split("_")
+		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+		.join(" ");
+}
+
 export default async function InternalProviderAuditPage({
 	searchParams,
 }: {
 	searchParams: Promise<SearchParams>;
 }) {
-	const supabase = await createClient();
 	const params = await searchParams;
-
-	const {
-		data: { user },
-		error: authError,
-	} = await supabase.auth.getUser();
-
-	if (authError || !user) {
-		redirect("/sign-in");
-	}
-
-	const { data: userRow, error: userError } = await supabase
-		.from("users")
-		.select("role")
-		.eq("user_id", user.id)
-		.maybeSingle();
-
-	if (userError || (userRow?.role ?? "").toLowerCase() !== "admin") {
-		redirect("/internal");
-	}
+	await requireInternalAdmin("/internal");
 
 	const audit = await getProviderAudit();
 
@@ -98,6 +86,9 @@ export default async function InternalProviderAuditPage({
 						row.routability.label,
 						row.routability.detail,
 						row.routability.key,
+						row.providerAvailabilityStatus ?? "",
+						row.phaseoStatus ?? "",
+						row.accessScope ?? "",
 					]
 						.join(" ")
 						.toLowerCase();
@@ -318,12 +309,13 @@ export default async function InternalProviderAuditPage({
 							</div>
 						</div>
 						<div className="overflow-x-auto">
-							<table className="w-full min-w-[980px] text-sm">
+							<table className="w-full min-w-[1120px] text-sm">
 								<thead className="bg-muted/40 text-left">
 									<tr>
 										<th className="px-3 py-2">API Model ID</th>
 										<th className="px-3 py-2">Internal Model ID</th>
 										<th className="px-3 py-2">Provider Slug</th>
+										<th className="px-3 py-2">Lifecycle</th>
 										<th className="px-3 py-2">Routability</th>
 										<th className="px-3 py-2">Pricing Rules (Active/Total)</th>
 										<th className="px-3 py-2">Capabilities</th>
@@ -341,6 +333,11 @@ export default async function InternalProviderAuditPage({
 												</td>
 												<td className="border-t px-3 py-2 font-mono text-xs">
 													{row.providerModelSlug ?? "-"}
+												</td>
+												<td className="border-t px-3 py-2 text-xs">
+													<div><span className="text-muted-foreground">Provider:</span> {formatStatus(row.providerAvailabilityStatus)}</div>
+													<div><span className="text-muted-foreground">Phaseo:</span> {formatStatus(row.phaseoStatus)}</div>
+													<div><span className="text-muted-foreground">Access:</span> {formatStatus(row.accessScope)}</div>
 												</td>
 												<td className="border-t px-3 py-2">
 													<div className="space-y-1">

@@ -13,6 +13,7 @@
   "input_types": "text,image,video",
   "output_types": "text",
   "api_model_id": "google/gemma-3n-e4b",
+  "variants": [{ "model_id": "google/gemma-3n-e4b:free", "name": "Gemma 3n E4B (Free)", "variant_kind": "free" }],
   "family_id": "google/gemma-3",
   "links": [],
   "details": [
@@ -126,5 +127,46 @@
       "source_link": "https://huggingface.co/google/gemma-3n-E4B",
       "rank": 7
     }
-  ]
+  ],
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": "2024-08-01T00:00:00",
+  "limits": {
+    "context": 32768,
+    "input": 32768,
+    "output": 32768
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*",
+      "video/*"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [],
+  "verification": {
+    "status": "unverified",
+    "checked_at": null,
+    "notes": null
+  },
+  "last_updated": null,
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
 }

@@ -6,7 +6,10 @@ import type { GatewayBindings } from "@/runtime/env.types";
 import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 
 const DEFAULT_BATCH_API_GATE = "gateway_batch_api";
+const DEFAULT_VIDEO_API_GATE = "gateway_video_api";
+const DEFAULT_REALTIME_VOICE_GATE = "gateway_realtime_voice";
 const DEFAULT_GATEWAY_IO_LOGGING_GATE = "gateway_io_logging";
+const DEFAULT_DATA_CONTRIBUTION_GATE = "gateway_data_contribution";
 const WORKSPACE_OWNER_CACHE_TTL_MS = 5 * 60 * 1000;
 
 type StatsigGateSubject = {
@@ -59,8 +62,20 @@ export function getBatchApiFeatureGateName(bindings: Partial<GatewayBindings> = 
 	return normalizeText(bindings.STATSIG_BATCH_API_GATE) ?? DEFAULT_BATCH_API_GATE;
 }
 
+export function getVideoApiFeatureGateName(bindings: Partial<GatewayBindings> = getBindings()): string {
+	return normalizeText(bindings.STATSIG_VIDEO_API_GATE) ?? DEFAULT_VIDEO_API_GATE;
+}
+
+export function getRealtimeVoiceFeatureGateName(bindings: Partial<GatewayBindings> = getBindings()): string {
+	return normalizeText(bindings.STATSIG_REALTIME_VOICE_GATE) ?? DEFAULT_REALTIME_VOICE_GATE;
+}
+
 export function getGatewayIoLoggingFeatureGateName(bindings: Partial<GatewayBindings> = getBindings()): string {
 	return normalizeText(bindings.STATSIG_GATEWAY_IO_LOGGING_GATE) ?? DEFAULT_GATEWAY_IO_LOGGING_GATE;
+}
+
+export function getDataContributionFeatureGateName(bindings: Partial<GatewayBindings> = getBindings()): string {
+	return normalizeText(bindings.STATSIG_DATA_CONTRIBUTION_GATE) ?? DEFAULT_DATA_CONTRIBUTION_GATE;
 }
 
 async function resolveWorkspaceOwnerUserId(workspaceId: string): Promise<string | null> {
@@ -131,6 +146,7 @@ async function isStatsigGateEnabled(
 				"statsig-api-key": statsigKey,
 			},
 			body: JSON.stringify({ gateName, user }),
+			signal: AbortSignal.timeout(2_000),
 		});
 		if (!response.ok) return false;
 		const payload = (await response.json().catch(() => null)) as StatsigGateResponse | null;
@@ -165,6 +181,36 @@ export async function isBatchApiAccessEnabled(
 	}, bindings);
 }
 
+export async function isVideoApiAccessEnabled(
+	auth: AuthSuccess | Omit<AuthSuccess, "ok">,
+	bindings: Partial<GatewayBindings> = getBindings(),
+): Promise<boolean> {
+	return isStatsigGateEnabled(getVideoApiFeatureGateName(bindings), {
+		workspaceId: auth.workspaceId,
+		apiKeyId: auth.apiKeyId,
+		apiKeyRef: auth.apiKeyRef,
+		apiKeyKid: auth.apiKeyKid,
+		userId: auth.userId,
+		internal: auth.internal,
+		surface: "gateway_video_api",
+	}, bindings);
+}
+
+export async function isRealtimeVoiceAccessEnabled(
+	auth: AuthSuccess,
+	bindings: Partial<GatewayBindings> = getBindings(),
+): Promise<boolean> {
+	return isStatsigGateEnabled(getRealtimeVoiceFeatureGateName(bindings), {
+		workspaceId: auth.workspaceId,
+		apiKeyId: auth.apiKeyId,
+		apiKeyRef: auth.apiKeyRef,
+		apiKeyKid: auth.apiKeyKid,
+		userId: auth.userId,
+		internal: auth.internal,
+		surface: "gateway_realtime_voice",
+	}, bindings);
+}
+
 export async function isGatewayIoLoggingFeatureEnabled(
 	subject: Omit<StatsigGateSubject, "surface">,
 	bindings: Partial<GatewayBindings> = getBindings(),
@@ -172,5 +218,15 @@ export async function isGatewayIoLoggingFeatureEnabled(
 	return isStatsigGateEnabled(getGatewayIoLoggingFeatureGateName(bindings), {
 		...subject,
 		surface: "gateway_io_logging",
+	}, bindings);
+}
+
+export async function isDataContributionAccessEnabled(
+	subject: Omit<StatsigGateSubject, "surface">,
+	bindings: Partial<GatewayBindings> = getBindings(),
+): Promise<boolean> {
+	return isStatsigGateEnabled(getDataContributionFeatureGateName(bindings), {
+		...subject,
+		surface: "gateway_data_contribution",
 	}, bindings);
 }

@@ -8,7 +8,7 @@ import { buildAdapterPayload } from "../../utils";
 import { openAICompatHeaders, openAICompatUrl, resolveOpenAICompatKey } from "../../openai-compatible/config";
 import { computeBill } from "@pipeline/pricing/engine";
 import { resolveUploadableFromString } from "./uploadable";
-import { buildImagePricingRequestOptions } from "@core/image-request-options";
+import { buildImagePricingRequestOptions, normalizeOpenAIImageTokenUsage } from "@core/image-request-options";
 
 function resolveOutputImageCount(body: ImagesEditRequest, normalized: any): number {
     const fromPayload = Array.isArray(normalized?.data) ? normalized.data.length : 0;
@@ -20,6 +20,10 @@ function resolveOutputImageCount(body: ImagesEditRequest, normalized: any): numb
     }
 
     return 1;
+}
+
+function usesGptImageTokenPricing(...modelIds: Array<string | null | undefined>): boolean {
+	return modelIds.some((modelId) => /(?:gpt-image-|chatgpt-image-latest)/i.test(modelId?.trim() ?? ""));
 }
 
 
@@ -40,7 +44,8 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
             const upload = await resolveUploadableFromString(input, {
                 defaultMimeType: "image/png",
                 fallbackFilename: `image-${i + 1}`,
-                maxBytes: 25 * 1024 * 1024,
+				maxBytes: 25 * 1024 * 1024,
+				upstreamTiming: args.upstreamTiming,
             });
             imageUploads.push(upload);
         } catch {
@@ -72,7 +77,8 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
             maskUpload = await resolveUploadableFromString(body.mask, {
                 defaultMimeType: "image/png",
                 fallbackFilename: "mask",
-                maxBytes: 4 * 1024 * 1024,
+				maxBytes: 4 * 1024 * 1024,
+				upstreamTiming: args.upstreamTiming,
             });
         } catch {
             return {
@@ -117,7 +123,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     const headers = openAICompatHeaders(args.providerId, keyInfo.key);
     delete (headers as any)["Content-Type"];
 
-    const res = await fetch(openAICompatUrl(args.providerId, "/images/edits"), {
+    const res = await (args.upstreamTiming?.fetch ?? fetch)(openAICompatUrl(args.providerId, "/images/edits"), {
         method: "POST",
         headers,
         body: form,
@@ -135,16 +141,20 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 
     if (res.ok && args.pricingCard) {
         const outputImageCount = resolveOutputImageCount(body, normalized);
-        const usageMeters: Record<string, number> = normalized?.usage && typeof normalized.usage === "object"
-            ? { ...(normalized.usage as Record<string, number>) }
-            : { total_tokens: 0 };
+        const usageMeters: Record<string, unknown> = usesGptImageTokenPricing(args.model, body.model)
+            ? normalizeOpenAIImageTokenUsage(normalized?.usage)
+            : normalized?.usage && typeof normalized.usage === "object"
+                ? { ...(normalized.usage as Record<string, unknown>) }
+                : { total_tokens: 0 };
         if (typeof usageMeters.requests !== "number") usageMeters.requests = 1;
-        if (typeof usageMeters.output_image !== "number") usageMeters.output_image = outputImageCount;
+        if (!usesGptImageTokenPricing(args.model, body.model) && typeof usageMeters.output_image !== "number") {
+            usageMeters.output_image = outputImageCount;
+        }
 
         const pricedUsage = computeBill(
             usageMeters,
             args.pricingCard,
-            buildImagePricingRequestOptions(body),
+            buildImagePricingRequestOptions(body, usageMeters),
         );
         bill.cost_cents = pricedUsage.pricing.total_cents;
         bill.currency = pricedUsage.pricing.currency;

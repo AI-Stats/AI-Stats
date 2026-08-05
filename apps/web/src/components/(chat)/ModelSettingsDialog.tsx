@@ -300,7 +300,13 @@ export function ModelSettingsDialog({
                 delete textCommitTimersRef.current[key];
             }
         }
-        setTextDraft(textDraftFromSettings(settings));
+        const nextDraft = textDraftFromSettings(settings);
+        setTextDraft((current) =>
+            current.displayName === nextDraft.displayName &&
+            current.systemPrompt === nextDraft.systemPrompt
+                ? current
+                : nextDraft
+        );
     }, [selectedModelId, settings.displayName, settings.systemPrompt]);
     useEffect(() => {
         return () => {
@@ -315,11 +321,15 @@ export function ModelSettingsDialog({
             }
         };
     }, []);
-    useEffect(() => {
-        if (!open) {
-            for (const key of TEXT_SETTING_KEYS) flushTextDraft(key);
-        }
-    }, [flushTextDraft, open]);
+    const handleDialogOpenChange = useCallback(
+        (nextOpen: boolean) => {
+            if (!nextOpen) {
+                for (const key of TEXT_SETTING_KEYS) flushTextDraft(key);
+            }
+            onOpenChange(nextOpen);
+        },
+        [flushTextDraft, onOpenChange]
+    );
     const filteredProviderOptions = supportedProvidersForModel
         ? providerOptions.filter((provider) =>
               supportedProvidersForModel.includes(provider.id)
@@ -426,12 +436,12 @@ export function ModelSettingsDialog({
     );
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={handleDialogOpenChange}>
             <DialogContent
                 className={
                     modelPickerOpen
-                        ? "w-[calc(100vw-2rem)] max-w-[720px] sm:max-w-[720px] !top-4 !bottom-4 h-[calc(100vh-2rem)] !max-h-none !translate-y-0 overflow-hidden p-4"
-                        : "w-[calc(100vw-2rem)] max-w-[720px] sm:max-w-[720px] max-h-[85vh] overflow-hidden p-4"
+                        ? "w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] sm:w-[calc(100vw-2rem)] sm:max-w-[720px] !top-2 !bottom-2 h-[calc(100dvh-1rem)] !max-h-none !translate-y-0 overflow-hidden p-3 sm:!top-4 sm:!bottom-4 sm:h-[calc(100vh-2rem)] sm:p-4"
+                        : "w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] sm:w-[calc(100vw-2rem)] sm:max-w-[720px] max-h-[calc(100dvh-1rem)] sm:max-h-[85vh] overflow-hidden p-3 sm:p-4"
                 }
             >
                 <div
@@ -520,7 +530,7 @@ export function ModelSettingsDialog({
                                                         setModelPickerSearch("");
                                                         setModelPickerOpen(false);
                                                     }}
-                                                    className="flex min-h-7 w-full items-center gap-2 rounded-xl px-2 py-1.5 text-left text-sm text-foreground outline-none transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+															className="flex min-h-7 w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-foreground outline-none transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
                                                 >
                                                     <Logo
                                                         id={choice.orgId}
@@ -557,7 +567,7 @@ export function ModelSettingsDialog({
                                                         setModelPickerSearch("");
                                                         setModelPickerOpen(false);
                                                     }}
-                                                    className="flex min-h-7 w-full items-center gap-2 rounded-xl px-2 py-1.5 text-left text-sm text-foreground outline-none transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+															className="flex min-h-7 w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-foreground outline-none transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
                                                 >
                                                     <Logo
                                                         id={choice.orgId}
@@ -602,9 +612,12 @@ export function ModelSettingsDialog({
                         Tune how this model responds in this chat.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="grid max-h-[75vh] min-w-0 gap-3 overflow-y-auto overflow-x-hidden pr-1">
+                <ScrollArea
+                    className="min-w-0 max-h-[calc(100dvh-7rem)] sm:max-h-[75vh]"
+                    viewportClassName="grid gap-3 pr-1"
+                >
                     <div className="grid gap-2">
-                        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2">
+                        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
                             <div className="grid flex-1 gap-1.5">
                                 <Label htmlFor="chat-display-name">Chat display name</Label>
                                 <Input
@@ -617,7 +630,7 @@ export function ModelSettingsDialog({
                                     placeholder="Optional model alias for this chat"
                                 />
                             </div>
-                            <div className="flex items-center gap-2 pb-1">
+                            <div className="flex items-center justify-between gap-2 sm:justify-end sm:pb-1">
                                 <Label htmlFor="enable-model" className="text-sm">
                                     Enabled
                                 </Label>
@@ -1308,7 +1321,7 @@ export function ModelSettingsDialog({
                             Apply to all
                         </Button>
                     </div>
-                </div>
+                    </ScrollArea>
                     </motion.div>
                 )}
                 </AnimatePresence>

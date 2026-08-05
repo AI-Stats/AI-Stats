@@ -54,7 +54,7 @@ type GitHubIssueClient = {
 
 const DEFAULT_GITHUB_API_BASE_URL = "https://api.github.com";
 const DEFAULT_GITHUB_REQUEST_TIMEOUT_MS = 30_000;
-const DEFAULT_GITHUB_REPOSITORY = "AI-Stats/AI-Stats";
+const DEFAULT_GITHUB_REPOSITORY = "phaseoteam/Phaseo";
 const DEFAULT_GITHUB_USER_AGENT = "phaseo-gateway-model-discovery";
 
 function toBool(value: string | null | undefined, fallback = false): boolean {
@@ -127,7 +127,7 @@ function formatModelReference(entry: Pick<UpstreamDiscoveryIssueEntry, "modelId"
 }
 
 function formatModelList(entries: UpstreamDiscoveryIssueEntry[]): string[] {
-	return entries.map((entry) => `- ${formatModelReference(entry)}${entry.reason?.trim() ? ` ? ${entry.reason.trim()}` : ""}`);
+	return entries.map((entry) => `- ${formatModelReference(entry)}${entry.reason?.trim() ? ` — ${entry.reason.trim()}` : ""}`);
 }
 
 function buildIssueBody(group: GitHubIssueGroup): string {
@@ -146,7 +146,7 @@ function buildIssueBody(group: GitHubIssueGroup): string {
 		`- Action: ${actionNoun(group.action)}`,
 		`- Latest detected at: ${latest ? formatDateTime(latest.detectedAt) : "Unknown"}`,
 		`- Detection source: \`${latest?.detectionSource ?? "unknown"}\``,
-		`- Signals in this change: ${group.entries.length}`,
+		`- Models in this signal: ${group.entries.length}`,
 		"",
 		"## Signals in this change",
 		...formatModelList(group.entries),

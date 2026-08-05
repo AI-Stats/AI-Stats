@@ -4,7 +4,7 @@
   "provider_family_id": "amazon-bedrock",
   "offer_scope": "global",
   "description": "Amazon Bedrock models served through the Bedrock Mantle OpenAI-compatible APIs.",
-  "link": "https://aws.amazon.com/bedrock",
+  "link": "https://docs.aws.amazon.com/bedrock/latest/userguide/bedrock-mantle.html",
   "residency_mode": "customer_selectable",
   "default_execution_regions": [
     "us",
@@ -32,5 +32,39 @@
   "terms_of_service_url": "https://aws.amazon.com/service-terms/",
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "AWS says Amazon Bedrock inputs and outputs are never shared with model providers and are not used to train base models.",
-  "prompt_training_source_url": "https://aws.amazon.com/bedrock/security-privacy-responsible-ai/"
+  "prompt_training_source_url": "https://aws.amazon.com/bedrock/security-privacy-responsible-ai/",
+  "gateway_kind": "gateway",
+  "routable": true,
+  "routing_enabled": true,
+  "sdk_package": null,
+  "api_base_url": "https://bedrock-mantle.us-east-1.api.aws/v1",
+  "docs_url": "https://docs.aws.amazon.com/bedrock/latest/userguide/apis.html",
+  "auth_env": [
+    "AMAZON_BEDROCK_API_KEY",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AWS_SESSION_TOKEN",
+    "AMAZON_BEDROCK_REGION"
+  ],
+  "api_formats": [],
+  "service_tiers": [],
+  "sources": [
+    {
+      "kind": "api_reference",
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/apis.html",
+      "accessed_at": "2026-07-27T00:00:00.000Z",
+      "notes": "Mantle supports OpenAI Responses, Chat Completions, and Anthropic Messages; Converse is a Bedrock Runtime API."
+    },
+    {
+      "kind": "api_reference",
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models-api-compatibility.html",
+      "accessed_at": "2026-07-27T00:00:00.000Z",
+      "notes": "Model-level API compatibility reference for Mantle routing."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-07-27T00:00:00.000Z",
+    "notes": "Runtime configuration and the active Claude Sonnet 5 route were reviewed against current AWS Mantle documentation."
+  }
 }

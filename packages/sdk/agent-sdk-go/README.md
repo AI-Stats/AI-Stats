@@ -1,13 +1,15 @@
 # Phaseo Agent SDK (Go)
 
-`agent-sdk-go` is a minimal Go agent runtime for Phaseo Gateway.
+`agent-sdk-go` is the native Go runtime for building tool-using applications on Phaseo Gateway.
 
 It provides:
 
 - `CreateAgent(...)`
 - `DefineTool(...)`
 - `CreateGatewayAgentClient(...)`
-- a bounded tool loop on top of the Phaseo `responses` API
+- concurrent local tools, contexts, timeouts, and model retry/backoff
+- human-review pauses and `Agent.Continue(...)`
+- lifecycle events, serializable run state, and Phaseo Devtools capture
 
 ## Install
 

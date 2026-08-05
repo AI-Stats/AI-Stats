@@ -132,21 +132,21 @@ describe("applyServiceTierRouting", () => {
             candidates: [
                 makeCandidate({
                     providerId: "anthropic",
-                    apiModelId: "anthropic/claude-opus-4.8",
-                    providerModelSlug: "claude-opus-4-8",
+                    apiModelId: "anthropic/claude-opus-5",
+                    providerModelSlug: "claude-opus-5",
                     pricingCard: makeCard({
                         provider: "anthropic",
-                        model: "anthropic/claude-opus-4.8",
+                        model: "anthropic/claude-opus-5",
                         plans: ["standard", "priority"],
                     }),
                 }),
                 makeCandidate({
                     providerId: "anthropic-aws",
-                    apiModelId: "anthropic/claude-opus-4.8",
-                    providerModelSlug: "claude-opus-4-8",
+                    apiModelId: "anthropic/claude-opus-5",
+                    providerModelSlug: "claude-opus-5",
                     pricingCard: makeCard({
                         provider: "anthropic-aws",
-                        model: "anthropic/claude-opus-4.8",
+                        model: "anthropic/claude-opus-5",
                         plans: ["standard"],
                     }),
                 }),
@@ -170,19 +170,19 @@ describe("applyServiceTierRouting", () => {
             candidates: [
                 makeCandidate({
                     providerId: "anthropic",
-                    apiModelId: "anthropic/claude-opus-4.8",
+                    apiModelId: "anthropic/claude-opus-5",
                     pricingCard: makeCard({
                         provider: "anthropic",
-                        model: "anthropic/claude-opus-4.8",
+                        model: "anthropic/claude-opus-5",
                         plans: ["standard", "priority"],
                     }),
                 }),
                 makeCandidate({
                     providerId: "anthropic-aws",
-                    apiModelId: "anthropic/claude-opus-4.8",
+                    apiModelId: "anthropic/claude-opus-5",
                     pricingCard: makeCard({
                         provider: "anthropic-aws",
-                        model: "anthropic/claude-opus-4.8",
+                        model: "anthropic/claude-opus-5",
                         plans: ["standard"],
                     }),
                 }),
@@ -203,11 +203,11 @@ describe("applyServiceTierRouting", () => {
             candidates: [
                 makeCandidate({
                     providerId: "anthropic-priority",
-                    apiModelId: "anthropic/claude-opus-4.8",
-                    providerModelSlug: "claude-opus-4-8",
+                    apiModelId: "anthropic/claude-opus-5",
+                    providerModelSlug: "claude-opus-5",
                     pricingCard: makeCard({
                         provider: "anthropic-priority",
-                        model: "anthropic/claude-opus-4.8",
+                        model: "anthropic/claude-opus-5",
                         plans: ["standard"],
                     }),
                     offerScope: "specialized",
@@ -228,9 +228,9 @@ describe("applyServiceTierRouting", () => {
         queryState.providerRows = [
             {
                 provider_id: "venice",
-                api_model_id: "anthropic/claude-opus-4.8-fast",
+                api_model_id: "anthropic/claude-opus-5-fast",
                 provider_api_model_id: "venice-fast-pam",
-                provider_model_slug: "claude-opus-4-8-fast",
+                provider_model_slug: "claude-opus-5-fast",
                 is_active_gateway: false,
                 effective_from: "2026-05-29T00:00:00Z",
                 effective_to: null,
@@ -251,11 +251,11 @@ describe("applyServiceTierRouting", () => {
             candidates: [
                 makeCandidate({
                     providerId: "venice",
-                    apiModelId: "anthropic/claude-opus-4.8",
-                    providerModelSlug: "claude-opus-4-8",
+                    apiModelId: "anthropic/claude-opus-5",
+                    providerModelSlug: "claude-opus-5",
                     pricingCard: makeCard({
                         provider: "venice",
-                        model: "anthropic/claude-opus-4.8",
+                        model: "anthropic/claude-opus-5",
                         plans: ["standard", "priority"],
                     }),
                 }),
@@ -268,9 +268,9 @@ describe("applyServiceTierRouting", () => {
         expect(result.candidates).toHaveLength(1);
         expect(result.candidates[0]).toMatchObject({
             providerId: "venice",
-            apiModelId: "anthropic/claude-opus-4.8",
-            pricingKey: "venice:anthropic/claude-opus-4.8",
-            providerModelSlug: "claude-opus-4-8-fast",
+            apiModelId: "anthropic/claude-opus-5",
+            pricingKey: "venice:anthropic/claude-opus-5",
+            providerModelSlug: "claude-opus-5-fast",
             maxInputTokens: 1_000_000,
             maxOutputTokens: 128_000,
             capabilityParams: { reasoning: true },
@@ -278,8 +278,8 @@ describe("applyServiceTierRouting", () => {
         expect(result.diagnostics.remappedProviders).toMatchObject([
             {
                 providerId: "venice",
-                fromApiModelId: "anthropic/claude-opus-4.8",
-                toApiModelId: "anthropic/claude-opus-4.8-fast",
+                fromApiModelId: "anthropic/claude-opus-5",
+                toApiModelId: "anthropic/claude-opus-5-fast",
                 reason: "priority_fast_sibling",
             },
         ]);
@@ -509,13 +509,51 @@ describe("applyServiceTierRouting", () => {
         ]);
     });
 
+    it("remaps Wafer K3 priority requests to the hidden Fast slug", async () => {
+        queryState.providerRows = [{
+            provider_id: "wafer", api_model_id: "moonshotai/kimi-k3-fast",
+            provider_api_model_id: "wafer-k3-fast-pam", provider_model_slug: "Kimi-K3-Fast",
+            is_active_gateway: false, effective_from: "2026-07-30T00:00:00Z", effective_to: null,
+        }];
+        queryState.capabilityRows = [{
+            provider_api_model_id: "wafer-k3-fast-pam", params: { reasoning: true },
+            max_input_tokens: 1_000_000, max_output_tokens: 262_144, status: "active",
+            updated_at: "2026-07-30T00:00:00Z", created_at: "2026-07-30T00:00:00Z",
+        }];
+        const result = await applyServiceTierRouting({
+            candidates: [makeCandidate({ providerId: "wafer", apiModelId: "moonshotai/kimi-k3", providerModelSlug: "Kimi-K3", pricingCard: makeCard({ provider: "wafer", model: "moonshotai/kimi-k3", plans: ["standard", "priority"] }) })],
+            body: { service_tier: "priority" }, capability: "text.generate",
+        });
+        expect(result.candidates[0]).toMatchObject({ providerId: "wafer", apiModelId: "moonshotai/kimi-k3", pricingKey: "wafer:moonshotai/kimi-k3", providerModelSlug: "Kimi-K3-Fast", maxInputTokens: 1_000_000, maxOutputTokens: 262_144 });
+        expect(result.diagnostics.remappedProviders[0]).toMatchObject({ providerId: "wafer", toApiModelId: "moonshotai/kimi-k3-fast", reason: "priority_fast_sibling" });
+    });
+
+    it("remaps CrofAI K3 flex requests to the hidden Eco slug", async () => {
+        queryState.providerRows = [{
+            provider_id: "crofai", api_model_id: "moonshotai/kimi-k3-flex",
+            provider_api_model_id: "crof-k3-eco-pam", provider_model_slug: "kimi-k3-eco",
+            is_active_gateway: false, effective_from: "2026-07-30T00:00:00Z", effective_to: null,
+        }];
+        queryState.capabilityRows = [{
+            provider_api_model_id: "crof-k3-eco-pam", params: { reasoning: true },
+            max_input_tokens: 1_000_000, max_output_tokens: 131_072, status: "active",
+            updated_at: "2026-07-30T00:00:00Z", created_at: "2026-07-30T00:00:00Z",
+        }];
+        const result = await applyServiceTierRouting({
+            candidates: [makeCandidate({ providerId: "crofai", apiModelId: "moonshotai/kimi-k3", providerModelSlug: "kimi-k3", pricingCard: makeCard({ provider: "crofai", model: "moonshotai/kimi-k3", plans: ["standard", "flex"] }) })],
+            body: { service_tier: "flex" }, capability: "text.generate",
+        });
+        expect(result.candidates[0]).toMatchObject({ providerId: "crofai", apiModelId: "moonshotai/kimi-k3", pricingKey: "crofai:moonshotai/kimi-k3", providerModelSlug: "kimi-k3-eco", maxInputTokens: 1_000_000, maxOutputTokens: 131_072 });
+        expect(result.diagnostics.remappedProviders[0]).toMatchObject({ providerId: "crofai", toApiModelId: "moonshotai/kimi-k3-flex", reason: "flex_sibling" });
+    });
+
     it("does not classify missing pricing as service-tier unsupported", async () => {
         const result = await applyServiceTierRouting({
             candidates: [
                 makeCandidate({
                     providerId: "venice",
-                    apiModelId: "anthropic/claude-opus-4.8",
-                    providerModelSlug: "claude-opus-4-8",
+                    apiModelId: "anthropic/claude-opus-5",
+                    providerModelSlug: "claude-opus-5",
                     pricingCard: null,
                 }),
             ],

@@ -122,7 +122,7 @@ begin
 
   select coalesce(sum(gr.cost_nanos), 0)::bigint
   into v_current_month_nanos
-  from public.gateway_requests gr
+  from public.v2_rpc_gateway_requests_legacy_shape gr
   where gr.workspace_id = p_workspace_id
     and gr.success is true
     and gr.created_at >= v_current_month_start_ts
@@ -130,7 +130,7 @@ begin
 
   select coalesce(sum(gr.cost_nanos), 0)::bigint
   into v_prev_month_nanos
-  from public.gateway_requests gr
+  from public.v2_rpc_gateway_requests_legacy_shape gr
   where gr.workspace_id = p_workspace_id
     and gr.success is true
     and gr.created_at >= v_prev_month_start_ts

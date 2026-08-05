@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 
+import { Suspense } from "react";
+
 import { buildMetadata } from "@/lib/seo";
 import type { ExtendedModel } from "@/data/types";
 import {
 	fetchFrontendCompareModels,
+	fetchFrontendCompareUsage,
 	fetchFrontendComparisonModels,
 	fetchFrontendModelPerformance,
 	fetchFrontendModelRealtimeWindowStats,
@@ -64,7 +67,71 @@ const average = (values: Array<number | null | undefined>): number | null => {
 	return normalized.reduce((sum, value) => sum + value, 0) / normalized.length;
 };
 
-export default async function Page({ searchParams }: PageProps = {}) {
+async function loadLegacyUsage(modelIds: string[]): Promise<CompareGatewayUsageByModel> {
+	const entries = await Promise.all(modelIds.map(async (id) => {
+		try {
+			const [metrics, trajectory, realtime30m] = await Promise.all([
+				fetchFrontendModelPerformance(id),
+				fetchFrontendModelTokenTrajectory(id),
+				fetchFrontendModelRealtimeWindowStats(id, 30),
+			]);
+			const points30d = (trajectory?.points ?? []).slice(-30).map((point) => ({ date: point.date, value: Number(point.tokens ?? 0) }));
+			const summary = metrics?.summary ?? null;
+			const hourly = metrics?.hourly ?? [];
+			const timeOfDay = metrics?.timeOfDay ?? [];
+			const providerPerformance = metrics?.providerPerformance ?? [];
+			const providerDaily7d = metrics?.providerDaily7d ?? [];
+			const fallbackLatencyMs = summary?.avgLatencyMs ?? average(hourly.map((point) => point.avgLatencyMs)) ?? average(timeOfDay.map((point) => point.avgLatencyMs)) ?? average(providerPerformance.map((provider) => provider.avgLatencyMs)) ?? average(providerDaily7d.map((point) => point.avgLatencyMs));
+			const fallbackThroughput = summary?.avgThroughput ?? average(hourly.map((point) => point.avgThroughput)) ?? average(timeOfDay.map((point) => point.avgThroughput)) ?? average(providerPerformance.map((provider) => provider.avgThroughput)) ?? average(providerDaily7d.map((point) => point.avgThroughput));
+			return [id, {
+				periodDays: 30,
+				tokens30d: points30d.reduce((sum, point) => sum + (Number.isFinite(point.value) ? point.value : 0), 0),
+				latestDate: points30d.at(-1)?.date ?? null,
+				points30d,
+				totalRequests: summary?.totalRequests ?? 0,
+				requests30m: realtime30m?.requestsInWindow ?? 0,
+				latencyP50Ms30m: realtime30m?.latencyP50Ms ?? fallbackLatencyMs ?? null,
+				throughputP50TokPerSec30m: realtime30m?.throughputP50TokPerSec ?? fallbackThroughput ?? null,
+				cumulativeTokens: metrics?.cumulativeTokens ?? null,
+				requestPoints24h: hourly.map((point) => ({ date: point.bucket, value: point.requests })),
+			}] as const;
+		} catch (error) {
+			// eslint-disable-next-line no-console
+			console.warn("[compare] Failed to load gateway usage for model", { modelId: id, error });
+			return null;
+		}
+	}));
+	return Object.fromEntries(entries.filter(Boolean) as Array<[string, CompareGatewayUsageByModel[string]]>);
+}
+
+function ComparePageHeader() {
+	return (
+		<div className="mx-auto mb-8 w-full max-w-5xl space-y-3">
+			<h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+				Compare models side-by-side
+			</h1>
+			<p className="max-w-3xl text-sm leading-6 text-muted-foreground">
+				Build a shareable comparison across benchmarks, pricing, context,
+				availability, and release timelines.
+			</p>
+		</div>
+	);
+}
+
+function CompareDashboardFallback() {
+	return (
+		<div className="mx-auto w-full max-w-5xl grid gap-6 lg:grid-cols-2">
+			{Array.from({ length: 2 }).map((_, index) => (
+				<div
+					key={index}
+					className="h-72 animate-pulse rounded-2xl border border-border/60 bg-muted/50"
+				/>
+			))}
+		</div>
+	);
+}
+
+async function ComparePageContent({ searchParams }: PageProps) {
 	const [models, resolvedSearchParams] = await Promise.all([
 		fetchFrontendCompareModels(),
 		searchParams,
@@ -87,91 +154,32 @@ export default async function Page({ searchParams }: PageProps = {}) {
 	const [comparisonData, usageByModel] = resolvedIds.length
 		? await Promise.all([
 				fetchFrontendComparisonModels(resolvedIds),
-				Promise.all(
-					resolvedIds.map(async (id) => {
-						try {
-							const [metrics, trajectory, realtime30m] = await Promise.all([
-								fetchFrontendModelPerformance(id),
-								fetchFrontendModelTokenTrajectory(id),
-								fetchFrontendModelRealtimeWindowStats(id, 30),
-							]);
-							const points30d = (trajectory?.points ?? [])
-								.slice(-30)
-								.map((point) => ({
-									date: point.date,
-									value: Number(point.tokens ?? 0),
-								}));
-							const tokens30d = points30d.reduce(
-								(sum, point) => sum + (Number.isFinite(point.value) ? point.value : 0),
-								0
-							);
-							const latestDate = points30d.length
-								? points30d[points30d.length - 1].date
-								: null;
-							const summary = metrics?.summary ?? null;
-							const hourly = metrics?.hourly ?? [];
-							const timeOfDay = metrics?.timeOfDay ?? [];
-							const providerPerformance = metrics?.providerPerformance ?? [];
-							const providerDaily7d = metrics?.providerDaily7d ?? [];
-							const fallbackLatencyMs =
-								summary?.avgLatencyMs ??
-								average(hourly.map((point) => point.avgLatencyMs)) ??
-								average(timeOfDay.map((point) => point.avgLatencyMs)) ??
-								average(
-									providerPerformance.map((provider) => provider.avgLatencyMs)
-								) ??
-								average(providerDaily7d.map((point) => point.avgLatencyMs));
-							const fallbackThroughput =
-								summary?.avgThroughput ??
-								average(hourly.map((point) => point.avgThroughput)) ??
-								average(timeOfDay.map((point) => point.avgThroughput)) ??
-								average(
-									providerPerformance.map((provider) => provider.avgThroughput)
-								) ??
-								average(providerDaily7d.map((point) => point.avgThroughput));
-							return [
-								id,
-								{
-									periodDays: 30,
-									tokens30d,
-									latestDate,
-									points30d,
-									totalRequests: summary?.totalRequests ?? 0,
-									requests30m: realtime30m?.requestsInWindow ?? 0,
-									latencyP50Ms30m:
-										realtime30m?.latencyP50Ms ?? fallbackLatencyMs ?? null,
-									throughputP50TokPerSec30m:
-										realtime30m?.throughputP50TokPerSec ?? fallbackThroughput ?? null,
-									cumulativeTokens: metrics?.cumulativeTokens ?? null,
-									requestPoints24h: hourly.map((point) => ({
-										date: point.bucket,
-										value: point.requests,
-									})),
-								},
-							] as const;
-						} catch (error) {
-							// eslint-disable-next-line no-console
-							console.warn("[compare] Failed to load gateway usage for model", {
-								modelId: id,
-								error,
-							});
-							return null;
-						}
-					})
-				).then((entries) =>
-					Object.fromEntries(entries.filter(Boolean) as Array<[string, CompareGatewayUsageByModel[string]]>)
-				),
+				fetchFrontendCompareUsage(resolvedIds).catch((error) => {
+					// eslint-disable-next-line no-console
+					console.warn("[compare] Batch usage unavailable; using compatibility requests", error);
+					return loadLegacyUsage(resolvedIds);
+				}),
 			])
 		: [[], {}];
 
 	return (
+		<CompareDashboard
+			models={typedModels}
+			comparisonData={comparisonData}
+			usageByModel={usageByModel}
+			showIntro={false}
+		/>
+	);
+}
+
+export default function Page({ searchParams }: PageProps = {}) {
+	return (
 		<main className="flex min-h-screen flex-col">
 			<section className="container mx-auto px-4 py-8">
-				<CompareDashboard
-					models={typedModels}
-					comparisonData={comparisonData}
-					usageByModel={usageByModel}
-				/>
+				<ComparePageHeader />
+				<Suspense fallback={<CompareDashboardFallback />}>
+					<ComparePageContent searchParams={searchParams} />
+				</Suspense>
 			</section>
 		</main>
 	);

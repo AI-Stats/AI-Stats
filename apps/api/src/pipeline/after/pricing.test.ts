@@ -271,6 +271,8 @@ describe("after/pricing calculatePricing", () => {
 			unit_price_usd: "3.000000000",
 			billing_timestamp_basis: "provider_accept",
 			billing_timestamp_basis_configured: "provider_accept",
+			billing_timestamp_ms: Date.parse("2026-07-20T06:30:00Z"),
+			billing_timestamp_iso: "2026-07-20T06:30:00.000Z",
 			pricing_time_window: {
 				label: "upstream-peak",
 				timezone: "UTC",
@@ -345,7 +347,7 @@ describe("after/pricing calculatePricing", () => {
 		const priorityCard: PriceCard = {
 			...TTS_CARD,
 			provider: "venice",
-			model: "anthropic/claude-opus-4.8",
+			model: "anthropic/claude-opus-5",
 			endpoint: "text.generate",
 			rules: [
 				{
@@ -386,7 +388,7 @@ describe("after/pricing calculatePricing", () => {
 		const priorityCard: PriceCard = {
 			...TTS_CARD,
 			provider: "venice",
-			model: "anthropic/claude-opus-4.8",
+			model: "anthropic/claude-opus-5",
 			endpoint: "text.generate",
 			rules: [
 				{
@@ -428,7 +430,7 @@ describe("after/pricing calculatePricing", () => {
 		const priorityCard: PriceCard = {
 			...TTS_CARD,
 			provider: "venice",
-			model: "anthropic/claude-opus-4.8",
+			model: "anthropic/claude-opus-5",
 			endpoint: "text.generate",
 			rules: [
 				{
@@ -469,7 +471,7 @@ describe("after/pricing calculatePricing", () => {
 		const priorityCard: PriceCard = {
 			...TTS_CARD,
 			provider: "venice",
-			model: "anthropic/claude-opus-4.8",
+			model: "anthropic/claude-opus-5",
 			endpoint: "text.generate",
 			rules: [
 				{
@@ -509,28 +511,28 @@ describe("after/pricing calculatePricing", () => {
 
 	it("prefers the remapped provider-model pricing card when present in context", async () => {
 		const ctx = {
-			model: "anthropic/claude-opus-4.8",
+			model: "anthropic/claude-opus-5",
 			capability: "text.generate",
 			pricing: {
-				"venice:anthropic/claude-opus-4.8-fast": {
+				"venice:anthropic/claude-opus-5-fast": {
 					...TTS_CARD,
 					provider: "venice",
-					model: "anthropic/claude-opus-4.8-fast",
+					model: "anthropic/claude-opus-5-fast",
 				},
 			},
 		} as any;
 
 		const card = await loadProviderPricing(ctx, {
 			provider: "venice",
-			apiModelId: "anthropic/claude-opus-4.8-fast",
-			pricingKey: "venice:anthropic/claude-opus-4.8-fast",
+			apiModelId: "anthropic/claude-opus-5-fast",
+			pricingKey: "venice:anthropic/claude-opus-5-fast",
 			generationTimeMs: 0,
 			kind: "completed",
 			bill: { usage: {} } as any,
 			upstream: new Response(null, { status: 200 }),
 		});
 
-		expect(card?.model).toBe("anthropic/claude-opus-4.8-fast");
+		expect(card?.model).toBe("anthropic/claude-opus-5-fast");
 		expect(loadPriceCardMock).not.toHaveBeenCalled();
 	});
 
@@ -538,18 +540,18 @@ describe("after/pricing calculatePricing", () => {
 		loadPriceCardMock.mockResolvedValue({
 			...TTS_CARD,
 			provider: "venice",
-			model: "anthropic/claude-opus-4.8-fast",
+			model: "anthropic/claude-opus-5-fast",
 		});
 
 		const card = await loadProviderPricing(
 			{
-				model: "anthropic/claude-opus-4.8",
+				model: "anthropic/claude-opus-5",
 				capability: "text.generate",
 				pricing: {},
 			} as any,
 			{
 				provider: "venice",
-				apiModelId: "anthropic/claude-opus-4.8-fast",
+				apiModelId: "anthropic/claude-opus-5-fast",
 				generationTimeMs: 0,
 				kind: "completed",
 				bill: { usage: {} } as any,
@@ -559,35 +561,35 @@ describe("after/pricing calculatePricing", () => {
 
 		expect(loadPriceCardMock).toHaveBeenCalledWith(
 			"venice",
-			"anthropic/claude-opus-4.8-fast",
+			"anthropic/claude-opus-5-fast",
 			"text.generate",
 		);
-		expect(card?.model).toBe("anthropic/claude-opus-4.8-fast");
+		expect(card?.model).toBe("anthropic/claude-opus-5-fast");
 	});
 
 	it("loads remapped api model pricing before provider-level base pricing fallback", async () => {
 		loadPriceCardMock.mockResolvedValue({
 			...TTS_CARD,
 			provider: "venice",
-			model: "anthropic/claude-opus-4.8-fast",
+			model: "anthropic/claude-opus-5-fast",
 		});
 
 		const card = await loadProviderPricing(
 			{
-				model: "anthropic/claude-opus-4.8",
+				model: "anthropic/claude-opus-5",
 				capability: "text.generate",
 				pricing: {
 					venice: {
 						...TTS_CARD,
 						provider: "venice",
-						model: "anthropic/claude-opus-4.8",
+						model: "anthropic/claude-opus-5",
 					},
 				},
 			} as any,
 			{
 				provider: "venice",
-				apiModelId: "anthropic/claude-opus-4.8-fast",
-				pricingKey: "venice:anthropic/claude-opus-4.8-fast",
+				apiModelId: "anthropic/claude-opus-5-fast",
+				pricingKey: "venice:anthropic/claude-opus-5-fast",
 				generationTimeMs: 0,
 				kind: "completed",
 				bill: { usage: {} } as any,
@@ -597,9 +599,9 @@ describe("after/pricing calculatePricing", () => {
 
 		expect(loadPriceCardMock).toHaveBeenCalledWith(
 			"venice",
-			"anthropic/claude-opus-4.8-fast",
+			"anthropic/claude-opus-5-fast",
 			"text.generate",
 		);
-		expect(card?.model).toBe("anthropic/claude-opus-4.8-fast");
+		expect(card?.model).toBe("anthropic/claude-opus-5-fast");
 	});
 });

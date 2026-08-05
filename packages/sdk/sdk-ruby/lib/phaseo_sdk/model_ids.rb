@@ -54,6 +54,9 @@ module PhaseoSdk
     # Model ID: anthropic/claude-opus-4.8
     # Model page: https://phaseo.app/models/anthropic/claude-opus-4.8
     ANTHROPIC_CLAUDE_OPUS_4_8 = "anthropic/claude-opus-4.8"
+    # Model ID: anthropic/claude-opus-5
+    # Model page: https://phaseo.app/models/anthropic/claude-opus-5
+    ANTHROPIC_CLAUDE_OPUS_5 = "anthropic/claude-opus-5"
     # Model ID: anthropic/claude-sonnet-4.5
     # Model page: https://phaseo.app/models/anthropic/claude-sonnet-4.5
     ANTHROPIC_CLAUDE_SONNET_4_5 = "anthropic/claude-sonnet-4.5"
@@ -195,12 +198,12 @@ module PhaseoSdk
     # Model ID: deepseek/deepseek-v3.2-speciale
     # Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-speciale
     DEEPSEEK_DEEPSEEK_V3_2_SPECIALE = "deepseek/deepseek-v3.2-speciale"
-    # Model ID: deepseek/deepseek-v3.2-thinking
-    # Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-thinking
-    DEEPSEEK_DEEPSEEK_V3_2_THINKING = "deepseek/deepseek-v3.2-thinking"
     # Model ID: deepseek/deepseek-v4-flash
     # Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash
     DEEPSEEK_DEEPSEEK_V4_FLASH = "deepseek/deepseek-v4-flash"
+    # Model ID: deepseek/deepseek-v4-flash-0731
+    # Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash-0731
+    DEEPSEEK_DEEPSEEK_V4_FLASH_0731 = "deepseek/deepseek-v4-flash-0731"
     # Model ID: deepseek/deepseek-v4-pro
     # Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro
     DEEPSEEK_DEEPSEEK_V4_PRO = "deepseek/deepseek-v4-pro"
@@ -1393,6 +1396,7 @@ module PhaseoSdk
     ModelIds::ANTHROPIC_CLAUDE_OPUS_4_7,
     ModelIds::ANTHROPIC_CLAUDE_OPUS_4_7_FAST,
     ModelIds::ANTHROPIC_CLAUDE_OPUS_4_8,
+    ModelIds::ANTHROPIC_CLAUDE_OPUS_5,
     ModelIds::ANTHROPIC_CLAUDE_SONNET_4_5,
     ModelIds::ANTHROPIC_CLAUDE_SONNET_4_6,
     ModelIds::ANTHROPIC_CLAUDE_SONNET_5,
@@ -1440,8 +1444,8 @@ module PhaseoSdk
     ModelIds::DEEPSEEK_DEEPSEEK_V3_2,
     ModelIds::DEEPSEEK_DEEPSEEK_V3_2_EXP,
     ModelIds::DEEPSEEK_DEEPSEEK_V3_2_SPECIALE,
-    ModelIds::DEEPSEEK_DEEPSEEK_V3_2_THINKING,
     ModelIds::DEEPSEEK_DEEPSEEK_V4_FLASH,
+    ModelIds::DEEPSEEK_DEEPSEEK_V4_FLASH_0731,
     ModelIds::DEEPSEEK_DEEPSEEK_V4_PRO,
     ModelIds::DEEPSEEK_DEEPSEEK_V4_PRO_LIGHTNING,
     ModelIds::ELEVEN_LABS_ELEVEN_FLASH_V2,

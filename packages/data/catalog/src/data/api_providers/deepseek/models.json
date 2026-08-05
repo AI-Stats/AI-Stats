@@ -4,18 +4,18 @@
     "provider_api_model_id": "deepseek:deepseek/deepseek-v3.2",
     "provider_model_slug": "deepseek-chat",
     "internal_model_id": "deepseek/deepseek-v3.2",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2025-09-22T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-07-24T15:59:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [
           {
             "param_id": "frequency_penalty",
@@ -108,27 +108,61 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "deprecation",
+        "url": "https://api-docs.deepseek.com/news/news260424/",
+        "accessed_at": "2026-07-31T00:00:00Z",
+        "notes": "Legacy deepseek-chat and deepseek-reasoner aliases retired after 2026-07-24 15:59 UTC."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-31T00:00:00Z",
+      "notes": "Direct DeepSeek alias is retired; other providers remain independently routable."
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "deepseek/deepseek-v3.2-thinking",
     "provider_api_model_id": "deepseek:deepseek/deepseek-v3.2-thinking",
     "provider_model_slug": "deepseek-reasoner",
     "internal_model_id": "deepseek/deepseek-v3.2-thinking",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2025-12-01T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-07-24T15:59:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [
           {
             "param_id": "frequency_penalty",
@@ -221,22 +255,203 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "deprecation",
+        "url": "https://api-docs.deepseek.com/news/news260424/",
+        "accessed_at": "2026-07-31T00:00:00Z",
+        "notes": "Legacy deepseek-chat and deepseek-reasoner aliases retired after 2026-07-24 15:59 UTC."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-31T00:00:00Z",
+      "notes": "Direct DeepSeek alias is retired; other providers remain independently routable."
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "deepseek/deepseek-v4-flash",
     "provider_api_model_id": "deepseek:deepseek/deepseek-v4-flash",
     "provider_model_slug": "deepseek-v4-flash",
     "internal_model_id": "deepseek/deepseek-v4-flash",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1000000,
     "max_output_tokens": 384000,
     "effective_from": "2026-04-24T00:00:00",
+    "effective_to": "2026-07-31T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "deprecation",
+        "url": "https://api-docs.deepseek.com/updates/",
+        "accessed_at": "2026-07-31T00:00:00Z",
+        "notes": "The direct DeepSeek slug moved to DeepSeek V4 Flash 0731 on 31 July 2026; third-party deployments of the original model are unaffected."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-31T00:00:00Z",
+      "notes": "Historical direct deployment retained for the pre-0731 model."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "deepseek:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek-v4-flash",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 384000,
+    "effective_from": "2026-07-31T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
@@ -334,9 +549,53 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://api-docs.deepseek.com/guides/responses_api/",
+        "accessed_at": "2026-07-31T00:00:00Z",
+        "notes": "Responses API is available only for deepseek-v4-flash."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+        "accessed_at": "2026-07-31T00:00:00Z",
+        "notes": "Official model version, limits and API format availability."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-31T00:00:00Z",
+      "notes": "Verified against official DeepSeek API documentation."
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "deepseek/deepseek-v4-pro",
@@ -447,8 +706,45 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "pricing",
+        "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+        "accessed_at": "2026-07-31T00:00:00Z",
+        "notes": "Responses API is not yet supported for V4 Pro."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-31T00:00:00Z",
+      "notes": "Kept on Chat Completions because DeepSeek schedules Responses API support for early August 2026."
+    },
+    "rate_limits": []
   }
 ]

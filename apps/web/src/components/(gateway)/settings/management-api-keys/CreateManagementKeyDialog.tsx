@@ -197,14 +197,15 @@ export default function CreateManagementKeyDialog({
 								<DropdownMenuContent
 									side="bottom"
 									align="start"
-									className="w-full"
+									className="w-full rounded-lg"
 								>
 									{workspaces.map((workspace) => (
 										<DropdownMenuItem
 											key={String(workspace.id ?? "__null")}
-											onSelect={() =>
+											onClick={() =>
 												setSelectedWorkspaceId(workspace.id ?? null)
 											}
+											className="rounded-lg"
 										>
 											{workspace.name}
 										</DropdownMenuItem>
@@ -298,4 +299,3 @@ export default function CreateManagementKeyDialog({
 		</Dialog>
 	);
 }
-

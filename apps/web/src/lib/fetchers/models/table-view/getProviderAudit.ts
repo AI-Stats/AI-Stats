@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/utils/supabase/admin";
+import { fetchAdminProviderAuditSource } from "@/lib/fetchers/internal/fetchAdminModelAuditSource";
 import {
 	aggregateProviderAuditRoutability,
 	classifyProviderAuditRoutability,
@@ -14,6 +14,9 @@ type ProviderModelRow = {
 	internal_model_id: string | null;
 	is_active_gateway: boolean | null;
 	routing_status: string | null;
+	provider_availability_status: string | null;
+	phaseo_status: string | null;
+	access_scope: string | null;
 	effective_from: string | null;
 	effective_to: string | null;
 	provider:
@@ -58,6 +61,9 @@ export interface ProviderAuditModelRow {
 	providerModelSlug: string | null;
 	isGatewayActiveNow: boolean;
 	isGatewayEnabled: boolean;
+	providerAvailabilityStatus: string | null;
+	phaseoStatus: string | null;
+	accessScope: string | null;
 	routability: ProviderAuditRoutability;
 	routabilitySummary: string;
 	pricingRulesCount: number;
@@ -128,49 +134,8 @@ function formatShortIsoDate(iso: string | null): string | null {
 }
 
 export async function getProviderAudit(): Promise<ProviderAuditData> {
-	const supabase = createAdminClient();
 	const nowIso = new Date().toISOString();
-
-	const [{ data: providerModels, error: providerModelsError }, { data: pricingRules, error: pricingError }] =
-		await Promise.all([
-			supabase
-				.from("data_api_provider_models")
-				.select(
-					`
-					provider_api_model_id,
-					provider_id,
-					api_model_id,
-					provider_model_slug,
-					internal_model_id,
-					is_active_gateway,
-					routing_status,
-					effective_from,
-					effective_to,
-					provider:data_api_providers(
-						api_provider_id,
-						api_provider_name,
-						status,
-						routing_status
-					),
-					capabilities:data_api_provider_model_capabilities(
-						capability_id,
-						status,
-						effective_from,
-						effective_to
-					)
-					`
-				),
-			supabase
-				.from("data_api_pricing_rules")
-				.select("model_key, effective_from, effective_to"),
-		]);
-
-	if (providerModelsError) {
-		throw new Error(providerModelsError.message || "Failed to load provider models for audit");
-	}
-	if (pricingError) {
-		throw new Error(pricingError.message || "Failed to load pricing rules for provider audit");
-	}
+	const { providerModels, pricingRules } = await fetchAdminProviderAuditSource();
 
 	type PricingKeySummary = {
 		hasActive: boolean;
@@ -232,6 +197,9 @@ export async function getProviderAudit(): Promise<ProviderAuditData> {
 		providerStatus: string | null;
 		providerRoutingStatus: string | null;
 		modelRoutingStatus: string | null;
+		providerAvailabilityStatus: string | null;
+		phaseoStatus: string | null;
+		accessScope: string | null;
 		isGatewayEnabled: boolean;
 		effectiveFrom: string | null;
 		effectiveTo: string | null;
@@ -264,6 +232,10 @@ export async function getProviderAudit(): Promise<ProviderAuditData> {
 				providerStatus,
 				providerRoutingStatus,
 				modelRoutingStatus: raw.routing_status ?? null,
+				providerAvailabilityStatus:
+					raw.provider_availability_status ?? null,
+				phaseoStatus: raw.phaseo_status ?? null,
+				accessScope: raw.access_scope ?? null,
 				isGatewayEnabled: false,
 				effectiveFrom: raw.effective_from,
 				effectiveTo: raw.effective_to,
@@ -288,6 +260,15 @@ export async function getProviderAudit(): Promise<ProviderAuditData> {
 		if (!target.modelRoutingStatus && raw.routing_status) {
 			target.modelRoutingStatus = raw.routing_status;
 		}
+		if (!target.providerAvailabilityStatus && raw.provider_availability_status) {
+			target.providerAvailabilityStatus = raw.provider_availability_status;
+		}
+		if (!target.phaseoStatus && raw.phaseo_status) {
+			target.phaseoStatus = raw.phaseo_status;
+		}
+		if (!target.accessScope && raw.access_scope) {
+			target.accessScope = raw.access_scope;
+		}
 		if (!target.effectiveFrom && raw.effective_from) {
 			target.effectiveFrom = raw.effective_from;
 		}
@@ -304,8 +285,12 @@ export async function getProviderAudit(): Promise<ProviderAuditData> {
 			target.capabilityStates.set(cap.capability_id, {
 				capabilityId: cap.capability_id,
 				capabilityStatus: cap.status ?? null,
-				routability: classifyProviderAuditRoutability({
-					isActiveGateway: Boolean(raw.is_active_gateway),
+					routability: classifyProviderAuditRoutability({
+						isActiveGateway: Boolean(raw.is_active_gateway),
+						providerAvailabilityStatus:
+							raw.provider_availability_status ?? null,
+						phaseoStatus: raw.phaseo_status ?? null,
+						accessScope: raw.access_scope ?? null,
 					providerStatus,
 					providerRoutingStatus,
 					modelRoutingStatus: raw.routing_status ?? null,
@@ -323,6 +308,10 @@ export async function getProviderAudit(): Promise<ProviderAuditData> {
 				capabilityStatus: null,
 				routability: classifyProviderAuditRoutability({
 					isActiveGateway: Boolean(raw.is_active_gateway),
+					providerAvailabilityStatus:
+						raw.provider_availability_status ?? null,
+					phaseoStatus: raw.phaseo_status ?? null,
+					accessScope: raw.access_scope ?? null,
 					providerStatus,
 					providerRoutingStatus,
 					modelRoutingStatus: raw.routing_status ?? null,
@@ -405,6 +394,9 @@ export async function getProviderAudit(): Promise<ProviderAuditData> {
 			internalModelId: aggregate.internalModelId,
 			providerModelSlug: aggregate.providerModelSlug,
 			isGatewayEnabled: aggregate.isGatewayEnabled,
+			providerAvailabilityStatus: aggregate.providerAvailabilityStatus,
+			phaseoStatus: aggregate.phaseoStatus,
+			accessScope: aggregate.accessScope,
 			isGatewayActiveNow,
 			routability: routability.state,
 			routabilitySummary: routability.summary,

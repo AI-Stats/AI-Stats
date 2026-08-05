@@ -4,6 +4,7 @@
 
 import type { IRChatRequest, IRReasoning } from "@core/ir";
 import type { ExecutorExecuteArgs, ExecutorResult, Bill, ProviderExecutor } from "@executors/types";
+import { fetchUpstream } from "@executors/_shared/timing/upstream";
 import { normalizeTextUsageForPricing } from "@executors/_shared/usage/text";
 import { irToOpenAIResponses, openAIResponsesToIR } from "@executors/_shared/text-generate/openai-compat/transform";
 import { irToOpenAIChat, openAIChatToIR } from "@executors/_shared/text-generate/openai-compat/transform-chat";
@@ -74,6 +75,10 @@ const OPENAI_WEBSOCKET_MAX_RECONNECTS = 1;
 const OPENAI_WEBSOCKET_HANDSHAKE_MAX_RETRIES = 1;
 const OPENAI_INTERNAL_REQUEST_ID_METADATA_KEY = "phaseo_request_id";
 
+function isOpenAIProviderOffer(providerId: string): boolean {
+	return providerId === "openai" || providerId === "openai-eu";
+}
+
 function buildOpenAIResponsesWebSocketUrl(providerId: string): string {
 	// Cloudflare Workers WebSocket fetch upgrade expects https:// URL.
 	return openAICompatUrl(providerId, "/responses");
@@ -143,7 +148,7 @@ async function createOpenAIResponsesWebSocketStream(args: {
 	}> => {
 		const baseUrl = buildOpenAIResponsesWebSocketUrl(args.providerId);
 		for (let attempt = 0; attempt <= OPENAI_WEBSOCKET_HANDSHAKE_MAX_RETRIES; attempt += 1) {
-			const handshake = await fetch(baseUrl, {
+			const handshake = await fetchUpstream(args.executorArgs, baseUrl, {
 				headers: {
 					Authorization: `Bearer ${args.key}`,
 					Upgrade: "websocket",
@@ -425,7 +430,7 @@ function withOpenAIProReasoningMode(
 	providerId: string,
 	modelForRouting: string | null | undefined,
 ): IRChatRequest {
-	if (providerId !== "openai") return ir;
+	if (!isOpenAIProviderOffer(providerId)) return ir;
 	const routed = normalizeOpenAIGpt56ProModelSlug(modelForRouting);
 	const requested = normalizeOpenAIGpt56ProModelSlug(ir.model);
 	if (!routed.proMode && !requested.proMode) return ir;
@@ -737,7 +742,6 @@ function cherryPickIRParams(
 }
 
 async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
-	const upstreamStartMs = args.meta.upstreamStartMs ?? Date.now();
 	const requestBuildStartMs = Date.now();
 	const keyInfo = resolveOpenAICompatKey({
 		providerId: args.providerId,
@@ -748,7 +752,7 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 	const normalizedRoutingModel = normalizeOpenAIGpt56ProModelSlug(requestedRoutingModel);
 	const modelForRouting = normalizedRoutingModel.model ?? requestedRoutingModel;
 	const useNativeChatRoute =
-		args.providerId === "openai" &&
+		isOpenAIProviderOffer(args.providerId) &&
 		args.protocol === "openai.chat.completions" &&
 		!(args.ir as IRChatRequest).reasoning;
 	const irWithRequestMetadata = withOpenAIRequestMetadata(
@@ -758,7 +762,7 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 		args.workspaceId,
 		{ includeMetadata: !useNativeChatRoute },
 	);
-	const route = args.providerId === "openai"
+	const route = isOpenAIProviderOffer(args.providerId)
 		? (useNativeChatRoute ? "chat" : "responses")
 		: resolveOpenAICompatRoute(args.providerId, modelForRouting);
 	const endpoint = route === "responses" ? "/responses" : "/chat/completions";
@@ -797,7 +801,7 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 	}
 
 	const upstreamHeadersStartMs = Date.now();
-	const res = await fetch(openAICompatUrl(args.providerId, endpoint), {
+	const res = await fetchUpstream(args, openAICompatUrl(args.providerId, endpoint), {
 		method: "POST",
 		headers: openAICompatHeaders(
 			args.providerId,
@@ -807,6 +811,7 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 		body: requestBody,
 	});
 	const upstreamHeadersMs = Math.max(0, Date.now() - upstreamHeadersStartMs);
+	const selectedDispatchAtMs = args.upstreamTiming?.timingFor(res)?.dispatchAtMs ?? upstreamHeadersStartMs;
 
 	const bill: Bill = {
 		cost_cents: 0,
@@ -828,6 +833,7 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 			mappedRequest,
 			timing: {
 				requestBuildMs,
+				upstreamFetchStartMs: upstreamHeadersStartMs,
 				upstreamHeadersMs,
 			},
 		};
@@ -853,6 +859,7 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 				latencyMs: undefined,
 				generationMs: undefined,
 				requestBuildMs,
+				upstreamFetchStartMs: upstreamHeadersStartMs,
 				upstreamHeadersMs,
 			},
 		};
@@ -862,7 +869,7 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 		res,
 		args,
 		route,
-		upstreamStartMs,
+		selectedDispatchAtMs,
 	);
 
 	if (ir) {
@@ -884,9 +891,10 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 		mappedRequest,
 		rawResponse,
 		timing: {
-			latencyMs: firstByteMs ?? totalMs,
-			generationMs: firstByteMs === null ? 0 : Math.max(0, totalMs - firstByteMs),
+			latencyMs: firstByteMs ?? undefined,
+			generationMs: totalMs,
 			requestBuildMs,
+			upstreamFetchStartMs: upstreamHeadersStartMs,
 			upstreamHeadersMs,
 		},
 	};

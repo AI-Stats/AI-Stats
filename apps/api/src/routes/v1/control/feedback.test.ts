@@ -29,6 +29,7 @@ vi.mock("@/routes/utils", () => ({
 import {
 	feedbackRoutes,
 	observabilityEventsRoutes,
+	presetTestRunsRoutes,
 } from "./feedback";
 
 type InsertCall = {
@@ -281,6 +282,42 @@ describe("feedback control routes", () => {
 			method: "eq",
 			args: ["workspace_id", "33333333-3333-4333-8333-333333333333"],
 		});
+	});
+
+	it("rejects unsupported feedback ratings before database insertion", async () => {
+		const response = await feedbackRoutes.request("https://api.example.com/", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				requestId: "gen_123",
+				rating: "mostly_good",
+			}),
+		});
+
+		expect(response.status).toBe(400);
+		await expect(response.json()).resolves.toMatchObject({
+			error: "bad_request",
+			message: "Unsupported feedback rating",
+		});
+		expect(state.insertCalls).toHaveLength(0);
+	});
+
+	it("rejects unsupported test run statuses before database insertion", async () => {
+		const response = await presetTestRunsRoutes.request("https://api.example.com/", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				presetId: "55555555-5555-4555-8555-555555555555",
+				status: "queued_forever",
+			}),
+		});
+
+		expect(response.status).toBe(400);
+		await expect(response.json()).resolves.toMatchObject({
+			error: "bad_request",
+			message: "Unsupported test run status",
+		});
+		expect(state.insertCalls).toHaveLength(0);
 	});
 
 	it("links feedback to the test run preset when only the test run is supplied", async () => {

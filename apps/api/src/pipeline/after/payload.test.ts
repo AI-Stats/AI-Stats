@@ -508,6 +508,7 @@ describe("enrichSuccessPayload model selection", () => {
 		};
 
 		const payload = await enrichSuccessPayload(ctx, result);
+		expect(payload.finish_reason).toBe("tool_calls");
 		expect(payload.output).toEqual([
 			{
 				type: "function_call",

@@ -4,6 +4,7 @@ import { BookText, ExternalLink, FileText, Gamepad2, Globe2 } from "lucide-react
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
 import { Logo } from "@/components/Logo";
 import ModelLinkFavicon from "./ModelLinkFavicon";
+import { getGenericModelLinks } from "./modelOverviewMetadata";
 
 interface ModelLinksProps {
 	model: ModelOverviewPage;
@@ -134,7 +135,7 @@ function getIconForLink(
 function parseLinks(model: ModelOverviewPage): ParsedModelLink[] {
 	const rawModelLinks = (model.model_links as ModelLink[] | undefined) ?? [];
 
-	const fromModelLinks = rawModelLinks
+	const fromModelLinks = getGenericModelLinks(rawModelLinks)
 		.map((l) => {
 			const kind = l.kind ?? l.platform;
 			return {

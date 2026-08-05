@@ -13,6 +13,9 @@ export const logoManifest = {
 	alibaba: {
 		color: "/logos/alibaba.svg",
 	},
+	"alibaba-cn": {
+		color: "/logos/alibaba-cloud.svg",
+	},
 	"alibaba-cloud": {
 		color: "/logos/alibaba-cloud.svg",
 	},
@@ -94,6 +97,9 @@ export const logoManifest = {
 	cloudflare: {
 		color: "/logos/cloudflare.svg",
 	},
+	"cloudflare-ai-gateway": {
+		color: "/logos/cloudflare.svg",
+	},
 	codex: {
 		color: "/logos/codex.svg",
 	},
@@ -144,6 +150,10 @@ export const logoManifest = {
 		light: "/logos/friendli_light.svg",
 		dark: "/logos/friendli_dark.svg",
 	},
+	"github-models": {
+		light: "/logos/github_light.svg",
+		dark: "/logos/github_dark.svg",
+	},
 	gmicloud: {
 		light: "/logos/gmicloud_light.svg",
 		dark: "/logos/gmicloud_dark.svg",
@@ -174,6 +184,9 @@ export const logoManifest = {
 	hyperbolic: {
 		color: "/logos/hyperbolic.svg",
 	},
+	huggingface: {
+		color: "/logos/huggingface.svg",
+	},
 	ibm: {
 		color: "/logos/ibm.svg",
 	},
@@ -191,9 +204,17 @@ export const logoManifest = {
 		light: "/logos/inflection_light.svg",
 		dark: "/logos/inflection_dark.svg",
 	},
+	inference: {
+		light: "/logos/inference_light.svg",
+		dark: "/logos/inference_dark.svg",
+	},
 	ionrouter: {
 		light: "/logos/ionrouter_light.svg",
 		dark: "/logos/ionrouter_dark.svg",
+	},
+	kilo: {
+		light: "/logos/kilo_light.svg",
+		dark: "/logos/kilo_dark.svg",
 	},
 	kwaipilot: {
 		light: "/logos/kwaipilot_light.svg",
@@ -208,6 +229,10 @@ export const logoManifest = {
 	"liquid-ai": {
 		light: "/logos/liquid_light.svg",
 		dark: "/logos/liquid_dark.svg",
+	},
+	lmstudio: {
+		light: "/logos/lmstudio_light.svg",
+		dark: "/logos/lmstudio_dark.svg",
 	},
 	mancer: {
 		color: "/logos/mancer.svg",
@@ -227,17 +252,26 @@ export const logoManifest = {
 	meta: {
 		color: "/logos/meta.svg",
 	},
+	modelscope: {
+		color: "/logos/modelscope.svg",
+	},
 	microsoft: {
 		color: "/logos/microsoft.svg",
 	},
 	minimax: {
 		color: "/logos/minimax.svg",
 	},
+	mindai: {
+		color: "/logos/mindai.svg",
+	},
 	"minimax-lightning": {
 		color: "/logos/minimax.svg",
 	},
 	mistral: {
 		color: "/logos/mistral.svg",
+	},
+	modal: {
+		color: "/logos/modal.svg",
 	},
 	moonshotai: {
 		light: "/logos/moonshotai_light.svg",
@@ -259,6 +293,10 @@ export const logoManifest = {
 	"nex-agi": {
 		light: "/logos/nex-agi_light.svg",
 		dark: "/logos/nex-agi_dark.svg",
+	},
+	nebius: {
+		light: "/logos/nebius-token-factory_light.svg",
+		dark: "/logos/nebius-token-factory_dark.svg",
 	},
 	"nebius-token-factory": {
 		light: "/logos/nebius-token-factory_light.svg",
@@ -322,6 +360,12 @@ export const logoManifest = {
 	perplexity: {
 		color: "/logos/perplexity.svg",
 	},
+	"perplexity-agent": {
+		color: "/logos/perplexity.svg",
+	},
+	poe: {
+		color: "/logos/poe.svg",
+	},
 	poolside: {
 		light: "/logos/poolside_light.svg",
 		dark: "/logos/poolside_dark.svg",
@@ -333,6 +377,9 @@ export const logoManifest = {
 	qwen: {
 		color: "/logos/qwen.svg",
 	},
+	"qiniu-ai": {
+		color: "/logos/qiniu.svg",
+	},
 	relace: {
 		light: "/logos/relace_light.svg",
 		dark: "/logos/relace_dark.svg",
@@ -343,8 +390,14 @@ export const logoManifest = {
 	siliconflow: {
 		color: "/logos/siliconflow.svg",
 	},
+	"siliconflow-cn": {
+		color: "/logos/siliconflow.svg",
+	},
 	sambanova: {
 		color: "/logos/sambanova.svg",
+	},
+	sakana: {
+		color: "/logos/sakana.svg",
 	},
 	sourceful: {
 		light: "/logos/sourceful_light.svg",
@@ -356,6 +409,9 @@ export const logoManifest = {
 	streamlake: {
 		color: "/logos/streamlake.svg",
 	},
+	submodel: {
+		color: "/logos/submodel.svg",
+	},
 	suno: {
 		light: "/logos/suno_light.svg",
 		dark: "/logos/suno_dark.svg",
@@ -365,6 +421,15 @@ export const logoManifest = {
 	},
 	together: {
 		color: "/logos/together.svg",
+	},
+	togetherai: {
+		color: "/logos/together.svg",
+	},
+	tinker: {
+		color: "/logos/tinker.svg",
+	},
+	"thinking-machines": {
+		color: "/logos/thinking-machines.svg",
 	},
 	upstage: {
 		color: "/logos/upstage.svg",
@@ -382,12 +447,23 @@ export const logoManifest = {
 	voyage: {
 		color: "/logos/voyage.svg",
 	},
+	wandb: {
+		color: "/logos/weights-and-biases.svg",
+	},
 	"weights-and-biases": {
 		color: "/logos/weights-and-biases.svg",
+	},
+	zenmux: {
+		light: "/logos/zenmux_light.svg",
+		dark: "/logos/zenmux_dark.svg",
 	},
 	wafer: {
 		light: "/logos/wafer_light.svg",
 		dark: "/logos/wafer_dark.svg",
+	},
+	windsurf: {
+		light: "/logos/windsurf_light.svg",
+		dark: "/logos/windsurf_dark.svg",
 	},
 	"spacex-ai": {
 		light: "/logos/spacexai_light.svg",

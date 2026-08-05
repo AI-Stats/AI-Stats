@@ -86,6 +86,22 @@ type ProviderApiPricingMonitorSummary = {
 	error?: string | null;
 };
 
+type PricingTableMonitorSummary = {
+	enabled: boolean;
+	executed: boolean;
+	sourcesChecked: number;
+	updatesDetected: number;
+	providerChanges: Array<{
+		providerId: string;
+		providerName: string;
+		sourceUrl: string;
+		tableCount: number;
+		pricingSamples: string[];
+	}>;
+	errors: string[];
+	error?: string | null;
+};
+
 type ConfiguredModelCoverageMonitorSummary = {
 	enabled: boolean;
 	executed: boolean;
@@ -101,6 +117,64 @@ type ConfiguredModelCoverageState = {
 	fingerprint: string | null;
 	fallbackFingerprint: string | null;
 };
+
+const DISCORD_PROVIDER_FAMILIES: Record<string, { providerId: string; providerName: string }> = {
+	anthropic: { providerId: "anthropic", providerName: "Anthropic" },
+	"anthropic-us": { providerId: "anthropic", providerName: "Anthropic" },
+	"google-vertex": { providerId: "google-vertex", providerName: "Google Vertex" },
+	"google-vertex-eu": { providerId: "google-vertex", providerName: "Google Vertex" },
+	moonshotai: { providerId: "moonshotai", providerName: "Moonshot AI" },
+	"moonshotai-turbo": { providerId: "moonshotai", providerName: "Moonshot AI" },
+	"nebius-token-factory": { providerId: "nebius-token-factory", providerName: "Nebius Token Factory" },
+	"nebius-token-factory-fast": { providerId: "nebius-token-factory", providerName: "Nebius Token Factory" },
+	"nebius-token-factory-eu-north-1": { providerId: "nebius-token-factory", providerName: "Nebius Token Factory" },
+	"nebius-token-factory-us-central-1": { providerId: "nebius-token-factory", providerName: "Nebius Token Factory" },
+	openai: { providerId: "openai", providerName: "OpenAI" },
+	"openai-eu": { providerId: "openai", providerName: "OpenAI" },
+	venice: { providerId: "venice", providerName: "Venice" },
+	"venice-e2ee": { providerId: "venice", providerName: "Venice" },
+};
+
+function discordProviderFamily(providerId: string, providerName?: string): { providerId: string; providerName: string } {
+	return DISCORD_PROVIDER_FAMILIES[providerId] ?? { providerId, providerName: providerName ?? providerId };
+}
+
+export function getDiscordProviderFamilyId(providerId: string): string {
+	return discordProviderFamily(providerId).providerId;
+}
+
+export function collapseDiscordProviderChanges(changes: ProviderChange[]): ProviderChange[] {
+	const grouped = new Map<string, ProviderChange>();
+	for (const change of changes) {
+		const family = discordProviderFamily(change.providerId, change.providerName);
+		const current = grouped.get(family.providerId) ?? {
+			providerId: family.providerId,
+			providerName: family.providerName,
+			previousCount: 0,
+			currentCount: 0,
+			added: [],
+			removed: [],
+		};
+		current.previousCount += change.previousCount;
+		current.currentCount += change.currentCount;
+		current.added = Array.from(new Set([...current.added, ...change.added])).sort();
+		current.removed = Array.from(new Set([...current.removed, ...change.removed])).sort();
+		grouped.set(family.providerId, current);
+	}
+	return Array.from(grouped.values());
+}
+
+export function collapseDiscordPricingChanges(changes: PricingProviderChange[]): PricingProviderChange[] {
+	const grouped = new Map<string, PricingProviderChange>();
+	for (const change of changes) {
+		const family = discordProviderFamily(change.providerId);
+		const current = grouped.get(family.providerId) ?? { providerId: family.providerName, updates: 0, samples: [] };
+		current.updates += change.updates;
+		current.samples = Array.from(new Set([...current.samples, ...change.samples])).sort();
+		grouped.set(family.providerId, current);
+	}
+	return Array.from(grouped.values());
+}
 
 export type PricingTableSnapshotState = {
 	providerId: string;
@@ -121,7 +195,8 @@ const MAX_PRICING_PROVIDER_LINES = 20;
 const MAX_PRICING_SAMPLE_LINES = 6;
 const MAX_PRICING_ROWS = 5_000;
 const PRICING_PAGE_SIZE = 500;
-const PRICING_KEY_PATTERN = /(price|pricing|cost|billing|currency|rate|meter|unit|token)/i;
+const PRICING_KEY_PATTERN = /(price|pricing|cost|billing|currency|rate|meter|unit)/i;
+const PRICING_VALUE_KEY_PATTERN = /^(?:input|output|prompt|completion|input_tokens|output_tokens|prompt_tokens|completion_tokens|cache(?:d)?(?:_read|_write|_input|_prompt|_tokens)?|currency|unit)$/i;
 const PRICING_EXTRACTION_MAX_DEPTH = 4;
 const MAX_SAMPLE_TEXT_LENGTH = 180;
 const PROVIDER_ID_ALIASES: Record<string, string> = {
@@ -158,10 +233,20 @@ function normalizePathSegment(value: string | undefined): string {
 }
 
 export function resolveProviderModelsEndpoint(provider: ProviderConfig): string {
+	if (provider.modelsEndpoint && provider.modelsEndpointParams) {
+		let endpoint = provider.modelsEndpoint;
+		for (const [name, envNames] of Object.entries(provider.modelsEndpointParams)) {
+			const value = readBindingEnv(envNames);
+			if (!value) throw new Error(`${provider.providerId} models endpoint parameter ${name} missing`);
+			endpoint = endpoint.replaceAll(`{${name}}`, encodeURIComponent(value));
+		}
+		return endpoint;
+	}
+
 	const baseUrlOverride = provider.baseUrlEnv ? readBindingEnv(provider.baseUrlEnv) : null;
 	if (!baseUrlOverride) {
+		if (provider.modelsEndpoint) return provider.modelsEndpoint;
 		if (!provider.baseUrl) {
-			if (provider.modelsEndpoint) return provider.modelsEndpoint;
 			throw new Error(`${provider.providerId} models endpoint missing`);
 		}
 
@@ -242,7 +327,16 @@ export function extractPricingDetailsFromValue(value: unknown, depth = 0, parent
 		const out: Record<string, unknown> = {};
 		for (const [key, nestedValue] of Object.entries(input)) {
 			if (PRICING_KEY_PATTERN.test(key)) {
-				out[key] = normalizeJson(nestedValue);
+				const nested = extractPricingDetailsFromValue(nestedValue, depth + 1, key);
+				if (nested !== null) out[key] = nested;
+				continue;
+			}
+			if (
+				parentMatches &&
+				PRICING_VALUE_KEY_PATTERN.test(key) &&
+				(typeof nestedValue === "number" || typeof nestedValue === "string")
+			) {
+				out[key] = nestedValue;
 				continue;
 			}
 			const nested = extractPricingDetailsFromValue(nestedValue, depth + 1, key);
@@ -250,7 +344,7 @@ export function extractPricingDetailsFromValue(value: unknown, depth = 0, parent
 				out[key] = nested;
 			}
 		}
-		if (Object.keys(out).length === 0) return parentMatches ? normalizeJson(value) : null;
+		if (Object.keys(out).length === 0) return null;
 		return normalizeJson(out);
 	}
 
@@ -290,6 +384,54 @@ function normalizeProviderApiPricingDetails(
 	return record?.pricing ? normalizeJson(record.pricing) : pricingDetails ?? null;
 }
 
+const CANONICAL_PROVIDER_PRICE_KEYS = new Set([
+	"prompt", "input", "completion", "output", "cache_prompt", "input_cache_read",
+	"input_cache_reads", "cache_input", "cached_input", "input_cache_write",
+	"input_cache_writes", "cache_creation", "cache_write", "input_tokens",
+	"cache_read_tokens", "output_tokens", "input_price_per_million",
+	"cache_read_input_price_per_million", "output_price_per_million",
+	"prompt_text_token_price", "cached_prompt_text_token_price",
+	"completion_text_token_price", "input_token_price_per_m", "output_token_price_per_m",
+	"input_price", "cache_price", "output_price", "cache_read",
+]);
+const VOLATILE_PROVIDER_PRICE_KEYS = new Set([
+	"created", "created_at", "createdat", "updated", "updated_at", "updatedat",
+	"last_updated", "lastupdated", "refreshed_at", "refreshedat", "timestamp",
+	"request_id", "requestid", "generated_at", "generatedat", "fetched_at", "fetchedat",
+]);
+
+function supplementalProviderPricing(value: unknown, key = ""): unknown | null {
+	const normalizedKey = key.trim().toLowerCase();
+	if (CANONICAL_PROVIDER_PRICE_KEYS.has(normalizedKey) || VOLATILE_PROVIDER_PRICE_KEYS.has(normalizedKey)) {
+		return null;
+	}
+	if (Array.isArray(value)) {
+		const entries = value
+			.map((entry) => supplementalProviderPricing(entry))
+			.filter((entry): entry is unknown => entry !== null)
+			.sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)));
+		return entries.length > 0 ? entries : null;
+	}
+	if (value && typeof value === "object") {
+		const entries = Object.entries(value as Record<string, unknown>)
+			.map(([nestedKey, nestedValue]) => [nestedKey, supplementalProviderPricing(nestedValue, nestedKey)] as const)
+			.filter((entry): entry is readonly [string, unknown] => entry[1] !== null)
+			.sort(([left], [right]) => left.localeCompare(right));
+		return entries.length > 0 ? Object.fromEntries(entries) : null;
+	}
+	return value ?? null;
+}
+
+export function toProviderApiPricingFingerprint(pricingDetails: unknown): string | null {
+	const record = asRecord(pricingDetails);
+	if (!record?.normalized) return toPricingFingerprint(pricingDetails);
+	const supplemental = supplementalProviderPricing(record.sourcePricing);
+	return toPricingFingerprint({
+		normalized: record.normalized,
+		...(supplemental === null ? {} : { supplemental }),
+	});
+}
+
 export function toNullableInteger(value: unknown): number | null {
 	if (typeof value === "number") {
 		if (!Number.isFinite(value)) return null;
@@ -314,7 +456,7 @@ export function extractProviderApiModelSnapshot(
 			contextLength: null,
 			maxCompletionTokens: null,
 			pricingDetails: normalizedPricingDetails,
-			pricingFingerprint: toPricingFingerprint(normalizedPricingDetails),
+			pricingFingerprint: toProviderApiPricingFingerprint(normalizedPricingDetails),
 		};
 	}
 
@@ -328,7 +470,7 @@ export function extractProviderApiModelSnapshot(
 		contextLength,
 		maxCompletionTokens,
 		pricingDetails: normalizedPricingDetails,
-		pricingFingerprint: toPricingFingerprint(normalizedPricingDetails),
+		pricingFingerprint: toProviderApiPricingFingerprint(normalizedPricingDetails),
 	};
 }
 
@@ -349,12 +491,6 @@ export function buildProviderApiModelSnapshotDiff(
 	current: ProviderApiModelSnapshot
 ): string[] {
 	const changes: string[] = [];
-	if (previous.contextLength !== current.contextLength) {
-		changes.push(`contextLength: ${formatSnapshotValue(previous.contextLength)} -> ${formatSnapshotValue(current.contextLength)}`);
-	}
-	if (previous.maxCompletionTokens !== current.maxCompletionTokens) {
-		changes.push(`maxCompletionTokens: ${formatSnapshotValue(previous.maxCompletionTokens)} -> ${formatSnapshotValue(current.maxCompletionTokens)}`);
-	}
 	if (previous.pricingFingerprint !== current.pricingFingerprint) {
 		changes.push(
 			`price: ${samplePricingDetailsText(previous.pricingDetails)} -> ${samplePricingDetailsText(current.pricingDetails)}`
@@ -544,13 +680,19 @@ export function shouldIncludeDiscoveredModel(providerId: string, row: Record<str
 export function extractDiscoveredModels(providerId: string, payload: unknown): DiscoveredModel[] {
 	const root = asRecord(payload);
 	if (!root && !Array.isArray(payload)) return [];
+	const nestedProviderModels = providerId === "weights-and-biases" && root
+		? Object.values(root).flatMap((provider) => Object.values(asRecord(asRecord(provider)?.models) ?? {}))
+		: [];
 
 	const candidateCollections: unknown[] = [
 		payload,
 		root?.data,
 		root?.models,
 		root?.publisherModels,
+		root?.result,
+		asRecord(root?.result)?.data,
 		asRecord(root?.result)?.models,
+		nestedProviderModels,
 	];
 
 	const output = new Map<string, DiscoveredModel>();
@@ -572,7 +714,9 @@ export function extractDiscoveredModels(providerId: string, payload: unknown): D
 				});
 				continue;
 			}
-			const candidates = [row.id, row.model_id, row.name, row.model, row.slug];
+			const candidates = providerId === "digitalocean"
+				? [row.model_id, row.id, row.name, row.model, row.slug]
+				: [row.id, row.model_id, row.name, row.model, row.slug];
 			for (const value of candidates) {
 				if (typeof value !== "string") continue;
 				const normalized = normalizeModelId(providerId, value);
@@ -744,6 +888,9 @@ export async function fetchProviderModels(provider: ProviderConfig, apiKey?: str
 				if (!apiKey) throw new Error(`${provider.providerId} api key missing`);
 				headers["Authorization"] = `Api-Key ${apiKey}`;
 				break;
+			case "optional_bearer":
+				if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
+				break;
 			case "none":
 				break;
 			case "bearer":
@@ -776,6 +923,25 @@ export function diffModelIds(previousIds: string[], currentIds: string[]): { add
 	const added = currentIds.filter((id) => !previous.has(id));
 	const removed = previousIds.filter((id) => !current.has(id));
 	return { added, removed };
+}
+
+export function assertSafeDiscoverySnapshot(
+	providerId: string,
+	previousIds: string[],
+	currentIds: string[],
+	minimumRetainedRatio = 0.25,
+): void {
+	if (currentIds.length === 0) {
+		throw new Error(`${providerId} returned zero models; refusing to replace the previous snapshot`);
+	}
+	if (previousIds.length < 5) return;
+	const retainedRatio = currentIds.length / previousIds.length;
+	if (retainedRatio < minimumRetainedRatio) {
+		throw new Error(
+			`${providerId} model count fell from ${previousIds.length} to ${currentIds.length} ` +
+			`(${Math.round(retainedRatio * 100)}% retained); refusing a destructive snapshot`,
+		);
+	}
 }
 
 export function parsePricingCursorFromSummary(summary: unknown): PricingCursor | null {
@@ -883,6 +1049,29 @@ export async function loadLatestConfiguredCoverageState(source?: string): Promis
 	return null;
 }
 
+export async function loadLatestDiscordNotificationFingerprint(source?: string): Promise<string | null> {
+	const supabase = getSupabaseAdmin();
+	let query = supabase
+		.from("model_discovery_runs")
+		.select("summary,status,started_at")
+		.in("status", ["completed", "completed_with_errors"])
+		.order("started_at", { ascending: false });
+	const sourceValue = typeof source === "string" ? source.trim() : "";
+	if (sourceValue) query = query.eq("source", sourceValue);
+
+	const { data, error } = await query.limit(200);
+	if (error) throw new Error(error.message || "Failed to load Discord notification fingerprint");
+
+	for (const row of data ?? []) {
+		const summary = asRecord((row as Record<string, unknown>).summary);
+		const fingerprint = typeof summary?.notificationFingerprint === "string"
+			? summary.notificationFingerprint.trim()
+			: "";
+		if (fingerprint) return fingerprint;
+	}
+	return null;
+}
+
 export function parsePricingTableStateFromSummary(summary: unknown): PricingTableSnapshotState[] {
 	const summaryRecord = asRecord(summary);
 	const tableMonitor = asRecord(summaryRecord?.pricingTableMonitor);
@@ -908,7 +1097,7 @@ export async function loadLatestPricingTableState(source?: string): Promise<Pric
 	const sourceValue = typeof source === "string" ? source.trim() : "";
 	if (sourceValue) query = query.eq("source", sourceValue);
 
-	const { data, error } = await query.limit(100);
+	const { data, error } = await query.limit(200);
 	if (error) throw new Error(error.message || "Failed to load pricing table state");
 	const latestByProvider = new Map<string, PricingTableSnapshotState>();
 	for (const row of data ?? []) {
@@ -923,7 +1112,7 @@ export async function loadLatestPricingTableState(source?: string): Promise<Pric
 export async function fetchLatestPricingUpdatedAt(): Promise<string | null> {
 	const supabase = getSupabaseAdmin();
 	const { data, error } = await supabase
-		.from("data_api_pricing_rules")
+		.from("v2_rpc_pricing_legacy_shape")
 		.select("updated_at")
 		.not("updated_at", "is", null)
 		.order("updated_at", { ascending: false })
@@ -942,7 +1131,7 @@ export async function fetchPricingRuleIdsAtTimestamp(updatedAt: string): Promise
 	while (rows.length < MAX_PRICING_ROWS) {
 		const to = from + PRICING_PAGE_SIZE - 1;
 		const { data, error } = await supabase
-			.from("data_api_pricing_rules")
+			.from("v2_rpc_pricing_legacy_shape")
 			.select("rule_id,provider_id,api_model_id,capability_id,pricing_plan,meter,price_per_unit,currency,effective_from,effective_to,updated_at")
 			.eq("updated_at", updatedAt)
 			.order("rule_id", { ascending: true })
@@ -965,7 +1154,7 @@ export async function fetchPricingRowsSince(sinceInclusive: string): Promise<Pri
 	while (rows.length < MAX_PRICING_ROWS) {
 		const to = from + PRICING_PAGE_SIZE - 1;
 		const { data, error } = await supabase
-			.from("data_api_pricing_rules")
+			.from("v2_rpc_pricing_legacy_shape")
 			.select("rule_id,provider_id,api_model_id,capability_id,pricing_plan,meter,price_per_unit,currency,effective_from,effective_to,updated_at")
 			.gte("updated_at", sinceInclusive)
 			.order("updated_at", { ascending: true })
@@ -997,7 +1186,7 @@ export async function loadConfiguredProviderModelIds(providerIds: string[]): Pro
 	while (true) {
 		const to = from + PRICING_PAGE_SIZE - 1;
 		const { data, error } = await supabase
-			.from("data_api_provider_models")
+			.from("v2_rpc_routes_legacy_shape")
 			.select("provider_id,provider_model_slug,api_model_id")
 			.in("provider_id", lookupProviderIds)
 			.range(from, to);
@@ -1149,20 +1338,23 @@ export function appendBulletedList(lines: string[], values: string[]): void {
 }
 
 export function buildModelDiscordSection(changes: ProviderChange[]): string {
-	if (changes.length === 0) return "";
+	const modelSetChanges = collapseDiscordProviderChanges(changes).filter(
+		(change) => change.added.length > 0 || change.removed.length > 0
+	);
+	if (modelSetChanges.length === 0) return "";
 	const lines: string[] = [
-		`Model discovery detected changes across ${changes.length} provider${changes.length === 1 ? "" : "s"}.`,
+		`Model discovery detected additions or removals across ${modelSetChanges.length} provider${modelSetChanges.length === 1 ? "" : "s"}.`,
 		"",
 	];
 
-	for (const change of changes.slice(0, MAX_DISCORD_LINES)) {
+	for (const change of modelSetChanges.slice(0, MAX_DISCORD_LINES)) {
 		lines.push(`${change.providerName}`);
 		if (change.added.length > 0) {
-			lines.push(`Additions (${change.added.length}):`);
+			lines.push(`New models (${change.added.length}):`);
 			appendBulletedList(lines, change.added);
 		}
 		if (change.removed.length > 0) {
-			lines.push(`Deletions (${change.removed.length}):`);
+			lines.push(`Removed models (${change.removed.length}):`);
 			appendBulletedList(lines, change.removed);
 		}
 		lines.push("");
@@ -1173,20 +1365,22 @@ export function buildModelDiscordSection(changes: ProviderChange[]): string {
 
 export function buildPricingDiscordSection(pricing: PricingMonitorSummary): string {
 	if (pricing.updatesDetected === 0 || pricing.providerChanges.length === 0) return "";
+	const providerChanges = collapseDiscordPricingChanges(pricing.providerChanges);
+	const updatesDetected = providerChanges.reduce((total, provider) => total + provider.updates, 0);
 	const lines: string[] = [
-		`Pricing monitor detected ${pricing.updatesDetected} updated rule${pricing.updatesDetected === 1 ? "" : "s"} across ${pricing.providerChanges.length} provider${pricing.providerChanges.length === 1 ? "" : "s"}.`,
+		`Pricing monitor detected ${updatesDetected} updated rule${updatesDetected === 1 ? "" : "s"} across ${providerChanges.length} provider${providerChanges.length === 1 ? "" : "s"}.`,
 		"",
 	];
 
-	for (const provider of pricing.providerChanges.slice(0, MAX_PRICING_PROVIDER_LINES)) {
+	for (const provider of providerChanges.slice(0, MAX_PRICING_PROVIDER_LINES)) {
 		lines.push(`${provider.providerId}`);
 		lines.push(`Updates (${provider.updates}):`);
 		appendBulletedList(lines, provider.samples);
 		lines.push("");
 	}
 
-	if (pricing.providerChanges.length > MAX_PRICING_PROVIDER_LINES) {
-		lines.push(`...and ${pricing.providerChanges.length - MAX_PRICING_PROVIDER_LINES} more provider(s).`);
+	if (providerChanges.length > MAX_PRICING_PROVIDER_LINES) {
+		lines.push(`...and ${providerChanges.length - MAX_PRICING_PROVIDER_LINES} more provider(s).`);
 	}
 
 	return lines.join("\n").trim();
@@ -1194,20 +1388,22 @@ export function buildPricingDiscordSection(pricing: PricingMonitorSummary): stri
 
 export function buildProviderApiPricingDiscordSection(pricing: ProviderApiPricingMonitorSummary): string {
 	if (pricing.updatesDetected === 0 || pricing.providerChanges.length === 0) return "";
+	const providerChanges = collapseDiscordPricingChanges(pricing.providerChanges);
+	const updatesDetected = providerChanges.reduce((total, provider) => total + provider.updates, 0);
 	const lines: string[] = [
-		`Provider /models monitor detected ${pricing.updatesDetected} updated model${pricing.updatesDetected === 1 ? "" : "s"} across ${pricing.providerChanges.length} provider${pricing.providerChanges.length === 1 ? "" : "s"}.`,
+		`Provider /models monitor detected ${updatesDetected} updated model${updatesDetected === 1 ? "" : "s"} across ${providerChanges.length} provider${providerChanges.length === 1 ? "" : "s"}.`,
 		"",
 	];
 
-	for (const provider of pricing.providerChanges.slice(0, MAX_PRICING_PROVIDER_LINES)) {
+	for (const provider of providerChanges.slice(0, MAX_PRICING_PROVIDER_LINES)) {
 		lines.push(`${provider.providerId}`);
 		lines.push(`Updates (${provider.updates}):`);
 		appendBulletedList(lines, provider.samples);
 		lines.push("");
 	}
 
-	if (pricing.providerChanges.length > MAX_PRICING_PROVIDER_LINES) {
-		lines.push(`...and ${pricing.providerChanges.length - MAX_PRICING_PROVIDER_LINES} more provider(s).`);
+	if (providerChanges.length > MAX_PRICING_PROVIDER_LINES) {
+		lines.push(`...and ${providerChanges.length - MAX_PRICING_PROVIDER_LINES} more provider(s).`);
 	}
 
 	return lines.join("\n").trim();
@@ -1240,11 +1436,27 @@ export function shouldNotifyConfiguredModelCoverage(): boolean {
 
 export function hasDiscordNotifiableChanges(args: {
 	modelChanges: ProviderChange[];
+	pricing: PricingMonitorSummary;
+	providerApiPricing: ProviderApiPricingMonitorSummary;
+	pricingTable: PricingTableMonitorSummary;
 	configuredModelCoverage: ConfiguredModelCoverageMonitorSummary;
 }): boolean {
-	return args.modelChanges.length > 0 || (
-		shouldNotifyConfiguredModelCoverage() && args.configuredModelCoverage.updatesDetected > 0
-	);
+	return args.modelChanges.some((change) => change.added.length > 0 || change.removed.length > 0)
+		|| args.pricing.updatesDetected > 0
+		|| args.providerApiPricing.updatesDetected > 0
+		|| args.pricingTable.updatesDetected > 0
+	;
+}
+
+export function buildPricingTableDiscordSection(pricing: PricingTableMonitorSummary): string {
+	const lines: string[] = [];
+	if (pricing.updatesDetected > 0) {
+		lines.push(`Pricing page monitor detected ${pricing.updatesDetected} changed provider source${pricing.updatesDetected === 1 ? "" : "s"}.`);
+		for (const change of pricing.providerChanges.slice(0, MAX_PRICING_PROVIDER_LINES)) {
+			lines.push(`- ${change.providerName}: ${change.tableCount} price-bearing section${change.tableCount === 1 ? "" : "s"} (${change.sourceUrl})`);
+		}
+	}
+	return lines.join("\n").trim();
 }
 
 const PRIVATE_MODEL_DISCOVERY_USERNAME = "Phaseo Private Model Discovery";
@@ -1252,23 +1464,37 @@ const PRIVATE_MODEL_DISCOVERY_AVATAR_URL = "https://phaseo.app/png_logo_dark.png
 
 export function buildDiscordMessage(args: {
 	modelChanges: ProviderChange[];
+	pricing: PricingMonitorSummary;
+	providerApiPricing: ProviderApiPricingMonitorSummary;
+	pricingTable: PricingTableMonitorSummary;
 	configuredModelCoverage: ConfiguredModelCoverageMonitorSummary;
 }): string {
-	const includeConfiguredCoverageNotifications = shouldNotifyConfiguredModelCoverage();
 	const sections: string[] = [];
 	const modelSection = buildModelDiscordSection(args.modelChanges);
-	const configuredModelCoverageSection = buildConfiguredModelCoverageDiscordSection(args.configuredModelCoverage);
+	const pricingSection = buildPricingDiscordSection(args.pricing);
+	const providerApiPricingSection = buildProviderApiPricingDiscordSection(args.providerApiPricing);
+	const pricingTableSection = buildPricingTableDiscordSection(args.pricingTable);
 	if (modelSection) sections.push(modelSection);
-	if (includeConfiguredCoverageNotifications && configuredModelCoverageSection) {
-		sections.push(configuredModelCoverageSection);
-	}
+	if (pricingSection) sections.push(pricingSection);
+	if (providerApiPricingSection) sections.push(providerApiPricingSection);
+	if (pricingTableSection) sections.push(pricingTableSection);
 	const text = sections.join("\n\n").trim();
 	if (text.length <= 1900) return text;
 	return `${text.slice(0, 1888)}\n...[truncated]`;
 }
 
+export async function computeDiscordNotificationFingerprint(args: Parameters<typeof buildDiscordMessage>[0]): Promise<string | null> {
+	const message = buildDiscordMessage(args).trim();
+	if (!message) return null;
+	const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(message));
+	return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 export async function sendDiscordNotification(args: {
 	modelChanges: ProviderChange[];
+	pricing: PricingMonitorSummary;
+	providerApiPricing: ProviderApiPricingMonitorSummary;
+	pricingTable: PricingTableMonitorSummary;
 	configuredModelCoverage: ConfiguredModelCoverageMonitorSummary;
 }): Promise<{ delivered: boolean; skipped: boolean; reason?: string | null }> {
 	if (!hasDiscordNotifiableChanges(args)) {

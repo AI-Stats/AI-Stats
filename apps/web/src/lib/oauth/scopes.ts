@@ -2,13 +2,14 @@ export type OAuthScopeOption = {
 	value: string;
 	label: string;
 	description: string;
-	group: "Identity" | "Read" | "Write" | "Delete";
+	group: "Identity" | "Access" | "Read" | "Write" | "Delete";
 };
 
 export const DEFAULT_THIRD_PARTY_OAUTH_SCOPES = [
 	"openid",
 	"profile",
 	"email",
+	"gateway:access",
 	"me:read",
 	"workspaces:read",
 	"models:read",
@@ -20,6 +21,7 @@ export const OAUTH_SCOPE_OPTIONS: OAuthScopeOption[] = [
 	{ value: "openid", label: "Confirm identity", description: "Verify the signed-in account.", group: "Identity" },
 	{ value: "profile", label: "Read profile", description: "Read the user's basic profile.", group: "Identity" },
 	{ value: "email", label: "Read email", description: "Read the user's email address.", group: "Identity" },
+	{ value: "gateway:access", label: "Use AI Gateway", description: "Run model inference using the user's workspace credits.", group: "Access" },
 	{ value: "me:read", label: "Read current account", description: "Inspect the current user and workspace context.", group: "Read" },
 	{ value: "models:read", label: "Read models", description: "Inspect the model catalogue.", group: "Read" },
 	{ value: "providers:read", label: "Read providers", description: "Inspect provider availability and metadata.", group: "Read" },
@@ -28,6 +30,7 @@ export const OAUTH_SCOPE_OPTIONS: OAuthScopeOption[] = [
 	{ value: "activity:read", label: "Read activity", description: "Inspect recent workspace activity.", group: "Read" },
 	{ value: "analytics:read", label: "Read analytics", description: "View analytics and usage reporting.", group: "Read" },
 	{ value: "generations:read", label: "Read generations", description: "Inspect generation history and metadata.", group: "Read" },
+	{ value: "feedback:read", label: "Read feedback", description: "Inspect workspace feedback, observability events, and preset test runs.", group: "Read" },
 	{ value: "workspaces:read", label: "Read workspaces", description: "List workspaces and their metadata.", group: "Read" },
 	{ value: "keys:read", label: "Read API keys", description: "List API-key metadata.", group: "Read" },
 	{ value: "presets:read", label: "Read presets", description: "Inspect saved routing and prompt presets.", group: "Read" },
@@ -42,6 +45,7 @@ export const OAUTH_SCOPE_OPTIONS: OAuthScopeOption[] = [
 	{ value: "guardrails:write", label: "Manage guardrails", description: "Create or update guardrails.", group: "Write" },
 	{ value: "management_keys:write", label: "Manage management keys", description: "Create or update management keys.", group: "Write" },
 	{ value: "oauth_clients:write", label: "Manage OAuth apps", description: "Create or update OAuth apps.", group: "Write" },
+	{ value: "feedback:write", label: "Manage feedback", description: "Create feedback, observability events, and preset test runs.", group: "Write" },
 	{ value: "workspaces:delete", label: "Delete workspaces", description: "Permanently delete workspaces.", group: "Delete" },
 	{ value: "keys:delete", label: "Delete API keys", description: "Permanently delete API keys.", group: "Delete" },
 	{ value: "presets:delete", label: "Delete presets", description: "Permanently delete presets.", group: "Delete" },

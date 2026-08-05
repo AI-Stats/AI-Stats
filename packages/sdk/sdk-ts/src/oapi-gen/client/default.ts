@@ -104,12 +104,7 @@ export async function cancelBatch(
   last_webhook_progress?: number | null;
   last_webhook_progress_at?: string | null;
   lifecycle_status?:
-    | "pending"
-    | "running"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
   metadata?: {};
   native_batch_id?: string | null;
   next_webhook_retry_at?: string | null;
@@ -129,6 +124,15 @@ export async function cancelBatch(
   request_id?: string;
   session_id?: string;
   status?: string;
+  usage?: {
+    cost_nanos?: number | null;
+    cost_usd?: number | null;
+    currency?: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    requests?: number | null;
+    total_tokens?: number | null;
+  };
   webhook?: {
     attempts?: {
       attempt_number?: number;
@@ -149,10 +153,7 @@ export async function cancelBatch(
       delivered_events?: number;
       last_attempt_at?: string | null;
       last_attempt_status?:
-        | "delivered"
-        | "scheduled_retry"
-        | "failed_permanently"
-        | null;
+        "delivered" | "scheduled_retry" | "failed_permanently" | null;
       last_delivered_at?: string | null;
       last_error_message?: string | null;
       last_failure_at?: string | null;
@@ -168,7 +169,7 @@ export async function cancelBatch(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/${encodeURIComponent(String(path?.batch_id))}/cancel`;
+  const resolvedPath = `/batches/${encodeURIComponent(String(path?.["batch_id"]))}/cancel`;
   return client.request<{
     billing?: {
       billed?: boolean;
@@ -216,12 +217,7 @@ export async function cancelBatch(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     metadata?: {};
     native_batch_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -241,6 +237,15 @@ export async function cancelBatch(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -261,10 +266,7 @@ export async function cancelBatch(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -349,12 +351,7 @@ export async function cancelBatchAlias(
   last_webhook_progress?: number | null;
   last_webhook_progress_at?: string | null;
   lifecycle_status?:
-    | "pending"
-    | "running"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
   metadata?: {};
   native_batch_id?: string | null;
   next_webhook_retry_at?: string | null;
@@ -374,6 +371,15 @@ export async function cancelBatchAlias(
   request_id?: string;
   session_id?: string;
   status?: string;
+  usage?: {
+    cost_nanos?: number | null;
+    cost_usd?: number | null;
+    currency?: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    requests?: number | null;
+    total_tokens?: number | null;
+  };
   webhook?: {
     attempts?: {
       attempt_number?: number;
@@ -394,10 +400,7 @@ export async function cancelBatchAlias(
       delivered_events?: number;
       last_attempt_at?: string | null;
       last_attempt_status?:
-        | "delivered"
-        | "scheduled_retry"
-        | "failed_permanently"
-        | null;
+        "delivered" | "scheduled_retry" | "failed_permanently" | null;
       last_delivered_at?: string | null;
       last_error_message?: string | null;
       last_failure_at?: string | null;
@@ -413,7 +416,7 @@ export async function cancelBatchAlias(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/${encodeURIComponent(String(path?.id))}/cancel`;
+  const resolvedPath = `/batch/${encodeURIComponent(String(path?.["id"]))}/cancel`;
   return client.request<{
     billing?: {
       billed?: boolean;
@@ -461,12 +464,7 @@ export async function cancelBatchAlias(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     metadata?: {};
     native_batch_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -486,6 +484,15 @@ export async function cancelBatchAlias(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -506,10 +513,7 @@ export async function cancelBatchAlias(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -589,12 +593,7 @@ export async function cancelVideo(
   last_webhook_progress?: number | null;
   last_webhook_progress_at?: string | null;
   lifecycle_status?:
-    | "pending"
-    | "running"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
   model?: string;
   native_video_id?: string | null;
   next_webhook_retry_at?: string | null;
@@ -619,12 +618,7 @@ export async function cancelVideo(
   size?: string;
   started_at?: number | string | null;
   status?:
-    | "queued"
-    | "processing"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "queued" | "processing" | "completed" | "failed" | "cancelled" | "expired";
   usage?: {
     cost?: number;
     is_byok?: boolean;
@@ -650,10 +644,7 @@ export async function cancelVideo(
       delivered_events?: number;
       last_attempt_at?: string | null;
       last_attempt_status?:
-        | "delivered"
-        | "scheduled_retry"
-        | "failed_permanently"
-        | null;
+        "delivered" | "scheduled_retry" | "failed_permanently" | null;
       last_delivered_at?: string | null;
       last_error_message?: string | null;
       last_failure_at?: string | null;
@@ -669,7 +660,7 @@ export async function cancelVideo(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.video_id))}/cancel`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}/cancel`;
   return client.request<{
     asset?: {
       bytes?: number;
@@ -712,12 +703,7 @@ export async function cancelVideo(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     model?: string;
     native_video_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -773,10 +759,7 @@ export async function cancelVideo(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -856,12 +839,7 @@ export async function cancelVideoAlias(
   last_webhook_progress?: number | null;
   last_webhook_progress_at?: string | null;
   lifecycle_status?:
-    | "pending"
-    | "running"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
   model?: string;
   native_video_id?: string | null;
   next_webhook_retry_at?: string | null;
@@ -886,12 +864,7 @@ export async function cancelVideoAlias(
   size?: string;
   started_at?: number | string | null;
   status?:
-    | "queued"
-    | "processing"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "queued" | "processing" | "completed" | "failed" | "cancelled" | "expired";
   usage?: {
     cost?: number;
     is_byok?: boolean;
@@ -917,10 +890,7 @@ export async function cancelVideoAlias(
       delivered_events?: number;
       last_attempt_at?: string | null;
       last_attempt_status?:
-        | "delivered"
-        | "scheduled_retry"
-        | "failed_permanently"
-        | null;
+        "delivered" | "scheduled_retry" | "failed_permanently" | null;
       last_delivered_at?: string | null;
       last_error_message?: string | null;
       last_failure_at?: string | null;
@@ -936,7 +906,7 @@ export async function cancelVideoAlias(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.video_id))}/cancel`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}/cancel`;
   return client.request<{
     asset?: {
       bytes?: number;
@@ -979,12 +949,7 @@ export async function cancelVideoAlias(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     model?: string;
     native_video_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -1040,10 +1005,7 @@ export async function cancelVideoAlias(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -1210,7 +1172,7 @@ export type CreateAnthropicMessageParams = {
             timezone?: string;
           };
           timezone?: string;
-          type: "gateway:datetime";
+          type: "phaseo:datetime" | "gateway:datetime";
         }
       | {
           include_highlights?: boolean;
@@ -1221,14 +1183,34 @@ export type CreateAnthropicMessageParams = {
             include_text?: boolean;
             max_results?: number;
           };
-          type: "gateway:web_search";
+          type: "phaseo:web_search" | "gateway:web_search";
         }
       | {
           max_chars?: number;
           parameters?: {
             max_chars?: number;
           };
-          type: "gateway:web_fetch";
+          type: "phaseo:web_fetch" | "gateway:web_fetch";
+        }
+      | {
+          parameters?: {
+            [key: string]: unknown;
+          };
+          type: "phaseo:subagent";
+        }
+      | {
+          parameters?: {
+            analysis_models: string[];
+            model?: string;
+            [key: string]: unknown;
+          };
+          type: "phaseo:fusion";
+        }
+      | {
+          parameters?: {
+            max_results?: number;
+          };
+          type: "phaseo:search_models";
         }[];
     top_k?: number;
     top_p?: number;
@@ -1404,7 +1386,12 @@ export type CreateBatchParams = {
       trace?: boolean;
       trace_level?: "summary" | "full";
     };
-    endpoint?: string;
+    endpoint?:
+      | "/v1/chat/completions"
+      | "/v1/responses"
+      | "/v1/messages"
+      | "/v1/embeddings"
+      | "/v1/generateContent";
     input_file_id?: string;
     items?: {
       [key: string]: unknown;
@@ -1457,7 +1444,7 @@ export type CreateBatchParams = {
         [key: string]: unknown;
       };
       custom_id?: string;
-      method?: string;
+      method?: "POST";
       url?: string;
     }[];
     session_id?: string;
@@ -1526,12 +1513,7 @@ export async function createBatch(
   last_webhook_progress?: number | null;
   last_webhook_progress_at?: string | null;
   lifecycle_status?:
-    | "pending"
-    | "running"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
   metadata?: {};
   native_batch_id?: string | null;
   next_webhook_retry_at?: string | null;
@@ -1551,6 +1533,15 @@ export async function createBatch(
   request_id?: string;
   session_id?: string;
   status?: string;
+  usage?: {
+    cost_nanos?: number | null;
+    cost_usd?: number | null;
+    currency?: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    requests?: number | null;
+    total_tokens?: number | null;
+  };
   webhook?: {
     attempts?: {
       attempt_number?: number;
@@ -1571,10 +1562,7 @@ export async function createBatch(
       delivered_events?: number;
       last_attempt_at?: string | null;
       last_attempt_status?:
-        | "delivered"
-        | "scheduled_retry"
-        | "failed_permanently"
-        | null;
+        "delivered" | "scheduled_retry" | "failed_permanently" | null;
       last_delivered_at?: string | null;
       last_error_message?: string | null;
       last_failure_at?: string | null;
@@ -1638,12 +1626,7 @@ export async function createBatch(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     metadata?: {};
     native_batch_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -1663,6 +1646,15 @@ export async function createBatch(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -1683,10 +1675,7 @@ export async function createBatch(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -1722,7 +1711,12 @@ export type CreateBatchAliasParams = {
       trace?: boolean;
       trace_level?: "summary" | "full";
     };
-    endpoint?: string;
+    endpoint?:
+      | "/v1/chat/completions"
+      | "/v1/responses"
+      | "/v1/messages"
+      | "/v1/embeddings"
+      | "/v1/generateContent";
     input_file_id?: string;
     items?: {
       [key: string]: unknown;
@@ -1775,7 +1769,7 @@ export type CreateBatchAliasParams = {
         [key: string]: unknown;
       };
       custom_id?: string;
-      method?: string;
+      method?: "POST";
       url?: string;
     }[];
     session_id?: string;
@@ -1844,12 +1838,7 @@ export async function createBatchAlias(
   last_webhook_progress?: number | null;
   last_webhook_progress_at?: string | null;
   lifecycle_status?:
-    | "pending"
-    | "running"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
   metadata?: {};
   native_batch_id?: string | null;
   next_webhook_retry_at?: string | null;
@@ -1869,6 +1858,15 @@ export async function createBatchAlias(
   request_id?: string;
   session_id?: string;
   status?: string;
+  usage?: {
+    cost_nanos?: number | null;
+    cost_usd?: number | null;
+    currency?: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    requests?: number | null;
+    total_tokens?: number | null;
+  };
   webhook?: {
     attempts?: {
       attempt_number?: number;
@@ -1889,10 +1887,7 @@ export async function createBatchAlias(
       delivered_events?: number;
       last_attempt_at?: string | null;
       last_attempt_status?:
-        | "delivered"
-        | "scheduled_retry"
-        | "failed_permanently"
-        | null;
+        "delivered" | "scheduled_retry" | "failed_permanently" | null;
       last_delivered_at?: string | null;
       last_error_message?: string | null;
       last_failure_at?: string | null;
@@ -1956,12 +1951,7 @@ export async function createBatchAlias(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     metadata?: {};
     native_batch_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -1981,6 +1971,15 @@ export async function createBatchAlias(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -2001,10 +2000,7 @@ export async function createBatchAlias(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -2087,13 +2083,7 @@ export type CreateChatCompletionParams = {
             input_audio: {
               data?: string;
               format?:
-                | "wav"
-                | "mp3"
-                | "flac"
-                | "m4a"
-                | "ogg"
-                | "pcm16"
-                | "pcm24";
+                "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
             };
             type: "input_audio";
           }
@@ -2228,7 +2218,7 @@ export type CreateChatCompletionParams = {
         };
     safety_identifier?: string | null;
     seed?: number;
-    service_tier?: "standard" | "priority" | "flex" | "batch";
+    service_tier?: "standard" | "fast" | "priority" | "flex" | "batch";
     session_id?: string;
     stop?: string | string[];
     store?: boolean;
@@ -2239,6 +2229,12 @@ export type CreateChatCompletionParams = {
       | "auto"
       | "none"
       | "required"
+      | "phaseo:datetime"
+      | "phaseo:web_search"
+      | "phaseo:web_fetch"
+      | "phaseo:subagent"
+      | "phaseo:fusion"
+      | "phaseo:search_models"
       | "gateway:datetime"
       | "gateway:web_search"
       | "gateway:web_fetch"
@@ -2258,7 +2254,7 @@ export type CreateChatCompletionParams = {
             timezone?: string;
           };
           timezone?: string;
-          type: "gateway:datetime";
+          type: "phaseo:datetime" | "gateway:datetime";
         }
       | {
           include_highlights?: boolean;
@@ -2269,14 +2265,34 @@ export type CreateChatCompletionParams = {
             include_text?: boolean;
             max_results?: number;
           };
-          type: "gateway:web_search";
+          type: "phaseo:web_search" | "gateway:web_search";
         }
       | {
           max_chars?: number;
           parameters?: {
             max_chars?: number;
           };
-          type: "gateway:web_fetch";
+          type: "phaseo:web_fetch" | "gateway:web_fetch";
+        }
+      | {
+          parameters?: {
+            [key: string]: unknown;
+          };
+          type: "phaseo:subagent";
+        }
+      | {
+          parameters?: {
+            analysis_models: string[];
+            model?: string;
+            [key: string]: unknown;
+          };
+          type: "phaseo:fusion";
+        }
+      | {
+          parameters?: {
+            max_results?: number;
+          };
+          type: "phaseo:search_models";
         }[];
     top_logprobs?: number;
     top_p?: number;
@@ -2321,13 +2337,7 @@ export async function createChatCompletion(
             input_audio: {
               data?: string;
               format?:
-                | "wav"
-                | "mp3"
-                | "flac"
-                | "m4a"
-                | "ogg"
-                | "pcm16"
-                | "pcm24";
+                "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
             };
             type: "input_audio";
           }
@@ -2375,7 +2385,13 @@ export async function createChatCompletion(
     completion_tokens?: number;
     prompt_tokens?: number;
     server_tool_use?: {
+      advisor_requests?: number;
+      apply_patch_requests?: number;
       datetime_requests?: number;
+      fusion_requests?: number;
+      image_generation_requests?: number;
+      search_models_requests?: number;
+      subagent_requests?: number;
       web_fetch_requests?: number;
       web_search_requests?: number;
     };
@@ -2413,13 +2429,7 @@ export async function createChatCompletion(
               input_audio: {
                 data?: string;
                 format?:
-                  | "wav"
-                  | "mp3"
-                  | "flac"
-                  | "m4a"
-                  | "ogg"
-                  | "pcm16"
-                  | "pcm24";
+                  "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
               };
               type: "input_audio";
             }
@@ -2467,7 +2477,13 @@ export async function createChatCompletion(
       completion_tokens?: number;
       prompt_tokens?: number;
       server_tool_use?: {
+        advisor_requests?: number;
+        apply_patch_requests?: number;
         datetime_requests?: number;
+        fusion_requests?: number;
+        image_generation_requests?: number;
+        search_models_requests?: number;
+        subagent_requests?: number;
         web_fetch_requests?: number;
         web_search_requests?: number;
       };
@@ -2652,7 +2668,13 @@ export async function createEmbedding(
     completion_tokens?: number;
     prompt_tokens?: number;
     server_tool_use?: {
+      advisor_requests?: number;
+      apply_patch_requests?: number;
       datetime_requests?: number;
+      fusion_requests?: number;
+      image_generation_requests?: number;
+      search_models_requests?: number;
+      subagent_requests?: number;
       web_fetch_requests?: number;
       web_search_requests?: number;
     };
@@ -2673,7 +2695,13 @@ export async function createEmbedding(
       completion_tokens?: number;
       prompt_tokens?: number;
       server_tool_use?: {
+        advisor_requests?: number;
+        apply_patch_requests?: number;
         datetime_requests?: number;
+        fusion_requests?: number;
+        image_generation_requests?: number;
+        search_models_requests?: number;
+        subagent_requests?: number;
         web_fetch_requests?: number;
         web_search_requests?: number;
       };
@@ -3180,7 +3208,13 @@ export async function createRerank(
     completion_tokens?: number;
     prompt_tokens?: number;
     server_tool_use?: {
+      advisor_requests?: number;
+      apply_patch_requests?: number;
       datetime_requests?: number;
+      fusion_requests?: number;
+      image_generation_requests?: number;
+      search_models_requests?: number;
+      subagent_requests?: number;
       web_fetch_requests?: number;
       web_search_requests?: number;
     };
@@ -3207,7 +3241,13 @@ export async function createRerank(
       completion_tokens?: number;
       prompt_tokens?: number;
       server_tool_use?: {
+        advisor_requests?: number;
+        apply_patch_requests?: number;
         datetime_requests?: number;
+        fusion_requests?: number;
+        image_generation_requests?: number;
+        search_models_requests?: number;
+        subagent_requests?: number;
         web_fetch_requests?: number;
         web_search_requests?: number;
       };
@@ -3342,7 +3382,7 @@ export type CreateResponseParams = {
       summary?: "auto" | "concise" | "detailed";
     };
     safety_identifier?: string | null;
-    service_tier?: "standard" | "priority" | "flex" | "batch";
+    service_tier?: "standard" | "fast" | "priority" | "flex" | "batch";
     session_id?: string;
     store?: boolean;
     stream?: boolean;
@@ -3352,6 +3392,12 @@ export type CreateResponseParams = {
       | "auto"
       | "none"
       | "required"
+      | "phaseo:datetime"
+      | "phaseo:web_search"
+      | "phaseo:web_fetch"
+      | "phaseo:subagent"
+      | "phaseo:fusion"
+      | "phaseo:search_models"
       | "gateway:datetime"
       | "gateway:web_search"
       | "gateway:web_fetch"
@@ -3371,7 +3417,7 @@ export type CreateResponseParams = {
             timezone?: string;
           };
           timezone?: string;
-          type: "gateway:datetime";
+          type: "phaseo:datetime" | "gateway:datetime";
         }
       | {
           include_highlights?: boolean;
@@ -3382,14 +3428,34 @@ export type CreateResponseParams = {
             include_text?: boolean;
             max_results?: number;
           };
-          type: "gateway:web_search";
+          type: "phaseo:web_search" | "gateway:web_search";
         }
       | {
           max_chars?: number;
           parameters?: {
             max_chars?: number;
           };
-          type: "gateway:web_fetch";
+          type: "phaseo:web_fetch" | "gateway:web_fetch";
+        }
+      | {
+          parameters?: {
+            [key: string]: unknown;
+          };
+          type: "phaseo:subagent";
+        }
+      | {
+          parameters?: {
+            analysis_models: string[];
+            model?: string;
+            [key: string]: unknown;
+          };
+          type: "phaseo:fusion";
+        }
+      | {
+          parameters?: {
+            max_results?: number;
+          };
+          type: "phaseo:search_models";
         }[];
     top_p?: number;
     truncation?: "auto" | "disabled";
@@ -3406,9 +3472,17 @@ export async function createResponse(
   args: CreateResponseParams = {},
 ): Promise<{
   content?: {}[];
+  cost_cents?: number;
+  cost_nanos?: number;
   created?: number;
+  currency?: string;
+  finish_reason?: string | null;
   id?: string;
+  meta?: {
+    [key: string]: unknown;
+  };
   model?: string;
+  nativeResponseId?: string | null;
   object?: string;
   output?: {
     arguments?: string;
@@ -3470,14 +3544,26 @@ export async function createResponse(
     role?: string;
     type?: string;
   }[];
+  pricing_lines?: {
+    [key: string]: unknown;
+  }[];
+  provider?: string;
+  provider_id?: string;
   role?: string;
+  status?: "completed" | "failed" | "incomplete";
   stop_reason?: string;
   type?: string;
   usage?: {
     completion_tokens?: number;
     prompt_tokens?: number;
     server_tool_use?: {
+      advisor_requests?: number;
+      apply_patch_requests?: number;
       datetime_requests?: number;
+      fusion_requests?: number;
+      image_generation_requests?: number;
+      search_models_requests?: number;
+      subagent_requests?: number;
       web_fetch_requests?: number;
       web_search_requests?: number;
     };
@@ -3488,9 +3574,17 @@ export async function createResponse(
   const resolvedPath = "/responses";
   return client.request<{
     content?: {}[];
+    cost_cents?: number;
+    cost_nanos?: number;
     created?: number;
+    currency?: string;
+    finish_reason?: string | null;
     id?: string;
+    meta?: {
+      [key: string]: unknown;
+    };
     model?: string;
+    nativeResponseId?: string | null;
     object?: string;
     output?: {
       arguments?: string;
@@ -3552,14 +3646,26 @@ export async function createResponse(
       role?: string;
       type?: string;
     }[];
+    pricing_lines?: {
+      [key: string]: unknown;
+    }[];
+    provider?: string;
+    provider_id?: string;
     role?: string;
+    status?: "completed" | "failed" | "incomplete";
     stop_reason?: string;
     type?: string;
     usage?: {
       completion_tokens?: number;
       prompt_tokens?: number;
       server_tool_use?: {
+        advisor_requests?: number;
+        apply_patch_requests?: number;
         datetime_requests?: number;
+        fusion_requests?: number;
+        image_generation_requests?: number;
+        search_models_requests?: number;
+        subagent_requests?: number;
         web_fetch_requests?: number;
         web_search_requests?: number;
       };
@@ -3648,6 +3754,16 @@ export type CreateTranscriptionParams = {
   body?: {
     audio_b64?: string;
     audio_url?: string;
+    chunking_strategy?:
+      | "auto"
+      | {
+          prefix_padding_ms?: number;
+          silence_duration_ms?: number;
+          threshold?: number;
+          type: "server_vad";
+        };
+    known_speaker_names?: string[];
+    known_speaker_references?: string[];
     language?: string;
     model: string;
     provider?: {
@@ -3911,12 +4027,7 @@ export async function createVideo(
   last_webhook_progress?: number | null;
   last_webhook_progress_at?: string | null;
   lifecycle_status?:
-    | "pending"
-    | "running"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
   model?: string;
   native_video_id?: string | null;
   next_webhook_retry_at?: string | null;
@@ -3941,12 +4052,7 @@ export async function createVideo(
   size?: string;
   started_at?: number | string | null;
   status?:
-    | "queued"
-    | "processing"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "queued" | "processing" | "completed" | "failed" | "cancelled" | "expired";
   usage?: {
     cost?: number;
     is_byok?: boolean;
@@ -3972,10 +4078,7 @@ export async function createVideo(
       delivered_events?: number;
       last_attempt_at?: string | null;
       last_attempt_status?:
-        | "delivered"
-        | "scheduled_retry"
-        | "failed_permanently"
-        | null;
+        "delivered" | "scheduled_retry" | "failed_permanently" | null;
       last_delivered_at?: string | null;
       last_error_message?: string | null;
       last_failure_at?: string | null;
@@ -4034,12 +4137,7 @@ export async function createVideo(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     model?: string;
     native_video_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -4095,10 +4193,7 @@ export async function createVideo(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -4247,12 +4342,7 @@ export async function createVideoAlias(
   last_webhook_progress?: number | null;
   last_webhook_progress_at?: string | null;
   lifecycle_status?:
-    | "pending"
-    | "running"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
   model?: string;
   native_video_id?: string | null;
   next_webhook_retry_at?: string | null;
@@ -4277,12 +4367,7 @@ export async function createVideoAlias(
   size?: string;
   started_at?: number | string | null;
   status?:
-    | "queued"
-    | "processing"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "queued" | "processing" | "completed" | "failed" | "cancelled" | "expired";
   usage?: {
     cost?: number;
     is_byok?: boolean;
@@ -4308,10 +4393,7 @@ export async function createVideoAlias(
       delivered_events?: number;
       last_attempt_at?: string | null;
       last_attempt_status?:
-        | "delivered"
-        | "scheduled_retry"
-        | "failed_permanently"
-        | null;
+        "delivered" | "scheduled_retry" | "failed_permanently" | null;
       last_delivered_at?: string | null;
       last_error_message?: string | null;
       last_failure_at?: string | null;
@@ -4370,12 +4452,7 @@ export async function createVideoAlias(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     model?: string;
     native_video_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -4431,10 +4508,7 @@ export async function createVideoAlias(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -4481,7 +4555,7 @@ export async function createVideoDownloadUrl(
   expires_at?: number;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.video_id))}/download_url`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}/download_url`;
   return client.request<{
     download_url?: string;
     expires_at?: number;
@@ -4518,7 +4592,7 @@ export async function createVideoDownloadUrlAlias(
   expires_at?: number;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.video_id))}/download_url`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}/download_url`;
   return client.request<{
     download_url?: string;
     expires_at?: number;
@@ -4596,7 +4670,7 @@ export async function deleteApiKey(
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/keys/${encodeURIComponent(String(path?.id))}`;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path?.["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -4629,7 +4703,7 @@ export async function deleteVideo(
   object?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.video_id))}`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}`;
   return client.request<{
     deleted?: boolean;
     id?: string;
@@ -4664,7 +4738,7 @@ export async function deleteVideoAlias(
   object?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.video_id))}`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}`;
   return client.request<{
     deleted?: boolean;
     id?: string;
@@ -4697,7 +4771,7 @@ export async function deleteWorkspace(
   deleted: true;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.id))}`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -5077,7 +5151,7 @@ export async function getApiKey(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/keys/${encodeURIComponent(String(path?.id))}`;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path?.["id"]))}`;
   return client.request<{
     data: {
       created_at: string | null;
@@ -5350,7 +5424,7 @@ export async function getMusicGeneration(
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/music/generate/${encodeURIComponent(String(path?.music_id))}`;
+  const resolvedPath = `/music/generate/${encodeURIComponent(String(path?.["music_id"]))}`;
   return client.request<{
     [key: string]: unknown;
   }>({
@@ -5381,7 +5455,7 @@ export async function getMusicGenerationAlias(
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/music/generations/${encodeURIComponent(String(path?.music_id))}`;
+  const resolvedPath = `/music/generations/${encodeURIComponent(String(path?.["music_id"]))}`;
   return client.request<{
     [key: string]: unknown;
   }>({
@@ -5416,7 +5490,7 @@ export async function getProviderDerankStatus(
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/health/providers/${encodeURIComponent(String(path?.provider_id))}/derank`;
+  const resolvedPath = `/health/providers/${encodeURIComponent(String(path?.["provider_id"]))}/derank`;
   return client.request<{
     [key: string]: unknown;
   }>({
@@ -5485,12 +5559,7 @@ export async function getVideo(
   last_webhook_progress?: number | null;
   last_webhook_progress_at?: string | null;
   lifecycle_status?:
-    | "pending"
-    | "running"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
   model?: string;
   native_video_id?: string | null;
   next_webhook_retry_at?: string | null;
@@ -5515,12 +5584,7 @@ export async function getVideo(
   size?: string;
   started_at?: number | string | null;
   status?:
-    | "queued"
-    | "processing"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "queued" | "processing" | "completed" | "failed" | "cancelled" | "expired";
   usage?: {
     cost?: number;
     is_byok?: boolean;
@@ -5546,10 +5610,7 @@ export async function getVideo(
       delivered_events?: number;
       last_attempt_at?: string | null;
       last_attempt_status?:
-        | "delivered"
-        | "scheduled_retry"
-        | "failed_permanently"
-        | null;
+        "delivered" | "scheduled_retry" | "failed_permanently" | null;
       last_delivered_at?: string | null;
       last_error_message?: string | null;
       last_failure_at?: string | null;
@@ -5565,7 +5626,7 @@ export async function getVideo(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.video_id))}`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}`;
   return client.request<{
     asset?: {
       bytes?: number;
@@ -5608,12 +5669,7 @@ export async function getVideo(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     model?: string;
     native_video_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -5669,10 +5725,7 @@ export async function getVideo(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -5752,12 +5805,7 @@ export async function getVideoAlias(
   last_webhook_progress?: number | null;
   last_webhook_progress_at?: string | null;
   lifecycle_status?:
-    | "pending"
-    | "running"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
   model?: string;
   native_video_id?: string | null;
   next_webhook_retry_at?: string | null;
@@ -5782,12 +5830,7 @@ export async function getVideoAlias(
   size?: string;
   started_at?: number | string | null;
   status?:
-    | "queued"
-    | "processing"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "queued" | "processing" | "completed" | "failed" | "cancelled" | "expired";
   usage?: {
     cost?: number;
     is_byok?: boolean;
@@ -5813,10 +5856,7 @@ export async function getVideoAlias(
       delivered_events?: number;
       last_attempt_at?: string | null;
       last_attempt_status?:
-        | "delivered"
-        | "scheduled_retry"
-        | "failed_permanently"
-        | null;
+        "delivered" | "scheduled_retry" | "failed_permanently" | null;
       last_delivered_at?: string | null;
       last_error_message?: string | null;
       last_failure_at?: string | null;
@@ -5832,7 +5872,7 @@ export async function getVideoAlias(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.video_id))}`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}`;
   return client.request<{
     asset?: {
       bytes?: number;
@@ -5875,12 +5915,7 @@ export async function getVideoAlias(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     model?: string;
     native_video_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -5936,10 +5971,7 @@ export async function getVideoAlias(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -5979,7 +6011,7 @@ export async function getVideoContent(
   args: GetVideoContentParams = {},
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/videos/${encodeURIComponent(String(path?.video_id))}/content`;
+  const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -6006,7 +6038,7 @@ export async function getVideoContentAlias(
   args: GetVideoContentAliasParams = {},
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.video_id))}/content`;
+  const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -6042,7 +6074,7 @@ export async function getWorkspace(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.id))}`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}`;
   return client.request<{
     data: {
       created_at: string | null;
@@ -6145,6 +6177,10 @@ export async function listBatchCapabilities(
 ): Promise<{
   data?: {
     documentation_url?: string;
+    endpoints?: {
+      endpoint: string;
+      mode: "native" | "translated";
+    }[];
     gateway_input_modes?: "file" | "requests"[];
     id?: string;
     name?: string;
@@ -6159,6 +6195,10 @@ export async function listBatchCapabilities(
   return client.request<{
     data?: {
       documentation_url?: string;
+      endpoints?: {
+        endpoint: string;
+        mode: "native" | "translated";
+      }[];
       gateway_input_modes?: "file" | "requests"[];
       id?: string;
       name?: string;
@@ -6192,6 +6232,10 @@ export async function listBatchCapabilitiesAlias(
 ): Promise<{
   data?: {
     documentation_url?: string;
+    endpoints?: {
+      endpoint: string;
+      mode: "native" | "translated";
+    }[];
     gateway_input_modes?: "file" | "requests"[];
     id?: string;
     name?: string;
@@ -6206,6 +6250,10 @@ export async function listBatchCapabilitiesAlias(
   return client.request<{
     data?: {
       documentation_url?: string;
+      endpoints?: {
+        endpoint: string;
+        mode: "native" | "translated";
+      }[];
       gateway_input_modes?: "file" | "requests"[];
       id?: string;
       name?: string;
@@ -6288,12 +6336,7 @@ export async function listBatches(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     metadata?: {};
     native_batch_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -6313,6 +6356,15 @@ export async function listBatches(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -6333,10 +6385,7 @@ export async function listBatches(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -6431,6 +6480,15 @@ export async function listBatches(
       request_id?: string;
       session_id?: string;
       status?: string;
+      usage?: {
+        cost_nanos?: number | null;
+        cost_usd?: number | null;
+        currency?: string;
+        input_tokens?: number | null;
+        output_tokens?: number | null;
+        requests?: number | null;
+        total_tokens?: number | null;
+      };
       webhook?: {
         attempts?: {
           attempt_number?: number;
@@ -6451,10 +6509,7 @@ export async function listBatches(
           delivered_events?: number;
           last_attempt_at?: string | null;
           last_attempt_status?:
-            | "delivered"
-            | "scheduled_retry"
-            | "failed_permanently"
-            | null;
+            "delivered" | "scheduled_retry" | "failed_permanently" | null;
           last_delivered_at?: string | null;
           last_error_message?: string | null;
           last_failure_at?: string | null;
@@ -6547,12 +6602,7 @@ export async function listBatchesAlias(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     metadata?: {};
     native_batch_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -6572,6 +6622,15 @@ export async function listBatchesAlias(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -6592,10 +6651,7 @@ export async function listBatchesAlias(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -6690,6 +6746,15 @@ export async function listBatchesAlias(
       request_id?: string;
       session_id?: string;
       status?: string;
+      usage?: {
+        cost_nanos?: number | null;
+        cost_usd?: number | null;
+        currency?: string;
+        input_tokens?: number | null;
+        output_tokens?: number | null;
+        requests?: number | null;
+        total_tokens?: number | null;
+      };
       webhook?: {
         attempts?: {
           attempt_number?: number;
@@ -6710,10 +6775,7 @@ export async function listBatchesAlias(
           delivered_events?: number;
           last_attempt_at?: string | null;
           last_attempt_status?:
-            | "delivered"
-            | "scheduled_retry"
-            | "failed_permanently"
-            | null;
+            "delivered" | "scheduled_retry" | "failed_permanently" | null;
           last_delivered_at?: string | null;
           last_error_message?: string | null;
           last_failure_at?: string | null;
@@ -7053,7 +7115,7 @@ export async function listBatchRequests(
   object?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/${encodeURIComponent(String(path?.batch_id))}/requests`;
+  const resolvedPath = `/batches/${encodeURIComponent(String(path?.["batch_id"]))}/requests`;
   return client.request<{
     batch_id?: string;
     data?: {
@@ -7150,7 +7212,7 @@ export async function listBatchRequestsAlias(
   object?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/${encodeURIComponent(String(path?.id))}/requests`;
+  const resolvedPath = `/batch/${encodeURIComponent(String(path?.["id"]))}/requests`;
   return client.request<{
     batch_id?: string;
     data?: {
@@ -7396,22 +7458,38 @@ export type ListEndpointsParams = {
 };
 
 /**
- * Lists currently exposed gateway endpoint IDs and sample models.
+ * Lists capability-backed gateway endpoint IDs with public paths, modality collections, model counts, provider counts, and sample models.
  */
 export async function listEndpoints(
   client: Client,
   args: ListEndpointsParams = {},
 ): Promise<{
-  endpoints?: string[];
-  ok?: boolean;
-  sample_models?: string[];
+  data: {
+    capability_id: string;
+    collection: string;
+    id: string;
+    model_count: number;
+    provider_count: number;
+    public_path: string;
+  }[];
+  endpoints: string[];
+  ok: true;
+  sample_models: string[];
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = "/endpoints";
   return client.request<{
-    endpoints?: string[];
-    ok?: boolean;
-    sample_models?: string[];
+    data: {
+      capability_id: string;
+      collection: string;
+      id: string;
+      model_count: number;
+      provider_count: number;
+      public_path: string;
+    }[];
+    endpoints: string[];
+    ok: true;
+    sample_models: string[];
   }>({
     method: "GET",
     path: resolvedPath,
@@ -7446,6 +7524,157 @@ export async function listFiles(
   });
 }
 
+export type ListModelEndpointsParams = {
+  path?: {
+    author: string;
+    slug: string;
+  };
+  query?: {
+    availability?: "active" | "all";
+    capability_status?: string[];
+    model_routing_status?: string[];
+    provider?: string[];
+    provider_availability_reason?: string[];
+    provider_availability_status?: string[];
+    provider_routing_status?: string[];
+    provider_status?: string[];
+    status?: string[];
+    supported_parameters?: string[];
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns provider-specific endpoint rows for one model, including public paths, modalities, supported parameters, availability, routing state, provider model slugs, and endpoint pricing summaries.
+ */
+export async function listModelEndpoints(
+  client: Client,
+  args: ListModelEndpointsParams = {},
+): Promise<{
+  architecture?: {
+    [key: string]: unknown;
+  };
+  availability_mode: "active" | "all";
+  canonical_slug: string;
+  created?: number | null;
+  description?: string;
+  endpoints: {
+    availability_reason: string;
+    availability_status: "active" | "coming_soon" | "inactive";
+    capability_id: string;
+    capability_status: string;
+    collection:
+      | "text"
+      | "images"
+      | "video"
+      | "audio"
+      | "embeddings"
+      | "rerank"
+      | "moderation"
+      | "ocr"
+      | "music"
+      | "batch"
+      | "files";
+    effective_from?: string | null;
+    effective_to?: string | null;
+    endpoint: string;
+    id: string;
+    input_modalities: string[];
+    is_active_gateway: boolean;
+    model_routing_status: string;
+    output_modalities: string[];
+    pricing: {
+      [key: string]: string | null;
+    };
+    pricing_detail: {
+      [key: string]: unknown;
+    };
+    provider_id: string;
+    provider_model_slug?: string | null;
+    provider_name?: string | null;
+    provider_routing_status: string;
+    provider_status: string;
+    public_path: string;
+    supported_parameters: string[];
+    supported_parameters_detail: {
+      [key: string]: {
+        [key: string]: unknown;
+      };
+    };
+  }[];
+  id: string;
+  model_id: string;
+  name?: string | null;
+  ok: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/models/${encodeURIComponent(String(path?.["author"]))}/${encodeURIComponent(String(path?.["slug"]))}/endpoints`;
+  return client.request<{
+    architecture?: {
+      [key: string]: unknown;
+    };
+    availability_mode: "active" | "all";
+    canonical_slug: string;
+    created?: number | null;
+    description?: string;
+    endpoints: {
+      availability_reason: string;
+      availability_status: "active" | "coming_soon" | "inactive";
+      capability_id: string;
+      capability_status: string;
+      collection:
+        | "text"
+        | "images"
+        | "video"
+        | "audio"
+        | "embeddings"
+        | "rerank"
+        | "moderation"
+        | "ocr"
+        | "music"
+        | "batch"
+        | "files";
+      effective_from?: string | null;
+      effective_to?: string | null;
+      endpoint: string;
+      id: string;
+      input_modalities: string[];
+      is_active_gateway: boolean;
+      model_routing_status: string;
+      output_modalities: string[];
+      pricing: {
+        [key: string]: string | null;
+      };
+      pricing_detail: {
+        [key: string]: unknown;
+      };
+      provider_id: string;
+      provider_model_slug?: string | null;
+      provider_name?: string | null;
+      provider_routing_status: string;
+      provider_status: string;
+      public_path: string;
+      supported_parameters: string[];
+      supported_parameters_detail: {
+        [key: string]: {
+          [key: string]: unknown;
+        };
+      };
+    }[];
+    id: string;
+    model_id: string;
+    name?: string | null;
+    ok: true;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListModelsParams = {
   path?: Record<string, never>;
   query?: {
@@ -7454,6 +7683,7 @@ export type ListModelsParams = {
     endpoints?: string[];
     feed?: "json" | "rss" | "atom";
     format?: "json" | "rss" | "atom";
+    input_modalities?: string[];
     input_types?: string[];
     limit?: number;
     model_routing_status?: string[];
@@ -7559,6 +7789,7 @@ export type ListModelsParams = {
       | "windsurf"
       | "xiaomi"
       | "z-ai"[];
+    output_modalities?: string[];
     output_types?: string[];
     params?: string[];
     provider?: string[];
@@ -7567,6 +7798,7 @@ export type ListModelsParams = {
     provider_routing_status?: string[];
     provider_status?: string[];
     status?: string[];
+    supported_parameters?: string[];
   };
   headers?: Record<string, never>;
   body?: never;
@@ -7671,6 +7903,7 @@ export async function listModels(
       effective_from?: string | null;
       effective_to?: string | null;
       endpoints: string[];
+      input_modalities?: string[];
       is_active_gateway: boolean;
       model_routing_status:
         | "active"
@@ -7678,12 +7911,14 @@ export async function listModels(
         | "deranked_lvl2"
         | "deranked_lvl3"
         | "disabled";
+      output_modalities?: string[];
       params: string[];
       params_detail?: {
         [key: string]: {
           [key: string]: unknown;
         };
       };
+      provider_model_slug?: string | null;
       provider_routing_status:
         | "active"
         | "deranked_lvl1"
@@ -7830,6 +8065,7 @@ export async function listModels(
         effective_from?: string | null;
         effective_to?: string | null;
         endpoints: string[];
+        input_modalities?: string[];
         is_active_gateway: boolean;
         model_routing_status:
           | "active"
@@ -7837,12 +8073,14 @@ export async function listModels(
           | "deranked_lvl2"
           | "deranked_lvl3"
           | "disabled";
+        output_modalities?: string[];
         params: string[];
         params_detail?: {
           [key: string]: {
             [key: string]: unknown;
           };
         };
+        provider_model_slug?: string | null;
         provider_routing_status:
           | "active"
           | "deranked_lvl1"
@@ -8266,6 +8504,7 @@ export async function listTeamModels(
       effective_from?: string | null;
       effective_to?: string | null;
       endpoints: string[];
+      input_modalities?: string[];
       is_active_gateway: boolean;
       model_routing_status:
         | "active"
@@ -8273,12 +8512,14 @@ export async function listTeamModels(
         | "deranked_lvl2"
         | "deranked_lvl3"
         | "disabled";
+      output_modalities?: string[];
       params: string[];
       params_detail?: {
         [key: string]: {
           [key: string]: unknown;
         };
       };
+      provider_model_slug?: string | null;
       provider_routing_status:
         | "active"
         | "deranked_lvl1"
@@ -8425,6 +8666,7 @@ export async function listTeamModels(
         effective_from?: string | null;
         effective_to?: string | null;
         endpoints: string[];
+        input_modalities?: string[];
         is_active_gateway: boolean;
         model_routing_status:
           | "active"
@@ -8432,12 +8674,14 @@ export async function listTeamModels(
           | "deranked_lvl2"
           | "deranked_lvl3"
           | "disabled";
+        output_modalities?: string[];
         params: string[];
         params_detail?: {
           [key: string]: {
             [key: string]: unknown;
           };
         };
+        provider_model_slug?: string | null;
         provider_routing_status:
           | "active"
           | "deranked_lvl1"
@@ -8764,12 +9008,7 @@ export async function listVideos(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     model?: string;
     native_video_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -8825,10 +9064,7 @@ export async function listVideos(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -8954,10 +9190,7 @@ export async function listVideos(
           delivered_events?: number;
           last_attempt_at?: string | null;
           last_attempt_status?:
-            | "delivered"
-            | "scheduled_retry"
-            | "failed_permanently"
-            | null;
+            "delivered" | "scheduled_retry" | "failed_permanently" | null;
           last_delivered_at?: string | null;
           last_error_message?: string | null;
           last_failure_at?: string | null;
@@ -9044,12 +9277,7 @@ export async function listVideosAlias(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     model?: string;
     native_video_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -9105,10 +9333,7 @@ export async function listVideosAlias(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -9234,10 +9459,7 @@ export async function listVideosAlias(
           delivered_events?: number;
           last_attempt_at?: string | null;
           last_attempt_status?:
-            | "delivered"
-            | "scheduled_retry"
-            | "failed_permanently"
-            | null;
+            "delivered" | "scheduled_retry" | "failed_permanently" | null;
           last_delivered_at?: string | null;
           last_error_message?: string | null;
           last_failure_at?: string | null;
@@ -9337,7 +9559,7 @@ export async function openAsyncJobWebSocket(
   args: OpenAsyncJobWebSocketParams = {},
 ): Promise<unknown> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/async/${encodeURIComponent(String(path?.kind))}/${encodeURIComponent(String(path?.id))}/ws`;
+  const resolvedPath = `/async/${encodeURIComponent(String(path?.["kind"]))}/${encodeURIComponent(String(path?.["id"]))}/ws`;
   return client.request<unknown>({
     method: "GET",
     path: resolvedPath,
@@ -9409,12 +9631,7 @@ export async function retrieveBatch(
   last_webhook_progress?: number | null;
   last_webhook_progress_at?: string | null;
   lifecycle_status?:
-    | "pending"
-    | "running"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
   metadata?: {};
   native_batch_id?: string | null;
   next_webhook_retry_at?: string | null;
@@ -9434,6 +9651,15 @@ export async function retrieveBatch(
   request_id?: string;
   session_id?: string;
   status?: string;
+  usage?: {
+    cost_nanos?: number | null;
+    cost_usd?: number | null;
+    currency?: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    requests?: number | null;
+    total_tokens?: number | null;
+  };
   webhook?: {
     attempts?: {
       attempt_number?: number;
@@ -9454,10 +9680,7 @@ export async function retrieveBatch(
       delivered_events?: number;
       last_attempt_at?: string | null;
       last_attempt_status?:
-        | "delivered"
-        | "scheduled_retry"
-        | "failed_permanently"
-        | null;
+        "delivered" | "scheduled_retry" | "failed_permanently" | null;
       last_delivered_at?: string | null;
       last_error_message?: string | null;
       last_failure_at?: string | null;
@@ -9473,7 +9696,7 @@ export async function retrieveBatch(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/${encodeURIComponent(String(path?.batch_id))}`;
+  const resolvedPath = `/batches/${encodeURIComponent(String(path?.["batch_id"]))}`;
   return client.request<{
     billing?: {
       billed?: boolean;
@@ -9521,12 +9744,7 @@ export async function retrieveBatch(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     metadata?: {};
     native_batch_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -9546,6 +9764,15 @@ export async function retrieveBatch(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -9566,10 +9793,7 @@ export async function retrieveBatch(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -9654,12 +9878,7 @@ export async function retrieveBatchAlias(
   last_webhook_progress?: number | null;
   last_webhook_progress_at?: string | null;
   lifecycle_status?:
-    | "pending"
-    | "running"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
   metadata?: {};
   native_batch_id?: string | null;
   next_webhook_retry_at?: string | null;
@@ -9679,6 +9898,15 @@ export async function retrieveBatchAlias(
   request_id?: string;
   session_id?: string;
   status?: string;
+  usage?: {
+    cost_nanos?: number | null;
+    cost_usd?: number | null;
+    currency?: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    requests?: number | null;
+    total_tokens?: number | null;
+  };
   webhook?: {
     attempts?: {
       attempt_number?: number;
@@ -9699,10 +9927,7 @@ export async function retrieveBatchAlias(
       delivered_events?: number;
       last_attempt_at?: string | null;
       last_attempt_status?:
-        | "delivered"
-        | "scheduled_retry"
-        | "failed_permanently"
-        | null;
+        "delivered" | "scheduled_retry" | "failed_permanently" | null;
       last_delivered_at?: string | null;
       last_error_message?: string | null;
       last_failure_at?: string | null;
@@ -9718,7 +9943,7 @@ export async function retrieveBatchAlias(
   websocket_url?: string;
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/${encodeURIComponent(String(path?.id))}`;
+  const resolvedPath = `/batch/${encodeURIComponent(String(path?.["id"]))}`;
   return client.request<{
     billing?: {
       billed?: boolean;
@@ -9766,12 +9991,7 @@ export async function retrieveBatchAlias(
     last_webhook_progress?: number | null;
     last_webhook_progress_at?: string | null;
     lifecycle_status?:
-      | "pending"
-      | "running"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
+      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
     metadata?: {};
     native_batch_id?: string | null;
     next_webhook_retry_at?: string | null;
@@ -9791,6 +10011,15 @@ export async function retrieveBatchAlias(
     request_id?: string;
     session_id?: string;
     status?: string;
+    usage?: {
+      cost_nanos?: number | null;
+      cost_usd?: number | null;
+      currency?: string;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
+      requests?: number | null;
+      total_tokens?: number | null;
+    };
     webhook?: {
       attempts?: {
         attempt_number?: number;
@@ -9811,10 +10040,7 @@ export async function retrieveBatchAlias(
         delivered_events?: number;
         last_attempt_at?: string | null;
         last_attempt_status?:
-          | "delivered"
-          | "scheduled_retry"
-          | "failed_permanently"
-          | null;
+          "delivered" | "scheduled_retry" | "failed_permanently" | null;
         last_delivered_at?: string | null;
         last_error_message?: string | null;
         last_failure_at?: string | null;
@@ -9863,7 +10089,7 @@ export async function retrieveBatchFile(
   status_details?: {};
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/files/${encodeURIComponent(String(path?.file_id))}`;
+  const resolvedPath = `/batches/files/${encodeURIComponent(String(path?.["file_id"]))}`;
   return client.request<{
     bytes?: number;
     created_at?: number;
@@ -9908,7 +10134,7 @@ export async function retrieveBatchFileAlias(
   status_details?: {};
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/files/${encodeURIComponent(String(path?.file_id))}`;
+  const resolvedPath = `/batch/files/${encodeURIComponent(String(path?.["file_id"]))}`;
   return client.request<{
     bytes?: number;
     created_at?: number;
@@ -9944,7 +10170,7 @@ export async function retrieveBatchFileContent(
   args: RetrieveBatchFileContentParams = {},
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batches/files/${encodeURIComponent(String(path?.file_id))}/content`;
+  const resolvedPath = `/batches/files/${encodeURIComponent(String(path?.["file_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -9971,7 +10197,7 @@ export async function retrieveBatchFileContentAlias(
   args: RetrieveBatchFileContentAliasParams = {},
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/batch/files/${encodeURIComponent(String(path?.file_id))}/content`;
+  const resolvedPath = `/batch/files/${encodeURIComponent(String(path?.["file_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -10007,7 +10233,7 @@ export async function retrieveFile(
   status_details?: {};
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/files/${encodeURIComponent(String(path?.file_id))}`;
+  const resolvedPath = `/files/${encodeURIComponent(String(path?.["file_id"]))}`;
   return client.request<{
     bytes?: number;
     created_at?: number;
@@ -10043,7 +10269,7 @@ export async function retrieveFileContent(
   args: RetrieveFileContentParams = {},
 ): Promise<Blob> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/files/${encodeURIComponent(String(path?.file_id))}/content`;
+  const resolvedPath = `/files/${encodeURIComponent(String(path?.["file_id"]))}/content`;
   return client.request<Blob>({
     method: "GET",
     path: resolvedPath,
@@ -10097,7 +10323,7 @@ export async function updateApiKey(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/keys/${encodeURIComponent(String(path?.id))}`;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path?.["id"]))}`;
   return client.request<{
     data: {
       created_at: string | null;
@@ -10154,7 +10380,7 @@ export async function updateWorkspace(
   };
 }> {
   const { path, query, headers, body } = args;
-  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.id))}`;
+  const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}`;
   return client.request<{
     data: {
       created_at: string | null;

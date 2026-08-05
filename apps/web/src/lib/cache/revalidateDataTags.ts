@@ -1,7 +1,4 @@
-import { revalidatePath, revalidateTag, updateTag } from "next/cache";
-
-const STALE_WHILE_REVALIDATE = "max" as const;
-const EXPIRE_IMMEDIATELY = { expire: 0 } as const;
+import { revalidatePath, updateTag } from "next/cache";
 
 type RevalidateModelDataTagOptions = {
 	modelId?: string | null;
@@ -73,6 +70,8 @@ const MODEL_API_GLOBAL_TAGS = [
 	"data:data_api_provider_models",
 	"data:data_api_models",
 	"data:data_api_pricing_rules",
+	"web-api-models",
+	"web-api-models-v2",
 	"data:gateway_requests",
 	"data:gateway_usage_rollups",
 	"data:gateway_provider_health_states",
@@ -161,12 +160,6 @@ const PUBLIC_MODEL_CATALOGUE_GLOBAL_TAGS = [
 	"frontend:og-payload",
 ] as const;
 
-function revalidateTagList(tags: readonly string[]) {
-	for (const tag of tags) {
-		revalidateTag(tag, STALE_WHILE_REVALIDATE);
-	}
-}
-
 function expireTagList(tags: readonly string[]) {
 	for (const tag of new Set(tags)) {
 		updateTag(tag);
@@ -243,86 +236,63 @@ export function expirePublicModelCatalogueCache(
 export function revalidateModelDataOnlyTags(
 	options: RevalidateModelDataTagOptions = {}
 ) {
-	revalidateTagList(MODEL_DATA_GLOBAL_TAGS);
+	const tags: string[] = [...MODEL_DATA_GLOBAL_TAGS];
 
 	for (const organisationId of options.organisationIds ?? []) {
 		if (!organisationId) continue;
-		revalidateTag(
+		tags.push(
 			`organisation:header:${organisationId}`,
-			STALE_WHILE_REVALIDATE
-		);
-		revalidateTag(
 			`data:organisations:${organisationId}`,
-			STALE_WHILE_REVALIDATE
 		);
 	}
 
 	if (options.modelId) {
-		revalidateTag(`model:data:${options.modelId}`, STALE_WHILE_REVALIDATE);
-		revalidateTag(`model:header:${options.modelId}`, STALE_WHILE_REVALIDATE);
-		revalidateTag(`data:models:${options.modelId}`, STALE_WHILE_REVALIDATE);
-		revalidateTag(
+		tags.push(
+			`model:data:${options.modelId}`,
+			`model:header:${options.modelId}`,
+			`data:models:${options.modelId}`,
 			`data:benchmarks:model:${options.modelId}`,
-			STALE_WHILE_REVALIDATE
-		);
-		revalidateTag(
 			`model:benchmarks:highlights:${options.modelId}`,
-			STALE_WHILE_REVALIDATE
-		);
-		revalidateTag(
 			`model:benchmarks:table:${options.modelId}`,
-			STALE_WHILE_REVALIDATE
-		);
-		revalidateTag(
 			`model:benchmarks:comparisons:${options.modelId}`,
-			STALE_WHILE_REVALIDATE
 		);
 	}
 
 	for (const benchmarkId of options.benchmarkIds ?? []) {
 		if (!benchmarkId) continue;
-		revalidateTag(`data:benchmarks:${benchmarkId}`, STALE_WHILE_REVALIDATE);
+		tags.push(`data:benchmarks:${benchmarkId}`);
 		if (options.modelId) {
-			revalidateTag(
+			tags.push(
 				`data:benchmarks:model:${options.modelId}:benchmark:${benchmarkId}`,
-				STALE_WHILE_REVALIDATE
 			);
 		}
 	}
+
+	expireTagList(tags);
 }
 
 export function revalidateModelApiInfoTags(
 	options: RevalidateModelDataTagOptions = {}
 ) {
 	const hasModelScope = Boolean(options.modelId);
+	const tags: string[] = [];
 	if (!hasModelScope) {
-		revalidateTagList(MODEL_API_GLOBAL_TAGS);
-		for (const tag of MODEL_CANONICAL_RESOLVER_TAGS) {
-			revalidateTag(tag, EXPIRE_IMMEDIATELY);
-		}
+		tags.push(...MODEL_API_GLOBAL_TAGS, ...MODEL_CANONICAL_RESOLVER_TAGS);
 	}
 
 	if (options.modelId) {
-		revalidateTag(`model:canonical:${options.modelId}`, EXPIRE_IMMEDIATELY);
-		revalidateTag(`model:api:${options.modelId}`, STALE_WHILE_REVALIDATE);
-		revalidateTag(
+		tags.push(
+			`model:canonical:${options.modelId}`,
+			`model:api:${options.modelId}`,
 			`model:pricing-history:${options.modelId}`,
-			STALE_WHILE_REVALIDATE
-		);
-		revalidateTag(
 			`model:performance:${options.modelId}`,
-			STALE_WHILE_REVALIDATE
-		);
-		revalidateTag(`data:model_apps:${options.modelId}`, STALE_WHILE_REVALIDATE);
-		revalidateTag(
+			`data:model_apps:${options.modelId}`,
 			`data:gateway_requests:model:${options.modelId}`,
-			STALE_WHILE_REVALIDATE
-		);
-		revalidateTag(
 			`data:gateway_usage_rollups:model:${options.modelId}`,
-			STALE_WHILE_REVALIDATE
 		);
 	}
+
+	expireTagList(tags);
 }
 
 /**
@@ -339,24 +309,13 @@ export function revalidateModelDataTags(
 export function revalidateBenchmarkDataTags(
 	options: RevalidateBenchmarkTagOptions = {}
 ) {
-	revalidateTag("data:benchmarks", STALE_WHILE_REVALIDATE);
-	revalidateTag("data:benchmarks:list", STALE_WHILE_REVALIDATE);
+	const tags = ["data:benchmarks", "data:benchmarks:list"];
 	if (options.modelId) {
-		revalidateTag(
+		tags.push(
 			`data:benchmarks:model:${options.modelId}`,
-			STALE_WHILE_REVALIDATE
-		);
-		revalidateTag(
 			`model:benchmarks:highlights:${options.modelId}`,
-			STALE_WHILE_REVALIDATE
-		);
-		revalidateTag(
 			`model:benchmarks:table:${options.modelId}`,
-			STALE_WHILE_REVALIDATE
-		);
-		revalidateTag(
 			`model:benchmarks:comparisons:${options.modelId}`,
-			STALE_WHILE_REVALIDATE
 		);
 	}
 
@@ -368,20 +327,21 @@ export function revalidateBenchmarkDataTags(
 	}
 
 	for (const benchmarkId of benchmarkIds) {
-		revalidateTag(`data:benchmarks:${benchmarkId}`, STALE_WHILE_REVALIDATE);
+		tags.push(`data:benchmarks:${benchmarkId}`);
 		if (options.modelId) {
-			revalidateTag(
+			tags.push(
 				`data:benchmarks:model:${options.modelId}:benchmark:${benchmarkId}`,
-				STALE_WHILE_REVALIDATE
 			);
 		}
 	}
+
+	expireTagList(tags);
 }
 
 export function revalidateProviderDataTags(
 	options: RevalidateProviderTagOptions = {}
 ) {
-	revalidateTagList(MODEL_API_GLOBAL_TAGS);
+	const tags: string[] = [...MODEL_API_GLOBAL_TAGS];
 
 	const providerIds = new Set<string>();
 	if (options.providerId) providerIds.add(options.providerId);
@@ -391,29 +351,23 @@ export function revalidateProviderDataTags(
 	}
 
 	for (const providerId of providerIds) {
-		revalidateTag(`data:api_providers:${providerId}`, STALE_WHILE_REVALIDATE);
-		revalidateTag(`api_provider:header:${providerId}`, STALE_WHILE_REVALIDATE);
-		revalidateTag(
+		tags.push(
+			`data:api_providers:${providerId}`,
+			`api_provider:header:${providerId}`,
 			`data:gateway_usage_rollups:provider:${providerId}`,
-			STALE_WHILE_REVALIDATE
-		);
-		revalidateTag(
 			`data:gateway_provider_health_states:provider:${providerId}`,
-			STALE_WHILE_REVALIDATE
-		);
-		revalidateTag(`data:top_apps:provider:${providerId}`, STALE_WHILE_REVALIDATE);
-		revalidateTag(
+			`data:top_apps:provider:${providerId}`,
 			`data:top_models:provider:${providerId}`,
-			STALE_WHILE_REVALIDATE
 		);
 	}
+
+	expireTagList(tags);
 }
 
 export function revalidateOrganisationDataTags(
 	options: RevalidateOrganisationTagOptions = {}
 ) {
-	revalidateTag("data:organisations", STALE_WHILE_REVALIDATE);
-	revalidateTag("data:organisations:list", STALE_WHILE_REVALIDATE);
+	const tags = ["data:organisations", "data:organisations:list"];
 
 	const organisationIds = new Set<string>();
 	if (options.organisationId) organisationIds.add(options.organisationId);
@@ -423,27 +377,28 @@ export function revalidateOrganisationDataTags(
 	}
 
 	for (const organisationId of organisationIds) {
-		revalidateTag(
+		tags.push(
 			`organisation:header:${organisationId}`,
-			STALE_WHILE_REVALIDATE
-		);
-		revalidateTag(
 			`data:organisations:${organisationId}`,
-			STALE_WHILE_REVALIDATE
 		);
 	}
+
+	expireTagList(tags);
 }
 
 export function revalidateAppDataTags(appIds: string[] = []) {
-	revalidateTag("data:apps", STALE_WHILE_REVALIDATE);
-	revalidateTag("data:app_details", STALE_WHILE_REVALIDATE);
-	revalidateTag("data:app_usage", STALE_WHILE_REVALIDATE);
-	revalidateTag("data:top_apps", STALE_WHILE_REVALIDATE);
-	revalidateTag("public-top-apps", STALE_WHILE_REVALIDATE);
+	const tags = [
+		"data:apps",
+		"data:app_details",
+		"data:app_usage",
+		"data:top_apps",
+		"public-top-apps",
+	];
 
 	for (const appId of appIds) {
 		if (!appId) continue;
-		revalidateTag(`data:app_details:${appId}`, STALE_WHILE_REVALIDATE);
-		revalidateTag(`data:app_usage:${appId}`, STALE_WHILE_REVALIDATE);
+		tags.push(`data:app_details:${appId}`, `data:app_usage:${appId}`);
 	}
+
+	expireTagList(tags);
 }

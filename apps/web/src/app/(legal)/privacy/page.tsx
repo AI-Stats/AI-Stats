@@ -15,7 +15,7 @@ export default async function PrivacyPage() {
 		<main className="container mx-auto space-y-8 px-4 py-10 text-sm leading-relaxed text-muted-foreground">
 			<header className="space-y-3">
 				<p className="text-xs text-muted-foreground/80">
-					Last updated: 7 July 2026
+					Last updated: 26 July 2026
 				</p>
 				<h1 className="text-3xl font-semibold text-foreground">
 					Privacy Policy
@@ -70,6 +70,10 @@ export default async function PrivacyPage() {
 					<li>
 						use the Phaseo Gateway to route requests to
 						third-party model providers; or
+					</li>
+					<li>
+						connect Phaseo to ChatGPT, Codex, or another
+						compatible MCP client; or
 					</li>
 					<li>
 						interact with us via email, support channels or other
@@ -216,7 +220,37 @@ export default async function PrivacyPage() {
 				</p>
 
 				<h3 className="mt-4 text-lg font-semibold text-foreground/80">
-					2.4 Cookies and similar technologies
+					2.4 Connected AI assistants and MCP clients
+				</h3>
+				<p className="mt-1 text-foreground/80">
+					If you connect the Phaseo plugin to ChatGPT, Codex, or
+					another compatible MCP client, you authorize that client
+					through OAuth to request the read-only Phaseo information
+					shown in its consent screen. Depending on the tool you ask
+					the client to use, Phaseo may return:
+				</p>
+				<ul className="mt-2 list-disc space-y-1 pl-5 text-foreground/80">
+					<li>model, provider, capability, and pricing information;</li>
+					<li>credit balance and aggregated usage analytics; or</li>
+					<li>
+						request metadata such as request identifiers, timestamps,
+						models, providers, token usage, cost, latency, status, and
+						error codes.
+					</li>
+				</ul>
+				<p className="mt-1 text-foreground/80">
+					The public Phaseo plugin does not return passwords, API-key
+					values, OAuth secrets, raw prompt or model-output content,
+					workspace or user identifiers, storage details, or replay
+					payloads. The connected client receives only the result of a
+					tool you or the client invokes within the permissions you
+					approved. Information already received by that client is
+					handled under the client provider&apos;s privacy policy and
+					retention practices.
+				</p>
+
+				<h3 className="mt-4 text-lg font-semibold text-foreground/80">
+					2.5 Cookies and similar technologies
 				</h3>
 				<p className="mt-1 text-foreground/80">
 					We use cookies and similar technologies (such as local
@@ -246,7 +280,7 @@ export default async function PrivacyPage() {
 				</p>
 
 				<h3 className="mt-4 text-lg font-semibold text-foreground/80">
-					2.5 Analytics and product telemetry
+					2.6 Analytics and product telemetry
 				</h3>
 				<p className="mt-1 text-foreground/80">
 					We may use third-party analytics and error tracking tools
@@ -377,6 +411,14 @@ export default async function PrivacyPage() {
 						data under their own terms and privacy policies.
 					</li>
 					<li>
+						<strong>Connected AI-assistant or MCP providers</strong> –
+						When you connect Phaseo and ask a connected client to use a
+						Phaseo tool, we return the requested read-only tool result to
+						that provider, such as OpenAI for ChatGPT or Codex. The
+						provider processes the result under its own terms and privacy
+						policy.
+					</li>
+					<li>
 						<strong>Public data you choose to share</strong> – If
 						you opt into public usage pages, share integrations, or
 						otherwise choose to publish certain information via AI
@@ -470,6 +512,14 @@ export default async function PrivacyPage() {
 					aggregated and fully anonymised may be kept for longer for
 					statistical purposes.
 				</p>
+				<p className="mt-2 text-foreground/80">
+					Using the Phaseo plugin does not create a separate long-term
+					copy of your Gateway records within Phaseo. Tool requests read
+					or compute against Phaseo data available to the authorized
+					service, including already-retained account and Gateway records
+					where applicable. A connected client may retain tool results
+					under its own retention policy.
+				</p>
 			</section>
 
 			<section aria-labelledby="privacy-rights">
@@ -524,10 +574,10 @@ export default async function PrivacyPage() {
 					account (settings, profile and API keys), or by contacting
 					us at{" "}
 					<a
-						href="mailto:privacy@phaseo.ai"
+						href="mailto:privacy@phaseo.app"
 						className="text-primary underline"
 					>
-						privacy@phaseo.ai
+						privacy@phaseo.app
 					</a>
 					. We may ask you to verify your identity before responding
 					to a request.
@@ -577,10 +627,10 @@ export default async function PrivacyPage() {
 					suspect compromise. If you believe your account has been
 					compromised, please contact us immediately at{" "}
 					<a
-						href="mailto:support@phaseo.ai"
+						href="mailto:support@phaseo.app"
 						className="text-primary underline"
 					>
-						support@phaseo.ai
+						support@phaseo.app
 					</a>
 					.
 				</p>
@@ -638,19 +688,19 @@ export default async function PrivacyPage() {
 					<li>
 						Email:{" "}
 						<a
-							href="mailto:privacy@phaseo.ai"
+							href="mailto:privacy@phaseo.app"
 							className="text-primary underline"
 						>
-							privacy@phaseo.ai
+							privacy@phaseo.app
 						</a>
 					</li>
 					<li>
 						Support:{" "}
 						<a
-							href="mailto:support@phaseo.ai"
+							href="mailto:support@phaseo.app"
 							className="text-primary underline"
 						>
-							support@phaseo.ai
+							support@phaseo.app
 						</a>
 					</li>
 				</ul>

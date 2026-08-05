@@ -109,6 +109,18 @@ export function computeCreditSnapshotTtlForContext(context: GatewayContextData):
 	return computeCreditSnapshotTtlSeconds(resolveBalanceUsd(context));
 }
 
+export function hasConfiguredKeyLimits(keyLimit: GatewayContextData["keyLimit"]): boolean {
+	const buckets = keyLimit?.buckets ?? null;
+	return [buckets?.daily, buckets?.weekly, buckets?.monthly].some((bucket) =>
+		Boolean(
+			bucket && (
+				Number(bucket.requestsLimit) > 0 ||
+				Number(bucket.costLimitNanos) > 0
+			),
+		),
+	);
+}
+
 /**
  * Compute adaptive TTL for dynamic data (key limits, buckets)
  * Respects Cloudflare KV 60s minimum TTL
@@ -118,6 +130,13 @@ export function computeAdaptiveTtlForDynamic(context: GatewayContextData): numbe
 
 	// If key, limits, or credit are not OK, revalidate aggressively.
 	if (!context.key.ok || !context.keyLimit.ok || !context.credit.ok) {
+		return clampTtl(60);
+	}
+
+	// Limit usage changes after every completed request. Keep capped keys within
+	// the shortest KV consistency window instead of caching their usage snapshot
+	// for the ordinary 2-10 minute dynamic-context lifetime.
+	if (hasConfiguredKeyLimits(context.keyLimit)) {
 		return clampTtl(60);
 	}
 
@@ -166,10 +185,28 @@ export function computeAdaptiveTtlForDynamic(context: GatewayContextData): numbe
  * Compute TTL for static data (providers, pricing)
  * Uses longer TTL since this data changes infrequently
  */
-export function computeStaticTtl(): number {
+export function computeStaticTtl(
+	context?: Pick<GatewayContextData, "pricing"> | null,
+	nowMs: number = Date.now(),
+): number | null {
 	// Static data can be cached for 5-15 minutes.
 	// Use midpoint default and keep tunable via constants.
-	return Math.floor((STATIC_TTL_MIN + STATIC_TTL_MAX) / 2);
+	const defaultTtl = Math.floor((STATIC_TTL_MIN + STATIC_TTL_MAX) / 2);
+	let nextPricingBoundaryMs: number | null = null;
+	for (const card of Object.values(context?.pricing ?? {})) {
+		const boundaryMs = card?.effective_to ? Date.parse(card.effective_to) : Number.NaN;
+		if (!Number.isFinite(boundaryMs) || boundaryMs <= nowMs) continue;
+		if (nextPricingBoundaryMs === null || boundaryMs < nextPricingBoundaryMs) {
+			nextPricingBoundaryMs = boundaryMs;
+		}
+	}
+	if (nextPricingBoundaryMs === null) return defaultTtl;
+
+	const secondsUntilBoundary = Math.floor((nextPricingBoundaryMs - nowMs) / 1000);
+	// Workers KV rejects TTLs below 60 seconds. Bypass static caching rather
+	// than serving a stale price card across an exact billing boundary.
+	if (secondsUntilBoundary < MIN_TTL_SECONDS) return null;
+	return Math.min(defaultTtl, secondsUntilBoundary);
 }
 
 type DynamicContextCacheEntry = Pick<
@@ -220,7 +257,10 @@ export function mergeCachedContext(args: {
 	credit?: CreditContextCacheEntry | null;
 	endpoint: string;
 }): GatewayContextData {
-	const credit = args.credit?.credit ?? args.dynamic.credit;
+	// Credit is invalidated independently after every wallet mutation. Never
+	// fall back to a legacy credit value embedded in the dynamic entry: that can
+	// re-admit a request using a pre-charge balance after the credit key is gone.
+	const credit = args.credit?.credit;
 	if (!credit) {
 		throw new Error("gateway_context_credit_cache_missing");
 	}
@@ -253,6 +293,10 @@ export function splitContextForCache(value: GatewayContextData): {
 			keyLimit: value.keyLimit,
 			keyEnrichment: value.keyEnrichment ?? null,
 			teamSettings: value.teamSettings ?? null,
+			// Aggregate enrichment is observational rather than an authorization
+			// input. Keep it with the dynamic context so a credit-only refresh can
+			// preserve it while replacing its balance fields authoritatively.
+			teamEnrichment: value.teamEnrichment ?? null,
 		},
 		static: {
 			workspaceId: value.workspaceId,
@@ -351,7 +395,7 @@ export function normalizeProviderStatus(value: unknown): ProviderRolloutStatus {
 	if (status === "project_limited") return "project_limited";
 	if (status === "paused") return "paused";
 	if (status === "soft_blocked") return "soft_blocked";
-	return "active";
+    return "not_ready";
 }
 
 export function normalizeRoutingStatus(value: unknown): RoutingStatus {
@@ -366,7 +410,7 @@ export function normalizeRoutingStatus(value: unknown): RoutingStatus {
 	if (status === "notready" || status === "not_ready" || status === "not ready") {
 		return "disabled";
 	}
-	return "active";
+    return "disabled";
 }
 
 export function normalizeCapabilityStatus(value: unknown): CapabilityRoutingStatus {

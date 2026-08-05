@@ -6,11 +6,13 @@ import {
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { buildMetadata } from "@/lib/seo";
 import ProviderModelsClient from "./ProviderModelsClient";
+import { notFound } from "next/navigation";
 
 async function fetchProviderMeta(apiProviderId: string) {
 	try {
 		return await fetchFrontendAPIProviderHeader(apiProviderId);
 	} catch (error) {
+		// eslint-disable-next-line no-console
 		console.warn("[seo] failed to load api provider metadata", {
 			apiProviderId,
 			error,
@@ -55,9 +57,11 @@ export default async function Page({
 }) {
 	const { apiProvider } = await params;
 	const header = await fetchProviderMeta(apiProvider);
+	if (!header) notFound();
 	const providerLabel = header?.api_provider_name ?? apiProvider;
 
-	const models = await fetchFrontendAPIProviderModels(apiProvider);
+	const models = await fetchFrontendAPIProviderModels(apiProvider).catch(() => null);
+	if (!models) notFound();
 
 	return (
 		<APIProviderDetailShell apiProviderId={apiProvider}>

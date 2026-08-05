@@ -238,6 +238,9 @@ struct AudioSpeechRequest {
 struct AudioTranscriptionRequest {
 	std::string audio_b64;
 	std::string audio_url;
+	std::any chunking_strategy;
+	std::vector<std::string> known_speaker_names;
+	std::vector<std::string> known_speaker_references;
 	std::string language;
 	std::string model;
 	std::map<std::string, std::any> provider;
@@ -322,6 +325,7 @@ struct BatchModelsResponse {
 
 struct BatchProviderCapability {
 	std::string documentation_url;
+	std::vector<std::map<std::string, std::any>> endpoints;
 	std::vector<std::any> gateway_input_modes;
 	std::string id;
 	std::string name;
@@ -333,7 +337,7 @@ struct BatchProviderCapability {
 struct BatchRequest {
 	std::string completion_window;
 	std::map<std::string, std::any> debug;
-	std::string endpoint;
+	std::any endpoint;
 	std::string input_file_id;
 	std::vector<std::map<std::string, std::any>> items;
 	std::optional<int> max_tokens;
@@ -358,7 +362,7 @@ struct BatchRequestCounts {
 struct BatchRequestItem {
 	std::map<std::string, std::any> body;
 	std::string custom_id;
-	std::string method;
+	std::any method;
 	std::string url;
 };
 
@@ -421,6 +425,7 @@ struct BatchResponse {
 	std::string request_id;
 	std::string session_id;
 	std::string status;
+	std::map<std::string, std::any> usage;
 	std::map<std::string, std::any> webhook;
 	std::string websocket_url;
 };
@@ -574,6 +579,22 @@ struct EmbeddingsResponse {
 	std::map<std::string, std::any> usage;
 };
 
+struct EndpointCatalogueEntry {
+	std::string capability_id;
+	std::string collection;
+	std::string id;
+	int model_count;
+	int provider_count;
+	std::string public_path;
+};
+
+struct EndpointCatalogueResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	std::vector<std::string> endpoints;
+	std::any ok;
+	std::vector<std::string> sample_models;
+};
+
 struct ErrorFailureSampleItem {
 	std::optional<std::string> provider;
 	std::optional<bool> retryable;
@@ -661,6 +682,11 @@ struct FileUploadRequest {
 
 struct FunctionToolDefinition {
 	std::map<std::string, std::any> function;
+	std::any type;
+};
+
+struct FusionToolDefinition {
+	std::map<std::string, std::any> parameters;
 	std::any type;
 };
 
@@ -887,6 +913,45 @@ struct ModelAvailability {
 	std::any status;
 };
 
+struct ModelEndpointCapability {
+	std::string availability_reason;
+	std::any availability_status;
+	std::string capability_id;
+	std::string capability_status;
+	std::any collection;
+	std::optional<std::string> effective_from;
+	std::optional<std::string> effective_to;
+	std::string endpoint;
+	std::string id;
+	std::vector<std::string> input_modalities;
+	bool is_active_gateway;
+	std::string model_routing_status;
+	std::vector<std::string> output_modalities;
+	std::map<std::string, std::any> pricing;
+	std::map<std::string, std::any> pricing_detail;
+	std::string provider_id;
+	std::optional<std::string> provider_model_slug;
+	std::optional<std::string> provider_name;
+	std::string provider_routing_status;
+	std::string provider_status;
+	std::string public_path;
+	std::vector<std::string> supported_parameters;
+	std::map<std::string, std::any> supported_parameters_detail;
+};
+
+struct ModelEndpointsResponse {
+	std::map<std::string, std::any> architecture;
+	std::any availability_mode;
+	std::string canonical_slug;
+	std::optional<int> created;
+	std::string description;
+	std::vector<std::map<std::string, std::any>> endpoints;
+	std::string id;
+	std::string model_id;
+	std::optional<std::string> name;
+	std::any ok;
+};
+
 using ModelId = std::any;
 
 struct ModelLifecycle {
@@ -906,10 +971,13 @@ struct ModelProviderAvailability {
 	std::optional<std::string> effective_from;
 	std::optional<std::string> effective_to;
 	std::vector<std::string> endpoints;
+	std::vector<std::string> input_modalities;
 	bool is_active_gateway;
 	std::any model_routing_status;
+	std::vector<std::string> output_modalities;
 	std::vector<std::string> params;
 	std::map<std::string, std::any> params_detail;
+	std::optional<std::string> provider_model_slug;
 	std::any provider_routing_status;
 	std::any provider_status;
 	std::vector<std::string> supported_parameters;
@@ -1191,22 +1259,48 @@ struct ResponsesRequest {
 
 struct ResponsesResponse {
 	std::vector<std::map<std::string, std::any>> content;
+	std::optional<int> cost_cents;
+	std::optional<double> cost_nanos;
 	std::optional<int> created;
+	std::string currency;
+	std::optional<std::string> finish_reason;
 	std::string id;
+	std::map<std::string, std::any> meta;
 	std::string model;
+	std::optional<std::string> nativeResponseId;
 	std::string object;
 	std::vector<std::map<std::string, std::any>> output;
 	std::vector<std::map<std::string, std::any>> output_items;
+	std::vector<std::map<std::string, std::any>> pricing_lines;
+	std::string provider;
+	std::string provider_id;
 	std::string role;
+	std::any status;
 	std::string stop_reason;
 	std::string type;
 	std::map<std::string, std::any> usage;
 };
 
+struct SearchModelsToolDefinition {
+	std::map<std::string, std::any> parameters;
+	std::any type;
+};
+
 struct ServerToolUsage {
+	std::optional<int> advisor_requests;
+	std::optional<int> apply_patch_requests;
 	std::optional<int> datetime_requests;
+	std::optional<int> fusion_requests;
+	std::optional<int> image_generation_requests;
+	std::optional<int> search_models_requests;
+	std::optional<int> subagent_requests;
 	std::optional<int> web_fetch_requests;
 	std::optional<int> web_search_requests;
+};
+
+struct SubagentToolDefinition {
+	std::map<std::string, std::any> parameters;
+	std::any type;
 };
 
 struct SupportedParameterDetails {

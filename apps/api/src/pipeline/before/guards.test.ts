@@ -10,6 +10,7 @@ describe("guardJson", () => {
 		form.append("include[]", "logprobs");
 		form.append("include", "timestamps");
 		form.append("timestamp_granularities[]", "word");
+		form.append("chunking_strategy", JSON.stringify({ type: "server_vad", silence_duration_ms: 500 }));
 		form.append("provider", JSON.stringify({ order: ["openai"] }));
 
 		const req = new Request("https://gateway.local/v1/audio/transcriptions", {
@@ -25,6 +26,7 @@ describe("guardJson", () => {
 		expect(Array.isArray(result.value.include)).toBe(true);
 		expect(result.value.include).toEqual(["logprobs", "timestamps"]);
 		expect(result.value.timestamp_granularities).toEqual(["word"]);
+		expect(result.value.chunking_strategy).toEqual({ type: "server_vad", silence_duration_ms: 500 });
 		expect(result.value.provider).toEqual({ order: ["openai"] });
 		expect(typeof File !== "undefined" && result.value.file instanceof File).toBe(true);
 	});
@@ -39,6 +41,41 @@ describe("guardJson", () => {
 		expect(result.ok).toBe(false);
 		if (result.ok) return;
 		expect(result.response.status).toBe(400);
+	});
+
+	it("rejects a declared request body that exceeds the configured limit", async () => {
+		const req = new Request("https://gateway.local/v1/chat/completions", {
+			method: "POST",
+			headers: {
+				"content-type": "application/json",
+				"content-length": "128",
+			},
+			body: JSON.stringify({ model: "test" }),
+		});
+		const result = await guardJson(req, "team_test", "req_test", { maxBytes: 64 });
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.response.status).toBe(413);
+	});
+
+	it("stops reading a streamed request body once it crosses the limit", async () => {
+		const req = new Request("https://gateway.local/v1/chat/completions", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: new ReadableStream({
+				start(controller) {
+					controller.enqueue(new TextEncoder().encode('{"value":"'));
+					controller.enqueue(new TextEncoder().encode("x".repeat(80)));
+					controller.enqueue(new TextEncoder().encode('"}'));
+					controller.close();
+				},
+			}),
+			duplex: "half",
+		} as RequestInit & { duplex: "half" });
+		const result = await guardJson(req, "team_test", "req_test", { maxBytes: 64 });
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.response.status).toBe(413);
 	});
 });
 
@@ -122,5 +159,25 @@ describe("makeMeta session_id handling", () => {
 		});
 
 		expect(meta.sessionId).toBe("header-session");
+	});
+
+	it("preserves the request-entry timestamp supplied by the pipeline timer", () => {
+		const req = new Request("https://gateway.local/v1/chat/completions", {
+			method: "POST",
+		});
+		const startedAtMs = 1_784_738_000_123;
+
+		const meta = makeMeta({
+			endpoint: "chat.completions",
+			apiKeyId: "key_123",
+			apiKeyRef: "kid_123",
+			apiKeyKid: "kid_123",
+			requestId: "req_123",
+			stream: true,
+			req,
+			startedAtMs,
+		});
+
+		expect(meta.startedAtMs).toBe(startedAtMs);
 	});
 });

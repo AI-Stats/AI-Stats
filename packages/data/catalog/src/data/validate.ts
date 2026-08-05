@@ -174,6 +174,14 @@ export function checkPricingEntrySafety(p: any): string[] {
                     `pricing: invalid price for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}`
                 );
             }
+            if (r?.included_quantity !== undefined) {
+                const includedQuantity = parseNumericValue(r.included_quantity);
+                if (includedQuantity === undefined || includedQuantity < 0) {
+                    errs.push(
+                        `pricing: included_quantity invalid for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}:${meter}`
+                    );
+                }
+            }
             if (r?.bill && typeof r.bill.mode === 'string' && !ALLOWED_BILL_MODES.has(r.bill.mode)) {
                 errs.push(
                     `pricing: bill mode invalid ('${r.bill.mode}') for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}` 
@@ -667,7 +675,9 @@ interface ValidationState {
     familyIds: Map<string, string>;
     benchmarkIds: Set<string>;
     apiProviderIds: Set<string>;
+    providerModelKeys: Set<string>;
     modelIds: Map<string, string>;
+    modelVariants: Map<string, { baseModelId: string; variantKind: string }>;
     models: ModelEntry[];
     pricingEntryCount: number;
     planCount: number;
@@ -703,7 +713,9 @@ function createState(): ValidationState {
         familyIds: new Map(),
         benchmarkIds: new Set(),
         apiProviderIds: new Set(),
+        providerModelKeys: new Set(),
         modelIds: new Map(),
+        modelVariants: new Map(),
         models: [],
         pricingEntryCount: 0,
         planCount: 0,
@@ -815,6 +827,10 @@ function checkOrganisations(state: ValidationState): string[] {
         if (typeof data.name !== 'string' || !data.name.trim()) {
             errors.push(`Organisation ${organisationId} missing name`);
         }
+        const countryCode = typeof data.country_code === 'string' ? data.country_code.trim() : '';
+        if (!/^[A-Z]{2,3}$/.test(countryCode)) {
+            errors.push(`Organisation ${organisationId} has invalid country_code`);
+        }
         const links = Array.isArray(data.organisation_links) ? data.organisation_links : [];
         const seenPlatforms = new Set<string>();
         for (const [index, link] of links.entries()) {
@@ -877,6 +893,7 @@ function checkFamilies(state: ValidationState): { errors: string[]; warnings: st
             warnings.push(`Family ${familyId} missing family_name`);
         }
     }
+
     return { errors, warnings };
 }
 
@@ -941,6 +958,20 @@ function checkApiProviders(state: ValidationState): string[] {
         ) {
             errors.push(`API provider ${providerId} has invalid offer_scope '${String(data.offer_scope)}'`);
         }
+		if (
+			data.data_policy_variant !== undefined &&
+			data.data_policy_variant !== null &&
+			!['standard', 'zdr'].includes(String(data.data_policy_variant))
+		) {
+			errors.push(`API provider ${providerId} has invalid data_policy_variant '${String(data.data_policy_variant)}'`);
+		}
+        if (
+            data.data_policy_variant !== undefined &&
+            data.data_policy_variant !== null &&
+            !['standard', 'zdr'].includes(String(data.data_policy_variant))
+        ) {
+            errors.push(`API provider ${providerId} has invalid data_policy_variant '${String(data.data_policy_variant)}'`);
+        }
         if (
             data.residency_mode !== undefined &&
             data.residency_mode !== null &&
@@ -956,11 +987,56 @@ function checkApiProviders(state: ValidationState): string[] {
             errors.push(`API provider ${providerId} has invalid zero_data_retention '${String(data.zero_data_retention)}'`);
         }
         if (
+            data.stream_cancellation_support !== undefined &&
+            data.stream_cancellation_support !== null &&
+            !['supported', 'unsupported', 'unknown'].includes(String(data.stream_cancellation_support))
+        ) {
+            errors.push(`API provider ${providerId} has invalid stream_cancellation_support '${String(data.stream_cancellation_support)}'`);
+        }
+        if (
+            data.stream_cancellation_usage_recovery !== undefined &&
+            data.stream_cancellation_usage_recovery !== null &&
+            !['authoritative', 'unknown'].includes(String(data.stream_cancellation_usage_recovery))
+        ) {
+            errors.push(`API provider ${providerId} has invalid stream_cancellation_usage_recovery '${String(data.stream_cancellation_usage_recovery)}'`);
+        }
+        if (
+            data.stream_cancellation_evidence_kind !== undefined &&
+            data.stream_cancellation_evidence_kind !== null &&
+            !['provider', 'aggregator', 'none'].includes(String(data.stream_cancellation_evidence_kind))
+        ) {
+            errors.push(`API provider ${providerId} has invalid stream_cancellation_evidence_kind '${String(data.stream_cancellation_evidence_kind)}'`);
+        }
+        if (
+            data.stream_cancellation_stops_provider_billing === true &&
+            data.stream_cancellation_support !== 'supported'
+        ) {
+            errors.push(`API provider ${providerId} cannot stop billing on cancellation unless cancellation is supported`);
+        }
+        if (
+            data.stream_cancellation_support === 'supported' &&
+            data.stream_cancellation_stops_provider_billing === true &&
+            !(typeof data.stream_cancellation_source_url === 'string' && data.stream_cancellation_source_url.trim())
+        ) {
+            errors.push(`API provider ${providerId} must cite a stream cancellation source when billing is reported to stop`);
+        }
+        if (
             data.data_policy_tier !== undefined &&
             data.data_policy_tier !== null &&
             !['unknown', 'private', 'logs', 'trains'].includes(String(data.data_policy_tier))
         ) {
             errors.push(`API provider ${providerId} has invalid data_policy_tier '${String(data.data_policy_tier)}'`);
+        }
+        if (data.data_policy_variant === 'zdr') {
+            if (data.offer_scope !== 'specialized') {
+                errors.push(`ZDR provider ${providerId} must use offer_scope 'specialized'`);
+            }
+            if (data.zero_data_retention !== 'default') {
+                errors.push(`ZDR provider ${providerId} must set zero_data_retention to 'default'`);
+            }
+            if (data.data_policy_tier !== 'private' || data.data_policy_confidence !== 'confirmed') {
+                errors.push(`ZDR provider ${providerId} must have a confirmed private data policy`);
+            }
         }
         if (
             data.data_policy_confidence !== undefined &&
@@ -976,6 +1052,17 @@ function checkApiProviders(state: ValidationState): string[] {
         ) {
             errors.push(`API provider ${providerId} has invalid data_policy_contract_mode '${String(data.data_policy_contract_mode)}'`);
         }
+		if (data.data_policy_variant === 'zdr') {
+			if (data.offer_scope !== 'specialized') {
+				errors.push(`ZDR provider ${providerId} must use offer_scope 'specialized'`);
+			}
+			if (data.zero_data_retention !== 'default') {
+				errors.push(`ZDR provider ${providerId} must set zero_data_retention to 'default'`);
+			}
+			if (data.data_policy_tier !== 'private' || data.data_policy_confidence !== 'confirmed') {
+				errors.push(`ZDR provider ${providerId} must have a confirmed private data policy`);
+			}
+		}
         if (
             data.regional_pricing_mode !== undefined &&
             data.regional_pricing_mode !== null &&
@@ -1052,10 +1139,54 @@ function loadModels(state: ValidationState): string[] {
             } else {
                 state.modelIds.set(modelId, filePath);
             }
+            const apiModelId = normalizeReference(data.api_model_id);
+            if (apiModelId?.toLowerCase().endsWith(':free')) {
+                errors.push(
+                    `Model ${modelId} api_model_id must identify the base model; free offers belong in variants`
+                );
+            }
             if (typeof data.organisation_id !== 'string' || !data.organisation_id.trim()) {
                 errors.push(`Model ${modelId} missing organisation_id`);
             } else if (!state.organisationIds.has(data.organisation_id)) {
                 errors.push(`Model ${modelId} references unknown organisation ${data.organisation_id}`);
+            }
+            if (data.variants !== undefined && !Array.isArray(data.variants)) {
+                errors.push(`Model ${modelId} variants must be an array when present`);
+            }
+            const variants = Array.isArray(data.variants) ? data.variants : [];
+            for (const [index, rawVariant] of variants.entries()) {
+                if (!isPlainObject(rawVariant)) {
+                    errors.push(`Model ${modelId} variant ${index} must be an object`);
+                    continue;
+                }
+                const variantId = normalizeReference(rawVariant.model_id);
+                const variantName = normalizeReference(rawVariant.name);
+                const variantKind = normalizeReference(rawVariant.variant_kind);
+                const expectedVariantId = `${modelId}:free`;
+                const expectedVariantName = `${String(data.name ?? modelId).trim()} (Free)`;
+                if (variantKind !== 'free') {
+                    errors.push(`Model ${modelId} variant ${index} has unsupported variant_kind '${variantKind ?? ''}'`);
+                }
+                if (variantId !== expectedVariantId) {
+                    errors.push(
+                        `Model ${modelId} free variant must use model_id '${expectedVariantId}'`
+                    );
+                }
+                if (variantName !== expectedVariantName) {
+                    errors.push(
+                        `Model ${modelId} free variant must use name '${expectedVariantName}'`
+                    );
+                }
+                if (!variantId) continue;
+                if (state.modelIds.has(variantId)) {
+                    errors.push(`Duplicate model_id detected: ${variantId}`);
+                    continue;
+                }
+                state.modelIds.set(variantId, filePath);
+                state.modelVariants.set(variantId, {
+                    baseModelId: modelId,
+                    variantKind: variantKind ?? '',
+                });
             }
             state.models.push({ filePath, data });
         }
@@ -1083,6 +1214,7 @@ function checkApiProviderModels(
             })
             .filter((entry): entry is readonly [string, ModelEntry] => entry !== null)
     );
+    const referencedVariantIds = new Set<string>();
 
     for (const provider of listDirs(providersDir)) {
         const filePath = path.join(providersDir, provider, 'models.json');
@@ -1123,6 +1255,7 @@ function checkApiProviderModels(
             entryCount += 1;
             const apiModelId = normalizeReference((row as Record<string, unknown>)?.api_model_id);
             const internalModelId = normalizeReference((row as Record<string, unknown>)?.internal_model_id);
+            const canonicalModelId = normalizeReference((row as Record<string, unknown>)?.canonical_model_id);
             const providerApiModelId = normalizeReference((row as Record<string, unknown>)?.provider_api_model_id);
             const rowLabel = `${provider}${providerApiModelId ? ` (${providerApiModelId})` : ''}`;
             const fallbackModelEntry =
@@ -1162,6 +1295,38 @@ function checkApiProviderModels(
                 errors.push(`API provider model ${rowLabel} missing api_model_id`);
                 continue;
             }
+            state.providerModelKeys.add(`${provider}:${apiModelId}`);
+
+            if (apiModelId.toLowerCase().endsWith(':free')) {
+                const internalVariant = internalModelId
+                    ? state.modelVariants.get(internalModelId)
+                    : undefined;
+                const baseModelId = internalVariant?.baseModelId ?? internalModelId;
+                const canonicalVariantId = baseModelId
+                    ? `${baseModelId.replace(/:free$/i, '')}:free`
+                    : apiModelId;
+                if (!canonicalModelId) {
+                    errors.push(
+                        `API provider model ${rowLabel} free offer '${apiModelId}' is missing canonical_model_id`
+                    );
+                } else if (canonicalModelId !== canonicalVariantId) {
+                    errors.push(
+                        `API provider model ${rowLabel} canonical_model_id must be '${canonicalVariantId}'`
+                    );
+                }
+                if (canonicalModelId && !state.modelVariants.has(canonicalModelId)) {
+                    errors.push(
+                        `API provider model ${rowLabel} references free offer '${apiModelId}' ` +
+                        `without authored model variant '${canonicalModelId}'`
+                    );
+                } else if (canonicalModelId) {
+                    referencedVariantIds.add(canonicalModelId);
+                }
+            } else if (canonicalModelId && !state.modelIds.has(canonicalModelId)) {
+                errors.push(
+                    `API provider model ${rowLabel} references unknown canonical_model_id '${canonicalModelId}'`
+                );
+            }
 
             const hasInternalModel = internalModelId ? state.modelIds.has(internalModelId) : false;
             const hasDirectApiModel = state.modelIds.has(apiModelId);
@@ -1183,22 +1348,101 @@ function checkApiProviderModels(
         }
     }
 
+    for (const variantId of state.modelVariants.keys()) {
+        if (!referencedVariantIds.has(variantId)) {
+            errors.push(`Authored model variant '${variantId}' is not referenced by any provider model`);
+        }
+    }
+
     return { errors, warnings, entryCount };
+}
+
+function loadLegacyLineageExceptions(errors: string[]) {
+    const filePath = path.join(DATA_ROOT, 'lineage-reference-exceptions.json');
+    const raw = safeReadJson(filePath, errors, 'Lineage reference exceptions');
+    const references = raw?.references;
+    if (!isPlainObject(references)) {
+        errors.push('Lineage reference exceptions must contain a references object');
+        return new Map<string, string>();
+    }
+    const exceptions = new Map<string, string>();
+    for (const [modelId, previousModelId] of Object.entries(references)) {
+        const normalizedModelId = normalizeReference(modelId);
+        const normalizedPreviousModelId = normalizeReference(previousModelId);
+        if (!normalizedModelId || !normalizedPreviousModelId) {
+            errors.push(`Lineage reference exception ${modelId} must map to a non-empty model ID`);
+            continue;
+        }
+        exceptions.set(normalizedModelId, normalizedPreviousModelId);
+    }
+    return exceptions;
+}
+
+export function checkPreviousModelReference(input: {
+    modelId: string;
+    organisationId?: string | null;
+    previousModelId: string;
+    previousModelExists: boolean;
+    previousModelOrganisationId?: string | null;
+    isLegacyException?: boolean;
+}): string[] {
+    const errors: string[] = [];
+    const label = `Model ${input.modelId}`;
+    if (!input.previousModelExists) {
+        if (!input.isLegacyException) {
+            errors.push(`${label} references unknown previous_model_id ${input.previousModelId}`);
+        }
+        return errors;
+    }
+    if (input.previousModelId === input.modelId) {
+        errors.push(`${label} cannot reference itself as previous_model_id`);
+    }
+    if (
+        input.previousModelOrganisationId &&
+        input.organisationId &&
+        input.previousModelOrganisationId !== input.organisationId
+    ) {
+        errors.push(
+            `${label} references predecessor ${input.previousModelId} from a different organisation (${input.previousModelOrganisationId})`
+        );
+    }
+    return errors;
 }
 
 function checkModelReferences(state: ValidationState): { errors: string[]; warnings: string[] } {
     const errors: string[] = [];
     const warnings: string[] = [];
+    const legacyExceptions = loadLegacyLineageExceptions(errors);
+    const modelsById = new Map(
+        state.models
+            .map((entry) => {
+                const modelId = normalizeReference(entry.data.model_id);
+                return modelId ? ([modelId, entry] as const) : null;
+            })
+            .filter((entry): entry is readonly [string, ModelEntry] => entry !== null)
+    );
     for (const entry of state.models) {
         const { data } = entry;
         const modelId = typeof data.model_id === 'string' ? data.model_id.trim() : '';
         if (!modelId) continue;
         const label = `Model ${modelId}`;
         const prevRef = normalizeReference(data.previous_model_id);
-        if (prevRef && !state.modelIds.has(prevRef)) {
-            warnings.push(
-                `${label} references unknown previous_model_id ${prevRef} (non-blocking: likely internal model reference)`
+        if (prevRef) {
+            const previousModel = modelsById.get(prevRef)?.data;
+            const isLegacyException = legacyExceptions.get(modelId) === prevRef;
+            errors.push(
+                ...checkPreviousModelReference({
+                    modelId,
+                    organisationId: data.organisation_id,
+                    previousModelId: prevRef,
+                    previousModelExists: state.modelIds.has(prevRef),
+                    previousModelOrganisationId: previousModel?.organisation_id,
+                    isLegacyException,
+                })
             );
+            if (!state.modelIds.has(prevRef) && isLegacyException) {
+                warnings.push(`${label} retains grandfathered legacy previous_model_id ${prevRef}`);
+            }
         }
         const familyRef = normalizeReference(data.family_id);
         if (familyRef && !state.familyIds.has(familyRef)) {
@@ -1280,6 +1524,44 @@ function checkModelReferences(state: ValidationState): { errors: string[]; warni
             errors.push(`${label} uses legacy generic description placeholder`);
         }
     }
+
+    for (const [modelId, previousModelId] of legacyExceptions) {
+        const model = modelsById.get(modelId)?.data;
+        if (!model) {
+            errors.push(`Lineage reference exception references unknown model ${modelId}`);
+            continue;
+        }
+        if (normalizeReference(model.previous_model_id) !== previousModelId) {
+            errors.push(`Lineage reference exception for ${modelId} is stale and must be removed or updated`);
+        }
+        if (state.modelIds.has(previousModelId)) {
+            errors.push(
+                `Lineage reference exception for ${modelId} is no longer needed because ${previousModelId} exists`
+            );
+        }
+    }
+
+    const reportedCycles = new Set<string>();
+    for (const modelId of modelsById.keys()) {
+        const pathIds: string[] = [];
+        const pathIndexes = new Map<string, number>();
+        let currentId: string | null = modelId;
+        while (currentId && modelsById.has(currentId)) {
+            const existingIndex = pathIndexes.get(currentId);
+            if (existingIndex !== undefined) {
+                const cycle = pathIds.slice(existingIndex);
+                const cycleKey = [...cycle].sort().join('|');
+                if (!reportedCycles.has(cycleKey)) {
+                    reportedCycles.add(cycleKey);
+                    errors.push(`Model lineage cycle detected: ${[...cycle, currentId].join(' -> ')}`);
+                }
+                break;
+            }
+            pathIndexes.set(currentId, pathIds.length);
+            pathIds.push(currentId);
+            currentId = normalizeReference(modelsById.get(currentId)?.data.previous_model_id);
+        }
+    }
     return { errors, warnings };
 }
 
@@ -1297,9 +1579,13 @@ function checkPricing(state: ValidationState): string[] {
         if (apiProviderId && !state.apiProviderIds.has(apiProviderId)) {
             entryErrors.push(`Unknown api_provider_id ${apiProviderId}`);
         }
-        const modelId = typeof data['model_id'] === 'string' ? data['model_id'] : undefined;
-        if (modelId && !state.modelIds.has(modelId)) {
-            entryErrors.push(`Unknown model_id ${modelId}`);
+        const modelId = typeof data['api_model_id'] === 'string'
+            ? data['api_model_id']
+            : typeof data['model_id'] === 'string'
+                ? data['model_id']
+                : undefined;
+        if (apiProviderId && modelId && !state.providerModelKeys.has(`${apiProviderId}:${modelId}`)) {
+            entryErrors.push(`Missing provider/model route ${apiProviderId}:${modelId}`);
         }
         if (entryErrors.length) {
             errors.push(`${path.relative(DATA_ROOT, filePath)} -> ${entryErrors.join('; ')}`);

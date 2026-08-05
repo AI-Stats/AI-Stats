@@ -1,0 +1,9 @@
+# Amazon Bedrock public provider, backed exclusively by Bedrock Mantle.
+AMAZON_BEDROCK_REGION=us-east-1
+AMAZON_BEDROCK_MANTLE_BASE_URL=https://bedrock-mantle.us-east-1.api.aws
+AMAZON_BEDROCK_API_KEY=replace-with-a-bedrock-api-key
+
+# Optional SigV4 alternative to AMAZON_BEDROCK_API_KEY.
+# AWS_ACCESS_KEY_ID=replace-with-an-access-key-id
+# AWS_SECRET_ACCESS_KEY=replace-with-a-secret-access-key
+# AWS_SESSION_TOKEN=replace-with-a-session-token

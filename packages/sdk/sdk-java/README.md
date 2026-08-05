@@ -13,7 +13,7 @@ Maven coordinates:
 <dependency>
   <groupId>app.phaseo</groupId>
   <artifactId>phaseo-sdk</artifactId>
-  <version>1.1.2</version>
+  <version>2.0.5</version>
 </dependency>
 ```
 

@@ -79,7 +79,7 @@ async function sendSignupWelcomeEmail(args: {
 
 	const from =
 		String(process.env.RESEND_FROM_EMAIL ?? "").trim() ||
-		"Phaseo <noreply@phaseo.ai>";
+		"Phaseo <noreply@phaseo.app>";
 	const subject =
 		String(process.env.RESEND_WELCOME_SUBJECT ?? "").trim() ||
 		"Welcome to Phaseo";
@@ -112,7 +112,7 @@ async function sendSignupWelcomeEmail(args: {
 				dashboard_url: dashboardUrl,
 				quickstart_url: getStartedUrl,
 				docs_url: docsUrl,
-				support_email: "support@phaseo.ai",
+				support_email: "support@phaseo.app",
 			},
 		},
 	});

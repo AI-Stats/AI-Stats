@@ -1,22 +1,21 @@
 import { MetadataRoute } from "next";
+import { cacheLife } from "next/cache";
 import {
 	getHelpArticleParams,
 	getHelpCategoryParams,
 } from "@/lib/content/helpCenter";
+import { getAnnouncementPosts } from "@/lib/content/announcements";
 import { getMigrationPosts } from "@/lib/content/migrations";
 import {
 	fetchFrontendAPIProviders,
 	fetchFrontendBenchmarks,
 	fetchFrontendCountrySummaries,
 	fetchFrontendMarketplacePresets,
+	fetchFrontendModels,
 	fetchFrontendOrganisations,
 	fetchFrontendSubscriptionPlans,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { SITE_URL } from "@/lib/seo";
-
-// Cache sitemap output at the edge to avoid repeated compute (and Fast Origin Transfer)
-// from crawlers hitting `/sitemap.xml` frequently.
-export const revalidate = 86400; // 1 day (must be a literal for static analysis)
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 type ChangeFrequency = NonNullable<SitemapEntry["changeFrequency"]>;
@@ -56,13 +55,10 @@ const staticRoutes: Array<{
         { path: "/how-phaseo-measures-latency-throughput", changeFrequency: "monthly", priority: 0.65 },
         { path: "/how-phaseo-normalises-ai-benchmarks", changeFrequency: "monthly", priority: 0.65 },
         { path: "/how-phaseo-tracks-provider-availability", changeFrequency: "monthly", priority: 0.65 },
-        { path: "/faq", changeFrequency: "monthly", priority: 0.6 },
+		{ path: "/faq", changeFrequency: "monthly", priority: 0.6 },
+		{ path: "/blog", changeFrequency: "weekly", priority: 0.7 },
 		{ path: "/compare", changeFrequency: "weekly", priority: 0.7 },
 		{ path: "/migrate", changeFrequency: "weekly", priority: 0.7 },
-		{ path: "/migrate/openrouter", changeFrequency: "weekly", priority: 0.65 },
-		{ path: "/migrate/vercel-ai-gateway", changeFrequency: "weekly", priority: 0.65 },
-		{ path: "/migrate/requesty", changeFrequency: "weekly", priority: 0.65 },
-		{ path: "/migrate/llmgateway", changeFrequency: "weekly", priority: 0.65 },
 		{ path: "/gateway/marketplace", changeFrequency: "weekly", priority: 0.6 },
         { path: "/contribute", changeFrequency: "monthly", priority: 0.6 },
         { path: "/roadmap", changeFrequency: "monthly", priority: 0.6 },
@@ -85,8 +81,6 @@ const staticRoutes: Array<{
         { path: "/chat/embeddings", changeFrequency: "weekly", priority: 0.5 },
         { path: "/help", changeFrequency: "weekly", priority: 0.6 },
         { path: "/updates/models", changeFrequency: "weekly", priority: 0.55 },
-        { path: "/updates/web", changeFrequency: "weekly", priority: 0.55 },
-        { path: "/updates/youtube", changeFrequency: "weekly", priority: 0.55 },
         { path: "/updates/calendar", changeFrequency: "weekly", priority: 0.55 },
         { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
         { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
@@ -98,6 +92,7 @@ const PROVIDER_SUFFIXES: RouteSuffix[] = [
 
 const ORGANISATION_SUFFIXES: RouteSuffix[] = [
     { suffix: "", changeFrequency: "weekly", priority: 0.7 },
+	{ suffix: "/models", changeFrequency: "weekly", priority: 0.65 },
 ];
 
 const PLAN_SUFFIXES: RouteSuffix[] = [
@@ -113,7 +108,11 @@ const COUNTRY_SUFFIXES: RouteSuffix[] = [
 ];
 
 const MARKETPLACE_PRESET_SUFFIXES: RouteSuffix[] = [
-    { suffix: "", changeFrequency: "weekly", priority: 0.55 },
+	{ suffix: "", changeFrequency: "weekly", priority: 0.55 },
+];
+
+const MODEL_SUFFIXES: RouteSuffix[] = [
+	{ suffix: "", changeFrequency: "weekly", priority: 0.85 },
 ];
 
 function buildRouteUrl(route: string): string {
@@ -162,6 +161,37 @@ function normalizeSingleSegmentSlugs(list?: string[], label?: string): string[] 
 				label ?? "single segment"
 			} slug(s)`,
 		);
+	}
+
+	return [...normalized].sort();
+}
+
+function normalizeModelId(modelId: unknown): string | null {
+	const segments = String(modelId ?? "")
+		.trim()
+		.replace(/^\/+|\/+$/g, "")
+		.split("/")
+		.filter(Boolean);
+
+	return segments.length === 2 ? segments.join("/") : null;
+}
+
+function normalizeModelIds(list?: string[]): string[] {
+	const normalized = new Set<string>();
+	let dropped = 0;
+
+	for (const modelId of list ?? []) {
+		const normalizedModelId = normalizeModelId(modelId);
+		if (!normalizedModelId) {
+			dropped += 1;
+			continue;
+		}
+
+		normalized.add(normalizedModelId);
+	}
+
+	if (dropped > 0) {
+		console.warn(`[sitemap] dropped ${dropped} malformed model id(s)`);
 	}
 
 	return [...normalized].sort();
@@ -249,6 +279,9 @@ function applySuffixesWithEntries<T extends { slug: string; lastModified?: strin
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+	"use cache";
+	cacheLife({ revalidate: 86400, expire: 604800 });
+
 	// `lastmod` must describe a content change, not a deployment. Omit it until
 	// a route has a reliable source timestamp rather than sending false freshness.
 	const staticItems = staticRoutes.map((route) =>
@@ -262,8 +295,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		plansResult,
 		countriesResult,
 		marketplacePresetsResult,
+		modelsResult,
 		helpCategoryResult,
 		helpArticleResult,
+		blogPostsResult,
 	] = await Promise.allSettled([
 		fetchFrontendAPIProviders(),
 		fetchFrontendOrganisations(),
@@ -271,8 +306,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		fetchFrontendSubscriptionPlans(),
 		fetchFrontendCountrySummaries(),
 		fetchFrontendMarketplacePresets(),
+		fetchFrontendModels(),
 		getHelpCategoryParams(),
 		getHelpArticleParams(),
+		getAnnouncementPosts(),
 	]);
 
 	const providersForSitemap = fromSettled(
@@ -327,7 +364,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		).map((preset) => String(preset.id ?? "").trim()),
 		"marketplace preset",
 	);
+	const modelsForSitemap = fromSettled(modelsResult, "models for sitemap", []);
+	const modelIds = normalizeModelIds(
+		modelsForSitemap.map((model) => model.model_id),
+	);
+	const modelLastModifiedById = new Map<string, string | null>();
+	for (const model of modelsForSitemap) {
+		const modelId = normalizeModelId(model.model_id);
+		if (!modelId) continue;
+		modelLastModifiedById.set(
+			modelId,
+			resolveLastModified(
+				modelLastModifiedById.get(modelId),
+				model.updated_at,
+			),
+		);
+	}
+	const modelEntries = modelIds.map((slug) => {
+		return {
+			slug,
+			lastModified: modelLastModifiedById.get(slug) ?? null,
+		};
+	});
 	const dynamicItems = [
+		...applySuffixesWithEntries("/models", modelEntries, MODEL_SUFFIXES),
 		...applySuffixesWithEntries(
 			"/api-providers",
 			providerEntries,
@@ -402,11 +462,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 				0.5,
 			),
 		);
+	const blogItems = fromSettled(blogPostsResult, "blog posts for sitemap", []).map(
+		(post) =>
+			createItem(
+				`/blog/${post.slug}`,
+				"monthly",
+				0.6,
+				resolveLastModified(post.updatedAt, post.publishedAt),
+			),
+	);
 
 	return [
 		...staticItems,
 		...helpCategoryItems,
 		...helpArticleItems,
+		...blogItems,
 		...dynamicItems,
 		...migrationItems,
 	];

@@ -33,18 +33,27 @@ export type PricingTimeWindow = {
 export type PricingDimensionKey =
     | "input_tokens"
     | "input_characters"
+    | "input_text_bytes"
     | "input_pages"
     | "input_text_tokens"
     | "input_image_tokens"
     | "input_audio_minutes"
+    | "input_audio_seconds"
     | "input_audio_tokens"
+    | "input_image"
+    | "input_video_seconds"
     | "input_video_tokens"
     | "output_tokens"
     | "output_text_tokens"
     | "output_reasoning_tokens"
     | "output_image_tokens"
+    | "output_audio_minutes"
+    | "output_audio_seconds"
     | "output_audio_tokens"
     | "output_video_tokens"
+    | "audio_minutes"
+    | "audio_seconds"
+    | "input_text_messages"
     | "output_image"
     | "output_video"
     | "output_video_seconds"
@@ -96,6 +105,8 @@ export type PriceRule = {
     currency: string;             // USD
     match: Condition[];           // DB: match[]
     priority: number;             // higher wins
+    /** Raw meter quantity included at no charge before unit-size conversion. */
+    included_quantity?: number;
     billing_timestamp_basis?: PricingTimestampBasis;
     time_windows?: PricingTimeWindow[];
 
@@ -121,12 +132,15 @@ export type PricingBreakdownLine = {
     unit_size: number;
     unit_price_usd: string;
     line_cost_usd: string;
-    bill_mode: "all";       // new schema has no range modes; we bill "all"
+    bill_mode: "all" | "over";
+    included_quantity?: number;
     rule_priority: number;
     rule_id?: string;
     line_nanos?: number;
     billing_timestamp_basis?: PricingTimestampBasis;
     billing_timestamp_basis_configured?: PricingTimestampBasis;
+    billing_timestamp_ms?: number | null;
+    billing_timestamp_iso?: string | null;
     pricing_time_window?: {
         label: string;
         timezone: "UTC";
@@ -142,7 +156,6 @@ export type PricingResult = {
     currency: "USD";
     lines: PricingBreakdownLine[];
 };
-
 
 
 

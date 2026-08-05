@@ -13,6 +13,7 @@
   "input_types": "text,image",
   "output_types": "text",
   "api_model_id": "mistral/leanstral-1.5",
+  "variants": [{ "model_id": "mistral/leanstral-1.5:free", "name": "Leanstral 1.5 (Free)", "variant_kind": "free" }],
   "links": [
     {
       "title": "Model Card",
@@ -43,5 +44,59 @@
       "value": "6.5B"
     }
   ],
-  "benchmarks": []
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "model_card",
+      "url": "https://docs.mistral.ai/models/model-cards/leanstral-1-5",
+      "accessed_at": null,
+      "notes": null
+    },
+    {
+      "kind": "privacy",
+      "url": "https://docs.mistral.ai/admin/monitor-comply/privacy-data-controls",
+      "accessed_at": null,
+      "notes": null
+    }
+  ],
+  "verification": {
+    "status": "unverified",
+    "checked_at": null,
+    "notes": null
+  },
+  "last_updated": null,
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
 }

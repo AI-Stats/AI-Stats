@@ -1,4 +1,5 @@
 ---
+icon: "server-cog"
 title: "Server Tools"
 description: "Let models call Phaseo-operated tools during a request."
 ---
@@ -15,13 +16,15 @@ Server tools are in beta. Request shapes and result payloads may evolve as provi
 
 | Tool | Type | Use it for |
 | --- | --- | --- |
-| Datetime | `gateway:datetime` | Current date and time in up to 5 timezones |
+| Datetime | `phaseo:datetime` | Current date and time in up to 5 timezones |
 | Web Search | `phaseo:web_search` | Model-directed web searches during a request |
 | Web Fetch | `phaseo:web_fetch` | Fetching and extracting text from specific URLs |
 | Advisor | `phaseo:advisor` | Consulting another model mid-generation |
 | Subagent | `phaseo:subagent` | Delegating focused work to a worker model |
-| Fusion | Advisor workflow | Consulting several advisor models and an optional judge |
+| Fusion | `phaseo:fusion` | Parallel analysis followed by model synthesis |
+| Search Models | `phaseo:search_models` | Finding suitable models from the live catalogue |
 | Image Generation | `phaseo:image_generation` | Creating images from the model tool loop |
+| Apply Patch | `phaseo:apply_patch` | Producing validated file patches on the Responses API |
 
 ## How server tools work
 
@@ -45,7 +48,7 @@ curl https://api.phaseo.app/v1/chat/completions \
     ],
     "tools": [
       { "type": "phaseo:web_search" },
-      { "type": "gateway:datetime", "parameters": { "timezones": ["Europe/London", "UTC"] } }
+      { "type": "phaseo:datetime", "parameters": { "timezones": ["Europe/London", "UTC"] } }
     ]
   }'
 ```
@@ -107,6 +110,8 @@ Server-tool usage is reported in `usage.server_tool_use`:
       "web_fetch_requests": 1,
       "advisor_requests": 1,
       "subagent_requests": 1,
+      "fusion_requests": 1,
+      "search_models_requests": 1,
       "image_generation_requests": 1
     }
   }
@@ -134,9 +139,15 @@ Pricing can also use server-tool meters such as `server_tool_web_search_requests
     Let the model delegate focused tasks to a worker model.
   </Card>
   <Card title="Fusion" icon="sparkles" href="./fusion">
-    Let the Playground configure several advisor models for one answer.
+	Run parallel model analysis and synthesize the findings.
   </Card>
+	<Card title="Search Models" icon="list-filter" href="./search-models">
+		Let the model search the live Phaseo catalogue for a suitable model.
+	</Card>
   <Card title="Image Generation" icon="image" href="./image-generation">
     Let the model create images while answering.
   </Card>
+	<Card title="Apply Patch" icon="file-diff" href="./apply-patch">
+		Generate a validated create, update, or delete patch.
+	</Card>
 </Columns>

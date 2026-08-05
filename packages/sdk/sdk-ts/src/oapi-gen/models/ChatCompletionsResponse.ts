@@ -27,13 +27,7 @@ export interface ChatCompletionsResponse {
             input_audio: {
               data?: string;
               format?:
-                | "wav"
-                | "mp3"
-                | "flac"
-                | "m4a"
-                | "ogg"
-                | "pcm16"
-                | "pcm24";
+                "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
             };
             type: "input_audio";
           }
@@ -81,7 +75,13 @@ export interface ChatCompletionsResponse {
     completion_tokens?: number;
     prompt_tokens?: number;
     server_tool_use?: {
+      advisor_requests?: number;
+      apply_patch_requests?: number;
       datetime_requests?: number;
+      fusion_requests?: number;
+      image_generation_requests?: number;
+      search_models_requests?: number;
+      subagent_requests?: number;
       web_fetch_requests?: number;
       web_search_requests?: number;
     };

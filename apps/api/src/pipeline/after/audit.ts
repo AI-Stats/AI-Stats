@@ -7,7 +7,10 @@ import { auditSuccess, auditFailure } from "../audit";
 import type { PipelineContext } from "../before/types";
 import type { RequestResult } from "../execute";
 import { sanitizeForAxiom, sanitizeJsonStringForAxiom, stringifyForAxiom } from "@observability/privacy";
+import { sanitizeUrlForLogging } from "@/lib/security/sanitizeUrl";
 import { emitGatewayRequestEvent } from "@observability/events";
+import { emitGatewayTelemetryDeliveryFailure } from "@observability/axiom";
+import { runGatewayTelemetryPipelines } from "@observability/gateway-telemetry";
 import { attachToolUsageMetrics, summarizeToolUsage } from "./tool-usage";
 import { extractSearchObservability } from "./search-observability";
 import { mergeWebFetchObservability } from "./fetch-observability";
@@ -16,6 +19,12 @@ import {
 	resolveExecuteTotalLatencyMs,
 	resolveNonStreamLatencyMs,
 } from "./timing";
+import { calculateOutputPerformanceMetrics } from "./performance-metrics";
+import {
+	normalizeDataContributionPolicy,
+	persistDataContribution,
+} from "../classification/data-contribution";
+import { currentDataContributionDiscountNanos } from "../pricing/data-contribution-discount";
 
 function getProviderAttempts(ctx: PipelineContext): Array<Record<string, unknown>> {
     return Array.isArray(ctx.providerAttempts) ? ctx.providerAttempts : [];
@@ -222,7 +231,7 @@ function buildTransformSnapshot(
 		upstream_response_headers: sanitizedProviderHeaders,
 		upstream_status_code: result?.upstream?.status ?? null,
 		upstream_status_text: result?.upstream?.statusText ?? null,
-		upstream_url: result?.upstream?.url ?? null,
+		upstream_url: sanitizeUrlForLogging(result?.upstream?.url),
 		requested_params: requestedParams,
 		plugin_executions: sanitizeForAxiom(pluginExecutions),
 		param_routing_diagnostics: paramRoutingDiagnostics,
@@ -251,6 +260,10 @@ function resolveExecuteAdapterMs(ctx: PipelineContext): number | null {
     return flat > 0 ? flat : null;
 }
 
+export function shouldPersistGatewayAudit(ctx: Pick<PipelineContext, "testingMode">): boolean {
+	return !ctx.testingMode;
+}
+
 export async function handleFailureAudit(
     ctx: PipelineContext,
     result: RequestResult,
@@ -267,8 +280,8 @@ export async function handleFailureAudit(
     const internalLatencyMs = (ctx as any)?.timing?.internal_latency_ms ?? null;
 
     // Use meta values if available, otherwise fall back to timing calculations
-    const generationMs = ctx.meta.generation_ms ?? (genMs ? Math.round(genMs) : null);
-    const latencyMs = resolveNonStreamLatencyMs(ctx, generationMs) ?? Math.round(beforeMs + execMs);
+	const generationMs = ctx.meta.generation_ms ?? null;
+    const latencyMs = resolveNonStreamLatencyMs(ctx, generationMs);
     const gatewayFailurePayload = {
         generation_id: ctx.requestId,
         status_code: upstreamStatus,
@@ -315,8 +328,10 @@ export async function handleFailureAudit(
         }
     })();
 
-    try {
-        await auditFailure({
+    await runGatewayTelemetryPipelines({
+        requestId: ctx.requestId,
+        workspaceId: ctx.workspaceId,
+        writeSupabase: shouldPersistGatewayAudit(ctx) ? () => auditFailure({
             stage: "execute",
             requestId: ctx.requestId,
             workspaceId: ctx.workspaceId,
@@ -324,6 +339,8 @@ export async function handleFailureAudit(
             model: ctx.model,
             requestedModel: ctx.requestedModel ?? ctx.model,
             provider: result.provider ?? null,
+            providerApiModelId: result.apiModelId ?? null,
+            providerModelSlug: result.providerModelSlug ?? null,
             stream: ctx.stream,
             statusCode: upstreamStatus,
             errorCode: `${attribution}:${errorCode}`,
@@ -366,6 +383,7 @@ export async function handleFailureAudit(
             providerResponse: errorDetails ?? result.rawResponse ?? null,
             detailMetadata: {
                 stage: "execute",
+                routing_snapshot: sanitizeForAxiom((ctx as any).routingSnapshot ?? null),
                 routing_diagnostics: sanitizeForAxiom((ctx as any).routingDiagnostics ?? null),
                 provider_enablement_diagnostics: sanitizeForAxiom(
                     ctx.providerEnablementDiagnostics ?? null,
@@ -378,12 +396,15 @@ export async function handleFailureAudit(
                 ),
                 replay_supported: true,
             },
-        });
-    } catch (auditErr) {
-        console.error("auditFailure failed", auditErr);
-    }
-    try {
-        await emitGatewayRequestEvent({
+            usage: (result.bill?.usage && typeof result.bill.usage === "object")
+                ? result.bill.usage as Record<string, unknown>
+                : {},
+            currency: result.bill?.currency ?? null,
+			pricingLines: Array.isArray((result.bill?.usage as any)?.pricing?.lines)
+				? (result.bill?.usage as any).pricing.lines
+				: [],
+        }) : null,
+        writeAxiom: () => emitGatewayRequestEvent({
             ctx,
             result,
             statusCode: upstreamStatus,
@@ -396,10 +417,10 @@ export async function handleFailureAudit(
             errorDetails,
             providerResponse: errorDetails ?? result.rawResponse ?? null,
             gatewayResponse: gatewayErrorPayload ?? gatewayFailurePayload,
-        });
-    } catch (eventErr) {
-        console.error("emitGatewayRequestEvent (failure) failed", eventErr);
-    }
+        }),
+        onDeliveryFailure: emitGatewayTelemetryDeliveryFailure,
+    });
+
 }
 
 export async function handleSuccessAudit(
@@ -421,22 +442,45 @@ export async function handleSuccessAudit(
     const execTotalMs = resolveExecuteTotalLatencyMs(ctx) ?? 0;
     const execAdapterMs = resolveExecuteAdapterMs(ctx);
     const internalLatencyMs = (ctx as any)?.timing?.internal_latency_ms ?? null;
+    const endToEndMs = typeof ctx.meta.end_to_end_ms === "number"
+        ? ctx.meta.end_to_end_ms
+        : null;
 
     // Use meta values if available, otherwise fall back to timing calculations
-    const generationMs = ctx.meta.generation_ms ?? Math.round(execAdapterMs ?? execTiming?.adapter_ms ?? result.generationTimeMs ?? 0);
+    const generationMs = ctx.meta.generation_ms ?? null;
     const latencyMs = isStream
-        ? (ctx.meta.latency_ms ?? Math.round(execTotalMs) + Math.round(beforeMs))
-        : (resolveNonStreamLatencyMs(ctx, generationMs) ?? Math.round(execTotalMs || generationMs));
+        ? (ctx.meta.latency_ms ?? null)
+        : resolveNonStreamLatencyMs(ctx, generationMs);
 
     // Enrich usage with multimodal signals visible at the gateway layer (e.g., image/audio/video inputs).
     const usageWithMultimodal = enrichUsageWithMultimodal(ctx, result, usagePriced);
 
     // Calculate throughput (tokens/sec) using output tokens only to reflect generation speed.
-    if (ctx.meta.throughput_tps === undefined && generationMs > 0) {
+    if (ctx.meta.throughput_tps === undefined && typeof generationMs === "number" && generationMs > 0) {
         const usage = usageWithMultimodal ?? {};
         const tokensOut = Number(usage.output_tokens ?? usage.output_text_tokens ?? usage.completion_tokens ?? 0);
         ctx.meta.throughput_tps = tokensOut / (generationMs / 1000);
     }
+    const outputTokens = Number(
+        usageWithMultimodal?.output_tokens ??
+        usageWithMultimodal?.output_text_tokens ??
+        usageWithMultimodal?.completion_tokens ??
+        0
+    );
+    const providerTtftMs = isStream && typeof ctx.meta.provider_ttft_ms === "number"
+        ? ctx.meta.provider_ttft_ms
+        : null;
+    const outputPerformance = calculateOutputPerformanceMetrics({
+        outputTokens,
+        providerDurationMs: generationMs,
+        providerTtftMs,
+        gatewayE2eMs: endToEndMs,
+    });
+    ctx.meta.throughput_tps ??= outputPerformance.effectiveThroughputTps ?? undefined;
+    ctx.meta.output_speed_tps ??= outputPerformance.outputSpeedTps ?? undefined;
+    ctx.meta.tpot_ms ??= outputPerformance.tpotMs ?? undefined;
+    ctx.meta.itl_ms ??= outputPerformance.itlMs ?? undefined;
+    ctx.meta.phaseo_overhead_ms ??= outputPerformance.phaseoOverheadMs ?? undefined;
 
     // console.log("[DEBUG handleSuccessAudit] Calling auditSuccess with:", {
     //     usagePriced: usageWithMultimodal,
@@ -507,11 +551,15 @@ export async function handleSuccessAudit(
         mergeWebFetchObservability(ctx.webFetchObservability ?? null),
     );
 
-    try {
-        await auditSuccess({
+    await runGatewayTelemetryPipelines({
+        requestId: ctx.requestId,
+        workspaceId: ctx.workspaceId,
+        writeSupabase: shouldPersistGatewayAudit(ctx) ? () => auditSuccess({
             requestId: ctx.requestId,
             workspaceId: ctx.workspaceId,
             provider: result.provider,
+            providerApiModelId: result.apiModelId ?? null,
+            providerModelSlug: result.providerModelSlug ?? null,
             model: ctx.model,
             requestedModel: ctx.requestedModel ?? ctx.model,
             endpoint: ctx.endpoint,
@@ -542,7 +590,14 @@ export async function handleSuccessAudit(
             edgeAsn: ctx.meta.edgeAsn ?? null,
             generationMs,
             latencyMs,
+            providerTtftMs,
+            gatewayTtftMs: isStream ? (ctx.meta.gateway_ttft_ms ?? null) : null,
+            outputSpeedTps: ctx.meta.output_speed_tps ?? null,
+            tpotMs: ctx.meta.tpot_ms ?? null,
+            itlMs: ctx.meta.itl_ms ?? null,
+            phaseoOverheadMs: ctx.meta.phaseo_overhead_ms ?? null,
             internalLatencyMs,
+            endToEndMs,
             usagePriced: usageWithMultimodal,
             totalCents,
             totalNanos,
@@ -550,6 +605,10 @@ export async function handleSuccessAudit(
             finishReason,
             statusCode,
             throughput: ctx.meta.throughput_tps ?? null,
+            downstreamDisconnected: ctx.meta.downstreamDisconnected === true,
+            streamCancellationSupport: ctx.meta.streamCancellationSupport ?? "unknown",
+            streamProviderBillingOnCancel: ctx.meta.streamProviderBillingOnCancel ?? "unknown",
+            streamDisconnectAction: ctx.meta.streamDisconnectAction ?? "drain_upstream",
             keyId: ctx.meta.apiKeyId ?? ctx.keyId ?? null,
             extraJson,
             errorPayload: guardrailEnforcementPayload as Record<string, unknown> | null,
@@ -561,6 +620,7 @@ export async function handleSuccessAudit(
                 stage: "execute",
                 finish_reason: finishReason ?? null,
                 plugin_executions: sanitizeForAxiom(ctx.pluginExecutions ?? null),
+                routing_snapshot: sanitizeForAxiom((ctx as any).routingSnapshot ?? null),
                 routing_diagnostics: sanitizeForAxiom((ctx as any).routingDiagnostics ?? null),
                 response_cache: sanitizeForAxiom(ctx.responseCache ?? null),
                 provider_enablement_diagnostics: sanitizeForAxiom(
@@ -579,12 +639,8 @@ export async function handleSuccessAudit(
             keyEnrichment: ctx.keyEnrichment ?? null,
             requestEnrichment,
             routingContext,
-        });
-    } catch (auditErr) {
-        console.error("auditSuccess failed", auditErr);
-    }
-    try {
-        await emitGatewayRequestEvent({
+        }) : null,
+        writeAxiom: () => emitGatewayRequestEvent({
             ctx,
             result,
             statusCode,
@@ -599,10 +655,33 @@ export async function handleSuccessAudit(
             mappedRequest: result.mappedRequest ?? null,
             providerResponse: result.rawResponse ?? null,
             gatewayResponse: gatewayResponse ?? null,
-        });
-    } catch (eventErr) {
-        console.error("emitGatewayRequestEvent (success) failed", eventErr);
-    }
+        }),
+        onDeliveryFailure: emitGatewayTelemetryDeliveryFailure,
+    });
+
+	if (!byok && ctx.teamSettings?.dataContributionEnabled === true) {
+		const pricing = (usageWithMultimodal as any)?.pricing;
+		const currentDiscountNanos = currentDataContributionDiscountNanos(pricing, totalNanos);
+		const capture = await persistDataContribution({
+			requestId: ctx.requestId,
+			workspaceId: ctx.workspaceId,
+			endpoint: ctx.endpoint,
+			model: ctx.model,
+			provider: result.provider,
+			requestPayload: ctx.rawBody ?? ctx.body ?? null,
+			gatewayResponse: gatewayResponse ?? null,
+			usage: usageWithMultimodal,
+			discountNanos: currentDiscountNanos,
+			policy: normalizeDataContributionPolicy(ctx.teamSettings),
+		});
+		if (capture.status === "error") {
+			console.error("data_contribution_capture_unavailable", {
+				requestId: ctx.requestId,
+				workspaceId: ctx.workspaceId,
+				status: capture.status,
+			});
+		}
+	}
 }
 
 function enrichUsageWithMultimodal(ctx: PipelineContext, result: RequestResult, usagePriced: any): any {
@@ -711,8 +790,6 @@ function enrichUsageWithMultimodal(ctx: PipelineContext, result: RequestResult, 
         return usagePriced;
     }
 }
-
-
 
 
 

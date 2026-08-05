@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import type {
 	EventType,
 	ModelEvent,
-} from "@/lib/fetchers/updates/getModelUpdates";
+} from "@/lib/fetchers/updates/types";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -449,11 +449,11 @@ export default function ModelCalendar({
 							<span>{MONTH_NAMES[currentMonth.getMonth()]}</span>
 							<ChevronDown className="h-3.5 w-3.5 text-zinc-500 dark:text-zinc-400" />
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="start" className="w-40">
+						<DropdownMenuContent align="start" className="w-40 rounded-lg">
 							{MONTH_NAMES.map((month, index) => (
 								<DropdownMenuItem
 									key={month}
-									onSelect={() =>
+									onClick={() =>
 										setCurrentMonth(
 											new Date(
 												currentMonth.getFullYear(),
@@ -462,7 +462,7 @@ export default function ModelCalendar({
 											)
 										)
 									}
-									className="flex items-center justify-between"
+									className="flex items-center justify-between rounded-lg"
 								>
 									<span>{month}</span>
 									{currentMonth.getMonth() === index ? (
@@ -478,7 +478,7 @@ export default function ModelCalendar({
 							<span>{currentMonth.getFullYear()}</span>
 							<ChevronDown className="h-3.5 w-3.5 text-zinc-500 dark:text-zinc-400" />
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="start" className="w-32">
+						<DropdownMenuContent align="start" className="w-32 rounded-lg">
 							<ScrollArea className="h-48">
 								{Array.from(
 									{ length: endYear - startYear + 1 },
@@ -489,7 +489,7 @@ export default function ModelCalendar({
 									return (
 										<DropdownMenuItem
 											key={year}
-											onSelect={() =>
+											onClick={() =>
 												setCurrentMonth(
 													new Date(
 														year,
@@ -499,7 +499,7 @@ export default function ModelCalendar({
 												)
 											}
 											className={cn(
-												"flex items-center justify-between",
+												"flex items-center justify-between rounded-lg",
 												isCurrent && "font-semibold"
 											)}
 										>

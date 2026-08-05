@@ -18,6 +18,7 @@ import {
 	mapSsoAuthErrorMessage,
 	type StartSsoInput,
 } from "@/lib/auth/sso";
+import { samlSsoFlag } from "@/lib/flags";
 
 const OAUTH_PROVIDERS = ["google", "github", "gitlab"] as const;
 type OAuthProvider = (typeof OAUTH_PROVIDERS)[number];
@@ -154,6 +155,11 @@ export async function completePasskeySignIn(returnUrl?: string) {
 
 // react-doctor-disable-next-line
 export async function startSsoSignIn(input: StartSsoInput) {
+	if (!(await samlSsoFlag())) {
+		redirect(
+			`/error?message=${encodeURIComponent("Single sign-on is not enabled yet.")}`,
+		);
+	}
 	const supabase = await createClient();
 	const returnUrl = sanitizeReturnUrl(input.returnUrl, "/");
 	const safeReturnUrl = returnUrl === "/" ? undefined : returnUrl;
@@ -170,10 +176,6 @@ export async function startSsoSignIn(input: StartSsoInput) {
 	if (!request) redirect("/error?message=Authentication failed");
 
 	if (request.kind === "oauth") {
-		const { provider } = request.params as Extract<
-			ReturnType<typeof buildStartSsoRequest>,
-			{ kind: "oauth" }
-		>["params"];
 		let data:
 			| Awaited<ReturnType<typeof supabase.auth.signInWithOAuth>>["data"]
 			| undefined;

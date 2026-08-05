@@ -31,11 +31,23 @@ export type ProviderStateKey =
 	| "internal_testing"
 	| "scheduled"
 	| "coming_soon"
+	| "external"
 	| "provider_not_ready"
 	| "provider_disabled"
 	| "model_disabled"
 	| "capability_disabled"
 	| "provider_inactive"
+	| "provider_unknown"
+	| "provider_coming_soon"
+	| "provider_preview"
+	| "provider_limited_access"
+	| "provider_deprecated"
+	| "provider_removed"
+	| "phaseo_unsupported"
+	| "phaseo_planned"
+	| "phaseo_implementing"
+	| "phaseo_disabled"
+	| "phaseo_blocked"
 	| "inactive"
 	| "retired";
 
@@ -209,6 +221,7 @@ function describeKnownInactiveProviderState(
 
 function stateFromAvailabilityReason(
 	reason: GatewayProviderModel["availability_reason"],
+	availabilityStatus: GatewayProviderModel["availability_status"],
 ): ProviderState | null {
 	if (!reason) return null;
 	if (
@@ -266,6 +279,71 @@ function stateFromAvailabilityReason(
 			label: "Provider Inactive",
 			description: "The provider exists in the catalog, but it is not active.",
 			availability: "inactive",
+		};
+	}
+	if (reason === "provider_unknown") {
+		return {
+			key: reason,
+			label: "Provider Availability Unknown",
+			description: "Upstream availability has not been confirmed.",
+			availability: "inactive",
+		};
+	}
+	if (reason === "provider_coming_soon") {
+		return {
+			key: reason,
+			label: "Provider Coming Soon",
+			description: "The provider has announced this offer, but it is not available yet.",
+			availability: "coming_soon",
+		};
+	}
+	if (reason === "provider_preview" || reason === "provider_limited_access") {
+		return {
+			key: reason,
+			label:
+				reason === "provider_preview"
+					? "Provider Preview"
+					: "Provider Limited Access",
+			description:
+				reason === "provider_preview"
+					? "The provider currently offers this model as a preview."
+					: "The upstream offer requires provider approval or restricted access.",
+			availability: availabilityStatus,
+		};
+	}
+	if (reason === "provider_deprecated" || reason === "provider_removed") {
+		return {
+			key: reason,
+			label: reason === "provider_deprecated" ? "Provider Deprecated" : "Provider Removed",
+			description:
+				reason === "provider_deprecated"
+					? "The provider is deprecating this offer."
+					: "The provider no longer offers this model.",
+			availability: "inactive",
+		};
+	}
+	if (
+		reason === "phaseo_unsupported" ||
+		reason === "phaseo_planned" ||
+		reason === "phaseo_implementing" ||
+		reason === "phaseo_disabled" ||
+		reason === "phaseo_blocked"
+	) {
+		const phaseoMeta = {
+			phaseo_unsupported: ["Phaseo Unsupported", "Phaseo does not currently support this provider route."],
+			phaseo_planned: ["Phaseo Planned", "Phaseo support is planned, but implementation has not started."],
+			phaseo_implementing: ["Phaseo Implementing", "Phaseo is currently implementing this provider route."],
+			phaseo_disabled: ["Phaseo Disabled", "The Phaseo integration has been disabled."],
+			phaseo_blocked: ["Phaseo Blocked", "The Phaseo integration is blocked from progressing or routing."],
+		} as const;
+		return {
+			key: reason,
+			label: phaseoMeta[reason][0],
+			description: phaseoMeta[reason][1],
+			availability:
+				reason === "phaseo_planned" || reason === "phaseo_implementing"
+					? "coming_soon"
+					: "inactive",
 		};
 	}
 	if (reason === "provider_disabled") {
@@ -330,6 +408,7 @@ export function resolveProviderState(
 ): ProviderState {
 	const explicitReasonState = stateFromAvailabilityReason(
 		providerModel.availability_reason,
+		providerModel.availability_status,
 	);
 	if (explicitReasonState) {
 		return explicitReasonState;
@@ -354,6 +433,14 @@ export function resolveProviderState(
 	}
 
 	if (providerModel.provider_status && providerModel.provider_status !== "active") {
+		if (providerModel.provider_status === "external") {
+			return {
+				key: "external",
+				label: "External",
+				description: "Listed from an external catalogue; not routable through Phaseo.",
+				availability: "inactive",
+			};
+		}
 		if (providerModel.provider_status === "beta" || providerModel.provider_status === "alpha") {
 			return {
 				key: "preview_only",
@@ -490,6 +577,7 @@ function chooseState(states: ProviderState[]): ProviderState {
 	}
 
 	return (
+		states.find((state) => state.key === "external") ??
 		states.find((state) => state.key === "provider_not_ready") ??
 		states.find((state) => state.key === "gated") ??
 		states.find((state) => state.key === "access_limited") ??

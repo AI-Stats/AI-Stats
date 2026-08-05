@@ -88,6 +88,7 @@ const priceRuleSchema = z
         currency: z.string().default("USD"),
         match: z.array(z.any()).optional().default([]),
         priority: z.coerce.number().optional().default(100),
+        included_quantity: z.coerce.number().nonnegative().optional().default(0),
         billing_timestamp_basis: z
             .enum(["request_start", "provider_accept", "completion", "unknown"])
             .optional()
@@ -112,6 +113,7 @@ const priceRuleSchema = z
         currency: rule.currency,
         match: rule.match,
         priority: rule.priority,
+        included_quantity: rule.included_quantity,
         billing_timestamp_basis: rule.billing_timestamp_basis as PricingTimestampBasis,
         time_windows: rule.time_windows.map((window) => ({
             ...window,
@@ -152,6 +154,8 @@ const byokMetaSchema = z
         fingerprint_sha256: z.string(),
         key_version: z.union([z.string(), z.number()]).nullable().optional(),
         always_use: z.boolean().optional().default(false),
+		routing_mode: z.enum(["priority", "fallback"]).optional(),
+		sort_order: z.coerce.number().int().optional().default(0),
         key: z.string().optional().nullable(),
         api_key: z.string().optional().nullable(),
         raw_key: z.string().optional().nullable(),
@@ -165,6 +169,8 @@ const byokMetaSchema = z
                 ? null
                 : String(meta.key_version),
         alwaysUse: Boolean(meta.always_use),
+		routingMode: meta.routing_mode ?? (meta.always_use ? "priority" : "fallback"),
+		sortOrder: meta.sort_order,
         key: meta.key ?? meta.api_key ?? meta.raw_key ?? null,
     }));
 
@@ -185,12 +191,39 @@ function toModalityList(value: unknown): string[] | null {
     return null;
 }
 
+const capabilityParamDescriptorSchema = z
+    .object({
+        param_id: z.string().trim().min(1),
+    })
+    .passthrough();
+
+const capabilityParamsSchema = z
+    .union([
+        z.record(z.string(), z.any()),
+        z.array(z.union([z.string().trim().min(1), capabilityParamDescriptorSchema])),
+    ])
+    .transform<Record<string, any>>((value) => {
+        if (!Array.isArray(value)) return value;
+
+        const params: Record<string, any> = {};
+        for (const entry of value) {
+            if (typeof entry === "string") {
+                params[entry] = {};
+                continue;
+            }
+            const { param_id: paramId, ...config } = entry;
+            params[paramId] = config;
+        }
+        return params;
+    });
+
 const providerSchema = z
     .object({
         provider_id: z.string(),
         provider_family_id: z.string().nullable().optional(),
         offer_scope: z.enum(["global", "regional", "specialized"]).nullable().optional(),
         offer_label: z.string().nullable().optional(),
+		data_policy_variant: z.enum(["standard", "zdr"]).nullable().optional(),
         api_model_id: z.string().nullable().optional(),
         pricing_key: z.string().nullable().optional(),
         provider_status: z.string().nullable().optional(),
@@ -223,13 +256,18 @@ const providerSchema = z
             .enum(["none", "customer_agreement", "enterprise_agreement"])
             .nullable()
             .optional(),
+        stream_cancellation_support: z.enum(["supported", "unsupported", "unknown"]).nullable().optional(),
+        stream_cancellation_stops_provider_billing: z.boolean().nullable().optional(),
+        stream_cancellation_usage_recovery: z.enum(["authoritative", "unknown"]).nullable().optional(),
+        stream_cancellation_evidence_kind: z.enum(["provider", "aggregator", "none"]).nullable().optional(),
+        stream_cancellation_source_url: z.string().nullable().optional(),
         provider_model_slug: z.string().nullable().optional(),
         input_modalities: z.union([z.array(z.string()), z.string()]).nullable().optional(),
         output_modalities: z.union([z.array(z.string()), z.string()]).nullable().optional(),
         supports_endpoint: z.boolean().optional().default(true),
         base_weight: z.coerce.number().optional().default(1),
         byok_meta: z.array(byokMetaSchema).optional().default([]),
-        capability_params: z.record(z.string(), z.any()).optional().default({}),
+        capability_params: capabilityParamsSchema.optional().default({}),
         max_input_tokens: z.coerce.number().nullable().optional(),
         max_output_tokens: z.coerce.number().nullable().optional(),
     })
@@ -238,6 +276,7 @@ const providerSchema = z
         providerFamilyId: provider.provider_family_id ?? null,
         offerScope: provider.offer_scope ?? null,
         offerLabel: provider.offer_label ?? null,
+		dataPolicyVariant: provider.data_policy_variant ?? "standard",
         apiModelId: provider.api_model_id ?? null,
         pricingKey: provider.pricing_key ?? null,
         providerStatus: (provider.provider_status ?? null) as GatewayProviderSnapshot["providerStatus"],
@@ -257,6 +296,15 @@ const providerSchema = z
             (provider.data_policy_confidence ?? null) as GatewayProviderSnapshot["dataPolicyConfidence"],
         dataPolicyContractMode:
             (provider.data_policy_contract_mode ?? null) as GatewayProviderSnapshot["dataPolicyContractMode"],
+        streamCancellationSupport:
+            (provider.stream_cancellation_support ?? "unknown") as GatewayProviderSnapshot["streamCancellationSupport"],
+        streamCancellationStopsProviderBilling:
+            provider.stream_cancellation_stops_provider_billing ?? null,
+        streamCancellationUsageRecovery:
+            (provider.stream_cancellation_usage_recovery ?? "unknown") as GatewayProviderSnapshot["streamCancellationUsageRecovery"],
+        streamCancellationEvidenceKind:
+            (provider.stream_cancellation_evidence_kind ?? "none") as GatewayProviderSnapshot["streamCancellationEvidenceKind"],
+        streamCancellationSourceUrl: provider.stream_cancellation_source_url ?? null,
         providerModelSlug: provider.provider_model_slug ?? null,
         supportsEndpoint: provider.supports_endpoint ?? true,
         baseWeight: Number.isFinite(provider.base_weight) ? provider.base_weight : 1,
@@ -547,4 +595,3 @@ export {
     keyEnrichmentSchema,
     contextSchema,
 };
-

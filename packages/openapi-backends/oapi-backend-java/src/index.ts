@@ -7,6 +7,7 @@ import type {
 	IROperation,
 	IRSchema
 } from "@phaseo/oapi-core";
+import { splitPathTemplate } from "@phaseo/oapi-core";
 
 export const backendJava: Backend = {
 	id: "java",
@@ -34,6 +35,7 @@ function renderClient(): string {
 		"import java.nio.charset.StandardCharsets;",
 		"import java.util.HashMap;",
 		"import java.util.Map;",
+		"import java.util.stream.Stream;",
 		"",
 		"public class Client {",
 		"\tprivate final String baseUrl;",
@@ -112,6 +114,20 @@ function renderClient(): string {
 		"\t\treturn response.body();",
 		"\t}",
 		"",
+		"\tpublic Stream<String> requestLines(String method, String path, Map<String, String> query, Map<String, String> extraHeaders, String body) throws IOException, InterruptedException {",
+		"\t\tMap<String, String> streamHeaders = new HashMap<>();",
+		"\t\tif (extraHeaders != null) streamHeaders.putAll(extraHeaders);",
+		"\t\tstreamHeaders.put(\"Accept\", \"text/event-stream\");",
+		"\t\tHttpResponse<Stream<String>> response = http.send(buildRequest(method, path, query, streamHeaders, body), HttpResponse.BodyHandlers.ofLines());",
+		"\t\tif (response.statusCode() >= 400) {",
+		"\t\t\ttry (Stream<String> lines = response.body()) {",
+		"\t\t\t\tString raw = String.join(\"\\n\", lines.toList());",
+		"\t\t\t\tthrow new ApiException(response.statusCode(), raw, buildErrorMessage(response.statusCode(), raw));",
+		"\t\t\t}",
+		"\t\t}",
+		"\t\treturn response.body();",
+		"\t}",
+		"",
 		"\tpublic byte[] requestBytes(String method, String path, Map<String, String> query, Map<String, String> extraHeaders, String body) throws IOException, InterruptedException {",
 		"\t\tHttpRequest request = buildRequest(method, path, query, extraHeaders, body);",
 		"\t\tHttpResponse<byte[]> response = http.send(request, HttpResponse.BodyHandlers.ofByteArray());",
@@ -184,15 +200,15 @@ function renderOperation(operation: IROperation): string {
 
 function renderPathTemplate(path: string, params: IROperation["params"]): string {
 	if (params.length === 0) {
-		return `"${path}"`;
+		return JSON.stringify(path);
 	}
-	const segments = path.split(/({[^}]+})/g).filter(Boolean);
+	const segments = splitPathTemplate(path);
 	const parts = segments.map((segment) => {
 		if (segment.startsWith("{") && segment.endsWith("}")) {
-			const name = segment.slice(1, -1);
-			return `(path != null && path.containsKey("${name}") ? path.get("${name}") : "")`;
+			const name = JSON.stringify(segment.slice(1, -1));
+			return `(path != null && path.containsKey(${name}) ? path.get(${name}) : "")`;
 		}
-		return `"${segment}"`;
+		return JSON.stringify(segment);
 	});
 	return parts.join(" + ");
 }

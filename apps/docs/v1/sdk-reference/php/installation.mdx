@@ -1,45 +1,18 @@
 ---
+icon: "package"
 title: "PHP SDK Installation"
-description: "Set up the preview PHP SDK from source."
+description: "Install the Phaseo PHP SDK from Packagist."
 ---
 
-<Note type="warning">
-  The PHP SDK is not published on Packagist yet. Use it from source for now.
-</Note>
+The SDK is published as [`phaseo/sdk`](https://packagist.org/packages/phaseo/sdk) on Packagist.
 
 ## Requirements
 
-- PHP 8.1+
+- PHP 8.1 or newer
 - Composer
-- Access to this repository
 
-## Install from local source
-
-1. Regenerate generated files (optional but recommended after API changes):
+## Install
 
 ```bash
-pnpm openapi:gen:php
-```
-
-2. Add the SDK as a local Composer path repository:
-
-```json
-{
-  "repositories": [
-    {
-      "type": "path",
-      "url": "../phaseo/packages/sdk/sdk-php",
-      "options": { "symlink": true }
-    }
-  ],
-  "require": {
-    "phaseo/php-sdk": "*"
-  }
-}
-```
-
-3. Install dependencies:
-
-```bash
-composer install
+composer require phaseo/sdk
 ```

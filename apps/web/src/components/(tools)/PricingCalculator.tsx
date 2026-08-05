@@ -1,7 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useQueryState } from "nuqs";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+	parseAsArrayOf,
+	parseAsInteger,
+	parseAsJson,
+	parseAsString,
+	useQueryStates,
+} from "nuqs";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
 import {
@@ -11,20 +17,27 @@ import {
 	PricingReference,
 } from "@/components/(tools)/pricing-calculator";
 import type { SelectedPricingModelConfig } from "@/components/(tools)/pricing-calculator/ModelSelector";
+import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySupportedModelIds";
+import {
+	comparePricingEndpoints,
+	createModelSelectionId,
+	sameStringArray,
+	sanitizeMeterInputs,
+	sanitizeModelConfigs,
+	sanitizeModelSelections,
+	sanitizePricingTime,
+	sanitizeRequestMultiplier,
+} from "@/components/(tools)/pricing-calculator/calculatorState";
+import type { CalculatorModelSelection } from "@/components/(tools)/pricing-calculator/calculatorState";
+import type { CalculatorCatalogModel } from "@/components/(tools)/pricing-calculator/calculatorState";
+import { loadPricingCalculatorModels } from "@/app/(dashboard)/tools/pricing-calculator/actions";
 import {
 	type PricingMeter,
 } from "@/components/(data)/model/pricing/pricingHelpers";
+import { selectPricingMetersForUsage } from "@/components/(tools)/pricing-calculator/pricingMeterConditions";
 
 function getCurrentUtcTime() {
 	return new Date().toISOString().slice(11, 16);
-}
-
-function releaseTimestamp(
-	releaseDate?: string | null,
-	announcementDate?: string | null
-): number {
-	const parsed = Date.parse(releaseDate || announcementDate || "");
-	return Number.isFinite(parsed) ? parsed : Number.NEGATIVE_INFINITY;
 }
 
 type PricingModel = {
@@ -40,10 +53,18 @@ type PricingModel = {
 
 type PricingCalculatorProps = {
 	initialModels?: PricingModel[];
+	catalogModels?: CalculatorCatalogModel[];
+	cachedModels?: GatewaySupportedModel[];
 	initialModel?: string;
 	initialEndpoint?: string;
 	initialProvider?: string;
 	initialPlan?: string;
+	initialSelectedModels?: string[];
+	initialSelections?: CalculatorModelSelection[];
+	initialModelConfigs?: Record<string, SelectedPricingModelConfig>;
+	initialMeterInputs?: Record<string, string>;
+	initialRequestMultiplier?: number;
+	initialPricingTimeUtc?: string;
 	totalModelsCount?: number;
 	providersCount?: number;
 };
@@ -52,221 +73,237 @@ type SelectedPricingModel = PricingModel & {
 	key: string;
 	label: string;
 	pricingPlan: string;
+	allMeters: PricingMeter[];
 };
+
+function mergePricingModels(current: PricingModel[], incoming: PricingModel[]): PricingModel[] {
+	const rows = new Map(current.map((row) => [
+		`${row.provider}:${row.model}:${row.endpoint}:${row.pricing_plan || "standard"}`,
+		row,
+	]));
+	for (const row of incoming) {
+		rows.set(
+			`${row.provider}:${row.model}:${row.endpoint}:${row.pricing_plan || "standard"}`,
+			row,
+		);
+	}
+	return [...rows.values()];
+}
+
+function resolveDefaultPricingConfig(
+	models: PricingModel[],
+	modelId: string,
+	preferred?: Partial<SelectedPricingModelConfig>,
+): SelectedPricingModelConfig | null {
+	const rows = models.filter((row) => row.model === modelId);
+	if (rows.length === 0) return null;
+	const endpoints = [...new Set(rows.map((row) => row.endpoint))].sort(comparePricingEndpoints);
+	const endpoint = preferred?.endpoint && endpoints.includes(preferred.endpoint)
+		? preferred.endpoint
+		: endpoints[0] || "";
+	const providerRows = rows.filter((row) => row.endpoint === endpoint);
+	const providers = [...new Set(providerRows.map((row) => row.provider))].sort();
+	const provider = preferred?.provider && providers.includes(preferred.provider)
+		? preferred.provider
+		: providers[0] || "";
+	const plans = [...new Set(providerRows
+		.filter((row) => row.provider === provider)
+		.map((row) => row.pricing_plan || "standard"))]
+		.sort((left, right) => {
+			if (left === "standard") return -1;
+			if (right === "standard") return 1;
+			return left.localeCompare(right);
+		});
+	const pricingPlan = preferred?.pricingPlan && plans.includes(preferred.pricingPlan)
+		? preferred.pricingPlan
+		: plans[0] || "";
+	return endpoint && provider && pricingPlan ? { endpoint, provider, pricingPlan } : null;
+}
 
 export default function PricingCalculator({
 	initialModels,
+	catalogModels = [],
+	cachedModels = [],
 	initialModel,
 	initialEndpoint,
 	initialProvider,
 	initialPlan,
+	initialSelectedModels = [],
+	initialSelections = [],
+	initialModelConfigs = {},
+	initialMeterInputs = {},
+	initialRequestMultiplier = 1,
+	initialPricingTimeUtc,
 	totalModelsCount = 500,
 	providersCount = 10,
 }: PricingCalculatorProps) {
-	const models = useMemo(() => initialModels || [], [initialModels]);
+	const [models, setModels] = useState<PricingModel[]>(() => initialModels || []);
+	const [loadingModelIds, setLoadingModelIds] = useState<string[]>([]);
+	const [pricingNotice, setPricingNotice] = useState<string | null>(null);
 
-	const roundedTotalModelsCount = useMemo(
-		() => Math.ceil(totalModelsCount / 50) * 50,
-		[totalModelsCount]
-	);
-
-	const [selectedModelId, setSelectedModelId] = useQueryState("model", {
-		defaultValue: initialModel || "",
+	const [queryState, setQueryState] = useQueryStates({
+		model: parseAsString.withDefault(initialModel || "").withOptions({ clearOnDefault: false }),
+		endpoint: parseAsString.withDefault(initialEndpoint || "").withOptions({ clearOnDefault: false }),
+		provider: parseAsString.withDefault(initialProvider || "").withOptions({ clearOnDefault: false }),
+		plan: parseAsString.withDefault(initialPlan || "").withOptions({ clearOnDefault: false }),
+		models: parseAsArrayOf(parseAsString).withDefault(
+			initialSelectedModels.length > 0
+				? initialSelectedModels
+				: initialModel
+					? [initialModel]
+					: []
+		).withOptions({ clearOnDefault: false }),
+		selections: parseAsJson<CalculatorModelSelection[]>((value) =>
+			Array.isArray(value) ? sanitizeModelSelections(value) : null
+		).withDefault(initialSelections).withOptions({ clearOnDefault: false }),
+		configs: parseAsJson<Record<string, SelectedPricingModelConfig>>((value) =>
+			value && typeof value === "object" && !Array.isArray(value)
+				? value as Record<string, SelectedPricingModelConfig>
+				: null
+		).withDefault(
+			initialModelConfigs
+		).withOptions({ clearOnDefault: false }),
+		usage: parseAsJson<Record<string, string>>((value) =>
+			value && typeof value === "object" && !Array.isArray(value)
+				? value as Record<string, string>
+				: null
+		).withDefault(initialMeterInputs).withOptions({ clearOnDefault: false }),
+		requests: parseAsInteger.withDefault(
+			sanitizeRequestMultiplier(initialRequestMultiplier)
+		).withOptions({ clearOnDefault: false }),
+		time: parseAsString.withDefault(initialPricingTimeUtc || "").withOptions({ clearOnDefault: false }),
 	});
-	const [, setSelectedEndpoint] = useQueryState("endpoint", {
-		defaultValue: initialEndpoint || "",
-	});
-	const [, setSelectedProvider] = useQueryState("provider", {
-		defaultValue: initialProvider || "",
-	});
-	const [, setSelectedPricingPlan] = useQueryState("plan", {
-		defaultValue: initialPlan || "",
-	});
 
-	const [selectedModelIds, setSelectedModelIds] = useState<string[]>(
-		initialModel ? [initialModel] : []
-	);
-	const [modelConfigs, setModelConfigs] = useState<
-		Record<string, SelectedPricingModelConfig>
-	>({});
-	const [meterInputs, setMeterInputs] = useState<Record<string, string>>({});
-	const [requestMultiplier, setRequestMultiplier] = useState<number>(1);
-	const [pricingTimeUtc, setPricingTimeUtc] = useState<string>("00:00");
-
-	useEffect(() => {
-		setPricingTimeUtc(getCurrentUtcTime());
-	}, []);
-
-	const modelsByReleaseDate = useMemo(() => {
-		const unique = new Map<
-			string,
-			{
-				modelId: string;
-				displayName: string;
-				releaseDate?: string | null;
-				announcementDate?: string | null;
-			}
-		>();
-		for (const row of models) {
-			if (!unique.has(row.model)) {
-				unique.set(row.model, {
-					modelId: row.model,
-					displayName: row.display_name || row.model,
-					releaseDate: row.release_date,
-					announcementDate: row.announcement_date,
-				});
-			}
-		}
-		return Array.from(unique.values()).sort((a, b) => {
-			const dateDiff =
-				releaseTimestamp(b.releaseDate, b.announcementDate) -
-				releaseTimestamp(a.releaseDate, a.announcementDate);
-			if (dateDiff !== 0) return dateDiff;
-			return a.displayName.localeCompare(b.displayName);
-		});
-	}, [models]);
-
-	const selectionOptions = useMemo(() => {
-		const map = new Map<
-			string,
-			Map<string, Map<string, Set<string>>>
-		>();
-
-		for (const row of models) {
-			if (!map.has(row.model)) {
-				map.set(row.model, new Map());
-			}
-			const endpointMap = map.get(row.model)!;
-			if (!endpointMap.has(row.endpoint)) {
-				endpointMap.set(row.endpoint, new Map());
-			}
-			const providerMap = endpointMap.get(row.endpoint)!;
-			if (!providerMap.has(row.provider)) {
-				providerMap.set(row.provider, new Set());
-			}
-			providerMap.get(row.provider)!.add(row.pricing_plan || "standard");
-		}
-
-		return map;
-	}, [models]);
-
-	const getDefaultConfig = (
+	const getDefaultConfig = useCallback((
 		modelId: string,
 		preferred?: Partial<SelectedPricingModelConfig>
-	): SelectedPricingModelConfig | null => {
-		const endpointMap = selectionOptions.get(modelId);
-		if (!endpointMap) return null;
+	): SelectedPricingModelConfig | null =>
+		resolveDefaultPricingConfig(models, modelId, preferred), [models]);
+	const catalogModelIds = useMemo(
+		() => new Set(catalogModels.map((model) => model.modelId)),
+		[catalogModels],
+	);
 
-		const endpoints = Array.from(endpointMap.keys()).sort();
-		const endpoint =
-			preferred?.endpoint && endpointMap.has(preferred.endpoint)
-				? preferred.endpoint
-				: endpoints[0] || "";
-		const providerMap = endpointMap.get(endpoint);
-		if (!providerMap) return null;
-
-		const providers = Array.from(providerMap.keys()).sort();
-		const provider =
-			preferred?.provider && providerMap.has(preferred.provider)
-				? preferred.provider
-				: providers[0] || "";
-		const plans = Array.from(providerMap.get(provider) ?? []).sort((a, b) => {
-			if (a === "standard") return -1;
-			if (b === "standard") return 1;
-			return a.localeCompare(b);
-		});
-		const pricingPlan =
-			preferred?.pricingPlan && plans.includes(preferred.pricingPlan)
-				? preferred.pricingPlan
-				: plans.includes("standard")
-					? "standard"
-					: plans[0] || "";
-
-		return { endpoint, provider, pricingPlan };
-	};
-
-	useEffect(() => {
-		if (modelsByReleaseDate.length === 0) return;
-		if (selectedModelIds.length > 0) return;
-		const initialSelection =
-			selectedModelId && selectionOptions.has(selectedModelId)
-				? selectedModelId
-				: modelsByReleaseDate[0]?.modelId;
-		if (!initialSelection) return;
-		setSelectedModelIds([initialSelection]);
-	}, [
-		modelsByReleaseDate,
-		selectedModelId,
-		selectedModelIds.length,
-		selectionOptions,
-	]);
-
-	useEffect(() => {
-		if (!selectedModelId) return;
-		setSelectedModelIds((current) =>
-			current.includes(selectedModelId) ? current : [selectedModelId, ...current]
+	const selectedModels = useMemo<CalculatorModelSelection[]>(() => {
+		const explicitSelections = sanitizeModelSelections(queryState.selections).filter(
+			(selection) => catalogModelIds.has(selection.modelId)
 		);
-	}, [selectedModelId]);
+		if (explicitSelections.length > 0) return explicitSelections;
+		const legacyModelIds = queryState.models.length > 0
+			? queryState.models
+			: queryState.model
+				? [queryState.model]
+				: [];
+		const legacySelections = legacyModelIds
+			.filter((modelId) => catalogModelIds.has(modelId))
+			.reduce<CalculatorModelSelection[]>((selections, modelId) => [
+				...selections,
+				{ id: createModelSelectionId(modelId, selections), modelId },
+			], []);
+		if (legacySelections.length > 0) return legacySelections;
+		return [];
+	}, [catalogModelIds, queryState.model, queryState.models, queryState.selections]);
+	const selectedModelIds = useMemo(
+		() => selectedModels.map((selection) => selection.modelId),
+		[selectedModels]
+	);
+
+	const requestedConfigs = useMemo(
+		() => sanitizeModelConfigs(queryState.configs),
+		[queryState.configs]
+	);
+	const modelConfigs = useMemo(() => {
+		const next: Record<string, SelectedPricingModelConfig> = {};
+		for (const [index, selection] of selectedModels.entries()) {
+			const preferred = requestedConfigs[selection.id] ??
+				(index === 0 ? requestedConfigs[selection.modelId] : undefined) ?? (index === 0
+				? {
+					endpoint: queryState.endpoint,
+					provider: queryState.provider,
+					pricingPlan: queryState.plan,
+				}
+				: undefined);
+			const config = getDefaultConfig(selection.modelId, preferred);
+			if (config) next[selection.id] = config;
+		}
+		return next;
+	}, [
+		getDefaultConfig,
+		queryState.endpoint,
+		queryState.plan,
+		queryState.provider,
+		requestedConfigs,
+		selectedModels,
+	]);
+	const meterInputs = useMemo(
+		() => sanitizeMeterInputs(queryState.usage),
+		[queryState.usage]
+	);
+	const requestMultiplier = sanitizeRequestMultiplier(queryState.requests);
+	const pricingTimeUtc = sanitizePricingTime(queryState.time) || "00:00";
 
 	useEffect(() => {
-		if (selectedModelIds.length === 0) return;
-		setModelConfigs((current) => {
-			let changed = false;
-			const next: Record<string, SelectedPricingModelConfig> = {};
-			for (const modelId of selectedModelIds) {
-				const defaultConfig = getDefaultConfig(modelId, {
-					endpoint: current[modelId]?.endpoint || initialEndpoint,
-					provider: current[modelId]?.provider || initialProvider,
-					pricingPlan: current[modelId]?.pricingPlan || initialPlan,
-				});
-				if (!defaultConfig) continue;
-				next[modelId] = defaultConfig;
-				if (
-					current[modelId]?.endpoint !== defaultConfig.endpoint ||
-					current[modelId]?.provider !== defaultConfig.provider ||
-					current[modelId]?.pricingPlan !== defaultConfig.pricingPlan
-				) {
-					changed = true;
-				}
-			}
-			if (Object.keys(current).length !== Object.keys(next).length) {
-				changed = true;
-			}
-			return changed ? next : current;
+		if (sanitizePricingTime(queryState.time)) return;
+		setQueryState({ time: getCurrentUtcTime() });
+	}, [queryState.time, setQueryState]);
+
+	useEffect(() => {
+		const primarySelection = selectedModels[0];
+		const primaryModelId = primarySelection?.modelId || "";
+		const primaryConfig = primarySelection ? modelConfigs[primarySelection.id] : null;
+		const configsMatch = JSON.stringify(queryState.configs) === JSON.stringify(modelConfigs);
+		const usageMatches = JSON.stringify(queryState.usage) === JSON.stringify(meterInputs);
+		const selectionsMatch = JSON.stringify(queryState.selections) === JSON.stringify(selectedModels);
+		if (
+			sameStringArray(queryState.models, selectedModelIds) &&
+			selectionsMatch &&
+			configsMatch &&
+			usageMatches &&
+			queryState.requests === requestMultiplier &&
+			queryState.model === primaryModelId &&
+			queryState.endpoint === (primaryConfig?.endpoint || "") &&
+			queryState.provider === (primaryConfig?.provider || "") &&
+			queryState.plan === (primaryConfig?.pricingPlan || "")
+		) {
+			return;
+		}
+		setQueryState({
+			models: selectedModelIds,
+			selections: selectedModels,
+			configs: modelConfigs,
+			usage: meterInputs,
+			requests: requestMultiplier,
+			model: primaryModelId,
+			endpoint: primaryConfig?.endpoint || "",
+			provider: primaryConfig?.provider || "",
+			plan: primaryConfig?.pricingPlan || "",
 		});
 	}, [
-		initialEndpoint,
-		initialPlan,
-		initialProvider,
-		selectedModelIds,
-		selectionOptions,
-	]);
-
-	useEffect(() => {
-		const primaryModelId = selectedModelIds[0] || "";
-		const primaryConfig = primaryModelId ? modelConfigs[primaryModelId] : null;
-
-		setSelectedModelId(primaryModelId);
-		setSelectedEndpoint(primaryConfig?.endpoint || "");
-		setSelectedProvider(primaryConfig?.provider || "");
-		setSelectedPricingPlan(primaryConfig?.pricingPlan || "");
-	}, [
+		meterInputs,
 		modelConfigs,
+		queryState.configs,
+		queryState.endpoint,
+		queryState.model,
+		queryState.models,
+		queryState.plan,
+		queryState.provider,
+		queryState.requests,
+		queryState.selections,
+		queryState.usage,
+		requestMultiplier,
 		selectedModelIds,
-		setSelectedEndpoint,
-		setSelectedModelId,
-		setSelectedPricingPlan,
-		setSelectedProvider,
+		selectedModels,
+		setQueryState,
 	]);
 
 	const selectedModelData = useMemo<SelectedPricingModel[]>(() => {
-		return selectedModelIds
-			.map((modelId) => {
-				const config = modelConfigs[modelId] ?? getDefaultConfig(modelId);
+		return selectedModels
+			.map((selection) => {
+				const config = modelConfigs[selection.id] ?? getDefaultConfig(selection.modelId);
 				if (!config) return null;
 				const row = models.find(
 					(item) =>
-						item.model === modelId &&
+						item.model === selection.modelId &&
 						item.endpoint === config.endpoint &&
 						item.provider === config.provider &&
 						(item.pricing_plan || "standard") === config.pricingPlan
@@ -274,13 +311,15 @@ export default function PricingCalculator({
 				if (!row) return null;
 				return {
 					...row,
-					key: modelId,
+					allMeters: row.meters,
+					meters: selectPricingMetersForUsage(row.meters, meterInputs),
+					key: selection.id,
 					label: row.display_name || row.model,
 					pricingPlan: config.pricingPlan,
 				};
 			})
 			.filter((row): row is SelectedPricingModel => Boolean(row));
-	}, [modelConfigs, models, selectedModelIds, selectionOptions]);
+	}, [getDefaultConfig, meterInputs, modelConfigs, models, selectedModels]);
 
 	const allSelectedMeters = useMemo(() => {
 		const map = new Map<string, PricingMeter>();
@@ -297,55 +336,83 @@ export default function PricingCalculator({
 	const comparisonModels = useMemo(
 		() =>
 			selectedModelData.map((model) => ({
-				key: `${model.model}:${model.provider}:${model.endpoint}:${model.pricingPlan}`,
+				key: model.key,
 				label: model.label,
 				modelId: model.model,
 				provider: model.provider,
 				pricingPlan: model.pricingPlan,
 				meters: model.meters,
+				allMeters: model.allMeters,
 			})),
 		[selectedModelData]
 	);
 
-	const handleToggleModel = (modelId: string) => {
-		setSelectedModelIds((current) => {
-			if (current.includes(modelId)) {
-				setMeterInputs({});
-				return current.filter((id) => id !== modelId);
+	const handleAddModel = async (modelId: string) => {
+		if (loadingModelIds.length > 0) return;
+		setPricingNotice(null);
+		let pricingRows = models.filter((row) => row.model === modelId);
+		if (pricingRows.length === 0) {
+			setLoadingModelIds([modelId]);
+			try {
+				pricingRows = await loadPricingCalculatorModels([modelId]);
+				if (pricingRows.length > 0) {
+					setModels((current) => mergePricingModels(current, pricingRows));
+				}
+			} catch {
+				setPricingNotice("Pricing could not be loaded for this model. Please try again.");
+				return;
+			} finally {
+				setLoadingModelIds([]);
 			}
-			const defaultConfig = getDefaultConfig(modelId);
-			if (defaultConfig) {
-				setModelConfigs((configs) => ({
-					...configs,
-					[modelId]: defaultConfig,
-				}));
-			}
-			setMeterInputs({});
-			return [...current, modelId];
+		}
+		const defaultConfig = resolveDefaultPricingConfig(pricingRows, modelId);
+		if (!defaultConfig) {
+			const modelName = catalogModels.find((model) => model.modelId === modelId)?.displayName || modelId;
+			setPricingNotice(`No pricing meters are currently published for ${modelName}.`);
+			return;
+		}
+		const selection = {
+			id: createModelSelectionId(modelId, selectedModels),
+			modelId,
+		};
+		const nextSelections = [...selectedModels, selection];
+		setQueryState({
+			selections: nextSelections,
+			models: nextSelections.map((item) => item.modelId),
+			configs: { ...modelConfigs, [selection.id]: defaultConfig },
+			usage: {},
+		});
+	};
+
+	const handleRemoveModel = (selectionId: string) => {
+		const nextSelections = selectedModels.filter((selection) => selection.id !== selectionId);
+		const nextConfigs = { ...modelConfigs };
+		delete nextConfigs[selectionId];
+		setQueryState({
+			selections: nextSelections,
+			models: nextSelections.map((item) => item.modelId),
+			configs: nextConfigs,
+			usage: {},
 		});
 	};
 
 	const handleUpdateModelConfig = (
-		modelId: string,
+		selectionId: string,
 		patch: Partial<SelectedPricingModelConfig>
 	) => {
-		setModelConfigs((current) => {
-			const existing = current[modelId] ?? getDefaultConfig(modelId);
-			const next = getDefaultConfig(modelId, { ...existing, ...patch });
-			if (!next) return current;
-			return {
-				...current,
-				[modelId]: next,
-			};
+		const selection = selectedModels.find((item) => item.id === selectionId);
+		if (!selection) return;
+		const existing = modelConfigs[selectionId] ?? getDefaultConfig(selection.modelId);
+		const next = getDefaultConfig(selection.modelId, { ...existing, ...patch });
+		if (!next) return;
+		setQueryState({
+			configs: { ...modelConfigs, [selectionId]: next },
+			usage: {},
 		});
-		setMeterInputs({});
 	};
 
 	const handleMeterInputChange = (meter: string, value: string) => {
-		setMeterInputs((prev: Record<string, string>) => ({
-			...prev,
-			[meter]: value,
-		}));
+		setQueryState({ usage: { ...meterInputs, [meter]: value } });
 	};
 
 	return (
@@ -363,11 +430,11 @@ export default function PricingCalculator({
 					<div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
 						<span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-2.5 py-1">
 							<CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
-							{roundedTotalModelsCount}+ models
+							{totalModelsCount.toLocaleString()} models
 						</span>
 						<span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-2.5 py-1">
 							<CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
-							{providersCount}+ providers
+							{providersCount.toLocaleString()} providers
 						</span>
 						<span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-2.5 py-1">
 							<CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
@@ -378,17 +445,19 @@ export default function PricingCalculator({
 			</header>
 
 			<div className="space-y-5">
-				<div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 items-start">
-					<div className="2xl:col-span-8">
-						<ModelSelector
-							models={models}
-							selectedModelIds={selectedModelIds}
-							modelConfigs={modelConfigs}
-							onToggleModel={handleToggleModel}
-							onUpdateModelConfig={handleUpdateModelConfig}
-						/>
-					</div>
-					<div className="2xl:col-span-4">
+				<ModelSelector
+					models={models}
+					catalogModels={catalogModels}
+					cachedModels={cachedModels}
+					selectedModels={selectedModels}
+					modelConfigs={modelConfigs}
+					loadingModelIds={loadingModelIds}
+					pricingNotice={pricingNotice}
+					onAddModel={handleAddModel}
+					onRemoveModel={handleRemoveModel}
+					onUpdateModelConfig={handleUpdateModelConfig}
+				/>
+
 						{allSelectedMeters.length > 0 ? (
 							<UsageInputs
 								meters={allSelectedMeters}
@@ -396,8 +465,12 @@ export default function PricingCalculator({
 								requestMultiplier={requestMultiplier}
 								pricingTimeUtc={pricingTimeUtc}
 								onMeterInputChange={handleMeterInputChange}
-								onRequestMultiplierChange={setRequestMultiplier}
-								onPricingTimeUtcChange={setPricingTimeUtc}
+								onRequestMultiplierChange={(value) =>
+									setQueryState({ requests: sanitizeRequestMultiplier(value) })
+								}
+								onPricingTimeUtcChange={(value) =>
+									setQueryState({ time: sanitizePricingTime(value) })
+								}
 							/>
 						) : (
 							<Card>
@@ -408,8 +481,6 @@ export default function PricingCalculator({
 								</CardContent>
 							</Card>
 						)}
-					</div>
-				</div>
 
 				{selectedModelData.length > 0 ? (
 					<>

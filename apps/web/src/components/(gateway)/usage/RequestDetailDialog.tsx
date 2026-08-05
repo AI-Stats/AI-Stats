@@ -3,17 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import {
-	Activity,
-	AppWindow,
-	ArrowRight,
-	Clock,
-	Coins,
-	Gauge,
-	Hash,
-	Info,
-	XCircle,
-} from "lucide-react";
+import { AppWindow, Info, LoaderCircle, XCircle } from "lucide-react";
 import {
 	Dialog,
 	DialogContent,
@@ -49,8 +39,6 @@ import {
 } from "./usageMeters";
 import {
 	DetailKeyValueGrid,
-	DetailMetricTile,
-	DetailSection,
 	DetailTimingBar,
 } from "./DetailDialogPrimitives";
 import { formatWordyDateTime } from "@/lib/gateway/usage/timeFormatting";
@@ -62,6 +50,10 @@ import {
 import { formatRoomError } from "@/lib/chat/formatRoomError";
 import { buildRoutingExplanation } from "@/lib/gateway/usage/routingExplanation";
 import UsageEntityHoverCard from "./UsageEntityHoverCard";
+import {
+	ProviderInspectorSheet,
+	ProviderInspectorSheetContent,
+} from "@/components/(data)/model/pricing/ProviderInspectorSheet";
 
 interface RequestDetailDialogProps {
 	open: boolean;
@@ -74,6 +66,8 @@ interface RequestDetailDialogProps {
 	providerMetadata?: Map<string, ProviderMetadataEntry>;
 	headerActions?: React.ReactNode;
 	ioLog?: GatewayIoLog | null;
+	presentation?: "dialog" | "sheet";
+	loading?: boolean;
 }
 
 type ProviderAttemptRow = RequestRow["provider_attempts"][number];
@@ -777,41 +771,41 @@ function RequestHeader({
 	const modelMeta = routedModelId ? metadata.get(routedModelId) : undefined;
 	const timestamp = formatWordyDateTime(request.created_at, { includeTime: true });
 	const providerMeta = request.provider ? providerMetadata?.get(request.provider) : undefined;
-	const subtitle = [
-		providerName ?? providerMeta?.name ?? request.provider ?? null,
-		request.success ? "Success" : "Error",
-		timestamp,
-	]
-		.filter(Boolean)
-		.join(" · ");
-
 	return (
 		<div>
 			<div className="px-5 py-4 sm:px-6 sm:py-5">
 				<div className="pr-10">
-					<DialogTitle className="flex min-w-0 items-center gap-3 text-lg font-semibold">
-						{modelMeta ? (
-							<Logo
-								id={modelMeta.organisationId}
-								width={20}
-								height={20}
-								className="flex-shrink-0"
-							/>
-						) : null}
+					<DialogTitle className="text-base font-semibold">Generation details</DialogTitle>
+					<div className="mt-3 flex min-w-0 flex-wrap items-center gap-2">
 						{modelHref ? (
 							<Link
 								href={modelHref}
-								className="min-w-0 truncate underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+								className="inline-flex min-w-0 items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-muted/50"
 							>
-								{modelName || routedModelId || "Request"}
+								{modelMeta ? <Logo id={modelMeta.organisationId} width={16} height={16} className="shrink-0" /> : null}
+								<span className="truncate">{modelName || routedModelId || "Request"}</span>
 							</Link>
 						) : (
-							<span className="min-w-0 truncate">
-								{modelName || routedModelId || "Request"}
+							<span className="inline-flex min-w-0 items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm font-medium">
+								{modelMeta ? <Logo id={modelMeta.organisationId} width={16} height={16} className="shrink-0" /> : null}
+								<span className="truncate">{modelName || routedModelId || "Request"}</span>
 							</span>
 						)}
-					</DialogTitle>
-					<div className="mt-2 text-sm text-muted-foreground">{subtitle}</div>
+						{request.provider ? (
+							<Link href={`/api-providers/${encodeURIComponent(request.provider)}`} className="inline-flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-muted/50">
+								<Logo id={request.provider} width={16} height={16} className="shrink-0" />
+								{providerName ?? providerMeta?.name ?? request.provider}
+							</Link>
+						) : null}
+						<span className={cn("rounded-md border px-2.5 py-1.5 text-xs font-medium", request.success ? "border-emerald-500/25 text-emerald-600" : "border-rose-500/25 text-rose-600")}>
+							{request.success ? "Success" : "Error"}
+						</span>
+					</div>
+					<div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+						<code className="font-mono">{request.request_id}</code>
+						<span aria-hidden="true">·</span>
+						<span>{timestamp}</span>
+					</div>
 				</div>
 			</div>
 			<Separator />
@@ -830,6 +824,8 @@ export default function RequestDetailDialog({
 	providerMetadata,
 	headerActions,
 	ioLog,
+	presentation = "dialog",
+	loading = false,
 }: RequestDetailDialogProps) {
 	const searchParams = useSearchParams();
 
@@ -879,7 +875,10 @@ export default function RequestDetailDialog({
 						`Attempt ${index + 1}`;
 					const statusTone = getAttemptStatusTone(attempt);
 					const statusDescription = getAttemptStatusDescription(attempt);
-					const durationMs = Number(attempt.duration_ms ?? 0) || 0;
+					const durationMs = Number(attempt.total_ms ?? attempt.duration_ms ?? 0) || 0;
+					const attemptFinishReason =
+						attempt.provider_finish_reason ?? attempt.finish_reason ?? null;
+					const attemptCostNanos = Number(attempt.cost_nanos ?? 0) || 0;
 					const attemptModelParts = getConcreteModelParts({
 						apiModelId: attempt.api_model_id,
 						providerModelSlug: attempt.provider_model_slug,
@@ -908,6 +907,16 @@ export default function RequestDetailDialog({
 													{value}
 												</code>
 											))}
+										</div>
+									) : null}
+									{attemptFinishReason || attemptCostNanos > 0 ? (
+										<div className="mt-0.5 flex flex-wrap gap-x-2 text-[10px] text-muted-foreground">
+											{attemptFinishReason ? (
+												<span>finish: {attemptFinishReason}</span>
+											) : null}
+											{attemptCostNanos > 0 ? (
+												<span>cost: {formatCost(attemptCostNanos)}</span>
+											) : null}
 										</div>
 									) : null}
 								</div>
@@ -1393,26 +1402,27 @@ export default function RequestDetailDialog({
 			: []),
 	];
 
-	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-h-[90vh] max-w-6xl overflow-hidden p-0">
-				<DialogHeader className="sr-only">
-					<DialogTitle>Request details</DialogTitle>
-				</DialogHeader>
-
+	const detailContent = (
+		<>
 				<RequestHeader
 					request={request}
 					modelMetadata={modelMetadata}
 					providerName={providerName}
 					providerMetadata={providerMetadata}
 				/>
+				{loading ? (
+					<div className="flex items-center gap-2 border-b border-border/70 px-5 py-2 text-xs text-muted-foreground sm:px-6">
+						<LoaderCircle className="size-3.5 animate-spin" />
+						Fetching full generation log…
+					</div>
+				) : null}
 				{headerActions ? (
 					<div className="border-b bg-muted/20 px-5 py-2 sm:px-6">
 						{headerActions}
 					</div>
 				) : null}
 
-				<div className="max-h-[calc(90vh-110px)] overflow-y-auto p-5 sm:p-6">
+				<div className={cn("overflow-y-auto p-5 sm:p-6", presentation === "sheet" ? "min-h-0 flex-1" : "max-h-[calc(90vh-110px)]")}>
 					<div className="space-y-6">
 						{!request.success && (request.error_code || request.error_message) ? (
 							<div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm">
@@ -2521,88 +2531,29 @@ export default function RequestDetailDialog({
 							</div>
 						) : null}
 
-						<div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-							<DetailMetricTile
-								icon={Clock}
-								label="Provider latency"
-								value={
-									timingLatency > 0 ? (
-										<span className="font-mono">{timingLatency} ms</span>
-									) : (
-										"-"
-									)
-								}
-								sub="Time to first token or output byte"
-								tone="emerald"
-								compact
-							/>
-							<DetailMetricTile
-								icon={Activity}
-								label="Generation"
-								value={
-									timingGeneration > 0 ? (
-										<span className="font-mono">{timingGeneration} ms</span>
-									) : (
-										"-"
-									)
-								}
-								sub="Post-latency generation time"
-								tone="sky"
-								compact
-							/>
-							<DetailMetricTile
-								icon={Gauge}
-								label="Throughput"
-								value={<span className="font-mono">{formatThroughput(request.throughput)}</span>}
-								tone="violet"
-								compact
-							/>
-							<DetailMetricTile
-								icon={Coins}
-								label="Cost"
-								value={<span className="font-mono">{formatCost(request.cost_nanos)}</span>}
-								tone="amber"
-								compact
-							/>
-							<DetailMetricTile
-								icon={Hash}
-								label="Tokens"
-								value={
-									usageSummary.input != null || usageSummary.output != null ? (
-										<span className="inline-flex items-center gap-1 font-mono">
-											{formatUsageNumber(usageSummary.input ?? 0)}
-											<ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
-											{formatUsageNumber(usageSummary.output ?? 0)}
-										</span>
-									) : (
-										"-"
-									)
-								}
-								sub={
-									usageSummary.total != null ? (
-										<span>Total {formatUsageNumber(usageSummary.total)}</span>
-									) : undefined
-								}
-								tone="slate"
-								compact
-							/>
-							<DetailMetricTile
-								icon={Info}
-								label="Stop reason"
-								value={request.finish_reason || "-"}
-								tone="slate"
-								compact
-							/>
-						</div>
-
-						<DetailSection
-							title="Request details"
-							className="border-none bg-transparent p-0"
-						>
+						<GenerationSection title="Overview">
 							<DetailKeyValueGrid columns={2} items={requestDetailItems} />
-						</DetailSection>
+						</GenerationSection>
 
-						<DetailSection title="Usage breakdown">
+						<GenerationSection title="Performance">
+							<DetailKeyValueGrid
+								columns={3}
+								items={[
+									{ label: "Provider latency", value: <span className="font-mono">{timingLatency > 0 ? `${timingLatency} ms` : "-"}</span> },
+									{ label: "Generation time", value: <span className="font-mono">{timingGeneration > 0 ? `${timingGeneration} ms` : "-"}</span> },
+									{ label: "Throughput", value: <span className="font-mono">{formatThroughput(request.throughput)}</span> },
+									{ label: "Cost", value: <span className="font-mono">{formatCost(request.cost_nanos)}</span> },
+									{ label: "Tokens", value: <span className="font-mono">{usageSummary.input != null || usageSummary.output != null ? `${formatUsageNumber(usageSummary.input ?? 0)} → ${formatUsageNumber(usageSummary.output ?? 0)}` : "-"}</span> },
+									{ label: "Stop reason", value: request.finish_reason || "-" },
+								]}
+							/>
+						</GenerationSection>
+
+						<GenerationSection title="Provider responses">
+							<DetailTimingBar items={responseTimelineItems} />
+						</GenerationSection>
+
+						<GenerationSection title="Usage">
 							{usageMeters.length > 0 ? (
 								<DetailKeyValueGrid
 									columns={3}
@@ -2616,10 +2567,10 @@ export default function RequestDetailDialog({
 									No usage metrics available.
 								</div>
 							)}
-						</DetailSection>
+						</GenerationSection>
 
 						{ioLog ? (
-							<DetailSection title="Gateway I/O">
+							<GenerationSection title="Gateway I/O">
 								<div className="space-y-4 text-sm">
 									<div className="flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
 										<span>Status: <span className="font-medium text-foreground">{ioLog.status}</span></span>
@@ -2633,11 +2584,11 @@ export default function RequestDetailDialog({
 										</div>
 									) : <p className="text-muted-foreground">{ioLog.error ?? "No I/O payload is available for this request."}</p>}
 								</div>
-							</DetailSection>
+							</GenerationSection>
 						) : null}
 
 						{request.pricing_lines.length > 0 ? (
-							<DetailSection title="Pricing lines">
+							<GenerationSection title="Pricing">
 								<div className="space-y-2">
 									{request.pricing_lines.map((line, index) => (
 										<div
@@ -2650,17 +2601,42 @@ export default function RequestDetailDialog({
 										</div>
 									))}
 								</div>
-							</DetailSection>
+							</GenerationSection>
 						) : null}
-
-						<DetailSection title="Provider response">
-							<div className="space-y-4">
-								<DetailTimingBar items={responseTimelineItems} />
-							</div>
-						</DetailSection>
 					</div>
 				</div>
+		</>
+	);
+
+	if (presentation === "sheet") {
+		return (
+			<ProviderInspectorSheet open={open} onOpenChange={onOpenChange}>
+				<ProviderInspectorSheetContent
+					className="!w-full max-w-none gap-0 overflow-hidden p-0 sm:max-w-none md:!w-[58vw] lg:!w-[54vw] xl:!w-[50vw] 2xl:!w-[46vw] data-[side=right]:sm:max-w-none"
+				>
+					{detailContent}
+				</ProviderInspectorSheetContent>
+			</ProviderInspectorSheet>
+		);
+	}
+
+	return (
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-h-[90vh] max-w-6xl overflow-hidden p-0">
+				<DialogHeader className="sr-only">
+					<DialogTitle>Request details</DialogTitle>
+				</DialogHeader>
+				{detailContent}
 			</DialogContent>
 		</Dialog>
+	);
+}
+
+function GenerationSection({ title, children }: { title: string; children: React.ReactNode }) {
+	return (
+		<section className="border-b border-border/70 py-6 last:border-b-0">
+			<h2 className="mb-4 text-sm font-semibold text-foreground">{title}</h2>
+			{children}
+		</section>
 	);
 }

@@ -508,7 +508,7 @@ async function discoverAllTextProvidersFromSupabase(): Promise<string[]> {
 
     const now = new Date();
     const modelsRes = await supabase
-        .from("data_api_provider_models")
+		.from("v2_rpc_routes_legacy_shape")
         .select("provider_api_model_id,provider_id,is_active_gateway,effective_from,effective_to")
         .eq("is_active_gateway", true);
     if (modelsRes.error) {
@@ -530,7 +530,7 @@ async function discoverAllTextProvidersFromSupabase(): Promise<string[]> {
     if (!providerModelIds.length) return [];
 
     const capsRes = await supabase
-        .from("data_api_provider_model_capabilities")
+		.from("v2_rpc_capabilities_legacy_shape")
         .select("provider_api_model_id")
         .in("provider_api_model_id", providerModelIds)
         .eq("capability_id", "text.generate")
@@ -568,7 +568,7 @@ async function discoverAllApiProvidersFromSupabase(): Promise<string[]> {
     });
 
     const providersRes = await supabase
-        .from("data_api_providers")
+		.from("v2_rpc_providers_legacy_shape")
         .select("api_provider_id");
     if (providersRes.error) {
         throw new Error(providersRes.error.message);

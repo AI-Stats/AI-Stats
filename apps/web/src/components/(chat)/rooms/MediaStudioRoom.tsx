@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type SyntheticEvent 
 import { Logo } from "@/components/Logo";
 import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySupportedModelIds";
 import { filterModelsForRoom } from "@/lib/chat/rooms";
+import { fetchChatWebApi } from "@/lib/web-api/client";
 import { APP_HEADERS } from "@/components/(chat)/playground/chat-playground-core";
 import { extractGenerationUrls } from "@/lib/chat/roomRequestBuilders";
 import {
@@ -51,6 +52,7 @@ import {
 	MediaPlayerVolumeIndicator,
 } from "@/components/ui/media-player";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { RoomModelSelector } from "@/components/(chat)/RoomModelSelector";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -76,7 +78,12 @@ import { ImageModelSettingsDialog } from "@/components/(chat)/rooms/settings/Ima
 import { VideoModelSettingsDialog } from "@/components/(chat)/rooms/settings/VideoModelSettingsDialog";
 import { RoomErrorNotice } from "@/components/(chat)/rooms/RoomErrorNotice";
 import {
-	ChevronRight,
+	RoomComposerFooter,
+	RoomComposerSurface,
+} from "@/components/(chat)/RoomComposer";
+import {
+	PanelLeftClose,
+	PanelLeftOpen,
 	CircleAlert,
 	Cpu,
 	Download,
@@ -287,12 +294,6 @@ function getResourceId(payload: any): string | null {
 		}
 	}
 	return null;
-}
-
-function buildVideoContentProxyUrl(resourceId: string): string {
-	const trimmed = resourceId.trim();
-	if (!trimmed) return "";
-	return `/api/chat/video?resourceId=${encodeURIComponent(trimmed)}&content=1`;
 }
 
 function getGatewayRequestId(payload: any): string | null {
@@ -683,13 +684,13 @@ function mergeVideoEntriesWithJobs(
 		if (!resourceId) continue;
 		const existingIndex = indexByResourceId.get(resourceId);
 		const nextStatus = normalizeVideoEntryStatusFromJob(job.status);
-		const shouldUseContentProxyUrl = nextStatus === "completed";
 		if (typeof existingIndex === "number") {
 			const existing = nextEntries[existingIndex];
 			if (!existing) continue;
+			const needsContentFetch = nextStatus === "completed" && !existing.url;
 			nextEntries[existingIndex] = {
 				...existing,
-				status: nextStatus,
+				status: needsContentFetch ? "pending" : nextStatus,
 				statusLabel: job.statusLabel ?? existing.statusLabel ?? existing.status,
 				progressPercent:
 					nextStatus === "completed"
@@ -703,10 +704,7 @@ function mergeVideoEntriesWithJobs(
 				costUsd: job.costUsd ?? existing.costUsd,
 				videoSeconds: job.videoSeconds ?? existing.videoSeconds,
 				videoResolution: job.videoResolution ?? existing.videoResolution,
-				url:
-					shouldUseContentProxyUrl
-						? existing.url || buildVideoContentProxyUrl(resourceId)
-						: existing.url,
+				url: existing.url,
 			};
 			continue;
 		}
@@ -717,8 +715,8 @@ function mergeVideoEntriesWithJobs(
 			createdAt: timestamp,
 			modelId: job.modelId ?? "video",
 			prompt: toRecoveredVideoPrompt(),
-			url: shouldUseContentProxyUrl ? buildVideoContentProxyUrl(resourceId) : "",
-			status: nextStatus,
+			url: "",
+			status: nextStatus === "completed" ? "pending" : nextStatus,
 			statusLabel: job.statusLabel ?? job.status,
 			progressPercent:
 				nextStatus === "completed"
@@ -900,42 +898,6 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 	const modelSettingsCompat = modelSettings as any;
 	const selectedProfile =
 		modelSettingsCompat.selectedProfile ?? modelSettingsCompat.activeModelSettings ?? null;
-	const selectedProviderId = selectedProfile?.providerId;
-	const composerSelectedModel = useMemo(
-		() =>
-			filteredModels.find(
-				(model) =>
-					model.modelId === activeModelId &&
-					(!selectedProviderId || model.providerId === selectedProviderId),
-			) ??
-			filteredModels.find((model) => model.modelId === activeModelId) ??
-			null,
-		[activeModelId, filteredModels, selectedProviderId],
-	);
-	const composerModelLogoId =
-		composerSelectedModel?.organisationId?.trim() ||
-		composerSelectedModel?.providerId ||
-		(activeModelId.split("/")[0] || "phaseo");
-	const composerModelLabel =
-		(activeModelId &&
-			(modelSettings.modelDisplayNameById[activeModelId] ||
-				composerSelectedModel?.modelName ||
-				activeModelId)) ||
-		"Select model";
-	const openComposerModelPicker = () => {
-		const targetModelId =
-			activeModelId || selectedModelIds[0] || filteredModels[0]?.modelId;
-		if (!targetModelId) return;
-		if (!selectedModelIds.includes(targetModelId)) {
-			setSelectedModelIds((prev) =>
-				roomId === "video" ? [targetModelId] : [...prev, targetModelId],
-			);
-		}
-		if (targetModelId !== activeModelId) {
-			setActiveModelId(targetModelId);
-		}
-		modelSettings.openModelSettingsForModel(targetModelId);
-	};
 	const dialogModelId: string | null = modelSettingsCompat.modelSettingsModelId ?? null;
 	const dialogProfile =
 		dialogModelId && typeof modelSettingsCompat.getProfileForModel === "function"
@@ -1096,7 +1058,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 
 			if (roomId === "video") {
 				try {
-					const response = await fetch("/api/chat/video?list=1&limit=100", {
+					const response = await fetchChatWebApi("/api/chat/video?list=1&limit=100", {
 						method: "GET",
 						cache: "no-store",
 					});
@@ -1231,28 +1193,24 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 		[persistEntries, roomId],
 	);
 
-	const isVideoContentProxyReady = useCallback(async (resourceId: string) => {
+	const fetchVideoContentObjectUrl = useCallback(async (resourceId: string) => {
 		const trimmed = resourceId.trim();
-		if (!trimmed) return false;
+		if (!trimmed) return null;
 		try {
-			const response = await fetch(
+			const response = await fetchChatWebApi(
 				`/api/chat/video?resourceId=${encodeURIComponent(trimmed)}&content=1`,
 				{
 					method: "GET",
 					cache: "no-store",
 				},
 			);
-			if (!response.ok) return false;
+			if (!response.ok) return null;
 			const contentType = (response.headers.get("content-type") ?? "").toLowerCase();
-			const isJsonPayload = contentType.includes("application/json");
-			try {
-				await response.body?.cancel?.();
-			} catch {
-				// Ignore cancellation errors.
-			}
-			return !isJsonPayload;
+			if (contentType.includes("application/json")) return null;
+			const blob = await response.blob();
+			return blob.size > 0 ? URL.createObjectURL(blob) : null;
 		} catch {
-			return false;
+			return null;
 		}
 	}, []);
 
@@ -1270,7 +1228,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 
 					let pollResponse: Response;
 					try {
-						pollResponse = await fetch(
+						pollResponse = await fetchChatWebApi(
 							`/api/chat/video?resourceId=${encodeURIComponent(currentResourceId)}`,
 							{ method: "GET", cache: "no-store" },
 						);
@@ -1301,13 +1259,18 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 
 					const contentType = pollResponse.headers.get("content-type") ?? "";
 					if (!contentType.includes("application/json")) {
+						const blob = await pollResponse.blob();
+						if (!blob.size) {
+							await wait(VIDEO_POLL_INTERVAL_FAST_MS);
+							continue;
+						}
 						await replaceEntry(entryId, [
 							{
 								...currentEntry,
 								status: "completed",
 								statusLabel: "completed",
 								progressPercent: 100,
-								url: buildVideoContentProxyUrl(currentResourceId),
+								url: URL.createObjectURL(blob),
 							},
 						]);
 						break;
@@ -1323,9 +1286,10 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 					const shouldResolveViaContentProxy =
 						extractedUrls.length === 0 &&
 						(normalizedStatus === "completed" || hasCompletionSignal);
+					let contentObjectUrl: string | null = null;
 					if (shouldResolveViaContentProxy) {
-						const ready = await isVideoContentProxyReady(nextResourceId);
-						if (!ready) {
+						contentObjectUrl = await fetchVideoContentObjectUrl(nextResourceId);
+						if (!contentObjectUrl) {
 							await wait(
 								hasCompletionSignal
 									? VIDEO_POLL_INTERVAL_FAST_MS
@@ -1337,8 +1301,8 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 					const urls =
 						extractedUrls.length > 0
 							? extractedUrls
-							: shouldResolveViaContentProxy
-								? [buildVideoContentProxyUrl(nextResourceId)]
+							: shouldResolveViaContentProxy && contentObjectUrl
+								? [contentObjectUrl]
 								: [];
 					const nextStatus: GenerationEntry["status"] = toMediaEntryStatus({
 						rawStatus,
@@ -1366,7 +1330,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 				pollingEntryIdsRef.current.delete(entryId);
 			}
 		},
-		[isVideoContentProxyReady, replaceEntry, roomId],
+		[fetchVideoContentObjectUrl, replaceEntry, roomId],
 	);
 
 	useEffect(() => {
@@ -1665,7 +1629,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 								);
 							}
 
-							const response = await fetch(`/api/chat/${roomId}`, {
+							const response = await fetchChatWebApi(`/api/chat/${roomId}`, {
 								method: "POST",
 								headers: {
 									"Content-Type": "application/json",
@@ -1711,12 +1675,13 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 								extractedUrls.length === 0 &&
 								(normalizedStatus === "completed" || hasCompletionSignal);
 							if (shouldResolveViaContentProxy && resourceId) {
-								const ready = await isVideoContentProxyReady(resourceId);
-								if (!ready) shouldResolveViaContentProxy = false;
+								const objectUrl = await fetchVideoContentObjectUrl(resourceId);
+								if (objectUrl) extractedUrls.push(objectUrl);
+								else shouldResolveViaContentProxy = false;
 							}
 							const urls =
 								shouldResolveViaContentProxy && resourceId
-									? [buildVideoContentProxyUrl(resourceId)]
+									? extractedUrls.slice(-1)
 									: extractedUrls;
 							const nextStatus: GenerationEntry["status"] =
 								roomId === "video" && resourceId && urls.length === 0
@@ -1780,7 +1745,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 			addEntries,
 			hasPendingEntries,
 			isLoading,
-			isVideoContentProxyReady,
+			fetchVideoContentObjectUrl,
 			modelSettings,
 			prompt,
 			pollVideoEntryUntilSettled,
@@ -1825,16 +1790,15 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 							<Button
 								variant="ghost"
 								size="icon"
-								className="group -ml-1 h-8 w-8"
-								onClick={toggleSidebar}
+							className="-ml-1 h-8 w-8"
+							onClick={toggleSidebar}
+							aria-label={sidebarState === "expanded" ? "Collapse sidebar" : "Open sidebar"}
 							>
-								<ChevronRight
-									className={`h-4 w-4 transition-transform duration-200 ${
-										sidebarState === "expanded"
-											? "rotate-180 group-hover:-translate-x-1"
-											: "group-hover:translate-x-1"
-									}`}
-								/>
+							{sidebarState === "expanded" ? (
+								<PanelLeftClose className="h-4 w-4" />
+							) : (
+								<PanelLeftOpen className="h-4 w-4" />
+							)}
 							</Button>
 						</TooltipTrigger>
 						<TooltipContent side={sidebarState === "collapsed" ? "right" : "bottom"} align="center" sideOffset={8}>Toggle sidebar</TooltipContent>
@@ -1894,7 +1858,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 					</div>
 				) : null}
 				{entries.length === 0 ? (
-					<div className="flex min-h-[240px] items-center justify-center rounded-xl border border-dashed border-border bg-muted/15 px-6 text-center text-sm text-muted-foreground">
+					<div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-border bg-muted/15 px-6 text-center text-sm text-muted-foreground">
 						{isImageRoom ? "Your generated images will appear here." : "Your generated videos will appear here."}
 					</div>
 				) : isImageRoom ? (
@@ -1905,7 +1869,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 							return (
 								<div
 									key={entry.id}
-									className="overflow-hidden rounded-xl border border-border bg-card"
+									className="overflow-hidden rounded-2xl border border-border bg-card"
 								>
 									<div className="relative aspect-[4/5] bg-muted/20">
 										{entry.status === "failed" ? (
@@ -2046,7 +2010,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 							const modelLabel = modelLabelById.get(entry.modelId) ?? entry.modelId;
 							const pendingState = getPendingGenerationState(entry, "video");
 							return (
-								<div className="flex min-h-[460px] flex-col overflow-hidden rounded-xl border border-border bg-card">
+								<div className="flex min-h-[460px] flex-col overflow-hidden rounded-2xl border border-border bg-card">
 									<div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
 										<div className="min-w-0">
 											<p className="truncate text-sm font-medium text-foreground" title={modelLabel}>
@@ -2141,7 +2105,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 										) : entry.url ? (
 											<MediaPlayer
 												theme="surface"
-												className="h-full w-full overflow-hidden rounded-xl border border-border/70 bg-gradient-to-b from-muted/80 to-background shadow-sm"
+										className="h-full w-full overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-b from-muted/80 to-background shadow-sm"
 											>
 												<div className="flex h-full min-h-[320px] items-center justify-center px-3 pb-2 pt-3">
 													<MediaPlayerVideo
@@ -2193,13 +2157,13 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 						})()}
 					</div>
 				) : (
-					<div className="flex min-h-[240px] items-center justify-center rounded-xl border border-dashed border-border bg-muted/15 px-6 text-center text-sm text-muted-foreground">
+					<div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-border bg-muted/15 px-6 text-center text-sm text-muted-foreground">
 						Your generated videos will appear here.
 					</div>
 				)}
 			</main>
 
-			<footer className="border-t border-border px-4 py-3 md:px-6">
+			<RoomComposerFooter>
 				<div className="mx-auto w-full max-w-3xl space-y-2">
 					{roomId === "video" && hasPendingEntries ? (
 						<p className="text-xs text-muted-foreground">
@@ -2215,7 +2179,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 						</div>
 					) : null}
 					{error ? <RoomErrorNotice error={error} /> : null}
-					<div className="rounded-2xl border border-border bg-background px-3 py-2">
+					<RoomComposerSurface className="flex flex-col gap-1 px-2 py-1 sm:flex-row sm:items-center">
 						<Textarea
 							value={prompt}
 							onChange={(event) => setPrompt(event.target.value)}
@@ -2231,38 +2195,12 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 									: "Describe the video you want to create..."
 							}
 							disabled={roomId === "video" && hasPendingEntries}
-							rows={3}
-							className="min-h-[64px] resize-none border-0 bg-transparent px-1 py-2 shadow-none focus-visible:ring-0"
+							rows={1}
+							className="order-1 min-h-9 w-full resize-none border-0 !bg-transparent px-2 py-2 shadow-none focus-visible:ring-0 sm:order-2 sm:flex-1 dark:!bg-transparent"
 						/>
-						<div className="flex items-center justify-between pt-2">
-							<div className="flex items-center gap-1.5">
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button
-											type="button"
-											variant="ghost"
-											className="h-8 gap-1.5 px-2"
-											onClick={openComposerModelPicker}
-											disabled={filteredModels.length === 0 || (roomId === "video" && hasPendingEntries)}
-										>
-											{activeModelId ? (
-												<Logo
-													id={composerModelLogoId}
-													alt={composerModelLabel}
-													width={16}
-													height={16}
-													className="shrink-0 rounded-none"
-												/>
-											) : (
-												<Cpu className="h-4 w-4 text-muted-foreground" />
-											)}
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent side="top">{composerModelLabel}</TooltipContent>
-								</Tooltip>
-							</div>
+						<div className="order-2 flex w-full items-center justify-between sm:contents">
 							<Button
-								className="ml-auto"
+								className="order-3 ml-auto"
 								onClick={submit}
 								disabled={
 									!prompt.trim() ||
@@ -2280,16 +2218,17 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 										: "Create"}
 							</Button>
 						</div>
-					</div>
+					</RoomComposerSurface>
 				</div>
-			</footer>
+			</RoomComposerFooter>
 			<Dialog
 				open={Boolean(previewEntryId)}
 				onOpenChange={(open) => {
 					if (!open) setPreviewEntryId(null);
 				}}
 			>
-				<DialogContent className="max-h-[90vh] max-w-5xl overflow-auto p-0">
+				<DialogContent className="max-h-[90vh] max-w-5xl overflow-hidden p-0">
+					<ScrollArea className="max-h-[90vh]" viewportClassName="p-0">
 					{previewEntry ? (
 						roomId === "image" ? (
 							<div className="flex flex-col">
@@ -2304,7 +2243,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 									</DialogHeader>
 								</div>
 								<div className="bg-muted/20 p-4">
-									<div className="flex max-h-[62vh] min-h-[320px] items-center justify-center overflow-hidden rounded-lg border border-border bg-background/60">
+									<div className="flex max-h-[62vh] min-h-[320px] items-center justify-center overflow-hidden rounded-2xl border border-border bg-background/60">
 										<img
 											src={previewEntry.url}
 											alt={previewEntry.prompt || "Generated image"}
@@ -2414,11 +2353,11 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 									</DialogHeader>
 								</div>
 								<div className="bg-muted/20 p-4">
-									<div className="flex min-h-[260px] items-center justify-center overflow-hidden rounded-lg border border-border bg-background/60 p-2">
+									<div className="flex min-h-[260px] items-center justify-center overflow-hidden rounded-2xl border border-border bg-background/60 p-2">
 										{previewEntry.url ? (
 											<MediaPlayer
 												theme="surface"
-												className="w-full overflow-hidden rounded-xl border border-border/70 bg-gradient-to-b from-muted/80 to-background shadow-sm"
+											className="w-full overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-b from-muted/80 to-background shadow-sm"
 											>
 												<div className="flex items-center justify-center px-3 pb-2 pt-3">
 													<div
@@ -2545,6 +2484,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 							</div>
 						)
 					) : null}
+					</ScrollArea>
 				</DialogContent>
 			</Dialog>
 			{roomId === "image" && dialogProfile ? (

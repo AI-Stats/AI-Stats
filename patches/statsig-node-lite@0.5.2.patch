@@ -1,0 +1,41 @@
+diff --git a/dist/utils/safeFetch.js b/dist/utils/safeFetch.js
+index 15faab859cfcd7a27be26b98f4ae10c37f6b75e9..857d7c5f4a45dfed0f08dc18c2464b1c88d84c57 100644
+--- a/dist/utils/safeFetch.js
++++ b/dist/utils/safeFetch.js
+@@ -1,32 +1,14 @@
+ "use strict";
+ exports.__esModule = true;
+ // @ts-ignore
+-var nodeFetch = null;
+-// @ts-ignore
+-if (typeof EdgeRuntime !== 'string') {
+-    try {
+-        nodeFetch = require('node-fetch');
+-        var nfDefault = nodeFetch["default"];
+-        if (nfDefault && typeof nfDefault === 'function') {
+-            nodeFetch = nfDefault;
+-        }
+-    }
+-    catch (err) {
+-        // Ignore
+-    }
+-}
+-// @ts-ignore
+ function safeFetch() {
+     var args = [];
+     for (var _i = 0; _i < arguments.length; _i++) {
+         args[_i] = arguments[_i];
+     }
+-    if (nodeFetch) {
+-        return nodeFetch.apply(void 0, args);
+-    }
+-    else {
+-        // @ts-ignore
+-        return fetch.apply(void 0, args);
+-    }
++    // Node 22 and edge runtimes expose the standards-based Fetch API globally.
++    // Using it avoids node-fetch v2's deprecated node:url.parse() request path.
++    // @ts-ignore
++    return fetch.apply(void 0, args);
+ }
+ exports["default"] = safeFetch;

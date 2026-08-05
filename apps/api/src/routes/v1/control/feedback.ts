@@ -103,6 +103,27 @@ const EVENT_SELECT =
 	"id,workspace_id,request_id,session_id,preset_id,test_run_id,category,event_name,value,numeric_value,metadata,metadata_dimensions,end_user_id,source,occurred_at,created_by_user_id,created_at";
 const TEST_RUN_SELECT =
 	"id,workspace_id,preset_id,baseline_preset_id,name,description,status,dataset_name,config,summary,started_at,completed_at,created_by_user_id,created_at,updated_at";
+const FEEDBACK_RATINGS = new Set([
+	"thumbs_up",
+	"thumbs_down",
+	"correct",
+	"partly_correct",
+	"incorrect",
+	"bad_format",
+	"too_slow",
+	"too_expensive",
+	"unsafe",
+	"refused_incorrectly",
+	"not_helpful",
+	"other",
+]);
+const TEST_RUN_STATUSES = new Set([
+	"pending",
+	"running",
+	"completed",
+	"failed",
+	"cancelled",
+]);
 
 function normalizeText(value: unknown, maxLength: number): string | null {
 	if (typeof value !== "string") return null;
@@ -116,6 +137,11 @@ function normalizeUuid(value: unknown): string | null {
 	return text && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(text)
 		? text
 		: null;
+}
+
+function normalizeAllowedText(value: unknown, allowed: ReadonlySet<string>): string | null {
+	const text = normalizeText(value, 64);
+	return text && allowed.has(text) ? text : null;
 }
 
 function normalizeStringArray(value: unknown, maxItems = 20): string[] {
@@ -389,6 +415,10 @@ async function handleCreateFeedback(req: Request) {
 		body.metadataDimensions ?? body.metadata_dimensions,
 		metadata,
 	);
+	const rating = normalizeAllowedText(body.rating, FEEDBACK_RATINGS);
+	if (body.rating != null && !rating) {
+		return json({ error: "bad_request", message: "Unsupported feedback rating" }, 400, { "Cache-Control": "no-store" });
+	}
 
 	const payload = {
 		workspace_id: auth.workspaceId,
@@ -397,7 +427,7 @@ async function handleCreateFeedback(req: Request) {
 		preset_id: linkedPresetId,
 		test_run_id: testRunId,
 		source: normalizeSource(body.source),
-		rating: normalizeText(body.rating, 64),
+		rating,
 		score: normalizeScore(body.score),
 		reason: normalizeText(body.reason, 128),
 		reason_tags: normalizeStringArray(body.reasonTags ?? body.reason_tags),
@@ -600,6 +630,10 @@ async function handleCreateTestRun(req: Request) {
 	if (presetError) return presetError;
 	const baselineError = await ensurePresetAccess(auth.workspaceId, baselinePresetId);
 	if (baselineError) return baselineError;
+	const status = normalizeAllowedText(body.status, TEST_RUN_STATUSES) ?? "pending";
+	if (body.status != null && !normalizeAllowedText(body.status, TEST_RUN_STATUSES)) {
+		return json({ error: "bad_request", message: "Unsupported test run status" }, 400, { "Cache-Control": "no-store" });
+	}
 
 	const payload = {
 		workspace_id: auth.workspaceId,
@@ -607,7 +641,7 @@ async function handleCreateTestRun(req: Request) {
 		baseline_preset_id: baselinePresetId,
 		name: normalizeText(body.name, 160),
 		description: normalizeText(body.description, 1000),
-		status: normalizeText(body.status, 32) ?? "pending",
+		status,
 		dataset_name: normalizeText(body.datasetName ?? body.dataset_name, 160),
 		config: normalizeJsonObject(body.config),
 		summary: normalizeJsonObject(body.summary),
@@ -677,7 +711,13 @@ async function handleUpdateTestRun(req: Request, id: string) {
 	const body = await requireJsonBody(req);
 	if (isResponse(body)) return body;
 	const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
-	if (body.status !== undefined) update.status = normalizeText(body.status, 32);
+	if (body.status !== undefined) {
+		const status = normalizeAllowedText(body.status, TEST_RUN_STATUSES);
+		if (!status) {
+			return json({ error: "bad_request", message: "Unsupported test run status" }, 400, { "Cache-Control": "no-store" });
+		}
+		update.status = status;
+	}
 	if (body.summary !== undefined) update.summary = normalizeJsonObject(body.summary);
 	if (body.completedAt !== undefined || body.completed_at !== undefined) {
 		update.completed_at = normalizeText(body.completedAt ?? body.completed_at, 64);

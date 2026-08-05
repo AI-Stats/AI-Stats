@@ -1,19 +1,24 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
+import Link from "next/link";
+import type { ReactNode } from "react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface FAQItemProps {
 	question: string;
-	answer: string;
+	answer: ReactNode;
 	isOpen: boolean;
+	index: number;
 	onToggle: () => void;
 }
 
-function FAQItem({ question, answer, isOpen, onToggle }: FAQItemProps) {
+function FAQItem({ question, answer, isOpen, index, onToggle }: FAQItemProps) {
+	const answerId = `faq-answer-${index}`;
+
 	return (
-		<div
+		<article
 			className={cn(
 				"group overflow-hidden rounded-xl border transition-all duration-300",
 				isOpen
@@ -21,12 +26,15 @@ function FAQItem({ question, answer, isOpen, onToggle }: FAQItemProps) {
 					: "border-zinc-200/60 bg-white/80 hover:border-zinc-300/80 hover:bg-white dark:border-zinc-800/70 dark:bg-zinc-950/60 dark:hover:border-zinc-700 dark:hover:bg-zinc-900/70",
 			)}
 		>
-			<button
-				onClick={onToggle}
-				type="button"
-				className="flex w-full items-start justify-between gap-4 p-5 text-left"
-			>
-				<span
+			<h2>
+				<button
+					onClick={onToggle}
+					type="button"
+					aria-expanded={isOpen}
+					aria-controls={answerId}
+					className="flex w-full items-start justify-between gap-4 p-5 text-left"
+				>
+					<span
 					className={cn(
 						"text-base font-medium transition-colors",
 						isOpen
@@ -35,21 +43,24 @@ function FAQItem({ question, answer, isOpen, onToggle }: FAQItemProps) {
 					)}
 				>
 					{question}
-				</span>
-				<ChevronDown
-					className={cn(
-						"mt-0.5 h-5 w-5 shrink-0 text-zinc-400 transition-transform duration-300",
-						isOpen && "rotate-180 text-zinc-600 dark:text-zinc-300",
-					)}
-				/>
-			</button>
+					</span>
+					<ChevronDown
+						className={cn(
+							"mt-0.5 h-5 w-5 shrink-0 text-zinc-400 transition-transform duration-300",
+							isOpen && "rotate-180 text-zinc-600 dark:text-zinc-300",
+						)}
+					/>
+				</button>
+			</h2>
 			<div
+				aria-hidden={!isOpen}
+				inert={isOpen ? undefined : true}
 				className={cn(
 					"grid transition-all duration-300",
 					isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
 				)}
 			>
-				<div className="overflow-hidden">
+				<div id={answerId} className="overflow-hidden">
 					<div className="border-t border-zinc-100 px-5 pb-5 pt-4 dark:border-zinc-800">
 						<p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
 							{answer}
@@ -57,55 +68,87 @@ function FAQItem({ question, answer, isOpen, onToggle }: FAQItemProps) {
 					</div>
 				</div>
 			</div>
-		</div>
+		</article>
 	);
 }
 
 export const FAQ_ITEMS = [
 	{
-		question: "Why should I use Phaseo Gateway?",
-		answer: "Phaseo gives you one OpenAI-compatible surface for model routing, provider failover, pricing context, and observability. The point is not just access to more models. It is being able to swap providers, compare real costs, and keep production traffic stable without rebuilding your integration every time the market moves.",
+		question: "How can I compare AI models on Phaseo?",
+		answer: (
+			<>
+				Start in the <Link href="/models" className="font-medium underline underline-offset-4">model directory</Link>, then open a model page to compare its pricing, providers, benchmark results, latency signals, and compatibility details. The information shown varies with the data available for that model.
+			</>
+		),
 	},
 	{
-		question: "How do I get started?",
-		answer: "Create an account, add credits if you want managed billing, generate an API key, and point your existing OpenAI-compatible client at Phaseo Gateway. If you already have provider keys, you can also bring your own keys and keep your provider billing directly under your control.",
+		question: "What does a model page tell me?",
+		answer: (
+			<>
+				A model page brings together the useful facts for a specific model: who created it, which providers offer it, the listed prices, benchmark coverage, and gateway availability. Use the page tabs to go deeper into pricing, providers, performance, and quickstart details.
+			</>
+		),
 	},
 	{
-		question: "How do billing and fees work?",
-		answer: "Managed usage is billed from your Phaseo credits using the model and provider pricing shown in the catalog. If you bring your own provider keys, the upstream inference cost stays with that provider and Phaseo only applies the documented gateway fee where relevant. The goal is that pricing stays inspectable rather than hidden behind blended markups.",
+		question: "How does Phaseo calculate model pricing?",
+		answer: (
+			<>
+				Phaseo stores each provider route&apos;s meter, unit size, currency, plan, and effective dates. Input and output rates remain separate, and token prices are normalised per 1M tokens for comparison; they are not combined into a blended headline price. Read the <Link href="/how-phaseo-calculates-model-pricing" className="font-medium underline underline-offset-4">pricing methodology</Link> or enter your own token volumes in the <Link href="/tools/pricing-calculator" className="font-medium underline underline-offset-4">pricing calculator</Link>.
+			</>
+		),
+	},
+	{
+		question: "What does gateway availability mean?",
+		answer: (
+			<>
+				Gateway availability describes whether Phaseo currently has an eligible route for a model. It is separate from a model&apos;s quality or benchmark performance. Provider status can change, so check the model&apos;s providers and availability information before relying on a route in production.
+			</>
+		),
+	},
+	{
+		question: "Can I use Phaseo as an AI gateway?",
+		answer: (
+			<>
+				Yes. Phaseo Gateway provides one OpenAI-compatible interface for supported models and providers. Create an API key, choose a model, and use the same integration surface while retaining model and provider choice.
+			</>
+		),
 	},
 	{
 		question: "Can I use my own provider API keys?",
-		answer: "Yes. BYOK is a first-class path. You can attach your own provider credentials, keep provider-side billing under your control, and still use the same routing, health, and policy layer on top.",
+		answer: (
+			<>
+				Yes. Bring your own provider keys when you want to retain the provider relationship and billing directly, while still using Phaseo&apos;s routing, health, and policy layer.
+			</>
+		),
 	},
 	{
-		question: "What models and modalities do you support?",
-		answer: "The database and gateway cover chat, embeddings, image, audio, video, moderation, and related model capabilities across a large provider set. Support is surfaced per provider and per model, so you can see exactly what is available before routing production traffic.",
+		question: "Which providers and model types can I explore?",
+		answer: (
+			<>
+				Browse the <Link href="/api-providers" className="font-medium underline underline-offset-4">provider directory</Link> for provider coverage, or filter the model directory by capabilities such as chat, embeddings, image, audio, video, and moderation. A provider page is the best place to check its currently listed model catalogue.
+			</>
+		),
 	},
 	{
-		question: "How quickly are new models added?",
-		answer: "New models are added on a rolling basis as providers release them and as we verify pricing, capabilities, and metadata. High-interest frontier releases are usually prioritised quickly, but accuracy beats rushing incomplete catalog rows into production.",
+		question: "How are benchmarks and performance data handled?",
+		answer: (
+			<>
+				Benchmark scores are shown alongside the benchmark and its methodology so that comparisons retain their context. Read <Link href="/how-phaseo-normalises-ai-benchmarks" className="font-medium underline underline-offset-4">how Phaseo normalises AI benchmarks</Link> and <Link href="/how-phaseo-measures-latency-throughput" className="font-medium underline underline-offset-4">how it measures latency and throughput</Link> before making a production decision from a single score.
+			</>
+		),
 	},
 	{
-		question: "How does provider fallback work?",
-		answer: "Routing decisions are made request by request using provider health, latency, cost, capability, and your policies. If a provider degrades or errors, Phaseo can fall through to the next eligible provider without requiring a new client integration or a manual operational response.",
-	},
-	{
-		question: "What SDK and API formats are supported?",
-		answer: "Phaseo is designed around an OpenAI-compatible request shape, so existing OpenAI-style SDKs and tools can usually be moved across with minimal changes. On top of that, we publish our own SDKs and provider adapters where teams want stronger typing or more direct gateway features.",
-	},
-	{
-		question: "What data is logged during API use?",
-		answer: "We log the operational metadata needed to route, audit, and bill requests correctly. Prompt or completion logging should never be treated as implicit. Where logging behaviour is configurable, it should be explicit and visible in the product rather than assumed.",
-	},
-	{
-		question: "How do I get support?",
-		answer: "For product help, implementation questions, or data issues, use the docs, GitHub issues, or contact links in the footer. If something in the model database looks wrong, reporting it directly is the fastest way to get it reviewed.",
+		question: "What should I do if a listing looks wrong or incomplete?",
+		answer: (
+			<>
+				Use the <Link href="/contribute" className="font-medium underline underline-offset-4">contribution page</Link> to report a correction or add missing information. Accurate, source-backed reports help keep the directory useful as providers change their catalogues and pricing.
+			</>
+		),
 	},
 ];
 
 export function FAQSection() {
-	const [openIndex, setOpenIndex] = useState<number | null>(0);
+	const [openIndex, setOpenIndex] = useState<number | null>(null);
 
 	const handleToggle = (index: number) => {
 		setOpenIndex(openIndex === index ? null : index);
@@ -119,14 +162,14 @@ export function FAQSection() {
 		<section className="relative overflow-hidden py-20 sm:py-28">
 			<div className="relative mx-auto max-w-7xl px-6 lg:px-8">
 				<div className="mx-auto max-w-3xl text-center">
-					<h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-4xl">
-						Frequently asked questions
-					</h2>
+					<h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-4xl">
+						AI model database and gateway FAQ
+					</h1>
 					<p className="mt-4 text-lg leading-relaxed text-zinc-600 dark:text-zinc-300">
-						Common questions about Phaseo Gateway.
+						Practical answers for comparing models, understanding the data, and using the gateway.
 						Cannot find an answer?{" "}
 						<a
-							href="mailto:support@phaseo.ai"
+							href="mailto:support@phaseo.app"
 							className="font-medium text-zinc-900 underline underline-offset-4 hover:text-zinc-700 dark:text-zinc-100 dark:hover:text-zinc-300"
 						>
 							Reach out to our team
@@ -143,6 +186,7 @@ export function FAQSection() {
 								question={item.question}
 								answer={item.answer}
 								isOpen={openIndex === index}
+								index={index}
 								onToggle={() => handleToggle(index)}
 							/>
 						))}
@@ -152,10 +196,11 @@ export function FAQSection() {
 							const actualIndex = index + midPoint;
 							return (
 								<FAQItem
-									key={item.question}
-									question={item.question}
-									answer={item.answer}
-									isOpen={openIndex === actualIndex}
+								key={item.question}
+								question={item.question}
+								answer={item.answer}
+								isOpen={openIndex === actualIndex}
+								index={actualIndex}
 									onToggle={() => handleToggle(actualIndex)}
 								/>
 							);

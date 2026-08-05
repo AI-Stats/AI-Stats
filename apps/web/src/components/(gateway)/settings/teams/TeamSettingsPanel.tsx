@@ -4,19 +4,9 @@ import * as React from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import {
-	Card,
-	CardHeader,
-	CardTitle,
-	CardContent,
-	CardFooter,
-	CardDescription,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -33,6 +23,7 @@ import {
 	updateTeamAction,
 	deleteTeamAction,
 } from "@/app/(dashboard)/settings/teams/actions";
+import WorkspaceSamlSettingsCard from "./WorkspaceSamlSettingsCard";
 import type { TeamSsoSettingsRow } from "@/lib/auth/teamSsoSettings";
 
 type Team = { id: string; name: string };
@@ -49,6 +40,7 @@ type Props = {
 	personalTeamId?: string | null;
 	walletBalances?: Record<string, number>;
 	teamSsoSettingsByTeam?: Record<string, TeamSsoSettingsRow>;
+	samlSsoEnabled?: boolean;
 };
 
 type Settings = {
@@ -71,6 +63,7 @@ export default function TeamSettingsPanel({
 	personalTeamId,
 	walletBalances,
 	teamSsoSettingsByTeam,
+	samlSsoEnabled = false,
 }: Props) {
 	const fallbackTeamId =
 		(workspaceId && teams.some((t) => t.id === workspaceId)
@@ -190,42 +183,13 @@ export default function TeamSettingsPanel({
 	if (!fallbackTeamId) return null;
 
 	return (
-		<section className="space-y-4">
-			<Card className={cn(!canEdit && "opacity-90")}>
-				<CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-					<div>
-						<CardTitle className="flex items-center gap-2">
-							General
-							{isPersonalTeam ? (
-								<Badge
-									variant="secondary"
-									className="text-[0.6rem] font-semibold uppercase"
-								>
-									Personal
-								</Badge>
-							) : null}
-						</CardTitle>
-						<CardDescription>
-							Configure your workspace basics.
-							{isPersonalTeam ? (
-								<span className="mt-1 block text-xs text-muted-foreground">
-									Your personal workspace is immutable and always serves as your
-									default.
-								</span>
-							) : null}
-						</CardDescription>
-					</div>
-					<Badge variant="outline" className="w-fit">
-						{teams.find((team) => team.id === fallbackTeamId)?.name ??
-							"Selected workspace"}
-					</Badge>
-				</CardHeader>
-
-				<Separator />
-
-				<CardContent className="grid max-w-2xl gap-6 pt-6">
-					<div className="grid gap-2">
-						<Label htmlFor="teamName">Workspace name</Label>
+		<section className={cn("space-y-6", !canEdit && "opacity-90")}>
+			<div className="max-w-2xl space-y-6">
+				<div className="grid max-w-xl gap-2">
+						<Label htmlFor="teamName" className="text-sm font-medium">Workspace name</Label>
+						<p className="text-sm text-muted-foreground">
+							Used throughout the dashboard, API keys, and invitations.
+						</p>
 						<Input
 							id="teamName"
 							value={settings.teamName}
@@ -234,10 +198,14 @@ export default function TeamSettingsPanel({
 							placeholder="e.g. Personal, Engineering, Growth"
 							maxLength={60}
 						/>
-					</div>
-				</CardContent>
+						{isPersonalTeam ? (
+							<p className="text-xs text-muted-foreground">
+								Your personal workspace is permanent and remains your default.
+							</p>
+						) : null}
+				</div>
 
-				<CardFooter className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+				<div className="flex flex-col gap-3 border-t border-border/70 pt-5 sm:flex-row sm:items-center sm:justify-between">
 					<div className="flex items-center gap-2 text-xs text-muted-foreground">
 						<AlertDialog
 							open={deleteDialogOpen}
@@ -293,8 +261,17 @@ export default function TeamSettingsPanel({
 							)}
 						</Button>
 					</div>
-				</CardFooter>
-			</Card>
+				</div>
+			</div>
+
+			{samlSsoEnabled && !isPersonalTeam ? (
+				<WorkspaceSamlSettingsCard
+					key={fallbackTeamId}
+					workspaceId={fallbackTeamId}
+					initialSettings={teamSsoSettingsByTeam?.[fallbackTeamId]}
+					canEdit={canEdit}
+				/>
+			) : null}
 		</section>
 	);
 }
@@ -319,7 +296,7 @@ function ConfirmDeleteTeam({
 				style: "currency",
 				currency: "USD",
 				maximumFractionDigits: 2,
-		  }).format(balance)
+			}).format(balance)
 		: null;
 
 	return (
@@ -350,7 +327,7 @@ function ConfirmDeleteTeam({
 								setAckCredits(event.target.checked)
 							}
 						/>
-						I understand these credits can't be recovered.
+						I understand these credits can&apos;t be recovered.
 					</label>
 				</div>
 			) : null}

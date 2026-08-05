@@ -641,6 +641,7 @@ function resolveBatchBilling(record: AsyncOperationRecord, meta: AsyncNotificati
 	const chargeReason = normalizeText(meta.billingReason ?? meta.billing_reason);
 	const charged = toBoolean(meta.charged);
 	const isVoided = status === "failed" || status === "expired" || status === "cancelled";
+	const hasSettledCharge = charged === true || (charged == null && record.billedAt != null && settledNanos != null && settledNanos > 0);
 	const displaySettledUsd = settledUsd ?? (isVoided ? 0 : null);
 	return {
 		currency: "usd",
@@ -649,8 +650,12 @@ function resolveBatchBilling(record: AsyncOperationRecord, meta: AsyncNotificati
 		settled_provider_cost: displaySettledUsd != null ? displaySettledUsd.toFixed(2) : null,
 		settled_user_cost: displaySettledUsd != null ? displaySettledUsd.toFixed(2) : null,
 		state:
-			isVoided
+			hasSettledCharge
+				? "settled"
+				: isVoided
 				? "void"
+				: charged === false
+					? "pending"
 				: settledUsd != null
 					? "settled"
 					: status === "completed"
@@ -658,7 +663,7 @@ function resolveBatchBilling(record: AsyncOperationRecord, meta: AsyncNotificati
 						: estimatedUsd != null
 							? "estimated"
 							: "pending",
-		billable: charged === true || (settledNanos != null && settledNanos > 0),
+		billable: hasSettledCharge,
 		total_nanos: settledNanos,
 		estimated_nanos: estimatedNanos,
 		reserved_nanos: reservedNanos,
@@ -816,7 +821,15 @@ function isVideoCancelSupportedProvider(value: unknown): boolean {
 }
 
 function isBatchCancelSupportedProvider(value: unknown): boolean {
-	return normalizeText(value)?.toLowerCase() === "openai";
+	return new Set([
+		"openai",
+		"anthropic",
+		"google-ai-studio",
+		"mistral",
+		"x-ai",
+		"groq",
+		"together",
+	]).has(normalizeText(value)?.toLowerCase() ?? "");
 }
 
 export function toAsyncLifecycleStatus(status: string): AsyncJobLifecycleStatus {
@@ -1010,15 +1023,6 @@ async function sendAsyncWebhookRequest(args: {
 	attemptNumber: number;
 	maxAttempts: number;
 }): Promise<AsyncWebhookRequestResult> {
-	const validatedUrl = await validateWebhookEndpointUrlForDelivery(args.url);
-	if (validatedUrl.ok === false) {
-		return {
-			ok: false,
-			statusCode: null,
-			bodyPreview: null,
-			errorMessage: `Webhook URL rejected: ${validatedUrl.reason}`,
-		};
-	}
 	const headers: Record<string, string> = {
 		"Content-Type": "application/json",
 		"User-Agent": "Phaseo-Async-Webhook/1.0",
@@ -1032,6 +1036,18 @@ async function sendAsyncWebhookRequest(args: {
 		const timestamp = String(Math.floor(Date.now() / 1000));
 		headers["x-phaseo-timestamp"] = timestamp;
 		headers["x-phaseo-signature"] = await signWebhook(args.secret, timestamp, args.body);
+	}
+	// Keep DNS validation as close as possible to the network operation. Any
+	// asynchronous preparation before this point would unnecessarily widen the
+	// DNS-rebinding time-of-check/time-of-use window.
+	const validatedUrl = await validateWebhookEndpointUrlForDelivery(args.url);
+	if (validatedUrl.ok === false) {
+		return {
+			ok: false,
+			statusCode: null,
+			bodyPreview: null,
+			errorMessage: `Webhook URL rejected: ${validatedUrl.reason}`,
+		};
 	}
 	const timeoutMs = resolveWebhookDeliveryTimeoutMs();
 	const controller = new AbortController();

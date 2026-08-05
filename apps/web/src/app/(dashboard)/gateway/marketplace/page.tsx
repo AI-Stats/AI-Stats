@@ -6,10 +6,10 @@ import {
 	BadgeCheck,
 	Compass,
 	Flame,
+	GitFork,
 	Search,
 	Sparkles,
 	Store,
-	TrendingUp,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +31,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { fetchFrontendMarketplacePresets } from "@/lib/fetchers/frontend/fetchPublicCatalog";
-import type { MarketplacePreset } from "@/lib/fetchers/gateway/marketplace";
+import type { MarketplacePreset } from "@/lib/fetchers/gateway/marketplaceTypes";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -46,11 +46,14 @@ export const metadata: Metadata = buildMetadata({
 	],
 });
 
-export default async function GatewayMarketplacePage() {
-	const presets = await fetchFrontendMarketplacePresets();
-	const featured = presets.slice(0, 6);
-	const community = presets.slice(6, 14);
-	const trending = presets.slice(0, 3);
+export default async function GatewayMarketplacePage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+	const [{ q }, presets] = await Promise.all([searchParams, fetchFrontendMarketplacePresets()]);
+	const query = q?.trim().toLowerCase() ?? "";
+	const matching = query ? presets.filter((preset) => [preset.name, preset.description, preset.publisher.displayName, preset.publisher.handle, preset.canonicalModel].some((value) => String(value ?? "").toLowerCase().includes(query))) : presets;
+	const ranked = [...matching].sort((left, right) => right.forkCount - left.forkCount || Date.parse(right.created_at) - Date.parse(left.created_at));
+	const featured = ranked.slice(0, 6);
+	const community = ranked.slice(6, 14);
+	const popular = ranked.slice(0, 3);
 
 	return (
 		<div className="min-h-screen bg-white dark:bg-zinc-950">
@@ -73,9 +76,11 @@ export default async function GatewayMarketplacePage() {
 							Copy a preset to your account and customize it from there.
 						</p>
 						<div className="flex flex-wrap items-center gap-3">
-							<Button variant="default" className="gap-2" disabled>
+							<Button variant="default" className="gap-2" asChild>
+								<Link href="/settings/presets">
 								<Store className="h-4 w-4" />
 								Publish preset
+								</Link>
 							</Button>
 							<Button variant="outline" className="gap-2" asChild>
 								<Link href="/settings/presets" target="_blank" rel="noreferrer">
@@ -85,10 +90,10 @@ export default async function GatewayMarketplacePage() {
 						</div>
 					</div>
 
-					<div className="relative w-full md:w-72">
+					<form className="relative w-full md:w-72" action="/gateway/marketplace">
 						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-						<Input placeholder="Search presets" className="pl-9" disabled />
-					</div>
+						<Input name="q" defaultValue={q} placeholder="Search presets" className="pl-9" />
+					</form>
 				</div>
 
 				<Card className="border-dashed">
@@ -98,7 +103,7 @@ export default async function GatewayMarketplacePage() {
 							Featured presets
 						</CardTitle>
 						<CardDescription>
-							Curated presets from the Phaseo team for high impact workflows.
+								The most-forked public presets from the Phaseo community.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="relative">
@@ -149,17 +154,17 @@ export default async function GatewayMarketplacePage() {
 						<CardHeader className="space-y-2">
 							<CardTitle className="flex items-center gap-2">
 								<Flame className="h-4 w-4 text-muted-foreground" />
-								Trending now
+								Most forked
 							</CardTitle>
 							<CardDescription>
-								Fast growing presets across the Gateway community.
+								Popular presets ranked by the number of direct community forks.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							{trending.length === 0 ? (
+							{popular.length === 0 ? (
 								<EmptyState />
 							) : (
-								trending.map((preset) => (
+								popular.map((preset) => (
 									<Card
 										key={preset.id}
 										className="border-slate-200/60 dark:border-zinc-800/60"
@@ -173,10 +178,10 @@ export default async function GatewayMarketplacePage() {
 											</CardDescription>
 										</CardHeader>
 										<CardContent className="flex items-center justify-between text-xs text-muted-foreground">
-											<span>Community</span>
+											<span>@{preset.publisher.handle}</span>
 											<span className="flex items-center gap-1">
-												<TrendingUp className="h-3.5 w-3.5" />
-												New
+												<GitFork className="h-3.5 w-3.5" />
+												{preset.forkCount}
 											</span>
 										</CardContent>
 									</Card>
@@ -228,9 +233,9 @@ function MarketplaceCard({
 			<CardContent className="flex items-center justify-between text-xs text-muted-foreground">
 				<span className="flex items-center gap-1">
 					<BadgeCheck className="h-3.5 w-3.5" />
-					Community
+					@{preset.publisher.handle}
 				</span>
-				<span>Public preset</span>
+				<span className="flex items-center gap-1"><GitFork className="h-3.5 w-3.5" />{preset.forkCount}</span>
 			</CardContent>
 		</Card>
 	);
@@ -257,8 +262,8 @@ function CompactPresetRow({
 				</div>
 			</div>
 			<div className="text-right text-xs text-muted-foreground">
-				<div>Community</div>
-				<div>Public preset</div>
+				<div>@{preset.publisher.handle}</div>
+				<div className="flex items-center justify-end gap-1"><GitFork className="h-3.5 w-3.5" />{preset.forkCount}</div>
 			</div>
 		</div>
 	);
@@ -271,4 +276,3 @@ function EmptyState() {
 		</div>
 	);
 }
-

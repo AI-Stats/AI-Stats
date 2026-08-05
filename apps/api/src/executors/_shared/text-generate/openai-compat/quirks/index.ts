@@ -28,6 +28,7 @@ import { inceptionQuirks } from "../providers/inception/quirks";
 import { crofAIQuirks } from "../providers/crofai/quirks";
 import { veniceQuirks } from "../providers/venice/quirks";
 import { sakanaQuirks } from "../providers/sakana/quirks";
+import { waferQuirks } from "../providers/wafer/quirks";
 import { defaultQuirks } from "./default";
 
 /**
@@ -68,6 +69,7 @@ const PROVIDER_QUIRKS: Record<string, ProviderQuirks> = {
 	inception: inceptionQuirks,
 	venice: veniceQuirks,
 	sakana: sakanaQuirks,
+	wafer: waferQuirks,
 	// Note: Google quirks removed - Google now uses native implementation, not OpenAI-compat
 };
 

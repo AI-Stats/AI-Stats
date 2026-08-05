@@ -17,9 +17,21 @@ describe("providerGatewayStatus", () => {
 			"disabled",
 		];
 
-		expect(
+			expect(
 			statuses.map((status) => getGatewayStatusSortRank(status)),
 		).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+	});
+
+	it("keeps external catalogue providers distinct from inactive providers", () => {
+		expect(
+			resolveGatewayStatus({
+				isActiveGateway: false,
+				providerStatus: "external",
+				providerRoutingStatus: "disabled",
+				modelRoutingStatus: "active",
+				capabilityStatus: "active",
+			}),
+		).toBe("external");
 	});
 
 	it("prefers the best routable status within a provider offer", () => {
@@ -62,5 +74,34 @@ describe("providerGatewayStatus", () => {
 				modelRoutingStatus: "active",
 			}),
 		).toBe("internal_testing");
+	});
+
+	it("uses the explicit provider, Phaseo, and access statuses", () => {
+		expect(
+			resolveGatewayStatus({
+				isActiveGateway: false,
+				providerAvailabilityStatus: "available",
+				phaseoStatus: "implementing",
+				accessScope: "public",
+			}),
+		).toBe("coming_soon");
+
+		expect(
+			resolveGatewayStatus({
+				isActiveGateway: false,
+				providerAvailabilityStatus: "available",
+				phaseoStatus: "testing",
+				accessScope: "internal",
+			}),
+		).toBe("internal_testing");
+
+		expect(
+			resolveGatewayStatus({
+				isActiveGateway: false,
+				providerAvailabilityStatus: "removed",
+				phaseoStatus: "enabled",
+				accessScope: "public",
+			}),
+		).toBe("inactive");
 	});
 });

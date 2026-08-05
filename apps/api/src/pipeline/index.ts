@@ -16,6 +16,30 @@ import {
 } from "./error-response";
 
 const EARLY_OBSERVABILITY_BODY_LIMIT_BYTES = 256 * 1024;
+const MODEL_FALLBACK_STATUSES = new Set([429, 500, 502, 503, 504]);
+
+function configuredModelFallbacks(ctx: { model: string; routingDiagnostics?: Record<string, any> | null }): string[] {
+    const values = ctx.routingDiagnostics?.dynamicRoute?.action?.modelFallbacks;
+    if (!Array.isArray(values)) return [];
+    return [...new Set(values.filter((value): value is string => typeof value === "string" && value.trim().length > 0))]
+        .filter((value) => value !== ctx.model)
+        .slice(0, 8);
+}
+
+function shouldTryModelFallback(response: Response): boolean {
+    return MODEL_FALLBACK_STATUSES.has(response.status);
+}
+
+function requestForModelFallback(req: Request, rawBody: unknown): Request {
+	const headers = new Headers(req.headers);
+	headers.delete("content-length");
+	headers.set("content-type", "application/json");
+	return new Request(req.url, {
+		method: req.method,
+		headers,
+		body: JSON.stringify(rawBody),
+	});
+}
 
 function cloneRequestForEarlyObservability(req: Request): Request | undefined {
     const contentType = (req.headers.get("content-type") ?? "").toLowerCase();
@@ -79,7 +103,59 @@ export function makeEndpointHandler(opts: { endpoint: Endpoint; schema: any; }) 
 
         try {
             const runner = resolvePipeline(endpoint);
-            return runner({ pre, req, endpoint, timing });
+			let response = await runner({ pre, req, endpoint, timing });
+			if (!shouldTryModelFallback(response)) return response;
+
+			for (const fallbackModel of configuredModelFallbacks(pre.ctx)) {
+				const fallbackReq = requestForModelFallback(req, pre.ctx.rawBody) as unknown as typeof req;
+				const fallbackObservabilityReq = cloneRequestForEarlyObservability(fallbackReq);
+				const fallbackTimer = new Timer();
+				const fallbackTiming: PipelineTiming = {
+					timer: fallbackTimer,
+					internal: { adapterMarked: false },
+				};
+				fallbackTiming.timer.mark("preflight_start");
+				fallbackTiming.timer.mark("before_start");
+				const fallbackPre = await beforeRequest(
+					fallbackReq,
+					endpoint,
+					fallbackTiming.timer,
+					schema,
+					{ dynamicRouteModelOverride: fallbackModel },
+				);
+				const fallbackBeforeMsRaw = fallbackTiming.timer.end("before_start");
+				if (!fallbackPre.ok) {
+					response = await handleError({
+						stage: "before",
+						res: (fallbackPre as { ok: false; response: Response }).response,
+						endpoint,
+						timingHeader: fallbackTiming.timer.serverTiming(),
+						auditFailure,
+						req: fallbackObservabilityReq,
+					});
+					continue;
+				}
+				if (typeof fallbackBeforeMsRaw === "number") {
+					fallbackPre.ctx.meta.before_ms = Math.round(fallbackBeforeMsRaw * 1000) / 1000;
+				}
+				try {
+					response = await runner({ pre: fallbackPre, req: fallbackReq, endpoint, timing: fallbackTiming });
+				} catch (error) {
+					logPipelineExecutionError("model_fallback", error);
+					fallbackPre.ctx.timing = fallbackTiming.timer.snapshot();
+					response = await handleError({
+						stage: "execute",
+						res: buildPipelineExecutionErrorResponse(error, fallbackPre.ctx),
+						endpoint,
+						ctx: fallbackPre.ctx,
+						timingHeader: fallbackTiming.timer.header() || undefined,
+						auditFailure,
+						req: fallbackReq,
+					});
+				}
+				if (!shouldTryModelFallback(response)) return response;
+			}
+			return response;
         } catch (err) {
             logPipelineExecutionError("entrypoint", err);
             const header = timing.timer.header();

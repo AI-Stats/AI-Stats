@@ -6,8 +6,12 @@ import type { StatsigUser } from "@flags-sdk/statsig";
 import { getStatsigFlagsAdapter } from "@/lib/statsig/server";
 import {
 	BATCH_API_GATE,
+	VIDEO_API_GATE,
+	REALTIME_VOICE_GATE,
 	GATEWAY_IO_LOGGING_GATE,
 	PRESET_EXPERIMENTS_GATE,
+	SAML_SSO_GATE,
+	CATALOGUE_GAMES_PREVIEW_GATE,
 	NEW_LANDING_PAGE_EXPERIMENT,
 	NEW_LANDING_PAGE_GATE,
 	type GatewayHeroVariant,
@@ -64,8 +68,8 @@ export const gatewayIoLoggingFlag = statsigAdapter
 		})
 	: flag<boolean>({
 			key: GATEWAY_IO_LOGGING_GATE,
-		decide: () => false,
-	});
+			decide: () => false,
+		});
 
 export const presetExperimentsFlag = statsigAdapter
 	? flag<boolean, StatsigUser>({
@@ -82,18 +86,46 @@ export async function presetExperimentsEnabled(): Promise<boolean> {
 	return presetExperimentsFlag();
 }
 
-/**
- * Temporary production rollout gate for passkey enrollment and management.
- * The gate itself targets approved admin user IDs in Statsig; callers must
- * still verify the Phaseo admin role before exposing account controls.
- */
-export const passkeysAdminBetaFlag = statsigAdapter
+export const samlSsoFlag = statsigAdapter
 	? flag<boolean, StatsigUser>({
-			key: "passkeys_admin_beta",
+			key: SAML_SSO_GATE,
 			identify,
 			adapter: statsigAdapter.featureGate((gate) => gate.value),
 		})
 	: flag<boolean>({
-			key: "passkeys_admin_beta",
+			key: SAML_SSO_GATE,
+			decide: () => false,
+		});
+
+export const videoApiFlag = statsigAdapter
+	? flag<boolean, StatsigUser>({
+			key: VIDEO_API_GATE,
+			identify,
+			adapter: statsigAdapter.featureGate((gate) => gate.value),
+		})
+	: flag<boolean>({
+			key: VIDEO_API_GATE,
+			decide: () => false,
+		});
+
+export const realtimeVoiceFlag = statsigAdapter
+	? flag<boolean, StatsigUser>({
+			key: REALTIME_VOICE_GATE,
+			identify,
+			adapter: statsigAdapter.featureGate((gate) => gate.value),
+		})
+	: flag<boolean>({
+			key: REALTIME_VOICE_GATE,
+			decide: () => false,
+		});
+
+export const catalogueGamesPreviewFlag = statsigAdapter
+	? flag<boolean, StatsigUser>({
+			key: CATALOGUE_GAMES_PREVIEW_GATE,
+			identify,
+			adapter: statsigAdapter.featureGate((gate) => gate.value),
+		})
+	: flag<boolean>({
+			key: CATALOGUE_GAMES_PREVIEW_GATE,
 			decide: () => false,
 		});
