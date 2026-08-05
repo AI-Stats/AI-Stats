@@ -69,6 +69,18 @@ export type BatchJobMeta = {
 	providerDispatchedAtMs?: number;
 	durationMs?: number | null;
 	generationMs?: number | null;
+	otelParentContext?: {
+		traceId: string;
+		parentSpanId: string;
+		traceFlags: number;
+		traceState?: string | null;
+	} | null;
+	otelSubmissionContext?: {
+		traceId: string;
+		parentSpanId: string;
+		traceFlags: number;
+		traceState?: string | null;
+	} | null;
 };
 
 export type BatchJobRecord = {

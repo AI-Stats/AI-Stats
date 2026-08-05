@@ -7,6 +7,7 @@ import { z } from "zod";
 import { getBindings } from "@/runtime/env";
 import type { Env } from "@/runtime/types";
 import { guardAuth, guardContext, guardJson } from "@pipeline/before/guards";
+import { parseW3cTraceContext } from "@observability/trace-context";
 import { err, json } from "@pipeline/before/http";
 import { applyWorkspacePolicy, fetchWorkspacePolicy } from "@pipeline/before/workspacePolicy";
 import { getRealtimeVoiceFeatureGateName, isRealtimeVoiceAccessEnabled } from "@core/feature-flags";
@@ -388,6 +389,10 @@ realtimeSessionsRoutes.post("/", withRuntime(async (req) => {
 			instructions: parsed.data.instructions,
 			source,
 			metadata: parsed.data.metadata,
+			otelTraceContext: parseW3cTraceContext(
+				req.headers.get("traceparent"),
+				req.headers.get("tracestate"),
+			),
 			relay: true,
 		});
 		return json(publicRealtimeSessionPayload(created), 201);

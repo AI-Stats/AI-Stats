@@ -16,6 +16,7 @@ import { sanitizeForAxiom, stringifyForAxiom } from "@observability/privacy";
 import { emitGatewayRequestEvent } from "@observability/events";
 import { emitGatewayTelemetryDeliveryFailure } from "@observability/axiom";
 import { runGatewayTelemetryPipelines } from "@observability/gateway-telemetry";
+import { enqueueGatewayOtlpExport } from "@observability/otlp-export";
 import { sanitizeUrlForLogging } from "@/lib/security/sanitizeUrl";
 
 const REDACT_ERROR_KEYS = new Set([
@@ -1064,6 +1065,32 @@ export async function handleError({
         requestId: auditArgs.requestId,
         workspaceId: auditArgs.workspaceId,
         writeSupabase: () => auditFailure(auditArgs),
+        writeOtlp: auditArgs.workspaceId
+            ? () => enqueueGatewayOtlpExport({
+                requestId: auditArgs.requestId,
+                workspaceId: auditArgs.workspaceId,
+                keyId: auditArgs.keyId,
+                userId: auditArgs.requestUserId,
+                endpoint,
+                requestedModel,
+                provider: providerForAudit,
+                providerModel: modelForObservability,
+                requestPayload: requestPayloadForObservability,
+                responsePayload: errorPayload,
+                providerAttempts: auditArgs.providerAttempts,
+                stream: Boolean(auditArgs.stream),
+                statusCode,
+                success: false,
+                errorType,
+                startedAtMs: ctx?.meta?.startedAtMs ?? Date.now(),
+                completedAtMs: Date.now(),
+                traceContext: ctx?.meta?.otelTraceContext ?? null,
+                requestMethod: requestMeta.requestMethod,
+                requestPath: requestMeta.requestPath,
+                sessionId: auditArgs.sessionId,
+                edgeColo: requestMeta.edgeColo,
+            })
+            : null,
         writeAxiom: () => emitGatewayRequestEvent({
         ctx,
         result: undefined,
@@ -1110,7 +1137,6 @@ export async function handleError({
     });
     return new Response(JSON.stringify(errorPayload), { status: statusCode, headers });
 }
-
 
 
 

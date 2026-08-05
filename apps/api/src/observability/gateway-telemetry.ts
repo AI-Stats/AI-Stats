@@ -1,4 +1,4 @@
-export type GatewayTelemetrySink = "axiom" | "supabase";
+export type GatewayTelemetrySink = "axiom" | "supabase" | "otlp";
 
 export type GatewayTelemetryDelivery = {
 	sink: GatewayTelemetrySink;
@@ -10,6 +10,7 @@ type GatewayTelemetryPipelineArgs = {
 	requestId: string;
 	workspaceId?: string | null;
 	writeSupabase?: (() => Promise<unknown>) | null;
+	writeOtlp?: (() => Promise<unknown>) | null;
 	writeAxiom: () => Promise<unknown>;
 	onDeliveryFailure?: (failure: {
 		sink: "supabase";
@@ -40,6 +41,9 @@ export async function runGatewayTelemetryPipelines(
 
 	if (args.writeSupabase) {
 		sinks.push({ sink: "supabase", write: args.writeSupabase });
+	}
+	if (args.writeOtlp) {
+		sinks.push({ sink: "otlp", write: args.writeOtlp });
 	}
 	sinks.push({ sink: "axiom", write: args.writeAxiom });
 
