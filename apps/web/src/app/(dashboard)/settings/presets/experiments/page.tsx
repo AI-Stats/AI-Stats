@@ -166,6 +166,12 @@ function toDateInput(date: Date): string {
 	return date.toISOString().slice(0, 10);
 }
 
+function validDateInput(value: string | undefined): value is string {
+	if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+	const date = new Date(`${value}T00:00:00.000Z`);
+	return Number.isFinite(date.getTime()) && toDateInput(date) === value;
+}
+
 function startOfDayIso(value: string): string {
 	return new Date(`${value}T00:00:00.000Z`).toISOString();
 }
@@ -186,8 +192,10 @@ function parseFilters(params: SearchParams | undefined): Filters {
 	const defaultFromDate = new Date(now);
 	defaultFromDate.setUTCDate(defaultFromDate.getUTCDate() - days);
 	const defaultFrom = toDateInput(defaultFromDate);
-	const from = range === "custom" ? (getParam(params, "from") ?? defaultFrom) : defaultFrom;
-	const to = range === "custom" ? (getParam(params, "to") ?? today) : today;
+	const requestedFrom = getParam(params, "from");
+	const requestedTo = getParam(params, "to");
+	const from = range === "custom" && validDateInput(requestedFrom) ? requestedFrom : defaultFrom;
+	const to = range === "custom" && validDateInput(requestedTo) ? requestedTo : today;
 	const ratingParam = getParam(params, "rating") as RatingFilter | undefined;
 	const sortParam = getParam(params, "sort") as SortKey | undefined;
 	const directionParam = getParam(params, "direction");
@@ -437,9 +445,11 @@ async function loadPresetFeedbackData(filters: Filters) {
 	const presetIds = presets.map((preset) => preset.id);
 
 	let feedback: FeedbackRow[] = [];
+	let feedbackTruncated = false;
 	if (presetIds.length > 0) {
 		const pageSize = 1_000;
-		for (let offset = 0; ; offset += pageSize) {
+		const maxFeedbackRows = 10_000;
+		for (let offset = 0; offset < maxFeedbackRows; offset += pageSize) {
 			let query = supabase
 				.from("gateway_feedback")
 				.select(
@@ -450,6 +460,7 @@ async function loadPresetFeedbackData(filters: Filters) {
 				.gte("created_at", filters.fromIso)
 				.lte("created_at", filters.toIso)
 				.order("created_at", { ascending: false })
+				.order("id", { ascending: false })
 				.range(offset, offset + pageSize - 1);
 			if (filters.rating === "unrated") {
 				query = query.is("rating", null);
@@ -466,10 +477,11 @@ async function loadPresetFeedbackData(filters: Filters) {
 			const page = (data ?? []) as FeedbackRow[];
 			feedback.push(...page);
 			if (page.length < pageSize) break;
+			if (feedback.length >= maxFeedbackRows) feedbackTruncated = true;
 		}
 	}
 
-	return { workspaceId, presets, feedback };
+	return { workspaceId, presets, feedback, feedbackTruncated };
 }
 
 export default function PresetExperimentsPage(props: {
@@ -816,7 +828,8 @@ async function PresetFeedbackContent({
 								Feedback events
 							</h2>
 							<p className="text-sm text-muted-foreground">
-								Recent rows from the feedback API. Open a row to inspect request, session, cohort metadata, comments, and tags.
+								Showing the {Math.min(visibleFeedback.length, 50)} most recent of {totalFeedback} loaded rows. Open a row to inspect request, session, cohort metadata, comments, and tags.
+								{data.feedbackTruncated ? " Analysis is capped at the 10,000 most recent matching rows." : ""}
 							</p>
 						</div>
 						<div className="min-w-0 overflow-x-auto rounded-lg border border-border/70">
@@ -912,12 +925,16 @@ function SortableComparisonHead({
 			? ChevronDown
 			: ChevronUp;
 	return (
-		<TableHead className={cn("group", className)}>
+		<TableHead
+			className={cn("group", className)}
+			aria-sort={active ? (filters.direction === "asc" ? "ascending" : "descending") : "none"}
+		>
 			<Link
 				href={buildFeedbackHref(filters, {
 					sort: sortKey,
 					direction: nextDirection,
 				})}
+				aria-label={`${label}, sort ${nextDirection === "asc" ? "ascending" : "descending"}`}
 				className={cn(
 					"inline-flex w-full items-center gap-1 text-left",
 					className?.includes("text-right") ? "justify-end" : "justify-start",
@@ -925,6 +942,7 @@ function SortableComparisonHead({
 			>
 				<span>{label}</span>
 				<Icon
+					aria-hidden="true"
 					className={cn(
 						"h-3.5 w-3.5 transition-opacity",
 						active

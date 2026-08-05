@@ -188,11 +188,29 @@ function normalizeMetadataDimensions(
 	return dimensions;
 }
 
-function normalizeScore(value: unknown): number | null {
+function normalizeScore(value: unknown): number | null | "invalid" {
 	if (value === null || value === undefined || value === "") return null;
 	const numeric = Number(value);
-	if (!Number.isFinite(numeric)) return null;
-	return Math.max(0, Math.min(1, numeric));
+	if (!Number.isFinite(numeric) || numeric < 0 || numeric > 1) return "invalid";
+	return numeric;
+}
+
+function normalizeTimestamp(value: unknown): string | null | "invalid" {
+	const text = normalizeText(value, 64);
+	if (!text) return null;
+	const timestamp = new Date(text);
+	return Number.isFinite(timestamp.getTime()) ? timestamp.toISOString() : "invalid";
+}
+
+function normalizeJsonValue(value: unknown, maxBytes = 32_768): { value: unknown; valid: boolean } {
+	if (value === undefined) return { value: null, valid: true };
+	try {
+		return JSON.stringify(value).length <= maxBytes
+			? { value, valid: true }
+			: { value: null, valid: false };
+	} catch {
+		return { value: null, valid: false };
+	}
 }
 
 function normalizeNumber(value: unknown): number | null {
@@ -369,7 +387,7 @@ function applyMetadataFilters(query: any, url: URL) {
 	return query;
 }
 
-function applyDateFilters(query: any, url: URL, column: "created_at" | "occurred_at" = "created_at") {
+function readDateFilters(url: URL) {
 	const since = normalizeText(
 		url.searchParams.get("created_after") ??
 			url.searchParams.get("created_since") ??
@@ -382,8 +400,29 @@ function applyDateFilters(query: any, url: URL, column: "created_at" | "occurred
 			url.searchParams.get("until"),
 		64,
 	);
-	if (since) query = query.gte(column, since);
-	if (until) query = query.lte(column, until);
+	const normalizedSince = normalizeTimestamp(since);
+	const normalizedUntil = normalizeTimestamp(until);
+	return {
+		since: normalizedSince,
+		until: normalizedUntil,
+		valid: normalizedSince !== "invalid" && normalizedUntil !== "invalid",
+	};
+}
+
+function hasInvalidUuidFilter(url: URL): boolean {
+	return ["preset_id", "test_run_id"].some((param) => {
+		const value = url.searchParams.get(param)?.trim();
+		return Boolean(value && !normalizeUuid(value));
+	});
+}
+
+function applyDateFilters(
+	query: any,
+	filters: ReturnType<typeof readDateFilters>,
+	column: "created_at" | "occurred_at" = "created_at",
+) {
+	if (filters.since && filters.since !== "invalid") query = query.gte(column, filters.since);
+	if (filters.until && filters.until !== "invalid") query = query.lte(column, filters.until);
 	return query;
 }
 
@@ -419,6 +458,10 @@ async function handleCreateFeedback(req: Request) {
 	if (body.rating != null && !rating) {
 		return json({ error: "bad_request", message: "Unsupported feedback rating" }, 400, { "Cache-Control": "no-store" });
 	}
+	const score = normalizeScore(body.score);
+	if (score === "invalid") {
+		return json({ error: "bad_request", message: "score must be between 0 and 1" }, 400, { "Cache-Control": "no-store" });
+	}
 
 	const payload = {
 		workspace_id: auth.workspaceId,
@@ -428,7 +471,7 @@ async function handleCreateFeedback(req: Request) {
 		test_run_id: testRunId,
 		source: normalizeSource(body.source),
 		rating,
-		score: normalizeScore(body.score),
+		score,
 		reason: normalizeText(body.reason, 128),
 		reason_tags: normalizeStringArray(body.reasonTags ?? body.reason_tags),
 		comment: normalizeText(body.comment, 2048),
@@ -444,6 +487,7 @@ async function handleCreateFeedback(req: Request) {
 		.select(FEEDBACK_SELECT)
 		.maybeSingle();
 	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
+	if (!data) return json({ error: "failed", message: "Feedback was not persisted" }, 500, { "Cache-Control": "no-store" });
 	return json({ data: formatFeedback(data as FeedbackRow) }, 201, { "Cache-Control": "no-store" });
 }
 
@@ -454,16 +498,20 @@ async function handleListFeedback(req: Request) {
 	const url = new URL(req.url);
 	const limit = parsePositiveInt(url.searchParams.get("limit"), 100, 500);
 	const offset = parseOffset(url.searchParams.get("offset"));
+	const dateFilters = readDateFilters(url);
+	if (!dateFilters.valid) return json({ error: "bad_request", message: "Invalid date filter" }, 400, { "Cache-Control": "no-store" });
+	if (hasInvalidUuidFilter(url)) return json({ error: "bad_request", message: "Invalid preset or test run id" }, 400, { "Cache-Control": "no-store" });
 
 	let query: any = getSupabaseAdmin()
 		.from("gateway_feedback")
 		.select(FEEDBACK_SELECT)
 		.eq("workspace_id", auth.workspaceId)
 		.order("created_at", { ascending: false })
+		.order("id", { ascending: false })
 		.range(offset, offset + limit - 1);
 	query = applyTargetFilters(query, url);
 	query = applyMetadataFilters(query, url);
-	query = applyDateFilters(query, url);
+	query = applyDateFilters(query, dateFilters);
 	const rating = url.searchParams.get("rating")?.trim();
 	if (rating) query = query.eq("rating", rating);
 
@@ -477,26 +525,26 @@ async function handleFeedbackSummary(req: Request) {
 	if (authorized.response) return authorized.response;
 	const auth = authorized.auth;
 	const url = new URL(req.url);
-	const rawGroupBy = url.searchParams.get("group_by");
-	const groupBy = rawGroupBy === "test_run" ? "test_run_id" : rawGroupBy === "metadata" ? "metadata" : "preset_id";
+	const rawGroupBy = url.searchParams.get("group_by") ?? "preset";
+	if (!new Set(["preset", "preset_id", "test_run", "test_run_id", "metadata"]).has(rawGroupBy)) {
+		return json({ error: "bad_request", message: "Unsupported feedback summary grouping" }, 400, { "Cache-Control": "no-store" });
+	}
+	const groupBy = rawGroupBy === "test_run" || rawGroupBy === "test_run_id" ? "test_run_id" : rawGroupBy === "metadata" ? "metadata" : "preset_id";
 	const metadataKey = normalizeText(url.searchParams.get("metadata_key"), 64);
 	if (groupBy === "metadata" && (!metadataKey || !/^[a-zA-Z0-9_.:-]+$/.test(metadataKey))) {
 		return json({ error: "bad_request", message: "metadata_key is required for metadata grouping" }, 400, { "Cache-Control": "no-store" });
 	}
 
 	const limit = parsePositiveInt(url.searchParams.get("limit"), 5000, 10000);
-	const createdSince = normalizeText(
-		url.searchParams.get("created_after") ??
-			url.searchParams.get("created_since") ??
-			url.searchParams.get("since"),
-		64,
-	);
-	const createdUntil = normalizeText(
-		url.searchParams.get("created_before") ??
-			url.searchParams.get("created_until") ??
-			url.searchParams.get("until"),
-		64,
-	);
+	const dateFilters = readDateFilters(url);
+	if (!dateFilters.valid) return json({ error: "bad_request", message: "Invalid date filter" }, 400, { "Cache-Control": "no-store" });
+	const rawPresetId = url.searchParams.get("preset_id");
+	const rawTestRunId = url.searchParams.get("test_run_id");
+	const presetId = normalizeUuid(rawPresetId);
+	const testRunId = normalizeUuid(rawTestRunId);
+	if ((rawPresetId && !presetId) || (rawTestRunId && !testRunId)) {
+		return json({ error: "bad_request", message: "Invalid preset or test run id" }, 400, { "Cache-Control": "no-store" });
+	}
 
 	const { data, error } = await getSupabaseAdmin().rpc("gateway_feedback_summary", {
 		p_workspace_id: auth.workspaceId,
@@ -504,10 +552,10 @@ async function handleFeedbackSummary(req: Request) {
 		p_metadata_key: groupBy === "metadata" ? metadataKey : null,
 		p_request_id: normalizeText(url.searchParams.get("request_id"), 128),
 		p_session_id: normalizeText(url.searchParams.get("session_id"), 128),
-		p_preset_id: normalizeUuid(url.searchParams.get("preset_id")),
-		p_test_run_id: normalizeUuid(url.searchParams.get("test_run_id")),
-		p_created_since: createdSince,
-		p_created_until: createdUntil,
+		p_preset_id: presetId,
+		p_test_run_id: testRunId,
+		p_created_since: dateFilters.since,
+		p_created_until: dateFilters.until,
 		p_metadata_filters: collectMetadataFilters(url),
 		p_limit: limit,
 	});
@@ -563,7 +611,14 @@ async function handleCreateEvent(req: Request) {
 		metadata,
 	);
 
-	const occurredAt = normalizeText(body.occurredAt ?? body.occurred_at, 64);
+	const occurredAt = normalizeTimestamp(body.occurredAt ?? body.occurred_at);
+	if (occurredAt === "invalid") {
+		return json({ error: "bad_request", message: "Invalid occurred_at timestamp" }, 400, { "Cache-Control": "no-store" });
+	}
+	const normalizedValue = normalizeJsonValue(body.value);
+	if (!normalizedValue.valid) {
+		return json({ error: "bad_request", message: "Event value exceeds the 32 KiB limit" }, 400, { "Cache-Control": "no-store" });
+	}
 	const payload = {
 		workspace_id: auth.workspaceId,
 		request_id: requestId,
@@ -572,7 +627,7 @@ async function handleCreateEvent(req: Request) {
 		test_run_id: testRunId,
 		category: normalizeEventCategory(body.category),
 		event_name: eventName,
-		value: body.value === undefined ? null : body.value,
+		value: normalizedValue.value,
 		numeric_value: normalizeNumber(body.numericValue ?? body.numeric_value),
 		metadata,
 		metadata_dimensions: metadataDimensions,
@@ -588,6 +643,7 @@ async function handleCreateEvent(req: Request) {
 		.select(EVENT_SELECT)
 		.maybeSingle();
 	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
+	if (!data) return json({ error: "failed", message: "Event was not persisted" }, 500, { "Cache-Control": "no-store" });
 	return json({ data: formatEvent(data as EventRow) }, 201, { "Cache-Control": "no-store" });
 }
 
@@ -598,16 +654,20 @@ async function handleListEvents(req: Request) {
 	const url = new URL(req.url);
 	const limit = parsePositiveInt(url.searchParams.get("limit"), 100, 500);
 	const offset = parseOffset(url.searchParams.get("offset"));
+	const dateFilters = readDateFilters(url);
+	if (!dateFilters.valid) return json({ error: "bad_request", message: "Invalid date filter" }, 400, { "Cache-Control": "no-store" });
+	if (hasInvalidUuidFilter(url)) return json({ error: "bad_request", message: "Invalid preset or test run id" }, 400, { "Cache-Control": "no-store" });
 
 	let query: any = getSupabaseAdmin()
 		.from("gateway_observability_events")
 		.select(EVENT_SELECT)
 		.eq("workspace_id", auth.workspaceId)
 		.order("occurred_at", { ascending: false })
+		.order("id", { ascending: false })
 		.range(offset, offset + limit - 1);
 	query = applyTargetFilters(query, url);
 	query = applyMetadataFilters(query, url);
-	query = applyDateFilters(query, url, "occurred_at");
+	query = applyDateFilters(query, dateFilters, "occurred_at");
 	const category = url.searchParams.get("category")?.trim();
 	if (category) query = query.eq("category", category);
 	const eventName = url.searchParams.get("event")?.trim() ?? url.searchParams.get("event_name")?.trim();
@@ -634,6 +694,11 @@ async function handleCreateTestRun(req: Request) {
 	if (body.status != null && !normalizeAllowedText(body.status, TEST_RUN_STATUSES)) {
 		return json({ error: "bad_request", message: "Unsupported test run status" }, 400, { "Cache-Control": "no-store" });
 	}
+	const startedAt = normalizeTimestamp(body.startedAt ?? body.started_at);
+	const completedAt = normalizeTimestamp(body.completedAt ?? body.completed_at);
+	if (startedAt === "invalid" || completedAt === "invalid") {
+		return json({ error: "bad_request", message: "Invalid test run timestamp" }, 400, { "Cache-Control": "no-store" });
+	}
 
 	const payload = {
 		workspace_id: auth.workspaceId,
@@ -645,8 +710,8 @@ async function handleCreateTestRun(req: Request) {
 		dataset_name: normalizeText(body.datasetName ?? body.dataset_name, 160),
 		config: normalizeJsonObject(body.config),
 		summary: normalizeJsonObject(body.summary),
-		started_at: normalizeText(body.startedAt ?? body.started_at, 64),
-		completed_at: normalizeText(body.completedAt ?? body.completed_at, 64),
+		started_at: startedAt,
+		completed_at: completedAt,
 		created_by_user_id: normalizeUuid(auth.userId),
 	};
 
@@ -656,6 +721,7 @@ async function handleCreateTestRun(req: Request) {
 		.select(TEST_RUN_SELECT)
 		.maybeSingle();
 	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
+	if (!data) return json({ error: "failed", message: "Test run was not persisted" }, 500, { "Cache-Control": "no-store" });
 	return json({ data: formatTestRun(data as PresetTestRunRow) }, 201, { "Cache-Control": "no-store" });
 }
 
@@ -671,8 +737,10 @@ async function handleListTestRuns(req: Request) {
 		.select(TEST_RUN_SELECT)
 		.eq("workspace_id", auth.workspaceId)
 		.order("created_at", { ascending: false })
+		.order("id", { ascending: false })
 		.range(offset, offset + limit - 1);
 	const presetId = url.searchParams.get("preset_id")?.trim();
+	if (presetId && !normalizeUuid(presetId)) return json({ error: "bad_request", message: "Invalid preset id" }, 400, { "Cache-Control": "no-store" });
 	if (presetId) query = query.eq("preset_id", presetId);
 	const { data, error } = await query;
 	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
@@ -720,10 +788,14 @@ async function handleUpdateTestRun(req: Request, id: string) {
 	}
 	if (body.summary !== undefined) update.summary = normalizeJsonObject(body.summary);
 	if (body.completedAt !== undefined || body.completed_at !== undefined) {
-		update.completed_at = normalizeText(body.completedAt ?? body.completed_at, 64);
+		const completedAt = normalizeTimestamp(body.completedAt ?? body.completed_at);
+		if (completedAt === "invalid") return json({ error: "bad_request", message: "Invalid completed_at timestamp" }, 400, { "Cache-Control": "no-store" });
+		update.completed_at = completedAt;
 	}
 	if (body.startedAt !== undefined || body.started_at !== undefined) {
-		update.started_at = normalizeText(body.startedAt ?? body.started_at, 64);
+		const startedAt = normalizeTimestamp(body.startedAt ?? body.started_at);
+		if (startedAt === "invalid") return json({ error: "bad_request", message: "Invalid started_at timestamp" }, 400, { "Cache-Control": "no-store" });
+		update.started_at = startedAt;
 	}
 	if (body.name !== undefined) update.name = normalizeText(body.name, 160);
 	if (body.description !== undefined) update.description = normalizeText(body.description, 1000);

@@ -190,11 +190,11 @@ export function PresetFeedbackFilters({
 				>
 					<div className="space-y-2 xl:col-span-3">
 						<Label htmlFor="from">From</Label>
-						<DatePickerInput name="from" value={from} onChange={setFrom} />
+						<DatePickerInput id="from" name="from" value={from} onChange={setFrom} />
 					</div>
 					<div className="space-y-2 xl:col-span-3">
 						<Label htmlFor="to">To</Label>
-						<DatePickerInput name="to" value={to} onChange={setTo} />
+						<DatePickerInput id="to" name="to" value={to} onChange={setTo} />
 					</div>
 				</div>
 

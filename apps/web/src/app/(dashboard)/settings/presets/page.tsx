@@ -41,42 +41,26 @@ export default async function PresetsPage() {
 				meta={<Badge variant="outline">Beta</Badge>}
 				actions={
 					<div className="flex flex-wrap items-center justify-end gap-2">
-						<Link href="/settings/presets/new">
-							<Button
-								variant="default"
-								size="sm"
-								className="h-9 gap-2 px-3"
-							>
+						<Button asChild variant="default" size="sm" className="h-9 gap-2 px-3">
+							<Link href="/settings/presets/new">
 								<Plus className="h-4 w-4" />
 								Create preset
-							</Button>
-						</Link>
+							</Link>
+						</Button>
 						{showPresetExperiments ? (
-							<Link href="/settings/presets/experiments">
-								<Button
-									variant="outline"
-									size="sm"
-									className="h-9 gap-2 px-3"
-								>
+							<Button asChild variant="outline" size="sm" className="h-9 gap-2 px-3">
+								<Link href="/settings/presets/experiments">
 									<MessageSquareText className="h-4 w-4" />
 									Preset feedback
-								</Button>
-							</Link>
+								</Link>
+							</Button>
 						) : null}
-						<Link
-							href="/gateway/marketplace"
-							target="_blank"
-							rel="noreferrer"
-						>
-							<Button
-								variant="outline"
-								size="sm"
-								className="h-9 gap-2 px-3"
-							>
+						<Button asChild variant="outline" size="sm" className="h-9 gap-2 px-3">
+							<Link href="/gateway/marketplace" target="_blank" rel="noreferrer">
 								<Store className="h-4 w-4" />
 								Marketplace
-							</Button>
-						</Link>
+							</Link>
+						</Button>
 					</div>
 				}
 			/>

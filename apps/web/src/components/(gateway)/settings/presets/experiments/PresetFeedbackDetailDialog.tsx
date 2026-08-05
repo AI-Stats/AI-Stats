@@ -105,7 +105,7 @@ export function PresetFeedbackDetailDialog({
 					<DetailRow label="Reason tags">
 						{feedback.reasonTags.length > 0 ? (
 							<div className="flex flex-wrap gap-2">
-								{feedback.reasonTags.map((tag) => (
+								{Array.from(new Set(feedback.reasonTags)).map((tag) => (
 									<Badge key={tag} variant="secondary">
 										{tag}
 									</Badge>

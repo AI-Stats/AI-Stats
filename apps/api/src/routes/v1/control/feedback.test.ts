@@ -302,6 +302,18 @@ describe("feedback control routes", () => {
 		expect(state.insertCalls).toHaveLength(0);
 	});
 
+	it("rejects invalid feedback scores before database insertion", async () => {
+		const response = await feedbackRoutes.request("https://api.example.com/", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ requestId: "gen_123", score: 5 }),
+		});
+
+		expect(response.status).toBe(400);
+		await expect(response.json()).resolves.toMatchObject({ error: "bad_request" });
+		expect(state.insertCalls).toHaveLength(0);
+	});
+
 	it("rejects unsupported test run statuses before database insertion", async () => {
 		const response = await presetTestRunsRoutes.request("https://api.example.com/", {
 			method: "POST",
@@ -443,6 +455,18 @@ describe("feedback control routes", () => {
 				}),
 			}),
 		);
+	});
+
+	it("rejects malformed summary filters", async () => {
+		const invalidDate = await feedbackRoutes.request("https://api.example.com/summary?since=yesterday");
+		expect(invalidDate.status).toBe(400);
+
+		const invalidGrouping = await feedbackRoutes.request("https://api.example.com/summary?group_by=creator");
+		expect(invalidGrouping.status).toBe(400);
+
+		const invalidPreset = await feedbackRoutes.request("https://api.example.com/summary?preset_id=not-a-uuid");
+		expect(invalidPreset.status).toBe(400);
+		expect(state.rpcCalls).toHaveLength(0);
 	});
 	it("applies metadata dimension filters when listing feedback", async () => {
 		state.feedbackSummaryRows = [
