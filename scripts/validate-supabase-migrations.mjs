@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -76,8 +76,29 @@ function stripSqlComments(sql) {
 function validateAddedMigration(path, files) {
 	const errors = [];
 	const absolutePath = resolve(REPOSITORY_ROOT, path);
-	if (!absolutePath.startsWith(`${MIGRATIONS_DIRECTORY}${sep}`)) {
+	const relativeParent = dirname(path.replaceAll("\\", "/"));
+	if (
+		relativeParent !== "supabase/migrations" ||
+		!absolutePath.startsWith(`${MIGRATIONS_DIRECTORY}${sep}`)
+	) {
 		return [`${path}: migration path escaped supabase/migrations`];
+	}
+
+	const fileStat = lstatSync(absolutePath);
+	if (!fileStat.isFile()) {
+		return [`${path}: migration must be a direct regular file, not a symlink or special file`];
+	}
+	const realPath = realpathSync(absolutePath);
+	if (!realPath.startsWith(`${realpathSync(MIGRATIONS_DIRECTORY)}${sep}`)) {
+		return [`${path}: migration resolved outside supabase/migrations`];
+	}
+	const gitEntry = execFileSync("git", ["ls-files", "-s", "--", path], {
+		cwd: REPOSITORY_ROOT,
+		encoding: "utf8",
+	}).trim();
+	const gitMode = gitEntry.split(/\s+/, 1)[0];
+	if (gitMode !== "100644" && gitMode !== "100755") {
+		return [`${path}: migration must be stored as a regular Git file`];
 	}
 
 	const file = path.split("/").at(-1) ?? "";
