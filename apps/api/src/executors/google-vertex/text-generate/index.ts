@@ -152,6 +152,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			})();
 			return {
 				kind: "stream",
+				allowEmptySuccess: true,
 				stream,
 				usageFinalizer: async () => null,
 				bill,
@@ -212,6 +213,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 
 		return {
 			kind: "completed",
+			allowEmptySuccess: true,
 			ir,
 			bill,
 			upstream: res,
@@ -273,6 +275,7 @@ function finalizeResult(input: {
 		);
 		return {
 			kind: "stream",
+			allowEmptySuccess: true,
 			stream: normalized,
 			usageFinalizer: async () => null,
 			bill,
@@ -295,6 +298,7 @@ function finalizeResult(input: {
 
 	return {
 		kind: "completed",
+		allowEmptySuccess: true,
 		ir,
 		bill,
 		upstream: res,

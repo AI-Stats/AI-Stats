@@ -349,6 +349,7 @@ function recordProviderAttempt(
  */
 export type IRRequestResult = {
 	kind: "completed" | "stream";
+	allowEmptySuccess?: boolean;
 	ir?:
 		| IRChatResponse
 		| IREmbeddingsResponse
@@ -984,6 +985,7 @@ async function attemptProviderWithIR(
 		// Build result
 		const result: IRRequestResult = {
 			kind: executorResult.kind,
+			allowEmptySuccess: executorResult.allowEmptySuccess,
 			ir: executorResult.kind === "completed" ? executorResult.ir : undefined,
 			upstream: executorResult.upstream,
 			stream: executorResult.kind === "stream" ? executorResult.stream : undefined,
