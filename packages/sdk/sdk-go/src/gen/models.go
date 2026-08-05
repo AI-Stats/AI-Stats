@@ -1621,6 +1621,8 @@ const (
 	KnownModelIdMetaLlamaGuard412b KnownModelId = "meta/llama-guard-4-12b"
 	KnownModelIdMetaLlamaPromptGuard222m KnownModelId = "meta/llama-prompt-guard-2-22m"
 	KnownModelIdMetaLlamaPromptGuard286m KnownModelId = "meta/llama-prompt-guard-2-86m"
+	KnownModelIdMetaMuseSpark12 KnownModelId = "meta/muse-spark-1.2"
+	KnownModelIdMetaMuseSpark12Contributor KnownModelId = "meta/muse-spark-1.2-contributor"
 	KnownModelIdMicrosoftPhi4 KnownModelId = "microsoft/phi-4"
 	KnownModelIdMicrosoftPhi4Mini KnownModelId = "microsoft/phi-4-mini"
 	KnownModelIdMindaiMacaronV1VentiFree KnownModelId = "mindai/macaron-v1-venti:free"

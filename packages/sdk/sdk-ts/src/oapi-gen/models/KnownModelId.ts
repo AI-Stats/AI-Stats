@@ -148,6 +148,8 @@ export type KnownModelId =
   | "meta/llama-guard-4-12b"
   | "meta/llama-prompt-guard-2-22m"
   | "meta/llama-prompt-guard-2-86m"
+  | "meta/muse-spark-1.2"
+  | "meta/muse-spark-1.2-contributor"
   | "microsoft/phi-4"
   | "microsoft/phi-4-mini"
   | "mindai/macaron-v1-venti:free"
