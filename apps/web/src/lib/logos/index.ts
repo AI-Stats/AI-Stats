@@ -53,6 +53,7 @@ const labelOverrides: Partial<Record<KnownLogoId, string>> = {
 	"google-gemma": "Gemma",
 	huggingface: "Hugging Face",
 	ibm: "IBM",
+	ionet: "IO.NET",
 	lg: "LG",
 	llmgateway: "LLM Gateway",
 	mindai: "Mind Lab",
@@ -86,8 +87,39 @@ for (const [key, assets] of manifestEntries) {
 // Keep common aliases here so callers can pass provider IDs directly.
 normalisedAliasMap.set(normalise("novitaai"), "novita");
 normalisedAliasMap.set(normalise("cogito-ai"), "cogito");
+normalisedAliasMap.set(normalise("inference-net"), "inference");
+normalisedAliasMap.set(normalise("io-net"), "ionet");
 normalisedAliasMap.set(normalise("anthropic-aws"), "aws");
 normalisedAliasMap.set(normalise("anthropic-aws-us"), "aws");
+normalisedAliasMap.set(normalise("azure-cognitive-services"), "azure");
+normalisedAliasMap.set(normalise("cloudflare-workers-ai"), "cloudflare");
+normalisedAliasMap.set(normalise("fireworks-ai"), "fireworks");
+normalisedAliasMap.set(normalise("github-copilot"), "github");
+normalisedAliasMap.set(normalise("google-vertex-anthropic"), "google-vertex");
+normalisedAliasMap.set(normalise("alibaba-coding-plan"), "alibaba");
+normalisedAliasMap.set(normalise("alibaba-coding-plan-cn"), "alibaba");
+normalisedAliasMap.set(normalise("alibaba-token-plan"), "alibaba");
+normalisedAliasMap.set(normalise("alibaba-token-plan-cn"), "alibaba");
+normalisedAliasMap.set(normalise("minimax-cn"), "minimax");
+normalisedAliasMap.set(normalise("minimax-coding-plan"), "minimax");
+normalisedAliasMap.set(normalise("minimax-cn-coding-plan"), "minimax");
+normalisedAliasMap.set(normalise("moonshotai-cn"), "moonshotai");
+normalisedAliasMap.set(normalise("ollama-cloud"), "ollama");
+normalisedAliasMap.set(normalise("cline-pass"), "cline");
+normalisedAliasMap.set(normalise("kimi-for-coding"), "moonshotai");
+normalisedAliasMap.set(normalise("llama"), "meta");
+normalisedAliasMap.set(normalise("opencode-go"), "opencode");
+normalisedAliasMap.set(normalise("stepfun-ai"), "stepfun");
+normalisedAliasMap.set(normalise("stepfun-ai-step-plan"), "stepfun");
+normalisedAliasMap.set(normalise("stepfun-step-plan"), "stepfun");
+normalisedAliasMap.set(normalise("zai-coding-plan"), "zai");
+normalisedAliasMap.set(normalise("zhipuai-coding-plan"), "zhipuai");
+normalisedAliasMap.set(normalise("snowflake-cortex"), "snowflake");
+normalisedAliasMap.set(normalise("sap-ai-core"), "sap");
+normalisedAliasMap.set(normalise("tencent-coding-plan"), "tencent");
+normalisedAliasMap.set(normalise("tencent-token-plan"), "tencent");
+normalisedAliasMap.set(normalise("tencent-tokenhub"), "tencent");
+normalisedAliasMap.set(normalise("wafer.ai"), "wafer");
 normalisedAliasMap.set(normalise("x-ai"), "spacex-ai");
 normalisedAliasMap.set(normalise("xai"), "spacex-ai");
 
