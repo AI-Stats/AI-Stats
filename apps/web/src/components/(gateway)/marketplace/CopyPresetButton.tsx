@@ -9,8 +9,10 @@ import { forkPresetAction } from "@/app/(dashboard)/settings/presets/actions";
 
 export default function CopyPresetButton({
 	sourcePresetId,
+	sourceVersionId,
 }: {
 	sourcePresetId: string;
+	sourceVersionId?: string;
 }) {
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
@@ -22,7 +24,7 @@ export default function CopyPresetButton({
 			onClick={() => {
 				startTransition(async () => {
 					try {
-						await forkPresetAction(sourcePresetId);
+						await forkPresetAction(sourcePresetId, sourceVersionId);
 						toast.success("Preset copied to your account");
 						router.push("/settings/presets");
 						router.refresh();

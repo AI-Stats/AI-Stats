@@ -53,6 +53,7 @@ export type PresetConfig = {
 };
 
 export type PresetVisibility = "private" | "team" | "public";
+export type PresetVersioningMethod = "sequential" | "semver" | "date";
 
 export type CreatePresetInput = {
 	name: string;
@@ -62,6 +63,7 @@ export type CreatePresetInput = {
 	workspaceId: string;
 	config: PresetConfig;
 	visibility?: PresetVisibility;
+	versioningMethod?: PresetVersioningMethod;
 };
 
 export type UpdatePresetInput = {
@@ -71,6 +73,7 @@ export type UpdatePresetInput = {
 	description?: string;
 	config?: Partial<PresetConfig>;
 	visibility?: PresetVisibility;
+	versioningMethod?: PresetVersioningMethod;
 };
 
 function validatePresetName(name: string): void {
@@ -341,7 +344,7 @@ export async function createPresetAction(input: CreatePresetInput) {
 	return data;
 }
 
-export async function forkPresetAction(sourcePresetId: string) {
+export async function forkPresetAction(sourcePresetId: string, sourceVersionId?: string) {
 	if (!sourcePresetId || typeof sourcePresetId !== "string") {
 		throw new Error("Valid preset ID is required");
 	}
@@ -352,7 +355,7 @@ export async function forkPresetAction(sourcePresetId: string) {
 		throw new Error("WORKSPACE_REQUIRED");
 	}
 	if (!context.accessToken) throw new Error("AUTH_REQUIRED");
-	const data = await fetchAccountWebApi<{ id?: string; name: string }>(`/api/account/settings/presets/${encodeURIComponent(sourcePresetId)}/fork`, context.accessToken, { method: "POST", body: JSON.stringify({ workspaceId }) });
+	const data = await fetchAccountWebApi<{ id?: string; name: string }>(`/api/account/settings/presets/${encodeURIComponent(sourcePresetId)}/fork`, context.accessToken, { method: "POST", body: JSON.stringify({ workspaceId, sourceVersionId }) });
 
 	revalidatePath("/settings/presets");
 	revalidatePresetDataCache(sourcePresetId);
@@ -394,6 +397,7 @@ export async function updatePresetAction(input: UpdatePresetInput) {
 	if (visibility) {
 		updateObj.visibility = normalizeVisibility(visibility);
 	}
+	if (input.versioningMethod && ["sequential", "semver", "date"].includes(input.versioningMethod)) updateObj.versioningMethod = input.versioningMethod;
 
 	const { accessToken } = await getServerAccountContext(); if (!accessToken) throw new Error("Unauthorized");
 	await fetchAccountWebApi(`/api/account/settings/presets/${encodeURIComponent(id)}`, accessToken, { method: "PUT", body: JSON.stringify(updateObj) });
@@ -401,6 +405,22 @@ export async function updatePresetAction(input: UpdatePresetInput) {
 	revalidatePath("/settings/presets");
 	revalidatePresetDataCache(id);
 
+	return { success: true };
+}
+
+export async function publishPresetVersionAction(id: string, releaseNotes?: string, versionLabel?: string) {
+	if (!id) throw new Error("Valid preset ID is required");
+	const { accessToken } = await getServerAccountContext(); if (!accessToken) throw new Error("Unauthorized");
+	const data = await fetchAccountWebApi<{ version?: { version_number?: number; version_label?: string } }>(`/api/account/settings/presets/${encodeURIComponent(id)}/versions`, accessToken, { method: "POST", body: JSON.stringify({ releaseNotes, versionLabel }) });
+	revalidatePath("/settings/presets"); revalidatePath(`/gateway/marketplace/${id}`); revalidatePresetDataCache(id);
+	return data;
+}
+
+export async function applyPresetUpstreamVersionAction(id: string, versionId: string) {
+	if (!id || !versionId) throw new Error("Preset and version are required");
+	const { accessToken } = await getServerAccountContext(); if (!accessToken) throw new Error("Unauthorized");
+	await fetchAccountWebApi(`/api/account/settings/presets/${encodeURIComponent(id)}/upstream`, accessToken, { method: "POST", body: JSON.stringify({ versionId }) });
+	revalidatePath("/settings/presets"); revalidatePresetDataCache(id);
 	return { success: true };
 }
 

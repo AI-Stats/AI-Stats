@@ -50,7 +50,7 @@ export default async function GatewayMarketplacePage({ searchParams }: { searchP
 	const [{ q }, presets] = await Promise.all([searchParams, fetchFrontendMarketplacePresets()]);
 	const query = q?.trim().toLowerCase() ?? "";
 	const matching = query ? presets.filter((preset) => [preset.name, preset.description, preset.publisher.displayName, preset.publisher.handle, preset.canonicalModel].some((value) => String(value ?? "").toLowerCase().includes(query))) : presets;
-	const ranked = [...matching].sort((left, right) => right.forkCount - left.forkCount || Date.parse(right.created_at) - Date.parse(left.created_at));
+	const ranked = [...matching].sort((left, right) => right.descendantCount - left.descendantCount || right.forkCount - left.forkCount || Date.parse(right.created_at) - Date.parse(left.created_at));
 	const featured = ranked.slice(0, 6);
 	const community = ranked.slice(6, 14);
 	const popular = ranked.slice(0, 3);
@@ -157,7 +157,7 @@ export default async function GatewayMarketplacePage({ searchParams }: { searchP
 								Most forked
 							</CardTitle>
 							<CardDescription>
-								Popular presets ranked by the number of direct community forks.
+								Popular presets ranked by their total community descendants.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
@@ -181,7 +181,7 @@ export default async function GatewayMarketplacePage({ searchParams }: { searchP
 											<span>@{preset.publisher.handle}</span>
 											<span className="flex items-center gap-1">
 												<GitFork className="h-3.5 w-3.5" />
-												{preset.forkCount}
+								{preset.descendantCount} descendants
 											</span>
 										</CardContent>
 									</Card>
@@ -235,7 +235,7 @@ function MarketplaceCard({
 					<BadgeCheck className="h-3.5 w-3.5" />
 					@{preset.publisher.handle}
 				</span>
-				<span className="flex items-center gap-1"><GitFork className="h-3.5 w-3.5" />{preset.forkCount}</span>
+				<span className="flex items-center gap-1"><GitFork className="h-3.5 w-3.5" />{preset.forkCount} direct · {preset.descendantCount} total</span>
 			</CardContent>
 		</Card>
 	);
@@ -263,7 +263,7 @@ function CompactPresetRow({
 			</div>
 			<div className="text-right text-xs text-muted-foreground">
 				<div>@{preset.publisher.handle}</div>
-				<div className="flex items-center justify-end gap-1"><GitFork className="h-3.5 w-3.5" />{preset.forkCount}</div>
+				<div className="flex items-center justify-end gap-1"><GitFork className="h-3.5 w-3.5" />{preset.forkCount} direct · {preset.descendantCount} total</div>
 			</div>
 		</div>
 	);

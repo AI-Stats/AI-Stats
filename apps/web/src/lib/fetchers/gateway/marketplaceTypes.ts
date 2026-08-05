@@ -6,6 +6,7 @@ export type MarketplacePreset = {
 	source_preset_id: string | null;
 	slug: string;
 	forkCount: number;
+	descendantCount: number;
 	canonicalModel: string;
 	publisher: { handle: string; displayName: string };
 };
@@ -20,5 +21,6 @@ export type MarketplacePresetDetail = {
 		config: Record<string, unknown> | null;
 		visibility: "private" | "team" | "public";
 	};
+	versions: Array<{ id: string; version_number: number; version_label: string; versioning_method: "sequential" | "semver" | "date"; release_notes: string | null; created_at: string }>;
 	sourcePreset: MarketplacePresetLink | null;
 };
