@@ -81,8 +81,7 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
     const ts = new TransformStream();
     const writer = ts.writable.getWriter();
     const tStart = performance.now();
-    let firstFrameAt: number | null = null;
-    let firstFrameAtMs: number | null = null;
+    let firstOutputAt: number | null = null;
     let downstreamClosed = false;
     void writer.closed.catch(() => {
         downstreamClosed = true;
@@ -120,9 +119,13 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
             : Math.max(0, Math.round(nowPerf - tStart));
         ctx.meta.generation_ms = upstreamStartMs !== null
             ? Math.max(0, Math.round(nowMs - upstreamStartMs))
-            : firstFrameAt !== null
+            : firstOutputAt !== null
                 ? Math.max(0, Math.round(nowPerf - tStart))
                 : 0;
+        ctx.meta.phaseo_overhead_ms = Math.max(
+            0,
+            ctx.meta.end_to_end_ms - ctx.meta.generation_ms,
+        );
     };
 
     // Write one SSE JSON object as "event: X\ndata: {...}\n\n" (event optional)
@@ -226,30 +229,18 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
                         continue;
                     }
 
-                    if (firstFrameAt === null) {
-                        firstFrameAt = performance.now();
-                        firstFrameAtMs = Date.now();
-                        // For streamed responses, latency means upstream request start -> first frame
-                        // emitted back to the client. Provider adapters may record earlier upstream
-                        // timings, so overwrite here with the actual downstream first-frame timing.
-                        if (!ctx.meta.preserve_stream_timing) {
-                            const upstreamStartMs = resolveSelectedUpstreamStartMs();
-                            if (upstreamStartMs !== null) {
-                                ctx.meta.latency_ms = Math.max(
-                                    0,
-                                    Math.round(firstFrameAtMs - upstreamStartMs),
-                                );
-                            } else {
-                                ctx.meta.latency_ms = Math.max(0, Math.round(firstFrameAt - tStart));
-                            }
-                        }
-                    }
-
                     const events = extractUnifiedStreamEvents({
                         protocol: ctx.protocol,
                         eventName,
                         frame: json,
                     });
+                    const containsGeneratedOutput = events.some((event) =>
+                        (event.type === "delta_text" && event.text.length > 0) ||
+                        (event.type === "delta_tool" && Boolean(
+                            event.argumentsDelta || event.arguments || event.toolName,
+                        )) ||
+                        event.type === "delta_content_part"
+                    );
                     const detectedProtocol = detectStreamProtocol({
                         protocol: undefined,
                         eventName,
@@ -349,6 +340,24 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
                         }
                         await writeJson(frameOut, outbound.eventName ?? null);
                     }
+                    if (firstOutputAt === null && containsGeneratedOutput) {
+                        firstOutputAt = performance.now();
+                        const firstOutputAtMs = Date.now();
+                        if (!ctx.meta.preserve_stream_timing) {
+                            const upstreamStartMs = resolveSelectedUpstreamStartMs();
+                            const providerTtftMs = upstreamStartMs !== null
+                                ? Math.max(0, Math.round(firstOutputAtMs - upstreamStartMs))
+                                : Math.max(0, Math.round(firstOutputAt - tStart));
+                            const gatewayStartMs = typeof ctx.meta.startedAtMs === "number"
+                                ? ctx.meta.startedAtMs
+                                : null;
+                            ctx.meta.provider_ttft_ms = providerTtftMs;
+                            ctx.meta.gateway_ttft_ms = gatewayStartMs !== null
+                                ? Math.max(0, Math.round(firstOutputAtMs - gatewayStartMs))
+                                : providerTtftMs;
+                            ctx.meta.latency_ms = providerTtftMs;
+                        }
+                    }
 
                     if (finalUsageAfterWrite) {
                         finalizeUsage(finalUsageAfterWrite, {
@@ -389,8 +398,6 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
     // Do not add custom gateway headers; everything important is in-body now.
     return new Response(ts.readable, { status: upstream.status, headers });
 }
-
-
 
 
 

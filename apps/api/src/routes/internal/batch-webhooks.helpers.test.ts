@@ -138,7 +138,7 @@ describe("batch webhook helpers", () => {
 			"batch-secret",
 			`evt_openai_batch_123.${timestamp}.${rawBody}`,
 		);
-		const req = new Request("https://api.ai-stats.test/internal/batch-webhooks/openai", {
+		const req = new Request("https://api.phaseo.app/internal/batch-webhooks/openai", {
 			method: "POST",
 			headers: {
 				"webhook-id": "evt_openai_batch_123",
@@ -150,7 +150,7 @@ describe("batch webhook helpers", () => {
 
 		await expect(verifyOpenAiBatchWebhookSignature(req, rawBody)).resolves.toBe(true);
 
-		const badReq = new Request("https://api.ai-stats.test/internal/batch-webhooks/openai", {
+		const badReq = new Request("https://api.phaseo.app/internal/batch-webhooks/openai", {
 			method: "POST",
 			headers: {
 				"webhook-id": "evt_openai_batch_123",
@@ -173,7 +173,7 @@ describe("batch webhook helpers", () => {
 			"gemini-secret",
 			`evt_gemini_batch_123.${timestamp}.${rawBody}`,
 		);
-		const req = new Request("https://api.ai-stats.test/internal/batch-webhooks/gemini", {
+		const req = new Request("https://api.phaseo.app/internal/batch-webhooks/gemini", {
 			method: "POST",
 			headers: {
 				"webhook-id": "evt_gemini_batch_123",
@@ -197,7 +197,7 @@ describe("batch webhook helpers", () => {
 			"batch-secret",
 			`evt_openai_batch_stale.${staleTimestamp}.${rawBody}`,
 		);
-		const req = new Request("https://api.ai-stats.test/internal/batch-webhooks/openai", {
+		const req = new Request("https://api.phaseo.app/internal/batch-webhooks/openai", {
 			method: "POST",
 			headers: {
 				"webhook-id": "evt_openai_batch_stale",

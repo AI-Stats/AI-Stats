@@ -3177,24 +3177,17 @@
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
-    "context_length": 1048576,
+    "context_length": 131072,
     "max_output_tokens": 65536,
     "effective_from": "2026-04-14T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
         "params": [
           {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
+            "param_id": "include_reasoning",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
@@ -3208,14 +3201,14 @@
             "notes": null
           },
           {
-            "param_id": "temperature",
+            "param_id": "reasoning",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
             "notes": null
           },
           {
-            "param_id": "top_p",
+            "param_id": "response_format",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
@@ -3236,7 +3229,14 @@
             "notes": null
           },
           {
-            "param_id": "tools",
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
@@ -3244,6 +3244,20 @@
           },
           {
             "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
@@ -3272,11 +3286,226 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://ai.google.dev/gemini-api/docs/models/gemini-robotics-er-1.6-preview",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official model identifier, modalities, token limits, capabilities, and availability."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Verified against Google's official model specification."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-robotics-er-2-preview",
+    "provider_api_model_id": "google-ai-studio:google/gemini-robotics-er-2-preview",
+    "provider_model_slug": "gemini-robotics-er-2-preview",
+    "internal_model_id": "google/gemini-robotics-er-2-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-07-30T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard",
+      "batch"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta/interactions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://ai.google.dev/gemini-api/docs/robotics-overview",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official endpoint, modality, token-limit, and capability documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Catalogued but gateway-disabled pending a Gemini Interactions API executor."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-robotics-er-2-streaming-preview",
+    "provider_api_model_id": "google-ai-studio:google/gemini-robotics-er-2-streaming-preview",
+    "provider_model_slug": "gemini-robotics-er-2-streaming-preview",
+    "internal_model_id": "google/gemini-robotics-er-2-streaming-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-07-30T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.realtime",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video",
+          "audio"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://ai.google.dev/gemini-api/docs/robotics-overview",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official endpoint, modality, token-limit, and capability documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Catalogued but gateway-disabled pending confidence and authenticated validation of Phaseo's realtime integration."
     },
     "rate_limits": []
   },

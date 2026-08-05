@@ -36,6 +36,9 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 	if (url.includes("select=owner_user_id")) {
 		return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
 	}
+	if (url.includes("name%2Ctier%2Cbilling_mode")) {
+		return new Response(JSON.stringify([{ name: "Team One", tier: "enterprise", billing_mode: "invoice" }]), { status: 200 });
+	}
 	if (url.includes("tier%2Cbilling_mode")) {
 		return new Response(JSON.stringify([{ tier: "enterprise", billing_mode: "invoice" }]), { status: 200 });
 	}
@@ -246,6 +249,8 @@ describe("account settings routes", () => {
 			isEnterpriseInvoiceMode: true,
 			showBroadcast: true,
 			signedIn: true,
+			workspaceId: "workspace-1",
+			workspaceName: "Team One",
 		});
 		await expect(beta.json()).resolves.toMatchObject({
 			signedIn: true,
@@ -280,6 +285,8 @@ describe("account settings routes", () => {
 				displayName: "Test User",
 				email: "user@example.com",
 				defaultWorkspaceId: "workspace-1",
+				declaredCountryCode: null,
+				countryStorageAvailable: true,
 				obfuscateInfo: true,
 				createdAt: "2025-01-01T00:00:00Z",
 			},

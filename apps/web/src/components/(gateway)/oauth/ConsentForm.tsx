@@ -115,6 +115,18 @@ const SCOPE_META: Record<string, ScopeMeta> = {
 		icon: Search,
 		tone: "read",
 	},
+	"feedback:read": {
+		label: "Read feedback",
+		description: "Lets the app inspect workspace feedback, observability events, and preset test runs.",
+		icon: Search,
+		tone: "read",
+	},
+	"feedback:write": {
+		label: "Manage feedback",
+		description: "Lets the app create feedback, observability events, and preset test runs.",
+		icon: Settings2,
+		tone: "write",
+	},
 	"workspaces:read": {
 		label: "Read teams",
 		description: "Lets the app list teams you belong to and inspect their metadata.",

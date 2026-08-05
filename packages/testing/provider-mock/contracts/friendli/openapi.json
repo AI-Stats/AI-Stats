@@ -2231,59 +2231,40 @@
             "type": "string",
             "title": "Id"
           },
+          "hugging_face_id": {
+            "type": "string",
+            "title": "Hugging Face Id",
+            "description": "Required when the model is hosted on Hugging Face",
+            "default": ""
+          },
           "name": {
             "type": "string",
             "title": "Name"
           },
-          "max_completion_tokens": {
+          "created": {
             "type": "integer",
-            "title": "Max Completion Tokens"
+            "title": "Created"
           },
           "context_length": {
             "type": "integer",
             "title": "Context Length"
           },
-          "functionality": {
-            "$ref": "#/components/schemas/Functionality",
-            "description": "Model functionality"
+          "max_completion_tokens": {
+            "type": "integer",
+            "title": "Max Completion Tokens"
           },
           "pricing": {
             "$ref": "#/components/schemas/PricingModel",
             "title": "Pricing",
             "description": "Token prices for input and output"
           },
-          "hugging_face_url": {
-            "type": "string",
-            "minLength": 1,
-            "format": "uri",
-            "title": "Hugging Face Url"
+          "functionality": {
+            "$ref": "#/components/schemas/Functionality",
+            "description": "Model functionality"
           },
           "description": {
             "type": "string",
             "title": "Description"
-          },
-          "license": {
-            "type": "string",
-            "minLength": 1,
-            "format": "uri",
-            "title": "License"
-          },
-          "policy": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1,
-                "format": "uri"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Policy"
-          },
-          "created": {
-            "type": "integer",
-            "title": "Created"
           },
           "deprecation_date": {
             "anyOf": [
@@ -2295,7 +2276,19 @@
               }
             ],
             "title": "Deprecation Date",
-            "description": "YYYY-MM-DD (UTC date)"
+            "description": "ISO 8601 UTC hour (YYYY-MM-DDTHH:00:00Z)"
+          },
+          "hugging_face_url": {
+            "type": "string",
+            "minLength": 1,
+            "format": "uri",
+            "title": "Hugging Face Url"
+          },
+          "license": {
+            "type": "string",
+            "minLength": 1,
+            "format": "uri",
+            "title": "License"
           },
           "discount_to_user": {
             "anyOf": [
@@ -2314,14 +2307,14 @@
         "required": [
           "id",
           "name",
-          "max_completion_tokens",
+          "created",
           "context_length",
-          "functionality",
+          "max_completion_tokens",
           "pricing",
-          "hugging_face_url",
+          "functionality",
           "description",
-          "license",
-          "created"
+          "hugging_face_url",
+          "license"
         ],
         "title": "ModelCatalogResponseItem",
         "description": "Model listing in `/v1/models` API."
@@ -3405,6 +3398,63 @@
         ],
         "title": "MessagesResponseToolUseBlock"
       },
+      "PricingModel": {
+        "properties": {
+          "input": {
+            "type": "string",
+            "title": "Input",
+            "description": "Price per input token in USD"
+          },
+          "output": {
+            "type": "string",
+            "title": "Output",
+            "description": "Price per output token in USD"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Price per input token in USD (alias of input)"
+          },
+          "completion": {
+            "type": "string",
+            "title": "Completion",
+            "description": "Price per output token in USD (alias of output)"
+          },
+          "input_cache_read": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Cache Read",
+            "description": "Price per cached input token read in USD"
+          },
+          "audio_minute": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Audio Minute",
+            "description": "Price per audio minute in USD"
+          }
+        },
+        "type": "object",
+        "required": [
+          "input",
+          "output",
+          "prompt",
+          "completion"
+        ],
+        "title": "PricingModel",
+        "description": "Pricing model for token-based pricing."
+      },
       "Functionality": {
         "properties": {
           "tool_call": {
@@ -3433,81 +3483,6 @@
         ],
         "title": "Functionality",
         "description": "Functionality of the model."
-      },
-      "PricingModel": {
-        "properties": {
-          "input": {
-            "type": "number",
-            "minimum": 0,
-            "title": "Input",
-            "description": "Price per input token"
-          },
-          "output": {
-            "type": "number",
-            "minimum": 0,
-            "title": "Output",
-            "description": "Price per output token"
-          },
-          "prompt": {
-            "type": "number",
-            "minimum": 0,
-            "title": "Prompt",
-            "description": "Price per input token (alias of input)"
-          },
-          "completion": {
-            "type": "number",
-            "minimum": 0,
-            "title": "Completion",
-            "description": "Price per output token (alias of output)"
-          },
-          "input_cache_read": {
-            "anyOf": [
-              {
-                "type": "number",
-                "minimum": 0
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Input Cache Read",
-            "description": "Price per cached input token read"
-          },
-          "response_time": {
-            "type": "number",
-            "minimum": 0,
-            "title": "Response Time",
-            "description": "Price per response time in seconds",
-            "default": 0
-          },
-          "audio_minute": {
-            "anyOf": [
-              {
-                "type": "number",
-                "minimum": 0
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Audio Minute",
-            "description": "Price per audio minute"
-          },
-          "unit_type": {
-            "$ref": "#/components/schemas/ServerlessPriceUnitType",
-            "description": "Pricing unit type (TOKEN / SECOND / AUDIO_MINUTE)",
-            "default": "TOKEN"
-          }
-        },
-        "type": "object",
-        "required": [
-          "input",
-          "output",
-          "prompt",
-          "completion"
-        ],
-        "title": "PricingModel",
-        "description": "Pricing model supporting both token-based and time-based pricing."
       },
       "UserMessageContentMultiModal": {
         "oneOf": [
@@ -4050,16 +4025,6 @@
           "type"
         ],
         "title": "MessagesCompatibilityBlock"
-      },
-      "ServerlessPriceUnitType": {
-        "type": "string",
-        "enum": [
-          "TOKEN",
-          "SECOND",
-          "AUDIO_MINUTE"
-        ],
-        "title": "ServerlessPriceUnitType",
-        "description": "Serverless price unit type."
       },
       "TextContent": {
         "properties": {

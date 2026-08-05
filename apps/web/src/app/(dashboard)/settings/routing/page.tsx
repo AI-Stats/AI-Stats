@@ -13,8 +13,7 @@ export default function RoutingSettingsPage() {
 			<header>
 				<h1 className="text-2xl font-bold">Routing</h1>
 				<p className="mt-2 text-sm text-muted-foreground">
-					Tune how the Gateway balances cost, latency, and throughput when
-					selecting providers.
+					Tune the workspace defaults used when a request does not enter a dynamic route.
 				</p>
 			</header>
 			<Suspense fallback={<SettingsSectionFallback />}>

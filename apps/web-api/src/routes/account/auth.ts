@@ -3,6 +3,7 @@ import { requireUser } from "@/auth/requireUser";
 import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
+import { normaliseCountryCode } from "@/lib/countryCodes";
 
 function cookieValue(request: Request, name: string): string | null {
 	for (const segment of (request.headers.get("cookie") ?? "").split(";")) {
@@ -29,6 +30,12 @@ function normalizeBetaFeatures(value: unknown): Record<string, boolean> {
 			typeof entry[1] === "boolean",
 		),
 	);
+}
+
+function isMissingCountryColumn(error: unknown) {
+	const value = error && typeof error === "object" ? error as Record<string, unknown> : {};
+	const message = String(value.message ?? "").toLowerCase();
+	return ["declared_country_code", "country_declared_at"].some((column) => message.includes(column));
 }
 
 export const accountAuthRouter = new Hono<{ Bindings: Env }>();
@@ -58,12 +65,18 @@ accountAuthRouter.get("/onboarding", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ signedIn: false, user: null, workspaces: [] }, 200, PRIVATE_NO_STORE_HEADERS);
 	const client = getDataClient(c.env);
-	const [userResult, workspacesResult] = await Promise.all([
-		client.from("users").select("onboarding_state,onboarding_completed_at,default_workspace_id").eq("user_id", user.id).maybeSingle(),
+	const [countryUserResult, workspacesResult] = await Promise.all([
+		client.from("users").select("onboarding_state,onboarding_completed_at,default_workspace_id,declared_country_code,country_declared_at").eq("user_id", user.id).maybeSingle(),
 		client.from("workspace_members").select("workspace_id,role,workspaces(id,name)").eq("user_id", user.id).in("role", ["owner", "admin"]),
 	]);
+	let userResult = countryUserResult;
+	let countryStorageAvailable = true;
+	if (countryUserResult.error && isMissingCountryColumn(countryUserResult.error)) {
+		countryStorageAvailable = false;
+		userResult = await client.from("users").select("onboarding_state,onboarding_completed_at,default_workspace_id").eq("user_id", user.id).maybeSingle() as typeof countryUserResult;
+	}
 	if (userResult.error || workspacesResult.error) return c.json({ error: "onboarding_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	return c.json({ signedIn: true, user: userResult.data ?? null, workspaces: workspacesResult.data ?? [] }, 200, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ signedIn: true, user: userResult.data ?? null, workspaces: workspacesResult.data ?? [], countryStorageAvailable }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountAuthRouter.get("/workspace", async (c) => {
@@ -176,14 +189,36 @@ accountAuthRouter.put("/onboarding", async (c) => {
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
 	const body: Record<string, unknown> = await c.req.json<Record<string, unknown>>().catch(() => ({}));
 	const client = getDataClient(c.env);
-	const existing = await client.from("users").select("onboarding_state").eq("user_id", user.id).maybeSingle();
+	let existing = await client.from("users").select("onboarding_state,declared_country_code").eq("user_id", user.id).maybeSingle();
+	let countryStorageAvailable = true;
+	if (existing.error && isMissingCountryColumn(existing.error)) {
+		countryStorageAvailable = false;
+		existing = await client.from("users").select("onboarding_state").eq("user_id", user.id).maybeSingle() as typeof existing;
+	}
 	if (existing.error) return c.json({ error: "onboarding_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const hasCountryInput = Object.prototype.hasOwnProperty.call(body, "countryCode");
+	const countryCode = hasCountryInput ? normaliseCountryCode(body.countryCode) : null;
+	if (hasCountryInput && !countryCode) {
+		return c.json({ error: "invalid_country_code" }, 400, PRIVATE_NO_STORE_HEADERS);
+	}
+	const existingCountry = normaliseCountryCode(existing.data?.declared_country_code);
+	if (
+		countryStorageAvailable &&
+		(body.status === "completed" || body.status === "skipped") &&
+		!(countryCode ?? existingCountry)
+	) {
+		return c.json({ error: "country_required" }, 400, PRIVATE_NO_STORE_HEADERS);
+	}
 	const current = existing.data?.onboarding_state && typeof existing.data.onboarding_state === "object" && !Array.isArray(existing.data.onboarding_state) ? existing.data.onboarding_state as Record<string, unknown> : {};
 	const next: Record<string, unknown> = { ...current, updatedAt: new Date().toISOString() };
 	for (const key of ["workspaceId", "selectedModelId", "selectedKeyId", "createdKeyId", "keyPrefix"] as const) if (Object.prototype.hasOwnProperty.call(body, key)) next[key] = body[key];
 	if (["started", "completed", "skipped"].includes(String(body.status))) next.status = body.status;
 	if (Array.isArray(body.completedSteps)) next.completedSteps = Array.from(new Set([...(Array.isArray(current.completedSteps) ? current.completedSteps : []), ...body.completedSteps].map((value) => String(value ?? "").trim()).filter((value) => /^[a-z0-9_-]+$/i.test(value))));
 	const update: Record<string, unknown> = { onboarding_state: next, updated_at: new Date().toISOString() };
+	if (countryStorageAvailable && countryCode) {
+		update.declared_country_code = countryCode;
+		update.country_declared_at = new Date().toISOString();
+	}
 	if (body.status === "completed" || body.status === "skipped") update.onboarding_completed_at = new Date().toISOString();
 	const result = await client.from("users").update(update).eq("user_id", user.id);
 	if (result.error) return c.json({ error: "onboarding_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);

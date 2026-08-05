@@ -114,7 +114,7 @@ export interface ResponsesRequest {
     summary?: "auto" | "concise" | "detailed";
   };
   safety_identifier?: string | null;
-  service_tier?: "standard" | "priority" | "flex" | "batch";
+  service_tier?: "standard" | "fast" | "priority" | "flex" | "batch";
   session_id?: string;
   store?: boolean;
   stream?: boolean;
@@ -124,6 +124,12 @@ export interface ResponsesRequest {
     | "auto"
     | "none"
     | "required"
+    | "phaseo:datetime"
+    | "phaseo:web_search"
+    | "phaseo:web_fetch"
+    | "phaseo:subagent"
+    | "phaseo:fusion"
+    | "phaseo:search_models"
     | "gateway:datetime"
     | "gateway:web_search"
     | "gateway:web_fetch"
@@ -143,7 +149,7 @@ export interface ResponsesRequest {
           timezone?: string;
         };
         timezone?: string;
-        type: "gateway:datetime";
+        type: "phaseo:datetime" | "gateway:datetime";
       }
     | {
         include_highlights?: boolean;
@@ -154,14 +160,34 @@ export interface ResponsesRequest {
           include_text?: boolean;
           max_results?: number;
         };
-        type: "gateway:web_search";
+        type: "phaseo:web_search" | "gateway:web_search";
       }
     | {
         max_chars?: number;
         parameters?: {
           max_chars?: number;
         };
-        type: "gateway:web_fetch";
+        type: "phaseo:web_fetch" | "gateway:web_fetch";
+      }
+    | {
+        parameters?: {
+          [key: string]: unknown;
+        };
+        type: "phaseo:subagent";
+      }
+    | {
+        parameters?: {
+          analysis_models: string[];
+          model?: string;
+          [key: string]: unknown;
+        };
+        type: "phaseo:fusion";
+      }
+    | {
+        parameters?: {
+          max_results?: number;
+        };
+        type: "phaseo:search_models";
       }[];
   top_p?: number;
   truncation?: "auto" | "disabled";

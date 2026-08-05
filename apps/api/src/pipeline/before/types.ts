@@ -279,10 +279,11 @@ export type KeyEnrichment = {
 };
 
 export type ContextFetchTelemetry = {
-    cacheStatus: "hit" | "miss" | "bypass";
+    cacheStatus: "hit" | "miss" | "bypass" | "credit_refresh";
     totalMs: number;
     keyVersionMs?: number | null;
     cacheReadMs?: number | null;
+    creditRefreshMs?: number | null;
     rpcMs?: number | null;
     enrichMs?: number | null;
     cacheWriteMs?: number | null;
@@ -479,6 +480,7 @@ export type WorkspacePolicy = {
     sensitiveInfoGuardrailIds: string[];
     enforceAllowed: boolean;
     activeGuardrailIds: string[];
+    dynamicRoute?: import("./dynamic-routes").DynamicRoutePolicy | null;
 };
 
 export type GuardrailAction = "flag" | "redact" | "block";

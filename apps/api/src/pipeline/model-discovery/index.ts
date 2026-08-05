@@ -5,15 +5,19 @@
 import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 import {
 	asRecord,
+	assertSafeDiscoverySnapshot,
 	buildProviderApiModelSnapshotDiff,
+	computeDiscordNotificationFingerprint,
 	computeConfiguredModelCoverageFingerprint,
 	diffModelIds,
 	extractProviderApiModelSnapshot,
 	fetchProviderModels,
+	getDiscordProviderFamilyId,
 	hasDiscordNotifiableChanges,
 	hasProviderApiSnapshotValue,
 	loadConfiguredProviderModelIds,
 	loadLatestConfiguredCoverageState,
+	loadLatestDiscordNotificationFingerprint,
 	loadLatestPricingTableState,
 	readBindingEnv,
 	runPricingMonitorCheck,
@@ -32,6 +36,7 @@ import {
 	shouldSyncProviderDiscoveryIssues,
 	syncUpstreamDiscoveryIssues,
 } from "./github-issues";
+import { dispatchProviderCatalogSync, type CatalogSyncDispatchSummary } from "./github-dispatch";
 import { fetchPricingTableSnapshots, type PricingTableSnapshot } from "./pricing-tables";
 import { MODEL_DISCOVERY_PROVIDERS, type ProviderConfig } from "./providers";
 
@@ -190,12 +195,14 @@ type DiscoveryRunSummary = {
 		reason?: string | null;
 		error?: string | null;
 	};
+	catalogSyncDispatch?: CatalogSyncDispatchSummary & { error?: string | null };
 	statePersisted: boolean;
 	persistenceDeferredReason?: string | null;
 	pricingMonitor: PricingMonitorSummary;
 	providerApiPricingMonitor: ProviderApiPricingMonitorSummary;
 	pricingTableMonitor: PricingTableMonitorSummary;
 	configuredModelCoverageMonitor: ConfiguredModelCoverageMonitorSummary;
+	notificationFingerprint: string | null;
 };
 
 type SupabaseSeenModelRow = {
@@ -225,6 +232,7 @@ const MAX_PRICING_PROVIDER_LINES = 20;
 const MAX_PRICING_SAMPLE_LINES = 6;
 const MAX_PRICING_ROWS = 5_000;
 const PRICING_PAGE_SIZE = 500;
+const SEEN_MODELS_PAGE_SIZE = 1_000;
 const RUNS_RETENTION_DAYS = 5;
 const PRICING_KEY_PATTERN = /(price|pricing|cost|billing|currency|rate|meter|unit|token)/i;
 const PRICING_EXTRACTION_MAX_DEPTH = 4;
@@ -238,22 +246,34 @@ const PROVIDER_API_PRICING_WATCH_PROVIDER_IDS = new Set<string>([
 	"ai21",
 	"akashml",
 	"aion-labs",
+	"ambient",
 	"arcee-ai",
 	"atlascloud",
 	"baseten",
 	"chutes",
+	"cloudflare",
+	"crossmodel",
 	"crofai",
 	"deepinfra",
+	"digitalocean",
+	"empiriolabs",
 	"nebius-token-factory",
 	"elevenlabs",
 	"gmicloud",
 	"groq",
+	"huggingface",
 	"inception",
+	"kilo",
+	"llmgateway",
 	"nextbit",
-	"novitaai",
+	"novita",
+	"openrouter",
+	"ovhcloud",
 	"spacex-ai",
 	"together",
 	"venice",
+	"vercel",
+	"weights-and-biases",
 ]);
 
 const PROVIDERS: ProviderConfig[] = MODEL_DISCOVERY_PROVIDERS;
@@ -271,7 +291,10 @@ export function normalizeModelDiscoveryShardSize(shardSize: number): number {
 
 export function getModelDiscoveryShardCount(shardSize: number): number {
 	const normalizedSize = normalizeModelDiscoveryShardSize(shardSize);
-	return Math.max(1, Math.ceil(PROVIDERS.length / normalizedSize));
+	const providerFamilyCount = new Set(
+		PROVIDERS.map((provider) => getDiscordProviderFamilyId(provider.providerId))
+	).size;
+	return Math.max(1, Math.ceil(providerFamilyCount / normalizedSize));
 }
 
 function selectProvidersForShard(args: RunArgs): ProviderConfig[] {
@@ -293,7 +316,16 @@ function selectProvidersForShard(args: RunArgs): ProviderConfig[] {
 	}
 	if (shardCount === 1) return PROVIDERS;
 
-	return PROVIDERS.filter((_, index) => index % shardCount === shardIndex);
+	const familyIndexes = new Map<string, number>();
+	for (const provider of PROVIDERS) {
+		const familyId = getDiscordProviderFamilyId(provider.providerId);
+		if (!familyIndexes.has(familyId)) familyIndexes.set(familyId, familyIndexes.size);
+	}
+
+	return PROVIDERS.filter((provider) => {
+		const familyIndex = familyIndexes.get(getDiscordProviderFamilyId(provider.providerId));
+		return familyIndex !== undefined && familyIndex % shardCount === shardIndex;
+	});
 }
 
 async function insertRunStart(runId: string, args: RunArgs, startedAt: string): Promise<void> {
@@ -313,6 +345,7 @@ function compactSummary(summary: DiscoveryRunSummary, extra: { notificationError
 	return {
 		statePersisted: summary.statePersisted,
 		persistenceDeferredReason: summary.persistenceDeferredReason ?? undefined,
+		notificationFingerprint: summary.notificationFingerprint ?? undefined,
 		results: summary.results.map((result) => ({
 			providerId: result.providerId,
 			status: result.status,
@@ -393,6 +426,8 @@ function compactSummary(summary: DiscoveryRunSummary, extra: { notificationError
 			fingerprint: summary.configuredModelCoverageMonitor.fingerprint,
 			error: summary.configuredModelCoverageMonitor.error ?? undefined,
 		},
+		issueSync: summary.issueSync,
+		catalogSyncDispatch: summary.catalogSyncDispatch,
 		notificationError: extra.notificationError ?? undefined,
 		error: extra.error ?? undefined,
 	};
@@ -444,7 +479,7 @@ type PreviousModelsState = {
 	providerApiSnapshotReadyByProvider: Set<string>;
 };
 
-async function fetchPreviousModelsByProviders(providerIds: string[]): Promise<PreviousModelsState> {
+export async function fetchPreviousModelsByProviders(providerIds: string[]): Promise<PreviousModelsState> {
 	const map = new Map<string, PreviousProviderModels>();
 	for (const providerId of providerIds) {
 		map.set(providerId, {
@@ -458,18 +493,28 @@ async function fetchPreviousModelsByProviders(providerIds: string[]): Promise<Pr
 	}
 
 	const supabase = getSupabaseAdmin();
-	const { data, error } = await supabase
-		.from("model_discovery_seen_models")
-		.select("provider_id,model_id,model_details,pricing_details")
-		.in("provider_id", providerIds);
+	const rows: SupabaseSeenModelRow[] = [];
+	for (let offset = 0; ; offset += SEEN_MODELS_PAGE_SIZE) {
+		const { data, error } = await supabase
+			.from("model_discovery_seen_models")
+			.select("provider_id,model_id,model_details,pricing_details")
+			.in("provider_id", providerIds)
+			.order("provider_id", { ascending: true })
+			.order("model_id", { ascending: true })
+			.range(offset, offset + SEEN_MODELS_PAGE_SIZE - 1);
 
-	if (error) {
-		throw new Error(error.message || "Failed to load previous discovered models");
+		if (error) {
+			throw new Error(error.message || "Failed to load previous discovered models");
+		}
+
+		const page = (data ?? []) as SupabaseSeenModelRow[];
+		rows.push(...page);
+		if (page.length < SEEN_MODELS_PAGE_SIZE) break;
 	}
 
 	const providerApiSnapshotReadyByProvider = new Set<string>();
 
-	for (const row of (data ?? []) as SupabaseSeenModelRow[]) {
+	for (const row of rows) {
 		if (typeof row.provider_id !== "string" || typeof row.model_id !== "string") continue;
 		const state = map.get(row.provider_id);
 		if (!state) continue;
@@ -593,6 +638,12 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			skipped: false,
 			reason: "not attempted",
 		};
+		let catalogSyncDispatch: DiscoveryRunSummary["catalogSyncDispatch"] = {
+			dispatched: false,
+			skipped: true,
+			providers: [],
+			reason: "not attempted",
+		};
 		const upsertRows: SeenModelUpsertRow[] = [];
 		const deleteRows: SeenModelDeleteRow[] = [];
 		const discoveredModelIdsByProvider = new Map<string, string[]>();
@@ -603,7 +654,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 		let providerApiPricingBaselineInitialized = false;
 
 		for (const provider of providers) {
-			const requiresApiKey = (provider.authStyle ?? "bearer") !== "none";
+			const requiresApiKey = !["none", "optional_bearer"].includes(provider.authStyle ?? "bearer");
 			const apiKey = provider.apiKeyEnv ? readBindingEnv(provider.apiKeyEnv) : null;
 			if (requiresApiKey && !apiKey) {
 				results.push({
@@ -623,9 +674,10 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			try {
 				const discoveredModels = await fetchProviderModels(provider, apiKey);
 				const currentModelIds = discoveredModels.map((model) => model.id);
-				discoveredModelIdsByProvider.set(provider.providerId, currentModelIds);
 				const previousProviderState = previousState.byProvider.get(provider.providerId);
 				const previousModelIds = previousProviderState?.modelIds ?? [];
+				assertSafeDiscoverySnapshot(provider.providerId, previousModelIds, currentModelIds);
+				discoveredModelIdsByProvider.set(provider.providerId, currentModelIds);
 				const { added, removed } = diffModelIds(previousModelIds, currentModelIds);
 
 				const nowIso = new Date().toISOString();
@@ -858,6 +910,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 		}
 
 		let notificationError: string | null = null;
+		let notificationFingerprint: string | null = null;
 		let notificationSummary: {
 			delivered: boolean;
 			skipped: boolean;
@@ -867,24 +920,41 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			skipped: true,
 			reason: shouldNotify ? "not attempted" : "notifications disabled",
 		};
-		if (shouldNotify) {
+		const notificationInput = {
+			modelChanges: changes,
+			pricing: pricingMonitor,
+			providerApiPricing: providerApiPricingMonitor,
+			pricingTable: pricingTableMonitor,
+			configuredModelCoverage: configuredModelCoverageNotificationSummary,
+		};
+		const hasNotifiableChanges = hasDiscordNotifiableChanges(notificationInput);
+		if (shouldNotify && hasNotifiableChanges) {
 			try {
-				notificationSummary = await sendDiscordNotification({
-					modelChanges: changes,
-					pricing: pricingMonitor,
-					providerApiPricing: providerApiPricingMonitor,
-					configuredModelCoverage: configuredModelCoverageNotificationSummary,
-				});
+				notificationFingerprint = await computeDiscordNotificationFingerprint(notificationInput);
+				let previousFingerprint: string | null = null;
+				try {
+					previousFingerprint = await loadLatestDiscordNotificationFingerprint(args.source);
+				} catch (error) {
+					console.error(
+						"[model-discovery] Failed to compare Discord notification fingerprint:",
+						error instanceof Error ? error.message : String(error),
+					);
+				}
+
+				if (notificationFingerprint && notificationFingerprint === previousFingerprint) {
+					notificationSummary = { delivered: true, skipped: true, reason: "duplicate notification fingerprint" };
+					console.log("[model-discovery] Discord notification skipped: duplicate notification fingerprint");
+				} else {
+					notificationSummary = await sendDiscordNotification(notificationInput);
+					if (!notificationSummary.delivered) notificationFingerprint = null;
+				}
 			} catch (error) {
+				notificationFingerprint = null;
 				notificationError = error instanceof Error ? error.message : String(error);
 				console.error("[model-discovery] Discord notification failed:", notificationError);
 			}
 		}
 
-		const hasNotifiableChanges = hasDiscordNotifiableChanges({
-			modelChanges: changes,
-			configuredModelCoverage: configuredModelCoverageNotificationSummary,
-		});
 		const requiresNotificationDelivery = shouldNotify && hasNotifiableChanges;
 		const notificationDelivered = !requiresNotificationDelivery || notificationSummary.delivered;
 		const persistenceDeferredReason = !notificationDelivered
@@ -968,6 +1038,35 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			}
 		}
 
+		const catalogSyncProviders = [
+			...changes.map((change) => change.providerId),
+			...pricingMonitor.providerChanges.map((change) => change.providerId),
+			...providerApiPricingMonitor.providerChanges.map((change) => change.providerId),
+			...pricingTableMonitor.providerChanges.map((change) => change.providerId),
+		];
+		try {
+			catalogSyncDispatch = persistenceDeferredReason
+				? {
+					dispatched: false,
+					skipped: true,
+					providers: [...new Set(catalogSyncProviders)].sort(),
+					reason: "discovery state was not persisted",
+				}
+				: await dispatchProviderCatalogSync(catalogSyncProviders);
+			if (catalogSyncDispatch.skipped && catalogSyncProviders.length > 0) {
+				console.log("[model-discovery] Provider catalog sync dispatch skipped:", catalogSyncDispatch.reason);
+			}
+		} catch (error) {
+			const reason = error instanceof Error ? error.message : String(error);
+			catalogSyncDispatch = {
+				dispatched: false,
+				skipped: false,
+				providers: [...new Set(catalogSyncProviders)].sort(),
+				error: reason,
+			};
+			console.error("[model-discovery] Provider catalog sync dispatch failed:", reason);
+		}
+
 		const finishedAt = new Date();
 		const summary: DiscoveryRunSummary = {
 			runId,
@@ -984,18 +1083,21 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			results,
 			changes,
 			issueSync: issueSyncSummary,
+			catalogSyncDispatch,
 			statePersisted: !persistenceDeferredReason,
 			persistenceDeferredReason,
 			pricingMonitor,
 			providerApiPricingMonitor,
 			pricingTableMonitor,
 			configuredModelCoverageMonitor,
+			notificationFingerprint,
 		};
 
 		const status: RunStatus =
 			summary.providersError > 0 ||
 			notificationError ||
 			Boolean(summary.issueSync?.error) ||
+			Boolean(summary.catalogSyncDispatch?.error) ||
 			Boolean(summary.persistenceDeferredReason) ||
 			Boolean(summary.pricingMonitor.error) ||
 			Boolean(summary.providerApiPricingMonitor.error) ||
@@ -1027,6 +1129,12 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 				created: 0,
 				updated: 0,
 				skipped: false,
+				error: reason,
+			},
+			catalogSyncDispatch: {
+				dispatched: false,
+				skipped: false,
+				providers: [],
 				error: reason,
 			},
 			statePersisted: false,
@@ -1069,6 +1177,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 				providerChanges: [],
 				fingerprint: null,
 			},
+			notificationFingerprint: null,
 		};
 		try {
 			await updateRunFinish(failedSummary, "failed", { error: reason });

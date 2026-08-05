@@ -1,16 +1,34 @@
 {
   "providerId": "amazon-bedrock",
-  "displayName": "Amazon Bedrock compatibility endpoint",
+  "displayName": "Amazon Bedrock Mantle endpoint",
   "source": {
     "kind": "official-docs",
-    "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-openai.html"
+    "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/apis.html"
   },
   "operations": [
     {
-      "capability": "amazon_bedrock_chat",
+      "capability": "text.generate",
       "method": "post",
       "path": "/v1/chat/completions",
-      "operationId": "amazon_bedrock_chat"
+      "operationId": "amazon_bedrock_mantle_chat"
+    },
+    {
+      "capability": "text.generate",
+      "method": "post",
+      "path": "/v1/responses",
+      "operationId": "amazon_bedrock_mantle_responses"
+    },
+    {
+      "capability": "text.generate",
+      "method": "post",
+      "path": "/anthropic/v1/messages",
+      "operationId": "amazon_bedrock_mantle_anthropic_messages"
     }
+  ],
+  "overlays": [
+    "Additional official reference: https://docs.aws.amazon.com/bedrock/latest/userguide/bedrock-mantle.html",
+    "Additional official reference: https://docs.aws.amazon.com/bedrock/latest/userguide/inference-chat-completions-mantle.html",
+    "Additional official reference: https://docs.aws.amazon.com/bedrock/latest/userguide/inference-messages-api.html",
+    "Additional official reference: https://docs.aws.amazon.com/bedrock/latest/userguide/models-api-compatibility.html"
   ]
 }

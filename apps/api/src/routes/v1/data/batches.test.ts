@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { batchPolicyEndpoint, splitGatewayBatchCreatePayload } from "./batches";
+import { batchPolicyEndpoint, normalizeBatchEndpoint, splitGatewayBatchCreatePayload } from "./batches";
 
 describe("splitGatewayBatchCreatePayload", () => {
 	it("strips gateway-only webhook config before proxying upstream", () => {
@@ -98,5 +98,19 @@ describe("batchPolicyEndpoint", () => {
 
 	it("fails closed for unknown endpoints", () => {
 		expect(batchPolicyEndpoint("/v1/unknown")).toBeNull();
+	});
+});
+
+describe("normalizeBatchEndpoint", () => {
+	it("canonicalises supported endpoint aliases and absolute URLs", () => {
+		expect(normalizeBatchEndpoint("/responses")).toBe("/v1/responses");
+		expect(normalizeBatchEndpoint("/v1/chat/completions")).toBe("/v1/chat/completions");
+		expect(normalizeBatchEndpoint("https://api.phaseo.app/v1/messages")).toBe("/v1/messages");
+		expect(normalizeBatchEndpoint("/v1/embeddings/")).toBe("/v1/embeddings");
+	});
+
+	it("rejects unknown endpoint shapes", () => {
+		expect(normalizeBatchEndpoint("/v1/unknown")).toBeNull();
+		expect(normalizeBatchEndpoint(null)).toBeNull();
 	});
 });

@@ -7,6 +7,7 @@ import { parse } from "yaml";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const contractDir = path.join(root, "contracts", "openai");
 const manifest = JSON.parse(await readFile(path.join(contractDir, "manifest.json"), "utf8"));
+const existingContract = JSON.parse(await readFile(path.join(contractDir, "openapi.json"), "utf8"));
 
 const response = await fetch(manifest.source.url, { headers: { "user-agent": "phaseo-provider-contract-sync/1.0" } });
 if (!response.ok) throw new Error(`OpenAI contract download failed: ${response.status} ${response.statusText}`);
@@ -24,9 +25,15 @@ function stripDocumentation(value) {
 const paths = {};
 for (const expected of manifest.operations) {
   const upstream = source.paths?.[expected.path]?.[expected.method.toLowerCase()];
-  if (!upstream) throw new Error(`OpenAI spec is missing ${expected.method.toUpperCase()} ${expected.path}`);
+  const existingOverlay = existingContract.paths?.[expected.path]?.[expected.method.toLowerCase()];
+  if (!upstream && !expected.sourceOverlay) {
+    throw new Error(`OpenAI spec is missing ${expected.method.toUpperCase()} ${expected.path}`);
+  }
+  if (!upstream && !existingOverlay) {
+    throw new Error(`OpenAI overlay is missing ${expected.method.toUpperCase()} ${expected.path}`);
+  }
   paths[expected.path] ??= {};
-  paths[expected.path][expected.method.toLowerCase()] = stripDocumentation(upstream);
+  paths[expected.path][expected.method.toLowerCase()] = stripDocumentation(upstream ?? existingOverlay);
 }
 
 const refs = new Set();
@@ -73,5 +80,8 @@ await writeFile(path.join(contractDir, "provenance.json"), `${JSON.stringify({
   bundleSha256,
   openapiVersion: source.openapi,
   apiVersion: source.info?.version,
+  overlays: manifest.operations
+    .filter((operation) => operation.sourceOverlay && !source.paths?.[operation.path]?.[operation.method.toLowerCase()])
+    .map((operation) => `${operation.method.toUpperCase()} ${operation.path}`),
 }, null, 2)}\n`);
 console.log(`OpenAI contract synced: ${manifest.operations.length} operations, ${copied.size} referenced components, ${output.length} bytes`);

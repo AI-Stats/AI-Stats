@@ -1,7 +1,7 @@
 {
   "sourceUrl": "https://api.deepinfra.com/openapi.json",
-  "sourceSha256": "610da191cbe755652f4f452b9bec5cddb4bddeb3523d54c2e94f909e8f4ca870",
-  "bundleSha256": "06e573e70e4da912d693dbc866aabbcd6f04c4ae8b8bab1eb6d69ab4d1a3b025",
+  "sourceSha256": "33fc01be77456b5e1542a174f7b6d4e3911dd7715c321ee34df5356713671a1b",
+  "bundleSha256": "109c584cfe2d17282d247e492ebe82c35c6a893608ca9911b08af1d36f09174e",
   "openapiVersion": "3.1.0",
   "apiVersion": "1.0.0",
   "gatewayPathMappings": [

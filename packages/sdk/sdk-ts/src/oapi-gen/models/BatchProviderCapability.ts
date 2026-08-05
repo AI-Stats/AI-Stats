@@ -1,5 +1,9 @@
 export interface BatchProviderCapability {
   documentation_url?: string;
+  endpoints?: {
+    endpoint: string;
+    mode: "native" | "translated";
+  }[];
   gateway_input_modes?: "file" | "requests"[];
   id?: string;
   name?: string;

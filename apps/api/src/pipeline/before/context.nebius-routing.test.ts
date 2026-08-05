@@ -79,6 +79,30 @@ describe("applyNebiusRegionalModelAllowlist", () => {
         expect(filtered.pricing["nebius-token-factory-us-central-1"]).toBeUndefined();
     });
 
+    it("keeps MiniMax M3 on Nebius US Central 1", () => {
+        const parsed = buildContext({
+            resolvedModel: "minimax/minimax-m3",
+            providers: [
+                buildProvider({
+                    providerId: "nebius-token-factory-us-central-1",
+                    providerModelSlug: "MiniMaxAI/MiniMax-M3",
+                }),
+            ],
+            pricing: {
+                "nebius-token-factory-us-central-1": { provider: "nebius-token-factory-us-central-1" },
+            },
+        });
+
+        const filtered = applyNebiusRegionalModelAllowlist({
+            parsed,
+            requestedModel: "minimax/minimax-m3",
+        });
+
+        expect(filtered.providers).toHaveLength(1);
+        expect(filtered.providers[0]?.providerId).toBe("nebius-token-factory-us-central-1");
+        expect(filtered.pricing["nebius-token-factory-us-central-1"]).toBeDefined();
+    });
+
     it("keeps non-Nebius providers unchanged", () => {
         const parsed = buildContext({
             resolvedModel: "meta/llama-3.3-70b-instruct",

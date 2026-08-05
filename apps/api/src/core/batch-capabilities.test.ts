@@ -109,6 +109,22 @@ describe("batch capabilities", () => {
 		expect(getBatchProviderCapability("together")?.previewReadiness).toBe("experimental");
 	});
 
+	it("describes native and translated endpoint support per provider", () => {
+		expect(getBatchProviderCapability("openai")?.endpoints).toEqual([
+			{ endpoint: "/v1/chat/completions", mode: "native" },
+			{ endpoint: "/v1/responses", mode: "native" },
+			{ endpoint: "/v1/embeddings", mode: "native" },
+		]);
+		expect(getBatchProviderCapability("anthropic")?.endpoints).toContainEqual({
+			endpoint: "/v1/chat/completions",
+			mode: "translated",
+		});
+		expect(getBatchProviderCapability("google-ai-studio")?.endpoints).toContainEqual({
+			endpoint: "/v1/generateContent",
+			mode: "native",
+		});
+	});
+
 	it("returns docs-rich unsupported mode payloads", () => {
 		const providers = resolveBatchProvidersForMode({
 			mode: "file",

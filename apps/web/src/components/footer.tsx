@@ -34,9 +34,12 @@ const developerLinks = [
 ];
 
 const companyLinks = [
+	{ href: "/about", label: "About" },
+	{ href: "/mission", label: "Mission" },
 	{ href: "/blog", label: "Blog" },
 	{ href: "/pricing", label: "Pricing" },
 	{ href: "/works-with", label: "Works With" },
+	{ href: "/acknowledgements", label: "Acknowledgements" },
 	{ href: "/contact", label: "Support" },
 	{ href: "/privacy", label: "Privacy" },
 	{ href: "/terms", label: "Terms" },

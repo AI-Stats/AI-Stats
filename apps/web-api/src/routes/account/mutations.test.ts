@@ -5,6 +5,11 @@ describe("account mutation boundaries", () => {
 	it.each([
 		["PUT", "/api/account/settings/beta", { beta_features: {} }],
 		["PUT", "/api/account/settings/routing", { workspaceId: "workspace-1", mode: "balanced" }],
+		["POST", "/api/account/settings/dynamic-routes", { workspaceId: "workspace-1", name: "Production", config: {} }],
+		["PUT", "/api/account/settings/dynamic-routes/route-1", { name: "Updated" }],
+		["PUT", "/api/account/settings/dynamic-routes/route-1/keys", { keyIds: ["key-1"] }],
+		["POST", "/api/account/settings/dynamic-routes/route-1/versions/2/deploy", undefined],
+		["DELETE", "/api/account/settings/dynamic-routes/route-1", undefined],
 		["DELETE", "/api/account/settings/authorized-apps/authorization-1", undefined],
 		["PUT", "/api/account/settings/apps/app-1", { title: "Updated" }],
 		["POST", "/api/account/credits/admin/grants", { code: "TEST", amount_nanos: 1_000_000_000, max_redemptions: 1 }],

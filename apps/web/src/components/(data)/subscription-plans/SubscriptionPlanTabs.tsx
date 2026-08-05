@@ -90,7 +90,6 @@ export default function SubscriptionPlanTabs({ planId }: { planId: string }) {
 						<Link
 							key={t.key}
 							href={href}
-							prefetch={false}
 							aria-current={isActive ? "page" : undefined}
 							ref={(el) => {
 								tabRefs.current[t.key] = el;

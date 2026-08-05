@@ -1,4 +1,5 @@
 // components/header/AuthControls.tsx  (SERVER COMPONENT)
+import { connection } from "next/server";
 import { fetchInternalAuthHeaderData } from "@/lib/fetchers/internal/fetchInternalAuthHeaderData";
 import type { InternalAuthHeaderData } from "@/lib/fetchers/internal/authTypes";
 import HeaderClient from "./HeaderClient";
@@ -8,6 +9,9 @@ export default async function AuthControls({
 }: {
 	variant?: "mobile" | "desktop";
 }) {
+	// Supabase Auth reads token expiry during initialization. Explicitly defer
+	// that indirect Date.now() access until a request is available.
+	await connection();
 	let data: InternalAuthHeaderData = {
 		isLoggedIn: false,
 		user: undefined,

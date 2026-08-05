@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { Database, Gauge, LogOut, UserRound } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Coins, Database, Gauge, LogOut, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChatRoomSwitcher } from "@/components/(chat)/ChatRoomSwitcher";
+import { useChatCredits } from "@/components/(chat)/use-chat-credits";
+import { CHAT_SIDEBAR_ACTIONS_CLASS } from "@/components/(chat)/chatSidebarStyles";
 import { ThemeSelector } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { fetchClientAuthHeaderData } from "@/lib/fetchers/internal/fetchClientAuthHeaderData";
-import { postClientAuthSignOut } from "@/lib/fetchers/internal/postClientAuthSignOut";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useChatAuth } from "@/components/(chat)/playground/use-chat-auth";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -33,39 +35,7 @@ type RoomScaffoldProps = {
 	children: ReactNode;
 };
 
-type SidebarAuthUser = {
-	id: string;
-	email: string | null;
-	name: string;
-	avatarUrl: string | null;
-};
-
 export const ROOM_SIDEBAR_SLOT_ID = "room-scaffold-sidebar-slot";
-
-function RoomSidebarBrand() {
-	const { state: sidebarState, isMobile } = useSidebar();
-	const collapsed = sidebarState === "collapsed" && !isMobile;
-	const brandLightSrc = collapsed ? "/logo_light.svg" : "/wordmark_light.svg";
-	const brandDarkSrc = collapsed ? "/logo_dark.svg" : "/wordmark_dark.svg";
-	const brandClassName = collapsed ? "h-5 select-none" : "h-6 select-none";
-
-	return (
-		<>
-			<img
-				src={brandLightSrc}
-				alt=""
-				aria-hidden="true"
-				className={`${brandClassName} block dark:hidden`}
-			/>
-			<img
-				src={brandDarkSrc}
-				alt=""
-				aria-hidden="true"
-				className={`${brandClassName} hidden dark:block`}
-			/>
-		</>
-	);
-}
 
 function RoomSidebarDatabaseButton() {
 	const { state: sidebarState, isMobile } = useSidebar();
@@ -74,12 +44,12 @@ function RoomSidebarDatabaseButton() {
 		<Button
 			variant="ghost"
 			asChild
-			className="h-8 min-w-0 w-full flex-1 justify-start gap-0 px-2 text-sm font-medium group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+			className="h-8 min-w-0 w-full flex-1 justify-start gap-0 px-2 text-sm font-medium"
 			aria-label="Database"
 		>
 			<Link
 				href="/"
-				className="group/db flex w-full min-w-0 items-center gap-2 group-data-[collapsible=icon]:justify-center"
+				className="group/db flex w-full min-w-0 items-center justify-start gap-2"
 			>
 				<Database className="h-4 w-4 shrink-0" />
 				<span className="truncate group-data-[collapsible=icon]:hidden">Database</span>
@@ -103,14 +73,8 @@ function RoomSidebarDatabaseButton() {
 
 export function RoomScaffold({ children }: RoomScaffoldProps) {
 	const [hasCustomSidebarContent, setHasCustomSidebarContent] = useState(false);
-	const [authUser, setAuthUser] = useState<SidebarAuthUser | null>(null);
-	const [authLoading, setAuthLoading] = useState(true);
-
-	const handleSignOut = useCallback(async () => {
-		await postClientAuthSignOut();
-		setAuthUser(null);
-		window.location.href = "/sign-in";
-	}, []);
+	const { authUser, authLoading, handleSignOut } = useChatAuth();
+	const { creditsLabel, creditsLoading } = useChatCredits(authUser?.id);
 
 	useEffect(() => {
 		const slot = document.getElementById(ROOM_SIDEBAR_SLOT_ID);
@@ -128,35 +92,6 @@ export function RoomScaffold({ children }: RoomScaffoldProps) {
 		};
 	}, []);
 
-	useEffect(() => {
-		let mounted = true;
-		const loadUser = async () => {
-			setAuthLoading(true);
-			try {
-				const data = await fetchClientAuthHeaderData();
-				if (!mounted) return;
-				if (!data.isLoggedIn || !data.user) {
-					setAuthUser(null);
-					return;
-				}
-				setAuthUser({
-					id: data.user.id,
-					email: data.user.email,
-					name: data.user.displayName ?? data.user.email ?? "Account",
-					avatarUrl: data.user.avatarUrl,
-				});
-			} catch {
-				if (mounted) setAuthUser(null);
-			} finally {
-				if (mounted) setAuthLoading(false);
-			}
-		};
-		loadUser();
-		return () => {
-			mounted = false;
-		};
-	}, []);
-
 	const nameParts = authUser?.name?.trim().split(" ").filter(Boolean) ?? [];
 	const firstName = nameParts[0] ?? "Account";
 	const initials = nameParts
@@ -169,21 +104,17 @@ export function RoomScaffold({ children }: RoomScaffoldProps) {
 		<SidebarProvider defaultOpen contained className="h-full overflow-hidden">
 			<Sidebar collapsible="icon" className="border-r border-border bg-background">
 				<SidebarHeader className="h-[57px] gap-0 border-b border-border px-0 py-0">
-					<div className="flex h-full w-full items-center gap-2 px-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2">
-						<Link href="/" aria-label="Phaseo">
-							<RoomSidebarBrand />
-						</Link>
+					<div className="flex h-full min-w-0 items-center">
+						<ChatRoomSwitcher className="min-w-0 flex-1" />
 					</div>
 				</SidebarHeader>
 				<SidebarContent className="gap-0">
-					<ChatRoomSwitcher />
-					<SidebarSeparator className="my-0" />
 					{!hasCustomSidebarContent ? (
 						<>
-							<div className="px-2 pb-1 pt-1.5">
+							<div data-chat-sidebar-actions="true" className={CHAT_SIDEBAR_ACTIONS_CLASS}>
 								<RoomSidebarDatabaseButton />
 							</div>
-							<SidebarSeparator className="my-0" />
+							<SidebarSeparator className="mx-0 my-0 w-full" />
 						</>
 					) : null}
 					<div
@@ -191,16 +122,18 @@ export function RoomScaffold({ children }: RoomScaffoldProps) {
 						className="flex min-h-0 flex-1 flex-col gap-0"
 					/>
 				</SidebarContent>
-				<SidebarFooter className="border-t border-border px-3 py-3">
+				<SidebarFooter
+					className="h-[57px] shrink-0 justify-center border-t border-border px-2 py-2"
+				>
 					{authUser ? (
 						<div className="grid gap-2">
 							<DropdownMenu>
 								<DropdownMenuTrigger render={<Button
 										variant="ghost"
 										aria-label="Open account menu"
-										className="h-auto min-h-14 w-full touch-manipulation justify-start gap-3 rounded-2xl py-2 active:bg-muted data-open:bg-muted group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0" />}>
+										className="h-10 min-h-0 w-full touch-manipulation justify-start gap-2 rounded-md px-2 py-1 active:bg-muted data-open:bg-muted group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:px-0" />}>
 
-										<Avatar className="pointer-events-none h-8 w-8 rounded-lg border border-zinc-200/70 dark:border-zinc-800/70">
+									<Avatar className="pointer-events-none h-7 w-7 rounded-full border border-zinc-200/70 dark:border-zinc-800/70">
 											{authUser.avatarUrl ? (
 												<AvatarImage
 													src={authUser.avatarUrl}
@@ -208,7 +141,7 @@ export function RoomScaffold({ children }: RoomScaffoldProps) {
 													className="object-cover"
 												/>
 											) : null}
-											<AvatarFallback className="rounded-lg text-[11px] font-semibold">
+										<AvatarFallback className="rounded-full text-[10px] font-semibold">
 												{initials || "U"}
 											</AvatarFallback>
 										</Avatar>
@@ -226,7 +159,7 @@ export function RoomScaffold({ children }: RoomScaffoldProps) {
 									side="right"
 									align="start"
 									sideOffset={8}
-									className="w-56 z-[90]"
+									className="z-[90] w-56 rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!"
 								>
 									<DropdownMenuItem render={<Link href="/settings/account" />}>
 
@@ -238,6 +171,21 @@ export function RoomScaffold({ children }: RoomScaffoldProps) {
 
 											<Gauge className="mr-2 h-4 w-4" />
 											Usage
+
+									</DropdownMenuItem>
+									<DropdownMenuItem render={<Link
+											href="/settings/credits"
+											aria-label={creditsLabel ? `Credits balance: ${creditsLabel}` : "Credits"} />}>
+
+											<Coins className="mr-2 h-4 w-4" />
+											<span>Credits</span>
+											{creditsLoading ? (
+												<Skeleton className="ml-auto h-3.5 w-16 rounded-sm" />
+											) : creditsLabel ? (
+												<span className="ml-auto font-mono text-xs tabular-nums text-muted-foreground">
+													{creditsLabel}
+												</span>
+											) : null}
 
 									</DropdownMenuItem>
 									<DropdownMenuSeparator />
@@ -256,7 +204,7 @@ export function RoomScaffold({ children }: RoomScaffoldProps) {
 					) : authLoading ? (
 						<div className="h-9 w-full rounded-md bg-muted/40" />
 					) : (
-						<Button variant="ghost" className="w-full justify-start" asChild>
+						<Button variant="ghost" className="w-full justify-start rounded-md" asChild>
 							<Link href="/sign-in">Sign in to chat</Link>
 						</Button>
 					)}

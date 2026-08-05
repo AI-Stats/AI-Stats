@@ -116,6 +116,7 @@ export const config = {
 		"/onboarding/:path*",
 		"/internal/:path*",
 		"/chat/:path*",
+		"/api/account/:path*",
 		"/api/internal/:path*",
 		"/api/chat/:path*",
 	],

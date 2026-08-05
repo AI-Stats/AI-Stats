@@ -288,6 +288,54 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "crofai:deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek-v4-flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": true,
+    "quantization_scheme": "Q4_0",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-07-31T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [],
+    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "sources": [
+      {
+        "kind": "pricing",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-01T00:00:00Z",
+        "notes": "Official live CrofAI pricing payload lists the explicit 0731 slug, Q4_0 quantisation, limits, speed and token rates."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-01T00:00:00Z",
+      "notes": "Confirmed as a distinct live CrofAI route rather than an upgrade of the preview slug."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "deepseek/deepseek-v3.2",
     "provider_api_model_id": "crofai:deepseek-v3.2",
     "provider_model_slug": "deepseek-v3.2",
@@ -1724,6 +1772,116 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k3",
+    "provider_api_model_id": "crofai:kimi-k3",
+    "provider_model_slug": "kimi-k3",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": true,
+    "quantization_scheme": "mxfp4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 262144,
+    "effective_from": "2026-07-29T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": ["standard", "flex"],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://crof.ai/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official CrofAI pricing payload lists kimi-k3 and kimi-k3-eco slugs, limits, quantization, and token rates."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "CrofAI lists the live kimi-k3 route at $2.00 input, $0.25 cached input, and $8.00 output per 1M tokens."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k3-flex",
+    "provider_api_model_id": "crofai:kimi-k3-eco",
+    "provider_model_slug": "kimi-k3-eco",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": false,
+    "quantization_scheme": "Q2_K",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-07-30T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": ["flex"],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://crof.ai/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official CrofAI pricing payload lists kimi-k3 and kimi-k3-eco slugs, limits, quantization, and token rates."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Hidden CrofAI sibling selected only when moonshotai/kimi-k3 requests use service_tier=flex. CrofAI lists kimi-k3-eco at Q2_K, 1M context, 131,072 max output, and approximately 47 tokens/s."
     },
     "rate_limits": []
   }

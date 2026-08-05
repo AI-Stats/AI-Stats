@@ -2,7 +2,10 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
-    let supabaseResponse = NextResponse.next({ request })
+    const forwardedHeaders = new Headers(request.headers)
+    let supabaseResponse = NextResponse.next({
+        request: { headers: forwardedHeaders },
+    })
     const pathname = request.nextUrl.pathname
 
     const supabase = createServerClient(
@@ -13,7 +16,9 @@ export async function updateSession(request: NextRequest) {
                 getAll: () => request.cookies.getAll(),
                 setAll: (cookiesToSet: Array<{ name: string; value: string; options?: CookieOptions }>) => {
                     cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-                    supabaseResponse = NextResponse.next({ request })
+                    supabaseResponse = NextResponse.next({
+                        request: { headers: forwardedHeaders },
+                    })
                     cookiesToSet.forEach(({ name, value, options }) =>
                         supabaseResponse.cookies.set(name, value, options)
                     )
@@ -22,7 +27,40 @@ export async function updateSession(request: NextRequest) {
         }
     )
 
-    const { data: { user } } = await supabase.auth.getUser()
+    const [
+        { data: { user } },
+        { data: { session } },
+    ] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase.auth.getSession(),
+    ])
+
+    const isPrivateWebApiRequest =
+        pathname.startsWith('/api/account/') ||
+        pathname.startsWith('/api/chat/') ||
+        pathname.startsWith('/api/internal/')
+    if (isPrivateWebApiRequest) {
+        const activeWorkspaceId = request.cookies.get('activeWorkspaceId')?.value
+        forwardedHeaders.delete('cookie')
+        if (activeWorkspaceId) {
+            forwardedHeaders.set(
+                'cookie',
+                `activeWorkspaceId=${encodeURIComponent(activeWorkspaceId)}`
+            )
+        }
+    }
+    if (
+        isPrivateWebApiRequest &&
+        session?.access_token &&
+        !forwardedHeaders.has('authorization')
+    ) {
+        const responseCookies = supabaseResponse.cookies.getAll()
+        forwardedHeaders.set('authorization', `Bearer ${session.access_token}`)
+        supabaseResponse = NextResponse.next({
+            request: { headers: forwardedHeaders },
+        })
+        responseCookies.forEach((cookie) => supabaseResponse.cookies.set(cookie))
+    }
 
     // Keep strict auth-gate behavior for settings pages only.
     if (!user && pathname.startsWith('/settings')) {

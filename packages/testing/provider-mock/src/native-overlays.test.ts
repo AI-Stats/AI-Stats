@@ -5,7 +5,7 @@ import { loadBundledProviderContract } from "./load.js";
 import { getCanonicalBundleHash } from "./contract-hash.js";
 import { ProviderContractRegistry } from "./registry.js";
 
-const providers = ["amazon-bedrock", "amazon-bedrock-mantle", "anthropic-aws", "anthropic-aws-us", "azure", "baidu", "black-forest-labs", "canopy-wave", "digitalocean", "google-vertex", "google-vertex-eu", "runway", "suno", "voyage"];
+const providers = ["amazon-bedrock", "anthropic-aws", "anthropic-aws-us", "azure", "baidu", "black-forest-labs", "canopy-wave", "digitalocean", "google-vertex", "google-vertex-eu", "runway", "suno", "voyage"];
 
 describe("native and specialized provider contracts", () => {
   for (const providerId of providers) it(`${providerId} has honest provenance and covered operations`, async () => {

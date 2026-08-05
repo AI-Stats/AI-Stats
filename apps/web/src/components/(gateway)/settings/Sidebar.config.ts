@@ -5,17 +5,14 @@ import {
 	AppWindow,
 	BarChart3,
 	Beaker,
+	Building2,
+	Code2,
 	CreditCard,
-	EyeOff,
+	FileText,
+	FolderKey,
 	KeyRound,
-	Package,
-	RadioTower,
-	Shield,
 	ShieldCheck,
 	User,
-	Users,
-	WalletCards,
-	Webhook,
 	Waypoints,
 	Workflow,
 } from "lucide-react";
@@ -38,7 +35,10 @@ export type NavItem = {
 export type NavGroup = {
     heading?: string;
     items: NavItem[];
+	scope: SettingsScope;
 };
+
+export type SettingsScope = "personal" | "workspace";
 
 export type ResolvedSettingsNav = {
 	group: NavGroup;
@@ -48,7 +48,8 @@ export type ResolvedSettingsNav = {
 const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 	{
 		heading: "General",
-	items: [
+		scope: "personal",
+		items: [
 			{
 				href: "/settings/profile",
 				label: "Profile",
@@ -62,11 +63,10 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				match: ["/settings/account"],
 			},
 			{
-				href: "/settings/beta",
-				label: "Feature Preview",
-				icon: Beaker,
-				badge: "Preview",
-				match: ["/settings/beta"],
+				href: "/settings/account/workspaces",
+				label: "Workspaces",
+				icon: Building2,
+				match: ["/settings/account/workspaces"],
 			},
 			{
 				href: "/settings/credits",
@@ -81,42 +81,60 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				],
 			},
 			{
-				href: "/settings/usage",
-				label: "Usage",
-				icon: BarChart3,
-				match: ["/settings/usage", "/settings/usage/logs", "/settings/usage/alerts"],
+				href: "/settings/beta",
+				label: "Feature Preview",
+				icon: Beaker,
+				match: ["/settings/beta"],
 			},
 		],
 	},
 	{
 		heading: "Workspace",
+		scope: "workspace",
 		items: [
-			{
-				href: "/settings/workspaces/members",
-				label: "Members",
-				icon: Users,
-				match: [
-					"/settings/workspaces",
-					"/settings/teams",
-					"/settings/teams/members",
-				],
-			},
-			{
-				href: "/settings/workspaces/access",
-				label: "Access",
-				icon: KeyRound,
-				match: ["/settings/teams/access"],
-			},
 			{
 				href: "/settings/workspaces/settings",
 				label: "Settings",
-				icon: Workflow,
-				match: ["/settings/teams/settings"],
+				icon: Building2,
+				match: [
+					"/settings/workspaces",
+					"/settings/teams",
+					"/settings/workspaces/members",
+					"/settings/workspaces/access",
+					"/settings/teams/members",
+					"/settings/teams/access",
+					"/settings/teams/settings",
+				],
+			},
+		],
+	},
+	{
+		heading: "Observe",
+		scope: "workspace",
+		items: [
+			{
+				href: "/settings/usage",
+				label: "Usage",
+				icon: BarChart3,
+				match: [
+					"/settings/usage/overview",
+					"/settings/usage/trends",
+					"/settings/usage/explore",
+					"/settings/usage/guardrails",
+					"/settings/usage/alerts",
+				],
+			},
+			{
+				href: "/settings/usage/logs",
+				label: "Logs",
+				icon: FileText,
+				match: ["/settings/usage/logs"],
 			},
 		],
 	},
 	{
 		heading: "Gateway",
+		scope: "workspace",
 		items: [
 			{
 				href: "/settings/keys",
@@ -131,13 +149,6 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				match: ["/settings/apps"],
 			},
 			{
-				href: "/settings/management-api-keys",
-				label: "Management Keys",
-				icon: WalletCards,
-				badge: "Beta",
-				match: ["/settings/management-api-keys", "/settings/provisioning-keys"],
-			},
-			{
 				href: "/settings/routing",
 				label: "Routing",
 				icon: Waypoints,
@@ -145,8 +156,8 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 			},
 			{
 				href: "/settings/byok",
-				label: "BYOK",
-				icon: KeyRound,
+				label: "Provider access",
+				icon: FolderKey,
 				match: ["/settings/byok"],
 			},
 			{
@@ -157,45 +168,32 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				match: ["/settings/presets"],
 			},
 			{
-				href: "/settings/privacy",
-				label: "Privacy",
-				icon: EyeOff,
-				badge: "Alpha",
-				match: ["/settings/privacy"],
-			},
-			{
 				href: "/settings/guardrails",
-				label: "Guardrails",
+				label: "Safety & privacy",
 				icon: ShieldCheck,
-				match: ["/settings/guardrails"],
+				match: ["/settings/guardrails", "/settings/privacy"],
 			},
 		],
 	},
 	{
 		heading: "Developer",
+		scope: "workspace",
 		items: [
 			{
-				href: "/settings/oauth-apps",
-				label: "OAuth Apps",
-				icon: AppWindow,
-				badge: "Alpha",
-				match: ["/settings/oauth-apps", "/settings/authorized-apps"],
+				href: "/settings/management-api-keys",
+				label: "API & integrations",
+				icon: Code2,
+				match: [
+					"/settings/management-api-keys",
+					"/settings/provisioning-keys",
+					"/settings/oauth-apps",
+					"/settings/authorized-apps",
+					"/settings/broadcast",
+					"/settings/observability",
+					"/settings/webhooks",
+					"/settings/sdk",
+				],
 			},
-			{
-				href: "/settings/broadcast",
-				label: "Broadcast",
-				icon: RadioTower,
-				badge: "Pre-Release",
-				match: ["/settings/broadcast", "/settings/observability"],
-			},
-			{
-				href: "/settings/webhooks",
-				label: "Webhooks",
-				icon: Webhook,
-				badge: "Beta",
-				match: ["/settings/webhooks"],
-			},
-			{ href: "/settings/sdk", label: "SDKs", icon: Package, match: ["/settings/sdk"] },
 		],
 	},
 

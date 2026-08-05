@@ -4,6 +4,10 @@ export type MarketplacePreset = {
 	description: string | null;
 	created_at: string;
 	source_preset_id: string | null;
+	slug: string;
+	forkCount: number;
+	canonicalModel: string;
+	publisher: { handle: string; displayName: string };
 };
 
 export type MarketplacePresetLink = {

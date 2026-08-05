@@ -574,10 +574,10 @@ export default async function PrivacyPage() {
 					account (settings, profile and API keys), or by contacting
 					us at{" "}
 					<a
-						href="mailto:privacy@phaseo.ai"
+						href="mailto:privacy@phaseo.app"
 						className="text-primary underline"
 					>
-						privacy@phaseo.ai
+						privacy@phaseo.app
 					</a>
 					. We may ask you to verify your identity before responding
 					to a request.
@@ -627,10 +627,10 @@ export default async function PrivacyPage() {
 					suspect compromise. If you believe your account has been
 					compromised, please contact us immediately at{" "}
 					<a
-						href="mailto:support@phaseo.ai"
+						href="mailto:support@phaseo.app"
 						className="text-primary underline"
 					>
-						support@phaseo.ai
+						support@phaseo.app
 					</a>
 					.
 				</p>
@@ -688,19 +688,19 @@ export default async function PrivacyPage() {
 					<li>
 						Email:{" "}
 						<a
-							href="mailto:privacy@phaseo.ai"
+							href="mailto:privacy@phaseo.app"
 							className="text-primary underline"
 						>
-							privacy@phaseo.ai
+							privacy@phaseo.app
 						</a>
 					</li>
 					<li>
 						Support:{" "}
 						<a
-							href="mailto:support@phaseo.ai"
+							href="mailto:support@phaseo.app"
 							className="text-primary underline"
 						>
-							support@phaseo.ai
+							support@phaseo.app
 						</a>
 					</li>
 				</ul>

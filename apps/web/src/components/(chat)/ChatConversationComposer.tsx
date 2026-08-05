@@ -13,6 +13,9 @@ import {
 	type RefObject,
 } from "react";
 import Link from "next/link";
+import { ThinkingOrb } from "thinking-orbs";
+import { AIGeneratedNotice } from "@/components/(chat)/AIGeneratedNotice";
+import { getChatComposerSendAction } from "@/components/(chat)/chatComposerSendAction";
 import Image from "next/image";
 import {
 	ArrowLeft,
@@ -30,7 +33,6 @@ import {
 	GripVertical,
 	ImagePlus,
 	Info,
-	ListPlus,
 	Mic,
 	Paperclip,
 	Pencil,
@@ -675,7 +677,7 @@ function ComposerModelSelectField({
 							onChange={(event) => setSearch(event.target.value)}
 							onKeyDown={(event) => event.stopPropagation()}
 							placeholder="Search models..."
-							className="h-8 rounded-xl bg-input/50 text-xs"
+							className="h-8 rounded-md bg-input/50 text-xs"
 						/>
 					</div>
 					<ScrollArea className="h-72" viewportClassName="pr-2">
@@ -796,7 +798,7 @@ function ComposerTimezoneSelectField({
 							onChange={(event) => setSearch(event.target.value)}
 							onKeyDown={(event) => event.stopPropagation()}
 							placeholder="Search timezones..."
-							className="h-8 rounded-xl bg-input/50 text-xs"
+							className="h-8 rounded-md bg-input/50 text-xs"
 						/>
 					</div>
 					<div className="grid gap-0.5 px-1 pb-1">
@@ -906,6 +908,7 @@ interface ChatConversationComposerProps {
 	recordingSupported: boolean;
 	onToggleRecording: () => void;
 	onToggleModel: (modelId: string) => void;
+	onOpenModelPicker: () => void;
 	onSubmit: () => void;
 	queuedPrompts?: Array<{
 		id: string;
@@ -956,6 +959,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 		recordingSupported,
 		onToggleRecording,
 		onToggleModel,
+		onOpenModelPicker,
 		onSubmit,
 		queuedPrompts = [],
 		onRemoveQueuedPrompt,
@@ -1003,15 +1007,21 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 			setCommandSearch("");
 		}
 	}, [isRecording]);
-	const hasComposerContent =
-		(composer.trim().length > 0 && slashQuery === null) ||
-		attachments.length > 0;
+	const hasComposerText = composer.trim().length > 0 && slashQuery === null;
+	const hasComposerContent = hasComposerText || attachments.length > 0;
 	const hasSelectedModel =
 		selectedModelIds.length > 0 ||
 		selectedModelCount > 0 ||
 		Boolean(selectedModelId);
-	const canSubmit =
-		!isRecording && hasSelectedModel && !slashMenuOpen && hasComposerContent;
+	const sendAction = getChatComposerSendAction({
+		hasComposerContent,
+		hasComposerText,
+		hasSelectedModel,
+		isRecording,
+		slashMenuOpen,
+	});
+	const canSubmit = sendAction === "submit";
+	const canActivateSendButton = sendAction !== "none";
 	const showChooseModelTooltip = !hasSelectedModel && hasComposerContent;
 	const resetPromptHistoryNavigation = useCallback(() => {
 		setHistoryIndex(null);
@@ -2106,7 +2116,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 				) : null}
 				{toolType === "phaseo:advisor" ? (
 					<>
-						<div className="flex flex-wrap items-center gap-1 rounded-xl border border-border bg-muted/50 p-1">
+						<div className="flex flex-wrap items-center gap-1 rounded-md border border-border bg-muted/50 p-1">
 							<div className="flex min-w-0 flex-1 flex-wrap gap-1">
 								{advisorConfigs.map((advisor, index) => {
 									const selected = index === advisorIndex;
@@ -2263,7 +2273,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 				) : null}
 				{toolType === "phaseo:fusion" ? (
 					<div className="grid gap-2">
-						<div className="rounded-xl border border-border bg-muted px-3 py-2 text-xs text-muted-foreground">
+						<div className="rounded-md border border-border bg-muted px-3 py-2 text-xs text-muted-foreground">
 							<span className="block font-medium text-foreground">
 								Fusion Settings
 							</span>
@@ -2748,28 +2758,36 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 						: "Send message"
 					: "Choose a model to send"
 			}
-			aria-disabled={!canSubmit}
+			aria-disabled={!canActivateSendButton}
 			data-chat-send-button="true"
 			title={showChooseModelTooltip ? "Choose a model" : undefined}
 			className={cn(
-				canSubmit
+				canActivateSendButton
 					? "cursor-pointer border-transparent hover:brightness-95"
 					: "cursor-default border-transparent opacity-50",
 			)}
 			style={{
 				backgroundColor: accentColor,
 				color: getReadableTextColor(accentColor),
-				cursor: canSubmit ? "pointer" : "default",
+				cursor: canActivateSendButton ? "pointer" : "default",
 			}}
 			onClick={() => {
-				if (canSubmit) {
+				if (sendAction === "open-model-selector") {
+					onOpenModelPicker();
+					return;
+				}
+				if (sendAction === "submit") {
 					handleComposerSubmit();
 				}
 			}}
-			tabIndex={canSubmit ? undefined : -1}
+			tabIndex={canActivateSendButton ? undefined : -1}
 		>
 			{isSending ? (
-				<ListPlus className="h-4 w-4" />
+				<ThinkingOrb
+					state="working"
+					size={20}
+					aria-label="Queue message"
+				/>
 			) : (
 				<SendHorizontal className="h-4 w-4" />
 			)}
@@ -2922,7 +2940,10 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 	);
 
 	return (
-		<div className="border-t border-border bg-background px-4 py-[17px] md:px-8">
+		<div
+			data-chat-composer-footer="true"
+			className="border-t border-border bg-background px-4 py-[17px] md:px-8"
+		>
 			<div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
 				{queuedPrompts.length > 0 ? (
 					<div className="rounded-2xl border border-border bg-card/95 p-1.5">
@@ -2947,7 +2968,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 										}
 										onDragEnd={() => setDraggingQueuedPromptId(null)}
 										className={cn(
-											"group grid grid-cols-[auto_auto_minmax(0,1fr)_auto_auto] items-center gap-1.5 rounded-xl px-1.5 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted/55",
+											"group grid grid-cols-[auto_auto_minmax(0,1fr)_auto_auto] items-center gap-1.5 rounded-md px-1.5 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted/55",
 											draggingQueuedPromptId === prompt.id &&
 												"bg-muted/60 opacity-70",
 										)}
@@ -2994,7 +3015,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 					</div>
 				) : null}
 				{sendGateType === "auth" ? (
-					<div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-300/70 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-700/70 dark:bg-amber-950/30 dark:text-amber-100">
+					<div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-300/70 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-700/70 dark:bg-amber-950/30 dark:text-amber-100">
 						<div className="flex items-start gap-2 text-sm">
 							<Info className="mt-0.5 h-4 w-4 shrink-0" />
 							<div className="space-y-0.5">
@@ -3079,7 +3100,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 				<div ref={composerCommandRootRef} className="relative">
 					{slashMenuOpen ? (
 						<div
-							className="absolute right-0 bottom-full left-0 z-30 mb-2 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-none"
+							className="absolute right-0 bottom-full left-0 z-30 mb-2 overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-none"
 							aria-label="Chat commands"
 						>
 							{showSlashSearch ? (
@@ -3291,6 +3312,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 						</div>
 					</div>
 				</div>
+				<AIGeneratedNotice />
 			</div>
 			</div>
 		</div>

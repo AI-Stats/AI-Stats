@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import Link from "next/link";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { redirect } from "next/navigation";
-import { BarChart3, Briefcase, Clock3, FileText, ShieldAlert } from "lucide-react";
 
 import SettingsSectionFallback from "@/components/(gateway)/settings/SettingsSectionFallback";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import AsyncJobsPanel from "@/components/(gateway)/usage/AsyncJobsPanel";
 import SessionsPanel from "@/components/(gateway)/usage/SessionsPanel";
 import UsageLogsToolbar from "@/components/(gateway)/usage/UsageLogsToolbar";
 import UsageViewFilters from "@/components/(gateway)/usage/UsageViewFilters";
+import UpstreamRequestsTable from "@/components/(gateway)/usage/UpstreamRequestsTable";
 import {
 	getUsageRangeParamKeys,
 	parseUsageDateInput,
@@ -25,33 +24,12 @@ import { investigateGeneration } from "@/app/(dashboard)/gateway/usage/server-ac
 import { fetchSettingsUsageLogsInitialData } from "@/lib/fetchers/internal/fetchSettingsUsageLogsInitialData";
 
 export const metadata: Metadata = {
-	title: "Usage Logs - Settings",
+	title: "Logs - Settings",
 };
 
 function parseView(view?: string | null): UsageLogsViewKey {
 	const v = (view ?? "").toLowerCase();
-	return v === "logs" || v === "jobs" || v === "sessions" ? v : "logs";
-}
-
-function buildViewHref(
-	view: UsageLogsViewKey,
-	searchParams: Record<string, string | string[] | undefined>,
-): string {
-	const next = new URLSearchParams();
-	for (const [key, rawValue] of Object.entries(searchParams)) {
-		if (key === "view") continue;
-		if (typeof rawValue === "string") {
-			next.set(key, rawValue);
-			continue;
-		}
-		if (Array.isArray(rawValue)) {
-			for (const item of rawValue) {
-				if (typeof item === "string") next.append(key, item);
-			}
-		}
-	}
-	next.set("view", view);
-	return `/settings/usage/logs?${next.toString()}`;
+	return v === "logs" || v === "upstream" || v === "jobs" || v === "sessions" ? v : "logs";
 }
 
 function buildLogsRequestHref(
@@ -146,23 +124,6 @@ export async function UsageLogsContent({
 	const sessionModelFilter = firstSearchParam(sp?.session_model)?.trim() || null;
 	const sessionProviderFilter = firstSearchParam(sp?.session_provider)?.trim() || null;
 	const logsPage = parsePositivePage(firstSearchParam(sp?.page));
-	const viewHref = {
-		logs: buildViewHref("logs", sp),
-		jobs: buildViewHref("jobs", sp),
-		sessions: buildViewHref("sessions", sp),
-	} as const;
-
-	const viewTabs = [
-		{ key: "logs" as const, label: "Logs", icon: FileText, href: viewHref.logs },
-		{ key: "jobs" as const, label: "Jobs", icon: Briefcase, href: viewHref.jobs },
-		{
-			key: "sessions" as const,
-			label: "Sessions",
-			icon: Clock3,
-			href: viewHref.sessions,
-		},
-	];
-
 	const timeRange = resolveUsageTimeRange({
 		preset,
 		customFrom,
@@ -173,7 +134,18 @@ export async function UsageLogsContent({
 	let filters: React.ReactNode = null;
 	let detailDialog: React.ReactNode = null;
 
-	if (view === "jobs") {
+	if (view === "upstream") {
+		const data = initialData.view === "upstream" ? initialData.data : null;
+		content = (
+			<UpstreamRequestsTable
+				rows={data?.upstreamRequests ?? []}
+				modelMetadata={new Map(data?.modelMetadataEntries ?? [])}
+				providerNames={new Map(data?.providerNameEntries ?? [])}
+				providerMetadata={new Map(data?.providerMetadataEntries ?? [])}
+				keys={new Map((data?.availableKeys ?? []).map((key) => [key.id, key]))}
+			/>
+		);
+	} else if (view === "jobs") {
 		const data = initialData.view === "jobs" ? initialData.data : null;
 		if (!data) throw new Error("Missing usage jobs data");
 		const providerNames = new Map(data.providerNameEntries);
@@ -308,77 +280,30 @@ export async function UsageLogsContent({
 		}
 	}
 	return (
-		<div className="space-y-6">
-			<div className="overflow-hidden rounded-2xl border border-border/70 bg-card">
-				<div className="border-b border-border/70 bg-muted/20 px-5 py-5">
-					<div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-						<div className="space-y-2">
-							<div className="flex items-center gap-2">
-								<div className="rounded-lg border border-blue-500/20 bg-blue-500/10 p-2">
-									<FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-								</div>
-								<Link
-									href="/settings/usage"
-									className="inline-flex items-center gap-1 rounded-md border border-border/70 px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-								>
-									<BarChart3 className="h-3.5 w-3.5" />
-									Observability
-								</Link>
-							</div>
-							<div>
-								<h1 className="text-2xl font-semibold tracking-tight">
-									Usage Logs
-								</h1>
-								<p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-									Request-level inspection for gateway calls, async work, and sessions.
-								</p>
-							</div>
-						</div>
-						<div className="flex flex-wrap gap-2">
-							<Link
-								href="/settings/usage?tab=guardrails"
-								className="inline-flex items-center gap-2 rounded-md border border-border/70 px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
-							>
-								<ShieldAlert className="h-4 w-4" />
-								Guardrails
-							</Link>
-							<UsageLogsToolbar
-								view={view}
-								preset={preset}
-								customFrom={customFrom}
-								customTo={customTo}
-							/>
-						</div>
-					</div>
+		<NuqsAdapter>
+		<div className="min-w-0 space-y-6">
+			<div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+				<div>
+					<h1 className="text-2xl font-semibold tracking-tight">Logs</h1>
+					<p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+						Request-level inspection for gateway calls, async work, and sessions.
+					</p>
 				</div>
-				<div className="flex gap-1 overflow-x-auto p-2">
-					{viewTabs.map((tab) => {
-						const Icon = tab.icon;
-						const isActive = tab.key === view;
-						return (
-							<Link
-								key={tab.key}
-								href={tab.href}
-								prefetch={false}
-								className={cn(
-									"inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-									isActive
-										? "bg-primary text-primary-foreground"
-										: "text-muted-foreground hover:bg-muted hover:text-foreground",
-								)}
-							>
-								<Icon className="h-4 w-4" />
-								{tab.label}
-							</Link>
-						);
-					})}
+				<div className="flex min-w-0 flex-wrap items-center gap-2 lg:justify-end">
+					{filters}
+					<UsageLogsToolbar
+						view={view}
+						preset={preset}
+						customFrom={customFrom}
+						customTo={customTo}
+					/>
 				</div>
 			</div>
-			<div className="space-y-4">
-				{filters}
+			<div className="min-w-0 max-w-full space-y-4 overflow-hidden">
 				{content}
 			</div>
 			{detailDialog}
 		</div>
+		</NuqsAdapter>
 	);
 }

@@ -85,9 +85,15 @@ export type RequestMeta = {
     keySource?: "gateway" | "byok";
     byokKeyId?: string | null;
     // Performance metrics
-    throughput_tps?: number;      // Tokens per second
+    throughput_tps?: number;      // Effective output tokens/sec over the full provider duration
+    output_speed_tps?: number;    // Output tokens/sec after the first generated token
     generation_ms?: number;       // Selected upstream dispatch to terminal frame/body when available
-    latency_ms?: number;          // Selected upstream dispatch to first complete streamed frame
+    latency_ms?: number;          // Legacy alias for provider_ttft_ms on streamed text responses
+    provider_ttft_ms?: number;    // Selected upstream dispatch to first generated output
+    gateway_ttft_ms?: number;     // Gateway request start to first generated output (user-visible TTFT)
+    tpot_ms?: number;             // Average time per output token after the first token
+    itl_ms?: number;              // Average inter-token latency
+    phaseo_overhead_ms?: number;  // Gateway E2E minus selected provider duration
     end_to_end_ms?: number;       // Request start to completion when available
     preserve_stream_timing?: boolean; // Internal: stream is synthetic and already has authoritative timing
     downstreamDisconnected?: boolean; // Client closed the response while the gateway continued draining upstream
@@ -96,9 +102,10 @@ export type RequestMeta = {
     streamDisconnectAction?: "cancel_upstream" | "drain_upstream";
     before_ms?: number;           // Gateway preflight ("before" stage) latency
     beforeContextMs?: number;     // Context fetch + enrichment latency inside before
-    beforeContextCacheStatus?: "hit" | "miss" | "bypass";
+    beforeContextCacheStatus?: "hit" | "miss" | "bypass" | "credit_refresh";
     beforeContextKeyVersionMs?: number;
     beforeContextCacheReadMs?: number;
+    beforeContextCreditRefreshMs?: number;
     beforeContextRpcMs?: number;
     beforeContextEnrichMs?: number;
     beforeContextCacheWriteMs?: number;
@@ -266,6 +273,8 @@ export type GatewayUsage = {
         web_fetch_requests?: number;
         advisor_requests?: number;
         subagent_requests?: number;
+        fusion_requests?: number;
+        search_models_requests?: number;
         image_generation_requests?: number;
         apply_patch_requests?: number;
     };
@@ -274,6 +283,8 @@ export type GatewayUsage = {
     server_tool_web_fetch_requests?: number;
     server_tool_advisor_requests?: number;
     server_tool_subagent_requests?: number;
+    server_tool_fusion_requests?: number;
+    server_tool_search_models_requests?: number;
     server_tool_image_generation_requests?: number;
     server_tool_apply_patch_requests?: number;
 

@@ -10,9 +10,65 @@ import {
     preflightV2Models,
     pricingModelPart,
     v2RouteModelSlug,
+    v2RouteExecutionRegions,
+    v2PricingMeterMetadata,
     validateJsonPricingRules,
     routeStatus,
+    catalogueStatus,
+    providerAvailabilityStatus,
+    phaseoStatus,
+    routeAccessScope,
+    phaseoRoutingEnabled,
+    staleJsonProviderRouteIds,
+    staleOwnedModelChildRows,
 } from "./v2";
+
+describe("V2 child reconciliation", () => {
+    it("removes repository-owned notices that disappeared from JSON", () => {
+        expect(staleOwnedModelChildRows(
+            [
+                { model_slug: "moonshotai/kimi-k3" },
+                { model_slug: "external/model" },
+            ],
+            [],
+            new Set(["moonshotai/kimi-k3"]),
+            ["model_slug"],
+        )).toEqual([{ model_slug: "moonshotai/kimi-k3" }]);
+    });
+
+    it("removes stale links and details while preserving desired identities", () => {
+        expect(staleOwnedModelChildRows(
+            [
+                { model_slug: "lab/model", link_kind: "docs", url: "https://old.example" },
+                { model_slug: "lab/model", link_kind: "weights", url: "https://weights.example" },
+            ],
+            [
+                { model_slug: "lab/model", link_kind: "docs", url: "https://new.example" },
+                { model_slug: "lab/model", link_kind: "weights", url: "https://weights.example" },
+            ],
+            new Set(["lab/model"]),
+            ["model_slug", "link_kind", "url"],
+        )).toEqual([
+            { model_slug: "lab/model", link_kind: "docs", url: "https://old.example" },
+        ]);
+    });
+});
+
+describe("V2 provider route reconciliation", () => {
+    it("deletes only stale importer-owned routes", () => {
+        expect(staleJsonProviderRouteIds(
+            [
+                { provider_model_id: "provider:active", metadata: { source: "json" } },
+                { provider_model_id: "provider:disabled", metadata: { source: "json" } },
+                { provider_model_id: "provider:stale", metadata: { source: "models.dev" } },
+                { provider_model_id: "provider:unresolved", metadata: { source: "json" } },
+                { provider_model_id: "provider:manual", metadata: { source: "manual" } },
+            ],
+            new Set(["provider:active", "provider:disabled"]),
+            new Set(["provider:unresolved"]),
+        )).toEqual(["provider:stale"]);
+    });
+});
 
 describe("free model variants", () => {
     it("uses the canonical base identity for a free provider route", () => {
@@ -50,6 +106,98 @@ describe("routeStatus", () => {
 
     it("keeps an explicit disabled status authoritative", () => {
         expect(routeStatus("disabled", true)).toBe("disabled");
+    });
+});
+
+describe("explicit catalogue statuses", () => {
+    it("preserves canonical lifecycle without making unknown values available", () => {
+        expect(catalogueStatus("Limited Access")).toBe("limited_access");
+        expect(catalogueStatus("Rumoured")).toBe("rumoured");
+        expect(catalogueStatus(null)).toBe("unknown");
+    });
+
+    it("keeps upstream availability separate from Phaseo integration", () => {
+        const offer = {
+            provider_status: "available",
+            phaseo_status: "unsupported",
+            is_active_gateway: true,
+            routable: true,
+            capabilities: [{ capability_id: "music.generate", status: "active" }],
+        };
+        expect(providerAvailabilityStatus(offer)).toBe("available");
+        expect(phaseoStatus(offer)).toBe("unsupported");
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
+    it("fails closed for announced offers and non-enabled integrations", () => {
+        const offer = {
+            provider_status: "coming_soon",
+            phaseo_status: "planned",
+            is_active_gateway: true,
+            routable: true,
+        };
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
+    it("fails closed for unrecognised explicit values", () => {
+        const offer = {
+            provider_status: "probably_live",
+            phaseo_status: "ship_it",
+            is_active_gateway: true,
+            routable: true,
+        };
+        expect(providerAvailabilityStatus(offer)).toBe("unknown");
+        expect(phaseoStatus(offer)).toBe("disabled");
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
+    it("restricts testing integrations to internal access without public routing", () => {
+        const offer = {
+            provider_status: "available",
+            phaseo_status: "testing",
+            is_active_gateway: true,
+            routable: true,
+        };
+        expect(routeAccessScope(offer)).toBe("internal");
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
+    it("fails closed to internal access for an unrecognised explicit scope", () => {
+        const offer = {
+            provider_status: "available",
+            phaseo_status: "enabled",
+            access_scope: "staff-ish",
+            is_active_gateway: true,
+            routable: true,
+        };
+        expect(routeAccessScope(offer)).toBe("internal");
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
+    it("keeps legacy active routes enabled during migration", () => {
+        const offer = {
+            is_active_gateway: true,
+            routable: true,
+            routing_status: "active",
+            capabilities: [{ capability_id: "text.generate", status: "active" }],
+        };
+        expect(providerAvailabilityStatus(offer)).toBe("available");
+        expect(phaseoStatus(offer)).toBe("enabled");
+        expect(phaseoRoutingEnabled(offer)).toBe(true);
+    });
+});
+
+describe("v2RouteExecutionRegions", () => {
+    it("prefers model-specific execution regions over provider defaults", () => {
+        expect(v2RouteExecutionRegions(
+            ["global"],
+            { regions: { execution: ["EU-NORTH1"] } },
+        )).toEqual(["eu-north1"]);
+    });
+
+    it("falls back to provider defaults when a model has no execution regions", () => {
+        expect(v2RouteExecutionRegions(["US", "us"], { regions: { execution: null } }))
+            .toEqual(["us"]);
     });
 });
 
@@ -130,6 +278,30 @@ describe("validateJsonPricingRules", () => {
             { ...baseRule, source_key: "wrong", price_per_unit: 2 },
             { ...baseRule, source_key: "correct", price_per_unit: 37.5 },
         ])).toThrow("Conflicting JSON pricing rates");
+    });
+
+    it("rejects conflicting included quantities for the same offer and meter", () => {
+        expect(() => validateJsonPricingRules([
+            { ...baseRule, source_key: "five-free", price_per_unit: 0.04, included_quantity: 5 },
+            { ...baseRule, source_key: "no-allowance", price_per_unit: 0.04, included_quantity: 0 },
+        ])).toThrow("Conflicting JSON pricing rates");
+    });
+});
+
+describe("v2PricingMeterMetadata", () => {
+    it("preserves an authored included quantity for pricing imports", () => {
+        expect(v2PricingMeterMetadata({
+            rule_id: "minimax-h3-input-images",
+            included_quantity: 5,
+        })).toEqual(expect.objectContaining({
+            source: "json",
+            included_quantity: 5,
+        }));
+    });
+
+    it("does not invent an allowance when none is authored", () => {
+        expect(v2PricingMeterMetadata({ rule_id: "meter-without-allowance" }))
+            .not.toHaveProperty("included_quantity");
     });
 });
 

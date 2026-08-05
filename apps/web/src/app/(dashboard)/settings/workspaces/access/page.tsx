@@ -5,8 +5,12 @@ export const metadata = {
 	title: "Workspace Access - Settings",
 };
 
-export default async function WorkspaceAccessPage() {
-	const data = await fetchSettingsTeamsInitialData();
+type SearchParams = Record<string, string | string[] | undefined>;
+
+export default async function WorkspaceAccessPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+	const params = await searchParams;
+	const workspaceId = Array.isArray(params.workspaceId) ? params.workspaceId[0] : params.workspaceId;
+	const data = await fetchSettingsTeamsInitialData(workspaceId);
 
 	return (
 		<TeamsSettingsContainer

@@ -13,6 +13,7 @@ import {
 	stripGatewayRequestUsageColumns,
 } from "../usage-columns";
 import { persistGatewayIoLog, resolveGatewayIoLoggingPolicy } from "./io-logging";
+import { persistGatewayUpstreamRequests } from "./upstream-requests";
 
 function supaAdmin() {
     return getSupabaseAdmin();
@@ -22,6 +23,7 @@ const DEFAULT_RETRY_ATTEMPTS = 3;
 const DEFAULT_RETRY_DELAY_MS = 250;
 let gatewayRequestsSupportsErrorPayloadColumn: boolean | null = null;
 let gatewayRequestsSupportsUsageColumns: boolean | null = null;
+let gatewayRequestsSupportsTelemetryColumns: boolean | null = null;
 let gatewayRequestDetailsTableAvailable: boolean | null = null;
 let warnedMissingGatewayRequestDetailsTable = false;
 
@@ -107,59 +109,83 @@ async function insertGatewayRequest(row: any) {
         return data as { id: string; created_at: string; workspace_id: string };
     };
 
-    const initialRow =
-        gatewayRequestsSupportsUsageColumns === false
-            ? stripGatewayRequestUsageColumns(
-                gatewayRequestsSupportsErrorPayloadColumn === false
-                    ? (() => {
-                        const { error_payload: _omit, ...legacyRow } = row ?? {};
-                        return legacyRow;
-                    })()
-                    : row,
-            )
-            : gatewayRequestsSupportsErrorPayloadColumn === false
-            ? (() => {
-                const { error_payload: _omit, ...legacyRow } = row ?? {};
-                return legacyRow;
-            })()
-            : row;
+    const stripTelemetryColumns = (payload: any) => {
+        const {
+            provider_ttft_ms: _providerTtftMs,
+            gateway_ttft_ms: _gatewayTtftMs,
+            output_speed_tps: _outputSpeedTps,
+            tpot_ms: _tpotMs,
+            itl_ms: _itlMs,
+            phaseo_overhead_ms: _phaseoOverheadMs,
+            ...compatibleRow
+        } = payload ?? {};
+        return compatibleRow;
+    };
+    const prepareCompatibleRow = (payload: any) => {
+        const telemetryCompatible = gatewayRequestsSupportsTelemetryColumns === false
+            ? stripTelemetryColumns(payload)
+            : payload;
+        const usageCompatible = gatewayRequestsSupportsUsageColumns === false
+            ? stripGatewayRequestUsageColumns(telemetryCompatible)
+            : telemetryCompatible;
+        if (gatewayRequestsSupportsErrorPayloadColumn !== false) return usageCompatible;
+        const { error_payload: _omit, ...errorPayloadCompatible } = usageCompatible ?? {};
+        return errorPayloadCompatible;
+    };
 
-    try {
-        const inserted = await attemptInsert(initialRow);
-        if (gatewayRequestsSupportsErrorPayloadColumn === null && "error_payload" in row) {
-            gatewayRequestsSupportsErrorPayloadColumn = true;
+    let lastError: unknown;
+    const maxCompatibilityAttempts = 4;
+    for (let attempt = 0; attempt < maxCompatibilityAttempts; attempt += 1) {
+        try {
+            const inserted = await attemptInsert(prepareCompatibleRow(row));
+            if (gatewayRequestsSupportsErrorPayloadColumn === null && "error_payload" in row) {
+                gatewayRequestsSupportsErrorPayloadColumn = true;
+            }
+            if (gatewayRequestsSupportsUsageColumns === null && "usage_total_tokens" in row) {
+                gatewayRequestsSupportsUsageColumns = true;
+            }
+            if (gatewayRequestsSupportsTelemetryColumns === null && "provider_ttft_ms" in row) {
+                gatewayRequestsSupportsTelemetryColumns = true;
+            }
+            return inserted;
+        } catch (error) {
+            lastError = error;
+            let capabilityChanged = false;
+            const telemetryColumns = [
+                "provider_ttft_ms",
+                "gateway_ttft_ms",
+                "output_speed_tps",
+                "tpot_ms",
+                "itl_ms",
+                "phaseo_overhead_ms",
+            ];
+            if (
+                gatewayRequestsSupportsTelemetryColumns !== false &&
+                telemetryColumns.some((column) => isMissingColumnError(error, column, "gateway_requests"))
+            ) {
+                gatewayRequestsSupportsTelemetryColumns = false;
+                capabilityChanged = true;
+            }
+            if (
+                gatewayRequestsSupportsUsageColumns !== false &&
+                isMissingColumnError(error, "usage_", "gateway_requests")
+            ) {
+                gatewayRequestsSupportsUsageColumns = false;
+                capabilityChanged = true;
+            }
+            if (
+                "error_payload" in row &&
+                gatewayRequestsSupportsErrorPayloadColumn !== false &&
+                isMissingColumnError(error, "error_payload", "gateway_requests")
+            ) {
+                gatewayRequestsSupportsErrorPayloadColumn = false;
+                capabilityChanged = true;
+            }
+            if (!capabilityChanged) throw error;
         }
-        if (gatewayRequestsSupportsUsageColumns === null && "usage_total_tokens" in row) {
-            gatewayRequestsSupportsUsageColumns = true;
-        }
-        return inserted;
-    } catch (error) {
-        if (
-            gatewayRequestsSupportsUsageColumns !== false &&
-            isMissingColumnError(error, "usage_", "gateway_requests")
-        ) {
-            gatewayRequestsSupportsUsageColumns = false;
-            const legacyRow = stripGatewayRequestUsageColumns(row);
-            return attemptInsert(
-                gatewayRequestsSupportsErrorPayloadColumn === false
-                    ? (() => {
-                        const { error_payload: _omit, ...withoutErrorPayload } = legacyRow;
-                        return withoutErrorPayload;
-                    })()
-                    : legacyRow,
-            );
-        }
-        if (
-            "error_payload" in row &&
-            gatewayRequestsSupportsErrorPayloadColumn !== false &&
-            isMissingColumnError(error, "error_payload", "gateway_requests")
-        ) {
-            gatewayRequestsSupportsErrorPayloadColumn = false;
-            const { error_payload: _omit, ...legacyRow } = row;
-            return attemptInsert(legacyRow);
-        }
-        throw error;
     }
+
+    throw lastError;
 }
 
 async function upsertV2RequestFact(args: {
@@ -181,10 +207,18 @@ async function upsertV2RequestFact(args: {
     finishReason?: string | null;
     latencyMs?: number | null;
     generationMs?: number | null;
+    providerTtftMs?: number | null;
+    gatewayTtftMs?: number | null;
+    outputSpeedTps?: number | null;
+    tpotMs?: number | null;
+    itlMs?: number | null;
+    phaseoOverheadMs?: number | null;
     internalDispatchMs?: number | null;
     gatewayTotalMs?: number | null;
     throughput?: number | null;
     edgeColo?: string | null;
+    edgeCountry?: string | null;
+    edgeContinent?: string | null;
     sessionId?: string | null;
     endUserId?: string | null;
     authMethod?: "api_key" | "oauth" | null;
@@ -380,6 +414,12 @@ async function upsertV2RequestFact(args: {
             byok: args.byok,
             latency_ms: args.latencyMs == null ? null : Math.max(0, Math.round(args.latencyMs)),
             generation_ms: args.generationMs == null ? null : Math.max(0, Math.round(args.generationMs)),
+            provider_ttft_ms: args.providerTtftMs == null ? null : Math.max(0, Math.round(args.providerTtftMs)),
+            gateway_ttft_ms: args.gatewayTtftMs == null ? null : Math.max(0, Math.round(args.gatewayTtftMs)),
+            output_speed_tps: args.outputSpeedTps == null ? null : Math.max(0, args.outputSpeedTps),
+            tpot_ms: args.tpotMs == null ? null : Math.max(0, args.tpotMs),
+            itl_ms: args.itlMs == null ? null : Math.max(0, args.itlMs),
+            phaseo_overhead_ms: args.phaseoOverheadMs == null ? null : Math.max(0, args.phaseoOverheadMs),
             internal_dispatch_ms: args.internalDispatchMs == null ? null : Math.max(0, args.internalDispatchMs),
             gateway_total_ms: args.gatewayTotalMs == null ? null : Math.max(0, args.gatewayTotalMs),
             throughput: args.throughput == null ? null : Math.max(0, args.throughput),
@@ -402,6 +442,8 @@ async function upsertV2RequestFact(args: {
             safe_metadata: {
                 provider: args.provider ?? null,
                 routed_model: args.routedModel ?? args.requestedModel,
+                edge_country: args.edgeCountry ? args.edgeCountry.trim().toUpperCase() : null,
+                edge_continent: args.edgeContinent ? args.edgeContinent.trim().toUpperCase() : null,
                 structured_output_success_basis: args.structuredOutputAttempted
                     ? (args.structuredOutputSuccessBasis ?? "unobserved")
                     : null,
@@ -409,6 +451,14 @@ async function upsertV2RequestFact(args: {
                 stream_cancellation_support: args.streamCancellationSupport ?? "unknown",
                 stream_provider_billing_on_cancel: args.streamProviderBillingOnCancel ?? "unknown",
                 stream_disconnect_action: args.streamDisconnectAction ?? null,
+                performance: {
+                    provider_ttft_ms: args.providerTtftMs == null ? null : Math.max(0, Math.round(args.providerTtftMs)),
+                    gateway_ttft_ms: args.gatewayTtftMs == null ? null : Math.max(0, Math.round(args.gatewayTtftMs)),
+                    output_speed_tps: args.outputSpeedTps == null ? null : Math.max(0, args.outputSpeedTps),
+                    tpot_ms: args.tpotMs == null ? null : Math.max(0, args.tpotMs),
+                    itl_ms: args.itlMs == null ? null : Math.max(0, args.itlMs),
+                    phaseo_overhead_ms: args.phaseoOverheadMs == null ? null : Math.max(0, Math.round(args.phaseoOverheadMs)),
+                },
             },
     };
     const client = supaAdmin();
@@ -541,6 +591,9 @@ function buildSupaRow(args: {
     errorPayload?: Record<string, unknown> | null;
     appId?: string | null; keyId?: string | null;
     latencyMs?: number | null; generationMs?: number | null;
+    providerTtftMs?: number | null; gatewayTtftMs?: number | null;
+    outputSpeedTps?: number | null; tpotMs?: number | null;
+    itlMs?: number | null; phaseoOverheadMs?: number | null;
     usage?: any | null; costNanos?: number | null; currency?: string | null;
     pricingLines?: any[] | null; throughput?: number | null;
     finishReason?: string | null;
@@ -587,6 +640,12 @@ function buildSupaRow(args: {
                 : null,
         latency_ms: args.latencyMs ?? null,
         generation_ms: args.generationMs ?? null,
+        provider_ttft_ms: args.providerTtftMs ?? null,
+        gateway_ttft_ms: args.gatewayTtftMs ?? null,
+        output_speed_tps: args.outputSpeedTps ?? null,
+        tpot_ms: args.tpotMs ?? null,
+        itl_ms: args.itlMs ?? null,
+        phaseo_overhead_ms: args.phaseoOverheadMs ?? null,
         usage: args.usage ?? {},
         ...usageColumns,
         ...(args.costNanos != null ? { cost_nanos: Math.round(args.costNanos as number) } : {}),
@@ -690,6 +749,9 @@ export async function auditSuccess(args: {
     edgeContinent?: string | null;
     edgeAsn?: number | null;
     generationMs?: number | null; latencyMs?: number | null;
+    providerTtftMs?: number | null; gatewayTtftMs?: number | null;
+    outputSpeedTps?: number | null; tpotMs?: number | null;
+    itlMs?: number | null; phaseoOverheadMs?: number | null;
     internalLatencyMs?: number | null;
     endToEndMs?: number | null;
     usagePriced: any; totalCents: number; totalNanos?: number | null; currency: "USD" | string;
@@ -760,6 +822,12 @@ export async function auditSuccess(args: {
             keyId: args.keyId ?? null,
             latencyMs: args.latencyMs ?? null,
             generationMs: args.generationMs ?? null,
+            providerTtftMs: args.providerTtftMs ?? null,
+            gatewayTtftMs: args.gatewayTtftMs ?? null,
+            outputSpeedTps: args.outputSpeedTps ?? null,
+            tpotMs: args.tpotMs ?? null,
+            itlMs: args.itlMs ?? null,
+            phaseoOverheadMs: args.phaseoOverheadMs ?? null,
             usage: strippedUsage ?? {},
             requestPayload: args.requestPayload,
             gatewayResponse: args.gatewayResponse,
@@ -782,6 +850,32 @@ export async function auditSuccess(args: {
                 "supabase_audit_success_insert",
             );
             await syncInsertedRequestRollup(insertedRow, "audit_success");
+            await persistGatewayUpstreamRequests({
+                insertedRow,
+                requestId: args.requestId,
+                workspaceId: args.workspaceId,
+                appId,
+                keyId: args.keyId ?? null,
+                endpoint: args.endpoint,
+                modelId: args.model,
+                provider: args.provider,
+                providerApiModelId: args.providerApiModelId ?? null,
+                providerModelSlug: args.providerModelSlug ?? null,
+                providerAttempts: args.providerAttempts ?? null,
+                statusCode: args.statusCode,
+                success: true,
+                nativeResponseId: args.nativeResponseId ?? null,
+                finishReason: args.finishReason ?? null,
+                usage: strippedUsage,
+                totalNanos: args.totalNanos ?? (
+                    Number.isFinite(args.totalCents) ? Math.round(args.totalCents * 1e7) : null
+                ),
+                currency: args.currency,
+                latencyMs: args.latencyMs ?? null,
+                generationMs: args.generationMs ?? null,
+                totalMs: args.endToEndMs ?? args.latencyMs ?? null,
+                context: "audit_success",
+            });
             let v2PersistenceError: Error | null = null;
             try {
                 await retryWithBackoff(() => upsertV2RequestFact({
@@ -802,10 +896,18 @@ export async function auditSuccess(args: {
                     finishReason: args.finishReason ?? null,
                     latencyMs: args.latencyMs ?? null,
                     generationMs: args.generationMs ?? null,
+                    providerTtftMs: args.providerTtftMs ?? null,
+                    gatewayTtftMs: args.gatewayTtftMs ?? null,
+                    outputSpeedTps: args.outputSpeedTps ?? null,
+                    tpotMs: args.tpotMs ?? null,
+                    itlMs: args.itlMs ?? null,
+                    phaseoOverheadMs: args.phaseoOverheadMs ?? null,
                     internalDispatchMs: args.internalLatencyMs ?? null,
                     gatewayTotalMs: args.endToEndMs ?? null,
                     throughput: args.throughput ?? null,
                     edgeColo: args.edgeColo ?? null,
+                    edgeCountry: args.edgeCountry ?? null,
+                    edgeContinent: args.edgeContinent ?? null,
                     sessionId: args.sessionId ?? null,
                     endUserId: args.requestUserId ?? null,
                     authMethod: args.authMethod ?? null,
@@ -1055,6 +1157,22 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                         "supabase_audit_failure_before_insert",
                     );
                     await syncInsertedRequestRollup(insertedRow, "audit_failure_before");
+                    await persistGatewayUpstreamRequests({
+                        insertedRow,
+                        requestId: args.requestId,
+                        workspaceId: args.workspaceId,
+                        appId: resolvedAppId,
+                        keyId: args.keyId ?? null,
+                        endpoint: args.endpoint,
+                        modelId: args.requestedModel ?? args.model ?? "unknown",
+                        providerAttempts: args.providerAttempts ?? null,
+                        statusCode: args.statusCode,
+                        success: false,
+                        totalNanos: 0,
+                        latencyMs: args.latencyMs ?? null,
+                        totalMs: args.latencyMs ?? null,
+                        context: "audit_failure_before",
+                    });
                     let v2PersistenceError: Error | null = null;
                     try {
                         await retryWithBackoff(() => upsertV2RequestFact({
@@ -1072,6 +1190,8 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                             latencyMs: args.latencyMs ?? null,
                             internalDispatchMs: args.internalLatencyMs ?? null,
                             edgeColo: args.edgeColo ?? null,
+                            edgeCountry: args.edgeCountry ?? null,
+                            edgeContinent: args.edgeContinent ?? null,
                             sessionId: args.sessionId ?? null,
                             endUserId: args.requestUserId ?? null,
                             authMethod: args.authMethod ?? null,
@@ -1203,6 +1323,28 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                     "supabase_audit_failure_execute_insert",
                 );
                 await syncInsertedRequestRollup(insertedRow, "audit_failure_execute");
+                await persistGatewayUpstreamRequests({
+                    insertedRow,
+                    requestId: args.requestId,
+                    workspaceId: args.workspaceId,
+                    appId: resolvedAppId,
+                    keyId: args.keyId ?? null,
+                    endpoint: args.endpoint,
+                    modelId: args.model,
+                    provider: args.provider ?? null,
+                    providerApiModelId: args.providerApiModelId ?? null,
+                    providerModelSlug: args.providerModelSlug ?? null,
+                    providerAttempts: args.providerAttempts ?? null,
+                    statusCode: args.statusCode,
+                    success: false,
+                    usage: args.usage ?? {},
+                    totalNanos: 0,
+                    currency: args.currency ?? null,
+                    latencyMs: args.latencyMs ?? null,
+                    generationMs: args.generationMs ?? null,
+                    totalMs: args.latencyMs ?? null,
+                    context: "audit_failure_execute",
+                });
                 let v2PersistenceError: Error | null = null;
                 try {
                     await retryWithBackoff(() => upsertV2RequestFact({
@@ -1225,6 +1367,8 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                         generationMs: args.generationMs ?? null,
                         internalDispatchMs: args.internalLatencyMs ?? null,
                         edgeColo: args.edgeColo ?? null,
+                        edgeCountry: args.edgeCountry ?? null,
+                        edgeContinent: args.edgeContinent ?? null,
                         sessionId: args.sessionId ?? null,
                         endUserId: args.requestUserId ?? null,
                         authMethod: args.authMethod ?? null,
@@ -1308,8 +1452,6 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
         releaseRuntime();
     }
 }
-
-
 
 
 

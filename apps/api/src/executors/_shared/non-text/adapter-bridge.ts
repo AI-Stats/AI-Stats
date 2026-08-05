@@ -231,6 +231,9 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 				response_format: request.responseFormat,
 				timestamp_granularities: request.timestampGranularities,
 				include: request.include,
+				chunking_strategy: request.chunkingStrategy,
+				known_speaker_names: request.knownSpeakerNames,
+				known_speaker_references: request.knownSpeakerReferences,
 			};
 		}
 
