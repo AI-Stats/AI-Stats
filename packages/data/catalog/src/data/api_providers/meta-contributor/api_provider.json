@@ -1,0 +1,32 @@
+{
+  "api_provider_id": "meta-contributor",
+  "provider_family_id": "meta",
+  "offer_scope": "specialized",
+  "offer_label": "contributor",
+  "api_provider_name": "Meta Contributor",
+  "description": "Discounted Meta Model API inference that permits prompts and completions to be used for model training.",
+  "link": "https://developer.meta.com/ai/products/meta-model-api/",
+  "country_code": "US",
+  "status": "Active",
+  "colour": "#1980E1",
+  "privacy_policy_url": "https://www.facebook.com/privacy/policy/",
+  "terms_of_service_url": "https://llama.developer.meta.com/legal/terms-of-service",
+  "prompt_training_policy": "may_train",
+  "prompt_training_notes": "Meta's contributor tier discounts inference in exchange for permission to use prompts and completions to train future Meta models.",
+  "prompt_training_source_url": "https://dev.meta.ai/docs/pricing-rate-limits",
+  "gateway_kind": null,
+  "routable": null,
+  "routing_enabled": null,
+  "sdk_package": null,
+  "api_base_url": "https://api.meta.ai/v1",
+  "docs_url": "https://dev.meta.ai/docs",
+  "auth_env": "META_MODEL_API_KEY",
+  "api_formats": [],
+  "service_tiers": [],
+  "sources": [],
+  "verification": {
+    "status": "unverified",
+    "checked_at": null,
+    "notes": null
+  }
+}

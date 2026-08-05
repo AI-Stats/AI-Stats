@@ -237,7 +237,7 @@ export function resolveOpenAICompatKey(args: ProviderExecuteArgs): ResolvedKey {
 	if (args.providerId === "crofai") {
 		return resolveProviderKey(args, () => readFirstBinding(CROFAI_API_KEY_ENVS));
 	}
-	if (args.providerId === "meta") {
+	if (args.providerId === "meta" || args.providerId === "meta-contributor") {
 		return resolveProviderKey(args, () => readFirstBinding(["META_MODEL_API_KEY", "MODEL_API_KEY"]));
 	}
 

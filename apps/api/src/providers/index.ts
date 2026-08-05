@@ -126,6 +126,7 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     "google-vertex": createOpenAICompatibleAdapter("google-vertex"),
     "google-vertex-eu": createOpenAICompatibleAdapter("google-vertex-eu"),
     meta: createOpenAICompatibleAdapter("meta"),
+    "meta-contributor": createOpenAICompatibleAdapter("meta-contributor"),
     upstage: createOpenAICompatibleAdapter("upstage"),
     wafer: createOpenAICompatibleAdapter("wafer"),
 };

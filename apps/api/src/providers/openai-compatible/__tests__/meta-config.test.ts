@@ -18,7 +18,7 @@ describe("Meta OpenAI-compatible config", () => {
 	it("routes Muse Spark models through Responses", () => {
 		expect(resolveOpenAICompatRoute("meta", "muse-spark-1.1")).toBe("responses");
 		expect(resolveOpenAICompatRoute("meta", "muse-spark-1.2")).toBe("responses");
-		expect(resolveOpenAICompatRoute("meta", "muse-spark-1.2-contributor")).toBe("responses");
+		expect(resolveOpenAICompatRoute("meta-contributor", "muse-spark-1.2-contributor")).toBe("responses");
 	});
 
 	it("builds the Meta Model API responses endpoint", () => {
@@ -28,6 +28,9 @@ describe("Meta OpenAI-compatible config", () => {
 		} as any);
 
 		expect(openAICompatUrl("meta", "/responses")).toBe(
+			"https://api.meta.ai/v1/responses",
+		);
+		expect(openAICompatUrl("meta-contributor", "/responses")).toBe(
 			"https://api.meta.ai/v1/responses",
 		);
 	});
@@ -52,6 +55,10 @@ describe("Meta OpenAI-compatible config", () => {
 
 		expect(resolveOpenAICompatKey({
 			providerId: "meta",
+			byokMeta: [],
+		} as any).key).toBe("test-official-meta-key");
+		expect(resolveOpenAICompatKey({
+			providerId: "meta-contributor",
 			byokMeta: [],
 		} as any).key).toBe("test-official-meta-key");
 

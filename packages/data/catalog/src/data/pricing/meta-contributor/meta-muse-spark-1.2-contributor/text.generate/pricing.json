@@ -1,7 +1,7 @@
 {
-  "key": "meta:meta/muse-spark-1.2-contributor:text.generate",
-  "api_provider_id": "meta",
-  "provider_slug": "meta",
+  "key": "meta-contributor:meta/muse-spark-1.2-contributor:text.generate",
+  "api_provider_id": "meta-contributor",
+  "provider_slug": "meta-contributor",
   "api_model_id": "meta/muse-spark-1.2-contributor",
   "capability_id": "text.generate",
   "rules": [
