@@ -5,7 +5,7 @@ Official [Vercel AI SDK](https://sdk.vercel.ai/docs) provider for [Phaseo Gatewa
 ## Features
 
 ✨ **Unified Access** - Use 30+ AI providers (OpenAI, Anthropic, Google, Mistral, DeepSeek, and more) through a single SDK
-🔄 **Full AI SDK v6 Support** - Works with all Vercel AI SDK primitives:
+🔄 **Native AI SDK v7 Support** - Implements the Provider v4 contracts for Phaseo's supported model surfaces:
 
 -   Text: `generateText`, `streamText`, `generateObject`, `streamObject`
 -   Embeddings: `embed`, `embedMany`
@@ -23,8 +23,17 @@ Official [Vercel AI SDK](https://sdk.vercel.ai/docs) provider for [Phaseo Gatewa
 ## Installation
 
 ```bash
-npm install @phaseo/ai-sdk-provider ai@^6
+# AI SDK 7 / Provider v4 (default)
+npm install @phaseo/ai-sdk-provider ai
+
+# AI SDK 6 / Provider v3 maintenance line
+npm install @phaseo/ai-sdk-provider@^1 ai@ai-v6
+
+# AI SDK 5 compatibility (OpenAI-compatible provider)
+npm install ai@ai-v5 @ai-sdk/openai-compatible@ai-v5
 ```
+
+Phaseo provider 2.x is the active AI SDK 7 line. Provider 1.x remains maintained for AI SDK 6 while AI SDK 7 is current, and will be marked deprecated when AI SDK 8 becomes stable. See [SUPPORT.md](./SUPPORT.md).
 
 ## Quick Start
 
@@ -99,7 +108,7 @@ const result = await generateText({
 	tools: {
 		getWeather: {
 			description: "Get weather for a location",
-			parameters: z.object({
+			inputSchema: z.object({
 				location: z.string(),
 			}),
 			execute: async ({ location }) => ({
@@ -211,7 +220,7 @@ writeFileSync("./speech.mp3", result.audio.uint8Array);
 console.log(result.providerMetadata); // Includes gateway request metadata such as requestId
 ```
 
-Audio support in `ai@6.0.168` is currently exposed via the experimental helper names above.
+Audio helper names depend on the installed AI SDK 7 release; consult the current AI SDK documentation when upgrading.
 
 ## Configuration
 
@@ -327,7 +336,7 @@ Creates a new Phaseo provider instance.
 -   `settings.headers` (object, optional) - Additional headers to include in requests
 -   `settings.fetch` (function, optional) - Custom fetch implementation
 
-**Returns:** Provider function `(modelId: string, settings?: ModelSettings) => LanguageModelV3`
+**Returns:** Provider function `(modelId: string, settings?: ModelSettings) => LanguageModelV4`
 
 ### `phaseo(modelId, settings?)`
 

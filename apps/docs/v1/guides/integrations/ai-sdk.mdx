@@ -8,8 +8,44 @@ Phaseo ships an official Vercel AI SDK provider in the `@phaseo/ai-sdk-provider`
 
 ## Install
 
+AI SDK 7 and the native Phaseo `ProviderV4` implementation are the default for new projects:
+
 ```bash
 npm install @phaseo/ai-sdk-provider ai
+```
+
+### AI SDK 6 maintenance line
+
+AI SDK 6 uses the previous `ProviderV3` contract. Pin Phaseo provider 1.x and AI SDK 6:
+
+```bash
+npm install @phaseo/ai-sdk-provider@^1 ai@ai-v6
+```
+
+Phaseo provider 1.x remains in maintenance while AI SDK 7 is current. When AI SDK 8 reaches a stable release, Phaseo will mark the 1.x line as deprecated on npm. Deprecation will not remove existing releases; any eventual end-of-support decision will be announced separately.
+
+### AI SDK 5 compatibility
+
+AI SDK 5 only accepts the older v2 provider contract. Use Vercel's version-matched OpenAI-compatible provider with Phaseo:
+
+```bash
+npm install ai@ai-v5 @ai-sdk/openai-compatible@ai-v5
+```
+
+```ts
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { generateText } from "ai";
+
+const phaseo = createOpenAICompatible({
+	name: "phaseo",
+	apiKey: process.env.PHASEO_API_KEY,
+	baseURL: "https://api.phaseo.app/v1",
+});
+
+const result = await generateText({
+	model: phaseo("openai/gpt-4o"),
+	prompt: "Summarize this in one sentence.",
+});
 ```
 
 ## Basic usage
@@ -24,7 +60,22 @@ const result = await generateText({
 });
 ```
 
-## Notes
+## Supported AI SDK 7 surfaces
 
-- Use model ids from the [Models endpoint](../../api-reference/endpoint/models.mdx).
-- The provider supports the AI SDK primitives for text, images, audio, and embeddings.
+Provider 2.x implements and tests AI SDK 7's native v4 contracts for:
+
+- Text generation and streaming
+- Provider-agnostic reasoning settings and reasoning output
+- Standard function tools, streamed tool inputs, and tool-result round trips
+- JSON and JSON Schema structured output
+- Text and image file inputs using V7's tagged file-data format
+- URL citation sources
+- Embeddings and image generation
+- Transcription and speech generation
+- Provider metadata, usage, request headers, abort signals, and raw stream chunks
+
+Use model ids from the [Models endpoint](../../api-reference/endpoint/models.mdx). Individual capabilities still depend on the selected model and upstream provider.
+
+## Explicitly unsupported V7 surfaces
+
+ProviderV4 capabilities that require Phaseo API surfaces not currently exposed—managed file uploads and references, skills, reranking, provider-executed tools, and tool-approval flows—are not advertised. Unsupported provider-specific or custom prompt parts fail with a clear error instead of being silently discarded.

@@ -1,6 +1,6 @@
 import type {
-  TranscriptionModelV3,
-  TranscriptionModelV3CallOptions,
+  TranscriptionModelV4,
+  TranscriptionModelV4CallOptions,
 } from '@ai-sdk/provider';
 import type { PhaseoConfig, PhaseoModelSettings } from './phaseo-settings.js';
 import { mapPhaseoProviderMetadata } from './map-phaseo-provider-metadata.js';
@@ -10,8 +10,8 @@ import { createPhaseoErrorHandler } from './utils/error-handler.js';
  * Phaseo Transcription Model implementation for Vercel AI SDK v1
  * Supports audio transcription via /v1/audio/transcriptions
  */
-export class PhaseoTranscriptionModel implements TranscriptionModelV3 {
-  readonly specificationVersion = 'v3' as const;
+export class PhaseoTranscriptionModel implements TranscriptionModelV4 {
+  readonly specificationVersion = 'v4' as const;
   readonly provider = 'phaseo' as const;
   readonly modelId: string;
 
@@ -31,7 +31,7 @@ export class PhaseoTranscriptionModel implements TranscriptionModelV3 {
   /**
    * Transcribe audio to text
    */
-  async doGenerate(options: TranscriptionModelV3CallOptions) {
+  async doGenerate(options: TranscriptionModelV4CallOptions) {
     const { audio, mediaType, abortSignal, providerOptions, headers } = options;
 
     // Build FormData for multipart upload

@@ -1,11 +1,10 @@
-import type { SharedV3ProviderMetadata } from '@ai-sdk/provider';
+import type { SharedV4ProviderMetadata } from '@ai-sdk/provider';
 
 type AnyRecord = Record<string, unknown>;
 
 function asRecord(value: unknown): AnyRecord | undefined {
   return value != null && typeof value === 'object' ? (value as AnyRecord) : undefined;
 }
-
 function readString(record: AnyRecord | undefined, key: string): string | undefined {
   const value = record?.[key];
   return typeof value === 'string' && value.length > 0 ? value : undefined;
@@ -19,7 +18,7 @@ function readArray(record: AnyRecord | undefined, key: string): unknown[] | unde
 export function mapPhaseoProviderMetadata(
   payload: unknown,
   responseHeaders?: Record<string, string>
-): SharedV3ProviderMetadata | undefined {
+): SharedV4ProviderMetadata | undefined {
   const record = asRecord(payload);
   const metaRecord = asRecord(record?.meta);
   const routingRecord = asRecord(metaRecord?.routing);
@@ -74,14 +73,13 @@ export function mapPhaseoProviderMetadata(
   }
 
   return {
-    'phaseo': metadata as SharedV3ProviderMetadata[string],
+    'phaseo': metadata as SharedV4ProviderMetadata[string],
   };
 }
-
 export function mergePhaseoProviderMetadata(
-  current: SharedV3ProviderMetadata | undefined,
-  next: SharedV3ProviderMetadata | undefined
-): SharedV3ProviderMetadata | undefined {
+  current: SharedV4ProviderMetadata | undefined,
+  next: SharedV4ProviderMetadata | undefined
+): SharedV4ProviderMetadata | undefined {
   if (!current) {
     return next;
   }

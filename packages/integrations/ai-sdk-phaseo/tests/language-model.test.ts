@@ -386,7 +386,14 @@ describe('Phaseo Vercel AI SDK language model compatibility', () => {
     });
     expect(requests).toHaveLength(1);
     expect(requests[0]?.body.stream).toBe(false);
-    expect(requests[0]?.body.response_format).toEqual({ type: 'json_object' });
+    expect(requests[0]?.body.response_format).toMatchObject({
+      type: 'json_schema',
+      json_schema: {
+        name: 'response',
+        strict: true,
+        schema: { type: 'object', required: ['name', 'age'] },
+      },
+    });
     expect(requests[0]?.headers.get('authorization')).toBe('Bearer test-key');
   });
 
@@ -484,7 +491,14 @@ describe('Phaseo Vercel AI SDK language model compatibility', () => {
     expect(requests).toHaveLength(1);
     expect(requests[0]?.body.stream).toBe(true);
     expect(requests[0]?.body.stream_options).toEqual({ include_usage: true });
-    expect(requests[0]?.body.response_format).toEqual({ type: 'json_object' });
+    expect(requests[0]?.body.response_format).toMatchObject({
+      type: 'json_schema',
+      json_schema: {
+        name: 'response',
+        strict: true,
+        schema: { type: 'object', required: ['name', 'age'] },
+      },
+    });
   });
 
   it('streams text via SSE and resolves response metadata, usage, and finish reason', async () => {

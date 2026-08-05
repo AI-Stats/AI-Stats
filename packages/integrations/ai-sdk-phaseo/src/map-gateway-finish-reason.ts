@@ -1,12 +1,12 @@
-import type { LanguageModelV3FinishReason } from '@ai-sdk/provider';
+import type { LanguageModelV4FinishReason } from '@ai-sdk/provider';
 
 /**
  * Maps Phaseo Gateway finish reasons to AI SDK finish reasons
  */
 export function mapGatewayFinishReason(
   finishReason: string | null | undefined
-): LanguageModelV3FinishReason {
-  let unified: LanguageModelV3FinishReason['unified'] = 'other';
+): LanguageModelV4FinishReason {
+  let unified: LanguageModelV4FinishReason['unified'] = 'other';
 
   switch (finishReason) {
     case 'stop':

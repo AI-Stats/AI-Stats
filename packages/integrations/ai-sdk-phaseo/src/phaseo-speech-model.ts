@@ -1,4 +1,4 @@
-import type { SpeechModelV3, SpeechModelV3CallOptions } from '@ai-sdk/provider';
+import type { SpeechModelV4, SpeechModelV4CallOptions } from '@ai-sdk/provider';
 import type { PhaseoConfig, PhaseoModelSettings } from './phaseo-settings.js';
 import { mapPhaseoProviderMetadata } from './map-phaseo-provider-metadata.js';
 import { createPhaseoErrorHandler } from './utils/error-handler.js';
@@ -7,8 +7,8 @@ import { createPhaseoErrorHandler } from './utils/error-handler.js';
  * Phaseo Speech Model implementation for Vercel AI SDK v1
  * Supports text-to-speech via /v1/audio/speech
  */
-export class PhaseoSpeechModel implements SpeechModelV3 {
-  readonly specificationVersion = 'v3' as const;
+export class PhaseoSpeechModel implements SpeechModelV4 {
+  readonly specificationVersion = 'v4' as const;
   readonly provider = 'phaseo' as const;
   readonly modelId: string;
 
@@ -28,7 +28,7 @@ export class PhaseoSpeechModel implements SpeechModelV3 {
   /**
    * Generate speech from text
    */
-  async doGenerate(options: SpeechModelV3CallOptions) {
+  async doGenerate(options: SpeechModelV4CallOptions) {
     const { text, abortSignal, voice, speed, outputFormat, providerOptions, headers, instructions } = options;
 
     // Build request payload

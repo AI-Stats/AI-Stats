@@ -1,55 +1,47 @@
 import type {
-  LanguageModelV3ToolChoice,
-  LanguageModelV3FunctionTool,
-  LanguageModelV3ProviderTool,
+  LanguageModelV4FunctionTool,
+  LanguageModelV4ProviderTool,
+  LanguageModelV4ToolChoice,
 } from '@ai-sdk/provider';
 
 /**
- * Converts AI SDK tools to Phaseo Gateway format
+ * Converts standard AI SDK function tools to Phaseo's OpenAI-compatible
+ * Chat Completions tool format.
  */
 export function prepareTools(
-  tools: Array<LanguageModelV3FunctionTool | LanguageModelV3ProviderTool>
+  tools: Array<LanguageModelV4FunctionTool | LanguageModelV4ProviderTool>
 ): any[] {
   return tools.map((tool) => {
     if (tool.type === 'provider') {
-      // Provider tools are gateway/provider-specific and passed through as-is.
-      return tool;
+      throw new Error(
+        `Provider tool "${tool.id}" is not supported by Phaseo Chat Completions. ` +
+          'Use a standard AI SDK function tool, or call the owning provider directly.'
+      );
     }
-    // For function tools
+
     return {
       type: 'function',
       function: {
         name: tool.name,
-        description: tool.description,
+        ...(tool.description ? { description: tool.description } : {}),
         parameters: tool.inputSchema,
       },
     };
   });
 }
 
-/**
- * Converts AI SDK tool choice to gateway format
- */
-export function convertToolChoice(toolChoice: LanguageModelV3ToolChoice): any {
+export function convertToolChoice(toolChoice: LanguageModelV4ToolChoice): any {
   switch (toolChoice.type) {
     case 'auto':
       return 'auto';
-
     case 'none':
       return 'none';
-
     case 'required':
       return 'required';
-
     case 'tool':
       return {
         type: 'function',
-        function: {
-          name: toolChoice.toolName,
-        },
+        function: { name: toolChoice.toolName },
       };
-
-    default:
-      return 'auto';
   }
 }

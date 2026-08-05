@@ -1,7 +1,7 @@
 {
   "name": "@phaseo/ai-sdk-provider",
   "version": "1.0.1",
-  "description": "Phaseo Gateway provider for Vercel AI SDK",
+  "description": "Phaseo Gateway provider for Vercel AI SDK 7",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -14,7 +14,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "SUPPORT.md"
   ],
   "scripts": {
     "postinstall": "node ../../sdk/scripts/postinstall-viewer-prompt.cjs @phaseo/ai-sdk-provider",
@@ -22,6 +23,7 @@
     "clean": "rimraf dist",
     "dev": "tsc -p tsconfig.build.json --watch",
     "test": "dotenv -e ../../../.env.local -- vitest run",
+    "test:compatibility:v7": "tsc -p tsconfig.build.json && node ./scripts/verify-ai-sdk-v7.mjs",
     "test:gateway": "dotenv -e ../../../.env.local -- node ./scripts/run-gateway-tests.mjs",
     "test:watch": "vitest",
     "prepublishOnly": "pnpm build"
@@ -39,20 +41,20 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@ai-sdk/provider": "^3.0.10",
-    "@ai-sdk/provider-utils": "^4.0.23"
+    "@ai-sdk/provider": "^4.0.4",
+    "@ai-sdk/provider-utils": "^5.0.14"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
     "@vitest/coverage-v8": "^4.1.10",
-    "ai": "^6.0.168",
+    "ai": "^7.0.41",
     "rimraf": "^6.0.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "ai": "^6.0.0"
+    "ai": "^7.0.0"
   },
   "engines": {
     "node": ">=18.0.0"

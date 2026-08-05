@@ -1,10 +1,9 @@
-import type { LanguageModelV3Usage } from "@ai-sdk/provider";
+import type { LanguageModelV4Usage } from "@ai-sdk/provider";
 
 function asNumber(value: unknown): number | undefined {
 	if (typeof value !== "number" || Number.isNaN(value)) return undefined;
 	return value;
 }
-
 function firstNumber(...values: unknown[]): number | undefined {
 	for (const value of values) {
 		const num = asNumber(value);
@@ -13,7 +12,7 @@ function firstNumber(...values: unknown[]): number | undefined {
 	return undefined;
 }
 
-export function mapGatewayUsage(rawUsage: any): LanguageModelV3Usage {
+export function mapGatewayUsage(rawUsage: any): LanguageModelV4Usage {
 	const inputTotal = firstNumber(
 		rawUsage?.input_tokens,
 		rawUsage?.prompt_tokens,

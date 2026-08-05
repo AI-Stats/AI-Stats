@@ -145,6 +145,17 @@
 									"v1/guides/integrations/phaseo-cli",
 									"v1/guides/integrations/observability",
 									{
+										"group": "Platforms & Operations",
+										"icon": "workflow",
+										"expanded": false,
+										"pages": [
+											"v1/guides/integrations/livekit",
+											"v1/guides/integrations/replit",
+											"v1/guides/integrations/automation",
+											"v1/guides/integrations/infisical"
+										]
+									},
+									{
 										"group": "SDKs & Frameworks",
 										"icon": "blocks",
 										"expanded": false,
