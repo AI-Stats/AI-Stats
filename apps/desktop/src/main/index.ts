@@ -77,14 +77,15 @@ function createWindow(): BrowserWindow {
 }
 
 function senderWindow(event: Electron.IpcMainInvokeEvent): BrowserWindow | null {
+	if (event.senderFrame !== event.sender.mainFrame) return null;
 	return BrowserWindow.fromWebContents(event.sender);
 }
 
-ipcMain.handle("desktop:get-runtime-info", () => ({
-	platform: process.platform,
-	version: app.getVersion(),
-	isPackaged: app.isPackaged,
-}));
+ipcMain.handle("desktop:get-runtime-info", (event) => senderWindow(event) ? ({
+		platform: process.platform,
+		version: app.getVersion(),
+		isPackaged: app.isPackaged,
+	}) : null);
 
 ipcMain.handle("desktop:get-window-state", (event) => {
 	const window = senderWindow(event);
@@ -117,7 +118,8 @@ ipcMain.handle("desktop:app-action", (event, action: DesktopAppAction) => {
 	actions[action]?.();
 });
 
-ipcMain.handle("desktop:check-for-updates", async (): Promise<DesktopUpdateState> => {
+ipcMain.handle("desktop:check-for-updates", async (event): Promise<DesktopUpdateState> => {
+	if (!senderWindow(event)) return { status: "error", message: "Untrusted update request." };
 	if (!app.isPackaged || !updateFeedUrl) return { status: "unsupported", message: "Updates are configured in release builds." };
 	broadcastUpdateState({ status: "checking" });
 	try {
@@ -131,10 +133,12 @@ ipcMain.handle("desktop:check-for-updates", async (): Promise<DesktopUpdateState
 	}
 });
 
-ipcMain.handle("desktop:install-update", () => autoUpdater.quitAndInstall());
+ipcMain.handle("desktop:install-update", (event) => {
+	if (senderWindow(event)) autoUpdater.quitAndInstall();
+});
 
-ipcMain.handle("desktop:open-external", async (_event, url: unknown) => {
-	if (typeof url !== "string" || !isAllowedExternalUrl(url)) return false;
+ipcMain.handle("desktop:open-external", async (event, url: unknown) => {
+	if (!senderWindow(event) || typeof url !== "string" || !isAllowedExternalUrl(url)) return false;
 	await shell.openExternal(url);
 	return true;
 });
