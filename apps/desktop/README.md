@@ -1,0 +1,39 @@
+# Phaseo Desktop
+
+Phaseo Desktop is the workspace-first client for Phaseo's developer experience platform. It brings software planning, agent activity, repositories, reviews, and the Phaseo model platform into one focused desktop application.
+
+## Development
+
+From the monorepo root:
+
+```bash
+pnpm install
+pnpm --filter @phaseo/desktop dev
+```
+
+The development command builds the Electron main and preload processes, starts the Vite renderer on port `4100`, and launches Electron once the renderer is ready.
+
+## Validation
+
+```bash
+pnpm --filter @phaseo/desktop lint
+pnpm --filter @phaseo/desktop typecheck
+pnpm --filter @phaseo/desktop test
+pnpm --filter @phaseo/desktop build
+```
+
+## Packaging
+
+```bash
+pnpm --filter @phaseo/desktop package
+```
+
+Electron Forge creates platform-native distributables: MSIX and ZIP on Windows, DMG and ZIP on macOS, and a Debian package on Linux. Signing credentials are intentionally supplied by release CI rather than stored in the repository.
+
+Forge needs to crawl a physical `node_modules` tree while packaging. The repository therefore narrowly public-hoists Electron Forge packages while leaving the rest of pnpm's dependency layout unchanged.
+
+Release builds can set `PHASEO_DESKTOP_UPDATE_URL` to enable the in-app update check. Store-managed MSIX releases receive updates through the Microsoft Store.
+
+## Security boundary
+
+The renderer has no Node.js access. Electron runs it with context isolation, sandboxing, and navigation restrictions. A narrow preload bridge exposes validated window, application, update, runtime-information, and external-navigation commands. Filesystem, Git, terminal, and agent orchestration will live behind a dedicated desktop runtime rather than in React components.
