@@ -104,6 +104,14 @@ namespace_id = "41002"
 limit = 60
 period = 60
 
+[[ratelimits]]
+name = "REALTIME_RELAY_RATE_LIMITER"
+namespace_id = "41003"
+
+[ratelimits.simple]
+limit = 60
+period = 60
+
 [[durable_objects.bindings]]
 name = "REALTIME_RELAY"
 class_name = "RealtimeRelayDurableObject"

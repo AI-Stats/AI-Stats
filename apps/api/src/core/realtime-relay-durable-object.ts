@@ -13,6 +13,7 @@ import {
 	decideRealtimeRelayBudget,
 	extendRealtimeSessionHold,
 	getRealtimeSessionForInternal,
+	isRealtimeRelaySecret,
 	markRealtimeSessionBillingUnresolved,
 	markRealtimeSessionConnected,
 	normalizeRealtimeUsage,
@@ -380,7 +381,9 @@ export class RealtimeRelayDurableObject {
 		}
 		const sessionId = url.pathname.split("/").filter(Boolean).at(-2) ?? "";
 		const { token, responseProtocol } = relayTokenFromRequest(request);
-		if (!token) return new Response("realtime relay token required", { status: 401 });
+		if (!isRealtimeRelaySecret(token)) {
+			return new Response("valid realtime relay token required", { status: 401 });
+		}
 		this.session = await claimRealtimeSessionForRelay({ sessionId, token });
 		this.usage = (await this.state.storage.get<RelayUsageAggregate>(STORAGE_USAGE)) ?? {};
 		this.providerState = (await this.state.storage.get<RelayProviderState>(STORAGE_PROVIDER_STATE)) ?? this.providerState;

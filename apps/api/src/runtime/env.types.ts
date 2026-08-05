@@ -27,6 +27,7 @@ export type GatewayBindings = {
 	OTEL_EXPORT_OUTBOX_LIMIT?: string;
     OAUTH_STRICT_RATE_LIMITER?: RateLimit;
     OAUTH_TOKEN_RATE_LIMITER?: RateLimit;
+	REALTIME_RELAY_RATE_LIMITER?: RateLimit;
     REALTIME_RELAY?: DurableObjectNamespace;
     KV?: KVNamespace;
     DB?: D1Database;
