@@ -56,7 +56,6 @@ import {
 import { toProviderNativeBatchModelId } from "@core/batch-model-aliases";
 import { finalizeBatchJob, type FinalizeBatchJobResult } from "@core/batch-finalization";
 import { reserveBatchCredits } from "@core/batch-reservations";
-import { normalizeBatchEndpoint } from "@core/batch-endpoints";
 import {
 	fetchProviderFileText,
 	normalizeProviderBatchPayload as normalizeProviderBatchPayloadShared,
@@ -275,7 +274,7 @@ const BATCH_ENDPOINT_ALIASES = new Map<string, string>([
 export function normalizeBatchEndpoint(value: unknown): string | null {
 	const text = toText(value);
 	if (!text) return null;
-	const path = text.replace(/^https?:\/\/[^/]+/i, "").replace(/\/+$/, "") || "/";
+	const path = (text.replace(/^https?:\/\/[^/]+/i, "").split(/[?#]/, 1)[0] ?? "").replace(/\/+$/, "") || "/";
 	return BATCH_ENDPOINT_ALIASES.get(path.toLowerCase()) ?? null;
 }
 
@@ -566,7 +565,9 @@ function gatewayModelForBatchPolicy(providerId: string, value: unknown): string 
 }
 
 export function batchPolicyEndpoint(value: unknown): Endpoint | null {
-	const path = normalizeBatchEndpoint(toText(value)).replace(/^\/v1(?=\/|$)/i, "");
+	const normalized = normalizeBatchEndpoint(value);
+	if (!normalized) return null;
+	const path = normalized.replace(/^\/v1(?=\/|$)/i, "").toLowerCase();
 	if (path === "/chat/completions") return "chat.completions";
 	if (path === "/messages") return "messages";
 	if (path === "/generatecontent") return "responses";
