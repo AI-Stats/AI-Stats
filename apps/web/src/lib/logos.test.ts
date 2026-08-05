@@ -89,4 +89,18 @@ describe("logos", () => {
 			src,
 		});
 	});
+
+	test("resolves additional provider logo coverage", () => {
+		for (const [id, src] of [
+			["aihubmix", "/logos/aihubmix.svg"],
+			["helicone", "/logos/helicone.svg"],
+			["io-net", "/logos/ionet.svg"],
+			["ovhcloud", "/logos/ovhcloud.svg"],
+			["regolo-ai", "/logos/regolo.png"],
+			["sap-ai-core", "/logos/sap.svg"],
+			["zhipuai-coding-plan", "/logos/zhipu.svg"],
+		] as const) {
+			expect(resolveLogo(id)).toMatchObject({ src });
+		}
+	});
 });
