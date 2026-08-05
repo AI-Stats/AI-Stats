@@ -19,7 +19,7 @@ describe("video-public helpers", () => {
 	beforeEach(() => {
 		getBindingsMock.mockReset();
 		getBindingsMock.mockReturnValue({
-	KEY_PEPPER_ACTIVE: "test-secret",
+			VIDEO_DOWNLOAD_SIGNING_SECRET: "test-secret",
 			GATEWAY_PUBLIC_BASE_URL: "https://api.phaseo.app",
 		});
 	});
@@ -61,5 +61,17 @@ describe("video-public helpers", () => {
 			index: 1,
 			disposition: "attachment",
 		});
+	});
+
+	it("does not use the API-key pepper to sign public video downloads", async () => {
+		getBindingsMock.mockReturnValue({
+			KEY_PEPPER_ACTIVE: "key-pepper-only",
+			GATEWAY_PUBLIC_BASE_URL: "https://api.phaseo.app",
+		});
+
+		await expect(issueSignedVideoDownloadUrl({
+			workspaceId: "team_123",
+			videoId: "G-abc",
+		})).resolves.toBeNull();
 	});
 });

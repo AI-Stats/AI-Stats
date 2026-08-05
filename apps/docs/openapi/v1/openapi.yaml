@@ -6761,20 +6761,13 @@ components:
             conversation or agent workflow) for observability.
         webhook:
           type: object
+          required:
+            - endpoint_id
+          additionalProperties: false
           properties:
             endpoint_id:
               type: string
               description: Workspace-managed webhook endpoint ID.
-            url:
-              type: string
-              format: uri
-              description: >-
-                HTTPS callback URL for gateway-managed webhooks. Literal
-                private, loopback, link-local, and wildcard hosts are rejected;
-                http://localhost, http://127.0.0.1, and http://[::1] are allowed
-                only for local development callbacks.
-            secret:
-              type: string
             events:
               type: array
               description: >-

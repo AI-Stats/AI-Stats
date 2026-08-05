@@ -1451,10 +1451,8 @@ export type CreateBatchParams = {
     system?: string;
     temperature?: number;
     webhook?: {
-      endpoint_id?: string;
+      endpoint_id: string;
       events?: string[];
-      secret?: string;
-      url?: string;
     };
     webhook_endpoint_id?: string;
   };
@@ -1776,10 +1774,8 @@ export type CreateBatchAliasParams = {
     system?: string;
     temperature?: number;
     webhook?: {
-      endpoint_id?: string;
+      endpoint_id: string;
       events?: string[];
-      secret?: string;
-      url?: string;
     };
     webhook_endpoint_id?: string;
   };
