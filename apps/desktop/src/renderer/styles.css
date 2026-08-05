@@ -216,8 +216,8 @@ button { color: inherit; }
 .empty-state h3 { font-size: 10px; }
 .empty-state > p:not(.eyebrow) { max-width: 430px; margin: 0 0 17px; color: var(--text-muted); font-size: 9px; line-height: 1.6; }
 .compact-empty { min-height: 188px; padding: 25px; }
-.quick-start-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; }
-.quick-start { display: flex; align-items: center; gap: 9px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-muted); padding: 10px; text-align: left; cursor: pointer; }
+.quick-start-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 12px; }
+.quick-start { display: flex; min-width: 0; align-items: center; gap: 9px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-muted); padding: 10px; text-align: left; cursor: pointer; }
 .quick-start:hover { border-color: var(--border-strong); background: var(--surface-hover); }
 .quick-start > span { display: grid; width: 29px; height: 29px; place-items: center; border-radius: 7px; background: var(--surface); color: var(--primary-text); }
 .quick-start div { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px; }
