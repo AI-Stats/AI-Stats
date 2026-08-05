@@ -778,8 +778,38 @@ impl Agent {
                         .iter()
                         .any(|decision| decision.tool_call_id == pending.call.id);
                     if approved {
-                        self.execute_tools(result, std::slice::from_ref(&pending.call), &mut None)?;
-                        continue;
+                        let tool = self
+                            .definition
+                            .tools
+                            .iter()
+                            .find(|tool| tool.id == pending.call.name)
+                            .ok_or_else(|| {
+                                AgentError::new(format!(
+                                    "Model requested unknown tool: {}",
+                                    pending.call.name
+                                ))
+                            })?;
+                        if tool.execute.is_some() {
+                            self.execute_tools(
+                                result,
+                                std::slice::from_ref(&pending.call),
+                                &mut None,
+                            )?;
+                            continue;
+                        }
+                        if let Some(output) = tool_outputs
+                            .iter()
+                            .find(|output| output.tool_call_id == pending.call.id)
+                        {
+                            result.messages.push(Message {
+                                role: "tool".to_string(),
+                                content: value_to_text(&output.output),
+                                tool_call_id: Some(pending.call.id.clone()),
+                                name: Some(pending.call.name.clone()),
+                                ..Message::default()
+                            });
+                            continue;
+                        }
                     }
                 }
                 kind => {
@@ -1313,6 +1343,48 @@ mod tests {
             message.tool_call_id.as_deref() == Some("call_local")
                 && message.content.contains("trusted")
                 && !message.content.contains("forged")
+        }));
+    }
+
+    #[test]
+    fn approval_gated_external_tools_require_approval_and_output() {
+        let agent = create_agent(
+            AgentDefinition::new("external-approval", "openai/gpt-5.4-nano").tool(
+                Tool::external(
+                    "local",
+                    "Fulfil externally after approval",
+                    json!({"type": "object"}),
+                )
+                .require_approval(),
+            ),
+        );
+        let mut client = ApprovalToolClient { calls: 0 };
+        let paused = agent
+            .run(&mut client, RunOptions::new("Use the tool"))
+            .unwrap();
+
+        let mut output_only = ContinueOptions::new(paused.clone());
+        output_only.tool_outputs.push(ToolOutput {
+            tool_call_id: "call_local".to_string(),
+            output: json!({"external": true}),
+        });
+        assert!(agent.continue_run(&mut client, output_only).is_err());
+
+        let mut approved = ContinueOptions::new(paused);
+        approved.approvals.push(ToolDecision {
+            tool_call_id: "call_local".to_string(),
+            reason: None,
+        });
+        approved.tool_outputs.push(ToolOutput {
+            tool_call_id: "call_local".to_string(),
+            output: json!({"external": true}),
+        });
+        let completed = agent.continue_run(&mut client, approved).unwrap();
+
+        assert_eq!(completed.run.status, "completed");
+        assert!(completed.messages.iter().any(|message| {
+            message.tool_call_id.as_deref() == Some("call_local")
+                && message.content.contains("external")
         }));
     }
 
