@@ -2,10 +2,33 @@ import { setVideoJobStatus, type VideoJobMeta, type VideoJobRecord } from "@core
 import { guardAuth } from "@pipeline/before/guards";
 import { err } from "@pipeline/before/http";
 import { generatePublicId } from "@pipeline/before/genId";
+import { validateWebhookEndpointUrlForDelivery } from "@core/webhook-endpoints";
+import { sanitizeUrlForLogging } from "@/lib/security/sanitizeUrl";
+import { readResponsePreview } from "@core/bounded-stream";
 
 import * as videoHelpers from "./videos.helpers";
 
 type VideoRouteAuth = videoHelpers.VideoRouteAuth;
+
+async function fetchProviderVideoUri(uri: string): Promise<Response> {
+	const validated = await validateWebhookEndpointUrlForDelivery(uri);
+	if (!validated.ok) return err("upstream_error", { reason: "video_content_url_rejected" });
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), 30_000);
+	try {
+		const response = await fetch(validated.url, {
+			method: "GET",
+			redirect: "manual",
+			signal: controller.signal,
+		});
+		if (response.status >= 300 && response.status < 400) {
+			return err("upstream_error", { reason: "video_content_redirect_rejected" });
+		}
+		return response;
+	} finally {
+		clearTimeout(timeoutId);
+	}
+}
 
 const {
 	normalizeText,
@@ -260,7 +283,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 				provider: videoMeta?.provider ?? "google-vertex",
 				reason: "google_vertex_video_content_fetch_failed",
 				extra: {
-					content_uri: uri,
+					content_uri: sanitizeUrlForLogging(uri),
 				},
 			});
 		}
@@ -311,7 +334,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 		}
 		const res = await fetchGoogleOperation(authValue, videoMeta, operationName);
 		if (!res.ok) {
-			const upstreamBody = await res.clone().text().catch(() => "");
+			const upstreamBody = await readResponsePreview(res.clone(), 1200).catch(() => "");
 			const upstreamJson = await res.clone().json().catch(() => null);
 			if (isGoogleOperationsGetAuthFailure(res.status, upstreamJson)) {
 				await finalizeVideoStatusIfTerminal({
@@ -432,7 +455,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 				provider: videoMeta?.provider ?? "google-ai-studio",
 				reason: "google_video_content_fetch_failed",
 				extra: {
-					content_uri: uri,
+					content_uri: sanitizeUrlForLogging(uri),
 				},
 			});
 		}
@@ -521,7 +544,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 				workspace_id: authValue.workspaceId,
 			});
 		}
-		const videoRes = await fetch(uri, { method: "GET" });
+		const videoRes = await fetchProviderVideoUri(uri);
 		if (!videoRes.ok) {
 			return normalizeVideoUpstreamErrorResponse({
 				response: videoRes,
@@ -530,7 +553,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 				provider: videoMeta?.provider ?? "alibaba",
 				reason: "dashscope_video_content_fetch_failed",
 				extra: {
-					content_uri: uri,
+					content_uri: sanitizeUrlForLogging(uri),
 					task_id: dashscopeTaskId,
 				},
 			});
@@ -604,7 +627,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 				workspace_id: authValue.workspaceId,
 			});
 		}
-		const videoRes = await fetch(uri, { method: "GET" });
+		const videoRes = await fetchProviderVideoUri(uri);
 		if (!videoRes.ok) {
 			return normalizeVideoUpstreamErrorResponse({
 				response: videoRes,
@@ -613,7 +636,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 				provider: videoMeta?.provider ?? XAI_PROVIDER_ID,
 				reason: "xai_video_content_fetch_failed",
 				extra: {
-					content_uri: uri,
+					content_uri: sanitizeUrlForLogging(uri),
 					video_native_id: xaiVideoId,
 				},
 			});
@@ -715,7 +738,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 				workspace_id: authValue.workspaceId,
 			});
 		}
-		const videoRes = await fetch(uri, { method: "GET" });
+		const videoRes = await fetchProviderVideoUri(uri);
 		if (!videoRes.ok) {
 			return normalizeVideoUpstreamErrorResponse({
 				response: videoRes,
@@ -724,7 +747,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 				provider: videoMeta?.provider ?? MINIMAX_PROVIDER_ID,
 				reason: "minimax_video_content_fetch_failed",
 				extra: {
-					content_uri: uri,
+					content_uri: sanitizeUrlForLogging(uri),
 					task_id: minimaxTaskId,
 				},
 			});
@@ -805,7 +828,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 				workspace_id: authValue.workspaceId,
 			});
 		}
-		const videoRes = await fetch(uri, { method: "GET" });
+		const videoRes = await fetchProviderVideoUri(uri);
 		if (!videoRes.ok) {
 			return normalizeVideoUpstreamErrorResponse({
 				response: videoRes,
@@ -814,7 +837,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 				provider: videoMeta?.provider ?? BYTEDANCE_PROVIDER_ID,
 				reason: "bytedance_video_content_fetch_failed",
 				extra: {
-					content_uri: uri,
+					content_uri: sanitizeUrlForLogging(uri),
 					task_id: bytedanceTaskId,
 				},
 			});
@@ -894,7 +917,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 				workspace_id: authValue.workspaceId,
 			});
 		}
-		const videoRes = await fetch(uri, { method: "GET" });
+		const videoRes = await fetchProviderVideoUri(uri);
 		if (!videoRes.ok) {
 			return normalizeVideoUpstreamErrorResponse({
 				response: videoRes,
@@ -903,7 +926,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 				provider: videoMeta?.provider ?? RUNWAY_PROVIDER_ID,
 				reason: "runway_video_content_fetch_failed",
 				extra: {
-					content_uri: uri,
+					content_uri: sanitizeUrlForLogging(uri),
 					task_id: runwayTaskId,
 				},
 			});
@@ -982,7 +1005,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 				workspace_id: authValue.workspaceId,
 			});
 		}
-		const videoRes = await fetch(uri, { method: "GET" });
+		const videoRes = await fetchProviderVideoUri(uri);
 		if (!videoRes.ok) {
 			return normalizeVideoUpstreamErrorResponse({
 				response: videoRes,
@@ -991,7 +1014,7 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 				provider: videoMeta?.provider ?? ATLAS_PROVIDER_ID,
 				reason: "atlas_video_content_fetch_failed",
 				extra: {
-					content_uri: uri,
+					content_uri: sanitizeUrlForLogging(uri),
 					prediction_id: atlasTaskId,
 				},
 			});

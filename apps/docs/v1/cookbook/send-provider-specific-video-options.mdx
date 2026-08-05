@@ -26,6 +26,8 @@ Keep the common request fields at the top level:
 
 Only use `provider_params` for the extra provider-specific fields.
 
+`provider_params` cannot contain a complete `request` object or duplicate security-, routing-, content-, callback-, or billing-sensitive fields such as `model`, `prompt`, `duration`, `size`, or `sample_count`. Supply those through the validated top-level fields so workspace policies and reservations always evaluate the exact outbound request.
+
 ## 2. Add provider-specific settings under `provider_params`
 
 <CodeGroup>

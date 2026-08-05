@@ -20,6 +20,7 @@ import {
 	getWebhookEndpointSigningConfig,
 	validateWebhookEndpointUrlForDelivery,
 } from "@core/webhook-endpoints";
+import { readResponsePreview } from "@core/bounded-stream";
 
 export type SupportedAsyncNotificationKind = "video" | "batch";
 export type AsyncNotificationPhase = "created" | "progress" | "completed" | "failed" | "cancelled" | "expired";
@@ -1023,6 +1024,14 @@ async function sendAsyncWebhookRequest(args: {
 	attemptNumber: number;
 	maxAttempts: number;
 }): Promise<AsyncWebhookRequestResult> {
+	if (!args.secret) {
+		return {
+			ok: false,
+			statusCode: null,
+			bodyPreview: null,
+			errorMessage: "Webhook signing secret is required",
+		};
+	}
 	const headers: Record<string, string> = {
 		"Content-Type": "application/json",
 		"User-Agent": "Phaseo-Async-Webhook/1.0",
@@ -1032,11 +1041,9 @@ async function sendAsyncWebhookRequest(args: {
 		"x-phaseo-attempt": String(args.attemptNumber),
 		"x-phaseo-max-attempts": String(args.maxAttempts),
 	};
-	if (args.secret) {
-		const timestamp = String(Math.floor(Date.now() / 1000));
-		headers["x-phaseo-timestamp"] = timestamp;
-		headers["x-phaseo-signature"] = await signWebhook(args.secret, timestamp, args.body);
-	}
+	const timestamp = String(Math.floor(Date.now() / 1000));
+	headers["x-phaseo-timestamp"] = timestamp;
+	headers["x-phaseo-signature"] = await signWebhook(args.secret, timestamp, args.body);
 	// Keep DNS validation as close as possible to the network operation. Any
 	// asynchronous preparation before this point would unnecessarily widen the
 	// DNS-rebinding time-of-check/time-of-use window.
@@ -1068,19 +1075,19 @@ async function sendAsyncWebhookRequest(args: {
 				errorMessage: "Webhook redirects are not allowed",
 			};
 		}
-		const preview = await response.text().catch(() => "");
+		const preview = await readResponsePreview(response, 500).catch(() => "");
 		if (!response.ok) {
 			return {
 				ok: false,
 				statusCode: response.status,
-				bodyPreview: preview.slice(0, 500) || null,
+				bodyPreview: preview || null,
 				errorMessage: `Webhook returned HTTP ${response.status}`,
 			};
 		}
 		return {
 			ok: true,
 			statusCode: response.status,
-			bodyPreview: preview.slice(0, 500) || null,
+			bodyPreview: preview || null,
 			errorMessage: null,
 		};
 	} catch (error) {

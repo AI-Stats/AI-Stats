@@ -307,6 +307,7 @@ describe("video-finalization", () => {
 			provider: "openai",
 			model: "openai/sora-2",
 			seconds: 4,
+			outputCount: 3,
 			keySource: "gateway",
 			reservationId: "video_hold:req_mismatch",
 			reservedNanos: 300_000_000,
@@ -350,6 +351,11 @@ describe("video-finalization", () => {
 			pricedUsage: { pricing: { total_nanos: 200_000_000 } },
 			reason: "released_and_charged_actual",
 		});
+		expect(computeBillMock).toHaveBeenCalledWith(
+			expect.objectContaining({ output_video_seconds: 12 }),
+			expect.anything(),
+			expect.anything(),
+		);
 		expect(captureWalletReservationMock).not.toHaveBeenCalled();
 		expect(releaseWalletReservationMock).toHaveBeenCalledWith({
 			workspaceId: "team_mismatch",

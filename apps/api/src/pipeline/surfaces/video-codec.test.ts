@@ -61,7 +61,7 @@ describe("video codec (OpenAI edge shape <-> video IR)", () => {
 				access: "signed_url",
 			},
 			webhook: {
-				url: "https://example.com/callback",
+				endpointId: "whep_video",
 				events: ["video.completed"],
 			},
 			provider_params: {
@@ -77,7 +77,8 @@ describe("video codec (OpenAI edge shape <-> video IR)", () => {
 		expect(ir.size).toBe("1080p");
 		expect(ir.resolution).toBe("1080p");
 		expect(ir.outputAccess).toBe("signed_url");
-		expect(ir.callbackUrl).toBe("https://example.com/callback");
+		expect(ir.callbackUrl).toBeUndefined();
+		expect(ir.webhook).toMatchObject({ endpointId: "whep_video" });
 		expect(ir.outputStorageUri).toBe("gs://bucket/output/");
 	});
 

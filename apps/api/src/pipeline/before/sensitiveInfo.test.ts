@@ -17,6 +17,23 @@ const workspacePolicy = {
 };
 
 describe("sensitive info guardrails", () => {
+	it("redacts sensitive text inside Gemini contents", () => {
+		const body = { contents: [{ role: "user", parts: [{ text: "Reach me at test@example.com" }] }] };
+		const result = applySensitiveInfoGuardrails({
+			body,
+			rawBody: structuredClone(body),
+			endpoint: "responses",
+			workspacePolicy: {
+				...workspacePolicy,
+				sensitiveInfoRules: [{ id: "email_address", kind: "builtin", action: "redact" }],
+			},
+			requestId: "req_batch_google",
+			workspaceId: "ws_123",
+		});
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.body.contents[0].parts[0].text).toContain("[EMAIL]");
+	});
 	it("detects deterministic sensitive info", () => {
 		const detections = inspectSensitiveInfo("Contact test@example.com", [
 			{ id: "email_address", kind: "builtin", action: "redact" },

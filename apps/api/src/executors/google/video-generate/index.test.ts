@@ -8,6 +8,7 @@ import { setupTestRuntime, teardownTestRuntime } from "../../../../tests/helpers
 const saveVideoJobMetaMock = vi.fn(async () => undefined);
 const state = vi.hoisted(() => ({
 	reservationResult: null as Record<string, unknown> | null,
+	reservationCalls: [] as Array<Record<string, unknown>>,
 	releaseCalls: [] as Array<Record<string, unknown>>,
 	saveVideoJobMetaError: null as Error | null,
 }));
@@ -15,14 +16,16 @@ const state = vi.hoisted(() => ({
 vi.mock("@core/video-reservations", () => ({
 	isInsufficientVideoReservationStatus: (status: unknown) =>
 		status === "insufficient_funds" || status === "insufficient_balance",
-	reserveVideoGenerationCredits: vi.fn(async () => (
+	reserveVideoGenerationCredits: vi.fn(async (args: Record<string, unknown>) => {
+		state.reservationCalls.push(args);
+		return (
 		state.reservationResult ?? {
 			reservationId: "video_hold:req_google_video_test",
 			held: false,
 			amountNanos: 0,
 			status: "skip_zero_cost",
-		}
-	)),
+		});
+	}),
 }));
 
 vi.mock("@core/video-jobs", () => ({
@@ -77,6 +80,7 @@ describe("google video executor", () => {
 	beforeEach(() => {
 		saveVideoJobMetaMock.mockClear();
 		state.reservationResult = null;
+		state.reservationCalls = [];
 		state.releaseCalls = [];
 		state.saveVideoJobMetaError = null;
 	});
@@ -148,6 +152,14 @@ describe("google video executor", () => {
 			enhancePrompt: false,
 			storageUri: "gs://bucket/output",
 		});
+		expect(state.reservationCalls[0]).toMatchObject({ seconds: 16 });
+		expect(saveVideoJobMetaMock).toHaveBeenCalledWith(
+			"team_test",
+			"req_google_video_test",
+			expect.objectContaining({ seconds: 8, outputCount: 2 }),
+			expect.any(String),
+			expect.any(String),
+		);
 	});
 
 	it("uses input_reference and sample_count aliases for Veo", async () => {

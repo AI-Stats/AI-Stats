@@ -465,7 +465,7 @@ function collectResponsesTargetsFromValue(
 
 	const record = value as Record<string, unknown>;
 	const role = typeof record.role === "string" ? record.role.toLowerCase() : null;
-	if (role === "assistant" || role === "system" || role === "developer") return;
+	if (role === "assistant" || role === "model" || role === "system" || role === "developer") return;
 	if (typeof record.text === "string" && record.text.trim()) {
 		targets.push({ path: [...path, "text"], text: record.text });
 	}
@@ -478,11 +478,15 @@ function collectResponsesTargetsFromValue(
 	if (Array.isArray(record.input)) {
 		collectResponsesTargetsFromValue(record.input, [...path, "input"], targets);
 	}
+	if (Array.isArray(record.parts)) {
+		collectResponsesTargetsFromValue(record.parts, [...path, "parts"], targets);
+	}
 }
 
 function collectResponsesTargets(body: any): TextTarget[] {
 	const targets: TextTarget[] = [];
 	collectResponsesTargetsFromValue(body?.input, ["input"], targets);
+	collectResponsesTargetsFromValue(body?.contents, ["contents"], targets);
 	return targets;
 }
 

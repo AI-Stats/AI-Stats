@@ -10,7 +10,7 @@ import { resolveProviderKey } from "@providers/keys";
 import { saveVideoJobMeta } from "@core/video-jobs";
 import { isInsufficientVideoReservationStatus, reserveVideoGenerationCredits } from "@core/video-reservations";
 import { releaseWalletReservation } from "@core/wallet-reservations";
-import { buildVideoPricingRequestOptions, resolveVideoSize } from "@core/video-request-options";
+import { buildVideoPricingRequestOptions, resolveVideoOutputCount, resolveVideoSize } from "@core/video-request-options";
 import { asyncVideoJobPersistenceFailureResult } from "@executors/_shared/async-job-persistence";
 import {
 	encodeGoogleVertexOperationId,
@@ -198,6 +198,8 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		? requestBody
 		: undefined;
 	const requestedSeconds = toGoogleVideoDurationSeconds(ir) ?? null;
+	const outputCount = resolveVideoOutputCount({ sampleCount: ir.sampleCount, numberOfVideos: ir.numberOfVideos });
+	const reservedOutputSeconds = requestedSeconds == null ? null : requestedSeconds * outputCount;
 	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
 	const quality = ir.quality ?? null;
 	let reservationId: string | null = null;
@@ -211,7 +213,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			videoId: args.requestId,
 			providerId: args.providerId,
 			model: modelForMeta,
-			seconds: requestedSeconds,
+			seconds: reservedOutputSeconds,
 			pricingCard: args.pricingCard,
 			requestOptions: buildVideoPricingRequestOptions({
 				size,
@@ -427,6 +429,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				appId: args.meta.appId ?? null,
 				model: modelForMeta,
 				seconds: toGoogleVideoDurationSeconds(ir) ?? null,
+				outputCount,
 				resolution: size ?? null,
 				quality,
 				audio: typeof ir.generateAudio === "boolean" ? ir.generateAudio : null,

@@ -10,6 +10,7 @@ import {
 	listTeamAsyncOperations,
 	markAsyncOperationBilled,
 	patchAsyncOperationMeta,
+	patchAsyncOperationIdentity,
 	setAsyncOperationStatus,
 	updateAsyncOperationReconciliation,
 	upsertAsyncOperation,
@@ -347,6 +348,33 @@ export async function saveBatchJobMeta(
 ): Promise<void> {
 	if (!workspaceId || !batchId) return;
 	const payload = { ...meta, resource: "job" as const, createdAt: meta.createdAt ?? Date.now() };
+	const existing = await getAsyncOperation(workspaceId, "batch", batchId);
+	if (existing) {
+		const safeMetaPatch = { ...payload } as Record<string, unknown>;
+		for (const key of ["charged", "costNanos", "costUsd", "billingReason", "finalizedAt", "pricedUsage", "pricingBreakdown", "reservationStatus"]) {
+			delete safeMetaPatch[key];
+		}
+		await setAsyncOperationStatus({
+			workspaceId,
+			kind: "batch",
+			internalId: batchId,
+			status: payload.status ?? existing.status ?? "queued",
+			metaPatch: safeMetaPatch,
+			nextReconcileAt: initialBatchReconcileAt(payload.status ?? existing.status),
+		});
+		await patchAsyncOperationIdentity({
+			workspaceId,
+			kind: "batch",
+			internalId: batchId,
+			requestId: payload.requestId ?? null,
+			sessionId: payload.sessionId ?? null,
+			appId: payload.appId ?? null,
+			provider: payload.provider,
+			nativeId: payload.nativeBatchId ?? null,
+			model: payload.model ?? null,
+		});
+		return;
+	}
 	await upsertAsyncOperation({
 		workspaceId,
 		kind: "batch",

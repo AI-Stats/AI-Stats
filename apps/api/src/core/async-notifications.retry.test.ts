@@ -70,6 +70,7 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 			meta: {
 				webhook: {
 					url: "https://example.com/hooks/async",
+					secret: "whsec_retry_test",
 					events: ["job.completed"],
 				},
 			},
@@ -154,6 +155,7 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 			meta: {
 				webhook: {
 					url: "https://example.com/hooks/timeout",
+					secret: "whsec_retry_test",
 					events: ["video.completed"],
 				},
 			},
@@ -289,6 +291,7 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 			meta: {
 				webhook: {
 					url: "https://example.com/hooks/video-progress",
+					secret: "whsec_retry_test",
 					events: ["video.progress"],
 				},
 			},
@@ -374,6 +377,7 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 			meta: {
 				webhook: {
 					url: "https://example.com/hooks/batch-progress",
+					secret: "whsec_retry_test",
 					events: ["batch.progress"],
 				},
 				requestCounts: {
@@ -477,6 +481,7 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 			meta: {
 				webhook: {
 					url: "https://example.com/hooks/async",
+					secret: "whsec_retry_test",
 					events: ["job.completed"],
 				},
 				webhookAttempts: [
@@ -580,6 +585,7 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 			meta: {
 				webhook: {
 					url: "https://example.com/hooks/async",
+					secret: "whsec_retry_test",
 					events: ["job.completed"],
 				},
 				webhookAttempts: [
@@ -677,6 +683,7 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 			meta: {
 				webhook: {
 					url: "https://example.com/hooks/async",
+					secret: "whsec_retry_test",
 					events: ["job.failed"],
 				},
 				webhookAttempts: [
@@ -788,6 +795,7 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 			meta: {
 				webhook: {
 					url: "ftp://example.com/hooks/video",
+					secret: "whsec_retry_test",
 					events: ["job.completed"],
 				},
 				webhookAttempts: [
@@ -915,6 +923,7 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 			meta: {
 				webhook: {
 					url: "https://example.com/hooks/async",
+					secret: "whsec_retry_test",
 					events: ["job.completed"],
 				},
 				webhookAttempts: [
@@ -1039,6 +1048,7 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 			meta: {
 				webhook: {
 					url: "https://example.com/hooks/async",
+					secret: "whsec_retry_test",
 					events: ["job.completed"],
 				},
 				webhookRetryQueue: {
@@ -1102,6 +1112,7 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 			meta: {
 				webhook: {
 					url: "https://example.com/hooks/async",
+					secret: "whsec_retry_test",
 					events: ["batch.completed", "batch.failed"],
 				},
 				webhookAttempts: [
@@ -1245,6 +1256,7 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 			meta: {
 				webhook: {
 					url: "https://example.com/hooks/async",
+					secret: "whsec_retry_test",
 					events: ["job.completed"],
 				},
 				webhookDeliveries: {
@@ -1344,6 +1356,7 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 			meta: {
 				webhook: {
 					url: "https://example.com/hooks/video",
+					secret: "whsec_retry_test",
 					events: ["video.completed"],
 				},
 				webhookAttempts: [

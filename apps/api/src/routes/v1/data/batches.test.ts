@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { normalizeBatchEndpoint, splitGatewayBatchCreatePayload } from "./batches";
+import { batchPolicyEndpoint, normalizeBatchEndpoint, splitGatewayBatchCreatePayload } from "./batches";
 
 describe("splitGatewayBatchCreatePayload", () => {
 	it("strips gateway-only webhook config before proxying upstream", () => {
@@ -87,6 +87,17 @@ describe("splitGatewayBatchCreatePayload", () => {
 			},
 			invalidWebhook: false,
 		});
+	});
+});
+
+describe("batchPolicyEndpoint", () => {
+	it("canonicalizes accepted endpoints and maps Gemini content for guardrails", () => {
+		expect(batchPolicyEndpoint("/v1/messages/?trace=1")).toBe("messages");
+		expect(batchPolicyEndpoint("https://example.com/v1/generateContent?alt=json")).toBe("responses");
+	});
+
+	it("fails closed for unknown endpoints", () => {
+		expect(batchPolicyEndpoint("/v1/unknown")).toBeNull();
 	});
 });
 

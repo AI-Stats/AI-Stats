@@ -37,6 +37,38 @@ import {
 	resolveOpenAIVideoProxyTimeoutMs,
 } from "./status";
 import { buildContentHeaders } from "./public";
+import { limitReadableStream, readResponsePreview } from "@core/bounded-stream";
+
+const MAX_VIDEO_CONTENT_BYTES = 512 * 1024 * 1024;
+const GOOGLE_CONTENT_FETCH_TIMEOUT_MS = 15_000;
+
+function validateGoogleCredentialedContentUrl(value: string): URL | null {
+	let parsed: URL;
+	try {
+		parsed = new URL(value);
+	} catch {
+		return null;
+	}
+	if (parsed.protocol !== "https:" || parsed.username || parsed.password) return null;
+	const hostname = parsed.hostname.toLowerCase().replace(/\.$/, "");
+	if (hostname !== "googleapis.com" && !hostname.endsWith(".googleapis.com")) return null;
+	return parsed;
+}
+
+async function fetchGoogleCredentialedContent(url: URL, headers: Record<string, string>): Promise<Response> {
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), GOOGLE_CONTENT_FETCH_TIMEOUT_MS);
+	try {
+		return await fetch(url.toString(), {
+			method: "GET",
+			headers,
+			redirect: "manual",
+			signal: controller.signal,
+		});
+	} finally {
+		clearTimeout(timeoutId);
+	}
+}
 export async function resolveVideoProviderKey(
 	auth: VideoRouteAuth,
 	videoMeta: VideoJobMeta | null,
@@ -77,7 +109,7 @@ export async function normalizeVideoUpstreamErrorResponse(args: {
 	const parsedBody = contentType.includes("application/json")
 		? await response.clone().json().catch(() => null)
 		: null;
-	const upstreamBody = await response.clone().text().catch(() => "");
+	const upstreamBody = await readResponsePreview(response.clone(), 1200).catch(() => "");
 	const upstreamErrorCode =
 		parsedBody && typeof parsedBody === "object"
 			? extractErrorCode(parsedBody, `http_${response.status}`)
@@ -361,16 +393,17 @@ export async function persistFetchedVideoResponse(args: {
 	contentDisposition?: "attachment" | "inline" | null;
 	filename?: string | null;
 }): Promise<Response> {
-	const buffer = await args.response.arrayBuffer();
-	return persistBufferedVideoResponse({
-		workspaceId: args.workspaceId,
-		videoId: args.videoId,
-		index: args.index,
-		buffer,
-		mimeType: args.response.headers.get("content-type"),
-		sourceUrl: args.sourceUrl ?? null,
-		contentDisposition: args.contentDisposition ?? null,
-		filename: args.filename ?? null,
+	const declaredLength = Number(args.response.headers.get("content-length") ?? 0);
+	if (Number.isFinite(declaredLength) && declaredLength > MAX_VIDEO_CONTENT_BYTES) {
+		return err("upstream_error", { reason: "video_content_too_large" });
+	}
+	return new Response(limitReadableStream(args.response.body, MAX_VIDEO_CONTENT_BYTES, "video_content_too_large"), {
+		status: 200,
+		headers: buildContentHeaders(undefined, {
+			contentType: args.response.headers.get("content-type") ?? "video/mp4",
+			contentDisposition: args.contentDisposition ?? null,
+			filename: args.filename ?? null,
+		}),
 	});
 }
 
@@ -425,7 +458,7 @@ export async function fetchGoogleOperation(
 		headers: requestHeaders,
 	});
 	if (!res.ok) {
-		const upstreamBody = await res.clone().text().catch(() => "");
+		const upstreamBody = await readResponsePreview(res.clone(), 1200).catch(() => "");
 		logGoogleVideoTrace("operation_fetch_failed", {
 			requestId: auth.requestId,
 			workspaceId: auth.workspaceId,
@@ -469,23 +502,26 @@ export async function fetchGoogleVideoContent(
 			: String(bindings.GOOGLE_VIDEO_OAUTH_BEARER_TOKEN ?? "").trim();
 	const credentialForVideo = oauthOverride || key;
 	const googleAuth = resolveGoogleVideoAuth(credentialForVideo);
-	const contentUrl = new URL(uri);
+	const contentUrl = validateGoogleCredentialedContentUrl(uri);
+	if (!contentUrl) {
+		return err("upstream_error", { reason: "google_video_content_url_rejected" });
+	}
 	const requestHeaders: Record<string, string> = {
 		Accept: "*/*",
 		...(googleAuth.kind === "api_key"
 			? { "x-goog-api-key": googleAuth.value }
 			: { Authorization: `Bearer ${googleAuth.value}` }),
 	};
-	const res = await fetch(contentUrl.toString(), {
-		method: "GET",
-		headers: requestHeaders,
-	});
+	const res = await fetchGoogleCredentialedContent(contentUrl, requestHeaders);
+	if (res.status >= 300 && res.status < 400) {
+		return err("upstream_error", { reason: "google_video_content_redirect_rejected" });
+	}
 	if (!res.ok) {
-		const upstreamBody = await res.clone().text().catch(() => "");
+		const upstreamBody = await readResponsePreview(res.clone(), 1200).catch(() => "");
 		logGoogleVideoTrace("content_fetch_failed", {
 			requestId: auth.requestId,
 			workspaceId: auth.workspaceId,
-			contentUri: uri,
+			contentUri: redactSensitiveUrl(uri),
 			contentUrl: redactSensitiveUrl(contentUrl),
 			provider: videoMeta?.provider ?? "google-ai-studio",
 			model: videoMeta?.model ?? null,
@@ -534,7 +570,7 @@ export async function fetchGoogleVertexOperation(
 		body: JSON.stringify({ operationName }),
 	});
 	if (!res.ok) {
-		const upstreamBody = await res.clone().text().catch(() => "");
+		const upstreamBody = await readResponsePreview(res.clone(), 1200).catch(() => "");
 		logGoogleVideoTrace("vertex_operation_fetch_failed", {
 			requestId: auth.requestId,
 			workspaceId: auth.workspaceId,
@@ -565,22 +601,26 @@ export async function fetchGoogleVertexVideoContent(
 		});
 	}
 	const accessToken = await resolveVertexAccessToken(credential);
-	const contentUrl = resolveGoogleCloudStorageMediaUrl(uri) ?? uri;
+	const resolvedContentUrl = resolveGoogleCloudStorageMediaUrl(uri) ?? uri;
+	const contentUrl = validateGoogleCredentialedContentUrl(resolvedContentUrl);
+	if (!contentUrl) {
+		return err("upstream_error", { reason: "google_vertex_video_content_url_rejected" });
+	}
 	const requestHeaders: Record<string, string> = {
 		Accept: "*/*",
 		Authorization: `Bearer ${accessToken}`,
 	};
-	const res = await fetch(contentUrl, {
-		method: "GET",
-		headers: requestHeaders,
-	});
+	const res = await fetchGoogleCredentialedContent(contentUrl, requestHeaders);
+	if (res.status >= 300 && res.status < 400) {
+		return err("upstream_error", { reason: "google_vertex_video_content_redirect_rejected" });
+	}
 	if (!res.ok) {
-		const upstreamBody = await res.clone().text().catch(() => "");
+		const upstreamBody = await readResponsePreview(res.clone(), 1200).catch(() => "");
 		logGoogleVideoTrace("vertex_content_fetch_failed", {
 			requestId: auth.requestId,
 			workspaceId: auth.workspaceId,
-			contentUri: uri,
-			contentUrl,
+			contentUri: redactSensitiveUrl(uri),
+			contentUrl: redactSensitiveUrl(contentUrl),
 			provider: videoMeta?.provider ?? "google-vertex",
 			model: videoMeta?.model ?? null,
 			keySource: videoMeta?.keySource ?? "gateway",

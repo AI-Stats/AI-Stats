@@ -16,6 +16,10 @@ type VideoOptionInput = {
 	input_video_count?: unknown;
 	frame_rate?: unknown;
 	total_tokens?: unknown;
+	sample_count?: unknown;
+	sampleCount?: unknown;
+	number_of_videos?: unknown;
+	numberOfVideos?: unknown;
 	video_params?: {
 		size?: unknown;
 		resolution?: unknown;
@@ -30,6 +34,10 @@ type VideoOptionInput = {
 		input_video_count?: unknown;
 		frame_rate?: unknown;
 		total_tokens?: unknown;
+		sample_count?: unknown;
+		sampleCount?: unknown;
+		number_of_videos?: unknown;
+		numberOfVideos?: unknown;
 	} | null;
 };
 
@@ -100,6 +108,24 @@ export function resolveVideoSeconds(input: VideoOptionInput): number | undefined
 		toPositiveNumber(input.video_params?.duration_seconds) ??
 		toPositiveNumber(input.video_params?.duration)
 	);
+}
+
+export function resolveVideoOutputCount(input: VideoOptionInput): number {
+	const candidates = [
+		input.sample_count,
+		input.sampleCount,
+		input.number_of_videos,
+		input.numberOfVideos,
+		input.video_params?.sample_count,
+		input.video_params?.sampleCount,
+		input.video_params?.number_of_videos,
+		input.video_params?.numberOfVideos,
+	];
+	for (const value of candidates) {
+		const count = toPositiveNumber(value);
+		if (count != null) return Math.min(4, Math.max(1, Math.trunc(count)));
+	}
+	return 1;
 }
 
 export function resolveInputVideoSeconds(input: VideoOptionInput): number | undefined {

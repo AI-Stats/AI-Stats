@@ -36,6 +36,7 @@ import {
 	validateProviderQualifiedModelProvider,
 } from "../requestRouting";
 import { fetchWorkspacePolicy, applyWorkspacePolicy } from "./workspacePolicy";
+import { getWebhookEndpointSigningConfig } from "@core/webhook-endpoints";
 import {
     applyDynamicRouteToBody,
     evaluateDynamicRoute,
@@ -285,6 +286,26 @@ export async function beforeRequest(
         };
     }
     body = providerQualifiedModelRequest.body;
+
+	if (endpoint === "video.generation" && body?.webhook?.endpointId) {
+		const webhookEndpoint = await timer.span("validateVideoWebhookEndpoint", () =>
+			getWebhookEndpointSigningConfig({
+				workspaceId,
+				endpointId: body.webhook.endpointId,
+			}),
+		);
+		if (!webhookEndpoint) {
+			return {
+				ok: false,
+				response: err("validation_error", {
+					reason: "video_webhook_endpoint_not_found_or_inactive",
+					message: "webhook.endpoint_id must reference an active webhook endpoint in this workspace.",
+					request_id: requestId,
+					workspace_id: workspaceId,
+				}),
+			};
+		}
+	}
 
     const serviceTierValidation = validateSynchronousTextServiceTierRequest({
         endpoint,

@@ -6,6 +6,7 @@ import {
 import { reserveWalletCredits } from "@core/wallet-reservations";
 import { computeBill } from "@pipeline/pricing/engine";
 import { loadPriceCard } from "@pipeline/pricing/loader";
+import { normalizeBatchEndpoint } from "@core/batch-endpoints";
 
 export const BATCH_RESERVATION_PREFIX = "batch_hold:";
 export const BATCH_RESERVATION_MARGIN_BPS = 1_000;
@@ -31,14 +32,8 @@ function text(value: unknown): string | null {
 }
 
 function endpointCapability(endpoint: string | null | undefined): string[] {
-	const path = text(endpoint)?.replace(/^https?:\/\/[^/]+/i, "").replace(/^\/v1(?=\/|$)/i, "") ?? "/responses";
+	const path = normalizeBatchEndpoint(endpoint).replace(/^\/v1(?=\/|$)/i, "");
 	return [...new Set([resolveCapabilityFromEndpoint(path), "text.generate", "batch"])];
-}
-
-function normalizedEndpoint(endpoint: string | null | undefined): string {
-	const path = text(endpoint)?.replace(/^https?:\/\/[^/]+/i, "").split(/[?#]/, 1)[0] ?? "/v1/responses";
-	const normalized = `/${path.replace(/^\/+/, "").replace(/\/+$/, "")}`.toLowerCase();
-	return normalized.startsWith("/v1/") ? normalized : `/v1${normalized}`;
 }
 
 const TEXT_BATCH_ENDPOINTS: Record<string, ReadonlySet<string>> = {
@@ -115,7 +110,7 @@ export function estimateInputTokenUpperBound(body: Record<string, unknown>): num
 function validatePriceableTextRequest(providerId: string, request: BatchReservationRequest, body: Record<string, unknown>): void {
 	if ((text(request.method) ?? "POST").toUpperCase() !== "POST") throw new Error("batch_method_not_supported");
 	const allowed = TEXT_BATCH_ENDPOINTS[providerId];
-	if (!allowed || !allowed.has(normalizedEndpoint(request.endpoint))) throw new Error("batch_endpoint_not_supported");
+	if (!allowed || !allowed.has(normalizeBatchEndpoint(request.endpoint))) throw new Error("batch_endpoint_not_supported");
 	if (containsUnboundedCostDimension(body)) throw new Error("batch_unbounded_cost_dimension_not_supported");
 }
 

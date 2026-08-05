@@ -17,7 +17,7 @@ import {
 } from "@core/video-jobs";
 import { captureWalletReservation, releaseWalletReservation } from "@core/wallet-reservations";
 import { VIDEO_RESERVATION_PREFIX } from "@core/video-reservations";
-import { buildVideoPricingRequestOptions } from "@core/video-request-options";
+import { buildVideoPricingRequestOptions, resolveVideoOutputCount } from "@core/video-request-options";
 import { computeVideoPricedUsage } from "@core/video-pricing";
 import { syncWorkspaceUsageRollupForRequest } from "@core/workspace-usage-rollups";
 
@@ -562,7 +562,15 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 	const videoMeta = await getVideoJobMeta(args.workspaceId, args.videoId);
 	const reservationId = String(videoMeta?.reservationId ?? `${VIDEO_RESERVATION_PREFIX}${args.videoId}`).trim();
 	const requestIdForAudit = normalizeOptionalText(videoMeta?.requestId);
-	const secondsForAudit = resolveVideoUsageSeconds(videoMeta, args.seconds);
+	const outputCount = resolveVideoOutputCount({
+		sample_count: (args.requestOptions as any)?.sample_count,
+		sampleCount: (args.requestOptions as any)?.sampleCount ?? videoMeta?.outputCount,
+		number_of_videos: (args.requestOptions as any)?.number_of_videos,
+		numberOfVideos: (args.requestOptions as any)?.numberOfVideos,
+		video_params: (args.requestOptions as any)?.video_params,
+	});
+	const secondsForAuditRaw = resolveVideoUsageSeconds(videoMeta, args.seconds);
+	const secondsForAudit = secondsForAuditRaw == null ? null : secondsForAuditRaw * outputCount;
 	const resolutionForAudit =
 		normalizeOptionalText((args.requestOptions as any)?.resolution) ??
 		normalizeOptionalText((args.requestOptions as any)?.input_resolution) ??
@@ -679,6 +687,7 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 
 	const model = resolveBillingModel(args.providerId, videoMeta, args.model);
 	const seconds = resolveVideoUsageSeconds(videoMeta, args.seconds);
+	const billableOutputSeconds = seconds == null ? null : seconds * outputCount;
 	const requestOptions = {
 		...normalizedRequestOptions(args.requestOptions),
 		...buildVideoPricingRequestOptions({
@@ -716,13 +725,13 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 		Boolean(normalizeOptionalText(videoMeta?.reservationId)) ||
 		(typeof videoMeta?.reservedNanos === "number" && videoMeta.reservedNanos > 0);
 	const completionPricing =
-		model && seconds != null
+		model && billableOutputSeconds != null
 			? await computeVideoCompletionPricing({
 				workspaceId: args.workspaceId,
 				videoId: args.videoId,
 				providerId: args.providerId,
 				model,
-				seconds,
+				seconds: billableOutputSeconds,
 				requestOptions,
 				isByok: args.isByok ?? (videoMeta?.keySource === "byok"),
 			})

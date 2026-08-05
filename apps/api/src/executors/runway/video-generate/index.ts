@@ -100,19 +100,6 @@ function extractRunwayConfig(rawRequest: Record<string, any>): Record<string, an
 function buildRunwayRequest(ir: IRVideoGenerationRequest, model: string): Record<string, any> {
 	const rawRequest = ((ir.rawRequest ?? {}) as Record<string, any>);
 	const runwayConfig = extractRunwayConfig(rawRequest);
-	const passthroughRequest =
-		runwayConfig.request && typeof runwayConfig.request === "object" && !Array.isArray(runwayConfig.request)
-			? { ...(runwayConfig.request as Record<string, any>) }
-			: {};
-
-	if (Object.keys(passthroughRequest).length > 0) {
-		if (passthroughRequest.model == null) passthroughRequest.model = model;
-		if (passthroughRequest.promptText == null && passthroughRequest.prompt == null) {
-			passthroughRequest.promptText = ir.prompt;
-		}
-		return passthroughRequest;
-	}
-
 	const ratio = normalizeRunwayRatio(
 		toNonEmptyString(runwayConfig.ratio) ??
 		toNonEmptyString(runwayConfig.aspect_ratio) ??
@@ -121,10 +108,10 @@ function buildRunwayRequest(ir: IRVideoGenerationRequest, model: string): Record
 		ir.ratio,
 	);
 	const duration = toPositiveNumber(
+		parseDurationSeconds(ir) ??
 		runwayConfig.duration ??
 		runwayConfig.duration_seconds ??
-		runwayConfig.durationSeconds ??
-		parseDurationSeconds(ir),
+		runwayConfig.durationSeconds,
 	);
 	const seed = toPositiveNumber(runwayConfig.seed ?? ir.seed);
 	const imageUri = normalizeInputSource(

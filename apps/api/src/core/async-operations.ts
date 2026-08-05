@@ -548,37 +548,16 @@ export async function setAsyncOperationStatus(args: {
 	const status = normalizeText(args.status);
 	if (!workspaceId || !internalId || !status) return;
 
-	const now = new Date().toISOString();
-	const patch: Record<string, unknown> = {
-		status,
-		updated_at: now,
-	};
-	if (Object.prototype.hasOwnProperty.call(args, "nextReconcileAt")) {
-		patch.next_reconcile_at = normalizeText(args.nextReconcileAt) ?? null;
-	}
-
-	if (args.metaPatch && typeof args.metaPatch === "object" && !Array.isArray(args.metaPatch)) {
-		const { data: existing, error: readError } = await getSupabaseAdmin()
-			.from("gateway_async_operations")
-			.select("meta")
-			.eq("workspace_id", workspaceId)
-			.eq("kind", args.kind)
-			.eq("internal_id", internalId)
-			.maybeSingle();
-		if (readError) throw readError;
-		const currentMeta = normalizeMeta((existing as { meta?: unknown } | null)?.meta);
-		patch.meta = {
-			...currentMeta,
-			...args.metaPatch,
-		};
-	}
-
-	const { error } = await getSupabaseAdmin()
-		.from("gateway_async_operations")
-		.update(patch)
-		.eq("workspace_id", workspaceId)
-		.eq("kind", args.kind)
-		.eq("internal_id", internalId);
+	const updateNextReconcile = Object.prototype.hasOwnProperty.call(args, "nextReconcileAt");
+	const { error } = await getSupabaseAdmin().rpc("gateway_set_async_operation_status", {
+		p_workspace_id: workspaceId,
+		p_kind: args.kind,
+		p_internal_id: internalId,
+		p_status: status,
+		p_meta_patch: normalizeMeta(args.metaPatch),
+		p_update_next_reconcile: updateNextReconcile,
+		p_next_reconcile_at: updateNextReconcile ? normalizeText(args.nextReconcileAt) : null,
+	});
 	if (error) throw error;
 	invalidateAsyncOperationCache(workspaceId, args.kind, internalId);
 }
@@ -594,28 +573,50 @@ export async function patchAsyncOperationMeta(args: {
 	if (!workspaceId || !internalId) return;
 	if (!args.metaPatch || typeof args.metaPatch !== "object" || Array.isArray(args.metaPatch)) return;
 
-	const { data: existing, error: readError } = await getSupabaseAdmin()
-		.from("gateway_async_operations")
-		.select("meta")
-		.eq("workspace_id", workspaceId)
-		.eq("kind", args.kind)
-		.eq("internal_id", internalId)
-		.maybeSingle();
-	if (readError) throw readError;
+	const { error } = await getSupabaseAdmin().rpc("gateway_set_async_operation_status", {
+		p_workspace_id: workspaceId,
+		p_kind: args.kind,
+		p_internal_id: internalId,
+		p_status: null,
+		p_meta_patch: normalizeMeta(args.metaPatch),
+		p_update_next_reconcile: false,
+		p_next_reconcile_at: null,
+	});
+	if (error) throw error;
+	invalidateAsyncOperationCache(workspaceId, args.kind, internalId);
+}
 
-	const now = new Date().toISOString();
-	const currentMeta = normalizeMeta((existing as { meta?: unknown } | null)?.meta);
-	const mergedMeta = {
-		...currentMeta,
-		...args.metaPatch,
-	};
-
+export async function patchAsyncOperationIdentity(args: {
+	workspaceId: string;
+	kind: AsyncOperationKind;
+	internalId: string;
+	requestId?: string | null;
+	sessionId?: string | null;
+	appId?: string | null;
+	provider?: string | null;
+	nativeId?: string | null;
+	model?: string | null;
+}): Promise<void> {
+	const workspaceId = normalizeText(args.workspaceId);
+	const internalId = normalizeText(args.internalId);
+	if (!workspaceId || !internalId) return;
+	const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+	const requestId = normalizeText(args.requestId);
+	const sessionId = normalizeText(args.sessionId);
+	const appId = normalizeUuid(args.appId);
+	const provider = normalizeText(args.provider);
+	const nativeId = normalizeText(args.nativeId);
+	const model = normalizeText(args.model);
+	if (requestId) patch.request_id = requestId;
+	if (sessionId) patch.session_id = sessionId;
+	if (appId) patch.app_id = appId;
+	if (provider) patch.provider = provider;
+	if (nativeId) patch.native_id = nativeId;
+	if (model) patch.model = model;
+	if (Object.keys(patch).length === 1) return;
 	const { error } = await getSupabaseAdmin()
 		.from("gateway_async_operations")
-		.update({
-			meta: mergedMeta,
-			updated_at: now,
-		})
+		.update(patch)
 		.eq("workspace_id", workspaceId)
 		.eq("kind", args.kind)
 		.eq("internal_id", internalId);
