@@ -3,6 +3,7 @@ import { requireUser } from "@/auth/requireUser";
 import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
+import { buildGameProfileSummary, type GameResultRow } from "@/games/profile";
 import { requireAccountWorkspace } from "./context";
 
 type DailyActivityPoint = { date: string; requests: number; tokens: number; spendNanos: number };
@@ -374,4 +375,17 @@ accountSettingsProfileRouter.get("/profile/usage", async (c) => {
 	} catch {
 		return c.json({ error: "profile_usage_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
+});
+
+accountSettingsProfileRouter.get("/profile/games", async (c) => {
+	const user = await requireUser(c.req.raw, c.env);
+	if (!user) return c.json({ games: null }, 200, PRIVATE_NO_STORE_HEADERS);
+	const result = await getDataClient(c.env)
+		.from("catalogue_game_results")
+		.select("game_key,puzzle_date,won,score,max_score,completed_at")
+		.eq("user_id", user.id)
+		.order("puzzle_date", { ascending: false })
+		.limit(500);
+	if (result.error) return c.json({ error: "profile_games_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ games: buildGameProfileSummary((result.data ?? []) as GameResultRow[]) }, 200, PRIVATE_NO_STORE_HEADERS);
 });
