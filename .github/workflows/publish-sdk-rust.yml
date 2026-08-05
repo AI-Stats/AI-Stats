@@ -1,0 +1,186 @@
+name: Publish Rust SDKs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/publish-sdk-rust.yml"
+      - "packages/sdk/sdk-rust/**"
+      - "packages/sdk/agent-sdk-rust/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: rust-sdk-release-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish Rust SDKs
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - name: Require main branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "::error::Run this workflow from refs/heads/main only."
+            exit 1
+          fi
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Rust checks
+        run: |
+          rustup component add clippy rustfmt
+          rustup toolchain install 1.86.0 --profile minimal
+
+      - name: Test release candidates
+        run: |
+          set -euo pipefail
+          cargo test --manifest-path packages/sdk/sdk-rust/Cargo.toml --all-targets
+          cargo clippy --manifest-path packages/sdk/sdk-rust/Cargo.toml --all-targets -- -D warnings
+          RUSTDOCFLAGS="-D warnings" cargo doc --manifest-path packages/sdk/sdk-rust/Cargo.toml --locked --no-deps
+          cargo +1.86.0 check --manifest-path packages/sdk/sdk-rust/Cargo.toml --locked
+          cargo package --manifest-path packages/sdk/sdk-rust/Cargo.toml
+          cargo test --manifest-path packages/sdk/agent-sdk-rust/Cargo.toml --all-targets
+          cargo clippy --manifest-path packages/sdk/agent-sdk-rust/Cargo.toml --all-targets -- -D warnings
+          RUSTDOCFLAGS="-D warnings" cargo doc --manifest-path packages/sdk/agent-sdk-rust/Cargo.toml --locked --no-deps
+          cargo +1.86.0 check --manifest-path packages/sdk/agent-sdk-rust/Cargo.toml --locked
+
+      - name: Check crates.io release status
+        id: registry
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          check_crate() {
+            local id="$1"
+            local manifest="$2"
+            local name version status
+            name="$(sed -n '/^\[package\]/,/^\[/s/^name = "\([^"]*\)"/\1/p' "$manifest" | head -n1)"
+            version="$(sed -n '/^\[package\]/,/^\[/s/^version = "\([^"]*\)"/\1/p' "$manifest" | head -n1)"
+            if [ -z "$name" ] || [ -z "$version" ]; then
+              echo "::error::Could not read crate name/version from $manifest"
+              exit 1
+            fi
+            status="$(curl --silent --show-error --retry 3 --retry-all-errors \
+              --user-agent "Phaseo Rust release workflow" \
+              --output /dev/null --write-out '%{http_code}' \
+              "https://crates.io/api/v1/crates/${name}/${version}")"
+            case "$status" in
+              200) should_publish=false ;;
+              404) should_publish=true ;;
+              *)
+                echo "::error::crates.io returned $status while checking ${name}@${version}"
+                exit 1
+                ;;
+            esac
+            {
+              echo "${id}_name=$name"
+              echo "${id}_version=$version"
+              echo "${id}_should_publish=$should_publish"
+            } >> "$GITHUB_OUTPUT"
+            echo "${name}@${version} should_publish=${should_publish}"
+          }
+
+          check_crate core packages/sdk/sdk-rust/Cargo.toml
+          check_crate agent packages/sdk/agent-sdk-rust/Cargo.toml
+
+      - name: Select authentication mode
+        id: auth-mode
+        env:
+          CRATES_IO_BOOTSTRAP_TOKEN: ${{ secrets.CRATES_IO_BOOTSTRAP_TOKEN }}
+        shell: bash
+        run: |
+          if [ -n "${CRATES_IO_BOOTSTRAP_TOKEN:-}" ]; then
+            echo "bootstrap=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "bootstrap=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Authenticate with crates.io trusted publishing
+        id: crates-auth
+        if: steps.auth-mode.outputs.bootstrap != 'true'
+        uses: rust-lang/crates-io-auth-action@c6f97d42243bad5fab37ca0427f495c86d5b1a18
+
+      - name: Publish Phaseo Rust SDK with bootstrap credential
+        if: steps.registry.outputs.core_should_publish == 'true' && steps.auth-mode.outputs.bootstrap == 'true'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_BOOTSTRAP_TOKEN }}
+        run: cargo publish --manifest-path packages/sdk/sdk-rust/Cargo.toml
+
+      - name: Publish Phaseo Rust SDK with trusted publishing
+        if: steps.registry.outputs.core_should_publish == 'true' && steps.auth-mode.outputs.bootstrap != 'true'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.crates-auth.outputs.token }}
+        run: cargo publish --manifest-path packages/sdk/sdk-rust/Cargo.toml
+
+      - name: Wait for core crate availability
+        if: steps.registry.outputs.core_should_publish == 'true'
+        env:
+          CRATE_NAME: ${{ steps.registry.outputs.core_name }}
+          CRATE_VERSION: ${{ steps.registry.outputs.core_version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 36); do
+            status="$(curl --silent --show-error --user-agent "Phaseo Rust release workflow" \
+              --output /dev/null --write-out '%{http_code}' \
+              "https://crates.io/api/v1/crates/${CRATE_NAME}/${CRATE_VERSION}")"
+            if [ "$status" = "200" ]; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::${CRATE_NAME}@${CRATE_VERSION} did not appear on crates.io in time."
+          exit 1
+
+      - name: Publish Phaseo Agent SDK with bootstrap credential
+        if: steps.registry.outputs.agent_should_publish == 'true' && steps.auth-mode.outputs.bootstrap == 'true'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_BOOTSTRAP_TOKEN }}
+        run: cargo publish --manifest-path packages/sdk/agent-sdk-rust/Cargo.toml
+
+      - name: Publish Phaseo Agent SDK with trusted publishing
+        if: steps.registry.outputs.agent_should_publish == 'true' && steps.auth-mode.outputs.bootstrap != 'true'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.crates-auth.outputs.token }}
+        run: cargo publish --manifest-path packages/sdk/agent-sdk-rust/Cargo.toml
+
+      - name: Create GitHub App token (Phaseo Bot)
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
+        with:
+          client-id: ${{ secrets.PHASEO_APP_CLIENT_ID }}
+          private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
+          owner: phaseoteam
+          repositories: Phaseo
+
+      - name: Ensure Rust release tags
+        env:
+          GH_APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          CORE_VERSION: ${{ steps.registry.outputs.core_version }}
+          AGENT_VERSION: ${{ steps.registry.outputs.agent_version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
+          git config user.email "${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
+          remote="https://x-access-token:${GH_APP_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          for tag in "packages/sdk/sdk-rust/v${CORE_VERSION}" "packages/sdk/agent-sdk-rust/v${AGENT_VERSION}"; do
+            if git ls-remote --exit-code --tags "$remote" "refs/tags/${tag}" >/dev/null 2>&1; then
+              echo "Tag already exists: ${tag}"
+              continue
+            fi
+            git tag -a "$tag" -m "${tag}"
+            git push "$remote" "refs/tags/${tag}"
+          done

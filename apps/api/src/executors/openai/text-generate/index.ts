@@ -4,6 +4,7 @@
 
 import type { IRChatRequest, IRReasoning } from "@core/ir";
 import type { ExecutorExecuteArgs, ExecutorResult, Bill, ProviderExecutor } from "@executors/types";
+import { fetchUpstream } from "@executors/_shared/timing/upstream";
 import { normalizeTextUsageForPricing } from "@executors/_shared/usage/text";
 import { irToOpenAIResponses, openAIResponsesToIR } from "@executors/_shared/text-generate/openai-compat/transform";
 import { irToOpenAIChat, openAIChatToIR } from "@executors/_shared/text-generate/openai-compat/transform-chat";
@@ -53,6 +54,12 @@ const OPENAI_REASONING_EFFORT_SUPPORT: Record<string, Set<ReasoningEffort>> = {
 	"gpt-5.4-mini": new Set(["none", "low", "medium", "high", "xhigh"]),
 	"gpt-5.4-nano": new Set(["none", "low", "medium", "high", "xhigh"]),
 	"gpt-5.4-pro": new Set(["medium", "high", "xhigh"]),
+	"gpt-5.6-luna": new Set(["none", "low", "medium", "high", "xhigh", "max"]),
+	"gpt-5.6-luna-pro": new Set(["none", "low", "medium", "high", "xhigh", "max"]),
+	"gpt-5.6-sol": new Set(["none", "low", "medium", "high", "xhigh", "max"]),
+	"gpt-5.6-sol-pro": new Set(["none", "low", "medium", "high", "xhigh", "max"]),
+	"gpt-5.6-terra": new Set(["none", "low", "medium", "high", "xhigh", "max"]),
+	"gpt-5.6-terra-pro": new Set(["none", "low", "medium", "high", "xhigh", "max"]),
 	"o1": new Set(["low", "medium", "high"]),
 	"o1-preview": new Set(["low", "medium", "high"]),
 	"o1-mini": new Set(["low", "medium", "high"]),
@@ -66,7 +73,11 @@ const OPENAI_WEBSOCKET_RECOVERABLE_ERRORS = new Set([
 ]);
 const OPENAI_WEBSOCKET_MAX_RECONNECTS = 1;
 const OPENAI_WEBSOCKET_HANDSHAKE_MAX_RETRIES = 1;
-const OPENAI_INTERNAL_REQUEST_ID_METADATA_KEY = "aistats_request_id";
+const OPENAI_INTERNAL_REQUEST_ID_METADATA_KEY = "phaseo_request_id";
+
+function isOpenAIProviderOffer(providerId: string): boolean {
+	return providerId === "openai" || providerId === "openai-eu";
+}
 
 function buildOpenAIResponsesWebSocketUrl(providerId: string): string {
 	// Cloudflare Workers WebSocket fetch upgrade expects https:// URL.
@@ -137,7 +148,7 @@ async function createOpenAIResponsesWebSocketStream(args: {
 	}> => {
 		const baseUrl = buildOpenAIResponsesWebSocketUrl(args.providerId);
 		for (let attempt = 0; attempt <= OPENAI_WEBSOCKET_HANDSHAKE_MAX_RETRIES; attempt += 1) {
-			const handshake = await fetch(baseUrl, {
+			const handshake = await fetchUpstream(args.executorArgs, baseUrl, {
 				headers: {
 					Authorization: `Bearer ${args.key}`,
 					Upgrade: "websocket",
@@ -403,6 +414,36 @@ function normalizeModelName(model?: string | null): string {
 	return parts[parts.length - 1] || value;
 }
 
+function normalizeOpenAIGpt56ProModelSlug(model?: string | null): {
+	model: string | null;
+	proMode: boolean;
+} {
+	const normalized = normalizeModelName(model);
+	if (!normalized) return { model: model ?? null, proMode: false };
+	const match = normalized.match(/^(gpt-5\.6-(?:sol|terra|luna))-pro$/i);
+	if (!match) return { model: model ?? null, proMode: false };
+	return { model: match[1].toLowerCase(), proMode: true };
+}
+
+function withOpenAIProReasoningMode(
+	ir: IRChatRequest,
+	providerId: string,
+	modelForRouting: string | null | undefined,
+): IRChatRequest {
+	if (!isOpenAIProviderOffer(providerId)) return ir;
+	const routed = normalizeOpenAIGpt56ProModelSlug(modelForRouting);
+	const requested = normalizeOpenAIGpt56ProModelSlug(ir.model);
+	if (!routed.proMode && !requested.proMode) return ir;
+
+	return {
+		...ir,
+		reasoning: {
+			...(ir.reasoning ?? {}),
+			mode: "pro",
+		},
+	};
+}
+
 function getSupportedEfforts(model: string): ReasoningEffort[] {
 	const normalized = normalizeModelName(model);
 	if (normalized in OPENAI_REASONING_EFFORT_SUPPORT) {
@@ -507,6 +548,7 @@ function withOpenAIRequestMetadata(
 	ir: IRChatRequest,
 	providerId: string,
 	requestId: string,
+	workspaceId: string,
 	options?: {
 		includeMetadata?: boolean;
 	},
@@ -514,16 +556,17 @@ function withOpenAIRequestMetadata(
 	if (providerId !== "openai") return ir;
 	const includeMetadata = options?.includeMetadata !== false;
 	const next: IRChatRequest = { ...ir };
-	const explicitSafetyIdentifier = typeof ir.safetyIdentifier === "string" && ir.safetyIdentifier.trim().length > 0
-		? ir.safetyIdentifier.trim()
+	const workspaceSafetyIdentifier = typeof workspaceId === "string" && workspaceId.trim().length > 0
+		? workspaceId.trim()
 		: undefined;
-	const userSafetyIdentifier = typeof ir.userId === "string" && ir.userId.trim().length > 0
-		? ir.userId.trim()
-		: undefined;
-	const safetyIdentifier = explicitSafetyIdentifier ?? userSafetyIdentifier ?? requestId;
+	const safetyIdentifier = normalizeOpenAISafetyIdentifier(workspaceSafetyIdentifier);
 	if (!includeMetadata) {
 		delete next.metadata;
-		next.safetyIdentifier = safetyIdentifier;
+		if (safetyIdentifier) {
+			next.safetyIdentifier = safetyIdentifier;
+		} else {
+			delete next.safetyIdentifier;
+		}
 		return next;
 	}
 
@@ -536,8 +579,18 @@ function withOpenAIRequestMetadata(
 	}
 
 	next.metadata = metadata;
-	next.safetyIdentifier = safetyIdentifier;
+	if (safetyIdentifier) {
+		next.safetyIdentifier = safetyIdentifier;
+	} else {
+		delete next.safetyIdentifier;
+	}
 	return next;
+}
+
+function normalizeOpenAISafetyIdentifier(value: string | undefined): string | undefined {
+	const trimmed = value?.trim();
+	if (!trimmed) return undefined;
+	return trimmed.slice(0, 64);
 }
 
 function openAIRequestHeaders(
@@ -595,6 +648,7 @@ function cherryPickIRParams(
 			if (root === "reasoning") {
 				reasoning ??= {};
 				if (leaf === "effort") reasoning.effort = ir.reasoning?.effort;
+				if (leaf === "mode") reasoning.mode = ir.reasoning?.mode;
 				if (leaf === "summary") reasoning.summary = ir.reasoning?.summary;
 				if (leaf === "enabled") reasoning.enabled = ir.reasoning?.enabled;
 				if (leaf === "maxTokens" || leaf === "max_tokens") reasoning.maxTokens = ir.reasoning?.maxTokens;
@@ -688,25 +742,27 @@ function cherryPickIRParams(
 }
 
 async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
-	const upstreamStartMs = args.meta.upstreamStartMs ?? Date.now();
 	const requestBuildStartMs = Date.now();
 	const keyInfo = resolveOpenAICompatKey({
 		providerId: args.providerId,
 		byokMeta: args.byokMeta,
 	} as any);
 
-	const modelForRouting = args.providerModelSlug ?? (args.ir as IRChatRequest).model;
+	const requestedRoutingModel = args.providerModelSlug ?? (args.ir as IRChatRequest).model;
+	const normalizedRoutingModel = normalizeOpenAIGpt56ProModelSlug(requestedRoutingModel);
+	const modelForRouting = normalizedRoutingModel.model ?? requestedRoutingModel;
 	const useNativeChatRoute =
-		args.providerId === "openai" &&
+		isOpenAIProviderOffer(args.providerId) &&
 		args.protocol === "openai.chat.completions" &&
 		!(args.ir as IRChatRequest).reasoning;
 	const irWithRequestMetadata = withOpenAIRequestMetadata(
 		args.ir as IRChatRequest,
 		args.providerId,
 		args.requestId,
+		args.workspaceId,
 		{ includeMetadata: !useNativeChatRoute },
 	);
-	const route = args.providerId === "openai"
+	const route = isOpenAIProviderOffer(args.providerId)
 		? (useNativeChatRoute ? "chat" : "responses")
 		: resolveOpenAICompatRoute(args.providerId, modelForRouting);
 	const endpoint = route === "responses" ? "/responses" : "/chat/completions";
@@ -745,7 +801,7 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 	}
 
 	const upstreamHeadersStartMs = Date.now();
-	const res = await fetch(openAICompatUrl(args.providerId, endpoint), {
+	const res = await fetchUpstream(args, openAICompatUrl(args.providerId, endpoint), {
 		method: "POST",
 		headers: openAICompatHeaders(
 			args.providerId,
@@ -755,6 +811,7 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 		body: requestBody,
 	});
 	const upstreamHeadersMs = Math.max(0, Date.now() - upstreamHeadersStartMs);
+	const selectedDispatchAtMs = args.upstreamTiming?.timingFor(res)?.dispatchAtMs ?? upstreamHeadersStartMs;
 
 	const bill: Bill = {
 		cost_cents: 0,
@@ -776,6 +833,7 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 			mappedRequest,
 			timing: {
 				requestBuildMs,
+				upstreamFetchStartMs: upstreamHeadersStartMs,
 				upstreamHeadersMs,
 			},
 		};
@@ -801,6 +859,7 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 				latencyMs: undefined,
 				generationMs: undefined,
 				requestBuildMs,
+				upstreamFetchStartMs: upstreamHeadersStartMs,
 				upstreamHeadersMs,
 			},
 		};
@@ -810,7 +869,7 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 		res,
 		args,
 		route,
-		upstreamStartMs,
+		selectedDispatchAtMs,
 	);
 
 	if (ir) {
@@ -832,18 +891,24 @@ async function executeOpenAIProvider(args: ExecutorExecuteArgs): Promise<Executo
 		mappedRequest,
 		rawResponse,
 		timing: {
-			latencyMs: firstByteMs ?? totalMs,
-			generationMs: firstByteMs === null ? 0 : Math.max(0, totalMs - firstByteMs),
+			latencyMs: firstByteMs ?? undefined,
+			generationMs: totalMs,
 			requestBuildMs,
+			upstreamFetchStartMs: upstreamHeadersStartMs,
 			upstreamHeadersMs,
 		},
 	};
 }
 
 export const executor: ProviderExecutor = async (execArgs: ExecutorExecuteArgs) => {
-	const normalized = withNormalizedReasoning(
+	const proModeIr = withOpenAIProReasoningMode(
 		execArgs.ir as IRChatRequest,
+		execArgs.providerId,
 		execArgs.providerModelSlug ?? (execArgs.ir as IRChatRequest).model,
+	);
+	const normalized = withNormalizedReasoning(
+		proModeIr,
+		execArgs.providerModelSlug ?? proModeIr.model,
 		execArgs.capabilityParams,
 	);
 	const processed = cherryPickIRParams(normalized, execArgs.capabilityParams);

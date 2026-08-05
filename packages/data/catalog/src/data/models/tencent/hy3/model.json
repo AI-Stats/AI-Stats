@@ -12,10 +12,12 @@
   "license": "Tencent Hy Community License Agreement",
   "input_types": "text",
   "output_types": "text",
-  "api_model_id": "tencent/hy3:free",
+  "api_model_id": "tencent/hy3",
+  "variants": [{ "model_id": "tencent/hy3:free", "name": "Hy3 (Free)", "variant_kind": "free" }],
   "links": [
     {
-      "platform": "website",
+      "title": "Website",
+      "kind": "website",
       "url": "https://novita.ai/models"
     }
   ],
@@ -33,5 +35,52 @@
       "value": "Novita provider discovery listed Hy3 as tencent/hy3 with 262144 context and 262144 max output on 2026-07-06."
     }
   ],
-  "benchmarks": []
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 262144,
+    "input": 262144,
+    "output": 262144
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "website",
+      "url": "https://novita.ai/models",
+      "accessed_at": null,
+      "notes": null
+    }
+  ],
+  "verification": {
+    "status": "unverified",
+    "checked_at": null,
+    "notes": null
+  },
+  "last_updated": null,
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
 }

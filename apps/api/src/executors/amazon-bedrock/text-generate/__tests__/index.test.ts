@@ -2,9 +2,10 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { IRChatRequest } from "@core/ir";
 import type { ExecutorExecuteArgs } from "@executors/types";
 import { execute } from "../index";
+import { assertBedrockMantleBaseUrl } from "../bedrock-utils";
 import { installFetchMock, jsonResponse } from "../../../../../tests/helpers/mock-fetch";
 import { setupTestRuntime, teardownTestRuntime } from "../../../../../tests/helpers/runtime";
-import { parseSseJson, readSseFrames } from "../../../../../tests/helpers/sse";
+import { parseSseJson, readSseFrames, sseResponse } from "../../../../../tests/helpers/sse";
 
 function buildArgs(ir: IRChatRequest, overrides: Partial<ExecutorExecuteArgs> = {}): ExecutorExecuteArgs {
 	return {
@@ -153,6 +154,15 @@ describe("amazon-bedrock text executor", () => {
 		teardownTestRuntime();
 	});
 
+	it("rejects a legacy Bedrock Runtime base URL", () => {
+		expect(() => assertBedrockMantleBaseUrl("https://bedrock-runtime.us-east-1.amazonaws.com"))
+			.toThrow("amazon_bedrock_mantle_endpoint_required");
+		expect(() => assertBedrockMantleBaseUrl("https://api.openai.com/v1"))
+			.toThrow("amazon_bedrock_mantle_endpoint_required");
+		expect(() => assertBedrockMantleBaseUrl("https://bedrock-mantle.eu-west-2.api.aws"))
+			.not.toThrow();
+	});
+
 	it("routes OpenAI Bedrock models to /openai/v1/chat/completions", async () => {
 		const mock = installFetchMock([{
 			match: (url) => url.endsWith("/openai/v1/chat/completions"),
@@ -191,11 +201,222 @@ describe("amazon-bedrock text executor", () => {
 
 		mock.restore();
 
-		expect(result.kind).toBe("completed");
-		expect(result.ir?.choices?.[0]?.message?.content?.[0]?.type).toBe("text");
+	expect(result.kind).toBe("completed");
+	expect(result.ir?.choices?.[0]?.message?.content?.[0]?.type).toBe("text");
 	});
 
-	it("falls back from /responses to /chat/completions when responses is unavailable", async () => {
+	it.each([
+		{
+			client: "Chat Completions",
+			endpoint: "chat.completions",
+			protocol: "openai.chat.completions",
+		},
+		{
+			client: "Responses",
+			endpoint: "responses",
+			protocol: "openai.responses",
+		},
+	])("routes Claude Sonnet 5 $client requests through Bedrock Messages", async ({ endpoint, protocol }) => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.bedrock.example/anthropic/v1/messages",
+			onRequest: (call) => {
+				expect(call.headers["x-api-key"]).toBe("test-bedrock-key");
+				expect(call.headers["anthropic-version"]).toBe("2023-06-01");
+				expect(call.headers.Authorization).toBeUndefined();
+				expect(call.bodyJson?.model).toBe("anthropic.claude-sonnet-5");
+				expect(call.bodyJson?.messages?.[0]?.role).toBe("user");
+				expect(call.bodyJson?.messages?.[0]?.content?.[0]?.text).toBe("hello mantle");
+				expect(call.bodyJson?.max_tokens).toBe(512);
+				expect(call.bodyJson?.stream).toBe(false);
+			},
+			response: jsonResponse({
+				id: "msg_bedrock_mantle",
+				type: "message",
+				role: "assistant",
+				model: "anthropic.claude-sonnet-5",
+				content: [{ type: "text", text: "mantle ok" }],
+				stop_reason: "end_turn",
+				stop_sequence: null,
+				usage: {
+					input_tokens: 4,
+					output_tokens: 2,
+				},
+			}, {
+				headers: {
+					"request-id": "bedrock-mantle-req",
+				},
+			}),
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "anthropic.claude-sonnet-5",
+			stream: false,
+			maxTokens: 512,
+			messages: [{ role: "user", content: [{ type: "text", text: "hello mantle" }] }],
+		}, {
+			endpoint,
+			protocol,
+		}));
+
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(result.ir?.choices?.[0]?.message?.content?.[0]?.type).toBe("text");
+		expect((result.ir?.choices?.[0]?.message?.content?.[0] as any)?.text).toBe("mantle ok");
+		expect(result.bill.upstream_id).toBe("bedrock-mantle-req");
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.url).not.toContain("/chat/completions");
+		expect(mock.calls[0]?.url).not.toMatch(/\/v1\/responses$/);
+	});
+
+	it("uses Mantle Messages for Claude models beyond Sonnet 5", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/anthropic/v1/messages"),
+			response: jsonResponse({
+				id: "msg_bedrock_opus",
+				type: "message",
+				role: "assistant",
+				model: "anthropic.claude-opus-4-6-v1:0",
+				content: [{ type: "text", text: "mantle native" }],
+				stop_reason: "end_turn",
+				usage: { input_tokens: 3, output_tokens: 2 },
+			}),
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "anthropic.claude-opus-4-6-v1:0",
+			stream: false,
+			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
+		}));
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls[0]?.url).toContain("/anthropic/v1/messages");
+	});
+
+	it("rejects Claude JSON Schema requests instead of leaving Mantle", async () => {
+		await expect(execute(buildArgs({
+			model: "anthropic.claude-sonnet-5",
+			stream: true,
+			responseFormat: {
+				type: "json_schema",
+				name: "answer",
+				schema: { type: "object", properties: { answer: { type: "string" } } },
+			},
+			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
+		}, {
+			endpoint: "responses",
+			protocol: "openai.responses",
+		}))).rejects.toThrow(
+			"amazon_bedrock_mantle_claude_structured_output_unsupported",
+		);
+	});
+
+	it.each([
+		{
+			client: "Chat Completions",
+			endpoint: "chat.completions",
+			protocol: "openai.chat.completions",
+		},
+		{
+			client: "Responses",
+			endpoint: "responses",
+			protocol: "openai.responses",
+		},
+	])("streams Claude Sonnet 5 Messages responses back to $client clients", async ({ endpoint, protocol }) => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.bedrock.example/anthropic/v1/messages",
+			onRequest: (call) => {
+				expect(call.headers["x-api-key"]).toBe("test-bedrock-key");
+				expect(call.headers["anthropic-version"]).toBe("2023-06-01");
+				expect(call.bodyJson?.model).toBe("anthropic.claude-sonnet-5-v1:0");
+				expect(call.bodyJson?.stream).toBe(true);
+			},
+			response: () => sseResponse([
+				{
+					type: "message_start",
+					message: {
+						id: "msg_bedrock_stream",
+						type: "message",
+						role: "assistant",
+						model: "anthropic.claude-sonnet-5-v1:0",
+						content: [],
+						stop_reason: null,
+						stop_sequence: null,
+						usage: { input_tokens: 4, output_tokens: 0 },
+					},
+				},
+				{
+					type: "content_block_start",
+					index: 0,
+					content_block: { type: "text", text: "" },
+				},
+				{
+					type: "content_block_delta",
+					index: 0,
+					delta: { type: "text_delta", text: "streamed" },
+				},
+				{ type: "content_block_stop", index: 0 },
+				{
+					type: "message_delta",
+					delta: { stop_reason: "end_turn", stop_sequence: null },
+					usage: { output_tokens: 2 },
+				},
+				{ type: "message_stop" },
+			]),
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "anthropic.claude-sonnet-5-v1:0",
+			stream: true,
+			messages: [{ role: "user", content: [{ type: "text", text: "stream please" }] }],
+		}, {
+			endpoint,
+			protocol,
+		}));
+
+		expect(result.kind).toBe("stream");
+		if (result.kind !== "stream") {
+			mock.restore();
+			throw new Error("expected_stream_result");
+		}
+		const frames = await readSseFrames(new Response(result.stream));
+		const payloads = parseSseJson(frames);
+		mock.restore();
+
+		if (protocol === "openai.responses") {
+			expect(payloads.some((payload) => payload?.delta === "streamed")).toBe(true);
+		} else {
+			expect(payloads.some((payload) =>
+				payload?.choices?.some?.((choice: any) => choice?.delta?.content === "streamed"),
+			)).toBe(true);
+		}
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.url).not.toContain("/chat/completions");
+		expect(mock.calls[0]?.url).not.toMatch(/\/v1\/responses$/);
+	});
+
+	it("uses Responses for GPT-5.6 models even on the chat surface", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/openai/v1/responses"),
+			onRequest: (call) => {
+				expect(call.bodyJson?.store).toBe(false);
+			},
+			response: new Response(new ReadableStream<Uint8Array>(), { status: 200 }),
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "openai.gpt-5.6-sol",
+			stream: true,
+			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
+		}));
+
+		mock.restore();
+		expect(result.kind).toBe("stream");
+		expect(mock.calls[0]?.url.endsWith("/openai/v1/responses")).toBe(true);
+	});
+
+	it("does not change endpoints when /responses is unavailable", async () => {
 		const mock = installFetchMock([
 			{
 				match: (url) => url.endsWith("/openai/v1/responses"),
@@ -204,25 +425,6 @@ describe("amazon-bedrock text executor", () => {
 						message: "unknown endpoint /responses",
 					},
 				}, { status: 404 }),
-			},
-			{
-				match: (url) => url.endsWith("/openai/v1/chat/completions"),
-				response: jsonResponse({
-					id: "chatcmpl_bedrock_fallback",
-					object: "chat.completion",
-					created: 1710000001,
-					model: "openai.gpt-oss-20b-1:0",
-					choices: [{
-						index: 0,
-						message: { role: "assistant", content: "fallback ok" },
-						finish_reason: "stop",
-					}],
-					usage: {
-						prompt_tokens: 4,
-						completion_tokens: 2,
-						total_tokens: 6,
-					},
-				}),
 			},
 		]);
 
@@ -238,476 +440,9 @@ describe("amazon-bedrock text executor", () => {
 		mock.restore();
 
 		expect(mock.calls[0]?.url.endsWith("/openai/v1/responses")).toBe(true);
-		expect(mock.calls[1]?.url.endsWith("/openai/v1/chat/completions")).toBe(true);
+		expect(mock.calls).toHaveLength(1);
 		expect(result.kind).toBe("completed");
-		expect(result.ir?.choices?.[0]?.message?.content?.[0]?.type).toBe("text");
+		expect(result.upstream.status).toBe(404);
 	});
 
-	it("keeps Converse for non-openai models and maps media URLs to bytes", async () => {
-		const mock = installFetchMock([
-			{
-				match: (url) => url === "https://example.com/image.png",
-				response: new Response(new Uint8Array([1, 2, 3]), {
-					status: 200,
-					headers: { "Content-Type": "image/png", "Content-Length": "3" },
-				}),
-			},
-			{
-				match: (url) => url === "https://example.com/audio.mp3",
-				response: new Response(new Uint8Array([4, 5, 6]), {
-					status: 200,
-					headers: { "Content-Type": "audio/mpeg", "Content-Length": "3" },
-				}),
-			},
-			{
-				match: (url) => url === "https://example.com/video.mp4",
-				response: new Response(new Uint8Array([7, 8, 9]), {
-					status: 200,
-					headers: { "Content-Type": "video/mp4", "Content-Length": "3" },
-				}),
-			},
-			{
-				match: (url) => url.includes("/model/anthropic.claude-3-5-sonnet-v1%3A0/converse-stream"),
-				onRequest: (call) => {
-					const content = call.bodyJson?.messages?.[0]?.content ?? [];
-					const image = content.find((item: any) => item?.image);
-					const audio = content.find((item: any) => item?.audio);
-					const video = content.find((item: any) => item?.video);
-					expect(typeof image?.image?.source?.bytes).toBe("string");
-					expect(typeof audio?.audio?.source?.bytes).toBe("string");
-					expect(typeof video?.video?.source?.bytes).toBe("string");
-				},
-				response: bedrockStreamResponse(
-					basicBedrockTextEvents(
-						"ok",
-						"end_turn",
-						{ inputTokens: 10, outputTokens: 2, totalTokens: 12 },
-					),
-				),
-			},
-		]);
-
-		const result = await execute(buildArgs({
-			model: "anthropic.claude-3-5-sonnet-v1:0",
-			stream: false,
-			messages: [{
-				role: "user",
-				content: [
-					{ type: "text", text: "analyze media" },
-					{ type: "image", source: "url", data: "https://example.com/image.png" },
-					{ type: "audio", source: "url", data: "https://example.com/audio.mp3", format: "mp3" },
-					{ type: "video", source: "url", url: "https://example.com/video.mp4" },
-				],
-			}],
-		}));
-
-		mock.restore();
-
-		expect(mock.calls.some((call) => call.url.includes("/converse-stream"))).toBe(true);
-		expect(result.kind).toBe("completed");
-		expect(result.ir?.choices?.[0]?.message?.content?.[0]?.type).toBe("text");
-	});
-
-	it("routes Amazon Nova models to Converse", async () => {
-		const mock = installFetchMock([{
-			match: (url) => url.includes("/model/amazon.nova-pro-v1%3A0/converse-stream"),
-			response: bedrockStreamResponse(basicBedrockTextEvents("nova ok")),
-		}]);
-
-		const result = await execute(buildArgs({
-			model: "amazon.nova-pro-v1:0",
-			stream: false,
-			messages: [{ role: "user", content: [{ type: "text", text: "hello nova" }] }],
-		}));
-
-		mock.restore();
-
-		expect(mock.calls[0]?.url.includes("/converse-stream")).toBe(true);
-		expect(result.kind).toBe("completed");
-		expect(result.ir?.choices?.[0]?.message?.content?.[0]?.type).toBe("text");
-	});
-
-	it("strips removed Claude Opus 4.7 sampling and budget params in Converse payload", async () => {
-		const mock = installFetchMock([{
-			match: (url) => url.includes("/model/anthropic.claude-opus-4-7-v1%3A0/converse-stream"),
-			onRequest: (call) => {
-				const payload = call.bodyJson ?? {};
-				expect(payload.inferenceConfig?.temperature).toBeUndefined();
-				expect(payload.inferenceConfig?.topP).toBeUndefined();
-				expect(payload.additionalModelRequestFields?.top_k).toBeUndefined();
-				expect(payload.additionalModelRequestFields?.thinking?.type).toBe("adaptive");
-				expect(payload.additionalModelRequestFields?.thinking?.display).toBe("summarized");
-				expect(payload.additionalModelRequestFields?.thinking?.budget_tokens).toBeUndefined();
-				expect(payload.additionalModelRequestFields?.output_config?.effort).toBe("xhigh");
-			},
-			response: bedrockStreamResponse(basicBedrockTextEvents("opus47 ok")),
-		}]);
-
-		const result = await execute(buildArgs({
-			model: "anthropic.claude-opus-4-7-v1:0",
-			stream: false,
-			temperature: 0.2,
-			topP: 0.9,
-			topK: 40,
-			reasoning: { enabled: true, effort: "xhigh", maxTokens: 32000 },
-			messages: [{ role: "user", content: [{ type: "text", text: "hello opus" }] }],
-		}));
-
-		mock.restore();
-
-		expect(result.kind).toBe("completed");
-		expect(result.ir?.choices?.[0]?.message?.content?.[0]?.type).toBe("text");
-	});
-
-	it("strips removed Claude Sonnet 5 sampling and budget params in Converse payload", async () => {
-		const mock = installFetchMock([{
-			match: (url) => url.includes("/model/anthropic.claude-sonnet-5-v1%3A0/converse-stream"),
-			onRequest: (call) => {
-				const payload = call.bodyJson ?? {};
-				expect(payload.inferenceConfig?.temperature).toBeUndefined();
-				expect(payload.inferenceConfig?.topP).toBeUndefined();
-				expect(payload.additionalModelRequestFields?.top_k).toBeUndefined();
-				expect(payload.additionalModelRequestFields?.thinking?.type).toBe("adaptive");
-				expect(payload.additionalModelRequestFields?.thinking?.display).toBe("summarized");
-				expect(payload.additionalModelRequestFields?.thinking?.budget_tokens).toBeUndefined();
-				expect(payload.additionalModelRequestFields?.output_config?.effort).toBe("xhigh");
-			},
-			response: bedrockStreamResponse(basicBedrockTextEvents("sonnet5 ok")),
-		}]);
-
-		const result = await execute(buildArgs({
-			model: "anthropic.claude-sonnet-5-v1:0",
-			stream: false,
-			temperature: 0.2,
-			topP: 0.9,
-			topK: 40,
-			reasoning: { enabled: true, effort: "xhigh", maxTokens: 32000 },
-			messages: [{ role: "user", content: [{ type: "text", text: "hello sonnet" }] }],
-		}));
-
-		mock.restore();
-
-		expect(result.kind).toBe("completed");
-		expect(result.ir?.choices?.[0]?.message?.content?.[0]?.type).toBe("text");
-	});
-
-	it("uses adaptive thinking for Claude Fable 5 and ignores disabled thinking in Converse payload", async () => {
-		const mock = installFetchMock([{
-			match: (url) => url.includes("/model/anthropic.claude-fable-5-v1%3A0/converse-stream"),
-			onRequest: (call) => {
-				const payload = call.bodyJson ?? {};
-				expect(payload.additionalModelRequestFields?.thinking).toEqual({
-					type: "adaptive",
-					display: "summarized",
-				});
-				expect(payload.additionalModelRequestFields?.thinking?.budget_tokens).toBeUndefined();
-			},
-			response: bedrockStreamResponse(basicBedrockTextEvents("fable5 ok")),
-		}]);
-
-		const result = await execute(buildArgs({
-			model: "anthropic.claude-fable-5-v1:0",
-			stream: false,
-			reasoning: { enabled: false },
-			messages: [{ role: "user", content: [{ type: "text", text: "hello fable" }] }],
-		}));
-
-		mock.restore();
-
-		expect(result.kind).toBe("completed");
-		expect(result.ir?.choices?.[0]?.message?.content?.[0]?.type).toBe("text");
-	});
-
-	it("normalizes /openai/v1 base URL for Converse Anthropic models", async () => {
-		const mock = installFetchMock([{
-			match: (url) => url === "https://bedrock-runtime.us-east-1.amazonaws.com/model/anthropic.claude-3-5-sonnet-v1%3A0/converse-stream",
-			response: bedrockStreamResponse(basicBedrockTextEvents("anthropic ok")),
-		}]);
-
-		const result = await execute(buildArgs({
-			model: "anthropic.claude-3-5-sonnet-v1:0",
-			stream: false,
-			messages: [{ role: "user", content: [{ type: "text", text: "hello anthropic" }] }],
-		}, {
-			byokMeta: [{
-				id: "byok_1",
-				providerId: "amazon-bedrock",
-				fingerprintSha256: "x",
-				keyVersion: null,
-				alwaysUse: true,
-				key: JSON.stringify({
-					accessKeyId: "AKIA_TEST",
-					secretAccessKey: "SECRET_TEST",
-					region: "us-east-1",
-					baseUrl: "https://bedrock-runtime.us-east-1.amazonaws.com/openai/v1",
-				}),
-			}] as any,
-		}));
-
-		mock.restore();
-
-		expect(result.kind).toBe("completed");
-		expect(result.ir?.choices?.[0]?.message?.content?.[0]?.type).toBe("text");
-	});
-
-	it("falls back to Converse when ConverseStream is unavailable", async () => {
-		const mock = installFetchMock([
-			{
-				match: (url) => url.includes("/model/anthropic.claude-3-5-sonnet-v1%3A0/converse-stream"),
-				response: new Response("stream_not_supported", { status: 404 }),
-			},
-			{
-				match: (url) => url.includes("/model/anthropic.claude-3-5-sonnet-v1%3A0/converse"),
-				response: jsonResponse({
-					output: {
-						message: {
-							content: [{ text: "fallback ok" }],
-						},
-					},
-					stopReason: "end_turn",
-					usage: {
-						inputTokens: 8,
-						outputTokens: 2,
-						totalTokens: 10,
-					},
-				}),
-			},
-		]);
-
-		const result = await execute(buildArgs({
-			model: "anthropic.claude-3-5-sonnet-v1:0",
-			stream: false,
-			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
-		}));
-
-		mock.restore();
-
-		expect(mock.calls[0]?.url.includes("/converse-stream")).toBe(true);
-		expect(mock.calls[1]?.url.includes("/converse")).toBe(true);
-		expect(result.kind).toBe("completed");
-		expect(result.ir?.choices?.[0]?.message?.content?.[0]?.type).toBe("text");
-	});
-
-	it("streams Converse events as chat chunks through the protocol surface", async () => {
-		const mock = installFetchMock([{
-			match: (url) => url.includes("/model/anthropic.claude-3-5-sonnet-v1%3A0/converse-stream"),
-			response: bedrockStreamResponse([
-				{
-					type: "messageStart",
-					data: { role: "assistant" },
-				},
-				{
-					type: "contentBlockDelta",
-					data: {
-						contentBlockIndex: 0,
-						delta: { text: "Hello stream" },
-					},
-				},
-				{
-					type: "messageStop",
-					data: { stopReason: "end_turn" },
-				},
-				{
-					type: "metadata",
-					data: {
-						usage: {
-							inputTokens: 8,
-							outputTokens: 3,
-							totalTokens: 11,
-						},
-					},
-				},
-			], {
-				headers: { "x-amzn-requestid": "bedrock_stream_req_1" },
-			}),
-		}]);
-
-		const result = await execute(buildArgs({
-			model: "anthropic.claude-3-5-sonnet-v1:0",
-			stream: true,
-			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
-		}));
-
-		mock.restore();
-
-		expect(result.kind).toBe("stream");
-		if (result.kind !== "stream") return;
-
-		const frames = parseSseJson(await readSseFrames(new Response(result.stream)));
-		const chunks = frames.filter((frame) => frame !== "[DONE]") as any[];
-		expect(chunks.some((chunk) => chunk?.choices?.[0]?.delta?.content === "Hello stream")).toBe(true);
-		expect(chunks.some((chunk) => chunk?.choices?.[0]?.finish_reason === "stop")).toBe(true);
-		expect(chunks.some((chunk) => chunk?.usage?.total_tokens === 11)).toBe(true);
-	});
-
-	it("streams Converse events to responses surface via IR normalization", async () => {
-		const mock = installFetchMock([{
-			match: (url) => url.includes("/model/anthropic.claude-3-5-sonnet-v1%3A0/converse-stream"),
-			response: bedrockStreamResponse([
-				{
-					type: "messageStart",
-					data: { role: "assistant" },
-				},
-				{
-					type: "contentBlockDelta",
-					data: {
-						contentBlockIndex: 0,
-						delta: { text: "Responses stream" },
-					},
-				},
-				{
-					type: "messageStop",
-					data: { stopReason: "end_turn" },
-				},
-			]),
-		}]);
-
-		const result = await execute(buildArgs({
-			model: "anthropic.claude-3-5-sonnet-v1:0",
-			stream: true,
-			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
-		}, {
-			endpoint: "responses",
-			protocol: "openai.responses",
-		}));
-
-		mock.restore();
-
-		expect(result.kind).toBe("stream");
-		if (result.kind !== "stream") return;
-
-		const frames = parseSseJson(await readSseFrames(new Response(result.stream)));
-		const responsePayload = frames.find((frame: any) => frame?.response?.output && Array.isArray(frame.response.output)) as any;
-		expect(responsePayload?.response?.output?.length).toBeGreaterThan(0);
-	});
-
-	it("streams Converse tool-call deltas on chat surface", async () => {
-		const mock = installFetchMock([{
-			match: (url) => url.includes("/model/anthropic.claude-3-5-sonnet-v1%3A0/converse-stream"),
-			response: bedrockStreamResponse([
-				{
-					type: "messageStart",
-					data: { role: "assistant" },
-				},
-				{
-					type: "contentBlockStart",
-					data: {
-						contentBlockIndex: 0,
-						start: {
-							toolUse: {
-								toolUseId: "tool_1",
-								name: "get_weather",
-							},
-						},
-					},
-				},
-				{
-					type: "contentBlockDelta",
-					data: {
-						contentBlockIndex: 0,
-						delta: {
-							toolUse: {
-								inputJson: "{\"city\":\"",
-							},
-						},
-					},
-				},
-				{
-					type: "contentBlockDelta",
-					data: {
-						contentBlockIndex: 0,
-						delta: {
-							toolUse: {
-								inputJson: "SF\"}",
-							},
-						},
-					},
-				},
-				{
-					type: "messageStop",
-					data: { stopReason: "tool_use" },
-				},
-			]),
-		}]);
-
-		const result = await execute(buildArgs({
-			model: "anthropic.claude-3-5-sonnet-v1:0",
-			stream: true,
-			messages: [{ role: "user", content: [{ type: "text", text: "call tool" }] }],
-		}));
-
-		mock.restore();
-
-		expect(result.kind).toBe("stream");
-		if (result.kind !== "stream") return;
-
-		const frames = parseSseJson(await readSseFrames(new Response(result.stream)));
-		const chunks = frames.filter((frame) => typeof frame === "object") as any[];
-		const toolDeltas = chunks
-			.flatMap((chunk) => chunk?.choices?.[0]?.delta?.tool_calls ?? [])
-			.map((tool: any) => String(tool?.function?.arguments ?? ""));
-
-		expect(chunks.some((chunk) => chunk?.choices?.[0]?.delta?.tool_calls?.[0]?.function?.name === "get_weather")).toBe(true);
-		expect(toolDeltas.join("")).toContain("{\"city\":\"SF\"}");
-		expect(chunks.some((chunk) => chunk?.choices?.[0]?.finish_reason === "tool_calls")).toBe(true);
-	});
-
-	it("streams Converse tool-call deltas to responses surface", async () => {
-		const mock = installFetchMock([{
-			match: (url) => url.includes("/model/anthropic.claude-3-5-sonnet-v1%3A0/converse-stream"),
-			response: bedrockStreamResponse([
-				{
-					type: "messageStart",
-					data: { role: "assistant" },
-				},
-				{
-					type: "contentBlockStart",
-					data: {
-						contentBlockIndex: 0,
-						start: {
-							toolUse: {
-								toolUseId: "tool_2",
-								name: "get_weather",
-							},
-						},
-					},
-				},
-				{
-					type: "contentBlockDelta",
-					data: {
-						contentBlockIndex: 0,
-						delta: {
-							toolUse: {
-								inputJson: "{\"city\":\"SF\"}",
-							},
-						},
-					},
-				},
-				{
-					type: "messageStop",
-					data: { stopReason: "tool_use" },
-				},
-			]),
-		}]);
-
-		const result = await execute(buildArgs({
-			model: "anthropic.claude-3-5-sonnet-v1:0",
-			stream: true,
-			messages: [{ role: "user", content: [{ type: "text", text: "call tool" }] }],
-		}, {
-			endpoint: "responses",
-			protocol: "openai.responses",
-		}));
-
-		mock.restore();
-
-		expect(result.kind).toBe("stream");
-		if (result.kind !== "stream") return;
-
-		const frames = parseSseJson(await readSseFrames(new Response(result.stream)));
-		const completed = frames.find((frame: any) => frame?.response?.output && Array.isArray(frame.response.output)) as any;
-		const functionCall = completed?.response?.output?.find((item: any) => item?.type === "function_call");
-		expect(functionCall?.name).toBe("get_weather");
-		expect(String(functionCall?.arguments ?? "")).toContain("\"city\":\"SF\"");
-	});
 });

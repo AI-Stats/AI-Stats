@@ -1,4 +1,5 @@
 ---
+icon: "clapperboard"
 title: "Video generation"
 description: "Create and manage async video jobs with the PHP SDK."
 ---
@@ -24,10 +25,10 @@ description: "Create and manage async video jobs with the PHP SDK."
 
 require 'vendor/autoload.php';
 
-use AIStats\Sdk\AIStats;
+use Phaseo\Sdk\Phaseo;
 
-$apiKey = getenv('AI_STATS_API_KEY');
-$client = new AIStats($apiKey);
+$apiKey = getenv('PHASEO_API_KEY');
+$client = new Phaseo($apiKey);
 
 $job = $client->createVideo([
     'model' => 'openai/gpt-video-1',

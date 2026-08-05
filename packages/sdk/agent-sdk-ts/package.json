@@ -1,7 +1,7 @@
 {
-  "name": "@ai-stats/agent-sdk",
-  "description": "TypeScript SDK for building agentic applications on top of AI Stats Gateway",
-  "version": "0.1.1",
+  "name": "@phaseo/agent-sdk",
+  "description": "TypeScript SDK for building agentic applications on top of Phaseo Gateway",
+  "version": "0.2.0",
   "type": "module",
   "private": false,
   "license": "MIT",
@@ -26,11 +26,11 @@
     "build": "pnpm run clean && node ../sdk-ts/node_modules/typescript/bin/tsc -p tsconfig.build.json",
     "typecheck": "node ../sdk-ts/node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
     "test": "pnpm exec vitest run",
-    "pack:dry": "pnpm publish --dry-run --no-git-checks",
+    "pack:dry": "pnpm pack --dry-run",
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@ai-stats/sdk": "workspace:*"
+    "@phaseo/sdk": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
@@ -40,7 +40,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/AI-Stats/AI-Stats",
+    "url": "https://github.com/phaseoteam/Phaseo",
     "directory": "packages/sdk/agent-sdk-ts"
   },
   "publishConfig": {

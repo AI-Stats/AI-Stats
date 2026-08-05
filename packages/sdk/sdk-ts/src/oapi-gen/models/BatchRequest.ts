@@ -7,11 +7,22 @@ export interface BatchRequest {
     trace?: boolean;
     trace_level?: "summary" | "full";
   };
-  endpoint: string;
-  input_file_id: string;
+  endpoint?:
+    | "/v1/chat/completions"
+    | "/v1/responses"
+    | "/v1/messages"
+    | "/v1/embeddings"
+    | "/v1/generateContent";
+  input_file_id?: string;
+  items?: {
+    [key: string]: unknown;
+  }[];
+  max_tokens?: number;
   metadata?: {
     [key: string]: unknown;
   };
+  model?: string;
+  prompts?: string[];
   provider?: {
     allow_fallbacks?: boolean | null;
     data_collection?: "allow" | "deny" | null;
@@ -49,10 +60,22 @@ export interface BatchRequest {
         };
     zdr?: boolean | null;
   };
+  requests?: {
+    body: {
+      [key: string]: unknown;
+    };
+    custom_id?: string;
+    method?: "POST";
+    url?: string;
+  }[];
   session_id?: string;
+  system?: string;
+  temperature?: number;
   webhook?: {
+    endpoint_id?: string;
     events?: string[];
     secret?: string;
     url?: string;
   };
+  webhook_endpoint_id?: string;
 }

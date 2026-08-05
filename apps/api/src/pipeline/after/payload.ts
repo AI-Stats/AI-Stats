@@ -155,6 +155,7 @@ function buildResponsesPayload(ctx: PipelineContext, result: RequestResult): Any
         object: "response",
         created_at: raw?.created_at ?? raw?.created ?? startedAt,
         status,
+        finish_reason: raw?.finish_reason ?? ir?.choices?.[0]?.finishReason ?? null,
         completed_at: raw?.completed_at ?? (status === "completed" ? now : null),
         error: raw?.error ?? null,
         incomplete_details: raw?.incomplete_details ?? null,
@@ -720,9 +721,11 @@ export function normalizeAnthropicUsage(raw: any, irUsage?: IRUsage) {
     const outputTokens = raw?.output_tokens ?? irUsage?.outputTokens ?? 0;
     const serviceTier = raw?.service_tier ?? (irUsage as any)?.serviceTier ?? null;
     const resolvedTier =
-        serviceTier === "standard" || serviceTier === "priority" || serviceTier === "batch"
-            ? serviceTier
-            : null;
+        serviceTier === "fast"
+            ? "priority"
+            : serviceTier === "standard" || serviceTier === "priority" || serviceTier === "batch"
+                ? serviceTier
+                : null;
     const extras = raw && typeof raw === "object" ? { ...raw } : {};
     delete extras.cache_creation;
     delete extras.cache_creation_input_tokens;

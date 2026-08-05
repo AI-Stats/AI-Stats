@@ -89,15 +89,14 @@ function KeyDialogMenuItem({
 	onOpen: () => void;
 }) {
 	return (
-		<DropdownMenuItem asChild variant={variant}>
-			<div
+		<DropdownMenuItem variant={variant} render={<div
 				className="flex w-full items-center gap-2 text-left"
-				onClick={onOpen}
-			>
+				onClick={onOpen} />}>
+
 				<Icon className="mr-2 h-4 w-4" />
 				<span>{label}</span>
 				{badge}
-			</div>
+
 		</DropdownMenuItem>
 	);
 }
@@ -173,7 +172,7 @@ function fmtUsdFromNanos(v: number) {
 
 function formatKeyReference(v?: string | null) {
 	const ref = typeof v === "string" ? v.trim() : "";
-	return ref ? `aistats_v1_sk_...${ref}` : "aistats_v1_sk_...";
+	return ref ? `phaseo_v1_sk_...${ref}` : "phaseo_v1_sk_...";
 }
 
 function GuardrailSummary({
@@ -711,15 +710,14 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 											</div>
 											</div>
 											<DropdownMenu>
-													<DropdownMenuTrigger asChild>
-														<Button
+													<DropdownMenuTrigger render={<Button
 															variant="ghost"
 															size="icon"
 															className="h-8 w-8"
-															aria-label="Actions"
-														>
+															aria-label="Actions" />}>
+
 															<MoreVertical className="h-4 w-4" />
-														</Button>
+
 													</DropdownMenuTrigger>
 													<DropdownMenuContent side="bottom" align="end" className="w-40">
 														<KeyDialogMenuItem
@@ -895,14 +893,13 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 												</TableCell>
 												<TableCell className="text-right">
 													<DropdownMenu>
-														<DropdownMenuTrigger asChild>
-															<Button
+														<DropdownMenuTrigger render={<Button
 																variant="ghost"
 																size="icon"
-																aria-label="Actions"
-															>
+																aria-label="Actions" />}>
+
 																<MoreVertical />
-															</Button>
+
 														</DropdownMenuTrigger>
 														<DropdownMenuContent
 															side="bottom"

@@ -1,0 +1,483 @@
+import Link from "next/link";
+
+import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
+import type { ModelGatewayMetadata } from "@/lib/fetchers/models/getModelGatewayMetadata";
+import type {
+	PricingRule,
+	ProviderPricing,
+} from "@/lib/fetchers/models/getModelPricing";
+import { formatModelLifecycleDate } from "@/lib/dates/modelLifecycleDates";
+import { PRICING_METER_OPTIONS } from "@/lib/pricing/meters";
+import type { ModelLineageLinks } from "./modelOverviewMetadata";
+import ModelFaqAccordion from "./ModelFaqAccordion";
+
+function parseTypes(value: string | null | undefined): string[] {
+	if (!value) return [];
+	return Array.from(
+		new Set(
+			value
+				.split(",")
+				.map((item) => item.trim().replace(/[_-]+/g, " "))
+				.filter(Boolean),
+		),
+	);
+}
+
+function joinNaturalList(values: string[]): string {
+	if (values.length === 0) return "";
+	if (values.length === 1) return values[0]!;
+	if (values.length === 2) return `${values[0]} and ${values[1]}`;
+	return `${values.slice(0, -1).join(", ")}, and ${values.at(-1)}`;
+}
+
+function getNumericDetail(
+	model: ModelOverviewPage,
+	...keys: string[]
+): number | null {
+	for (const key of keys) {
+		const detail = model.model_details.find(
+			(item) => item.detail_name.trim().toLowerCase() === key,
+		);
+		const value = Number(detail?.detail_value);
+		if (Number.isFinite(value) && value > 0) return value;
+	}
+	return null;
+}
+
+type CapabilitySupport = "supported" | "unsupported" | "unknown";
+
+function getCapabilitySupport(
+	metadata: ModelGatewayMetadata | null | undefined,
+	paramIds: string[],
+): CapabilitySupport {
+	if (!metadata) return "unknown";
+	const requested = new Set(paramIds);
+	const matchingRows = Object.values(metadata.supportedParametersByEndpoint)
+		.flat()
+		.filter((row) => requested.has(row.param_id));
+	if (matchingRows.length === 0) return "unknown";
+	return matchingRows.some((row) => row.provider_count_supported > 0)
+		? "supported"
+		: "unsupported";
+}
+
+function capabilityAnswer(args: {
+	modelName: string;
+	label: string;
+	support: CapabilitySupport;
+	isGatewayActive: boolean;
+}) {
+	if (!args.isGatewayActive) {
+		return `${args.modelName} is not currently active in the Phaseo Gateway, so ${args.label} is not available through the API.`;
+	}
+	if (args.support === "supported") {
+		return `Yes. At least one active provider route for ${args.modelName} currently advertises ${args.label} support. Provider support can vary, so requests are routed only to compatible routes.`;
+	}
+	if (args.support === "unsupported") {
+		return `No active provider route for ${args.modelName} currently advertises ${args.label} support.`;
+	}
+	return `Phaseo does not currently have enough active route metadata to confirm whether ${args.modelName} supports ${args.label}.`;
+}
+
+function getStatusDescription(status: ModelOverviewPage["status"]): string {
+	switch (status) {
+		case "Rumoured":
+			return "a rumoured AI model";
+		case "Announced":
+			return "an announced AI model";
+		case "Preview":
+			return "a preview AI model";
+		case "Limited Access":
+			return "a limited-access AI model";
+		case "Withheld":
+			return "a withheld AI model";
+		case "Deprecated":
+			return "a deprecated AI model";
+		case "Retired":
+			return "a retired AI model";
+		default:
+			return "an AI model";
+	}
+}
+
+type PricingHighlight = {
+	key: string;
+	label: string;
+	formattedPrice: string;
+};
+
+function isNonNull<T>(value: T | null): value is T {
+	return value !== null;
+}
+
+const PRICING_METER_LABELS: ReadonlyMap<string, string> = new Map(
+	PRICING_METER_OPTIONS.map((option) => [option.value, option.label]),
+);
+
+const PRICING_METER_PRIORITY = [
+	"input_text_tokens",
+	"input_tokens",
+	"output_text_tokens",
+	"output_tokens",
+	"output_reasoning_tokens",
+	"input_image_tokens",
+	"output_image_tokens",
+	"input_image",
+	"output_image",
+	"input_audio_tokens",
+	"output_audio_tokens",
+	"input_audio_seconds",
+	"input_audio_minutes",
+	"output_audio_seconds",
+	"output_audio_minutes",
+	"audio_seconds",
+	"audio_minutes",
+	"input_video_tokens",
+	"output_video_tokens",
+	"input_video_seconds",
+	"output_video_seconds",
+	"output_video",
+	"cached_read_text_tokens",
+	"implicit_cached_input_text_tokens",
+	"cached_write_text_tokens",
+	"cached_write_text_tokens_5m",
+	"cached_write_text_tokens_1h",
+	"cached_read_image_tokens",
+	"cached_read_audio_tokens",
+	"requests",
+];
+
+function formatCurrency(amount: number, currency: string): string {
+	const normalizedCurrency = normalizeCurrencyCode(currency);
+	const fractionDigits = amount === 0 ? 0 : amount < 0.0001 ? 8 : amount < 0.01 ? 4 : 2;
+	const options: Intl.NumberFormatOptions = {
+		style: "currency",
+		currency: normalizedCurrency,
+		minimumFractionDigits: fractionDigits,
+		maximumFractionDigits: fractionDigits,
+	};
+	try {
+		return new Intl.NumberFormat("en-US", options).format(amount);
+	} catch {
+		return new Intl.NumberFormat("en-US", {
+			...options,
+			currency: "USD",
+		}).format(amount);
+	}
+}
+
+function normalizeCurrencyCode(currency: string): string {
+	const normalized = currency.trim().toUpperCase();
+	return /^[A-Z]{3}$/.test(normalized) ? normalized : "USD";
+}
+
+function normaliseRulePrice(rule: PricingRule): {
+	price: number;
+	formattedPrice: string;
+	billingKey: string;
+} | null {
+	const rawPrice = Number(rule.price_per_unit);
+	const unitSize = Number(rule.unit_size);
+	if (!Number.isFinite(rawPrice) || rawPrice < 0 || !Number.isFinite(unitSize) || unitSize <= 0) {
+		return null;
+	}
+
+	const unit = rule.unit.trim().toLowerCase().replace(/s$/, "");
+	const millionUnitLabels: Record<string, string> = {
+		token: "1M tokens",
+		pixel: "1M pixels",
+		character: "1M characters",
+	};
+	const millionUnitLabel = millionUnitLabels[unit];
+	if (millionUnitLabel) {
+		const price = rawPrice * (1_000_000 / unitSize);
+		return {
+			price,
+			formattedPrice: `${formatCurrency(price, rule.currency)} per ${millionUnitLabel}`,
+			billingKey: `${normalizeCurrencyCode(rule.currency)}:${millionUnitLabel}`,
+		};
+	}
+
+	const price = rawPrice / unitSize;
+	const unitLabel = unit || "unit";
+	return {
+		price,
+		formattedPrice: `${formatCurrency(price, rule.currency)} per ${unitLabel}`,
+		billingKey: `${normalizeCurrencyCode(rule.currency)}:${unitLabel}`,
+	};
+}
+
+function getPricingHighlights(pricing: ProviderPricing[]): PricingHighlight[] {
+	const candidates = pricing.flatMap((provider) =>
+		provider.pricing_rules
+			.filter((rule) => {
+				const plan = rule.pricing_plan.trim().toLowerCase();
+				return !plan || plan === "standard" || plan === "free";
+			})
+			.map((rule) => {
+				const normalized = normaliseRulePrice(rule);
+				if (!normalized) return null;
+				return {
+					meter: rule.meter,
+					...normalized,
+				};
+			})
+			.filter(isNonNull),
+	);
+
+	const lowestByMeter = new Map<string, (typeof candidates)[number]>();
+	for (const candidate of candidates) {
+		const key = `${candidate.meter}:${candidate.billingKey}`;
+		const current = lowestByMeter.get(key);
+		if (!current || candidate.price < current.price) lowestByMeter.set(key, candidate);
+	}
+
+	return Array.from(lowestByMeter.values())
+		.sort((a, b) => {
+			const aPriority = PRICING_METER_PRIORITY.indexOf(a.meter);
+			const bPriority = PRICING_METER_PRIORITY.indexOf(b.meter);
+			return (aPriority < 0 ? 100 : aPriority) - (bPriority < 0 ? 100 : bPriority);
+		})
+		.slice(0, 4)
+		.map((candidate) => ({
+			key: `${candidate.meter}:${candidate.billingKey}`,
+			label:
+				PRICING_METER_LABELS.get(candidate.meter) ??
+				candidate.meter
+					.replace(/_/g, " ")
+					.replace(/\b\w/g, (letter) => letter.toUpperCase()),
+			formattedPrice: candidate.formattedPrice,
+		}));
+}
+
+export default function ModelFaqSection({
+	model,
+	benchmarkCount,
+	activeProviderCount,
+	isGatewayActive,
+	pricing,
+	relatedModels,
+	gatewayMetadata,
+}: {
+	model: ModelOverviewPage;
+	benchmarkCount: number;
+	activeProviderCount: number;
+	isGatewayActive: boolean;
+	pricing: ProviderPricing[];
+	relatedModels?: ModelLineageLinks;
+	gatewayMetadata?: ModelGatewayMetadata | null;
+}) {
+	const modelName = model.name;
+	const organisationName = model.organisation.name;
+	const releaseDate = model.release_date ?? model.announcement_date ?? null;
+	const inputTypes = parseTypes(model.input_types);
+	const outputTypes = parseTypes(model.output_types);
+	const inputContextLength = getNumericDetail(
+		model,
+		"input_context_length",
+		"context_length",
+		"max_context_length",
+	);
+	const outputContextLength = getNumericDetail(
+		model,
+		"output_context_length",
+		"max_output_tokens",
+	);
+	const pricingHighlights = isGatewayActive ? getPricingHighlights(pricing) : [];
+	// Native tool definitions are the minimum requirement for tool calling.
+	// tool_choice controls selection behaviour but cannot establish tool support alone.
+	const toolCallingSupport = getCapabilitySupport(gatewayMetadata, ["tools"]);
+	const structuredOutputSupport = getCapabilitySupport(gatewayMetadata, [
+		"structured_outputs",
+	]);
+
+	const items = [
+		{
+			question: `What is ${modelName}?`,
+			answer: (
+				<>
+					{modelName} is {getStatusDescription(model.status)} from{" "}
+					<Link
+						href={`/organisations/${model.organisation_id}`}
+						className="font-medium underline underline-offset-4"
+					>
+						{organisationName}
+					</Link>
+					.
+				</>
+			),
+		},
+		...(inputContextLength || outputContextLength
+			? [
+					{
+						question: `What is the context length of ${modelName}?`,
+						answer: (
+							<>
+								{inputContextLength
+									? `${modelName} has a recorded input context length of ${inputContextLength.toLocaleString("en-US")} tokens`
+									: `${modelName} does not have an input context length recorded`}
+								{outputContextLength
+									? ` and a recorded maximum output length of ${outputContextLength.toLocaleString("en-US")} tokens`
+									: ""}
+								.
+							</>
+						),
+					},
+				]
+			: []),
+		...(pricingHighlights.length > 0
+			? [
+					{
+						question: `How much does ${modelName} cost?`,
+						answer: (
+							<>
+				The lowest base rates currently recorded across providers for {modelName} are{" "}
+				{pricingHighlights.map((highlight, index) => (
+					<span key={highlight.key}>
+										{index > 0 ? (index === pricingHighlights.length - 1 ? "; and " : "; ") : ""}
+										{highlight.label} at {highlight.formattedPrice}
+									</span>
+								))}
+								. The{" "}
+								<Link href="#pricing" className="font-medium underline underline-offset-4">
+									pricing section
+								</Link>{" "}
+								shows every recorded provider, pricing plan, meter, and condition.
+							</>
+						),
+					},
+				]
+			: []),
+		{
+			question: `What providers serve ${modelName}, and can I use it via API?`,
+			answer: (
+				<>
+					{isGatewayActive && activeProviderCount > 0
+						? `${modelName} is available through the Phaseo API, with ${activeProviderCount} active ${activeProviderCount === 1 ? "provider" : "providers"} currently recorded. `
+						: `${modelName} is not currently marked as active in the Phaseo Gateway. `}
+					The{" "}
+					<Link href="#providers" className="font-medium underline underline-offset-4">
+						providers section
+					</Link>{" "}
+					shows the routes and availability currently recorded by Phaseo.
+				</>
+			),
+		},
+		{
+			question: `Does ${modelName} support tool calling?`,
+			answer: capabilityAnswer({
+				modelName,
+				label: "tool calling",
+				support: toolCallingSupport,
+				isGatewayActive,
+			}),
+		},
+		{
+			question: `Does ${modelName} support structured outputs?`,
+			answer: capabilityAnswer({
+				modelName,
+				label: "structured outputs",
+				support: structuredOutputSupport,
+				isGatewayActive,
+			}),
+		},
+		...(relatedModels?.previous || relatedModels?.next || model.family_id
+			? [
+					{
+						question: `What models are related to ${modelName}?`,
+						answer: (
+							<>
+								{relatedModels?.previous ? (
+									<>
+										Phaseo records{" "}
+										<Link
+											href={`/models/${relatedModels.previous.modelId}`}
+											className="font-medium underline underline-offset-4"
+										>
+											{relatedModels.previous.modelName}
+										</Link>{" "}
+										as the previous model.{" "}
+									</>
+								) : null}
+								{relatedModels?.next ? (
+									<>
+										<Link
+											href={`/models/${relatedModels.next.modelId}`}
+											className="font-medium underline underline-offset-4"
+										>
+											{relatedModels.next.modelName}
+										</Link>{" "}
+										is recorded as the next model.{" "}
+									</>
+								) : null}
+								{model.family_id ? (
+									<>
+										View the{" "}
+										<Link
+											href={`/families/${model.family_id}`}
+											className="font-medium underline underline-offset-4"
+										>
+											model family
+										</Link>{" "}
+										for the complete release history.
+									</>
+								) : null}
+							</>
+						),
+					},
+				]
+			: []),
+		...(benchmarkCount > 0
+			? [
+					{
+						question: `What benchmark results are available for ${modelName}?`,
+						answer: (
+							<>
+								Phaseo currently tracks {benchmarkCount}{" "}
+								{benchmarkCount === 1 ? "benchmark result" : "benchmark results"}
+								{" "}for {modelName}. Review the{" "}
+								<Link href="#benchmarks" className="font-medium underline underline-offset-4">
+									benchmark section
+								</Link>{" "}
+								for scores, ranks, methodology context, and available sources.
+							</>
+						),
+					},
+				]
+			: []),
+		...(inputTypes.length > 0 || outputTypes.length > 0
+			? [
+					{
+						question: `What modalities does ${modelName} support?`,
+						answer: (
+							<>
+								{inputTypes.length > 0
+									? `${modelName} accepts ${joinNaturalList(inputTypes)} input${inputTypes.length === 1 ? "" : "s"}. `
+									: ""}
+								{outputTypes.length > 0
+									? `It produces ${joinNaturalList(outputTypes)} output${outputTypes.length === 1 ? "" : "s"}.`
+									: ""}
+							</>
+						),
+					},
+				]
+			: []),
+		...(releaseDate
+			? [
+					{
+						question: `When was ${modelName} released?`,
+						answer: `${modelName} was ${model.release_date ? "released" : "announced"} on ${formatModelLifecycleDate(releaseDate)}.`,
+					},
+				]
+			: []),
+	];
+
+	return (
+		<section id="faq" className="scroll-mt-28 space-y-4 border-t border-border/60 pt-5">
+			<h2 className="text-center text-lg font-medium tracking-tight">
+				Frequently Asked Questions
+			</h2>
+			<ModelFaqAccordion items={items} />
+		</section>
+	);
+}

@@ -16,27 +16,32 @@
   "family_id": "anthropic/claude-4.1",
   "page_notice": {
     "tone": "warning",
-    "markdown": "Anthropic deprecated `claude-opus-4-1-20250805` on June 5, 2026 and plans to retire it on August 5, 2026. New integrations should move to [`anthropic/claude-opus-4.8`](/anthropic/claude-opus-4.8). If you still run Opus 4.1 traffic, use the [Opus 4.1 to 4.8 migration guide](/docs/v1/model-migrations/anthropic-claude-opus-4-1-to-4-8)."
+    "markdown": "Anthropic deprecated `claude-opus-4-1-20250805` on June 5, 2026 and plans to retire it on August 5, 2026. New integrations should move to [`anthropic/claude-opus-5`](/anthropic/claude-opus-5). If you still run Opus 4.1 traffic, use the [Opus 4.1 to 4.8 migration guide](/docs/v1/model-migrations/anthropic-claude-opus-4-1-to-4-8)."
   },
   "links": [
     {
-      "platform": "api_reference",
+      "title": "API Reference",
+      "kind": "api_reference",
       "url": "https://docs.anthropic.com/en/docs/about-claude/models/overview#model-comparison-table"
     },
     {
-      "platform": "playground",
+      "title": "Playground",
+      "kind": "playground",
       "url": "https://console.anthropic.com/"
     },
     {
-      "platform": "paper",
+      "title": "Paper",
+      "kind": "paper",
       "url": "https://assets.anthropic.com/m/4c024b86c698d3d4/original/Claude-4-1-System-Card.pdf"
     },
     {
-      "platform": "announcement",
+      "title": "Announcement",
+      "kind": "announcement",
       "url": "https://www.anthropic.com/news/claude-opus-4-1"
     },
     {
-      "platform": "docs",
+      "title": "Docs",
+      "kind": "docs",
       "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations#2026-06-05-claude-opus-4-1-model"
     }
   ],
@@ -69,7 +74,7 @@
       "is_self_reported": true,
       "other_info": null,
       "source_link": "https://www.anthropic.com/news/claude-opus-4-1",
-      "rank": 54
+      "rank": 57
     },
     {
       "benchmark_id": "mmmlu",
@@ -151,5 +156,75 @@
       "source_link": "https://github.com/lechmazur/elimination_game",
       "rank": 9
     }
-  ]
+  ],
+  "model_type": null,
+  "knowledge_cutoff": "2025-03-01T00:00:00",
+  "limits": {
+    "context": 200000,
+    "input": 200000,
+    "output": 32000
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "api_reference",
+      "url": "https://docs.anthropic.com/en/docs/about-claude/models/overview#model-comparison-table",
+      "accessed_at": null,
+      "notes": null
+    },
+    {
+      "kind": "playground",
+      "url": "https://console.anthropic.com/",
+      "accessed_at": null,
+      "notes": null
+    },
+    {
+      "kind": "paper",
+      "url": "https://assets.anthropic.com/m/4c024b86c698d3d4/original/Claude-4-1-System-Card.pdf",
+      "accessed_at": null,
+      "notes": null
+    },
+    {
+      "kind": "announcement",
+      "url": "https://www.anthropic.com/news/claude-opus-4-1",
+      "accessed_at": null,
+      "notes": null
+    },
+    {
+      "kind": "docs",
+      "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations#2026-06-05-claude-opus-4-1-model",
+      "accessed_at": null,
+      "notes": null
+    }
+  ],
+  "verification": {
+    "status": "unverified",
+    "checked_at": null,
+    "notes": null
+  },
+  "last_updated": null,
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
 	MonitorDataTable,
 	type ModelData,
@@ -8,6 +9,8 @@ import { type MonitorModelTableRow } from "@/lib/fetchers/models/table-view/type
 
 interface MonitorTableClientProps {
 	initialModelData: MonitorModelTableRow[];
+	effectiveStatuses?: string[];
+	stickyHeaderOffset?: number;
 }
 
 function formatModelDisplayName(
@@ -24,10 +27,12 @@ function formatModelDisplayName(
 
 export function MonitorTableClient({
 	initialModelData,
+	effectiveStatuses,
+	stickyHeaderOffset,
 }: MonitorTableClientProps) {
 	// Convert MonitorModelData to ModelData format for the table
-	const modelData: ModelData[] = initialModelData.map((item) => {
-		return {
+	const modelData = useMemo<ModelData[]>(
+		() => initialModelData.map((item) => ({
 			id: item.id,
 			model: formatModelDisplayName(
 				item.model,
@@ -43,12 +48,21 @@ export function MonitorTableClient({
 			context: item.context,
 			maxOutput: item.maxOutput,
 			quantization: item.quantization,
+			supportedParameters: item.supportedParameters,
 			tier: item.tier,
 			added: item.added,
 			retired: item.retired,
 			popularityTokensWeek: item.popularityTokensWeek ?? 0,
-		};
-	});
+		})),
+		[initialModelData],
+	);
 
-	return <MonitorDataTable data={modelData} loading={false} />;
+	return (
+		<MonitorDataTable
+			data={modelData}
+			loading={false}
+			effectiveStatuses={effectiveStatuses}
+			stickyHeaderOffset={stickyHeaderOffset}
+		/>
+	);
 }

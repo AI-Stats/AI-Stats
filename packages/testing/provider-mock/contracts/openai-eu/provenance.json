@@ -1,0 +1,10 @@
+{
+  "inheritedFrom": "openai",
+  "parentSource": {
+    "kind": "official-openapi",
+    "url": "https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.yaml",
+    "repository": "https://github.com/openai/openai-openapi",
+    "license": "MIT"
+  },
+  "bundleSha256": "fca1be766d19eaddd40be88e1becbb8b9bdb27088aff0b010905eefef4056b5d"
+}

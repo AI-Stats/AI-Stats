@@ -1,4 +1,4 @@
-import { ReactNode, Suspense } from "react";
+import { ReactNode } from "react";
 import Link from "next/link";
 import {
 	fetchFrontendModelHeader,
@@ -6,12 +6,10 @@ import {
 	fetchFrontendModelPageNotice,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { Logo } from "@/components/Logo";
-import ModelEditButton from "./edit/ModelEditButton";
 import { Badge } from "@/components/ui/badge";
-import ModelNotFoundState from "@/components/(data)/model/ModelNotFoundState";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Scale } from "lucide-react";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import ModelIdentifierControl from "./ModelIdentifierControl";
 import ModelDescriptionPanel from "./ModelDescriptionPanel";
@@ -19,6 +17,8 @@ import ModelPageNotice from "./ModelPageNotice";
 import ModelStickyHeader from "./ModelStickyHeader";
 import ModelStatusBanner from "./overview/ModelStatusBanner";
 import { resolveModelDescription } from "@/lib/models/modelDescription";
+import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
+import type { ModelOverviewHeader } from "@/lib/fetchers/models/getModelOverviewHeader";
 import {
 	FREE_ROUTER_DESCRIPTION,
 	FREE_ROUTER_MODEL_ID,
@@ -32,12 +32,8 @@ interface ModelDetailShellProps {
 	children: ReactNode;
 	tab?: string;
 	includeHidden?: boolean;
-}
-
-function isModelNotFoundError(error: unknown): boolean {
-	const message = error instanceof Error ? error.message.toLowerCase() : String(error ?? "").toLowerCase();
-	if (message.includes("model not found")) return true;
-	return false;
+	header?: ModelOverviewHeader;
+	modelOverview?: ModelOverviewPage | null;
 }
 
 function getVisibleTabKeys(modelStatus?: string | null): string[] {
@@ -71,6 +67,8 @@ export default async function ModelDetailShell({
 	children,
 	tab,
 	includeHidden = false,
+	header: prefetchedHeader,
+	modelOverview: prefetchedModelOverview,
 }: ModelDetailShellProps) {
 	const isFreeRouter = isFreeRouterModelId(modelId);
 	const [header, modelOverview, modelPageNotice] = isFreeRouter
@@ -80,7 +78,7 @@ export default async function ModelDetailShell({
 					name: FREE_ROUTER_NAME,
 					organisation_id: FREE_ROUTER_ORGANISATION_ID,
 					organisation: {
-						name: "AI Stats",
+						name: "Phaseo",
 						country_code: "",
 					},
 					aliases: [],
@@ -91,18 +89,15 @@ export default async function ModelDetailShell({
 				null,
 			]
 		: await Promise.all([
-				fetchFrontendModelHeader(modelId, includeHidden).catch((error) => {
-					if (isModelNotFoundError(error)) {
-						return null;
-					}
-					throw error;
-				}),
-				fetchFrontendModelOverview(modelId).catch(() => null),
+				prefetchedHeader ?? fetchFrontendModelHeader(modelId, includeHidden).catch(() => null),
+				prefetchedModelOverview !== undefined
+					? Promise.resolve(prefetchedModelOverview)
+					: fetchFrontendModelOverview(modelId).catch(() => null),
 				fetchFrontendModelPageNotice(modelId, includeHidden).catch(() => null),
 			]);
 
 	if (!header) {
-		return <ModelNotFoundState modelId={modelId} />;
+		notFound();
 	}
 	const modelDescription = isFreeRouter
 		? FREE_ROUTER_DESCRIPTION
@@ -167,32 +162,30 @@ export default async function ModelDetailShell({
 									</Link>{" "}
 									<span>{header.name}</span>
 								</h1>
-								<Suspense fallback={null}>
-									<ModelEditButton modelId={modelId} tab={tab} />
-								</Suspense>
 								{includeHidden && header.hidden ? (
 									<Badge variant="secondary">Hidden</Badge>
 								) : null}
 							</div>
 							<div className="mt-2 flex w-full flex-col items-start gap-2">
-								<ModelIdentifierControl
-									defaultIdentifier={header.model_id}
-									aliases={header.aliases}
-								/>
+				<ModelIdentifierControl
+					defaultIdentifier={header.model_id}
+					aliases={header.aliases}
+					variants={header.variants}
+				/>
 							</div>
 						</div>
 					</div>
 
 					<div className="flex w-full flex-row gap-2 md:mt-0 md:ml-6 md:w-auto md:flex-col">
 						{canChat ? (
-							<Button asChild variant="outline" size="sm" className="flex-1 justify-center md:flex-none">
+							<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg md:flex-none">
 								<Link href={`/chat?model=${modelId}`}>
 									<MessageSquare className="h-4 w-4" />
 									Chat
 								</Link>
 							</Button>
 						) : null}
-						<Button asChild variant="outline" size="sm" className="flex-1 justify-center md:flex-none">
+						<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg md:flex-none">
 							<Link href={`/compare?models=${modelId}`}>
 								<Scale className="h-4 w-4" />
 								Compare

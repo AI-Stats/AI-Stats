@@ -44,8 +44,6 @@ interface SavedConfig {
 	id: string;
 	name: string;
 	gatewayUrl: string;
-	gatewayApiKey: string;
-	openaiApiKey: string;
 	prompts: string[];
 	numRuns: number;
 	createdAt: number;
@@ -437,7 +435,18 @@ export default function LatencyComparisonClient() {
 		const saved = localStorage.getItem("latency-comparison-configs");
 		if (saved) {
 			try {
-				setSavedConfigs(JSON.parse(saved));
+				const parsed = JSON.parse(saved) as SavedConfig[];
+				const sanitized = parsed.map((config) => ({
+					id: config.id,
+					name: config.name,
+					gatewayUrl: config.gatewayUrl,
+					prompts: config.prompts,
+					numRuns: config.numRuns,
+					createdAt: config.createdAt,
+				}));
+				setSavedConfigs(sanitized);
+				// Remove credentials persisted by versions before this security fix.
+				localStorage.setItem("latency-comparison-configs", JSON.stringify(sanitized));
 			} catch {
 				// Ignore
 			}
@@ -493,8 +502,6 @@ export default function LatencyComparisonClient() {
 			id: Date.now().toString(),
 			name: configName,
 			gatewayUrl,
-			gatewayApiKey,
-			openaiApiKey,
 			prompts: [...prompts],
 			numRuns,
 			createdAt: Date.now(),
@@ -508,8 +515,6 @@ export default function LatencyComparisonClient() {
 
 	const loadConfig = (config: SavedConfig) => {
 		setGatewayUrl(config.gatewayUrl);
-		setGatewayApiKey(config.gatewayApiKey);
-		setOpenaiApiKey(config.openaiApiKey);
 		setPrompts(config.prompts.length > 0 ? config.prompts : ["Write a short haiku about coding."]);
 		setNumRuns(config.numRuns);
 	};
@@ -694,7 +699,7 @@ export default function LatencyComparisonClient() {
 		.map((r) => r.openai.throughput!);
 
 	const gatewayStats = calculateStats(gatewayTimes);
-	const openaiStats = calculateStats(openaiTimes);
+	const openphaseo = calculateStats(openaiTimes);
 	const gatewayTTFTStats = calculateStats(gatewayTTFTs);
 	const openaiTTFTStats = calculateStats(openaiTTFTs);
 	const gatewayThroughputStats = calculateStats(gatewayThroughputs);
@@ -1044,23 +1049,23 @@ export default function LatencyComparisonClient() {
 											<div className="space-y-2 text-sm">
 												<div className="flex justify-between">
 													<span className="text-muted-foreground">Average</span>
-													<span className="font-mono">{formatTime(openaiStats.avg)}</span>
+													<span className="font-mono">{formatTime(openphaseo.avg)}</span>
 												</div>
 												<div className="flex justify-between">
 													<span className="text-muted-foreground">Median</span>
-													<span className="font-mono">{formatTime(openaiStats.median)}</span>
+													<span className="font-mono">{formatTime(openphaseo.median)}</span>
 												</div>
 												<div className="flex justify-between">
 													<span className="text-muted-foreground">Std Dev</span>
-													<span className="font-mono">{formatTime(openaiStats.stdDev)}</span>
+													<span className="font-mono">{formatTime(openphaseo.stdDev)}</span>
 												</div>
 												<div className="flex justify-between">
 													<span className="text-muted-foreground">Min (Best)</span>
-													<span className="font-mono text-green-500">{formatTime(openaiStats.min)}</span>
+													<span className="font-mono text-green-500">{formatTime(openphaseo.min)}</span>
 												</div>
 												<div className="flex justify-between">
 													<span className="text-muted-foreground">Max (Worst)</span>
-													<span className="font-mono text-red-500">{formatTime(openaiStats.max)}</span>
+													<span className="font-mono text-red-500">{formatTime(openphaseo.max)}</span>
 												</div>
 											</div>
 										</div>

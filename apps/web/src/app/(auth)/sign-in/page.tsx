@@ -4,6 +4,7 @@ import { Login } from "@/components/(gateway)/auth/Login";
 import { AuthWordmark } from "@/components/(gateway)/auth/AuthWordmark";
 import { sanitizeReturnUrl } from "@/lib/auth/return-url";
 import { AuthSuspenseFallback } from "../AuthSuspenseFallback";
+import { samlSsoFlag } from "@/lib/flags";
 
 type SignInPageProps = {
 	searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -12,7 +13,7 @@ type SignInPageProps = {
 export const metadata: Metadata = {
 	title: "Sign In",
 	description:
-		"Sign in to AI Stats to access the Gateway, manage teams, monitor usage, and continue with provider routing, model analytics, and account-level billing controls.",
+		"Sign in to Phaseo to access the Gateway, manage teams, monitor usage, and continue with provider routing, model analytics, and account-level billing controls.",
 };
 
 export default function Page({ searchParams }: SignInPageProps) {
@@ -24,6 +25,7 @@ export default function Page({ searchParams }: SignInPageProps) {
 }
 
 async function SignInPageContent({ searchParams }: SignInPageProps) {
+	const ssoEnabled = await samlSsoFlag();
 	const params = (await searchParams) ?? {};
 	const signup = Array.isArray(params.signup) ? params.signup[0] : params.signup;
 	const signupNotice =
@@ -52,6 +54,7 @@ async function SignInPageContent({ searchParams }: SignInPageProps) {
 						signupNotice={signupNotice}
 						authError={authError}
 						returnUrl={returnUrl}
+						ssoEnabled={ssoEnabled}
 					/>
 				</div>
 			</div>

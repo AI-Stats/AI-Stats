@@ -16,22 +16,22 @@
   "links": [
     {
       "platform": "BytePlus",
-      "name": "BytePlus Seedream 4.0-5.0 tutorial",
+      "title": "BytePlus Seedream 4.0-5.0 tutorial",
       "url": "https://docs.byteplus.com/en/docs/ModelArk/1824121"
     },
     {
       "platform": "BytePlus",
-      "name": "BytePlus Image generation API",
+      "title": "BytePlus Image generation API",
       "url": "https://docs.byteplus.com/en/docs/ModelArk/1541523"
     },
     {
       "platform": "BytePlus",
-      "name": "BytePlus pricing",
+      "title": "BytePlus pricing",
       "url": "https://docs.byteplus.com/en/docs/ModelArk/1544106"
     },
     {
-      "platform": "ByteDance",
-      "name": "Seedream 5.0 Pro product page",
+      "platform": "BytePlus",
+      "title": "Seedream 5.0 Pro product page",
       "url": "https://ai.byteplus.com/lumina/en/image/seedream-5-0-pro-official"
     }
   ],
@@ -42,7 +42,7 @@
     },
     {
       "name": "provider_model_slug",
-      "value": "seedream-5-0-pro-260628"
+      "value": "dola-seedream-5-0-pro-260628"
     },
     {
       "name": "reference_image_limit",

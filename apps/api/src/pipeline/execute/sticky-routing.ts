@@ -1,12 +1,15 @@
 // Purpose: Cache-aware routing hints.
 // Why: Prefer providers that recently served cached responses for the same request context.
-// How: Store short-lived (5 min) provider hints in KV keyed by team+endpoint+model+context hash.
+// How: Store 15-minute context hints and activity-refreshed session hints in KV.
 
 import type { Endpoint } from "@core/types";
 import { getJson, putJson } from "@/core/kv";
+import { dispatchBackground } from "@/runtime/env";
 
 const STICKY_PREFIX = "gateway:routing:sticky";
-const STICKY_TTL_SECONDS = 300; // 5 minutes
+const STICKY_TTL_SECONDS = 15 * 60;
+const SESSION_STICKY_TTL_SECONDS = 24 * 60 * 60;
+const STICKY_L1_MAX_ENTRIES = 1_000;
 const CONTEXT_HASH_VERSION = "v2-opening-anchors";
 const CACHE_AWARE_ROUTING_ENDPOINTS = new Set<Endpoint>([
     "responses",
@@ -18,14 +21,47 @@ export type StickyRoutingEntry = {
     providerId: string;
     cachedReadTokens: number;
     contextKey: string;
-    source: "prompt_cache_key" | "context_hash";
+    source: "prompt_cache_key" | "context_hash" | "session_id";
     createdAt: string;
 };
 
 export type StickyRoutingContext = {
     key: string;
-    source: "prompt_cache_key" | "context_hash";
+    source: "prompt_cache_key" | "context_hash" | "session_id";
 };
+
+type StickyL1Entry = {
+    value: StickyRoutingEntry | null;
+    expiresAtMs: number;
+};
+
+const stickyL1 = new Map<string, StickyL1Entry>();
+const stickyL1Inflight = new Map<string, Promise<void>>();
+
+function stickyTtlSeconds(value: StickyRoutingEntry | null): number {
+    return value?.source === "session_id" ? SESSION_STICKY_TTL_SECONDS : STICKY_TTL_SECONDS;
+}
+
+function setStickyL1(key: string, value: StickyRoutingEntry | null): void {
+    if (!stickyL1.has(key) && stickyL1.size >= STICKY_L1_MAX_ENTRIES) {
+        const oldestKey = stickyL1.keys().next().value;
+        if (typeof oldestKey === "string") stickyL1.delete(oldestKey);
+    }
+    stickyL1.set(key, {
+        value,
+        expiresAtMs: Date.now() + stickyTtlSeconds(value) * 1_000,
+    });
+}
+
+function refreshStickyL1(key: string): void {
+    if (stickyL1Inflight.has(key)) return;
+    const refresh = getJson<StickyRoutingEntry>(key)
+        .then((value) => setStickyL1(key, value))
+        .catch(() => setStickyL1(key, null))
+        .finally(() => stickyL1Inflight.delete(key));
+    stickyL1Inflight.set(key, refresh);
+    dispatchBackground(refresh);
+}
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
     if (!value || typeof value !== "object") return false;
@@ -307,11 +343,36 @@ export function resolveCacheAwareRoutingPreference(body: any, fallback = true): 
     return fallback;
 }
 
+export function resolveSessionAffinityPreference(body: any, fallback = true): boolean {
+    const routing = body?.routing;
+    const provider = body?.provider;
+    const explicit = pickFirstBoolean([
+        provider?.session_affinity,
+        provider?.sessionAffinity,
+        routing?.session_affinity,
+        routing?.sessionAffinity,
+    ]);
+    if (explicit !== null) return explicit;
+    return fallback;
+}
+
 export async function resolveStickyRoutingContext(args: {
     endpoint: Endpoint;
     body: any;
 }): Promise<StickyRoutingContext | null> {
     if (!isCacheAwareRoutingEndpoint(args.endpoint)) return null;
+
+    const sessionId = pickFirstString([
+        args.body?.session_id,
+        args.body?.sessionId,
+    ]);
+    if (sessionId && resolveSessionAffinityPreference(args.body)) {
+        const digest = await sha256Hex(`session-id:${sessionId}`);
+        return {
+            key: `session:${digest}`,
+            source: "session_id",
+        };
+    }
 
     const explicitPromptCacheKey = pickFirstString([
         args.body?.prompt_cache_key,
@@ -352,7 +413,24 @@ export async function readStickyRouting(
     contextKey: string
 ): Promise<StickyRoutingEntry | null> {
     const key = buildStickyRoutingKey(workspaceId, endpoint, model, contextKey);
-    return await getJson<StickyRoutingEntry>(key);
+    const value = await getJson<StickyRoutingEntry>(key);
+    setStickyL1(key, value);
+    return value;
+}
+
+/** Serve an isolate-local hint and refresh KV asynchronously on cold/expiry. */
+export function readStickyRoutingOptimistic(
+    workspaceId: string,
+    endpoint: Endpoint,
+    model: string,
+    contextKey: string
+): StickyRoutingEntry | null {
+    const key = buildStickyRoutingKey(workspaceId, endpoint, model, contextKey);
+    const cached = stickyL1.get(key);
+    if (cached && cached.expiresAtMs > Date.now()) return cached.value;
+    if (cached) stickyL1.delete(key);
+    refreshStickyL1(key);
+    return null;
 }
 
 export async function writeStickyRouting(
@@ -371,7 +449,13 @@ export async function writeStickyRouting(
         source: context.source,
         createdAt: new Date().toISOString(),
     };
-    await putJson(key, payload, STICKY_TTL_SECONDS);
+    setStickyL1(key, payload);
+    await putJson(key, payload, stickyTtlSeconds(payload));
+}
+
+export function resetStickyRoutingStateForTests(): void {
+    stickyL1.clear();
+    stickyL1Inflight.clear();
 }
 
 export async function maybeWriteStickyRoutingFromUsage(args: {
@@ -389,8 +473,8 @@ export async function maybeWriteStickyRoutingFromUsage(args: {
     const context = await resolveStickyRoutingContext({ endpoint: args.endpoint, body: args.body });
     if (!context) return;
 
-    const cachedReadTokens = extractCachedReadTokens(args.usage);
-    if (cachedReadTokens === null) return;
+    const cacheAffinityTokens = extractCacheAffinityTokens(args.usage);
+    if (cacheAffinityTokens === null) return;
 
     await writeStickyRouting(
         args.workspaceId,
@@ -398,15 +482,15 @@ export async function maybeWriteStickyRoutingFromUsage(args: {
         args.model,
         context,
         args.providerId,
-        cachedReadTokens
+        cacheAffinityTokens
     );
 }
 
 export function stickyRoutingCacheBoostMultiplier(cachedReadTokens: number): number {
     if (!Number.isFinite(cachedReadTokens) || cachedReadTokens <= 0) return 1;
-    const log10 = Math.log10(cachedReadTokens + 1);
-    const boost = Math.min(12, log10 * 4); // 10 tokens ~5x, 1k ~13x
-    return 1 + boost;
+    // Affinity is a pin, not a soft preference. Health breakers and policy
+    // filters still win, so failover remains available when the provider is bad.
+    return 1_000_000;
 }
 
 export function extractCachedReadTokens(usage: any): number | null {
@@ -417,4 +501,28 @@ export function extractCachedReadTokens(usage: any): number | null {
         : undefined;
     const value = direct ?? nested;
     return typeof value === "number" && value > 0 ? value : null;
+}
+
+export function extractCacheAffinityTokens(usage: any): number | null {
+    const cachedReadTokens = extractCachedReadTokens(usage);
+    if (cachedReadTokens !== null) return cachedReadTokens;
+    if (!usage || typeof usage !== "object") return null;
+
+    const directWrite = [
+        usage.cached_write_text_tokens,
+        usage.cache_creation_input_tokens,
+        usage?.input_tokens_details?.cache_creation_input_tokens,
+        usage?.input_tokens_details?.cache_creation_tokens,
+        usage?.prompt_tokens_details?.cache_creation_input_tokens,
+        usage?.prompt_tokens_details?.cache_creation_tokens,
+    ].find((value) => typeof value === "number" && value > 0);
+    if (typeof directWrite === "number") return directWrite;
+
+    const splitWrite = [
+        usage.cached_write_text_tokens_5m,
+        usage.cached_write_text_tokens_1h,
+        usage?.cache_creation?.ephemeral_5m_input_tokens,
+        usage?.cache_creation?.ephemeral_1h_input_tokens,
+    ].reduce((sum, value) => sum + (typeof value === "number" && value > 0 ? value : 0), 0);
+    return splitWrite > 0 ? splitWrite : null;
 }

@@ -2,9 +2,9 @@ import Link from "next/link";
 import { Suspense } from "react";
 import {
 	ArrowRight,
-	Boxes,
+	CalendarOff,
 	Coins,
-	LockOpen,
+	KeyRound,
 	type LucideIcon,
 } from "lucide-react";
 import type { Metadata } from "next";
@@ -33,19 +33,22 @@ import {
 	SITE_NAME,
 } from "@/lib/seo";
 
-export const metadata: Metadata = buildMetadata({
-	title: "AI Models, Benchmarks & Gateway API",
-	description:
-		"Compare AI models, benchmarks, pricing and providers, then route them through one OpenAI-compatible gateway with transparent pricing.",
-	path: "/",
-	keywords: [
-		"AI models",
-		"AI benchmarks",
-		"AI gateway",
-		"model pricing",
-		"AI providers",
-	],
-});
+export const metadata: Metadata = {
+	...buildMetadata({
+		title: "Phaseo: The AI Gateway for Every Model and Provider",
+		description:
+			"Discover, route, and observe every AI model with an open source AI gateway and model intelligence layer.",
+		path: "/",
+		keywords: [
+			"AI models",
+			"AI benchmarks",
+			"AI gateway",
+			"model pricing",
+			"AI providers",
+		],
+	}),
+	title: { absolute: "Phaseo: The AI Gateway for Every Model and Provider" },
+};
 
 const standardTier =
 	GATEWAY_TIERS.find((tier) => tier.key === "standard") ?? GATEWAY_TIERS[0];
@@ -53,13 +56,7 @@ const standardFeePct = standardTier?.feePct ?? 5;
 const standardFeeText = Number.isInteger(standardFeePct)
 	? standardFeePct.toFixed(0)
 	: String(standardFeePct);
-const GITHUB_HREF = "https://github.com/AI-Stats/AI-Stats";
-
-const HERO_METRICS = [
-	{ label: "Models live", value: "300+" },
-	{ label: "Providers tracked", value: "60+" },
-	{ label: "Gateway fee", value: `${standardFeeText}%` },
-] as const;
+const GITHUB_HREF = "https://github.com/phaseoteam/Phaseo";
 
 const PRICING_POINTS: Array<{
 	title: string;
@@ -67,19 +64,19 @@ const PRICING_POINTS: Array<{
 	icon: LucideIcon;
 }> = [
 	{
-		title: "Official API rates underneath",
-		body: "Usage pricing follows the official provider rates you would expect if you were calling them directly.",
+		title: "Pay as you go, full stop",
+		body: "No enterprise plan, contract, subscription, minimum spend, or monthly or annual commitment.",
+		icon: CalendarOff,
+	},
+	{
+		title: `${standardFeeText}% credit purchase fee`,
+		body: "Applied when you purchase credits, with a $1 minimum. Usage follows the model prices shown in the catalog.",
 		icon: Coins,
 	},
 	{
-		title: `Flat ${standardFeeText}% gateway fee`,
-		body: "No mandatory seat pricing and no separate plan unlock just to use the core gateway surface.",
-		icon: Boxes,
-	},
-	{
 		title: "Managed credits or BYOK",
-		body: "Start with AI Stats credits, or keep provider relationships intact and route through your own keys when you need to.",
-		icon: LockOpen,
+		body: "BYOK includes one million fee-free requests each month, then a 2.5% service fee on provider-equivalent cost.",
+		icon: KeyRound,
 	},
 ] as const;
 
@@ -93,73 +90,6 @@ function DatabaseStatsFallback() {
 				/>
 			))}
 		</div>
-	);
-}
-
-function HeroSection() {
-	return (
-		<section className="relative -mx-4 bg-white px-4 py-5 sm:-mx-6 sm:px-6 sm:py-8 lg:-mx-8 lg:px-8 lg:py-10">
-			<div className="relative mx-auto max-w-5xl space-y-7">
-				<div className="space-y-6 text-center">
-					<div className="space-y-5">
-						<h1 className="mx-auto max-w-4xl text-[2.65rem] font-semibold leading-[0.99] tracking-[-0.05em] text-zinc-950 sm:text-[4.1rem] sm:leading-[0.98] lg:text-[5rem]">
-							Compare models.
-							<span className="block text-[#d04e2a]">Route requests.</span>
-							<span className="block">Keep the stack legible.</span>
-						</h1>
-						<p className="mx-auto max-w-2xl text-[15px] leading-[1.75] text-zinc-700 sm:text-lg sm:leading-[1.85]">
-							AI Stats gives teams one place to compare benchmarks, pricing, and
-							provider coverage, then ship through a single OpenAI-compatible
-							gateway without losing operational clarity.
-						</p>
-					</div>
-
-					<div className="flex flex-col items-center justify-center gap-3 pt-1 sm:flex-row">
-						<Button
-							asChild
-							size="lg"
-							className="h-12 rounded-full bg-zinc-950 px-6 text-sm font-semibold text-white hover:bg-zinc-800"
-						>
-							<Link href="/settings/keys">
-								Get API Key
-								<ArrowRight className="h-4 w-4" />
-							</Link>
-						</Button>
-						<Button
-							asChild
-							size="lg"
-							variant="outline"
-							className="h-12 rounded-full border-zinc-300/80 bg-white px-6 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
-						>
-							<Link
-								href="/models"
-								className="group inline-flex items-center gap-2"
-							>
-								<span>Explore</span>
-								<ExploreModelsProviderTicker />
-								<span>Models</span>
-							</Link>
-						</Button>
-					</div>
-
-					<div className="mx-auto grid gap-3 border-t border-zinc-200/80 pt-4 sm:grid-cols-3 lg:max-w-3xl">
-						{HERO_METRICS.map((metric) => (
-							<div
-								key={metric.label}
-								className="rounded-[1.35rem] border border-zinc-200/80 bg-white px-4 py-4"
-							>
-								<p className="text-[1.7rem] font-semibold tracking-[-0.06em] text-zinc-950">
-									{metric.value}
-								</p>
-								<p className="mt-1 text-xs uppercase tracking-[0.22em] text-zinc-500">
-									{metric.label}
-								</p>
-							</div>
-						))}
-					</div>
-				</div>
-			</div>
-		</section>
 	);
 }
 
@@ -235,17 +165,16 @@ function LandingSecondarySections({ isBeta }: { isBeta: boolean }) {
 
 			<HomeReliabilitySection />
 
-			<section className="grid gap-10 border-b border-zinc-200/80 pb-12 dark:border-zinc-800/80 lg:grid-cols-2 lg:items-start">
-				<div className="min-w-0">
-					<Suspense fallback={<HomeModelUpdatesSectionFallback />}>
-						<HomeModelUpdatesSection />
-					</Suspense>
-				</div>
-				<div className="min-w-0">
-					<Suspense fallback={<HomeAnnouncementsSectionFallback />}>
-						<HomeAnnouncementsSection />
-					</Suspense>
-				</div>
+			<section className="border-b border-zinc-200/80 pb-12 dark:border-zinc-800/80">
+				<Suspense fallback={<HomeModelUpdatesSectionFallback />}>
+					<HomeModelUpdatesSection />
+				</Suspense>
+			</section>
+
+			<section className="border-b border-zinc-200/80 pb-12 dark:border-zinc-800/80">
+				<Suspense fallback={<HomeAnnouncementsSectionFallback />}>
+					<HomeAnnouncementsSection />
+				</Suspense>
 			</section>
 
 			<HomeOpenSourceSection variant={isBeta ? "beta" : "default"} />
@@ -260,14 +189,15 @@ function LandingPage({ isBeta }: { isBeta: boolean }) {
 				<section className="space-y-12 border-b border-zinc-200/80 pb-20 dark:border-zinc-800/80">
 					<div className="mx-auto max-w-5xl space-y-8 text-center">
 						<div className="space-y-6">
-							<h1 className="mx-auto max-w-4xl text-5xl font-semibold tracking-[-0.07em] text-zinc-950 dark:text-zinc-50 md:text-7xl">
-								<span className="block">One API for Every AI Model</span>
-								<span className="mt-2 block">One Open Model Database</span>
+							<h1 className="text-balance mx-auto max-w-5xl text-5xl font-semibold leading-[0.96] tracking-[-0.065em] text-zinc-950 dark:text-zinc-50 md:text-7xl md:leading-[0.94] 2xl:max-w-7xl 2xl:whitespace-nowrap">
+								One Platform for Every AI Model
 							</h1>
-							<p className="mx-auto max-w-2xl text-lg leading-8 text-zinc-600 dark:text-zinc-300">
-								Open-source AI gateway and open model database, with
-								OpenAI-compatible drop-in access to 300+ models plus benchmarks,
-								pricing, and reliability data.
+							<p className="text-balance mx-auto max-w-[44rem] text-lg leading-8 text-zinc-600 dark:text-zinc-300 2xl:max-w-5xl 2xl:text-pretty">
+								Discover trusted data for 300+ AI models, route requests
+								through one{" "}
+								<span className="whitespace-nowrap">OpenAI-compatible</span>{" "}
+								gateway, and monitor pricing, reliability, usage, and performance
+								in one place.
 							</p>
 						</div>
 						<div
@@ -365,9 +295,10 @@ export default async function Page() {
 		url: absoluteUrl("/"),
 		logo: absoluteUrl("/png_logo_light.png"),
 		sameAs: [
-			"https://github.com/AI-Stats/AI-Stats",
-			"https://x.com/ai_stats_team",
+			"https://github.com/phaseoteam/Phaseo",
+			"https://x.com/phaseoteam",
 			"https://www.linkedin.com/company/phaseoapp/",
+			"https://www.reddit.com/r/Phaseo/",
 		],
 	};
 

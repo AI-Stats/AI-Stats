@@ -24,6 +24,24 @@ import { ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { SecretRevealActions } from "../keys/SecretRevealActions";
 
+const KEY_TEMPLATES = [
+	{
+		value: "read-only",
+		label: "Read",
+		description: "View all control-plane resources without changing them.",
+	},
+	{
+		value: "read-write",
+		label: "Write",
+		description: "Read and change resources, without delete access.",
+	},
+	{
+		value: "full-control",
+		label: "All",
+		description: "All management API capabilities.",
+	},
+] as const;
+
 function toIsoFromDateTimeLocalInput(value: string): string | null {
 	if (!value) return null;
 	const date = new Date(value);
@@ -53,6 +71,7 @@ export default function CreateManagementKeyDialog({
 	const [open, setOpen] = useState(false);
 	const [name, setName] = useState("");
 	const [expiresAtLocal, setExpiresAtLocal] = useState("");
+	const [template, setTemplate] = useState<(typeof KEY_TEMPLATES)[number]["value"]>("read-only");
 	const [loading, setLoading] = useState(false);
 	const [plainKey, setPlainKey] = useState<string | null>(null);
 	const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string | null>(
@@ -99,7 +118,7 @@ export default function CreateManagementKeyDialog({
 				name,
 				creatorUserId: currentUserId as string,
 				workspaceId: selectedWorkspaceId,
-				scopes: JSON.stringify([]),
+				template,
 				expiresAt,
 			});
 			setPlainKey(res?.plaintext ?? null);
@@ -117,6 +136,7 @@ export default function CreateManagementKeyDialog({
 		setOpen(false);
 		setName("");
 		setExpiresAtLocal("");
+		setTemplate("read-only");
 		setPlainKey(null);
 	}
 
@@ -149,7 +169,7 @@ export default function CreateManagementKeyDialog({
 						Create Management API Key
 					</DialogTitle>
 					<DialogDescription>
-						Create a new management API key with elevated permissions.
+						Choose the minimum access this management API key needs.
 					</DialogDescription>
 					<DialogDescription className="mt-2 text-sm text-red-600">
 						This key will be shown only <strong>once</strong> and grants
@@ -161,31 +181,31 @@ export default function CreateManagementKeyDialog({
 					<form onSubmit={onCreate} className="space-y-4">
 						{workspaces && workspaces.length > 1 ? (
 							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
+								<DropdownMenuTrigger render={<Button
 										variant="outline"
 										size="sm"
-										className="w-full flex items-center justify-between"
-									>
+										className="w-full flex items-center justify-between" />}>
+
 										<span>
 											{workspaces.find(
 												(workspace) => workspace.id === selectedWorkspaceId
 											)?.name || "Personal"}
 										</span>
 										<ChevronDown className="ml-2 h-4 w-4" />
-									</Button>
+
 								</DropdownMenuTrigger>
 								<DropdownMenuContent
 									side="bottom"
 									align="start"
-									className="w-full"
+									className="w-full rounded-lg"
 								>
 									{workspaces.map((workspace) => (
 										<DropdownMenuItem
 											key={String(workspace.id ?? "__null")}
-											onSelect={() =>
+											onClick={() =>
 												setSelectedWorkspaceId(workspace.id ?? null)
 											}
+											className="rounded-lg"
 										>
 											{workspace.name}
 										</DropdownMenuItem>
@@ -198,6 +218,33 @@ export default function CreateManagementKeyDialog({
 							onChange={(e) => setName(e.target.value)}
 							placeholder="Key name (e.g. production management)"
 						/>
+						<div className="space-y-2">
+							<label id="management-key-template-label" className="text-sm font-medium">
+								Access template
+							</label>
+							<div
+								id="management-key-template"
+								className="grid grid-cols-3 overflow-hidden rounded-md border border-input"
+								role="group"
+								aria-labelledby="management-key-template-label"
+							>
+								{KEY_TEMPLATES.map((option) => (
+									<Button
+										key={option.value}
+										type="button"
+										variant={template === option.value ? "default" : "ghost"}
+										className="rounded-none text-xs"
+										aria-pressed={template === option.value}
+										onClick={() => setTemplate(option.value)}
+									>
+										{option.label}
+									</Button>
+								))}
+							</div>
+							<p className="text-xs text-muted-foreground">
+								{KEY_TEMPLATES.find((option) => option.value === template)?.description}
+							</p>
+						</div>
 						<div className="space-y-2">
 							<Input
 								type="datetime-local"
@@ -252,4 +299,3 @@ export default function CreateManagementKeyDialog({
 		</Dialog>
 	);
 }
-

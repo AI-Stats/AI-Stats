@@ -1,4 +1,5 @@
 ---
+icon: "server-cog"
 title: "Streaming in Production"
 description: "Operational patterns for robust streaming UX and backend reliability."
 ---
@@ -22,7 +23,7 @@ try {
   const response = await fetch("https://api.phaseo.app/v1/chat/completions", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${process.env.AI_STATS_API_KEY}`,
+      Authorization: `Bearer ${process.env.PHASEO_API_KEY}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({

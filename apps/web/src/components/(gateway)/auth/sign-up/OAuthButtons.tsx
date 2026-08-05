@@ -4,11 +4,12 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { handleOAuthRedirect } from "@/app/(auth)/sign-in/actions";
 import { Logo } from "@/components/Logo";
+import { captureProductEvent } from "@/lib/productAnalytics";
 
 type SocialProviderId = "google" | "github" | "gitlab";
 
 const SOCIAL_PROVIDER_IDS: SocialProviderId[] = ["google", "github", "gitlab"];
-const LAST_AUTH_PROVIDER_STORAGE_KEY = "ai-stats:last-auth-provider";
+const LAST_AUTH_PROVIDER_STORAGE_KEY = "phaseo:last-auth-provider";
 
 type ProviderMeta = {
 	label: string;
@@ -56,6 +57,9 @@ export default function OAuthButtons({
 								} catch {
 									// Ignore storage failures; auth still proceeds.
 								}
+								captureProductEvent("account_signup_started", {
+									method: id,
+								});
 							}}
 						>
 							<input type="hidden" name="authFlow" value="signup" />
@@ -67,7 +71,7 @@ export default function OAuthButtons({
 								type="submit"
 								variant="outline"
 								aria-label={`Continue with ${meta.label}`}
-								className="h-12 w-full justify-center"
+								className="h-12 w-full justify-center gap-2 px-2"
 							>
 								<span className="flex items-center justify-center">
 									{meta.logoId ? (
@@ -102,8 +106,8 @@ export default function OAuthButtons({
 										</>
 									)}
 								</span>
-								<span className="sr-only">
-									Continue with {meta.label}
+								<span className="hidden text-sm min-[360px]:inline">
+									{meta.label}
 								</span>
 							</Button>
 						</form>

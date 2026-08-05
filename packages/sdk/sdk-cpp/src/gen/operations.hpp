@@ -3,7 +3,7 @@
 #include <string>
 #include "client.hpp"
 
-namespace ai_stats::gen {
+namespace phaseo::gen {
 inline Response CalculatePricing(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/pricing/calculate";
 	return client.request("POST", resolved_path, body);
@@ -239,6 +239,16 @@ inline Response ListApiKeys(Client& client, const std::map<std::string, std::str
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListBatchCapabilities(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batches/capabilities";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListBatchCapabilitiesAlias(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batch/capabilities";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListBatches(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/batches";
 	return client.request("GET", resolved_path, body);
@@ -249,6 +259,16 @@ inline Response ListBatchesAlias(Client& client, const std::map<std::string, std
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListBatchFiles(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batches/files";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListBatchFilesAlias(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batch/files";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListBatchModels(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/batches/models";
 	return client.request("GET", resolved_path, body);
@@ -256,6 +276,16 @@ inline Response ListBatchModels(Client& client, const std::map<std::string, std:
 
 inline Response ListBatchModelsAlias(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/batch/models";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListBatchRequests(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batches/" + (path.count("batch_id") ? path.at("batch_id") : std::string{}) + "/requests";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListBatchRequestsAlias(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batch/" + (path.count("id") ? path.at("id") : std::string{}) + "/requests";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -274,8 +304,13 @@ inline Response ListFiles(Client& client, const std::map<std::string, std::strin
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListModelEndpoints(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/models/" + (path.count("author") ? path.at("author") : std::string{}) + "/" + (path.count("slug") ? path.at("slug") : std::string{}) + "/endpoints";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListModels(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
-	const std::string resolved_path = "/gateway/models";
+	const std::string resolved_path = "/models";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -295,7 +330,7 @@ inline Response ListProviders(Client& client, const std::map<std::string, std::s
 }
 
 inline Response ListTeamModels(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
-	const std::string resolved_path = "/gateway/models/me";
+	const std::string resolved_path = "/models/me";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -339,6 +374,26 @@ inline Response RetrieveBatchAlias(Client& client, const std::map<std::string, s
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response RetrieveBatchFile(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batches/files/" + (path.count("file_id") ? path.at("file_id") : std::string{});
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response RetrieveBatchFileAlias(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batch/files/" + (path.count("file_id") ? path.at("file_id") : std::string{});
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response RetrieveBatchFileContent(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batches/files/" + (path.count("file_id") ? path.at("file_id") : std::string{}) + "/content";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response RetrieveBatchFileContentAlias(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batch/files/" + (path.count("file_id") ? path.at("file_id") : std::string{}) + "/content";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response RetrieveFile(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/files/" + (path.count("file_id") ? path.at("file_id") : std::string{});
 	return client.request("GET", resolved_path, body);
@@ -359,9 +414,19 @@ inline Response UpdateWorkspace(Client& client, const std::map<std::string, std:
 	return client.request("PATCH", resolved_path, body);
 }
 
+inline Response UploadBatchFile(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batches/files";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response UploadBatchFileAlias(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/batch/files";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response UploadFile(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/files";
 	return client.request("POST", resolved_path, body);
 }
 
-} // namespace ai_stats::gen
+} // namespace phaseo::gen

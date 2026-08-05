@@ -6,7 +6,7 @@
 			"dependsOn": ["^build"],
 			"outputs": [".next/**", "dist/**", "build/**", ".mint/**"]
 		},
-		"@ai-stats/web#build": {
+		"@phaseo/web#build": {
 			"dependsOn": ["^build"],
 			"outputs": [".next/**", "dist/**", "build/**", ".mint/**"],
 			"inputs": [
@@ -22,6 +22,12 @@
 	},
 	"globalEnv": [
 		"NEXT_PUBLIC_WEBSITE_URL",
+		"EXPO_PUBLIC_SUPABASE_URL",
+		"EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+		"EXPO_PUBLIC_SUPABASE_ANON_KEY",
+		"EXPO_PUBLIC_PHASEO_ORIGIN",
+		"EXPO_PUBLIC_PHASEO_API_ORIGIN",
+		"WEB_API_ORIGIN",
 		"DATABASE_URL",
 		"DATABASE_PASSWORD",
 		"SUPABASE_SERVICE_ROLE_KEY",

@@ -1,11 +1,9 @@
 ---
-title: "Ruby SDK (preview)"
-description: "Local-preview Ruby wrapper for the AI Stats API."
+title: "Ruby SDK"
+description: "Official Ruby client for the Phaseo Gateway."
 ---
 
-<Note type="warning">
-  The Ruby SDK is in preview and is not yet published to RubyGems.
-</Note>
+Install the published [`phaseo_sdk`](https://rubygems.org/gems/phaseo_sdk) gem from RubyGems.
 
 The local wrapper at `packages/sdk/sdk-ruby/lib/index.rb` currently exposes these methods:
 
@@ -37,8 +35,8 @@ The local wrapper at `packages/sdk/sdk-ruby/lib/index.rb` currently exposes thes
 - `health`, `healthz`
 
 ```ruby
-require 'ai_stats_sdk'
+require 'phaseo_sdk'
 
-client = AIStatsSdk::AIStats.new(api_key: 'YOUR_KEY')
+client = PhaseoSdk::Phaseo.new(api_key: 'YOUR_KEY')
 models = client.list_models(limit: 5)
 ```

@@ -9,6 +9,7 @@ import {
 } from "@/components/(data)/countries/utils";
 import { fetchFrontendCountry } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { buildMetadata } from "@/lib/seo";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({
 	params,
@@ -17,7 +18,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
 	const { iso } = await params;
 	const isoNormalized = normaliseIso(iso);
-	const country = await fetchFrontendCountry(isoNormalized);
+	const country = await fetchFrontendCountry(isoNormalized).catch(() => null);
 	const path = `/countries/${isoNormalized.toLowerCase()}/models`;
 	const imagePath = `/og/countries/${isoNormalized.toLowerCase()}`;
 
@@ -25,7 +26,7 @@ export async function generateMetadata({
 		return buildMetadata({
 			title: `${isoNormalized || "Unknown"} Models - Country Catalogue`,
 			description:
-				"Browse AI models by country on AI Stats. This location does not yet have tracked organisations or releases, but we will surface providers, launches, and benchmarks as coverage expands.",
+				"Browse AI models by country on Phaseo. This location does not yet have tracked organisations or releases, but we will surface providers, launches, and benchmarks as coverage expands.",
 			path,
 			keywords: ["AI models", "countries", isoNormalized],
 			imagePath,
@@ -36,7 +37,7 @@ export async function generateMetadata({
 		title: `${country.countryName} Models - Catalogue`,
 		description: `See every model we have mapped to ${country.countryName}. Explore organisation-linked releases, compare model availability, and track how this country's AI catalogue evolves over time.`,
 		path,
-		keywords: [country.countryName, "AI models", "AI Stats"],
+		keywords: [country.countryName, "AI models", "Phaseo"],
 		imagePath,
 	});
 }
@@ -51,6 +52,7 @@ export default async function CountryModelsPage({
 	const country = await fetchFrontendCountry(isoNormalized);
 
 	if (!country) {
+		notFound();
 		return (
 			<CountryDetailShell iso={isoNormalized} country={undefined}>
 				<div className="rounded-2xl border border-dashed border-zinc-300 bg-white/70 p-6 text-sm text-muted-foreground dark:border-zinc-700 dark:bg-zinc-900/70">

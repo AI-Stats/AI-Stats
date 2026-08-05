@@ -3,7 +3,7 @@ import { Rocket } from "lucide-react";
 import { headers } from "next/headers";
 import UpdateCard, { type UpdateBadge } from "@/components/updates/UpdateCard";
 import ModelCalendarRouteSwitch from "@/components/updates/ModelCalendarRouteSwitch";
-import type { ModelEvent } from "@/lib/fetchers/updates/getModelUpdates";
+import type { ModelEvent } from "@/lib/fetchers/updates/types";
 import { fetchFrontendOrganisationReleaseEvents } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { buildMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
@@ -94,13 +94,13 @@ export async function generateMetadata(props: {
 	return buildMetadata({
 		title: `Organisation Model Releases - ${organisationId}`,
 		description:
-			"Explore release history for a specific organisation. See models released today and complete release timelines in AI Stats.",
+			"Explore release history for a specific organisation. See models released today and complete release timelines in Phaseo.",
 		path: `/updates/calendar/organisations/${organisationId}`,
 		keywords: [
 			"AI model releases",
 			"organisation releases",
 			"AI model calendar",
-			"AI Stats",
+			"Phaseo",
 		],
 	});
 }

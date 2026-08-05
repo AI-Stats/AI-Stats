@@ -29,23 +29,8 @@ type PricingModel = {
     }>;
 };
 
-function parseModelKey(value?: string | null): {
-    providerId: string;
-    apiModelId: string;
-    capabilityId: string;
-} | null {
-    if (!value) return null;
-    const parts = value.split(":");
-    if (parts.length < 3) return null;
-    const capabilityId = parts.pop() ?? "";
-    const providerId = parts.shift() ?? "";
-    const apiModelId = parts.join(":");
-    if (!providerId || !apiModelId || !capabilityId) return null;
-    return { providerId, apiModelId, capabilityId };
-}
-
 async function handlePricingModels(req: Request) {
-    const auth = await guardAuth(req);
+    const auth = await guardAuth(req, { allowOAuthJwt: true });
     if (!auth.ok) {
         return (auth as GuardErr).response;
     }
@@ -55,129 +40,62 @@ async function handlePricingModels(req: Request) {
     try {
         const supabase = getSupabaseAdmin();
         const nowIso = new Date().toISOString();
-
-        const { data: providerModels, error: pmError } = await supabase
-            .from("data_api_provider_models")
-            .select("provider_api_model_id, provider_id, api_model_id, model_id, is_active_gateway, effective_from, effective_to")
-            .eq("is_active_gateway", true)
-            .lte("effective_from", nowIso)
-            .or(`effective_to.is.null,effective_to.gt.${nowIso}`);
-
-        if (pmError) {
-            throw new Error(pmError.message || "Failed to load provider models");
+        const [routesResult, modelsResult, skusResult] = await Promise.all([
+            supabase.from("v2_model_provider_routes")
+                .select("provider_model_id,provider_slug,model_slug")
+                .eq("routing_enabled", true).in("status", ["active", "degraded"]),
+            supabase.from("v2_models").select("model_slug,name,hidden,status"),
+            supabase.from("v2_pricing_skus")
+                .select("sku_id,provider_model_id,operation,service_tier_slug,currency,metadata")
+                .eq("status", "active").lte("effective_from", nowIso)
+                .or(`effective_to.is.null,effective_to.gt.${nowIso}`),
+        ]);
+        for (const result of [routesResult, modelsResult, skusResult]) {
+            if (result.error) throw new Error(result.error.message);
         }
+        const skuIds = (skusResult.data ?? []).map((sku) => sku.sku_id);
+        const metersResult = skuIds.length
+            ? await supabase.from("v2_pricing_sku_meters")
+                .select("sku_id,meter_key,unit,unit_quantity,price_nanos,metadata,meter_order")
+                .in("sku_id", skuIds).eq("billable", true).order("meter_order")
+            : { data: [], error: null };
+        if (metersResult.error) throw new Error(metersResult.error.message);
 
-        const providerModelIds = (providerModels ?? [])
-            .map((row) => row.provider_api_model_id)
-            .filter((id): id is string => Boolean(id));
-
-        const { data: capabilities, error: capError } = await supabase
-            .from("data_api_provider_model_capabilities")
-            .select("provider_api_model_id, capability_id, effective_from, effective_to")
-            .eq("status", "active")
-            .in("provider_api_model_id", providerModelIds)
-            .lte("effective_from", nowIso)
-            .or(`effective_to.is.null,effective_to.gt.${nowIso}`);
-
-        if (capError) {
-            throw new Error(capError.message || "Failed to load provider capabilities");
-        }
-
-        // Get model names
-        const modelIds = Array.from(
-            new Set(
-                (providerModels ?? [])
-                    .map((pm) => pm.model_id ?? pm.api_model_id)
-                    .filter(Boolean)
-            )
-        );
-        const { data: models, error: mError } = await supabase
-            .from("data_models")
-            .select("model_id, name, hidden")
-            .in("model_id", modelIds);
-
-        if (mError) {
-            throw new Error(mError.message || "Failed to load model names");
-        }
-
-        const modelNameMap = new Map<string, string>();
-        const visibleModelIds = new Set<string>();
-        for (const model of models ?? []) {
-            if (model.model_id && model.name) {
-                modelNameMap.set(model.model_id, model.name);
-            }
-            if (model.model_id && !model.hidden) {
-                visibleModelIds.add(model.model_id);
-            }
-        }
-
-        const { data: pricingRules, error: prError } = await supabase
-            .from("data_api_pricing_rules")
-            .select("rule_id, model_key, capability_id, pricing_plan, meter, unit, unit_size, price_per_unit, currency, priority, effective_from, effective_to, match, billing_timestamp_basis, time_windows")
-            .or([
-                "and(effective_from.is.null,effective_to.is.null)",
-                `and(effective_from.is.null,effective_to.gt.${nowIso})`,
-                `and(effective_from.lte.${nowIso},effective_to.is.null)`,
-                `and(effective_from.lte.${nowIso},effective_to.gt.${nowIso})`,
-            ].join(","))
-            .order("priority", { ascending: false });
-
-        if (prError) {
-            throw new Error(prError.message || "Failed to load pricing rules");
-        }
-
-        const providerById = new Map<string, any>();
-        for (const row of providerModels ?? []) {
-            if (row.provider_api_model_id) providerById.set(row.provider_api_model_id, row);
-        }
-
-        const comboMap = new Map<string, { model_id: string | null }>();
-        for (const cap of capabilities ?? []) {
-            if (!cap.provider_api_model_id || !cap.capability_id) continue;
-            const pm = providerById.get(cap.provider_api_model_id);
-            if (!pm) continue;
-            const comboKey = `${pm.provider_id}:${pm.api_model_id}:${cap.capability_id}`;
-            comboMap.set(comboKey, {
-                model_id: pm.model_id ?? pm.api_model_id ?? null,
-            });
-        }
-
+        const routes = new Map((routesResult.data ?? []).map((route) => [route.provider_model_id, route]));
+        const models = new Map((modelsResult.data ?? [])
+            .filter((model) => !model.hidden && model.status !== "disabled" && model.status !== "retired")
+            .map((model) => [model.model_slug, model]));
+        const skuById = new Map((skusResult.data ?? []).map((sku) => [sku.sku_id, sku]));
         const modelMap = new Map<string, PricingModel>();
-        for (const rule of (pricingRules ?? []) as any[]) {
-            const parsedKey = parseModelKey(rule.model_key);
-            if (!parsedKey) continue;
-            const capabilityId = parsedKey.capabilityId || rule.capability_id;
-            const comboKey = `${parsedKey.providerId}:${parsedKey.apiModelId}:${capabilityId}`;
-            const combo = comboMap.get(comboKey);
-            if (!combo) continue;
-            if (combo.model_id && !visibleModelIds.has(combo.model_id)) {
-                continue;
-            }
-            const modelId = combo.model_id ?? parsedKey.apiModelId;
-            const key = `${parsedKey.providerId}:${modelId}:${capabilityId}:${rule.pricing_plan || "standard"}`;
+        for (const meter of metersResult.data ?? []) {
+            const sku = skuById.get(meter.sku_id);
+            const route = sku ? routes.get(sku.provider_model_id) : null;
+            const model = route ? models.get(route.model_slug) : null;
+            if (!sku || !route || !model) continue;
+            const capabilityId = sku.operation;
+            const key = `${route.provider_slug}:${route.model_slug}:${capabilityId}:${sku.service_tier_slug || "standard"}`;
 
             if (!modelMap.has(key)) {
                 modelMap.set(key, {
-                    provider: parsedKey.providerId,
-                    model: modelId,
+                    provider: route.provider_slug,
+                    model: route.model_slug,
                     endpoint: capabilityId,
-                    display_name: combo.model_id
-                        ? modelNameMap.get(combo.model_id)
-                        : undefined,
+                    display_name: model.name,
                     meters: [],
                 });
             }
 
-            const model = modelMap.get(key)!;
-            model.meters.push({
-                meter: rule.meter,
-                unit: rule.unit,
-                unit_size: Number(rule.unit_size ?? 1),
-                price_per_unit: String(rule.price_per_unit ?? "0"),
-                currency: rule.currency ?? "USD",
-                conditions: Array.isArray(rule.match) ? rule.match : [],
-                billing_timestamp_basis: rule.billing_timestamp_basis ?? "request_start",
-                time_windows: Array.isArray(rule.time_windows) ? rule.time_windows : [],
+            const metadata = meter.metadata && typeof meter.metadata === "object" ? meter.metadata : {};
+            const skuMetadata = sku.metadata && typeof sku.metadata === "object" ? sku.metadata : {};
+            modelMap.get(key)!.meters.push({
+                meter: meter.meter_key,
+                unit: meter.unit,
+                unit_size: Number(meter.unit_quantity ?? 1),
+                price_per_unit: String(Number(meter.price_nanos) / 1_000_000_000),
+                currency: sku.currency ?? "USD",
+                conditions: Array.isArray(skuMetadata.match) ? skuMetadata.match : Array.isArray(metadata.match) ? metadata.match : [],
+                billing_timestamp_basis: skuMetadata.billing_timestamp_basis ?? "request_start",
+                time_windows: Array.isArray(skuMetadata.time_windows) ? skuMetadata.time_windows : [],
             });
         }
 
@@ -211,7 +129,7 @@ async function handlePricingModels(req: Request) {
 }
 
 async function handlePricingCalculate(req: Request) {
-    const auth = await guardAuth(req, { useKvCache: false });
+    const auth = await guardAuth(req, { useKvCache: false, allowOAuthJwt: true });
     if (!auth.ok) {
         return (auth as GuardErr).response;
     }

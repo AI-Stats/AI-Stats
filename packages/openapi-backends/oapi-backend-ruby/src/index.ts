@@ -6,7 +6,8 @@ import type {
 	IRModel,
 	IROperation,
 	IRSchema
-} from "@ai-stats/oapi-core";
+} from "@phaseo/oapi-core";
+import { splitPathTemplate } from "@phaseo/oapi-core";
 
 export const backendRuby: Backend = {
 	id: "ruby",
@@ -27,7 +28,7 @@ function renderClient(): string {
 		"require \"net/http\"",
 		"require \"uri\"",
 		"",
-		"module AiStats",
+		"module Phaseo",
 		"  module Gen",
 		"    class RequestError < StandardError",
 		"      attr_reader :status_code, :response_body",
@@ -88,6 +89,24 @@ function renderClient(): string {
 		"        end",
 		"        response.body.to_s.b",
 		"      end",
+		"",
+		"      def request_stream(method:, path:, query: nil, headers: nil, body: nil)",
+		"        return enum_for(__method__, method:, path:, query:, headers:, body:) unless block_given?",
+		"        http, req = build_request(method:, path:, query:, headers: (headers || {}).merge(\"Accept\" => \"text/event-stream\"), body:)",
+		"        http.request(req) do |response|",
+		"          unless response.is_a?(Net::HTTPSuccess)",
+		"            raise RequestError.new(status_code: response.code.to_i, response_body: response.body.to_s)",
+		"          end",
+		"          buffer = String.new",
+		"          response.read_body do |chunk|",
+		"            buffer << chunk",
+		"            while (index = buffer.index(\"\\n\"))",
+		"              yield buffer.slice!(0, index + 1).sub(/\\r?\\n\\z/, \"\")",
+		"            end",
+		"          end",
+		"          yield buffer unless buffer.empty?",
+		"        end",
+		"      end",
 		"    end",
 		"  end",
 		"end",
@@ -96,7 +115,7 @@ function renderClient(): string {
 }
 
 function renderModels(models: IRModel[]): string {
-	const lines: string[] = ["module AiStats", "  module Gen"];
+	const lines: string[] = ["module Phaseo", "  module Gen"];
 	for (const model of models) {
 		lines.push(renderModel(model));
 	}
@@ -124,7 +143,7 @@ function renderModel(model: IRModel): string {
 }
 
 function renderOperations(operations: IROperation[]): string {
-	const lines: string[] = ["require_relative \"client\"", "", "module AiStats", "  module Gen", "    module Operations"];
+	const lines: string[] = ["require_relative \"client\"", "", "module Phaseo", "  module Gen", "    module Operations"];
 	for (const operation of operations) {
 		lines.push(renderOperation(operation));
 	}
@@ -147,17 +166,21 @@ function renderOperation(operation: IROperation): string {
 
 function renderPathTemplate(path: string, params: IROperation["params"]): string {
 	if (params.length === 0) {
-		return `"${path}"`;
+		return `"${escapeRubyDoubleQuoted(path)}"`;
 	}
-	const segments = path.split(/({[^}]+})/g).filter(Boolean);
+	const segments = splitPathTemplate(path);
 	const parts = segments.map((segment) => {
 		if (segment.startsWith("{") && segment.endsWith("}")) {
 			const name = sanitizeIdentifier(segment.slice(1, -1));
 			return `#{path["${name}"]}`;
 		}
-		return segment.replace(/"/g, '\\"');
+		return escapeRubyDoubleQuoted(segment);
 	});
 	return `"${parts.join("")}"`;
+}
+
+function escapeRubyDoubleQuoted(value: string): string {
+	return value.replace(/\\/g, "\\\\").replace(/#/g, "\\#").replace(/"/g, '\\"');
 }
 
 function sanitizeIdentifier(name: string): string {

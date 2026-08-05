@@ -19,26 +19,32 @@ import { CookieConsentManager } from "@/components/analytics/CookieConsentManage
 import { DeferredVercelAnalytics } from "@/components/analytics/DeferredVercelAnalytics";
 import { ConsoleEasterEgg } from "@/components/ConsoleEasterEgg";
 import SiteNoticeSlot from "@/components/site-notice/SiteNoticeSlot";
+import ThemeAwareFavicon from "@/components/ThemeAwareFavicon";
 import { Suspense } from "react";
+import { PublicSWRProvider } from "@/components/providers/PublicSWRProvider";
+import AdminDeveloperMenuLauncher from "@/components/developer-menu/AdminDeveloperMenuLauncher";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
 	title: {
-		default: PREFERRED_SITE_NAME,
+		default: "Phaseo: The AI Gateway for Every Model and Provider",
 		template: `%s | ${SITE_NAME}`,
 	},
 	description:
 		"Discover and compare the world's most comprehensive AI model database and gateway. Browse benchmarks, features, pricing, and access state-of-the-art AI models.",
 	applicationName: PREFERRED_SITE_NAME,
 	authors: [{ name: SITE_NAME }],
+	other: {
+		"google-adsense-account": "ca-pub-5904826500425921",
+	},
 	metadataBase: METADATA_BASE,
 	openGraph: {
 		type: "website",
 		locale: "en_GB",
 		siteName: PREFERRED_SITE_NAME,
 		url: absoluteUrl("/"),
-		title: PREFERRED_SITE_NAME,
+		title: "Phaseo: The AI Gateway for Every Model and Provider",
 		description:
 			"Browse and compare state-of-the-art AI models, benchmarks, features, and pricing.",
 		images: [
@@ -46,15 +52,15 @@ export const metadata: Metadata = {
 				url: absoluteUrl("/og.png"),
 				width: 1200,
 				height: 630,
-				alt: "AI Stats - Browse and compare AI models",
+				alt: "Phaseo - Browse and compare AI models",
 			},
 		],
 	},
 	twitter: {
 		card: "summary_large_image",
-		site: "@phaseoapp",
+		site: "@phaseoteam",
 		creator: "@DanielButler001",
-		title: PREFERRED_SITE_NAME,
+		title: "Phaseo: The AI Gateway for Every Model and Provider",
 		description:
 			"Browse and compare state-of-the-art AI models, benchmarks, features, and pricing.",
 		images: [absoluteUrl("/og.png")],
@@ -68,11 +74,16 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang="en" className="h-full" suppressHydrationWarning>
-			{/* <head>
-				{process.env.NODE_ENV === "development" ? (
-					<script src="https://unpkg.com/react-scan/dist/auto.global.js" />
-				) : null}
-			</head> */}
+			<head>
+				{/* Use the black/white brand mark for search; the theme client mutates this exact link. */}
+				<link
+					id="phaseo-favicon"
+					rel="icon"
+					href="/api/favicon?theme=dark"
+					type="image/svg+xml"
+					sizes="any"
+				/>
+			</head>
 			<body
 				className={cn(
 					montserrat.className,
@@ -88,10 +99,16 @@ export default function RootLayout({
 					disableTransitionOnChange
 				>
 					<TooltipProvider>
+						<ThemeAwareFavicon />
 						<Suspense fallback={null}>
 							<SiteNoticeSlot />
 						</Suspense>
-						<NuqsAdapter>{children}</NuqsAdapter>
+						<Suspense fallback={null}>
+							<PublicSWRProvider>
+								<NuqsAdapter>{children}</NuqsAdapter>
+							</PublicSWRProvider>
+						</Suspense>
+						<AdminDeveloperMenuLauncher />
 						<TailwindIndicator />
 						<Toaster richColors />
 					</TooltipProvider>
@@ -101,4 +118,3 @@ export default function RootLayout({
 		</html>
 	);
 }
-

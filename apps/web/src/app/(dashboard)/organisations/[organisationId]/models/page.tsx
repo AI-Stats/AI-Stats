@@ -6,11 +6,13 @@ import {
 	fetchFrontendOrganisation,
 	fetchFrontendOrganisationModels,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import { notFound } from "next/navigation";
 
 async function fetchOrganisation(organisationId: string) {
 	try {
 		return await fetchFrontendOrganisation(organisationId, 8);
 	} catch (error) {
+		// eslint-disable-next-line no-console
 		console.warn("[seo] failed to load organisation metadata", {
 			organisationId,
 			error,
@@ -32,20 +34,20 @@ export async function generateMetadata(props: {
 		return buildMetadata({
 			title: "AI Models Overview by Organisation",
 			description:
-				"Discover AI models from leading organisations and review gateway availability, pricing coverage, release visibility, and model lifecycle context inside AI Stats.",
+				"Discover AI models from leading organisations and review gateway availability, pricing coverage, release visibility, and model lifecycle context inside Phaseo.",
 			path,
 			keywords: [
 				"AI models",
 				"AI organisation",
 				"AI providers",
-				"AI Stats",
+				"Phaseo",
 			],
 			imagePath,
 		});
 	}
 
 	const description = [
-		`Explore all AI models from ${organisation.name} on AI Stats.`,
+		`Explore all AI models from ${organisation.name} on Phaseo.`,
 		organisation.description?.slice(0, 180) ?? undefined,
 		"View gateway availability, pricing coverage, and model details in one place.",
 	]
@@ -58,7 +60,7 @@ export async function generateMetadata(props: {
 		`${organisation.name} models`,
 		"AI models",
 		"AI gateway",
-		"AI Stats",
+		"Phaseo",
 	];
 
 	return buildMetadata({
@@ -77,7 +79,8 @@ export default async function Page({
 }) {
 	const { organisationId } = await params;
 
-	const models = await fetchFrontendOrganisationModels(organisationId);
+	const models = await fetchFrontendOrganisationModels(organisationId).catch(() => null);
+	if (!models) notFound();
 
 	return (
 		<OrganisationDetailShell organisationId={organisationId}>

@@ -17,15 +17,15 @@ jobs:
     name: Agent SDK readiness
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Setup pnpm
-        uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
         with:
           version: 10.33.0
           run_install: false
           standalone: true
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: "22"
           registry-url: https://registry.npmjs.org
@@ -33,6 +33,8 @@ jobs:
         run: git checkout -- pnpm-lock.yaml
       - name: Install dependencies
         run: corepack pnpm install --frozen-lockfile
+      - name: Build TypeScript SDK dependency
+        run: pnpm --filter @phaseo/sdk build
       - name: Build, test, and pack
         working-directory: packages/sdk/agent-sdk-ts
         run: |
@@ -40,33 +42,90 @@ jobs:
           pnpm run test
           pnpm publish --dry-run --no-git-checks
 
+  packagist-credentials:
+    name: Packagist credentials
+    if: inputs.checkSecrets
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - name: Check required Packagist refresh credentials
+        env:
+          PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
+          PACKAGIST_SAFE_TOKEN: ${{ secrets.PACKAGIST_SAFE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${PACKAGIST_USERNAME:-}" ] || [ -z "${PACKAGIST_SAFE_TOKEN:-}" ]; then
+            echo "::error::Missing PACKAGIST_USERNAME or PACKAGIST_SAFE_TOKEN in the release environment."
+            exit 1
+          fi
+
   go:
     name: Go readiness
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Setup Go
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
         with:
-          go-version: "1.23"
+          go-version: "1.24"
       - name: Run tests
-        working-directory: packages/sdk/sdk-go
-        run: go test ./...
+        run: |
+          (cd packages/sdk/sdk-go && go test ./...)
+          (cd packages/sdk/agent-sdk-go && go test ./...)
+
+  rust:
+    name: Rust readiness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Setup Rust checks
+        run: |
+          rustup component add clippy rustfmt
+          rustup toolchain install 1.86.0 --profile minimal
+      - name: Build, test, lint, and package
+        run: |
+          cargo test --manifest-path packages/sdk/sdk-rust/Cargo.toml --all-targets
+          cargo clippy --manifest-path packages/sdk/sdk-rust/Cargo.toml --all-targets -- -D warnings
+          RUSTDOCFLAGS="-D warnings" cargo doc --manifest-path packages/sdk/sdk-rust/Cargo.toml --locked --no-deps
+          cargo +1.86.0 check --manifest-path packages/sdk/sdk-rust/Cargo.toml --locked
+          cargo package --manifest-path packages/sdk/sdk-rust/Cargo.toml
+          cargo test --manifest-path packages/sdk/agent-sdk-rust/Cargo.toml --all-targets
+          cargo clippy --manifest-path packages/sdk/agent-sdk-rust/Cargo.toml --all-targets -- -D warnings
+          RUSTDOCFLAGS="-D warnings" cargo doc --manifest-path packages/sdk/agent-sdk-rust/Cargo.toml --locked --no-deps
+          cargo +1.86.0 check --manifest-path packages/sdk/agent-sdk-rust/Cargo.toml --locked
+
+  python-agent:
+    name: Python Agent SDK readiness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+      - name: Test and build package
+        run: |
+          python -m pip install pytest build
+          python -m pip install -e packages/sdk/sdk-py -e packages/sdk/agent-sdk-py
+          python -m pytest packages/sdk/agent-sdk-py/tests
+          python -m build packages/sdk/agent-sdk-py
 
   csharp:
     name: C# readiness
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Setup .NET
-        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
         with:
           dotnet-version: "8.0.x"
       - name: Build and pack
         run: |
-          dotnet test packages/sdk/sdk-csharp/tests/AIStats.Sdk.Tests/AIStats.Sdk.Tests.csproj -c Release
-          dotnet build packages/sdk/sdk-csharp/AIStats.Sdk.csproj -c Release
-          dotnet pack packages/sdk/sdk-csharp/AIStats.Sdk.csproj -c Release -o artifacts/csharp
+          dotnet test packages/sdk/sdk-csharp/tests/Phaseo.Sdk.Tests/Phaseo.Sdk.Tests.csproj -c Release
+          dotnet build packages/sdk/sdk-csharp/Phaseo.Sdk.csproj -c Release
+          dotnet pack packages/sdk/sdk-csharp/Phaseo.Sdk.csproj -c Release -o artifacts/csharp
+          dotnet test packages/sdk/agent-sdk-csharp/tests/Phaseo.AgentSdk.Tests/Phaseo.AgentSdk.Tests.csproj -c Release
+          dotnet pack packages/sdk/agent-sdk-csharp/Phaseo.AgentSdk.csproj -c Release -o artifacts/csharp-agent
       - name: Check NuGet trusted publishing user (optional override)
         if: inputs.checkSecrets
         shell: bash
@@ -80,9 +139,9 @@ jobs:
     name: Java readiness
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Setup Java
-        uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
         with:
           distribution: "temurin"
           java-version: "17"
@@ -90,7 +149,8 @@ jobs:
       - name: Build
         run: |
           mvn -B -f packages/sdk/sdk-java/pom.xml test
-          mvn -B -f packages/sdk/sdk-java/pom.xml -DskipTests verify
+          mvn -B -f packages/sdk/sdk-java/pom.xml -DskipTests install
+          mvn -B -f packages/sdk/agent-sdk-java/pom.xml verify
       - name: Check Maven Central + GPG secrets
         if: inputs.checkSecrets
         env:
@@ -115,7 +175,7 @@ jobs:
     name: PHP readiness
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
         with:
@@ -125,38 +185,22 @@ jobs:
         run: |
           composer validate --strict
           php tests/lifecycle_test.php
-      - name: Check Packagist secrets
-        if: inputs.checkSecrets
-        env:
-          PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
-          PACKAGIST_MAIN_TOKEN: ${{ secrets.PACKAGIST_MAIN_TOKEN }}
-          PHP_SDK_SPLIT_REPO_TOKEN: ${{ secrets.PHP_SDK_SPLIT_REPO_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          [ -n "${PACKAGIST_USERNAME:-}" ] || { echo "::error::Missing PACKAGIST_USERNAME"; exit 1; }
-          [ -n "${PACKAGIST_MAIN_TOKEN:-}" ] || { echo "::error::Missing PACKAGIST_MAIN_TOKEN"; exit 1; }
-          [ -n "${PHP_SDK_SPLIT_REPO_TOKEN:-}" ] || { echo "::error::Missing PHP_SDK_SPLIT_REPO_TOKEN"; exit 1; }
-
+          (cd ../agent-sdk-php && composer validate --strict && php tests/agent_loop_test.php)
   ruby:
     name: Ruby readiness
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Setup Ruby
-        uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b
         with:
           ruby-version: "3.2"
       - name: Build gem
         working-directory: packages/sdk/sdk-ruby
         run: |
           ruby tests/lifecycle_test.rb
-          gem build ai_stats_sdk.gemspec
-      - name: Check RubyGems secret
+          gem build phaseo_sdk.gemspec
+          (cd ../agent-sdk-ruby && ruby -Ilib -Itests tests/agent_loop_test.rb && gem build phaseo_agent_sdk.gemspec)
+      - name: Trusted publishing note
         if: inputs.checkSecrets
-        env:
-          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          [ -n "${RUBYGEMS_API_KEY:-}" ] || { echo "::error::Missing RUBYGEMS_API_KEY"; exit 1; }
+        run: echo "RubyGems publishing uses OIDC; verify the pending/existing trusted publisher in RubyGems.org."

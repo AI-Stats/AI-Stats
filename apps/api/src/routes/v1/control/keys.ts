@@ -12,7 +12,7 @@ import { generateGatewayKey, hmacSecret, timingSafeEqual } from "@/routes/auth.h
 import { resolveActiveKeyPepper } from "@/lib/security/keyPepper";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { loadOAuthClient } from "@/lib/oauth/service";
-import { requireCapability, type ManagementRouteAuth } from "./route-helpers";
+import { internalServerError, requireCapability, type ManagementRouteAuth } from "./route-helpers";
 import { CHAT_MANAGED_KEY_NAME, enforceWorkspaceKeyLimit } from "./management-helpers";
 
 type KeyRow = {
@@ -92,13 +92,22 @@ function readBearerToken(req: Request): string | null {
 	return token || null;
 }
 
-function isLegacyInvalidateControlToken(token: string, bindings: ReturnType<typeof getBindings>): boolean {
-	const legacyBindings = bindings as Record<string, unknown>;
+function isPhaseoInvalidateControlToken(token: string, bindings: ReturnType<typeof getBindings>): boolean {
+	const phaseoBindings = bindings as Record<string, unknown>;
 	const candidates = [
-		String(legacyBindings.GATEWAY_CONTROL_KEY ?? "").trim(),
-		String(legacyBindings.AI_STATS_GATEWAY_KEY ?? "").trim(),
+		String(phaseoBindings.PHASEO_CONTROL_KEY ?? "").trim(),
+		String(phaseoBindings.GATEWAY_CONTROL_KEY ?? "").trim(),
+		String(phaseoBindings.AI_STATS_GATEWAY_KEY ?? "").trim(),
 	].filter(Boolean);
 	return candidates.some((candidate) => timingSafeEqual(token, candidate));
+}
+
+function getInvalidateControlSecrets(bindings: ReturnType<typeof getBindings>): string[] {
+	const phaseoBindings = bindings as Record<string, unknown>;
+	return [
+		String(phaseoBindings.PHASEO_CONTROL_SECRET ?? "").trim(),
+		String(phaseoBindings.GATEWAY_CONTROL_SECRET ?? "").trim(),
+	].filter(Boolean);
 }
 
 function resolveLimitWindow(row: KeyRow): { limit: number | null; limitReset: "daily" | "weekly" | "monthly" | null } {
@@ -486,7 +495,7 @@ async function handleCreateKey(req: Request) {
 		const pepper = resolveActiveKeyPepper(getBindings());
 		if (!pepper) {
 			return json(
-				{ error: "server_misconfig_missing_pepper", message: "KEY_PEPPER_ACTIVE (or KEY_PEPPER) is not configured" },
+				{ error: "server_misconfig_missing_pepper", message: "KEY_PEPPER_ACTIVE is not configured" },
 				503,
 				{ "Cache-Control": "no-store" },
 			);
@@ -540,11 +549,7 @@ async function handleCreateKey(req: Request) {
 			{ "Cache-Control": "no-store" },
 		);
 	} catch (error: any) {
-		return json(
-			{ error: "failed", message: String(error?.message ?? error) },
-			500,
-			{ "Cache-Control": "no-store" },
-		);
+		return internalServerError("keys.create", error);
 	}
 }
 
@@ -583,11 +588,7 @@ async function handleGetKey(req: Request) {
 
 		return json({ data: formatApiKey(data as KeyRow) }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
-		return json(
-			{ error: "failed", message: String(error?.message ?? error) },
-			500,
-			{ "Cache-Control": "no-store" },
-		);
+		return internalServerError("keys.get", error);
 	}
 }
 
@@ -697,11 +698,7 @@ async function handleUpdateKey(req: Request) {
 
 		return json({ data: formatApiKey(updated as KeyRow) }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
-		return json(
-			{ error: "failed", message: String(error?.message ?? error) },
-			500,
-			{ "Cache-Control": "no-store" },
-		);
+		return internalServerError("keys.update", error);
 	}
 }
 
@@ -764,40 +761,37 @@ async function handleDeleteKey(req: Request) {
 
 		return json({ deleted: true }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
-		return json(
-			{ error: "failed", message: String(error?.message ?? error) },
-			500,
-			{ "Cache-Control": "no-store" },
-		);
+		return internalServerError("keys.delete", error);
 	}
 }
 
 async function handleInvalidateKey(req: Request) {
 	const bindings = getBindings();
-	const controlSecret = bindings.GATEWAY_CONTROL_SECRET?.trim();
-	if (!controlSecret) {
-		return json(
-			{ ok: false, error: "control_secret_missing", message: "GATEWAY_CONTROL_SECRET is not configured" },
-			503,
-			{ "Cache-Control": "no-store" },
-		);
-	}
-	const providedSecret = req.headers.get("x-control-secret")?.trim() ?? "";
-	if (!timingSafeEqual(providedSecret, controlSecret)) {
-		return json(
-			{ ok: false, error: "forbidden", message: "Invalid control secret" },
-			403,
-			{ "Cache-Control": "no-store" },
-		);
-	}
-
 	const auth = await guardManagementAuth(req, { useKvCache: false });
 	const bearerToken = readBearerToken(req);
-	const legacyControlAuthorised =
-		typeof bearerToken === "string" && isLegacyInvalidateControlToken(bearerToken, bindings);
+	const phaseoControlAuthorised =
+		typeof bearerToken === "string" && isPhaseoInvalidateControlToken(bearerToken, bindings);
 
-	if (!auth.ok && !legacyControlAuthorised) {
+	if (!auth.ok && !phaseoControlAuthorised) {
 		return (auth as GuardErr).response;
+	}
+	if (!auth.ok) {
+		const controlSecrets = getInvalidateControlSecrets(bindings);
+		if (controlSecrets.length === 0) {
+			return json(
+				{ ok: false, error: "control_secret_missing", message: "Key cache invalidation control secret is not configured" },
+				503,
+				{ "Cache-Control": "no-store" },
+			);
+		}
+		const providedSecret = req.headers.get("x-control-secret")?.trim() ?? "";
+		if (!controlSecrets.some((candidate) => timingSafeEqual(providedSecret, candidate))) {
+			return json(
+				{ ok: false, error: "forbidden", message: "Invalid control secret" },
+				403,
+				{ "Cache-Control": "no-store" },
+			);
+		}
 	}
 
 	const scopedWorkspaceId = auth.ok ? auth.value.workspaceId : null;
@@ -846,11 +840,7 @@ async function handleInvalidateKey(req: Request) {
 			{ "Cache-Control": "no-store" },
 		);
 	} catch (error: any) {
-		return json(
-			{ ok: false, error: "failed", message: String(error?.message ?? error) },
-			500,
-			{ "Cache-Control": "no-store" },
-		);
+		return internalServerError("keys.invalidate_cache", error);
 	}
 }
 

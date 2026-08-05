@@ -5,15 +5,14 @@ import {
 	AppWindow,
 	BarChart3,
 	Beaker,
+	Building2,
+	Code2,
 	CreditCard,
-	EyeOff,
+	FileText,
+	FolderKey,
 	KeyRound,
-	Package,
-	RadioTower,
 	ShieldCheck,
 	User,
-	Users,
-	WalletCards,
 	Waypoints,
 	Workflow,
 } from "lucide-react";
@@ -36,7 +35,10 @@ export type NavItem = {
 export type NavGroup = {
     heading?: string;
     items: NavItem[];
+	scope: SettingsScope;
 };
+
+export type SettingsScope = "personal" | "workspace";
 
 export type ResolvedSettingsNav = {
 	group: NavGroup;
@@ -45,7 +47,8 @@ export type ResolvedSettingsNav = {
 
 const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 	{
-		heading: "Account",
+		heading: "General",
+		scope: "personal",
 		items: [
 			{
 				href: "/settings/profile",
@@ -60,6 +63,12 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				match: ["/settings/account"],
 			},
 			{
+				href: "/settings/account/workspaces",
+				label: "Workspaces",
+				icon: Building2,
+				match: ["/settings/account/workspaces"],
+			},
+			{
 				href: "/settings/credits",
 				label: "Billing",
 				icon: CreditCard,
@@ -71,37 +80,61 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 					"/settings/tiers",
 				],
 			},
+			{
+				href: "/settings/beta",
+				label: "Feature Preview",
+				icon: Beaker,
+				match: ["/settings/beta"],
+			},
 		],
 	},
 	{
 		heading: "Workspace",
+		scope: "workspace",
 		items: [
-			{
-				href: "/settings/workspaces/members",
-				label: "Members",
-				icon: Users,
-				match: [
-					"/settings/workspaces",
-					"/settings/teams",
-					"/settings/teams/members",
-				],
-			},
-			{
-				href: "/settings/workspaces/access",
-				label: "Access",
-				icon: KeyRound,
-				match: ["/settings/teams/access"],
-			},
 			{
 				href: "/settings/workspaces/settings",
 				label: "Settings",
-				icon: Workflow,
-				match: ["/settings/teams/settings"],
+				icon: Building2,
+				match: [
+					"/settings/workspaces",
+					"/settings/teams",
+					"/settings/workspaces/members",
+					"/settings/workspaces/access",
+					"/settings/teams/members",
+					"/settings/teams/access",
+					"/settings/teams/settings",
+				],
+			},
+		],
+	},
+	{
+		heading: "Observe",
+		scope: "workspace",
+		items: [
+			{
+				href: "/settings/usage",
+				label: "Usage",
+				icon: BarChart3,
+				match: [
+					"/settings/usage/overview",
+					"/settings/usage/trends",
+					"/settings/usage/explore",
+					"/settings/usage/guardrails",
+					"/settings/usage/alerts",
+				],
+			},
+			{
+				href: "/settings/usage/logs",
+				label: "Logs",
+				icon: FileText,
+				match: ["/settings/usage/logs"],
 			},
 		],
 	},
 	{
 		heading: "Gateway",
+		scope: "workspace",
 		items: [
 			{
 				href: "/settings/keys",
@@ -116,18 +149,6 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				match: ["/settings/apps"],
 			},
 			{
-				href: "/settings/sdk",
-				label: "SDKs",
-				icon: Package,
-				match: ["/settings/sdk"],
-			},
-			{
-				href: "/settings/usage",
-				label: "Observability",
-				icon: BarChart3,
-				match: ["/settings/usage", "/settings/usage/logs", "/settings/usage/alerts"],
-			},
-			{
 				href: "/settings/routing",
 				label: "Routing",
 				icon: Waypoints,
@@ -135,27 +156,9 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 			},
 			{
 				href: "/settings/byok",
-				label: "BYOK",
-				icon: KeyRound,
+				label: "Provider access",
+				icon: FolderKey,
 				match: ["/settings/byok"],
-			},
-			{
-				href: "/settings/guardrails",
-				label: "Guardrails",
-				icon: ShieldCheck,
-				match: ["/settings/guardrails"],
-			},
-		],
-	},
-	{
-		heading: "Advanced",
-		items: [
-			{
-				href: "/settings/management-api-keys",
-				label: "Management Keys",
-				icon: WalletCards,
-				badge: "Beta",
-				match: ["/settings/management-api-keys", "/settings/provisioning-keys"],
 			},
 			{
 				href: "/settings/presets",
@@ -165,37 +168,31 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				match: ["/settings/presets"],
 			},
 			{
-				href: "/settings/privacy",
-				label: "Privacy",
-				icon: EyeOff,
-				badge: "Alpha",
-				match: ["/settings/privacy"],
-			},
-			{
-				href: "/settings/oauth-apps",
-				label: "OAuth Apps",
-				icon: AppWindow,
-				badge: "Alpha",
-				match: ["/settings/oauth-apps", "/settings/authorized-apps"],
-			},
-			{
-				href: "/settings/broadcast",
-				label: "Broadcast",
-				icon: RadioTower,
-				badge: "Pre-Release",
-				match: ["/settings/broadcast", "/settings/observability"],
+				href: "/settings/guardrails",
+				label: "Safety & privacy",
+				icon: ShieldCheck,
+				match: ["/settings/guardrails", "/settings/privacy"],
 			},
 		],
 	},
 	{
-		heading: "Experimental",
+		heading: "Developer",
+		scope: "workspace",
 		items: [
 			{
-				href: "/settings/beta",
-				label: "Feature Preview",
-				icon: Beaker,
-				badge: "Preview",
-				match: ["/settings/beta"],
+				href: "/settings/management-api-keys",
+				label: "API & integrations",
+				icon: Code2,
+				match: [
+					"/settings/management-api-keys",
+					"/settings/provisioning-keys",
+					"/settings/oauth-apps",
+					"/settings/authorized-apps",
+					"/settings/broadcast",
+					"/settings/observability",
+					"/settings/webhooks",
+					"/settings/sdk",
+				],
 			},
 		],
 	},
@@ -207,19 +204,21 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
     // },
 ];
 
-export function getSettingsSidebar(options?: { showBroadcast?: boolean }): NavGroup[] {
+export function getSettingsSidebar(options?: { showBroadcast?: boolean; showWebhooks?: boolean }): NavGroup[] {
 	const showBroadcast = options?.showBroadcast ?? true;
+	const showWebhooks = options?.showWebhooks ?? true;
 	return BASE_SETTINGS_SIDEBAR.map((group) => ({
 		...group,
 		items: group.items.filter((item) =>
-			showBroadcast ? true : item.href !== "/settings/broadcast",
+			(showBroadcast ? true : item.href !== "/settings/broadcast") &&
+			(showWebhooks ? true : item.href !== "/settings/webhooks"),
 		),
 	})).filter((group) => group.items.length > 0);
 }
 
 export function getActiveSettingsNav(
 	pathname: string,
-	options?: { showBroadcast?: boolean },
+	options?: { showBroadcast?: boolean; showWebhooks?: boolean },
 ): ResolvedSettingsNav | null {
 	const navGroups = getSettingsSidebar(options);
 

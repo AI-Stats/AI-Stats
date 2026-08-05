@@ -1,16 +1,21 @@
 ---
 title: "Build an OAuth Next.js Workbench"
+icon: "key-round"
 description: "Use the full OAuth Next.js example as a walkthrough for a signed-in gateway app with a unified proxy."
 ---
 
 Use this page when your product needs sign-in, session-backed gateway access, and more than a single chat route.
 
+**Goal:** Run the signed-in workbench and send Phaseo requests through one protected server-side proxy.
+
+**Outcome:** A local application with OAuth sign-in, session-backed tokens, model discovery, chat, and an endpoint tester.
+
 <Prompt
-  description="Build a **signed-in Next.js workbench** with OAuth and a unified AI Stats proxy."
+  description="Build a **signed-in Next.js workbench** with OAuth and a unified Phaseo proxy."
   icon="shield-user"
   actions={["copy", "cursor"]}
 >
-{`You are building a signed-in Next.js app on top of AI Stats Gateway.
+{`You are building a signed-in Next.js app on top of Phaseo Gateway.
 
 Create a workbench-style app with:
 - OAuth 2.1 + PKCE sign-in
@@ -18,7 +23,7 @@ Create a workbench-style app with:
 - one unified gateway proxy route on the server
 - model discovery
 - one chat flow using the Responses API
-- one generic endpoint tester for additional AI Stats endpoints
+- one generic endpoint tester for additional Phaseo endpoints
 
 Requirements:
 - Keep gateway credentials and access tokens server-side.
@@ -36,7 +41,7 @@ Verification:
 
 ## Sample project
 
-- GitHub: [examples/oauth-client-nextjs](https://github.com/AI-Stats/AI-Stats/tree/main/examples/oauth-client-nextjs)
+- GitHub: [examples/oauth-client-nextjs](https://github.com/phaseoteam/Phaseo/tree/main/examples/oauth-client-nextjs)
 - Local repo path: `examples/oauth-client-nextjs`
 
 ## What this app covers
@@ -54,7 +59,7 @@ Use this when:
 
 - end users should sign in with delegated access
 - you need more than a simple chat page
-- you want one secure server route for several AI Stats endpoints
+- you want one secure server route for several Phaseo endpoints
 
 Do not start here if:
 
@@ -91,7 +96,7 @@ The catch-all proxy route:
 - refreshes tokens when needed
 - forwards request and response bodies
 
-This is a good pattern when you want several AI Stats endpoints without copying auth logic into every route.
+This is a good pattern when you want several Phaseo endpoints without copying auth logic into every route.
 
 ### 3. The dashboard doubles as an internal workbench
 
@@ -102,6 +107,12 @@ The workbench page is not only chat:
 - it can test non-chat endpoints too
 
 That makes it useful for onboarding, QA, and internal debugging before you build a more polished end-user UI.
+
+## Prerequisites
+
+- Node.js and one supported package manager
+- an OAuth client configured with the local callback URL
+- a strong session secret
 
 ## Run the sample
 
@@ -135,7 +146,7 @@ Set:
 
 - `NEXT_PUBLIC_OAUTH_CLIENT_ID`
 - `OAUTH_CLIENT_SECRET`
-- `NEXT_PUBLIC_AISTATS_URL`
+- `NEXT_PUBLIC_PHASEO_URL`
 - `NEXT_PUBLIC_REDIRECT_URI`
 - `SESSION_SECRET`
 - `NEXT_PUBLIC_GATEWAY_URL`
@@ -161,6 +172,13 @@ bun run dev
 </CodeGroup>
 
 Open `http://localhost:3000`.
+
+## Check your work
+
+- Sign-in returns to the configured callback and creates a session.
+- The dashboard can discover models through the proxy.
+- One Responses API request completes without exposing an access token to the browser.
+- An endpoint outside the proxy allowlist is rejected.
 
 ## How to make it your own
 

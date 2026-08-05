@@ -1,105 +1,95 @@
 ---
 title: "Migrating from Cloudflare AI Gateway"
-description: "Step-by-step guide to migrate your Cloudflare AI Gateway integration to AI Stats Gateway."
+sidebarTitle: "Cloudflare AI Gateway"
+description: "Replace a Cloudflare AI Gateway route with Phaseo while preserving your application request flow."
+icon: "/icons/brands/cloudflare.svg"
 ---
 
-# Migrating from Cloudflare AI Gateway
+Use this guide when your application already sends OpenAI-compatible requests through Cloudflare AI Gateway. Move the gateway boundary first, then recreate only the routing, caching, and observability behavior your production traffic actually needs.
 
-This guide helps migrate from Cloudflare's AI Gateway to AI Stats.
+## What changes
 
-## Overview
+| Setting | Before | After |
+| --- | --- | --- |
+| Gateway URL | Account and gateway-specific Cloudflare URL | `https://api.phaseo.app/v1` |
+| Authentication | Cloudflare and provider credentials | `PHASEO_API_KEY` |
+| Routing policy | Cloudflare gateway configuration | Phaseo routing settings and presets |
+| Request visibility | Cloudflare analytics | Phaseo activity and request details |
 
-Both are AI API gateways. Migration involves:
+<Steps>
+<Step title="Inventory the current gateway configuration">
 
--   Updating endpoints
--   Changing authentication
--   Adjusting model routing
+Record the Cloudflare gateway URL, provider routes, custom headers, cache rules, retry behavior, and analytics your application relies on. This separates required behavior from settings that no longer need to move.
 
-## Prerequisites
+</Step>
 
--   AI Stats account
--   Cloudflare AI Gateway setup
+<Step title="Replace the endpoint and credentials">
 
-## Migration Steps
-
-### 1. Update Base URL
-
-Replace Cloudflare's gateway URL.
-
-For OpenAI-compatible requests:
+Keep the request payload unchanged where possible and update the OpenAI-compatible client boundary.
 
 <CodeGroup>
-```bash
-# Before (Cloudflare AI Gateway)
-curl https://gateway.ai.cloudflare.com/v1/your-account/your-gateway/openai/chat/completions \
-  -H "Authorization: Bearer your-cloudflare-token" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "gpt-4",
-    "messages": [{"role": "user", "content": "Hello!"}]
-  }'
-
-# After (AI Stats)
-
-curl https://api.phaseo.app/v1/chat/completions \
- -H "Authorization: Bearer your-ai-stats-key" \
- -H "Content-Type: application/json" \
- -d '{
-"model": "gpt-4",
-"messages": [{"role": "user", "content": "Hello!"}]
-}'
-
-````
-
-```python
-import openai
-
-client = openai.OpenAI(
-    api_key="your-ai-stats-key",
-    base_url="https://api.phaseo.app/v1"
-)
-
-response = client.chat.completions.create(
-    model="gpt-4",
-    messages=[{"role": "user", "content": "Hello!"}]
-)
-````
-
-```javascript
+```typescript TypeScript
 import OpenAI from "openai";
 
 const client = new OpenAI({
-	apiKey: "your-ai-stats-key",
-	baseURL: "https://api.phaseo.app/v1",
+  apiKey: process.env.PHASEO_API_KEY,
+  baseURL: "https://api.phaseo.app/v1",
 });
 
 const response = await client.chat.completions.create({
-	model: "gpt-4",
-	messages: [{ role: "user", content: "Hello!" }],
+  model: "openai/gpt-4.1-mini",
+  messages: [{ role: "user", content: "Reply with: migration ready" }],
 });
 ```
 
+```python Python
+import os
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ["PHASEO_API_KEY"],
+    base_url="https://api.phaseo.app/v1",
+)
+```
+
+```bash cURL
+curl https://api.phaseo.app/v1/chat/completions \
+  -H "Authorization: Bearer $PHASEO_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "openai/gpt-4.1-mini",
+    "messages": [{"role": "user", "content": "Reply with: migration ready"}]
+  }'
+```
 </CodeGroup>
 
-### 2. Authentication
+</Step>
 
-Use Bearer token instead of Cloudflare's auth.
+<Step title="Recreate routing and shared defaults">
 
-### 3. Model Routing
+Move stable provider restrictions, prompt defaults, and generation parameters into [Presets](../guides/presets). Configure provider ranking and fallback behavior through [Routing and Fallbacks](../guides/routing-and-fallbacks).
 
-Cloudflare routes based on headers. AI Stats uses model names.
+Cloudflare cache and analytics settings do not transfer automatically. Decide explicitly whether each behavior belongs in Phaseo, your application, or your edge layer.
 
-Check available models.
+</Step>
 
-### 4. Test
+<Step title="Validate before cutover">
 
-Verify functionality.
+Test non-streaming, streaming, errors, tools, and structured outputs as applicable. Compare latency, output, token usage, and cost before moving traffic gradually.
 
-## Common Issues
+</Step>
+</Steps>
 
--   **Caching**: Different caching behaviors.
--   **Analytics**: Cloudflare's analytics vs AI Stats'.
+## Migration checklist
 
-## Next Steps
+- Cloudflare-specific gateway URLs and headers have been removed.
+- Production model IDs are verified against `GET /v1/models`.
+- Required cache behavior has been deliberately recreated or retired.
+- Activity and request details provide the visibility your team needs.
+- Rollback remains a configuration-only endpoint and key change.
 
--   Explore AI Stats' advanced features.
+## Next steps
+
+- [Presets](../guides/presets)
+- [Routing and Fallbacks](../guides/routing-and-fallbacks)
+- [Observability](../guides/integrations/observability)

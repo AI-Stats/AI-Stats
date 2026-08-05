@@ -3,10 +3,44 @@ import { AgentGatewayError } from "../errors";
 import { createGatewayAgentClient } from "./gateway-client";
 
 describe("createGatewayAgentClient", () => {
+	it("passes current Responses fields through while protecting agent-owned fields", async () => {
+		const create = vi.fn(async () => ({ id: "resp_1", output: [] }));
+		const client = createGatewayAgentClient({
+			client: { responses: { create } } as any,
+			requestOptions: {
+				model: "must-not-win",
+				input: "must-not-win",
+				service_tier: "priority",
+				session_id: "session_123",
+				store: true,
+				top_p: 0.8,
+				truncation: "auto",
+			},
+		});
+
+		await client.generate({
+			agentId: "docs-agent",
+			model: "openai/gpt-5.4-nano",
+			messages: [{ role: "user", content: "Hello" }],
+			tools: [],
+			context: undefined,
+		});
+
+		expect(create).toHaveBeenCalledWith(expect.objectContaining({
+			model: "openai/gpt-5.4-nano",
+			input: [{ type: "message", role: "user", content: "Hello" }],
+			service_tier: "priority",
+			session_id: "session_123",
+			store: true,
+			top_p: 0.8,
+			truncation: "auto",
+		}));
+	});
+
 	it("serializes assistant tool calls and tool outputs into Responses input items", async () => {
 		const create = vi.fn(async () => ({
 			id: "resp_123",
-			model: "ai-stats/free",
+			model: "phaseo/free",
 			output: [
 				{
 					type: "message",
@@ -88,7 +122,7 @@ describe("createGatewayAgentClient", () => {
 	it("extracts tool calls from Responses function_call items", async () => {
 		const create = vi.fn(async () => ({
 			id: "resp_123",
-			model: "ai-stats/free",
+			model: "phaseo/free",
 			output: [
 				{
 					type: "message",
@@ -129,7 +163,7 @@ describe("createGatewayAgentClient", () => {
 	it("passes gateway-native request defaults through the adapter", async () => {
 		const create = vi.fn(async () => ({
 			id: "resp_456",
-			model: "ai-stats/free",
+			model: "phaseo/free",
 			meta: {
 				throughput_tps: 12.5,
 				routing: {
@@ -260,7 +294,7 @@ describe("createGatewayAgentClient", () => {
 		const create = vi.fn(async () => ({
 			id: "req_123",
 			nativeResponseId: "resp_native_123",
-			model: "ai-stats/free",
+			model: "phaseo/free",
 			output: [
 				{
 					type: "message",
@@ -290,7 +324,7 @@ describe("createGatewayAgentClient", () => {
 	it("merges local runtime tools with gateway-native upstream tools and tool choice", async () => {
 		const create = vi.fn(async () => ({
 			id: "resp_789",
-			model: "ai-stats/free",
+			model: "phaseo/free",
 			output: [
 				{
 					type: "message",
@@ -347,7 +381,7 @@ describe("createGatewayAgentClient", () => {
 	it("passes explicit local tool parameter schemas through to Responses function tools", async () => {
 		const create = vi.fn(async () => ({
 			id: "resp_schema_1",
-			model: "ai-stats/free",
+			model: "phaseo/free",
 			output: [
 				{
 					type: "message",
@@ -411,7 +445,7 @@ describe("createGatewayAgentClient", () => {
 			throw Object.assign(
 				new Error("Request failed: 403 Forbidden"),
 				{
-					name: "AIStatsHttpError",
+					name: "PhaseoHttpError",
 					status: 403,
 					statusText: "Forbidden",
 					headers: {
@@ -481,7 +515,7 @@ describe("createGatewayAgentClient", () => {
 			throw Object.assign(
 				new Error("Request failed: 429 Too Many Requests - try again later"),
 				{
-					name: "AIStatsHttpError",
+					name: "PhaseoHttpError",
 					status: 429,
 					statusText: "Too Many Requests",
 					headers: {
@@ -519,5 +553,35 @@ describe("createGatewayAgentClient", () => {
 		}
 
 		throw new Error("Expected gateway client to throw an AgentGatewayError");
+	});
+
+	it("normalizes provider output into typed items while preserving raw data", async () => {
+		const rawMessage = { id: "msg_1", type: "message", content: [{ type: "output_text", text: "Ready" }] };
+		const rawReasoning = { id: "reason_1", type: "reasoning", summary: [{ text: "Checked the request" }] };
+		const rawCall = { id: "item_1", type: "function_call", call_id: "call_1", name: "lookup", arguments: '{"slug":"start"}' };
+		const client = createGatewayAgentClient({
+			client: { responses: { create: vi.fn(async () => ({ id: "resp_1", output: [rawMessage, rawReasoning, rawCall] })) } } as any,
+		});
+
+		const response = await client.generate({
+			agentId: "typed-items",
+			messages: [{ role: "user", content: "Start" }],
+			tools: [],
+			context: undefined,
+		});
+
+		expect(response.items).toEqual([
+			expect.objectContaining({ type: "message", id: "msg_1", content: "Ready", rawProviderItem: rawMessage }),
+			expect.objectContaining({ type: "reasoning", id: "reason_1", text: "Checked the request", rawProviderItem: rawReasoning }),
+			expect.objectContaining({ type: "tool_call", id: "item_1", toolCallId: "call_1", name: "lookup", input: { slug: "start" }, rawProviderItem: rawCall }),
+		]);
+	});
+});
+
+describe("live GPT 5.6 Luna gateway smoke", () => {
+	it.runIf(process.env.PHASEO_AGENT_LIVE_SMOKE === "true" && Boolean(process.env.PHASEO_API_KEY))("streams a real response", async () => {
+		const client=createGatewayAgentClient({model:"openai/gpt-5.6-luna",includeMeta:true});const events=[];
+		for await(const event of client.stream!({agentId:"live-smoke",messages:[{role:"user",content:"Reply with exactly: luna-ok"}],tools:[],context:undefined}))events.push(event);
+		expect(events.some((event)=>event.type==="response.output_text.delta"&&Boolean((event as any).delta))).toBe(true);expect(events.some((event)=>event.type==="response.completed"&&Boolean((event as any).response))).toBe(true);
 	});
 });

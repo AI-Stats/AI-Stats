@@ -1,9 +1,16 @@
 ---
-title: "Video delete (Beta)"
-badge: "Beta"
+title: "Delete a video"
+sidebarTitle: "Delete a video"
+tag: "Internal"
 openapi: "DELETE /videos/{video_id}"
-description: "Tombstone a terminal video generation request record."
+description: |-
+  <Info>
+  **Internal testing.** The Video API is available only to enabled workspaces and may be temporarily disabled while its public contract is finalised. The API may change before general availability.
+  </Info>
+
+  Tombstone a terminal video generation request record.
 ---
+
 Tombstones a terminal video generation record.
 
 In-progress jobs cannot be deleted. Use this after a job is `completed`, `failed`, `cancelled`, or `expired` when you want to remove the stored gateway record from normal API/UI surfaces.

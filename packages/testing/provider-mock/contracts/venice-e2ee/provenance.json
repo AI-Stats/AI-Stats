@@ -1,0 +1,8 @@
+{
+  "inheritedFrom": "venice",
+  "parentSource": {
+    "kind": "official-openapi",
+    "url": "https://docs.venice.ai/swagger.yaml"
+  },
+  "bundleSha256": "8df76a95537c5ad7e615abeaff7817f8ba8237cbd3320270503712f666afe9c9"
+}

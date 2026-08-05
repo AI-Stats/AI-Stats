@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { sanitizeReturnUrl } from "@/lib/auth/return-url";
 import { handleEnterpriseSsoRedirect } from "@/app/(auth)/sign-in/actions";
@@ -7,15 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthSuspenseFallback } from "../../AuthSuspenseFallback";
+import { samlSsoFlag } from "@/lib/flags";
 
 type EnterpriseSignInPageProps = {
 	searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export const metadata: Metadata = {
-	title: "Enterprise Login",
-	description:
-		"Sign in with your organization's enterprise identity provider.",
+	title: "SSO",
+	description: "Sign in with your organization's SSO provider.",
 };
 
 export default function EnterpriseSignInPage({
@@ -31,6 +32,7 @@ export default function EnterpriseSignInPage({
 async function EnterpriseSignInPageContent({
 	searchParams,
 }: EnterpriseSignInPageProps) {
+	if (!(await samlSsoFlag())) notFound();
 	const params = (await searchParams) ?? {};
 	const returnUrlParam = Array.isArray(params.returnUrl)
 		? params.returnUrl[0]
@@ -45,10 +47,10 @@ async function EnterpriseSignInPageContent({
 		<div className="grid min-h-svh place-items-center p-6 md:p-10">
 			<div className="w-full max-w-sm space-y-6">
 				<div className="space-y-2 text-center">
-					<h1 className="text-2xl font-bold">Enterprise Login</h1>
+					<h1 className="text-2xl font-bold">Sign in with SSO</h1>
 					<p className="text-sm text-muted-foreground">
-						Use your work email domain to continue with your organization's
-						enterprise sign-in.
+						Use your work email domain to continue with your organization&apos;s
+						SSO provider.
 					</p>
 				</div>
 
@@ -68,7 +70,7 @@ async function EnterpriseSignInPageContent({
 					</div>
 
 					<Button type="submit" className="w-full">
-						Continue with Enterprise SSO
+						Continue with SSO
 					</Button>
 				</form>
 

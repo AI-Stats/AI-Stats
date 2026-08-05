@@ -99,43 +99,53 @@ export interface ChatCompletionsRequest {
   parallel_tool_calls?: boolean;
   presence_penalty?: number;
   prompt_cache_key?: string | null;
-  provider?: {
-    allow_fallbacks?: boolean | null;
-    data_collection?: "allow" | "deny" | null;
-    enforce_distillable_text?: boolean | null;
-    ignore?: string[];
-    include_alpha?: boolean;
-    max_price?: {
-      audio?: number | string;
-      completion?: number | string;
-      image?: number | string;
-      prompt?: number | string;
-      request?: number | string;
-    };
-    only?: string[];
-    order?: string[];
-    preferred_max_latency?:
-      | number
-      | {
-          [key: string]: number;
+  provider?:
+    | "openai"
+    | "anthropic"
+    | "google-ai-studio"
+    | "gemini"
+    | "mistral"
+    | "x-ai"
+    | "xai"
+    | "groq"
+    | "together"
+    | {
+        allow_fallbacks?: boolean | null;
+        data_collection?: "allow" | "deny" | null;
+        enforce_distillable_text?: boolean | null;
+        ignore?: string[];
+        include_alpha?: boolean;
+        max_price?: {
+          audio?: number | string;
+          completion?: number | string;
+          image?: number | string;
+          prompt?: number | string;
+          request?: number | string;
         };
-    preferred_min_throughput?:
-      | number
-      | {
-          [key: string]: number;
-        };
-    quantizations?: string[] | null;
-    require_parameters?: boolean | null;
-    require_zero_data_retention?: boolean | null;
-    required_data_region?: string | null;
-    required_execution_region?: string | null;
-    sort?:
-      | string
-      | {
-          [key: string]: unknown;
-        };
-    zdr?: boolean | null;
-  };
+        only?: string[];
+        order?: string[];
+        preferred_max_latency?:
+          | number
+          | {
+              [key: string]: number;
+            };
+        preferred_min_throughput?:
+          | number
+          | {
+              [key: string]: number;
+            };
+        quantizations?: string[] | null;
+        require_parameters?: boolean | null;
+        require_zero_data_retention?: boolean | null;
+        required_data_region?: string | null;
+        required_execution_region?: string | null;
+        sort?:
+          | string
+          | {
+              [key: string]: unknown;
+            };
+        zdr?: boolean | null;
+      };
   provider_options?: {
     anthropic?: {
       cache_control?: {
@@ -164,9 +174,10 @@ export interface ChatCompletionsRequest {
     };
   };
   reasoning?: {
-    effort?: "none" | "minimal" | "low" | "medium" | "high" | "xhigh";
+    effort?: "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max";
     enabled?: boolean;
     max_tokens?: number;
+    mode?: "standard" | "pro";
     summary?: "auto" | "concise" | "detailed";
   };
   response_format?:
@@ -177,7 +188,7 @@ export interface ChatCompletionsRequest {
       };
   safety_identifier?: string | null;
   seed?: number;
-  service_tier?: "standard" | "priority" | "flex" | "batch";
+  service_tier?: "standard" | "fast" | "priority" | "flex" | "batch";
   session_id?: string;
   stop?: string | string[];
   store?: boolean;
@@ -188,6 +199,12 @@ export interface ChatCompletionsRequest {
     | "auto"
     | "none"
     | "required"
+    | "phaseo:datetime"
+    | "phaseo:web_search"
+    | "phaseo:web_fetch"
+    | "phaseo:subagent"
+    | "phaseo:fusion"
+    | "phaseo:search_models"
     | "gateway:datetime"
     | "gateway:web_search"
     | "gateway:web_fetch"
@@ -207,7 +224,7 @@ export interface ChatCompletionsRequest {
           timezone?: string;
         };
         timezone?: string;
-        type: "gateway:datetime";
+        type: "phaseo:datetime" | "gateway:datetime";
       }
     | {
         include_highlights?: boolean;
@@ -218,14 +235,34 @@ export interface ChatCompletionsRequest {
           include_text?: boolean;
           max_results?: number;
         };
-        type: "gateway:web_search";
+        type: "phaseo:web_search" | "gateway:web_search";
       }
     | {
         max_chars?: number;
         parameters?: {
           max_chars?: number;
         };
-        type: "gateway:web_fetch";
+        type: "phaseo:web_fetch" | "gateway:web_fetch";
+      }
+    | {
+        parameters?: {
+          [key: string]: unknown;
+        };
+        type: "phaseo:subagent";
+      }
+    | {
+        parameters?: {
+          analysis_models: string[];
+          model?: string;
+          [key: string]: unknown;
+        };
+        type: "phaseo:fusion";
+      }
+    | {
+        parameters?: {
+          max_results?: number;
+        };
+        type: "phaseo:search_models";
       }[];
   top_logprobs?: number;
   top_p?: number;

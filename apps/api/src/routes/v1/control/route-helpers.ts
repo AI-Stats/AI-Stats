@@ -31,12 +31,16 @@ export function parsePathId(url: URL, collectionName: string): string | null {
 	return decodeURIComponent(candidate).trim() || null;
 }
 
-export function requireCapability(auth: ManagementRouteAuth, scope: string): Response | null {
+export function requireCapability(
+	auth: ManagementRouteAuth,
+	scope: string,
+	options?: { requireExplicitNonOAuthScope?: boolean },
+): Response | null {
 	const grantedScopes =
 		auth.authMethod === "oauth"
-			? (auth.scopes ?? auth.oauthScopes ?? [])
+			? [...new Set([...(auth.scopes ?? []), ...(auth.oauthScopes ?? [])])]
 			: (auth.scopes ?? []);
-	if (auth.authMethod !== "oauth" && grantedScopes.length === 0) {
+	if (auth.authMethod !== "oauth" && grantedScopes.length === 0 && !options?.requireExplicitNonOAuthScope) {
 		return null;
 	}
 	if (!grantedScopes.includes(scope)) {
@@ -96,4 +100,17 @@ export async function requireJsonBody(req: Request): Promise<Record<string, unkn
 
 export function isResponse(value: unknown): value is Response {
 	return value instanceof Response;
+}
+
+export function internalServerError(operation: string, _error: unknown): Response {
+	const requestId = crypto.randomUUID();
+	console.error("control_plane_operation_failed", {
+		operation,
+		request_id: requestId,
+	});
+	return json(
+		{ error: "internal_error", message: "Phaseo could not complete this request.", request_id: requestId },
+		500,
+		{ "Cache-Control": "no-store" },
+	);
 }

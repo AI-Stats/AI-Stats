@@ -4,6 +4,7 @@ import { BookText, ExternalLink, FileText, Gamepad2, Globe2 } from "lucide-react
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
 import { Logo } from "@/components/Logo";
 import ModelLinkFavicon from "./ModelLinkFavicon";
+import { getGenericModelLinks } from "./modelOverviewMetadata";
 
 interface ModelLinksProps {
 	model: ModelOverviewPage;
@@ -18,12 +19,18 @@ const LINK_FIELDS = [
 	{ key: "weights_link", label: "Weights" },
 ];
 
-type ModelLink = { url: string; platform?: string };
+type ModelLink = {
+	url: string;
+	platform?: string | null;
+	kind?: string | null;
+	title?: string | null;
+};
 type ParsedModelLink = {
 	key?: string;
 	label?: string;
 	url: string;
-	platform?: string;
+	platform?: string | null;
+	kind?: string | null;
 };
 
 function hasLinkUrl<T extends { url?: string | null }>(
@@ -34,22 +41,24 @@ function hasLinkUrl<T extends { url?: string | null }>(
 
 function getPlatformKey(link: {
 	key?: string;
-	platform?: string;
+	platform?: string | null;
+	kind?: string | null;
 }) {
+	const kind = link.kind ?? link.platform;
 	return (
 		link.key ??
-		(link.platform
-			? `${link.platform.toLowerCase().replace(/[\s-]+/g, "_")}_link`
+		(kind
+			? `${kind.toLowerCase().replace(/[\s-]+/g, "_")}_link`
 			: undefined)
 	);
 }
 
 function getIconForLink(
-	link: { key?: string; url?: string; platform?: string },
+	link: { key?: string; url?: string; platform?: string | null; kind?: string | null },
 	model: ModelOverviewPage
 ) {
 	const key = getPlatformKey(link);
-	const platform = link.platform?.toLowerCase() ?? "";
+	const platform = (link.kind ?? link.platform)?.toLowerCase() ?? "";
 	if (key === "paper_link") {
 		return (
 			<Image
@@ -126,13 +135,17 @@ function getIconForLink(
 function parseLinks(model: ModelOverviewPage): ParsedModelLink[] {
 	const rawModelLinks = (model.model_links as ModelLink[] | undefined) ?? [];
 
-	const fromModelLinks = rawModelLinks
-		.map((l) => ({
-			key: undefined as string | undefined,
-			label: l.platform ? prettyLabelForPlatform(l.platform) : undefined,
-			url: l.url,
-			platform: l.platform,
-		}))
+	const fromModelLinks = getGenericModelLinks(rawModelLinks)
+		.map((l) => {
+			const kind = l.kind ?? l.platform;
+			return {
+				key: undefined as string | undefined,
+				label: l.title?.trim() || (kind ? prettyLabelForPlatform(kind) : undefined),
+				url: l.url,
+				platform: l.platform,
+				kind,
+			};
+		})
 		.filter(hasLinkUrl);
 
 	const fromLegacy = LINK_FIELDS.flatMap(({ key, label }) => {

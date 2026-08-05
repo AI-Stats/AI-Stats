@@ -22,6 +22,8 @@ const state = vi.hoisted(() => ({
 	updateFilters: [] as Array<Array<{ column: string; value: unknown }>>,
 	deleteFilters: [] as Array<{ table: string; column: string; value: unknown }>,
 	enforceWorkspaceKeyLimit: vi.fn(async (_workspaceId: string) => undefined),
+	setKeyVersion: vi.fn(async () => undefined),
+	bindings: { PHASEO_CONTROL_SECRET: "secret", KEY_PEPPER_ACTIVE: "pepper" } as Record<string, unknown>,
 }));
 
 function json(body: unknown, status = 200, headers: Record<string, string> = {}) {
@@ -125,7 +127,7 @@ function buildKeysSupabaseMock() {
 vi.mock("@/runtime/env", () => ({
 	getSupabaseAdmin: () => buildKeysSupabaseMock(),
 	getCache: () => ({ delete: vi.fn(async () => undefined) }),
-	getBindings: () => ({ GATEWAY_CONTROL_SECRET: "secret", KEY_PEPPER_ACTIVE: "pepper" }),
+	getBindings: () => state.bindings,
 }));
 
 vi.mock("@/pipeline/before/guards", () => ({
@@ -139,15 +141,15 @@ vi.mock("@/routes/utils", () => ({
 }));
 
 vi.mock("@/core/kv", () => ({
-	setKeyVersion: vi.fn(async () => undefined),
+	setKeyVersion: state.setKeyVersion,
 }));
 
 vi.mock("@/routes/auth.helpers", () => ({
 	generateGatewayKey: vi.fn(() => ({
 		kid: "kid_123",
 		secret: "secret_123",
-		plaintext: "aistats_v1_sk_kid_123_secret_123",
-		prefix: "aistats_v1_sk_kid_123",
+		plaintext: "phaseo_v1_sk_kid_123_secret_123",
+		prefix: "phaseo_v1_sk_kid_123",
 	})),
 	hmacSecret: vi.fn(async () => "hashed_secret"),
 	timingSafeEqual: vi.fn((a: string, b: string) => a === b),
@@ -178,6 +180,8 @@ describe("management key routes", () => {
 		state.updatePayloads.length = 0;
 		state.updateFilters.length = 0;
 		state.deleteFilters.length = 0;
+		state.setKeyVersion.mockClear();
+		state.bindings = { PHASEO_CONTROL_SECRET: "secret", KEY_PEPPER_ACTIVE: "pepper" };
 		state.insertPayloads.length = 0;
 		state.enforceWorkspaceKeyLimit.mockReset();
 		state.enforceWorkspaceKeyLimit.mockResolvedValue(undefined);
@@ -190,7 +194,7 @@ describe("management key routes", () => {
 			hash: "hash_1",
 			workspace_id: "ws_1",
 			name: "Primary Key",
-			prefix: "aistats_v1_sk_abc",
+			prefix: "phaseo_v1_sk_abc",
 			status: "active",
 			scopes: "[\"chat.completions\"]",
 			created_by: "user_1",
@@ -226,7 +230,7 @@ describe("management key routes", () => {
 			hash: "hash_new",
 			workspace_id: "ws_1",
 			name: "Analytics Key",
-			prefix: "aistats_v1_sk_kid_123",
+			prefix: "phaseo_v1_sk_kid_123",
 			status: "active",
 			scopes: "[\"responses\"]",
 			created_by: "user_1",
@@ -267,7 +271,7 @@ describe("management key routes", () => {
 			hash: "hash_new",
 			limit: 5,
 			limit_reset: "weekly",
-			key: "aistats_v1_sk_kid_123_secret_123",
+			key: "phaseo_v1_sk_kid_123_secret_123",
 		});
 	});
 
@@ -345,7 +349,7 @@ describe("management key routes", () => {
 			hash: "hash_1",
 			workspace_id: "ws_1",
 			name: "Primary Key",
-			prefix: "aistats_v1_sk_abc",
+			prefix: "phaseo_v1_sk_abc",
 			status: "active",
 		});
 
@@ -369,7 +373,7 @@ describe("management key routes", () => {
 				workspace_id: "ws_1",
 				kid: "kid_1",
 				name: "Primary Key",
-				prefix: "aistats_v1_sk_abc",
+				prefix: "phaseo_v1_sk_abc",
 				status: "active",
 				scopes: "[]",
 				created_by: "user_1",
@@ -387,7 +391,7 @@ describe("management key routes", () => {
 				hash: "hash_1",
 				workspace_id: "ws_1",
 				name: "Primary Key",
-				prefix: "aistats_v1_sk_abc",
+				prefix: "phaseo_v1_sk_abc",
 				status: "active",
 				scopes: "[]",
 				created_by: "user_1",
@@ -458,5 +462,53 @@ describe("management key routes", () => {
 			{ table: "key_guardrails", column: "key_id", value: "key_1" },
 			{ table: "broadcast_destination_keys", column: "key_id", value: "key_1" },
 		]);
+	});
+
+	it("accepts legacy control bindings while invalidating a cached key", async () => {
+		state.bindings = {
+			GATEWAY_CONTROL_SECRET: "legacy-secret",
+			GATEWAY_CONTROL_KEY: "legacy-control-key",
+			KEY_PEPPER_ACTIVE: "pepper",
+		};
+		state.guardManagementAuthResult = {
+			ok: false,
+			response: json({ error: "unauthorized" }, 401),
+		};
+		state.keyRows.push({
+			id: "key_legacy",
+			kid: "kid_legacy",
+			workspace_id: "ws_legacy",
+			status: "active",
+		});
+
+		const { keysRoutes } = await import("./keys");
+		const response = await keysRoutes.request("https://example.com/key_legacy/invalidate", {
+			method: "POST",
+			headers: {
+				authorization: "Bearer legacy-control-key",
+				"x-control-secret": "legacy-secret",
+			},
+		});
+
+		expect(response.status).toBe(200);
+		expect(state.setKeyVersion).toHaveBeenCalledWith("kid", "kid_legacy", expect.any(Number));
+	});
+
+	it("allows scoped management auth to invalidate without a shared control secret", async () => {
+		state.bindings = { KEY_PEPPER_ACTIVE: "pepper" };
+		state.keyRows.push({
+			id: "key_scoped",
+			kid: "kid_scoped",
+			workspace_id: "ws_1",
+			status: "active",
+		});
+
+		const { keysRoutes } = await import("./keys");
+		const response = await keysRoutes.request("https://example.com/key_scoped/invalidate", {
+			method: "POST",
+		});
+
+		expect(response.status).toBe(200);
+		expect(state.setKeyVersion).toHaveBeenCalledWith("kid", "kid_scoped", expect.any(Number));
 	});
 });

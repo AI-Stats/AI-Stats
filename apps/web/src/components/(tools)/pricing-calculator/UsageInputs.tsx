@@ -5,13 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Clock3 } from "lucide-react";
 import {
-	getMeterInputConfig,
+	Clock3,
+	DatabaseZap,
+	Hash,
+	Image as ImageIcon,
+	Layers3,
+	MessageSquareText,
+	MousePointerClick,
+	Music2,
+	Video,
+} from "lucide-react";
+import {
 	formatMeterName,
+	getMeterInputConfig,
 	parseMeter,
 	type PricingMeter,
 } from "@/components/(data)/model/pricing/pricingHelpers";
+import { sanitizeRequestMultiplier } from "./calculatorState";
+import { formatSentenceLabel } from "./PricingTableVisuals";
 
 interface UsageInputsProps {
 	meters: PricingMeter[];
@@ -21,6 +33,18 @@ interface UsageInputsProps {
 	onMeterInputChange: (meter: string, value: string) => void;
 	onRequestMultiplierChange: (value: number) => void;
 	onPricingTimeUtcChange: (value: string) => void;
+}
+
+function MeterInputIcon({ meterName }: { meterName: string }) {
+	const name = meterName.toLowerCase();
+	if (name.includes("cached")) return <DatabaseZap className="size-4" />;
+	if (name.includes("image")) return <ImageIcon className="size-4" />;
+	if (name.includes("video")) return <Video className="size-4" />;
+	if (name.includes("music") || name.includes("audio")) return <Music2 className="size-4" />;
+	if (name.includes("request")) return <MousePointerClick className="size-4" />;
+	if (name.includes("text")) return <MessageSquareText className="size-4" />;
+	if (name.includes("token")) return <Hash className="size-4" />;
+	return <Layers3 className="size-4" />;
 }
 
 export function UsageInputs({
@@ -35,99 +59,97 @@ export function UsageInputs({
 	const uniqueMeters = useMemo(() => {
 		const map = new Map<string, PricingMeter>();
 		for (const meter of meters) {
-			if (!map.has(meter.meter)) {
-				map.set(meter.meter, meter);
-			}
+			if (!map.has(meter.meter)) map.set(meter.meter, meter);
 		}
 		return Array.from(map.values());
 	}, [meters]);
 
-	const setCurrentUtcTime = () => {
-		onPricingTimeUtcChange(new Date().toISOString().slice(11, 16));
-	};
-
 	return (
 		<Card>
-			<CardHeader>
-				<CardTitle>Usage Inputs</CardTitle>
-			</CardHeader>
-			<CardContent className="space-y-4">
-				{uniqueMeters.map((meter) => {
-					const inputConfig = getMeterInputConfig(meter.unit, meter.meter);
-					const derivedUnit = parseMeter(meter.meter).unit;
-					const unitLabel =
-						derivedUnit !== "unknown" ? derivedUnit : meter.unit;
-					return (
-						<div key={meter.meter} className="space-y-2">
-							<Label htmlFor={meter.meter}>
-								{formatMeterName(meter.meter)}
-								<span className="text-xs text-muted-foreground ml-2">
-									({unitLabel})
-								</span>
-							</Label>
-							<Input
-								id={meter.meter}
-								type={inputConfig.type}
-								min="0"
-								step={inputConfig.step}
-								value={meterInputs[meter.meter] || ""}
-								onChange={(e) =>
-									onMeterInputChange(meter.meter, e.target.value)
-								}
-								placeholder={inputConfig.placeholder}
-							/>
-						</div>
-					);
-				})}
-
-				<div className="space-y-2 border-t pt-4">
-					<Label htmlFor="request-multiplier">
-						Number of Requests
-						<span className="text-xs text-muted-foreground block mt-1">
-							Multiply all meter values by this number
-						</span>
-					</Label>
-					<Input
-						id="request-multiplier"
-						type="number"
-						min="1"
-						step="1"
-						value={requestMultiplier}
-						onChange={(e) =>
-							onRequestMultiplierChange(parseInt(e.target.value, 10) || 1)
-						}
-						placeholder="1"
-					/>
-					<p className="text-xs text-muted-foreground">
-						Example: 100 input tokens x 1000 requests = 100,000 total tokens
+			<CardHeader className="border-b bg-muted/10">
+				<CardTitle className="space-y-1">
+					<span>Usage inputs</span>
+					<p className="text-xs font-normal text-muted-foreground">
+						Enter the usage for one request, then scale it across your expected request volume.
 					</p>
+				</CardTitle>
+			</CardHeader>
+			<CardContent className="space-y-4 pt-5">
+				<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+					{uniqueMeters.map((meter) => {
+						const inputConfig = getMeterInputConfig(meter.unit, meter.meter);
+						const derivedUnit = parseMeter(meter.meter).unit;
+						const unitLabel = derivedUnit !== "unknown" ? derivedUnit : meter.unit;
+						return (
+							<div key={meter.meter} className="rounded-xl border bg-muted/10 p-3">
+								<Label htmlFor={meter.meter} className="mb-2 flex items-center gap-2">
+									<span className="flex size-7 items-center justify-center rounded-lg bg-background text-muted-foreground shadow-xs">
+										<MeterInputIcon meterName={meter.meter} />
+									</span>
+									<span className="min-w-0">
+										<span className="block truncate text-xs font-medium">{formatSentenceLabel(formatMeterName(meter.meter))}</span>
+										<span className="block text-[10px] font-normal text-muted-foreground">Per request • {unitLabel}</span>
+									</span>
+								</Label>
+								<Input
+									id={meter.meter}
+									type={inputConfig.type}
+									min="0"
+									step={inputConfig.step}
+									value={meterInputs[meter.meter] || ""}
+									onChange={(event) => onMeterInputChange(meter.meter, event.target.value)}
+									placeholder={inputConfig.placeholder}
+									className="h-10 rounded-lg bg-background"
+								/>
+							</div>
+						);
+					})}
 				</div>
 
-				<div className="space-y-2 border-t pt-4">
-					<Label htmlFor="pricing-time-utc">
-						Pricing Time
-						<span className="text-xs text-muted-foreground block mt-1">
-							UTC time used for provider time-window prices
-						</span>
-					</Label>
-					<div className="flex gap-2">
+				<div className="grid gap-3 border-t pt-4 md:grid-cols-2">
+					<div className="rounded-xl border bg-muted/10 p-3">
+						<Label htmlFor="request-multiplier" className="mb-2 flex items-center gap-2 text-xs">
+							<MousePointerClick className="size-4 text-muted-foreground" />
+							Number of requests
+						</Label>
 						<Input
-							id="pricing-time-utc"
-							type="time"
-							step="60"
-							value={pricingTimeUtc}
-							onChange={(e) => onPricingTimeUtcChange(e.target.value)}
+							id="request-multiplier"
+							type="number"
+							min="1"
+							step="1"
+							value={requestMultiplier}
+							onChange={(event) => onRequestMultiplierChange(sanitizeRequestMultiplier(Number(event.target.value)))}
+							className="h-10 rounded-lg bg-background"
 						/>
-						<Button
-							type="button"
-							variant="outline"
-							size="icon"
-							onClick={setCurrentUtcTime}
-							aria-label="Use current UTC time"
-							title="Use current UTC time"
-						>
-							<Clock3 className="h-4 w-4" />
-						</Button>
+						<p className="mt-2 text-[11px] text-muted-foreground">Every meter value is multiplied by this request count.</p>
+					</div>
+
+					<div className="rounded-xl border bg-muted/10 p-3">
+						<Label htmlFor="pricing-time-utc" className="mb-2 flex items-center gap-2 text-xs">
+							<Clock3 className="size-4 text-muted-foreground" />
+							Pricing time in UTC
+						</Label>
+						<div className="flex gap-2">
+							<Input
+								id="pricing-time-utc"
+								type="time"
+								step="60"
+								value={pricingTimeUtc}
+								onChange={(event) => onPricingTimeUtcChange(event.target.value)}
+								className="h-10 rounded-lg bg-background"
+							/>
+							<Button
+								type="button"
+								variant="outline"
+								size="icon"
+								className="size-10 rounded-lg bg-background"
+								onClick={() => onPricingTimeUtcChange(new Date().toISOString().slice(11, 16))}
+								aria-label="Use current UTC time"
+							>
+								<Clock3 className="size-4" />
+							</Button>
+						</div>
+						<p className="mt-2 text-[11px] text-muted-foreground">Used when a provider has time-window pricing.</p>
 					</div>
 				</div>
 			</CardContent>

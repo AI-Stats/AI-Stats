@@ -1,14 +1,20 @@
 ---
-title: "Cancel batch (Beta)"
-badge: "Beta"
+title: "Cancel a batch"
+sidebarTitle: "Cancel a batch"
+tag: "Internal"
 openapi: "POST /batches/{batch_id}/cancel"
-description: "Cancel a pending or processing batch job and release any held reservation when the provider confirms cancellation."
+description: |-
+  <Info>
+  **Internal testing.** The Batch API is available only to enabled workspaces. Requests from other workspaces return `403`, and the API may change before general availability.
+  </Info>
+
+  Cancel a pending or processing batch job and release any held reservation when the provider confirms cancellation.
 ---
 
 Cancels a gateway-owned batch job.
 
-Use the AI Stats `id` returned by create, list, or status responses. `native_batch_id` is provider correlation metadata and should not be used in this endpoint unless it is identical to the gateway id.
+Use the Phaseo `id` returned by create, list, or status responses. `native_batch_id` is provider correlation metadata and should not be used in this endpoint unless it is identical to the gateway id.
 
-OpenAI batches can be cancelled while they are still active. Completed, failed, cancelled, or expired batches are already terminal and are not sent to the provider again.
+Enabled OpenAI, Anthropic, Gemini, and Mistral batches can be cancelled while they are still active. Phaseo uses each provider's native cancellation endpoint and then keeps polling until the provider reports an authoritative terminal state. Completed, failed, cancelled, or expired batches are already terminal and are not sent to the provider again.
 
-When cancellation succeeds, AI Stats refreshes and persists the terminal state, emits configured async webhook events, and releases held reservation amounts for voided work.
+When cancellation succeeds, Phaseo refreshes and persists the terminal state, emits configured async webhook events, and releases held reservation amounts for voided work.

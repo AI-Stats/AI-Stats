@@ -4,7 +4,7 @@
 
 import { fetchVideoProviderStatus } from "@core/video-reconciliation";
 import { finalizeVideoJob } from "@core/video-finalization";
-import { listPendingVideoJobs } from "@core/video-jobs";
+import { listPendingVideoJobs, updateVideoJobReconciliation, type VideoJobRecord } from "@core/video-jobs";
 import { buildVideoPricingRequestOptions } from "@core/video-request-options";
 import { dispatchVideoWebhookEventInBackground } from "@core/video-user-webhooks";
 
@@ -22,26 +22,60 @@ export type VideoReconciliationSummary = {
 	jobsErrored: number;
 };
 
-function isTerminalStatus(status: string): status is "completed" | "failed" | "cancelled" | "expired" {
-	return status === "completed" || status === "failed" || status === "cancelled" || status === "expired";
+function nextIsoFromNow(delaySeconds: number): string {
+	return new Date(Date.now() + Math.max(0, Math.trunc(delaySeconds)) * 1_000).toISOString();
 }
 
-function videoWebhookEventForStatus(
-	status: "completed" | "failed" | "cancelled" | "expired",
-): "video.completed" | "video.failed" | "video.cancelled" | "video.expired" {
+function terminalVideoStatus(status: string | null | undefined): boolean {
+	const normalized = String(status ?? "").toLowerCase();
+	return normalized === "completed" || normalized === "failed" || normalized === "cancelled" || normalized === "expired";
+}
+
+function nextVideoReconcileAt(status: string | null | undefined, progress?: number | null): string | null {
+	const normalized = String(status ?? "").toLowerCase();
+	if (terminalVideoStatus(normalized)) return null;
+	if (normalized === "in_progress" || normalized === "processing" || normalized === "running") {
+		const nearCompletion = typeof progress === "number" && progress >= 0.8;
+		return nextIsoFromNow(nearCompletion ? 15 : 30);
+	}
+	return nextIsoFromNow(60);
+}
+
+function nextVideoErrorRetryAt(job: VideoJobRecord): string {
+	const attempts = Math.max(0, Math.min(7, Math.trunc(job.reconcileAttempts ?? 0)));
+	const delaySeconds = Math.min(30 * 60, 60 * 2 ** attempts);
+	return nextIsoFromNow(delaySeconds);
+}
+
+function reconcileErrorMessage(error: unknown): string {
+	return error instanceof Error ? error.message : String(error);
+}
+
+function terminalVideoEvent(status: string): "video.completed" | "video.failed" | "video.cancelled" | "video.expired" | null {
 	if (status === "completed") return "video.completed";
+	if (status === "failed") return "video.failed";
 	if (status === "cancelled") return "video.cancelled";
 	if (status === "expired") return "video.expired";
-	return "video.failed";
+	return null;
 }
 
 export async function runVideoReconciliationJob(args?: {
 	limit?: number;
 	concurrency?: number;
+	workerId?: string;
+	leaseSeconds?: number;
+	shardCount?: number;
+	shardIndex?: number;
 }): Promise<VideoReconciliationSummary> {
 	const startedAt = new Date().toISOString();
-	const jobs = await listPendingVideoJobs(args?.limit ?? 100);
-	const maxConcurrency = Math.max(1, Math.min(12, Math.trunc(args?.concurrency ?? 4)));
+	const workerId = args?.workerId ?? `video-reconciler:${startedAt}`;
+	const jobs = await listPendingVideoJobs(args?.limit ?? 100, {
+		workerId,
+		leaseSeconds: args?.leaseSeconds,
+		shardCount: args?.shardCount,
+		shardIndex: args?.shardIndex,
+	});
+	const maxConcurrency = Math.max(1, Math.min(64, Math.trunc(args?.concurrency ?? 4)));
 
 	const processJob = async (job: Awaited<ReturnType<typeof listPendingVideoJobs>>[number]) => {
 		const counts = {
@@ -56,12 +90,12 @@ export async function runVideoReconciliationJob(args?: {
 		};
 		try {
 			const currentStatus = String(job.status ?? "").toLowerCase();
-			if (isTerminalStatus(currentStatus)) {
+			if (terminalVideoStatus(currentStatus)) {
 				const finalized = await finalizeVideoJob({
 					workspaceId: job.workspaceId,
 					videoId: job.videoId,
 					providerId: String(job.provider ?? job.meta?.provider ?? ""),
-					status: currentStatus,
+					status: currentStatus as "completed" | "failed" | "cancelled" | "expired",
 					model: job.model ?? job.meta?.model,
 					seconds: job.meta?.seconds ?? null,
 					requestOptions: buildVideoPricingRequestOptions({
@@ -74,29 +108,40 @@ export async function runVideoReconciliationJob(args?: {
 						reconciledFromStatus: currentStatus,
 					},
 				});
-				const finalizedStatus = String(finalized.status ?? currentStatus).toLowerCase();
-				if (isTerminalStatus(finalizedStatus) && finalizedStatus !== currentStatus) {
+				const eventType = terminalVideoEvent(finalized.status);
+				if (eventType && currentStatus !== "cancelled" && currentStatus !== "expired") {
 					dispatchVideoWebhookEventInBackground({
 						workspaceId: job.workspaceId,
 						videoId: job.videoId,
-						eventType: videoWebhookEventForStatus(finalizedStatus),
+						eventType,
 					});
 				}
+				await updateVideoJobReconciliation({
+					workspaceId: job.workspaceId,
+					videoId: job.videoId,
+					nextReconcileAt: null,
+					lastError: null,
+				});
 				counts.jobsUpdated += 1;
-				if (finalizedStatus === "completed") counts.jobsCompleted += 1;
-				if (finalizedStatus === "failed") counts.jobsFailed += 1;
-				if (finalizedStatus === "cancelled") counts.jobsCancelled += 1;
-				if (finalizedStatus === "expired") counts.jobsExpired += 1;
+				if (finalized.status === "completed") counts.jobsCompleted += 1;
+				if (finalized.status === "failed") counts.jobsFailed += 1;
+				if (finalized.status === "cancelled") counts.jobsCancelled += 1;
+				if (finalized.status === "expired") counts.jobsExpired += 1;
 				if (finalized.charged) counts.jobsCharged += 1;
 				return counts;
 			}
 
 			const polled = await fetchVideoProviderStatus(job);
-			if (!polled) return counts;
+			if (!polled) {
+				await updateVideoJobReconciliation({
+					workspaceId: job.workspaceId,
+					videoId: job.videoId,
+					nextReconcileAt: nextVideoReconcileAt(job.status),
+					lastError: null,
+				});
+				return counts;
+			}
 			counts.jobsPolled += 1;
-			const polledProgress = typeof polled.progress === "number"
-				? Math.max(0, Math.min(100, Math.round(polled.progress)))
-				: null;
 			const polledAt = new Date().toISOString();
 			const finalized = await finalizeVideoJob({
 				workspaceId: job.workspaceId,
@@ -109,48 +154,37 @@ export async function runVideoReconciliationJob(args?: {
 				isByok: job.meta?.keySource === "byok",
 				metaPatch: {
 					...(polled.metaPatch ?? {}),
-					...(polledProgress != null ? { progress: polledProgress, progressSource: "provider" } : {}),
+					...(typeof polled.progress === "number" ? {
+						progress: polled.progress,
+						progressSource: "provider",
+					} : {}),
 					lastPolledAt: polledAt,
 					polledStatus: polled.status,
 					lastReconciledAt: polledAt,
 				},
 			});
-			if (finalized.status === "in_progress" && polled.status === "in_progress" && polledProgress != null) {
+			if (finalized.status === "in_progress" && typeof polled.progress === "number") {
 				dispatchVideoWebhookEventInBackground({
 					workspaceId: job.workspaceId,
 					videoId: job.videoId,
 					eventType: "video.progress",
-					progress: polledProgress,
+					progress: polled.progress,
 				});
 			}
-			if (finalized.status === "completed") {
+			const eventType = terminalVideoEvent(finalized.status);
+			if (eventType) {
 				dispatchVideoWebhookEventInBackground({
 					workspaceId: job.workspaceId,
 					videoId: job.videoId,
-					eventType: "video.completed",
+					eventType,
 				});
 			}
-			if (finalized.status === "failed") {
-				dispatchVideoWebhookEventInBackground({
-					workspaceId: job.workspaceId,
-					videoId: job.videoId,
-					eventType: "video.failed",
-				});
-			}
-			if (finalized.status === "cancelled") {
-				dispatchVideoWebhookEventInBackground({
-					workspaceId: job.workspaceId,
-					videoId: job.videoId,
-					eventType: "video.cancelled",
-				});
-			}
-			if (finalized.status === "expired") {
-				dispatchVideoWebhookEventInBackground({
-					workspaceId: job.workspaceId,
-					videoId: job.videoId,
-					eventType: "video.expired",
-				});
-			}
+			await updateVideoJobReconciliation({
+				workspaceId: job.workspaceId,
+				videoId: job.videoId,
+				nextReconcileAt: nextVideoReconcileAt(finalized.status, polled.progress),
+				lastError: null,
+			});
 
 			counts.jobsUpdated += 1;
 			if (finalized.status === "completed") counts.jobsCompleted += 1;
@@ -160,6 +194,18 @@ export async function runVideoReconciliationJob(args?: {
 			if (finalized.charged) counts.jobsCharged += 1;
 		} catch (error) {
 			counts.jobsErrored += 1;
+			await updateVideoJobReconciliation({
+				workspaceId: job.workspaceId,
+				videoId: job.videoId,
+				nextReconcileAt: nextVideoErrorRetryAt(job),
+				lastError: reconcileErrorMessage(error),
+			}).catch((updateError) => {
+				console.error("video_reconcile_release_failed", {
+					error: updateError,
+					workspaceId: job.workspaceId,
+					videoId: job.videoId,
+				});
+			});
 			console.error("video_reconcile_job_failed", {
 				error,
 				workspaceId: job.workspaceId,

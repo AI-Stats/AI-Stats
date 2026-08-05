@@ -16,9 +16,36 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "deepseek/deepseek-v3.1",
@@ -37,9 +64,36 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "deepseek/deepseek-v4-pro",
@@ -58,9 +112,36 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "minimax/minimax-m2.5",
@@ -79,16 +160,43 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "moonshotai/kimi-k2",
     "provider_api_model_id": "baseten:moonshotai/kimi-k2",
     "provider_model_slug": "kimi-k2",
     "internal_model_id": "moonshotai/kimi-k2-2025-07-11",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -100,9 +208,36 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "moonshotai/kimi-k2-0905",
@@ -121,9 +256,36 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "moonshotai/kimi-k2-thinking",
@@ -142,9 +304,36 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "moonshotai/kimi-k2.5",
@@ -158,14 +347,41 @@
     "context_length": 262000,
     "max_output_tokens": 262000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-07-25T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "moonshotai/kimi-k2.6",
@@ -184,9 +400,36 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "moonshotai/kimi-k2.7-code",
@@ -205,9 +448,36 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "nvidia/nemotron-3-super-120b-a12b",
@@ -221,7 +491,7 @@
     "context_length": 202800,
     "max_output_tokens": 202800,
     "effective_from": "2026-03-11T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-07-25T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -283,9 +553,36 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
@@ -304,9 +601,36 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "openai/gpt-oss-120b",
@@ -325,9 +649,145 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "thinking-machines/inkling",
+    "provider_api_model_id": "baseten:thinkingmachines/inkling",
+    "provider_model_slug": "thinkingmachines/inkling",
+    "internal_model_id": "thinking-machines/inkling",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-07-15T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "thinking-machines/inkling-small",
+    "provider_api_model_id": "baseten:thinkingmachines/inkling-small",
+    "provider_model_slug": "thinkingmachines/inkling-small",
+    "internal_model_id": "thinking-machines/inkling-small",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP4",
+    "input_modalities": "text,image,audio",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-30T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.baseten.co/library/inkling-small/",
+        "kind": "documentation",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Baseten Model API page confirms the route and supported modalities."
+      },
+      {
+        "url": "https://www.baseten.co/pricing/",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Baseten Model API pricing table."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Baseten lists thinkingmachines/inkling-small as a live Model API with 1M context and NVFP4 serving on B200."
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "z-ai/glm-4.6",
@@ -346,9 +806,36 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "z-ai/glm-4.7",
@@ -367,9 +854,36 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "z-ai/glm-5",
@@ -383,14 +897,41 @@
     "context_length": 202800,
     "max_output_tokens": 202800,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-07-25T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "z-ai/glm-5.1",
@@ -404,14 +945,41 @@
     "context_length": 202000,
     "max_output_tokens": 202000,
     "effective_from": "2026-05-27T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-07-25T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "z-ai/glm-5.2",
@@ -430,8 +998,93 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id":"z-ai/glm-5.2-fast","provider_api_model_id":"baseten:z-ai/glm-5.2-fast","provider_model_slug":"zai-org/GLM-5.2-Fast","internal_model_id":"z-ai/glm-5.2","is_active_gateway":false,"quantization_scheme":null,"input_modalities":"text","output_modalities":"text","context_length":1048576,"max_output_tokens":null,"effective_from":"2026-07-24T00:00:00","effective_to":null,"capabilities":[{"capability_id":"text.generate","status":"active","params":[],"reasoning":true,"tool_call":true,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],"routing_status":null,"routable":false,"regions":{"execution":null,"data":null},"service_tiers":[],"api":{"formats":[],"endpoint":null,"deployment":null},"sources":[{"url":"https://www.baseten.co/library/glm-52-fast/","kind":"documentation"},{"url":"https://www.baseten.co/pricing/","kind":"pricing"}],"verification":{"status":"verified","checked_at":"2026-07-26T00:00:00Z","notes":"Hidden provider sibling used when a canonical z-ai/glm-5.2 request selects Phaseo's priority service tier; Baseten serves it at zai-org/GLM-5.2-Fast."},"rate_limits":[]
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k3",
+    "provider_api_model_id": "baseten:moonshotai/kimi-k3",
+    "provider_model_slug": "moonshotai/Kimi-K3",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-27T15:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.baseten.co/talk-to-us/kimi-k3-waitlist/",
+        "kind": "announcement",
+        "accessed_at": "2026-07-26T00:00:00Z",
+        "notes": "Baseten promises Kimi K3 on Model APIs and Dedicated Inference the same day the weights drop."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-27T00:00:00Z",
+      "notes": "Baseten's Kimi K3 Model API card shows the route live at $3.00 per 1M input tokens, $0.30 per 1M cached input tokens, and $15.00 per 1M output tokens, with limits of 100,000 tokens and 15 requests per minute."
+    },
+    "rate_limits": []
   }
 ]

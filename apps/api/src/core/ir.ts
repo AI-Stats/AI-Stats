@@ -2,7 +2,7 @@
 // Why: Shared types/schemas/utilities used across modules.
 // How: Exposes reusable building blocks for the gateway.
 
-// Intermediate Representation (IR) types for the AI Stats Gateway
+// Intermediate Representation (IR) types for the Phaseo Gateway
 // This IR provides a protocol-agnostic format for chat completions that can:
 // 1. Represent OpenAI Chat Completions, OpenAI Responses API, and Anthropic Messages
 // 2. Handle tool calling across all three protocols
@@ -68,6 +68,7 @@ export type IRTool = {
 	type?: string; // Provider-native tool type (for example web_search_preview)
 	description?: string;
 	parameters: Record<string, any>; // JSON Schema
+	strict?: boolean; // OpenAI/xAI function-schema strictness
 	cacheControl?: IRCacheControl;
 	raw?: Record<string, any>; // Original provider-native tool payload for passthrough
 };
@@ -151,6 +152,7 @@ export type IRToolChoice =
  */
 export type IRReasoning = {
 	effort?: "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max";
+	mode?: "standard" | "pro";
 	summary?: "auto" | "concise" | "detailed";
 	enabled?: boolean;
 	maxTokens?: number;
@@ -442,6 +444,8 @@ export type IRImageGenerationRequest = {
 	size?: string;
 	n?: number;
 	quality?: string;
+	stream?: boolean;
+	partialImages?: number;
 	responseFormat?: string;
 	outputFormat?: "png" | "jpeg" | "webp";
 	outputCompression?: number;
@@ -511,6 +515,14 @@ export type IRAudioTranscriptionRequest = {
 	responseFormat?: string;
 	timestampGranularities?: Array<"word" | "segment">;
 	include?: string[];
+	chunkingStrategy?: "auto" | {
+		type: "server_vad";
+		prefix_padding_ms?: number;
+		silence_duration_ms?: number;
+		threshold?: number;
+	};
+	knownSpeakerNames?: string[];
+	knownSpeakerReferences?: string[];
 	rawRequest?: any;
 };
 
@@ -742,6 +754,9 @@ export type IRUsage = {
 			web_search_extra_results?: number;
 			web_fetch_requests?: number;
 			advisor_requests?: number;
+			subagent_requests?: number;
+			fusion_requests?: number;
+			search_models_requests?: number;
 			image_generation_requests?: number;
 			apply_patch_requests?: number;
 		};
@@ -914,7 +929,6 @@ export function hasToolCalls(message: IRMessage): boolean {
 export function countTotalTokens(usage?: IRUsage): number {
 	return usage?.totalTokens ?? 0;
 }
-
 
 
 

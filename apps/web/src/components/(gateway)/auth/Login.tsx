@@ -1,5 +1,9 @@
+import Link from "next/link";
+import { Building2 } from "lucide-react";
 import OAuthButtons from "./OAuthButtons";
 import EmailPassword from "./EmailPassword";
+import { PasskeySignInButton } from "./PasskeySignInButton";
+import { Button } from "@/components/ui/button";
 
 type SignupNotice = "check-email" | null;
 
@@ -7,10 +11,12 @@ export function Login({
 	signupNotice = null,
 	authError = null,
 	returnUrl,
+	ssoEnabled = false,
 }: {
 	signupNotice?: SignupNotice;
 	authError?: "auth-failed" | null;
 	returnUrl?: string;
+	ssoEnabled?: boolean;
 }) {
 	const signupNoticeText =
 		signupNotice === "check-email"
@@ -19,9 +25,12 @@ export function Login({
 	const authErrorText = authError === "auth-failed" ? "Invalid email or password. Please try again." : null;
 
 	return (
-		<div className="flex flex-col gap-6">
-			<div className="flex flex-col items-center gap-2 text-center">
+		<div className="flex flex-col gap-5">
+			<div className="flex flex-col items-center gap-1.5 text-center">
 				<h1 className="text-2xl font-bold">Welcome back</h1>
+				<p className="text-sm text-muted-foreground">
+					Sign in to your Phaseo account
+				</p>
 			</div>
 
 			{signupNoticeText ? (
@@ -39,7 +48,24 @@ export function Login({
 				</p>
 			) : null}
 
-			<OAuthButtons returnUrl={returnUrl} />
+			<div className="grid gap-2.5">
+				<OAuthButtons returnUrl={returnUrl} />
+				<div className={ssoEnabled ? "grid grid-cols-2 gap-2.5" : "grid"}>
+					<PasskeySignInButton returnUrl={returnUrl} compact={ssoEnabled} />
+					{ssoEnabled ? <Button asChild variant="outline" className="h-11 w-full">
+						<Link
+							href={
+								returnUrl
+									? `/sign-in/enterprise?returnUrl=${encodeURIComponent(returnUrl)}`
+									: "/sign-in/enterprise"
+							}
+						>
+							<Building2 className="mr-2 h-4 w-4" aria-hidden="true" />
+							SSO
+						</Link>
+					</Button> : null}
+				</div>
+			</div>
 			<EmailPassword returnUrl={returnUrl} />
 		</div>
 	);

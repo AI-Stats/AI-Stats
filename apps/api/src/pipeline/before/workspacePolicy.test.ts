@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyWorkspacePolicy, buildWorkspacePolicy } from "./workspacePolicy";
+import { applyWorkspacePolicy, buildWorkspacePolicy, isOptionalDynamicRouteSchemaUnavailable } from "./workspacePolicy";
 
 function candidate(args: {
     providerId: string;
@@ -112,7 +112,7 @@ describe("applyWorkspacePolicy", () => {
 					providerId: "logs-provider",
 					apiModelId: "test/model",
 					dataPolicyTier: "logs",
-					dataPolicyConfidence: "maybe",
+					dataPolicyConfidence: "confirmed",
 				}),
 				candidate({
 					providerId: "private-provider",
@@ -146,7 +146,7 @@ describe("applyWorkspacePolicy", () => {
 				providerId: "logs-provider",
 				reason: "input_output_logging_disabled",
 				dataPolicyTier: "logs",
-				dataPolicyConfidence: "maybe",
+				dataPolicyConfidence: "confirmed",
 				routeCostKind: "unknown",
 			},
 		]);
@@ -159,12 +159,14 @@ describe("applyWorkspacePolicy", () => {
 					providerId: "trains-paid",
 					apiModelId: "test/model",
 					dataPolicyTier: "trains",
+					dataPolicyConfidence: "confirmed",
 					pricing: "paid",
 				}),
 				candidate({
 					providerId: "trains-free",
 					apiModelId: "test/model",
 					dataPolicyTier: "trains",
+					dataPolicyConfidence: "confirmed",
 					pricing: "free",
 				}),
 			],
@@ -195,7 +197,41 @@ describe("applyWorkspacePolicy", () => {
 		});
 	});
 
-    it("filters ai-stats/free providers by concrete allowed model ids", () => {
+	it("fails closed for unknown or unverified data policies when privacy controls are restrictive", () => {
+		const result = applyWorkspacePolicy({
+			providers: [
+				candidate({ providerId: "unknown", apiModelId: "test/model" }),
+				candidate({
+					providerId: "unverified",
+					apiModelId: "test/model",
+					dataPolicyTier: "private",
+					dataPolicyConfidence: "maybe",
+				}),
+			],
+			resolvedModel: "test/model",
+			body: {},
+			workspacePolicy: null,
+			teamSettings: {
+				routingMode: null,
+				byokFallbackEnabled: false,
+				betaChannelEnabled: false,
+				privacyEnableInputOutputLogging: false,
+				privacyEnablePaidMayTrain: false,
+				privacyEnableFreeMayTrain: false,
+				privacyZdrOnly: true,
+				billingMode: "wallet",
+			},
+		});
+
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.diagnostics.droppedByPrivacy).toEqual([
+			expect.objectContaining({ providerId: "unknown", reason: "data_policy_unknown" }),
+			expect.objectContaining({ providerId: "unverified", reason: "data_policy_unverified" }),
+		]);
+	});
+
+    it("filters phaseo/free providers by concrete allowed model ids", () => {
         const result = applyWorkspacePolicy({
             providers: [
                 candidate({
@@ -207,7 +243,7 @@ describe("applyWorkspacePolicy", () => {
                     apiModelId: "google/gemini-free",
                 }),
             ],
-            resolvedModel: "ai-stats/free",
+            resolvedModel: "phaseo/free",
             body: {},
             workspacePolicy: {
                 providerAllowlist: null,
@@ -240,7 +276,7 @@ describe("applyWorkspacePolicy", () => {
                     apiModelId: "anthropic/claude-sonnet-4",
                 }),
             ],
-            resolvedModel: "ai-stats/free",
+            resolvedModel: "phaseo/free",
             body: {},
             workspacePolicy: {
                 providerAllowlist: null,
@@ -402,4 +438,32 @@ describe("applyWorkspacePolicy", () => {
             },
         ]);
     });
+});
+
+
+describe("isOptionalDynamicRouteSchemaUnavailable", () => {
+	it("allows a rollout fallback when the dynamic-route link table is absent", () => {
+		expect(isOptionalDynamicRouteSchemaUnavailable({
+			code: "PGRST205",
+			message: "Could not find the table 'public.gateway_dynamic_route_keys' in the schema cache",
+		})).toBe(true);
+	});
+
+	it("allows a rollout fallback when the dynamic-route table relation is absent", () => {
+		expect(isOptionalDynamicRouteSchemaUnavailable({
+			code: "42P01",
+			message: 'relation "gateway_dynamic_routes" does not exist',
+		})).toBe(true);
+	});
+
+	it("keeps permission and unrelated schema errors fail-closed", () => {
+		expect(isOptionalDynamicRouteSchemaUnavailable({
+			code: "42501",
+			message: 'permission denied for table gateway_dynamic_route_keys',
+		})).toBe(false);
+		expect(isOptionalDynamicRouteSchemaUnavailable({
+			code: "PGRST205",
+			message: "Could not find the table 'public.workspace_guardrails' in the schema cache",
+		})).toBe(false);
+	});
 });

@@ -1,12 +1,9 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
-import { getWorkspaceIdFromCookie } from "@/utils/workspaceCookie";
 import { revalidatePath } from "next/cache";
-import {
-	requireAuthenticatedUser,
-	requireWorkspaceMembership,
-} from "@/utils/serverActionAuth";
+import { fetchAccountWebApi } from "@/lib/web-api/client";
+import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountContext";
+import type { DynamicRouteConfig } from "@/lib/fetchers/internal/settingsTypes";
 
 export type RoutingMode = "balanced" | "price" | "latency" | "throughput";
 
@@ -27,48 +24,74 @@ export async function updateRoutingSettings({
 	responseHealingLocked,
 	responseHealingMode,
 }: UpdateRoutingSettingsInput) {
-	const { supabase, user } = await requireAuthenticatedUser();
-	const workspaceId = await getWorkspaceIdFromCookie();
-	if (!workspaceId) {
-		throw new Error("Missing workspace id");
-	}
-	await requireWorkspaceMembership(supabase, user.id, workspaceId, ["owner", "admin"]);
-
-	const payload = {
-		workspace_id: workspaceId,
-		routing_mode: mode,
-		...(typeof betaChannelEnabled === "boolean"
-			? { beta_channel_enabled: betaChannelEnabled }
-			: {}),
-		...(typeof alphaChannelEnabled === "boolean"
-			? {
-					alpha_channel_enabled:
-						betaChannelEnabled === false ? false : alphaChannelEnabled,
-			  }
-			: {}),
-		...(typeof responseHealingEnabled === "boolean"
-			? { response_healing_enabled: responseHealingEnabled }
-			: {}),
-		...(typeof responseHealingLocked === "boolean"
-			? { response_healing_locked: responseHealingLocked }
-			: {}),
-		...(responseHealingMode === "safe" || responseHealingMode === "strict"
-			? { response_healing_mode: responseHealingMode }
-			: {}),
-		updated_at: new Date().toISOString(),
-	};
-
-	const { error } = await supabase
-		.from("workspace_settings")
-		.upsert(payload, { onConflict: "workspace_id" });
-
-	if (error) {
-		throw error;
-	}
+	const context = await getServerAccountContext();
+	if (!context.accessToken || !context.workspaceId) throw new Error("Missing workspace id");
+	await fetchAccountWebApi("/api/account/settings/routing", context.accessToken, {
+		method: "PUT",
+		body: JSON.stringify({ workspaceId: context.workspaceId, mode, betaChannelEnabled, alphaChannelEnabled, responseHealingEnabled, responseHealingLocked, responseHealingMode }),
+	});
 
 	revalidatePath("/settings/routing");
 }
 
 export async function updateRoutingMode(mode: RoutingMode) {
 	return updateRoutingSettings({ mode });
+}
+
+async function routingContext() {
+	const context = await getServerAccountContext();
+	if (!context.accessToken || !context.workspaceId) throw new Error("Missing workspace id");
+	return context;
+}
+
+export async function createDynamicRouteAction(input: {
+	name: string;
+	description?: string | null;
+	config: DynamicRouteConfig;
+}) {
+	const context = await routingContext();
+	const result = await fetchAccountWebApi<{ route: { id: string; version: number } }>("/api/account/settings/dynamic-routes", context.accessToken, {
+		method: "POST",
+		body: JSON.stringify({ ...input, workspaceId: context.workspaceId }),
+	});
+	revalidatePath("/settings/routing");
+	return result.route;
+}
+
+export async function updateDynamicRouteAction(routeId: string, input: {
+	name?: string;
+	description?: string | null;
+	status?: "active" | "paused";
+	config?: DynamicRouteConfig;
+}) {
+	const context = await routingContext();
+	const result = await fetchAccountWebApi<{ success: true; version: number }>(`/api/account/settings/dynamic-routes/${encodeURIComponent(routeId)}`, context.accessToken, {
+		method: "PUT",
+		body: JSON.stringify(input),
+	});
+	revalidatePath("/settings/routing");
+	return result;
+}
+
+export async function attachDynamicRouteKeysAction(routeId: string, keyIds: string[]) {
+	const context = await routingContext();
+	await fetchAccountWebApi(`/api/account/settings/dynamic-routes/${encodeURIComponent(routeId)}/keys`, context.accessToken, {
+		method: "PUT",
+		body: JSON.stringify({ keyIds }),
+	});
+	revalidatePath("/settings/routing");
+}
+
+export async function deployDynamicRouteVersionAction(routeId: string, version: number) {
+	const context = await routingContext();
+	await fetchAccountWebApi(`/api/account/settings/dynamic-routes/${encodeURIComponent(routeId)}/versions/${version}/deploy`, context.accessToken, { method: "POST" });
+	revalidatePath("/settings/routing");
+}
+
+export async function deleteDynamicRouteAction(routeId: string, confirmName: string) {
+	const context = await routingContext();
+	await fetchAccountWebApi(`/api/account/settings/dynamic-routes/${encodeURIComponent(routeId)}?confirmName=${encodeURIComponent(confirmName)}`, context.accessToken, {
+		method: "DELETE",
+	});
+	revalidatePath("/settings/routing");
 }

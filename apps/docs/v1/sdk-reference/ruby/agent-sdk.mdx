@@ -1,20 +1,18 @@
 ---
 title: "Usage"
-description: "Run a minimal local agent loop on top of AI Stats Gateway with the Ruby Agent SDK."
+description: "Run tool loops, human review, retries, and resumable agents with the Ruby Agent SDK."
 ---
 
-## Install
+## Prepare the runtime
 
-```bash
-gem install ai_stats_sdk ai_stats_agent_sdk
-```
+The Agent SDK gem is not yet on RubyGems. Follow the [source installation instructions](./agent-sdk-installation).
 
 ## Quickstart
 
 ```ruby
-require "ai_stats_agent_sdk"
+require "phaseo_agent_sdk"
 
-agent = AIStatsAgentSdk.create_agent(
+agent = PhaseoAgentSdk.create_agent(
   id: "quickstart-agent",
   model: "openai/gpt-5.4-nano",
   instructions: "Answer concisely and helpfully."
@@ -22,7 +20,7 @@ agent = AIStatsAgentSdk.create_agent(
 
 result = agent.run(
   input: "Give me one fun fact about cURL.",
-  client: AIStatsAgentSdk.create_gateway_agent_client
+  client: PhaseoAgentSdk.create_gateway_agent_client
 )
 
 puts result.output
@@ -30,10 +28,18 @@ puts result.output
 
 ## What it ships
 
-- `AIStatsAgentSdk.create_agent(...)`
-- `AIStatsAgentSdk.define_tool(...)`
-- `AIStatsAgentSdk.create_gateway_agent_client(...)`
-- a bounded tool loop over the AI Stats `responses` API
+- `PhaseoAgentSdk.create_agent(...)`
+- `PhaseoAgentSdk.define_tool(...)`
+- `PhaseoAgentSdk.create_gateway_agent_client(...)`
+- a bounded tool loop over the Phaseo `responses` API
+
+## Advanced runtime
+
+Ruby supports validation and approval callables, HITL and manual tools, progress, recoverable errors, replayable enumerators, stop helpers, dynamic turns, persisted next-turn parameters, normalized usage/cost, and duck-typed state accessors.
+
+## Streaming and cancellation
+
+`Agent#stream(...)` and `Agent#continue_stream(...)` consume the gateway's Responses SSE stream on a worker thread. Use `text_stream`, `reasoning_stream`, `item_stream`, or `full_stream`; call `cancel` to stop the worker and close the HTTP stream. Completed steps retain request IDs, provider metadata, finish reasons, warnings, usage, and cost.
 
 ## Related
 

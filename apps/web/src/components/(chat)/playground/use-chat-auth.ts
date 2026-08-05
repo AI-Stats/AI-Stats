@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { fetchClientAuthHeaderData } from "@/lib/fetchers/internal/fetchClientAuthHeaderData";
 
 export type ChatUser = {
 	id: string;
@@ -39,33 +40,29 @@ export function useChatAuth() {
 		const supabase = createClient();
 		const loadUser = async () => {
 			setAuthLoading(true);
-			const { data, error } = await supabase.auth.getUser();
+			const profile = await fetchClientAuthHeaderData().catch(() => undefined);
 			if (!mounted) return;
-			if (error || !data.user) {
+			if (profile === undefined) {
+				setAuthLoading(false);
+				return;
+			}
+			if (!profile.isLoggedIn || !profile.user) {
 				setAuthUser(null);
 				setUserRole(null);
 				setAuthLoading(false);
 				return;
 			}
-			const profile = await supabase
-				.from("users")
-				.select("display_name, role")
-				.eq("user_id", data.user.id)
-				.maybeSingle();
-			if (!mounted) return;
 			const displayName =
-				profile.data?.display_name ??
-				data.user.user_metadata?.full_name ??
-				data.user.user_metadata?.name ??
-				data.user.email ??
+				profile.user.displayName ??
+				profile.user.email ??
 				"Account";
 			setAuthUser({
-				id: data.user.id,
-				email: data.user.email ?? null,
+				id: profile.user.id,
+				email: profile.user.email,
 				name: displayName,
-				avatarUrl: data.user.user_metadata?.avatar_url ?? null,
+				avatarUrl: profile.user.avatarUrl,
 			});
-			setUserRole(profile.data?.role ?? null);
+			setUserRole(profile.userRole ?? null);
 			setAuthLoading(false);
 		};
 		loadUser();

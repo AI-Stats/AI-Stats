@@ -1,4 +1,3 @@
-import { cacheLife, cacheTag } from "next/cache";
 import type { Benchmark, ExtendedModel, Price, Provider } from "@/data/types";
 import {
 	type ModelPage,
@@ -6,7 +5,6 @@ import {
 } from "../models/getModel";
 import {
 	type ProviderPricing,
-	type PricingRule,
 	getModelPricingCached,
 } from "../models/getModelPricing";
 import {
@@ -18,6 +16,7 @@ import {
 	benchmarkOrderFromAscending,
 	normalizeBenchmarkScoreType,
 } from "@/lib/benchmarks/scoreFormat";
+import { fetchPublicWebApi } from "@/lib/web-api/client";
 
 type ComparisonMap = Record<string, ExtendedModel>;
 type CompareExtendedModel = ExtendedModel & {
@@ -123,7 +122,8 @@ const mapLinks = (model: ModelPage, target: ExtendedModel): ExtendedModel => {
 	};
 
 	for (const link of model.model_links ?? []) {
-		const field = linkMap[link.platform as keyof typeof linkMap];
+		const kind = link.kind ?? link.platform;
+		const field = kind ? linkMap[kind as keyof typeof linkMap] : undefined;
 		if (field && !target[field]) {
 			(target as any)[field] = link.url;
 		}
@@ -294,27 +294,23 @@ async function fetchComparisonModels(
 	serializedKey: string,
 	includeHidden: boolean
 ): Promise<ComparisonMap> {
-	"use cache";
-	cacheLife("days");              // use preset profile
-	cacheTag("public-model-catalogue");
-	cacheTag("data:models");        // tag for revalidation
-	cacheTag("frontend:compare-models");
-	cacheTag("frontend:compare-model-details");
-
 	if (!serializedKey) return {};
 
 	const ids = serializedKey.split(",");
+	if (!includeHidden) {
+		const payload = await fetchPublicWebApi<{ models: ExtendedModel[] }>(
+			`/api/_web/compare/selection?ids=${encodeURIComponent(serializedKey)}`,
+		);
+		return Object.fromEntries(payload.models.map((model) => [model.id, model]));
+	}
 	const results = await Promise.all(
 		ids.map(async (id) => {
 			try {
 				const [model, providerPricing, subscriptionPlans] = await Promise.all([
-					getModelCached(id, includeHidden),
-					getModelPricingCached(id, includeHidden),
-					getModelSubscriptionPlansCached(id, includeHidden).catch((error) => {
-						console.warn("[compare] Failed to load subscription plans, continuing without them", {
-							modelId: id,
-							error,
-						});
+					getModelCached(id, true),
+					getModelPricingCached(id, true),
+					getModelSubscriptionPlansCached(id, true).catch((error) => {
+						console.warn("[compare] Failed to load subscription plans, continuing without them", { modelId: id, error });
 						return [];
 					}),
 				]);
@@ -359,7 +355,7 @@ export async function getComparisonModelsCached(
 	const cacheKey = [...uniqueOrdered].sort().join(",");
 	console.log("[compare] Fetching models for cache key", cacheKey);
 
-	// Note: no cacheLife/cacheTag here; fetchComparisonModels is the cached boundary.
+	// The Worker endpoint is the sole cache boundary; this layer only preserves ordering.
 	let resultMap = await fetchComparisonModels(cacheKey, includeHidden);
 
 	console.log("[compare] Received detailed models", resultMap);

@@ -1,8 +1,16 @@
 export interface ResponsesResponse {
   content?: {}[];
+  cost_cents?: number;
+  cost_nanos?: number;
   created?: number;
+  currency?: string;
+  finish_reason?: string | null;
   id?: string;
+  meta?: {
+    [key: string]: unknown;
+  };
   model?: string;
+  nativeResponseId?: string | null;
   object?: string;
   output?: {
     arguments?: string;
@@ -64,14 +72,26 @@ export interface ResponsesResponse {
     role?: string;
     type?: string;
   }[];
+  pricing_lines?: {
+    [key: string]: unknown;
+  }[];
+  provider?: string;
+  provider_id?: string;
   role?: string;
+  status?: "completed" | "failed" | "incomplete";
   stop_reason?: string;
   type?: string;
   usage?: {
     completion_tokens?: number;
     prompt_tokens?: number;
     server_tool_use?: {
+      advisor_requests?: number;
+      apply_patch_requests?: number;
       datetime_requests?: number;
+      fusion_requests?: number;
+      image_generation_requests?: number;
+      search_models_requests?: number;
+      subagent_requests?: number;
       web_fetch_requests?: number;
       web_search_requests?: number;
     };

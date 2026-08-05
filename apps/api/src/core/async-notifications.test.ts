@@ -116,7 +116,7 @@ describe("parseAsyncWebhookConfig", () => {
 		).toEqual({
 			url: "http://localhost:4010/webhooks/video",
 			secret: null,
-			events: ["job.completed", "job.failed", "job.cancelled", "job.expired"],
+			events: [],
 		});
 		expect(
 			parseAsyncWebhookConfig("video", {
@@ -264,7 +264,7 @@ describe("buildAsyncNotificationData", () => {
 			GATEWAY_CACHE: {} as KVNamespace,
 			NODE_ENV: "test",
 			GATEWAY_PUBLIC_BASE_URL: "https://api.phaseo.app",
-			KEY_PEPPER: "test-video-secret",
+			KEY_PEPPER_ACTIVE: "test-video-secret",
 		} as any);
 	});
 
@@ -721,6 +721,43 @@ describe("buildAsyncNotificationData", () => {
 		});
 	});
 
+	it("reports partially charged cancelled batches as settled and billable", async () => {
+		const record: AsyncOperationRecord = {
+			workspaceId: "ws_partial",
+			kind: "batch",
+			internalId: "batch_partial_cancelled",
+			requestId: "req_partial",
+			sessionId: null,
+			appId: null,
+			provider: "together",
+			nativeId: "native_partial",
+			model: "together/model",
+			status: "cancelled",
+			meta: {
+				provider: "together",
+				costNanos: 125_000_000,
+				costUsd: 0.125,
+				charged: true,
+				billingReason: "charged_partial_success:captured",
+			},
+			billedAt: "2026-07-16T12:00:00.000Z",
+			createdAt: "2026-07-16T11:00:00.000Z",
+			updatedAt: "2026-07-16T12:00:00.000Z",
+		};
+		await expect(buildAsyncNotificationData({
+			baseUrl: "https://api.phaseo.app",
+			record,
+		})).resolves.toMatchObject({
+			status: "cancelled",
+			billing: {
+				state: "settled",
+				billable: true,
+				total_nanos: 125_000_000,
+				charged: true,
+			},
+		});
+	});
+
 	it("omits batch cancel urls for active unsupported providers in async payloads", async () => {
 		const record: AsyncOperationRecord = {
 			workspaceId: "team_custom_batch",
@@ -940,6 +977,7 @@ describe("buildAsyncNotificationData", () => {
 				reservationStatus: "release_failed",
 				billingReason: "release_failed",
 				charged: false,
+				costNanos: 300000000,
 				estimatedUsage: {
 					requests: 1,
 					pricing: {
@@ -964,7 +1002,7 @@ describe("buildAsyncNotificationData", () => {
 			billing: {
 				state: "pending",
 				billable: false,
-				total_nanos: null,
+				total_nanos: 300000000,
 				estimated_nanos: 300000000,
 				reserved_nanos: 300000000,
 				reservation_status: "release_failed",

@@ -6,6 +6,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Logo } from "@/components/Logo";
 import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySupportedModelIds";
 import { filterModelsForRoom } from "@/lib/chat/rooms";
+import { fetchChatWebApi } from "@/lib/web-api/client";
+import { cn } from "@/lib/utils";
 import { getModelDetailsHref } from "@/lib/models/modelHref";
 import { APP_HEADERS } from "@/components/(chat)/playground/chat-playground-core";
 import { inferAudioMimeType } from "@/components/(chat)/chatConversationHelpers";
@@ -49,6 +51,10 @@ import { RoomSearchDialog } from "@/components/(chat)/RoomSearchDialog";
 import { useSidebar } from "@/components/ui/sidebar";
 import { ROOM_SIDEBAR_SLOT_ID } from "@/components/(chat)/RoomScaffold";
 import {
+	CHAT_SIDEBAR_ACTIONS_CLASS,
+	CHAT_SIDEBAR_HISTORY_GROUP_CLASS,
+} from "@/components/(chat)/chatSidebarStyles";
+import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
@@ -76,21 +82,26 @@ import {
 import { AudioModelSettingsDialog } from "@/components/(chat)/rooms/settings/AudioModelSettingsDialog";
 import { RoomErrorNotice } from "@/components/(chat)/rooms/RoomErrorNotice";
 import {
-	AudioLines,
+	RoomComposerFooter,
+	RoomComposerSurface,
+	RoomComposerToolsMenu,
+} from "@/components/(chat)/RoomComposer";
+import {
 	ArrowUpRight,
 	Check,
-	ChevronRight,
+	PanelLeftClose,
+	PanelLeftOpen,
 	Copy,
 	Cpu,
 	Database,
 	Download,
 	Info,
-	Languages,
+	FileText,
+	Link2,
 	Loader2,
 	MessageCircleDashed,
-	Mic,
 	MoreHorizontal,
-	Music2,
+	Paperclip,
 	Pencil,
 	PencilLine,
 	Pin,
@@ -182,12 +193,6 @@ const AUDIO_MODE_SUPPORT_FALLBACK: AudioModeSupport = {
 	music: false,
 };
 
-const AUDIO_MODE_OPTIONS: AudioMode[] = [
-	"speech",
-	"music",
-	"transcription",
-	"translation",
-];
 const MUSIC_POLL_INTERVAL_MS = 2_500;
 const MUSIC_POLL_MAX_ATTEMPTS = 36;
 
@@ -219,11 +224,18 @@ function modeBusyLabel(mode: AudioMode): string {
 	return "Translating audio...";
 }
 
-function modeIcon(mode: AudioMode) {
-	if (mode === "speech") return <Mic className="h-3.5 w-3.5" />;
-	if (mode === "music") return <Music2 className="h-3.5 w-3.5" />;
-	if (mode === "transcription") return <AudioLines className="h-3.5 w-3.5" />;
-	return <Languages className="h-3.5 w-3.5" />;
+function modeActionLabel(mode: AudioMode): string {
+	if (mode === "speech") return "Generate speech";
+	if (mode === "music") return "Generate music";
+	if (mode === "transcription") return "Transcribe";
+	return "Translate";
+}
+
+function modeEmptyDescription(mode: AudioMode): string {
+	if (mode === "speech") return "Type text to generate spoken audio.";
+	if (mode === "music") return "Describe the track you want to generate.";
+	if (mode === "transcription") return "Upload audio to produce a transcript.";
+	return "Upload audio to translate it into English.";
 }
 
 function readFileAsBase64(file: File): Promise<string> {
@@ -579,7 +591,7 @@ async function pollMusicGeneration(resourceId: string): Promise<{
 	let latestPayload: unknown = null;
 	let latestStatus: "queued" | "in_progress" | "completed" | "failed" | null = null;
 	for (let attempt = 0; attempt < MUSIC_POLL_MAX_ATTEMPTS; attempt += 1) {
-		const response = await fetch(
+		const response = await fetchChatWebApi(
 			`/api/chat/audio?action=music&resourceId=${encodeURIComponent(resourceId)}`,
 			{ method: "GET" },
 		);
@@ -962,9 +974,9 @@ function modeSupportFromModes(modes: AudioMode[]): AudioModeSupport {
 
 export function AudioRoom({
 	models,
-	roomId = "audio",
+	roomId = "speech",
 	initialMode = "speech",
-	allowedModes = ["speech", "music"],
+	allowedModes = ["speech"],
 }: AudioRoomProps) {
 	const { toggleSidebar, state: sidebarState, isMobile } = useSidebar();
 	const collapsed = sidebarState === "collapsed" && !isMobile;
@@ -1003,7 +1015,9 @@ export function AudioRoom({
 	const [temporaryMode, setTemporaryMode] = useState(false);
 	const [textInput, setTextInput] = useState("");
 	const [musicLyricsInput, setMusicLyricsInput] = useState("");
+	const [showMusicLyricsInput, setShowMusicLyricsInput] = useState(false);
 	const [audioUrlInput, setAudioUrlInput] = useState("");
+	const [showAudioUrlInput, setShowAudioUrlInput] = useState(false);
 	const [audioFile, setAudioFile] = useState<File | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -1020,6 +1034,7 @@ export function AudioRoom({
 		null,
 	);
 	const copiedPromptTimeoutRef = useRef<number | null>(null);
+	const audioFileInputRef = useRef<HTMLInputElement | null>(null);
 	const pinnedStorageKey = `${roomId}-room-pinned-conversations-v1`;
 
 	const modelSettings = useRoomModelSettings({
@@ -1034,35 +1049,6 @@ export function AudioRoom({
 		modelSettingsCompat.selectedProfile ?? modelSettingsCompat.activeModelSettings ?? null;
 	const selectedModelEnabled = selectedProfile?.enabled !== false;
 	const selectedProviderId = selectedProfile?.providerId;
-	const composerSelectedModel = useMemo(
-		() =>
-			filteredModels.find(
-				(model) =>
-					model.modelId === modelId &&
-					(!selectedProviderId || model.providerId === selectedProviderId),
-			) ??
-			filteredModels.find((model) => model.modelId === modelId) ??
-			null,
-		[filteredModels, modelId, selectedProviderId],
-	);
-	const composerModelLogoId =
-		composerSelectedModel?.organisationId?.trim() ||
-		composerSelectedModel?.providerId ||
-		(modelId.split("/")[0] || "ai-stats");
-	const composerModelLabel =
-		(modelId &&
-			(modelSettings.modelDisplayNameById[modelId] ||
-				composerSelectedModel?.modelName ||
-				modelId)) ||
-		"Select model";
-	const openComposerModelPicker = () => {
-		const targetModelId = modelId || filteredModels[0]?.modelId;
-		if (!targetModelId) return;
-		if (targetModelId !== modelId) {
-			setModelId(targetModelId);
-		}
-		modelSettings.openModelSettingsForModel(targetModelId);
-	};
 
 	const selectedModeSupport = useMemo(
 		() => getModelModeSupport(allAudioModels, modelId, selectedProviderId),
@@ -1072,22 +1058,6 @@ export function AudioRoom({
 		() => intersectAudioModeSupport(selectedModeSupport, roomModeSupport),
 		[selectedModeSupport, roomModeSupport],
 	);
-	const availableModes = useMemo(() => {
-		const supported: AudioMode[] = [];
-		if (effectiveModeSupport.speech) supported.push("speech");
-		if (effectiveModeSupport.music) supported.push("music");
-		if (effectiveModeSupport.transcription) supported.push("transcription");
-		if (effectiveModeSupport.translation) supported.push("translation");
-		return supported.length ? supported : (["speech"] as AudioMode[]);
-	}, [effectiveModeSupport]);
-	const uiAvailableModes = useMemo(() => {
-		const enabled: AudioMode[] = [];
-		if (roomModeSupport.speech) enabled.push("speech");
-		if (roomModeSupport.music) enabled.push("music");
-		if (roomModeSupport.transcription) enabled.push("transcription");
-		if (roomModeSupport.translation) enabled.push("translation");
-		return enabled.length ? enabled : (["speech"] as AudioMode[]);
-	}, [roomModeSupport]);
 	const conversations = useMemo(
 		() => buildConversations(entries, pinnedConversationIds),
 		[entries, pinnedConversationIds],
@@ -1136,6 +1106,20 @@ export function AudioRoom({
 			: dialogModelId === modelId
 				? selectedProfile
 				: null;
+	const dialogModel = useMemo(
+		() =>
+			dialogModelId
+				? (allAudioModels.find(
+						(model) =>
+							model.modelId === dialogModelId &&
+							(!dialogProfile?.providerId ||
+								model.providerId === dialogProfile.providerId),
+					) ??
+					allAudioModels.find((model) => model.modelId === dialogModelId) ??
+					null)
+				: null,
+		[allAudioModels, dialogModelId, dialogProfile?.providerId],
+	);
 	const dialogModeSupport = useMemo(() => {
 		const detected = getModelModeSupport(
 			allAudioModels,
@@ -1174,33 +1158,15 @@ export function AudioRoom({
 	}, [filteredModels]);
 
 	useEffect(() => {
-		if (uiAvailableModes.includes(mode)) return;
-		setMode(uiAvailableModes[0] ?? "speech");
-	}, [mode, uiAvailableModes]);
+		if (normalizedAllowedModes.includes(mode)) return;
+		setMode(normalizedAllowedModes[0] ?? "speech");
+	}, [mode, normalizedAllowedModes]);
 
 	useEffect(() => {
 		if (!activeConversationMode) return;
 		if (mode === activeConversationMode) return;
 		setMode(activeConversationMode);
 	}, [activeConversationMode, mode]);
-
-	const handleModeSelect = (targetMode: AudioMode) => {
-		if (activeConversationMode) return;
-		if (!uiAvailableModes.includes(targetMode)) return;
-		if (!availableModes.includes(targetMode)) {
-			const fallbackModel = allAudioModels.find((model) => {
-				const support = intersectAudioModeSupport(
-					getAudioModeSupportForCapabilities(model.capabilities),
-					roomModeSupport,
-				);
-				return support[targetMode];
-			});
-			if (fallbackModel) {
-				setModelId(fallbackModel.modelId);
-			}
-		}
-		setMode(targetMode);
-	};
 
 	useEffect(() => {
 		setSidebarSlotEl(document.getElementById(ROOM_SIDEBAR_SLOT_ID));
@@ -1272,7 +1238,9 @@ export function AudioRoom({
 		setActiveConversationId(createConversationId(roomId));
 		setTextInput("");
 		setMusicLyricsInput("");
+		setShowMusicLyricsInput(false);
 		setAudioUrlInput("");
+		setShowAudioUrlInput(false);
 		setAudioFile(null);
 		setError(null);
 	};
@@ -1283,7 +1251,9 @@ export function AudioRoom({
 			setActiveConversationId(createConversationId(roomId));
 			setTextInput("");
 			setMusicLyricsInput("");
+			setShowMusicLyricsInput(false);
 			setAudioUrlInput("");
+			setShowAudioUrlInput(false);
 			setAudioFile(null);
 			setError(null);
 			return;
@@ -1301,7 +1271,9 @@ export function AudioRoom({
 		);
 		setTextInput("");
 		setMusicLyricsInput("");
+		setShowMusicLyricsInput(false);
 		setAudioUrlInput("");
+		setShowAudioUrlInput(false);
 		setAudioFile(null);
 		setError(null);
 	};
@@ -1487,12 +1459,13 @@ export function AudioRoom({
 	const retryEntry = async (entry: AudioEntry) => {
 		const prompt = entry.inputText?.trim();
 		if (!prompt || !selectedModelEnabled || isLoading) return;
-		const retryMode: AudioMode = entry.mode === "music" ? "music" : "speech";
+		const retryMode = entry.mode;
 		setModelId(entry.modelId);
 		setMode(retryMode);
 		setTextInput(prompt);
 		if (retryMode === "music") {
 			setMusicLyricsInput(entry.musicLyrics ?? "");
+			setShowMusicLyricsInput(Boolean(entry.musicLyrics));
 		}
 		requestAnimationFrame(() => {
 			void submit({
@@ -1704,19 +1677,33 @@ export function AudioRoom({
 					requestBody.audio_b64 = await readFileAsBase64(audioFile);
 				}
 			}
+			const targetProviderId =
+				targetModelId === modelId ? selectedProviderId : undefined;
+			const targetModel =
+				allAudioModels.find(
+					(candidate) =>
+						candidate.modelId === targetModelId &&
+						(!targetProviderId || candidate.providerId === targetProviderId),
+				) ??
+				allAudioModels.find((candidate) => candidate.modelId === targetModelId) ??
+				null;
+			const targetCapabilityParamsById = targetModel?.capabilityParamsById;
+			const targetParams =
+				targetModelId === modelId
+					? ((selectedProfile?.params as AudioRoomParams) ??
+						getDefaultAudioRoomParams(targetModelId, targetCapabilityParamsById))
+					: getDefaultAudioRoomParams(targetModelId, targetCapabilityParamsById);
 			Object.assign(
 				requestBody,
 				buildAudioRequestOptions(
 					targetMode,
 					targetModelId,
-					targetModelId === modelId
-						? ((selectedProfile?.params as AudioRoomParams) ??
-							getDefaultAudioRoomParams(targetModelId))
-						: getDefaultAudioRoomParams(targetModelId),
+					targetParams,
+					targetCapabilityParamsById,
 				),
 			);
 
-			const response = await fetch("/api/chat/audio", {
+			const response = await fetchChatWebApi("/api/chat/audio", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -1734,7 +1721,6 @@ export function AudioRoom({
 			let payload: any = null;
 			let audioSrc: string | undefined;
 			let text: string | undefined;
-			let metrics: AudioEntryMetrics | undefined;
 			const normalizedContentType = contentType.toLowerCase();
 			const isJsonLike =
 				normalizedContentType.includes("application/json") ||
@@ -1814,7 +1800,7 @@ export function AudioRoom({
 				audioSrc = await blobToDataUrl(blob);
 			}
 			const elapsedMs = Math.max(0, Math.round(performance.now() - requestStartedAt));
-			metrics = extractMetricsFromRaw(payload, elapsedMs);
+			const metrics = extractMetricsFromRaw(payload, elapsedMs);
 			if (pendingEntryId) {
 				removeEntry(pendingEntryId);
 			}
@@ -1849,9 +1835,11 @@ export function AudioRoom({
 				setTextInput("");
 				if (targetMode === "music") {
 					setMusicLyricsInput("");
+					setShowMusicLyricsInput(false);
 				}
 			} else {
 				setAudioUrlInput("");
+				setShowAudioUrlInput(false);
 				setAudioFile(null);
 			}
 		} catch (err) {
@@ -1888,20 +1876,17 @@ export function AudioRoom({
 								setError(null);
 							}}
 						>
-							<span className="shrink-0 text-muted-foreground">
-								{modeIcon(conversation.mode)}
-							</span>
 							<span className="w-0 grow overflow-hidden text-ellipsis whitespace-nowrap">
 								{conversation.title}
 							</span>
 						</SidebarMenuButton>
 						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<SidebarMenuAction showOnHover>
+							<DropdownMenuTrigger render={<SidebarMenuAction showOnHover />}>
+
 									<MoreHorizontal className="h-4 w-4" />
-								</SidebarMenuAction>
+
 							</DropdownMenuTrigger>
-							<DropdownMenuContent side="right">
+							<DropdownMenuContent side="right" className="rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
 								<DropdownMenuItem
 									onClick={() => {
 										void renameConversation(conversation);
@@ -1941,7 +1926,7 @@ export function AudioRoom({
 	const sidebarHistory = sidebarSlotEl
 		? createPortal(
 				<>
-					<div className="px-2 py-1.5">
+					<div data-chat-sidebar-actions="true" className={CHAT_SIDEBAR_ACTIONS_CLASS}>
 						{collapsed ? (
 							<Tooltip>
 								<TooltipTrigger asChild>
@@ -1949,7 +1934,7 @@ export function AudioRoom({
 										variant="ghost"
 										className={`h-8 min-w-0 w-full text-sm font-medium ${
 											collapsed
-												? "justify-center px-0"
+												? "justify-start px-2"
 												: "flex-1 justify-start gap-2 px-2"
 										}`}
 										onClick={startNewConversation}
@@ -1981,13 +1966,13 @@ export function AudioRoom({
 								<TooltipTrigger asChild>
 									<Button
 										variant="ghost"
-										className="h-8 min-w-0 w-full justify-center px-0 text-sm font-medium"
+										className="h-8 min-w-0 w-full justify-start px-2 text-sm font-medium"
 										asChild
 										aria-label="Database"
 									>
 										<Link
 											href="/"
-											className="group/db flex w-full min-w-0 items-center justify-center"
+											className="group/db flex w-full min-w-0 items-center justify-start"
 										>
 											<Database className="h-4 w-4 shrink-0" />
 										</Link>
@@ -2016,7 +2001,7 @@ export function AudioRoom({
 								<TooltipTrigger asChild>
 									<Button
 										variant="ghost"
-										className="h-8 min-w-0 w-full justify-center px-0 text-sm font-medium"
+										className="h-8 min-w-0 w-full justify-start px-2 text-sm font-medium"
 										onClick={() => setConversationSearchOpen(true)}
 										aria-label="Search Chats"
 									>
@@ -2039,9 +2024,9 @@ export function AudioRoom({
 							</Button>
 						)}
 					</div>
-					<SidebarSeparator className="my-0" />
+					<SidebarSeparator className="mx-0 my-0 w-full" />
 					<ScrollArea className="h-full group-data-[collapsible=icon]:hidden">
-						<SidebarGroup className="pt-0 px-2 pb-2">
+						<SidebarGroup className={CHAT_SIDEBAR_HISTORY_GROUP_CLASS}>
 							<SidebarGroupLabel>Chats</SidebarGroupLabel>
 							<SidebarGroupContent className="overflow-hidden">
 								<SidebarMenu>
@@ -2070,6 +2055,13 @@ export function AudioRoom({
 				sidebarSlotEl,
 			)
 		: null;
+	const isAudioSourceMode = mode === "transcription" || mode === "translation";
+	const audioComposerExpanded = Boolean(
+		error ||
+			(mode === "music" && (showMusicLyricsInput || musicLyricsInput.trim())) ||
+			(isAudioSourceMode &&
+				(showAudioUrlInput || audioUrlInput.trim() || audioFile)),
+	);
 
 	return (
 		<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -2082,16 +2074,15 @@ export function AudioRoom({
 								<Button
 									variant="ghost"
 									size="icon"
-									className="group -ml-1 h-8 w-8"
-									onClick={toggleSidebar}
+								className="-ml-1 h-8 w-8"
+								onClick={toggleSidebar}
+								aria-label={sidebarState === "expanded" ? "Collapse sidebar" : "Open sidebar"}
 								>
-									<ChevronRight
-										className={`h-4 w-4 transition-transform duration-200 ${
-											sidebarState === "expanded"
-												? "rotate-180 group-hover:-translate-x-1"
-												: "group-hover:translate-x-1"
-										}`}
-									/>
+								{sidebarState === "expanded" ? (
+									<PanelLeftClose className="h-4 w-4" />
+								) : (
+									<PanelLeftOpen className="h-4 w-4" />
+								)}
 								</Button>
 							</TooltipTrigger>
 							<TooltipContent side={sidebarState === "collapsed" ? "right" : "bottom"} align="center" sideOffset={8}>Toggle sidebar</TooltipContent>
@@ -2145,9 +2136,7 @@ export function AudioRoom({
 							<div>
 								<p className="text-base font-semibold">Start a new conversation</p>
 								<p className="text-sm text-muted-foreground">
-									{mode === "music"
-										? "Describe the track you want to generate."
-										: "Type your prompt and convert it to speech."}
+									{modeEmptyDescription(mode)}
 								</p>
 							</div>
 						</div>
@@ -2164,7 +2153,7 @@ export function AudioRoom({
 							const logoId =
 								resolvedModel?.organisationId?.trim() ||
 								resolvedModel?.providerId ||
-								"ai-stats";
+								"phaseo";
 							const logoAlt =
 								resolvedModel?.organisationName ||
 								resolvedModel?.providerName ||
@@ -2431,49 +2420,15 @@ export function AudioRoom({
 				</div>
 			</main>
 
-			<footer className="border-t border-border px-4 py-3 md:px-6">
+			<RoomComposerFooter>
 				<div className="mx-auto w-full max-w-3xl">
-					<div className="rounded-2xl border border-border bg-background px-3 py-2">
-						{activeConversationMode ? (
-							<div className="flex items-center px-1 py-1 text-xs text-muted-foreground">
-								<span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted px-2 py-1">
-									{modeIcon(activeConversationMode)}
-									{modeLabel(activeConversationMode)}
-								</span>
-							</div>
-						) : (
-							<div className="flex flex-wrap gap-2 px-1 py-1">
-								{AUDIO_MODE_OPTIONS.map((option) => {
-									const isDisabled = !uiAvailableModes.includes(option);
-									const showComingSoon = isDisabled && option !== "speech";
-									const button = (
-										<Button
-											key={option}
-											type="button"
-											variant={mode === option ? "default" : "outline"}
-											size="sm"
-											onClick={() => handleModeSelect(option)}
-											className="h-7 gap-1.5 text-xs"
-											disabled={isDisabled}
-										>
-											{modeIcon(option)}
-											{modeLabel(option)}
-										</Button>
-									);
-									if (!showComingSoon) return button;
-									return (
-										<Tooltip key={option}>
-											<TooltipTrigger asChild>
-												<span className="inline-flex cursor-not-allowed">
-													{button}
-												</span>
-											</TooltipTrigger>
-											<TooltipContent side="top">Coming Soon</TooltipContent>
-										</Tooltip>
-									);
-								})}
-							</div>
+					<RoomComposerSurface
+						className={cn(
+							audioComposerExpanded
+								? "px-3 py-2"
+								: "flex flex-col gap-1 px-2 py-1 sm:flex-row sm:items-center",
 						)}
+					>
 						{mode === "speech" ? (
 							<Textarea
 								value={textInput}
@@ -2484,31 +2439,32 @@ export function AudioRoom({
 										void submit();
 									}
 								}}
-								rows={3}
+								rows={1}
 								placeholder="Type text to generate speech..."
-								className="min-h-[72px] resize-none border-0 bg-transparent px-1 py-2 shadow-none focus-visible:ring-0"
+								className="order-1 min-h-9 w-full resize-none border-0 !bg-transparent px-2 py-2 shadow-none focus-visible:ring-0 sm:order-2 sm:flex-1 dark:!bg-transparent"
 							/>
 						) : mode === "music" ? (
-							<div className="grid gap-2 px-1 py-2">
-								<div className="grid gap-1">
-									<p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-										Prompt
-									</p>
-									<Textarea
-										value={textInput}
-										onChange={(event) => setTextInput(event.target.value)}
-										onKeyDown={(event) => {
-											if (event.key === "Enter" && !event.shiftKey) {
-												event.preventDefault();
-												void submit();
-											}
-										}}
-										rows={3}
-										placeholder="Describe the music style, mood, instruments, and structure..."
-										className="min-h-[72px] max-h-40 overflow-y-auto resize-none border-0 bg-transparent px-1 py-1 shadow-none focus-visible:ring-0"
-									/>
-								</div>
-								<div className="grid gap-1">
+							<>
+								<Textarea
+									value={textInput}
+									onChange={(event) => setTextInput(event.target.value)}
+									onKeyDown={(event) => {
+										if (event.key === "Enter" && !event.shiftKey) {
+											event.preventDefault();
+											void submit();
+										}
+									}}
+									rows={audioComposerExpanded ? 3 : 1}
+									placeholder="Describe the music style, mood, instruments, and structure..."
+									className={cn(
+										"resize-none border-0 !bg-transparent shadow-none focus-visible:ring-0 dark:!bg-transparent",
+										audioComposerExpanded
+											? "min-h-[72px] max-h-40 overflow-y-auto px-1 py-2"
+											: "order-1 min-h-9 w-full px-2 py-2 sm:order-2 sm:flex-1",
+									)}
+								/>
+								{showMusicLyricsInput || musicLyricsInput.trim() ? (
+								<div className="grid gap-1 px-1 pb-1">
 									<p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
 										Lyrics (Optional)
 									</p>
@@ -2520,53 +2476,110 @@ export function AudioRoom({
 										className="min-h-[72px] max-h-40 overflow-y-auto resize-none border-0 bg-transparent px-1 py-1 shadow-none focus-visible:ring-0"
 									/>
 								</div>
-							</div>
+								) : null}
+							</>
 						) : (
-							<div className="grid gap-2 px-1 py-2 md:grid-cols-2">
-								<Input
-									value={audioUrlInput}
-									onChange={(event) => setAudioUrlInput(event.target.value)}
-									placeholder="Audio URL (optional if file is attached)"
-								/>
-								<Input
+							<>
+								<input
+									ref={audioFileInputRef}
 									type="file"
 									accept="audio/*"
-									onChange={(event) =>
-										setAudioFile(event.target.files?.[0] ?? null)
-									}
+									className="hidden"
+									onChange={(event) => {
+										setAudioFile(event.target.files?.[0] ?? null);
+										event.target.value = "";
+									}}
 								/>
-							</div>
+								<div
+									className={cn(
+										"text-sm text-muted-foreground",
+										audioComposerExpanded
+											? "px-1 py-2"
+											: "order-1 min-h-9 w-full px-2 py-2 sm:order-2 sm:flex-1",
+									)}
+								>
+									{audioFile?.name || audioUrlInput.trim() ||
+										(mode === "transcription"
+											? "Add audio to transcribe..."
+											: "Add audio to translate...")}
+								</div>
+								{showAudioUrlInput ? (
+									<div className="px-1 pb-1">
+										<Input
+											value={audioUrlInput}
+											onChange={(event) => setAudioUrlInput(event.target.value)}
+											placeholder="Audio URL"
+											className="h-8"
+										/>
+									</div>
+								) : null}
+								{audioUrlInput.trim() || audioFile ? (
+									<div className="flex flex-wrap gap-1 px-1 pb-1">
+										{audioUrlInput.trim() ? (
+											<button
+												type="button"
+												className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
+												onClick={() => setAudioUrlInput("")}
+											>
+												<span className="max-w-[220px] truncate">Audio URL</span>
+												<X className="h-3 w-3" />
+											</button>
+										) : null}
+										{audioFile ? (
+											<button
+												type="button"
+												className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
+												onClick={() => setAudioFile(null)}
+											>
+												<span className="max-w-[220px] truncate">{audioFile.name}</span>
+												<X className="h-3 w-3" />
+											</button>
+										) : null}
+									</div>
+								) : null}
+							</>
 						)}
 						{error ? <RoomErrorNotice error={error} className="mb-2" /> : null}
-						<div className="flex items-center justify-between pt-2">
-							<div className="flex items-center gap-1.5">
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button
-											type="button"
-											variant="ghost"
-											className="h-8 gap-1.5 px-2"
-											onClick={openComposerModelPicker}
-											disabled={!modelId && filteredModels.length === 0}
-										>
-											{modelId ? (
-												<Logo
-													id={composerModelLogoId}
-													alt={composerModelLabel}
-													width={16}
-													height={16}
-													className="shrink-0 rounded-none"
-												/>
-											) : (
-												<Cpu className="h-4 w-4 text-muted-foreground" />
-											)}
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent side="top">{composerModelLabel}</TooltipContent>
-								</Tooltip>
-							</div>
+						<div
+							className={cn(
+								"flex items-center justify-between",
+								audioComposerExpanded ? "pt-2" : "order-2 w-full sm:contents",
+							)}
+						>
+							{mode === "music" ? (
+								<RoomComposerToolsMenu
+									tools={[
+										{
+											id: "lyrics",
+											label: "Add lyrics",
+											icon: FileText,
+											active: Boolean(showMusicLyricsInput || musicLyricsInput.trim()),
+											onSelect: () => setShowMusicLyricsInput((prev) => !prev),
+										},
+									]}
+								/>
+							) : isAudioSourceMode ? (
+								<RoomComposerToolsMenu
+									tools={[
+										{
+											id: "audio-url",
+											label: "Add audio URL",
+											icon: Link2,
+											active: Boolean(showAudioUrlInput || audioUrlInput.trim()),
+											onSelect: () => setShowAudioUrlInput((prev) => !prev),
+										},
+										{
+											id: "upload-audio",
+											label: "Upload audio",
+											icon: Paperclip,
+											active: Boolean(audioFile),
+											onSelect: () => audioFileInputRef.current?.click(),
+										},
+									]}
+								/>
+							) : null}
 							<Button
-								className="ml-auto"
+								className={cn("ml-auto", !audioComposerExpanded && "order-3")}
 								onClick={() => {
 									void submit();
 								}}
@@ -2574,14 +2587,12 @@ export function AudioRoom({
 							>
 								{isLoading
 									? <Loader2 className="h-4 w-4 animate-spin" />
-									: mode === "music"
-										? "Generate"
-										: "Convert"}
+									: modeActionLabel(mode)}
 							</Button>
 						</div>
-					</div>
+					</RoomComposerSurface>
 				</div>
-			</footer>
+			</RoomComposerFooter>
 			{dialogProfile ? (
 				<AudioModelSettingsDialog
 					open={modelSettings.modelSettingsOpen}
@@ -2592,6 +2603,7 @@ export function AudioRoom({
 					onModelChange={modelSettings.handleModelSettingsModelChange}
 					providerOptions={modelSettings.providerOptions}
 					supportedProvidersForModel={modelSettings.supportedProvidersForModel}
+					capabilityParamsById={dialogModel?.capabilityParamsById}
 					onUpdateBase={(partial) => updateModelBaseSettings(partial)}
 					onUpdateParams={(partial) => updateModelParams(partial)}
 					onReset={resetModelSettings}

@@ -1,24 +1,27 @@
-# AI Stats Agent SDK (Python)
+# Phaseo Agent SDK (Python)
 
-`ai-stats-agent-sdk` is a minimal Python agent runtime for AI Stats Gateway.
+`phaseo-agent-sdk` is the native Python runtime for building tool-using applications on Phaseo Gateway.
 
 It provides:
 
 - `create_agent(...)`
 - `define_tool(...)`
 - `create_gateway_agent_client(...)`
-- a bounded tool loop on top of the AI Stats `responses` API
+- bounded and concurrent local tool execution with per-tool timeouts
+- model retry/backoff, lifecycle events, and serializable run state
+- human-review pauses and `continue_run(...)`
+- Phaseo Devtools capture for runs and continuations
 
 ## Install
 
 ```bash
-pip install ai-stats-py-sdk ai-stats-agent-sdk
+pip install phaseo phaseo-agent-sdk
 ```
 
 ## Quickstart
 
 ```python
-from ai_stats_agent import create_agent, create_gateway_agent_client
+from phaseo_agent import create_agent, create_gateway_agent_client
 
 agent = create_agent({
     "id": "quickstart-agent",

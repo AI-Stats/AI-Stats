@@ -1,7 +1,7 @@
 // components/header/TeamSwitcher.tsx (CLIENT)
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -53,24 +53,6 @@ export default function TeamSwitcher({
 	const router = useRouter();
 	const pathname = usePathname();
 	const { theme, setTheme } = useTheme();
-
-	const navigateWithViewTransition = React.useCallback(
-		(href: string) => {
-			const doc = document as Document & {
-				startViewTransition?: (
-					updateCallback: () => void | Promise<void>,
-				) => unknown;
-			};
-			if (typeof doc.startViewTransition === "function") {
-				doc.startViewTransition(() => {
-					router.push(href);
-				});
-				return;
-			}
-			router.push(href);
-		},
-		[router],
-	);
 
 	const getInitialTeamId = (initial?: string) => {
 		if (initial) return initial;
@@ -148,7 +130,7 @@ export default function TeamSwitcher({
 
 				<DropdownMenuContent
 					align="end"
-					className="w-56"
+					className="w-56 rounded-lg"
 				>
 					<div>
 						{teams.slice(0, 5).map((t) => {
@@ -157,11 +139,11 @@ export default function TeamSwitcher({
 								<DropdownMenuItem
 									key={t.id}
 									className={cn(
-										"cursor-pointer",
+										"cursor-pointer rounded-lg",
 										isActive && "bg-accent text-accent-foreground"
 									)}
-									onSelect={(e) => {
-										e.preventDefault();
+									closeOnClick={!isActive}
+									onClick={() => {
 										if (isActive) {
 											if (
 												typeof navigator === "undefined" ||
@@ -229,16 +211,11 @@ export default function TeamSwitcher({
 						) : null}
 						<DropdownMenuItem
 							asChild
-							className="cursor-pointer"
+							className="cursor-pointer rounded-lg"
 						>
 							<Link
 								href="/settings/workspaces/settings"
 								className="flex w-full items-center"
-								onClick={(e) => {
-									e.preventDefault();
-									setIsTeamMenuOpen(false);
-									navigateWithViewTransition("/settings/workspaces/settings");
-								}}
 							>
 								<Users className="mr-2 h-4 w-4" />
 								<span>Manage Workspaces</span>
@@ -259,7 +236,12 @@ export default function TeamSwitcher({
 						variant="ghost"
 						size="icon"
 						aria-label="Open profile menu"
-						className="size-[var(--site-header-control-h,2.25rem)] rounded-lg p-0"
+						className={cn(
+							"size-[var(--site-header-control-h,2.25rem)] rounded-full p-0",
+							"bg-transparent hover:bg-zinc-100/70 dark:hover:bg-zinc-900/60",
+							"focus-visible:ring-2 focus-visible:ring-zinc-400/50 dark:focus-visible:ring-zinc-600/50",
+							isProfileMenuOpen && "bg-zinc-100/70 dark:bg-zinc-900/60",
+						)}
 					>
 						<CurrentUserAvatar user={user} />
 					</Button>
@@ -267,22 +249,17 @@ export default function TeamSwitcher({
 
 				<DropdownMenuContent
 					align="end"
-					className="w-56"
+					className="w-56 rounded-lg"
 				>
 					{/* Editor access for editors and admins */}
 					{(userRole === "editor" || userRole === "admin") && (
 						<>
 							<DropdownMenuItem
 								asChild
-								className="cursor-pointer"
+								className="cursor-pointer rounded-lg"
 							>
 								<Link
 									href="/internal"
-									onClick={(e) => {
-										e.preventDefault();
-										setIsProfileMenuOpen(false);
-										navigateWithViewTransition("/internal");
-									}}
 								>
 									<Lock className="h-4 w-4" />
 									<span>Internal</span>
@@ -300,7 +277,7 @@ export default function TeamSwitcher({
 							<div
 								role="radiogroup"
 								aria-label="Theme mode"
-								className="inline-flex flex-1 items-center justify-center gap-1 rounded-xl bg-muted/60 p-0.5"
+								className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg bg-muted/60 p-0.5"
 							>
 								{(["light", "dark", "system"] as const).map((mode) => {
 									const Icon = themeMeta[mode].icon;
@@ -314,7 +291,7 @@ export default function TeamSwitcher({
 											aria-label={`Set theme: ${themeMeta[mode].label}`}
 											onClick={() => setTheme(mode)}
 											className={cn(
-												"relative flex h-7 flex-1 items-center justify-center rounded-lg text-muted-foreground transition-colors",
+												"relative flex h-7 flex-1 items-center justify-center rounded-md text-muted-foreground transition-colors",
 												"hover:bg-background hover:text-foreground",
 												selected
 													? "bg-background text-foreground shadow-xs"
@@ -334,15 +311,10 @@ export default function TeamSwitcher({
 
 					<DropdownMenuItem
 						asChild
-						className="cursor-pointer"
+						className="cursor-pointer rounded-lg"
 					>
 						<Link
 							href="/experiments"
-							onClick={(e) => {
-								e.preventDefault();
-								setIsProfileMenuOpen(false);
-								navigateWithViewTransition("/experiments");
-							}}
 						>
 							<FlaskConical className="h-4 w-4" />
 							<span>Experiments</span>
@@ -351,15 +323,10 @@ export default function TeamSwitcher({
 
 					<DropdownMenuItem
 						asChild
-						className="cursor-pointer"
+						className="cursor-pointer rounded-lg"
 					>
 						<Link
 							href="/settings/workspaces/settings"
-							onClick={(e) => {
-								e.preventDefault();
-								setIsProfileMenuOpen(false);
-								navigateWithViewTransition("/settings/workspaces/settings");
-							}}
 						>
 							<Users className="h-4 w-4" />
 							<span>Workspaces</span>
@@ -368,15 +335,10 @@ export default function TeamSwitcher({
 
 					<DropdownMenuItem
 						asChild
-						className="cursor-pointer"
+						className="cursor-pointer rounded-lg"
 					>
 						<Link
 							href="/settings/account"
-							onClick={(e) => {
-								e.preventDefault();
-								setIsProfileMenuOpen(false);
-								navigateWithViewTransition("/settings/account");
-							}}
 						>
 							<Settings className="h-4 w-4" />
 							<span>Settings</span>
@@ -387,21 +349,12 @@ export default function TeamSwitcher({
 
 					<DropdownMenuItem
 						asChild
-						className="cursor-pointer"
+						className="cursor-pointer rounded-lg"
 					>
 						<Link
 							href={`/settings/usage?workspace_id=${encodeURIComponent(
 								activeWorkspaceId ?? "",
 							)}`}
-							onClick={(e) => {
-								e.preventDefault();
-								setIsProfileMenuOpen(false);
-								navigateWithViewTransition(
-									`/settings/usage?workspace_id=${encodeURIComponent(
-										activeWorkspaceId ?? "",
-									)}`,
-								);
-							}}
 						>
 							<BarChart2 className="h-4 w-4" />
 							<span>Usage</span>
@@ -410,15 +363,10 @@ export default function TeamSwitcher({
 
 					<DropdownMenuItem
 						asChild
-						className="cursor-pointer"
+						className="cursor-pointer rounded-lg"
 					>
 						<Link
 							href="/settings/credits"
-							onClick={(e) => {
-								e.preventDefault();
-								setIsProfileMenuOpen(false);
-								navigateWithViewTransition("/settings/credits");
-							}}
 						>
 							<CreditCard className="h-4 w-4" />
 							<span>Credits</span>
@@ -427,30 +375,18 @@ export default function TeamSwitcher({
 
 					<DropdownMenuItem
 						asChild
-						className="cursor-pointer"
+						className="cursor-pointer rounded-lg"
 					>
 						<Link
 							href="/settings/keys"
-							onClick={(e) => {
-								e.preventDefault();
-								setIsProfileMenuOpen(false);
-								navigateWithViewTransition("/settings/keys");
-							}}
 						>
 							<KeyIcon className="h-4 w-4" />
 							<span>Keys</span>
 						</Link>
 					</DropdownMenuItem>
 
-					<DropdownMenuItem
-						className="cursor-pointer"
-						onSelect={(e) => {
-							e.preventDefault();
-							setIsProfileMenuOpen(false);
-							navigateWithViewTransition("/contact");
-						}}
-					>
-						<div className="flex w-full items-center justify-between">
+					<DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+						<Link href="/contact" className="flex w-full items-center justify-between">
 							<div className="flex items-center gap-2">
 								<LifeBuoy className="h-4 w-4" />
 								<span>Support</span>
@@ -481,16 +417,15 @@ export default function TeamSwitcher({
 									}`}
 								></span>
 							</span>
-						</div>
+						</Link>
 					</DropdownMenuItem>
 
 					<DropdownMenuSeparator />
 
 					<DropdownMenuItem
 						variant="destructive"
-						className="cursor-pointer"
-						onClick={(e) => {
-							e.preventDefault();
+						className="cursor-pointer rounded-lg"
+						onClick={() => {
 							setIsProfileMenuOpen(false);
 							onSignOut?.();
 						}}
@@ -503,4 +438,3 @@ export default function TeamSwitcher({
 		</div>
 	);
 }
-

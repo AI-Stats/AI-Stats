@@ -154,12 +154,12 @@ export default function PresetsPanel({
 												<div className="font-medium flex items-center gap-2 mb-1">
 													<span className="truncate">{p.name}</span>
 													{p.visibility && (
-														<Badge variant="outline" className="text-[10px] uppercase">
+														<Badge variant="outline" className="text-[10px] capitalize">
 															{p.visibility}
 														</Badge>
 													)}
 													{p.source_preset_id && (
-														<Badge variant="secondary" className="text-[10px] uppercase">
+														<Badge variant="secondary" className="text-[10px] capitalize">
 															Fork
 														</Badge>
 													)}
@@ -252,28 +252,26 @@ export default function PresetsPanel({
 										</div>
 										<div className="ml-2 flex-shrink-0">
 											<DropdownMenu>
-												<DropdownMenuTrigger asChild>
-													<Button
+												<DropdownMenuTrigger render={<Button
 														variant="ghost"
 														size="icon"
 														aria-label="Actions"
-														className="h-8 w-8"
-													>
+														className="h-8 w-8" />}>
+
 														<MoreVertical className="h-4 w-4" />
-													</Button>
+
 												</DropdownMenuTrigger>
 												<DropdownMenuContent
 													side="bottom"
 													align="end"
 												>
-													<DropdownMenuItem asChild>
-														<button
+													<DropdownMenuItem render={<button
 															className="w-full text-left flex items-center gap-2"
-															onClick={() => onCopyPresetName(p.name)}
-														>
+															onClick={() => onCopyPresetName(p.name)} />}>
+
 															<Copy className="mr-2 h-4 w-4" />
 															Copy preset name
-														</button>
+
 													</DropdownMenuItem>
 													<EditPresetItem p={p} providers={providers} />
 													<DeletePresetItem p={p} />

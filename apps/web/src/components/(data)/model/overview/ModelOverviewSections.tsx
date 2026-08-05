@@ -4,9 +4,12 @@ import {
 	Activity,
 	ALargeSmall,
 	AppWindow,
+	ArrowLeft,
+	ArrowRight,
 	BadgeAlert,
 	Braces,
 	Captions,
+	ChevronRight,
 	Headphones,
 	ImageIcon,
 	Music4,
@@ -17,6 +20,7 @@ import ModelPricing from "@/components/(data)/model/pricing/ModelPricing";
 import ModelSubscriptions from "@/components/(data)/model/pricing/ModelSubscriptions";
 import ModelPricingInsightsSection from "@/components/(data)/model/pricing/ModelPricingInsightsSection";
 import ModelPerformanceDashboard from "@/components/(data)/models/ModelPerformanceDashboard";
+import { fetchFrontendModelPerformanceColos } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import ModelSuccessChart from "@/components/(data)/models/ModelSuccessChart";
 import ModelActivityChart from "@/components/(data)/model/overview/ModelActivityChart";
 import Quickstart from "@/components/(data)/model/quickstart/Quickstart";
@@ -27,20 +31,24 @@ import OtherInfo from "@/components/(data)/model/overview/OtherInfo";
 import ModelLinks from "@/components/(data)/model/overview/ModelLinks";
 import { isAdminViewer } from "@/lib/auth/getViewerRole";
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
-import { getModelGatewayMetadataCached } from "@/lib/fetchers/models/getModelGatewayMetadata";
+import {
+	getModelGatewayMetadataCached,
+	type ModelGatewayMetadata,
+} from "@/lib/fetchers/models/getModelGatewayMetadata";
 import type { ModelPerformanceMetrics } from "@/lib/fetchers/models/getModelPerformance";
 import {
 	fetchFrontendModelApps,
 	fetchFrontendModelBenchmarkHighlights,
 	fetchFrontendModelGatewayMetadata,
+	fetchFrontendModelHeader,
 	fetchFrontendModelOverview,
 	fetchFrontendModelPendingApiReleaseState,
 	fetchFrontendModelPerformance,
+	fetchFrontendModelTimeline,
 	fetchFrontendModelTokenTrajectory,
 	fetchFrontendModelUsageDailyBreakdown,
 	fetchFrontendOrganisationModels,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Carousel,
@@ -60,6 +68,11 @@ import ModelPendingApiReleaseBanner from "@/components/(data)/model/overview/Mod
 import { formatModelLifecycleDate } from "@/lib/dates/modelLifecycleDates";
 import { cn } from "@/lib/utils";
 import { getModalityTone } from "@/lib/models/modalityStyles";
+import {
+	getModelLicenseUrl,
+	getModelLineageLinks,
+	resolveModelLineageNames,
+} from "@/components/(data)/model/overview/modelOverviewMetadata";
 
 type ModelOverviewSectionsProps = {
 	modelId: string;
@@ -68,6 +81,8 @@ type ModelOverviewSectionsProps = {
 	showBenchmarks?: boolean;
 	showSubscriptions?: boolean;
 	status?: string | null;
+	isGatewayActive?: boolean;
+	gatewayMetadata?: ModelGatewayMetadata;
 	performancePromise?: Promise<ModelPerformanceMetrics | null>;
 	quickstartRequestContext?: QuickstartRequestContext;
 };
@@ -195,12 +210,20 @@ function formatTypeLabel(value: string): string {
 export async function ModelProvidersSection({
 	modelId,
 	includeHidden,
-}: ModelSectionSharedProps) {
+	modelStatus,
+	modelName,
+	creatorOrganisationId,
+	description = "API providers, route pricing, availability, and recent reliability signals.",
+}: ModelSectionSharedProps & { modelStatus?: string | null; modelName?: string | null; creatorOrganisationId?: string | null; description?: string | null }) {
 	return (
 		<ModelPricing
 			modelId={modelId}
 			includeHidden={includeHidden}
-			showHeader={false}
+			showHeader
+			headerDescription={description}
+			modelStatus={modelStatus}
+			modelName={modelName}
+			creatorOrganisationId={creatorOrganisationId}
 		/>
 	);
 }
@@ -223,14 +246,64 @@ function SectionHeader({
 	description,
 }: {
 	title: string;
-	description: string;
+	description?: string;
 }) {
 	return (
-		<div className="space-y-1">
+		<div className={description ? "space-y-1" : undefined}>
 			<h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-			<p className="text-sm text-muted-foreground">{description}</p>
+			{description ? (
+				<p className="text-sm text-muted-foreground">{description}</p>
+			) : null}
 		</div>
 	);
+}
+
+function formatCompactUsage(value: number): string {
+	if (!Number.isFinite(value) || value <= 0) return "0";
+	if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(2)}B`;
+	if (value >= 1_000_000) {
+		const millions = Math.round(value / 1_000_000);
+		return millions >= 1_000 ? `${(value / 1_000_000_000).toFixed(2)}B` : `${millions}M`;
+	}
+	if (value >= 1_000) {
+		const thousands = Math.round((value / 1_000) * 10) / 10;
+		return thousands >= 1_000 ? "1M" : `${thousands.toFixed(1)}K`;
+	}
+	return Math.round(value).toLocaleString();
+}
+
+function getAppInitial(title: string): string {
+	return title.trim().charAt(0).toUpperCase() || "A";
+}
+
+function getAppHostname(url: string | null): string | null {
+	if (!url) return null;
+	try {
+		const parsed = new URL(url);
+		if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+			return parsed.hostname.replace(/^www\./, "");
+		}
+	} catch {
+		return null;
+	}
+	return null;
+}
+
+function getAppLogoUrl(app: {
+	imageUrl: string | null;
+	url: string | null;
+}): string | undefined {
+	if (app.imageUrl) return app.imageUrl;
+	const hostname = getAppHostname(app.url);
+	if (!hostname) return undefined;
+	return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=64`;
+}
+
+function getAppSubtitle(app: { url: string | null }): string | null {
+	if (app.url) {
+		return getAppHostname(app.url);
+	}
+	return null;
 }
 
 export async function ModelSubscriptionsSection({
@@ -256,12 +329,14 @@ export async function ModelPerformanceSection({
 	modelId,
 	includeHidden,
 	performancePromise,
+	description = "Latency, throughput, and reliability signals from recent traffic.",
 	surface = "overview",
 }: ModelSectionSharedProps &
 	ModelPerformancePromiseProps & {
-		surface?: ModelSectionSurface;
+	description?: string;
+	surface?: ModelSectionSurface;
 }) {
-	const [performanceMetrics, pendingApiRelease, tokenTrajectory] =
+	const [performanceMetrics, pendingApiRelease, tokenTrajectory, performanceColos] =
 		await Promise.all([
 		withOptionalSectionTimeout(
 			performancePromise ?? fetchFrontendModelPerformance(modelId, 24),
@@ -278,6 +353,11 @@ export async function ModelPerformanceSection({
 			null,
 			"token trajectory"
 		),
+		withOptionalSectionTimeout(
+			fetchFrontendModelPerformanceColos(modelId),
+			[],
+			"performance execution regions"
+		),
 	]);
 	const shouldShowPendingApiBanner =
 		!performanceMetrics && pendingApiRelease?.isPendingApiRelease;
@@ -286,12 +366,16 @@ export async function ModelPerformanceSection({
 		<>
 			{performanceMetrics ? (
 				<ModelPerformanceDashboard
+					modelId={modelId}
 					metrics={performanceMetrics}
+					availableColos={performanceColos}
+					headerDescription={description}
 					tokenTrajectory={tokenTrajectory}
 					mode={surface}
 				/>
 			) : (
 				<div className="space-y-3">
+					<SectionHeader title="Performance" description={description} />
 					{shouldShowPendingApiBanner ? (
 						<ModelPendingApiReleaseBanner
 							modelName={pendingApiRelease?.modelName ?? "This model"}
@@ -348,30 +432,64 @@ export async function ModelAppsSection({
 		[],
 		"model apps"
 	);
+	const topApps = modelApps.slice(0, 10);
+	const appColumns = [topApps.slice(0, 5), topApps.slice(5, 10)].filter(
+		(column) => column.length > 0,
+	);
 
 	return (
 		<>
-			{modelApps.length > 0 ? (
-				<div className="grid gap-3 md:grid-cols-2">
-					{modelApps.map((app) => (
-						<Link
-							key={app.appId}
-							href={`/apps/${encodeURIComponent(app.appId)}`}
-							className="rounded-lg border border-border/70 px-4 py-3 transition-colors hover:bg-muted/40"
-						>
-							<p className="text-sm font-semibold">{app.title}</p>
-							<p className="text-xs text-muted-foreground">
-								{app.appId}
-							</p>
-							<div className="mt-2 flex flex-wrap items-center gap-2">
-								<Badge variant="outline" className="text-[11px]">
-									{app.totalRequests.toLocaleString()} requests
-								</Badge>
-								<Badge variant="outline" className="text-[11px]">
-									{app.totalTokens.toLocaleString()} tokens
-								</Badge>
-							</div>
-						</Link>
+			{topApps.length > 0 ? (
+				<div className="grid gap-x-16 md:grid-cols-2">
+					{appColumns.map((column, columnIndex) => (
+						<div key={columnIndex}>
+							{column.map((app, itemIndex) => {
+								const rank = columnIndex * 5 + itemIndex + 1;
+								const subtitle = getAppSubtitle(app);
+								const logoUrl = getAppLogoUrl(app);
+								return (
+									<Link
+										key={app.appId}
+										href={`/apps/${encodeURIComponent(app.appId)}`}
+										className="group grid min-h-11 grid-cols-[1.5rem_1.75rem_minmax(0,1fr)_auto] items-center gap-2.5 py-1 transition-colors hover:bg-muted/35"
+									>
+										<span className="text-sm tabular-nums text-muted-foreground">
+											{rank}.
+										</span>
+										<span className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted/45">
+											{logoUrl ? (
+												// eslint-disable-next-line @next/next/no-img-element
+												<img
+													src={logoUrl}
+													alt={app.title}
+													className="size-full object-contain"
+												/>
+											) : (
+												<span className="text-[11px] font-semibold text-muted-foreground">
+													{getAppInitial(app.title)}
+												</span>
+											)}
+										</span>
+										<div className="min-w-0">
+											<div className="flex min-w-0 items-center gap-1.5">
+												<p className="truncate text-sm font-semibold text-foreground underline decoration-transparent underline-offset-2 transition-colors group-hover:decoration-current">
+													{app.title}
+												</p>
+												<ChevronRight className="size-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+											</div>
+											{subtitle ? (
+												<p className="truncate text-xs text-muted-foreground">
+													{subtitle}
+												</p>
+											) : null}
+										</div>
+										<div className="whitespace-nowrap text-right text-sm tabular-nums text-muted-foreground">
+											{formatCompactUsage(app.totalTokens)} tokens
+										</div>
+									</Link>
+								);
+							})}
+						</div>
 					))}
 				</div>
 			) : (
@@ -394,7 +512,10 @@ export async function ModelAppsSection({
 export async function ModelActivitySection({
 	modelId,
 	includeHidden: _includeHidden,
-}: ModelSectionSharedProps) {
+	showHeading = true,
+}: ModelSectionSharedProps & {
+	showHeading?: boolean;
+}) {
 	const usageRows = await withOptionalSectionTimeout(
 		fetchFrontendModelUsageDailyBreakdown({
 			modelId,
@@ -407,19 +528,31 @@ export async function ModelActivitySection({
 	return (
 		<>
 			{usageRows.length > 0 ? (
-				<ModelActivityChart rows={usageRows} showHeading={false} />
+				<ModelActivityChart
+					rows={usageRows}
+					showHeading={showHeading}
+					description="Token volume and request traffic for this model over time."
+				/>
 			) : (
-				<Empty className="rounded-lg border p-8">
-					<EmptyHeader>
-						<EmptyMedia variant="icon">
-							<Activity className="size-5" />
-						</EmptyMedia>
-						<EmptyTitle>No activity yet</EmptyTitle>
-						<EmptyDescription>
-							Usage breakdowns will appear once this model has enough gateway traffic.
-						</EmptyDescription>
-					</EmptyHeader>
-				</Empty>
+				<div className="space-y-4">
+					{showHeading ? (
+						<SectionHeader
+							title="Activity"
+							description="Token volume and request traffic for this model over time."
+						/>
+					) : null}
+					<Empty className="rounded-lg border p-8">
+						<EmptyHeader>
+							<EmptyMedia variant="icon">
+								<Activity className="size-5" />
+							</EmptyMedia>
+							<EmptyTitle>No activity yet</EmptyTitle>
+							<EmptyDescription>
+								Usage breakdowns will appear once this model has enough gateway traffic.
+							</EmptyDescription>
+						</EmptyHeader>
+					</Empty>
+				</div>
 			)}
 		</>
 	);
@@ -428,24 +561,41 @@ export async function ModelActivitySection({
 export async function ModelQuickstartSection({
 	modelId,
 	includeHidden,
+	isGatewayActive = true,
+	gatewayMetadata: prefetchedGatewayMetadata,
 	surface = "page",
 	quickstartRequestContext,
 }: ModelSectionSharedProps & {
+	isGatewayActive?: boolean;
+	gatewayMetadata?: ModelGatewayMetadata;
 	surface?: ModelSectionSurface;
 	quickstartRequestContext?: QuickstartRequestContext;
 }) {
-	const includeInternalProviders = await withOptionalSectionTimeout(
-		isAdminViewer(),
-		false,
-		"quickstart admin viewer check"
-	);
-	const gatewayMetadata = await withOptionalSectionTimeout(
-		includeInternalProviders
-			? getModelGatewayMetadataCached(modelId, includeHidden)
-			: fetchFrontendModelGatewayMetadata(modelId),
-		null,
-		"quickstart metadata"
-	);
+	if (!isGatewayActive) {
+		return (
+			<Quickstart
+				mode="model-metadata"
+				modelId={modelId}
+				acceptedModelIdentifiers={[modelId]}
+				showHeader={surface !== "overview"}
+			/>
+		);
+	}
+
+	const gatewayMetadata = prefetchedGatewayMetadata ?? await (async () => {
+		const includeInternalProviders = await withOptionalSectionTimeout(
+			isAdminViewer(),
+			false,
+			"quickstart admin viewer check"
+		);
+		return withOptionalSectionTimeout(
+			includeInternalProviders
+				? getModelGatewayMetadataCached(modelId, includeHidden)
+				: fetchFrontendModelGatewayMetadata(modelId),
+			null,
+			"quickstart metadata"
+		);
+	})();
 
 	const quickstartEndpoint =
 		gatewayMetadata?.activeProviders.find((p) => p.endpoint)?.endpoint ??
@@ -520,7 +670,6 @@ export async function ModelBenchmarksSection({
 		<>
 			{benchmarkHighlights.length > 0 ? (
 				<ModelBenchmarks
-					modelId={modelId}
 					highlightCards={benchmarkHighlights}
 					mode="summary"
 				/>
@@ -552,6 +701,28 @@ export async function ModelLineageSection({
 	model,
 }: ModelSectionSharedProps & { model?: ModelOverviewPage | null }) {
 	const overview = model ?? (await fetchFrontendModelOverview(modelId));
+	const timeline = overview?.previous_model_id
+		? await withOptionalSectionTimeout(
+				fetchFrontendModelTimeline(modelId),
+				null,
+				"model lineage",
+			)
+		: null;
+	const previousLineage = overview
+		? (
+				await resolveModelLineageNames(
+					getModelLineageLinks(timeline?.events, overview.previous_model_id),
+					async (lineageModelId) =>
+						(
+							await withOptionalSectionTimeout(
+								fetchFrontendModelHeader(lineageModelId),
+								null,
+								"lineage model name",
+							)
+						)?.name,
+				)
+			).previous
+		: null;
 
 	return (
 		<Section id="family">
@@ -569,12 +740,12 @@ export async function ModelLineageSection({
 						<p className="text-[11px] uppercase tracking-wide text-muted-foreground">
 							Parent Model
 						</p>
-						{overview.previous_model_id ? (
+						{previousLineage ? (
 							<Link
-								href={`/models/${overview.previous_model_id}`}
+								href={`/models/${previousLineage.modelId}`}
 								className="text-sm font-semibold underline decoration-transparent hover:decoration-current"
 							>
-								{overview.previous_model_id}
+								{previousLineage.modelName}
 							</Link>
 						) : (
 							<p className="text-sm text-muted-foreground">
@@ -588,7 +759,7 @@ export async function ModelLineageSection({
 						</p>
 						{overview.family_id ? (
 							<Link
-								href={`/models/${modelId}/family`}
+								href={`/families/${overview.family_id}`}
 								className="text-sm font-semibold underline decoration-transparent hover:decoration-current"
 							>
 								View family graph
@@ -624,6 +795,25 @@ export async function ModelAboutSection({
 	const extraOutputTypes = outputTypes.filter(
 		(type) => !KNOWN_MODALITY_META.some((m) => m.key === type),
 	);
+	const timeline = await withOptionalSectionTimeout(
+		fetchFrontendModelTimeline(model.model_id),
+		null,
+		"model lineage",
+	);
+	const lineage = await resolveModelLineageNames(
+		getModelLineageLinks(timeline?.events, model.previous_model_id),
+		async (lineageModelId) =>
+			(
+				await withOptionalSectionTimeout(
+					fetchFrontendModelHeader(lineageModelId),
+					null,
+					"lineage model name",
+				)
+			)?.name,
+	);
+	const hasLineage = Boolean(lineage.previous || lineage.next || model.family_id);
+	const hasDirectionalLineage = Boolean(lineage.previous || lineage.next);
+	const hasBothDirections = Boolean(lineage.previous && lineage.next);
 
 	const renderModalityValue = (kind: "Input" | "Output") => {
 		const isInput = kind === "Input";
@@ -683,28 +873,76 @@ export async function ModelAboutSection({
 				showEmpty
 			/>
 			<div className="space-y-2">
-			<OtherInfo
-				details={model.model_details ?? undefined}
-				showHeading={false}
-				showEmpty
-				extraItems={[
-					{
-						key: "input_modalities",
-						label: "Input",
+				<OtherInfo
+					details={model.model_details ?? undefined}
+					licenseUrl={getModelLicenseUrl(model)}
+					showHeading={false}
+					showEmpty
+					extraItems={[
+						{
+							key: "input_modalities",
+							label: "Input",
 							value: renderModalityValue("Input"),
 						},
 						{
 							key: "output_modalities",
-						label: "Output",
-						value: renderModalityValue("Output"),
-					},
-				]}
-			/>
+							label: "Output",
+							value: renderModalityValue("Output"),
+						},
+					]}
+				/>
 			</div>
 			<div className="space-y-2">
 				<h3 className="text-base font-semibold">Links</h3>
 				<ModelLinks model={model} showEmpty />
 			</div>
+			{hasLineage ? (
+				<div className="space-y-2">
+					<h3 className="text-base font-semibold">Related models</h3>
+					{hasDirectionalLineage ? (
+						<div
+							className={cn(
+								"grid overflow-hidden rounded-lg border border-border/70 bg-card sm:overflow-visible sm:border-0 sm:bg-transparent sm:gap-2",
+								hasBothDirections ? "sm:grid-cols-2" : "sm:grid-cols-1",
+							)}
+						>
+						{lineage.previous ? (
+							<Link
+								href={`/models/${lineage.previous.modelId}`}
+								className="group flex min-w-0 items-center gap-3 border-b border-border/70 px-3 py-3 transition-colors last:border-b-0 hover:bg-muted/35 sm:rounded-lg sm:border sm:bg-card sm:hover:bg-muted/30"
+							>
+								<ArrowLeft className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5" />
+								<div className="min-w-0">
+									<p className="text-xs text-muted-foreground">Previous model</p>
+									<p className="truncate text-sm font-semibold">{lineage.previous.modelName}</p>
+								</div>
+							</Link>
+						) : null}
+						{lineage.next ? (
+							<Link
+								href={`/models/${lineage.next.modelId}`}
+								className="group flex min-w-0 items-center justify-between gap-3 border-b border-border/70 px-3 py-3 transition-colors last:border-b-0 hover:bg-muted/35 sm:rounded-lg sm:border sm:bg-card sm:hover:bg-muted/30"
+							>
+								<div className="min-w-0">
+									<p className="text-xs text-muted-foreground">Next model</p>
+									<p className="truncate text-sm font-semibold">{lineage.next.modelName}</p>
+								</div>
+								<ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+							</Link>
+						) : null}
+						</div>
+					) : null}
+					{model.family_id ? (
+						<Link
+							href={`/families/${model.family_id}`}
+							className="group flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border/70 bg-card px-3 py-3 transition-colors hover:bg-muted/30"
+						>
+							<span className="truncate text-sm font-semibold">View model family</span>
+							<ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+						</Link>
+					) : null}
+				</div>
+			) : null}
 		</>
 	);
 }
@@ -1048,10 +1286,7 @@ export function ModelOverviewSectionsSkeleton() {
 				<PricingSectionSkeleton />
 			</Section>
 			<Section id="benchmarks">
-				<SectionHeader
-					title="Benchmarks"
-					description="Headline benchmark standings and comparison context."
-				/>
+				<SectionHeader title="Benchmarks" />
 				<BenchmarksSectionSkeleton />
 			</Section>
 			<Section id="activity">
@@ -1064,7 +1299,7 @@ export function ModelOverviewSectionsSkeleton() {
 			<Section id="apps">
 				<SectionHeader
 					title="Apps Using This Model"
-					description="Public apps observed in gateway request traffic for this model."
+					description="Public apps observed in gateway usage for this model."
 				/>
 				<AppsSectionSkeleton />
 			</Section>
@@ -1107,6 +1342,8 @@ export default function ModelOverviewSections({
 	showBenchmarks = true,
 	showSubscriptions = true,
 	status,
+	isGatewayActive = true,
+	gatewayMetadata,
 	performancePromise,
 	quickstartRequestContext,
 }: ModelOverviewSectionsProps) {
@@ -1118,10 +1355,7 @@ export default function ModelOverviewSections({
 			<div className="space-y-10">
 				{showBenchmarks ? (
 					<Section id="benchmarks" showDivider={false}>
-						<SectionHeader
-							title="Benchmarks"
-							description="Historical benchmark standings and comparison context."
-						/>
+						<SectionHeader title="Benchmarks" />
 						<Suspense fallback={<BenchmarksSectionSkeleton />}>
 							<ModelBenchmarksSection
 								modelId={modelId}
@@ -1163,22 +1397,93 @@ export default function ModelOverviewSections({
 		);
 	}
 
+	if (!isGatewayActive) {
+		return (
+			<div className="space-y-10">
+				<Section id="providers" showDivider={false}>
+					<Suspense fallback={<ProvidersSectionSkeleton />}>
+						<ModelProvidersSection
+							modelId={modelId}
+							includeHidden={includeHidden}
+							modelStatus={status}
+							modelName={model?.name}
+							creatorOrganisationId={model?.organisation_id}
+							description="Provider listings and known route availability for this model."
+						/>
+					</Suspense>
+				</Section>
+				{showBenchmarks ? (
+					<Section id="benchmarks">
+						<SectionHeader title="Benchmarks" />
+						<Suspense fallback={<BenchmarksSectionSkeleton />}>
+							<ModelBenchmarksSection
+								modelId={modelId}
+								includeHidden={includeHidden}
+								hideWhenEmpty
+							/>
+						</Suspense>
+					</Section>
+				) : null}
+				<Section id="quickstart">
+					<SectionHeader
+						title="Quickstart"
+						description="Retrieve catalog metadata for this model while it is not active in the Gateway."
+					/>
+					<ModelQuickstartSection
+						modelId={modelId}
+						includeHidden={includeHidden}
+						isGatewayActive={false}
+						gatewayMetadata={gatewayMetadata}
+						surface="overview"
+					/>
+				</Section>
+				{hasInternalModelData ? (
+					<>
+						<Section id="about">
+							<SectionHeader
+								title="About"
+								description="Key dates, capabilities, and model metadata."
+							/>
+							<Suspense fallback={<AboutSectionSkeleton />}>
+								<ModelAboutSection model={model!} />
+							</Suspense>
+						</Section>
+						{showSubscriptions ? (
+							<Section id="subscriptions">
+								<SectionHeader
+									title="Subscriptions"
+									description="Commercial plans and bundled access that list this model."
+								/>
+								<Suspense fallback={<SubscriptionsSectionSkeleton />}>
+									<ModelSubscriptionsSection
+										modelId={modelId}
+										ownerOrganisationId={model?.organisation_id}
+										ownerOrganisationName={model?.organisation?.name}
+									/>
+								</Suspense>
+							</Section>
+						) : null}
+					</>
+				) : null}
+			</div>
+		);
+	}
+
 	return (
 		<div className="space-y-10">
 			<Section id="providers" showDivider={false}>
-				<SectionHeader
-					title="Providers"
-					description="API providers, route pricing, availability, and recent reliability signals."
-				/>
 				<Suspense fallback={<ProvidersSectionSkeleton />}>
-					<ModelProvidersSection modelId={modelId} includeHidden={includeHidden} />
+					<ModelProvidersSection
+						modelId={modelId}
+						includeHidden={includeHidden}
+						modelStatus={status}
+						modelName={model?.name}
+						creatorOrganisationId={model?.organisation_id}
+						description="API providers, route pricing, availability, and recent reliability signals."
+					/>
 				</Suspense>
 			</Section>
 			<Section id="performance">
-				<SectionHeader
-					title="Performance"
-					description="Latency, throughput, and reliability signals from recent traffic."
-				/>
 				<Suspense fallback={<PerformanceSectionSkeleton />}>
 					<ModelPerformanceSection
 						modelId={modelId}
@@ -1201,10 +1506,7 @@ export default function ModelOverviewSections({
 			</Section>
 			{showBenchmarks ? (
 				<Section id="benchmarks">
-					<SectionHeader
-						title="Benchmarks"
-						description="Headline benchmark standings and comparison context."
-					/>
+					<SectionHeader title="Benchmarks" />
 					<Suspense fallback={<BenchmarksSectionSkeleton />}>
 						<ModelBenchmarksSection
 							modelId={modelId}
@@ -1215,10 +1517,6 @@ export default function ModelOverviewSections({
 				</Section>
 			) : null}
 			<Section id="activity">
-				<SectionHeader
-					title="Activity"
-					description="Daily gateway activity over the last 30 days, with current UTC-day pace projection."
-				/>
 				<Suspense fallback={<ActivitySectionSkeleton />}>
 					<ModelActivitySection modelId={modelId} includeHidden={includeHidden} />
 				</Suspense>
@@ -1226,7 +1524,7 @@ export default function ModelOverviewSections({
 			<Section id="apps">
 				<SectionHeader
 					title="Apps Using This Model"
-					description="Public apps observed in gateway request traffic for this model."
+					description="Public apps observed in gateway usage for this model."
 				/>
 				<Suspense fallback={<AppsSectionSkeleton />}>
 					<ModelAppsSection modelId={modelId} includeHidden={includeHidden} />
@@ -1253,6 +1551,7 @@ export default function ModelOverviewSections({
 					<ModelQuickstartSection
 						modelId={modelId}
 						includeHidden={includeHidden}
+						gatewayMetadata={gatewayMetadata}
 						surface="overview"
 						quickstartRequestContext={quickstartRequestContext}
 					/>

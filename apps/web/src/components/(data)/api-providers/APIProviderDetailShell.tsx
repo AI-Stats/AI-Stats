@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { fetchFrontendAPIProviderHeader } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import { notFound } from "next/navigation";
 import TabBar from "@/components/(data)/api-providers/APIProviderTabs";
 import { Logo } from "@/components/Logo";
 import APIProviderEditButton from "./edit/APIProviderEditButton";
@@ -16,9 +17,10 @@ export default async function APIProviderDetailShell({
 	apiProviderId,
 	children,
 }: APIProviderDetailShellProps) {
-	const header = await fetchFrontendAPIProviderHeader(apiProviderId);
+	const header = await fetchFrontendAPIProviderHeader(apiProviderId).catch(() => null);
 
 	if (!header) {
+		notFound();
 		return (
 			<main className="flex min-h-screen flex-col">
 				<div className="container mx-auto px-4 py-8">
@@ -35,7 +37,7 @@ export default async function APIProviderDetailShell({
 						</p>
 						<div className="mt-3">
 							<a
-								href="https://github.com/AI-Stats/AI-Stats"
+								href="https://github.com/phaseoteam/Phaseo"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"

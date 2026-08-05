@@ -4,7 +4,7 @@ import { type ReactNode, useEffect, useRef, useState } from "react"
 import { DatePickerInput } from "@/components/ui/date-picker-input"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { createClient } from "@/utils/supabase/client"
+import { fetchAdminModelEditorSource } from "@/lib/fetchers/internal/adminModelEditorClient"
 import type { ModelData } from "../ModelEditDialog"
 
 interface DetailsTabProps {
@@ -24,6 +24,8 @@ interface ModelDetail {
 interface ModelLink {
   id: string
   platform: string
+  kind: string
+  title: string
   url: string
 }
 
@@ -118,6 +120,14 @@ function createEmptyLinkValues(): Record<LinkFieldKey, string> {
   }
 }
 
+function getLinkFieldLabel(kind: string): string {
+  const field = LINK_FIELDS.find((linkField) => linkField.key === kind)
+  if (field) return field.label
+  return kind
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
 function FieldRow({
   label,
   description,
@@ -152,6 +162,7 @@ export default function DetailsTab({
 
   const [detailValues, setDetailValues] = useState<Record<DetailFieldKey, string>>(createEmptyDetailValues())
   const [linkValues, setLinkValues] = useState<Record<LinkFieldKey, string>>(createEmptyLinkValues())
+  const [preservedLinks, setPreservedLinks] = useState<ModelLink[]>([])
   const onDetailsChangeRef = useRef(onDetailsChange)
   const onLinksChangeRef = useRef(onLinksChange)
 
@@ -165,16 +176,9 @@ export default function DetailsTab({
 
   useEffect(() => {
     const fetchData = async () => {
-      const supabase = createClient()
-      const { data: detailsData } = await supabase
-        .from("data_model_details")
-        .select("detail_name, detail_value")
-        .eq("model_id", modelId)
-
-      const { data: linksData } = await supabase
-        .from("data_model_links")
-        .select("platform, url")
-        .eq("model_id", modelId)
+      const source = await fetchAdminModelEditorSource(modelId)
+      const detailsData = source.model?.model_details ?? []
+      const linksData = source.model?.model_links ?? []
 
       const nextDetails = createEmptyDetailValues()
       for (const row of detailsData ?? []) {
@@ -186,13 +190,29 @@ export default function DetailsTab({
       setDetailValues(nextDetails)
 
       const nextLinks = createEmptyLinkValues()
+      const primaryLinkKinds = new Set<LinkFieldKey>()
+      const preservedLinkRows: ModelLink[] = []
       for (const row of linksData ?? []) {
-        const key = row.platform as LinkFieldKey
-        if (key in nextLinks) {
-          nextLinks[key] = row.url ?? ""
+        const kind = (row.kind ?? row.platform ?? "").trim()
+        const url = row.url?.trim() ?? ""
+        if (!kind || !url) continue
+
+        const key = kind as LinkFieldKey
+        if (key in nextLinks && !primaryLinkKinds.has(key)) {
+          nextLinks[key] = url
+          primaryLinkKinds.add(key)
+        } else {
+          preservedLinkRows.push({
+            id: `${kind}:${url}`,
+            platform: kind,
+            kind,
+            title: row.title?.trim() || getLinkFieldLabel(kind),
+            url,
+          })
         }
       }
       setLinkValues(nextLinks)
+      setPreservedLinks(preservedLinkRows)
     }
 
     void fetchData()
@@ -211,16 +231,27 @@ export default function DetailsTab({
   }, [detailValues])
 
   useEffect(() => {
-    const payload: ModelLink[] = LINK_FIELDS
+    const editableLinks: ModelLink[] = LINK_FIELDS
       .map((field) => ({
         id: field.key,
         platform: field.key,
+        kind: field.key,
+        title: field.label,
         url: linkValues[field.key].trim(),
       }))
       .filter((row) => row.url.length > 0)
 
+    const editableKeys = new Set(editableLinks.map((row) => `${row.kind}:${row.url}`))
+    const payload = [
+      ...editableLinks,
+      ...preservedLinks.filter((row) => {
+        const url = row.url.trim()
+        return url.length > 0 && !editableKeys.has(`${row.kind}:${url}`)
+      }),
+    ]
+
     onLinksChangeRef.current?.(payload)
-  }, [linkValues])
+  }, [linkValues, preservedLinks])
 
   return (
     <div className="space-y-5">

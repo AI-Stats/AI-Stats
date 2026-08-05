@@ -19,6 +19,7 @@ import { logDebugEvent, previewValue } from "../debug";
 import { normalizeFinishReason } from "../audit/normalize-finish-reason";
 import { attachToolUsageMetrics, summarizeToolUsage } from "./tool-usage";
 import { applyByokServiceFee } from "../pricing/byok-fee";
+import { applyDataContributionDiscount } from "../pricing/data-contribution-discount";
 import { getBaseModel } from "../execute/utils";
 import { dispatchBackground, ensureRuntimeForBackground, getResponseCache } from "@/runtime/env";
 import { resolveNonStreamLatencyMs } from "./timing";
@@ -28,6 +29,7 @@ import {
 } from "../execute/sticky-routing";
 import { buildCachedResponseRecord } from "@/core/response-cache";
 import { applyResponsePlugins } from "@/plugins/registry";
+import { applySuccessfulResponseBillingPolicy, suppressFailedResponseBilling } from "./billing-policy";
 
 function shouldAttachRoutingDiagnostics(ctx: PipelineContext): boolean {
 	return Boolean(ctx.meta?.debug?.enabled || ctx.meta?.returnRoutingDiagnostics);
@@ -52,6 +54,13 @@ export function shouldReturnBinaryAudio(ctx: PipelineContext): boolean {
 		return false;
 	}
 	return true;
+}
+
+export async function settleNonBillableFailure(
+    ctx: PipelineContext,
+    result: RequestResult,
+): Promise<void> {
+	suppressFailedResponseBilling({ ctx, result, reason: "empty_response" });
 }
 
 function normalizeWavChunkSizesIfNeeded(bytes: Uint8Array): Uint8Array {
@@ -222,6 +231,12 @@ function dispatchNonStreamSuccessSideEffects(args: {
                 });
             }
 
+            await recordUsageAndChargeOnce({
+                ctx,
+                costNanos: totalNanos,
+                endpoint: ctx.endpoint,
+            });
+
             await handleSuccessAudit(
                 ctx,
                 result,
@@ -236,11 +251,6 @@ function dispatchNonStreamSuccessSideEffects(args: {
                 gatewayPayload,
             );
 
-            await recordUsageAndChargeOnce({
-                ctx,
-                costNanos: totalNanos,
-                endpoint: ctx.endpoint,
-            });
         } finally {
             releaseRuntime();
         }
@@ -433,13 +443,31 @@ async function handleNonStreamResponse(
         ctx.meta
     ));
     const isByok = (result?.keySource ?? ctx.meta.keySource) === "byok";
-    const pricedWithByok = await ctx.timer.span("after_apply_byok_fee", () => applyByokServiceFee({
+    const pricedWithByokSubtotal = await ctx.timer.span("after_apply_byok_fee", () => applyByokServiceFee({
         workspaceId: ctx.workspaceId,
         isByok,
         baseCostNanos: totalNanos,
         pricedUsage,
         currencyHint: currency,
     }));
+    const successfulBilling = applySuccessfulResponseBillingPolicy({
+		endpoint: ctx.endpoint,
+		pricedUsage: pricedWithByokSubtotal.pricedUsage,
+		totalNanos: pricedWithByokSubtotal.totalNanos,
+		totalCents: pricedWithByokSubtotal.totalCents,
+	});
+    const contributionDiscount = applyDataContributionDiscount({
+		pricedUsage: successfulBilling.pricedUsage,
+		totalNanos: successfulBilling.totalNanos,
+		enabled: ctx.teamSettings?.dataContributionEnabled === true,
+		isByok,
+		discountBps: ctx.teamSettings?.dataContributionDiscountBps,
+	});
+    const pricedWithByok = {
+		...pricedWithByokSubtotal,
+		...successfulBilling,
+		...contributionDiscount,
+	};
     const pricedUsageFinalRaw = pricedWithByok.pricedUsage;
     const totalCentsFinal = pricedWithByok.totalCents;
     const totalNanosFinal = pricedWithByok.totalNanos;
@@ -465,14 +493,14 @@ async function handleNonStreamResponse(
 
     // Update payload with normalized usage
     payload.usage = shapedUsageFinal;
-    const generationMs = ctx.meta.generation_ms ?? 0;
+    const generationMs = ctx.meta.generation_ms ?? null;
     const latencyMs = resolveNonStreamLatencyMs(ctx, generationMs);
     const endToEndMs =
         typeof ctx.meta.end_to_end_ms === "number"
             ? ctx.meta.end_to_end_ms
-            : typeof latencyMs === "number" && typeof generationMs === "number" && generationMs > 0
-                ? latencyMs + generationMs
-                : latencyMs;
+			: typeof ctx.meta.completedAtMs === "number" && typeof ctx.meta.startedAtMs === "number"
+				? Math.max(0, ctx.meta.completedAtMs - ctx.meta.startedAtMs)
+				: null;
     const outputTokens = shapedUsageFinal?.output_tokens ?? shapedUsageFinal?.output_text_tokens ?? 0;
     const throughputTps = generationMs && generationMs > 0
         ? outputTokens / (generationMs / 1000)
@@ -480,8 +508,17 @@ async function handleNonStreamResponse(
     payload.meta = {
         ...payload.meta,
         throughput_tps: throughputTps,
+        output_speed_tps: null,
         generation_ms: generationMs,
         latency_ms: latencyMs,
+        provider_ttft_ms: null,
+        gateway_ttft_ms: null,
+        tpot_ms: null,
+        itl_ms: null,
+        phaseo_overhead_ms:
+            endToEndMs != null && generationMs != null
+                ? Math.max(0, endToEndMs - generationMs)
+                : null,
         end_to_end_ms: endToEndMs,
     };
     // Update result billing
@@ -567,12 +604,11 @@ async function handleNonStreamResponse(
 
     const headers = makeHeaders(timingHeader);
     if (ctx.responseCache?.status === "miss") {
-        headers.set("X-AI-Stats-Response-Cache", "miss");
+        headers.set("X-Phaseo-Response-Cache", "miss");
     }
     const responseStatus = ctx.endpoint === "video.generation" ? 202 : result.upstream.status;
     return ctx.timer.span("after_create_response", () => createResponse(responseBody, responseStatus, headers));
 }
-
 
 
 

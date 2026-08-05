@@ -34,7 +34,7 @@ import type {
   VideoGenerationResponse
 } from "./oapi-gen/models/index.js";
 import * as ops from "./oapi-gen/client/index.js";
-import { AIStatsHttpError, Client } from "./runtime/client.js";
+import { PhaseoHttpError, Client } from "./runtime/client.js";
 import {
   TelemetryCapture,
   extractBatchMetadata,
@@ -45,6 +45,7 @@ import {
 } from "./devtools/telemetry.js";
 import type { DevToolsConfig } from "./devtools/core.js";
 import type { KnownModelId as GeneratedKnownModelId } from "./modelIds.js";
+import { verifyAsyncWebhookSignature as verifyWebhookSignatureValue } from "./webhooks.js";
 
 export type KnownModelId = GeneratedKnownModelId;
 export type ModelIdLiteral = KnownModelId;
@@ -52,7 +53,7 @@ export type ModelIdLiteral = KnownModelId;
  * Model identifier in `provider/model` format (for example: `openai/gpt-5.4`).
  *
  * Model page URL pattern:
- * `https://ai-stats.phaseo.app/models/{provider/model}`
+ * `https://phaseo.app/models/{provider/model}`
  */
 // Allow new server-side models before a package release while preserving known-ID autocomplete.
 export type ModelId = KnownModelId | (string & {});
@@ -66,11 +67,11 @@ type Options = {
   devtools?: Partial<DevToolsConfig>;
   enableDeprecationWarnings?: boolean;
   warningsAsErrors?: boolean;
-  logger?: AIStatsLogger;
+  logger?: PhaseoLogger;
 };
 
-export type AIStatsLogLevel = "info" | "warn" | "error";
-export type AIStatsLogger = (level: AIStatsLogLevel, message: string, meta?: Record<string, unknown>) => void;
+export type PhaseoLogLevel = "info" | "warn" | "error";
+export type PhaseoLogger = (level: PhaseoLogLevel, message: string, meta?: Record<string, unknown>) => void;
 export type QueryParamValue = string | number | boolean | readonly (string | number | boolean)[];
 
 export type ModelLifecycleInfo = {
@@ -226,6 +227,31 @@ export type AsyncJobWebSocketOptions = {
   intervalMs?: number;
   closeOnTerminal?: boolean;
 };
+export type BatchRequestRowsResponse = Awaited<ReturnType<typeof ops.listBatchRequests>>;
+export type BatchTerminalStatus = "completed" | "failed" | "cancelled" | "expired";
+export type BatchProviderSelector = string | NonNullable<BatchRequest["provider"]>;
+export type BatchCreateRequest = Omit<BatchRequest, "provider"> & {
+  provider?: BatchProviderSelector;
+};
+export type BatchWaitOptions = {
+  intervalMs?: number;
+  timeoutMs?: number;
+  signal?: AbortSignal;
+  terminalStatuses?: BatchTerminalStatus[];
+  onPoll?: (batch: BatchResponse) => void | Promise<void>;
+};
+export type BatchRequestListOptions = {
+  limit?: number;
+  offset?: number;
+  status?: string;
+};
+export type WebhookVerificationInput = {
+  body: string | Uint8Array | ArrayBuffer;
+  secret: string;
+  signature: string | null | undefined;
+  timestamp?: string | number | null;
+  toleranceSeconds?: number;
+};
 
 type ChatMessageInput =
   | { role: "system"; content: string | MessageContentPartInput[]; name?: string }
@@ -306,9 +332,10 @@ export {
   type AsyncWebhookHeaders,
   type VerifyAsyncWebhookSignatureOptions
 } from "./webhooks.js";
-export type AIStatsOptions = Options;
+export type PhaseoOptions = Options;
+export type PhaseoRequestOptions = { signal?: AbortSignal };
 
-export class AIStats {
+export class Phaseo {
   private readonly client: Client;
   private readonly basePath: string;
   private readonly headers: Record<string, string>;
@@ -316,14 +343,14 @@ export class AIStats {
   private readonly fetchImpl: typeof fetch;
   private readonly enableDeprecationWarnings: boolean;
   private readonly warningsAsErrors: boolean;
-  private readonly logger?: AIStatsLogger;
+  private readonly logger?: PhaseoLogger;
   private readonly warnedModels = new Set<string>();
   private readonly modelLifecycleCache = new Map<string, ModelLifecycleInfo | null>();
 
   readonly responses = {
-    create: async (req: ResponsesRequest): Promise<ResponsesResponse | AsyncGenerator<ResponseStreamChunk>> => {
+    create: async (req: ResponsesRequest, options: PhaseoRequestOptions = {}): Promise<ResponsesResponse | AsyncGenerator<ResponseStreamChunk>> => {
       if ((req as { stream?: boolean }).stream) {
-        return this.streamResponses(req);
+        return this.streamResponses(req, options);
       }
       return this.generateResponse(req);
     },
@@ -358,14 +385,23 @@ export class AIStats {
   };
 
   readonly batches = {
-    create: async (req: BatchRequest): Promise<BatchResponse> => this.createBatch(req),
+    create: async (req: BatchCreateRequest): Promise<BatchResponse> => this.createBatch(req),
     list: async (params: Record<string, unknown> = {}): Promise<BatchListResponse> => this.listBatches(params),
     get: async (batchId: string): Promise<BatchResponse> => this.getBatch(batchId),
     cancel: async (batchId: string): Promise<BatchResponse> => this.cancelBatch(batchId),
+    listRequests: async (batchId: string, options: BatchRequestListOptions = {}): Promise<BatchRequestRowsResponse> =>
+      this.listBatchRequests(batchId, options),
+    wait: async (batchId: string, options: BatchWaitOptions = {}): Promise<BatchResponse> =>
+      this.waitForBatch(batchId, options),
     listModels: async (params: Record<string, unknown> = {}): Promise<BatchModelsResponse> =>
       this.listBatchModels(params),
     websocketUrl: (batchId: string, options: AsyncJobWebSocketOptions = {}): string =>
       this.getAsyncJobWebSocketUrl("batch", batchId, options),
+  };
+
+  readonly webhooks = {
+    verifySignature: async (input: WebhookVerificationInput): Promise<boolean> =>
+      Phaseo.verifyWebhookSignature(input),
   };
 
   readonly videos = {
@@ -424,7 +460,7 @@ export class AIStats {
     this.warningsAsErrors = opts.warningsAsErrors ?? false;
     this.logger = opts.logger;
 
-    this.telemetry = new TelemetryCapture(opts.devtools, "2.0.5");
+    this.telemetry = new TelemetryCapture(opts.devtools, "2.2.0");
 
   }
 
@@ -598,7 +634,7 @@ export class AIStats {
     await this.maybeWarnForPayload(payload);
     const body = JSON.stringify(payload);
 
-    const generator = async function* (this: AIStats) {
+    const generator = async function* (this: Phaseo) {
       const res = await this.fetchImpl(`${this.basePath}/chat/completions`, {
         method: "POST",
         headers: { ...this.headers, "Content-Type": "application/json" },
@@ -645,7 +681,7 @@ export class AIStats {
     const payload = { ...req, stream: true };
     await this.maybeWarnForPayload(payload);
 
-    const generator = async function* (this: AIStats) {
+    const generator = async function* (this: Phaseo) {
       const res = await this.fetchImpl(`${this.basePath}/messages`, {
         method: "POST",
         headers: { ...this.headers, "Content-Type": "application/json" },
@@ -848,15 +884,16 @@ export class AIStats {
     );
   }
 
-  async *streamResponse(req: ResponsesRequest): AsyncGenerator<string> {
+  async *streamResponse(req: ResponsesRequest, options: PhaseoRequestOptions = {}): AsyncGenerator<string> {
     const payload = { ...req, stream: true };
     await this.maybeWarnForPayload(payload);
 
-    const generator = async function* (this: AIStats) {
+    const generator = async function* (this: Phaseo) {
       const res = await this.fetchImpl(`${this.basePath}/responses`, {
         method: "POST",
         headers: { ...this.headers, "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: options.signal
       });
       if (!res.ok || !res.body) {
         const text = await res.text();
@@ -874,18 +911,18 @@ export class AIStats {
     );
   }
 
-  async *streamResponses(req: ResponsesRequest): AsyncGenerator<ResponseStreamChunk> {
-    for await (const line of this.streamResponse(req)) {
+  async *streamResponses(req: ResponsesRequest, options: PhaseoRequestOptions = {}): AsyncGenerator<ResponseStreamChunk> {
+    for await (const line of this.streamResponse(req, options)) {
       const chunk = parseResponseStreamLine(line);
       if (!chunk) continue;
       yield chunk;
     }
   }
 
-  createBatch(req: BatchRequest): Promise<BatchResponse> {
+  createBatch(req: BatchCreateRequest): Promise<BatchResponse> {
     return this.telemetry.wrap(
       "batches.create",
-      () => ops.createBatch(this.client, { body: req }),
+      () => ops.createBatch(this.client, { body: req as BatchRequest }),
       () => req,
       extractBatchMetadata
     );
@@ -907,6 +944,59 @@ export class AIStats {
       () => ({ batch_id: batchId }),
       extractBatchMetadata
     );
+  }
+
+  listBatchRequests(batchId: string, options: BatchRequestListOptions = {}): Promise<BatchRequestRowsResponse> {
+    return this.telemetry.wrap(
+      "batches.requests",
+      () => ops.listBatchRequests(this.client, {
+        path: { batch_id: batchId },
+        query: {
+          ...(options.limit !== undefined ? { limit: options.limit } : {}),
+          ...(options.offset !== undefined ? { offset: options.offset } : {}),
+          ...(options.status !== undefined ? { status: options.status } : {}),
+        },
+      }),
+      () => ({ batch_id: batchId, ...options })
+    );
+  }
+
+  async waitForBatch(batchId: string, options: BatchWaitOptions = {}): Promise<BatchResponse> {
+    const normalizedId = asTrimmedString(batchId);
+    if (!normalizedId) throw new Error("batchId is required");
+    const intervalMs = Math.max(250, Math.trunc(options.intervalMs ?? 5_000));
+    const timeoutMs = Math.max(1, Math.trunc(options.timeoutMs ?? 30 * 60_000));
+    const terminalStatuses = new Set(
+      (options.terminalStatuses ?? ["completed", "failed", "cancelled", "expired"])
+        .map((status) => normalizeBatchStatus(status))
+        .filter((status): status is BatchTerminalStatus => Boolean(status))
+    );
+    if (terminalStatuses.size === 0) throw new Error("At least one terminal batch status is required");
+    const startedAt = Date.now();
+    while (true) {
+      throwIfAborted(options.signal);
+      const batch = await this.getBatch(normalizedId);
+      await options.onPoll?.(batch);
+      const status = normalizeBatchStatus(batch.status);
+      if (status && terminalStatuses.has(status)) return batch;
+      if (Date.now() - startedAt >= timeoutMs) throw new Error(`Timed out waiting for batch ${normalizedId}`);
+      await sleep(Math.min(intervalMs, Math.max(1, timeoutMs - (Date.now() - startedAt))), options.signal);
+    }
+  }
+
+  static async verifyWebhookSignature(input: WebhookVerificationInput): Promise<boolean> {
+    const timestamp = input.timestamp == null ? null : String(input.timestamp);
+    if (!timestamp || !input.signature) return false;
+    const body = input.body instanceof ArrayBuffer ? new Uint8Array(input.body) : input.body;
+    return verifyWebhookSignatureValue({
+      secret: input.secret,
+      body,
+      headers: {
+        "x-phaseo-timestamp": timestamp,
+        "x-phaseo-signature": input.signature.trim().replace(/^sha256=/i, ""),
+      },
+      toleranceSeconds: input.toleranceSeconds,
+    });
   }
 
   listBatches(params: Record<string, unknown> = {}): Promise<BatchListResponse> {
@@ -936,13 +1026,21 @@ export class AIStats {
   getFile(fileId: string): Promise<FileObject> {
     return this.telemetry.wrap(
       "files.retrieve",
-      () => ops.retrieveFile(this.client, { path: { file_id: fileId } as any }),
+      async () => {
+        const url = new URL(`batches/files/${encodeURIComponent(fileId)}`, `${this.basePath}/`);
+        const res = await this.fetchImpl(url.toString(), { method: "GET", headers: this.headers });
+        if (!res.ok) {
+          const text = await res.text();
+          throw createHttpError(res, text);
+        }
+        return (await res.json()) as FileObject;
+      },
       () => ({ file_id: fileId })
     );
   }
 
   async getFileContent(fileId: string): Promise<Uint8Array> {
-    const url = new URL(`files/${encodeURIComponent(fileId)}/content`, `${this.basePath}/`);
+    const url = new URL(`batches/files/${encodeURIComponent(fileId)}/content`, `${this.basePath}/`);
     const res = await this.fetchImpl(url.toString(), {
       method: "GET",
       headers: this.headers,
@@ -954,7 +1052,12 @@ export class AIStats {
     return new Uint8Array(await res.arrayBuffer());
   }
 
-  async uploadFile(params: { purpose?: string; file: Blob | File | BufferSource | string }): Promise<FileObject> {
+  async uploadFile(params: {
+    purpose?: string;
+    file: Blob | File | BufferSource | string;
+    model?: string;
+    provider?: string;
+  }): Promise<FileObject> {
     return this.telemetry.wrap(
       "files.upload",
       async () => {
@@ -963,7 +1066,10 @@ export class AIStats {
         if (params.purpose) {
           form.append("purpose", params.purpose);
         }
-        const res = await this.fetchImpl(`${this.basePath}/files`, {
+        const url = new URL("batches/files", `${this.basePath}/`);
+        if (params.model) url.searchParams.set("model", params.model);
+        if (params.provider) url.searchParams.set("provider", params.provider);
+        const res = await this.fetchImpl(url.toString(), {
           method: "POST",
           headers: this.headers,
           body: form
@@ -974,7 +1080,7 @@ export class AIStats {
         }
         return (await res.json()) as FileObject;
       },
-      () => ({ purpose: params.purpose, file: "[File]" })
+      () => ({ purpose: params.purpose, model: params.model, provider: params.provider, file: "[File]" })
     );
   }
 
@@ -1385,8 +1491,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * Compatibility layers - Drop-in replacements for OpenAI and Anthropic SDKs
  *
  * Usage:
- *   import { OpenAI } from '@ai-stats/sdk/compat/openai';
- *   import { Anthropic } from '@ai-stats/sdk/compat/anthropic';
+ *   import { OpenAI } from '@phaseo/sdk/compat/openai';
+ *   import { Anthropic } from '@phaseo/sdk/compat/anthropic';
  */
 export { OpenAI } from "./compat/openai.js";
 export { Anthropic } from "./compat/anthropic.js";
@@ -1413,13 +1519,13 @@ export type {
   MessageRole
 } from "./compat/anthropic.js";
 
-export default AIStats;
+export default Phaseo;
 
 function resolveApiKey(explicit?: string): string {
-  const key = explicit ?? readEnv("AI_STATS_API_KEY");
+  const key = explicit ?? readEnv("PHASEO_API_KEY");
   if (!key) {
     throw new Error(
-      "Missing API key. Pass `{ apiKey }` to `new AIStats(...)` or set `AI_STATS_API_KEY`.",
+      "Missing API key. Pass `{ apiKey }` to `new Phaseo(...)` or set `PHASEO_API_KEY`. ",
     );
   }
   return key;
@@ -1432,8 +1538,8 @@ function readEnv(name: string): string | undefined {
   return undefined;
 }
 
-function createHttpError(response: Response, text: string): AIStatsHttpError {
-  return new AIStatsHttpError({
+function createHttpError(response: Response, text: string): PhaseoHttpError {
+  return new PhaseoHttpError({
     status: response.status,
     statusText: response.statusText,
     body: parseResponseBody(text),
@@ -1441,8 +1547,8 @@ function createHttpError(response: Response, text: string): AIStatsHttpError {
   });
 }
 
-function createStreamHttpError(response: Response, text: string): AIStatsHttpError {
-  return new AIStatsHttpError({
+function createStreamHttpError(response: Response, text: string): PhaseoHttpError {
+  return new PhaseoHttpError({
     status: response.status,
     statusText: response.statusText,
     body: parseResponseBody(text),
@@ -1573,18 +1679,18 @@ function buildLifecycleMessage(
   const replacement = replacementModelId ? ` Use "${replacementModelId}" instead.` : "";
   if (status === "retired") {
     if (retirementDate) {
-      return `[ai-stats] Model "${modelId}" is retired as of ${retirementDate}.${replacement}`;
+      return `[phaseo] Model "${modelId}" is retired as of ${retirementDate}.${replacement}`;
     }
-    return `[ai-stats] Model "${modelId}" is retired.${replacement}`;
+    return `[phaseo] Model "${modelId}" is retired.${replacement}`;
   }
   if (status === "deprecated") {
     if (retirementDate) {
-      return `[ai-stats] Model "${modelId}" is deprecated and scheduled for retirement on ${retirementDate}.${replacement}`;
+      return `[phaseo] Model "${modelId}" is deprecated and scheduled for retirement on ${retirementDate}.${replacement}`;
     }
     if (deprecationDate) {
-      return `[ai-stats] Model "${modelId}" has been deprecated since ${deprecationDate}.${replacement}`;
+      return `[phaseo] Model "${modelId}" has been deprecated since ${deprecationDate}.${replacement}`;
     }
-    return `[ai-stats] Model "${modelId}" is deprecated.${replacement}`;
+    return `[phaseo] Model "${modelId}" is deprecated.${replacement}`;
   }
   return null;
 }
@@ -1634,13 +1740,39 @@ function buildInactiveModelRequestMessage(info: ModelLifecycleInfo): string {
         info.retirementDate,
         info.replacementModelId
       ) ??
-      `[ai-stats] Model "${info.modelId}" is not active for inference.`
+      `[phaseo] Model "${info.modelId}" is not active for inference.`
     );
   }
 
   const sourceStatus = normalizeSourceStatus(info.sourceStatus) ?? "unknown";
   const replacement = info.replacementModelId ? ` Use "${info.replacementModelId}" instead.` : "";
-  return `[ai-stats] Model "${info.modelId}" is not active for inference (status: ${sourceStatus}).${replacement}`;
+  return `[phaseo] Model "${info.modelId}" is not active for inference (status: ${sourceStatus}).${replacement}`;
+}
+
+function normalizeBatchStatus(value: unknown): BatchTerminalStatus | null {
+  const normalized = asTrimmedString(value)?.toLowerCase();
+  if (!normalized) return null;
+  if (normalized === "canceled") return "cancelled";
+  if (normalized === "completed" || normalized === "failed" || normalized === "cancelled" || normalized === "expired") {
+    return normalized;
+  }
+  return null;
+}
+
+function throwIfAborted(signal?: AbortSignal): void {
+  if (!signal?.aborted) return;
+  throw signal.reason instanceof Error ? signal.reason : new Error("Operation aborted");
+}
+
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    throwIfAborted(signal);
+    const timeout = setTimeout(resolve, ms);
+    signal?.addEventListener("abort", () => {
+      clearTimeout(timeout);
+      reject(signal.reason instanceof Error ? signal.reason : new Error("Operation aborted"));
+    }, { once: true });
+  });
 }
 
 function asTrimmedString(value: unknown): string | null {

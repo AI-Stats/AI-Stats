@@ -1,7 +1,14 @@
 import { describe, expect, test, vi } from "vitest";
-import { AIStats } from "../src/index.js";
+import { Phaseo } from "../src/index.js";
+import { MODEL_IDS, MODEL_ID_SET, ModelIds } from "../src/modelIds.js";
 
-describe("AIStats models helper", () => {
+describe("Phaseo models helper", () => {
+  test("publishes Claude Opus 4.8 in the model ID helpers", () => {
+    expect(ModelIds.ANTHROPIC_CLAUDE_OPUS_4_8).toBe("anthropic/claude-opus-4.8");
+    expect(MODEL_IDS).toContain("anthropic/claude-opus-4.8");
+    expect(MODEL_ID_SET.has("anthropic/claude-opus-4.8")).toBe(true);
+  });
+
   test("preserves preview-only and coming-soon provider availability metadata from /models", async () => {
     const fetchImpl: typeof fetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = new URL(String(input));
@@ -43,7 +50,7 @@ describe("AIStats models helper", () => {
       );
     }) as unknown as typeof fetch;
 
-    const client = new AIStats({
+    const client = new Phaseo({
       apiKey: "sk_test_123",
       baseUrl: "https://example.test",
       fetchImpl,
@@ -85,7 +92,7 @@ describe("AIStats models helper", () => {
       );
     }) as unknown as typeof fetch;
 
-    const client = new AIStats({
+    const client = new Phaseo({
       apiKey: "sk_test_123",
       baseUrl: "https://example.test",
       fetchImpl,
@@ -127,7 +134,7 @@ describe("AIStats models helper", () => {
       );
     }) as unknown as typeof fetch;
 
-    const client = new AIStats({
+    const client = new Phaseo({
       apiKey: "sk_test_123",
       baseUrl: "https://example.test",
       fetchImpl,
@@ -169,7 +176,7 @@ describe("AIStats models helper", () => {
       );
     }) as unknown as typeof fetch;
 
-    const client = new AIStats({
+    const client = new Phaseo({
       apiKey: "sk_test_123",
       baseUrl: "https://example.test",
       fetchImpl,

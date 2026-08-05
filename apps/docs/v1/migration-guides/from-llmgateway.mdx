@@ -1,14 +1,25 @@
 ---
 title: "Migrating from LLM Gateway"
-description: "Move from LLMGateway to AI Stats Gateway with an OpenAI-compatible endpoint swap, model-ID verification, and staged rollout validation."
+sidebarTitle: "LLM Gateway"
+description: "Move from LLMGateway to Phaseo Gateway with an OpenAI-compatible endpoint swap, model-ID verification, and staged rollout validation."
+icon: "/icons/brands/llmgateway.svg"
 ---
 
 If your app already uses LLM Gateway through an OpenAI-compatible client, most teams can keep their request payloads unchanged and migrate by replacing only the gateway boundary first.
 
+## What changes
+
+| Setting | Before | After |
+| --- | --- | --- |
+| Base URL | `https://api.llmgateway.io/v1` | `https://api.phaseo.app/v1` |
+| API key | `LLM_GATEWAY_API_KEY` | `PHASEO_API_KEY` |
+| Model aliases | Existing gateway aliases | Verify against `GET /v1/models` or normalize in one boundary layer |
+| Request payload | Existing OpenAI-compatible request | Keep unchanged for the first migration pass |
+
 ## Before you start
 
 - Your existing LLM Gateway endpoint and API key configuration.
-- `AI_STATS_API_KEY` added to local, staging, and production environments.
+- `PHASEO_API_KEY` added to local, staging, and production environments.
 - A baseline sample of output quality, latency, and error rate.
 
 ## 1) Inventory integration points
@@ -40,14 +51,14 @@ const before = new OpenAI({
 import OpenAI from "openai";
 
 const after = new OpenAI({
-  apiKey: process.env.AI_STATS_API_KEY,
+  apiKey: process.env.PHASEO_API_KEY,
   baseURL: "https://api.phaseo.app/v1",
 });
 ```
 
 ```bash cURL
 curl -s "https://api.phaseo.app/v1/chat/completions" \
-  -H "Authorization: Bearer $AI_STATS_API_KEY" \
+  -H "Authorization: Bearer $PHASEO_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "openai/gpt-4.1-mini",
@@ -58,7 +69,7 @@ curl -s "https://api.phaseo.app/v1/chat/completions" \
 
 ## 3) Validate model compatibility
 
-Query the AI Stats model catalog and verify every model used in production.
+Query the Phaseo model catalog and verify every model used in production.
 
 If your current setup uses unprefixed aliases such as `gpt-4o`, normalize them at one boundary layer instead of changing every caller.
 
@@ -66,14 +77,14 @@ If your current gateway layer also centralizes request defaults or provider rest
 
 ```bash
 curl -s "https://api.phaseo.app/v1/models" \
-  -H "Authorization: Bearer $AI_STATS_API_KEY" | jq '.data | length'
+  -H "Authorization: Bearer $PHASEO_API_KEY" | jq '.data | length'
 ```
 
 ## 4) LLMGateway migration checklist
 
 - All `LLM_GATEWAY_*` env vars mapped or removed.
 - Base URL updated to `https://api.phaseo.app/v1`.
-- `AI_STATS_API_KEY` configured in all deployment environments.
+- `PHASEO_API_KEY` configured in all deployment environments.
 - Production model IDs verified against `/v1/models`.
 - One non-streaming and one streaming request validated in staging.
 - Invalid-key and invalid-model failure handling rechecked.
@@ -84,14 +95,14 @@ curl -s "https://api.phaseo.app/v1/models" \
 
 1. Run your golden prompt suite and compare quality, latency, and cost metrics to baseline.
 2. Confirm failed staging requests can be recovered through the replay payload returned by `GET /v1/generations`.
-2. Release behind a canary flag and move from a low percentage of traffic to full traffic once stable.
-3. Observe production metrics for at least one release cycle before removing old configuration.
+3. Release behind a canary flag and move from a low percentage of traffic to full traffic once stable.
+4. Observe production metrics for at least one release cycle before removing old configuration.
 
 ## Validation commands
 
 ```bash
 curl -s "https://api.phaseo.app/v1/health"
-curl -s "https://api.phaseo.app/v1/models" -H "Authorization: Bearer $AI_STATS_API_KEY"
+curl -s "https://api.phaseo.app/v1/models" -H "Authorization: Bearer $PHASEO_API_KEY"
 ```
 
 Then:

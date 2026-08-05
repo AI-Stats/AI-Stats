@@ -1,8 +1,8 @@
-import { cacheLife, cacheTag } from "next/cache";
 import { capabilityToEndpoints } from "@/lib/config/capabilityToEndpoints";
 import { normalizeQuantizationScheme } from "@/lib/quantization";
 import { extractSupportedParameters } from "@/lib/fetchers/models/table-view/helpers";
-import { createAdminClient } from "@/utils/supabase/admin";
+import { fetchPublicWebApi } from "@/lib/web-api/client";
+import { fetchAdminModelSource } from "@/lib/fetchers/internal/fetchAdminModelSource";
 
 export interface GatewayProviderDetails {
     api_provider_id: string;
@@ -81,8 +81,23 @@ export interface GatewayProviderModel {
 		| "capability_disabled"
 		| "provider_not_ready"
 		| "provider_inactive"
+		| "provider_unknown"
+		| "provider_coming_soon"
+		| "provider_preview"
+		| "provider_limited_access"
+		| "provider_deprecated"
+		| "provider_removed"
+		| "phaseo_unsupported"
+		| "phaseo_planned"
+		| "phaseo_implementing"
+		| "phaseo_testing"
+		| "phaseo_disabled"
+		| "phaseo_blocked"
 		| "inactive"
 		| "retired";
+	provider_availability_status?: "unknown" | "coming_soon" | "preview" | "available" | "limited_access" | "deprecated" | "removed" | null;
+	phaseo_status?: "unsupported" | "planned" | "implementing" | "testing" | "enabled" | "disabled" | "blocked" | null;
+	access_scope?: "public" | "internal" | null;
 	provider_status?: string | null;
 	provider_routing_status?: string | null;
 	model_routing_status?: string | null;
@@ -201,6 +216,9 @@ function isPublicRoutingStatus(status: string | null): boolean {
 
 function resolveAvailabilityStatus(args: {
 	isActiveGateway: boolean;
+	providerAvailabilityStatus: string | null;
+	phaseoStatus: string | null;
+	accessScope: string | null;
 	providerStatus: string | null;
 	providerRoutingStatus: string | null;
 	modelRoutingStatus: string | null;
@@ -213,6 +231,25 @@ function resolveAvailabilityStatus(args: {
 
 	if (isExpiredEffectiveWindow(args.effectiveTo, now)) return "inactive";
 	if (isFutureEffectiveWindow(args.effectiveFrom, now)) return "coming_soon";
+	if (args.accessScope === "internal" || args.phaseoStatus === "testing") {
+		return "coming_soon";
+	}
+	if (
+		args.providerAvailabilityStatus === "coming_soon" ||
+		args.phaseoStatus === "planned" ||
+		args.phaseoStatus === "implementing"
+	) {
+		return "coming_soon";
+	}
+	if (
+		args.providerAvailabilityStatus &&
+		!["available", "preview", "limited_access"].includes(
+			args.providerAvailabilityStatus,
+		)
+	) {
+		return "inactive";
+	}
+	if (args.phaseoStatus && args.phaseoStatus !== "enabled") return "inactive";
 	if (args.providerStatus === "beta" || args.providerStatus === "alpha") {
 		return "coming_soon";
 	}
@@ -228,6 +265,9 @@ function resolveAvailabilityStatus(args: {
 
 function resolveAvailabilityReason(args: {
 	isActiveGateway: boolean;
+	providerAvailabilityStatus: string | null;
+	phaseoStatus: string | null;
+	accessScope: string | null;
 	providerStatus: string | null;
 	providerRoutingStatus: string | null;
 	modelRoutingStatus: string | null;
@@ -255,12 +295,46 @@ function resolveAvailabilityReason(args: {
 	| "capability_disabled"
 	| "provider_not_ready"
 	| "provider_inactive"
+	| "provider_unknown"
+	| "provider_coming_soon"
+	| "provider_preview"
+	| "provider_limited_access"
+	| "provider_deprecated"
+	| "provider_removed"
+	| "phaseo_unsupported"
+	| "phaseo_planned"
+	| "phaseo_implementing"
+	| "phaseo_disabled"
+	| "phaseo_blocked"
 	| "inactive"
 	| "retired" {
 	const now = args.now ?? new Date();
 
 	if (isExpiredEffectiveWindow(args.effectiveTo, now)) return "retired";
 	if (isFutureEffectiveWindow(args.effectiveFrom, now)) return "scheduled";
+	if (args.accessScope === "internal" || args.phaseoStatus === "testing") {
+		return "internal_testing";
+	}
+	if (args.phaseoStatus && args.phaseoStatus !== "enabled") {
+		return `phaseo_${args.phaseoStatus}` as
+			| "phaseo_unsupported"
+			| "phaseo_planned"
+			| "phaseo_implementing"
+			| "phaseo_disabled"
+			| "phaseo_blocked";
+	}
+	if (
+		args.providerAvailabilityStatus &&
+		args.providerAvailabilityStatus !== "available"
+	) {
+		return `provider_${args.providerAvailabilityStatus}` as
+			| "provider_unknown"
+			| "provider_coming_soon"
+			| "provider_preview"
+			| "provider_limited_access"
+			| "provider_deprecated"
+			| "provider_removed";
+	}
 	if (args.providerStatus === "beta" || args.providerStatus === "alpha")
 		return "preview_only";
 	if (args.providerStatus === "not_ready") return "provider_not_ready";
@@ -300,83 +374,44 @@ export default async function getModelGatewayMetadata(
     includeHidden: boolean,
 	includeInternal = false
 ): Promise<ModelGatewayMetadata> {
-    const supabase = createAdminClient();
-
-    const { data: modelRow, error: modelError } = await supabase
-        .from("data_models")
-        .select("hidden")
-        .eq("model_id", modelId)
-        .maybeSingle();
-
-    if (modelError) {
-        throw new Error(modelError.message ?? "Failed to load model metadata");
-    }
-    if (modelRow && !includeHidden && modelRow.hidden) {
-        throw new Error("Model not found");
-    }
-
-	let providerModels: ProviderModelRow[] | null = null;
-	let providerError: { message?: string } | null = null;
-	{
-		const [byInternalRes, byApiRes] = await Promise.all([
-			supabase
-				.from("data_api_provider_models")
-				.select(
-					"provider_api_model_id, provider_id, api_model_id, model_id, provider_model_slug, is_active_gateway, routing_status, input_modalities, output_modalities, quantization_scheme, context_length, effective_from, effective_to, created_at, updated_at"
-				)
-				.eq("model_id", modelId),
-			supabase
-				.from("data_api_provider_models")
-				.select(
-					"provider_api_model_id, provider_id, api_model_id, model_id, provider_model_slug, is_active_gateway, routing_status, input_modalities, output_modalities, quantization_scheme, context_length, effective_from, effective_to, created_at, updated_at"
-				)
-				.eq("api_model_id", modelId),
-		]);
-
-		if (byInternalRes.error && byApiRes.error) {
-			providerError = byInternalRes.error;
-			providerModels = null;
-		} else {
-			const byProviderApiModelId = new Map<string, ProviderModelRow>();
-			for (const row of [...(byInternalRes.data ?? []), ...(byApiRes.data ?? [])]) {
-				const key = String(row?.provider_api_model_id ?? "").trim();
-				if (!key) continue;
-				byProviderApiModelId.set(key, row);
-			}
-			providerModels = Array.from(byProviderApiModelId.values());
-			providerError = byInternalRes.error ?? byApiRes.error ?? null;
-		}
+	if (!includeHidden && !includeInternal) {
+		return (await fetchPublicWebApi<{ metadata: ModelGatewayMetadata }>(
+			`/api/_web/models/${encodeURIComponent(modelId)}/gateway-metadata`,
+		)).metadata;
 	}
-
-    if (providerError) {
-        throw new Error(providerError.message ?? "Failed to load gateway providers");
-    }
-
-    const providerModelIds = (providerModels ?? [])
-        .map((row) => row.provider_api_model_id)
-        .filter((id): id is string => Boolean(id));
-
-	const { data: caps, error: capsError } = await supabase
-		.from("data_api_provider_model_capabilities")
-		.select(
-			"provider_api_model_id, capability_id, params, status, max_input_tokens, max_output_tokens"
-		)
-		.in("provider_api_model_id", providerModelIds);
-
-    if (capsError) {
-        throw new Error(capsError.message ?? "Failed to load gateway capabilities");
-    }
+	const source = await fetchAdminModelSource(modelId).then((source) => ({
+		providerModels: source.providerRows,
+		caps: source.providerRows.flatMap((row) =>
+				(row.data_api_provider_model_capabilities ?? []).map(
+					(capability: Record<string, any>) => ({
+						...capability,
+						provider_api_model_id: row.provider_api_model_id,
+					}),
+				),
+			),
+		providers: Array.from(new Map(source.providerRows.map((row) => {
+			const provider = Array.isArray(row.data_api_providers) ? row.data_api_providers[0] : row.data_api_providers;
+			return [row.provider_id, { api_provider_id: row.provider_id, ...provider }];
+		})).values()),
+		aliases: source.aliases,
+	}));
+	const providerModels: ProviderModelRow[] = source.providerModels;
+	const caps = source.caps;
 
 	const visibleCaps = includeInternal
 		? (caps ?? [])
-		: (caps ?? []).filter((cap) => !isInternalTestingStatus(cap.status));
+		: (caps ?? []).filter((cap: Record<string, any>) => !isInternalTestingStatus(cap.status));
 	const visibleProviderModelIds = new Set(
 		visibleCaps
-			.map((cap) => String(cap.provider_api_model_id ?? "").trim())
+			.map((cap: Record<string, any>) => String(cap.provider_api_model_id ?? "").trim())
 			.filter(Boolean),
 	);
-	const visibleProviderModels = (providerModels ?? []).filter((row) =>
-		visibleProviderModelIds.has(String(row.provider_api_model_id ?? "").trim()),
+	const visibleProviderModels = (providerModels ?? []).filter(
+		(row) =>
+			visibleProviderModelIds.has(
+				String(row.provider_api_model_id ?? "").trim(),
+			) &&
+			(includeInternal || normalizeStatusValue(row.access_scope) !== "internal"),
 	);
 
     const apiModelStats = new Map<
@@ -412,53 +447,7 @@ export default async function getModelGatewayMetadata(
         })
         .map(([apiModelId]) => apiModelId);
 
-    const providerIds = Array.from(
-        new Set(visibleProviderModels.map((row) => row.provider_id).filter(Boolean))
-    );
-	const providerSelect =
-		"api_provider_id, api_provider_name, provider_family_id, offer_label, offer_scope, link, country_code, status, routing_status, residency_mode, default_execution_regions, default_data_regions, zero_data_retention, residency_source_url, residency_notes, regional_pricing_mode, regional_pricing_uplift_percent, pricing_source_url, regional_pricing_notes, prompt_training_policy, prompt_training_notes, prompt_training_source_url, data_policy_tier, data_policy_confidence, data_policy_contract_mode, data_policy_contract_notes, user_identifier_policy, user_identifier_notes, privacy_policy_url, terms_of_service_url";
-	const providerSelectWithoutDataPolicy =
-		"api_provider_id, api_provider_name, provider_family_id, offer_label, offer_scope, link, country_code, status, routing_status, residency_mode, default_execution_regions, default_data_regions, zero_data_retention, residency_source_url, residency_notes, regional_pricing_mode, regional_pricing_uplift_percent, pricing_source_url, regional_pricing_notes, prompt_training_policy, prompt_training_notes, prompt_training_source_url, user_identifier_policy, user_identifier_notes, privacy_policy_url, terms_of_service_url";
-	const providerSelectLegacy =
-		"api_provider_id, api_provider_name, link, country_code, status, routing_status";
-	let providersData: any[] | null = null;
-	{
-		const res = await supabase
-			.from("data_api_providers")
-			.select(providerSelect)
-			.in("api_provider_id", providerIds);
-		if (
-			res.error &&
-			(String(res.error.code ?? "").toUpperCase() === "PGRST204" ||
-				String(res.error.code ?? "").toUpperCase() === "42703" ||
-				/could not find.*column|does not exist|schema cache/i.test(
-					String(res.error.message ?? ""),
-				))
-		) {
-			const compatRes = await supabase
-				.from("data_api_providers")
-				.select(providerSelectWithoutDataPolicy)
-				.in("api_provider_id", providerIds);
-			if (!compatRes.error) {
-				providersData = compatRes.data ?? [];
-			} else {
-				const legacyRes = await supabase
-					.from("data_api_providers")
-					.select(providerSelectLegacy)
-					.in("api_provider_id", providerIds);
-				if (legacyRes.error) {
-					throw new Error(
-						legacyRes.error.message ?? "Failed to load gateway providers",
-					);
-				}
-				providersData = legacyRes.data ?? [];
-			}
-		} else if (res.error) {
-			throw new Error(res.error.message ?? "Failed to load gateway providers");
-		} else {
-			providersData = res.data ?? [];
-		}
-	}
+	const providersData = source.providers;
 
     const providerMap = new Map<string, GatewayProviderDetails & {
 		status?: string | null;
@@ -540,8 +529,16 @@ export default async function getModelGatewayMetadata(
 		);
 		const modelRoutingStatus = normalizeStatusValue(pm.routing_status ?? null);
 		const capabilityStatus = normalizeStatusValue(cap.status ?? null);
+		const providerAvailabilityStatus = normalizeStatusValue(
+			pm.provider_availability_status ?? null,
+		);
+		const phaseoStatus = normalizeStatusValue(pm.phaseo_status ?? null);
+		const accessScope = normalizeStatusValue(pm.access_scope ?? null) ?? "public";
 		const availabilityStatus = resolveAvailabilityStatus({
 			isActiveGateway: Boolean(pm.is_active_gateway),
+			providerAvailabilityStatus,
+			phaseoStatus,
+			accessScope,
 			providerStatus,
 			providerRoutingStatus,
 			modelRoutingStatus,
@@ -599,6 +596,9 @@ export default async function getModelGatewayMetadata(
 			availability_status: availabilityStatus,
 			availability_reason: resolveAvailabilityReason({
 				isActiveGateway: Boolean(pm.is_active_gateway),
+				providerAvailabilityStatus,
+				phaseoStatus,
+				accessScope,
 				providerStatus,
 				providerRoutingStatus,
 				modelRoutingStatus,
@@ -607,6 +607,11 @@ export default async function getModelGatewayMetadata(
 				effectiveTo: pm.effective_to,
 				now,
 			}),
+			provider_availability_status:
+				providerAvailabilityStatus as GatewayProviderModel["provider_availability_status"],
+			phaseo_status:
+				phaseoStatus as GatewayProviderModel["phaseo_status"],
+			access_scope: accessScope as GatewayProviderModel["access_scope"],
 			provider_status: providerStatus,
 			provider_routing_status: providerRoutingStatus,
 			model_routing_status: modelRoutingStatus,
@@ -675,20 +680,7 @@ export default async function getModelGatewayMetadata(
 
     // console.log("[fetch] Fetching aliases for model", modelId);
 
-    const aliasLookupIds = Array.from(new Set([modelId, ...apiModelIds]));
-    const { data: aliasesResponse, error: aliasesError } = await supabase
-        .from("data_api_model_aliases")
-        .select("api_model_id, alias_slug")
-        .in("api_model_id", aliasLookupIds)
-        .eq("is_enabled", true)
-        .order("api_model_id", { ascending: true })
-        .order("alias_slug", { ascending: true });
-
-    // console.log("[fetch] aliasesResponse:", JSON.stringify(aliasesResponse, null, 2));
-
-    if (aliasesError) {
-        throw new Error(aliasesError.message ?? "Failed to load model aliases");
-    }
+	const aliasesResponse = source.aliases;
 
     const aliasRows = (aliasesResponse ?? []) as {
         api_model_id: string;
@@ -797,29 +789,11 @@ export default async function getModelGatewayMetadata(
     };
 }
 
-/**
- * Cached version of getModelGatewayMetadata.
- *
- * Usage: await getModelGatewayMetadataCached(modelId)
- *
- * This wraps the fetcher with `unstable_cache` for at least 1 week of caching.
- */
+/** Compatibility alias. Cloudflare owns caching for the underlying endpoint. */
 export async function getModelGatewayMetadataCached(
     modelId: string,
     includeHidden: boolean,
 	includeInternal = false
 ): Promise<ModelGatewayMetadata> {
-    "use cache";
-
-    cacheLife("days");
-    cacheTag("public-model-catalogue");
-    cacheTag("data:models");
-    cacheTag(`data:models:${modelId}`);
-    cacheTag(`model:api:${modelId}`);
-    cacheTag("data:data_api_provider_models");
-    cacheTag("data:model_aliases");
-    cacheTag("frontend:model-gateway-metadata");
-
-    console.log("[fetch] HIT DB for model gateway metadata", modelId);
     return getModelGatewayMetadata(modelId, includeHidden, includeInternal);
 }

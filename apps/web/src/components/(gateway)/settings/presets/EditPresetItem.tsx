@@ -95,12 +95,15 @@ function buildPresetSlugPreview(value: string): string {
 		.trim()
 		.toLowerCase()
 		.replace(/^@+/, "")
-		.replace(/[^a-z0-9._-]+/g, "-")
+		.replace(/[^a-z0-9._:-]+/g, "-")
 		.replace(/-{2,}/g, "-")
-		.replace(/^[-._]+|[-._]+$/g, "");
+		.replace(/^[-._:]+|[-._:]+$/g, "");
 }
 
-function parseProviderPreferencesInput(value: string): Record<string, number> {
+function parseProviderPreferencesInput(
+	value: string,
+	providers: APIProviderCard[] = [],
+): Record<string, number> {
 	return Object.fromEntries(
 		value
 			.split("\n")
@@ -109,7 +112,10 @@ function parseProviderPreferencesInput(value: string): Record<string, number> {
 			.map((line) => line.split(/[=:]/, 2).map((part) => part.trim()))
 			.map(([providerId, weight]) => {
 				const numericWeight = Number.parseFloat(weight ?? "");
-				return [providerId.toLowerCase(), numericWeight] as const;
+				return [
+					normalizeProviderReference(providerId, providers),
+					numericWeight,
+				] as const;
 			})
 			.filter((entry) => {
 				const providerId = entry[0];
@@ -117,6 +123,29 @@ function parseProviderPreferencesInput(value: string): Record<string, number> {
 				return providerId && Number.isFinite(weight) && weight > 0;
 			}),
 	);
+}
+
+function normalizeProviderReference(
+	value: string,
+	providers: APIProviderCard[],
+): string {
+	const comparable = (candidate: string) =>
+		candidate.toLowerCase().replace(/[^a-z0-9]/g, "");
+	const normalizedValue = comparable(value);
+	const provider = providers.find(
+		(candidate) =>
+			comparable(candidate.api_provider_id) === normalizedValue ||
+			comparable(candidate.api_provider_name) === normalizedValue ||
+			comparable(getProviderLogoId(candidate.api_provider_name)) === normalizedValue,
+	);
+	return provider?.api_provider_id ?? value;
+}
+
+function normalizeProviderReferences(
+	values: string[] | undefined,
+	providers: APIProviderCard[],
+): string[] {
+	return [...new Set((values ?? []).map((value) => normalizeProviderReference(value, providers)))];
 }
 
 export default function EditPresetItem({ p, providers = [] }: EditPresetItemProps) {
@@ -145,14 +174,17 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 		p.config?.models || []
 	);
 	const [providerOnly, setProviderOnly] = useState<string[]>(
-		p.config?.only_providers || []
+		normalizeProviderReferences(p.config?.only_providers, providers),
 	);
 	const [providerIgnore, setProviderIgnore] = useState<string[]>(
-		p.config?.ignore_providers || []
+		normalizeProviderReferences(p.config?.ignore_providers, providers),
 	);
 	const [providerPreferencesText, setProviderPreferencesText] = useState(
 		Object.entries(p.config?.provider_preferences || {})
-			.map(([providerId, weight]) => `${providerId}=${weight}`)
+			.map(
+				([providerId, weight]) =>
+					`${normalizeProviderReference(providerId, providers)}=${weight}`,
+			)
 			.join("\n"),
 	);
 
@@ -222,7 +254,7 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 	const providerNames = useMemo(() => {
 		return providers
 			.map((p) => ({
-				id: p.api_provider_name.toLowerCase().replace(/\s+/g, "").replace(/-/g, ""),
+				id: p.api_provider_id,
 				name: p.api_provider_name,
 				logoId: getProviderLogoId(p.api_provider_name),
 			}))
@@ -273,7 +305,11 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 		}
 		setLoading(true);
 
-		const config: Record<string, unknown> = {};
+		const config: Record<string, unknown> = { ...(p.config ?? {}) };
+		for (const key of ["system_prompt", "models", "only_providers", "ignore_providers", "provider_preferences", "plugins", "routing_mode", "response_caching", "parameters", "reasoning"]) {
+			delete config[key];
+		}
+		delete config.provider;
 
 		if (systemPrompt) {
 			config.system_prompt = systemPrompt;
@@ -293,6 +329,7 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 
 		const providerPreferences = parseProviderPreferencesInput(
 			providerPreferencesText,
+			providers,
 		);
 		if (Object.keys(providerPreferences).length > 0) {
 			config.provider_preferences = providerPreferences;
@@ -359,17 +396,16 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 
 	return (
 		<>
-			<DropdownMenuItem asChild>
-				<button
+			<DropdownMenuItem render={<button
 					className="w-full text-left flex items-center gap-2"
 					onClick={(e) => {
 						e.preventDefault();
 						setTimeout(() => setOpen(true), 0);
-					}}
-				>
+					}} />}>
+
 					<Edit2 className="mr-2" />
 					Edit
-				</button>
+
 			</DropdownMenuItem>
 			<Dialog open={open} onOpenChange={setOpen}>
 				<DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -438,12 +474,12 @@ export default function EditPresetItem({ p, providers = [] }: EditPresetItemProp
 										<SelectContent>
 											<SelectItem value="private">Only me</SelectItem>
 											<SelectItem value="team">Share with workspace</SelectItem>
-											<SelectItem value="public">Make public (future marketplace)</SelectItem>
+											<SelectItem value="public">Publish to marketplace</SelectItem>
 										</SelectContent>
 									</Select>
 									<p className="text-xs text-muted-foreground">
 										Private presets are only visible to you. Workspace presets can be used by
-										anyone in the workspace. Public presets are planned for a future marketplace.
+										anyone in the workspace. Public presets appear in the marketplace under your username.
 									</p>
 								</div>
 

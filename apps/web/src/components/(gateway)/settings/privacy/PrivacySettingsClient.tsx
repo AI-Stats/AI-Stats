@@ -28,6 +28,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Info, Shield } from "lucide-react";
+import type { DataContributionSettings } from "@/lib/fetchers/internal/settingsTypes";
+import { DataContributionSettingsCard } from "./DataContributionSettingsCard";
 
 import {
 	updateGlobalGuardrailsSettings,
@@ -49,6 +51,9 @@ type TeamGlobalRow = {
 	privacy_enable_free_may_publish_prompts?: boolean | null;
 	privacy_enable_input_output_logging?: boolean | null;
 	privacy_zdr_only?: boolean | null;
+	io_logging_enabled?: boolean | null;
+	io_logging_retention_days?: number | null;
+	io_logging_include_provider_payloads?: boolean | null;
 	provider_restriction_mode?: string | null;
 	provider_restriction_provider_ids?: string[] | null;
 	provider_restriction_enforce_allowed?: boolean | null;
@@ -444,6 +449,8 @@ export default function PrivacySettingsClient(props: {
 	initialGlobal: TeamGlobalRow | null;
 	providers: ProviderOption[];
 	activeProviderModels: ActiveProviderModel[];
+	ioLoggingFeatureEnabled: boolean;
+	dataContribution: DataContributionSettings;
 }) {
 	const providerLabelById = useMemo(() => {
 		const map = new Map<string, string>();
@@ -464,6 +471,9 @@ export default function PrivacySettingsClient(props: {
 				props.initialGlobal?.privacy_enable_input_output_logging ?? true,
 			),
 			privacyZdrOnly: Boolean(props.initialGlobal?.privacy_zdr_only ?? false),
+			ioLoggingEnabled: Boolean(props.initialGlobal?.io_logging_enabled ?? false),
+			ioLoggingRetentionDays: Math.max(90, Math.min(365, Number(props.initialGlobal?.io_logging_retention_days ?? 90))),
+			ioLoggingIncludeProviderPayloads: Boolean(props.initialGlobal?.io_logging_include_provider_payloads ?? true),
 			providerRestrictionMode: normalizeMode(
 				props.initialGlobal?.provider_restriction_mode,
 			),
@@ -523,8 +533,14 @@ export default function PrivacySettingsClient(props: {
 						privacyEnableFreeMayTrain: global.privacyEnableFreeMayTrain,
 						privacyEnableFreeMayPublishPrompts:
 							global.privacyEnableFreeMayPublishPrompts,
-						privacyEnableInputOutputLogging:
-							global.privacyEnableInputOutputLogging,
+						...(props.ioLoggingFeatureEnabled
+							? {
+								privacyEnableInputOutputLogging: global.ioLoggingEnabled,
+								ioLoggingEnabled: global.ioLoggingEnabled,
+								ioLoggingRetentionDays: global.ioLoggingRetentionDays,
+								ioLoggingIncludeProviderPayloads: global.ioLoggingIncludeProviderPayloads,
+							}
+							: {}),
 						privacyZdrOnly: global.privacyZdrOnly,
 						providerRestrictionMode: global.providerRestrictionMode,
 						providerRestrictionProviderIds:
@@ -601,6 +617,10 @@ export default function PrivacySettingsClient(props: {
 				eligiblePreview={eligiblePreview}
 			/>
 
+			{props.dataContribution.available ? (
+				<DataContributionSettingsCard initial={props.dataContribution} />
+			) : null}
+
 			<section className="space-y-3">
 				<div className="flex flex-wrap items-start justify-between gap-3">
 					<div className="space-y-1">
@@ -642,17 +662,44 @@ export default function PrivacySettingsClient(props: {
 							}))
 						}
 					/>
-					<ToggleRow
-						label="Enable input/output logging for all requests"
-						description="When disabled, the Gateway should avoid storing prompt/response bodies where supported."
-						checked={global.privacyEnableInputOutputLogging}
-						onCheckedChange={(checked) =>
-							setGlobal((prev) => ({
-								...prev,
-								privacyEnableInputOutputLogging: checked,
-							}))
-						}
-					/>
+					{props.ioLoggingFeatureEnabled ? (
+						<>
+							<ToggleRow
+								label="Store Gateway I/O logs"
+								description="Store request prompts and completions in private R2 storage for the Logs detail view."
+								checked={global.ioLoggingEnabled}
+								onCheckedChange={(checked) =>
+									setGlobal((prev) => ({ ...prev, privacyEnableInputOutputLogging: checked, ioLoggingEnabled: checked }))
+								}
+							/>
+							{global.ioLoggingEnabled ? (
+								<div className="grid gap-3 rounded-lg border bg-muted/10 p-3 md:grid-cols-2">
+									<label className="space-y-1 text-sm">
+										<span className="font-medium">Retention</span>
+										<select
+											className="flex h-9 w-full rounded-md border bg-background px-3 text-sm"
+											value={String(global.ioLoggingRetentionDays)}
+											onChange={(event) =>
+												setGlobal((prev) => ({ ...prev, ioLoggingRetentionDays: Number(event.target.value) }))
+											}
+										>
+											<option value="90">90 days</option>
+											<option value="180">180 days</option>
+											<option value="365">365 days</option>
+										</select>
+									</label>
+									<ToggleRow
+										label="Include provider payloads"
+										description="Also retain the upstream provider request and response."
+										checked={global.ioLoggingIncludeProviderPayloads}
+										onCheckedChange={(checked) =>
+											setGlobal((prev) => ({ ...prev, ioLoggingIncludeProviderPayloads: checked }))
+										}
+									/>
+								</div>
+							) : null}
+						</>
+					) : null}
 					<ToggleRow
 						label="Enable ZDR endpoints only"
 						description="Restrict routing to endpoints that meet ZDR requirements (may reduce availability)."

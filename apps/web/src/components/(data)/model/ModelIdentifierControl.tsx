@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Copy } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
@@ -13,12 +15,19 @@ import { toast } from "sonner";
 interface ModelIdentifierControlProps {
 	defaultIdentifier: string;
 	aliases?: string[];
+	variants?: Array<{
+		model_id: string;
+		name: string;
+		variant_kind: string;
+	}>;
 }
 
 export default function ModelIdentifierControl({
 	defaultIdentifier,
 	aliases = [],
+	variants = [],
 }: ModelIdentifierControlProps) {
+	const router = useRouter();
 	const copyResetTimerRef = useRef<number | null>(null);
 	const options = useMemo<string[]>(
 		() => [
@@ -30,6 +39,8 @@ export default function ModelIdentifierControl({
 		[aliases, defaultIdentifier],
 	);
 	const hasAliases = options.length > 1;
+	const hasVariants = variants.length > 1;
+	const hasMenu = hasAliases || hasVariants;
 
 	const [copied, setCopied] = useState(false);
 
@@ -97,11 +108,11 @@ export default function ModelIdentifierControl({
 
 	const triggerIcon = copied
 		? <Check className="h-3 w-3" />
-		: hasAliases
+		: hasMenu
 			? <ChevronDown className="h-3 w-3" />
 			: <Copy className="h-3 w-3" />;
 
-	if (!hasAliases) {
+	if (!hasMenu) {
 		return (
 			<button
 				type="button"
@@ -120,27 +131,57 @@ export default function ModelIdentifierControl({
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<button
+			<DropdownMenuTrigger render={<button
 					type="button"
 				className="group inline-flex max-w-full items-center gap-1 px-0 py-0 text-left text-xs font-medium text-zinc-700 transition-colors hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-0 dark:text-zinc-300 dark:hover:text-zinc-50"
-					aria-label="Model identifiers"
-				>
+					aria-label="Model identifiers" />}>
+
 					<span className="min-w-0 select-none truncate font-mono">{defaultIdentifier}</span>
 					<span className="ml-0.5 shrink-0 text-zinc-500 transition-all duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 dark:text-zinc-400">
 						{triggerIcon}
 					</span>
-				</button>
+
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="start" className="w-auto min-w-0 max-w-[calc(100vw-2rem)]">
+			<DropdownMenuContent align="start" className="w-auto min-w-0 max-w-[calc(100vw-2rem)] rounded-lg">
+				{hasVariants ? (
+					<>
+						<div className="px-2 py-1.5 text-[11px] font-medium text-muted-foreground">
+							Model variants
+						</div>
+						{variants.map((variant) => {
+							const isCurrent = variant.model_id === defaultIdentifier;
+							return (
+								<DropdownMenuItem
+									key={variant.model_id}
+									onClick={() => {
+										if (!isCurrent) router.push(`/models/${variant.model_id}`);
+									}}
+									className="flex items-center justify-between gap-4 rounded-lg"
+								>
+									<span className="flex min-w-0 items-center gap-2">
+										<Check className={`h-3.5 w-3.5 shrink-0 ${isCurrent ? "opacity-100" : "opacity-0"}`} />
+										<span className="truncate">{variant.name}</span>
+									</span>
+									<span className="shrink-0 text-[11px] capitalize text-muted-foreground">
+										{variant.variant_kind === "standard" ? "Base" : variant.variant_kind}
+									</span>
+								</DropdownMenuItem>
+							);
+						})}
+						<DropdownMenuSeparator />
+					</>
+				) : null}
+				<div className="px-2 py-1.5 text-[11px] font-medium text-muted-foreground">
+					Identifiers
+				</div>
 				{options.map((option, index) => (
 					<DropdownMenuItem
 						key={option}
-						onSelect={(event) => {
-							event.preventDefault();
+						closeOnClick={false}
+						onClick={() => {
 							void copyIdentifier(option);
 						}}
-						className="flex items-center justify-between gap-3"
+						className="flex items-center justify-between gap-3 rounded-lg"
 					>
 						<span className="min-w-0 truncate">{option}</span>
 						<span className="shrink-0 text-[11px] text-zinc-500 dark:text-zinc-400">

@@ -1,11 +1,10 @@
 ---
+icon: "workflow"
 title: "Fusion Server Tool"
-description: "Use several advisor models and an optional judge for one answer."
+description: "Run several analysis models and synthesize their findings."
 ---
 
-Use Fusion when one answer benefits from several model perspectives. In the Playground, Fusion configures multiple named `ai-stats:advisor` tools for analysis and an optional judge model for synthesis guidance.
-
-Fusion is a convenience workflow built on Advisor. There is no separate `ai-stats:fusion` API tool type; API clients can create the same behavior by adding multiple named Advisor tools.
+Use `phaseo:fusion` when one answer benefits from several independent model perspectives. Phaseo runs the analysis models in parallel, then asks the selected analyst model to synthesize their findings for the calling model.
 
 ## Playground setup
 
@@ -17,37 +16,17 @@ In the Playground server-tools menu, Fusion lets you choose:
 
 The main model sees those named advisors during the same tool loop and can use their outputs before writing the final response.
 
-## Equivalent API shape
+## API shape
 
 ```json
 {
   "tools": [
     {
-      "type": "ai-stats:advisor",
+      "type": "phaseo:fusion",
       "parameters": {
-        "name": "fusion_analysis_1",
-        "model": "anthropic/claude-opus-4-8",
-        "instructions": "Analyze the user's request independently. Return concise findings, assumptions, caveats, and the answer direction you recommend for synthesis.",
-        "max_uses": 1,
-        "max_completion_tokens": 1400
-      }
-    },
-    {
-      "type": "ai-stats:advisor",
-      "parameters": {
-        "name": "fusion_analysis_2",
-        "model": "openai/gpt-5",
-        "instructions": "Analyze the user's request independently. Return concise findings, assumptions, caveats, and the answer direction you recommend for synthesis.",
-        "max_uses": 1,
-        "max_completion_tokens": 1400
-      }
-    },
-    {
-      "type": "ai-stats:advisor",
-      "parameters": {
-        "name": "fusion_judge",
+        "analysis_models": ["anthropic/claude-opus-5", "openai/gpt-5"],
         "model": "google/gemini-pro-latest",
-        "instructions": "Compare the fusion analysis outputs, identify the strongest answer, and return concise guidance for the final response.",
+        "instructions": "Reconcile disagreements and return concise synthesis guidance.",
         "max_uses": 1,
         "max_completion_tokens": 1400
       }
@@ -69,13 +48,13 @@ Use a single Advisor instead when you only need one review pass.
 
 ## Usage and pricing
 
-Fusion uses Advisor calls under the hood. Each analysis or judge call increments:
+Each Fusion invocation increments:
 
 ```json
 {
   "usage": {
     "server_tool_use": {
-      "advisor_requests": 3
+      "fusion_requests": 1
     }
   }
 }

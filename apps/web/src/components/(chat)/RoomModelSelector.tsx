@@ -171,7 +171,7 @@ function formatOrgLabel(orgId: string) {
 
 function getOrgId(modelId: string) {
 	const [org] = modelId.split("/");
-	return org || "ai-stats";
+	return org || "phaseo";
 }
 
 function buildModelOptions(models: GatewaySupportedModel[]) {
@@ -182,7 +182,7 @@ function buildModelOptions(models: GatewaySupportedModel[]) {
 		const existing = map.get(selectorModelId);
 		const orgId = model.organisationId?.trim() || getOrgId(selectorModelId);
 		const orgName =
-			model.organisationName ?? model.providerName ?? formatOrgLabel(orgId);
+			model.organisationName ?? formatOrgLabel(orgId);
 		const label = model.modelName ?? formatModelLabel(selectorModelId);
 		const releaseDate = model.releaseDate ?? model.announcementDate ?? null;
 
@@ -462,13 +462,13 @@ export function RoomModelSelector({
 		const modelEnabled = modelEnabledById?.[modelId] !== false;
 		const canRemoveModel = Boolean(onRemoveModel);
 		return (
-			<div key={modelId} className="relative shrink-0">
+			<div key={modelId} className="relative shrink-0 rounded-2xl">
 				<Button
 					variant="ghost"
 					size="sm"
 					onClick={() => onOpenModelSettingsForModel?.(modelId)}
 					className={cn(
-						"h-8 max-w-[220px] gap-1.5 pl-2",
+						"h-8 max-w-[220px] gap-1.5 rounded-2xl pl-2",
 						!modelEnabled && "opacity-55",
 						canRemoveModel ? "pr-7" : "pr-2",
 					)}
@@ -610,7 +610,7 @@ export function RoomModelSelector({
 						variant="ghost"
 						size="sm"
 						className={cn(
-							"h-8 gap-1.5",
+							"h-8 gap-1.5 rounded-2xl",
 							selectedModelIds.length === 0 ? "px-2 text-xs" : "w-8 px-0",
 						)}
 					>
@@ -635,11 +635,13 @@ export function RoomModelSelector({
 							type="button"
 							variant="outline"
 							size="sm"
+							aria-pressed={quickFilters.free}
 							onClick={() => toggleQuickFilter("free")}
 							className={cn(
-								"h-7 rounded-md px-2.5 text-xs",
-								quickFilters.free &&
-									"border-foreground bg-foreground text-background hover:bg-foreground/90 hover:text-background",
+								"h-7 rounded-md px-2.5 text-xs font-medium transition-colors",
+								quickFilters.free
+									? "border-sky-600 bg-sky-600 text-white hover:border-sky-700 hover:bg-sky-700 hover:text-white dark:border-sky-300 dark:bg-sky-300 dark:text-slate-950 dark:hover:border-sky-200 dark:hover:bg-sky-200 dark:hover:text-slate-950"
+									: "border-border bg-transparent text-slate-900 hover:bg-slate-100 hover:text-slate-950 dark:border-white/25 dark:bg-transparent dark:text-slate-100 dark:hover:bg-white/10 dark:hover:text-white",
 							)}
 						>
 							Free
@@ -648,11 +650,13 @@ export function RoomModelSelector({
 							type="button"
 							variant="outline"
 							size="sm"
+							aria-pressed={quickFilters.new}
 							onClick={() => toggleQuickFilter("new")}
 							className={cn(
-								"h-7 rounded-md px-2.5 text-xs",
-								quickFilters.new &&
-									"border-foreground bg-foreground text-background hover:bg-foreground/90 hover:text-background",
+								"h-7 rounded-md px-2.5 text-xs font-medium transition-colors",
+								quickFilters.new
+									? "border-sky-600 bg-sky-600 text-white hover:border-sky-700 hover:bg-sky-700 hover:text-white dark:border-sky-300 dark:bg-sky-300 dark:text-slate-950 dark:hover:border-sky-200 dark:hover:bg-sky-200 dark:hover:text-slate-950"
+									: "border-border bg-transparent text-slate-900 hover:bg-slate-100 hover:text-slate-950 dark:border-white/25 dark:bg-transparent dark:text-slate-100 dark:hover:bg-white/10 dark:hover:text-white",
 							)}
 						>
 							New

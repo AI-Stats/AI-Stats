@@ -2,7 +2,9 @@ import type { ProviderPricing } from "@/lib/fetchers/models/getModelPricing";
 import {
     getProviderAvailablePlans,
     getProviderModelScopeForPlan,
+	getProviderPlanComparisonBase,
     getProviderPricingRulesForPlan,
+	hasSelectedAlternativeServiceTier,
 } from "@/components/(data)/model/pricing/providerPlanRouting";
 
 function makeProviderPricing(): ProviderPricing {
@@ -38,8 +40,8 @@ function makeProviderPricing(): ProviderPricing {
             {
                 id: "venice:opus48",
                 api_provider_id: "venice",
-                provider_model_slug: "claude-opus-4-8",
-                model_id: "anthropic/claude-opus-4.8",
+                provider_model_slug: "claude-opus-5",
+                model_id: "anthropic/claude-opus-5",
                 endpoint: "text.generate",
                 capability_status: "active",
                 is_active_gateway: true,
@@ -49,8 +51,8 @@ function makeProviderPricing(): ProviderPricing {
             {
                 id: "venice:opus48fast",
                 api_provider_id: "venice",
-                provider_model_slug: "claude-opus-4-8-fast",
-                model_id: "anthropic/claude-opus-4.8-fast",
+                provider_model_slug: "claude-opus-5-fast",
+                model_id: "anthropic/claude-opus-5-fast",
                 endpoint: "text.generate",
                 capability_status: "active",
                 is_active_gateway: false,
@@ -61,7 +63,7 @@ function makeProviderPricing(): ProviderPricing {
         pricing_rules: [
             {
                 id: "std-base-input",
-                model_key: "venice:anthropic/claude-opus-4.8:text.generate",
+                model_key: "venice:anthropic/claude-opus-5:text.generate",
                 pricing_plan: "standard",
                 meter: "input_text_tokens",
                 unit: "token",
@@ -76,7 +78,7 @@ function makeProviderPricing(): ProviderPricing {
             },
             {
                 id: "prio-base-input",
-                model_key: "venice:anthropic/claude-opus-4.8:text.generate",
+                model_key: "venice:anthropic/claude-opus-5:text.generate",
                 pricing_plan: "priority",
                 meter: "input_text_tokens",
                 unit: "token",
@@ -94,6 +96,23 @@ function makeProviderPricing(): ProviderPricing {
 }
 
 describe("providerPlanRouting", () => {
+	it("keeps Standard as the multiplier baseline when Batch is selected globally", () => {
+		expect(
+			getProviderPlanComparisonBase(
+				["standard", "priority", "flex", "batch"],
+				"batch",
+			),
+		).toBe("standard");
+		expect(hasSelectedAlternativeServiceTier("standard", "standard")).toBe(false);
+		expect(hasSelectedAlternativeServiceTier("batch", "standard")).toBe(true);
+	});
+
+	it("falls back to the only available tier without treating it as an accent", () => {
+		expect(getProviderPlanComparisonBase(["batch"], "batch")).toBe("batch");
+		expect(getProviderPlanComparisonBase(["batch"], "standard")).toBe("batch");
+		expect(hasSelectedAlternativeServiceTier("batch", "batch")).toBe(false);
+	});
+
     it("prefers explicit priority pricing on the base model over hidden fast sibling rows", () => {
         const provider = makeProviderPricing();
 
@@ -106,7 +125,7 @@ describe("providerPlanRouting", () => {
         ).toEqual(["prio-base-input"]);
         expect(
             getProviderModelScopeForPlan(provider, "priority").map((model) => model.model_id),
-        ).toEqual(["anthropic/claude-opus-4.8"]);
+        ).toEqual(["anthropic/claude-opus-5"]);
     });
 
     it("derives a flex plan from a flex sibling model when present", () => {
@@ -114,8 +133,8 @@ describe("providerPlanRouting", () => {
         provider.provider_models.push({
             id: "venice:opus48flex",
             api_provider_id: "venice",
-            provider_model_slug: "claude-opus-4-8-flex",
-            model_id: "anthropic/claude-opus-4.8-flex",
+            provider_model_slug: "claude-opus-5-flex",
+            model_id: "anthropic/claude-opus-5-flex",
             endpoint: "text.generate",
             capability_status: "active",
             is_active_gateway: true,
@@ -124,7 +143,7 @@ describe("providerPlanRouting", () => {
         });
         provider.pricing_rules.push({
             id: "std-flex-input",
-            model_key: "venice:anthropic/claude-opus-4.8-flex:text.generate",
+            model_key: "venice:anthropic/claude-opus-5-flex:text.generate",
             pricing_plan: "standard",
             meter: "input_text_tokens",
             unit: "token",
@@ -144,6 +163,42 @@ describe("providerPlanRouting", () => {
         ).toEqual(["std-flex-input"]);
         expect(
             getProviderModelScopeForPlan(provider, "flex").map((model) => model.model_id),
-        ).toEqual(["anthropic/claude-opus-4.8-flex"]);
+        ).toEqual(["anthropic/claude-opus-5-flex"]);
+    });
+
+    it("shows explicit xAI batch pricing without requiring gateway batch execution support", () => {
+        const provider = makeProviderPricing();
+        provider.provider.api_provider_id = "spacex-ai";
+        provider.provider.api_provider_name = "xAI";
+        provider.provider.provider_family_id = "spacex-ai";
+        provider.provider_models = [{
+            ...provider.provider_models[0],
+            id: "spacex-ai:spacex-ai/grok-4.3:text.generate",
+            api_provider_id: "spacex-ai",
+            model_id: "spacex-ai/grok-4.3",
+            endpoint: "text.generate",
+        }];
+        provider.pricing_rules = [{
+            ...provider.pricing_rules[0],
+            id: "xai-grok-4.3-batch-input",
+            model_key: "spacex-ai:spacex-ai/grok-4.3:text.generate",
+            pricing_plan: "batch",
+            price_per_unit: 1,
+            note: "20% Batch API discount.",
+        }];
+
+        expect(getProviderAvailablePlans(provider)).toEqual(["batch"]);
+        expect(getProviderPricingRulesForPlan(provider, "batch")).toEqual([
+            expect.objectContaining({
+                id: "xai-grok-4.3-batch-input",
+                price_per_unit: 1,
+            }),
+        ]);
+        expect(getProviderModelScopeForPlan(provider, "batch")).toEqual([
+            expect.objectContaining({
+                model_id: "spacex-ai/grok-4.3",
+                endpoint: "text.generate",
+            }),
+        ]);
     });
 });

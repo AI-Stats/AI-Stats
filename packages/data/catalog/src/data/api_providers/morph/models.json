@@ -1,14 +1,14 @@
 [
   {
-    "api_model_id": "morph/morph-v3-fast",
-    "provider_api_model_id": "morph:morph/morph-v3-fast",
-    "provider_model_slug": "morph-v3-fast",
-    "internal_model_id": "morph/morph-v3-fast",
-      "is_active_gateway": true,
+    "api_model_id": "morph/morph-compactor",
+    "provider_api_model_id": "morph:morph-compact",
+    "provider_model_slug": "morph-compact",
+    "internal_model_id": "morph/morph-compactor",
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 1048576,
     "max_output_tokens": null,
     "effective_from": "2026-04-28T00:00:00",
     "effective_to": null,
@@ -52,21 +52,264 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.morphllm.com/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Morph pricing page identifies the current Compact API as morph-compact."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Updated legacy morph-compactor provider slug to the current public morph-compact identifier; routing remains disabled because Compact uses its dedicated API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "morph/morph-embedding-v4",
+    "provider_api_model_id": "morph:morph/morph-embedding-v4",
+    "provider_model_slug": "morph-embedding-v4",
+    "internal_model_id": "morph/morph-embedding-v4",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "embedding",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-04-28T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.embed",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "input",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "morph/morph-rerank-v4",
+    "provider_api_model_id": "morph:morph/morph-rerank-v4",
+    "provider_model_slug": "morph-rerank-v4",
+    "internal_model_id": "morph/morph-rerank-v4",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "rerank",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-04-28T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.rerank",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "input",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "morph/morph-v3-fast",
+    "provider_api_model_id": "morph:morph/morph-v3-fast",
+    "provider_model_slug": "morph-v3-fast",
+    "internal_model_id": "morph/morph-v3-fast",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-04-28T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.morphllm.com/api/models/json",
+        "kind": "documentation",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official live Morph model feed."
+      },
+      {
+        "url": "https://www.morphllm.com/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Morph pricing page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Present in Morph's official live model feed and pricing page."
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "morph/morph-v3-large",
     "provider_api_model_id": "morph:morph/morph-v3-large",
     "provider_model_slug": "morph-v3-large",
     "internal_model_id": "morph/morph-v3-large",
-      "is_active_gateway": true,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 262144,
+    "max_output_tokens": 131072,
     "effective_from": "2026-04-28T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -109,9 +352,49 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.morphllm.com/api/models/json",
+        "kind": "documentation",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official live Morph model feed."
+      },
+      {
+        "url": "https://www.morphllm.com/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Morph pricing page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Present in Morph's official live model feed and pricing page."
+    },
+    "rate_limits": []
   },
   {
     "api_model_id": "morph/morph-warp-grep-v2.1",
@@ -166,22 +449,49 @@
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
   },
   {
-    "api_model_id": "morph/morph-compactor",
-    "provider_api_model_id": "morph:morph/morph-compactor",
-    "provider_model_slug": "morph-compactor",
-    "internal_model_id": "morph/morph-compactor",
-    "is_active_gateway": false,
+    "api_model_id": "moonshotai/kimi-k3",
+    "provider_api_model_id": "morph:morph-kimik3",
+    "provider_model_slug": "morph-kimik3",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-04-28T00:00:00",
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": "2026-07-30T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
@@ -210,6 +520,41 @@
             "notes": null
           },
           {
+            "param_id": "top_k",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "min_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "repetition_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
             "param_id": "stop",
             "provider_min": null,
             "provider_max": null,
@@ -222,88 +567,1332 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "api_model_id": "morph/morph-embedding-v4",
-    "provider_api_model_id": "morph:morph/morph-embedding-v4",
-    "provider_model_slug": "morph-embedding-v4",
-    "internal_model_id": "morph/morph-embedding-v4",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "embedding",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-04-28T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.embed",
-        "status": "active",
-        "params": [
+          },
           {
-            "param_id": "input",
+            "param_id": "logit_bias",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
             "notes": null
           }
-        ]
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
-  },
-  {
-    "api_model_id": "morph/morph-rerank-v4",
-    "provider_api_model_id": "morph:morph/morph-rerank-v4",
-    "provider_model_slug": "morph-rerank-v4",
-    "internal_model_id": "morph/morph-rerank-v4",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "rerank",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-04-28T00:00:00",
-    "effective_to": null,
-    "capabilities": [
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
       {
-        "capability_id": "text.rerank",
-        "status": "active",
-        "params": [
-          {
-            "param_id": "input",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
-        ]
+        "url": "https://www.morphllm.com/api/models/json",
+        "kind": "documentation",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official live Morph model feed."
+      },
+      {
+        "url": "https://www.morphllm.com/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Morph pricing page."
       }
-    ]
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Morph live model feed marks morph-kimik3 ready."
+    },
+    "rate_limits": []
   },
   {
-    "api_model_id": "z-ai/glm-5.2",
-    "provider_api_model_id": "morph:z-ai/glm-5.2",
-    "provider_model_slug": "zai-org/GLM-5.2",
-    "internal_model_id": "z-ai/glm-5.2",
+    "api_model_id": "moonshotai/kimi-k3-fast",
+    "provider_api_model_id": "morph:morph-kimik3-fast",
+    "provider_model_slug": "morph-kimik3-fast",
+    "internal_model_id": "moonshotai/kimi-k3",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 1048576,
     "max_output_tokens": 1048576,
-    "effective_from": "2026-06-16T00:00:00",
+    "effective_from": "2026-07-30T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": []
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_k",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "min_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "repetition_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logit_bias",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
-    ]
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "priority"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.morphllm.com/api/models/json",
+        "kind": "documentation",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official live Morph model feed."
+      },
+      {
+        "url": "https://www.morphllm.com/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Morph pricing page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Catalogued with Morph's published pricing source, but Morph's live model feed reports is_ready=false; no Phaseo price card or gateway routing is exposed until it becomes ready."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.2",
+    "provider_api_model_id": "morph:morph-glm52-744b",
+    "provider_model_slug": "morph-glm52-744b",
+    "internal_model_id": "z-ai/glm-5.2",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": "2026-07-30T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_k",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "min_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "repetition_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logit_bias",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "service_tier",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Morph supports standby on GLM-5.2 at standard per-token rates."
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.morphllm.com/api/models/json",
+        "kind": "documentation",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official live Morph model feed."
+      },
+      {
+        "url": "https://www.morphllm.com/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Morph pricing page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Present in Morph's official live model feed. Corrects the previous Hugging Face slug, which was not the Morph API identifier."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m3",
+    "provider_api_model_id": "morph:morph-minimax3-428b",
+    "provider_model_slug": "morph-minimax3-428b",
+    "internal_model_id": "minimax/minimax-m3",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 256000,
+    "effective_from": "2026-07-30T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_k",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "min_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "repetition_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logit_bias",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.morphllm.com/api/models/json",
+        "kind": "documentation",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official live Morph model feed."
+      },
+      {
+        "url": "https://www.morphllm.com/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Morph pricing page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Present in Morph's official live model feed."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-397b-a17b",
+    "provider_api_model_id": "morph:morph-qwen35-397b",
+    "provider_model_slug": "morph-qwen35-397b",
+    "internal_model_id": "qwen/qwen3.5-397b-a17b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-07-30T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_k",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "min_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "repetition_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logit_bias",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.morphllm.com/api/models/json",
+        "kind": "documentation",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official live Morph model feed."
+      },
+      {
+        "url": "https://www.morphllm.com/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Morph pricing page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Morph live model feed marks morph-qwen35-397b ready."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash",
+    "provider_api_model_id": "morph:morph-dsv4flash",
+    "provider_model_slug": "morph-dsv4flash",
+    "internal_model_id": "deepseek/deepseek-v4-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": "2026-07-30T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_k",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "min_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "repetition_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logit_bias",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.morphllm.com/api/models/json",
+        "kind": "documentation",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official live Morph model feed."
+      },
+      {
+        "url": "https://www.morphllm.com/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Morph pricing page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Present in Morph's official live model feed."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemma-4-31b",
+    "provider_api_model_id": "morph:morph-gemma4-31b",
+    "provider_model_slug": "morph-gemma4-31b",
+    "internal_model_id": "google/gemma-4-31b",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP4",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 175000,
+    "max_output_tokens": 175000,
+    "effective_from": "2026-07-30T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_k",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "min_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "repetition_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logit_bias",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.morphllm.com/api/models/json",
+        "kind": "documentation",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official live Morph model feed."
+      },
+      {
+        "url": "https://www.morphllm.com/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Morph pricing page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Morph live model feed marks morph-gemma4-31b ready."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-27b",
+    "provider_api_model_id": "morph:morph-qwen36-27b",
+    "provider_model_slug": "morph-qwen36-27b",
+    "internal_model_id": "qwen/qwen3.6-27b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-07-30T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_k",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "min_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "repetition_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logit_bias",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.morphllm.com/api/models/json",
+        "kind": "documentation",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official live Morph model feed."
+      },
+      {
+        "url": "https://www.morphllm.com/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Morph pricing page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Present in Morph's official live model feed."
+    },
+    "rate_limits": []
   }
 ]

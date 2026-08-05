@@ -5,9 +5,9 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata = buildMetadata({
 	title: "Privacy Policy",
 	description:
-		"Read how AI Stats collects, processes, stores, and protects personal data across the website, dashboard, and unified API Gateway services, including user controls and retention practices.",
+		"Read how Phaseo collects, processes, stores, and protects personal data across the website, dashboard, and unified API Gateway services, including user controls and retention practices.",
 	path: "/privacy",
-	keywords: ["AI Stats privacy", "privacy policy", "data processing", "API privacy"],
+	keywords: ["Phaseo privacy", "privacy policy", "data processing", "API privacy"],
 });
 
 export default async function PrivacyPage() {
@@ -15,7 +15,7 @@ export default async function PrivacyPage() {
 		<main className="container mx-auto space-y-8 px-4 py-10 text-sm leading-relaxed text-muted-foreground">
 			<header className="space-y-3">
 				<p className="text-xs text-muted-foreground/80">
-					Last updated: 15 November 2025
+					Last updated: 26 July 2026
 				</p>
 				<h1 className="text-3xl font-semibold text-foreground">
 					Privacy Policy
@@ -23,8 +23,8 @@ export default async function PrivacyPage() {
 				<p className="text-foreground/80">
 					This Privacy Policy explains how{" "}
 					<span className="font-medium">Daniel Butler</span> operating
-					under the name <span className="font-medium">AI Stats</span>{" "}
-					( &quot;AI Stats&quot;, &quot;we&quot;, &quot;us&quot; or
+					under the name <span className="font-medium">Phaseo</span>{" "}
+					( &quot;Phaseo&quot;, &quot;we&quot;, &quot;us&quot; or
 					&quot;our&quot;) collects, uses and protects personal data
 					when you use our websites, dashboards and API gateway
 					(together, the &quot;Service&quot;).
@@ -59,17 +59,21 @@ export default async function PrivacyPage() {
 					<span className="font-medium">Daniel Butler</span>, trading
 					as <span className="font-medium">Phaseo</span>, is the
 					&quot;data controller&quot; responsible for personal data
-					collected through AI Stats.
+					collected through Phaseo.
 				</p>
 				<p className="mt-2 text-foreground/80">
 					This Privacy Policy applies when you:
 				</p>
 				<ul className="mt-2 list-disc space-y-1 pl-5 text-foreground/80">
-					<li>browse the AI Stats website or documentation;</li>
-					<li>create and use an AI Stats account;</li>
+					<li>browse the Phaseo website or documentation;</li>
+					<li>create and use A Phaseo account;</li>
 					<li>
-						use the AI Stats Gateway to route requests to
+						use the Phaseo Gateway to route requests to
 						third-party model providers; or
+					</li>
+					<li>
+						connect Phaseo to ChatGPT, Codex, or another
+						compatible MCP client; or
 					</li>
 					<li>
 						interact with us via email, support channels or other
@@ -137,7 +141,7 @@ export default async function PrivacyPage() {
 					2.2 Inputs and Outputs sent through the Gateway
 				</h3>
 				<p className="mt-1 text-foreground/80">
-					When you call models via the AI Stats Gateway, you send
+					When you call models via the Phaseo Gateway, you send
 					requests (&quot;Inputs&quot;) and receive responses
 					(&quot;Outputs&quot;). These may include text or other data
 					that could contain personal information, depending on what
@@ -216,7 +220,37 @@ export default async function PrivacyPage() {
 				</p>
 
 				<h3 className="mt-4 text-lg font-semibold text-foreground/80">
-					2.4 Cookies and similar technologies
+					2.4 Connected AI assistants and MCP clients
+				</h3>
+				<p className="mt-1 text-foreground/80">
+					If you connect the Phaseo plugin to ChatGPT, Codex, or
+					another compatible MCP client, you authorize that client
+					through OAuth to request the read-only Phaseo information
+					shown in its consent screen. Depending on the tool you ask
+					the client to use, Phaseo may return:
+				</p>
+				<ul className="mt-2 list-disc space-y-1 pl-5 text-foreground/80">
+					<li>model, provider, capability, and pricing information;</li>
+					<li>credit balance and aggregated usage analytics; or</li>
+					<li>
+						request metadata such as request identifiers, timestamps,
+						models, providers, token usage, cost, latency, status, and
+						error codes.
+					</li>
+				</ul>
+				<p className="mt-1 text-foreground/80">
+					The public Phaseo plugin does not return passwords, API-key
+					values, OAuth secrets, raw prompt or model-output content,
+					workspace or user identifiers, storage details, or replay
+					payloads. The connected client receives only the result of a
+					tool you or the client invokes within the permissions you
+					approved. Information already received by that client is
+					handled under the client provider&apos;s privacy policy and
+					retention practices.
+				</p>
+
+				<h3 className="mt-4 text-lg font-semibold text-foreground/80">
+					2.5 Cookies and similar technologies
 				</h3>
 				<p className="mt-1 text-foreground/80">
 					We use cookies and similar technologies (such as local
@@ -246,12 +280,12 @@ export default async function PrivacyPage() {
 				</p>
 
 				<h3 className="mt-4 text-lg font-semibold text-foreground/80">
-					2.5 Analytics and product telemetry
+					2.6 Analytics and product telemetry
 				</h3>
 				<p className="mt-1 text-foreground/80">
 					We may use third-party analytics and error tracking tools
 					(for example, Google Analytics, PostHog, or similar
-					services) to help us understand how people use AI Stats and
+					services) to help us understand how people use Phaseo and
 					to identify where the product can be improved.
 				</p>
 				<p className="mt-1 text-foreground/80">
@@ -377,6 +411,14 @@ export default async function PrivacyPage() {
 						data under their own terms and privacy policies.
 					</li>
 					<li>
+						<strong>Connected AI-assistant or MCP providers</strong> –
+						When you connect Phaseo and ask a connected client to use a
+						Phaseo tool, we return the requested read-only tool result to
+						that provider, such as OpenAI for ChatGPT or Codex. The
+						provider processes the result under its own terms and privacy
+						policy.
+					</li>
+					<li>
 						<strong>Public data you choose to share</strong> – If
 						you opt into public usage pages, share integrations, or
 						otherwise choose to publish certain information via AI
@@ -469,6 +511,14 @@ export default async function PrivacyPage() {
 					it or irreversibly anonymise it. Telemetry that has been
 					aggregated and fully anonymised may be kept for longer for
 					statistical purposes.
+				</p>
+				<p className="mt-2 text-foreground/80">
+					Using the Phaseo plugin does not create a separate long-term
+					copy of your Gateway records within Phaseo. Tool requests read
+					or compute against Phaseo data available to the authorized
+					service, including already-retained account and Gateway records
+					where applicable. A connected client may retain tool results
+					under its own retention policy.
 				</p>
 			</section>
 

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ChatTag, ChatThread } from "@/lib/indexeddb/chats";
 import { cn } from "@/lib/utils";
 
@@ -138,7 +139,10 @@ export function ChatTagsDialog({
 									{selectedTags.length} selected
 								</span>
 							</div>
-							<div className="flex max-h-36 flex-wrap gap-2 overflow-y-auto rounded-xl border border-border bg-muted/20 p-2">
+							<ScrollArea
+								className="max-h-36 rounded-md border border-border bg-muted/20"
+								viewportClassName="flex flex-wrap gap-2 p-2"
+							>
 								{availableTags.map((tag) => {
 									const selected = selectedTagIds.has(tag.id);
 									return (
@@ -162,7 +166,7 @@ export function ChatTagsDialog({
 										</button>
 									);
 								})}
-							</div>
+							</ScrollArea>
 						</div>
 					) : null}
 					<div className="grid gap-2">
@@ -193,7 +197,7 @@ export function ChatTagsDialog({
 						{matchingExistingTag ? null : (
 							<div className="grid gap-1.5">
 								<span className="text-xs text-muted-foreground">Color</span>
-								<div className="grid grid-cols-9 gap-1.5 rounded-xl border border-border bg-muted/20 p-2">
+								<div className="grid grid-cols-9 gap-1.5 rounded-md border border-border bg-muted/20 p-2">
 									{TAG_COLORS.map((option) => (
 										<button
 											key={option}
@@ -254,7 +258,7 @@ export function ChatTagsDialog({
 								))}
 							</div>
 						) : (
-							<p className="rounded-xl border border-dashed border-border px-3 py-4 text-sm text-muted-foreground">
+							<p className="rounded-md border border-dashed border-border px-3 py-4 text-sm text-muted-foreground">
 								No tags assigned.
 							</p>
 						)}

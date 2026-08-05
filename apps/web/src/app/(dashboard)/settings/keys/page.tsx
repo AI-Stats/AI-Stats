@@ -8,7 +8,7 @@ import SettingsPageHeader from "@/components/(gateway)/settings/SettingsPageHead
 import { Button } from "@/components/ui/button";
 import { fetchSettingsKeysInitialData } from "@/lib/fetchers/internal/fetchSettingsKeysInitialData";
 
-const QUICKSTART_DOCS_HREF = "https://docs.ai-stats.phaseo.app/v1/quickstart";
+const QUICKSTART_DOCS_HREF = "https://phaseo.app/docs/v1/quickstart";
 
 export const metadata = {
 	title: "API Keys - Settings",
@@ -51,7 +51,7 @@ async function KeysContent({
 				title="API Keys"
 				description="Create and manage gateway API keys for this workspace."
 				actions={
-					<div className="flex items-center gap-2">
+					<div className="flex flex-wrap items-center gap-2">
 						<Button asChild variant="outline" size="sm">
 							<Link
 								href={QUICKSTART_DOCS_HREF}

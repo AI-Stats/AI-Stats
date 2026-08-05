@@ -49,7 +49,13 @@
     "windsurf",
     "spacex-ai",
     "xiaomi",
-    "z-ai"
+    "z-ai",
+    "crofai",
+    "inflection",
+    "mindai",
+    "morph",
+    "thinking-machines",
+    "venice"
   ],
   "models": {
     "ai21": [
@@ -121,10 +127,14 @@
       "anthropic/claude-opus-4.5",
       "anthropic/claude-opus-4.6",
       "anthropic/claude-opus-4.8",
+      "anthropic/claude-opus-5",
       "anthropic/claude-sonnet-4",
       "anthropic/claude-sonnet-4.5",
       "anthropic/claude-sonnet-4.6",
-      "anthropic/claude-sonnet-5"
+      "anthropic/claude-sonnet-5",
+      "anthropic/claude-fable-5",
+      "anthropic/claude-opus-4.7",
+      "anthropic/claude-opus-4.7-fast"
     ],
     "arcee-ai": [
       "arcee-ai/trinity-large",
@@ -146,7 +156,8 @@
       "baidu/ernie-x1.1",
       "baidu/qianfan-vl-3b",
       "baidu/qianfan-vl-70b",
-      "baidu/qianfan-vl-8b"
+      "baidu/qianfan-vl-8b",
+      "baidu/ernie-4.5-vl-28b-a3b-thinking"
     ],
     "black-forest-labs": [
       "black-forest-labs/flux-2-dev",
@@ -154,7 +165,9 @@
       "black-forest-labs/flux-2-klein-4b",
       "black-forest-labs/flux-2-klein-9b",
       "black-forest-labs/flux-2-max",
-      "black-forest-labs/flux-2-pro"
+      "black-forest-labs/flux-2-pro",
+      "black-forest-labs/flux-1-dev",
+      "black-forest-labs/flux-1-schnell"
     ],
     "bytedance": [
       "bytedance/seed-1.6-2025-06-15",
@@ -178,6 +191,9 @@
       "bytedance/seedance-2.0-mini-260615",
       "bytedance/seedream-2.0-mini",
       "bytedance/seedream-4.5",
+      "bytedance/seed-2.1-turbo",
+      "bytedance/seedance-2.0",
+      "bytedance/seedance-2.0-fast",
       "bytedance/seedream-5.0-pro"
     ],
     "cohere": [
@@ -236,10 +252,17 @@
       "deepseek/deepseek-v3.2-exp",
       "deepseek/deepseek-v3.2-speciale",
       "deepseek/deepseek-v4-flash",
+      "deepseek/deepseek-v4-flash-0731",
       "deepseek/deepseek-v4-pro",
       "deepseek/deepseek-vl2",
       "deepseek/deepseek-vl2-small",
-      "deepseek/deepseek-vl2-tiny"
+      "deepseek/deepseek-vl2-tiny",
+      "deepseek/deepseek-prover-v2-671b",
+      "deepseek/deepseek-r1",
+      "deepseek/deepseek-r1-turbo",
+      "deepseek/deepseek-v3",
+      "deepseek/deepseek-v3-turbo",
+      "deepseek/deepseek-v4-pro-lightning"
     ],
     "eleven-labs": [
       "eleven-labs/eleven-english-sts-v2",
@@ -321,7 +344,9 @@
       "google/gemini-3.1-pro-preview",
       "google/gemini-3.1-pro-preview-customtools",
       "google/gemini-3.5-flash",
+      "google/gemini-3.5-flash-lite",
       "google/gemini-3.5-pro",
+      "google/gemini-3.6-flash",
       "google/gemini-omni-flash-preview",
       "google/gemini-diffusion",
       "google/gemini-embedding-001",
@@ -387,7 +412,15 @@
       "google/veo-3.1-lite-preview",
       "google/veo-3.1-preview",
       "google/veo-3.2",
-      "google/veo-4"
+      "google/veo-4",
+      "google/gemini-3.1-flash-lite",
+      "google/gemini-3.1-flash-live-preview",
+      "google/gemini-embedding-2",
+      "google/gemini-robotics-er-1.6-preview",
+      "google/lyria-3-clip-preview",
+      "google/lyria-3-pro-preview",
+      "google/gemma-4-26b-a4b:free",
+      "google/gemma-4-31b:free"
     ],
     "ibm": [
       "ibm/granite-20b-code-instruct-8k",
@@ -432,13 +465,20 @@
       "ibm/granite-vision-3.1-2b-preview",
       "ibm/granite-vision-3.2-2b",
       "ibm/granite-vision-3.3-2b",
-      "ibm/granite-vision-3.3-2b-embedding"
+      "ibm/granite-vision-3.3-2b-embedding",
+      "ibm/granite-4.1-8b"
     ],
     "inception": [
-      "inception/mercury-2"
+      "inception/mercury-2",
+      "inception/mercury-edit-2"
     ],
     "inclusionai": [
-      "inclusionai/ring-1t-2.5"
+      "inclusionai/ring-1t-2.5",
+      "inclusionai/ling-2.6-1t",
+      "inclusionai/ling-3.0-flash",
+      "inclusionai/ling-flash-2.0",
+      "inclusionai/ring-flash-2.0",
+      "inclusionai/ling-3.0-flash:free"
     ],
     "kwaipilot": [
       "kwaipilot/kat-coder-air-v2.5",
@@ -491,7 +531,14 @@
       "meta/llama-3.2-90b-vision",
       "meta/llama-3.3-70b",
       "meta/llama-4-maverick",
-      "meta/llama-4-scout"
+      "meta/llama-4-scout",
+      "meta/muse-spark",
+      "meta/muse-spark-1.1",
+      "meta/muse-spark-contemplating",
+      "meta/llama-3-8b-lite",
+      "meta/llama-guard-4-12b",
+      "meta/llama-prompt-guard-2-22m",
+      "meta/llama-prompt-guard-2-86m"
     ],
     "microsoft": [
       "microsoft/phi-1",
@@ -548,7 +595,9 @@
       "minimax/speech-2.5-hd-preview",
       "minimax/speech-2.5-turbo-preview",
       "minimax/speech-2.6",
-      "minimax/t2v-01-director"
+      "minimax/t2v-01-director",
+      "minimax/minimax-m2.5-highspeed",
+      "minimax/minimax-m3"
     ],
     "mistral": [
       "mistral/codestral",
@@ -609,7 +658,12 @@
       "mistral/voxtral-mini-transcribe",
       "mistral/voxtral-mini-transcribe-2",
       "mistral/voxtral-small",
-      "mistral/voxtral-tts"
+      "mistral/voxtral-tts",
+      "mistral/mistral-medium-3.5",
+      "mistral/mistral-nemo",
+      "mistral/mistral-nemo-2407",
+      "mistral/mistral-small-24b-2501",
+      "mistral/leanstral-1.5:free"
     ],
     "moonshotai": [
       "moonshotai/kimi-k1.5",
@@ -628,7 +682,8 @@
       "moonshotai/moonshot-v1-128k-vision-preview",
       "moonshotai/kimi-vl-a3b",
       "moonshotai/kimi-vl-a3b-thinking",
-      "moonshotai/kimi-vl-a3b-thinking-2025-04-09"
+      "moonshotai/kimi-vl-a3b-thinking-2025-04-09",
+      "moonshotai/kimi-k3"
     ],
     "nex-agi": [
       "nex-agi/deepseek-v3.1-nex-n1",
@@ -672,7 +727,11 @@
       "nvidia/openreasoning-nemotron-1.5b",
       "nvidia/openreasoning-nemotron-14b",
       "nvidia/openreasoning-nemotron-32b",
-      "nvidia/openreasoning-nemotron-7b"
+      "nvidia/openreasoning-nemotron-7b",
+      "nvidia/cosmos3-super-reasoner",
+      "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      "nvidia/nemotron-3-ultra-550b-a55b",
+      "nvidia/nvidia-nemotron-nano-12b-v2-vl"
     ],
     "openai": [
       "openai/ada",
@@ -763,8 +822,11 @@
       "openai/gpt-5.4-nano",
       "openai/gpt-5.4-pro",
       "openai/gpt-5.6-luna",
+      "openai/gpt-5.6-luna-pro",
       "openai/gpt-5.6-sol",
+      "openai/gpt-5.6-sol-pro",
       "openai/gpt-5.6-terra",
+      "openai/gpt-5.6-terra-pro",
       "openai/gpt-audio",
       "openai/gpt-audio-1.5",
       "openai/gpt-audio-mini",
@@ -772,6 +834,8 @@
       "openai/gpt-image-1",
       "openai/gpt-image-1-mini",
       "openai/gpt-image-1.5",
+      "openai/gpt-live-1",
+      "openai/gpt-live-1-mini",
       "openai/gpt-oss-120b",
       "openai/gpt-oss-20b",
       "openai/gpt-oss-safeguard-120b",
@@ -828,12 +892,21 @@
       "openai/tts-1-hd",
       "openai/whisper-1",
       "openai/whisper-3",
-      "openai/whisper-3-turbo"
+      "openai/whisper-3-turbo",
+      "openai/chat-latest",
+      "openai/gpt-5.5",
+      "openai/gpt-5.5-pro",
+      "openai/gpt-image-2",
+      "openai/gpt-transcribe"
     ],
     "poolside": [
       "poolside/laguna-m.1",
+      "poolside/laguna-s-2.1",
       "poolside/laguna-xs-2.1",
-      "poolside/laguna-xs.2"
+      "poolside/laguna-xs.2",
+      "poolside/laguna-m.1:free",
+      "poolside/laguna-s-2.1:free",
+      "poolside/laguna-xs-2.1:free"
     ],
     "prime-intellect": [
       "prime-intellect/intellect-3",
@@ -991,7 +1064,50 @@
       "qwen/worldpm-72b",
       "qwen/worldpm-72b-helpsteer2",
       "qwen/worldpm-72b-rlhflow",
-      "qwen/worldpm-72b-ultrafeedback"
+      "qwen/worldpm-72b-ultrafeedback",
+      "qwen/qwen-flash",
+      "qwen/qwen-flash-character",
+      "qwen/qwen-max",
+      "qwen/qwen-mt-flash",
+      "qwen/qwen-mt-lite",
+      "qwen/qwen-mt-plus",
+      "qwen/qwen-mt-turbo",
+      "qwen/qwen-plus-2025-01-25",
+      "qwen/qwen-plus-2025-04-28",
+      "qwen/qwen-plus-2025-07-14",
+      "qwen/qwen-plus-2025-07-28",
+      "qwen/qwen-plus-2025-09-11",
+      "qwen/qwen-plus-2025-12-01",
+      "qwen/qwen-plus-character",
+      "qwen/qwen-turbo-2024-11-01",
+      "qwen/qwen-turbo-2025-04-28",
+      "qwen/qwen-vl-max-2025-04-08",
+      "qwen/qwen-vl-max-2025-08-13",
+      "qwen/qwen-vl-plus-2025-01-25",
+      "qwen/qwen-vl-plus-2025-05-07",
+      "qwen/qwen-vl-plus-2025-08-15",
+      "qwen/qwen3-30b-a3b-2507",
+      "qwen/qwen3-coder",
+      "qwen/qwen3-max",
+      "qwen/qwen3-max-2025-09-23",
+      "qwen/qwen3-max-2026-01-23",
+      "qwen/qwen3-max-preview",
+      "qwen/qwen3-next-80b",
+      "qwen/qwen3-next-80b-a3b",
+      "qwen/qwen3-vl-235b-a22b",
+      "qwen/qwen3-vl-30b-a3b",
+      "qwen/qwen3-vl-8b",
+      "qwen/qwen3-vl-flash-2025-10-15",
+      "qwen/qwen3-vl-flash-2026-01-22",
+      "qwen/qwen3-vl-plus-2025-09-23",
+      "qwen/qwen3-vl-plus-2025-12-19",
+      "qwen/qwen3.5-plus-2026-02-15",
+      "qwen/qwen3.5-plus-2026-04-20",
+      "qwen/qwen3.8-max",
+      "qwen/qwq-plus",
+      "qwen/text-embedding-v3",
+      "qwen/text-embedding-v4",
+      "qwen/wan2.7-t2v"
     ],
     "relace": [
       "relace/relace-search"
@@ -1014,7 +1130,10 @@
       "suno/suno-v5"
     ],
     "tencent": [
-      "tencent/hy3"
+      "tencent/hy3",
+      "tencent/hunyuan-a13b-instruct",
+      "tencent/hy3-preview",
+      "tencent/hy3:free"
     ],
     "upstage": [
       "upstage/solar-pro",
@@ -1090,12 +1209,15 @@
       "spacex-ai/grok-4.20",
       "spacex-ai/grok-4.20-multi-agent-beta",
       "spacex-ai/grok-4.3",
+      "spacex-ai/grok-4.5",
       "spacex-ai/grok-build-0.1",
       "spacex-ai/grok-code-fast-1",
       "spacex-ai/grok-imagine-image",
       "spacex-ai/grok-imagine-image-pro",
       "spacex-ai/grok-imagine-video-1.5-preview",
-      "spacex-ai/grok-imagine-video"
+      "spacex-ai/grok-imagine-video",
+      "spacex-ai/grok-imagine-image-quality",
+      "spacex-ai/grok-tts"
     ],
     "xiaomi": [
       "xiaomi/mimo-v2-flash",
@@ -1104,7 +1226,8 @@
       "xiaomi/mimo-v2-tts",
       "xiaomi/mimo-v2.5",
       "xiaomi/mimo-v2.5-pro",
-      "xiaomi/mimo-v2.5-tts"
+      "xiaomi/mimo-v2.5-tts",
+      "xiaomi/mimo-v2.5-tts:free"
     ],
     "z-ai": [
       "z-ai/glm-4-32b",
@@ -1131,12 +1254,41 @@
       "z-ai/glm-5.1",
       "z-ai/glm-5.2",
       "z-ai/glm-5v-turbo",
-      "z-ai/glm-image"
+      "z-ai/glm-image",
+      "z-ai/glm-4.7-flash:free"
+    ],
+    "crofai": [
+      "crofai/greg-1-mini",
+      "crofai/greg-2-super",
+      "crofai/greg-2-ultra",
+      "crofai/greg-rp"
+    ],
+    "inflection": [
+      "inflection/inflection-3-pi",
+      "inflection/inflection-3-productivity"
+    ],
+    "mindai": [
+      "mindai/macaron-v1-venti",
+      "mindai/macaron-v1-venti:free"
+    ],
+    "morph": [
+      "morph/morph-v3-fast",
+      "morph/morph-v3-large"
+    ],
+    "thinking-machines": [
+      "thinking-machines/inkling",
+      "thinking-machines/inkling-64k",
+      "thinking-machines/inkling-small"
+    ],
+    "venice": [
+      "venice/venice-uncensored",
+      "venice/venice-uncensored-1.1"
     ]
   },
   "benchmarks": [
     "2-bench-retail",
     "2-bench-telecom",
+    "aa-briefcase",
     "aa-index",
     "aa-intelligence-index-v4",
     "aa-lcr",
@@ -1188,6 +1340,7 @@
     "autologi",
     "babe",
     "babyvision",
+    "babyvision-python",
     "balrog-ai",
     "bbh",
     "bcflv4",
@@ -1229,6 +1382,7 @@
     "charxiv-r",
     "charxiv-reasoning",
     "charxiv-rq",
+    "charxiv-rq-python",
     "chest-imagenome-anatomy-iou",
     "chexpert-cxr-top5-macro-f1",
     "cl-bench",
@@ -1265,6 +1419,7 @@
     "da-2k",
     "deep-planning",
     "deepconsult",
+    "deck-bench",
     "deepplanning-v1.1-avg-acc",
     "deepplanning-v1.1-shopping-case-acc",
     "deepplanning-v1.1-shopping-match-score",
@@ -1304,6 +1459,7 @@
     "fiction-live-bench",
     "figqa",
     "financeagent-v1.1",
+    "financeagent-v2",
     "finsearchcomp",
     "finsearchcomp-t2-t3",
     "finsearchcomp-t3",
@@ -1320,6 +1476,7 @@
     "frontiermath",
     "frontiersci-olympiad",
     "frontiersci-research",
+    "frontierswe",
     "fsc-147-down",
     "fullstackbench-en",
     "fullstackbench-zh",
@@ -1363,6 +1520,9 @@
     "humaneval-mul",
     "humanevalfim-average",
     "humanitys-last-exam",
+    "humanitys-last-exam-tools",
+    "jobbench",
+    "kimi-code-bench-2",
     "hypersim",
     "if",
     "if-bench",
@@ -1427,6 +1587,7 @@
     "mathkangaroo",
     "mathverse-mini",
     "mathvision",
+    "mathvision-python",
     "mathvista",
     "mathvista-mini",
     "maxife",
@@ -1453,6 +1614,7 @@
     "misguided-attention",
     "mle-bench",
     "mle-bench-lite",
+    "mls-bench-lite",
     "mlvu",
     "mlvu-m",
     "mm-browsecomp",
@@ -1487,6 +1649,7 @@
     "mmmu--val-",
     "mmmu--validation-",
     "mmmu-pro",
+    "mmmu-pro-python",
     "mmmuval",
     "mmsearch",
     "mmsearch-plus",
@@ -1543,6 +1706,7 @@
     "olympiadbench",
     "omnibench",
     "omnibench-music",
+    "omnidocbench",
     "omnidocbench-1-5-down",
     "omnidocbench-1.5",
     "omnigaia",
@@ -1561,6 +1725,7 @@
     "ovobench",
     "paperbench",
     "pathmcqa-accuracy",
+    "perceptionbench",
     "perceptiontest",
     "phibench",
     "phybench",
@@ -1575,7 +1740,9 @@
     "polymath-en",
     "pope",
     "popqa",
+    "posttrain-bench",
     "procbench",
+    "program-bench",
     "protocolqa",
     "qasper",
     "qmsum",
@@ -1616,6 +1783,7 @@
     "social-iqa",
     "solo-bench",
     "spider",
+    "spreadsheetbench-2",
     "spreadsheetbench-verified",
     "squality",
     "summscreenfd",
@@ -1629,6 +1797,7 @@
     "swe-bench-pro",
     "swe-evo",
     "swe-lancer",
+    "swe-marathon",
     "swe-perf",
     "swe-review",
     "swt-bench",
@@ -1726,6 +1895,7 @@
     "zebralogic",
     "zerobench",
     "zerobench-main",
+    "zerobench-main-python",
     "zerobench-sub"
   ],
   "api_providers": [
@@ -1734,7 +1904,6 @@
     "akashml",
     "alibaba-cloud",
     "amazon-bedrock",
-    "amazon-bedrock-mantle",
     "anthropic",
     "arcee-ai",
     "atlascloud",
@@ -1743,11 +1912,8 @@
     "black-forest-labs",
     "byteplus",
     "cerebras",
-    "chutes",
-    "clarifai",
     "cloudflare",
     "cohere",
-    "crusoe",
     "deepinfra",
     "deepseek",
     "elevenlabs",
@@ -1763,7 +1929,6 @@
     "infermatic",
     "inflection",
     "ionrouter",
-    "liquid-ai",
     "minimax",
     "minimax-lightning",
     "mistral",
@@ -1772,17 +1937,13 @@
     "morph",
     "nebius-token-factory",
     "nextbit",
-    "nousresearch",
     "novita",
     "nvidia",
     "openai",
     "parasail",
-    "perplexity",
     "phala",
     "poolside",
-    "sambanova",
     "siliconflow",
-    "sourceful",
     "stepfun",
     "suno",
     "together",
@@ -1797,8 +1958,9 @@
   "pricing": [
     "atlascloud:text.generate:meituan-longcat-2.0",
     "atlascloud:text.generate:tencent-hy3",
-    "weights-and-biases:text.generate:moonshotai-kimi-k2.7-code",
+    "poolside:text.generate:poolside-laguna-s-2.1-free",
     "weights-and-biases:text.generate:moonshotai-kimi-k2.6",
+    "weights-and-biases:text.generate:moonshotai-kimi-k2.7-code",
     "weights-and-biases:text.generate:z-ai-glm-5.2"
   ],
   "subscription_plans": [
@@ -1891,13 +2053,16 @@
     "google-gemini-image-latest",
     "google-gemini-image-lite-latest",
     "google-gemini-image-pro-latest",
+    "meta-muse-spark-latest",
     "google-gemini-pro-latest",
     "minimax-m2.x-latest",
     "openai-gpt-chat-latest",
     "openai-gpt-latest",
     "openai-gpt-mini-latest",
     "openai-gpt-nano-latest",
-    "openai-gpt-pro-latest"
+    "openai-gpt-pro-latest",
+    "spacex-ai-grok-4.5-latest",
+    "spacex-ai-grok-build-latest"
   ],
   "families": [
     "ai21-jamba-1.5",
@@ -2044,6 +2209,9 @@
     "amazon-bedrock:text.generate:moonshotai-kimi-k2.5",
     "amazon-bedrock:text.generate:nvidia-nemotron-3-nano-30b-a3b",
     "amazon-bedrock:text.generate:nvidia-nemotron-3-super-120b-a12b",
+    "amazon-bedrock:text.generate:openai-gpt-5.6-luna",
+    "amazon-bedrock:text.generate:openai-gpt-5.6-sol",
+    "amazon-bedrock:text.generate:openai-gpt-5.6-terra",
     "amazon-bedrock:text.generate:openai-gpt-oss-120b",
     "amazon-bedrock:text.generate:openai-gpt-oss-20b",
     "amazon-bedrock:text.generate:openai-gpt-oss-safeguard-120b",
@@ -2063,6 +2231,12 @@
     "anthropic:text.generate:anthropic-claude-opus-4.5",
     "anthropic:text.generate:anthropic-claude-opus-4.6",
     "anthropic:text.generate:anthropic-claude-opus-4.8",
+    "anthropic:text.generate:anthropic-claude-opus-5",
+    "anthropic-aws:text.generate:anthropic-claude-opus-4.8",
+    "anthropic-aws-us:text.generate:anthropic-claude-opus-4.8",
+    "anthropic-us:text.generate:anthropic-claude-opus-4.8",
+    "google-vertex:text.generate:anthropic-claude-opus-4.8",
+    "venice:text.generate:anthropic-claude-opus-4.8",
     "anthropic:text.generate:anthropic-claude-sonnet-4",
     "anthropic:text.generate:anthropic-claude-sonnet-4.5",
     "anthropic:text.generate:anthropic-claude-sonnet-4.6",
@@ -2149,8 +2323,6 @@
     "byteplus:text.generate:bytedance-seed-2.0-mini",
     "byteplus:text.generate:bytedance-seed-2.0-pro",
     "byteplus:text.generate:bytedance-seed-translation",
-    "byteplus:images.edits:bytedance-seedream-5.0-pro",
-    "byteplus:images.generations:bytedance-seedream-5.0-pro",
     "byteplus:video.generate:bytedance-seedance-2.0-mini-260615",
     "cerebras:text.generate:google-gemma-4-31b",
     "cerebras:text.generate:meta-llama-3.1-8b",
@@ -2210,6 +2382,7 @@
     "deepinfra:text.generate:z-ai-glm-5",
     "deepseek:text.generate:deepseek-deepseek-v3.2",
     "deepseek:text.generate:deepseek-deepseek-v3.2-thinking",
+    "deepseek:text.generate:deepseek-deepseek-v4-flash-0731",
     "fireworks:text.generate:black-forest-labs-flux-1-kontext-max",
     "fireworks:text.generate:black-forest-labs-flux-1-kontext-pro",
     "fireworks:text.generate:cogito-cogito-671b-v2.1",
@@ -2324,6 +2497,7 @@
     "ionrouter:text.generate:qwen-qwen3.5-35b-a3b",
     "ionrouter:text.generate:z-ai-glm-5",
     "longcat:text.generate:meituan-longcat-2.0",
+    "meta:text.generate:meta-muse-spark-1.1",
     "minimax-lightning:text.generate:minimax-minimax-m2.1",
     "minimax-lightning:text.generate:minimax-minimax-m2.7",
     "minimax:text.generate:minimax-m2-her",
@@ -2519,6 +2693,12 @@
     "openai:batch:openai-gpt-5.2-pro",
     "openai:batch:openai-gpt-5.4",
     "openai:batch:openai-gpt-5.4-pro",
+    "openai:batch:openai-gpt-5.6-luna",
+    "openai:batch:openai-gpt-5.6-luna-pro",
+    "openai:batch:openai-gpt-5.6-sol",
+    "openai:batch:openai-gpt-5.6-sol-pro",
+    "openai:batch:openai-gpt-5.6-terra",
+    "openai:batch:openai-gpt-5.6-terra-pro",
     "openai:batch:openai-o1",
     "openai:batch:openai-o1-mini",
     "openai:batch:openai-o1-pro",
@@ -2576,6 +2756,9 @@
     "openai:text.generate:openai-gpt-5.4-mini",
     "openai:text.generate:openai-gpt-5.4-nano",
     "openai:text.generate:openai-gpt-5.4-pro",
+    "openai:text.generate:openai-gpt-5.6-luna-pro",
+    "openai:text.generate:openai-gpt-5.6-sol-pro",
+    "openai:text.generate:openai-gpt-5.6-terra-pro",
     "openai:text.generate:openai-o1",
     "openai:text.generate:openai-o3",
     "openai:text.generate:openai-o3-mini",
@@ -2713,6 +2896,7 @@
     "spacex-ai:text.generate:spacex-ai-grok-4.1",
     "spacex-ai:text.generate:spacex-ai-grok-4.1-thinking",
     "spacex-ai:text.generate:spacex-ai-grok-4.3",
+    "spacex-ai:text.generate:spacex-ai-grok-4.5",
     "spacex-ai:text.generate:spacex-ai-grok-4.20-beta-0309",
     "spacex-ai:text.generate:spacex-ai-grok-4.20-multi-agent-beta-0309",
     "spacex-ai:text.generate:spacex-ai-grok-code-fast-1",
@@ -2742,6 +2926,16 @@
     "z-ai:text.generate:z-ai-glm-5-code",
     "z-ai:text.generate:z-ai-glm-5-turbo",
     "z-ai:text.generate:z-ai-glm-5.2",
-    "z-ai:text.generate:z-ai-glm-5v-turbo"
+    "z-ai:text.generate:z-ai-glm-5v-turbo",
+    "crofai:text.generate:moonshotai-kimi-k3",
+    "wafer:text.generate:moonshotai-kimi-k3",
+    "morph:text.generate:deepseek-deepseek-v4-flash",
+    "morph:text.generate:google-gemma-4-31b",
+    "morph:text.generate:minimax-minimax-m3",
+    "morph:text.generate:moonshotai-kimi-k3",
+    "morph:text.generate:qwen-qwen3.5-397b-a17b",
+    "morph:text.generate:qwen-qwen3.6-27b",
+    "morph:text.generate:z-ai-glm-5.2",
+    "morph:text.generate:moonshotai-kimi-k3-fast"
   ]
 }

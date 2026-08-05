@@ -38,6 +38,11 @@ import {
 } from "@/components/(chat)/playground/use-grouped-chat-threads";
 import type { ChatTag, ChatThread } from "@/lib/indexeddb/chats";
 import { ChatRoomSwitcher } from "@/components/(chat)/ChatRoomSwitcher";
+import { useChatCredits } from "@/components/(chat)/use-chat-credits";
+import {
+	CHAT_SIDEBAR_ACTIONS_CLASS,
+	CHAT_SIDEBAR_HISTORY_GROUP_CLASS,
+} from "@/components/(chat)/chatSidebarStyles";
 import { ThemeSelector } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 import {
@@ -101,20 +106,6 @@ type ThreadDateGroup = {
 	label: string;
 	threads: ChatThread[];
 };
-
-type CreditsBalanceResponse = {
-	initialBalance?: number | null;
-};
-
-function formatCreditsBalance(value: number | null) {
-	if (value === null || !Number.isFinite(value)) return "Credits";
-	return new Intl.NumberFormat("en-US", {
-		style: "currency",
-		currency: "USD",
-		minimumFractionDigits: 2,
-		maximumFractionDigits: 2,
-	}).format(value);
-}
 
 function getOrdinalDay(day: number) {
 	const remainder = day % 100;
@@ -217,11 +208,8 @@ export function ChatSidebar({
 	const [selectedThreadIds, setSelectedThreadIds] = useState<Set<string>>(
 		() => new Set(),
 	);
-	const [creditsBalance, setCreditsBalance] = useState<number | null>(null);
-	const [creditsLoading, setCreditsLoading] = useState(false);
+	const { creditsLabel, creditsLoading } = useChatCredits(authUser?.id);
 	const collapsed = sidebarState === "collapsed" && !isMobile;
-	const brandLightSrc = collapsed ? "/logo_light.svg" : "/wordmark_light.svg";
-	const brandDarkSrc = collapsed ? "/logo_dark.svg" : "/wordmark_dark.svg";
 	const withCollapsedTooltip = (label: string, button: ReactElement) =>
 		collapsed ? (
 			<Tooltip>
@@ -240,7 +228,6 @@ export function ChatSidebar({
 		.join("")
 		.slice(0, 2)
 		.toUpperCase();
-	const creditsLabel = formatCreditsBalance(creditsBalance);
 	const activeTag = tags.find((tag) => tag.id === activeTagId) ?? null;
 	const dateThreadGroups = buildThreadDateGroups(groupedThreads);
 	const tagsByRecentUse = useMemo(() => {
@@ -269,52 +256,6 @@ export function ChatSidebar({
 		[threads, selectedThreadIds],
 	);
 	const selectedCount = selectedThreads.length;
-	useEffect(() => {
-		if (!authUser?.id) {
-			setCreditsBalance(null);
-			setCreditsLoading(false);
-			return;
-		}
-
-		let active = true;
-		const controller = new AbortController();
-		const timeoutId = window.setTimeout(() => controller.abort(), 8000);
-		setCreditsLoading(true);
-		fetch("/api/internal/credits/balance", {
-			headers: { accept: "application/json" },
-			signal: controller.signal,
-		})
-			.then(async (response) => {
-				if (!response.ok) throw new Error(`Credits request failed: ${response.status}`);
-				return (await response.json()) as CreditsBalanceResponse;
-			})
-			.then((data) => {
-				if (!active) return;
-				const rawBalance = data.initialBalance;
-				const balance =
-					rawBalance === null || rawBalance === undefined
-						? null
-						: Number(rawBalance);
-				setCreditsBalance(balance !== null && Number.isFinite(balance) ? balance : null);
-			})
-			.catch((error) => {
-				if (active && (error as Error).name !== "AbortError") {
-					setCreditsBalance(null);
-				}
-			})
-			.finally(() => {
-				window.clearTimeout(timeoutId);
-				if (active) {
-					setCreditsLoading(false);
-				}
-			});
-
-		return () => {
-			active = false;
-			window.clearTimeout(timeoutId);
-			controller.abort();
-		};
-	}, [authUser?.id]);
 	const toggleThreadSelection = (threadId: string) => {
 		setSelectedThreadIds((prev) => {
 			const next = new Set(prev);
@@ -358,15 +299,14 @@ export function ChatSidebar({
 			</SidebarMenuButton>
 			{chatEditMode ? null : (
 				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<SidebarMenuAction
+					<DropdownMenuTrigger render={<SidebarMenuAction
 							showOnHover
-							aria-label={`Open actions for ${thread.title}`}
-						>
+							aria-label={`Open actions for ${thread.title}`} />}>
+
 							<MoreHorizontal className="h-4 w-4" />
-						</SidebarMenuAction>
+
 					</DropdownMenuTrigger>
-					<DropdownMenuContent side="right">
+					<DropdownMenuContent side="right" className="rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
 						<DropdownMenuItem onClick={() => onRenameThread(thread)}>
 							<PencilLine className="mr-2 h-4 w-4" />
 							Rename
@@ -402,34 +342,8 @@ export function ChatSidebar({
 	return (
 		<>
 			<SidebarHeader className="h-[57px] gap-0 border-b border-border px-0 py-0">
-				<div
-					className={cn(
-						"flex h-full w-full items-center gap-2 px-2",
-						collapsed ? "justify-center" : "ml-2",
-					)}
-				>
-					<Link href="/" aria-label="AI Stats">
-						<img
-							src={brandLightSrc}
-							alt=""
-							aria-hidden="true"
-							className={cn(
-								"select-none",
-								collapsed ? "h-7" : "h-8",
-								"block dark:hidden",
-							)}
-						/>
-						<img
-							src={brandDarkSrc}
-							alt=""
-							aria-hidden="true"
-							className={cn(
-								"select-none",
-								collapsed ? "h-7" : "h-8",
-								"hidden dark:block",
-							)}
-						/>
-					</Link>
+				<div className="flex h-full min-w-0 items-center px-0">
+					<ChatRoomSwitcher className="min-w-0 flex-1" />
 					<Button
 						variant="ghost"
 						size="icon"
@@ -442,9 +356,7 @@ export function ChatSidebar({
 				</div>
 			</SidebarHeader>
 			<SidebarContent className="gap-0">
-				<ChatRoomSwitcher />
-				<SidebarSeparator className="my-0" />
-				<div className="px-2 py-1.5">
+				<div data-chat-sidebar-actions="true" className={CHAT_SIDEBAR_ACTIONS_CLASS}>
 					{withCollapsedTooltip(
 						"New Chat",
 						<Button
@@ -452,7 +364,7 @@ export function ChatSidebar({
 							className={cn(
 								"h-8 min-w-0 w-full gap-2 text-sm font-medium",
 								collapsed
-									? "justify-center px-0"
+									? "justify-start px-2"
 									: "w-full flex-1 justify-start px-2",
 							)}
 							onClick={onCreateThread}
@@ -471,7 +383,7 @@ export function ChatSidebar({
 							className={cn(
 								"h-8 min-w-0 w-full gap-2 text-sm font-medium",
 								collapsed
-									? "justify-center px-0"
+									? "justify-start px-2"
 									: "w-full flex-1 justify-start px-2",
 							)}
 							asChild
@@ -481,7 +393,7 @@ export function ChatSidebar({
 								href="/"
 								className={cn(
 									"group/db flex w-full min-w-0 items-center gap-2",
-									collapsed && "justify-center",
+									collapsed && "justify-start",
 								)}
 							>
 								<Database className="h-4 w-4 shrink-0" />
@@ -503,7 +415,7 @@ export function ChatSidebar({
 							className={cn(
 								"h-8 min-w-0 w-full gap-2 text-sm font-medium",
 								collapsed
-									? "justify-center px-0"
+									? "justify-start px-2"
 									: "w-full flex-1 justify-start px-2",
 							)}
 							onClick={onSearch}
@@ -516,9 +428,9 @@ export function ChatSidebar({
 						</Button>,
 					)}
 				</div>
-				<SidebarSeparator className="my-0" />
+				<SidebarSeparator className="mx-0 my-0 w-full" />
 				<ScrollArea className="h-full group-data-[collapsible=icon]:hidden">
-					<SidebarGroup className="px-2 pb-2 pt-1">
+					<SidebarGroup className={CHAT_SIDEBAR_HISTORY_GROUP_CLASS}>
 						{tags.length > 0 ? (
 							<Collapsible
 								open={tagsOpen}
@@ -682,20 +594,21 @@ export function ChatSidebar({
 					</SidebarGroup>
 				</ScrollArea>
 			</SidebarContent>
-			<SidebarFooter className="border-t border-border px-3 py-3">
+			<SidebarFooter
+				className="h-[57px] shrink-0 justify-center border-t border-border px-2 py-2"
+			>
 				{authUser ? (
 					<div className="grid gap-2">
 						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button
+							<DropdownMenuTrigger render={<Button
 									variant="ghost"
 									className={cn(
-										"h-auto min-h-14 w-full touch-manipulation items-center gap-3 rounded-2xl py-2 active:bg-muted data-open:bg-muted",
-										collapsed ? "justify-center px-0" : "justify-start",
+										"h-10 min-h-0 w-full touch-manipulation items-center gap-2 py-1 active:bg-muted data-open:bg-muted",
+										collapsed ? "justify-center rounded-full px-0" : "justify-start rounded-md px-2",
 									)}
-									aria-label="Open account menu"
-								>
-									<Avatar className="pointer-events-none h-8 w-8 rounded-lg border border-zinc-200/70 dark:border-zinc-800/70">
+									aria-label="Open account menu" />}>
+
+									<Avatar className="pointer-events-none h-7 w-7 rounded-full border border-zinc-200/70 dark:border-zinc-800/70">
 										{authUser.avatarUrl && (
 											<AvatarImage
 												src={authUser.avatarUrl}
@@ -703,7 +616,7 @@ export function ChatSidebar({
 												className="object-cover"
 											/>
 										)}
-										<AvatarFallback className="rounded-lg text-[11px] font-semibold">
+										<AvatarFallback className="rounded-full text-[10px] font-semibold">
 											{initials || "U"}
 										</AvatarFallback>
 									</Avatar>
@@ -722,41 +635,40 @@ export function ChatSidebar({
 												: "All data is stored locally."}
 										</span>
 									</div>
-								</Button>
+
 							</DropdownMenuTrigger>
 							<DropdownMenuContent
 								side={collapsed ? "right" : "top"}
 								align="start"
 								sideOffset={8}
-								className="w-56 z-[90]"
+								className="z-[90] w-56 rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!"
 							>
-								<DropdownMenuItem asChild>
-									<Link href="/settings/account">
+								<DropdownMenuItem render={<Link href="/settings/account" />}>
+
 										<UserRound className="mr-2 h-4 w-4" />
 										Account
-									</Link>
+
 								</DropdownMenuItem>
-								<DropdownMenuItem asChild>
-									<Link href="/gateway/usage">
+								<DropdownMenuItem render={<Link href="/gateway/usage" />}>
+
 										<Gauge className="mr-2 h-4 w-4" />
 										Usage
-									</Link>
+
 								</DropdownMenuItem>
-								<DropdownMenuItem asChild>
-									<Link
+								<DropdownMenuItem render={<Link
 										href="/settings/credits"
-										aria-label={`Credits balance: ${creditsLabel}`}
-									>
+										aria-label={creditsLabel ? `Credits balance: ${creditsLabel}` : "Credits"} />}>
+
 										<Coins className="mr-2 h-4 w-4" />
 										<span>Credits</span>
 										{creditsLoading ? (
 											<Skeleton className="ml-auto h-3.5 w-16 rounded-sm" />
-										) : (
+										) : creditsLabel ? (
 											<span className="ml-auto font-mono text-xs tabular-nums text-muted-foreground">
 												{creditsLabel}
 											</span>
-										)}
-									</Link>
+										) : null}
+
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
 								<div className="flex min-h-10 items-center justify-between gap-3 px-2 py-1.5">
@@ -781,7 +693,7 @@ export function ChatSidebar({
 				) : (
 					<Button
 						variant="ghost"
-						className="w-full justify-start"
+						className="w-full justify-start rounded-md"
 						asChild
 					>
 						<Link href="/sign-in">Sign in to chat</Link>

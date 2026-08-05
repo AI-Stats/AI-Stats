@@ -178,6 +178,32 @@ describe("validateCapabilities", () => {
 		}
 	});
 
+	it("accepts top-level reasoning_effort when the provider exposes reasoning effort", () => {
+		const result = validateCapabilities({
+			endpoint: "chat.completions",
+			rawBody: {
+				model: "moonshotai/kimi-k3",
+				messages: [{ role: "user", content: "hello" }],
+				reasoning_effort: "max",
+			},
+			body: {
+				model: "moonshotai/kimi-k3",
+				messages: [{ role: "user", content: "hello" }],
+				reasoning: { effort: "max" },
+			},
+			requestId: "req_kimi_k3_reasoning_effort",
+			workspaceId: "team_test",
+			providers: [provider("moonshotai", { "reasoning.effort": {} }, 1_048_576)],
+			model: "moonshotai/kimi-k3",
+		});
+
+		expect(result.ok).toBe(true);
+		if (result.ok) {
+			expect(result.requestedParams).toEqual(["reasoning.effort"]);
+			expect(result.providers.map((entry: any) => entry.providerId)).toEqual(["moonshotai"]);
+		}
+	});
+
 	it("records empty requested params diagnostics when request has no optional params", () => {
 		const result = validateCapabilities({
 			endpoint: "chat.completions",
@@ -528,6 +554,34 @@ describe("validateCapabilities", () => {
 		if (result.ok) {
 			expect(result.requestedParams).toEqual(["reasoning.effort", "reasoning.summary"]);
 			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai"]);
+		}
+	});
+
+	it("tracks responses reasoning.effort for Meta reasoning support", () => {
+		const result = validateCapabilities({
+			endpoint: "responses",
+			rawBody: {
+				model: "meta/muse-spark-1.1",
+				input: "hello",
+				reasoning: { effort: "xhigh" },
+			},
+			body: {
+				model: "meta/muse-spark-1.1",
+				input: "hello",
+				reasoning: { effort: "xhigh" },
+			},
+			requestId: "req_meta_reasoning_effort",
+			workspaceId: "team_test",
+			providers: [
+				provider("meta", { "reasoning.effort": {} }, 1_000_000),
+			],
+			model: "meta/muse-spark-1.1",
+		});
+
+		expect(result.ok).toBe(true);
+		if (result.ok) {
+			expect(result.requestedParams).toEqual(["reasoning.effort"]);
+			expect(result.providers.map((p: any) => p.providerId)).toEqual(["meta"]);
 		}
 	});
 

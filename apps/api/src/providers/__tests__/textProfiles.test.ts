@@ -32,6 +32,17 @@ describe("text provider profiles", () => {
 				model: "gpt-5-nano",
 			}),
 		).toEqual(["minimal", "low", "medium", "high"]);
+		expect(
+			getTextProviderReasoningEffortFallback({
+				providerId: "openai",
+				model: "gpt-5.6-sol-pro",
+			}),
+		).toEqual(["none", "low", "medium", "high", "xhigh", "max"]);
+	});
+
+	it("allows gateway service tiers for CrofAI and Wafer", () => {
+		expect(resolveTextProviderParamPolicyOverride({ providerId: "crofai", paramPathCandidates: ["service_tier"] })).toBe(true);
+		expect(resolveTextProviderParamPolicyOverride({ providerId: "wafer", paramPathCandidates: ["service_tier"] })).toBe(true);
 	});
 
 	it("normalizes service tier aliases by provider", () => {

@@ -69,8 +69,7 @@ const runtime = vi.hoisted(() => {
 			SUPABASE_URL: "https://example.supabase.co",
 			SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
 			GATEWAY_CACHE: cache as unknown as KVNamespace,
-			KEY_PEPPER: "pepper_test_value",
-			KEY_PEPPER_ACTIVE: undefined as string | undefined,
+			KEY_PEPPER_ACTIVE: "pepper_test_value",
 			KEY_PEPPER_PREVIOUS: undefined as string | undefined,
 		},
 	};
@@ -96,7 +95,7 @@ function buildRequest(token: string): Request {
 }
 
 function hashSecret(secret: string): string {
-	const pepper = runtime.bindings.KEY_PEPPER_ACTIVE ?? runtime.bindings.KEY_PEPPER;
+	const pepper = runtime.bindings.KEY_PEPPER_ACTIVE;
 	return createHmac("sha256", pepper).update(secret).digest("hex");
 }
 
@@ -126,7 +125,7 @@ describe("authenticate warm-cache latency", () => {
 		const kid = "KIDPERFAUTH123";
 		const secret = "secret_perf_auth";
 		const hash = hashSecret(secret);
-		const token = `aistats_v1_sk_${kid}_${secret}`;
+		const token = `phaseo_v1_sk_${kid}_${secret}`;
 		const row: KeyRow = {
 			id: "key_perf_auth",
 			workspace_id: "team_perf_auth",

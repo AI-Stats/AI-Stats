@@ -1,4 +1,5 @@
 ---
+icon: "clapperboard"
 title: "Video generation"
 description: "Create and manage async video jobs with the Go SDK."
 ---
@@ -21,10 +22,10 @@ description: "Create and manage async video jobs with the Go SDK."
 import (
   "context"
   "fmt"
-  aistats "github.com/AI-Stats/AI-Stats/packages/sdk/sdk-go"
+  phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"
 )
 
-client := aistats.New(apiKey, "https://api.phaseo.app/v1")
+client := phaseo.New(apiKey, "https://api.phaseo.app/v1")
 
 job, err := client.CreateVideo(context.Background(), map[string]interface{}{
   "model": "openai/sora-2",
@@ -46,7 +47,7 @@ if err != nil {
 
 websocketURL, err := client.GetVideoWebSocketURL(
   fmt.Sprint(job["id"]),
-  &aistats.AsyncJobWebSocketOptions{IntervalMS: 1500},
+  &phaseo.AsyncJobWebSocketOptions{IntervalMS: 1500},
 )
 if err != nil {
   panic(err)

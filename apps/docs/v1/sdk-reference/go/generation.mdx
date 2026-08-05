@@ -1,4 +1,5 @@
 ---
+icon: "search-check"
 title: "Generation lookup"
 description: "Look up saved generations with the Go SDK."
 ---
@@ -11,10 +12,10 @@ Use the wrapper method:
 import (
   "context"
   "fmt"
-  aistats "github.com/AI-Stats/AI-Stats/packages/sdk/sdk-go"
+  phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"
 )
 
-client := aistats.New(apiKey, "https://api.phaseo.app/v1")
+client := phaseo.New(apiKey, "https://api.phaseo.app/v1")
 record, err := client.GetGeneration(context.Background(), "G-01ABC...")
 if err != nil {
   panic(err)

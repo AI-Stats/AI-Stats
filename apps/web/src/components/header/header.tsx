@@ -10,33 +10,40 @@ import { HeaderAnnouncements } from "./HeaderAnnouncements";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import HeaderShell from "./HeaderShell";
+import SettingsSidebarTrigger from "@/components/(gateway)/settings/SettingsSidebarTrigger";
 
-const releaseMessage = "Introducing AI Stats Gateway";
-const docsLink = "https://docs.ai-stats.phaseo.app/v1";
+const releaseMessage = "Introducing Phaseo Gateway";
+const docsLink = "https://phaseo.app/docs/v1";
 const showHeaderAnnouncement = false;
 
 export default function Header() {
 	const headerContent = (
 		<div className="flex h-[var(--site-header-height,4rem)] items-center justify-between gap-[var(--site-header-gap,1.5rem)]">
 			<div className="flex min-w-0 flex-1 items-center gap-[var(--site-header-left-gap,1.25rem)] overflow-hidden">
+				<Suspense fallback={null}>
+					<SettingsSidebarTrigger />
+				</Suspense>
 				<Link
 					href="/"
-					className="flex shrink-0 items-center text-2xl font-semibold tracking-tight"
+					aria-label="Phaseo home"
+					className="inline-flex h-[var(--site-header-control-h,2.25rem)] shrink-0 items-center rounded-lg px-[var(--site-header-nav-px,0.75rem)] transition-colors hover:bg-zinc-100/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 dark:hover:bg-zinc-900/60 dark:focus-visible:ring-zinc-600/50"
 				>
 					<Image
 						src="/wordmark_light.svg"
-						alt="AI Stats"
+						alt="Phaseo"
 						width={154}
 						height={40}
 						className="h-[var(--site-header-logo-height,2.5rem)] w-auto select-none dark:hidden"
+						style={{ width: "auto" }}
 						priority
 					/>
 					<Image
 						src="/wordmark_dark.svg"
-						alt="AI Stats"
+						alt="Phaseo"
 						width={154}
 						height={40}
 						className="hidden h-[var(--site-header-logo-height,2.5rem)] w-auto select-none dark:block"
+						style={{ width: "auto" }}
 						priority
 					/>
 				</Link>
@@ -58,49 +65,55 @@ export default function Header() {
 				</div>
 			</div>
 
-			<div className="hidden shrink-0 items-center gap-3 lg:flex">
+			<div className="flex shrink-0 items-center gap-1 lg:gap-3">
+				<div className="hidden lg:order-0 lg:block">
+					<Suspense
+						fallback={
+							<Skeleton className="h-[var(--site-header-control-h,2.5rem)] w-16 rounded-lg" />
+						}
+					>
+						<Link href={docsLink} target="_blank" rel="noreferrer" prefetch={false}>
+							<Button
+								variant="ghost"
+								className="h-[var(--site-header-control-h,2.25rem)] rounded-lg px-2 text-[13px] font-medium text-zinc-600 shadow-none hover:bg-zinc-100/70 xl:px-2.5 dark:text-zinc-300 dark:hover:bg-zinc-900/60"
+							>
+								<BookOpenText className="h-3.5 w-3.5" />
+								Docs
+							</Button>
+						</Link>
+					</Suspense>
+				</div>
 				<Suspense
 					fallback={
-						<Skeleton className="h-[var(--site-header-control-h,2.5rem)] w-16 rounded-lg" />
+						<Skeleton className="size-9 rounded-lg xl:w-[15rem]" />
 					}
 				>
-					<Link href={docsLink} target="_blank" rel="noreferrer" prefetch={false}>
-						<Button
-							variant="ghost"
-							className="h-[var(--site-header-control-h,2.25rem)] rounded-lg px-2 text-[13px] font-medium text-zinc-600 shadow-none hover:bg-zinc-100/70 xl:px-2.5 dark:text-zinc-300 dark:hover:bg-zinc-900/60"
-						>
-							<BookOpenText className="h-3.5 w-3.5" />
-							Docs
-						</Button>
-					</Link>
+					<SearchWrapper
+						className="size-9 xl:w-[var(--site-header-search-width-xl,15rem)]"
+						mobileGhost
+					/>
 				</Suspense>
-				<Suspense
-					fallback={
-						<Skeleton className="h-[var(--site-header-control-h,2.5rem)] w-[var(--site-header-control-h,2.25rem)] rounded-lg xl:w-[15rem]" />
-					}
-				>
-					<SearchWrapper className="w-[var(--site-header-control-h,2.25rem)] xl:w-[var(--site-header-search-width-xl,15rem)]" />
-				</Suspense>
-				<Suspense
-					fallback={
-						<div className="flex items-center gap-2">
-							<Skeleton className="h-[calc(var(--site-header-control-h,2.5rem)-0.125rem)] w-32 rounded-lg" />
-							<Skeleton className="h-[calc(var(--site-header-control-h,2.5rem)-0.25rem)] w-8 rounded-lg" />
-						</div>
-					}
-				>
-					<AuthControls variant="desktop" />
-				</Suspense>
-			</div>
-
-			<div className="lg:hidden">
-				<Suspense
-					fallback={
-						<Skeleton className="h-[var(--site-header-control-h,2.5rem)] w-[var(--site-header-control-h,2.5rem)] rounded-lg" />
-					}
-				>
-					<AuthControls variant="mobile" />
-				</Suspense>
+				<div className="hidden lg:block">
+					<Suspense
+						fallback={
+							<div className="flex items-center gap-2">
+								<Skeleton className="h-[calc(var(--site-header-control-h,2.5rem)-0.125rem)] w-32 rounded-lg" />
+								<Skeleton className="h-[calc(var(--site-header-control-h,2.5rem)-0.25rem)] w-8 rounded-lg" />
+							</div>
+						}
+					>
+						<AuthControls variant="desktop" />
+					</Suspense>
+				</div>
+				<div className="flex items-center lg:hidden">
+					<Suspense
+						fallback={
+							<Skeleton className="size-[var(--site-header-control-h,2.5rem)] rounded-lg" />
+						}
+					>
+						<AuthControls variant="mobile" />
+					</Suspense>
+				</div>
 			</div>
 		</div>
 	);

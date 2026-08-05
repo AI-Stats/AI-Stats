@@ -1,6 +1,11 @@
 name: Publish Go SDK
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/sdk/sdk-go/package.json"
   workflow_dispatch:
     inputs:
       version:
@@ -14,6 +19,7 @@ permissions:
 jobs:
   publish-go:
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: Require main branch
         shell: bash
@@ -24,28 +30,41 @@ jobs:
             exit 1
           fi
 
-      - name: Create GitHub App token (AI Stats Bot)
+      - name: Create GitHub App token (Phaseo Bot)
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
         with:
-          app-id: ${{ secrets.AI_STATS_APP_ID }}
-          private-key: ${{ secrets.AI_STATS_APP_PRIVATE_KEY }}
+          client-id: ${{ secrets.PHASEO_APP_CLIENT_ID }}
+          private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
 
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - name: Resolve GitHub App identity
+        id: app-identity
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          bot="${{ steps.app-token.outputs.app-slug }}[bot]"
+          id="$(gh api "/users/${bot}" --jq .id)"
+          echo "name=${bot}" >> "$GITHUB_OUTPUT"
+          echo "email=${id}+${bot}@users.noreply.github.com" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: "22"
           package-manager-cache: false
 
       - name: Setup Go
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
         with:
           go-version: "1.23"
+          cache: false
 
       - name: Resolve version
         id: version
@@ -54,16 +73,33 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ -n "${INPUT_VERSION:-}" ]; then
-            version="${INPUT_VERSION}"
-          else
-            version="$(node -p "require('./packages/sdk/sdk-go/package.json').version")"
+          version="$(node -p "require('./packages/sdk/sdk-go/package.json').version")"
+          if [ -n "${INPUT_VERSION:-}" ] && [ "${INPUT_VERSION}" != "${version}" ]; then
+            echo "::error::Requested version ${INPUT_VERSION} does not match committed version ${version}."
+            exit 1
           fi
           if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
             echo "::error::Invalid version: $version"
             exit 1
           fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Validate Go major-version module path
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          major="${VERSION%%.*}"
+          module="$(go -C packages/sdk/sdk-go list -m)"
+          expected="github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v${major}"
+          if [ "$major" -lt 2 ]; then
+            expected="github.com/phaseoteam/Phaseo/packages/sdk/sdk-go"
+          fi
+          if [ "$module" != "$expected" ]; then
+            echo "::error::Go module path ${module} does not match v${major} release path ${expected}."
+            exit 1
+          fi
 
       - name: Validate telemetry literal matches publish version
         env:
@@ -96,9 +132,13 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.value }}
           GH_APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          GIT_USER_NAME: ${{ steps.app-identity.outputs.name }}
+          GIT_USER_EMAIL: ${{ steps.app-identity.outputs.email }}
         shell: bash
         run: |
           set -euo pipefail
+          git config user.name "$GIT_USER_NAME"
+          git config user.email "$GIT_USER_EMAIL"
           tag="packages/sdk/sdk-go/v${VERSION}"
           if git rev-parse "$tag" >/dev/null 2>&1; then
             echo "Tag already exists locally: $tag"

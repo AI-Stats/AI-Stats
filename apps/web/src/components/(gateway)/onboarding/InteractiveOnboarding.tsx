@@ -19,6 +19,7 @@ import {
 import { CodeBlock as HighlightedCodeBlock } from "@/components/ai-elements/code-block";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
+import { CountryCombobox } from "@/components/ui/country-combobox";
 import { CopyButton } from "@/components/ui/copy-button";
 import { SecretRevealActions } from "@/components/(gateway)/settings/keys/SecretRevealActions";
 import {
@@ -30,6 +31,7 @@ import {
 	DrawerTrigger,
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
+import { captureProductEvent } from "@/lib/productAnalytics";
 
 export type OnboardingWorkspace = {
 	id: string;
@@ -71,16 +73,16 @@ const PROMPT_OPTIONS: PromptOption[] = [
 	{
 		id: "summary",
 		label: "One sentence summary",
-		message: "Explain what AI Stats does in one sentence.",
+		message: "Explain what Phaseo does in one sentence.",
 		response:
-			"AI Stats helps developers discover, compare, and call AI models through one gateway with consistent pricing, routing, and observability.",
+			"Phaseo helps developers discover, compare, and call AI models through one gateway with consistent pricing, routing, and observability.",
 	},
 	{
 		id: "welcome",
 		label: "Welcome message",
 		message: "Write a friendly welcome message for a developer.",
 		response:
-			"Welcome to AI Stats. Create a key, choose a model, and send your first request whenever you are ready.",
+			"Welcome to Phaseo. Create a key, choose a model, and send your first request whenever you are ready.",
 	},
 	{
 		id: "compare",
@@ -94,7 +96,7 @@ const PROMPT_OPTIONS: PromptOption[] = [
 		label: "JSON draft",
 		message: "Draft a JSON object with a project name and next action.",
 		response:
-			'{\n  "project": "AI Stats onboarding",\n  "next_action": "Send a test chat completion request"\n}',
+			'{\n  "project": "Phaseo onboarding",\n  "next_action": "Send a test chat completion request"\n}',
 	},
 ];
 
@@ -107,7 +109,7 @@ function buildModelsCode(): RestCodeExample {
 		method: "GET",
 		endpoint: "/v1/models",
 		code: `curl "https://api.phaseo.app/v1/models?endpoints=chat/completions" \\
-  -H "Authorization: Bearer $AI_STATS_API_KEY"`,
+  -H "Authorization: Bearer $PHASEO_API_KEY"`,
 	};
 }
 
@@ -124,7 +126,7 @@ function buildKeyCode(keyName: string): RestCodeExample {
 		method: "POST",
 		endpoint: "/v1/keys",
 		code: `curl https://api.phaseo.app/v1/keys \\
-  -H "Authorization: Bearer $AI_STATS_MANAGEMENT_KEY" \\
+  -H "Authorization: Bearer $PHASEO_MANAGEMENT_KEY" \\
   -H "Content-Type: application/json" \\
   -d '${payload}'`,
 	};
@@ -140,7 +142,7 @@ function buildRequestCode(
 		messages: [
 			{
 				role: "user",
-				content: message || "Hello from AI Stats",
+				content: message || "Hello from Phaseo",
 			},
 		],
 	});
@@ -149,7 +151,7 @@ function buildRequestCode(
 		method: "POST",
 		endpoint: "/v1/chat/completions",
 		code: `curl https://api.phaseo.app/v1/chat/completions \\
-  -H "Authorization: Bearer ${keyPreview || "$AI_STATS_API_KEY"}" \\
+  -H "Authorization: Bearer ${keyPreview || "$PHASEO_API_KEY"}" \\
   -H "Content-Type: application/json" \\
   -d '${payload}'`,
 	};
@@ -337,12 +339,16 @@ function MobileCodeDrawer({ example }: { example: RestCodeExample }) {
 export default function InteractiveOnboarding({
 	initialState,
 	initialCompletedAt,
+	initialCountryCode,
+	countryStorageAvailable,
 	initialWorkspaceId,
 	models,
 	workspaces,
 }: {
 	initialState: Record<string, unknown>;
 	initialCompletedAt: string | null;
+	initialCountryCode: string | null;
+	countryStorageAvailable: boolean;
 	initialWorkspaceId: string | null;
 	models: OnboardingModel[];
 	workspaces: OnboardingWorkspace[];
@@ -353,6 +359,9 @@ export default function InteractiveOnboarding({
 	const firstIncomplete =
 		STEPS.find((step) => !initialSteps.includes(step.id))?.id ?? "request";
 
+	const [countryCode, setCountryCode] = React.useState(initialCountryCode ?? "");
+	const [declaredCountryCode, setDeclaredCountryCode] = React.useState(initialCountryCode ?? "");
+	const [isSavingCountry, setIsSavingCountry] = React.useState(false);
 	const [activeStep, setActiveStep] = React.useState<StepId>(firstIncomplete);
 	const [completedSteps, setCompletedSteps] = React.useState<Set<string>>(
 		() => new Set(initialSteps),
@@ -398,8 +407,8 @@ export default function InteractiveOnboarding({
 		PROMPT_OPTIONS[0];
 	const keyPreview =
 		createdPlaintextKey ||
-		(createdKeyPrefix ? `aistats_v1_sk_...${createdKeyPrefix}` : "") ||
-		"$AI_STATS_API_KEY";
+		(createdKeyPrefix ? `phaseo_v1_sk_...${createdKeyPrefix}` : "") ||
+		"$PHASEO_API_KEY";
 	const simulatedResponseObject = buildSimulatedChatCompletionResponse({
 		modelId: selectedModel?.id ?? selectedModelId,
 		prompt: selectedPrompt?.message ?? "",
@@ -416,7 +425,7 @@ export default function InteractiveOnboarding({
 				: buildRequestCode(
 						selectedModel?.id ?? selectedModelId,
 						keyPreview,
-						selectedPrompt?.message ?? "Hello from AI Stats",
+						selectedPrompt?.message ?? "Hello from Phaseo",
 					);
 
 	const clearStreamTimeouts = React.useCallback(() => {
@@ -540,6 +549,10 @@ export default function InteractiveOnboarding({
 			setCreatedPlaintextKey(result.plaintext ?? "");
 			setCreatedKeyPrefix(result.prefix ?? "");
 			if (result.id) setSelectedKeyId(result.id);
+			captureProductEvent("api_key_created", {
+				preset: "development",
+				surface: "onboarding",
+			});
 
 			const nextCompleted = new Set(completedSteps);
 			nextCompleted.add("api-key");
@@ -599,6 +612,11 @@ export default function InteractiveOnboarding({
 						: Array.from(completedSteps),
 				status,
 			});
+			captureProductEvent("onboarding_finished", {
+				completed_step_count:
+					status === "completed" ? 3 : completedSteps.size,
+				outcome: status,
+			});
 			toast.success(
 				status === "completed" ? "Onboarding complete" : "Onboarding skipped",
 			);
@@ -610,6 +628,24 @@ export default function InteractiveOnboarding({
 			);
 		} finally {
 			setIsSaving(false);
+		}
+	}
+
+	async function saveCountry() {
+		if (!countryCode) return;
+		try {
+			setIsSavingCountry(true);
+			await saveOnboardingProgressAction({
+				countryCode,
+				completedSteps: ["country"],
+				status: "started",
+			});
+			setDeclaredCountryCode(countryCode);
+			toast.success("Country saved");
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : "Could not save country");
+		} finally {
+			setIsSavingCountry(false);
 		}
 	}
 
@@ -647,13 +683,42 @@ export default function InteractiveOnboarding({
 		);
 	}
 
+	if (countryStorageAvailable && !declaredCountryCode) {
+		return (
+			<div className="min-h-[calc(100dvh-var(--site-header-height,4rem))] bg-background px-4 py-10 text-foreground sm:px-6">
+				<div className="mx-auto max-w-lg rounded-xl border bg-card p-6 sm:p-8">
+					<h1 className="text-2xl font-semibold tracking-tight">Select your country</h1>
+					<p className="mt-2 text-sm leading-6 text-muted-foreground">
+						Choose the country where you live. We use this to determine which providers and services are available to your account. This is kept separate from request-location analytics.
+					</p>
+					<div className="mt-6 space-y-2">
+						<label htmlFor="onboarding-country" className="text-sm font-medium">Country</label>
+						<CountryCombobox
+							id="onboarding-country"
+							value={countryCode}
+							onValueChange={setCountryCode}
+							disabled={isSavingCountry}
+						/>
+					</div>
+					<Button className="mt-6 w-full" onClick={saveCountry} disabled={!countryCode || isSavingCountry}>
+						{isSavingCountry ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : null}
+						Continue
+					</Button>
+					<p className="mt-4 text-xs leading-5 text-muted-foreground">
+						Select your actual country. Request access may also be checked against network location where required for security or provider compliance.
+					</p>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="min-h-[calc(100dvh-var(--site-header-height,4rem))] bg-background text-foreground">
 			<div className="mx-auto w-full max-w-7xl px-4 py-6 pb-24 sm:px-6 sm:py-8 lg:pb-8">
 				<div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 					<div>
 						<h1 className="text-2xl font-semibold tracking-normal">
-							Get started with AI Stats
+							Get started with Phaseo
 						</h1>
 						<p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
 							Choose a model, preview the API flow, and create a key when you

@@ -28,6 +28,7 @@ import {
 	type ApiKeyPresetId,
 } from "@/lib/gateway/secretReveal";
 import { SecretRevealActions } from "./SecretRevealActions";
+import { captureProductEvent } from "@/lib/productAnalytics";
 
 export default function CreateKeyDialog({
 	currentUserId,
@@ -81,6 +82,10 @@ export default function CreateKeyDialog({
 				getApiKeyPreset(selectedPresetId).limits
 			);
 			setPlainKey(res?.plaintext ?? null);
+			captureProductEvent("api_key_created", {
+				preset: selectedPresetId,
+				surface: "settings",
+			});
 		} catch (err: any) {
 			const message =
 				err?.message ?? "Could not create API key right now. Please try again.";
@@ -137,31 +142,31 @@ export default function CreateKeyDialog({
 						{/* Team selector (dropdown placed above name input) */}
 						{resolvedTeams && resolvedTeams.length > 0 ? (
 							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
+								<DropdownMenuTrigger render={<Button
 										variant="outline"
 										size="sm"
-										className="w-full flex items-center justify-between"
-									>
+										className="w-full flex items-center justify-between" />}>
+
 										<span>
 											{resolvedTeams.find(
 												(t) => t.id === selectedTeamId
 											)?.name || "Personal"}
 										</span>
 										<ChevronDown className="ml-2 h-4 w-4" />
-									</Button>
+
 								</DropdownMenuTrigger>
 								<DropdownMenuContent
 									side="bottom"
 									align="start"
-									className="w-full"
+									className="w-full rounded-lg"
 								>
 									{resolvedTeams.map((t) => (
 										<DropdownMenuItem
 											key={String(t.id ?? "__null")}
-											onSelect={() =>
+											onClick={() =>
 												setSelectedTeamId(t.id ?? null)
 											}
+											className="rounded-lg"
 										>
 											{t.name}
 										</DropdownMenuItem>

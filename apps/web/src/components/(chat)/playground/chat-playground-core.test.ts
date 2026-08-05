@@ -1,7 +1,109 @@
 import {
+	DEFAULT_SETTINGS,
+	buildDefaultSystemPrompt,
 	buildServerToolDefinitions,
+	estimatePromptTokenCount,
+	getChangedSettings,
+	isGeneratedDefaultSystemPrompt,
 	normalizeServerTools,
 } from "./chat-playground-core";
+
+describe("getChangedSettings", () => {
+	it("uses the provider display name instead of the stored provider id", () => {
+		const changes = getChangedSettings(
+			{ ...DEFAULT_SETTINGS, providerId: "openai" },
+			"openai/gpt-5",
+			undefined,
+			"OpenAI",
+		);
+
+		expect(changes).toContainEqual({ label: "Provider", value: "OpenAI" });
+	});
+});
+
+describe("buildDefaultSystemPrompt", () => {
+	it("instructs models to produce valid Streamdown-compatible LaTeX", () => {
+		const prompt = buildDefaultSystemPrompt("openai/gpt-5.6-luna-pro");
+
+		expect(prompt).toContain(
+			"Markdown; ```code fences```; `backticks` for code, filenames, paths, and functions.",
+		);
+		expect(prompt).toContain(
+			"Use $...$ or $$...$$ only for typeset math",
+		);
+		expect(prompt).toContain(
+			"Keep numbers, percentages, and currency plain.",
+		);
+		expect(prompt).toContain(
+			"escape % in math (e.g. $80\\%$)",
+		);
+		expect(prompt).toContain("no \\(...\\) or \\[...\\].");
+		expect(prompt).not.toContain("Formatting Rules:");
+	});
+});
+
+describe("estimatePromptTokenCount", () => {
+	it("uses a four-character approximation without rounding nonempty prompts to zero", () => {
+		expect(estimatePromptTokenCount("")).toBe(0);
+		expect(estimatePromptTokenCount("a")).toBe(1);
+		expect(estimatePromptTokenCount("abcd")).toBe(1);
+		expect(estimatePromptTokenCount("abcde")).toBe(2);
+	});
+});
+
+describe("isGeneratedDefaultSystemPrompt", () => {
+	const modelId = "openai/gpt-5.6-luna";
+	const nickname = "Luna";
+	const identity = `You are ${modelId}, known as: ${nickname}, a large language model from openai.`;
+
+	it("recognizes the current compact default prompt", () => {
+		expect(isGeneratedDefaultSystemPrompt(buildDefaultSystemPrompt(modelId, nickname), modelId, nickname)).toBe(true);
+	});
+
+	it("recognizes the prior and legacy formatting suffixes", () => {
+		const previous = `${identity}\n\nFormatting Rules:\n- Do not use \\(...\\) or \\[...\\] delimiters.`;
+		const legacy = `${identity}\n\nFormatting Rules:\n- **For all mathematical expressions, you must use dollar-sign delimiters. Use $...$ for inline math and $$...$$ for block math. Do not use (...) or [...] delimiters.**`;
+
+		expect(isGeneratedDefaultSystemPrompt(previous, modelId, nickname)).toBe(true);
+		expect(isGeneratedDefaultSystemPrompt(legacy, modelId, nickname)).toBe(true);
+	});
+
+	it("recognizes a generated blank-chat prompt before model selection", () => {
+		expect(
+			isGeneratedDefaultSystemPrompt(buildDefaultSystemPrompt(""), ""),
+		).toBe(true);
+	});
+
+	it("recognizes the full legacy generated prompt without a nickname", () => {
+		const legacy = [
+			`You are ${modelId}, a large language model from openai.`,
+			"",
+			"Formatting Rules:",
+			"- Use Markdown for lists, tables, and styling.",
+			"- Use ```code fences``` for all code blocks.",
+			"- Format file names, paths, and function names with `inline code` backticks.",
+			"- **For all mathematical expressions, you must use dollar-sign delimiters. Use $...$ for inline math and $$...$$ for block math. Do not use (...) or [...] delimiters.**",
+		].join("\n");
+
+		expect(isGeneratedDefaultSystemPrompt(legacy, modelId)).toBe(true);
+		expect(
+			getChangedSettings(
+				{ ...DEFAULT_SETTINGS, systemPrompt: legacy },
+				modelId,
+			),
+		).not.toContainEqual({ label: "System prompt", value: "Custom" });
+	});
+
+	it("does not accept extra instructions inside a generated-looking prompt", () => {
+		const custom = `${identity}\n\nFormatting Rules:\nAlways answer in haiku.\n- Do not use \\(...\\) or \\[...\\] delimiters.`;
+
+		expect(isGeneratedDefaultSystemPrompt(custom, modelId, nickname)).toBe(false);
+	});
+
+	it("does not classify a custom prompt as generated", () => {
+		expect(isGeneratedDefaultSystemPrompt("Always answer in haiku.", modelId, nickname)).toBe(false);
+	});
+});
 
 describe("buildServerToolDefinitions", () => {
 	it("caps and validates datetime timezone parameters", () => {
@@ -39,34 +141,34 @@ describe("buildServerToolDefinitions", () => {
 	it("supports the composer server tool set", () => {
 		expect(
 			normalizeServerTools([
-				"ai-stats:web_search",
-				"ai-stats:web_fetch",
-				"ai-stats:image_generation",
+				"phaseo:web_search",
+				"phaseo:web_fetch",
+				"phaseo:image_generation",
 				"gateway:datetime",
-				"ai-stats:fusion",
-				"ai-stats:advisor",
-				"ai-stats:subagent",
-				"ai-stats:apply_patch" as never,
+				"phaseo:fusion",
+				"phaseo:advisor",
+				"phaseo:subagent",
+				"phaseo:apply_patch" as never,
 			]),
 		).toEqual([
-			"ai-stats:web_search",
-			"ai-stats:web_fetch",
-			"ai-stats:image_generation",
+			"phaseo:web_search",
+			"phaseo:web_fetch",
+			"phaseo:image_generation",
 			"gateway:datetime",
-			"ai-stats:fusion",
-			"ai-stats:advisor",
-			"ai-stats:subagent",
+			"phaseo:fusion",
+			"phaseo:advisor",
+			"phaseo:subagent",
 		]);
 	});
 
 	it("builds fusion model sets and subagent as its documented tool type", () => {
 		const tools = buildServerToolDefinitions(
-			["ai-stats:fusion", "ai-stats:subagent"],
+			["phaseo:fusion", "phaseo:subagent"],
 			{
 				fusion: {
 					models: [
 						"openai/gpt-5.5",
-						"anthropic/claude-opus-4.8",
+						"anthropic/claude-opus-5",
 						"openai/gpt-5.5",
 						"",
 					],
@@ -86,7 +188,7 @@ describe("buildServerToolDefinitions", () => {
 
 		expect(tools).toEqual([
 			{
-				type: "ai-stats:advisor",
+				type: "phaseo:advisor",
 				parameters: {
 					name: "fusion_1",
 					model: "openai/gpt-5.5",
@@ -96,17 +198,17 @@ describe("buildServerToolDefinitions", () => {
 				},
 			},
 			{
-				type: "ai-stats:advisor",
+				type: "phaseo:advisor",
 				parameters: {
 					name: "fusion_2",
-					model: "anthropic/claude-opus-4.8",
+					model: "anthropic/claude-opus-5",
 					instructions:
 						"Analyze the user's request independently. Return concise findings, assumptions, caveats, and the answer direction you recommend for synthesis.",
 					max_uses: 2,
 				},
 			},
 			{
-				type: "ai-stats:advisor",
+				type: "phaseo:advisor",
 				parameters: {
 					name: "fusion_judge",
 					model: "google/gemini-3.1-pro",
@@ -116,7 +218,7 @@ describe("buildServerToolDefinitions", () => {
 				},
 			},
 			{
-				type: "ai-stats:subagent",
+				type: "phaseo:subagent",
 				parameters: {
 					model: "openai/gpt-5-nano",
 					instructions: "Return concise findings only.",
@@ -130,7 +232,7 @@ describe("buildServerToolDefinitions", () => {
 	});
 
 	it("builds one advisor tool definition per configured advisor", () => {
-		const tools = buildServerToolDefinitions(["ai-stats:advisor"], {
+		const tools = buildServerToolDefinitions(["phaseo:advisor"], {
 			advisors: [
 				{
 					name: "reviewer",
@@ -140,7 +242,7 @@ describe("buildServerToolDefinitions", () => {
 				},
 				{
 					name: "critic",
-					model: "anthropic/claude-opus-4.8",
+					model: "anthropic/claude-opus-5",
 					reasoningEffort: "high",
 				},
 			],
@@ -148,7 +250,7 @@ describe("buildServerToolDefinitions", () => {
 
 		expect(tools).toEqual([
 			{
-				type: "ai-stats:advisor",
+				type: "phaseo:advisor",
 				parameters: {
 					name: "reviewer",
 					model: "openai/gpt-5.5",
@@ -157,10 +259,10 @@ describe("buildServerToolDefinitions", () => {
 				},
 			},
 			{
-				type: "ai-stats:advisor",
+				type: "phaseo:advisor",
 				parameters: {
 					name: "critic",
-					model: "anthropic/claude-opus-4.8",
+					model: "anthropic/claude-opus-5",
 					reasoning: { effort: "high" },
 				},
 			},

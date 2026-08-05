@@ -138,12 +138,12 @@ describe("prepareServerToolsForTextRequest", () => {
 		expect(result.message).toContain("at most 5 timezones");
 	});
 
-	it("rewrites AI Stats web search into a callable function tool", () => {
+	it("rewrites Phaseo web search into a callable function tool", () => {
 		const result = prepareServerToolsForTextRequest(
 			{
 				model: "openai/gpt-5-nano",
-				tools: [{ type: "ai-stats:web_search", parameters: { max_results: 4 } }],
-				tool_choice: "ai-stats:web_search",
+				tools: [{ type: "phaseo:web_search", parameters: { max_results: 4 } }],
+				tool_choice: "phaseo:web_search",
 			},
 			"openai.responses",
 		);
@@ -156,22 +156,22 @@ describe("prepareServerToolsForTextRequest", () => {
 		expect(result.config.webSearchMaxResults).toBe(4);
 		expect(result.body.tool_choice).toEqual({
 			type: "function",
-			function: { name: "ai_stats_web_search" },
+			function: { name: "phaseo_web_search" },
 		});
 		expect(
 			(result.body.tools as Array<{ function?: { name?: string } }>).some(
-				(tool) => tool.function?.name === "ai_stats_web_search",
+				(tool) => tool.function?.name === "phaseo_web_search",
 			),
 		).toBe(true);
 	});
 
-	it("accepts AI Stats web search aliases and engine parameters", () => {
+	it("accepts Phaseo web search aliases and engine parameters", () => {
 		const result = prepareServerToolsForTextRequest(
 			{
 				model: "openai/gpt-5-nano",
 				tools: [
 					{
-						type: "ai-stats:web_search",
+						type: "phaseo:web_search",
 						parameters: {
 							engine: "exa",
 							max_results: 12,
@@ -182,7 +182,7 @@ describe("prepareServerToolsForTextRequest", () => {
 						},
 					},
 				],
-				tool_choice: "ai-stats:web_search",
+				tool_choice: "phaseo:web_search",
 			},
 			"openai.responses",
 		);
@@ -202,17 +202,17 @@ describe("prepareServerToolsForTextRequest", () => {
 		});
 		expect(result.body.tool_choice).toEqual({
 			type: "function",
-			function: { name: "ai_stats_web_search" },
+			function: { name: "phaseo_web_search" },
 		});
 	});
 
-	it("converts AI Stats native web search aliases into provider-native tools", () => {
+	it("converts Phaseo native web search aliases into provider-native tools", () => {
 		const result = prepareServerToolsForTextRequest(
 			{
 				model: "openai/gpt-5-nano",
 				tools: [
 					{
-						type: "ai-stats:web_search",
+						type: "phaseo:web_search",
 						parameters: {
 							engine: "native",
 							search_context_size: "low",
@@ -220,7 +220,7 @@ describe("prepareServerToolsForTextRequest", () => {
 						},
 					},
 				],
-				tool_choice: "ai-stats:web_search",
+				tool_choice: "phaseo:web_search",
 			},
 			"openai.responses",
 		);
@@ -239,12 +239,12 @@ describe("prepareServerToolsForTextRequest", () => {
 		expect(result.body.tool_choice).toBe("web_search_preview");
 	});
 
-	it("rewrites AI Stats web fetch into a callable function tool", () => {
+	it("rewrites Phaseo web fetch into a callable function tool", () => {
 		const result = prepareServerToolsForTextRequest(
 			{
 				model: "openai/gpt-5-nano",
-				tools: [{ type: "ai-stats:web_fetch", parameters: { max_chars: 6000 } }],
-				tool_choice: "ai-stats:web_fetch",
+				tools: [{ type: "phaseo:web_fetch", parameters: { max_chars: 6000 } }],
+				tool_choice: "phaseo:web_fetch",
 			},
 			"openai.responses",
 		);
@@ -257,31 +257,31 @@ describe("prepareServerToolsForTextRequest", () => {
 		expect(result.config.webFetchMaxChars).toBe(6000);
 		expect(result.body.tool_choice).toEqual({
 			type: "function",
-			function: { name: "ai_stats_web_fetch" },
+			function: { name: "phaseo_web_fetch" },
 		});
 		expect(
 			(result.body.tools as Array<{ function?: { name?: string } }>).some(
-				(tool) => tool.function?.name === "ai_stats_web_fetch",
+				(tool) => tool.function?.name === "phaseo_web_fetch",
 			),
 		).toBe(true);
 	});
 
-	it("converts native AI Stats web fetch into Anthropic native web fetch", () => {
+	it("converts native Phaseo web fetch into Anthropic native web fetch", () => {
 		const result = prepareServerToolsForTextRequest(
 			{
 				model: "claude-sonnet-4.6",
 				tools: [
 					{
-						type: "ai-stats:web_fetch",
+						type: "phaseo:web_fetch",
 						parameters: {
 							engine: "native",
 							max_content_tokens: 9000,
-							allowed_domains: ["docs.ai-stats.com"],
-							blocked_domains: ["internal.ai-stats.com"],
+							allowed_domains: ["phaseo.app"],
+							blocked_domains: ["internal.phaseo.app"],
 						},
 					},
 				],
-				tool_choice: "ai-stats:web_fetch",
+				tool_choice: "phaseo:web_fetch",
 			},
 			"anthropic.messages",
 		);
@@ -295,27 +295,27 @@ describe("prepareServerToolsForTextRequest", () => {
 				type: "web_fetch_20260209",
 				name: "web_fetch",
 				max_content_tokens: 9000,
-				allowed_domains: ["docs.ai-stats.com"],
-				blocked_domains: ["internal.ai-stats.com"],
+				allowed_domains: ["phaseo.app"],
+				blocked_domains: ["internal.phaseo.app"],
 			},
 		]);
 		expect(result.body.tool_choice).toEqual({ type: "tool", name: "web_fetch" });
 	});
 
-	it("resolves auto AI Stats web fetch to Anthropic native web fetch", () => {
+	it("resolves auto Phaseo web fetch to Anthropic native web fetch", () => {
 		const result = prepareServerToolsForTextRequest(
 			{
 				model: "claude-sonnet-4.6",
 				tools: [
 					{
-						type: "ai-stats:web_fetch",
+						type: "phaseo:web_fetch",
 						parameters: {
 							engine: "auto",
 							max_content_tokens: 7000,
 						},
 					},
 				],
-				tool_choice: "ai-stats:web_fetch",
+				tool_choice: "phaseo:web_fetch",
 			},
 			"anthropic.messages",
 		);
@@ -333,11 +333,11 @@ describe("prepareServerToolsForTextRequest", () => {
 		]);
 	});
 
-	it("resolves auto AI Stats web fetch to Exa when configured on non-native surfaces", () => {
+	it("resolves auto Phaseo web fetch to Exa when configured on non-native surfaces", () => {
 		const result = prepareServerToolsForTextRequest(
 			{
 				model: "openai/gpt-5-nano",
-				tools: [{ type: "ai-stats:web_fetch", parameters: { engine: "auto" } }],
+				tools: [{ type: "phaseo:web_fetch", parameters: { engine: "auto" } }],
 			},
 			"openai.responses",
 		);
@@ -349,12 +349,12 @@ describe("prepareServerToolsForTextRequest", () => {
 		expect(result.config.webFetchEngine).toBe("exa");
 	});
 
-	it("resolves auto AI Stats web fetch to direct when Exa is not configured", () => {
+	it("resolves auto Phaseo web fetch to direct when Exa is not configured", () => {
 		getBindingsMock.mockReturnValue({});
 		const result = prepareServerToolsForTextRequest(
 			{
 				model: "openai/gpt-5-nano",
-				tools: [{ type: "ai-stats:web_fetch", parameters: { engine: "auto" } }],
+				tools: [{ type: "phaseo:web_fetch", parameters: { engine: "auto" } }],
 			},
 			"openai.responses",
 		);
@@ -366,13 +366,13 @@ describe("prepareServerToolsForTextRequest", () => {
 		expect(result.config.webFetchEngine).toBe("direct");
 	});
 
-	it("rejects native AI Stats web fetch on non-Anthropic request surfaces", () => {
+	it("rejects native Phaseo web fetch on non-Anthropic request surfaces", () => {
 		const result = prepareServerToolsForTextRequest(
 			{
 				model: "openai/gpt-5-nano",
 				tools: [
 					{
-						type: "ai-stats:web_fetch",
+						type: "phaseo:web_fetch",
 						parameters: { engine: "native" },
 					},
 				],
@@ -386,16 +386,16 @@ describe("prepareServerToolsForTextRequest", () => {
 		expect(result.message).toContain("Anthropic Messages");
 	});
 
-	it("rewrites named AI Stats advisors into Anthropic managed tools", () => {
+	it("rewrites named Phaseo advisors into Anthropic managed tools", () => {
 		const result = prepareServerToolsForTextRequest(
 			{
 				model: "claude-sonnet-4.6",
 				tools: [
 					{
-						type: "ai-stats:advisor",
+						type: "phaseo:advisor",
 						parameters: {
 							name: "reviewer",
-							model: "claude-opus-4-8",
+							model: "claude-opus-5",
 							instructions: "Review for migration risk.",
 							forward_transcript: true,
 							max_uses: 2,
@@ -405,14 +405,14 @@ describe("prepareServerToolsForTextRequest", () => {
 						},
 					},
 					{
-						type: "ai-stats:advisor",
+						type: "phaseo:advisor",
 						parameters: {
 							name: "architect",
 							instructions: "Focus on architecture tradeoffs.",
 						},
 					},
 				],
-				tool_choice: "ai-stats:advisor",
+				tool_choice: "phaseo:advisor",
 			},
 			"anthropic.messages",
 		);
@@ -422,10 +422,10 @@ describe("prepareServerToolsForTextRequest", () => {
 		}
 		expect(result.config.enabled).toBe(true);
 		expect(result.config.advisorEnabled).toBe(true);
-		expect(result.config.defaultAdvisorFunctionName).toBe("ai_stats_advisor_reviewer");
-		expect(result.config.advisors?.ai_stats_advisor_reviewer).toMatchObject({
+		expect(result.config.defaultAdvisorFunctionName).toBe("phaseo_advisor_reviewer");
+		expect(result.config.advisors?.phaseo_advisor_reviewer).toMatchObject({
 			name: "reviewer",
-			model: "claude-opus-4-8",
+			model: "claude-opus-5",
 			instructions: "Review for migration risk.",
 			forwardTranscript: true,
 			maxUses: 2,
@@ -433,14 +433,14 @@ describe("prepareServerToolsForTextRequest", () => {
 			reasoning: { effort: "high" },
 			temperature: 0.2,
 		});
-		expect(result.config.advisors?.ai_stats_advisor_architect).toMatchObject({
+		expect(result.config.advisors?.phaseo_advisor_architect).toMatchObject({
 			name: "architect",
 			forwardTranscript: false,
 			maxUses: 1,
 		});
 		expect(result.body.tools).toEqual([
 			{
-				name: "ai_stats_advisor_reviewer",
+				name: "phaseo_advisor_reviewer",
 				description: expect.stringContaining('"reviewer" advisor model'),
 				input_schema: expect.objectContaining({
 					properties: expect.objectContaining({
@@ -449,7 +449,7 @@ describe("prepareServerToolsForTextRequest", () => {
 				}),
 			},
 			{
-				name: "ai_stats_advisor_architect",
+				name: "phaseo_advisor_architect",
 				description: expect.stringContaining('"architect" advisor model'),
 				input_schema: expect.objectContaining({
 					required: ["prompt"],
@@ -459,20 +459,20 @@ describe("prepareServerToolsForTextRequest", () => {
 				}),
 			},
 		]);
-		expect(result.body.tool_choice).toEqual({ type: "tool", name: "ai_stats_advisor_reviewer" });
+		expect(result.body.tool_choice).toEqual({ type: "tool", name: "phaseo_advisor_reviewer" });
 	});
 
-	it("rewrites AI Stats advisor into an OpenAI-compatible managed function tool", () => {
+	it("rewrites Phaseo advisor into an OpenAI-compatible managed function tool", () => {
 		const result = prepareServerToolsForTextRequest(
 			{
 				model: "openai/gpt-5-nano",
 				tools: [
 					{
-						type: "ai-stats:advisor",
-						parameters: { model: "anthropic/claude-opus-4-8" },
+						type: "phaseo:advisor",
+						parameters: { model: "anthropic/claude-opus-5" },
 					},
 				],
-				tool_choice: "ai-stats:advisor",
+				tool_choice: "phaseo:advisor",
 			},
 			"openai.responses",
 		);
@@ -484,13 +484,13 @@ describe("prepareServerToolsForTextRequest", () => {
 		expect(result.config.advisorEnabled).toBe(true);
 		expect(result.body.tool_choice).toEqual({
 			type: "function",
-			function: { name: "ai_stats_advisor" },
+			function: { name: "phaseo_advisor" },
 		});
 		expect(result.body.tools).toEqual([
 			{
 				type: "function",
 				function: {
-					name: "ai_stats_advisor",
+					name: "phaseo_advisor",
 					description: expect.stringContaining("advisor model"),
 					parameters: expect.objectContaining({
 						required: ["prompt"],
@@ -500,13 +500,13 @@ describe("prepareServerToolsForTextRequest", () => {
 		]);
 	});
 
-	it("rejects duplicate AI Stats advisor names", () => {
+	it("rejects duplicate Phaseo advisor names", () => {
 		const result = prepareServerToolsForTextRequest(
 			{
 				model: "openai/gpt-5-nano",
 				tools: [
-					{ type: "ai-stats:advisor", parameters: { name: "reviewer" } },
-					{ type: "ai-stats:advisor", parameters: { name: " reviewer " } },
+					{ type: "phaseo:advisor", parameters: { name: "reviewer" } },
+					{ type: "phaseo:advisor", parameters: { name: " reviewer " } },
 				],
 			},
 			"openai.responses",
@@ -516,13 +516,13 @@ describe("prepareServerToolsForTextRequest", () => {
 		expect(result.message).toContain("Duplicate Advisor name");
 	});
 
-	it("rejects multiple unnamed AI Stats advisors", () => {
+	it("rejects multiple unnamed Phaseo advisors", () => {
 		const result = prepareServerToolsForTextRequest(
 			{
 				model: "openai/gpt-5-nano",
 				tools: [
-					{ type: "ai-stats:advisor" },
-					{ type: "ai-stats:advisor" },
+					{ type: "phaseo:advisor" },
+					{ type: "phaseo:advisor" },
 				],
 			},
 			"openai.responses",
@@ -532,13 +532,13 @@ describe("prepareServerToolsForTextRequest", () => {
 		expect(result.message).toContain("Only one unnamed Advisor");
 	});
 
-	it("rewrites AI Stats image generation into a managed function tool", () => {
+	it("rewrites Phaseo image generation into a managed function tool", () => {
 		const result = prepareServerToolsForTextRequest(
 			{
 				model: "openai/gpt-5-nano",
 				tools: [
 					{
-						type: "ai-stats:image_generation",
+						type: "phaseo:image_generation",
 						parameters: {
 							model: "openai/gpt-image-2",
 							quality: "high",
@@ -547,7 +547,7 @@ describe("prepareServerToolsForTextRequest", () => {
 						},
 					},
 				],
-				tool_choice: "ai-stats:image_generation",
+				tool_choice: "phaseo:image_generation",
 			},
 			"openai.responses",
 		);
@@ -562,13 +562,13 @@ describe("prepareServerToolsForTextRequest", () => {
 		});
 		expect(result.body.tool_choice).toEqual({
 			type: "function",
-			function: { name: "ai_stats_image_generation" },
+			function: { name: "phaseo_image_generation" },
 		});
 		expect(result.body.tools).toEqual([
 			{
 				type: "function",
 				function: expect.objectContaining({
-					name: "ai_stats_image_generation",
+					name: "phaseo_image_generation",
 					parameters: expect.objectContaining({
 						properties: expect.objectContaining({
 							prompt: expect.any(Object),
@@ -580,12 +580,12 @@ describe("prepareServerToolsForTextRequest", () => {
 		]);
 	});
 
-	it("rewrites AI Stats apply patch on Responses and rejects other surfaces", () => {
+	it("rewrites Phaseo apply patch on Responses and rejects other surfaces", () => {
 		const responsesResult = prepareServerToolsForTextRequest(
 			{
 				model: "openai/gpt-5-nano",
-				tools: [{ type: "ai-stats:apply_patch" }],
-				tool_choice: "ai-stats:apply_patch",
+				tools: [{ type: "phaseo:apply_patch" }],
+				tool_choice: "phaseo:apply_patch",
 			},
 			"openai.responses",
 		);
@@ -594,19 +594,58 @@ describe("prepareServerToolsForTextRequest", () => {
 		expect(responsesResult.config.applyPatchEnabled).toBe(true);
 		expect(responsesResult.body.tool_choice).toEqual({
 			type: "function",
-			function: { name: "ai_stats_apply_patch" },
+			function: { name: "phaseo_apply_patch" },
 		});
 
 		const chatResult = prepareServerToolsForTextRequest(
 			{
 				model: "openai/gpt-5-nano",
-				tools: [{ type: "ai-stats:apply_patch" }],
+				tools: [{ type: "phaseo:apply_patch" }],
 			},
 			"openai.chat.completions",
 		);
 		expect(chatResult.ok).toBe(false);
 		if (chatResult.ok) throw new Error("Expected apply patch to reject chat completions");
 		expect(chatResult.message).toContain("Responses API");
+	});
+});
+
+describe("managed model tools", () => {
+	it.each([
+		["phaseo:subagent", { model: "openai/gpt-5-nano" }, "phaseo_subagent"],
+		["phaseo:fusion", { analysis_models: ["openai/gpt-5-nano", "anthropic/claude-haiku-4.5"] }, "phaseo_fusion"],
+		["phaseo:search_models", { max_results: 3 }, "phaseo_search_models"],
+	])("prepares %s as a managed function", (type, parameters, functionName) => {
+		const result = prepareServerToolsForTextRequest({ tools: [{ type, parameters }], tool_choice: type }, "openai.responses");
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.body.tools[0].function.name).toBe(functionName);
+		expect(result.body.tool_choice.function.name).toBe(functionName);
+	});
+
+	it("executes model catalogue search calls", async () => {
+		const continuation = await buildServerToolContinuation({
+			choices: [{ message: { role: "assistant", content: [], toolCalls: [{ id: "search_1", name: "phaseo_search_models", arguments: JSON.stringify({ query: "vision" }) }] }, finishReason: "tool_calls" }],
+		} as any, {
+			enabled: true, datetimeDefaultTimezones: ["UTC"], webSearchEnabled: false, webSearchMaxResults: 5,
+			webSearchIncludeText: false, webSearchIncludeHighlights: true, webFetchEnabled: false, webFetchMaxChars: 12000,
+			searchModelsMaxResults: 5,
+		}, { searchModels: async () => ({ models: [{ id: "example/vision" }] }) });
+		expect(continuation?.usage.searchModelsRequests).toBe(1);
+		expect(JSON.parse(String(continuation?.toolResults[0]?.content))).toEqual({ models: [{ id: "example/vision" }] });
+	});
+
+	it("fails Fusion when every panel model fails", async () => {
+		const continuation = await buildServerToolContinuation({
+			choices: [{ message: { role: "assistant", content: [], toolCalls: [{ id: "fusion_1", name: "phaseo_fusion", arguments: JSON.stringify({ prompt: "Compare approaches" }) }] }, finishReason: "tool_calls" }],
+		} as any, {
+			enabled: true, datetimeDefaultTimezones: ["UTC"], webSearchEnabled: false, webSearchMaxResults: 5,
+			webSearchIncludeText: false, webSearchIncludeHighlights: true, webFetchEnabled: false, webFetchMaxChars: 12000,
+			fusion: { analysisModels: ["example/a", "example/b"], analystModel: "example/judge", maxUses: 1, maxTokens: 1400 },
+		}, { executeAdvisor: async () => ({ ok: false, message: "unavailable" }) });
+
+		expect(continuation?.toolResults[0]?.isError).toBe(true);
+		expect(JSON.parse(String(continuation?.toolResults[0]?.content))).toMatchObject({ error: "fusion_panel_failed" });
 	});
 });
 
@@ -617,6 +656,40 @@ describe("buildServerToolContinuation", () => {
 			EXA_API_KEY: "exa_test_key",
 			EXA_BASE_URL: "https://api.exa.ai",
 		});
+	});
+
+	it("rejects a round that would exceed the remaining server-tool budget before execution", async () => {
+		const continuation = await buildServerToolContinuation(
+			{
+				choices: [{
+					message: {
+						role: "assistant",
+						content: [],
+						toolCalls: [
+							{ id: "call_one", name: "gateway_datetime", arguments: "{}" },
+							{ id: "call_two", name: "gateway_datetime", arguments: "{}" },
+						],
+					},
+					finishReason: "tool_calls",
+				}],
+			} as any,
+			{
+				enabled: true,
+				datetimeDefaultTimezones: ["UTC"],
+				webSearchEnabled: false,
+				webSearchMaxResults: 5,
+				webSearchIncludeText: false,
+				webSearchIncludeHighlights: true,
+				webFetchEnabled: false,
+				webFetchMaxChars: 12000,
+			},
+			{ remainingToolCalls: 1 },
+		);
+
+		expect(continuation?.limitExceeded).toBe(true);
+		expect(continuation?.serverToolCallCount).toBe(2);
+		expect(continuation?.toolResults).toEqual([]);
+		expect(continuation?.usage.datetimeRequests).toBe(0);
 	});
 
 	it("returns datetime results for multiple timezones", async () => {
@@ -878,7 +951,7 @@ describe("buildServerToolContinuation", () => {
 		expect(parsed).not.toHaveProperty("timezones");
 	});
 
-	it("executes AI Stats web search calls and records search usage", async () => {
+	it("executes Phaseo web search calls and records search usage", async () => {
 		const fetchMock = vi.fn(async () =>
 			new Response(
 				JSON.stringify({
@@ -918,7 +991,7 @@ describe("buildServerToolContinuation", () => {
 								toolCalls: [
 									{
 										id: "call_search",
-										name: "ai_stats_web_search",
+										name: "phaseo_web_search",
 										arguments: JSON.stringify({
 											query: "latest AI policy",
 											max_results: 2,
@@ -968,6 +1041,9 @@ describe("buildServerToolContinuation", () => {
 				webSearchExtraResults: 0,
 				webFetchRequests: 0,
 				advisorRequests: 0,
+				subagentRequests: 0,
+				fusionRequests: 0,
+				searchModelsRequests: 0,
 				imageGenerationRequests: 0,
 				applyPatchRequests: 0,
 			});
@@ -988,7 +1064,7 @@ describe("buildServerToolContinuation", () => {
 		}
 	});
 
-	it("executes AI Stats advisor calls through the provided advisor executor", async () => {
+	it("executes Phaseo advisor calls through the provided advisor executor", async () => {
 		const executeAdvisor = vi.fn(async () => ({
 			ok: true as const,
 			content: "Use a smaller migration with explicit rollback steps.",
@@ -1009,10 +1085,10 @@ describe("buildServerToolContinuation", () => {
 							toolCalls: [
 								{
 									id: "call_advisor",
-									name: "ai_stats_advisor_reviewer",
+									name: "phaseo_advisor_reviewer",
 									arguments: JSON.stringify({
 										prompt: "Review this migration plan.",
-										model: "anthropic/claude-opus-4-8",
+										model: "anthropic/claude-opus-5",
 									}),
 								},
 							],
@@ -1032,10 +1108,10 @@ describe("buildServerToolContinuation", () => {
 				webFetchMaxChars: 12000,
 				advisorEnabled: true,
 				defaultAdvisorModel: "openai/gpt-5-nano",
-				defaultAdvisorFunctionName: "ai_stats_advisor_reviewer",
+				defaultAdvisorFunctionName: "phaseo_advisor_reviewer",
 				advisors: {
-					ai_stats_advisor_reviewer: {
-						functionName: "ai_stats_advisor_reviewer",
+					phaseo_advisor_reviewer: {
+						functionName: "phaseo_advisor_reviewer",
 						name: "reviewer",
 						instructions: "Review for migration risk.",
 						forwardTranscript: true,
@@ -1050,7 +1126,7 @@ describe("buildServerToolContinuation", () => {
 		);
 
 		expect(executeAdvisor).toHaveBeenCalledWith({
-			model: "anthropic/claude-opus-4-8",
+			model: "anthropic/claude-opus-5",
 			prompt: "Review this migration plan.",
 			maxTokens: 1400,
 			instructions: "Review for migration risk.",
@@ -1067,12 +1143,12 @@ describe("buildServerToolContinuation", () => {
 		expect(JSON.parse(String(continuation?.toolResults[0]?.content))).toEqual({
 			status: "ok",
 			name: "reviewer",
-			model: "anthropic/claude-opus-4-8",
+			model: "anthropic/claude-opus-5",
 			advice: "Use a smaller migration with explicit rollback steps.",
 		});
 	});
 
-	it("executes AI Stats image generation calls through the provided image executor", async () => {
+	it("executes Phaseo image generation calls through the provided image executor", async () => {
 		const executeImageGeneration = vi.fn(async () => ({
 			ok: true as const,
 			model: "openai/gpt-image-2",
@@ -1096,7 +1172,7 @@ describe("buildServerToolContinuation", () => {
 							toolCalls: [
 								{
 									id: "call_image",
-									name: "ai_stats_image_generation",
+									name: "phaseo_image_generation",
 									arguments: JSON.stringify({
 										prompt: "A futuristic city at sunset",
 										aspect_ratio: "16:9",
@@ -1169,7 +1245,7 @@ describe("buildServerToolContinuation", () => {
 							toolCalls: [
 								{
 									id: "call_image",
-									name: "ai_stats_image_generation",
+									name: "phaseo_image_generation",
 									arguments: JSON.stringify({
 										description: "A product mockup on a neutral desk",
 										size: "1024x1024",
@@ -1203,7 +1279,7 @@ describe("buildServerToolContinuation", () => {
 		expect(continuation?.usage.imageGenerationRequests).toBe(1);
 	});
 
-	it("validates AI Stats apply patch operations without applying files", async () => {
+	it("validates Phaseo apply patch operations without applying files", async () => {
 		const continuation = await buildServerToolContinuation(
 			{
 				choices: [
@@ -1214,7 +1290,7 @@ describe("buildServerToolContinuation", () => {
 							toolCalls: [
 								{
 									id: "call_patch",
-									name: "ai_stats_apply_patch",
+									name: "phaseo_apply_patch",
 									arguments: JSON.stringify({
 										operation: {
 											type: "create_file",
@@ -1274,7 +1350,7 @@ describe("buildServerToolContinuation", () => {
 								toolCalls: [
 									{
 										id: "call_search_chars",
-										name: "ai_stats_web_search",
+										name: "phaseo_web_search",
 										arguments: JSON.stringify({
 											query: "latest AI policy",
 											include_text: true,
@@ -1320,7 +1396,7 @@ describe("buildServerToolContinuation", () => {
 							toolCalls: [
 								{
 									id: "call_parallel",
-									name: "ai_stats_web_search",
+									name: "phaseo_web_search",
 									arguments: JSON.stringify({
 										query: "latest AI policy",
 										engine: "parallel",
@@ -1389,7 +1465,7 @@ describe("buildServerToolContinuation", () => {
 							content: [],
 							toolCalls: [{
 								id: "call_parallel",
-								name: "ai_stats_web_search",
+								name: "phaseo_web_search",
 								arguments: JSON.stringify({
 									query: "latest AI policy",
 									engine: "parallel",
@@ -1482,7 +1558,7 @@ describe("buildServerToolContinuation", () => {
 							content: [],
 							toolCalls: [{
 								id: "call_firecrawl",
-								name: "ai_stats_web_search",
+								name: "phaseo_web_search",
 								arguments: JSON.stringify({
 									query: "latest AI policy",
 									engine: "firecrawl",
@@ -1557,7 +1633,7 @@ describe("buildServerToolContinuation", () => {
 							content: [],
 							toolCalls: [{
 								id: "call_firecrawl_domains",
-								name: "ai_stats_web_search",
+								name: "phaseo_web_search",
 								arguments: JSON.stringify({
 									query: "latest AI policy",
 									engine: "firecrawl",
@@ -1599,7 +1675,7 @@ describe("buildServerToolContinuation", () => {
 		}
 	});
 
-	it("executes AI Stats web fetch calls and returns bounded text", async () => {
+	it("executes Phaseo web fetch calls and returns bounded text", async () => {
 		const fetchMock = vi.fn(async () =>
 			new Response(
 				"<html><head><title>Example Page</title></head><body><h1>Hello</h1><p>World</p></body></html>",
@@ -1622,7 +1698,7 @@ describe("buildServerToolContinuation", () => {
 								toolCalls: [
 									{
 										id: "call_fetch",
-										name: "ai_stats_web_fetch",
+										name: "phaseo_web_fetch",
 										arguments: JSON.stringify({
 											url: "https://example.com/page",
 											max_chars: 64,
@@ -1662,6 +1738,9 @@ describe("buildServerToolContinuation", () => {
 				webSearchExtraResults: 0,
 				webFetchRequests: 1,
 				advisorRequests: 0,
+				subagentRequests: 0,
+				fusionRequests: 0,
+				searchModelsRequests: 0,
 				imageGenerationRequests: 0,
 				applyPatchRequests: 0,
 			});
@@ -1692,7 +1771,7 @@ describe("buildServerToolContinuation", () => {
 							content: [],
 							toolCalls: [{
 								id: "call_private_fetch",
-								name: "ai_stats_web_fetch",
+								name: "phaseo_web_fetch",
 								arguments: JSON.stringify({
 									url: "http://127.0.0.1:8787/admin",
 								}),
@@ -1741,7 +1820,7 @@ describe("buildServerToolContinuation", () => {
 							content: [],
 							toolCalls: [{
 								id: "call_redirect_private_fetch",
-								name: "ai_stats_web_fetch",
+								name: "phaseo_web_fetch",
 								arguments: JSON.stringify({
 									url: "https://example.com/redirect",
 								}),
@@ -1804,7 +1883,7 @@ describe("buildServerToolContinuation", () => {
 							content: [],
 							toolCalls: [{
 								id: "call_parallel_fetch",
-								name: "ai_stats_web_fetch",
+								name: "phaseo_web_fetch",
 								arguments: JSON.stringify({
 									url: "https://example.com/page",
 									engine: "parallel",
@@ -1888,7 +1967,7 @@ describe("buildServerToolContinuation", () => {
 							content: [],
 							toolCalls: [{
 								id: "call_firecrawl_fetch",
-								name: "ai_stats_web_fetch",
+								name: "phaseo_web_fetch",
 								arguments: JSON.stringify({
 									url: "https://example.com/page",
 									engine: "firecrawl",
@@ -1939,4 +2018,3 @@ describe("buildServerToolContinuation", () => {
 		}
 	});
 });
-

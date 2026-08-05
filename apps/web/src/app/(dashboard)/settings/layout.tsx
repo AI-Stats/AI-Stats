@@ -1,16 +1,18 @@
 import SettingsPageSkeleton from "@/components/(gateway)/settings/SettingsPageSkeleton";
 import SettingsSidebar from "@/components/(gateway)/settings/Sidebar";
-import SettingsTopTabsServer from "@/components/(gateway)/settings/SettingsTopTabsServer";
+import SettingsTopTabsClientOnly from "@/components/(gateway)/settings/SettingsTopTabsClientOnly";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { fetchSettingsLayoutInitialData } from "@/lib/fetchers/internal/fetchSettingsLayoutInitialData";
 import {
 	Sidebar,
 	SidebarInset,
 	SidebarProvider,
 } from "@/components/ui/sidebar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Suspense } from "react";
 import NoFooterStyle from "@/components/layout/NoFooterStyle";
-import { fetchSettingsLayoutInitialData } from "@/lib/fetchers/internal/fetchSettingsLayoutInitialData";
+import { batchApiFlag } from "@/lib/flags";
 
 export const metadata = {
 	title: "Settings",
@@ -37,33 +39,41 @@ export default async function SettingsLayout({
 			: "/settings";
 		redirect(`/sign-in?returnUrl=${encodeURIComponent(safeReturnUrl)}`);
 	}
+	const showBroadcast = initialData.showBroadcast;
+	let showWebhooks = false;
+	const isEnterpriseInvoiceMode = initialData.isEnterpriseInvoiceMode;
+	showWebhooks = await batchApiFlag();
 
 	return (
 		<>
 			<NoFooterStyle />
 
-			<SidebarProvider defaultOpen className="flex flex-1 min-h-0">
+			<SidebarProvider defaultOpen className="fixed inset-x-0 bottom-0 top-[calc(var(--site-header-height,3.75rem)+var(--site-notice-height,0px))] flex min-h-0 overflow-hidden [&_button:not([data-settings-segment])]:!rounded-lg [&_[data-slot=button]]:!rounded-lg">
 				<Sidebar
+					collapsible="icon"
 					desktopClassName="hidden lg:block"
 					// Keep desktop sidebar fixed under sticky chrome (notice + header).
-					className="top-[calc(var(--site-header-height,4rem)+var(--site-notice-height,0px))] bottom-0 h-auto bg-white dark:bg-zinc-950"
+					className="top-[calc(var(--site-header-height,3.75rem)+var(--site-notice-height,0px))] bottom-0 h-auto bg-white dark:bg-zinc-950"
 				>
-					<SettingsSidebar showBroadcast={initialData.showBroadcast} />
+					<SettingsSidebar showBroadcast={showBroadcast} showWebhooks={showWebhooks} workspaceName={initialData.workspaceName} />
 				</Sidebar>
-				<SidebarInset className="bg-white dark:bg-zinc-950 flex flex-1 min-h-0 flex-col">
-					<div className="container mx-auto flex w-full flex-col gap-3 px-2 py-4">
-						<div className="shrink-0">
-							<div className="mt-2.5">
-								<SettingsTopTabsServer
-									isEnterpriseInvoiceMode={initialData.isEnterpriseInvoiceMode}
-								/>
-							</div>
+				<SidebarInset className="flex w-0 min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white dark:bg-zinc-950">
+					<div className="container mx-auto flex h-full min-h-0 w-full flex-col px-4 pt-0 sm:px-5 lg:px-6 xl:px-8">
+						<div className="relative z-20 shrink-0 bg-background">
+							<SettingsTopTabsClientOnly
+								isEnterpriseInvoiceMode={isEnterpriseInvoiceMode}
+								showBroadcast={showBroadcast}
+								showWebhooks={showWebhooks}
+							/>
 						</div>
-						<div className="w-full pt-2">
+						<ScrollArea
+							className="min-h-0 w-full flex-1 overscroll-y-contain"
+							viewportClassName="pb-4 pt-3"
+						>
 							<Suspense fallback={<SettingsPageSkeleton />}>
 								{children}
 							</Suspense>
-						</div>
+						</ScrollArea>
 					</div>
 				</SidebarInset>
 			</SidebarProvider>

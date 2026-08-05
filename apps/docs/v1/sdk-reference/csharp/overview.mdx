@@ -1,17 +1,15 @@
 ---
-title: "C# SDK (preview)"
-description: "Local-preview C# wrapper for the AI Stats API."
+title: "C# SDK"
+description: "Official .NET client for the Phaseo Gateway."
 ---
 
-<Note type="warning">
-  The C# SDK is in preview and is not yet published to NuGet.
-</Note>
+Install the published [`Phaseo.Sdk`](https://www.nuget.org/packages/Phaseo.Sdk) package from NuGet.
 
 The local wrapper at `packages/sdk/sdk-csharp/Client.cs` currently exposes high-level helpers for chat, responses, Anthropic messages, images, audio, embeddings, moderations, files, batches, videos, generations, models/providers/endpoints/organisations/pricing, API-key discovery and lifecycle mutations, workspace/current-key lifecycle helpers, pricing calculation, activity/credits/analytics, health checks, model lifecycle validation, and async-job websocket URLs through both direct helpers and `client.AsyncJobs.WebSocketUrl(...)`.
 
 ```csharp
-using AiStatsSdk;
+using PhaseoSdk;
 
-var client = new AIStats("YOUR_KEY");
+var client = new Phaseo("YOUR_KEY");
 var models = await client.ListModels(new Dictionary<string, string> { ["limit"] = "5" });
 ```

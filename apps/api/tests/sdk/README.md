@@ -1,6 +1,6 @@
 # SDK Compatibility Tests
 
-These tests verify that the AI Stats Gateway is fully compatible with official SDKs from OpenAI and Anthropic by simply changing the base URL.
+These tests verify that the Phaseo Gateway is fully compatible with official SDKs from OpenAI and Anthropic by simply changing the base URL.
 
 ## Overview
 
@@ -23,7 +23,7 @@ pnpm install openai @anthropic-ai/sdk --save-dev
 
 ```bash
 # In one terminal
-pnpm --filter @ai-stats/gateway-api dev
+pnpm --filter @phaseo/gateway-api dev
 
 # Gateway should be running on http://localhost:8787 (or your configured port)
 ```
@@ -34,7 +34,7 @@ Create a `.env.test` file in `apps/api/`:
 
 ```bash
 # Gateway configuration
-GATEWAY_BASE_URL=http://localhost:8787
+GATEWAY_BASE_URL=http://localhost:8787/v1
 GATEWAY_API_KEY=your_gateway_api_key
 
 # Optional: Provider keys if testing passthrough
@@ -45,7 +45,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 Or export them:
 
 ```bash
-export GATEWAY_BASE_URL=http://localhost:8787
+export GATEWAY_BASE_URL=http://localhost:8787/v1
 export GATEWAY_API_KEY=gw_test123
 ```
 
@@ -72,7 +72,7 @@ pnpm test tests/sdk/anthropic-sdk-compat
 ### Run with Environment Variables Inline
 
 ```bash
-GATEWAY_BASE_URL=http://localhost:8787 GATEWAY_API_KEY=gw_test pnpm test tests/sdk
+GATEWAY_BASE_URL=http://localhost:8787/v1 GATEWAY_API_KEY=gw_test pnpm test tests/sdk
 ```
 
 ## Test Coverage
@@ -222,7 +222,7 @@ Test Files  2 passed (2)
 ⚠️  Skipping OpenAI SDK compatibility tests
 
 To run these tests, set:
-  GATEWAY_BASE_URL=http://localhost:8787
+  GATEWAY_BASE_URL=http://localhost:8787/v1
   GATEWAY_API_KEY=your_gateway_key
 ```
 
@@ -234,7 +234,7 @@ To run these tests, set:
 
 **Solution**:
 ```bash
-export GATEWAY_BASE_URL=http://localhost:8787
+export GATEWAY_BASE_URL=http://localhost:8787/v1
 export GATEWAY_API_KEY=your_key
 pnpm test tests/sdk
 ```
@@ -246,7 +246,7 @@ pnpm test tests/sdk
 **Solution**:
 ```bash
 # Start gateway in another terminal
-pnpm --filter @ai-stats/gateway-api dev
+pnpm --filter @phaseo/gateway-api dev
 ```
 
 ### Authentication Errors
@@ -302,13 +302,13 @@ jobs:
 
       - name: Start Gateway
         run: |
-          pnpm --filter @ai-stats/gateway-api build
-          pnpm --filter @ai-stats/gateway-api preview &
+          pnpm --filter @phaseo/gateway-api build
+          pnpm --filter @phaseo/gateway-api preview &
           sleep 5  # Wait for gateway to start
 
       - name: Run SDK Tests
         env:
-          GATEWAY_BASE_URL: http://localhost:8787
+          GATEWAY_BASE_URL: http://localhost:8787/v1
           GATEWAY_API_KEY: ${{ secrets.GATEWAY_TEST_KEY }}
         run: pnpm test tests/sdk
 ```

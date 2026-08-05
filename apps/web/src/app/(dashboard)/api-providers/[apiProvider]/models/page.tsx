@@ -6,11 +6,13 @@ import {
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { buildMetadata } from "@/lib/seo";
 import ProviderModelsClient from "./ProviderModelsClient";
+import { notFound } from "next/navigation";
 
 async function fetchProviderMeta(apiProviderId: string) {
 	try {
 		return await fetchFrontendAPIProviderHeader(apiProviderId);
 	} catch (error) {
+		// eslint-disable-next-line no-console
 		console.warn("[seo] failed to load api provider metadata", {
 			apiProviderId,
 			error,
@@ -31,18 +33,20 @@ export async function generateMetadata(props: {
 		return buildMetadata({
 			title: "API Provider Models",
 			description:
-				"Browse all models available from this API provider on AI Stats, ordered by model release date with announcement-date fallback, plus capability support, pricing visibility, and gateway accessibility.",
+				"Browse all models available from this API provider on Phaseo, ordered by model release date with announcement-date fallback, plus capability support, pricing visibility, and gateway accessibility.",
 			path,
 			imagePath,
+			robots: { index: false, follow: true },
 		});
 	}
 
 	const providerName = header.api_provider_name ?? "AI API provider";
 	return buildMetadata({
 		title: `${providerName} Models - Ordered by Model Date`,
-		description: `View all ${providerName} models on AI Stats ordered by release date, with announcement date fallback, gateway accessibility, supported capabilities, and quick visibility into pricing and integration coverage.`,
+		description: `View all ${providerName} models on Phaseo ordered by release date, with announcement date fallback, gateway accessibility, supported capabilities, and quick visibility into pricing and integration coverage.`,
 		path,
 		imagePath,
+		robots: { index: false, follow: true },
 	});
 }
 
@@ -53,9 +57,11 @@ export default async function Page({
 }) {
 	const { apiProvider } = await params;
 	const header = await fetchProviderMeta(apiProvider);
+	if (!header) notFound();
 	const providerLabel = header?.api_provider_name ?? apiProvider;
 
-	const models = await fetchFrontendAPIProviderModels(apiProvider);
+	const models = await fetchFrontendAPIProviderModels(apiProvider).catch(() => null);
+	if (!models) notFound();
 
 	return (
 		<APIProviderDetailShell apiProviderId={apiProvider}>

@@ -11,13 +11,13 @@ import { ContactClient } from "@/components/contact/ContactClient";
 import { fetchContactPersonalization } from "@/lib/fetchers/internal/fetchContactPersonalization";
 
 export const metadata: Metadata = buildMetadata({
-	title: "Contact AI Stats Support",
+	title: "Contact",
 	description:
-		"Contact AI Stats support for account, billing, and product questions, with direct human responses from the founder plus docs, community resources, and current support availability.",
+		"Contact Phaseo support for account, billing, and product questions, with direct human responses from the founder plus docs, community resources, and current support availability.",
 	path: "/contact",
 	keywords: [
-		"AI Stats support",
-		"contact AI Stats",
+		"Phaseo support",
+		"contact Phaseo",
 		"AI gateway support",
 		"AI model database help",
 	],
@@ -27,7 +27,7 @@ async function ContactPersonalization() {
 	await connection();
 
 	const { isOpen, minutesUntilNextWindow } = getSupportAvailability();
-	const { label: londonLabel } = getLondonInfo();
+	const londonInfo = getLondonInfo();
 	const backOnlineLabel = formatSupportWait(minutesUntilNextWindow);
 	const statusLabel = isOpen
 		? "Available now"
@@ -42,19 +42,16 @@ async function ContactPersonalization() {
 		: backOnlineLabel
 			? `Support will be back online in ${backOnlineLabel}. Replies may be delayed, but you will still get a direct human response from me as soon as possible.`
 			: "I'm away right now. Replies may be delayed, but you will still get a direct human response from me as soon as possible.";
-	const personalization = await fetchContactPersonalization().catch(() => ({
-		defaultInternalId: "",
-		tierLabel: "",
-		userEmail: null,
-	}));
+	const personalization = await fetchContactPersonalization();
 
 	return (
 		<ContactClient
 			isOpen={isOpen}
+			isAuthenticated={personalization.isAuthenticated}
+			londonTimeLabel={londonInfo.label}
 			statusLabel={statusLabel}
 			statusTone={statusTone}
 			waitText={waitText}
-			londonLabel={londonLabel}
 			userEmail={personalization.userEmail}
 			tierLabel={personalization.tierLabel}
 			defaultInternalId={personalization.defaultInternalId}
@@ -68,10 +65,11 @@ export default function ContactPage() {
 			fallback={
 				<ContactClient
 					isOpen={false}
+					isAuthenticated={false}
+					londonTimeLabel=""
 					statusLabel="Checking availability"
 					statusTone="bg-amber-500 ring-amber-400/60"
 					waitText="Loading current support hours..."
-					londonLabel=""
 					userEmail={null}
 					tierLabel=""
 					defaultInternalId=""

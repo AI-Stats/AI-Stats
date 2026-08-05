@@ -5,11 +5,13 @@ import OrganisationDetailShell from "@/components/(data)/organisation/Organisati
 import type { Metadata } from "next";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import Script from "next/script";
+import { notFound } from "next/navigation";
 
 async function fetchOrganisation(organisationId: string) {
 	try {
 		return await fetchFrontendOrganisation(organisationId, 12);
 	} catch (error) {
+		// eslint-disable-next-line no-console
 		console.warn("[seo] failed to load organisation metadata", {
 			organisationId,
 			error,
@@ -31,13 +33,13 @@ export async function generateMetadata(props: {
 		return buildMetadata({
 			title: "AI Organisation Overview",
 			description:
-				"Discover AI organisations, their latest models, and gateway availability with profile-level insights, release timelines, and ecosystem context across the AI Stats directory.",
+				"Discover AI organisations, their latest models, and gateway availability with profile-level insights, release timelines, and ecosystem context across the Phaseo directory.",
 			path,
 			keywords: [
 				"AI organisation",
 				"AI provider",
 				"AI models",
-				"AI Stats",
+				"Phaseo",
 			],
 			imagePath,
 		});
@@ -46,7 +48,7 @@ export async function generateMetadata(props: {
 	const launchedModels = organisation.recent_models?.length ?? 0;
 
 	const description = [
-		`${organisation.name} on AI Stats - organisation overview, AI models, and gateway coverage.`,
+		`${organisation.name} on Phaseo - organisation overview, AI models, and gateway coverage.`,
 		organisation.description?.slice(0, 180) ?? undefined,
 		launchedModels
 			? `Explore ${launchedModels} recent models, gateway availability, and pricing coverage.`
@@ -62,11 +64,11 @@ export async function generateMetadata(props: {
 		"AI organisation",
 		"AI models",
 		"AI gateway",
-		"AI Stats",
+		"Phaseo",
 	];
 
 	return buildMetadata({
-		title: `${organisation.name} - AI Organisation, Models & Gateway Coverage`,
+		title: `${organisation.name} Models`,
 		description,
 		path,
 		keywords,
@@ -81,15 +83,14 @@ export default async function Page({
 }) {
 	const { organisationId } = await params;
 
-	const organisation = await fetchFrontendOrganisation(organisationId, 12);
+	const organisation = await fetchFrontendOrganisation(organisationId, 12).catch(() => null);
 
-	// Generate structured data and FAQs for SEO
+	// Generate structured data for the organisation page.
 	const generateStructuredData = () => {
 		if (!organisation) return null;
 
 		const orgName = organisation.name || "AI Organization";
-		const modelCount = organisation.recent_models?.length || 0;
-		const description = organisation.description || `${orgName} is an AI organization tracked on AI Stats.`;
+		const description = organisation.description || `${orgName} is an AI organization tracked on Phaseo.`;
 
 		// Organization Schema
 		const organizationSchema = {
@@ -98,56 +99,6 @@ export default async function Page({
 			"name": orgName,
 			"description": description,
 			"url": absoluteUrl(`/organisations/${organisationId}`),
-		};
-
-		// FAQ Schema
-		const faqSchema = {
-			"@context": "https://schema.org",
-			"@type": "FAQPage",
-			"mainEntity": [
-				{
-					"@type": "Question",
-					"name": `What is ${orgName}?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `${orgName} is an AI organization tracked on AI Stats. ${description} You can view their models, gateway availability, pricing information, and latest releases on AI Stats.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `What models does ${orgName} offer?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": modelCount
-							? `${orgName} has ${modelCount} models tracked on AI Stats. View the complete model catalog, compare benchmarks, check pricing across providers, and see API availability for each model.`
-							: `${orgName} models are tracked on AI Stats. Check the organization page for their complete model catalog, benchmarks, pricing, and API availability.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `How do I access ${orgName} models?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `${orgName} models can be accessed through various API providers and gateways. Visit the organization page on AI Stats to see which providers offer ${orgName} models, compare pricing, and view API documentation links.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `What are the latest models from ${orgName}?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `See the latest model releases from ${orgName} on AI Stats. We track new model launches, updates, and version releases. Check the Recent Models section for the newest additions to ${orgName}'s lineup.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `How does ${orgName} pricing compare to other providers?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `Compare ${orgName} pricing against other AI organizations on AI Stats. View detailed token pricing, calculate costs with our pricing calculator, and see real-world pricing data across different API providers and deployment options.`,
-					},
-				},
-			],
 		};
 
 		// Breadcrumb Schema
@@ -176,12 +127,13 @@ export default async function Page({
 			],
 		};
 
-		return { organizationSchema, faqSchema, breadcrumbSchema };
+		return { organizationSchema, breadcrumbSchema };
 	};
 
 	const structuredData = generateStructuredData();
 
 	if (!organisation) {
+		notFound();
 		return (
 			<main className="flex min-h-screen flex-col">
 				<div className="container mx-auto px-4 py-8">
@@ -198,7 +150,7 @@ export default async function Page({
 						</p>
 						<div className="mt-3">
 							<a
-								href="https://github.com/AI-Stats/AI-Stats/issues/new"
+								href="https://github.com/phaseoteam/Phaseo/issues/new"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -237,13 +189,6 @@ export default async function Page({
 						type="application/ld+json"
 						dangerouslySetInnerHTML={{
 							__html: JSON.stringify(structuredData.organizationSchema),
-						}}
-					/>
-					<Script
-						id="organisation-faq-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.faqSchema),
 						}}
 					/>
 					<Script

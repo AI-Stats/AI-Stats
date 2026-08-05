@@ -63,7 +63,8 @@ export default function CreateTeamDialog({
 					<Button
 						variant="outline"
 						size="sm"
-						className="flex items-center rounded-r-none border-r-0"
+						data-settings-segment="start"
+						className="flex items-center !rounded-l-lg !rounded-r-none border-r-0"
 					>
 						<Plus className="h-4 w-4" />
 						<span className="mr-2 select-none">Create Workspace</span>
@@ -73,12 +74,12 @@ export default function CreateTeamDialog({
 					open={dropdownOpen}
 					onOpenChange={setDropdownOpen}
 				>
-					<DropdownMenuTrigger asChild>
-						<Button
+					<DropdownMenuTrigger render={<Button
 							variant="outline"
 							size="sm"
-							className="rounded-l-none"
-						>
+							data-settings-segment="end"
+							className="!rounded-l-none !rounded-r-lg" />}>
+
 							<ChevronDown
 								className={
 									dropdownOpen
@@ -86,9 +87,9 @@ export default function CreateTeamDialog({
 										: "h-4 w-4 transition-transform"
 								}
 							/>
-						</Button>
+
 					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
+					<DropdownMenuContent align="end" className="w-52">
 						<DropdownMenuItem
 							onClick={() => setAcceptOpen(true)}
 							className="text-sm"

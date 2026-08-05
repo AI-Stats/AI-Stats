@@ -27,15 +27,15 @@ type ServiceTierRoutingDiagnostics = {
 };
 
 type TierSiblingProviderRow = {
-    provider_api_model_id: string | null;
+    provider_model_id: string | null;
     provider_model_slug: string | null;
-    is_active_gateway?: boolean | null;
+    routing_enabled?: boolean | null;
     effective_from: string | null;
     effective_to: string | null;
 };
 
 type TierSiblingCapabilityRow = {
-    provider_api_model_id: string | null;
+    provider_model_id: string | null;
     params: Record<string, any> | null;
     max_input_tokens: number | null;
     max_output_tokens: number | null;
@@ -63,7 +63,7 @@ function normalizeRequestedServiceTier(body: any): string | null {
 }
 
 function normalizeRequestedPlan(tier: string | null): ServiceTierPlan | null {
-    if (tier === "priority") return "priority";
+    if (tier === "fast" || tier === "priority") return "priority";
     if (tier === "batch") return "batch";
     if (tier === "flex") return "flex";
     if (tier === "standard") return "standard";
@@ -168,16 +168,17 @@ async function remapToTierSibling(
 
     const supabase = getSupabaseAdmin();
     const { data: providerRows, error: providerError } = await supabase
-        .from("data_api_provider_models")
-        .select("provider_api_model_id,provider_model_slug,is_active_gateway,effective_from,effective_to")
-        .eq("provider_id", candidate.providerId)
-        .eq("api_model_id", siblingApiModelId)
-        .eq("is_active_gateway", true);
+        .from("v2_model_provider_routes")
+        .select("provider_model_id,provider_model_slug,routing_enabled,effective_from,effective_to")
+        .eq("provider_slug", candidate.providerId)
+        .or(`model_slug.eq.${siblingApiModelId},provider_model_slug.eq.${siblingApiModelId}`)
+        .in("status", ["active", "degraded"])
+        .eq("routing_enabled", true);
     if (providerError || !providerRows?.length) return null;
 
     const nowMs = Date.now();
     const activeProviderRows = (providerRows as TierSiblingProviderRow[])
-        .filter((row) => typeof row.provider_api_model_id === "string" && row.provider_api_model_id.length > 0)
+        .filter((row) => typeof row.provider_model_id === "string" && row.provider_model_id.length > 0)
         .filter((row) => isWithinEffectiveWindow(row.effective_from, row.effective_to, nowMs))
         .sort((a, b) => {
             const aTs = a.effective_from ? new Date(a.effective_from).getTime() : 0;
@@ -187,21 +188,21 @@ async function remapToTierSibling(
     if (!activeProviderRows.length) return null;
 
     const providerApiModelIds = activeProviderRows
-        .map((row) => row.provider_api_model_id)
+        .map((row) => row.provider_model_id)
         .filter((value): value is string => typeof value === "string" && value.length > 0);
     if (!providerApiModelIds.length) return null;
 
     const { data: capabilityRows, error: capabilityError } = await supabase
-        .from("data_api_provider_model_capabilities")
-        .select("provider_api_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at")
+        .from("v2_route_capabilities")
+        .select("provider_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at")
         .eq("capability_id", capability)
         .in("status", [...ROUTABLE_CAPABILITY_STATUSES])
-        .in("provider_api_model_id", providerApiModelIds);
+        .in("provider_model_id", providerApiModelIds);
     if (capabilityError || !capabilityRows?.length) return null;
 
     const capabilityByProviderModelId = new Map<string, TierSiblingCapabilityRow>();
     for (const row of capabilityRows as TierSiblingCapabilityRow[]) {
-        const providerApiModelId = row.provider_api_model_id;
+        const providerApiModelId = row.provider_model_id;
         if (typeof providerApiModelId !== "string" || !providerApiModelId.length) continue;
         const previous = capabilityByProviderModelId.get(providerApiModelId);
         const rowTs = Math.max(
@@ -220,9 +221,9 @@ async function remapToTierSibling(
     }
 
     const matchedProviderRow = activeProviderRows.find((row) =>
-        row.provider_api_model_id && capabilityByProviderModelId.has(row.provider_api_model_id),
+        row.provider_model_id && capabilityByProviderModelId.has(row.provider_model_id),
     );
-    if (!matchedProviderRow?.provider_api_model_id) return null;
+    if (!matchedProviderRow?.provider_model_id) return null;
 
     const siblingPricingCard = await loadPriceCard(
         candidate.providerId,
@@ -233,7 +234,7 @@ async function remapToTierSibling(
         return null;
     }
 
-    const siblingCapability = capabilityByProviderModelId.get(matchedProviderRow.provider_api_model_id) ?? null;
+    const siblingCapability = capabilityByProviderModelId.get(matchedProviderRow.provider_model_id) ?? null;
     return {
         ...candidate,
         apiModelId: siblingApiModelId,
@@ -270,17 +271,17 @@ async function remapToHiddenTierSibling(
 
     const supabase = getSupabaseAdmin();
     const { data: providerRows, error: providerError } = await supabase
-        .from("data_api_provider_models")
-        .select("provider_api_model_id,provider_model_slug,is_active_gateway,effective_from,effective_to")
-        .eq("provider_id", candidate.providerId)
-        .eq("api_model_id", siblingLookupApiModelId)
-        .eq("is_active_gateway", false);
+        .from("v2_model_provider_routes")
+        .select("provider_model_id,provider_model_slug,routing_enabled,effective_from,effective_to")
+        .eq("provider_slug", candidate.providerId)
+        .or(`model_slug.eq.${siblingLookupApiModelId},provider_model_slug.eq.${siblingLookupApiModelId}`)
+        .eq("routing_enabled", false);
     if (providerError || !providerRows?.length) return null;
 
     const nowMs = Date.now();
     const hiddenProviderRows = (providerRows as TierSiblingProviderRow[])
-        .filter((row) => row.is_active_gateway === false)
-        .filter((row) => typeof row.provider_api_model_id === "string" && row.provider_api_model_id.length > 0)
+        .filter((row) => row.routing_enabled === false)
+        .filter((row) => typeof row.provider_model_id === "string" && row.provider_model_id.length > 0)
         .filter((row) => isWithinEffectiveWindow(row.effective_from, row.effective_to, nowMs))
         .sort((a, b) => {
             const aTs = a.effective_from ? new Date(a.effective_from).getTime() : 0;
@@ -290,21 +291,21 @@ async function remapToHiddenTierSibling(
     if (!hiddenProviderRows.length) return null;
 
     const providerApiModelIds = hiddenProviderRows
-        .map((row) => row.provider_api_model_id)
+        .map((row) => row.provider_model_id)
         .filter((value): value is string => typeof value === "string" && value.length > 0);
     if (!providerApiModelIds.length) return null;
 
     const { data: capabilityRows, error: capabilityError } = await supabase
-        .from("data_api_provider_model_capabilities")
-        .select("provider_api_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at")
+        .from("v2_route_capabilities")
+        .select("provider_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at")
         .eq("capability_id", capability)
         .in("status", [...ROUTABLE_CAPABILITY_STATUSES])
-        .in("provider_api_model_id", providerApiModelIds);
+        .in("provider_model_id", providerApiModelIds);
     if (capabilityError || !capabilityRows?.length) return null;
 
     const capabilityByProviderModelId = new Map<string, TierSiblingCapabilityRow>();
     for (const row of capabilityRows as TierSiblingCapabilityRow[]) {
-        const providerApiModelId = row.provider_api_model_id;
+        const providerApiModelId = row.provider_model_id;
         if (typeof providerApiModelId !== "string" || !providerApiModelId.length) continue;
         const previous = capabilityByProviderModelId.get(providerApiModelId);
         const rowTs = Math.max(
@@ -323,11 +324,11 @@ async function remapToHiddenTierSibling(
     }
 
     const matchedProviderRow = hiddenProviderRows.find((row) =>
-        row.provider_api_model_id && capabilityByProviderModelId.has(row.provider_api_model_id),
+        row.provider_model_id && capabilityByProviderModelId.has(row.provider_model_id),
     );
-    if (!matchedProviderRow?.provider_api_model_id) return null;
+    if (!matchedProviderRow?.provider_model_id) return null;
 
-    const siblingCapability = capabilityByProviderModelId.get(matchedProviderRow.provider_api_model_id) ?? null;
+    const siblingCapability = capabilityByProviderModelId.get(matchedProviderRow.provider_model_id) ?? null;
     return {
         ...candidate,
         providerModelSlug: matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug,

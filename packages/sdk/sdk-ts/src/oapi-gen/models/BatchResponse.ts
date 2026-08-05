@@ -45,12 +45,7 @@ export interface BatchResponse {
   last_webhook_progress?: number | null;
   last_webhook_progress_at?: string | null;
   lifecycle_status?:
-    | "pending"
-    | "running"
-    | "completed"
-    | "failed"
-    | "cancelled"
-    | "expired";
+    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
   metadata?: {};
   native_batch_id?: string | null;
   next_webhook_retry_at?: string | null;
@@ -70,6 +65,15 @@ export interface BatchResponse {
   request_id?: string;
   session_id?: string;
   status?: string;
+  usage?: {
+    cost_nanos?: number | null;
+    cost_usd?: number | null;
+    currency?: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    requests?: number | null;
+    total_tokens?: number | null;
+  };
   webhook?: {
     attempts?: {
       attempt_number?: number;
@@ -90,10 +94,7 @@ export interface BatchResponse {
       delivered_events?: number;
       last_attempt_at?: string | null;
       last_attempt_status?:
-        | "delivered"
-        | "scheduled_retry"
-        | "failed_permanently"
-        | null;
+        "delivered" | "scheduled_retry" | "failed_permanently" | null;
       last_delivered_at?: string | null;
       last_error_message?: string | null;
       last_failure_at?: string | null;

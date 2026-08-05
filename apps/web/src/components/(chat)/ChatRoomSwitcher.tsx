@@ -7,6 +7,7 @@ import {
 	AudioLines,
 	BadgeCheck,
 	ChevronsUpDown,
+	GitMerge,
 	ImageIcon,
 	Mic,
 	MessageSquareText,
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { CHAT_ROOMS, type ChatRoomId } from "@/lib/chat/rooms";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -31,9 +33,11 @@ import {
 } from "@/components/ui/tooltip";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { useChatFeatureFlags } from "@/components/(chat)/ChatFeatureFlags";
 
 const ICONS: Record<ChatRoomId, ComponentType<{ className?: string }>> = {
 	text: MessageSquareText,
+	fusion: GitMerge,
 	image: ImageIcon,
 	video: Video,
 	audio: AudioLines,
@@ -45,7 +49,7 @@ const ICONS: Record<ChatRoomId, ComponentType<{ className?: string }>> = {
 	embeddings: Sparkles,
 };
 
-const DISABLED_ROOMS = new Set<ChatRoomId>(["video", "realtime"]);
+const DISABLED_ROOMS = new Set<ChatRoomId>();
 
 function isRoomActive(pathname: string, route: string): boolean {
 	if (route === "/chat") {
@@ -54,78 +58,68 @@ function isRoomActive(pathname: string, route: string): boolean {
 	return pathname === route || pathname.startsWith(`${route}/`);
 }
 
-export function ChatRoomSwitcher() {
+export function ChatRoomSwitcher({ className }: { className?: string } = {}) {
+	const { realtimeEnabled, videoEnabled } = useChatFeatureFlags();
 	const pathname = usePathname() ?? "/chat";
 	const { state: sidebarState, isMobile } = useSidebar();
+	const availableRooms = CHAT_ROOMS;
 	const activeRoom =
-		CHAT_ROOMS.find((room) => isRoomActive(pathname, room.route)) ??
+		availableRooms.find((room) => isRoomActive(pathname, room.route)) ??
+		availableRooms[0] ??
 		CHAT_ROOMS[0];
 	const ActiveIcon = ICONS[activeRoom.id];
 	const collapsed = sidebarState === "collapsed" && !isMobile;
 
 	return (
-		<div className="px-2 py-1.5">
+		<div className={cn("px-2 py-1.5", className)}>
 			<DropdownMenu>
-				{collapsed ? (
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<DropdownMenuTrigger asChild>
-								<Button
-									variant="ghost"
-									className={cn(
-										"h-8 gap-0 px-2 text-sm font-medium",
-										collapsed
-											? "w-8 justify-center px-0"
-											: "w-full justify-between px-2",
-									)}
-									aria-label={activeRoom.label}
-								>
-									<span className="inline-flex items-center gap-2">
-										<ActiveIcon className="h-4 w-4 shrink-0" />
-										{!collapsed ? activeRoom.label : null}
-									</span>
-									{!collapsed ? (
-										<ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
-									) : null}
-								</Button>
-							</DropdownMenuTrigger>
-						</TooltipTrigger>
-						<TooltipContent side="right" align="center" sideOffset={10}>
-							{activeRoom.label}
-						</TooltipContent>
-					</Tooltip>
-				) : (
-					<DropdownMenuTrigger asChild>
-						<Button
-							variant="ghost"
-							className={cn(
-								"h-8 gap-0 px-2 text-sm font-medium",
-								collapsed
-									? "w-8 justify-center px-0"
-									: "w-full justify-between px-2",
-							)}
-							aria-label={activeRoom.label}
-						>
-							<span className="inline-flex items-center gap-2">
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<DropdownMenuTrigger render={<Button
+								variant="ghost"
+								className="relative h-8 w-full min-w-0 justify-start gap-0 overflow-hidden rounded-[8px]! px-2 text-sm font-medium group-data-[state=collapsed]:rounded-full!"
+								aria-label={activeRoom.label} />}>
+
 								<ActiveIcon className="h-4 w-4 shrink-0" />
-								{!collapsed ? activeRoom.label : null}
-							</span>
-							{!collapsed ? (
-								<ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
-							) : null}
-						</Button>
-					</DropdownMenuTrigger>
-				)}
+								<span className="ml-2 inline-flex min-w-0 items-center gap-2 whitespace-nowrap group-data-[collapsible=icon]:hidden">
+									<span>
+										{activeRoom.label}
+									</span>
+									{activeRoom.beta ? (
+										<Badge
+											variant="outline"
+										className="h-4 rounded-[4px]! px-1.5 text-[10px] font-medium"
+										>
+											Beta
+										</Badge>
+									) : null}
+								</span>
+								<ChevronsUpDown className="absolute right-2 h-4 w-4 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden" />
+
+						</DropdownMenuTrigger>
+					</TooltipTrigger>
+					<TooltipContent
+						side="right"
+						align="center"
+						sideOffset={10}
+						hidden={!collapsed || isMobile}
+					>
+						{activeRoom.label}
+					</TooltipContent>
+				</Tooltip>
 				<DropdownMenuContent
 					side={collapsed ? "right" : "bottom"}
 					align="start"
 					sideOffset={8}
-					className="z-[90] w-56"
+					className={cn("z-[90] rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!", collapsed && "w-56")}
 				>
-					{CHAT_ROOMS.map((room) => {
+					{availableRooms.map((room) => {
 						const Icon = ICONS[room.id];
 						const active = isRoomActive(pathname, room.route);
-						const disabled = DISABLED_ROOMS.has(room.id);
+						const disabled =
+							DISABLED_ROOMS.has(room.id) ||
+							(room.id === "video" && !videoEnabled) ||
+							(room.id === "realtime" && !realtimeEnabled);
 						if (disabled) {
 							return (
 								<Tooltip key={room.id}>
@@ -137,11 +131,17 @@ export function ChatRoomSwitcher() {
 											>
 												<Icon className="h-4 w-4" />
 												<span>{room.label}</span>
+												<Badge
+													variant="outline"
+											className="ml-auto h-4 rounded-[4px]! px-1.5 text-[10px] font-medium"
+												>
+													Coming soon
+												</Badge>
 											</DropdownMenuItem>
 										</div>
 									</TooltipTrigger>
 									<TooltipContent side="right" align="center">
-										Coming Soon
+										Coming soon
 									</TooltipContent>
 								</Tooltip>
 							);
@@ -149,13 +149,18 @@ export function ChatRoomSwitcher() {
 						return (
 							<DropdownMenuItem
 								key={room.id}
-								asChild
 								className={cn(active ? "bg-muted" : "")}
+								render={<Link href={room.route} className="flex items-center gap-2" />}
 							>
-								<Link href={room.route} className="flex items-center gap-2">
+
 									<Icon className="h-4 w-4" />
 									<span>{room.label}</span>
-								</Link>
+									{room.beta ? (
+										<Badge variant="outline" className="ml-auto h-4 rounded-[4px]! px-1.5 text-[10px] font-medium">
+											Beta
+										</Badge>
+									) : null}
+
 							</DropdownMenuItem>
 						);
 					})}

@@ -17,7 +17,7 @@ const CORS_HEADERS: Record<string, string> = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     "Access-Control-Allow-Headers":
-        "Authorization, Content-Type, x-title, http-referer, x-app-id, x-app-name, x-gateway-debug, X-AIStats-Strictness, x-aistats-cache-revalidate",
+        "Authorization, Content-Type, x-title, http-referer, x-app-id, x-app-name, x-gateway-debug, x-phaseo-debug, X-Phaseo-Strictness, x-phaseo-cache-revalidate",
     "Access-Control-Max-Age": "86400",
 };
 
@@ -31,6 +31,7 @@ v1Router.use(
             });
         }
         await next();
+        if (c.res.status === 101) return;
         // Some upstream/proxied responses expose immutable headers.
         // Rebuild the response with a mutable Headers object before applying CORS.
         const headers = new Headers(c.res.headers);

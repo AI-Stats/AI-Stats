@@ -36,7 +36,7 @@ import {
 import type {
 	APIProviderModelListItem,
 	APIProviderModelPricingMeter,
-} from "@/lib/fetchers/api-providers/getAPIProvider";
+} from "@/lib/fetchers/api-providers/providerDataTypes";
 
 type ProviderModelsClientProps = {
 	apiProvider: string;
@@ -345,7 +345,7 @@ export default function ProviderModelsClient({
 									<a href="/contribute">Contribute</a>
 								</Button>
 								<Button variant="outline" asChild>
-									<a href="https://docs.ai-stats.phaseo.app">Learn more</a>
+									<a href="https://phaseo.app">Learn more</a>
 								</Button>
 							</div>
 						</EmptyContent>

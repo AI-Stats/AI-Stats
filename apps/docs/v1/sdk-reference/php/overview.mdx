@@ -1,11 +1,9 @@
 ---
-title: "PHP SDK (preview)"
-description: "Local-preview PHP wrapper for the AI Stats API."
+title: "PHP SDK"
+description: "Official PHP client for the Phaseo Gateway."
 ---
 
-<Note type="warning">
-  The PHP SDK is in preview and is not yet published to Packagist.
-</Note>
+Install the published [`phaseo/sdk`](https://packagist.org/packages/phaseo/sdk) package from Packagist.
 
 The local wrapper at `packages/sdk/sdk-php/src/index.php` currently exposes these methods:
 
@@ -39,8 +37,8 @@ The local wrapper at `packages/sdk/sdk-php/src/index.php` currently exposes thes
 ```php
 require 'vendor/autoload.php';
 
-use AIStats\Sdk\AIStats;
+use Phaseo\Sdk\Phaseo;
 
-$client = new AIStats('YOUR_KEY');
+$client = new Phaseo('YOUR_KEY');
 $models = $client->listModels(['limit' => 5]);
 ```

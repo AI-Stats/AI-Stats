@@ -14,29 +14,36 @@
       "pricing_plan": "standard",
       "note": null,
       "match": [],
-      "priority": 100
-    },
-    {
-      "meter": "cached_read_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.145,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": null,
-      "match": [],
-      "priority": 100
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
     },
     {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 2.9,
+      "price_per_unit": 2.4,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
-      "priority": 100
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
     }
-  ]
+  ],
+  "regions": [],
+  "service_tiers": [
+    "standard"
+  ],
+  "sources": [],
+  "verification": {
+    "status": "unverified",
+    "checked_at": null,
+    "notes": null
+  }
 }

@@ -1,15 +1,16 @@
 ---
-title: "Anthropic: Claude Opus 4.5 to 4.6"
-description: "The concrete API and behavior changes to review when upgrading from Claude Opus 4.5 to Claude Opus 4.6."
+title: "Anthropic Claude Opus 4.6"
+description: "What to know when adopting Claude Opus 4.6, including structured output, adaptive thinking, and prefills."
+icon: "/icons/brands/anthropic.svg"
 ---
 
-# Anthropic: Claude Opus 4.5 to 4.6
+# Anthropic Claude Opus 4.6
 
-Use this guide when you are moving from `anthropic/claude-opus-4.5` to `anthropic/claude-opus-4.6`.
+Use this guide to adopt `anthropic/claude-opus-4.6` safely in production.
 
 Claude Opus 4.6 is not just a model-ID swap. Anthropic's migration guidance includes request-shape changes, removed beta flags, and stricter behavior around prefills.
 
-## What changed
+## What's new
 
 - assistant prefills are no longer supported on Claude 4.6 models and now return `400`
 - structured output moved from `output_format` to `output_config.format`
@@ -18,7 +19,7 @@ Claude Opus 4.6 is not just a model-ID swap. Anthropic's migration guidance incl
 - Opus 4.6 specifically no longer needs the `interleaved-thinking-2025-05-14` beta header
 - Opus 4.6 adds a 1M-token context window in beta and improves long-running coding and agentic tasks
 
-## What to change in your integration
+## Migration quickstart
 
 ### 1. Remove assistant prefills
 

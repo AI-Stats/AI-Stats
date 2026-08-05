@@ -94,5 +94,16 @@ describe("Baseten quirks", () => {
 
 		expect(request.chat_template_args).toBeUndefined();
 	});
+
+	it("does not forward Phaseo's service tier to Baseten", () => {
+		const request: Record<string, unknown> = {
+			service_tier: "priority",
+		};
+		const ir: any = {};
+
+		basetenQuirks.transformRequest?.({ request, ir });
+
+		expect(request.service_tier).toBeUndefined();
+	});
 });
 

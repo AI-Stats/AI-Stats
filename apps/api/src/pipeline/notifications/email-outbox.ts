@@ -28,15 +28,15 @@ function escapeHtml(value: string): string {
 
 function renderWelcomeEmail(): { subject: string; html: string; text: string } {
 	return {
-		subject: "Welcome to AI Stats",
+		subject: "Welcome to Phaseo",
 		html: [
 			"<div style=\"font-family: ui-sans-serif, system-ui; line-height: 1.5;\">",
-			"<h2 style=\"margin: 0 0 12px;\">Welcome to AI Stats</h2>",
+			"<h2 style=\"margin: 0 0 12px;\">Welcome to Phaseo</h2>",
 			"<p style=\"margin: 0 0 12px;\">Your account is ready. You can now explore models, generate text, and manage billing from Settings.</p>",
 			"<p style=\"margin: 0;\">If you run into issues, reply to this email and we’ll help.</p>",
 			"</div>",
 		].join(""),
-		text: "Welcome to AI Stats\n\nYour account is ready. You can now explore models, generate text, and manage billing from Settings.\n\nIf you run into issues, reply to this email and we’ll help.",
+		text: "Welcome to Phaseo\n\nYour account is ready. You can now explore models, generate text, and manage billing from Settings.\n\nIf you run into issues, reply to this email and we’ll help.",
 	};
 }
 
@@ -54,8 +54,8 @@ function renderLowBalanceEmail(payload: Record<string, unknown> | null): {
 	const subject = "Low balance alert";
 	const bodyLine =
 		balanceUsd != null && thresholdUsd != null
-			? `Your AI Stats balance for ${teamName} is $${balanceUsd.toFixed(2)} (threshold: $${thresholdUsd.toFixed(2)}).`
-			: `Your AI Stats balance for ${teamName} is below your configured threshold.`;
+			? `Your Phaseo balance for ${teamName} is $${balanceUsd.toFixed(2)} (threshold: $${thresholdUsd.toFixed(2)}).`
+			: `Your Phaseo balance for ${teamName} is below your configured threshold.`;
 
 	return {
 		subject,
@@ -96,8 +96,8 @@ function renderSecurityLeakedKeyEmail(payload: Record<string, unknown> | null): 
 		? "Security alert: exposed API key revoked"
 		: "Security alert: exposed API key reported";
 	const lead = autoRevoked
-		? `An AI Stats API key for ${workspaceName} was reported as publicly exposed and has been revoked.`
-		: `An AI Stats API key for ${workspaceName} was reported as publicly exposed.`;
+		? `A Phaseo API key for ${workspaceName} was reported as publicly exposed and has been revoked.`
+		: `A Phaseo API key for ${workspaceName} was reported as publicly exposed.`;
 	const actionLine = autoRevoked
 		? "Create a replacement key and update any environments that were using the exposed key."
 		: "Review the key immediately and rotate or revoke it if the exposure is legitimate.";
@@ -137,6 +137,86 @@ function renderSecurityLeakedKeyEmail(payload: Record<string, unknown> | null): 
 	};
 }
 
+function renderIoRetentionEmail(
+	payload: Record<string, unknown> | null,
+	kind: "grace" | "suspended",
+): {
+	subject: string;
+	html: string;
+	text: string;
+} {
+	const workspaceName =
+		typeof payload?.workspace_name === "string" && payload.workspace_name.trim()
+			? payload.workspace_name.trim()
+			: "your workspace";
+	const amountUsd =
+		typeof payload?.amount_usd === "number" && Number.isFinite(payload.amount_usd)
+			? payload.amount_usd
+			: null;
+	const eventUnits =
+		typeof payload?.event_units === "number" && Number.isFinite(payload.event_units)
+			? payload.event_units
+			: typeof payload?.event_units === "string"
+				? Number(payload.event_units)
+				: null;
+	const retentionDays =
+		typeof payload?.retention_days === "number" && Number.isFinite(payload.retention_days)
+			? payload.retention_days
+			: 90;
+	const graceUntil =
+		typeof payload?.grace_until === "string" && payload.grace_until.trim()
+			? payload.grace_until.trim()
+			: null;
+	const subject =
+		kind === "grace"
+			? "I/O log retention billing paused"
+			: "I/O log extended retention suspended";
+	const escapedSubject = escapeHtml(subject);
+	const escapedWorkspace = escapeHtml(workspaceName);
+	const amountLine = amountUsd != null
+		? `The estimated daily charge is $${amountUsd.toFixed(4)}.`
+		: "The daily extended-retention charge could not be collected.";
+	const unitsLine =
+		eventUnits != null && Number.isFinite(eventUnits)
+			? `${Math.trunc(eventUnits).toLocaleString()} retained log units are currently billable.`
+			: "Extended-retention log units are currently billable.";
+	const graceLine = graceUntil
+		? `Grace period ends on ${new Date(graceUntil).toUTCString()}.`
+		: "Top up credits to resume extended retention.";
+	const lead =
+		kind === "grace"
+			? `Phaseo could not collect credits for ${retentionDays}-day I/O log retention on ${workspaceName}.`
+			: `Extended I/O log retention for ${workspaceName} is suspended. Logs older than the included 90-day window may be deleted.`;
+	const action =
+		kind === "grace"
+			? "Add credits before the grace period ends to keep extended I/O log retention active."
+			: "Add credits and re-enable extended retention to keep future logs beyond the included 90-day window.";
+
+	return {
+		subject,
+		html: [
+			"<div style=\"font-family: ui-sans-serif, system-ui; line-height: 1.5;\">",
+			`<h2 style="margin: 0 0 12px;">${escapedSubject}</h2>`,
+			`<p style="margin: 0 0 12px;">${escapeHtml(lead)}</p>`,
+			`<p style="margin: 0 0 12px;">${escapeHtml(amountLine)} ${escapeHtml(unitsLine)}</p>`,
+			`<p style="margin: 0 0 12px;">${escapeHtml(graceLine)}</p>`,
+			`<p style="margin: 0;">${escapeHtml(action)}</p>`,
+			`<p style="margin: 12px 0 0; color: #64748b;">Workspace: ${escapedWorkspace}</p>`,
+			"</div>",
+		].join(""),
+		text: [
+			subject,
+			"",
+			lead,
+			`${amountLine} ${unitsLine}`,
+			graceLine,
+			"",
+			action,
+			`Workspace: ${workspaceName}`,
+		].join("\n"),
+	};
+}
+
 function renderEmailForRow(row: OutboxRow): {
 	subject: string;
 	templateId?: string;
@@ -151,7 +231,7 @@ function renderEmailForRow(row: OutboxRow): {
 
 		const payload = row.payload ?? {};
 		return {
-			subject: row.subject ?? "Welcome to AI Stats",
+			subject: row.subject ?? "Welcome to Phaseo",
 			templateId,
 			variables: {
 				USER_FIRST_NAME:
@@ -188,6 +268,22 @@ function renderEmailForRow(row: OutboxRow): {
 	}
 	if (row.template === "security_leaked_key" || row.kind === "security_leaked_key") {
 		const rendered = renderSecurityLeakedKeyEmail(row.payload ?? {});
+		return {
+			subject: row.subject ?? rendered.subject,
+			html: rendered.html,
+			text: rendered.text,
+		};
+	}
+	if (row.template === "io_retention_grace" || row.kind === "io_retention_grace") {
+		const rendered = renderIoRetentionEmail(row.payload ?? {}, "grace");
+		return {
+			subject: row.subject ?? rendered.subject,
+			html: rendered.html,
+			text: rendered.text,
+		};
+	}
+	if (row.template === "io_retention_suspended" || row.kind === "io_retention_suspended") {
+		const rendered = renderIoRetentionEmail(row.payload ?? {}, "suspended");
 		return {
 			subject: row.subject ?? rendered.subject,
 			html: rendered.html,

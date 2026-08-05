@@ -1,10 +1,13 @@
 node_modules
+.sync/
 dist
 build
 .next
 .mint
 .out
 .env*
+apps/mcp/.dev.vars
+apps/mcp/.wrangler/
 pnpm-debug.log
 .turbo/
 **/.turbo/
@@ -38,7 +41,11 @@ packages/sdk/sdk-csharp/obj/
 packages/sdk/sdk-csharp/**/bin/
 packages/sdk/sdk-csharp/**/obj/
 packages/sdk/sdk-java/target/
+packages/sdk/sdk-java/tests/out/
 packages/sdk/sdk-rust/target/
+packages/sdk/sdk-cpp/tests/*.exe
+**/__pycache__/
+*.pyc
 packages/sdk/sdk-php/vendor/
 packages/sdk/sdk-ruby/*.gem
 .vercel
@@ -46,3 +53,6 @@ packages/sdk/sdk-ruby/*.gem
 # React Doctor local scan outputs
 /apps/web/.react-doctor-current.json
 /apps/web/react-doctor-report*.json
+
+# Entire local agent/session metadata
+/.entire/

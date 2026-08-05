@@ -1,6 +1,6 @@
 {
-	"name": "@ai-stats/gateway-api",
-	"version": "1.1.0",
+	"name": "@phaseo/gateway-api",
+	"version": "1.2.1",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -22,6 +22,7 @@
 		"test:live:text-modern": "pnpm exec vitest run tests/integration/text-modern-features.live.spec.ts",
 		"test:live:stream-tools": "pnpm exec vitest run tests/integration/stream-tools.live.spec.ts",
 		"test:live:gpt54-nano-text": "pnpm exec vitest run tests/integration/gpt54-nano-text-surfaces.live.spec.ts",
+		"test:live:batch-providers": "pnpm exec vitest run tests/integration/batch-provider-matrix.live.spec.ts",
 		"test:live:deepseek-v4-flash": "pnpm exec vitest run tests/integration/deepseek-v4-flash-providers.live.spec.ts",
 		"test:live:embeddings-moderation": "pnpm exec vitest run tests/integration/embeddings-moderation.live.spec.ts",
 		"test:live:audio-images": "pnpm exec vitest run tests/integration/audio-images.live.spec.ts",
@@ -47,9 +48,9 @@
 	"dependencies": {
 		"@supabase/supabase-js": "^2.106.2",
 		"@upstash/redis": "^1.38.0",
-		"@visulima/tabular": "^3.1.0",
+		"@visulima/tabular": "^4.0.0",
 		"hono": "^4.12.27",
-		"ink": "^7.0.0",
+		"ink": "^7.1.0",
 		"react": "^19.2.7",
 		"stripe": "^22.1.0",
 		"zod": "^4.4.3"
@@ -59,7 +60,7 @@
 		"@cloudflare/workers-types": "^4.20260523.1",
 		"@copilotkit/aimock": "1.15.1",
 		"dotenv": "^17.4.2",
-		"eslint": "^10.4.0",
+		"eslint": "^10.7.0",
 		"openai": "^6.39.0",
 		"tsx": "^4.20.6",
 		"typescript": "^6.0.3",

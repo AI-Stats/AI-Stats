@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+
+    <PackageId>Phaseo.AgentSdk</PackageId>
+    <Version>0.2.0</Version>
+    <Authors>Phaseo</Authors>
+    <Company>Phaseo</Company>
+    <Description>Official Phaseo Agent SDK for .NET.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://phaseo.app</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/phaseoteam/Phaseo</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>ai;sdk;agent;llm;gateway</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="AgentSdk.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Phaseo.Sdk" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

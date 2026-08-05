@@ -45,8 +45,8 @@ describe("team SSO settings helpers", () => {
 		).toThrow("Custom OIDC provider identifiers must start with `custom:`.");
 	});
 
-	it("clears provider identifier when mode is none", () => {
-		expect(
+	it("rejects enabling SSO without a mode", () => {
+		expect(() =>
 			normalizeTeamSsoSettingsInput({
 				ssoEnabled: true,
 				ssoEnforced: true,
@@ -54,12 +54,18 @@ describe("team SSO settings helpers", () => {
 				ssoProviderIdentifier: "custom:okta-main",
 				ssoDomains: ["company.com"],
 			}),
-		).toEqual({
-			ssoEnabled: true,
-			ssoEnforced: true,
-			ssoMode: "none",
-			ssoProviderIdentifier: null,
-			ssoDomains: ["company.com"],
-		});
+		).toThrow("Choose an SSO mode before enabling single sign-on.");
+	});
+
+	it("requires a provider and verified domain before enabling SAML", () => {
+		expect(() =>
+			normalizeTeamSsoSettingsInput({
+				ssoEnabled: true,
+				ssoEnforced: false,
+				ssoMode: "saml",
+				ssoProviderIdentifier: null,
+				ssoDomains: [],
+			}),
+		).toThrow("Add the Supabase SSO provider ID before enabling single sign-on.");
 	});
 });

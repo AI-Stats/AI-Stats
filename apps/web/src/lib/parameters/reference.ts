@@ -1,5 +1,5 @@
 export const ALL_PARAMETERS_DOCS_HREF =
-	"https://docs.ai-stats.phaseo.app/v1/api-reference/parameters";
+	"https://phaseo.app/docs/v1/api-reference/parameters";
 
 export type ParameterReference = {
 	type: string;
@@ -155,7 +155,7 @@ const PARAMETER_REFERENCE: Record<string, ParameterReference> = {
 		type: "string",
 		defaultValue: "standard",
 		description:
-			"Chooses a supported request tier such as priority or flex when the route supports it.",
+			"Chooses a supported request tier such as priority or flex. OpenAI routes also accept fast as an alias for Priority.",
 	},
 	stream: {
 		type: "boolean",

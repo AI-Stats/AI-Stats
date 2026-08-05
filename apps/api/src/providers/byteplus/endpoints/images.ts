@@ -30,6 +30,16 @@ function resolveOutputImageCount(body: { n?: number }, normalized: any): number 
 	return 1;
 }
 
+function resolveInputImageCount(body: ImagesGenerationRequest | ImagesEditRequest): number {
+	const image = "image" in body ? body.image : undefined;
+	if (Array.isArray(image)) return image.length;
+	return image ? 1 : 0;
+}
+
+function supportsMultipleOutputs(model: string): boolean {
+	return !model.includes("seedream-5-0-pro");
+}
+
 function normalizeResponse(json: any): any {
 	if (!json || typeof json !== "object") return undefined;
 	return {
@@ -49,7 +59,7 @@ function mapGenerationBody(args: ProviderExecuteArgs): { request: BytePlusImageR
 			model,
 			prompt: body.prompt,
 			size: body.size,
-			n: body.n,
+			n: supportsMultipleOutputs(model) ? body.n : undefined,
 			response_format: body.response_format,
 			user: body.user,
 		},
@@ -67,7 +77,7 @@ function mapEditBody(args: ProviderExecuteArgs): { request: BytePlusImageRequest
 			prompt: body.prompt,
 			image: body.image,
 			size: body.size,
-			n: body.n,
+			n: supportsMultipleOutputs(model) ? body.n : undefined,
 			response_format: body.response_format,
 			user: body.user,
 		},
@@ -104,6 +114,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 			: { total_tokens: 0 };
 		if (typeof usageMeters.requests !== "number") usageMeters.requests = 1;
 		if (typeof usageMeters.output_image !== "number") usageMeters.output_image = outputImageCount;
+		if (typeof usageMeters.input_image !== "number") usageMeters.input_image = resolveInputImageCount(pricingInput);
 
 		const pricedUsage = computeBill(
 			usageMeters as Record<string, any>,

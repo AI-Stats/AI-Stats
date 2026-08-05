@@ -23,7 +23,7 @@ try {
 } catch {
 	tsxPath = "";
 }
-const javaGenDir = resolve(repoRoot, "packages", "sdk", "sdk-java", "src", "gen");
+const javaGenDir = resolve(repoRoot, "packages", "sdk", "sdk-java", "src", "app", "phaseo", "gen");
 const javaSources = existsSync(javaGenDir)
 	? readdirSync(javaGenDir)
 			.filter((file) => file.endsWith(".java"))

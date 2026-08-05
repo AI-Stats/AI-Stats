@@ -3,7 +3,6 @@
 import CreateTeamDialog from "@/components/(gateway)/settings/CreateTeamDialog";
 import CreateTeamInviteDialog from "@/components/(gateway)/settings/CreateTeamInviteDialog";
 import SettingsPageHeader from "@/components/(gateway)/settings/SettingsPageHeader";
-import { Badge } from "@/components/ui/badge";
 import TeamSettingsPanel from "./TeamSettingsPanel";
 import TeamsMembers from "./members/TeamsMembers";
 import TeamsAccessPanel from "./TeamsAccessPanel";
@@ -22,6 +21,7 @@ type Props = {
 	manageableTeamIds?: string[];
 	walletBalances?: Record<string, number>;
 	teamSsoSettingsByTeam?: Record<string, TeamSsoSettingsRow>;
+	samlSsoEnabled?: boolean;
 	hideTitle?: boolean;
 	tab?: "members" | "access" | "settings";
 };
@@ -37,6 +37,7 @@ export default function TeamsSettingsContainer({
 	manageableTeamIds,
 	walletBalances,
 	teamSsoSettingsByTeam,
+	samlSsoEnabled = false,
 	hideTitle = false,
 	tab = "members",
 }: Props) {
@@ -54,15 +55,8 @@ export default function TeamsSettingsContainer({
 		<div className="space-y-6">
 			{hideTitle ? null : (
 				<SettingsPageHeader
-					title="Workspaces"
-					description="Manage workspaces, members, and workspace-level access controls."
-					meta={
-						activeTeam ? (
-							<Badge variant="outline" className="h-6 px-2 text-xs font-medium">
-								{activeTeam.name}
-							</Badge>
-						) : null
-					}
+					title={activeTeam?.name ?? "Workspace settings"}
+					description="Manage settings, members, and access for this workspace."
 					actions={
 						<div className="flex flex-wrap items-center gap-2">
 							<CreateTeamDialog
@@ -89,6 +83,7 @@ export default function TeamsSettingsContainer({
 					personalTeamId={personalTeamId}
 					walletBalances={walletBalances}
 					teamSsoSettingsByTeam={teamSsoSettingsByTeam}
+					samlSsoEnabled={samlSsoEnabled}
 				/>
 			) : tab === "access" ? (
 				<TeamsAccessPanel

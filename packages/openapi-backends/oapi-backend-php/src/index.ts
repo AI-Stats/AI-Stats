@@ -6,7 +6,8 @@ import type {
 	IRModel,
 	IROperation,
 	IRSchema
-} from "@ai-stats/oapi-core";
+} from "@phaseo/oapi-core";
+import { splitPathTemplate } from "@phaseo/oapi-core";
 
 export const backendPhp: Backend = {
 	id: "php",
@@ -26,7 +27,7 @@ function renderClient(): string {
 		"<?php",
 		"declare(strict_types=1);",
 		"",
-		"namespace AIStats\\Gen;",
+		"namespace Phaseo\\Gen;",
 		"",
 		"class RequestException extends \\RuntimeException",
 		"{",
@@ -106,7 +107,7 @@ function renderClient(): string {
 		"\t\tcurl_close($ch);",
 		"\t\tif ($response === false) {",
 		"\t\t\t$hint = $errno === 60",
-		"\t\t\t\t? \" TLS verification failed. Configure curl.cainfo/openssl.cafile or set AI_STATS_CA_BUNDLE to a valid CA bundle path.\"",
+		"\t\t\t\t? \" TLS verification failed. Configure curl.cainfo/openssl.cafile or set PHASEO_CA_BUNDLE to a valid CA bundle path.\"",
 		"\t\t\t\t: \"\";",
 		"\t\t\tthrow new \\RuntimeException(\"Request transport failed (cURL errno {$errno}): {$error}.{$hint}\");",
 		"\t\t}",
@@ -126,6 +127,30 @@ function renderClient(): string {
 		"\t\treturn $decoded === null ? $response : $decoded;",
 		"\t}",
 		"",
+		"\tpublic function requestStream(string $method, string $path, ?array $query = null, ?array $headers = null, $body = null): \\Generator",
+		"\t{",
+		"\t\t$url = $this->baseUrl . $path;",
+		"\t\tif (!empty($query)) $url .= \"?\" . http_build_query($query);",
+		"\t\t$merged = array_merge($this->headers, $headers ?? [], [\"Accept\" => \"text/event-stream\"]);",
+		"\t\t$lines = [];",
+		"\t\tforeach ($merged as $key => $value) $lines[] = $key . \": \" . $value;",
+		"\t\t$payload = $body === null ? null : json_encode($body, JSON_THROW_ON_ERROR);",
+		"\t\tif ($payload !== null) $lines[] = \"Content-Type: application/json\";",
+		"\t\t$options = [\"http\" => [\"method\" => strtoupper($method), \"header\" => implode(\"\\r\\n\", $lines), \"content\" => $payload ?? \"\", \"ignore_errors\" => true], \"ssl\" => [\"verify_peer\" => $this->verifyTls, \"verify_peer_name\" => $this->verifyTls]];",
+		"\t\tif ($this->verifyTls && $this->caBundlePath !== null) $options[\"ssl\"][\"cafile\"] = $this->caBundlePath;",
+		"\t\t$stream = @fopen($url, \"rb\", false, stream_context_create($options));",
+		"\t\tif ($stream === false) throw new \\RuntimeException(\"Unable to open streaming response from {$url}\");",
+		"\t\ttry {",
+		"\t\t\t$metadata = stream_get_meta_data($stream);",
+		"\t\t\t$statusLine = $metadata[\"wrapper_data\"][0] ?? \"\";",
+		"\t\t\tif (preg_match('/\\s(\\d{3})\\s/', (string) $statusLine, $match) && ((int) $match[1]) >= 400) {",
+		"\t\t\t\t$raw = stream_get_contents($stream);",
+		"\t\t\t\tthrow new RequestException((int) $match[1], $raw === false ? \"\" : $raw);",
+		"\t\t\t}",
+		"\t\t\twhile (($line = fgets($stream)) !== false) yield rtrim($line, \"\\r\\n\");",
+		"\t\t} finally { fclose($stream); }",
+		"\t}",
+		"",
 		"\tprivate function resolveCaBundlePath(?string $explicitPath): ?string",
 		"\t{",
 		"\t\tif ($explicitPath !== null) {",
@@ -138,7 +163,7 @@ function renderClient(): string {
 		"\t\t}",
 		"",
 		"\t\t$candidates = [];",
-		"\t\t$envCandidate = getenv(\"AI_STATS_CA_BUNDLE\");",
+		"\t\t$envCandidate = getenv(\"PHASEO_CA_BUNDLE\");",
 		"\t\tif (is_string($envCandidate) && trim($envCandidate) !== \"\") {",
 		"\t\t\t$candidates[] = $envCandidate;",
 		"\t\t}",
@@ -183,7 +208,7 @@ function renderModels(models: IRModel[]): string {
 		"<?php",
 		"declare(strict_types=1);",
 		"",
-		"namespace AIStats\\Gen;",
+		"namespace Phaseo\\Gen;",
 		""
 	];
 	for (const model of models) {
@@ -215,7 +240,7 @@ function renderOperations(operations: IROperation[]): string {
 		"<?php",
 		"declare(strict_types=1);",
 		"",
-		"namespace AIStats\\Gen;",
+		"namespace Phaseo\\Gen;",
 		""
 	];
 	for (const operation of operations) {
@@ -240,17 +265,21 @@ function renderOperation(operation: IROperation): string {
 
 function renderPathTemplate(path: string, params: IROperation["params"]): string {
 	if (params.length === 0) {
-		return `"${path}"`;
+		return `"${escapePhpDoubleQuoted(path)}"`;
 	}
-	const segments = path.split(/({[^}]+})/g).filter(Boolean);
+	const segments = splitPathTemplate(path);
 	const parts = segments.map((segment) => {
 		if (segment.startsWith("{") && segment.endsWith("}")) {
 			const name = sanitizeIdentifier(segment.slice(1, -1));
 			return '{$path["' + name + '"]}';
 		}
-		return segment.replace(/"/g, '\\"');
+		return escapePhpDoubleQuoted(segment);
 	});
 	return `"${parts.join("")}"`;
+}
+
+function escapePhpDoubleQuoted(value: string): string {
+	return value.replace(/\\/g, "\\\\").replace(/\$/g, "\\$").replace(/"/g, '\\"');
 }
 
 function sanitizeIdentifier(name: string): string {

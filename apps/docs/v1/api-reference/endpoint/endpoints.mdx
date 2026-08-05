@@ -1,9 +1,13 @@
 ---
-title: "List Endpoints"
+title: "List endpoints"
+sidebarTitle: "List endpoints"
 badge: "Beta"
 openapi: "GET /endpoints"
-description: "List the currently exposed gateway endpoint IDs and a small sample of recent public model IDs."
+description: "List capability-backed gateway endpoints with public paths and model/provider coverage."
 ---
 
 - `endpoints`: the canonical endpoint IDs currently exposed by the API
+- `data`: endpoint records with `public_path`, `collection`, `model_count`, and `provider_count`
 - `sample_models`: up to 10 recent visible model IDs from the public catalogue
+
+Use [List model endpoint capabilities](./model-endpoints) when you need provider- and parameter-level detail for one model.

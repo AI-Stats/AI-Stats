@@ -1,5 +1,17 @@
 import { afterAll, afterEach, describe, expect, it } from "vitest";
-import { fetchProviderModels, resolveProviderModelsEndpoint } from "./helpers";
+import {
+	assertSafeDiscoverySnapshot,
+	buildDiscordMessage,
+	buildProviderApiModelSnapshotDiff,
+	collapseDiscordProviderChanges,
+	computeDiscordNotificationFingerprint,
+	extractDiscoveredModels,
+	extractProviderApiModelSnapshot,
+	fetchProviderModels,
+	formatPricingSample,
+	getDiscordProviderFamilyId,
+	resolveProviderModelsEndpoint,
+} from "./helpers";
 import { installFetchMock, jsonResponse } from "../../../tests/helpers/mock-fetch";
 import { setupRuntimeFromEnv, teardownTestRuntime } from "../../../tests/helpers/runtime";
 
@@ -30,6 +42,20 @@ afterAll(() => {
 });
 
 describe("resolveProviderModelsEndpoint", () => {
+	it("interpolates encoded endpoint parameters from Worker bindings", () => {
+		setupRuntimeFromEnv({
+			CLOUDFLARE_ACCOUNT_ID: "account/id",
+		} as any);
+
+		expect(resolveProviderModelsEndpoint({
+			providerId: "cloudflare",
+			providerName: "Cloudflare Workers AI",
+			modelsEndpoint: "https://api.cloudflare.com/client/v4/accounts/{accountId}/ai/models/search?format=openrouter",
+			modelsEndpointParams: { accountId: ["CLOUDFLARE_ACCOUNT_ID"] },
+		})).toBe(
+			"https://api.cloudflare.com/client/v4/accounts/account%2Fid/ai/models/search?format=openrouter",
+		);
+	});
 	it("appends the poolside openai prefix when the base url override is a root domain", () => {
 		setupRuntimeFromEnv({
 			POOLSIDE_BASE_URL: "https://poolside.example",
@@ -52,6 +78,27 @@ describe("resolveProviderModelsEndpoint", () => {
 });
 
 describe("fetchProviderModels", () => {
+	it("uses DigitalOcean model_id instead of the internal catalog UUID", async () => {
+		const fetchMock = installFetchMock([{
+			match: (url) => url.includes("/v2/gen-ai/models/catalog"),
+			response: jsonResponse({
+				data: [{ id: "00000000-0000-0000-0000-000000000029", model_id: "deepseek-v3.2" }],
+			}),
+		}]);
+
+		try {
+			const models = await fetchProviderModels({
+				providerId: "digitalocean",
+				providerName: "DigitalOcean",
+				modelsEndpoint: "https://api.digitalocean.com/v2/gen-ai/models/catalog?limit=200",
+				authStyle: "none",
+			});
+			expect(models.map((model) => model.id)).toEqual(["deepseek-v3.2"]);
+		} finally {
+			fetchMock.restore();
+		}
+	});
+
 	it("uses the resolved poolside models endpoint and extracts standard openai model ids", async () => {
 		setupRuntimeFromEnv({
 			POOLSIDE_API_KEY: "test-poolside-key",
@@ -110,6 +157,54 @@ describe("fetchProviderModels", () => {
 		}
 	});
 
+	it("accepts a provider success envelope with a nested zero error code", async () => {
+		setupRuntimeFromEnv({
+			POOLSIDE_API_KEY: "test-poolside-key",
+			POOLSIDE_BASE_URL: "https://poolside.example/v1",
+		} as any);
+
+		const fetchMock = installFetchMock([
+			{
+				match: (url) => url === "https://poolside.example/v1/models",
+				response: jsonResponse({
+					error: { code: 0, message: "success" },
+					data: [{ id: "poolside/laguna-m.1" }],
+				}),
+			},
+		]);
+
+		try {
+			const models = await fetchProviderModels(POOLSIDE_DISCOVERY_PROVIDER, "test-poolside-key");
+			expect(models.map((model) => model.id)).toEqual(["poolside/laguna-m.1"]);
+		} finally {
+			fetchMock.restore();
+		}
+	});
+
+	it("still rejects a provider error envelope with a non-zero nested code", async () => {
+		setupRuntimeFromEnv({
+			POOLSIDE_API_KEY: "test-poolside-key",
+			POOLSIDE_BASE_URL: "https://poolside.example/v1",
+		} as any);
+
+		const fetchMock = installFetchMock([
+			{
+				match: (url) => url === "https://poolside.example/v1/models",
+				response: jsonResponse({
+					error: { code: 429, message: "rate limited" },
+				}),
+			},
+		]);
+
+		try {
+			await expect(fetchProviderModels(POOLSIDE_DISCOVERY_PROVIDER, "test-poolside-key")).rejects.toThrow(
+				"rate limited",
+			);
+		} finally {
+			fetchMock.restore();
+		}
+	});
+
 	it("merges google and anthropic publisher models for google-vertex discovery", async () => {
 		setupRuntimeFromEnv({
 			GOOGLE_VERTEX_ACCESS_TOKEN: "test-vertex-token",
@@ -157,5 +252,259 @@ describe("fetchProviderModels", () => {
 		} finally {
 			fetchMock.restore();
 		}
+	});
+});
+
+describe("extractProviderApiModelSnapshot", () => {
+	it("retains media pricing alongside normalized token rates", () => {
+		const snapshot = extractProviderApiModelSnapshot(
+			"deepinfra",
+			{
+				metadata: {
+					pricing: {
+						input_tokens: 0.2,
+						output_tokens: 1,
+						per_image_unit: 0.04,
+					},
+				},
+			},
+			{ metadata: { pricing: { input_tokens: 0.2, output_tokens: 1, per_image_unit: 0.04 } } },
+		);
+
+		expect(snapshot.pricingDetails).toEqual({
+			normalized: {
+				currency: "USD",
+				unit: "per_1m_tokens",
+				meters: { input_text_tokens: 0.2, output_text_tokens: 1 },
+			},
+			sourcePricing: { metadata: { pricing: { input_tokens: 0.2, output_tokens: 1, per_image_unit: 0.04 } } },
+		});
+	});
+});
+
+describe("extractDiscoveredModels", () => {
+	it("strips latency metrics from nested provider pricing snapshots", () => {
+		const [model] = extractDiscoveredModels("unknown-provider", {
+			data: [{ id: "model-a", pricing: { providers: [
+				{ first_token_latency_ms: 273.6, pricing: { input: 1.25, output: 2.5 } },
+				{ first_token_latency_ms: 981.2, pricing: { input: 1.25, output: 2.5 } },
+			] } }],
+		});
+
+		expect(JSON.stringify(model?.pricingDetails)).not.toContain("latency");
+		expect(model?.pricingDetails).toEqual({ pricing: { providers: [
+			{ pricing: { input: 1.25, output: 2.5 } },
+			{ pricing: { input: 1.25, output: 2.5 } },
+		] } });
+	});
+
+	it("extracts model pricing from top-level array responses", () => {
+		const models = extractDiscoveredModels("together", [
+			{
+				id: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+				pricing: { input: 0.88, output: 0.88 },
+			},
+		]);
+
+		expect(models).toHaveLength(1);
+		expect(models[0]).toMatchObject({
+			id: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+			pricingDetails: { pricing: { input: 0.88, output: 0.88 } },
+		});
+	});
+});
+
+describe("buildDiscordMessage", () => {
+	it("collapses regional and endpoint variants into provider families", () => {
+		const collapsed = collapseDiscordProviderChanges([
+			{ providerId: "nebius-token-factory", providerName: "Nebius", previousCount: 1, currentCount: 2, added: ["model-a"], removed: [] },
+			{ providerId: "nebius-token-factory-eu-north-1", providerName: "Nebius EU", previousCount: 1, currentCount: 2, added: ["model-a"], removed: [] },
+			{ providerId: "nebius-token-factory-fast", providerName: "Nebius Fast", previousCount: 1, currentCount: 2, added: ["model-b"], removed: [] },
+		]);
+
+		expect(collapsed).toHaveLength(1);
+		expect(collapsed[0]).toMatchObject({ providerName: "Nebius Token Factory", added: ["model-a", "model-b"] });
+		expect(getDiscordProviderFamilyId("nebius-token-factory-us-central-1")).toBe("nebius-token-factory");
+	});
+
+	it("preserves pricing update counts while deduplicating visible samples", () => {
+		const message = buildDiscordMessage({
+			modelChanges: [],
+			pricing: {
+				updatesDetected: 10,
+				providerChanges: [
+					{ providerId: "nebius-token-factory", updates: 6, samples: ["shared price"] },
+					{ providerId: "nebius-token-factory-eu-north-1", updates: 4, samples: ["shared price"] },
+				],
+			},
+			providerApiPricing: { updatesDetected: 0, providerChanges: [] },
+			pricingTable: { updatesDetected: 0, providerChanges: [], errors: [] },
+			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
+		} as any);
+
+		expect(message).toContain("10 updated rules across 1 provider");
+		expect(message.match(/shared price/g)).toHaveLength(1);
+	});
+
+	it("ignores performance and token-limit metadata changes", () => {
+		expect(buildProviderApiModelSnapshotDiff(
+			{ contextLength: 32_000, maxCompletionTokens: 4_096, pricingDetails: { input: 1 }, pricingFingerprint: "same" },
+			{ contextLength: 128_000, maxCompletionTokens: 16_384, pricingDetails: { input: 1 }, pricingFingerprint: "same" },
+		)).toEqual([]);
+	});
+
+	it("includes pricing-only changes", () => {
+		setupRuntimeFromEnv({} as any);
+		expect(buildDiscordMessage({
+			modelChanges: [],
+			pricing: { updatesDetected: 1, providerChanges: [{ providerId: "crofai", updates: 1, samples: ["glm-5.2 | price changed"] }] },
+			providerApiPricing: { updatesDetected: 1, providerChanges: [{ providerId: "deepinfra", updates: 1, samples: ["model | price changed"] }] },
+			pricingTable: { updatesDetected: 0, providerChanges: [], errors: [] },
+			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
+		} as any)).toContain("Pricing monitor detected 1 updated rule");
+	});
+
+	it("does not notify for pricing source failures without a pricing change", () => {
+		setupRuntimeFromEnv({} as any);
+		expect(buildDiscordMessage({
+			modelChanges: [],
+			pricing: { updatesDetected: 0, providerChanges: [] },
+			providerApiPricing: { updatesDetected: 0, providerChanges: [] },
+			pricingTable: {
+				updatesDetected: 0,
+				providerChanges: [],
+				errors: ["Alibaba pricing source returned no prices"],
+			},
+			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
+		} as any)).toBe("");
+	});
+
+	it("prefers an explicit catalog endpoint over the gateway base URL", () => {
+		expect(resolveProviderModelsEndpoint({
+			providerId: "catalog",
+			providerName: "Catalog",
+			modelsEndpoint: "https://catalog.example/models.json",
+			baseUrl: "https://gateway.example/v1",
+			authStyle: "none",
+		})).toBe("https://catalog.example/models.json");
+	});
+});
+
+describe("extractProviderApiModelSnapshot pricing comparisons", () => {
+	it("ignores volatile raw metadata when canonical prices are unchanged", () => {
+		const previous = extractProviderApiModelSnapshot(
+			"chutes",
+			{ price: { input: { usd: 0.2 }, output: { usd: 0.8 } } },
+			{ price: { input: { usd: 0.2 }, output: { usd: 0.8 } }, refreshed_at: "first" },
+		);
+		const current = extractProviderApiModelSnapshot(
+			"chutes",
+			{ price: { input: { usd: 0.2 }, output: { usd: 0.8 } } },
+			{ price: { input: { usd: 0.2 }, output: { usd: 0.8 } }, refreshed_at: "second" },
+		);
+
+		expect(current.pricingFingerprint).toBe(previous.pricingFingerprint);
+		expect(current.pricingDetails).not.toEqual(previous.pricingDetails);
+	});
+
+	it("detects a changed canonical provider price", () => {
+		const previous = extractProviderApiModelSnapshot(
+			"chutes",
+			{ price: { input: { usd: 0.2 }, output: { usd: 0.8 } } },
+			null,
+		);
+		const current = extractProviderApiModelSnapshot(
+			"chutes",
+			{ price: { input: { usd: 0.25 }, output: { usd: 0.8 } } },
+			null,
+		);
+
+		expect(current.pricingFingerprint).not.toBe(previous.pricingFingerprint);
+	});
+
+	it("detects supplemental non-token price changes", () => {
+		const previous = extractProviderApiModelSnapshot(
+			"deepinfra",
+			{ metadata: { pricing: { input_tokens: 0.2, output_tokens: 0.8, per_image_unit: 0.04 } } },
+			{ metadata: { pricing: { input_tokens: 0.2, output_tokens: 0.8, per_image_unit: 0.04 } } },
+		);
+		const current = extractProviderApiModelSnapshot(
+			"deepinfra",
+			{ metadata: { pricing: { input_tokens: 0.2, output_tokens: 0.8, per_image_unit: 0.05 } } },
+			{ metadata: { pricing: { input_tokens: 0.2, output_tokens: 0.8, per_image_unit: 0.05 } } },
+		);
+
+		expect(current.pricingFingerprint).not.toBe(previous.pricingFingerprint);
+	});
+});
+
+describe("computeDiscordNotificationFingerprint", () => {
+	it("is stable for an identical notification and changes with its payload", async () => {
+		setupRuntimeFromEnv({} as any);
+		const input = {
+			modelChanges: [],
+			pricing: { updatesDetected: 0, providerChanges: [] },
+			providerApiPricing: { updatesDetected: 1, providerChanges: [{ providerId: "openrouter", updates: 1, samples: ["model | price changed"] }] },
+			pricingTable: { updatesDetected: 0, providerChanges: [], errors: [] },
+			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
+		} as any;
+
+		const first = await computeDiscordNotificationFingerprint(input);
+		const repeated = await computeDiscordNotificationFingerprint(input);
+		const changed = await computeDiscordNotificationFingerprint({
+			...input,
+			providerApiPricing: { updatesDetected: 2, providerChanges: [{ providerId: "openrouter", updates: 2, samples: ["two prices changed"] }] },
+		});
+
+		expect(first).toMatch(/^[0-9a-f]{64}$/);
+		expect(repeated).toBe(first);
+		expect(changed).not.toBe(first);
+	});
+});
+
+describe("W&B provider catalog extraction", () => {
+	it("extracts models from the provider-owned nested catalog", () => {
+		expect(extractDiscoveredModels("weights-and-biases", {
+			coreweave: {
+				models: {
+					"openai/gpt-oss-120b": {
+						id: "openai/gpt-oss-120b",
+						name: "OpenAI: gpt-oss-120b",
+						cost: { input: 0.03, output: 0.17, cache_read: 0.03 },
+					},
+				},
+			},
+		})).toEqual([expect.objectContaining({ id: "openai/gpt-oss-120b" })]);
+	});
+});
+
+describe("pricing samples", () => {
+	it("formats the model from the v2 legacy pricing projection", () => {
+		expect(formatPricingSample({
+			rule_id: "rule-1",
+			provider_id: "openai",
+			api_model_id: "openai/gpt-5.4",
+			capability_id: "text.generate",
+			pricing_plan: "standard",
+			meter: "input_text_tokens",
+			price_per_unit: 2.5,
+			currency: "USD",
+			effective_from: null,
+			effective_to: null,
+			updated_at: "2026-07-26T00:00:00Z",
+		})).toContain("openai/gpt-5.4");
+	});
+});
+
+describe("assertSafeDiscoverySnapshot", () => {
+	it("rejects empty and catastrophic provider snapshots", () => {
+		expect(() => assertSafeDiscoverySnapshot("provider", ["a"], [])).toThrow("returned zero models");
+		expect(() => assertSafeDiscoverySnapshot("provider", ["a", "b", "c", "d", "e", "f", "g", "h"], ["a"])).toThrow(
+			"refusing a destructive snapshot",
+		);
+	});
+
+	it("accepts normal provider churn", () => {
+		expect(() => assertSafeDiscoverySnapshot("provider", ["a", "b", "c", "d", "e"], ["a", "b", "c", "f"])).not.toThrow();
 	});
 });

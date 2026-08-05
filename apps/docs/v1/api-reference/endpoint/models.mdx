@@ -1,8 +1,9 @@
 ---
-title: "Models (Beta)"
+title: "List models"
+sidebarTitle: "List models"
 badge: "Beta"
 openapi: "GET /models"
-description: "Browse gateway-native models through AI Stats Gateway, including optional non-routable availability details."
+description: "Browse gateway-native models through Phaseo Gateway, including optional non-routable availability details."
 ---
 
 By default, this endpoint only returns models that are currently routable. Set `availability=all` to include models that are known but not currently available.
@@ -23,6 +24,11 @@ By default, this endpoint only returns models that are currently routable. Set `
 - `organisation` filters by the public model ID prefix, for example `anthropic` in `anthropic/claude-3-haiku`
 - `availability=active` is the default
 - `availability=all` includes models or providers that are `coming_soon`, `inactive`, or not yet publicly routable
+- `input_modalities` is an alias for `input_types`
+- `output_modalities` is an alias for `output_types`
+- `supported_parameters` is an alias for `params`
+
+To inspect the endpoint contract for one model, call `GET /models/{author}/{slug}/endpoints`. The response separates provider routes and includes the public path, modalities, supported parameter detail, availability, routing state, provider model slug, and pricing summary for each row.
 
 Provider entries can also include:
 
@@ -49,7 +55,7 @@ Provider entries can also include:
       "canonical_slug": "anthropic/claude-3-haiku",
       "model_id": "anthropic/claude-3-haiku",
       "name": "anthropic/claude-3-haiku",
-      "description": "anthropic/claude-3-haiku via AI Stats Gateway. Supports chat.completions, messages, responses.",
+      "description": "anthropic/claude-3-haiku via Phaseo Gateway. Supports chat.completions, messages, responses.",
       "created": null,
       "release_date": null,
       "deprecation_date": null,
@@ -79,6 +85,7 @@ Provider entries can also include:
         {
           "api_provider_id": "anthropic",
           "api_provider_name": "Anthropic",
+          "provider_model_slug": "claude-3-haiku-20240307",
           "is_active_gateway": false,
           "availability_status": "coming_soon",
           "availability_reason": "preview_only",
@@ -89,6 +96,8 @@ Provider entries can also include:
           "effective_from": "2026-06-01T00:00:00Z",
           "effective_to": null,
           "endpoints": ["responses"],
+          "input_modalities": ["text"],
+          "output_modalities": ["text"],
           "params": [
             "max_tokens",
             "response_format",

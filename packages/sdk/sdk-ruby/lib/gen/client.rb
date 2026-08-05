@@ -2,7 +2,7 @@ require "json"
 require "net/http"
 require "uri"
 
-module AiStats
+module Phaseo
   module Gen
     class RequestError < StandardError
       attr_reader :status_code, :response_body
@@ -62,6 +62,24 @@ module AiStats
           raise RequestError.new(status_code: response.code.to_i, response_body: response.body.to_s)
         end
         response.body.to_s.b
+      end
+
+      def request_stream(method:, path:, query: nil, headers: nil, body: nil)
+        return enum_for(__method__, method:, path:, query:, headers:, body:) unless block_given?
+        http, req = build_request(method:, path:, query:, headers: (headers || {}).merge("Accept" => "text/event-stream"), body:)
+        http.request(req) do |response|
+          unless response.is_a?(Net::HTTPSuccess)
+            raise RequestError.new(status_code: response.code.to_i, response_body: response.body.to_s)
+          end
+          buffer = String.new
+          response.read_body do |chunk|
+            buffer << chunk
+            while (index = buffer.index("\n"))
+              yield buffer.slice!(0, index + 1).sub(/\r?\n\z/, "")
+            end
+          end
+          yield buffer unless buffer.empty?
+        end
       end
     end
   end

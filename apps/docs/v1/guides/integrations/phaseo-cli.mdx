@@ -1,0 +1,160 @@
+---
+title: "Phaseo CLI"
+icon: "terminal"
+description: "Install the official Phaseo CLI, sign in with browser OAuth or device code, and manage keys, guardrails, and workspaces from the terminal."
+---
+
+The Phaseo CLI gives you a first-party terminal workflow for the Phaseo control plane.
+
+Use it when you want to:
+
+- sign in as a real Phaseo user from a local shell, remote shell, or agent runtime
+- create and rotate API keys or management keys
+- manage workspaces, presets, settings, and guardrails
+- use first-party CLI OAuth while user-owned OAuth apps remain in private testing
+- inspect models, providers, pricing, credits, activity, analytics, and generations
+
+## Install
+
+<CodeGroup>
+
+```bash title="npm"
+npm install -g @phaseo/cli
+```
+
+```bash title="pnpm"
+pnpm add -g @phaseo/cli
+```
+
+```bash title="yarn"
+yarn global add @phaseo/cli
+```
+
+```bash title="bun"
+bun add -g @phaseo/cli
+```
+
+</CodeGroup>
+
+## Check the installed version
+
+```bash
+phaseo --version
+phaseo version
+phaseo version --json
+```
+
+- `phaseo --version` prints the installed version.
+- `phaseo version` prints the version plus the recommended update command for the current package manager.
+- interactive runs also show an update hint when a newer published version is available.
+
+The older `phaseo` command remains available as a compatibility alias.
+
+## Sign in
+
+Start with:
+
+```bash
+phaseo login
+```
+
+The CLI supports two first-party flows:
+
+- **Sign in with Phaseo**: browser OAuth with authorization code + PKCE
+- **Sign in with Device Code**: best for SSH, CI, headless shells, and agent environments
+
+You can force either path:
+
+```bash
+phaseo login --browser
+phaseo login --device-code
+```
+
+Remote and non-interactive environments automatically prefer device code.
+
+## Confirm who you are
+
+```bash
+phaseo whoami
+phaseo whoami --json
+```
+
+This returns your current Phaseo user, scopes, active workspace, and available workspaces.
+
+## Create keys
+
+```bash
+phaseo keys create --name "Local CLI Key"
+phaseo keys create --name "Agent Sandbox Key" --json
+phaseo keys current
+```
+
+Use `--json` when an agent or automation needs the raw created key once.
+
+## Manage workspaces and guardrails
+
+```bash
+phaseo workspaces list
+phaseo workspaces members <workspace-id-or-slug>
+
+phaseo guardrails list
+phaseo guardrails create --name "Production Safety" --body-json '{"enabled":true}'
+```
+
+The CLI is intended to cover the useful parts of the Phaseo dashboard and management APIs from the terminal.
+
+## OAuth apps
+
+Phaseo uses one OAuth authorization server for the first-party CLI, user-created applications, and dynamically registered MCP clients. The CLI uses browser or device login with rotating refresh tokens. Third-party clients use authorization code with PKCE, explicit scopes and workspace consent, revocable delegated access tokens, and optional protected-resource binding.
+
+The hosted Phaseo API enables third-party OAuth. Self-hosted or preview API deployments keep it disabled unless `PHASEO_THIRD_PARTY_OAUTH_ENABLED` is set to a truthy value. Accepted truthy values are `1`, `true`, `yes`, and `on`, matched case-insensitively after trimming whitespace. Enabling it exposes user-created OAuth app management and dynamic client registration, so pair it with reviewed redirect URI, consent, client-secret, rate-limit, and workspace authorization configuration.
+
+```bash title=".env"
+PHASEO_THIRD_PARTY_OAUTH_ENABLED=true
+```
+
+```bash title="Docker"
+docker run -e PHASEO_THIRD_PARTY_OAUTH_ENABLED=true phaseo
+```
+
+```yaml title="Kubernetes"
+env:
+  - name: PHASEO_THIRD_PARTY_OAUTH_ENABLED
+    value: "true"
+```
+
+## Security model
+
+- CLI sessions require OS-backed secure storage by default. Set `PHASEO_SESSION_BACKEND=file` only as an explicit opt-in when an OS credential store is unavailable; it stores refresh tokens in a permission-restricted plaintext file.
+- `phaseo logout` revokes the stored refresh token before clearing local state.
+- Management keys require explicit capabilities.
+- Regular inference keys rely on guardrails, routing policies, and workspace settings rather than a separate scope model.
+
+## Update
+
+<CodeGroup>
+
+```bash title="npm"
+npm install -g @phaseo/cli@latest
+```
+
+```bash title="pnpm"
+pnpm add -g @phaseo/cli@latest
+```
+
+```bash title="yarn"
+yarn global add @phaseo/cli@latest
+```
+
+```bash title="bun"
+bun add -g @phaseo/cli@latest
+```
+
+</CodeGroup>
+
+## Next steps
+
+- [Management API keys](../../developers/management-api-keys)
+- [Authentication](../../developers/authentication)
+- [Codex](./codex)
+- [Claude Code](./claude-code)

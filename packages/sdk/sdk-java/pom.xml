@@ -4,12 +4,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>app.phaseo</groupId>
-  <artifactId>ai-stats-sdk</artifactId>
-  <version>2.0.4</version>
+  <artifactId>phaseo-sdk</artifactId>
+  <version>2.1.0</version>
   <packaging>jar</packaging>
-  <name>AI Stats Java SDK</name>
-  <description>Official AI Stats Gateway SDK for Java.</description>
-  <url>https://docs.ai-stats.phaseo.app</url>
+  <name>Phaseo Java SDK</name>
+  <description>Official Phaseo Gateway SDK for Java.</description>
+  <url>https://phaseo.app</url>
 
   <licenses>
     <license>
@@ -21,17 +21,17 @@
 
   <developers>
     <developer>
-      <name>AI Stats</name>
+      <name>Phaseo</name>
       <email>danielbutler500@gmail.com</email>
-      <organization>AI Stats</organization>
-      <organizationUrl>https://ai-stats.phaseo.app</organizationUrl>
+      <organization>Phaseo</organization>
+      <organizationUrl>https://phaseo.app</organizationUrl>
     </developer>
   </developers>
 
   <scm>
-    <connection>scm:git:https://github.com/AI-Stats/AI-Stats.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/AI-Stats/AI-Stats.git</developerConnection>
-    <url>https://github.com/AI-Stats/AI-Stats</url>
+    <connection>scm:git:https://github.com/phaseoteam/Phaseo.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/phaseoteam/Phaseo.git</developerConnection>
+    <url>https://github.com/phaseoteam/Phaseo</url>
   </scm>
 
   <properties>
@@ -45,7 +45,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.18.2</version>
+      <version>2.22.1</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -122,7 +122,7 @@
           <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
-            <version>0.7.0</version>
+            <version>0.9.0</version>
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>central</publishingServerId>

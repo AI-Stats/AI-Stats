@@ -1,7 +1,7 @@
 {
-	"name": "@ai-stats/sdk",
-	"description": "AI Stats Gateway SDK for TypeScript/JavaScript",
-	"version": "2.0.5",
+	"name": "@phaseo/sdk",
+	"description": "Phaseo Gateway SDK for TypeScript/JavaScript",
+	"version": "2.2.0",
 	"type": "module",
 	"private": false,
 	"license": "MIT",
@@ -42,8 +42,7 @@
 		"gen": "pnpm -w oapi:gen:ts",
 		"build": "rimraf dist && tsc -p tsconfig.build.json",
 		"prepublishOnly": "pnpm run build",
-		"postinstall": "node scripts/postinstall.cjs",
-		"test:unit": "pnpm exec vitest run tests/client-async-jobs.test.ts tests/client-batches.test.ts tests/client-chat.test.ts tests/client-endpoints.test.ts tests/client-files.test.ts tests/client-video.test.ts tests/devtools.test.ts tests/webhooks.test.ts",
+		"test:unit": "pnpm exec vitest run tests/client-async-jobs.test.ts tests/client-batches.test.ts tests/client-chat.test.ts tests/client-endpoints.test.ts tests/client-files.test.ts tests/client-video.test.ts tests/devtools.test.ts tests/package-metadata.test.ts tests/webhooks.test.ts",
 		"test:smoke": "pnpm smoke:all",
 		"smoke:chat": "dotenv -e .env.local -- tsx tests/smoke.ts --operation chat",
 		"smoke:responses": "dotenv -e .env.local -- tsx tests/smoke.ts --operation responses",
@@ -63,7 +62,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/AI-Stats/AI-Stats.git"
+		"url": "git+https://github.com/phaseoteam/Phaseo.git"
 	},
 	"publishConfig": {
 		"access": "public"

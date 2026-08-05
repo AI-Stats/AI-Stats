@@ -13,6 +13,7 @@ import {
 	FREE_ROUTER_NAME,
 	isFreeRouterModelId,
 } from "@/lib/models/freeRouter";
+import { decodeModelRouteSegment } from "@/lib/models/modelHref";
 
 export type ModelRouteParams = {
 	organisationId: string;
@@ -20,7 +21,7 @@ export type ModelRouteParams = {
 };
 
 export function getModelIdFromParams(params: ModelRouteParams): string {
-	return `${params.organisationId}/${params.modelId}`;
+	return `${decodeModelRouteSegment(params.organisationId)}/${decodeModelRouteSegment(params.modelId)}`;
 }
 
 export function getModelPath(modelId: string, tab?: string): string {
@@ -49,8 +50,41 @@ export async function getModelMetadataIdentity(
 		return {
 			modelId: FREE_ROUTER_MODEL_ID,
 			modelName: FREE_ROUTER_NAME,
-			organisationName: "AI Stats",
+			organisationName: "Phaseo",
 			modelDescription: FREE_ROUTER_DESCRIPTION,
+		};
+	}
+
+	if (!includeHidden) {
+		const identityFromOverview = async (modelId: string) => {
+			const overview = await fetchFrontendModelOverview(modelId).catch(() => null);
+			return overview ? {
+				modelId,
+				modelName: overview.name?.trim() || fallbackName,
+				organisationName: overview.organisation?.name ?? null,
+				modelDescription: resolveModelDescription(overview),
+			} : null;
+		};
+		const direct = await identityFromOverview(requestedModelId);
+		if (direct) return direct;
+		try {
+			const resolved = await fetchFrontendCanonicalModelId(requestedModelId, false);
+			const canonicalModelId = resolved.canonicalModelId ?? requestedModelId;
+			if (canonicalModelId !== requestedModelId) {
+				const canonical = await identityFromOverview(canonicalModelId);
+				if (canonical) return canonical;
+			}
+		} catch {
+			// Fall through to generated metadata.
+		}
+		return {
+			modelId: requestedModelId,
+			modelName: fallbackName,
+			organisationName: null,
+			modelDescription: buildGeneratedModelDescription({
+				model_id: requestedModelId,
+				name: fallbackName,
+			}),
 		};
 	}
 
@@ -144,10 +178,22 @@ export async function resolveModelRouteIds(
 			internalModelId: null,
 		};
 	}
-	const resolved = await fetchFrontendCanonicalModelId(
-		requestedModelId,
-		includeHidden,
-	);
+	let resolved: Awaited<ReturnType<typeof fetchFrontendCanonicalModelId>>;
+	try {
+		resolved = await fetchFrontendCanonicalModelId(
+			requestedModelId,
+			includeHidden,
+		);
+	} catch {
+		// A just-announced model can briefly be ahead of the public catalogue
+		// cache. Let the detail shell turn the subsequent missing header into the
+		// route's designed 404 instead of surfacing an upstream server error.
+		return {
+			requestedModelId,
+			canonicalModelId: requestedModelId,
+			internalModelId: null,
+		};
+	}
 	return {
 		requestedModelId,
 		canonicalModelId: resolved.canonicalModelId ?? requestedModelId,

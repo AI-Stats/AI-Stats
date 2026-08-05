@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+	extractRequestedParams,
+	getUnknownTopLevelParams,
 	getUnsupportedParamsForProvider,
 	providerSupportsParam,
 } from "./paramCapabilities";
@@ -33,6 +35,48 @@ describe("textParamPolicy", () => {
 		expect(
 			resolveProviderParamSupportOverride("cerebras", "reasoning.effort"),
 		).toBeUndefined();
+	});
+
+	it("accepts documented AION chat parameters", () => {
+		const body = {
+			model: "aion-labs/aion-3.0",
+			messages: [{ role: "user", content: "Hello" }],
+			metadata: { request: "catalog-test" },
+			reasoning_split: true,
+		};
+
+		expect(getUnknownTopLevelParams("chat.completions", body)).toEqual([]);
+		expect(extractRequestedParams("chat.completions", body)).toEqual([
+			"metadata",
+			"reasoning_split",
+		]);
+	});
+
+	it("accepts OpenAI-compatible stream options on chat completions", () => {
+		const body = {
+			model: "openai/gpt-5.4-nano",
+			messages: [{ role: "user", content: "Hello" }],
+			stream: true,
+			stream_options: { include_usage: true },
+		};
+
+		expect(getUnknownTopLevelParams("chat.completions", body)).toEqual([]);
+		expect(extractRequestedParams("chat.completions", body)).toEqual([]);
+	});
+
+	it("extracts documented AION responses parameters", () => {
+		const body = {
+			model: "aion-labs/aion-3.0",
+			input: "Hello",
+			metadata: { request: "catalog-test" },
+			reasoning_split: true,
+		};
+
+		expect(getUnknownTopLevelParams("responses", body)).toEqual([]);
+		expect(extractRequestedParams("responses", body)).toEqual([
+			"metadata",
+			"reasoning_split",
+		]);
 	});
 });
 

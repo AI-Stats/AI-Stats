@@ -6,6 +6,19 @@
   "capability_id": "images.edits",
   "rules": [
     {
+      "meter": "input_image",
+      "unit": "image",
+      "unit_size": 1,
+      "price_per_unit": 0.003,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "included_quantity": 1,
+      "note": "The first reference image is free; each additional reference image costs $0.003.",
+      "match": [],
+      "priority": 250,
+      "effective_from": "2026-07-08T00:00:00Z"
+    },
+    {
       "meter": "output_image",
       "unit": "image",
       "unit_size": 1,

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
 	buildImagePricingRequestOptions,
 	inferImagePricingVariant,
+	normalizeOpenAIImageTokenUsage,
 	resolveImageResolution,
 	resolveImageSize,
 } from "./image-request-options";
@@ -77,6 +78,20 @@ describe("image-request-options", () => {
 		});
 	});
 
+	it("maps OpenAI Images API usage to image-token meters", () => {
+		expect(
+			normalizeOpenAIImageTokenUsage({
+				input_tokens: 110,
+				output_tokens: 6594,
+				input_tokens_details: { text_tokens: 10, image_tokens: 100 },
+			}),
+		).toMatchObject({
+			input_text_tokens: 10,
+			input_image_tokens: 100,
+			output_image_tokens: 6594,
+		});
+	});
+
 	it("prefers resolved response params over token inference when request used auto", () => {
 		const options = buildImagePricingRequestOptions(
 			{
@@ -130,6 +145,17 @@ describe("image-request-options", () => {
 			image_params: {
 				output_pixels: 4194304,
 			},
+		});
+	});
+
+	it("derives output pixel count from provider K-size aliases", () => {
+		expect(buildImagePricingRequestOptions({ size: "2K" })).toMatchObject({
+			output_pixels: 2359296,
+			image_params: { output_pixels: 2359296 },
+		});
+		expect(buildImagePricingRequestOptions({ size: "3K" })).toMatchObject({
+			output_pixels: 5308416,
+			image_params: { output_pixels: 5308416 },
 		});
 	});
 });

@@ -1,16 +1,15 @@
 ---
+icon: "package"
 title: "Python SDK Installation"
-description: "How to install and set up the AI Stats Python SDK"
+description: "How to install and set up the Phaseo Python SDK"
 ---
 
-<Note type="warning">
-  **SDKs are in very early alpha**: We're working as hard as we can to get them into a stable state. Please bear with us as we iterate rapidly.
-</Note>
+The SDK is published as [`phaseo`](https://pypi.org/project/phaseo/) on PyPI.
 
 ## Installation
 
 ```bash
-pip install ai-stats-py-sdk
+pip install phaseo
 ```
 
 ## Requirements
@@ -21,21 +20,21 @@ pip install ai-stats-py-sdk
 
 ### API key
 
-Create an API key in the [AI Stats Dashboard](https://ai-stats.phaseo.app/gateway/keys).
+Create an API key in the [Phaseo Dashboard](https://phaseo.app/gateway/keys).
 
 ### Environment variable
 
 ```bash
-export AI_STATS_API_KEY="aistats_v1_sk_<kid>_<secret>"
+export PHASEO_API_KEY="phaseo_v1_sk_<kid>_<secret>"
 ```
 
 ### Basic usage
 
 ```python
-from ai_stats import AIStats
+from phaseo import Phaseo
 import os
 
-client = AIStats(api_key=os.environ["AI_STATS_API_KEY"])
+client = Phaseo(api_key=os.environ["PHASEO_API_KEY"])
 
 response = client.generate_text(
     {
@@ -50,9 +49,9 @@ print(response["choices"][0]["message"]["content"])
 ### Optional client configuration
 
 ```python
-from ai_stats import AIStats
+from phaseo import Phaseo
 
-client = AIStats(
+client = Phaseo(
     api_key="your-api-key",
     base_url="https://api.phaseo.app/v1",
     timeout=30.0,

@@ -15,7 +15,7 @@ import {
 	type StreamProtocol,
 } from "@protocols/stream/encode";
 import { dispatchBackground } from "@/runtime/env";
-import { supportsProviderStreamCancellation } from "./stream-cancellation";
+import { getProviderStreamCancellationPolicy } from "./stream-cancellation";
 
 /** Pure passthrough for non-stream fallbacks (keeps upstream headers where safe). */
 export function passthrough(upstream: Response): Response {
@@ -62,7 +62,17 @@ type PassthroughWithPricingOpts = {
  */
 export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): Promise<Response> {
     const { upstream, rewriteFrame, onFinalUsage, onFinalSnapshot, onStreamEvent, timingHeader, ctx, provider } = opts;
-    const canCancelUpstream = supportsProviderStreamCancellation(provider);
+    const cancellationPolicy = getProviderStreamCancellationPolicy(provider);
+    const providerMetadata = ctx.providers?.find((candidate) => candidate.providerId === provider);
+    ctx.meta.streamCancellationSupport =
+        providerMetadata?.streamCancellationSupport ?? cancellationPolicy.support;
+    ctx.meta.streamProviderBillingOnCancel =
+        providerMetadata?.streamCancellationStopsProviderBilling === true
+            ? "stops"
+            : cancellationPolicy.providerBillingOnCancel;
+    // Exact usage recovery is not wired into an adapter yet. Even if catalogue
+    // metadata says it exists, keep draining until the resolver is executable.
+    ctx.meta.streamDisconnectAction = "drain_upstream";
 
     const reader = upstream.body?.getReader();
     const dec = new TextDecoder();
@@ -71,20 +81,25 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
     const ts = new TransformStream();
     const writer = ts.writable.getWriter();
     const tStart = performance.now();
-    let firstFrameAt: number | null = null;
-    let firstFrameAtMs: number | null = null;
+    let firstOutputAt: number | null = null;
     let downstreamClosed = false;
     void writer.closed.catch(() => {
         downstreamClosed = true;
+        ctx.meta.downstreamDisconnected = true;
     });
 
-    const resolveRequestStartMs = () => {
+    const resolveSelectedUpstreamStartMs = () => {
+        if (typeof ctx.meta.selectedUpstreamFetchStartMs === "number") {
+            return ctx.meta.selectedUpstreamFetchStartMs;
+        }
         if (typeof ctx.meta.upstreamStartMs === "number") return ctx.meta.upstreamStartMs;
-        if (typeof ctx.meta.startedAtMs === "number") return ctx.meta.startedAtMs;
         return null;
     };
 
+    let completionTimingRecorded = false;
     const recordCompletionTiming = () => {
+        if (completionTimingRecorded) return;
+        completionTimingRecorded = true;
         if (
             ctx.meta.preserve_stream_timing &&
             typeof ctx.meta.latency_ms === "number" &&
@@ -95,15 +110,22 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
         }
         const nowMs = Date.now();
         const nowPerf = performance.now();
-        const requestStartMs = resolveRequestStartMs();
-        ctx.meta.end_to_end_ms = requestStartMs !== null
-            ? Math.max(0, Math.round(nowMs - requestStartMs))
+        const gatewayStartMs = typeof ctx.meta.startedAtMs === "number"
+            ? ctx.meta.startedAtMs
+            : null;
+        const upstreamStartMs = resolveSelectedUpstreamStartMs();
+        ctx.meta.end_to_end_ms = gatewayStartMs !== null
+            ? Math.max(0, Math.round(nowMs - gatewayStartMs))
             : Math.max(0, Math.round(nowPerf - tStart));
-        ctx.meta.generation_ms = firstFrameAtMs !== null
-            ? Math.max(0, Math.round(nowMs - firstFrameAtMs))
-            : firstFrameAt !== null
-                ? Math.max(0, Math.round(nowPerf - firstFrameAt))
+        ctx.meta.generation_ms = upstreamStartMs !== null
+            ? Math.max(0, Math.round(nowMs - upstreamStartMs))
+            : firstOutputAt !== null
+                ? Math.max(0, Math.round(nowPerf - tStart))
                 : 0;
+        ctx.meta.phaseo_overhead_ms = Math.max(
+            0,
+            ctx.meta.end_to_end_ms - ctx.meta.generation_ms,
+        );
     };
 
     // Write one SSE JSON object as "event: X\ndata: {...}\n\n" (event optional)
@@ -115,18 +137,29 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
             await writer.write(enc.encode(line));
         } catch {
             downstreamClosed = true;
+            ctx.meta.downstreamDisconnected = true;
         }
     };
 
     let finalUsageSettled = false;
-    const finalizeUsage = (usage: any, reason: "complete" | "aborted") => {
+    const finalizeUsage = (
+        usage: any,
+        info: { aborted: boolean; sawFinalUsage: boolean },
+    ) => {
         if (finalUsageSettled) return;
         finalUsageSettled = true;
 
         if (!onFinalUsage) return;
 
-        if (reason === "aborted") {
+        if (info.aborted) {
             console.warn("[gateway] Streaming response ended before final usage", {
+                requestId: ctx.requestId,
+                workspaceId: ctx.workspaceId,
+                endpoint: ctx.endpoint,
+                provider,
+            });
+        } else if (!info.sawFinalUsage) {
+            console.warn("[gateway] Streaming response completed without final usage", {
                 requestId: ctx.requestId,
                 workspaceId: ctx.workspaceId,
                 endpoint: ctx.endpoint,
@@ -137,10 +170,7 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
         recordCompletionTiming();
         dispatchBackground(
             Promise.resolve(
-                onFinalUsage(usage, {
-                    aborted: reason === "aborted",
-                    sawFinalUsage: reason === "complete",
-                }),
+                onFinalUsage(usage, info),
             ).catch((err) => {
                 console.error("passthroughWithPricing onFinalUsage error:", err, {
                     requestId: ctx.requestId,
@@ -150,27 +180,19 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
         );
     };
 
-    (async () => {
+    const streamPump = (async () => {
         if (!reader) {
-            finalizeUsage(null, "aborted");
+            finalizeUsage(null, { aborted: true, sawFinalUsage: false });
             try { await writer.close(); } catch { }
             return;
         }
 
         let buf = "";
-        let sawFinalUsage = false;
+        let sawTerminalSnapshot = false;
         let lastSeenUsage: any = null;
 
         try {
             while (true) {
-                if (downstreamClosed && canCancelUpstream) {
-                    try {
-                        await reader.cancel("downstream_closed");
-                    } catch {
-                        // ignore reader cancellation failures
-                    }
-                    break;
-                }
                 const { value, done } = await reader.read();
                 if (done) break;
 
@@ -207,30 +229,18 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
                         continue;
                     }
 
-                    if (firstFrameAt === null) {
-                        firstFrameAt = performance.now();
-                        firstFrameAtMs = Date.now();
-                        // For streamed responses, latency means upstream request start -> first frame
-                        // emitted back to the client. Provider adapters may record earlier upstream
-                        // timings, so overwrite here with the actual downstream first-frame timing.
-                        if (!ctx.meta.preserve_stream_timing) {
-                            const requestStartMs = resolveRequestStartMs();
-                            if (requestStartMs !== null) {
-                                ctx.meta.latency_ms = Math.max(
-                                    0,
-                                    Math.round(firstFrameAtMs - requestStartMs),
-                                );
-                            } else {
-                                ctx.meta.latency_ms = Math.max(0, Math.round(firstFrameAt - tStart));
-                            }
-                        }
-                    }
-
                     const events = extractUnifiedStreamEvents({
                         protocol: ctx.protocol,
                         eventName,
                         frame: json,
                     });
+                    const containsGeneratedOutput = events.some((event) =>
+                        (event.type === "delta_text" && event.text.length > 0) ||
+                        (event.type === "delta_tool" && Boolean(
+                            event.argumentsDelta || event.arguments || event.toolName,
+                        )) ||
+                        event.type === "delta_content_part"
+                    );
                     const detectedProtocol = detectStreamProtocol({
                         protocol: undefined,
                         eventName,
@@ -245,7 +255,10 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
                     if (onStreamEvent && events.length > 0) {
                         for (const event of events) {
                             try {
-                                await onStreamEvent(event);
+                                const observed = onStreamEvent(event);
+                                if (observed && typeof (observed as Promise<void>).then === "function") {
+                                    await observed;
+                                }
                             } catch {
                                 // Never let event consumer errors break stream forwarding.
                             }
@@ -273,7 +286,7 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
 
                     const fallbackTerminal =
                         !terminalByEvents &&
-                        !sawFinalUsage &&
+                        !sawTerminalSnapshot &&
                         (
                             json?.object === "chat.completion" ||
                             json?.response?.object === "chat.completion" ||
@@ -281,10 +294,10 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
                             (json?.response?.object === "response" && json?.response?.status === "completed")
                         );
 
-                    const isFinalSnapshot = !sawFinalUsage && (terminalByEvents || fallbackTerminal);
+                    const isFinalSnapshot = !sawTerminalSnapshot && (terminalByEvents || fallbackTerminal);
 
                     if (isFinalSnapshot) {
-                        sawFinalUsage = true;
+                        sawTerminalSnapshot = true;
                         recordCompletionTiming();
                     }
 
@@ -305,12 +318,19 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
                             .filter((entry): entry is { eventName?: string | null; frame: Record<string, any> } => Boolean(entry))
                         : [{ eventName, frame: json }];
 
-                    // Detect final snapshot to extract usage for billing   
+                    let finalUsageAfterWrite: any = null;
+                    // Capture terminal state before rewriting the frame, but do not
+                    // start persistence until the terminal frame is downstream.
+                    // OpenAI chat streams emit finish_reason first and then a
+                    // separate usage-only frame, so a terminal frame without usage
+                    // must not settle billing before that trailing frame arrives.
                     if (isFinalSnapshot) {
                         if (onFinalSnapshot) {
                             try { onFinalSnapshot(finalSnapshotFromEvents ?? json); } catch { }
                         }
-                        finalizeUsage(usageCandidate ?? lastSeenUsage, "complete");
+                        finalUsageAfterWrite = usageCandidate ?? lastSeenUsage;
+                    } else if (sawTerminalSnapshot && usageCandidate) {
+                        finalUsageAfterWrite = usageCandidate;
                     }
 
                     for (const outbound of outboundFrames) {
@@ -319,39 +339,53 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
                             try { frameOut = rewriteFrame(frameOut) ?? frameOut; } catch { }
                         }
                         await writeJson(frameOut, outbound.eventName ?? null);
-                        if (downstreamClosed && canCancelUpstream) {
-                            try {
-                                await reader.cancel("downstream_closed");
-                            } catch {
-                                // ignore reader cancellation failures
-                            }
-                            break;
+                    }
+                    if (firstOutputAt === null && containsGeneratedOutput) {
+                        firstOutputAt = performance.now();
+                        const firstOutputAtMs = Date.now();
+                        if (!ctx.meta.preserve_stream_timing) {
+                            const upstreamStartMs = resolveSelectedUpstreamStartMs();
+                            const providerTtftMs = upstreamStartMs !== null
+                                ? Math.max(0, Math.round(firstOutputAtMs - upstreamStartMs))
+                                : Math.max(0, Math.round(firstOutputAt - tStart));
+                            const gatewayStartMs = typeof ctx.meta.startedAtMs === "number"
+                                ? ctx.meta.startedAtMs
+                                : null;
+                            ctx.meta.provider_ttft_ms = providerTtftMs;
+                            ctx.meta.gateway_ttft_ms = gatewayStartMs !== null
+                                ? Math.max(0, Math.round(firstOutputAtMs - gatewayStartMs))
+                                : providerTtftMs;
+                            ctx.meta.latency_ms = providerTtftMs;
                         }
                     }
 
-                    if (downstreamClosed && canCancelUpstream) {
-                        break;
+                    if (finalUsageAfterWrite) {
+                        finalizeUsage(finalUsageAfterWrite, {
+                            aborted: false,
+                            sawFinalUsage: true,
+                        });
                     }
-                }
 
-                if (downstreamClosed && canCancelUpstream) {
-                    break;
                 }
             }
         } finally {
-            if (!sawFinalUsage) {
-                finalizeUsage(lastSeenUsage, "aborted");
+            if (!finalUsageSettled) {
+                finalizeUsage(lastSeenUsage, {
+                    aborted: !sawTerminalSnapshot,
+                    sawFinalUsage: false,
+                });
             }
             if (!downstreamClosed) {
                 try { await writer.close(); } catch { }
             }
         }
-    })().catch(err => {
+    })();
+    dispatchBackground(streamPump.catch(err => {
         console.error("passthroughWithPricing stream error:", err, {
             requestId: ctx.requestId,
             workspaceId: ctx.workspaceId,
         });
-    });
+    }));
 
     const headers = new Headers();
     headers.set("Content-Type", "text/event-stream");
@@ -364,8 +398,6 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
     // Do not add custom gateway headers; everything important is in-body now.
     return new Response(ts.readable, { status: upstream.status, headers });
 }
-
-
 
 
 

@@ -1,11 +1,12 @@
 ---
 title: "Pricing & Performance"
-description: "Understand how model pricing and performance are measured, compared, and normalised across providers on AI Stats."
+description: "Understand how model pricing and performance are measured, compared, and normalised across providers on Phaseo."
+icon: "chart-spline"
 ---
 
-AI Stats helps you make informed decisions about which models to use by providing **transparent pricing and performance metrics** for every model and provider.
+Phaseo helps you make informed decisions about which models to use by providing **transparent pricing and performance metrics** for every model and provider.
 
-This page explains how AI Stats calculates, standardises, and presents cost and speed data — allowing you to identify the **best value** models for your use case.
+This page explains how Phaseo calculates, standardises, and presents cost and speed data — allowing you to identify the **best value** models for your use case.
 
 ---
 
@@ -17,14 +18,14 @@ When choosing a model, you’re balancing **three key factors**:
 2. ⚙️ **Performance** — how fast and efficient the model is.
 3. 🧠 **Quality** — how well it performs on benchmarks.
 
-AI Stats gives you clear, comparable metrics for the first two, and links them with benchmark data to help you find the **sweet spot between cost, speed, and intelligence**.
+Phaseo gives you clear, comparable metrics for the first two, and links them with benchmark data to help you find the **sweet spot between cost, speed, and intelligence**.
 
 ---
 
 ## Pricing structure
 
 Pricing varies depending on the **provider**, **model type**, and **usage mode**.  
-AI Stats normalises all prices to **USD per 1,000 tokens** (for text models) or the equivalent unit for other modalities.
+Phaseo normalises all prices to **USD per 1,000 tokens** (for text models) or the equivalent unit for other modalities.
 
 | Type             | Unit                | Example                             |
 | ---------------- | ------------------- | ----------------------------------- |
@@ -52,13 +53,13 @@ Example:
 | Gemini 1.5 Pro    | $0.00125                | $0.005                   |
 | Mistral Large     | $0.002                  | $0.006                   |
 
-AI Stats displays both prices for full transparency and allows filtering or sorting by either.
+Phaseo displays both prices for full transparency and allows filtering or sorting by either.
 
 ---
 
 ## Cost per request (E2E)
 
-AI Stats also computes an **estimated cost per complete request**, which factors in:
+Phaseo also computes an **estimated cost per complete request**, which factors in:
 
 -   The **average number of input tokens** per request.
 -   The **average model output length**.
@@ -70,29 +71,35 @@ This gives a more realistic “per-call” cost when comparing across models and
 
 ## Measuring performance
 
-AI Stats tracks three main performance metrics for every model and provider:
+Phaseo tracks the following performance metrics for routed requests:
 
-| Metric                 | Description                                                                                        | Example             |
-| ---------------------- | -------------------------------------------------------------------------------------------------- | ------------------- |
-| **Throughput**         | The average number of tokens processed per second (TPS).                                           | e.g. 400 tokens/sec |
-| **Latency**            | The time between sending a request and receiving the **first token** (TTFT - time-to-first-token). | e.g. 800ms          |
-| **End-to-End Latency** | The total duration from request to the last token in the response.                                 | e.g. 3.2s           |
+| Metric | Description |
+| --- | --- |
+| **Gateway TTFT** | Gateway request start to the first content-bearing generated output. Metadata-only stream frames do not count. |
+| **Provider TTFT** | Selected provider dispatch to the first content-bearing generated output. |
+| **Provider duration** | Selected provider dispatch to the terminal response. |
+| **Gateway E2E** | Gateway request start to completion. |
+| **Phaseo overhead** | Gateway E2E minus provider duration. |
+| **Effective throughput** | All output tokens divided by the full provider duration. |
+| **Output speed** | Output tokens after the first divided by the provider time after TTFT. |
+| **TPOT / ITL** | Request-level average time per token / inter-token latency after the first token. |
 
-Together, these metrics reflect **responsiveness and efficiency** — critical for interactive or production workloads.
+TTFT, output speed, TPOT, and ITL are only reported when a streaming response exposes a content-bearing first output. Non-streaming responses retain duration and effective-throughput measurements without inventing a TTFT.
 
 ---
 
 ## How we measure it
 
-AI Stats uses **standardised benchmarking scripts** to gather real-world performance data for each model and provider.
+Phaseo aggregates **operational requests routed through the gateway**. These are production observations, not controlled benchmark runs.
 
-Each test includes:
+Performance views can be segmented by:
 
--   Repeated requests with consistent prompts (to reduce variance).
--   Averaged results across multiple time periods.
--   Measurements from different regions when applicable.
+- Streaming versus non-streaming responses.
+- Input context length buckets.
+- Provider route.
+- Cloudflare execution location.
 
-For transparency, raw performance data is often available through the open [Performance Dataset](https://github.com/AI-Stats/AI-Stats) and the catalog endpoints documented in the AI Stats Gateway API reference.
+Charts support P01, P05, P10, P25, P50, P75, P90, P95, and P99. P99 is the value at or below which 99% of observations fall. Lower latency is better; higher throughput is better, so lower throughput percentiles show the slow tail.
 
 ---
 
@@ -105,11 +112,13 @@ For transparency, raw performance data is often available through the open [Perf
 | **Batch processing**             | Balance throughput and cost — consider cheaper models with slightly higher latency. |
 | **Real-time streaming**          | Requires providers that support streaming APIs and sub-second TTFT.                 |
 
-Use AI Stats’ performance charts to visualise these trade-offs interactively.
+Use Phaseo’ performance charts to visualise these trade-offs interactively.
 
 ---
 
 ## Example performance snapshot
+
+This illustrative snapshot shows the shape of the performance data returned by the catalogue.
 
 ```json
 {
@@ -117,9 +126,13 @@ Use AI Stats’ performance charts to visualise these trade-offs interactively.
 	"provider": "OpenAI",
 	"input_price_usd_per_1k": 0.005,
 	"output_price_usd_per_1k": 0.015,
-	"throughput_tps": 420,
-	"latency_first_token_ms": 700,
-	"latency_total_ms": 3100,
+	"effective_throughput_tps": 420,
+	"output_speed_tps": 510,
+	"gateway_ttft_ms": 700,
+	"provider_duration_ms": 3100,
+	"phaseo_overhead_ms": 35,
+	"tpot_ms": 1.96,
+	"itl_ms": 1.96,
 	"uptime_percent": 99.97
 }
 ```
@@ -128,7 +141,7 @@ Use AI Stats’ performance charts to visualise these trade-offs interactively.
 
 ## Cost-to-performance ratio
 
-AI Stats calculates a **cost-to-performance ratio (CPR)** — a derived metric that helps identify the most efficient models.
+Phaseo calculates a **cost-to-performance ratio (CPR)** — a derived metric that helps identify the most efficient models.
 
 Formula:
 
@@ -182,7 +195,7 @@ All submissions are reviewed before being included in the live dataset.
 
 ## Next steps
 
-Now that you understand how pricing and performance are measured, you can explore how to integrate models programmatically via the AI Stats Gateway.
+Now that you understand how pricing and performance are measured, you can explore how to integrate models programmatically via the Phaseo Gateway.
 
 <Card
 	title="Integrate with the Gateway"
@@ -190,5 +203,5 @@ Now that you understand how pricing and performance are measured, you can explor
 	href="../developers/integrating-with-the-gateway.mdx"
 	horizontal
 >
-	Learn how to build using the AI Stats Gateway API.
+	Learn how to build using the Phaseo Gateway API.
 </Card>

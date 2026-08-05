@@ -3,7 +3,7 @@
   "organisation_id": "amazon",
   "name": "Nova 2 Lite",
   "status": "Available",
-  "previous_model_id": "amazon/nova-lite-1-0-2024-12-04",
+  "previous_model_id": "amazon/nova-lite-1.0",
   "description": "Nova 2 Lite is a fast, cost-effective reasoning model for everyday workloads that can process text, images, and videos to generate text. It supports turning still images into animated clips as well as prompt-driven video workflows.",
   "announced_date": "2025-12-02T00:00:00",
   "release_date": "2025-12-02T00:00:00",
@@ -16,7 +16,8 @@
   "family_id": "amazon/nova-2",
   "links": [
     {
-      "platform": "announcement",
+      "title": "Announcement",
+      "kind": "announcement",
       "url": "https://www.aboutamazon.com/news/aws/aws-agentic-ai-amazon-bedrock-nova-models"
     }
   ],
@@ -41,7 +42,7 @@
       "is_self_reported": true,
       "other_info": null,
       "source_link": "https://www.aboutamazon.com/news/aws/aws-agentic-ai-amazon-bedrock-nova-models?utm_source=SOCIAL&utm_medium=TWITTER&utm_term=amazonnews&utm_content=18915719359&linkId=884359814",
-      "rank": 61
+      "rank": 64
     },
     {
       "benchmark_id": "aime-2025",
@@ -81,7 +82,7 @@
       "is_self_reported": true,
       "other_info": null,
       "source_link": "https://www.aboutamazon.com/news/aws/aws-agentic-ai-amazon-bedrock-nova-models?utm_source=SOCIAL&utm_medium=TWITTER&utm_term=amazonnews&utm_content=18915719359&linkId=884359814",
-      "rank": 50
+      "rank": 51
     },
     {
       "benchmark_id": "ocrbench-v2",
@@ -145,7 +146,7 @@
       "is_self_reported": true,
       "other_info": null,
       "source_link": "https://www.aboutamazon.com/news/aws/aws-agentic-ai-amazon-bedrock-nova-models?utm_source=SOCIAL&utm_medium=TWITTER&utm_term=amazonnews&utm_content=18915719359&linkId=884359814",
-      "rank": 23
+      "rank": 25
     },
     {
       "benchmark_id": "screenspot",
@@ -179,5 +180,53 @@
       "source_link": "https://www.aboutamazon.com/news/aws/aws-agentic-ai-amazon-bedrock-nova-models?utm_source=SOCIAL&utm_medium=TWITTER&utm_term=amazonnews&utm_content=18915719359&linkId=884359814",
       "rank": 2
     }
-  ]
+  ],
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 1000000,
+    "input": 1000000,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*",
+      "video/*"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "announcement",
+      "url": "https://www.aboutamazon.com/news/aws/aws-agentic-ai-amazon-bedrock-nova-models",
+      "accessed_at": null,
+      "notes": null
+    }
+  ],
+  "verification": {
+    "status": "unverified",
+    "checked_at": null,
+    "notes": null
+  },
+  "last_updated": null,
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
 }

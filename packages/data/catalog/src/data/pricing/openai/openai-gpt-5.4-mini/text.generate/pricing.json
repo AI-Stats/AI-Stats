@@ -15,7 +15,11 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-03-17T00:00:00Z"
+      "effective_from": "2026-03-17T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -27,7 +31,11 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-03-17T00:00:00Z"
+      "effective_from": "2026-03-17T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "output_text_tokens",
@@ -39,7 +47,11 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-03-17T00:00:00Z"
+      "effective_from": "2026-03-17T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "input_text_tokens",
@@ -51,7 +63,11 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-03-17T00:00:00Z"
+      "effective_from": "2026-03-17T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -63,7 +79,11 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-03-17T00:00:00Z"
+      "effective_from": "2026-03-17T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "output_text_tokens",
@@ -75,7 +95,11 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-03-17T00:00:00Z"
+      "effective_from": "2026-03-17T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "input_text_tokens",
@@ -87,7 +111,11 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-03-17T00:00:00Z"
+      "effective_from": "2026-03-17T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -99,7 +127,11 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-03-17T00:00:00Z"
+      "effective_from": "2026-03-17T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "output_text_tokens",
@@ -111,7 +143,11 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-03-17T00:00:00Z"
+      "effective_from": "2026-03-17T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
       "meter": "input_text_tokens",
@@ -123,7 +159,12 @@
       "note": "Excludes long context",
       "match": [],
       "priority": 100,
-      "effective_from": "2026-03-17T00:00:00Z"
+      "effective_from": "2026-03-17T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null,
+      "effective_to": "2026-07-30T00:00:00Z"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -135,7 +176,12 @@
       "note": "Excludes long context",
       "match": [],
       "priority": 100,
-      "effective_from": "2026-03-17T00:00:00Z"
+      "effective_from": "2026-03-17T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null,
+      "effective_to": "2026-07-30T00:00:00Z"
     },
     {
       "meter": "output_text_tokens",
@@ -147,7 +193,78 @@
       "note": "Excludes long context",
       "match": [],
       "priority": 100,
-      "effective_from": "2026-03-17T00:00:00Z"
+      "effective_from": "2026-03-17T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null,
+      "effective_to": "2026-07-30T00:00:00Z"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 1.5,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://developers.openai.com/api/docs/pricing",
+      "effective_to": null
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.15,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://developers.openai.com/api/docs/pricing",
+      "effective_to": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 9,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://developers.openai.com/api/docs/pricing",
+      "effective_to": null
     }
-  ]
+  ],
+  "regions": [],
+  "service_tiers": [
+    "standard",
+    "batch",
+    "flex",
+    "priority"
+  ],
+  "sources": [
+    "https://developers.openai.com/api/docs/pricing"
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-07-30T00:00:00Z",
+    "notes": "Verified against OpenAI's July 30, 2026 pricing. Phaseo keeps Priority as the canonical tier name and accepts fast as an OpenAI-compatible alias."
+  }
 }

@@ -42,7 +42,7 @@ describe("irToAnthropicMessages service controls", () => {
 					type: "web_fetch_20260209",
 					name: "web_fetch",
 					max_content_tokens: 9000,
-					allowed_domains: ["docs.ai-stats.com"],
+					allowed_domains: ["phaseo.app"],
 				},
 			},
 		];
@@ -54,7 +54,7 @@ describe("irToAnthropicMessages service controls", () => {
 				type: "web_fetch_20260209",
 				name: "web_fetch",
 				max_content_tokens: 9000,
-				allowed_domains: ["docs.ai-stats.com"],
+				allowed_domains: ["phaseo.app"],
 			},
 		]);
 		expect(payload.tool_choice).toEqual({ type: "tool", name: "web_fetch" });
@@ -70,7 +70,7 @@ describe("irToAnthropicMessages service controls", () => {
 				raw: {
 					type: "advisor_20260301",
 					name: "advisor",
-					model: "claude-opus-4-8",
+					model: "claude-opus-5",
 					max_tokens: 1400,
 					caching: { type: "ephemeral", ttl: "5m" },
 				},
@@ -83,7 +83,7 @@ describe("irToAnthropicMessages service controls", () => {
 			{
 				type: "advisor_20260301",
 				name: "advisor",
-				model: "claude-opus-4-8",
+				model: "claude-opus-5",
 				max_tokens: 1400,
 				caching: { type: "ephemeral", ttl: "5m" },
 			},
@@ -190,12 +190,12 @@ describe("irToAnthropicMessages service controls", () => {
 						type: "server_tool_use",
 						id: "srvu_123",
 						name: "web_search",
-						input: { query: "AI Stats" },
+						input: { query: "Phaseo" },
 					},
 					{
 						type: "web_search_tool_result",
 						tool_use_id: "srvu_123",
-						content: [{ type: "web_search_result", title: "AI Stats", url: "https://ai-stats.phaseo.app" }],
+						content: [{ type: "web_search_result", title: "Phaseo", url: "https://phaseo.app" }],
 					},
 				],
 				stop_reason: "end_turn",
@@ -214,7 +214,7 @@ describe("irToAnthropicMessages service controls", () => {
 					type: "server_tool_use",
 					id: "srvu_123",
 					name: "web_search",
-					input: { query: "AI Stats" },
+					input: { query: "Phaseo" },
 				},
 			},
 			{
@@ -222,7 +222,7 @@ describe("irToAnthropicMessages service controls", () => {
 				block: {
 					type: "web_search_tool_result",
 					tool_use_id: "srvu_123",
-					content: [{ type: "web_search_result", title: "AI Stats", url: "https://ai-stats.phaseo.app" }],
+					content: [{ type: "web_search_result", title: "Phaseo", url: "https://phaseo.app" }],
 				},
 			},
 		]);
@@ -506,6 +506,14 @@ describe("irToAnthropicMessages service controls", () => {
 
 		expect(resolveAnthropicInferenceGeo("anthropic", request)).toBe("us");
 		expect(resolveAnthropicInferenceGeo("anthropic-us", request)).toBe("us");
+		expect(resolveAnthropicInferenceGeo("anthropic-aws-us", request)).toBe("us");
+		expect(resolveAnthropicInferenceGeo("anthropic-aws", request)).toBe("us");
+	});
+
+	it("defaults only US-scoped Anthropic offers to US inference", () => {
+		const request = createBaseRequest();
+		expect(resolveAnthropicInferenceGeo("anthropic-aws-us", request)).toBe("us");
+		expect(resolveAnthropicInferenceGeo("anthropic-aws", request)).toBeNull();
 	});
 });
 

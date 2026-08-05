@@ -61,9 +61,9 @@ const internalTools = [
 	},
 	{
 		id: "cache-ops",
-		title: "Cache Ops",
+		title: "Cache Control Centre",
 		description:
-			"Revalidate cached model, provider, search, ranking, and landing data from one admin surface.",
+			"Purge named Cloudflare Worker scopes, advance browser search generations, and review the audit trail.",
 		icon: RefreshCcw,
 		href: "/internal/cache",
 		comingSoon: false,
@@ -99,7 +99,7 @@ const internalTools = [
 		id: "gateway-benchmark",
 		title: "Gateway Benchmark",
 		description:
-			"Run side-by-side public streaming comparisons between AI Stats Gateway and OpenRouter.",
+			"Run side-by-side public streaming comparisons between Phaseo Gateway and OpenRouter.",
 		icon: Gauge,
 		href: "/internal/gateway-benchmark",
 		comingSoon: true,

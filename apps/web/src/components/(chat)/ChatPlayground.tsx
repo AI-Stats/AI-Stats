@@ -8,6 +8,7 @@ import {
 	SidebarRail,
 } from "@/components/ui/sidebar";
 import { BASE_URL } from "@/components/(data)/model/quickstart/config";
+import { fetchChatWebApi } from "@/lib/web-api/client";
 import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySupportedModelIds";
 import type {
 	ChatMessage,
@@ -45,6 +46,7 @@ import {
 	coerceResponseText,
 	appendImagesToText,
 	extractResponseImages,
+	resolveChatReasoningSummary,
 	extractReasoningText,
 	extractResponseToolCalls,
 	extractResponseText,
@@ -76,12 +78,14 @@ import {
 	getChangedSettings,
 	getEffectiveModelSettings,
 	getOrgId,
+	isGeneratedDefaultSystemPrompt,
 	normalizeServerTools,
 	normalizeBaseUrl,
 	nowIso,
 	shouldRequestImageModalities,
 	type ChatResponseLayout,
 	type ChatApiTarget,
+	type NewChatModelPreference,
 	type PersonalizationSettings,
 	type SettingChange,
 } from "@/components/(chat)/playground/chat-playground-core";
@@ -91,7 +95,9 @@ import {
 import { useChatAuth } from "@/components/(chat)/playground/use-chat-auth";
 import { useGroupedChatThreads } from "@/components/(chat)/playground/use-grouped-chat-threads";
 import {
+	createChatStreamTextError,
 	parseChatErrorResponse,
+	parseChatStreamErrorFrame,
 	type ChatErrorPayload,
 } from "@/components/(chat)/playground/chat-request-errors";
 import {
@@ -497,8 +503,11 @@ function ChatPlaygroundContent({
 	const [pendingNewChat, setPendingNewChat] = useState<{
 		modelId: string;
 		settings: ChatSettings;
+		defaultSettings: ChatSettings;
 		changes: SettingChange[];
 	} | null>(null);
+	const [newChatModelPreference, setNewChatModelPreference] =
+		useState<NewChatModelPreference>("blank");
 	const [temporaryMode, setTemporaryMode] = useState(false);
 	const [composerRequiresAudioInput, setComposerRequiresAudioInput] =
 		useState(false);
@@ -585,7 +594,7 @@ function ChatPlaygroundContent({
 		const url = URL.createObjectURL(blob);
 		const link = document.createElement("a");
 		link.href = url;
-		link.download = `ai-stats-chats-${Date.now()}.json`;
+		link.download = `phaseo-chats-${Date.now()}.json`;
 		document.body.appendChild(link);
 		link.click();
 		link.remove();
@@ -703,6 +712,9 @@ function ChatPlaygroundContent({
 				window.localStorage.getItem(
 					STORAGE_KEYS.personalizationAccent,
 				) ?? "#111111";
+			const storedNewChatModelPreference = window.localStorage.getItem(
+				STORAGE_KEYS.newChatModelPreference,
+			);
 			if (!mounted) return;
 			window.localStorage.removeItem(STORAGE_KEYS.apiKey);
 			setApiTarget(storedApiTarget);
@@ -717,6 +729,9 @@ function ChatPlaygroundContent({
 				notes: storedPersonalNotes,
 				accentColor: storedAccent,
 			});
+			setNewChatModelPreference(
+				storedNewChatModelPreference === "selected" ? "selected" : "blank",
+			);
 
 			const [chats, storedTags] = await Promise.all([
 				getAllChats("text"),
@@ -724,14 +739,20 @@ function ChatPlaygroundContent({
 			]);
 			const normalized = await ensureInitialThread(chats);
 			if (!mounted) return;
-			setThreads(normalized);
+			setThreads((current) => {
+				const currentIds = new Set(current.map((thread) => thread.id));
+				return [
+					...current,
+					...normalized.filter((thread) => !currentIds.has(thread.id)),
+				];
+			});
 			setChatTags(storedTags.sort(compareChatTags));
 
 			const initialId =
 				storedActive && normalized.some((t) => t.id === storedActive)
 					? storedActive
 					: (normalized[0]?.id ?? null);
-			setActiveId(initialId);
+			setActiveId((current) => current ?? initialId);
 		})();
 		return () => {
 			mounted = false;
@@ -773,6 +794,9 @@ function ChatPlaygroundContent({
 	const createThreadWithSettings = useCallback(
 		async (modelId: string, settings: ChatSettings) => {
 			setError(null);
+			const previousActiveId = activeId;
+			const previousTemporaryMode = temporaryMode;
+			const previousTemporaryThread = temporaryThread;
 			const id = generateId();
 			const createdAt = nowIso();
 			const normalizedSettings =
@@ -802,15 +826,58 @@ function ChatPlaygroundContent({
 					modelOverridesById,
 				},
 			};
-			await upsertChat(newThread, "text");
 			setThreads((prev) => [newThread, ...prev]);
 			setActiveThread(newThread);
+			try {
+				await upsertChat(newThread, "text");
+			} catch (error) {
+				setThreads((prev) => prev.filter((thread) => thread.id !== id));
+				if (previousTemporaryMode && previousTemporaryThread) {
+					setTemporaryMode(true);
+					setTemporaryThread(previousTemporaryThread);
+				}
+				setActiveId((current) =>
+					current === id ? previousActiveId : current,
+				);
+				if (
+					typeof window !== "undefined" &&
+					window.localStorage.getItem(STORAGE_KEYS.activeChatId) === id
+				) {
+					if (previousActiveId) {
+						window.localStorage.setItem(
+							STORAGE_KEYS.activeChatId,
+							previousActiveId,
+						);
+					} else {
+						window.localStorage.removeItem(STORAGE_KEYS.activeChatId);
+					}
+				}
+				throw error;
+			}
 		},
-		[setActiveThread],
+		[
+			activeId,
+			setActiveThread,
+			temporaryMode,
+			temporaryThread,
+		],
 	);
 
 	const createThread = useCallback(async () => {
-		const selectedModel = "";
+		const shouldKeepSelectedModels =
+			newChatModelPreference === "selected" && Boolean(activeThread?.modelId);
+		const selectedModel = shouldKeepSelectedModels
+			? (activeThread?.modelId ?? "")
+			: "";
+		const selectedCompareModelIds = shouldKeepSelectedModels
+			? (activeThread?.settings.compareModelIds ?? [])
+			: [];
+		const defaultSettings: ChatSettings = {
+			...DEFAULT_SETTINGS,
+			systemPrompt: buildDefaultSystemPrompt(selectedModel),
+			compareMode: selectedCompareModelIds.length > 0,
+			compareModelIds: selectedCompareModelIds,
+		};
 		if (activeThread) {
 			const comparisonModelId = activeThread.modelId || selectedModel;
 			const comparisonModelDisplayName =
@@ -820,27 +887,34 @@ function ChatPlaygroundContent({
 						]?.displayName?.trim() ||
 						modelDisplayNameById[comparisonModelId]
 					: undefined;
+			const comparisonProviderLabel = activeThread.settings.providerId
+				? providerNameById.get(activeThread.settings.providerId)
+				: undefined;
 			const changes = getChangedSettings(
 				activeThread.settings,
 				comparisonModelId,
 				comparisonModelDisplayName,
+				comparisonProviderLabel,
 			);
 			if (changes.length > 0) {
 				setPendingNewChat({
 					modelId: selectedModel,
 					settings: activeThread.settings,
+					defaultSettings,
 					changes,
 				});
 				setNewChatDialogOpen(true);
 				return;
 			}
 		}
-		const defaults: ChatSettings = {
-			...DEFAULT_SETTINGS,
-			systemPrompt: buildDefaultSystemPrompt(selectedModel),
-		};
-		await createThreadWithSettings(selectedModel, defaults);
-	}, [activeThread, createThreadWithSettings, modelDisplayNameById]);
+		await createThreadWithSettings(selectedModel, defaultSettings);
+	}, [
+		activeThread,
+		createThreadWithSettings,
+		modelDisplayNameById,
+		newChatModelPreference,
+		providerNameById,
+	]);
 
 	const handleNewChatDecision = useCallback(
 		(useCurrent: boolean) => {
@@ -851,15 +925,25 @@ function ChatPlaygroundContent({
 			const modelId = pendingNewChat.modelId;
 			const settings = useCurrent
 				? pendingNewChat.settings
-				: {
-						...DEFAULT_SETTINGS,
-						systemPrompt: buildDefaultSystemPrompt(modelId),
-					};
+				: pendingNewChat.defaultSettings;
 			setNewChatDialogOpen(false);
 			setPendingNewChat(null);
 			void createThreadWithSettings(modelId, settings);
 		},
 		[pendingNewChat, createThreadWithSettings],
+	);
+
+	const handleNewChatModelPreferenceChange = useCallback(
+		(value: NewChatModelPreference) => {
+			setNewChatModelPreference(value);
+			if (typeof window !== "undefined") {
+				window.localStorage.setItem(
+					STORAGE_KEYS.newChatModelPreference,
+					value,
+				);
+			}
+		},
+		[],
 	);
 
 	const updateStoredThread = useCallback(
@@ -869,6 +953,10 @@ function ChatPlaygroundContent({
 				prev.map((thread) => {
 					if (thread.id !== nextThread.id) {
 						return thread;
+					}
+					if (thread.messages === nextThread.messages) {
+						threadToPersist = { ...thread, ...nextThread };
+						return threadToPersist;
 					}
 					const currentById = new Map(
 						thread.messages.map((message) => [message.id, message]),
@@ -1252,7 +1340,7 @@ function ChatPlaygroundContent({
 			if (endpoint === "responses" && effectiveModelSettings.reasoningEnabled) {
 				requestBody.reasoning = {
 					effort: effectiveModelSettings.reasoningEffort ?? "medium",
-					summary: "auto",
+					summary: resolveChatReasoningSummary(selectedModelId),
 				};
 			}
 
@@ -1440,7 +1528,7 @@ function ChatPlaygroundContent({
 
 			try {
 				markChatPerformance(performanceRunId, "request-dispatch");
-				const response = await fetch("/api/chat/text", {
+				const response = await fetchChatWebApi("/api/chat/text", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -1526,6 +1614,18 @@ function ChatPlaygroundContent({
 								sequence: traceEvents.length,
 								toolCallId: toolCall.id,
 							});
+						}
+						if (
+							!reply.trim() &&
+							images.length === 0 &&
+							!reasoningText.trim() &&
+							toolCalls.length === 0
+						) {
+							const emptyResponseError = new Error(
+								"The provider returned an empty response. Please retry.",
+							) as Error & { code: string };
+							emptyResponseError.code = "empty_response";
+							throw emptyResponseError;
 						}
 						const totalCostUsd = extractTotalCostUsd(finalUsage);
 						if (totalCostUsd) {
@@ -1850,6 +1950,17 @@ function ChatPlaygroundContent({
 					}
 					await flushPromise;
 				};
+				const throwStreamError = async (
+					streamError: ChatErrorPayload,
+				): Promise<never> => {
+					if (flushTimer != null) {
+						window.clearTimeout(flushTimer);
+						flushTimer = null;
+						pendingMetaPartial = undefined;
+					}
+					await flushPromise;
+					throw streamError;
+				};
 				let reasoningContent = "";
 				const reasoningSummaries: Record<number, string> = {};
 				const buildStreamingMetaPartial = () => {
@@ -1902,8 +2013,28 @@ function ChatPlaygroundContent({
 						}
 						const data = frameDataLines.join("").trim();
 						if (!data || data === "[DONE]") continue;
+						let parsed: any;
 						try {
-							const parsed = JSON.parse(data);
+							parsed = JSON.parse(data);
+						} catch {
+							if (frameEventType === "error") {
+								await throwStreamError(
+									createChatStreamTextError(data, {
+										frame_event_type: frameEventType,
+										data,
+									}),
+								);
+							}
+							continue;
+						}
+						const streamError = parseChatStreamErrorFrame(
+							parsed,
+							frameEventType,
+						);
+						if (streamError) {
+							await throwStreamError(streamError);
+						}
+						try {
 								if (parsed?.usage || parsed?.response?.usage) {
 									finalUsage =
 										parsed?.usage ??
@@ -2173,6 +2304,15 @@ function ChatPlaygroundContent({
 									if (typeof partText === "string") {
 										responseText = partText;
 									}
+								} else if (
+									frameType === "error" ||
+									frameType === "response.failed"
+								) {
+									const streamError = parseChatStreamErrorFrame(
+										parsed,
+										frameType,
+									);
+									if (streamError) throw streamError;
 								} else if (frameType === "response.completed") {
 									responseText = extractResponseText(
 										parsed?.response ?? parsed,
@@ -2287,8 +2427,9 @@ function ChatPlaygroundContent({
 								} else if (toolCallUpdated) {
 									scheduleUpdate(buildStreamingMetaPartial());
 								}
-						} catch {
-							// ignore malformed chunks
+						} catch (error) {
+							if (error instanceof SyntaxError) continue;
+							throw error;
 						}
 					}
 				}
@@ -2334,7 +2475,7 @@ function ChatPlaygroundContent({
 							tools: undefined,
 							tool_choice: undefined,
 						};
-						const continuationResponse = await fetch(
+						const continuationResponse = await fetchChatWebApi(
 							"/api/chat/text",
 							{
 								method: "POST",
@@ -2406,6 +2547,13 @@ function ChatPlaygroundContent({
 				const traceEvents = getTraceEvents();
 				if (traceEvents.length) {
 					mergedMeta.trace_events = traceEvents;
+				}
+				if (!assistantContent.trim() && !reasoningContent.trim() && toolCalls.length === 0) {
+					const emptyResponseError = new Error(
+						"The provider returned an empty response. Please retry.",
+					) as Error & { code: string };
+					emptyResponseError.code = "empty_response";
+					throw emptyResponseError;
 				}
 				const totalCostUsd = extractTotalCostUsd(finalUsage);
 				if (totalCostUsd) {
@@ -2575,13 +2723,13 @@ function ChatPlaygroundContent({
 					currentOverrides[thread.modelId]?.displayName ?? "";
 				const nextDisplayName =
 					currentOverrides[primaryResolution.modelId]?.displayName ?? "";
-				const previousDefaultPrompt = buildDefaultSystemPrompt(
-					thread.modelId,
-					previousDisplayName,
-				);
 				if (
-					(thread.settings.systemPrompt ?? "").trim() ===
-					previousDefaultPrompt.trim()
+					!thread.settings.systemPrompt ||
+					isGeneratedDefaultSystemPrompt(
+						thread.settings.systemPrompt,
+						thread.modelId,
+						previousDisplayName,
+					)
 				) {
 					nextSystemPrompt = buildDefaultSystemPrompt(
 						primaryResolution.modelId,
@@ -3187,7 +3335,25 @@ function ChatPlaygroundContent({
 
 	const updateActiveModel = useCallback(
 		(modelId: string) => {
-			if (!activeThread) return;
+			if (!activeThread) {
+				const defaults: ChatSettings = {
+					...DEFAULT_SETTINGS,
+					systemPrompt: buildDefaultSystemPrompt(modelId),
+				};
+				void createThreadWithSettings(modelId, defaults)
+					.then(() => {
+						if (typeof window !== "undefined") {
+							window.localStorage.setItem(
+								STORAGE_KEYS.lastModelId,
+								modelId,
+							);
+						}
+					})
+					.catch(() => {
+						setError("Unable to create a chat for the selected model.");
+					});
+				return;
+			}
 			const requiredCapability = getPrimaryCapabilityForModel(modelId);
 			const currentModelDisplayName =
 				activeThread.settings.modelOverridesById?.[
@@ -3196,10 +3362,6 @@ function ChatPlaygroundContent({
 			const nextModelDisplayName =
 				activeThread.settings.modelOverridesById?.[modelId]
 					?.displayName ?? "";
-			const previousDefault = buildDefaultSystemPrompt(
-				activeThread.modelId,
-				currentModelDisplayName,
-			);
 			const nextCompareModelIds = Array.from(
 				new Set(
 					(activeThread.settings.compareModelIds ?? []).filter(
@@ -3216,7 +3378,11 @@ function ChatPlaygroundContent({
 			);
 			const nextSystemPrompt =
 				!activeThread.settings.systemPrompt ||
-				activeThread.settings.systemPrompt === previousDefault
+				isGeneratedDefaultSystemPrompt(
+					activeThread.settings.systemPrompt,
+					activeThread.modelId,
+					currentModelDisplayName,
+				)
 					? buildDefaultSystemPrompt(modelId, nextModelDisplayName)
 					: activeThread.settings.systemPrompt;
 			const nextModelOverrides = ensureModelOverridesForIds(
@@ -3263,6 +3429,7 @@ function ChatPlaygroundContent({
 		},
 		[
 			activeThread,
+			createThreadWithSettings,
 			getPrimaryCapabilityForModel,
 			isProviderSupportedForModel,
 			isModelSelectableForContext,
@@ -3409,13 +3576,13 @@ function ChatPlaygroundContent({
 				activeThread.settings.modelOverridesById?.[
 					nextPrimaryModelId
 				]?.displayName ?? "";
-			const previousDefault = buildDefaultSystemPrompt(
-				activeThread.modelId,
-				currentModelDisplayName,
-			);
 			const nextSystemPrompt =
 				!activeThread.settings.systemPrompt ||
-				activeThread.settings.systemPrompt === previousDefault
+				isGeneratedDefaultSystemPrompt(
+					activeThread.settings.systemPrompt,
+					activeThread.modelId,
+					currentModelDisplayName,
+				)
 					? buildDefaultSystemPrompt(
 							nextPrimaryModelId,
 							nextModelDisplayName,
@@ -3478,13 +3645,13 @@ function ChatPlaygroundContent({
 				activeThread.settings.modelOverridesById?.[
 					nextPrimaryModelId
 				]?.displayName ?? "";
-			const previousDefault = buildDefaultSystemPrompt(
-				activeThread.modelId,
-				currentModelDisplayName,
-			);
 			const nextSystemPrompt =
 				!activeThread.settings.systemPrompt ||
-				activeThread.settings.systemPrompt === previousDefault
+				isGeneratedDefaultSystemPrompt(
+					activeThread.settings.systemPrompt,
+					activeThread.modelId,
+					currentModelDisplayName,
+				)
 					? buildDefaultSystemPrompt(
 							nextPrimaryModelId,
 							nextModelDisplayName,
@@ -4067,10 +4234,6 @@ function ChatPlaygroundContent({
 						? existingModelOverrides.displayName
 						: "";
 				const nextDisplayName = partial.displayName;
-				const previousDefaultPrompt = buildDefaultSystemPrompt(
-					modelId,
-					previousDisplayName,
-				);
 				const nextDefaultPrompt = buildDefaultSystemPrompt(
 					modelId,
 					nextDisplayName,
@@ -4082,8 +4245,11 @@ function ChatPlaygroundContent({
 				const hasExplicitModelPrompt =
 					existingModelOverrides.systemPrompt !== undefined;
 				const isStillOnDefaultTemplate =
-					(currentEffectiveSystemPrompt ?? "").trim() ===
-					previousDefaultPrompt.trim();
+					isGeneratedDefaultSystemPrompt(
+						currentEffectiveSystemPrompt,
+						modelId,
+						previousDisplayName,
+					);
 				if (!hasExplicitModelPrompt || isStillOnDefaultTemplate) {
 					nextPartial.systemPrompt = nextDefaultPrompt;
 				}
@@ -4238,6 +4404,10 @@ function ChatPlaygroundContent({
 					onSaveSettings={handleSaveSettings}
 					personalization={personalization}
 					onPersonalizationChange={setPersonalization}
+					newChatModelPreference={newChatModelPreference}
+					onNewChatModelPreferenceChange={
+						handleNewChatModelPreferenceChange
+					}
 					onExportChats={handleExportChats}
 					isAdmin={isAdmin}
 					debugEnabled={debugEnabled}
@@ -4265,6 +4435,7 @@ function ChatPlaygroundContent({
 					activeThread={activeThread}
 					isSending={isSending}
 					temporaryMode={temporaryMode}
+					temporaryReturnThreadId={previousStoredId}
 					mode="unified"
 					webSearchEnabled={
 						activeThread?.settings.webSearchEnabled ?? false
@@ -4323,6 +4494,7 @@ function ChatPlaygroundContent({
 					selectedModelIds={selectedModelIds}
 					modelOptions={modelOptions.active}
 					onToggleModel={toggleComposerModel}
+					onOpenModelPicker={() => setModelPickerOpen(true)}
 					onAddModelSet={addComposerModelSet}
 					onAudioAttachmentRequirementChange={
 						handleAudioAttachmentRequirementChange
@@ -4331,7 +4503,8 @@ function ChatPlaygroundContent({
 					responseLayout={responseLayout}
 				/>
 			</SidebarInset>
-			<ModelSettingsDialog
+			{modelSettingsOpen ? (
+				<ModelSettingsDialog
 				open={modelSettingsOpen}
 				onOpenChange={(open) => {
 					setModelSettingsOpen(open);
@@ -4370,7 +4543,8 @@ function ChatPlaygroundContent({
 				onReset={resetModelSettings}
 				onApplyToAll={applyModelSettingsToAll}
 				canApplyToAll={selectedModelIds.length > 1}
-			/>
+				/>
+			) : null}
 			<ChatSearchDialog
 				open={searchOpen}
 				onOpenChange={setSearchOpen}

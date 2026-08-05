@@ -1,4 +1,5 @@
 ---
+icon: "brain-circuit"
 title: "Models"
 description: "List models with the C# SDK."
 ---
@@ -7,9 +8,9 @@ description: "List models with the C# SDK."
 
 ### Example
 ```csharp
-using AiStatsSdk;
+using PhaseoSdk;
 
-var client = new AIStats(apiKey);
+var client = new Phaseo(apiKey);
 var models = await client.ListModels(new Dictionary<string, string>
 {
     ["provider"] = "anthropic",

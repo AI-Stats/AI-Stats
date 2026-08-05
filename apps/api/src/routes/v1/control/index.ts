@@ -14,15 +14,23 @@ import { pricingRoutes } from "./pricing";
 import { organisationsRoutes } from "./organisations";
 import { providersRoutes } from "./providers";
 import { activityRoutes, creditsRoutes } from "./credits";
+import { logsRoutes } from "./logs";
 import { currentKeyRoutes, keysRoutes } from "./keys";
 import { securityRoutes } from "./security";
 import { workspacesRoutes } from "./workspaces";
 import oauthClientsRoutes from "./oauth-clients";
+import webhookEndpointsRoutes from "./webhook-endpoints";
 import { meRoutes } from "./me";
 import { presetsRoutes } from "./presets";
 import { settingsRoutes } from "./settings";
 import { guardrailsRoutes } from "./guardrails";
 import { managementKeysRoutes } from "./management-keys";
+import { dataContributionRoutes } from "./data-contribution";
+import {
+	feedbackRoutes,
+	observabilityEventsRoutes,
+	presetTestRunsRoutes,
+} from "./feedback";
 
 export const platformRouter = new Hono<Env>();
 
@@ -35,15 +43,21 @@ platformRouter.route("/analytics", analyticsRoutes);
 platformRouter.route("/pricing", pricingRoutes);
 platformRouter.route("/credits", creditsRoutes);
 platformRouter.route("/activity", activityRoutes);
+platformRouter.route("/logs", logsRoutes);
 platformRouter.route("/security", securityRoutes);
 platformRouter.route("/key", currentKeyRoutes);
 platformRouter.route("/keys", keysRoutes);
 platformRouter.route("/workspaces", workspacesRoutes);
 platformRouter.route("/oauth-clients", oauthClientsRoutes);
+platformRouter.route("/webhook-endpoints", webhookEndpointsRoutes);
 platformRouter.route("/presets", presetsRoutes);
+platformRouter.route("/feedback", feedbackRoutes);
+platformRouter.route("/events", observabilityEventsRoutes);
+platformRouter.route("/preset-test-runs", presetTestRunsRoutes);
 platformRouter.route("/settings", settingsRoutes);
 platformRouter.route("/guardrails", guardrailsRoutes);
 platformRouter.route("/management-keys", managementKeysRoutes);
+platformRouter.route("/data-contribution", dataContributionRoutes);
 platformRouter.route("/me", meRoutes);
 platformRouter.route("/", placeholdersRoutes);
 

@@ -6,7 +6,8 @@ import type {
 	IRModel,
 	IROperation,
 	IRSchema
-} from "@ai-stats/oapi-core";
+} from "@phaseo/oapi-core";
+import { splitPathTemplate } from "@phaseo/oapi-core";
 
 export const backendCpp: Backend = {
 	id: "cpp",
@@ -30,13 +31,13 @@ function renderModels(models: IRModel[]): string {
 		"#include <string>",
 		"#include <vector>",
 		"",
-		"namespace ai_stats::gen {"
+		"namespace phaseo::gen {"
 	];
 	for (const model of models) {
 		lines.push(renderModel(model));
 		lines.push("");
 	}
-	lines.push("} // namespace ai_stats::gen", "");
+	lines.push("} // namespace phaseo::gen", "");
 	return lines.join("\n");
 }
 
@@ -62,7 +63,7 @@ function renderClient(): string {
 		"#include <map>",
 		"#include <string>",
 		"",
-		"namespace ai_stats::gen {",
+		"namespace phaseo::gen {",
 		"",
 		"struct Response {",
 		"\tint status = 0;",
@@ -91,7 +92,7 @@ function renderClient(): string {
 		"\tstd::map<std::string, std::string> headers_;",
 		"};",
 		"",
-		"} // namespace ai_stats::gen",
+		"} // namespace phaseo::gen",
 		""
 	].join("\n");
 }
@@ -103,13 +104,13 @@ function renderOperations(operations: IROperation[]): string {
 		"#include <string>",
 		"#include \"client.hpp\"",
 		"",
-		"namespace ai_stats::gen {"
+		"namespace phaseo::gen {"
 	];
 	for (const operation of operations) {
 		lines.push(renderOperation(operation));
 		lines.push("");
 	}
-	lines.push("} // namespace ai_stats::gen", "");
+	lines.push("} // namespace phaseo::gen", "");
 	return lines.join("\n");
 }
 
@@ -126,15 +127,15 @@ function renderOperation(operation: IROperation): string {
 
 function renderPathTemplate(path: string, params: IROperation["params"]): string {
 	if (params.length === 0) {
-		return `"${path}"`;
+		return JSON.stringify(path);
 	}
-	const segments = path.split(/({[^}]+})/g).filter(Boolean);
+	const segments = splitPathTemplate(path);
 	const parts = segments.map((segment) => {
 		if (segment.startsWith("{") && segment.endsWith("}")) {
-			const name = segment.slice(1, -1);
-			return `(path.count("${name}") ? path.at("${name}") : std::string{})`;
+			const name = JSON.stringify(segment.slice(1, -1));
+			return `(path.count(${name}) ? path.at(${name}) : std::string{})`;
 		}
-		return `"${segment}"`;
+		return JSON.stringify(segment);
 	});
 	return parts.join(" + ");
 }

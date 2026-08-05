@@ -12,10 +12,7 @@ import {
 	readAnalyticsConsent,
 	type AnalyticsConsent,
 } from "@/lib/cookieConsent";
-import {
-	PERSONALIZATION_ACCENT_COLORS,
-	STORAGE_KEYS,
-} from "@/components/(chat)/playground/chat-playground-core";
+import { STORAGE_KEYS } from "@/components/(chat)/playground/chat-playground-core";
 import {
 	OBFUSCATE_INFO_COOKIE,
 	serializeObfuscateInfo,
@@ -25,6 +22,7 @@ import { PasswordStrengthIndicator } from "./PasswordStrengthIndicator";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CountryCombobox } from "@/components/ui/country-combobox";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -42,6 +40,8 @@ export type UserPayload = {
 	displayName?: string | null;
 	email?: string | null;
 	defaultWorkspaceId?: string | null;
+	declaredCountryCode?: string | null;
+	countryStorageAvailable?: boolean;
 	obfuscateInfo: boolean;
 	createdAt: string;
 };
@@ -61,6 +61,7 @@ const schema = z.object({
 		.max(60, "Display name must be 60 characters or fewer.")
 		.optional()
 		.nullable(),
+	declared_country_code: z.string().length(2).regex(/^[A-Z]{2}$/).nullable().optional(),
 	default_workspace_id: z
 		.string()
 		.trim()
@@ -108,6 +109,7 @@ export default function AccountSettingsClient({
 	const [defaultWorkspaceId, setDefaultTeamId] = React.useState<string | null>(
 		initialDefaultTeam
 	);
+	const [declaredCountryCode, setDeclaredCountryCode] = React.useState(user.declaredCountryCode ?? "");
 	const [obfuscateInfo, setObfuscateInfo] = React.useState<boolean>(
 		!!user.obfuscateInfo
 	);
@@ -128,9 +130,6 @@ export default function AccountSettingsClient({
 	const [analyticsConsent, setAnalyticsConsent] = React.useState<
 		AnalyticsConsent | null
 	>(null);
-	const [chatAccentColor, setChatAccentColor] = React.useState<string>(
-		PERSONALIZATION_ACCENT_COLORS[0]?.value ?? "#111111",
-	);
 	const [chatNotifyOnComplete, setChatNotifyOnComplete] =
 		React.useState<boolean>(false);
 	const applyObfuscationMode = React.useCallback((next: boolean) => {
@@ -161,12 +160,6 @@ export default function AccountSettingsClient({
 		applyObfuscationMode(Boolean(user.obfuscateInfo));
 
 		try {
-			const storedAccent =
-				window.localStorage.getItem(STORAGE_KEYS.personalizationAccent) ??
-				"";
-			if (storedAccent) {
-				setChatAccentColor(storedAccent);
-			}
 			const storedNotify =
 				window.localStorage.getItem(STORAGE_KEYS.notifyOnComplete) ?? "";
 			if (storedNotify === "true") {
@@ -183,6 +176,7 @@ export default function AccountSettingsClient({
 		() => ({
 			display_name: user.displayName ?? null,
 			default_workspace_id: user.defaultWorkspaceId ?? null,
+			declared_country_code: user.countryStorageAvailable === false ? undefined : user.declaredCountryCode ?? null,
 			obfuscate_info: !!user.obfuscateInfo,
 		}),
 		[user]
@@ -191,6 +185,7 @@ export default function AccountSettingsClient({
 	const current = {
 		display_name: displayName,
 		default_workspace_id: defaultWorkspaceId,
+		declared_country_code: user.countryStorageAvailable === false ? undefined : declaredCountryCode || null,
 		obfuscate_info: obfuscateInfo,
 	};
 	const hasChanges = JSON.stringify(initial) !== JSON.stringify(current);
@@ -205,9 +200,14 @@ export default function AccountSettingsClient({
 			return;
 		}
 
+		const updatePayload = { ...parsed.data };
+		if (updatePayload.declared_country_code === initial.declared_country_code) {
+			delete updatePayload.declared_country_code;
+		}
+
 		setSaving(true);
 		try {
-			await toast.promise(updateAccount(parsed.data), {
+			await toast.promise(updateAccount(updatePayload), {
 				loading: "Saving your settings...",
 				success: "Saved [PASS]",
 				error: (err: any) => err?.message || "Could not save settings",
@@ -420,6 +420,24 @@ export default function AccountSettingsClient({
 							</div>
 						) : null}
 
+						{user.countryStorageAvailable !== false ? (
+							<div className="grid gap-3 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-start">
+								<Label htmlFor="account-country" className="text-sm font-medium sm:pt-2">
+									Country
+								</Label>
+								<div className="grid max-w-2xl gap-1.5">
+									<CountryCombobox
+										id="account-country"
+										value={declaredCountryCode}
+										onValueChange={setDeclaredCountryCode}
+									/>
+									<p className="text-xs text-muted-foreground">
+										Your account country helps determine provider and service availability. Billing addresses are managed separately.
+									</p>
+								</div>
+							</div>
+						) : null}
+
 						<div className="grid gap-3 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-start">
 							<Label htmlFor="defaultTeam" className="text-sm font-medium sm:pt-2">
 								Default workspace
@@ -428,6 +446,7 @@ export default function AccountSettingsClient({
 								{teams && teams.length > 0 ? (
 									<Select
 										value={defaultWorkspaceId ?? ""}
+										items={teams.map((team) => ({ value: team.id, label: team.name }))}
 										onValueChange={(v) => setDefaultTeamId(v || null)}
 									>
 										<SelectTrigger id="defaultTeam" className="w-full">
@@ -435,7 +454,7 @@ export default function AccountSettingsClient({
 										</SelectTrigger>
 										<SelectContent>
 											{teams.map((t) => (
-												<SelectItem key={t.id} value={t.id}>
+												<SelectItem key={t.id} value={t.id} label={t.name}>
 													{t.name}
 												</SelectItem>
 											))}
@@ -446,48 +465,6 @@ export default function AccountSettingsClient({
 								)}
 								<p className="text-xs text-muted-foreground">
 									Set the project that is shown by default.
-								</p>
-							</div>
-						</div>
-
-						<div className="grid gap-3 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-start">
-							<Label htmlFor="chatAccent" className="text-sm font-medium sm:pt-2">
-								Chatroom colour
-							</Label>
-							<div className="grid max-w-2xl gap-1.5">
-								<Select
-									value={chatAccentColor}
-									onValueChange={(v) => {
-										setChatAccentColor(v);
-										try {
-											window.localStorage.setItem(
-												STORAGE_KEYS.personalizationAccent,
-												v,
-											);
-										} catch {
-											// Ignore storage access errors.
-										}
-									}}
-								>
-									<SelectTrigger id="chatAccent" className="w-full">
-										<SelectValue placeholder="Select a color" />
-									</SelectTrigger>
-									<SelectContent>
-										{PERSONALIZATION_ACCENT_COLORS.map((color: { label: string; value: string }) => (
-											<SelectItem key={color.value} value={color.value}>
-												<span className="flex items-center gap-2">
-													<span
-														className="h-3 w-3 rounded-full border border-border"
-														style={{ backgroundColor: color.value }}
-													/>
-													{color.label}
-												</span>
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								<p className="text-xs text-muted-foreground">
-									Applied to the chat playground on this device.
 								</p>
 							</div>
 						</div>
@@ -560,6 +537,7 @@ export default function AccountSettingsClient({
 							onClick={() => {
 								setDisplayName(initial.display_name);
 								setDefaultTeamId(initialDefaultTeam);
+								setDeclaredCountryCode(initial.declared_country_code ?? "");
 								setObfuscateInfo(initial.obfuscate_info);
 							}}
 							disabled={!hasChanges || saving}

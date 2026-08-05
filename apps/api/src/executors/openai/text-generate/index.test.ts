@@ -88,8 +88,8 @@ describe("openai text executor HTTP mode", () => {
 		const mapped = JSON.parse(result.mappedRequest || "{}");
 		expect(mapped.type).toBeUndefined();
 		expect(mapped.model).toBe("openai/gpt-5-nano-2025-08-07");
-		expect(mapped.metadata?.aistats_request_id).toBe("req_openai_http_test");
-		expect(mapped.safety_identifier).toBe("req_openai_http_test");
+		expect(mapped.metadata?.phaseo_request_id).toBe("req_openai_http_test");
+		expect(mapped.safety_identifier).toBe("team_test");
 		expect(mock.calls[0]?.bodyJson?.store).toBe(false);
 	});
 
@@ -111,6 +111,15 @@ describe("openai text executor HTTP mode", () => {
 					created: Math.floor(Date.now() / 1000),
 					model: "gpt-5.4-nano",
 					choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
+					usage: null,
+				})}`,
+				"",
+				`data: ${JSON.stringify({
+					id: "chatcmpl_native_1",
+					object: "chat.completion.chunk",
+					created: Math.floor(Date.now() / 1000),
+					model: "gpt-5.4-nano",
+					choices: [],
 					usage: { prompt_tokens: 4, completion_tokens: 3, total_tokens: 7 },
 				})}`,
 				"",
@@ -139,7 +148,9 @@ describe("openai text executor HTTP mode", () => {
 		expect(mock.calls[0]?.bodyJson?.max_completion_tokens).toBe(128);
 		expect(mock.calls[0]?.bodyJson?.max_tokens).toBeUndefined();
 		expect(mock.calls[0]?.bodyJson?.metadata).toBeUndefined();
+		expect(mock.calls[0]?.bodyJson?.safety_identifier).toBe("team_test");
 		expect(mock.calls[0]?.bodyJson?.stream).toBe(true);
+		expect(mock.calls[0]?.bodyJson?.stream_options).toEqual({ include_usage: true });
 	});
 
 	it("streams over HTTP responses endpoint when tools are present", async () => {
@@ -289,7 +300,7 @@ describe("openai text executor HTTP mode", () => {
 
 		const result = await executor(buildArgs({
 			metadata: {
-				aistats_request_id: "custom_request_id",
+				phaseo_request_id: "custom_request_id",
 				trace_id: "abc123",
 			},
 		}));
@@ -297,12 +308,12 @@ describe("openai text executor HTTP mode", () => {
 
 		expect(result.kind).toBe("completed");
 		expect(mock.calls).toHaveLength(1);
-		expect(mock.calls[0]?.bodyJson?.metadata?.aistats_request_id).toBe("custom_request_id");
+		expect(mock.calls[0]?.bodyJson?.metadata?.phaseo_request_id).toBe("custom_request_id");
 		expect(mock.calls[0]?.bodyJson?.metadata?.trace_id).toBe("abc123");
 		expect(mock.calls[0]?.headers["Idempotency-Key"] ?? mock.calls[0]?.headers["idempotency-key"]).toBe("req_openai_http_test");
 	});
 
-	it("does not overwrite caller-provided safety identifier", async () => {
+	it("ignores caller-provided safety identifier and uses workspace id", async () => {
 		const mock = installFetchMock([{
 			match: (url) => url === "https://api.openai.com/v1/responses",
 			response: jsonResponse({
@@ -331,7 +342,76 @@ describe("openai text executor HTTP mode", () => {
 
 		expect(result.kind).toBe("completed");
 		expect(mock.calls).toHaveLength(1);
-		expect(mock.calls[0]?.bodyJson?.safety_identifier).toBe("safe_user_123");
+		expect(mock.calls[0]?.bodyJson?.safety_identifier).toBe("team_test");
+	});
+
+	it("uses workspace id for OpenAI safety identifier even when the request has a user id", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.openai.com/v1/responses",
+			response: jsonResponse({
+				id: "resp_http_3a",
+				object: "response",
+				created_at: Math.floor(Date.now() / 1000),
+				model: "gpt-5-nano",
+				status: "completed",
+				output: [{
+					type: "message",
+					role: "assistant",
+					content: [{ type: "output_text", text: "ok" }],
+				}],
+				usage: {
+					input_tokens: 2,
+					output_tokens: 1,
+					total_tokens: 3,
+				},
+			}, { status: 200 }),
+		}]);
+
+		const result = await executor({
+			...buildArgs({
+				userId: "user_123",
+			}),
+			workspaceId: "workspace_safety_scope",
+		});
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.bodyJson?.safety_identifier).toBe("workspace_safety_scope");
+	});
+
+	it("truncates OpenAI safety identifiers to the upstream limit", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.openai.com/v1/responses",
+			response: jsonResponse({
+				id: "resp_http_3b",
+				object: "response",
+				created_at: Math.floor(Date.now() / 1000),
+				model: "gpt-5-nano",
+				status: "completed",
+				output: [{
+					type: "message",
+					role: "assistant",
+					content: [{ type: "output_text", text: "ok" }],
+				}],
+				usage: {
+					input_tokens: 2,
+					output_tokens: 1,
+					total_tokens: 3,
+				},
+			}, { status: 200 }),
+		}]);
+
+		const longWorkspaceId = `workspace_${"x".repeat(100)}`;
+		const result = await executor({
+			...buildArgs(),
+			workspaceId: longWorkspaceId,
+		});
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.bodyJson?.safety_identifier).toBe(longWorkspaceId.slice(0, 64));
 	});
 
 	it("passes provider_options.openai.context_management to OpenAI responses requests", async () => {
@@ -408,6 +488,102 @@ describe("openai text executor HTTP mode", () => {
 		expect(mock.calls).toHaveLength(1);
 		expect(mock.calls[0]?.bodyJson?.stream).toBe(true);
 		expect(mock.calls[0]?.bodyJson?.reasoning).toMatchObject({ effort: "medium" });
+	});
+
+	it("preserves max effort and pro mode for GPT-5.6 pro slugs", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.openai.com/v1/responses",
+			response: jsonResponse({
+				id: "resp_http_6",
+				object: "response",
+				created_at: Math.floor(Date.now() / 1000),
+				model: "gpt-5.6-sol",
+				status: "completed",
+				output: [{
+					type: "message",
+					role: "assistant",
+					content: [{ type: "output_text", text: "ok" }],
+				}],
+				usage: {
+					input_tokens: 2,
+					output_tokens: 1,
+					total_tokens: 3,
+				},
+			}, { status: 200 }),
+		}]);
+
+		const result = await executor({
+			...buildArgs({
+				model: "openai/gpt-5.6-sol-pro",
+				reasoning: { effort: "max" },
+			}),
+			providerModelSlug: "gpt-5.6-sol-pro",
+			capabilityParams: {
+				request: {
+					allowlist: ["reasoning.effort", "reasoning.mode", "max_tokens"],
+				},
+			},
+		});
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.bodyJson?.model).toBe("gpt-5.6-sol");
+		expect(mock.calls[0]?.bodyJson?.reasoning).toMatchObject({
+			effort: "max",
+			mode: "pro",
+		});
+	});
+
+	it("preserves pro mode when requested on the canonical GPT-5.6 slug", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.openai.com/v1/responses",
+			response: jsonResponse({
+				id: "resp_http_7",
+				object: "response",
+				created_at: Math.floor(Date.now() / 1000),
+				model: "gpt-5.6-sol",
+				status: "completed",
+				output: [{
+					type: "message",
+					role: "assistant",
+					content: [{ type: "output_text", text: "ok" }],
+				}],
+				usage: {
+					input_tokens: 2,
+					output_tokens: 9,
+					output_tokens_details: { reasoning_tokens: 8 },
+					total_tokens: 11,
+				},
+			}, { status: 200 }),
+		}]);
+
+		const result = await executor({
+			...buildArgs({
+				model: "openai/gpt-5.6-sol",
+				reasoning: { effort: "max", mode: "pro" },
+			}),
+			providerModelSlug: "gpt-5.6-sol",
+			capabilityParams: {
+				request: {
+					allowlist: ["reasoning.effort", "reasoning.mode", "max_tokens"],
+				},
+			},
+		});
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.bodyJson?.model).toBe("gpt-5.6-sol");
+		expect(mock.calls[0]?.bodyJson?.reasoning).toMatchObject({
+			effort: "max",
+			mode: "pro",
+		});
+		if (result.kind !== "completed") return;
+		expect(result.bill.usage).toMatchObject({
+			output_text_tokens: 9,
+			reasoning_tokens: 8,
+		});
 	});
 
 	it("prices cached input as subset (no double count)", async () => {

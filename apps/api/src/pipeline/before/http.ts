@@ -6,6 +6,7 @@
 export type ErrorCode =
     | "unauthorised"
     | "invalid_json"
+	| "payload_too_large"
     | "validation_error"
     | "not_found"
     | "not_implemented_yet"
@@ -29,9 +30,7 @@ export function json(data: unknown, status = 200) {
 function defaultErrorType(code: ErrorCode): "user" | "system" {
     if (
         code === "upstream_error" ||
-        code === "gateway_error" ||
-        code === "key_limit_exceeded" ||
-        code === "insufficient_funds"
+        code === "gateway_error"
     ) {
         return "system";
     }
@@ -98,6 +97,7 @@ function inferProviderFailureDiagnostics(
 const STATUS: Record<ErrorCode, number> = {
     unauthorised: 401,
     invalid_json: 400,
+	payload_too_large: 413,
     validation_error: 400,
     not_found: 404,
     not_implemented_yet: 501,
@@ -114,7 +114,7 @@ const STATUS: Record<ErrorCode, number> = {
 
 const FRIENDLY_DESCRIPTIONS: Partial<Record<ErrorCode, string>> = {
     unsupported_model_or_endpoint:
-        "Unsupported model or endpoint. Please check https://ai-stats.phaseo.app/models for your model id, or the API Reference at https://docs.ai-stats.phaseo.app/v1/api-reference for valid endpoints.",
+        "Unsupported model or endpoint. Please check https://phaseo.app/models for your model id, or the API Reference at https://phaseo.app/docs/v1/api-reference for valid endpoints.",
 };
 
 export function err(code: ErrorCode, payload: Record<string, unknown>) {

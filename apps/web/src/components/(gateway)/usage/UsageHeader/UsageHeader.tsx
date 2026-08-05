@@ -36,6 +36,14 @@ import { revalidateUsage } from "@/app/(dashboard)/gateway/usage/actions";
 type RangeKey = "1h" | "1d" | "1w" | "1m" | "1y";
 type GroupBy = "model" | "key";
 
+const RANGE_ITEMS: Array<{ value: RangeKey; label: string }> = [
+	{ value: "1h", label: "Last 1 Hour" },
+	{ value: "1d", label: "Last 1 Day" },
+	{ value: "1w", label: "Last 1 Week" },
+	{ value: "1m", label: "Last 1 Month" },
+	{ value: "1y", label: "Last 1 Year" },
+];
+
 type ApiKeyOption = {
 	id: string;
 	name?: string | null;
@@ -146,11 +154,11 @@ export default function UsageHeader({
 			<h1 className="font-bold text-2xl">Usage Dashboard</h1>
 			<div className="flex items-center gap-2">
 				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="outline" className="flex items-center gap-2">
+					<DropdownMenuTrigger render={<Button variant="outline" className="flex items-center gap-2" />}>
+
 							<span>{groupLabel}</span>
 							<ChevronDown className="h-4 w-4" />
-						</Button>
+
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" className="w-64">
 						<DropdownMenuLabel>Breakdown view</DropdownMenuLabel>
@@ -210,17 +218,18 @@ export default function UsageHeader({
 				</DropdownMenu>
 				<Select
 					value={range}
+					items={RANGE_ITEMS}
 					onValueChange={(v) => setRange(v as RangeKey)}
 				>
 					<SelectTrigger className="w-[180px]">
 						<SelectValue placeholder="Range" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="1h">Last 1 Hour</SelectItem>
-						<SelectItem value="1d">Last 1 Day</SelectItem>
-						<SelectItem value="1w">Last 1 Week</SelectItem>
-						<SelectItem value="1m">Last 1 Month</SelectItem>
-						<SelectItem value="1y">Last 1 Year</SelectItem>
+						{RANGE_ITEMS.map((item) => (
+							<SelectItem key={item.value} value={item.value} label={item.label}>
+								{item.label}
+							</SelectItem>
+						))}
 					</SelectContent>
 				</Select>
 				<Tooltip>

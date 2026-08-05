@@ -170,6 +170,8 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 				size: request.size,
 				n: request.n,
 				quality: request.quality,
+				stream: request.stream,
+				partial_images: request.partialImages,
 				response_format: request.responseFormat,
 				output_format: request.outputFormat,
 				output_compression: request.outputCompression,
@@ -230,6 +232,9 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 				response_format: request.responseFormat,
 				timestamp_granularities: request.timestampGranularities,
 				include: request.include,
+				chunking_strategy: request.chunkingStrategy,
+				known_speaker_names: request.knownSpeakerNames,
+				known_speaker_references: request.knownSpeakerReferences,
 			};
 		}
 
@@ -678,7 +683,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			apiKeyId: "",
 			apiKeyRef: "",
 			apiKeyKid: "",
-			stream: false,
+			stream: (args.ir as IRImageGenerationRequest).stream === true,
 			debug: args.meta.debug,
 			echoUpstreamRequest: args.meta.echoUpstreamRequest,
 			returnUpstreamRequest: args.meta.returnUpstreamRequest,
@@ -691,7 +696,8 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		byokMeta: args.byokMeta,
 		pricingCard: args.pricingCard,
 		providerModelSlug: args.providerModelSlug,
-		stream: false,
+		stream: (args.ir as IRImageGenerationRequest).stream === true,
+		upstreamTiming: args.upstreamTiming,
 	};
 
 	let adapterResult: Awaited<ReturnType<typeof executeProviderEndpoint>>;
@@ -774,7 +780,8 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				reservationStatus,
 				keySource,
 				byokKeyId,
-				createdAt: Date.now(),
+				providerDispatchedAtMs:
+					args.upstreamTiming?.timingFor(adapterResult.upstream)?.dispatchAtMs ?? Date.now(),
 			}, String(videoResponse.nativeId), videoResponse.status);
 		} catch (error) {
 			console.error("adapter_video_job_meta_store_failed", {
@@ -794,7 +801,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				upstream: jsonErrorResponse(
 					502,
 					"async_job_persistence_failed",
-					"Video job was created upstream, but AI Stats could not persist gateway ownership metadata.",
+					"Video job was created upstream, but Phaseo could not persist gateway ownership metadata.",
 					{
 						native_video_id: String(videoResponse.nativeId),
 						reservation_id: reservationId,
@@ -809,10 +816,6 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		}
 	}
 
-	const generationMs =
-		numberOrUndefined(args.meta.upstreamStartMs != null ? Date.now() - args.meta.upstreamStartMs : undefined) ??
-		undefined;
-
 	return {
 		kind: "completed",
 		ir,
@@ -822,7 +825,6 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		byokKeyId,
 		mappedRequest,
 		rawResponse: normalized,
-		timing: generationMs != null ? { generationMs } : undefined,
 	};
 }
 

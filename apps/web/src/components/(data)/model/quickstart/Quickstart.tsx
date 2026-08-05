@@ -13,7 +13,7 @@ import { QuickstartUsageSection } from "./QuickstartUsageSection";
 import { buildEndpointRoutes, ENDPOINT_OPTIONS } from "./endpointRoutes";
 import {
 	AI_SDK_ENDPOINTS,
-	AI_STATS_METHODS,
+	PHASEO_METHODS,
 	LANGUAGE_OPTIONS,
 	OPENAI_METHODS,
 	STREAMING_PATHS,
@@ -29,6 +29,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { QuickstartRequestContext } from "./requestContext";
 
 interface QuickstartProps {
+	mode?: "generation" | "model-metadata";
 	modelId?: string;
 	aliases?: string[];
 	apiModelIds?: string[];
@@ -177,10 +178,14 @@ const STREAMING_SNIPPET_LANGUAGES = new Set([
 	"php-sdk",
 	"ruby-sdk",
 ]);
-const DOCS_BASE_URL = "https://docs.ai-stats.phaseo.app/v1";
+const DOCS_BASE_URL = "https://phaseo.app/docs/v1";
 const SERVICE_TIERS_DOCS_HREF = `${DOCS_BASE_URL}/guides/service-tiers`;
 const STREAMING_DOCS_HREF = `${DOCS_BASE_URL}/guides/streaming`;
 const ENDPOINT_DOCS_BY_VALUE: Partial<Record<string, { label: string; href: string }>> = {
+	models: {
+		label: "Model discovery",
+		href: `${DOCS_BASE_URL}/sdk-reference/sdk/get-models`,
+	},
 	responses: {
 		label: "Responses API",
 		href: `${DOCS_BASE_URL}/api-reference/endpoint/responses`,
@@ -290,6 +295,7 @@ const formatEmbeddedObject = (json: string, indentSize: number) => {
 };
 
 export default function Quickstart({
+	mode = "generation",
 	modelId,
 	aliases,
 	apiModelIds,
@@ -303,6 +309,7 @@ export default function Quickstart({
 	showHeader = true,
 	requestContext,
 }: QuickstartProps) {
+	const isModelMetadataQuickstart = mode === "model-metadata";
 	const supportedEndpointValues = useMemo(() => {
 		const normalized = new Set(
 			supportedEndpoints.map((value) => normalizeEndpointValue(value)),
@@ -326,13 +333,17 @@ export default function Quickstart({
 	}, [supportedEndpoints, endpoint]);
 
 	const availableEndpoints = useMemo(() => {
+		if (isModelMetadataQuickstart) {
+			return [{ value: "models", label: "Models" }];
+		}
 		const filtered = ENDPOINT_OPTIONS.filter((option) =>
 			supportedEndpointValues.has(option.value),
 		);
 		return filtered.length > 0 ? filtered : ENDPOINT_OPTIONS;
-	}, [supportedEndpointValues]);
+	}, [isModelMetadataQuickstart, supportedEndpointValues]);
 
 	const defaultEndpoint = useMemo(() => {
+		if (isModelMetadataQuickstart) return "models";
 		return (
 			availableEndpoints.find((e) => e.value === "responses")?.value ||
 			availableEndpoints.find((e) => e.value === "chat.completions")?.value ||
@@ -340,7 +351,7 @@ export default function Quickstart({
 			availableEndpoints[0]?.value ||
 			"chat.completions"
 		);
-	}, [availableEndpoints]);
+	}, [availableEndpoints, isModelMetadataQuickstart]);
 
 	const endpointRoutes = useMemo(
 		() => buildEndpointRoutes(availableEndpoints),
@@ -364,6 +375,19 @@ export default function Quickstart({
 	const quickstartEndpoint = batchEnabled ? "batch.create" : selectedEndpoint;
 
 	const supportedLanguageSet = useMemo(() => {
+		if (isModelMetadataQuickstart) {
+			return new Set<string>([
+				"curl",
+				"typescript-sdk",
+				"node-fetch",
+				"python-sdk",
+				"python-requests",
+				"go-sdk",
+				"csharp-sdk",
+				"php-sdk",
+				"ruby-sdk",
+			]);
+		}
 		const normalizedEndpoint = normalizeEndpointValue(quickstartEndpoint);
 		const supported = new Set<string>([
 			"curl",
@@ -384,7 +408,7 @@ export default function Quickstart({
 			supported.add("agent-sdk-ruby");
 		}
 		if (
-			AI_STATS_METHODS[normalizedEndpoint] ||
+			PHASEO_METHODS[normalizedEndpoint] ||
 			normalizedEndpoint === "messages"
 		) {
 			supported.add("typescript-sdk");
@@ -399,7 +423,7 @@ export default function Quickstart({
 			supported.add("anthropic-node");
 		}
 		return supported;
-	}, [quickstartEndpoint]);
+	}, [isModelMetadataQuickstart, quickstartEndpoint]);
 
 	const availableLanguages = useMemo(
 		() =>
@@ -427,13 +451,14 @@ export default function Quickstart({
 		supportedParametersByEndpoint?.[selectedEndpoint] ?? [];
 
 	const supportsServiceTier = useMemo(() => {
+		if (isModelMetadataQuickstart) return false;
 		const normalized = normalizeEndpointValue(selectedEndpoint);
 		return (
 			normalized === "responses" ||
 			normalized === "chat.completions" ||
 			normalized === "messages"
 		);
-	}, [selectedEndpoint]);
+	}, [isModelMetadataQuickstart, selectedEndpoint]);
 
 	const availableLanguageFamilies = useMemo(
 		() =>
@@ -495,6 +520,7 @@ export default function Quickstart({
 	}, [availableLanguages, selectedLanguage, supportedLanguageSet]);
 
 	const supportsStreaming = useMemo(() => {
+		if (isModelMetadataQuickstart) return false;
 		if (batchEnabled) return false;
 		if (!STREAMING_SNIPPET_LANGUAGES.has(selectedLanguage)) return false;
 		const normalized = normalizeEndpointValue(selectedEndpoint);
@@ -508,7 +534,7 @@ export default function Quickstart({
 		}
 		const mapped = capabilityToEndpoints[normalized] ?? [];
 		return mapped.some((value) => STREAMING_PATHS.has(value));
-	}, [batchEnabled, selectedEndpoint, selectedLanguage]);
+	}, [batchEnabled, isModelMetadataQuickstart, selectedEndpoint, selectedLanguage]);
 
 	useEffect(() => {
 		if (!supportsStreaming && streamingEnabled) {
@@ -597,15 +623,19 @@ export default function Quickstart({
 	)
 		? selectedModelIdentifier
 		: model;
-	const endpointPath = resolveGatewayPath(selectedEndpoint);
+	const endpointPath = isModelMetadataQuickstart
+		? "/models"
+		: resolveGatewayPath(selectedEndpoint);
 	const batchEndpointPath = resolveGatewayPath("batch.create");
 	const activeEndpointPath = batchEnabled ? batchEndpointPath : endpointPath;
 	const endpointUrl = `${BASE_URL}${activeEndpointPath}`;
 	const routingPreference = resolveRoutingPreference(requestContext);
-	const requestPayloadBase = applyRoutingPreferenceToPayload(
-		buildExamplePayload(selectedEndpoint, modelIdentifierInCode),
-		routingPreference,
-	);
+	const requestPayloadBase = isModelMetadataQuickstart
+		? {}
+		: applyRoutingPreferenceToPayload(
+				buildExamplePayload(selectedEndpoint, modelIdentifierInCode),
+				routingPreference,
+			);
 	const shouldIncludeServiceTier =
 		supportsServiceTier && selectedServiceTier !== "standard";
 	const requestPayload =
@@ -656,14 +686,20 @@ export default function Quickstart({
 			? "Send a streaming request"
 			: "Send a request";
 	const curlFlags = shouldStream ? "-N -s" : "-s";
-	const curlQuickstart = `# 1) Set your key
-export AI_STATS_API_KEY="aistats_***"
+	const curlQuickstart = isModelMetadataQuickstart
+		? `# Get the catalog record, including unavailable models
+curl --get ${endpointUrl} \\
+  -H "Authorization: Bearer $PHASEO_API_KEY" \\
+  --data-urlencode "model_id=${modelIdentifierInCode}" \\
+  --data-urlencode "availability=all"`
+		: `# 1) Set your key
+export PHASEO_API_KEY="phaseo_v1_sk_..."
 
 ${batchEnabled ? `${batchLineCommentPy}
 
 ` : ""}# 2) ${curlCommandLabel}
 curl ${curlFlags} ${endpointUrl} \\
--H "Authorization: Bearer $AI_STATS_API_KEY" \\
+-H "Authorization: Bearer $PHASEO_API_KEY" \\
 -H "Content-Type: application/json" \\
 -d '${activePayloadJson}'`;
 
@@ -684,36 +720,48 @@ curl ${curlFlags} ${endpointUrl} \\
 		return userMessage?.content ?? "Give me one fun fact about cURL.";
 	})();
 	const aiSdkPromptLiteral = JSON.stringify(aiSdkPrompt);
-	const aiStatsMethod = AI_STATS_METHODS[normalizedEndpoint] ?? null;
+	const phaseoMethod = PHASEO_METHODS[normalizedEndpoint] ?? null;
 	const typescriptSdkResponseHandler =
 		normalizedEndpoint === "audio.speech"
-			? `const audio = await client.${aiStatsMethod?.ts}({
+			? `const audio = await client.${phaseoMethod?.ts}({
 ${payloadObjectNode}
 });
 
 const audioBytes = await audio.arrayBuffer();
 console.log(\`Generated speech bytes: \${audioBytes.byteLength}\`);`
-			: `const response = await client.${aiStatsMethod?.ts}({
+			: `const response = await client.${phaseoMethod?.ts}({
 ${payloadObjectNode}
 });
 
 console.log(JSON.stringify(response, null, 2));`;
 	const pythonSdkResponseHandler =
 		normalizedEndpoint === "audio.speech"
-			? `audio = client.${aiStatsMethod?.py}(payload)
+			? `audio = client.${phaseoMethod?.py}(payload)
 
 print(audio)`
-			: `response = client.${aiStatsMethod?.py}(payload)
+			: `response = client.${phaseoMethod?.py}(payload)
 
 print(response)`;
 
-	const typescriptSdkUsage =
-		normalizedEndpoint === "chat.completions"
-			? shouldStream
-				? `import AIStats from '@ai-stats/sdk';
+	const typescriptSdkUsage = isModelMetadataQuickstart
+		? `import Phaseo from "@phaseo/sdk";
 
-const client = new AIStats({
-  apiKey: process.env.AI_STATS_API_KEY,
+const client = new Phaseo({
+  apiKey: process.env.PHASEO_API_KEY,
+});
+
+const models = await client.models.list({
+  model_id: "${modelIdentifierInCode}",
+  availability: "all",
+});
+
+console.log(models);`
+		: normalizedEndpoint === "chat.completions"
+			? shouldStream
+				? `import Phaseo from '@phaseo/sdk';
+
+const client = new Phaseo({
+  apiKey: process.env.PHASEO_API_KEY,
 });
 
 let response = "";
@@ -730,10 +778,10 @@ ${payloadObjectNode}
     console.log("\\nReasoning tokens:", chunk.reasoningTokens);
   }
 }`
-				: `import AIStats from '@ai-stats/sdk';
+				: `import Phaseo from '@phaseo/sdk';
 
-const client = new AIStats({
-  apiKey: process.env.AI_STATS_API_KEY,
+const client = new Phaseo({
+  apiKey: process.env.PHASEO_API_KEY,
 });
 
 const response = await client.generateText({
@@ -743,10 +791,10 @@ ${payloadObjectNode}
 console.log(response.choices?.[0]?.message?.content ?? response);`
 			: normalizedEndpoint === "messages"
 				? shouldStream
-					? `import AIStats from '@ai-stats/sdk';
+					? `import Phaseo from '@phaseo/sdk';
 
-const client = new AIStats({
-  apiKey: process.env.AI_STATS_API_KEY,
+const client = new Phaseo({
+  apiKey: process.env.PHASEO_API_KEY,
 });
 
 for await (const chunk of client.streamMessages({
@@ -760,10 +808,10 @@ ${payloadObjectNode}
     console.log("\\nReasoning tokens:", chunk.reasoningTokens);
   }
 }`
-					: `import AIStats from '@ai-stats/sdk';
+					: `import Phaseo from '@phaseo/sdk';
 
-const client = new AIStats({
-  apiKey: process.env.AI_STATS_API_KEY,
+const client = new Phaseo({
+  apiKey: process.env.PHASEO_API_KEY,
 });
 
 const response = await client.messages.create({
@@ -777,10 +825,10 @@ const messageText = response.content
 console.log(messageText ?? response);`
 			: normalizedEndpoint === "responses"
 				? shouldStream
-					? `import AIStats from '@ai-stats/sdk';
+					? `import Phaseo from '@phaseo/sdk';
 
-const client = new AIStats({
-  apiKey: process.env.AI_STATS_API_KEY,
+const client = new Phaseo({
+  apiKey: process.env.PHASEO_API_KEY,
 });
 
 for await (const chunk of client.streamResponses({
@@ -794,10 +842,10 @@ ${payloadObjectNode}
     console.log("\\nReasoning tokens:", chunk.reasoningTokens);
   }
 }`
-					: `import AIStats from '@ai-stats/sdk';
+					: `import Phaseo from '@phaseo/sdk';
 
-const client = new AIStats({
-  apiKey: process.env.AI_STATS_API_KEY,
+const client = new Phaseo({
+  apiKey: process.env.PHASEO_API_KEY,
 });
 
 const response = await client.generateResponse({
@@ -810,11 +858,11 @@ const outputText = response.output
   ?.text;
 
 console.log(outputText ?? response);`
-				: aiStatsMethod
-					? `import AIStats from '@ai-stats/sdk';
+				: phaseoMethod
+					? `import Phaseo from '@phaseo/sdk';
 
-const client = new AIStats({
-  apiKey: process.env.AI_STATS_API_KEY,
+const client = new Phaseo({
+  apiKey: process.env.PHASEO_API_KEY,
 });
 
 ${typescriptSdkResponseHandler}`
@@ -823,10 +871,10 @@ ${typescriptSdkResponseHandler}`
 	const aiSdkUsage = AI_SDK_ENDPOINTS.has(normalizedEndpoint)
 		? shouldStream
 			? `import { streamText } from "ai";
-import { aiStats } from "@ai-stats/ai-sdk-provider";
+import { phaseo } from "@phaseo/ai-sdk-provider";
 
 const { textStream } = streamText({
-  model: aiStats("${model}"),
+  model: phaseo("${model}"),
   prompt: ${aiSdkPromptLiteral},
 });
 
@@ -834,10 +882,10 @@ for await (const chunk of textStream) {
   process.stdout.write(chunk);
 }`
 			: `import { generateText } from "ai";
-import { aiStats } from "@ai-stats/ai-sdk-provider";
+import { phaseo } from "@phaseo/ai-sdk-provider";
 
 const { text } = await generateText({
-  model: aiStats("${model}"),
+  model: phaseo("${model}"),
   prompt: ${aiSdkPromptLiteral},
 });
 
@@ -848,7 +896,7 @@ console.log(text);`
 		? `import {
   createAgent,
   createGatewayAgentClient,
-} from "@ai-stats/agent-sdk";
+} from "@phaseo/agent-sdk";
 
 const agent = createAgent({
   id: "quickstart-agent",
@@ -860,7 +908,7 @@ const result = await agent.run({
   input: ${aiSdkPromptLiteral},
   client: createGatewayAgentClient({
     clientOptions: {
-      apiKey: process.env.AI_STATS_API_KEY!,
+      apiKey: process.env.PHASEO_API_KEY!,
     },
   }),
 });
@@ -869,7 +917,7 @@ console.log(result.output);`
 		: null;
 
 	const agentSdkPythonUsage = AI_SDK_ENDPOINTS.has(normalizedEndpoint)
-		? `from ai_stats_agent import create_agent, create_gateway_agent_client
+		? `from phaseo_agent import create_agent, create_gateway_agent_client
 
 agent = create_agent({
     "id": "quickstart-agent",
@@ -892,22 +940,22 @@ import (
   "context"
   "fmt"
 
-  aistatsagent "github.com/AI-Stats/AI-Stats/packages/sdk/agent-sdk-go"
+  phaseoagent "github.com/phaseoteam/Phaseo/packages/sdk/agent-sdk-go"
 )
 
 func main() {
-  client, err := aistatsagent.CreateGatewayAgentClient(aistatsagent.GatewayAgentClientOptions{})
+  client, err := phaseoagent.CreateGatewayAgentClient(phaseoagent.GatewayAgentClientOptions{})
   if err != nil {
     panic(err)
   }
 
-  agent := aistatsagent.CreateAgent(aistatsagent.AgentDefinition{
+  agent := phaseoagent.CreateAgent(phaseoagent.AgentDefinition{
     ID:           "quickstart-agent",
     Model:        "${model}",
     Instructions: "Answer concisely and helpfully.",
   })
 
-  result, err := agent.Run(context.Background(), aistatsagent.RunOptions{
+  result, err := agent.Run(context.Background(), phaseoagent.RunOptions{
     Input:  ${aiSdkPromptLiteral},
     Client: client,
   })
@@ -942,8 +990,8 @@ Console.WriteLine(result.Output);`
 		? `<?php
 require "vendor/autoload.php";
 
-use AIStats\\AgentSdk\\AgentDefinition;
-use AIStats\\AgentSdk\\AgentSdk;
+use Phaseo\\AgentSdk\\AgentDefinition;
+use Phaseo\\AgentSdk\\AgentSdk;
 
 $agent = AgentSdk::createAgent(new AgentDefinition(
     id: "quickstart-agent",
@@ -960,15 +1008,15 @@ echo $result->output . PHP_EOL;`
 		: null;
 
 	const agentSdkRubyUsage = AI_SDK_ENDPOINTS.has(normalizedEndpoint)
-		? `require "ai_stats_agent_sdk"
+		? `require "phaseo_agent_sdk"
 
-agent = AIStatsAgentSdk.create_agent(
+agent = PhaseoAgentSdk.create_agent(
   id: "quickstart-agent",
   model: "${model}",
   instructions: "Answer concisely and helpfully."
 )
 
-client = AIStatsAgentSdk.create_gateway_agent_client
+client = PhaseoAgentSdk.create_gateway_agent_client
 
 result = agent.run(
   input: ${aiSdkPromptLiteral},
@@ -978,13 +1026,24 @@ result = agent.run(
 puts result.output`
 		: null;
 
-	const pythonSdkUsage =
-		normalizedEndpoint === "chat.completions"
+	const pythonSdkUsage = isModelMetadataQuickstart
+		? `import os
+from phaseo import Phaseo
+
+client = Phaseo(api_key=os.environ["PHASEO_API_KEY"])
+
+models = client.models.list({
+    "model_id": "${modelIdentifierInCode}",
+    "availability": "all",
+})
+
+print(models)`
+		: normalizedEndpoint === "chat.completions"
 			? shouldStream
 				? `import os
-from ai_stats import AIStats
+from phaseo import Phaseo
 
-client = AIStats(api_key=os.environ.get("AI_STATS_API_KEY"))
+client = Phaseo(api_key=os.environ.get("PHASEO_API_KEY"))
 
 payload = ${payloadJsonPython}
 
@@ -996,9 +1055,9 @@ for chunk in client.stream_chat(payload):
     if chunk.get("reasoning_tokens"):
         print("\\nReasoning tokens:", chunk["reasoning_tokens"])`
 				: `import os
-from ai_stats import AIStats
+from phaseo import Phaseo
 
-client = AIStats(api_key=os.environ.get("AI_STATS_API_KEY"))
+client = Phaseo(api_key=os.environ.get("PHASEO_API_KEY"))
 
 payload = ${payloadJsonPython}
 response = client.generate_text(payload)
@@ -1007,9 +1066,9 @@ print(response.get("choices", [{}])[0].get("message", {}).get("content", respons
 			: normalizedEndpoint === "messages"
 				? shouldStream
 					? `import os
-from ai_stats import AIStats
+from phaseo import Phaseo
 
-client = AIStats(api_key=os.environ.get("AI_STATS_API_KEY"))
+client = Phaseo(api_key=os.environ.get("PHASEO_API_KEY"))
 
 payload = ${payloadJsonPython}
 
@@ -1019,9 +1078,9 @@ for chunk in client.stream_message(payload):
     if chunk.get("reasoning_tokens"):
         print("\\nReasoning tokens:", chunk["reasoning_tokens"])`
 					: `import os
-from ai_stats import AIStats
+from phaseo import Phaseo
 
-client = AIStats(api_key=os.environ.get("AI_STATS_API_KEY"))
+client = Phaseo(api_key=os.environ.get("PHASEO_API_KEY"))
 
 payload = ${payloadJsonPython}
 response = client.messages.create(payload)
@@ -1039,9 +1098,9 @@ print(message_text or response)`
 			: normalizedEndpoint === "responses"
 				? shouldStream
 					? `import os
-from ai_stats import AIStats
+from phaseo import Phaseo
 
-client = AIStats(api_key=os.environ.get("AI_STATS_API_KEY"))
+client = Phaseo(api_key=os.environ.get("PHASEO_API_KEY"))
 
 payload = ${payloadJsonPython}
 
@@ -1051,9 +1110,9 @@ for chunk in client.stream_responses(payload):
     if chunk.get("reasoning_tokens"):
         print("\\nReasoning tokens:", chunk["reasoning_tokens"])`
 					: `import os
-from ai_stats import AIStats
+from phaseo import Phaseo
 
-client = AIStats(api_key=os.environ.get("AI_STATS_API_KEY"))
+client = Phaseo(api_key=os.environ.get("PHASEO_API_KEY"))
 
 payload = ${payloadJsonPython}
 response = client.generate_response(payload)
@@ -1069,17 +1128,17 @@ output_text = next(
 )
 
 print(output_text or response)`
-				: aiStatsMethod
+				: phaseoMethod
 					? `import os
-from ai_stats import AIStats
+from phaseo import Phaseo
 
-client = AIStats(api_key=os.environ.get("AI_STATS_API_KEY"))
+client = Phaseo(api_key=os.environ.get("PHASEO_API_KEY"))
 
 payload = ${payloadJsonPython}
 ${pythonSdkResponseHandler}`
 					: null;
 
-	const goSdkUsage = normalizedEndpoint === "chat.completions"
+	const goSdkUsage = isModelMetadataQuickstart
 		? `package main
 
 import (
@@ -1087,22 +1146,50 @@ import (
   "encoding/json"
   "fmt"
 
-  aistats "github.com/AI-Stats/AI-Stats/packages/sdk/sdk-go"
+  phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"
 )
 
 func main() {
-  client, err := aistats.NewAIStatsFromEnv()
+  client, err := phaseo.NewPhaseoFromEnv()
+  if err != nil {
+    panic(err)
+  }
+
+  models, err := client.GetModels(context.Background(), map[string]string{
+    "model_id": "${modelIdentifierInCode}",
+    "availability": "all",
+  })
+  if err != nil {
+    panic(err)
+  }
+
+  output, _ := json.MarshalIndent(models, "", "  ")
+  fmt.Println(string(output))
+}`
+		: normalizedEndpoint === "chat.completions"
+		? `package main
+
+import (
+  "context"
+  "encoding/json"
+  "fmt"
+
+  phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"
+)
+
+func main() {
+  client, err := phaseo.NewPhaseoFromEnv()
   if err != nil {
     panic(err)
   }
 
   payloadJSON := \`${rawSdkPayloadJson}\`
-  var payload aistats.ChatCompletionsRequest
+  var payload phaseo.ChatCompletionsRequest
   if err := json.Unmarshal([]byte(payloadJSON), &payload); err != nil {
     panic(err)
   }
 
-  ${shouldStream ? `err = client.StreamChat(context.Background(), payload, func(chunk aistats.StreamChunk) error {
+  ${shouldStream ? `err = client.StreamChat(context.Background(), payload, func(chunk phaseo.StreamChunk) error {
     if chunk.Text != "" {
       fmt.Print(chunk.Text)
     }
@@ -1133,22 +1220,22 @@ import (
   "encoding/json"
   "fmt"
 
-  aistats "github.com/AI-Stats/AI-Stats/packages/sdk/sdk-go"
+  phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"
 )
 
 func main() {
-  client, err := aistats.NewAIStatsFromEnv()
+  client, err := phaseo.NewPhaseoFromEnv()
   if err != nil {
     panic(err)
   }
 
   payloadJSON := \`${rawSdkPayloadJson}\`
-  var payload aistats.ResponsesRequest
+  var payload phaseo.ResponsesRequest
   if err := json.Unmarshal([]byte(payloadJSON), &payload); err != nil {
     panic(err)
   }
 
-  ${shouldStream ? `err = client.StreamResponses(context.Background(), payload, func(chunk aistats.StreamChunk) error {
+  ${shouldStream ? `err = client.StreamResponses(context.Background(), payload, func(chunk phaseo.StreamChunk) error {
     if chunk.Text != "" {
       fmt.Print(chunk.Text)
     }
@@ -1178,11 +1265,11 @@ import (
   "encoding/json"
   "fmt"
 
-  aistats "github.com/AI-Stats/AI-Stats/packages/sdk/sdk-go"
+  phaseo "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2"
 )
 
 func main() {
-  client, err := aistats.NewAIStatsFromEnv()
+  client, err := phaseo.NewPhaseoFromEnv()
   if err != nil {
     panic(err)
   }
@@ -1193,7 +1280,7 @@ func main() {
     panic(err)
   }
 
-  ${shouldStream ? `err = client.StreamMessages(context.Background(), payload, func(chunk aistats.StreamChunk) error {
+  ${shouldStream ? `err = client.StreamMessages(context.Background(), payload, func(chunk phaseo.StreamChunk) error {
     if chunk.Text != "" {
       fmt.Print(chunk.Text)
     }
@@ -1217,11 +1304,27 @@ func main() {
   fmt.Println(string(formatted))`}
 }`;
 
-	const csharpSdkUsage = `using System.Collections.Generic;
+	const csharpSdkUsage = isModelMetadataQuickstart
+		? `using System.Collections.Generic;
 using System.Text.Json;
-using AiStatsSdk;
+using PhaseoSdk;
 
-var client = new AIStats();
+var client = new Phaseo(Environment.GetEnvironmentVariable("PHASEO_API_KEY"));
+var models = await client.ListModels(new Dictionary<string, string>
+{
+    ["model_id"] = "${modelIdentifierInCode}",
+    ["availability"] = "all",
+});
+
+Console.WriteLine(JsonSerializer.Serialize(models, new JsonSerializerOptions
+{
+    WriteIndented = true,
+}));`
+		: `using System.Collections.Generic;
+using System.Text.Json;
+using PhaseoSdk;
+
+var client = new Phaseo();
 var payload = JsonSerializer.Deserialize<Dictionary<string, object>>("""
 ${rawSdkPayloadJson}
 """);
@@ -1255,12 +1358,25 @@ Console.WriteLine(JsonSerializer.Serialize(response, new JsonSerializerOptions
     WriteIndented = true
 }));`}`;
 
-	const phpSdkUsage = `<?php
+	const phpSdkUsage = isModelMetadataQuickstart
+		? `<?php
 require 'vendor/autoload.php';
 
-use AIStats\\Sdk\\AIStats;
+use Phaseo\\Sdk\\Phaseo;
 
-$client = new AIStats(apiKey: getenv('AI_STATS_API_KEY'));
+$client = new Phaseo(getenv('PHASEO_API_KEY'));
+$models = $client->listModels([
+    'model_id' => '${modelIdentifierInCode}',
+    'availability' => 'all',
+]);
+
+echo json_encode($models, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), PHP_EOL;`
+		: `<?php
+require 'vendor/autoload.php';
+
+use Phaseo\\Sdk\\Phaseo;
+
+$client = new Phaseo(apiKey: getenv('PHASEO_API_KEY'));
 $payload = json_decode(<<<'JSON'
 ${rawSdkPayloadJson}
 JSON, true, 512, JSON_THROW_ON_ERROR);
@@ -1288,10 +1404,21 @@ ${shouldStream ? `foreach ($client->${
 
 echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), PHP_EOL;`}`;
 
-	const rubySdkUsage = `require "json"
-require "ai_stats_sdk"
+	const rubySdkUsage = isModelMetadataQuickstart
+		? `require "json"
+require "phaseo_sdk"
 
-client = AIStatsSdk::AIStats.new
+client = PhaseoSdk::Phaseo.new(api_key: ENV.fetch("PHASEO_API_KEY"))
+models = client.list_models(
+  "model_id" => "${modelIdentifierInCode}",
+  "availability" => "all"
+)
+
+puts JSON.pretty_generate(models)`
+		: `require "json"
+require "phaseo_sdk"
+
+client = PhaseoSdk::Phaseo.new
 payload = JSON.parse(<<~JSON)
 ${rawSdkPayloadJson}
 JSON
@@ -1315,8 +1442,26 @@ end` : `response = client.${
 
 puts JSON.pretty_generate(response)`}`;
 
-	const nodeFetchQuickstart = `// 1) Set your key
-const apiKey = process.env.AI_STATS_API_KEY;
+	const nodeFetchQuickstart = isModelMetadataQuickstart
+		? `const query = new URLSearchParams({
+  model_id: "${modelIdentifierInCode}",
+  availability: "all",
+});
+
+const response = await fetch(
+  "https://api.phaseo.app/v1/models?" + query.toString(),
+  {
+    headers: {
+      Authorization: "Bearer " + process.env.PHASEO_API_KEY,
+    },
+  },
+);
+
+if (!response.ok) throw new Error("Failed to retrieve model metadata");
+
+console.log(await response.json());`
+		: `// 1) Set your key
+const apiKey = process.env.PHASEO_API_KEY;
 
 ${batchEnabled ? `${batchLineCommentTs}
 
@@ -1358,7 +1503,7 @@ console.log(messageText ?? JSON.stringify(data, null, 2));`
 }`;
 
 	const nodeFetchStreamingQuickstart = `// 1) Set your key
-const apiKey = process.env.AI_STATS_API_KEY;
+const apiKey = process.env.PHASEO_API_KEY;
 
 // 2) Send a streaming request
 const res = await fetch("${endpointUrl}", {
@@ -1416,12 +1561,27 @@ while (true) {
 }
 if (buffer) processLine(buffer.trim());`;
 
-	const pythonRequestsQuickstart = `# Import os and requests libraries
+	const pythonRequestsQuickstart = isModelMetadataQuickstart
+		? `import os
+import requests
+
+response = requests.get(
+    "https://api.phaseo.app/v1/models",
+    headers={"Authorization": f"Bearer {os.environ['PHASEO_API_KEY']}"},
+    params={
+        "model_id": "${modelIdentifierInCode}",
+        "availability": "all",
+    },
+)
+response.raise_for_status()
+
+print(response.json())`
+		: `# Import os and requests libraries
 import os
 import requests
 
 # Get your API key
-API_KEY = os.environ.get("AI_STATS_API_KEY")
+API_KEY = os.environ.get("PHASEO_API_KEY")
 
 ${batchEnabled ? `${batchLineCommentPy}
 
@@ -1470,7 +1630,7 @@ import os
 import requests
 
 # Get your API key
-API_KEY = os.environ.get("AI_STATS_API_KEY")
+API_KEY = os.environ.get("PHASEO_API_KEY")
 
 # Send a streaming request
 url = "${endpointUrl}"
@@ -1517,7 +1677,7 @@ with requests.post(url, json=payload, headers={
 from openai import OpenAI
 
 client = OpenAI(
-    api_key=os.environ.get("AI_STATS_API_KEY"),
+    api_key=os.environ.get("PHASEO_API_KEY"),
     base_url="${BASE_URL}",
 )
 
@@ -1531,7 +1691,7 @@ print(response)`
 		? `import OpenAI from 'openai';
 
 const client = new OpenAI({
-  apiKey: process.env.AI_STATS_API_KEY,
+  apiKey: process.env.PHASEO_API_KEY,
   baseURL: '${BASE_URL}',
 });
 
@@ -1548,7 +1708,7 @@ console.log(response);`
 from anthropic import Anthropic
 
 client = Anthropic(
-    api_key=os.environ.get("AI_STATS_API_KEY"),
+    api_key=os.environ.get("PHASEO_API_KEY"),
     base_url="${BASE_URL}",
 )
 
@@ -1563,7 +1723,7 @@ print(response)`
 			? `import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic({
-  apiKey: process.env.AI_STATS_API_KEY,
+  apiKey: process.env.PHASEO_API_KEY,
   baseURL: "${BASE_URL}",
 });
 
@@ -1632,7 +1792,7 @@ console.log(response);`
 							<span>Create an API key in</span>
 							<Link
 								href="/settings/keys"
-								className="inline-flex items-center overflow-hidden rounded-lg border border-border/80 bg-background text-foreground shadow-xs transition-colors hover:bg-muted/40"
+								className="inline-flex items-center overflow-hidden rounded-md border border-border/80 bg-background text-foreground shadow-xs transition-colors hover:bg-muted/40"
 							>
 								<span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs">
 									<Settings2 className="h-3 w-3" />
@@ -1646,7 +1806,7 @@ console.log(response);`
 							</Link>
 							<span>and store it as</span>
 							<code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
-								AI_STATS_API_KEY
+								PHASEO_API_KEY
 							</code>
 						</div>
 						<Alert className="border-amber-200 bg-amber-50 py-2 text-amber-950 dark:border-amber-900/60 dark:bg-amber-900/20 dark:text-amber-50">
@@ -1669,22 +1829,29 @@ console.log(response);`
 							2
 						</Badge>
 						<div className="space-y-1">
-							<h3 className="text-base font-semibold">Send the request</h3>
+							<h3 className="text-base font-semibold">
+								{isModelMetadataQuickstart
+									? "Retrieve model metadata"
+									: "Send the request"}
+							</h3>
 							<p className="text-sm text-muted-foreground">
-								Choose a supported endpoint, pick a main language, then select
-								the example style you want to copy.
+								{isModelMetadataQuickstart
+									? "Query GET /v1/models by model ID, including records that are not currently routable."
+									: "Choose a supported endpoint, pick a main language, then select the example style you want to copy."}
 							</p>
 						</div>
 					</div>
 
-					<EndpointRoutesTable
-						endpointRoutes={endpointRoutes}
-						selectedEndpoint={selectedEndpoint}
-						showAllEndpointRoutes={showAllEndpointRoutes}
-						onToggleShowAllEndpointRoutes={() =>
-							setShowAllEndpointRoutes((current) => !current)
-						}
-					/>
+					{isModelMetadataQuickstart ? null : (
+						<EndpointRoutesTable
+							endpointRoutes={endpointRoutes}
+							selectedEndpoint={selectedEndpoint}
+							showAllEndpointRoutes={showAllEndpointRoutes}
+							onToggleShowAllEndpointRoutes={() =>
+								setShowAllEndpointRoutes((current) => !current)
+							}
+						/>
+					)}
 
 					<QuickstartUsageSection
 						modelIdentifierInCode={modelIdentifierInCode}
@@ -1697,12 +1864,15 @@ console.log(response);`
 							value: option.value,
 							label: option.label,
 						}))}
+						showEndpointControl={!isModelMetadataQuickstart}
+						inlineCopy={isModelMetadataQuickstart}
 						selectedLanguage={selectedLanguage}
 						selectedLanguageLabel={`${selectedLanguageFamily?.label ?? selectedLanguageLabel} · ${selectedLanguageVariantLabel}`}
 						selectedLanguageFamilyId={selectedLanguageFamily?.id ?? "typescript"}
 						availableLanguageFamilies={availableLanguageFamilies}
 						secondaryLanguageOptions={secondaryLanguageOptions}
 						supportsStreaming={supportsStreaming}
+						showStreamingControl={!isModelMetadataQuickstart}
 						supportsServiceTier={supportsServiceTier}
 						streamingEnabled={streamingEnabled}
 						selectedServiceTier={selectedServiceTier}

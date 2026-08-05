@@ -4,40 +4,69 @@
 
 import type { IRChatRequest } from "@core/ir";
 import type { ExecutorExecuteArgs, ExecutorResult, ProviderExecutor, Bill } from "@executors/types";
+import { fetchUpstream } from "@executors/_shared/timing/upstream";
 import { buildTextExecutor, cherryPickIRParams } from "@executors/_shared/text-generate/shared";
+import { irToOpenAIResponses } from "@executors/_shared/text-generate/openai-compat/transform";
 import { irToOpenAIChat, openAIChatToIR } from "@executors/_shared/text-generate/openai-compat/transform-chat";
 import { bufferStreamToIR, resolveStreamForProtocol } from "@executors/_shared/text-generate/openai-compat";
-import { azureDeployment, azureHeaders, azureUrl, resolveAzureConfig, resolveAzureKey } from "@providers/azure/config";
+import { azureDeployment, azureHeaders, azureOpenAIV1Url, azureUrl, resolveAzureConfig, resolveAzureKey } from "@providers/azure/config";
 import { normalizeTextUsageForPricing } from "@executors/_shared/usage/text";
 
 export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChatRequest {
 	return cherryPickIRParams(ir, args.capabilityParams);
 }
 
+export function normalizeAzureChatRequest(
+	request: Record<string, any>,
+	args: Pick<ExecutorExecuteArgs, "providerModelSlug" | "ir">,
+): Record<string, any> {
+	const model = String(args.providerModelSlug || args.ir.model || "").toLowerCase();
+	const isGpt5 = /^(?:openai\/)?gpt-5(?:[.-]|$)/.test(model);
+	if (isGpt5 && typeof request.max_tokens === "number" && request.max_completion_tokens == null) {
+		request.max_completion_tokens = request.max_tokens;
+		delete request.max_tokens;
+	}
+	return request;
+}
+
+export function shouldUseAzureResponsesRoute(args: Pick<ExecutorExecuteArgs, "providerModelSlug" | "ir">): boolean {
+	const model = String(args.providerModelSlug || args.ir.model || "").toLowerCase();
+	return /^(?:openai\/)?gpt-5\.6-(?:luna|sol|terra)$/.test(model);
+}
+
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
-	const upstreamStartMs = args.meta.upstreamStartMs ?? Date.now();
 	const keyInfo = resolveAzureKey({ providerId: args.providerId, byokMeta: args.byokMeta } as any);
 	const config = resolveAzureConfig();
+	const route = shouldUseAzureResponsesRoute(args) ? "responses" : "chat";
 	const deployment = azureDeployment({ providerModelSlug: args.providerModelSlug, model: args.ir.model } as any);
-	const url = azureUrl(`openai/deployments/${deployment}/chat/completions`, config.apiVersion, config.baseUrl);
+	const url = route === "responses"
+		? azureOpenAIV1Url("responses", config.baseUrl)
+		: azureUrl(`openai/deployments/${deployment}/chat/completions`, config.apiVersion, config.baseUrl);
 
-	const requestPayload = irToOpenAIChat(args.ir, args.providerModelSlug, args.providerId, args.capabilityParams);
+	const requestPayload = route === "responses"
+		? irToOpenAIResponses(args.ir, args.providerModelSlug, "openai", args.capabilityParams)
+		: irToOpenAIChat(args.ir, args.providerModelSlug, args.providerId, args.capabilityParams);
 	const payload = {
-		...requestPayload,
+		...(route === "chat" ? normalizeAzureChatRequest(requestPayload, args) : requestPayload),
 		stream: true,
-		stream_options: {
-			...(requestPayload.stream_options ?? {}),
-			include_usage: true,
-		},
+		...(route === "chat"
+			? {
+					stream_options: {
+						...(requestPayload.stream_options ?? {}),
+						include_usage: true,
+					},
+				}
+			: { store: false }),
 	};
 	const requestBody = JSON.stringify(payload);
 	const mappedRequest = (args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest) ? requestBody : undefined;
 
-	const res = await fetch(url, {
+	const res = await fetchUpstream(args, url, {
 		method: "POST",
 		headers: azureHeaders(keyInfo.key),
 		body: requestBody,
 	});
+	const selectedDispatchAtMs = args.upstreamTiming?.timingFor(res)?.dispatchAtMs ?? Date.now();
 
 	const bill: Bill = {
 		cost_cents: 0,
@@ -61,7 +90,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	}
 
 	if (args.ir.stream) {
-		const stream = resolveStreamForProtocol(res, args, "chat");
+		const stream = resolveStreamForProtocol(res, args, route);
 		return {
 			kind: "stream",
 			stream,
@@ -78,7 +107,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		};
 	}
 
-	const { ir, usage, rawResponse, firstByteMs, totalMs } = await bufferStreamToIR(res, args, "chat", upstreamStartMs);
+	const { ir, usage, rawResponse, firstByteMs, totalMs } = await bufferStreamToIR(res, args, route, selectedDispatchAtMs);
 	const usageMeters = normalizeTextUsageForPricing(usage);
 	if (usageMeters) {
 		bill.usage = usageMeters;
@@ -86,7 +115,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 
 	return {
 		kind: "completed",
-		ir: ir ?? openAIChatToIR(rawResponse, args.requestId, args.ir.model, args.providerId),
+		ir: ir ?? (route === "chat" ? openAIChatToIR(rawResponse, args.requestId, args.ir.model, args.providerId) : undefined),
 		bill,
 		upstream: res,
 		keySource: keyInfo.source,
@@ -94,8 +123,8 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		mappedRequest,
 		rawResponse,
 		timing: {
-			latencyMs: firstByteMs ?? totalMs,
-			generationMs: firstByteMs === null ? 0 : Math.max(0, totalMs - firstByteMs),
+			latencyMs: firstByteMs ?? undefined,
+			generationMs: totalMs,
 		},
 	};
 }

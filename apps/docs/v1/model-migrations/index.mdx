@@ -1,6 +1,7 @@
 ---
+icon: "compass"
 title: "Model Migrations"
-description: "Model-specific upgrade guides for moving production traffic from an older model release to a newer one."
+description: "Model-specific guidance for adopting new model releases safely in production."
 ---
 
 # Model Migrations
@@ -14,33 +15,23 @@ These pages focus on the changes that usually break real integrations first:
 - structured output and tool-calling regressions
 - rollout, fallback, and rollback strategy
 
-## Available guides
+## Model guides
 
-- [Anthropic: Claude Opus 4.1 to 4.8](./anthropic-claude-opus-4-1-to-4-8)
-- [Anthropic: Claude Opus 4.6 to 4.7](./anthropic-claude-opus-4-6-to-4-7)
-- [Anthropic: Claude Opus 4.5 to 4.6](./anthropic-claude-opus-4-5-to-4-6)
-- [Anthropic: Claude Sonnet 4.5 to 4.6](./anthropic-claude-sonnet-4-5-to-4-6)
-- [OpenAI: Migrating to GPT-5.6](./openai-migrating-to-gpt-5-6)
-- [OpenAI: Migrating to GPT-5.4](./openai-migrating-to-gpt-5-4)
-- [Google: Migrating to Gemini 3 and 3.1](./google-migrating-to-gemini-3-and-3-1)
-- [Google: Nano Banana 1 to Nano Banana 2](./google-nano-banana-1-to-nano-banana-2)
-- [Mistral: Mistral Small 3.2 to Mistral Small 4](./mistral-small-3-2-to-mistral-small-4)
-- [SpaceXAI: Grok 4.20](./xai-grok-4-20)
+Guides are ordered by the target model's release date, with the newest first.
 
-## Release timeline
-
-| Guide | Model release date |
-| --- | --- |
-| [Anthropic: Claude Opus 4.1 to 4.8](./anthropic-claude-opus-4-1-to-4-8) | May 28, 2026 |
-| [Anthropic: Claude Opus 4.6 to 4.7](./anthropic-claude-opus-4-6-to-4-7) | April 16, 2026 |
-| [Anthropic: Claude Opus 4.5 to 4.6](./anthropic-claude-opus-4-5-to-4-6) | February 5, 2026 |
-| [Anthropic: Claude Sonnet 4.5 to 4.6](./anthropic-claude-sonnet-4-5-to-4-6) | February 17, 2026 |
-| [OpenAI: Migrating to GPT-5.6](./openai-migrating-to-gpt-5-6) | Preview announced June 26, 2026 |
-| [OpenAI: Migrating to GPT-5.4](./openai-migrating-to-gpt-5-4) | March 5, 2026 |
-| [Google: Migrating to Gemini 3 and 3.1](./google-migrating-to-gemini-3-and-3-1) | Gemini 3: November 25, 2025; Gemini 3.1 Pro: February 19, 2026 |
-| [Google: Nano Banana 1 to Nano Banana 2](./google-nano-banana-1-to-nano-banana-2) | February 26, 2026 |
-| [Mistral: Mistral Small 3.2 to Mistral Small 4](./mistral-small-3-2-to-mistral-small-4) | March 16, 2026 |
-| [SpaceXAI: Grok 4.20](./xai-grok-4-20) | February 17, 2026 |
+| Model | Released | Useful for |
+| --- | --- | --- |
+| [Anthropic Claude Opus 5](./anthropic-claude-opus-5) | July 24, 2026 | Complex reasoning and long-horizon agents |
+| [OpenAI GPT-5.6](./openai-migrating-to-gpt-5-6) | July 9, 2026 | Tiered reasoning, coding, and professional work |
+| [Anthropic Claude Opus 4.8](./anthropic-claude-opus-4-1-to-4-8) | May 28, 2026 | Long context and adaptive thinking |
+| [Anthropic Claude Opus 4.7](./anthropic-claude-opus-4-6-to-4-7) | April 16, 2026 | High-effort reasoning with stricter request controls |
+| [Mistral Small 4](./mistral-small-3-2-to-mistral-small-4) | March 16, 2026 | Efficient workloads with optional reasoning |
+| [OpenAI GPT-5.4](./openai-migrating-to-gpt-5-4) | March 5, 2026 | Reasoning, vision, and computer use |
+| [Google Nano Banana 2](./google-nano-banana-1-to-nano-banana-2) | February 26, 2026 | Production image generation and editing |
+| [Google Gemini 3.1](./google-migrating-to-gemini-3-and-3-1) | February 19, 2026 | Multimodal and reasoning-heavy workloads |
+| [Anthropic Claude Sonnet 4.6](./anthropic-claude-sonnet-4-5-to-4-6) | February 17, 2026 | Coding, computer use, and agent planning |
+| [SpaceXAI Grok 4.20](./xai-grok-4-20) | February 17, 2026 | Reasoning and multi-agent workloads |
+| [Anthropic Claude Opus 4.6](./anthropic-claude-opus-4-5-to-4-6) | February 5, 2026 | Long-running coding and agentic tasks |
 
 ## How to use this section
 

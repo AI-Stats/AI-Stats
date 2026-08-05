@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace AIStats\Gen;
+namespace Phaseo\Gen;
 
 class RequestException extends \RuntimeException
 {
@@ -81,7 +81,7 @@ class Client
 		curl_close($ch);
 		if ($response === false) {
 			$hint = $errno === 60
-				? " TLS verification failed. Configure curl.cainfo/openssl.cafile or set AI_STATS_CA_BUNDLE to a valid CA bundle path."
+				? " TLS verification failed. Configure curl.cainfo/openssl.cafile or set PHASEO_CA_BUNDLE to a valid CA bundle path."
 				: "";
 			throw new \RuntimeException("Request transport failed (cURL errno {$errno}): {$error}.{$hint}");
 		}
@@ -101,6 +101,30 @@ class Client
 		return $decoded === null ? $response : $decoded;
 	}
 
+	public function requestStream(string $method, string $path, ?array $query = null, ?array $headers = null, $body = null): \Generator
+	{
+		$url = $this->baseUrl . $path;
+		if (!empty($query)) $url .= "?" . http_build_query($query);
+		$merged = array_merge($this->headers, $headers ?? [], ["Accept" => "text/event-stream"]);
+		$lines = [];
+		foreach ($merged as $key => $value) $lines[] = $key . ": " . $value;
+		$payload = $body === null ? null : json_encode($body, JSON_THROW_ON_ERROR);
+		if ($payload !== null) $lines[] = "Content-Type: application/json";
+		$options = ["http" => ["method" => strtoupper($method), "header" => implode("\r\n", $lines), "content" => $payload ?? "", "ignore_errors" => true], "ssl" => ["verify_peer" => $this->verifyTls, "verify_peer_name" => $this->verifyTls]];
+		if ($this->verifyTls && $this->caBundlePath !== null) $options["ssl"]["cafile"] = $this->caBundlePath;
+		$stream = @fopen($url, "rb", false, stream_context_create($options));
+		if ($stream === false) throw new \RuntimeException("Unable to open streaming response from {$url}");
+		try {
+			$metadata = stream_get_meta_data($stream);
+			$statusLine = $metadata["wrapper_data"][0] ?? "";
+			if (preg_match('/\s(\d{3})\s/', (string) $statusLine, $match) && ((int) $match[1]) >= 400) {
+				$raw = stream_get_contents($stream);
+				throw new RequestException((int) $match[1], $raw === false ? "" : $raw);
+			}
+			while (($line = fgets($stream)) !== false) yield rtrim($line, "\r\n");
+		} finally { fclose($stream); }
+	}
+
 	private function resolveCaBundlePath(?string $explicitPath): ?string
 	{
 		if ($explicitPath !== null) {
@@ -113,7 +137,7 @@ class Client
 		}
 
 		$candidates = [];
-		$envCandidate = getenv("AI_STATS_CA_BUNDLE");
+		$envCandidate = getenv("PHASEO_CA_BUNDLE");
 		if (is_string($envCandidate) && trim($envCandidate) !== "") {
 			$candidates[] = $envCandidate;
 		}

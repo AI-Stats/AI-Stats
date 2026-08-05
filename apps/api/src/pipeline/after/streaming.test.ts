@@ -148,6 +148,132 @@ describe("passthroughWithPricing", () => {
 		});
 	});
 
+	it("waits for OpenAI's trailing usage-only frame after finish_reason", async () => {
+		const usageCalls: Array<{ usage: any; info: any }> = [];
+		const completionTimings: Array<{ generationMs: number; endToEndMs: number }> = [];
+		const upstream = makeDelayedSseResponse([
+			{
+				data: {
+					id: "chatcmpl_usage_after_stop",
+					object: "chat.completion.chunk",
+					choices: [{ index: 0, delta: { content: "hello" }, finish_reason: null }],
+					usage: null,
+				},
+			},
+			{
+				data: {
+					id: "chatcmpl_usage_after_stop",
+					object: "chat.completion.chunk",
+					choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
+					usage: null,
+				},
+			},
+			{
+				data: {
+					id: "chatcmpl_usage_after_stop",
+					object: "chat.completion.chunk",
+					choices: [],
+					usage: { prompt_tokens: 11, completion_tokens: 4, total_tokens: 15 },
+				},
+			},
+		], 10).response;
+		const ctx = baseCtx({
+			endpoint: "chat.completions",
+			protocol: "openai.chat.completions",
+			meta: {
+				startedAtMs: Date.now() - 50,
+				selectedUpstreamFetchStartMs: Date.now() - 40,
+			},
+		});
+
+		const response = await passthroughWithPricing({
+			upstream,
+			ctx,
+			provider: "openai",
+			priceCard: null,
+			onFinalSnapshot: () => {
+				completionTimings.push({
+					generationMs: ctx.meta.generation_ms,
+					endToEndMs: ctx.meta.end_to_end_ms,
+				});
+			},
+			onFinalUsage: (usage, info) => {
+				usageCalls.push({ usage, info });
+				completionTimings.push({
+					generationMs: ctx.meta.generation_ms,
+					endToEndMs: ctx.meta.end_to_end_ms,
+				});
+			},
+		});
+
+		await drain(response);
+
+		expect(usageCalls).toEqual([{
+			usage: { prompt_tokens: 11, completion_tokens: 4, total_tokens: 15 },
+			info: { aborted: false, sawFinalUsage: true },
+		}]);
+		expect(completionTimings).toHaveLength(2);
+		expect(completionTimings[1]).toEqual(completionTimings[0]);
+	});
+
+	it("keeps draining for trailing OpenAI usage after the client disconnects", async () => {
+		const usageCalls: Array<{ usage: any; info: any }> = [];
+		let resolveUsage: (() => void) | null = null;
+		const usageSettled = new Promise<void>((resolve) => {
+			resolveUsage = resolve;
+		});
+		const upstream = makeDelayedSseResponse([
+			{
+				data: {
+					id: "chatcmpl_disconnected_usage",
+					object: "chat.completion.chunk",
+					choices: [{ index: 0, delta: { content: "hello" }, finish_reason: null }],
+				},
+			},
+			{
+				data: {
+					id: "chatcmpl_disconnected_usage",
+					object: "chat.completion.chunk",
+					choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
+				},
+			},
+			{
+				data: {
+					id: "chatcmpl_disconnected_usage",
+					object: "chat.completion.chunk",
+					choices: [],
+					usage: { prompt_tokens: 9, completion_tokens: 3, total_tokens: 12 },
+				},
+			},
+		], 10);
+
+		const response = await passthroughWithPricing({
+			upstream: upstream.response,
+			ctx: baseCtx({
+				endpoint: "chat.completions",
+				protocol: "openai.chat.completions",
+			}),
+			provider: "openai",
+			priceCard: null,
+			onFinalUsage: (usage, info) => {
+				usageCalls.push({ usage, info });
+				resolveUsage?.();
+			},
+		});
+
+		const reader = response.body?.getReader();
+		expect(reader).toBeTruthy();
+		await reader?.read();
+		await reader?.cancel();
+		await usageSettled;
+
+		expect(upstream.wasCancelled()).toBe(false);
+		expect(usageCalls).toEqual([{
+			usage: { prompt_tokens: 9, completion_tokens: 3, total_tokens: 12 },
+			info: { aborted: false, sawFinalUsage: true },
+		}]);
+	});
+
 	it("emits canonical stream events while forwarding SSE", async () => {
 		const seenEvents: string[] = [];
 		const upstream = makeSseResponse([
@@ -351,7 +477,39 @@ describe("passthroughWithPricing", () => {
 		await finalUsageDone;
 	});
 
-	it("cancels upstream stream when downstream disconnects and provider supports cancellation", async () => {
+	it("does not start final usage persistence before preparing the terminal frame", async () => {
+		const order: string[] = [];
+		const upstream = makeSseResponse([{
+			event: "response.completed",
+			data: {
+				response: {
+					id: "resp_order",
+					object: "response",
+					status: "completed",
+					usage: { input_tokens: 2, output_tokens: 1, total_tokens: 3 },
+				},
+			},
+		}]);
+
+		const response = await passthroughWithPricing({
+			upstream,
+			ctx: baseCtx(),
+			provider: "openai",
+			priceCard: null,
+			rewriteFrame: (frame) => {
+				order.push("terminal_frame_prepared");
+				return frame;
+			},
+			onFinalUsage: () => {
+				order.push("final_usage_started");
+			},
+		});
+
+		await drain(response);
+		expect(order).toEqual(["terminal_frame_prepared", "final_usage_started"]);
+	});
+
+	it("keeps draining cancellable upstreams after downstream disconnect for authoritative billing", async () => {
 		const usageCalls: Array<{ usage: any; info: any }> = [];
 		let resolveUsage: (() => void) | null = null;
 		const usageSettled = new Promise<void>((resolve) => {
@@ -373,12 +531,13 @@ describe("passthroughWithPricing", () => {
 			},
 		], 15);
 
+		const ctx = baseCtx({
+			endpoint: "chat.completions",
+			protocol: "openai.chat.completions",
+		});
 		const response = await passthroughWithPricing({
 			upstream: upstream.response,
-			ctx: baseCtx({
-				endpoint: "chat.completions",
-				protocol: "openai.chat.completions",
-			}),
+			ctx,
 			provider: "openai",
 			priceCard: null,
 			onFinalUsage: (usage, info) => {
@@ -393,7 +552,11 @@ describe("passthroughWithPricing", () => {
 		await reader?.cancel();
 
 		await usageSettled;
-		expect(upstream.wasCancelled()).toBe(true);
+		expect(upstream.wasCancelled()).toBe(false);
+		expect(ctx.meta.downstreamDisconnected).toBe(true);
+		expect(ctx.meta.streamCancellationSupport).toBe("supported");
+		expect(ctx.meta.streamProviderBillingOnCancel).toBe("stops");
+		expect(ctx.meta.streamDisconnectAction).toBe("drain_upstream");
 		expect(usageCalls).toHaveLength(1);
 		expect(usageCalls[0]?.info?.aborted).toBe(true);
 		expect(usageCalls[0]?.info?.sawFinalUsage).toBe(false);
@@ -451,11 +614,12 @@ describe("passthroughWithPricing", () => {
 		});
 	});
 
-	it("records stream latency, post-first-frame generation, and end-to-end duration separately", async () => {
+	it("records first-token latency, dispatch-to-terminal generation, and gateway end-to-end separately", async () => {
 		const ctx = baseCtx({
 			endpoint: "chat.completions",
 			protocol: "openai.chat.completions",
 			meta: {
+				startedAtMs: Date.now() - 80,
 				upstreamStartMs: Date.now() - 40,
 			},
 		});
@@ -485,24 +649,34 @@ describe("passthroughWithPricing", () => {
 		await drain(response);
 
 		expect(typeof ctx.meta.latency_ms).toBe("number");
+		expect(ctx.meta.provider_ttft_ms).toBe(ctx.meta.latency_ms);
+		expect(typeof ctx.meta.gateway_ttft_ms).toBe("number");
 		expect(typeof ctx.meta.generation_ms).toBe("number");
 		expect(typeof ctx.meta.end_to_end_ms).toBe("number");
+		expect(typeof ctx.meta.phaseo_overhead_ms).toBe("number");
 		expect((ctx.meta.latency_ms as number)!).toBeGreaterThan(0);
 		expect((ctx.meta.generation_ms as number)!).toBeGreaterThanOrEqual(0);
 		expect((ctx.meta.end_to_end_ms as number)!).toBeGreaterThanOrEqual((ctx.meta.latency_ms as number)!);
-		expect((ctx.meta.generation_ms as number)!).toBeLessThan((ctx.meta.latency_ms as number)!);
+		expect((ctx.meta.generation_ms as number)!).toBeGreaterThanOrEqual((ctx.meta.latency_ms as number)!);
 	});
 
-	it("overwrites adapter latency with first downstream frame timing for streamed responses", async () => {
+	it("ignores metadata-only frames and overwrites adapter latency at first generated output", async () => {
 		const ctx = baseCtx({
 			endpoint: "chat.completions",
 			protocol: "openai.chat.completions",
 			meta: {
+				startedAtMs: Date.now() - 90,
 				upstreamStartMs: Date.now() - 50,
 				latency_ms: 1,
 			},
 		});
 		const upstream = makeDelayedSseResponse([
+			{
+				data: {
+					object: "chat.completion.chunk",
+					choices: [{ index: 0, delta: { role: "assistant" }, finish_reason: null }],
+				},
+			},
 			{
 				data: {
 					object: "chat.completion.chunk",
@@ -527,11 +701,15 @@ describe("passthroughWithPricing", () => {
 		await drain(response);
 
 		expect(typeof ctx.meta.latency_ms).toBe("number");
+		expect(ctx.meta.provider_ttft_ms).toBe(ctx.meta.latency_ms);
+		expect((ctx.meta.gateway_ttft_ms as number)!).toBeGreaterThan(
+			ctx.meta.provider_ttft_ms as number,
+		);
 		expect(typeof ctx.meta.generation_ms).toBe("number");
 		expect(typeof ctx.meta.end_to_end_ms).toBe("number");
 		expect((ctx.meta.latency_ms as number)!).toBeGreaterThan(1);
 		expect((ctx.meta.end_to_end_ms as number)!).toBeGreaterThanOrEqual((ctx.meta.latency_ms as number)!);
-		expect((ctx.meta.generation_ms as number)!).toBeLessThan((ctx.meta.latency_ms as number)!);
+		expect((ctx.meta.generation_ms as number)!).toBeGreaterThanOrEqual((ctx.meta.latency_ms as number)!);
 	});
 
 });

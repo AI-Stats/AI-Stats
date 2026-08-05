@@ -321,6 +321,7 @@ describe("decodeOpenAIResponsesRequest", () => {
 							location: { type: "string" },
 						},
 					},
+					strict: true,
 				},
 			],
 		};
@@ -331,6 +332,7 @@ describe("decodeOpenAIResponsesRequest", () => {
 		expect(ir.tools![0]).toEqual({
 			name: "get_weather",
 			description: "Get current weather",
+			strict: true,
 			parameters: {
 				type: "object",
 				properties: {
@@ -505,6 +507,19 @@ describe("decodeOpenAIResponsesRequest", () => {
 			effort: "high",
 			summary: "detailed",
 		});
+	});
+
+	it("should ignore unsupported top-level reasoning_effort", () => {
+		const request = {
+			model: "meta/muse-spark-1.1",
+			input: "Solve this problem",
+			reasoning_effort: "xhigh",
+		};
+
+		const ir: IRChatRequest = decodeOpenAIResponsesRequest(request as any);
+
+		expect(ir.reasoning).toBeUndefined();
+		expect(ir.vendor?.meta).toBeUndefined();
 	});
 
 	it("should omit empty reasoning object", () => {

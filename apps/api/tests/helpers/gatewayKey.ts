@@ -2,6 +2,15 @@ export function resolveGatewayApiKeyFromEnv(env: NodeJS.ProcessEnv = process.env
 	const direct = normalize(env.GATEWAY_API_KEY);
 	if (direct) return direct;
 
+	const performance = normalize(env.AI_STATS_PERFORMANCE_TEST_KEY);
+	if (performance) return performance;
+
+	const aiStats = normalize(env.AI_STATS_API_KEY);
+	if (aiStats) return aiStats;
+
+	const openaiGateway = normalize(env.OPENAI_GATEWAY_API_KEY);
+	if (openaiGateway) return openaiGateway;
+
 	const explicitGateway = normalize(env.PLAYGROUND_GATEWAY_KEY);
 	if (explicitGateway) return explicitGateway;
 
@@ -13,7 +22,7 @@ export function resolveGatewayApiKeyFromEnv(env: NodeJS.ProcessEnv = process.env
 
 	const kid = normalize(env.PLAYGROUND_GATEWAY_KEY_KID);
 	if (!kid) return playgroundSecret;
-	return `aistats_v1_sk_${kid}_${playgroundSecret}`;
+	return `phaseo_v1_sk_${kid}_${playgroundSecret}`;
 }
 
 function normalize(value?: string): string {
@@ -23,6 +32,6 @@ function normalize(value?: string): string {
 
 function looksLikeGatewayAuthToken(token: string): boolean {
 	if (!token) return false;
-	if (token.startsWith("aistats_v1_sk_")) return true;
+	if (token.startsWith("phaseo_v1_sk_")) return true;
 	return token.split(".").length === 3;
 }

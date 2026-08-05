@@ -37,7 +37,11 @@ export type BinaryResult = {
 
 export type GatewayResult = JsonResult | BinaryResult;
 
-export const GATEWAY_URL = process.env.GATEWAY_URL ?? "http://127.0.0.1:8787/v1";
+export const GATEWAY_URL =
+    process.env.GATEWAY_URL ??
+    process.env.AI_STATS_BASE_URL ??
+    process.env.OPENAI_GATEWAY_URL ??
+    "http://127.0.0.1:8787/v1";
 export const GATEWAY_API_KEY = resolveGatewayApiKeyFromEnv(process.env);
 export const LIVE_RUN = (process.env.LIVE_RUN ?? "").trim() === "1";
 export const INTERNAL_TEST_TOKEN =
@@ -75,13 +79,15 @@ export function getHeaders(contentType = "application/json"): Record<string, str
         Authorization: `Bearer ${GATEWAY_API_KEY}`,
     };
     if (contentType) headers["Content-Type"] = contentType;
-    if (INTERNAL_TEST_TOKEN) headers["x-ai-stats-internal-token"] = INTERNAL_TEST_TOKEN;
+    if (INTERNAL_TEST_TOKEN) headers["x-phaseo-internal-token"] = INTERNAL_TEST_TOKEN;
     return headers;
 }
 
 export function requireGatewayApiKey() {
     if (!GATEWAY_API_KEY) {
-        throw new Error("GATEWAY_API_KEY is required for live gateway tests");
+        throw new Error(
+            "A gateway API key is required for live gateway tests. Set GATEWAY_API_KEY, AI_STATS_PERFORMANCE_TEST_KEY, AI_STATS_API_KEY, OPENAI_GATEWAY_API_KEY, PLAYGROUND_GATEWAY_KEY, or PLAYGROUND_KEY.",
+        );
     }
 }
 
@@ -133,7 +139,7 @@ export async function getGateway(pathname: string): Promise<GatewayResult> {
         method: "GET",
         headers: {
             Authorization: `Bearer ${GATEWAY_API_KEY}`,
-            ...(INTERNAL_TEST_TOKEN ? { "x-ai-stats-internal-token": INTERNAL_TEST_TOKEN } : {}),
+            ...(INTERNAL_TEST_TOKEN ? { "x-phaseo-internal-token": INTERNAL_TEST_TOKEN } : {}),
         },
     });
     return parseGatewayResult(response);
@@ -145,7 +151,7 @@ export async function postMultipart(pathname: string, buildForm: (form: FormData
     const headers: Record<string, string> = {
         Authorization: `Bearer ${GATEWAY_API_KEY}`,
     };
-    if (INTERNAL_TEST_TOKEN) headers["x-ai-stats-internal-token"] = INTERNAL_TEST_TOKEN;
+    if (INTERNAL_TEST_TOKEN) headers["x-phaseo-internal-token"] = INTERNAL_TEST_TOKEN;
     const response = await fetch(resolveGatewayUrl(pathname), {
         method: "POST",
         headers,
@@ -347,7 +353,7 @@ export async function fetchModelsCatalog(): Promise<GatewayModel[]> {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${GATEWAY_API_KEY}`,
-                        ...(INTERNAL_TEST_TOKEN ? { "x-ai-stats-internal-token": INTERNAL_TEST_TOKEN } : {}),
+                        ...(INTERNAL_TEST_TOKEN ? { "x-phaseo-internal-token": INTERNAL_TEST_TOKEN } : {}),
                     },
                 });
                 const payload = (await response.json()) as ModelsResponse;

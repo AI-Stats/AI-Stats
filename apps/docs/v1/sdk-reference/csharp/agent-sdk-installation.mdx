@@ -1,13 +1,24 @@
 ---
+icon: "package"
 title: "Installation"
-description: "Install the C# Agent SDK and its core client dependency."
+description: "Evaluate the C# Agent SDK from source while its NuGet package is prepared."
 ---
+
+## Requirements
+
+- .NET 8 or newer
+- a Phaseo API key
 
 ## Install
 
+<Note type="warning">
+  The C# Agent SDK is implemented, but `Phaseo.AgentSdk` is not yet published to NuGet. Use the repository source for evaluation; the core [`Phaseo.Sdk`](https://www.nuget.org/packages/Phaseo.Sdk) package is public.
+</Note>
+
 ```bash
-dotnet add package AI.Stats.Sdk
-dotnet add package AI.Stats.AgentSdk
+git clone https://github.com/phaseoteam/Phaseo.git
+cd Phaseo/packages/sdk/agent-sdk-csharp
+dotnet test
 ```
 
 ## Environment
@@ -15,10 +26,10 @@ dotnet add package AI.Stats.AgentSdk
 Set your gateway API key before running examples:
 
 ```bash
-set AI_STATS_API_KEY=aistats_***
+set PHASEO_API_KEY=phaseo_v1_sk_...
 ```
 
 ## Next
 
 - [Overview](./agent-sdk-overview.mdx)
-- [Usage](./agent-sdk.mdx)
+- [Build with the Agent SDK](./agent-sdk.mdx)

@@ -5,14 +5,20 @@ import type { LucideIcon } from "lucide-react";
 import {
 	Activity,
 	AppWindow,
-	BadgeInfo,
 	Bolt,
 	CircleDollarSign,
+	CircleHelp,
 	CreditCard,
 	Gauge,
+	Image,
+	ImagePlus,
+	Info,
+	PieChart,
 	ScrollText,
 	Store,
 	Trophy,
+	Users,
+	Wrench,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -38,7 +44,13 @@ const sectionIcons: Record<string, LucideIcon> = {
 	activity: Activity,
 	subscriptions: CreditCard,
 	quickstart: Bolt,
-	about: BadgeInfo,
+	about: Info,
+	faq: CircleHelp,
+	"unique-users": Users,
+	"market-share": PieChart,
+	"tool-calls": Wrench,
+	images: Image,
+	"image-output": ImagePlus,
 };
 
 const activeSectionTopOffset = 212;
@@ -222,9 +234,8 @@ export default function ModelPageToc({
 	const renderMobileSelect = (variant: "inline" | "pinned") => (
 		<div
 			className={cn(
-				variant === "inline"
-					? "rounded-2xl border border-border/70 bg-background/90 p-2.5"
-					: "w-full",
+				"w-full",
+				variant === "inline" ? "rounded-2xl" : null,
 			)}
 		>
 			<Select
@@ -233,8 +244,10 @@ export default function ModelPageToc({
 			>
 				<SelectTrigger
 					className={cn(
-						"h-10 border-0 bg-transparent text-left shadow-none focus:ring-0",
-						variant === "inline" ? "rounded-xl px-3" : "rounded-none px-0",
+						"w-full justify-between text-left shadow-none",
+						variant === "inline"
+							? "h-9 rounded-2xl border border-border/70 bg-background/90 px-3 hover:bg-muted/35"
+							: "h-10 rounded-none border-0 bg-transparent px-0 focus:ring-0",
 					)}
 				>
 					<div className="flex min-w-0 items-center gap-2">
@@ -244,7 +257,10 @@ export default function ModelPageToc({
 									const Icon = sectionIcons[activeItem.id] ?? ScrollText;
 									return <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />;
 								})()}
-								<SelectValue placeholder="Jump to section">
+								<SelectValue
+									placeholder="Jump to section"
+									className="min-w-0"
+								>
 									<span className="truncate text-sm font-medium text-foreground">
 										{activeItem.label}
 									</span>
@@ -255,14 +271,35 @@ export default function ModelPageToc({
 						)}
 					</div>
 				</SelectTrigger>
-				<SelectContent>
+				<SelectContent
+					align="start"
+					sideOffset={4}
+					className="max-h-[min(24rem,var(--available-height))] min-w-[14rem]"
+				>
 					{filteredItems.map((item) => {
+						const isActive = activeId === item.id;
 						const Icon = sectionIcons[item.id] ?? ScrollText;
 						return (
-							<SelectItem key={item.id} value={item.id}>
-								<div className="flex items-center gap-2">
-									<Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-									<span>{item.label}</span>
+							<SelectItem
+								key={item.id}
+								value={item.id}
+								className={cn(
+									"min-h-8 pr-8",
+									isActive
+										? "bg-muted text-foreground"
+										: "text-muted-foreground",
+								)}
+							>
+								<div className="flex min-w-0 items-center gap-2">
+									<Icon
+										className={cn(
+											"h-4 w-4 shrink-0",
+											isActive ? "text-foreground" : "text-muted-foreground",
+										)}
+									/>
+									<span className="min-w-0 flex-1 truncate text-sm font-medium">
+										{item.label}
+									</span>
 								</div>
 							</SelectItem>
 						);
@@ -273,7 +310,12 @@ export default function ModelPageToc({
 	);
 
 	return (
-		<div className={cn("min-w-0 lg:h-full", className)}>
+		<div
+			className={cn(
+				"min-w-0 lg:sticky lg:top-[calc(var(--site-notice-height,0px)+var(--site-header-height,3.75rem)+4.25rem)] lg:max-h-[calc(100dvh-var(--site-notice-height,0px)-var(--site-header-height,3.75rem)-5.25rem)] lg:w-full lg:self-start lg:overflow-y-auto",
+				className,
+			)}
+		>
 			<div className="lg:hidden">
 				<div id={mobileAnchorId}>{renderMobileSelect("inline")}</div>
 				<div
@@ -290,11 +332,11 @@ export default function ModelPageToc({
 				</div>
 			</div>
 
-			<aside className="hidden h-full lg:block">
-				<div className="sticky top-[calc(var(--site-header-height,3.75rem)+4.25rem)]">
-					<nav>
+			<aside className="hidden h-full min-w-0 lg:block lg:w-full">
+				<div className="w-full min-w-0">
+					<nav className="w-full min-w-0">
 						<div
-							className="relative flex flex-col gap-1"
+							className="relative flex w-full min-w-0 flex-col gap-1"
 							style={
 								{
 									"--toc-active-index": activeIndex,
@@ -320,7 +362,7 @@ export default function ModelPageToc({
 										data-active={isActive ? "true" : undefined}
 										onClick={() => scrollToSection(item.id)}
 										className={cn(
-											"relative z-10 inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-left text-[13px] transition-colors duration-200 motion-reduce:transition-none",
+											"relative z-10 flex h-8 w-full min-w-0 items-center gap-1.5 rounded-md px-2.5 text-left text-[13px] transition-colors duration-200 motion-reduce:transition-none",
 											isActive
 												? "text-foreground"
 												: "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
@@ -332,7 +374,7 @@ export default function ModelPageToc({
 												isActive ? "scale-105" : "scale-100",
 											)}
 										/>
-										<span className="truncate">{item.label}</span>
+										<span className="min-w-0 flex-1 truncate">{item.label}</span>
 									</button>
 								);
 							})}

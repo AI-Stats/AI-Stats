@@ -14,6 +14,9 @@ type ImageOptionInput = {
 };
 
 type ImagePricingUsage = {
+	input_tokens?: unknown;
+	input_text_tokens?: unknown;
+	input_image_tokens?: unknown;
 	size?: unknown;
 	resolution?: unknown;
 	quality?: unknown;
@@ -24,8 +27,13 @@ type ImagePricingUsage = {
 	} | null;
 	output_image_tokens?: unknown;
 	output_tokens?: unknown;
+	input_tokens_details?: {
+		text_tokens?: unknown;
+		image_tokens?: unknown;
+	} | null;
 	output_tokens_details?: {
 		output_images?: unknown;
+		image_tokens?: unknown;
 	} | null;
 	completion_tokens_details?: {
 		output_images?: unknown;
@@ -44,6 +52,14 @@ const IMAGE_OUTPUT_VARIANTS = new Map<number, { quality: string; resolution: str
 	[6208, { quality: "high", resolution: "1536x1024" }],
 ]);
 
+const IMAGE_SIZE_ALIAS_PIXELS = new Map<string, number>([
+	["512", 512 * 512],
+	["1K", 1024 * 1024],
+	["2K", 2048 * 1152],
+	["3K", 3072 * 1728],
+	["4K", 4096 * 2304],
+]);
+
 function toNonEmptyString(value: unknown): string | undefined {
 	if (typeof value !== "string") return undefined;
 	const trimmed = value.trim();
@@ -59,9 +75,34 @@ function readOutputImageTokens(usage: ImagePricingUsage): number | undefined {
 	return (
 		toFiniteNumber(usage.output_image_tokens) ??
 		toFiniteNumber(usage.output_tokens_details?.output_images) ??
+		toFiniteNumber(usage.output_tokens_details?.image_tokens) ??
 		toFiniteNumber(usage.completion_tokens_details?.output_images) ??
 		toFiniteNumber(usage.output_tokens)
 	);
+}
+
+/**
+ * The Images API reports generic input/output tokens even though GPT Image 2
+ * uses them for image generation. Convert that provider shape to the canonical
+ * image token meters before pricing it.
+ */
+export function normalizeOpenAIImageTokenUsage(usage: ImagePricingUsage): Record<string, unknown> {
+	const meters: Record<string, unknown> = usage && typeof usage === "object" ? { ...usage } : { total_tokens: 0 };
+	const inputTextTokens =
+		toFiniteNumber(usage?.input_text_tokens) ??
+		toFiniteNumber(usage?.input_tokens_details?.text_tokens) ??
+		toFiniteNumber(usage?.input_tokens);
+	const inputImageTokens =
+		toFiniteNumber(usage?.input_image_tokens) ??
+		toFiniteNumber(usage?.input_tokens_details?.image_tokens);
+	const outputImageTokens = readOutputImageTokens(usage);
+
+	if (inputTextTokens !== undefined) meters.input_text_tokens = inputTextTokens;
+	if (inputImageTokens !== undefined) meters.input_image_tokens = inputImageTokens;
+	if (outputImageTokens !== undefined) meters.output_image_tokens = outputImageTokens;
+	delete meters.output_tokens;
+
+	return meters;
 }
 
 function normalizeAutoOption(value: string | undefined): string | undefined {
@@ -72,7 +113,7 @@ function normalizeAutoOption(value: string | undefined): string | undefined {
 function normalizeProviderImageSize(value: string | undefined): string | undefined {
 	if (!value) return undefined;
 	const normalized = value.trim().toUpperCase();
-	if (normalized === "512" || normalized === "1K" || normalized === "2K" || normalized === "4K") {
+	if (IMAGE_SIZE_ALIAS_PIXELS.has(normalized)) {
 		return normalized;
 	}
 	return undefined;
@@ -134,11 +175,14 @@ export function buildImagePricingRequestOptions(
 		out.resolution = size;
 		out.image_params = { resolution: size };
 		const dimensions = parsePixelDimensions(size);
-		if (dimensions) {
-			out.output_pixels = dimensions.width * dimensions.height;
+		const outputPixels = dimensions
+			? dimensions.width * dimensions.height
+			: IMAGE_SIZE_ALIAS_PIXELS.get(size.trim().toUpperCase());
+		if (outputPixels) {
+			out.output_pixels = outputPixels;
 			out.image_params = {
 				...(out.image_params as Record<string, unknown>),
-				output_pixels: dimensions.width * dimensions.height,
+				output_pixels: outputPixels,
 			};
 		}
 	}

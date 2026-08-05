@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import {
 	expirePublicModelCatalogueCache,
 	revalidateAppDataTags,
@@ -10,14 +10,14 @@ import {
 	revalidateOrganisationDataTags,
 	revalidateProviderDataTags,
 } from "@/lib/cache/revalidateDataTags";
-import { createClient } from "@/utils/supabase/server";
+import { fetchInternalAuthStatus } from "@/lib/fetchers/internal/fetchInternalAuthStatus";
+import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountContext";
+import { fetchInternalWebApi } from "@/lib/web-api/client";
 import {
 	revalidateSingleModelAllAction,
 	revalidateSingleModelApiInfoAction,
 	revalidateSingleModelDataAction,
 } from "@/app/(dashboard)/internal/data/actions";
-
-const EXPIRE_NOW = { expire: 0 } as const;
 
 const SEARCH_TAGS = [
 	"search:data",
@@ -111,23 +111,38 @@ type CacheOpResult = {
 	message: string;
 };
 
+type GatewayCachePurgeResult =
+	| { ok: true; message: string }
+	| { ok: false; message: string };
+
+type CacheScopeId =
+	| "search"
+	| "catalogue"
+	| "model"
+	| "provider"
+	| "organisation"
+	| "benchmark"
+	| "apps"
+	| "landing"
+	| "rankings"
+	| "updates"
+	| "pricing"
+	| "all-public";
+
+type CachePurgeResult = {
+	success: true;
+	scope: string;
+	targetId: string | null;
+	tags: string[];
+	generation: number | null;
+	generationWarning: string | null;
+	browserRefreshEnabled: boolean;
+	purgedAt: string;
+};
+
 async function requireAdmin() {
-	const supabase = await createClient();
-	const {
-		data: { user },
-		error: authError,
-	} = await supabase.auth.getUser();
-	if (authError || !user) throw new Error("Unauthorized");
-
-	const { data: userRow, error: userError } = await supabase
-		.from("users")
-		.select("role")
-		.eq("user_id", user.id)
-		.maybeSingle();
-
-	if (userError || (userRow?.role ?? "").toLowerCase() !== "admin") {
-		throw new Error("Unauthorized");
-	}
+	const status = await fetchInternalAuthStatus();
+	if (!status.signedIn || !status.isAdmin) throw new Error("Unauthorized");
 }
 
 function sanitizeList(input: string): string[] {
@@ -137,13 +152,74 @@ function sanitizeList(input: string): string[] {
 		.filter(Boolean);
 }
 
+function resolveGatewayInternalBaseUrl(): string {
+	const raw =
+		process.env.GATEWAY_INTERNAL_BASE_URL ??
+		process.env.GATEWAY_PUBLIC_BASE_URL ??
+		process.env.NEXT_PUBLIC_GATEWAY_BASE_URL ??
+		"https://api.phaseo.app";
+	return raw.replace(/\/v1\/?$/, "").replace(/\/+$/, "");
+}
+
+async function purgeGatewayCatalogueCache(tags: string[]): Promise<GatewayCachePurgeResult> {
+	const token =
+		process.env.GATEWAY_INTERNAL_TEST_TOKEN ??
+		process.env.INTERNAL_GATEWAY_TOKEN ??
+		process.env.INTERNAL_API_TOKEN ??
+		"";
+	const trimmedToken = token.trim();
+	if (!trimmedToken) {
+		return {
+			ok: false,
+			message: "Gateway Worker cache purge skipped: internal token is not configured.",
+		};
+	}
+
+	const response = await fetch(`${resolveGatewayInternalBaseUrl()}/internal/cache/purge`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			"x-internal-token": trimmedToken,
+		},
+		body: JSON.stringify({ tags }),
+		cache: "no-store",
+	});
+
+	if (!response.ok) {
+		let detail = "";
+		try {
+			const body = await response.json();
+			detail =
+				typeof body?.message === "string"
+					? body.message
+					: typeof body?.error === "string"
+						? body.error
+						: "";
+		} catch {
+			detail = "";
+		}
+		return {
+			ok: false,
+			message: `Gateway Worker cache purge failed (${response.status})${detail ? `: ${detail}` : "."}`,
+		};
+	}
+
+	return {
+		ok: true,
+		message: `Gateway Worker cache purged (${tags.join(", ")}).`,
+	};
+}
+
 async function runAdminAction(
 	label: string,
-	fn: () => Promise<void> | void
+	fn: () => Promise<CacheOpResult | void> | CacheOpResult | void
 ): Promise<CacheOpResult> {
 	try {
 		await requireAdmin();
-		await fn();
+		const result = await fn();
+		if (result && typeof result === "object" && "ok" in result && "message" in result) {
+			return result;
+		}
 		return { ok: true, message: `${label} cache revalidated.` };
 	} catch (error) {
 		return {
@@ -156,33 +232,160 @@ async function runAdminAction(
 	}
 }
 
+function expireNextCacheScope(scope: CacheScopeId, targetId: string | null) {
+	switch (scope) {
+		case "catalogue":
+			expirePublicModelCatalogueCache();
+			break;
+		case "model":
+			expirePublicModelCatalogueCache({ modelId: targetId });
+			break;
+		case "provider":
+			revalidateProviderDataTags(
+				targetId ? { providerId: targetId } : {}
+			);
+			revalidatePath("/api-providers", "layout");
+			revalidatePath("/models", "layout");
+			if (targetId) {
+				revalidatePath(`/api-providers/${targetId}`);
+				revalidatePath(`/api-providers/${targetId}/models`);
+			}
+			break;
+		case "organisation":
+			revalidateOrganisationDataTags(
+				targetId ? { organisationId: targetId } : {}
+			);
+			revalidatePath("/organisations", "layout");
+			revalidatePath("/models", "layout");
+			if (targetId) {
+				revalidatePath(`/organisations/${targetId}`);
+				revalidatePath(`/organisations/${targetId}/models`);
+			}
+			break;
+		case "benchmark":
+			revalidateBenchmarkDataTags(
+				targetId ? { benchmarkId: targetId } : {}
+			);
+			revalidatePath("/benchmarks");
+			revalidatePath("/models", "layout");
+			if (targetId) revalidatePath(`/benchmarks/${targetId}`);
+			break;
+		case "apps":
+			revalidateAppDataTags(targetId ? [targetId] : []);
+			revalidatePath("/apps");
+			revalidatePath("/rankings");
+			if (targetId) revalidatePath(`/apps/${targetId}`);
+			break;
+		case "landing":
+			for (const tag of LANDING_TAGS) {
+				updateTag(tag);
+			}
+			revalidatePath("/");
+			break;
+		case "rankings":
+			for (const tag of RANKINGS_TAGS) {
+				updateTag(tag);
+			}
+			revalidatePath("/rankings");
+			break;
+		case "updates":
+			for (const tag of [
+				"data:model-updates",
+				"frontend:model-updates",
+				"frontend:model-update-cards",
+				"frontend:update-cards",
+				"frontend:web-updates",
+				"frontend:youtube-updates",
+			] as const) {
+				updateTag(tag);
+			}
+			revalidatePath("/updates");
+			revalidatePath("/updates/models");
+			break;
+		case "pricing":
+			revalidateModelDataTags();
+			for (const tag of [
+				"data:subscription_plans",
+				"frontend:subscription-plans",
+			] as const) {
+				updateTag(tag);
+			}
+			revalidatePath("/pricing");
+			revalidatePath("/subscription-plans");
+			revalidatePath("/models", "layout");
+			break;
+		case "all-public":
+			expirePublicModelCatalogueCache();
+			for (const tag of [
+				...APP_FRONTEND_TAGS,
+				...LANDING_TAGS,
+				...RANKINGS_TAGS,
+				...SEARCH_TAGS,
+				...SIGN_IN_TAGS,
+			]) {
+				updateTag(tag);
+			}
+			revalidatePath("/", "layout");
+			break;
+		case "search":
+			for (const tag of SEARCH_TAGS) {
+				updateTag(tag);
+			}
+			revalidatePath("/search");
+			break;
+	}
+}
+
+export async function purgeCacheScopeAction(input: {
+	scope: CacheScopeId;
+	targetId?: string;
+	bumpBrowserGeneration: boolean;
+}): Promise<CachePurgeResult> {
+	const { accessToken } = await getServerAccountContext();
+	if (!accessToken) throw new Error("Your admin session is no longer available. Sign in again.");
+
+	const result = await fetchInternalWebApi<CachePurgeResult>(
+		"/api/internal/cache/purge",
+		accessToken,
+		{
+			method: "POST",
+			body: JSON.stringify(input),
+		}
+	);
+
+	expireNextCacheScope(input.scope, result.targetId);
+	return result;
+}
+
 export async function revalidateModelsGlobalDataAction(): Promise<CacheOpResult> {
 	return runAdminAction("Models (global data)", async () => {
 		revalidateModelDataOnlyTags();
-		revalidateTag("collections", EXPIRE_NOW);
 		revalidatePath("/models");
-		revalidatePath("/models/collections");
 		revalidatePath("/monitor");
 	});
 }
 
 export async function revalidatePublicModelCatalogueAction(): Promise<CacheOpResult> {
-	return runAdminAction("Public catalogue", () => {
+	return runAdminAction("Public catalogue", async () => {
 		expirePublicModelCatalogueCache();
 		for (const tag of APP_FRONTEND_TAGS) {
-			revalidateTag(tag, EXPIRE_NOW);
+			updateTag(tag);
 		}
-		revalidateTag("collections", EXPIRE_NOW);
+		const gatewayPurge = await purgeGatewayCatalogueCache(["models"]);
+		return {
+			ok: gatewayPurge.ok,
+			message: gatewayPurge.ok
+				? `Public catalogue cache revalidated. ${gatewayPurge.message}`
+				: `Public catalogue website cache revalidated. ${gatewayPurge.message}`,
+		};
 	});
 }
 
 export async function revalidateProvidersGlobalApiAction(): Promise<CacheOpResult> {
 	return runAdminAction("Providers (global API info)", async () => {
 		revalidateProviderDataTags();
-		revalidateTag("collections", EXPIRE_NOW);
 		revalidatePath("/api-providers");
 		revalidatePath("/models");
-		revalidatePath("/models/collections");
 	});
 }
 
@@ -235,9 +438,7 @@ export async function revalidateOrganisationScopeAction(input: {
 export async function revalidateGlobalModelAndProviderAction(): Promise<CacheOpResult> {
 	return runAdminAction("Models + Providers (global)", async () => {
 		revalidateModelDataTags();
-		revalidateTag("collections", EXPIRE_NOW);
 		revalidatePath("/models");
-		revalidatePath("/models/collections");
 		revalidatePath("/api-providers");
 	});
 }
@@ -245,7 +446,7 @@ export async function revalidateGlobalModelAndProviderAction(): Promise<CacheOpR
 export async function revalidateSearchDataAction(): Promise<CacheOpResult> {
 	return runAdminAction("Search", async () => {
 		for (const tag of SEARCH_TAGS) {
-			revalidateTag(tag, EXPIRE_NOW);
+			updateTag(tag);
 		}
 		revalidatePath("/search");
 	});
@@ -254,7 +455,7 @@ export async function revalidateSearchDataAction(): Promise<CacheOpResult> {
 export async function revalidateLandingDataAction(): Promise<CacheOpResult> {
 	return runAdminAction("Landing", async () => {
 		for (const tag of LANDING_TAGS) {
-			revalidateTag(tag, EXPIRE_NOW);
+			updateTag(tag);
 		}
 		revalidatePath("/");
 	});
@@ -263,7 +464,7 @@ export async function revalidateLandingDataAction(): Promise<CacheOpResult> {
 export async function revalidateSignInCatalogAction(): Promise<CacheOpResult> {
 	return runAdminAction("Sign-in catalog", async () => {
 		for (const tag of SIGN_IN_TAGS) {
-			revalidateTag(tag, EXPIRE_NOW);
+			updateTag(tag);
 		}
 		revalidatePath("/sign-in");
 	});
@@ -272,9 +473,9 @@ export async function revalidateSignInCatalogAction(): Promise<CacheOpResult> {
 export async function revalidateSubscriptionPlansAction(): Promise<CacheOpResult> {
 	return runAdminAction("Subscription plans", async () => {
 		for (const tag of ["data:subscription_plans", "frontend:subscription-plans"] as const) {
-			revalidateTag(tag, EXPIRE_NOW);
+			updateTag(tag);
 		}
-		revalidateTag("search:data", EXPIRE_NOW);
+		updateTag("search:data");
 		revalidatePath("/subscription-plans");
 		revalidatePath("/search");
 	});
@@ -283,7 +484,7 @@ export async function revalidateSubscriptionPlansAction(): Promise<CacheOpResult
 export async function revalidateRankingsAction(): Promise<CacheOpResult> {
 	return runAdminAction("Rankings", async () => {
 		for (const tag of RANKINGS_TAGS) {
-			revalidateTag(tag, EXPIRE_NOW);
+			updateTag(tag);
 		}
 		revalidatePath("/rankings");
 	});
@@ -328,11 +529,11 @@ export async function revalidateCountryDataAction(
 		trimmedIso ? `Country (${trimmedIso})` : "Countries (global)",
 		async () => {
 			for (const tag of COUNTRY_FRONTEND_TAGS) {
-				revalidateTag(tag, EXPIRE_NOW);
+				updateTag(tag);
 			}
 			revalidatePath("/countries");
 			if (trimmedIso) {
-				revalidateTag(`frontend:countries:${trimmedIso}`, EXPIRE_NOW);
+				updateTag(`frontend:countries:${trimmedIso}`);
 				revalidatePath(`/countries/${trimmedIso.toLowerCase()}`);
 				revalidatePath(`/countries/${trimmedIso.toLowerCase()}/models`);
 			}
@@ -355,10 +556,10 @@ export async function revalidateProfileDataAction(
 		trimmedSlug ? `Profile (${trimmedSlug})` : "Profiles (global)",
 		async () => {
 			for (const tag of PROFILE_FRONTEND_TAGS) {
-				revalidateTag(tag, EXPIRE_NOW);
+				updateTag(tag);
 			}
 			if (trimmedSlug) {
-				revalidateTag(`frontend:profile:${trimmedSlug}`, EXPIRE_NOW);
+				updateTag(`frontend:profile:${trimmedSlug}`);
 				revalidatePath(`/profile/${trimmedSlug}`);
 			}
 		}
@@ -437,7 +638,7 @@ export async function revalidateCustomScopeAction(input: {
 
 	return runAdminAction("Custom scope", async () => {
 		for (const tag of tags) {
-			revalidateTag(tag, EXPIRE_NOW);
+			updateTag(tag);
 		}
 		for (const path of paths) {
 			revalidatePath(path);

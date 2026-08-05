@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { ShieldCheck, Terminal } from "lucide-react";
 import { approveDeviceAction, denyDeviceAction, lookupDeviceRequest } from "./actions";
 import { createClient } from "@/utils/supabase/server";
+import { fetchAccountWebApi } from "@/lib/web-api/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,8 +11,8 @@ import { AuthSuspenseFallback } from "../AuthSuspenseFallback";
 import { WorkspaceSelectField } from "./WorkspaceSelectField";
 
 export const metadata = {
-	title: "Activate AI Stats CLI",
-	description: "Approve a device login request for the AI Stats CLI.",
+	title: "Activate Phaseo CLI",
+	description: "Approve a device login request for the Phaseo CLI.",
 };
 
 type ActivatePageProps = {
@@ -51,21 +52,10 @@ async function ActivatePageContent({ searchParams }: ActivatePageProps) {
 
 	const userCode = String(params.user_code ?? "").trim();
 	const request = userCode ? await lookupDeviceRequest(userCode).catch((error) => ({ error: String(error?.message ?? error) })) : null;
-	const { data: memberships } = await supabase
-		.from("workspace_members")
-		.select("role, workspace_id, workspaces:workspaces(id, name, slug)")
-		.eq("user_id", user.id);
-	const workspaces = (memberships ?? [])
-		.map((row: any) => {
-			const workspace = Array.isArray(row.workspaces) ? row.workspaces[0] : row.workspaces;
-			if (!workspace?.id) return null;
-			return {
-				id: String(workspace.id),
-				name: String(workspace.name ?? workspace.slug ?? workspace.id),
-				role: String(row.role ?? "member"),
-			};
-		})
-		.filter(Boolean) as Array<{ id: string; name: string; role: string }>;
+	const { data: sessionData } = await supabase.auth.getSession();
+	const { workspaces } = await fetchAccountWebApi<{
+		workspaces: Array<{ id: string; name: string; role: string }>;
+	}>("/api/account/auth/workspaces", sessionData.session?.access_token);
 
 	return (
 		<div className="container mx-auto flex min-h-[70vh] max-w-2xl items-center justify-center py-12">
@@ -75,7 +65,7 @@ async function ActivatePageContent({ searchParams }: ActivatePageProps) {
 						<Terminal className="size-7 text-primary" />
 					</div>
 					<div>
-						<CardTitle className="text-2xl">Activate AI Stats CLI</CardTitle>
+						<CardTitle className="text-2xl">Activate Phaseo CLI</CardTitle>
 						<CardDescription>
 							Approve this request only if the code matches the one shown in your terminal.
 						</CardDescription>
@@ -103,7 +93,7 @@ async function ActivatePageContent({ searchParams }: ActivatePageProps) {
 								<div className="flex items-center gap-3">
 									<ShieldCheck className="size-5 text-emerald-600" />
 									<div>
-										<div className="font-medium">{request?.client?.name ?? "AI Stats CLI"}</div>
+										<div className="font-medium">{request?.client?.name ?? "Phaseo CLI"}</div>
 										<div className="text-sm text-muted-foreground">
 											Requested scopes: {(request?.scopes ?? []).join(", ")}
 										</div>

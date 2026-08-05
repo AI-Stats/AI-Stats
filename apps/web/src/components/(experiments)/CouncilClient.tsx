@@ -22,7 +22,10 @@ import {
 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { Logo } from "@/components/Logo";
+import { AIGeneratedNotice } from "@/components/(chat)/AIGeneratedNotice";
+import { ChatRoomSwitcher } from "@/components/(chat)/ChatRoomSwitcher";
 import { extractResponseText } from "@/components/(chat)/chatPayload";
+import { fetchChatWebApi } from "@/lib/web-api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -79,6 +82,7 @@ type CouncilClientProps = {
 	models: GatewaySupportedModel[];
 	initialPresets?: ExperimentsCouncilPresetRecord[];
 	initialSelectedRunId?: number | null;
+	routeBasePath?: string;
 };
 
 type CouncilPresetOption = {
@@ -218,7 +222,7 @@ function extractOutputTokens(payload: any): number | null {
 
 async function callResponsesText(model: string, input: string) {
 	try {
-		const response = await fetch("/api/chat/text", {
+		const response = await fetchChatWebApi("/api/chat/text", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -252,7 +256,7 @@ async function callResponsesStream(
 	onDelta: (delta: string) => void,
 ) {
 	try {
-		const response = await fetch("/api/chat/text", {
+		const response = await fetchChatWebApi("/api/chat/text", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -682,6 +686,7 @@ export default function CouncilClient({
 	models,
 	initialPresets = [],
 	initialSelectedRunId = null,
+	routeBasePath = "/experiments/council",
 }: CouncilClientProps) {
 	const router = useRouter();
 	const [prompt, setPrompt] = useState("");
@@ -1318,10 +1323,10 @@ export default function CouncilClient({
 		setSelectedSourceModelId(null);
 		setErrorMessage(null);
 		if (runId == null) {
-			router.push("/experiments/council");
+			router.push(routeBasePath);
 			return;
 		}
-		router.push(`/experiments/council/${runId}`);
+		router.push(`${routeBasePath}/${runId}`);
 	};
 
 	const openInChat = (modelId: string, text: string) => {
@@ -1689,6 +1694,7 @@ export default function CouncilClient({
 	return (
 		<SidebarProvider contained defaultOpen className="flex min-h-0 flex-1">
 			<Sidebar className="h-full bg-white dark:bg-zinc-950" layout="inline">
+				{routeBasePath === "/chat/fusion" ? <ChatRoomSwitcher /> : null}
 				<SidebarHeader className="px-3 py-3">
 					<p className="text-sm font-semibold">LLM Council</p>
 					<p className="text-xs text-zinc-500">Council chats</p>
@@ -1751,6 +1757,11 @@ export default function CouncilClient({
 						selectedRun ? (sourceModelForView ? "max-w-5xl" : "max-w-4xl") : "max-w-[1600px]",
 					)}
 				>
+					{routeBasePath === "/chat/fusion" ? (
+						<div className="-mx-2 mb-4 md:hidden">
+							<ChatRoomSwitcher />
+						</div>
+					) : null}
 					<div className="mb-4 flex items-center gap-2 md:hidden">
 						<Popover open={mobileRunPickerOpen} onOpenChange={setMobileRunPickerOpen}>
 							<PopoverTrigger asChild>
@@ -2540,6 +2551,7 @@ export default function CouncilClient({
 							</div>
 						</div>
 					)}
+					<AIGeneratedNotice className="mt-4" />
 				</div>
 			</SidebarInset>
 		</SidebarProvider>

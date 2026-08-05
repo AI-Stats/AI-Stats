@@ -95,6 +95,7 @@ export function decodeOpenAIChatRequest(req: ChatCompletionsRequest): IRChatRequ
 	const reasoningFromRequest = req.reasoning
 		? {
 			effort: req.reasoning.effort,
+			mode: req.reasoning.mode,
 			summary: req.reasoning.summary as any,
 			enabled: req.reasoning.enabled,
 			maxTokens: req.reasoning.max_tokens,
@@ -191,6 +192,7 @@ function decodeOpenAITool(tool: any): IRTool {
 		name: extractToolNameOrType(tool) ?? "tool",
 		description: tool.function?.description || tool.description,
 		parameters: tool.function?.parameters || tool.parameters || {},
+		strict: tool.function?.strict ?? tool.strict,
 	};
 }
 

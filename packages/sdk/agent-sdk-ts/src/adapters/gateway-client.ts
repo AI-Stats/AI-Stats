@@ -1,10 +1,11 @@
-import AIStats, { type AIStatsOptions, type ResponsesRequest, type ResponsesResponse } from "@ai-stats/sdk";
+import Phaseo, { type PhaseoOptions, type ResponsesRequest, type ResponsesResponse } from "@phaseo/sdk";
 import { AgentGatewayError } from "../errors.js";
+import { normalizeAgentItems } from "../items.js";
 import type { AgentMessage, AgentModelClient, AgentModelRequest, AgentToolCall } from "../types.js";
 
 export type GatewayAgentClientOptions = {
-	client?: AIStats;
-	clientOptions?: AIStatsOptions;
+	client?: Phaseo;
+	clientOptions?: PhaseoOptions;
 	model?: string;
 	preset?: string;
 	provider?: ResponsesRequest["provider"];
@@ -22,6 +23,8 @@ export type GatewayAgentClientOptions = {
 	toolChoice?: ResponsesRequest["tool_choice"];
 	providerOptions?: ResponsesRequest["provider_options"];
 	promptCacheKey?: ResponsesRequest["prompt_cache_key"];
+	/** Additional Responses API fields. Agent-owned model, input, instructions, and tools take precedence. */
+	requestOptions?: Partial<ResponsesRequest>;
 };
 
 function coerceTextContent(content: string): string {
@@ -168,40 +171,72 @@ function extractResponseMeta(response: ResponsesResponse): Record<string, unknow
 	return meta as Record<string, unknown>;
 }
 
+function toAgentModelResponse(response: ResponsesResponse): import("../types.js").AgentModelResponse {
+	const rawItems = Array.isArray(response.output_items)
+		? response.output_items
+		: Array.isArray(response.output)
+			? response.output
+			: [];
+	const raw = response as Record<string, any>;
+	const usage = response.usage as Record<string, any> | undefined;
+	const meta = extractResponseMeta(response) as Record<string, any> | undefined;
+	const directCost = [raw.cost, raw.cost_usd, usage?.cost, meta?.cost, meta?.cost_usd].find((value) => typeof value === "number");
+	const costNanos = typeof raw.cost_nanos === "number" ? raw.cost_nanos : meta?.cost_nanos;
+	const cost = directCost ?? (typeof costNanos === "number" ? costNanos / 1_000_000_000 : undefined);
+	return {
+		message: { role: "assistant", content: extractAssistantText(response), toolCalls: extractToolCalls(response) },
+		items: rawItems.flatMap(normalizeAgentItems),
+		usage: response.usage as Record<string, unknown> | undefined,
+		requestId: response.id,
+		nativeResponseId: (response as Record<string, any>).nativeResponseId ?? (response as Record<string, any>).native_response_id ?? null,
+		provider: (response as Record<string, any>).provider,
+		model: response.model,
+		finishReason: raw.finish_reason ?? raw.stop_reason ?? raw.status,
+		cost,
+		warnings: Array.isArray(raw.warnings) ? raw.warnings : undefined,
+		responseMeta: meta,
+	};
+}
+
+function buildPayload(request: AgentModelRequest<any>, options: GatewayAgentClientOptions, stream = false): ResponsesRequest & { meta?: boolean } {
+	return {
+		...options.requestOptions,
+		model: request.model ?? options.model ?? toPresetModelAlias(options.preset) ?? "phaseo/free",
+		input: toResponsesInput(request.messages),
+		instructions: toInstructions(request.messages, request.instructions),
+		tools: buildRequestTools(request, options.gatewayTools),
+		tool_choice: options.toolChoice,
+		parallel_tool_calls: options.parallelToolCalls,
+		temperature: request.temperature ?? options.temperature,
+		max_output_tokens: request.maxOutputTokens ?? options.maxOutputTokens,
+		top_p: request.topP ?? options.requestOptions?.top_p,
+		provider: options.provider,
+		reasoning: options.reasoning,
+		metadata: options.metadata,
+		meta: options.includeMeta,
+		user: options.user,
+		response_format: options.responseFormat,
+		web_search_options: options.webSearchOptions,
+		plugins: options.plugins,
+		provider_options: options.providerOptions,
+		prompt_cache_key: options.promptCacheKey,
+		stream,
+	};
+}
+
 export function createGatewayAgentClient(
 	options: GatewayAgentClientOptions = {},
 ): AgentModelClient {
-	const client = options.client ?? new AIStats(options.clientOptions ?? {});
+	const client = options.client ?? new Phaseo(options.clientOptions ?? {});
 
 	return {
 		async generate(request) {
 			let response: ResponsesResponse | AsyncGenerator<string>;
 			try {
-				const requestPayload: ResponsesRequest & { meta?: boolean } = {
-					model:
-						request.model ??
-						options.model ??
-						toPresetModelAlias(options.preset) ??
-						"ai-stats/free",
-					input: toResponsesInput(request.messages),
-					instructions: toInstructions(request.messages, request.instructions),
-					tools: buildRequestTools(request, options.gatewayTools),
-					tool_choice: options.toolChoice,
-					parallel_tool_calls: options.parallelToolCalls,
-					temperature: options.temperature,
-					max_output_tokens: options.maxOutputTokens,
-					provider: options.provider,
-					reasoning: options.reasoning,
-					metadata: options.metadata,
-					meta: options.includeMeta,
-					user: options.user,
-					response_format: options.responseFormat,
-					web_search_options: options.webSearchOptions,
-					plugins: options.plugins,
-					provider_options: options.providerOptions,
-					prompt_cache_key: options.promptCacheKey,
-				};
-				response = await client.responses.create(requestPayload);
+				const requestPayload = buildPayload(request, options, false);
+				response = request.signal
+					? await client.responses.create(requestPayload, { signal: request.signal })
+					: await client.responses.create(requestPayload);
 			} catch (error) {
 				throw AgentGatewayError.fromUnknown(error) ?? error;
 			}
@@ -210,19 +245,39 @@ export function createGatewayAgentClient(
 				throw new Error("Streaming agent client responses are not supported in the basic gateway adapter");
 			}
 
-			return {
-				message: {
-					role: "assistant" as const,
-					content: extractAssistantText(response),
-					toolCalls: extractToolCalls(response),
-				},
-				usage: (response as ResponsesResponse).usage as Record<string, unknown> | undefined,
-				requestId: response.id,
-				nativeResponseId: (response as Record<string, any>).nativeResponseId ?? null,
-				provider: (response as Record<string, any>).provider,
-				model: response.model,
-				responseMeta: extractResponseMeta(response),
-			};
+			return toAgentModelResponse(response);
+		},
+		async *stream(request) {
+			let response: ResponsesResponse | AsyncGenerator<any>;
+			try {
+				const payload = buildPayload(request, options, true);
+				response = request.signal
+					? await client.responses.create(payload, { signal: request.signal })
+					: await client.responses.create(payload);
+			}
+			catch (error) { throw AgentGatewayError.fromUnknown(error) ?? error; }
+			if (!isAsyncIterableResponse(response as any)) {
+				yield { type: "response.completed" as const, response: toAgentModelResponse(response as ResponsesResponse) };
+				return;
+			}
+			let text = "";
+			for await (const chunk of response as AsyncGenerator<Record<string, unknown>>) {
+				const eventType = String(chunk.type ?? "");
+				const delta = typeof chunk.delta === "string" ? chunk.delta : typeof chunk.text === "string" ? chunk.text : "";
+				if (eventType.includes("reasoning") && delta) yield { type: "response.reasoning.delta" as const, delta, raw: chunk };
+				else if ((eventType.includes("output_text.delta") || delta) && delta) { text += delta; yield { type: "response.output_text.delta" as const, delta, raw: chunk }; }
+				if (chunk.item) {
+					for (const item of normalizeAgentItems(chunk.item)) {
+						yield { type: "response.item" as const, item, raw: chunk };
+					}
+				}
+				if (eventType === "response.completed") {
+					const rawResponse = (chunk.response ?? chunk) as ResponsesResponse;
+					yield { type: "response.completed" as const, response: toAgentModelResponse(rawResponse), raw: chunk };
+					return;
+				}
+			}
+			yield { type: "response.completed" as const, response: { message: { role: "assistant", content: text } } };
 		},
 	};
 }

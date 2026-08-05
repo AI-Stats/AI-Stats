@@ -3,18 +3,24 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const getAsyncOperationMock = vi.fn();
 const listAsyncOperationsMock = vi.fn();
 const patchAsyncOperationMetaMock = vi.fn();
+const claimAsyncWebhookDeliveryMock = vi.fn();
+const completeAsyncWebhookDeliveryMock = vi.fn();
+const releaseAsyncWebhookDeliveryClaimMock = vi.fn();
 
 vi.mock("@core/async-operations", () => ({
+	claimAsyncWebhookDelivery: (...args: any[]) => claimAsyncWebhookDeliveryMock(...args),
+	completeAsyncWebhookDelivery: (...args: any[]) => completeAsyncWebhookDeliveryMock(...args),
 	getAsyncOperation: (...args: any[]) => getAsyncOperationMock(...args),
 	listAsyncOperations: (...args: any[]) => listAsyncOperationsMock(...args),
 	patchAsyncOperationMeta: (...args: any[]) => patchAsyncOperationMetaMock(...args),
+	releaseAsyncWebhookDeliveryClaim: (...args: any[]) => releaseAsyncWebhookDeliveryClaimMock(...args),
 }));
 
 vi.mock("@/runtime/env", () => ({
 	dispatchBackground: (promise: Promise<unknown>) => promise,
 	getBindings: () => ({
 		VIDEO_DOWNLOAD_SIGNING_SECRET: "test-video-download-secret",
-		KEY_PEPPER: "test-key-pepper",
+		KEY_PEPPER_ACTIVE: "test-key-pepper",
 		GATEWAY_PUBLIC_BASE_URL: "https://api.phaseo.app",
 		ASYNC_WEBHOOK_DELIVERY_TIMEOUT_MS: "1000",
 	}),
@@ -39,6 +45,9 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 		getAsyncOperationMock.mockReset();
 		listAsyncOperationsMock.mockReset();
 		patchAsyncOperationMetaMock.mockReset();
+		claimAsyncWebhookDeliveryMock.mockReset().mockResolvedValue(true);
+		completeAsyncWebhookDeliveryMock.mockReset().mockResolvedValue(true);
+		releaseAsyncWebhookDeliveryClaimMock.mockReset().mockResolvedValue(true);
 		vi.restoreAllMocks();
 	});
 
@@ -107,12 +116,12 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 		const [, requestInit] = fetchMock.mock.calls[0];
 		expect(requestInit.headers).toMatchObject({
 			"Content-Type": "application/json",
-			"User-Agent": "AI-Stats-Async-Webhook/1.0",
-			"x-ai-stats-event-id": "evt_batch_batch_123_batch_completed",
-			"x-ai-stats-event-type": "batch.completed",
-			"x-ai-stats-delivery-key": "batch.completed",
-			"x-ai-stats-attempt": "1",
-			"x-ai-stats-max-attempts": "4",
+			"User-Agent": "Phaseo-Async-Webhook/1.0",
+			"x-phaseo-event-id": "evt_batch_batch_123_batch_completed",
+			"x-phaseo-event-type": "batch.completed",
+			"x-phaseo-delivery-key": "batch.completed",
+			"x-phaseo-attempt": "1",
+			"x-phaseo-max-attempts": "4",
 		});
 		expect(JSON.parse(requestInit.body)).toMatchObject({
 			id: "evt_batch_batch_123_batch_completed",
@@ -245,12 +254,12 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 		const [, requestInit] = fetchMock.mock.calls[0];
 		const timestamp = "1777777777";
 		expect(requestInit.headers).toMatchObject({
-			"x-ai-stats-event-id": "evt_video_video_123_video_completed",
-			"x-ai-stats-event-type": "video.completed",
-			"x-ai-stats-delivery-key": "video.completed",
-			"x-ai-stats-timestamp": timestamp,
+			"x-phaseo-event-id": "evt_video_video_123_video_completed",
+			"x-phaseo-event-type": "video.completed",
+			"x-phaseo-delivery-key": "video.completed",
+			"x-phaseo-timestamp": timestamp,
 		});
-		expect(requestInit.headers["x-ai-stats-signature"]).toBe(
+		expect(requestInit.headers["x-phaseo-signature"]).toBe(
 			await hmacSha256Hex("whsec_video_test", `${timestamp}.${requestInit.body}`),
 		);
 		expect(JSON.parse(requestInit.body)).toMatchObject({
@@ -331,8 +340,8 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 		expect(metaPatch.lastWebhookProgress).toBe(50);
 		const [, requestInit] = (globalThis.fetch as any).mock.calls[0];
 		expect(requestInit.headers).toMatchObject({
-			"x-ai-stats-event-type": "video.progress",
-			"x-ai-stats-delivery-key": "video.progress:50",
+			"x-phaseo-event-type": "video.progress",
+			"x-phaseo-delivery-key": "video.progress:50",
 		});
 		expect(JSON.parse(requestInit.body)).toMatchObject({
 			id: "evt_video_video_progress_123_video_progress_50",
@@ -423,10 +432,10 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 		expect(ok).toBe(true);
 		const [, requestInit] = (globalThis.fetch as any).mock.calls[0];
 		expect(requestInit.headers).toMatchObject({
-			"x-ai-stats-event-id": "evt_batch_batch_progress_123_batch_progress_50",
-			"x-ai-stats-event-type": "batch.progress",
-			"x-ai-stats-delivery-key": "batch.progress:50",
-			"x-ai-stats-attempt": "2",
+			"x-phaseo-event-id": "evt_batch_batch_progress_123_batch_progress_50",
+			"x-phaseo-event-type": "batch.progress",
+			"x-phaseo-delivery-key": "batch.progress:50",
+			"x-phaseo-attempt": "2",
 		});
 		expect(JSON.parse(requestInit.body)).toMatchObject({
 			id: "evt_batch_batch_progress_123_batch_progress_50",
@@ -539,11 +548,11 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 		const fetchMock = globalThis.fetch as any;
 		const [, requestInit] = fetchMock.mock.calls[0];
 		expect(requestInit.headers).toMatchObject({
-			"x-ai-stats-event-id": "evt_batch_batch_123_batch_completed",
-			"x-ai-stats-event-type": "batch.completed",
-			"x-ai-stats-delivery-key": "batch.completed",
-			"x-ai-stats-attempt": "2",
-			"x-ai-stats-max-attempts": "4",
+			"x-phaseo-event-id": "evt_batch_batch_123_batch_completed",
+			"x-phaseo-event-type": "batch.completed",
+			"x-phaseo-delivery-key": "batch.completed",
+			"x-phaseo-attempt": "2",
+			"x-phaseo-max-attempts": "4",
 		});
 		expect(JSON.parse(requestInit.body)).toMatchObject({
 			id: "evt_batch_batch_123_batch_completed",
@@ -640,9 +649,9 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 		expect(fetchMock).toHaveBeenCalledTimes(1);
 		const [, requestInit] = fetchMock.mock.calls[0];
 		expect(requestInit.headers).toMatchObject({
-			"x-ai-stats-delivery-key": "batch.completed",
-			"x-ai-stats-attempt": "4",
-			"x-ai-stats-max-attempts": "4",
+			"x-phaseo-delivery-key": "batch.completed",
+			"x-phaseo-attempt": "4",
+			"x-phaseo-max-attempts": "4",
 		});
 		expect(JSON.parse(requestInit.body)).toMatchObject({
 			delivery: {

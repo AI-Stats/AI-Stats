@@ -60,7 +60,7 @@ import {
 	MarkerContent,
 	MarkerIcon,
 } from "@/components/ui/marker";
-import { Spinner } from "@/components/ui/spinner";
+import { ThinkingOrb } from "thinking-orbs";
 import { cn } from "@/lib/utils";
 import type { ChatThread } from "@/lib/indexeddb/chats";
 import type {
@@ -87,6 +87,10 @@ import { ChatMessagesEmptyState } from "@/components/(chat)/ChatMessagesEmptySta
 import { ChatVirtualMessageList } from "@/components/(chat)/ChatVirtualMessageList";
 import { markChatUserMessageRendered } from "@/components/(chat)/playground/chat-performance";
 import {
+	chatMarkdownPlugins,
+	normalizeChatMarkdown,
+} from "@/components/(chat)/chatMarkdown";
+import {
 	buildModelLink,
 	ensureVariants,
 	extractGeneratedAudioUrl,
@@ -107,11 +111,32 @@ const VIRTUAL_MESSAGE_OVERSCAN = 16;
 const ESTIMATED_MESSAGE_HEIGHT = 220;
 const EMPTY_MESSAGES: ChatThread["messages"] = [];
 
+const KNOWN_PROVIDER_LABELS: Record<string, string> = {
+	azure: "Azure",
+	openai: "OpenAI",
+};
+
+function formatProviderIdLabel(providerId: string | null | undefined) {
+	const normalized = String(providerId ?? "").trim();
+	if (!normalized) return null;
+	const known = KNOWN_PROVIDER_LABELS[normalized.toLowerCase()];
+	if (known) return known;
+	return normalized
+		.split(/[-_\s]+/)
+		.filter(Boolean)
+		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+		.join(" ");
+}
+
 function GeneratingResponseIndicator() {
 	return (
 		<Marker role="status" aria-live="polite" className="min-h-7">
 			<MarkerIcon>
-				<Spinner />
+				<ThinkingOrb
+					state="composing"
+					size={20}
+					aria-label="Generating response"
+				/>
 			</MarkerIcon>
 			<MarkerContent className="shimmer">Generating response&hellip;</MarkerContent>
 		</Marker>
@@ -433,8 +458,10 @@ export function ChatConversationMessages({
 					(meta as any).routing.selected_provider.trim().length > 0
 				? (meta as any).routing.selected_provider.trim()
 				: metadataMessage?.providerId?.trim() || null;
+	const messageProviderLabel =
+		metadataMessage?.providerName?.trim() || null;
 	const metadataProviderLabel =
-		metadataMessage?.providerName?.trim() || metadataProviderId || null;
+		formatProviderIdLabel(metadataProviderId) ?? messageProviderLabel;
 	const messages = activeThread?.messages ?? EMPTY_MESSAGES;
 	useEffect(() => {
 		const latestUserMessage = messages
@@ -467,7 +494,6 @@ export function ChatConversationMessages({
 		},
 		[messageVirtualizer],
 	);
-
 	const messagesContent = useMemo(() => {
 		if (!activeThread || !messages.length) {
 			return (
@@ -637,8 +663,8 @@ export function ChatConversationMessages({
 				(displayModelId
 					? isInternalModelId(displayModelId)
 						? getOrgId(displayModelId)
-						: "ai-stats"
-					: "ai-stats");
+						: "phaseo"
+					: "phaseo");
 			const orgName = orgNameById[orgId] ?? orgId;
 			const modelLink =
 				(displayModelId ? modelLinkById[displayModelId] : undefined) ??
@@ -665,7 +691,7 @@ export function ChatConversationMessages({
 				);
 			const hasAccent = Boolean(accentColor);
 			const messagePanelStyle =
-				isUser && hasAccent
+				isUser && hasAccent && !temporaryMode
 					? {
 							backgroundColor: accentColor,
 							color: getReadableTextColor(accentColor),
@@ -741,17 +767,19 @@ export function ChatConversationMessages({
 										className={cn(
 											isUser
 												? cn(
-														"max-w-full rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm",
+												"max-w-full rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm",
 														inSideBySideGroup
 															? "flex h-full min-h-[180px] w-full flex-col"
 															: "w-fit",
-														hasAccent
-															? ""
-															: "bg-foreground text-background",
+												temporaryMode
+													? "border border-dashed border-foreground/50 bg-background text-foreground shadow-none"
+													: hasAccent
+														? ""
+														: "bg-foreground text-background",
 													)
-												: cn(
-														"w-full max-w-[min(100%,46rem)] px-0 py-1 text-sm leading-relaxed text-foreground",
-														inSideBySideGroup &&
+											: cn(
+												"w-full max-w-[min(100%,46rem)] px-0 py-1 text-sm leading-relaxed text-foreground",
+												inSideBySideGroup &&
 															"flex h-full min-h-[180px] flex-col",
 													),
 										)}
@@ -940,7 +968,9 @@ export function ChatConversationMessages({
 													key={event.id}
 													className="prose prose-sm max-w-none text-foreground dark:prose-invert prose-p:my-0"
 												>
-													<Streamdown>{eventText}</Streamdown>
+											<Streamdown plugins={chatMarkdownPlugins}>
+												{normalizeChatMarkdown(eventText)}
+											</Streamdown>
 												</div>
 											);
 										})}
@@ -969,8 +999,8 @@ export function ChatConversationMessages({
 										!showRequestError &&
 										contentWithoutMediaLinks ? (
 											<div className="prose prose-sm max-w-none text-foreground dark:prose-invert prose-p:my-0">
-												<Streamdown>
-													{contentWithoutMediaLinks}
+												<Streamdown plugins={chatMarkdownPlugins}>
+													{normalizeChatMarkdown(contentWithoutMediaLinks)}
 												</Streamdown>
 											</div>
 										) : null}
@@ -997,8 +1027,8 @@ export function ChatConversationMessages({
 										) : null}
 										{!showRequestError &&
 										contentWithoutMediaLinks ? (
-											<Streamdown>
-												{contentWithoutMediaLinks}
+											<Streamdown plugins={chatMarkdownPlugins}>
+												{normalizeChatMarkdown(contentWithoutMediaLinks)}
 											</Streamdown>
 										) : null}
 									</>
@@ -1343,9 +1373,9 @@ export function ChatConversationMessages({
 						viewportClassName="overscroll-x-contain"
 					>
 						<div
-							className="grid min-w-max items-stretch gap-x-4 gap-y-5 pr-4"
+							className="grid w-full min-w-max items-stretch gap-x-4 gap-y-5 pr-4"
 							style={{
-								gridTemplateColumns: `repeat(${modelKeys.length}, minmax(0, min(88vw, 32rem)))`,
+								gridTemplateColumns: `repeat(${modelKeys.length}, minmax(min(88vw, 32rem), 1fr))`,
 							}}
 						>
 							{turns.flatMap((turn) =>
@@ -1515,6 +1545,7 @@ export function ChatConversationMessages({
 		modelOptions,
 		selectedModelIds,
 		onAddModelSet,
+		temporaryMode,
 	]);
 
 	return <>{messagesContent}</>;

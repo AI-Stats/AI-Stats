@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import { updateModel } from "@/app/(dashboard)/models/actions"
-import { createClient } from "@/utils/supabase/client"
+import { fetchAdminModelEditorSource, fetchAdminModelFormOptions } from "@/lib/fetchers/internal/adminModelEditorClient"
 import BasicTab from "./tabs/BasicTab"
 import DetailsTab from "./tabs/DetailsTab"
 import BenchmarksTab from "./tabs/BenchmarksTab"
@@ -69,7 +69,7 @@ export default function ModelEditDialog({ modelId, tab }: ModelEditDialogProps) 
   const [model, setModel] = useState<ModelData | null>(null)
   const [providers, setProviders] = useState<Array<{ id: string; name: string }>>([])
   const [detailRows, setDetailRows] = useState<Array<{ id?: string; detail_name: string; detail_value: string }>>([])
-  const [linkRows, setLinkRows] = useState<Array<{ id?: string; platform: string; url: string }>>([])
+  const [linkRows, setLinkRows] = useState<Array<{ id?: string; platform: string; kind?: string; title?: string; url: string }>>([])
   const [detailsTouched, setDetailsTouched] = useState(false)
   const [linksTouched, setLinksTouched] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -78,22 +78,10 @@ export default function ModelEditDialog({ modelId, tab }: ModelEditDialogProps) 
   const [activeTab, setActiveTab] = useState<string>("basic")
 
   const fetchBasicData = useCallback(async () => {
-    const supabase = createClient()
-    const { data: modelData } = await supabase
-      .from("data_models")
-      .select(
-        "model_id, name, organisation_id, hidden, license, status, announcement_date, release_date, deprecation_date, retirement_date, input_types, output_types, previous_model_id, family_id"
-      )
-      .eq("model_id", modelId)
-      .single()
-
-    const { data: providerData } = await supabase
-      .from("data_api_providers")
-      .select("api_provider_id, api_provider_name")
-
-    setModel(modelData)
-    if (providerData) {
-      setProviders(providerData.map((p: any) => ({
+    const [source, options] = await Promise.all([fetchAdminModelEditorSource(modelId), fetchAdminModelFormOptions()])
+    setModel(source.model as ModelData)
+    if (options.providers) {
+      setProviders(options.providers.map((p: any) => ({
         id: p.api_provider_id,
         name: p.api_provider_name ?? p.api_provider_id,
       })))
@@ -142,6 +130,8 @@ export default function ModelEditDialog({ modelId, tab }: ModelEditDialogProps) 
           links: linksTouched
             ? linkRows.map((row) => ({
                 platform: row.platform,
+                kind: row.kind,
+                title: row.title,
                 url: row.url,
               }))
             : undefined,
@@ -191,11 +181,11 @@ export default function ModelEditDialog({ modelId, tab }: ModelEditDialogProps) 
           <>
             <div className="flex items-center gap-2">
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-48 justify-between">
+                <DropdownMenuTrigger render={<Button variant="outline" className="w-48 justify-between" />}>
+
                     {TAB_LABELS[currentTab as keyof typeof TAB_LABELS]}
                     <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-                  </Button>
+
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-48">
                   {Object.entries(TAB_LABELS).map(([value, label]) => (

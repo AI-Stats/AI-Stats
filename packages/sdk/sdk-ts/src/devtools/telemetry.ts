@@ -15,13 +15,13 @@ export class TelemetryCapture {
   private readonly sdkVersion: string;
 
 
-  constructor(config?: Partial<DevToolsConfig>, sdkVersion: string = "2.0.5") {
+  constructor(config?: Partial<DevToolsConfig>, sdkVersion: string = "2.2.0") {
 
     // Check if devtools is enabled via env var or config
     if (config?.enabled !== undefined) {
       this.enabled = config.enabled;
-    } else if (process.env.AI_STATS_DEVTOOLS !== undefined) {
-      this.enabled = process.env.AI_STATS_DEVTOOLS === "true";
+    } else if (process.env.PHASEO_DEVTOOLS !== undefined) {
+      this.enabled = process.env.PHASEO_DEVTOOLS === "true";
     } else {
       // Opt-in only. Auto-enabling in local/dev keeps the process alive via timers.
       this.enabled = false;
@@ -35,7 +35,7 @@ export class TelemetryCapture {
       return;
     }
 
-    const directory = config?.directory ?? process.env.AI_STATS_DEVTOOLS_DIR ?? ".ai-stats-devtools";
+    const directory = config?.directory ?? process.env.PHASEO_DEVTOOLS_DIR ?? ".phaseo-devtools";
     this.writer = new DevToolsWriter(directory);
     this.flushIntervalMs = config?.flushIntervalMs ?? 1000;
     this.maxQueueSize = config?.maxQueueSize ?? 1000;
@@ -358,7 +358,7 @@ export function extractGatewayMetadata(response: any): Partial<DevToolsEntry["me
     request_id: firstNonEmpty(
       response?.request_id,
       response?.requestId,
-      response?.metadata?.aistats_request_id
+      response?.metadata?.phaseo_request_id
     ),
     session_id: firstNonEmpty(
       response?.session_id,

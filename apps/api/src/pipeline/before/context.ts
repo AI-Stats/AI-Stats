@@ -3,10 +3,12 @@
 // Why: Keeps pre-execution logic centralized and consistent.
 // How: Calls RPC/SQL to fetch provider, pricing, and gating context.
 
-import { getSupabaseAdmin, getCache } from "@/runtime/env";
+import { dispatchBackground, getSupabaseAdmin, getCache } from "@/runtime/env";
 import { getProviderResidencyMetadata } from "@/lib/config/providerResidency";
 import { getTextMany, keyVersionToken } from "@/core/kv";
 import { gatewayCreditCacheKey } from "@/core/gateway-credit-cache";
+import { isDataContributionAccessEnabled } from "@/core/feature-flags";
+import { bytesToString, decryptBYOK } from "@pipeline/byok/decrypt";
 import { contextSchema } from "./schemas";
 import { loadPriceCard } from "@pipeline/pricing";
 import { getContextCapabilityCandidates } from "./context.capability-aliases";
@@ -23,6 +25,7 @@ import {
 	computeStaticTtl,
 	isCreditContextLike,
 	isDynamicContextLike,
+	hasConfiguredKeyLimits,
 	isStaticContextLike,
 	isWithinEffectiveWindow,
 	mergeCachedContext,
@@ -58,15 +61,169 @@ export {
 const CONTEXT_CACHE_PREFIX = "gateway:context";
 
 // Multi-tier caching constants (respecting Cloudflare KV 60s minimum)
-const STATIC_CACHE_PREFIX = "gateway:static";
+const STATIC_CACHE_PREFIX = "gateway:static:v2";
 const DYNAMIC_CACHE_PREFIX = "gateway:dynamic";
-const PRESET_CACHE_PREFIX = "gateway:preset";
+const PRESET_CACHE_PREFIX = "gateway:preset:v2";
 
 const PRESET_TTL = 120;      // 2 minutes
 const CONTEXT_INFLIGHT_MAX_ENTRIES = 512;
 const CONTEXT_KEY_VERSION_L1_TTL_MS = 5_000;
+const FREE_ROUTER_MODEL_ID = "phaseo/free";
+const MIN_GATEWAY_CREDIT_NANOS = 1_000_000_000;
 
 const contextInflight = new Map<string, Promise<GatewayContextData>>();
+
+type CreditContextSnapshot = Pick<
+	GatewayContextData,
+	"workspaceId" | "credit" | "teamEnrichment"
+>;
+
+function finiteNonNegativeNanos(value: unknown): number {
+	const parsed = Number(value);
+	return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+}
+
+async function fetchFreshCreditContext(args: {
+	workspaceId: string;
+	teamEnrichment?: GatewayContextData["teamEnrichment"];
+}): Promise<CreditContextSnapshot> {
+	const { data, error } = await getSupabaseAdmin()
+		.from("wallets")
+		.select("balance_nanos,reserved_nanos")
+		.eq("workspace_id", args.workspaceId)
+		.maybeSingle();
+	if (error) {
+		throw new Error(`gateway_credit_refresh_failed:${error.message ?? "unknown"}`);
+	}
+
+	if (!data) {
+		return {
+			workspaceId: args.workspaceId,
+			credit: {
+				ok: false,
+				reason: "wallet_missing",
+				resetAt: null,
+				balanceNanos: 0,
+			},
+			teamEnrichment: args.teamEnrichment ?? null,
+		};
+	}
+
+	const rawBalanceNanos = finiteNonNegativeNanos(data.balance_nanos);
+	const reservedNanos = finiteNonNegativeNanos(data.reserved_nanos);
+	const availableNanos = Math.max(rawBalanceNanos - reservedNanos, 0);
+	const hasMinimumCredit = availableNanos >= MIN_GATEWAY_CREDIT_NANOS;
+	const teamEnrichment = args.teamEnrichment
+		? {
+			...args.teamEnrichment,
+			balance_nanos: availableNanos,
+			balance_usd: Math.round((availableNanos / 1_000_000_000) * 100) / 100,
+			balance_is_low: !hasMinimumCredit,
+		}
+		: null;
+
+	return {
+		workspaceId: args.workspaceId,
+		credit: {
+			ok: hasMinimumCredit,
+			reason: hasMinimumCredit ? null : "insufficient_funds",
+			resetAt: null,
+			balanceNanos: availableNanos,
+		},
+		teamEnrichment,
+	};
+}
+
+async function hydrateByokKeys(
+	context: GatewayContextData,
+	workspaceId: string,
+): Promise<GatewayContextData> {
+	const providerIds = Array.from(new Set(
+		(context.providers ?? []).map((provider) => provider.providerId).filter(Boolean),
+	));
+	if (!providerIds.length) return context;
+	const keyIds = Array.from(new Set(
+		(context.providers ?? []).flatMap((provider) =>
+			(provider.byokMeta ?? []).map((key) => key.id).filter(Boolean),
+		),
+	));
+	// The cached/RPC context contains only metadata. Avoid a Supabase read entirely
+	// for the overwhelmingly common no-BYOK path.
+	if (!keyIds.length) return context;
+
+	const { data, error } = await getSupabaseAdmin()
+		.from("byok_keys")
+		.select("*")
+		.eq("workspace_id", workspaceId)
+		.eq("enabled", true)
+		.in("id", keyIds)
+		.in("provider_id", providerIds);
+	if (error) {
+		throw new Error(`byok_hydration_failed:${error.message ?? "unknown"}`);
+	}
+	if (!data?.length) {
+		return {
+			...context,
+			providers: (context.providers ?? []).map((provider) => ({
+				...provider,
+				byokMeta: [],
+			})),
+		};
+	}
+
+	const decrypted = await Promise.all((data as any[]).map(async (row) => {
+		try {
+			const decryptedBytes = await decryptBYOK(row);
+			let key: string;
+			try {
+				key = bytesToString(decryptedBytes);
+			} finally {
+				decryptedBytes.fill(0);
+			}
+			const legacyPriority = Boolean(row.always_use);
+			return {
+				id: String(row.id),
+				providerId: String(row.provider_id),
+				fingerprintSha256: String(row.fingerprint_sha256 ?? ""),
+				keyVersion: row.key_version == null ? null : String(row.key_version),
+				alwaysUse: legacyPriority,
+				routingMode: row.routing_mode === "priority" || row.routing_mode === "fallback"
+					? row.routing_mode
+					: legacyPriority ? "priority" : "fallback",
+				sortOrder: Number.isFinite(Number(row.sort_order)) ? Number(row.sort_order) : 0,
+				key,
+				value: key,
+			} satisfies ByokKeyMeta;
+		} catch (cause) {
+			console.error("[gateway] Failed to decrypt BYOK key", {
+				workspaceId,
+				providerId: row?.provider_id ?? null,
+				keyId: row?.id ?? null,
+				cause: cause instanceof Error ? cause.message : "unknown",
+			});
+			return null;
+		}
+	}));
+
+	const byProvider = new Map<string, ByokKeyMeta[]>();
+	for (const key of decrypted) {
+		if (!key?.providerId) continue;
+		const keys = byProvider.get(key.providerId) ?? [];
+		keys.push(key);
+		byProvider.set(key.providerId, keys);
+	}
+	for (const keys of byProvider.values()) {
+		keys.sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id));
+	}
+
+	return {
+		...context,
+		providers: (context.providers ?? []).map((provider) => ({
+			...provider,
+			byokMeta: byProvider.get(provider.providerId) ?? [],
+		})),
+	};
+}
 
 type ProviderScopedModelRow = {
     provider_api_model_id: string | null;
@@ -75,9 +232,26 @@ type ProviderScopedModelRow = {
     effective_to: string | null;
 };
 
+type FreeRouterProviderModelRow = {
+    provider_api_model_id: string | null;
+    provider_id: string | null;
+    provider_model_slug: string | null;
+    api_model_id: string | null;
+    model_id?: string | null;
+    routing_status: string | null;
+    input_modalities: unknown;
+    output_modalities: unknown;
+    effective_from: string | null;
+    effective_to: string | null;
+};
+
 function setToArrayOrNull(value: Set<string>): string[] | null {
     const list = Array.from(value).filter(Boolean);
     return list.length ? list : null;
+}
+
+function isFreeRouterModel(model: string): boolean {
+    return model.trim().toLowerCase() === FREE_ROUTER_MODEL_ID;
 }
 
 type ProviderModalitiesRow = {
@@ -243,13 +417,14 @@ async function backfillProviderModalities(args: {
     const supabase = getSupabaseAdmin();
     const nowMs = Date.now();
     const byApiModelResult = await supabase
-        .from("data_api_provider_models")
+        .from("v2_model_provider_routes")
         .select(
-            "provider_id,provider_model_slug,input_modalities,output_modalities,effective_from,effective_to"
+            "provider_id:provider_slug,provider_model_slug,input_modalities,output_modalities,effective_from,effective_to"
         )
-        .eq("is_active_gateway", true)
-        .in("provider_id", providerIds)
-        .in("api_model_id", modelCandidates);
+        .eq("routing_enabled", true)
+        .in("provider_slug", providerIds)
+        .in("model_slug", modelCandidates)
+        .in("status", ["active", "degraded"]);
 
     if (byApiModelResult.error) return parsed;
 
@@ -314,11 +489,12 @@ async function resolveProviderScopedModelToApiModel(args: {
     const supabase = getSupabaseAdmin();
     const nowMs = Date.now();
     const { data: rows, error } = await supabase
-        .from("data_api_provider_models")
-        .select("provider_api_model_id,api_model_id,effective_from,effective_to")
-        .eq("provider_id", split.providerId)
+        .from("v2_model_provider_routes")
+        .select("provider_api_model_id:provider_model_id,api_model_id:model_slug,effective_from,effective_to")
+        .eq("provider_slug", split.providerId)
         .eq("provider_model_slug", split.providerModelSlug)
-        .eq("is_active_gateway", true);
+        .eq("routing_enabled", true)
+        .in("status", ["active", "degraded"]);
     if (error || !rows?.length) return null;
 
     const inWindow = (rows as ProviderScopedModelRow[])
@@ -340,11 +516,11 @@ async function resolveProviderScopedModelToApiModel(args: {
         args.model,
     );
     const { data: capabilityRows, error: capabilityError } = await supabase
-        .from("data_api_provider_model_capabilities")
-        .select("provider_api_model_id")
+        .from("v2_route_capabilities")
+        .select("provider_api_model_id:provider_model_id")
         .in("capability_id", capabilityCandidates)
         .in("status", [...ROUTABLE_CAPABILITY_STATUSES])
-        .in("provider_api_model_id", providerApiModelIds);
+        .in("provider_model_id", providerApiModelIds);
     if (capabilityError || !capabilityRows?.length) return null;
 
     const supportedIds = new Set(
@@ -387,11 +563,15 @@ async function fetchTestingProviderSnapshots(args: {
     if (!modelCandidates.length) return [];
 
     const byApiModelResult = await supabase
-        .from("data_api_provider_models")
+        .from("v2_model_provider_routes")
         .select(
-            "provider_api_model_id,provider_id,provider_model_slug,is_active_gateway,routing_status,effective_from,effective_to,input_modalities,output_modalities"
+            "provider_api_model_id:provider_model_id,provider_id:provider_slug,provider_model_slug,is_active_gateway:routing_enabled,routing_status:status,provider_availability_status,phaseo_status,access_scope,effective_from,effective_to,input_modalities,output_modalities"
         )
-        .in("api_model_id", modelCandidates);
+        .in("model_slug", modelCandidates)
+        .eq("access_scope", "internal")
+        .in("phaseo_status", ["testing", "enabled"])
+        .in("provider_availability_status", ["available", "preview", "limited_access"])
+        .in("status", ["active", "degraded"]);
 
     if (byApiModelResult.error) return [];
 
@@ -419,13 +599,13 @@ async function fetchTestingProviderSnapshots(args: {
     if (!providerModelIds.length) return [];
 
     const { data: capabilityRows, error: capabilityError } = await supabase
-        .from("data_api_provider_model_capabilities")
+        .from("v2_route_capabilities")
         .select(
-            "provider_api_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at"
+            "provider_api_model_id:provider_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at"
         )
         .in("capability_id", getContextCapabilityCandidates(args.endpoint, args.model))
         .in("status", [...ROUTABLE_CAPABILITY_STATUSES_WITH_TESTING])
-        .in("provider_api_model_id", providerModelIds);
+        .in("provider_model_id", providerModelIds);
     if (capabilityError) return [];
 
     const latestCapabilityByProviderModel = new Map<
@@ -486,6 +666,8 @@ async function fetchTestingProviderSnapshots(args: {
                             ? null
                             : String(row.key_version),
                     alwaysUse: Boolean(row.always_use),
+					routingMode: row.always_use ? "priority" : "fallback",
+					sortOrder: 0,
                 };
                 const list = byokByProvider.get(entry.providerId) ?? [];
                 list.push(entry);
@@ -546,6 +728,155 @@ async function fetchTestingProviderSnapshots(args: {
     return testingProviders;
 }
 
+async function fetchFreeRouterProviderPool(args: {
+    endpoint: string;
+}): Promise<Pick<GatewayContextData, "providers" | "pricing">> {
+    const supabase = getSupabaseAdmin();
+    const nowMs = Date.now();
+    const { data: rows, error } = await supabase
+        .from("v2_model_provider_routes")
+        .select(
+            "provider_api_model_id:provider_model_id,provider_id:provider_slug,provider_model_slug,api_model_id:model_slug,model_id:model_slug,is_active_gateway:routing_enabled,routing_status:status,effective_from,effective_to,input_modalities,output_modalities"
+        )
+        .eq("routing_enabled", true)
+        .in("status", ["active", "degraded"])
+        .like("model_slug", "%:free");
+    if (error || !rows?.length) return { providers: [], pricing: {} };
+
+    const inWindowRows = (rows as FreeRouterProviderModelRow[])
+        .filter((row) => typeof row.provider_api_model_id === "string" && row.provider_api_model_id.length > 0)
+        .filter((row) => typeof row.provider_id === "string" && row.provider_id.length > 0)
+        .filter((row) => typeof (row.api_model_id ?? row.model_id) === "string")
+        .filter((row) => isWithinEffectiveWindow(row.effective_from, row.effective_to, nowMs));
+    if (!inWindowRows.length) return { providers: [], pricing: {} };
+
+    const modelIds = Array.from(
+        new Set(
+            inWindowRows
+                .map((row) => row.api_model_id ?? row.model_id ?? null)
+                .filter((modelId): modelId is string => typeof modelId === "string" && modelId.length > 0)
+        )
+    );
+    if (!modelIds.length) return { providers: [], pricing: {} };
+
+    const { data: modelRows, error: modelError } = await supabase
+        .from("v2_models")
+        .select("model_id:model_slug,hidden,status,deprecation_date:deprecated_at,retirement_date:retired_at")
+        .in("model_slug", modelIds);
+    if (modelError) return { providers: [], pricing: {} };
+
+    const activeModelIds = new Set(
+        (modelRows ?? [])
+            .filter((row: any) => row?.hidden !== true)
+            .filter((row: any) => normalizeRoutingStatus(row?.status) === "active")
+            .map((row: any) => row?.model_id)
+            .filter((modelId: unknown): modelId is string => typeof modelId === "string" && modelId.length > 0)
+    );
+    if (!activeModelIds.size) return { providers: [], pricing: {} };
+
+    const providerModelIds = Array.from(
+        new Set(
+            inWindowRows
+                .map((row) => row.provider_api_model_id)
+                .filter((id): id is string => typeof id === "string" && id.length > 0)
+        )
+    );
+    const capabilityId = getContextCapabilityCandidates(args.endpoint, FREE_ROUTER_MODEL_ID)[0] ?? args.endpoint;
+    const { data: capabilityRows, error: capabilityError } = await supabase
+        .from("v2_route_capabilities")
+        .select("provider_api_model_id:provider_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at")
+        .eq("capability_id", capabilityId)
+        .in("status", [...ROUTABLE_CAPABILITY_STATUSES])
+        .in("provider_model_id", providerModelIds);
+    if (capabilityError) return { providers: [], pricing: {} };
+
+    const capabilityByProviderModel = new Map<string, any>();
+    for (const row of capabilityRows ?? []) {
+        const providerApiModelId = row?.provider_api_model_id;
+        if (typeof providerApiModelId !== "string" || !providerApiModelId.length) continue;
+        capabilityByProviderModel.set(providerApiModelId, row);
+    }
+
+    const providerIds = Array.from(
+        new Set(
+            inWindowRows
+                .map((row) => row.provider_id)
+                .filter((providerId): providerId is string => typeof providerId === "string" && providerId.length > 0)
+        )
+    );
+    const { data: providerRows, error: providerError } = await supabase
+        .from("v2_providers")
+        .select("api_provider_id:provider_slug,status,routing_status:routing_enabled")
+        .in("provider_slug", providerIds);
+    if (providerError) return { providers: [], pricing: {} };
+
+    const providerStatusById = new Map<string, { status: ProviderRolloutStatus; routingStatus: RoutingStatus }>();
+    for (const row of providerRows ?? []) {
+        const providerId = row?.api_provider_id;
+        if (typeof providerId !== "string" || !providerId.length) continue;
+        providerStatusById.set(providerId, {
+            status: normalizeProviderStatus(row?.status),
+            routingStatus: row?.routing_status === true ? "active" : "disabled",
+        });
+    }
+
+    const providers: GatewayProviderSnapshot[] = [];
+    const pricing: Record<string, any> = {};
+    for (const row of inWindowRows) {
+        const providerApiModelId = row.provider_api_model_id;
+        const providerId = row.provider_id;
+        const apiModelId = row.api_model_id ?? row.model_id ?? null;
+        if (!providerApiModelId || !providerId || !apiModelId || !activeModelIds.has(apiModelId)) continue;
+
+        const capability = capabilityByProviderModel.get(providerApiModelId);
+        if (!capability) continue;
+
+        const providerModelSlug =
+            row.provider_model_slug === null || row.provider_model_slug === undefined
+                ? null
+                : String(row.provider_model_slug);
+        const providerStatus = providerStatusById.get(providerId);
+        const residency = getProviderResidencyMetadata({
+            providerId,
+            providerModelSlug,
+        });
+        const pricingKey = `${providerId}:${apiModelId}`;
+        providers.push({
+            providerId,
+            providerStatus: providerStatus?.status ?? "not_ready",
+            providerRoutingStatus: providerStatus?.routingStatus ?? "disabled",
+            modelRoutingStatus: normalizeRoutingStatus(row.routing_status),
+            capabilityStatus: normalizeCapabilityStatus(capability.status),
+            residencyMode: residency.residencyMode,
+            executionRegions: residency.executionRegions,
+            dataRegions: residency.dataRegions,
+            zeroDataRetention: residency.zeroDataRetention,
+            supportsEndpoint: true,
+            baseWeight: 1,
+            byokMeta: [],
+            providerModelSlug,
+            apiModelId,
+            pricingKey,
+            capabilityParams: (capability.params && typeof capability.params === "object" ? capability.params : {}) as Record<string, any>,
+            maxInputTokens:
+                capability.max_input_tokens === null || capability.max_input_tokens === undefined
+                    ? null
+                    : Number(capability.max_input_tokens),
+            maxOutputTokens:
+                capability.max_output_tokens === null || capability.max_output_tokens === undefined
+                    ? null
+                    : Number(capability.max_output_tokens),
+        });
+
+        const card = await loadPriceCard(providerId, apiModelId, args.endpoint);
+        if (card) {
+            pricing[pricingKey] = card;
+        }
+    }
+
+    return { providers, pricing };
+}
+
 export async function fetchGatewayContext(args: {
     workspaceId: string;
     model: string;
@@ -562,6 +893,7 @@ export async function fetchGatewayContext(args: {
         totalMs: 0,
         keyVersionMs: null,
         cacheReadMs: null,
+        creditRefreshMs: null,
         rpcMs: null,
         enrichMs: null,
         cacheWriteMs: null,
@@ -604,23 +936,63 @@ export async function fetchGatewayContext(args: {
             if (dynamicCachedRaw && staticCachedRaw) {
                 const dynamicParsed = JSON.parse(dynamicCachedRaw);
                 const staticParsed = JSON.parse(staticCachedRaw);
-                if (isDynamicContextLike(dynamicParsed) && isStaticContextLike(staticParsed)) {
-                    const creditParsed = creditCachedRaw ? JSON.parse(creditCachedRaw) : null;
-                    const creditContext = isCreditContextLike(creditParsed) ? creditParsed : null;
-                    const merged = mergeCachedContext({
+                if (
+					isDynamicContextLike(dynamicParsed) &&
+					isStaticContextLike(staticParsed) &&
+					!hasConfiguredKeyLimits(dynamicParsed.keyLimit)
+				) {
+					// Request/cost usage changes after every completion. A cached
+					// snapshot can admit subsequent requests past a configured cap,
+					// so only uncapped keys may use the dynamic context snapshot.
+					let cacheStatus: ContextFetchTelemetry["cacheStatus"] = "hit";
+					let creditContext: CreditContextSnapshot | null = null;
+					if (creditCachedRaw) {
+						try {
+							const creditParsed = JSON.parse(creditCachedRaw);
+							creditContext = isCreditContextLike(creditParsed) ? creditParsed : null;
+						} catch {
+							creditContext = null;
+						}
+					}
+					if (!creditContext) {
+						const creditRefreshStartedAt = performance.now();
+						creditContext = await fetchFreshCreditContext({
+							workspaceId: args.workspaceId,
+							teamEnrichment: dynamicParsed.teamEnrichment ?? null,
+						});
+						telemetry.creditRefreshMs = round3(
+							performance.now() - creditRefreshStartedAt,
+						);
+						cacheStatus = "credit_refresh";
+						const creditOnlyContext = mergeCachedContext({
+							dynamic: dynamicParsed,
+							static: staticParsed,
+							credit: creditContext,
+							endpoint: args.endpoint,
+						});
+						const creditTtl = clampTtl(
+							computeCreditSnapshotTtlForContext(creditOnlyContext),
+						);
+						await cache.put(
+							creditCacheKey,
+							JSON.stringify(creditContext),
+							{ expirationTtl: creditTtl },
+						).catch(() => undefined);
+					}
+					const merged = mergeCachedContext({
                         dynamic: dynamicParsed,
                         static: staticParsed,
                         credit: creditContext,
                         endpoint: args.endpoint,
                     });
-                    return {
+					return hydrateByokKeys({
                         ...merged,
                         contextTelemetry: {
                             ...telemetry,
-                            cacheStatus: "hit",
+                            cacheStatus,
                             totalMs: round3(performance.now() - fetchStartedAt),
                         },
-                    };
+					}, args.workspaceId);
                 }
             }
         } catch {
@@ -631,9 +1003,11 @@ export async function fetchGatewayContext(args: {
 
     const inflightKey = shouldUseCache ? compositionCacheKey : null;
     if (inflightKey) {
-        const inflight = contextInflight.get(inflightKey);
-        if (inflight) {
-            return inflight.then((value) => cloneGatewayContextData(value));
+		const inflight = contextInflight.get(inflightKey);
+		if (inflight) {
+			return inflight.then((value) =>
+				hydrateByokKeys(cloneGatewayContextData(value), args.workspaceId),
+			);
         }
     }
 
@@ -728,7 +1102,7 @@ export async function fetchGatewayContext(args: {
         // if RPC returned no providers and did not resolve the model, remap via provider_model_slug.
         const noProviders = (parsed.providers ?? []).length === 0;
         const unresolved = (parsed.resolvedModel ?? args.model) === args.model;
-        if (noProviders && unresolved) {
+        if (noProviders && unresolved && !isFreeRouterModel(args.model)) {
             const remappedModel = await resolveProviderScopedModelToApiModel({
                 model: args.model,
                 endpoint: contextCapability,
@@ -736,6 +1110,22 @@ export async function fetchGatewayContext(args: {
             if (remappedModel && remappedModel !== args.model) {
                 telemetry.fallbackRemap = true;
                 parsed = await fetchParsedContextMeasured(remappedModel, contextCapability);
+            }
+        }
+        if (noProviders && isFreeRouterModel(args.model)) {
+            const freeRouterPool = await fetchFreeRouterProviderPool({
+                endpoint: contextCapability,
+            });
+            if ((freeRouterPool.providers ?? []).length > 0) {
+                parsed = {
+                    ...parsed,
+                    resolvedModel: FREE_ROUTER_MODEL_ID,
+                    providers: freeRouterPool.providers ?? [],
+                    pricing: {
+                        ...(parsed.pricing ?? {}),
+                        ...(freeRouterPool.pricing ?? {}),
+                    },
+                };
             }
         }
 
@@ -749,7 +1139,7 @@ export async function fetchGatewayContext(args: {
         });
 
         const resolvedModelForPricing = parsed.resolvedModel ?? args.model;
-        if ((parsed.providers ?? []).length > 0) {
+        if ((parsed.providers ?? []).length > 0 && !isFreeRouterModel(args.model)) {
             const pricingByProvider: Record<string, any> = {
                 ...(parsed.pricing ?? {}),
             };
@@ -799,10 +1189,12 @@ export async function fetchGatewayContext(args: {
 
         telemetry.rpcMs = round3(rpcTotalMs);
         const enrichStartedAt = performance.now();
-        parsed = await backfillProviderModalities({
-            parsed,
-            requestedModel: args.model,
-        });
+        if (!isFreeRouterModel(args.model)) {
+            parsed = await backfillProviderModalities({
+                parsed,
+                requestedModel: args.model,
+            });
+        }
 
         if (args.includeTestingMode) {
             try {
@@ -823,7 +1215,7 @@ export async function fetchGatewayContext(args: {
 
         // Testing-mode enrichment appends providers after initial pricing hydration.
         // Re-run pricing lookup so newly added providers are not dropped as pricing_missing.
-        if ((parsed.providers ?? []).length > 0) {
+        if ((parsed.providers ?? []).length > 0 && !isFreeRouterModel(args.model)) {
             const pricingByProvider: Record<string, any> = {
                 ...(parsed.pricing ?? {}),
             };
@@ -879,14 +1271,22 @@ export async function fetchGatewayContext(args: {
         // Enrich with team settings + provider rollout statuses.
         parsed.teamSettings = {
             routingMode: null,
-            byokFallbackEnabled: null,
+            byokFallbackEnabled: false,
             betaChannelEnabled: false,
             alphaChannelEnabled: false,
             cacheAwareRoutingEnabled: null,
-            privacyZdrOnly: false,
-            privacyEnablePaidMayTrain: true,
-            privacyEnableFreeMayTrain: true,
-            privacyEnableInputOutputLogging: true,
+            privacyZdrOnly: true,
+            privacyEnablePaidMayTrain: false,
+            privacyEnableFreeMayTrain: false,
+            privacyEnableInputOutputLogging: false,
+            ioLoggingEnabled: false,
+            ioLoggingIncludeProviderPayloads: false,
+            dataContributionEnabled: false,
+            dataContributionPolicyVersion: null,
+            dataContributionSampleRateBps: 10000,
+            dataContributionClassifierSampleRateBps: 1000,
+            dataContributionDiscountBps: 100,
+            defaultPlugins: null,
             billingMode: "wallet",
         };
 
@@ -901,17 +1301,36 @@ export async function fetchGatewayContext(args: {
 
             const providerStatusQuery = providerIds.length
                 ? supabase
-                      .from("data_api_providers")
-                      .select("api_provider_id,status,routing_status,provider_family_id,offer_scope,offer_label,prompt_training_policy,data_policy_tier,data_policy_confidence,data_policy_contract_mode")
-                      .in("api_provider_id", providerIds)
+                    .from("v2_providers")
+                    .select("provider_slug,status,routing_enabled,provider_family_slug,offer_scope,offer_label,residency_mode,default_execution_regions,default_data_regions,zero_data_retention,prompt_training_policy,data_policy_tier,data_policy_confidence,data_policy_contract_mode,data_policy_variant,stream_cancellation_support,stream_cancellation_stops_provider_billing,stream_cancellation_usage_recovery,stream_cancellation_evidence_kind,stream_cancellation_source_url")
+                    .in("provider_slug", providerIds)
                 : Promise.resolve({ data: [], error: null } as any);
 
-            const [settingsResult, providerStatusResult, teamResult] = await Promise.all([
-                supabase
+            const settingsQuery = (async () => {
+                const columns = "routing_mode,byok_fallback_enabled,beta_channel_enabled,alpha_channel_enabled,privacy_zdr_only,privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,io_logging_enabled,io_logging_include_provider_payloads,data_contribution_enabled,data_contribution_policy_version,data_contribution_sample_rate_bps,data_contribution_classifier_sample_rate_bps,data_contribution_discount_bps,response_healing_enabled,response_healing_locked,response_healing_mode";
+                const withCacheAwareRouting = await supabase
                     .from("workspace_settings")
-                    .select("routing_mode,byok_fallback_enabled,beta_channel_enabled,alpha_channel_enabled,cache_aware_routing_enabled,privacy_zdr_only,privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging")
+                    .select(`${columns},cache_aware_routing_enabled`)
                     .eq("workspace_id", args.workspaceId)
-                    .maybeSingle(),
+                    .maybeSingle();
+                if (!withCacheAwareRouting.error) return withCacheAwareRouting;
+
+                const code = String(withCacheAwareRouting.error.code ?? "").trim();
+                const message = String(withCacheAwareRouting.error.message ?? "").toLowerCase();
+                const isMissingCacheAwareRouting =
+                    (code === "PGRST204" || code === "42703") &&
+                    message.includes("cache_aware_routing_enabled");
+                if (!isMissingCacheAwareRouting) return withCacheAwareRouting;
+
+                return supabase
+                    .from("workspace_settings")
+                    .select(columns)
+                    .eq("workspace_id", args.workspaceId)
+                    .maybeSingle();
+            })();
+
+            const [settingsResult, providerStatusResult, teamResult] = await Promise.all([
+                settingsQuery,
                 providerStatusQuery,
                 supabase
                     .from("workspaces")
@@ -920,87 +1339,204 @@ export async function fetchGatewayContext(args: {
                     .maybeSingle(),
             ]);
 
-            if (!settingsResult?.error) {
-                const rawBillingMode = String(teamResult?.data?.billing_mode ?? "wallet")
-                    .trim()
-                    .toLowerCase();
-                const billingMode =
-                    rawBillingMode === "invoice" ? "invoice" : "wallet";
-                parsed.teamSettings = {
-                    routingMode: settingsResult.data?.routing_mode ?? null,
-                    byokFallbackEnabled:
-                        settingsResult.data?.byok_fallback_enabled ?? null,
-                    betaChannelEnabled:
-                        settingsResult.data?.beta_channel_enabled ?? false,
-                    alphaChannelEnabled:
-                        settingsResult.data?.alpha_channel_enabled ?? false,
-                    cacheAwareRoutingEnabled:
-                        settingsResult.data?.cache_aware_routing_enabled ?? null,
-                    privacyZdrOnly:
-                        settingsResult.data?.privacy_zdr_only ?? false,
-                    privacyEnablePaidMayTrain:
-                        settingsResult.data?.privacy_enable_paid_may_train ?? true,
-                    privacyEnableFreeMayTrain:
-                        settingsResult.data?.privacy_enable_free_may_train ?? true,
-                    privacyEnableInputOutputLogging:
-                        settingsResult.data?.privacy_enable_input_output_logging ?? true,
-                    billingMode,
-                };
+            if (settingsResult?.error) {
+                throw new Error(`workspace_settings_enrichment_failed:${settingsResult.error.message ?? "unknown"}`);
             }
+            if (!settingsResult?.data) {
+                throw new Error("workspace_settings_enrichment_missing");
+            }
+            if (providerStatusResult?.error) {
+                throw new Error(`provider_status_enrichment_failed:${providerStatusResult.error.message ?? "unknown"}`);
+            }
+            if (teamResult?.error || !teamResult?.data) {
+                throw new Error(`workspace_billing_enrichment_failed:${teamResult?.error?.message ?? "missing"}`);
+            }
+
+            const rawBillingMode = String(teamResult.data.billing_mode ?? "").trim().toLowerCase();
+            if (rawBillingMode !== "wallet" && rawBillingMode !== "invoice") {
+                throw new Error("workspace_billing_mode_invalid");
+            }
+            const cacheAwareRoutingEnabled = (
+                settingsResult.data as Record<string, unknown>
+            ).cache_aware_routing_enabled;
+            const dataContributionFeatureEnabled =
+                settingsResult.data.data_contribution_enabled === true &&
+                await isDataContributionAccessEnabled({ workspaceId: args.workspaceId });
+            const responseHealingEnabled =
+                settingsResult.data.response_healing_enabled === true;
+            const responseHealingLocked =
+                settingsResult.data.response_healing_locked === true;
+            const responseHealingMode =
+                settingsResult.data.response_healing_mode === "strict"
+                    ? "strict"
+                    : "safe";
+            parsed.teamSettings = {
+                routingMode: settingsResult.data.routing_mode ?? null,
+                byokFallbackEnabled: settingsResult.data.byok_fallback_enabled === true,
+                betaChannelEnabled: settingsResult.data.beta_channel_enabled === true,
+                alphaChannelEnabled: settingsResult.data.alpha_channel_enabled === true,
+                cacheAwareRoutingEnabled:
+                    typeof cacheAwareRoutingEnabled === "boolean"
+                        ? cacheAwareRoutingEnabled
+                        : null,
+                privacyZdrOnly: settingsResult.data.privacy_zdr_only === true,
+                privacyEnablePaidMayTrain:
+                    settingsResult.data.privacy_enable_paid_may_train === true,
+                privacyEnableFreeMayTrain:
+                    settingsResult.data.privacy_enable_free_may_train === true,
+                privacyEnableInputOutputLogging:
+                    settingsResult.data.privacy_enable_input_output_logging === true,
+                ioLoggingEnabled: settingsResult.data.io_logging_enabled === true,
+                ioLoggingIncludeProviderPayloads:
+                    settingsResult.data.io_logging_include_provider_payloads === true,
+                dataContributionEnabled:
+                    dataContributionFeatureEnabled,
+                dataContributionPolicyVersion:
+                    settingsResult.data.data_contribution_policy_version ?? null,
+                dataContributionSampleRateBps:
+                    Number(settingsResult.data.data_contribution_sample_rate_bps ?? 10000),
+                dataContributionClassifierSampleRateBps:
+                    Number(settingsResult.data.data_contribution_classifier_sample_rate_bps ?? 1000),
+                dataContributionDiscountBps:
+                    Number(settingsResult.data.data_contribution_discount_bps ?? 100),
+                defaultPlugins:
+                    responseHealingEnabled || responseHealingLocked
+                        ? [{
+                            id: "response-healing",
+                            enabled: responseHealingEnabled,
+                            config: { mode: responseHealingMode },
+                            ...(responseHealingLocked ? { preventOverrides: true } : {}),
+                        }]
+                        : null,
+                billingMode: rawBillingMode,
+            };
 
             const rolloutStatusByProvider = new Map<string, ProviderRolloutStatus>();
             const routingStatusByProvider = new Map<string, RoutingStatus>();
             const providerFamilyByProvider = new Map<string, string | null>();
             const offerScopeByProvider = new Map<string, GatewayProviderSnapshot["offerScope"]>();
             const offerLabelByProvider = new Map<string, string | null>();
+			const dataPolicyVariantByProvider = new Map<string, GatewayProviderSnapshot["dataPolicyVariant"]>();
+			const residencyModeByProvider = new Map<string, GatewayProviderSnapshot["residencyMode"]>();
+			const executionRegionsByProvider = new Map<string, string[] | null>();
+			const dataRegionsByProvider = new Map<string, string[] | null>();
+			const zeroDataRetentionByProvider = new Map<string, GatewayProviderSnapshot["zeroDataRetention"]>();
             const promptTrainingPolicyByProvider = new Map<string, GatewayProviderSnapshot["promptTrainingPolicy"]>();
             const dataPolicyTierByProvider = new Map<string, GatewayProviderSnapshot["dataPolicyTier"]>();
             const dataPolicyConfidenceByProvider = new Map<string, GatewayProviderSnapshot["dataPolicyConfidence"]>();
             const dataPolicyContractModeByProvider = new Map<string, GatewayProviderSnapshot["dataPolicyContractMode"]>();
+            const streamCancellationSupportByProvider = new Map<string, GatewayProviderSnapshot["streamCancellationSupport"]>();
+            const streamCancellationStopsBillingByProvider = new Map<string, boolean | null>();
+            const streamCancellationUsageRecoveryByProvider = new Map<string, GatewayProviderSnapshot["streamCancellationUsageRecovery"]>();
+            const streamCancellationEvidenceKindByProvider = new Map<string, GatewayProviderSnapshot["streamCancellationEvidenceKind"]>();
+            const streamCancellationSourceUrlByProvider = new Map<string, string | null>();
+			const normalizeRegions = (value: unknown): string[] | null =>
+				Array.isArray(value)
+					? value.map(String).map((region) => region.trim().toLowerCase()).filter(Boolean)
+					: null;
             if (!providerStatusResult?.error) {
                 for (const row of providerStatusResult.data ?? []) {
-                    if (!row?.api_provider_id) continue;
+                    const providerId = typeof row?.provider_slug === "string"
+                        ? row.provider_slug
+                        : null;
+                    if (!providerId) continue;
                     rolloutStatusByProvider.set(
-                        row.api_provider_id,
+                        providerId,
                         normalizeProviderStatus(row.status),
                     );
                     routingStatusByProvider.set(
-                        row.api_provider_id,
-                        normalizeRoutingStatus(row.routing_status),
+                        providerId,
+                        row.routing_enabled === true ? "active" : "disabled",
                     );
                     providerFamilyByProvider.set(
-                        row.api_provider_id,
-                        typeof row.provider_family_id === "string" && row.provider_family_id.trim().length > 0
-                            ? row.provider_family_id
+                        providerId,
+                        typeof row.provider_family_slug === "string" && row.provider_family_slug.trim().length > 0
+                            ? row.provider_family_slug
                             : null,
                     );
                     offerScopeByProvider.set(
-                        row.api_provider_id,
+                        providerId,
                         row.offer_scope === "global" || row.offer_scope === "regional" || row.offer_scope === "specialized"
                             ? row.offer_scope
                             : null,
                     );
                     offerLabelByProvider.set(
-                        row.api_provider_id,
+                        providerId,
                         typeof row.offer_label === "string" && row.offer_label.trim().length > 0
                             ? row.offer_label
                             : null,
                     );
+					dataPolicyVariantByProvider.set(
+						providerId,
+						row.data_policy_variant === "zdr" ? "zdr" : "standard",
+					);
+					residencyModeByProvider.set(
+						providerId,
+						row.residency_mode === "provider_managed" ||
+						row.residency_mode === "customer_selectable" ||
+						row.residency_mode === "account_selected"
+							? row.residency_mode
+							: "unknown",
+					);
+					executionRegionsByProvider.set(
+						providerId,
+						normalizeRegions(row.default_execution_regions),
+					);
+					dataRegionsByProvider.set(
+						providerId,
+						normalizeRegions(row.default_data_regions),
+					);
+					zeroDataRetentionByProvider.set(
+						providerId,
+						row.zero_data_retention === "unsupported" ||
+						row.zero_data_retention === "optional" ||
+						row.zero_data_retention === "default"
+							? row.zero_data_retention
+							: "unknown",
+					);
                     promptTrainingPolicyByProvider.set(
-                        row.api_provider_id,
+                        providerId,
                         normalizePromptTrainingPolicy(row.prompt_training_policy),
                     );
                     dataPolicyTierByProvider.set(
-                        row.api_provider_id,
+                        providerId,
                         normalizeDataPolicyTier(row.data_policy_tier),
                     );
                     dataPolicyConfidenceByProvider.set(
-                        row.api_provider_id,
+                        providerId,
                         normalizeDataPolicyConfidence(row.data_policy_confidence),
                     );
                     dataPolicyContractModeByProvider.set(
-                        row.api_provider_id,
+                        providerId,
                         normalizeDataPolicyContractMode(row.data_policy_contract_mode),
+                    );
+                    streamCancellationSupportByProvider.set(
+                        providerId,
+                        row.stream_cancellation_support === "supported" || row.stream_cancellation_support === "unsupported"
+                            ? row.stream_cancellation_support
+                            : "unknown",
+                    );
+                    streamCancellationStopsBillingByProvider.set(
+                        providerId,
+                        typeof row.stream_cancellation_stops_provider_billing === "boolean"
+                            ? row.stream_cancellation_stops_provider_billing
+                            : null,
+                    );
+                    streamCancellationUsageRecoveryByProvider.set(
+                        providerId,
+                        row.stream_cancellation_usage_recovery === "authoritative" ? "authoritative" : "unknown",
+                    );
+                    streamCancellationEvidenceKindByProvider.set(
+                        providerId,
+                        row.stream_cancellation_evidence_kind === "provider" || row.stream_cancellation_evidence_kind === "aggregator"
+                            ? row.stream_cancellation_evidence_kind
+                            : "none",
+                    );
+                    streamCancellationSourceUrlByProvider.set(
+                        providerId,
+                        typeof row.stream_cancellation_source_url === "string" && row.stream_cancellation_source_url.trim()
+                            ? row.stream_cancellation_source_url
+                            : null,
                     );
                 }
             }
@@ -1024,27 +1560,44 @@ export async function fetchGatewayContext(args: {
                         offerLabelByProvider.get(provider.providerId) ??
                         provider.offerLabel ??
                         null,
+					dataPolicyVariant:
+						dataPolicyVariantByProvider.get(provider.providerId) ??
+						provider.dataPolicyVariant ??
+						"standard",
                     providerStatus:
                         rolloutStatusByProvider.get(provider.providerId) ??
-                        normalizeProviderStatus(provider.providerStatus) ??
-                        "active",
+                        (provider.providerStatus == null
+                            ? "not_ready"
+                            : normalizeProviderStatus(provider.providerStatus)),
                     providerRoutingStatus:
                         routingStatusByProvider.get(provider.providerId) ??
-                        normalizeRoutingStatus(provider.providerRoutingStatus) ??
-                        "active",
+                        (provider.providerRoutingStatus == null
+                            ? "disabled"
+                            : normalizeRoutingStatus(provider.providerRoutingStatus)),
                     modelRoutingStatus:
-                        normalizeRoutingStatus(provider.modelRoutingStatus) ??
-                        "active",
+                        provider.modelRoutingStatus == null
+                            ? "disabled"
+                            : normalizeRoutingStatus(provider.modelRoutingStatus),
                     capabilityStatus:
-                        normalizeCapabilityStatus(provider.capabilityStatus) ??
-                        "active",
+                        provider.capabilityStatus == null
+                            ? "disabled"
+                            : normalizeCapabilityStatus(provider.capabilityStatus),
                     residencyMode:
-                        provider.residencyMode ?? residency.residencyMode,
+						residencyModeByProvider.get(provider.providerId) ??
+						provider.residencyMode ??
+						residency.residencyMode,
                     executionRegions:
-                        provider.executionRegions ?? residency.executionRegions,
-                    dataRegions: provider.dataRegions ?? residency.dataRegions,
+						executionRegionsByProvider.get(provider.providerId) ??
+						provider.executionRegions ??
+						residency.executionRegions,
+					dataRegions:
+						dataRegionsByProvider.get(provider.providerId) ??
+						provider.dataRegions ??
+						residency.dataRegions,
                     zeroDataRetention:
-                        provider.zeroDataRetention ?? residency.zeroDataRetention,
+						zeroDataRetentionByProvider.get(provider.providerId) ??
+						provider.zeroDataRetention ??
+						residency.zeroDataRetention,
                     promptTrainingPolicy:
                         promptTrainingPolicyByProvider.get(provider.providerId) ??
                         provider.promptTrainingPolicy ??
@@ -1061,10 +1614,36 @@ export async function fetchGatewayContext(args: {
                         dataPolicyContractModeByProvider.get(provider.providerId) ??
                         provider.dataPolicyContractMode ??
                         "none",
+                    streamCancellationSupport:
+                        streamCancellationSupportByProvider.get(provider.providerId) ??
+                        provider.streamCancellationSupport ??
+                        "unknown",
+                    streamCancellationStopsProviderBilling:
+                        streamCancellationStopsBillingByProvider.get(provider.providerId) ??
+                        provider.streamCancellationStopsProviderBilling ??
+                        null,
+                    streamCancellationUsageRecovery:
+                        streamCancellationUsageRecoveryByProvider.get(provider.providerId) ??
+                        provider.streamCancellationUsageRecovery ??
+                        "unknown",
+                    streamCancellationEvidenceKind:
+                        streamCancellationEvidenceKindByProvider.get(provider.providerId) ??
+                        provider.streamCancellationEvidenceKind ??
+                        "none",
+                    streamCancellationSourceUrl:
+                        streamCancellationSourceUrlByProvider.get(provider.providerId) ??
+                        provider.streamCancellationSourceUrl ??
+                        null,
                 };
             });
-        } catch {
-            // Keep defaults if enrichment fails, never block request path.
+        } catch (error) {
+            console.error("[context] security enrichment failed", {
+                workspaceId: args.workspaceId,
+                model: args.model,
+                endpoint: args.endpoint,
+                error: error instanceof Error ? error.message : String(error),
+            });
+            throw error;
         }
         parsed.testingMode = Boolean(args.includeTestingMode);
         telemetry.enrichMs = round3(performance.now() - enrichStartedAt);
@@ -1077,13 +1656,33 @@ export async function fetchGatewayContext(args: {
             try {
                 const split = splitContextForCache(parsed);
                 const dynamicTtl = clampTtl(computeAdaptiveTtlForDynamic(parsed));
-                const staticTtl = clampTtl(isPreset ? PRESET_TTL : computeStaticTtl());
+                const pricingAwareStaticTtl = computeStaticTtl(parsed);
+                const staticTtl = pricingAwareStaticTtl === null
+                    ? null
+                    : clampTtl(isPreset ? Math.min(PRESET_TTL, pricingAwareStaticTtl) : pricingAwareStaticTtl);
                 const creditTtl = clampTtl(computeCreditSnapshotTtlForContext(parsed));
-                await Promise.all([
-                    cache.put(dynamicCacheKey, JSON.stringify(split.dynamic), { expirationTtl: dynamicTtl }),
-                    cache.put(staticCacheKey, JSON.stringify(split.static), { expirationTtl: staticTtl }),
-                    cache.put(creditCacheKey, JSON.stringify(split.credit), { expirationTtl: creditTtl }),
-                ]);
+                await cache.put(
+                    creditCacheKey,
+                    JSON.stringify(split.credit),
+                    { expirationTtl: creditTtl },
+                );
+                const backgroundCacheWrites: Promise<void>[] = [
+                    ...(hasConfiguredKeyLimits(parsed.keyLimit)
+                        ? []
+                        : [cache.put(dynamicCacheKey, JSON.stringify(split.dynamic), { expirationTtl: dynamicTtl })]),
+                ];
+                if (staticTtl !== null) {
+                    backgroundCacheWrites.push(
+                        cache.put(staticCacheKey, JSON.stringify(split.static), { expirationTtl: staticTtl }),
+                    );
+                }
+                if (backgroundCacheWrites.length > 0) {
+                    dispatchBackground(
+                        Promise.all(backgroundCacheWrites)
+                            .then(() => undefined)
+                            .catch(() => undefined),
+                    );
+                }
             } catch {
                 // ignore cache write failures
             } finally {
@@ -1106,7 +1705,7 @@ export async function fetchGatewayContext(args: {
     }
 
     try {
-        return await dbLoader;
+		return await hydrateByokKeys(await dbLoader, args.workspaceId);
     } finally {
         if (inflightKey && contextInflight.get(inflightKey) === dbLoader) {
             contextInflight.delete(inflightKey);

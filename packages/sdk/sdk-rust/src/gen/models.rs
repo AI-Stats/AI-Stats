@@ -234,6 +234,9 @@ pub struct AudioSpeechRequest {
 pub struct AudioTranscriptionRequest {
 	pub audio_b64: Option<String>,
 	pub audio_url: Option<String>,
+	pub chunking_strategy: Option<String>,
+	pub known_speaker_names: Option<Vec<String>>,
+	pub known_speaker_references: Option<Vec<String>>,
 	pub language: Option<String>,
 	pub model: String,
 	pub provider: Option<HashMap<String, String>>,
@@ -316,21 +319,70 @@ pub struct BatchModelsResponse {
 	pub object: Option<String>,
 }
 
+pub struct BatchProviderCapability {
+	pub documentation_url: Option<String>,
+	pub endpoints: Option<Vec<HashMap<String, String>>>,
+	pub gateway_input_modes: Option<Vec<String>>,
+	pub id: Option<String>,
+	pub name: Option<String>,
+	pub native_input_modes: Option<Vec<String>>,
+	pub notes: Option<Option<String>>,
+	pub status: Option<String>,
+}
+
 pub struct BatchRequest {
 	pub completion_window: Option<String>,
 	pub debug: Option<HashMap<String, String>>,
-	pub endpoint: String,
-	pub input_file_id: String,
+	pub endpoint: Option<String>,
+	pub input_file_id: Option<String>,
+	pub items: Option<Vec<HashMap<String, String>>>,
+	pub max_tokens: Option<i64>,
 	pub metadata: Option<HashMap<String, String>>,
+	pub model: Option<String>,
+	pub prompts: Option<Vec<String>>,
 	pub provider: Option<HashMap<String, String>>,
+	pub requests: Option<Vec<HashMap<String, String>>>,
 	pub session_id: Option<String>,
+	pub system: Option<String>,
+	pub temperature: Option<f64>,
 	pub webhook: Option<HashMap<String, String>>,
+	pub webhook_endpoint_id: Option<String>,
 }
 
 pub struct BatchRequestCounts {
 	pub completed: Option<i64>,
 	pub failed: Option<i64>,
 	pub total: Option<i64>,
+}
+
+pub struct BatchRequestItem {
+	pub body: HashMap<String, String>,
+	pub custom_id: Option<String>,
+	pub method: Option<String>,
+	pub url: Option<String>,
+}
+
+pub struct BatchRequestRow {
+	pub completed_at: Option<Option<String>>,
+	pub cost_nanos: Option<Option<i64>>,
+	pub cost_usd: Option<Option<f64>>,
+	pub created_at: Option<Option<String>>,
+	pub custom_id: Option<String>,
+	pub endpoint: Option<Option<String>>,
+	pub error_body: Option<Option<HashMap<String, String>>>,
+	pub id: Option<String>,
+	pub meta: Option<HashMap<String, String>>,
+	pub method: Option<Option<String>>,
+	pub model: Option<Option<String>>,
+	pub native_batch_id: Option<Option<String>>,
+	pub provider: Option<String>,
+	pub request_body_hash: Option<Option<String>>,
+	pub request_index: Option<i64>,
+	pub response_body: Option<Option<HashMap<String, String>>>,
+	pub response_status: Option<Option<i64>>,
+	pub status: Option<String>,
+	pub updated_at: Option<Option<String>>,
+	pub usage: Option<Option<HashMap<String, String>>>,
 }
 
 pub struct BatchResponse {
@@ -369,6 +421,7 @@ pub struct BatchResponse {
 	pub request_id: Option<String>,
 	pub session_id: Option<String>,
 	pub status: Option<String>,
+	pub usage: Option<HashMap<String, String>>,
 	pub webhook: Option<HashMap<String, String>>,
 	pub websocket_url: Option<String>,
 }
@@ -412,7 +465,7 @@ pub struct ChatCompletionsRequest {
 	pub parallel_tool_calls: Option<bool>,
 	pub presence_penalty: Option<f64>,
 	pub prompt_cache_key: Option<Option<String>>,
-	pub provider: Option<HashMap<String, String>>,
+	pub provider: Option<String>,
 	pub provider_options: Option<HashMap<String, String>>,
 	pub reasoning: Option<HashMap<String, String>>,
 	pub response_format: Option<String>,
@@ -522,6 +575,22 @@ pub struct EmbeddingsResponse {
 	pub usage: Option<HashMap<String, String>>,
 }
 
+pub struct EndpointCatalogueEntry {
+	pub capability_id: String,
+	pub collection: String,
+	pub id: String,
+	pub model_count: i64,
+	pub provider_count: i64,
+	pub public_path: String,
+}
+
+pub struct EndpointCatalogueResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub endpoints: Vec<String>,
+	pub ok: String,
+	pub sample_models: Vec<String>,
+}
+
 pub struct ErrorFailureSampleItem {
 	pub provider: Option<Option<String>>,
 	pub retryable: Option<Option<bool>>,
@@ -609,6 +678,11 @@ pub struct FileUploadRequest {
 
 pub struct FunctionToolDefinition {
 	pub function: HashMap<String, String>,
+	pub r#type: String,
+}
+
+pub struct FusionToolDefinition {
+	pub parameters: Option<HashMap<String, String>>,
 	pub r#type: String,
 }
 
@@ -835,6 +909,45 @@ pub struct ModelAvailability {
 	pub status: String,
 }
 
+pub struct ModelEndpointCapability {
+	pub availability_reason: String,
+	pub availability_status: String,
+	pub capability_id: String,
+	pub capability_status: String,
+	pub collection: String,
+	pub effective_from: Option<Option<String>>,
+	pub effective_to: Option<Option<String>>,
+	pub endpoint: String,
+	pub id: String,
+	pub input_modalities: Vec<String>,
+	pub is_active_gateway: bool,
+	pub model_routing_status: String,
+	pub output_modalities: Vec<String>,
+	pub pricing: HashMap<String, String>,
+	pub pricing_detail: HashMap<String, String>,
+	pub provider_id: String,
+	pub provider_model_slug: Option<Option<String>>,
+	pub provider_name: Option<Option<String>>,
+	pub provider_routing_status: String,
+	pub provider_status: String,
+	pub public_path: String,
+	pub supported_parameters: Vec<String>,
+	pub supported_parameters_detail: HashMap<String, String>,
+}
+
+pub struct ModelEndpointsResponse {
+	pub architecture: Option<HashMap<String, String>>,
+	pub availability_mode: String,
+	pub canonical_slug: String,
+	pub created: Option<Option<i64>>,
+	pub description: Option<String>,
+	pub endpoints: Vec<HashMap<String, String>>,
+	pub id: String,
+	pub model_id: String,
+	pub name: Option<Option<String>>,
+	pub ok: String,
+}
+
 pub type ModelId = JsonValue;
 
 pub struct ModelLifecycle {
@@ -854,10 +967,13 @@ pub struct ModelProviderAvailability {
 	pub effective_from: Option<Option<String>>,
 	pub effective_to: Option<Option<String>>,
 	pub endpoints: Vec<String>,
+	pub input_modalities: Option<Vec<String>>,
 	pub is_active_gateway: bool,
 	pub model_routing_status: String,
+	pub output_modalities: Option<Vec<String>>,
 	pub params: Vec<String>,
 	pub params_detail: Option<HashMap<String, String>>,
+	pub provider_model_slug: Option<Option<String>>,
 	pub provider_routing_status: String,
 	pub provider_status: String,
 	pub supported_parameters: Option<Vec<String>>,
@@ -1028,6 +1144,7 @@ pub struct ReasoningConfig {
 	pub effort: Option<String>,
 	pub enabled: Option<bool>,
 	pub max_tokens: Option<i64>,
+	pub mode: Option<String>,
 	pub summary: Option<String>,
 }
 
@@ -1138,22 +1255,48 @@ pub struct ResponsesRequest {
 
 pub struct ResponsesResponse {
 	pub content: Option<Vec<HashMap<String, String>>>,
+	pub cost_cents: Option<i64>,
+	pub cost_nanos: Option<f64>,
 	pub created: Option<i64>,
+	pub currency: Option<String>,
+	pub finish_reason: Option<Option<String>>,
 	pub id: Option<String>,
+	pub meta: Option<HashMap<String, String>>,
 	pub model: Option<String>,
+	pub nativeResponseId: Option<Option<String>>,
 	pub object: Option<String>,
 	pub output: Option<Vec<HashMap<String, String>>>,
 	pub output_items: Option<Vec<HashMap<String, String>>>,
+	pub pricing_lines: Option<Vec<HashMap<String, String>>>,
+	pub provider: Option<String>,
+	pub provider_id: Option<String>,
 	pub role: Option<String>,
+	pub status: Option<String>,
 	pub stop_reason: Option<String>,
 	pub r#type: Option<String>,
 	pub usage: Option<HashMap<String, String>>,
 }
 
+pub struct SearchModelsToolDefinition {
+	pub parameters: Option<HashMap<String, String>>,
+	pub r#type: String,
+}
+
 pub struct ServerToolUsage {
+	pub advisor_requests: Option<i64>,
+	pub apply_patch_requests: Option<i64>,
 	pub datetime_requests: Option<i64>,
+	pub fusion_requests: Option<i64>,
+	pub image_generation_requests: Option<i64>,
+	pub search_models_requests: Option<i64>,
+	pub subagent_requests: Option<i64>,
 	pub web_fetch_requests: Option<i64>,
 	pub web_search_requests: Option<i64>,
+}
+
+pub struct SubagentToolDefinition {
+	pub parameters: Option<HashMap<String, String>>,
+	pub r#type: String,
 }
 
 pub struct SupportedParameterDetails {

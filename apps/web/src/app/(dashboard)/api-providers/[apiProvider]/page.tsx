@@ -5,11 +5,13 @@ import { fetchFrontendAPIProviderHeader } from "@/lib/fetchers/frontend/fetchPub
 import type { Metadata } from "next";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import Script from "next/script";
+import { notFound } from "next/navigation";
 
 async function fetchProviderMeta(apiProviderId: string) {
 	try {
 		return await fetchFrontendAPIProviderHeader(apiProviderId);
 	} catch (error) {
+		// eslint-disable-next-line no-console
 		console.warn("[seo] failed to load api provider metadata", {
 			apiProviderId,
 			error,
@@ -23,6 +25,7 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
 	const { apiProvider } = await props.params;
 	const header = await fetchProviderMeta(apiProvider);
+	if (!header) notFound();
 	const imagePath = `/og/api-providers/${apiProvider}`;
 
 	// Fallback: provider not found / fetch failed
@@ -30,7 +33,7 @@ export async function generateMetadata(props: {
 		return buildMetadata({
 			title: "AI API Provider Performance Analytics",
 			description:
-				"Inspect AI API provider performance on AI Stats with latency, throughput, and reliability metrics from real gateway traffic, plus model usage trends and provider-level rankings.",
+				"Inspect AI API provider performance on Phaseo with latency, throughput, and reliability metrics from real gateway traffic, plus model usage trends and provider-level rankings.",
 			path: `/api-providers/${apiProvider}`,
 			keywords: [
 				"AI API provider",
@@ -38,10 +41,10 @@ export async function generateMetadata(props: {
 				"latency monitoring",
 				"throughput metrics",
 				"gateway analytics",
-				"AI Stats",
+				"Phaseo",
 			],
 			imagePath,
-			imageAlt: "AI Stats API provider insights",
+			imageAlt: "Phaseo API provider insights",
 			openGraph: {
 				type: "website",
 			},
@@ -51,14 +54,14 @@ export async function generateMetadata(props: {
 	const providerName = header.api_provider_name ?? "AI API provider";
 
 	const description = [
-		`${providerName} on AI Stats - real-world performance analytics from the AI Stats Gateway.`,
+		`${providerName} on Phaseo - real-world performance analytics from the Phaseo Gateway.`,
 		"Review token usage trends, latency, throughput, and average generation time, plus which apps and models drive this provider's traffic.",
 	]
 		.filter(Boolean)
 		.join(" ");
 
 	return buildMetadata({
-		title: `${providerName} - API performance, Latency & Usage analytics`,
+		title: `${providerName} API`,
 		description,
 		path: `/api-providers/${apiProvider}`,
 		keywords: [
@@ -68,10 +71,10 @@ export async function generateMetadata(props: {
 			"AI API provider",
 			"API latency metrics",
 			"gateway analytics",
-			"AI Stats",
+			"Phaseo",
 		],
 		imagePath,
-		imageAlt: `${providerName} gateway analytics on AI Stats`,
+		imageAlt: `${providerName} gateway analytics on Phaseo`,
 		openGraph: {
 			type: "website",
 		},
@@ -87,7 +90,7 @@ export default async function Page({
 	const apiProvider = resolved.apiProvider;
 	const header = await fetchProviderMeta(apiProvider);
 
-	// Generate structured data and FAQs for SEO
+	// Generate structured data for the provider page.
 	const generateStructuredData = () => {
 		if (!header) return null;
 
@@ -98,55 +101,7 @@ export default async function Page({
 			"@context": "https://schema.org",
 			"@type": "Organization",
 			"name": providerName,
-			"description": `${providerName} is an AI API provider tracked on AI Stats. View real-world performance analytics, latency metrics, throughput data, and popular models.`,
-		};
-
-		// FAQ Schema
-		const faqSchema = {
-			"@context": "https://schema.org",
-			"@type": "FAQPage",
-			"mainEntity": [
-				{
-					"@type": "Question",
-					"name": `What is ${providerName}?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `${providerName} is an AI API provider that offers access to various AI models. On AI Stats, you can view real-world performance metrics captured by the AI Stats Gateway, including latency, throughput, and reliability data.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `How is ${providerName} performance measured?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `${providerName} performance is measured using real-world data from the AI Stats Gateway. We track metrics including average latency (time to first token and total generation time), throughput (tokens per second), request success rates, and API reliability across different models and endpoints.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `What models are available on ${providerName}?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `${providerName} offers various AI models across different modalities. Check the Top Models section on AI Stats to see which models are most popular, their performance characteristics, and usage statistics. You can also compare models across different providers.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `How does ${providerName} compare to other providers?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `Compare ${providerName} against other AI API providers on AI Stats by viewing side-by-side performance metrics, pricing data, model availability, and real-world usage statistics. Use our comparison tools to find the best provider for your specific use case.`,
-					},
-				},
-				{
-					"@type": "Question",
-					"name": `What apps use ${providerName}?`,
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": `See which applications and services rely on ${providerName} in the Top Apps section on AI Stats. We track real-world usage patterns to show you how developers are integrating ${providerName} into their products.`,
-					},
-				},
-			],
+			"description": `${providerName} is an AI API provider tracked on Phaseo. View real-world performance analytics, latency metrics, throughput data, and popular models.`,
 		};
 
 		// Breadcrumb Schema
@@ -175,7 +130,7 @@ export default async function Page({
 			],
 		};
 
-		return { organizationSchema, faqSchema, breadcrumbSchema };
+		return { organizationSchema, breadcrumbSchema };
 	};
 
 	const structuredData = generateStructuredData();
@@ -189,13 +144,6 @@ export default async function Page({
 						type="application/ld+json"
 						dangerouslySetInnerHTML={{
 							__html: JSON.stringify(structuredData.organizationSchema),
-						}}
-					/>
-					<Script
-						id="provider-faq-schema"
-						type="application/ld+json"
-						dangerouslySetInnerHTML={{
-							__html: JSON.stringify(structuredData.faqSchema),
 						}}
 					/>
 					<Script

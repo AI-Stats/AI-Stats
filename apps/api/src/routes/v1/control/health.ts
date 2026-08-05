@@ -96,13 +96,13 @@ async function handleProviderDerank(req: Request) {
 	}
 
 	const bindings = getBindings();
-	const controlSecret = bindings.GATEWAY_CONTROL_SECRET?.trim();
+	const controlSecret = bindings.PHASEO_CONTROL_SECRET?.trim();
 	if (!controlSecret) {
 		return json(
 			{
 				ok: false,
 				error: "control_secret_missing",
-				message: "GATEWAY_CONTROL_SECRET is not configured",
+				message: "PHASEO_CONTROL_SECRET is not configured",
 			},
 			503,
 			{ "Cache-Control": "no-store" },
@@ -153,7 +153,7 @@ async function handleProviderDerank(req: Request) {
 	try {
 		const supabase = getSupabaseAdmin();
 		const { data, error } = await supabase
-			.from("gateway_requests")
+			.from("v2_web_gateway_requests")
 			.select("model_id, endpoint, created_at")
 			.eq("provider", providerId)
 			.gte("created_at", sinceIso)

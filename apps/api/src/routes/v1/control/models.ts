@@ -11,6 +11,7 @@ import { json, withRuntime, cacheHeaders } from "@/routes/utils";
 import { requireCapability } from "./route-helpers";
 import {
     fetchCatalogue,
+    scopePricingSummary,
     type CatalogueModel,
     type PricingMeterSummary,
     type PricingSummary,
@@ -18,6 +19,7 @@ import {
     type SupportedParamDetails,
 } from "./models.catalogue";
 import { buildFeedResponse, parseFeedFormat, type FeedItem } from "./models.feeds";
+import { getEndpointMetadata } from "./endpoint-metadata";
 
 type LifecycleStatus = "active" | "deprecated" | "retired" | null;
 type AvailabilityMode = "active" | "all";
@@ -46,11 +48,18 @@ type CompatibilityTopProvider = {
     is_moderated: boolean;
 };
 
+type ModelVariantLink = {
+    model_id: string;
+    name: string;
+};
+
+type ModelVariantLinks = Record<string, ModelVariantLink>;
+
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 250;
 const MAX_OFFSET = 5000;
-const FREE_ROUTER_MODEL_ID = "ai-stats/free";
-const FREE_ROUTER_NAME = "AI Stats Free Router";
+const FREE_ROUTER_MODEL_ID = "phaseo/free";
+const FREE_ROUTER_NAME = "Phaseo Free Router";
 const FREE_ROUTER_ENDPOINTS = ["chat/completions", "responses", "messages"] as const;
 
 function parsePaginationParam(raw: string | null, fallback: number, max: number): number {
@@ -99,6 +108,32 @@ function parseMultiValue(params: URLSearchParams, name: string): string[] {
     const values = params.getAll(name);
     if (!values.length) return [];
     return values.flatMap((value) => toStringArray(value));
+}
+
+function parseMultiValueAliases(params: URLSearchParams, names: string[]): string[] {
+    return Array.from(new Set(names.flatMap((name) => parseMultiValue(params, name))));
+}
+
+function parsePathSegments(req: Request): string[] {
+    return new URL(req.url).pathname
+        .split("/")
+        .map((segment) => decodeURIComponent(segment))
+        .filter(Boolean);
+}
+
+function parseEndpointRouteModelId(req: Request): string | null {
+    const segments = parsePathSegments(req);
+    const endpointsIndex = segments.lastIndexOf("endpoints");
+    if (endpointsIndex < 2) return null;
+    const author = segments[endpointsIndex - 2];
+    const slug = segments[endpointsIndex - 1];
+    return author && slug ? `${author}/${slug}` : null;
+}
+
+function findCatalogueModel(catalogue: CatalogueModel[], modelId: string): CatalogueModel | null {
+    return catalogue.find(
+        (model) => model.model_id === modelId || model.aliases.includes(modelId),
+    ) ?? null;
 }
 
 function parseAvailabilityMode(raw: string | null): AvailabilityMode | null {
@@ -255,9 +290,9 @@ function buildDescription(model: CatalogueModel): string {
     }
     const displayName = model.name?.trim() || model.model_id;
     if (!model.endpoints.length) {
-        return `${displayName} via AI Stats Gateway.`;
+        return `${displayName} via Phaseo Gateway.`;
     }
-    return `${displayName} via AI Stats Gateway. Supports ${model.endpoints.join(", ")}.`;
+    return `${displayName} via Phaseo Gateway. Supports ${model.endpoints.join(", ")}.`;
 }
 
 function canIncludeFreeRouter(endpoints: string[]): boolean {
@@ -422,6 +457,8 @@ async function buildFreeRouterCatalogueModel(args: {
 
         return {
             model_id: FREE_ROUTER_MODEL_ID,
+            base_model_id: FREE_ROUTER_MODEL_ID,
+            variant_kind: "standard",
             previous_model_id: null,
             name: FREE_ROUTER_NAME,
             description: null,
@@ -429,14 +466,15 @@ async function buildFreeRouterCatalogueModel(args: {
             deprecation_date: null,
             retirement_date: null,
             status: "active",
-            organisation_id: "ai-stats",
-            organisation_name: "AI Stats",
+            organisation_id: "phaseo",
+            organisation_name: "Phaseo",
             organisation_colour: null,
             aliases: [],
             endpoints,
             input_types: inputTypes,
             output_types: outputTypes,
             providers,
+            provider_endpoint_capabilities: {},
             supported_params: supportedParams,
             supported_params_detail: supportedParamsDetail,
             top_provider: providers[0]?.api_provider_id ?? null,
@@ -450,6 +488,8 @@ async function buildFreeRouterCatalogueModel(args: {
                     })),
                 }),
             },
+            provider_pricing: {},
+            provider_endpoint_pricing: {},
             availability: {
                 status: "active",
                 provider_count: providers.length,
@@ -462,10 +502,32 @@ async function buildFreeRouterCatalogueModel(args: {
     }
 }
 
-function toRichModel(model: CatalogueModel, replacementModelId: string | null) {
+function buildModelVariants(catalogue: CatalogueModel[]): Map<string, ModelVariantLinks> {
+    const byBaseModel = new Map<string, ModelVariantLinks>();
+    for (const model of catalogue) {
+        const baseModelId = model.base_model_id || model.model_id;
+        const kind = model.variant_kind || "standard";
+        const variants = byBaseModel.get(baseModelId) ?? {};
+        variants[kind] = {
+            model_id: model.model_id,
+            name: model.name?.trim() || model.model_id,
+        };
+        byBaseModel.set(baseModelId, variants);
+    }
+    return byBaseModel;
+}
+
+function toRichModel(
+    model: CatalogueModel,
+    replacementModelId: string | null,
+    variants: ModelVariantLinks,
+) {
     const {
         previous_model_id: _previousModelId,
         supported_params_detail: _supportedParamsDetail,
+        provider_pricing: _providerPricing,
+        provider_endpoint_capabilities: _providerEndpointCapabilities,
+        provider_endpoint_pricing: _providerEndpointPricing,
         ...publicModel
     } = model;
     const legacyTopProvider = model.top_provider;
@@ -475,6 +537,9 @@ function toRichModel(model: CatalogueModel, replacementModelId: string | null) {
         ...publicModel,
         id: model.model_id,
         canonical_slug: model.model_id,
+        base_model_id: model.base_model_id || model.model_id,
+        variant_kind: model.variant_kind || "standard",
+        variants,
         created: toUnixSeconds(model.release_date),
         description: buildDescription(model),
         architecture: toCompatibilityArchitecture(model),
@@ -530,7 +595,7 @@ export async function handleModels(req: Request) {
         );
     }
 
-    const auth = await guardAuth(req);
+    const auth = await guardAuth(req, { allowOAuthJwt: true });
     if (!auth.ok) {
         return (auth as GuardErr).response;
     }
@@ -586,9 +651,9 @@ export async function handleModels(req: Request) {
         ...parseMultiValue(url.searchParams, "id"),
     ];
     const organisationIds = parseMultiValue(url.searchParams, "organisation");
-    const inputTypes = parseMultiValue(url.searchParams, "input_types");
-    const outputTypes = parseMultiValue(url.searchParams, "output_types");
-    const params = parseMultiValue(url.searchParams, "params");
+    const inputTypes = parseMultiValueAliases(url.searchParams, ["input_types", "input_modalities"]);
+    const outputTypes = parseMultiValueAliases(url.searchParams, ["output_types", "output_modalities"]);
+    const params = parseMultiValueAliases(url.searchParams, ["params", "supported_parameters"]);
     const availabilityMode = parseAvailabilityMode(url.searchParams.get("availability"));
     if (availabilityMode === null) {
         return json(
@@ -630,10 +695,15 @@ export async function handleModels(req: Request) {
                 ? [freeRouterModel, ...catalogue]
                 : catalogue;
         const replacementByPreviousModel = buildReplacementByPreviousModel(enrichedCatalogue);
+        const variantsByBaseModel = buildModelVariants(enrichedCatalogue);
         const models = enrichedCatalogue
             .filter((model) => !modelIds.length || modelIds.includes(model.model_id))
             .map((model) =>
-                toRichModel(model, replacementByPreviousModel.get(model.model_id) ?? null)
+                toRichModel(
+                    model,
+                    replacementByPreviousModel.get(model.model_id) ?? null,
+                    variantsByBaseModel.get(model.base_model_id || model.model_id) ?? {},
+                )
             );
         const paged = models.slice(offset, offset + limit);
         const headers = cacheHeaders(cacheOptions);
@@ -647,8 +717,8 @@ export async function handleModels(req: Request) {
             return buildFeedResponse({
                 url,
                 format: requestedFormat.format,
-                title: "AI Stats Gateway Models",
-                description: "Gateway-served AI models available via AI Stats.",
+                title: "Phaseo Gateway Models",
+                description: "Gateway-served AI models available via Phaseo.",
                 items,
                 headers,
             });
@@ -675,8 +745,165 @@ export async function handleModels(req: Request) {
     }
 }
 
+export async function handleModelEndpoints(req: Request) {
+    const url = new URL(req.url);
+    const modelId = parseEndpointRouteModelId(req);
+    if (!modelId) {
+        return json(
+            {
+                ok: false,
+                error: "invalid_request",
+                message: "Model path must be /models/{author}/{slug}/endpoints.",
+            },
+            400,
+            { "Cache-Control": "no-store" },
+        );
+    }
+
+    const auth = await guardAuth(req, { allowOAuthJwt: true });
+    if (!auth.ok) return (auth as GuardErr).response;
+    const scopeError = requireCapability(auth.value, CAPABILITIES.MODELS_READ);
+    if (scopeError) return scopeError;
+
+    const availabilityMode = parseAvailabilityMode(url.searchParams.get("availability"));
+    if (availabilityMode === null) {
+        return json(
+            {
+                ok: false,
+                error: "invalid_request",
+                message: "availability must be one of: active, all",
+            },
+            400,
+            { "Cache-Control": "no-store" },
+        );
+    }
+
+    const providerIds = parseMultiValue(url.searchParams, "provider");
+    const providerStatuses = parseMultiValue(url.searchParams, "provider_status");
+    const providerRoutingStatuses = parseMultiValue(url.searchParams, "provider_routing_status");
+    const modelRoutingStatuses = parseMultiValue(url.searchParams, "model_routing_status");
+    const capabilityStatuses = parseMultiValue(url.searchParams, "capability_status");
+    const providerAvailabilityStatuses = parseMultiValue(url.searchParams, "provider_availability_status");
+    const providerAvailabilityReasons = parseMultiValue(url.searchParams, "provider_availability_reason");
+    const statuses = parseMultiValue(url.searchParams, "status");
+    const params = parseMultiValueAliases(url.searchParams, ["params", "supported_parameters"]);
+
+    const sharedFilters = {
+        providerIds,
+        providerStatuses,
+        providerRoutingStatuses,
+        modelRoutingStatuses,
+        capabilityStatuses,
+        providerAvailabilityStatuses,
+        providerAvailabilityReasons,
+        statuses,
+        availability: availabilityMode,
+    } as const;
+
+    try {
+        const baseCatalogue = await fetchCatalogue(sharedFilters);
+        const model = findCatalogueModel(baseCatalogue, modelId);
+        if (!model) {
+            return json(
+                { ok: false, error: "not_found", message: `Model ${modelId} was not found.` },
+                404,
+                { "Cache-Control": "no-store" },
+            );
+        }
+
+        const canonicalEndpoints = Array.from(new Set(
+            model.endpoints.map((endpoint) => getEndpointMetadata(endpoint).id),
+        ));
+        const filteredCatalogue = await fetchCatalogue({
+            ...sharedFilters,
+            endpoints: canonicalEndpoints,
+            params,
+        });
+        const filteredModel = findCatalogueModel(filteredCatalogue, model.model_id);
+        const endpointModels = canonicalEndpoints.map((endpoint) => ({
+            endpoint,
+            model: filteredModel,
+        }));
+
+        const endpoints = endpointModels.flatMap(({ endpoint, model: endpointModel }) => {
+            if (!endpointModel) return [];
+            const metadata = getEndpointMetadata(endpoint);
+            const endpointProviders = Object.entries(
+                endpointModel.provider_endpoint_capabilities ?? {},
+            ).flatMap(([providerId, capabilities]) =>
+                Object.entries(capabilities)
+                    .filter(([capabilityId]) => getEndpointMetadata(capabilityId).id === metadata.id)
+                    .map(([capabilityId, provider]) => ({ providerId, capabilityId, provider })),
+            );
+            return endpointProviders.map(({ providerId, capabilityId, provider }) => {
+                const pricing = endpointModel
+                    .provider_endpoint_pricing?.[providerId]?.[capabilityId]
+                    ?? endpointModel.provider_pricing?.[providerId]
+                    ?? scopePricingSummary(endpointModel.pricing, new Set([providerId]));
+                return {
+                    id: `${providerId}:${metadata.id}`,
+                    endpoint: metadata.id,
+                    capability_id: capabilityId,
+                    public_path: metadata.public_path,
+                    collection: metadata.collection,
+                    provider_id: providerId,
+                    provider_name: provider.api_provider_name,
+                    provider_model_slug: provider.provider_model_slug,
+                    input_modalities: provider.input_modalities.length
+                        ? [...provider.input_modalities]
+                        : [...model.input_types],
+                    output_modalities: provider.output_modalities.length
+                        ? [...provider.output_modalities]
+                        : [...model.output_types],
+                    is_active_gateway: provider.is_active_gateway,
+                    availability_status: provider.availability_status,
+                    availability_reason: provider.availability_reason,
+                    provider_status: provider.provider_status,
+                    provider_routing_status: provider.provider_routing_status,
+                    model_routing_status: provider.model_routing_status,
+                    capability_status: provider.capability_status,
+                    effective_from: provider.effective_from,
+                    effective_to: provider.effective_to,
+                    supported_parameters: [...provider.params],
+                    supported_parameters_detail: cloneJsonObject(provider.params_detail ?? {}),
+                    pricing: toCompatibilityPricing(pricing),
+                    pricing_detail: pricing,
+                };
+            });
+        });
+
+        return json(
+            {
+                ok: true,
+                id: model.model_id,
+                model_id: model.model_id,
+                canonical_slug: model.model_id,
+                name: model.name,
+                description: buildDescription(model),
+                created: toUnixSeconds(model.release_date),
+                architecture: toCompatibilityArchitecture(model),
+                availability_mode: availabilityMode,
+                endpoints,
+            },
+            200,
+            cacheHeaders({
+                scope: "models:endpoints:shared:v1",
+                ttlSeconds: 1800,
+                staleSeconds: 1800,
+                varyHeaders: [],
+            }),
+        );
+    } catch (error: any) {
+        return json(
+            { ok: false, error: "failed", message: String(error?.message ?? error) },
+            500,
+            { "Cache-Control": "no-store" },
+        );
+    }
+}
+
 export async function handleMyModels(req: Request) {
-    const auth = await guardAuth(req);
+    const auth = await guardAuth(req, { allowOAuthJwt: true });
     if (!auth.ok) {
         return (auth as GuardErr).response;
     }
@@ -696,5 +923,6 @@ export async function handleMyModels(req: Request) {
 export const modelsRoutes = new Hono<Env>();
 
 modelsRoutes.get("/me", withRuntime((req) => handleMyModels(req)));
+modelsRoutes.get("/:author/:slug/endpoints", withRuntime((req) => handleModelEndpoints(req)));
 modelsRoutes.get("/", withRuntime((req) => handleModels(req)));
 

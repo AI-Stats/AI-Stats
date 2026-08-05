@@ -5,11 +5,13 @@ import ConsentForm from "@/components/(gateway)/oauth/ConsentForm";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
+import { isSafeOAuthRedirectUrl } from "@/lib/oauth/safeUrls";
+import { apiBaseUrl } from "@/lib/oauth/apiBaseUrl";
 
 export const metadata = {
-	title: "Authorize Application - AI Stats",
+	title: "Authorize Application - Phaseo",
 	description:
-		"Authorize a third-party application to access your AI Stats account, choose permitted team scopes, and review exactly what the integration can read or modify before approval.",
+		"Authorize a third-party application to access your Phaseo account, choose permitted team scopes, and review exactly what the integration can read or modify before approval.",
 };
 
 interface ConsentPageProps {
@@ -21,6 +23,7 @@ interface ConsentPageProps {
 		state?: string;
 		code_challenge?: string;
 		code_challenge_method?: string;
+		resource?: string;
 		error?: string;
 	}>;
 }
@@ -34,10 +37,10 @@ const FIRST_PARTY_CLIENTS: Record<
 		logo_url: string | null;
 	}
 > = {
-	aistats_cli: {
-		name: "AI Stats CLI",
+	phaseo_cli: {
+		name: "Phaseo CLI",
 		description:
-			"Official first-party AI Stats command line interface for signing in, managing workspaces, and creating keys.",
+			"Official first-party Phaseo command line interface for signing in, managing workspaces, and creating keys.",
 		homepage_url: null,
 		logo_url: null,
 	},
@@ -71,7 +74,26 @@ function oauthAppFromClientRow(row: Record<string, any>) {
 		logo_url: row.logo_url ?? null,
 		redirect_uris: parseRedirectUris(row.redirect_uris),
 		status: row.status ?? "active",
+		is_first_party: Boolean(row.is_first_party),
+		registration_source: row.registration_source ?? (row.is_first_party ? "first_party" : "dynamic"),
 	};
+}
+
+async function loadConsentClientMetadata(supabase: any, clientId: string) {
+	const { data: { session } } = await supabase.auth.getSession();
+	if (!session?.access_token) return null;
+	try {
+		const url = new URL(`${apiBaseUrl()}/oauth/client-metadata`);
+		url.searchParams.set("client_id", clientId);
+		const response = await fetch(url, {
+			headers: { Authorization: `Bearer ${session.access_token}` },
+			cache: "no-store",
+		});
+		if (!response.ok) return null;
+		return await response.json();
+	} catch {
+		return null;
+	}
 }
 
 export default function ConsentPage({ searchParams }: ConsentPageProps) {
@@ -162,7 +184,10 @@ async function ConsentPageContent({ searchParams }: ConsentPageProps) {
 		}
 
 		if ("redirect_url" in authorizationDetails && authorizationDetails.redirect_url) {
-			redirect(authorizationDetails.redirect_url);
+			if (isSafeOAuthRedirectUrl(authorizationDetails.redirect_url)) {
+				redirect(authorizationDetails.redirect_url);
+			}
+			throw new Error("Authorization server returned an unsafe redirect URL");
 		}
 
 		resolvedClientId =
@@ -186,7 +211,9 @@ async function ConsentPageContent({ searchParams }: ConsentPageProps) {
 				.eq("client_id", resolvedClientId)
 				.eq("status", "active")
 				.maybeSingle();
-			oauthApp = appMetadata;
+			oauthApp = appMetadata
+				? { ...appMetadata, registration_source: appMetadata.is_first_party ? "first_party" : "developer" }
+				: await loadConsentClientMetadata(supabase, resolvedClientId);
 		}
 
 		if (!oauthApp) {
@@ -198,6 +225,8 @@ async function ConsentPageContent({ searchParams }: ConsentPageProps) {
 				logo_url: authorizationDetails.client?.logo_uri ?? null,
 				redirect_uris: [authorizationDetails.redirect_uri],
 				status: "active",
+				is_first_party: false,
+				registration_source: "dynamic",
 			};
 		}
 	} else {
@@ -227,12 +256,7 @@ async function ConsentPageContent({ searchParams }: ConsentPageProps) {
 
 		let resolvedAppMetadata: Record<string, any> | null = appMetadata as Record<string, any> | null;
 		if (appError || !resolvedAppMetadata) {
-			const { data: firstPartyClient } = await supabase
-				.from("oauth_clients")
-				.select("id, name, description, logo_url, homepage_url, redirect_uris, status")
-				.eq("id", params.client_id)
-				.eq("status", "active")
-				.maybeSingle();
+			const firstPartyClient = await loadConsentClientMetadata(supabase, params.client_id);
 			if (firstPartyClient) {
 				resolvedAppMetadata = oauthAppFromClientRow(firstPartyClient as Record<string, any>);
 			}
@@ -251,6 +275,8 @@ async function ConsentPageContent({ searchParams }: ConsentPageProps) {
 				logo_url: firstPartyClient.logo_url,
 				redirect_uris: redirectUris,
 				status: "active",
+				is_first_party: true,
+				registration_source: "first_party",
 			};
 		}
 
@@ -390,6 +416,7 @@ async function ConsentPageContent({ searchParams }: ConsentPageProps) {
 				state={params.state}
 				codeChallenge={params.code_challenge}
 				codeChallengeMethod={params.code_challenge_method}
+				resource={params.resource}
 			/>
 		</div>
 	);

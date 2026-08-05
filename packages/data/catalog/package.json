@@ -1,8 +1,9 @@
 {
-  "name": "@ai-stats/data-catalog",
-  "version": "0.0.0",
+  "name": "@phaseo/data-catalog",
+  "version": "0.0.2",
   "private": true,
   "files": [
-    "src/data"
+    "src/data",
+    "schema"
   ]
 }

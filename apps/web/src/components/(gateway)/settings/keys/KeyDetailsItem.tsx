@@ -49,7 +49,7 @@ function formatUsdFromNanos(value: unknown) {
 
 function formatKeyReference(prefix?: string | null) {
 	const ref = typeof prefix === "string" ? prefix.trim() : "";
-	return ref ? `aistats_v1_sk_...${ref}` : "aistats_v1_sk_...";
+	return ref ? `phaseo_v1_sk_...${ref}` : "phaseo_v1_sk_...";
 }
 
 function normalizeScopes(value: unknown): string[] {
@@ -157,16 +157,15 @@ export default function KeyDetailsItem({
 	return (
 		<>
 			{trigger ? (
-				<DropdownMenuItem asChild>
-					<div
+				<DropdownMenuItem render={<div
 						className="flex w-full items-center gap-2 text-left"
 						onClick={() => {
 							setTimeout(() => setOpen(true), 0);
-						}}
-					>
+						}} />}>
+
 						<Info className="mr-2 h-4 w-4" />
 						Details
-					</div>
+
 				</DropdownMenuItem>
 			) : null}
 

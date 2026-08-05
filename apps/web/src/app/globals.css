@@ -1,3 +1,4 @@
+@import "katex/dist/katex.min.css";
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -89,6 +90,15 @@
 	--radius-4xl: calc(var(--radius) * 2.6);
 }
 
+@keyframes modality-ticker {
+	from {
+		transform: translateY(0);
+	}
+	to {
+		transform: translateY(-50%);
+	}
+}
+
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
@@ -110,9 +120,6 @@
 	}
 	body {
 		@apply bg-background text-foreground;
-	}
-	body[data-hide-footer="true"] #dashboard-shell > footer {
-		display: none !important;
 	}
 	a[href],
 	button:not(:disabled),

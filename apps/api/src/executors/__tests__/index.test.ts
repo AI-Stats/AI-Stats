@@ -1,8 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { EXECUTORS_BY_PROVIDER, resolveProviderExecutor } from "../index";
 import { normalizeProviderId } from "@/lib/config/providerAliases";
+import { OPENAI_COMPAT_CONFIG } from "@providers/openai-compatible/registry";
 
 describe("resolveProviderExecutor", () => {
+	it("registers every configured OpenAI-wire text provider explicitly", () => {
+		for (const providerId of Object.keys(OPENAI_COMPAT_CONFIG)) {
+			expect(
+				EXECUTORS_BY_PROVIDER[providerId]?.["text.generate"],
+				`${providerId} must have a provider-owned text executor`,
+			).toBeTruthy();
+			expect(resolveProviderExecutor(providerId, "text.generate")).toBe(
+				EXECUTORS_BY_PROVIDER[providerId]?.["text.generate"],
+			);
+		}
+	});
 	it("resolves text.generate executors for primary and alpha providers", () => {
 		const providers = [
 				"ai21",
@@ -385,13 +397,10 @@ describe("resolveProviderExecutor", () => {
 		expectEnabled("qwen", "audio.translations");
 		expectDisabled("qwen", "music.generate");
 
-		// BytePlus: OpenAI-compatible text/image/audio plus direct Seedance video wrapper.
+		// BytePlus: text/image support plus the direct Seedance video wrapper.
 		expectEnabled("byteplus", "text.generate");
 		expectEnabled("byteplus", "images.generations");
 		expectEnabled("byteplus", "images.edits");
-		expectEnabled("byteplus", "audio.speech");
-		expectEnabled("byteplus", "audio.transcription");
-		expectEnabled("byteplus", "audio.translations");
 		expectEnabled("byteplus", "video.generation");
 		expectDisabled("byteplus", "music.generate");
 

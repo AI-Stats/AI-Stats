@@ -79,7 +79,7 @@ function validateAzureCredentials(value: string): boolean {
 			if (!deployment || typeof deployment !== "object") return false;
 
 			const modelSlug =
-				deployment.modelSlug ?? deployment.aiStatsModelSlug;
+				deployment.modelSlug ?? deployment.phaseoModelSlug ?? deployment.aiStatsModelSlug;
 			const endpointUrl =
 				deployment.endpointUrl ??
 				deployment.endpoint ??
@@ -259,6 +259,13 @@ export const BYOK_PROVIDER_KEY_SPECS: Record<string, ProviderKeySpec> = {
 		example: "sk-xxxxxxxx",
 		docsUrl: "/api-providers/moonshotai",
 		regex: OPENAI_STYLE_REGEX,
+	},
+	meta: {
+		hint: "Meta Model API key from the Muse Spark get-started flow.",
+		example: "meta-xxxxxxxxxxxxxxxx",
+		docsUrl:
+			"https://developer.meta.com/ai/resources/blog/build-with-muse-spark/#5-get-started",
+		minLength: 16,
 	},
 	novitaai: {
 		hint: "NovitaAI keys are usually OpenAI-style (sk-...).",

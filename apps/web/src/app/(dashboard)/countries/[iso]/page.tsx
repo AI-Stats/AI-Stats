@@ -12,10 +12,11 @@ import {
 } from "@/components/(data)/countries/utils";
 import { fetchFrontendCountry } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { buildMetadata } from "@/lib/seo";
+import { notFound } from "next/navigation";
 
 async function loadCountry(isoInput: string) {
 	const iso = normaliseIso(isoInput);
-	return fetchFrontendCountry(iso);
+	return fetchFrontendCountry(iso).catch(() => null);
 }
 
 export async function generateMetadata({
@@ -34,10 +35,10 @@ export async function generateMetadata({
 		return buildMetadata({
 			title: `${isoParam || "Unknown"} - AI Country View`,
 			description:
-				"This country view is still filling in. As AI Stats expands coverage, this page will include local organisations, model catalogues, provider footprints, and release activity trends.",
+				"This country view is still filling in. As Phaseo expands coverage, this page will include local organisations, model catalogues, provider footprints, and release activity trends.",
 			path,
 			keywords: [
-				"AI Stats",
+				"Phaseo",
 				"countries",
 				"AI country view",
 				"AI organisations",
@@ -49,11 +50,11 @@ export async function generateMetadata({
 	const countryName = country.countryName;
 
 	return buildMetadata({
-		title: `${countryName} - AI Organisations & Models`,
-		description: `Explore AI organisations and models tracked in ${countryName} on AI Stats. See which providers and model families originate from this country and how its AI ecosystem is evolving.`,
+		title: `${countryName} AI Models`,
+		description: `Explore AI organisations and models tracked in ${countryName} on Phaseo. See which providers and model families originate from this country and how its AI ecosystem is evolving.`,
 		path,
 		keywords: [
-			"AI Stats",
+			"Phaseo",
 			"countries",
 			countryName,
 			`AI in ${countryName}`,
@@ -74,6 +75,7 @@ export default async function CountryDetailPage({
 	const country = await loadCountry(iso);
 
 	if (!country) {
+		notFound();
 		return (
 			<CountryDetailShell iso={iso} country={undefined}>
 				<div className="rounded-2xl border border-dashed border-zinc-300 bg-white/70 p-6 text-sm text-muted-foreground dark:border-zinc-700 dark:bg-zinc-900/70">

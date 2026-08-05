@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { isSafeOAuthRedirectUrl } from "@/lib/oauth/safeUrls";
 
 interface ConsentFormProps {
 	oauthApp: any;
@@ -31,6 +32,7 @@ interface ConsentFormProps {
 	state?: string;
 	codeChallenge?: string;
 	codeChallengeMethod?: string;
+	resource?: string;
 }
 
 type ScopeMeta = {
@@ -58,6 +60,12 @@ const SCOPE_META: Record<string, ScopeMeta> = {
 		description: "Lets the app read the email address on the signed-in account.",
 		icon: Shield,
 		tone: "identity",
+	},
+	"gateway:access": {
+		label: "Use AI Gateway with your credits",
+		description: "Lets the app run model inference billed to the workspace you select.",
+		icon: KeyRound,
+		tone: "write",
 	},
 	"me:read": {
 		label: "Read current account",
@@ -106,6 +114,18 @@ const SCOPE_META: Record<string, ScopeMeta> = {
 		description: "Lets the app inspect past generation records and related output metadata.",
 		icon: Search,
 		tone: "read",
+	},
+	"feedback:read": {
+		label: "Read feedback",
+		description: "Lets the app inspect workspace feedback, observability events, and preset test runs.",
+		icon: Search,
+		tone: "read",
+	},
+	"feedback:write": {
+		label: "Manage feedback",
+		description: "Lets the app create feedback, observability events, and preset test runs.",
+		icon: Settings2,
+		tone: "write",
 	},
 	"workspaces:read": {
 		label: "Read teams",
@@ -247,6 +267,20 @@ function scopeToneBadge(tone: ScopeMeta["tone"]) {
 	return { label: "Read", className: "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300" };
 }
 
+function consentLogoSrc(value: unknown): string | null {
+	if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")) return null;
+	return value;
+}
+
+function displayHostname(value: unknown): string | null {
+	if (typeof value !== "string") return null;
+	try {
+		return new URL(value).hostname;
+	} catch {
+		return null;
+	}
+}
+
 export default function ConsentForm({
 	oauthApp,
 	user,
@@ -258,6 +292,7 @@ export default function ConsentForm({
 	state,
 	codeChallenge,
 	codeChallengeMethod,
+	resource,
 }: ConsentFormProps) {
 	const initialTeamIds = teams.map((team) => team.id);
 	const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>(
@@ -268,6 +303,10 @@ export default function ConsentForm({
 	);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [unverifiedAcknowledged, setUnverifiedAcknowledged] = useState(false);
+	const isUnverified = oauthApp.registration_source === "dynamic" && !oauthApp.is_first_party;
+	const logoSrc = consentLogoSrc(oauthApp.logo_url);
+	const redirectHostname = displayHostname(redirectUri);
 
 	const selectedCount = selectedTeamIds.length;
 	const allSelected = selectedCount === teams.length;
@@ -309,6 +348,10 @@ export default function ConsentForm({
 	};
 
 	const handleApprove = async () => {
+		if (isUnverified && !unverifiedAcknowledged) {
+			setError("Confirm that you understand this application has not been verified by Phaseo.");
+			return;
+		}
 		if (!selectedTeamIds.length) {
 			setError("Select at least one team to authorize.");
 			return;
@@ -322,21 +365,24 @@ export default function ConsentForm({
 		setError(null);
 
 		try {
-			const { approveAuthorizationAction } = await import(
-				"@/app/(auth)/oauth/consent/actions"
-			);
-
-			const result = await approveAuthorizationAction({
-				authorization_id: authorizationId,
-				client_id: clientId,
-				workspace_id: primaryTeamId,
-				workspace_ids: selectedTeamIds,
-				scopes: requestedScopes,
-				redirect_uri: redirectUri,
-				state,
-				code_challenge: codeChallenge,
-				code_challenge_method: codeChallengeMethod,
+			const response = await fetch("/oauth/consent/submit", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					operation: "approve",
+					authorization_id: authorizationId,
+					client_id: clientId,
+					workspace_id: primaryTeamId,
+					workspace_ids: selectedTeamIds,
+					scopes: requestedScopes,
+					redirect_uri: redirectUri,
+					state,
+					code_challenge: codeChallenge,
+					code_challenge_method: codeChallengeMethod,
+					resource,
+				}),
 			});
+			const result = await response.json();
 
 			if (result.error) {
 				setError(result.error);
@@ -344,7 +390,11 @@ export default function ConsentForm({
 			}
 
 			if (result.data?.redirect_url) {
-				window.location.href = result.data.redirect_url;
+				if (!isSafeOAuthRedirectUrl(result.data.redirect_url)) {
+					setError("The authorization server returned an unsafe redirect URL.");
+					return;
+				}
+				window.location.assign(result.data.redirect_url);
 			}
 		} catch (err: any) {
 			setError(err.message || "Failed to authorize application");
@@ -358,18 +408,25 @@ export default function ConsentForm({
 		setError(null);
 
 		try {
-			const { denyAuthorizationAction } = await import(
-				"@/app/(auth)/oauth/consent/actions"
-			);
-
-			const result = await denyAuthorizationAction({
-				authorization_id: authorizationId,
-				redirect_uri: redirectUri,
-				state,
+			const response = await fetch("/oauth/consent/submit", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					operation: "deny",
+					authorization_id: authorizationId,
+					client_id: clientId,
+					redirect_uri: redirectUri,
+					state,
+				}),
 			});
+			const result = await response.json();
 
 			if (result.data?.redirect_url) {
-				window.location.href = result.data.redirect_url;
+				if (!isSafeOAuthRedirectUrl(result.data.redirect_url)) {
+					setError("The authorization server returned an unsafe redirect URL.");
+					return;
+				}
+				window.location.assign(result.data.redirect_url);
 			}
 		} catch (err: any) {
 			setError(err.message || "Failed to deny authorization");
@@ -388,9 +445,9 @@ export default function ConsentForm({
 				</div>
 
 				<div className="flex items-start gap-4">
-					{oauthApp.logo_url ? (
+					{logoSrc ? (
 						<img
-							src={oauthApp.logo_url}
+							src={logoSrc}
 							alt={oauthApp.name}
 							className="size-16 rounded-md object-cover border"
 						/>
@@ -402,7 +459,7 @@ export default function ConsentForm({
 					<div className="flex-1">
 						<CardTitle className="text-2xl">{oauthApp.name}</CardTitle>
 						<CardDescription className="mt-1">
-							wants access to your AI Stats account
+							wants access to your Phaseo account
 						</CardDescription>
 						{oauthApp.homepage_url && (
 							<a
@@ -424,6 +481,23 @@ export default function ConsentForm({
 			</CardHeader>
 
 			<CardContent className="space-y-6">
+				{isUnverified && (
+					<Alert variant="destructive">
+						<AlertCircle className="h-4 w-4" />
+						<AlertDescription className="space-y-2">
+							<p><strong>Unverified application.</strong> Phaseo has not verified this app's identity, owner, or branding.</p>
+							<div className="font-mono text-xs break-all">Client: {clientId ?? oauthApp.client_id ?? "unknown"}</div>
+							{redirectHostname && <div className="text-xs">Authorization returns to: <strong>{redirectHostname}</strong></div>}
+							<label className="flex items-start gap-2 pt-1 text-sm">
+								<Checkbox
+									checked={unverifiedAcknowledged}
+									onCheckedChange={(checked) => setUnverifiedAcknowledged(checked === true)}
+								/>
+								<span>I understand this application is unverified and I trust the redirect destination shown above.</span>
+							</label>
+						</AlertDescription>
+					</Alert>
+				)}
 				<Alert>
 					<Shield className="h-4 w-4" />
 					<AlertDescription>
@@ -555,7 +629,7 @@ export default function ConsentForm({
 				</Button>
 				<Button
 					onClick={handleApprove}
-					disabled={loading || !selectedTeamIds.length || !primaryTeamId}
+					disabled={loading || !selectedTeamIds.length || !primaryTeamId || (isUnverified && !unverifiedAcknowledged)}
 					className="flex-1"
 				>
 					{loading ? "Authorizing..." : "Authorize selected teams"}

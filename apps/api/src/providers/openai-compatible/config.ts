@@ -41,6 +41,7 @@ const OPENAI_LEGACY_COMPLETIONS_MODELS = new Set<string>([
 
 const ALIBABA_RESPONSES_PATH_PREFIX = "/api/v2/apps/protocols/compatible-mode/v1";
 const ALIBABA_COMPAT_PROVIDER_IDS = new Set<string>(["alibaba-cloud", "alibaba", "qwen"]);
+const DEEPSEEK_RESPONSES_MODELS = new Set<string>(["deepseek-v4-flash"]);
 
 function normalizePathSegment(value: string | undefined) {
 	if (!value) return "";
@@ -147,9 +148,14 @@ export function openAICompatUrl(providerId: string, path: string): string {
 	const isAlibabaCompatProvider = ALIBABA_COMPAT_PROVIDER_IDS.has(providerId);
 	const isAlibabaResponsesRoute = isAlibabaCompatProvider && suffix === "/responses";
 	const isAlibabaChatRoute = isAlibabaCompatProvider && suffix === "/chat/completions";
+	const isDeepSeekResponsesRoute = providerId === "deepseek" && suffix === "/responses";
 	let base = config.baseUrl?.replace(/\/+$/, "") ?? "";
 	const configuredPrefix = normalizePathSegment(
-		isAlibabaResponsesRoute ? ALIBABA_RESPONSES_PATH_PREFIX : (config.pathPrefix ?? "/v1"),
+		isDeepSeekResponsesRoute
+			? ""
+			: isAlibabaResponsesRoute
+				? ALIBABA_RESPONSES_PATH_PREFIX
+				: (config.pathPrefix ?? "/v1"),
 	);
 	let prefix = configuredPrefix;
 
@@ -231,6 +237,9 @@ export function resolveOpenAICompatKey(args: ProviderExecuteArgs): ResolvedKey {
 	if (args.providerId === "crofai") {
 		return resolveProviderKey(args, () => readFirstBinding(CROFAI_API_KEY_ENVS));
 	}
+	if (args.providerId === "meta") {
+		return resolveProviderKey(args, () => readFirstBinding(["META_MODEL_API_KEY"]));
+	}
 
 	const config = resolveOpenAICompatConfig(args.providerId);
 	const envKey = config.apiKeyEnv;
@@ -243,6 +252,14 @@ export function resolveOpenAICompatKey(args: ProviderExecuteArgs): ResolvedKey {
 
 export type OpenAICompatRoute = "responses" | "chat";
 
+export function resolveOpenAICompatModel(providerId: string, model?: string | null): string {
+	const value = model?.trim() ?? "";
+	if (providerId !== "poolside" || !value) return value;
+
+	const upstreamModel = value.replace(/:free$/i, "");
+	return upstreamModel.startsWith("poolside/") ? upstreamModel : `poolside/${upstreamModel}`;
+}
+
 function normalizeOpenAIModelName(model?: string | null): string {
 	if (!model) return "";
 	const value = model.trim();
@@ -254,6 +271,10 @@ function normalizeOpenAIModelName(model?: string | null): string {
 export function resolveOpenAICompatRoute(providerId: string, model?: string | null): OpenAICompatRoute {
 	const config = resolveOpenAICompatConfig(providerId);
 	const normalized = normalizeOpenAIModelName(model);
+
+	if (providerId === "deepseek") {
+		return DEEPSEEK_RESPONSES_MODELS.has(normalized) ? "responses" : "chat";
+	}
 
 	if (providerId === "openai") {
 		if (OPENAI_LEGACY_COMPLETIONS_MODELS.has(model ?? "") || OPENAI_LEGACY_COMPLETIONS_MODELS.has(normalized)) {

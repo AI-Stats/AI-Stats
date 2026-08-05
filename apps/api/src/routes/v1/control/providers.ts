@@ -39,7 +39,7 @@ type Provider = {
 };
 
 async function handleProviders(req: Request) {
-    const auth = await guardAuth(req);
+    const auth = await guardAuth(req, { allowOAuthJwt: true });
     if (!auth.ok) {
         return (auth as GuardErr).response;
     }
@@ -55,7 +55,7 @@ async function handleProviders(req: Request) {
 
         // Get total count
         const { count, error: countError } = await supabase
-            .from("data_api_providers")
+            .from("v2_providers")
             .select("*", { count: "exact", head: true });
 
         if (countError) {
@@ -64,9 +64,9 @@ async function handleProviders(req: Request) {
 
         // Get paginated data
         const { data: providers, error: dataError } = await supabase
-            .from("data_api_providers")
-            .select("api_provider_id, api_provider_name, description, link, country_code")
-            .order("api_provider_name", { ascending: true })
+            .from("v2_providers")
+            .select("api_provider_id:provider_slug, api_provider_name:name, metadata, country_code")
+            .order("name", { ascending: true })
             .range(offset, offset + limit - 1);
 
         if (dataError) {
@@ -76,8 +76,8 @@ async function handleProviders(req: Request) {
         const mapped: Provider[] = (providers ?? []).map((provider) => ({
             api_provider_id: provider.api_provider_id,
             api_provider_name: provider.api_provider_name ?? null,
-            description: provider.description ?? null,
-            link: provider.link ?? null,
+            description: typeof provider.metadata?.description === "string" ? provider.metadata.description : null,
+            link: typeof provider.metadata?.link === "string" ? provider.metadata.link : null,
             country_code: provider.country_code ?? null,
         }));
 
