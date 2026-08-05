@@ -306,18 +306,27 @@ async function authorize(req: Request, capability: string, roles: string[]) {
 }
 
 async function visiblePresetIds(auth: AuthValue): Promise<string[] | Response> {
-	let query = getSupabaseAdmin()
-		.from("presets")
-		.select("id")
-		.eq("workspace_id", auth.workspaceId)
-		.is("archived_at", null);
 	const userId = normalizeUuid(auth.userId);
-	query = userId
-		? query.or(`visibility.neq.private,created_by.eq.${userId}`)
-		: query.neq("visibility", "private");
-	const { data, error } = await query;
-	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
-	return (data ?? []).map((row) => String(row.id));
+	const pageSize = 1_000;
+	const presetIds: string[] = [];
+	for (let offset = 0; ; offset += pageSize) {
+		let query = getSupabaseAdmin()
+			.from("presets")
+			.select("id")
+			.eq("workspace_id", auth.workspaceId)
+			.is("archived_at", null);
+		query = userId
+			? query.or(`visibility.neq.private,created_by.eq.${userId}`)
+			: query.neq("visibility", "private");
+		const { data, error } = await query
+			.order("id", { ascending: true })
+			.range(offset, offset + pageSize - 1);
+		if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
+		const rows = data ?? [];
+		presetIds.push(...rows.map((row) => String(row.id)));
+		if (rows.length < pageSize) break;
+	}
+	return presetIds;
 }
 
 function applyPresetVisibility(query: any, presetIds: string[], ...columns: string[]) {
