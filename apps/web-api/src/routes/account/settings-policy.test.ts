@@ -7,6 +7,7 @@ const env = {
 	SUPABASE_ANON_KEY: "anon-key",
 	SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 	PHASEO_MANAGEMENT_KEY: "management-key",
+	PHASEO_CONTROL_KEY: "control-key",
 	PHASEO_CONTROL_SECRET: "control-secret",
 	GATEWAY_API_ORIGIN: "https://gateway.example.com",
 };
@@ -26,7 +27,7 @@ describe("account policy settings routes", () => {
 			if (url.includes("/keys?")) return new Response(JSON.stringify([{ id: "key-1" }, { id: "key-2" }]), { status: 200 });
 			if (url.includes("/v1/keys/") && url.endsWith("/invalidate")) {
 				invalidated.push(url);
-				expect(request.headers.get("authorization")).toBe("Bearer management-key");
+				expect(request.headers.get("authorization")).toBe("Bearer control-key");
 				expect(request.headers.get("x-control-secret")).toBe("control-secret");
 				return new Response(null, { status: 204 });
 			}
