@@ -109,6 +109,11 @@ export function validateCurieEndpoint(
 	if (apiKeyEnv !== "PHASEO_CURIE_API_KEY") {
 		throw new Error("Custom Curie endpoints require the isolated PHASEO_CURIE_API_KEY variable");
 	}
+	const hostname = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+	const loopback = hostname === "localhost" || hostname === "::1" || /^127(?:\.\d{1,3}){3}$/.test(hostname);
+	if (parsed.protocol !== "https:" && !loopback) {
+		throw new Error("Remote custom Curie endpoints must use HTTPS; HTTP is only allowed for loopback development endpoints");
+	}
 	return normalized;
 }
 
@@ -150,9 +155,10 @@ export async function runCurie(configPath: string | undefined, flags: Flags): Pr
 		const model = modelDetails(modelValue);
 		const started = performance.now();
 		try {
-			const response = await fetch(`${baseUrl}/chat/completions`, {
-				method: "POST",
-				headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
+		const response = await fetch(`${baseUrl}/chat/completions`, {
+			method: "POST",
+			redirect: "error",
+			headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
 				body: JSON.stringify({ model: model.id, messages: item.messages ?? [{ role: "user", content: item.input }], ...config.params, ...item.params, stream: false }),
 			});
 			const body: any = await response.json();
