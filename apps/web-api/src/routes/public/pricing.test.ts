@@ -168,7 +168,7 @@ describe("public pricing routes", () => {
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 
-	it("caps unfiltered provider-route pagination", async () => {
+	it("fails closed instead of caching a truncated provider-route catalogue", async () => {
 		const fullPage = Array.from({ length: 1_000 }, (_, index) => ({
 			provider_model_id: `provider:model-${index}`,
 			provider_slug: "provider",
@@ -180,7 +180,12 @@ describe("public pricing routes", () => {
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
 			if (url.includes("v2_model_provider_routes")) {
-				return new Response(JSON.stringify(fullPage), { status: 200 });
+				const providerCalls = fetchMock.mock.calls.filter(([input]) =>
+					String(input).includes("v2_model_provider_routes")
+				).length;
+				return new Response(JSON.stringify(
+					providerCalls === 5 ? [...fullPage, { ...fullPage[0], provider_model_id: "provider:overflow" }] : fullPage,
+				), { status: 200 });
 			}
 			return new Response("[]", { status: 200 });
 		});
@@ -188,7 +193,8 @@ describe("public pricing routes", () => {
 
 		const response = await app.request("https://phaseo.app/api/_web/pricing/models", {}, env);
 
-		expect(response.status).toBe(200);
+		expect(response.status).toBe(503);
+		await expect(response.json()).resolves.toEqual({ error: "pricing_models_unavailable" });
 		const providerRequests = fetchMock.mock.calls.filter(([input]) =>
 			String(input).includes("v2_model_provider_routes")
 		);

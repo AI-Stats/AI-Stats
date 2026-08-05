@@ -41,6 +41,7 @@ publicPricingRouter.get("/pricing/models", async (c) => {
 		const active = (row: Record<string, unknown>) => { const from = row.effective_from ? Date.parse(String(row.effective_from)) : Number.NEGATIVE_INFINITY; const to = row.effective_to ? Date.parse(String(row.effective_to)) : Number.POSITIVE_INFINITY; return now >= from && now < to; };
 		const providerRows: Array<Record<string, unknown>> = [];
 		for (let offset = 0; offset < PROVIDER_ROUTE_MAX_ROWS; offset += PROVIDER_ROUTE_PAGE_SIZE) {
+			const isFinalAllowedPage = offset + PROVIDER_ROUTE_PAGE_SIZE >= PROVIDER_ROUTE_MAX_ROWS;
 			let query = client
 				.from("v2_model_provider_routes")
 				.select("provider_model_id,provider_slug,provider_model_slug,model_slug,routing_enabled,status,effective_from,effective_to")
@@ -49,10 +50,13 @@ publicPricingRouter.get("/pricing/models", async (c) => {
 			if (requestedModelIds.length > 0) query = query.in("model_slug", requestedModelIds);
 			const providerResult = await query
 				.order("provider_model_id", { ascending: true })
-				.range(offset, Math.min(offset + PROVIDER_ROUTE_PAGE_SIZE - 1, PROVIDER_ROUTE_MAX_ROWS - 1));
+				.range(offset, isFinalAllowedPage ? PROVIDER_ROUTE_MAX_ROWS : offset + PROVIDER_ROUTE_PAGE_SIZE - 1);
 			if (providerResult.error) throw providerResult.error;
 			const page = (providerResult.data ?? []) as Array<Record<string, unknown>>;
-			providerRows.push(...page.filter(active));
+			if (isFinalAllowedPage && page.length > PROVIDER_ROUTE_PAGE_SIZE) {
+				throw new Error("provider_route_catalogue_limit_exceeded");
+			}
+			providerRows.push(...page.slice(0, PROVIDER_ROUTE_PAGE_SIZE).filter(active));
 			if (page.length < PROVIDER_ROUTE_PAGE_SIZE) break;
 		}
 		const routeIds = providerRows.map((row) => String(row.provider_model_id ?? "")).filter(Boolean);
