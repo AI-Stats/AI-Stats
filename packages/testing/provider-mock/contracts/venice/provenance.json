@@ -1,9 +1,9 @@
 {
   "sourceUrl": "https://docs.venice.ai/swagger.yaml",
-  "sourceSha256": "b68096fa6725c675a4d86e7b7dc44207c8d5ca546ccb829e472f46db91f6cdaa",
-  "bundleSha256": "48c831bc195f9f6e70065200663e97388968325b7e16c288ea7330e6c30b3a24",
+  "sourceSha256": "d88b2fb81eb254cc3a2ae158de37bf014c7a616425aed20b9b22d94617d9f09e",
+  "bundleSha256": "dd83eaa4da1e36841a489667fdb9fd792510d33ea9165a9dcfe64a4c0492054d",
   "openapiVersion": "3.0.0",
-  "apiVersion": "20260709.204640",
+  "apiVersion": "20260804.102938",
   "gatewayPathMappings": [
     {
       "sourcePath": "/chat/completions",

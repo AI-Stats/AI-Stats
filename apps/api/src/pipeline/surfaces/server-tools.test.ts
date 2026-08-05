@@ -610,6 +610,45 @@ describe("prepareServerToolsForTextRequest", () => {
 	});
 });
 
+describe("managed model tools", () => {
+	it.each([
+		["phaseo:subagent", { model: "openai/gpt-5-nano" }, "phaseo_subagent"],
+		["phaseo:fusion", { analysis_models: ["openai/gpt-5-nano", "anthropic/claude-haiku-4.5"] }, "phaseo_fusion"],
+		["phaseo:search_models", { max_results: 3 }, "phaseo_search_models"],
+	])("prepares %s as a managed function", (type, parameters, functionName) => {
+		const result = prepareServerToolsForTextRequest({ tools: [{ type, parameters }], tool_choice: type }, "openai.responses");
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.body.tools[0].function.name).toBe(functionName);
+		expect(result.body.tool_choice.function.name).toBe(functionName);
+	});
+
+	it("executes model catalogue search calls", async () => {
+		const continuation = await buildServerToolContinuation({
+			choices: [{ message: { role: "assistant", content: [], toolCalls: [{ id: "search_1", name: "phaseo_search_models", arguments: JSON.stringify({ query: "vision" }) }] }, finishReason: "tool_calls" }],
+		} as any, {
+			enabled: true, datetimeDefaultTimezones: ["UTC"], webSearchEnabled: false, webSearchMaxResults: 5,
+			webSearchIncludeText: false, webSearchIncludeHighlights: true, webFetchEnabled: false, webFetchMaxChars: 12000,
+			searchModelsMaxResults: 5,
+		}, { searchModels: async () => ({ models: [{ id: "example/vision" }] }) });
+		expect(continuation?.usage.searchModelsRequests).toBe(1);
+		expect(JSON.parse(String(continuation?.toolResults[0]?.content))).toEqual({ models: [{ id: "example/vision" }] });
+	});
+
+	it("fails Fusion when every panel model fails", async () => {
+		const continuation = await buildServerToolContinuation({
+			choices: [{ message: { role: "assistant", content: [], toolCalls: [{ id: "fusion_1", name: "phaseo_fusion", arguments: JSON.stringify({ prompt: "Compare approaches" }) }] }, finishReason: "tool_calls" }],
+		} as any, {
+			enabled: true, datetimeDefaultTimezones: ["UTC"], webSearchEnabled: false, webSearchMaxResults: 5,
+			webSearchIncludeText: false, webSearchIncludeHighlights: true, webFetchEnabled: false, webFetchMaxChars: 12000,
+			fusion: { analysisModels: ["example/a", "example/b"], analystModel: "example/judge", maxUses: 1, maxTokens: 1400 },
+		}, { executeAdvisor: async () => ({ ok: false, message: "unavailable" }) });
+
+		expect(continuation?.toolResults[0]?.isError).toBe(true);
+		expect(JSON.parse(String(continuation?.toolResults[0]?.content))).toMatchObject({ error: "fusion_panel_failed" });
+	});
+});
+
 describe("buildServerToolContinuation", () => {
 	beforeEach(() => {
 		getBindingsMock.mockReset();
@@ -617,6 +656,40 @@ describe("buildServerToolContinuation", () => {
 			EXA_API_KEY: "exa_test_key",
 			EXA_BASE_URL: "https://api.exa.ai",
 		});
+	});
+
+	it("rejects a round that would exceed the remaining server-tool budget before execution", async () => {
+		const continuation = await buildServerToolContinuation(
+			{
+				choices: [{
+					message: {
+						role: "assistant",
+						content: [],
+						toolCalls: [
+							{ id: "call_one", name: "gateway_datetime", arguments: "{}" },
+							{ id: "call_two", name: "gateway_datetime", arguments: "{}" },
+						],
+					},
+					finishReason: "tool_calls",
+				}],
+			} as any,
+			{
+				enabled: true,
+				datetimeDefaultTimezones: ["UTC"],
+				webSearchEnabled: false,
+				webSearchMaxResults: 5,
+				webSearchIncludeText: false,
+				webSearchIncludeHighlights: true,
+				webFetchEnabled: false,
+				webFetchMaxChars: 12000,
+			},
+			{ remainingToolCalls: 1 },
+		);
+
+		expect(continuation?.limitExceeded).toBe(true);
+		expect(continuation?.serverToolCallCount).toBe(2);
+		expect(continuation?.toolResults).toEqual([]);
+		expect(continuation?.usage.datetimeRequests).toBe(0);
 	});
 
 	it("returns datetime results for multiple timezones", async () => {
@@ -968,6 +1041,9 @@ describe("buildServerToolContinuation", () => {
 				webSearchExtraResults: 0,
 				webFetchRequests: 0,
 				advisorRequests: 0,
+				subagentRequests: 0,
+				fusionRequests: 0,
+				searchModelsRequests: 0,
 				imageGenerationRequests: 0,
 				applyPatchRequests: 0,
 			});
@@ -1662,6 +1738,9 @@ describe("buildServerToolContinuation", () => {
 				webSearchExtraResults: 0,
 				webFetchRequests: 1,
 				advisorRequests: 0,
+				subagentRequests: 0,
+				fusionRequests: 0,
+				searchModelsRequests: 0,
 				imageGenerationRequests: 0,
 				applyPatchRequests: 0,
 			});
@@ -1939,4 +2018,3 @@ describe("buildServerToolContinuation", () => {
 		}
 	});
 });
-

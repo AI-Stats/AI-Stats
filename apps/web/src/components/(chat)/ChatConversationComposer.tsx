@@ -13,6 +13,7 @@ import {
 	type RefObject,
 } from "react";
 import Link from "next/link";
+import { ThinkingOrb } from "thinking-orbs";
 import { AIGeneratedNotice } from "@/components/(chat)/AIGeneratedNotice";
 import { getChatComposerSendAction } from "@/components/(chat)/chatComposerSendAction";
 import Image from "next/image";
@@ -32,7 +33,6 @@ import {
 	GripVertical,
 	ImagePlus,
 	Info,
-	ListPlus,
 	Mic,
 	Paperclip,
 	Pencil,
@@ -2783,7 +2783,11 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 			tabIndex={canActivateSendButton ? undefined : -1}
 		>
 			{isSending ? (
-				<ListPlus className="h-4 w-4" />
+				<ThinkingOrb
+					state="working"
+					size={20}
+					aria-label="Queue message"
+				/>
 			) : (
 				<SendHorizontal className="h-4 w-4" />
 			)}

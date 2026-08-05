@@ -38,6 +38,7 @@ const nextConfig = {
     ? { allowedDevOrigins: configuredAllowedDevOrigins }
     : {}),
   cacheComponents: true,
+  partialPrefetching: true,
   images: {
     qualities: [75, 90],
   },
@@ -48,9 +49,6 @@ const nextConfig = {
   outputFileTracingRoot: monorepoRoot,
   turbopack: {
     root: monorepoRoot,
-  },
-  experimental: {
-    turbopackFileSystemCacheForDev: true,
   },
   async headers() {
     return [

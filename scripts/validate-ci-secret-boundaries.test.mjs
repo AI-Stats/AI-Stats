@@ -9,38 +9,108 @@ const trustedPullRequestCondition = `
                 contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
 `;
 
-function workflowWithPreviewCondition(condition) {
+const productionMigrationCondition = `
+            always() &&
+            github.event_name == 'push' &&
+            github.ref == 'refs/heads/main' &&
+            needs.check-paths.outputs.migrations-changed == 'true' &&
+            needs.migration-validation.result == 'success' &&
+            vars.ENABLE_PRODUCTION_DB_MIGRATIONS == 'true'
+`;
+
+function workflowWithConditions(
+	previewCondition = trustedPullRequestCondition,
+	migrationCondition = productionMigrationCondition,
+) {
 	return `
 on:
     merge_group:
         types: [checks_requested]
 
 jobs:
+    check-paths:
+        outputs:
+            migrations-changed: \${{ steps.filter.outputs.migrations }}
+
+    migration-validation:
+        if: >-
+            needs.check-paths.outputs.migrations-changed == 'true'
+        steps:
+            - run: node scripts/validate-supabase-migrations.mjs
+
+    migrate-production:
+        needs:
+            - check-paths
+            - migration-validation
+        if: >-
+${migrationCondition}
+        environment: production-database
+        concurrency:
+            group: production-database-migrations
+            cancel-in-progress: false
+        env:
+            SUPABASE_ACCESS_TOKEN: \${{ secrets.SUPABASE_ACCESS_TOKEN }}
+            SUPABASE_DB_PASSWORD: \${{ secrets.SUPABASE_DB_PASSWORD }}
+            SUPABASE_PROJECT_ID: \${{ secrets.SUPABASE_PROJECT_ID }}
+        steps:
+            - name: Preview pending production migrations
+              run: supabase db push --dry-run
+            - name: Apply pending production migrations
+              run: supabase db push
+
     deploy-preview-web:
         if: >
-${condition}
+${previewCondition}
         permissions:
             contents: read
         steps:
             - name: Deploy
               env:
                   VERCEL_TOKEN: \${{ secrets.VERCEL_TOKEN }}
-    next-job:
-        runs-on: ubuntu-latest
+
+    deploy:
+        needs:
+            - check-paths
+            - migrate-production
+        if: >-
+            needs.check-paths.outputs.migrations-changed != 'true' ||
+            needs.migrate-production.result == 'success'
+        steps:
+            - run: deploy
 `;
 }
 
-test("accepts trusted pull requests without merge-group secret access", () => {
-	assert.doesNotThrow(() => validateCiSecretBoundaries(
-		workflowWithPreviewCondition(trustedPullRequestCondition),
-	));
+test("accepts trusted pull requests and approval-gated production migrations", () => {
+	assert.doesNotThrow(() => validateCiSecretBoundaries(workflowWithConditions()));
 });
 
 test("rejects merge-group access to the Vercel credential boundary", () => {
 	const vulnerableCondition = `            github.event_name == 'merge_group' ||${trustedPullRequestCondition}`;
 	assert.throws(
-		() => validateCiSecretBoundaries(workflowWithPreviewCondition(vulnerableCondition)),
+		() => validateCiSecretBoundaries(workflowWithConditions(vulnerableCondition)),
 		/never run for merge_group events/,
+	);
+});
+
+test("rejects production migration secrets outside push-to-main", () => {
+	const vulnerableCondition = productionMigrationCondition
+		.replace("github.event_name == 'push'", "github.event_name == 'pull_request'");
+	assert.throws(
+		() => validateCiSecretBoundaries(
+			workflowWithConditions(trustedPullRequestCondition, vulnerableCondition),
+		),
+		/only run for pushes to main/,
+	);
+});
+
+test("requires the manual production database approval environment", () => {
+	const workflow = workflowWithConditions().replace(
+		"environment: production-database",
+		"environment: production",
+	);
+	assert.throws(
+		() => validateCiSecretBoundaries(workflow),
+		/production-database approval environment/,
 	);
 });
 
@@ -72,7 +142,7 @@ test("issue triage requires the exact trusted-maintainer refresh command", () =>
 test("issue triage bounds its paginated snapshot at the trigger comment", () => {
 	assert.match(
 		issueTriageWorkflow,
-		/actions\/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea/,
+		/actions\/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3/,
 	);
 	assert.match(issueTriageWorkflow, /await github\.paginate\(/);
 	assert.match(issueTriageWorkflow, /per_page: 100/);

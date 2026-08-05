@@ -28,7 +28,7 @@ const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
 	title: {
-		default: PREFERRED_SITE_NAME,
+		default: "Phaseo: The AI Gateway for Every Model and Provider",
 		template: `%s | ${SITE_NAME}`,
 	},
 	description:
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
 		locale: "en_GB",
 		siteName: PREFERRED_SITE_NAME,
 		url: absoluteUrl("/"),
-		title: PREFERRED_SITE_NAME,
+		title: "Phaseo: The AI Gateway for Every Model and Provider",
 		description:
 			"Browse and compare state-of-the-art AI models, benchmarks, features, and pricing.",
 		images: [
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
 		card: "summary_large_image",
 		site: "@phaseoteam",
 		creator: "@DanielButler001",
-		title: PREFERRED_SITE_NAME,
+		title: "Phaseo: The AI Gateway for Every Model and Provider",
 		description:
 			"Browse and compare state-of-the-art AI models, benchmarks, features, and pricing.",
 		images: [absoluteUrl("/og.png")],

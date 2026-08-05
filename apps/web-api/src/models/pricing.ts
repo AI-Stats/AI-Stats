@@ -35,15 +35,21 @@ function uniqueModelVariants(modelIds: string[]): string[] {
  * database round trips. The caller can then compose each model independently
  * without repeating provider, capability, and rule queries per model.
  */
-export async function fetchModelPricingSources(env: Env, modelIds: string[]): Promise<ModelPricingSource> {
+export async function fetchModelPricingSources(
+	env: Env,
+	modelIds: string[],
+	includeInternal = false,
+): Promise<ModelPricingSource> {
 	const variants = uniqueModelVariants(modelIds);
 	if (variants.length === 0) return { providerRows: [], pricingRows: [] };
 	const client = getDataClient(env);
 	const routesResult = await client.from("v2_model_provider_routes")
-		.select("provider_model_id,provider_slug,model_slug,provider_model_slug,status,routing_enabled,input_modalities,output_modalities,context_length,max_output_tokens,effective_from,effective_to,created_at,updated_at,metadata")
+		.select("provider_model_id,provider_slug,model_slug,provider_model_slug,status,routing_enabled,provider_availability_status,phaseo_status,access_scope,input_modalities,output_modalities,context_length,max_output_tokens,effective_from,effective_to,created_at,updated_at,metadata")
 		.in("model_slug", variants);
 	if (routesResult.error) throw routesResult.error;
-	const routes = (routesResult.data ?? []) as Row[];
+	const routes = ((routesResult.data ?? []) as Row[]).filter(
+		(route) => includeInternal || id(route.access_scope).toLowerCase() !== "internal",
+	);
 	const routeIds = routes.map((row) => id(row.provider_model_id)).filter(Boolean);
 	const providerIds = [...new Set(routes.map((row) => id(row.provider_slug)).filter(Boolean))];
 	const [capabilitiesResult, providersResult, skusResult] = await Promise.all([
@@ -60,7 +66,7 @@ export async function fetchModelPricingSources(env: Env, modelIds: string[]): Pr
 	const providerMap = new Map((providersResult.data ?? []).map((row) => [id(row.provider_slug), row as Row]));
 	const capabilitiesByRoute = new Map<string, Row[]>();
 	for (const capability of capabilitiesResult.data ?? []) {
-		if (id(capability.status).toLowerCase() === "internal_testing") continue;
+		if (!includeInternal && id(capability.status).toLowerCase() === "internal_testing") continue;
 		const routeId = id(capability.provider_model_id);
 		capabilitiesByRoute.set(routeId, [...(capabilitiesByRoute.get(routeId) ?? []), capability as Row]);
 	}
@@ -75,6 +81,9 @@ export async function fetchModelPricingSources(env: Env, modelIds: string[]): Pr
 			provider_model_slug: route.provider_model_slug,
 			is_active_gateway: Boolean(route.routing_enabled && ["active", "degraded"].includes(id(route.status))),
 			routing_status: route.status,
+			provider_availability_status: route.provider_availability_status,
+			phaseo_status: route.phaseo_status,
+			access_scope: route.access_scope ?? "public",
 			input_modalities: route.input_modalities,
 			output_modalities: route.output_modalities,
 			context_length: route.context_length,
@@ -211,6 +220,9 @@ function providerModel(row: Row, capability: Row | null) {
 		endpoint: capability ? id(capability.capability_id) : "unmapped",
 		capability_status: capability?.status ?? null,
 		routing_status: row.routing_status ?? null,
+		provider_availability_status: row.provider_availability_status ?? null,
+		phaseo_status: row.phaseo_status ?? null,
+		access_scope: row.access_scope ?? "public",
 		is_active_gateway: Boolean(row.is_active_gateway),
 		input_modalities: Array.isArray(row.input_modalities) ? row.input_modalities.map(id).filter(Boolean).join(",") : id(row.input_modalities),
 		output_modalities: Array.isArray(row.output_modalities) ? row.output_modalities.map(id).filter(Boolean).join(",") : id(row.output_modalities),

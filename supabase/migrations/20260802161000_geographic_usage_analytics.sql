@@ -38,11 +38,11 @@ for each row execute function public.sync_v2_request_edge_geography();
 -- Existing facts predate edge_country in safe_metadata, so there is no useful
 -- historical backfill. New writes are populated by the trigger without a
 -- rewrite of the continuously-written fact table.
-create index concurrently if not exists v2_request_facts_workspace_country_time_idx
+create index if not exists v2_request_facts_workspace_country_time_idx
   on public.v2_request_facts (workspace_id, edge_country, occurred_at desc)
   where edge_country is not null;
 
-create index concurrently if not exists v2_request_facts_country_time_idx
+create index if not exists v2_request_facts_country_time_idx
   on public.v2_request_facts (edge_country, occurred_at desc)
   where edge_country is not null;
 
@@ -177,7 +177,7 @@ as $$
     left join request_tokens t on t.request_event_id = f.request_event_id
     group by f.edge_country
   ),
-  privacy_buckets as (
+  classified_countries as (
     select
       case
         when requests >= greatest(p_min_requests, 1)
@@ -185,16 +185,22 @@ as $$
           then country_code
         else 'OTHER'
       end as country_code,
+      requests,
+      tokens,
+      workspace_count
+    from by_country
+  ),
+  privacy_buckets as (
+    select
+      country_code,
       sum(requests)::bigint as requests,
       sum(tokens) as tokens,
       case
-        when requests >= greatest(p_min_requests, 1)
-         and workspace_count >= greatest(p_min_workspaces, 2)
-          then max(workspace_count)
+        when country_code <> 'OTHER' then max(workspace_count)
         else 0
       end::bigint as workspace_count
-    from by_country
-    group by 1
+    from classified_countries
+    group by country_code
   )
   select
     b.country_code,

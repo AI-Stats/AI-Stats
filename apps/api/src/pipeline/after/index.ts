@@ -508,8 +508,17 @@ async function handleNonStreamResponse(
     payload.meta = {
         ...payload.meta,
         throughput_tps: throughputTps,
+        output_speed_tps: null,
         generation_ms: generationMs,
         latency_ms: latencyMs,
+        provider_ttft_ms: null,
+        gateway_ttft_ms: null,
+        tpot_ms: null,
+        itl_ms: null,
+        phaseo_overhead_ms:
+            endToEndMs != null && generationMs != null
+                ? Math.max(0, endToEndMs - generationMs)
+                : null,
         end_to_end_ms: endToEndMs,
     };
     // Update result billing
@@ -600,7 +609,6 @@ async function handleNonStreamResponse(
     const responseStatus = ctx.endpoint === "video.generation" ? 202 : result.upstream.status;
     return ctx.timer.span("after_create_response", () => createResponse(responseBody, responseStatus, headers));
 }
-
 
 
 

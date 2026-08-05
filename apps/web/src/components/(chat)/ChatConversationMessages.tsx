@@ -60,7 +60,7 @@ import {
 	MarkerContent,
 	MarkerIcon,
 } from "@/components/ui/marker";
-import { Spinner } from "@/components/ui/spinner";
+import { ThinkingOrb } from "thinking-orbs";
 import { cn } from "@/lib/utils";
 import type { ChatThread } from "@/lib/indexeddb/chats";
 import type {
@@ -132,7 +132,11 @@ function GeneratingResponseIndicator() {
 	return (
 		<Marker role="status" aria-live="polite" className="min-h-7">
 			<MarkerIcon>
-				<Spinner />
+				<ThinkingOrb
+					state="composing"
+					size={20}
+					aria-label="Generating response"
+				/>
 			</MarkerIcon>
 			<MarkerContent className="shimmer">Generating response&hellip;</MarkerContent>
 		</Marker>
@@ -490,7 +494,6 @@ export function ChatConversationMessages({
 		},
 		[messageVirtualizer],
 	);
-
 	const messagesContent = useMemo(() => {
 		if (!activeThread || !messages.length) {
 			return (
@@ -688,15 +691,12 @@ export function ChatConversationMessages({
 				);
 			const hasAccent = Boolean(accentColor);
 			const messagePanelStyle =
-				isUser && hasAccent
+				isUser && hasAccent && !temporaryMode
 					? {
 							backgroundColor: accentColor,
 							color: getReadableTextColor(accentColor),
 						}
 					: undefined;
-			const temporaryMessageOutline = temporaryMode
-				? "rounded-2xl border border-dashed border-muted-foreground/60"
-				: "";
 			const sentAtLabel = formatMessageSentAt(
 				!isUser && activeVariant?.createdAt
 					? activeVariant.createdAt
@@ -767,20 +767,19 @@ export function ChatConversationMessages({
 										className={cn(
 											isUser
 												? cn(
-														"max-w-full rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm",
-														temporaryMessageOutline,
+												"max-w-full rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm",
 														inSideBySideGroup
 															? "flex h-full min-h-[180px] w-full flex-col"
 															: "w-fit",
-														hasAccent
-															? ""
-															: "bg-foreground text-background",
+												temporaryMode
+													? "border border-dashed border-foreground/50 bg-background text-foreground shadow-none"
+													: hasAccent
+														? ""
+														: "bg-foreground text-background",
 													)
-												: cn(
-														"w-full max-w-[min(100%,46rem)] px-0 py-1 text-sm leading-relaxed text-foreground",
-														temporaryMessageOutline,
-														temporaryMode && "px-4 py-3",
-														inSideBySideGroup &&
+											: cn(
+												"w-full max-w-[min(100%,46rem)] px-0 py-1 text-sm leading-relaxed text-foreground",
+												inSideBySideGroup &&
 															"flex h-full min-h-[180px] flex-col",
 													),
 										)}
@@ -1374,9 +1373,9 @@ export function ChatConversationMessages({
 						viewportClassName="overscroll-x-contain"
 					>
 						<div
-							className="grid min-w-max items-stretch gap-x-4 gap-y-5 pr-4"
+							className="grid w-full min-w-max items-stretch gap-x-4 gap-y-5 pr-4"
 							style={{
-								gridTemplateColumns: `repeat(${modelKeys.length}, minmax(0, min(88vw, 32rem)))`,
+								gridTemplateColumns: `repeat(${modelKeys.length}, minmax(min(88vw, 32rem), 1fr))`,
 							}}
 						>
 							{turns.flatMap((turn) =>

@@ -726,6 +726,18 @@ public static class Operations
 		return client.SendAsync<object>("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Task<Dictionary<string, object>?> ListModelEndpointsAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/models/" + (path != null && path.ContainsKey("author") ? path["author"] : "") + "/" + (path != null && path.ContainsKey("slug") ? path["slug"] : "") + "/endpoints";
+		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Task<Dictionary<string, object>?> ListModelsAsync(
 		Client client,
 		Dictionary<string, string>? path = null,

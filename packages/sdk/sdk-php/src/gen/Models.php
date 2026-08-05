@@ -415,6 +415,12 @@ class AudioTranscriptionRequest
 	public $audio_b64;
 	/** @var string|null */
 	public $audio_url;
+	/** @var string|array<string, mixed>|null */
+	public $chunking_strategy;
+	/** @var array|null */
+	public $known_speaker_names;
+	/** @var array|null */
+	public $known_speaker_references;
 	/** @var string|null */
 	public $language;
 	/** @var string */
@@ -565,6 +571,8 @@ class BatchProviderCapability
 {
 	/** @var string|null */
 	public $documentation_url;
+	/** @var array|null */
+	public $endpoints;
 	/** @var array|null */
 	public $gateway_input_modes;
 	/** @var string|null */
@@ -753,6 +761,8 @@ class BatchResponse
 	public $session_id;
 	/** @var string|null */
 	public $status;
+	/** @var array<string, mixed>|null */
+	public $usage;
 	/** @var array<string, mixed>|null */
 	public $webhook;
 	/** @var string|null */
@@ -1023,6 +1033,34 @@ class EmbeddingsResponse
 	public $usage;
 }
 
+class EndpointCatalogueEntry
+{
+	/** @var string */
+	public $capability_id;
+	/** @var string */
+	public $collection;
+	/** @var string */
+	public $id;
+	/** @var int */
+	public $model_count;
+	/** @var int */
+	public $provider_count;
+	/** @var string */
+	public $public_path;
+}
+
+class EndpointCatalogueResponse
+{
+	/** @var array */
+	public $data;
+	/** @var array */
+	public $endpoints;
+	/** @var string */
+	public $ok;
+	/** @var array */
+	public $sample_models;
+}
+
 class ErrorFailureSampleItem
 {
 	/** @var string|null */
@@ -1179,6 +1217,14 @@ class FunctionToolDefinition
 {
 	/** @var array<string, mixed> */
 	public $function;
+	/** @var string */
+	public $type;
+}
+
+class FusionToolDefinition
+{
+	/** @var array<string, mixed>|null */
+	public $parameters;
 	/** @var string */
 	public $type;
 }
@@ -1575,6 +1621,80 @@ class ModelAvailability
 	public $status;
 }
 
+class ModelEndpointCapability
+{
+	/** @var string */
+	public $availability_reason;
+	/** @var string */
+	public $availability_status;
+	/** @var string */
+	public $capability_id;
+	/** @var string */
+	public $capability_status;
+	/** @var string */
+	public $collection;
+	/** @var string|null */
+	public $effective_from;
+	/** @var string|null */
+	public $effective_to;
+	/** @var string */
+	public $endpoint;
+	/** @var string */
+	public $id;
+	/** @var array */
+	public $input_modalities;
+	/** @var bool */
+	public $is_active_gateway;
+	/** @var string */
+	public $model_routing_status;
+	/** @var array */
+	public $output_modalities;
+	/** @var array<string, mixed> */
+	public $pricing;
+	/** @var array<string, mixed> */
+	public $pricing_detail;
+	/** @var string */
+	public $provider_id;
+	/** @var string|null */
+	public $provider_model_slug;
+	/** @var string|null */
+	public $provider_name;
+	/** @var string */
+	public $provider_routing_status;
+	/** @var string */
+	public $provider_status;
+	/** @var string */
+	public $public_path;
+	/** @var array */
+	public $supported_parameters;
+	/** @var array<string, mixed> */
+	public $supported_parameters_detail;
+}
+
+class ModelEndpointsResponse
+{
+	/** @var array<string, mixed>|null */
+	public $architecture;
+	/** @var string */
+	public $availability_mode;
+	/** @var string */
+	public $canonical_slug;
+	/** @var int|null */
+	public $created;
+	/** @var string|null */
+	public $description;
+	/** @var array */
+	public $endpoints;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $model_id;
+	/** @var string|null */
+	public $name;
+	/** @var string */
+	public $ok;
+}
+
 class ModelId { }
 
 class ModelLifecycle
@@ -1609,14 +1729,20 @@ class ModelProviderAvailability
 	public $effective_to;
 	/** @var array */
 	public $endpoints;
+	/** @var array|null */
+	public $input_modalities;
 	/** @var bool */
 	public $is_active_gateway;
 	/** @var string */
 	public $model_routing_status;
+	/** @var array|null */
+	public $output_modalities;
 	/** @var array */
 	public $params;
 	/** @var array<string, mixed>|null */
 	public $params_detail;
+	/** @var string|null */
+	public $provider_model_slug;
 	/** @var string */
 	public $provider_routing_status;
 	/** @var string */
@@ -2157,14 +2283,42 @@ class ResponsesResponse
 	public $usage;
 }
 
+class SearchModelsToolDefinition
+{
+	/** @var array<string, mixed>|null */
+	public $parameters;
+	/** @var string */
+	public $type;
+}
+
 class ServerToolUsage
 {
 	/** @var int|null */
+	public $advisor_requests;
+	/** @var int|null */
+	public $apply_patch_requests;
+	/** @var int|null */
 	public $datetime_requests;
+	/** @var int|null */
+	public $fusion_requests;
+	/** @var int|null */
+	public $image_generation_requests;
+	/** @var int|null */
+	public $search_models_requests;
+	/** @var int|null */
+	public $subagent_requests;
 	/** @var int|null */
 	public $web_fetch_requests;
 	/** @var int|null */
 	public $web_search_requests;
+}
+
+class SubagentToolDefinition
+{
+	/** @var array<string, mixed>|null */
+	public $parameters;
+	/** @var string */
+	public $type;
 }
 
 class SupportedParameterDetails

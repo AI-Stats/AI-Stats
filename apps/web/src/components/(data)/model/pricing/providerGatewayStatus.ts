@@ -57,6 +57,9 @@ function normalizeDerankStatus(value: unknown): CanonicalGatewayStatus | null {
 
 export function resolveGatewayStatus({
 	isActiveGateway,
+	providerAvailabilityStatus,
+	phaseoStatus,
+	accessScope,
 	capabilityStatus,
 	providerStatus,
 	providerRoutingStatus,
@@ -65,6 +68,9 @@ export function resolveGatewayStatus({
 	effectiveTo,
 }: {
 	isActiveGateway: boolean | null | undefined;
+	providerAvailabilityStatus?: unknown;
+	phaseoStatus?: unknown;
+	accessScope?: unknown;
 	capabilityStatus?: unknown;
 	providerStatus?: unknown;
 	providerRoutingStatus?: unknown;
@@ -73,6 +79,10 @@ export function resolveGatewayStatus({
 	effectiveTo?: string | null;
 }): CanonicalGatewayStatus {
 	const normalizedProviderStatus = normalizeGatewayStatusValue(providerStatus);
+	const normalizedProviderAvailabilityStatus =
+		normalizeGatewayStatusValue(providerAvailabilityStatus);
+	const normalizedPhaseoStatus = normalizeGatewayStatusValue(phaseoStatus);
+	const normalizedAccessScope = normalizeGatewayStatusValue(accessScope);
 	const normalizedProviderRoutingStatus =
 		normalizeGatewayStatusValue(providerRoutingStatus);
 	const normalizedModelRoutingStatus = normalizeGatewayStatusValue(modelRoutingStatus);
@@ -85,13 +95,39 @@ export function resolveGatewayStatus({
 	if (
 		normalizedProviderRoutingStatus === "disabled" ||
 		normalizedModelRoutingStatus === "disabled" ||
-		normalizedCapabilityStatus === "disabled"
+		normalizedCapabilityStatus === "disabled" ||
+		normalizedPhaseoStatus === "disabled" ||
+		normalizedPhaseoStatus === "blocked"
 	) {
 		return "disabled";
 	}
 
 	if (isExpiredEffectiveWindow(effectiveTo)) return "inactive";
 	if (isFutureEffectiveWindow(effectiveFrom)) return "coming_soon";
+
+	if (
+		normalizedAccessScope === "internal" ||
+		normalizedPhaseoStatus === "testing"
+	) {
+		return "internal_testing";
+	}
+
+	if (
+		normalizedProviderAvailabilityStatus === "coming_soon" ||
+		normalizedPhaseoStatus === "planned" ||
+		normalizedPhaseoStatus === "implementing"
+	) {
+		return "coming_soon";
+	}
+
+	if (
+		["unknown", "deprecated", "removed"].includes(
+			normalizedProviderAvailabilityStatus,
+		) ||
+		normalizedPhaseoStatus === "unsupported"
+	) {
+		return "inactive";
+	}
 
 	if (normalizedCapabilityStatus === "internal_testing") {
 		return "internal_testing";

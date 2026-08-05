@@ -229,7 +229,8 @@ function encodeUsage(usage?: IRUsage): OpenAIResponsesResponse["usage"] | undefi
 			typeof usage._ext?.serverToolUse?.web_fetch_requests === "number" ||
 			typeof usage._ext?.serverToolUse?.advisor_requests === "number" ||
 			typeof usage._ext?.serverToolUse?.image_generation_requests === "number" ||
-			typeof usage._ext?.serverToolUse?.apply_patch_requests === "number"
+			typeof usage._ext?.serverToolUse?.apply_patch_requests === "number" ||
+			typeof usage._ext?.serverToolUse?.subagent_requests === "number" || typeof usage._ext?.serverToolUse?.fusion_requests === "number" || typeof usage._ext?.serverToolUse?.search_models_requests === "number"
 			? {
 					...(typeof usage._ext?.serverToolUse?.datetime_requests === "number"
 						? { datetime_requests: usage._ext?.serverToolUse?.datetime_requests }
@@ -255,8 +256,10 @@ function encodeUsage(usage?: IRUsage): OpenAIResponsesResponse["usage"] | undefi
 					...(typeof usage._ext?.serverToolUse?.apply_patch_requests === "number"
 						? { apply_patch_requests: usage._ext?.serverToolUse?.apply_patch_requests }
 						: {}),
+					...(typeof usage._ext?.serverToolUse?.subagent_requests === "number" ? { subagent_requests: usage._ext.serverToolUse.subagent_requests } : {}),
+					...(typeof usage._ext?.serverToolUse?.fusion_requests === "number" ? { fusion_requests: usage._ext.serverToolUse.fusion_requests } : {}),
+					...(typeof usage._ext?.serverToolUse?.search_models_requests === "number" ? { search_models_requests: usage._ext.serverToolUse.search_models_requests } : {}),
 				}
 			: undefined,
 	};
 }
-

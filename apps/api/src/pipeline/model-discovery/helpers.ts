@@ -118,6 +118,64 @@ type ConfiguredModelCoverageState = {
 	fallbackFingerprint: string | null;
 };
 
+const DISCORD_PROVIDER_FAMILIES: Record<string, { providerId: string; providerName: string }> = {
+	anthropic: { providerId: "anthropic", providerName: "Anthropic" },
+	"anthropic-us": { providerId: "anthropic", providerName: "Anthropic" },
+	"google-vertex": { providerId: "google-vertex", providerName: "Google Vertex" },
+	"google-vertex-eu": { providerId: "google-vertex", providerName: "Google Vertex" },
+	moonshotai: { providerId: "moonshotai", providerName: "Moonshot AI" },
+	"moonshotai-turbo": { providerId: "moonshotai", providerName: "Moonshot AI" },
+	"nebius-token-factory": { providerId: "nebius-token-factory", providerName: "Nebius Token Factory" },
+	"nebius-token-factory-fast": { providerId: "nebius-token-factory", providerName: "Nebius Token Factory" },
+	"nebius-token-factory-eu-north-1": { providerId: "nebius-token-factory", providerName: "Nebius Token Factory" },
+	"nebius-token-factory-us-central-1": { providerId: "nebius-token-factory", providerName: "Nebius Token Factory" },
+	openai: { providerId: "openai", providerName: "OpenAI" },
+	"openai-eu": { providerId: "openai", providerName: "OpenAI" },
+	venice: { providerId: "venice", providerName: "Venice" },
+	"venice-e2ee": { providerId: "venice", providerName: "Venice" },
+};
+
+function discordProviderFamily(providerId: string, providerName?: string): { providerId: string; providerName: string } {
+	return DISCORD_PROVIDER_FAMILIES[providerId] ?? { providerId, providerName: providerName ?? providerId };
+}
+
+export function getDiscordProviderFamilyId(providerId: string): string {
+	return discordProviderFamily(providerId).providerId;
+}
+
+export function collapseDiscordProviderChanges(changes: ProviderChange[]): ProviderChange[] {
+	const grouped = new Map<string, ProviderChange>();
+	for (const change of changes) {
+		const family = discordProviderFamily(change.providerId, change.providerName);
+		const current = grouped.get(family.providerId) ?? {
+			providerId: family.providerId,
+			providerName: family.providerName,
+			previousCount: 0,
+			currentCount: 0,
+			added: [],
+			removed: [],
+		};
+		current.previousCount += change.previousCount;
+		current.currentCount += change.currentCount;
+		current.added = Array.from(new Set([...current.added, ...change.added])).sort();
+		current.removed = Array.from(new Set([...current.removed, ...change.removed])).sort();
+		grouped.set(family.providerId, current);
+	}
+	return Array.from(grouped.values());
+}
+
+export function collapseDiscordPricingChanges(changes: PricingProviderChange[]): PricingProviderChange[] {
+	const grouped = new Map<string, PricingProviderChange>();
+	for (const change of changes) {
+		const family = discordProviderFamily(change.providerId);
+		const current = grouped.get(family.providerId) ?? { providerId: family.providerName, updates: 0, samples: [] };
+		current.updates += change.updates;
+		current.samples = Array.from(new Set([...current.samples, ...change.samples])).sort();
+		grouped.set(family.providerId, current);
+	}
+	return Array.from(grouped.values());
+}
+
 export type PricingTableSnapshotState = {
 	providerId: string;
 	fingerprint: string;
@@ -137,7 +195,8 @@ const MAX_PRICING_PROVIDER_LINES = 20;
 const MAX_PRICING_SAMPLE_LINES = 6;
 const MAX_PRICING_ROWS = 5_000;
 const PRICING_PAGE_SIZE = 500;
-const PRICING_KEY_PATTERN = /(price|pricing|cost|billing|currency|rate|meter|unit|token)/i;
+const PRICING_KEY_PATTERN = /(price|pricing|cost|billing|currency|rate|meter|unit)/i;
+const PRICING_VALUE_KEY_PATTERN = /^(?:input|output|prompt|completion|input_tokens|output_tokens|prompt_tokens|completion_tokens|cache(?:d)?(?:_read|_write|_input|_prompt|_tokens)?|currency|unit)$/i;
 const PRICING_EXTRACTION_MAX_DEPTH = 4;
 const MAX_SAMPLE_TEXT_LENGTH = 180;
 const PROVIDER_ID_ALIASES: Record<string, string> = {
@@ -268,7 +327,16 @@ export function extractPricingDetailsFromValue(value: unknown, depth = 0, parent
 		const out: Record<string, unknown> = {};
 		for (const [key, nestedValue] of Object.entries(input)) {
 			if (PRICING_KEY_PATTERN.test(key)) {
-				out[key] = normalizeJson(nestedValue);
+				const nested = extractPricingDetailsFromValue(nestedValue, depth + 1, key);
+				if (nested !== null) out[key] = nested;
+				continue;
+			}
+			if (
+				parentMatches &&
+				PRICING_VALUE_KEY_PATTERN.test(key) &&
+				(typeof nestedValue === "number" || typeof nestedValue === "string")
+			) {
+				out[key] = nestedValue;
 				continue;
 			}
 			const nested = extractPricingDetailsFromValue(nestedValue, depth + 1, key);
@@ -276,7 +344,7 @@ export function extractPricingDetailsFromValue(value: unknown, depth = 0, parent
 				out[key] = nested;
 			}
 		}
-		if (Object.keys(out).length === 0) return parentMatches ? normalizeJson(value) : null;
+		if (Object.keys(out).length === 0) return null;
 		return normalizeJson(out);
 	}
 
@@ -423,12 +491,6 @@ export function buildProviderApiModelSnapshotDiff(
 	current: ProviderApiModelSnapshot
 ): string[] {
 	const changes: string[] = [];
-	if (previous.contextLength !== current.contextLength) {
-		changes.push(`contextLength: ${formatSnapshotValue(previous.contextLength)} -> ${formatSnapshotValue(current.contextLength)}`);
-	}
-	if (previous.maxCompletionTokens !== current.maxCompletionTokens) {
-		changes.push(`maxCompletionTokens: ${formatSnapshotValue(previous.maxCompletionTokens)} -> ${formatSnapshotValue(current.maxCompletionTokens)}`);
-	}
 	if (previous.pricingFingerprint !== current.pricingFingerprint) {
 		changes.push(
 			`price: ${samplePricingDetailsText(previous.pricingDetails)} -> ${samplePricingDetailsText(current.pricingDetails)}`
@@ -1276,20 +1338,23 @@ export function appendBulletedList(lines: string[], values: string[]): void {
 }
 
 export function buildModelDiscordSection(changes: ProviderChange[]): string {
-	if (changes.length === 0) return "";
+	const modelSetChanges = collapseDiscordProviderChanges(changes).filter(
+		(change) => change.added.length > 0 || change.removed.length > 0
+	);
+	if (modelSetChanges.length === 0) return "";
 	const lines: string[] = [
-		`Model discovery detected changes across ${changes.length} provider${changes.length === 1 ? "" : "s"}.`,
+		`Model discovery detected additions or removals across ${modelSetChanges.length} provider${modelSetChanges.length === 1 ? "" : "s"}.`,
 		"",
 	];
 
-	for (const change of changes.slice(0, MAX_DISCORD_LINES)) {
+	for (const change of modelSetChanges.slice(0, MAX_DISCORD_LINES)) {
 		lines.push(`${change.providerName}`);
 		if (change.added.length > 0) {
-			lines.push(`Additions (${change.added.length}):`);
+			lines.push(`New models (${change.added.length}):`);
 			appendBulletedList(lines, change.added);
 		}
 		if (change.removed.length > 0) {
-			lines.push(`Deletions (${change.removed.length}):`);
+			lines.push(`Removed models (${change.removed.length}):`);
 			appendBulletedList(lines, change.removed);
 		}
 		lines.push("");
@@ -1299,46 +1364,46 @@ export function buildModelDiscordSection(changes: ProviderChange[]): string {
 }
 
 export function buildPricingDiscordSection(pricing: PricingMonitorSummary): string {
-	if (pricing.updatesDetected === 0 || pricing.providerChanges.length === 0) {
-		return pricing.error ? `Pricing monitor failed: ${pricing.error}` : "";
-	}
+	if (pricing.updatesDetected === 0 || pricing.providerChanges.length === 0) return "";
+	const providerChanges = collapseDiscordPricingChanges(pricing.providerChanges);
+	const updatesDetected = providerChanges.reduce((total, provider) => total + provider.updates, 0);
 	const lines: string[] = [
-		`Pricing monitor detected ${pricing.updatesDetected} updated rule${pricing.updatesDetected === 1 ? "" : "s"} across ${pricing.providerChanges.length} provider${pricing.providerChanges.length === 1 ? "" : "s"}.`,
+		`Pricing monitor detected ${updatesDetected} updated rule${updatesDetected === 1 ? "" : "s"} across ${providerChanges.length} provider${providerChanges.length === 1 ? "" : "s"}.`,
 		"",
 	];
 
-	for (const provider of pricing.providerChanges.slice(0, MAX_PRICING_PROVIDER_LINES)) {
+	for (const provider of providerChanges.slice(0, MAX_PRICING_PROVIDER_LINES)) {
 		lines.push(`${provider.providerId}`);
 		lines.push(`Updates (${provider.updates}):`);
 		appendBulletedList(lines, provider.samples);
 		lines.push("");
 	}
 
-	if (pricing.providerChanges.length > MAX_PRICING_PROVIDER_LINES) {
-		lines.push(`...and ${pricing.providerChanges.length - MAX_PRICING_PROVIDER_LINES} more provider(s).`);
+	if (providerChanges.length > MAX_PRICING_PROVIDER_LINES) {
+		lines.push(`...and ${providerChanges.length - MAX_PRICING_PROVIDER_LINES} more provider(s).`);
 	}
 
 	return lines.join("\n").trim();
 }
 
 export function buildProviderApiPricingDiscordSection(pricing: ProviderApiPricingMonitorSummary): string {
-	if (pricing.updatesDetected === 0 || pricing.providerChanges.length === 0) {
-		return pricing.error ? `Provider /models pricing monitor failed: ${pricing.error}` : "";
-	}
+	if (pricing.updatesDetected === 0 || pricing.providerChanges.length === 0) return "";
+	const providerChanges = collapseDiscordPricingChanges(pricing.providerChanges);
+	const updatesDetected = providerChanges.reduce((total, provider) => total + provider.updates, 0);
 	const lines: string[] = [
-		`Provider /models monitor detected ${pricing.updatesDetected} updated model${pricing.updatesDetected === 1 ? "" : "s"} across ${pricing.providerChanges.length} provider${pricing.providerChanges.length === 1 ? "" : "s"}.`,
+		`Provider /models monitor detected ${updatesDetected} updated model${updatesDetected === 1 ? "" : "s"} across ${providerChanges.length} provider${providerChanges.length === 1 ? "" : "s"}.`,
 		"",
 	];
 
-	for (const provider of pricing.providerChanges.slice(0, MAX_PRICING_PROVIDER_LINES)) {
+	for (const provider of providerChanges.slice(0, MAX_PRICING_PROVIDER_LINES)) {
 		lines.push(`${provider.providerId}`);
 		lines.push(`Updates (${provider.updates}):`);
 		appendBulletedList(lines, provider.samples);
 		lines.push("");
 	}
 
-	if (pricing.providerChanges.length > MAX_PRICING_PROVIDER_LINES) {
-		lines.push(`...and ${pricing.providerChanges.length - MAX_PRICING_PROVIDER_LINES} more provider(s).`);
+	if (providerChanges.length > MAX_PRICING_PROVIDER_LINES) {
+		lines.push(`...and ${providerChanges.length - MAX_PRICING_PROVIDER_LINES} more provider(s).`);
 	}
 
 	return lines.join("\n").trim();
@@ -1376,17 +1441,11 @@ export function hasDiscordNotifiableChanges(args: {
 	pricingTable: PricingTableMonitorSummary;
 	configuredModelCoverage: ConfiguredModelCoverageMonitorSummary;
 }): boolean {
-	return args.modelChanges.length > 0
+	return args.modelChanges.some((change) => change.added.length > 0 || change.removed.length > 0)
 		|| args.pricing.updatesDetected > 0
-		|| Boolean(args.pricing.error)
 		|| args.providerApiPricing.updatesDetected > 0
-		|| Boolean(args.providerApiPricing.error)
 		|| args.pricingTable.updatesDetected > 0
-		|| args.pricingTable.errors.length > 0
-		|| Boolean(args.pricingTable.error)
-		|| (
-		shouldNotifyConfiguredModelCoverage() && args.configuredModelCoverage.updatesDetected > 0
-	);
+	;
 }
 
 export function buildPricingTableDiscordSection(pricing: PricingTableMonitorSummary): string {
@@ -1396,10 +1455,6 @@ export function buildPricingTableDiscordSection(pricing: PricingTableMonitorSumm
 		for (const change of pricing.providerChanges.slice(0, MAX_PRICING_PROVIDER_LINES)) {
 			lines.push(`- ${change.providerName}: ${change.tableCount} price-bearing section${change.tableCount === 1 ? "" : "s"} (${change.sourceUrl})`);
 		}
-	}
-	if (pricing.error) lines.push(`Pricing page monitor failed: ${pricing.error}`);
-	for (const error of pricing.errors.slice(0, MAX_PRICING_SAMPLE_LINES)) {
-		lines.push(`- Pricing source error: ${error}`);
 	}
 	return lines.join("\n").trim();
 }
@@ -1414,20 +1469,15 @@ export function buildDiscordMessage(args: {
 	pricingTable: PricingTableMonitorSummary;
 	configuredModelCoverage: ConfiguredModelCoverageMonitorSummary;
 }): string {
-	const includeConfiguredCoverageNotifications = shouldNotifyConfiguredModelCoverage();
 	const sections: string[] = [];
 	const modelSection = buildModelDiscordSection(args.modelChanges);
 	const pricingSection = buildPricingDiscordSection(args.pricing);
 	const providerApiPricingSection = buildProviderApiPricingDiscordSection(args.providerApiPricing);
 	const pricingTableSection = buildPricingTableDiscordSection(args.pricingTable);
-	const configuredModelCoverageSection = buildConfiguredModelCoverageDiscordSection(args.configuredModelCoverage);
 	if (modelSection) sections.push(modelSection);
 	if (pricingSection) sections.push(pricingSection);
 	if (providerApiPricingSection) sections.push(providerApiPricingSection);
 	if (pricingTableSection) sections.push(pricingTableSection);
-	if (includeConfiguredCoverageNotifications && configuredModelCoverageSection) {
-		sections.push(configuredModelCoverageSection);
-	}
 	const text = sections.join("\n\n").trim();
 	if (text.length <= 1900) return text;
 	return `${text.slice(0, 1888)}\n...[truncated]`;

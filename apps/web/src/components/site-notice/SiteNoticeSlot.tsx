@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import SiteNoticeBar from "@/components/site-notice/SiteNoticeBar";
 import {
 	getActiveSiteNotice,
@@ -5,6 +6,10 @@ import {
 import { fetchInternalAuthStatus } from "@/lib/fetchers/internal/fetchInternalAuthStatus";
 
 export default async function SiteNoticeSlot() {
+	// Supabase Auth checks token expiry with Date.now() during client
+	// initialization. Make that indirect runtime access explicit to Cache
+	// Components before the client is constructed.
+	await connection();
 	let isAuthenticated = false;
 	try {
 		const status = await fetchInternalAuthStatus();
