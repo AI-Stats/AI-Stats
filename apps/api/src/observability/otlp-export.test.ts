@@ -95,6 +95,20 @@ describe("deliverGatewayOtlpPayload", () => {
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 
+	it("continues to support public HTTP collectors", async () => {
+		const fetchMock = vi.fn().mockResolvedValue(
+			new Response(JSON.stringify({ partialSuccess: {} }), { status: 200 }),
+		);
+		vi.stubGlobal("fetch", fetchMock);
+		const result = await deliverGatewayOtlpPayload(
+			{ resourceSpans: [] },
+			{ endpoint: "http://collector.example.com" },
+		);
+
+		expect(result).toMatchObject({ delivered: true, status: 200 });
+		expect((fetchMock.mock.calls[0] as [URL])[0].toString()).toBe("http://collector.example.com/v1/traces");
+	});
+
 	it("rejects collector hostnames that resolve to private addresses", async () => {
 		const fetchMock = vi.fn();
 		vi.stubGlobal("fetch", fetchMock);

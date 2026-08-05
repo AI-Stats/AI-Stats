@@ -325,9 +325,13 @@ export async function deliverGatewayOtlpPayload(
 		// Reuse the hardened outbound-webhook boundary so mapped IPv6 literals
 		// and DNS records resolving to private networks are rejected immediately
 		// before the collector request.
-		const validated = await validateWebhookEndpointUrlForDelivery(collectorEndpoint.toString());
+		const validationUrl = new URL(collectorEndpoint);
+		// The shared boundary requires TLS for webhooks. OTLP explicitly supports
+		// public HTTP collectors, so validate the identical host/path through the
+		// hardened DNS boundary without changing the actual collector scheme.
+		if (validationUrl.protocol === "http:") validationUrl.protocol = "https:";
+		const validated = await validateWebhookEndpointUrlForDelivery(validationUrl.toString());
 		if (validated.ok === false) throw new Error(`Invalid OTLP endpoint: ${validated.reason}`);
-		collectorEndpoint = new URL(validated.url);
 	} catch (error) {
 		return {
 			delivered: false,
