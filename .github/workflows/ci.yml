@@ -448,6 +448,7 @@ jobs:
               with:
                   name: importer-state-${{ github.run_id }}-${{ github.run_attempt }}
                   path: packages/data/catalog/src/data/.import-state.json
+                  include-hidden-files: true
                   if-no-files-found: error
                   retention-days: 1
 
@@ -478,7 +479,7 @@ jobs:
                   artifact="importer-state-artifact/.import-state.json"
                   state_file="packages/data/catalog/src/data/.import-state.json"
                   [[ -f "${artifact}" && ! -L "${artifact}" ]]
-                  [[ "$(wc -c < "${artifact}")" -le 1048576 ]]
+                  [[ "$(wc -c < "${artifact}")" -le 4194304 ]]
                   python -m json.tool "${artifact}" >/dev/null
                   install -m 0644 "${artifact}" "${state_file}"
 

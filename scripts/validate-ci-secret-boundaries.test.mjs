@@ -132,12 +132,14 @@ test("isolates importer repository code from the write-capable App token", () =>
 	const importerJob = workflow.slice(importerStart, publisherStart);
 	const publisherJob = workflow.slice(publisherStart, sdkStart);
 	assert.doesNotMatch(importerJob, /create-github-app-token|GH_TOKEN|x-access-token/);
+	assert.match(importerJob, /include-hidden-files: true/);
 	assert.ok(
 		publisherJob.indexOf("Validate importer state artifact") <
 			publisherJob.indexOf("Create minimal GitHub App token"),
 	);
 	assert.match(publisherJob, /permission-contents: write/);
 	assert.match(publisherJob, /permission-pull-requests: write/);
+	assert.match(publisherJob, /wc -c[^\n]+4194304/);
 });
 
 test("rejects production migration secrets outside push-to-main", () => {
