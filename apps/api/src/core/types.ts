@@ -91,9 +91,15 @@ export type RequestMeta = {
     keySource?: "gateway" | "byok";
     byokKeyId?: string | null;
     // Performance metrics
-    throughput_tps?: number;      // Tokens per second
+    throughput_tps?: number;      // Effective output tokens/sec over the full provider duration
+    output_speed_tps?: number;    // Output tokens/sec after the first generated token
     generation_ms?: number;       // Selected upstream dispatch to terminal frame/body when available
-    latency_ms?: number;          // Selected upstream dispatch to first complete streamed frame
+    latency_ms?: number;          // Legacy alias for provider_ttft_ms on streamed text responses
+    provider_ttft_ms?: number;    // Selected upstream dispatch to first generated output
+    gateway_ttft_ms?: number;     // Gateway request start to first generated output (user-visible TTFT)
+    tpot_ms?: number;             // Average time per output token after the first token
+    itl_ms?: number;              // Average inter-token latency
+    phaseo_overhead_ms?: number;  // Gateway E2E minus selected provider duration
     end_to_end_ms?: number;       // Request start to completion when available
     preserve_stream_timing?: boolean; // Internal: stream is synthetic and already has authoritative timing
     downstreamDisconnected?: boolean; // Client closed the response while the gateway continued draining upstream

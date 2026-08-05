@@ -20,6 +20,7 @@ import {
 	resolveExecuteTotalLatencyMs,
 	resolveNonStreamLatencyMs,
 } from "./timing";
+import { calculateOutputPerformanceMetrics } from "./performance-metrics";
 import {
 	normalizeDataContributionPolicy,
 	persistDataContribution,
@@ -491,6 +492,26 @@ export async function handleSuccessAudit(
         const tokensOut = Number(usage.output_tokens ?? usage.output_text_tokens ?? usage.completion_tokens ?? 0);
         ctx.meta.throughput_tps = tokensOut / (generationMs / 1000);
     }
+    const outputTokens = Number(
+        usageWithMultimodal?.output_tokens ??
+        usageWithMultimodal?.output_text_tokens ??
+        usageWithMultimodal?.completion_tokens ??
+        0
+    );
+    const providerTtftMs = isStream && typeof ctx.meta.provider_ttft_ms === "number"
+        ? ctx.meta.provider_ttft_ms
+        : null;
+    const outputPerformance = calculateOutputPerformanceMetrics({
+        outputTokens,
+        providerDurationMs: generationMs,
+        providerTtftMs,
+        gatewayE2eMs: endToEndMs,
+    });
+    ctx.meta.throughput_tps ??= outputPerformance.effectiveThroughputTps ?? undefined;
+    ctx.meta.output_speed_tps ??= outputPerformance.outputSpeedTps ?? undefined;
+    ctx.meta.tpot_ms ??= outputPerformance.tpotMs ?? undefined;
+    ctx.meta.itl_ms ??= outputPerformance.itlMs ?? undefined;
+    ctx.meta.phaseo_overhead_ms ??= outputPerformance.phaseoOverheadMs ?? undefined;
 
     // console.log("[DEBUG handleSuccessAudit] Calling auditSuccess with:", {
     //     usagePriced: usageWithMultimodal,
@@ -600,6 +621,12 @@ export async function handleSuccessAudit(
             edgeAsn: ctx.meta.edgeAsn ?? null,
             generationMs,
             latencyMs,
+            providerTtftMs,
+            gatewayTtftMs: isStream ? (ctx.meta.gateway_ttft_ms ?? null) : null,
+            outputSpeedTps: ctx.meta.output_speed_tps ?? null,
+            tpotMs: ctx.meta.tpot_ms ?? null,
+            itlMs: ctx.meta.itl_ms ?? null,
+            phaseoOverheadMs: ctx.meta.phaseo_overhead_ms ?? null,
             internalLatencyMs,
             endToEndMs,
             usagePriced: usageWithMultimodal,
@@ -827,12 +854,3 @@ function enrichUsageWithMultimodal(ctx: PipelineContext, result: RequestResult, 
         return usagePriced;
     }
 }
-
-
-
-
-
-
-
-
-
