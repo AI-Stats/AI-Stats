@@ -1,4 +1,5 @@
 import { getBindings, getSupabaseAdmin } from "@/runtime/env";
+import { validateWebhookEndpointUrlForDelivery } from "@core/webhook-endpoints";
 import {
 	buildAsyncGenAiOtlpPayload,
 	buildGatewayGenAiOtlpPayload,
@@ -321,6 +322,16 @@ export async function deliverGatewayOtlpPayload(
 	try {
 		collectorEndpoint = endpoint(config);
 		collectorHeaders = headers(config);
+		// Reuse the hardened outbound-webhook boundary so mapped IPv6 literals
+		// and DNS records resolving to private networks are rejected immediately
+		// before the collector request.
+		const validationUrl = new URL(collectorEndpoint);
+		// The shared boundary requires TLS for webhooks. OTLP explicitly supports
+		// public HTTP collectors, so validate the identical host/path through the
+		// hardened DNS boundary without changing the actual collector scheme.
+		if (validationUrl.protocol === "http:") validationUrl.protocol = "https:";
+		const validated = await validateWebhookEndpointUrlForDelivery(validationUrl.toString());
+		if (validated.ok === false) throw new Error(`Invalid OTLP endpoint: ${validated.reason}`);
 	} catch (error) {
 		return {
 			delivered: false,
@@ -336,6 +347,7 @@ export async function deliverGatewayOtlpPayload(
 			method: "POST",
 			headers: collectorHeaders,
 			body: JSON.stringify(payload),
+			redirect: "manual",
 			signal: AbortSignal.timeout(15_000),
 		});
 	} catch (error) {
