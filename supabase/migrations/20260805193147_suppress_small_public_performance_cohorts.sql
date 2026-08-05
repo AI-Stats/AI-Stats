@@ -19,7 +19,9 @@ create function public.get_v2_model_performance_metrics(
 returns jsonb
 language sql
 stable
-security invoker
+-- The public wrapper needs definer privileges only to call the private raw RPC;
+-- its fixed query exposes exclusively the suppressed projection below.
+security definer
 set search_path = ''
 as $$
 with raw as (
@@ -61,9 +63,9 @@ from suppressed;
 $$;
 
 revoke execute on function public.get_v2_model_performance_metrics(text, text, numeric, text, text)
-  from public, anon, authenticated;
+  from public;
 grant execute on function public.get_v2_model_performance_metrics(text, text, numeric, text, text)
-  to service_role;
+  to anon, authenticated, service_role;
 
 alter function public.get_v2_model_provider_percentile_series_v2(text, text, text, text)
   rename to get_v2_model_provider_percentile_series_v2_unsuppressed;
@@ -95,7 +97,8 @@ returns table (
 )
 language sql
 stable
-security invoker
+-- As above, callers can execute only the fixed >= 20-request projection.
+security definer
 set search_path = ''
 as $$
 select series.*
@@ -109,6 +112,6 @@ where series.requests >= 20;
 $$;
 
 revoke execute on function public.get_v2_model_provider_percentile_series_v2(text, text, text, text)
-  from public, anon, authenticated;
+  from public;
 grant execute on function public.get_v2_model_provider_percentile_series_v2(text, text, text, text)
-  to service_role;
+  to anon, authenticated, service_role;
