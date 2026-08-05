@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { canUpgradeCookieAuth } from './cookieAuthRequest'
 
 export async function updateSession(request: NextRequest) {
     const forwardedHeaders = new Headers(request.headers)
@@ -52,6 +53,7 @@ export async function updateSession(request: NextRequest) {
     if (
         isPrivateWebApiRequest &&
         session?.access_token &&
+        canUpgradeCookieAuth(request.headers, request.nextUrl.origin) &&
         !forwardedHeaders.has('authorization')
     ) {
         const responseCookies = supabaseResponse.cookies.getAll()
