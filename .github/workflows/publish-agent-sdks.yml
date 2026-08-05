@@ -119,9 +119,23 @@ jobs:
           packages-dir: dist/python-agent
           skip-existing: true
 
+  test-go:
+    name: Test Go Agent SDK
+    if: github.event_name != 'workflow_dispatch' || inputs.go
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: "1.24"
+          cache: false
+      - name: Test module
+        run: go -C packages/sdk/agent-sdk-go test ./...
+
   publish-go:
     name: Tag Go Agent SDK
-    if: github.event_name != 'workflow_dispatch' || inputs.go
+    if: github.ref == 'refs/heads/main' && (github.event_name != 'workflow_dispatch' || inputs.go)
+    needs: test-go
     runs-on: ubuntu-latest
     environment: release
     permissions:
@@ -136,13 +150,6 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
-        with:
-          go-version: "1.24"
-          cache: false
-      - name: Test module
-        shell: bash
-        run: go -C packages/sdk/agent-sdk-go test ./...
       - name: Create GitHub App token
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
@@ -183,9 +190,26 @@ jobs:
           git tag -a "$tag" -m "Go Agent SDK v${version}"
           git push "https://x-access-token:${GH_APP_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$tag"
 
+  test-php:
+    name: Test PHP Agent SDK
+    if: github.event_name != 'workflow_dispatch' || inputs.php
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        with:
+          php-version: "8.2"
+      - name: Test package
+        shell: bash
+        run: |
+          set -euo pipefail
+          composer --working-dir=packages/sdk/agent-sdk-php validate --strict
+          php packages/sdk/agent-sdk-php/tests/agent_loop_test.php
+
   publish-php:
     name: Publish PHP Agent SDK
-    if: github.event_name != 'workflow_dispatch' || inputs.php
+    if: github.ref == 'refs/heads/main' && (github.event_name != 'workflow_dispatch' || inputs.php)
+    needs: test-php
     runs-on: ubuntu-latest
     environment: release
     permissions:
@@ -200,15 +224,6 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
-        with:
-          php-version: "8.2"
-      - name: Test package
-        shell: bash
-        run: |
-          set -euo pipefail
-          composer --working-dir=packages/sdk/agent-sdk-php validate --strict
-          php packages/sdk/agent-sdk-php/tests/agent_loop_test.php
       - name: Create GitHub App token
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1

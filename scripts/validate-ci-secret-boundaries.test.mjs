@@ -95,13 +95,21 @@ test("rejects merge-group access to the Vercel credential boundary", () => {
 test("rejects Agent SDK tests that run after a GitHub App token is created", () => {
 	const vulnerableWorkflow = `
 jobs:
+    test-go:
+        steps:
+            - name: Placeholder
     publish-go:
         steps:
             - name: Create GitHub App token
             - name: Test module
               run: go -C packages/sdk/agent-sdk-go test ./...
             - name: Tag module
+    test-php:
+        steps:
+            - name: Test package
+              run: php packages/sdk/agent-sdk-php/tests/agent_loop_test.php
     publish-php:
+        needs: test-php
         steps:
             - name: Create GitHub App token
             - name: Test package
@@ -110,7 +118,7 @@ jobs:
 `;
 	assert.throws(
 		() => validateAgentSdkReleaseSecretBoundaries(vulnerableWorkflow),
-		/must finish repository-controlled tests before creating its GitHub App token/,
+		/test-go must execute the repository-controlled test suite/,
 	);
 });
 

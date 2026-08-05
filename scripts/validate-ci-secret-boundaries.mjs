@@ -117,18 +117,19 @@ export function validateCiSecretBoundaries(workflow) {
 
 export function validateAgentSdkReleaseSecretBoundaries(workflow) {
 	for (const boundary of [
-		{ job: "publish-go", testStep: "Test module", publishStep: "Tag module", testCommand: "go -C packages/sdk/agent-sdk-go test ./..." },
-		{ job: "publish-php", testStep: "Test package", publishStep: "Tag and sync split repository", testCommand: "php packages/sdk/agent-sdk-php/tests/agent_loop_test.php" },
+		{ testJob: "test-go", publishJob: "publish-go", testCommand: "go -C packages/sdk/agent-sdk-go test ./..." },
+		{ testJob: "test-php", publishJob: "publish-php", testCommand: "php packages/sdk/agent-sdk-php/tests/agent_loop_test.php" },
 	]) {
-		const job = extractJob(workflow, boundary.job);
-		const testIndex = job.indexOf(`- name: ${boundary.testStep}`);
-		const tokenIndex = job.indexOf("- name: Create GitHub App token");
-		const publishIndex = job.indexOf(`- name: ${boundary.publishStep}`);
-		if (testIndex < 0 || tokenIndex < 0 || publishIndex < 0 || !(testIndex < tokenIndex && tokenIndex < publishIndex)) {
-			throw new Error(`${boundary.job} must finish repository-controlled tests before creating its GitHub App token`);
+		const testJob = extractJob(workflow, boundary.testJob);
+		const publishJob = extractJob(workflow, boundary.publishJob);
+		if (!testJob.includes(boundary.testCommand)) {
+			throw new Error(`${boundary.testJob} must execute the repository-controlled test suite`);
 		}
-		if (job.slice(tokenIndex).includes(boundary.testCommand)) {
-			throw new Error(`${boundary.job} must not run repository-controlled tests after exposing its GitHub App token`);
+		if (!publishJob.includes(`needs: ${boundary.testJob}`)) {
+			throw new Error(`${boundary.publishJob} must require the isolated ${boundary.testJob} job`);
+		}
+		if (!publishJob.includes("Create GitHub App token") || publishJob.includes(boundary.testCommand)) {
+			throw new Error(`${boundary.publishJob} must expose its GitHub App token only on a fresh runner after tests`);
 		}
 	}
 }
