@@ -27,6 +27,12 @@ function toPerMillion(value: unknown): number | null {
 	return Math.round(parsed * 1_000_000 * 1_000_000_000) / 1_000_000_000;
 }
 
+function digitalOceanPerMillion(value: unknown): number | null {
+	const parsed = asNumber(value);
+	if (parsed === null) return null;
+	return parsed < 0.001 ? toPerMillion(parsed) : parsed;
+}
+
 function centsPerHundredMillionTokensToPerMillion(value: unknown): number | null {
 	const parsed = asNumber(value);
 	return parsed === null ? null : parsed / 10_000;
@@ -54,6 +60,9 @@ function promptCompletionPricing(pricing: JsonRecord, perToken: boolean): Normal
 		cached_read_text_tokens: rate(
 			pricing.cache_prompt ?? pricing.input_cache_read ?? pricing.input_cache_reads ?? pricing.cache_input,
 		),
+		cached_write_text_tokens: rate(
+			pricing.input_cache_write ?? pricing.input_cache_writes ?? pricing.cache_creation ?? pricing.cache_write,
+		),
 		output_text_tokens: rate(pricing.completion ?? pricing.output),
 	});
 }
@@ -63,6 +72,43 @@ export function normalizeProviderModelPricing(providerId: string, modelDetails: 
 	if (!model) return null;
 
 	switch (providerId) {
+		case "ambient":
+		case "kilo":
+		case "llmgateway":
+		case "openrouter":
+		case "ovhcloud": {
+			const pricing = asRecord(model.pricing);
+			return pricing ? promptCompletionPricing(pricing, true) : null;
+		}
+		case "weights-and-biases": {
+			const cost = asRecord(model.cost);
+			return cost
+				? fromMeters({
+						input_text_tokens: asNumber(cost.input),
+						cached_read_text_tokens: asNumber(cost.cache_read),
+						cached_write_text_tokens: asNumber(cost.cache_write),
+						output_text_tokens: asNumber(cost.output),
+					})
+				: null;
+		}
+		case "cloudflare": {
+			const pricing = asRecord(model.pricing);
+			return pricing ? promptCompletionPricing(pricing, true) : null;
+		}
+		case "digitalocean": {
+			const pricing = asRecord(model.pricing);
+			return pricing
+				? fromMeters({
+						input_text_tokens: digitalOceanPerMillion(pricing.input_price_per_million),
+						cached_read_text_tokens: digitalOceanPerMillion(pricing.cache_read_input_price_per_million),
+						output_text_tokens: digitalOceanPerMillion(pricing.output_price_per_million),
+					})
+				: null;
+		}
+		case "empiriolabs": {
+			const pricing = asRecord(model.pricing);
+			return pricing ? promptCompletionPricing(pricing, true) : null;
+		}
 		case "akashml": {
 			const pricing = asRecord(model.pricing);
 			return pricing
@@ -123,6 +169,7 @@ export function normalizeProviderModelPricing(providerId: string, modelDetails: 
 			const pricing = Array.isArray(model.pricing) ? asRecord(model.pricing[0]) : null;
 			return pricing ? promptCompletionPricing(pricing, true) : null;
 		}
+		case "novita":
 		case "novitaai":
 			return fromMeters({
 				input_text_tokens: asNumber(model.input_token_price_per_m),

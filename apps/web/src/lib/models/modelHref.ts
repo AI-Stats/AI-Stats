@@ -3,6 +3,15 @@ type ModelRouteParts = {
 	routeSlug: string;
 };
 
+export function decodeModelRouteSegment(value: string): string {
+	if (!value.includes("%")) return value;
+	try {
+		return decodeURIComponent(value);
+	} catch {
+		return value;
+	}
+}
+
 function getModelRouteParts(
 	modelId?: string | null,
 	organisationId?: string | null,

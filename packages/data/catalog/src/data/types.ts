@@ -178,6 +178,12 @@ export interface Price {
     currency?: string | null;
 }
 
+export interface ModelVariant {
+    model_id: string;
+    name: string;
+    variant_kind: "free";
+}
+
 export interface Model {
     id: string;
     name: string;
@@ -231,6 +237,7 @@ export interface Model {
     open_weights?: boolean | null;
     sources?: SourceMetadata[];
     verification?: VerificationMetadata;
+    variants?: ModelVariant[];
 }
 
 export interface ExtendedModel {

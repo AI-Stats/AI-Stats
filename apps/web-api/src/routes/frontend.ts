@@ -19,15 +19,6 @@ type CompactSearchData = {
 	v: number;
 };
 
-function missingSearchProjection(error: unknown): boolean {
-	const value = error as { code?: unknown; message?: unknown } | null;
-	const message = String(value?.message ?? "").toLowerCase();
-	return value?.code === "PGRST202" || (
-		message.includes("get_public_search_index") &&
-		(message.includes("could not find") || message.includes("schema cache"))
-	);
-}
-
 async function fetchAllRows<T>(
 	fetchPage: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>,
 	pageSize = 1_000,
@@ -53,34 +44,34 @@ function releaseGroupLabel(value: string | null | undefined): string | null {
 	}).format(date);
 }
 
-async function compatibilitySearchIndex(c: Context<{ Bindings: Env }>): Promise<CompactSearchData> {
+async function v2SearchIndex(c: Context<{ Bindings: Env }>): Promise<CompactSearchData> {
 	const db = getDataClient(c.env);
 	const [models, organisationsResult, benchmarksResult, providersResult, generation] = await Promise.all([
-		fetchAllRows((from, to) => db.from("data_models")
-			.select("model_id,name,organisation_id,release_date,announcement_date,organisation:data_organisations(name)")
+		fetchAllRows((from, to) => db.from("v2_models")
+			.select("model_slug,name,lab_slug,released_at,announced_at,lab:v2_labs!v2_models_lab_slug_fkey(name)")
 			.eq("hidden", false)
-			.order("release_date", { ascending: false })
+			.order("released_at", { ascending: false })
 			.range(from, to)),
-		db.from("data_organisations").select("organisation_id,name").order("name", { ascending: true }),
-		db.from("data_benchmarks").select("id,name,total_models").order("name", { ascending: true }),
-		db.from("data_api_providers").select("api_provider_id,api_provider_name").order("api_provider_name", { ascending: true }),
+		db.from("v2_labs").select("lab_slug,name").order("name", { ascending: true }),
+		db.from("v2_benchmarks").select("benchmark_id,name,total_models").order("name", { ascending: true }),
+		db.from("v2_providers").select("provider_slug,name").order("name", { ascending: true }),
 		getCacheGeneration(db, "search"),
 	]);
 	for (const result of [organisationsResult, benchmarksResult, providersResult]) {
 		if (result.error) throw result.error;
 	}
 	const orderedModels = [...models].sort((left, right) => {
-		const leftTime = Date.parse(left.release_date ?? left.announcement_date ?? "");
-		const rightTime = Date.parse(right.release_date ?? right.announcement_date ?? "");
+		const leftTime = Date.parse(left.released_at ?? left.announced_at ?? "");
+		const rightTime = Date.parse(right.released_at ?? right.announced_at ?? "");
 		const safeLeftTime = Number.isFinite(leftTime) ? leftTime : Number.NEGATIVE_INFINITY;
 		const safeRightTime = Number.isFinite(rightTime) ? rightTime : Number.NEGATIVE_INFINITY;
 		return safeRightTime - safeLeftTime || String(left.name).localeCompare(String(right.name));
 	});
 	return {
-		m: orderedModels.map((model) => [model.model_id, model.name, (model.organisation as { name?: string | null } | null)?.name ?? null, `/models/${model.model_id}`, model.organisation_id, releaseGroupLabel(model.release_date ?? model.announcement_date)]),
-		o: (organisationsResult.data ?? []).map((organisation) => [organisation.organisation_id, organisation.name || organisation.organisation_id, null, `/organisations/${organisation.organisation_id}`, organisation.organisation_id]),
-		b: (benchmarksResult.data ?? []).map((benchmark) => [benchmark.id, benchmark.name, `${benchmark.total_models ?? 0} models`, `/benchmarks/${benchmark.id}`]),
-		p: (providersResult.data ?? []).map((provider) => [provider.api_provider_id, provider.api_provider_name, null, `/api-providers/${provider.api_provider_id}`, provider.api_provider_id]),
+		m: orderedModels.map((model) => [model.model_slug, model.name, (Array.isArray(model.lab) ? model.lab[0] : model.lab)?.name ?? null, `/models/${model.model_slug}`, model.lab_slug, releaseGroupLabel(model.released_at ?? model.announced_at)]),
+		o: (organisationsResult.data ?? []).map((organisation) => [organisation.lab_slug, organisation.name || organisation.lab_slug, null, `/organisations/${organisation.lab_slug}`, organisation.lab_slug]),
+		b: (benchmarksResult.data ?? []).map((benchmark) => [benchmark.benchmark_id, benchmark.name, `${benchmark.total_models ?? 0} models`, `/benchmarks/${benchmark.benchmark_id}`]),
+		p: (providersResult.data ?? []).map((provider) => [provider.provider_slug, provider.name, null, `/api-providers/${provider.provider_slug}`, provider.provider_slug]),
 		s: [],
 		c: [],
 		v: generation.generation,
@@ -104,15 +95,7 @@ frontendRouter.get("/cache-generation/search", async (c) => {
 
 frontendRouter.get("/search", async (c) => {
 	try {
-		const db = getDataClient(c.env);
-		const projected = await db.rpc("get_public_search_index");
-		let payload: CompactSearchData;
-		if (projected.error) {
-			if (!missingSearchProjection(projected.error)) throw projected.error;
-			payload = await compatibilitySearchIndex(c);
-		} else {
-			payload = projected.data as CompactSearchData;
-		}
+		const payload = await v2SearchIndex(c);
 		return withPublicCache(c.json(payload), {
 			browserTtlSeconds: SEARCH_CACHE_SECONDS,
 			cacheTags: ["web-api-search"],

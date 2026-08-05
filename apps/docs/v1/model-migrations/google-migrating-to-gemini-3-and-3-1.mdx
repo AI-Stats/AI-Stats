@@ -1,11 +1,12 @@
 ---
-title: "Google: Migrating to Gemini 3 and 3.1"
-description: "The API and behavior changes to review when upgrading existing Gemini integrations to Gemini 3 or Gemini 3.1."
+title: "Google Gemini 3.1"
+description: "What to know when adopting Gemini 3.1, including reasoning controls, multimodal handling, and thought signatures."
+icon: "/icons/brands/google.svg"
 ---
 
-# Google: Migrating to Gemini 3 and 3.1
+# Google Gemini 3.1
 
-Use this guide when you are moving older Gemini traffic onto:
+Use this guide to adopt the Gemini 3.1 family safely in production:
 
 - `google/gemini-3-pro-preview`
 - `google/gemini-3-flash-preview`
@@ -14,7 +15,7 @@ Use this guide when you are moving older Gemini traffic onto:
 
 Gemini 3 introduced real API-level changes around reasoning control and multimodal handling. Gemini 3.1 then raised the baseline again, especially for more complex reasoning-heavy tasks.
 
-## What changed
+## What's new
 
 - Gemini 3 introduced `thinking_level` as the main control for reasoning depth
 - Gemini 3 added `media_resolution` for multimodal vision handling
@@ -22,7 +23,7 @@ Gemini 3 introduced real API-level changes around reasoning control and multimod
 - in stricter workflows, missing Thought Signatures can produce degraded quality or `400` errors
 - Gemini 3.1 Pro is positioned as the stronger reasoning upgrade for complex tasks and agentic workflows
 
-## What to change in your integration
+## Migration quickstart
 
 ### 1. Re-map reasoning controls
 

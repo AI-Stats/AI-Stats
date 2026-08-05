@@ -252,6 +252,12 @@ export type TeamSettings = {
     /** Explicit consent to persist gateway request/response payloads. */
     ioLoggingEnabled?: boolean;
     ioLoggingIncludeProviderPayloads?: boolean;
+    /** Explicit consent to contribute a deterministic prompt/response sample. */
+    dataContributionEnabled?: boolean;
+    dataContributionPolicyVersion?: string | null;
+    dataContributionSampleRateBps?: number;
+    dataContributionClassifierSampleRateBps?: number;
+    dataContributionDiscountBps?: number;
     defaultPlugins?: NormalizedGatewayPluginConfig[] | null;
     billingMode: "wallet" | "invoice";
 };
@@ -273,10 +279,11 @@ export type KeyEnrichment = {
 };
 
 export type ContextFetchTelemetry = {
-    cacheStatus: "hit" | "miss" | "bypass";
+    cacheStatus: "hit" | "miss" | "bypass" | "credit_refresh";
     totalMs: number;
     keyVersionMs?: number | null;
     cacheReadMs?: number | null;
+    creditRefreshMs?: number | null;
     rpcMs?: number | null;
     enrichMs?: number | null;
     cacheWriteMs?: number | null;
@@ -473,6 +480,7 @@ export type WorkspacePolicy = {
     sensitiveInfoGuardrailIds: string[];
     enforceAllowed: boolean;
     activeGuardrailIds: string[];
+    dynamicRoute?: import("./dynamic-routes").DynamicRoutePolicy | null;
 };
 
 export type GuardrailAction = "flag" | "redact" | "block";

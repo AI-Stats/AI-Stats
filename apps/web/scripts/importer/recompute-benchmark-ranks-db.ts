@@ -60,7 +60,7 @@ async function fetchAllBenchmarkRows(
 	for (const ids of idGroups) {
 		for (let offset = 0; ; offset += PAGE_SIZE) {
 			let query = supa
-				.from("data_benchmark_results")
+				.from("v2_rpc_benchmark_results_legacy_shape")
 				.select(
 					"id,result_key,model_id,benchmark_id,score,is_self_reported,other_info,source_link,occur_idx,variant,rank",
 				)
@@ -74,7 +74,7 @@ async function fetchAllBenchmarkRows(
 
 			const rows = assertOk(
 				await query,
-				"select data_benchmark_results for rank recompute",
+				"select v2 benchmark results for rank recompute",
 			) as BenchmarkResultRow[];
 
 			if (!rows.length) break;
@@ -96,10 +96,10 @@ async function fetchBenchmarkMeta(
 	for (const ids of chunk(Array.from(new Set(benchmarkIds)), 200)) {
 		const rows = assertOk(
 			await supa
-				.from("data_benchmarks")
+				.from("v2_rpc_benchmarks_legacy_shape")
 				.select("id,ascending_order")
 				.in("id", ids),
-			"select data_benchmarks for rank recompute",
+			"select v2 benchmarks for rank recompute",
 		) as BenchmarkMetaRow[];
 
 		for (const row of rows) {
@@ -117,7 +117,7 @@ async function benchmarkIdsForModel(modelId: string): Promise<string[]> {
 	for (let offset = 0; ; offset += PAGE_SIZE) {
 		const page = assertOk(
 			await supa
-				.from("data_benchmark_results")
+				.from("v2_rpc_benchmark_results_legacy_shape")
 				.select("id,benchmark_id")
 				.eq("model_id", modelId)
 				.order("benchmark_id", { ascending: true })
@@ -198,8 +198,8 @@ async function writeRankedRows(rows: BenchmarkResultRow[]): Promise<void> {
 
 	if (isDryRun()) {
 		for (const row of rows) {
-			logWrite("public.data_benchmark_results", "UPSERT", row, {
-				onConflict: "id",
+			logWrite("public.v2_benchmark_results", "UPDATE_RANK", { result_id: row.id, rank: row.rank }, {
+				onConflict: "result_id",
 			});
 		}
 		return;
@@ -207,12 +207,12 @@ async function writeRankedRows(rows: BenchmarkResultRow[]): Promise<void> {
 
 	const supa = client();
 	for (const batch of chunk(rows, 500)) {
-		assertOk(
-			await supa.from("data_benchmark_results").upsert(batch, {
-				onConflict: "id",
-			}),
-			"upsert ranked data_benchmark_results",
-		);
+		for (const row of batch) {
+			assertOk(
+				await supa.from("v2_benchmark_results").update({ rank: row.rank }).eq("result_id", row.id),
+				"update ranked v2_benchmark_results",
+			);
+		}
 	}
 }
 

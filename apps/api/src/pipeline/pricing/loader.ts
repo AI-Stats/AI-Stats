@@ -55,26 +55,53 @@ export async function loadPriceCard(provider: string, model: string, endpoint: s
 
     const loader = (async (): Promise<PriceCard | null> => {
         const nowIso = new Date().toISOString();
-        const modelKey = `${provider}:${model}:${endpoint}`;
         const supabase = getSupabaseAdmin();
-        const { data, error } = await supabase
-            .from("data_api_pricing_rules")
-            .select("rule_id, model_key, capability_id, pricing_plan, meter, unit, unit_size, price_per_unit, currency, note, match, priority, effective_from, effective_to, billing_timestamp_basis, time_windows, updated_at")
-            .eq("model_key", modelKey)
-            .eq("capability_id", endpoint)
-            .or([
-                "and(effective_from.is.null,effective_to.is.null)",
-                `and(effective_from.is.null,effective_to.gt.${nowIso})`,
-                `and(effective_from.lte.${nowIso},effective_to.is.null)`,
-                `and(effective_from.lte.${nowIso},effective_to.gt.${nowIso})`,
-            ].join(","))
-            .order("priority", { ascending: false }) // higher wins
-            .order("effective_from", { ascending: false });
-        if (error) return null;
-        if (!data || data.length === 0) {
+        const [byCanonical, byProviderSlug] = await Promise.all([
+            supabase.from("v2_model_provider_routes")
+                .select("provider_model_id,model_slug,provider_model_slug")
+                .eq("provider_slug", provider).eq("model_slug", model)
+                .in("status", ["active", "degraded"]).eq("routing_enabled", true),
+            supabase.from("v2_model_provider_routes")
+                .select("provider_model_id,model_slug,provider_model_slug")
+                .eq("provider_slug", provider).eq("provider_model_slug", model)
+                .in("status", ["active", "degraded"]).eq("routing_enabled", true),
+        ]);
+        if (byCanonical.error || byProviderSlug.error) return null;
+        const routes = new Map<string, Record<string, any>>();
+        for (const row of [...(byCanonical.data ?? []), ...(byProviderSlug.data ?? [])]) {
+            if (row.provider_model_id) routes.set(String(row.provider_model_id), row);
+        }
+        const routeIds = [...routes.keys()];
+        if (!routeIds.length) {
             writePricingL1(cacheKey, null, PRICING_L1_NEGATIVE_TTL_MS);
             return null;
         }
+
+        const { data: skuRows, error: skuError } = await supabase
+            .from("v2_pricing_skus")
+            .select("sku_id,provider_model_id,service_tier_slug,operation,status,currency,effective_from,effective_to,metadata,updated_at")
+            .in("provider_model_id", routeIds)
+            .eq("operation", endpoint)
+            .eq("status", "active")
+            .lte("effective_from", nowIso)
+            .or(`effective_to.is.null,effective_to.gt.${nowIso}`)
+            .order("effective_from", { ascending: false });
+        if (skuError || !skuRows?.length) {
+            writePricingL1(cacheKey, null, PRICING_L1_NEGATIVE_TTL_MS);
+            return null;
+        }
+        const skuIds = skuRows.map((row) => String(row.sku_id));
+        const { data: meterRows, error: meterError } = await supabase
+            .from("v2_pricing_sku_meters")
+            .select("sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,metadata,updated_at")
+            .in("sku_id", skuIds)
+            .eq("billable", true)
+            .order("meter_order", { ascending: true });
+        if (meterError || !meterRows?.length) {
+            writePricingL1(cacheKey, null, PRICING_L1_NEGATIVE_TTL_MS);
+            return null;
+        }
+        const skuById = new Map(skuRows.map((row) => [String(row.sku_id), row]));
 
         const normalizeTimeWindows = (value: unknown): PricingTimeWindow[] => {
             if (!Array.isArray(value)) return [];
@@ -89,28 +116,41 @@ export async function loadPriceCard(provider: string, model: string, endpoint: s
                 } as PricingTimeWindow;
             });
         };
+        const normalizeIncludedQuantity = (value: unknown): number => {
+            const parsed = Number(value ?? 0);
+            return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+        };
 
-        const rules: PriceRule[] = (data as any[]).map((r) => ({
-            id: String(r.rule_id),
-            pricing_plan: r.pricing_plan ?? "standard",
-            meter: r.meter,
-            unit: r.unit,
-            unit_size: Number(r.unit_size ?? 1),
+        const rules: PriceRule[] = (meterRows as any[]).flatMap((meter) => {
+            const sku = skuById.get(String(meter.sku_id));
+            if (!sku) return [];
+            const skuMetadata = sku.metadata && typeof sku.metadata === "object" ? sku.metadata : {};
+            const meterMetadata = meter.metadata && typeof meter.metadata === "object" ? meter.metadata : {};
+            const priceNanos = Number(meter.price_nanos);
+            if (!Number.isFinite(priceNanos)) return [];
+            return [{
+            id: String(meter.sku_meter_id),
+            pricing_plan: sku.service_tier_slug ?? "standard",
+            meter: meter.meter_key,
+            unit: meter.unit,
+            unit_size: Number(meter.unit_quantity ?? 1),
             price_per_unit:
-                r.price_per_unit === null || r.price_per_unit === undefined
-                    ? "0"
-                    : String(r.price_per_unit),
-            currency: r.currency ?? "USD",
-            match: Array.isArray(r.match) ? r.match : [],
-            priority: Number(r.priority ?? 100),
-            billing_timestamp_basis: r.billing_timestamp_basis ?? "request_start",
-            time_windows: normalizeTimeWindows(r.time_windows),
-        }));
+                String(priceNanos / 1_000_000_000),
+            currency: sku.currency ?? "USD",
+            match: Array.isArray(skuMetadata.match) ? skuMetadata.match : Array.isArray(meterMetadata.match) ? meterMetadata.match : [],
+            priority: Number(meterMetadata.priority ?? meter.meter_order ?? 100),
+            included_quantity: normalizeIncludedQuantity(
+                meterMetadata.included_quantity ?? skuMetadata.included_quantity
+            ),
+            billing_timestamp_basis: skuMetadata.billing_timestamp_basis ?? "request_start",
+            time_windows: normalizeTimeWindows(skuMetadata.time_windows),
+        }];
+        });
 
         const version = new Date(
-            Math.max(...data.map((r: any) => new Date(r.updated_at).getTime()))
+            Math.max(...[...skuRows, ...meterRows].map((r: any) => new Date(r.updated_at).getTime()))
         ).toISOString();
-        const effectiveFromValues = data
+        const effectiveFromValues = skuRows
             .map((r: any) => r.effective_from)
             .filter(Boolean)
             .map((value: string) => new Date(value).getTime())
@@ -118,7 +158,7 @@ export async function loadPriceCard(provider: string, model: string, endpoint: s
         const effective_from = effectiveFromValues.length
             ? new Date(Math.min(...effectiveFromValues)).toISOString()
             : null;
-        const effToVals = data.map((r: any) => r.effective_to).filter(Boolean);
+        const effToVals = skuRows.map((r: any) => r.effective_to).filter(Boolean);
         const effective_to = effToVals.length
             ? new Date(
                   Math.min(...effToVals.map((x: string) => new Date(x).getTime()))
@@ -151,4 +191,3 @@ export function __resetPricingLoaderCachesForTests(): void {
     pricingL1.clear();
     pricingInflight.clear();
 }
-

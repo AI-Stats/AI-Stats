@@ -73,4 +73,32 @@ describe("Cloudflare web API client", () => {
 			},
 		);
 	});
+
+	it("surfaces empty account failures without leaking a JSON syntax error", async () => {
+		jest.spyOn(global, "fetch").mockResolvedValue(
+			new Response(null, { status: 502 }),
+		);
+
+		await expect(
+			fetchAccountWebApi("/api/account/auth/header"),
+		).rejects.toEqual(expect.objectContaining({ status: 502 }));
+	});
+
+	it("describes non-JSON account responses as API errors", async () => {
+		jest.spyOn(global, "fetch").mockResolvedValue(
+			new Response("<!doctype html>", {
+				status: 200,
+				headers: { "Content-Type": "text/html" },
+			}),
+		);
+
+		await expect(
+			fetchAccountWebApi("/api/account/auth/header"),
+		).rejects.toEqual(
+			expect.objectContaining({
+				name: "WebApiError",
+				detail: "Expected a JSON response but received text/html.",
+			}),
+		);
+	});
 });

@@ -47,14 +47,6 @@ function status(value: unknown): string | null {
 	return id(value)?.toLowerCase().replace(/[\s-]+/g, "_") ?? null;
 }
 
-function isMissingPolicyColumn(error: unknown): boolean {
-	if (!error || typeof error !== "object") return false;
-	const value = error as { code?: string; message?: string };
-	const message = String(value.message ?? "").toLowerCase();
-	return (value.code === "42703" || value.code === "PGRST204" || message.includes("does not exist") || message.includes("schema cache"))
-		&& ["data_policy_tier", "data_policy_confidence", "data_policy_contract_mode", "data_policy_contract_notes"].some((field) => message.includes(field));
-}
-
 function asRow(value: unknown): Row | null {
 	return value && typeof value === "object" && !Array.isArray(value) ? value as Row : null;
 }
@@ -102,6 +94,13 @@ function availability(row: Row, capability: Row, provider: Row | null, now: numb
 	const to = row.effective_to ? Date.parse(String(row.effective_to)) : Number.POSITIVE_INFINITY;
 	if (now >= to) return "inactive";
 	if (now < from) return "coming_soon";
+	const providerAvailability = status(row.provider_availability_status);
+	if (providerAvailability === "coming_soon") return "coming_soon";
+	if (providerAvailability && !["available", "preview", "limited_access"].includes(providerAvailability)) return "inactive";
+	const phaseo = status(row.phaseo_status);
+	if (status(row.access_scope) === "internal") return "coming_soon";
+	if (phaseo && ["planned", "implementing", "testing"].includes(phaseo)) return "coming_soon";
+	if (phaseo && phaseo !== "enabled") return "inactive";
 	const providerStatus = status(provider?.status);
 	if (providerStatus === "beta" || providerStatus === "alpha") return "coming_soon";
 	if (!row.is_active_gateway || (providerStatus && providerStatus !== "active") || !publicRouting(provider?.routing_status) || !publicRouting(row.routing_status)) return "inactive";
@@ -115,6 +114,12 @@ function availabilityReason(row: Row, capability: Row, provider: Row | null, now
 	const to = row.effective_to ? Date.parse(String(row.effective_to)) : Number.POSITIVE_INFINITY;
 	if (now >= to) return "retired";
 	if (now < from) return "scheduled";
+	const providerAvailability = status(row.provider_availability_status);
+	const phaseo = status(row.phaseo_status);
+	const accessScope = status(row.access_scope);
+	if (accessScope === "internal" || phaseo === "testing") return "internal_testing";
+	if (phaseo && phaseo !== "enabled") return `phaseo_${phaseo}`;
+	if (providerAvailability && providerAvailability !== "available") return `provider_${providerAvailability}`;
 	const providerStatus = status(provider?.status);
 	if (providerStatus === "beta" || providerStatus === "alpha") return "preview_only";
 	if (providerStatus && providerStatus !== "active") return ["not_ready", "gated", "access_limited", "region_limited", "project_limited", "paused", "soft_blocked"].includes(providerStatus) ? providerStatus : "provider_inactive";
@@ -138,7 +143,17 @@ export async function fetchGatewayMetadataSource(env: Env, modelId: string): Pro
 		p_region: null,
 		p_service_tier: "standard",
 	});
-	if (!v2Pricing.error && Array.isArray(v2Pricing.data) && v2Pricing.data.length > 0) {
+	if (!v2Pricing.error && Array.isArray(v2Pricing.data)) {
+		const routeStatusResult = await client
+			.from("v2_model_provider_routes")
+			.select("provider_model_id,provider_availability_status,phaseo_status,access_scope")
+			.eq("model_slug", modelId);
+		const explicitStatusesByRoute = new Map(
+			(routeStatusResult.error ? [] : rows(routeStatusResult.data)).flatMap((route) => {
+				const providerModelId = id(route.provider_model_id);
+				return providerModelId ? [[providerModelId, route] as const] : [];
+			}),
+		);
 		const providerModels = new Map<string, Row>();
 		const caps = new Map<string, Row>();
 		const providers: Row[] = [];
@@ -150,6 +165,7 @@ export async function fetchGatewayMetadataSource(env: Env, modelId: string): Pro
 				const endpoint = id(item.endpoint) ?? "unmapped";
 				if (!providerModelId) continue;
 				const key = `${providerModelId}:${endpoint}`;
+				const explicitStatuses = explicitStatusesByRoute.get(providerModelId);
 				const normalized = {
 					provider_api_model_id: providerModelId,
 					provider_id: item.api_provider_id,
@@ -157,6 +173,9 @@ export async function fetchGatewayMetadataSource(env: Env, modelId: string): Pro
 					model_id: item.model_id,
 					provider_model_slug: item.provider_model_slug,
 					is_active_gateway: item.is_active_gateway,
+					provider_availability_status: explicitStatuses?.provider_availability_status ?? item.provider_availability_status ?? null,
+					phaseo_status: explicitStatuses?.phaseo_status ?? item.phaseo_status ?? null,
+					access_scope: explicitStatuses?.access_scope ?? item.access_scope ?? null,
 					routing_status: item.routing_status,
 					input_modalities: item.input_modalities,
 					output_modalities: item.output_modalities,
@@ -188,42 +207,7 @@ export async function fetchGatewayMetadataSource(env: Env, modelId: string): Pro
 			aliases,
 		};
 	}
-	if (v2Pricing.error && !/could not find|does not exist|PGRST202/i.test(v2Pricing.error.message ?? "")) throw v2Pricing.error;
-	const visible = await client.from("data_models").select("model_id").eq("model_id", modelId).eq("hidden", false).maybeSingle();
-	if (visible.error) throw visible.error;
-	const providerSelect = "provider_api_model_id,provider_id,api_model_id,model_id,provider_model_slug,is_active_gateway,routing_status,input_modalities,output_modalities,quantization_scheme,context_length,effective_from,effective_to,created_at,updated_at";
-	const [byModel, byApi] = await Promise.all([
-		client.from("data_api_provider_models").select(providerSelect).eq("model_id", modelId),
-		client.from("data_api_provider_models").select(providerSelect).eq("api_model_id", modelId),
-	]);
-	if (byModel.error) throw byModel.error;
-	if (byApi.error) throw byApi.error;
-	const providerMap = new Map<string, Row>();
-	for (const value of [...(byModel.data ?? []), ...(byApi.data ?? [])] as unknown[]) {
-		const row = asRow(value);
-		const key = id(row?.provider_api_model_id);
-		if (row && key) providerMap.set(key, row);
-	}
-	const providerModels = [...providerMap.values()];
-	if (!visible.data && providerModels.length === 0) return null;
-	const providerModelIds = providerModels.map((row) => id(row.provider_api_model_id)).filter((value): value is string => value !== null);
-	const capsResult = providerModelIds.length ? await client.from("data_api_provider_model_capabilities").select("provider_api_model_id,capability_id,params,status,max_input_tokens,max_output_tokens").in("provider_api_model_id", providerModelIds) : { data: [], error: null };
-	if (capsResult.error) throw capsResult.error;
-	const caps = (capsResult.data ?? []).map(asRow).filter((row): row is Row => row !== null && status(row.status) !== "internal_testing");
-	const providerIds = [...new Set(providerModels.map((row) => id(row.provider_id)).filter((value): value is string => value !== null))];
-	const baseProviderFields = "api_provider_id,api_provider_name,provider_family_id,offer_label,offer_scope,link,country_code,status,routing_status,residency_mode,default_execution_regions,default_data_regions,zero_data_retention,residency_source_url,residency_notes,regional_pricing_mode,regional_pricing_uplift_percent,pricing_source_url,regional_pricing_notes,prompt_training_policy,prompt_training_notes,prompt_training_source_url,user_identifier_policy,user_identifier_notes,privacy_policy_url,terms_of_service_url";
-	let providersResult = providerIds.length ? await client.from("data_api_providers").select(`${baseProviderFields},data_policy_tier,data_policy_confidence,data_policy_contract_mode,data_policy_contract_notes`).in("api_provider_id", providerIds) : { data: [], error: null };
-	if (providersResult.error && isMissingPolicyColumn(providersResult.error)) providersResult = await client.from("data_api_providers").select(baseProviderFields).in("api_provider_id", providerIds);
-	if (providersResult.error) throw providersResult.error;
-	const apiModelIds = [...new Set(providerModels.map((row) => id(row.api_model_id)).filter((value): value is string => value !== null))];
-	const aliasesResult = apiModelIds.length ? await client.from("data_api_model_aliases").select("api_model_id,alias_slug").in("api_model_id", [...new Set([modelId, ...apiModelIds])]).eq("is_enabled", true).order("api_model_id", { ascending: true }).order("alias_slug", { ascending: true }) : { data: [], error: null };
-	if (aliasesResult.error) throw aliasesResult.error;
-	return {
-		providerModels,
-		caps,
-		providers: (providersResult.data ?? []).map(asRow).filter((row): row is Row => row !== null),
-		aliases: (aliasesResult.data ?? []).flatMap((row) => row.api_model_id && row.alias_slug ? [{ api_model_id: row.api_model_id, alias_slug: row.alias_slug }] : []),
-	};
+	throw v2Pricing.error ?? new Error("V2 gateway metadata query returned an invalid payload");
 }
 
 export function composeGatewayMetadata(modelId: string, source: GatewayMetadataSource) {
@@ -287,6 +271,9 @@ export function composeGatewayMetadata(modelId: string, source: GatewayMetadataS
 				model_id: id(row.api_model_id) ?? modelId,
 				endpoint: capabilityId,
 				is_active_gateway: Boolean(row.is_active_gateway),
+				provider_availability_status: status(row.provider_availability_status),
+				phaseo_status: status(row.phaseo_status),
+				access_scope: status(row.access_scope) ?? "public",
 				availability_status: availabilityStatus,
 				availability_reason: availabilityReason(row, cap, provider, now),
 				provider_status: status(provider?.status),

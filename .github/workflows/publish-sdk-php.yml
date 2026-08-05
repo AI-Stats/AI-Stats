@@ -50,7 +50,7 @@ jobs:
           echo "name=${bot}" >> "$GITHUB_OUTPUT"
           echo "email=${id}+${bot}@users.noreply.github.com" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -167,19 +167,23 @@ jobs:
       - name: Notify Packagist
         env:
           PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
-          PACKAGIST_MAIN_TOKEN: ${{ secrets.PACKAGIST_MAIN_TOKEN }}
+          PACKAGIST_SAFE_TOKEN: ${{ secrets.PACKAGIST_SAFE_TOKEN }}
           PACKAGIST_REPOSITORY_URL: ${{ steps.split_repo.outputs.repo_url }}
         shell: bash
         run: |
           set -euo pipefail
-          if [ -z "${PACKAGIST_USERNAME:-}" ] || [ -z "${PACKAGIST_MAIN_TOKEN:-}" ]; then
-            echo "Packagist credentials are not configured; relying on the repository webhook."
-            exit 0
+          if [ -z "${PACKAGIST_USERNAME:-}" ] || [ -z "${PACKAGIST_SAFE_TOKEN:-}" ]; then
+            echo "::error::Missing PACKAGIST_USERNAME or PACKAGIST_SAFE_TOKEN."
+            exit 1
           fi
           if [ -z "${PACKAGIST_REPOSITORY_URL:-}" ]; then
             echo "::error::Missing split repository URL output."
             exit 1
           fi
-          curl -fsS -X POST "https://packagist.org/api/update-package?username=${PACKAGIST_USERNAME}&apiToken=${PACKAGIST_MAIN_TOKEN}" \
+          response="$(curl --fail --silent --show-error --retry 3 --retry-all-errors \
+            -X POST "https://packagist.org/api/update-package" \
             -H "Content-Type: application/json" \
-            -d "{\"repository\":{\"url\":\"${PACKAGIST_REPOSITORY_URL}\"}}"
+            -H "Authorization: Bearer ${PACKAGIST_USERNAME}:${PACKAGIST_SAFE_TOKEN}" \
+            -d "{\"repository\":\"${PACKAGIST_REPOSITORY_URL}\"}")"
+          echo "$response" | jq -e '.status == "success"' >/dev/null
+          echo "Packagist refresh queued successfully."

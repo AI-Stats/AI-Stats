@@ -33,6 +33,7 @@ const aliasesDir = path.join(ROOT, 'aliases');
 const apiProvidersDir = path.join(ROOT, 'api_providers');
 const pricingDir = path.join(ROOT, 'pricing');
 const plansDir = path.join(ROOT, 'subscription_plans');
+const lineageExceptions = readJson(path.join(ROOT, 'lineage-reference-exceptions.json')).references as Record<string, string>;
 
 const organisationIds = new Set<string>();
 for (const org of listDirs(organisationsDir)) {
@@ -71,6 +72,7 @@ type ModelIndex = {
   previous_model_id?: string | null;
   filePath: string;
   benchmark_ids: string[];
+  variants: Array<{ model_id: string; name: string; variant_kind: string }>;
 };
 
 const models: ModelIndex[] = [];
@@ -83,6 +85,8 @@ for (const org of listDirs(modelsDir)) {
     try {
       const j = readJson(p);
       modelIds.add(j.model_id);
+      const variants = Array.isArray(j.variants) ? j.variants : [];
+      for (const variant of variants) modelIds.add(variant.model_id);
       models.push({
         model_id: j.model_id,
         organisation_id: j.organisation_id,
@@ -91,6 +95,7 @@ for (const org of listDirs(modelsDir)) {
         previous_model_id: j.previous_model_id ?? null,
         filePath: p,
         benchmark_ids: Array.isArray(j.benchmarks) ? j.benchmarks.map((x: any) => x.benchmark_id) : [],
+        variants,
       });
     } catch {}
   }
@@ -197,7 +202,9 @@ describe('Models', () => {
       const j = readJson(m.filePath);
       const rawPrev = j.previous_model_id ?? null;
       const prev = rawPrev === '-' || rawPrev === '' ? null : rawPrev;
-      if (prev) expect(modelIds.has(prev)).toBe(true);
+      if (prev && !modelIds.has(prev)) {
+        expect(lineageExceptions[m.model_id]).toBe(prev);
+      }
     });
     test(`${m.model_id} family reference`, () => {
       const j = readJson(m.filePath);
@@ -220,6 +227,17 @@ describe('Models', () => {
       expect(['info', 'warning', 'critical']).toContain(j.page_notice.tone);
       expect(typeof j.page_notice.markdown).toBe('string');
       expect(j.page_notice.markdown.trim().length).toBeGreaterThan(0);
+    });
+    test(`${m.model_id} variants use canonical identities`, () => {
+      const j = readJson(m.filePath);
+      expect(j.api_model_id?.endsWith(':free')).toBe(false);
+      for (const variant of m.variants) {
+        expect(variant).toEqual({
+          model_id: `${m.model_id}:free`,
+          name: `${j.name} (Free)`,
+          variant_kind: 'free',
+        });
+      }
     });
   }
 });

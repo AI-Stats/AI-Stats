@@ -236,6 +236,9 @@ public final class Models {
 	public static class AudioTranscriptionRequest {
 		public String audio_b64;
 		public String audio_url;
+		public Object chunking_strategy;
+		public java.util.List<String> known_speaker_names;
+		public java.util.List<String> known_speaker_references;
 		public String language;
 		public String model;
 		public Object provider;
@@ -320,6 +323,7 @@ public final class Models {
 
 	public static class BatchProviderCapability {
 		public String documentation_url;
+		public java.util.List<Object> endpoints;
 		public java.util.List<Object> gateway_input_modes;
 		public String id;
 		public String name;
@@ -331,7 +335,7 @@ public final class Models {
 	public static class BatchRequest {
 		public String completion_window;
 		public Object debug;
-		public String endpoint;
+		public Object endpoint;
 		public String input_file_id;
 		public java.util.List<Object> items;
 		public Integer max_tokens;
@@ -356,7 +360,7 @@ public final class Models {
 	public static class BatchRequestItem {
 		public Object body;
 		public String custom_id;
-		public String method;
+		public Object method;
 		public String url;
 	}
 
@@ -419,6 +423,7 @@ public final class Models {
 		public String request_id;
 		public String session_id;
 		public String status;
+		public Object usage;
 		public Object webhook;
 		public String websocket_url;
 	}
@@ -677,6 +682,11 @@ public final class Models {
 
 	public static class FunctionToolDefinition {
 		public Object function;
+		public Object type;
+	}
+
+	public static class FusionToolDefinition {
+		public Object parameters;
 		public Object type;
 	}
 
@@ -1278,10 +1288,26 @@ public final class Models {
 		public Object usage;
 	}
 
+	public static class SearchModelsToolDefinition {
+		public Object parameters;
+		public Object type;
+	}
+
 	public static class ServerToolUsage {
+		public Integer advisor_requests;
+		public Integer apply_patch_requests;
 		public Integer datetime_requests;
+		public Integer fusion_requests;
+		public Integer image_generation_requests;
+		public Integer search_models_requests;
+		public Integer subagent_requests;
 		public Integer web_fetch_requests;
 		public Integer web_search_requests;
+	}
+
+	public static class SubagentToolDefinition {
+		public Object parameters;
+		public Object type;
 	}
 
 	public static class SupportedParameterDetails {

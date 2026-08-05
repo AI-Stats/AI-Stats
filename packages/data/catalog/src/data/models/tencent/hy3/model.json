@@ -12,7 +12,8 @@
   "license": "Tencent Hy Community License Agreement",
   "input_types": "text",
   "output_types": "text",
-  "api_model_id": "tencent/hy3:free",
+  "api_model_id": "tencent/hy3",
+  "variants": [{ "model_id": "tencent/hy3:free", "name": "Hy3 (Free)", "variant_kind": "free" }],
   "links": [
     {
       "title": "Website",

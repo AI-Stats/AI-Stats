@@ -7,6 +7,7 @@ const ensureAppIdMock = vi.fn();
 const syncWorkspaceUsageRollupForRequestMock = vi.fn();
 const resolveGatewayIoLoggingPolicyMock = vi.fn();
 const persistGatewayIoLogMock = vi.fn();
+const persistGatewayUpstreamRequestsMock = vi.fn();
 
 vi.mock("@/runtime/env", () => ({
 	getSupabaseAdmin: (...args: any[]) => getSupabaseAdminMock(...args),
@@ -28,6 +29,10 @@ vi.mock("./io-logging", () => ({
 	persistGatewayIoLog: (...args: any[]) => persistGatewayIoLogMock(...args),
 }));
 
+vi.mock("./upstream-requests", () => ({
+	persistGatewayUpstreamRequests: (...args: any[]) => persistGatewayUpstreamRequestsMock(...args),
+}));
+
 import { auditFailure, auditSuccess } from "./index";
 
 describe("audit request detail persistence", () => {
@@ -39,6 +44,8 @@ describe("audit request detail persistence", () => {
 		syncWorkspaceUsageRollupForRequestMock.mockReset();
 		resolveGatewayIoLoggingPolicyMock.mockReset();
 		persistGatewayIoLogMock.mockReset();
+		persistGatewayUpstreamRequestsMock.mockReset();
+		persistGatewayUpstreamRequestsMock.mockResolvedValue(undefined);
 		ensureRuntimeForBackgroundMock.mockReturnValue(() => {});
 		isLocalTestingModeEnabledMock.mockReturnValue(false);
 		ensureAppIdMock.mockResolvedValue("app_resolved");
@@ -410,6 +417,12 @@ describe("audit request detail persistence", () => {
 
 		expect(fromMock).toHaveBeenCalledTimes(1);
 		expect(fromMock).toHaveBeenCalledWith("gateway_requests");
+		expect(persistGatewayUpstreamRequestsMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				requestId: "req_no_io",
+				provider: "openai",
+			}),
+		);
 		expect(rpcMock).toHaveBeenCalledOnce();
 		expect(rpcMock.mock.calls[0]?.[0]).toBe("ingest_v2_gateway_request_with_routing");
 		const event = rpcMock.mock.calls[0]?.[1]?.p_event;
@@ -599,5 +612,82 @@ describe("audit request detail persistence", () => {
 		);
 
 		warnSpy.mockRestore();
+	});
+
+	it("combines legacy column fallbacks before retrying the audit insert", async () => {
+		const attemptedRows: any[] = [];
+		resolveGatewayIoLoggingPolicyMock.mockResolvedValue({
+			featureEnabled: true,
+			captureEnabled: false,
+			settings: { enabled: false, retentionDays: 90, includeProviderPayloads: false },
+		});
+
+		getSupabaseAdminMock.mockReturnValue({
+			rpc: vi.fn(async () => ({ data: "v2_request_event_legacy", error: null })),
+			from: vi.fn((table: string) => {
+				if (table !== "gateway_requests") throw new Error(`unexpected table ${table}`);
+				return {
+					insert: vi.fn((row: any) => ({
+						select: vi.fn(() => ({
+							single: vi.fn(async () => {
+								attemptedRows.push(row);
+								const errors = [
+									{ code: "PGRST204", message: "Could not find provider_ttft_ms on gateway_requests" },
+									{ code: "PGRST204", message: "Could not find usage_total_tokens on gateway_requests" },
+									{ code: "PGRST204", message: "Could not find error_payload on gateway_requests" },
+								];
+								const error = errors[attemptedRows.length - 1] ?? null;
+								return {
+									data: error
+										? null
+										: {
+											id: "row_legacy",
+											created_at: "2026-08-05T10:00:00.000Z",
+											workspace_id: "ws_legacy",
+										},
+									error,
+								};
+							}),
+						})),
+					})),
+				};
+			}),
+		});
+
+		await auditSuccess({
+			requestId: "req_legacy_columns",
+			workspaceId: "ws_legacy",
+			provider: "openai",
+			model: "openai/gpt-5-nano",
+			endpoint: "chat.completions",
+			stream: true,
+			byok: false,
+			usagePriced: { prompt_tokens: 2, completion_tokens: 1, pricing: { lines: [] } },
+			totalCents: 0.001,
+			totalNanos: 1_000_000,
+			currency: "USD",
+			statusCode: 200,
+			providerTtftMs: 120,
+			gatewayTtftMs: 140,
+			outputSpeedTps: 30,
+			tpotMs: 33,
+			itlMs: 33,
+			phaseoOverheadMs: 20,
+		});
+
+		expect(attemptedRows).toHaveLength(4);
+		expect(attemptedRows[0]).toEqual(expect.objectContaining({
+			provider_ttft_ms: 120,
+			usage_total_tokens: 3,
+			error_payload: null,
+		}));
+		expect(attemptedRows[1]).not.toHaveProperty("provider_ttft_ms");
+		expect(attemptedRows[1]).toHaveProperty("usage_total_tokens", 3);
+		expect(attemptedRows[2]).not.toHaveProperty("provider_ttft_ms");
+		expect(attemptedRows[2]).not.toHaveProperty("usage_total_tokens");
+		expect(attemptedRows[2]).toHaveProperty("error_payload", null);
+		expect(attemptedRows[3]).not.toHaveProperty("provider_ttft_ms");
+		expect(attemptedRows[3]).not.toHaveProperty("usage_total_tokens");
+		expect(attemptedRows[3]).not.toHaveProperty("error_payload");
 	});
 });

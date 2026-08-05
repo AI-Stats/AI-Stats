@@ -65,6 +65,15 @@ export interface BatchResponse {
   request_id?: string;
   session_id?: string;
   status?: string;
+  usage?: {
+    cost_nanos?: number | null;
+    cost_usd?: number | null;
+    currency?: string;
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    requests?: number | null;
+    total_tokens?: number | null;
+  };
   webhook?: {
     attempts?: {
       attempt_number?: number;

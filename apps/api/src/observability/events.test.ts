@@ -552,6 +552,144 @@ describe("emitGatewayRequestEvent", () => {
 		expect(event.gateway_response_redacted_json).toBeUndefined();
 	});
 
+	it("keeps allowlisted provider timing headers on compact success events", async () => {
+		clearRuntime();
+		configureRuntime({
+			SUPABASE_URL: "https://example.supabase.co",
+			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+			GATEWAY_CACHE: {} as KVNamespace,
+			NODE_ENV: "test",
+			AXIOM_API_KEY: "axiom_test_key",
+			AXIOM_DATASET: "gateway-wide",
+			AXIOM_SUCCESS_SAMPLE_RATE: "1",
+			AXIOM_DETAIL_SAMPLE_RATE: "0",
+			AXIOM_SLOW_REQUEST_MS: "999999",
+		} as any);
+
+		const result = {
+			kind: "stream",
+			provider: "openai",
+			upstream: new Response(null, {
+				status: 200,
+				headers: {
+					"openai-processing-ms": "386.5",
+					"x-request-id": "req_openai_primary",
+					"request-id": "req_openai_fallback",
+					"cf-ray": "a216a79dcdd6722a-ATL",
+					"server-timing": "edge;dur=4.2, origin;dur=382.3",
+					"set-cookie": "do-not-copy=this-header",
+				},
+			}),
+			generationTimeMs: 500,
+			bill: {
+				cost_cents: 0,
+				currency: "USD",
+			},
+		} as unknown as RequestResult;
+
+		await emitGatewayRequestEvent({
+			requestId: "req_compact_provider_headers_123",
+			workspaceId: "ws_compact_provider_headers_123",
+			endpoint: "responses",
+			model: "openai/gpt-5-mini",
+			statusCode: 200,
+			success: true,
+			result,
+		});
+
+		expect(sendAxiomWideEventMock).toHaveBeenCalledTimes(1);
+		const event = sendAxiomWideEventMock.mock.calls[0]?.[0] as Record<string, unknown>;
+		expect(event).toMatchObject({
+			observability_detail_level: "compact",
+			provider_processing_ms: 386.5,
+			provider_request_id: "req_openai_primary",
+			provider_cf_ray: "a216a79dcdd6722a-ATL",
+			provider_server_timing: "edge;dur=4.2, origin;dur=382.3",
+		});
+		expect(event.provider_response_headers_json).toBeUndefined();
+		expect(JSON.stringify(event)).not.toContain("do-not-copy");
+	});
+
+	it("keeps provider header signals from error records when no result is available", async () => {
+		await emitGatewayRequestEvent({
+			requestId: "req_error_provider_headers_123",
+			workspaceId: "ws_error_provider_headers_123",
+			endpoint: "responses",
+			model: "openai/gpt-5-mini",
+			statusCode: 502,
+			success: false,
+			providerResponseHeaders: {
+				"OpenAI-Processing-Ms": "247.25",
+				"X-Request-ID": "req_openai_error",
+				"CF-Ray": "a216a79dcdd6722a-IAD",
+				"Server-Timing": "edge;dur=3.5, origin;dur=243.75",
+			},
+		});
+
+		expect(sendAxiomWideEventMock).toHaveBeenCalledTimes(1);
+		const event = sendAxiomWideEventMock.mock.calls[0]?.[0] as Record<string, unknown>;
+		expect(event).toMatchObject({
+			provider_processing_ms: 247.25,
+			provider_request_id: "req_openai_error",
+			provider_cf_ray: "a216a79dcdd6722a-IAD",
+			provider_server_timing: "edge;dur=3.5, origin;dur=243.75",
+		});
+	});
+
+	it("rejects malformed processing time and safely bounds provider header signals", async () => {
+		clearRuntime();
+		configureRuntime({
+			SUPABASE_URL: "https://example.supabase.co",
+			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+			GATEWAY_CACHE: {} as KVNamespace,
+			NODE_ENV: "test",
+			AXIOM_API_KEY: "axiom_test_key",
+			AXIOM_DATASET: "gateway-wide",
+			AXIOM_SUCCESS_SAMPLE_RATE: "1",
+			AXIOM_DETAIL_SAMPLE_RATE: "0",
+			AXIOM_SLOW_REQUEST_MS: "999999",
+		} as any);
+
+		const result = {
+			kind: "stream",
+			provider: "openai",
+			upstream: new Response(null, {
+				status: 200,
+				headers: {
+					"openai-processing-ms": "not-a-number",
+					"request-id": "r".repeat(400),
+					"cf-ray": "c".repeat(300),
+					"server-timing": "s".repeat(2_000),
+				},
+			}),
+			generationTimeMs: 500,
+			bill: {
+				cost_cents: 0,
+				currency: "USD",
+			},
+		} as unknown as RequestResult;
+
+		await emitGatewayRequestEvent({
+			requestId: "req_compact_bounded_headers_123",
+			workspaceId: "ws_compact_bounded_headers_123",
+			endpoint: "responses",
+			model: "openai/gpt-5-mini",
+			statusCode: 200,
+			success: true,
+			result,
+		});
+
+		const event = sendAxiomWideEventMock.mock.calls[0]?.[0] as Record<string, unknown>;
+		expect(event.provider_processing_ms).toBeUndefined();
+		expect(String(event.provider_request_id)).toHaveLength(256);
+		expect(String(event.provider_request_id)).toMatch(/\.\.\.\[truncated\]$/);
+		expect(String(event.provider_cf_ray)).toHaveLength(128);
+		expect(String(event.provider_cf_ray)).toMatch(/\.\.\.\[truncated\]$/);
+		expect(String(event.provider_server_timing)).toHaveLength(512);
+		expect(String(event.provider_server_timing)).toMatch(/\.\.\.\[truncated\]$/);
+		expect(event.provider_response_headers_json).toBeUndefined();
+	});
+
 	it("retains a safe provider snapshot and attempt timeline on compact success events", async () => {
 		clearRuntime();
 		configureRuntime({

@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowLeft, BadgeCheck, Copy, Shield } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Copy, GitFork, Shield } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -84,6 +84,10 @@ export default async function PresetMarketplaceDetailPage({
 					<p className="text-sm text-muted-foreground">
 						{preset.description ?? "No description yet."}
 					</p>
+					<div className="flex items-center gap-3 text-xs text-muted-foreground">
+						<span>@{preset.publisher.handle}</span>
+						<span className="flex items-center gap-1"><GitFork className="h-3.5 w-3.5" />{preset.forkCount} {preset.forkCount === 1 ? "fork" : "forks"}</span>
+					</div>
 					{sourcePreset && (
 						<div className="text-xs text-muted-foreground">
 							Forked from{" "}
@@ -133,6 +137,10 @@ export default async function PresetMarketplaceDetailPage({
 							<div className="font-medium">
 								{preset.source_preset_id ? "Fork" : "Original"}
 							</div>
+						</div>
+						<div>
+							<div className="text-xs text-muted-foreground">Model</div>
+							<div className="font-mono text-sm">{preset.canonicalModel}</div>
 						</div>
 					</div>
 

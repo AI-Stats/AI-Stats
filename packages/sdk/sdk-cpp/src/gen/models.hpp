@@ -238,6 +238,9 @@ struct AudioSpeechRequest {
 struct AudioTranscriptionRequest {
 	std::string audio_b64;
 	std::string audio_url;
+	std::any chunking_strategy;
+	std::vector<std::string> known_speaker_names;
+	std::vector<std::string> known_speaker_references;
 	std::string language;
 	std::string model;
 	std::map<std::string, std::any> provider;
@@ -322,6 +325,7 @@ struct BatchModelsResponse {
 
 struct BatchProviderCapability {
 	std::string documentation_url;
+	std::vector<std::map<std::string, std::any>> endpoints;
 	std::vector<std::any> gateway_input_modes;
 	std::string id;
 	std::string name;
@@ -333,7 +337,7 @@ struct BatchProviderCapability {
 struct BatchRequest {
 	std::string completion_window;
 	std::map<std::string, std::any> debug;
-	std::string endpoint;
+	std::any endpoint;
 	std::string input_file_id;
 	std::vector<std::map<std::string, std::any>> items;
 	std::optional<int> max_tokens;
@@ -358,7 +362,7 @@ struct BatchRequestCounts {
 struct BatchRequestItem {
 	std::map<std::string, std::any> body;
 	std::string custom_id;
-	std::string method;
+	std::any method;
 	std::string url;
 };
 
@@ -421,6 +425,7 @@ struct BatchResponse {
 	std::string request_id;
 	std::string session_id;
 	std::string status;
+	std::map<std::string, std::any> usage;
 	std::map<std::string, std::any> webhook;
 	std::string websocket_url;
 };
@@ -677,6 +682,11 @@ struct FileUploadRequest {
 
 struct FunctionToolDefinition {
 	std::map<std::string, std::any> function;
+	std::any type;
+};
+
+struct FusionToolDefinition {
+	std::map<std::string, std::any> parameters;
 	std::any type;
 };
 
@@ -1271,10 +1281,26 @@ struct ResponsesResponse {
 	std::map<std::string, std::any> usage;
 };
 
+struct SearchModelsToolDefinition {
+	std::map<std::string, std::any> parameters;
+	std::any type;
+};
+
 struct ServerToolUsage {
+	std::optional<int> advisor_requests;
+	std::optional<int> apply_patch_requests;
 	std::optional<int> datetime_requests;
+	std::optional<int> fusion_requests;
+	std::optional<int> image_generation_requests;
+	std::optional<int> search_models_requests;
+	std::optional<int> subagent_requests;
 	std::optional<int> web_fetch_requests;
 	std::optional<int> web_search_requests;
+};
+
+struct SubagentToolDefinition {
+	std::map<std::string, std::any> parameters;
+	std::any type;
 };
 
 struct SupportedParameterDetails {

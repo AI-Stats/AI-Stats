@@ -28,6 +28,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Info, Shield } from "lucide-react";
+import type { DataContributionSettings } from "@/lib/fetchers/internal/settingsTypes";
+import { DataContributionSettingsCard } from "./DataContributionSettingsCard";
 
 import {
 	updateGlobalGuardrailsSettings,
@@ -448,6 +450,7 @@ export default function PrivacySettingsClient(props: {
 	providers: ProviderOption[];
 	activeProviderModels: ActiveProviderModel[];
 	ioLoggingFeatureEnabled: boolean;
+	dataContribution: DataContributionSettings;
 }) {
 	const providerLabelById = useMemo(() => {
 		const map = new Map<string, string>();
@@ -613,6 +616,10 @@ export default function PrivacySettingsClient(props: {
 				zdrOnly={global.privacyZdrOnly}
 				eligiblePreview={eligiblePreview}
 			/>
+
+			{props.dataContribution.available ? (
+				<DataContributionSettingsCard initial={props.dataContribution} />
+			) : null}
 
 			<section className="space-y-3">
 				<div className="flex flex-wrap items-start justify-between gap-3">

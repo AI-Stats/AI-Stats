@@ -1,4 +1,5 @@
 ---
+icon: "compass"
 title: "Advisor Server Tool"
 description: "Let one model consult another model mid-generation."
 ---
@@ -168,11 +169,10 @@ The Advisor model's tokens are included in total usage and can be priced at the 
 ## Current limits
 
 - Advisor advice streaming is not enabled yet.
-- Recursive Advisor calls are blocked by the server-tool loop limits.
+- Advisor calls do not expose additional tools to the consulted model.
 
 ## Related
 
 - [Server Tools](./index)
 - [Subagent](./subagent)
 - [Tool Calling](../tool-calling)
-

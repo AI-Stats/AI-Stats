@@ -1,9 +1,66 @@
 ---
 title: "Presets"
 description: "Save reusable Gateway configurations for your team."
+icon: "sliders-horizontal"
 ---
 
 Presets are reusable configurations that help teams standardize prompts, model preferences, and routing defaults. They are managed in the Phaseo dashboard and can be shared across a team.
+
+## Quick start
+
+<Steps>
+<Step title="Create a preset">
+
+Open **Dashboard -> Settings -> Presets** and create a preset with a clear slug, such as `release-summary`. Add only the defaults that should be shared across callers.
+
+</Step>
+
+<Step title="Reference the preset in a request">
+
+Keep the caller focused on the user input while the preset supplies stable prompt, parameter, and routing defaults.
+
+<CodeGroup>
+```bash cURL
+curl https://api.phaseo.app/v1/responses \
+  -H "Authorization: Bearer $PHASEO_API_KEY" \
+  -H "Content-Type: application/json" \
+	  -d '{
+	    "model": "@release-summary",
+	    "input": "Generate a release summary for the last 24 hours."
+	  }'
+```
+
+```typescript TypeScript
+import Phaseo from "@phaseo/sdk";
+
+const client = new Phaseo({ apiKey: process.env.PHASEO_API_KEY! });
+
+const response = await client.generateResponse({
+	  model: "@release-summary",
+	  input: "Generate a release summary for the last 24 hours.",
+});
+```
+
+```python Python
+from phaseo import Phaseo
+
+client = Phaseo(api_key="YOUR_API_KEY")
+
+response = client.generate_response({
+	    "model": "@release-summary",
+	    "input": "Generate a release summary for the last 24 hours.",
+})
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="Check the routing result">
+
+Open the request in **Gateway -> Usage** to confirm which defaults were applied and which provider served it.
+
+</Step>
+</Steps>
 
 ## What a preset can include
 
@@ -14,6 +71,13 @@ Presets are reusable configurations that help teams standardize prompts, model p
 - Optional reasoning defaults for supported models.
 
 Preset names are prefixed with `@` to keep them easy to recognize.
+
+Invoke a preset only through the request's `model` field. Phaseo does not expose a separate `preset` request field.
+
+- Private and workspace presets use `@{slug}` and resolve inside the API key's workspace.
+- Public presets use `@{username}/{slug}` and can resolve from any workspace. For example, `@octavia/release-summary`.
+
+Public publishing requires an enabled public profile and username. Public slug conflicts are scoped to that publisher, so two publishers may use the same slug without ambiguity. Usernames are globally unique. Slugs are normalised to lower case and support letters, numbers, hyphens, underscores, periods, and colons.
 
 ## How preset merging works
 
@@ -38,9 +102,9 @@ The dashboard preset flow is intentionally scoped to a stable, explicit subset o
 
 If you need more complex caller-specific transforms, keep them in one application boundary layer and let presets carry the reusable team-wide defaults.
 
-## Where to manage presets
+## Manage presets
 
-Create and manage presets in **Dashboard -> Settings -> Presets**. Use them consistently across experiments and production workloads so the team is aligned on prompt and routing behavior.
+Create and manage presets in **Dashboard -> Settings -> Presets**. Use separate slugs when workflows need meaningfully different prompt, routing, or caching behavior.
 
 ## When to use presets
 

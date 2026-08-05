@@ -167,24 +167,25 @@ export default async function ModelDetailShell({
 								) : null}
 							</div>
 							<div className="mt-2 flex w-full flex-col items-start gap-2">
-								<ModelIdentifierControl
-									defaultIdentifier={header.model_id}
-									aliases={header.aliases}
-								/>
+				<ModelIdentifierControl
+					defaultIdentifier={header.model_id}
+					aliases={header.aliases}
+					variants={header.variants}
+				/>
 							</div>
 						</div>
 					</div>
 
 					<div className="flex w-full flex-row gap-2 md:mt-0 md:ml-6 md:w-auto md:flex-col">
 						{canChat ? (
-							<Button asChild variant="outline" size="sm" className="flex-1 justify-center md:flex-none">
+							<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg md:flex-none">
 								<Link href={`/chat?model=${modelId}`}>
 									<MessageSquare className="h-4 w-4" />
 									Chat
 								</Link>
 							</Button>
 						) : null}
-						<Button asChild variant="outline" size="sm" className="flex-1 justify-center md:flex-none">
+						<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg md:flex-none">
 							<Link href={`/compare?models=${modelId}`}>
 								<Scale className="h-4 w-4" />
 								Compare

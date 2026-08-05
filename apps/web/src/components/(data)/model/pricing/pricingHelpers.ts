@@ -1544,7 +1544,7 @@ export function calculateUnits(
 ): number {
     const { pricePerUnit } = resolvePricingMeterPrice(meter, pricingTimeUtc);
     const unitSize = meter.unit_size || 1;
-    if (pricePerUnit === 0) return 0;
+	if (pricePerUnit === 0) return Number.POSITIVE_INFINITY;
     return (budget / pricePerUnit) * unitSize;
 }
 
@@ -1552,6 +1552,7 @@ export function calculateUnits(
  * Format numbers with K/M/B/T/Q suffixes
  */
 export function formatQuantity(n: number): string {
+	if (n === Number.POSITIVE_INFINITY) return "Unlimited";
     if (n >= 1_000_000_000_000_000) return `${(n / 1_000_000_000_000_000).toFixed(1)}Q`;
     if (n >= 1_000_000_000_000) return `${(n / 1_000_000_000_000).toFixed(1)}T`;
     if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)}B`;

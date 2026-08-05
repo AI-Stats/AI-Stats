@@ -1,16 +1,19 @@
 name = "phaseo-gateway"
 main = "src/index.ts"
 compatibility_date = "2025-10-01"
-compatibility_flags = ["global_fetch_strictly_public"]
+compatibility_flags = ["global_fetch_strictly_public", "web_socket_auto_reply_to_close"]
 workers_dev = false
 preview_urls = false
 
 [vars]
 ENV = "prod"
 SUPABASE_URL = "https://xansbgjaduxypzsmjwct.supabase.co"
+AMAZON_BEDROCK_REGION = "us-east-1"
+AMAZON_BEDROCK_MANTLE_BASE_URL = "https://bedrock-mantle.us-east-1.api.aws"
 MODEL_DISCOVERY_ENABLED = "true"
 MODEL_DISCOVERY_RETENTION_DAYS = "7"
 MODEL_DISCOVERY_SHARD_SIZE = "20"
+MODEL_DISCOVERY_ISSUE_SYNC_ENABLED = "false"
 VIDEO_RECONCILIATION_ENABLED = "true"
 VIDEO_RECONCILIATION_LIMIT = "1000"
 VIDEO_RECONCILIATION_CONCURRENCY = "24"
@@ -24,6 +27,7 @@ BATCH_PROVIDER_WEBHOOK_REPLAY_ENABLED = "true"
 BATCH_PROVIDER_WEBHOOK_REPLAY_LIMIT = "100"
 STATSIG_BATCH_API_GATE = "gateway_batch_api"
 STATSIG_GATEWAY_IO_LOGGING_GATE = "gateway_io_logging"
+STATSIG_DATA_CONTRIBUTION_GATE = "gateway_data_contribution"
 ASYNC_WEBHOOK_SECRET_ENCRYPTION_KEY_VERSION = "v1"
 STATSIG_ENVIRONMENT_TIER = "production"
 EMAIL_OUTBOX_DRAIN_ENABLED = "true"
@@ -40,6 +44,14 @@ GATEWAY_IO_RETENTION_BILLING_LIMIT = "100"
 GATEWAY_IO_RETENTION_GRACE_DAYS = "14"
 GATEWAY_IO_RETENTION_PRICE_PER_MILLION_UNITS_NANOS = "0"
 GATEWAY_IO_RETENTION_PRUNE_LIMIT = "250"
+DATA_CONTRIBUTIONS_BUCKET_NAME = "phaseo-data-contributions"
+DATA_CONTRIBUTIONS_MAX_BYTES = "1048576"
+DATA_CONTRIBUTION_CLASSIFIER_ENABLED = "true"
+DATA_CONTRIBUTION_CLASSIFIER_LIMIT = "100"
+DATA_CONTRIBUTION_CLASSIFIER_CONCURRENCY = "8"
+DATA_CONTRIBUTION_CLASSIFIER_MODEL = "gpt-5-mini"
+DATA_CONTRIBUTION_CLASSIFIER_SERVICE_TIER = "flex"
+DATA_CONTRIBUTION_RETENTION_PRUNE_LIMIT = "1000"
 
 [triggers]
 crons = ["* * * * *"]
@@ -66,6 +78,11 @@ preview_id = "f5e23068fcd94125ad9860c817c543d9"
 binding = "GATEWAY_IO_LOGS_BUCKET"
 bucket_name = "phaseo-gateway-io-logs"
 preview_bucket_name = "phaseo-gateway-io-logs-preview"
+
+[[r2_buckets]]
+binding = "DATA_CONTRIBUTIONS_BUCKET"
+bucket_name = "phaseo-data-contributions"
+preview_bucket_name = "phaseo-data-contributions-preview"
 
 # Native per-location Workers rate limiting. Application-level device polling
 # checks remain authoritative because these counters are intentionally approximate.

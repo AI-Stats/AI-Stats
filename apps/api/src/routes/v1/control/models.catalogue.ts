@@ -198,6 +198,8 @@ export type PricingSummary = {
 
 export type CatalogueModel = {
     model_id: string;
+    base_model_id: string;
+    variant_kind: string;
     previous_model_id: string | null;
     name: string | null;
     description: string | null;
@@ -248,6 +250,7 @@ export type CatalogueFilters = {
 const PRICING_METERS = [
     "input_tokens",
     "input_characters",
+    "input_text_bytes",
     "input_text_tokens",
     "input_image_tokens",
     "input_image",
@@ -1054,9 +1057,9 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
     const availabilityMode = filter.availability ?? "active";
     const includeNonRoutable = availabilityMode === "all";
     const modelQuery = supabase
-        .from("data_models")
+        .from("v2_models")
         .select(
-            "model_id, previous_model_id, name, description, release_date, deprecation_date, retirement_date, status, organisation_id, input_types, output_types, organisation:data_organisations!data_models_organisation_id_fkey(organisation_id, name, country_code, colour)"
+            "model_id:model_slug, base_model_id:base_model_slug, variant_kind, previous_model_id:previous_model_slug, name, description, release_date:released_at, deprecation_date:deprecated_at, retirement_date:retired_at, status, organisation_id:lab_slug, input_types:input_modalities, output_types:output_modalities, organisation:v2_labs(lab_slug, name, country_code, metadata)"
         )
         .eq("hidden", false);
     const { data: modelRows, error: modelError } = await modelQuery;
@@ -1068,6 +1071,8 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
         string,
         {
             model_id: string;
+            base_model_id: string;
+            variant_kind: string;
             previous_model_id: string | null;
             name: string | null;
             description: string | null;
@@ -1087,6 +1092,8 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
         const organisation = Array.isArray(model.organisation) ? model.organisation[0] : model.organisation;
         baseModels.set(model.model_id, {
             model_id: model.model_id,
+            base_model_id: model.base_model_id ?? model.model_id,
+            variant_kind: model.variant_kind ?? "standard",
             previous_model_id: model.previous_model_id ?? null,
             name: model.name ?? null,
             description: model.description ?? null,
@@ -1096,10 +1103,12 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
             status: model.status ?? null,
             organisation: organisation
                 ? {
-                    organisation_id: organisation.organisation_id ?? null,
+                    organisation_id: organisation.lab_slug ?? null,
                     name: organisation.name ?? null,
                     country_code: organisation.country_code ?? null,
-                    colour: organisation.colour ?? null,
+                    colour: organisation.metadata && typeof organisation.metadata === "object"
+                        ? String((organisation.metadata as Record<string, unknown>).colour ?? "") || null
+                        : null,
                 }
                 : null,
             organisation_id: model.organisation_id ?? null,
@@ -1116,7 +1125,7 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
     const providerRows: ProviderModelRow[] = [];
     for (const modelIdChunk of chunkArray(modelIds, 200)) {
         let { data, error: providerError }: { data: ProviderModelRow[] | null; error: any } = await supabase
-            .from("data_api_provider_models")
+            .from("v2_rpc_routes_legacy_shape")
             .select(
                 "provider_api_model_id, provider_id, api_model_id, model_id, provider_model_slug, is_active_gateway, routing_status, input_modalities, output_modalities, effective_from, effective_to"
             )
@@ -1124,11 +1133,11 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
 
         if (
             providerError &&
-            (isMissingColumnError(providerError, "effective_from", "data_api_provider_models") ||
-                isMissingColumnError(providerError, "effective_to", "data_api_provider_models"))
+			(isMissingColumnError(providerError, "effective_from", "v2_rpc_routes_legacy_shape") ||
+				isMissingColumnError(providerError, "effective_to", "v2_rpc_routes_legacy_shape"))
         ) {
             const fallback = await supabase
-                .from("data_api_provider_models")
+                .from("v2_rpc_routes_legacy_shape")
                 .select(
                     "provider_api_model_id, provider_id, api_model_id, model_id, provider_model_slug, is_active_gateway, routing_status, input_modalities, output_modalities"
                 )
@@ -1151,17 +1160,17 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
     let capabilityRows: CapabilityRow[] = [];
     for (const providerModelIdChunk of chunkArray(providerModelIds, 200)) {
         let { data: capabilityRowsRaw, error: capabilityError }: { data: CapabilityRow[] | null; error: any } = await supabase
-            .from("data_api_provider_model_capabilities")
+            .from("v2_rpc_capabilities_legacy_shape")
             .select("provider_api_model_id, capability_id, status, params, effective_from, effective_to")
             .in("provider_api_model_id", providerModelIdChunk);
 
         if (
             capabilityError &&
-            (isMissingColumnError(capabilityError, "effective_from", "data_api_provider_model_capabilities") ||
-                isMissingColumnError(capabilityError, "effective_to", "data_api_provider_model_capabilities"))
+			(isMissingColumnError(capabilityError, "effective_from", "v2_rpc_capabilities_legacy_shape") ||
+				isMissingColumnError(capabilityError, "effective_to", "v2_rpc_capabilities_legacy_shape"))
         ) {
             const fallback = await supabase
-                .from("data_api_provider_model_capabilities")
+                .from("v2_rpc_capabilities_legacy_shape")
                 .select("provider_api_model_id, capability_id, status, params")
                 .in("provider_api_model_id", providerModelIdChunk);
             capabilityRowsRaw = withNullEffectiveWindow((fallback.data ?? []) as CapabilityRow[]);
@@ -1182,10 +1191,10 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
         const aliases: Array<{ alias_slug: string | null; api_model_id: string | null }> = [];
         for (const apiModelIdChunk of chunkArray(apiModelIds as string[], 200)) {
             const { data, error: aliasError } = await supabase
-                .from("data_api_model_aliases")
-                .select("alias_slug, api_model_id")
-                .eq("is_enabled", true)
-                .in("api_model_id", apiModelIdChunk);
+                .from("v2_model_aliases")
+                .select("alias_slug, api_model_id:model_slug")
+                .eq("enabled", true)
+                .in("model_slug", apiModelIdChunk);
             if (aliasError) {
                 throw new Error(`Failed to load model aliases: ${aliasError.message || "unknown error"}`);
             }
@@ -1241,7 +1250,7 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
         const providerDetails: ProviderDetails[] = [];
         for (const providerIdChunk of chunkArray(Array.from(providerIdSet), 200)) {
             const { data, error: providerDetailsError } = await supabase
-                .from("data_api_providers")
+                .from("v2_rpc_providers_legacy_shape")
                 .select("api_provider_id, api_provider_name, link, country_code, status, routing_status")
                 .in("api_provider_id", providerIdChunk);
             if (providerDetailsError) {
@@ -1264,7 +1273,7 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
 
     const nowIso = new Date().toISOString();
     let { data: pricingRows, error: pricingError }: { data: PricingRuleRow[] | null; error: any } = await supabase
-        .from("data_api_pricing_rules")
+        .from("v2_rpc_pricing_legacy_shape")
         .select("model_key, capability_id, pricing_plan, meter, unit, unit_size, price_per_unit, currency, effective_from, effective_to")
         .eq("pricing_plan", "standard")
         .or([
@@ -1276,11 +1285,11 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
 
     if (
         pricingError &&
-        (isMissingColumnError(pricingError, "effective_from", "data_api_pricing_rules") ||
-            isMissingColumnError(pricingError, "effective_to", "data_api_pricing_rules"))
+		(isMissingColumnError(pricingError, "effective_from", "v2_rpc_pricing_legacy_shape") ||
+			isMissingColumnError(pricingError, "effective_to", "v2_rpc_pricing_legacy_shape"))
     ) {
         const fallback = await supabase
-            .from("data_api_pricing_rules")
+            .from("v2_rpc_pricing_legacy_shape")
             .select("model_key, capability_id, pricing_plan, meter, unit, unit_size, price_per_unit, currency")
             .eq("pricing_plan", "standard");
         pricingRows = withNullEffectiveWindow((fallback.data ?? []) as PricingRuleRow[]);
@@ -1700,6 +1709,8 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
 
         const model: CatalogueModel = {
             model_id: info.model_id,
+            base_model_id: info.base_model_id,
+            variant_kind: info.variant_kind,
             previous_model_id: info.previous_model_id,
             name: info.name,
             description: info.description,

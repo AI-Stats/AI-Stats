@@ -1,7 +1,7 @@
 {
   "sourceUrl": "https://raw.githubusercontent.com/friendliai/friendli-openapi/refs/heads/main/openapi.yaml",
-  "sourceSha256": "e354750f15a5410ef64b48af841930cacb85514b0b3022ae41df49d21f2b6793",
-  "bundleSha256": "004bfdeb3a4b8345d49e17a522ab044b2677c2a91a0906f0a45b7e663bf04fbe",
+  "sourceSha256": "9c8861c37586920b6237a864784bdd0172e662053e45d2ff2637e1d3dad8cc9c",
+  "bundleSha256": "a84d918e6a6cf03b08fad21ad3ba8cd59b353e50904c31d56c2458ad4da94b39",
   "openapiVersion": "3.1.0",
   "apiVersion": "0.1.0",
   "gatewayPathMappings": [

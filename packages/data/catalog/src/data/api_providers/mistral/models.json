@@ -523,6 +523,7 @@
   },
   {
     "api_model_id": "mistral/devstral-small-2:free",
+    "canonical_model_id": "mistral/devstral-small-2.0:free",
     "provider_api_model_id": "mistral:mistral/devstral-small-2:free",
     "provider_model_slug": "labs-devstral-small-2512",
     "internal_model_id": "mistral/devstral-small-2.0",
@@ -571,6 +572,7 @@
   },
   {
     "api_model_id": "mistral/leanstral-1.5:free",
+    "canonical_model_id": "mistral/leanstral-1.5:free",
     "provider_api_model_id": "mistral:mistral/leanstral-1.5:free",
     "provider_model_slug": "labs-leanstral-1-5",
     "internal_model_id": "mistral/leanstral-1.5",
@@ -686,6 +688,7 @@
   },
   {
     "api_model_id": "mistral/leanstral:free",
+    "canonical_model_id": "mistral/leanstral:free",
     "provider_api_model_id": "mistral:mistral/leanstral:free",
     "provider_model_slug": "labs-leanstral-2603",
     "internal_model_id": "mistral/leanstral",

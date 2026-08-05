@@ -4,7 +4,21 @@ declare(strict_types=1);
 namespace Phaseo\AgentSdk;
 
 if (!class_exists(\Phaseo\Sdk\Phaseo::class)) {
-    require_once __DIR__ . "/../../sdk-php/src/index.php";
+    $sdkEntryPoint = null;
+
+    if (class_exists(\Composer\InstalledVersions::class)) {
+        $sdkInstallPath = \Composer\InstalledVersions::getInstallPath("phaseo/sdk");
+        if (is_string($sdkInstallPath)) {
+            $sdkEntryPoint = $sdkInstallPath . "/src/index.php";
+        }
+    }
+
+    $sdkEntryPoint ??= __DIR__ . "/../../sdk-php/src/index.php";
+    if (!is_file($sdkEntryPoint)) {
+        throw new \RuntimeException("Unable to load the installed phaseo/sdk package");
+    }
+
+    require_once $sdkEntryPoint;
 }
 
 use Phaseo\Sdk\Phaseo;

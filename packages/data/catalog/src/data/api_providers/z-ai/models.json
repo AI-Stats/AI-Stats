@@ -922,6 +922,7 @@
   },
   {
     "api_model_id": "z-ai/glm-4-7-flash:free",
+    "canonical_model_id": "z-ai/glm-4.7-flash:free",
     "provider_api_model_id": "z-ai:z-ai/glm-4-7-flash:free",
     "provider_model_slug": "glm-4.7-flash",
     "internal_model_id": "z-ai/glm-4.7-flash",

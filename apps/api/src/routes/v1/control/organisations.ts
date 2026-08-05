@@ -55,7 +55,7 @@ async function handleOrganisations(req: Request) {
 
         // Get total count
         const { count, error: countError } = await supabase
-            .from("data_organisations")
+            .from("v2_labs")
             .select("*", { count: "exact", head: true });
 
         if (countError) {
@@ -64,8 +64,8 @@ async function handleOrganisations(req: Request) {
 
         // Get paginated data
         const { data: organisations, error: dataError } = await supabase
-            .from("data_organisations")
-            .select("organisation_id, name, country_code, description, colour")
+            .from("v2_labs")
+            .select("organisation_id:lab_slug, name, country_code, description, metadata")
             .order("name", { ascending: true })
             .range(offset, offset + limit - 1);
 
@@ -78,7 +78,7 @@ async function handleOrganisations(req: Request) {
             name: org.name ?? null,
             country_code: org.country_code ?? null,
             description: org.description ?? null,
-            colour: org.colour ?? null,
+            colour: typeof org.metadata?.colour === "string" ? org.metadata.colour : null,
         }));
 
         const cacheOptions = {

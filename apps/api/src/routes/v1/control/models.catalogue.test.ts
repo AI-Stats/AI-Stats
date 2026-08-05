@@ -21,6 +21,14 @@ function buildSupabaseMock(
 ) {
     return {
         from(table: string) {
+			const responseTable = ({
+				v2_models: "data_models",
+				v2_rpc_routes_legacy_shape: "data_api_provider_models",
+				v2_rpc_capabilities_legacy_shape: "data_api_provider_model_capabilities",
+				v2_model_aliases: "data_api_model_aliases",
+				v2_rpc_providers_legacy_shape: "data_api_providers",
+				v2_rpc_pricing_legacy_shape: "data_api_pricing_rules",
+			} as Record<string, string>)[table] ?? table;
             const query = {
                 select(_selection: string) {
                     return query;
@@ -30,7 +38,7 @@ function buildSupabaseMock(
                 },
                 in(column: string, values: unknown[]) {
                     if (
-                        table === "data_api_provider_model_capabilities" &&
+						table === "v2_rpc_capabilities_legacy_shape" &&
                         column === "provider_api_model_id" &&
                         Array.isArray(values) &&
                         values.length === 0
@@ -46,7 +54,7 @@ function buildSupabaseMock(
                     onfulfilled?: ((value: QueryResult) => TResult1 | PromiseLike<TResult1>) | null,
                     onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
                 ) {
-                    const queue = responses[table] ?? [];
+					const queue = responses[responseTable] ?? [];
                     const next = queue.length ? queue.shift()! : { data: [], error: null };
                     return Promise.resolve(next).then(onfulfilled as any, onrejected as any);
                 },
@@ -552,7 +560,7 @@ describe("fetchCatalogue", () => {
                     data: null,
                     error: {
                         code: "PGRST204",
-                        message: "Could not find the 'effective_from' column of 'data_api_provider_model_capabilities' in the schema cache",
+						message: "Could not find the 'effective_from' column of 'v2_rpc_capabilities_legacy_shape' in the schema cache",
                     },
                 },
                 {

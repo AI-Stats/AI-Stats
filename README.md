@@ -134,7 +134,7 @@ Contributions are welcome across the gateway, web app, docs, SDKs, examples, and
 
 ## Security
 
-Report vulnerabilities privately through GitHub Security Advisories or `security@phaseo.ai`.
+Report vulnerabilities privately through GitHub Security Advisories or `security@phaseo.app`.
 
 ## License
 

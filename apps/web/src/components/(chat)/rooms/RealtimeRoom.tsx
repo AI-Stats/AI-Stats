@@ -9,7 +9,8 @@ import {
 	BadgeDollarSign,
 	Check,
 	ChevronDown,
-	ChevronRight,
+	PanelLeftClose,
+	PanelLeftOpen,
 	Clock3,
 	Mic,
 	Settings,
@@ -46,6 +47,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySupportedModelIds";
 import { filterModelsForRoom } from "@/lib/chat/rooms";
 import { groupModelsByReleaseMonth } from "@/components/(chat)/playgroundConfig";
+import {
+	RoomComposerFooter,
+	RoomComposerSurface,
+} from "@/components/(chat)/RoomComposer";
 import { cn } from "@/lib/utils";
 import { fetchChatWebApi } from "@/lib/web-api/client";
 
@@ -2916,16 +2921,15 @@ export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
 								<Button
 									variant="ghost"
 									size="icon"
-									className="group -ml-1 h-8 w-8"
+									className="-ml-1 h-8 w-8"
 									onClick={toggleSidebar}
+									aria-label={sidebarState === "expanded" ? "Collapse sidebar" : "Open sidebar"}
 								>
-									<ChevronRight
-										className={`h-4 w-4 transition-transform duration-200 ${
-											sidebarState === "expanded"
-												? "rotate-180 group-hover:-translate-x-1"
-												: "group-hover:translate-x-1"
-										}`}
-									/>
+									{sidebarState === "expanded" ? (
+										<PanelLeftClose className="h-4 w-4" />
+									) : (
+										<PanelLeftOpen className="h-4 w-4" />
+									)}
 								</Button>
 							</TooltipTrigger>
 							<TooltipContent
@@ -2996,7 +3000,7 @@ export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
 											)}
 										</div>
 									) : (
-										<div className="flex min-h-24 w-full max-w-sm items-center justify-center rounded-lg border border-border bg-muted/20 px-6 py-5">
+										<div className="flex min-h-24 w-full max-w-sm items-center justify-center rounded-2xl border border-border bg-muted/20 px-6 py-5">
 											<div className="flex items-center gap-3">
 												<div className="flex h-9 w-9 items-center justify-center rounded-full bg-background ring-1 ring-border">
 													<Volume2 className="h-4 w-4 text-muted-foreground" />
@@ -3107,7 +3111,7 @@ export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
 											key={model.id}
 											type="button"
 											onClick={() => setSelectedModelId(model.id)}
-											className="group min-h-32 rounded-lg border border-border bg-background px-4 py-3 text-left transition hover:border-foreground/30 hover:bg-muted/30"
+											className="group min-h-32 rounded-2xl border border-border bg-background px-4 py-3 text-left transition hover:border-foreground/30 hover:bg-muted/30"
 										>
 											<div className="flex items-center gap-2">
 												<Logo
@@ -3134,8 +3138,9 @@ export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
 						)}
 					</div>
 
-					<div className="flex min-h-20 items-center border-t border-border bg-background px-4">
-						<div className="mx-auto flex w-full max-w-3xl gap-2">
+					<RoomComposerFooter>
+						<div className="mx-auto w-full max-w-3xl">
+							<RoomComposerSurface className="p-1">
 							{sessionActive ? (
 								<Button
 									type="button"
@@ -3158,8 +3163,9 @@ export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
 									{selectedModel ? "Start realtime session" : "Select a model to start"}
 								</Button>
 							)}
+							</RoomComposerSurface>
 						</div>
-					</div>
+					</RoomComposerFooter>
 				</div>
 
 				<aside className="flex min-h-0 flex-col bg-muted/10">
@@ -3180,7 +3186,7 @@ export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
 								<div
 									key={line.id}
 									className={cn(
-										"rounded-lg border px-3 py-2 text-sm",
+										"rounded-2xl border px-3 py-2 text-sm",
 										line.role === "assistant"
 											? "border-primary/20 bg-primary/5"
 											: line.role === "user"

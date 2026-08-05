@@ -6,6 +6,7 @@ import { configureRuntime } from "@/runtime/env";
 import type { GatewayBindings } from "@/runtime/env.types";
 import {
 	REALTIME_GRACEFUL_STOP_THRESHOLD,
+	REALTIME_IDLE_TIMEOUT_SECONDS,
 	REALTIME_MAX_DURATION_SECONDS,
 	buildGoogleBidiGenerateContentSetup,
 	claimRealtimeSessionForRelay,
@@ -32,7 +33,9 @@ const GOOGLE_LIVE_URL =
 	"wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent";
 const RELAY_DRAIN_TIMEOUT_MS = 20_000;
 const RELAY_AUTHORITATIVE_USAGE_TIMEOUT_MS = 10_000;
-const RELAY_USAGE_PERSIST_INTERVAL_MS = 2_000;
+const RELAY_USAGE_CHECKPOINT_INTERVAL_MS = 1_000;
+const RELAY_USAGE_PERSIST_INTERVAL_MS = 5_000;
+const RELAY_PROVIDER_STATE_PERSIST_INTERVAL_MS = 1_000;
 const RELAY_SETTLEMENT_RETRY_MS = 15_000;
 const RELAY_MAX_MESSAGE_BYTES = 96 * 1024;
 const RELAY_MAX_AUDIO_CHUNK_MS = 1_000;
@@ -342,8 +345,11 @@ export class RealtimeRelayDurableObject {
 	private acceptingAudio = true;
 	private budgetClosing = false;
 	private drainTimer: number | null = null;
-	private maxDurationTimer: number | null = null;
+	private idleTimer: number | null = null;
+	private clientGoneHandled = false;
+	private lastUsageCheckpointAt = 0;
 	private lastUsagePersistAt = 0;
+	private lastProviderStatePersistAt = 0;
 	private audioStartedAt = 0;
 	private settling = false;
 	private inputSinceLastResponse = false;
@@ -384,34 +390,50 @@ export class RealtimeRelayDurableObject {
 		const pair = new WebSocketPair();
 		const [client, server] = Object.values(pair);
 		this.client = server;
+		this.clientGoneHandled = false;
 		server.accept();
 		server.addEventListener("message", (event) => {
 			void this.handleClientMessage(event.data);
 		});
-		server.addEventListener("close", () => {
-			this.client = null;
-			void this.handleClientGone();
+		server.addEventListener("close", (event) => {
+			this.replyToClientClose(server, event);
+			void this.handleClientGoneOnce(server, "client_socket_closed");
 		});
 		server.addEventListener("error", () => {
-			this.client = null;
-			void this.handleClientGone();
+			try {
+				server.close(1011, "realtime_client_socket_error");
+			} catch {
+				// The browser socket may already be closing.
+			}
+			void this.handleClientGoneOnce(server, "client_socket_error");
 		});
 
 		try {
 			await this.connectProvider();
-			this.session = await markRealtimeSessionConnected({
-				auth: authForSession(this.session, `realtime_relay:${this.session.session_id}`),
-				sessionId: this.session.session_id,
-			});
+			if (this.client !== server || this.clientGoneHandled) {
+				// The client may have settled the session while the upstream handshake
+				// was still in flight. Always close the socket that just connected;
+				// settle() intentionally returns early for an already-settled session.
+				this.closeUpstream("client_disconnected_during_provider_connection");
+				await this.settle("cancelled", "client_disconnected_during_provider_connection");
+			} else {
+				this.session = await markRealtimeSessionConnected({
+					auth: authForSession(this.session, `realtime_relay:${this.session.session_id}`),
+					sessionId: this.session.session_id,
+				});
+			}
 		} catch (error) {
 			await this.settle("failed", "realtime_provider_connection_failed");
 			throw error;
 		}
-		this.sendClient({
-			type: "relay.connected",
-			session_id: this.session.session_id,
-			provider: this.session.provider,
-		});
+		if (!this.settled) {
+			this.sendClient({
+				type: "relay.connected",
+				session_id: this.session.session_id,
+				provider: this.session.provider,
+			});
+			this.resetIdleTimer();
+		}
 
 		return new Response(null, {
 			status: 101,
@@ -503,7 +525,7 @@ export class RealtimeRelayDurableObject {
 				type: "relay.upstream_error",
 				provider: this.session?.provider,
 			});
-			this.upstream = null;
+			this.closeUpstream("realtime_provider_socket_error");
 			void this.settle("failed", "provider_socket_error");
 		});
 	}
@@ -578,9 +600,9 @@ export class RealtimeRelayDurableObject {
 		);
 		this.inputSinceLastResponse = true;
 		this.usage.input_audio_pending = true;
-		await this.state.storage.put(STORAGE_USAGE, this.usage);
-		if (provider === "x-ai") await this.persistUsage();
-		else void this.maybePersistUsage();
+		this.resetIdleTimer();
+		await this.checkpointUsage();
+		void this.maybePersistUsage();
 		if (provider === "google-ai-studio") {
 			this.sendUpstream({
 				realtimeInput: {
@@ -628,7 +650,7 @@ export class RealtimeRelayDurableObject {
 				"output_audio_ms",
 				pcm16Base64DurationMs(getStringField(event, "delta"), XAI_OUTPUT_SAMPLE_RATE),
 			);
-			await this.state.storage.put(STORAGE_USAGE, this.usage);
+			await this.checkpointUsage();
 			void this.maybePersistUsage();
 		}
 
@@ -694,7 +716,7 @@ export class RealtimeRelayDurableObject {
 				googleUsageSnapshot(usageMetadata),
 			);
 		}
-		await this.persistProviderState();
+		await this.maybePersistProviderState();
 		await this.maybeCompleteGoogleTurn();
 	}
 
@@ -727,7 +749,7 @@ export class RealtimeRelayDurableObject {
 	private markResponseInFlight() {
 		this.responseInFlight = true;
 		this.usage.assistant_response_in_flight = true;
-		void this.state.storage.put(STORAGE_USAGE, this.usage);
+		void this.checkpointUsage(true);
 		if (this.drainTimer != null) {
 			clearTimeout(this.drainTimer);
 			this.drainTimer = null;
@@ -739,7 +761,7 @@ export class RealtimeRelayDurableObject {
 		this.inputSinceLastResponse = false;
 		delete this.usage.assistant_response_in_flight;
 		delete this.usage.input_audio_pending;
-		void this.state.storage.put(STORAGE_USAGE, this.usage);
+		void this.checkpointUsage(true);
 		if (this.budgetClosing) {
 			void this.settle("expired", "realtime_budget_closed_after_response");
 			return;
@@ -751,6 +773,7 @@ export class RealtimeRelayDurableObject {
 
 	private async handleClientGone() {
 		this.acceptingAudio = false;
+		await this.checkpointUsage(true);
 		if (this.responseInFlight || this.inputSinceLastResponse || this.providerState.googleTurnActive) {
 			await this.state.storage.put(STORAGE_PENDING_SETTLEMENT, {
 				status: "cancelled",
@@ -811,13 +834,30 @@ export class RealtimeRelayDurableObject {
 		await this.persistUsage();
 	}
 
+	private async checkpointUsage(force = false) {
+		if (this.settled) return;
+		const now = Date.now();
+		if (!force && now - this.lastUsageCheckpointAt < RELAY_USAGE_CHECKPOINT_INTERVAL_MS) return;
+		this.lastUsageCheckpointAt = now;
+		await this.state.storage.put(STORAGE_USAGE, this.usage);
+	}
+
+	private async maybePersistProviderState() {
+		const now = Date.now();
+		if (now - this.lastProviderStatePersistAt < RELAY_PROVIDER_STATE_PERSIST_INTERVAL_MS) return;
+		this.lastProviderStatePersistAt = now;
+		await this.persistProviderState();
+	}
+
 	private async persistProviderState() {
+		this.lastProviderStatePersistAt = Date.now();
 		await this.state.storage.put(STORAGE_PROVIDER_STATE, this.providerState);
 	}
 
 	private async persistUsage() {
 		if (!this.session || this.settled) return;
-		await this.state.storage.put(STORAGE_USAGE, this.usage);
+		this.lastUsagePersistAt = Date.now();
+		await this.checkpointUsage(true);
 		const updated = await updateRealtimeSessionUsage({
 			auth: authForSession(this.session, `realtime_relay_usage:${this.session.session_id}`),
 			sessionId: this.session.session_id,
@@ -920,10 +960,42 @@ export class RealtimeRelayDurableObject {
 			clearTimeout(this.drainTimer);
 			this.drainTimer = null;
 		}
-		if (this.maxDurationTimer != null) {
-			clearTimeout(this.maxDurationTimer);
-			this.maxDurationTimer = null;
+		if (this.idleTimer != null) {
+			clearTimeout(this.idleTimer);
+			this.idleTimer = null;
 		}
+	}
+
+	private resetIdleTimer() {
+		if (this.idleTimer != null) clearTimeout(this.idleTimer);
+		this.idleTimer = setTimeout(() => {
+			this.idleTimer = null;
+			this.acceptingAudio = false;
+			void this.forceAuthoritativeUsage("expired", "realtime_idle_timeout");
+		}, REALTIME_IDLE_TIMEOUT_SECONDS * 1_000) as unknown as number;
+	}
+
+	private replyToClientClose(socket: WebSocket, event: CloseEvent) {
+		try {
+			socket.close(event.code || 1000, event.reason);
+		} catch {
+			// The compatibility flag may already have completed the close handshake.
+		}
+	}
+
+	private async handleClientGoneOnce(socket: WebSocket, reason: string) {
+		if (this.client !== socket || this.clientGoneHandled) return;
+		this.clientGoneHandled = true;
+		this.client = null;
+		if (this.idleTimer != null) {
+			clearTimeout(this.idleTimer);
+			this.idleTimer = null;
+		}
+		console.info("realtime_relay_client_gone", {
+			sessionId: this.session?.session_id,
+			reason,
+		});
+		await this.handleClientGone();
 	}
 
 	private async settle(status: "completed" | "failed" | "cancelled" | "expired", reason: string): Promise<boolean> {
@@ -959,13 +1031,15 @@ export class RealtimeRelayDurableObject {
 				disconnectReason: reason,
 			});
 			this.settled = true;
-			await this.state.storage.delete([
-				STORAGE_PENDING_SETTLEMENT,
-				STORAGE_USAGE,
-				STORAGE_SESSION_ID,
-				STORAGE_PROVIDER_STATE,
-			]);
+			// Successful sessions have no Durable Object state worth retaining.
+			// Clearing all storage also lets Cloudflare clean up the stored object.
+			await this.state.storage.deleteAll();
 			await this.state.storage.deleteAlarm();
+			console.info("realtime_relay_settled", {
+				sessionId: this.session.session_id,
+				status,
+				reason,
+			});
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			if (message.includes("authoritative_usage") || message.includes("usage_missing_token_meters")) {
@@ -1003,7 +1077,9 @@ export class RealtimeRelayDurableObject {
 				reason,
 			});
 			this.settled = true;
-			await this.state.storage.delete(STORAGE_PENDING_SETTLEMENT);
+			// The authoritative unresolved record now lives in Supabase and this
+			// terminal session is not retried through the Durable Object.
+			await this.state.storage.deleteAll();
 			await this.state.storage.deleteAlarm();
 			this.closeSockets("realtime_billing_unresolved");
 			console.error("realtime_relay_billing_unresolved", {

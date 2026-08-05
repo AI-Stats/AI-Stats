@@ -5,8 +5,8 @@ const NANOS_PER_CENT = 10_000_000;
 const COUNTER_RPC_MAX_ATTEMPTS = 3;
 const COUNTER_RPC_RETRY_BASE_MS = 25;
 
-export const BYOK_MONTHLY_FREE_REQUESTS = 100_000;
-export const BYOK_SERVICE_FEE_RATE = 0.035;
+export const BYOK_MONTHLY_FREE_REQUESTS = 1_000_000;
+export const BYOK_SERVICE_FEE_RATE = 0.025;
 
 type ByokCounterRow = {
 	month_start?: string | null;

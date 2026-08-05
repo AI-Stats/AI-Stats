@@ -1,8 +1,50 @@
 import { describe, expect, it } from "vitest";
 import {
+	attachModelsPageVariants,
 	mergeModelWeeklyMetrics,
 	normalizeModelsPagePricing,
 } from "@/models/page-catalogue";
+
+describe("attachModelsPageVariants", () => {
+	it("keeps callable variants separate and links them to one model family", () => {
+		const rows = attachModelsPageVariants([
+			{
+				model_id: "poolside/laguna-s-2.1",
+				name: "Laguna S 2.1",
+				gateway_provider_details: [],
+			},
+			{
+				model_id: "poolside/laguna-s-2.1:free",
+				name: "Laguna S 2.1 (Free)",
+				variant_kind: "free",
+				base_model_id: "poolside/laguna-s-2.1",
+				gateway_provider_details: [],
+			},
+		]);
+
+		expect(rows).toHaveLength(2);
+		expect(rows).toEqual([
+			expect.objectContaining({
+				model_id: "poolside/laguna-s-2.1",
+				base_model_id: "poolside/laguna-s-2.1",
+				variant_kind: "standard",
+				variants: {
+					standard: { model_id: "poolside/laguna-s-2.1", name: "Laguna S 2.1" },
+					free: { model_id: "poolside/laguna-s-2.1:free", name: "Laguna S 2.1 (Free)" },
+				},
+			}),
+			expect.objectContaining({
+				model_id: "poolside/laguna-s-2.1:free",
+				base_model_id: "poolside/laguna-s-2.1",
+				variant_kind: "free",
+				variants: {
+					standard: { model_id: "poolside/laguna-s-2.1", name: "Laguna S 2.1" },
+					free: { model_id: "poolside/laguna-s-2.1:free", name: "Laguna S 2.1 (Free)" },
+				},
+			}),
+		]);
+	});
+});
 
 describe("mergeModelWeeklyMetrics", () => {
 	it("replaces catalogue placeholders with v2 rollup metrics", () => {

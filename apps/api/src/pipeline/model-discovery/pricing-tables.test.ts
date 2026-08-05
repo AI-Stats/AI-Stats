@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { extractMdxPricingText, extractPriceContentText, extractPricingTableText } from "./pricing-tables";
+import {
+	extractMdxPricingText,
+	extractPriceContentText,
+	extractPricingTableText,
+} from "./pricing-tables";
 
 describe("extractPricingTableText", () => {
 	it("keeps price-bearing tables and ignores unrelated tables", () => {

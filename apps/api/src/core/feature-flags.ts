@@ -9,6 +9,7 @@ const DEFAULT_BATCH_API_GATE = "gateway_batch_api";
 const DEFAULT_VIDEO_API_GATE = "gateway_video_api";
 const DEFAULT_REALTIME_VOICE_GATE = "gateway_realtime_voice";
 const DEFAULT_GATEWAY_IO_LOGGING_GATE = "gateway_io_logging";
+const DEFAULT_DATA_CONTRIBUTION_GATE = "gateway_data_contribution";
 const WORKSPACE_OWNER_CACHE_TTL_MS = 5 * 60 * 1000;
 
 type StatsigGateSubject = {
@@ -71,6 +72,10 @@ export function getRealtimeVoiceFeatureGateName(bindings: Partial<GatewayBinding
 
 export function getGatewayIoLoggingFeatureGateName(bindings: Partial<GatewayBindings> = getBindings()): string {
 	return normalizeText(bindings.STATSIG_GATEWAY_IO_LOGGING_GATE) ?? DEFAULT_GATEWAY_IO_LOGGING_GATE;
+}
+
+export function getDataContributionFeatureGateName(bindings: Partial<GatewayBindings> = getBindings()): string {
+	return normalizeText(bindings.STATSIG_DATA_CONTRIBUTION_GATE) ?? DEFAULT_DATA_CONTRIBUTION_GATE;
 }
 
 async function resolveWorkspaceOwnerUserId(workspaceId: string): Promise<string | null> {
@@ -141,6 +146,7 @@ async function isStatsigGateEnabled(
 				"statsig-api-key": statsigKey,
 			},
 			body: JSON.stringify({ gateName, user }),
+			signal: AbortSignal.timeout(2_000),
 		});
 		if (!response.ok) return false;
 		const payload = (await response.json().catch(() => null)) as StatsigGateResponse | null;
@@ -212,5 +218,15 @@ export async function isGatewayIoLoggingFeatureEnabled(
 	return isStatsigGateEnabled(getGatewayIoLoggingFeatureGateName(bindings), {
 		...subject,
 		surface: "gateway_io_logging",
+	}, bindings);
+}
+
+export async function isDataContributionAccessEnabled(
+	subject: Omit<StatsigGateSubject, "surface">,
+	bindings: Partial<GatewayBindings> = getBindings(),
+): Promise<boolean> {
+	return isStatsigGateEnabled(getDataContributionFeatureGateName(bindings), {
+		...subject,
+		surface: "gateway_data_contribution",
 	}, bindings);
 }

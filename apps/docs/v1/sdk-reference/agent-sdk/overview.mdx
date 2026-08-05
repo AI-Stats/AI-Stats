@@ -25,9 +25,9 @@ The current Agent SDK language set matches the primary client SDK set exposed in
 - [Python](../python/agent-sdk)
 - [Go](../go/agent-sdk)
 - [C#](../csharp/agent-sdk)
-- [Java](../java/agent-sdk)
 - [PHP](../php/agent-sdk)
 - [Ruby](../ruby/agent-sdk)
+- [Rust](../rust/agent-sdk)
 
 ## Common model
 
@@ -40,20 +40,24 @@ Each Agent SDK keeps the same runtime model:
 - inspect lifecycle events or a Devtools trace
 - persist the returned run and resume after a human decision
 
-TypeScript is the reference API design. Python, Go, C#, Java, PHP, and Ruby expose the same run states and core controls using language-native callbacks, concurrency, timeout, and cancellation primitives. Rust and C++ Agent SDKs are intentionally deferred.
+TypeScript is the reference API design. Python, Go, C#, PHP, and Ruby expose the broader cross-language contract using language-native callbacks, concurrency, timeout, and cancellation primitives. Rust is a supported synchronous runtime with local and external tools, exact-ID approvals, human review, model retries, serializable run state, lifecycle callbacks, and usage aggregation. Java and C++ remain work in progress.
+
+<Note>
+  The Rust Agent SDK is published as [`phaseo-agent`](https://crates.io/crates/phaseo-agent). It does not yet include streaming, async execution, concurrent local tools, runtime schema validation, or Devtools capture.
+</Note>
 
 ## Cross-language capability contract
 
-| Capability | TypeScript | Python | Go | C# | Java | PHP | Ruby |
+| Capability | TypeScript | Python | Go | C# | PHP | Ruby | Rust |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Validated executable tools and recoverable errors | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Executable tools and recoverable tool errors | Yes | Yes | Yes | Yes | Yes | Yes | Synchronous |
 | Exact-ID approvals, HITL, and manual outputs | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Preliminary tool progress | Async generator | Iterator or callback | Callback | Callback | Callback | Callback | Callback |
-| Model streaming and replayable consumers | Async iterable | Iterator | Channel | Async enumerable | Iterable | Iterable | Enumerator |
-| Composable step, token, cost, duration, tool, finish, and custom stops | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Dynamic turns, mutable context, and persisted next-turn overrides | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Application-owned state accessor | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Normalized usage and cost | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Preliminary tool progress | Async generator | Iterator or callback | Callback | Callback | Callback | Callback | Not yet |
+| Model streaming and replayable consumers | Async iterable | Iterator | Channel | Async enumerable | Iterable | Enumerator | Not yet |
+| Composable stop conditions | Yes | Yes | Yes | Yes | Yes | Yes | Step limit |
+| Dynamic turns and mutable context | Yes | Yes | Yes | Yes | Yes | Yes | Per-run model, step limit, and context |
+| Application-owned persisted run state | Yes | Yes | Yes | Yes | Yes | Yes | Serializable `RunResult` |
+| Normalized usage and cost | Yes | Yes | Yes | Yes | Yes | Yes | Tokens; custom-client cost only in `0.1` |
 
 PHP and Ruby expose provider stream events through their normal synchronous iteration APIs. They do not require a hosted runtime or a background Phaseo service.
 
@@ -65,7 +69,7 @@ PHP and Ruby expose provider stream events through their normal synchronous iter
 | Tool-using, multi-step application logic | Agent SDK | Local loop, tools, checkpoints, review, events, and Devtools |
 | Custom transport or an unsupported language | Raw API | HTTP request and response handling |
 
-Agent SDK gateway adapters delegate model turns to the matching Client SDK. An `requestOptions` or language-equivalent configuration hook passes additional Responses API fields through while the Agent SDK continues to own `model`, `input`, `instructions`, and local function tools.
+Agent SDK gateway adapters delegate model turns to the matching Client SDK. Languages with a `requestOptions` or equivalent hook can pass additional Responses API fields through while the Agent SDK continues to own `model`, `input`, `instructions`, and local function tools. The Rust `0.1` adapter currently sends the normalized agent fields without an additional request-options hook.
 
 ## Recipes
 

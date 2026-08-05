@@ -55,6 +55,8 @@ type VirtualizedModelCatalogProps<T> = {
 	onActiveItemChange: (itemKey: string) => void;
 	onSelectItem: (item: T) => void;
 	renderItem: (item: T) => ReactNode;
+	estimateItemSize?: number;
+	emptyContent?: ReactNode;
 };
 
 export function VirtualizedModelCatalog<T>({
@@ -65,6 +67,8 @@ export function VirtualizedModelCatalog<T>({
 	onActiveItemChange,
 	onSelectItem,
 	renderItem,
+	estimateItemSize = 36,
+	emptyContent = "No models found.",
 }: VirtualizedModelCatalogProps<T>) {
 	const [scrollViewport, setScrollViewport] =
 		useState<HTMLDivElement | null>(null);
@@ -87,7 +91,7 @@ export function VirtualizedModelCatalog<T>({
 			const row = rows[index];
 			if (row?.type === "heading") return 32;
 			if (row?.type === "separator") return 9;
-			return 36;
+			return estimateItemSize;
 		},
 		overscan: 10,
 	});
@@ -98,7 +102,7 @@ export function VirtualizedModelCatalog<T>({
 	}, [activeRowIndex, virtualizer]);
 
 	if (rows.length === 0) {
-		return <div className="py-6 text-center text-sm">No models found.</div>;
+		return <div className="py-6 text-center text-sm">{emptyContent}</div>;
 	}
 
 	return (
@@ -144,7 +148,7 @@ export function VirtualizedModelCatalog<T>({
 											: undefined
 									}
 									className={cn(
-										"relative flex min-h-8 cursor-default select-none items-center gap-2 rounded-xl px-2 py-1 text-sm outline-hidden",
+										"relative flex min-h-8 cursor-default select-none items-center gap-2 rounded-md px-2 py-1 text-sm outline-hidden",
 										"data-[selected=true]:bg-muted data-[selected=true]:text-foreground",
 										isItemDisabled(row.item) &&
 											"pointer-events-none opacity-50",

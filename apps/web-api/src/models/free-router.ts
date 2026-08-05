@@ -36,13 +36,6 @@ function record(value: unknown): Record<string, unknown> | null {
 	return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
 }
 
-function missingRpc(error: { code?: string; message?: string } | null): boolean {
-	return Boolean(error && (error.code === "PGRST202" || (
-		/get_public_free_router_overview/i.test(error.message ?? "")
-		&& /does not exist|could not find/i.test(error.message ?? "")
-	)));
-}
-
 function parseOverview(value: unknown): FreeRouterOverview | null {
 	const root = record(Array.isArray(value) ? value[0] : value);
 	const summary = record(root?.summary);
@@ -77,13 +70,13 @@ function parseOverview(value: unknown): FreeRouterOverview | null {
 	};
 }
 
-async function fallbackOverview(env: Env): Promise<FreeRouterOverview> {
+async function v2Overview(env: Env): Promise<FreeRouterOverview> {
 	const client = getDataClient(env);
-	const [pricingResult, providerModelsResult] = await Promise.all([
-		client.from("data_api_pricing_rules").select("model_key,effective_from,effective_to").ilike("model_key", "%:free:%"),
-		client.from("data_api_provider_models").select("provider_id,api_model_id,model_id,input_modalities,output_modalities,is_active_gateway,effective_from,effective_to").eq("is_active_gateway", true),
+	const [modelsResult, providerModelsResult] = await Promise.all([
+		client.from("v2_models").select("model_slug,name,lab_slug,input_modalities,output_modalities,lab:v2_labs!v2_models_lab_slug_fkey(name)").eq("variant_kind", "free").eq("hidden", false),
+		client.from("v2_model_provider_routes").select("provider_slug,provider_model_slug,model_slug,input_modalities,output_modalities,routing_enabled,status,effective_from,effective_to").eq("routing_enabled", true),
 	]);
-	if (pricingResult.error) throw pricingResult.error;
+	if (modelsResult.error) throw modelsResult.error;
 	if (providerModelsResult.error) throw providerModelsResult.error;
 	const nowMs = Date.now();
 	const active = (from: unknown, to: unknown) => {
@@ -91,20 +84,13 @@ async function fallbackOverview(env: Env): Promise<FreeRouterOverview> {
 		const toMs = typeof to === "string" ? Date.parse(to) : Number.POSITIVE_INFINITY;
 		return nowMs >= (Number.isFinite(fromMs) ? fromMs : Number.NEGATIVE_INFINITY) && nowMs < (Number.isFinite(toMs) ? toMs : Number.POSITIVE_INFINITY);
 	};
-	const freeKeys = new Set<string>();
-	for (const rule of pricingResult.data ?? []) {
-		if (!active(rule.effective_from, rule.effective_to)) continue;
-		const parts = String(rule.model_key ?? "").split(":");
-		const providerId = parts.shift() ?? "";
-		const apiModelId = parts.slice(0, -1).join(":");
-		if (providerId && apiModelId) freeKeys.add(`${providerId}\u0000${apiModelId}`);
-	}
+	const freeModels = new Set((modelsResult.data ?? []).map((row) => row.model_slug));
 	const eligible = new Map<string, { apiIds: Set<string>; providerIds: Set<string>; input: Set<string>; output: Set<string> }>();
 	for (const row of providerModelsResult.data ?? []) {
-		const providerId = String(row.provider_id ?? "").trim();
-		const apiModelId = String(row.api_model_id ?? "").trim();
-		const modelId = String(row.model_id ?? apiModelId).trim();
-		if (!modelId || !freeKeys.has(`${providerId}\u0000${apiModelId}`) || !active(row.effective_from, row.effective_to)) continue;
+		const providerId = String(row.provider_slug ?? "").trim();
+		const apiModelId = String(row.provider_model_slug ?? "").trim();
+		const modelId = String(row.model_slug ?? "").trim();
+		if (!modelId || !freeModels.has(modelId) || !["active", "degraded"].includes(String(row.status)) || !active(row.effective_from, row.effective_to)) continue;
 		const item = eligible.get(modelId) ?? { apiIds: new Set(), providerIds: new Set(), input: new Set(), output: new Set() };
 		item.apiIds.add(apiModelId); item.providerIds.add(providerId);
 		for (const value of strings(row.input_modalities)) item.input.add(value);
@@ -114,48 +100,46 @@ async function fallbackOverview(env: Env): Promise<FreeRouterOverview> {
 	const modelIds = [...eligible.keys()];
 	if (modelIds.length === 0) return EMPTY;
 	const loadUsage = async () => {
-		const values: Array<{ routed_model_id: string | null; cost_nanos: number | null; created_at: string }> = [];
+		const values: Array<{ request_event_id: string; routed_model_slug: string | null; occurred_at: string }> = [];
 		for (let offset = 0; ; offset += 1_000) {
-			const result = await client.from("gateway_requests").select("routed_model_id,cost_nanos,created_at")
-				.eq("requested_model_id", "phaseo/free").in("routed_model_id", modelIds)
-				.gte("created_at", new Date(nowMs - 30 * 24 * 60 * 60 * 1_000).toISOString())
-				.order("created_at", { ascending: false }).range(offset, offset + 999);
+			const result = await client.from("v2_request_facts").select("request_event_id,routed_model_slug,occurred_at")
+				.eq("requested_model_input", "phaseo/free").in("routed_model_slug", modelIds)
+				.gte("occurred_at", new Date(nowMs - 30 * 24 * 60 * 60 * 1_000).toISOString())
+				.order("occurred_at", { ascending: false }).range(offset, offset + 999);
 			if (result.error) throw result.error;
 			values.push(...(result.data ?? []));
 			if ((result.data?.length ?? 0) < 1_000) break;
 		}
 		return values;
 	};
-	const [modelResult, usageRows] = await Promise.all([
-		client.from("data_models").select("model_id,name,organisation_id,input_types,output_types,organisation:data_organisations(name)").in("model_id", modelIds).eq("hidden", false),
-		loadUsage(),
-	]);
-	if (modelResult.error) throw modelResult.error;
+	const usageRows = await loadUsage();
+	const eventIds = usageRows.map((row) => row.request_event_id);
+	const pricingResult = eventIds.length ? await client.from("v2_request_pricing_lines").select("request_event_id,charged_nanos").in("request_event_id", eventIds) : { data: [], error: null };
+	if (pricingResult.error) throw pricingResult.error;
+	const costByEvent = new Map<string, number>();
+	for (const row of pricingResult.data ?? []) costByEvent.set(row.request_event_id, (costByEvent.get(row.request_event_id) ?? 0) + Math.max(0, Number(row.charged_nanos ?? 0) || 0));
 	const usage = new Map<string, FreeRouterModel["usage"]>();
 	for (const row of usageRows) {
-		const modelId = String(row.routed_model_id ?? "");
+		const modelId = String(row.routed_model_slug ?? "");
 		const item = usage.get(modelId) ?? { requests30d: 0, totalCostNanos30d: 0, lastRoutedAt: null };
 		item.requests30d += 1;
-		item.totalCostNanos30d += Math.max(0, Math.round(Number(row.cost_nanos ?? 0) || 0));
-		item.lastRoutedAt ??= row.created_at ?? null;
+		item.totalCostNanos30d += Math.max(0, Math.round(costByEvent.get(row.request_event_id) ?? 0));
+		item.lastRoutedAt ??= row.occurred_at ?? null;
 		usage.set(modelId, item);
 	}
-	const rowById = new Map((modelResult.data ?? []).map((row) => [row.model_id, row]));
+	const rowById = new Map((modelsResult.data ?? []).map((row) => [row.model_slug, row]));
 	const models = modelIds.map((modelId) => {
 		const meta = eligible.get(modelId)!;
 		const row = rowById.get(modelId);
-		const organisation = record(Array.isArray(row?.organisation) ? row.organisation[0] : row?.organisation);
-		return { modelId, displayApiModelId: meta.apiIds.size === 1 ? [...meta.apiIds][0] ?? modelId : modelId, name: String(row?.name ?? modelId), organisationId: String(row?.organisation_id ?? ""), organisationName: String(organisation?.name ?? row?.organisation_id ?? "Unknown"), providerCount: meta.providerIds.size, inputModalities: meta.input.size ? [...meta.input].sort() : strings(row?.input_types), outputModalities: meta.output.size ? [...meta.output].sort() : strings(row?.output_types), usage: usage.get(modelId) ?? { requests30d: 0, totalCostNanos30d: 0, lastRoutedAt: null } };
+		const organisation = record(Array.isArray(row?.lab) ? row.lab[0] : row?.lab);
+		return { modelId, displayApiModelId: meta.apiIds.size === 1 ? [...meta.apiIds][0] ?? modelId : modelId, name: String(row?.name ?? modelId), organisationId: String(row?.lab_slug ?? ""), organisationName: String(organisation?.name ?? row?.lab_slug ?? "Unknown"), providerCount: meta.providerIds.size, inputModalities: meta.input.size ? [...meta.input].sort() : strings(row?.input_modalities), outputModalities: meta.output.size ? [...meta.output].sort() : strings(row?.output_modalities), usage: usage.get(modelId) ?? { requests30d: 0, totalCostNanos30d: 0, lastRoutedAt: null } };
 	}).sort((left, right) => right.usage.requests30d - left.usage.requests30d || left.modelId.localeCompare(right.modelId));
 	const providerIds = new Set([...eligible.values()].flatMap((item) => [...item.providerIds]));
 	return { summary: { eligibleModels: models.length, eligibleProviders: providerIds.size, routedRequests30d: models.reduce((sum, model) => sum + model.usage.requests30d, 0), totalCostNanos30d: models.reduce((sum, model) => sum + model.usage.totalCostNanos30d, 0) }, models };
 }
 
 export async function fetchFreeRouterOverview(env: Env): Promise<FreeRouterOverview> {
-	const rpc = await getDataClient(env).rpc("get_public_free_router_overview");
-	if (!rpc.error) return parseOverview(rpc.data) ?? EMPTY;
-	if (!missingRpc(rpc.error)) throw rpc.error;
-	return fallbackOverview(env);
+	return v2Overview(env);
 }
 
 export function buildFreeRouterCatalogueRow(overview: FreeRouterOverview): Record<string, unknown> {

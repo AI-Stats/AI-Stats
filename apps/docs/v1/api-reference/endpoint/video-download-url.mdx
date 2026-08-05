@@ -1,14 +1,17 @@
 ---
-title: "Video download URL (Beta)"
-badge: "Beta"
+title: "Create a video download URL"
+sidebarTitle: "Create a download URL"
+tag: "Internal"
 openapi: "POST /videos/{video_id}/download_url"
-description: "Issue a temporary signed download URL for a completed video generation."
----
-Optional request fields let you choose:
+description: |-
+  <Info>
+  **Internal testing.** The Video API is available only to enabled workspaces and may be temporarily disabled while its public contract is finalised. The API may change before general availability.
+  </Info>
 
-<Warning>
-The public video routes are currently mounted but temporarily disabled, so this route currently returns `501 not_implemented`.
-</Warning>
+  Issue a temporary signed download URL for a completed video generation.
+---
+
+Optional request fields let you choose:
 
 - `ttl_seconds` for link lifetime
 - `disposition` as `attachment` or `inline`

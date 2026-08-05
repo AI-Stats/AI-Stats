@@ -158,14 +158,15 @@ export default function CreateKeyDialog({
 								<DropdownMenuContent
 									side="bottom"
 									align="start"
-									className="w-full"
+									className="w-full rounded-lg"
 								>
 									{resolvedTeams.map((t) => (
 										<DropdownMenuItem
 											key={String(t.id ?? "__null")}
-											onSelect={() =>
+											onClick={() =>
 												setSelectedTeamId(t.id ?? null)
 											}
+											className="rounded-lg"
 										>
 											{t.name}
 										</DropdownMenuItem>

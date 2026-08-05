@@ -38,7 +38,7 @@ describe("recordUsageAndCharge", () => {
 
 	it("invalidates the workspace credit cache after a successful new charge", async () => {
 		rpcMock.mockResolvedValue({
-			data: { status: "charged", already_applied: false },
+			data: { status: "charged", applied: true, already_applied: false },
 			error: null,
 		});
 		const { recordUsageAndCharge } = await import("./persist");

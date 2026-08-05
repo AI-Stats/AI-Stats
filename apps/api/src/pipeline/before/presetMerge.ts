@@ -30,17 +30,24 @@ export function mergePresetWithBody(body: any, preset: PresetData): any {
 
 	// Inject system prompt (prepend to existing system or messages)
 	if (config.systemPrompt) {
-		if (merged.messages && Array.isArray(merged.messages)) {
+		if (typeof merged.instructions === "string") {
+			merged.instructions = `${config.systemPrompt}\n\n${merged.instructions}`;
+		} else if (merged.instructions === undefined && merged.input !== undefined) {
+			merged.instructions = config.systemPrompt;
+		} else if (merged.messages && Array.isArray(merged.messages)) {
 			// Check if there's already a system message
 			const hasSystem = merged.messages.some((m: any) => m.role === "system");
 
 			if (hasSystem) {
 				// Prepend to existing system message
+				let injected = false;
 				merged.messages = merged.messages.map((m: any) => {
-					if (m.role === "system") {
+					if (m.role === "system" && !injected) {
+						injected = true;
+						const content = typeof m.content === "string" ? m.content : JSON.stringify(m.content);
 						return {
 							...m,
-							content: config.systemPrompt + "\n\n" + m.content,
+							content: `${config.systemPrompt}\n\n${content}`,
 						};
 					}
 					return m;

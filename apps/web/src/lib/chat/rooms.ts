@@ -1,5 +1,6 @@
 export type ChatRoomId =
 	| "text"
+	| "fusion"
 	| "image"
 	| "video"
 	| "audio"
@@ -16,6 +17,7 @@ export type ChatRoomConfig = {
 	route: string;
 	description: string;
 	capabilityHints: string[];
+	beta?: boolean;
 };
 
 const TEXT_CAPABILITY_HINTS = [
@@ -95,7 +97,7 @@ export const CHAT_ROOMS: ChatRoomConfig[] = [
 		id: "speech-to-text",
 		label: "Speech to Text",
 		route: "/chat/speech-to-text",
-		description: "Speech transcription and translation workspace.",
+		description: "Speech transcription workspace.",
 		capabilityHints: SPEECH_TO_TEXT_CAPABILITY_HINTS,
 	},
 	{
@@ -126,6 +128,14 @@ export const CHAT_ROOMS: ChatRoomConfig[] = [
 		description: "Multimodal embeddings explorer with vector projection.",
 		capabilityHints: EMBEDDINGS_CAPABILITY_HINTS,
 	},
+	{
+		id: "fusion",
+		label: "Fusion",
+		route: "/chat/fusion",
+		description: "Compare multiple model responses and synthesize one answer.",
+		capabilityHints: [],
+		beta: true,
+	},
 ];
 
 export const CHAT_ROOM_BY_ID: Record<ChatRoomId, ChatRoomConfig> = {
@@ -134,9 +144,9 @@ export const CHAT_ROOM_BY_ID: Record<ChatRoomId, ChatRoomConfig> = {
 	video: CHAT_ROOMS[2],
 	audio: {
 		id: "audio",
-		label: "Audio",
-		route: "/chat/audio",
-		description: "Legacy audio workspace.",
+		label: "Text to Speech",
+		route: "/chat/speech",
+		description: "Audio model compatibility mapping for focused audio rooms.",
 		capabilityHints: AUDIO_CAPABILITY_HINTS,
 	},
 	speech: CHAT_ROOMS[3],
@@ -145,6 +155,7 @@ export const CHAT_ROOM_BY_ID: Record<ChatRoomId, ChatRoomConfig> = {
 	realtime: CHAT_ROOMS[6],
 	moderation: CHAT_ROOMS[7],
 	embeddings: CHAT_ROOMS[8],
+	fusion: CHAT_ROOMS[9],
 };
 
 const IMAGE_MODEL_HINTS = [
@@ -260,6 +271,7 @@ export function modelSupportsRoom(
 	model: ModelWithCapabilities,
 	roomId: ChatRoomId,
 ): boolean {
+	if (roomId === "fusion") return false;
 	const capabilityRooms = roomIdsFromCapabilities(model.capabilities);
 	if (capabilityRooms.length > 0) {
 		if (roomId === "audio") {

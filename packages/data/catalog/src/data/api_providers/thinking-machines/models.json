@@ -96,6 +96,89 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "thinking-machines/inkling-small",
+    "provider_api_model_id": "thinking-machines:thinkingmachines/Inkling-Small:peft:262144:sampling-nvfp4",
+    "provider_model_slug": "thinkingmachines/Inkling-Small:peft:262144:sampling-nvfp4",
+    "internal_model_id": "thinking-machines/inkling-small",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP4",
+    "input_modalities": "text,image,audio",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-30T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning_effort",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": 0.9,
+            "notes": "Accepts OpenAI effort strings or a raw float from 0.0 to 0.99."
+          }
+        ],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://tinker-docs.thinkingmachines.ai/tinker/models/",
+        "kind": "documentation",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official Tinker serverless inference beta table lists the exact model ID, context, and rates."
+      },
+      {
+        "url": "https://tinker-docs.thinkingmachines.ai/tinker/compatible-apis/openai/",
+        "kind": "documentation",
+        "accessed_at": "2026-07-30T00:00:00Z",
+        "notes": "Official OpenAI-compatible inference documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-30T00:00:00Z",
+      "notes": "Tinker lists Inkling-Small serverless inference as beta; intended for testing and internal workloads rather than intensive production use."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "openai/gpt-oss-20b",
     "provider_api_model_id": "thinking-machines:openai/gpt-oss-20b",
     "provider_model_slug": "openai/gpt-oss-20b",

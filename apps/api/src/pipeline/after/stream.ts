@@ -9,7 +9,7 @@ import type { PipelineContext } from "../before/types";
 import type { RequestResult, Bill } from "../execute";
 import type { PriceCard } from "../pricing";
 import { calculatePricing } from "./pricing";
-import { handleSuccessAudit } from "./audit";
+import { handleFailureAudit, handleSuccessAudit } from "./audit";
 import { recordUsageAndChargeOnce } from "./charge";
 import { shapeUsageForClient, stripUsagePricing } from "../usage";
 import { normalizeAnthropicUsage, presentUsageForClient, extractFinishReason } from "./payload";
@@ -24,6 +24,7 @@ import { logDebugEvent, previewValue } from "../debug";
 import { ensureRuntimeForBackground } from "@/runtime/env";
 import { normalizeFinishReason } from "../audit/normalize-finish-reason";
 import { applyByokServiceFee } from "../pricing/byok-fee";
+import { applyDataContributionDiscount } from "../pricing/data-contribution-discount";
 import {
     attachToolUsageMetrics,
     collectOutputToolCallNamesFromPayload,
@@ -37,6 +38,8 @@ import {
     resolveCacheAwareRoutingPreference,
 } from "../execute/sticky-routing";
 import { applyResponsePlugins } from "@/plugins/registry";
+import { applySuccessfulResponseBillingPolicy, suppressFailedResponseBilling } from "./billing-policy";
+import { calculateOutputPerformanceMetrics } from "./performance-metrics";
 
 function shouldAttachRoutingDiagnostics(ctx: PipelineContext): boolean {
 	return Boolean(ctx.meta?.debug?.enabled || ctx.meta?.returnRoutingDiagnostics);
@@ -71,6 +74,22 @@ function getUsageOutputTokens(usage: any): number {
     return Number.isFinite(numeric) && numeric > 0 ? numeric : 0;
 }
 
+function hasUsableStreamPayload(payload: any, depth = 0): boolean {
+	if (!payload || depth > 6) return false;
+	if (typeof payload === "string") return payload.trim().length > 0;
+	if (Array.isArray(payload)) return payload.some((entry) => hasUsableStreamPayload(entry, depth + 1));
+	if (typeof payload !== "object") return false;
+	if (typeof payload.text === "string" && payload.text.trim()) return true;
+	if (typeof payload.output_text === "string" && payload.output_text.trim()) return true;
+	if (typeof payload.content === "string" && payload.content.trim()) return true;
+	if (payload.type === "function_call" || payload.type === "tool_call") return true;
+	if (payload.type === "image" || payload.type === "audio" || payload.type === "output_image") return true;
+	for (const key of ["content", "output", "choices", "message", "response", "tool_calls", "toolCalls"]) {
+		if (hasUsableStreamPayload(payload[key], depth + 1)) return true;
+	}
+	return false;
+}
+
 function attachStreamTimingMeta(args: {
     ctx: PipelineContext;
     frame: any;
@@ -82,18 +101,31 @@ function attachStreamTimingMeta(args: {
 
     const generationMs = ctx.meta.generation_ms;
     const tokensOut = getUsageOutputTokens(usage);
+    const calculated = calculateOutputPerformanceMetrics({
+        outputTokens: tokensOut,
+        providerDurationMs: generationMs,
+        providerTtftMs: ctx.meta.provider_ttft_ms ?? null,
+        gatewayE2eMs: ctx.meta.end_to_end_ms ?? null,
+    });
     const throughputTps =
-        typeof ctx.meta.throughput_tps === "number"
-            ? ctx.meta.throughput_tps
-            : generationMs > 0 && tokensOut > 0
-                ? tokensOut / (generationMs / 1000)
-                : null;
+        ctx.meta.throughput_tps ?? calculated.effectiveThroughputTps;
+    ctx.meta.throughput_tps ??= calculated.effectiveThroughputTps ?? undefined;
+    ctx.meta.output_speed_tps ??= calculated.outputSpeedTps ?? undefined;
+    ctx.meta.tpot_ms ??= calculated.tpotMs ?? undefined;
+    ctx.meta.itl_ms ??= calculated.itlMs ?? undefined;
+    ctx.meta.phaseo_overhead_ms ??= calculated.phaseoOverheadMs ?? undefined;
 
     frame.meta = {
         ...frame.meta,
         throughput_tps: throughputTps,
+        output_speed_tps: ctx.meta.output_speed_tps ?? null,
         generation_ms: generationMs,
 		latency_ms: ctx.meta.latency_ms ?? null,
+        provider_ttft_ms: ctx.meta.provider_ttft_ms ?? null,
+        gateway_ttft_ms: ctx.meta.gateway_ttft_ms ?? null,
+        tpot_ms: ctx.meta.tpot_ms ?? null,
+        itl_ms: ctx.meta.itl_ms ?? null,
+        phaseo_overhead_ms: ctx.meta.phaseo_overhead_ms ?? null,
         end_to_end_ms: ctx.meta.end_to_end_ms ?? null,
     };
     const responsePayload =
@@ -113,6 +145,12 @@ function attachStreamTimingMeta(args: {
             generation_ms: generationMs,
             end_to_end_ms: ctx.meta.end_to_end_ms ?? null,
             throughput_tps: throughputTps,
+            output_speed_tps: ctx.meta.output_speed_tps ?? null,
+            provider_ttft_ms: ctx.meta.provider_ttft_ms ?? null,
+            gateway_ttft_ms: ctx.meta.gateway_ttft_ms ?? null,
+            tpot_ms: ctx.meta.tpot_ms ?? null,
+            itl_ms: ctx.meta.itl_ms ?? null,
+            phaseo_overhead_ms: ctx.meta.phaseo_overhead_ms ?? null,
         };
     }
     if (frame.meta && typeof frame.meta === "object" && "finish_reason" in frame.meta) {
@@ -146,6 +184,8 @@ export async function handleStreamResponse(
     let cachedFinishReason: string | null = null;
     let latestStreamUsageRaw: any = null;
     let latestGatewaySnapshot: any = null;
+	let sawGeneratedOutput = false;
+	let streamFailed = false;
     let appliedStreamResponsePlugins = false;
     const streamedToolCallKeys = new Set<string>();
     const streamedToolCallNames = new Set<string>();
@@ -184,7 +224,17 @@ export async function handleStreamResponse(
     }
 
     const onStreamEvent = (event: UnifiedStreamEvent) => {
+		if (event.type === "delta_text" && event.text.trim()) {
+			sawGeneratedOutput = true;
+		}
+		if (event.type === "delta_content_part") {
+			sawGeneratedOutput = true;
+		}
+		if (event.type === "error") {
+			streamFailed = true;
+		}
         if (event.type === "delta_tool") {
+			sawGeneratedOutput = true;
             const key =
                 event.toolCallId ??
                 `choice:${event.choiceIndex ?? 0}:tool:${event.toolIndex ?? streamedToolCallKeys.size}`;
@@ -401,6 +451,10 @@ export async function handleStreamResponse(
         onFinalSnapshot: (snapshot: any) => {
             const payload = snapshot?.response ?? snapshot;
             latestGatewaySnapshot = payload;
+			if (String(payload?.status ?? "").toLowerCase() === "failed") {
+				streamFailed = true;
+			}
+			if (hasUsableStreamPayload(payload)) sawGeneratedOutput = true;
             const finishReason = normalizeFinishReason(
                 extractFinishReason(payload),
                 result.provider
@@ -477,6 +531,35 @@ export async function handleStreamResponse(
                 shapeStreamUsageForClient(usageForShaping),
                 buildToolUsage()
             );
+			const textGenerationEndpoint =
+				ctx.endpoint === "chat.completions" ||
+				ctx.endpoint === "responses" ||
+				ctx.endpoint === "messages";
+			const emptyTextResponse =
+				textGenerationEndpoint &&
+				!sawGeneratedOutput &&
+				getUsageOutputTokens(shapedUsage) === 0 &&
+				Number(cachedOutputToolCallCount ?? 0) === 0;
+			if (info?.aborted || streamFailed || emptyTextResponse) {
+				const reason = info?.aborted
+					? "incomplete_stream"
+					: streamFailed
+						? "upstream_failure"
+						: "empty_response";
+				suppressFailedResponseBilling({ ctx, result, usage: shapedUsage, reason });
+				await handleFailureAudit(
+					ctx,
+					result,
+					502,
+					"upstream",
+					reason === "empty_response" ? "upstream_empty_response" : "upstream_stream_failure",
+					reason === "empty_response"
+						? "The upstream completed without generating output."
+						: "The upstream stream failed before successful completion.",
+					result.rawResponse ?? latestGatewaySnapshot,
+				);
+				return;
+			}
             const baseModel = getBaseModel(ctx.model);
             const healthContext = (result as any).healthContext ?? null;
             const isProbe = Boolean(healthContext?.isProbe);
@@ -554,13 +637,30 @@ export async function handleStreamResponse(
                     currencyHint = repriced.currency ?? currencyHint;
                 }
 
-                const pricedWithByok = await applyByokServiceFee({
+                const pricedWithByokSubtotal = await applyByokServiceFee({
                     workspaceId: ctx.workspaceId,
                     isByok,
                     baseCostNanos: totalNanosOverride,
                     pricedUsage: usageWithToolMetrics,
                     currencyHint,
                 });
+				const successfulBilling = applySuccessfulResponseBillingPolicy({
+					endpoint: ctx.endpoint,
+					pricedUsage: pricedWithByokSubtotal.pricedUsage,
+					totalNanos: pricedWithByokSubtotal.totalNanos,
+					totalCents: pricedWithByokSubtotal.totalCents,
+				});
+                const pricedWithByok = {
+					...pricedWithByokSubtotal,
+					...successfulBilling,
+					...applyDataContributionDiscount({
+						pricedUsage: successfulBilling.pricedUsage,
+						totalNanos: successfulBilling.totalNanos,
+						enabled: ctx.teamSettings?.dataContributionEnabled === true,
+						isByok,
+						discountBps: ctx.teamSettings?.dataContributionDiscountBps,
+					}),
+				};
                 result.bill.cost_cents = pricedWithByok.totalCents;
                 result.bill.currency = pricedWithByok.currency;
                 result.bill.usage = pricedWithByok.pricedUsage;
@@ -610,13 +710,30 @@ export async function handleStreamResponse(
                     shapeStreamUsageForClient(usageForShaping),
                     buildToolUsage()
                 );
-                const pricedWithByok = await applyByokServiceFee({
+                const pricedWithByokSubtotal = await applyByokServiceFee({
                     workspaceId: ctx.workspaceId,
                     isByok,
                     baseCostNanos: 0,
                     pricedUsage: fallbackUsageWithToolMetrics ?? usageWithToolMetrics,
                     currencyHint: result.bill.currency ?? card?.currency ?? "USD",
                 });
+				const successfulBilling = applySuccessfulResponseBillingPolicy({
+					endpoint: ctx.endpoint,
+					pricedUsage: pricedWithByokSubtotal.pricedUsage,
+					totalNanos: pricedWithByokSubtotal.totalNanos,
+					totalCents: pricedWithByokSubtotal.totalCents,
+				});
+                const pricedWithByok = {
+					...pricedWithByokSubtotal,
+					...successfulBilling,
+					...applyDataContributionDiscount({
+						pricedUsage: successfulBilling.pricedUsage,
+						totalNanos: successfulBilling.totalNanos,
+						enabled: ctx.teamSettings?.dataContributionEnabled === true,
+						isByok,
+						discountBps: ctx.teamSettings?.dataContributionDiscountBps,
+					}),
+				};
                 await maybeWriteStickyForUsage(pricedWithByok.pricedUsage);
                 await recordUsageAndChargeOnce({
                     ctx,
@@ -662,13 +779,30 @@ export async function handleStreamResponse(
             const usageWithToolMetrics = attachToolUsageMetrics(pricedUsage, {
                 ...buildToolUsage(),
             });
-            const pricedWithByok = await applyByokServiceFee({
+            const pricedWithByokSubtotal = await applyByokServiceFee({
                 workspaceId: ctx.workspaceId,
                 isByok,
                 baseCostNanos: totalNanos,
                 pricedUsage: usageWithToolMetrics,
                 currencyHint: currency,
             });
+			const successfulBilling = applySuccessfulResponseBillingPolicy({
+				endpoint: ctx.endpoint,
+				pricedUsage: pricedWithByokSubtotal.pricedUsage,
+				totalNanos: pricedWithByokSubtotal.totalNanos,
+				totalCents: pricedWithByokSubtotal.totalCents,
+			});
+            const pricedWithByok = {
+				...pricedWithByokSubtotal,
+				...successfulBilling,
+				...applyDataContributionDiscount({
+					pricedUsage: successfulBilling.pricedUsage,
+					totalNanos: successfulBilling.totalNanos,
+					enabled: ctx.teamSettings?.dataContributionEnabled === true,
+					isByok,
+					discountBps: ctx.teamSettings?.dataContributionDiscountBps,
+				}),
+			};
 
             result.bill.cost_cents = pricedWithByok.totalCents;
             result.bill.currency = pricedWithByok.currency;
@@ -709,8 +843,6 @@ export async function handleStreamResponse(
 export function handlePassthroughFallback(upstream: Response): Response {
     return passthrough(upstream);
 }
-
-
 
 
 

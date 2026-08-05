@@ -440,7 +440,7 @@
       }
     },
     "../../packages/data/catalog/src/data/api_providers/baseten/models.json": {
-      "hash": "faea0d1872a4fc6d036e8662cb8b8ae9",
+      "hash": "8302f5bd1ac62d5815d586784995aedd",
       "meta": {
         "api_provider_id": "baseten",
         "kind": "provider_models",
@@ -466,7 +466,8 @@
           "z-ai/glm-5",
           "z-ai/glm-5.1",
           "z-ai/glm-5.2",
-          "z-ai/glm-5.2-fast"
+          "z-ai/glm-5.2-fast",
+          "moonshotai/kimi-k3"
         ]
       }
     },
@@ -808,7 +809,7 @@
       }
     },
     "../../packages/data/catalog/src/data/api_providers/fireworks/models.json": {
-      "hash": "6f7863d89e231b1a721149085ad718c9",
+      "hash": "954a3570d5a8b54f7712c17ad1b275c0",
       "meta": {
         "api_provider_id": "fireworks",
         "kind": "provider_models",
@@ -852,7 +853,8 @@
           "moonshotai/kimi-k2.7-code",
           "minimax/minimax-m3",
           "nvidia/nemotron-3-ultra-550b-a55b",
-          "qwen/qwen3.7-plus"
+          "qwen/qwen3.7-plus",
+          "moonshotai/kimi-k3"
         ]
       }
     },
@@ -1978,7 +1980,7 @@
       }
     },
     "../../packages/data/catalog/src/data/api_providers/together/models.json": {
-      "hash": "69e444b4e6ac48902baf3b7e4519bf41",
+      "hash": "1a0233ff62f45485cf0d19d15a003f3f",
       "meta": {
         "api_provider_id": "together",
         "kind": "provider_models",
@@ -2012,7 +2014,8 @@
           "thinking-machines/inkling",
           "z-ai/glm-5",
           "z-ai/glm-5.1",
-          "z-ai/glm-5.2"
+          "z-ai/glm-5.2",
+          "moonshotai/kimi-k3"
         ]
       }
     },
@@ -6780,11 +6783,11 @@
       }
     },
     "../../packages/data/catalog/src/data/models/amazon/nova-2-lite/model.json": {
-      "hash": "62dd92a4c7465003c01350ceedc0f6fd",
+      "hash": "c62e47e5d9fde5f43a0dbc96cc1b14ac",
       "meta": {
         "model_id": "amazon/nova-2-lite",
         "organisation_id": "amazon",
-        "previous_model_id": "amazon/nova-lite-1-0-2024-12-04",
+        "previous_model_id": "amazon/nova-lite-1.0",
         "api_model_id": "amazon/nova-2-lite",
         "has_page_notice": true
       }
@@ -7070,7 +7073,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/anthropic/claude-mythos-preview/model.json": {
-      "hash": "b282e08a88e0a592843d77df8449b2a8",
+      "hash": "21fa353b3bc493d5d0b292fa186e948d",
       "meta": {
         "model_id": "anthropic/claude-mythos-preview",
         "organisation_id": "anthropic",
@@ -12550,7 +12553,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/computer-use-preview/model.json": {
-      "hash": "ab2a8223cd90650194c27e8cfb5f95e1",
+      "hash": "206ebe47af4a9cdb56b0a78a2046e56e",
       "meta": {
         "model_id": "openai/computer-use-preview",
         "organisation_id": "openai",
@@ -12920,7 +12923,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/gpt-4o-mini-search-preview/model.json": {
-      "hash": "db0cb7bdeb4027439568a42aa7a1943e",
+      "hash": "ad7166f9db1f922ea33063ceba834915",
       "meta": {
         "model_id": "openai/gpt-4o-mini-search-preview",
         "organisation_id": "openai",
@@ -12960,7 +12963,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/gpt-4o-mini-tts-2025-03-20/model.json": {
-      "hash": "55ef01763a4eddb80bf481a67f9e8ae6",
+      "hash": "8e1983c9e2e52ded2da3e23419994e19",
       "meta": {
         "model_id": "openai/gpt-4o-mini-tts-2025-03-20",
         "organisation_id": "openai",
@@ -13000,7 +13003,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/gpt-4o-search-preview/model.json": {
-      "hash": "129b1738374c646794263d3ffea31b82",
+      "hash": "0ce68a613a6df9bd304cfe799fca9c32",
       "meta": {
         "model_id": "openai/gpt-4o-search-preview",
         "organisation_id": "openai",
@@ -13040,7 +13043,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/gpt-5-chat/model.json": {
-      "hash": "1617db444539570dc29ef8b1fb5faa83",
+      "hash": "c261cfbaf777a61a1d066cfe7d3cc5b5",
       "meta": {
         "model_id": "openai/gpt-5-chat",
         "organisation_id": "openai",
@@ -13050,7 +13053,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/gpt-5-codex/model.json": {
-      "hash": "8b0d68fb15b416ee51321256b07fdb23",
+      "hash": "f0623e0e9db70712a459b43550031e9a",
       "meta": {
         "model_id": "openai/gpt-5-codex",
         "organisation_id": "openai",
@@ -13120,7 +13123,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/gpt-5.1-chat/model.json": {
-      "hash": "60d5729bf7ac8a1b038bb214e872e44c",
+      "hash": "e103bc23425114f36dab700468ac4377",
       "meta": {
         "model_id": "openai/gpt-5.1-chat",
         "organisation_id": "openai",
@@ -13130,7 +13133,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/gpt-5.1-codex/model.json": {
-      "hash": "e2b6373fe14e927e0ee4edbf0380d4c3",
+      "hash": "aa76b4d144ec49ccd1d4dbc8bb4a9028",
       "meta": {
         "model_id": "openai/gpt-5.1-codex",
         "organisation_id": "openai",
@@ -13140,7 +13143,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/gpt-5.1-codex-max/model.json": {
-      "hash": "165204cdc646eca57d4e8f4a84896713",
+      "hash": "aac060a651894539e90c2fd2ea64909b",
       "meta": {
         "model_id": "openai/gpt-5.1-codex-max",
         "organisation_id": "openai",
@@ -13150,7 +13153,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/gpt-5.1-codex-mini/model.json": {
-      "hash": "e5b4caecf7d6758f46d9282465ddac40",
+      "hash": "f8fcfe60142534b839306e5f61d8e911",
       "meta": {
         "model_id": "openai/gpt-5.1-codex-mini",
         "organisation_id": "openai",
@@ -13180,7 +13183,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/gpt-5.2-codex/model.json": {
-      "hash": "ef566b8b0ac1f6913ebe23c24787b259",
+      "hash": "900c17e2b7d7cf62081da07c62cdb239",
       "meta": {
         "model_id": "openai/gpt-5.2-codex",
         "organisation_id": "openai",
@@ -13350,7 +13353,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/gpt-audio-mini-2025-10-06/model.json": {
-      "hash": "188dfbc84219493b644a225760aef07e",
+      "hash": "b534bc02417b60626dede3ff773b5ab2",
       "meta": {
         "model_id": "openai/gpt-audio-mini-2025-10-06",
         "organisation_id": "openai",
@@ -13470,7 +13473,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/gpt-realtime-mini-2025-10-06/model.json": {
-      "hash": "cc99a569b1b2f723153d750ff947bf07",
+      "hash": "e4b2d05ceb5fb784c4bef5dc098a290f",
       "meta": {
         "model_id": "openai/gpt-realtime-mini-2025-10-06",
         "organisation_id": "openai",
@@ -13540,7 +13543,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/o3-deep-research/model.json": {
-      "hash": "f73e9cebf2ab6abd9b8402b5f946fd3b",
+      "hash": "8eb6e6ed9685f73fa89b9ef23cda8fc5",
       "meta": {
         "model_id": "openai/o3-deep-research",
         "organisation_id": "openai",
@@ -13590,7 +13593,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/openai/o4-mini-deep-research/model.json": {
-      "hash": "4e54c6b7d6fb9ad5b7e0ea9d6cf63184",
+      "hash": "2deaef9fe1fe6a418fb3fc2b1cc5c11b",
       "meta": {
         "model_id": "openai/o4-mini-deep-research",
         "organisation_id": "openai",
@@ -28647,7 +28650,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/anthropic/claude-fable-5/model.json": {
-      "hash": "a7d6bad440366c179773474065e3f472",
+      "hash": "5b1470a7c5e7c4f1d9f64ad7b8cf660d",
       "meta": {
         "model_id": "anthropic/claude-fable-5",
         "organisation_id": "anthropic",
@@ -28856,7 +28859,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/anthropic/claude-mythos-5/model.json": {
-      "hash": "6adf809bc09bb6513a1816f5a30b964a",
+      "hash": "fa75af05a3a56470855187ac51490683",
       "meta": {
         "model_id": "anthropic/claude-mythos-5",
         "organisation_id": "anthropic",
@@ -29546,7 +29549,7 @@
       }
     },
     "../../packages/data/catalog/src/data/models/moonshotai/kimi-k3/model.json": {
-      "hash": "2a646d694f564550c78feee4512b8b4b",
+      "hash": "7c775c38f0bfdaa66524b280f1625513",
       "meta": {
         "model_id": "moonshotai/kimi-k3",
         "organisation_id": "moonshotai",
@@ -29682,18 +29685,6 @@
       "hash": "d4de1b2337520b3979d057e61eed514a",
       "meta": {
         "family_id": "anthropic/claude-5"
-      }
-    },
-    "../../packages/data/catalog/src/data/families/anthropic-claude-fable/family.json": {
-      "hash": "147d5c10a792972c6675210191d2ba55",
-      "meta": {
-        "family_id": "anthropic/claude-fable"
-      }
-    },
-    "../../packages/data/catalog/src/data/families/anthropic-claude-mythos/family.json": {
-      "hash": "0b18ff07bd41c34faa863c041c5f0079",
-      "meta": {
-        "family_id": "anthropic/claude-mythos"
       }
     },
     "../../packages/data/catalog/src/data/families/google-gemini-3.5/family.json": {
@@ -30763,7 +30754,7 @@
       }
     },
     "../../packages/data/catalog/src/data/pricing/baseten/z-ai-glm-5.2/text.generate/pricing.json": {
-      "hash": "85eda2b7b7da7062464042d8dc6fc17a",
+      "hash": "675e447fd38928ed8d6b8ae322a919a4",
       "meta": {
         "api_provider_id": "baseten",
         "capability_id": "text.generate",
@@ -35344,25 +35335,6 @@
         "has_page_notice": true
       }
     },
-    "../../packages/data/catalog/src/data/models/z-ai/glm-5.2-fast/model.json": {
-      "hash": "70511aee0ac4293ea18538a51805608e",
-      "meta": {
-        "model_id": "z-ai/glm-5.2-fast",
-        "organisation_id": "z-ai",
-        "previous_model_id": "z-ai/glm-5.2",
-        "api_model_id": "z-ai/glm-5.2-fast",
-        "has_page_notice": true
-      }
-    },
-    "../../packages/data/catalog/src/data/pricing/baseten/z-ai-glm-5.2-fast/text.generate/pricing.json": {
-      "hash": "b2b8c405987b7a6e9de6a76e17fdbc69",
-      "meta": {
-        "api_provider_id": "baseten",
-        "capability_id": "text.generate",
-        "model_id": "z-ai/glm-5.2-fast",
-        "model_key": "baseten:z-ai/glm-5.2-fast:text.generate"
-      }
-    },
     "../../packages/data/catalog/src/data/pricing/deepinfra/thinking-machines-inkling/text.generate/pricing.json": {
       "hash": "e94c8764902d2947b04817fd14f71cfa",
       "meta": {
@@ -35406,6 +35378,12 @@
         "capability_id": "text.generate",
         "model_id": "bytedance/seed-2.1-turbo",
         "model_key": "venice:bytedance/seed-2.1-turbo:text.generate"
+      }
+    },
+    "../../packages/data/catalog/src/data/families/moonshotai-kimi-k3/family.json": {
+      "hash": "8b057b3939740c54bbe78c2764c08bca",
+      "meta": {
+        "family_id": "moonshotai/kimi-k3"
       }
     }
   }

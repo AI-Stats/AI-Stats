@@ -1,6 +1,7 @@
 ---
 title: "Prompt Caching"
 description: "Reuse stable prompt context across Chat Completions, Responses, and Anthropic Messages requests."
+icon: "database-zap"
 ---
 
 Use prompt caching when the same large context appears across many requests. Mark stable instructions, documents, examples, tool outputs, or tool definitions as cacheable so supported providers can reuse that context on later calls.
@@ -248,6 +249,21 @@ After you add prompt caching:
 2. Send a second request with the same cacheable content.
 3. Check the response usage and request details for cached read/write fields.
 4. Compare latency and cost over repeated calls, not just the first call.
+
+## Provider affinity
+
+Phaseo uses provider prompt-cache usage as a routing signal by default. Once a
+provider returns cached input tokens, requests with the same cache key or stable
+opening context prefer that provider for 15 minutes. This avoids paying another
+provider to rebuild the same prompt cache.
+
+If you include `session_id`, an observed cache read creates session affinity as
+well. Phaseo retains that affinity for the active session window while still
+allowing failover when the provider is unhealthy or no longer policy-eligible.
+
+Set `provider.cache_aware_routing` to `false` to opt out for one request. Set
+`routing.session_affinity` to `false` when the request carries a `session_id`
+but should use only normal context-based routing.
 
 ## Related pages
 

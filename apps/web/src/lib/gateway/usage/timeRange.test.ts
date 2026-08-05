@@ -1,5 +1,7 @@
 import {
 	getUsageRangeBadgeLabel,
+	getUsageRangeLabel,
+	getUsageRangeTriggerLabel,
 	parseUsageRangePreset,
 	parseUsageRelativeShorthand,
 	resolveUsageTimeRange,
@@ -64,5 +66,24 @@ describe("usage time range", () => {
 
 		expect(getUsageRangeBadgeLabel({ preset: "this_month", now })).toBe("11d");
 		expect(getUsageRangeBadgeLabel({ preset: "this_year", now })).toBe("4mo");
+	});
+
+	test("supports a rolling year and formats ranges with 24-hour times", () => {
+		const now = new Date("2026-05-12T09:28:00.000Z");
+		expect(getUsageRangeLabel({ preset: "past_1y" })).toBe("Past 1 Year");
+		expect(resolveUsageTimeRange({ preset: "past_1y", now })).toEqual({
+			from: "2025-05-12T09:28:00.000Z",
+			to: "2026-05-12T09:28:00.000Z",
+		});
+		expect(getUsageRangeTriggerLabel({
+			preset: "custom",
+			customFrom: "2025-12-31T23:30",
+			customTo: "2026-01-01T01:00",
+			now,
+		})).toBe("Dec 31, 2025, 23:30 – Jan 1, 2026, 01:00");
+	});
+
+	test("labels an unset custom range without truncation punctuation", () => {
+		expect(getUsageRangeLabel({ preset: "custom" })).toBe("Custom range");
 	});
 });

@@ -1,113 +1,96 @@
 ---
 title: "Migrating from LiteLLM"
-description: "Step-by-step guide to migrate your LiteLLM integration to Phaseo Gateway."
+sidebarTitle: "LiteLLM"
+description: "Replace a LiteLLM proxy with Phaseo while preserving the OpenAI-compatible request path your application already uses."
+icon: "blocks"
 ---
 
-# Migrating from LiteLLM
+Use this guide when your application calls a LiteLLM proxy through an OpenAI-compatible client. Swap the proxy boundary first, then map aliases, routing rules, and shared defaults deliberately.
 
-This guide helps migrate from LiteLLM proxy to Phaseo Gateway.
+## What changes
 
-## Overview
+| Setting | Before | After |
+| --- | --- | --- |
+| Base URL | Your LiteLLM proxy | `https://api.phaseo.app/v1` |
+| API key | LiteLLM proxy key | `PHASEO_API_KEY` |
+| Model aliases | LiteLLM configuration | Phaseo model IDs or application aliases |
+| Routing defaults | LiteLLM configuration | Phaseo presets and routing settings |
 
-Both provide unified API access. Migration involves:
+<Steps>
+<Step title="Inventory the proxy configuration">
 
--   Changing base URL
--   Updating API key
--   Adjusting model names
+List every model alias, fallback, provider rule, retry policy, budget, callback, and environment variable used by the current LiteLLM deployment. Identify which settings are shared policy and which belong to a single application.
 
-## Prerequisites
+</Step>
 
--   Phaseo account
--   LiteLLM setup
+<Step title="Replace the proxy endpoint">
 
-## Migration Steps
-
-### 1. Update Configuration
-
-Replace LiteLLM URL with Phaseo.
+Keep the OpenAI-compatible request code and change its base URL and key.
 
 <CodeGroup>
-```bash
-# Before (LiteLLM proxy)
-curl http://localhost:8000/v1/chat/completions \
-  -H "Authorization: Bearer your-litellm-key" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "gpt-4",
-    "messages": [{"role": "user", "content": "Hello!"}]
-  }'
-
-# After (Phaseo)
-
-curl https://api.phaseo.app/v1/chat/completions \
- -H "Authorization: Bearer your-phaseo-key" \
- -H "Content-Type: application/json" \
- -d '{
-"model": "gpt-4",
-"messages": [{"role": "user", "content": "Hello!"}]
-}'
-
-````
-
-```python
-import openai
-
-# Before
-client = openai.OpenAI(
-    api_key="your-litellm-key",
-    base_url="http://localhost:8000/v1"  # LiteLLM proxy
-)
-
-# After
-client = openai.OpenAI(
-    api_key="your-phaseo-key",
-    base_url="https://api.phaseo.app/v1"
-)
-
-response = client.chat.completions.create(
-    model="gpt-4",
-    messages=[{"role": "user", "content": "Hello!"}]
-)
-````
-
-```javascript
+```typescript TypeScript
 import OpenAI from "openai";
 
-// Before
 const client = new OpenAI({
-	apiKey: "your-litellm-key",
-	baseURL: "http://localhost:8000/v1",
-});
-
-// After
-const client = new OpenAI({
-	apiKey: "your-phaseo-key",
-	baseURL: "https://api.phaseo.app/v1",
+  apiKey: process.env.PHASEO_API_KEY,
+  baseURL: "https://api.phaseo.app/v1",
 });
 
 const response = await client.chat.completions.create({
-	model: "gpt-4",
-	messages: [{ role: "user", content: "Hello!" }],
+  model: "openai/gpt-4.1-mini",
+  messages: [{ role: "user", content: "Reply with: migration ready" }],
 });
 ```
 
+```python Python
+import os
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ["PHASEO_API_KEY"],
+    base_url="https://api.phaseo.app/v1",
+)
+```
+
+```bash cURL
+curl https://api.phaseo.app/v1/chat/completions \
+  -H "Authorization: Bearer $PHASEO_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "openai/gpt-4.1-mini",
+    "messages": [{"role": "user", "content": "Reply with: migration ready"}]
+  }'
+```
 </CodeGroup>
 
-### 2. Model Names
+</Step>
 
-LiteLLM uses provider/model format. Phaseo may use different names.
+<Step title="Map aliases and routing rules">
 
-Check `/models` for available models.
+Verify every production model against `GET /v1/models`. If callers rely on internal aliases, normalize them in one application boundary instead of editing every request.
 
-### 3. Test
+Move reusable prompt, parameter, and provider restrictions into [Presets](../guides/presets). Configure provider ranking and fallbacks through [Routing and Fallbacks](../guides/routing-and-fallbacks).
 
-Run your code to ensure compatibility.
+</Step>
 
-## Common Issues
+<Step title="Validate the production workflows">
 
--   **Model support**: Not all LiteLLM models may be in Phaseo.
--   **Features**: Some LiteLLM features may differ.
+Test streaming, tools, structured outputs, retries, error mapping, and any callback-driven observability your LiteLLM deployment handled. Compare latency, output, token usage, and cost before moving traffic gradually.
 
-## Next Steps
+</Step>
+</Steps>
 
--   Use Phaseo' built-in analytics.
+## Migration checklist
+
+- LiteLLM URLs, keys, and deployment dependencies have been identified.
+- Every production model and alias has an explicit Phaseo mapping.
+- Shared defaults have moved to presets or one application boundary.
+- Streaming, tools, and structured outputs pass in staging where used.
+- Required callbacks and telemetry have an intentional replacement.
+- Rollback remains a configuration-only endpoint and key change.
+
+## Next steps
+
+- [Presets](../guides/presets)
+- [Routing and Fallbacks](../guides/routing-and-fallbacks)
+- [Observability](../guides/integrations/observability)

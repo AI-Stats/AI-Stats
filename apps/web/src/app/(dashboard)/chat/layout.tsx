@@ -1,0 +1,43 @@
+import type { Metadata, Viewport } from "next";
+import { ChatViewportLock } from "./ChatViewportLock";
+import { buildMetadata } from "@/lib/seo";
+import { ChatFeatureFlagsProvider } from "@/components/(chat)/ChatFeatureFlags";
+import { realtimeVoiceFlag, videoApiFlag } from "@/lib/flags";
+
+export const metadata: Metadata = buildMetadata({
+	title: "AI Chat",
+	description:
+		"Chat with gateway models, tune parameters, and compare responses in one playground.",
+	path: "/chat",
+	keywords: ["AI chat", "chat playground", "model comparison", "gateway chat"],
+});
+
+export const viewport: Viewport = {
+	interactiveWidget: "resizes-content",
+};
+
+export default async function ChatLayout({
+	children,
+}: {
+	children: React.ReactNode;
+}) {
+	const [realtimeEnabled, videoEnabled] = await Promise.all([
+		realtimeVoiceFlag().catch(() => false),
+		videoApiFlag().catch(() => false),
+	]);
+
+	return (
+		<ChatFeatureFlagsProvider
+			realtimeEnabled={realtimeEnabled}
+			videoEnabled={videoEnabled}
+		>
+			<ChatViewportLock />
+			<div
+				data-chat-viewport-root="true"
+				className="fixed inset-x-0 top-[calc(var(--chat-viewport-top,0px)+var(--site-header-height,3.75rem))] box-border flex h-[calc(var(--chat-viewport-height,100dvh)-var(--site-header-height,3.75rem))] min-h-0 flex-col overflow-hidden overscroll-none bg-background pb-[env(safe-area-inset-bottom)] [&_[data-slot=sidebar-container]]:!top-[calc(var(--chat-viewport-top,0px)+var(--site-header-height,3.75rem))] [&_[data-slot=sidebar-container]]:!bottom-[env(safe-area-inset-bottom)] [&_[data-slot=sidebar-container]]:!h-auto"
+			>
+				{children}
+			</div>
+		</ChatFeatureFlagsProvider>
+	);
+}

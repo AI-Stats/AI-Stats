@@ -1199,6 +1199,59 @@ async function settingsUpdate(flags: Record<string, string | boolean>) {
 	process.stdout.write("Updated workspace settings.\n");
 }
 
+async function dataContributionGet(flags: Record<string, string | boolean>) {
+	const body = await request("/data-contribution");
+	if (flagBool(flags, "json")) return printJson(body);
+	const data = body.data ?? {};
+	process.stdout.write(`Contribution: ${data.enabled ? "enabled" : "disabled"}\n`);
+	process.stdout.write(`Discount: ${Number(data.discountBps ?? 0) / 100}%\n`);
+	process.stdout.write(`Redacted I/O retention: ${Number(data.sampleRateBps ?? 0) / 100}%\n`);
+	process.stdout.write(`Classifier submission: ${Number(data.classifierSampleRateBps ?? 0) / 100}%\n`);
+	process.stdout.write(`Contributions (30d): ${Number(data.last30Days?.contributions ?? 0)}\n`);
+	process.stdout.write(`Discount earned (30d): ${formatMoneyFromNanos(data.last30Days?.discountNanos)}\n`);
+	const classifiers = Array.isArray(data.classifiers) ? data.classifiers : [];
+	process.stdout.write(`Classifiers: ${classifiers.length}\n`);
+	for (const classifier of classifiers) {
+		process.stdout.write(`  ${classifier.enabled ? "on" : "off"} ${classifier.name} (${classifier.slug}) ${classifier.id}\n`);
+	}
+}
+
+async function dataContributionConsent(enabled: boolean, flags: Record<string, string | boolean>) {
+	const body = await request("/data-contribution/consent", {
+		method: "PATCH",
+		body: compact({ enabled, reason: flagString(flags, "reason") }),
+	});
+	if (flagBool(flags, "json")) return printJson(body);
+	process.stdout.write(enabled
+		? "Enabled 1% discounted data contribution with 100% redacted retention and independently sampled classification.\n"
+		: "Disabled data contribution. New requests will no longer be retained, classified, or discounted.\n");
+}
+
+async function createDataClassifier(flags: Record<string, string | boolean>) {
+	const name = flagString(flags, "name");
+	if (!name) throw new Error("`--name` is required");
+	const payload = parseJsonFlag(flags, "body-json");
+	payload.name = name;
+	const body = await request("/data-contribution/classifiers", { method: "POST", body: payload });
+	if (flagBool(flags, "json")) return printJson(body);
+	process.stdout.write(`Created classifier: ${body.data.name} (${body.data.id})\n`);
+}
+
+async function updateDataClassifier(id: string | undefined, flags: Record<string, string | boolean>) {
+	if (!id) throw new Error("Classifier id is required");
+	const payload = parseJsonFlag(flags, "body-json");
+	const body = await request(`/data-contribution/classifiers/${encodeURIComponent(id)}`, { method: "PATCH", body: payload });
+	if (flagBool(flags, "json")) return printJson(body);
+	process.stdout.write(`Updated classifier: ${body.data.name} (${body.data.id})\n`);
+}
+
+async function deleteDataClassifier(id: string | undefined, flags: Record<string, string | boolean>) {
+	if (!id) throw new Error("Classifier id is required");
+	const body = await request(`/data-contribution/classifiers/${encodeURIComponent(id)}`, { method: "DELETE" });
+	if (flagBool(flags, "json")) return printJson(body);
+	process.stdout.write("Deleted classifier.\n");
+}
+
 async function listGuardrails(flags: Record<string, string | boolean>) {
 	const body = await request(appendQuery("/guardrails", { limit: flagString(flags, "limit"), offset: flagString(flags, "offset") }));
 	if (flagBool(flags, "json")) return printJson(body);
@@ -1661,7 +1714,7 @@ async function main() {
 	const parsed = parseArgs(process.argv.slice(2));
 	const json = flagBool(parsed.flags, "json");
 	try {
-		const [first, second, third] = parsed.command;
+		const [first, second, third, fourth] = parsed.command;
 		if (flagBool(parsed.flags, "version")) {
 			await printVersion(parsed.flags, { short: true });
 			return;
@@ -1708,6 +1761,12 @@ async function main() {
 		else if (first === "presets" && second === "delete") action = deletePreset(third, parsed.flags);
 		else if (first === "settings" && second === "get") action = settingsGet(parsed.flags);
 		else if (first === "settings" && second === "update") action = settingsUpdate(parsed.flags);
+		else if (first === "data-contribution" && second === "get") action = dataContributionGet(parsed.flags);
+		else if (first === "data-contribution" && second === "enable") action = dataContributionConsent(true, parsed.flags);
+		else if (first === "data-contribution" && second === "disable") action = dataContributionConsent(false, parsed.flags);
+		else if (first === "data-contribution" && second === "classifiers" && third === "create") action = createDataClassifier(parsed.flags);
+		else if (first === "data-contribution" && second === "classifiers" && third === "update") action = updateDataClassifier(fourth, parsed.flags);
+		else if (first === "data-contribution" && second === "classifiers" && third === "delete") action = deleteDataClassifier(fourth, parsed.flags);
 		else if (first === "guardrails" && second === "list") action = listGuardrails(parsed.flags);
 		else if (first === "guardrails" && second === "create") action = createGuardrail(parsed.flags);
 		else if (first === "guardrails" && second === "get") action = getGuardrail(third, parsed.flags);

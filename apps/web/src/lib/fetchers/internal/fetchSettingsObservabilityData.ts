@@ -18,6 +18,7 @@ export type ObservabilityRequestRow = {
 export type ObservabilityRequestResult = { rows: ObservabilityRequestRow[]; isSampled: boolean; limit: number };
 
 export type SettingsObservabilityData = {
+	appMetadataEntries: Array<[string, { id: string; title: string; appKey: string | null; imageUrl: string | null }]>;
 	appNameEntries: Array<[string, string]>;
 	current: ObservabilityRequestResult;
 	keys: Array<{ id: string; name: string | null; prefix: string | null }>;

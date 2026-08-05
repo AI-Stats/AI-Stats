@@ -1,0 +1,3 @@
+# Local project identity used by the Supabase CLI in CI.
+# The production project ref is supplied only after environment approval.
+project_id = "phaseo"

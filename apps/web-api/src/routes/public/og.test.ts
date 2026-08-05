@@ -5,7 +5,7 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("public OG payload", () => {
 	it("loads visible model metadata without exposing hidden rows", async () => {
-		vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify([{ model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", status: "Available" }]), { status: 200 })));
+		vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify([{ model_slug: "openai/gpt-test", name: "GPT Test", lab_slug: "openai", status: "Available" }]), { status: 200 })));
 		const response = await app.request("https://phaseo.app/api/_web/og?kind=models&id=openai%2Fgpt-test", {}, env);
 		expect(response.status).toBe(200);
 		expect(response.headers.get("cache-tag")).toBe("web-api-og");

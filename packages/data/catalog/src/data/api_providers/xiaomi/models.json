@@ -127,6 +127,7 @@
   },
   {
     "api_model_id": "xiaomi/mimo-v2-flash:free",
+    "canonical_model_id": "xiaomi/mimo-v2-flash:free",
     "provider_api_model_id": "xiaomi:xiaomi/mimo-v2-flash:free",
     "provider_model_slug": "mimo-v2-flash",
     "internal_model_id": "xiaomi/mimo-v2-flash",
@@ -477,6 +478,7 @@
   },
   {
     "api_model_id": "xiaomi/mimo-v2-tts:free",
+    "canonical_model_id": "xiaomi/mimo-v2-tts:free",
     "provider_api_model_id": "xiaomi:xiaomi/mimo-v2-tts:free",
     "provider_model_slug": "mimo-v2-tts",
     "internal_model_id": "xiaomi/mimo-v2-tts",
@@ -749,6 +751,7 @@
   },
   {
     "api_model_id": "xiaomi/mimo-v2.5-tts:free",
+    "canonical_model_id": "xiaomi/mimo-v2.5-tts:free",
     "provider_api_model_id": "xiaomi:xiaomi/mimo-v2.5-tts:free",
     "provider_model_slug": "mimo-v2.5-tts",
     "internal_model_id": "xiaomi/mimo-v2.5-tts",

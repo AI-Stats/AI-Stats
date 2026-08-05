@@ -1,7 +1,7 @@
 {
   "sourceUrl": "https://docs.mistral.ai/openapi.yaml",
-  "sourceSha256": "5a5c361558bb93e7abde3b7b0d2a2a9eaaa3ab870c77dc199565bc0107cf3282",
-  "bundleSha256": "fdbbb5c809cfb0018421f68f55fa532aa72c012f53179c4a0c3b6c413a60c6d2",
+  "sourceSha256": "933c4ebdcd720d84a343fceddf6cb61d91de44873158d7b134cfdc05109b5a2c",
+  "bundleSha256": "8183250713ef90328db29f96753b2b95408bd55ce1ddb159e6ae77d3d693e6cd",
   "openapiVersion": "3.1.0",
   "apiVersion": "1.0.0",
   "gatewayPathMappings": [

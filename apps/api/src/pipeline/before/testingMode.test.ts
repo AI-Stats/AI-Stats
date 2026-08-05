@@ -7,7 +7,7 @@ vi.mock("@/runtime/env", () => ({
 	getSupabaseAdmin: vi.fn(),
 }));
 
-import { isTestingModeRequested } from "./testingMode";
+import { isTestingModeRequested, resolveTestingMode } from "./testingMode";
 
 describe("isTestingModeRequested", () => {
 	beforeEach(() => {
@@ -64,5 +64,27 @@ describe("isTestingModeRequested", () => {
 			body: JSON.stringify({ model: "openai/gpt-4o-mini" }),
 		});
 		expect(isTestingModeRequested(req, { model: "openai/gpt-4o-mini" })).toBe(true);
+	});
+
+	it("does not grant testing access from the public flag alone", async () => {
+		await expect(resolveTestingMode({
+			requested: true,
+			workspaceId: "workspace-public",
+			internal: false,
+		})).resolves.toEqual({
+			enabled: false,
+			reason: "requires_internal_token",
+		});
+	});
+
+	it("grants testing access only after internal authentication", async () => {
+		await expect(resolveTestingMode({
+			requested: true,
+			workspaceId: "workspace-internal",
+			internal: true,
+		})).resolves.toEqual({
+			enabled: true,
+			reason: "internal",
+		});
 	});
 });

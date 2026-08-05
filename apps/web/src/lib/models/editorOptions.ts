@@ -1,6 +1,7 @@
 export const MODEL_STATUS_OPTIONS = [
     "Rumoured",
     "Announced",
+	"Preview",
     "Limited Access",
     "Withheld",
     "Released",
@@ -14,7 +15,6 @@ const LEGACY_RELEASED_STATUSES = new Set([
     "available",
     "active",
     "beta",
-    "preview",
     "released",
 ])
 
@@ -22,6 +22,7 @@ export function normalizeModelStatus(value: string | null | undefined): ModelSta
     const normalized = (value ?? "").trim().toLowerCase()
     if (normalized === "rumoured") return "Rumoured"
     if (normalized === "announced") return "Announced"
+	if (normalized === "preview") return "Preview"
     if (
         normalized === "limited access" ||
         normalized === "limited_access" ||

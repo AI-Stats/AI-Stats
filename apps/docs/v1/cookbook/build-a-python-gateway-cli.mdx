@@ -1,9 +1,14 @@
 ---
 title: "Build a Python Gateway CLI"
+icon: "terminal"
 description: "Use the Python quickstart sample as a full walkthrough for a Python-first CLI or backend integration."
 ---
 
 Use this page when your first real Phaseo integration lives in Python and you want a practical starting point for a CLI, worker, or backend service.
+
+**Goal:** Run Phaseo control and generation routes from a small Python command-line application.
+
+**Outcome:** A dependency-light CLI you can adapt into a worker, script, or backend integration.
 
 <Prompt
   description="Build a **Python gateway CLI** around Phaseo routes."
@@ -61,6 +66,11 @@ It gives you:
 - explicit request payloads and response handling
 - a practical pattern for workers, scripts, and internal tools
 
+## Prerequisites
+
+- Python 3
+- a Phaseo API key
+
 ## Run the sample
 
 ```bash
@@ -79,6 +89,13 @@ python quickstart.py smoke
 python quickstart.py responses --prompt "Return exactly: integration_ok"
 python quickstart.py --help
 ```
+
+## Check your work
+
+- Smoke mode confirms that the API is reachable.
+- The Responses command prints `integration_ok`.
+- `--help` lists the supported commands without making a request.
+- Authentication and API failures produce clear terminal errors.
 
 ## What to look at in the code
 

@@ -91,6 +91,16 @@ const DYNAMIC_MCP_DEFAULT_SCOPES = [
 	"oauth_clients:read",
 ] as const;
 const DYNAMIC_MCP_SCOPE_SET = new Set<string>(DYNAMIC_MCP_SCOPES);
+const RESOURCE_BOUND_MCP_SCOPES = [
+	"models:read",
+	"providers:read",
+	"pricing:read",
+	"credits:read",
+	"activity:read",
+	"analytics:read",
+	"generations:read",
+] as const;
+const RESOURCE_BOUND_MCP_SCOPE_SET = new Set<string>(RESOURCE_BOUND_MCP_SCOPES);
 const MCP_RESOURCE_SERVER_CLIENT_ID = "phaseo_mcp_resource_server";
 
 class OAuthRequestBodyTooLarge extends Error {}
@@ -270,6 +280,18 @@ function requiresGatewayAccessScope(clientId: string, resource: string, scopes: 
 		&& !scopes.includes(GATEWAY_ACCESS_SCOPE);
 }
 
+function canNarrowResourceBoundMcpScopes(
+	client: { registration_source?: string },
+	resource: string,
+	scopes: string[],
+): boolean {
+	return client.registration_source === "dynamic"
+		&& Boolean(resource)
+		&& !isGatewayOAuthResource(resource)
+		&& scopes.length > 0
+		&& scopes.every((scope) => RESOURCE_BOUND_MCP_SCOPE_SET.has(scope));
+}
+
 export function oauthAuthorizationServerMetadata() {
 	const apiBaseUrl = getApiBaseUrl();
 	return {
@@ -288,6 +310,7 @@ export function oauthAuthorizationServerMetadata() {
 		],
 		token_endpoint_auth_methods_supported: ["client_secret_basic", "client_secret_post", "none"],
 		code_challenge_methods_supported: ["S256"],
+		authorization_response_iss_parameter_supported: true,
 		scopes_supported: [...ALL_SUPPORTED_SCOPES],
 		...(isThirdPartyOAuthEnabled() ? { registration_endpoint: `${apiBaseUrl}/oauth/register` } : {}),
 	};
@@ -356,6 +379,19 @@ oauthRouter.post(
 		if (redirectUris.length === 0 || redirectUris.length > 10 || !redirectUris.every(isDynamicClientRedirectUriAllowed)) {
 			return oauthError("invalid_redirect_uri", "redirect_uris must contain 1-10 HTTPS or loopback callback URLs");
 		}
+		const hasLoopbackRedirect = redirectUris.some((value) => {
+			const url = new URL(String(value));
+			return url.protocol === "http:";
+		});
+		const applicationType = body.application_type === undefined
+			? (hasLoopbackRedirect ? "native" : "web")
+			: String(body.application_type);
+		if (applicationType !== "web" && applicationType !== "native") {
+			return oauthError("invalid_client_metadata", "application_type must be web or native");
+		}
+		if (applicationType === "web" && hasLoopbackRedirect) {
+			return oauthError("invalid_redirect_uri", "HTTP loopback redirect URIs require application_type=native");
+		}
 		if (body.client_uri !== undefined && !isDynamicClientMetadataUrlAllowed(body.client_uri)) {
 			return oauthError("invalid_client_metadata", "client_uri must be an HTTPS URL");
 		}
@@ -395,7 +431,16 @@ oauthRouter.post(
 		}
 
 		const requestedScopes = normalizeScopes(body.scope, DYNAMIC_MCP_DEFAULT_SCOPES);
-		if (requestedScopes.length === 0 || !requestedScopes.every((scope) => DYNAMIC_MCP_SCOPE_SET.has(scope))) {
+		const includesUnsupportedScopes = requestedScopes.some((scope) => !DYNAMIC_MCP_SCOPE_SET.has(scope));
+		// Some MCP clients register with the authorization server's complete
+		// advertised scope catalogue instead of the protected resource's narrower
+		// scope list. Never grant that broader request. When it also contains the
+		// canonical resource-bound MCP scopes, safely negotiate it down to that
+		// exact read-only set and return the narrowed scope in the response.
+		const grantedScopes = includesUnsupportedScopes
+			? requestedScopes.filter((scope) => RESOURCE_BOUND_MCP_SCOPE_SET.has(scope))
+			: requestedScopes;
+		if (grantedScopes.length === 0) {
 			return oauthError("invalid_scope", "Dynamically registered MCP clients are limited to read-only Phaseo scopes");
 		}
 		const clientId = crypto.randomUUID();
@@ -408,7 +453,7 @@ oauthRouter.post(
 			homepage_url: typeof body.client_uri === "string" ? body.client_uri : null,
 			client_type: "public",
 			redirect_uris: safeRedirectUris,
-			allowed_scopes: requestedScopes,
+			allowed_scopes: grantedScopes,
 			is_first_party: false,
 			beta_status: "public",
 			status: "active",
@@ -419,16 +464,25 @@ oauthRouter.post(
 			client_id: clientId,
 			client_id_issued_at: Math.floor(Date.now() / 1000),
 			client_name: clientName,
+			application_type: applicationType,
 			redirect_uris: safeRedirectUris,
 			response_types: ["code"],
 			// Dynamic clients receive resource-bound delegated access keys rather
 			// than refresh-token families, so register only the grant we issue.
 			grant_types: ["authorization_code"],
 			token_endpoint_auth_method: "none",
-			scope: requestedScopes.join(" "),
+			scope: grantedScopes.join(" "),
 		}, 201, { "Cache-Control": "no-store" });
 	}),
 );
+
+export function authorizationSuccessUrl(redirectUri: string, code: string, state: string): string {
+	const redirect = new URL(redirectUri);
+	redirect.searchParams.set("code", code);
+	redirect.searchParams.set("iss", getIssuer());
+	if (state) redirect.searchParams.set("state", state);
+	return redirect.toString();
+}
 
 oauthRouter.post(
 	"/device/code",
@@ -527,7 +581,10 @@ oauthRouter.get(
 				: ["openid", "profile", "email", GATEWAY_ACCESS_SCOPE],
 		);
 		const scopes = filterAllowedScopes(client, requestedScopes);
-		if (scopes.length !== requestedScopes.length) {
+		if (
+			scopes.length !== requestedScopes.length
+			&& !canNarrowResourceBoundMcpScopes(client, resource, scopes)
+		) {
 			return oauthError("invalid_scope", "One or more requested scopes are not allowed for this client");
 		}
 		if (requiresGatewayAccessScope(client.id, resource, scopes)) {
@@ -539,6 +596,7 @@ oauthRouter.get(
 			const value = url.searchParams.get(key);
 			if (value) params.set(key, value);
 		}
+		params.set("scope", scopes.join(" "));
 		return Response.redirect(authorizationConsentUrl(params), 302);
 	}),
 );
@@ -634,10 +692,7 @@ oauthRouter.post(
 		});
 		if (insert.error) return oauthStorageError("oauth.authorization_code.insert", insert.error);
 
-		const redirect = new URL(redirectUri);
-		redirect.searchParams.set("code", code);
-		if (state) redirect.searchParams.set("state", state);
-		return json({ redirect_url: redirect.toString() }, 200, { "Cache-Control": "no-store" });
+		return json({ redirect_url: authorizationSuccessUrl(redirectUri, code, state) }, 200, { "Cache-Control": "no-store" });
 	}),
 );
 

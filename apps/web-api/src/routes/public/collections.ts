@@ -12,20 +12,21 @@ const COLLECTION_CACHE = {
 type Model = Record<string, unknown>;
 
 function toModel(row: Model) {
-	const organisation = Array.isArray(row.organisation) ? row.organisation[0] : row.organisation;
-	const primaryDate = row.release_date ?? row.announcement_date ?? null;
+	const organisation = Array.isArray(row.lab ?? row.organisation) ? (row.lab ?? row.organisation as unknown[])[0] : row.lab ?? row.organisation;
+	const primaryDate = row.released_at ?? row.release_date ?? row.announced_at ?? row.announcement_date ?? null;
+	const metadata = organisation && typeof organisation === "object" && !Array.isArray(organisation) && (organisation as { metadata?: unknown }).metadata && typeof (organisation as { metadata?: unknown }).metadata === "object" ? (organisation as { metadata: Record<string, unknown> }).metadata : {};
 	const timestamp = typeof primaryDate === "string" ? Date.parse(primaryDate) : Number.NaN;
 	return {
-		model_id: row.model_id,
+		model_id: row.model_slug ?? row.model_id,
 		name: row.name,
-		organisation_id: row.organisation_id,
+		organisation_id: row.lab_slug ?? row.organisation_id,
 		organisation_name: (organisation as { name?: string } | null)?.name ?? null,
-		organisation_colour: (organisation as { colour?: string } | null)?.colour ?? null,
+		organisation_colour: metadata.colour ?? (organisation as { colour?: string } | null)?.colour ?? null,
 		status: row.status ?? null,
-		release_date: row.release_date ?? null,
-		announcement_date: row.announcement_date ?? null,
-		input_types: row.input_types ?? [],
-		output_types: row.output_types ?? [],
+		release_date: row.released_at ?? row.release_date ?? null,
+		announcement_date: row.announced_at ?? row.announcement_date ?? null,
+		input_types: row.input_modalities ?? row.input_types ?? [],
+		output_types: row.output_modalities ?? row.output_types ?? [],
 		primary_date: primaryDate,
 		primary_timestamp: Number.isFinite(timestamp) ? timestamp : null,
 	};
@@ -56,15 +57,19 @@ publicCollectionsRouter.get("/collections", async (c) => {
 	try {
 		const limit = Math.max(1, Math.min(25, Number(c.req.query("limit") ?? 10) || 10));
 		const client = getDataClient(c.env);
-		const [modelsResult, capabilitiesResult, benchmarkResults] = await Promise.all([
-			client.from("data_models").select("model_id,name,organisation_id,status,release_date,announcement_date,input_types,output_types,organisation:data_organisations(name,colour)").eq("hidden", false),
-			client.from("data_api_provider_model_capabilities").select("capability_id,params,provider_model:data_api_provider_models!inner(is_active_gateway,model:data_models!data_api_provider_models_model_id_fkey(model_id,name,organisation_id,status,release_date,announcement_date,input_types,output_types,hidden,organisation:data_organisations(name,colour)))").eq("status", "active"),
-			client.from("data_benchmark_results").select("benchmark_id,rank,model:data_models(model_id,name,organisation_id,status,release_date,announcement_date,input_types,output_types,hidden,organisation:data_organisations(name,colour))").in("benchmark_id", ["aider-polyglot", "mmmu"]).order("rank", { ascending: true }).limit(limit * 8),
+		const [modelsResult, capabilitiesResult, routesResult, benchmarkResults] = await Promise.all([
+			client.from("v2_models").select("model_slug,name,lab_slug,status,released_at,announced_at,input_modalities,output_modalities,lab:v2_labs!v2_models_lab_slug_fkey(name,metadata)").eq("hidden", false),
+			client.from("v2_route_capabilities").select("provider_model_id,capability_id,params").eq("status", "active"),
+			client.from("v2_model_provider_routes").select("provider_model_id,model_slug").eq("routing_enabled", true).in("status", ["active", "degraded"]),
+			client.from("v2_benchmark_results").select("benchmark_id,rank,model_slug").in("benchmark_id", ["aider-polyglot", "mmmu"]).order("rank", { ascending: true }).limit(limit * 8),
 		]);
 		if (modelsResult.error) throw modelsResult.error;
 		if (capabilitiesResult.error) throw capabilitiesResult.error;
+		if (routesResult.error) throw routesResult.error;
 		if (benchmarkResults.error) throw benchmarkResults.error;
 		const models = (modelsResult.data ?? []) as Model[];
+		const modelBySlug = new Map(models.map((model) => [String(model.model_slug), model]));
+		const routeModels = new Map((routesResult.data ?? []).map((route) => [route.provider_model_id, route.model_slug]));
 		const image = uniqueLatest(models.filter((model) => hasModality(model, "image")), limit);
 		const video = uniqueLatest(models.filter((model) => hasModality(model, "video")), limit);
 		const audio = uniqueLatest(models.filter((model) => hasModality(model, "audio") || hasModality(model, "music")), limit);
@@ -72,10 +77,8 @@ publicCollectionsRouter.get("/collections", async (c) => {
 			(capabilitiesResult.data ?? []).flatMap((row) => {
 				const params = JSON.stringify(row.params ?? {}).toLowerCase();
 				if (!params.includes(feature)) return [];
-				const providerModel = Array.isArray(row.provider_model) ? row.provider_model[0] : row.provider_model;
-				if (!providerModel?.is_active_gateway) return [];
-				const model = Array.isArray(providerModel.model) ? providerModel.model[0] : providerModel.model;
-				return model && !model.hidden ? [model as Model] : [];
+				const model = modelBySlug.get(routeModels.get(row.provider_model_id) ?? "");
+				return model ? [model] : [];
 			}),
 			limit,
 		);
@@ -83,8 +86,8 @@ publicCollectionsRouter.get("/collections", async (c) => {
 			(benchmarkResults.data ?? [])
 				.filter((row) => row.benchmark_id === benchmarkId)
 				.flatMap((row) => {
-					const model = Array.isArray(row.model) ? row.model[0] : row.model;
-					return model && !model.hidden ? [model as Model] : [];
+					const model = modelBySlug.get(row.model_slug);
+					return model ? [model] : [];
 				}),
 			limit,
 		);

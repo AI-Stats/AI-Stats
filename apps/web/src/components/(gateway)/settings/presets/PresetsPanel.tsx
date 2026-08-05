@@ -154,12 +154,12 @@ export default function PresetsPanel({
 												<div className="font-medium flex items-center gap-2 mb-1">
 													<span className="truncate">{p.name}</span>
 													{p.visibility && (
-														<Badge variant="outline" className="text-[10px] uppercase">
+														<Badge variant="outline" className="text-[10px] capitalize">
 															{p.visibility}
 														</Badge>
 													)}
 													{p.source_preset_id && (
-														<Badge variant="secondary" className="text-[10px] uppercase">
+														<Badge variant="secondary" className="text-[10px] capitalize">
 															Fork
 														</Badge>
 													)}

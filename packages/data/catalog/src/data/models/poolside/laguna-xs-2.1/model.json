@@ -12,7 +12,8 @@
   "license": "OpenMDW-1.1",
   "input_types": "text",
   "output_types": "text",
-  "api_model_id": "poolside/laguna-xs-2.1:free",
+  "api_model_id": "poolside/laguna-xs-2.1",
+  "variants": [{ "model_id": "poolside/laguna-xs-2.1:free", "name": "Laguna XS 2.1 (Free)", "variant_kind": "free" }],
   "links": [
     {
       "title": "Website",

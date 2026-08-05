@@ -105,7 +105,7 @@ export default function BetaSettingsClient({
 									{feature.title}
 								</p>
 								{feature.kind && feature.kind !== "toggle" ? (
-									<Badge variant="outline" className="text-[10px] uppercase">
+									<Badge variant="outline" className="text-[10px] capitalize">
 										{feature.kind}
 									</Badge>
 								) : null}

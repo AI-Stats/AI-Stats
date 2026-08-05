@@ -1,11 +1,39 @@
 ---
-title: "Batches (Beta)"
-badge: "Beta"
+title: "Create a batch"
+sidebarTitle: "Create a batch"
+tag: "Internal"
 openapi: "POST /batches"
-description: "Create an async batch job and attach observability metadata such as session ids and webhooks."
+description: |-
+  <Info>
+  **Internal testing.** The Batch API is available only to enabled workspaces. Requests from other workspaces return `403`, and the API may change before general availability.
+  </Info>
+
+  Create an async batch job and attach observability metadata such as session ids and webhooks.
 ---
 
 Creates an async batch job.
+
+## Request shape
+
+Choose one caller-facing `endpoint` for the batch:
+
+- `/v1/chat/completions`
+- `/v1/responses`
+- `/v1/messages`
+- `/v1/embeddings`
+
+The selected endpoint defines the request-body shape for every row. Rows may
+omit `url` to inherit the batch endpoint. If a row supplies `url`, it must
+resolve to the same endpoint; mixed endpoint shapes are rejected.
+
+Declare `model` once at the top level to let rows inherit it. A row may repeat
+the same model, but a conflicting row model is rejected before provider
+submission. Phaseo also rejects streaming requests because batch results are
+delivered asynchronously.
+
+Use `GET /batches/capabilities` to inspect the endpoints supported by each
+enabled provider. Unsupported endpoint and provider combinations fail
+validation rather than being silently converted to another request shape.
 
 Phaseo also accepts these extra fields:
 

@@ -1,0 +1,100 @@
+---
+title: "Webhooks and job updates"
+sidebarTitle: "Webhooks & job updates"
+description: "Track Batch and Video jobs with webhooks, polling, or an experimental WebSocket connection."
+icon: "webhook"
+---
+
+Use webhooks for durable Batch and Video lifecycle notifications. Keep a polling path as a recovery fallback, and use the experimental WebSocket only when an application needs live updates while it is open.
+
+<Info>
+  Availability follows the underlying API. Batch and Video are currently available to enabled workspaces while their public contracts are finalised.
+</Info>
+
+## Choose an update method
+
+| Method | Use it for |
+| --- | --- |
+| Webhooks | Reliable server-to-server notifications without keeping a connection open |
+| Polling | Recovery, reconciliation, and simple integrations |
+| WebSocket | Experimental live updates for an active application session |
+
+## Configure webhooks
+
+Video requests can include a callback URL, subscribed events, and a signing secret:
+
+```json
+{
+  "model": "google/veo-3.1-lite",
+  "prompt": "A cinematic sunrise over a mountain lake",
+  "webhook": {
+    "url": "https://example.com/api/video-webhook",
+    "events": ["video.completed", "video.failed"],
+    "secret": "whsec_your_signing_secret"
+  }
+}
+```
+
+Batch requests use a workspace-managed webhook endpoint so the signing secret remains encrypted and can be rotated:
+
+```json
+{
+  "model": "openai/gpt-5-mini",
+  "input_file_id": "file_123",
+  "webhook_endpoint_id": "we_123"
+}
+```
+
+Create and manage reusable endpoints in [Webhook settings](https://phaseo.app/settings/webhooks).
+
+When no event list is supplied, Phaseo sends terminal `job.completed`, `job.failed`, `job.cancelled`, and `job.expired` events. Subscribe to matching `batch.*` or `video.*` events when you need resource-specific names or progress notifications.
+
+## Verify webhook deliveries
+
+When signing is enabled, verify the exact raw request body before parsing it. Phaseo sends:
+
+- `x-phaseo-timestamp`
+- `x-phaseo-signature`
+- `x-phaseo-event-id`
+- `x-phaseo-event-type`
+- `x-phaseo-delivery-key`
+- `x-phaseo-attempt` and `x-phaseo-max-attempts`
+
+Process deliveries idempotently because retries are expected. If a delivery and local state disagree, retrieve the latest job before applying another transition.
+
+## Keep polling as a fallback
+
+Persist the Phaseo job ID before waiting for updates. Your recovery worker can then retrieve the latest state directly:
+
+```bash
+curl https://api.phaseo.app/v1/videos/VIDEO_ID \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+For batches, use `GET /v1/batches/{id}`. Polling lets workers recover after restarts and protects your workflow when a webhook destination is temporarily unavailable.
+
+## Stream live updates over WebSocket
+
+<Warning>
+  The WebSocket route is experimental. Prefer webhooks for durable background processing.
+</Warning>
+
+Connect to:
+
+```text
+wss://api.phaseo.app/v1/async/{kind}/{id}/ws
+```
+
+- `kind` is `batch` or `video`
+- authenticate with `Authorization: Bearer YOUR_API_KEY`
+- `interval_ms` accepts `1000` to `10000` and defaults to `2500`
+- `close_on_terminal` defaults to `true`
+
+The server emits `job.snapshot` after connecting, `job.updated` when state changes, `job.deleted` if the owned job disappears, and `pong` in response to a client `ping`. Send `refresh` to request an immediate state refresh.
+
+## Related guides
+
+- [Run async batches with webhooks](../cookbook/async-batch-webhooks)
+- [Run async video with webhooks](../cookbook/async-video-webhooks)
+- [Batch API](./endpoint/batches)
+- [Video Generation API](./endpoint/video-generation)

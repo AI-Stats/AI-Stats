@@ -11,12 +11,14 @@ export type ProviderAuthStyle =
 	| "clarifai_key"
 	| "elevenlabs"
 	| "api_key_authorization"
+	| "optional_bearer"
 	| "none";
 
 export type ProviderConfig = {
 	providerId: string;
 	providerName: string;
 	modelsEndpoint?: string;
+	modelsEndpointParams?: Record<string, string[]>;
 	baseUrl?: string;
 	pathPrefix?: string;
 	modelsPath?: string;
@@ -52,29 +54,44 @@ const PROVIDER_OVERRIDES: Record<string, ProviderOverride> = {
 	ai21: { providerName: "AI21" },
 	"aion-labs": { providerName: "AionLabs" },
 	alibaba: { providerName: "Alibaba Cloud" },
-	"amazon-bedrock": { providerName: "Amazon Bedrock" },
+	"amazon-bedrock": {
+		providerName: "Amazon Bedrock",
+		apiKeyEnv: ["AMAZON_BEDROCK_API_KEY", "AMAZON_BEDROCK_MANTLE_API_KEY"],
+	},
 	anthropic: { providerName: "Anthropic" },
 	"anthropic-us": { providerName: "Anthropic US" },
 	"arcee-ai": { providerName: "Arcee AI" },
 	atlascloud: { providerName: "AtlasCloud" },
 	baidu: { providerName: "Baidu Qianfan" },
-	ambient: { providerName: "Ambient" },
+	ambient: {
+		providerName: "Ambient",
+		modelsEndpoint: "https://api.ambient.xyz/v1/models",
+		authStyle: "none",
+	},
 	baseten: { providerName: "Baseten", authStyle: "api_key_authorization" },
 	byteplus: { providerName: "BytePlus", apiKeyEnv: ["BYTEPLUS_API_KEY", "BYTEDANCE_SEED_API_KEY", "ARK_API_KEY"] },
 	cerebras: { providerName: "Cerebras" },
-	chutes: { providerName: "Chutes" },
+	chutes: { providerName: "Chutes", authStyle: "none" },
 	clarifai: { providerName: "Clarifai", authStyle: "clarifai_key" },
-	cloudflare: { providerName: "Cloudflare" },
+	cloudflare: {
+		providerName: "Cloudflare Workers AI",
+		modelsEndpoint:
+			"https://api.cloudflare.com/client/v4/accounts/{accountId}/ai/models/search?format=openrouter&per_page=1000",
+		modelsEndpointParams: {
+			accountId: ["CLOUDFLARE_WORKERS_AI_SYNC_ACCOUNT_ID", "CLOUDFLARE_ACCOUNT_ID"],
+		},
+		apiKeyEnv: ["CLOUDFLARE_WORKERS_AI_SYNC_API_TOKEN", "CLOUDFLARE_API_TOKEN"],
+	},
 	cohere: { providerName: "Cohere" },
 	crofai: { providerName: "CrofAI", authStyle: "none" },
-	deepinfra: { providerName: "DeepInfra" },
+	deepinfra: { providerName: "DeepInfra", authStyle: "optional_bearer" },
 	deepseek: { providerName: "DeepSeek" },
 	darkbloom: { providerName: "Darkbloom" },
 	elevenlabs: { providerName: "ElevenLabs" },
 	featherless: { providerName: "Featherless" },
 	fireworks: { providerName: "Fireworks" },
 	friendli: { providerName: "Friendli" },
-	gmicloud: { providerName: "GMICloud", apiKeyEnv: ["GMI_API_KEY"] },
+	gmicloud: { providerName: "GMICloud", apiKeyEnv: ["GMI_API_KEY", "GMI_CLOUD_API_KEY"] },
 	"google-ai-studio": { disabled: true },
 	"google-vertex": { providerName: "Google Vertex", disabled: true },
 	"google-vertex-eu": { providerName: "Google Vertex EU", disabled: true },
@@ -84,20 +101,28 @@ const PROVIDER_OVERRIDES: Record<string, ProviderOverride> = {
 	moonshotai: { providerName: "Moonshot AI", apiKeyEnv: ["MOONSHOT_AI_API_KEY"] },
 	mara: { providerName: "MARA" },
 	"moonshotai-turbo": { providerName: "Moonshot AI Turbo", apiKeyEnv: ["MOONSHOT_AI_API_KEY"] },
-	"nebius-token-factory": { providerName: "Nebius Token Factory", apiKeyEnv: ["NEBIUS_API_KEY"] },
+	"nebius-token-factory": {
+		providerName: "Nebius Token Factory",
+		apiKeyEnv: ["NEBIUS_API_KEY", "NEBIUS_TOKEN_FACTORY_API_KEY"],
+	},
 	"nebius-token-factory-eu-north-1": {
 		providerName: "Nebius Token Factory EU North 1",
-		apiKeyEnv: ["NEBIUS_API_KEY"],
+		apiKeyEnv: ["NEBIUS_API_KEY", "NEBIUS_TOKEN_FACTORY_API_KEY"],
 	},
 	"nebius-token-factory-fast": {
 		providerName: "Nebius Token Factory Fast",
-		apiKeyEnv: ["NEBIUS_API_KEY"],
+		apiKeyEnv: ["NEBIUS_API_KEY", "NEBIUS_TOKEN_FACTORY_API_KEY"],
 	},
 	"nebius-token-factory-us-central-1": {
 		providerName: "Nebius Token Factory US Central 1",
-		apiKeyEnv: ["NEBIUS_API_KEY"],
+		apiKeyEnv: ["NEBIUS_API_KEY", "NEBIUS_TOKEN_FACTORY_API_KEY"],
 	},
 	novita: { providerName: "Novita", apiKeyEnv: ["NOVITA_API_KEY"] },
+	ovhcloud: {
+		providerName: "OVHcloud AI Endpoints",
+		modelsEndpoint: "https://catalog.endpoints.ai.ovh.net/rest/v2/openrouter",
+		authStyle: "none",
+	},
 	openai: { providerName: "OpenAI", apiKeyEnv: ["OPENAI_API_KEY"] },
 	"openai-eu": { providerName: "OpenAI EU", apiKeyEnv: ["OPENAI_API_KEY"] },
 	"perceptron": { providerName: "Perceptron" },
@@ -123,7 +148,8 @@ const PROVIDER_OVERRIDES: Record<string, ProviderOverride> = {
 	voyage: { providerName: "Voyage", disabled: true },
 	"weights-and-biases": {
 		providerName: "Weights & Biases",
-		apiKeyEnv: ["WEIGHTSANDBIASES_API_KEY", "WANDB_API_KEY"],
+		modelsEndpoint: "https://trace.wandb.ai/inference/modelsdev/models",
+		authStyle: "none",
 	},
 	"spacex-ai": { providerName: "SpaceXAI", apiKeyEnv: ["X_AI_API_KEY"] },
 	xiaomi: { providerName: "Xiaomi", apiKeyEnv: ["XIAOMI_MIMO_API_KEY"] },
@@ -155,16 +181,76 @@ function buildProviderFromOpenAICompatConfig(config: OpenAICompatConfig): Provid
 		providerId: config.providerId,
 		providerName: override.providerName ?? humanizeProviderName(config.providerId),
 		modelsEndpoint: override.modelsEndpoint,
+		modelsEndpointParams: override.modelsEndpointParams,
 		baseUrl: override.baseUrl ?? config.baseUrl,
 		pathPrefix: override.pathPrefix ?? config.pathPrefix,
 		modelsPath: override.modelsPath,
-		baseUrlEnv: override.baseUrlEnv ?? toArray(config.baseUrlEnv),
+		baseUrlEnv: override.modelsEndpoint ? undefined : override.baseUrlEnv ?? toArray(config.baseUrlEnv),
 		apiKeyEnv: override.apiKeyEnv ?? toArray(config.apiKeyEnv),
 		authStyle: override.authStyle ?? "bearer",
 	};
 }
 
 const NATIVE_DISCOVERY_PROVIDERS: ProviderConfig[] = [
+	{
+		providerId: "digitalocean",
+		providerName: "DigitalOcean",
+		modelsEndpoint: "https://api.digitalocean.com/v2/gen-ai/models/catalog?limit=200",
+		authStyle: "none",
+	},
+	{
+		providerId: "empiriolabs",
+		providerName: "EmpirioLabs AI",
+		modelsEndpoint: "https://api.empiriolabs.ai/v1/models",
+		authStyle: "none",
+	},
+	{
+		providerId: "crossmodel",
+		providerName: "CrossModel",
+		modelsEndpoint: "https://www.crossmodel.ai/api/models",
+		apiKeyEnv: ["CROSSMODEL_API_KEY"],
+		authStyle: "optional_bearer",
+	},
+	{
+		providerId: "huggingface",
+		providerName: "Hugging Face Router",
+		modelsEndpoint: "https://router.huggingface.co/v1/models",
+		apiKeyEnv: ["HF_TOKEN", "HUGGINGFACE_API_KEY"],
+		authStyle: "optional_bearer",
+	},
+	{
+		providerId: "kilo",
+		providerName: "Kilo Gateway",
+		modelsEndpoint: "https://api.kilo.ai/api/gateway/models",
+		apiKeyEnv: ["KILO_API_KEY"],
+		authStyle: "optional_bearer",
+	},
+	{
+		providerId: "llmgateway",
+		providerName: "LLM Gateway",
+		modelsEndpoint: "https://api.llmgateway.io/v1/models",
+		apiKeyEnv: ["LLMGATEWAY_API_KEY"],
+		authStyle: "optional_bearer",
+	},
+	{
+		providerId: "openrouter",
+		providerName: "OpenRouter",
+		modelsEndpoint: "https://openrouter.ai/api/v1/models",
+		apiKeyEnv: ["OPENROUTER_API_KEY"],
+		authStyle: "optional_bearer",
+	},
+	{
+		providerId: "pioneer",
+		providerName: "Pioneer",
+		modelsEndpoint: "https://api.pioneer.ai/v1/models",
+		authStyle: "none",
+	},
+	{
+		providerId: "vercel",
+		providerName: "Vercel AI Gateway",
+		modelsEndpoint: "https://ai-gateway.vercel.sh/v1/models",
+		authStyle: "none",
+	},
 	{
 		providerId: "anthropic",
 		providerName: "Anthropic",

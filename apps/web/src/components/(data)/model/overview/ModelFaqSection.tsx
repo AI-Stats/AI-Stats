@@ -1,12 +1,14 @@
 import Link from "next/link";
 
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
+import type { ModelGatewayMetadata } from "@/lib/fetchers/models/getModelGatewayMetadata";
 import type {
 	PricingRule,
 	ProviderPricing,
 } from "@/lib/fetchers/models/getModelPricing";
 import { formatModelLifecycleDate } from "@/lib/dates/modelLifecycleDates";
 import { PRICING_METER_OPTIONS } from "@/lib/pricing/meters";
+import type { ModelLineageLinks } from "./modelOverviewMetadata";
 import ModelFaqAccordion from "./ModelFaqAccordion";
 
 function parseTypes(value: string | null | undefined): string[] {
@@ -42,12 +44,49 @@ function getNumericDetail(
 	return null;
 }
 
+type CapabilitySupport = "supported" | "unsupported" | "unknown";
+
+function getCapabilitySupport(
+	metadata: ModelGatewayMetadata | null | undefined,
+	paramIds: string[],
+): CapabilitySupport {
+	if (!metadata) return "unknown";
+	const requested = new Set(paramIds);
+	const matchingRows = Object.values(metadata.supportedParametersByEndpoint)
+		.flat()
+		.filter((row) => requested.has(row.param_id));
+	if (matchingRows.length === 0) return "unknown";
+	return matchingRows.some((row) => row.provider_count_supported > 0)
+		? "supported"
+		: "unsupported";
+}
+
+function capabilityAnswer(args: {
+	modelName: string;
+	label: string;
+	support: CapabilitySupport;
+	isGatewayActive: boolean;
+}) {
+	if (!args.isGatewayActive) {
+		return `${args.modelName} is not currently active in the Phaseo Gateway, so ${args.label} is not available through the API.`;
+	}
+	if (args.support === "supported") {
+		return `Yes. At least one active provider route for ${args.modelName} currently advertises ${args.label} support. Provider support can vary, so requests are routed only to compatible routes.`;
+	}
+	if (args.support === "unsupported") {
+		return `No active provider route for ${args.modelName} currently advertises ${args.label} support.`;
+	}
+	return `Phaseo does not currently have enough active route metadata to confirm whether ${args.modelName} supports ${args.label}.`;
+}
+
 function getStatusDescription(status: ModelOverviewPage["status"]): string {
 	switch (status) {
 		case "Rumoured":
 			return "a rumoured AI model";
 		case "Announced":
 			return "an announced AI model";
+		case "Preview":
+			return "a preview AI model";
 		case "Limited Access":
 			return "a limited-access AI model";
 		case "Withheld":
@@ -217,12 +256,16 @@ export default function ModelFaqSection({
 	activeProviderCount,
 	isGatewayActive,
 	pricing,
+	relatedModels,
+	gatewayMetadata,
 }: {
 	model: ModelOverviewPage;
 	benchmarkCount: number;
 	activeProviderCount: number;
 	isGatewayActive: boolean;
 	pricing: ProviderPricing[];
+	relatedModels?: ModelLineageLinks;
+	gatewayMetadata?: ModelGatewayMetadata | null;
 }) {
 	const modelName = model.name;
 	const organisationName = model.organisation.name;
@@ -241,6 +284,12 @@ export default function ModelFaqSection({
 		"max_output_tokens",
 	);
 	const pricingHighlights = isGatewayActive ? getPricingHighlights(pricing) : [];
+	// Native tool definitions are the minimum requirement for tool calling.
+	// tool_choice controls selection behaviour but cannot establish tool support alone.
+	const toolCallingSupport = getCapabilitySupport(gatewayMetadata, ["tools"]);
+	const structuredOutputSupport = getCapabilitySupport(gatewayMetadata, [
+		"structured_outputs",
+	]);
 
 	const items = [
 		{
@@ -314,6 +363,70 @@ export default function ModelFaqSection({
 				</>
 			),
 		},
+		{
+			question: `Does ${modelName} support tool calling?`,
+			answer: capabilityAnswer({
+				modelName,
+				label: "tool calling",
+				support: toolCallingSupport,
+				isGatewayActive,
+			}),
+		},
+		{
+			question: `Does ${modelName} support structured outputs?`,
+			answer: capabilityAnswer({
+				modelName,
+				label: "structured outputs",
+				support: structuredOutputSupport,
+				isGatewayActive,
+			}),
+		},
+		...(relatedModels?.previous || relatedModels?.next || model.family_id
+			? [
+					{
+						question: `What models are related to ${modelName}?`,
+						answer: (
+							<>
+								{relatedModels?.previous ? (
+									<>
+										Phaseo records{" "}
+										<Link
+											href={`/models/${relatedModels.previous.modelId}`}
+											className="font-medium underline underline-offset-4"
+										>
+											{relatedModels.previous.modelName}
+										</Link>{" "}
+										as the previous model.{" "}
+									</>
+								) : null}
+								{relatedModels?.next ? (
+									<>
+										<Link
+											href={`/models/${relatedModels.next.modelId}`}
+											className="font-medium underline underline-offset-4"
+										>
+											{relatedModels.next.modelName}
+										</Link>{" "}
+										is recorded as the next model.{" "}
+									</>
+								) : null}
+								{model.family_id ? (
+									<>
+										View the{" "}
+										<Link
+											href={`/families/${model.family_id}`}
+											className="font-medium underline underline-offset-4"
+										>
+											model family
+										</Link>{" "}
+										for the complete release history.
+									</>
+								) : null}
+							</>
+						),
+					},
+				]
+			: []),
 		...(benchmarkCount > 0
 			? [
 					{

@@ -188,7 +188,8 @@ function encodeUsage(usage?: IRUsage): GatewayUsage | undefined {
 		typeof serverToolUse?.web_fetch_requests === "number" ||
 		typeof serverToolUse?.advisor_requests === "number" ||
 		typeof serverToolUse?.image_generation_requests === "number" ||
-		typeof serverToolUse?.apply_patch_requests === "number"
+		typeof serverToolUse?.apply_patch_requests === "number" ||
+		typeof serverToolUse?.subagent_requests === "number" || typeof serverToolUse?.fusion_requests === "number" || typeof serverToolUse?.search_models_requests === "number"
 	) {
 		(result as any).server_tool_use = {
 			...(typeof serverToolUse?.datetime_requests === "number"
@@ -215,9 +216,11 @@ function encodeUsage(usage?: IRUsage): GatewayUsage | undefined {
 			...(typeof serverToolUse?.apply_patch_requests === "number"
 				? { apply_patch_requests: serverToolUse.apply_patch_requests }
 				: {}),
+			...(typeof serverToolUse?.subagent_requests === "number" ? { subagent_requests: serverToolUse.subagent_requests } : {}),
+			...(typeof serverToolUse?.fusion_requests === "number" ? { fusion_requests: serverToolUse.fusion_requests } : {}),
+			...(typeof serverToolUse?.search_models_requests === "number" ? { search_models_requests: serverToolUse.search_models_requests } : {}),
 		};
 	}
 
 	return result;
 }
-

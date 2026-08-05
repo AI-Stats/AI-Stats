@@ -16,6 +16,9 @@ import { accountSettingsByokRouter } from "./settings-byok";
 import { accountSettingsGuardrailsRouter } from "./settings-guardrails";
 import { accountSettingsBroadcastRouter } from "./settings-broadcast";
 import { accountSettingsWebhooksRouter } from "./settings-webhooks";
+import { accountSettingsDataContributionRouter } from "./settings-data-contribution";
+import { callDataContributionGateway } from "./settings-data-contribution";
+import { accountSettingsDynamicRoutesRouter } from "./settings-dynamic-routes";
 import { purgeWorkerCacheTags } from "@/http/invalidation";
 
 function normalizeBetaFeatures(value: unknown): Record<string, boolean> {
@@ -89,6 +92,8 @@ accountSettingsRouter.route("/", accountSettingsByokRouter);
 accountSettingsRouter.route("/", accountSettingsGuardrailsRouter);
 accountSettingsRouter.route("/", accountSettingsBroadcastRouter);
 accountSettingsRouter.route("/", accountSettingsWebhooksRouter);
+accountSettingsRouter.route("/", accountSettingsDataContributionRouter);
+accountSettingsRouter.route("/", accountSettingsDynamicRoutesRouter);
 
 accountSettingsRouter.get("/layout", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
@@ -97,6 +102,8 @@ accountSettingsRouter.get("/layout", async (c) => {
 			isEnterpriseInvoiceMode: false,
 			showBroadcast: false,
 			signedIn: false,
+			workspaceId: null,
+			workspaceName: null,
 		}, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 	const workspaceId = c.req.query("workspaceId")?.trim();
@@ -105,6 +112,8 @@ accountSettingsRouter.get("/layout", async (c) => {
 			isEnterpriseInvoiceMode: false,
 			showBroadcast: false,
 			signedIn: true,
+			workspaceId: null,
+			workspaceName: null,
 		}, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 	const context = await requireAccountWorkspace({
@@ -115,7 +124,7 @@ accountSettingsRouter.get("/layout", async (c) => {
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const { data, error } = await context.client
 		.from("workspaces")
-		.select("tier,billing_mode")
+		.select("name,tier,billing_mode")
 		.eq("id", context.workspaceId)
 		.maybeSingle();
 	if (error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
@@ -125,6 +134,8 @@ accountSettingsRouter.get("/layout", async (c) => {
 			String(data?.billing_mode ?? "wallet").toLowerCase() === "invoice",
 		showBroadcast: context.role.toLowerCase() === "admin",
 		signedIn: true,
+		workspaceId: context.workspaceId,
+		workspaceName: data?.name ?? null,
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -197,6 +208,12 @@ accountSettingsRouter.get("/privacy", async (c) => {
 		return c.json({
 			activeProviderModels: [], initialGlobal: null, providers: [],
 			teamName: null, workspaceId: null,
+			dataContribution: {
+				available: false,
+				enabled: false, policyVersion: "2026-07-26-v2", consentedAt: null,
+				sampleRateBps: 10000, classifierSampleRateBps: 1000, discountBps: 100, contributions30d: 0,
+				discountNanos30d: 0, classifiers: [], analytics: [],
+			},
 		}, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 	const context = await requireAccountWorkspace({
@@ -205,15 +222,19 @@ accountSettingsRouter.get("/privacy", async (c) => {
 		workspaceId,
 	});
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const [teamResult, settingsResult, providersResult, modelsResult] = await Promise.all([
+	const [teamResult, settingsResult, providersResult, modelsResult, contributionGatewayResult] = await Promise.all([
 		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
-		context.client.from("workspace_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed").eq("workspace_id", workspaceId).maybeSingle(),
-		context.client.from("data_api_providers").select("api_provider_id,api_provider_name,offer_label,offer_scope").order("api_provider_name", { ascending: true }),
-		context.client.from("data_api_provider_models").select("provider_id,api_model_id,internal_model_id,is_active_gateway").eq("is_active_gateway", true),
+		context.client.from("workspace_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,response_healing_enabled,response_healing_locked,response_healing_mode").eq("workspace_id", workspaceId).maybeSingle(),
+		context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name,offer_label,offer_scope").order("name", { ascending: true }),
+		context.client.from("v2_model_provider_routes").select("provider_id:provider_slug,api_model_id:model_slug,internal_model_id:model_slug,is_active_gateway:routing_enabled").eq("routing_enabled", true).in("status", ["active", "degraded"]),
+		callDataContributionGateway({ env: c.env, request: c.req.raw, workspaceId: context.workspaceId }),
 	]);
 	for (const result of [teamResult, settingsResult, providersResult, modelsResult]) {
 		if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
+	const contributionData = contributionGatewayResult.status === 200
+		? contributionGatewayResult.payload?.data ?? null
+		: null;
 	return c.json({
 		activeProviderModels: (modelsResult.data ?? []).map((row) => ({
 			apiModelId: row.api_model_id,
@@ -227,6 +248,19 @@ accountSettingsRouter.get("/privacy", async (c) => {
 		})),
 		teamName: teamResult.data?.name ?? null,
 		workspaceId,
+		dataContribution: {
+			available: contributionData !== null,
+			enabled: contributionData?.enabled === true,
+			policyVersion: contributionData?.policyVersion ?? "2026-07-26-v2",
+			consentedAt: contributionData?.consentedAt ?? null,
+			sampleRateBps: Number(contributionData?.sampleRateBps ?? 10000),
+			classifierSampleRateBps: Number(contributionData?.classifierSampleRateBps ?? 1000),
+			discountBps: Number(contributionData?.discountBps ?? 100),
+			contributions30d: Number(contributionData?.last30Days?.contributions ?? 0),
+			discountNanos30d: Number(contributionData?.last30Days?.discountNanos ?? 0),
+			classifiers: contributionData?.classifiers ?? [],
+			analytics: contributionData?.analytics ?? [],
+		},
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -272,7 +306,7 @@ accountSettingsRouter.get("/account/details", async (c) => {
 		return c.json({ hasPassword: false, teams: [], user: null }, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 	const client = getDataClient(c.env);
-	const [userResult, teamsResult] = await Promise.all([
+	const [userResult, teamsResult, countryResult] = await Promise.all([
 		client
 			.from("users")
 			.select("user_id,display_name,default_workspace_id,obfuscate_info,created_at")
@@ -282,8 +316,17 @@ accountSettingsRouter.get("/account/details", async (c) => {
 			.from("workspace_members")
 			.select("workspace_id,teams:workspaces(id,name)")
 			.eq("user_id", user.id),
+		client
+			.from("users")
+			.select("declared_country_code")
+			.eq("user_id", user.id)
+			.maybeSingle(),
 	]);
-	if (userResult.error || teamsResult.error) {
+	const countryStorageAvailable = !countryResult.error;
+	const countryColumnMissing =
+		countryResult.error?.code === "42703" ||
+		String(countryResult.error?.message ?? "").includes("declared_country_code");
+	if (userResult.error || teamsResult.error || (countryResult.error && !countryColumnMissing)) {
 		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
 	const cookieOverride = c.req.query("obfuscateInfo");
@@ -307,6 +350,8 @@ accountSettingsRouter.get("/account/details", async (c) => {
 			displayName: userResult.data?.display_name ?? null,
 			email: user.email,
 			defaultWorkspaceId: userResult.data?.default_workspace_id ?? null,
+			declaredCountryCode: countryResult.data?.declared_country_code ?? null,
+			countryStorageAvailable,
 			obfuscateInfo,
 			createdAt: userResult.data?.created_at ?? user.createdAt,
 		},
@@ -466,13 +511,15 @@ accountSettingsRouter.post("/apps/:sourceAppId/merge", async (c) => {
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	if (apps.data!.some((app) => isInternalApp(app.title, app.app_key))) return c.json({ error: "managed_app" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const moved = await context.client.from("gateway_requests").update({ app_id: targetAppId }).eq("app_id", sourceAppId).eq("workspace_id", workspaceId);
-	if (moved.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const removed = await context.client.from("api_apps").delete().eq("id", sourceAppId).eq("workspace_id", workspaceId);
-	if (removed.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const merged = await context.client.rpc("merge_v2_gateway_app_history", {
+		p_workspace_id: workspaceId,
+		p_source_app_id: sourceAppId,
+		p_target_app_id: targetAppId,
+	});
+	if (merged.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const dynamic = [sourceAppId, targetAppId].map((id) => `web-api-app-${encodeURIComponent(id).replace(/%/g, "")}`);
 	const cache = await purgeWorkerCacheTags(c.executionCtx, ["web-api-apps", "web-api-app-ids", "web-api-app-images", "web-api-app-rankings", "web-api-landing", ...dynamic]);
-	return c.json({ success: true, cache }, 200, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ success: true, merge: merged.data ?? null, cache }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsRouter.get("/authorized-apps", async (c) => {
@@ -1001,15 +1048,15 @@ accountSettingsRouter.get("/observability/destinations/new/:provider", async (c)
 		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
 		context.client.from("keys").select("id,name,prefix").eq("workspace_id", workspaceId)
 			.neq("status", "deleted").neq("name", "__chat_route_managed_key__").order("created_at", { ascending: false }),
-		context.client.from("data_api_providers").select("api_provider_id,api_provider_name").order("api_provider_name", { ascending: true }),
-		context.client.from("data_api_provider_models").select("provider_id,api_model_id,model_id,is_active_gateway").eq("is_active_gateway", true),
+		context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name").order("name", { ascending: true }),
+		context.client.from("v2_model_provider_routes").select("provider_id:provider_slug,api_model_id:model_slug,model_id:model_slug,is_active_gateway:routing_enabled").eq("routing_enabled", true).in("status", ["active", "degraded"]),
 	]);
 	if ([teamResult, keysResult, providersResult, providerModelsResult].some((result) => result.error)) {
 		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
 	const modelIds = Array.from(new Set((providerModelsResult.data ?? []).map((row) => String(row.model_id ?? "").trim()).filter(Boolean)));
 	const modelsResult = modelIds.length
-		? await context.client.from("data_models").select("model_id,name,organisation_id").in("model_id", modelIds)
+		? await context.client.from("v2_models").select("model_id:model_slug,name,organisation_id:lab_slug").in("model_slug", modelIds)
 		: { data: [], error: null };
 	if (modelsResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const modelsById = new Map((modelsResult.data ?? []).map((row) => [row.model_id, row]));

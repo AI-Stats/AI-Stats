@@ -48,6 +48,13 @@ type CompatibilityTopProvider = {
     is_moderated: boolean;
 };
 
+type ModelVariantLink = {
+    model_id: string;
+    name: string;
+};
+
+type ModelVariantLinks = Record<string, ModelVariantLink>;
+
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 250;
 const MAX_OFFSET = 5000;
@@ -450,6 +457,8 @@ async function buildFreeRouterCatalogueModel(args: {
 
         return {
             model_id: FREE_ROUTER_MODEL_ID,
+            base_model_id: FREE_ROUTER_MODEL_ID,
+            variant_kind: "standard",
             previous_model_id: null,
             name: FREE_ROUTER_NAME,
             description: null,
@@ -493,7 +502,26 @@ async function buildFreeRouterCatalogueModel(args: {
     }
 }
 
-function toRichModel(model: CatalogueModel, replacementModelId: string | null) {
+function buildModelVariants(catalogue: CatalogueModel[]): Map<string, ModelVariantLinks> {
+    const byBaseModel = new Map<string, ModelVariantLinks>();
+    for (const model of catalogue) {
+        const baseModelId = model.base_model_id || model.model_id;
+        const kind = model.variant_kind || "standard";
+        const variants = byBaseModel.get(baseModelId) ?? {};
+        variants[kind] = {
+            model_id: model.model_id,
+            name: model.name?.trim() || model.model_id,
+        };
+        byBaseModel.set(baseModelId, variants);
+    }
+    return byBaseModel;
+}
+
+function toRichModel(
+    model: CatalogueModel,
+    replacementModelId: string | null,
+    variants: ModelVariantLinks,
+) {
     const {
         previous_model_id: _previousModelId,
         supported_params_detail: _supportedParamsDetail,
@@ -509,6 +537,9 @@ function toRichModel(model: CatalogueModel, replacementModelId: string | null) {
         ...publicModel,
         id: model.model_id,
         canonical_slug: model.model_id,
+        base_model_id: model.base_model_id || model.model_id,
+        variant_kind: model.variant_kind || "standard",
+        variants,
         created: toUnixSeconds(model.release_date),
         description: buildDescription(model),
         architecture: toCompatibilityArchitecture(model),
@@ -664,10 +695,15 @@ export async function handleModels(req: Request) {
                 ? [freeRouterModel, ...catalogue]
                 : catalogue;
         const replacementByPreviousModel = buildReplacementByPreviousModel(enrichedCatalogue);
+        const variantsByBaseModel = buildModelVariants(enrichedCatalogue);
         const models = enrichedCatalogue
             .filter((model) => !modelIds.length || modelIds.includes(model.model_id))
             .map((model) =>
-                toRichModel(model, replacementByPreviousModel.get(model.model_id) ?? null)
+                toRichModel(
+                    model,
+                    replacementByPreviousModel.get(model.model_id) ?? null,
+                    variantsByBaseModel.get(model.base_model_id || model.model_id) ?? {},
+                )
             );
         const paged = models.slice(offset, offset + limit);
         const headers = cacheHeaders(cacheOptions);

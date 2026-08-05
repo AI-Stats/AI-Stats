@@ -41,4 +41,37 @@ describe("MODEL_DISCOVERY_PROVIDERS", () => {
 		expect(providerIds.has("xai")).toBe(false);
 		expect(providerIds.has("zai")).toBe(false);
 	});
+
+	it("accepts deployed credential aliases for linked providers", () => {
+		const providers = new Map(MODEL_DISCOVERY_PROVIDERS.map((provider) => [provider.providerId, provider]));
+
+		expect(providers.get("gmicloud")?.apiKeyEnv).toContain("GMI_CLOUD_API_KEY");
+		expect(providers.get("nebius-token-factory")?.apiKeyEnv).toContain("NEBIUS_TOKEN_FACTORY_API_KEY");
+		expect(providers.get("amazon-bedrock")?.apiKeyEnv).toContain("AMAZON_BEDROCK_MANTLE_API_KEY");
+	});
+
+	it("includes models.dev parity aggregator and public catalog endpoints", () => {
+		const providers = new Map(MODEL_DISCOVERY_PROVIDERS.map((provider) => [provider.providerId, provider]));
+		for (const providerId of ["crossmodel", "digitalocean", "empiriolabs", "huggingface", "kilo", "llmgateway", "openrouter", "ovhcloud", "pioneer", "vercel"]) {
+			expect(providers.has(providerId), providerId).toBe(true);
+		}
+		expect(providers.get("ambient")).toMatchObject({
+			modelsEndpoint: "https://api.ambient.xyz/v1/models",
+			authStyle: "none",
+		});
+		expect(providers.get("cloudflare")).toMatchObject({
+			modelsEndpoint: expect.stringContaining("{accountId}"),
+			modelsEndpointParams: {
+				accountId: ["CLOUDFLARE_WORKERS_AI_SYNC_ACCOUNT_ID", "CLOUDFLARE_ACCOUNT_ID"],
+			},
+		});
+		expect(providers.get("openrouter")).toMatchObject({
+			modelsEndpoint: "https://openrouter.ai/api/v1/models",
+			authStyle: "optional_bearer",
+		});
+		expect(providers.get("ovhcloud")).toMatchObject({
+			modelsEndpoint: "https://catalog.endpoints.ai.ovh.net/rest/v2/openrouter",
+			authStyle: "none",
+		});
+	});
 });

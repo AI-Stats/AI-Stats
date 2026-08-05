@@ -54,6 +54,26 @@ publicRankingsRouter.get("/rankings/unique-users", async (c) => {
 	catch (error) { console.error("[web-api/rankings] unique users failed", error); return c.json({ error: "unique_users_unavailable" }, 503); }
 });
 
+
+publicRankingsRouter.get("/rankings/geography", async (c) => {
+	const days = bounded(c.req.query("days"), 30, 365);
+	const to = new Date();
+	const from = new Date(to.getTime() - days * 86_400_000);
+	try {
+		const { data, error } = await getDataClient(c.env).rpc("get_public_geography_usage", {
+			p_from: from.toISOString(),
+			p_to: to.toISOString(),
+			p_min_requests: 100,
+			p_min_workspaces: 3,
+		});
+		if (error) throw error;
+		return withPublicCache(c.json({ data: data ?? [], days }), LIVE_CACHE);
+	} catch (error) {
+		console.error("[web-api/rankings] geography failed", error);
+		return c.json({ error: "ranking_geography_unavailable" }, 503);
+	}
+});
+
 publicRankingsRouter.get("/rankings/models", async (c) => {
 	try {
 		const client = getDataClient(c.env);
@@ -72,13 +92,13 @@ publicRankingsRouter.get("/rankings/models", async (c) => {
 
 publicRankingsRouter.get("/rankings/provider-meta", async (c) => {
 	const ids = csv(c.req.query("ids"));
-	try { if (!ids.length) return withPublicCache(c.json({ providers: {} }), META_CACHE); const { data, error } = await getDataClient(c.env).from("data_api_providers").select("api_provider_id,api_provider_name,colour").in("api_provider_id", ids); if (error) throw error; const providers = Object.fromEntries((data ?? []).map((row) => [row.api_provider_id, { name: row.api_provider_name ?? row.api_provider_id, colour: row.colour ?? null }])); return withPublicCache(c.json({ providers }), META_CACHE); }
+	try { if (!ids.length) return withPublicCache(c.json({ providers: {} }), META_CACHE); const { data, error } = await getDataClient(c.env).from("v2_providers").select("provider_slug,name,metadata").in("provider_slug", ids); if (error) throw error; const providers = Object.fromEntries((data ?? []).map((row) => [row.provider_slug, { name: row.name ?? row.provider_slug, colour: row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata) ? (row.metadata as Record<string, unknown>).colour ?? null : null }])); return withPublicCache(c.json({ providers }), META_CACHE); }
 	catch (error) { console.error("[web-api/rankings] provider metadata failed", error); return c.json({ error: "provider_metadata_unavailable" }, 503); }
 });
 
 publicRankingsRouter.get("/rankings/organisation-logo-ids", async (c) => {
 	const names = csv(c.req.query("names"));
-	try { if (!names.length) return withPublicCache(c.json({ organisations: {} }), META_CACHE); const client = getDataClient(c.env); const [byName, byId] = await Promise.all([client.from("data_organisations").select("organisation_id,name").in("name", names), client.from("data_organisations").select("organisation_id").in("organisation_id", names)]); if (byName.error) throw byName.error; if (byId.error) throw byId.error; const organisations: Record<string, string> = {}; for (const row of byName.data ?? []) if (row.name && row.organisation_id) organisations[row.name] = row.organisation_id; for (const row of byId.data ?? []) if (row.organisation_id) organisations[row.organisation_id] = row.organisation_id; return withPublicCache(c.json({ organisations }), META_CACHE); }
+	try { if (!names.length) return withPublicCache(c.json({ organisations: {} }), META_CACHE); const client = getDataClient(c.env); const [byName, byId] = await Promise.all([client.from("v2_labs").select("lab_slug,name").in("name", names), client.from("v2_labs").select("lab_slug").in("lab_slug", names)]); if (byName.error) throw byName.error; if (byId.error) throw byId.error; const organisations: Record<string, string> = {}; for (const row of byName.data ?? []) if (row.name && row.lab_slug) organisations[row.name] = row.lab_slug; for (const row of byId.data ?? []) if (row.lab_slug) organisations[row.lab_slug] = row.lab_slug; return withPublicCache(c.json({ organisations }), META_CACHE); }
 	catch (error) { console.error("[web-api/rankings] organisation metadata failed", error); return c.json({ error: "organisation_metadata_unavailable" }, 503); }
 });
 
@@ -87,23 +107,24 @@ publicRankingsRouter.get("/rankings/model-meta", async (c) => {
 	try {
 		if (!ids.length) return withPublicCache(c.json({ models: {} }), META_CACHE);
 		const client = getDataClient(c.env);
-		const toMeta = (row: Record<string, any>) => { const organisation = Array.isArray(row.organisation) ? row.organisation[0] : row.organisation; return { model_id: row.model_id, name: row.name ?? null, organisation_id: row.organisation_id ?? null, organisation_name: organisation?.name ?? null, organisation_colour: organisation?.colour ?? null, license: row.license ?? null }; };
-		const direct = await client.from("data_models").select("model_id,name,organisation_id,license,organisation:data_organisations!data_models_organisation_id_fkey(name,colour)").in("model_id", ids).eq("hidden", false);
+		const toMeta = (row: Record<string, any>) => { const lab = Array.isArray(row.lab) ? row.lab[0] : row.lab; const details = lab?.metadata && typeof lab.metadata === "object" && !Array.isArray(lab.metadata) ? lab.metadata : {}; return { model_id: row.model_slug, name: row.name ?? null, organisation_id: row.lab_slug ?? null, organisation_name: lab?.name ?? null, organisation_colour: details.colour ?? null, license: row.license ?? null }; };
+		const direct = await client.from("v2_models").select("model_slug,name,lab_slug,license,lab:v2_labs!v2_models_lab_slug_fkey(name,metadata)").in("model_slug", ids).eq("hidden", false);
 		if (direct.error) throw direct.error;
 		const models: Record<string, ReturnType<typeof toMeta>> = {};
-		for (const row of direct.data ?? []) models[row.model_id] = toMeta(row);
+		for (const row of direct.data ?? []) models[row.model_slug] = toMeta(row);
 		const unresolved = ids.filter((id) => !models[id]);
 		if (unresolved.length) {
-			const [byProviderId, byApiId, bySlug] = await Promise.all([
-				client.from("data_api_provider_models").select("provider_api_model_id,api_model_id,provider_model_slug,model_id").in("provider_api_model_id", unresolved),
-				client.from("data_api_provider_models").select("provider_api_model_id,api_model_id,provider_model_slug,model_id").in("api_model_id", unresolved),
-				client.from("data_api_provider_models").select("provider_api_model_id,api_model_id,provider_model_slug,model_id").in("provider_model_slug", unresolved),
+			const [byProviderId, bySlug, byAlias] = await Promise.all([
+				client.from("v2_model_provider_routes").select("provider_model_id,provider_model_slug,model_slug").in("provider_model_id", unresolved),
+				client.from("v2_model_provider_routes").select("provider_model_id,provider_model_slug,model_slug").in("provider_model_slug", unresolved),
+				client.from("v2_model_aliases").select("alias_slug,model_slug").in("alias_slug", unresolved).eq("enabled", true),
 			]);
-			for (const result of [byProviderId, byApiId, bySlug]) if (result.error) throw result.error;
+			for (const result of [byProviderId, bySlug, byAlias]) if (result.error) throw result.error;
 			const aliases = new Map<string, string>();
-			for (const row of [...(byProviderId.data ?? []), ...(byApiId.data ?? []), ...(bySlug.data ?? [])]) for (const alias of [row.provider_api_model_id, row.api_model_id, row.provider_model_slug]) if (unresolved.includes(alias) && row.model_id && !aliases.has(alias)) aliases.set(alias, row.model_id);
+			for (const row of [...(byProviderId.data ?? []), ...(bySlug.data ?? [])]) for (const alias of [row.provider_model_id, row.provider_model_slug]) if (unresolved.includes(alias) && row.model_slug && !aliases.has(alias)) aliases.set(alias, row.model_slug);
+			for (const row of byAlias.data ?? []) if (row.alias_slug && row.model_slug && !aliases.has(row.alias_slug)) aliases.set(row.alias_slug, row.model_slug);
 			const canonicalIds = [...new Set(aliases.values())];
-			if (canonicalIds.length) { const canonical = await client.from("data_models").select("model_id,name,organisation_id,license,organisation:data_organisations!data_models_organisation_id_fkey(name,colour)").in("model_id", canonicalIds).eq("hidden", false); if (canonical.error) throw canonical.error; const byId = new Map((canonical.data ?? []).map((row) => [row.model_id, toMeta(row)])); for (const [alias, id] of aliases) models[alias] = byId.get(id) ?? { model_id: id, name: null, organisation_id: null, organisation_name: null, organisation_colour: null, license: null }; }
+			if (canonicalIds.length) { const canonical = await client.from("v2_models").select("model_slug,name,lab_slug,license,lab:v2_labs!v2_models_lab_slug_fkey(name,metadata)").in("model_slug", canonicalIds).eq("hidden", false); if (canonical.error) throw canonical.error; const byId = new Map((canonical.data ?? []).map((row) => [row.model_slug, toMeta(row)])); for (const [alias, id] of aliases) models[alias] = byId.get(id) ?? { model_id: id, name: null, organisation_id: null, organisation_name: null, organisation_colour: null, license: null }; }
 		}
 		return withPublicCache(c.json({ models }), META_CACHE);
 	} catch (error) { console.error("[web-api/rankings] model metadata failed", error); return c.json({ error: "model_metadata_unavailable" }, 503); }

@@ -100,7 +100,6 @@ import {
 	fetchOptionalPublicWebApi,
 	fetchPublicWebApi,
 } from "@/lib/web-api/client";
-import type { PricingModel } from "@/lib/fetchers/pricing/getPricingModels";
 import type {
 	AppsIndexabilitySnapshot,
 	MarketShareData,
@@ -271,7 +270,7 @@ export async function fetchFrontendModelOverview(
 	modelId: string,
 ): Promise<ModelOverviewPage | null> {
 	const payload = await fetchOptionalPublicWebApi<{ model: ModelOverviewPage }>(
-		`/api/_web/models/${encodeURIComponent(modelId)}`,
+		`/api/_web/models/${encodeURIComponent(modelId)}?projection=variants-v1`,
 	);
 	return payload?.model ?? null;
 }
@@ -282,7 +281,7 @@ export async function fetchFrontendModelHeader(
 ): Promise<ModelOverviewHeader | null> {
 	if (!includeHidden) {
 		const payload = await fetchOptionalPublicWebApi<{ model: ModelOverviewPage }>(
-			`/api/_web/models/${encodeURIComponent(modelId)}`,
+			`/api/_web/models/${encodeURIComponent(modelId)}?projection=variants-v1`,
 		);
 		const model = payload?.model;
 		if (!model) return null;
@@ -295,6 +294,7 @@ export async function fetchFrontendModelHeader(
 				country_code: model.organisation?.country_code ?? "",
 			},
 			aliases: model.aliases ?? [],
+			variants: model.variants ?? [],
 			family_id: model.family_id ?? undefined,
 			status: model.status ?? null,
 			hidden: false,
@@ -633,10 +633,34 @@ export async function fetchFrontendBenchmark(
 }
 
 export async function fetchFrontendFamilies(): Promise<FamilyCard[]> {
-	const payload = await fetchPublicWebApi<{ families: FamilyCard[] }>(
+	type FamilyPayload = Omit<FamilyCard, "organisation_name"> & {
+		organisation_name?: string | null;
+	};
+
+	const payload = await fetchPublicWebApi<{ families: FamilyPayload[] }>(
 		"/api/_web/families",
 	);
-	return payload.families;
+	if (payload.families.every((family) => family.organisation_name)) {
+		return payload.families.map((family) => ({
+			...family,
+			organisation_name: family.organisation_name ?? family.organisation_id,
+		}));
+	}
+
+	const organisations = await fetchFrontendOrganisations();
+	const organisationNames = new Map(
+		organisations.map((organisation) => [
+			organisation.organisation_id,
+			organisation.organisation_name,
+		]),
+	);
+	return payload.families.map((family) => ({
+		...family,
+		organisation_name:
+			family.organisation_name ??
+			organisationNames.get(family.organisation_id) ??
+			family.organisation_id,
+	}));
 }
 
 export async function fetchFrontendFamily(
@@ -679,10 +703,6 @@ export async function fetchFrontendCountry(
 		`/api/_web/countries/${encodeURIComponent(iso.toUpperCase())}`,
 	);
 	return payload?.country ?? null;
-}
-
-export async function fetchFrontendPricingModels(): Promise<PricingModel[]> {
-	return (await fetchPublicWebApi<{ models: PricingModel[] }>("/api/_web/pricing/models")).models;
 }
 
 export async function fetchFrontendMarketplacePresets(): Promise<
@@ -925,6 +945,22 @@ export async function fetchFrontendRankingUniqueUserTimeseries(
 	topN = 10,
 ): Promise<{ data: TimeseriesData[] }> {
 	return fetchPublicWebApi<{ data: TimeseriesData[] }>(`/api/_web/rankings/unique-users?time_range=${encodeURIComponent(timeRange)}&bucket_size=${encodeURIComponent(bucketSize)}&top_n=${encodeURIComponent(String(topN))}`);
+}
+
+export type PublicGeographyRow = {
+	country_code: string;
+	requests: number | string;
+	tokens: number | string;
+	share_percent: number | string;
+	workspace_count: number | string;
+};
+
+export async function fetchFrontendRankingGeography(
+	days = 30,
+): Promise<{ data: PublicGeographyRow[]; days: number }> {
+	return fetchPublicWebApi<{ data: PublicGeographyRow[]; days: number }>(
+		`/api/_web/rankings/geography?days=${encodeURIComponent(String(days))}`,
+	);
 }
 
 export async function fetchFrontendModelRankings(

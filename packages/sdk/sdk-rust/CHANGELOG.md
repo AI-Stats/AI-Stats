@@ -1,4 +1,10 @@
-# @phaseo/rust-sdk
+# Phaseo Rust SDK
+
+## 0.1.0
+
+- Publish the first supported `phaseo` crate on crates.io.
+- Add an authenticated, secret-redacting Phaseo Gateway client with Responses and Chat Completions helpers.
+- Preserve generated endpoint coverage under `phaseo::gen` and add CI, packaging, and live-smoke guards.
 
 ## 1.0.2
 

@@ -334,13 +334,19 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] audio_url
     #   @return [String, nil]
+    # @!attribute [rw] chunking_strategy
+    #   @return [String, Hash{String => Object}, nil]
+    # @!attribute [rw] known_speaker_names
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] known_speaker_references
+    #   @return [Array<String>, nil]
     # @!attribute [rw] language
     #   @return [String, nil]
     # @!attribute [rw] model
     #   @return [String]
     # @!attribute [rw] provider
     #   @return [Hash{String => Object}, nil]
-    AudioTranscriptionRequest = Struct.new(:audio_b64, :audio_url, :language, :model, :provider, keyword_init: true)
+    AudioTranscriptionRequest = Struct.new(:audio_b64, :audio_url, :chunking_strategy, :known_speaker_names, :known_speaker_references, :language, :model, :provider, keyword_init: true)
     # @!attribute [rw] text
     #   @return [String, nil]
     AudioTranscriptionResponse = Struct.new(:text, keyword_init: true)
@@ -457,6 +463,8 @@ module Phaseo
     BatchModelsResponse = Struct.new(:data, :object, keyword_init: true)
     # @!attribute [rw] documentation_url
     #   @return [String, nil]
+    # @!attribute [rw] endpoints
+    #   @return [Array<Hash{String => Object}>, nil]
     # @!attribute [rw] gateway_input_modes
     #   @return [Array<String>, nil]
     # @!attribute [rw] id
@@ -469,7 +477,7 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] status
     #   @return [String, nil]
-    BatchProviderCapability = Struct.new(:documentation_url, :gateway_input_modes, :id, :name, :native_input_modes, :notes, :status, keyword_init: true)
+    BatchProviderCapability = Struct.new(:documentation_url, :endpoints, :gateway_input_modes, :id, :name, :native_input_modes, :notes, :status, keyword_init: true)
     # @!attribute [rw] completion_window
     #   @return [String, nil]
     # @!attribute [rw] debug
@@ -630,11 +638,13 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] status
     #   @return [String, nil]
+    # @!attribute [rw] usage
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] webhook
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] websocket_url
     #   @return [String, nil]
-    BatchResponse = Struct.new(:billing, :cancel_url, :cancelled_at, :cancelling_at, :completed_at, :completion_window, :created_at, :endpoint, :error_file_id, :errors, :expired_at, :expires_at, :failed_at, :finalized_at, :finalizing_at, :id, :in_progress_at, :input_file_id, :last_webhook_dispatched_at, :last_webhook_progress, :last_webhook_progress_at, :lifecycle_status, :metadata, :native_batch_id, :next_webhook_retry_at, :object, :output_file_id, :polling_url, :pricing_lines, :progress, :provider, :request_counts, :request_id, :session_id, :status, :webhook, :websocket_url, keyword_init: true)
+    BatchResponse = Struct.new(:billing, :cancel_url, :cancelled_at, :cancelling_at, :completed_at, :completion_window, :created_at, :endpoint, :error_file_id, :errors, :expired_at, :expires_at, :failed_at, :finalized_at, :finalizing_at, :id, :in_progress_at, :input_file_id, :last_webhook_dispatched_at, :last_webhook_progress, :last_webhook_progress_at, :lifecycle_status, :metadata, :native_batch_id, :next_webhook_retry_at, :object, :output_file_id, :polling_url, :pricing_lines, :progress, :provider, :request_counts, :request_id, :session_id, :status, :usage, :webhook, :websocket_url, keyword_init: true)
     BenchmarkId = Object
     # @!attribute [rw] scope
     #   @return [String, nil]
@@ -1004,6 +1014,11 @@ module Phaseo
     # @!attribute [rw] type
     #   @return [String]
     FunctionToolDefinition = Struct.new(:function, :type, keyword_init: true)
+    # @!attribute [rw] parameters
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] type
+    #   @return [String]
+    FusionToolDefinition = Struct.new(:parameters, :type, keyword_init: true)
     # @!attribute [rw] parameters
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] timezone
@@ -1880,13 +1895,35 @@ module Phaseo
     # @!attribute [rw] usage
     #   @return [Hash{String => Object}, nil]
     ResponsesResponse = Struct.new(:content, :cost_cents, :cost_nanos, :created, :currency, :finish_reason, :id, :meta, :model, :nativeResponseId, :object, :output, :output_items, :pricing_lines, :provider, :provider_id, :role, :status, :stop_reason, :type, :usage, keyword_init: true)
+    # @!attribute [rw] parameters
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] type
+    #   @return [String]
+    SearchModelsToolDefinition = Struct.new(:parameters, :type, keyword_init: true)
+    # @!attribute [rw] advisor_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] apply_patch_requests
+    #   @return [Integer, nil]
     # @!attribute [rw] datetime_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] fusion_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] image_generation_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] search_models_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] subagent_requests
     #   @return [Integer, nil]
     # @!attribute [rw] web_fetch_requests
     #   @return [Integer, nil]
     # @!attribute [rw] web_search_requests
     #   @return [Integer, nil]
-    ServerToolUsage = Struct.new(:datetime_requests, :web_fetch_requests, :web_search_requests, keyword_init: true)
+    ServerToolUsage = Struct.new(:advisor_requests, :apply_patch_requests, :datetime_requests, :fusion_requests, :image_generation_requests, :search_models_requests, :subagent_requests, :web_fetch_requests, :web_search_requests, keyword_init: true)
+    # @!attribute [rw] parameters
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] type
+    #   @return [String]
+    SubagentToolDefinition = Struct.new(:parameters, :type, keyword_init: true)
     SupportedParameterDetails = Struct.new(:_unused, keyword_init: true)
     # @!attribute [rw] text
     #   @return [String]

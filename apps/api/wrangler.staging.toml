@@ -9,11 +9,22 @@ preview_urls = false
 ENV = "staging"
 NODE_ENV = "production"
 SUPABASE_URL = "https://xansbgjaduxypzsmjwct.supabase.co"
+AMAZON_BEDROCK_REGION = "us-east-1"
+AMAZON_BEDROCK_MANTLE_BASE_URL = "https://bedrock-mantle.us-east-1.api.aws"
 STATSIG_ENVIRONMENT_TIER = "staging"
 STATSIG_GATEWAY_IO_LOGGING_GATE = "gateway_io_logging"
+STATSIG_DATA_CONTRIBUTION_GATE = "gateway_data_contribution"
 GATEWAY_IO_LOGS_BUCKET_NAME = "phaseo-gateway-io-logs-preview"
 GATEWAY_IO_LOGGING_MAX_BYTES = "5242880"
 GATEWAY_IO_RETENTION_BILLING_ENABLED = "false"
+DATA_CONTRIBUTIONS_BUCKET_NAME = "phaseo-data-contributions-preview"
+DATA_CONTRIBUTIONS_MAX_BYTES = "1048576"
+DATA_CONTRIBUTION_CLASSIFIER_ENABLED = "false"
+DATA_CONTRIBUTION_CLASSIFIER_LIMIT = "10"
+DATA_CONTRIBUTION_CLASSIFIER_CONCURRENCY = "2"
+DATA_CONTRIBUTION_CLASSIFIER_MODEL = "gpt-5-mini"
+DATA_CONTRIBUTION_CLASSIFIER_SERVICE_TIER = "flex"
+DATA_CONTRIBUTION_RETENTION_PRUNE_LIMIT = "250"
 MODEL_DISCOVERY_ENABLED = "false"
 VIDEO_RECONCILIATION_ENABLED = "false"
 BATCH_RECONCILIATION_ENABLED = "false"
@@ -37,6 +48,10 @@ id = "4ffdeda1a87c45b38c697f78232526be"
 [[r2_buckets]]
 binding = "GATEWAY_IO_LOGS_BUCKET"
 bucket_name = "phaseo-gateway-io-logs-preview"
+
+[[r2_buckets]]
+binding = "DATA_CONTRIBUTIONS_BUCKET"
+bucket_name = "phaseo-data-contributions-preview"
 
 [[ratelimits]]
 name = "OAUTH_STRICT_RATE_LIMITER"

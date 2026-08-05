@@ -1,10 +1,13 @@
 import {
 	fetchFrontendModelBenchmarkHighlights,
 	fetchFrontendModelAvailability,
+	fetchFrontendModelHeader,
+	fetchFrontendModelGatewayMetadata,
 	fetchFrontendModelOverview,
 	fetchFrontendModelPerformance,
 	fetchFrontendModelPricing,
 	fetchFrontendModelSubscriptionPlans,
+	fetchFrontendModelTimeline,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
 import ModelOverviewSections, {
@@ -37,6 +40,10 @@ import {
 } from "@/components/(data)/model/quickstart/requestContext";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import ModelFaqSection from "@/components/(data)/model/overview/ModelFaqSection";
+import {
+	getModelLineageLinks,
+	resolveModelLineageNames,
+} from "@/components/(data)/model/overview/modelOverviewMetadata";
 
 async function ModelCreatorModelsSectionContent({
 	modelId,
@@ -67,14 +74,29 @@ async function ModelFaqSectionContent({
 	activeProviderCount,
 	isGatewayActive,
 	pricingPromise,
+	gatewayMetadataPromise,
 }: {
 	model: ModelOverviewPage;
 	benchmarkCount: number;
 	activeProviderCount: number;
 	isGatewayActive: boolean;
 	pricingPromise: ReturnType<typeof fetchFrontendModelPricing>;
+	gatewayMetadataPromise: Promise<
+		Awaited<ReturnType<typeof fetchFrontendModelGatewayMetadata>> | null
+	>;
 }) {
-	const pricing = await pricingPromise;
+	const [pricing, timeline, gatewayMetadata] = await Promise.all([
+		pricingPromise,
+		fetchFrontendModelTimeline(model.model_id).catch(() => null),
+		gatewayMetadataPromise.catch(() => null),
+	]);
+	const relatedModels = await resolveModelLineageNames(
+		getModelLineageLinks(timeline?.events, model.previous_model_id),
+		async (relatedModelId) =>
+			(
+				await fetchFrontendModelHeader(relatedModelId).catch(() => null)
+			)?.name,
+	);
 	return (
 		<ModelFaqSection
 			model={model}
@@ -82,6 +104,8 @@ async function ModelFaqSectionContent({
 			activeProviderCount={activeProviderCount}
 			isGatewayActive={isGatewayActive}
 			pricing={pricing}
+			relatedModels={relatedModels}
+			gatewayMetadata={gatewayMetadata}
 		/>
 	);
 }
@@ -199,6 +223,9 @@ export default async function Page({
 	const subscriptionPromise = fetchFrontendModelSubscriptionPlans(modelId).catch(() => []);
 	const availabilityPromise = fetchFrontendModelAvailability(modelId).catch(() => undefined);
 	const pricingPromise = fetchFrontendModelPricing(modelId).catch(() => []);
+	const gatewayMetadataPromise = fetchFrontendModelGatewayMetadata(modelId).catch(
+		() => null,
+	);
 	const [modelOverview, benchmarkHighlights, subscriptionPlans, availability] =
 		await Promise.all([
 			modelPromise,
@@ -321,6 +348,7 @@ export default async function Page({
 										activeProviderCount={availability?.activeProviderCount ?? 0}
 										isGatewayActive={isGatewayActive}
 										pricingPromise={pricingPromise}
+										gatewayMetadataPromise={gatewayMetadataPromise}
 									/>
 								</Suspense>
 							) : null}

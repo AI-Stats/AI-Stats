@@ -7,5 +7,5 @@ export interface GatewayWebFetchToolDefinition {
   parameters?: {
     max_chars?: number;
   };
-  type: "gateway:web_fetch";
+  type: "phaseo:web_fetch" | "gateway:web_fetch";
 }

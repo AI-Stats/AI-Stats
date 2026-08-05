@@ -1,116 +1,102 @@
 ---
 title: "Migrating from Anthropic SDK"
-description: "Step-by-step guide to migrate your Anthropic SDK integration to Phaseo Gateway."
+sidebarTitle: "Anthropic SDK"
+description: "Move an Anthropic SDK integration to Phaseo while keeping the Messages API workflow familiar."
+icon: "/icons/brands/anthropic.svg"
 ---
 
-# Migrating from Anthropic SDK
+Use this guide to keep your Anthropic SDK workflow while moving requests through Phaseo. Change the client configuration first, then verify model IDs and the Anthropic-specific behavior your application depends on.
 
-This guide will help you migrate your existing Anthropic SDK integration to use the Phaseo Gateway instead.
+## What changes
 
-## Overview
+| Setting | Before | After |
+| --- | --- | --- |
+| Base URL | Anthropic default | `https://api.phaseo.app/v1` |
+| API key | Anthropic key | `PHASEO_API_KEY` |
+| Model | Anthropic model name | A Phaseo model ID returned by `GET /v1/models` |
+| Messages call | Existing SDK call | Usually unchanged |
 
-Phaseo Gateway provides Anthropic-compatible endpoints, making migration straightforward. You'll primarily need to:
+<Steps>
+<Step title="Create a Phaseo API key">
 
--   Change the API base URL
--   Update your API key
--   Update authentication method
+Create a key in [Gateway Keys](https://phaseo.app/gateway/keys) and make it available to your application as `PHASEO_API_KEY`.
 
-## Prerequisites
+</Step>
 
--   A Phaseo account and API key (get one at [Gateway Keys](https://phaseo.app/gateway/keys))
--   Existing Anthropic SDK code
+<Step title="Update the Anthropic client">
 
-## Migration Steps
-
-### 1. Update API Key and Base URL
-
-Instead of using the Anthropic API key and default base URL, use your Phaseo credentials.
+Point the SDK at the Phaseo base URL and use your Phaseo key.
 
 <CodeGroup>
-```bash
-# Before (Anthropic)
-curl https://api.anthropic.com/v1/messages \
-  -H "x-api-key: sk-ant-your-anthropic-key" \
-  -H "anthropic-version: 2023-06-01" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "claude-3-sonnet-20240229",
-    "max_tokens": 100,
-    "messages": [{"role": "user", "content": "Hello!"}]
-  }'
-
-# After (Phaseo)
-
-curl https://api.phaseo.app/v1/messages \
- -H "Authorization: Bearer your-phaseo-key" \
- -H "Content-Type: application/json" \
- -d '{
-"model": "claude-3-sonnet-20240229",
-"max_tokens": 100,
-"messages": [{"role": "user", "content": "Hello!"}]
-}'
-
-````
-
-```python
-import anthropic
-
-# Before
-client = anthropic.Anthropic(api_key="sk-ant-your-anthropic-key")
-
-# After
-client = anthropic.Anthropic(
-    api_key="your-phaseo-key",
-    base_url="https://api.phaseo.app/v1"
-)
-
-response = client.messages.create(
-    model="claude-3-sonnet-20240229",
-    max_tokens=100,
-    messages=[{"role": "user", "content": "Hello!"}]
-)
-````
-
-```typescript
+```typescript TypeScript
 import Anthropic from "@anthropic-ai/sdk";
 
-// Before
 const client = new Anthropic({
-	apiKey: "sk-ant-your-anthropic-key",
-});
-
-// After
-const client = new Anthropic({
-	apiKey: "your-phaseo-key",
-	baseURL: "https://api.phaseo.app/v1",
+  apiKey: process.env.PHASEO_API_KEY,
+  baseURL: "https://api.phaseo.app/v1",
 });
 
 const response = await client.messages.create({
-	model: "claude-3-sonnet-20240229",
-	max_tokens: 100,
-	messages: [{ role: "user", content: "Hello!" }],
+  model: "anthropic/claude-sonnet-4.6",
+  max_tokens: 256,
+  messages: [{ role: "user", content: "Reply with: migration ready" }],
 });
 ```
 
+```python Python
+import os
+import anthropic
+
+client = anthropic.Anthropic(
+    api_key=os.environ["PHASEO_API_KEY"],
+    base_url="https://api.phaseo.app/v1",
+)
+
+response = client.messages.create(
+    model="anthropic/claude-sonnet-4.6",
+    max_tokens=256,
+    messages=[{"role": "user", "content": "Reply with: migration ready"}],
+)
+```
+
+```bash cURL
+curl https://api.phaseo.app/v1/messages \
+  -H "Authorization: Bearer $PHASEO_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "anthropic/claude-sonnet-4.6",
+    "max_tokens": 256,
+    "messages": [{"role": "user", "content": "Reply with: migration ready"}]
+  }'
+```
 </CodeGroup>
 
-### 3. Test Your Integration
+</Step>
 
-Run your existing code with the updated configuration to ensure it works.
+<Step title="Verify Anthropic-specific behavior">
 
-### 4. Handle Model Names
+Test system prompts, streaming, tool use, thinking or reasoning options, and structured output behavior with the exact models your application uses. Remove obsolete beta headers or request fields rather than carrying them into the new path blindly.
 
-Phaseo supports Anthropic models. Check the [models endpoint](../api-reference/endpoint/models) for available models.
+</Step>
 
-Model names should be compatible with Anthropic's naming.
+<Step title="Roll out gradually">
 
-## Common Issues
+Compare a representative prompt set across both configurations. Check output shape, latency, token usage, errors, and cost before shifting production traffic.
 
--   **Model not found**: Ensure the model is available in Phaseo.
--   **Rate limits**: Phaseo may have different rate limits.
--   **Features**: Some Anthropic-specific features may work differently.
+</Step>
+</Steps>
 
-## Next Steps
+## Migration checklist
 
--   Explore Phaseo' additional features.
--   Check out the [API Reference](../api-reference/introduction) for full documentation.
+- The Phaseo key is configured in every deployment environment.
+- The Anthropic client points to `https://api.phaseo.app/v1`.
+- Every production model ID is verified against `GET /v1/models`.
+- Streaming and tool-use flows pass in staging.
+- Anthropic-specific beta headers and parameters have been reviewed.
+- Rollback remains a configuration-only key and endpoint change.
+
+## Next steps
+
+- [Anthropic model migrations](../model-migrations)
+- [Models](../exploring/models)
+- [Tool Calling](../guides/tool-calling)

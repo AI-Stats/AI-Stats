@@ -49,6 +49,7 @@ export type PresetConfig = {
 		max_tokens?: number;
 		exclude_from_output?: boolean;
 	};
+	provider_preferences?: Record<string, number>;
 };
 
 export type PresetVisibility = "private" | "team" | "public";
@@ -66,6 +67,7 @@ export type CreatePresetInput = {
 export type UpdatePresetInput = {
 	id: string;
 	name?: string;
+	slug?: string;
 	description?: string;
 	config?: Partial<PresetConfig>;
 	visibility?: PresetVisibility;
@@ -101,10 +103,29 @@ function normalizePresetName(name: string): string {
 	return trimmed.startsWith("@") ? trimmed : `@${trimmed}`;
 }
 
-function sanitizeConfig(config: PresetConfig): Record<string, unknown> {
-	const sanitized: Record<string, unknown> = {};
+function normalizePresetSlug(value: string): string {
+	return value.trim().toLowerCase().replace(/^@+/, "").replace(/[^a-z0-9._:-]+/g, "-").replace(/-{2,}/g, "-").replace(/^[-._:]+|[-._:]+$/g, "");
+}
 
-	if (config.system_prompt) {
+function sanitizeConfig(config: PresetConfig): Record<string, unknown> {
+	const managedKeys = new Set([
+		"system_prompt",
+		"models",
+		"only_providers",
+		"ignore_providers",
+		"provider",
+		"plugins",
+		"routing_mode",
+		"provider_preferences",
+		"response_caching",
+		"parameters",
+		"reasoning",
+	]);
+	const sanitized: Record<string, unknown> = Object.fromEntries(
+		Object.entries(config).filter(([key]) => !managedKeys.has(key)),
+	);
+
+	if (typeof config.system_prompt === "string" && config.system_prompt.trim()) {
 		sanitized.system_prompt = config.system_prompt.trim().substring(0, 10000);
 	}
 
@@ -191,6 +212,17 @@ function sanitizeConfig(config: PresetConfig): Record<string, unknown> {
 
 	if (Array.isArray(config.plugins) && config.plugins.length > 0) {
 		sanitized.plugins = config.plugins;
+	}
+
+	if (config.provider_preferences && typeof config.provider_preferences === "object") {
+		const preferences = Object.fromEntries(
+			Object.entries(config.provider_preferences).filter(
+				([, weight]) => Number.isFinite(weight) && weight > 0,
+			),
+		);
+		if (Object.keys(preferences).length > 0) {
+			sanitized.provider_preferences = preferences;
+		}
 	}
 
 	if (config.response_caching && typeof config.response_caching === "object") {
@@ -286,7 +318,7 @@ function revalidatePresetDataCache(presetId?: string | null): void {
 }
 
 export async function createPresetAction(input: CreatePresetInput) {
-	const { name, description, creatorUserId, workspaceId, config, visibility } = input;
+	const { name, slug, description, creatorUserId, workspaceId, config, visibility } = input;
 
 	if (!creatorUserId || typeof creatorUserId !== "string") {
 		throw new Error("Creator user ID is required");
@@ -296,11 +328,13 @@ export async function createPresetAction(input: CreatePresetInput) {
 	}
 
 	validatePresetName(name);
+	const normalizedSlug = normalizePresetSlug(slug || name);
+	if (!normalizedSlug) throw new Error("Preset slug is required");
 
 	const sanitizedConfig = sanitizeConfig(config);
 	const normalizedVisibility = normalizeVisibility(visibility);
 	const { accessToken } = await getServerAccountContext(); if (!accessToken) throw new Error("Unauthorized");
-	const data = await fetchAccountWebApi<{ id?: string; name: string; createdAt?: string }>("/api/account/settings/presets", accessToken, { method: "POST", body: JSON.stringify({ workspaceId, name: name.trim(), description, creatorUserId, config: sanitizedConfig, visibility: normalizedVisibility }) });
+	const data = await fetchAccountWebApi<{ id?: string; name: string; createdAt?: string }>("/api/account/settings/presets", accessToken, { method: "POST", body: JSON.stringify({ workspaceId, name: name.trim(), slug: normalizedSlug, description, config: sanitizedConfig, visibility: normalizedVisibility }) });
 
 	revalidatePath("/settings/presets");
 	revalidatePresetDataCache(data.id ?? null);
@@ -329,7 +363,7 @@ export async function forkPresetAction(sourcePresetId: string) {
 }
 
 export async function updatePresetAction(input: UpdatePresetInput) {
-	const { id, name, description, config, visibility } = input;
+	const { id, name, slug, description, config, visibility } = input;
 
 	if (!id || typeof id !== "string") {
 		throw new Error("Valid preset ID is required");
@@ -342,6 +376,11 @@ export async function updatePresetAction(input: UpdatePresetInput) {
 
 		updateObj.name = name.trim();
 	}
+	if (slug !== undefined) {
+		const normalizedSlug = normalizePresetSlug(slug);
+		if (!normalizedSlug) throw new Error("Preset slug is required");
+		updateObj.slug = normalizedSlug;
+	}
 
 	if (description !== undefined) {
 		updateObj.description = description?.trim().substring(0, 500) || null;
@@ -349,6 +388,7 @@ export async function updatePresetAction(input: UpdatePresetInput) {
 
 	if (config !== undefined) {
 		updateObj.config = sanitizeConfig(config as PresetConfig);
+		updateObj.replaceConfig = true;
 	}
 
 	if (visibility) {

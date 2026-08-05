@@ -10,8 +10,8 @@ import ByokFallbackToggle from "@/components/(gateway)/settings/byok/ByokFallbac
 
 export const metadata = { title: "BYOK - Settings" };
 
-const BYOK_MONTHLY_FREE_REQUESTS = 100_000;
-const BYOK_FEE_PERCENT = 3.5;
+const BYOK_MONTHLY_FREE_REQUESTS = 1_000_000;
+const BYOK_FEE_PERCENT = 2.5;
 
 type KeyEntry = {
 	id: string;

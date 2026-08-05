@@ -27,6 +27,16 @@ async function requireAuthenticatedUser() { return { supabase: current().account
 // Raw fallback can pull large request windows; keep it opt-in to protect DB egress.
 const rawFallbackEnabled = () => current().env.ENABLE_GATEWAY_USAGE_RAW_FALLBACK === "1";
 
+function numberOrNull(value: unknown): number | null {
+	if (value === null || value === undefined || value === "") return null;
+	const parsed = Number(value);
+	return Number.isFinite(parsed) ? parsed : null;
+}
+
+function stringOrNull(value: unknown): string | null {
+	return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+}
+
 async function requireAuthedTeamContext(
 	supabase: Awaited<ReturnType<typeof createClient>>
 ) {
@@ -163,7 +173,10 @@ export interface RequestRow extends NormalizedRequestUsageColumns {
 	key_id: string | null;
 	pricing_lines: AsyncJobRequestPricingLine[];
 	provider_attempts: Array<{
+		sequence?: number | null;
 		attempt_number: number | null;
+		round_number?: number | null;
+		internal_attempt_number?: number | null;
 		provider: string | null;
 		api_model_id: string | null;
 		provider_model_slug: string | null;
@@ -171,6 +184,15 @@ export interface RequestRow extends NormalizedRequestUsageColumns {
 		status: number | null;
 		status_text: string | null;
 		duration_ms: number | null;
+		latency_ms?: number | null;
+		generation_ms?: number | null;
+		total_ms?: number | null;
+		cost_nanos?: number | null;
+		currency?: string | null;
+		finish_reason?: string | null;
+		provider_finish_reason?: string | null;
+		retryable?: boolean | null;
+		fallback_attempted?: boolean;
 		upstream_error_code: string | null;
 		upstream_error_message: string | null;
 		upstream_error_description: string | null;
@@ -200,6 +222,88 @@ export type GatewayIoLog = {
 	error: string | null;
 	payload: Record<string, unknown> | null;
 };
+
+async function fetchGatewayUpstreamRequests(
+	workspaceId: string,
+	requestId: string,
+): Promise<RequestRow["provider_attempts"]> {
+	const { data, error } = await createAdminClient()
+		.from("gateway_upstream_requests")
+		.select(`
+			sequence,
+			round_number,
+			attempt_number,
+			internal_attempt_number,
+			provider,
+			api_model_id,
+			provider_model_slug,
+			outcome,
+			status_code,
+			status_text,
+			duration_ms,
+			latency_ms,
+			generation_ms,
+			total_ms,
+			cost_nanos,
+			currency,
+			finish_reason,
+			provider_finish_reason,
+			retryable,
+			fallback_attempted,
+			error_code,
+			error_message,
+			error_description
+		`)
+		.eq("workspace_id", workspaceId)
+		.eq("request_id", requestId)
+		.order("sequence", { ascending: true });
+
+	if (error) {
+		const code = String(error.code ?? "");
+		const message = String(error.message ?? "").toLowerCase();
+		if ((code === "PGRST205" || code === "42P01")
+			&& message.includes("gateway_upstream_requests")) {
+			return [];
+		}
+		console.error("Error fetching upstream request rows:", error);
+		return [];
+	}
+
+	return normalizeGatewayUpstreamRows(data ?? []);
+}
+
+export function normalizeGatewayUpstreamRows(
+	rows: unknown[],
+): RequestRow["provider_attempts"] {
+	return rows.map((value) => {
+		const row = value && typeof value === "object" ? value as Record<string, unknown> : {};
+		return {
+		sequence: numberOrNull(row.sequence),
+		round_number: numberOrNull(row.round_number),
+		attempt_number: numberOrNull(row.attempt_number),
+		internal_attempt_number: numberOrNull(row.internal_attempt_number),
+		provider: stringOrNull(row.provider),
+		api_model_id: stringOrNull(row.api_model_id),
+		provider_model_slug: stringOrNull(row.provider_model_slug),
+		outcome: stringOrNull(row.outcome),
+		status: numberOrNull(row.status_code),
+		status_text: stringOrNull(row.status_text),
+		duration_ms: numberOrNull(row.duration_ms),
+		latency_ms: numberOrNull(row.latency_ms),
+		generation_ms: numberOrNull(row.generation_ms),
+		total_ms: numberOrNull(row.total_ms),
+		cost_nanos: numberOrNull(row.cost_nanos),
+		currency: stringOrNull(row.currency),
+		finish_reason: stringOrNull(row.finish_reason),
+		provider_finish_reason: stringOrNull(row.provider_finish_reason),
+		retryable: typeof row.retryable === "boolean" ? row.retryable : null,
+		fallback_attempted: row.fallback_attempted === true,
+		upstream_error_code: stringOrNull(row.error_code),
+		upstream_error_message: stringOrNull(row.error_message),
+		upstream_error_description: stringOrNull(row.error_description),
+		};
+	});
+}
 
 async function fetchGatewayIoLog(
 	workspaceId: string,
@@ -924,16 +1028,16 @@ const fetchModelMetadataCached = cache(async (
 	};
 
 	const { data: models } = await supabase
-		.from("data_models")
+		.from("v2_models")
 		.select(
 			`
-			model_id,
+			model_id:model_slug,
 			name,
-			organisation_id,
-			organisation:data_organisations!data_models_organisation_id_fkey(organisation_id, name)
-		`
+			organisation_id:lab_slug,
+			organisation:v2_labs(lab_slug, name)
+			`
 		)
-		.in("model_id", uniqueModelIds);
+		.in("model_slug", uniqueModelIds);
 	if (!models) {
 		console.warn(
 			"Usage metadata debug: no direct model metadata rows found for unique model IDs",
@@ -960,10 +1064,10 @@ const fetchModelMetadataCached = cache(async (
 				modelName: typeof m?.name === "string" ? m.name : undefined,
 			};
 
-			addMetadata(m?.model_id, value, "data_models:model_id");
+			addMetadata(m?.model_id, value, "v2_models:model_slug");
 			if (typeof m?.model_id === "string" && m.model_id.includes("/")) {
 				const withoutOrg = m.model_id.split("/").slice(1).join("/");
-				addMetadata(withoutOrg, value, "data_models:without_org");
+				addMetadata(withoutOrg, value, "v2_models:without_lab");
 			}
 		});
 	}
@@ -974,20 +1078,20 @@ const fetchModelMetadataCached = cache(async (
 	);
 
 	const { data: apiModels, error: apiModelsError } = await supabase
-		.from("data_models")
+		.from("v2_models")
 		.select(
 			`
-			model_id,
-			api_model_id,
+			model_id:model_slug,
+			api_model_id:model_slug,
 			name,
-			organisation_id,
-			organisation:data_organisations!data_models_organisation_id_fkey(organisation_id, name)
-		`,
+			organisation_id:lab_slug,
+			organisation:v2_labs(lab_slug, name)
+			`,
 		)
-		.in("api_model_id", apiLookupIds);
+		.in("model_slug", apiLookupIds);
 	if (apiModelsError) {
 		console.error(
-			"Usage metadata debug: failed loading data_models by api_model_id",
+			"Usage metadata debug: failed loading v2_models by model_slug",
 			apiModelsError,
 		);
 	}
@@ -1000,9 +1104,9 @@ const fetchModelMetadataCached = cache(async (
 			? apiModel.organisation[0]
 			: apiModel?.organisation;
 		const organisationId =
-			typeof organisationRow?.organisation_id === "string" &&
-			organisationRow.organisation_id.trim().length > 0
-				? organisationRow.organisation_id
+			typeof organisationRow?.lab_slug === "string" &&
+			organisationRow.lab_slug.trim().length > 0
+				? organisationRow.lab_slug
 				: typeof apiModel?.organisation_id === "string" &&
 					  apiModel.organisation_id.trim().length > 0
 				? apiModel.organisation_id
@@ -1018,15 +1122,15 @@ const fetchModelMetadataCached = cache(async (
 				: undefined;
 		const value = { organisationId, organisationName, modelName };
 		for (const variant of normalizeApiId(apiModelId)) {
-			addMetadata(variant, value, `data_models:api_model_id:${apiModelId}`);
+			addMetadata(variant, value, `v2_models:model_slug:${apiModelId}`);
 		}
 		if (typeof apiModel?.model_id === "string" && apiModel.model_id.trim().length > 0) {
-			addMetadata(apiModel.model_id, value, `data_models:model_id_from_api:${apiModelId}`);
+			addMetadata(apiModel.model_id, value, `v2_models:model_slug:${apiModelId}`);
 		}
 	}
 
 	const providerModelSelect =
-		"provider_api_model_id, api_model_id, model_id, internal_model_id, provider_model_slug";
+		"provider_api_model_id:provider_model_id, api_model_id:model_slug, model_id:model_slug, internal_model_id:model_slug, provider_model_slug";
 	const [
 		providerModelsByApiId,
 		providerModelsByCanonicalId,
@@ -1034,19 +1138,19 @@ const fetchModelMetadataCached = cache(async (
 		providerModelsBySlug,
 	] = await Promise.all([
 		supabase
-			.from("data_api_provider_models")
+			.from("v2_model_provider_routes")
 			.select(providerModelSelect)
-			.in("api_model_id", apiLookupIds),
+			.in("model_slug", apiLookupIds),
 		supabase
-			.from("data_api_provider_models")
+			.from("v2_model_provider_routes")
 			.select(providerModelSelect)
-			.in("model_id", apiLookupIds),
+			.in("model_slug", apiLookupIds),
 		supabase
-			.from("data_api_provider_models")
+			.from("v2_model_provider_routes")
 			.select(providerModelSelect)
-			.in("internal_model_id", apiLookupIds),
+			.in("model_slug", apiLookupIds),
 		supabase
-			.from("data_api_provider_models")
+			.from("v2_model_provider_routes")
 			.select(providerModelSelect)
 			.in("provider_model_slug", apiLookupIds),
 	]);
@@ -1107,31 +1211,31 @@ const fetchModelMetadataCached = cache(async (
 	const [canonicalModelsByIdResult, canonicalModelsByApiResult] = await Promise.all([
 		canonicalModelIds.length
 			? supabase
-					.from("data_models")
+					.from("v2_models")
 					.select(
 						`
-						model_id,
-						api_model_id,
+						model_id:model_slug,
+						api_model_id:model_slug,
 						name,
-						organisation_id,
-						organisation:data_organisations!data_models_organisation_id_fkey(organisation_id, name)
-					`,
+						organisation_id:lab_slug,
+						organisation:v2_labs(lab_slug, name)
+						`,
 					)
-					.in("model_id", canonicalModelIds)
+					.in("model_slug", canonicalModelIds)
 			: Promise.resolve({ data: [] as any[], error: null }),
 		canonicalApiIds.length
 			? supabase
-					.from("data_models")
+					.from("v2_models")
 					.select(
 						`
-						model_id,
-						api_model_id,
+						model_id:model_slug,
+						api_model_id:model_slug,
 						name,
-						organisation_id,
-						organisation:data_organisations!data_models_organisation_id_fkey(organisation_id, name)
+						organisation_id:lab_slug,
+						organisation:v2_labs(lab_slug, name)
 					`,
 					)
-					.in("api_model_id", canonicalApiIds)
+					.in("model_slug", canonicalApiIds)
 			: Promise.resolve({ data: [] as any[], error: null }),
 	]);
 	if (canonicalModelsByIdResult.error) {
@@ -1377,7 +1481,7 @@ export async function fetchFunStats(
 	}
 
 	const { data: rows } = await supabase
-		.from("gateway_usage_rollup_15m_workspace_provider_model")
+		.from("v2_web_private_usage_daily")
 		.select(
 			"canonical_model_id, provider, requests, total_cost_nanos, latency_sum_ms, latency_samples",
 		)
@@ -1604,6 +1708,11 @@ export async function investigateGeneration(
 		}
 
 		const request = toRequestRow(fallbackData);
+		const upstreamRequests = await fetchGatewayUpstreamRequests(
+			workspaceId,
+			trimmedRequestId,
+		);
+		if (upstreamRequests.length > 0) request.provider_attempts = upstreamRequests;
 		const providerIds = Array.from(
 			new Set(
 				[
@@ -1652,6 +1761,11 @@ export async function investigateGeneration(
 	}
 
 	const request = toRequestRow(data);
+	const upstreamRequests = await fetchGatewayUpstreamRequests(
+		workspaceId,
+		trimmedRequestId,
+	);
+	if (upstreamRequests.length > 0) request.provider_attempts = upstreamRequests;
 	const providerIds = Array.from(
 		new Set(
 			[
@@ -1829,7 +1943,7 @@ export async function fetchChartData(
 			const from = page * pageSize;
 			const to = from + pageSize - 1;
 			let query = supabase
-				.from("gateway_requests")
+				.from("v2_web_gateway_requests")
 				.select("created_at, provider, model_id, usage, cost_nanos")
 				.eq("workspace_id", workspaceId)
 				.eq("success", true)
