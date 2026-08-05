@@ -118,8 +118,16 @@ function outputText(body: any): string {
 	return Array.isArray(content) ? content.map((part: any) => typeof part?.text === "string" ? part.text : "").join("") : "";
 }
 
-function outputCost(body: any): number {
-	for (const candidate of [body.cost, body.usage?.cost, body.usage?.total_cost]) if (Number.isFinite(Number(candidate))) return Number(candidate);
+export function outputCost(body: any): number {
+	for (const candidate of [body.cost, body.usage?.cost, body.usage?.total_cost, body.usage?.pricing?.total_usd_str]) {
+		if (candidate !== null && candidate !== undefined && Number.isFinite(Number(candidate))) return Number(candidate);
+	}
+	for (const candidate of [body.cost_nanos, body.usage?.pricing?.total_nanos]) {
+		if (candidate !== null && candidate !== undefined && Number.isFinite(Number(candidate))) return Number(candidate) / 1_000_000_000;
+	}
+	for (const candidate of [body.cost_cents, body.usage?.cost_cents, body.usage?.pricing?.total_cents]) {
+		if (candidate !== null && candidate !== undefined && Number.isFinite(Number(candidate))) return Number(candidate) / 100;
+	}
 	return 0;
 }
 

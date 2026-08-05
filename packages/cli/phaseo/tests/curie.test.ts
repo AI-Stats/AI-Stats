@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { evaluateCurieOutput, summariseCurieResults, validateCurieConfig, validateCurieEndpoint, type CurieResult } from "../src/curie.ts";
+import { evaluateCurieOutput, outputCost, summariseCurieResults, validateCurieConfig, validateCurieEndpoint, type CurieResult } from "../src/curie.ts";
 
 test("validates a minimal local run", () => {
 	const config = validateCurieConfig({ models: ["phaseo/test"], cases: [{ id: "hello", input: "Say hello" }] });
@@ -46,4 +46,12 @@ test("summarises pass rate, latency, tokens, and reported cost", () => {
 		{ model: "a", label: "A", caseId: "two", repeat: 1, ok: true, passed: false, latencyMs: 300, output: "no", totalTokens: 20, reportedCost: 0.02 },
 	];
 	assert.deepEqual(summariseCurieResults(results), [{ model: "a", label: "A", runs: 2, successRate: 1, passRate: 0.5, averageLatencyMs: 200, totalTokens: 30, reportedCost: 0.03 }]);
+});
+
+test("normalises Phaseo response costs to dollars", () => {
+	assert.equal(outputCost({ usage: { pricing: { total_nanos: 25_000_000 } } }), 0.025);
+	assert.equal(outputCost({ usage: { pricing: { total_cents: 2.5 } } }), 0.025);
+	assert.equal(outputCost({ usage: { pricing: { total_usd_str: "0.025" } } }), 0.025);
+	assert.equal(outputCost({ cost_nanos: 25_000_000 }), 0.025);
+	assert.equal(outputCost({ cost_cents: 2.5 }), 0.025);
 });
