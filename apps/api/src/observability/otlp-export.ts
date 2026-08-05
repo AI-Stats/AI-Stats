@@ -230,12 +230,12 @@ function endpoint(config: Record<string, unknown>): URL {
 	if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) {
 		throw new Error("OTLP endpoint must use HTTP(S) without URL credentials");
 	}
-	const host = url.hostname.toLowerCase();
+	const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
 	if (
 		!host || host === "localhost" || host.endsWith(".local") ||
 		/^(0|10|127|169\.254|192\.168)\./.test(host) ||
 		/^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
-		host === "::1" || /^(fc|fd|fe80:)/.test(host)
+		host === "::" || host === "::1" || /^(fc|fd)[0-9a-f]{2}:/.test(host) || /^fe[89ab][0-9a-f]:/.test(host)
 	) throw new Error("Private OTLP endpoints are not allowed");
 	if (!traceSpecific && !url.pathname.endsWith("/v1/traces")) {
 		url.pathname = `${url.pathname.replace(/\/$/, "")}/v1/traces`;

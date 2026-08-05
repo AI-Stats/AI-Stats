@@ -64,4 +64,17 @@ describe("deliverGatewayOtlpPayload", () => {
 		expect(result).toMatchObject({ delivered: false, retryable: false, status: null });
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
+
+	it.each([
+		"http://[::1]:4318",
+		"http://[fd00::1]:4318",
+		"http://[fe80::1]:4318",
+	])("rejects bracketed private IPv6 collector endpoint %s", async (endpoint) => {
+		const fetchMock = vi.fn();
+		vi.stubGlobal("fetch", fetchMock);
+		const result = await deliverGatewayOtlpPayload({ resourceSpans: [] }, { endpoint });
+
+		expect(result).toMatchObject({ delivered: false, retryable: false, status: null });
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
 });

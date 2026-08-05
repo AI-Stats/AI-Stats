@@ -382,11 +382,6 @@ async function handleDataContributionRetentionScheduledEvent(env: GatewayBinding
 }
 
 export async function handleScheduledEvent(event: ScheduledController, env: GatewayBindings): Promise<void> {
-	try {
-		await handleOtelExportScheduledEvent(env);
-	} catch (error) {
-		console.error("otel_export_scheduled_failed", serializeError(error));
-	}
 	if (isDailyRetentionBillingTick(event)) {
 		try {
 			await handleGatewayIoRetentionBillingScheduledEvent(event, env);
@@ -452,5 +447,10 @@ export async function handleScheduledEvent(event: ScheduledController, env: Gate
 		} catch (error) {
 			console.error("model_discovery_scheduled_failed", serializeError(error));
 		}
+	}
+	try {
+		await handleOtelExportScheduledEvent(env);
+	} catch (error) {
+		console.error("otel_export_scheduled_failed", serializeError(error));
 	}
 }
