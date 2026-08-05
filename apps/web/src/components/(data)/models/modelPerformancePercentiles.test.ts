@@ -8,6 +8,17 @@ describe("buildSingleProviderPercentileSeries", () => {
 				provider: "poolside",
 				providerName: "Poolside",
 				providerColor: null,
+				percentile: 1,
+				avgThroughput: 4.2,
+				avgLatencyMs: 100,
+				avgGenerationMs: 400,
+				requests: 100,
+			},
+			{
+				day: "2026-07-23",
+				provider: "poolside",
+				providerName: "Poolside",
+				providerColor: null,
 				percentile: 50,
 				avgThroughput: 8.5,
 				avgLatencyMs: 230,
@@ -28,6 +39,7 @@ describe("buildSingleProviderPercentileSeries", () => {
 		]);
 
 		expect(result).toEqual([
+			expect.objectContaining({ provider: "percentile-1", providerName: "P01" }),
 			expect.objectContaining({ provider: "percentile-50", providerName: "P50" }),
 			expect.objectContaining({ provider: "percentile-95", providerName: "P95" }),
 		]);

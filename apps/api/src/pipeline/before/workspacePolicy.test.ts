@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyWorkspacePolicy, buildWorkspacePolicy } from "./workspacePolicy";
+import { applyWorkspacePolicy, buildWorkspacePolicy, isOptionalDynamicRouteSchemaUnavailable } from "./workspacePolicy";
 
 function candidate(args: {
     providerId: string;
@@ -438,4 +438,32 @@ describe("applyWorkspacePolicy", () => {
             },
         ]);
     });
+});
+
+
+describe("isOptionalDynamicRouteSchemaUnavailable", () => {
+	it("allows a rollout fallback when the dynamic-route link table is absent", () => {
+		expect(isOptionalDynamicRouteSchemaUnavailable({
+			code: "PGRST205",
+			message: "Could not find the table 'public.gateway_dynamic_route_keys' in the schema cache",
+		})).toBe(true);
+	});
+
+	it("allows a rollout fallback when the dynamic-route table relation is absent", () => {
+		expect(isOptionalDynamicRouteSchemaUnavailable({
+			code: "42P01",
+			message: 'relation "gateway_dynamic_routes" does not exist',
+		})).toBe(true);
+	});
+
+	it("keeps permission and unrelated schema errors fail-closed", () => {
+		expect(isOptionalDynamicRouteSchemaUnavailable({
+			code: "42501",
+			message: 'permission denied for table gateway_dynamic_route_keys',
+		})).toBe(false);
+		expect(isOptionalDynamicRouteSchemaUnavailable({
+			code: "PGRST205",
+			message: "Could not find the table 'public.workspace_guardrails' in the schema cache",
+		})).toBe(false);
+	});
 });

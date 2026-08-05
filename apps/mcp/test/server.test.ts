@@ -2,7 +2,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
-vi.mock("agents/mcp", () => ({ createMcpHandler: vi.fn() }));
+vi.mock("agents/mcp/server", () => ({ createMcpHandler: vi.fn() }));
 
 let worker: typeof import("../src/index").default;
 let createServer: typeof import("../src/index").createServer;

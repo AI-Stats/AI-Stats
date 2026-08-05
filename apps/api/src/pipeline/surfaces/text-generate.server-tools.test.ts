@@ -349,6 +349,9 @@ describe("runTextGeneratePipeline server tools", () => {
 			advisorRequests: 0,
 			imageGenerationRequests: 0,
 			applyPatchRequests: 0,
+			subagentRequests: 0,
+			fusionRequests: 0,
+			searchModelsRequests: 0,
 		});
 		expect(attachServerToolUsageToRawUsageMock).toHaveBeenNthCalledWith(
 			1,
@@ -366,6 +369,9 @@ describe("runTextGeneratePipeline server tools", () => {
 				advisorRequests: 0,
 				imageGenerationRequests: 0,
 				applyPatchRequests: 0,
+				subagentRequests: 0,
+				fusionRequests: 0,
+				searchModelsRequests: 0,
 			},
 		);
 		expect(attachServerToolUsageToRawUsageMock).toHaveBeenNthCalledWith(
@@ -384,6 +390,9 @@ describe("runTextGeneratePipeline server tools", () => {
 				advisorRequests: 0,
 				imageGenerationRequests: 0,
 				applyPatchRequests: 0,
+				subagentRequests: 0,
+				fusionRequests: 0,
+				searchModelsRequests: 0,
 			},
 		);
 
@@ -789,6 +798,9 @@ describe("runTextGeneratePipeline server tools", () => {
 			advisorRequests: 0,
 			imageGenerationRequests: 0,
 			applyPatchRequests: 0,
+			subagentRequests: 0,
+			fusionRequests: 0,
+			searchModelsRequests: 0,
 		});
 		expect(attachServerToolUsageToRawUsageMock).toHaveBeenNthCalledWith(
 			1,
@@ -806,6 +818,9 @@ describe("runTextGeneratePipeline server tools", () => {
 				advisorRequests: 0,
 				imageGenerationRequests: 0,
 				applyPatchRequests: 0,
+				subagentRequests: 0,
+				fusionRequests: 0,
+				searchModelsRequests: 0,
 			},
 		);
 		expect(attachServerToolUsageToRawUsageMock).toHaveBeenNthCalledWith(
@@ -824,6 +839,9 @@ describe("runTextGeneratePipeline server tools", () => {
 				advisorRequests: 0,
 				imageGenerationRequests: 0,
 				applyPatchRequests: 0,
+				subagentRequests: 0,
+				fusionRequests: 0,
+				searchModelsRequests: 0,
 			},
 		);
 
@@ -1035,7 +1053,7 @@ describe("runTextGeneratePipeline server tools", () => {
 			created: 1778073808,
 			serverToolTrace: [{
 				id: "call_web_fetch",
-				name: "ai_stats_web_fetch",
+				name: "phaseo_web_fetch",
 				arguments: "{\"url\":\"https://example.com/spec\",\"max_chars\":4000}",
 				output: "{\"provider\":\"fetch\",\"url\":\"https://example.com/spec\",\"final_url\":\"https://example.com/spec\",\"status\":200,\"content_type\":\"text/html\",\"title\":\"Gateway Spec\",\"text\":\"Grounded specification text\",\"truncated\":false,\"returned_chars\":27}",
 			}],
@@ -1056,6 +1074,9 @@ describe("runTextGeneratePipeline server tools", () => {
 				advisorRequests: 0,
 				imageGenerationRequests: 0,
 				applyPatchRequests: 0,
+				subagentRequests: 0,
+				fusionRequests: 0,
+				searchModelsRequests: 0,
 			},
 		);
 

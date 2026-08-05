@@ -10,7 +10,7 @@ type BedrockCredentials = {
 	baseUrl?: string;
 };
 
-type BedrockAuth =
+type MantleAuth =
 	| {
 		mode: "sigv4";
 		region: string;
@@ -207,9 +207,9 @@ export function getString(record: Record<string, unknown>, keys: string[]): stri
 	return undefined;
 }
 
-export function resolveBedrockAuth(args: ExecutorExecuteArgs): {
+export function resolveMantleAuth(args: ExecutorExecuteArgs): {
 	keyInfo: { source: "gateway" | "byok"; byokId: string | null };
-	auth: BedrockAuth;
+	auth: MantleAuth;
 } {
 	const bindings = getBindings() as any;
 	const keyInfo = resolveProviderKey(args, () => {
@@ -229,16 +229,17 @@ export function resolveBedrockAuth(args: ExecutorExecuteArgs): {
 	const parsed = parseBedrockCredentialMaterial(rawKey);
 	const baseUrlRaw =
 		parsed?.baseUrl ||
-		bindings.AMAZON_BEDROCK_BASE_URL;
+		bindings.AMAZON_BEDROCK_MANTLE_BASE_URL;
 	const region = (
 		parsed?.region ||
 		bindings.AMAZON_BEDROCK_REGION ||
 		bindings.AWS_REGION ||
-		extractRegionFromBedrockUrl(baseUrlRaw) ||
+		extractRegionFromMantleUrl(baseUrlRaw) ||
 		"us-east-1"
 	).trim();
 	const defaultBaseUrl = `https://bedrock-mantle.${region}.api.aws`;
 	const baseUrl = String(baseUrlRaw || defaultBaseUrl).replace(/\/+$/, "");
+	assertBedrockMantleBaseUrl(baseUrl);
 
 	return {
 		keyInfo,
@@ -262,10 +263,23 @@ export function resolveBedrockAuth(args: ExecutorExecuteArgs): {
 	};
 }
 
-export function extractRegionFromBedrockUrl(value: string | undefined): string | null {
+export function assertBedrockMantleBaseUrl(value: string): void {
+	let hostname: string;
+	try {
+		hostname = new URL(value).hostname.toLowerCase();
+	} catch {
+		throw new Error("amazon_bedrock_mantle_base_url_invalid");
+	}
+
+	const isTestEndpoint = hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".example");
+	const isMantleEndpoint = /^bedrock-mantle\.[a-z0-9-]+\.api\.aws$/.test(hostname);
+	if (!isTestEndpoint && !isMantleEndpoint) {
+		throw new Error("amazon_bedrock_mantle_endpoint_required");
+	}
+}
+
+export function extractRegionFromMantleUrl(value: string | undefined): string | null {
 	if (!value) return null;
-	const match =
-		value.match(/bedrock-runtime[\.-]([a-z0-9-]+)\.amazonaws\.com/i) ||
-		value.match(/bedrock-mantle[\.-]([a-z0-9-]+)\.api\.aws/i);
+	const match = value.match(/bedrock-mantle[\.-]([a-z0-9-]+)\.api\.aws/i);
 	return match?.[1] ?? null;
 }

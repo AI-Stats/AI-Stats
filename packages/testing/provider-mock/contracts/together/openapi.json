@@ -22,33 +22,6 @@
         ],
         "summary": "Create chat completion",
         "description": "Generate a model response for a given chat conversation. Supports single queries and multi-turn conversations with system, user, and assistant messages.",
-        "x-codeSamples": [
-          {
-            "lang": "Python",
-            "label": "Together AI SDK (v2)",
-            "source": "# Docs for v1 can be found by changing the above selector ^\nfrom together import Together\nimport os\n\nclient = Together(\n    api_key=os.environ.get(\"TOGETHER_API_KEY\"),\n)\n\nresponse = client.chat.completions.create(\n    model=\"Qwen/Qwen3.5-9B\",\n    messages=[\n        {\"role\": \"system\", \"content\": \"You are a helpful assistant.\"},\n        {\"role\": \"user\", \"content\": \"What are some fun things to do in New York?\"},\n    ],\n    reasoning={\"enabled\": False}\n)\n"
-          },
-          {
-            "lang": "Python",
-            "label": "Together AI SDK (v1)",
-            "source": "from together import Together\nimport os\n\nclient = Together(\n    api_key=os.environ.get(\"TOGETHER_API_KEY\"),\n)\n\nresponse = client.chat.completions.create(\n    model=\"Qwen/Qwen3.5-9B\",\n    messages=[\n        {\"role\": \"system\", \"content\": \"You are a helpful assistant.\"},\n        {\"role\": \"user\", \"content\": \"What are some fun things to do in New York?\"},\n    ],\n    reasoning={\"enabled\": False}\n)\n\nprint(response.choices[0].message.content)\n"
-          },
-          {
-            "lang": "TypeScript",
-            "label": "Together AI SDK (TypeScript)",
-            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst response = await client.chat.completions.create({\n  model: \"Qwen/Qwen3.5-9B\",\n  messages: [\n    { role: \"system\", content: \"You are a helpful assistant.\" },\n    { role: \"user\", \"content\": \"What are some fun things to do in New York?\" },\n  ],\n  reasoning: { enabled: false },\n});\n\nconsole.log(response.choices[0].message?.content);\n"
-          },
-          {
-            "lang": "JavaScript",
-            "label": "Together AI SDK (JavaScript)",
-            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst response = await client.chat.completions.create({\n  model: \"Qwen/Qwen3.5-9B\",\n  messages: [\n    { role: \"system\", content: \"You are a helpful assistant.\" },\n    { role: \"user\", \"content\": \"What are some fun things to do in New York?\" },\n  ],\n  reasoning: { enabled: false },\n});\n\nconsole.log(response.choices[0].message?.content);\n"
-          },
-          {
-            "lang": "Shell",
-            "label": "cURL",
-            "source": "curl -X POST \"https://api.together.ai/v1/chat/completions\" \\\n     -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n     -H \"Content-Type: application/json\" \\\n     -d '{\n       \"model\": \"Qwen/Qwen3.5-9B\",\n       \"messages\": [\n         {\"role\": \"system\", \"content\": \"You are a helpful assistant.\"},\n         {\"role\": \"user\", \"content\": \"What are some fun things to do in New York?\"}\n       ],\n       \"reasoning\": {\"enabled\": false}\n     }'\n"
-          }
-        ],
         "operationId": "chat-completions",
         "requestBody": {
           "content": {
@@ -136,7 +109,29 @@
             }
           }
         },
-        "deprecated": false
+        "deprecated": false,
+        "x-codeSamples": [
+          {
+            "lang": "Python",
+            "label": "Together AI SDK (Python)",
+            "source": "from together import Together\nimport os\n\nclient = Together(\n    api_key=os.environ.get(\"TOGETHER_API_KEY\"),\n)\n\nresponse = client.chat.completions.create(\n    model=\"Qwen/Qwen3.5-9B\",\n    messages=[\n        {\"role\": \"system\", \"content\": \"You are a helpful assistant.\"},\n        {\"role\": \"user\", \"content\": \"What are some fun things to do in New York?\"},\n    ],\n    reasoning={\"enabled\": False}\n)\n"
+          },
+          {
+            "lang": "TypeScript",
+            "label": "Together AI SDK (TypeScript)",
+            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst response = await client.chat.completions.create({\n  model: \"Qwen/Qwen3.5-9B\",\n  messages: [\n    { role: \"system\", content: \"You are a helpful assistant.\" },\n    { role: \"user\", \"content\": \"What are some fun things to do in New York?\" },\n  ],\n  reasoning: { enabled: false },\n});\n\nconsole.log(response.choices[0].message?.content);\n"
+          },
+          {
+            "lang": "JavaScript",
+            "label": "Together AI SDK (JavaScript)",
+            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst response = await client.chat.completions.create({\n  model: \"Qwen/Qwen3.5-9B\",\n  messages: [\n    { role: \"system\", content: \"You are a helpful assistant.\" },\n    { role: \"user\", \"content\": \"What are some fun things to do in New York?\" },\n  ],\n  reasoning: { enabled: false },\n});\n\nconsole.log(response.choices[0].message?.content);\n"
+          },
+          {
+            "lang": "Shell",
+            "label": "cURL",
+            "source": "curl -X POST \"https://api.together.ai/v1/chat/completions\" \\\n     -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n     -H \"Content-Type: application/json\" \\\n     -d '{\n       \"model\": \"Qwen/Qwen3.5-9B\",\n       \"messages\": [\n         {\"role\": \"system\", \"content\": \"You are a helpful assistant.\"},\n         {\"role\": \"user\", \"content\": \"What are some fun things to do in New York?\"}\n       ],\n       \"reasoning\": {\"enabled\": false}\n     }'\n"
+          }
+        ]
       }
     },
     "/v1/embeddings": {
@@ -146,33 +141,6 @@
         ],
         "summary": "Create embedding",
         "description": "Generate vector embeddings for one or more text inputs. Returns numerical arrays representing semantic meaning, useful for search, classification, and retrieval.",
-        "x-codeSamples": [
-          {
-            "lang": "Python",
-            "label": "Together AI SDK (v2)",
-            "source": "# Docs for v1 can be found by changing the above selector ^\nfrom together import Together\nimport os\n\nclient = Together(\n    api_key=os.environ.get(\"TOGETHER_API_KEY\"),\n)\n\nresponse = client.embeddings.create(\n    model=\"BAAI/bge-large-en-v1.5\",\n    input=\"New York City\",\n)\n\nprint(response.data[0].embedding)\n"
-          },
-          {
-            "lang": "Python",
-            "label": "Together AI SDK (v1)",
-            "source": "from together import Together\nimport os\n\nclient = Together(\n    api_key=os.environ.get(\"TOGETHER_API_KEY\"),\n)\n\nresponse = client.embeddings.create(\n    model=\"BAAI/bge-large-en-v1.5\",\n    input=\"New York City\",\n)\n\nprint(response.data[0].embedding)\n"
-          },
-          {
-            "lang": "TypeScript",
-            "label": "Together AI SDK (TypeScript)",
-            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst response = await client.embeddings.create({\n  model: \"BAAI/bge-large-en-v1.5\",\n  input: \"New York City\",\n});\n\nconsole.log(response.data[0].embedding);\n"
-          },
-          {
-            "lang": "JavaScript",
-            "label": "Together AI SDK (JavaScript)",
-            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst response = await client.embeddings.create({\n  model: \"BAAI/bge-large-en-v1.5\",\n  input: \"New York City\",\n});\n\nconsole.log(response.data[0].embedding);\n"
-          },
-          {
-            "lang": "Shell",
-            "label": "cURL",
-            "source": "curl -X POST \"https://api.together.ai/v1/embeddings\" \\\n     -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n     -H \"Content-Type: application/json\" \\\n     -d '{\n       \"model\": \"BAAI/bge-large-en-v1.5\",\n       \"input\": \"New York City\"\n     }'\n"
-          }
-        ],
         "operationId": "embeddings",
         "requestBody": {
           "content": {
@@ -255,7 +223,29 @@
             }
           }
         },
-        "deprecated": false
+        "deprecated": false,
+        "x-codeSamples": [
+          {
+            "lang": "Python",
+            "label": "Together AI SDK (Python)",
+            "source": "from together import Together\nimport os\n\nclient = Together(\n    api_key=os.environ.get(\"TOGETHER_API_KEY\"),\n)\n\nresponse = client.embeddings.create(\n    model=\"BAAI/bge-large-en-v1.5\",\n    input=\"New York City\",\n)\n\nprint(response.data[0].embedding)\n"
+          },
+          {
+            "lang": "TypeScript",
+            "label": "Together AI SDK (TypeScript)",
+            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst response = await client.embeddings.create({\n  model: \"BAAI/bge-large-en-v1.5\",\n  input: \"New York City\",\n});\n\nconsole.log(response.data[0].embedding);\n"
+          },
+          {
+            "lang": "JavaScript",
+            "label": "Together AI SDK (JavaScript)",
+            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst response = await client.embeddings.create({\n  model: \"BAAI/bge-large-en-v1.5\",\n  input: \"New York City\",\n});\n\nconsole.log(response.data[0].embedding);\n"
+          },
+          {
+            "lang": "Shell",
+            "label": "cURL",
+            "source": "curl -X POST \"https://api.together.ai/v1/embeddings\" \\\n     -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n     -H \"Content-Type: application/json\" \\\n     -d '{\n       \"model\": \"BAAI/bge-large-en-v1.5\",\n       \"input\": \"New York City\"\n     }'\n"
+          }
+        ]
       }
     },
     "/v1/rerank": {
@@ -265,33 +255,6 @@
         ],
         "summary": "Create a rerank request",
         "description": "Rerank a list of documents by relevance to a query. Returns a relevance score and ordering index for each document.",
-        "x-codeSamples": [
-          {
-            "lang": "Python",
-            "label": "Together AI SDK (v2)",
-            "source": "# Docs for v1 can be found by changing the above selector ^\nfrom together import Together\nimport os\n\nclient = Together(\n    api_key=os.environ.get(\"TOGETHER_API_KEY\"),\n)\n\ndocuments = [\n    {\n        \"title\": \"Llama\",\n        \"text\": \"The llama is a domesticated South American camelid, widely used as a meat and pack animal by Andean cultures since the pre-Columbian era.\"\n    },\n    {\n        \"title\": \"Panda\",\n        \"text\": \"The giant panda (Ailuropoda melanoleuca), also known as the panda bear or simply panda, is a bear species endemic to China.\"\n    },\n    {\n        \"title\": \"Guanaco\",\n        \"text\": \"The guanaco is a camelid native to South America, closely related to the llama. Guanacos are one of two wild South American camelids; the other species is the vicuña, which lives at higher elevations.\"\n    },\n    {\n        \"title\": \"Wild Bactrian camel\",\n        \"text\": \"The wild Bactrian camel (Camelus ferus) is an endangered species of camel endemic to Northwest China and southwestern Mongolia.\"\n    }\n]\n\nresponse = client.rerank.create(\n    model=\"Salesforce/Llama-Rank-v1\",\n    query=\"What animals can I find near Peru?\",\n    documents=documents,\n)\n\nfor result in response.results:\n    print(f\"Rank: {result.index + 1}\")\n    print(f\"Title: {documents[result.index]['title']}\")\n    print(f\"Text: {documents[result.index]['text']}\")\n"
-          },
-          {
-            "lang": "Python",
-            "label": "Together AI SDK (v1)",
-            "source": "from together import Together\nimport os\n\nclient = Together(\n    api_key=os.environ.get(\"TOGETHER_API_KEY\"),\n)\n\ndocuments = [\n    {\n        \"title\": \"Llama\",\n        \"text\": \"The llama is a domesticated South American camelid, widely used as a meat and pack animal by Andean cultures since the pre-Columbian era.\"\n    },\n    {\n        \"title\": \"Panda\",\n        \"text\": \"The giant panda (Ailuropoda melanoleuca), also known as the panda bear or simply panda, is a bear species endemic to China.\"\n    },\n    {\n        \"title\": \"Guanaco\",\n        \"text\": \"The guanaco is a camelid native to South America, closely related to the llama. Guanacos are one of two wild South American camelids; the other species is the vicuña, which lives at higher elevations.\"\n    },\n    {\n        \"title\": \"Wild Bactrian camel\",\n        \"text\": \"The wild Bactrian camel (Camelus ferus) is an endangered species of camel endemic to Northwest China and southwestern Mongolia.\"\n    }\n]\n\nresponse = client.rerank.create(\n    model=\"Salesforce/Llama-Rank-v1\",\n    query=\"What animals can I find near Peru?\",\n    documents=documents,\n)\n\nfor result in response.results:\n    print(f\"Rank: {result.index + 1}\")\n    print(f\"Title: {documents[result.index]['title']}\")\n    print(f\"Text: {documents[result.index]['text']}\")\n"
-          },
-          {
-            "lang": "TypeScript",
-            "label": "Together AI SDK (TypeScript)",
-            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst documents = [{\n  \"title\": \"Llama\",\n  \"text\": \"The llama is a domesticated South American camelid, widely used as a meat and pack animal by Andean cultures since the pre-Columbian era.\"\n},\n{\n  \"title\": \"Panda\",\n  \"text\": \"The giant panda (Ailuropoda melanoleuca), also known as the panda bear or simply panda, is a bear species endemic to China.\"\n},\n{\n  \"title\": \"Guanaco\",\n  \"text\": \"The guanaco is a camelid native to South America, closely related to the llama. Guanacos are one of two wild South American camelids; the other species is the vicuña, which lives at higher elevations.\"\n},\n{\n  \"title\": \"Wild Bactrian camel\",\n  \"text\": \"The wild Bactrian camel (Camelus ferus) is an endangered species of camel endemic to Northwest China and southwestern Mongolia.\"\n}];\n\nconst response = await client.rerank.create({\n  model: \"Salesforce/Llama-Rank-v1\",\n  query: \"What animals can I find near Peru?\",\n  documents,\n});\n\nfor (const result of response.results) {\n  console.log(`Rank: ${result.index + 1}`);\n  console.log(`Title: ${documents[result.index].title}`);\n  console.log(`Text: ${documents[result.index].text}`);\n}\n"
-          },
-          {
-            "lang": "JavaScript",
-            "label": "Together AI SDK (JavaScript)",
-            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst documents = [{\n  \"title\": \"Llama\",\n  \"text\": \"The llama is a domesticated South American camelid, widely used as a meat and pack animal by Andean cultures since the pre-Columbian era.\"\n},\n{\n  \"title\": \"Panda\",\n  \"text\": \"The giant panda (Ailuropoda melanoleuca), also known as the panda bear or simply panda, is a bear species endemic to China.\"\n},\n{\n  \"title\": \"Guanaco\",\n  \"text\": \"The guanaco is a camelid native to South America, closely related to the llama. Guanacos are one of two wild South American camelids; the other species is the vicuña, which lives at higher elevations.\"\n},\n{\n  \"title\": \"Wild Bactrian camel\",\n  \"text\": \"The wild Bactrian camel (Camelus ferus) is an endangered species of camel endemic to Northwest China and southwestern Mongolia.\"\n}];\n\nconst response = await client.rerank.create({\n  model: \"Salesforce/Llama-Rank-v1\",\n  query: \"What animals can I find near Peru?\",\n  documents,\n});\n\nfor (const result of response.results) {\n  console.log(`Rank: ${result.index + 1}`);\n  console.log(`Title: ${documents[result.index].title}`);\n  console.log(`Text: ${documents[result.index].text}`);\n}\n"
-          },
-          {
-            "lang": "Shell",
-            "label": "cURL",
-            "source": "curl -X POST \"https://api.together.ai/v1/rerank\" \\\n     -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n     -H \"Content-Type: application/json\" \\\n     -d '{\n       \"model\": \"Salesforce/Llama-Rank-v1\",\n       \"query\": \"What animals can I find near Peru?\",\n       \"documents\": [{\n          \"title\": \"Llama\",\n          \"text\": \"The llama is a domesticated South American camelid, widely used as a meat and pack animal by Andean cultures since the pre-Columbian era.\"\n        },\n        {\n          \"title\": \"Panda\",\n          \"text\": \"The giant panda (Ailuropoda melanoleuca), also known as the panda bear or simply panda, is a bear species endemic to China.\"\n        },\n        {\n          \"title\": \"Guanaco\",\n          \"text\": \"The guanaco is a camelid native to South America, closely related to the llama. Guanacos are one of two wild South American camelids; the other species is the vicuña, which lives at higher elevations.\"\n        },\n        {\n          \"title\": \"Wild Bactrian camel\",\n          \"text\": \"The wild Bactrian camel (Camelus ferus) is an endangered species of camel endemic to Northwest China and southwestern Mongolia.\"\n        }]\n     }'\n"
-          }
-        ],
         "operationId": "rerank",
         "requestBody": {
           "content": {
@@ -374,7 +337,29 @@
             }
           }
         },
-        "deprecated": false
+        "deprecated": false,
+        "x-codeSamples": [
+          {
+            "lang": "Python",
+            "label": "Together AI SDK (Python)",
+            "source": "from together import Together\nimport os\n\nclient = Together(\n    api_key=os.environ.get(\"TOGETHER_API_KEY\"),\n)\n\ndocuments = [\n    {\n        \"title\": \"Llama\",\n        \"text\": \"The llama is a domesticated South American camelid, widely used as a meat and pack animal by Andean cultures since the pre-Columbian era.\"\n    },\n    {\n        \"title\": \"Panda\",\n        \"text\": \"The giant panda (Ailuropoda melanoleuca), also known as the panda bear or simply panda, is a bear species endemic to China.\"\n    },\n    {\n        \"title\": \"Guanaco\",\n        \"text\": \"The guanaco is a camelid native to South America, closely related to the llama. Guanacos are one of two wild South American camelids; the other species is the vicuña, which lives at higher elevations.\"\n    },\n    {\n        \"title\": \"Wild Bactrian camel\",\n        \"text\": \"The wild Bactrian camel (Camelus ferus) is an endangered species of camel endemic to Northwest China and southwestern Mongolia.\"\n    }\n]\n\nresponse = client.rerank.create(\n    model=\"Salesforce/Llama-Rank-v1\",\n    query=\"What animals can I find near Peru?\",\n    documents=documents,\n)\n\nfor result in response.results:\n    print(f\"Rank: {result.index + 1}\")\n    print(f\"Title: {documents[result.index]['title']}\")\n    print(f\"Text: {documents[result.index]['text']}\")\n"
+          },
+          {
+            "lang": "TypeScript",
+            "label": "Together AI SDK (TypeScript)",
+            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst documents = [{\n  \"title\": \"Llama\",\n  \"text\": \"The llama is a domesticated South American camelid, widely used as a meat and pack animal by Andean cultures since the pre-Columbian era.\"\n},\n{\n  \"title\": \"Panda\",\n  \"text\": \"The giant panda (Ailuropoda melanoleuca), also known as the panda bear or simply panda, is a bear species endemic to China.\"\n},\n{\n  \"title\": \"Guanaco\",\n  \"text\": \"The guanaco is a camelid native to South America, closely related to the llama. Guanacos are one of two wild South American camelids; the other species is the vicuña, which lives at higher elevations.\"\n},\n{\n  \"title\": \"Wild Bactrian camel\",\n  \"text\": \"The wild Bactrian camel (Camelus ferus) is an endangered species of camel endemic to Northwest China and southwestern Mongolia.\"\n}];\n\nconst response = await client.rerank.create({\n  model: \"Salesforce/Llama-Rank-v1\",\n  query: \"What animals can I find near Peru?\",\n  documents,\n});\n\nfor (const result of response.results) {\n  console.log(`Rank: ${result.index + 1}`);\n  console.log(`Title: ${documents[result.index].title}`);\n  console.log(`Text: ${documents[result.index].text}`);\n}\n"
+          },
+          {
+            "lang": "JavaScript",
+            "label": "Together AI SDK (JavaScript)",
+            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst documents = [{\n  \"title\": \"Llama\",\n  \"text\": \"The llama is a domesticated South American camelid, widely used as a meat and pack animal by Andean cultures since the pre-Columbian era.\"\n},\n{\n  \"title\": \"Panda\",\n  \"text\": \"The giant panda (Ailuropoda melanoleuca), also known as the panda bear or simply panda, is a bear species endemic to China.\"\n},\n{\n  \"title\": \"Guanaco\",\n  \"text\": \"The guanaco is a camelid native to South America, closely related to the llama. Guanacos are one of two wild South American camelids; the other species is the vicuña, which lives at higher elevations.\"\n},\n{\n  \"title\": \"Wild Bactrian camel\",\n  \"text\": \"The wild Bactrian camel (Camelus ferus) is an endangered species of camel endemic to Northwest China and southwestern Mongolia.\"\n}];\n\nconst response = await client.rerank.create({\n  model: \"Salesforce/Llama-Rank-v1\",\n  query: \"What animals can I find near Peru?\",\n  documents,\n});\n\nfor (const result of response.results) {\n  console.log(`Rank: ${result.index + 1}`);\n  console.log(`Title: ${documents[result.index].title}`);\n  console.log(`Text: ${documents[result.index].text}`);\n}\n"
+          },
+          {
+            "lang": "Shell",
+            "label": "cURL",
+            "source": "curl -X POST \"https://api.together.ai/v1/rerank\" \\\n     -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n     -H \"Content-Type: application/json\" \\\n     -d '{\n       \"model\": \"Salesforce/Llama-Rank-v1\",\n       \"query\": \"What animals can I find near Peru?\",\n       \"documents\": [{\n          \"title\": \"Llama\",\n          \"text\": \"The llama is a domesticated South American camelid, widely used as a meat and pack animal by Andean cultures since the pre-Columbian era.\"\n        },\n        {\n          \"title\": \"Panda\",\n          \"text\": \"The giant panda (Ailuropoda melanoleuca), also known as the panda bear or simply panda, is a bear species endemic to China.\"\n        },\n        {\n          \"title\": \"Guanaco\",\n          \"text\": \"The guanaco is a camelid native to South America, closely related to the llama. Guanacos are one of two wild South American camelids; the other species is the vicuña, which lives at higher elevations.\"\n        },\n        {\n          \"title\": \"Wild Bactrian camel\",\n          \"text\": \"The wild Bactrian camel (Camelus ferus) is an endangered species of camel endemic to Northwest China and southwestern Mongolia.\"\n        }]\n     }'\n"
+          }
+        ]
       }
     },
     "/v1/models": {
@@ -384,33 +369,6 @@
         ],
         "summary": "List all models",
         "description": "Lists all of Together's open-source models and metadata including pricing, chat template, and context.",
-        "x-codeSamples": [
-          {
-            "lang": "Python",
-            "label": "Together AI SDK (v2)",
-            "source": "# Docs for v1 can be found by changing the above selector ^\nfrom together import Together\nimport os\n\nclient = Together(\n    api_key=os.environ.get(\"TOGETHER_API_KEY\"),\n)\n\nmodels = client.models.list()\n\nfor model in models:\n    print(model.id)\n"
-          },
-          {
-            "lang": "Python",
-            "label": "Together AI SDK (v1)",
-            "source": "from together import Together\nimport os\n\nclient = Together(\n    api_key=os.environ.get(\"TOGETHER_API_KEY\"),\n)\n\nmodels = client.models.list()\n\nfor model in models:\n    print(model.id)\n"
-          },
-          {
-            "lang": "TypeScript",
-            "label": "Together AI SDK (TypeScript)",
-            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst models = await client.models.list();\n\nfor (const model of models) {\n  console.log(model.id);\n}\n"
-          },
-          {
-            "lang": "JavaScript",
-            "label": "Together AI SDK (JavaScript)",
-            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst models = await client.models.list();\n\nfor (const model of models) {\n  console.log(model.id);\n}\n"
-          },
-          {
-            "lang": "Shell",
-            "label": "cURL",
-            "source": "curl \"https://api.together.ai/v1/models\" \\\n     -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n     -H \"Content-Type: application/json\"\n"
-          }
-        ],
         "operationId": "models",
         "parameters": [
           {
@@ -484,7 +442,29 @@
             }
           }
         },
-        "deprecated": false
+        "deprecated": false,
+        "x-codeSamples": [
+          {
+            "lang": "Python",
+            "label": "Together AI SDK (Python)",
+            "source": "from together import Together\nimport os\n\nclient = Together(\n    api_key=os.environ.get(\"TOGETHER_API_KEY\"),\n)\n\nmodels = client.models.list()\n\nfor model in models:\n    print(model.id)\n"
+          },
+          {
+            "lang": "TypeScript",
+            "label": "Together AI SDK (TypeScript)",
+            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst models = await client.models.list();\n\nfor (const model of models) {\n  console.log(model.id);\n}\n"
+          },
+          {
+            "lang": "JavaScript",
+            "label": "Together AI SDK (JavaScript)",
+            "source": "import Together from \"together-ai\";\n\nconst client = new Together({\n  apiKey: process.env.TOGETHER_API_KEY,\n});\n\nconst models = await client.models.list();\n\nfor (const model of models) {\n  console.log(model.id);\n}\n"
+          },
+          {
+            "lang": "Shell",
+            "label": "cURL",
+            "source": "curl \"https://api.together.ai/v1/models\" \\\n     -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n     -H \"Content-Type: application/json\"\n"
+          }
+        ]
       }
     }
   },
@@ -521,18 +501,15 @@
           },
           "temperature": {
             "type": "number",
-            "description": "A decimal number from 0-1 that determines the degree of randomness in the response. A temperature less than 1 favors more correctness and is appropriate for question answering or summarization. A value closer to 1 introduces more randomness in the output.",
-            "format": "float"
+            "description": "A decimal number from 0-1 that determines the degree of randomness in the response. A temperature less than 1 favors more correctness and is appropriate for question answering or summarization. A value closer to 1 introduces more randomness in the output."
           },
           "top_p": {
             "type": "number",
-            "description": "A percentage (also called the nucleus parameter) that's used to dynamically adjust the number of choices for each predicted token based on the cumulative probabilities. It specifies a probability threshold below which all less likely tokens are filtered out. This technique helps maintain diversity and generate more fluent and natural-sounding text.",
-            "format": "float"
+            "description": "A percentage (also called the nucleus parameter) that's used to dynamically adjust the number of choices for each predicted token based on the cumulative probabilities. It specifies a probability threshold below which all less likely tokens are filtered out. This technique helps maintain diversity and generate more fluent and natural-sounding text."
           },
           "top_k": {
             "type": "integer",
-            "description": "An integer that's used to limit the number of choices for the next predicted word or token. It specifies the maximum number of tokens to consider at each step, based on their probability of occurrence. This technique helps to speed up the generation process and can improve the quality of the generated text by focusing on the most likely options.",
-            "format": "int32"
+            "description": "An integer that's used to limit the number of choices for the next predicted word or token. It specifies the maximum number of tokens to consider at each step, based on their probability of occurrence. This technique helps to speed up the generation process and can improve the quality of the generated text by focusing on the most likely options."
           },
           "context_length_exceeded_behavior": {
             "type": "string",
@@ -569,24 +546,20 @@
           },
           "min_p": {
             "type": "number",
-            "description": "A number between 0 and 1 that can be used as an alternative to top_p and top-k.",
-            "format": "float"
+            "description": "A number between 0 and 1 that can be used as an alternative to top_p and top-k."
           },
           "presence_penalty": {
             "type": "number",
-            "description": "A number between -2.0 and 2.0 where a positive value increases the likelihood of a model talking about new topics.",
-            "format": "float"
+            "description": "A number between -2.0 and 2.0 where a positive value increases the likelihood of a model talking about new topics."
           },
           "frequency_penalty": {
             "type": "number",
-            "description": "A number between -2.0 and 2.0 where a positive value decreases the likelihood of repeating tokens that have already been mentioned.",
-            "format": "float"
+            "description": "A number between -2.0 and 2.0 where a positive value decreases the likelihood of repeating tokens that have already been mentioned."
           },
           "logit_bias": {
             "type": "object",
             "additionalProperties": {
-              "type": "number",
-              "format": "float"
+              "type": "number"
             },
             "description": "Adjusts the likelihood of specific tokens appearing in the generated output.",
             "example": {

@@ -41,11 +41,6 @@
       "url": "https://developers.cloudflare.com/ai/models/moonshotai/kimi-k3/"
     },
     {
-      "title": "DeepInfra Kimi K3 (coming soon)",
-      "kind": "api_reference",
-      "url": "https://deepinfra.com/moonshotai/Kimi-K3"
-    },
-    {
       "title": "Together AI Kimi K3",
       "kind": "pricing",
       "url": "https://www.together.ai/models/kimi-k3"
@@ -110,7 +105,7 @@
     },
     {
       "name": "availability_note",
-      "value": "Kimi K3 API access is available from Baseten, Cloudflare, Fireworks, GMI Cloud, Modal, Moonshot AI, Nebius Token Factory, Novita, SiliconFlow, Together AI, and Venice. Together AI publishes $3.00 per million input tokens, $0.30 per million cached input tokens, and $15.00 per million output tokens. Cloudflare exposes the model through its Workers AI OpenAI-compatible Chat Completions endpoint and publishes pricing in the Cloudflare dashboard. DeepInfra is listed as coming soon because its official public model catalogue did not yet return moonshotai/Kimi-K3 on July 27, 2026."
+      "value": "Kimi K3 API access is available from Baseten, Cloudflare, Fireworks, GMI Cloud, Modal, Moonshot AI, Nebius Token Factory, Novita, SiliconFlow, Together AI, and Venice. Together AI publishes $3.00 per million input tokens, $0.30 per million cached input tokens, and $15.00 per million output tokens. Cloudflare exposes the model through its Workers AI OpenAI-compatible Chat Completions endpoint, but Phaseo routing remains disabled until Cloudflare's dashboard-only Kimi K3 pricing can be imported."
     }
   ],
   "benchmarks": [

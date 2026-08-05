@@ -28,6 +28,7 @@ const STATUS_ORDER: Record<Exclude<ModelStatus, null>, number> = {
 
 const REPO_ROOT = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const CANONICAL_MODELS_ROOT = path.join(REPO_ROOT, "packages", "data", "catalog", "src", "data", "models");
+const API_PROVIDERS_ROOT = path.join(REPO_ROOT, "packages", "data", "catalog", "src", "data", "api_providers");
 const LEGACY_MODELS_ROOT = path.join(REPO_ROOT, "apps", "web", "src", "data", "models");
 
 function resolveModelsRoot(): string {
@@ -61,9 +62,9 @@ function normalizeStatus(value: unknown): ModelStatus {
         : null;
 }
 
-function deriveStatusFromDates(dates: ModelDates, now: Date): DerivedStatus | null {
+export function deriveStatusFromDates(dates: ModelDates, now: Date, hasActiveGatewayRoute = false): DerivedStatus | null {
     const retirement = parseDate(dates.retirement_date);
-    if (retirement && retirement <= now) {
+    if (retirement && retirement <= now && !hasActiveGatewayRoute) {
         return { status: "Retired", reason: `retirement_date ${dates.retirement_date}` };
     }
 
@@ -85,10 +86,10 @@ function deriveStatusFromDates(dates: ModelDates, now: Date): DerivedStatus | nu
     return null;
 }
 
-function pickStatus(current: ModelStatus, derived: DerivedStatus | null): ModelStatus {
+export function pickStatus(current: ModelStatus, derived: DerivedStatus | null): ModelStatus {
     if (!derived) return current;
     if (
-        (current === "Withheld" || current === "Limited Access") &&
+        (current === "Rumoured" || current === "Withheld" || current === "Limited Access") &&
         (derived.status === "Announced" || derived.status === "Available")
     ) {
         return current;
@@ -96,6 +97,24 @@ function pickStatus(current: ModelStatus, derived: DerivedStatus | null): ModelS
     const currentRank = current ? STATUS_ORDER[current] ?? -1 : -1;
     const derivedRank = STATUS_ORDER[derived.status];
     return derivedRank > currentRank ? derived.status : current;
+}
+
+export function collectActiveGatewayModelIds(root: string): Set<string> {
+    const activeModelIds = new Set<string>();
+    if (!fs.existsSync(root)) return activeModelIds;
+
+    for (const provider of fs.readdirSync(root, { withFileTypes: true }).filter((entry) => entry.isDirectory())) {
+        const modelsPath = path.join(root, provider.name, "models.json");
+        if (!fs.existsSync(modelsPath)) continue;
+
+        const routes = JSON.parse(fs.readFileSync(modelsPath, "utf-8")) as Array<Record<string, unknown>>;
+        for (const route of routes) {
+            if (route.is_active_gateway !== true || typeof route.internal_model_id !== "string") continue;
+            activeModelIds.add(route.internal_model_id);
+        }
+    }
+
+    return activeModelIds;
 }
 
 function listModelFiles(root: string): string[] {
@@ -120,6 +139,7 @@ function main() {
     const now = new Date();
     const dryRun = process.argv.includes("--dry-run");
     const modelFiles = listModelFiles(MODELS_ROOT);
+    const activeGatewayModelIds = collectActiveGatewayModelIds(API_PROVIDERS_ROOT);
     const changes: Array<{ file: string; from: ModelStatus; to: ModelStatus; reason: string }> = [];
 
     for (const file of modelFiles) {
@@ -127,7 +147,12 @@ function main() {
         const data = JSON.parse(raw) as Record<string, unknown>;
 
         const currentStatus = normalizeStatus(data.status);
-        const derived = deriveStatusFromDates(data as ModelDates, now);
+        const modelId = typeof data.model_id === "string" ? data.model_id : null;
+        const derived = deriveStatusFromDates(
+            data as ModelDates,
+            now,
+            modelId ? activeGatewayModelIds.has(modelId) : false
+        );
         const nextStatus = pickStatus(currentStatus, derived);
 
         if (nextStatus && nextStatus !== currentStatus) {
@@ -163,4 +188,6 @@ function main() {
     }
 }
 
-main();
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+    main();
+}

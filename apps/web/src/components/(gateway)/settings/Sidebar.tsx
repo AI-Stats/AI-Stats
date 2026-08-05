@@ -168,7 +168,6 @@ export default function SettingsSidebar({
 			<SidebarMenuButton asChild isActive={active} tooltip={item.label}>
 				<Link
 					href={item.href}
-					prefetch={false}
 					aria-current={active ? "page" : undefined}
 					aria-label={isCollapsed ? item.label : undefined}
 					onClick={closeMobile}
@@ -205,8 +204,8 @@ export default function SettingsSidebar({
 			<SidebarContent className="overflow-y-auto">
 				<div className="px-2 pt-3 group-data-[collapsible=icon]:hidden">
 					<div className="grid grid-cols-2 rounded-lg bg-muted/70 p-1" aria-label="Settings scope">
-						<Link href="/settings/profile" prefetch={false} aria-current={activeScope === "personal" ? "page" : undefined} className={activeScope === "personal" ? "flex h-8 items-center justify-center gap-1.5 rounded-md bg-background px-2 text-xs font-medium text-foreground shadow-sm" : "flex h-8 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground hover:text-foreground"}><UserRound className="size-3.5" />My account</Link>
-						<Link href="/settings/workspaces/settings" prefetch={false} aria-current={activeScope === "workspace" ? "page" : undefined} className={activeScope === "workspace" ? "flex h-8 items-center justify-center gap-1.5 rounded-md bg-background px-2 text-xs font-medium text-foreground shadow-sm" : "flex h-8 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground hover:text-foreground"}><Building2 className="size-3.5" />Workspace</Link>
+						<Link href="/settings/profile" aria-current={activeScope === "personal" ? "page" : undefined} className={activeScope === "personal" ? "flex h-8 items-center justify-center gap-1.5 rounded-md bg-background px-2 text-xs font-medium text-foreground shadow-sm" : "flex h-8 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground hover:text-foreground"}><UserRound className="size-3.5" />My account</Link>
+						<Link href="/settings/workspaces/settings" aria-current={activeScope === "workspace" ? "page" : undefined} className={activeScope === "workspace" ? "flex h-8 items-center justify-center gap-1.5 rounded-md bg-background px-2 text-xs font-medium text-foreground shadow-sm" : "flex h-8 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground hover:text-foreground"}><Building2 className="size-3.5" />Workspace</Link>
 					</div>
 					{activeScope === "workspace" && workspaceName ? <p className="truncate px-2 pt-2 text-[11px] text-muted-foreground">{workspaceName}</p> : null}
 				</div>
@@ -214,14 +213,14 @@ export default function SettingsSidebar({
 					<SidebarMenu>
 						<SidebarMenuItem>
 							<SidebarMenuButton asChild isActive={activeScope === "personal"} tooltip="My account">
-								<Link href="/settings/profile" prefetch={false} aria-label="My account settings">
+								<Link href="/settings/profile" aria-label="My account settings">
 									<UserRound className="size-4" />
 								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 						<SidebarMenuItem>
 							<SidebarMenuButton asChild isActive={activeScope === "workspace"} tooltip="Workspace">
-								<Link href="/settings/workspaces/settings" prefetch={false} aria-label="Workspace settings">
+								<Link href="/settings/workspaces/settings" aria-label="Workspace settings">
 									<Building2 className="size-4" />
 								</Link>
 							</SidebarMenuButton>

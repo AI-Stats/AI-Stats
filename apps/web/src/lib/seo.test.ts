@@ -1,14 +1,14 @@
 import { resolveSiteUrl } from "./seo";
 
 describe("resolveSiteUrl", () => {
-	it("normalizes the legacy ai-stats subdomain to the canonical Phaseo host", () => {
-		expect(resolveSiteUrl("https://ai-stats.phaseo.app/")).toBe(
+	it("keeps the canonical Phaseo host", () => {
+		expect(resolveSiteUrl("https://phaseo.app/")).toBe(
 			"https://phaseo.app",
 		);
 	});
 
-	it("normalizes the http legacy ai-stats subdomain to the canonical Phaseo host", () => {
-		expect(resolveSiteUrl("http://ai-stats.phaseo.app/")).toBe(
+	it("upgrades the canonical Phaseo host to HTTPS", () => {
+		expect(resolveSiteUrl("http://phaseo.app/")).toBe(
 			"https://phaseo.app",
 		);
 	});

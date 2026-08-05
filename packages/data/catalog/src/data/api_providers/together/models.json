@@ -1408,7 +1408,36 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Together lists JSON mode for Kimi K3."
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Together lists JSON mode for Kimi K3."
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Together lists function calling for Kimi K3."
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Together lists function calling for Kimi K3."
+          }
+        ],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
@@ -1437,13 +1466,13 @@
       {
         "kind": "api_reference",
         "url": "https://www.together.ai/models/kimi-k3",
-        "accessed_at": "2026-07-27T19:30:00Z",
+        "accessed_at": "2026-08-05T00:00:00Z",
         "notes": "Together documents Kimi K3 as live on serverless and dedicated infrastructure with native vision, JSON mode and function calling."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-07-27T19:30:00Z",
+      "checked_at": "2026-08-05T00:00:00Z",
       "notes": "Together documents Kimi K3 as live on serverless and dedicated infrastructure with native vision, JSON mode and function calling."
     },
     "rate_limits": []

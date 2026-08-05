@@ -2,11 +2,14 @@ import { afterAll, afterEach, describe, expect, it } from "vitest";
 import {
 	assertSafeDiscoverySnapshot,
 	buildDiscordMessage,
+	buildProviderApiModelSnapshotDiff,
+	collapseDiscordProviderChanges,
 	computeDiscordNotificationFingerprint,
 	extractDiscoveredModels,
 	extractProviderApiModelSnapshot,
 	fetchProviderModels,
 	formatPricingSample,
+	getDiscordProviderFamilyId,
 	resolveProviderModelsEndpoint,
 } from "./helpers";
 import { installFetchMock, jsonResponse } from "../../../tests/helpers/mock-fetch";
@@ -232,6 +235,21 @@ describe("extractProviderApiModelSnapshot", () => {
 });
 
 describe("extractDiscoveredModels", () => {
+	it("strips latency metrics from nested provider pricing snapshots", () => {
+		const [model] = extractDiscoveredModels("unknown-provider", {
+			data: [{ id: "model-a", pricing: { providers: [
+				{ first_token_latency_ms: 273.6, pricing: { input: 1.25, output: 2.5 } },
+				{ first_token_latency_ms: 981.2, pricing: { input: 1.25, output: 2.5 } },
+			] } }],
+		});
+
+		expect(JSON.stringify(model?.pricingDetails)).not.toContain("latency");
+		expect(model?.pricingDetails).toEqual({ pricing: { providers: [
+			{ pricing: { input: 1.25, output: 2.5 } },
+			{ pricing: { input: 1.25, output: 2.5 } },
+		] } });
+	});
+
 	it("extracts model pricing from top-level array responses", () => {
 		const models = extractDiscoveredModels("together", [
 			{
@@ -249,6 +267,44 @@ describe("extractDiscoveredModels", () => {
 });
 
 describe("buildDiscordMessage", () => {
+	it("collapses regional and endpoint variants into provider families", () => {
+		const collapsed = collapseDiscordProviderChanges([
+			{ providerId: "nebius-token-factory", providerName: "Nebius", previousCount: 1, currentCount: 2, added: ["model-a"], removed: [] },
+			{ providerId: "nebius-token-factory-eu-north-1", providerName: "Nebius EU", previousCount: 1, currentCount: 2, added: ["model-a"], removed: [] },
+			{ providerId: "nebius-token-factory-fast", providerName: "Nebius Fast", previousCount: 1, currentCount: 2, added: ["model-b"], removed: [] },
+		]);
+
+		expect(collapsed).toHaveLength(1);
+		expect(collapsed[0]).toMatchObject({ providerName: "Nebius Token Factory", added: ["model-a", "model-b"] });
+		expect(getDiscordProviderFamilyId("nebius-token-factory-us-central-1")).toBe("nebius-token-factory");
+	});
+
+	it("preserves pricing update counts while deduplicating visible samples", () => {
+		const message = buildDiscordMessage({
+			modelChanges: [],
+			pricing: {
+				updatesDetected: 10,
+				providerChanges: [
+					{ providerId: "nebius-token-factory", updates: 6, samples: ["shared price"] },
+					{ providerId: "nebius-token-factory-eu-north-1", updates: 4, samples: ["shared price"] },
+				],
+			},
+			providerApiPricing: { updatesDetected: 0, providerChanges: [] },
+			pricingTable: { updatesDetected: 0, providerChanges: [], errors: [] },
+			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
+		} as any);
+
+		expect(message).toContain("10 updated rules across 1 provider");
+		expect(message.match(/shared price/g)).toHaveLength(1);
+	});
+
+	it("ignores performance and token-limit metadata changes", () => {
+		expect(buildProviderApiModelSnapshotDiff(
+			{ contextLength: 32_000, maxCompletionTokens: 4_096, pricingDetails: { input: 1 }, pricingFingerprint: "same" },
+			{ contextLength: 128_000, maxCompletionTokens: 16_384, pricingDetails: { input: 1 }, pricingFingerprint: "same" },
+		)).toEqual([]);
+	});
+
 	it("includes pricing-only changes", () => {
 		setupRuntimeFromEnv({} as any);
 		expect(buildDiscordMessage({
@@ -260,7 +316,7 @@ describe("buildDiscordMessage", () => {
 		} as any)).toContain("Pricing monitor detected 1 updated rule");
 	});
 
-	it("includes pricing source failures", () => {
+	it("does not notify for pricing source failures without a pricing change", () => {
 		setupRuntimeFromEnv({} as any);
 		expect(buildDiscordMessage({
 			modelChanges: [],
@@ -272,7 +328,7 @@ describe("buildDiscordMessage", () => {
 				errors: ["Alibaba pricing source returned no prices"],
 			},
 			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
-		} as any)).toContain("Alibaba pricing source returned no prices");
+		} as any)).toBe("");
 	});
 
 	it("prefers an explicit catalog endpoint over the gateway base URL", () => {

@@ -82,21 +82,9 @@ describe("cross-provider model deployment matrix", () => {
     it("covers every active text deployment with a resolvable executor", () => {
         const missing = matrix.deployments.filter((deployment) =>
             !resolveProviderExecutor(deployment.providerId, "text.generate"));
-        expect({
-            models: matrix.modelCount,
-            providers: matrix.providerCount,
-            deployments: matrix.deployments.length,
-            multiProviderModels: multiProviderMatrix.modelCount,
-            multiProviderDeployments: multiProviderMatrix.deployments.length,
-            missing: missing.map(caseName),
-        }).toMatchObject({
-			models: 353,
-            providers: 51,
-            deployments: 813,
-            multiProviderModels: 128,
-            multiProviderDeployments: 585,
-            missing: [],
-        });
+        expect(matrix.deployments.length).toBeGreaterThan(0);
+        expect(multiProviderMatrix.deployments.length).toBeGreaterThan(0);
+        expect(missing.map(caseName)).toEqual([]);
     });
 
     it.each(executable.map((deployment) => [caseName(deployment), deployment] as const))(

@@ -77,6 +77,7 @@ const PROVIDER_STATUS_ORDER = [
 	"deranked_lvl1",
 	"deranked_lvl2",
 	"deranked_lvl3",
+	"internal_testing",
 	"external",
 	"inactive",
 	"disabled",
@@ -96,6 +97,11 @@ const PROVIDER_STATUS_META: Record<
 		label: "Coming Soon",
 		badgeClassName: "bg-blue-500/10 text-blue-600",
 		dotClassName: "bg-blue-500",
+	},
+	internal_testing: {
+		label: "Internal Testing",
+		badgeClassName: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300",
+		dotClassName: "bg-cyan-500",
 	},
 	external: {
 		label: "External",

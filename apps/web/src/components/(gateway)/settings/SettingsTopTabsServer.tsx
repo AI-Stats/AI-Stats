@@ -3,20 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { ChevronDown, PanelLeftIcon } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useSidebar } from "@/components/ui/sidebar";
 import { getActiveSettingsNav } from "./Sidebar.config";
-import SettingsSidebarTrigger from "./SettingsSidebarTrigger";
 
 type Tab = {
 	href: string;
@@ -154,16 +143,11 @@ export default function SettingsTopTabsServer({
 	const pathname = usePathname() ?? "";
 	const searchParams = useSearchParams();
 	const logsView = searchParams.get("view") ?? "logs";
-	const { toggleSidebar } = useSidebar();
 	const tabs = resolveTabs(pathname, { showBroadcast, showWebhooks });
 	const activeNav = React.useMemo(
 		() => getActiveSettingsNav(pathname, { showBroadcast, showWebhooks }),
 		[pathname, showBroadcast, showWebhooks],
 	);
-
-	const containerRef = React.useRef<HTMLDivElement | null>(null);
-	const linkRefs = React.useRef<Record<string, HTMLAnchorElement | null>>({});
-	const [indicator, setIndicator] = React.useState({ left: 0, width: 0, opacity: 0 });
 
 	const matchScore = React.useCallback((t: Tab) => {
 		if (t.view) {
@@ -208,168 +192,48 @@ export default function SettingsTopTabsServer({
 						return b.score!.len - a.score!.len;
 					})[0]?.t ?? tabs[0]
 			: null;
-	const mobileSectionLabel = activeNav?.group.scope === "personal" ? "My account" : "Workspace";
 
-	const setIndicatorToHref = React.useCallback((href: string | null) => {
-		const container = containerRef.current;
-		if (!container || !href) return;
-		const el = linkRefs.current[href];
-		if (!el) return;
+	const displayedTabs: Tab[] = tabs?.length
+		? tabs
+		: [{
+			href: (activeNav?.item.href ?? pathname) || "/settings",
+			label: activeNav?.item.label ?? "Settings",
+			badge: activeNav?.item.badge,
+		}];
 
-		const containerRect = container.getBoundingClientRect();
-		const rect = el.getBoundingClientRect();
-		setIndicator({
-			left: rect.left - containerRect.left,
-			width: rect.width,
-			opacity: 1,
-		});
-	}, []);
-
-	React.useEffect(() => {
-		const update = () => setIndicatorToHref(activeTab?.href ?? null);
-		const raf = requestAnimationFrame(update);
-		window.addEventListener("resize", update);
-		return () => {
-			cancelAnimationFrame(raf);
-			window.removeEventListener("resize", update);
-		};
-	}, [activeTab?.href, setIndicatorToHref]);
-
-	if (!tabs?.length) {
-		return (
-			<>
-				<SettingsSidebarTrigger showBroadcast={showBroadcast} showWebhooks={showWebhooks} />
-				<nav
-					className="relative hidden h-[52px] items-end border-b border-border lg:flex"
-					aria-label="Settings section navigation"
-				>
-					<div
-						aria-current="page"
-						className="flex border-b-2 border-muted-foreground px-2 pb-2 text-sm font-medium text-primary"
+	return (
+		<nav
+			className="flex h-[52px] items-end gap-2 overflow-x-auto overscroll-x-contain border-b border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+			aria-label="Settings section navigation"
+		>
+			{displayedTabs.map((tab) => {
+				const active = !tabs?.length || tab.href === activeTab?.href;
+				return (
+					<Link
+						key={tab.href}
+						href={navigationHref(tab)}
+						aria-current={active ? "page" : undefined}
+						className={cn(
+							"shrink-0 whitespace-nowrap border-b-2 px-2 pb-2 text-sm font-medium transition-colors duration-150",
+							active
+								? "border-muted-foreground text-primary"
+								: "border-transparent text-muted-foreground hover:text-primary",
+						)}
 					>
 						<span className="flex items-center gap-2">
-							<span>{activeNav?.item.label ?? "Settings"}</span>
-							{activeNav?.item.badge ? (
+							<span>{tab.label}</span>
+							{tab.badge ? (
 								<Badge
 									variant="outline"
 									className="h-5 px-1.5 text-[10px] capitalize"
 								>
-									{activeNav.item.badge}
+									{tab.badge}
 								</Badge>
 							) : null}
 						</span>
-					</div>
-				</nav>
-			</>
-		);
-	}
-
-	return (
-		<>
-			<nav className="flex h-[52px] items-center md:hidden" aria-label="Settings section navigation">
-				<div className="flex items-center gap-2">
-					<Button
-						variant="outline"
-						className="h-9 max-w-[11rem] shrink-0 px-3"
-						onClick={toggleSidebar}
-						aria-haspopup="dialog"
-					>
-						<PanelLeftIcon className="mr-1.5 h-4 w-4" />
-						<span className="truncate">{mobileSectionLabel}</span>
-					</Button>
-					<DropdownMenu>
-						<DropdownMenuTrigger render={<Button
-								variant="outline"
-								className="h-9 flex-1 justify-between min-w-0" />}>
-
-								<span className="truncate">
-									{activeTab?.label ?? "Settings"}
-								</span>
-								<ChevronDown className="h-4 w-4 shrink-0" />
-
-						</DropdownMenuTrigger>
-						<DropdownMenuContent
-							align="end"
-							className="w-[min(20rem,calc(100vw-1rem))]"
-						>
-							{tabs.map((tab) => {
-								const active = tab.href === activeTab?.href;
-								return (
-									<DropdownMenuItem key={tab.href}  render={<Link
-										href={navigationHref(tab)}
-											prefetch={false}
-											aria-current={active ? "page" : undefined}
-											className="flex items-center gap-2" />}>
-
-											<span className={cn("flex-1 truncate", active && "font-semibold")}>
-												{tab.label}
-											</span>
-											{tab.badge ? (
-												<Badge
-													variant="outline"
-											className="h-4 px-1 text-[9px] capitalize"
-												>
-													{tab.badge}
-												</Badge>
-											) : null}
-
-									</DropdownMenuItem>
-								);
-							})}
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</div>
-			</nav>
-
-			<nav
-				ref={containerRef}
-				className="relative hidden h-[52px] items-end gap-4 border-b border-border md:flex"
-				onMouseLeave={() => setIndicatorToHref(activeTab?.href ?? null)}
-				aria-label="Settings section navigation"
-			>
-				<div
-					aria-hidden="true"
-					className="pointer-events-none absolute bottom-0 h-0.5 rounded bg-muted-foreground transition-[left,width,opacity] duration-200 ease-out"
-					style={{
-						left: indicator.left,
-						width: indicator.width,
-						opacity: indicator.opacity,
-					}}
-				/>
-
-				{tabs.map((tab) => {
-					const active = tab.href === activeTab?.href;
-					return (
-						<Link
-							key={tab.href}
-							href={navigationHref(tab)}
-							prefetch={false}
-							aria-current={active ? "page" : undefined}
-							ref={(el) => {
-								linkRefs.current[tab.href] = el;
-							}}
-							onMouseEnter={() => setIndicatorToHref(tab.href)}
-							onFocus={() => setIndicatorToHref(tab.href)}
-							className={cn(
-								"pb-2 px-2 text-sm font-medium transition-colors duration-150",
-								active ? "text-primary" : "text-muted-foreground hover:text-primary",
-							)}
-						>
-							<span className="flex items-center gap-2">
-								<span>{tab.label}</span>
-								{tab.badge ? (
-									<Badge
-										variant="outline"
-									className="h-5 px-1.5 text-[10px] capitalize"
-									>
-										{tab.badge}
-									</Badge>
-								) : null}
-							</span>
-						</Link>
-					);
-				})}
-			</nav>
-		</>
+					</Link>
+				);
+			})}
+		</nav>
 	);
 }

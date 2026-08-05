@@ -62,13 +62,13 @@
     {
       "kind": "pricing",
       "url": "https://www.together.ai/models/kimi-k3",
-      "accessed_at": "2026-07-27T19:30:00Z",
+      "accessed_at": "2026-08-05T00:00:00Z",
       "notes": "Live Kimi K3 pricing published by Together AI."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-07-27T19:30:00Z",
+    "checked_at": "2026-08-05T00:00:00Z",
     "notes": "Pricing transcribed from Together AI's live Kimi K3 listing."
   }
 }

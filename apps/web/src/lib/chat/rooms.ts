@@ -97,7 +97,7 @@ export const CHAT_ROOMS: ChatRoomConfig[] = [
 		id: "speech-to-text",
 		label: "Speech to Text",
 		route: "/chat/speech-to-text",
-		description: "Speech transcription and translation workspace.",
+		description: "Speech transcription workspace.",
 		capabilityHints: SPEECH_TO_TEXT_CAPABILITY_HINTS,
 	},
 	{
@@ -144,9 +144,9 @@ export const CHAT_ROOM_BY_ID: Record<ChatRoomId, ChatRoomConfig> = {
 	video: CHAT_ROOMS[2],
 	audio: {
 		id: "audio",
-		label: "Audio",
-		route: "/chat/audio",
-		description: "Legacy audio workspace.",
+		label: "Text to Speech",
+		route: "/chat/speech",
+		description: "Audio model compatibility mapping for focused audio rooms.",
 		capabilityHints: AUDIO_CAPABILITY_HINTS,
 	},
 	speech: CHAT_ROOMS[3],

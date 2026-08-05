@@ -20,6 +20,7 @@ const STATUS_STYLES: Record<string, string> = {
 	Available:
 		"border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
 	Announced: "border-sky-500/40 bg-sky-500/10 text-sky-700 dark:text-sky-300",
+	Preview: "border-cyan-500/40 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300",
 	"Limited Access":
 		"border-fuchsia-500/40 bg-fuchsia-500/10 text-fuchsia-700 dark:text-fuchsia-300",
 	Withheld:

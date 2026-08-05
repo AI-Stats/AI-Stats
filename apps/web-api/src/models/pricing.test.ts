@@ -10,6 +10,9 @@ describe("composeModelPricing", () => {
 				api_model_id: "openai/gpt-test:free",
 				provider_model_slug: "gpt-test",
 				is_active_gateway: true,
+				provider_availability_status: "available",
+				phaseo_status: "enabled",
+				access_scope: "public",
 				input_modalities: ["text"],
 				output_modalities: ["text"],
 				data_api_provider_model_capabilities: [{ capability_id: "text.generate", status: "active", max_input_tokens: 128000 }],
@@ -22,7 +25,14 @@ describe("composeModelPricing", () => {
 
 		expect(providers).toHaveLength(1);
 		expect(providers[0]?.provider).toMatchObject({ api_provider_id: "provider-a", api_provider_name: "Provider A" });
-		expect(providers[0]?.provider_models).toMatchObject([{ endpoint: "text.generate", context_length: null, max_input_tokens: 128000 }]);
+		expect(providers[0]?.provider_models).toMatchObject([{
+			endpoint: "text.generate",
+			context_length: null,
+			max_input_tokens: 128000,
+			provider_availability_status: "available",
+			phaseo_status: "enabled",
+			access_scope: "public",
+		}]);
 		expect(providers[0]?.pricing_rules).toMatchObject([{ id: "rule-1", pricing_plan: "free", price_per_unit: 0 }]);
 	});
 });

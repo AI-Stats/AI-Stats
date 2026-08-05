@@ -23,6 +23,13 @@ function defaultTranslationResponseFormat(model?: string | null): string {
     return "verbose_json";
 }
 
+function invalidParameterResponse(param: string, message: string): Response {
+    return new Response(
+        JSON.stringify({ error: { type: "invalid_request_error", message, param } }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+    );
+}
+
 async function parseAudioTextPayload(response: Response): Promise<Record<string, any> | undefined> {
     const contentType = (response.headers.get("content-type") || "").toLowerCase();
     if (contentType.includes("application/json")) {
@@ -47,6 +54,31 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         model: args.providerModelSlug || adapterPayload.model,
     };
 
+    const modelName = normalizeModelName(body.model).toLowerCase();
+    const responseFormat = body.response_format ?? defaultTranslationResponseFormat(body.model);
+    const isOpenAI = args.providerId === "openai" || args.providerId === "openai-eu";
+    if (isOpenAI && modelName !== "whisper-1") {
+        return {
+            kind: "completed",
+            upstream: invalidParameterResponse("model", "OpenAI audio translations support only whisper-1."),
+            bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
+            keySource: keyInfo.source,
+            byokKeyId: keyInfo.byokId,
+        };
+    }
+    if (modelName === "whisper-1" && !new Set(["json", "text", "srt", "verbose_json", "vtt"]).has(responseFormat)) {
+        return {
+            kind: "completed",
+            upstream: invalidParameterResponse(
+                "response_format",
+                `whisper-1 translations do not support response_format="${responseFormat}".`,
+            ),
+            bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
+            keySource: keyInfo.source,
+            byokKeyId: keyInfo.byokId,
+        };
+    }
+
     const form = new FormData();
     form.append("model", body.model);
     const filename = typeof File !== "undefined" && body.file instanceof File && body.file.name
@@ -55,7 +87,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     form.append("file", body.file, filename);
     if (body.prompt) form.append("prompt", body.prompt);
     if (typeof body.temperature === "number") form.append("temperature", String(body.temperature));
-    form.append("response_format", body.response_format ?? defaultTranslationResponseFormat(body.model));
+    form.append("response_format", responseFormat);
 
     const headers = openAICompatHeaders(args.providerId, keyInfo.key, upstreamTestHeaders(args.meta));
     delete (headers as any)["Content-Type"];

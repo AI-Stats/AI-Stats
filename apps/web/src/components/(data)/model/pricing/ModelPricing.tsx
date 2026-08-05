@@ -70,7 +70,7 @@ export default async function ModelPricing({
 	);
 	const [providers, identity] = await Promise.all([
 		includeInternalProviders
-			? getModelPricingCached(modelId, includeHidden)
+			? getModelPricingCached(modelId, includeHidden, true)
 			: fetchFrontendModelPricing(modelId),
 		modelStatus !== undefined
 			? Promise.resolve({ status: modelStatus, name: modelName ?? null, organisationId: creatorOrganisationId ?? null })
