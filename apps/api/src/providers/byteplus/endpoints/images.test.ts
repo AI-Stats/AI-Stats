@@ -87,4 +87,16 @@ describe("BytePlus image adapter", () => {
 		expect(result.normalized).toMatchObject({ error: { param: "n" } });
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
+
+	it("rejects multiple outputs when routing falls back to the canonical model ID", async () => {
+		const fetchMock = vi.fn();
+		vi.stubGlobal("fetch", fetchMock);
+		const request = args("images.generations", { n: 2 });
+		request.providerModelSlug = null;
+
+		const result = await exec(request);
+
+		expect(result.upstream.status).toBe(400);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
 });

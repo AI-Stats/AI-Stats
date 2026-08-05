@@ -177,7 +177,8 @@ export function buildImagePricingRequestOptions(
 		const dimensions = parsePixelDimensions(size);
 		const outputPixels = dimensions
 			? dimensions.width * dimensions.height
-			: IMAGE_SIZE_ALIAS_PIXELS.get(size.trim().toUpperCase());
+			: IMAGE_SIZE_ALIAS_PIXELS.get(size.trim().toUpperCase()) ??
+				(providerImageSize ? IMAGE_SIZE_ALIAS_PIXELS.get(providerImageSize) : undefined);
 		if (outputPixels) {
 			out.output_pixels = outputPixels;
 			out.image_params = {

@@ -37,7 +37,8 @@ function resolveInputImageCount(body: ImagesGenerationRequest | ImagesEditReques
 }
 
 function supportsMultipleOutputs(model: string): boolean {
-	return !model.includes("seedream-5-0-pro");
+	const normalized = model.toLowerCase().replace(/[._]/g, "-");
+	return !normalized.includes("seedream-5-0-pro");
 }
 
 function normalizeResponse(json: any): any {
