@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { evaluateCurieOutput, outputCost, summariseCurieResults, validateCurieConfig, validateCurieEndpoint, type CurieResult } from "../src/curie.ts";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { evaluateCurieOutput, outputCost, runCurie, summariseCurieResults, validateCurieConfig, validateCurieEndpoint, type CurieResult } from "../src/curie.ts";
 
 test("validates a minimal local run", () => {
 	const config = validateCurieConfig({ models: ["phaseo/test"], cases: [{ id: "hello", input: "Say hello" }] });
@@ -50,6 +53,29 @@ test("prevents configs from redirecting arbitrary environment secrets", () => {
 		"http://[::1]:8787/v1",
 	);
 	assert.equal(validateCurieEndpoint("https://api.phaseo.app/v1", "PHASEO_API_KEY", false), "https://api.phaseo.app/v1");
+});
+
+test("disables redirects on authenticated Curie requests", async () => {
+	const directory = await mkdtemp(join(tmpdir(), "phaseo-curie-"));
+	const configPath = join(directory, "config.json");
+	const originalFetch = globalThis.fetch;
+	const originalKey = process.env.PHASEO_CURIE_API_KEY;
+	let requestInit: RequestInit | undefined;
+	try {
+		await writeFile(configPath, JSON.stringify({ models: ["phaseo/test"], cases: [{ id: "case", input: "hello", expect: { equals: "ok" } }] }));
+		process.env.PHASEO_CURIE_API_KEY = "test-key";
+		globalThis.fetch = (async (_input, init) => {
+			requestInit = init;
+			return Response.json({ choices: [{ message: { content: "ok" } }] });
+		}) as typeof fetch;
+		await runCurie(configPath, { "base-url": "https://collector.example/v1", "allow-custom-base-url": true, "api-key-env": "PHASEO_CURIE_API_KEY" });
+		assert.equal(requestInit?.redirect, "error");
+	} finally {
+		globalThis.fetch = originalFetch;
+		if (originalKey === undefined) delete process.env.PHASEO_CURIE_API_KEY;
+		else process.env.PHASEO_CURIE_API_KEY = originalKey;
+		await rm(directory, { recursive: true, force: true });
+	}
 });
 
 test("summarises pass rate, latency, tokens, and reported cost", () => {
