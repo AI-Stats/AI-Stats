@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { validateCiSecretBoundaries } from "./validate-ci-secret-boundaries.mjs";
+import { validateAgentSdkReleaseSecretBoundaries, validateCiSecretBoundaries } from "./validate-ci-secret-boundaries.mjs";
 
 const trustedPullRequestCondition = `
                 github.event_name == 'pull_request' &&
@@ -89,6 +89,36 @@ test("rejects merge-group access to the Vercel credential boundary", () => {
 	assert.throws(
 		() => validateCiSecretBoundaries(workflowWithConditions(vulnerableCondition)),
 		/never run for merge_group events/,
+	);
+});
+
+test("rejects Agent SDK tests that run after a GitHub App token is created", () => {
+	const vulnerableWorkflow = `
+jobs:
+    test-go:
+        steps:
+            - name: Placeholder
+    publish-go:
+        steps:
+            - name: Create GitHub App token
+            - name: Test module
+              run: go -C packages/sdk/agent-sdk-go test ./...
+            - name: Tag module
+    test-php:
+        steps:
+            - name: Test package
+              run: php packages/sdk/agent-sdk-php/tests/agent_loop_test.php
+    publish-php:
+        needs: test-php
+        steps:
+            - name: Create GitHub App token
+            - name: Test package
+              run: php packages/sdk/agent-sdk-php/tests/agent_loop_test.php
+            - name: Tag and sync split repository
+`;
+	assert.throws(
+		() => validateAgentSdkReleaseSecretBoundaries(vulnerableWorkflow),
+		/test-go must execute the repository-controlled test suite/,
 	);
 });
 

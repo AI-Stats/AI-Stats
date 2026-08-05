@@ -2,11 +2,12 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 function extractJob(workflow, name) {
-	const marker = `    ${name}:`;
+	const marker = [`    ${name}:`, `  ${name}:`].find((candidate) => workflow.includes(candidate));
+	if (!marker) throw new Error(`Missing CI job: ${name}`);
 	const start = workflow.indexOf(marker);
-	if (start < 0) throw new Error(`Missing CI job: ${name}`);
 	const remainder = workflow.slice(start + marker.length);
-	const nextJob = remainder.search(/\n    [a-zA-Z0-9_-]+:\r?\n/);
+	const indent = marker.length - marker.trimStart().length;
+	const nextJob = remainder.search(new RegExp(`\\n {${indent}}[a-zA-Z0-9_-]+:\\r?\\n`));
 	return nextJob < 0 ? remainder : remainder.slice(0, nextJob);
 }
 
@@ -114,9 +115,30 @@ export function validateCiSecretBoundaries(workflow) {
 	}
 }
 
+export function validateAgentSdkReleaseSecretBoundaries(workflow) {
+	for (const boundary of [
+		{ testJob: "test-go", publishJob: "publish-go", testCommand: "go -C packages/sdk/agent-sdk-go test ./..." },
+		{ testJob: "test-php", publishJob: "publish-php", testCommand: "php packages/sdk/agent-sdk-php/tests/agent_loop_test.php" },
+	]) {
+		const testJob = extractJob(workflow, boundary.testJob);
+		const publishJob = extractJob(workflow, boundary.publishJob);
+		if (!testJob.includes(boundary.testCommand)) {
+			throw new Error(`${boundary.testJob} must execute the repository-controlled test suite`);
+		}
+		if (!publishJob.includes(`needs: ${boundary.testJob}`)) {
+			throw new Error(`${boundary.publishJob} must require the isolated ${boundary.testJob} job`);
+		}
+		if (!publishJob.includes("Create GitHub App token") || publishJob.includes(boundary.testCommand)) {
+			throw new Error(`${boundary.publishJob} must expose its GitHub App token only on a fresh runner after tests`);
+		}
+	}
+}
+
 const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
 if (isDirectRun) {
 	const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
 	validateCiSecretBoundaries(workflow);
+	const agentSdkWorkflow = readFileSync(new URL("../.github/workflows/publish-agent-sdks.yml", import.meta.url), "utf8");
+	validateAgentSdkReleaseSecretBoundaries(agentSdkWorkflow);
 	console.log("CI secret-bearing deployment boundaries are valid.");
 }
