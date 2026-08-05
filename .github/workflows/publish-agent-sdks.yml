@@ -132,6 +132,17 @@ jobs:
         run: |
           set -euo pipefail
           test "$GITHUB_REF" = "refs/heads/main" || { echo "::error::Run this workflow from main only."; exit 1; }
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: "1.24"
+          cache: false
+      - name: Test module
+        shell: bash
+        run: go -C packages/sdk/agent-sdk-go test ./...
       - name: Create GitHub App token
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
@@ -149,15 +160,7 @@ jobs:
           id="$(gh api "/users/${bot}" --jq .id)"
           echo "name=${bot}" >> "$GITHUB_OUTPUT"
           echo "email=${id}+${bot}@users.noreply.github.com" >> "$GITHUB_OUTPUT"
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
-        with:
-          go-version: "1.24"
-          cache: false
-      - name: Test and tag module
+      - name: Tag module
         env:
           GH_APP_TOKEN: ${{ steps.app-token.outputs.token }}
           GIT_USER_NAME: ${{ steps.app-identity.outputs.name }}
@@ -170,7 +173,6 @@ jobs:
             echo "::error::Invalid Go Agent SDK version: $version"
             exit 1
           fi
-          go -C packages/sdk/agent-sdk-go test ./...
           git config user.name "$GIT_USER_NAME"
           git config user.email "$GIT_USER_EMAIL"
           tag="packages/sdk/agent-sdk-go/v${version}"
@@ -194,6 +196,19 @@ jobs:
         run: |
           set -euo pipefail
           test "$GITHUB_REF" = "refs/heads/main" || { echo "::error::Run this workflow from main only."; exit 1; }
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        with:
+          php-version: "8.2"
+      - name: Test package
+        shell: bash
+        run: |
+          set -euo pipefail
+          composer --working-dir=packages/sdk/agent-sdk-php validate --strict
+          php packages/sdk/agent-sdk-php/tests/agent_loop_test.php
       - name: Create GitHub App token
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
@@ -215,14 +230,7 @@ jobs:
           id="$(gh api "/users/${bot}" --jq .id)"
           echo "name=${bot}" >> "$GITHUB_OUTPUT"
           echo "email=${id}+${bot}@users.noreply.github.com" >> "$GITHUB_OUTPUT"
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
-        with:
-          php-version: "8.2"
-      - name: Test, tag, and sync split repository
+      - name: Tag and sync split repository
         id: split
         env:
           GH_APP_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -237,8 +245,6 @@ jobs:
             echo "::error::Invalid PHP Agent SDK version: $version"
             exit 1
           fi
-          composer --working-dir=packages/sdk/agent-sdk-php validate --strict
-          php packages/sdk/agent-sdk-php/tests/agent_loop_test.php
           git config user.name "$GIT_USER_NAME"
           git config user.email "$GIT_USER_EMAIL"
           tag="agent-sdk-php/v${version}"

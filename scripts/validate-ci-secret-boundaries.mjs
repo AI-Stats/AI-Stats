@@ -2,11 +2,12 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 function extractJob(workflow, name) {
-	const marker = `    ${name}:`;
+	const marker = [`    ${name}:`, `  ${name}:`].find((candidate) => workflow.includes(candidate));
+	if (!marker) throw new Error(`Missing CI job: ${name}`);
 	const start = workflow.indexOf(marker);
-	if (start < 0) throw new Error(`Missing CI job: ${name}`);
 	const remainder = workflow.slice(start + marker.length);
-	const nextJob = remainder.search(/\n    [a-zA-Z0-9_-]+:\r?\n/);
+	const indent = marker.length - marker.trimStart().length;
+	const nextJob = remainder.search(new RegExp(`\\n {${indent}}[a-zA-Z0-9_-]+:\\r?\\n`));
 	return nextJob < 0 ? remainder : remainder.slice(0, nextJob);
 }
 
@@ -114,9 +115,29 @@ export function validateCiSecretBoundaries(workflow) {
 	}
 }
 
+export function validateAgentSdkReleaseSecretBoundaries(workflow) {
+	for (const boundary of [
+		{ job: "publish-go", testStep: "Test module", publishStep: "Tag module", testCommand: "go -C packages/sdk/agent-sdk-go test ./..." },
+		{ job: "publish-php", testStep: "Test package", publishStep: "Tag and sync split repository", testCommand: "php packages/sdk/agent-sdk-php/tests/agent_loop_test.php" },
+	]) {
+		const job = extractJob(workflow, boundary.job);
+		const testIndex = job.indexOf(`- name: ${boundary.testStep}`);
+		const tokenIndex = job.indexOf("- name: Create GitHub App token");
+		const publishIndex = job.indexOf(`- name: ${boundary.publishStep}`);
+		if (testIndex < 0 || tokenIndex < 0 || publishIndex < 0 || !(testIndex < tokenIndex && tokenIndex < publishIndex)) {
+			throw new Error(`${boundary.job} must finish repository-controlled tests before creating its GitHub App token`);
+		}
+		if (job.slice(tokenIndex).includes(boundary.testCommand)) {
+			throw new Error(`${boundary.job} must not run repository-controlled tests after exposing its GitHub App token`);
+		}
+	}
+}
+
 const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
 if (isDirectRun) {
 	const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
 	validateCiSecretBoundaries(workflow);
+	const agentSdkWorkflow = readFileSync(new URL("../.github/workflows/publish-agent-sdks.yml", import.meta.url), "utf8");
+	validateAgentSdkReleaseSecretBoundaries(agentSdkWorkflow);
 	console.log("CI secret-bearing deployment boundaries are valid.");
 }
