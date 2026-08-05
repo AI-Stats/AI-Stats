@@ -28,4 +28,20 @@ describe("catalogue games preview boundary", () => {
     );
     expect(response.status).toBe(404);
   });
+
+  it("requires authentication before evaluating a reveal", async () => {
+    const response = await app.request(
+      "https://phaseo.app/games/timeline/check",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ puzzleId: "puzzle-1", action: "reveal" }),
+      },
+      {
+        ENV: "development",
+      }
+    );
+    expect(response.status).toBe(401);
+    await expect(response.json()).resolves.toEqual({ error: "unauthorized" });
+  });
 });

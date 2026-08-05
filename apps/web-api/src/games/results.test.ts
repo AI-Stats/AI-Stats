@@ -24,6 +24,27 @@ describe("game results", () => {
     ).toEqual({ won: false, score: 1, maxScore: 2, attempts: 1 });
   });
 
+  it("records reveal actions as losses for every game", () => {
+    expect(gameCompletion(
+      "timeline",
+      { action: "reveal" },
+      { answer: [] },
+      { order: ["a", "b", "c", "d", "e"] }
+    )).toEqual({ won: false, score: 0, maxScore: 5, attempts: 1 });
+    expect(gameCompletion(
+      "head-to-head",
+      { action: "reveal" },
+      { answer: {} },
+      { answers: { latency: "a", throughput: "b" } }
+    )).toEqual({ won: false, score: 0, maxScore: 2, attempts: 1 });
+    expect(gameCompletion(
+      "sprint",
+      { action: "reveal" },
+      { answer: [] },
+      { candidates: [{ id: "a" }, { id: "b" }] }
+    )).toEqual({ won: false, score: 0, maxScore: 2, attempts: 1 });
+  });
+
   it("builds per-game totals and a daily streak", () => {
     const summary = buildGameProfileSummary([
       { game_key: "modele", puzzle_date: "2026-07-31", won: true, score: 1, max_score: 1, completed_at: "2026-07-31T10:00:00Z" },
