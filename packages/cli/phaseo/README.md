@@ -106,6 +106,19 @@ phaseo webhooks create --url https://example.com/phaseo-events --events batch.co
 phaseo api get /v1/models
 ```
 
+## Local comparison runs
+
+The CLI can execute a small model-and-case matrix from a local JSON file:
+
+```bash
+phaseo curie run ./examples/curie.example.json --dry-run
+phaseo curie run ./examples/curie.example.json --report ./curie-report.json
+```
+
+The configuration supports multiple models, deterministic equals/contains/regular-expression checks, per-case parameters, repeated runs, custom OpenAI-compatible base URLs, and an API-key environment variable. Results include pass rate, request success, latency, token usage, and any cost reported by the endpoint.
+
+The default endpoint is `https://api.phaseo.app/v1` and the default key variable is `PHASEO_API_KEY`. Custom endpoints require `--allow-custom-base-url` and use the isolated `PHASEO_CURIE_API_KEY` variable so a configuration cannot redirect your normal Phaseo credential.
+
 ## OAuth and OAuth Apps
 
 The CLI sits on top of the shared Phaseo OAuth/OIDC stack, not a CLI-only auth path. That means the same foundations power:
