@@ -167,7 +167,7 @@ describe("executeOpenAIWire", () => {
 
 		let capturedBody: any = null;
 		const mock = installFetchMock([{
-			match: (url) => url === "https://api.llama.com/compat/v1/responses",
+			match: (url) => url === "https://api.meta.ai/v1/responses",
 			response: sseResponse([{
 				response: {
 					id: "resp_meta_search",

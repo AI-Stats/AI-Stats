@@ -174,6 +174,7 @@ export const BINDING_KEYS: Array<keyof GatewayBindings> = [
     "MARA_BASE_URL",
     "META_MODEL_API_KEY",
     "META_MODEL_BASE_URL",
+    "MODEL_API_KEY",
     "MINIMAX_API_KEY",
     "MINIMAX_BASE_URL",
     "MISTRAL_AI_API_KEY",

@@ -383,6 +383,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	voyageai: { "text.generate": voyageText, embeddings: openaiEmbeddings, rerank: openaiRerank },
 	"weights-and-biases": { "text.generate": weightsAndBiasesText },
 	meta: { "text.generate": metaText },
+	"meta-contributor": { "text.generate": metaText },
 	ovhcloud: { "text.generate": ovhcloudText },
 	sakana: { "text.generate": sakanaText },
 	scaleway: { "text.generate": scalewayText },

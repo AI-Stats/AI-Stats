@@ -15,8 +15,10 @@ afterAll(() => {
 });
 
 describe("Meta OpenAI-compatible config", () => {
-	it("routes Muse Spark 1.1 through Responses", () => {
+	it("routes Muse Spark models through Responses", () => {
 		expect(resolveOpenAICompatRoute("meta", "muse-spark-1.1")).toBe("responses");
+		expect(resolveOpenAICompatRoute("meta", "muse-spark-1.2")).toBe("responses");
+		expect(resolveOpenAICompatRoute("meta-contributor", "muse-spark-1.2-contributor")).toBe("responses");
 	});
 
 	it("builds the Meta Model API responses endpoint", () => {
@@ -26,11 +28,14 @@ describe("Meta OpenAI-compatible config", () => {
 		} as any);
 
 		expect(openAICompatUrl("meta", "/responses")).toBe(
-			"https://api.llama.com/compat/v1/responses",
+			"https://api.meta.ai/v1/responses",
+		);
+		expect(openAICompatUrl("meta-contributor", "/responses")).toBe(
+			"https://api.meta.ai/v1/responses",
 		);
 	});
 
-	it("uses META_MODEL_API_KEY without LLAMA_API_KEY fallback", () => {
+	it("supports the gateway and official Meta Model API key names", () => {
 		teardownTestRuntime();
 		setupRuntimeFromEnv({
 			META_MODEL_API_KEY: "test-meta-key",
@@ -42,6 +47,20 @@ describe("Meta OpenAI-compatible config", () => {
 		} as any);
 
 		expect(resolved.key).toBe("test-meta-key");
+
+		teardownTestRuntime();
+		setupRuntimeFromEnv({
+			MODEL_API_KEY: "test-official-meta-key",
+		} as any);
+
+		expect(resolveOpenAICompatKey({
+			providerId: "meta",
+			byokMeta: [],
+		} as any).key).toBe("test-official-meta-key");
+		expect(resolveOpenAICompatKey({
+			providerId: "meta-contributor",
+			byokMeta: [],
+		} as any).key).toBe("test-official-meta-key");
 
 		teardownTestRuntime();
 		setupRuntimeFromEnv({

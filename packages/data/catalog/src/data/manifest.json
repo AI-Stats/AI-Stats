@@ -538,7 +538,8 @@
       "meta/llama-3-8b-lite",
       "meta/llama-guard-4-12b",
       "meta/llama-prompt-guard-2-22m",
-      "meta/llama-prompt-guard-2-86m"
+      "meta/llama-prompt-guard-2-86m",
+      "meta/muse-spark-1.2"
     ],
     "microsoft": [
       "microsoft/phi-1",
