@@ -73,6 +73,11 @@ publicGamesRouter.post("/:game/check", async (c) => {
           userId: user.id,
           error,
         });
+        if (body.action === "reveal") {
+          return c.json({ error: "result_persistence_failed" }, 503, {
+            "Cache-Control": "private, no-store",
+          });
+        }
       }
     }
     return c.json(evaluation, 200, {
