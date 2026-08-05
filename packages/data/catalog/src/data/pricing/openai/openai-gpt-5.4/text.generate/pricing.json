@@ -519,8 +519,8 @@
           "value": 272000
         }
       ],
-      "source": "https://developers.openai.com/api/docs/pricing",
-      "effective_to": null
+      "source": null,
+      "effective_to": "2026-07-30T00:00:00Z"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -552,8 +552,8 @@
           "value": 272000
         }
       ],
-      "source": "https://developers.openai.com/api/docs/pricing",
-      "effective_to": null
+      "source": null,
+      "effective_to": "2026-07-30T00:00:00Z"
     },
     {
       "meter": "output_text_tokens",
@@ -585,8 +585,8 @@
           "value": 272000
         }
       ],
-      "source": "https://developers.openai.com/api/docs/pricing",
-      "effective_to": null
+      "source": null,
+      "effective_to": "2026-07-30T00:00:00Z"
     },
     {
       "meter": "input_text_tokens",

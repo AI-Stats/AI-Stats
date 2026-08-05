@@ -664,6 +664,12 @@ export function computeBillSummary(
         let candidates = findCandidatesForPlanAndMeter(pricingPlan, dim);
         let resolvedPlan = pricingPlan;
         if (!candidates.length && pricingPlan !== "standard") {
+            const requestedPlanDefinesMeter = card.rules.some(
+                (rule) => rule.pricing_plan === pricingPlan && rule.meter === dim,
+            );
+            if (requestedPlanDefinesMeter) {
+                throw new Error(`pricing_plan_coverage_missing:${pricingPlan}:${dim}`);
+            }
             const fallbackCandidates = findCandidatesForPlanAndMeter("standard", dim);
             if (fallbackCandidates.length) {
                 candidates = fallbackCandidates;
