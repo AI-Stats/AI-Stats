@@ -96,7 +96,6 @@ describe("logos", () => {
 			["helicone", "/logos/helicone.svg"],
 			["io-net", "/logos/ionet.svg"],
 			["ovhcloud", "/logos/ovhcloud.svg"],
-			["regolo-ai", "/logos/regolo.png"],
 			["sap-ai-core", "/logos/sap.svg"],
 			["zhipuai-coding-plan", "/logos/zhipu.svg"],
 		] as const) {

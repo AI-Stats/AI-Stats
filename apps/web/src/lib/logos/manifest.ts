@@ -68,10 +68,7 @@ export const logoManifest = {
 		dark: "/logos/black-forest-labs_dark.svg",
 	},
 	"302ai": {
-		color: "/logos/302ai.png",
-	},
-	abacus: {
-		color: "/logos/abacusai.webp",
+		color: "/logos/302ai.svg",
 	},
 	anyapi: {
 		color: "/logos/anyapi.svg",
@@ -103,9 +100,6 @@ export const logoManifest = {
 	claudecode: {
 		color: "/logos/claudecode.svg",
 	},
-	celeris: {
-		color: "/logos/celeris.png",
-	},
 	cline: {
 		color: "/logos/cline.svg",
 	},
@@ -127,9 +121,6 @@ export const logoManifest = {
 	},
 	cogito: {
 		color: "/logos/cogito.svg",
-	},
-	crofai: {
-		color: "/logos/crofai.png",
 	},
 	cursor: {
 		light: "/logos/cursor-light.svg",
@@ -416,9 +407,6 @@ export const logoManifest = {
 	qwen: {
 		color: "/logos/qwen.svg",
 	},
-	regolo: {
-		color: "/logos/regolo.png",
-	},
 	requesty: {
 		color: "/logos/requesty.svg",
 	},
@@ -472,9 +460,6 @@ export const logoManifest = {
 	},
 	snowflake: {
 		color: "/logos/snowflake.svg",
-	},
-	ssi: {
-		color: "/logos/ssi.jpg",
 	},
 	synthetic: {
 		color: "/logos/synthetic.svg",
