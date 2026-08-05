@@ -133,62 +133,59 @@ async function insertGatewayRequest(row: any) {
         return errorPayloadCompatible;
     };
 
-    const initialRow = prepareCompatibleRow(row);
-
-    try {
-        const inserted = await attemptInsert(initialRow);
-        if (gatewayRequestsSupportsErrorPayloadColumn === null && "error_payload" in row) {
-            gatewayRequestsSupportsErrorPayloadColumn = true;
+    let lastError: unknown;
+    const maxCompatibilityAttempts = 4;
+    for (let attempt = 0; attempt < maxCompatibilityAttempts; attempt += 1) {
+        try {
+            const inserted = await attemptInsert(prepareCompatibleRow(row));
+            if (gatewayRequestsSupportsErrorPayloadColumn === null && "error_payload" in row) {
+                gatewayRequestsSupportsErrorPayloadColumn = true;
+            }
+            if (gatewayRequestsSupportsUsageColumns === null && "usage_total_tokens" in row) {
+                gatewayRequestsSupportsUsageColumns = true;
+            }
+            if (gatewayRequestsSupportsTelemetryColumns === null && "provider_ttft_ms" in row) {
+                gatewayRequestsSupportsTelemetryColumns = true;
+            }
+            return inserted;
+        } catch (error) {
+            lastError = error;
+            let capabilityChanged = false;
+            const telemetryColumns = [
+                "provider_ttft_ms",
+                "gateway_ttft_ms",
+                "output_speed_tps",
+                "tpot_ms",
+                "itl_ms",
+                "phaseo_overhead_ms",
+            ];
+            if (
+                gatewayRequestsSupportsTelemetryColumns !== false &&
+                telemetryColumns.some((column) => isMissingColumnError(error, column, "gateway_requests"))
+            ) {
+                gatewayRequestsSupportsTelemetryColumns = false;
+                capabilityChanged = true;
+            }
+            if (
+                gatewayRequestsSupportsUsageColumns !== false &&
+                isMissingColumnError(error, "usage_", "gateway_requests")
+            ) {
+                gatewayRequestsSupportsUsageColumns = false;
+                capabilityChanged = true;
+            }
+            if (
+                "error_payload" in row &&
+                gatewayRequestsSupportsErrorPayloadColumn !== false &&
+                isMissingColumnError(error, "error_payload", "gateway_requests")
+            ) {
+                gatewayRequestsSupportsErrorPayloadColumn = false;
+                capabilityChanged = true;
+            }
+            if (!capabilityChanged) throw error;
         }
-        if (gatewayRequestsSupportsUsageColumns === null && "usage_total_tokens" in row) {
-            gatewayRequestsSupportsUsageColumns = true;
-        }
-        if (gatewayRequestsSupportsTelemetryColumns === null && "provider_ttft_ms" in row) {
-            gatewayRequestsSupportsTelemetryColumns = true;
-        }
-        return inserted;
-    } catch (error) {
-        const telemetryColumns = [
-            "provider_ttft_ms",
-            "gateway_ttft_ms",
-            "output_speed_tps",
-            "tpot_ms",
-            "itl_ms",
-            "phaseo_overhead_ms",
-        ];
-        if (
-            gatewayRequestsSupportsTelemetryColumns !== false &&
-            telemetryColumns.some((column) => isMissingColumnError(error, column, "gateway_requests"))
-        ) {
-            gatewayRequestsSupportsTelemetryColumns = false;
-            return attemptInsert(prepareCompatibleRow(row));
-        }
-        if (
-            gatewayRequestsSupportsUsageColumns !== false &&
-            isMissingColumnError(error, "usage_", "gateway_requests")
-        ) {
-            gatewayRequestsSupportsUsageColumns = false;
-            const legacyRow = stripGatewayRequestUsageColumns(row);
-            return attemptInsert(
-                gatewayRequestsSupportsErrorPayloadColumn === false
-                    ? (() => {
-                        const { error_payload: _omit, ...withoutErrorPayload } = legacyRow;
-                        return withoutErrorPayload;
-                    })()
-                    : legacyRow,
-            );
-        }
-        if (
-            "error_payload" in row &&
-            gatewayRequestsSupportsErrorPayloadColumn !== false &&
-            isMissingColumnError(error, "error_payload", "gateway_requests")
-        ) {
-            gatewayRequestsSupportsErrorPayloadColumn = false;
-            const { error_payload: _omit, ...legacyRow } = row;
-            return attemptInsert(legacyRow);
-        }
-        throw error;
     }
+
+    throw lastError;
 }
 
 async function upsertV2RequestFact(args: {
