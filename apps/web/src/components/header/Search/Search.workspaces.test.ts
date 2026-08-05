@@ -16,6 +16,7 @@ describe("workspace search", () => {
 			subtitle: "Workspace settings",
 			href: "/settings/workspaces/settings",
 			workspaceId: "workspace/id",
+			persistable: false,
 			keywords: ["workspace", "team", "Production"],
 		});
 	});

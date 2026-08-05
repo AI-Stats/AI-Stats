@@ -10,13 +10,21 @@ function isPaletteItem(value: unknown): value is PaletteItem {
 	return typeof item.id === "string" && typeof item.title === "string";
 }
 
+function isPersistablePinnedItem(item: PaletteItem): boolean {
+	return item.persistable !== false && !item.id.startsWith("workspace:");
+}
+
 export function readPinnedItems(): PaletteItem[] {
 	if (pinnedCache) return pinnedCache;
 	if (typeof window === "undefined") return [];
 	try {
 		const rawValue = window.localStorage.getItem(PINNED_STORAGE_KEY);
 		const parsed = rawValue ? (JSON.parse(rawValue) as unknown) : [];
-		pinnedCache = Array.isArray(parsed) ? parsed.filter(isPaletteItem).slice(0, MAX_PINNED_ITEMS) : [];
+		const storedItems = Array.isArray(parsed) ? parsed.filter(isPaletteItem) : [];
+		pinnedCache = storedItems.filter(isPersistablePinnedItem).slice(0, MAX_PINNED_ITEMS);
+		if (pinnedCache.length !== storedItems.length) {
+			window.localStorage.setItem(PINNED_STORAGE_KEY, JSON.stringify(pinnedCache));
+		}
 	} catch {
 		pinnedCache = [];
 	}
@@ -24,7 +32,10 @@ export function readPinnedItems(): PaletteItem[] {
 }
 
 export function writePinnedItems(items: readonly PaletteItem[]): PaletteItem[] {
-	const normalized = items.slice(0, MAX_PINNED_ITEMS).map((item) => ({ ...item }));
+	const normalized = items
+		.filter(isPersistablePinnedItem)
+		.slice(0, MAX_PINNED_ITEMS)
+		.map((item) => ({ ...item }));
 	pinnedCache = normalized;
 	if (typeof window !== "undefined") {
 		try {
@@ -37,6 +48,7 @@ export function writePinnedItems(items: readonly PaletteItem[]): PaletteItem[] {
 }
 
 export function togglePinnedItem(items: readonly PaletteItem[], item: PaletteItem): PaletteItem[] {
+	if (!isPersistablePinnedItem(item)) return items.filter(isPersistablePinnedItem);
 	if (items.some((candidate) => candidate.id === item.id)) {
 		return items.filter((candidate) => candidate.id !== item.id);
 	}
