@@ -67,4 +67,3 @@ export function mapGatewayUsage(rawUsage: any): LanguageModelV4Usage {
 		raw: rawUsage ?? {},
 	};
 }
-

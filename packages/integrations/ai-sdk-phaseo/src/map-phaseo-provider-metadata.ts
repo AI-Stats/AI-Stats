@@ -76,7 +76,6 @@ export function mapPhaseoProviderMetadata(
     'phaseo': metadata as SharedV4ProviderMetadata[string],
   };
 }
-
 export function mergePhaseoProviderMetadata(
   current: SharedV4ProviderMetadata | undefined,
   next: SharedV4ProviderMetadata | undefined
