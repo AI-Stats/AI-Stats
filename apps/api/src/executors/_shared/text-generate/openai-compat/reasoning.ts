@@ -61,7 +61,7 @@ export function applyReasoningParams(args: {
 	const reasoning = args.ir.reasoning;
 	if (!reasoning) return;
 
-	if (args.providerId === "meta") {
+	if (args.providerId === "meta" || args.providerId === "meta-contributor") {
 		const rawEffort =
 			typeof reasoning.effort === "string"
 				? reasoning.effort

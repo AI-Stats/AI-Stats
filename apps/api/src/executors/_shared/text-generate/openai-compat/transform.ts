@@ -67,6 +67,7 @@ function usesOpenAIResponsesShape(providerId?: string): boolean {
 		providerId === "openai" ||
 		providerId === "openai-eu" ||
 		providerId === "meta" ||
+		providerId === "meta-contributor" ||
 		providerId === "amazon-bedrock"
 	);
 }
@@ -359,7 +360,7 @@ export function irToOpenAIResponses(
 	if (ir.promptCacheRetention !== undefined) request.prompt_cache_retention = ir.promptCacheRetention;
 	if (ir.safetyIdentifier !== undefined) request.safety_identifier = ir.safetyIdentifier;
 	if (ir.webSearchOptions !== undefined) request.web_search_options = ir.webSearchOptions;
-	if (providerId === "meta") addMetaWebSearchTool(request, ir);
+	if (providerId === "meta" || providerId === "meta-contributor") addMetaWebSearchTool(request, ir);
 	const openAIContextManagement = (ir.vendor as any)?.openai?.context_management;
 	if (providerId === "openai" && openAIContextManagement && typeof openAIContextManagement === "object") {
 		request.context_management = {
