@@ -142,17 +142,9 @@ async function hydrateByokKeys(
 		(context.providers ?? []).map((provider) => provider.providerId).filter(Boolean),
 	));
 	if (!providerIds.length) return context;
-	const maxKeysPerModePerProvider = 8;
 	const keyIds = Array.from(new Set(
 		(context.providers ?? []).flatMap((provider) =>
-			(["priority", "fallback"] as const).flatMap((mode) =>
-				(provider.byokMeta ?? [])
-					.filter((key) => (key.routingMode ?? (key.alwaysUse ? "priority" : "fallback")) === mode)
-					.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.id.localeCompare(b.id))
-					.slice(0, maxKeysPerModePerProvider)
-					.map((key) => key.id)
-					.filter(Boolean)
-			),
+			(provider.byokMeta ?? []).map((key) => key.id).filter(Boolean),
 		),
 	));
 	// The cached/RPC context contains only metadata. Avoid a Supabase read entirely
@@ -179,7 +171,27 @@ async function hydrateByokKeys(
 		};
 	}
 
-	const decrypted = await Promise.all((data as any[]).map(async (row) => {
+	const maxKeysPerModePerProvider = 8;
+	const rowsByProvider = new Map<string, any[]>();
+	for (const row of data as any[]) {
+		const providerRows = rowsByProvider.get(String(row.provider_id)) ?? [];
+		providerRows.push(row);
+		rowsByProvider.set(String(row.provider_id), providerRows);
+	}
+	const selectedRows = Array.from(rowsByProvider.values())
+		.flatMap((providerRows) => (["priority", "fallback"] as const).flatMap((mode) =>
+			providerRows
+				.filter((row) => {
+					const rowMode = row.routing_mode === "priority" || row.routing_mode === "fallback"
+						? row.routing_mode
+						: row.always_use ? "priority" : "fallback";
+					return rowMode === mode;
+				})
+				.sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0) || String(a.id).localeCompare(String(b.id)))
+				.slice(0, maxKeysPerModePerProvider)
+		));
+
+	const decrypted = await Promise.all(selectedRows.map(async (row) => {
 		try {
 			const decryptedBytes = await decryptBYOK(row);
 			let key: string;
