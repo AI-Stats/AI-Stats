@@ -55,6 +55,7 @@ const state = {
 		preset_id: "55555555-5555-4555-8555-555555555555",
 		baseline_preset_id: null,
 	} as Record<string, unknown> | null,
+	visiblePresetRows: [{ id: "55555555-5555-4555-8555-555555555555" }] as Array<Record<string, unknown>>,
 };
 
 function buildSelectChain(
@@ -64,6 +65,18 @@ function buildSelectChain(
 	const chain: any = {
 		eq: vi.fn((...args: unknown[]) => {
 			state.queryCalls.push({ table, method: "eq", args });
+			return chain;
+		}),
+		is: vi.fn((...args: unknown[]) => {
+			state.queryCalls.push({ table, method: "is", args });
+			return chain;
+		}),
+		neq: vi.fn((...args: unknown[]) => {
+			state.queryCalls.push({ table, method: "neq", args });
+			return chain;
+		}),
+		or: vi.fn((...args: unknown[]) => {
+			state.queryCalls.push({ table, method: "or", args });
 			return chain;
 		}),
 		contains: vi.fn((...args: unknown[]) => {
@@ -147,7 +160,7 @@ function buildSupabaseMock() {
 			if (table === "presets") {
 				return {
 					select: () => buildSelectChain(table, {
-						data: { id: "55555555-5555-4555-8555-555555555555" },
+						data: state.visiblePresetRows,
 						error: null,
 					}),
 				};
@@ -197,6 +210,7 @@ describe("feedback control routes", () => {
 			preset_id: "55555555-5555-4555-8555-555555555555",
 			baseline_preset_id: null,
 		};
+		state.visiblePresetRows = [{ id: "55555555-5555-4555-8555-555555555555" }];
 		guardManagementAuthMock.mockReset();
 		getSupabaseAdminMock.mockReset();
 		guardManagementAuthMock.mockResolvedValue({
@@ -282,6 +296,21 @@ describe("feedback control routes", () => {
 			method: "eq",
 			args: ["workspace_id", "33333333-3333-4333-8333-333333333333"],
 		});
+	});
+
+	it("hides another user's private preset from feedback writes", async () => {
+		state.visiblePresetRows = [];
+		const response = await feedbackRoutes.request("https://api.example.com/", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				presetId: "55555555-5555-4555-8555-555555555555",
+				rating: "correct",
+			}),
+		});
+
+		expect(response.status).toBe(404);
+		expect(state.insertCalls).toHaveLength(0);
 	});
 
 	it("rejects unsupported feedback ratings before database insertion", async () => {
@@ -378,6 +407,7 @@ describe("feedback control routes", () => {
 	});
 
 	it("rejects feedback when preset and test run do not match", async () => {
+		state.visiblePresetRows.push({ id: "77777777-7777-4777-8777-777777777777" });
 		const response = await feedbackRoutes.request("https://api.example.com/", {
 			method: "POST",
 			headers: { "content-type": "application/json" },
@@ -432,12 +462,13 @@ describe("feedback control routes", () => {
 				name: "gateway_feedback_summary",
 				args: expect.objectContaining({
 					p_workspace_id: "33333333-3333-4333-8333-333333333333",
+					p_visible_preset_ids: ["55555555-5555-4555-8555-555555555555"],
 					p_group_by: "preset_id",
 					p_limit: 5000,
 				}),
 			}),
 		]);
-		expect(state.queryCalls).toHaveLength(0);
+		expect(state.queryCalls.some((call) => call.table === "presets" && call.method === "or")).toBe(true);
 	});
 	it("passes date and target filters to the summary RPC", async () => {
 		const response = await feedbackRoutes.request(

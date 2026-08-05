@@ -305,16 +305,44 @@ async function authorize(req: Request, capability: string, roles: string[]) {
 	return { auth: auth.value as AuthValue };
 }
 
-async function ensurePresetAccess(workspaceId: string, presetId: string | null): Promise<Response | null> {
+async function visiblePresetIds(auth: AuthValue): Promise<string[] | Response> {
+	const userId = normalizeUuid(auth.userId);
+	const pageSize = 1_000;
+	const presetIds: string[] = [];
+	for (let offset = 0; ; offset += pageSize) {
+		let query = getSupabaseAdmin()
+			.from("presets")
+			.select("id")
+			.eq("workspace_id", auth.workspaceId)
+			.is("archived_at", null);
+		query = userId
+			? query.or(`visibility.neq.private,created_by.eq.${userId}`)
+			: query.neq("visibility", "private");
+		const { data, error } = await query
+			.order("id", { ascending: true })
+			.range(offset, offset + pageSize - 1);
+		if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
+		const rows = data ?? [];
+		presetIds.push(...rows.map((row) => String(row.id)));
+		if (rows.length < pageSize) break;
+	}
+	return presetIds;
+}
+
+function applyPresetVisibility(query: any, presetIds: string[], ...columns: string[]) {
+	for (const column of columns) {
+		query = presetIds.length
+			? query.or(`${column}.is.null,${column}.in.(${presetIds.join(",")})`)
+			: query.is(column, null);
+	}
+	return query;
+}
+
+async function ensurePresetAccess(auth: AuthValue, presetId: string | null): Promise<Response | null> {
 	if (!presetId) return null;
-	const { data, error } = await getSupabaseAdmin()
-		.from("presets")
-		.select("id")
-		.eq("workspace_id", workspaceId)
-		.eq("id", presetId)
-		.maybeSingle();
-	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
-	if (!data) return json({ error: "not_found", message: "Preset not found" }, 404, { "Cache-Control": "no-store" });
+	const visible = await visiblePresetIds(auth);
+	if (isResponse(visible)) return visible;
+	if (!visible.includes(presetId)) return json({ error: "not_found", message: "Preset not found" }, 404, { "Cache-Control": "no-store" });
 	return null;
 }
 
@@ -331,16 +359,20 @@ async function ensureRequestAccess(workspaceId: string, requestId: string | null
 	return null;
 }
 
-async function ensureTestRunAccess(workspaceId: string, testRunId: string | null): Promise<TestRunAccessRow | Response | null> {
+async function ensureTestRunAccess(auth: AuthValue, testRunId: string | null): Promise<TestRunAccessRow | Response | null> {
 	if (!testRunId) return null;
 	const { data, error } = await getSupabaseAdmin()
 		.from("gateway_preset_test_runs")
 		.select("id,preset_id,baseline_preset_id")
-		.eq("workspace_id", workspaceId)
+		.eq("workspace_id", auth.workspaceId)
 		.eq("id", testRunId)
 		.maybeSingle();
 	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
 	if (!data) return json({ error: "not_found", message: "Preset test run not found" }, 404, { "Cache-Control": "no-store" });
+	for (const presetId of [data.preset_id, data.baseline_preset_id]) {
+		const presetError = await ensurePresetAccess(auth, presetId);
+		if (presetError) return presetError;
+	}
 	return data as TestRunAccessRow;
 }
 
@@ -440,11 +472,11 @@ async function handleCreateFeedback(req: Request) {
 	if (!requestId && !sessionId && !presetId && !testRunId) {
 		return json({ error: "bad_request", message: "Feedback must target a request, session, preset, or test run" }, 400, { "Cache-Control": "no-store" });
 	}
-	const presetError = await ensurePresetAccess(auth.workspaceId, presetId);
+	const presetError = await ensurePresetAccess(auth, presetId);
 	if (presetError) return presetError;
 	const requestError = await ensureRequestAccess(auth.workspaceId, requestId);
 	if (requestError) return requestError;
-	const testRun = await ensureTestRunAccess(auth.workspaceId, testRunId);
+	const testRun = await ensureTestRunAccess(auth, testRunId);
 	if (isResponse(testRun)) return testRun;
 	const presetMismatchError = validatePresetMatchesTestRun(presetId, testRun);
 	if (presetMismatchError) return presetMismatchError;
@@ -495,6 +527,8 @@ async function handleListFeedback(req: Request) {
 	const authorized = await authorize(req, CAPABILITIES.FEEDBACK_READ, ["owner", "admin", "member"]);
 	if (authorized.response) return authorized.response;
 	const auth = authorized.auth;
+	const visible = await visiblePresetIds(auth);
+	if (isResponse(visible)) return visible;
 	const url = new URL(req.url);
 	const limit = parsePositiveInt(url.searchParams.get("limit"), 100, 500);
 	const offset = parseOffset(url.searchParams.get("offset"));
@@ -510,6 +544,7 @@ async function handleListFeedback(req: Request) {
 		.order("id", { ascending: false })
 		.range(offset, offset + limit - 1);
 	query = applyTargetFilters(query, url);
+	query = applyPresetVisibility(query, visible, "preset_id");
 	query = applyMetadataFilters(query, url);
 	query = applyDateFilters(query, dateFilters);
 	const rating = url.searchParams.get("rating")?.trim();
@@ -524,6 +559,8 @@ async function handleFeedbackSummary(req: Request) {
 	const authorized = await authorize(req, CAPABILITIES.FEEDBACK_READ, ["owner", "admin", "member"]);
 	if (authorized.response) return authorized.response;
 	const auth = authorized.auth;
+	const visible = await visiblePresetIds(auth);
+	if (isResponse(visible)) return visible;
 	const url = new URL(req.url);
 	const rawGroupBy = url.searchParams.get("group_by") ?? "preset";
 	if (!new Set(["preset", "preset_id", "test_run", "test_run_id", "metadata"]).has(rawGroupBy)) {
@@ -558,6 +595,7 @@ async function handleFeedbackSummary(req: Request) {
 		p_created_until: dateFilters.until,
 		p_metadata_filters: collectMetadataFilters(url),
 		p_limit: limit,
+		p_visible_preset_ids: visible,
 	});
 	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
 
@@ -596,11 +634,11 @@ async function handleCreateEvent(req: Request) {
 	if (!requestId && !sessionId && !presetId && !testRunId) {
 		return json({ error: "bad_request", message: "Event must target a request, session, preset, or test run" }, 400, { "Cache-Control": "no-store" });
 	}
-	const presetError = await ensurePresetAccess(auth.workspaceId, presetId);
+	const presetError = await ensurePresetAccess(auth, presetId);
 	if (presetError) return presetError;
 	const requestError = await ensureRequestAccess(auth.workspaceId, requestId);
 	if (requestError) return requestError;
-	const testRun = await ensureTestRunAccess(auth.workspaceId, testRunId);
+	const testRun = await ensureTestRunAccess(auth, testRunId);
 	if (isResponse(testRun)) return testRun;
 	const presetMismatchError = validatePresetMatchesTestRun(presetId, testRun);
 	if (presetMismatchError) return presetMismatchError;
@@ -651,6 +689,8 @@ async function handleListEvents(req: Request) {
 	const authorized = await authorize(req, CAPABILITIES.FEEDBACK_READ, ["owner", "admin", "member"]);
 	if (authorized.response) return authorized.response;
 	const auth = authorized.auth;
+	const visible = await visiblePresetIds(auth);
+	if (isResponse(visible)) return visible;
 	const url = new URL(req.url);
 	const limit = parsePositiveInt(url.searchParams.get("limit"), 100, 500);
 	const offset = parseOffset(url.searchParams.get("offset"));
@@ -666,6 +706,7 @@ async function handleListEvents(req: Request) {
 		.order("id", { ascending: false })
 		.range(offset, offset + limit - 1);
 	query = applyTargetFilters(query, url);
+	query = applyPresetVisibility(query, visible, "preset_id");
 	query = applyMetadataFilters(query, url);
 	query = applyDateFilters(query, dateFilters, "occurred_at");
 	const category = url.searchParams.get("category")?.trim();
@@ -686,9 +727,9 @@ async function handleCreateTestRun(req: Request) {
 	if (isResponse(body)) return body;
 	const presetId = normalizeUuid(body.presetId ?? body.preset_id);
 	const baselinePresetId = normalizeUuid(body.baselinePresetId ?? body.baseline_preset_id);
-	const presetError = await ensurePresetAccess(auth.workspaceId, presetId);
+	const presetError = await ensurePresetAccess(auth, presetId);
 	if (presetError) return presetError;
-	const baselineError = await ensurePresetAccess(auth.workspaceId, baselinePresetId);
+	const baselineError = await ensurePresetAccess(auth, baselinePresetId);
 	if (baselineError) return baselineError;
 	const status = normalizeAllowedText(body.status, TEST_RUN_STATUSES) ?? "pending";
 	if (body.status != null && !normalizeAllowedText(body.status, TEST_RUN_STATUSES)) {
@@ -729,6 +770,8 @@ async function handleListTestRuns(req: Request) {
 	const authorized = await authorize(req, CAPABILITIES.FEEDBACK_READ, ["owner", "admin", "member"]);
 	if (authorized.response) return authorized.response;
 	const auth = authorized.auth;
+	const visible = await visiblePresetIds(auth);
+	if (isResponse(visible)) return visible;
 	const url = new URL(req.url);
 	const limit = parsePositiveInt(url.searchParams.get("limit"), 100, 250);
 	const offset = parseOffset(url.searchParams.get("offset"));
@@ -739,6 +782,7 @@ async function handleListTestRuns(req: Request) {
 		.order("created_at", { ascending: false })
 		.order("id", { ascending: false })
 		.range(offset, offset + limit - 1);
+	query = applyPresetVisibility(query, visible, "preset_id", "baseline_preset_id");
 	const presetId = url.searchParams.get("preset_id")?.trim();
 	if (presetId && !normalizeUuid(presetId)) return json({ error: "bad_request", message: "Invalid preset id" }, 400, { "Cache-Control": "no-store" });
 	if (presetId) query = query.eq("preset_id", presetId);
@@ -755,12 +799,15 @@ async function handleGetOrUpdateTestRun(req: Request) {
 	const authorized = await authorize(req, CAPABILITIES.FEEDBACK_READ, ["owner", "admin", "member"]);
 	if (authorized.response) return authorized.response;
 	const auth = authorized.auth;
-	const { data, error } = await getSupabaseAdmin()
+	const visible = await visiblePresetIds(auth);
+	if (isResponse(visible)) return visible;
+	let query: any = getSupabaseAdmin()
 		.from("gateway_preset_test_runs")
 		.select(TEST_RUN_SELECT)
 		.eq("workspace_id", auth.workspaceId)
-		.eq("id", id)
-		.maybeSingle();
+		.eq("id", id);
+	query = applyPresetVisibility(query, visible, "preset_id", "baseline_preset_id");
+	const { data, error } = await query.maybeSingle();
 	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
 	if (!data) return json({ error: "not_found", message: "Preset test run not found" }, 404, { "Cache-Control": "no-store" });
 
@@ -776,6 +823,8 @@ async function handleUpdateTestRun(req: Request, id: string) {
 	const authorized = await authorize(req, CAPABILITIES.FEEDBACK_WRITE, ["owner", "admin"]);
 	if (authorized.response) return authorized.response;
 	const auth = authorized.auth;
+	const existing = await ensureTestRunAccess(auth, id);
+	if (isResponse(existing)) return existing;
 	const body = await requireJsonBody(req);
 	if (isResponse(body)) return body;
 	const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
