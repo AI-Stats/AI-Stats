@@ -28,10 +28,10 @@
   "details": [
     {
       "name": "context_window",
-      "value": "1000000",
+      "value": "1048576",
       "unit": "tokens",
       "source_link": "https://ai.meta.com/blog/introducing-muse-spark-meta-model-api/",
-      "other_info": "Meta says Muse Spark 1.1 can actively manage a 1 million token context window."
+      "other_info": "Meta says Muse Spark 1.1 can actively manage a 1,048,576 token context window."
     },
     {
       "name": "api_status",
@@ -183,6 +183,6 @@
   },
   "last_updated": null,
   "removal_date": null,
-  "replacement_model_id": null,
+  "replacement_model_id": "meta/muse-spark-1.2",
   "license_url": null
 }

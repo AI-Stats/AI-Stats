@@ -1,0 +1,101 @@
+{
+  "model_id": "meta/muse-spark-1.2",
+  "organisation_id": "meta",
+  "name": "Muse Spark 1.2",
+  "status": "Available",
+  "previous_model_id": "meta/muse-spark-1.1",
+  "description": "Muse Spark 1.2 is a coding-optimized model from Meta Superintelligence Labs built for agentic workflows, with improvements to code generation, debugging, and codebase understanding. Its 1 million token context window is designed to handle an entire project in one session.",
+  "announced_date": "2026-08-05T00:00:00",
+  "release_date": "2026-08-05T00:00:00",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image,video,audio",
+  "output_types": "text",
+  "api_model_id": "meta/muse-spark-1.2",
+  "links": [
+    {
+      "title": "Meta Model API models",
+      "kind": "api_reference",
+      "url": "https://dev.meta.ai/docs/models"
+    },
+    {
+      "title": "Meta Model API pricing and rate limits",
+      "kind": "pricing",
+      "url": "https://dev.meta.ai/docs/pricing-rate-limits"
+    }
+  ],
+  "details": [
+    {
+      "name": "context_window",
+      "value": "1048576",
+      "unit": "tokens",
+      "source_link": "https://dev.meta.ai/docs/models",
+      "other_info": "Meta lists a 1,048,576 token context window for Muse Spark 1.2."
+    },
+    {
+      "name": "api_status",
+      "value": "public_preview",
+      "unit": null,
+      "source_link": "https://dev.meta.ai/docs/models",
+      "other_info": "Available through the Meta Model API in standard and contributor routes."
+    }
+  ],
+  "benchmarks": [],
+  "family_id": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 1048576,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*",
+      "video/*",
+      "audio/*",
+      "application/pdf"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": null,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
+    "web_search": true
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "api_reference",
+      "url": "https://dev.meta.ai/docs/models",
+      "accessed_at": "2026-08-05",
+      "notes": "Model IDs, modalities, and context window."
+    },
+    {
+      "kind": "pricing",
+      "url": "https://dev.meta.ai/docs/pricing-rate-limits",
+      "accessed_at": "2026-08-05",
+      "notes": "Standard and contributor tier pricing, data-use policy, and rate limits."
+    }
+  ],
+  "verification": {
+    "status": "unverified",
+    "checked_at": null,
+    "notes": "Model metadata and pricing were verified against the Meta Model API dashboard on 2026-08-05."
+  },
+  "last_updated": "2026-08-05T00:00:00",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
