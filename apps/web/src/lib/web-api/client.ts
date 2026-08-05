@@ -104,12 +104,12 @@ export async function fetchAccountWebApi<T>(
 
 export async function fetchInternalWebApi<T>(
 	path: `/api/internal/${string}`,
-	accessToken: string,
+	accessToken: string | null,
 	init: RequestInit = {},
 ): Promise<T> {
 	const response = await fetch(`${getWebApiOrigin()}${path}`, {
 		...init,
-		headers: { Accept: "application/json", ...(init.body ? { "Content-Type": "application/json" } : {}), ...init.headers, Authorization: `Bearer ${accessToken}` },
+		headers: { Accept: "application/json", ...(init.body ? { "Content-Type": "application/json" } : {}), ...init.headers, ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}) },
 		cache: "no-store",
 	});
 	const payload = await readJsonPayload<T>(response, path);
@@ -119,12 +119,12 @@ export async function fetchInternalWebApi<T>(
 
 export async function fetchInternalWebApiResponse(
 	path: `/api/internal/${string}`,
-	accessToken: string,
+	accessToken: string | null,
 	init: RequestInit = {},
 ): Promise<Response> {
 	return fetch(`${getWebApiOrigin()}${path}`, {
 		...init,
-		headers: { Accept: "application/json", ...(init.body ? { "Content-Type": "application/json" } : {}), ...init.headers, Authorization: `Bearer ${accessToken}` },
+		headers: { Accept: "application/json", ...(init.body ? { "Content-Type": "application/json" } : {}), ...init.headers, ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}) },
 		cache: "no-store",
 	});
 }
