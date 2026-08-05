@@ -211,11 +211,11 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 	version: { usage: ["phaseo version [--json]"] },
 	curie: {
 		usage: [
-			"phaseo curie run <config.json> [--repeats <n>] [--report <path>] [--base-url <url>] [--api-key-env <name>] [--dry-run] [--json]",
+			"phaseo curie run <config.json> [--repeats <n>] [--report <path>] [--base-url <url> --allow-custom-base-url --api-key-env PHASEO_CURIE_API_KEY] [--dry-run] [--json]",
 		],
 		description: "Run a local model comparison from a JSON configuration.",
 	},
-	"curie run": { usage: ["phaseo curie run <config.json> [--repeats <n>] [--report <path>] [--base-url <url>] [--api-key-env <name>] [--dry-run] [--json]"] },
+	"curie run": { usage: ["phaseo curie run <config.json> [--repeats <n>] [--report <path>] [--base-url <url> --allow-custom-base-url --api-key-env PHASEO_CURIE_API_KEY] [--dry-run] [--json]"] },
 	logout: { usage: ["phaseo logout [--json]"] },
 	whoami: { usage: ["phaseo whoami [--json]"] },
 	keys: {

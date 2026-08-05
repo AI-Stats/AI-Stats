@@ -117,7 +117,7 @@ phaseo curie run ./examples/curie.example.json --report ./curie-report.json
 
 The configuration supports multiple models, deterministic equals/contains/regular-expression checks, per-case parameters, repeated runs, custom OpenAI-compatible base URLs, and an API-key environment variable. Results include pass rate, request success, latency, token usage, and any cost reported by the endpoint.
 
-The default endpoint is `https://api.phaseo.app/v1` and the default key variable is `PHASEO_API_KEY`. Use `--base-url` and `--api-key-env` for another compatible local or hosted endpoint.
+The default endpoint is `https://api.phaseo.app/v1` and the default key variable is `PHASEO_API_KEY`. Custom endpoints require `--allow-custom-base-url` and use the isolated `PHASEO_CURIE_API_KEY` variable so a configuration cannot redirect your normal Phaseo credential.
 
 ## OAuth and OAuth Apps
 
