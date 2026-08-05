@@ -42,7 +42,7 @@ describe("BytePlus image adapter", () => {
 			onRequest: (call) => { requestBody = call.bodyJson; },
 		}]);
 
-		const result = await exec(args("images.generations", { size: "1024x1024", n: 2 }));
+		const result = await exec(args("images.generations", { size: "1024x1024", n: 1 }));
 		mock.restore();
 
 		expect(requestBody).toMatchObject({ model: "dola-seedream-5-0-pro-260628", prompt: "Create a poster", size: "1024x1024" });
@@ -75,5 +75,16 @@ describe("BytePlus image adapter", () => {
 		expect(result.bill.usage).toMatchObject({ input_image: 3, output_image: 2 });
 		expect(result.bill.usage?.pricing.total_nanos).toBe(96_000_000);
 		expect(result.bill.cost_cents).toBe(9);
+	});
+
+	it("rejects unsupported multiple outputs without contacting BytePlus", async () => {
+		const fetchMock = vi.fn();
+		vi.stubGlobal("fetch", fetchMock);
+
+		const result = await exec(args("images.generations", { n: 2 }));
+
+		expect(result.upstream.status).toBe(400);
+		expect(result.normalized).toMatchObject({ error: { param: "n" } });
+		expect(fetchMock).not.toHaveBeenCalled();
 	});
 });

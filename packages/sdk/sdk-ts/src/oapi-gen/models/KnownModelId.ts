@@ -50,6 +50,7 @@ export type KnownModelId =
   | "bytedance/seedance-2.0"
   | "bytedance/seedance-2.0-fast"
   | "bytedance/seedance-2.0-mini-260615"
+  | "bytedance/seedream-5.0-pro"
   | "crofai/greg-1-mini"
   | "crofai/greg-2-super"
   | "crofai/greg-2-ultra"

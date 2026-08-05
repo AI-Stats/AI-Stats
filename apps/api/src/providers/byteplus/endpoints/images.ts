@@ -89,8 +89,22 @@ function mapBody(args: ProviderExecuteArgs) {
 }
 
 export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
-	const keyInfo = await resolveOpenAICompatKey(args);
 	const { request, pricingInput } = mapBody(args);
+	if (!supportsMultipleOutputs(request.model) && typeof pricingInput.n === "number" && pricingInput.n > 1) {
+		const upstream = new Response(JSON.stringify({ error: { type: "invalid_request_error", message: "Seedream 5.0 Pro supports one output image per request", param: "n" } }), {
+			status: 400,
+			headers: { "content-type": "application/json" },
+		});
+		return {
+			kind: "completed",
+			upstream,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
+			normalized: await upstream.clone().json(),
+			keySource: null,
+			byokKeyId: null,
+		};
+	}
+	const keyInfo = await resolveOpenAICompatKey(args);
 	const res = await fetch(openAICompatUrl(args.providerId, "/images/generations"), {
 		method: "POST",
 		headers: openAICompatHeaders(args.providerId, keyInfo.key, upstreamTestHeaders(args.meta)),

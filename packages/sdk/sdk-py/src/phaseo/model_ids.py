@@ -194,6 +194,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/bytedance/seedance-2.0-mini-260615
     BYTEDANCE_SEEDANCE_2_0_MINI_260615: Final[str] = "bytedance/seedance-2.0-mini-260615"
 
+    # Model ID: bytedance/seedream-5.0-pro
+    # Model page: https://phaseo.app/models/bytedance/seedream-5.0-pro
+    BYTEDANCE_SEEDREAM_5_0_PRO: Final[str] = "bytedance/seedream-5.0-pro"
+
     # Model ID: crofai/greg-1-mini
     # Model page: https://phaseo.app/models/crofai/greg-1-mini
     CROFAI_GREG_1_MINI: Final[str] = "crofai/greg-1-mini"
@@ -1890,6 +1894,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.BYTEDANCE_SEEDANCE_2_0,
         ModelIds.BYTEDANCE_SEEDANCE_2_0_FAST,
         ModelIds.BYTEDANCE_SEEDANCE_2_0_MINI_260615,
+        ModelIds.BYTEDANCE_SEEDREAM_5_0_PRO,
         ModelIds.CROFAI_GREG_1_MINI,
         ModelIds.CROFAI_GREG_2_SUPER,
         ModelIds.CROFAI_GREG_2_ULTRA,
