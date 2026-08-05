@@ -121,7 +121,11 @@ async function withPresetLifecycle(client: ReturnType<typeof getDataClient>, row
 	const sourceIds = [...new Set(rows.map((row) => String(row.source_preset_id ?? "")).filter(Boolean))];
 	const latestBySource = new Map<string, { id: string; version_number: number }>();
 	if (sourceIds.length) {
-		const versions = await client.from("preset_versions").select("id,preset_id,version_number").in("preset_id", sourceIds).order("version_number", { ascending: false });
+		const publicSources = await client.from("presets").select("id").in("id", sourceIds).eq("visibility", "public").is("archived_at", null);
+		if (publicSources.error) throw publicSources.error;
+		const publicSourceIds = (publicSources.data ?? []).map((source) => String(source.id));
+		if (!publicSourceIds.length) return presetLifecycleFallback(rows);
+		const versions = await client.from("preset_versions").select("id,preset_id,version_number").in("preset_id", publicSourceIds).eq("visibility", "public").order("version_number", { ascending: false });
 		if (versions.error) throw versions.error;
 		for (const version of versions.data ?? []) if (!latestBySource.has(String(version.preset_id))) latestBySource.set(String(version.preset_id), { id: String(version.id), version_number: Number(version.version_number) });
 	}
@@ -189,7 +193,7 @@ accountSettingsPolicyRouter.post("/presets/:presetId/fork", async (c) => {
 	if (source.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); if (!source.data || source.data.visibility !== "public") return c.json({ error: "not_public" }, 404, PRIVATE_NO_STORE_HEADERS);
 	let sourceSnapshot = { id: source.data.active_version_id, name: source.data.name, slug: source.data.slug, description: source.data.description, config: source.data.config };
 	if (body.sourceVersionId) {
-		const version = await context.client.from("preset_versions").select("id,name,slug,description,config").eq("id", body.sourceVersionId).eq("preset_id", source.data.id).maybeSingle();
+		const version = await context.client.from("preset_versions").select("id,name,slug,description,config").eq("id", body.sourceVersionId).eq("preset_id", source.data.id).eq("visibility", "public").maybeSingle();
 		if (version.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 		if (!version.data) return c.json({ error: "invalid_source_version" }, 400, PRIVATE_NO_STORE_HEADERS);
 		sourceSnapshot = version.data;
