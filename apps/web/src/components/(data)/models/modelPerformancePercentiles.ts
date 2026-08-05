@@ -4,10 +4,15 @@ import type {
 } from "@/lib/fetchers/models/getModelPerformance";
 import {
 	MODEL_PERCENTILES,
+	formatModelPercentile,
 	type ModelPercentile,
 } from "@/components/(data)/models/ModelPercentileSelect";
 
 const PERCENTILE_COLORS: Record<ModelPercentile, string> = {
+	1: "var(--chart-1)",
+	5: "var(--chart-2)",
+	10: "var(--chart-3)",
+	25: "var(--chart-4)",
 	50: "var(--chart-1)",
 	75: "var(--chart-2)",
 	90: "var(--chart-3)",
@@ -36,7 +41,7 @@ export function buildSingleProviderPercentileSeries(
 			return {
 				...point,
 				provider: `percentile-${percentile}`,
-				providerName: `P${percentile}`,
+				providerName: formatModelPercentile(percentile),
 				providerColor: PERCENTILE_COLORS[percentile],
 			};
 		});
