@@ -1,7 +1,8 @@
 import { spawn } from "node:child_process";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
-const cwd = new URL("..", import.meta.url).pathname;
+const cwd = fileURLToPath(new URL("..", import.meta.url));
 const children = new Set();
 
 function run(command, args, options = {}) {
