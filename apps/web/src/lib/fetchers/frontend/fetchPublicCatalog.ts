@@ -948,6 +948,22 @@ export async function fetchFrontendRankingUniqueUserTimeseries(
 	return fetchPublicWebApi<{ data: TimeseriesData[] }>(`/api/_web/rankings/unique-users?time_range=${encodeURIComponent(timeRange)}&bucket_size=${encodeURIComponent(bucketSize)}&top_n=${encodeURIComponent(String(topN))}`);
 }
 
+export type PublicGeographyRow = {
+	country_code: string;
+	requests: number | string;
+	tokens: number | string;
+	share_percent: number | string;
+	workspace_count: number | string;
+};
+
+export async function fetchFrontendRankingGeography(
+	days = 30,
+): Promise<{ data: PublicGeographyRow[]; days: number }> {
+	return fetchPublicWebApi<{ data: PublicGeographyRow[]; days: number }>(
+		`/api/_web/rankings/geography?days=${encodeURIComponent(String(days))}`,
+	);
+}
+
 export async function fetchFrontendModelRankings(
 	timeRange = "week",
 	metric = "tokens",

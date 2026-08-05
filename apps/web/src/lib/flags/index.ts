@@ -9,7 +9,9 @@ import {
 	VIDEO_API_GATE,
 	REALTIME_VOICE_GATE,
 	GATEWAY_IO_LOGGING_GATE,
+	PRESET_EXPERIMENTS_GATE,
 	SAML_SSO_GATE,
+	CATALOGUE_GAMES_PREVIEW_GATE,
 	NEW_LANDING_PAGE_EXPERIMENT,
 	NEW_LANDING_PAGE_GATE,
 	type GatewayHeroVariant,
@@ -69,6 +71,21 @@ export const gatewayIoLoggingFlag = statsigAdapter
 			decide: () => false,
 		});
 
+export const presetExperimentsFlag = statsigAdapter
+	? flag<boolean, StatsigUser>({
+			key: PRESET_EXPERIMENTS_GATE,
+			identify,
+			adapter: statsigAdapter.featureGate((gate) => gate.value),
+		})
+	: flag<boolean>({
+			key: PRESET_EXPERIMENTS_GATE,
+			decide: () => false,
+		});
+
+export async function presetExperimentsEnabled(): Promise<boolean> {
+	return presetExperimentsFlag();
+}
+
 export const samlSsoFlag = statsigAdapter
 	? flag<boolean, StatsigUser>({
 			key: SAML_SSO_GATE,
@@ -99,5 +116,16 @@ export const realtimeVoiceFlag = statsigAdapter
 		})
 	: flag<boolean>({
 			key: REALTIME_VOICE_GATE,
+			decide: () => false,
+		});
+
+export const catalogueGamesPreviewFlag = statsigAdapter
+	? flag<boolean, StatsigUser>({
+			key: CATALOGUE_GAMES_PREVIEW_GATE,
+			identify,
+			adapter: statsigAdapter.featureGate((gate) => gate.value),
+		})
+	: flag<boolean>({
+			key: CATALOGUE_GAMES_PREVIEW_GATE,
 			decide: () => false,
 		});

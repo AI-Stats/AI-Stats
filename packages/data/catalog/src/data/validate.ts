@@ -70,6 +70,7 @@ export function isMajorError(msg: string): boolean {
         /pricing.*billing timestamp basis.*invalid/i,
         /pricing.*time window/i,
         /pricing.*effective_to.*before.*effective_from/i,
+        /pricing.*rule effective_(?:from|to).*match.*top-level/i,
     ];
     return majorPatterns.some((p) => p.test(msg));
 }
@@ -137,6 +138,18 @@ export function checkPricingEntrySafety(p: any): string[] {
             if (typeof meter !== 'string' || !KNOWN_METERS.has(meter)) {
                 errs.push(`pricing: unknown meter '${meter}' for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}`);
                 continue;
+            }
+
+            if (p.effective_from && r?.effective_from !== p.effective_from) {
+                errs.push(
+                    `pricing: rule effective_from must match top-level effective_from for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}:${meter}`
+                );
+            }
+
+            if (p.effective_to && r?.effective_to !== p.effective_to) {
+                errs.push(
+                    `pricing: rule effective_to must match top-level effective_to for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}:${meter}`
+                );
             }
 
             if (r?.effective_from && !hasExplicitUtcTimestamp(r.effective_from)) {

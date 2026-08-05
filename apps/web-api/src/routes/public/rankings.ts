@@ -54,6 +54,26 @@ publicRankingsRouter.get("/rankings/unique-users", async (c) => {
 	catch (error) { console.error("[web-api/rankings] unique users failed", error); return c.json({ error: "unique_users_unavailable" }, 503); }
 });
 
+
+publicRankingsRouter.get("/rankings/geography", async (c) => {
+	const days = bounded(c.req.query("days"), 30, 365);
+	const to = new Date();
+	const from = new Date(to.getTime() - days * 86_400_000);
+	try {
+		const { data, error } = await getDataClient(c.env).rpc("get_public_geography_usage", {
+			p_from: from.toISOString(),
+			p_to: to.toISOString(),
+			p_min_requests: 100,
+			p_min_workspaces: 3,
+		});
+		if (error) throw error;
+		return withPublicCache(c.json({ data: data ?? [], days }), LIVE_CACHE);
+	} catch (error) {
+		console.error("[web-api/rankings] geography failed", error);
+		return c.json({ error: "ranking_geography_unavailable" }, 503);
+	}
+});
+
 publicRankingsRouter.get("/rankings/models", async (c) => {
 	try {
 		const client = getDataClient(c.env);

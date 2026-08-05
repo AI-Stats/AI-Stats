@@ -28,8 +28,9 @@ export type ProfileSnapshot = ProfileUsageSummary & {
 	memberSince: string;
 	workspaceName: string | null;
 	publicProfileEnabled: boolean;
-	publicProfileSlug: string;
-	shareUrl: string;
+	publicProfileSlug: string | null;
+	suggestedProfileSlug?: string;
+	shareUrl: string | null;
 };
 
 export type SettingsProfileInitialData = {
@@ -40,3 +41,20 @@ export type SettingsProfileInitialData = {
 export type SettingsProfileUsageData = {
 	usage: ProfileUsageSummary | null;
 };
+
+export type ProfileGameSummary = {
+	totalPlayed: number;
+	totalWins: number;
+	currentStreak: number;
+	averageScore: number;
+	games: Array<{
+		game: "modele" | "timeline" | "pricele" | "head-to-head" | "sprint";
+		label: string;
+		played: number;
+		wins: number;
+		bestScore: number;
+		lastPlayedAt: string | null;
+	}>;
+};
+
+export type SettingsProfileGamesData = { games: ProfileGameSummary | null };

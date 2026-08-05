@@ -13,6 +13,10 @@ begin
     'public.gateway_fetch_request_context(uuid,text,text,uuid)'::regprocedure
   ) into definition;
 
+  -- Functions created from Windows-authored migrations can retain CRLF in
+  -- their stored body, while this guarded replacement is expressed with LF.
+  definition := replace(definition, chr(13) || chr(10), chr(10));
+
   if position(old_select in definition) > 0 then
     definition := replace(definition, old_select, new_select);
   elsif position(new_select in definition) = 0 then
@@ -38,6 +42,8 @@ begin
   select pg_get_functiondef(
     'public.get_v2_model_pricing(text,text,text)'::regprocedure
   ) into definition;
+
+  definition := replace(definition, chr(13) || chr(10), chr(10));
 
   if position(old_payload in definition) > 0 then
     definition := replace(definition, old_payload, new_payload);

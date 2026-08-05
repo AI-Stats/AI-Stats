@@ -1,4 +1,5 @@
 import { MetadataRoute } from "next";
+import { cacheLife } from "next/cache";
 import {
 	getHelpArticleParams,
 	getHelpCategoryParams,
@@ -15,10 +16,6 @@ import {
 	fetchFrontendSubscriptionPlans,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { SITE_URL } from "@/lib/seo";
-
-// Cache sitemap output at the edge to avoid repeated compute (and Fast Origin Transfer)
-// from crawlers hitting `/sitemap.xml` frequently.
-export const revalidate = 86400; // 1 day (must be a literal for static analysis)
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 type ChangeFrequency = NonNullable<SitemapEntry["changeFrequency"]>;
@@ -282,6 +279,9 @@ function applySuffixesWithEntries<T extends { slug: string; lastModified?: strin
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+	"use cache";
+	cacheLife({ revalidate: 86400, expire: 604800 });
+
 	// `lastmod` must describe a content change, not a deployment. Omit it until
 	// a route has a reliable source timestamp rather than sending false freshness.
 	const staticItems = staticRoutes.map((route) =>

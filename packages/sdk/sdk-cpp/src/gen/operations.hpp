@@ -304,6 +304,11 @@ inline Response ListFiles(Client& client, const std::map<std::string, std::strin
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListModelEndpoints(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/models/" + (path.count("author") ? path.at("author") : std::string{}) + "/" + (path.count("slug") ? path.at("slug") : std::string{}) + "/endpoints";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListModels(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/models";
 	return client.request("GET", resolved_path, body);

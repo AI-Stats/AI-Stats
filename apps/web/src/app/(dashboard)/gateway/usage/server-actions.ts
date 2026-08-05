@@ -7,7 +7,16 @@ export interface RequestRow {
 	request_id: string; created_at: string; endpoint: string | null; model_id: string | null; provider: string | null;
 	app_id: string | null; session_id: string | null; success: boolean; status_code: number | null; error_code: string | null;
 	error_message: string | null; error_payload: Record<string, unknown> | null; usage: any; cost_nanos: number | null;
-	pricing_lines: AsyncJobRequestPricingLine[]; provider_attempts: Array<Record<string, any>>;
+	pricing_lines: AsyncJobRequestPricingLine[]; provider_attempts: Array<{
+		sequence?: number | null; attempt_number?: number | null; round_number?: number | null;
+		internal_attempt_number?: number | null; provider?: string | null; api_model_id?: string | null;
+		provider_model_slug?: string | null; outcome?: string | null; status?: number | null;
+		status_text?: string | null; duration_ms?: number | null; latency_ms?: number | null;
+		generation_ms?: number | null; total_ms?: number | null; cost_nanos?: number | null;
+		currency?: string | null; finish_reason?: string | null; provider_finish_reason?: string | null;
+		retryable?: boolean | null; fallback_attempted?: boolean; upstream_error_code?: string | null;
+		upstream_error_message?: string | null; upstream_error_description?: string | null;
+	}>;
 	usage_total_tokens?: number | null; usage_input_tokens?: number | null; usage_output_tokens?: number | null;
 	[key: string]: any;
 }

@@ -10,11 +10,14 @@ const MARKETPLACE_CACHE = {
 
 export const publicMarketplaceRouter = new Hono<{ Bindings: Env }>();
 
-async function forkCounts(client: ReturnType<typeof getDataClient>, presetIds: string[]) {
+async function forkCounts(
+	client: ReturnType<typeof getDataClient>,
+	presetIds: string[],
+): Promise<Map<string, { direct: number; descendants: number }>> {
 	if (!presetIds.length) return new Map<string, { direct: number; descendants: number }>();
 	const result = await client.rpc("marketplace_preset_fork_counts", { preset_ids: presetIds });
 	if (result.error) throw result.error;
-	return new Map((result.data ?? []).map((row: { preset_id: string; direct_fork_count: number | string; descendant_count: number | string }) => [String(row.preset_id), { direct: Number(row.direct_fork_count) || 0, descendants: Number(row.descendant_count) || 0 }]));
+	return new Map((result.data ?? []).map((row: { preset_id: string; direct_fork_count: number | string; descendant_count: number | string }) => [String(row.preset_id), { direct: Number(row.direct_fork_count) || 0, descendants: Number(row.descendant_count) || 0 }] as const));
 }
 
 publicMarketplaceRouter.get("/marketplace/presets", async (c) => {

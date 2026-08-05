@@ -189,7 +189,7 @@ accountSettingsPolicyRouter.post("/presets/:presetId/fork", async (c) => {
 
 accountSettingsPolicyRouter.put("/presets/:presetId", async (c) => {
 	const user = await requireUser(c.req.raw, c.env); if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
-	const client = getDataClient(c.env); const id = c.req.param("presetId"); const existing = await client.from("presets").select("id,workspace_id,name,slug,config,visibility,created_by,draft_name,draft_slug,draft_description,draft_config,draft_visibility,source_preset_id,upstream_version_id").eq("id", id).maybeSingle();
+	const client = getDataClient(c.env); const id = c.req.param("presetId"); const existing = await client.from("presets").select("id,workspace_id,name,slug,config,visibility,created_by,draft_name,draft_slug,draft_description,draft_config,draft_visibility,source_preset_id,upstream_version_id").eq("id", id).is("archived_at", null).maybeSingle();
 	if (existing.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); if (!existing.data?.workspace_id) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId: existing.data.workspace_id }); if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	if (!canWritePreset(context, user.id, existing.data)) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
@@ -210,9 +210,10 @@ accountSettingsPolicyRouter.put("/presets/:presetId", async (c) => {
 accountSettingsPolicyRouter.get("/presets/:presetId/versions", async (c) => {
 	const user = await requireUser(c.req.raw, c.env); if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
 	const client = getDataClient(c.env); const id = c.req.param("presetId");
-	const preset = await client.from("presets").select("workspace_id").eq("id", id).maybeSingle();
+	const preset = await client.from("presets").select("workspace_id,created_by,visibility").eq("id", id).is("archived_at", null).maybeSingle();
 	if (preset.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); if (!preset.data?.workspace_id) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId: preset.data.workspace_id }); if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	if (preset.data.visibility === "private" && preset.data.created_by !== user.id) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
 	const versions = await client.from("preset_versions").select("id,version_number,name,slug,description,visibility,release_notes,created_at").eq("preset_id", id).order("version_number", { ascending: false });
 	if (versions.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	return c.json({ versions: versions.data ?? [] }, 200, PRIVATE_NO_STORE_HEADERS);
@@ -221,7 +222,7 @@ accountSettingsPolicyRouter.get("/presets/:presetId/versions", async (c) => {
 accountSettingsPolicyRouter.post("/presets/:presetId/versions", async (c) => {
 	const user = await requireUser(c.req.raw, c.env); if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
 	const client = getDataClient(c.env); const id = c.req.param("presetId"); const body: { releaseNotes?: string; versionLabel?: string } = await c.req.json<{ releaseNotes?: string; versionLabel?: string }>().catch(() => ({}));
-	const preset = await client.from("presets").select("workspace_id,created_by,draft_visibility").eq("id", id).maybeSingle();
+	const preset = await client.from("presets").select("workspace_id,created_by,draft_visibility").eq("id", id).is("archived_at", null).maybeSingle();
 	if (preset.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); if (!preset.data?.workspace_id) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId: preset.data.workspace_id }); if (!context || preset.data.created_by !== user.id) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	if (preset.data.draft_visibility === "public" && !await publicPublisher(client, user.id).catch(() => null)) return c.json({ error: "public_profile_required" }, 409, PRIVATE_NO_STORE_HEADERS);
@@ -234,7 +235,7 @@ accountSettingsPolicyRouter.post("/presets/:presetId/versions", async (c) => {
 accountSettingsPolicyRouter.post("/presets/:presetId/upstream", async (c) => {
 	const user = await requireUser(c.req.raw, c.env); if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
 	const client = getDataClient(c.env); const id = c.req.param("presetId"); const body: { versionId?: string } = await c.req.json<{ versionId?: string }>().catch(() => ({}));
-	const preset = await client.from("presets").select("workspace_id,created_by").eq("id", id).maybeSingle();
+	const preset = await client.from("presets").select("workspace_id,created_by").eq("id", id).is("archived_at", null).maybeSingle();
 	if (preset.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); if (!preset.data?.workspace_id || !body.versionId) return c.json({ error: "invalid_upstream_version" }, 400, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId: preset.data.workspace_id }); if (!context || preset.data.created_by !== user.id) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const applied = await client.rpc("apply_preset_upstream_version", { target_preset_id: id, target_version_id: body.versionId, actor_user_id: user.id });

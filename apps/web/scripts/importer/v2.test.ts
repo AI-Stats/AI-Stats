@@ -14,6 +14,11 @@ import {
     v2PricingMeterMetadata,
     validateJsonPricingRules,
     routeStatus,
+    catalogueStatus,
+    providerAvailabilityStatus,
+    phaseoStatus,
+    routeAccessScope,
+    phaseoRoutingEnabled,
     staleJsonProviderRouteIds,
     staleOwnedModelChildRows,
 } from "./v2";
@@ -101,6 +106,84 @@ describe("routeStatus", () => {
 
     it("keeps an explicit disabled status authoritative", () => {
         expect(routeStatus("disabled", true)).toBe("disabled");
+    });
+});
+
+describe("explicit catalogue statuses", () => {
+    it("preserves canonical lifecycle without making unknown values available", () => {
+        expect(catalogueStatus("Limited Access")).toBe("limited_access");
+        expect(catalogueStatus("Rumoured")).toBe("rumoured");
+        expect(catalogueStatus(null)).toBe("unknown");
+    });
+
+    it("keeps upstream availability separate from Phaseo integration", () => {
+        const offer = {
+            provider_status: "available",
+            phaseo_status: "unsupported",
+            is_active_gateway: true,
+            routable: true,
+            capabilities: [{ capability_id: "music.generate", status: "active" }],
+        };
+        expect(providerAvailabilityStatus(offer)).toBe("available");
+        expect(phaseoStatus(offer)).toBe("unsupported");
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
+    it("fails closed for announced offers and non-enabled integrations", () => {
+        const offer = {
+            provider_status: "coming_soon",
+            phaseo_status: "planned",
+            is_active_gateway: true,
+            routable: true,
+        };
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
+    it("fails closed for unrecognised explicit values", () => {
+        const offer = {
+            provider_status: "probably_live",
+            phaseo_status: "ship_it",
+            is_active_gateway: true,
+            routable: true,
+        };
+        expect(providerAvailabilityStatus(offer)).toBe("unknown");
+        expect(phaseoStatus(offer)).toBe("disabled");
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
+    it("restricts testing integrations to internal access without public routing", () => {
+        const offer = {
+            provider_status: "available",
+            phaseo_status: "testing",
+            is_active_gateway: true,
+            routable: true,
+        };
+        expect(routeAccessScope(offer)).toBe("internal");
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
+    it("fails closed to internal access for an unrecognised explicit scope", () => {
+        const offer = {
+            provider_status: "available",
+            phaseo_status: "enabled",
+            access_scope: "staff-ish",
+            is_active_gateway: true,
+            routable: true,
+        };
+        expect(routeAccessScope(offer)).toBe("internal");
+        expect(phaseoRoutingEnabled(offer)).toBe(false);
+    });
+
+    it("keeps legacy active routes enabled during migration", () => {
+        const offer = {
+            is_active_gateway: true,
+            routable: true,
+            routing_status: "active",
+            capabilities: [{ capability_id: "text.generate", status: "active" }],
+        };
+        expect(providerAvailabilityStatus(offer)).toBe("available");
+        expect(phaseoStatus(offer)).toBe("enabled");
+        expect(phaseoRoutingEnabled(offer)).toBe(true);
     });
 });
 

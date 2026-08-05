@@ -9,7 +9,7 @@ import { pickFirstFiniteNumber, resolveCanonicalTokenUsage, resolveRequestCountU
 
 const KNOWN_METERS = new Set<string>([
     "input_tokens",
-    "input_characters", "input_pages",
+    "input_characters", "input_text_bytes", "input_pages",
     "input_text_tokens", "input_text_messages", "input_image", "input_image_tokens", "input_audio_minutes", "input_audio_seconds", "input_audio_tokens", "input_video_seconds", "input_video_tokens",
     "output_tokens",
     "output_text_tokens", "output_reasoning_tokens", "output_image_tokens", "output_audio_minutes", "output_audio_seconds", "output_audio_tokens", "output_video_tokens",

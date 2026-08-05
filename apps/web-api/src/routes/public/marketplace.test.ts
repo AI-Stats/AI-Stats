@@ -69,10 +69,10 @@ describe("public marketplace routes", () => {
 			expect(response.headers.get("cache-tag")).toContain("web-api-marketplace");
 		}
 		await expect(list.json()).resolves.toMatchObject({
-			presets: [{ id: "preset-1", name: "Public preset", forkCount: 7, descendantCount: 12, canonicalModel: "@author/public-preset" }],
+			presets: [{ id: "preset-1", name: "Public preset", forkCount: 7, descendantCount: 12, canonicalModel: "@author/public-preset", publisher: { handle: "author", displayName: "Preset Author" } }],
 		});
 		await expect(detail.json()).resolves.toMatchObject({
-			preset: { id: "preset-1", visibility: "public", forkCount: 7, descendantCount: 12, publisher: { handle: "author" } },
+			preset: { id: "preset-1", slug: "public-preset", visibility: "public", forkCount: 7, descendantCount: 12, canonicalModel: "@author/public-preset", publisher: { handle: "author" } },
 			versions: [{ version_number: 1, version_label: "1.0.0", versioning_method: "semver" }],
 			sourcePreset: { id: "source-1", name: "Source preset" },
 		});

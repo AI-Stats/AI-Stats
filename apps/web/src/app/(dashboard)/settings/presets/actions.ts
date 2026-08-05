@@ -111,7 +111,22 @@ function normalizePresetSlug(value: string): string {
 }
 
 function sanitizeConfig(config: PresetConfig): Record<string, unknown> {
-	const sanitized: Record<string, unknown> = {};
+	const managedKeys = new Set([
+		"system_prompt",
+		"models",
+		"only_providers",
+		"ignore_providers",
+		"provider",
+		"plugins",
+		"routing_mode",
+		"provider_preferences",
+		"response_caching",
+		"parameters",
+		"reasoning",
+	]);
+	const sanitized: Record<string, unknown> = Object.fromEntries(
+		Object.entries(config).filter(([key]) => !managedKeys.has(key)),
+	);
 
 	if (typeof config.system_prompt === "string" && config.system_prompt.trim()) {
 		sanitized.system_prompt = config.system_prompt.trim().substring(0, 10000);
@@ -203,7 +218,14 @@ function sanitizeConfig(config: PresetConfig): Record<string, unknown> {
 	}
 
 	if (config.provider_preferences && typeof config.provider_preferences === "object") {
-		sanitized.provider_preferences = Object.fromEntries(Object.entries(config.provider_preferences).filter(([, weight]) => Number.isFinite(weight) && weight > 0));
+		const preferences = Object.fromEntries(
+			Object.entries(config.provider_preferences).filter(
+				([, weight]) => Number.isFinite(weight) && weight > 0,
+			),
+		);
+		if (Object.keys(preferences).length > 0) {
+			sanitized.provider_preferences = preferences;
+		}
 	}
 
 	if (config.response_caching && typeof config.response_caching === "object") {

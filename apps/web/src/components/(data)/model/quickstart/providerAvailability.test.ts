@@ -99,6 +99,42 @@ describe("resolveProviderState", () => {
 			availability: "inactive",
 		});
 	});
+
+	test("shows provider preview separately without hiding a routable Phaseo integration", () => {
+		expect(
+			resolveProviderState(
+				makeProvider({
+					availability_status: "active",
+					availability_reason: "provider_preview",
+					provider_availability_status: "preview",
+					phaseo_status: "enabled",
+					access_scope: "public",
+				}),
+			),
+		).toMatchObject({
+			key: "provider_preview",
+			label: "Provider Preview",
+			availability: "active",
+		});
+	});
+
+	test("shows Phaseo implementation work as coming soon", () => {
+		expect(
+			resolveProviderState(
+				makeProvider({
+					availability_status: "coming_soon",
+					availability_reason: "phaseo_implementing",
+					provider_availability_status: "available",
+					phaseo_status: "implementing",
+					access_scope: "public",
+				}),
+			),
+		).toMatchObject({
+			key: "phaseo_implementing",
+			label: "Phaseo Implementing",
+			availability: "coming_soon",
+		});
+	});
 });
 
 describe("groupProviders", () => {

@@ -3,6 +3,7 @@ import { requireUser } from "@/auth/requireUser";
 import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
+import { buildGameProfileSummary, type GameResultRow } from "@/games/profile";
 import { requireAccountWorkspace } from "./context";
 
 type DailyActivityPoint = { date: string; requests: number; tokens: number; spendNanos: number };
@@ -333,7 +334,8 @@ accountSettingsProfileRouter.get("/profile", async (c) => {
 	if (userResult.error) return c.json({ error: "profile_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const displayName = String(userResult.data?.display_name ?? user.userMetadata.display_name ?? user.userMetadata.name ?? user.email?.split("@")[0] ?? "Phaseo User").trim() || "Phaseo User";
 	const workspaceId = String(userResult.data?.default_workspace_id ?? "").trim() || null;
-	const slug = normalizePublicProfileSlug(userResult.data?.public_profile_slug) || profileSlug(displayName, user.id);
+	const storedSlug = normalizePublicProfileSlug(userResult.data?.public_profile_slug) || null;
+	const suggestedSlug = profileSlug(displayName, user.id);
 	let workspaceName: string | null = "Personal";
 	if (workspaceId) {
 		const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
@@ -344,8 +346,9 @@ accountSettingsProfileRouter.get("/profile", async (c) => {
 	}
 	const profile = {
 		userId: user.id, displayName, email: user.email, avatarUrl: typeof user.userMetadata.avatar_url === "string" ? user.userMetadata.avatar_url : null,
-		memberSince: String(userResult.data?.created_at ?? user.createdAt), workspaceName, publicProfileEnabled: Boolean(userResult.data?.public_profile_enabled), publicProfileSlug: slug,
-		shareUrl: `https://phaseo.app/profile/${slug}`,
+		memberSince: String(userResult.data?.created_at ?? user.createdAt), workspaceName, publicProfileEnabled: Boolean(userResult.data?.public_profile_enabled), publicProfileSlug: storedSlug,
+		suggestedProfileSlug: suggestedSlug,
+		shareUrl: storedSlug ? `https://phaseo.app/profile/${storedSlug}` : null,
 		...emptyProfileUsage(),
 	};
 	const override = c.req.query("obfuscateInfo");
@@ -372,4 +375,17 @@ accountSettingsProfileRouter.get("/profile/usage", async (c) => {
 	} catch {
 		return c.json({ error: "profile_usage_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
+});
+
+accountSettingsProfileRouter.get("/profile/games", async (c) => {
+	const user = await requireUser(c.req.raw, c.env);
+	if (!user) return c.json({ games: null }, 200, PRIVATE_NO_STORE_HEADERS);
+	const result = await getDataClient(c.env)
+		.from("catalogue_game_results")
+		.select("game_key,puzzle_date,won,score,max_score,completed_at")
+		.eq("user_id", user.id)
+		.order("puzzle_date", { ascending: false })
+		.limit(500);
+	if (result.error) return c.json({ error: "profile_games_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ games: buildGameProfileSummary((result.data ?? []) as GameResultRow[]) }, 200, PRIVATE_NO_STORE_HEADERS);
 });

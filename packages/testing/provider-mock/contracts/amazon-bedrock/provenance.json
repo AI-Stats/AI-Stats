@@ -1,5 +1,11 @@
 {
-  "sourceUrl": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-openai.html",
+  "sourceUrl": "https://docs.aws.amazon.com/bedrock/latest/userguide/apis.html",
+  "referenceUrls": [
+    "https://docs.aws.amazon.com/bedrock/latest/userguide/bedrock-mantle.html",
+    "https://docs.aws.amazon.com/bedrock/latest/userguide/inference-chat-completions-mantle.html",
+    "https://docs.aws.amazon.com/bedrock/latest/userguide/inference-messages-api.html",
+    "https://docs.aws.amazon.com/bedrock/latest/userguide/models-api-compatibility.html"
+  ],
   "reconstruction": "phaseo-executor-and-official-reference",
-  "bundleSha256": "266d7b247b108567441c817ca800308f0d3b977fee463a23f925ec50bd2fb328"
+  "bundleSha256": "03ea41ad1221b8ff0f160aa366a3bd23c00ec3d757325af7cfb54508f227106e"
 }
