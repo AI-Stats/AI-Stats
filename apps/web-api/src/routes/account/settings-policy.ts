@@ -8,6 +8,35 @@ import { purgeWorkerCacheTags } from "@/http/invalidation";
 
 const GUARDRAIL_COLUMNS = "id,workspace_id,enabled,name,description,privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,model_restriction_mode,allowed_api_model_ids,prompt_injection_enabled,prompt_injection_action,sensitive_info_enabled,sensitive_info_default_action,sensitive_info_rules,daily_limit_requests,weekly_limit_requests,monthly_limit_requests,daily_limit_cost_nanos,weekly_limit_cost_nanos,monthly_limit_cost_nanos,created_at,updated_at";
 
+async function invalidateGatewayKey(env: Env, keyId: string): Promise<void> {
+	const key = env.PHASEO_MANAGEMENT_KEY ?? env.PHASEO_CONTROL_KEY;
+	if (!key || !env.PHASEO_CONTROL_SECRET) throw new Error("gateway_invalidation_unavailable");
+	const response = await fetch(
+		`${(env.GATEWAY_API_ORIGIN ?? "http://localhost:8787").replace(/\/$/, "")}/v1/keys/${encodeURIComponent(keyId)}/invalidate`,
+		{
+			method: "POST",
+			headers: {
+				authorization: `Bearer ${key}`,
+				"x-control-secret": env.PHASEO_CONTROL_SECRET,
+			},
+		},
+	);
+	if (!response.ok) throw new Error("gateway_invalidation_failed");
+}
+
+async function invalidateWorkspaceGatewayContext(
+	context: AccountWorkspaceContext,
+	env: Env,
+): Promise<void> {
+	const keys = await context.client
+		.from("keys")
+		.select("id")
+		.eq("workspace_id", context.workspaceId)
+		.neq("status", "deleted");
+	if (keys.error) throw new Error("gateway_invalidation_unavailable");
+	await Promise.all((keys.data ?? []).map((row) => invalidateGatewayKey(env, String(row.id))));
+}
+
 async function loadGuardrailReference(context: AccountWorkspaceContext) {
 	const [teamResult, keysResult, providersResult, modelsResult] = await Promise.all([
 		context.client.from("workspaces").select("id,name").eq("id", context.workspaceId).maybeSingle(),
@@ -66,6 +95,11 @@ accountSettingsPolicyRouter.put("/routing", async (c) => {
 	if (body.responseHealingMode === "safe" || body.responseHealingMode === "strict") payload.response_healing_mode = body.responseHealingMode;
 	const result = await context.client.from("workspace_settings").upsert(payload, { onConflict: "workspace_id" });
 	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	try {
+		await invalidateWorkspaceGatewayContext(context, c.env);
+	} catch {
+		return c.json({ error: "settings_cache_invalidation_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
 	return c.json({ ok: true }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
