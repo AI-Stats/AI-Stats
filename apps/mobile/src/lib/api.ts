@@ -1,9 +1,16 @@
 import Constants from "expo-constants";
 import { z } from "zod";
+import { resolveSecureOrigin } from "./origins";
 
 const extra = Constants.expoConfig?.extra as { phaseoOrigin?: string; phaseoApiOrigin?: string } | undefined;
-export const WEB_ORIGIN = extra?.phaseoOrigin ?? "https://phaseo.app";
-export const API_ORIGIN = extra?.phaseoApiOrigin ?? "https://api.phaseo.app/v1";
+export const WEB_ORIGIN = resolveSecureOrigin(
+  process.env.EXPO_PUBLIC_PHASEO_ORIGIN ?? extra?.phaseoOrigin,
+  "https://phaseo.app",
+);
+export const API_ORIGIN = `${resolveSecureOrigin(
+  process.env.EXPO_PUBLIC_PHASEO_API_ORIGIN ?? extra?.phaseoApiOrigin,
+  "https://api.phaseo.app",
+)}/v1`;
 
 const rawModelSchema = z.object({
   id: z.string().optional(),

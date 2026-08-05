@@ -26,7 +26,7 @@ export default function SignInScreen() {
     }
   };
 
-  return <Screen><View style={styles.content}>
+  return <Screen safeTop={false}><View style={styles.content}>
     <Text style={[styles.title, { color: palette.text }]}>Continue to Phaseo</Text>
     <Text style={[styles.body, { color: palette.muted }]}>Sign in to access your workspaces, usage and account settings.</Text>
     <Pressable disabled={busy} onPress={() => void run(() => signInWithProvider("google"))} style={[styles.button, { borderColor: palette.border }]}><Text style={{ color: palette.text, fontWeight: "600" }}>Continue with Google</Text></Pressable>

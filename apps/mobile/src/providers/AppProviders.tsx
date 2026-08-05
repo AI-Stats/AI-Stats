@@ -8,6 +8,7 @@ import * as SecureStore from "expo-secure-store";
 import * as WebBrowser from "expo-web-browser";
 import { createContext, useContext, useEffect, useMemo, useState, type PropsWithChildren } from "react";
 import { AppState } from "react-native";
+import { resolveSecureOrigin } from "@/lib/origins";
 import { secureKey } from "@/lib/secureKey";
 
 type OAuthProvider = "google" | "github";
@@ -24,7 +25,10 @@ export const useAuth = () => useContext(AuthContext);
 WebBrowser.maybeCompleteAuthSession();
 
 const extras = Constants.expoConfig?.extra as Record<string, string | undefined> | undefined;
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? extras?.supabaseUrl;
+const configuredSupabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? extras?.supabaseUrl;
+const supabaseUrl = configuredSupabaseUrl
+  ? resolveSecureOrigin(configuredSupabaseUrl, configuredSupabaseUrl)
+  : undefined;
 const supabasePublishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY
   ?? process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
   ?? extras?.supabasePublishableKey
@@ -69,13 +73,11 @@ export function AppProviders({ children }: PropsWithChildren) {
       if (error) throw error;
       if (!data.url) throw new Error("The sign-in provider did not return an authorization URL.");
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
-      if (result.type === "success") {
-        const code = Linking.parse(result.url).queryParams?.code;
-        if (typeof code === "string") {
-          const exchanged = await supabase.auth.exchangeCodeForSession(code);
-          if (exchanged.error) throw exchanged.error;
-        }
-      }
+      if (result.type !== "success") throw new Error("Sign-in was cancelled before it completed.");
+      const code = Linking.parse(result.url).queryParams?.code;
+      if (typeof code !== "string") throw new Error("The sign-in callback did not include an authorization code.");
+      const exchanged = await supabase.auth.exchangeCodeForSession(code);
+      if (exchanged.error) throw exchanged.error;
     },
     signOut: async () => {
     await supabase?.auth.signOut();

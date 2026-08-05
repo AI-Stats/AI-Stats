@@ -2,6 +2,7 @@ import * as Haptics from "expo-haptics";
 import type { LucideIcon } from "lucide-react-native";
 import type { PropsWithChildren, ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View, useColorScheme } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colour, icon, radius, space } from "@/theme";
 
 export function usePalette() {
@@ -9,9 +10,10 @@ export function usePalette() {
   return { dark, bg: dark ? colour.black : colour.white, surface: dark ? colour.grey800 : colour.grey50, text: dark ? colour.grey50 : colour.black, muted: dark ? colour.grey400 : colour.grey600, border: dark ? colour.grey800 : colour.grey200 };
 }
 
-export function Screen({ children }: PropsWithChildren) {
+export function Screen({ children, safeTop = true }: PropsWithChildren<{ safeTop?: boolean }>) {
   const p = usePalette();
-  return <View style={[styles.screen, { backgroundColor: p.bg }]}>{children}</View>;
+  const insets = useSafeAreaInsets();
+  return <View style={[styles.screen, { backgroundColor: p.bg, paddingTop: safeTop ? insets.top : 0 }]}>{children}</View>;
 }
 export function Section({ title, children, footer }: PropsWithChildren<{ title: string; footer?: string }>) {
   const p = usePalette();

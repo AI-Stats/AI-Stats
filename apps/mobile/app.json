@@ -23,12 +23,6 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      [
-        "expo-notifications",
-        {
-          "defaultChannel": "general"
-        }
-      ],
       "expo-font"
     ],
     "experiments": {
