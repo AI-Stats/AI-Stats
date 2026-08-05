@@ -49,6 +49,8 @@ packages/sdk/sdk-cpp/tests/*.exe
 packages/sdk/sdk-php/vendor/
 packages/sdk/sdk-ruby/*.gem
 .vercel
+/apps/desktop/out/
+/apps/desktop/release/
 
 # React Doctor local scan outputs
 /apps/web/.react-doctor-current.json

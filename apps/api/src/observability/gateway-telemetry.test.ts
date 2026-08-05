@@ -5,19 +5,23 @@ import { runGatewayTelemetryPipelines } from "./gateway-telemetry";
 describe("runGatewayTelemetryPipelines", () => {
 	it("delivers Supabase and Axiom independently", async () => {
 		const writeSupabase = vi.fn(async () => undefined);
+		const writeOtlp = vi.fn(async () => undefined);
 		const writeAxiom = vi.fn(async () => undefined);
 
 		const deliveries = await runGatewayTelemetryPipelines({
 			requestId: "req_1",
 			workspaceId: "ws_1",
 			writeSupabase,
+			writeOtlp,
 			writeAxiom,
 		});
 
 		expect(writeSupabase).toHaveBeenCalledOnce();
+		expect(writeOtlp).toHaveBeenCalledOnce();
 		expect(writeAxiom).toHaveBeenCalledOnce();
 		expect(deliveries).toEqual([
 			{ sink: "supabase", delivered: true, error: null },
+			{ sink: "otlp", delivered: true, error: null },
 			{ sink: "axiom", delivered: true, error: null },
 		]);
 	});

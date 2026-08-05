@@ -203,7 +203,9 @@ export default function BroadcastDestinationCreateClient(props: {
 	const { destination, keys, providerOptions, modelOptions } = props;
 	const router = useRouter();
 	const [destinationName, setDestinationName] = useState(destination.label);
-	const [excludePromptsAndOutputs, setExcludePromptsAndOutputs] = useState(false);
+	const [excludePromptsAndOutputs, setExcludePromptsAndOutputs] = useState(
+		destination.id === "otel_collector",
+	);
 	const [samplingRate, setSamplingRate] = useState("1");
 	const [config, setConfig] = useState<Record<string, string>>(
 		Object.fromEntries(

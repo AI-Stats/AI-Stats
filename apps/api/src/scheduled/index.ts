@@ -20,6 +20,7 @@ import { runBatchProviderWebhookReplayJob } from "@/routes/internal/batch-webhoo
 import { runRealtimeSessionReconciliationJob } from "@core/realtime-sessions";
 import { runDataContributionClassifierJob } from "@/pipeline/classification/classifier-worker";
 import { pruneExpiredDataContributions } from "@/pipeline/classification/data-contribution";
+import { drainGatewayOtlpOutbox } from "@/observability/otlp-export";
 
 const MODEL_DISCOVERY_TICKS_PER_DAY = Array.from({ length: 24 }, (_value, hour) =>
 	60 / getModelDiscoveryStepMinutesUtc(hour),
@@ -343,6 +344,17 @@ async function handleV2AnalyticsOutboxScheduledEvent(env: GatewayBindings): Prom
 	}
 }
 
+async function handleOtelExportScheduledEvent(env: GatewayBindings): Promise<void> {
+	if (!toBool(env.OTEL_EXPORT_ENABLED, true)) return;
+	configureRuntime(env);
+	try {
+		const summary = await drainGatewayOtlpOutbox(toInt(env.OTEL_EXPORT_OUTBOX_LIMIT, 100));
+		if (summary.claimed > 0 || summary.failed > 0) console.log("otel_export_outbox_completed", summary);
+	} finally {
+		clearRuntime();
+	}
+}
+
 async function handleDataContributionClassifierScheduledEvent(env: GatewayBindings): Promise<void> {
 	if (!toBool(env.DATA_CONTRIBUTION_CLASSIFIER_ENABLED, false)) return;
 	configureRuntime(env);
@@ -435,5 +447,10 @@ export async function handleScheduledEvent(event: ScheduledController, env: Gate
 		} catch (error) {
 			console.error("model_discovery_scheduled_failed", serializeError(error));
 		}
+	}
+	try {
+		await handleOtelExportScheduledEvent(env);
+	} catch (error) {
+		console.error("otel_export_scheduled_failed", serializeError(error));
 	}
 }

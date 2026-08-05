@@ -11,6 +11,7 @@ import { sanitizeUrlForLogging } from "@/lib/security/sanitizeUrl";
 import { emitGatewayRequestEvent } from "@observability/events";
 import { emitGatewayTelemetryDeliveryFailure } from "@observability/axiom";
 import { runGatewayTelemetryPipelines } from "@observability/gateway-telemetry";
+import { enqueueGatewayOtlpExport } from "@observability/otlp-export";
 import { attachToolUsageMetrics, summarizeToolUsage } from "./tool-usage";
 import { extractSearchObservability } from "./search-observability";
 import { mergeWebFetchObservability } from "./fetch-observability";
@@ -404,6 +405,37 @@ export async function handleFailureAudit(
 				? (result.bill?.usage as any).pricing.lines
 				: [],
         }) : null,
+        writeOtlp: () => enqueueGatewayOtlpExport({
+            requestId: ctx.requestId,
+            workspaceId: ctx.workspaceId,
+            keyId: ctx.meta.apiKeyId,
+			keyName: ctx.keyEnrichment?.name ?? null,
+            userId: ctx.meta.requestUserId ?? null,
+            endpoint: ctx.endpoint,
+            requestedModel: ctx.requestedModel ?? ctx.model,
+            provider: result.provider ?? null,
+            providerModel: result.providerModelSlug ?? null,
+            requestPayload: ctx.rawBody ?? ctx.body ?? null,
+            responsePayload: gatewayErrorPayload ?? gatewayFailurePayload,
+            usage: (result.bill?.usage && typeof result.bill.usage === "object")
+                ? result.bill.usage as Record<string, unknown>
+                : {},
+            providerAttempts: Array.isArray(ctx.providerAttempts) ? ctx.providerAttempts : null,
+            stream: ctx.stream,
+            statusCode: upstreamStatus,
+            success: false,
+            errorType: `${attribution}:${errorCode}`,
+            currency: result.bill?.currency ?? null,
+            generationMs,
+            timeToFirstChunkMs: latencyMs,
+            startedAtMs: ctx.meta.startedAtMs ?? Date.now(),
+            completedAtMs: ctx.meta.completedAtMs ?? Date.now(),
+            traceContext: ctx.meta.otelTraceContext ?? null,
+            requestMethod: ctx.meta.requestMethod ?? "POST",
+            requestPath: ctx.meta.requestPath ?? ctx.requestPath ?? null,
+            sessionId: ctx.meta.sessionId ?? null,
+            edgeColo: ctx.meta.edgeColo ?? null,
+        }),
         writeAxiom: () => emitGatewayRequestEvent({
             ctx,
             result,
@@ -640,6 +672,40 @@ export async function handleSuccessAudit(
             requestEnrichment,
             routingContext,
         }) : null,
+        writeOtlp: () => enqueueGatewayOtlpExport({
+            requestId: ctx.requestId,
+            workspaceId: ctx.workspaceId,
+            keyId: ctx.meta.apiKeyId ?? ctx.keyId ?? null,
+			keyName: ctx.keyEnrichment?.name ?? null,
+            userId: ctx.meta.requestUserId ?? null,
+            endpoint: ctx.endpoint,
+            requestedModel: ctx.requestedModel ?? ctx.model,
+            provider: result.provider,
+            providerModel: result.providerModelSlug ?? null,
+            responseModel: (result.rawResponse && typeof result.rawResponse === "object")
+                ? String((result.rawResponse as any).model ?? "") || null
+                : null,
+            responseId: nativeResponseId ?? null,
+            requestPayload: ctx.rawBody ?? ctx.body ?? null,
+            responsePayload: gatewayResponse ?? result.rawResponse ?? null,
+            usage: usageWithMultimodal ?? {},
+            providerAttempts: Array.isArray(ctx.providerAttempts) ? ctx.providerAttempts : null,
+            stream: isStream,
+            finishReason,
+            statusCode,
+            success: true,
+            totalNanos,
+            currency,
+            generationMs,
+            timeToFirstChunkMs: latencyMs,
+            startedAtMs: ctx.meta.startedAtMs ?? Date.now(),
+            completedAtMs: ctx.meta.completedAtMs ?? Date.now(),
+            traceContext: ctx.meta.otelTraceContext ?? null,
+            requestMethod: ctx.meta.requestMethod ?? "POST",
+            requestPath: ctx.meta.requestPath ?? ctx.requestPath ?? null,
+            sessionId: ctx.meta.sessionId ?? null,
+            edgeColo: ctx.meta.edgeColo ?? null,
+        }),
         writeAxiom: () => emitGatewayRequestEvent({
             ctx,
             result,
@@ -790,11 +856,3 @@ function enrichUsageWithMultimodal(ctx: PipelineContext, result: RequestResult, 
         return usagePriced;
     }
 }
-
-
-
-
-
-
-
-
