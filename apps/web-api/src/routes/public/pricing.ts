@@ -6,6 +6,8 @@ import { withPublicCache } from "@/http/cache";
 export const publicPricingRouter = new Hono<{ Bindings: Env }>();
 
 const POSTGREST_IN_CHUNK_SIZE = 100;
+const PROVIDER_ROUTE_PAGE_SIZE = 1_000;
+const PROVIDER_ROUTE_MAX_ROWS = 5_000;
 
 function chunks<T>(values: T[]): T[][] {
 	const result: T[][] = [];
@@ -25,6 +27,10 @@ function rowsOrThrow<T extends Record<string, unknown>>(
 
 publicPricingRouter.get("/pricing/models", async (c) => {
 	try {
+		const queryKeys = [...new URL(c.req.url).searchParams.keys()];
+		if (queryKeys.some((key) => key !== "model_ids")) {
+			return c.json({ error: "unsupported_query_parameter" }, 400);
+		}
 		const client = getDataClient(c.env); const now = Date.now();
 		const requestedModelIds = [...new Set(
 			(c.req.query("model_ids") ?? "")
@@ -34,7 +40,7 @@ publicPricingRouter.get("/pricing/models", async (c) => {
 		)].slice(0, 100);
 		const active = (row: Record<string, unknown>) => { const from = row.effective_from ? Date.parse(String(row.effective_from)) : Number.NEGATIVE_INFINITY; const to = row.effective_to ? Date.parse(String(row.effective_to)) : Number.POSITIVE_INFINITY; return now >= from && now < to; };
 		const providerRows: Array<Record<string, unknown>> = [];
-		for (let offset = 0; ; offset += 1_000) {
+		for (let offset = 0; offset < PROVIDER_ROUTE_MAX_ROWS; offset += PROVIDER_ROUTE_PAGE_SIZE) {
 			let query = client
 				.from("v2_model_provider_routes")
 				.select("provider_model_id,provider_slug,provider_model_slug,model_slug,routing_enabled,status,effective_from,effective_to")
@@ -43,11 +49,11 @@ publicPricingRouter.get("/pricing/models", async (c) => {
 			if (requestedModelIds.length > 0) query = query.in("model_slug", requestedModelIds);
 			const providerResult = await query
 				.order("provider_model_id", { ascending: true })
-				.range(offset, offset + 999);
+				.range(offset, Math.min(offset + PROVIDER_ROUTE_PAGE_SIZE - 1, PROVIDER_ROUTE_MAX_ROWS - 1));
 			if (providerResult.error) throw providerResult.error;
 			const page = (providerResult.data ?? []) as Array<Record<string, unknown>>;
 			providerRows.push(...page.filter(active));
-			if (page.length < 1_000) break;
+			if (page.length < PROVIDER_ROUTE_PAGE_SIZE) break;
 		}
 		const routeIds = providerRows.map((row) => String(row.provider_model_id ?? "")).filter(Boolean);
 		const modelIds = [...new Set(providerRows.map((row) => String(row.model_slug ?? "")).filter(Boolean))];
