@@ -180,8 +180,24 @@ async function loadAnalyticsFactRows(args: {
 }): Promise<AnalyticsFactRow[]> {
     const supabase = getSupabaseAdmin();
     const rows: AnalyticsFactRow[] = [];
+	const countResult = await supabase
+		.from("v2_request_facts")
+		.select("id", { count: "exact", head: true })
+		.eq("workspace_id", args.workspaceId)
+		.gte("occurred_at", args.startIso)
+		.lt("occurred_at", args.endIso);
+	if (countResult.error) {
+		throw new Error(countResult.error.message || "Failed to count v2 analytics request facts");
+	}
+	if (countResult.count == null) {
+		throw new Error("Failed to count v2 analytics request facts");
+	}
+	if (countResult.count > ANALYTICS_FACT_MAX_ROWS) {
+		throw new AnalyticsFactLimitError(
+			"Analytics range contains too many requests; select a single date"
+		);
+	}
     for (let offset = 0; offset < ANALYTICS_FACT_MAX_ROWS; offset += ANALYTICS_FACT_PAGE_SIZE) {
-        const isFinalAllowedPage = offset + ANALYTICS_FACT_PAGE_SIZE >= ANALYTICS_FACT_MAX_ROWS;
         const { data, error } = await supabase
             .from("v2_request_facts")
             .select(
@@ -191,20 +207,12 @@ async function loadAnalyticsFactRows(args: {
             .gte("occurred_at", args.startIso)
             .lt("occurred_at", args.endIso)
             .order("occurred_at", { ascending: true })
-            .range(
-                offset,
-                isFinalAllowedPage ? ANALYTICS_FACT_MAX_ROWS : offset + ANALYTICS_FACT_PAGE_SIZE - 1
-            );
+			.range(offset, offset + ANALYTICS_FACT_PAGE_SIZE - 1);
         if (error) {
             throw new Error(error.message || "Failed to load v2 analytics request facts");
         }
         const page = (data ?? []) as AnalyticsFactRow[];
-        if (isFinalAllowedPage && page.length > ANALYTICS_FACT_PAGE_SIZE) {
-            throw new AnalyticsFactLimitError(
-                "Analytics range contains too many requests; select a single date"
-            );
-        }
-        rows.push(...page.slice(0, ANALYTICS_FACT_PAGE_SIZE));
+		rows.push(...page);
         if (page.length < ANALYTICS_FACT_PAGE_SIZE) break;
     }
     return rows;
