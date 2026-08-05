@@ -19,6 +19,8 @@ const PROMPT_COMPLETION_KEYS = new Set([
 	"completion",
 	"completions",
 	"generated_text",
+	"known_speaker_names",
+	"known_speaker_references",
 ]);
 
 const TEXT_CONTENT_TYPES = new Set([
