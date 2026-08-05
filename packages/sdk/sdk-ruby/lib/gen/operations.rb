@@ -363,6 +363,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listModelEndpoints(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/models/#{path["author"]}/#{path["slug"]}/endpoints"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listModels(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/models"

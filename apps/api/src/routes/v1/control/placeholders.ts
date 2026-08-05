@@ -4,29 +4,12 @@
 
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import { getSupabaseAdmin } from "@/runtime/env";
 import { guardAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
-import { json, withRuntime } from "../../utils";
+import { json, withRuntime, cacheHeaders } from "../../utils";
 import { requireCapability } from "./route-helpers";
-
-const KNOWN_ENDPOINTS = [
-	"chat/completions",
-	"responses",
-	"messages",
-	"embeddings",
-	"moderations",
-	"audio/speech",
-	"audio/transcriptions",
-	"audio/translations",
-	"images/generations",
-	"images/edits",
-	"videos",
-	"ocr",
-	"music/generate",
-	"batches",
-	"files",
-];
+import { fetchCatalogue } from "./models.catalogue";
+import { getEndpointMetadata } from "./endpoint-metadata";
 
 async function handleListEndpoints(req: Request) {
 	const auth = await guardAuth(req, { useKvCache: false, allowOAuthJwt: true });
@@ -37,26 +20,63 @@ async function handleListEndpoints(req: Request) {
 	if (scopeError) return scopeError;
 
 	try {
-		const supabase = getSupabaseAdmin();
-		const { data, error } = await supabase
-			.from("v2_models")
-			.select("model_id:model_slug")
-			.eq("hidden", false)
-			.order("released_at", { ascending: false })
-			.limit(10);
+		const catalogue = await fetchCatalogue({ availability: "all" });
+		const endpointMap = new Map<string, {
+			id: string;
+			public_path: string;
+			collection: string;
+			models: Set<string>;
+			providers: Set<string>;
+		}>();
 
-		if (error) {
-			throw new Error(error.message || "Failed to list endpoints");
+		for (const model of catalogue) {
+			for (const rawEndpoint of model.endpoints) {
+				const metadata = getEndpointMetadata(rawEndpoint);
+				const endpoint = metadata.id;
+				const current = endpointMap.get(endpoint) ?? {
+					id: endpoint,
+					public_path: metadata.public_path,
+					collection: metadata.collection,
+					models: new Set<string>(),
+					providers: new Set<string>(),
+				};
+				current.models.add(model.model_id);
+				for (const provider of model.providers) {
+					if (provider.endpoints.some(
+						(providerEndpoint) => getEndpointMetadata(providerEndpoint).id === endpoint,
+					)) {
+						current.providers.add(provider.api_provider_id);
+					}
+				}
+				endpointMap.set(endpoint, current);
+			}
 		}
+
+		const data = Array.from(endpointMap.values())
+			.map((endpoint) => ({
+				id: endpoint.id,
+				capability_id: endpoint.id,
+				public_path: endpoint.public_path,
+				collection: endpoint.collection,
+				model_count: endpoint.models.size,
+				provider_count: endpoint.providers.size,
+			}))
+			.sort((left, right) => left.public_path.localeCompare(right.public_path));
 
 		return json(
 			{
 				ok: true,
-				endpoints: KNOWN_ENDPOINTS,
-				sample_models: (data ?? []).map((row) => row.model_id).filter(Boolean),
+				endpoints: data.map((endpoint) => endpoint.id),
+				data,
+				sample_models: catalogue.slice(0, 10).map((model) => model.model_id),
 			},
 			200,
-			{ "Cache-Control": "no-store" }
+			cacheHeaders({
+				scope: "endpoints:shared:v1",
+				ttlSeconds: 1800,
+				staleSeconds: 1800,
+				varyHeaders: [],
+			}),
 		);
 	} catch (error: any) {
 		return json(

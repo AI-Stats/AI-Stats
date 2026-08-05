@@ -579,6 +579,22 @@ public final class Models {
 		public Object usage;
 	}
 
+	public static class EndpointCatalogueEntry {
+		public String capability_id;
+		public String collection;
+		public String id;
+		public Integer model_count;
+		public Integer provider_count;
+		public String public_path;
+	}
+
+	public static class EndpointCatalogueResponse {
+		public java.util.List<Object> data;
+		public java.util.List<String> endpoints;
+		public Object ok;
+		public java.util.List<String> sample_models;
+	}
+
 	public static class ErrorFailureSampleItem {
 		public String provider;
 		public Boolean retryable;
@@ -899,6 +915,45 @@ public final class Models {
 		public Object status;
 	}
 
+	public static class ModelEndpointCapability {
+		public String availability_reason;
+		public Object availability_status;
+		public String capability_id;
+		public String capability_status;
+		public Object collection;
+		public String effective_from;
+		public String effective_to;
+		public String endpoint;
+		public String id;
+		public java.util.List<String> input_modalities;
+		public Boolean is_active_gateway;
+		public String model_routing_status;
+		public java.util.List<String> output_modalities;
+		public Object pricing;
+		public Object pricing_detail;
+		public String provider_id;
+		public String provider_model_slug;
+		public String provider_name;
+		public String provider_routing_status;
+		public String provider_status;
+		public String public_path;
+		public java.util.List<String> supported_parameters;
+		public Object supported_parameters_detail;
+	}
+
+	public static class ModelEndpointsResponse {
+		public Object architecture;
+		public Object availability_mode;
+		public String canonical_slug;
+		public Integer created;
+		public String description;
+		public java.util.List<Object> endpoints;
+		public String id;
+		public String model_id;
+		public String name;
+		public Object ok;
+	}
+
 	public static class ModelId {
 	}
 
@@ -919,10 +974,13 @@ public final class Models {
 		public String effective_from;
 		public String effective_to;
 		public java.util.List<String> endpoints;
+		public java.util.List<String> input_modalities;
 		public Boolean is_active_gateway;
 		public Object model_routing_status;
+		public java.util.List<String> output_modalities;
 		public java.util.List<String> params;
 		public Object params_detail;
+		public String provider_model_slug;
 		public Object provider_routing_status;
 		public Object provider_status;
 		public java.util.List<String> supported_parameters;
