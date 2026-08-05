@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
+import { io } from "next/cache";
 import { cookies } from "next/headers";
 import {
 	Statsig,
@@ -62,8 +63,11 @@ export const getServerStatsigProfile = cache(
 
 export const getServerStatsigUser = cache(async () => {
 	const cookieStore = await cookies();
-	const stableID =
-		cookieStore.get(STATSIG_STABLE_ID_COOKIE)?.value ?? crypto.randomUUID();
+	let stableID = cookieStore.get(STATSIG_STABLE_ID_COOKIE)?.value;
+	if (!stableID) {
+		await io();
+		stableID = crypto.randomUUID();
+	}
 
 	const context = await getServerAccountContext();
 	const auth = await fetchAccountWebApi<InternalAuthStatsigData>("/api/account/auth/statsig", context.accessToken);

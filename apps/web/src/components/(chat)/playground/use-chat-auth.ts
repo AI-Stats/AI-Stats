@@ -40,29 +40,25 @@ export function useChatAuth() {
 		const supabase = createClient();
 		const loadUser = async () => {
 			setAuthLoading(true);
-			const { data, error } = await supabase.auth.getUser();
+			const profile = await fetchClientAuthHeaderData().catch(() => null);
 			if (!mounted) return;
-			if (error || !data.user) {
+			if (!profile?.isLoggedIn || !profile.user) {
 				setAuthUser(null);
 				setUserRole(null);
 				setAuthLoading(false);
 				return;
 			}
-			const profile = await fetchClientAuthHeaderData().catch(() => null);
-			if (!mounted) return;
 			const displayName =
-				profile?.user?.displayName ??
-				data.user.user_metadata?.full_name ??
-				data.user.user_metadata?.name ??
-				data.user.email ??
+				profile.user.displayName ??
+				profile.user.email ??
 				"Account";
 			setAuthUser({
-				id: data.user.id,
-				email: data.user.email ?? null,
+				id: profile.user.id,
+				email: profile.user.email,
 				name: displayName,
-				avatarUrl: data.user.user_metadata?.avatar_url ?? null,
+				avatarUrl: profile.user.avatarUrl,
 			});
-			setUserRole(profile?.userRole ?? null);
+			setUserRole(profile.userRole ?? null);
 			setAuthLoading(false);
 		};
 		loadUser();

@@ -60,7 +60,7 @@ import {
 	MarkerContent,
 	MarkerIcon,
 } from "@/components/ui/marker";
-import { Spinner } from "@/components/ui/spinner";
+import { ThinkingOrb } from "thinking-orbs";
 import { cn } from "@/lib/utils";
 import type { ChatThread } from "@/lib/indexeddb/chats";
 import type {
@@ -132,7 +132,11 @@ function GeneratingResponseIndicator() {
 	return (
 		<Marker role="status" aria-live="polite" className="min-h-7">
 			<MarkerIcon>
-				<Spinner />
+				<ThinkingOrb
+					state="composing"
+					size={20}
+					aria-label="Generating response"
+				/>
 			</MarkerIcon>
 			<MarkerContent className="shimmer">Generating response&hellip;</MarkerContent>
 		</Marker>
