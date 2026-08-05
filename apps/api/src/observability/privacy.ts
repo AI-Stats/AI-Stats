@@ -134,7 +134,7 @@ function shouldRedactByKey(
 	value: unknown,
 	parent: Record<string, unknown>,
 ): boolean {
-	const normalized = key.toLowerCase();
+	const normalized = key.toLowerCase().replace(/\[\]$/, "");
 
 	// Keep usage/cost stats queryable.
 	if (
