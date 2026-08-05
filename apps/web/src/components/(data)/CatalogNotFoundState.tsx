@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { safelyDecodePathSegments } from "./safePathname";
 
 export type CatalogResourceType = "model" | "organisation" | "country" | "provider";
 
@@ -73,7 +74,7 @@ function getResourceIdFromPathname(
 	if (resourceIndex === -1) return null;
 	const resourceId = segments.slice(resourceIndex + 1, resourceIndex + 1 + config.pathSegments);
 	if (resourceId.length !== config.pathSegments) return null;
-	return resourceId.map((segment) => decodeURIComponent(segment)).join("/");
+	return safelyDecodePathSegments(resourceId);
 }
 
 export default function CatalogNotFoundState({

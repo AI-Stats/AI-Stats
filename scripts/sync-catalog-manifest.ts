@@ -141,7 +141,7 @@ function getDrift(manifest: JsonObject, models: Map<string, ModelRecord>): Manif
         .filter((modelId) => !indexedModels.has(modelId))
         .sort((a, b) => a.localeCompare(b));
     const missingOrganisationIds = [...new Set(
-        missingModelIds
+        [...active.modelIds]
             .map((modelId) => models.get(modelId)?.organisationId)
             .filter((value): value is string => Boolean(value))
     )]
