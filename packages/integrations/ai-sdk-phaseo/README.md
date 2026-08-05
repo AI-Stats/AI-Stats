@@ -108,7 +108,7 @@ const result = await generateText({
 	tools: {
 		getWeather: {
 			description: "Get weather for a location",
-			parameters: z.object({
+			inputSchema: z.object({
 				location: z.string(),
 			}),
 			execute: async ({ location }) => ({

@@ -24,8 +24,7 @@ Phaseo returns a Gateway API key's plaintext value only when it is created. The 
 
 In **Dashboard → Settings → Management Keys**, create a key with these capabilities:
 
-- `me:read` to validate the connection
-- `keys:read` to inspect managed keys
+- `keys:read` to validate the connection and inspect managed keys
 - `keys:write` to create replacement keys
 - `keys:delete` to revoke previous keys
 
@@ -37,7 +36,7 @@ Store the resulting `phaseo_v1_mk_...` secret in Infisical. Management API keys 
 | --- | --- |
 | Base URL | `https://api.phaseo.app/v1` |
 | Authentication | `Authorization: Bearer <PHASEO_MANAGEMENT_KEY>` |
-| Validate | `GET /me` |
+| Validate | `GET /keys` |
 | List Gateway keys | `GET /keys` |
 | Create Gateway key | `POST /keys` |
 | Revoke Gateway key | `DELETE /keys/{id}` |
