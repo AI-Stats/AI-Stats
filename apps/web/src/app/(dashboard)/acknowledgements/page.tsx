@@ -11,7 +11,7 @@ import {
 	Sparkles,
 } from "lucide-react";
 
-import { OrbSpecimen } from "@/components/acknowledgements/OrbSpecimen";
+import { OrbSpecimen } from "@/components/acknowledgements/orbSpecimen";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { buildMetadata } from "@/lib/seo";

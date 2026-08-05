@@ -40,9 +40,13 @@ export function useChatAuth() {
 		const supabase = createClient();
 		const loadUser = async () => {
 			setAuthLoading(true);
-			const profile = await fetchClientAuthHeaderData().catch(() => null);
+			const profile = await fetchClientAuthHeaderData().catch(() => undefined);
 			if (!mounted) return;
-			if (!profile?.isLoggedIn || !profile.user) {
+			if (profile === undefined) {
+				setAuthLoading(false);
+				return;
+			}
+			if (!profile.isLoggedIn || !profile.user) {
 				setAuthUser(null);
 				setUserRole(null);
 				setAuthLoading(false);
