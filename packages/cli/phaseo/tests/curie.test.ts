@@ -37,6 +37,18 @@ test("prevents configs from redirecting arbitrary environment secrets", () => {
 		validateCurieEndpoint("https://collector.example/v1/", "PHASEO_CURIE_API_KEY", true),
 		"https://collector.example/v1",
 	);
+	assert.throws(
+		() => validateCurieEndpoint("http://collector.example/v1", "PHASEO_CURIE_API_KEY", true),
+		/Remote custom Curie endpoints must use HTTPS/,
+	);
+	assert.equal(
+		validateCurieEndpoint("http://127.0.0.1:8787/v1/", "PHASEO_CURIE_API_KEY", true),
+		"http://127.0.0.1:8787/v1",
+	);
+	assert.equal(
+		validateCurieEndpoint("http://[::1]:8787/v1", "PHASEO_CURIE_API_KEY", true),
+		"http://[::1]:8787/v1",
+	);
 	assert.equal(validateCurieEndpoint("https://api.phaseo.app/v1", "PHASEO_API_KEY", false), "https://api.phaseo.app/v1");
 });
 
