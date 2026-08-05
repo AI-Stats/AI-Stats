@@ -112,9 +112,11 @@ async function usageAggregateRows(client: ReturnType<typeof getDataClient>, work
 	if (!workspaceIds.length) return [];
 	const rows: UsageAggregateRow[] = [];
 	const since = new Date(Date.now() - PROFILE_USAGE_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
+	const perWorkspaceLimit = Math.max(1, Math.floor(PROFILE_USAGE_MAX_ROWS / workspaceIds.length));
 	for (const workspaceId of workspaceIds) {
-		for (let offset = 0; rows.length < PROFILE_USAGE_MAX_ROWS; offset += PAGE_SIZE) {
-			const remaining = PROFILE_USAGE_MAX_ROWS - rows.length;
+		let workspaceRows = 0;
+		for (let offset = 0; workspaceRows < perWorkspaceLimit; offset += PAGE_SIZE) {
+			const remaining = perWorkspaceLimit - workspaceRows;
 			const pageLimit = Math.min(PAGE_SIZE, remaining);
 			const result = await client.from("v2_web_gateway_requests")
 				.select("created_at,model_id,usage,cost_nanos")
@@ -131,9 +133,9 @@ async function usageAggregateRows(client: ReturnType<typeof getDataClient>, work
 				tokens: tokenCount(row.usage),
 				cost: (Number(row.cost_nanos) || 0) / 1_000_000_000,
 			})));
+			workspaceRows += page.length;
 			if (page.length < pageLimit) break;
 		}
-		if (rows.length >= PROFILE_USAGE_MAX_ROWS) break;
 	}
 	return rows;
 }
