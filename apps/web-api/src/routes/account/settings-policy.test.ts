@@ -11,6 +11,78 @@ const env = {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("account policy settings routes", () => {
+	it("does not expose upstream versions when the source preset is no longer public", async () => {
+		const requestedUrls: string[] = [];
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			requestedUrls.push(url);
+			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
+			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "member" }]), { status: 200 });
+			if (url.includes("/presets") && url.includes("workspace_id=eq.workspace-1")) {
+				return new Response(JSON.stringify([{ id: "fork-1", workspace_id: "workspace-1", created_by: "user-1", source_preset_id: "source-1", upstream_version_id: "version-1", name: "Fork", visibility: "private" }]), { status: 200 });
+			}
+			if (url.includes("/presets") && url.includes("id=in.%28source-1%29")) return new Response(JSON.stringify([]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request("https://phaseo.app/api/account/settings/presets/list?workspaceId=workspace-1", {
+			headers: { authorization: "Bearer session-token" },
+		}, env);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({
+			presets: [{ id: "fork-1", latestUpstreamVersion: null, hasUpstreamUpdate: false }],
+		});
+		expect(requestedUrls.some((url) => url.includes("visibility=eq.public") && url.includes("archived_at=is.null"))).toBe(true);
+		expect(requestedUrls.some((url) => url.includes("/preset_versions"))).toBe(false);
+	});
+
+	it("continues to advertise public versions from a public source preset", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
+			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "member" }]), { status: 200 });
+			if (url.includes("/presets") && url.includes("workspace_id=eq.workspace-1")) {
+				return new Response(JSON.stringify([{ id: "fork-1", workspace_id: "workspace-1", created_by: "user-1", source_preset_id: "source-1", upstream_version_id: "version-1", name: "Fork", visibility: "private" }]), { status: 200 });
+			}
+			if (url.includes("/presets") && url.includes("id=in.%28source-1%29")) return new Response(JSON.stringify([{ id: "source-1" }]), { status: 200 });
+			if (url.includes("/preset_versions")) return new Response(JSON.stringify([{ id: "version-2", preset_id: "source-1", version_number: 2 }]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request("https://phaseo.app/api/account/settings/presets/list?workspaceId=workspace-1", {
+			headers: { authorization: "Bearer session-token" },
+		}, env);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({
+			presets: [{ id: "fork-1", latestUpstreamVersion: { id: "version-2", version_number: 2 }, hasUpstreamUpdate: true }],
+		});
+	});
+
+	it("rejects a non-public source version when creating a fork", async () => {
+		const requestedUrls: string[] = [];
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			requestedUrls.push(url);
+			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
+			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "member" }]), { status: 200 });
+			if (url.includes("/presets") && url.includes("id=eq.source-1")) return new Response(JSON.stringify([{ id: "source-1", name: "Source", slug: "source", description: null, config: { safe: true }, visibility: "public", active_version_id: "version-1" }]), { status: 200 });
+			if (url.includes("/preset_versions")) return new Response(JSON.stringify([]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request("https://phaseo.app/api/account/settings/presets/source-1/fork", {
+			method: "POST",
+			headers: { authorization: "Bearer session-token", "content-type": "application/json" },
+			body: JSON.stringify({ workspaceId: "workspace-1", sourceVersionId: "private-version" }),
+		}, env, { waitUntil: vi.fn(), passThroughOnException: vi.fn() } as any);
+
+		expect(response.status).toBe(400);
+		await expect(response.json()).resolves.toEqual({ error: "invalid_source_version" });
+		expect(requestedUrls.some((url) => url.includes("/preset_versions") && url.includes("visibility=eq.public"))).toBe(true);
+	});
+
 	it("returns private routing, preset, and guardrail payloads", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
