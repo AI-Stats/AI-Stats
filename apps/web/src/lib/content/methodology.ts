@@ -19,7 +19,7 @@ export type MethodologyEntry = {
 	}>;
 };
 
-const LAST_UPDATED = "2026-06-07";
+const LAST_UPDATED = "2026-07-30";
 
 export const METHODOLOGY_ENTRIES: MethodologyEntry[] = [
 	{
@@ -101,21 +101,22 @@ export const METHODOLOGY_ENTRIES: MethodologyEntry[] = [
 			{
 				heading: "What we are measuring",
 				paragraphs: [
-					"Latency represents the elapsed request time recorded by the gateway for a routed completion, subject to the instrumentation available for that request type.",
-					"Throughput represents the output rate observed for successful requests, typically normalized to tokens per second for text-generation style workloads.",
+					"Time to first token (TTFT) is measured from the gateway receiving a request to the first content-bearing generated output delivered by a streaming response. Provider TTFT starts at the selected provider dispatch. Metadata-only SSE frames do not stop either clock, and TTFT is not reported for non-streaming responses.",
+					"Provider duration runs from selected provider dispatch to the terminal response. Gateway end-to-end duration runs from gateway request start to completion. Phaseo overhead is their non-negative difference.",
+					"Effective throughput divides all output tokens by the full provider duration. Output speed excludes TTFT and divides the remaining output tokens by the remaining generation interval. TPOT and ITL are request-level averages over that same post-first-token interval.",
 				],
 			},
 			{
 				heading: "Aggregation windows",
 				paragraphs: [
 					"Public performance views use rolling windows such as the last 24 hours for detailed performance and longer periods for leaderboard and trend summaries.",
-					"Median values are preferred over averages for public displays because a small number of slow outliers can distort means and produce misleading rankings.",
+					"Public charts support P01, P05, P10, P25, P50, P75, P90, P95, and P99. P99 means the value at or below which 99 percent of observations fall. For latency, lower is better; for throughput, higher is better, so lower percentiles expose the slow tail.",
 				],
 			},
 			{
 				heading: "Filtering and eligibility",
 				paragraphs: [
-					"Phaseo excludes obviously invalid records, unknown identifiers, and rows without enough usable request volume to support a meaningful comparison.",
+					"Phaseo excludes obviously invalid records, unknown identifiers, and rows without enough usable request volume to support a meaningful comparison. Model pages can segment operational traffic by streaming mode, input-token context bucket, provider, and Cloudflare execution location.",
 					"Performance pages and leaderboards only rank rows with finite, positive throughput or latency values once the relevant thresholds are met.",
 				],
 			},

@@ -12,12 +12,16 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export const MODEL_PERCENTILES = [50, 75, 90, 95, 99] as const;
+export const MODEL_PERCENTILES = [1, 5, 10, 25, 50, 75, 90, 95, 99] as const;
 export type ModelPercentile = (typeof MODEL_PERCENTILES)[number];
 export const DEFAULT_MODEL_PERCENTILE: ModelPercentile = 50;
 
 export function isModelPercentile(value: number): value is ModelPercentile {
 	return MODEL_PERCENTILES.includes(value as ModelPercentile);
+}
+
+export function formatModelPercentile(value: ModelPercentile): string {
+	return `P${String(value).padStart(2, "0")}`;
 }
 
 export default function ModelPercentileSelect({
@@ -49,7 +53,7 @@ export default function ModelPercentileSelect({
 					) : (
 						<BarChart3 className="size-3.5" />
 					)}
-					P{value}
+					{formatModelPercentile(value)}
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-48 rounded-md">
@@ -69,7 +73,7 @@ export default function ModelPercentileSelect({
 							key={percentile}
 							value={String(percentile)}
 						>
-							P{percentile}
+							{formatModelPercentile(percentile)}
 						</DropdownMenuRadioItem>
 					))}
 				</DropdownMenuRadioGroup>

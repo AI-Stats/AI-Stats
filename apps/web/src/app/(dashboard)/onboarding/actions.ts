@@ -11,6 +11,7 @@ export type OnboardingProgressInput = {
 	selectedKeyId?: string | null;
 	createdKeyId?: string | null;
 	keyPrefix?: string | null;
+	countryCode?: string | null;
 	completedSteps?: string[];
 	status?: "started" | "completed" | "skipped";
 };

@@ -169,7 +169,7 @@ export function FAQSection() {
 						Practical answers for comparing models, understanding the data, and using the gateway.
 						Cannot find an answer?{" "}
 						<a
-							href="mailto:support@phaseo.ai"
+							href="mailto:support@phaseo.app"
 							className="font-medium text-zinc-900 underline underline-offset-4 hover:text-zinc-700 dark:text-zinc-100 dark:hover:text-zinc-300"
 						>
 							Reach out to our team

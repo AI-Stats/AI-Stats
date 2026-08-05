@@ -6,6 +6,7 @@ const NEBIUS_REGIONAL_MODEL_ALLOWLIST: Record<string, readonly string[]> = {
 		"nvidia/nemotron-3-super-2026-03-11",
 	],
 	"nebius-token-factory-us-central-1": [
+		"minimax/minimax-m3",
 		"nvidia/nemotron-3-super-120b-a12b",
 		"nvidia/nemotron-3-super-2026-03-11",
 	],

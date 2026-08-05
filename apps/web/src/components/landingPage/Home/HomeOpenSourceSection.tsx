@@ -467,12 +467,12 @@ function FirstPromptCodeBlock({
 									<ChevronDown className="h-3.5 w-3.5" />
 								</button>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent align="start" className="min-w-40">
+							<DropdownMenuContent align="start" className="min-w-40 rounded-lg">
 								{MORE_SNIPPETS.map((snippet) => (
 									<DropdownMenuItem
 										key={snippet.id}
-										onSelect={() => onSelectSnippet(snippet.id)}
-										className="gap-2"
+										onClick={() => onSelectSnippet(snippet.id)}
+										className="gap-2 rounded-lg"
 									>
 										<SnippetIcon id={snippet.id} />
 										<span>{snippet.label}</span>
@@ -879,4 +879,3 @@ export default function HomeOpenSourceSection({
 		</section>
 	);
 }
-

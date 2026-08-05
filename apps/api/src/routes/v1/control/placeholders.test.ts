@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const guardAuthMock = vi.fn();
-const getSupabaseAdminMock = vi.fn();
+const fetchCatalogueMock = vi.fn();
 
 vi.mock("@/pipeline/before/guards", () => ({
 	guardAuth: (...args: any[]) => guardAuthMock(...args),
 }));
 
-vi.mock("@/runtime/env", () => ({
-	getSupabaseAdmin: (...args: any[]) => getSupabaseAdminMock(...args),
+vi.mock("./models.catalogue", () => ({
+	fetchCatalogue: (...args: any[]) => fetchCatalogueMock(...args),
 }));
 
 vi.mock("../../utils", () => ({
@@ -24,6 +24,7 @@ vi.mock("../../utils", () => ({
 				...headers,
 			},
 		}),
+	cacheHeaders: () => ({ "Cache-Control": "public, max-age=1800" }),
 }));
 
 import { placeholdersRoutes } from "./placeholders";
@@ -31,7 +32,7 @@ import { placeholdersRoutes } from "./placeholders";
 describe("placeholdersRoutes /endpoints", () => {
 	beforeEach(() => {
 		guardAuthMock.mockReset();
-		getSupabaseAdminMock.mockReset();
+		fetchCatalogueMock.mockReset();
 		guardAuthMock.mockResolvedValue({
 			ok: true,
 			value: {
@@ -40,48 +41,37 @@ describe("placeholdersRoutes /endpoints", () => {
 		});
 	});
 
-	it("returns endpoint ids and sample models", async () => {
-		getSupabaseAdminMock.mockReturnValue({
-			from: vi.fn(() => ({
-				select: vi.fn(() => ({
-					eq: vi.fn(() => ({
-						order: vi.fn(() => ({
-							limit: vi.fn(async () => ({
-								data: [
-									{ model_id: "openai/gpt-5-nano" },
-									{ model_id: "anthropic/claude-sonnet-4" },
-									{ model_id: null },
-								],
-								error: null,
-							})),
-						})),
-					})),
-				})),
-			})),
-		});
+	it("returns capability-backed endpoint counts and sample models", async () => {
+		fetchCatalogueMock.mockResolvedValue([
+			{
+				model_id: "openai/gpt-5-nano",
+				endpoints: ["responses", "chat.completions"],
+				providers: [
+					{ api_provider_id: "openai", endpoints: ["responses", "chat.completions"] },
+					{ api_provider_id: "azure", endpoints: ["responses"] },
+				],
+			},
+			{
+				model_id: "anthropic/claude-sonnet-4",
+				endpoints: ["messages"],
+				providers: [{ api_provider_id: "anthropic", endpoints: ["messages"] }],
+			},
+		]);
 
 		const response = await placeholdersRoutes.request("https://example.com/endpoints");
 
 		expect(response.status).toBe(200);
-		expect(await response.json()).toEqual({
+		expect(await response.json()).toMatchObject({
 			ok: true,
-			endpoints: [
-				"chat/completions",
-				"responses",
-				"messages",
-				"embeddings",
-				"moderations",
-				"audio/speech",
-				"audio/transcriptions",
-				"audio/translations",
-				"images/generations",
-				"images/edits",
-				"videos",
-				"ocr",
-				"music/generate",
-				"batches",
-				"files",
-			],
+			endpoints: ["chat.completions", "messages", "responses"],
+			data: expect.arrayContaining([
+				expect.objectContaining({
+					id: "responses",
+					public_path: "/v1/responses",
+					model_count: 1,
+					provider_count: 2,
+				}),
+			]),
 			sample_models: [
 				"openai/gpt-5-nano",
 				"anthropic/claude-sonnet-4",
@@ -90,20 +80,7 @@ describe("placeholdersRoutes /endpoints", () => {
 	});
 
 	it("surfaces backend lookup failures as a 500 payload", async () => {
-		getSupabaseAdminMock.mockReturnValue({
-			from: vi.fn(() => ({
-				select: vi.fn(() => ({
-					eq: vi.fn(() => ({
-						order: vi.fn(() => ({
-							limit: vi.fn(async () => ({
-								data: null,
-								error: { message: "db unavailable" },
-							})),
-						})),
-					})),
-				})),
-			})),
-		});
+		fetchCatalogueMock.mockRejectedValue(new Error("db unavailable"));
 
 		const response = await placeholdersRoutes.request("https://example.com/endpoints");
 
@@ -113,6 +90,31 @@ describe("placeholdersRoutes /endpoints", () => {
 			error: "failed",
 			message: "db unavailable",
 		});
+	});
+
+	it("aggregates capability aliases under one canonical endpoint", async () => {
+		fetchCatalogueMock.mockResolvedValue([
+			{
+				model_id: "phaseo/image-model",
+				endpoints: ["image.generate", "images.generations"],
+				providers: [
+					{ api_provider_id: "provider-a", endpoints: ["image.generate"] },
+					{ api_provider_id: "provider-b", endpoints: ["images.generations"] },
+				],
+			},
+		]);
+
+		const response = await placeholdersRoutes.request("https://example.com/endpoints");
+		const payload = await response.json() as any;
+
+		expect(payload.data.filter((entry: any) => entry.id === "images.generations")).toEqual([{
+			id: "images.generations",
+			capability_id: "images.generations",
+			public_path: "/v1/images/generations",
+			collection: "images",
+			model_count: 1,
+			provider_count: 2,
+		}]);
 	});
 
 	it("requires models:read from OAuth callers", async () => {
@@ -132,6 +134,6 @@ describe("placeholdersRoutes /endpoints", () => {
 			error: "insufficient_scope",
 			message: "Token requires models:read",
 		});
-		expect(getSupabaseAdminMock).not.toHaveBeenCalled();
+		expect(fetchCatalogueMock).not.toHaveBeenCalled();
 	});
 });

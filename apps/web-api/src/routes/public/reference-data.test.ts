@@ -182,7 +182,7 @@ describe("public reference-data routes", () => {
 	it("reuses the compact database-backed catalogue for country models", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("get_v2_public_models_page_rows")) {
+			if (url.includes("get_public_models_page_rows")) {
 				return new Response(JSON.stringify([{
 					model_id: "openai/gpt-test",
 					name: "GPT Test",

@@ -530,7 +530,7 @@ export function ModelSettingsDialog({
                                                         setModelPickerSearch("");
                                                         setModelPickerOpen(false);
                                                     }}
-                                                    className="flex min-h-7 w-full items-center gap-2 rounded-xl px-2 py-1.5 text-left text-sm text-foreground outline-none transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+															className="flex min-h-7 w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-foreground outline-none transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
                                                 >
                                                     <Logo
                                                         id={choice.orgId}
@@ -567,7 +567,7 @@ export function ModelSettingsDialog({
                                                         setModelPickerSearch("");
                                                         setModelPickerOpen(false);
                                                     }}
-                                                    className="flex min-h-7 w-full items-center gap-2 rounded-xl px-2 py-1.5 text-left text-sm text-foreground outline-none transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+															className="flex min-h-7 w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-foreground outline-none transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
                                                 >
                                                     <Logo
                                                         id={choice.orgId}

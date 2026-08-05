@@ -604,7 +604,7 @@ export type RoutingDiagnostics = {
     stickyRouting: {
         enabled: boolean;
         contextResolved: boolean;
-        contextSource: "prompt_cache_key" | "context_hash" | null;
+        contextSource: "prompt_cache_key" | "context_hash" | "session_id" | null;
         hintedProvider: string | null;
         cachedReadTokens: number | null;
         applied: boolean;
@@ -689,7 +689,8 @@ function hasZdrSpecializedSibling(
 }
 
 function normalizeRequestedServiceTier(body: any): string | null {
-	return normalizeTextServiceTier(readRequestedServiceTier(body).value) ?? null;
+	const tier = normalizeTextServiceTier(readRequestedServiceTier(body).value) ?? null;
+	return tier === "fast" ? "priority" : tier;
 }
 
 function hasSpecializedTierSibling(args: {

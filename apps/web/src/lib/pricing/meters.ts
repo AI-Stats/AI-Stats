@@ -2,6 +2,7 @@
 const CORE_PRICING_METER_VALUES = [
   "input_tokens",
   "input_characters",
+  "input_text_bytes",
   "input_pages",
   "input_text_tokens",
   "input_text_messages",

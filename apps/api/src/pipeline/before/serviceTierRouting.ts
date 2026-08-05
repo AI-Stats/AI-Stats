@@ -63,7 +63,7 @@ function normalizeRequestedServiceTier(body: any): string | null {
 }
 
 function normalizeRequestedPlan(tier: string | null): ServiceTierPlan | null {
-    if (tier === "priority") return "priority";
+    if (tier === "fast" || tier === "priority") return "priority";
     if (tier === "batch") return "batch";
     if (tier === "flex") return "flex";
     if (tier === "standard") return "standard";

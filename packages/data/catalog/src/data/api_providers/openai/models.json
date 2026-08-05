@@ -3481,6 +3481,98 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "openai/gpt-transcribe",
+    "provider_api_model_id": "openai:openai/gpt-transcribe",
+    "provider_model_slug": "gpt-transcribe",
+    "internal_model_id": "openai/gpt-transcribe",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,audio",
+    "output_modalities": "text,audio_stt",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-28T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.transcription",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "language",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Supports multiple language hints."
+          },
+          {
+            "param_id": "prompt",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Supports free-form context and keyword hints."
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "json",
+            "notes": null
+          }
+        ],
+        "reasoning": false,
+        "tool_call": false,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "audio"
+        ],
+        "output_modalities": [
+          "text",
+          "audio_stt"
+        ],
+        "modes": []
+      }
+    ],
+    "provider_status": "available",
+    "phaseo_status": "supported",
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "multipart/form-data"
+      ],
+      "endpoint": "/v1/audio/transcriptions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://developers.openai.com/api/docs/models/gpt-transcribe",
+        "accessed_at": "2026-07-31T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-31T00:00:00Z",
+      "notes": "OpenAI documents GPT Transcribe on v1/audio/transcriptions at $0.0045 per audio minute; Phaseo's existing OpenAI transcription executor supports this route."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "openai/gpt-5",
     "provider_api_model_id": "openai:openai/gpt-5",
     "provider_model_slug": "gpt-5-2025-08-07",

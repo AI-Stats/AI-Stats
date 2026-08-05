@@ -57,6 +57,15 @@ describe("logos", () => {
 		});
 	});
 
+	test("resolves the Modal logo by catalogue id", () => {
+		expect(resolveLogo("modal")).toMatchObject({
+			id: "modal",
+			label: "Modal",
+			src: "/logos/modal.svg",
+			variant: "color",
+		});
+	});
+
 	test.each([
 		["alibaba-cn", "Alibaba Cloud", "/logos/alibaba-cloud.svg"],
 		["cloudflare-ai-gateway", "Cloudflare AI Gateway", "/logos/cloudflare.svg"],
@@ -79,5 +88,18 @@ describe("logos", () => {
 			label,
 			src,
 		});
+	});
+
+	test("resolves additional provider logo coverage", () => {
+		for (const [id, src] of [
+			["aihubmix", "/logos/aihubmix.svg"],
+			["helicone", "/logos/helicone.svg"],
+			["io-net", "/logos/ionet.svg"],
+			["ovhcloud", "/logos/ovhcloud.svg"],
+			["sap-ai-core", "/logos/sap.svg"],
+			["zhipuai-coding-plan", "/logos/zhipu.svg"],
+		] as const) {
+			expect(resolveLogo(id)).toMatchObject({ src });
+		}
 	});
 });

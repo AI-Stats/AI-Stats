@@ -52,6 +52,11 @@ const ROUTING_OPTIONS: RoutingOption[] = [
 	},
 ];
 
+const RESPONSE_HEALING_OPTIONS = [
+	{ value: "safe", label: "Safe" },
+	{ value: "strict", label: "Strict" },
+] as const;
+
 type Props = {
 	initialMode?: RoutingMode | null;
 	initialBetaChannelEnabled?: boolean;
@@ -296,6 +301,7 @@ export default function RoutingSettingsClient({
 					</label>
 					<Select
 						value={mode}
+						items={ROUTING_OPTIONS}
 						onValueChange={(value) => setMode(value as RoutingMode)}
 					>
 						<SelectTrigger id="routing-mode" className="max-w-sm">
@@ -303,7 +309,11 @@ export default function RoutingSettingsClient({
 						</SelectTrigger>
 						<SelectContent>
 							{ROUTING_OPTIONS.map((option) => (
-								<SelectItem key={option.value} value={option.value}>
+								<SelectItem
+									key={option.value}
+									value={option.value}
+									label={option.label}
+								>
 									{option.label}
 								</SelectItem>
 							))}
@@ -377,6 +387,7 @@ export default function RoutingSettingsClient({
 					<div className="space-y-2 rounded-lg border bg-muted/20 px-3 py-2">
 						<Select
 							value={responseHealingMode}
+							items={RESPONSE_HEALING_OPTIONS}
 							onValueChange={(value) =>
 								setResponseHealingMode(value as "safe" | "strict")
 							}
@@ -385,8 +396,15 @@ export default function RoutingSettingsClient({
 								<SelectValue placeholder="Select a healing mode" />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="safe">Safe</SelectItem>
-								<SelectItem value="strict">Strict</SelectItem>
+								{RESPONSE_HEALING_OPTIONS.map((option) => (
+									<SelectItem
+										key={option.value}
+										value={option.value}
+										label={option.label}
+									>
+										{option.label}
+									</SelectItem>
+								))}
 							</SelectContent>
 						</Select>
 						<p className="text-xs text-muted-foreground">

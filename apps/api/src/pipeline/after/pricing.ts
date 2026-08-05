@@ -32,7 +32,7 @@ function normalizePricingServiceTier(body: any, usage: any): string {
 function derivePricingPlan(body: any, usage: any): string {
     const tier = normalizePricingServiceTier(body, usage);
 
-    if (tier === "priority") return "priority";
+    if (tier === "fast" || tier === "priority") return "priority";
     if (tier === "batch") return "batch";
     if (tier === "flex") return "flex";
 

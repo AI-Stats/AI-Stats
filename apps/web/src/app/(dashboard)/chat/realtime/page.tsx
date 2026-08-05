@@ -26,7 +26,7 @@ function RealtimeFlagDisabled() {
 				</div>
 			</header>
 			<section className="flex min-h-0 flex-1 items-center justify-center px-4">
-				<div className="w-full max-w-lg rounded-lg border border-border bg-background px-5 py-6 text-center shadow-sm">
+				<div className="w-full max-w-lg rounded-2xl border border-border bg-background px-5 py-6 text-center shadow-sm">
 					<h2 className="text-base font-semibold">Realtime voice is gated</h2>
 					<p className="mt-2 text-sm leading-6 text-muted-foreground">
 						Realtime voice is not enabled for this account yet.

@@ -47,6 +47,11 @@ describe("resolvePresetRoutingMode", () => {
 });
 
 describe("mergePresetWithBody", () => {
+	it("applies preset instructions to Responses API requests", () => {
+		const preset = { id: "preset_123", name: "@brief", slug: "brief", description: null, visibility: "team" as const, config: { systemPrompt: "Be concise" } };
+		expect(mergePresetWithBody({ input: "Hello" }, preset).instructions).toBe("Be concise");
+		expect(mergePresetWithBody({ input: "Hello", instructions: "Use JSON" }, preset).instructions).toBe("Be concise\n\nUse JSON");
+	});
 	it("applies preset plugin defaults and lets request plugins override by id", () => {
 		const merged = mergePresetWithBody(
 			{

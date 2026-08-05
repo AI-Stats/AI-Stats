@@ -4435,6 +4435,7 @@ function ChatPlaygroundContent({
 					activeThread={activeThread}
 					isSending={isSending}
 					temporaryMode={temporaryMode}
+					temporaryReturnThreadId={previousStoredId}
 					mode="unified"
 					webSearchEnabled={
 						activeThread?.settings.webSearchEnabled ?? false
@@ -4493,6 +4494,7 @@ function ChatPlaygroundContent({
 					selectedModelIds={selectedModelIds}
 					modelOptions={modelOptions.active}
 					onToggleModel={toggleComposerModel}
+					onOpenModelPicker={() => setModelPickerOpen(true)}
 					onAddModelSet={addComposerModelSet}
 					onAudioAttachmentRequirementChange={
 						handleAudioAttachmentRequirementChange

@@ -41,7 +41,7 @@ jobs:
                   echo "committer=${bot} <${email}>" >> "$GITHUB_OUTPUT"
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
               with:
                   version: 10.33.0
                   run_install: false
@@ -58,6 +58,9 @@ jobs:
 
             - name: Refresh model statuses
               run: pnpm run data:update-statuses
+
+            - name: Test model status refresh
+              run: pnpm exec tsx --test scripts/update-model-statuses.test.ts
 
             - name: Validate data
               run: pnpm run validate:data

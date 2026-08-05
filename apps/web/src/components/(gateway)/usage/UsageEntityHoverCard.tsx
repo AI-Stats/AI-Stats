@@ -7,6 +7,8 @@ import {
 	HoverCardContent,
 	HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 
 type HoverCardRow = {
@@ -21,46 +23,54 @@ export default function UsageEntityHoverCard({
 	href,
 	rows,
 	visual,
+	actionLabel,
 	disabled = false,
 }: {
-	children: React.ReactElement;
+	children: React.ReactElement<{ className?: string }>;
 	title: string;
 	subtitle?: React.ReactNode;
 	href?: string | null;
 	rows: HoverCardRow[];
 	visual?: React.ReactNode;
+	actionLabel?: string;
 	disabled?: boolean;
 }) {
 	if (disabled) return children;
+	const resolvedActionLabel = actionLabel
+		?? (href?.startsWith("/models/")
+			? "View model"
+			: href?.startsWith("/api-providers/")
+				? "View provider"
+				: href?.startsWith("/settings/keys")
+					? "View key"
+					: href?.startsWith("/apps/")
+						? "View app"
+						: "View details");
+	const trigger = React.cloneElement(children, {
+		className: cn(
+			children.props.className,
+			"cursor-help underline decoration-dotted decoration-muted-foreground/80 underline-offset-4 transition-colors hover:text-primary hover:decoration-current",
+		),
+	} as React.HTMLAttributes<HTMLElement>);
 
 	return (
 		<HoverCard openDelay={140} closeDelay={100}>
-			<HoverCardTrigger asChild>{children}</HoverCardTrigger>
-			<HoverCardContent align="start" className="w-[min(86vw,340px)] p-3">
+			<HoverCardTrigger asChild>{trigger}</HoverCardTrigger>
+			<HoverCardContent align="start" className="w-[min(86vw,288px)] rounded-lg p-4">
 				<div className="space-y-3">
 					<div className="flex items-start gap-3">
-						{visual ? <div className="mt-0.5 shrink-0">{visual}</div> : null}
+						{visual ? <div className="mt-0.5 shrink-0 rounded-md">{visual}</div> : null}
 						<div className="min-w-0">
-							{href ? (
-								<Link
-									href={href}
-									className="inline-flex min-w-0 items-center gap-1 font-medium underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
-								>
-									<span className="truncate">{title}</span>
-									<ArrowUpRight className="h-3.5 w-3.5 shrink-0" />
-								</Link>
-							) : (
-								<div className="truncate font-medium">{title}</div>
-							)}
+							<div className="truncate text-sm font-semibold text-foreground">{title}</div>
 							{subtitle ? (
-								<div className="mt-1 text-xs text-muted-foreground">
+								<div className="mt-0.5 text-xs leading-5 text-muted-foreground">
 									{subtitle}
 								</div>
 							) : null}
 						</div>
 					</div>
 
-					<div className="grid gap-2 text-xs">
+					{rows.length ? <div className="grid gap-2 border-t border-border/60 pt-3 text-xs">
 						{rows.map((row) => (
 							<div
 								key={row.label}
@@ -72,7 +82,16 @@ export default function UsageEntityHoverCard({
 								</div>
 							</div>
 						))}
-					</div>
+					</div> : null}
+
+					{href ? (
+						<Button asChild variant="outline" size="sm" className="h-8 w-full rounded-md">
+							<Link href={href} className="gap-1.5">
+								{resolvedActionLabel}
+								<ArrowUpRight className="size-3.5" />
+							</Link>
+						</Button>
+					) : null}
 				</div>
 			</HoverCardContent>
 		</HoverCard>

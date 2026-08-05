@@ -38,9 +38,9 @@ describe("auth origin helpers", () => {
 			resolveVercelPreviewAuthOrigin({
 				NODE_ENV: "production",
 				VERCEL_ENV: "preview",
-				VERCEL_URL: "ai-stats-ywe0ybx3k-ai-stats.vercel.app",
+				VERCEL_URL: "preview-branch.vercel.app",
 			} as NodeJS.ProcessEnv),
-		).toBe("https://ai-stats-ywe0ybx3k-ai-stats.vercel.app");
+		).toBe("https://preview-branch.vercel.app");
 	});
 
 	it("never uses an arbitrary URL for preview auth callbacks", () => {

@@ -554,7 +554,7 @@ MIT License - see [LICENSE](../../LICENSE) for details.
 
 -   **Documentation**: https://phaseo.app/docs/v1
 -   **Discord**: Join our community
--   **Email**: support@phaseo.ai
+-   **Email**: support@phaseo.app
 
 ---
 

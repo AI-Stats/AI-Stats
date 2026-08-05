@@ -10,6 +10,9 @@ export const logoManifest = {
 	aionlabs: {
 		color: "/logos/aionlabs.svg",
 	},
+	aihubmix: {
+		color: "/logos/aihubmix.svg",
+	},
 	alibaba: {
 		color: "/logos/alibaba.svg",
 	},
@@ -63,6 +66,12 @@ export const logoManifest = {
 	"black-forest-labs": {
 		light: "/logos/black-forest-labs_light.svg",
 		dark: "/logos/black-forest-labs_dark.svg",
+	},
+	"302ai": {
+		color: "/logos/302ai.svg",
+	},
+	anyapi: {
+		color: "/logos/anyapi.svg",
 	},
 	bytedance: {
 		color: "/logos/bytedance.svg",
@@ -127,6 +136,9 @@ export const logoManifest = {
 	deepseek: {
 		color: "/logos/deepseek.svg",
 	},
+	databricks: {
+		color: "/logos/databricks.svg",
+	},
 	digitalocean: {
 		color: "/logos/digitalocean.svg",
 	},
@@ -160,6 +172,12 @@ export const logoManifest = {
 	},
 	google: {
 		color: "/logos/google.svg",
+	},
+	gitlab: {
+		color: "/logos/gitlab.svg",
+	},
+	helicone: {
+		color: "/logos/helicone.svg",
 	},
 	"google-ai-studio": {
 		light: "/logos/google-ai-studio_light.svg",
@@ -223,6 +241,9 @@ export const logoManifest = {
 	infermatic: {
 		color: "/logos/infermatic.svg",
 	},
+	ionet: {
+		color: "/logos/ionet.svg",
+	},
 	lg: {
 		color: "/logos/lg.svg",
 	},
@@ -261,6 +282,9 @@ export const logoManifest = {
 	minimax: {
 		color: "/logos/minimax.svg",
 	},
+	neon: {
+		color: "/logos/neon.svg",
+	},
 	mindai: {
 		color: "/logos/mindai.svg",
 	},
@@ -269,6 +293,9 @@ export const logoManifest = {
 	},
 	mistral: {
 		color: "/logos/mistral.svg",
+	},
+	modal: {
+		color: "/logos/modal.svg",
 	},
 	moonshotai: {
 		light: "/logos/moonshotai_light.svg",
@@ -320,6 +347,9 @@ export const logoManifest = {
 	nvidia: {
 		color: "/logos/nvidia.svg",
 	},
+	nova: {
+		color: "/logos/nova.svg",
+	},
 	openai: {
 		light: "/logos/openai_light.svg",
 		dark: "/logos/openai_dark.svg",
@@ -338,6 +368,9 @@ export const logoManifest = {
 	openrouter: {
 		light: "/logos/openrouter_light.svg",
 		dark: "/logos/openrouter_dark.svg",
+	},
+	ollama: {
+		color: "/logos/ollama.svg",
 	},
 	openwebui: {
 		light: "/logos/openwebui_light.svg",
@@ -374,6 +407,9 @@ export const logoManifest = {
 	qwen: {
 		color: "/logos/qwen.svg",
 	},
+	requesty: {
+		color: "/logos/requesty.svg",
+	},
 	"qiniu-ai": {
 		color: "/logos/qiniu.svg",
 	},
@@ -389,6 +425,15 @@ export const logoManifest = {
 	},
 	"siliconflow-cn": {
 		color: "/logos/siliconflow.svg",
+	},
+	sap: {
+		color: "/logos/sap.svg",
+	},
+	sarvam: {
+		color: "/logos/sarvam.svg",
+	},
+	scaleway: {
+		color: "/logos/scaleway.svg",
 	},
 	sambanova: {
 		color: "/logos/sambanova.svg",
@@ -413,6 +458,12 @@ export const logoManifest = {
 		light: "/logos/suno_light.svg",
 		dark: "/logos/suno_dark.svg",
 	},
+	snowflake: {
+		color: "/logos/snowflake.svg",
+	},
+	synthetic: {
+		color: "/logos/synthetic.svg",
+	},
 	tencent: {
 		color: "/logos/hunyuan.svg",
 	},
@@ -422,6 +473,9 @@ export const logoManifest = {
 	togetherai: {
 		color: "/logos/together.svg",
 	},
+	tinfoil: {
+		color: "/logos/tinfoil.svg",
+	},
 	tinker: {
 		color: "/logos/tinker.svg",
 	},
@@ -430,6 +484,15 @@ export const logoManifest = {
 	},
 	upstage: {
 		color: "/logos/upstage.svg",
+	},
+	ovhcloud: {
+		color: "/logos/ovhcloud.svg",
+	},
+	v0: {
+		color: "/logos/v0.svg",
+	},
+	vultr: {
+		color: "/logos/vultr.svg",
 	},
 	venice: {
 		color: "/logos/venice.svg",
@@ -468,6 +531,12 @@ export const logoManifest = {
 	},
 	xiaomi: {
 		color: "/logos/xiaomi.svg",
+	},
+	zenifra: {
+		color: "/logos/zenifra.svg",
+	},
+	zhipuai: {
+		color: "/logos/zhipu.svg",
 	},
 	zai: {
 		light: "/logos/zai_light.svg",

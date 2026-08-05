@@ -57,6 +57,10 @@ function normalizePresetName(name: string): string {
 	return trimmed.startsWith("@") ? trimmed : `@${trimmed}`;
 }
 
+function normalizePresetSlug(value: unknown): string {
+	return String(value ?? "").trim().toLowerCase().replace(/^@+/, "").replace(/[^a-z0-9._:-]+/g, "-").replace(/-{2,}/g, "-").replace(/^[-._:]+|[-._:]+$/g, "");
+}
+
 function validatePresetName(name: string): string | null {
 	const normalized = normalizePresetName(name);
 	if (!normalized || normalized.length < 2) return "name is required";
@@ -91,6 +95,14 @@ function formatPreset(row: PresetRow) {
 		created_at: row.created_at ?? null,
 		updated_at: row.updated_at ?? null,
 	};
+}
+
+async function publicPublisher(userId: string | null | undefined): Promise<string | null> {
+	if (!userId) return null;
+	const { data, error } = await getSupabaseAdmin().from("users").select("public_profile_enabled,public_profile_slug").eq("user_id", userId).maybeSingle();
+	if (error) throw new Error(error.message || "Failed to fetch public profile");
+	const slug = String(data?.public_profile_slug ?? "").trim().toLowerCase();
+	return data?.public_profile_enabled && slug ? slug : null;
 }
 
 async function findPreset(workspaceId: string, identifier: string): Promise<PresetRow | null> {
@@ -144,6 +156,9 @@ async function handleListPresets(req: Request) {
 			.eq("workspace_id", auth.value.workspaceId)
 			.order("created_at", { ascending: false })
 			.range(offset, offset + limit - 1);
+		query = auth.value.userId
+			? query.or(`visibility.neq.private,created_by.eq.${auth.value.userId}`)
+			: query.neq("visibility", "private");
 		if (visibility) query = query.eq("visibility", visibility);
 
 		const { data, error } = await query;
@@ -182,9 +197,22 @@ async function handleCreatePreset(req: Request) {
 	const nameError = validatePresetName(name);
 	if (nameError) return json({ error: "bad_request", message: nameError }, 400, { "Cache-Control": "no-store" });
 	const description = typeof body.description === "string" ? body.description.trim().slice(0, 500) : null;
-	const slug = typeof body.slug === "string" && body.slug.trim() ? body.slug.trim() : null;
+	const slug = normalizePresetSlug(body.slug ?? name);
+	if (!slug) return json({ error: "bad_request", message: "slug is required" }, 400, { "Cache-Control": "no-store" });
 
 	try {
+		const visibility = normalizeVisibility(body.visibility);
+		const publisher = visibility === "public" ? await publicPublisher(auth.value.userId) : null;
+		if (visibility === "public" && !publisher) return json({ error: "public_profile_required", message: "Enable a public profile and choose a username before publishing a preset" }, 409, { "Cache-Control": "no-store" });
+		const slugQuery = getSupabaseAdmin().from("presets").select("id").eq("workspace_id", auth.value.workspaceId).eq("slug", slug);
+		const { data: slugDuplicate, error: slugError } = await slugQuery.maybeSingle();
+		if (slugError) throw new Error(slugError.message || "Failed to check preset slug");
+		if (slugDuplicate) return json({ error: "conflict", message: `Preset slug "${slug}" already exists in this workspace` }, 409, { "Cache-Control": "no-store" });
+		if (visibility === "public") {
+			const { data: publicDuplicate, error: publicError } = await getSupabaseAdmin().from("presets").select("id").eq("visibility", "public").eq("created_by", auth.value.userId).eq("slug", slug).maybeSingle();
+			if (publicError) throw new Error(publicError.message || "Failed to check public preset slug");
+			if (publicDuplicate) return json({ error: "public_slug_conflict", message: `Public preset slug "${slug}" is already in use` }, 409, { "Cache-Control": "no-store" });
+		}
 		const { data: duplicate, error: duplicateError } = await getSupabaseAdmin()
 			.from("presets")
 			.select("id")
@@ -204,13 +232,13 @@ async function handleCreatePreset(req: Request) {
 				slug,
 				description,
 				config: normalizeConfig(body.config),
-				visibility: normalizeVisibility(body.visibility),
+				visibility,
 				created_by: auth.value.userId ?? null,
 			})
 			.select("id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at")
 			.maybeSingle();
 		if (error) throw new Error(error.message || "Failed to create preset");
-		return json({ data: formatPreset(data as PresetRow) }, 201, { "Cache-Control": "no-store" });
+		return json({ data: formatPreset(data as PresetRow), canonical_model: visibility === "public" ? `@${publisher}/${slug}` : `@${slug}` }, 201, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("presets.create", error);
 	}
@@ -278,10 +306,26 @@ async function handleUpdatePreset(req: Request) {
 			}
 			updatePayload.name = name;
 		}
-		if (typeof body.slug === "string") updatePayload.slug = body.slug.trim() || null;
+		if (typeof body.slug === "string") {
+			const slug = normalizePresetSlug(body.slug);
+			if (!slug) return json({ error: "bad_request", message: "slug is required" }, 400, { "Cache-Control": "no-store" });
+			updatePayload.slug = slug;
+		}
 		if (body.description !== undefined) updatePayload.description = typeof body.description === "string" ? body.description.trim().slice(0, 500) || null : null;
 		if (body.config !== undefined) updatePayload.config = { ...normalizeConfig(existing.config), ...normalizeConfig(body.config) };
 		if (body.visibility !== undefined) updatePayload.visibility = normalizeVisibility(body.visibility);
+		const nextSlug = String(updatePayload.slug ?? existing.slug ?? "");
+		const nextVisibility = String(updatePayload.visibility ?? existing.visibility ?? "team");
+		const publisher = nextVisibility === "public" ? await publicPublisher(existing.created_by) : null;
+		if (nextVisibility === "public" && !publisher) return json({ error: "public_profile_required", message: "Enable a public profile and choose a username before publishing a preset" }, 409, { "Cache-Control": "no-store" });
+		const { data: slugDuplicate, error: slugError } = await getSupabaseAdmin().from("presets").select("id").eq("workspace_id", auth.value.workspaceId).eq("slug", nextSlug).neq("id", existing.id).maybeSingle();
+		if (slugError) throw new Error(slugError.message || "Failed to check preset slug");
+		if (slugDuplicate) return json({ error: "conflict", message: `Preset slug "${nextSlug}" already exists in this workspace` }, 409, { "Cache-Control": "no-store" });
+		if (nextVisibility === "public") {
+			const { data: publicDuplicate, error: publicError } = await getSupabaseAdmin().from("presets").select("id").eq("visibility", "public").eq("created_by", existing.created_by).eq("slug", nextSlug).neq("id", existing.id).maybeSingle();
+			if (publicError) throw new Error(publicError.message || "Failed to check public preset slug");
+			if (publicDuplicate) return json({ error: "public_slug_conflict", message: `Public preset slug "${nextSlug}" is already in use` }, 409, { "Cache-Control": "no-store" });
+		}
 
 		const { error } = await getSupabaseAdmin()
 			.from("presets")

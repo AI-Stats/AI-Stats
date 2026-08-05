@@ -1,0 +1,53 @@
+{
+  "key": "nebius-token-factory:minimax/minimax-m3:text.generate",
+  "api_provider_id": "nebius-token-factory",
+  "provider_slug": "nebius-token-factory",
+  "api_model_id": "minimax/minimax-m3",
+  "capability_id": "text.generate",
+  "rules": [
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.3,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Nebius Token Factory's public MiniMax M3 endpoint card reports $0.30 per 1M input tokens.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-06-01T00:00:00Z",
+      "region": "us-central1",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 1.2,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Nebius Token Factory's public MiniMax M3 endpoint card reports $1.20 per 1M output tokens.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-06-01T00:00:00Z",
+      "region": "us-central1",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    }
+  ],
+  "regions": [
+    "us-central1"
+  ],
+  "service_tiers": [
+    "standard"
+  ],
+  "sources": [],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-07-31T00:00:00Z",
+    "notes": "Pricing and region were transcribed from Nebius Token Factory's public MiniMax M3 endpoint card captured on 2026-07-31."
+  }
+}

@@ -47,7 +47,10 @@ describe("resolveOpenAICompatRoute", () => {
 			expect(resolveOpenAICompatRoute("deepinfra", "meta-llama/Meta-Llama-3.1-8B-Instruct")).toBe("chat");
 			expect(resolveOpenAICompatRoute("friendli", "meta-llama-3.1-8b-instruct")).toBe("chat");
 			expect(resolveOpenAICompatRoute("gmicloud", "Qwen/Qwen3-235B-A22B-Thinking-2507")).toBe("chat");
+			expect(resolveOpenAICompatRoute("deepseek", "deepseek-v4-flash")).toBe("responses");
+			expect(resolveOpenAICompatRoute("deepseek", "deepseek-v4-pro")).toBe("chat");
 			expect(resolveOpenAICompatRoute("deepseek", "deepseek-chat")).toBe("chat");
+			expect(resolveOpenAICompatRoute("deepseek", "deepseek-reasoner")).toBe("chat");
 			expect(resolveOpenAICompatRoute("tensorix", "z-ai/glm-5")).toBe("chat");
 				expect(resolveOpenAICompatRoute("ionrouter", "qwen3.5-122b-a10b")).toBe("chat");
 				expect(resolveOpenAICompatRoute("longcat", "LongCat-Flash-Chat")).toBe("chat");
@@ -72,7 +75,7 @@ describe("resolveOpenAICompatRoute", () => {
 		expect(resolveOpenAICompatRoute("cerebras", "llama3.1-70b")).toBe("chat");
 		expect(resolveOpenAICompatRoute("fireworks", "accounts/fireworks/models/llama-v3p3-70b-instruct")).toBe("responses");
 		expect(resolveOpenAICompatRoute("groq", "llama-3.3-70b-versatile")).toBe("responses");
-		expect(resolveOpenAICompatRoute("amazon-bedrock", "anthropic.claude-3-5-sonnet-20240620-v1:0")).toBe("chat");
+		expect(resolveOpenAICompatRoute("amazon-bedrock", "anthropic.claude-3-5-sonnet-20240620-v1:0")).toBe("responses");
 		expect(resolveOpenAICompatRoute("google-vertex", "claude-sonnet-4@20250514")).toBe("chat");
 	});
 });
@@ -178,6 +181,20 @@ describe("openAICompatUrl", () => {
 
 		expect(openAICompatUrl("deepseek", "/chat/completions")).toBe(
 			"https://api.deepseek.com/v1/chat/completions",
+		);
+		expect(openAICompatUrl("deepseek", "/responses")).toBe(
+			"https://api.deepseek.com/responses",
+		);
+	});
+
+	it("builds Nebius US Central 1 chat-completions endpoint", () => {
+		teardownTestRuntime();
+		setupRuntimeFromEnv({
+			NEBIUS_API_KEY: "test-nebius-key",
+		} as any);
+
+		expect(openAICompatUrl("nebius-token-factory-us-central-1", "/chat/completions")).toBe(
+			"https://api.tokenfactory.us-central1.nebius.com/v1/chat/completions",
 		);
 	});
 
