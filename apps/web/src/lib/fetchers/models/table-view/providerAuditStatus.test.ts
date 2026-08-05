@@ -57,6 +57,39 @@ describe("classifyProviderAuditRoutability", () => {
 		});
 	});
 
+	test("classifies Phaseo implementation separately from upstream availability", () => {
+		expect(
+			classifyProviderAuditRoutability({
+				isActiveGateway: false,
+				providerAvailabilityStatus: "available",
+				phaseoStatus: "implementing",
+				accessScope: "public",
+				now,
+			}),
+		).toMatchObject({
+			key: "phaseo_implementing",
+			availability: "coming_soon",
+			isRoutableNow: false,
+		});
+	});
+
+	test("classifies internal route scope even when the capability is active", () => {
+		expect(
+			classifyProviderAuditRoutability({
+				isActiveGateway: false,
+				providerAvailabilityStatus: "available",
+				phaseoStatus: "testing",
+				accessScope: "internal",
+				capabilityStatus: "active",
+				now,
+			}),
+		).toMatchObject({
+			key: "internal_testing",
+			availability: "coming_soon",
+			isRoutableNow: false,
+		});
+	});
+
 	test("classifies beta providers as preview-only instead of generic inactive", () => {
 		expect(
 			classifyProviderAuditRoutability({

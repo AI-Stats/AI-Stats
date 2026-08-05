@@ -13,7 +13,14 @@ import {
 } from "recharts";
 import type { ModelProviderDailyPoint } from "@/lib/fetchers/models/getModelPerformance";
 
-type MetricKey = "throughput" | "latency" | "generation";
+type MetricKey =
+	| "throughput"
+	| "outputSpeed"
+	| "latency"
+	| "generation"
+	| "overhead"
+	| "tpot"
+	| "itl";
 
 type ModelProviderTrendChartProps = {
 	title: string;
@@ -34,25 +41,52 @@ export function getSeriesEmphasis(activeSeriesKey: string | null, seriesKey: str
 
 type MetricConfig = {
 	label: string;
-	valueKey: "avgThroughput" | "avgLatencyMs" | "avgGenerationMs";
+	valueKey:
+		| "avgThroughput"
+		| "avgOutputSpeed"
+		| "avgLatencyMs"
+		| "avgGenerationMs"
+		| "avgPhaseoOverheadMs"
+		| "avgTpotMs"
+		| "avgItlMs";
 	formatValue: (value: number | null) => string;
 };
 
 const METRICS: Record<MetricKey, MetricConfig> = {
 	throughput: {
-		label: "Throughput",
+		label: "Effective throughput",
 		valueKey: "avgThroughput",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} t/s` : "-"),
 	},
+	outputSpeed: {
+		label: "Output speed",
+		valueKey: "avgOutputSpeed",
+		formatValue: (value) => (value != null ? `${value.toFixed(2)} t/s` : "-"),
+	},
 	latency: {
-		label: "Latency",
+		label: "Time to first token",
 		valueKey: "avgLatencyMs",
 		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
 	},
 	generation: {
-		label: "E2E Latency",
+		label: "Provider duration",
 		valueKey: "avgGenerationMs",
 		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
+	},
+	overhead: {
+		label: "Phaseo overhead",
+		valueKey: "avgPhaseoOverheadMs",
+		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
+	},
+	tpot: {
+		label: "TPOT",
+		valueKey: "avgTpotMs",
+		formatValue: (value) => (value != null ? `${value.toFixed(2)} ms` : "-"),
+	},
+	itl: {
+		label: "ITL",
+		valueKey: "avgItlMs",
+		formatValue: (value) => (value != null ? `${value.toFixed(2)} ms` : "-"),
 	},
 };
 
@@ -145,7 +179,7 @@ export default function ModelProviderTrendChart({
 		if (!row) continue;
 		const provider = providers.find((providerItem) => providerItem.provider === point.provider);
 		if (!provider) continue;
-		row[provider.seriesKey] = point[metricConfig.valueKey];
+		row[provider.seriesKey] = point[metricConfig.valueKey] ?? null;
 	}
 	const chartData = sortedDays.map((day, index) => {
 		const values = byDay.get(day) ?? {};

@@ -4,18 +4,36 @@
     "slug": "phaseo",
     "scheme": "phaseo",
     "version": "0.1.0",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "orientation": "default",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "ios": { "supportsTablet": true, "bundleIdentifier": "app.phaseo.client" },
-    "android": { "package": "app.phaseo.client", "adaptiveIcon": { "backgroundColor": "#ffffff" } },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.phaseo.client"
+    },
+    "android": {
+      "package": "app.phaseo.client",
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      }
+    },
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      ["expo-notifications", { "defaultChannel": "general" }]
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "general"
+        }
+      ],
+      "expo-font"
     ],
-    "experiments": { "typedRoutes": true },
+    "experiments": {
+      "typedRoutes": true
+    },
     "extra": {
       "phaseoOrigin": "https://phaseo.app",
       "phaseoApiOrigin": "https://api.phaseo.app/v1"

@@ -24,7 +24,7 @@ describe("getModels", () => {
         expect.objectContaining({ id: "openai/gpt-5.6-sol" })
       ]);
       expect(globalThis.fetch).toHaveBeenCalledWith(
-        expect.stringContaining("limit=250"),
+        expect.stringContaining("limit=2000"),
         expect.any(Object)
       );
     }

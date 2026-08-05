@@ -12,6 +12,7 @@ import {
 	diffModelIds,
 	extractProviderApiModelSnapshot,
 	fetchProviderModels,
+	getDiscordProviderFamilyId,
 	hasDiscordNotifiableChanges,
 	hasProviderApiSnapshotValue,
 	loadConfiguredProviderModelIds,
@@ -290,7 +291,10 @@ export function normalizeModelDiscoveryShardSize(shardSize: number): number {
 
 export function getModelDiscoveryShardCount(shardSize: number): number {
 	const normalizedSize = normalizeModelDiscoveryShardSize(shardSize);
-	return Math.max(1, Math.ceil(PROVIDERS.length / normalizedSize));
+	const providerFamilyCount = new Set(
+		PROVIDERS.map((provider) => getDiscordProviderFamilyId(provider.providerId))
+	).size;
+	return Math.max(1, Math.ceil(providerFamilyCount / normalizedSize));
 }
 
 function selectProvidersForShard(args: RunArgs): ProviderConfig[] {
@@ -312,7 +316,16 @@ function selectProvidersForShard(args: RunArgs): ProviderConfig[] {
 	}
 	if (shardCount === 1) return PROVIDERS;
 
-	return PROVIDERS.filter((_, index) => index % shardCount === shardIndex);
+	const familyIndexes = new Map<string, number>();
+	for (const provider of PROVIDERS) {
+		const familyId = getDiscordProviderFamilyId(provider.providerId);
+		if (!familyIndexes.has(familyId)) familyIndexes.set(familyId, familyIndexes.size);
+	}
+
+	return PROVIDERS.filter((provider) => {
+		const familyIndex = familyIndexes.get(getDiscordProviderFamilyId(provider.providerId));
+		return familyIndex !== undefined && familyIndex % shardCount === shardIndex;
+	});
 }
 
 async function insertRunStart(runId: string, args: RunArgs, startedAt: string): Promise<void> {

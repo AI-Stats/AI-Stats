@@ -565,9 +565,13 @@ async function fetchTestingProviderSnapshots(args: {
     const byApiModelResult = await supabase
         .from("v2_model_provider_routes")
         .select(
-            "provider_api_model_id:provider_model_id,provider_id:provider_slug,provider_model_slug,is_active_gateway:routing_enabled,routing_status:status,effective_from,effective_to,input_modalities,output_modalities"
+            "provider_api_model_id:provider_model_id,provider_id:provider_slug,provider_model_slug,is_active_gateway:routing_enabled,routing_status:status,provider_availability_status,phaseo_status,access_scope,effective_from,effective_to,input_modalities,output_modalities"
         )
-        .in("model_slug", modelCandidates);
+        .in("model_slug", modelCandidates)
+        .eq("access_scope", "internal")
+        .in("phaseo_status", ["testing", "enabled"])
+        .in("provider_availability_status", ["available", "preview", "limited_access"])
+        .in("status", ["active", "degraded"]);
 
     if (byApiModelResult.error) return [];
 
@@ -1282,6 +1286,7 @@ export async function fetchGatewayContext(args: {
             dataContributionSampleRateBps: 10000,
             dataContributionClassifierSampleRateBps: 1000,
             dataContributionDiscountBps: 100,
+            defaultPlugins: null,
             billingMode: "wallet",
         };
 
@@ -1302,7 +1307,7 @@ export async function fetchGatewayContext(args: {
                 : Promise.resolve({ data: [], error: null } as any);
 
             const settingsQuery = (async () => {
-                const columns = "routing_mode,byok_fallback_enabled,beta_channel_enabled,alpha_channel_enabled,privacy_zdr_only,privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,io_logging_enabled,io_logging_include_provider_payloads,data_contribution_enabled,data_contribution_policy_version,data_contribution_sample_rate_bps,data_contribution_classifier_sample_rate_bps,data_contribution_discount_bps";
+                const columns = "routing_mode,byok_fallback_enabled,beta_channel_enabled,alpha_channel_enabled,privacy_zdr_only,privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,io_logging_enabled,io_logging_include_provider_payloads,data_contribution_enabled,data_contribution_policy_version,data_contribution_sample_rate_bps,data_contribution_classifier_sample_rate_bps,data_contribution_discount_bps,response_healing_enabled,response_healing_locked,response_healing_mode";
                 const withCacheAwareRouting = await supabase
                     .from("workspace_settings")
                     .select(`${columns},cache_aware_routing_enabled`)
@@ -1357,6 +1362,14 @@ export async function fetchGatewayContext(args: {
             const dataContributionFeatureEnabled =
                 settingsResult.data.data_contribution_enabled === true &&
                 await isDataContributionAccessEnabled({ workspaceId: args.workspaceId });
+            const responseHealingEnabled =
+                settingsResult.data.response_healing_enabled === true;
+            const responseHealingLocked =
+                settingsResult.data.response_healing_locked === true;
+            const responseHealingMode =
+                settingsResult.data.response_healing_mode === "strict"
+                    ? "strict"
+                    : "safe";
             parsed.teamSettings = {
                 routingMode: settingsResult.data.routing_mode ?? null,
                 byokFallbackEnabled: settingsResult.data.byok_fallback_enabled === true,
@@ -1386,6 +1399,15 @@ export async function fetchGatewayContext(args: {
                     Number(settingsResult.data.data_contribution_classifier_sample_rate_bps ?? 1000),
                 dataContributionDiscountBps:
                     Number(settingsResult.data.data_contribution_discount_bps ?? 100),
+                defaultPlugins:
+                    responseHealingEnabled || responseHealingLocked
+                        ? [{
+                            id: "response-healing",
+                            enabled: responseHealingEnabled,
+                            config: { mode: responseHealingMode },
+                            ...(responseHealingLocked ? { preventOverrides: true } : {}),
+                        }]
+                        : null,
                 billingMode: rawBillingMode,
             };
 

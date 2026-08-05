@@ -1630,7 +1630,7 @@ export function ChatHeader({
 				<Dialog open={settingsOpen} onOpenChange={onSettingsOpenChange}>
 					<DialogContent
 						showCloseButton={false}
-						className="max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] overflow-hidden p-0 md:max-h-[520px] md:w-auto md:max-w-[760px] lg:max-w-[820px]"
+						className="max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] overflow-hidden p-0 md:max-h-[520px] md:w-[760px] md:max-w-[760px] lg:w-[820px] lg:max-w-[820px]"
 					>
 						<DialogTitle className="sr-only">Settings</DialogTitle>
 						<DialogDescription className="sr-only">
@@ -2204,9 +2204,7 @@ export function ChatHeader({
 													models, and the composer.
 												</p>
 											</div>
-											<div className="rounded-2xl border border-border bg-card p-3">
-												<ChatShortcutReference />
-											</div>
+											<ChatShortcutReference />
 										</div>
 									)}
 									{settingsTab === "admin" && isAdmin && (

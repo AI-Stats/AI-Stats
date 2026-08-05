@@ -57,7 +57,7 @@ async function request(path: string, init?: RequestInit, token?: string): Promis
 }
 
 export async function getModels(query = ""): Promise<PhaseoModel[]> {
-  const raw = await request(`/api/_web/models?shape=page&projection=5&limit=${query ? 250 : 40}`);
+  const raw = await request(`/api/_web/models?shape=page&projection=5&limit=${query ? 2000 : 40}`);
   const parsed = modelsEnvelope.parse(raw);
   const models = Array.isArray(parsed) ? parsed : "models" in parsed ? parsed.models : parsed.data;
   if (!query.trim()) return models;

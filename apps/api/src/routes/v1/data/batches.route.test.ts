@@ -403,6 +403,63 @@ describe("batchRoutes", () => {
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 
+	it("rejects mixed endpoint shapes before provider submission", async () => {
+		const fetchMock = vi.fn();
+		vi.stubGlobal("fetch", fetchMock);
+		const { batchRoutes } = await import("./batches");
+		const response = await batchRoutes.request("https://example.com/", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				endpoint: "/v1/responses",
+				model: "openai/gpt-4.1-mini",
+				requests: [
+					{
+						url: "/v1/chat/completions",
+						body: {
+							model: "openai/gpt-4.1-mini",
+							messages: [{ role: "user", content: "hello" }],
+						},
+					},
+				],
+			}),
+		});
+		expect(response.status).toBe(400);
+		expect(await response.json()).toMatchObject({
+			error: "validation_error",
+			reason: "batch_mixed_endpoints_not_supported",
+		});
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it("rejects streaming rows before provider submission", async () => {
+		const fetchMock = vi.fn();
+		vi.stubGlobal("fetch", fetchMock);
+		const { batchRoutes } = await import("./batches");
+		const response = await batchRoutes.request("https://example.com/", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				endpoint: "/v1/responses",
+				model: "openai/gpt-4.1-mini",
+				requests: [
+					{
+						body: {
+							input: "hello",
+							stream: true,
+						},
+					},
+				],
+			}),
+		});
+		expect(response.status).toBe(400);
+		expect(await response.json()).toMatchObject({
+			error: "validation_error",
+			reason: "batch_streaming_not_supported",
+		});
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
 	it("proxies create + retrieve completed flow while keeping gateway-only fields local", async () => {
 		state.fileMeta.set(fileKey("ws_batch_test", "file_input_123"), {
 			provider: "openai",

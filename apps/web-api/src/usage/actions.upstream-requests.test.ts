@@ -1,0 +1,56 @@
+import { describe, expect, it } from "vitest";
+import { normalizeGatewayUpstreamRows } from "./actions";
+
+describe("normalizeGatewayUpstreamRows", () => {
+	it("maps child request rows into the existing provider timeline contract", () => {
+		expect(normalizeGatewayUpstreamRows([{
+			sequence: 2,
+			round_number: 1,
+			attempt_number: 2,
+			internal_attempt_number: null,
+			provider: "openai",
+			api_model_id: "openai:gpt-5.4-mini",
+			provider_model_slug: "gpt-5.4-mini",
+			outcome: "success",
+			status_code: 200,
+			status_text: "OK",
+			duration_ms: 42,
+			latency_ms: 180,
+			generation_ms: 150,
+			total_ms: 210,
+			cost_nanos: "125000",
+			currency: "USD",
+			finish_reason: "stop",
+			provider_finish_reason: "stop",
+			retryable: false,
+			fallback_attempted: true,
+			error_code: null,
+			error_message: null,
+			error_description: null,
+		}])).toEqual([{
+			sequence: 2,
+			round_number: 1,
+			attempt_number: 2,
+			internal_attempt_number: null,
+			provider: "openai",
+			api_model_id: "openai:gpt-5.4-mini",
+			provider_model_slug: "gpt-5.4-mini",
+			outcome: "success",
+			status: 200,
+			status_text: "OK",
+			duration_ms: 42,
+			latency_ms: 180,
+			generation_ms: 150,
+			total_ms: 210,
+			cost_nanos: 125000,
+			currency: "USD",
+			finish_reason: "stop",
+			provider_finish_reason: "stop",
+			retryable: false,
+			fallback_attempted: true,
+			upstream_error_code: null,
+			upstream_error_message: null,
+			upstream_error_description: null,
+		}]);
+	});
+});

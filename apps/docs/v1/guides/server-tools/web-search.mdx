@@ -61,6 +61,7 @@ curl https://api.phaseo.app/v1/chat/completions \
 | `engine` | string | `exa` | Search engine: `auto`, `native`, `exa`, `parallel`, `firecrawl`, or `perplexity`. |
 | `max_results` | integer | `5` | Maximum results returned per search call. |
 | `max_total_results` | integer | `10` | Maximum cumulative results across the server-tool loop. |
+| `max_uses` | integer | `10` | Maximum search calls across the server-tool loop. |
 | `search_context_size` | string | `medium` | Context size for engines that support highlight sizing: `low`, `medium`, or `high`. |
 | `max_characters` | integer | engine default | Maximum text characters per result when text is included. |
 | `allowed_domains` | string[] | none | Only return results from these domains. Alias: `include_domains`. |
@@ -136,4 +137,3 @@ Managed search pricing can use `server_tool_web_search_requests` and `server_too
 - [Web Fetch](./web-fetch)
 - [Server Tools](./index)
 - [Tool grounding with web fetch](../../cookbook/tool-grounding-with-web-fetch)
-

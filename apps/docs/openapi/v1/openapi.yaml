@@ -105,6 +105,13 @@ paths:
             type: array
             items:
               type: string
+        - name: input_modalities
+          in: query
+          description: Public alias for input_types.
+          schema:
+            type: array
+            items:
+              type: string
         - name: output_types
           in: query
           description: Filter by output types
@@ -112,9 +119,23 @@ paths:
             type: array
             items:
               type: string
+        - name: output_modalities
+          in: query
+          description: Public alias for output_types.
+          schema:
+            type: array
+            items:
+              type: string
         - name: params
           in: query
           description: Filter by params
+          schema:
+            type: array
+            items:
+              type: string
+        - name: supported_parameters
+          in: query
+          description: Public alias for params.
           schema:
             type: array
             items:
@@ -188,6 +209,135 @@ paths:
                 $ref: '#/components/schemas/InvalidRequestResponse'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /models/{author}/{slug}/endpoints:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: listModelEndpoints
+      summary: List model endpoint capabilities
+      description: >-
+        Returns provider-specific endpoint rows for one model, including public
+        paths, modalities, supported parameters, availability, routing state,
+        provider model slugs, and endpoint pricing summaries.
+      parameters:
+        - name: author
+          in: path
+          required: true
+          description: Model author or organisation segment.
+          schema:
+            type: string
+        - name: slug
+          in: path
+          required: true
+          description: Model slug segment.
+          schema:
+            type: string
+        - name: provider
+          in: query
+          description: Filter by provider id.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: provider_status
+          in: query
+          description: Filter by provider rollout status.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: provider_routing_status
+          in: query
+          description: Filter by provider routing status.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: model_routing_status
+          in: query
+          description: Filter by model routing status.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: capability_status
+          in: query
+          description: Filter by provider capability status.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: provider_availability_status
+          in: query
+          description: Filter by provider availability status.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: provider_availability_reason
+          in: query
+          description: Filter by provider availability reason.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: status
+          in: query
+          description: Filter by canonical model lifecycle status.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: supported_parameters
+          in: query
+          description: Filter endpoint rows by supported parameter names or aliases.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: availability
+          in: query
+          description: >-
+            active returns publicly routable endpoint rows; all also includes
+            coming-soon and inactive rows.
+          schema:
+            type: string
+            enum:
+              - active
+              - all
+            default: active
+      responses:
+        '200':
+          description: Model endpoint capability rows
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelEndpointsResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Model not found for the requested availability and provider filters
           content:
             application/json:
               schema:
@@ -3420,25 +3570,16 @@ paths:
         - Gateway
       operationId: listEndpoints
       summary: List endpoints
-      description: Lists currently exposed gateway endpoint IDs and sample models.
+      description: >-
+        Lists capability-backed gateway endpoint IDs with public paths, modality
+        collections, model counts, provider counts, and sample models.
       responses:
         '200':
           description: Endpoint metadata
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  ok:
-                    type: boolean
-                  endpoints:
-                    type: array
-                    items:
-                      type: string
-                  sample_models:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/ModelId'
+                $ref: '#/components/schemas/EndpointCatalogueResponse'
 tags:
   - name: Gateway
     description: Core Phaseo Gateway operations.
@@ -3839,6 +3980,9 @@ components:
         api_provider_name:
           type: string
           nullable: true
+        provider_model_slug:
+          type: string
+          nullable: true
         is_active_gateway:
           type: boolean
         availability_status:
@@ -3917,6 +4061,14 @@ components:
           type: string
           nullable: true
         endpoints:
+          type: array
+          items:
+            type: string
+        input_modalities:
+          type: array
+          items:
+            type: string
+        output_modalities:
           type: array
           items:
             type: string
@@ -4055,8 +4207,9 @@ components:
           type: array
           description: >
             Tool definitions for model function calls and gateway server tools.
-            Built-in gateway server tools are `gateway:datetime`,
-            `gateway:web_search`, and `gateway:web_fetch`.
+            Built-in server tools include datetime, web search, web fetch,
+            Advisor, Subagent, Fusion, model search, image generation, and patch
+            creation.
           items:
             $ref: '#/components/schemas/TextGenerateTool'
         max_tool_calls:
@@ -4387,6 +4540,7 @@ components:
         type:
           type: string
           enum:
+            - phaseo:datetime
             - gateway:datetime
         parameters:
           type: object
@@ -4410,6 +4564,7 @@ components:
         type:
           type: string
           enum:
+            - phaseo:web_search
             - gateway:web_search
         parameters:
           type: object
@@ -4444,6 +4599,7 @@ components:
         type:
           type: string
           enum:
+            - phaseo:web_fetch
             - gateway:web_fetch
         parameters:
           type: object
@@ -4451,12 +4607,12 @@ components:
             max_chars:
               type: integer
               minimum: 1
-              maximum: 50000
+              maximum: 100000
           additionalProperties: false
         max_chars:
           type: integer
           minimum: 1
-          maximum: 50000
+          maximum: 100000
       additionalProperties: false
     TextGenerateTool:
       oneOf:
@@ -4464,17 +4620,76 @@ components:
         - $ref: '#/components/schemas/GatewayDatetimeToolDefinition'
         - $ref: '#/components/schemas/GatewayWebSearchToolDefinition'
         - $ref: '#/components/schemas/GatewayWebFetchToolDefinition'
+        - $ref: '#/components/schemas/SubagentToolDefinition'
+        - $ref: '#/components/schemas/FusionToolDefinition'
+        - $ref: '#/components/schemas/SearchModelsToolDefinition'
+    SubagentToolDefinition:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - phaseo:subagent
+        parameters:
+          type: object
+          additionalProperties: true
+    FusionToolDefinition:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - phaseo:fusion
+        parameters:
+          type: object
+          required:
+            - analysis_models
+          properties:
+            analysis_models:
+              type: array
+              minItems: 2
+              maxItems: 8
+              items:
+                type: string
+            model:
+              type: string
+          additionalProperties: true
+    SearchModelsToolDefinition:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - phaseo:search_models
+        parameters:
+          type: object
+          properties:
+            max_results:
+              type: integer
+              minimum: 1
+              maximum: 20
     TextToolChoice:
       description: >
-        Tool selection strategy. `gateway:datetime`, `gateway:web_search`, and
-        `gateway:web_fetch` are accepted and rewritten by the gateway into
-        upstream function/tool targets.
+        Tool selection strategy. Phaseo server-tool types are accepted and
+        rewritten into upstream function/tool targets.
       oneOf:
         - type: string
           enum:
             - auto
             - none
             - required
+            - phaseo:datetime
+            - phaseo:web_search
+            - phaseo:web_fetch
+            - phaseo:subagent
+            - phaseo:fusion
+            - phaseo:search_models
             - gateway:datetime
             - gateway:web_search
             - gateway:web_fetch
@@ -4488,7 +4703,25 @@ components:
         web_search_requests:
           type: integer
           minimum: 0
+        subagent_requests:
+          type: integer
+          minimum: 0
+        fusion_requests:
+          type: integer
+          minimum: 0
+        search_models_requests:
+          type: integer
+          minimum: 0
         web_fetch_requests:
+          type: integer
+          minimum: 0
+        advisor_requests:
+          type: integer
+          minimum: 0
+        image_generation_requests:
+          type: integer
+          minimum: 0
+        apply_patch_requests:
           type: integer
           minimum: 0
       additionalProperties: false
@@ -4649,21 +4882,21 @@ components:
           minimum: 1
         tools:
           type: array
-          description: >
-            Anthropic-compatible tools plus gateway server tools. The only
-            built-in gateway server tools are `gateway:datetime`,
-            `gateway:web_search`, and `gateway:web_fetch`.
+          description: |
+            Anthropic-compatible tools plus gateway-managed server tools.
           items:
             oneOf:
               - $ref: '#/components/schemas/AnthropicTool'
               - $ref: '#/components/schemas/GatewayDatetimeToolDefinition'
               - $ref: '#/components/schemas/GatewayWebSearchToolDefinition'
               - $ref: '#/components/schemas/GatewayWebFetchToolDefinition'
+              - $ref: '#/components/schemas/SubagentToolDefinition'
+              - $ref: '#/components/schemas/FusionToolDefinition'
+              - $ref: '#/components/schemas/SearchModelsToolDefinition'
         tool_choice:
           description: >
-            Anthropic tool choice object/string. `gateway:datetime`,
-            `gateway:web_search`, and `gateway:web_fetch` are also accepted and
-            rewritten by the gateway.
+            Anthropic tool choice object/string. Gateway-managed server tool
+            names are also accepted and rewritten by the gateway.
           oneOf:
             - type: object
             - type: string
@@ -5567,6 +5800,39 @@ components:
           type: string
         language:
           type: string
+        chunking_strategy:
+          oneOf:
+            - type: string
+              enum:
+                - auto
+            - type: object
+              required:
+                - type
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - server_vad
+                prefix_padding_ms:
+                  type: integer
+                  minimum: 0
+                silence_duration_ms:
+                  type: integer
+                  minimum: 0
+                threshold:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+        known_speaker_names:
+          type: array
+          maxItems: 4
+          items:
+            type: string
+        known_speaker_references:
+          type: array
+          maxItems: 4
+          items:
+            type: string
         provider:
           $ref: '#/components/schemas/ProviderRoutingOptions'
     AudioTranscriptionResponse:
@@ -6469,9 +6735,16 @@ components:
             $ref: '#/components/schemas/BatchRequestItem'
         endpoint:
           type: string
+          enum:
+            - /v1/chat/completions
+            - /v1/responses
+            - /v1/messages
+            - /v1/embeddings
+            - /v1/generateContent
           description: >-
-            Optional provider endpoint path. Phaseo chooses a default from the
-            model when omitted.
+            Caller-facing request shape. Every request in a batch uses this
+            endpoint. Phaseo chooses a provider-native default from the model
+            when omitted.
         completion_window:
           type: string
         metadata:
@@ -6532,9 +6805,13 @@ components:
         method:
           type: string
           default: POST
+          enum:
+            - POST
         url:
           type: string
-          description: Provider endpoint path. Defaults to the parent batch endpoint.
+          description: >-
+            Endpoint path for this row. When supplied, it must match the parent
+            batch endpoint. Defaults to the parent batch endpoint.
         body:
           type: object
           additionalProperties: true
@@ -6570,6 +6847,22 @@ components:
         notes:
           type: string
           nullable: true
+        endpoints:
+          type: array
+          description: Batch endpoints supported by this provider.
+          items:
+            type: object
+            required:
+              - endpoint
+              - mode
+            properties:
+              endpoint:
+                type: string
+              mode:
+                type: string
+                enum:
+                  - native
+                  - translated
     BatchRequestRow:
       type: object
       properties:
@@ -6738,6 +7031,30 @@ components:
           items:
             type: object
             additionalProperties: true
+        usage:
+          type: object
+          description: Normalised aggregate usage and cost after finalisation.
+          properties:
+            requests:
+              type: integer
+              nullable: true
+            input_tokens:
+              type: integer
+              nullable: true
+            output_tokens:
+              type: integer
+              nullable: true
+            total_tokens:
+              type: integer
+              nullable: true
+            cost_nanos:
+              type: integer
+              nullable: true
+            cost_usd:
+              type: number
+              nullable: true
+            currency:
+              type: string
         billing:
           $ref: '#/components/schemas/BatchBillingSummary'
     BatchListResponse:
@@ -8384,6 +8701,203 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Model'
+      additionalProperties: false
+    ModelEndpointCapability:
+      type: object
+      required:
+        - id
+        - endpoint
+        - capability_id
+        - public_path
+        - collection
+        - provider_id
+        - is_active_gateway
+        - availability_status
+        - availability_reason
+        - provider_status
+        - provider_routing_status
+        - model_routing_status
+        - capability_status
+        - input_modalities
+        - output_modalities
+        - supported_parameters
+        - supported_parameters_detail
+        - pricing
+        - pricing_detail
+      properties:
+        id:
+          type: string
+          example: openai:responses
+        endpoint:
+          type: string
+          example: responses
+        capability_id:
+          type: string
+          example: responses
+        public_path:
+          type: string
+          example: /v1/responses
+        collection:
+          type: string
+          enum:
+            - text
+            - images
+            - video
+            - audio
+            - embeddings
+            - rerank
+            - moderation
+            - ocr
+            - music
+            - batch
+            - files
+        provider_id:
+          type: string
+          example: openai
+        provider_name:
+          type: string
+          nullable: true
+          example: OpenAI
+        provider_model_slug:
+          type: string
+          nullable: true
+          example: gpt-5.4-mini
+        input_modalities:
+          type: array
+          items:
+            type: string
+        output_modalities:
+          type: array
+          items:
+            type: string
+        is_active_gateway:
+          type: boolean
+        availability_status:
+          type: string
+          enum:
+            - active
+            - coming_soon
+            - inactive
+        availability_reason:
+          type: string
+        provider_status:
+          type: string
+        provider_routing_status:
+          type: string
+        model_routing_status:
+          type: string
+        capability_status:
+          type: string
+        effective_from:
+          type: string
+          nullable: true
+        effective_to:
+          type: string
+          nullable: true
+        supported_parameters:
+          type: array
+          items:
+            type: string
+        supported_parameters_detail:
+          $ref: '#/components/schemas/SupportedParameterDetails'
+        pricing:
+          type: object
+          additionalProperties:
+            type: string
+            nullable: true
+        pricing_detail:
+          type: object
+          additionalProperties: true
+    ModelEndpointsResponse:
+      type: object
+      required:
+        - ok
+        - id
+        - model_id
+        - canonical_slug
+        - availability_mode
+        - endpoints
+      properties:
+        ok:
+          type: boolean
+          enum:
+            - true
+        id:
+          type: string
+        model_id:
+          type: string
+        canonical_slug:
+          type: string
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+        created:
+          type: integer
+          nullable: true
+        architecture:
+          type: object
+          additionalProperties: true
+        availability_mode:
+          type: string
+          enum:
+            - active
+            - all
+        endpoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelEndpointCapability'
+      additionalProperties: false
+    EndpointCatalogueEntry:
+      type: object
+      required:
+        - id
+        - capability_id
+        - public_path
+        - collection
+        - model_count
+        - provider_count
+      properties:
+        id:
+          type: string
+        capability_id:
+          type: string
+        public_path:
+          type: string
+        collection:
+          type: string
+        model_count:
+          type: integer
+          minimum: 0
+        provider_count:
+          type: integer
+          minimum: 0
+      additionalProperties: false
+    EndpointCatalogueResponse:
+      type: object
+      required:
+        - ok
+        - endpoints
+        - data
+        - sample_models
+      properties:
+        ok:
+          type: boolean
+          enum:
+            - true
+        endpoints:
+          type: array
+          items:
+            type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/EndpointCatalogueEntry'
+        sample_models:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelId'
       additionalProperties: false
     InvalidRequestResponse:
       type: object

@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createClient, type Session } from "@supabase/supabase-js";
+import "react-native-url-polyfill/auto";
+import { createClient, processLock, type Session } from "@supabase/supabase-js";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Constants from "expo-constants";
 import * as Linking from "expo-linking";
@@ -24,14 +25,17 @@ WebBrowser.maybeCompleteAuthSession();
 
 const extras = Constants.expoConfig?.extra as Record<string, string | undefined> | undefined;
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? extras?.supabaseUrl;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? extras?.supabaseAnonKey;
+const supabasePublishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  ?? process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+  ?? extras?.supabasePublishableKey
+  ?? extras?.supabaseAnonKey;
 const storage = {
   getItem: (key: string) => SecureStore.getItemAsync(key),
   setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
   removeItem: (key: string) => SecureStore.deleteItemAsync(key)
 };
-export const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey, {
-  auth: { storage, autoRefreshToken: true, persistSession: true, detectSessionInUrl: false }
+export const supabase = supabaseUrl && supabasePublishableKey ? createClient(supabaseUrl, supabasePublishableKey, {
+  auth: { storage, autoRefreshToken: true, persistSession: true, detectSessionInUrl: false, lock: processLock }
 }) : null;
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 60_000, retry: 1, networkMode: "offlineFirst" } } });

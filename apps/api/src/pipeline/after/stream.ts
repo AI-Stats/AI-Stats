@@ -39,6 +39,7 @@ import {
 } from "../execute/sticky-routing";
 import { applyResponsePlugins } from "@/plugins/registry";
 import { applySuccessfulResponseBillingPolicy, suppressFailedResponseBilling } from "./billing-policy";
+import { calculateOutputPerformanceMetrics } from "./performance-metrics";
 
 function shouldAttachRoutingDiagnostics(ctx: PipelineContext): boolean {
 	return Boolean(ctx.meta?.debug?.enabled || ctx.meta?.returnRoutingDiagnostics);
@@ -100,18 +101,31 @@ function attachStreamTimingMeta(args: {
 
     const generationMs = ctx.meta.generation_ms;
     const tokensOut = getUsageOutputTokens(usage);
+    const calculated = calculateOutputPerformanceMetrics({
+        outputTokens: tokensOut,
+        providerDurationMs: generationMs,
+        providerTtftMs: ctx.meta.provider_ttft_ms ?? null,
+        gatewayE2eMs: ctx.meta.end_to_end_ms ?? null,
+    });
     const throughputTps =
-        typeof ctx.meta.throughput_tps === "number"
-            ? ctx.meta.throughput_tps
-            : generationMs > 0 && tokensOut > 0
-                ? tokensOut / (generationMs / 1000)
-                : null;
+        ctx.meta.throughput_tps ?? calculated.effectiveThroughputTps;
+    ctx.meta.throughput_tps ??= calculated.effectiveThroughputTps ?? undefined;
+    ctx.meta.output_speed_tps ??= calculated.outputSpeedTps ?? undefined;
+    ctx.meta.tpot_ms ??= calculated.tpotMs ?? undefined;
+    ctx.meta.itl_ms ??= calculated.itlMs ?? undefined;
+    ctx.meta.phaseo_overhead_ms ??= calculated.phaseoOverheadMs ?? undefined;
 
     frame.meta = {
         ...frame.meta,
         throughput_tps: throughputTps,
+        output_speed_tps: ctx.meta.output_speed_tps ?? null,
         generation_ms: generationMs,
 		latency_ms: ctx.meta.latency_ms ?? null,
+        provider_ttft_ms: ctx.meta.provider_ttft_ms ?? null,
+        gateway_ttft_ms: ctx.meta.gateway_ttft_ms ?? null,
+        tpot_ms: ctx.meta.tpot_ms ?? null,
+        itl_ms: ctx.meta.itl_ms ?? null,
+        phaseo_overhead_ms: ctx.meta.phaseo_overhead_ms ?? null,
         end_to_end_ms: ctx.meta.end_to_end_ms ?? null,
     };
     const responsePayload =
@@ -131,6 +145,12 @@ function attachStreamTimingMeta(args: {
             generation_ms: generationMs,
             end_to_end_ms: ctx.meta.end_to_end_ms ?? null,
             throughput_tps: throughputTps,
+            output_speed_tps: ctx.meta.output_speed_tps ?? null,
+            provider_ttft_ms: ctx.meta.provider_ttft_ms ?? null,
+            gateway_ttft_ms: ctx.meta.gateway_ttft_ms ?? null,
+            tpot_ms: ctx.meta.tpot_ms ?? null,
+            itl_ms: ctx.meta.itl_ms ?? null,
+            phaseo_overhead_ms: ctx.meta.phaseo_overhead_ms ?? null,
         };
     }
     if (frame.meta && typeof frame.meta === "object" && "finish_reason" in frame.meta) {
@@ -823,8 +843,6 @@ export async function handleStreamResponse(
 export function handlePassthroughFallback(upstream: Response): Response {
     return passthrough(upstream);
 }
-
-
 
 
 

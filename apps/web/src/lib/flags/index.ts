@@ -10,6 +10,7 @@ import {
 	REALTIME_VOICE_GATE,
 	GATEWAY_IO_LOGGING_GATE,
 	SAML_SSO_GATE,
+	CATALOGUE_GAMES_PREVIEW_GATE,
 	NEW_LANDING_PAGE_EXPERIMENT,
 	NEW_LANDING_PAGE_GATE,
 	type GatewayHeroVariant,
@@ -99,5 +100,16 @@ export const realtimeVoiceFlag = statsigAdapter
 		})
 	: flag<boolean>({
 			key: REALTIME_VOICE_GATE,
+			decide: () => false,
+		});
+
+export const catalogueGamesPreviewFlag = statsigAdapter
+	? flag<boolean, StatsigUser>({
+			key: CATALOGUE_GAMES_PREVIEW_GATE,
+			identify,
+			adapter: statsigAdapter.featureGate((gate) => gate.value),
+		})
+	: flag<boolean>({
+			key: CATALOGUE_GAMES_PREVIEW_GATE,
 			decide: () => false,
 		});

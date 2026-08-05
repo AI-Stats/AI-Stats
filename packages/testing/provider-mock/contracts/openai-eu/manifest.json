@@ -107,6 +107,7 @@
       "method": "post",
       "path": "/rerank",
       "operationId": "openai_rerank_1",
+      "sourceOverlay": true,
       "notes": "Derived from the enabled Phaseo executor URL and provider API reference."
     }
   ],

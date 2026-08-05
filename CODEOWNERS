@@ -1,1 +1,7 @@
 * @DanielButler1
+
+# Production database changes and their deployment boundary require owner review.
+/supabase/migrations/ @DanielButler1
+/supabase/config.toml @DanielButler1
+/.github/workflows/ci.yml @DanielButler1
+/scripts/validate-supabase-migrations.mjs @DanielButler1

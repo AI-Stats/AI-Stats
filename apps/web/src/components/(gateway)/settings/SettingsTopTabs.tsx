@@ -236,7 +236,6 @@ export default function SettingsTopTabs({
 						<Link
 							key={t.href}
 							href={t.href}
-							prefetch={false}
 							aria-current={isActive ? "page" : undefined}
 							ref={(el) => {
 								tabRefs.current[t.href] = el;

@@ -232,6 +232,9 @@ type AudioSpeechRequest struct {
 type AudioTranscriptionRequest struct {
 	AudioB64 *string `json:"audio_b64,omitempty"`
 	AudioUrl *string `json:"audio_url,omitempty"`
+	ChunkingStrategy interface{} `json:"chunking_strategy,omitempty"`
+	KnownSpeakerNames *[]string `json:"known_speaker_names,omitempty"`
+	KnownSpeakerReferences *[]string `json:"known_speaker_references,omitempty"`
 	Language *string `json:"language,omitempty"`
 	Model string `json:"model"`
 	Provider *map[string]interface{} `json:"provider,omitempty"`
@@ -316,6 +319,7 @@ type BatchModelsResponse struct {
 
 type BatchProviderCapability struct {
 	DocumentationUrl *string `json:"documentation_url,omitempty"`
+	Endpoints *[]map[string]interface{} `json:"endpoints,omitempty"`
 	GatewayInputModes *[]string `json:"gateway_input_modes,omitempty"`
 	Id *string `json:"id,omitempty"`
 	Name *string `json:"name,omitempty"`
@@ -415,6 +419,7 @@ type BatchResponse struct {
 	RequestId *string `json:"request_id,omitempty"`
 	SessionId *string `json:"session_id,omitempty"`
 	Status *string `json:"status,omitempty"`
+	Usage *map[string]interface{} `json:"usage,omitempty"`
 	Webhook *map[string]interface{} `json:"webhook,omitempty"`
 	WebsocketUrl *string `json:"websocket_url,omitempty"`
 }
@@ -1225,6 +1230,22 @@ type EmbeddingsResponse struct {
 	Usage *map[string]interface{} `json:"usage,omitempty"`
 }
 
+type EndpointCatalogueEntry struct {
+	CapabilityId string `json:"capability_id"`
+	Collection string `json:"collection"`
+	Id string `json:"id"`
+	ModelCount int `json:"model_count"`
+	ProviderCount int `json:"provider_count"`
+	PublicPath string `json:"public_path"`
+}
+
+type EndpointCatalogueResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	Endpoints []string `json:"endpoints"`
+	Ok string `json:"ok"`
+	SampleModels []string `json:"sample_models"`
+}
+
 type ErrorFailureSampleItem struct {
 	Provider *string `json:"provider,omitempty"`
 	Retryable *bool `json:"retryable,omitempty"`
@@ -1312,6 +1333,11 @@ type FileUploadRequest struct {
 
 type FunctionToolDefinition struct {
 	Function map[string]interface{} `json:"function"`
+	Type string `json:"type"`
+}
+
+type FusionToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
 	Type string `json:"type"`
 }
 
@@ -2012,6 +2038,45 @@ type ModelAvailability struct {
 	Status string `json:"status"`
 }
 
+type ModelEndpointCapability struct {
+	AvailabilityReason string `json:"availability_reason"`
+	AvailabilityStatus string `json:"availability_status"`
+	CapabilityId string `json:"capability_id"`
+	CapabilityStatus string `json:"capability_status"`
+	Collection string `json:"collection"`
+	EffectiveFrom *string `json:"effective_from,omitempty"`
+	EffectiveTo *string `json:"effective_to,omitempty"`
+	Endpoint string `json:"endpoint"`
+	Id string `json:"id"`
+	InputModalities []string `json:"input_modalities"`
+	IsActiveGateway bool `json:"is_active_gateway"`
+	ModelRoutingStatus string `json:"model_routing_status"`
+	OutputModalities []string `json:"output_modalities"`
+	Pricing map[string]interface{} `json:"pricing"`
+	PricingDetail map[string]interface{} `json:"pricing_detail"`
+	ProviderId string `json:"provider_id"`
+	ProviderModelSlug *string `json:"provider_model_slug,omitempty"`
+	ProviderName *string `json:"provider_name,omitempty"`
+	ProviderRoutingStatus string `json:"provider_routing_status"`
+	ProviderStatus string `json:"provider_status"`
+	PublicPath string `json:"public_path"`
+	SupportedParameters []string `json:"supported_parameters"`
+	SupportedParametersDetail map[string]interface{} `json:"supported_parameters_detail"`
+}
+
+type ModelEndpointsResponse struct {
+	Architecture *map[string]interface{} `json:"architecture,omitempty"`
+	AvailabilityMode string `json:"availability_mode"`
+	CanonicalSlug string `json:"canonical_slug"`
+	Created *int `json:"created,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Endpoints []map[string]interface{} `json:"endpoints"`
+	Id string `json:"id"`
+	ModelId string `json:"model_id"`
+	Name *string `json:"name,omitempty"`
+	Ok string `json:"ok"`
+}
+
 type ModelId = string
 
 type ModelLifecycle struct {
@@ -2031,10 +2096,13 @@ type ModelProviderAvailability struct {
 	EffectiveFrom *string `json:"effective_from,omitempty"`
 	EffectiveTo *string `json:"effective_to,omitempty"`
 	Endpoints []string `json:"endpoints"`
+	InputModalities *[]string `json:"input_modalities,omitempty"`
 	IsActiveGateway bool `json:"is_active_gateway"`
 	ModelRoutingStatus string `json:"model_routing_status"`
+	OutputModalities *[]string `json:"output_modalities,omitempty"`
 	Params []string `json:"params"`
 	ParamsDetail *map[string]interface{} `json:"params_detail,omitempty"`
+	ProviderModelSlug *string `json:"provider_model_slug,omitempty"`
 	ProviderRoutingStatus string `json:"provider_routing_status"`
 	ProviderStatus string `json:"provider_status"`
 	SupportedParameters *[]string `json:"supported_parameters,omitempty"`
@@ -2392,10 +2460,26 @@ type ResponsesResponse struct {
 	Usage *map[string]interface{} `json:"usage,omitempty"`
 }
 
+type SearchModelsToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
+	Type string `json:"type"`
+}
+
 type ServerToolUsage struct {
+	AdvisorRequests *int `json:"advisor_requests,omitempty"`
+	ApplyPatchRequests *int `json:"apply_patch_requests,omitempty"`
 	DatetimeRequests *int `json:"datetime_requests,omitempty"`
+	FusionRequests *int `json:"fusion_requests,omitempty"`
+	ImageGenerationRequests *int `json:"image_generation_requests,omitempty"`
+	SearchModelsRequests *int `json:"search_models_requests,omitempty"`
+	SubagentRequests *int `json:"subagent_requests,omitempty"`
 	WebFetchRequests *int `json:"web_fetch_requests,omitempty"`
 	WebSearchRequests *int `json:"web_search_requests,omitempty"`
+}
+
+type SubagentToolDefinition struct {
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
+	Type string `json:"type"`
 }
 
 type SupportedParameterDetails struct {

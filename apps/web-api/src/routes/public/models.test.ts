@@ -472,7 +472,7 @@ describe("public model routes", () => {
 			if (url.includes("/rpc/get_v2_model_benchmarks")) {
 				return new Response(JSON.stringify([{ result_id: "result-1", benchmark_id: "mmlu", score: "0.85", score_numeric: 0.85, is_self_reported: false, other_info: null, source_link: "https://example.com", result_rank: 2, benchmark_name: "MMLU", total_models: 50, ascending_order: true, benchmark_type: "percentage" }]), { status: 200 });
 			}
-			if (url.includes("/rpc/get_v2_model_performance_overview")) {
+			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
 				return new Response(JSON.stringify({ last_24h: { total_requests: 42 }, hourly_24h: [], provider_uptime_24h: [], provider_daily_7d: [] }), { status: 200 });
 			}
 			if (url.includes("benchmark_results")) {
@@ -502,7 +502,7 @@ describe("public model routes", () => {
 	it("never exposes a synthetic unknown provider in performance data", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("/rpc/get_v2_model_performance_overview")) {
+			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
 				return new Response(JSON.stringify({
 					last_24h: { total_requests: 12, successful_requests: 11 },
 					hourly_24h: [],
@@ -519,28 +519,21 @@ describe("public model routes", () => {
 			if (url.includes("/rpc/get_v2_model_provider_health_metrics")) {
 				return new Response(JSON.stringify([]), { status: 200 });
 			}
-			if (url.includes("/rpc/get_v2_model_provider_percentile_series")) {
-				return new Response(JSON.stringify([{
+			if (url.includes("/rpc/get_v2_model_provider_percentile_series_v2")) {
+				return new Response(JSON.stringify([50, 75, 90, 95, 99].map((percentile) => ({
 					usage_day: "2026-07-23",
 					provider_id: "poolside",
 					provider_name: "Poolside",
 					requests: 11,
-					latency_p50: 230,
-					latency_p75: 280,
-					latency_p90: 600,
-					latency_p95: 900,
-					latency_p99: 1300,
-					generation_p50: 500,
-					generation_p75: 650,
-					generation_p90: 900,
-					generation_p95: 1200,
-					generation_p99: 1800,
-					throughput_p50: 8.5,
-					throughput_p75: 9.2,
-					throughput_p90: 11.3,
-					throughput_p95: 13.4,
-					throughput_p99: 14.8,
-				}]), { status: 200 });
+					percentile,
+					gateway_ttft_ms: percentile === 95 ? 900 : 230,
+					provider_duration_ms: percentile === 95 ? 1200 : 500,
+					effective_throughput_tps: percentile === 95 ? 13.4 : 8.5,
+					output_speed_tps: percentile === 95 ? 15.2 : 9.1,
+					phaseo_overhead_ms: percentile === 95 ? 45 : 20,
+					tpot_ms: percentile === 95 ? 65 : 110,
+					itl_ms: percentile === 95 ? 65 : 110,
+				}))), { status: 200 });
 			}
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
@@ -582,7 +575,7 @@ describe("public model routes", () => {
 		let percentileRpcCalls = 0;
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("/rpc/get_v2_model_performance_overview")) {
+			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
 				return new Response(JSON.stringify({
 					last_24h: { total_requests: 12, successful_requests: 11 },
 					hourly_24h: [],
@@ -598,7 +591,7 @@ describe("public model routes", () => {
 			if (url.includes("/rpc/get_v2_model_provider_health_metrics")) {
 				return new Response(JSON.stringify([]), { status: 200 });
 			}
-			if (url.includes("/rpc/get_v2_model_provider_percentile_series")) {
+			if (url.includes("/rpc/get_v2_model_provider_percentile_series_v2")) {
 				percentileRpcCalls += 1;
 			}
 			return new Response(JSON.stringify([]), { status: 200 });
@@ -614,6 +607,41 @@ describe("public model routes", () => {
 		expect(response.status).toBe(200);
 		expect(percentileRpcCalls).toBe(0);
 		expect(payload.metrics.providerPercentileDaily7d).toEqual([]);
+	});
+
+	it("does not replace a filtered cohort with all-traffic provider health", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
+				return new Response(JSON.stringify({
+					last_24h: { total_requests: 1, successful_requests: 1 },
+					hourly_24h: [],
+					provider_uptime_24h: [{ provider: "filtered", requests: 1 }],
+					provider_daily_7d: [],
+				}), { status: 200 });
+			}
+			if (url.includes("/rpc/get_v2_model_provider_health_metrics")) {
+				return new Response(JSON.stringify([
+					{ provider_id: "all-traffic", health_requests: 100 },
+				]), { status: 200 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/test%2Fmodel/performance?stream=stream",
+			{},
+			env,
+		);
+		const payload = await response.json() as any;
+
+		expect(response.status).toBe(200);
+		expect(payload.performance.provider_uptime_24h).toEqual([
+			expect.objectContaining({ provider: "filtered" }),
+		]);
+		expect(payload.performance.provider_uptime_24h).not.toContainEqual(
+			expect.objectContaining({ provider: "all-traffic" }),
+		);
 	});
 
 	it("returns compact gateway availability without loading full metadata", async () => {

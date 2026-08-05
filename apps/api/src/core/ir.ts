@@ -515,6 +515,14 @@ export type IRAudioTranscriptionRequest = {
 	responseFormat?: string;
 	timestampGranularities?: Array<"word" | "segment">;
 	include?: string[];
+	chunkingStrategy?: "auto" | {
+		type: "server_vad";
+		prefix_padding_ms?: number;
+		silence_duration_ms?: number;
+		threshold?: number;
+	};
+	knownSpeakerNames?: string[];
+	knownSpeakerReferences?: string[];
 	rawRequest?: any;
 };
 
@@ -746,6 +754,9 @@ export type IRUsage = {
 			web_search_extra_results?: number;
 			web_fetch_requests?: number;
 			advisor_requests?: number;
+			subagent_requests?: number;
+			fusion_requests?: number;
+			search_models_requests?: number;
 			image_generation_requests?: number;
 			apply_patch_requests?: number;
 		};
@@ -918,7 +929,6 @@ export function hasToolCalls(message: IRMessage): boolean {
 export function countTotalTokens(usage?: IRUsage): number {
 	return usage?.totalTokens ?? 0;
 }
-
 
 
 

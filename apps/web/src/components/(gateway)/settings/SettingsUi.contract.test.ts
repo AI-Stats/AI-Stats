@@ -84,6 +84,10 @@ describe("settings UI contracts", () => {
 		expect(menuSource).toContain('value="personal"');
 		expect(menuSource).toContain('value="workspace"');
 		expect(menuSource.match(/closeOnClick=\{false\}/g)).toHaveLength(2);
+		expect(
+			menuSource.match(/dropdown-menu-radio-item-indicator/g),
+		).toHaveLength(2);
+		expect(menuSource).not.toContain("My account");
 		expect(menuSource).not.toContain('<Link href="/settings/profile"');
 		expect(menuSource).not.toContain('<Link href="/settings/workspaces/settings"');
 		expect(menuSource).toContain('"Close settings menu"');
@@ -96,7 +100,7 @@ describe("settings UI contracts", () => {
 		expect(menuSource).toContain('className="flex items-center lg:hidden"');
 		expect(menuSource).toContain("const Icon = item.icon");
 		expect(menuSource).toContain("<Icon className=");
-		expect(menuSource).toContain("My account");
+		expect(menuSource).toContain("Account");
 		expect(menuSource).toContain("Workspace");
 		expect(menuSource).toContain("visibleGroups.map");
 		expect(menuSource).toContain("<DropdownMenuGroup key=");

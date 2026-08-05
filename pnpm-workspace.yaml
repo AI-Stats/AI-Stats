@@ -25,3 +25,6 @@ minimumReleaseAgeExclude:
   - "expo-*"
   - "eslint-config-expo"
   - "jest-expo"
+  - "@next/*"
+  - "eslint-config-next"
+  - "next"
