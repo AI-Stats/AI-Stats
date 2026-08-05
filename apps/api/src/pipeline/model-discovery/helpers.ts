@@ -169,8 +169,8 @@ export function collapseDiscordPricingChanges(changes: PricingProviderChange[]):
 	for (const change of changes) {
 		const family = discordProviderFamily(change.providerId);
 		const current = grouped.get(family.providerId) ?? { providerId: family.providerName, updates: 0, samples: [] };
+		current.updates += change.updates;
 		current.samples = Array.from(new Set([...current.samples, ...change.samples])).sort();
-		current.updates = current.samples.length;
 		grouped.set(family.providerId, current);
 	}
 	return Array.from(grouped.values());
