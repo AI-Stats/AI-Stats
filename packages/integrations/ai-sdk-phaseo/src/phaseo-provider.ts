@@ -158,4 +158,3 @@ export function createPhaseo(settings: PhaseoSettings = {}): PhaseoProvider {
 
   return provider as PhaseoProvider;
 }
-

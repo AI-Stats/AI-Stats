@@ -4,7 +4,6 @@ function asNumber(value: unknown): number | undefined {
 	if (typeof value !== "number" || Number.isNaN(value)) return undefined;
 	return value;
 }
-
 function firstNumber(...values: unknown[]): number | undefined {
 	for (const value of values) {
 		const num = asNumber(value);

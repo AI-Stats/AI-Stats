@@ -36,4 +36,3 @@ export function mapGatewayFinishReason(
     raw: finishReason ?? undefined,
   };
 }
-

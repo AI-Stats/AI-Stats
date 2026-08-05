@@ -5,7 +5,6 @@ type AnyRecord = Record<string, unknown>;
 function asRecord(value: unknown): AnyRecord | undefined {
   return value != null && typeof value === 'object' ? (value as AnyRecord) : undefined;
 }
-
 function readString(record: AnyRecord | undefined, key: string): string | undefined {
   const value = record?.[key];
   return typeof value === 'string' && value.length > 0 ? value : undefined;

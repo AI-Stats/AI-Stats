@@ -102,4 +102,3 @@ export class PhaseoEmbeddingModel implements EmbeddingModelV4 {
     };
   }
 }
-
