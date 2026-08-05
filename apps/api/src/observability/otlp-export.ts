@@ -29,7 +29,7 @@ type OutboxRow = {
 
 const MAX_RESPONSE_BYTES = 4 * 1024 * 1024;
 const MAX_ATTEMPTS = 8;
-const RETRYABLE_STATUS = new Set([429, 502, 503, 504]);
+const RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
 
 function object(value: unknown): Record<string, any> {
 	return value && typeof value === "object" && !Array.isArray(value)
@@ -355,7 +355,7 @@ export async function deliverGatewayOtlpPayload(
 	}
 	const partialMessage = String(partial.errorMessage ?? partial.error_message ?? "").slice(0, 1_000);
 	return {
-		delivered: response.ok,
+		delivered: false,
 		retryable: !response.ok && RETRYABLE_STATUS.has(response.status),
 		status: response.status,
 		delayMs: retryDelayMs(attempts, response.headers.get("retry-after")),

@@ -48,7 +48,7 @@ describe("deliverGatewayOtlpPayload", () => {
 			{ endpoint: "https://collector.example.com" },
 		);
 		expect(result).toMatchObject({
-			delivered: true,
+			delivered: false,
 			retryable: false,
 			error: "OTLP partial success rejected 2 spans: invalid attributes",
 		});

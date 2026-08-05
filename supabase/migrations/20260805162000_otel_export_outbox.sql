@@ -52,7 +52,7 @@ begin
     update public.otel_export_outbox outbox
     set status = 'processing',
         attempts = attempts + 1,
-        lease_expires_at = now() + interval '2 minutes',
+        lease_expires_at = now() + interval '15 minutes',
         updated_at = now()
     from candidates
     where outbox.id = candidates.id
