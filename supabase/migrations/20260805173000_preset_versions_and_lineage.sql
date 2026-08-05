@@ -177,7 +177,14 @@ declare p public.presets%rowtype; next_number integer; next_label text; date_bas
 begin
   select * into p from public.presets where id = target_preset_id and archived_at is null for update;
   if not found then raise exception 'preset_not_found'; end if;
-  if p.created_by <> actor_user_id then raise exception 'preset_publish_forbidden'; end if;
+  if p.created_by <> actor_user_id and (
+    coalesce(p.draft_visibility, p.visibility) = 'private' or not exists (
+      select 1 from public.workspace_members member
+      where member.workspace_id = p.workspace_id
+        and member.user_id = actor_user_id
+        and member.role in ('owner', 'admin')
+    )
+  ) then raise exception 'preset_publish_forbidden'; end if;
   select coalesce(max(version_number), 0) + 1 into next_number from public.preset_versions where preset_id = p.id;
   if p.versioning_method = 'semver' then
     next_label := regexp_replace(trim(coalesce(requested_label, '')), '^v', '');
@@ -244,8 +251,8 @@ do $migration$
 declare definition text; patched text;
 begin
   select pg_get_functiondef('public.gateway_fetch_request_context(uuid,text,text,uuid)'::regprocedure) into definition;
-  patched := replace(definition, 'where p.slug = preset_name', 'where p.archived_at is null and p.slug = preset_name');
-  patched := replace(patched, 'where coalesce(nullif(p.slug, ''''), regexp_replace(p.name, ''^@'', '''')) = preset_name', 'where p.archived_at is null and coalesce(nullif(p.slug, ''''), regexp_replace(p.name, ''^@'', '''')) = preset_name');
+  patched := replace(definition, 'where lower(p.slug) = lower(preset_name)', 'where p.archived_at is null and lower(p.slug) = lower(preset_name)');
+  patched := replace(patched, 'where lower(coalesce(nullif(p.slug, ''''), regexp_replace(p.name, ''^@'', ''''))) = lower(preset_name)', 'where p.archived_at is null and lower(coalesce(nullif(p.slug, ''''), regexp_replace(p.name, ''^@'', ''''))) = lower(preset_name)');
   if patched = definition then raise exception 'could not add preset archival guard to gateway context'; end if;
   execute patched;
 end $migration$;

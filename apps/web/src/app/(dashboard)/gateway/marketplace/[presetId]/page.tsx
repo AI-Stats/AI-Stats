@@ -67,6 +67,7 @@ export default async function PresetMarketplaceDetailPage({
 
 	const authStatus = await fetchInternalAuthStatus();
 	const { preset, sourcePreset, versions } = detail;
+	const resolvedVersion = versions.find((version) => version.version_number === requestedVersion) ?? versions[0];
 
 	return (
 		<div className="space-y-6">
@@ -107,7 +108,7 @@ export default async function PresetMarketplaceDetailPage({
 
 				<div className="flex items-center gap-3">
 					{authStatus.signedIn ? (
-						<CopyPresetButton sourcePresetId={preset.id} />
+						<CopyPresetButton sourcePresetId={preset.id} sourceVersionId={resolvedVersion?.id} />
 					) : (
 						<Button asChild variant="outline">
 							<Link href="/sign-in">Sign in to copy</Link>
@@ -133,13 +134,13 @@ export default async function PresetMarketplaceDetailPage({
 				<CardContent className="space-y-4">
 					<div className="flex flex-wrap items-center gap-2">
 						{versions.map((version) => (
-							<Button key={version.id} size="sm" variant={requestedVersion === version.version_number || (!query.version && version === versions[0]) ? "default" : "outline"} asChild>
+							<Button key={version.id} size="sm" variant={resolvedVersion?.id === version.id ? "default" : "outline"} asChild>
 								<Link href={`/gateway/marketplace/${presetId}?version=${version.version_number}`}>{version.version_label}</Link>
 							</Button>
 						))}
 					</div>
-					{query.version && versions.find((version) => version.version_number === requestedVersion)?.release_notes && (
-						<p className="text-sm text-muted-foreground">{versions.find((version) => version.version_number === requestedVersion)?.release_notes}</p>
+					{resolvedVersion?.release_notes && (
+						<p className="text-sm text-muted-foreground">{resolvedVersion.release_notes}</p>
 					)}
 					<div className="grid gap-3 text-sm">
 						<div>

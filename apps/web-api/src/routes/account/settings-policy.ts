@@ -86,7 +86,11 @@ accountSettingsPolicyRouter.get("/presets", async (c) => {
 		if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 		const presetsResult = await context.client.from("presets").select("*").eq("workspace_id", workspaceId).is("archived_at", null).or(`visibility.neq.private,created_by.eq.${user.id}`);
 		if (presetsResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-		presets = await withPresetLifecycle(context.client, presetsResult.data ?? []).catch(() => presetsResult.data ?? []);
+		presets = await withPresetLifecycle(context.client, presetsResult.data ?? []).catch((error) => {
+			console.warn("preset_lifecycle_enrichment_failed", error);
+			return presetLifecycleFallback(presetsResult.data ?? []);
+		});
+		presets = presets.map((preset: any) => ({ ...preset, canPublish: canWritePreset(context, user.id, preset) }));
 		if (!teams.some((team) => team.id === workspaceId)) {
 			const workspaceResult = await context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle();
 			if (workspaceResult.data?.id && workspaceResult.data.name) teams.push({ id: workspaceResult.data.id, name: workspaceResult.data.name });
@@ -101,10 +105,10 @@ function presetVisibility(value: unknown) { return ["private", "team", "public"]
 function normalizePresetSlug(value: unknown) { return String(value ?? "").trim().toLowerCase().replace(/^@+/, "").replace(/[^a-z0-9._:-]+/g, "-").replace(/-{2,}/g, "-").replace(/^[-._:]+|[-._:]+$/g, ""); }
 function canWritePreset(context: AccountWorkspaceContext, userId: string, preset: { created_by?: string | null; visibility?: string | null }) { return preset.created_by === userId || (preset.visibility !== "private" && ["owner", "admin"].includes(context.role.toLowerCase())); }
 async function presetSlugConflict(client: ReturnType<typeof getDataClient>, workspaceId: string, publisherUserId: string, slug: string, visibility: string, excludeId?: string) {
-	let scoped = client.from("presets").select("id").eq("workspace_id", workspaceId).eq("slug", slug); if (excludeId) scoped = scoped.neq("id", excludeId);
+	let scoped = client.from("presets").select("id").eq("workspace_id", workspaceId).eq("slug", slug).is("archived_at", null); if (excludeId) scoped = scoped.neq("id", excludeId);
 	const workspace = await scoped.maybeSingle(); if (workspace.error) throw workspace.error; if (workspace.data) return "workspace";
 	if (visibility !== "public") return null;
-	let global = client.from("presets").select("id").eq("visibility", "public").eq("created_by", publisherUserId).eq("slug", slug); if (excludeId) global = global.neq("id", excludeId);
+	let global = client.from("presets").select("id").eq("visibility", "public").eq("created_by", publisherUserId).eq("slug", slug).is("archived_at", null); if (excludeId) global = global.neq("id", excludeId);
 	const publicResult = await global.maybeSingle(); if (publicResult.error) throw publicResult.error; return publicResult.data ? "public" : null;
 }
 async function publicPublisher(client: ReturnType<typeof getDataClient>, userId: string) {
@@ -123,6 +127,9 @@ async function withPresetLifecycle(client: ReturnType<typeof getDataClient>, row
 	}
 	return rows.map((row) => ({ ...row, name: row.draft_name ?? row.name, slug: row.draft_slug ?? row.slug, description: row.draft_description ?? row.description, config: row.draft_config ?? row.config, visibility: row.draft_visibility ?? row.visibility, latestUpstreamVersion: latestBySource.get(String(row.source_preset_id ?? "")) ?? null, hasUpstreamUpdate: Boolean(row.source_preset_id && latestBySource.get(String(row.source_preset_id))?.id !== row.upstream_version_id) }));
 }
+function presetLifecycleFallback(rows: any[]) {
+	return rows.map((row) => ({ ...row, name: row.draft_name ?? row.name, slug: row.draft_slug ?? row.slug, description: row.draft_description ?? row.description, config: row.draft_config ?? row.config, visibility: row.draft_visibility ?? row.visibility, latestUpstreamVersion: null, hasUpstreamUpdate: false }));
+}
 async function purgePresetCache(c: { executionCtx: object }, id?: string) {
 	return purgeWorkerCacheTags(c.executionCtx, ["web-api-marketplace", "web-api-marketplace-presets", ...(id ? [`web-api-marketplace-preset-${encodeURIComponent(id).replace(/%/g, "")}`] : [])]);
 }
@@ -134,7 +141,11 @@ accountSettingsPolicyRouter.get("/presets/list", async (c) => {
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const result = await context.client.from("presets").select("*").eq("workspace_id", workspaceId).is("archived_at", null).or(`visibility.neq.private,created_by.eq.${context.user.id}`).order("created_at", { ascending: false });
 	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const presets = await withPresetLifecycle(context.client, result.data ?? []).catch(() => result.data ?? []);
+	const presets = await withPresetLifecycle(context.client, result.data ?? []).catch((error) => {
+		console.warn("preset_lifecycle_enrichment_failed", error);
+		return presetLifecycleFallback(result.data ?? []);
+	});
+	for (const preset of presets) preset.canPublish = canWritePreset(context, context.user.id, preset);
 	return c.json({ presets }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -172,17 +183,24 @@ accountSettingsPolicyRouter.get("/presets/:presetId", async (c) => {
 
 accountSettingsPolicyRouter.post("/presets/:presetId/fork", async (c) => {
 	const user = await requireUser(c.req.raw, c.env); if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
-	const body: { workspaceId?: string } = await c.req.json<{ workspaceId?: string }>().catch(() => ({})); const workspaceId = String(body.workspaceId ?? "").trim();
+	const body: { workspaceId?: string; sourceVersionId?: string } = await c.req.json<{ workspaceId?: string; sourceVersionId?: string }>().catch(() => ({})); const workspaceId = String(body.workspaceId ?? "").trim();
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId }); if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const source = await context.client.from("presets").select("id,name,slug,description,config,visibility,active_version_id").eq("id", c.req.param("presetId")).is("archived_at", null).maybeSingle();
 	if (source.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); if (!source.data || source.data.visibility !== "public") return c.json({ error: "not_public" }, 404, PRIVATE_NO_STORE_HEADERS);
-	const names = await context.client.from("presets").select("name").eq("workspace_id", workspaceId); if (names.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const existing = new Set((names.data ?? []).map((row) => row.name)); const base = String(source.data.name || "@preset"); let name = base;
+	let sourceSnapshot = { id: source.data.active_version_id, name: source.data.name, slug: source.data.slug, description: source.data.description, config: source.data.config };
+	if (body.sourceVersionId) {
+		const version = await context.client.from("preset_versions").select("id,name,slug,description,config").eq("id", body.sourceVersionId).eq("preset_id", source.data.id).maybeSingle();
+		if (version.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+		if (!version.data) return c.json({ error: "invalid_source_version" }, 400, PRIVATE_NO_STORE_HEADERS);
+		sourceSnapshot = version.data;
+	}
+	const names = await context.client.from("presets").select("name").eq("workspace_id", workspaceId).is("archived_at", null); if (names.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const existing = new Set((names.data ?? []).map((row) => row.name)); const base = String(sourceSnapshot.name || "@preset"); let name = base;
 	if (existing.has(name)) { name = `${base}-copy`; for (let i = 2; existing.has(name) && i <= 20; i++) name = `${base}-copy-${i}`; }
 	if (existing.has(name)) return c.json({ error: "name_unavailable" }, 409, PRIVATE_NO_STORE_HEADERS);
-	const baseSlug = normalizePresetSlug(source.data.slug ?? name); let slug = baseSlug; let slugAttempts = 0;
+	const baseSlug = normalizePresetSlug(sourceSnapshot.slug ?? name); let slug = baseSlug; let slugAttempts = 0;
 	while (await presetSlugConflict(context.client, workspaceId, user.id, slug, "private")) { slugAttempts += 1; if (slugAttempts > 20) return c.json({ error: "slug_unavailable" }, 409, PRIVATE_NO_STORE_HEADERS); slug = `${baseSlug}-copy${slugAttempts > 1 ? `-${slugAttempts}` : ""}`; }
-	const result = await context.client.from("presets").insert({ workspace_id: workspaceId, name, slug, created_by: user.id, config: source.data.config ?? {}, visibility: "private", source_preset_id: source.data.id, source_preset_version_id: source.data.active_version_id, upstream_version_id: source.data.active_version_id, ...(source.data.description ? { description: source.data.description } : {}) }).select("id").maybeSingle();
+	const result = await context.client.from("presets").insert({ workspace_id: workspaceId, name, slug, created_by: user.id, config: sourceSnapshot.config ?? {}, visibility: "private", source_preset_id: source.data.id, source_preset_version_id: sourceSnapshot.id, upstream_version_id: sourceSnapshot.id, ...(sourceSnapshot.description ? { description: sourceSnapshot.description } : {}) }).select("id").maybeSingle();
 	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); const cache = await purgePresetCache(c, source.data.id); if (result.data?.id) await purgePresetCache(c, result.data.id);
 	return c.json({ id: result.data?.id, name, cache }, 200, PRIVATE_NO_STORE_HEADERS);
 });
@@ -222,12 +240,18 @@ accountSettingsPolicyRouter.get("/presets/:presetId/versions", async (c) => {
 accountSettingsPolicyRouter.post("/presets/:presetId/versions", async (c) => {
 	const user = await requireUser(c.req.raw, c.env); if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
 	const client = getDataClient(c.env); const id = c.req.param("presetId"); const body: { releaseNotes?: string; versionLabel?: string } = await c.req.json<{ releaseNotes?: string; versionLabel?: string }>().catch(() => ({}));
-	const preset = await client.from("presets").select("workspace_id,created_by,draft_visibility").eq("id", id).is("archived_at", null).maybeSingle();
+	const preset = await client.from("presets").select("workspace_id,created_by,visibility,draft_visibility").eq("id", id).is("archived_at", null).maybeSingle();
 	if (preset.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); if (!preset.data?.workspace_id) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
-	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId: preset.data.workspace_id }); if (!context || preset.data.created_by !== user.id) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	if (preset.data.draft_visibility === "public" && !await publicPublisher(client, user.id).catch(() => null)) return c.json({ error: "public_profile_required" }, 409, PRIVATE_NO_STORE_HEADERS);
+	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId: preset.data.workspace_id }); if (!context || !canWritePreset(context, user.id, preset.data)) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	if (preset.data.draft_visibility === "public" && !await publicPublisher(client, preset.data.created_by).catch(() => null)) return c.json({ error: "public_profile_required" }, 409, PRIVATE_NO_STORE_HEADERS);
 	const published = await client.rpc("publish_preset_version", { target_preset_id: id, actor_user_id: user.id, notes: String(body.releaseNotes ?? "").slice(0, 1000), requested_label: body.versionLabel ? String(body.versionLabel).slice(0, 100) : null });
-	if (published.error) return c.json({ error: "version_publish_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (published.error) {
+		const message = published.error.message ?? "";
+		if (message.includes("invalid_semver_label")) return c.json({ error: "invalid_semver_label" }, 400, PRIVATE_NO_STORE_HEADERS);
+		if (message.includes("preset_not_found")) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
+		if (message.includes("preset_publish_forbidden")) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+		return c.json({ error: "version_publish_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
 	const version = Array.isArray(published.data) ? published.data[0] : published.data;
 	const cache = await purgePresetCache(c, id); return c.json({ version, cache }, 201, PRIVATE_NO_STORE_HEADERS);
 });

@@ -344,7 +344,7 @@ export async function createPresetAction(input: CreatePresetInput) {
 	return data;
 }
 
-export async function forkPresetAction(sourcePresetId: string) {
+export async function forkPresetAction(sourcePresetId: string, sourceVersionId?: string) {
 	if (!sourcePresetId || typeof sourcePresetId !== "string") {
 		throw new Error("Valid preset ID is required");
 	}
@@ -355,7 +355,7 @@ export async function forkPresetAction(sourcePresetId: string) {
 		throw new Error("WORKSPACE_REQUIRED");
 	}
 	if (!context.accessToken) throw new Error("AUTH_REQUIRED");
-	const data = await fetchAccountWebApi<{ id?: string; name: string }>(`/api/account/settings/presets/${encodeURIComponent(sourcePresetId)}/fork`, context.accessToken, { method: "POST", body: JSON.stringify({ workspaceId }) });
+	const data = await fetchAccountWebApi<{ id?: string; name: string }>(`/api/account/settings/presets/${encodeURIComponent(sourcePresetId)}/fork`, context.accessToken, { method: "POST", body: JSON.stringify({ workspaceId, sourceVersionId }) });
 
 	revalidatePath("/settings/presets");
 	revalidatePresetDataCache(sourcePresetId);

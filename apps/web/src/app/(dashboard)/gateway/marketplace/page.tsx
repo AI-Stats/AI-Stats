@@ -157,7 +157,7 @@ export default async function GatewayMarketplacePage({ searchParams }: { searchP
 								Most forked
 							</CardTitle>
 							<CardDescription>
-								Popular presets ranked by the number of direct community forks.
+								Popular presets ranked by their total community descendants.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">

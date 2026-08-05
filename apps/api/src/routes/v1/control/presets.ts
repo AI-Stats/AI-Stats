@@ -392,9 +392,14 @@ async function handlePublishPresetVersion(req: Request) {
 	const body = await req.json().catch(() => ({})) as { release_notes?: string; version_label?: string };
 	try {
 		const preset = await findPreset(auth.value.workspaceId, presetId); if (!preset) return json({ error: "not_found" }, 404, { "Cache-Control": "no-store" });
-		if (preset.created_by !== auth.value.userId) return json({ error: "forbidden" }, 403, { "Cache-Control": "no-store" });
 		const result = await getSupabaseAdmin().rpc("publish_preset_version", { target_preset_id: preset.id, actor_user_id: auth.value.userId, notes: String(body.release_notes ?? "").slice(0, 1000), requested_label: body.version_label ? String(body.version_label).slice(0, 100) : null });
-		if (result.error) throw new Error(result.error.message || "Failed to publish preset version");
+		if (result.error) {
+			const message = result.error.message ?? "";
+			if (message.includes("invalid_semver_label")) return json({ error: "invalid_semver_label" }, 400, { "Cache-Control": "no-store" });
+			if (message.includes("preset_not_found")) return json({ error: "not_found" }, 404, { "Cache-Control": "no-store" });
+			if (message.includes("preset_publish_forbidden")) return json({ error: "forbidden" }, 403, { "Cache-Control": "no-store" });
+			throw new Error(message || "Failed to publish preset version");
+		}
 		return json({ data: Array.isArray(result.data) ? result.data[0] : result.data }, 201, { "Cache-Control": "no-store" });
 	} catch (error: any) { return internalServerError("presets.publish-version", error); }
 }
