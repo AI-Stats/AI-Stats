@@ -100,6 +100,7 @@ const ATTEMPT_PREVIEW_LIMIT = 320;
 const MAX_UPSTREAM_ERROR_BODY_BYTES = 32 * 1024;
 const MAX_RETRYABLE_EXECUTOR_RETRIES = 0;
 const SINGLE_PROVIDER_FAILURE_RETRIES = 0;
+export const MAX_BYOK_CREDENTIAL_ATTEMPTS = 8;
 
 export type CredentialAttemptPhase = "priority_byok" | "gateway" | "fallback_byok";
 
@@ -125,16 +126,23 @@ export function buildCredentialAttemptPlan(
 				credential: { kind: "byok" as const, key },
 			}));
 
+	const priorityAttempts = rankedProviders.flatMap((routed) => keysForMode(routed, "priority"));
+	const limitedPriorityAttempts = priorityAttempts.slice(0, MAX_BYOK_CREDENTIAL_ATTEMPTS);
+	const remainingByokAttempts = MAX_BYOK_CREDENTIAL_ATTEMPTS - limitedPriorityAttempts.length;
+	const fallbackAttempts = options.includeFallbackByok === false
+		? []
+		: rankedProviders
+			.flatMap((routed) => keysForMode(routed, "fallback"))
+			.slice(0, remainingByokAttempts);
+
 	return [
-		...rankedProviders.flatMap((routed) => keysForMode(routed, "priority")),
+		...limitedPriorityAttempts,
 		...rankedProviders.map((routed) => ({
 			routed,
 			phase: "gateway" as const,
 			credential: { kind: "gateway" as const },
 		})),
-		...(options.includeFallbackByok === false
-			? []
-			: rankedProviders.flatMap((routed) => keysForMode(routed, "fallback"))),
+		...fallbackAttempts,
 	];
 }
 

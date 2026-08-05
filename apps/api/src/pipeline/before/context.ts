@@ -142,9 +142,17 @@ async function hydrateByokKeys(
 		(context.providers ?? []).map((provider) => provider.providerId).filter(Boolean),
 	));
 	if (!providerIds.length) return context;
+	const maxKeysPerModePerProvider = 8;
 	const keyIds = Array.from(new Set(
 		(context.providers ?? []).flatMap((provider) =>
-			(provider.byokMeta ?? []).map((key) => key.id).filter(Boolean),
+			(["priority", "fallback"] as const).flatMap((mode) =>
+				(provider.byokMeta ?? [])
+					.filter((key) => (key.routingMode ?? (key.alwaysUse ? "priority" : "fallback")) === mode)
+					.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.id.localeCompare(b.id))
+					.slice(0, maxKeysPerModePerProvider)
+					.map((key) => key.id)
+					.filter(Boolean)
+			),
 		),
 	));
 	// The cached/RPC context contains only metadata. Avoid a Supabase read entirely

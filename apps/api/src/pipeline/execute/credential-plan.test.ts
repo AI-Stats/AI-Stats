@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCredentialAttemptPlan } from "./index";
+import { buildCredentialAttemptPlan, MAX_BYOK_CREDENTIAL_ATTEMPTS } from "./index";
 
 function key(id: string, routingMode: "priority" | "fallback", sortOrder: number) {
 	return {
@@ -62,5 +62,41 @@ describe("credential attempt plan", () => {
 
 		const plan = buildCredentialAttemptPlan([provider], { includeFallbackByok: false });
 		expect(plan.map((attempt) => attempt.phase)).toEqual(["priority_byok", "gateway"]);
+	});
+
+	it("caps total BYOK attempts without removing the managed provider attempt", () => {
+		const provider = {
+			candidate: {
+				providerId: "provider-a",
+				byokMeta: Array.from({ length: 2_400 }, (_, index) =>
+					key(`key-${String(index).padStart(4, "0")}`, index < 1_200 ? "priority" : "fallback", index)
+				),
+			},
+		};
+
+		const plan = buildCredentialAttemptPlan([provider]);
+
+		expect(plan).toHaveLength(MAX_BYOK_CREDENTIAL_ATTEMPTS + 1);
+		expect(plan.filter((attempt) => attempt.credential.kind === "byok")).toHaveLength(
+			MAX_BYOK_CREDENTIAL_ATTEMPTS,
+		);
+		expect(plan.filter((attempt) => attempt.credential.kind === "gateway")).toHaveLength(1);
+	});
+
+	it("uses remaining BYOK budget for fallback keys", () => {
+		const provider = {
+			candidate: {
+				providerId: "provider-a",
+				byokMeta: [
+					...Array.from({ length: 3 }, (_, index) => key(`priority-${index}`, "priority", index)),
+					...Array.from({ length: 20 }, (_, index) => key(`fallback-${index}`, "fallback", index)),
+				],
+			},
+		};
+
+		const plan = buildCredentialAttemptPlan([provider]);
+
+		expect(plan.filter((attempt) => attempt.phase === "priority_byok")).toHaveLength(3);
+		expect(plan.filter((attempt) => attempt.phase === "fallback_byok")).toHaveLength(5);
 	});
 });
