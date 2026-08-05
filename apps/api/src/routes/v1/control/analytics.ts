@@ -12,6 +12,8 @@ import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { requireCapability } from "./route-helpers";
 
 const COMPLETED_DAYS_WINDOW = 30;
+const ANALYTICS_FACT_PAGE_SIZE = 1000;
+const ANALYTICS_FACT_MAX_ROWS = 10_000;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -131,6 +133,8 @@ type AnalyticsFactRow = {
     }> | null;
 };
 
+class AnalyticsFactLimitError extends Error {}
+
 function toModelDisplay(permaslug: string): string {
     const match = permaslug.match(/^(.*)-\d{4}-\d{2}-\d{2}$/);
     if (match && match[1]) return match[1];
@@ -176,8 +180,8 @@ async function loadAnalyticsFactRows(args: {
 }): Promise<AnalyticsFactRow[]> {
     const supabase = getSupabaseAdmin();
     const rows: AnalyticsFactRow[] = [];
-    const pageSize = 1000;
-    for (let offset = 0; ; offset += pageSize) {
+    for (let offset = 0; offset < ANALYTICS_FACT_MAX_ROWS; offset += ANALYTICS_FACT_PAGE_SIZE) {
+        const isFinalAllowedPage = offset + ANALYTICS_FACT_PAGE_SIZE >= ANALYTICS_FACT_MAX_ROWS;
         const { data, error } = await supabase
             .from("v2_request_facts")
             .select(
@@ -187,13 +191,21 @@ async function loadAnalyticsFactRows(args: {
             .gte("occurred_at", args.startIso)
             .lt("occurred_at", args.endIso)
             .order("occurred_at", { ascending: true })
-            .range(offset, offset + pageSize - 1);
+            .range(
+                offset,
+                isFinalAllowedPage ? ANALYTICS_FACT_MAX_ROWS : offset + ANALYTICS_FACT_PAGE_SIZE - 1
+            );
         if (error) {
             throw new Error(error.message || "Failed to load v2 analytics request facts");
         }
         const page = (data ?? []) as AnalyticsFactRow[];
-        rows.push(...page);
-        if (page.length < pageSize) break;
+        if (isFinalAllowedPage && page.length > ANALYTICS_FACT_PAGE_SIZE) {
+            throw new AnalyticsFactLimitError(
+                "Analytics range contains too many requests; select a single date"
+            );
+        }
+        rows.push(...page.slice(0, ANALYTICS_FACT_PAGE_SIZE));
+        if (page.length < ANALYTICS_FACT_PAGE_SIZE) break;
     }
     return rows;
 }
@@ -317,9 +329,14 @@ async function handleAnalytics(req: Request) {
             { "Cache-Control": "no-store" }
         );
     } catch (error: any) {
+        const factLimitExceeded = error instanceof AnalyticsFactLimitError;
         return json(
-            { ok: false, error: "failed", message: String(error?.message ?? error) },
-            500,
+            {
+                ok: false,
+                error: factLimitExceeded ? "analytics_range_too_large" : "failed",
+                message: String(error?.message ?? error),
+            },
+            factLimitExceeded ? 413 : 500,
             { "Cache-Control": "no-store" }
         );
     }

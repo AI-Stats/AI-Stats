@@ -90,4 +90,37 @@ describe("analyticsRoutes", () => {
 			}),
 		]);
 	});
+
+	it("fails closed when a raw analytics range exceeds the row cap", async () => {
+		const fullPage = Array.from({ length: 1_000 }, () => ({
+			occurred_at: "2026-08-01T12:00:00.000Z",
+			endpoint: "chat/completions",
+			requested_model_slug: "openai/gpt-test",
+			routed_model_slug: "openai/gpt-test",
+			provider_model_id: "openai:gpt-test",
+			cost_nanos: "1",
+			byok: false,
+			v2_request_usage: [],
+		}));
+		let factQueries = 0;
+		getSupabaseAdminMock.mockReturnValue({
+			from: vi.fn((table: string) => {
+				if (table !== "v2_request_facts") throw new Error(`unexpected table: ${table}`);
+				factQueries += 1;
+				return queryResult({
+					data: factQueries === 10 ? [...fullPage, fullPage[0]] : fullPage,
+					error: null,
+				});
+			}),
+		});
+
+		const response = await analyticsRoutes.request("https://example.com/");
+
+		expect(response.status).toBe(413);
+		await expect(response.json()).resolves.toMatchObject({
+			ok: false,
+			error: "analytics_range_too_large",
+		});
+		expect(factQueries).toBe(10);
+	});
 });
