@@ -1,4 +1,5 @@
 import { getBindings, getSupabaseAdmin } from "@/runtime/env";
+import { validateWebhookEndpointUrlForDelivery } from "@core/webhook-endpoints";
 import {
 	buildAsyncGenAiOtlpPayload,
 	buildGatewayGenAiOtlpPayload,
@@ -321,6 +322,12 @@ export async function deliverGatewayOtlpPayload(
 	try {
 		collectorEndpoint = endpoint(config);
 		collectorHeaders = headers(config);
+		// Reuse the hardened outbound-webhook boundary so mapped IPv6 literals
+		// and DNS records resolving to private networks are rejected immediately
+		// before the collector request.
+		const validated = await validateWebhookEndpointUrlForDelivery(collectorEndpoint.toString());
+		if (validated.ok === false) throw new Error(`Invalid OTLP endpoint: ${validated.reason}`);
+		collectorEndpoint = new URL(validated.url);
 	} catch (error) {
 		return {
 			delivered: false,
@@ -336,6 +343,7 @@ export async function deliverGatewayOtlpPayload(
 			method: "POST",
 			headers: collectorHeaders,
 			body: JSON.stringify(payload),
+			redirect: "manual",
 			signal: AbortSignal.timeout(15_000),
 		});
 	} catch (error) {
