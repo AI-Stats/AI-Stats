@@ -45,31 +45,6 @@ function vertexError(code: string): Error & { code: string } {
 	return error;
 }
 
-function hasUsableIRResponse(response: IRChatResponse | undefined): boolean {
-	if (!response?.choices?.length) return false;
-	return response.choices.some((choice) => {
-		if ((choice.message?.toolCalls?.length ?? 0) > 0) return true;
-		return (choice.message?.content ?? []).some((part: any) => {
-			if (!part || typeof part !== "object") return false;
-			if (typeof part.text === "string" && part.text.trim().length > 0) return true;
-			return typeof part.data === "string" && part.data.length > 0;
-		});
-	});
-}
-
-function emptyVertexResponse(model: string): Response {
-	return new Response(JSON.stringify({
-		error: {
-			code: "google_empty_response",
-			message: "Google Vertex returned a successful response without any output.",
-			model,
-		},
-	}), {
-		status: 502,
-		headers: { "Content-Type": "application/json" },
-	});
-}
-
 export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChatRequest {
 	return cherryPickIRParams(ir, args.capabilityParams);
 }
@@ -177,6 +152,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			})();
 			return {
 				kind: "stream",
+				allowEmptySuccess: true,
 				stream,
 				usageFinalizer: async () => null,
 				bill,
@@ -229,18 +205,6 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				);
 			}
 		}
-		if (!hasUsableIRResponse(ir)) {
-			return {
-				kind: "completed",
-				ir: undefined,
-				bill,
-				upstream: emptyVertexResponse(model),
-				keySource: keyInfo.source,
-				byokKeyId: keyInfo.byokId,
-				mappedRequest,
-			};
-		}
-
 		const usageMeters = normalizeTextUsageForPricing(ir?.usage ?? usage);
 		if (usageMeters) {
 			bill.usage = usageMeters;
@@ -249,6 +213,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 
 		return {
 			kind: "completed",
+			allowEmptySuccess: true,
 			ir,
 			bill,
 			upstream: res,
@@ -273,18 +238,6 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	} else {
 		ir = openAIChatToIR(json, args.requestId, model, args.providerId);
 	}
-	if (!hasUsableIRResponse(ir)) {
-		return {
-			kind: "completed",
-			ir: undefined,
-			bill,
-			upstream: emptyVertexResponse(model),
-			keySource: keyInfo.source,
-			byokKeyId: keyInfo.byokId,
-			mappedRequest,
-		};
-	}
-
 	return finalizeResult({
 		args,
 		ir,
@@ -322,6 +275,7 @@ function finalizeResult(input: {
 		);
 		return {
 			kind: "stream",
+			allowEmptySuccess: true,
 			stream: normalized,
 			usageFinalizer: async () => null,
 			bill,
@@ -344,6 +298,7 @@ function finalizeResult(input: {
 
 	return {
 		kind: "completed",
+		allowEmptySuccess: true,
 		ir,
 		bill,
 		upstream: res,

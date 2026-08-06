@@ -101,6 +101,7 @@ export type Bill = {
 
 export type ExecutorCompletedResult = {
 	kind: "completed";
+	allowEmptySuccess?: boolean;
 	ir?:
 		| IRChatResponse
 		| IREmbeddingsResponse
@@ -138,6 +139,7 @@ export type ExecutorCompletedResult = {
 
 export type ExecutorStreamingResult = {
 	kind: "stream";
+	allowEmptySuccess?: boolean;
 	stream: ReadableStream<Uint8Array>;
 	streamAlreadyTransformed?: boolean;
 	usageFinalizer: () => Promise<Bill | null>;

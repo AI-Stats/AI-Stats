@@ -7,6 +7,7 @@ const decodeProtocolMock = vi.fn();
 const encodeProtocolMock = vi.fn();
 const doRequestWithIRMock = vi.fn();
 const finalizeRequestMock = vi.fn();
+const settleNonBillableFailureMock = vi.fn();
 const validateTextIRContractMock = vi.fn();
 const prepareServerToolsForTextRequestMock = vi.fn();
 const consumeTextProtocolStreamToIRMock = vi.fn();
@@ -32,6 +33,7 @@ vi.mock("../execute", () => ({
 
 vi.mock("../after", () => ({
 	finalizeRequest: (...args: any[]) => finalizeRequestMock(...args),
+	settleNonBillableFailure: (...args: any[]) => settleNonBillableFailureMock(...args),
 }));
 
 vi.mock("../text-ir-contract", () => ({
@@ -168,6 +170,47 @@ describe("runTextGeneratePipeline server tools", () => {
 			},
 		}));
 		getResponseCacheMock.mockReturnValue(null);
+	});
+
+	it("preserves provider-approved empty successes through final billing", async () => {
+		doRequestWithIRMock.mockResolvedValue({
+			result: {
+				kind: "completed",
+				allowEmptySuccess: true,
+				ir: {
+					id: "vertex_empty",
+					model: "google/gemini-2.5-pro",
+					provider: "google-vertex",
+					choices: [],
+					usage: { inputTokens: 12, outputTokens: 0, totalTokens: 12 },
+				},
+				upstream: new Response(JSON.stringify({ usageMetadata: { promptTokenCount: 12 } }), { status: 200 }),
+				bill: {
+					cost_cents: 1,
+					currency: "USD",
+					usage: { prompt_tokens: 12, completion_tokens: 0, total_tokens: 12 },
+				},
+			},
+		});
+		encodeProtocolMock.mockReturnValue({
+			id: "vertex_empty",
+			choices: [],
+			usage: { prompt_tokens: 12, completion_tokens: 0, total_tokens: 12 },
+		});
+		finalizeRequestMock.mockResolvedValue(
+			new Response(JSON.stringify({ id: "vertex_empty", choices: [] }), { status: 200 }),
+		);
+
+		const response = await runTextGeneratePipeline(createArgs());
+
+		expect(response.status).toBe(200);
+		expect(settleNonBillableFailureMock).not.toHaveBeenCalled();
+		expect(finalizeRequestMock).toHaveBeenCalledOnce();
+		expect(finalizeRequestMock.mock.calls[0]?.[0].exec.result.bill.usage).toEqual({
+			prompt_tokens: 12,
+			completion_tokens: 0,
+			total_tokens: 12,
+		});
 	});
 
 	it("executes the datetime follow-up loop and records tool usage on non-stream requests", async () => {

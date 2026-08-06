@@ -44,7 +44,7 @@ describe("google-vertex route resolution", () => {
 });
 
 describe("google-vertex empty response handling", () => {
-	it("turns a zero-output Gemini response into a failoverable error", async () => {
+	it("preserves usage and billing for a successful zero-output Gemini response", async () => {
 		const mock = installFetchMock([{
 			match: (url) => url.includes(":streamGenerateContent"),
 			response: new Response(JSON.stringify({
@@ -65,8 +65,9 @@ describe("google-vertex empty response handling", () => {
 
 		expect(result.kind).toBe("completed");
 		if (result.kind !== "completed") return;
-		expect(result.ir).toBeUndefined();
-		expect(result.upstream?.status).toBe(502);
+		expect(result.ir?.usage).toMatchObject({ inputTokens: 8, outputTokens: 0, totalTokens: 8 });
+		expect(result.bill.usage).toMatchObject({ input_tokens: 8, output_tokens: 0 });
+		expect(result.upstream?.status).toBe(200);
 	});
 });
 

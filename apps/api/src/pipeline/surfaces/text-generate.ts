@@ -809,7 +809,11 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 				});
 			}
 		}
-		if (exec.result.kind === "completed" && !hasUsableIRChatResponse(exec.result.ir as IRChatResponse | undefined)) {
+		if (
+			exec.result.kind === "completed" &&
+			exec.result.allowEmptySuccess !== true &&
+			!hasUsableIRChatResponse(exec.result.ir as IRChatResponse | undefined)
+		) {
 			await settleNonBillableFailure(pre.ctx, exec.result);
 			await handleFailureAudit(
 				pre.ctx,
@@ -1061,7 +1065,11 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 						});
 					}
 				}
-				if (followUpResult.kind === "completed" && !hasUsableIRChatResponse(followUpResult.ir as IRChatResponse | undefined)) {
+				if (
+					followUpResult.kind === "completed" &&
+					followUpResult.allowEmptySuccess !== true &&
+					!hasUsableIRChatResponse(followUpResult.ir as IRChatResponse | undefined)
+				) {
 					await settleNonBillableFailure(pre.ctx, followUpResult);
 					await handleFailureAudit(
 						pre.ctx,
