@@ -169,6 +169,7 @@ jobs:
                   set -euo pipefail
                   npx --yes supabase@2.111.0 db push \
                     --linked \
+                    --include-all \
                     --dry-run \
                     --password "${SUPABASE_DB_PASSWORD}"
 
@@ -178,6 +179,7 @@ jobs:
                   set -euo pipefail
                   npx --yes supabase@2.111.0 db push \
                     --linked \
+                    --include-all \
                     --password "${SUPABASE_DB_PASSWORD}"
 
     openapi-lint:
