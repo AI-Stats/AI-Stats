@@ -365,7 +365,7 @@ export default function ModelCombobox({
 					{filteredGroups.map((group) => (
 						<ModelSelectorGroup
 							key={group.monthKey}
-							heading={`${group.monthLabel} · ${group.models.length}`}
+							heading={group.monthLabel}
 						>
 							{group.models.map((model) => {
 											const sig = getEndpointSignature(model);
@@ -398,7 +398,7 @@ export default function ModelCombobox({
 														)
 													}
 									className={cn(
-										"min-h-12 gap-2.5 rounded-lg px-2.5 py-2",
+										"min-h-9 gap-2.5 rounded-md px-2.5 py-1.5",
 										isSelected
 											? "bg-primary/8 aria-selected:bg-primary/12"
 											: "",
@@ -415,9 +415,6 @@ export default function ModelCombobox({
 														/>
 								<div className="min-w-0 flex-1">
 									<p className="truncate text-sm font-medium">{model.name}</p>
-									<p className="truncate font-mono text-[11px] text-muted-foreground">
-										{model.id}
-									</p>
 								</div>
 								{!modelAvailable && !isSelected ? (
 									<span className="shrink-0 text-[10px] text-muted-foreground">
