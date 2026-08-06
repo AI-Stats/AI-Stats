@@ -350,7 +350,11 @@ export default function ModelProviderTrendChart({
 										</p>
 										<div className="space-y-1.5">
 											{payload
-												.filter((entry) => typeof entry.value === "number")
+												.filter(
+													(entry) =>
+														typeof entry.value === "number" &&
+														Number.isFinite(entry.value),
+												)
 												.map((entry) => {
 													const provider = providers.find(
 														(item) => item.seriesKey === entry.dataKey,
