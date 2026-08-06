@@ -19,6 +19,9 @@ type UsageAggregateRow = {
 };
 
 const PAGE_SIZE = 1000;
+const PROFILE_USAGE_MAX_ROWS = 50_000;
+const PROFILE_USAGE_WINDOW_DAYS = 365;
+const PROFILE_USAGE_MAX_WORKSPACES = 100;
 
 function dateKey(value: Date | string): string {
 	const date = typeof value === "string" ? new Date(value) : value;
@@ -108,13 +111,19 @@ function normalizePublicProfileSlug(value: unknown): string {
 async function usageAggregateRows(client: ReturnType<typeof getDataClient>, workspaceIds: string[]): Promise<UsageAggregateRow[]> {
 	if (!workspaceIds.length) return [];
 	const rows: UsageAggregateRow[] = [];
+	const since = new Date(Date.now() - PROFILE_USAGE_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
+	const perWorkspaceLimit = Math.max(1, Math.floor(PROFILE_USAGE_MAX_ROWS / workspaceIds.length));
 	for (const workspaceId of workspaceIds) {
-		for (let offset = 0; ; offset += PAGE_SIZE) {
+		let workspaceRows = 0;
+		for (let offset = 0; workspaceRows < perWorkspaceLimit; offset += PAGE_SIZE) {
+			const remaining = perWorkspaceLimit - workspaceRows;
+			const pageLimit = Math.min(PAGE_SIZE, remaining);
 			const result = await client.from("v2_web_gateway_requests")
 				.select("created_at,model_id,usage,cost_nanos")
 				.eq("workspace_id", workspaceId)
-				.order("created_at", { ascending: true })
-				.range(offset, offset + PAGE_SIZE - 1);
+				.gte("created_at", since)
+				.order("created_at", { ascending: false })
+				.range(offset, offset + pageLimit - 1);
 			if (result.error) throw new Error(result.error.message || "profile_usage_unavailable");
 			const page = (result.data ?? []) as RequestRow[];
 			rows.push(...page.map((row) => ({
@@ -124,7 +133,8 @@ async function usageAggregateRows(client: ReturnType<typeof getDataClient>, work
 				tokens: tokenCount(row.usage),
 				cost: (Number(row.cost_nanos) || 0) / 1_000_000_000,
 			})));
-			if (page.length < PAGE_SIZE) break;
+			workspaceRows += page.length;
+			if (page.length < pageLimit) break;
 		}
 	}
 	return rows;
@@ -362,7 +372,8 @@ accountSettingsProfileRouter.get("/profile/usage", async (c) => {
 	const membershipsResult = await client
 		.from("workspace_members")
 		.select("workspace_id")
-		.eq("user_id", user.id);
+		.eq("user_id", user.id)
+		.limit(PROFILE_USAGE_MAX_WORKSPACES);
 	if (membershipsResult.error) return c.json({ error: "profile_usage_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const workspaceIds = Array.from(new Set(
 		(membershipsResult.data ?? [])

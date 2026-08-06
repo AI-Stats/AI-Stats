@@ -54,8 +54,10 @@ describe("account profile settings route", () => {
 
 	it("aggregates profile usage across every workspace membership", async () => {
 		let requestCalls = 0;
+		const requestedUrls: string[] = [];
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
+			requestedUrls.push(url);
 			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({
 				id: "user-1",
 				email: "person@example.com",
@@ -102,5 +104,9 @@ describe("account profile settings route", () => {
 				],
 			},
 		});
+		expect(requestedUrls.find((url) => url.includes("workspace_members"))).toContain("limit=100");
+		expect(requestedUrls.filter((url) => url.includes("v2_web_gateway_requests"))).toEqual(
+			expect.arrayContaining([expect.stringContaining("created_at=gte.")]),
+		);
 	});
 });
