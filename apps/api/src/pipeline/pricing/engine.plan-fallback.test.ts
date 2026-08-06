@@ -53,7 +53,7 @@ describe("pricing engine non-standard plan fallback", () => {
 		expect(result.lines.find((line) => line.dimension === "output_text_tokens")?.rule_id).toBe("standard-output");
 	});
 
-	it("falls back to standard for long-context holes in non-standard plans", () => {
+	it("rejects condition holes in requested non-standard plans", () => {
 		const card = makeCard([
 			{
 				id: "priority-input-lt-272k",
@@ -101,7 +101,7 @@ describe("pricing engine non-standard plan fallback", () => {
 			},
 		]);
 
-		const result = computeBillSummary(
+		expect(() => computeBillSummary(
 			{
 				input_tokens: 300_000,
 				input_text_tokens: 300_000,
@@ -110,12 +110,7 @@ describe("pricing engine non-standard plan fallback", () => {
 			card,
 			{},
 			"priority",
-		);
-
-		expect(result.lines).toHaveLength(2);
-		expect(result.cost_usd_str).toBe("9.900000000");
-		expect(result.lines.find((line) => line.dimension === "input_text_tokens")?.rule_id).toBe("standard-input-gte-272k");
-		expect(result.lines.find((line) => line.dimension === "output_text_tokens")?.rule_id).toBe("standard-output-gte-272k");
+		)).toThrow("pricing_plan_coverage_missing:priority:input_text_tokens");
 	});
 });
 
