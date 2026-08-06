@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
 	CartesianGrid,
 	Line,
@@ -28,6 +28,8 @@ type ModelProviderTrendChartProps = {
 	data: ModelProviderDailyPoint[];
 	metric: MetricKey;
 	maxSeries?: number;
+	detailed?: boolean;
+	headerAction?: ReactNode;
 	activeDay: string | null;
 	onActiveDayChange: (day: string | null) => void;
 };
@@ -145,6 +147,8 @@ export default function ModelProviderTrendChart({
 	data,
 	metric,
 	maxSeries = 3,
+	detailed = false,
+	headerAction,
 	activeDay,
 	onActiveDayChange,
 }: ModelProviderTrendChartProps) {
@@ -243,6 +247,10 @@ export default function ModelProviderTrendChart({
 						? metricValues.reduce((sum, value) => sum + value, 0) /
 							metricValues.length
 						: null;
+				const minimum =
+					metricValues.length > 0 ? Math.min(...metricValues) : null;
+				const maximum =
+					metricValues.length > 0 ? Math.max(...metricValues) : null;
 				const rawHovered = activeRow?.[provider.seriesKey];
 				const hoveredValue =
 					typeof rawHovered === "number" && Number.isFinite(rawHovered)
@@ -251,6 +259,8 @@ export default function ModelProviderTrendChart({
 				return {
 					...provider,
 					average,
+					minimum,
+					maximum,
 					hoveredValue,
 				};
 			}),
@@ -278,12 +288,15 @@ export default function ModelProviderTrendChart({
 					<p className="text-lg font-medium leading-none text-foreground">{title}</p>
 					<ModelMetricInfo label={metricConfig.label} description={metricConfig.description} />
 				</div>
-				<span className="shrink-0 whitespace-nowrap text-[11px] text-muted-foreground">
-					{activeHeadingDate}
-				</span>
+				<div className="flex shrink-0 items-center gap-2">
+					<span className="whitespace-nowrap text-[11px] text-muted-foreground">
+						{activeHeadingDate}
+					</span>
+					{headerAction}
+				</div>
 			</div>
 			{chartData.length > 1 ? (
-				<div className="h-[148px] w-full pt-1">
+				<div className={detailed ? "h-[300px] w-full pt-1" : "h-[148px] w-full pt-1"}>
 				<ResponsiveContainer width="100%" height="100%">
 					<LineChart
 						data={chartData}
@@ -445,6 +458,30 @@ export default function ModelProviderTrendChart({
 				</ResponsiveContainer>
 				</div>
 			) : null}
+			{detailed ? (
+				<div className="overflow-hidden rounded-md border border-border/70">
+					<div className="grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/70 bg-muted/20 px-3 py-2 text-xs font-medium text-muted-foreground">
+						<span>Provider</span>
+						<span className="text-right">Min</span>
+						<span className="text-right">Max</span>
+						<span className="text-right">Avg</span>
+					</div>
+					{providerRows.map((provider) => (
+						<div
+							key={provider.seriesKey}
+							className="grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/50 px-3 py-2.5 text-sm last:border-b-0"
+						>
+							<span className="inline-flex min-w-0 items-center gap-2">
+								<span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: provider.color }} />
+								<span className="truncate font-medium">{provider.name}</span>
+							</span>
+							<span className="text-right tabular-nums text-muted-foreground">{metricConfig.formatValue(provider.minimum)}</span>
+							<span className="text-right tabular-nums text-muted-foreground">{metricConfig.formatValue(provider.maximum)}</span>
+							<span className="text-right font-medium tabular-nums">{metricConfig.formatValue(provider.average)}</span>
+						</div>
+					))}
+				</div>
+			) : (
 			<div
 				className={
 					chartData.length === 1
@@ -507,6 +544,7 @@ export default function ModelProviderTrendChart({
 					);
 				})}
 			</div>
+			)}
 		</div>
 	);
 }
