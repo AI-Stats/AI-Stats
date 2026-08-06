@@ -1,10 +1,10 @@
 [
   {
     "api_model_id": "meta/muse-spark-1.2-contributor",
-    "canonical_model_id": "meta/muse-spark-1.2",
+    "canonical_model_id": "meta/muse-spark-1.2-contributor",
     "provider_api_model_id": "meta-contributor:meta/muse-spark-1.2-contributor",
     "provider_model_slug": "muse-spark-1.2-contributor",
-    "internal_model_id": "meta/muse-spark-1.2",
+    "internal_model_id": "meta/muse-spark-1.2-contributor",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
