@@ -4,51 +4,67 @@
   "name": "Solar Pro (2025-04-22)",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Solar Pro (2025-04-22) is Upstage's powerful Mixture-of-Experts (MoE) language model. With 102B total parameters and 12B active parameters per forward pass, it delivers exceptional performance while maintaining computational efficiency.",
-  "announced_date": null,
-  "release_date": null,
+  "description": "Solar Pro is Upstage's 22B-parameter multilingual language model for English, Korean, and Japanese text generation.",
+  "announced_date": "2025-04-22T00:00:00",
+  "release_date": "2025-04-22T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
-  "input_types": null,
-  "output_types": null,
+  "input_types": "text",
+  "output_types": "text",
   "api_model_id": "upstage/solar-pro",
-  "links": [],
-  "details": [],
+  "links": [
+    {
+      "title": "Official model documentation",
+      "kind": "documentation",
+      "url": "https://console.upstage.ai/docs/models/solar-pro"
+    }
+  ],
+  "details": [
+    { "name": "parameters", "value": "22B" },
+    { "name": "languages", "value": "English, Korean, Japanese" }
+  ],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
   "model_type": null,
-  "knowledge_cutoff": null,
+  "knowledge_cutoff": "2024-09-30",
   "limits": {
-    "context": null,
-    "input": null,
+    "context": 32768,
+    "input": 32768,
     "output": null
   },
   "modalities": {
-    "input": null,
-    "output": null
+    "input": ["text"],
+    "output": ["text"]
   },
   "reasoning": {
-    "supported": null,
+    "supported": false,
     "options": []
   },
   "capabilities": {
-    "attachment": null,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://console.upstage.ai/docs/models/solar-pro",
+      "accessed_at": "2026-08-06T00:00:00Z",
+      "notes": "Official documentation confirms release date, parameter count, context, knowledge cutoff, languages, and capabilities."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-06T00:00:00Z",
+    "notes": "Corrected against official Upstage documentation."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-06T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null
