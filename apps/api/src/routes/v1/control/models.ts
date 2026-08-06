@@ -114,15 +114,21 @@ function parseMultiValueAliases(params: URLSearchParams, names: string[]): strin
     return Array.from(new Set(names.flatMap((name) => parseMultiValue(params, name))));
 }
 
-function parsePathSegments(req: Request): string[] {
-    return new URL(req.url).pathname
-        .split("/")
-        .map((segment) => decodeURIComponent(segment))
-        .filter(Boolean);
+function parsePathSegments(req: Request): string[] | null {
+    try {
+        return new URL(req.url).pathname
+            .split("/")
+            .map((segment) => decodeURIComponent(segment))
+            .filter(Boolean);
+    } catch (error) {
+        if (error instanceof URIError) return null;
+        throw error;
+    }
 }
 
 function parseEndpointRouteModelId(req: Request): string | null {
     const segments = parsePathSegments(req);
+    if (!segments) return null;
     const endpointsIndex = segments.lastIndexOf("endpoints");
     if (endpointsIndex < 2) return null;
     const author = segments[endpointsIndex - 2];

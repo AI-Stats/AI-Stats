@@ -642,6 +642,18 @@ describe("handleModels", () => {
         );
     });
 
+    it("returns a controlled 400 for malformed endpoint path encoding", async () => {
+        const response = await handleModelEndpoints(
+            new Request("https://api.example.com/v1/models/%E0%A4%A/example/endpoints"),
+        );
+
+        expect(response.status).toBe(400);
+        await expect(response.json()).resolves.toEqual(expect.objectContaining({
+            error: "invalid_request",
+        }));
+        expect(guardAuthMock).not.toHaveBeenCalled();
+    });
+
     it("returns provider-specific endpoint capability rows across modalities", async () => {
         const endpointDefinitions = [
             { endpoint: "responses", input: ["text"], output: ["text"], params: ["temperature"] },
