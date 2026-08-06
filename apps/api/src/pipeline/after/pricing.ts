@@ -154,7 +154,7 @@ export function calculatePricing(
             currency = pricingInfo.currency ?? currency;
         } catch (calcErr) {
             console.error("computeBill failed", calcErr);
-            pricedUsage = usageMeters;
+            throw calcErr;
         }
     }
 

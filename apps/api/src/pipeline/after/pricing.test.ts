@@ -180,6 +180,26 @@ describe("after/pricing calculatePricing", () => {
 		expect(result.pricedUsage?.pricing?.lines ?? []).toHaveLength(0);
 	});
 
+	it("fails closed when a requested pricing plan has a coverage gap", () => {
+		const card: PriceCard = {
+			...TTS_CARD,
+			rules: [
+				...TTS_CARD.rules,
+				{
+					...TTS_CARD.rules[0],
+					pricing_plan: "priority",
+					match: [{ path: "service_tier", op: "eq", value: "unreachable" }],
+				},
+			],
+		};
+
+		expect(() => calculatePricing(
+			{ input_text_tokens: 1_000 },
+			card,
+			{ service_tier: "priority" },
+		)).toThrow("pricing_plan_coverage_missing:priority:input_text_tokens");
+	});
+
 	it("infers image pricing qualifiers from output tokens when the request used auto defaults", () => {
 		const result = calculatePricing(
 			{
