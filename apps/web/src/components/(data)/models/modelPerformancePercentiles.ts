@@ -9,15 +9,15 @@ import {
 } from "@/components/(data)/models/ModelPercentileSelect";
 
 const PERCENTILE_COLORS: Record<ModelPercentile, string> = {
-	1: "var(--chart-1)",
-	5: "var(--chart-2)",
-	10: "var(--chart-3)",
-	25: "var(--chart-4)",
-	50: "var(--chart-1)",
-	75: "var(--chart-2)",
-	90: "var(--chart-3)",
-	95: "var(--chart-4)",
-	99: "var(--chart-5)",
+	1: "oklch(0.78 0.14 205)",
+	5: "oklch(0.74 0.15 220)",
+	10: "oklch(0.70 0.16 235)",
+	25: "oklch(0.66 0.17 250)",
+	50: "oklch(0.62 0.18 265)",
+	75: "oklch(0.59 0.19 280)",
+	90: "oklch(0.56 0.20 295)",
+	95: "oklch(0.53 0.21 310)",
+	99: "oklch(0.50 0.22 325)",
 };
 
 export function buildSingleProviderPercentileSeries(
