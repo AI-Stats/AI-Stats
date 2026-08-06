@@ -171,7 +171,27 @@ async function hydrateByokKeys(
 		};
 	}
 
-	const decrypted = await Promise.all((data as any[]).map(async (row) => {
+	const maxKeysPerModePerProvider = 8;
+	const rowsByProvider = new Map<string, any[]>();
+	for (const row of data as any[]) {
+		const providerRows = rowsByProvider.get(String(row.provider_id)) ?? [];
+		providerRows.push(row);
+		rowsByProvider.set(String(row.provider_id), providerRows);
+	}
+	const selectedRows = Array.from(rowsByProvider.values())
+		.flatMap((providerRows) => (["priority", "fallback"] as const).flatMap((mode) =>
+			providerRows
+				.filter((row) => {
+					const rowMode = row.routing_mode === "priority" || row.routing_mode === "fallback"
+						? row.routing_mode
+						: row.always_use ? "priority" : "fallback";
+					return rowMode === mode;
+				})
+				.sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0) || String(a.id).localeCompare(String(b.id)))
+				.slice(0, maxKeysPerModePerProvider)
+		));
+
+	const decrypted = await Promise.all(selectedRows.map(async (row) => {
 		try {
 			const decryptedBytes = await decryptBYOK(row);
 			let key: string;
