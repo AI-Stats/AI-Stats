@@ -1329,7 +1329,7 @@ export default function Search({ className, mobileGhost = false }: Props) {
 															}}
 															onSelect={handleSelect}
 															isPinned={pinnedItemIds.has(item.id)}
-															onTogglePin={handleTogglePin}
+													onTogglePin={item.persistable === false ? undefined : handleTogglePin}
 														/>
 													))}
 												</div>
@@ -1377,7 +1377,7 @@ export default function Search({ className, mobileGhost = false }: Props) {
 														}}
 														onSelect={handleSelect}
 														isPinned={pinnedItemIds.has(row.item.id)}
-														onTogglePin={handleTogglePin}
+													onTogglePin={row.item.persistable === false ? undefined : handleTogglePin}
 													/>
 												)}
 											</div>
