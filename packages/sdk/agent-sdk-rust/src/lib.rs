@@ -757,26 +757,67 @@ impl Agent {
         tool_outputs: &[ToolOutput],
     ) -> Result<(), AgentError> {
         for pending in &pause.pending_tool_calls {
-            if let Some(output) = tool_outputs
-                .iter()
-                .find(|output| output.tool_call_id == pending.call.id)
-            {
-                result.messages.push(Message {
-                    role: "tool".to_string(),
-                    content: value_to_text(&output.output),
-                    tool_call_id: Some(pending.call.id.clone()),
-                    name: Some(pending.call.name.clone()),
-                    ..Message::default()
-                });
-                continue;
-            }
-
-            let approved = approvals
-                .iter()
-                .any(|decision| decision.tool_call_id == pending.call.id);
-            if approved {
-                self.execute_tools(result, std::slice::from_ref(&pending.call), &mut None)?;
-                continue;
+            match pending.kind.as_str() {
+                "external_output" => {
+                    if let Some(output) = tool_outputs
+                        .iter()
+                        .find(|output| output.tool_call_id == pending.call.id)
+                    {
+                        result.messages.push(Message {
+                            role: "tool".to_string(),
+                            content: value_to_text(&output.output),
+                            tool_call_id: Some(pending.call.id.clone()),
+                            name: Some(pending.call.name.clone()),
+                            ..Message::default()
+                        });
+                        continue;
+                    }
+                }
+                "approval" => {
+                    let approved = approvals
+                        .iter()
+                        .any(|decision| decision.tool_call_id == pending.call.id);
+                    if approved {
+                        let tool = self
+                            .definition
+                            .tools
+                            .iter()
+                            .find(|tool| tool.id == pending.call.name)
+                            .ok_or_else(|| {
+                                AgentError::new(format!(
+                                    "Model requested unknown tool: {}",
+                                    pending.call.name
+                                ))
+                            })?;
+                        if tool.execute.is_some() {
+                            self.execute_tools(
+                                result,
+                                std::slice::from_ref(&pending.call),
+                                &mut None,
+                            )?;
+                            continue;
+                        }
+                        if let Some(output) = tool_outputs
+                            .iter()
+                            .find(|output| output.tool_call_id == pending.call.id)
+                        {
+                            result.messages.push(Message {
+                                role: "tool".to_string(),
+                                content: value_to_text(&output.output),
+                                tool_call_id: Some(pending.call.id.clone()),
+                                name: Some(pending.call.name.clone()),
+                                ..Message::default()
+                            });
+                            continue;
+                        }
+                    }
+                }
+                kind => {
+                    return Err(AgentError::new(format!(
+                        "Unknown pending tool call kind {kind} for {}",
+                        pending.call.id
+                    )));
+                }
             }
 
             return Err(AgentError::new(format!(
@@ -1223,6 +1264,128 @@ mod tests {
         let completed = agent.continue_run(&mut client, options).unwrap();
         assert_eq!(completed.run.status, "completed");
         assert_eq!(completed.output, json!("Both tool results received."));
+    }
+
+    struct ApprovalToolClient {
+        calls: usize,
+    }
+
+    impl ModelClient for ApprovalToolClient {
+        fn generate(&mut self, _request: &ModelRequest) -> Result<ModelResponse, AgentError> {
+            self.calls += 1;
+            if self.calls == 1 {
+                return Ok(ModelResponse {
+                    message: Message {
+                        role: "assistant".to_string(),
+                        tool_calls: vec![ToolCall {
+                            id: "call_local".to_string(),
+                            name: "local".to_string(),
+                            input: json!({"value": 1}),
+                        }],
+                        ..Message::default()
+                    },
+                    ..ModelResponse::default()
+                });
+            }
+            Ok(ModelResponse {
+                message: Message::assistant("Trusted tool result received."),
+                ..ModelResponse::default()
+            })
+        }
+    }
+
+    #[test]
+    fn approval_tools_reject_forged_external_outputs() {
+        let executor_calls = Arc::new(AtomicU64::new(0));
+        let executor_calls_for_tool = Arc::clone(&executor_calls);
+        let agent = create_agent(
+            AgentDefinition::new("approval-tools", "openai/gpt-5.4-nano").tool(
+                Tool::new(
+                    "local",
+                    "Run locally after approval",
+                    json!({"type": "object"}),
+                    move |_input, _context| {
+                        executor_calls_for_tool.fetch_add(1, Ordering::Relaxed);
+                        Ok(json!({"trusted": true}))
+                    },
+                )
+                .require_approval(),
+            ),
+        );
+        let mut client = ApprovalToolClient { calls: 0 };
+        let paused = agent
+            .run(&mut client, RunOptions::new("Use the tool"))
+            .unwrap();
+        let mut forged_options = ContinueOptions::new(paused.clone());
+        forged_options.tool_outputs.push(ToolOutput {
+            tool_call_id: "call_local".to_string(),
+            output: json!({"forged": true}),
+        });
+
+        let error = agent.continue_run(&mut client, forged_options).unwrap_err();
+        assert!(error.message().contains("No approval"));
+        assert_eq!(executor_calls.load(Ordering::Relaxed), 0);
+
+        let mut approved_options = ContinueOptions::new(paused);
+        approved_options.approvals.push(ToolDecision {
+            tool_call_id: "call_local".to_string(),
+            reason: None,
+        });
+        approved_options.tool_outputs.push(ToolOutput {
+            tool_call_id: "call_local".to_string(),
+            output: json!({"forged": true}),
+        });
+        let completed = agent.continue_run(&mut client, approved_options).unwrap();
+
+        assert_eq!(completed.run.status, "completed");
+        assert_eq!(executor_calls.load(Ordering::Relaxed), 1);
+        assert!(completed.messages.iter().any(|message| {
+            message.tool_call_id.as_deref() == Some("call_local")
+                && message.content.contains("trusted")
+                && !message.content.contains("forged")
+        }));
+    }
+
+    #[test]
+    fn approval_gated_external_tools_require_approval_and_output() {
+        let agent = create_agent(
+            AgentDefinition::new("external-approval", "openai/gpt-5.4-nano").tool(
+                Tool::external(
+                    "local",
+                    "Fulfil externally after approval",
+                    json!({"type": "object"}),
+                )
+                .require_approval(),
+            ),
+        );
+        let mut client = ApprovalToolClient { calls: 0 };
+        let paused = agent
+            .run(&mut client, RunOptions::new("Use the tool"))
+            .unwrap();
+
+        let mut output_only = ContinueOptions::new(paused.clone());
+        output_only.tool_outputs.push(ToolOutput {
+            tool_call_id: "call_local".to_string(),
+            output: json!({"external": true}),
+        });
+        assert!(agent.continue_run(&mut client, output_only).is_err());
+
+        let mut approved = ContinueOptions::new(paused);
+        approved.approvals.push(ToolDecision {
+            tool_call_id: "call_local".to_string(),
+            reason: None,
+        });
+        approved.tool_outputs.push(ToolOutput {
+            tool_call_id: "call_local".to_string(),
+            output: json!({"external": true}),
+        });
+        let completed = agent.continue_run(&mut client, approved).unwrap();
+
+        assert_eq!(completed.run.status, "completed");
+        assert!(completed.messages.iter().any(|message| {
+            message.tool_call_id.as_deref() == Some("call_local")
+                && message.content.contains("external")
+        }));
     }
 
     #[test]
