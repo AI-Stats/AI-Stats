@@ -102,4 +102,20 @@ describe("observability privacy sanitization", () => {
 		expect(String(sanitized.api_key)).toContain("[redacted");
 		expect(String(sanitized.token)).toContain("[redacted");
 	});
+
+	it("redacts diarization speaker identities and reference audio", () => {
+		const sanitized = sanitizeForAxiom({
+			known_speaker_names: ["Alice Example", "Bob Example"],
+			known_speaker_references: ["data:audio/wav;base64,U0VOU0lUSVZF"],
+			"known_speaker_names[]": "Carol Example",
+			"known_speaker_references[]": "data:audio/wav;base64,QlJBQ0tFVEVE",
+			language: "en",
+		}) as any;
+
+		expect(String(sanitized.known_speaker_names)).toContain("[redacted");
+		expect(String(sanitized.known_speaker_references)).toContain("[redacted");
+		expect(String(sanitized["known_speaker_names[]"])).toContain("[redacted");
+		expect(String(sanitized["known_speaker_references[]"])).toContain("[redacted");
+		expect(sanitized.language).toBe("en");
+	});
 });
