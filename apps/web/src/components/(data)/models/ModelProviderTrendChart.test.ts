@@ -1,4 +1,7 @@
-import { getSeriesEmphasis } from "./ModelProviderTrendChart";
+import {
+	getSeriesEmphasis,
+	isUsableMetricValue,
+} from "./ModelProviderTrendChart";
 
 describe("getSeriesEmphasis", () => {
 	it("emphasizes the hovered series and dims every other series", () => {
@@ -17,5 +20,18 @@ describe("getSeriesEmphasis", () => {
 			isActive: false,
 			isDimmed: false,
 		});
+	});
+});
+
+describe("isUsableMetricValue", () => {
+	it("hides impossible zero-valued timing and speed samples", () => {
+		expect(isUsableMetricValue("outputSpeed", 0)).toBe(false);
+		expect(isUsableMetricValue("latency", 0)).toBe(false);
+		expect(isUsableMetricValue("tpot", 0)).toBe(false);
+		expect(isUsableMetricValue("throughput", 46.2)).toBe(true);
+	});
+
+	it("allows zero gateway overhead because it is a valid measurement", () => {
+		expect(isUsableMetricValue("overhead", 0)).toBe(true);
 	});
 });

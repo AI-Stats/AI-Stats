@@ -14,7 +14,7 @@ import {
 import type { ModelProviderDailyPoint } from "@/lib/fetchers/models/getModelPerformance";
 import { ModelMetricInfo } from "./ModelMetricInfo";
 
-type MetricKey =
+export type MetricKey =
 	| "throughput"
 	| "outputSpeed"
 	| "latency"
@@ -41,6 +41,14 @@ export function getSeriesEmphasis(
 		isActive,
 		isDimmed: activeSeriesKey != null && !isActive,
 	};
+}
+
+export function isUsableMetricValue(
+	metric: MetricKey,
+	value: number | null | undefined,
+) {
+	if (value == null || !Number.isFinite(value)) return false;
+	return metric === "overhead" ? value >= 0 : value > 0;
 }
 
 type MetricConfig = {
@@ -145,7 +153,9 @@ export default function ModelProviderTrendChart({
 	const activeSeriesKey = hoveredSeriesKey ?? focusedSeriesKey;
 	const metricConfig = METRICS[metric];
 	const observedData = data.filter(
-		(point) => point.requests > 0 && point[metricConfig.valueKey] != null,
+		(point) =>
+			point.requests > 0 &&
+			isUsableMetricValue(metric, point[metricConfig.valueKey]),
 	);
 	const providers = Array.from(
 		observedData
@@ -255,7 +265,7 @@ export default function ModelProviderTrendChart({
 					<ModelMetricInfo label={metricConfig.label} description={metricConfig.description} />
 				</div>
 				<div className="flex flex-1 items-center justify-center rounded-md border border-dashed border-border px-4 text-center text-xs text-muted-foreground">
-					No data is available for this metric and filter combination.
+					This metric was not recorded for recent requests.
 				</div>
 			</div>
 		);
@@ -272,7 +282,8 @@ export default function ModelProviderTrendChart({
 					{activeHeadingDate}
 				</span>
 			</div>
-			<div className="h-[148px] w-full pt-1">
+			{chartData.length > 1 ? (
+				<div className="h-[148px] w-full pt-1">
 				<ResponsiveContainer width="100%" height="100%">
 					<LineChart
 						data={chartData}
@@ -432,8 +443,20 @@ export default function ModelProviderTrendChart({
 						})}
 					</LineChart>
 				</ResponsiveContainer>
-			</div>
-			<div className="space-y-1.5 pt-1">
+				</div>
+			) : null}
+			<div
+				className={
+					chartData.length === 1
+						? "flex min-h-[148px] flex-col justify-center space-y-2 rounded-md border border-border/60 bg-muted/15 px-3 py-3"
+						: "space-y-1.5 pt-1"
+				}
+			>
+				{chartData.length === 1 ? (
+					<p className="pb-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+						Latest percentile snapshot
+					</p>
+				) : null}
 				{providerRows.map((provider) => {
 					const { isActive, isDimmed } = getSeriesEmphasis(
 						activeSeriesKey,
@@ -473,7 +496,9 @@ export default function ModelProviderTrendChart({
 									metricConfig.formatValue(provider.hoveredValue)
 								) : (
 									<>
-										<span className="text-muted-foreground">Avg </span>
+										{chartData.length > 1 ? (
+											<span className="text-muted-foreground">Avg </span>
+										) : null}
 										{metricConfig.formatValue(provider.average)}
 									</>
 								)}

@@ -7,7 +7,10 @@ import type {
 	ModelProviderDailyPoint,
 	ModelPerformanceQualityPoint,
 } from "@/lib/fetchers/models/getModelPerformance";
-import ModelProviderTrendChart from "./ModelProviderTrendChart";
+import ModelProviderTrendChart, {
+	isUsableMetricValue,
+	type MetricKey,
+} from "./ModelProviderTrendChart";
 import ModelQualityTrendChart from "./ModelQualityTrendChart";
 
 function MetricCard({
@@ -46,12 +49,52 @@ export default function ModelPerformanceCards({
 	const hasToolCallQuality = qualitySeries.some((point) => point.toolCallSuccessPct != null);
 	const hasStructuredOutputQuality = qualitySeries.some((point) => point.structuredOutputSuccessPct != null);
 	const hasCacheQuality = qualitySeries.some((point) => point.cacheHitRatePct != null);
-	const chartData = chartProviderDaily7d ?? providerDaily7d;
-	const maxSeries = chartProviderDaily7d ? 9 : 3;
+	const chartData = chartProviderDaily7d
+		? chartProviderDaily7d.filter((point) =>
+			["percentile-10", "percentile-50", "percentile-90"].includes(
+				point.provider,
+			),
+		)
+		: providerDaily7d;
+	const maxSeries = 3;
+	const metricAvailability: Array<{
+		metric: MetricKey;
+		valueKey:
+			| "avgThroughput"
+			| "avgOutputSpeed"
+			| "avgLatencyMs"
+			| "avgGenerationMs"
+			| "avgPhaseoOverheadMs"
+			| "avgTpotMs"
+			| "avgItlMs";
+		label: string;
+	}> = [
+		{ metric: "throughput", valueKey: "avgThroughput", label: "Effective throughput" },
+		{ metric: "outputSpeed", valueKey: "avgOutputSpeed", label: "Output speed" },
+		{ metric: "latency", valueKey: "avgLatencyMs", label: "Time to first token" },
+		{ metric: "generation", valueKey: "avgGenerationMs", label: "Provider duration" },
+		{ metric: "overhead", valueKey: "avgPhaseoOverheadMs", label: "Phaseo overhead" },
+		{ metric: "tpot", valueKey: "avgTpotMs", label: "TPOT" },
+		{ metric: "itl", valueKey: "avgItlMs", label: "ITL" },
+	];
+	const availableMetrics = new Set(
+		metricAvailability
+			.filter(({ metric, valueKey }) =>
+				chartData.some(
+					(point) =>
+						point.requests > 0 &&
+						isUsableMetricValue(metric, point[valueKey]),
+				),
+			)
+			.map(({ metric }) => metric),
+	);
+	const unavailableMetricLabels = metricAvailability
+		.filter(({ metric }) => !availableMetrics.has(metric))
+		.map(({ label }) => label);
 
 	return (
 		<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-			<MetricCard>
+			{availableMetrics.has("throughput") ? <MetricCard>
 				<ModelProviderTrendChart
 					title="Effective throughput"
 					data={chartData}
@@ -60,8 +103,8 @@ export default function ModelPerformanceCards({
 					activeDay={activeDay}
 					onActiveDayChange={setActiveDay}
 				/>
-			</MetricCard>
-			<MetricCard>
+			</MetricCard> : null}
+			{availableMetrics.has("outputSpeed") ? <MetricCard>
 				<ModelProviderTrendChart
 					title="Output speed"
 					data={chartData}
@@ -70,7 +113,7 @@ export default function ModelPerformanceCards({
 					activeDay={activeDay}
 					onActiveDayChange={setActiveDay}
 				/>
-			</MetricCard>
+			</MetricCard> : null}
 
 			{hasToolCallQuality ? (
 				<ModelQualityTrendChart title="Tool call success" data={qualitySeries} metric="toolCallSuccessPct" />
@@ -82,7 +125,7 @@ export default function ModelPerformanceCards({
 				<ModelQualityTrendChart title="Cache hit rate" data={qualitySeries} metric="cacheHitRatePct" />
 			) : null}
 
-			<MetricCard>
+			{availableMetrics.has("latency") ? <MetricCard>
 				<ModelProviderTrendChart
 					title="Time to first token"
 					data={chartData}
@@ -91,9 +134,9 @@ export default function ModelPerformanceCards({
 					activeDay={activeDay}
 					onActiveDayChange={setActiveDay}
 				/>
-			</MetricCard>
+			</MetricCard> : null}
 
-			<MetricCard>
+			{availableMetrics.has("generation") ? <MetricCard>
 				<ModelProviderTrendChart
 					title="Provider duration"
 					data={chartData}
@@ -102,8 +145,8 @@ export default function ModelPerformanceCards({
 					activeDay={activeDay}
 					onActiveDayChange={setActiveDay}
 				/>
-			</MetricCard>
-			<MetricCard>
+			</MetricCard> : null}
+			{availableMetrics.has("overhead") ? <MetricCard>
 				<ModelProviderTrendChart
 					title="Phaseo overhead"
 					data={chartData}
@@ -112,8 +155,8 @@ export default function ModelPerformanceCards({
 					activeDay={activeDay}
 					onActiveDayChange={setActiveDay}
 				/>
-			</MetricCard>
-			<MetricCard>
+			</MetricCard> : null}
+			{availableMetrics.has("tpot") ? <MetricCard>
 				<ModelProviderTrendChart
 					title="TPOT"
 					data={chartData}
@@ -122,8 +165,8 @@ export default function ModelPerformanceCards({
 					activeDay={activeDay}
 					onActiveDayChange={setActiveDay}
 				/>
-			</MetricCard>
-			<MetricCard>
+			</MetricCard> : null}
+			{availableMetrics.has("itl") ? <MetricCard>
 				<ModelProviderTrendChart
 					title="ITL"
 					data={chartData}
@@ -132,7 +175,14 @@ export default function ModelPerformanceCards({
 					activeDay={activeDay}
 					onActiveDayChange={setActiveDay}
 				/>
-			</MetricCard>
+			</MetricCard> : null}
+
+			{unavailableMetricLabels.length > 0 ? (
+				<div className="rounded-lg border border-dashed border-border/70 px-4 py-3 text-xs text-muted-foreground md:col-span-2 lg:col-span-3">
+					<span className="font-medium text-foreground">Not recorded for recent requests:</span>{" "}
+					{unavailableMetricLabels.join(", ")}.
+				</div>
+			) : null}
 
 			{!hasHourly ? (
 				<p className="text-xs text-muted-foreground md:col-span-2 lg:col-span-3">
