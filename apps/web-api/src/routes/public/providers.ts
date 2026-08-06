@@ -247,10 +247,10 @@ async function appTokenSeries(env: Env, providerId: string, days: number, topLim
 		totals.set(id, (totals.get(id) ?? 0) + tokens); const values = daily.get(day) ?? new Map<string, number>(); values.set(id, (values.get(id) ?? 0) + tokens); daily.set(day, values);
 	}
 	const ids = Array.from(totals.entries()).sort((left, right) => right[1] - left[1]).slice(0, topLimit).map(([id]) => id);
-	const metaResult = ids.length ? await getDataClient(env).from("api_apps").select("id,title,url,image_url").in("id", ids) : { data: [], error: null };
+	const metaResult = ids.length ? await getDataClient(env).from("api_apps").select("id,title,url,image_url").in("id", ids).eq("is_public", true) : { data: [], error: null };
 	if (metaResult.error) throw metaResult.error;
 	const meta = new Map((metaResult.data ?? []).map((row) => [String(row.id), row])); const topMeta = new Map(topRows.map((row) => [String(row.app_id), row]));
-	const apps = ids.map((appId) => {
+	const apps = ids.filter((appId) => meta.has(appId)).map((appId) => {
 		const primary = topMeta.get(appId) as Record<string, unknown> | undefined; const fallback = meta.get(appId); const title = String(primary?.title ?? fallback?.title ?? appId).trim() || appId;
 		const primaryUrl = typeof primary?.url === "string" ? primary.url : null;
 		return unknownApp(appId, title) ? null : { appId, title, url: primaryUrl ?? fallback?.url ?? null, imageUrl: fallback?.image_url ?? null, totalTokens: Math.round(totals.get(appId) ?? 0) };
@@ -368,10 +368,13 @@ publicProvidersRouter.get("/:providerId/top-apps", async (c) => {
 		}
 		const rows = (result.data ?? []).filter((row) => !unknownApp(String(row.app_id ?? ""), row.title));
 		const ids = rows.map((row) => String(row.app_id ?? "")).filter(Boolean);
-		const appResult = ids.length ? await client.from("api_apps").select("id,image_url").in("id", ids) : { data: [], error: null };
+		const appResult = ids.length ? await client.from("api_apps").select("id,title,url,image_url").in("id", ids).eq("is_public", true) : { data: [], error: null };
 		if (appResult.error) throw appResult.error;
-		const images = new Map((appResult.data ?? []).map((row) => [row.id, row.image_url ?? null]));
-		const apps = rows.map((row) => ({ app_id: row.app_id, title: row.title || row.app_id, url: row.url || null, image_url: images.get(row.app_id) ?? null, total_tokens: Number(row.total_tokens) }));
+		const publicApps = new Map((appResult.data ?? []).map((row) => [row.id, row]));
+		const apps = rows.flatMap((row) => {
+			const app = publicApps.get(row.app_id);
+			return app ? [{ app_id: row.app_id, title: app.title || row.title || row.app_id, url: app.url || row.url || null, image_url: app.image_url ?? null, total_tokens: Number(row.total_tokens) }] : [];
+		});
 		return withPublicCache(c.json({ apps }), providerPolicy(TELEMETRY_CACHE, providerId));
 	} catch (error) {
 		console.error("[web-api/providers] top apps failed", { providerId, error });

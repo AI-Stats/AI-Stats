@@ -25,7 +25,7 @@ describe("public provider routes", () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
 			if (url.includes("get_top_models_stats_tokens")) return new Response(JSON.stringify([{ model_id: "openai/gpt-test", model_name: "GPT Test", request_count: "4", total_tokens: "120", median_latency_ms: "12.6", median_throughput: "3.456" }]), { status: 200 });
-			if (url.includes("get_top_apps_stats")) return new Response(JSON.stringify([{ app_id: "app-1", title: "Example", url: "https://example.com", total_tokens: "99" }, { app_id: "unknown", title: "Unknown", total_tokens: 1000 }]), { status: 200 });
+			if (url.includes("get_top_apps_stats")) return new Response(JSON.stringify([{ app_id: "app-1", title: "Example", url: "https://example.com", total_tokens: "99" }, { app_id: "app-private", title: "Private", url: "https://private.example", total_tokens: "500" }, { app_id: "unknown", title: "Unknown", total_tokens: 1000 }]), { status: 200 });
 			if (url.includes("v2_models")) return new Response(JSON.stringify([{ model_slug: "openai/gpt-test", hidden: false }]), { status: 200 });
 			if (url.includes("api_apps")) return new Response(JSON.stringify([{ id: "app-1", image_url: "https://example.com/app.png" }]), { status: 200 });
 			return new Response(JSON.stringify([]), { status: 200 });
