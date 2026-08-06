@@ -10,13 +10,26 @@ import {
 	YAxis,
 } from "recharts";
 import type { ModelPerformanceQualityPoint } from "@/lib/fetchers/models/getModelPerformance";
+import { ModelMetricInfo } from "./ModelMetricInfo";
 
 type QualityMetric = "toolCallSuccessPct" | "structuredOutputSuccessPct" | "cacheHitRatePct";
 
-const METRICS: Record<QualityMetric, { label: string; color: string }> = {
-	toolCallSuccessPct: { label: "Tool call success", color: "hsl(221, 83%, 53%)" },
-	structuredOutputSuccessPct: { label: "Structured output", color: "hsl(262, 83%, 58%)" },
-	cacheHitRatePct: { label: "Cache hit rate", color: "hsl(142, 71%, 45%)" },
+const METRICS: Record<QualityMetric, { label: string; description: string; color: string }> = {
+	toolCallSuccessPct: {
+		label: "Tool call success",
+		description: "Share of observed tool-calling requests that completed with a successful tool call.",
+		color: "hsl(221, 83%, 53%)",
+	},
+	structuredOutputSuccessPct: {
+		label: "Structured output",
+		description: "Share of structured-output attempts that returned a valid structured response.",
+		color: "hsl(262, 83%, 58%)",
+	},
+	cacheHitRatePct: {
+		label: "Cache hit rate",
+		description: "Share of eligible observed requests that reused cached input tokens.",
+		color: "hsl(142, 71%, 45%)",
+	},
 };
 
 export default function ModelQualityTrendChart({
@@ -42,7 +55,10 @@ export default function ModelQualityTrendChart({
 		<div className="min-w-0 rounded-lg border border-border/70 bg-background px-4 py-4">
 			<div className="h-[228px] w-full min-w-0">
 				<div className="mb-3 flex items-center justify-between gap-3">
-					<p className="text-lg font-medium leading-none text-foreground">{title}</p>
+					<div className="flex items-center gap-1.5">
+						<p className="text-lg font-medium leading-none text-foreground">{title}</p>
+						<ModelMetricInfo label={config.label} description={config.description} />
+					</div>
 					<span className="text-[11px] text-muted-foreground">%</span>
 				</div>
 				<div className="h-[174px] w-full">

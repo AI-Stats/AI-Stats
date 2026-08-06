@@ -333,30 +333,48 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
                         finalUsageAfterWrite = usageCandidate;
                     }
 
+                    if (firstOutputAt === null && containsGeneratedOutput) {
+                        firstOutputAt = performance.now();
+                        const firstOutputAtMs = Date.now();
+                        if (!ctx.meta.preserve_stream_timing) {
+                            const upstreamStartMs = resolveSelectedUpstreamStartMs();
+                            const gatewayStartMs = typeof ctx.meta.startedAtMs === "number"
+                                ? ctx.meta.startedAtMs
+                                : null;
+                            if (upstreamStartMs !== null) {
+                                // Date.now() has millisecond precision. A content frame that
+                                // lands in the same tick is still a real, positive observation.
+                                const providerTtftMs = Math.max(
+                                    1,
+                                    Math.round(firstOutputAtMs - upstreamStartMs),
+                                );
+                                ctx.meta.provider_ttft_ms = providerTtftMs;
+                                ctx.meta.latency_ms = providerTtftMs;
+                            } else {
+                                // A post-headers stream timestamp is not provider TTFT. Leave
+                                // the metric absent unless the selected dispatch clock exists.
+                                delete ctx.meta.provider_ttft_ms;
+                                delete ctx.meta.latency_ms;
+                            }
+                            if (gatewayStartMs !== null) {
+                                ctx.meta.gateway_ttft_ms = Math.max(
+                                    1,
+                                    Math.round(firstOutputAtMs - gatewayStartMs),
+                                );
+                            } else {
+                                delete ctx.meta.gateway_ttft_ms;
+                            }
+                        }
+                    }
+
+                    // Capture arrival timing before response rewriting and downstream writes;
+                    // neither transform work nor client backpressure belongs in provider TTFT.
                     for (const outbound of outboundFrames) {
                         let frameOut: any = outbound.frame;
                         if (rewriteFrame) {
                             try { frameOut = rewriteFrame(frameOut) ?? frameOut; } catch { }
                         }
                         await writeJson(frameOut, outbound.eventName ?? null);
-                    }
-                    if (firstOutputAt === null && containsGeneratedOutput) {
-                        firstOutputAt = performance.now();
-                        const firstOutputAtMs = Date.now();
-                        if (!ctx.meta.preserve_stream_timing) {
-                            const upstreamStartMs = resolveSelectedUpstreamStartMs();
-                            const providerTtftMs = upstreamStartMs !== null
-                                ? Math.max(0, Math.round(firstOutputAtMs - upstreamStartMs))
-                                : Math.max(0, Math.round(firstOutputAt - tStart));
-                            const gatewayStartMs = typeof ctx.meta.startedAtMs === "number"
-                                ? ctx.meta.startedAtMs
-                                : null;
-                            ctx.meta.provider_ttft_ms = providerTtftMs;
-                            ctx.meta.gateway_ttft_ms = gatewayStartMs !== null
-                                ? Math.max(0, Math.round(firstOutputAtMs - gatewayStartMs))
-                                : providerTtftMs;
-                            ctx.meta.latency_ms = providerTtftMs;
-                        }
                     }
 
                     if (finalUsageAfterWrite) {
