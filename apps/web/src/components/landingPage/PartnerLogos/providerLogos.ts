@@ -31,14 +31,18 @@ export function getProviderLogos(providerIds: string[]): string[] {
 	const exclusionSet = new Set(
 		excludedProviderLogos.map(normaliseDescriptor)
 	);
-	const knownProviderIds = new Set(
-		providerIds.map((id) => id.trim().toLowerCase()).filter(Boolean)
+	const knownProviderLogoIds = new Set(
+		providerIds
+			.map((id) => id.trim().toLowerCase())
+			.filter((id) => id && !blockedProviderIds.has(id))
+			.map((id) => resolveLogo(id, { fallbackToColor: false }).id)
+			.filter((id): id is NonNullable<typeof id> => Boolean(id))
 	);
 
 	const allLogos = listKnownLogos()
 		.filter(({ id, assets }) => {
 			const normalizedId = String(id).toLowerCase();
-			if (!knownProviderIds.has(normalizedId)) return false;
+			if (!knownProviderLogoIds.has(id)) return false;
 			if (blockedProviderIds.has(normalizedId)) return false;
 
 			const hasLanguageAsset = Object.values(assets).some((asset) =>
