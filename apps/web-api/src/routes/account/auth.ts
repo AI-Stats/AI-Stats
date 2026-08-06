@@ -98,7 +98,7 @@ accountAuthRouter.get("/workspace", async (c) => {
 	].filter(Boolean));
 	const defaultWorkspaceId = String(userResult.data?.default_workspace_id ?? "").trim();
 	const workspaceId = (requested && accessible.has(requested) ? requested : null) ?? (defaultWorkspaceId && accessible.has(defaultWorkspaceId) ? defaultWorkspaceId : null) ?? [...accessible].sort()[0] ?? null;
-	if (workspaceId && workspaceId !== defaultWorkspaceId && c.req.query("persist") !== "0") {
+	if (workspaceId && workspaceId !== defaultWorkspaceId && c.req.query("persist") === "1") {
 		const update = await client.from("users").update({ default_workspace_id: workspaceId }).eq("user_id", user.id);
 		if (update.error) return c.json({ error: "workspace_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
