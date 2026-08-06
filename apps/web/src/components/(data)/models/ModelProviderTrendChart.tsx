@@ -7,11 +7,12 @@ import {
 	LineChart,
 	ReferenceLine,
 	ResponsiveContainer,
-	Tooltip,
+	Tooltip as RechartsTooltip,
 	XAxis,
 	YAxis,
 } from "recharts";
 import type { ModelProviderDailyPoint } from "@/lib/fetchers/models/getModelPerformance";
+import { ModelMetricInfo } from "./ModelMetricInfo";
 
 type MetricKey =
 	| "throughput"
@@ -44,6 +45,7 @@ export function getSeriesEmphasis(
 
 type MetricConfig = {
 	label: string;
+	description: string;
 	valueKey:
 		| "avgThroughput"
 		| "avgOutputSpeed"
@@ -58,36 +60,43 @@ type MetricConfig = {
 const METRICS: Record<MetricKey, MetricConfig> = {
 	throughput: {
 		label: "Effective throughput",
+		description: "Output tokens per second across the full selected-provider request, including time to first token.",
 		valueKey: "avgThroughput",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} t/s` : "-"),
 	},
 	outputSpeed: {
 		label: "Output speed",
+		description: "Output tokens per second after the first token arrives, excluding time to first token.",
 		valueKey: "avgOutputSpeed",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} t/s` : "-"),
 	},
 	latency: {
 		label: "Time to first token",
+		description: "Time from the request entering Phaseo until the first content-bearing generated output reaches the gateway.",
 		valueKey: "avgLatencyMs",
 		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
 	},
 	generation: {
 		label: "Provider duration",
+		description: "Time from sending the selected provider request until its final response completes.",
 		valueKey: "avgGenerationMs",
 		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
 	},
 	overhead: {
 		label: "Phaseo overhead",
+		description: "Gateway end-to-end duration minus the selected provider duration, including routing and response processing.",
 		valueKey: "avgPhaseoOverheadMs",
 		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
 	},
 	tpot: {
 		label: "TPOT",
+		description: "Time per output token after the first token. Lower values indicate faster token generation.",
 		valueKey: "avgTpotMs",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} ms` : "-"),
 	},
 	itl: {
 		label: "ITL",
+		description: "Estimated average interval between generated tokens. It currently uses the request-level TPOT estimate.",
 		valueKey: "avgItlMs",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} ms` : "-"),
 	},
@@ -241,9 +250,10 @@ export default function ModelProviderTrendChart({
 	if (providers.length === 0) {
 		return (
 			<div className="flex h-full flex-col gap-3">
-				<p className="text-lg font-medium leading-none text-foreground">
-					{title}
-				</p>
+				<div className="flex items-center gap-1.5">
+					<p className="text-lg font-medium leading-none text-foreground">{title}</p>
+					<ModelMetricInfo label={metricConfig.label} description={metricConfig.description} />
+				</div>
 				<div className="flex flex-1 items-center justify-center rounded-md border border-dashed border-border px-4 text-center text-xs text-muted-foreground">
 					No data is available for this metric and filter combination.
 				</div>
@@ -254,9 +264,10 @@ export default function ModelProviderTrendChart({
 	return (
 		<div className="space-y-3">
 			<div className="flex items-start justify-between gap-3">
-				<p className="text-lg font-medium leading-none text-foreground">
-					{title}
-				</p>
+				<div className="flex items-center gap-1.5">
+					<p className="text-lg font-medium leading-none text-foreground">{title}</p>
+					<ModelMetricInfo label={metricConfig.label} description={metricConfig.description} />
+				</div>
 				<span className="shrink-0 whitespace-nowrap text-[11px] text-muted-foreground">
 					{activeHeadingDate}
 				</span>
@@ -338,7 +349,7 @@ export default function ModelProviderTrendChart({
 							hide
 						/>
 						<YAxis hide />
-						<Tooltip
+						<RechartsTooltip
 							cursor={false}
 							content={({ active, payload }) => {
 								if (!active || !payload?.length) return null;

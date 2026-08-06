@@ -9,7 +9,6 @@ import type {
 } from "@/lib/fetchers/models/getModelPerformance";
 import ModelProviderTrendChart from "./ModelProviderTrendChart";
 import ModelQualityTrendChart from "./ModelQualityTrendChart";
-import ModelRequestVolumeChart from "./ModelRequestVolumeChart";
 
 function MetricCard({
 	children,
@@ -52,9 +51,6 @@ export default function ModelPerformanceCards({
 
 	return (
 		<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-			<MetricCard>
-				<ModelRequestVolumeChart data={hourly} />
-			</MetricCard>
 			<MetricCard>
 				<ModelProviderTrendChart
 					title="Effective throughput"
