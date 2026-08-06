@@ -25,7 +25,7 @@
     {
       "title": "Novita model page",
       "kind": "documentation",
-      "url": "https://novita.ai/de/models/model-detail/inclusionai-ling-3.0-flash"
+      "url": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash"
     },
     {
       "title": "Vercel AI Gateway model page",
@@ -43,8 +43,12 @@
       "value": 262144
     },
     {
+      "name": "output_context_length",
+      "value": 32768
+    },
+    {
       "name": "pricing_note",
-      "value": "Free on Novita through 6 August 2026 at 8:00 AM PT."
+      "value": "Novita lists $0.06 per 1M input tokens, $0.012 per 1M cached input tokens, and $0.18 per 1M output tokens after the free promotion ended on 6 August 2026 at 8:00 AM PT."
     }
   ],
   "benchmarks": [],
@@ -53,8 +57,8 @@
   "knowledge_cutoff": null,
   "limits": {
     "context": 262144,
-    "input": null,
-    "output": null
+    "input": 262144,
+    "output": 32768
   },
   "modalities": {
     "input": [
@@ -69,10 +73,10 @@
     "options": []
   },
   "capabilities": {
-    "attachment": null,
+    "attachment": false,
     "tool_call": true,
     "structured_output": null,
-    "temperature": null,
+    "temperature": true,
     "streaming": true,
     "web_search": null
   },
@@ -80,9 +84,9 @@
   "sources": [
     {
       "kind": "documentation",
-      "url": "https://novita.ai/de/models/model-detail/inclusionai-ling-3.0-flash",
-      "accessed_at": "2026-08-01T00:00:00Z",
-      "notes": "Official Novita model page and API examples."
+      "url": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash",
+      "accessed_at": "2026-08-06T00:00:00Z",
+      "notes": "Official Novita model page confirms the current paid pricing, callable identifier, context and output limits, function calling, and reasoning support."
     },
     {
       "kind": "announcement",
@@ -93,10 +97,10 @@
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-01T00:00:00Z",
-    "notes": "Provider availability, model identifier, context and temporary free pricing verified from official Novita sources."
+    "checked_at": "2026-08-06T00:00:00Z",
+    "notes": "Novita availability, model identifier, context, output limit, capabilities, promotional expiry, and current paid pricing verified from official sources."
   },
-  "last_updated": "2026-08-01T00:00:00Z",
+  "last_updated": "2026-08-06T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

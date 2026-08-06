@@ -470,6 +470,14 @@ class ModelIds:
     # Model page: https://phaseo.app/models/inclusionai/ling-2.6-1t
     INCLUSIONAI_LING_2_6_1T: Final[str] = "inclusionai/ling-2.6-1t"
 
+    # Model ID: inclusionai/ling-3.0-flash
+    # Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash
+    INCLUSIONAI_LING_3_0_FLASH: Final[str] = "inclusionai/ling-3.0-flash"
+
+    # Model ID: inclusionai/ling-3.0-tiny
+    # Model page: https://phaseo.app/models/inclusionai/ling-3.0-tiny
+    INCLUSIONAI_LING_3_0_TINY: Final[str] = "inclusionai/ling-3.0-tiny"
+
     # Model ID: inclusionai/ling-flash-2.0
     # Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0
     INCLUSIONAI_LING_FLASH_2_0: Final[str] = "inclusionai/ling-flash-2.0"
@@ -577,6 +585,10 @@ class ModelIds:
     # Model ID: microsoft/phi-4-mini
     # Model page: https://phaseo.app/models/microsoft/phi-4-mini
     MICROSOFT_PHI_4_MINI: Final[str] = "microsoft/phi-4-mini"
+
+    # Model ID: mindai/macaron-v1-tall
+    # Model page: https://phaseo.app/models/mindai/macaron-v1-tall
+    MINDAI_MACARON_V1_TALL: Final[str] = "mindai/macaron-v1-tall"
 
     # Model ID: minimax/hailuo-02
     # Model page: https://phaseo.app/models/minimax/hailuo-02

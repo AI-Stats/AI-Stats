@@ -2182,14 +2182,14 @@
   {
     "api_model_id": "deepseek/deepseek-v4-flash-0731",
     "provider_api_model_id": "novita:deepseek/deepseek-v4-flash-0731",
-    "provider_model_slug": "deepseek/deepseek-v4-flash",
+    "provider_model_slug": "deepseek/deepseek-v4-flash-0731",
     "internal_model_id": "deepseek/deepseek-v4-flash-0731",
     "is_active_gateway": true,
-    "quantization_scheme": null,
+    "quantization_scheme": "FP8",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1048576,
-    "max_output_tokens": null,
+    "max_output_tokens": 393216,
     "effective_from": "2026-07-31T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -2198,10 +2198,10 @@
         "status": "active",
         "params": [],
         "reasoning": true,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
@@ -2227,12 +2227,18 @@
         "url": "https://novita.ai/pricing",
         "accessed_at": "2026-08-01T00:00:00Z",
         "notes": "Official Novita pricing page lists the 0731 model separately with its context and token prices."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://novita.ai/models/model-detail/deepseek-deepseek-v4-flash-0731",
+        "accessed_at": "2026-08-06T00:00:00Z",
+        "notes": "Official model page confirms the exact provider slug, FP8 deployment, output limit, function calling, structured output, and reasoning support."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-01T00:00:00Z",
-      "notes": "Confirmed as a distinct live Novita deployment."
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Confirmed as a distinct live Novita deployment with the dated provider slug and provider-specific limits."
     },
     "rate_limits": []
   },
@@ -12755,18 +12761,18 @@
     "provider_api_model_id": "novita:inclusionai/ling-3.0-flash:free",
     "provider_model_slug": "inclusionai/ling-3.0-flash",
     "internal_model_id": "inclusionai/ling-3.0-flash",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-07-23T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-06T15:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": true,
@@ -12778,8 +12784,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -12792,14 +12798,14 @@
     },
     "sources": [
       {
-        "url": "https://novita.ai/de/models/model-detail/inclusionai-ling-3.0-flash",
-        "kind": "documentation"
+        "url": "https://x.com/novita_labs/status/2083204529319989745",
+        "kind": "announcement"
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-07-24T00:00:00Z",
-      "notes": "Official Novita model page."
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Historical free route retired when the promotion ended on 6 August 2026 at 8:00 AM PT."
     },
     "rate_limits": []
   },
@@ -12854,6 +12860,218 @@
       "status": "verified",
       "checked_at": "2026-07-24T00:00:00Z",
       "notes": "Official Novita model page."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-3.0-flash",
+    "provider_api_model_id": "novita:inclusionai/ling-3.0-flash",
+    "provider_model_slug": "inclusionai/ling-3.0-flash",
+    "internal_model_id": "inclusionai/ling-3.0-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-06T15:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Official Novita model page confirms the current paid route, limits, and capabilities."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-3.0-tiny",
+    "provider_api_model_id": "novita:inclusionai/ling-3.0-tiny",
+    "provider_model_slug": "inclusionai/ling-3.0-tiny",
+    "internal_model_id": "inclusionai/ling-3.0-tiny",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-05T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-tiny",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Official Novita model page and live model listing."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "mindai/macaron-v1-tall",
+    "provider_api_model_id": "novita:mindai/macaron-v1-tall",
+    "provider_model_slug": "mindai/macaron-v1-tall",
+    "internal_model_id": "mindai/macaron-v1-tall",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-07-28T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://novita.ai/models/model-detail/mindai-macaron-v1-tall",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Official Novita model page and live model listing."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/nemotron-3-nano-30b-a3b",
+    "provider_api_model_id": "novita:nvidia/nemotron-3-nano-30b-a3b",
+    "provider_model_slug": "nvidia/nemotron-3-nano-30b-a3b",
+    "internal_model_id": "nvidia/nemotron-3-nano-30b-a3b",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-06-10T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://novita.ai/models/model-detail/nvidia-nemotron-3-nano-30b-a3b",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Official Novita model page and live model listing."
     },
     "rate_limits": []
   }

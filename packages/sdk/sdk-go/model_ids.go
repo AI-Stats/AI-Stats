@@ -349,6 +349,12 @@ const (
 	// Model ID: inclusionai/ling-2.6-1t
 	// Model page: https://phaseo.app/models/inclusionai/ling-2.6-1t
 	ModelIDInclusionaiLing261t gen.ModelId = "inclusionai/ling-2.6-1t"
+	// Model ID: inclusionai/ling-3.0-flash
+	// Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash
+	ModelIDInclusionaiLing30Flash gen.ModelId = "inclusionai/ling-3.0-flash"
+	// Model ID: inclusionai/ling-3.0-tiny
+	// Model page: https://phaseo.app/models/inclusionai/ling-3.0-tiny
+	ModelIDInclusionaiLing30Tiny gen.ModelId = "inclusionai/ling-3.0-tiny"
 	// Model ID: inclusionai/ling-flash-2.0
 	// Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0
 	ModelIDInclusionaiLingFlash20 gen.ModelId = "inclusionai/ling-flash-2.0"
@@ -430,6 +436,9 @@ const (
 	// Model ID: microsoft/phi-4-mini
 	// Model page: https://phaseo.app/models/microsoft/phi-4-mini
 	ModelIDMicrosoftPhi4Mini gen.ModelId = "microsoft/phi-4-mini"
+	// Model ID: mindai/macaron-v1-tall
+	// Model page: https://phaseo.app/models/mindai/macaron-v1-tall
+	ModelIDMindaiMacaronV1Tall gen.ModelId = "mindai/macaron-v1-tall"
 	// Model ID: minimax/hailuo-02
 	// Model page: https://phaseo.app/models/minimax/hailuo-02
 	ModelIDMinimaxHailuo02 gen.ModelId = "minimax/hailuo-02"
