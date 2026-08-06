@@ -27,6 +27,7 @@ describe("Meta OpenAI-compatible config", () => {
 		const contributorRoute = readCatalogJson("api_providers/meta-contributor/models.json")[0];
 		const standardProvider = readCatalogJson("api_providers/meta/api_provider.json");
 		const contributorProvider = readCatalogJson("api_providers/meta-contributor/api_provider.json");
+		const manifest = readCatalogJson("manifest.json");
 
 		expect(standard.model_id).toBe("meta/muse-spark-1.2");
 		expect(contributor.model_id).toBe("meta/muse-spark-1.2-contributor");
@@ -34,8 +35,13 @@ describe("Meta OpenAI-compatible config", () => {
 		expect(contributor.family_id).toBe(standard.family_id);
 		expect(contributorRoute.canonical_model_id).toBe(contributor.model_id);
 		expect(contributorRoute.internal_model_id).toBe(contributor.model_id);
+		expect(contributorRoute.provider_api_model_id).toBe(
+			"meta-contributor:meta/muse-spark-1.2-contributor",
+		);
+		expect(contributorRoute.provider_model_slug).toBe("muse-spark-1.2-contributor");
 		expect(standardProvider.prompt_training_policy).toBe("no_train");
 		expect(contributorProvider.prompt_training_policy).toBe("may_train");
+		expect(manifest.families).toContain("meta-muse-spark-1.2");
 	});
 
 	it("routes Muse Spark models through Responses", () => {

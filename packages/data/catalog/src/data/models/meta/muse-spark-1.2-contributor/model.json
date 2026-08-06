@@ -99,7 +99,7 @@
   "verification": {
     "status": "unverified",
     "checked_at": null,
-    "notes": "Contributor model metadata and pricing were verified against the Meta Model API dashboard on 2026-08-05."
+    "notes": "Contributor model metadata and pricing are based on the Meta Model API dashboard captured on 2026-08-05; live model availability remains unverified."
   },
   "last_updated": "2026-08-06T00:00:00",
   "removal_date": null,
