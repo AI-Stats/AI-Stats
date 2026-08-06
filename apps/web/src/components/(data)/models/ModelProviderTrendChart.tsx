@@ -199,6 +199,11 @@ export default function ModelProviderTrendChart({
 		}));
 
 	const providerIdSet = new Set(providers.map((provider) => provider.provider));
+	const seriesColumnLabel = providers.every((provider) =>
+		provider.provider.startsWith("percentile-"),
+	)
+		? "Percentile"
+		: "Provider";
 	const filtered = observedData.filter((point) =>
 		providerIdSet.has(point.provider),
 	);
@@ -492,7 +497,7 @@ export default function ModelProviderTrendChart({
 				<div className="min-h-0 flex-1 overflow-y-auto rounded-md border border-border/70">
 					<div className="sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground">
 						<Button variant="ghost" size="sm" className="-ml-2 h-7 w-fit px-2 text-xs" onClick={() => toggleTableSort("provider")}>
-							Provider <ArrowUpDown className="ml-1.5 size-3.5" />
+							{seriesColumnLabel} <ArrowUpDown className="ml-1.5 size-3.5" />
 						</Button>
 						<Button variant="ghost" size="sm" className="ml-auto h-7 px-2 text-xs" onClick={() => toggleTableSort("minimum")}>
 							Min <ArrowUpDown className="ml-1.5 size-3.5" />
