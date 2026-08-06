@@ -120,7 +120,7 @@ const METRICS: Record<MetricKey, MetricConfig> = {
 	},
 	itl: {
 		label: "ITL",
-		description: "Estimated average interval between generated tokens. Until token-level arrival timestamps are stored, this uses the same request-level estimate as TPOT.",
+		description: "Mean observed interval between successive content-bearing provider stream frames. Providers may batch multiple tokens into one frame.",
 		axisLabel: "Milliseconds",
 		valueKey: "avgItlMs",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} ms` : "-"),

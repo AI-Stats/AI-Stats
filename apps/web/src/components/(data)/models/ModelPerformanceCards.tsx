@@ -73,7 +73,7 @@ const METRICS: MetricDefinition[] = [
 		metric: "itl",
 		valueKey: "avgItlMs",
 		label: "ITL",
-		description: "Estimated average interval between generated tokens. It matches TPOT until token-level arrival timestamps are available.",
+		description: "Mean observed interval between successive content-bearing provider stream frames. Providers may batch tokens.",
 	},
 ];
 

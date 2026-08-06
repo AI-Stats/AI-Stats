@@ -12,7 +12,7 @@ describe("calculateOutputPerformanceMetrics", () => {
 			effectiveThroughputTps: 50.5,
 			outputSpeedTps: 100 / 1.5,
 			tpotMs: 15,
-			itlMs: 15,
+			itlMs: null,
 			phaseoOverheadMs: 80,
 		});
 	});
