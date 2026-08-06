@@ -1,4 +1,5 @@
 import { buildSingleProviderPercentileSeries } from "@/components/(data)/models/modelPerformancePercentiles";
+import { MODEL_PERCENTILES } from "@/components/(data)/models/ModelPercentileSelect";
 
 describe("buildSingleProviderPercentileSeries", () => {
 	it("turns one provider into percentile chart series", () => {
@@ -57,6 +58,28 @@ describe("buildSingleProviderPercentileSeries", () => {
 
 	it("does not replace provider comparison for multiple providers", () => {
 		expect(buildSingleProviderPercentileSeries(2, [])).toBeNull();
+	});
+
+	it("assigns a distinct colour to every supported percentile", () => {
+		const result = buildSingleProviderPercentileSeries(
+			1,
+			MODEL_PERCENTILES.map((percentile) => ({
+				day: "2026-07-23",
+				provider: "poolside",
+				providerName: "Poolside",
+				providerColor: null,
+				percentile,
+				avgThroughput: 8.5,
+				avgLatencyMs: 230,
+				avgGenerationMs: 520,
+				requests: 100,
+			})),
+		);
+
+		expect(result).toHaveLength(MODEL_PERCENTILES.length);
+		expect(new Set(result?.map((point) => point.providerColor)).size).toBe(
+			MODEL_PERCENTILES.length,
+		);
 	});
 
 	it("rejects empty or unsupported single-provider points", () => {
