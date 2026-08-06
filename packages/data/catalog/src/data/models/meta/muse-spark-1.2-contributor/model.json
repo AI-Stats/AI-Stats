@@ -4,7 +4,7 @@
   "name": "Muse Spark 1.2 Contributor",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Muse Spark 1.2 Contributor is the explicit opt-in variant that discounts inference in exchange for allowing Meta to use prompts and completions for model training.",
+  "description": "Muse Spark 1.2 Contributor is the lower-cost, training-enabled edition of Meta's coding-optimized model for agentic workflows. It shares the capabilities and 1 million token context window of Muse Spark 1.2, while allowing Meta to use prompts and completions to train future models.",
   "announced_date": "2026-08-05T00:00:00",
   "release_date": "2026-08-05T00:00:00",
   "deprecation_date": null,
@@ -31,18 +31,25 @@
       "value": "1048576",
       "unit": "tokens",
       "source_link": "https://dev.meta.ai/docs/models",
-      "other_info": "Meta lists a 1,048,576 token context window for Muse Spark 1.2."
+      "other_info": "Meta lists a 1,048,576 token context window for Muse Spark 1.2 Contributor."
+    },
+    {
+      "name": "api_status",
+      "value": "public_preview",
+      "unit": null,
+      "source_link": "https://dev.meta.ai/docs/models",
+      "other_info": "Available through the training-enabled Meta Model API contributor route."
     },
     {
       "name": "data_use",
-      "value": "may_train",
+      "value": "training_enabled",
       "unit": null,
       "source_link": "https://dev.meta.ai/docs/pricing-rate-limits",
-      "other_info": "This explicit contributor variant permits Meta to use prompts and completions for training."
+      "other_info": "Meta may use prompts and completions to train future models in exchange for discounted pricing."
     }
   ],
   "benchmarks": [],
-  "family_id": null,
+  "family_id": "meta/muse-spark-1.2",
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
@@ -86,13 +93,13 @@
       "kind": "pricing",
       "url": "https://dev.meta.ai/docs/pricing-rate-limits",
       "accessed_at": "2026-08-05",
-      "notes": "Contributor tier pricing and data-use policy."
+      "notes": "Contributor pricing, data-use policy, and rate limits."
     }
   ],
   "verification": {
     "status": "unverified",
     "checked_at": null,
-    "notes": "Contributor tier metadata was verified against the Meta Model API dashboard on 2026-08-05."
+    "notes": "Contributor model metadata and pricing were verified against the Meta Model API dashboard on 2026-08-05."
   },
   "last_updated": "2026-08-06T00:00:00",
   "removal_date": null,

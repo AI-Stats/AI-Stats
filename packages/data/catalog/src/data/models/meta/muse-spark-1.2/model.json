@@ -38,11 +38,11 @@
       "value": "public_preview",
       "unit": null,
       "source_link": "https://dev.meta.ai/docs/models",
-      "other_info": "Available through the Meta Model API in standard and contributor routes."
+      "other_info": "Available through the Meta Model API standard route, where prompts and completions are not used for training."
     }
   ],
   "benchmarks": [],
-  "family_id": null,
+  "family_id": "meta/muse-spark-1.2",
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
@@ -86,7 +86,7 @@
       "kind": "pricing",
       "url": "https://dev.meta.ai/docs/pricing-rate-limits",
       "accessed_at": "2026-08-05",
-      "notes": "Standard and contributor tier pricing, data-use policy, and rate limits."
+      "notes": "Standard tier pricing, data-use policy, and rate limits."
     }
   ],
   "verification": {
