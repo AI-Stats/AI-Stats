@@ -9,7 +9,7 @@
   "privacy_policy_url": "https://www.facebook.com/privacy/policy/",
   "terms_of_service_url": "https://llama.developer.meta.com/legal/terms-of-service",
   "prompt_training_policy": "no_train",
-  "prompt_training_notes": "Meta Model API standard-tier prompts and completions are not used to train Meta models. Individual contributor-tier model routes override this policy because they permit training in exchange for discounted pricing.",
+  "prompt_training_notes": "Meta Model API standard-tier prompts and completions are not used to train Meta models. The training-enabled contributor edition is exposed as a separate canonical model and provider offer.",
   "prompt_training_source_url": "https://dev.meta.ai/docs/pricing-rate-limits",
   "gateway_kind": null,
   "routable": null,
