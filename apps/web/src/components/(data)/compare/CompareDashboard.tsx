@@ -1,27 +1,13 @@
 "use client";
 
-import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import MainCard from "./MainCard";
 import ComparisonDisplay from "./ComparisonDisplay";
 import { ExtendedModel } from "@/data/types";
-import ModelCombobox from "./ModelCombobox";
+import CompareMiniHeader from "./CompareMiniHeader";
 import type { CompareGatewayUsageByModel } from "./types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import { ProviderLogo } from "./ProviderLogo";
-
-type QuickComparison = {
-	title: string;
-	modelIds: string[];
-	logos: string[];
-};
-
-const buildQuickComparisonKey = (comparison: QuickComparison): string =>
-	`${comparison.title}:${comparison.modelIds.join("|")}`;
 
 const decodeModelIdFromUrl = (value: string): string => {
 	const trimmed = value?.trim();
@@ -40,117 +26,66 @@ const encodeModelIdForUrl = (value: string): string => {
 	return `${organisationId}_${rest.join("/")}`;
 };
 
-function toReleaseTs(value: string | null | undefined): number {
-	if (!value) return 0;
-	const ts = new Date(value).getTime();
-	return Number.isFinite(ts) ? ts : 0;
-}
-
-function pickLatestAcrossProviders(models: ExtendedModel[], count: number): ExtendedModel[] {
-	const sorted = [...models].sort(
-		(a, b) => toReleaseTs(b.release_date) - toReleaseTs(a.release_date)
-	);
-	const picked: ExtendedModel[] = [];
-	const seenProviders = new Set<string>();
-	for (const model of sorted) {
-		const providerId = model.provider?.provider_id ?? "";
-		if (!providerId) continue;
-		if (seenProviders.has(providerId)) continue;
-		picked.push(model);
-		seenProviders.add(providerId);
-		if (picked.length >= count) break;
-	}
-	return picked;
-}
-
-function pickLatestFromProvider(models: ExtendedModel[], providerId: string): ExtendedModel | null {
-	const candidates = models.filter((m) => m.provider?.provider_id === providerId);
-	if (!candidates.length) return null;
-	return candidates.reduce((best, next) =>
-		toReleaseTs(next.release_date) > toReleaseTs(best.release_date) ? next : best
-	);
-}
-
-function buildQuickComparisons(models: ExtendedModel[]): QuickComparison[] {
-	if (!models.length) return [];
-
-	const byRelease = [...models].sort(
-		(a, b) => toReleaseTs(b.release_date) - toReleaseTs(a.release_date)
-	);
-	const topTwo = byRelease.slice(0, 2);
-	const crossProvider = pickLatestAcrossProviders(models, 4);
-
-	const bigProviders = ["openai", "anthropic", "google", "spacex-ai"];
-	const bigFour = bigProviders
-		.map((providerId) => pickLatestFromProvider(models, providerId))
-		.filter(Boolean) as ExtendedModel[];
-
-	const out: QuickComparison[] = [];
-
-	if (crossProvider.length >= 2) {
-		out.push({
-			title: "Latest releases (cross-provider)",
-			modelIds: crossProvider.map((m) => m.id),
-			logos: crossProvider.map((m) => m.provider.provider_id),
-		});
-	}
-
-	if (topTwo.length === 2) {
-		out.push({
-			title: "Newest head-to-head",
-			modelIds: topTwo.map((m) => m.id),
-			logos: topTwo.map((m) => m.provider.provider_id),
-		});
-	}
-
-	if (bigFour.length >= 2) {
-		out.push({
-			title:
-				bigFour.length >= 4
-					? "Snapshot: major providers"
-					: "Snapshot: provider leaders",
-			modelIds: bigFour.slice(0, 4).map((m) => m.id),
-			logos: bigFour.slice(0, 4).map((m) => m.provider.provider_id),
-		});
-	}
-
-	if (out.length >= 3) return out.slice(0, 3);
-
-	// Fallback: just pick distinct providers in alphabetical order.
-	const alpha = [...models].sort((a, b) => a.name.localeCompare(b.name));
-	const fallback = pickLatestAcrossProviders(alpha, 4);
-	if (fallback.length >= 2) {
-		out.push({
-			title: "Starter pack",
-			modelIds: fallback.map((m) => m.id),
-			logos: fallback.map((m) => m.provider.provider_id),
-		});
-	}
-
-	return out.slice(0, 3);
-}
-
-const buildQuickComparisonHref = (modelIds: string[]): string => {
-	const params = new URLSearchParams();
-	modelIds.forEach((id) => {
-		if (id) params.append("models", encodeModelIdForUrl(id));
-	});
-	const queryString = params.toString();
-	return queryString ? `/compare?${queryString}` : "/compare";
-};
-
 type CompareDashboardProps = {
 	models: ExtendedModel[];
 	comparisonData: ExtendedModel[];
 	usageByModel: CompareGatewayUsageByModel;
-	showIntro?: boolean;
 };
+
+const EMPTY_COMPARISON_SECTIONS = [
+	["Overview", "Core model details and context windows"],
+	["Gateway performance", "Recent latency, throughput, and usage"],
+	["Benchmarks", "Shared benchmark results"],
+	["Pricing", "Provider pricing and cost comparison"],
+	["Availability", "API providers and subscription plans"],
+] as const;
+
+function CompareFrame({
+	models,
+	children,
+}: {
+	models: ExtendedModel[];
+	children: ReactNode;
+}) {
+	return (
+		<div className="w-full">
+			<CompareMiniHeader models={models} />
+			<div className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-8">
+				{children}
+			</div>
+		</div>
+	);
+}
+
+function EmptyComparisonState() {
+	return (
+		<div className="overflow-hidden rounded-xl border border-border/70 bg-card/40">
+			<div className="border-b border-border/70 px-4 py-4 sm:px-5">
+				<h1 className="text-lg font-semibold">Model comparison</h1>
+				<p className="mt-1 text-sm text-muted-foreground">
+					Add up to four models above to compare them side by side.
+				</p>
+			</div>
+			<div className="divide-y divide-border/70">
+				{EMPTY_COMPARISON_SECTIONS.map(([title, description]) => (
+					<div
+						key={title}
+						className="flex min-h-16 flex-col justify-center gap-1 px-4 py-3 sm:grid sm:grid-cols-[minmax(10rem,0.4fr)_minmax(0,1fr)_auto] sm:items-center sm:gap-4 sm:px-5"
+					>
+						<h2 className="text-sm font-medium text-foreground">{title}</h2>
+						<p className="text-sm text-muted-foreground">{description}</p>
+						<span className="text-xs text-muted-foreground">No models selected</span>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
 
 export default function CompareDashboard({
 	models,
 	comparisonData,
 	usageByModel,
-	showIntro = true,
 }: CompareDashboardProps) {
 	const searchParams = useSearchParams() ?? new URLSearchParams();
 	const router = useRouter();
@@ -183,10 +118,6 @@ export default function CompareDashboard({
 		return uniqueIds;
 	}, [resolvedSelectionIds]);
 
-	const resolvedSelectionSet = useMemo(
-		() => new Set(uniqueResolvedSelectionIds),
-		[uniqueResolvedSelectionIds]
-	);
 	const modelsById = useMemo(() => {
 		const map = new Map<string, ExtendedModel>();
 		for (const model of models) {
@@ -231,115 +162,17 @@ export default function CompareDashboard({
 	);
 
 	if (selected.length === 0) {
-		const previewComparisons = buildQuickComparisons(models);
-
 		return (
-			<div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-				{showIntro ? <div className="space-y-3">
-					<div className="flex flex-wrap items-center gap-2">
-						<Badge variant="secondary" className="text-[11px]">
-							Compare
-						</Badge>
-						<Badge variant="outline" className="text-[11px]">
-							Up to 4 models
-						</Badge>
-						<Badge variant="outline" className="text-[11px]">
-							Benchmarks
-						</Badge>
-						<Badge variant="outline" className="text-[11px]">
-							Pricing
-						</Badge>
-					</div>
-					<h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-						Compare models side-by-side
-					</h2>
-					<p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-						Build a shareable comparison across benchmarks, pricing, context,
-						availability, and release timelines.
-					</p>
-				</div> : null}
-
-				<div className="grid gap-6 lg:grid-cols-2 items-start">
-					<section className="rounded-2xl border border-border/60 bg-card text-card-foreground p-6 shadow-sm flex flex-col gap-5">
-						<div className="space-y-1">
-							<p className="text-xs font-medium text-muted-foreground">
-								Option 1
-							</p>
-							<h3 className="text-xl font-semibold">Quick comparisons</h3>
-							<p className="text-muted-foreground text-sm">
-								Auto-generated from the latest model metadata.
-							</p>
-						</div>
-						<div className="space-y-3">
-							{previewComparisons.length ? (
-								previewComparisons.map((comparison) => (
-									<Link
-										key={buildQuickComparisonKey(comparison)}
-										href={buildQuickComparisonHref(comparison.modelIds)}
-										className="flex flex-col gap-3 rounded-xl border border-border/60 bg-background/50 p-4 transition hover:border-primary"
-									>
-										<div className="flex flex-wrap items-center gap-2">
-											{comparison.logos.map((logoId, index) => (
-												<ProviderLogo
-													key={`${comparison.modelIds[index] ?? index}-${logoId}`}
-													id={logoId}
-													alt={`${logoId} logo`}
-													size="sm"
-												/>
-											))}
-										</div>
-										<span className="text-sm font-medium leading-tight">
-											{comparison.title}
-										</span>
-										<span className="text-xs text-muted-foreground">
-											Click to load this matchup
-										</span>
-									</Link>
-								))
-							) : (
-								<div className="rounded-xl border border-dashed border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground">
-									No quick comparisons available yet.
-								</div>
-							)}
-						</div>
-						<Button asChild variant="ghost" className="justify-between">
-							<Link href="/models">
-								Browse models
-								<ArrowRight className="h-4 w-4" />
-							</Link>
-						</Button>
-					</section>
-
-					<section className="rounded-2xl border border-border/60 bg-card text-card-foreground p-6 shadow-sm flex flex-col gap-4">
-						<div className="space-y-1">
-							<p className="text-xs font-medium text-muted-foreground">
-								Option 2
-							</p>
-							<h3 className="text-xl font-semibold">Pick your own</h3>
-							<p className="text-sm text-muted-foreground">
-								Search any models (up to four) and build a bespoke comparison.
-							</p>
-						</div>
-						<div className="rounded-xl border border-dashed border-border/60 bg-muted/20 p-4">
-							<ModelCombobox
-								models={models}
-								selected={selected}
-								setSelected={setSelected}
-							/>
-						</div>
-						<p className="text-xs text-muted-foreground">
-							This is the same picker as the sticky header, just placed here as
-							a starting point.
-						</p>
-					</section>
-				</div>
-			</div>
+			<CompareFrame models={models}>
+				<EmptyComparisonState />
+			</CompareFrame>
 		);
 	}
 
 	if (selected.length > 0 && selectedModels.length === 0) {
 		return (
-			<div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+			<CompareFrame models={models}>
+				<div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
 				<div className="max-w-2xl w-full bg-yellow-50 border border-yellow-200 rounded-lg p-6">
 					<h2 className="text-xl font-semibold text-yellow-900 mb-2">
 						Models Not Found
@@ -365,7 +198,8 @@ export default function CompareDashboard({
 					selected={[]}
 					setSelected={setSelected}
 				/>
-			</div>
+				</div>
+			</CompareFrame>
 		);
 	}
 
@@ -382,7 +216,8 @@ export default function CompareDashboard({
 			resolvedIds: uniqueResolvedSelectionIds,
 		});
 		return (
-			<div className="flex flex-col items-center justify-center min-h-[40vh] text-center text-muted-foreground space-y-2">
+			<CompareFrame models={models}>
+				<div className="flex flex-col items-center justify-center min-h-[40vh] text-center text-muted-foreground space-y-2">
 				<p>We couldn&apos;t load the comparison data for this query.</p>
 				<button
 					type="button"
@@ -391,14 +226,17 @@ export default function CompareDashboard({
 				>
 					Refresh selection
 				</button>
-			</div>
+				</div>
+			</CompareFrame>
 		);
 	}
 
 	return (
-		<ComparisonDisplay
-			selectedModels={orderedComparisonData}
-			usageByModel={usageByModel}
-		/>
+		<CompareFrame models={models}>
+			<ComparisonDisplay
+				selectedModels={orderedComparisonData}
+				usageByModel={usageByModel}
+			/>
+		</CompareFrame>
 	);
 }

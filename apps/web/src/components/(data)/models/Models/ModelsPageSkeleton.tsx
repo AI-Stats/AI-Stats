@@ -95,12 +95,9 @@ export function ModelsPageSkeleton() {
 			</aside>
 
 			<section className="min-w-0 flex flex-1 flex-col">
-				<div className="shrink-0 border-b border-border/70 bg-background/95 px-4 backdrop-blur lg:px-8">
-					<div className="flex min-h-[72px] items-center justify-between gap-3 pt-3 pb-1">
-						<div className="space-y-1">
-							<h1 className="text-xl font-bold leading-8">Models</h1>
-							<p className="text-sm text-muted-foreground">Browse and compare AI models.</p>
-						</div>
+				<div className="shrink-0 border-b border-border/70 bg-background/95 px-4 pb-1 pt-2.5 backdrop-blur lg:px-8">
+					<div className="flex h-8 items-center justify-between gap-3">
+						<h1 className="text-xl font-bold leading-8">Models</h1>
 						<div className="flex w-full items-center gap-2 md:w-auto">
 							<Skeleton className="h-8 w-full rounded-md md:w-[360px]" />
 							<Skeleton className="hidden h-8 w-24 rounded-md md:block" />

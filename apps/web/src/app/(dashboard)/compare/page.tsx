@@ -104,29 +104,13 @@ async function loadLegacyUsage(modelIds: string[]): Promise<CompareGatewayUsageB
 	return Object.fromEntries(entries.filter(Boolean) as Array<[string, CompareGatewayUsageByModel[string]]>);
 }
 
-function ComparePageHeader() {
-	return (
-		<div className="mx-auto mb-8 w-full max-w-5xl space-y-3">
-			<h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-				Compare models side-by-side
-			</h1>
-			<p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-				Build a shareable comparison across benchmarks, pricing, context,
-				availability, and release timelines.
-			</p>
-		</div>
-	);
-}
-
 function CompareDashboardFallback() {
 	return (
-		<div className="mx-auto w-full max-w-5xl grid gap-6 lg:grid-cols-2">
-			{Array.from({ length: 2 }).map((_, index) => (
-				<div
-					key={index}
-					className="h-72 animate-pulse rounded-2xl border border-border/60 bg-muted/50"
-				/>
-			))}
+		<div className="w-full">
+			<div className="h-[89px] border-b border-border/70 bg-background/90" />
+			<div className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-8">
+				<div className="h-[348px] animate-pulse rounded-xl border border-border/60 bg-muted/40" />
+			</div>
 		</div>
 	);
 }
@@ -167,7 +151,6 @@ async function ComparePageContent({ searchParams }: PageProps) {
 			models={typedModels}
 			comparisonData={comparisonData}
 			usageByModel={usageByModel}
-			showIntro={false}
 		/>
 	);
 }
@@ -175,8 +158,7 @@ async function ComparePageContent({ searchParams }: PageProps) {
 export default function Page({ searchParams }: PageProps = {}) {
 	return (
 		<main className="flex min-h-screen flex-col">
-			<section className="container mx-auto px-4 py-8">
-				<ComparePageHeader />
+			<section className="w-full">
 				<Suspense fallback={<CompareDashboardFallback />}>
 					<ComparePageContent searchParams={searchParams} />
 				</Suspense>
