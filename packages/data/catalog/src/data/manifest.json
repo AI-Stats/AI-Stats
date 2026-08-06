@@ -1144,7 +1144,9 @@
       "upstage/solar-pro-2-2025-07-10",
       "upstage/solar-pro-2-2025-09-09",
       "upstage/solar-pro-2-preview",
-      "upstage/solar-pro-3"
+      "upstage/solar-pro-3",
+      "upstage/solar-mini",
+      "upstage/solar-pro-4"
     ],
     "vercel": [
       "vercel/v0-1.0-md",
