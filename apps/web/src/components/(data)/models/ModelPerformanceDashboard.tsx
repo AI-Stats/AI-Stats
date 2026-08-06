@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import ModelPerformanceCards from "./ModelPerformanceCards";
 import ModelSuccessChart from "./ModelSuccessChart";
 import ModelTokenTrajectoryChart from "./ModelTokenTrajectory";
-import { Activity, Globe2, Loader2 } from "lucide-react";
+import { Activity, BarChart3, Filter, Globe2, Loader2 } from "lucide-react";
 import type { ModelPerformanceMetrics } from "@/lib/fetchers/models/getModelPerformance";
 import type { ModelTokenTrajectory } from "@/lib/fetchers/models/getModelTokenTrajectory";
 import type { ModelPerformanceColo } from "@/lib/fetchers/frontend/fetchPublicCatalog";
@@ -26,6 +26,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuRadioGroup,
 	DropdownMenuRadioItem,
+	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuSub,
 	DropdownMenuSubContent,
@@ -33,8 +34,19 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { buildSingleProviderPercentileSeries } from "@/components/(data)/models/modelPerformancePercentiles";
 import {
 	Empty,
@@ -86,7 +98,8 @@ export default function ModelPerformanceDashboard({
 	const [contextBucket, setContextBucket] = useState<
 		"all" | "lte_4k" | "4k_16k" | "16k_64k" | "gt_64k"
 	>(metrics.contextBucket ?? "all");
-	const [regionMetrics, setRegionMetrics] = useState<ModelPerformanceMetrics | null>(null);
+	const [regionMetrics, setRegionMetrics] =
+		useState<ModelPerformanceMetrics | null>(null);
 	const [isLoadingRegion, setIsLoadingRegion] = useState(false);
 	const [isLoadingPercentile, setIsLoadingPercentile] = useState(false);
 	const requestGeneration = useRef(0);
@@ -153,7 +166,10 @@ export default function ModelPerformanceDashboard({
 		setIsLoadingPercentile(false);
 		setIsLoadingRegion(true);
 		try {
-			const nextMetrics = await fetchSelectedMetrics(nextColo, selectedPercentile);
+			const nextMetrics = await fetchSelectedMetrics(
+				nextColo,
+				selectedPercentile,
+			);
 			if (generation !== requestGeneration.current) return;
 			if (!nextMetrics) {
 				setSelectedColo(previousColo);
@@ -161,7 +177,8 @@ export default function ModelPerformanceDashboard({
 			}
 			setRegionMetrics(nextMetrics);
 		} catch {
-			if (generation === requestGeneration.current) setSelectedColo(previousColo);
+			if (generation === requestGeneration.current)
+				setSelectedColo(previousColo);
 		} finally {
 			if (generation === requestGeneration.current) setIsLoadingRegion(false);
 		}
@@ -174,14 +191,19 @@ export default function ModelPerformanceDashboard({
 		setIsLoadingRegion(false);
 		setIsLoadingPercentile(true);
 		try {
-			const nextMetrics = await fetchSelectedMetrics(selectedColo, nextPercentile);
+			const nextMetrics = await fetchSelectedMetrics(
+				selectedColo,
+				nextPercentile,
+			);
 			if (generation !== requestGeneration.current || !nextMetrics) return;
 			setRegionMetrics(nextMetrics);
 			setSelectedPercentile(nextPercentile);
 		} catch {
-			if (generation === requestGeneration.current) setSelectedPercentile(previousPercentile);
+			if (generation === requestGeneration.current)
+				setSelectedPercentile(previousPercentile);
 		} finally {
-			if (generation === requestGeneration.current) setIsLoadingPercentile(false);
+			if (generation === requestGeneration.current)
+				setIsLoadingPercentile(false);
 		}
 	};
 
@@ -194,7 +216,9 @@ export default function ModelPerformanceDashboard({
 			? Math.round(activeMetrics.cumulativeTokens).toLocaleString()
 			: "N/A";
 	const cumulativeSince = formatReleaseDate(activeMetrics.releaseDate);
-	const regionLabel = selectedColo ? formatCloudflareColo(selectedColo) : "Select Location";
+	const regionLabel = selectedColo
+		? formatCloudflareColo(selectedColo)
+		: "Select Location";
 	const usageByColo = new Map(
 		availableColos
 			.filter((colo) => colo.requests > 0)
@@ -225,95 +249,254 @@ export default function ModelPerformanceDashboard({
 					<p className="text-sm text-muted-foreground">{headerDescription}</p>
 				</div>
 				<div className="flex items-center gap-2">
-				<label className="sr-only" htmlFor="performance-stream-mode">Streaming mode</label>
-				<select
-					id="performance-stream-mode"
-					className="h-8 rounded-md border bg-background px-2 text-xs"
-					value={streamMode}
-					disabled={isLoadingRegion}
-					onChange={(event) => void handleSegmentationChange(
-						event.target.value as "all" | "stream" | "non_stream",
-						contextBucket,
-					)}
-				>
-					<option value="all">All responses</option>
-					<option value="stream">Streaming</option>
-					<option value="non_stream">Non-streaming</option>
-				</select>
-				<label className="sr-only" htmlFor="performance-context-bucket">Context length</label>
-				<select
-					id="performance-context-bucket"
-					className="h-8 rounded-md border bg-background px-2 text-xs"
-					value={contextBucket}
-					disabled={isLoadingRegion}
-					onChange={(event) => void handleSegmentationChange(
-						streamMode,
-						event.target.value as "all" | "lte_4k" | "4k_16k" | "16k_64k" | "gt_64k",
-					)}
-				>
-					<option value="all">All contexts</option>
-					<option value="lte_4k">≤ 4K input</option>
-					<option value="4k_16k">4K–16K input</option>
-					<option value="16k_64k">16K–64K input</option>
-					<option value="gt_64k">&gt; 64K input</option>
-				</select>
-				<Tooltip>
-					<TooltipTrigger asChild>
-						<span className="inline-flex" tabIndex={0}>
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="outline" size="sm" className="h-8 gap-2 rounded-md px-3 text-xs" title="Coming Soon" disabled>
-							{isLoadingRegion ? <Loader2 className="size-3.5 animate-spin" /> : <Globe2 className="size-3.5" />}
-							{regionLabel}
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="min-w-56 rounded-md">
-						<div className="px-2 py-1.5 text-xs text-muted-foreground">API Execution Location</div>
-						<DropdownMenuSeparator />
-						{catalogColosByContinent.length === 0 ? (
-							<DropdownMenuItem disabled>No location data available</DropdownMenuItem>
-						) : catalogColosByContinent.map((group) => (
-							<DropdownMenuSub key={group.continent}>
-								<DropdownMenuSubTrigger>
-									<Globe2 className="size-3.5 text-muted-foreground" />
-									{group.continent}
-									<span className="ml-auto w-6 text-right text-[11px] tabular-nums text-muted-foreground">
-										{group.colos.length}
-									</span>
-								</DropdownMenuSubTrigger>
-								<DropdownMenuSubContent className="max-h-80 min-w-80 rounded-md">
-									<DropdownMenuRadioGroup value={selectedColo ?? ""} onValueChange={handleColoChange}>
-										<DropdownMenuGroup>
-											{group.colos.map((colo) => {
-												const requests = usageByColo.get(colo.code) ?? 0;
-												return (
-													<DropdownMenuRadioItem key={colo.code} value={colo.code} className="gap-3">
-														<span className="min-w-0 flex-1 truncate">{formatCloudflareColo(colo.code)}</span>
-														<span className="w-16 shrink-0 text-right text-[11px] tabular-nums text-muted-foreground">
-															{requests.toLocaleString()}
-														</span>
-													</DropdownMenuRadioItem>
-												);
-											})}
-										</DropdownMenuGroup>
+					<div className="hidden items-center gap-2 lg:flex">
+						<Select
+							value={streamMode}
+							disabled={isLoadingRegion}
+							onValueChange={(value) =>
+								void handleSegmentationChange(
+									value as "all" | "stream" | "non_stream",
+									contextBucket,
+								)
+							}
+						>
+							<SelectTrigger
+								size="sm"
+								className="h-8 rounded-md border-border bg-background text-xs"
+								aria-label="Streaming mode"
+							>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent align="end">
+								<SelectItem value="all">All responses</SelectItem>
+								<SelectItem value="stream">Streaming</SelectItem>
+								<SelectItem value="non_stream">Non-streaming</SelectItem>
+							</SelectContent>
+						</Select>
+						<Select
+							value={contextBucket}
+							disabled={isLoadingRegion}
+							onValueChange={(value) =>
+								void handleSegmentationChange(
+									streamMode,
+									value as "all" | "lte_4k" | "4k_16k" | "16k_64k" | "gt_64k",
+								)
+							}
+						>
+							<SelectTrigger
+								size="sm"
+								className="h-8 rounded-md border-border bg-background text-xs"
+								aria-label="Context length"
+							>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent align="end">
+								<SelectItem value="all">All contexts</SelectItem>
+								<SelectItem value="lte_4k">≤ 4K input</SelectItem>
+								<SelectItem value="4k_16k">4K–16K input</SelectItem>
+								<SelectItem value="16k_64k">16K–64K input</SelectItem>
+								<SelectItem value="gt_64k">&gt; 64K input</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								variant="outline"
+								size="sm"
+								className="h-8 gap-2 rounded-md px-3 text-xs lg:hidden"
+							>
+								{isLoadingRegion || isLoadingPercentile ? (
+									<Loader2 className="size-3.5 animate-spin" />
+								) : (
+									<Filter className="size-3.5" />
+								)}
+								Filters
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end" className="min-w-64">
+							<DropdownMenuLabel>Performance filters</DropdownMenuLabel>
+							<DropdownMenuSeparator />
+							<DropdownMenuSub>
+								<DropdownMenuSubTrigger>Response mode</DropdownMenuSubTrigger>
+								<DropdownMenuSubContent>
+									<DropdownMenuRadioGroup
+										value={streamMode}
+										onValueChange={(value) =>
+											void handleSegmentationChange(
+												value as "all" | "stream" | "non_stream",
+												contextBucket,
+											)
+										}
+									>
+										<DropdownMenuRadioItem value="all">
+											All responses
+										</DropdownMenuRadioItem>
+										<DropdownMenuRadioItem value="stream">
+											Streaming
+										</DropdownMenuRadioItem>
+										<DropdownMenuRadioItem value="non_stream">
+											Non-streaming
+										</DropdownMenuRadioItem>
 									</DropdownMenuRadioGroup>
 								</DropdownMenuSubContent>
 							</DropdownMenuSub>
-						))}
-					</DropdownMenuContent>
-				</DropdownMenu>
-						</span>
-					</TooltipTrigger>
-					<TooltipContent>Coming Soon</TooltipContent>
-				</Tooltip>
-				{showPercentileSelector ? (
-					<ModelPercentileSelect
-						value={selectedPercentile}
-						onChange={handlePercentileChange}
-						isLoading={isLoadingPercentile}
-						ariaLabel="Select performance percentile"
-					/>
-				) : null}
+							<DropdownMenuSub>
+								<DropdownMenuSubTrigger>Context length</DropdownMenuSubTrigger>
+								<DropdownMenuSubContent>
+									<DropdownMenuRadioGroup
+										value={contextBucket}
+										onValueChange={(value) =>
+											void handleSegmentationChange(
+												streamMode,
+												value as
+													| "all"
+													| "lte_4k"
+													| "4k_16k"
+													| "16k_64k"
+													| "gt_64k",
+											)
+										}
+									>
+										<DropdownMenuRadioItem value="all">
+											All contexts
+										</DropdownMenuRadioItem>
+										<DropdownMenuRadioItem value="lte_4k">
+											≤ 4K input
+										</DropdownMenuRadioItem>
+										<DropdownMenuRadioItem value="4k_16k">
+											4K–16K input
+										</DropdownMenuRadioItem>
+										<DropdownMenuRadioItem value="16k_64k">
+											16K–64K input
+										</DropdownMenuRadioItem>
+										<DropdownMenuRadioItem value="gt_64k">
+											&gt; 64K input
+										</DropdownMenuRadioItem>
+									</DropdownMenuRadioGroup>
+								</DropdownMenuSubContent>
+							</DropdownMenuSub>
+							<DropdownMenuItem disabled>
+								<Globe2 />
+								API location (coming soon)
+							</DropdownMenuItem>
+							{showPercentileSelector ? (
+								<DropdownMenuSub>
+									<DropdownMenuSubTrigger>
+										<BarChart3 />
+										Percentile
+									</DropdownMenuSubTrigger>
+									<DropdownMenuSubContent>
+										<DropdownMenuRadioGroup
+											value={String(selectedPercentile)}
+											onValueChange={(value) => {
+												const parsed = Number(value);
+												if (isModelPercentile(parsed))
+													void handlePercentileChange(parsed);
+											}}
+										>
+											{[1, 5, 10, 25, 50, 75, 90, 95, 99].map((percentile) => (
+												<DropdownMenuRadioItem
+													key={percentile}
+													value={String(percentile)}
+												>
+													P{String(percentile).padStart(2, "0")}
+												</DropdownMenuRadioItem>
+											))}
+										</DropdownMenuRadioGroup>
+									</DropdownMenuSubContent>
+								</DropdownMenuSub>
+							) : null}
+						</DropdownMenuContent>
+					</DropdownMenu>
+					<div className="hidden items-center gap-2 lg:flex">
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<span className="inline-flex" tabIndex={0}>
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<Button
+												variant="outline"
+												size="sm"
+												className="h-8 gap-2 rounded-md px-3 text-xs"
+												title="Coming Soon"
+												disabled
+											>
+												{isLoadingRegion ? (
+													<Loader2 className="size-3.5 animate-spin" />
+												) : (
+													<Globe2 className="size-3.5" />
+												)}
+												{regionLabel}
+											</Button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent
+											align="end"
+											className="min-w-56 rounded-md"
+										>
+											<div className="px-2 py-1.5 text-xs text-muted-foreground">
+												API Execution Location
+											</div>
+											<DropdownMenuSeparator />
+											{catalogColosByContinent.length === 0 ? (
+												<DropdownMenuItem disabled>
+													No location data available
+												</DropdownMenuItem>
+											) : (
+												catalogColosByContinent.map((group) => (
+													<DropdownMenuSub key={group.continent}>
+														<DropdownMenuSubTrigger>
+															<Globe2 className="size-3.5 text-muted-foreground" />
+															{group.continent}
+															<span className="ml-auto w-6 text-right text-[11px] tabular-nums text-muted-foreground">
+																{group.colos.length}
+															</span>
+														</DropdownMenuSubTrigger>
+														<DropdownMenuSubContent className="max-h-80 min-w-80 rounded-md">
+															<DropdownMenuRadioGroup
+																value={selectedColo ?? ""}
+																onValueChange={handleColoChange}
+															>
+																<DropdownMenuGroup>
+																	{group.colos.map((colo) => {
+																		const requests =
+																			usageByColo.get(colo.code) ?? 0;
+																		return (
+																			<DropdownMenuRadioItem
+																				key={colo.code}
+																				value={colo.code}
+																				className="gap-3"
+																			>
+																				<span className="min-w-0 flex-1 truncate">
+																					{formatCloudflareColo(colo.code)}
+																				</span>
+																				<span className="w-16 shrink-0 text-right text-[11px] tabular-nums text-muted-foreground">
+																					{requests.toLocaleString()}
+																				</span>
+																			</DropdownMenuRadioItem>
+																		);
+																	})}
+																</DropdownMenuGroup>
+															</DropdownMenuRadioGroup>
+														</DropdownMenuSubContent>
+													</DropdownMenuSub>
+												))
+											)}
+										</DropdownMenuContent>
+									</DropdownMenu>
+								</span>
+							</TooltipTrigger>
+							<TooltipContent>Coming Soon</TooltipContent>
+						</Tooltip>
+						{showPercentileSelector ? (
+							<ModelPercentileSelect
+								value={selectedPercentile}
+								onChange={handlePercentileChange}
+								isLoading={isLoadingPercentile}
+								ariaLabel="Select performance percentile"
+							/>
+						) : null}
+					</div>
 				</div>
 			</div>
 			{hasTelemetry ? (
@@ -358,8 +541,9 @@ export default function ModelPerformanceDashboard({
 						</EmptyMedia>
 						<EmptyTitle>No gateway telemetry yet</EmptyTitle>
 						<EmptyDescription>
-							This model hasn&apos;t processed any gateway traffic in the selected
-							window. Live charts will appear as soon as requests arrive.
+							This model hasn&apos;t processed any gateway traffic in the
+							selected window. Live charts will appear as soon as requests
+							arrive.
 						</EmptyDescription>
 					</EmptyHeader>
 				</Empty>
