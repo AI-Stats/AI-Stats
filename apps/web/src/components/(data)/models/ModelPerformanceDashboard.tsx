@@ -276,12 +276,12 @@ export default function ModelPerformanceDashboard({
 						>
 							<SelectTrigger
 								size="sm"
-								className="h-8 min-w-28 rounded-md border-border bg-background text-xs"
+								className="h-8 w-36 rounded-md border-border bg-background text-xs"
 								aria-label="Streaming mode"
 							>
 								<SelectValue>{STREAM_MODE_LABELS[streamMode]}</SelectValue>
 							</SelectTrigger>
-							<SelectContent align="end">
+							<SelectContent align="end" className="min-w-44">
 								<SelectItem value="all">All responses</SelectItem>
 								<SelectItem value="stream">Streaming</SelectItem>
 								<SelectItem value="non_stream">Non-streaming</SelectItem>
@@ -299,12 +299,12 @@ export default function ModelPerformanceDashboard({
 						>
 							<SelectTrigger
 								size="sm"
-								className="h-8 min-w-28 rounded-md border-border bg-background text-xs"
+								className="h-8 w-36 rounded-md border-border bg-background text-xs"
 								aria-label="Context length"
 							>
 								<SelectValue>{CONTEXT_BUCKET_LABELS[contextBucket]}</SelectValue>
 							</SelectTrigger>
-							<SelectContent align="end">
+							<SelectContent align="end" className="min-w-44">
 								<SelectItem value="all">All contexts</SelectItem>
 								<SelectItem value="lte_4k">≤ 4K input</SelectItem>
 								<SelectItem value="4k_16k">4K–16K input</SelectItem>
