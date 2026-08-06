@@ -1,76 +1,14 @@
 import PartnerLogosClient from "./PartnerLogosClient";
-import { listKnownLogos, resolveLogo } from "@/lib/logos";
+import { getProviderLogos } from "./providerLogos";
+import { fetchFrontendAPIProviders } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 
-const blockedProviderIds = new Set([
-	"openrouter",
-	"huggingface",
-	"hugging-face",
-	"phaseo",
-]);
-
-export const excludedProviderLogos: string[] = [
-	"scira",
-	"t3",
-	"/logos/arxiv.svg",
-	"discord",
-	"x",
-	"github",
-	"instagram",
-	"reddit",
-	"grok",
-	"openrouter",
-	"phaseo",
-	"/social/hugging_face.svg",
-];
-
-function normaliseDescriptor(value: string): string {
-	if (value.startsWith("/")) return value;
-	return value.toLowerCase();
-}
-
-function getProviderLogos(): string[] {
-	const exclusionSet = new Set(
-		excludedProviderLogos.map(normaliseDescriptor)
+export default async function PartnerLogos() {
+	const providers = await fetchFrontendAPIProviders().catch(() => []);
+	const providerLogos = getProviderLogos(
+		providers.map((provider) => provider.api_provider_id)
 	);
 
-	const allLogos = [
-		...listKnownLogos()
-			.filter(({ id, assets }) => {
-				const normalizedId = String(id).toLowerCase();
-				if (blockedProviderIds.has(normalizedId)) return false;
+	if (providerLogos.length === 0) return null;
 
-				const hasLanguageAsset = Object.values(assets).some((asset) =>
-					asset?.startsWith("/languages/")
-				);
-				if (hasLanguageAsset) return false;
-				const hasObservabilityAsset = Object.values(assets).some((asset) =>
-					asset?.startsWith("/observability/")
-				);
-				if (hasObservabilityAsset) return false;
-				if (id.startsWith("observability-")) return false;
-
-				const normalisedId = normaliseDescriptor(id);
-				if (exclusionSet.has(normalisedId)) return false;
-				const pathCandidate = normaliseDescriptor(`/logos/${id}.svg`);
-				return !exclusionSet.has(pathCandidate);
-			})
-			.map(({ id }) => id),
-	];
-
-	const seen = new Set<string>();
-	const deduped: string[] = [];
-	for (const id of allLogos) {
-		const resolved = resolveLogo(id, { fallbackToColor: false });
-		const src = resolved.src;
-		if (!src || seen.has(src)) continue;
-		seen.add(src);
-		deduped.push(id);
-	}
-
-	return deduped;
-}
-
-export default function PartnerLogos() {
-	const providerLogos = getProviderLogos();
 	return <PartnerLogosClient logos={providerLogos} />;
 }

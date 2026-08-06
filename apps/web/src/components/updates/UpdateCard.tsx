@@ -70,6 +70,7 @@ type Props = {
 	metaPlacement?: "footer" | "header";
 	providerDateInline?: boolean;
 	showAccentDot?: boolean;
+	titleLines?: 1 | 2;
 };
 
 export default function UpdateCard({
@@ -91,6 +92,7 @@ export default function UpdateCard({
 	metaPlacement = "footer",
 	providerDateInline = false,
 	showAccentDot = true,
+	titleLines = 2,
 }: Props) {
 	const isModelRelease = badges.some((b) => b.label === "Release");
 	const visibleBadges = hideBadges ? [] : badges;
@@ -196,7 +198,7 @@ export default function UpdateCard({
 						>
 							<Link
 								href={link.href}
-								className="inline-flex items-start gap-1 text-zinc-900 dark:text-zinc-50"
+								className="inline-flex min-w-0 max-w-full items-start gap-1 text-zinc-900 dark:text-zinc-50"
 								target={link.external ? "_blank" : undefined}
 								rel={
 									link.external
@@ -204,7 +206,14 @@ export default function UpdateCard({
 										: undefined
 								}
 							>
-								<span className="wrap-break-word line-clamp-2 underline decoration-2 underline-offset-2 decoration-transparent hover:decoration-current transition-colors duration-200">
+								<span
+									className={cn(
+										"wrap-break-word underline decoration-2 underline-offset-2 decoration-transparent transition-colors duration-200 hover:decoration-current",
+										titleLines === 1
+											? "block min-w-0 max-w-full truncate"
+											: "line-clamp-2"
+									)}
+								>
 									{title}
 								</span>
 							</Link>
