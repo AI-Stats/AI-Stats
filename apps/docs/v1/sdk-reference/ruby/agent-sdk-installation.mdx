@@ -1,8 +1,10 @@
 ---
 icon: "package"
 title: "Installation"
-description: "Evaluate the Ruby Agent SDK from source while its RubyGems package is prepared."
+description: "Install and configure the Phaseo Ruby Agent SDK."
 ---
+
+The Agent SDK is published as [`phaseo_agent_sdk`](https://rubygems.org/gems/phaseo_agent_sdk) on RubyGems.
 
 ## Requirements
 
@@ -10,17 +12,19 @@ description: "Evaluate the Ruby Agent SDK from source while its RubyGems package
 - RubyGems or Bundler
 - a Phaseo API key
 
-## Install
-
-<Note type="warning">
-  The Ruby Agent SDK is implemented, but `phaseo_agent_sdk` is not yet published to RubyGems. Use the repository source for evaluation; the core [`phaseo_sdk`](https://rubygems.org/gems/phaseo_sdk) gem is public.
-</Note>
+## Installation
 
 ```bash
-git clone https://github.com/phaseoteam/Phaseo.git
-cd Phaseo/packages/sdk/agent-sdk-ruby
-bundle install
+gem install phaseo_agent_sdk
 ```
+
+Or add it to your `Gemfile`:
+
+```ruby
+gem "phaseo_agent_sdk"
+```
+
+The core `phaseo_sdk` gem is installed automatically as a dependency.
 
 ## Environment
 
