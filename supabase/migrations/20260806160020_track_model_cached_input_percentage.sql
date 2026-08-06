@@ -29,13 +29,30 @@ visible_model as (
     and model.hidden = false
     and model.status <> 'disabled'
 ),
+scoped_facts as (
+  select
+    fact.request_event_id,
+    fact.occurred_at,
+    fact.stream,
+    fact.cloudflare_colo,
+    fact.safe_metadata,
+    route.provider_slug provider_id
+  from public.v2_request_facts fact
+  join visible_model on visible_model.model_slug = coalesce(fact.routed_model_slug, fact.requested_model_slug)
+  left join public.v2_model_provider_routes route on route.provider_model_id = fact.provider_model_id
+  cross join params
+  where fact.occurred_at >= params.now_ts - interval '7 days'
+    and (params.cloudflare_colo is null or upper(trim(fact.cloudflare_colo)) = params.cloudflare_colo)
+    and (params.stream_mode = 'all' or fact.stream = (params.stream_mode = 'stream'))
+),
 usage_by_request as (
   select
     usage.request_event_id,
     sum(usage.quantity) filter (where usage.meter_key = 'input_tokens')::numeric input_tokens,
     sum(usage.quantity) filter (where usage.meter_key = 'cached_input_tokens')::numeric cached_input_tokens,
     bool_or(usage.meter_key = 'cached_input_tokens') cache_telemetry_observed
-  from public.v2_request_usage usage
+  from scoped_facts fact
+  join public.v2_request_usage usage on usage.request_event_id = fact.request_event_id
   where usage.meter_key in ('input_tokens', 'cached_input_tokens')
   group by usage.request_event_id
 ),
@@ -43,22 +60,17 @@ base as (
   select
     date_trunc('hour', fact.occurred_at) bucket_start,
     fact.occurred_at::date usage_day,
-    route.provider_slug provider_id,
+    fact.provider_id,
     usage.input_tokens,
     usage.cached_input_tokens,
     usage.cache_telemetry_observed,
     -- Existing observations predate this metadata bit and came from
     -- OpenAI-compatible responses, where cached tokens are a subset of input.
     coalesce((fact.safe_metadata ->> 'cached_input_tokens_are_subset_of_input')::boolean, true) cached_input_is_subset
-  from public.v2_request_facts fact
-  join visible_model on visible_model.model_slug = coalesce(fact.routed_model_slug, fact.requested_model_slug)
-  left join public.v2_model_provider_routes route on route.provider_model_id = fact.provider_model_id
+  from scoped_facts fact
   left join usage_by_request usage on usage.request_event_id = fact.request_event_id
   cross join params
-  where fact.occurred_at >= params.now_ts - interval '7 days'
-    and (params.cloudflare_colo is null or upper(trim(fact.cloudflare_colo)) = params.cloudflare_colo)
-    and (params.stream_mode = 'all' or fact.stream = (params.stream_mode = 'stream'))
-    and (
+  where (
       params.context_bucket = 'all'
       or (params.context_bucket = 'lte_4k' and usage.input_tokens <= 4096)
       or (params.context_bucket = '4k_16k' and usage.input_tokens > 4096 and usage.input_tokens <= 16384)
