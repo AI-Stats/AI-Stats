@@ -182,7 +182,7 @@ async function loadAnalyticsFactRows(args: {
     const rows: AnalyticsFactRow[] = [];
 	const countResult = await supabase
 		.from("v2_request_facts")
-		.select("id", { count: "exact", head: true })
+		.select("request_event_id", { count: "exact", head: true })
 		.eq("workspace_id", args.workspaceId)
 		.gte("occurred_at", args.startIso)
 		.lt("occurred_at", args.endIso);
