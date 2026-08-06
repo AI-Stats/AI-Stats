@@ -15,11 +15,24 @@ description: "Evaluate the Python Agent SDK from source while its registry packa
   The Python Agent SDK is implemented, but `phaseo-agent-sdk` is not yet published to PyPI. Use the repository source for evaluation; the core [`phaseo`](https://pypi.org/project/phaseo/) client is public.
 </Note>
 
+Clone the repository, then install both editable Python packages using your preferred package manager:
+
 ```bash
 git clone https://github.com/phaseoteam/Phaseo.git
 cd Phaseo
-python -m pip install -e packages/sdk/sdk-py -e packages/sdk/agent-sdk-py
 ```
+
+<CodeGroup>
+
+    ```bash title="pip"
+    python -m pip install -e packages/sdk/sdk-py -e packages/sdk/agent-sdk-py
+    ```
+
+    ```bash title="uv"
+    uv pip install -e packages/sdk/sdk-py -e packages/sdk/agent-sdk-py
+    ```
+
+</CodeGroup>
 
 ## Environment
 
