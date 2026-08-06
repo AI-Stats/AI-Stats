@@ -19,6 +19,12 @@ function supaAdmin() {
     return getSupabaseAdmin();
 }
 
+function positiveMetric(value: number | null | undefined, round = false): number | null {
+    if (value == null || !Number.isFinite(value) || value <= 0) return null;
+    const normalized = round ? Math.round(value) : value;
+    return normalized > 0 ? normalized : null;
+}
+
 const DEFAULT_RETRY_ATTEMPTS = 3;
 const DEFAULT_RETRY_DELAY_MS = 250;
 let gatewayRequestsSupportsErrorPayloadColumn: boolean | null = null;
@@ -414,11 +420,11 @@ async function upsertV2RequestFact(args: {
             byok: args.byok,
             latency_ms: args.latencyMs == null ? null : Math.max(0, Math.round(args.latencyMs)),
             generation_ms: args.generationMs == null ? null : Math.max(0, Math.round(args.generationMs)),
-            provider_ttft_ms: args.providerTtftMs == null ? null : Math.max(0, Math.round(args.providerTtftMs)),
-            gateway_ttft_ms: args.gatewayTtftMs == null ? null : Math.max(0, Math.round(args.gatewayTtftMs)),
-            output_speed_tps: args.outputSpeedTps == null ? null : Math.max(0, args.outputSpeedTps),
-            tpot_ms: args.tpotMs == null ? null : Math.max(0, args.tpotMs),
-            itl_ms: args.itlMs == null ? null : Math.max(0, args.itlMs),
+            provider_ttft_ms: positiveMetric(args.providerTtftMs, true),
+            gateway_ttft_ms: positiveMetric(args.gatewayTtftMs, true),
+            output_speed_tps: positiveMetric(args.outputSpeedTps),
+            tpot_ms: positiveMetric(args.tpotMs),
+            itl_ms: positiveMetric(args.itlMs),
             phaseo_overhead_ms: args.phaseoOverheadMs == null ? null : Math.max(0, args.phaseoOverheadMs),
             internal_dispatch_ms: args.internalDispatchMs == null ? null : Math.max(0, args.internalDispatchMs),
             gateway_total_ms: args.gatewayTotalMs == null ? null : Math.max(0, args.gatewayTotalMs),
@@ -452,11 +458,11 @@ async function upsertV2RequestFact(args: {
                 stream_provider_billing_on_cancel: args.streamProviderBillingOnCancel ?? "unknown",
                 stream_disconnect_action: args.streamDisconnectAction ?? null,
                 performance: {
-                    provider_ttft_ms: args.providerTtftMs == null ? null : Math.max(0, Math.round(args.providerTtftMs)),
-                    gateway_ttft_ms: args.gatewayTtftMs == null ? null : Math.max(0, Math.round(args.gatewayTtftMs)),
-                    output_speed_tps: args.outputSpeedTps == null ? null : Math.max(0, args.outputSpeedTps),
-                    tpot_ms: args.tpotMs == null ? null : Math.max(0, args.tpotMs),
-                    itl_ms: args.itlMs == null ? null : Math.max(0, args.itlMs),
+                    provider_ttft_ms: positiveMetric(args.providerTtftMs, true),
+                    gateway_ttft_ms: positiveMetric(args.gatewayTtftMs, true),
+                    output_speed_tps: positiveMetric(args.outputSpeedTps),
+                    tpot_ms: positiveMetric(args.tpotMs),
+                    itl_ms: positiveMetric(args.itlMs),
                     phaseo_overhead_ms: args.phaseoOverheadMs == null ? null : Math.max(0, Math.round(args.phaseoOverheadMs)),
                 },
             },
@@ -640,11 +646,11 @@ function buildSupaRow(args: {
                 : null,
         latency_ms: args.latencyMs ?? null,
         generation_ms: args.generationMs ?? null,
-        provider_ttft_ms: args.providerTtftMs ?? null,
-        gateway_ttft_ms: args.gatewayTtftMs ?? null,
-        output_speed_tps: args.outputSpeedTps ?? null,
-        tpot_ms: args.tpotMs ?? null,
-        itl_ms: args.itlMs ?? null,
+        provider_ttft_ms: positiveMetric(args.providerTtftMs, true),
+        gateway_ttft_ms: positiveMetric(args.gatewayTtftMs, true),
+        output_speed_tps: positiveMetric(args.outputSpeedTps),
+        tpot_ms: positiveMetric(args.tpotMs),
+        itl_ms: positiveMetric(args.itlMs),
         phaseo_overhead_ms: args.phaseoOverheadMs ?? null,
         usage: args.usage ?? {},
         ...usageColumns,
