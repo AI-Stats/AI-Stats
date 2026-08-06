@@ -15,6 +15,7 @@ import {
 import type { ModelProviderDailyPoint } from "@/lib/fetchers/models/getModelPerformance";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { formatProviderDuration } from "@/components/(data)/models/modelPerformanceFormatting";
 import { ModelMetricInfo } from "./ModelMetricInfo";
 
 export type MetricKey =
@@ -70,6 +71,7 @@ type MetricConfig = {
 		| "avgTpotMs"
 		| "avgItlMs";
 	formatValue: (value: number | null) => string;
+	formatAxisTick?: (value: number) => string;
 };
 
 const METRICS: Record<MetricKey, MetricConfig> = {
@@ -97,9 +99,10 @@ const METRICS: Record<MetricKey, MetricConfig> = {
 	generation: {
 		label: "Provider duration",
 		description: "Time from sending the selected provider request until its final response completes.",
-		axisLabel: "Milliseconds",
+		axisLabel: "Duration",
 		valueKey: "avgGenerationMs",
-		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
+		formatValue: formatProviderDuration,
+		formatAxisTick: (value) => formatProviderDuration(value),
 	},
 	overhead: {
 		label: "Phaseo overhead",
@@ -117,7 +120,7 @@ const METRICS: Record<MetricKey, MetricConfig> = {
 	},
 	itl: {
 		label: "ITL",
-		description: "Estimated average interval between generated tokens. It currently uses the request-level TPOT estimate.",
+		description: "Estimated average interval between generated tokens. Until token-level arrival timestamps are stored, this uses the same request-level estimate as TPOT.",
 		axisLabel: "Milliseconds",
 		valueKey: "avgItlMs",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} ms` : "-"),
@@ -434,6 +437,7 @@ export default function ModelProviderTrendChart({
 							tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
 							tickLine={false}
 							axisLine={false}
+							tickFormatter={metricConfig.formatAxisTick}
 							label={detailed ? { value: metricConfig.axisLabel, angle: -90, position: "insideLeft", offset: -10, fill: "var(--muted-foreground)", fontSize: 11 } : undefined}
 						/>
 						<RechartsTooltip
