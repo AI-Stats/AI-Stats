@@ -15,6 +15,7 @@ import { withRuntime } from "../../utils";
 import {
 	createRealtimeSession,
 	extendRealtimeSessionHold,
+	isRealtimeRelaySecret,
 	markRealtimeSessionConnected,
 	publicRealtimeSessionPayload,
 	settleRealtimeSession,
@@ -124,6 +125,32 @@ function sessionIdFromPath(req: Request, suffix: string): string {
 
 export function isRealtimeSessionId(value: string): boolean {
 	return /^rt_[0-9a-hjkmnp-tv-z]{26}$/.test(value);
+}
+
+export function realtimeRelaySecretFromProtocols(value: string | null): string | null {
+	const protocol = (value ?? "")
+		.split(",")
+		.map((candidate) => candidate.trim())
+		.find((candidate) => candidate.startsWith("rtsec."));
+	const secret = protocol?.slice("rtsec.".length) ?? "";
+	return isRealtimeRelaySecret(secret) ? secret : null;
+}
+
+export async function admitRealtimeRelay(req: Request, env: Env["Bindings"]): Promise<boolean> {
+	const production = String(env.ENV ?? "").trim().toLowerCase() === "prod";
+	try {
+		if (!env.REALTIME_RELAY_RATE_LIMITER) return !production;
+		const clientAddress = req.headers.get("cf-connecting-ip") ?? "unknown";
+		const digest = await crypto.subtle.digest(
+			"SHA-256",
+			new TextEncoder().encode(`realtime-relay:${clientAddress}`),
+		);
+		const key = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+		return (await env.REALTIME_RELAY_RATE_LIMITER.limit({ key })).success;
+	} catch (error) {
+		console.error("Realtime relay rate limiter unavailable", error);
+		return !production;
+	}
 }
 
 function errorMessage(error: unknown): string {
@@ -413,6 +440,12 @@ realtimeSessionsRoutes.get("/:sessionId/relay", async (c) => {
 	const sessionId = sessionIdFromPath(c.req.raw, "relay");
 	if (!isRealtimeSessionId(sessionId)) {
 		return err("validation_error", { reason: "realtime_session_id_invalid" });
+	}
+	if (!realtimeRelaySecretFromProtocols(c.req.header("Sec-WebSocket-Protocol") ?? null)) {
+		return err("unauthorised", { reason: "realtime_relay_token_invalid" });
+	}
+	if (!(await admitRealtimeRelay(c.req.raw, c.env))) {
+		return err("key_limit_exceeded", { reason: "realtime_relay_rate_limit" });
 	}
 	const id = binding.idFromName(sessionId);
 	return binding.get(id).fetch(c.req.raw);

@@ -35,6 +35,10 @@ export type RealtimeProvider = "openai" | "x-ai" | "spacex-ai" | "google-ai-stud
 export type RealtimeSource = "api" | "chat";
 export type RealtimeTerminalStatus = "completed" | "failed" | "cancelled" | "expired";
 
+export function isRealtimeRelaySecret(value: string): boolean {
+	return /^rtsec_[0-9a-hjkmnp-tv-z]{52}$/.test(value);
+}
+
 export type RealtimeOtelContext = {
 	traceId: string;
 	parentSpanId: string;

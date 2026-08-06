@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
 	googleUsageSnapshot,
 	googleUsageToAggregate,
@@ -6,9 +6,12 @@ import {
 	validateRealtimeAudioIngress,
 } from "./realtime-relay-durable-object";
 import {
+	admitRealtimeRelay,
 	isRealtimeSessionId,
+	realtimeRelaySecretFromProtocols,
 	validateRealtimeMetadata,
 } from "@/routes/v1/data/realtime-sessions";
+import { isRealtimeRelaySecret } from "./realtime-sessions";
 
 describe("realtime relay security boundaries", () => {
 	const pcm = (durationMs: number, sampleRate = 24_000) =>
@@ -93,5 +96,33 @@ describe("realtime relay security boundaries", () => {
 		expect(isRealtimeSessionId("rt_01JZ8H3J3F4Q5R6S7T8V9W0XYZ")).toBe(false);
 		expect(isRealtimeSessionId("arbitrary-object-name")).toBe(false);
 		expect(isRealtimeSessionId("rt_01jz8h3j3f4q5r6s7t8v9w0xyi")).toBe(false);
+	});
+
+	it("rejects malformed relay secrets before database-backed claims", () => {
+		const secret = `rtsec_${"01jz8h3j3f4q5r6s7t8v9w0xyz".repeat(2)}`;
+		expect(isRealtimeRelaySecret(secret)).toBe(true);
+		expect(realtimeRelaySecretFromProtocols(`statsync-realtime, rtsec.${secret}`)).toBe(secret);
+		expect(realtimeRelaySecretFromProtocols("statsync-realtime, rtsec.forged")).toBeNull();
+		expect(isRealtimeRelaySecret("rtsec_01jz8h3j3f4q5r6s7t8v9w0xyz")).toBe(false);
+	});
+
+	it("fails closed when the production relay rate limiter is unavailable", async () => {
+		const request = new Request("https://phaseo.app/v1/realtime/sessions/relay", {
+			headers: { "cf-connecting-ip": "203.0.113.4" },
+		});
+		expect(await admitRealtimeRelay(request, { ENV: "prod" } as never)).toBe(false);
+		expect(await admitRealtimeRelay(request, { ENV: "test" } as never)).toBe(true);
+	});
+
+	it("uses the native limiter before admitting a relay", async () => {
+		const limit = vi.fn().mockResolvedValue({ success: false });
+		const request = new Request("https://phaseo.app/v1/realtime/sessions/relay", {
+			headers: { "cf-connecting-ip": "203.0.113.4" },
+		});
+		expect(await admitRealtimeRelay(request, {
+			ENV: "prod",
+			REALTIME_RELAY_RATE_LIMITER: { limit },
+		} as never)).toBe(false);
+		expect(limit).toHaveBeenCalledOnce();
 	});
 });
