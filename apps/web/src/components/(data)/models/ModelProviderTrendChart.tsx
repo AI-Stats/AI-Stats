@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { ArrowUpDown } from "lucide-react";
 import {
 	CartesianGrid,
@@ -14,6 +14,7 @@ import {
 } from "recharts";
 import type { ModelProviderDailyPoint } from "@/lib/fetchers/models/getModelPerformance";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { ModelMetricInfo } from "./ModelMetricInfo";
 
 export type MetricKey =
@@ -59,6 +60,7 @@ export function isUsableMetricValue(
 type MetricConfig = {
 	label: string;
 	description: string;
+	axisLabel: string;
 	valueKey:
 		| "avgThroughput"
 		| "avgOutputSpeed"
@@ -74,42 +76,49 @@ const METRICS: Record<MetricKey, MetricConfig> = {
 	throughput: {
 		label: "Effective throughput",
 		description: "Output tokens per second across the full selected-provider request, including time to first token.",
+		axisLabel: "Tokens / second",
 		valueKey: "avgThroughput",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} t/s` : "-"),
 	},
 	outputSpeed: {
 		label: "Output speed",
 		description: "Output tokens per second after the first token arrives, excluding time to first token.",
+		axisLabel: "Tokens / second",
 		valueKey: "avgOutputSpeed",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} t/s` : "-"),
 	},
 	latency: {
 		label: "Time to first token",
 		description: "Time from the request entering Phaseo until the first content-bearing generated output reaches the gateway.",
+		axisLabel: "Milliseconds",
 		valueKey: "avgLatencyMs",
 		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
 	},
 	generation: {
 		label: "Provider duration",
 		description: "Time from sending the selected provider request until its final response completes.",
+		axisLabel: "Milliseconds",
 		valueKey: "avgGenerationMs",
 		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
 	},
 	overhead: {
 		label: "Phaseo overhead",
 		description: "Gateway end-to-end duration minus the selected provider duration, including routing and response processing.",
+		axisLabel: "Milliseconds",
 		valueKey: "avgPhaseoOverheadMs",
 		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
 	},
 	tpot: {
 		label: "TPOT",
 		description: "Time per output token after the first token. Lower values indicate faster token generation.",
+		axisLabel: "Milliseconds",
 		valueKey: "avgTpotMs",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} ms` : "-"),
 	},
 	itl: {
 		label: "ITL",
 		description: "Estimated average interval between generated tokens. It currently uses the request-level TPOT estimate.",
+		axisLabel: "Milliseconds",
 		valueKey: "avgItlMs",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} ms` : "-"),
 	},
@@ -139,6 +148,12 @@ function formatDayHeading(day: string): string {
 		month: "short",
 		year: "numeric",
 	});
+}
+
+function formatDayTick(day: string): string {
+	const date = new Date(`${day}T00:00:00Z`);
+	if (!Number.isFinite(date.getTime())) return day;
+	return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
 }
 
 function toSeriesKey(providerId: string): string {
@@ -246,9 +261,7 @@ export default function ModelProviderTrendChart({
 	const activeIndex =
 		activeRow && typeof activeRow.index === "number" ? activeRow.index : null;
 	const isHovering = activeDay != null;
-	const providerRows = useMemo(
-		() =>
-			providers.map((provider) => {
+	const providerRows = providers.map((provider) => {
 				const metricValues = filtered
 					.filter((point) => point.provider === provider.provider)
 					.map((point) => point[metricConfig.valueKey])
@@ -276,10 +289,8 @@ export default function ModelProviderTrendChart({
 					maximum,
 					hoveredValue,
 				};
-			}),
-		[providers, filtered, metricConfig.valueKey, activeRow],
-	);
-	const sortedProviderRows = useMemo(() => {
+			});
+	const sortedProviderRows = (() => {
 		const multiplier = tableSort.direction === "asc" ? 1 : -1;
 		return [...providerRows].sort((left, right) => {
 			if (tableSort.key === "provider") {
@@ -289,7 +300,7 @@ export default function ModelProviderTrendChart({
 			const rightValue = right[tableSort.key] ?? Number.NEGATIVE_INFINITY;
 			return (leftValue - rightValue) * multiplier;
 		});
-	}, [providerRows, tableSort]);
+	})();
 	const toggleTableSort = (
 		key: "provider" | "minimum" | "maximum" | "average",
 	) => {
@@ -335,7 +346,9 @@ export default function ModelProviderTrendChart({
 				<ResponsiveContainer width="100%" height="100%">
 					<LineChart
 						data={chartData}
-						margin={{ top: 8, right: 0, left: 0, bottom: 6 }}
+						margin={detailed
+							? { top: 8, right: 18, left: 24, bottom: 28 }
+							: { top: 8, right: 0, left: 0, bottom: 6 }}
 						onMouseMove={(state: any) => {
 							const dayFromPointer =
 								typeof state?.activeCoordinate?.x === "number" &&
@@ -404,10 +417,25 @@ export default function ModelProviderTrendChart({
 							dataKey="index"
 							type="number"
 							domain={chartData.length === 1 ? [-0.5, 0.5] : [0, chartData.length - 1]}
+							ticks={chartData.map((_, index) => index)}
 							allowDataOverflow
-							hide
+							hide={!detailed}
+							tickFormatter={(value) =>
+								formatDayTick(String(chartData[Math.round(Number(value))]?.day ?? ""))
+							}
+							tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+							tickLine={false}
+							axisLine={{ stroke: "var(--border)" }}
+							label={detailed ? { value: "Date", position: "insideBottom", offset: -18, fill: "var(--muted-foreground)", fontSize: 11 } : undefined}
 						/>
-						<YAxis hide />
+						<YAxis
+							hide={!detailed}
+							width={70}
+							tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+							tickLine={false}
+							axisLine={false}
+							label={detailed ? { value: metricConfig.axisLabel, angle: -90, position: "insideLeft", offset: -10, fill: "var(--muted-foreground)", fontSize: 11 } : undefined}
+						/>
 						<RechartsTooltip
 							cursor={false}
 							content={({ active, payload }) => {
@@ -494,7 +522,11 @@ export default function ModelProviderTrendChart({
 				</div>
 			) : null}
 			{detailed ? (
-				<div className="min-h-0 flex-1 overflow-y-auto rounded-md border border-border/70">
+				<ScrollArea
+					className="min-h-0 flex-1 rounded-md border border-border/70"
+					viewportClassName="min-h-0"
+					keepScrollbarMounted
+				>
 					<div className="sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground">
 						<Button variant="ghost" size="sm" className="-ml-2 h-7 w-fit px-2 text-xs" onClick={() => toggleTableSort("provider")}>
 							{seriesColumnLabel} <ArrowUpDown className="ml-1.5 size-3.5" />
@@ -523,7 +555,7 @@ export default function ModelProviderTrendChart({
 							<span className="text-right font-medium tabular-nums">{metricConfig.formatValue(provider.average)}</span>
 						</div>
 					))}
-				</div>
+				</ScrollArea>
 			) : (
 			<div className="space-y-1.5 pt-1">
 				{providerRows.map((provider) => {

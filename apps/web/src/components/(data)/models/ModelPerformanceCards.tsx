@@ -64,12 +64,6 @@ const METRICS: MetricDefinition[] = [
 		description: "Time from provider dispatch until its final response completes.",
 	},
 	{
-		metric: "overhead",
-		valueKey: "avgPhaseoOverheadMs",
-		label: "Phaseo overhead",
-		description: "Gateway processing time outside the selected provider request.",
-	},
-	{
 		metric: "tpot",
 		valueKey: "avgTpotMs",
 		label: "TPOT",
