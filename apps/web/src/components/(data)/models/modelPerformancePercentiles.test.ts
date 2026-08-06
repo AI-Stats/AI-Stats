@@ -39,10 +39,20 @@ describe("buildSingleProviderPercentileSeries", () => {
 		]);
 
 		expect(result).toEqual([
-			expect.objectContaining({ provider: "percentile-1", providerName: "P01" }),
-			expect.objectContaining({ provider: "percentile-50", providerName: "P50" }),
-			expect.objectContaining({ provider: "percentile-95", providerName: "P95" }),
+			expect.objectContaining({
+				provider: "percentile-1",
+				providerName: "P01",
+			}),
+			expect.objectContaining({
+				provider: "percentile-50",
+				providerName: "P50",
+			}),
+			expect.objectContaining({
+				provider: "percentile-95",
+				providerName: "P95",
+			}),
 		]);
+		expect(new Set(result?.map((point) => point.providerColor)).size).toBe(3);
 	});
 
 	it("does not replace provider comparison for multiple providers", () => {
@@ -51,40 +61,42 @@ describe("buildSingleProviderPercentileSeries", () => {
 
 	it("rejects empty or unsupported single-provider points", () => {
 		expect(buildSingleProviderPercentileSeries(1, [])).toBeNull();
-		expect(buildSingleProviderPercentileSeries(1, [
-			{
-				day: "2026-07-23",
-				provider: "poolside",
-				providerName: "Poolside",
-				providerColor: null,
-				percentile: 42,
-				avgThroughput: 8.5,
-				avgLatencyMs: 230,
-				avgGenerationMs: 520,
-				requests: 100,
-			},
-			{
-				day: "2026-07-23",
-				provider: "poolside",
-				providerName: "Poolside",
-				providerColor: null,
-				percentile: 50,
-				avgThroughput: 8.5,
-				avgLatencyMs: 230,
-				avgGenerationMs: 520,
-				requests: 0,
-			},
-			{
-				day: "2026-07-23",
-				provider: "poolside",
-				providerName: "Poolside",
-				providerColor: null,
-				percentile: 95,
-				avgThroughput: null,
-				avgLatencyMs: null,
-				avgGenerationMs: null,
-				requests: 100,
-			},
-		])).toBeNull();
+		expect(
+			buildSingleProviderPercentileSeries(1, [
+				{
+					day: "2026-07-23",
+					provider: "poolside",
+					providerName: "Poolside",
+					providerColor: null,
+					percentile: 42,
+					avgThroughput: 8.5,
+					avgLatencyMs: 230,
+					avgGenerationMs: 520,
+					requests: 100,
+				},
+				{
+					day: "2026-07-23",
+					provider: "poolside",
+					providerName: "Poolside",
+					providerColor: null,
+					percentile: 50,
+					avgThroughput: 8.5,
+					avgLatencyMs: 230,
+					avgGenerationMs: 520,
+					requests: 0,
+				},
+				{
+					day: "2026-07-23",
+					provider: "poolside",
+					providerName: "Poolside",
+					providerColor: null,
+					percentile: 95,
+					avgThroughput: null,
+					avgLatencyMs: null,
+					avgGenerationMs: null,
+					requests: 100,
+				},
+			]),
+		).toBeNull();
 	});
 });
