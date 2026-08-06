@@ -31,7 +31,10 @@ type ModelProviderTrendChartProps = {
 	onActiveDayChange: (day: string | null) => void;
 };
 
-export function getSeriesEmphasis(activeSeriesKey: string | null, seriesKey: string) {
+export function getSeriesEmphasis(
+	activeSeriesKey: string | null,
+	seriesKey: string,
+) {
 	const isActive = activeSeriesKey === seriesKey;
 	return {
 		isActive,
@@ -136,8 +139,8 @@ export default function ModelProviderTrendChart({
 		(point) => point.requests > 0 && point[metricConfig.valueKey] != null,
 	);
 	const providers = Array.from(
-		observedData.reduce(
-			(map, point) => {
+		observedData
+			.reduce((map, point) => {
 				const existing = map.get(point.provider) ?? {
 					provider: point.provider,
 					name: point.providerName || point.provider,
@@ -150,26 +153,27 @@ export default function ModelProviderTrendChart({
 				}
 				map.set(point.provider, existing);
 				return map;
-			},
-			new Map<
-				string,
-				{ provider: string; name: string; color: string | null; requests: number }
-			>(),
-		).values(),
+			}, new Map<string, { provider: string; name: string; color: string | null; requests: number }>())
+			.values(),
 	)
 		.sort((a, b) => b.requests - a.requests)
 		.slice(0, maxSeries)
 		.map((provider, index) => ({
 			...provider,
 			seriesKey: toSeriesKey(provider.provider),
-			color: provider.color ?? FALLBACK_PROVIDER_COLORS[index] ?? FALLBACK_PROVIDER_COLORS[0],
+			color:
+				provider.color ??
+				FALLBACK_PROVIDER_COLORS[index] ??
+				FALLBACK_PROVIDER_COLORS[0],
 		}));
 
 	const providerIdSet = new Set(providers.map((provider) => provider.provider));
-	const filtered = observedData.filter((point) => providerIdSet.has(point.provider));
-	const sortedDays = Array.from(new Set(filtered.map((point) => point.day))).sort(
-		(a, b) => new Date(a).getTime() - new Date(b).getTime(),
+	const filtered = observedData.filter((point) =>
+		providerIdSet.has(point.provider),
 	);
+	const sortedDays = Array.from(
+		new Set(filtered.map((point) => point.day)),
+	).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 	const byDay = new Map<string, Record<string, number | null>>();
 	for (const day of sortedDays) {
 		byDay.set(day, {});
@@ -177,7 +181,9 @@ export default function ModelProviderTrendChart({
 	for (const point of filtered) {
 		const row = byDay.get(point.day);
 		if (!row) continue;
-		const provider = providers.find((providerItem) => providerItem.provider === point.provider);
+		const provider = providers.find(
+			(providerItem) => providerItem.provider === point.provider,
+		);
 		if (!provider) continue;
 		row[provider.seriesKey] = point[metricConfig.valueKey] ?? null;
 	}
@@ -194,7 +200,7 @@ export default function ModelProviderTrendChart({
 	});
 	const latestRow = chartData[chartData.length - 1] ?? null;
 	const hoveredRow = activeDay
-		? chartData.find((row) => row.day === activeDay) ?? null
+		? (chartData.find((row) => row.day === activeDay) ?? null)
 		: null;
 	const activeRow = hoveredRow ?? latestRow;
 	const activeHeadingDate =
@@ -211,8 +217,7 @@ export default function ModelProviderTrendChart({
 					.filter((point) => point.provider === provider.provider)
 					.map((point) => point[metricConfig.valueKey])
 					.filter(
-						(value): value is number =>
-							value != null && Number.isFinite(value),
+						(value): value is number => value != null && Number.isFinite(value),
 					);
 				const average =
 					metricValues.length > 0
@@ -235,8 +240,13 @@ export default function ModelProviderTrendChart({
 
 	if (providers.length === 0) {
 		return (
-			<div className="flex h-full items-center justify-center rounded-md border border-dashed border-border text-xs text-muted-foreground">
-				No provider trend data available.
+			<div className="flex h-full flex-col gap-3">
+				<p className="text-lg font-medium leading-none text-foreground">
+					{title}
+				</p>
+				<div className="flex flex-1 items-center justify-center rounded-md border border-dashed border-border px-4 text-center text-xs text-muted-foreground">
+					No data is available for this metric and filter combination.
+				</div>
 			</div>
 		);
 	}
@@ -244,7 +254,9 @@ export default function ModelProviderTrendChart({
 	return (
 		<div className="space-y-3">
 			<div className="flex items-start justify-between gap-3">
-				<p className="text-lg font-medium leading-none text-foreground">{title}</p>
+				<p className="text-lg font-medium leading-none text-foreground">
+					{title}
+				</p>
 				<span className="shrink-0 whitespace-nowrap text-[11px] text-muted-foreground">
 					{activeHeadingDate}
 				</span>
@@ -283,8 +295,7 @@ export default function ModelProviderTrendChart({
 									? state.activeLabel
 									: null;
 							const dayFromNumericLabel =
-								typeof state?.activeLabel === "number" &&
-								chartData.length > 0
+								typeof state?.activeLabel === "number" && chartData.length > 0
 									? String(
 											chartData[
 												Math.max(
@@ -328,8 +339,47 @@ export default function ModelProviderTrendChart({
 						/>
 						<YAxis hide />
 						<Tooltip
-							content={() => null}
 							cursor={false}
+							content={({ active, payload }) => {
+								if (!active || !payload?.length) return null;
+								const day = payload[0]?.payload?.day;
+								return (
+									<div className="min-w-44 rounded-md border border-border bg-popover p-2.5 text-xs text-popover-foreground shadow-md">
+										<p className="mb-2 font-medium">
+											{typeof day === "string" ? formatDayHeading(day) : title}
+										</p>
+										<div className="space-y-1.5">
+											{payload
+												.filter((entry) => typeof entry.value === "number")
+												.map((entry) => {
+													const provider = providers.find(
+														(item) => item.seriesKey === entry.dataKey,
+													);
+													if (!provider) return null;
+													return (
+														<div
+															key={provider.seriesKey}
+															className="flex items-center justify-between gap-4"
+														>
+															<span className="inline-flex min-w-0 items-center gap-1.5">
+																<span
+																	className="size-2 shrink-0 rounded-full"
+																	style={{ backgroundColor: provider.color }}
+																/>
+																<span className="truncate text-muted-foreground">
+																	{provider.name}
+																</span>
+															</span>
+															<span className="shrink-0 font-medium tabular-nums">
+																{metricConfig.formatValue(Number(entry.value))}
+															</span>
+														</div>
+													);
+												})}
+										</div>
+									</div>
+								);
+							}}
 						/>
 						{isHovering && activeIndex != null ? (
 							<ReferenceLine
@@ -345,22 +395,24 @@ export default function ModelProviderTrendChart({
 								provider.seriesKey,
 							);
 							return (
-							<Line
-								key={provider.seriesKey}
-								type="monotone"
-								dataKey={provider.seriesKey}
-								stroke={provider.color}
-								strokeWidth={isActive ? 3.5 : 2}
-								strokeOpacity={isDimmed ? 0.18 : 1}
-								style={{ transition: "stroke-opacity 150ms, stroke-width 150ms" }}
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								dot={false}
-								connectNulls
-								isAnimationActive={false}
-								onMouseEnter={() => setHoveredSeriesKey(provider.seriesKey)}
-								onMouseLeave={() => setHoveredSeriesKey(null)}
-							/>
+								<Line
+									key={provider.seriesKey}
+									type="monotone"
+									dataKey={provider.seriesKey}
+									stroke={provider.color}
+									strokeWidth={isActive ? 3.5 : 2}
+									strokeOpacity={isDimmed ? 0.18 : 1}
+									style={{
+										transition: "stroke-opacity 150ms, stroke-width 150ms",
+									}}
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									dot={false}
+									connectNulls
+									isAnimationActive={false}
+									onMouseEnter={() => setHoveredSeriesKey(provider.seriesKey)}
+									onMouseLeave={() => setHoveredSeriesKey(null)}
+								/>
 							);
 						})}
 					</LineChart>
@@ -373,37 +425,45 @@ export default function ModelProviderTrendChart({
 						provider.seriesKey,
 					);
 					return (
-					<div
-						key={provider.seriesKey}
-						className="flex items-center justify-between gap-3 rounded-sm text-xs outline-none transition-[opacity,transform] duration-150 focus-visible:ring-1 focus-visible:ring-ring"
-						style={{
-							opacity: isDimmed ? 0.35 : 1,
-							transform: isActive ? "translateX(2px)" : "translateX(0)",
-						}}
-						tabIndex={0}
-						onMouseEnter={() => setHoveredSeriesKey(provider.seriesKey)}
-						onMouseLeave={() => setHoveredSeriesKey(null)}
-						onFocus={() => setFocusedSeriesKey(provider.seriesKey)}
-						onBlur={() => setFocusedSeriesKey(null)}
-					>
-						<span className="inline-flex min-w-0 items-center gap-2">
-							<span
-								className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-								style={{ backgroundColor: provider.color }}
-							/>
-							<span className={isActive ? "truncate font-medium text-foreground" : "truncate text-foreground"}>{provider.name}</span>
-						</span>
-						<span className="shrink-0 tabular-nums text-foreground">
-							{isHovering ? (
-								metricConfig.formatValue(provider.hoveredValue)
-							) : (
-								<>
-									<span className="text-muted-foreground">Avg </span>
-									{metricConfig.formatValue(provider.average)}
-								</>
-							)}
-						</span>
-					</div>
+						<div
+							key={provider.seriesKey}
+							className="flex items-center justify-between gap-3 rounded-sm text-xs outline-none transition-[opacity,transform] duration-150 focus-visible:ring-1 focus-visible:ring-ring"
+							style={{
+								opacity: isDimmed ? 0.35 : 1,
+								transform: isActive ? "translateX(2px)" : "translateX(0)",
+							}}
+							tabIndex={0}
+							onMouseEnter={() => setHoveredSeriesKey(provider.seriesKey)}
+							onMouseLeave={() => setHoveredSeriesKey(null)}
+							onFocus={() => setFocusedSeriesKey(provider.seriesKey)}
+							onBlur={() => setFocusedSeriesKey(null)}
+						>
+							<span className="inline-flex min-w-0 items-center gap-2">
+								<span
+									className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+									style={{ backgroundColor: provider.color }}
+								/>
+								<span
+									className={
+										isActive
+											? "truncate font-medium text-foreground"
+											: "truncate text-foreground"
+									}
+								>
+									{provider.name}
+								</span>
+							</span>
+							<span className="shrink-0 tabular-nums text-foreground">
+								{isHovering ? (
+									metricConfig.formatValue(provider.hoveredValue)
+								) : (
+									<>
+										<span className="text-muted-foreground">Avg </span>
+										{metricConfig.formatValue(provider.average)}
+									</>
+								)}
+							</span>
+						</div>
 					);
 				})}
 			</div>
