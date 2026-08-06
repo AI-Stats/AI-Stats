@@ -2,21 +2,21 @@
 "use client";
 
 import * as React from "react";
-import { Check, Plus, X } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+	ModelSelector,
+	ModelSelectorContent,
+	ModelSelectorEmpty,
+	ModelSelectorGroup,
+	ModelSelectorInput,
+	ModelSelectorItem,
+	ModelSelectorList,
+	ModelSelectorTrigger,
+} from "@/components/ai-elements/model-selector";
 import type { ExtendedModel } from "@/data/types";
 import { ProviderLogo } from "./ProviderLogo";
 
@@ -307,132 +307,69 @@ export default function ModelCombobox({
 		setPendingSelection(Array.from(new Set([...current, modelId])).slice(0, MAX_SELECTION));
 	};
 
-	const removeSelection = (modelId: string) => {
-		const current = pendingSelection.slice(0, MAX_SELECTION);
-		setPendingSelection(current.filter((existing) => existing !== modelId));
-	};
-
 	const buttonLabel =
 		selected.length > 0 ? labelWhenSelected : labelWhenEmpty;
 
-	const selectedDetails = pendingSelection.map((id) => {
-		const model = modelsById.get(id);
-		return {
-			id,
-			label: model?.name ?? id,
-		};
-	});
-
 	return (
-		<Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
-			<DialogTrigger asChild>
+		<ModelSelector open={dialogOpen} onOpenChange={handleOpenChange}>
+			<ModelSelectorTrigger asChild>
 				<Button
-					variant="outline"
+					variant="ghost"
+					size="sm"
 					className={cn(
-						"w-fit justify-start gap-2",
+						"h-8 w-fit justify-start gap-1.5 px-2 text-xs",
 						selected.length === 0 && "text-muted-foreground",
 						className
 					)}
 				>
-					<Plus className="h-4 w-4" />
+					<Plus className="size-4" />
 					{buttonLabel}
 					{showSelectionCount && selected.length > 0 && (
 						<Badge
 							variant="secondary"
-							className="ml-1 bg-primary/10 text-primary"
+							className="ml-0.5 h-5 rounded-md bg-primary/10 px-1.5 text-[10px] text-primary"
 						>
 							{selected.length}/{MAX_SELECTION}
 						</Badge>
 					)}
 				</Button>
-			</DialogTrigger>
-			<DialogContent className="max-w-4xl space-y-4">
-				<DialogHeader>
-					<DialogTitle>Choose models to compare</DialogTitle>
-					<DialogDescription>
+			</ModelSelectorTrigger>
+			<ModelSelectorContent
+				title="Select models to compare"
+				className="w-[min(92vw,560px)] max-w-none sm:max-w-none"
+				commandProps={{ shouldFilter: false }}
+			>
+				<ModelSelectorInput
+					autoFocus
+					placeholder="Search models..."
+					value={searchTerm}
+					onValueChange={setSearchTerm}
+				/>
+				<div className="flex items-center justify-between gap-3 border-b border-border px-3 py-2 text-xs text-muted-foreground">
+					<span className="truncate">
 						{replaceTargetModel
-							? `Replacing ${replaceTargetModel.name}. Select another compatible model to swap into this slot.`
-							: "Pick up to four models. Results are grouped by release month (newest first). Use search to jump to a model, provider, or month."}
-					</DialogDescription>
-				</DialogHeader>
-
-				<div className="space-y-4">
-					<Input
-						autoFocus
-						value={searchTerm}
-						onChange={(event) => setSearchTerm(event.target.value)}
-						placeholder="Search by model name, identifier, provider, or month"
-					/>
-
-					<div className="rounded-md border border-dashed border-border/60 p-3">
-						<div className="flex items-center justify-between">
-							<p className="text-xs font-medium text-muted-foreground">
-								Selected
-							</p>
-							<span className="text-xs text-muted-foreground">
-								{pendingSelection.length}/{MAX_SELECTION} chosen
-							</span>
-						</div>
-						<div className="mt-3 flex flex-wrap gap-2">
-							{selectedDetails.length > 0 ? (
-								selectedDetails.map((entry) => (
-									<Badge
-										key={entry.id}
-										variant="secondary"
-										className="flex items-center gap-2 rounded-full px-3 py-1"
-									>
-										<span className="text-xs font-medium">
-											{entry.label}
-										</span>
-										<button
-											type="button"
-											className="rounded-full p-0.5 transition hover:bg-muted"
-											onClick={() => removeSelection(entry.id)}
-											aria-label={`Remove ${entry.label}`}
-										>
-											<X className="h-3 w-3" />
-										</button>
-									</Badge>
-								))
-							) : (
-								<p className="text-xs text-muted-foreground">
-									No models selected yet.
-								</p>
-							)}
-						</div>
-					</div>
-
-					{compatibilityActive ? (
-						<div className="rounded-lg border border-border/60 bg-muted/20 p-3 text-xs text-muted-foreground">
-							We only allow comparisons across models that share compatible
-							endpoints (based on input/output modalities).
-						</div>
-					) : null}
-
-					<div className="max-h-[420px] space-y-4 overflow-y-auto pr-1">
-						{filteredGroups.length === 0 ? (
-							<p className="py-8 text-center text-sm text-muted-foreground">
-								No models match your search yet.
-							</p>
-						) : (
-							filteredGroups.map((group) => (
-								<div key={group.monthKey} className="space-y-2">
-									<div className="sticky top-0 z-10 -mx-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
-										<div className="flex items-center justify-between gap-4">
-											<span className="text-sm font-semibold">
-												{group.monthLabel}
-											</span>
-											<span className="text-[11px] text-muted-foreground">
-												{group.models.length} model
-												{group.models.length === 1 ? "" : "s"}
-											</span>
-										</div>
-									</div>
-									<div className="space-y-2">
-										{group.models.map((model) => {
+							? `Replace ${replaceTargetModel.name}`
+							: "Choose up to four compatible models"}
+					</span>
+					<span className="shrink-0 tabular-nums">
+						{pendingSelection.length}/{MAX_SELECTION} selected
+					</span>
+				</div>
+				{selectionNotice ? (
+					<p className="border-b border-border px-3 py-2 text-xs text-destructive">
+						{selectionNotice}
+					</p>
+				) : null}
+				<ModelSelectorList className="max-h-[70vh]" viewportClassName="p-2">
+					<ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
+					{filteredGroups.map((group) => (
+						<ModelSelectorGroup
+							key={group.monthKey}
+							heading={`${group.monthLabel} · ${group.models.length}`}
+						>
+							{group.models.map((model) => {
 											const sig = getEndpointSignature(model);
 											const hasSignature = sig.size > 0;
-											const modalities = Array.from(sig).slice(0, 3);
 											const modelAvailable = (() => {
 												// Always allow removing an already-selected model.
 												if (pendingSelection.includes(model.id)) return true;
@@ -450,103 +387,51 @@ export default function ModelCombobox({
 											})();
 											const isSelected = pendingSelection.includes(model.id);
 											return (
-												<button
-													type="button"
+								<ModelSelectorItem
 													key={model.id}
-													onClick={() =>
+									value={model.id}
+									disabled={!modelAvailable && !isSelected}
+									onSelect={() =>
 														toggleSelection(
 															model.id,
 															modelAvailable
 														)
 													}
-													className={cn(
-														"group flex w-full items-center justify-between rounded-lg border border-border/70 bg-background px-3 py-2 text-left transition",
-														isSelected
-															? "border-primary/60 bg-primary/5 shadow-sm"
-															: "hover:border-primary/40 hover:bg-muted/30",
-														!modelAvailable &&
-															!isSelected &&
-															"opacity-60 cursor-not-allowed"
-													)}
-													disabled={!modelAvailable && !isSelected}
-												>
-													<div className="flex min-w-0 items-center gap-3">
+									className={cn(
+										"min-h-12 gap-2.5 rounded-lg px-2.5 py-2",
+										isSelected
+											? "bg-primary/8 aria-selected:bg-primary/12"
+											: "",
+										!modelAvailable &&
+											!isSelected &&
+											"opacity-50"
+									)}
+								>
 														<ProviderLogo
 															id={model.provider?.provider_id ?? "unknown"}
 															alt={model.provider?.name ?? "Unknown"}
-															size="xs"
+															size="xxs"
 															className="shrink-0"
 														/>
-														<div className="min-w-0 space-y-1">
-															<div className="flex items-center gap-2">
-																<p className="truncate text-sm font-medium leading-tight">
-																	{model.name}
-																</p>
-																{isSelected ? (
-																	<Badge
-																		variant="secondary"
-																		className="text-[10px] bg-primary/10 text-primary px-1.5 py-0"
-																	>
-																		Selected
-																	</Badge>
-																) : null}
-															</div>
-															<p className="truncate text-[11px] text-muted-foreground font-mono">
-																{model.id}
-															</p>
-														</div>
-													</div>
-													<div className="ml-2 flex flex-col items-end gap-1.5 text-xs text-muted-foreground">
-														<div className="flex flex-wrap justify-end gap-1">
-															{modalities.map((modality) => (
-																<Badge
-																	key={`${model.id}-${modality}`}
-																	variant="outline"
-																	className="px-1.5 py-0 text-[10px] font-normal uppercase"
-																>
-																	{modality}
-																</Badge>
-															))}
-														</div>
-														{!modelAvailable && (
-															<Badge
-																variant="outline"
-																className="text-[10px] px-2 py-0.5"
-															>
-																Incompatible
-															</Badge>
-														)}
-														{isSelected ? (
-															<span className="inline-flex items-center gap-1 text-[10px] text-primary">
-																<Check className="h-3 w-3" />
-																Included
-															</span>
-														) : null}
-													</div>
-												</button>
-											);
-										})}
-									</div>
+								<div className="min-w-0 flex-1">
+									<p className="truncate text-sm font-medium">{model.name}</p>
+									<p className="truncate font-mono text-[11px] text-muted-foreground">
+										{model.id}
+									</p>
 								</div>
-							))
-						)}
-					</div>
-				</div>
-
-				{selectionNotice && (
-					<p className="text-sm text-destructive">{selectionNotice}</p>
-				)}
-
-				<DialogFooter className="gap-3 sm:gap-2">
-					<Button
-						variant="outline"
-						type="button"
-						onClick={() => handleOpenChange(false)}
-					>
-						Done
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
+								{!modelAvailable && !isSelected ? (
+									<span className="shrink-0 text-[10px] text-muted-foreground">
+										Incompatible
+									</span>
+								) : null}
+								{isSelected ? <Check className="size-4 shrink-0" /> : null}
+								</ModelSelectorItem>
+											);
+							})}
+						</ModelSelectorGroup>
+					))}
+				</ModelSelectorList>
+			</ModelSelectorContent>
+		</ModelSelector>
 	);
 }
