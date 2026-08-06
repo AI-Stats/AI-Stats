@@ -1,25 +1,33 @@
 ---
 icon: "package"
 title: "Installation"
-description: "Evaluate the Python Agent SDK from source while its registry package is prepared."
+description: "Install and configure the Phaseo Python Agent SDK."
 ---
+
+The Agent SDK is published as [`phaseo-agent-sdk`](https://pypi.org/project/phaseo-agent-sdk/) on PyPI.
 
 ## Requirements
 
 - Python 3.10 or newer
 - a Phaseo API key
 
-## Install
+## Installation
 
-<Note type="warning">
-  The Python Agent SDK is implemented, but `phaseo-agent-sdk` is not yet published to PyPI. Use the repository source for evaluation; the core [`phaseo`](https://pypi.org/project/phaseo/) client is public.
-</Note>
+Install the Agent SDK using your preferred Python package manager:
 
-```bash
-git clone https://github.com/phaseoteam/Phaseo.git
-cd Phaseo
-python -m pip install -e packages/sdk/sdk-py -e packages/sdk/agent-sdk-py
-```
+<CodeGroup>
+
+    ```bash title="pip"
+    pip install phaseo-agent-sdk
+    ```
+
+    ```bash title="uv"
+    uv add phaseo-agent-sdk
+    ```
+
+</CodeGroup>
+
+The core `phaseo` client is installed automatically as a dependency.
 
 ## Environment
 
