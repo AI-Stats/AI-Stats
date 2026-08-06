@@ -180,6 +180,31 @@ describe("after/pricing calculatePricing", () => {
 		expect(result.pricedUsage?.pricing?.lines ?? []).toHaveLength(0);
 	});
 
+	it("bills conservatively when a requested pricing plan has a coverage gap", () => {
+		const card: PriceCard = {
+			...TTS_CARD,
+			rules: [
+				...TTS_CARD.rules,
+				{
+					...TTS_CARD.rules[0],
+					pricing_plan: "priority",
+					price_per_unit: "2",
+					match: [{ path: "service_tier", op: "eq", value: "unreachable" }],
+				},
+			],
+		};
+
+		const result = calculatePricing(
+			{ input_text_tokens: 1_000 },
+			card,
+			{ service_tier: "priority" },
+		);
+
+		expect(result.totalNanos).toBe(2_000_000);
+		expect(result.pricedUsage?.pricing?.lines?.[0]?.rule_id).toBeUndefined();
+		expect(result.pricedUsage?.pricing?.lines?.[0]?.unit_price_usd).toBe("2.000000000");
+	});
+
 	it("infers image pricing qualifiers from output tokens when the request used auto defaults", () => {
 		const result = calculatePricing(
 			{
