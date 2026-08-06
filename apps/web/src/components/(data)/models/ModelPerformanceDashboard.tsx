@@ -249,7 +249,7 @@ export default function ModelPerformanceDashboard({
 					<p className="text-sm text-muted-foreground">{headerDescription}</p>
 				</div>
 				<div className="flex items-center gap-2">
-					<div className="hidden items-center gap-2 md:flex">
+					<div className="hidden items-center gap-2 lg:flex">
 						<Select
 							value={streamMode}
 							disabled={isLoadingRegion}
@@ -304,7 +304,7 @@ export default function ModelPerformanceDashboard({
 							<Button
 								variant="outline"
 								size="sm"
-								className="h-8 gap-2 rounded-md px-3 text-xs md:hidden"
+								className="h-8 gap-2 rounded-md px-3 text-xs lg:hidden"
 							>
 								{isLoadingRegion || isLoadingPercentile ? (
 									<Loader2 className="size-3.5 animate-spin" />
@@ -409,7 +409,7 @@ export default function ModelPerformanceDashboard({
 							) : null}
 						</DropdownMenuContent>
 					</DropdownMenu>
-					<div className="hidden items-center gap-2 md:flex">
+					<div className="hidden items-center gap-2 lg:flex">
 						<Tooltip>
 							<TooltipTrigger asChild>
 								<span className="inline-flex" tabIndex={0}>
