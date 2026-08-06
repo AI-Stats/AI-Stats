@@ -234,6 +234,10 @@ namespace PhaseoSdk
         public const string InceptionMercuryEdit2 = "inception/mercury-edit-2";
         /// <summary>Model ID: <c>inclusionai/ling-2.6-1t</c>. Model page: https://phaseo.app/models/inclusionai/ling-2.6-1t</summary>
         public const string InclusionaiLing261t = "inclusionai/ling-2.6-1t";
+        /// <summary>Model ID: <c>inclusionai/ling-3.0-flash</c>. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash</summary>
+        public const string InclusionaiLing30Flash = "inclusionai/ling-3.0-flash";
+        /// <summary>Model ID: <c>inclusionai/ling-3.0-tiny</c>. Model page: https://phaseo.app/models/inclusionai/ling-3.0-tiny</summary>
+        public const string InclusionaiLing30Tiny = "inclusionai/ling-3.0-tiny";
         /// <summary>Model ID: <c>inclusionai/ling-flash-2.0</c>. Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0</summary>
         public const string InclusionaiLingFlash20 = "inclusionai/ling-flash-2.0";
         /// <summary>Model ID: <c>inclusionai/ring-flash-2.0</c>. Model page: https://phaseo.app/models/inclusionai/ring-flash-2.0</summary>
@@ -288,6 +292,8 @@ namespace PhaseoSdk
         public const string MicrosoftPhi4 = "microsoft/phi-4";
         /// <summary>Model ID: <c>microsoft/phi-4-mini</c>. Model page: https://phaseo.app/models/microsoft/phi-4-mini</summary>
         public const string MicrosoftPhi4Mini = "microsoft/phi-4-mini";
+        /// <summary>Model ID: <c>mindai/macaron-v1-tall</c>. Model page: https://phaseo.app/models/mindai/macaron-v1-tall</summary>
+        public const string MindaiMacaronV1Tall = "mindai/macaron-v1-tall";
         /// <summary>Model ID: <c>minimax/hailuo-02</c>. Model page: https://phaseo.app/models/minimax/hailuo-02</summary>
         public const string MinimaxHailuo02 = "minimax/hailuo-02";
         /// <summary>Model ID: <c>minimax/hailuo-2.3</c>. Model page: https://phaseo.app/models/minimax/hailuo-2.3</summary>

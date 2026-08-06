@@ -235,6 +235,10 @@ export const ModelIds = {
   INCEPTION_MERCURY_EDIT_2: "inception/mercury-edit-2",
   /** Model ID: `inclusionai/ling-2.6-1t`. Model page: https://phaseo.app/models/inclusionai/ling-2.6-1t */
   INCLUSIONAI_LING_2_6_1T: "inclusionai/ling-2.6-1t",
+  /** Model ID: `inclusionai/ling-3.0-flash`. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash */
+  INCLUSIONAI_LING_3_0_FLASH: "inclusionai/ling-3.0-flash",
+  /** Model ID: `inclusionai/ling-3.0-tiny`. Model page: https://phaseo.app/models/inclusionai/ling-3.0-tiny */
+  INCLUSIONAI_LING_3_0_TINY: "inclusionai/ling-3.0-tiny",
   /** Model ID: `inclusionai/ling-flash-2.0`. Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0 */
   INCLUSIONAI_LING_FLASH_2_0: "inclusionai/ling-flash-2.0",
   /** Model ID: `inclusionai/ring-flash-2.0`. Model page: https://phaseo.app/models/inclusionai/ring-flash-2.0 */
@@ -289,6 +293,8 @@ export const ModelIds = {
   MICROSOFT_PHI_4: "microsoft/phi-4",
   /** Model ID: `microsoft/phi-4-mini`. Model page: https://phaseo.app/models/microsoft/phi-4-mini */
   MICROSOFT_PHI_4_MINI: "microsoft/phi-4-mini",
+  /** Model ID: `mindai/macaron-v1-tall`. Model page: https://phaseo.app/models/mindai/macaron-v1-tall */
+  MINDAI_MACARON_V1_TALL: "mindai/macaron-v1-tall",
   /** Model ID: `minimax/hailuo-02`. Model page: https://phaseo.app/models/minimax/hailuo-02 */
   MINIMAX_HAILUO_02: "minimax/hailuo-02",
   /** Model ID: `minimax/hailuo-2.3`. Model page: https://phaseo.app/models/minimax/hailuo-2.3 */

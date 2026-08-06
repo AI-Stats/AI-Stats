@@ -478,7 +478,8 @@
       "inclusionai/ling-3.0-flash",
       "inclusionai/ling-flash-2.0",
       "inclusionai/ring-flash-2.0",
-      "inclusionai/ling-3.0-flash:free"
+      "inclusionai/ling-3.0-flash:free",
+      "inclusionai/ling-3.0-tiny"
     ],
     "kwaipilot": [
       "kwaipilot/kat-coder-air-v2.5",
@@ -1271,7 +1272,8 @@
     ],
     "mindai": [
       "mindai/macaron-v1-venti",
-      "mindai/macaron-v1-venti:free"
+      "mindai/macaron-v1-venti:free",
+      "mindai/macaron-v1-tall"
     ],
     "morph": [
       "morph/morph-v3-fast",
