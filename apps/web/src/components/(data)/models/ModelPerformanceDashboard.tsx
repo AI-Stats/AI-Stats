@@ -48,6 +48,20 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { buildSingleProviderPercentileSeries } from "@/components/(data)/models/modelPerformancePercentiles";
+
+const STREAM_MODE_LABELS = {
+	all: "All responses",
+	stream: "Streaming",
+	non_stream: "Non-streaming",
+} as const;
+
+const CONTEXT_BUCKET_LABELS = {
+	all: "All contexts",
+	lte_4k: "≤ 4K input",
+	"4k_16k": "4K–16K input",
+	"16k_64k": "16K–64K input",
+	gt_64k: "> 64K input",
+} as const;
 import {
 	Empty,
 	EmptyDescription,
@@ -262,10 +276,10 @@ export default function ModelPerformanceDashboard({
 						>
 							<SelectTrigger
 								size="sm"
-								className="h-8 rounded-md border-border bg-background text-xs"
+								className="h-8 min-w-28 rounded-md border-border bg-background text-xs"
 								aria-label="Streaming mode"
 							>
-								<SelectValue />
+								<SelectValue>{STREAM_MODE_LABELS[streamMode]}</SelectValue>
 							</SelectTrigger>
 							<SelectContent align="end">
 								<SelectItem value="all">All responses</SelectItem>
@@ -285,10 +299,10 @@ export default function ModelPerformanceDashboard({
 						>
 							<SelectTrigger
 								size="sm"
-								className="h-8 rounded-md border-border bg-background text-xs"
+								className="h-8 min-w-28 rounded-md border-border bg-background text-xs"
 								aria-label="Context length"
 							>
-								<SelectValue />
+								<SelectValue>{CONTEXT_BUCKET_LABELS[contextBucket]}</SelectValue>
 							</SelectTrigger>
 							<SelectContent align="end">
 								<SelectItem value="all">All contexts</SelectItem>
