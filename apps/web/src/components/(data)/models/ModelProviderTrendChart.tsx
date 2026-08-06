@@ -271,7 +271,7 @@ export default function ModelProviderTrendChart({
 		return (
 			<div className="flex h-full flex-col gap-3">
 				<div className="flex items-center gap-1.5">
-					<p className="text-lg font-medium leading-none text-foreground">{title}</p>
+					<p className={detailed ? "text-lg font-medium leading-none text-foreground" : "text-sm font-medium leading-none text-foreground"}>{title}</p>
 					<ModelMetricInfo label={metricConfig.label} description={metricConfig.description} />
 				</div>
 				<div className="flex flex-1 items-center justify-center rounded-md border border-dashed border-border px-4 text-center text-xs text-muted-foreground">
@@ -285,13 +285,15 @@ export default function ModelProviderTrendChart({
 		<div className="space-y-3">
 			<div className="flex items-start justify-between gap-3">
 				<div className="flex items-center gap-1.5">
-					<p className="text-lg font-medium leading-none text-foreground">{title}</p>
+					<p className={detailed ? "text-lg font-medium leading-none text-foreground" : "text-sm font-medium leading-none text-foreground"}>{title}</p>
 					<ModelMetricInfo label={metricConfig.label} description={metricConfig.description} />
 				</div>
 				<div className="flex shrink-0 items-center gap-2">
-					<span className="whitespace-nowrap text-[11px] text-muted-foreground">
-						{activeHeadingDate}
-					</span>
+					{detailed ? (
+						<span className="whitespace-nowrap text-[11px] text-muted-foreground">
+							{activeHeadingDate}
+						</span>
+					) : null}
 					{headerAction}
 				</div>
 			</div>
