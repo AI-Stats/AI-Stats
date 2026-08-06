@@ -115,7 +115,11 @@ export default function ModelPerformanceCards({
 				),
 			)
 		: providerDaily7d;
-	const providerCount = new Set(providerDaily7d.map((point) => point.provider)).size;
+	const providerCount = new Set(
+		providerDaily7d
+			.filter((point) => point.requests > 0)
+			.map((point) => point.provider),
+	).size;
 	const detailSeriesLabel = chartProviderDaily7d
 		? "All available percentile bands"
 		: `All ${providerCount.toLocaleString()} recorded provider${providerCount === 1 ? "" : "s"}`;
