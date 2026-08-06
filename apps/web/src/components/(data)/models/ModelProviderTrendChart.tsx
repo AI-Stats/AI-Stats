@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
+import { ArrowUpDown } from "lucide-react";
 import {
 	CartesianGrid,
 	Line,
@@ -12,6 +13,7 @@ import {
 	YAxis,
 } from "recharts";
 import type { ModelProviderDailyPoint } from "@/lib/fetchers/models/getModelPerformance";
+import { Button } from "@/components/ui/button";
 import { ModelMetricInfo } from "./ModelMetricInfo";
 
 export type MetricKey =
@@ -29,6 +31,7 @@ type ModelProviderTrendChartProps = {
 	metric: MetricKey;
 	maxSeries?: number;
 	detailed?: boolean;
+	showHeader?: boolean;
 	headerAction?: ReactNode;
 	activeDay: string | null;
 	onActiveDayChange: (day: string | null) => void;
@@ -148,12 +151,17 @@ export default function ModelProviderTrendChart({
 	metric,
 	maxSeries = 3,
 	detailed = false,
+	showHeader = true,
 	headerAction,
 	activeDay,
 	onActiveDayChange,
 }: ModelProviderTrendChartProps) {
 	const [hoveredSeriesKey, setHoveredSeriesKey] = useState<string | null>(null);
 	const [focusedSeriesKey, setFocusedSeriesKey] = useState<string | null>(null);
+	const [tableSort, setTableSort] = useState<{
+		key: "provider" | "minimum" | "maximum" | "average";
+		direction: "asc" | "desc";
+	}>({ key: "average", direction: "desc" });
 	const activeSeriesKey = hoveredSeriesKey ?? focusedSeriesKey;
 	const metricConfig = METRICS[metric];
 	const observedData = data.filter(
@@ -266,6 +274,26 @@ export default function ModelProviderTrendChart({
 			}),
 		[providers, filtered, metricConfig.valueKey, activeRow],
 	);
+	const sortedProviderRows = useMemo(() => {
+		const multiplier = tableSort.direction === "asc" ? 1 : -1;
+		return [...providerRows].sort((left, right) => {
+			if (tableSort.key === "provider") {
+				return left.name.localeCompare(right.name) * multiplier;
+			}
+			const leftValue = left[tableSort.key] ?? Number.NEGATIVE_INFINITY;
+			const rightValue = right[tableSort.key] ?? Number.NEGATIVE_INFINITY;
+			return (leftValue - rightValue) * multiplier;
+		});
+	}, [providerRows, tableSort]);
+	const toggleTableSort = (
+		key: "provider" | "minimum" | "maximum" | "average",
+	) => {
+		setTableSort((current) => ({
+			key,
+			direction:
+				current.key === key && current.direction === "desc" ? "asc" : "desc",
+		}));
+	};
 
 	if (providers.length === 0) {
 		return (
@@ -282,8 +310,8 @@ export default function ModelProviderTrendChart({
 	}
 
 	return (
-		<div className="space-y-3">
-			<div className="flex items-start justify-between gap-3">
+		<div className={detailed ? "flex h-full min-h-0 flex-col gap-3" : "space-y-3"}>
+			{showHeader ? <div className="flex items-start justify-between gap-3">
 				<div className="flex items-center gap-1.5">
 					<p className={detailed ? "text-lg font-medium leading-none text-foreground" : "text-sm font-medium leading-none text-foreground"}>{title}</p>
 					<ModelMetricInfo label={metricConfig.label} description={metricConfig.description} />
@@ -296,9 +324,9 @@ export default function ModelProviderTrendChart({
 					) : null}
 					{headerAction}
 				</div>
-			</div>
+			</div> : null}
 			{chartData.length > 0 ? (
-				<div className={detailed ? "h-[300px] w-full pt-1" : "h-[148px] w-full pt-1"}>
+				<div className={detailed ? "h-[300px] w-full shrink-0 pt-1" : "h-[148px] w-full pt-1"}>
 				<ResponsiveContainer width="100%" height="100%">
 					<LineChart
 						data={chartData}
@@ -461,14 +489,22 @@ export default function ModelProviderTrendChart({
 				</div>
 			) : null}
 			{detailed ? (
-				<div className="overflow-hidden rounded-md border border-border/70">
-					<div className="grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/70 bg-muted/20 px-3 py-2 text-xs font-medium text-muted-foreground">
-						<span>Provider</span>
-						<span className="text-right">Min</span>
-						<span className="text-right">Max</span>
-						<span className="text-right">Avg</span>
+				<div className="min-h-0 flex-1 overflow-y-auto rounded-md border border-border/70">
+					<div className="sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground">
+						<Button variant="ghost" size="sm" className="-ml-2 h-7 w-fit px-2 text-xs" onClick={() => toggleTableSort("provider")}>
+							Provider <ArrowUpDown className="ml-1.5 size-3.5" />
+						</Button>
+						<Button variant="ghost" size="sm" className="ml-auto h-7 px-2 text-xs" onClick={() => toggleTableSort("minimum")}>
+							Min <ArrowUpDown className="ml-1.5 size-3.5" />
+						</Button>
+						<Button variant="ghost" size="sm" className="ml-auto h-7 px-2 text-xs" onClick={() => toggleTableSort("maximum")}>
+							Max <ArrowUpDown className="ml-1.5 size-3.5" />
+						</Button>
+						<Button variant="ghost" size="sm" className="ml-auto h-7 px-2 text-xs" onClick={() => toggleTableSort("average")}>
+							Avg <ArrowUpDown className="ml-1.5 size-3.5" />
+						</Button>
 					</div>
-					{providerRows.map((provider) => (
+					{sortedProviderRows.map((provider) => (
 						<div
 							key={provider.seriesKey}
 							className="grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/50 px-3 py-2.5 text-sm last:border-b-0"

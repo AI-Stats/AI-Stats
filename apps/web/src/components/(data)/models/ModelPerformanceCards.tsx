@@ -158,20 +158,21 @@ export default function ModelPerformanceCards({
 								}
 							/>
 						</div>
-						<DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
+						<DialogContent className="h-[min(90vh,850px)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden sm:max-w-5xl">
 							<DialogHeader className="pr-10">
 								<DialogTitle className="text-xl">{definition.label}</DialogTitle>
 								<DialogDescription>
 									{definition.description} {detailSeriesLabel} are shown below.
 								</DialogDescription>
 							</DialogHeader>
-							<div className="rounded-lg border border-border/70 bg-background p-4">
+							<div className="h-full min-h-0 overflow-hidden rounded-lg border border-border/70 bg-background p-4">
 								<ModelProviderTrendChart
 									title={definition.label}
 									data={detailData}
 									metric={definition.metric}
 									maxSeries={Number.MAX_SAFE_INTEGER}
 									detailed
+									showHeader={false}
 									activeDay={activeDay}
 									onActiveDayChange={setActiveDay}
 								/>
