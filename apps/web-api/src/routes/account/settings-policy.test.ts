@@ -6,11 +6,51 @@ const env = {
 	SUPABASE_URL: "https://example.supabase.co",
 	SUPABASE_ANON_KEY: "anon-key",
 	SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+	PHASEO_MANAGEMENT_KEY: "management-key",
+	PHASEO_CONTROL_KEY: "control-key",
+	PHASEO_CONTROL_SECRET: "control-secret",
+	GATEWAY_API_ORIGIN: "https://gateway.example.com",
 };
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("account policy settings routes", () => {
+	it("invalidates every active key after response-healing policy changes", async () => {
+		const invalidated: string[] = [];
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const request = input instanceof Request ? input : new Request(input, init);
+			const url = request.url;
+			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
+			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
+			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
+			if (url.includes("workspace_settings")) return new Response(JSON.stringify([]), { status: 200 });
+			if (url.includes("/keys?")) return new Response(JSON.stringify([{ id: "key-1" }, { id: "key-2" }]), { status: 200 });
+			if (url.includes("/v1/keys/") && url.endsWith("/invalidate")) {
+				invalidated.push(url);
+				expect(request.headers.get("authorization")).toBe("Bearer control-key");
+				expect(request.headers.get("x-control-secret")).toBe("control-secret");
+				return new Response(null, { status: 204 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request("https://phaseo.app/api/account/settings/routing", {
+			method: "PUT",
+			headers: { authorization: "Bearer session-token", "content-type": "application/json" },
+			body: JSON.stringify({
+				workspaceId: "workspace-1",
+				responseHealingEnabled: true,
+				responseHealingLocked: true,
+				responseHealingMode: "strict",
+			}),
+		}, env);
+
+		expect(response.status).toBe(200);
+		expect(invalidated).toEqual([
+			"https://gateway.example.com/v1/keys/key-1/invalidate",
+			"https://gateway.example.com/v1/keys/key-2/invalidate",
+		]);
+	});
 	it("does not expose upstream versions when the source preset is no longer public", async () => {
 		const requestedUrls: string[] = [];
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
