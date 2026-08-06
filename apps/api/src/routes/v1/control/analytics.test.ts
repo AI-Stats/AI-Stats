@@ -22,7 +22,7 @@ vi.mock("../../utils", () => ({
 
 import { analyticsRoutes } from "./analytics";
 
-function queryResult(result: { data: unknown[]; error: unknown }) {
+function queryResult(result: { data: unknown[]; error: unknown; count?: number | null }) {
 	const query: Record<string, unknown> = {};
 	for (const method of ["select", "eq", "gte", "lt", "in", "order", "range"]) {
 		query[method] = vi.fn(() => query);
@@ -47,9 +47,13 @@ describe("analyticsRoutes", () => {
 
 	it("loads the current v2 daily rollup and aggregates meter totals", async () => {
 		const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+		let factQueries = 0;
 		getSupabaseAdminMock.mockReturnValue({
 			from: vi.fn((table: string) => {
-				if (table === "v2_request_facts") return queryResult({ data: [{
+				if (table === "v2_request_facts") {
+					factQueries += 1;
+					if (factQueries === 1) return queryResult({ data: [], error: null, count: 1 });
+					return queryResult({ data: [{
 					occurred_at: `${yesterday}T12:00:00.000Z`,
 					endpoint: "chat/completions",
 					requested_model_slug: "openai/gpt-test",
@@ -63,6 +67,7 @@ describe("analyticsRoutes", () => {
 						{ meter_key: "reasoning_tokens", quantity: 2 },
 					],
 				}], error: null });
+				}
 				if (table === "v2_model_provider_routes") return queryResult({ data: [{
 					provider_model_id: "openai:gpt-test",
 					provider_slug: "openai",
@@ -89,5 +94,29 @@ describe("analyticsRoutes", () => {
 				reasoning_tokens: 2,
 			}),
 		]);
+	});
+
+	it("fails closed when a raw analytics range exceeds the row cap", async () => {
+		let factQueries = 0;
+		getSupabaseAdminMock.mockReturnValue({
+			from: vi.fn((table: string) => {
+				if (table !== "v2_request_facts") throw new Error(`unexpected table: ${table}`);
+				factQueries += 1;
+				return queryResult({
+					data: [],
+					error: null,
+					count: 10_001,
+				});
+			}),
+		});
+
+		const response = await analyticsRoutes.request("https://example.com/");
+
+		expect(response.status).toBe(413);
+		await expect(response.json()).resolves.toMatchObject({
+			ok: false,
+			error: "analytics_range_too_large",
+		});
+		expect(factQueries).toBe(1);
 	});
 });
