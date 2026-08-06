@@ -99,6 +99,19 @@ describe("free model variants", () => {
     });
 });
 
+describe("explicit data-use variants", () => {
+    it("keeps the contributor route isolated from the standard model identity", () => {
+        expect(v2RouteModelSlug(
+            {
+                api_model_id: "meta/muse-spark-1.2-contributor",
+                internal_model_id: "meta/muse-spark-1.2-contributor",
+            },
+            (value) => String(value),
+            { canonical_model_id: "meta/muse-spark-1.2-contributor" },
+        )).toBe("meta/muse-spark-1.2-contributor");
+    });
+});
+
 describe("routeStatus", () => {
     it("defaults an authored active gateway route to active", () => {
         expect(routeStatus(null, true)).toBe("active");

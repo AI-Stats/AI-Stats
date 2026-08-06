@@ -539,7 +539,8 @@
       "meta/llama-guard-4-12b",
       "meta/llama-prompt-guard-2-22m",
       "meta/llama-prompt-guard-2-86m",
-      "meta/muse-spark-1.2"
+      "meta/muse-spark-1.2",
+      "meta/muse-spark-1.2-contributor"
     ],
     "microsoft": [
       "microsoft/phi-1",
