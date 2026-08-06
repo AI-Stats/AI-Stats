@@ -44,6 +44,12 @@ publicGamesRouter.post("/:game/check", async (c) => {
   } catch {
     return c.json({ error: "invalid_request" }, 400);
   }
+  const revealUser = body.action === "reveal"
+    ? await requireUser(c.req.raw, c.env)
+    : null;
+  if (body.action === "reveal" && !revealUser) {
+    return c.json({ error: "unauthorized" }, 401);
+  }
   try {
     const puzzle = await resolveDailyPuzzle(c.env, game);
     if (body.puzzleId !== puzzle.puzzle_id) {
@@ -57,7 +63,7 @@ publicGamesRouter.post("/:game/check", async (c) => {
       puzzle.answer_payload
     );
     if (completion) {
-      const user = await requireUser(c.req.raw, c.env);
+      const user = revealUser ?? await requireUser(c.req.raw, c.env);
       if (!user) return c.json({ error: "unauthorized" }, 401);
       try {
         await persistGameCompletion(c.env, user, puzzle, completion);
@@ -67,6 +73,11 @@ publicGamesRouter.post("/:game/check", async (c) => {
           userId: user.id,
           error,
         });
+        if (body.action === "reveal") {
+          return c.json({ error: "result_persistence_failed" }, 503, {
+            "Cache-Control": "private, no-store",
+          });
+        }
       }
     }
     return c.json(evaluation, 200, {

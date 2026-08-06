@@ -23,17 +23,24 @@ export function gameCompletion(
   result: Record<string, unknown>,
   answerPayload: Record<string, unknown>
 ): GameCompletion | null {
-  if (body.action === "reveal" && game !== "modele" && game !== "pricele")
-    return null;
+  if (body.action === "reveal") {
+    const maxScore = game === "timeline"
+      ? 5
+      : game === "head-to-head"
+        ? Object.keys((answerPayload.answers as object | undefined) ?? {}).length
+        : game === "sprint"
+          ? ((answerPayload.candidates as Array<unknown> | undefined) ?? []).length
+          : 1;
+    return {
+      won: false,
+      score: 0,
+      maxScore,
+      attempts: game === "modele" || game === "pricele"
+        ? boundedInteger(body.attempts, 0)
+        : 1,
+    };
+  }
   if (game === "modele" || game === "pricele") {
-    if (body.action === "reveal") {
-      return {
-        won: false,
-        score: 0,
-        maxScore: 1,
-        attempts: boundedInteger(body.attempts, 0),
-      };
-    }
     if (result.correct !== true) return null;
     return {
       won: true,
