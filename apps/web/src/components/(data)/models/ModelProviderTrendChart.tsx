@@ -297,7 +297,7 @@ export default function ModelProviderTrendChart({
 					{headerAction}
 				</div>
 			</div>
-			{chartData.length > 1 ? (
+			{chartData.length > 0 ? (
 				<div className={detailed ? "h-[300px] w-full pt-1" : "h-[148px] w-full pt-1"}>
 				<ResponsiveContainer width="100%" height="100%">
 					<LineChart
@@ -370,7 +370,7 @@ export default function ModelProviderTrendChart({
 						<XAxis
 							dataKey="index"
 							type="number"
-							domain={[0, Math.max(chartData.length - 1, 0)]}
+							domain={chartData.length === 1 ? [-0.5, 0.5] : [0, chartData.length - 1]}
 							allowDataOverflow
 							hide
 						/>
@@ -448,7 +448,7 @@ export default function ModelProviderTrendChart({
 									}}
 									strokeLinecap="round"
 									strokeLinejoin="round"
-									dot={false}
+									dot={chartData.length === 1 ? { r: 3, strokeWidth: 2 } : false}
 									connectNulls
 									isAnimationActive={false}
 									onMouseEnter={() => setHoveredSeriesKey(provider.seriesKey)}
@@ -484,18 +484,7 @@ export default function ModelProviderTrendChart({
 					))}
 				</div>
 			) : (
-			<div
-				className={
-					chartData.length === 1
-						? "flex min-h-[148px] flex-col justify-center space-y-2 rounded-md border border-border/60 bg-muted/15 px-3 py-3"
-						: "space-y-1.5 pt-1"
-				}
-			>
-				{chartData.length === 1 ? (
-					<p className="pb-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-						Latest percentile snapshot
-					</p>
-				) : null}
+			<div className="space-y-1.5 pt-1">
 				{providerRows.map((provider) => {
 					const { isActive, isDimmed } = getSeriesEmphasis(
 						activeSeriesKey,
@@ -535,9 +524,7 @@ export default function ModelProviderTrendChart({
 									metricConfig.formatValue(provider.hoveredValue)
 								) : (
 									<>
-										{chartData.length > 1 ? (
-											<span className="text-muted-foreground">Avg </span>
-										) : null}
+										<span className="text-muted-foreground">Avg </span>
 										{metricConfig.formatValue(provider.average)}
 									</>
 								)}
