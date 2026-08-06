@@ -152,4 +152,52 @@ describe("public pricing routes", () => {
 		)?.[0]);
 		expect(decodeURIComponent(providerUrl)).toContain("model_slug=in.(openai/gpt-5.6-sol)");
 	});
+
+	it("rejects cache-busting parameters before accessing the database", async () => {
+		const fetchMock = vi.fn();
+		vi.stubGlobal("fetch", fetchMock);
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/pricing/models?cb=random",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(400);
+		await expect(response.json()).resolves.toEqual({ error: "unsupported_query_parameter" });
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it("fails closed instead of caching a truncated provider-route catalogue", async () => {
+		const fullPage = Array.from({ length: 1_000 }, (_, index) => ({
+			provider_model_id: `provider:model-${index}`,
+			provider_slug: "provider",
+			provider_model_slug: `model-${index}`,
+			model_slug: `organisation/model-${index}`,
+			routing_enabled: true,
+			status: "active",
+		}));
+		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("v2_model_provider_routes")) {
+				const providerCalls = fetchMock.mock.calls.filter(([input]) =>
+					String(input).includes("v2_model_provider_routes")
+				).length;
+				return new Response(JSON.stringify(
+					providerCalls === 5 ? [...fullPage, { ...fullPage[0], provider_model_id: "provider:overflow" }] : fullPage,
+				), { status: 200 });
+			}
+			return new Response("[]", { status: 200 });
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		const response = await app.request("https://phaseo.app/api/_web/pricing/models", {}, env);
+
+		expect(response.status).toBe(503);
+		await expect(response.json()).resolves.toEqual({ error: "pricing_models_unavailable" });
+		const providerRequests = fetchMock.mock.calls.filter(([input]) =>
+			String(input).includes("v2_model_provider_routes")
+		);
+		expect(providerRequests).toHaveLength(5);
+	});
 });
