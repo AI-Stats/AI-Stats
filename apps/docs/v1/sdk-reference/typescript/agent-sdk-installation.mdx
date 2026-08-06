@@ -1,25 +1,41 @@
 ---
 icon: "package"
 title: "Installation"
-description: "Install the TypeScript Agent SDK and its core dependency."
+description: "Install and configure the Phaseo TypeScript Agent SDK."
 ---
+
+The Agent SDK is published as [`@phaseo/agent-sdk`](https://www.npmjs.com/package/@phaseo/agent-sdk) on npm.
 
 ## Requirements
 
 - a TypeScript or JavaScript project using npm, pnpm, Yarn, or Bun
 - a Phaseo API key
 
-## Install
+## Installation
 
-```bash
-pnpm add @phaseo/sdk @phaseo/agent-sdk
-```
+Install the Agent SDK using your preferred package manager:
 
-You can also use `npm` or `yarn` if that matches your app:
+<CodeGroup>
 
-```bash
-npm install @phaseo/sdk @phaseo/agent-sdk
-```
+    ```bash title="npm"
+    npm install @phaseo/agent-sdk
+    ```
+
+    ```bash title="pnpm"
+    pnpm add @phaseo/agent-sdk
+    ```
+
+    ```bash title="yarn"
+    yarn add @phaseo/agent-sdk
+    ```
+
+    ```bash title="bun"
+    bun add @phaseo/agent-sdk
+    ```
+
+</CodeGroup>
+
+The core `@phaseo/sdk` package is installed automatically as a dependency.
 
 ## Environment
 
