@@ -25,7 +25,8 @@ export type MetricKey =
 	| "generation"
 	| "overhead"
 	| "tpot"
-	| "itl";
+	| "itl"
+	| "cachedInput";
 
 type ModelProviderTrendChartProps = {
 	title: string;
@@ -55,7 +56,7 @@ export function isUsableMetricValue(
 	value: number | null | undefined,
 ) {
 	if (value == null || !Number.isFinite(value)) return false;
-	return metric === "overhead" ? value >= 0 : value > 0;
+	return metric === "overhead" || metric === "cachedInput" ? value >= 0 : value > 0;
 }
 
 type MetricConfig = {
@@ -69,7 +70,8 @@ type MetricConfig = {
 		| "avgGenerationMs"
 		| "avgPhaseoOverheadMs"
 		| "avgTpotMs"
-		| "avgItlMs";
+		| "avgItlMs"
+		| "cachedInputPct";
 	formatValue: (value: number | null) => string;
 	formatAxisTick?: (value: number) => string;
 };
@@ -124,6 +126,14 @@ const METRICS: Record<MetricKey, MetricConfig> = {
 		axisLabel: "Milliseconds",
 		valueKey: "avgItlMs",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} ms` : "-"),
+	},
+	cachedInput: {
+		label: "Cached input",
+		description: "Share of input tokens served from a provider cache. Only requests where the provider reports cache usage are included.",
+		axisLabel: "Cached input (%)",
+		valueKey: "cachedInputPct",
+		formatValue: (value) => (value != null ? `${value.toFixed(1)}%` : "-"),
+		formatAxisTick: (value) => `${Math.round(value)}%`,
 	},
 };
 

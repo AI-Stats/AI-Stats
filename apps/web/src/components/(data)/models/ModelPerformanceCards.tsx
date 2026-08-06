@@ -29,7 +29,8 @@ type MetricValueKey =
 	| "avgGenerationMs"
 	| "avgPhaseoOverheadMs"
 	| "avgTpotMs"
-	| "avgItlMs";
+	| "avgItlMs"
+	| "cachedInputPct";
 
 type MetricDefinition = {
 	metric: MetricKey;
@@ -75,6 +76,12 @@ const METRICS: MetricDefinition[] = [
 		label: "ITL",
 		description: "Mean observed interval between successive content-bearing provider stream frames. Providers may batch tokens.",
 	},
+	{
+		metric: "cachedInput",
+		valueKey: "cachedInputPct",
+		label: "Cached input",
+		description: "Percentage of reported input tokens served from provider cache.",
+	},
 ];
 
 interface ModelPerformanceCardsProps {
@@ -104,9 +111,6 @@ export default function ModelPerformanceCards({
 	const hasStructuredOutputQuality = qualitySeries.some(
 		(point) => point.structuredOutputSuccessPct != null,
 	);
-	const hasCacheQuality = qualitySeries.some(
-		(point) => point.cacheHitRatePct != null,
-	);
 	const detailData = chartProviderDaily7d ?? providerDaily7d;
 	const cardData = chartProviderDaily7d
 		? chartProviderDaily7d.filter((point) =>
@@ -123,8 +127,14 @@ export default function ModelPerformanceCards({
 	const detailSeriesLabel = chartProviderDaily7d
 		? "All available percentile bands"
 		: `All ${providerCount.toLocaleString()} recorded provider${providerCount === 1 ? "" : "s"}`;
+	const metricData = (metric: MetricKey, detailed: boolean) =>
+		metric === "cachedInput"
+			? providerDaily7d
+			: detailed
+				? detailData
+				: cardData;
 	const availableMetrics = METRICS.filter(({ metric, valueKey }) =>
-		detailData.some(
+		metricData(metric, true).some(
 			(point) =>
 				point.requests > 0 && isUsableMetricValue(metric, point[valueKey]),
 		),
@@ -138,7 +148,7 @@ export default function ModelPerformanceCards({
 						<div className="min-w-0 rounded-lg border border-border/70 bg-background px-4 py-4">
 							<ModelProviderTrendChart
 								title={definition.label}
-								data={cardData}
+								data={metricData(definition.metric, false)}
 								metric={definition.metric}
 								maxSeries={3}
 								activeDay={activeDay}
@@ -160,13 +170,13 @@ export default function ModelPerformanceCards({
 							<DialogHeader className="pr-10">
 								<DialogTitle className="text-xl">{definition.label}</DialogTitle>
 								<DialogDescription>
-									{definition.description} {detailSeriesLabel} are shown below.
+									{definition.description} {definition.metric === "cachedInput" ? `All ${providerCount.toLocaleString()} recorded provider${providerCount === 1 ? "" : "s"}` : detailSeriesLabel} are shown below.
 								</DialogDescription>
 							</DialogHeader>
 							<div className="h-full min-h-0 overflow-hidden rounded-lg border border-border/70 bg-background p-4">
 								<ModelProviderTrendChart
 									title={definition.label}
-									data={detailData}
+									data={metricData(definition.metric, true)}
 									metric={definition.metric}
 									maxSeries={Number.MAX_SAFE_INTEGER}
 									detailed
@@ -193,13 +203,6 @@ export default function ModelPerformanceCards({
 						title="Structured output"
 						data={qualitySeries}
 						metric="structuredOutputSuccessPct"
-					/>
-				) : null}
-				{hasCacheQuality ? (
-					<ModelQualityTrendChart
-						title="Cache hit rate"
-						data={qualitySeries}
-						metric="cacheHitRatePct"
 					/>
 				) : null}
 			</div>

@@ -34,4 +34,8 @@ describe("isUsableMetricValue", () => {
 	it("allows zero gateway overhead because it is a valid measurement", () => {
 		expect(isUsableMetricValue("overhead", 0)).toBe(true);
 	});
+
+	it("allows zero cached input because no cache use is meaningful", () => {
+		expect(isUsableMetricValue("cachedInput", 0)).toBe(true);
+	});
 });

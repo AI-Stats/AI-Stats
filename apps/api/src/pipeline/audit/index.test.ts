@@ -442,6 +442,9 @@ describe("audit request detail persistence", () => {
 			expect.objectContaining({ meter_key: "cached_input_tokens", quantity: 3 }),
 			expect.objectContaining({ meter_key: "output_tokens", quantity: 4 }),
 		]));
+		expect(event.safe_metadata).toEqual(expect.objectContaining({
+			cached_input_tokens_are_subset_of_input: true,
+		}));
 		expect(event.routing_decisions).toEqual([
 			expect.objectContaining({
 				decision: "ranked",
