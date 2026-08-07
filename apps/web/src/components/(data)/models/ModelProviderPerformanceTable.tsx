@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import type { ModelProviderPerformance } from "@/lib/fetchers/models/getModelPerformance";
 import { cn } from "@/lib/utils";
+import { formatProviderDuration } from "@/components/(data)/models/modelPerformanceFormatting";
 
 function formatMetric(
 	value: number | null,
@@ -182,7 +183,7 @@ export default function ModelProviderPerformanceTable({
 				),
 				cell: ({ row }) => (
 					<span className="ml-3">
-						{formatMetric(row.original.avgGenerationMs, " ms")}
+						{formatProviderDuration(row.original.avgGenerationMs)}
 					</span>
 				),
 			},

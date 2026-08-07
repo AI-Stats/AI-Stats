@@ -126,7 +126,12 @@ function createOpenAIChatMount(): Mountable {
     return {
         setJournal(nextJournal) { journal = nextJournal; },
         async handleRequest(req: IncomingMessage, res: ServerResponse, pathname: string) {
-            if (!["/chat/completions", "/responses"].includes(pathname) || req.method !== "POST") return false;
+            const route = pathname.endsWith("/chat/completions")
+                ? "/chat/completions"
+                : pathname.endsWith("/responses")
+                    ? "/responses"
+                    : null;
+            if (!route || req.method !== "POST") return false;
             const body = JSON.parse(await readIncomingBody(req)) as Record<string, any>;
             const headers = flattenHeaders(req.headers as Record<string, string | string[] | undefined>);
             const serialized = JSON.stringify(body);
@@ -150,7 +155,7 @@ function createOpenAIChatMount(): Mountable {
                 usage: { prompt_tokens: 4, completion_tokens: 3, total_tokens: 7 },
             };
             journal?.add({ method: req.method, path: req.url ?? pathname, headers, body, service: "chat", response: { status: 200, fixture: null } });
-            if (pathname === "/responses") {
+            if (route === "/responses") {
                 const responsesPayload = {
                     id: "resp_cross_provider",
                     object: "response",
@@ -592,6 +597,7 @@ export async function startAimock(): Promise<LLMock> {
     aimock.mount("/v1/tts", createXAiTtsMount());
     aimock.mount("/v1beta/interactions", createGoogleInteractionsMount());
     aimock.mount("/v1/openai", createOpenAIChatMount());
+    aimock.mount("/v1/solar", createOpenAIChatMount());
     aimock.mount("/deepseek", createOpenAIChatMount());
     aimock.mount("/api/v1", createOpenAIChatMount());
     aimock.mount("/anthropic/v1", createBedrockMantleMessagesMount());

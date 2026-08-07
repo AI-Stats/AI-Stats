@@ -502,6 +502,14 @@ describe("public model routes", () => {
 	it("never exposes a synthetic unknown provider in performance data", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
+			if (url.includes("/rpc/get_v2_model_cached_input_metrics")) {
+				return new Response(JSON.stringify({
+					hourly_24h: [],
+					provider_daily_7d: [
+						{ day: "2026-07-23", provider: "poolside", cached_input_pct: 62.5, cached_input_tokens: 625, effective_input_tokens: 1000, telemetry_requests: 11 },
+					],
+				}), { status: 200 });
+			}
 			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
 				return new Response(JSON.stringify({
 					last_24h: { total_requests: 12, successful_requests: 11 },
@@ -556,7 +564,13 @@ describe("public model routes", () => {
 			expect.objectContaining({ provider: "poolside" }),
 		]);
 		expect(payload.metrics.providerDaily7d).toEqual([
-			expect.objectContaining({ provider: "poolside" }),
+			expect.objectContaining({
+				provider: "poolside",
+				cachedInputPct: 62.5,
+				cachedInputTokens: 625,
+				effectiveInputTokens: 1000,
+				cacheTelemetryRequests: 11,
+			}),
 		]);
 		expect(payload.metrics.providerPercentileDaily7d).toHaveLength(5);
 		expect(payload.metrics.providerPercentileDaily7d).toContainEqual(

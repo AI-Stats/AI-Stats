@@ -8,13 +8,13 @@ import {
 	LineChart,
 	ReferenceLine,
 	ResponsiveContainer,
-	Tooltip as RechartsTooltip,
 	XAxis,
 	YAxis,
 } from "recharts";
 import type { ModelProviderDailyPoint } from "@/lib/fetchers/models/getModelPerformance";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { formatProviderDuration } from "@/components/(data)/models/modelPerformanceFormatting";
 import { ModelMetricInfo } from "./ModelMetricInfo";
 
 export type MetricKey =
@@ -24,7 +24,8 @@ export type MetricKey =
 	| "generation"
 	| "overhead"
 	| "tpot"
-	| "itl";
+	| "itl"
+	| "cachedInput";
 
 type ModelProviderTrendChartProps = {
 	title: string;
@@ -54,7 +55,40 @@ export function isUsableMetricValue(
 	value: number | null | undefined,
 ) {
 	if (value == null || !Number.isFinite(value)) return false;
-	return metric === "overhead" ? value >= 0 : value > 0;
+	return metric === "overhead" || metric === "cachedInput" ? value >= 0 : value > 0;
+}
+
+export function calculateCachedInputAverage(
+	points: ModelProviderDailyPoint[],
+): number | null {
+	const totals = points.reduce(
+		(accumulator, point) => {
+			if (
+				point.cachedInputTokens == null ||
+				point.effectiveInputTokens == null ||
+				!Number.isFinite(point.cachedInputTokens) ||
+				!Number.isFinite(point.effectiveInputTokens) ||
+				point.effectiveInputTokens <= 0
+			) return accumulator;
+			accumulator.cached += Math.max(0, point.cachedInputTokens);
+			accumulator.effective += point.effectiveInputTokens;
+			return accumulator;
+		},
+		{ cached: 0, effective: 0 },
+	);
+	return totals.effective > 0
+		? Math.min(100, (totals.cached * 100) / totals.effective)
+		: null;
+}
+
+export function getHoverDateTextAnchor(
+	activeIndex: number,
+	pointCount: number,
+): "start" | "middle" | "end" {
+	if (pointCount <= 1) return "middle";
+	if (activeIndex <= 0) return "start";
+	if (activeIndex >= pointCount - 1) return "end";
+	return "middle";
 }
 
 type MetricConfig = {
@@ -68,41 +102,44 @@ type MetricConfig = {
 		| "avgGenerationMs"
 		| "avgPhaseoOverheadMs"
 		| "avgTpotMs"
-		| "avgItlMs";
+		| "avgItlMs"
+		| "cachedInputPct";
 	formatValue: (value: number | null) => string;
+	formatAxisTick?: (value: number) => string;
 };
 
 const METRICS: Record<MetricKey, MetricConfig> = {
 	throughput: {
-		label: "Effective throughput",
+		label: "Effective Throughput",
 		description: "Output tokens per second across the full selected-provider request, including time to first token.",
 		axisLabel: "Tokens / second",
 		valueKey: "avgThroughput",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} t/s` : "-"),
 	},
 	outputSpeed: {
-		label: "Output speed",
+		label: "Output Speed",
 		description: "Output tokens per second after the first token arrives, excluding time to first token.",
 		axisLabel: "Tokens / second",
 		valueKey: "avgOutputSpeed",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} t/s` : "-"),
 	},
 	latency: {
-		label: "Time to first token",
+		label: "Time to First Token",
 		description: "Time from the request entering Phaseo until the first content-bearing generated output reaches the gateway.",
 		axisLabel: "Milliseconds",
 		valueKey: "avgLatencyMs",
 		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
 	},
 	generation: {
-		label: "Provider duration",
+		label: "Provider Duration",
 		description: "Time from sending the selected provider request until its final response completes.",
-		axisLabel: "Milliseconds",
+		axisLabel: "Duration",
 		valueKey: "avgGenerationMs",
-		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
+		formatValue: formatProviderDuration,
+		formatAxisTick: (value) => formatProviderDuration(value),
 	},
 	overhead: {
-		label: "Phaseo overhead",
+		label: "Phaseo Overhead",
 		description: "Gateway end-to-end duration minus the selected provider duration, including routing and response processing.",
 		axisLabel: "Milliseconds",
 		valueKey: "avgPhaseoOverheadMs",
@@ -117,10 +154,18 @@ const METRICS: Record<MetricKey, MetricConfig> = {
 	},
 	itl: {
 		label: "ITL",
-		description: "Estimated average interval between generated tokens. It currently uses the request-level TPOT estimate.",
+		description: "Mean observed interval between successive content-bearing provider stream frames. Providers may batch multiple tokens into one frame.",
 		axisLabel: "Milliseconds",
 		valueKey: "avgItlMs",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} ms` : "-"),
+	},
+	cachedInput: {
+		label: "Cached Input",
+		description: "Share of input tokens served from a provider cache. Only requests where the provider reports cache usage are included.",
+		axisLabel: "Cached input (%)",
+		valueKey: "cachedInputPct",
+		formatValue: (value) => (value != null ? `${value.toFixed(1)}%` : "-"),
+		formatAxisTick: (value) => `${Math.round(value)}%`,
 	},
 };
 
@@ -262,14 +307,17 @@ export default function ModelProviderTrendChart({
 		activeRow && typeof activeRow.index === "number" ? activeRow.index : null;
 	const isHovering = activeDay != null;
 	const providerRows = providers.map((provider) => {
-				const metricValues = filtered
-					.filter((point) => point.provider === provider.provider)
+				const providerPoints = filtered.filter(
+					(point) => point.provider === provider.provider,
+				);
+				const metricValues = providerPoints
 					.map((point) => point[metricConfig.valueKey])
 					.filter(
 						(value): value is number => value != null && Number.isFinite(value),
 					);
-				const average =
-					metricValues.length > 0
+				const average = metric === "cachedInput"
+					? calculateCachedInputAverage(providerPoints)
+					: metricValues.length > 0
 						? metricValues.reduce((sum, value) => sum + value, 0) /
 							metricValues.length
 						: null;
@@ -348,7 +396,7 @@ export default function ModelProviderTrendChart({
 						data={chartData}
 						margin={detailed
 							? { top: 8, right: 18, left: 24, bottom: 28 }
-							: { top: 8, right: 0, left: 0, bottom: 6 }}
+							: { top: 8, right: 0, left: 0, bottom: 24 }}
 						onMouseMove={(state: any) => {
 							const dayFromPointer =
 								typeof state?.activeCoordinate?.x === "number" &&
@@ -434,54 +482,8 @@ export default function ModelProviderTrendChart({
 							tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
 							tickLine={false}
 							axisLine={false}
+							tickFormatter={metricConfig.formatAxisTick}
 							label={detailed ? { value: metricConfig.axisLabel, angle: -90, position: "insideLeft", offset: -10, fill: "var(--muted-foreground)", fontSize: 11 } : undefined}
-						/>
-						<RechartsTooltip
-							cursor={false}
-							content={({ active, payload }) => {
-								if (!active || !payload?.length) return null;
-								const day = payload[0]?.payload?.day;
-								return (
-									<div className="min-w-44 rounded-md border border-border bg-popover p-2.5 text-xs text-popover-foreground shadow-md">
-										<p className="mb-2 font-medium">
-											{typeof day === "string" ? formatDayHeading(day) : title}
-										</p>
-										<div className="space-y-1.5">
-											{payload
-												.filter(
-													(entry) =>
-														typeof entry.value === "number" &&
-														Number.isFinite(entry.value),
-												)
-												.map((entry) => {
-													const provider = providers.find(
-														(item) => item.seriesKey === entry.dataKey,
-													);
-													if (!provider) return null;
-													return (
-														<div
-															key={provider.seriesKey}
-															className="flex items-center justify-between gap-4"
-														>
-															<span className="inline-flex min-w-0 items-center gap-1.5">
-																<span
-																	className="size-2 shrink-0 rounded-full"
-																	style={{ backgroundColor: provider.color }}
-																/>
-																<span className="truncate text-muted-foreground">
-																	{provider.name}
-																</span>
-															</span>
-															<span className="shrink-0 font-medium tabular-nums">
-																{metricConfig.formatValue(Number(entry.value))}
-															</span>
-														</div>
-													);
-												})}
-										</div>
-									</div>
-								);
-							}}
 						/>
 						{isHovering && activeIndex != null ? (
 							<ReferenceLine
@@ -489,6 +491,15 @@ export default function ModelProviderTrendChart({
 								stroke="var(--muted-foreground)"
 								strokeDasharray="3 4"
 								strokeWidth={1}
+								label={!detailed && activeRow && typeof activeRow.day === "string" ? {
+									value: formatDayTick(activeRow.day),
+									position: "bottom",
+									offset: 7,
+									textAnchor: getHoverDateTextAnchor(activeIndex, chartData.length),
+									dx: activeIndex === 0 && chartData.length > 1 ? 2 : activeIndex === chartData.length - 1 && chartData.length > 1 ? -2 : 0,
+									fill: "var(--muted-foreground)",
+									fontSize: 11,
+								} : undefined}
 							/>
 						) : null}
 						{providers.map((provider) => {
@@ -501,7 +512,7 @@ export default function ModelProviderTrendChart({
 									key={provider.seriesKey}
 									type="monotone"
 									dataKey={provider.seriesKey}
-									stroke={provider.color}
+								stroke={provider.color}
 									strokeWidth={isActive ? 3.5 : 2}
 									strokeOpacity={isDimmed ? 0.18 : 1}
 									style={{

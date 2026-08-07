@@ -2,10 +2,10 @@
 
 import { CircleHelp } from "lucide-react";
 import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 
 export function ModelMetricInfo({
 	label,
@@ -15,19 +15,23 @@ export function ModelMetricInfo({
 	description: string;
 }) {
 	return (
-		<Tooltip>
-			<TooltipTrigger asChild>
+		<Popover>
+			<PopoverTrigger asChild>
 				<button
 					type="button"
 					aria-label={`About ${label}`}
-					className="inline-flex size-4 shrink-0 items-center justify-center rounded-sm text-muted-foreground/70 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+					className="relative inline-flex size-4 shrink-0 items-center justify-center rounded-sm text-muted-foreground/70 transition-colors after:absolute after:-inset-3.5 after:content-[''] hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
 				>
 					<CircleHelp className="size-3.5" />
 				</button>
-			</TooltipTrigger>
-			<TooltipContent side="top" sideOffset={6} className="max-w-72 leading-5">
+			</PopoverTrigger>
+			<PopoverContent
+				side="top"
+				sideOffset={6}
+				className="w-72 rounded-xl bg-foreground px-3 py-2 text-xs leading-5 text-background shadow-md ring-0"
+			>
 				{description}
-			</TooltipContent>
-		</Tooltip>
+			</PopoverContent>
+		</Popover>
 	);
 }

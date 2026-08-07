@@ -82,6 +82,9 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
     const writer = ts.writable.getWriter();
     const tStart = performance.now();
     let firstOutputAt: number | null = null;
+    let lastOutputFrameAt: number | null = null;
+    let outputFrameIntervalTotalMs = 0;
+    let outputFrameIntervalCount = 0;
     let downstreamClosed = false;
     void writer.closed.catch(() => {
         downstreamClosed = true;
@@ -195,6 +198,7 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
             while (true) {
                 const { value, done } = await reader.read();
                 if (done) break;
+                const chunkReceivedAt = performance.now();
 
                 buf += dec.decode(value, { stream: true });
 
@@ -203,6 +207,7 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
                 buf = frames.pop() ?? "";
 
                 for (const raw of frames) {
+                    const frameReceivedAt = chunkReceivedAt;
                     // SSE fields - capture event name and data payload
                     let dataStr = "";
                     let eventName: string | null = null;
@@ -333,8 +338,21 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
                         finalUsageAfterWrite = usageCandidate;
                     }
 
+                    if (containsGeneratedOutput && !ctx.meta.preserve_stream_timing) {
+                        if (lastOutputFrameAt !== null) {
+                            const intervalMs = frameReceivedAt - lastOutputFrameAt;
+                            if (Number.isFinite(intervalMs) && intervalMs > 0) {
+                                outputFrameIntervalTotalMs += intervalMs;
+                                outputFrameIntervalCount += 1;
+                                ctx.meta.itl_ms =
+                                    outputFrameIntervalTotalMs / outputFrameIntervalCount;
+                            }
+                        }
+                        lastOutputFrameAt = frameReceivedAt;
+                    }
+
                     if (firstOutputAt === null && containsGeneratedOutput) {
-                        firstOutputAt = performance.now();
+                        firstOutputAt = frameReceivedAt;
                         const firstOutputAtMs = Date.now();
                         if (!ctx.meta.preserve_stream_timing) {
                             const upstreamStartMs = resolveSelectedUpstreamStartMs();

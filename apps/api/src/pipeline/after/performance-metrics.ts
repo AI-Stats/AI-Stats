@@ -45,8 +45,9 @@ export function calculateOutputPerformanceMetrics(args: {
 		outputSpeedTps:
 			tpotMs != null && tpotMs > 0 ? 1000 / tpotMs : null,
 		tpotMs,
-		// Without token-level timestamps, mean ITL and TPOT share this estimator.
-		itlMs: tpotMs,
+		// ITL is populated from observed content-bearing stream-frame intervals.
+		// Request-level token counts cannot produce a distinct ITL measurement.
+		itlMs: null,
 		phaseoOverheadMs:
 			gatewayE2eMs != null && providerDurationMs != null
 				? Math.max(0, gatewayE2eMs - providerDurationMs)

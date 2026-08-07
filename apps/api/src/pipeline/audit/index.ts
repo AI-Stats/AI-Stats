@@ -25,6 +25,17 @@ function positiveMetric(value: number | null | undefined, round = false): number
     return normalized > 0 ? normalized : null;
 }
 
+function cachedInputTokensAreSubset(usage: unknown): boolean {
+    if (!usage || typeof usage !== "object") return false;
+    const record = usage as Record<string, unknown>;
+    if (record.cached_read_tokens_are_subset_of_input === true) return true;
+    return [record.input_tokens_details, record.prompt_tokens_details].some((details) =>
+        details != null &&
+        typeof details === "object" &&
+        typeof (details as Record<string, unknown>).cached_tokens === "number"
+    );
+}
+
 const DEFAULT_RETRY_ATTEMPTS = 3;
 const DEFAULT_RETRY_DELAY_MS = 250;
 let gatewayRequestsSupportsErrorPayloadColumn: boolean | null = null;
@@ -448,6 +459,7 @@ async function upsertV2RequestFact(args: {
             safe_metadata: {
                 provider: args.provider ?? null,
                 routed_model: args.routedModel ?? args.requestedModel,
+				cached_input_tokens_are_subset_of_input: cachedInputTokensAreSubset(args.usage),
                 edge_country: args.edgeCountry ? args.edgeCountry.trim().toUpperCase() : null,
                 edge_continent: args.edgeContinent ? args.edgeContinent.trim().toUpperCase() : null,
                 structured_output_success_basis: args.structuredOutputAttempted

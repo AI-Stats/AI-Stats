@@ -26,7 +26,6 @@ import {
 	DropdownMenuItem,
 	DropdownMenuRadioGroup,
 	DropdownMenuRadioItem,
-	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuSub,
 	DropdownMenuSubContent,
@@ -34,6 +33,14 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from "@/components/ui/sheet";
 import {
 	Select,
 	SelectContent,
@@ -313,12 +320,13 @@ export default function ModelPerformanceDashboard({
 							</SelectContent>
 						</Select>
 					</div>
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
+					<Sheet>
+						<SheetTrigger asChild>
 							<Button
 								variant="outline"
 								size="sm"
-								className="h-8 gap-2 rounded-md px-3 text-xs lg:hidden"
+								className="h-8 gap-2 rounded-lg px-3 text-xs lg:hidden"
+								aria-label="Performance filters"
 							>
 								{isLoadingRegion || isLoadingPercentile ? (
 									<Loader2 className="size-3.5 animate-spin" />
@@ -327,102 +335,117 @@ export default function ModelPerformanceDashboard({
 								)}
 								Filters
 							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="min-w-64">
-							<DropdownMenuLabel>Performance filters</DropdownMenuLabel>
-							<DropdownMenuSeparator />
-							<DropdownMenuSub>
-								<DropdownMenuSubTrigger>Response mode</DropdownMenuSubTrigger>
-								<DropdownMenuSubContent>
-									<DropdownMenuRadioGroup
-										value={streamMode}
-										onValueChange={(value) =>
-											void handleSegmentationChange(
-												value as "all" | "stream" | "non_stream",
-												contextBucket,
-											)
-										}
-									>
-										<DropdownMenuRadioItem value="all">
-											All responses
-										</DropdownMenuRadioItem>
-										<DropdownMenuRadioItem value="stream">
-											Streaming
-										</DropdownMenuRadioItem>
-										<DropdownMenuRadioItem value="non_stream">
-											Non-streaming
-										</DropdownMenuRadioItem>
-									</DropdownMenuRadioGroup>
-								</DropdownMenuSubContent>
-							</DropdownMenuSub>
-							<DropdownMenuSub>
-								<DropdownMenuSubTrigger>Context length</DropdownMenuSubTrigger>
-								<DropdownMenuSubContent>
-									<DropdownMenuRadioGroup
-										value={contextBucket}
-										onValueChange={(value) =>
-											void handleSegmentationChange(
-												streamMode,
-												value as
-													| "all"
-													| "lte_4k"
-													| "4k_16k"
-													| "16k_64k"
-													| "gt_64k",
-											)
-										}
-									>
-										<DropdownMenuRadioItem value="all">
-											All contexts
-										</DropdownMenuRadioItem>
-										<DropdownMenuRadioItem value="lte_4k">
-											≤ 4K input
-										</DropdownMenuRadioItem>
-										<DropdownMenuRadioItem value="4k_16k">
-											4K–16K input
-										</DropdownMenuRadioItem>
-										<DropdownMenuRadioItem value="16k_64k">
-											16K–64K input
-										</DropdownMenuRadioItem>
-										<DropdownMenuRadioItem value="gt_64k">
-											&gt; 64K input
-										</DropdownMenuRadioItem>
-									</DropdownMenuRadioGroup>
-								</DropdownMenuSubContent>
-							</DropdownMenuSub>
-							<DropdownMenuItem disabled>
-								<Globe2 />
-								API location (coming soon)
-							</DropdownMenuItem>
-							{showPercentileSelector ? (
-								<DropdownMenuSub>
-									<DropdownMenuSubTrigger>
-										<BarChart3 />
-										Percentile
-									</DropdownMenuSubTrigger>
-									<DropdownMenuSubContent>
-										<DropdownMenuRadioGroup
-											value={String(selectedPercentile)}
-											onValueChange={(value) => {
-												const parsed = Number(value);
-												if (isModelPercentile(parsed))
-													void handlePercentileChange(parsed);
-											}}
-										>
-											{[1, 5, 10, 25, 50, 75, 90, 95, 99].map((percentile) => (
-												<DropdownMenuRadioItem
-													key={percentile}
-													value={String(percentile)}
+						</SheetTrigger>
+						<SheetContent
+							side="bottom"
+							className="max-h-[85dvh] rounded-t-xl border-border/70 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden"
+						>
+							<SheetHeader className="border-b border-border/70 px-5 py-4 text-left">
+								<SheetTitle>Performance filters</SheetTitle>
+								<SheetDescription>
+									Refine the requests included in these metrics.
+								</SheetDescription>
+							</SheetHeader>
+							<div className="overflow-y-auto px-5 py-4">
+								<div className="space-y-5">
+									<fieldset className="space-y-2">
+										<legend className="text-xs font-medium text-muted-foreground">
+											Response mode
+										</legend>
+										<div className="grid grid-cols-3 gap-2">
+											{Object.entries(STREAM_MODE_LABELS).map(([value, label]) => (
+												<Button
+													key={value}
+													type="button"
+													size="sm"
+													disabled={isLoadingRegion}
+													variant={streamMode === value ? "secondary" : "outline"}
+													className="rounded-lg px-2 text-xs"
+													aria-pressed={streamMode === value}
+													onClick={() =>
+														void handleSegmentationChange(
+															value as "all" | "stream" | "non_stream",
+															contextBucket,
+														)
+													}
 												>
-													P{String(percentile).padStart(2, "0")}
-												</DropdownMenuRadioItem>
+													{label}
+												</Button>
 											))}
-										</DropdownMenuRadioGroup>
-									</DropdownMenuSubContent>
-								</DropdownMenuSub>
-							) : null}
-						</DropdownMenuContent>
-					</DropdownMenu>
+										</div>
+									</fieldset>
+									<fieldset className="space-y-2">
+										<legend className="text-xs font-medium text-muted-foreground">
+											Context length
+										</legend>
+										<div className="grid grid-cols-2 gap-2">
+											{Object.entries(CONTEXT_BUCKET_LABELS).map(([value, label]) => (
+												<Button
+													key={value}
+													type="button"
+													size="sm"
+													disabled={isLoadingRegion}
+													variant={contextBucket === value ? "secondary" : "outline"}
+													className="justify-start rounded-lg px-3 text-xs"
+													aria-pressed={contextBucket === value}
+													onClick={() =>
+														void handleSegmentationChange(
+															streamMode,
+															value as keyof typeof CONTEXT_BUCKET_LABELS,
+														)
+													}
+												>
+													{label}
+												</Button>
+											))}
+										</div>
+									</fieldset>
+									<div className="space-y-2">
+										<p className="text-xs font-medium text-muted-foreground">
+											API location
+										</p>
+										<Button
+											type="button"
+											variant="outline"
+											size="sm"
+											disabled
+											className="w-full justify-start rounded-lg text-xs"
+										>
+											<Globe2 className="size-3.5" />
+											All locations
+											<span className="ml-auto text-muted-foreground">Coming soon</span>
+										</Button>
+									</div>
+									{showPercentileSelector ? (
+										<fieldset className="space-y-2">
+											<legend className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+												<BarChart3 className="size-3.5" />
+												Percentile
+											</legend>
+											<div className="grid grid-cols-5 gap-2">
+												{[1, 5, 10, 25, 50, 75, 90, 95, 99].map((percentile) => (
+													<Button
+														key={percentile}
+														type="button"
+														size="sm"
+														variant={selectedPercentile === percentile ? "secondary" : "outline"}
+														className="rounded-lg px-2 text-xs tabular-nums"
+														aria-pressed={selectedPercentile === percentile}
+														onClick={() => {
+															if (isModelPercentile(percentile))
+																void handlePercentileChange(percentile);
+														}}
+													>
+														P{String(percentile).padStart(2, "0")}
+													</Button>
+												))}
+											</div>
+										</fieldset>
+									) : null}
+								</div>
+							</div>
+						</SheetContent>
+					</Sheet>
 					<div className="hidden items-center gap-2 lg:flex">
 						<Tooltip>
 							<TooltipTrigger asChild>

@@ -1,7 +1,20 @@
 import {
+	calculateCachedInputAverage,
+	getHoverDateTextAnchor,
 	getSeriesEmphasis,
 	isUsableMetricValue,
 } from "./ModelProviderTrendChart";
+
+describe("calculateCachedInputAverage", () => {
+	it("weights provider days by effective input token volume", () => {
+		const points = [
+			{ cachedInputTokens: 10, effectiveInputTokens: 100, cachedInputPct: 10 },
+			{ cachedInputTokens: 9_000, effectiveInputTokens: 10_000, cachedInputPct: 90 },
+		] as Parameters<typeof calculateCachedInputAverage>[0];
+
+		expect(calculateCachedInputAverage(points)).toBeCloseTo(89.2079, 4);
+	});
+});
 
 describe("getSeriesEmphasis", () => {
 	it("emphasizes the hovered series and dims every other series", () => {
@@ -23,6 +36,18 @@ describe("getSeriesEmphasis", () => {
 	});
 });
 
+describe("getHoverDateTextAnchor", () => {
+	it("centres a lone point and interior dates", () => {
+		expect(getHoverDateTextAnchor(0, 1)).toBe("middle");
+		expect(getHoverDateTextAnchor(1, 3)).toBe("middle");
+	});
+
+	it("keeps edge dates inside a multi-point chart", () => {
+		expect(getHoverDateTextAnchor(0, 3)).toBe("start");
+		expect(getHoverDateTextAnchor(2, 3)).toBe("end");
+	});
+});
+
 describe("isUsableMetricValue", () => {
 	it("hides impossible zero-valued timing and speed samples", () => {
 		expect(isUsableMetricValue("outputSpeed", 0)).toBe(false);
@@ -33,5 +58,9 @@ describe("isUsableMetricValue", () => {
 
 	it("allows zero gateway overhead because it is a valid measurement", () => {
 		expect(isUsableMetricValue("overhead", 0)).toBe(true);
+	});
+
+	it("allows zero cached input because no cache use is meaningful", () => {
+		expect(isUsableMetricValue("cachedInput", 0)).toBe(true);
 	});
 });
