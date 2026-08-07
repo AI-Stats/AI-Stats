@@ -58,6 +58,16 @@ export function isUsableMetricValue(
 	return metric === "overhead" || metric === "cachedInput" ? value >= 0 : value > 0;
 }
 
+export function getHoverDateTextAnchor(
+	activeIndex: number,
+	pointCount: number,
+): "start" | "middle" | "end" {
+	if (pointCount <= 1) return "middle";
+	if (activeIndex <= 0) return "start";
+	if (activeIndex >= pointCount - 1) return "end";
+	return "middle";
+}
+
 type MetricConfig = {
 	label: string;
 	description: string;
@@ -459,6 +469,8 @@ export default function ModelProviderTrendChart({
 									value: formatDayTick(activeRow.day),
 									position: "bottom",
 									offset: 7,
+									textAnchor: getHoverDateTextAnchor(activeIndex, chartData.length),
+									dx: activeIndex === 0 && chartData.length > 1 ? 2 : activeIndex === chartData.length - 1 && chartData.length > 1 ? -2 : 0,
 									fill: "var(--muted-foreground)",
 									fontSize: 11,
 								} : undefined}

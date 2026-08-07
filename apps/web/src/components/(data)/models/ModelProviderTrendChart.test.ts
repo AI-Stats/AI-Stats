@@ -1,4 +1,5 @@
 import {
+	getHoverDateTextAnchor,
 	getSeriesEmphasis,
 	isUsableMetricValue,
 } from "./ModelProviderTrendChart";
@@ -20,6 +21,18 @@ describe("getSeriesEmphasis", () => {
 			isActive: false,
 			isDimmed: false,
 		});
+	});
+});
+
+describe("getHoverDateTextAnchor", () => {
+	it("centres a lone point and interior dates", () => {
+		expect(getHoverDateTextAnchor(0, 1)).toBe("middle");
+		expect(getHoverDateTextAnchor(1, 3)).toBe("middle");
+	});
+
+	it("keeps edge dates inside a multi-point chart", () => {
+		expect(getHoverDateTextAnchor(0, 3)).toBe("start");
+		expect(getHoverDateTextAnchor(2, 3)).toBe("end");
 	});
 });
 
