@@ -54,7 +54,7 @@ const sectionIcons: Record<string, LucideIcon> = {
 };
 
 const activeSectionTopOffset = 212;
-const programmaticScrollLockMs = 1400;
+const programmaticScrollLockMs = 3000;
 
 function useActiveSection(items: ModelPageTocItem[]) {
 	const [activeId, setActiveId] = useState(items[0]?.id ?? "");
@@ -98,15 +98,7 @@ function useActiveSection(items: ModelPageTocItem[]) {
 
 			const programmaticTarget = programmaticTargetRef.current;
 			if (programmaticTarget) {
-				const target = document.getElementById(programmaticTarget.id);
-				const targetTop = target?.getBoundingClientRect().top;
-				const targetReached =
-					typeof targetTop === "number" &&
-					Math.abs(targetTop - activeSectionTopOffset) <= 120;
-				if (
-					Date.now() < programmaticTarget.expiresAt &&
-					!targetReached
-				) {
+				if (Date.now() < programmaticTarget.expiresAt) {
 					return;
 				}
 				programmaticTargetRef.current = null;
@@ -130,6 +122,11 @@ function useActiveSection(items: ModelPageTocItem[]) {
 			if (frameId) return;
 			frameId = window.requestAnimationFrame(updateFromScroll);
 		};
+		const handleScrollEnd = () => {
+			if (!programmaticTargetRef.current) return;
+			programmaticTargetRef.current = null;
+			requestScrollSync();
+		};
 
 		requestScrollSync();
 		window.addEventListener("scroll", requestScrollSync, { passive: true });
@@ -137,6 +134,8 @@ function useActiveSection(items: ModelPageTocItem[]) {
 			capture: true,
 			passive: true,
 		});
+		window.addEventListener("scrollend", handleScrollEnd);
+		document.addEventListener("scrollend", handleScrollEnd, true);
 		window.addEventListener("resize", requestScrollSync);
 		window.addEventListener("hashchange", handleHashChange);
 		const mutationObserver = new MutationObserver(requestScrollSync);
@@ -151,6 +150,8 @@ function useActiveSection(items: ModelPageTocItem[]) {
 			}
 			window.removeEventListener("scroll", requestScrollSync);
 			document.removeEventListener("scroll", requestScrollSync, true);
+			window.removeEventListener("scrollend", handleScrollEnd);
+			document.removeEventListener("scrollend", handleScrollEnd, true);
 			window.removeEventListener("resize", requestScrollSync);
 			window.removeEventListener("hashchange", handleHashChange);
 			mutationObserver.disconnect();
