@@ -328,7 +328,12 @@ export default function ModelPageToc({
 							: "-translate-y-2 opacity-0",
 					)}
 				>
-					<div className="pointer-events-auto container mx-auto px-0">
+					<div
+						className={cn(
+							"container mx-auto px-0",
+							mobilePinned ? "pointer-events-auto" : "pointer-events-none",
+						)}
+					>
 						{renderMobileSelect("pinned")}
 					</div>
 				</div>

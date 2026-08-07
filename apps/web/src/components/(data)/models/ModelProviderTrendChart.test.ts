@@ -1,8 +1,20 @@
 import {
+	calculateCachedInputAverage,
 	getHoverDateTextAnchor,
 	getSeriesEmphasis,
 	isUsableMetricValue,
 } from "./ModelProviderTrendChart";
+
+describe("calculateCachedInputAverage", () => {
+	it("weights provider days by effective input token volume", () => {
+		const points = [
+			{ cachedInputTokens: 10, effectiveInputTokens: 100, cachedInputPct: 10 },
+			{ cachedInputTokens: 9_000, effectiveInputTokens: 10_000, cachedInputPct: 90 },
+		] as Parameters<typeof calculateCachedInputAverage>[0];
+
+		expect(calculateCachedInputAverage(points)).toBeCloseTo(89.2079, 4);
+	});
+});
 
 describe("getSeriesEmphasis", () => {
 	it("emphasizes the hovered series and dims every other series", () => {

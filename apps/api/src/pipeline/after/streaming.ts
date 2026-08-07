@@ -198,6 +198,7 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
             while (true) {
                 const { value, done } = await reader.read();
                 if (done) break;
+                const chunkReceivedAt = performance.now();
 
                 buf += dec.decode(value, { stream: true });
 
@@ -206,7 +207,7 @@ export async function passthroughWithPricing(opts: PassthroughWithPricingOpts): 
                 buf = frames.pop() ?? "";
 
                 for (const raw of frames) {
-                    const frameReceivedAt = performance.now();
+                    const frameReceivedAt = chunkReceivedAt;
                     // SSE fields - capture event name and data payload
                     let dataStr = "";
                     let eventName: string | null = null;

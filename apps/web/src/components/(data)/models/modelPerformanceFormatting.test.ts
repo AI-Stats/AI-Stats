@@ -15,5 +15,8 @@ describe("formatProviderDuration", () => {
 
 	it("handles missing values", () => {
 		expect(formatProviderDuration(null)).toBe("-");
+		expect(formatProviderDuration(Number.NaN)).toBe("-");
+		expect(formatProviderDuration(Number.POSITIVE_INFINITY)).toBe("-");
+		expect(formatProviderDuration(-500)).toBe("0.00 s");
 	});
 });

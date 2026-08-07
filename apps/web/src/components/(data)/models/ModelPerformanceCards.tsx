@@ -124,6 +124,15 @@ export default function ModelPerformanceCards({
 			.filter((point) => point.requests > 0)
 			.map((point) => point.provider),
 	).size;
+	const cachedInputProviderCount = new Set(
+		providerDaily7d
+			.filter(
+				(point) =>
+					point.requests > 0 &&
+					isUsableMetricValue("cachedInput", point.cachedInputPct),
+			)
+			.map((point) => point.provider),
+	).size;
 	const detailSeriesLabel = chartProviderDaily7d
 		? "All available percentile bands"
 		: `All ${providerCount.toLocaleString()} recorded provider${providerCount === 1 ? "" : "s"}`;
@@ -170,7 +179,11 @@ export default function ModelPerformanceCards({
 							<DialogHeader className="pr-10">
 								<DialogTitle className="text-xl">{definition.label}</DialogTitle>
 								<DialogDescription>
-									{definition.description} {definition.metric === "cachedInput" ? `All ${providerCount.toLocaleString()} recorded provider${providerCount === 1 ? "" : "s"}` : detailSeriesLabel} are shown below.
+									{definition.description}{" "}
+									{definition.metric === "cachedInput"
+										? `All ${cachedInputProviderCount.toLocaleString()} recorded provider${cachedInputProviderCount === 1 ? "" : "s"}`
+										: detailSeriesLabel}{" "}
+									are shown below.
 								</DialogDescription>
 							</DialogHeader>
 							<div className="h-full min-h-0 overflow-hidden rounded-lg border border-border/70 bg-background p-4">

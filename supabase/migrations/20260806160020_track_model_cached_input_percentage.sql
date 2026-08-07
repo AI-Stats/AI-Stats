@@ -56,7 +56,7 @@ usage_by_request as (
   where usage.meter_key in ('input_tokens', 'cached_input_tokens')
   group by usage.request_event_id
 ),
-base as (
+classified as (
   select
     date_trunc('hour', fact.occurred_at) bucket_start,
     fact.occurred_at::date usage_day,
@@ -66,16 +66,27 @@ base as (
     usage.cache_telemetry_observed,
     -- Existing observations predate this metadata bit and came from
     -- OpenAI-compatible responses, where cached tokens are a subset of input.
-    coalesce((fact.safe_metadata ->> 'cached_input_tokens_are_subset_of_input')::boolean, true) cached_input_is_subset
+    coalesce((fact.safe_metadata ->> 'cached_input_tokens_are_subset_of_input')::boolean, true) cached_input_is_subset,
+    case
+      when usage.input_tokens is null then null
+      when coalesce((fact.safe_metadata ->> 'cached_input_tokens_are_subset_of_input')::boolean, true)
+        then usage.input_tokens
+      else usage.input_tokens + coalesce(usage.cached_input_tokens, 0)
+    end context_input_tokens
   from scoped_facts fact
   left join usage_by_request usage on usage.request_event_id = fact.request_event_id
   cross join params
+),
+base as (
+  select classified.*
+  from classified
+  cross join params
   where (
       params.context_bucket = 'all'
-      or (params.context_bucket = 'lte_4k' and usage.input_tokens <= 4096)
-      or (params.context_bucket = '4k_16k' and usage.input_tokens > 4096 and usage.input_tokens <= 16384)
-      or (params.context_bucket = '16k_64k' and usage.input_tokens > 16384 and usage.input_tokens <= 65536)
-      or (params.context_bucket = 'gt_64k' and usage.input_tokens > 65536)
+      or (params.context_bucket = 'lte_4k' and context_input_tokens <= 4096)
+      or (params.context_bucket = '4k_16k' and context_input_tokens > 4096 and context_input_tokens <= 16384)
+      or (params.context_bucket = '16k_64k' and context_input_tokens > 16384 and context_input_tokens <= 65536)
+      or (params.context_bucket = 'gt_64k' and context_input_tokens > 65536)
     )
 ),
 hourly as (
@@ -109,6 +120,8 @@ select jsonb_build_object(
       'bucket', bucket_start,
       'requests', requests,
       'telemetry_requests', telemetry_requests,
+      'effective_input_tokens', input_tokens,
+      'cached_input_tokens', cached_input_tokens,
       'cached_input_pct', case when input_tokens > 0 then least(100, cached_input_tokens * 100.0 / input_tokens) else null end
     ) order by bucket_start)
     from hourly
@@ -121,6 +134,8 @@ select jsonb_build_object(
       'provider_name', provider.name,
       'requests', daily.requests,
       'telemetry_requests', daily.telemetry_requests,
+      'effective_input_tokens', daily.input_tokens,
+      'cached_input_tokens', daily.cached_input_tokens,
       'cached_input_pct', case when daily.input_tokens > 0 then least(100, daily.cached_input_tokens * 100.0 / daily.input_tokens) else null end
     ) order by daily.usage_day, daily.provider_id)
     from provider_daily daily

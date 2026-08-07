@@ -506,7 +506,7 @@ describe("public model routes", () => {
 				return new Response(JSON.stringify({
 					hourly_24h: [],
 					provider_daily_7d: [
-						{ day: "2026-07-23", provider: "poolside", cached_input_pct: 62.5, telemetry_requests: 11 },
+						{ day: "2026-07-23", provider: "poolside", cached_input_pct: 62.5, cached_input_tokens: 625, effective_input_tokens: 1000, telemetry_requests: 11 },
 					],
 				}), { status: 200 });
 			}
@@ -567,6 +567,8 @@ describe("public model routes", () => {
 			expect.objectContaining({
 				provider: "poolside",
 				cachedInputPct: 62.5,
+				cachedInputTokens: 625,
+				effectiveInputTokens: 1000,
 				cacheTelemetryRequests: 11,
 			}),
 		]);

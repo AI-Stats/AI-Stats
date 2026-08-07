@@ -58,6 +58,29 @@ export function isUsableMetricValue(
 	return metric === "overhead" || metric === "cachedInput" ? value >= 0 : value > 0;
 }
 
+export function calculateCachedInputAverage(
+	points: ModelProviderDailyPoint[],
+): number | null {
+	const totals = points.reduce(
+		(accumulator, point) => {
+			if (
+				point.cachedInputTokens == null ||
+				point.effectiveInputTokens == null ||
+				!Number.isFinite(point.cachedInputTokens) ||
+				!Number.isFinite(point.effectiveInputTokens) ||
+				point.effectiveInputTokens <= 0
+			) return accumulator;
+			accumulator.cached += Math.max(0, point.cachedInputTokens);
+			accumulator.effective += point.effectiveInputTokens;
+			return accumulator;
+		},
+		{ cached: 0, effective: 0 },
+	);
+	return totals.effective > 0
+		? Math.min(100, (totals.cached * 100) / totals.effective)
+		: null;
+}
+
 export function getHoverDateTextAnchor(
 	activeIndex: number,
 	pointCount: number,
@@ -284,14 +307,17 @@ export default function ModelProviderTrendChart({
 		activeRow && typeof activeRow.index === "number" ? activeRow.index : null;
 	const isHovering = activeDay != null;
 	const providerRows = providers.map((provider) => {
-				const metricValues = filtered
-					.filter((point) => point.provider === provider.provider)
+				const providerPoints = filtered.filter(
+					(point) => point.provider === provider.provider,
+				);
+				const metricValues = providerPoints
 					.map((point) => point[metricConfig.valueKey])
 					.filter(
 						(value): value is number => value != null && Number.isFinite(value),
 					);
-				const average =
-					metricValues.length > 0
+				const average = metric === "cachedInput"
+					? calculateCachedInputAverage(providerPoints)
+					: metricValues.length > 0
 						? metricValues.reduce((sum, value) => sum + value, 0) /
 							metricValues.length
 						: null;

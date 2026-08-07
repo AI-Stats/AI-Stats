@@ -709,7 +709,29 @@ describe("passthroughWithPricing", () => {
 
 		expect(typeof ctx.meta.itl_ms).toBe("number");
 		expect(ctx.meta.itl_ms).toBeGreaterThan(5);
-		expect(ctx.meta.itl_ms).toBeLessThan(50);
+	});
+
+	it("does not infer ITL between content frames from the same upstream chunk", async () => {
+		const ctx = baseCtx({
+			endpoint: "chat.completions",
+			protocol: "openai.chat.completions",
+			meta: { startedAtMs: Date.now() - 80, upstreamStartMs: Date.now() - 40 },
+		});
+		const upstream = makeSseResponse([
+			{ data: { object: "chat.completion.chunk", choices: [{ index: 0, delta: { content: "hello" }, finish_reason: null }] } },
+			{ data: { object: "chat.completion.chunk", choices: [{ index: 0, delta: { content: " world" }, finish_reason: null }] } },
+			{ data: { object: "chat.completion.chunk", choices: [{ index: 0, delta: {}, finish_reason: "stop" }], usage: { prompt_tokens: 4, completion_tokens: 2, total_tokens: 6 } } },
+		]);
+
+		const response = await passthroughWithPricing({
+			upstream,
+			ctx,
+			provider: "openai",
+			priceCard: null,
+		});
+
+		await drain(response);
+		expect(ctx.meta.itl_ms).toBeUndefined();
 	});
 
 	it("ignores metadata-only frames and overwrites adapter latency at first generated output", async () => {

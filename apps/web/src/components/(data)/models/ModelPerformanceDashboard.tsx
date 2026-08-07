@@ -358,6 +358,7 @@ export default function ModelPerformanceDashboard({
 													key={value}
 													type="button"
 													size="sm"
+													disabled={isLoadingRegion}
 													variant={streamMode === value ? "secondary" : "outline"}
 													className="rounded-lg px-2 text-xs"
 													aria-pressed={streamMode === value}
@@ -383,6 +384,7 @@ export default function ModelPerformanceDashboard({
 													key={value}
 													type="button"
 													size="sm"
+													disabled={isLoadingRegion}
 													variant={contextBucket === value ? "secondary" : "outline"}
 													className="justify-start rounded-lg px-3 text-xs"
 													aria-pressed={contextBucket === value}
