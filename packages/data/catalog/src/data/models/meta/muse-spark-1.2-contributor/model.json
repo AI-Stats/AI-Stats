@@ -48,6 +48,10 @@
       "other_info": "Meta may use prompts and completions to train future models in exchange for discounted pricing."
     }
   ],
+  "page_notice": {
+    "tone": "warning",
+    "markdown": "Meta says the Contributor Tier is not currently available in the EU, UK, Australia, South Korea, Brazil, or Canada. Only the Standard Tier is available in these regions. We are working to make the Contributor model available through Phaseo as soon as possible."
+  },
   "benchmarks": [],
   "family_id": "meta/muse-spark-1.2",
   "model_type": null,
@@ -101,7 +105,7 @@
     "checked_at": null,
     "notes": "Contributor model metadata and pricing are based on the Meta Model API dashboard captured on 2026-08-05; live model availability remains unverified."
   },
-  "last_updated": "2026-08-06T00:00:00",
+  "last_updated": "2026-08-07T00:00:00",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

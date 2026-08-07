@@ -5,7 +5,7 @@
     "provider_api_model_id": "meta-contributor:meta/muse-spark-1.2-contributor",
     "provider_model_slug": "muse-spark-1.2-contributor",
     "internal_model_id": "meta/muse-spark-1.2-contributor",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
@@ -99,8 +99,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -119,7 +119,7 @@
     "verification": {
       "status": "unverified",
       "checked_at": null,
-      "notes": "Contributor tier permits Meta to use prompts and completions for training."
+      "notes": "Meta documents this contributor model, but the Phaseo Meta team API catalogue did not expose it on 2026-08-06. Keep routing disabled until the upstream credential can retrieve the model."
     },
     "rate_limits": [
       {
