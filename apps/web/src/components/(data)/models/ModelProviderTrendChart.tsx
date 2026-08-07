@@ -272,16 +272,6 @@ export default function ModelProviderTrendChart({
 			: "-";
 	const activeIndex =
 		activeRow && typeof activeRow.index === "number" ? activeRow.index : null;
-	const activePositionPct =
-		activeIndex == null || chartData.length <= 1
-			? 50
-			: (activeIndex / (chartData.length - 1)) * 100;
-	const activeDateTransform =
-		activeIndex === 0
-			? "translateX(0)"
-			: activeIndex === chartData.length - 1
-				? "translateX(-100%)"
-				: "translateX(-50%)";
 	const isHovering = activeDay != null;
 	const providerRows = providers.map((provider) => {
 				const metricValues = filtered
@@ -364,14 +354,13 @@ export default function ModelProviderTrendChart({
 				</div>
 			</div> : null}
 			{chartData.length > 0 ? (
-				<div className={detailed ? "h-[300px] w-full shrink-0 pt-1" : "relative h-[148px] w-full pt-1"}>
-				<div className={detailed ? "h-full w-full" : "h-[128px] w-full"}>
+				<div className={detailed ? "h-[300px] w-full shrink-0 pt-1" : "h-[148px] w-full pt-1"}>
 				<ResponsiveContainer width="100%" height="100%">
 					<LineChart
 						data={chartData}
 						margin={detailed
 							? { top: 8, right: 18, left: 24, bottom: 28 }
-							: { top: 8, right: 0, left: 0, bottom: 6 }}
+							: { top: 8, right: 0, left: 0, bottom: 24 }}
 						onMouseMove={(state: any) => {
 							const dayFromPointer =
 								typeof state?.activeCoordinate?.x === "number" &&
@@ -466,6 +455,13 @@ export default function ModelProviderTrendChart({
 								stroke="var(--muted-foreground)"
 								strokeDasharray="3 4"
 								strokeWidth={1}
+								label={!detailed && activeRow && typeof activeRow.day === "string" ? {
+									value: formatDayTick(activeRow.day),
+									position: "bottom",
+									offset: 7,
+									fill: "var(--muted-foreground)",
+									fontSize: 11,
+								} : undefined}
 							/>
 						) : null}
 						{providers.map((provider) => {
@@ -496,15 +492,6 @@ export default function ModelProviderTrendChart({
 						})}
 					</LineChart>
 				</ResponsiveContainer>
-				</div>
-				{!detailed && isHovering && activeRow && typeof activeRow.day === "string" ? (
-					<span
-						className="pointer-events-none absolute bottom-0 whitespace-nowrap text-[11px] leading-none text-muted-foreground"
-						style={{ left: `${activePositionPct}%`, transform: activeDateTransform }}
-					>
-						{formatDayTick(activeRow.day)}
-					</span>
-				) : null}
 				</div>
 			) : null}
 			{detailed ? (
