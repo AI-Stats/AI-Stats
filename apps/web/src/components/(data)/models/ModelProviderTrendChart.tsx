@@ -8,7 +8,6 @@ import {
 	LineChart,
 	ReferenceLine,
 	ResponsiveContainer,
-	Tooltip as RechartsTooltip,
 	XAxis,
 	YAxis,
 } from "recharts";
@@ -450,59 +449,19 @@ export default function ModelProviderTrendChart({
 							tickFormatter={metricConfig.formatAxisTick}
 							label={detailed ? { value: metricConfig.axisLabel, angle: -90, position: "insideLeft", offset: -10, fill: "var(--muted-foreground)", fontSize: 11 } : undefined}
 						/>
-						<RechartsTooltip
-							cursor={false}
-							content={({ active, payload }) => {
-								if (!active || !payload?.length) return null;
-								const day = payload[0]?.payload?.day;
-								return (
-									<div className="min-w-44 rounded-md border border-border bg-popover p-2.5 text-xs text-popover-foreground shadow-md">
-										<p className="mb-2 font-medium">
-											{typeof day === "string" ? formatDayHeading(day) : title}
-										</p>
-										<div className="space-y-1.5">
-											{payload
-												.filter(
-													(entry) =>
-														typeof entry.value === "number" &&
-														Number.isFinite(entry.value),
-												)
-												.map((entry) => {
-													const provider = providers.find(
-														(item) => item.seriesKey === entry.dataKey,
-													);
-													if (!provider) return null;
-													return (
-														<div
-															key={provider.seriesKey}
-															className="flex items-center justify-between gap-4"
-														>
-															<span className="inline-flex min-w-0 items-center gap-1.5">
-																<span
-																	className="size-2 shrink-0 rounded-full"
-																	style={{ backgroundColor: provider.color }}
-																/>
-																<span className="truncate text-muted-foreground">
-																	{provider.name}
-																</span>
-															</span>
-															<span className="shrink-0 font-medium tabular-nums">
-																{metricConfig.formatValue(Number(entry.value))}
-															</span>
-														</div>
-													);
-												})}
-										</div>
-									</div>
-								);
-							}}
-						/>
 						{isHovering && activeIndex != null ? (
 							<ReferenceLine
 								x={activeIndex}
 								stroke="var(--muted-foreground)"
 								strokeDasharray="3 4"
 								strokeWidth={1}
+								label={{
+									value: activeRow && typeof activeRow.day === "string" ? formatDayTick(activeRow.day) : "",
+									position: "insideBottom",
+									fill: "var(--muted-foreground)",
+									fontSize: 11,
+									offset: detailed ? -20 : 4,
+								}}
 							/>
 						) : null}
 						{providers.map((provider) => {
