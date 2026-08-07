@@ -272,6 +272,16 @@ export default function ModelProviderTrendChart({
 			: "-";
 	const activeIndex =
 		activeRow && typeof activeRow.index === "number" ? activeRow.index : null;
+	const activePositionPct =
+		activeIndex == null || chartData.length <= 1
+			? 50
+			: (activeIndex / (chartData.length - 1)) * 100;
+	const activeDateTransform =
+		activeIndex === 0
+			? "translateX(0)"
+			: activeIndex === chartData.length - 1
+				? "translateX(-100%)"
+				: "translateX(-50%)";
 	const isHovering = activeDay != null;
 	const providerRows = providers.map((provider) => {
 				const metricValues = filtered
@@ -354,7 +364,8 @@ export default function ModelProviderTrendChart({
 				</div>
 			</div> : null}
 			{chartData.length > 0 ? (
-				<div className={detailed ? "h-[300px] w-full shrink-0 pt-1" : "h-[148px] w-full pt-1"}>
+				<div className={detailed ? "h-[300px] w-full shrink-0 pt-1" : "relative h-[148px] w-full pt-1"}>
+				<div className={detailed ? "h-full w-full" : "h-[128px] w-full"}>
 				<ResponsiveContainer width="100%" height="100%">
 					<LineChart
 						data={chartData}
@@ -455,13 +466,6 @@ export default function ModelProviderTrendChart({
 								stroke="var(--muted-foreground)"
 								strokeDasharray="3 4"
 								strokeWidth={1}
-								label={{
-									value: activeRow && typeof activeRow.day === "string" ? formatDayTick(activeRow.day) : "",
-									position: "insideBottom",
-									fill: "var(--muted-foreground)",
-									fontSize: 11,
-									offset: detailed ? -20 : 4,
-								}}
 							/>
 						) : null}
 						{providers.map((provider) => {
@@ -474,7 +478,7 @@ export default function ModelProviderTrendChart({
 									key={provider.seriesKey}
 									type="monotone"
 									dataKey={provider.seriesKey}
-									stroke={provider.color}
+								stroke={provider.color}
 									strokeWidth={isActive ? 3.5 : 2}
 									strokeOpacity={isDimmed ? 0.18 : 1}
 									style={{
@@ -492,6 +496,15 @@ export default function ModelProviderTrendChart({
 						})}
 					</LineChart>
 				</ResponsiveContainer>
+				</div>
+				{!detailed && isHovering && activeRow && typeof activeRow.day === "string" ? (
+					<span
+						className="pointer-events-none absolute bottom-0 whitespace-nowrap text-[11px] leading-none text-muted-foreground"
+						style={{ left: `${activePositionPct}%`, transform: activeDateTransform }}
+					>
+						{formatDayTick(activeRow.day)}
+					</span>
+				) : null}
 				</div>
 			) : null}
 			{detailed ? (
