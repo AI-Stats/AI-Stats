@@ -234,8 +234,10 @@ export default function ModelPageToc({
 	const renderMobileSelect = (variant: "inline" | "pinned") => (
 		<div
 			className={cn(
-				"w-full",
-				variant === "inline" ? "rounded-2xl" : null,
+				"w-full rounded-lg",
+				variant === "pinned"
+					? "border border-border/70 bg-background/95 shadow-sm backdrop-blur"
+					: null,
 			)}
 		>
 			<Select
@@ -246,8 +248,8 @@ export default function ModelPageToc({
 					className={cn(
 						"w-full justify-between text-left shadow-none",
 						variant === "inline"
-							? "h-9 rounded-2xl border border-border/70 bg-background/90 px-3 hover:bg-muted/35"
-							: "h-10 rounded-none border-0 bg-transparent px-0 focus:ring-0",
+							? "h-9 rounded-lg border border-border/70 bg-background/90 px-3 hover:bg-muted/35"
+							: "h-10 rounded-lg border-0 bg-transparent px-3 hover:bg-muted/35 focus:ring-0",
 					)}
 				>
 					<div className="flex min-w-0 items-center gap-2">
@@ -274,7 +276,7 @@ export default function ModelPageToc({
 				<SelectContent
 					align="start"
 					sideOffset={4}
-					className="max-h-[min(24rem,var(--available-height))] min-w-[14rem]"
+					className="max-h-[min(24rem,var(--available-height))] min-w-[14rem] rounded-lg"
 				>
 					{filteredItems.map((item) => {
 						const isActive = activeId === item.id;
@@ -284,7 +286,7 @@ export default function ModelPageToc({
 								key={item.id}
 								value={item.id}
 								className={cn(
-									"min-h-8 pr-8",
+									"min-h-8 rounded-md pr-8",
 									isActive
 										? "bg-muted text-foreground"
 										: "text-muted-foreground",
@@ -320,13 +322,13 @@ export default function ModelPageToc({
 				<div id={mobileAnchorId}>{renderMobileSelect("inline")}</div>
 				<div
 					className={cn(
-						"pointer-events-none fixed inset-x-0 top-[calc(var(--site-notice-height,0px)+var(--site-header-height,3.75rem)+3.25rem)] z-30 border-b border-border/70 bg-background/95 backdrop-blur transition-all duration-200",
+						"pointer-events-none fixed inset-x-0 top-[calc(var(--site-notice-height,0px)+var(--site-header-height,3.75rem)+3.25rem)] z-30 px-4 pt-2 transition-all duration-200",
 						mobilePinned
 							? "translate-y-0 opacity-100"
 							: "-translate-y-2 opacity-0",
 					)}
 				>
-					<div className="pointer-events-auto container mx-auto px-4 py-2">
+					<div className="pointer-events-auto container mx-auto px-0">
 						{renderMobileSelect("pinned")}
 					</div>
 				</div>
