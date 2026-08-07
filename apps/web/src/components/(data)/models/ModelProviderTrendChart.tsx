@@ -302,7 +302,7 @@ export default function ModelProviderTrendChart({
 			: "-";
 	const activeIndex =
 		activeRow && typeof activeRow.index === "number" ? activeRow.index : null;
-	const isHovering = activeDay != null;
+	const isHovering = hoveredRow != null;
 	const providerRows = providers.map((provider) => {
 				const providerPoints = filtered.filter(
 					(point) => point.provider === provider.provider,
