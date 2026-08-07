@@ -2,7 +2,7 @@
   "model_id": "upstage/solar-pro-3-2026-01-26",
   "organisation_id": "upstage",
   "name": "Solar Pro 3 (2026-01-26)",
-  "status": "Available",
+  "status": "Deprecated",
   "previous_model_id": "upstage/solar-pro-2",
   "description": "Solar Pro 3 (2026-01-26) is the first dated release of Upstage's 102B-parameter, 12B-active mixture-of-experts model.",
   "announced_date": "2026-01-26T00:00:00",
@@ -13,11 +13,26 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "upstage/solar-pro-3-2026-01-26",
-  "links": [{ "title": "Official model history", "kind": "documentation", "url": "https://console.upstage.ai/docs/models/history" }],
+  "links": [
+    {
+      "title": "Official model history",
+      "kind": "documentation",
+      "url": "https://console.upstage.ai/docs/models/history"
+    }
+  ],
   "details": [
-    { "name": "parameters", "value": "102B total; 12B active" },
-    { "name": "architecture", "value": "Mixture of Experts" },
-    { "name": "languages", "value": "English, Korean, Japanese" }
+    {
+      "name": "parameters",
+      "value": "102B total; 12B active"
+    },
+    {
+      "name": "architecture",
+      "value": "Mixture of Experts"
+    },
+    {
+      "name": "languages",
+      "value": "English, Korean, Japanese"
+    }
   ],
   "benchmarks": [],
   "family_id": null,
@@ -27,9 +42,23 @@
   },
   "model_type": null,
   "knowledge_cutoff": "2025-07-31",
-  "limits": { "context": 128000, "input": 128000, "output": null },
-  "modalities": { "input": ["text"], "output": ["text"] },
-  "reasoning": { "supported": true, "options": [] },
+  "limits": {
+    "context": 128000,
+    "input": 128000,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": []
+  },
   "capabilities": {
     "attachment": false,
     "tool_call": true,
@@ -39,8 +68,19 @@
     "web_search": null
   },
   "open_weights": null,
-  "sources": [{ "kind": "deprecation", "url": "https://console.upstage.ai/docs/models/history", "accessed_at": "2026-08-06T00:00:00Z", "notes": "Official history marks solar-pro3-260126 deprecated in favor of solar-pro3." }],
-  "verification": { "status": "verified", "checked_at": "2026-08-06T00:00:00Z", "notes": "Retained as a historical dated release." },
+  "sources": [
+    {
+      "kind": "deprecation",
+      "url": "https://console.upstage.ai/docs/models/history",
+      "accessed_at": "2026-08-06T00:00:00Z",
+      "notes": "Official history marks solar-pro3-260126 deprecated in favor of solar-pro3."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-06T00:00:00Z",
+    "notes": "Retained as a historical dated release."
+  },
   "last_updated": "2026-08-06T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": "upstage/solar-pro-3",
