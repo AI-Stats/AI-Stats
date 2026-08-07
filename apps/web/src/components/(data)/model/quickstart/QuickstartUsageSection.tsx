@@ -86,7 +86,6 @@ type QuickstartUsageSectionProps = {
 	selectedEndpointValue: string;
 	endpointOptions: Array<{ value: string; label: string }>;
 	showEndpointControl?: boolean;
-	inlineCopy?: boolean;
 	selectedLanguage: string;
 	selectedLanguageLabel?: string;
 	selectedLanguageFamilyId: string;
@@ -285,10 +284,8 @@ function sortSupportedParameters(
 
 function MiniCopyButton({
 	content,
-	label = "Copy",
 }: {
 	content: string;
-	label?: string;
 }) {
 	const [copied, setCopied] = useState(false);
 
@@ -301,16 +298,18 @@ function MiniCopyButton({
 	return (
 		<Button
 			type="button"
-			size="sm"
+			size="icon"
 			variant="outline"
-			className="h-8 rounded-lg gap-1.5 px-2.5 text-xs"
+			className="h-8 w-full gap-1.5 rounded-lg px-3 lg:size-8 lg:px-0"
+			aria-label={copied ? "Code copied" : "Copy code"}
+			title={copied ? "Copied" : "Copy code"}
 			onClick={async () => {
 				await navigator.clipboard.writeText(content);
 				setCopied(true);
 			}}
 		>
 			{copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-			{copied ? "Copied" : label}
+			<span className="text-xs lg:sr-only">{copied ? "Copied" : "Copy"}</span>
 		</Button>
 	);
 }
@@ -389,7 +388,6 @@ export function QuickstartUsageSection({
 	selectedEndpointValue,
 	endpointOptions,
 	showEndpointControl = true,
-	inlineCopy = false,
 	selectedLanguage,
 	selectedLanguageFamilyId,
 	availableLanguageFamilies,
@@ -545,12 +543,12 @@ export function QuickstartUsageSection({
 	]);
 
 	return (
-		<div className="space-y-3">
-			<div className="overflow-hidden rounded-xl border border-border/70 bg-card">
-				<div className="flex flex-col gap-2 px-3 py-3">
-					<div className="flex flex-wrap items-center gap-2">
+		<div className="space-y-2">
+			<div className="overflow-hidden rounded-lg border border-border/70 bg-card">
+				<div className="relative px-2 py-2">
+					<div className="grid grid-cols-2 items-center gap-1.5 lg:flex lg:flex-wrap">
 						{showEndpointControl ? (
-							<div className="w-full sm:w-28">
+							<div className="w-full lg:w-28">
 								<Select
 									value={selectedEndpointValue}
 									onValueChange={onSelectEndpoint}
@@ -563,7 +561,7 @@ export function QuickstartUsageSection({
 									<SelectContent
 										align="start"
 										alignItemWithTrigger={false}
-										className="w-auto min-w-44 rounded-xl"
+										className="w-auto min-w-44 rounded-lg"
 									>
 										<SelectGroup>
 											<SelectLabel className="text-[11px] tracking-[0.04em] text-muted-foreground">
@@ -580,7 +578,7 @@ export function QuickstartUsageSection({
 								</Select>
 							</div>
 						) : null}
-						<div className="w-full sm:w-36">
+						<div className="w-full lg:w-36">
 							<Select
 								value={selectedLanguageFamilyId}
 								onValueChange={onSelectLanguageFamily}
@@ -596,7 +594,7 @@ export function QuickstartUsageSection({
 								<SelectContent
 									align="start"
 									alignItemWithTrigger={false}
-									className="w-auto min-w-40 rounded-xl"
+									className="w-auto min-w-40 rounded-lg"
 								>
 									<SelectGroup>
 										<SelectLabel className="text-[11px] tracking-[0.04em] text-muted-foreground">
@@ -615,7 +613,7 @@ export function QuickstartUsageSection({
 								</SelectContent>
 							</Select>
 						</div>
-						<div className="w-full sm:w-44">
+						<div className="w-full lg:w-44">
 							<Select value={selectedLanguage} onValueChange={onSelectLanguage}>
 								<SelectTrigger className="h-8 w-full rounded-lg bg-muted/60 text-xs">
 									<SelectValue placeholder="Example type">
@@ -628,7 +626,7 @@ export function QuickstartUsageSection({
 								<SelectContent
 									align="start"
 									alignItemWithTrigger={false}
-									className="w-auto min-w-56 rounded-xl"
+									className="w-auto min-w-56 rounded-lg"
 								>
 									<SelectGroup>
 										<SelectLabel className="text-[11px] tracking-[0.04em] text-muted-foreground">
@@ -647,16 +645,8 @@ export function QuickstartUsageSection({
 								</SelectContent>
 							</Select>
 						</div>
-						{inlineCopy ? (
-							<div className="ml-auto">
-								<MiniCopyButton content={requestExample.code} />
-							</div>
-						) : null}
-					</div>
-					{supportsServiceTier || showStreamingControl || !inlineCopy ? (
-						<div className="flex w-full flex-wrap items-center gap-2">
 						{supportsServiceTier ? (
-							<div className="w-full sm:w-32">
+							<div className="w-full lg:w-32">
 								<Select
 									value={selectedServiceTier}
 									onValueChange={(value) =>
@@ -674,7 +664,7 @@ export function QuickstartUsageSection({
 									<SelectContent
 										align="start"
 										alignItemWithTrigger={false}
-										className="w-auto min-w-48 rounded-xl"
+										className="w-auto min-w-48 rounded-lg"
 									>
 										<SelectGroup>
 											<SelectLabel className="text-[11px] tracking-[0.04em] text-muted-foreground">
@@ -707,30 +697,27 @@ export function QuickstartUsageSection({
 							</div>
 						) : null}
 						{showStreamingControl ? (
-							<div className="flex h-8 items-center gap-2 rounded-lg border border-border/70 bg-background px-3">
+							<div className="flex h-8 w-full items-center justify-between gap-2 rounded-lg bg-muted/60 px-3 lg:w-auto lg:justify-start">
+								<span className="text-xs font-medium">
+									{supportsStreaming ? "Streaming" : "No stream"}
+								</span>
 								<Switch
 									checked={streamingEnabled}
 									onCheckedChange={onToggleStreaming}
 									disabled={!supportsStreaming}
 									aria-label={supportsStreaming ? "Enable streaming" : "Streaming unavailable"}
 								/>
-								<span className="text-xs font-medium">
-									{supportsStreaming ? "Streaming" : "No stream"}
-								</span>
 							</div>
 						) : null}
-						{!inlineCopy ? (
-							<div className="ml-auto">
-								<MiniCopyButton content={requestExample.code} />
-							</div>
-						) : null}
+						<div className="w-full lg:absolute lg:right-2 lg:top-2 lg:w-auto">
+							<MiniCopyButton content={requestExample.code} />
 						</div>
-					) : null}
+					</div>
 				</div>
 				<Separator />
 				<RequestCodePane code={requestExample.code} lang={requestExample.lang} />
 				<Separator />
-				<div className="flex flex-col gap-2 px-3 py-3">
+				<div className="flex flex-col gap-2 px-3 py-2">
 					<div className="flex items-center justify-between gap-3">
 						<span className="text-xs font-medium text-muted-foreground">
 							Accepted IDs

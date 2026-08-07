@@ -30,6 +30,26 @@ function joinNaturalList(values: string[]): string {
 	return `${values.slice(0, -1).join(", ")}, and ${values.at(-1)}`;
 }
 
+const MAX_FAQ_PROVIDER_NAMES = 8;
+
+function getFaqProviders(pricing: ProviderPricing[]) {
+	const providersById = new Map<string, { id: string; name: string }>();
+	for (const entry of pricing) {
+		const id = entry.provider.api_provider_id.trim();
+		const name = entry.provider.api_provider_name.trim();
+		if (id && name && !providersById.has(id)) {
+			providersById.set(id, { id, name });
+		}
+	}
+	const providers = Array.from(providersById.values()).sort((left, right) =>
+		left.name.localeCompare(right.name),
+	);
+	return {
+		visible: providers.slice(0, MAX_FAQ_PROVIDER_NAMES),
+		remainingCount: Math.max(providers.length - MAX_FAQ_PROVIDER_NAMES, 0),
+	};
+}
+
 function getNumericDetail(
 	model: ModelOverviewPage,
 	...keys: string[]
@@ -284,6 +304,7 @@ export default function ModelFaqSection({
 		"max_output_tokens",
 	);
 	const pricingHighlights = isGatewayActive ? getPricingHighlights(pricing) : [];
+	const faqProviders = getFaqProviders(pricing);
 	// Native tool definitions are the minimum requirement for tool calling.
 	// tool_choice controls selection behaviour but cannot establish tool support alone.
 	const toolCallingSupport = getCapabilitySupport(gatewayMetadata, ["tools"]);
@@ -355,6 +376,38 @@ export default function ModelFaqSection({
 					{isGatewayActive && activeProviderCount > 0
 						? `${modelName} is available through the Phaseo API, with ${activeProviderCount} active ${activeProviderCount === 1 ? "provider" : "providers"} currently recorded. `
 						: `${modelName} is not currently marked as active in the Phaseo Gateway. `}
+					{faqProviders.visible.length > 0 ? (
+						<>
+							Recorded providers include{" "}
+							{faqProviders.visible.map((provider, index) => {
+								const isLast = index === faqProviders.visible.length - 1;
+								const separator =
+									index === 0
+										? ""
+										: faqProviders.remainingCount > 0
+											? ", "
+											: faqProviders.visible.length === 2
+												? " and "
+												: isLast
+													? ", and "
+													: ", ";
+								return (
+									<span key={provider.id}>
+										{separator}
+										<Link
+											href={`/api-providers/${provider.id}`}
+											className="font-medium underline underline-offset-4"
+										>
+											{provider.name}
+										</Link>
+									</span>
+								);
+							})}
+							{faqProviders.remainingCount > 0
+								? `, and ${faqProviders.remainingCount} more. `
+								: ". "}
+						</>
+					) : null}
 					The{" "}
 					<Link href="#providers" className="font-medium underline underline-offset-4">
 						providers section
@@ -474,7 +527,7 @@ export default function ModelFaqSection({
 
 	return (
 		<section id="faq" className="scroll-mt-28 space-y-4 border-t border-border/60 pt-5">
-			<h2 className="text-center text-lg font-medium tracking-tight">
+			<h2 className="text-xl font-semibold tracking-tight">
 				Frequently Asked Questions
 			</h2>
 			<ModelFaqAccordion items={items} />

@@ -1,66 +1,12 @@
-import { buildMetadata } from "@/lib/seo";
-import ModelReleaseTimeline from "@/components/(data)/model/ModelReleaseTimeline";
-import ModelDetailShell from "@/components/(data)/model/ModelDetailShell";
-import type { Metadata } from "next";
-import {
-	getModelPath,
-	getModelMetadataIdentity,
-	resolveModelRouteIds,
-	type ModelRouteParams,
-} from "@/components/(data)/model/model-route-helpers";
-import { buildModelPageMetadataDescription } from "@/lib/models/modelDescription";
-import { permanentRedirect } from "next/navigation";
+import type { ModelRouteParams } from "@/components/(data)/model/model-route-helpers";
+import { redirectLegacyModelSection } from "../redirectLegacyModelSection";
 
-export async function generateMetadata(props: {
-	params: Promise<ModelRouteParams>;
-}): Promise<Metadata> {
-	const params = await props.params;
-	const { modelId, modelName, organisationName, modelDescription } = await getModelMetadataIdentity(
-		params,
-		false,
-	);
-	const path = getModelPath(modelId, "timeline");
-	const imagePath = `/og/models/${modelId}`;
-
-	return buildMetadata({
-		title: `${modelName} Timeline - Announcements & Release History`,
-		description: buildModelPageMetadataDescription({
-			modelDescription,
-			suffix:
-				"Explore announcements, launches, version changes, deprecations, and retirement milestones over time.",
-			fallback: `Explore the release timeline for ${modelName} on Phaseo, including announcements, launches, version changes, deprecations, and retirement milestones over time.`,
-		}),
-		path,
-		imagePath,
-		keywords: [
-			modelName,
-			`${modelName} timeline`,
-			organisationName ? `${organisationName} AI` : null,
-			"AI model releases",
-			"Phaseo",
-		].filter(Boolean) as string[],
-	});
-}
+export const instant = false;
 
 export default async function Page({
 	params,
 }: {
 	params: Promise<ModelRouteParams>;
 }) {
-	const routeParams = await params;
-	const includeHidden = false;
-	const { requestedModelId, canonicalModelId } = await resolveModelRouteIds(
-		routeParams,
-		includeHidden,
-	);
-	if (canonicalModelId !== requestedModelId) {
-		permanentRedirect(getModelPath(canonicalModelId, "timeline"));
-	}
-	const modelId = canonicalModelId;
-
-	return (
-		<ModelDetailShell modelId={modelId} tab="timeline" includeHidden={includeHidden}>
-			<ModelReleaseTimeline modelId={modelId} includeHidden={includeHidden} />
-		</ModelDetailShell>
-	);
+	return redirectLegacyModelSection(params, "about");
 }

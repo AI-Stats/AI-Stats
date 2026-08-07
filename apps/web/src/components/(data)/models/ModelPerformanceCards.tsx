@@ -134,12 +134,23 @@ export default function ModelPerformanceCards({
 	const detailSeriesLabel = chartProviderDaily7d
 		? "All available percentile bands"
 		: `All ${providerCount.toLocaleString()} recorded provider${providerCount === 1 ? "" : "s"}`;
-	const metricData = (metric: MetricKey, detailed: boolean) =>
-		metric === "cachedInput"
-			? providerDaily7d
-			: detailed
-				? detailData
-				: cardData;
+	const preferredMetricData = (metric: MetricKey, detailed: boolean) => {
+		const definition = METRICS.find((item) => item.metric === metric)!;
+		const data = detailed ? detailData : cardData;
+		return data.some((point) =>
+			isUsableMetricValue(metric, point[definition.valueKey]),
+		)
+			? data
+			: null;
+	};
+	const metricData = (metric: MetricKey, detailed: boolean) => {
+		if (chartProviderDaily7d) {
+			return preferredMetricData(metric, detailed) ?? (detailed ? detailData : cardData);
+		}
+		return providerDaily7d;
+	};
+	const metricUsesPercentiles = (metric: MetricKey) =>
+		chartProviderDaily7d != null && preferredMetricData(metric, true) != null;
 	const availableMetrics = METRICS.filter(({ metric, valueKey }) =>
 		metricData(metric, true).some(
 			(point) =>
@@ -176,7 +187,7 @@ export default function ModelPerformanceCards({
 								<DialogTitle className="text-xl">{definition.label}</DialogTitle>
 								<DialogDescription>
 									{definition.description}{" "}
-									{definition.metric === "cachedInput"
+									{definition.metric === "cachedInput" && !metricUsesPercentiles(definition.metric)
 										? `All ${cachedInputProviderCount.toLocaleString()} recorded provider${cachedInputProviderCount === 1 ? "" : "s"}`
 										: detailSeriesLabel}{" "}
 									are shown below.

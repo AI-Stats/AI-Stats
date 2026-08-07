@@ -1,19 +1,19 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { ArrowUpDown } from "lucide-react";
+import { useRef, useState, type ReactNode } from "react";
 import {
 	CartesianGrid,
 	Line,
 	LineChart,
 	ReferenceLine,
 	ResponsiveContainer,
+	Tooltip,
 	XAxis,
 	YAxis,
 } from "recharts";
 import type { ModelProviderDailyPoint } from "@/lib/fetchers/models/getModelPerformance";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { TableSortButton } from "@/components/ui/table-sort-button";
 import { formatProviderDuration } from "@/components/(data)/models/modelPerformanceFormatting";
 import { ModelMetricInfo } from "./ModelMetricInfo";
 
@@ -36,6 +36,12 @@ type ModelProviderTrendChartProps = {
 	showHeader?: boolean;
 	headerAction?: ReactNode;
 };
+
+type TableSortKey = "provider" | "minimum" | "maximum" | "average";
+type TableSort = {
+	key: TableSortKey;
+	direction: "asc" | "desc";
+} | null;
 
 export function getSeriesEmphasis(
 	activeSeriesKey: string | null,
@@ -74,8 +80,16 @@ export function calculateCachedInputAverage(
 		},
 		{ cached: 0, effective: 0 },
 	);
-	return totals.effective > 0
-		? Math.min(100, (totals.cached * 100) / totals.effective)
+	if (totals.effective > 0) {
+		return Math.min(100, (totals.cached * 100) / totals.effective);
+	}
+	const percentages = points
+		.map((point) => point.cachedInputPct)
+		.filter(
+			(value): value is number => value != null && Number.isFinite(value),
+		);
+	return percentages.length > 0
+		? percentages.reduce((sum, value) => sum + value, 0) / percentages.length
 		: null;
 }
 
@@ -203,6 +217,17 @@ function toSeriesKey(providerId: string): string {
 	return providerId.replace(/[^a-zA-Z0-9]+/g, "_");
 }
 
+function getPercentile(providerId: string): number | null {
+	const match = /^percentile-(\d+)$/.exec(providerId);
+	if (!match) return null;
+	const percentile = Number(match[1]);
+	return Number.isFinite(percentile) ? percentile : null;
+}
+
+function getPercentileDescription(percentile: number): string {
+	return `P${percentile} is the value at or below which ${percentile}% of recorded requests fall.`;
+}
+
 export default function ModelProviderTrendChart({
 	title,
 	data,
@@ -212,14 +237,20 @@ export default function ModelProviderTrendChart({
 	showHeader = true,
 	headerAction,
 }: ModelProviderTrendChartProps) {
+	const isPercentileData = data.some(
+		(point) => getPercentile(point.provider) != null,
+	);
 	const [activeDay, setActiveDay] = useState<string | null>(null);
+	const activeDayRef = useRef<string | null>(null);
 	const [hoveredSeriesKey, setHoveredSeriesKey] = useState<string | null>(null);
 	const [focusedSeriesKey, setFocusedSeriesKey] = useState<string | null>(null);
-	const [tableSort, setTableSort] = useState<{
-		key: "provider" | "minimum" | "maximum" | "average";
-		direction: "asc" | "desc";
-	}>({ key: "average", direction: "desc" });
+	const [tableSort, setTableSort] = useState<TableSort>(null);
 	const activeSeriesKey = hoveredSeriesKey ?? focusedSeriesKey;
+	const updateActiveDay = (day: string | null) => {
+		if (activeDayRef.current === day) return;
+		activeDayRef.current = day;
+		setActiveDay(day);
+	};
 	const metricConfig = METRICS[metric];
 	const observedData = data.filter(
 		(point) =>
@@ -336,9 +367,22 @@ export default function ModelProviderTrendChart({
 				};
 			});
 	const sortedProviderRows = (() => {
+		const defaultRows = isPercentileData
+			? [...providerRows].sort(
+					(left, right) =>
+						(getPercentile(left.provider) ?? 0) -
+						(getPercentile(right.provider) ?? 0),
+				)
+			: providerRows;
+		if (!tableSort) return defaultRows;
 		const multiplier = tableSort.direction === "asc" ? 1 : -1;
-		return [...providerRows].sort((left, right) => {
+		return [...defaultRows].sort((left, right) => {
 			if (tableSort.key === "provider") {
+				const leftPercentile = getPercentile(left.provider);
+				const rightPercentile = getPercentile(right.provider);
+				if (leftPercentile != null && rightPercentile != null) {
+					return (leftPercentile - rightPercentile) * multiplier;
+				}
 				return left.name.localeCompare(right.name) * multiplier;
 			}
 			const leftValue = left[tableSort.key] ?? Number.NEGATIVE_INFINITY;
@@ -346,14 +390,58 @@ export default function ModelProviderTrendChart({
 			return (leftValue - rightValue) * multiplier;
 		});
 	})();
-	const toggleTableSort = (
-		key: "provider" | "minimum" | "maximum" | "average",
-	) => {
-		setTableSort((current) => ({
-			key,
-			direction:
-				current.key === key && current.direction === "desc" ? "asc" : "desc",
-		}));
+	const cycleTableSort = (key: TableSortKey) => {
+		setTableSort((current) => {
+			if (!current || current.key !== key) return { key, direction: "desc" };
+			if (current.direction === "desc") return { key, direction: "asc" };
+			return null;
+		});
+	};
+	const renderDetailedTooltip = ({
+		active,
+		payload,
+	}: {
+		active?: boolean;
+		payload?: ReadonlyArray<{
+			payload?: Record<string, string | number | null>;
+		}>;
+	}) => {
+		const row = payload?.[0]?.payload;
+		if (!isHovering || !active || !row || typeof row.day !== "string") {
+			return null;
+		}
+		const tooltipRows = providers.flatMap((provider) => {
+			const value = row[provider.seriesKey];
+			return typeof value === "number" && Number.isFinite(value)
+				? [{ provider, value }]
+				: [];
+		});
+		if (tooltipRows.length === 0) return null;
+
+		return (
+			<div className="min-w-44 rounded-md border border-border/80 bg-popover/95 p-2 text-popover-foreground shadow-xl backdrop-blur-sm">
+				<p className="mb-1.5 text-[11px] font-medium text-muted-foreground">
+					{formatDayHeading(row.day)}
+				</p>
+				<div className="space-y-1">
+					{tooltipRows.map(({ provider, value }) => (
+						<div
+							key={provider.seriesKey}
+							className="grid grid-cols-[16px_minmax(0,1fr)_auto] items-center gap-2 text-xs"
+						>
+							<span
+								className="h-4 w-[3px] justify-self-center rounded-full"
+								style={{ backgroundColor: provider.color }}
+							/>
+							<span className="truncate font-medium">{provider.name}</span>
+							<span className="pl-3 text-right font-medium tabular-nums">
+								{metricConfig.formatValue(value)}
+							</span>
+						</div>
+					))}
+				</div>
+			</div>
+		);
 	};
 
 	if (providers.length === 0) {
@@ -387,7 +475,7 @@ export default function ModelProviderTrendChart({
 				</div>
 			</div> : null}
 			{chartData.length > 0 ? (
-				<div className={detailed ? "h-[300px] w-full shrink-0 pt-1" : "h-[148px] w-full pt-1"}>
+				<div className={detailed ? "h-[300px] w-full shrink-0 pt-1 [&_.recharts-surface]:outline-none" : "h-[148px] w-full pt-1 [&_.recharts-surface]:outline-none"}>
 				<ResponsiveContainer width="100%" height="100%">
 					<LineChart
 						data={chartData}
@@ -453,9 +541,9 @@ export default function ModelProviderTrendChart({
 								dayFromIndex ||
 								dayFromPayload ||
 								null;
-							setActiveDay(day);
+							updateActiveDay(day);
 						}}
-						onMouseLeave={() => setActiveDay(null)}
+						onMouseLeave={() => updateActiveDay(null)}
 					>
 						<CartesianGrid vertical={false} stroke="transparent" />
 						<XAxis
@@ -482,6 +570,14 @@ export default function ModelProviderTrendChart({
 							tickFormatter={metricConfig.formatAxisTick}
 							label={detailed ? { value: metricConfig.axisLabel, angle: -90, position: "insideLeft", offset: -10, fill: "var(--muted-foreground)", fontSize: 11 } : undefined}
 						/>
+						{detailed ? (
+							<Tooltip
+								content={renderDetailedTooltip}
+								cursor={false}
+								isAnimationActive={false}
+								wrapperStyle={{ pointerEvents: "none", zIndex: 20 }}
+							/>
+						) : null}
 						{isHovering && activeIndex != null ? (
 							<ReferenceLine
 								x={activeIndex}
@@ -514,11 +610,10 @@ export default function ModelProviderTrendChart({
 									strokeOpacity={isDimmed ? 0.18 : 1}
 									strokeLinecap="round"
 									strokeLinejoin="round"
-									dot={chartData.length === 1 ? { r: 3, strokeWidth: 2 } : false}
+									dot={chartData.length === 1 ? { r: 3, strokeWidth: 2, fill: provider.color, stroke: provider.color } : false}
+									activeDot={{ r: 4, strokeWidth: 1, fill: provider.color, stroke: "var(--background)" }}
 									connectNulls
 									isAnimationActive={false}
-									onMouseEnter={() => setHoveredSeriesKey(provider.seriesKey)}
-									onMouseLeave={() => setHoveredSeriesKey(null)}
 								/>
 							);
 						})}
@@ -533,33 +628,55 @@ export default function ModelProviderTrendChart({
 					keepScrollbarMounted
 				>
 					<div className="sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground">
-						<Button variant="ghost" size="sm" className="-ml-2 h-7 w-fit px-2 text-xs" onClick={() => toggleTableSort("provider")}>
-							{seriesColumnLabel} <ArrowUpDown className="ml-1.5 size-3.5" />
-						</Button>
-						<Button variant="ghost" size="sm" className="ml-auto h-7 px-2 text-xs" onClick={() => toggleTableSort("minimum")}>
-							Min <ArrowUpDown className="ml-1.5 size-3.5" />
-						</Button>
-						<Button variant="ghost" size="sm" className="ml-auto h-7 px-2 text-xs" onClick={() => toggleTableSort("maximum")}>
-							Max <ArrowUpDown className="ml-1.5 size-3.5" />
-						</Button>
-						<Button variant="ghost" size="sm" className="ml-auto h-7 px-2 text-xs" onClick={() => toggleTableSort("average")}>
-							Avg <ArrowUpDown className="ml-1.5 size-3.5" />
-						</Button>
+						<TableSortButton className="-ml-2 w-fit" direction={tableSort?.key === "provider" ? tableSort.direction : null} onClick={() => cycleTableSort("provider")}>
+							{seriesColumnLabel}
+						</TableSortButton>
+						<TableSortButton align="end" direction={tableSort?.key === "minimum" ? tableSort.direction : null} onClick={() => cycleTableSort("minimum")}>
+							Min
+						</TableSortButton>
+						<TableSortButton align="end" direction={tableSort?.key === "maximum" ? tableSort.direction : null} onClick={() => cycleTableSort("maximum")}>
+							Max
+						</TableSortButton>
+						<TableSortButton align="end" direction={tableSort?.key === "average" ? tableSort.direction : null} onClick={() => cycleTableSort("average")}>
+							Avg
+						</TableSortButton>
 					</div>
-					{sortedProviderRows.map((provider) => (
-						<div
+					{sortedProviderRows.map((provider) => {
+						const { isActive, isDimmed } = getSeriesEmphasis(
+							activeSeriesKey,
+							provider.seriesKey,
+						);
+						return <div
 							key={provider.seriesKey}
-							className="grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/50 px-3 py-2.5 text-sm last:border-b-0"
+							className="grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/50 px-3 py-2.5 text-sm outline-none last:border-b-0 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring"
+							style={{ opacity: isDimmed ? 0.35 : 1 }}
+							tabIndex={0}
+							onMouseEnter={() => setHoveredSeriesKey(provider.seriesKey)}
+							onMouseLeave={() => setHoveredSeriesKey(null)}
+							onFocus={() => setFocusedSeriesKey(provider.seriesKey)}
+							onBlur={(event) => {
+								if (!event.currentTarget.contains(event.relatedTarget)) {
+									setFocusedSeriesKey(null);
+								}
+							}}
 						>
 							<span className="inline-flex min-w-0 items-center gap-2">
 								<span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: provider.color }} />
-								<span className="truncate font-medium">{provider.name}</span>
+								<span className={isActive ? "truncate font-semibold" : "truncate font-medium"}>{provider.name}</span>
+								{getPercentile(provider.provider) != null ? (
+									<ModelMetricInfo
+										label={provider.name}
+										description={getPercentileDescription(
+											getPercentile(provider.provider)!,
+										)}
+									/>
+								) : null}
 							</span>
 							<span className="text-right tabular-nums text-muted-foreground">{metricConfig.formatValue(provider.minimum)}</span>
 							<span className="text-right tabular-nums text-muted-foreground">{metricConfig.formatValue(provider.maximum)}</span>
 							<span className="text-right font-medium tabular-nums">{metricConfig.formatValue(provider.average)}</span>
-						</div>
-					))}
+						</div>;
+					})}
 				</ScrollArea>
 			) : (
 			<div className="space-y-1.5 pt-1">

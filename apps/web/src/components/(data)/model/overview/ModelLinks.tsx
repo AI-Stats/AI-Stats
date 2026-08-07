@@ -174,9 +174,9 @@ export default function ModelLinks({ model, showEmpty = false }: ModelLinksProps
 		if (!showEmpty) return null;
 
 		return (
-			<div className="inline-flex rounded-lg border border-border/70 bg-muted/10 px-3 py-2 text-sm text-muted-foreground">
+			<p className="text-sm text-muted-foreground">
 				No links listed.
-			</div>
+			</p>
 		);
 	}
 

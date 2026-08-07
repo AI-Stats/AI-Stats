@@ -502,6 +502,11 @@ describe("public model routes", () => {
 	it("never exposes a synthetic unknown provider in performance data", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
+			if (url.includes("/v2_providers?")) {
+				return new Response(JSON.stringify([
+					{ provider_slug: "poolside", metadata: { colour: "#12AB78" } },
+				]), { status: 200 });
+			}
 			if (url.includes("/rpc/get_v2_model_cached_input_metrics")) {
 				return new Response(JSON.stringify({
 					hourly_24h: [],
@@ -541,6 +546,7 @@ describe("public model routes", () => {
 					phaseo_overhead_ms: percentile === 95 ? 45 : 20,
 					tpot_ms: percentile === 95 ? 65 : 110,
 					itl_ms: percentile === 95 ? 65 : 110,
+					cached_input_pct: percentile === 95 ? 88.5 : 62.5,
 				}))), { status: 200 });
 			}
 			return new Response(JSON.stringify([]), { status: 200 });
@@ -561,11 +567,12 @@ describe("public model routes", () => {
 			expect.objectContaining({ provider: "poolside" }),
 		]);
 		expect(payload.metrics.providerPerformance).toEqual([
-			expect.objectContaining({ provider: "poolside" }),
+			expect.objectContaining({ provider: "poolside", providerColor: "#12AB78" }),
 		]);
 		expect(payload.metrics.providerDaily7d).toEqual([
-			expect.objectContaining({
-				provider: "poolside",
+				expect.objectContaining({
+					provider: "poolside",
+					providerColor: "#12AB78",
 				cachedInputPct: 62.5,
 				cachedInputTokens: 625,
 				effectiveInputTokens: 1000,
@@ -576,10 +583,12 @@ describe("public model routes", () => {
 		expect(payload.metrics.providerPercentileDaily7d).toContainEqual(
 			expect.objectContaining({
 				provider: "poolside",
+				providerColor: "#12AB78",
 				percentile: 95,
 				avgLatencyMs: 900,
 				avgGenerationMs: 1200,
 				avgThroughput: 13.4,
+				cachedInputPct: 88.5,
 			}),
 		);
 		expect(JSON.stringify(payload)).not.toContain('"unknown"');

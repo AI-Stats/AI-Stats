@@ -8,6 +8,7 @@ import React, {
     useRef,
     useState,
 } from "react";
+import useSWR from "swr";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -457,10 +458,6 @@ export default function ModelPricingClient({
     const [selectedPercentile, setSelectedPercentile] = useState<ModelPercentile>(
         DEFAULT_MODEL_PERCENTILE,
     );
-    const [liveRuntimeStats, setLiveRuntimeStats] = useState<ProviderRuntimeStatsMap>(
-        runtimeStats,
-    );
-    const [isLoadingPercentile, setIsLoadingPercentile] = useState(false);
     const displayProviders = useMemo(
         () => mergeProviderPricingOffers(providers),
         [providers]
@@ -496,25 +493,55 @@ export default function ModelPricingClient({
             ),
         [displayProviders],
     );
+	const runtimeStatsKey = useMemo(
+		() =>
+			[
+				"model-provider-runtime-stats",
+				modelId,
+				providerIds,
+				modelAliases,
+				selectedPercentile,
+			] as const,
+		[modelAliases, modelId, providerIds, selectedPercentile],
+	);
+	const successfulPercentileRef = useRef<ModelPercentile>(
+		DEFAULT_MODEL_PERCENTILE,
+	);
+	const {
+		data: liveRuntimeStats = runtimeStats,
+		isValidating: isLoadingPercentile,
+	} = useSWR<ProviderRuntimeStatsMap>(
+		runtimeStatsKey,
+		() =>
+			getModelProviderRuntimeStats({
+				modelId,
+				providerIds,
+				modelAliases,
+				percentile: selectedPercentile,
+			}),
+		{
+			dedupingInterval: 30_000,
+			errorRetryCount: 2,
+			fallbackData:
+				selectedPercentile === DEFAULT_MODEL_PERCENTILE
+					? runtimeStats
+					: undefined,
+			focusThrottleInterval: 60_000,
+			keepPreviousData: true,
+			onError: () => {
+				setSelectedPercentile(successfulPercentileRef.current);
+			},
+			onSuccess: () => {
+				successfulPercentileRef.current = selectedPercentile;
+			},
+			revalidateOnFocus: true,
+			revalidateOnReconnect: true,
+		},
+	);
 
-    const handlePercentileChange = async (nextPercentile: ModelPercentile) => {
+    const handlePercentileChange = (nextPercentile: ModelPercentile) => {
         if (nextPercentile === selectedPercentile || isLoadingPercentile) return;
-        const previousPercentile = selectedPercentile;
-        setIsLoadingPercentile(true);
-        try {
-            const nextStats = await getModelProviderRuntimeStats({
-                modelId,
-                providerIds,
-                modelAliases,
-                percentile: nextPercentile,
-            });
-            setLiveRuntimeStats(nextStats);
-            setSelectedPercentile(nextPercentile);
-        } catch {
-            setSelectedPercentile(previousPercentile);
-        } finally {
-            setIsLoadingPercentile(false);
-        }
+		setSelectedPercentile(nextPercentile);
     };
 
     const [sort, setSort] = useState<SortOption>(() => {
@@ -997,7 +1024,7 @@ export default function ModelPricingClient({
                         <DropdownMenu>
                             <DropdownMenuTrigger
                                 render={
-                                    <Button type="button" variant="outline" size="sm" className="gap-2 rounded-md" />
+                                    <Button type="button" variant="outline" size="sm" className="h-8 gap-2 rounded-md px-3 text-xs" />
                                 }
                             >
                                 <Filter className="size-3.5" />

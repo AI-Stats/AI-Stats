@@ -40,35 +40,31 @@ function EndpointRouteRow({ route }: { route: EndpointRoute }) {
 	const docsHref = getEndpointDocsHref(route.value);
 
 	return (
-		<div
-			className="group grid w-full grid-cols-[72px_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/35"
+		<Link
+			href={docsHref}
+			target="_blank"
+			rel="noopener noreferrer"
+			aria-label={`Open ${route.title} API reference`}
+			className="group grid w-full grid-cols-[72px_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/35 focus-visible:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
 		>
 			<HttpMethodBadge method={route.method} />
 
 			<div className="min-w-0">
-				<Link
-					href={docsHref}
-					target="_blank"
-					rel="noopener noreferrer"
-					className="block min-w-0 truncate font-mono text-sm text-foreground underline decoration-transparent underline-offset-4 transition-colors hover:text-primary hover:decoration-current"
-				>
+				<div className="min-w-0 truncate font-mono text-sm text-foreground underline decoration-transparent underline-offset-4 transition-colors group-hover:decoration-muted-foreground">
 					{route.path}
-				</Link>
+				</div>
 				<div className="mt-0.5 truncate text-xs text-muted-foreground">
 					{route.title} API reference
 				</div>
 			</div>
 
-			<Link
-				href={docsHref}
-				target="_blank"
-				rel="noopener noreferrer"
-				aria-label={`Open ${route.title} API reference`}
-				className="rounded-md p-1 text-muted-foreground opacity-60 transition-all hover:bg-muted hover:text-foreground hover:opacity-100 group-hover:opacity-100"
+			<span
+				aria-hidden="true"
+				className="rounded-md p-1 text-muted-foreground opacity-60 transition-all group-hover:text-foreground group-hover:opacity-100"
 			>
 				<ExternalLink className="h-3.5 w-3.5" />
-			</Link>
-		</div>
+			</span>
+		</Link>
 	);
 }
 
@@ -94,7 +90,7 @@ export function EndpointRoutesTable({
 	);
 
 	return (
-		<div className="space-y-3">
+		<div className="space-y-2">
 			<div className="flex items-center justify-between gap-3">
 				<div>
 					<h3 className="text-base font-semibold">Supported endpoints</h3>

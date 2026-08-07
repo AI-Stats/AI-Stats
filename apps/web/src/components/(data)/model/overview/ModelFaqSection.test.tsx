@@ -155,17 +155,55 @@ describe("ModelFaqSection", () => {
 		expect(html).toContain("131,072 tokens");
 		expect(html).toContain("available through the Phaseo API");
 		expect(html).toContain("2 active providers");
+		expect(html).toContain('href="/api-providers/fast-cloud"');
+		expect(html).toContain("Fast Cloud");
 		expect(html).toContain("4 benchmark results");
 		expect(html).toContain("Input Text Tokens at $0.50 per 1M tokens");
 		expect(html).toContain("Output Text Tokens at $1.50 per 1M tokens");
 		expect(html).toContain("Output Image at $0.04 per image");
 		expect(html).toContain("Output Video Tokens at $2.00 per 1M tokens");
-		expect(html).not.toContain("Fast Cloud");
 		expect(html).toContain("lowest base rates currently recorded across providers");
 		expect(html).toContain('aria-expanded="false"');
 		expect(html).toContain("grid-rows-[0fr]");
 		expect(html).toContain('href="#pricing"');
 		expect(html).toContain('href="/organisations/acme"');
+	});
+
+	it("caps the provider-name summary and reports the remainder", () => {
+		const providerNames = [
+			"Alpha",
+			"Bravo",
+			"Charlie",
+			"Delta",
+			"Echo",
+			"Foxtrot",
+			"Golf",
+			"Hotel",
+			"India",
+			"Juliett",
+		];
+		const manyProviders: ProviderPricing[] = providerNames.map((name, index) => ({
+			provider: {
+				api_provider_id: `provider-${index + 1}`,
+				api_provider_name: name,
+			},
+			provider_models: [],
+			pricing_rules: [],
+		}));
+		const html = renderToStaticMarkup(
+			<ModelFaqSection
+				model={model}
+				benchmarkCount={0}
+				activeProviderCount={10}
+				isGatewayActive
+				pricing={manyProviders}
+			/>,
+		);
+
+		expect(html).toContain('href="/api-providers/provider-1"');
+		expect(html).toContain('href="/api-providers/provider-8"');
+		expect(html).toContain("and 2 more");
+		expect(html).not.toContain("India, Juliett");
 	});
 
 
