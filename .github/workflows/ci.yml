@@ -10,7 +10,7 @@ on:
     workflow_dispatch:
         inputs:
             deploy_production:
-                description: "Deploy the selected ref to production without applying database migrations"
+                description: "Deploy main after confirming production migrations are already applied"
                 required: false
                 type: boolean
                 default: false
@@ -26,6 +26,10 @@ on:
 
 permissions:
     contents: read
+
+concurrency:
+    group: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.deploy_production == true)) && 'production-release' || format('ci-{0}-{1}', github.workflow, github.ref) }}
+    cancel-in-progress: false
 
 env:
     NODE_VERSION: 22
