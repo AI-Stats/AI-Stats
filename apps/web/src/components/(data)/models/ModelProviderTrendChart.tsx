@@ -87,28 +87,28 @@ type MetricConfig = {
 
 const METRICS: Record<MetricKey, MetricConfig> = {
 	throughput: {
-		label: "Effective throughput",
+		label: "Effective Throughput",
 		description: "Output tokens per second across the full selected-provider request, including time to first token.",
 		axisLabel: "Tokens / second",
 		valueKey: "avgThroughput",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} t/s` : "-"),
 	},
 	outputSpeed: {
-		label: "Output speed",
+		label: "Output Speed",
 		description: "Output tokens per second after the first token arrives, excluding time to first token.",
 		axisLabel: "Tokens / second",
 		valueKey: "avgOutputSpeed",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} t/s` : "-"),
 	},
 	latency: {
-		label: "Time to first token",
+		label: "Time to First Token",
 		description: "Time from the request entering Phaseo until the first content-bearing generated output reaches the gateway.",
 		axisLabel: "Milliseconds",
 		valueKey: "avgLatencyMs",
 		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
 	},
 	generation: {
-		label: "Provider duration",
+		label: "Provider Duration",
 		description: "Time from sending the selected provider request until its final response completes.",
 		axisLabel: "Duration",
 		valueKey: "avgGenerationMs",
@@ -116,7 +116,7 @@ const METRICS: Record<MetricKey, MetricConfig> = {
 		formatAxisTick: (value) => formatProviderDuration(value),
 	},
 	overhead: {
-		label: "Phaseo overhead",
+		label: "Phaseo Overhead",
 		description: "Gateway end-to-end duration minus the selected provider duration, including routing and response processing.",
 		axisLabel: "Milliseconds",
 		valueKey: "avgPhaseoOverheadMs",
@@ -137,7 +137,7 @@ const METRICS: Record<MetricKey, MetricConfig> = {
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} ms` : "-"),
 	},
 	cachedInput: {
-		label: "Cached input",
+		label: "Cached Input",
 		description: "Share of input tokens served from a provider cache. Only requests where the provider reports cache usage are included.",
 		axisLabel: "Cached input (%)",
 		valueKey: "cachedInputPct",

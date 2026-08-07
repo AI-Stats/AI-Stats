@@ -43,25 +43,25 @@ const METRICS: MetricDefinition[] = [
 	{
 		metric: "throughput",
 		valueKey: "avgThroughput",
-		label: "Effective throughput",
+		label: "Effective Throughput",
 		description: "Output tokens per second across the complete provider request.",
 	},
 	{
 		metric: "outputSpeed",
 		valueKey: "avgOutputSpeed",
-		label: "Output speed",
+		label: "Output Speed",
 		description: "Output tokens per second after the first token arrives.",
 	},
 	{
 		metric: "latency",
 		valueKey: "avgLatencyMs",
-		label: "Time to first token",
+		label: "Time to First Token",
 		description: "Time from request start until the first generated output arrives.",
 	},
 	{
 		metric: "generation",
 		valueKey: "avgGenerationMs",
-		label: "Provider duration",
+		label: "Provider Duration",
 		description: "Time from provider dispatch until its final response completes.",
 	},
 	{
@@ -79,7 +79,7 @@ const METRICS: MetricDefinition[] = [
 	{
 		metric: "cachedInput",
 		valueKey: "cachedInputPct",
-		label: "Cached input",
+		label: "Cached Input",
 		description: "Percentage of reported input tokens served from provider cache.",
 	},
 ];
