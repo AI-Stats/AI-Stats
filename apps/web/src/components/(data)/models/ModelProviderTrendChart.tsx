@@ -35,8 +35,6 @@ type ModelProviderTrendChartProps = {
 	detailed?: boolean;
 	showHeader?: boolean;
 	headerAction?: ReactNode;
-	activeDay: string | null;
-	onActiveDayChange: (day: string | null) => void;
 };
 
 export function getSeriesEmphasis(
@@ -213,9 +211,8 @@ export default function ModelProviderTrendChart({
 	detailed = false,
 	showHeader = true,
 	headerAction,
-	activeDay,
-	onActiveDayChange,
 }: ModelProviderTrendChartProps) {
+	const [activeDay, setActiveDay] = useState<string | null>(null);
 	const [hoveredSeriesKey, setHoveredSeriesKey] = useState<string | null>(null);
 	const [focusedSeriesKey, setFocusedSeriesKey] = useState<string | null>(null);
 	const [tableSort, setTableSort] = useState<{
@@ -305,7 +302,7 @@ export default function ModelProviderTrendChart({
 			: "-";
 	const activeIndex =
 		activeRow && typeof activeRow.index === "number" ? activeRow.index : null;
-	const isHovering = activeDay != null;
+	const isHovering = hoveredRow != null;
 	const providerRows = providers.map((provider) => {
 				const providerPoints = filtered.filter(
 					(point) => point.provider === provider.provider,
@@ -456,9 +453,9 @@ export default function ModelProviderTrendChart({
 								dayFromIndex ||
 								dayFromPayload ||
 								null;
-							onActiveDayChange(day);
+							setActiveDay(day);
 						}}
-						onMouseLeave={() => onActiveDayChange(null)}
+						onMouseLeave={() => setActiveDay(null)}
 					>
 						<CartesianGrid vertical={false} stroke="transparent" />
 						<XAxis
@@ -515,9 +512,6 @@ export default function ModelProviderTrendChart({
 								stroke={provider.color}
 									strokeWidth={isActive ? 3.5 : 2}
 									strokeOpacity={isDimmed ? 0.18 : 1}
-									style={{
-										transition: "stroke-opacity 150ms, stroke-width 150ms",
-									}}
 									strokeLinecap="round"
 									strokeLinejoin="round"
 									dot={chartData.length === 1 ? { r: 3, strokeWidth: 2 } : false}
@@ -577,7 +571,7 @@ export default function ModelProviderTrendChart({
 					return (
 						<div
 							key={provider.seriesKey}
-							className="flex items-center justify-between gap-3 rounded-sm text-xs outline-none transition-[opacity,transform] duration-150 focus-visible:ring-1 focus-visible:ring-ring"
+							className="flex items-center justify-between gap-3 rounded-sm text-xs outline-none focus-visible:ring-1 focus-visible:ring-ring"
 							style={{
 								opacity: isDimmed ? 0.35 : 1,
 								transform: isActive ? "translateX(2px)" : "translateX(0)",

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Maximize2 } from "lucide-react";
 import type {
 	ModelPerformancePoint,
@@ -101,7 +100,6 @@ export default function ModelPerformanceCards({
 	chartProviderDaily7d,
 	qualitySeries = [],
 }: ModelPerformanceCardsProps) {
-	const [activeDay, setActiveDay] = useState<string | null>(null);
 	void summary;
 	void prevSummary;
 	const hasHourly = hourly.some((point) => point.requests > 0);
@@ -160,8 +158,6 @@ export default function ModelPerformanceCards({
 								data={metricData(definition.metric, false)}
 								metric={definition.metric}
 								maxSeries={3}
-								activeDay={activeDay}
-								onActiveDayChange={setActiveDay}
 								headerAction={
 									<DialogTrigger asChild>
 										<button
@@ -194,8 +190,6 @@ export default function ModelPerformanceCards({
 									maxSeries={Number.MAX_SAFE_INTEGER}
 									detailed
 									showHeader={false}
-									activeDay={activeDay}
-									onActiveDayChange={setActiveDay}
 								/>
 							</div>
 						</DialogContent>
