@@ -597,6 +597,7 @@ export async function startAimock(): Promise<LLMock> {
     aimock.mount("/v1/tts", createXAiTtsMount());
     aimock.mount("/v1beta/interactions", createGoogleInteractionsMount());
     aimock.mount("/v1/openai", createOpenAIChatMount());
+    aimock.mount("/v1/solar", createOpenAIChatMount());
     aimock.mount("/deepseek", createOpenAIChatMount());
     aimock.mount("/api/v1", createOpenAIChatMount());
     aimock.mount("/anthropic/v1", createBedrockMantleMessagesMount());
