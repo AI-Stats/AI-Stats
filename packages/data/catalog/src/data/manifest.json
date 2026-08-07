@@ -478,7 +478,8 @@
       "inclusionai/ling-3.0-flash",
       "inclusionai/ling-flash-2.0",
       "inclusionai/ring-flash-2.0",
-      "inclusionai/ling-3.0-flash:free"
+      "inclusionai/ling-3.0-flash:free",
+      "inclusionai/ling-3.0-tiny"
     ],
     "kwaipilot": [
       "kwaipilot/kat-coder-air-v2.5",
@@ -1143,7 +1144,9 @@
       "upstage/solar-pro-2-2025-07-10",
       "upstage/solar-pro-2-2025-09-09",
       "upstage/solar-pro-2-preview",
-      "upstage/solar-pro-3"
+      "upstage/solar-pro-3",
+      "upstage/solar-mini",
+      "upstage/solar-pro-4"
     ],
     "vercel": [
       "vercel/v0-1.0-md",
@@ -1271,7 +1274,8 @@
     ],
     "mindai": [
       "mindai/macaron-v1-venti",
-      "mindai/macaron-v1-venti:free"
+      "mindai/macaron-v1-venti:free",
+      "mindai/macaron-v1-tall"
     ],
     "morph": [
       "morph/morph-v3-fast",

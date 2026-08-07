@@ -1,0 +1,46 @@
+{
+  "api_provider_id": "upstage",
+  "api_provider_name": "Upstage",
+  "description": "Upstage provides OpenAI-compatible access to its Solar language models.",
+  "link": "https://console.upstage.ai/",
+  "country_code": "KR",
+  "status": "Active",
+  "colour": "#4B5CFF",
+  "privacy_policy_url": "https://www.upstage.ai/privacy-policy",
+  "terms_of_service_url": "https://www.upstage.ai/terms-of-service",
+  "prompt_training_policy": "unknown",
+  "prompt_training_notes": null,
+  "prompt_training_source_url": null,
+  "gateway_kind": null,
+  "routable": true,
+  "routing_enabled": true,
+  "sdk_package": null,
+  "api_base_url": "https://api.upstage.ai",
+  "docs_url": "https://console.upstage.ai/docs/",
+  "auth_env": [
+    "UPSTAGE_API_KEY"
+  ],
+  "api_formats": [
+    "openai.chat.completions"
+  ],
+  "service_tiers": [],
+  "sources": [
+    {
+      "kind": "api_reference",
+      "url": "https://console.upstage.ai/docs/getting-started/quick-start",
+      "accessed_at": "2026-08-06T00:00:00Z",
+      "notes": "Official quick start documents authentication and the OpenAI-compatible Solar API endpoint."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://console.upstage.ai/docs/capabilities/generate/chat",
+      "accessed_at": "2026-08-06T00:00:00Z",
+      "notes": "Official chat documentation lists current Solar model aliases."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-06T00:00:00Z",
+    "notes": "Direct provider configuration verified against official Upstage documentation."
+  }
+}

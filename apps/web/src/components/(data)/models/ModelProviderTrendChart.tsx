@@ -1,19 +1,23 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState, type ReactNode } from "react";
+import { ArrowUpDown } from "lucide-react";
 import {
 	CartesianGrid,
 	Line,
 	LineChart,
 	ReferenceLine,
 	ResponsiveContainer,
-	Tooltip,
+	Tooltip as RechartsTooltip,
 	XAxis,
 	YAxis,
 } from "recharts";
 import type { ModelProviderDailyPoint } from "@/lib/fetchers/models/getModelPerformance";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ModelMetricInfo } from "./ModelMetricInfo";
 
-type MetricKey =
+export type MetricKey =
 	| "throughput"
 	| "outputSpeed"
 	| "latency"
@@ -27,6 +31,9 @@ type ModelProviderTrendChartProps = {
 	data: ModelProviderDailyPoint[];
 	metric: MetricKey;
 	maxSeries?: number;
+	detailed?: boolean;
+	showHeader?: boolean;
+	headerAction?: ReactNode;
 	activeDay: string | null;
 	onActiveDayChange: (day: string | null) => void;
 };
@@ -42,8 +49,18 @@ export function getSeriesEmphasis(
 	};
 }
 
+export function isUsableMetricValue(
+	metric: MetricKey,
+	value: number | null | undefined,
+) {
+	if (value == null || !Number.isFinite(value)) return false;
+	return metric === "overhead" ? value >= 0 : value > 0;
+}
+
 type MetricConfig = {
 	label: string;
+	description: string;
+	axisLabel: string;
 	valueKey:
 		| "avgThroughput"
 		| "avgOutputSpeed"
@@ -58,36 +75,50 @@ type MetricConfig = {
 const METRICS: Record<MetricKey, MetricConfig> = {
 	throughput: {
 		label: "Effective throughput",
+		description: "Output tokens per second across the full selected-provider request, including time to first token.",
+		axisLabel: "Tokens / second",
 		valueKey: "avgThroughput",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} t/s` : "-"),
 	},
 	outputSpeed: {
 		label: "Output speed",
+		description: "Output tokens per second after the first token arrives, excluding time to first token.",
+		axisLabel: "Tokens / second",
 		valueKey: "avgOutputSpeed",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} t/s` : "-"),
 	},
 	latency: {
 		label: "Time to first token",
+		description: "Time from the request entering Phaseo until the first content-bearing generated output reaches the gateway.",
+		axisLabel: "Milliseconds",
 		valueKey: "avgLatencyMs",
 		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
 	},
 	generation: {
 		label: "Provider duration",
+		description: "Time from sending the selected provider request until its final response completes.",
+		axisLabel: "Milliseconds",
 		valueKey: "avgGenerationMs",
 		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
 	},
 	overhead: {
 		label: "Phaseo overhead",
+		description: "Gateway end-to-end duration minus the selected provider duration, including routing and response processing.",
+		axisLabel: "Milliseconds",
 		valueKey: "avgPhaseoOverheadMs",
 		formatValue: (value) => (value != null ? `${Math.round(value)} ms` : "-"),
 	},
 	tpot: {
 		label: "TPOT",
+		description: "Time per output token after the first token. Lower values indicate faster token generation.",
+		axisLabel: "Milliseconds",
 		valueKey: "avgTpotMs",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} ms` : "-"),
 	},
 	itl: {
 		label: "ITL",
+		description: "Estimated average interval between generated tokens. It currently uses the request-level TPOT estimate.",
+		axisLabel: "Milliseconds",
 		valueKey: "avgItlMs",
 		formatValue: (value) => (value != null ? `${value.toFixed(2)} ms` : "-"),
 	},
@@ -119,6 +150,12 @@ function formatDayHeading(day: string): string {
 	});
 }
 
+function formatDayTick(day: string): string {
+	const date = new Date(`${day}T00:00:00Z`);
+	if (!Number.isFinite(date.getTime())) return day;
+	return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+}
+
 function toSeriesKey(providerId: string): string {
 	return providerId.replace(/[^a-zA-Z0-9]+/g, "_");
 }
@@ -128,15 +165,24 @@ export default function ModelProviderTrendChart({
 	data,
 	metric,
 	maxSeries = 3,
+	detailed = false,
+	showHeader = true,
+	headerAction,
 	activeDay,
 	onActiveDayChange,
 }: ModelProviderTrendChartProps) {
 	const [hoveredSeriesKey, setHoveredSeriesKey] = useState<string | null>(null);
 	const [focusedSeriesKey, setFocusedSeriesKey] = useState<string | null>(null);
+	const [tableSort, setTableSort] = useState<{
+		key: "provider" | "minimum" | "maximum" | "average";
+		direction: "asc" | "desc";
+	}>({ key: "average", direction: "desc" });
 	const activeSeriesKey = hoveredSeriesKey ?? focusedSeriesKey;
 	const metricConfig = METRICS[metric];
 	const observedData = data.filter(
-		(point) => point.requests > 0 && point[metricConfig.valueKey] != null,
+		(point) =>
+			point.requests > 0 &&
+			isUsableMetricValue(metric, point[metricConfig.valueKey]),
 	);
 	const providers = Array.from(
 		observedData
@@ -168,6 +214,11 @@ export default function ModelProviderTrendChart({
 		}));
 
 	const providerIdSet = new Set(providers.map((provider) => provider.provider));
+	const seriesColumnLabel = providers.every((provider) =>
+		provider.provider.startsWith("percentile-"),
+	)
+		? "Percentile"
+		: "Provider";
 	const filtered = observedData.filter((point) =>
 		providerIdSet.has(point.provider),
 	);
@@ -210,9 +261,7 @@ export default function ModelProviderTrendChart({
 	const activeIndex =
 		activeRow && typeof activeRow.index === "number" ? activeRow.index : null;
 	const isHovering = activeDay != null;
-	const providerRows = useMemo(
-		() =>
-			providers.map((provider) => {
+	const providerRows = providers.map((provider) => {
 				const metricValues = filtered
 					.filter((point) => point.provider === provider.provider)
 					.map((point) => point[metricConfig.valueKey])
@@ -224,6 +273,10 @@ export default function ModelProviderTrendChart({
 						? metricValues.reduce((sum, value) => sum + value, 0) /
 							metricValues.length
 						: null;
+				const minimum =
+					metricValues.length > 0 ? Math.min(...metricValues) : null;
+				const maximum =
+					metricValues.length > 0 ? Math.max(...metricValues) : null;
 				const rawHovered = activeRow?.[provider.seriesKey];
 				const hoveredValue =
 					typeof rawHovered === "number" && Number.isFinite(rawHovered)
@@ -232,40 +285,70 @@ export default function ModelProviderTrendChart({
 				return {
 					...provider,
 					average,
+					minimum,
+					maximum,
 					hoveredValue,
 				};
-			}),
-		[providers, filtered, metricConfig.valueKey, activeRow],
-	);
+			});
+	const sortedProviderRows = (() => {
+		const multiplier = tableSort.direction === "asc" ? 1 : -1;
+		return [...providerRows].sort((left, right) => {
+			if (tableSort.key === "provider") {
+				return left.name.localeCompare(right.name) * multiplier;
+			}
+			const leftValue = left[tableSort.key] ?? Number.NEGATIVE_INFINITY;
+			const rightValue = right[tableSort.key] ?? Number.NEGATIVE_INFINITY;
+			return (leftValue - rightValue) * multiplier;
+		});
+	})();
+	const toggleTableSort = (
+		key: "provider" | "minimum" | "maximum" | "average",
+	) => {
+		setTableSort((current) => ({
+			key,
+			direction:
+				current.key === key && current.direction === "desc" ? "asc" : "desc",
+		}));
+	};
 
 	if (providers.length === 0) {
 		return (
 			<div className="flex h-full flex-col gap-3">
-				<p className="text-lg font-medium leading-none text-foreground">
-					{title}
-				</p>
+				<div className="flex items-center gap-1.5">
+					<p className={detailed ? "text-lg font-medium leading-none text-foreground" : "text-sm font-medium leading-none text-foreground"}>{title}</p>
+					<ModelMetricInfo label={metricConfig.label} description={metricConfig.description} />
+				</div>
 				<div className="flex flex-1 items-center justify-center rounded-md border border-dashed border-border px-4 text-center text-xs text-muted-foreground">
-					No data is available for this metric and filter combination.
+					This metric was not recorded for recent requests.
 				</div>
 			</div>
 		);
 	}
 
 	return (
-		<div className="space-y-3">
-			<div className="flex items-start justify-between gap-3">
-				<p className="text-lg font-medium leading-none text-foreground">
-					{title}
-				</p>
-				<span className="shrink-0 whitespace-nowrap text-[11px] text-muted-foreground">
-					{activeHeadingDate}
-				</span>
-			</div>
-			<div className="h-[148px] w-full pt-1">
+		<div className={detailed ? "flex h-full min-h-0 flex-col gap-3" : "space-y-3"}>
+			{showHeader ? <div className="flex items-start justify-between gap-3">
+				<div className="flex items-center gap-1.5">
+					<p className={detailed ? "text-lg font-medium leading-none text-foreground" : "text-sm font-medium leading-none text-foreground"}>{title}</p>
+					<ModelMetricInfo label={metricConfig.label} description={metricConfig.description} />
+				</div>
+				<div className="flex shrink-0 items-center gap-2">
+					{detailed ? (
+						<span className="whitespace-nowrap text-[11px] text-muted-foreground">
+							{activeHeadingDate}
+						</span>
+					) : null}
+					{headerAction}
+				</div>
+			</div> : null}
+			{chartData.length > 0 ? (
+				<div className={detailed ? "h-[300px] w-full shrink-0 pt-1" : "h-[148px] w-full pt-1"}>
 				<ResponsiveContainer width="100%" height="100%">
 					<LineChart
 						data={chartData}
-						margin={{ top: 8, right: 0, left: 0, bottom: 6 }}
+						margin={detailed
+							? { top: 8, right: 18, left: 24, bottom: 28 }
+							: { top: 8, right: 0, left: 0, bottom: 6 }}
 						onMouseMove={(state: any) => {
 							const dayFromPointer =
 								typeof state?.activeCoordinate?.x === "number" &&
@@ -333,12 +416,27 @@ export default function ModelProviderTrendChart({
 						<XAxis
 							dataKey="index"
 							type="number"
-							domain={[0, Math.max(chartData.length - 1, 0)]}
+							domain={chartData.length === 1 ? [-0.5, 0.5] : [0, chartData.length - 1]}
+							ticks={chartData.map((_, index) => index)}
 							allowDataOverflow
-							hide
+							hide={!detailed}
+							tickFormatter={(value) =>
+								formatDayTick(String(chartData[Math.round(Number(value))]?.day ?? ""))
+							}
+							tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+							tickLine={false}
+							axisLine={{ stroke: "var(--border)" }}
+							label={detailed ? { value: "Date", position: "insideBottom", offset: -18, fill: "var(--muted-foreground)", fontSize: 11 } : undefined}
 						/>
-						<YAxis hide />
-						<Tooltip
+						<YAxis
+							hide={!detailed}
+							width={70}
+							tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+							tickLine={false}
+							axisLine={false}
+							label={detailed ? { value: metricConfig.axisLabel, angle: -90, position: "insideLeft", offset: -10, fill: "var(--muted-foreground)", fontSize: 11 } : undefined}
+						/>
+						<RechartsTooltip
 							cursor={false}
 							content={({ active, payload }) => {
 								if (!active || !payload?.length) return null;
@@ -411,7 +509,7 @@ export default function ModelProviderTrendChart({
 									}}
 									strokeLinecap="round"
 									strokeLinejoin="round"
-									dot={false}
+									dot={chartData.length === 1 ? { r: 3, strokeWidth: 2 } : false}
 									connectNulls
 									isAnimationActive={false}
 									onMouseEnter={() => setHoveredSeriesKey(provider.seriesKey)}
@@ -421,7 +519,44 @@ export default function ModelProviderTrendChart({
 						})}
 					</LineChart>
 				</ResponsiveContainer>
-			</div>
+				</div>
+			) : null}
+			{detailed ? (
+				<ScrollArea
+					className="min-h-0 flex-1 rounded-md border border-border/70"
+					viewportClassName="min-h-0"
+					keepScrollbarMounted
+				>
+					<div className="sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground">
+						<Button variant="ghost" size="sm" className="-ml-2 h-7 w-fit px-2 text-xs" onClick={() => toggleTableSort("provider")}>
+							{seriesColumnLabel} <ArrowUpDown className="ml-1.5 size-3.5" />
+						</Button>
+						<Button variant="ghost" size="sm" className="ml-auto h-7 px-2 text-xs" onClick={() => toggleTableSort("minimum")}>
+							Min <ArrowUpDown className="ml-1.5 size-3.5" />
+						</Button>
+						<Button variant="ghost" size="sm" className="ml-auto h-7 px-2 text-xs" onClick={() => toggleTableSort("maximum")}>
+							Max <ArrowUpDown className="ml-1.5 size-3.5" />
+						</Button>
+						<Button variant="ghost" size="sm" className="ml-auto h-7 px-2 text-xs" onClick={() => toggleTableSort("average")}>
+							Avg <ArrowUpDown className="ml-1.5 size-3.5" />
+						</Button>
+					</div>
+					{sortedProviderRows.map((provider) => (
+						<div
+							key={provider.seriesKey}
+							className="grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/50 px-3 py-2.5 text-sm last:border-b-0"
+						>
+							<span className="inline-flex min-w-0 items-center gap-2">
+								<span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: provider.color }} />
+								<span className="truncate font-medium">{provider.name}</span>
+							</span>
+							<span className="text-right tabular-nums text-muted-foreground">{metricConfig.formatValue(provider.minimum)}</span>
+							<span className="text-right tabular-nums text-muted-foreground">{metricConfig.formatValue(provider.maximum)}</span>
+							<span className="text-right font-medium tabular-nums">{metricConfig.formatValue(provider.average)}</span>
+						</div>
+					))}
+				</ScrollArea>
+			) : (
 			<div className="space-y-1.5 pt-1">
 				{providerRows.map((provider) => {
 					const { isActive, isDimmed } = getSeriesEmphasis(
@@ -471,6 +606,7 @@ export default function ModelProviderTrendChart({
 					);
 				})}
 			</div>
+			)}
 		</div>
 	);
 }

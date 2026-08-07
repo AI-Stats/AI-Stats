@@ -20,8 +20,8 @@ export function calculateOutputPerformanceMetrics(args: {
 			? Math.max(0, args.providerDurationMs)
 			: null;
 	const providerTtftMs =
-		args.providerTtftMs != null && Number.isFinite(args.providerTtftMs)
-			? Math.max(0, args.providerTtftMs)
+		args.providerTtftMs != null && Number.isFinite(args.providerTtftMs) && args.providerTtftMs > 0
+			? args.providerTtftMs
 			: null;
 	const gatewayE2eMs =
 		args.gatewayE2eMs != null && Number.isFinite(args.gatewayE2eMs)

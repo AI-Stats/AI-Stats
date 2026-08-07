@@ -31,4 +31,19 @@ describe("calculateOutputPerformanceMetrics", () => {
 			phaseoOverheadMs: 40,
 		});
 	});
+
+	it("treats zero TTFT placeholders as missing observations", () => {
+		expect(calculateOutputPerformanceMetrics({
+			outputTokens: 25,
+			providerDurationMs: 1_000,
+			providerTtftMs: 0,
+			gatewayE2eMs: 1_040,
+		})).toEqual({
+			effectiveThroughputTps: 25,
+			outputSpeedTps: null,
+			tpotMs: null,
+			itlMs: null,
+			phaseoOverheadMs: 40,
+		});
+	});
 });

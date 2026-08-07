@@ -349,6 +349,12 @@ public final class ModelIds {
     /** Model ID: <code>inclusionai/ling-2.6-1t</code>. Model page: https://phaseo.app/models/inclusionai/ling-2.6-1t */
     public static final String INCLUSIONAI_LING_2_6_1T = "inclusionai/ling-2.6-1t";
 
+    /** Model ID: <code>inclusionai/ling-3.0-flash</code>. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash */
+    public static final String INCLUSIONAI_LING_3_0_FLASH = "inclusionai/ling-3.0-flash";
+
+    /** Model ID: <code>inclusionai/ling-3.0-tiny</code>. Model page: https://phaseo.app/models/inclusionai/ling-3.0-tiny */
+    public static final String INCLUSIONAI_LING_3_0_TINY = "inclusionai/ling-3.0-tiny";
+
     /** Model ID: <code>inclusionai/ling-flash-2.0</code>. Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0 */
     public static final String INCLUSIONAI_LING_FLASH_2_0 = "inclusionai/ling-flash-2.0";
 
@@ -429,6 +435,9 @@ public final class ModelIds {
 
     /** Model ID: <code>microsoft/phi-4-mini</code>. Model page: https://phaseo.app/models/microsoft/phi-4-mini */
     public static final String MICROSOFT_PHI_4_MINI = "microsoft/phi-4-mini";
+
+    /** Model ID: <code>mindai/macaron-v1-tall</code>. Model page: https://phaseo.app/models/mindai/macaron-v1-tall */
+    public static final String MINDAI_MACARON_V1_TALL = "mindai/macaron-v1-tall";
 
     /** Model ID: <code>minimax/hailuo-02</code>. Model page: https://phaseo.app/models/minimax/hailuo-02 */
     public static final String MINIMAX_HAILUO_02 = "minimax/hailuo-02";

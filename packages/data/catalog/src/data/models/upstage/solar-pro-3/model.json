@@ -1,20 +1,24 @@
 {
   "model_id": "upstage/solar-pro-3",
   "organisation_id": "upstage",
-  "name": "Solar Pro 3 (2026-01-26)",
+  "name": "Solar Pro 3 (2026-03-23)",
   "status": "Available",
-  "previous_model_id": "upstage/solar-pro-2-2025-12-15",
-  "description": "Solar Pro 3 (2026-01-26) is Upstage's powerful Mixture-of-Experts (MoE) language model. With 102B total parameters and 12B active parameters per forward pass, it delivers exceptional performance while maintaining computational efficiency.",
-  "announced_date": "2026-01-26T00:00:00",
-  "release_date": "2026-01-26T00:00:00",
+  "previous_model_id": "upstage/solar-pro-3-2026-01-26",
+  "description": "Solar Pro 3 is Upstage's 102B-parameter mixture-of-experts model, activating 12B parameters per token for multilingual reasoning and agentic workflows.",
+  "announced_date": "2026-03-23T00:00:00",
+  "release_date": "2026-03-23T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
-  "input_types": null,
-  "output_types": null,
+  "input_types": "text",
+  "output_types": "text",
   "api_model_id": "upstage/solar-pro-3",
-  "links": [],
-  "details": [],
+  "links": [{ "title": "Official model documentation", "kind": "documentation", "url": "https://console.upstage.ai/docs/models/solar-pro-3" }],
+  "details": [
+    { "name": "parameters", "value": "102B total; 12B active" },
+    { "name": "architecture", "value": "Mixture of Experts" },
+    { "name": "languages", "value": "English, Korean, Japanese" }
+  ],
   "benchmarks": [
     {
       "benchmark_id": "aa-intelligence-index-v4",
@@ -108,36 +112,36 @@
   "family_id": null,
   "page_notice": null,
   "model_type": null,
-  "knowledge_cutoff": null,
+  "knowledge_cutoff": "2025-07-31",
   "limits": {
-    "context": null,
-    "input": null,
+    "context": 128000,
+    "input": 128000,
     "output": null
   },
   "modalities": {
-    "input": null,
-    "output": null
+    "input": ["text"],
+    "output": ["text"]
   },
   "reasoning": {
-    "supported": null,
+    "supported": true,
     "options": []
   },
   "capabilities": {
-    "attachment": null,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [{ "kind": "documentation", "url": "https://console.upstage.ai/docs/models/solar-pro-3", "accessed_at": "2026-08-06T00:00:00Z", "notes": "Official documentation confirms the current 260323 release, architecture, limits, cutoff, languages, and capabilities." }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-06T00:00:00Z",
+    "notes": "Current alias corrected from the deprecated 260126 release to 260323."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-06T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null
