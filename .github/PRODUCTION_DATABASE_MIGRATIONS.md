@@ -4,6 +4,8 @@ Database migrations are validated on pull requests without production secrets. A
 
 CI-managed application deployment waits for the migration job. If migration validation, approval, dry-run, or application fails, the application deploy is skipped.
 
+The sole exception is an explicitly dispatched `deploy_production` run on `main`. Use it only after independently confirming that every migration on `main` has already been applied to the production database. Manual and push-triggered production releases share a concurrency lock, so this recovery path cannot overlap another production release.
+
 ## One-time GitHub setup
 
 Complete these steps before setting the opt-in variable:
