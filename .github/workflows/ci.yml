@@ -9,6 +9,11 @@ on:
         types: [checks_requested]
     workflow_dispatch:
         inputs:
+            deploy_production:
+                description: "Deploy the selected ref to production without applying database migrations"
+                required: false
+                type: boolean
+                default: false
             importer_mode:
                 description: "Explicit production importer action"
                 required: false
@@ -836,11 +841,13 @@ jobs:
         if: >-
             always() &&
             github.ref == 'refs/heads/main' &&
-            github.event_name != 'workflow_dispatch' &&
             needs.apps.result == 'success' &&
             needs.check-paths.result == 'success' &&
+            ((github.event_name == 'push' &&
             (needs.check-paths.outputs.migrations-changed != 'true' ||
-            needs.migrate-production.result == 'success')
+            needs.migrate-production.result == 'success')) ||
+            (github.event_name == 'workflow_dispatch' &&
+            inputs.deploy_production == true))
         permissions:
             contents: read
         strategy:
