@@ -287,4 +287,3 @@ export function printHelp(command: string[] = []) {
 	process.stdout.write(renderHelp(command));
 }
 
-export 
