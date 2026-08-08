@@ -75,25 +75,26 @@ export default function ModelPerformanceDashboard({
 	headerDescription,
 	mode = "overview",
 }: ModelPerformanceDashboardProps) {
+	const [initialSelection] = useState<{
+		colo: string | null;
+		percentile: ModelPercentile;
+	}>(() => ({
+			colo: metrics.cloudflareColo ?? null,
+			percentile:
+				metrics.percentile != null && isModelPercentile(metrics.percentile)
+					? metrics.percentile
+					: DEFAULT_MODEL_PERCENTILE,
+		}));
 	const [selectedColo, setSelectedColo] = useState<string | null>(
-		metrics.cloudflareColo ?? null,
+		() => initialSelection.colo,
 	);
 	const [selectedPercentile, setSelectedPercentile] = useState<ModelPercentile>(
-		metrics.percentile != null && isModelPercentile(metrics.percentile)
-			? metrics.percentile
-			: DEFAULT_MODEL_PERCENTILE,
+		() => initialSelection.percentile,
 	);
-	const initialSelectionRef = useRef({
-		colo: metrics.cloudflareColo ?? null,
-		percentile:
-			metrics.percentile != null && isModelPercentile(metrics.percentile)
-				? metrics.percentile
-				: DEFAULT_MODEL_PERCENTILE,
-	});
-	const successfulSelectionRef = useRef(initialSelectionRef.current);
+	const successfulSelectionRef = useRef(initialSelection);
 	const isInitialSelection =
-		selectedColo === initialSelectionRef.current.colo &&
-		selectedPercentile === initialSelectionRef.current.percentile;
+		selectedColo === initialSelection.colo &&
+		selectedPercentile === initialSelection.percentile;
 	const {
 		data: selectedMetrics,
 		isValidating,
@@ -189,7 +190,7 @@ export default function ModelPerformanceDashboard({
 												variant="outline"
 												size="sm"
 												className="h-8 w-auto max-w-[calc(100vw-2rem)] justify-start gap-2 rounded-lg px-3 text-xs"
-												disabled={isLoadingRegion}
+												aria-busy={isLoadingRegion}
 												aria-label="Filter performance by API location"
 											>
 												{isLoadingRegion ? (

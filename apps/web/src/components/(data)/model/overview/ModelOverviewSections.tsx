@@ -1495,6 +1495,7 @@ export default function ModelOverviewSections({
 						modelId={modelId}
 						includeHidden={includeHidden}
 						performancePromise={performancePromise}
+						surface="page"
 					/>
 				</Suspense>
 			</Section>

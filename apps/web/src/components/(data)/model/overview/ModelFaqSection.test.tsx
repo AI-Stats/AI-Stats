@@ -203,7 +203,8 @@ describe("ModelFaqSection", () => {
 		expect(html).toContain('href="/api-providers/provider-1"');
 		expect(html).toContain('href="/api-providers/provider-8"');
 		expect(html).toContain("and 2 more");
-		expect(html).not.toContain("India, Juliett");
+		expect(html).not.toContain("India");
+		expect(html).not.toContain("Juliett");
 	});
 
 

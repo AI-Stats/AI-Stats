@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type TableSortDirection = "asc" | "desc" | null;
+export type TableSortDirection = "asc" | "desc" | null;
 
 export function TableSortButton({
 	children,
@@ -40,6 +40,13 @@ export function TableSortButton({
 		>
 			{align === "end" ? <SortIcon Icon={Icon} direction={direction} /> : null}
 			{children}
+			<span className="sr-only">
+				{direction == null
+					? ", not sorted"
+					: direction === "asc"
+						? ", sorted ascending"
+						: ", sorted descending"}
+			</span>
 			{align === "start" ? <SortIcon Icon={Icon} direction={direction} /> : null}
 		</Button>
 	);

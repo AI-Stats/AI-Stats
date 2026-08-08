@@ -1,7 +1,8 @@
 import type { ModelRouteParams } from "@/components/(data)/model/model-route-helpers";
-import { redirectLegacyModelSection } from "../redirectLegacyModelSection";
-
-type QuickstartSearchParams = Record<string, string | string[] | undefined>;
+import {
+	redirectLegacyModelSection,
+	type LegacySearchParams,
+} from "../redirectLegacyModelSection";
 
 export const instant = false;
 
@@ -10,7 +11,7 @@ export default async function Page({
 	searchParams,
 }: {
 	params: Promise<ModelRouteParams>;
-	searchParams: Promise<QuickstartSearchParams>;
+	searchParams: Promise<LegacySearchParams>;
 }) {
 	return redirectLegacyModelSection(params, "quickstart", searchParams);
 }

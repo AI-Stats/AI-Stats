@@ -13,7 +13,10 @@ import {
 } from "recharts";
 import type { ModelProviderDailyPoint } from "@/lib/fetchers/models/getModelPerformance";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { TableSortButton } from "@/components/ui/table-sort-button";
+import {
+	TableSortButton,
+	type TableSortDirection,
+} from "@/components/ui/table-sort-button";
 import { formatProviderDuration } from "@/components/(data)/models/modelPerformanceFormatting";
 import { ModelMetricInfo } from "./ModelMetricInfo";
 
@@ -40,7 +43,7 @@ type ModelProviderTrendChartProps = {
 type TableSortKey = "provider" | "minimum" | "maximum" | "average";
 type TableSort = {
 	key: TableSortKey;
-	direction: "asc" | "desc";
+	direction: Exclude<TableSortDirection, null>;
 } | null;
 
 export function getSeriesEmphasis(
@@ -475,7 +478,13 @@ export default function ModelProviderTrendChart({
 				</div>
 			</div> : null}
 			{chartData.length > 0 ? (
-				<div className={detailed ? "h-[300px] w-full shrink-0 pt-1 [&_.recharts-surface]:outline-none" : "h-[148px] w-full pt-1 [&_.recharts-surface]:outline-none"}>
+				<div
+					className={
+						detailed
+							? "h-[300px] w-full shrink-0 pt-1"
+							: "h-[148px] w-full pt-1"
+					}
+				>
 				<ResponsiveContainer width="100%" height="100%">
 					<LineChart
 						data={chartData}
@@ -627,27 +636,56 @@ export default function ModelProviderTrendChart({
 					viewportClassName="min-h-0"
 					keepScrollbarMounted
 				>
-					<div className="sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground">
-						<TableSortButton className="-ml-2 w-fit" direction={tableSort?.key === "provider" ? tableSort.direction : null} onClick={() => cycleTableSort("provider")}>
-							{seriesColumnLabel}
-						</TableSortButton>
-						<TableSortButton align="end" direction={tableSort?.key === "minimum" ? tableSort.direction : null} onClick={() => cycleTableSort("minimum")}>
-							Min
-						</TableSortButton>
-						<TableSortButton align="end" direction={tableSort?.key === "maximum" ? tableSort.direction : null} onClick={() => cycleTableSort("maximum")}>
-							Max
-						</TableSortButton>
-						<TableSortButton align="end" direction={tableSort?.key === "average" ? tableSort.direction : null} onClick={() => cycleTableSort("average")}>
-							Avg
-						</TableSortButton>
-					</div>
-					{sortedProviderRows.map((provider) => {
+					<div role="table" aria-label={`${title} details`}>
+						<div
+							role="row"
+							className="sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground"
+						>
+							<div role="columnheader">
+								<TableSortButton
+									className="-ml-2 w-fit"
+									direction={tableSort?.key === "provider" ? tableSort.direction : null}
+									onClick={() => cycleTableSort("provider")}
+								>
+									{seriesColumnLabel}
+								</TableSortButton>
+							</div>
+							<div role="columnheader">
+								<TableSortButton
+									align="end"
+									direction={tableSort?.key === "minimum" ? tableSort.direction : null}
+									onClick={() => cycleTableSort("minimum")}
+								>
+									Min
+								</TableSortButton>
+							</div>
+							<div role="columnheader">
+								<TableSortButton
+									align="end"
+									direction={tableSort?.key === "maximum" ? tableSort.direction : null}
+									onClick={() => cycleTableSort("maximum")}
+								>
+									Max
+								</TableSortButton>
+							</div>
+							<div role="columnheader">
+								<TableSortButton
+									align="end"
+									direction={tableSort?.key === "average" ? tableSort.direction : null}
+									onClick={() => cycleTableSort("average")}
+								>
+									Avg
+								</TableSortButton>
+							</div>
+						</div>
+						{sortedProviderRows.map((provider) => {
 						const { isActive, isDimmed } = getSeriesEmphasis(
 							activeSeriesKey,
 							provider.seriesKey,
 						);
 						return <div
 							key={provider.seriesKey}
+							role="row"
 							className="grid grid-cols-[minmax(0,1fr)_repeat(3,minmax(5rem,0.35fr))] gap-3 border-b border-border/50 px-3 py-2.5 text-sm outline-none last:border-b-0 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring"
 							style={{ opacity: isDimmed ? 0.35 : 1 }}
 							tabIndex={0}
@@ -660,7 +698,7 @@ export default function ModelProviderTrendChart({
 								}
 							}}
 						>
-							<span className="inline-flex min-w-0 items-center gap-2">
+							<span role="cell" className="inline-flex min-w-0 items-center gap-2">
 								<span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: provider.color }} />
 								<span className={isActive ? "truncate font-semibold" : "truncate font-medium"}>{provider.name}</span>
 								{getPercentile(provider.provider) != null ? (
@@ -672,11 +710,12 @@ export default function ModelProviderTrendChart({
 									/>
 								) : null}
 							</span>
-							<span className="text-right tabular-nums text-muted-foreground">{metricConfig.formatValue(provider.minimum)}</span>
-							<span className="text-right tabular-nums text-muted-foreground">{metricConfig.formatValue(provider.maximum)}</span>
-							<span className="text-right font-medium tabular-nums">{metricConfig.formatValue(provider.average)}</span>
+							<span role="cell" className="text-right tabular-nums text-muted-foreground">{metricConfig.formatValue(provider.minimum)}</span>
+							<span role="cell" className="text-right tabular-nums text-muted-foreground">{metricConfig.formatValue(provider.maximum)}</span>
+							<span role="cell" className="text-right font-medium tabular-nums">{metricConfig.formatValue(provider.average)}</span>
 						</div>;
-					})}
+						})}
+					</div>
 				</ScrollArea>
 			) : (
 			<div className="space-y-1.5 pt-1">

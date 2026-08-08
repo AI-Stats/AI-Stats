@@ -5,7 +5,10 @@ import {
 	type ModelRouteParams,
 } from "@/components/(data)/model/model-route-helpers";
 
-type LegacySearchParams = Record<string, string | string[] | undefined>;
+export type LegacySearchParams = Record<
+	string,
+	string | string[] | undefined
+>;
 
 export async function redirectLegacyModelSection(
 	params: Promise<ModelRouteParams>,

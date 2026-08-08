@@ -57,7 +57,33 @@ const activeSectionTopOffset = 212;
 const programmaticScrollLockMs = 3000;
 
 function useActiveSection(items: ModelPageTocItem[]) {
-	const [activeId, setActiveId] = useState(items[0]?.id ?? "");
+	const itemIndexById = useMemo(
+		() => new Map(items.map((item, index) => [item.id, index])),
+		[items],
+	);
+	const [{ activeId, activeDirection }, setActiveSection] = useState<{
+		activeId: string;
+		activeDirection: "up" | "down";
+	}>({
+		activeId: items[0]?.id ?? "",
+		activeDirection: "down",
+	});
+	const activateSection = useCallback(
+		(nextId: string) => {
+			setActiveSection((current) => {
+				if (current.activeId === nextId) return current;
+				return {
+					activeId: nextId,
+					activeDirection:
+						(itemIndexById.get(nextId) ?? 0) >=
+						(itemIndexById.get(current.activeId) ?? 0)
+							? "down"
+							: "up",
+				};
+			});
+		},
+		[itemIndexById],
+	);
 	const programmaticTargetRef = useRef<{
 		id: string;
 		expiresAt: number;
@@ -73,12 +99,15 @@ function useActiveSection(items: ModelPageTocItem[]) {
 				.split("#")
 				.filter(Boolean)
 				.pop() ?? "";
+		let hashFrameId = 0;
 
 		const handleHashChange = () => {
 			const nextHash = normalizeHash();
 			if (!nextHash || !itemIdSet.has(nextHash)) return;
-			setActiveId(nextHash);
-			window.requestAnimationFrame(() => {
+			activateSection(nextHash);
+			if (hashFrameId) window.cancelAnimationFrame(hashFrameId);
+			hashFrameId = window.requestAnimationFrame(() => {
+				hashFrameId = 0;
 				document.getElementById(nextHash)?.scrollIntoView({
 					behavior: "auto",
 					block: "start",
@@ -115,7 +144,7 @@ function useActiveSection(items: ModelPageTocItem[]) {
 			}
 
 			if (!nextId || !itemIdSet.has(nextId)) return;
-			setActiveId(nextId);
+			activateSection(nextId);
 		};
 
 		const requestScrollSync = () => {
@@ -145,6 +174,9 @@ function useActiveSection(items: ModelPageTocItem[]) {
 		});
 
 		return () => {
+			if (hashFrameId) {
+				window.cancelAnimationFrame(hashFrameId);
+			}
 			if (frameId) {
 				window.cancelAnimationFrame(frameId);
 			}
@@ -156,17 +188,17 @@ function useActiveSection(items: ModelPageTocItem[]) {
 			window.removeEventListener("hashchange", handleHashChange);
 			mutationObserver.disconnect();
 		};
-	}, [items]);
+	}, [activateSection, items]);
 
 	const setProgrammaticActiveId = useCallback((id: string) => {
 		programmaticTargetRef.current = {
 			id,
 			expiresAt: Date.now() + programmaticScrollLockMs,
 		};
-		setActiveId(id);
-	}, []);
+		activateSection(id);
+	}, [activateSection]);
 
-	return { activeId, setProgrammaticActiveId };
+	return { activeDirection, activeId, setProgrammaticActiveId };
 }
 
 function usePinnedMobileToc(anchorId: string) {
@@ -213,7 +245,8 @@ export default function ModelPageToc({
 		() => items.filter((item) => item.id && item.label),
 		[items],
 	);
-	const { activeId, setProgrammaticActiveId } = useActiveSection(filteredItems);
+	const { activeDirection, activeId, setProgrammaticActiveId } =
+		useActiveSection(filteredItems);
 	const mobileAnchorId = "model-page-toc-mobile-anchor";
 	const mobilePinned = usePinnedMobileToc(mobileAnchorId);
 	const activeItem =
@@ -222,17 +255,6 @@ export default function ModelPageToc({
 		filteredItems.findIndex((item) => item.id === activeItem?.id),
 		0,
 	);
-	const previousActiveIndexRef = useRef(activeIndex);
-	const [activeDirection, setActiveDirection] = useState<"up" | "down">("down");
-
-	useEffect(() => {
-		const previousIndex = previousActiveIndexRef.current;
-		if (activeIndex !== previousIndex) {
-			setActiveDirection(activeIndex > previousIndex ? "down" : "up");
-			previousActiveIndexRef.current = activeIndex;
-		}
-	}, [activeIndex]);
-
 	const scrollToSection = useCallback((id: string) => {
 		const section = document.getElementById(id);
 		if (!section) return;

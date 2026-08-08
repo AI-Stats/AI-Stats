@@ -94,6 +94,21 @@ import ModelPercentileSelect, {
 } from "@/components/(data)/models/ModelPercentileSelect";
 const SORT_QUERY_KEY = "sort";
 const SORT_DIRECTION_QUERY_KEY = "dir";
+const RUNTIME_STATS_ERROR_RETRY_COUNT = 2;
+
+export function isTerminalRuntimeStatsRetry(retryCount: number) {
+	return retryCount > RUNTIME_STATS_ERROR_RETRY_COUNT;
+}
+
+export function resolveRuntimeStatsPercentileAfterError(
+	attemptedPercentile: ModelPercentile,
+	lastSuccessfulPercentile: ModelPercentile,
+	retryCount: number,
+) {
+	return isTerminalRuntimeStatsRetry(retryCount)
+		? lastSuccessfulPercentile
+		: attemptedPercentile;
+}
 
 type SortOption =
     | "default"
@@ -521,15 +536,29 @@ export default function ModelPricingClient({
 			}),
 		{
 			dedupingInterval: 30_000,
-			errorRetryCount: 2,
+			errorRetryCount: RUNTIME_STATS_ERROR_RETRY_COUNT,
 			fallbackData:
 				selectedPercentile === DEFAULT_MODEL_PERCENTILE
 					? runtimeStats
 					: undefined,
 			focusThrottleInterval: 60_000,
 			keepPreviousData: true,
-			onError: () => {
-				setSelectedPercentile(successfulPercentileRef.current);
+			onErrorRetry: (_error, _key, config, revalidate, retryOptions) => {
+				if (isTerminalRuntimeStatsRetry(retryOptions.retryCount)) {
+					setSelectedPercentile(
+						resolveRuntimeStatsPercentileAfterError(
+							selectedPercentile,
+							successfulPercentileRef.current,
+							retryOptions.retryCount,
+						),
+					);
+					return;
+				}
+				const retryDelay =
+					(Math.random() + 0.5) *
+					2 ** Math.min(retryOptions.retryCount, 8) *
+					(config.errorRetryInterval ?? 5_000);
+				window.setTimeout(() => revalidate(retryOptions), retryDelay);
 			},
 			onSuccess: () => {
 				successfulPercentileRef.current = selectedPercentile;

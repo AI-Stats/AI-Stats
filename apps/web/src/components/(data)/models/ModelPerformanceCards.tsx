@@ -83,6 +83,26 @@ const METRICS: MetricDefinition[] = [
 	},
 ];
 
+const METRIC_DEFINITIONS = Object.fromEntries(
+	METRICS.map((definition) => [definition.metric, definition]),
+) as Record<MetricKey, MetricDefinition>;
+
+export function selectMetricData(
+	metric: MetricKey,
+	detailed: boolean,
+	detailData: ModelProviderDailyPoint[],
+	cardData: ModelProviderDailyPoint[],
+	hasPercentileSeries: boolean,
+) {
+	if (!hasPercentileSeries || detailed) return detailData;
+	const definition = METRIC_DEFINITIONS[metric];
+	return cardData.some((point) =>
+		isUsableMetricValue(metric, point[definition.valueKey]),
+	)
+		? cardData
+		: detailData;
+}
+
 interface ModelPerformanceCardsProps {
 	summary: ModelPerformanceSummary;
 	prevSummary?: ModelPerformanceSummary | null;
@@ -135,7 +155,7 @@ export default function ModelPerformanceCards({
 		? "All available percentile bands"
 		: `All ${providerCount.toLocaleString()} recorded provider${providerCount === 1 ? "" : "s"}`;
 	const preferredMetricData = (metric: MetricKey, detailed: boolean) => {
-		const definition = METRICS.find((item) => item.metric === metric)!;
+		const definition = METRIC_DEFINITIONS[metric];
 		const data = detailed ? detailData : cardData;
 		return data.some((point) =>
 			isUsableMetricValue(metric, point[definition.valueKey]),
@@ -143,12 +163,14 @@ export default function ModelPerformanceCards({
 			? data
 			: null;
 	};
-	const metricData = (metric: MetricKey, detailed: boolean) => {
-		if (chartProviderDaily7d) {
-			return preferredMetricData(metric, detailed) ?? (detailed ? detailData : cardData);
-		}
-		return providerDaily7d;
-	};
+	const metricData = (metric: MetricKey, detailed: boolean) =>
+		selectMetricData(
+			metric,
+			detailed,
+			detailData,
+			cardData,
+			chartProviderDaily7d != null,
+		);
 	const metricUsesPercentiles = (metric: MetricKey) =>
 		chartProviderDaily7d != null && preferredMetricData(metric, true) != null;
 	const availableMetrics = METRICS.filter(({ metric, valueKey }) =>

@@ -335,11 +335,18 @@ async function fetchProviderExecutionRegions(env: Env, providerIds: string[]) {
 
 async function fetchProviderStatuses(env: Env, providerIds: string[]) {
 	const statusesByProvider = new Map<string, string>();
-	if (providerIds.length === 0) return statusesByProvider;
+	const normalizedProviderIds = [
+		...new Set(
+			providerIds
+				.map((providerId) => providerId.trim().toLowerCase())
+				.filter(Boolean),
+		),
+	];
+	if (normalizedProviderIds.length === 0) return statusesByProvider;
 	const { data, error } = await getDataClient(env)
 		.from("v2_providers")
 		.select("provider_slug,status")
-		.in("provider_slug", providerIds);
+		.in("provider_slug", normalizedProviderIds);
 	if (error) throw error;
 	for (const row of data ?? []) {
 		const providerId = String(row.provider_slug ?? "").trim();
@@ -370,7 +377,7 @@ export async function fetchGatewayMonitorRows(
 	const providerIds = Array.from(
 		new Set(
 			rows
-				.map((row) => String(row.provider_id ?? "").trim())
+				.map((row) => String(row.provider_id ?? "").trim().toLowerCase())
 				.filter(Boolean),
 		),
 	);
@@ -388,10 +395,11 @@ export async function fetchGatewayMonitorRows(
 			? `${baseModelId}:free`
 			: baseModelId;
 		const providerId = String(row.provider_id ?? "").trim();
+		const normalizedProviderId = providerId.toLowerCase();
 		// The /models catalogue describes Phaseo availability. External catalogue
 		// providers remain available on model detail pages, but must not inflate
 		// this page's provider counts or hover lists.
-		if (providerStatusesById.get(providerId) === "external") continue;
+		if (providerStatusesById.get(normalizedProviderId) === "external") continue;
 		const apiModelId = String(row.api_model_id ?? "").trim();
 		const providerModelId = String(
 			row.provider_api_model_id ?? row.provider_model_slug ?? apiModelId,
@@ -425,7 +433,7 @@ export async function fetchGatewayMonitorRows(
 				fromPriceUnit: row.from_price_unit ?? null,
 				pricingDetailRows: [],
 				features: gatewayFeatures(params),
-				executionRegions: providerRegionsById.get(providerId) ?? [],
+				executionRegions: providerRegionsById.get(normalizedProviderId) ?? [],
 			},
 			endpoint: capabilityId,
 			gatewayStatus: normaliseGatewayStatus(row.capability_status, row.is_active_gateway),

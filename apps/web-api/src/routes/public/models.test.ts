@@ -429,7 +429,7 @@ describe("public model routes", () => {
 					{
 						model_id: "google/gemini-3.5-flash",
 						api_model_id: "google/gemini-3.5-flash",
-						provider_id: "openrouter",
+						provider_id: " OpenRouter ",
 						capability_id: "text.generate",
 						capability_status: "active",
 						is_active_gateway: false,
