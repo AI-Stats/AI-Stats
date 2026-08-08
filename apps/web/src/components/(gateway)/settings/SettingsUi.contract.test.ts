@@ -23,6 +23,7 @@ describe("settings UI contracts", () => {
 		expect(sidebarSource).toContain("<CollapsibleTrigger asChild>");
 		expect(sidebarSource).not.toContain("<SidebarMenuAction");
 		expect(sidebarSource).toContain("<SidebarMenuSub");
+		expect(sidebarSource).toContain('className="!rounded-lg"');
 		expect(sidebarSource).toContain("isSettingsNavChildActive");
 		expect(configSource).toContain("children?: NavChildItem[]");
 		expect(configSource).toContain('label: "Transactions"');
@@ -116,3 +117,4 @@ describe("settings UI contracts", () => {
 		}
 	});
 });
+
