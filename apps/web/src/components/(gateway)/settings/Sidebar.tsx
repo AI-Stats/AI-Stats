@@ -194,6 +194,7 @@ export default function SettingsSidebar({
 												render={<Link href={child.href} onClick={closeMobile} />}
 												isActive={childActive}
 												aria-current={childActive ? "page" : undefined}
+												className="!rounded-lg"
 											>
 												<span>{child.label}</span>
 											</SidebarMenuSubButton>
@@ -307,3 +308,4 @@ export default function SettingsSidebar({
 		</>
 	);
 }
+
