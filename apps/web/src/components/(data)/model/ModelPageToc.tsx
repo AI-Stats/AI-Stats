@@ -54,10 +54,36 @@ const sectionIcons: Record<string, LucideIcon> = {
 };
 
 const activeSectionTopOffset = 212;
-const programmaticScrollLockMs = 1400;
+const programmaticScrollLockMs = 3000;
 
 function useActiveSection(items: ModelPageTocItem[]) {
-	const [activeId, setActiveId] = useState(items[0]?.id ?? "");
+	const itemIndexById = useMemo(
+		() => new Map(items.map((item, index) => [item.id, index])),
+		[items],
+	);
+	const [{ activeId, activeDirection }, setActiveSection] = useState<{
+		activeId: string;
+		activeDirection: "up" | "down";
+	}>({
+		activeId: items[0]?.id ?? "",
+		activeDirection: "down",
+	});
+	const activateSection = useCallback(
+		(nextId: string) => {
+			setActiveSection((current) => {
+				if (current.activeId === nextId) return current;
+				return {
+					activeId: nextId,
+					activeDirection:
+						(itemIndexById.get(nextId) ?? 0) >=
+						(itemIndexById.get(current.activeId) ?? 0)
+							? "down"
+							: "up",
+				};
+			});
+		},
+		[itemIndexById],
+	);
 	const programmaticTargetRef = useRef<{
 		id: string;
 		expiresAt: number;
@@ -73,11 +99,20 @@ function useActiveSection(items: ModelPageTocItem[]) {
 				.split("#")
 				.filter(Boolean)
 				.pop() ?? "";
+		let hashFrameId = 0;
 
 		const handleHashChange = () => {
 			const nextHash = normalizeHash();
 			if (!nextHash || !itemIdSet.has(nextHash)) return;
-			setActiveId(nextHash);
+			activateSection(nextHash);
+			if (hashFrameId) window.cancelAnimationFrame(hashFrameId);
+			hashFrameId = window.requestAnimationFrame(() => {
+				hashFrameId = 0;
+				document.getElementById(nextHash)?.scrollIntoView({
+					behavior: "auto",
+					block: "start",
+				});
+			});
 		};
 
 		handleHashChange();
@@ -92,15 +127,7 @@ function useActiveSection(items: ModelPageTocItem[]) {
 
 			const programmaticTarget = programmaticTargetRef.current;
 			if (programmaticTarget) {
-				const target = document.getElementById(programmaticTarget.id);
-				const targetTop = target?.getBoundingClientRect().top;
-				const targetReached =
-					typeof targetTop === "number" &&
-					Math.abs(targetTop - activeSectionTopOffset) <= 120;
-				if (
-					Date.now() < programmaticTarget.expiresAt &&
-					!targetReached
-				) {
+				if (Date.now() < programmaticTarget.expiresAt) {
 					return;
 				}
 				programmaticTargetRef.current = null;
@@ -117,12 +144,17 @@ function useActiveSection(items: ModelPageTocItem[]) {
 			}
 
 			if (!nextId || !itemIdSet.has(nextId)) return;
-			setActiveId(nextId);
+			activateSection(nextId);
 		};
 
 		const requestScrollSync = () => {
 			if (frameId) return;
 			frameId = window.requestAnimationFrame(updateFromScroll);
+		};
+		const handleScrollEnd = () => {
+			if (!programmaticTargetRef.current) return;
+			programmaticTargetRef.current = null;
+			requestScrollSync();
 		};
 
 		requestScrollSync();
@@ -131,6 +163,8 @@ function useActiveSection(items: ModelPageTocItem[]) {
 			capture: true,
 			passive: true,
 		});
+		window.addEventListener("scrollend", handleScrollEnd);
+		document.addEventListener("scrollend", handleScrollEnd, true);
 		window.addEventListener("resize", requestScrollSync);
 		window.addEventListener("hashchange", handleHashChange);
 		const mutationObserver = new MutationObserver(requestScrollSync);
@@ -140,26 +174,31 @@ function useActiveSection(items: ModelPageTocItem[]) {
 		});
 
 		return () => {
+			if (hashFrameId) {
+				window.cancelAnimationFrame(hashFrameId);
+			}
 			if (frameId) {
 				window.cancelAnimationFrame(frameId);
 			}
 			window.removeEventListener("scroll", requestScrollSync);
 			document.removeEventListener("scroll", requestScrollSync, true);
+			window.removeEventListener("scrollend", handleScrollEnd);
+			document.removeEventListener("scrollend", handleScrollEnd, true);
 			window.removeEventListener("resize", requestScrollSync);
 			window.removeEventListener("hashchange", handleHashChange);
 			mutationObserver.disconnect();
 		};
-	}, [items]);
+	}, [activateSection, items]);
 
 	const setProgrammaticActiveId = useCallback((id: string) => {
 		programmaticTargetRef.current = {
 			id,
 			expiresAt: Date.now() + programmaticScrollLockMs,
 		};
-		setActiveId(id);
-	}, []);
+		activateSection(id);
+	}, [activateSection]);
 
-	return { activeId, setProgrammaticActiveId };
+	return { activeDirection, activeId, setProgrammaticActiveId };
 }
 
 function usePinnedMobileToc(anchorId: string) {
@@ -206,7 +245,8 @@ export default function ModelPageToc({
 		() => items.filter((item) => item.id && item.label),
 		[items],
 	);
-	const { activeId, setProgrammaticActiveId } = useActiveSection(filteredItems);
+	const { activeDirection, activeId, setProgrammaticActiveId } =
+		useActiveSection(filteredItems);
 	const mobileAnchorId = "model-page-toc-mobile-anchor";
 	const mobilePinned = usePinnedMobileToc(mobileAnchorId);
 	const activeItem =
@@ -215,7 +255,6 @@ export default function ModelPageToc({
 		filteredItems.findIndex((item) => item.id === activeItem?.id),
 		0,
 	);
-
 	const scrollToSection = useCallback((id: string) => {
 		const section = document.getElementById(id);
 		if (!section) return;
@@ -232,14 +271,7 @@ export default function ModelPageToc({
 	if (!filteredItems.length) return null;
 
 	const renderMobileSelect = (variant: "inline" | "pinned") => (
-		<div
-			className={cn(
-				"w-full rounded-lg",
-				variant === "pinned"
-					? "border border-border/70 bg-background/95 shadow-sm backdrop-blur"
-					: null,
-			)}
-		>
+		<div className="w-full rounded-lg">
 			<Select
 				value={activeItem?.id}
 				onValueChange={scrollToSection}
@@ -249,10 +281,18 @@ export default function ModelPageToc({
 						"w-full justify-between text-left shadow-none",
 						variant === "inline"
 							? "h-9 rounded-lg border border-border/70 bg-background/90 px-3 hover:bg-muted/35"
-							: "h-10 rounded-lg border-0 bg-transparent px-3 hover:bg-muted/35 focus:ring-0",
+							: "h-9 rounded-lg border border-border/70 bg-muted/20 px-3 hover:bg-muted/45 focus:ring-0",
 					)}
 				>
-					<div className="flex min-w-0 items-center gap-2">
+					<div
+						key={activeItem?.id ?? "empty"}
+						className={cn(
+							"flex min-w-0 items-center gap-2 duration-200 motion-reduce:animate-none",
+							activeDirection === "down"
+								? "animate-in fade-in-0 slide-in-from-bottom-1"
+								: "animate-in fade-in-0 slide-in-from-top-1",
+						)}
+					>
 						{activeItem ? (
 							<>
 								{(() => {
@@ -275,8 +315,10 @@ export default function ModelPageToc({
 				</SelectTrigger>
 				<SelectContent
 					align="start"
+					alignItemWithTrigger={false}
+					side="bottom"
 					sideOffset={4}
-					className="max-h-[min(24rem,var(--available-height))] min-w-[14rem] rounded-lg"
+					className="max-h-[min(24rem,var(--available-height))] min-w-[14rem] rounded-lg border border-border/70"
 				>
 					{filteredItems.map((item) => {
 						const isActive = activeId === item.id;
@@ -286,7 +328,7 @@ export default function ModelPageToc({
 								key={item.id}
 								value={item.id}
 								className={cn(
-									"min-h-8 rounded-md pr-8",
+									"min-h-8 rounded-lg pr-8",
 									isActive
 										? "bg-muted text-foreground"
 										: "text-muted-foreground",
@@ -322,7 +364,7 @@ export default function ModelPageToc({
 				<div id={mobileAnchorId}>{renderMobileSelect("inline")}</div>
 				<div
 					className={cn(
-						"pointer-events-none fixed inset-x-0 top-[calc(var(--site-notice-height,0px)+var(--site-header-height,3.75rem)+3.25rem)] z-30 px-4 pt-2 transition-all duration-200",
+						"pointer-events-none fixed inset-x-0 top-[calc(var(--site-notice-height,0px)+var(--site-header-height,3.75rem)+3.25rem)] z-[39] border-b border-border/80 bg-background/95 py-2 shadow-sm backdrop-blur transition-all duration-200",
 						mobilePinned
 							? "translate-y-0 opacity-100"
 							: "-translate-y-2 opacity-0",
@@ -330,7 +372,7 @@ export default function ModelPageToc({
 				>
 					<div
 						className={cn(
-							"container mx-auto px-0",
+							"container mx-auto px-4 md:px-6 xl:px-8",
 							mobilePinned ? "pointer-events-auto" : "pointer-events-none",
 						)}
 					>
@@ -352,7 +394,7 @@ export default function ModelPageToc({
 						>
 							<span
 								aria-hidden="true"
-								className="pointer-events-none absolute inset-x-0 top-0 h-8 rounded-md bg-muted transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+								className="pointer-events-none absolute inset-x-0 top-0 h-8 rounded-lg bg-muted transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
 								style={{
 									transform:
 										"translateY(calc(var(--toc-active-index) * 2.25rem))",
@@ -369,7 +411,7 @@ export default function ModelPageToc({
 										data-active={isActive ? "true" : undefined}
 										onClick={() => scrollToSection(item.id)}
 										className={cn(
-											"relative z-10 flex h-8 w-full min-w-0 items-center gap-1.5 rounded-md px-2.5 text-left text-[13px] transition-colors duration-200 motion-reduce:transition-none",
+											"relative z-10 flex h-8 w-full min-w-0 items-center gap-1.5 rounded-lg px-2.5 text-left text-[13px] transition-colors duration-200 motion-reduce:transition-none",
 											isActive
 												? "text-foreground"
 												: "text-muted-foreground hover:bg-muted/70 hover:text-foreground",

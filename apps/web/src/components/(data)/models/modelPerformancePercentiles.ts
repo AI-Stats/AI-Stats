@@ -34,7 +34,8 @@ export function buildSingleProviderPercentileSeries(
 				point.requests > 0 &&
 				(point.avgThroughput != null ||
 					point.avgLatencyMs != null ||
-					point.avgGenerationMs != null),
+					point.avgGenerationMs != null ||
+					point.cachedInputPct != null),
 		)
 		.map((point) => {
 			const percentile = point.percentile as ModelPercentile;

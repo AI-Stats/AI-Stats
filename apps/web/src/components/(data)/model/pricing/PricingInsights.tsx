@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
 	CartesianGrid,
@@ -674,6 +674,28 @@ export default function PricingInsights({
 }: PricingInsightsProps) {
 	const [sortKey, setSortKey] = useState<SortKey | null>(null);
 	const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+	const effectivePricingViewportRef = useRef<HTMLDivElement>(null);
+	const [effectivePricingTableOverflows, setEffectivePricingTableOverflows] =
+		useState(false);
+
+	useLayoutEffect(() => {
+		const viewport = effectivePricingViewportRef.current;
+		if (!viewport) return;
+
+		const updateOverflow = () => {
+			setEffectivePricingTableOverflows(
+				viewport.scrollWidth > viewport.clientWidth + 1,
+			);
+		};
+		const observer = new ResizeObserver(updateOverflow);
+		observer.observe(viewport);
+		if (viewport.firstElementChild instanceof HTMLElement) {
+			observer.observe(viewport.firstElementChild);
+		}
+		updateOverflow();
+
+		return () => observer.disconnect();
+	}, []);
 
 	const routableProviders = useMemo(
 		() => providers.filter(isRoutableProvider),
@@ -961,8 +983,17 @@ export default function PricingInsights({
 				</div>
 
 				<ScrollArea
-					className="w-full border-b border-border/70"
+					className={cn(
+						"w-full border-b border-border/70",
+						effectivePricingTableOverflows
+							? "[&_[data-orientation=horizontal]]:h-2 [&_[data-orientation=horizontal]]:border-t-0 [&_[data-orientation=horizontal]_[data-slot=scroll-area-thumb]]:bg-zinc-400/70 [&_[data-orientation=horizontal]_[data-slot=scroll-area-thumb]]:transition-colors hover:[&_[data-orientation=horizontal]_[data-slot=scroll-area-thumb]]:bg-zinc-500/80 dark:[&_[data-orientation=horizontal]_[data-slot=scroll-area-thumb]]:bg-zinc-500/80 dark:hover:[&_[data-orientation=horizontal]_[data-slot=scroll-area-thumb]]:bg-zinc-400/90"
+							: "[&_[data-orientation=horizontal]]:hidden",
+					)}
 					scrollBarOrientation="horizontal"
+					viewportClassName={
+						effectivePricingTableOverflows ? "pb-1.5" : undefined
+					}
+					viewportRef={effectivePricingViewportRef}
 				>
 					<Table className="min-w-[760px]" wrapInContainer={false}>
 						<TableHeader>
@@ -1034,7 +1065,7 @@ export default function PricingInsights({
 													/>
 												</span>
 											</span>
-											<span className="font-medium text-foreground transition-colors group-hover/provider:text-primary">
+											<span className="font-medium text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] group-hover/provider:decoration-current">
 												{row.providerName}
 											</span>
 										</Link>

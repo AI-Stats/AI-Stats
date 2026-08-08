@@ -1766,7 +1766,7 @@ console.log(response);`
 				: "Standard request";
 
 	return (
-		<section className="space-y-6">
+		<section className="space-y-4">
 			{showHeader ? (
 				<header className="space-y-1">
 					<h2 className="flex items-center gap-2 text-xl font-semibold tracking-tight">
@@ -1778,7 +1778,7 @@ console.log(response);`
 					</p>
 				</header>
 			) : null}
-			<div className="space-y-6">
+			<div className="space-y-4">
 				<div className="grid gap-3 md:grid-cols-[auto_minmax(0,1fr)]">
 					<Badge
 						variant="outline"
@@ -1809,7 +1809,7 @@ console.log(response);`
 								PHASEO_API_KEY
 							</code>
 						</div>
-						<Alert className="border-amber-200 bg-amber-50 py-2 text-amber-950 dark:border-amber-900/60 dark:bg-amber-900/20 dark:text-amber-50">
+						<Alert className="rounded-lg border-amber-200 bg-amber-50 py-2 text-amber-950 dark:border-amber-900/60 dark:bg-amber-900/20 dark:text-amber-50">
 							<Shield className="h-4 w-4 text-amber-700 dark:text-amber-300" />
 							<AlertTitle className="sr-only">Keep your API key secret</AlertTitle>
 							<AlertDescription className="text-sm text-amber-900/90 dark:text-amber-100/90">
@@ -1820,14 +1820,14 @@ console.log(response);`
 					</div>
 				</div>
 
-				<div className="space-y-5 border-t border-border/70 pt-6">
-					<div className="grid gap-3 md:grid-cols-[auto_minmax(0,1fr)]">
-						<Badge
-							variant="outline"
-							className="flex h-7 w-7 items-center justify-center rounded-full p-0 text-xs"
-						>
-							2
-						</Badge>
+				<div className="grid gap-3 border-t border-border/70 pt-4 md:grid-cols-[auto_minmax(0,1fr)]">
+					<Badge
+						variant="outline"
+						className="flex h-7 w-7 items-center justify-center rounded-full p-0 text-xs"
+					>
+						2
+					</Badge>
+					<div className="min-w-0 space-y-3">
 						<div className="space-y-1">
 							<h3 className="text-base font-semibold">
 								{isModelMetadataQuickstart
@@ -1840,23 +1840,22 @@ console.log(response);`
 									: "Choose a supported endpoint, pick a main language, then select the example style you want to copy."}
 							</p>
 						</div>
-					</div>
 
-					{isModelMetadataQuickstart ? null : (
-						<EndpointRoutesTable
-							endpointRoutes={endpointRoutes}
-							selectedEndpoint={selectedEndpoint}
-							showAllEndpointRoutes={showAllEndpointRoutes}
-							onToggleShowAllEndpointRoutes={() =>
-								setShowAllEndpointRoutes((current) => !current)
-							}
-						/>
-					)}
+						{isModelMetadataQuickstart ? null : (
+							<EndpointRoutesTable
+								endpointRoutes={endpointRoutes}
+								selectedEndpoint={selectedEndpoint}
+								showAllEndpointRoutes={showAllEndpointRoutes}
+								onToggleShowAllEndpointRoutes={() =>
+									setShowAllEndpointRoutes((current) => !current)
+								}
+							/>
+						)}
 
-					<QuickstartUsageSection
-						modelIdentifierInCode={modelIdentifierInCode}
-						acceptedIdentifiers={acceptedIdentifierList}
-						onSelectModelIdentifier={setSelectedModelIdentifier}
+						<QuickstartUsageSection
+							modelIdentifierInCode={modelIdentifierInCode}
+							acceptedIdentifiers={acceptedIdentifierList}
+							onSelectModelIdentifier={setSelectedModelIdentifier}
 						supportedParameters={supportedParameters}
 						selectedEndpointLabel={selectedEndpointLabel}
 						selectedEndpointValue={selectedEndpoint}
@@ -1865,7 +1864,6 @@ console.log(response);`
 							label: option.label,
 						}))}
 						showEndpointControl={!isModelMetadataQuickstart}
-						inlineCopy={isModelMetadataQuickstart}
 						selectedLanguage={selectedLanguage}
 						selectedLanguageLabel={`${selectedLanguageFamily?.label ?? selectedLanguageLabel} · ${selectedLanguageVariantLabel}`}
 						selectedLanguageFamilyId={selectedLanguageFamily?.id ?? "typescript"}
@@ -1914,7 +1912,8 @@ console.log(response);`
 						openaiNodeUsage={openaiNodeUsage}
 						anthropicPythonUsage={anthropicPythonUsage}
 						anthropicNodeUsage={anthropicNodeUsage}
-					/>
+						/>
+					</div>
 				</div>
 			</div>
 		</section>

@@ -3,6 +3,7 @@ import type {
 	AppUsageRow,
 	RangeKey,
 } from "@/lib/fetchers/apps/types";
+import { connection } from "next/server";
 import type { ProfileSnapshot } from "@/lib/fetchers/profile/types";
 import type {
 	OgEntity,
@@ -337,6 +338,7 @@ export async function fetchFrontendModelPendingApiReleaseState(
 			fetchFrontendModelHeader(modelId, false),
 			fetchFrontendModelPricing(modelId).catch(() => null),
 		]);
+		await connection();
 		const now = Date.now();
 		const hasActiveProvider = providers?.some((provider) => provider.provider_models.some((model) => {
 			if (!model.is_active_gateway || model.capability_status === "disabled" || !model.endpoint || model.endpoint === "unmapped") return false;

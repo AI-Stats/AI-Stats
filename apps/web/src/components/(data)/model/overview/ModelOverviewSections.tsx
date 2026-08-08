@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import { Suspense, type ReactNode } from "react";
 import {
 	Activity,
@@ -21,14 +22,14 @@ import ModelSubscriptions from "@/components/(data)/model/pricing/ModelSubscript
 import ModelPricingInsightsSection from "@/components/(data)/model/pricing/ModelPricingInsightsSection";
 import ModelPerformanceDashboard from "@/components/(data)/models/ModelPerformanceDashboard";
 import { fetchFrontendModelPerformanceColos } from "@/lib/fetchers/frontend/fetchPublicCatalog";
-import ModelSuccessChart from "@/components/(data)/models/ModelSuccessChart";
+import ModelUptimeDashboard from "@/components/(data)/models/ModelUptimeDashboard";
 import ModelActivityChart from "@/components/(data)/model/overview/ModelActivityChart";
 import Quickstart from "@/components/(data)/model/quickstart/Quickstart";
 import type { QuickstartRequestContext } from "@/components/(data)/model/quickstart/requestContext";
 import ModelBenchmarks from "@/components/(data)/model/benchmarks/ModelBenchmarks";
 import KeyDates from "@/components/(data)/model/overview/KeyDates";
 import OtherInfo from "@/components/(data)/model/overview/OtherInfo";
-import ModelLinks from "@/components/(data)/model/overview/ModelLinks";
+import ModelLinks, { hasModelLinks } from "@/components/(data)/model/overview/ModelLinks";
 import { isAdminViewer } from "@/lib/auth/getViewerRole";
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
 import {
@@ -215,6 +216,7 @@ export async function ModelProvidersSection({
 	creatorOrganisationId,
 	description = "API providers, route pricing, availability, and recent reliability signals.",
 }: ModelSectionSharedProps & { modelStatus?: string | null; modelName?: string | null; creatorOrganisationId?: string | null; description?: string | null }) {
+	await connection();
 	return (
 		<ModelPricing
 			modelId={modelId}
@@ -408,17 +410,10 @@ export async function ModelUptimeSection({
 		null,
 		"uptime performance"
 	);
-	const showLeastStableProvider =
-		performanceMetrics?.successSeries.some(
-			(point) =>
-				(point.providerCount ?? 0) > 1 &&
-				point.worstProviderSuccessPct != null,
-		) ?? false;
-
 	return (
-		<ModelSuccessChart
-			successSeries={performanceMetrics?.successSeries ?? []}
-			showLeastStableProvider={showLeastStableProvider}
+		<ModelUptimeDashboard
+			modelId={modelId}
+			initialMetrics={performanceMetrics}
 		/>
 	);
 }
@@ -582,7 +577,16 @@ export async function ModelQuickstartSection({
 		);
 	}
 
-	const gatewayMetadata = prefetchedGatewayMetadata ?? await (async () => {
+	const gatewayMetadata = prefetchedGatewayMetadata !== undefined
+		? prefetchedGatewayMetadata
+		: await (async () => {
+			if (!includeHidden) {
+				return withOptionalSectionTimeout(
+					fetchFrontendModelGatewayMetadata(modelId),
+					null,
+					"quickstart metadata",
+				);
+			}
 		const includeInternalProviders = await withOptionalSectionTimeout(
 			isAdminViewer(),
 			false,
@@ -595,7 +599,7 @@ export async function ModelQuickstartSection({
 			null,
 			"quickstart metadata"
 		);
-	})();
+		})();
 
 	const quickstartEndpoint =
 		gatewayMetadata?.activeProviders.find((p) => p.endpoint)?.endpoint ??
@@ -864,15 +868,15 @@ export async function ModelAboutSection({
 
 	return (
 		<>
-			<KeyDates
-				announced={model.announcement_date ?? undefined}
-				released={model.release_date ?? undefined}
-				deprecated={model.deprecation_date ?? undefined}
-				retired={model.retirement_date ?? undefined}
-				showHeading={false}
-				showEmpty
-			/>
 			<div className="space-y-2">
+				<KeyDates
+					announced={model.announcement_date ?? undefined}
+					released={model.release_date ?? undefined}
+					deprecated={model.deprecation_date ?? undefined}
+					retired={model.retirement_date ?? undefined}
+					showHeading={false}
+					showEmpty
+				/>
 				<OtherInfo
 					details={model.model_details ?? undefined}
 					licenseUrl={getModelLicenseUrl(model)}
@@ -892,10 +896,12 @@ export async function ModelAboutSection({
 					]}
 				/>
 			</div>
-			<div className="space-y-2">
-				<h3 className="text-base font-semibold">Links</h3>
-				<ModelLinks model={model} showEmpty />
-			</div>
+			{hasModelLinks(model) ? (
+				<div className="space-y-2">
+					<h3 className="text-base font-semibold">Links</h3>
+					<ModelLinks model={model} />
+				</div>
+			) : null}
 			{hasLineage ? (
 				<div className="space-y-2">
 					<h3 className="text-base font-semibold">Related models</h3>
@@ -1489,6 +1495,7 @@ export default function ModelOverviewSections({
 						modelId={modelId}
 						includeHidden={includeHidden}
 						performancePromise={performancePromise}
+						surface="page"
 					/>
 				</Suspense>
 			</Section>

@@ -2692,7 +2692,7 @@ export default function ProviderCard({
 										/>
 									</div>
 								</div>
-								<span className="whitespace-nowrap font-semibold text-foreground transition-colors group-hover/provider:text-primary">
+								<span className="whitespace-nowrap font-semibold text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] group-hover/provider:decoration-current">
 									{displayName}
 								</span>
 							</Link>

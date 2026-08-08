@@ -14,6 +14,15 @@ describe("calculateCachedInputAverage", () => {
 
 		expect(calculateCachedInputAverage(points)).toBeCloseTo(89.2079, 4);
 	});
+
+	it("averages percentile percentages when raw token totals are unavailable", () => {
+		const points = [
+			{ cachedInputPct: 41.7 },
+			{ cachedInputPct: 42.1 },
+		] as Parameters<typeof calculateCachedInputAverage>[0];
+
+		expect(calculateCachedInputAverage(points)).toBeCloseTo(41.9, 4);
+	});
 });
 
 describe("getSeriesEmphasis", () => {

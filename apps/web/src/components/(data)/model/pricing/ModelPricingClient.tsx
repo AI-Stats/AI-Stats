@@ -8,6 +8,7 @@ import React, {
     useRef,
     useState,
 } from "react";
+import useSWR from "swr";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -93,6 +94,21 @@ import ModelPercentileSelect, {
 } from "@/components/(data)/models/ModelPercentileSelect";
 const SORT_QUERY_KEY = "sort";
 const SORT_DIRECTION_QUERY_KEY = "dir";
+const RUNTIME_STATS_ERROR_RETRY_COUNT = 2;
+
+export function isTerminalRuntimeStatsRetry(retryCount: number) {
+	return retryCount > RUNTIME_STATS_ERROR_RETRY_COUNT;
+}
+
+export function resolveRuntimeStatsPercentileAfterError(
+	attemptedPercentile: ModelPercentile,
+	lastSuccessfulPercentile: ModelPercentile,
+	retryCount: number,
+) {
+	return isTerminalRuntimeStatsRetry(retryCount)
+		? lastSuccessfulPercentile
+		: attemptedPercentile;
+}
 
 type SortOption =
     | "default"
@@ -457,10 +473,6 @@ export default function ModelPricingClient({
     const [selectedPercentile, setSelectedPercentile] = useState<ModelPercentile>(
         DEFAULT_MODEL_PERCENTILE,
     );
-    const [liveRuntimeStats, setLiveRuntimeStats] = useState<ProviderRuntimeStatsMap>(
-        runtimeStats,
-    );
-    const [isLoadingPercentile, setIsLoadingPercentile] = useState(false);
     const displayProviders = useMemo(
         () => mergeProviderPricingOffers(providers),
         [providers]
@@ -496,25 +508,69 @@ export default function ModelPricingClient({
             ),
         [displayProviders],
     );
+	const runtimeStatsKey = useMemo(
+		() =>
+			[
+				"model-provider-runtime-stats",
+				modelId,
+				providerIds,
+				modelAliases,
+				selectedPercentile,
+			] as const,
+		[modelAliases, modelId, providerIds, selectedPercentile],
+	);
+	const successfulPercentileRef = useRef<ModelPercentile>(
+		DEFAULT_MODEL_PERCENTILE,
+	);
+	const {
+		data: liveRuntimeStats = runtimeStats,
+		isValidating: isLoadingPercentile,
+	} = useSWR<ProviderRuntimeStatsMap>(
+		runtimeStatsKey,
+		() =>
+			getModelProviderRuntimeStats({
+				modelId,
+				providerIds,
+				modelAliases,
+				percentile: selectedPercentile,
+			}),
+		{
+			dedupingInterval: 30_000,
+			errorRetryCount: RUNTIME_STATS_ERROR_RETRY_COUNT,
+			fallbackData:
+				selectedPercentile === DEFAULT_MODEL_PERCENTILE
+					? runtimeStats
+					: undefined,
+			focusThrottleInterval: 60_000,
+			keepPreviousData: true,
+			onErrorRetry: (_error, _key, config, revalidate, retryOptions) => {
+				if (isTerminalRuntimeStatsRetry(retryOptions.retryCount)) {
+					setSelectedPercentile(
+						resolveRuntimeStatsPercentileAfterError(
+							selectedPercentile,
+							successfulPercentileRef.current,
+							retryOptions.retryCount,
+						),
+					);
+					return;
+				}
+				const retryDelay =
+					(Math.random() + 0.5) *
+					2 ** Math.min(retryOptions.retryCount, 8) *
+					(config.errorRetryInterval ?? 5_000);
+				window.setTimeout(() => revalidate(retryOptions), retryDelay);
+			},
+			onSuccess: () => {
+				successfulPercentileRef.current = selectedPercentile;
+			},
+			revalidateOnFocus: true,
+			revalidateOnReconnect: true,
+		},
+	);
 
-    const handlePercentileChange = async (nextPercentile: ModelPercentile) => {
+    const handlePercentileChange = (nextPercentile: ModelPercentile) => {
         if (nextPercentile === selectedPercentile || isLoadingPercentile) return;
-        const previousPercentile = selectedPercentile;
-        setIsLoadingPercentile(true);
-        try {
-            const nextStats = await getModelProviderRuntimeStats({
-                modelId,
-                providerIds,
-                modelAliases,
-                percentile: nextPercentile,
-            });
-            setLiveRuntimeStats(nextStats);
-            setSelectedPercentile(nextPercentile);
-        } catch {
-            setSelectedPercentile(previousPercentile);
-        } finally {
-            setIsLoadingPercentile(false);
-        }
+		setSelectedPercentile(nextPercentile);
     };
 
     const [sort, setSort] = useState<SortOption>(() => {
@@ -997,7 +1053,7 @@ export default function ModelPricingClient({
                         <DropdownMenu>
                             <DropdownMenuTrigger
                                 render={
-                                    <Button type="button" variant="outline" size="sm" className="gap-2 rounded-md" />
+                                    <Button type="button" variant="outline" size="sm" className="h-8 gap-2 rounded-md px-3 text-xs" />
                                 }
                             >
                                 <Filter className="size-3.5" />

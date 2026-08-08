@@ -1,67 +1,17 @@
-import type { Metadata } from "next";
-import { permanentRedirect } from "next/navigation";
-import { buildMetadata } from "@/lib/seo";
-import ModelDetailShell from "@/components/(data)/model/ModelDetailShell";
-import { ModelActivitySection } from "@/components/(data)/model/overview/ModelOverviewSections";
+import type { ModelRouteParams } from "@/components/(data)/model/model-route-helpers";
 import {
-	getModelPath,
-	getModelMetadataIdentity,
-	resolveModelRouteIds,
-	type ModelRouteParams,
-} from "@/components/(data)/model/model-route-helpers";
-import { buildModelPageMetadataDescription } from "@/lib/models/modelDescription";
+	redirectLegacyModelSection,
+	type LegacySearchParams,
+} from "../redirectLegacyModelSection";
 
-export async function generateMetadata(props: {
-	params: Promise<ModelRouteParams>;
-}): Promise<Metadata> {
-	const params = await props.params;
-	const { modelId, modelName, organisationName, modelDescription } = await getModelMetadataIdentity(
-		params,
-		false,
-	);
-	const path = getModelPath(modelId, "activity");
-	const imagePath = `/og/models/${modelId}`;
-
-	return buildMetadata({
-		title: `${modelName} Activity - Usage and Uptime`,
-		description: buildModelPageMetadataDescription({
-			modelDescription,
-			suffix:
-				"Track recent usage and uptime signals, including request volume, success rates, active providers, and token movement.",
-			fallback: `Track recent usage and uptime signals for ${modelName} on Phaseo, including request volume, success rates, active providers, and token movement.`,
-		}),
-		path,
-		keywords: [
-			modelName,
-			`${modelName} uptime`,
-			`${modelName} usage`,
-			organisationName ? `${organisationName} AI` : null,
-			"AI reliability metrics",
-			"Phaseo",
-		].filter(Boolean) as string[],
-		imagePath,
-	});
-}
+export const instant = false;
 
 export default async function Page({
 	params,
+	searchParams,
 }: {
 	params: Promise<ModelRouteParams>;
+	searchParams: Promise<LegacySearchParams>;
 }) {
-	const routeParams = await params;
-	const includeHidden = false;
-	const { requestedModelId, canonicalModelId } = await resolveModelRouteIds(
-		routeParams,
-		includeHidden,
-	);
-	if (canonicalModelId !== requestedModelId) {
-		permanentRedirect(getModelPath(canonicalModelId, "activity"));
-	}
-	const modelId = canonicalModelId;
-
-	return (
-		<ModelDetailShell modelId={modelId} tab="activity" includeHidden={includeHidden}>
-			<ModelActivitySection modelId={modelId} includeHidden={includeHidden} />
-		</ModelDetailShell>
-	);
+	return redirectLegacyModelSection(params, "activity", searchParams);
 }

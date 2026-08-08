@@ -60,6 +60,30 @@ describe("buildSingleProviderPercentileSeries", () => {
 		expect(buildSingleProviderPercentileSeries(2, [])).toBeNull();
 	});
 
+	it("keeps cache-only percentile observations", () => {
+		const result = buildSingleProviderPercentileSeries(1, [
+			{
+				day: "2026-07-23",
+				provider: "poolside",
+				providerName: "Poolside",
+				providerColor: null,
+				percentile: 50,
+				avgThroughput: null,
+				avgLatencyMs: null,
+				avgGenerationMs: null,
+				cachedInputPct: 72.5,
+				requests: 100,
+			},
+		]);
+
+		expect(result).toEqual([
+			expect.objectContaining({
+				provider: "percentile-50",
+				cachedInputPct: 72.5,
+			}),
+		]);
+	});
+
 	it("assigns a distinct colour to every supported percentile", () => {
 		const result = buildSingleProviderPercentileSeries(
 			1,
