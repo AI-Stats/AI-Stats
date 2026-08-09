@@ -2,7 +2,7 @@
   "organisation_id": "fish-audio",
   "name": "Fish Audio",
   "country_code": "US",
-  "description": "Fish Audio develops expressive speech generation, voice design, and speech recognition models and APIs.",
+  "description": "Fish Audio develops expressive speech generation, voice design, and speech recognition models and APIs. It is operated by Shanghai Qita Dynamic Technology Co., Ltd., whose registered address is in Shanghai, China.",
   "colour": "#FF6B4A",
   "organisation_links": [
     { "platform": "website", "url": "https://fish.audio/" },
@@ -12,7 +12,8 @@
   "status": "active",
   "routable": false,
   "sources": [
-    { "kind": "website", "url": "https://fish.audio/developers/", "accessed_at": "2026-08-01T00:00:00Z", "notes": null }
+    { "kind": "website", "url": "https://fish.audio/developers/", "accessed_at": "2026-08-01T00:00:00Z", "notes": null },
+    { "kind": "official_privacy_notice", "url": "https://fishaudio.org/en/privacy", "accessed_at": "2026-08-09T00:00:00Z", "notes": "Fish Audio's official privacy notice identifies Shanghai Qita Dynamic Technology Co., Ltd. and lists its registered address in Jiading District, Shanghai." }
   ],
-  "verification": { "status": "verified", "checked_at": "2026-08-01T00:00:00Z", "notes": "Verified against Fish Audio's developer site and documentation." }
+  "verification": { "status": "partial", "checked_at": "2026-08-09T00:00:00Z", "notes": "Location metadata verified through the legal operating entity; the broader catalogue record was not re-audited." }
 }

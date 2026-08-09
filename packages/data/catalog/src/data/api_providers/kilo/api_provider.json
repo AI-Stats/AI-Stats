@@ -22,7 +22,7 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": null,
   "regional_pricing_notes": null,
-  "country_code": null,
+  "country_code": "LT",
   "status": "Active",
   "colour": null,
   "gateway_kind": "catalogue",
@@ -37,6 +37,12 @@
   "api_formats": [],
   "service_tiers": [],
   "sources": [
+    {
+      "kind": "official_privacy_notice",
+      "url": "https://kilo.co/privacy-policy/",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Kilo's official privacy policy identifies UAB Kilo Grupe and its registered office in Vilnius, Lithuania."
+    },
     {
       "kind": "models.dev",
       "url": "https://models.dev/api.json",

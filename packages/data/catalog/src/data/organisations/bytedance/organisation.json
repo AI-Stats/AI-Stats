@@ -2,7 +2,7 @@
   "organisation_id": "bytedance",
   "name": "ByteDance",
   "country_code": "CN",
-  "description": "ByteDance is an AI and technology company. Their mission is to apply generative, vision-language and agentic AI across content, creation and interaction so that intelligence powers new experience platforms.",
+  "description": "ByteDance is an AI and technology company with offices in Beijing, China. Their mission is to apply generative, vision-language and agentic AI across content, creation and interaction so that intelligence powers new experience platforms.",
   "colour": "#74E1DE",
   "organisation_links": [
     {
@@ -28,10 +28,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_company_page",
+      "url": "https://www.bytedance.com/en/resources/offices",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "ByteDance's official office directory lists Beijing among its offices; the description uses office wording rather than an unsupported sole-HQ claim."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified as an official office location; the broader catalogue record was not re-audited."
   }
 }

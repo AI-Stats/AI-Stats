@@ -22,7 +22,7 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": null,
   "regional_pricing_notes": null,
-  "country_code": null,
+  "country_code": "US",
   "status": "Active",
   "colour": null,
   "gateway_kind": "catalogue",
@@ -37,6 +37,12 @@
   "api_formats": [],
   "service_tiers": [],
   "sources": [
+    {
+      "kind": "official_terms",
+      "url": "https://huggingface.co/terms-of-service",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Hugging Face's official terms identify Hugging Face, Inc. as a Delaware corporation."
+    },
     {
       "kind": "models.dev",
       "url": "https://models.dev/api.json",

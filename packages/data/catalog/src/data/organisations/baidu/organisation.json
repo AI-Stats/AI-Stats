@@ -2,7 +2,7 @@
   "organisation_id": "baidu",
   "name": "Baidu",
   "country_code": "CN",
-  "description": "Baidu is an AI model and technology company. Their mission is to build large-model families (such as “ERNIE”), covering language, vision and multimodal tasks, so that intelligence can be applied broadly across services.",
+  "description": "Baidu is an AI model and technology company headquartered in Beijing, China. Their mission is to build large-model families (such as “ERNIE”), covering language, vision and multimodal tasks, so that intelligence can be applied broadly across services.",
   "colour": "#2932E1",
   "organisation_links": [
     {
@@ -28,10 +28,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_investor_faq",
+      "url": "https://ir.baidu.com/shareholder-services/investor-faqs",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Baidu's official investor FAQ states that its headquarters are in Beijing, China."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; the broader catalogue record was not re-audited."
   }
 }

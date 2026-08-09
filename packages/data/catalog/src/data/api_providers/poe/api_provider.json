@@ -22,7 +22,7 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": null,
   "regional_pricing_notes": null,
-  "country_code": null,
+  "country_code": "US",
   "status": "Active",
   "colour": null,
   "gateway_kind": "catalogue",
@@ -37,6 +37,12 @@
   "api_formats": [],
   "service_tiers": [],
   "sources": [
+    {
+      "kind": "official_terms",
+      "url": "https://poe.com/tos",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Poe's official terms identify Quora, Inc. as the contracting service operator; the provider is recorded as US."
+    },
     {
       "kind": "models.dev",
       "url": "https://models.dev/api.json",

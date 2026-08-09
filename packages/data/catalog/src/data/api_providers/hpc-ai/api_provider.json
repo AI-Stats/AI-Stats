@@ -22,7 +22,7 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": null,
   "regional_pricing_notes": null,
-  "country_code": null,
+  "country_code": "SG",
   "status": "Active",
   "colour": null,
   "gateway_kind": "catalogue",
@@ -37,6 +37,12 @@
   "api_formats": [],
   "service_tiers": [],
   "sources": [
+    {
+      "kind": "official_company_page",
+      "url": "https://www.hpc-ai.com/contact",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "HPC-AI's official contact page identifies HPC AI TECHNOLOGY PTE. LTD. and lists its address in Singapore."
+    },
     {
       "kind": "models.dev",
       "url": "https://models.dev/api.json",

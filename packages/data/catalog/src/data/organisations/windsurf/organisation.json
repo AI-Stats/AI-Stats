@@ -2,7 +2,7 @@
   "organisation_id": "windsurf",
   "name": "Windsurf",
   "country_code": "US",
-  "description": "Windsurf is an AI coding environment from Cognition focused on agentic software development, code editing, and developer productivity.",
+  "description": "Windsurf is an AI coding environment now associated with Cognition; Cognition's platform terms list a San Francisco, California address. It is focused on agentic software development, code editing, and developer productivity.",
   "colour": "#09B6A2",
   "organisation_links": [
     {
@@ -20,10 +20,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_legal_notice",
+      "url": "https://cognition.com/legal/platform-terms-of-service",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Cognition's official platform terms identify Cognition AI, Inc. and list 550 Third Street, San Francisco, California 94107 for notices; the terms also identify Windsurf as the former Exafunction product."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified for the associated legal entity; the source does not establish a separate Windsurf headquarters."
   }
 }
