@@ -4,7 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Geist } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { Metadata } from "next";
@@ -25,6 +25,10 @@ import { PublicSWRProvider } from "@/components/providers/PublicSWRProvider";
 import AdminDeveloperMenuLauncher from "@/components/developer-menu/AdminDeveloperMenuLauncher";
 
 const geist = Geist({ subsets: ["latin"] });
+const geistMono = Geist_Mono({
+	variable: "--font-geist-mono",
+	subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
 	title: {
@@ -87,6 +91,7 @@ export default function RootLayout({
 			<body
 				className={cn(
 					geist.className,
+					geistMono.variable,
 					"min-h-screen h-full bg-background antialiased"
 				)}
 			>
