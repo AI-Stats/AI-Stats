@@ -4,7 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Montserrat } from "next/font/google";
+import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { Metadata } from "next";
@@ -24,7 +24,7 @@ import { Suspense } from "react";
 import { PublicSWRProvider } from "@/components/providers/PublicSWRProvider";
 import AdminDeveloperMenuLauncher from "@/components/developer-menu/AdminDeveloperMenuLauncher";
 
-const montserrat = Montserrat({ subsets: ["latin"] });
+const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
 	title: {
@@ -86,7 +86,7 @@ export default function RootLayout({
 			</head>
 			<body
 				className={cn(
-					montserrat.className,
+					geist.className,
 					"min-h-screen h-full bg-background antialiased"
 				)}
 			>

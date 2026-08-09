@@ -83,8 +83,8 @@
 			background-position: 0% 0%;
 		}
 	}
-	--font-heading: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-	--font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+	--font-heading: "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
 	--radius-2xl: calc(var(--radius) * 1.8);
 	--radius-3xl: calc(var(--radius) * 2.2);
 	--radius-4xl: calc(var(--radius) * 2.6);
