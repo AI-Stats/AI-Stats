@@ -2091,7 +2091,28 @@ export default function ProviderCard({
 			]),
 		).values(),
 	);
+	const providerCountItems = Array.from(
+		new Map(
+			comparisonProviders
+				.filter(
+					(candidate) =>
+						candidate.pricing_rules.length > 0 || candidate.provider_models.length > 0,
+				)
+				.map((candidate) => [
+					candidate.provider.api_provider_id,
+					{
+						id: candidate.provider.api_provider_id,
+						name:
+							candidate.provider.api_provider_name ||
+							candidate.provider.api_provider_id,
+					},
+				]),
+		).values(),
+	);
 	const currentProviderNavigationIndex = providerNavigationItems.findIndex(
+		(item) => item.id === inspectorProviderId,
+	);
+	const currentProviderCountIndex = providerCountItems.findIndex(
 		(item) => item.id === inspectorProviderId,
 	);
 	const canNavigateProviders = providerNavigationItems.length > 1;
@@ -2845,49 +2866,59 @@ export default function ProviderCard({
 							disableAnimation={disableInspectorAnimation}
 							className="!w-full max-w-none gap-0 overflow-hidden p-0 sm:max-w-none md:!w-[50vw] lg:!w-[48vw] xl:!w-[44vw] 2xl:!w-[42vw] data-[side=right]:sm:max-w-none"
 						>
-					<div className="absolute right-14 top-4 z-10 flex items-center gap-1">
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon-sm"
-							disabled={!previousProviderNavigationItem}
-							aria-label={
-								previousProviderNavigationItem
-									? `Open ${previousProviderNavigationItem.name}`
-									: "No previous provider"
-							}
-							onClick={() => {
-								if (previousProviderNavigationItem) {
-									openInspectorForProvider(previousProviderNavigationItem.id, {
-										disableAnimation: true,
-									});
-								}
-							}}
-						>
-							<ChevronLeft className="h-4 w-4" />
-						</Button>
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon-sm"
-							disabled={!nextProviderNavigationItem}
-							aria-label={
-								nextProviderNavigationItem
-									? `Open ${nextProviderNavigationItem.name}`
-									: "No next provider"
-							}
-							onClick={() => {
-								if (nextProviderNavigationItem) {
-									openInspectorForProvider(nextProviderNavigationItem.id, {
-										disableAnimation: true,
-									});
-								}
-							}}
-						>
-							<ChevronRight className="h-4 w-4" />
-						</Button>
-					</div>
-					<ProviderInspectorSheetHeader className="border-b border-zinc-200/80 px-5 py-4 dark:border-zinc-800">
+							<div className="absolute right-14 top-4 z-10 flex items-center gap-2">
+								<div className="flex items-center gap-1">
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon-sm"
+										disabled={!previousProviderNavigationItem}
+										aria-label={
+											previousProviderNavigationItem
+												? `Open ${previousProviderNavigationItem.name}`
+												: "No previous provider"
+										}
+										onClick={() => {
+											if (previousProviderNavigationItem) {
+												openInspectorForProvider(previousProviderNavigationItem.id, {
+													disableAnimation: true,
+												});
+											}
+										}}
+									>
+										<ChevronLeft className="h-4 w-4" />
+									</Button>
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon-sm"
+										disabled={!nextProviderNavigationItem}
+										aria-label={
+											nextProviderNavigationItem
+												? `Open ${nextProviderNavigationItem.name}`
+												: "No next provider"
+										}
+										onClick={() => {
+											if (nextProviderNavigationItem) {
+												openInspectorForProvider(nextProviderNavigationItem.id, {
+													disableAnimation: true,
+												});
+											}
+										}}
+									>
+										<ChevronRight className="h-4 w-4" />
+									</Button>
+								</div>
+								{currentProviderCountIndex >= 0 ? (
+									<span
+										aria-label={`Provider ${currentProviderCountIndex + 1} of ${providerCountItems.length}`}
+										className="min-w-8 text-right font-sans text-[10px] font-medium tabular-nums text-muted-foreground"
+									>
+										{currentProviderCountIndex + 1} / {providerCountItems.length}
+									</span>
+								) : null}
+							</div>
+							<ProviderInspectorSheetHeader className="border-b border-zinc-200/80 px-5 py-4 dark:border-zinc-800">
 						<div className="flex min-w-0 items-center gap-3 pr-10">
 							<div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-zinc-200/80 bg-background dark:border-zinc-800">
 								<div className="relative h-7 w-7">
