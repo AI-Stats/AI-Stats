@@ -1,0 +1,1 @@
+export const MAX_BYOK_KEYS_PER_PROVIDER = 32;

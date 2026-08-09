@@ -10,6 +10,7 @@ import { getTextMany, keyVersionToken } from "@/core/kv";
 import { gatewayCreditCacheKey } from "@/core/gateway-credit-cache";
 import { isDataContributionAccessEnabled } from "@/core/feature-flags";
 import { bytesToString, decryptBYOK } from "@pipeline/byok/decrypt";
+import { BYOK_KEYS_PER_PROVIDER_LIMIT } from "@/core/byok";
 import { contextSchema } from "./schemas";
 import { loadPriceCard } from "@pipeline/pricing";
 import { getContextCapabilityCandidates } from "./context.capability-aliases";
@@ -172,7 +173,7 @@ async function hydrateByokKeys(
 		};
 	}
 
-	const maxKeysPerModePerProvider = 8;
+	const maxKeysPerProvider = BYOK_KEYS_PER_PROVIDER_LIMIT;
 	const rowsByProvider = new Map<string, any[]>();
 	for (const row of data as any[]) {
 		const providerRows = rowsByProvider.get(String(row.provider_id)) ?? [];
@@ -180,17 +181,18 @@ async function hydrateByokKeys(
 		rowsByProvider.set(String(row.provider_id), providerRows);
 	}
 	const selectedRows = Array.from(rowsByProvider.values())
-		.flatMap((providerRows) => (["priority", "fallback"] as const).flatMap((mode) =>
-			providerRows
+		.flatMap((providerRows) => {
+			const orderedRows = (["priority", "fallback"] as const).flatMap((mode) =>
+				providerRows
 				.filter((row) => {
 					const rowMode = row.routing_mode === "priority" || row.routing_mode === "fallback"
 						? row.routing_mode
 						: row.always_use ? "priority" : "fallback";
 					return rowMode === mode;
 				})
-				.sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0) || String(a.id).localeCompare(String(b.id)))
-				.slice(0, maxKeysPerModePerProvider)
-		));
+				.sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0) || String(a.id).localeCompare(String(b.id))));
+			return orderedRows.slice(0, maxKeysPerProvider);
+		});
 
 	const decrypted = await Promise.all(selectedRows.map(async (row) => {
 		try {

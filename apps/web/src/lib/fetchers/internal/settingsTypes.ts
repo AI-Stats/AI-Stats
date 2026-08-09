@@ -178,7 +178,9 @@ export type SettingsManagementApiKeysInitialData = {
 export type ByokKeyEntry = {
 	alwaysUse: boolean;
 	createdAt: string;
+	lastUsedAt: string | null;
 	enabled: boolean;
+	errorMessage: string | null;
 	id: string;
 	name: string;
 	prefix?: string;
@@ -186,6 +188,7 @@ export type ByokKeyEntry = {
 	routingMode: "priority" | "fallback";
 	sortOrder: number;
 	suffix?: string;
+	verificationStatus: string | null;
 };
 
 export type SettingsByokInitialData = {

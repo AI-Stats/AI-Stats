@@ -10,6 +10,7 @@ import { Logo } from "@/components/Logo";
 import BYOKInputDialog from "@/components/(gateway)/settings/byok/BYOKInputDialog";
 import DeleteKeyButton from "@/components/(gateway)/settings/byok/DeleteKeyButton";
 import { reorderByokKeyAction } from "@/app/(dashboard)/settings/byok/actions";
+import { MAX_BYOK_KEYS_PER_PROVIDER } from "@/lib/byok/constants";
 
 type Entry = {
 	id: string;
@@ -17,10 +18,13 @@ type Entry = {
 	name: string;
 	prefix?: string;
 	suffix?: string;
+	lastUsedAt: string | null;
 	enabled: boolean;
+	errorMessage: string | null;
 	alwaysUse: boolean;
 	routingMode: "priority" | "fallback";
 	sortOrder: number;
+	verificationStatus: string | null;
 };
 
 type ByokProviderRowProps = {
@@ -36,6 +40,16 @@ function maskKey(prefix?: string, suffix?: string) {
 	const p = prefix ?? "";
 	const s = suffix ?? "";
 	return `${p}${"*".repeat(6)}${s}`;
+}
+
+function formatLastUsed(value: string | null) {
+	if (!value) return "Never used";
+	const date = new Date(value);
+	if (Number.isNaN(date.getTime())) return "Never used";
+	return `Last used ${new Intl.DateTimeFormat(undefined, {
+		dateStyle: "medium",
+		timeStyle: "short",
+	}).format(date)}`;
 }
 
 function OrderButtons({ id, canMoveUp, canMoveDown }: {
@@ -83,7 +97,19 @@ export default function ByokProviderRow({ provider, entries }: ByokProviderRowPr
 					<Logo id={provider.logoId} alt={provider.name} width={24} height={24} className="h-6 w-6 object-contain" />
 					<div className="truncate text-sm font-medium">{provider.name}</div>
 				</div>
-				<BYOKInputDialog providerId={provider.id} providerName={provider.name} triggerLabel="Add key" />
+				<div className="flex items-center gap-2">
+					{entries.length > 0 ? (
+						<span className="text-xs tabular-nums text-muted-foreground">
+							{entries.length}/{MAX_BYOK_KEYS_PER_PROVIDER}
+						</span>
+					) : null}
+					<BYOKInputDialog
+						providerId={provider.id}
+						providerName={provider.name}
+						triggerLabel={entries.length >= MAX_BYOK_KEYS_PER_PROVIDER ? "Key limit reached" : "Add key"}
+						disabled={entries.length >= MAX_BYOK_KEYS_PER_PROVIDER}
+					/>
+				</div>
 			</div>
 			{orderedEntries.length > 0 ? (
 				<div className="mt-2 space-y-1 pl-8">
@@ -115,9 +141,19 @@ export default function ByokProviderRow({ provider, entries }: ByokProviderRowPr
 									>
 										<div className="min-w-0">
 											<div className="truncate text-xs font-medium">{entry.name}</div>
-											<div className="truncate font-mono text-xs text-zinc-500">
-												{maskKey(entry.prefix, entry.suffix)}
-											</div>
+										<div className="truncate font-mono text-xs text-zinc-500">
+											{maskKey(entry.prefix, entry.suffix)}
+										</div>
+										<div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
+											<span>{formatLastUsed(entry.lastUsedAt)}</span>
+											<span title={entry.errorMessage ?? undefined}>
+												{entry.errorMessage
+													? "Needs attention"
+													: entry.verificationStatus?.startsWith("format_valid")
+														? "Format checked only"
+														: "Validation status unknown"}
+											</span>
+										</div>
 										</div>
 										<div className="flex items-center gap-2">
 											<Badge variant="outline">

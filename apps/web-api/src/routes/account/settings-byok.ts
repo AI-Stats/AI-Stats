@@ -146,7 +146,11 @@ accountSettingsByokRouter.put("/byok/:keyId", async (c) => {
 		const providerId = canonicalProviderId(loaded.key.provider_id);
 		const update: Record<string, unknown> = {};
 		if (providerId !== loaded.key.provider_id) update.provider_id = providerId;
-		if (typeof body.name === "string") update.name = body.name;
+		if (typeof body.name === "string") {
+			const name = body.name.trim();
+			if (!name) throw new Error("Key name is required.");
+			update.name = name;
+		}
 		if (typeof body.enabled === "boolean") update.enabled = body.enabled;
 		if (typeof body.always_use === "boolean") {
 			const nextRoutingMode = body.always_use ? "priority" : "fallback";

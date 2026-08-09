@@ -43,6 +43,7 @@ type Props = {
 	providerName?: string;
 	triggerLabel?: string;
 	trigger?: React.ReactNode;
+	disabled?: boolean;
 	initial?: {
 		id: string;
 		providerId: string;
@@ -86,6 +87,7 @@ export default function BYOKInputDialog({
 	providerName,
 	triggerLabel = "Set key",
 	trigger,
+	disabled = false,
 	initial = null,
 }: Props) {
 	const activeProviderId = providerId ?? initial?.providerId ?? null;
@@ -99,6 +101,7 @@ export default function BYOKInputDialog({
 	);
 	const [open, setOpen] = useState(false);
 	const [value, setValue] = useState("");
+	const [keyName, setKeyName] = useState(defaultName);
 	const [bedrockUseIam, setBedrockUseIam] = useState(false);
 	const [bedrockApiKey, setBedrockApiKey] = useState("");
 	const [bedrockAccessKeyId, setBedrockAccessKeyId] = useState("");
@@ -190,9 +193,10 @@ export default function BYOKInputDialog({
 		if (!submission.value) return null;
 		return validateProviderKeyFormat(activeProviderId, submission.value);
 	}, [activeProviderId, submission.value]);
-	const canSubmit = initial
+	const credentialCanSubmit = initial
 		? (submission.value === null && !submission.error) || (submission.value !== null && !submission.error && Boolean(formatCheck?.ok))
 		: submission.value !== null && !submission.error && Boolean(formatCheck?.ok);
+	const canSubmit = keyName.trim().length > 0 && credentialCanSubmit;
 	const credentialLabel = useMemo(
 		() => getProviderCredentialLabel(activeProviderId),
 		[activeProviderId],
@@ -219,6 +223,7 @@ export default function BYOKInputDialog({
 
 	function resetForm() {
 		setValue("");
+		setKeyName(defaultName);
 		setBedrockUseIam(false);
 		setBedrockApiKey("");
 		setBedrockAccessKeyId("");
@@ -235,6 +240,11 @@ export default function BYOKInputDialog({
 		e?.preventDefault();
 		if (submission.error) {
 			toast.error(submission.error);
+			return;
+		}
+		const normalizedName = keyName.trim();
+		if (!normalizedName) {
+			toast.error("Key name is required");
 			return;
 		}
 		if (!initial && !submission.value) {
@@ -254,7 +264,7 @@ export default function BYOKInputDialog({
 			setLoading(true);
 			if (initial && initial.id) {
 				await updateByokKeyAction(initial.id, {
-					name: defaultName,
+					name: normalizedName,
 					value: submission.value ?? undefined,
 					enabled,
 					always_use: alwaysUse,
@@ -262,7 +272,7 @@ export default function BYOKInputDialog({
 				toast.success(submission.value ? "Key updated and replaced" : "Key updated");
 			} else {
 				await createByokKeyAction(
-					defaultName,
+					normalizedName,
 					providerId as string,
 					submission.value as string,
 					enabled,
@@ -289,7 +299,7 @@ export default function BYOKInputDialog({
 				{trigger ? (
 					trigger
 				) : (
-					<Button variant="outline" size="sm" className="rounded-full" onClick={() => setOpen(true)}>
+					<Button variant="outline" size="sm" className="rounded-full" disabled={disabled} onClick={() => setOpen(true)}>
 						{triggerLabel}
 					</Button>
 				)}
@@ -301,6 +311,15 @@ export default function BYOKInputDialog({
 				</DialogHeader>
 
 				<form onSubmit={onSave} className="grid gap-4">
+					<div className="grid gap-2">
+						<Label htmlFor={`byok-key-name-${initial?.id ?? activeProviderId ?? "new"}`}>Key name</Label>
+						<Input
+							id={`byok-key-name-${initial?.id ?? activeProviderId ?? "new"}`}
+							value={keyName}
+							onChange={(event) => setKeyName(event.target.value)}
+							placeholder="Production key"
+						/>
+					</div>
 					{providerModelsHref ? (
 						<div className="text-xs text-muted-foreground">
 							<Link

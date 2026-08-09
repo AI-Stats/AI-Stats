@@ -696,7 +696,7 @@ accountSettingsRouter.get("/byok", async (c) => {
 	const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
 	const [keysResult, usageResult, settingsResult] = await Promise.all([
 		context.client.from("byok_keys")
-			.select("id,provider_id,name,prefix,suffix,created_at,enabled,always_use,routing_mode,sort_order")
+			.select("id,provider_id,name,prefix,suffix,created_at,last_used_at,enabled,always_use,routing_mode,sort_order,verification_status,error_message")
 			.eq("workspace_id", workspaceId)
 			.order("routing_mode", { ascending: true })
 			.order("sort_order", { ascending: true })
@@ -720,10 +720,13 @@ accountSettingsRouter.get("/byok", async (c) => {
 			...(row.prefix ? { prefix: row.prefix } : {}),
 			...(row.suffix ? { suffix: row.suffix } : {}),
 			createdAt: row.created_at,
+			lastUsedAt: typeof row.last_used_at === "string" ? row.last_used_at : null,
 			enabled: row.enabled,
 			alwaysUse: row.always_use,
 			routingMode: row.routing_mode === "priority" ? "priority" : "fallback",
 			sortOrder: Number(row.sort_order ?? 0),
+			verificationStatus: typeof row.verification_status === "string" ? row.verification_status : null,
+			errorMessage: typeof row.error_message === "string" ? row.error_message : null,
 		}));
 	const monthlyRequestCount = Number(usageResult.data?.[0]?.request_count ?? 0);
 	return c.json({

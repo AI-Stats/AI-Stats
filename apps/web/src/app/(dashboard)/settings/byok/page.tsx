@@ -7,6 +7,7 @@ import SettingsSectionFallback from "@/components/(gateway)/settings/SettingsSec
 import { fetchFrontendAPIProviders } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { fetchSettingsByokInitialData } from "@/lib/fetchers/internal/fetchSettingsByokInitialData";
 import ByokFallbackToggle from "@/components/(gateway)/settings/byok/ByokFallbackToggle";
+import { MAX_BYOK_KEYS_PER_PROVIDER } from "@/lib/byok/constants";
 
 export const metadata = { title: "BYOK - Settings" };
 
@@ -20,10 +21,13 @@ type KeyEntry = {
 	prefix?: string;
 	suffix?: string;
 	createdAt: string;
+	lastUsedAt: string | null;
 	enabled: boolean;
+	errorMessage: string | null;
 	alwaysUse: boolean;
 	routingMode: "priority" | "fallback";
 	sortOrder: number;
+	verificationStatus: string | null;
 };
 
 type ProviderItem = {
@@ -196,6 +200,12 @@ async function ByokProvidersSection() {
 			<section className="space-y-2">
 				<div className="px-1">
 					<h2 className="text-base font-semibold">Provider keys</h2>
+					<p className="mt-1 text-xs text-muted-foreground">
+						Store and deterministically order up to {MAX_BYOK_KEYS_PER_PROVIDER} credentials per provider. Each request can attempt up to {MAX_BYOK_KEYS_PER_PROVIDER} BYOK credentials across its route.
+					</p>
+					<p className="mt-1 text-xs text-muted-foreground">
+						Batch jobs currently use Phaseo-managed credentials and do not use BYOK keys.
+					</p>
 				</div>
 
 				<div className="rounded-md border divide-y">

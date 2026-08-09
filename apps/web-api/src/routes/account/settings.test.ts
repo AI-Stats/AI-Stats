@@ -181,6 +181,7 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 			{
 				id: "byok-new", provider_id: "openai", name: "OpenAI key", prefix: "sk-",
 				suffix: "1234", created_at: "2026-07-01T00:00:00Z", enabled: true, always_use: true,
+				last_used_at: "2026-07-15T12:00:00Z", verification_status: "format_valid_strict", error_message: null,
 			},
 			{
 				id: "byok-old", provider_id: "openai", name: "Old key", prefix: "sk-",
@@ -328,8 +329,8 @@ describe("account settings routes", () => {
 			fallbackEnabled: false,
 			freeRemaining: 0,
 			keyEntries: [
-				{ id: "byok-new", providerId: "openai", suffix: "1234" },
-				{ id: "byok-old", providerId: "openai", suffix: "0000" },
+				{ id: "byok-new", providerId: "openai", suffix: "1234", lastUsedAt: "2026-07-15T12:00:00Z", verificationStatus: "format_valid_strict", errorMessage: null },
+				{ id: "byok-old", providerId: "openai", suffix: "0000", lastUsedAt: null, verificationStatus: null, errorMessage: null },
 			],
 			legacyHiddenTotal: 0,
 			monthlyRequestCount: 100250,
