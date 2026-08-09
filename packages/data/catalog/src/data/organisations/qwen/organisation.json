@@ -33,7 +33,13 @@
       "kind": "official_company_page",
       "url": "https://qwenlm.github.io/about/",
       "accessed_at": "2026-08-09T00:00:00Z",
-      "notes": "Qwen's official about page identifies the Qwen Team and its Alibaba Cloud / ALiYun affiliation."
+      "notes": "Qwen's official about page identifies the Qwen Team and links to Alibaba Cloud and ALiYun."
+    },
+    {
+      "kind": "official_company_news",
+      "url": "https://www.alibabacloud.com/en/press-room/alibaba-cloud-unveil-advanced-agentic-ai-ecosystem",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Alibaba Cloud's official press release describes Qwen as a family of models developed by Alibaba and its proprietary Qwen models."
     },
     {
       "kind": "official_investor_faq",
@@ -45,6 +51,6 @@
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-09T00:00:00Z",
-    "notes": "Location metadata verified for the parent company; Qwen is not treated as a separate legal headquarters."
+    "notes": "Location metadata verified for Alibaba Cloud's Qwen affiliation and parent-company location; Qwen is not treated as a separate legal headquarters."
   }
 }

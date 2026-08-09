@@ -34,10 +34,10 @@
   "routable": null,
   "sources": [
     {
-      "kind": "official_annual_report",
-      "url": "https://www.lge.co.kr/upload/IRMR/Annual_report_2000%5B0%5D.pdf",
+      "kind": "official_company_page",
+      "url": "https://www.lg.com/global/about-lg/corporate-information/",
       "accessed_at": "2026-08-09T00:00:00Z",
-      "notes": "LG's official annual report identifies the company's corporate office in Seoul, South Korea."
+      "notes": "LG's current official corporate information page lists LG Twin Tower, 128 Yeoui-daero, Yeongdeungpo-gu, Seoul, Korea as its address."
     }
   ],
   "verification": {

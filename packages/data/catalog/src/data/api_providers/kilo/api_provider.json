@@ -22,7 +22,7 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": null,
   "regional_pricing_notes": null,
-  "country_code": "LT",
+  "country_code": "US",
   "status": "Active",
   "colour": null,
   "gateway_kind": "catalogue",
@@ -39,9 +39,15 @@
   "sources": [
     {
       "kind": "official_privacy_notice",
-      "url": "https://kilo.co/privacy-policy/",
+      "url": "https://kilo.ai/privacy",
       "accessed_at": "2026-08-09T00:00:00Z",
-      "notes": "Kilo's official privacy policy identifies UAB Kilo Grupe and its registered office in Vilnius, Lithuania."
+      "notes": "Kilo Code's official privacy policy identifies Kilo Code Inc. as the relevant data controller."
+    },
+    {
+      "kind": "official_terms",
+      "url": "https://kilo.ai/terms",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Kilo Code's official terms identify Kilo Code Inc. as the contracting entity and state that the service operates from the United States."
     },
     {
       "kind": "models.dev",
@@ -52,7 +58,7 @@
   ],
   "verification": {
     "status": "partial",
-    "checked_at": "2026-07-23T09:08:52.190Z",
-    "notes": "Imported from the public models.dev provider registry."
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified from Kilo Code's official privacy policy and terms; other provider metadata and model support remain sourced from models.dev. The provider is not a Phaseo-routable offer."
   }
 }

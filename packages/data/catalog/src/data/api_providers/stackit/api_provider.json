@@ -4,7 +4,7 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": "STACKIT is a cloud/AI provider with its registered seat in Neckarsulm, Germany.",
+  "description": "STACKIT cloud services are operated by Schwarz Digits Cloud GmbH & Co. KG at Am Campus 1, 74177 Bad Friedrichshall, Germany.",
   "link": "https://docs.stackit.cloud/products/data-and-ai/ai-model-serving/basics/available-shared-models",
   "residency_mode": null,
   "default_execution_regions": null,
@@ -47,12 +47,12 @@
       "kind": "official_terms",
       "url": "https://www.stackit.de/en/general-terms-and-conditions/terms-of-use/",
       "accessed_at": "2026-08-09T00:00:00Z",
-      "notes": "STACKIT's official terms of use identify STACKIT GmbH & Co. KG at Stiftsbergstraße 1, 74172 Neckarsulm, Germany."
+      "notes": "STACKIT's current official Terms of Use identify Schwarz Digits Cloud GmbH & Co. KG at Am Campus 1, 74177 Bad Friedrichshall, Germany."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-09T00:00:00Z",
-    "notes": "Location metadata verified; other provider policy and catalogue fields were not re-audited. Existing provider verification note: Provider metadata and model support enrichment; not a Phaseo-routable offer."
+    "notes": "Location metadata verified from the current official Terms of Use; other provider policy and catalogue fields were not re-audited. Existing provider verification note: Provider metadata and model support enrichment; not a Phaseo-routable offer."
   }
 }

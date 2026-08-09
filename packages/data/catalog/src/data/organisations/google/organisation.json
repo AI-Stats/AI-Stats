@@ -55,14 +55,14 @@
   "sources": [
     {
       "kind": "official_annual_report",
-      "url": "https://abc.xyz/assets/b0/4e/cfdb7b7e34a432489ad8e0d4ddcc/029c678cedfc6224410b83f263da7eb1.pdf",
+      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
       "accessed_at": "2026-08-09T00:00:00Z",
-      "notes": "Alphabet's official annual report states that its headquarters are located in Mountain View, California; the description scopes this legal-company fact to Google as an Alphabet company."
+      "notes": "Alphabet's fiscal 2025 Form 10-K states that its headquarters are located in Mountain View, California; the description scopes this parent-company fact to Google as an Alphabet company."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-09T00:00:00Z",
-    "notes": "Location metadata verified for Google's parent company; the broader catalogue record was not re-audited."
+    "notes": "Location metadata verified for Google's parent company from Alphabet's fiscal 2025 Form 10-K; the broader catalogue record was not re-audited."
   }
 }
