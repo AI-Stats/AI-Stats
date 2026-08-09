@@ -2,7 +2,7 @@
   "organisation_id": "naver-hyperclova",
   "name": "NAVER",
   "country_code": "KR",
-  "description": "NAVER’s HyperCLOVA / HyperCLOVA X is the company’s flagship Korean-centric LLM family, with public releases and research artifacts distributed via NAVER Cloud channels (e.g., GitHub and Hugging Face).",
+  "description": "NAVER’s HyperCLOVA / HyperCLOVA X is the company’s flagship Korean-centric LLM family, with public releases and research artifacts distributed via NAVER Cloud channels (e.g., GitHub and Hugging Face). NAVER is headquartered in Seongnam-si, Gyeonggi Province, South Korea.",
   "colour": "#03C75A",
   "organisation_links": [
     {
@@ -32,10 +32,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_company_page",
+      "url": "https://www.navercorp.com/en/company/about",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "NAVER's official company page lists its headquarters at NAVER 1784, 95 Jeongjail-ro, Bundang-gu, Seongnam-si, Gyeonggi Province, South Korea."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified for the parent company; the broader catalogue record was not re-audited."
   }
 }

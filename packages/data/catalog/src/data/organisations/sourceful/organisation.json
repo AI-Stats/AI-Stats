@@ -2,7 +2,7 @@
   "organisation_id": "sourceful",
   "name": "Sourceful",
   "country_code": "GB",
-  "description": "Sourceful is an AI-powered packaging design platform that helps teams create and iterate packaging designs through conversational workflows.",
+  "description": "Sourceful is an AI-powered packaging design platform headquartered in Manchester, United Kingdom, that helps teams create and iterate packaging designs through conversational workflows.",
   "colour": "#654CFF",
   "organisation_links": [
     {
@@ -24,10 +24,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_company_blog",
+      "url": "https://www.sourceful.com/blog/betting-big-on-manchester-why-we-are-building-sourceful-in-the-worlds-original-industrialised-city",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Sourceful's official company blog describes Manchester as its main headquarters."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; the broader catalogue record was not re-audited."
   }
 }

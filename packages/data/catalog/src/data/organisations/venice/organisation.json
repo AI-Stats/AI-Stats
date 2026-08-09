@@ -2,7 +2,7 @@
   "organisation_id": "venice",
   "name": "Venice",
   "country_code": "US",
-  "description": null,
+  "description": "Venice is a generative-AI service operated by Venice.ai, Inc., whose registered/contact address is in Sheridan, Wyoming.",
   "colour": "#DD3300",
   "organisation_links": [
     {
@@ -12,10 +12,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_terms",
+      "url": "https://venice.ai/legal/tos",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Venice's official terms identify Venice.ai, Inc. and list 1309 Coffeen Ave, Ste 14343, Sheridan, Wyoming 82801 as its address."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified as registered/contact address; the source does not establish headquarters."
   }
 }

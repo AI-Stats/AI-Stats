@@ -22,7 +22,7 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": null,
   "regional_pricing_notes": null,
-  "country_code": null,
+  "country_code": "GB",
   "status": "Active",
   "colour": null,
   "gateway_kind": "aggregator",
@@ -37,6 +37,12 @@
   "api_formats": [],
   "service_tiers": [],
   "sources": [
+    {
+      "kind": "official_terms",
+      "url": "https://www.requesty.ai/terms",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Requesty's official terms identify Requesty Ltd as registered in England and Wales with a London registered office."
+    },
     {
       "kind": "models.dev",
       "url": "https://models.dev/api.json",

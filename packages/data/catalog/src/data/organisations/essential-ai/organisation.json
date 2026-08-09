@@ -2,7 +2,7 @@
   "organisation_id": "essential-ai",
   "name": "Essential AI",
   "country_code": "US",
-  "description": "Essential AI is an AI research and platform company. Their mission is to build an open platform that accelerates the science and engineering of deep learning, supported by open models and reproducible tooling.",
+  "description": "Essential AI is an AI research and platform company with its location in San Francisco, California. Their mission is to build an open platform that accelerates the science and engineering of deep learning, supported by open models and reproducible tooling.",
   "colour": "#3b0c91",
   "organisation_links": [
     {
@@ -28,10 +28,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_company_page",
+      "url": "https://www.essential.ai/",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Essential AI's official site lists its location as San Francisco, CA."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; the source states location but not headquarters."
   }
 }

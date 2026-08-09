@@ -38,6 +38,12 @@
   "service_tiers": [],
   "sources": [
     {
+      "kind": "documentation",
+      "url": "https://modelscope.cn/docs/model-service/API-Inference/intro",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "ModelScope's official API inference documentation describes the China-hosted ModelScope route but does not identify a legal provider entity or headquarters."
+    },
+    {
       "kind": "models.dev",
       "url": "https://models.dev/api.json",
       "accessed_at": "2026-07-23T09:08:52.190Z",
@@ -46,7 +52,7 @@
   ],
   "verification": {
     "status": "partial",
-    "checked_at": "2026-07-23T09:08:52.190Z",
-    "notes": "Imported from the public models.dev provider registry."
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Provider country is not assigned because the official documentation identifies route geography but not a legal provider entity; other provider metadata and model support remain sourced from models.dev. The provider is not a Phaseo-routable offer."
   }
 }

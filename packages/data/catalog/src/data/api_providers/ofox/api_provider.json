@@ -22,7 +22,7 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": null,
   "regional_pricing_notes": null,
-  "country_code": null,
+  "country_code": "SG",
   "status": "Active",
   "colour": null,
   "gateway_kind": "catalogue",
@@ -37,6 +37,12 @@
   "api_formats": [],
   "service_tiers": [],
   "sources": [
+    {
+      "kind": "official_terms",
+      "url": "https://ofox.ai/terms-of-service",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "OfoxAI's official terms identify NICE TALK PTE. LTD. as a company incorporated in Singapore and the operator of OfoxAI."
+    },
     {
       "kind": "models.dev",
       "url": "https://models.dev/api.json",

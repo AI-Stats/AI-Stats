@@ -2,7 +2,7 @@
   "organisation_id": "anthropic",
   "name": "Anthropic",
   "country_code": "US",
-  "description": "Anthropic is an AI research and deployment company. Their mission is to build reliable, interpretable and steerable AI systems so that increasingly capable technologies remain beneficial to humanity.",
+  "description": "Anthropic is an AI research and deployment company with its corporate address in San Francisco, California. Their mission is to build reliable, interpretable and steerable AI systems so that increasingly capable technologies remain beneficial to humanity.",
   "colour": "#cc785c",
   "organisation_links": [
     {
@@ -44,10 +44,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_privacy_notice",
+      "url": "https://www-cdn.anthropic.com/8fd65f023a39d74220c5ebff85c788875c05533f.pdf",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Anthropic's official employee/candidate privacy notice lists Anthropic, PBC at 548 Market Street, PMB 90375, San Francisco, CA 94104."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; the broader catalogue record was not re-audited."
   }
 }
