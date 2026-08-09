@@ -2,7 +2,7 @@
   "organisation_id": "amazon",
   "name": "Amazon",
   "country_code": "US",
-  "description": "Amazon is a technology and infrastructure company. Their mission is to make generative AI and foundation models accessible and scalable across businesses and services, helping users solve problems, boost productivity and innovate.",
+  "description": "Amazon is a Seattle-headquartered technology and infrastructure company. Their mission is to make generative AI and foundation models accessible and scalable across businesses and services, helping users solve problems, boost productivity and innovate.",
   "colour": "#FF9900",
   "organisation_links": [
     {
@@ -48,10 +48,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_investor_faq",
+      "url": "https://ir.aboutamazon.com/faqs/default.aspx/1000/",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Amazon's investor FAQ says its principal corporate offices are located in Seattle, Washington."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; the broader catalogue record was not re-audited."
   }
 }

@@ -2,7 +2,7 @@
   "organisation_id": "google",
   "name": "Google",
   "country_code": "US",
-  "description": "Google is a technology and AI company. Their mission is to advance multimodal, generative and agentic AI across vision, language and platforms to support users and creators around the world.",
+  "description": "Google is a technology and AI company within Alphabet, whose headquarters are in Mountain View, California. Their mission is to advance multimodal, generative and agentic AI across vision, language and platforms to support users and creators around the world.",
   "colour": "#4285F4",
   "organisation_links": [
     {
@@ -52,10 +52,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_annual_report",
+      "url": "https://abc.xyz/assets/b0/4e/cfdb7b7e34a432489ad8e0d4ddcc/029c678cedfc6224410b83f263da7eb1.pdf",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Alphabet's official annual report states that its headquarters are located in Mountain View, California; the description scopes this legal-company fact to Google as an Alphabet company."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified for Google's parent company; the broader catalogue record was not re-audited."
   }
 }

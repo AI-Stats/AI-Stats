@@ -2,7 +2,7 @@
   "organisation_id": "perplexity",
   "name": "Perplexity",
   "country_code": "US",
-  "description": "Perplexity AI is an AI application company. Their mission is to combine generative models, retrieval-augmented search and agentic interfaces so that people can access accurate information and intelligence in new ways.",
+  "description": "Perplexity AI is an AI application company with its corporate address in San Francisco, California. Their mission is to combine generative models, retrieval-augmented search and agentic interfaces so that people can access accurate information and intelligence in new ways.",
   "colour": "#20b8cd",
   "organisation_links": [
     {
@@ -28,10 +28,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_terms",
+      "url": "https://www.perplexity.ai/es/hub/legal/terms-of-service",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Perplexity AI, Inc.'s official terms list 115 Sansome St., Suite 900, San Francisco, CA 94104."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; the broader catalogue record was not re-audited."
   }
 }

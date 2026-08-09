@@ -2,7 +2,7 @@
   "organisation_id": "ibm",
   "name": "IBM",
   "country_code": "US",
-  "description": "IBM is an enterprise-technology and AI company. Their mission is to deliver AI solutions, large-model capabilities and industrial-scale platforms for organisations to apply intelligence across operations.",
+  "description": "IBM is an enterprise-technology and AI company headquartered in Armonk, New York. Their mission is to deliver AI solutions, large-model capabilities and industrial-scale platforms for organisations to apply intelligence across operations.",
   "colour": "#415eb4",
   "organisation_links": [
     {
@@ -44,10 +44,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_company_history",
+      "url": "https://www.ibm.com/history/architecture",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "IBM's official history page identifies its central headquarters as being in Armonk, New York."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; the broader catalogue record was not re-audited."
   }
 }

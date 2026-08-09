@@ -4,7 +4,7 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": null,
+  "description": "Vercel AI Gateway is Vercel's gateway service; Vercel's San Francisco headquarters are listed at 201 Mission Street.",
   "link": "https://github.com/vercel/ai/tree/5eb85cc45a259553501f535b8ac79a77d0e79223/packages/gateway",
   "residency_mode": null,
   "default_execution_regions": null,
@@ -22,7 +22,7 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": null,
   "regional_pricing_notes": null,
-  "country_code": null,
+  "country_code": "US",
   "status": "Active",
   "colour": null,
   "gateway_kind": "gateway",
@@ -42,11 +42,17 @@
       "url": "https://models.dev/api.json",
       "accessed_at": "2026-07-22T11:23:04.646Z",
       "notes": "Gateway metadata seed; verify provider policy and regional semantics before enabling routing."
+    },
+    {
+      "kind": "official_company_event_page",
+      "url": "https://vercel.com/go/builder-day",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Vercel's official Builder Day page identifies its San Francisco headquarters at 201 Mission Street."
     }
   ],
   "verification": {
     "status": "partial",
-    "checked_at": "2026-07-22T11:23:04.646Z",
-    "notes": "Imported from the public models.dev provider registry; not a Phaseo-routable offer."
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; other provider policy and catalogue fields were not re-audited. Existing provider verification note: Gateway metadata seed; verify provider policy and regional semantics before enabling routing."
   }
 }
