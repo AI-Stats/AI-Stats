@@ -2091,28 +2091,7 @@ export default function ProviderCard({
 			]),
 		).values(),
 	);
-	const providerCountItems = Array.from(
-		new Map(
-			comparisonProviders
-				.filter(
-					(candidate) =>
-						candidate.pricing_rules.length > 0 || candidate.provider_models.length > 0,
-				)
-				.map((candidate) => [
-					candidate.provider.api_provider_id,
-					{
-						id: candidate.provider.api_provider_id,
-						name:
-							candidate.provider.api_provider_name ||
-							candidate.provider.api_provider_id,
-					},
-				]),
-		).values(),
-	);
 	const currentProviderNavigationIndex = providerNavigationItems.findIndex(
-		(item) => item.id === inspectorProviderId,
-	);
-	const currentProviderCountIndex = providerCountItems.findIndex(
 		(item) => item.id === inspectorProviderId,
 	);
 	const canNavigateProviders = providerNavigationItems.length > 1;
@@ -2909,12 +2888,12 @@ export default function ProviderCard({
 										<ChevronRight className="h-4 w-4" />
 									</Button>
 								</div>
-								{currentProviderCountIndex >= 0 ? (
+								{currentProviderNavigationIndex >= 0 ? (
 									<span
-										aria-label={`Provider ${currentProviderCountIndex + 1} of ${providerCountItems.length}`}
+										aria-label={`Provider ${currentProviderNavigationIndex + 1} of ${providerNavigationItems.length}`}
 										className="min-w-8 text-right font-sans text-[10px] font-medium tabular-nums text-muted-foreground"
 									>
-										{currentProviderCountIndex + 1} / {providerCountItems.length}
+										{currentProviderNavigationIndex + 1} / {providerNavigationItems.length}
 									</span>
 								) : null}
 							</div>
