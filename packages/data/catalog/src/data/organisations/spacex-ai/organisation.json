@@ -2,7 +2,7 @@
   "organisation_id": "spacex-ai",
   "name": "SpaceXAI",
   "country_code": "US",
-  "description": "SpaceXAI / xAI is an AI company headquartered in Palo Alto, California. Its mission is to craft next-generation model and agent systems which set new standards in capability, deployment and human-machine interaction (public model details remain emerging).",
+  "description": "SpaceXAI (formally xAI) is an AI company with an office in Palo Alto, California. Its mission is to craft next-generation model and agent systems which set new standards in capability, deployment and human-machine interaction (public model details remain emerging).",
   "colour": "#000000",
   "organisation_links": [
     {
@@ -25,7 +25,7 @@
       "kind": "official_company_page",
       "url": "https://x.ai/careers?os=0",
       "accessed_at": "2026-08-09T00:00:00Z",
-      "notes": "xAI's official careers page describes Palo Alto as its headquarters and lists additional offices in Seattle, Tennessee and London."
+      "notes": "xAI's official careers page lists Palo Alto as one of its offices alongside locations in Seattle, Tennessee and London."
     },
     {
       "kind": "official_legal_notice",
@@ -37,6 +37,6 @@
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-09T00:00:00Z",
-    "notes": "Location metadata verified; the broader catalogue record was not re-audited."
+    "notes": "Location metadata verified as an office and notice address; the broader catalogue record was not re-audited."
   }
 }
