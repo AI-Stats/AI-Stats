@@ -5,6 +5,8 @@ import { getDataClient } from "@/data/supabase";
 import { requireUser } from "@/auth/requireUser";
 import { requireAccountWorkspace } from "./context";
 
+const MAX_KEYS_PER_ROUTING_MODE = 16;
+
 function canonicalProviderId(value: unknown): string {
 	const providerId = String(value ?? "").trim().toLowerCase();
 	return providerId === "x-ai" || providerId === "xai" ? "spacex-ai" : providerId;
@@ -106,6 +108,16 @@ accountSettingsByokRouter.post("/byok", async (c) => {
 		const checked = validateProviderKey(providerId, body.value);
 		const encrypted = await encrypt(c.env, checked.value);
 		const routingMode = body.always_use === true ? "priority" : "fallback";
+		const countInMode = await context.client
+			.from("byok_keys")
+			.select("id", { count: "exact", head: true })
+			.eq("workspace_id", context.workspaceId)
+			.eq("provider_id", providerId)
+			.eq("routing_mode", routingMode);
+		if (countInMode.error) throw countInMode.error;
+		if ((countInMode.count ?? 0) >= MAX_KEYS_PER_ROUTING_MODE) {
+			throw new Error(`A provider can have up to ${MAX_KEYS_PER_ROUTING_MODE} ${routingMode} keys.`);
+		}
 		const lastInMode = await context.client
 			.from("byok_keys")
 			.select("sort_order")
@@ -160,6 +172,17 @@ accountSettingsByokRouter.put("/byok/:keyId", async (c) => {
 			update.always_use = body.always_use;
 			update.routing_mode = nextRoutingMode;
 			if (nextRoutingMode !== currentRoutingMode) {
+				const countInMode = await loaded.context.client
+					.from("byok_keys")
+					.select("id", { count: "exact", head: true })
+					.eq("workspace_id", loaded.context.workspaceId)
+					.eq("provider_id", providerId)
+					.eq("routing_mode", nextRoutingMode)
+					.neq("id", loaded.key.id);
+				if (countInMode.error) throw countInMode.error;
+				if ((countInMode.count ?? 0) >= MAX_KEYS_PER_ROUTING_MODE) {
+					throw new Error(`A provider can have up to ${MAX_KEYS_PER_ROUTING_MODE} ${nextRoutingMode} keys.`);
+				}
 				const lastInMode = await loaded.context.client
 					.from("byok_keys")
 					.select("sort_order")

@@ -14,7 +14,7 @@ async function context(): Promise<{ accessToken: string; workspaceId: string }> 
 }
 
 function refresh(): void {
-	revalidatePath("/settings/byok");
+	revalidatePath("/settings/byok", "layout");
 }
 
 export async function createByokKeyAction(

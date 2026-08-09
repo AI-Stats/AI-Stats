@@ -44,6 +44,7 @@ type Props = {
 	triggerLabel?: string;
 	trigger?: React.ReactNode;
 	disabled?: boolean;
+	defaultAlwaysUse?: boolean;
 	initial?: {
 		id: string;
 		providerId: string;
@@ -88,6 +89,7 @@ export default function BYOKInputDialog({
 	triggerLabel = "Set key",
 	trigger,
 	disabled = false,
+	defaultAlwaysUse = false,
 	initial = null,
 }: Props) {
 	const activeProviderId = providerId ?? initial?.providerId ?? null;
@@ -113,7 +115,7 @@ export default function BYOKInputDialog({
 		createEmptyAzureDeployment(),
 	]);
 	const [enabled, setEnabled] = useState<boolean>(initial?.enabled ?? true);
-	const [alwaysUse, setAlwaysUse] = useState<boolean>(initial?.always_use ?? false);
+	const [alwaysUse, setAlwaysUse] = useState<boolean>(initial?.always_use ?? defaultAlwaysUse);
 	const [loading, setLoading] = useState(false);
 	const submission = useMemo(() => {
 		const generic = value.trim();
@@ -233,7 +235,7 @@ export default function BYOKInputDialog({
 		setCloudflareApiToken("");
 		setAzureDeployments([createEmptyAzureDeployment()]);
 		setEnabled(initial?.enabled ?? true);
-		setAlwaysUse(initial?.always_use ?? false);
+		setAlwaysUse(initial?.always_use ?? defaultAlwaysUse);
 	}
 
 	async function onSave(e?: React.FormEvent) {
