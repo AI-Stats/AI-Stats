@@ -149,6 +149,7 @@ export type KnownModelId =
   | "meta/llama-guard-4-12b"
   | "meta/llama-prompt-guard-2-22m"
   | "meta/llama-prompt-guard-2-86m"
+  | "meta/muse-glimmer-30b"
   | "meta/muse-spark-1.2"
   | "microsoft/phi-4"
   | "microsoft/phi-4-mini"
