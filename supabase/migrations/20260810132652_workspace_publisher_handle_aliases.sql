@@ -95,6 +95,7 @@ begin
   values (workspace_row.publisher_handle, target_workspace_id)
   on conflict (handle) do nothing;
 
+  -- phaseo:allow-destructive-migration reason: Remove a same-workspace alias when that handle becomes canonical so preset resolution remains unambiguous.
   delete from public.workspace_publisher_handle_aliases
   where workspace_id = target_workspace_id and handle = normalized_handle;
 

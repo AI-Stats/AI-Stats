@@ -63,18 +63,6 @@ revoke execute on function public.get_v2_model_performance_metrics(text, text, n
 grant execute on function public.get_v2_model_performance_metrics(text, text, numeric, text, text)
   to anon, authenticated, service_role;
 
-do $migration$
-declare output_columns integer;
-begin
-select cardinality(proc.proallargtypes) - proc.pronargs
-into output_columns
-from pg_proc proc
-where proc.oid = 'public.get_v2_model_provider_percentile_series_v2(text,text,text,text)'::regprocedure;
-
--- A newer cached-input-aware wrapper already includes this catalogue guard.
--- Replacing it with the older return shape would fail and would discard data.
-if coalesce(output_columns, 0) <= 12 then
-execute $function_sql$
 create or replace function public.get_v2_model_provider_percentile_series_v2(
   p_model_slug text,
   p_cloudflare_colo text default null,
@@ -113,10 +101,6 @@ where model.model_slug = p_model_slug
   and model.status <> 'disabled'
   and series.requests >= 20;
 $$;
-$function_sql$;
-end if;
-end
-$migration$;
 
 revoke execute on function public.get_v2_model_provider_percentile_series_v2(text, text, text, text)
   from public;

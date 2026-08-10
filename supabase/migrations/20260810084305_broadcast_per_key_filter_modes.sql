@@ -15,5 +15,6 @@ alter table public.broadcast_destination_keys
 
 alter table public.workspace_broadcast_destinations
   drop constraint if exists workspace_broadcast_destinations_key_filter_mode_check;
+-- phaseo:allow-destructive-migration reason: Per-key filter modes have been backfilled above, so the obsolete destination-level column must be removed.
 alter table public.workspace_broadcast_destinations
   drop column if exists key_filter_mode;
