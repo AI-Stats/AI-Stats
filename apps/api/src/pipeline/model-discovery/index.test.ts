@@ -7,7 +7,7 @@ vi.mock("@/runtime/env", () => ({
 	getSupabaseAdmin: () => getSupabaseAdminMock(),
 }));
 
-import { fetchPreviousModelsByProviders } from "./index";
+import { fetchPreviousModelsByProviders, markPendingModelRemovals } from "./index";
 
 type SeenModelRow = {
 	provider_id: string;
@@ -86,5 +86,26 @@ describe("fetchPreviousModelsByProviders", () => {
 		expect(state.byProvider.get("provider")?.pendingRemovalIds).toEqual(
 			new Set(["occasionally-missing-model"]),
 		);
+	});
+});
+
+describe("markPendingModelRemovals", () => {
+	it("refreshes retention while marking the first missing check", async () => {
+		const query = {
+			update: vi.fn(() => query),
+			eq: vi.fn(() => query),
+			in: vi.fn(async () => ({ error: null })),
+		};
+		getSupabaseAdminMock.mockReturnValue({ from: vi.fn(() => query) });
+
+		await markPendingModelRemovals([{
+			provider_id: "provider",
+			model_id: "temporarily-missing-model",
+		}]);
+
+		expect(query.update).toHaveBeenCalledWith({
+			removal_pending: true,
+			last_seen_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/),
+		});
 	});
 });

@@ -593,7 +593,7 @@ async function deleteRemovedModels(rows: SeenModelDeleteRow[]): Promise<number> 
 	return deletedCount;
 }
 
-async function markPendingModelRemovals(rows: SeenModelPendingRemovalRow[]): Promise<void> {
+export async function markPendingModelRemovals(rows: SeenModelPendingRemovalRow[]): Promise<void> {
 	if (rows.length === 0) return;
 	const supabase = getSupabaseAdmin();
 	const modelIdsByProvider = new Map<string, string[]>();
@@ -606,7 +606,7 @@ async function markPendingModelRemovals(rows: SeenModelPendingRemovalRow[]): Pro
 		for (let index = 0; index < modelIds.length; index += UPSERT_BATCH_SIZE) {
 			const { error } = await supabase
 				.from("model_discovery_seen_models")
-				.update({ removal_pending: true })
+				.update({ removal_pending: true, last_seen_at: new Date().toISOString() })
 				.eq("provider_id", providerId)
 				.in("model_id", modelIds.slice(index, index + UPSERT_BATCH_SIZE));
 			if (error) throw new Error(error.message || "Failed to mark provisional model removals");

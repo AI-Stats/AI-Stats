@@ -645,7 +645,7 @@ async function markPendingSeenModels(client: SupabaseAdminClient, rows: SeenMode
         for (let index = 0; index < modelIds.length; index += UPSERT_BATCH_SIZE) {
             const { error } = await client
                 .from("model_discovery_seen_models")
-                .update({ removal_pending: true })
+                .update({ removal_pending: true, last_seen_at: nowIso() })
                 .eq("provider_id", providerId)
                 .in("model_id", modelIds.slice(index, index + UPSERT_BATCH_SIZE));
             if (error) throw new Error(error.message || "Failed to mark provisional model removals");
