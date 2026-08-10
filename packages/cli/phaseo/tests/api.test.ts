@@ -19,6 +19,7 @@ import {
 	isCommandGroup,
 	parseArgs,
 	renderVersionText,
+	renderDoctorText,
 	inspectCallbackRequest,
 	nextLoginMenuIndex,
 	prefersDeviceCodeByEnvironment,
@@ -36,8 +37,16 @@ import {
 	compareVersions,
 	detectPackageManager,
 	installCommandFor,
+	removeCommandFor,
 	updateCommandFor,
+	updateInvocationFor,
 } from "../src/release.ts";
+import {
+	createDoctorReport,
+	detectInstalledPackageManager,
+	findPathInstallations,
+	packageManagerFromPath,
+} from "../src/installation.ts";
 import { sanitizeTerminalText } from "../src/output.ts";
 
 test("normalizes API roots for oauth and v1 endpoints", () => {
@@ -254,6 +263,8 @@ test("resolves help text for command groups and leaf commands", () => {
 	assert.match(renderHelp(["models", "get"]), /phaseo models get <model-id>/);
 	assert.equal(helpKeyForCommand(["v"]), "version");
 	assert.match(renderHelp(["v"]), /compare it with the latest published release/);
+	assert.match(renderHelp(["update"]), /active Phaseo installation/);
+	assert.match(renderHelp(["doctor"]), /shadowed Phaseo commands/);
 	assert.match(renderHelp(["api"]), /Send an authenticated request/);
 	assert.equal(isCommandGroup("api"), true);
 	assert.equal(isCommandGroup("login"), false);
@@ -325,6 +336,71 @@ test("detects preferred package managers and emits install/update commands", () 
 	assert.equal(detectPackageManager({} as NodeJS.ProcessEnv), "npm");
 	assert.equal(installCommandFor("pnpm"), "pnpm add -g @phaseo/cli");
 	assert.equal(updateCommandFor("npm"), "npm install -g @phaseo/cli@latest");
+	assert.equal(removeCommandFor("pnpm"), "pnpm remove -g @phaseo/cli");
+	assert.deepEqual(updateInvocationFor("npm", "win32"), {
+		command: "npm.cmd",
+		args: ["install", "-g", "@phaseo/cli@latest"],
+	});
+});
+
+test("detects the package manager from the installed executable before the launch environment", () => {
+	const pnpmEntry = "C:\\Users\\test\\AppData\\Local\\pnpm\\global\\5\\.pnpm\\@phaseo+cli@0.2.0\\node_modules\\@phaseo\\cli\\dist\\index.js";
+	assert.equal(
+		detectInstalledPackageManager(pnpmEntry, { npm_config_user_agent: "npm/11.0.0" } as NodeJS.ProcessEnv),
+		"pnpm",
+	);
+	assert.equal(
+		detectPackageManager({ npm_config_user_agent: "npm/11.0.0" } as NodeJS.ProcessEnv, pnpmEntry),
+		"pnpm",
+	);
+	assert.equal(packageManagerFromPath("/usr/local/lib/node_modules/@phaseo/cli/dist/index.js"), "npm");
+	assert.equal(
+		detectInstalledPackageManager(
+			"/usr/local/bin/phaseo",
+			{} as NodeJS.ProcessEnv,
+			() => "/usr/local/lib/node_modules/@phaseo/cli/dist/index.js",
+		),
+		"npm",
+	);
+});
+
+test("keeps case-distinct POSIX PATH directories separate", () => {
+	const installations = findPathInstallations({
+		env: { PATH: "/opt/Phaseo/bin:/opt/phaseo/bin" } as NodeJS.ProcessEnv,
+		platform: "linux",
+		exists: (path) => path.endsWith("/phaseo"),
+		readText: () => "node_modules/@phaseo/cli",
+	});
+	assert.equal(installations.length, 2);
+	assert.equal(installations[0]?.binDirectory, "/opt/Phaseo/bin");
+	assert.equal(installations[1]?.binDirectory, "/opt/phaseo/bin");
+});
+
+test("doctor deduplicates Windows wrappers and reports a shadowed global installation", () => {
+	const pnpmBin = "C:\\Users\\test\\AppData\\Local\\pnpm";
+	const npmBin = "C:\\Users\\test\\AppData\\Roaming\\npm";
+	const env = { PATH: `${pnpmBin};${npmBin}` } as NodeJS.ProcessEnv;
+	const exists = (path: string) => path.toLowerCase().endsWith("phaseo.cmd");
+	const installations = findPathInstallations({ env, platform: "win32", exists });
+	assert.equal(installations.length, 2);
+	assert.equal(installations[0]?.manager, "pnpm");
+	assert.equal(installations[0]?.active, true);
+	assert.equal(installations[1]?.manager, "npm");
+
+	const report = createDoctorReport({
+		version: "0.2.0",
+		currentExecutable: `${pnpmBin}\\global\\5\\.pnpm\\@phaseo+cli@0.2.0\\node_modules\\@phaseo\\cli\\dist\\index.js`,
+		env,
+		platform: "win32",
+		exists,
+		updateCommandFor,
+		removeCommandFor,
+	});
+	assert.equal(report.ok, false);
+	assert.equal(report.installation.manager, "pnpm");
+	assert.equal(report.issues[0]?.code, "shadowed_installation");
+	assert.deepEqual(report.issues[0]?.remediation, ["npm uninstall -g @phaseo/cli"]);
+	assert.match(renderDoctorText(report), /npm uninstall -g @phaseo\/cli/);
 });
 
 test("compares semantic versions and renders version details", () => {
