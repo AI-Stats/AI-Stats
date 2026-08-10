@@ -121,8 +121,8 @@ export default function ContentProvenanceTool() {
 	return (
 		<div className="mx-auto w-full max-w-5xl space-y-6">
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]">
-				<Card className="overflow-hidden border-border/80 shadow-sm">
-					<CardHeader className="border-b bg-muted/20">
+				<Card className="gap-0 overflow-hidden border-border/80 py-0 shadow-sm">
+					<CardHeader className="border-b p-5 sm:px-6">
 						<div className="flex items-start gap-3">
 							<div className="rounded-xl border bg-background p-2.5 shadow-xs">
 								<ShieldCheck className="size-5 text-primary" />
