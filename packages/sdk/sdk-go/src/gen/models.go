@@ -1734,6 +1734,7 @@ const (
 	KnownModelIdMetaLlamaGuard412b KnownModelId = "meta/llama-guard-4-12b"
 	KnownModelIdMetaLlamaPromptGuard222m KnownModelId = "meta/llama-prompt-guard-2-22m"
 	KnownModelIdMetaLlamaPromptGuard286m KnownModelId = "meta/llama-prompt-guard-2-86m"
+	KnownModelIdMetaMuseGlimmer30b KnownModelId = "meta/muse-glimmer-30b"
 	KnownModelIdMetaMuseSpark12 KnownModelId = "meta/muse-spark-1.2"
 	KnownModelIdMicrosoftPhi4 KnownModelId = "microsoft/phi-4"
 	KnownModelIdMicrosoftPhi4Mini KnownModelId = "microsoft/phi-4-mini"
