@@ -1,0 +1,88 @@
+{
+  "model_id": "openai/gpt-5.6-cyber",
+  "organisation_id": "openai",
+  "name": "GPT 5.6 Cyber",
+  "status": "Withheld",
+  "previous_model_id": "openai/gpt-5.5-cyber",
+  "description": "GPT 5.6 Cyber is OpenAI's cyber-focused GPT-5.6 variant for advanced, authorized cybersecurity work through the Daybreak Trusted Access for Cyber program.",
+  "announced_date": "2026-08-10T00:00:00Z",
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "openai/gpt-5.6-cyber",
+  "family_id": "openai/gpt-5.6",
+  "links": [
+    {
+      "title": "Announcement",
+      "kind": "announcement",
+      "url": "https://x.com/OpenAI/status/2086864365379010729"
+    },
+    {
+      "title": "OpenAI Daybreak",
+      "kind": "documentation",
+      "url": "https://openai.com/daybreak/"
+    }
+  ],
+  "details": [
+    {
+      "name": "availability",
+      "value": "Not publicly accessible; available to trusted defenders for advanced, authorized cybersecurity work through OpenAI Daybreak"
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "announcement",
+      "url": "https://x.com/OpenAI/status/2086864365379010729",
+      "accessed_at": "2026-08-10T00:00:00Z",
+      "notes": "Official OpenAI announcement introducing GPT-5.6-Cyber."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://openai.com/daybreak/",
+      "accessed_at": "2026-08-10T00:00:00Z",
+      "notes": "Official OpenAI Daybreak program page."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-10T00:00:00Z",
+    "notes": "Model name, announcement date, intended use, and controlled availability verified from OpenAI's announcement."
+  },
+  "last_updated": "2026-08-10T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
