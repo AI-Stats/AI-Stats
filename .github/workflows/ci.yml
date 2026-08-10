@@ -358,8 +358,11 @@ jobs:
         needs:
             - data
             - check-paths
+            - migrate-production
         if: >-
-            always() && needs.data.result == 'success' && github.ref == 'refs/heads/main' &&
+            always() && needs.data.result == 'success' &&
+            (needs.migrate-production.result == 'success' || needs.migrate-production.result == 'skipped') &&
+            github.ref == 'refs/heads/main' &&
             ((github.event_name == 'push' && needs.check-paths.outputs.data-changed == 'true') ||
             (github.event_name == 'workflow_dispatch' && inputs.importer_mode != 'skip'))
         env:
@@ -397,8 +400,19 @@ jobs:
                   restore-keys: |
                       importer-state-main-
 
+            - name: Validate importer configuration
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  missing=()
+                  [ -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ] && missing+=("SUPABASE_SERVICE_ROLE_KEY")
+                  [ -z "${NEXT_PUBLIC_SUPABASE_URL:-}" ] && missing+=("NEXT_PUBLIC_SUPABASE_URL")
+                  if [ "${#missing[@]}" -gt 0 ]; then
+                    echo "::error::Missing importer secret(s): ${missing[*]}"
+                    exit 1
+                  fi
+
             - name: Run importer (all sections)
-              if: ${{ env.SUPABASE_SERVICE_ROLE_KEY != '' && env.NEXT_PUBLIC_SUPABASE_URL != '' }}
               env:
                   SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
                   NEXT_PUBLIC_SUPABASE_URL: ${{ env.NEXT_PUBLIC_SUPABASE_URL }}
@@ -431,6 +445,12 @@ jobs:
                   done
                   echo "Importer failed after 3 attempts"
                   exit 1
+
+            - name: Verify changed models are publicly available
+              if: github.event_name == 'push'
+              env:
+                  IMPORT_BASE_SHA: ${{ github.event.before }}
+              run: node scripts/verify-published-models.mjs
 
             - name: Save importer hash state
               if: success() && inputs.importer_mode != 'dry-run'
