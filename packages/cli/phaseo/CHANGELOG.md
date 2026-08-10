@@ -1,5 +1,11 @@
 # @phaseo/cli
 
+## 0.2.2
+
+### Patch Changes
+
+- [#1536](https://github.com/phaseoteam/Phaseo/pull/1536) [`b7cb1b9`](https://github.com/phaseoteam/Phaseo/commit/b7cb1b9bac60aeabcbcefd0c495e8a27b073ad66) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Stop CLI login from requesting unsupported feedback scopes, and keep the first-party scope set explicit so new control-plane capabilities cannot silently break authentication.
+
 ## 0.2.1
 
 ### Patch Changes

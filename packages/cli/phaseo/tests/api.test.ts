@@ -84,6 +84,9 @@ test("parses explicit login scopes and removes duplicates", () => {
 		"openid keys:write activity:read",
 	);
 	assert.equal(parseScopeArgument(undefined), DEFAULT_LOGIN_SCOPES.join(" "));
+	assert.equal(DEFAULT_LOGIN_SCOPES.length, 31);
+	assert.equal(DEFAULT_LOGIN_SCOPES.includes("feedback:read"), false);
+	assert.equal(DEFAULT_LOGIN_SCOPES.includes("feedback:write"), false);
 });
 
 test("posts refresh-token revocation to the OAuth endpoint", async () => {
