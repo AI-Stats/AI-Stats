@@ -13,6 +13,7 @@ import {
 	Clock3,
 	FlaskConical,
 	Info,
+	ShieldBan,
 	XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -140,7 +141,7 @@ function ProviderSheetSectionLink({
 			target="_blank"
 			rel="noreferrer"
 			className={cn(
-				"group inline-flex items-center gap-1.5 underline decoration-transparent underline-offset-4 transition-colors hover:text-primary hover:decoration-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+				"group inline-flex items-center gap-1.5 text-foreground underline decoration-transparent underline-offset-4 transition-colors hover:text-foreground hover:decoration-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
 				className,
 			)}
 		>
@@ -1219,6 +1220,20 @@ function getPrivacyReasonMeta(reason: string): {
 	href: string;
 	linkLabel: string;
 } | null {
+	if (reason === "Blocked by account provider restrictions") {
+		return {
+			label: "Unavailable in Phaseo Chat because of your Personal Data Controls.",
+			href: "/settings/account/privacy",
+			linkLabel: "Review Personal Data Controls",
+		};
+	}
+	if (reason === "Not in account provider allowlist") {
+		return {
+			label: "Unavailable in Phaseo Chat because it is outside your personal allowlist.",
+			href: "/settings/account/privacy",
+			linkLabel: "Review Personal Data Controls",
+		};
+	}
 	if (reason === "Blocked by workspace provider restrictions") {
 		return {
 			label: "Blocked by your workspace provider restrictions.",
@@ -1715,6 +1730,9 @@ export default function ProviderCard({
 		reason,
 		meta: getPrivacyReasonMeta(reason),
 	}));
+	const isWorkspacePrivacyBlocked = (privacyIgnoredReasons ?? []).some((reason) =>
+		reason.includes("workspace") || reason.includes("ZDR-only"),
+	);
 
 	const isFreePlan = selectedPlan === "free";
 	const imageInputs = sec.mediaInputs?.filter((r) => r.mod === "image") ?? [];
@@ -2679,7 +2697,7 @@ export default function ProviderCard({
 						<div className="flex items-center gap-2.5">
 							<Link
 								href={`/api-providers/${sec.providerId}`}
-								className="group/provider inline-flex items-center gap-2.5 whitespace-nowrap"
+								className="group/provider inline-flex items-center gap-2.5 whitespace-nowrap text-foreground hover:text-foreground"
 							>
 								<div className="relative flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-zinc-200/80 bg-background transition-colors group-hover/provider:border-zinc-300 dark:border-zinc-800 dark:group-hover/provider:border-zinc-700">
 									<div className="relative h-3.5 w-3.5">
@@ -2692,7 +2710,7 @@ export default function ProviderCard({
 										/>
 									</div>
 								</div>
-								<span className="whitespace-nowrap font-semibold text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] group-hover/provider:decoration-current">
+								<span className="whitespace-nowrap font-semibold text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] group-hover/provider:text-foreground group-hover/provider:decoration-current">
 									{displayName}
 								</span>
 							</Link>
@@ -2739,16 +2757,16 @@ export default function ProviderCard({
 										<HoverCardTrigger asChild>
 											<button
 												type="button"
-												aria-label="Blocked by workspace privacy settings"
+											aria-label={isWorkspacePrivacyBlocked ? "Blocked by workspace Data Controls" : "Unavailable in Phaseo Chat"}
 												className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-red-600 transition-colors hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
 											>
-												<Ban className="h-3.5 w-3.5" />
+											{isWorkspacePrivacyBlocked ? <Ban className="h-3.5 w-3.5" /> : <ShieldBan className="h-3.5 w-3.5" />}
 											</button>
 										</HoverCardTrigger>
 										<HoverCardContent align="start" className="w-80 p-2 text-xs">
-											<p className="font-semibold text-foreground">Blocked</p>
+											<p className="font-semibold text-foreground">{isWorkspacePrivacyBlocked ? "Workspace blocked" : "Chat unavailable"}</p>
 											<p className="mt-1 text-muted-foreground">
-												This provider is currently ignored by your workspace settings.
+												{isWorkspacePrivacyBlocked ? "Workspace Data Controls prevent API and Chat traffic from using this provider." : "Your Personal Data Controls prevent Phaseo Chat from using this provider; workspace API keys are unaffected."}
 											</p>
 											<div className="mt-2 space-y-1 border-t border-zinc-200/70 pt-2 dark:border-zinc-800">
 												{privacyReasonMeta.map(({ reason, meta }) => (
@@ -3265,7 +3283,7 @@ export default function ProviderCard({
 								</div>
 								{privacyReasonMeta.length > 0 ? (
 									<div className="border-l-2 border-red-400 pl-3 text-xs text-red-900 dark:text-red-100">
-										<div className="font-semibold">Blocked by workspace settings</div>
+										<div className="font-semibold">{isWorkspacePrivacyBlocked ? "Blocked by workspace Data Controls" : "Unavailable in Phaseo Chat"}</div>
 										<ul className="mt-1 list-inside list-disc space-y-1">
 											{privacyReasonMeta.map(({ reason, meta }) => (
 												<li key={reason}>{meta?.label ?? reason}</li>

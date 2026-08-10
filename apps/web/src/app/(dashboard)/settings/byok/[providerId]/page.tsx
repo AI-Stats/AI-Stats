@@ -3,20 +3,34 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import ByokProviderKeys, { type ByokKeyEntry } from "@/components/(gateway)/settings/byok/ByokProviderKeys";
-import { fetchFrontendAPIProviders } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import { fetchFrontendAPIProviderHeader } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import { fetchFrontendAPIProviderModels } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { fetchSettingsByokInitialData } from "@/lib/fetchers/internal/fetchSettingsByokInitialData";
+import { fetchSettingsKeysInitialData } from "@/lib/fetchers/internal/fetchSettingsKeysInitialData";
 
 export const metadata = { title: "Provider Keys - BYOK Settings" };
 
-export default async function ByokProviderPage({ params }: { params: Promise<{ providerId: string }> }) {
+const OPENAI_SAMPLE_KEYS: ByokKeyEntry[] = [
+	{ id: "sample-openai-primary", providerId: "openai", name: "Production Primary", prefix: "sk-pro", suffix: "8A2f", lastUsedAt: "2026-08-09T20:42:00.000Z", enabled: true, errorMessage: null, alwaysUse: true, routingMode: "priority", sortOrder: 0, verificationStatus: "format_valid_strict", sample: true },
+	{ id: "sample-openai-secondary", providerId: "openai", name: "Production Secondary", prefix: "sk-pro", suffix: "3Kq9", lastUsedAt: "2026-08-08T14:18:00.000Z", enabled: true, errorMessage: null, alwaysUse: true, routingMode: "priority", sortOrder: 1, verificationStatus: "format_valid_strict", sample: true },
+	{ id: "sample-openai-fallback", providerId: "openai", name: "Emergency Fallback", prefix: "sk-fal", suffix: "7Mm1", lastUsedAt: null, enabled: true, errorMessage: null, alwaysUse: false, routingMode: "fallback", sortOrder: 0, verificationStatus: "format_valid_strict", sample: true },
+	{ id: "sample-openai-paused", providerId: "openai", name: "Previous Billing Key", prefix: "sk-old", suffix: "1Vx4", lastUsedAt: "2026-07-29T09:05:00.000Z", enabled: false, errorMessage: "Provider rejected the most recent request", alwaysUse: false, routingMode: "fallback", sortOrder: 1, verificationStatus: "format_valid_strict", sample: true },
+];
+
+export default async function ByokProviderPage({ params, searchParams }: { params: Promise<{ providerId: string }>; searchParams: Promise<{ sampleKeys?: string }> }) {
 	const { providerId: encodedProviderId } = await params;
+	const { sampleKeys } = await searchParams;
 	const providerId = decodeURIComponent(encodedProviderId);
-	const [initialData, providerCatalog] = await Promise.all([
+	const [initialData, catalogProvider, providerModels, keysData] = await Promise.all([
 		fetchSettingsByokInitialData(),
-		fetchFrontendAPIProviders(),
+		fetchFrontendAPIProviderHeader(providerId),
+		fetchFrontendAPIProviderModels(providerId),
+		fetchSettingsKeysInitialData(),
 	]);
-	const catalogProvider = providerCatalog.find((candidate) => String(candidate.api_provider_id ?? "") === providerId);
-	const providerEntries = initialData.keyEntries.filter((entry) => entry.providerId === providerId) as ByokKeyEntry[];
+	const storedProviderEntries = initialData.keyEntries.filter((entry) => entry.providerId === providerId) as ByokKeyEntry[];
+	const providerEntries = providerId === "openai" && sampleKeys === "1"
+		? [...storedProviderEntries, ...OPENAI_SAMPLE_KEYS]
+		: storedProviderEntries;
 	if (!catalogProvider && providerEntries.length === 0) notFound();
 
 	const provider = {
@@ -24,6 +38,17 @@ export default async function ByokProviderPage({ params }: { params: Promise<{ p
 		name: String(catalogProvider?.api_provider_name ?? providerId),
 		logoId: providerId,
 	};
+	const modelOptions = providerModels
+		.filter((model) => model.is_active_gateway !== false)
+		.map((model) => ({ value: model.model_id, label: model.model_name || model.model_id }))
+		.sort((left, right) => left.label.localeCompare(right.label));
+	const apiKeyOptions = (keysData.teamsWithKeys.find((workspace) => workspace.id === keysData.initialWorkspaceId)?.keys ?? [])
+		.flatMap((key) => {
+			const id = String(key.id ?? "").trim();
+			if (!id) return [];
+			return [{ value: id, label: String(key.name ?? key.prefix ?? "API key") }];
+		})
+		.sort((left, right) => left.label.localeCompare(right.label));
 
 	return (
 		<div className="mx-auto space-y-8">
@@ -33,30 +58,31 @@ export default async function ByokProviderPage({ params }: { params: Promise<{ p
 						<ArrowLeft className="h-4 w-4" />
 						BYOK
 					</Link>
-					<span aria-hidden="true">/</span>
-					<span className="text-foreground">{provider.name}</span>
 				</nav>
-				<div className="mt-5 flex items-start gap-3">
-					<Logo id={provider.logoId} alt="" width={40} height={40} className="h-10 w-10 shrink-0 object-contain" />
-					<div>
+				<div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+					<div className="flex items-start gap-3">
+						<Logo id={provider.logoId} alt="" width={40} height={40} className="h-10 w-10 shrink-0 object-contain" />
 						<h1 className="text-2xl font-semibold tracking-tight">{provider.name}</h1>
-						<Link href={`/api-providers/${encodeURIComponent(provider.id)}`} className="mt-1 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground hover:underline hover:underline-offset-4">
-							View supported models
-							<ExternalLink className="h-3.5 w-3.5" />
-						</Link>
 					</div>
+					<Link
+						href={`/api-providers/${encodeURIComponent(provider.id)}`}
+						className="inline-flex h-9 w-fit items-center gap-1.5 rounded-lg border border-input bg-background px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+					>
+						View Supported Models
+						<ExternalLink className="h-3.5 w-3.5" />
+					</Link>
 				</div>
 			</div>
 
-			<div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+			<section className="space-y-6">
 				<div>
-					<h2 className="text-sm font-semibold">Provider Keys</h2>
+					<h2 className="text-base font-semibold">Provider Keys</h2>
 					<p className="mt-1 text-sm text-muted-foreground">
-						Add and configure API keys. Keys are attempted deterministically in the order shown.
+						Manage the credentials Phaseo may use for this provider and control their failover order.
 					</p>
 				</div>
-				<ByokProviderKeys provider={provider} entries={providerEntries} />
-			</div>
+				<ByokProviderKeys provider={provider} entries={providerEntries} modelOptions={modelOptions} apiKeyOptions={apiKeyOptions} />
+			</section>
 		</div>
 	);
 }

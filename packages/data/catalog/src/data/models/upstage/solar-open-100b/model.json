@@ -13,24 +13,80 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "upstage/solar-open-100b",
-  "links": [{ "title": "Hugging Face model card", "kind": "repository", "url": "https://huggingface.co/upstage/Solar-Open-100B" }],
-  "details": [
-    { "name": "parameters", "value": "102.6B total; 12B active" },
-    { "name": "architecture", "value": "Mixture of Experts with 128 routed experts and one shared expert; top-8 routing plus shared expert" },
-    { "name": "training_tokens", "value": "19.7T" }
+  "links": [
+    {
+      "title": "Hugging Face model card",
+      "kind": "repository",
+      "url": "https://huggingface.co/upstage/Solar-Open-100B"
+    }
   ],
-  "benchmarks": [],
+  "details": [
+    {
+      "name": "parameters",
+      "value": "102.6B total; 12B active"
+    },
+    {
+      "name": "architecture",
+      "value": "Mixture of Experts with 128 routed experts and one shared expert; top-8 routing plus shared expert"
+    },
+    {
+      "name": "training_tokens",
+      "value": "19.7T"
+    }
+  ],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 15.2,
+      "is_self_reported": false,
+      "other_info": "Solar Open 100B (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/solar-open-100b-reasoning",
+      "rank": 293
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,
   "knowledge_cutoff": null,
-  "limits": { "context": 131072, "input": 131072, "output": null },
-  "modalities": { "input": ["text"], "output": ["text"] },
-  "reasoning": { "supported": true, "options": [] },
-  "capabilities": { "attachment": false, "tool_call": true, "structured_output": null, "temperature": true, "streaming": true, "web_search": null },
+  "limits": {
+    "context": 131072,
+    "input": 131072,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": null,
+    "temperature": true,
+    "streaming": true,
+    "web_search": null
+  },
   "open_weights": true,
-  "sources": [{ "kind": "model_card", "url": "https://huggingface.co/upstage/Solar-Open-100B", "accessed_at": "2026-08-06T00:00:00Z", "notes": "Official model card confirms parameter counts, architecture, training tokens, context, and license." }],
-  "verification": { "status": "verified", "checked_at": "2026-08-06T00:00:00Z", "notes": "Open-weight model metadata verified against the official Upstage model card." },
+  "sources": [
+    {
+      "kind": "model_card",
+      "url": "https://huggingface.co/upstage/Solar-Open-100B",
+      "accessed_at": "2026-08-06T00:00:00Z",
+      "notes": "Official model card confirms parameter counts, architecture, training tokens, context, and license."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-06T00:00:00Z",
+    "notes": "Open-weight model metadata verified against the official Upstage model card."
+  },
   "last_updated": "2026-08-06T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,

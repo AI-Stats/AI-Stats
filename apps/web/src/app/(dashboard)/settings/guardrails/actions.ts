@@ -22,6 +22,8 @@ export type GlobalGuardrailsSettingsPayload = {
 	providerRestrictionMode?: ProviderRestrictionMode;
 	providerRestrictionProviderIds?: string[];
 	providerRestrictionEnforceAllowed?: boolean;
+	modelRestrictionMode?: ProviderRestrictionMode;
+	modelRestrictionModelIds?: string[];
 };
 
 export type GuardrailBudgetPayload = {
@@ -93,6 +95,14 @@ export async function setGuardrailKeys(guardrailId: string, keyIds: string[]) {
 	if (!guardrailId) throw new Error("Missing guardrail id");
 	const context = await account();
 	const result = await fetchAccountWebApi<{ success: true }>(`/api/account/settings/guardrails/${encodeURIComponent(guardrailId)}/keys`, context.accessToken, { method: "PUT", body: JSON.stringify({ keyIds, workspaceId: context.workspaceId }) });
+	refresh();
+	return result;
+}
+
+export async function setGuardrailMembers(guardrailId: string, userIds: string[]) {
+	if (!guardrailId) throw new Error("Missing guardrail id");
+	const context = await account();
+	const result = await fetchAccountWebApi<{ success: true }>(`/api/account/settings/guardrails/${encodeURIComponent(guardrailId)}/members`, context.accessToken, { method: "PUT", body: JSON.stringify({ userIds, workspaceId: context.workspaceId }) });
 	refresh();
 	return result;
 }

@@ -237,7 +237,7 @@ describe("account settings routes", () => {
 			app.request("https://phaseo.app/api/account/settings/credits?workspaceId=workspace-1&obfuscateInfo=1", init, env),
 			app.request("https://phaseo.app/api/account/settings/payment-methods?workspaceId=workspace-1&obfuscateInfo=1", init, env),
 			app.request("https://phaseo.app/api/account/settings/oauth-apps/client-1", init, env),
-			app.request("https://phaseo.app/api/account/settings/observability/destinations/new/sentry?workspaceId=workspace-1", init, env),
+			app.request("https://phaseo.app/api/account/settings/observability/destinations/new/webhook?workspaceId=workspace-1", init, env),
 			app.request("https://phaseo.app/api/account/settings/workspace/privacy-settings?workspaceId=workspace-1", init, env),
 		]);
 

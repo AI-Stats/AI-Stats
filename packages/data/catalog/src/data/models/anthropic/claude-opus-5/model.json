@@ -235,6 +235,14 @@
       "is_self_reported": true,
       "other_info": "Human Solvable subset",
       "source_link": "https://www.anthropic.com/claude-opus-5-system-card"
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 63.1,
+      "is_self_reported": false,
+      "other_info": "Claude Opus 5 (Adaptive Reasoning, Max Effort); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/claude-opus-5",
+      "rank": 1
     }
   ],
   "family_id": null,

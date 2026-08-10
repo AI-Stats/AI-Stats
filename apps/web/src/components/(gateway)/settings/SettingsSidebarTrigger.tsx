@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState, useSyncExternalStore } from "react";
 import {
 	Building2,
@@ -51,7 +51,6 @@ export default function SettingsSidebarTrigger({
 	showWebhooks?: boolean;
 }) {
 	const pathname = usePathname() ?? "";
-	const searchParams = useSearchParams();
 	const [open, setOpen] = useState(false);
 	const isHydrated = useSyncExternalStore(
 		subscribe,
@@ -134,7 +133,6 @@ export default function SettingsSidebarTrigger({
 							{item.children.map((child) => {
 								const childActive = isSettingsNavChildActive(
 									pathname,
-									searchParams.get("view"),
 									child,
 								);
 								return (

@@ -15,7 +15,16 @@
   "api_model_id": "google/gemma-3-270m",
   "links": [],
   "details": [],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 2,
+      "is_self_reported": false,
+      "other_info": "Gemma 3 270M; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gemma-3-270m",
+      "rank": 555
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

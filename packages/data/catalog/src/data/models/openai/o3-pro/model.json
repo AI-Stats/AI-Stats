@@ -133,6 +133,14 @@
       "other_info": "Medium reasoning; Confab 23.4%; non-response 5.1%",
       "source_link": "https://github.com/lechmazur/confabulations",
       "rank": 44
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 33.3,
+      "is_self_reported": false,
+      "other_info": "o3-pro; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/o3-pro",
+      "rank": 127
     }
   ],
   "page_notice": null,

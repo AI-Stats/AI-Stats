@@ -10,7 +10,7 @@ import { getTextMany, keyVersionToken } from "@/core/kv";
 import { gatewayCreditCacheKey } from "@/core/gateway-credit-cache";
 import { isDataContributionAccessEnabled } from "@/core/feature-flags";
 import { bytesToString, decryptBYOK } from "@pipeline/byok/decrypt";
-import { BYOK_KEYS_PER_PROVIDER_LIMIT } from "@/core/byok";
+import { BYOK_KEYS_PER_PROVIDER_LIMIT, isByokKeyEligible } from "@/core/byok";
 import { contextSchema } from "./schemas";
 import { loadPriceCard } from "@pipeline/pricing";
 import { getContextCapabilityCandidates } from "./context.capability-aliases";
@@ -139,6 +139,8 @@ async function fetchFreshCreditContext(args: {
 async function hydrateByokKeys(
 	context: GatewayContextData,
 	workspaceId: string,
+	requestedModel: string,
+	apiKeyId: string,
 ): Promise<GatewayContextData> {
 	const providerIds = Array.from(new Set(
 		(context.providers ?? []).map((provider) => provider.providerId).filter(Boolean),
@@ -176,6 +178,7 @@ async function hydrateByokKeys(
 	const maxKeysPerProvider = BYOK_KEYS_PER_PROVIDER_LIMIT;
 	const rowsByProvider = new Map<string, any[]>();
 	for (const row of data as any[]) {
+		if (!isByokKeyEligible({ allowedModelSlugs: row.allowed_model_slugs, allowedApiKeyIds: row.allowed_api_key_ids, requestedModel, apiKeyId })) continue;
 		const providerRows = rowsByProvider.get(String(row.provider_id)) ?? [];
 		providerRows.push(row);
 		rowsByProvider.set(String(row.provider_id), providerRows);
@@ -214,6 +217,8 @@ async function hydrateByokKeys(
 					? row.routing_mode
 					: legacyPriority ? "priority" : "fallback",
 				sortOrder: Number.isFinite(Number(row.sort_order)) ? Number(row.sort_order) : 0,
+				allowedModelSlugs: Array.isArray(row.allowed_model_slugs) ? row.allowed_model_slugs.map(String) : null,
+				allowedApiKeyIds: Array.isArray(row.allowed_api_key_ids) ? row.allowed_api_key_ids.map(String) : null,
 				key,
 				value: key,
 			} satisfies ByokKeyMeta;
@@ -1018,7 +1023,7 @@ export async function fetchGatewayContext(args: {
                             cacheStatus,
                             totalMs: round3(performance.now() - fetchStartedAt),
                         },
-					}, args.workspaceId);
+					}, args.workspaceId, args.model, args.apiKeyId);
                 }
             }
         } catch {
@@ -1032,7 +1037,7 @@ export async function fetchGatewayContext(args: {
 		const inflight = contextInflight.get(inflightKey);
 		if (inflight) {
 			return inflight.then((value) =>
-				hydrateByokKeys(cloneGatewayContextData(value), args.workspaceId),
+				hydrateByokKeys(cloneGatewayContextData(value), args.workspaceId, args.model, args.apiKeyId),
 			);
         }
     }
@@ -1740,7 +1745,7 @@ export async function fetchGatewayContext(args: {
     }
 
     try {
-		return await hydrateByokKeys(await dbLoader, args.workspaceId);
+		return await hydrateByokKeys(await dbLoader, args.workspaceId, args.model, args.apiKeyId);
     } finally {
         if (inflightKey && contextInflight.get(inflightKey) === dbLoader) {
             contextInflight.delete(inflightKey);

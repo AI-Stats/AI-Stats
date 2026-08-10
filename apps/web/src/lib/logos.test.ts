@@ -102,4 +102,11 @@ describe("logos", () => {
 			expect(resolveLogo(id)).toMatchObject({ src });
 		}
 	});
+
+	test("resolves the Moonshot display name to the MoonshotAI asset", () => {
+		expect(resolveLogo("Moonshot", { theme: "dark" })).toMatchObject({
+			id: "moonshotai",
+			src: "/logos/moonshotai_dark.svg",
+		});
+	});
 });

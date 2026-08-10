@@ -20,6 +20,7 @@ import { accountSettingsWebhooksRouter } from "./settings-webhooks";
 import { accountSettingsDataContributionRouter } from "./settings-data-contribution";
 import { callDataContributionGateway } from "./settings-data-contribution";
 import { accountSettingsDynamicRoutesRouter } from "./settings-dynamic-routes";
+import { accountSettingsAccountPrivacyRouter } from "./settings-account-privacy";
 import { purgeWorkerCacheTags } from "@/http/invalidation";
 
 function normalizeBetaFeatures(value: unknown): Record<string, boolean> {
@@ -57,9 +58,7 @@ const APP_CATEGORIES = new Set([
 	"commerce", "media", "finance", "other",
 ]);
 const OBSERVABILITY_DESTINATIONS = new Set([
-	"arize", "braintrust", "clickhouse", "comet_opik", "datadog", "grafana_cloud",
-	"langfuse", "langsmith", "new_relic", "otel_collector", "posthog", "s3",
-	"sentry", "snowflake", "wandb_weave", "webhook",
+	"otel_collector", "webhook",
 ]);
 
 function normalizeAppCategories(value: unknown): string | null {
@@ -96,6 +95,7 @@ accountSettingsRouter.route("/", accountSettingsBroadcastRouter);
 accountSettingsRouter.route("/", accountSettingsWebhooksRouter);
 accountSettingsRouter.route("/", accountSettingsDataContributionRouter);
 accountSettingsRouter.route("/", accountSettingsDynamicRoutesRouter);
+accountSettingsRouter.route("/", accountSettingsAccountPrivacyRouter);
 
 accountSettingsRouter.get("/layout", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
@@ -209,6 +209,14 @@ accountSettingsRouter.get("/privacy", async (c) => {
 	if (!workspaceId) {
 		return c.json({
 			activeProviderModels: [], initialGlobal: null, providers: [],
+			accountPolicy: null,
+			policy: {
+				privacyEnablePaidMayTrain: true, privacyEnableFreeMayTrain: true,
+				privacyEnableInputOutputLogging: true, privacyZdrOnly: false,
+				providerRestrictionMode: "none", providerRestrictionProviderIds: [],
+				modelRestrictionMode: "none", modelRestrictionModelIds: [],
+			},
+			models: [],
 			teamName: null, workspaceId: null,
 			dataContribution: {
 				available: false,
@@ -224,16 +232,41 @@ accountSettingsRouter.get("/privacy", async (c) => {
 		workspaceId,
 	});
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const [teamResult, settingsResult, providersResult, modelsResult, contributionGatewayResult] = await Promise.all([
+	let [teamResult, settingsResult, providersResult, modelsResult, contributionGatewayResult, accountPolicyResult] = await Promise.all([
 		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
-		context.client.from("workspace_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,response_healing_enabled,response_healing_locked,response_healing_mode").eq("workspace_id", workspaceId).maybeSingle(),
-		context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name,offer_label,offer_scope").order("name", { ascending: true }),
+		context.client.from("workspace_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,io_logging_enabled,io_logging_retention_days,io_logging_include_provider_payloads,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,model_restriction_mode,model_restriction_model_ids,response_healing_enabled,response_healing_locked,response_healing_mode").eq("workspace_id", workspaceId).maybeSingle(),
+		context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name,provider_family_id:provider_family_slug,offer_label,offer_scope,routable,routing_enabled,status").eq("routable", true).eq("routing_enabled", true).in("status", ["active", "degraded"]).order("name", { ascending: true }),
 		context.client.from("v2_model_provider_routes").select("provider_id:provider_slug,api_model_id:model_slug,internal_model_id:model_slug,is_active_gateway:routing_enabled").eq("routing_enabled", true).in("status", ["active", "degraded"]),
 		callDataContributionGateway({ env: c.env, request: c.req.raw, workspaceId: context.workspaceId }),
+		context.client.from("account_guardrail_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,model_restriction_mode,model_restriction_model_ids").eq("user_id", context.user.id).maybeSingle(),
 	]);
-	for (const result of [teamResult, settingsResult, providersResult, modelsResult]) {
+	if (settingsResult.error && /model_restriction_(mode|model_ids)/i.test(settingsResult.error.message)) {
+		settingsResult = await context.client.from("workspace_settings")
+			.select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,io_logging_enabled,io_logging_retention_days,io_logging_include_provider_payloads,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,response_healing_enabled,response_healing_locked,response_healing_mode")
+			.eq("workspace_id", workspaceId)
+			.maybeSingle();
+	}
+	for (const result of [teamResult, settingsResult, providersResult, modelsResult, accountPolicyResult]) {
 		if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
+	const routableProviderIds = new Set((modelsResult.data ?? []).map((row) => String(row.provider_id ?? "")).filter(Boolean));
+	const routableModelIds = [...new Set((modelsResult.data ?? []).map((row) => String(row.api_model_id ?? "")).filter(Boolean))];
+	const modelCatalogResult = routableModelIds.length
+		? await context.client.from("v2_models").select("id:model_slug,name,organisation:v2_labs(lab_slug,name)").in("model_slug", routableModelIds).order("name")
+		: { data: [], error: null };
+	if (modelCatalogResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const providerIdsByModel = new Map<string, Set<string>>();
+	for (const route of modelsResult.data ?? []) {
+		const modelId = String(route.api_model_id ?? "").trim();
+		const providerId = String(route.provider_id ?? "").trim();
+		if (!modelId || !providerId) continue;
+		const ids = providerIdsByModel.get(modelId) ?? new Set<string>();
+		ids.add(providerId);
+		providerIdsByModel.set(modelId, ids);
+	}
+	const settings = settingsResult.data as Record<string, any> | null;
+	const restrictionMode = (value: unknown) => value === "allowlist" || value === "blocklist" ? value : "none";
+	const stringList = (value: unknown) => Array.isArray(value) ? [...new Set(value.map(String).filter(Boolean))] : [];
 	const contributionData = contributionGatewayResult.status === 200
 		? contributionGatewayResult.payload?.data ?? null
 		: null;
@@ -244,9 +277,39 @@ accountSettingsRouter.get("/privacy", async (c) => {
 			providerId: row.provider_id,
 		})),
 		initialGlobal: settingsResult.data ?? null,
-		providers: (providersResult.data ?? []).map((provider) => ({
+		accountPolicy: accountPolicyResult.data ? {
+			privacyEnablePaidMayTrain: accountPolicyResult.data.privacy_enable_paid_may_train !== false,
+			privacyEnableFreeMayTrain: accountPolicyResult.data.privacy_enable_free_may_train !== false,
+			privacyEnableInputOutputLogging: accountPolicyResult.data.privacy_enable_input_output_logging !== false,
+			privacyZdrOnly: accountPolicyResult.data.privacy_zdr_only === true,
+			providerRestrictionMode: restrictionMode(accountPolicyResult.data.provider_restriction_mode),
+			providerRestrictionProviderIds: stringList(accountPolicyResult.data.provider_restriction_provider_ids).filter((id) => routableProviderIds.has(id)),
+			modelRestrictionMode: restrictionMode(accountPolicyResult.data.model_restriction_mode),
+			modelRestrictionModelIds: stringList(accountPolicyResult.data.model_restriction_model_ids).filter((id) => providerIdsByModel.has(id)),
+		} : null,
+		policy: {
+			privacyEnablePaidMayTrain: settings?.privacy_enable_paid_may_train !== false,
+			privacyEnableFreeMayTrain: settings?.privacy_enable_free_may_train !== false,
+			privacyEnableInputOutputLogging: settings?.privacy_enable_input_output_logging !== false,
+			privacyZdrOnly: settings?.privacy_zdr_only === true,
+			providerRestrictionMode: restrictionMode(settings?.provider_restriction_mode),
+			providerRestrictionProviderIds: stringList(settings?.provider_restriction_provider_ids).filter((id) => routableProviderIds.has(id)),
+			modelRestrictionMode: restrictionMode(settings?.model_restriction_mode),
+			modelRestrictionModelIds: stringList(settings?.model_restriction_model_ids).filter((id) => providerIdsByModel.has(id)),
+		},
+		providers: (providersResult.data ?? []).filter((provider) => routableProviderIds.has(String(provider.api_provider_id))).map((provider) => ({
 			id: provider.api_provider_id,
 			name: providerDisplayName(provider),
+			provider_family_id: provider.provider_family_id ?? null,
+			offer_label: provider.offer_label ?? null,
+			offer_scope: provider.offer_scope ?? null,
+		})),
+		models: (modelCatalogResult.data ?? []).map((model: any) => ({
+			id: model.id,
+			name: model.name ?? model.id,
+			organisationId: model.organisation?.lab_slug ?? null,
+			organisationName: model.organisation?.name ?? "Other",
+			providerIds: [...(providerIdsByModel.get(String(model.id)) ?? [])],
 		})),
 		teamName: teamResult.data?.name ?? null,
 		workspaceId,
@@ -271,10 +334,16 @@ accountSettingsRouter.get("/workspace/privacy-settings", async (c) => {
 	if (!workspaceId) return c.json(null, 200, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json(null, 200, PRIVATE_NO_STORE_HEADERS);
-	const { data, error } = await context.client.from("workspace_settings")
-		.select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids")
-		.eq("workspace_id", workspaceId).maybeSingle();
-	if (error || !data) return c.json(null, 200, PRIVATE_NO_STORE_HEADERS);
+	const [workspaceResult, accountResult] = await Promise.all([
+		context.client.from("workspace_settings")
+			.select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids")
+			.eq("workspace_id", workspaceId).maybeSingle(),
+		context.client.from("account_guardrail_settings")
+			.select("provider_restriction_mode,provider_restriction_provider_ids")
+			.eq("user_id", context.user.id).maybeSingle(),
+	]);
+	const data = workspaceResult.data;
+	if (workspaceResult.error || accountResult.error || !data) return c.json(null, 200, PRIVATE_NO_STORE_HEADERS);
 	const mode = String(data.provider_restriction_mode ?? "").trim().toLowerCase();
 	return c.json({
 		isAuthenticated: true,
@@ -284,6 +353,12 @@ accountSettingsRouter.get("/workspace/privacy-settings", async (c) => {
 		providerRestrictionMode: ["none", "allowlist", "blocklist"].includes(mode) ? mode : "none",
 		providerRestrictionProviderIds: Array.isArray(data.provider_restriction_provider_ids)
 			? data.provider_restriction_provider_ids.map((value) => String(value ?? "").trim()).filter(Boolean)
+			: [],
+		accountProviderRestrictionMode: ["none", "allowlist", "blocklist"].includes(String(accountResult.data?.provider_restriction_mode))
+			? accountResult.data?.provider_restriction_mode
+			: "none",
+		accountProviderRestrictionProviderIds: Array.isArray(accountResult.data?.provider_restriction_provider_ids)
+			? accountResult.data.provider_restriction_provider_ids.map((value) => String(value ?? "").trim()).filter(Boolean)
 			: [],
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
@@ -407,7 +482,7 @@ accountSettingsRouter.get("/broadcast", async (c) => {
 		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
 		context.client
 			.from("workspace_broadcast_destinations")
-			.select("id,destination_id,name,enabled,sampling_rate,destination_config,updated_at")
+			.select("id,destination_id,name,enabled,sampling_rate,updated_at")
 			.eq("workspace_id", workspaceId)
 			.order("created_at", { ascending: false }),
 	]);
@@ -424,7 +499,7 @@ accountSettingsRouter.get("/broadcast", async (c) => {
 			name: row.name,
 			enabled: Boolean(row.enabled),
 			samplingRate: Number(row.sampling_rate ?? 1),
-			destinationConfig: row.destination_config ?? null,
+			destinationConfig: null,
 			updatedAt: row.updated_at ?? null,
 		})),
 		teamName: teamResult.data?.name ?? null,
@@ -499,9 +574,28 @@ accountSettingsRouter.put("/apps/:appId", async (c) => {
 	if (typeof body.is_public === "boolean") update.is_public = body.is_public;
 	if (typeof body.is_active === "boolean") update.is_active = body.is_active;
 	if (Object.prototype.hasOwnProperty.call(body, "category")) update.category = normalizeAppCategories(body.category);
-	if (Object.keys(update).length) { const result = await context.client.from("api_apps").update(update).eq("id", appId).eq("workspace_id", context.workspaceId); if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	let updatedApp: Record<string, unknown> | null = null;
+	if (Object.keys(update).length) {
+		const updateApp = (values: Record<string, unknown>) => context.client
+			.from("api_apps")
+			.update(values)
+			.eq("id", appId)
+			.eq("workspace_id", context.workspaceId)
+			.select("id,is_public,is_active,image_url")
+			.maybeSingle();
+		let result = await updateApp(update);
+		if (result.error && /category|docs_url/i.test(result.error.message)) {
+			const compatibleUpdate = { ...update };
+			delete compatibleUpdate.category;
+			delete compatibleUpdate.docs_url;
+			if (Object.keys(compatibleUpdate).length) result = await updateApp(compatibleUpdate);
+		}
+		if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+		if (!result.data) return c.json({ error: "app_not_updated" }, 409, PRIVATE_NO_STORE_HEADERS);
+		updatedApp = result.data as Record<string, unknown>;
+	}
 	const cache = await purgeWorkerCacheTags(c.executionCtx, ["web-api-apps", "web-api-app-ids", "web-api-app-images", "web-api-app-rankings", "web-api-landing", `web-api-app-${encodeURIComponent(appId).replace(/%/g, "")}`]);
-	return c.json({ success: true, cache }, 200, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ success: true, app: updatedApp, cache }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsRouter.post("/apps/:sourceAppId/merge", async (c) => {
@@ -696,7 +790,7 @@ accountSettingsRouter.get("/byok", async (c) => {
 	const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
 	const [keysResult, usageResult, settingsResult] = await Promise.all([
 		context.client.from("byok_keys")
-			.select("id,provider_id,name,prefix,suffix,created_at,last_used_at,enabled,always_use,routing_mode,sort_order,verification_status,error_message")
+			.select("id,provider_id,name,prefix,suffix,created_at,last_used_at,enabled,always_use,routing_mode,sort_order,verification_status,error_message,allowed_model_slugs,allowed_api_key_ids")
 			.eq("workspace_id", workspaceId)
 			.order("routing_mode", { ascending: true })
 			.order("sort_order", { ascending: true })
@@ -727,6 +821,8 @@ accountSettingsRouter.get("/byok", async (c) => {
 			sortOrder: Number(row.sort_order ?? 0),
 			verificationStatus: typeof row.verification_status === "string" ? row.verification_status : null,
 			errorMessage: typeof row.error_message === "string" ? row.error_message : null,
+			allowedModelSlugs: Array.isArray(row.allowed_model_slugs) ? row.allowed_model_slugs.map(String) : [],
+			allowedApiKeyIds: Array.isArray(row.allowed_api_key_ids) ? row.allowed_api_key_ids.map(String) : [],
 		}));
 	const monthlyRequestCount = Number(usageResult.data?.[0]?.request_count ?? 0);
 	return c.json({

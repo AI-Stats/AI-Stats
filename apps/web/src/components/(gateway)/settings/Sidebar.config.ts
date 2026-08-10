@@ -11,10 +11,14 @@ import {
 	FileText,
 	FolderKey,
 	KeyRound,
+	RadioTower,
 	ShieldCheck,
+	Shield,
 	User,
 	UserCog,
+	UserKey,
 	Waypoints,
+	Webhook,
 	Workflow,
 } from "lucide-react";
 
@@ -37,9 +41,9 @@ export type NavItem = {
 export type NavChildItem = {
 	href: string;
 	label: string;
+	badge?: string;
 	exactOnly?: boolean;
 	match?: string[];
-	view?: "logs" | "upstream" | "jobs" | "sessions";
 };
 
 export type NavGroup = {
@@ -70,12 +74,19 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				href: "/settings/account",
 				label: "Account",
 				icon: UserCog,
-				match: ["/settings/account"],
+				match: ["/settings/account", "/settings/authorized-apps"],
 				children: [
 					{ href: "/settings/account/details", label: "Details" },
 					{ href: "/settings/account/mfa", label: "MFA" },
+					{ href: "/settings/authorized-apps", label: "Connected Apps" },
 					{ href: "/settings/account/danger", label: "Danger Zone" },
 				],
+			},
+			{
+				href: "/settings/account/privacy",
+				label: "Privacy",
+				icon: Shield,
+				match: ["/settings/account/privacy"],
 			},
 			{
 				href: "/settings/account/workspaces",
@@ -145,6 +156,7 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 					"/settings/usage/overview",
 					"/settings/usage/trends",
 					"/settings/usage/explore",
+					"/settings/usage/geography",
 					"/settings/usage/guardrails",
 					"/settings/usage/alerts",
 				],
@@ -152,6 +164,8 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 					{ href: "/settings/usage/overview", label: "Overview" },
 					{ href: "/settings/usage/trends", label: "Trends" },
 					{ href: "/settings/usage/explore", label: "Explore" },
+					{ href: "/settings/usage/geography", label: "Geography" },
+					{ href: "/settings/usage/guardrails", label: "Guardrail Activity" },
 					{ href: "/settings/usage/alerts", label: "Alerts" },
 				],
 			},
@@ -161,10 +175,11 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				icon: FileText,
 				match: ["/settings/usage/logs"],
 				children: [
-					{ href: "/settings/usage/logs?view=logs", label: "Requests", view: "logs" },
-					{ href: "/settings/usage/logs?view=upstream", label: "Upstream Requests", view: "upstream" },
-					{ href: "/settings/usage/logs?view=jobs", label: "Jobs", view: "jobs" },
-					{ href: "/settings/usage/logs?view=sessions", label: "Sessions", view: "sessions" },
+					{ href: "/settings/usage/logs/requests", label: "Requests" },
+					{ href: "/settings/usage/logs/upstream", label: "Upstream Requests" },
+					{ href: "/settings/usage/logs/sessions", label: "Sessions" },
+					{ href: "/settings/usage/logs/videos", label: "Videos" },
+					{ href: "/settings/usage/logs/batches", label: "Batches" },
 				],
 			},
 		],
@@ -180,6 +195,18 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				match: ["/settings/keys"],
 			},
 			{
+				href: "/settings/management-api-keys",
+				label: "Management Keys",
+				icon: UserKey,
+				match: ["/settings/management-api-keys", "/settings/provisioning-keys"],
+			},
+			{
+				href: "/settings/broadcast",
+				label: "Broadcast",
+				icon: RadioTower,
+				match: ["/settings/broadcast", "/settings/observability"],
+			},
+			{
 				href: "/settings/apps",
 				label: "Apps",
 				icon: AppWindow,
@@ -193,12 +220,11 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				children: [
 					{ href: "/settings/routing", label: "Routing", exactOnly: true },
 					{ href: "/settings/routing/dynamic", label: "Dynamic Routes", match: ["/settings/routing/demo"] },
-					{ href: "/settings/routing/insights", label: "Insights" },
 				],
 			},
 			{
 				href: "/settings/byok",
-				label: "Provider access",
+				label: "Bring Your Own Key",
 				icon: FolderKey,
 				match: ["/settings/byok"],
 			},
@@ -208,6 +234,10 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				icon: Workflow,
 				badge: "Beta",
 				match: ["/settings/presets"],
+				children: [
+					{ href: "/settings/presets", label: "Presets", exactOnly: true },
+					{ href: "/settings/presets/experiments", label: "Feedback", badge: "Alpha" },
+				],
 			},
 			{
 				href: "/settings/guardrails",
@@ -215,7 +245,7 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				icon: ShieldCheck,
 				match: ["/settings/guardrails", "/settings/privacy"],
 				children: [
-					{ href: "/settings/guardrails", label: "Guardrails" },
+					{ href: "/settings/guardrails", label: "Guardrails", badge: "Beta" },
 					{ href: "/settings/privacy", label: "Data Controls" },
 				],
 			},
@@ -226,26 +256,16 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 		scope: "workspace",
 		items: [
 			{
-				href: "/settings/management-api-keys",
-				label: "API & integrations",
+				href: "/settings/oauth-apps",
+				label: "OAuth Apps",
 				icon: Code2,
-				match: [
-					"/settings/management-api-keys",
-					"/settings/provisioning-keys",
-					"/settings/oauth-apps",
-					"/settings/authorized-apps",
-					"/settings/broadcast",
-					"/settings/observability",
-					"/settings/webhooks",
-					"/settings/sdk",
-				],
-				children: [
-					{ href: "/settings/management-api-keys", label: "Management Keys", match: ["/settings/provisioning-keys"] },
-					{ href: "/settings/oauth-apps", label: "OAuth Apps", match: ["/settings/authorized-apps"] },
-					{ href: "/settings/webhooks", label: "Webhooks" },
-					{ href: "/settings/broadcast", label: "Broadcast", match: ["/settings/observability"] },
-					{ href: "/settings/sdk", label: "SDKs" },
-				],
+				match: ["/settings/oauth-apps"],
+			},
+			{
+				href: "/settings/webhooks",
+				label: "Webhooks",
+				icon: Webhook,
+				match: ["/settings/webhooks"],
 			},
 		],
 	},
@@ -279,15 +299,8 @@ export function getSettingsSidebar(options?: { showBroadcast?: boolean; showWebh
 
 export function isSettingsNavChildActive(
 	pathname: string,
-	view: string | null,
 	child: NavChildItem,
 ): boolean {
-	if (child.view) {
-		return (
-			pathname.startsWith("/settings/usage/logs") &&
-			child.view === (view ?? "logs")
-		);
-	}
 	const childPath = child.href.split("?")[0] ?? child.href;
 	if (pathname === childPath) return true;
 	if (!child.exactOnly && pathname.startsWith(childPath + "/")) return true;

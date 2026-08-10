@@ -26,7 +26,7 @@ describe("fetchPaginatedRequests performance", () => {
 
 	beforeEach(() => {
 		getServerAccountContext.mockReset().mockResolvedValue({ accessToken: "access-token", workspaceId: "team_perf_logs", obfuscateInfo: false });
-		fetchAccountWebApi.mockReset().mockResolvedValue({ result: { data: rows, total: rows.length, page: 1, pageSize: 25, totalPages: 1 } });
+		fetchAccountWebApi.mockReset().mockResolvedValue({ result: { data: rows, pageSize: 25, hasMore: false, nextCursor: null } });
 	});
 
 	it("keeps the Worker transport wrapper under 10ms p95 for the mocked hot path", async () => {
@@ -43,7 +43,8 @@ describe("fetchPaginatedRequests performance", () => {
 			const started = performance.now();
 			const result = await fetchPaginatedRequests(params);
 			samples.push(performance.now() - started);
-			expect(result.total).toBe(25);
+			expect(result.data).toHaveLength(25);
+			expect(result.hasMore).toBe(false);
 		}
 		const p95 = percentile(samples, 95);
 		expect(p95).toBeLessThan(10);

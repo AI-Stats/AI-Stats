@@ -59,6 +59,13 @@ export type RequestMeta = {
     requestUrl?: string | null;
     requestPath?: string | null;
     userAgent?: string | null;
+    clientSource?: {
+        id: string;
+        name: string;
+        kind: "sdk" | "agent_sdk" | "coding_agent" | "http_client" | "app" | "api" | "unknown";
+        version: string | null;
+        detection: "declared" | "user_agent" | "unknown";
+    };
     clientIp?: string | null;
     cfRay?: string | null;
     edgeColo?: string | null;

@@ -15,7 +15,16 @@
   "api_model_id": "allenai/olmo-3.1-32b-instruct",
   "links": [],
   "details": [],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 6.2,
+      "is_self_reported": false,
+      "other_info": "Olmo 3.1 32B Instruct; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/olmo-3-1-32b-instruct",
+      "rank": 467
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

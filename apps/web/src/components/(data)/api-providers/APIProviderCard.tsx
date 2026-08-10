@@ -9,16 +9,13 @@ import {
 	type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { type CSSProperties } from "react";
+import { useRouter } from "next/navigation";
+import { type CSSProperties, type MouseEvent } from "react";
 import { cn } from "@/lib/utils";
 import type { APIProviderCard as APIProviderCardType } from "@/lib/fetchers/api-providers/providerDataTypes";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { ProviderModalityBadge } from "./ProviderModalityBadge";
 
 type Props = {
 	api_provider: APIProviderCardType;
@@ -77,21 +74,42 @@ export default function APIProviderCard({ api_provider }: Props) {
 		const counts = modalitySupport[key];
 		return (counts?.input ?? 0) + (counts?.output ?? 0) > 0;
 	});
+	const inputModalities = supportedModalities.filter(({ key }) => (modalitySupport[key]?.input ?? 0) > 0);
+	const outputModalities = supportedModalities.filter(({ key }) => (modalitySupport[key]?.output ?? 0) > 0);
+	const router = useRouter();
+	const href = `/api-providers/${id}`;
+	const handleCardClick = (event: MouseEvent<HTMLDivElement>) => {
+		const target = event.target;
+		if (target instanceof HTMLElement && target.closest("a,button,[role='button']")) return;
+		router.push(href, { scroll: true });
+	};
+	const renderModalityRow = (label: string, items: typeof supportedModalities) => (
+		<div className="flex min-w-0 items-center gap-2">
+			<span className="w-11 shrink-0 text-[11px] text-muted-foreground">{label}</span>
+			<div className="flex min-w-0 flex-wrap gap-1">
+				{items.length ? items.map(({ key, label: modalityLabel, Icon }) => {
+					const counts = modalitySupport[key];
+					return <ProviderModalityBadge key={`${label}-${key}`} label={modalityLabel} modality={key} icon={Icon} inputCount={counts?.input ?? 0} outputCount={counts?.output ?? 0} />;
+				}) : <span className="text-[11px] text-muted-foreground">—</span>}
+			</div>
+		</div>
+	);
 
 	return (
 		<div
-			className="group px-3 py-3 transition-colors hover:bg-muted/20 md:px-4 md:py-4"
+			className="group h-full cursor-pointer py-4 transition-colors hover:bg-muted/20 md:py-5"
 			style={rowStyle}
+			onClick={handleCardClick}
 		>
-			<div className="space-y-3">
-				<div className="flex items-start justify-between gap-3">
-					<div className="min-w-0">
+			<div className="flex h-full flex-col gap-4 px-4 md:px-3">
+				<div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3">
+					<div className="shrink-0">
 						<Link
-							href={`/api-providers/${id}`}
+							href={href}
 							prefetch={false}
-							className="flex items-center gap-3"
+							className="block"
 						>
-							<div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border bg-background">
+							<div className="relative ml-1 flex size-10 items-center justify-center rounded-lg border bg-background md:ml-0">
 								<div className="relative h-6 w-6">
 									<Logo
 										id={id}
@@ -101,104 +119,25 @@ export default function APIProviderCard({ api_provider }: Props) {
 									/>
 								</div>
 							</div>
-							<span className="line-clamp-1 text-sm font-semibold text-foreground transition-colors hover:underline underline-offset-4">
-								{name}
-							</span>
 						</Link>
 					</div>
-
-					<div className="flex shrink-0 items-center gap-2 text-sm">
-						<div className="inline-flex items-center gap-1.5 rounded-md border border-border/70 px-2.5 py-1">
-							<span className="text-xs text-muted-foreground">Models</span>
-							<span className="font-semibold tabular-nums">{totalModels}</span>
-						</div>
-						{freeModels > 0 ? (
-							<div className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/25 bg-emerald-500/5 px-2.5 py-1">
-								<span className="text-xs text-muted-foreground">Free</span>
-								<span className="font-semibold tabular-nums">{freeModels}</span>
-							</div>
-						) : null}
+					<div className="min-w-0 space-y-0.5 self-center">
+						<Link href={href} prefetch={false} className="line-clamp-1 text-sm font-semibold leading-[1.1] text-foreground transition-colors hover:underline underline-offset-4">{name}</Link>
+						<div className="truncate font-mono text-xs leading-[1.15] text-muted-foreground">{id}</div>
 					</div>
+					<Button asChild size="icon" variant="ghost" className="h-8 w-8 shrink-0"><Link href={href} prefetch={false} aria-label={`Open ${name} provider page`} className="group/open"><ArrowUpRight className={cn("h-4 w-4 text-muted-foreground transition-colors", api_provider.colour ? "group-hover:text-[var(--provider-accent)]" : "group-hover:text-primary")} /></Link></Button>
 				</div>
 
-				{supportedModalities.length > 0 ? (
-					<div className="flex flex-wrap items-center gap-1.5">
-						{supportedModalities.map(({ key, label, Icon }) => {
-						const counts = modalitySupport[key];
-						const total = (counts?.input ?? 0) + (counts?.output ?? 0);
-						const hasSupport = total > 0;
-						return (
-							<Tooltip key={key}>
-								<TooltipTrigger asChild>
-									<span
-										className={cn(
-											"inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors",
-											hasSupport
-												? "border-border text-foreground"
-												: "border-border/50 text-muted-foreground/50"
-										)}
-									>
-										<Icon className="h-4 w-4" />
-									</span>
-								</TooltipTrigger>
-								<TooltipContent side="top">
-									<div className="text-xs">
-										<div className="font-bold">{label}</div>
-										<div>
-											Input: {counts?.input ?? 0}
-										</div>
-										<div>
-											Output: {counts?.output ?? 0}
-										</div>
-									</div>
-								</TooltipContent>
-							</Tooltip>
-						);
-					})}
-					</div>
-				) : null}
+				<div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+					<div className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1"><span className="text-muted-foreground">Models</span><span className="font-medium tabular-nums text-foreground">{totalModels.toLocaleString()}</span></div>
+					{freeModels > 0 ? <div className="inline-flex items-center gap-1 rounded-md border border-emerald-500/25 bg-emerald-500/5 px-2 py-1"><span className="text-muted-foreground">Free</span><span className="font-medium tabular-nums text-foreground">{freeModels.toLocaleString()}</span></div> : null}
+				</div>
 
-				<div className="flex items-center justify-between gap-3">
-					<div className="grid flex-1 grid-cols-2 gap-3">
-						<div className="space-y-0.5">
-							<div className="text-[10px] tracking-wide text-muted-foreground/80">
-								Daily Tokens
-							</div>
-							<div className="text-sm font-medium tabular-nums text-foreground/80">
-								{formatTokens(dailyTokens)}
-							</div>
-						</div>
-						<div className="space-y-0.5">
-							<div className="text-[10px] tracking-wide text-muted-foreground/80">
-								Monthly Tokens
-							</div>
-							<div className="text-sm font-medium tabular-nums text-foreground/80">
-								{formatTokens(monthlyTokens)}
-							</div>
-						</div>
-					</div>
-					<Button
-						asChild
-						size="icon"
-						variant="ghost"
-						className="h-8 w-8 shrink-0 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary"
-					>
-						<Link
-							href={`/api-providers/${id}`}
-							prefetch={false}
-							aria-label={`Open ${name} provider page`}
-							className="group/open"
-						>
-							<ArrowUpRight
-								className={cn(
-									"h-4 w-4 text-muted-foreground transition-colors",
-									api_provider.colour
-										? "group-hover:text-[var(--provider-accent)]"
-										: "group-hover:text-primary",
-								)}
-							/>
-						</Link>
-					</Button>
+				<div className="space-y-1">{renderModalityRow("Input", inputModalities)}{renderModalityRow("Output", outputModalities)}</div>
+
+				<div className="mt-auto grid grid-cols-2 gap-3 text-xs">
+					<div><div className="text-[10px] tracking-wide text-muted-foreground/80">Daily Tokens</div><div className="text-sm font-medium tabular-nums text-foreground/80">{formatTokens(dailyTokens)}</div></div>
+					<div><div className="text-[10px] tracking-wide text-muted-foreground/80">Monthly Tokens</div><div className="text-sm font-medium tabular-nums text-foreground/80">{formatTokens(monthlyTokens)}</div></div>
 				</div>
 			</div>
 		</div>

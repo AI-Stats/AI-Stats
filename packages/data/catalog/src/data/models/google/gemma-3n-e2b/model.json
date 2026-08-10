@@ -13,7 +13,13 @@
   "input_types": null,
   "output_types": null,
   "api_model_id": "google/gemma-3n-e2b",
-  "variants": [{ "model_id": "google/gemma-3n-e2b:free", "name": "Gemma 3n E2B (Free)", "variant_kind": "free" }],
+  "variants": [
+    {
+      "model_id": "google/gemma-3n-e2b:free",
+      "name": "Gemma 3n E2B (Free)",
+      "variant_kind": "free"
+    }
+  ],
   "family_id": "google/gemma-3",
   "links": [],
   "details": [],
@@ -105,6 +111,14 @@
       "other_info": null,
       "source_link": "https://huggingface.co/google/gemma-3n-E2B",
       "rank": 11
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 1,
+      "is_self_reported": false,
+      "other_info": "Gemma 3n E2B Instruct; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gemma-3n-e2b",
+      "rank": 579
     }
   ],
   "page_notice": null,

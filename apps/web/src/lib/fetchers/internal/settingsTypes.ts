@@ -22,19 +22,27 @@ export type PrivacyGlobalSettings = {
 	privacy_enable_free_may_publish_prompts?: boolean | null;
 	privacy_enable_input_output_logging?: boolean | null;
 	privacy_zdr_only?: boolean | null;
+	io_logging_enabled?: boolean | null;
+	io_logging_retention_days?: number | null;
+	io_logging_include_provider_payloads?: boolean | null;
 	provider_restriction_mode?: string | null;
 	provider_restriction_provider_ids?: string[] | null;
 	provider_restriction_enforce_allowed?: boolean | null;
+	model_restriction_mode?: string | null;
+	model_restriction_model_ids?: string[] | null;
 };
 
 export type SettingsPrivacyInitialData = {
+	accountPolicy: AccountPrivacyPolicy | null;
 	activeProviderModels: Array<{
 		apiModelId: string;
 		internalModelId: string | null;
 		providerId: string;
 	}>;
 	initialGlobal: PrivacyGlobalSettings | null;
-	providers: Array<{ id: string; name: string }>;
+	policy: AccountPrivacyPolicy;
+	providers: Array<{ id: string; name: string; provider_family_id?: string | null; offer_label?: string | null; offer_scope?: string | null }>;
+	models: Array<{ id: string; name: string; organisationId: string | null; organisationName: string; providerIds: string[] }>;
 	teamName: string | null;
 	workspaceId: string | null;
 	dataContribution: DataContributionSettings;
@@ -85,7 +93,7 @@ export type SettingsAccountDangerInitialData = {
 
 export type SettingsAccountDetailsInitialData = {
 	hasPassword: boolean;
-	teams: Array<{ id: string; name: string }>;
+	teams: Array<{ id: string; name: string; publisherHandle: string | null }>;
 	user: {
 		id: string;
 		displayName?: string | null;
@@ -103,6 +111,24 @@ export type SettingsAccountMfaInitialData = {
 	mfaEnabled: boolean;
 	mfaFactorId: string | null;
 	signedIn: boolean;
+};
+
+export type AccountPrivacyPolicy = {
+	privacyEnablePaidMayTrain: boolean;
+	privacyEnableFreeMayTrain: boolean;
+	privacyEnableInputOutputLogging: boolean;
+	privacyZdrOnly: boolean;
+	providerRestrictionMode: "none" | "allowlist" | "blocklist";
+	providerRestrictionProviderIds: string[];
+	modelRestrictionMode: "none" | "allowlist" | "blocklist";
+	modelRestrictionModelIds: string[];
+};
+
+export type SettingsAccountPrivacyInitialData = {
+	signedIn: boolean;
+	policy: AccountPrivacyPolicy;
+	providers: Array<{ id: string; name: string; provider_family_id?: string | null; offer_label?: string | null; offer_scope?: string | null }>;
+	models: Array<{ id: string; name: string; organisationId: string | null; organisationName: string; providerIds: string[] }>;
 };
 
 export type SettingsBroadcastInitialData = {
@@ -189,6 +215,8 @@ export type ByokKeyEntry = {
 	sortOrder: number;
 	suffix?: string;
 	verificationStatus: string | null;
+	allowedModelSlugs: string[];
+	allowedApiKeyIds: string[];
 };
 
 export type SettingsByokInitialData = {
@@ -379,28 +407,22 @@ export type SettingsDynamicRoutesInitialData = {
 	routes: DynamicRouteRow[];
 	keys: Array<{ id: string; name: string; prefix: string; status: string }>;
 	providers: Array<{ id: string; name: string; status?: string | null; routingStatus?: string | null }>;
-	suggestions: Array<{
-		providerId: string;
-		providerName: string;
-		severity: "warning" | "critical";
-		failureRate: number;
-		avgLatencyMs: number;
-		attempts: number;
-		message: string;
-	}>;
 };
 
 export type SettingsPresetsInitialData = {
 	currentUserId: string | undefined;
 	initialTeamId: string | null;
+	workspacePublisher: { handle: string | null; canManage: boolean };
 	teams: Array<{ id: string; name: string }>;
 	teamsWithPresets: Array<{ id: string; name: string; presets: Array<Record<string, unknown>> }>;
 };
 
-export type SettingsGuardrailProviderModel = { providerId: string; apiModelId: string; internalModelId: string | null; internalModelName?: string | null; organisationId?: string | null; organisationName?: string | null };
+export type SettingsGuardrailProviderModel = { providerId: string; apiModelId: string; internalModelId: string | null; internalModelName?: string | null; organisationId?: string | null; organisationName?: string | null; providerPolicy?: { zeroDataRetention: string; dataPolicyTier: string; dataPolicyConfidence: string }; capabilities?: Array<{ id: string; dataPolicy: Record<string, unknown> | null }> };
 export type SettingsGuardrailRow = { id: string; enabled?: boolean | null; name?: string | null; description?: string | null; privacy_enable_paid_may_train?: boolean | null; privacy_enable_free_may_train?: boolean | null; privacy_enable_free_may_publish_prompts?: boolean | null; privacy_enable_input_output_logging?: boolean | null; privacy_zdr_only?: boolean | null; provider_restriction_mode?: string | null; provider_restriction_provider_ids?: string[] | null; provider_restriction_enforce_allowed?: boolean | null; model_restriction_mode?: string | null; allowed_api_model_ids?: string[] | null; prompt_injection_enabled?: boolean | null; prompt_injection_action?: string | null; sensitive_info_enabled?: boolean | null; sensitive_info_default_action?: string | null; sensitive_info_rules?: SensitiveInfoRulePayload[] | null; daily_limit_requests?: number | null; weekly_limit_requests?: number | null; monthly_limit_requests?: number | null; daily_limit_cost_nanos?: number | null; weekly_limit_cost_nanos?: number | null; monthly_limit_cost_nanos?: number | null };
-export type SettingsGuardrailsInitialData = { activeProviderModels: SettingsGuardrailProviderModel[]; guardrailKeyIdsByGuardrailId: Record<string, string[]>; guardrails: SettingsGuardrailRow[]; keys: Array<{ id: string; name: string; prefix: string; status: string }>; providers: Array<{ id: string; name: string }>; workspaceId: string | null };
-export type SettingsGuardrailEditorData = { activeProviderModels: SettingsGuardrailProviderModel[]; guardrail: SettingsGuardrailRow | null; initialKeyIds: string[]; keys: Array<{ id: string; name: string; prefix: string; status: string }>; mode: "create" | "edit"; providers: Array<{ id: string; name: string }>; teamName: string | null; workspaceId: string | null };
+export type SettingsGuardrailMember = { id: string; name: string; role: string };
+export type SettingsGuardrailProvider = { id: string; name: string; familyId: string; offerLabel: string | null; offerScope: "global" | "regional" | "specialized" | null };
+export type SettingsGuardrailsInitialData = { activeProviderModels: SettingsGuardrailProviderModel[]; canManageGuardrails: boolean; guardrailKeyIdsByGuardrailId: Record<string, string[]>; guardrailMemberIdsByGuardrailId: Record<string, string[]>; guardrails: SettingsGuardrailRow[]; keys: Array<{ id: string; name: string; prefix: string; status: string }>; members: SettingsGuardrailMember[]; providers: SettingsGuardrailProvider[]; workspaceId: string | null };
+export type SettingsGuardrailEditorData = { accountPolicy: AccountPrivacyPolicy; activeProviderModels: SettingsGuardrailProviderModel[]; canManageGuardrails: boolean; guardrail: SettingsGuardrailRow | null; initialKeyIds: string[]; initialMemberIds: string[]; keys: Array<{ id: string; name: string; prefix: string; status: string }>; members: SettingsGuardrailMember[]; mode: "create" | "edit"; providers: SettingsGuardrailProvider[]; teamName: string | null; workspaceId: string | null };
 
 export type SettingsUsageAlertsInitialData = { signedIn: boolean; warnings: DeprecationWarning[]; workspaceId: string | null };
 
@@ -411,6 +433,8 @@ export type WorkspacePrivacySettings = {
 	privacyZdrOnly: boolean;
 	providerRestrictionMode: "none" | "allowlist" | "blocklist";
 	providerRestrictionProviderIds: string[];
+	accountProviderRestrictionMode: "none" | "allowlist" | "blocklist";
+	accountProviderRestrictionProviderIds: string[];
 };
 
 export type TeamsSettingsData = {
@@ -426,7 +450,7 @@ export type TeamsSettingsData = {
 	teamSsoSettingsByTeam: Record<string, any>;
 };
 
-type UsageLogsPayload = { appNameEntries: Array<[string, string]>; availableKeys: Array<{ id: string; name: string | null; prefix: string | null }>; dedupedModels: string[]; dedupedProviders: string[]; initialRequestsPage: any; modelMetadataEntries: Array<[string, any]>; modelProviderEntries: Array<[string, string[]]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]> };
+type UsageLogsPayload = { appNameEntries: Array<[string, string]>; availableKeys: Array<{ id: string; name: string | null; prefix: string | null }>; clientSources: Array<{ id: string; name: string }>; dedupedModels: string[]; dedupedProviders: string[]; logAppIds: string[]; logEndpoints: string[]; logFinishReasons: string[]; logErrorCodes: string[]; logStatusCodes: number[]; initialRequestsPage: any; modelMetadataEntries: Array<[string, any]>; modelProviderEntries: Array<[string, string[]]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]> };
 type UsageJobsPayload = { appMetadataEntries: Array<[string, any]>; jobProviders: string[]; modelMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]>; recentJobs: any[] };
 type UsageSessionsPayload = { appMetadataEntries: Array<[string, any]>; modelMetadataEntries: Array<[string, any]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]>; sessionAppIds: string[]; sessionModelIds: string[]; sessionProviderIds: string[]; sessions: any[] };
 export type UsageUpstreamRequestRow = {

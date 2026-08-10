@@ -11,7 +11,6 @@ import { EmptyLeaderboardPreview } from "@/components/(rankings)/EmptyLeaderboar
 import {
 	ChartContainer,
 	ChartTooltip,
-	ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,11 +37,13 @@ type UsageStackedBarProps = {
 	leaderboardTitle?: string;
 	leaderboardDescription?: string;
 	valueUnit?: string;
+	showScaleToggle?: boolean;
 };
 
 type SeriesStyle = Record<string, { label: string; color: string; stroke: string }>;
 type LeaderboardPeriod = "today" | "week" | "month" | "trending";
 type ModelFilter = "all" | "open" | "closed";
+type ChartScale = "linear" | "log";
 const TOP_MODELS = 10;
 const PERIOD_OPTIONS: Array<{ label: string; value: LeaderboardPeriod }> = [
 	{ label: "Past 24 hours", value: "today" },
@@ -173,6 +174,24 @@ function periodWindows(period: LeaderboardPeriod, nowMs: number) {
 	}
 }
 
+function hasPeriodData(
+	data: TimeseriesData[],
+	period: LeaderboardPeriod,
+	nowMs: number,
+	metric: "requests" | "tokens" | "users",
+) {
+	const { currentStart, currentEnd } = periodWindows(period, nowMs);
+	return data.some((row) => {
+		const bucketTs = new Date(row.bucket).getTime();
+		return (
+			Number.isFinite(bucketTs) &&
+			bucketTs >= currentStart &&
+			bucketTs < currentEnd &&
+			timeseriesValue(row, metric) > 0
+		);
+	});
+}
+
 function optionLabel<TValue extends string>(
 	options: Array<{ label: string; value: TValue }>,
 	value: TValue,
@@ -199,13 +218,26 @@ export function UsageStackedBar({
 	leaderboardTitle = "Model Leaderboard",
 	leaderboardDescription = "Compare the most popular models by weekly gateway usage.",
 	valueUnit,
+	showScaleToggle = false,
 }: UsageStackedBarProps) {
 	const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 	const [nowMs] = useState(() => Date.now());
 	const [listExpanded, setListExpanded] = useState(false);
 	const [leaderboardPeriod, setLeaderboardPeriod] =
-		useState<LeaderboardPeriod>("week");
+		useState<LeaderboardPeriod>(() => {
+			if (hasPeriodData(leaderboardData ?? data, "week", nowMs, metric)) {
+				return "week";
+			}
+			if (hasPeriodData(leaderboardData ?? data, "month", nowMs, metric)) {
+				return "month";
+			}
+			if (hasPeriodData(leaderboardData ?? data, "today", nowMs, metric)) {
+				return "today";
+			}
+			return "week";
+		});
 	const [modelFilter, setModelFilter] = useState<ModelFilter>("all");
+	const [chartScale, setChartScale] = useState<ChartScale>("linear");
 	const emptyTitle =
 		metric === "users" ? "No unique-user data yet" : "No weekly usage data yet";
 	const emptyDescription =
@@ -445,10 +477,39 @@ export function UsageStackedBar({
 
 	return (
 		<div className="space-y-4">
+			<div className="relative">
+				{showScaleToggle ? (
+					<div
+						role="group"
+						aria-label="Chart scale"
+						className="absolute right-2 top-0 z-10 inline-flex rounded-md border border-border/70 bg-background/90 p-0.5 backdrop-blur-sm"
+					>
+						{(["linear", "log"] as const).map((scale) => (
+							<button
+								key={scale}
+								type="button"
+								onClick={() => setChartScale(scale)}
+								aria-pressed={chartScale === scale}
+								className={`h-7 rounded-sm px-2.5 text-xs transition-colors ${
+									chartScale === scale
+										? "bg-muted text-foreground"
+										: "text-muted-foreground hover:text-foreground"
+								}`}
+							>
+								{scale === "linear" ? "Lin" : "Log"}
+							</button>
+						))}
+					</div>
+				) : null}
 			<ChartContainer config={chartConfig} className="h-[420px] w-full">
 				<BarChart
 					data={chartData}
-					margin={{ top: 16, right: 12, left: 0, bottom: 32 }}
+					margin={{
+						top: showScaleToggle ? 42 : 16,
+						right: 12,
+						left: 0,
+						bottom: 32,
+					}}
 				>
 					<defs>
 						<pattern
@@ -482,6 +543,13 @@ export function UsageStackedBar({
 						width={60}
 						tickLine={false}
 						axisLine={false}
+						scale={showScaleToggle && chartScale === "log" ? "log" : "auto"}
+						domain={
+							showScaleToggle && chartScale === "log"
+								? [1, "auto"]
+								: [0, "auto"]
+						}
+						allowDataOverflow={showScaleToggle && chartScale === "log"}
 					/>
 					<ChartTooltip
 						content={(props) => {
@@ -534,46 +602,35 @@ export function UsageStackedBar({
 								: 0;
 							const projectedTotal = weeklyTotal + weeklyPaceGain;
 							return (
-								<div className="grid min-w-[12.5rem] items-start gap-1.5 rounded-lg border border-zinc-200/50 bg-white px-2.5 py-1.5 text-xs shadow-xl dark:border-zinc-800/50 dark:bg-zinc-950">
-									<ChartTooltipContent
-										active={props.active}
-										label={props.label}
-										payload={filteredPayload}
-										className="min-w-0 border-0 bg-transparent p-0 shadow-none"
-										labelFormatter={(lbl) => String(lbl)}
-										formatter={(v, name, item) => {
-											const val = Number(v ?? 0);
-											const seriesKey = String(item?.dataKey ?? name ?? "");
+								<div className="grid min-w-[13rem] items-start gap-1.5 rounded-md bg-popover px-2.5 py-2 text-xs text-popover-foreground shadow-lg ring-1 ring-foreground/10">
+									<div className="font-medium">{String(props.label ?? "")}</div>
+									<div className="grid gap-0.5">
+										{filteredPayload.map((item) => {
+											const val = Number(item?.value ?? 0);
+											const seriesKey = String(item?.dataKey ?? item?.name ?? "");
 											const cfg = seriesStyle[seriesKey];
 											const isHovered = hoveredKey === seriesKey;
 											return (
 												<div
-													className={`flex w-full items-center justify-between rounded-md px-1.5 py-0.5 ${
-														isHovered
-															? "bg-zinc-200/70 dark:bg-zinc-800/70"
-															: ""
+													key={seriesKey}
+													className={`flex items-center gap-1.5 rounded-sm px-1 py-0.5 ${
+														isHovered ? "bg-muted" : ""
 													}`}
 												>
-													<span className="inline-flex items-center gap-1.5">
-														<span
-															className="inline-block rounded-[2px]"
-															style={{
-																backgroundColor: cfg?.color,
-																width: 4,
-																height: 14,
-															}}
-														/>
-														<span className={isHovered ? "font-medium" : ""}>
-															{cfg?.label ?? String(name ?? "")}
-														</span>
+													<span
+														className="h-3.5 w-1 shrink-0 rounded-[1px]"
+														style={{ backgroundColor: cfg?.color }}
+													/>
+													<span className="min-w-0 flex-1 truncate">
+														{cfg?.label ?? String(item?.name ?? "")}
 													</span>
-													<span className="ml-auto pl-3 tabular-nums">
+													<span className="pl-3 font-medium tabular-nums">
 														{formatNumber(val)}
 													</span>
 												</div>
 											);
-										}}
-									/>
+										})}
+									</div>
 									<div className="space-y-0.5 border-t border-border/60 pt-1.5 text-xs">
 										<div className="flex items-center justify-between gap-4">
 											<span className="text-muted-foreground">
@@ -631,6 +688,7 @@ export function UsageStackedBar({
 					/>
 				</BarChart>
 			</ChartContainer>
+			</div>
 			<div className="space-y-8 pt-3">
 				<div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
 					<div className="min-w-0 max-w-xl space-y-1">
@@ -639,19 +697,19 @@ export function UsageStackedBar({
 							{leaderboardDescription}
 						</p>
 					</div>
-					<div className="flex shrink-0 items-center gap-2">
+					<div className="flex shrink-0 flex-wrap items-center gap-2">
 						<DropdownMenu>
 							<DropdownMenuTrigger render={<Button
 									type="button"
 									variant="outline"
 									size="sm"
-									className="h-8 w-32 justify-between rounded-lg px-3 text-xs font-normal text-muted-foreground lg:h-9 lg:w-36 lg:px-4 lg:text-sm" />}>
+									className="h-8 min-w-36 shrink-0 justify-between whitespace-nowrap rounded-md px-3 text-xs font-normal text-muted-foreground lg:h-9 lg:min-w-40 lg:px-4 lg:text-sm" />}>
 
 									{optionLabel(MODEL_FILTER_OPTIONS, modelFilter)}
 									<ChevronDown className="ml-2 h-4 w-4 opacity-60" />
 
 							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end" className="min-w-36 rounded-lg">
+							<DropdownMenuContent align="end" className="w-max min-w-40 rounded-md">
 								{MODEL_FILTER_OPTIONS.map((option) => (
 									<DropdownMenuItem
 										key={option.value}
@@ -659,7 +717,7 @@ export function UsageStackedBar({
 											setModelFilter(option.value);
 											setListExpanded(false);
 										}}
-										className="justify-between gap-6 rounded-lg"
+										className="justify-between gap-6 whitespace-nowrap rounded-md"
 									>
 										<span>{option.label}</span>
 										<span className="flex h-4 w-4 items-center justify-center">
@@ -676,20 +734,20 @@ export function UsageStackedBar({
 									type="button"
 									variant="outline"
 									size="sm"
-									className="h-8 w-28 justify-between rounded-lg px-3 text-xs font-normal text-muted-foreground lg:h-9 lg:w-32 lg:px-4 lg:text-sm" />}>
+									className="h-8 min-w-32 shrink-0 justify-between whitespace-nowrap rounded-md px-3 text-xs font-normal text-muted-foreground lg:h-9 lg:min-w-36 lg:px-4 lg:text-sm" />}>
 
 									{optionLabel(PERIOD_OPTIONS, leaderboardPeriod)}
 									<ChevronDown className="ml-2 h-4 w-4 opacity-60" />
 
 							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end" className="min-w-32 rounded-lg">
+							<DropdownMenuContent align="end" className="w-max min-w-36 rounded-md">
 								{PERIOD_OPTIONS.map((option) => (
 									<DropdownMenuItem
 										key={option.value}
 										onClick={() =>
 											setLeaderboardPeriod(option.value)
 										}
-										className="justify-between gap-6 rounded-lg"
+										className="justify-between gap-6 whitespace-nowrap rounded-md"
 									>
 										<span>{option.label}</span>
 										<span className="flex h-4 w-4 items-center justify-center">
@@ -797,7 +855,10 @@ export function UsageStackedBar({
 										)}
 										<div className="text-right">
 											<div className="whitespace-nowrap text-xs tabular-nums text-muted-foreground lg:text-sm">
-												{formatNumber(entry.current)} {leaderboardUnit}
+											{formatNumber(entry.current)}{" "}
+											{entry.current === 1 && leaderboardUnit.endsWith("s")
+												? leaderboardUnit.slice(0, -1)
+												: leaderboardUnit}
 											</div>
 											<div className={changeClassName(entry.changePct)}>
 												{changeLabel}

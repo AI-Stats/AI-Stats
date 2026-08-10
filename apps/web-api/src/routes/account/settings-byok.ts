@@ -6,6 +6,15 @@ import { requireUser } from "@/auth/requireUser";
 import { requireAccountWorkspace } from "./context";
 
 const MAX_KEYS_PER_ROUTING_MODE = 16;
+const MAX_SCOPE_ITEMS = 256;
+
+function scopeStrings(value: unknown): string[] | null {
+	if (value === null || value === undefined) return null;
+	if (!Array.isArray(value)) throw new Error("Key scope must be a list.");
+	const values = Array.from(new Set(value.map((item) => String(item ?? "").trim()).filter(Boolean)));
+	if (values.length > MAX_SCOPE_ITEMS) throw new Error(`A key scope can contain up to ${MAX_SCOPE_ITEMS} items.`);
+	return values;
+}
 
 function canonicalProviderId(value: unknown): string {
 	const providerId = String(value ?? "").trim().toLowerCase();
@@ -108,6 +117,8 @@ accountSettingsByokRouter.post("/byok", async (c) => {
 		const checked = validateProviderKey(providerId, body.value);
 		const encrypted = await encrypt(c.env, checked.value);
 		const routingMode = body.always_use === true ? "priority" : "fallback";
+		const allowedModelSlugs = scopeStrings(body.allowedModelSlugs) ?? [];
+		const allowedApiKeyIds = scopeStrings(body.allowedApiKeyIds) ?? [];
 		const countInMode = await context.client
 			.from("byok_keys")
 			.select("id", { count: "exact", head: true })
@@ -141,6 +152,8 @@ accountSettingsByokRouter.post("/byok", async (c) => {
 			error_message: null,
 			last_verified_at: new Date().toISOString(),
 			created_by: context.user.id,
+			allowed_model_slugs: allowedModelSlugs,
+			allowed_api_key_ids: allowedApiKeyIds,
 		};
 		const inserted = await context.client.from("byok_keys").insert(payload).select("id").maybeSingle();
 		if (inserted.error) throw inserted.error;
@@ -164,6 +177,8 @@ accountSettingsByokRouter.put("/byok/:keyId", async (c) => {
 			update.name = name;
 		}
 		if (typeof body.enabled === "boolean") update.enabled = body.enabled;
+		if (body.allowedModelSlugs !== undefined) update.allowed_model_slugs = scopeStrings(body.allowedModelSlugs) ?? [];
+		if (body.allowedApiKeyIds !== undefined) update.allowed_api_key_ids = scopeStrings(body.allowedApiKeyIds) ?? [];
 		if (typeof body.always_use === "boolean") {
 			const nextRoutingMode = body.always_use ? "priority" : "fallback";
 			const currentRoutingMode = loaded.key.routing_mode === "priority" || loaded.key.routing_mode === "fallback"

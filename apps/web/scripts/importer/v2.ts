@@ -935,6 +935,8 @@ export async function syncV2Catalogue(): Promise<void> {
             link: row.link ?? null,
             colour: row.colour ?? null,
             prompt_training_policy: row.prompt_training_policy ?? null,
+            privacy_policy_url: row.privacy_policy_url ?? null,
+            terms_of_service_url: row.terms_of_service_url ?? null,
             residency_mode: row.residency_mode ?? null,
             default_execution_regions: row.default_execution_regions ?? null,
             default_data_regions: row.default_data_regions ?? null,

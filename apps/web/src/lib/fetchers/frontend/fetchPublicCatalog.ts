@@ -950,21 +950,35 @@ export async function fetchFrontendRankingUniqueUserTimeseries(
 	return fetchPublicWebApi<{ data: TimeseriesData[] }>(`/api/_web/rankings/unique-users?time_range=${encodeURIComponent(timeRange)}&bucket_size=${encodeURIComponent(bucketSize)}&top_n=${encodeURIComponent(String(topN))}`);
 }
 
-export type PublicGeographyRow = {
-	country_code: string;
-	requests: number | string;
-	tokens: number | string;
-	share_percent: number | string;
-	workspace_count: number | string;
-};
-
-export async function fetchFrontendRankingGeography(
-	days = 30,
-): Promise<{ data: PublicGeographyRow[]; days: number }> {
-	return fetchPublicWebApi<{ data: PublicGeographyRow[]; days: number }>(
-		`/api/_web/rankings/geography?days=${encodeURIComponent(String(days))}`,
+export async function fetchFrontendRankingToolCallTimeseries(
+	timeRange = "year",
+	bucketSize = "week",
+	topN = 10,
+): Promise<{ data: TimeseriesData[] }> {
+	return fetchPublicWebApi<{ data: TimeseriesData[] }>(
+		`/api/_web/rankings/tool-calls?time_range=${encodeURIComponent(timeRange)}&bucket_size=${encodeURIComponent(bucketSize)}&top_n=${encodeURIComponent(String(topN))}`,
 	);
 }
+
+export type PublicBenchmarkRankingEntry = {
+	model_id: string;
+	model_name: string;
+	organisation_id: string | null;
+	organisation_name: string | null;
+	score: number;
+	rank: number;
+};
+
+export type PublicBenchmarkRanking = {
+	benchmark_id: string;
+	name: string;
+	category: string | null;
+	benchmark_type: string | null;
+	lower_is_better: boolean;
+	total_models: number | null;
+	entries: PublicBenchmarkRankingEntry[];
+};
+
 
 export async function fetchFrontendModelRankings(
 	timeRange = "week",

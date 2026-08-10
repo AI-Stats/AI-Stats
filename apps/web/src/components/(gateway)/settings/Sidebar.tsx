@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Building2, ChevronRight, ExternalLink, PanelLeftClose, PanelLeftOpen, UserRound } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -47,7 +48,6 @@ export default function SettingsSidebar({
 	workspaceName?: string | null;
 }) {
 	const pathname = usePathname();
-	const searchParams = useSearchParams();
 	const { isMobile, setOpenMobile, state, toggleSidebar } = useSidebar();
 	const isCollapsed = state === "collapsed" && !isMobile;
 	const navGroups = getSettingsSidebar({ showBroadcast, showWebhooks });
@@ -90,6 +90,26 @@ export default function SettingsSidebar({
 	const selectedScope = scopeSelection?.routeScope === routeScope
 		? scopeSelection.selectedScope
 		: routeScope;
+	const [scrollViewport, setScrollViewport] = useState<HTMLDivElement | null>(null);
+	const [navigationOverflows, setNavigationOverflows] = useState(false);
+	const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+
+	useEffect(() => {
+		if (!scrollViewport) return;
+
+		const updateOverflow = () => {
+			setNavigationOverflows(
+				scrollViewport.scrollHeight > scrollViewport.clientHeight + 1,
+			);
+		};
+		const resizeObserver = new ResizeObserver(updateOverflow);
+		resizeObserver.observe(scrollViewport);
+		const content = scrollViewport.firstElementChild;
+		if (content) resizeObserver.observe(content);
+		updateOverflow();
+
+		return () => resizeObserver.disconnect();
+	}, [scrollViewport, selectedScope]);
 	const visibleGroups = navGroups.filter((group) => group.scope === selectedScope);
 	const selectScope = (nextScope: SettingsScope) => {
 		setScopeSelection({ routeScope, selectedScope: nextScope });
@@ -102,7 +122,7 @@ export default function SettingsSidebar({
 	function NavBlock({ group, first }: { group: NavGroup; first: boolean }) {
 		const heading = (group.heading ?? "").trim();
 		return (
-			<SidebarGroup className={cn("pt-0", !first && "group-data-[collapsible=icon]:pt-2")}>
+			<SidebarGroup className={cn("py-0", !first && "group-data-[collapsible=icon]:pt-2")}>
 				{heading ? <SidebarGroupLabel>{heading}</SidebarGroupLabel> : null}
 				<SidebarGroupContent>
 					<SidebarMenu>
@@ -156,10 +176,14 @@ export default function SettingsSidebar({
 		);
 
 		if (item.children?.length) {
+			const sectionOpen = openSections[item.href] ?? active;
 			return (
 				<Collapsible
-					key={`${heading || "group"}-${item.href}-${active}`}
-					defaultOpen={active}
+					key={`${heading || "group"}-${item.href}`}
+					onOpenChange={(open) => {
+						setOpenSections((current) => ({ ...current, [item.href]: open }));
+					}}
+					open={sectionOpen}
 					className="group/collapsible"
 				>
 					<SidebarMenuItem>
@@ -185,7 +209,6 @@ export default function SettingsSidebar({
 								{item.children.map((child) => {
 									const childActive = isSettingsNavChildActive(
 										pathname ?? "",
-										searchParams.get("view"),
 										child,
 									);
 									return (
@@ -196,7 +219,15 @@ export default function SettingsSidebar({
 												aria-current={childActive ? "page" : undefined}
 												className="!rounded-lg"
 											>
-												<span>{child.label}</span>
+												<span className="min-w-0 flex-1 truncate">{child.label}</span>
+												{child.badge ? (
+													<Badge
+														variant="outline"
+														className="ml-auto h-5 px-1.5 text-[10px] capitalize"
+													>
+														{child.badge}
+													</Badge>
+												) : null}
 											</SidebarMenuSubButton>
 										</SidebarMenuSubItem>
 									);
@@ -275,35 +306,45 @@ export default function SettingsSidebar({
 					</Button>
 				</div>
 			</SidebarHeader>
-			<SidebarContent className="overflow-y-auto [--radius:0.625rem]!">
-				<div className="px-2 pt-3 group-data-[collapsible=icon]:hidden">
+			<div className="shrink-0 group-data-[collapsible=icon]:hidden">
+				<div className="px-2 pt-3">
 					<div className="grid grid-cols-2 rounded-lg bg-muted/70 p-1" aria-label="Settings scope">
 						<button type="button" data-settings-segment aria-pressed={selectedScope === "personal"} onClick={() => selectScope("personal")} className={selectedScope === "personal" ? "flex h-8 items-center justify-center gap-1.5 rounded-md bg-background px-2 text-xs font-medium text-foreground shadow-sm" : "flex h-8 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground hover:text-foreground"}><UserRound className="size-3.5" />Account</button>
 						<button type="button" data-settings-segment aria-pressed={selectedScope === "workspace"} onClick={() => selectScope("workspace")} className={selectedScope === "workspace" ? "flex h-8 items-center justify-center gap-1.5 rounded-md bg-background px-2 text-xs font-medium text-foreground shadow-sm" : "flex h-8 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground hover:text-foreground"}><Building2 className="size-3.5" />Workspace</button>
 					</div>
 					{selectedScope === "workspace" && workspaceName ? <p className="truncate px-2 pt-2 text-[11px] text-muted-foreground">{workspaceName}</p> : null}
 				</div>
-				<div className="hidden border-b border-sidebar-border px-2 py-2 group-data-[collapsible=icon]:block">
-					<SidebarMenu>
-						<SidebarMenuItem>
-							<SidebarMenuButton isActive={selectedScope === "personal"} tooltip="Account" className="!rounded-lg" aria-label="Show Account settings" onClick={() => selectScope("personal")}>
-								<UserRound className="size-4" />
-							</SidebarMenuButton>
-						</SidebarMenuItem>
-						<SidebarMenuItem>
-							<SidebarMenuButton isActive={selectedScope === "workspace"} tooltip="Workspace" className="!rounded-lg" aria-label="Show Workspace settings" onClick={() => selectScope("workspace")}>
-								<Building2 className="size-4" />
-							</SidebarMenuButton>
-						</SidebarMenuItem>
-					</SidebarMenu>
-				</div>
-				<div className="pb-4">
-					{visibleGroups.map((group, idx) => (
-						<div key={`${group.heading ?? "group"}-${idx}`} className={idx > 0 ? "group-data-[collapsible=icon]:border-t group-data-[collapsible=icon]:border-sidebar-border" : undefined}>
-							<NavBlock group={group} first={idx === 0} />
-						</div>
-					))}
-				</div>
+			</div>
+			<div className="hidden shrink-0 border-b border-sidebar-border px-2 py-2 group-data-[collapsible=icon]:block">
+				<SidebarMenu>
+					<SidebarMenuItem>
+						<SidebarMenuButton isActive={selectedScope === "personal"} tooltip="Account" className="!rounded-lg" aria-label="Show Account settings" onClick={() => selectScope("personal")}>
+							<UserRound className="size-4" />
+						</SidebarMenuButton>
+					</SidebarMenuItem>
+					<SidebarMenuItem>
+						<SidebarMenuButton isActive={selectedScope === "workspace"} tooltip="Workspace" className="!rounded-lg" aria-label="Show Workspace settings" onClick={() => selectScope("workspace")}>
+							<Building2 className="size-4" />
+						</SidebarMenuButton>
+					</SidebarMenuItem>
+				</SidebarMenu>
+			</div>
+			<SidebarContent className="overflow-hidden [--radius:0.625rem]!">
+				<ScrollArea
+					className="min-h-0 flex-1"
+					keepScrollbarMounted
+					scrollBarClassName={navigationOverflows ? undefined : "hidden"}
+					viewportClassName="pr-2"
+					viewportRef={setScrollViewport}
+				>
+					<div>
+						{visibleGroups.map((group, idx) => (
+							<div key={`${group.heading ?? "group"}-${idx}`} className={idx > 0 ? "group-data-[collapsible=icon]:border-t group-data-[collapsible=icon]:border-sidebar-border" : undefined}>
+								<NavBlock group={group} first={idx === 0} />
+							</div>
+						))}
+					</div>
+				</ScrollArea>
 			</SidebarContent>
 		</>
 	);

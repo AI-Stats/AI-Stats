@@ -1,54 +1,6 @@
-import type { Metadata } from "next";
-import APIProviderDetailShell from "@/components/(data)/api-providers/APIProviderDetailShell";
-import {
-	fetchFrontendAPIProviderHeader,
-	fetchFrontendAPIProviderModels,
-} from "@/lib/fetchers/frontend/fetchPublicCatalog";
-import { buildMetadata } from "@/lib/seo";
-import ProviderModelsClient from "./ProviderModelsClient";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 
-async function fetchProviderMeta(apiProviderId: string) {
-	try {
-		return await fetchFrontendAPIProviderHeader(apiProviderId);
-	} catch (error) {
-		// eslint-disable-next-line no-console
-		console.warn("[seo] failed to load api provider metadata", {
-			apiProviderId,
-			error,
-		});
-		return null;
-	}
-}
-
-export async function generateMetadata(props: {
-	params: Promise<{ apiProvider: string }>;
-}): Promise<Metadata> {
-	const { apiProvider } = await props.params;
-	const header = await fetchProviderMeta(apiProvider);
-	const path = `/api-providers/${apiProvider}/models`;
-	const imagePath = `/og/api-providers/${apiProvider}`;
-
-	if (!header) {
-		return buildMetadata({
-			title: "API Provider Models",
-			description:
-				"Browse all models available from this API provider on Phaseo, ordered by model release date with announcement-date fallback, plus capability support, pricing visibility, and gateway accessibility.",
-			path,
-			imagePath,
-			robots: { index: false, follow: true },
-		});
-	}
-
-	const providerName = header.api_provider_name ?? "AI API provider";
-	return buildMetadata({
-		title: `${providerName} Models - Ordered by Model Date`,
-		description: `View all ${providerName} models on Phaseo ordered by release date, with announcement date fallback, gateway accessibility, supported capabilities, and quick visibility into pricing and integration coverage.`,
-		path,
-		imagePath,
-		robots: { index: false, follow: true },
-	});
-}
+export const instant = false;
 
 export default async function Page({
 	params,
@@ -56,20 +8,5 @@ export default async function Page({
 	params: Promise<{ apiProvider: string }>;
 }) {
 	const { apiProvider } = await params;
-	const header = await fetchProviderMeta(apiProvider);
-	if (!header) notFound();
-	const providerLabel = header?.api_provider_name ?? apiProvider;
-
-	const models = await fetchFrontendAPIProviderModels(apiProvider).catch(() => null);
-	if (!models) notFound();
-
-	return (
-		<APIProviderDetailShell apiProviderId={apiProvider}>
-			<ProviderModelsClient
-				apiProvider={apiProvider}
-				providerLabel={providerLabel}
-				models={models}
-			/>
-		</APIProviderDetailShell>
-	);
+	redirect(`/api-providers/${encodeURIComponent(apiProvider)}#models`);
 }

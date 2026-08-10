@@ -1230,7 +1230,7 @@ export default function Search({ className, mobileGhost = false }: Props) {
 				className={cn(
 					"relative flex size-9 items-center justify-center rounded-lg border border-border bg-background px-0 text-left text-sm text-muted-foreground shadow-none transition-[border-color,color,background-color] hover:bg-accent hover:text-accent-foreground xl:w-full xl:justify-start xl:pl-9 xl:pr-12",
 					mobileGhost &&
-						"border-transparent bg-transparent hover:border-transparent hover:bg-accent lg:border-border lg:bg-background lg:hover:border-border",
+						"border-transparent bg-transparent hover:border-transparent hover:bg-accent xl:border-border xl:bg-background xl:hover:border-border",
 				)}
 				aria-label="Open command palette"
 			>

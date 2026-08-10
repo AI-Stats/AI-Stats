@@ -67,14 +67,27 @@ revoke execute on function public.get_v2_model_performance_metrics(text, text, n
 grant execute on function public.get_v2_model_performance_metrics(text, text, numeric, text, text)
   to anon, authenticated, service_role;
 
-alter function public.get_v2_model_provider_percentile_series_v2(text, text, text, text)
-  rename to get_v2_model_provider_percentile_series_v2_unsuppressed;
+do $migration$
+begin
+  -- Some environments received the cached-input-aware raw function ahead of
+  -- migration history. Preserve that richer function and its existing public
+  -- wrapper rather than attempting to rename the wrapper over it.
+  if to_regprocedure('public.get_v2_model_provider_percentile_series_v2_unsuppressed(text,text,text,text)') is null then
+    alter function public.get_v2_model_provider_percentile_series_v2(text, text, text, text)
+      rename to get_v2_model_provider_percentile_series_v2_unsuppressed;
+  end if;
+end
+$migration$;
 
 revoke execute on function public.get_v2_model_provider_percentile_series_v2_unsuppressed(text, text, text, text)
   from public, anon, authenticated;
 grant execute on function public.get_v2_model_provider_percentile_series_v2_unsuppressed(text, text, text, text)
   to service_role;
 
+do $migration$
+begin
+if to_regprocedure('public.get_v2_model_provider_percentile_series_v2(text,text,text,text)') is null then
+execute $function_sql$
 create function public.get_v2_model_provider_percentile_series_v2(
   p_model_slug text,
   p_cloudflare_colo text default null,
@@ -110,6 +123,10 @@ from public.get_v2_model_provider_percentile_series_v2_unsuppressed(
 ) series
 where series.requests >= 20;
 $$;
+$function_sql$;
+end if;
+end
+$migration$;
 
 revoke execute on function public.get_v2_model_provider_percentile_series_v2(text, text, text, text)
   from public;

@@ -128,6 +128,14 @@
       "is_self_reported": true,
       "other_info": "Visual reasoning",
       "source_link": "https://ai.meta.com/blog/introducing-muse-spark-meta-model-api/"
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 53.2,
+      "is_self_reported": false,
+      "other_info": "Muse Spark 1.1 (xhigh); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/muse-spark-1-1",
+      "rank": 20
     }
   ],
   "family_id": null,

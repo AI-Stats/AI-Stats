@@ -473,7 +473,7 @@ export async function doRequestWithIR(
 	const maxTries = calculateMaxTries(ranked.length, allowFallbacks);
 	const rankedProviders = ranked.slice(0, maxTries);
 	const credentialPlan = buildCredentialAttemptPlan(rankedProviders, {
-		includeFallbackByok: ctx.teamSettings?.byokFallbackEnabled === true,
+		includeFallbackByok: true,
 	});
 	ctx.credentialPlan = credentialPlan.map((entry, index) => ({
 		attempt_number: index + 1,

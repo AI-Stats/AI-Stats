@@ -16,10 +16,11 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash2, Sparkles } from "lucide-react";
 import { deletePresetAction } from "@/app/(dashboard)/settings/presets/actions";
 import { toast } from "sonner";
-import { Label } from "@/components/ui/label";
 
-export default function DeletePresetItem({ p }: any) {
-	const [open, setOpen] = useState(false);
+export default function DeletePresetItem({ p, open: controlledOpen, onOpenChange, showTrigger = true }: any) {
+	const [internalOpen, setInternalOpen] = useState(false);
+	const open = controlledOpen ?? internalOpen;
+	const setOpen = onOpenChange ?? setInternalOpen;
 	const [confirm, setConfirm] = useState("");
 	const [loading, setLoading] = useState(false);
 
@@ -45,19 +46,21 @@ export default function DeletePresetItem({ p }: any) {
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
-			<DropdownMenuItem render={<button
-					className="w-full text-left flex items-center gap-2 text-red-600"
+		<>
+			{showTrigger ? <DropdownMenuItem
+				variant="destructive"
 					onClick={(e) => {
 						e.preventDefault();
 						setTimeout(() => setOpen(true), 0);
-					}} />}>
+					}}
+			>
 
 					<Trash2 className="mr-2" />
 					Delete
 
-			</DropdownMenuItem>
+			</DropdownMenuItem> : null}
 
+			<Dialog open={open} onOpenChange={setOpen}>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
@@ -94,6 +97,7 @@ export default function DeletePresetItem({ p }: any) {
 					</DialogFooter>
 				</form>
 			</DialogContent>
-		</Dialog>
+			</Dialog>
+		</>
 	);
 }

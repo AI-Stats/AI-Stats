@@ -293,6 +293,14 @@
       "other_info": "sigma 0.177; games 757; avg points 0.376",
       "source_link": "https://github.com/lechmazur/elimination_game",
       "rank": 54
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 12.2,
+      "is_self_reported": false,
+      "other_info": "Gemini 2.0 Flash (Feb '25); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gemini-2-0-flash",
+      "rank": 342
     }
   ],
   "page_notice": null,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, ChevronDown, Folder } from "lucide-react";
+import { BookOpen, CheckCircle2, ChevronDown, Folder, ImageOff, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +21,6 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { updateAppAction } from "@/app/(dashboard)/settings/apps/actions";
 import {
 	APP_CATEGORY_OPTIONS,
 	MAX_APP_CATEGORIES,
@@ -49,6 +48,8 @@ type EditAppDialogProps = {
 	hideTrigger?: boolean;
 	trigger?: React.ReactNode;
 };
+
+type ImageValidationState = "empty" | "validating" | "valid" | "invalid";
 
 function normalizeUrl(value: string) {
 	const trimmed = value.trim();
@@ -79,6 +80,9 @@ export default function EditAppDialog({
 	const [title, setTitle] = useState(app.title);
 	const [url, setUrl] = useState(app.url && app.url !== "about:blank" ? app.url : "");
 	const [imageUrl, setImageUrl] = useState(app.image_url ?? "");
+	const [imageValidation, setImageValidation] = useState<ImageValidationState>(
+		app.image_url ? "validating" : "empty"
+	);
 	const [docsUrl, setDocsUrl] = useState(app.docs_url ?? "");
 	const [categories, setCategories] = useState<AppCategory[]>(
 		parseAppCategories(app.category)
@@ -103,6 +107,43 @@ export default function EditAppDialog({
 		setCategories(parseAppCategories(app.category));
 	}, [open, app]);
 
+	useEffect(() => {
+		if (!open) return;
+		const candidate = imageUrl.trim();
+		if (!candidate) {
+			setImageValidation("empty");
+			return;
+		}
+
+		try {
+			const parsed = new URL(candidate);
+			if (!["http:", "https:"].includes(parsed.protocol)) {
+				setImageValidation("invalid");
+				return;
+			}
+		} catch {
+			setImageValidation("invalid");
+			return;
+		}
+
+		let active = true;
+		const image = new Image();
+		setImageValidation("validating");
+		image.onload = () => {
+			if (active) setImageValidation("valid");
+		};
+		image.onerror = () => {
+			if (active) setImageValidation("invalid");
+		};
+		image.src = candidate;
+
+		return () => {
+			active = false;
+			image.onload = null;
+			image.onerror = null;
+		};
+	}, [imageUrl, open]);
+
 	const setCategoryChecked = (category: AppCategory, checked: boolean) => {
 		setCategories((current) => {
 			if (!checked) {
@@ -123,6 +164,9 @@ export default function EditAppDialog({
 
 	const onSave = async (event: React.FormEvent) => {
 		event.preventDefault();
+		if (imageValidation === "validating" || imageValidation === "invalid") {
+			return;
+		}
 		setLoading(true);
 
 		const normalizedUrl = normalizeUrl(url);
@@ -139,11 +183,26 @@ export default function EditAppDialog({
 		};
 
 		try {
-			await toast.promise(updateAppAction(app.id, updates), {
+			const updatePromise = (async () => {
+				const response = await fetch(
+					`/api/settings/apps/${encodeURIComponent(app.id)}`,
+					{
+						method: "PUT",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(updates),
+					},
+				);
+				if (!response.ok) {
+					const payload = await response.json().catch(() => ({})) as { error?: string };
+					throw new Error(payload.error ?? "Unable to update app");
+				}
+			})();
+			toast.promise(updatePromise, {
 				loading: "Saving changes...",
 				success: "App updated",
 				error: (err) => err?.message ?? "Failed to update app",
 			});
+			await updatePromise;
 			onUpdated({
 				title: title.trim(),
 				url: normalizedUrl,
@@ -215,7 +274,35 @@ export default function EditAppDialog({
 							value={imageUrl}
 							onChange={(event) => setImageUrl(event.target.value)}
 							placeholder="https://example.com/logo.png"
+							aria-invalid={imageValidation === "invalid"}
 						/>
+						<div className="min-h-9" aria-live="polite">
+							{imageValidation === "validating" ? (
+								<div className="flex items-center gap-2 text-xs text-muted-foreground">
+									<LoaderCircle className="size-4 animate-spin" />
+									Checking image…
+								</div>
+							) : imageValidation === "invalid" ? (
+								<div className="flex items-center gap-2 text-xs text-destructive">
+									<ImageOff className="size-4" />
+									This URL did not load a valid image.
+								</div>
+							) : imageValidation === "valid" ? (
+								<div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
+									<img
+										src={imageUrl.trim()}
+										alt="App logo preview"
+										className="size-8 rounded-lg border border-border/70 bg-muted/40 object-cover"
+									/>
+									<CheckCircle2 className="size-4" />
+									Image loaded
+								</div>
+							) : (
+								<p className="text-xs text-muted-foreground">
+									Leave empty to use the app initial.
+								</p>
+							)}
+						</div>
 					</div>
 					<div className="space-y-2">
 						<div className="flex items-center justify-between gap-3">
@@ -275,7 +362,14 @@ export default function EditAppDialog({
 						<Button type="button" variant="ghost" onClick={() => setOpen(false)}>
 							Cancel
 						</Button>
-						<Button type="submit" disabled={loading}>
+						<Button
+							type="submit"
+							disabled={
+								loading ||
+								imageValidation === "validating" ||
+								imageValidation === "invalid"
+							}
+						>
 							{loading ? "Saving..." : "Save"}
 						</Button>
 					</DialogFooter>

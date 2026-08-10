@@ -76,11 +76,62 @@ describe("settings UI contracts", () => {
 		expect(menuSource).toContain("Account");
 		expect(menuSource).toContain("Workspace");
 		expect(menuSource).toContain("visibleGroups.map");
-		expect(pageHeaderSource).toContain('className={cn("space-y-4", className)}');
+		expect(pageHeaderSource).toContain("sm:justify-between");
+		expect(pageHeaderSource).toContain("sm:justify-end");
 		expect(pageHeaderSource.indexOf("{actions ?")).toBeGreaterThan(
 			pageHeaderSource.indexOf("{description ?"),
 		);
 		expect(keysPageSource).toContain("flex flex-wrap items-center gap-2");
+	});
+
+	it("keeps workspace creation and invitations on their owning settings surfaces", () => {
+		const containerSource = readSource(
+			"src/components/(gateway)/settings/teams/TeamsSettingsContainer.tsx",
+		);
+		const panelSource = readSource(
+			"src/components/(gateway)/settings/teams/TeamSettingsPanel.tsx",
+		);
+		const accountWorkspacesSource = readSource(
+			"src/app/(dashboard)/settings/account/workspaces/page.tsx",
+		);
+
+		expect(containerSource).not.toContain('settings/CreateTeamDialog');
+		expect(containerSource).toContain('tab !== "settings"');
+		expect(containerSource).toContain("<CreateTeamInviteDialog");
+		expect(containerSource).toContain("Manage Invites");
+		expect(containerSource).toContain('className="min-w-0 flex-1"');
+		expect(accountWorkspacesSource).toContain("<CreateTeamDialog");
+		expect(panelSource).toContain('aria-labelledby="workspace-danger-zone-title"');
+		expect(panelSource).toContain(
+			'className="overflow-hidden rounded-xl border bg-background/40"',
+		);
+		const createInviteSource = readSource(
+			"src/components/(gateway)/settings/CreateTeamInviteDialog.tsx",
+		);
+		const inviteDialogSource = readSource(
+			"src/components/(gateway)/settings/teams/TeamInviteDialog.tsx",
+		);
+		expect(createInviteSource).toContain("router.refresh()");
+		expect(inviteDialogSource).toContain("router.refresh()");
+	});
+
+	it("keeps workspace member actions concise and role aware", () => {
+		const membersSource = readSource(
+			"src/components/(gateway)/settings/teams/members/TeamsMembers.tsx",
+		);
+
+		expect(membersSource).toContain('className="w-44"');
+		expect(membersSource).toContain("Change Role");
+		expect(membersSource).toContain("Copy User ID");
+		expect(membersSource).toContain("Remove Member");
+		expect(membersSource).toContain("Leave workspace");
+		expect(membersSource).not.toContain("Make admin");
+		expect(membersSource).not.toContain("Make member");
+		expect(membersSource).toContain("Sample preview");
+		expect(membersSource).toContain("hiddenSampleMemberIds");
+		expect(membersSource).toContain("cycleSpendSort");
+		expect(membersSource).toContain('aria-sort={');
+		expect(membersSource).toContain("items={ROLE_OPTIONS}");
 	});
 
 	it("provides display-label collections for ID-backed settings selects", () => {
@@ -115,6 +166,32 @@ describe("settings UI contracts", () => {
 				expect(source).toContain(collection);
 			}
 		}
+	});
+
+	it("lets guardrail restrictions be selected before their enforcement mode", () => {
+		const editorSource = readSource(
+			"src/components/(gateway)/settings/guardrails/GuardrailEditorPageClient.tsx",
+		);
+
+		expect(editorSource).toContain('pickerTitle="Select providers"');
+		expect(editorSource).toContain('pickerTitle="Select models"');
+		expect(editorSource).toContain("function SelectionCombobox");
+		expect(editorSource).not.toContain(
+			'disabled={form.providerRestrictionMode === "none"}',
+		);
+		expect(editorSource).not.toContain(
+			'disabled={form.modelRestrictionMode === "none"}',
+		);
+		expect(editorSource).toContain(
+			"explicitFamilyId || inferredFamilyByName.get(nameKey) || provider.id",
+		);
+		expect(editorSource).toContain("activeProviderIds.has(provider.id)");
+		expect(editorSource).toContain("inlineGroups");
+		expect(editorSource).toContain("const [expandedSections, setExpandedSections] = useQueryState(");
+		expect(editorSource).toContain('"sections",');
+		expect(editorSource).toContain("value={validExpandedSections}");
+		expect(editorSource).toContain("onValueChange={(sections) => void setExpandedSections(sections)}");
+		expect(editorSource).toContain("groupActions");
 	});
 });
 

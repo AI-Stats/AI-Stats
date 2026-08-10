@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { MAX_BYOK_KEYS_PER_PROVIDER } from "@/lib/byok/constants";
@@ -17,12 +20,19 @@ type ByokProviderRowProps = {
 };
 
 export default function ByokProviderRow({ provider, entries }: ByokProviderRowProps) {
+	const router = useRouter();
 	const priorityCount = entries.filter((entry) => entry.routingMode === "priority").length;
 	const fallbackCount = entries.length - priorityCount;
+	const href = `/settings/byok/${encodeURIComponent(provider.id)}`;
+	const prefetchProvider = () => router.prefetch(href);
 
 	return (
 		<Link
-			href={`/settings/byok/${encodeURIComponent(provider.id)}`}
+			href={href}
+			prefetch
+			onMouseEnter={prefetchProvider}
+			onFocus={prefetchProvider}
+			onTouchStart={prefetchProvider}
 			className="flex items-center justify-between gap-3 px-3 py-2.5 transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
 		>
 			<div className="flex min-w-0 items-center gap-3">

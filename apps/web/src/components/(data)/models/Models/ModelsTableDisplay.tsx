@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import {
 	Search,
 	Grid as GridIcon,
-	Table as TableIcon,
+	Table2 as TableIcon,
 	SlidersHorizontal,
 	Activity,
 	AlertTriangle,
@@ -613,7 +613,7 @@ function OutputModalityButtonRow({
 						? cn(
 								"bg-muted text-foreground hover:bg-muted",
 								tone.badgeClassName,
-								"border-transparent hover:border-transparent",
+								"border-0 hover:border-0",
 							)
 						: "text-muted-foreground hover:text-foreground",
 				)}
