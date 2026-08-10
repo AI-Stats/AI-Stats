@@ -1,11 +1,12 @@
 import { homedir } from "node:os";
 import { codexAdapter } from "./adapters/codex.js";
 import { claudeCodeAdapter } from "./adapters/claude-code.js";
+import { openCodeAdapter } from "./adapters/opencode.js";
 import { applyChanges, renderPlan } from "./files.js";
 import { getIntegrationGatewayCredential } from "./credential.js";
 import type { IntegrationAdapter, IntegrationId } from "./types.js";
 
-const adapters: IntegrationAdapter[] = [codexAdapter, claudeCodeAdapter];
+const adapters: IntegrationAdapter[] = [codexAdapter, claudeCodeAdapter, openCodeAdapter];
 
 function adapterFor(value: string | undefined): IntegrationAdapter {
 	const adapter = adapters.find((entry) => entry.id === value);
@@ -61,8 +62,8 @@ export async function runIntegrationCommand(
 	}
 
 	const adapter = adapterFor(integration);
-	if (adapter.id !== "codex" && stringFlag(flags, "model")) {
-		throw new Error("--model is only supported for the Codex integration");
+	if (adapter.id === "claude-code" && stringFlag(flags, "model")) {
+		throw new Error("--model is only supported for the Codex and OpenCode integrations");
 	}
 	const options = { homeDir: homedir(), model: stringFlag(flags, "model") };
 	const changes = command === "setup" ? await adapter.planSetup(options) : await adapter.planRemove(options);
