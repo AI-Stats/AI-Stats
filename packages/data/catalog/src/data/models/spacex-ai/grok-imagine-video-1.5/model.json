@@ -4,13 +4,13 @@
   "name": "Grok Imagine Video 1.5",
   "status": "Available",
   "previous_model_id": "spacex-ai/grok-imagine-video-1.5-preview",
-  "description": "Grok Imagine Video 1.5 is a video generation and editing model from SpaceXAI's Grok Imagine family. It supports text, image, and video inputs and generates short video outputs through the Grok Imagine API.",
+  "description": "Grok Imagine Video 1.5 is SpaceXAI's image-to-video model. It animates one still image from a text prompt at 480p, 720p, or 1080p.",
   "announced_date": "2026-06-17T00:00:00",
   "release_date": "2026-06-17T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
-  "input_types": "text,image,video",
+  "input_types": "text,image",
   "output_types": "video",
   "api_model_id": "spacex-ai/grok-imagine-video-1.5",
   "links": [
@@ -34,6 +34,10 @@
       "value": "us-east-1"
     },
     {
+      "name": "regions",
+      "value": "us-west-2"
+    },
+    {
       "name": "availability",
       "value": "SpaceXAI documentation lists grok-imagine-video-1.5 as the model name and grok-imagine-video-1.5-preview as an alias."
     }
@@ -51,8 +55,7 @@
   "modalities": {
     "input": [
       "text",
-      "image/*",
-      "video/*"
+      "image/*"
     ],
     "output": [
       "video/*"
@@ -80,11 +83,11 @@
     }
   ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-10T00:00:00Z",
+    "notes": "Official model page confirms image-to-video-only input, aliases, regions, and resolution pricing. Gateway route remains disabled pending authenticated smoke testing."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-10T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

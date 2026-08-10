@@ -94,6 +94,53 @@ function videoPricingRows() {
 function buildSupabaseAdminMock() {
 	return {
 		from(table: string) {
+			if (table === "v2_model_provider_routes") {
+				const rows = [{
+					provider_model_id: "pm-veo-lite",
+					model_slug: "google/veo-3.1-lite-generate-preview",
+					provider_model_slug: "veo-3.1-lite-generate-preview",
+				}];
+				return {
+					select() {
+						const builder: any = {
+							eq() { return builder; },
+							in() { return builder; },
+							then(resolve: (value: unknown) => unknown) { return Promise.resolve({ data: rows, error: null }).then(resolve); },
+						};
+						return builder;
+					},
+				};
+			}
+			if (table === "v2_pricing_skus") {
+				return {
+					select() {
+						const builder: any = {
+							in() { return builder; }, eq() { return builder; }, lte() { return builder; }, or() { return builder; },
+							order: async () => ({ data: [{
+								sku_id: "sku-veo-lite", provider_model_id: "pm-veo-lite", service_tier_slug: "standard",
+								operation: "video.generate", status: "active", currency: "USD",
+								effective_from: "2026-01-01T00:00:00Z", effective_to: null, metadata: {}, updated_at: "2026-06-10T00:00:00Z",
+							}], error: null }),
+						};
+						return builder;
+					},
+				};
+			}
+			if (table === "v2_pricing_sku_meters") {
+				return {
+					select() {
+						const builder: any = {
+							in() { return builder; }, eq() { return builder; },
+							order: async () => ({ data: [{
+								sku_meter_id: "meter-veo-lite", sku_id: "sku-veo-lite", meter_key: "output_video_seconds",
+								unit: "second", unit_quantity: "1", price_nanos: "30000000", meter_order: 1,
+								metadata: {}, updated_at: "2026-06-10T00:00:00Z",
+							}], error: null }),
+						};
+						return builder;
+					},
+				};
+			}
 			if (table === "data_api_pricing_rules") {
 				return {
 					select() {
@@ -433,7 +480,7 @@ describe("video Veo 3.1 Lite lifecycle end-to-end", () => {
 		const requestId = "vid_veo_lite_success";
 		const operationName =
 			"projects/test-project/locations/us-east5/publishers/google/models/veo-3.1-lite-generate-preview/operations/vertex-op-success";
-		const videoUrl = "https://cdn.vertex.example/videos/veo-lite-success.mp4";
+		const videoUrl = "https://storage.googleapis.com/test-video-bucket/veo-lite-success.mp4";
 		const videoBytes = Uint8Array.from([0, 1, 2, 3, 4, 5]);
 
 		vi.stubGlobal(
@@ -605,6 +652,14 @@ describe("video Veo 3.1 Lite lifecycle end-to-end", () => {
 		expect(state.captureCalls).toHaveLength(1);
 		expect(state.releaseCalls).toHaveLength(0);
 		expect(state.webhookEvents).toEqual([
+			{
+				workspaceId: "ws_video_e2e",
+				videoId: requestId,
+				eventType: "video.status_changed",
+				deliveryKey: "video.status_changed:queued:completed",
+				previousStatus: "queued",
+				currentStatus: "completed",
+			},
 			{
 				workspaceId: "ws_video_e2e",
 				videoId: requestId,

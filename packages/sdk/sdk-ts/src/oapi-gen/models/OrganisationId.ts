@@ -4,6 +4,7 @@
 export type OrganisationId =
   | "ai21"
   | "aion-labs"
+  | "alibaba"
   | "allenai"
   | "amazon"
   | "anthropic"
@@ -45,6 +46,7 @@ export type OrganisationId =
   | "prime-intellect"
   | "qwen"
   | "relace"
+  | "runway"
   | "sourceful"
   | "spacex-ai"
   | "stepfun"

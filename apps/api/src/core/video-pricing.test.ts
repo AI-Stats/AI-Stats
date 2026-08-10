@@ -81,6 +81,54 @@ describe("video-pricing", () => {
 		expect((priced as any)?.pricing?.total_usd_str).toBe("0.28");
 	});
 
+	it("prices normalized image and source-video inputs alongside output duration", () => {
+		const card = makeCard([
+			{
+				pricing_plan: "standard",
+				meter: "input_image",
+				unit: "image",
+				unit_size: 1,
+				price_per_unit: "0.01",
+				currency: "USD",
+				match: [],
+				priority: 100,
+			},
+			{
+				pricing_plan: "standard",
+				meter: "input_video_seconds",
+				unit: "second",
+				unit_size: 1,
+				price_per_unit: "0.02",
+				currency: "USD",
+				match: [],
+				priority: 100,
+			},
+			{
+				pricing_plan: "standard",
+				meter: "output_video_seconds",
+				unit: "second",
+				unit_size: 1,
+				price_per_unit: "0.08",
+				currency: "USD",
+				match: [],
+				priority: 100,
+			},
+		]);
+
+		const priced = computeVideoPricedUsage({
+			seconds: 5,
+			card,
+			model: "example/video",
+			requestOptions: {
+				input_image_count: 2,
+				input_video_count: 1,
+				input_video_seconds: 4,
+			},
+		});
+
+		expect((priced as any)?.pricing?.total_usd_str).toBe("0.5");
+	});
+
 	it("falls back to legacy output_video meter when seconds meter is absent", () => {
 		const card = makeCard([
 			{

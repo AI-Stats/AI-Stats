@@ -1157,7 +1157,7 @@ export type AudioTranslationRequest = z.infer<typeof AudioTranslationSchema>;
 const VideoReferenceTypeSchema = z.enum(["asset", "style", "character", "location", "generic"]).or(z.string());
 const VideoInputReferenceRoleSchema = z.enum(["first_frame", "last_frame", "reference", "source", "mask"]);
 
-const VideoInputReferenceContentPartSchema = z.object({
+const VideoImageInputReferenceSchema = z.object({
 	type: z.literal("image_url"),
 	role: VideoInputReferenceRoleSchema.optional(),
 	reference_type: VideoReferenceTypeSchema.optional(),
@@ -1168,7 +1168,18 @@ const VideoInputReferenceContentPartSchema = z.object({
 	}),
 }).strict();
 
-const VideoInputReferenceSchema = VideoInputReferenceContentPartSchema;
+const VideoMediaInputReferenceSchema = z.object({
+	type: z.enum(["video_url", "audio_url"]),
+	role: VideoInputReferenceRoleSchema.optional(),
+	reference_type: VideoReferenceTypeSchema.optional(),
+	media_url: z.object({
+		url: z.string().url().refine((value) => new URL(value).protocol === "https:", {
+			message: "video input references must use https",
+		}),
+	}),
+}).strict();
+
+const VideoInputReferenceSchema = z.union([VideoImageInputReferenceSchema, VideoMediaInputReferenceSchema]);
 
 const VideoOutputConfigSchema = z.object({
 	access: z.enum(["bytes", "signed_url", "both"]).default("both"),
@@ -1198,6 +1209,10 @@ const VIDEO_PROVIDER_CONTROLLED_KEYS = new Set([
 	"duration",
 	"duration_seconds",
 	"durationseconds",
+	"input_video_duration",
+	"inputvideoduration",
+	"input_video_duration_seconds",
+	"inputvideodurationseconds",
 	"seconds",
 	"size",
 	"resolution",
@@ -1245,6 +1260,7 @@ export const VideoGenerationSchema = z.object({
 	model: z.string().min(1),
 	prompt: z.string().min(1),
 	duration: z.number().int().positive().max(120).optional(),
+	input_video_duration: z.number().positive().max(3600).optional(),
 	size: z.string().min(1).optional(),
 	resolution: z.string().min(1).optional(),
 	aspect_ratio: z.string().min(1).optional(),

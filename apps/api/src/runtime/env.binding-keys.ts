@@ -228,6 +228,8 @@ export const BINDING_KEYS: Array<keyof GatewayBindings> = [
     "RUNWAY_API_KEY",
     "RUNWAY_BASE_URL",
     "RUNWAY_API_VERSION",
+    "FAL_KEY",
+    "FAL_QUEUE_BASE_URL",
     "PERPLEXITY_API_KEY",
     "PERPLEXITY_BASE_URL",
     "POOLSIDE_API_KEY",
