@@ -1,5 +1,11 @@
 # @phaseo/cli
 
+## 0.2.3
+
+### Patch Changes
+
+- [#1538](https://github.com/phaseoteam/Phaseo/pull/1538) [`cb766c7`](https://github.com/phaseoteam/Phaseo/commit/cb766c71a205d06adbdae7cb44f9c0439a99d65c) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Replace the plain browser-login callback with branded, responsive success, waiting, and denial states.
+
 ## 0.2.2
 
 ### Patch Changes
