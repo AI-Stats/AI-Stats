@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, realpathSync } from "node:fs";
-import { delimiter, join, normalize } from "node:path";
+import { normalize, posix, win32 } from "node:path";
 
 export type PackageManager = "npm" | "pnpm" | "yarn" | "bun";
 
@@ -32,8 +32,9 @@ export type DoctorReport = {
 	issues: DoctorIssue[];
 };
 
-function slashPath(value: string): string {
-	return normalize(value).replaceAll("\\", "/").toLowerCase();
+function slashPath(value: string, caseInsensitive = true): string {
+	const normalized = normalize(value).replaceAll("\\", "/");
+	return caseInsensitive ? normalized.toLowerCase() : normalized;
 }
 
 export function packageManagerFromPath(value: string): PackageManager | null {
@@ -58,10 +59,17 @@ function packageManagerFromWrapper(contents: string): PackageManager | null {
 export function detectInstalledPackageManager(
 	entryPath: string | undefined = process.argv[1],
 	env: NodeJS.ProcessEnv = process.env,
+	realPath: (path: string) => string = realpathSync,
 ): PackageManager | null {
 	if (entryPath) {
 		const fromEntry = packageManagerFromPath(entryPath);
 		if (fromEntry) return fromEntry;
+		try {
+			const fromTarget = packageManagerFromPath(realPath(entryPath));
+			if (fromTarget) return fromTarget;
+		} catch {
+			// Continue to launch-environment detection when the target cannot be resolved.
+		}
 	}
 	const userAgent = String(env.npm_config_user_agent ?? "").toLowerCase();
 	if (userAgent.startsWith("pnpm/")) return "pnpm";
@@ -90,17 +98,18 @@ export function findPathInstallations(options: {
 	const readText = options.readText ?? ((path: string) => readFileSync(path, "utf8"));
 	const realPath = options.realPath ?? realpathSync;
 	const pathValue = env.PATH ?? env.Path ?? "";
-	const separator = platform === "win32" ? ";" : delimiter;
+	const separator = platform === "win32" ? ";" : ":";
+	const joinPath = platform === "win32" ? win32.join : posix.join;
 	const installations: PathInstallation[] = [];
 	const seen = new Set<string>();
 
 	for (const rawDirectory of pathValue.split(separator)) {
 		const binDirectory = rawDirectory.trim().replace(/^"|"$/g, "");
 		if (!binDirectory) continue;
-		const key = slashPath(binDirectory);
+		const key = slashPath(binDirectory, platform === "win32");
 		if (seen.has(key)) continue;
 		const executable = candidateNames(platform)
-			.map((name) => join(binDirectory, name))
+			.map((name) => joinPath(binDirectory, name))
 			.find((path) => exists(path));
 		if (!executable) continue;
 		seen.add(key);

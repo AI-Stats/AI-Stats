@@ -354,6 +354,26 @@ test("detects the package manager from the installed executable before the launc
 		"pnpm",
 	);
 	assert.equal(packageManagerFromPath("/usr/local/lib/node_modules/@phaseo/cli/dist/index.js"), "npm");
+	assert.equal(
+		detectInstalledPackageManager(
+			"/usr/local/bin/phaseo",
+			{} as NodeJS.ProcessEnv,
+			() => "/usr/local/lib/node_modules/@phaseo/cli/dist/index.js",
+		),
+		"npm",
+	);
+});
+
+test("keeps case-distinct POSIX PATH directories separate", () => {
+	const installations = findPathInstallations({
+		env: { PATH: "/opt/Phaseo/bin:/opt/phaseo/bin" } as NodeJS.ProcessEnv,
+		platform: "linux",
+		exists: (path) => path.endsWith("/phaseo"),
+		readText: () => "node_modules/@phaseo/cli",
+	});
+	assert.equal(installations.length, 2);
+	assert.equal(installations[0]?.binDirectory, "/opt/Phaseo/bin");
+	assert.equal(installations[1]?.binDirectory, "/opt/phaseo/bin");
 });
 
 test("doctor deduplicates Windows wrappers and reports a shadowed global installation", () => {
