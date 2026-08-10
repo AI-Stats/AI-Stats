@@ -1239,6 +1239,8 @@ class GatewayCapabilities
 	public $parameters;
 }
 
+class GatewayCapabilityStatus { }
+
 class GatewayDatetimeToolDefinition
 {
 	/** @var array<string, mixed>|null */
@@ -1334,6 +1336,10 @@ class GatewayPricing
 }
 
 class GatewayPricingMeter { }
+
+class GatewayProviderAvailabilityReason { }
+
+class GatewayRoutingStatus { }
 
 class GatewayWebFetchToolDefinition
 {
@@ -1781,20 +1787,6 @@ class ModelProviderAvailability
 	public $supported_parameters;
 	/** @var array<string, mixed>|null */
 	public $supported_parameters_detail;
-}
-
-class ModelsPrivacyScopeNotImplementedResponse
-{
-	/** @var string */
-	public $code;
-	/** @var string */
-	public $error;
-	/** @var string */
-	public $message;
-	/** @var string */
-	public $ok;
-	/** @var string */
-	public $privacy_scope;
 }
 
 class ModerationCategories

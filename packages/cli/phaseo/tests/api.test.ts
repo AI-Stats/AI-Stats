@@ -26,6 +26,8 @@ import {
 	renderLoginMenu,
 	renderHelp,
 	renderOneTimeClientSecret,
+	renderModelDetails,
+	renderModelListItem,
 	unknownCommandMessage,
 	windowsBrowserOpenArgs,
 	validateLoopbackRedirectUri,
@@ -199,6 +201,22 @@ test("ignores callback hits until an authorization code is present", () => {
 test("removes terminal control characters from human-readable errors", () => {
 	assert.equal(sanitizeTerminalText("bad\u001b[31mname\u0007"), "bad [31mname ");
 	assert.equal(sanitizeTerminalText("first\n\tsecond\r\nthird"), "first\n\tsecond\r\nthird");
+});
+
+test("sanitizes API-controlled values in human-readable model output", () => {
+	const model = {
+		id: "model\u001b[31m",
+		name: "Unsafe\u0007 Name",
+		organization: { name: "Lab\u009b" },
+		modalities: { input: ["text\u001b"], output: ["text"] },
+		limits: { input_tokens: 128_000, output_tokens: 4_096 },
+		availability: { status: "active\u001b", active_provider_count: 1 },
+	};
+	const listItem = renderModelListItem(model);
+	const details = renderModelDetails(model);
+	assert.doesNotMatch(listItem, /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/);
+	assert.doesNotMatch(details, /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/);
+	assert.match(details, /Organization: Lab /);
 });
 
 test("only accepts loopback browser callback URLs", () => {

@@ -6,6 +6,7 @@ import {
 	authenticatePhaseoUser,
 	type AuthenticatedPhaseoUser,
 	type GatewayMeter,
+	type GatewayModel,
 	type PhaseoEnv,
 	getModel,
 	listModels,
@@ -184,12 +185,23 @@ function normalise(value: string | null | undefined): string {
 	return value?.trim().toLowerCase() ?? "";
 }
 
-function tokenRate(meter: GatewayMeter | null | undefined): number | null {
+export function tokenRate(meter: GatewayMeter | null | undefined): number | null {
 	if (!meter) return null;
+	if (meter.currency?.trim().toUpperCase() !== "USD") return null;
 	const price = Number(meter.price_per_unit);
 	const unitSize = Number(meter.unit_size);
 	if (!Number.isFinite(price) || !Number.isFinite(unitSize) || unitSize <= 0) return null;
 	return price / unitSize;
+}
+
+export function matchesModelProvider(
+	model: Pick<GatewayModel, "organization" | "offers">,
+	provider: string | undefined,
+): boolean {
+	if (!provider) return true;
+	const query = normalise(provider);
+	return normalise(model.organization?.name).includes(query)
+		|| model.offers.some((offer) => offer.routable && normalise(offer.provider.name).includes(query));
 }
 
 function tokenRateString(meter: GatewayMeter | null | undefined): string | null {
@@ -513,7 +525,7 @@ export function createServer(env: PhaseoEnv, authenticatedUser: AuthenticatedPha
 					const inputPrice = tokenRate(model.pricing.meters.input_tokens ?? model.pricing.meters.input_text_tokens);
 					return (
 						queryTerms.every((term) => searchable.includes(term)) &&
-						(!provider || normalise(model.organization?.name).includes(normalise(provider)) || model.offers.some((offer) => normalise(offer.provider.name).includes(normalise(provider)))) &&
+						matchesModelProvider(model, provider) &&
 						(!modality || model.modalities.input.map(normalise).includes(modality)) &&
 						(!minimumContextTokens || (model.limits.input_tokens ?? 0) >= minimumContextTokens) &&
 						(maximumInputPricePerMillion === undefined || (inputPrice !== null && inputPrice * 1_000_000 <= maximumInputPricePerMillion))

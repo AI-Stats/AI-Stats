@@ -29,6 +29,7 @@ import {
 	isGatewayOAuthResource,
 	isValidPkceChallenge,
 	isFirstPartyCliClient,
+	isReservedOAuthClientName,
 	isThirdPartyOAuthEnabled,
 	loadOAuthClient,
 	makeAuthCodeExpiry,
@@ -406,7 +407,7 @@ oauthRouter.post(
 		if (clientName.length < 3 || clientName.length > 100 || hasUnsafeMetadataCharacters(clientName)) {
 			return oauthError("invalid_client_metadata", "client_name must contain 3-100 characters");
 		}
-		if (/\b(?:phaseo|ai[\s_-]*stats)\b/i.test(clientName)) {
+		if (isReservedOAuthClientName(clientName)) {
 			return oauthError("invalid_client_metadata", "Dynamically registered clients cannot use reserved Phaseo product names");
 		}
 		const clientDescription = typeof body.client_description === "string"

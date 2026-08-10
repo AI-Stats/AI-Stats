@@ -1026,6 +1026,7 @@ module Phaseo
     # @!attribute [rw] parameters
     #   @return [Array<String>]
     GatewayCapabilities = Struct.new(:endpoints, :parameter_details, :parameters, keyword_init: true)
+    GatewayCapabilityStatus = Object
     # @!attribute [rw] parameters
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] timezone
@@ -1099,6 +1100,8 @@ module Phaseo
     #   @return [String]
     GatewayPricing = Struct.new(:meters, :pricing_plan, keyword_init: true)
     GatewayPricingMeter = Object
+    GatewayProviderAvailabilityReason = Object
+    GatewayRoutingStatus = Object
     # @!attribute [rw] max_chars
     #   @return [Integer, nil]
     # @!attribute [rw] parameters
@@ -1463,17 +1466,6 @@ module Phaseo
     # @!attribute [rw] supported_parameters_detail
     #   @return [Hash{String => Object}, nil]
     ModelProviderAvailability = Struct.new(:api_provider_id, :api_provider_name, :availability_reason, :availability_status, :capability_status, :effective_from, :effective_to, :endpoints, :input_modalities, :is_active_gateway, :model_routing_status, :output_modalities, :params, :params_detail, :provider_model_slug, :provider_routing_status, :provider_status, :supported_parameters, :supported_parameters_detail, keyword_init: true)
-    # @!attribute [rw] code
-    #   @return [String]
-    # @!attribute [rw] error
-    #   @return [String]
-    # @!attribute [rw] message
-    #   @return [String]
-    # @!attribute [rw] ok
-    #   @return [String]
-    # @!attribute [rw] privacy_scope
-    #   @return [String]
-    ModelsPrivacyScopeNotImplementedResponse = Struct.new(:code, :error, :message, :ok, :privacy_scope, keyword_init: true)
     # @!attribute [rw] harassment
     #   @return [Boolean, nil]
     # @!attribute [rw] harassment_threatening

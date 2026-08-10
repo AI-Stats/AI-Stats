@@ -7597,7 +7597,7 @@ export async function listModelEndpoints(
     pricing: {
       meters: {
         [key: string]: {
-          currency: string | null;
+          currency: "USD";
           price_per_unit: string;
           provider_id: string;
           unit: string;
@@ -7613,12 +7613,50 @@ export async function listModelEndpoints(
     public_path: string;
     routable: boolean;
     routing: {
-      capability: string;
-      model: string;
-      provider: string;
+      capability:
+        | "active"
+        | "coming_soon"
+        | "deranked_lvl1"
+        | "deranked_lvl2"
+        | "deranked_lvl3"
+        | "disabled"
+        | "internal_testing";
+      model:
+        | "active"
+        | "deranked_lvl1"
+        | "deranked_lvl2"
+        | "deranked_lvl3"
+        | "disabled";
+      provider:
+        | "active"
+        | "deranked_lvl1"
+        | "deranked_lvl2"
+        | "deranked_lvl3"
+        | "disabled";
     };
     status: "active" | "coming_soon" | "inactive";
-    status_reason: string;
+    status_reason:
+      | "active"
+      | "preview_only"
+      | "gated"
+      | "access_limited"
+      | "region_limited"
+      | "project_limited"
+      | "paused"
+      | "soft_blocked"
+      | "deranked_lvl1"
+      | "deranked_lvl2"
+      | "deranked_lvl3"
+      | "internal_testing"
+      | "scheduled"
+      | "coming_soon"
+      | "provider_disabled"
+      | "model_disabled"
+      | "capability_disabled"
+      | "provider_not_ready"
+      | "provider_inactive"
+      | "inactive"
+      | "retired";
   }[];
   id: string;
   modalities: {
@@ -7675,7 +7713,7 @@ export async function listModelEndpoints(
       pricing: {
         meters: {
           [key: string]: {
-            currency: string | null;
+            currency: "USD";
             price_per_unit: string;
             provider_id: string;
             unit: string;
@@ -7691,12 +7729,50 @@ export async function listModelEndpoints(
       public_path: string;
       routable: boolean;
       routing: {
-        capability: string;
-        model: string;
-        provider: string;
+        capability:
+          | "active"
+          | "coming_soon"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled"
+          | "internal_testing";
+        model:
+          | "active"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled";
+        provider:
+          | "active"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled";
       };
       status: "active" | "coming_soon" | "inactive";
-      status_reason: string;
+      status_reason:
+        | "active"
+        | "preview_only"
+        | "gated"
+        | "access_limited"
+        | "region_limited"
+        | "project_limited"
+        | "paused"
+        | "soft_blocked"
+        | "deranked_lvl1"
+        | "deranked_lvl2"
+        | "deranked_lvl3"
+        | "internal_testing"
+        | "scheduled"
+        | "coming_soon"
+        | "provider_disabled"
+        | "model_disabled"
+        | "capability_disabled"
+        | "provider_not_ready"
+        | "provider_inactive"
+        | "inactive"
+        | "retired";
     }[];
     id: string;
     modalities: {
@@ -7930,7 +8006,7 @@ export async function listModels(
       pricing: {
         meters: {
           [key: string]: {
-            currency: string | null;
+            currency: "USD";
             price_per_unit: string;
             provider_id: string;
             unit: string;
@@ -7945,12 +8021,50 @@ export async function listModels(
       };
       routable: boolean;
       routing: {
-        capability: string;
-        model: string;
-        provider: string;
+        capability:
+          | "active"
+          | "coming_soon"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled"
+          | "internal_testing";
+        model:
+          | "active"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled";
+        provider:
+          | "active"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled";
       };
       status: "active" | "coming_soon" | "inactive";
-      status_reason: string;
+      status_reason:
+        | "active"
+        | "preview_only"
+        | "gated"
+        | "access_limited"
+        | "region_limited"
+        | "project_limited"
+        | "paused"
+        | "soft_blocked"
+        | "deranked_lvl1"
+        | "deranked_lvl2"
+        | "deranked_lvl3"
+        | "internal_testing"
+        | "scheduled"
+        | "coming_soon"
+        | "provider_disabled"
+        | "model_disabled"
+        | "capability_disabled"
+        | "provider_not_ready"
+        | "provider_inactive"
+        | "inactive"
+        | "retired";
     }[];
     organization: {
       color: string | null;
@@ -7960,7 +8074,7 @@ export async function listModels(
     pricing: {
       meters: {
         [key: string]: {
-          currency: string | null;
+          currency: "USD";
           price_per_unit: string;
           provider_id: string;
           unit: string;
@@ -8047,7 +8161,7 @@ export async function listModels(
         pricing: {
           meters: {
             [key: string]: {
-              currency: string | null;
+              currency: "USD";
               price_per_unit: string;
               provider_id: string;
               unit: string;
@@ -8062,12 +8176,50 @@ export async function listModels(
         };
         routable: boolean;
         routing: {
-          capability: string;
-          model: string;
-          provider: string;
+          capability:
+            | "active"
+            | "coming_soon"
+            | "deranked_lvl1"
+            | "deranked_lvl2"
+            | "deranked_lvl3"
+            | "disabled"
+            | "internal_testing";
+          model:
+            | "active"
+            | "deranked_lvl1"
+            | "deranked_lvl2"
+            | "deranked_lvl3"
+            | "disabled";
+          provider:
+            | "active"
+            | "deranked_lvl1"
+            | "deranked_lvl2"
+            | "deranked_lvl3"
+            | "disabled";
         };
         status: "active" | "coming_soon" | "inactive";
-        status_reason: string;
+        status_reason:
+          | "active"
+          | "preview_only"
+          | "gated"
+          | "access_limited"
+          | "region_limited"
+          | "project_limited"
+          | "paused"
+          | "soft_blocked"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "internal_testing"
+          | "scheduled"
+          | "coming_soon"
+          | "provider_disabled"
+          | "model_disabled"
+          | "capability_disabled"
+          | "provider_not_ready"
+          | "provider_inactive"
+          | "inactive"
+          | "retired";
       }[];
       organization: {
         color: string | null;
@@ -8077,7 +8229,7 @@ export async function listModels(
       pricing: {
         meters: {
           [key: string]: {
-            currency: string | null;
+            currency: "USD";
             price_per_unit: string;
             provider_id: string;
             unit: string;
@@ -8453,7 +8605,7 @@ export async function listTeamModels(
       pricing: {
         meters: {
           [key: string]: {
-            currency: string | null;
+            currency: "USD";
             price_per_unit: string;
             provider_id: string;
             unit: string;
@@ -8468,12 +8620,50 @@ export async function listTeamModels(
       };
       routable: boolean;
       routing: {
-        capability: string;
-        model: string;
-        provider: string;
+        capability:
+          | "active"
+          | "coming_soon"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled"
+          | "internal_testing";
+        model:
+          | "active"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled";
+        provider:
+          | "active"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled";
       };
       status: "active" | "coming_soon" | "inactive";
-      status_reason: string;
+      status_reason:
+        | "active"
+        | "preview_only"
+        | "gated"
+        | "access_limited"
+        | "region_limited"
+        | "project_limited"
+        | "paused"
+        | "soft_blocked"
+        | "deranked_lvl1"
+        | "deranked_lvl2"
+        | "deranked_lvl3"
+        | "internal_testing"
+        | "scheduled"
+        | "coming_soon"
+        | "provider_disabled"
+        | "model_disabled"
+        | "capability_disabled"
+        | "provider_not_ready"
+        | "provider_inactive"
+        | "inactive"
+        | "retired";
     }[];
     organization: {
       color: string | null;
@@ -8483,7 +8673,7 @@ export async function listTeamModels(
     pricing: {
       meters: {
         [key: string]: {
-          currency: string | null;
+          currency: "USD";
           price_per_unit: string;
           provider_id: string;
           unit: string;
@@ -8570,7 +8760,7 @@ export async function listTeamModels(
         pricing: {
           meters: {
             [key: string]: {
-              currency: string | null;
+              currency: "USD";
               price_per_unit: string;
               provider_id: string;
               unit: string;
@@ -8585,12 +8775,50 @@ export async function listTeamModels(
         };
         routable: boolean;
         routing: {
-          capability: string;
-          model: string;
-          provider: string;
+          capability:
+            | "active"
+            | "coming_soon"
+            | "deranked_lvl1"
+            | "deranked_lvl2"
+            | "deranked_lvl3"
+            | "disabled"
+            | "internal_testing";
+          model:
+            | "active"
+            | "deranked_lvl1"
+            | "deranked_lvl2"
+            | "deranked_lvl3"
+            | "disabled";
+          provider:
+            | "active"
+            | "deranked_lvl1"
+            | "deranked_lvl2"
+            | "deranked_lvl3"
+            | "disabled";
         };
         status: "active" | "coming_soon" | "inactive";
-        status_reason: string;
+        status_reason:
+          | "active"
+          | "preview_only"
+          | "gated"
+          | "access_limited"
+          | "region_limited"
+          | "project_limited"
+          | "paused"
+          | "soft_blocked"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "internal_testing"
+          | "scheduled"
+          | "coming_soon"
+          | "provider_disabled"
+          | "model_disabled"
+          | "capability_disabled"
+          | "provider_not_ready"
+          | "provider_inactive"
+          | "inactive"
+          | "retired";
       }[];
       organization: {
         color: string | null;
@@ -8600,7 +8828,7 @@ export async function listTeamModels(
       pricing: {
         meters: {
           [key: string]: {
-            currency: string | null;
+            currency: "USD";
             price_per_unit: string;
             provider_id: string;
             unit: string;

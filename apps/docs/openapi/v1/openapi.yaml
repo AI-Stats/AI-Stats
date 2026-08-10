@@ -3908,10 +3908,12 @@ components:
           type: integer
           nullable: true
           minimum: 0
+          exclusiveMinimum: true
         output_tokens:
           type: integer
           nullable: true
           minimum: 0
+          exclusiveMinimum: true
     GatewayCapabilities:
       type: object
       required:
@@ -3943,13 +3945,15 @@ components:
         unit:
           type: string
         unit_size:
-          type: integer
-          minimum: 1
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
         price_per_unit:
           type: string
         currency:
           type: string
-          nullable: true
+          enum:
+            - USD
     GatewayPricing:
       type: object
       required:
@@ -3964,6 +3968,48 @@ components:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/GatewayPricingMeter'
+    GatewayProviderAvailabilityReason:
+      type: string
+      enum:
+        - active
+        - preview_only
+        - gated
+        - access_limited
+        - region_limited
+        - project_limited
+        - paused
+        - soft_blocked
+        - deranked_lvl1
+        - deranked_lvl2
+        - deranked_lvl3
+        - internal_testing
+        - scheduled
+        - coming_soon
+        - provider_disabled
+        - model_disabled
+        - capability_disabled
+        - provider_not_ready
+        - provider_inactive
+        - inactive
+        - retired
+    GatewayRoutingStatus:
+      type: string
+      enum:
+        - active
+        - deranked_lvl1
+        - deranked_lvl2
+        - deranked_lvl3
+        - disabled
+    GatewayCapabilityStatus:
+      type: string
+      enum:
+        - active
+        - coming_soon
+        - deranked_lvl1
+        - deranked_lvl2
+        - deranked_lvl3
+        - disabled
+        - internal_testing
     GatewayModelOffer:
       type: object
       required:
@@ -4000,7 +4046,7 @@ components:
             - coming_soon
             - inactive
         status_reason:
-          type: string
+          $ref: '#/components/schemas/GatewayProviderAvailabilityReason'
         routable:
           type: boolean
         endpoints:
@@ -4019,11 +4065,11 @@ components:
             - capability
           properties:
             provider:
-              type: string
+              $ref: '#/components/schemas/GatewayRoutingStatus'
             model:
-              type: string
+              $ref: '#/components/schemas/GatewayRoutingStatus'
             capability:
-              type: string
+              $ref: '#/components/schemas/GatewayCapabilityStatus'
         effective:
           type: object
           required:
@@ -4119,29 +4165,7 @@ components:
             - coming_soon
             - inactive
         availability_reason:
-          type: string
-          enum:
-            - active
-            - preview_only
-            - gated
-            - access_limited
-            - region_limited
-            - project_limited
-            - paused
-            - soft_blocked
-            - deranked_lvl1
-            - deranked_lvl2
-            - deranked_lvl3
-            - internal_testing
-            - scheduled
-            - coming_soon
-            - provider_disabled
-            - model_disabled
-            - capability_disabled
-            - provider_not_ready
-            - provider_inactive
-            - inactive
-            - retired
+          $ref: '#/components/schemas/GatewayProviderAvailabilityReason'
         provider_status:
           type: string
           enum:
@@ -4156,31 +4180,11 @@ components:
             - paused
             - soft_blocked
         provider_routing_status:
-          type: string
-          enum:
-            - active
-            - deranked_lvl1
-            - deranked_lvl2
-            - deranked_lvl3
-            - disabled
+          $ref: '#/components/schemas/GatewayRoutingStatus'
         model_routing_status:
-          type: string
-          enum:
-            - active
-            - deranked_lvl1
-            - deranked_lvl2
-            - deranked_lvl3
-            - disabled
+          $ref: '#/components/schemas/GatewayRoutingStatus'
         capability_status:
-          type: string
-          enum:
-            - active
-            - coming_soon
-            - deranked_lvl1
-            - deranked_lvl2
-            - deranked_lvl3
-            - disabled
-            - internal_testing
+          $ref: '#/components/schemas/GatewayCapabilityStatus'
         effective_from:
           type: string
           nullable: true
@@ -8895,7 +8899,7 @@ components:
             - coming_soon
             - inactive
         status_reason:
-          type: string
+          $ref: '#/components/schemas/GatewayProviderAvailabilityReason'
         modalities:
           $ref: '#/components/schemas/GatewayModalities'
         capabilities:
@@ -8908,11 +8912,11 @@ components:
             - capability
           properties:
             provider:
-              type: string
+              $ref: '#/components/schemas/GatewayRoutingStatus'
             model:
-              type: string
+              $ref: '#/components/schemas/GatewayRoutingStatus'
             capability:
-              type: string
+              $ref: '#/components/schemas/GatewayCapabilityStatus'
         effective:
           type: object
           required:
@@ -9034,36 +9038,6 @@ components:
         max_offset:
           type: integer
           minimum: 0
-      additionalProperties: true
-    ModelsPrivacyScopeNotImplementedResponse:
-      type: object
-      required:
-        - ok
-        - error
-        - code
-        - message
-        - privacy_scope
-      properties:
-        ok:
-          type: boolean
-          enum:
-            - false
-          example: false
-        error:
-          type: string
-          enum:
-            - not_implemented
-          example: not_implemented
-        code:
-          type: string
-          enum:
-            - models_privacy_scope_not_implemented
-        message:
-          type: string
-        privacy_scope:
-          type: string
-          enum:
-            - team
       additionalProperties: true
     AnalyticsNotImplementedResponse:
       type: object

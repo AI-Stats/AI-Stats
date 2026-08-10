@@ -692,6 +692,8 @@ pub struct GatewayCapabilities {
 	pub parameters: Vec<String>,
 }
 
+pub type GatewayCapabilityStatus = JsonValue;
+
 pub struct GatewayDatetimeToolDefinition {
 	pub parameters: Option<HashMap<String, String>>,
 	pub timezone: Option<String>,
@@ -748,6 +750,10 @@ pub struct GatewayPricing {
 }
 
 pub type GatewayPricingMeter = JsonValue;
+
+pub type GatewayProviderAvailabilityReason = JsonValue;
+
+pub type GatewayRoutingStatus = JsonValue;
 
 pub struct GatewayWebFetchToolDefinition {
 	pub max_chars: Option<i64>,
@@ -1001,14 +1007,6 @@ pub struct ModelProviderAvailability {
 	pub provider_status: String,
 	pub supported_parameters: Option<Vec<String>>,
 	pub supported_parameters_detail: Option<HashMap<String, String>>,
-}
-
-pub struct ModelsPrivacyScopeNotImplementedResponse {
-	pub code: String,
-	pub error: String,
-	pub message: String,
-	pub ok: String,
-	pub privacy_scope: String,
 }
 
 pub struct ModerationCategories {

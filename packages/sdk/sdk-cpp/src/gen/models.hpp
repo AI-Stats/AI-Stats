@@ -696,6 +696,8 @@ struct GatewayCapabilities {
 	std::vector<std::string> parameters;
 };
 
+using GatewayCapabilityStatus = std::any;
+
 struct GatewayDatetimeToolDefinition {
 	std::map<std::string, std::any> parameters;
 	std::string timezone;
@@ -732,7 +734,7 @@ struct GatewayModelOffer {
 	bool routable;
 	std::map<std::string, std::any> routing;
 	std::any status;
-	std::string status_reason;
+	std::any status_reason;
 };
 
 using GatewayModelOrganization = std::any;
@@ -752,6 +754,10 @@ struct GatewayPricing {
 };
 
 using GatewayPricingMeter = std::any;
+
+using GatewayProviderAvailabilityReason = std::any;
+
+using GatewayRoutingStatus = std::any;
 
 struct GatewayWebFetchToolDefinition {
 	std::optional<int> max_chars;
@@ -961,7 +967,7 @@ struct ModelEndpointCapability {
 	bool routable;
 	std::map<std::string, std::any> routing;
 	std::any status;
-	std::string status_reason;
+	std::any status_reason;
 };
 
 struct ModelEndpointsResponse {
@@ -1005,14 +1011,6 @@ struct ModelProviderAvailability {
 	std::any provider_status;
 	std::vector<std::string> supported_parameters;
 	std::map<std::string, std::any> supported_parameters_detail;
-};
-
-struct ModelsPrivacyScopeNotImplementedResponse {
-	std::any code;
-	std::any error;
-	std::string message;
-	std::any ok;
-	std::any privacy_scope;
 };
 
 struct ModerationCategories {

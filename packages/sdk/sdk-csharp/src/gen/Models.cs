@@ -1717,6 +1717,8 @@ public sealed class GatewayCapabilities
 
 }
 
+public sealed class GatewayCapabilityStatus { }
+
 public sealed class GatewayDatetimeToolDefinition
 {
 	[JsonPropertyName("parameters")]
@@ -1844,6 +1846,10 @@ public sealed class GatewayPricing
 }
 
 public sealed class GatewayPricingMeter { }
+
+public sealed class GatewayProviderAvailabilityReason { }
+
+public sealed class GatewayRoutingStatus { }
 
 public sealed class GatewayWebFetchToolDefinition
 {
@@ -2457,25 +2463,6 @@ public sealed class ModelProviderAvailability
 
 	[JsonPropertyName("supported_parameters_detail")]
 	public Dictionary<string, object>? SupportedParametersDetail { get; set; }
-
-}
-
-public sealed class ModelsPrivacyScopeNotImplementedResponse
-{
-	[JsonPropertyName("code")]
-	public string Code { get; set; }
-
-	[JsonPropertyName("error")]
-	public string Error { get; set; }
-
-	[JsonPropertyName("message")]
-	public string Message { get; set; }
-
-	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
-
-	[JsonPropertyName("privacy_scope")]
-	public string PrivacyScope { get; set; }
 
 }
 

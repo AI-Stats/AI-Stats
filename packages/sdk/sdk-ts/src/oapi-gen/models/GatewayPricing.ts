@@ -1,7 +1,7 @@
 export interface GatewayPricing {
   meters: {
     [key: string]: {
-      currency: string | null;
+      currency: "USD";
       price_per_unit: string;
       provider_id: string;
       unit: string;

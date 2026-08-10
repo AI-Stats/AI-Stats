@@ -194,8 +194,10 @@ function toUnixSeconds(value: string | null): number | null {
 function detailNumber(model: CatalogueModel, names: string[]): number | null {
     for (const name of names) {
         const value = model.details?.[name];
+        if (typeof value !== "number" && typeof value !== "string") continue;
+        if (typeof value === "string" && value.trim() === "") continue;
         const parsed = typeof value === "number" ? value : Number(value);
-        if (Number.isFinite(parsed) && parsed >= 0) return parsed;
+        if (Number.isFinite(parsed) && parsed > 0) return parsed;
     }
     return null;
 }
@@ -204,6 +206,8 @@ function buildDescription(model: CatalogueModel): string {
     if (model.model_id === FREE_ROUTER_MODEL_ID) {
         return "Routes each request to an eligible free model pool with provider-aware balancing.";
     }
+    const curatedDescription = model.description?.trim();
+    if (curatedDescription) return curatedDescription;
     const displayName = model.name?.trim() || model.model_id;
     const organization = model.organisation_name?.trim();
     const owner = organization ? ` by ${organization}` : "";

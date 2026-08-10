@@ -1518,11 +1518,27 @@ export function buildModelsListPath(flags: Record<string, string | boolean>): st
 async function listModels(flags: Record<string, string | boolean>) {
 	const body = await request(buildModelsListPath(flags));
 	if (flagBool(flags, "json")) return printJson(body);
-	printList(body.models ?? [], (model) => {
-		const status = model.availability?.status ?? "unknown";
-		const providers = model.availability?.active_provider_count ?? 0;
-		return `${model.id} ${model.name} ${status} ${providers} active provider${providers === 1 ? "" : "s"}`;
-	});
+	printList(body.models ?? [], renderModelListItem);
+}
+
+function terminalValue(value: unknown, fallback = "unknown"): string {
+	return sanitizeTerminalText(String(value ?? fallback));
+}
+
+export function renderModelListItem(model: any): string {
+	const status = model.availability?.status ?? "unknown";
+	const providers = model.availability?.active_provider_count ?? 0;
+	return `${terminalValue(model.id)} ${terminalValue(model.name)} ${terminalValue(status)} ${terminalValue(providers)} active provider${providers === 1 ? "" : "s"}`;
+}
+
+export function renderModelDetails(model: any): string {
+	const input = Array.isArray(model.modalities?.input) && model.modalities.input.length
+		? model.modalities.input.map((value: unknown) => terminalValue(value)).join(", ")
+		: "unknown";
+	const output = Array.isArray(model.modalities?.output) && model.modalities.output.length
+		? model.modalities.output.map((value: unknown) => terminalValue(value)).join(", ")
+		: "unknown";
+	return `${terminalValue(model.id)}\n${terminalValue(model.name)}\nOrganization: ${terminalValue(model.organization?.name)}\nStatus: ${terminalValue(model.availability?.status)}\nModalities: ${input} -> ${output}\nToken limits: ${terminalValue(model.limits?.input_tokens)} input, ${terminalValue(model.limits?.output_tokens)} output\nActive providers: ${terminalValue(model.availability?.active_provider_count, "0")}\n`;
 }
 
 async function listProviders(flags: Record<string, string | boolean>) {
@@ -1537,11 +1553,7 @@ async function getModel(id: string | undefined, flags: Record<string, string | b
 	const model = (body.models ?? [])[0];
 	if (!model) throw new Error(`Model not found: ${id}`);
 	if (flagBool(flags, "json")) return printJson(model);
-	const input = model.modalities?.input?.join(", ") || "unknown";
-	const output = model.modalities?.output?.join(", ") || "unknown";
-	const inputLimit = model.limits?.input_tokens ?? "unknown";
-	const outputLimit = model.limits?.output_tokens ?? "unknown";
-	process.stdout.write(`${model.id}\n${model.name}\nOrganization: ${model.organization?.name ?? "unknown"}\nStatus: ${model.availability?.status ?? "unknown"}\nModalities: ${input} -> ${output}\nToken limits: ${inputLimit} input, ${outputLimit} output\nActive providers: ${model.availability?.active_provider_count ?? 0}\n`);
+	process.stdout.write(renderModelDetails(model));
 }
 
 export function isCommandGroup(command: string): boolean {

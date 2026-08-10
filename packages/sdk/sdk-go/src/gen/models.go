@@ -1347,6 +1347,19 @@ type GatewayCapabilities struct {
 	Parameters []string `json:"parameters"`
 }
 
+type GatewayCapabilityStatus string
+
+const (
+	GatewayCapabilityStatusActive GatewayCapabilityStatus = "active"
+	GatewayCapabilityStatusComingSoon GatewayCapabilityStatus = "coming_soon"
+	GatewayCapabilityStatusDerankedLvl1 GatewayCapabilityStatus = "deranked_lvl1"
+	GatewayCapabilityStatusDerankedLvl2 GatewayCapabilityStatus = "deranked_lvl2"
+	GatewayCapabilityStatusDerankedLvl3 GatewayCapabilityStatus = "deranked_lvl3"
+	GatewayCapabilityStatusDisabled GatewayCapabilityStatus = "disabled"
+	GatewayCapabilityStatusInternalTesting GatewayCapabilityStatus = "internal_testing"
+)
+
+
 type GatewayDatetimeToolDefinition struct {
 	Parameters *map[string]interface{} `json:"parameters,omitempty"`
 	Timezone *string `json:"timezone,omitempty"`
@@ -1403,6 +1416,44 @@ type GatewayPricing struct {
 }
 
 type GatewayPricingMeter = *map[string]interface{}
+
+type GatewayProviderAvailabilityReason string
+
+const (
+	GatewayProviderAvailabilityReasonActive GatewayProviderAvailabilityReason = "active"
+	GatewayProviderAvailabilityReasonPreviewOnly GatewayProviderAvailabilityReason = "preview_only"
+	GatewayProviderAvailabilityReasonGated GatewayProviderAvailabilityReason = "gated"
+	GatewayProviderAvailabilityReasonAccessLimited GatewayProviderAvailabilityReason = "access_limited"
+	GatewayProviderAvailabilityReasonRegionLimited GatewayProviderAvailabilityReason = "region_limited"
+	GatewayProviderAvailabilityReasonProjectLimited GatewayProviderAvailabilityReason = "project_limited"
+	GatewayProviderAvailabilityReasonPaused GatewayProviderAvailabilityReason = "paused"
+	GatewayProviderAvailabilityReasonSoftBlocked GatewayProviderAvailabilityReason = "soft_blocked"
+	GatewayProviderAvailabilityReasonDerankedLvl1 GatewayProviderAvailabilityReason = "deranked_lvl1"
+	GatewayProviderAvailabilityReasonDerankedLvl2 GatewayProviderAvailabilityReason = "deranked_lvl2"
+	GatewayProviderAvailabilityReasonDerankedLvl3 GatewayProviderAvailabilityReason = "deranked_lvl3"
+	GatewayProviderAvailabilityReasonInternalTesting GatewayProviderAvailabilityReason = "internal_testing"
+	GatewayProviderAvailabilityReasonScheduled GatewayProviderAvailabilityReason = "scheduled"
+	GatewayProviderAvailabilityReasonComingSoon GatewayProviderAvailabilityReason = "coming_soon"
+	GatewayProviderAvailabilityReasonProviderDisabled GatewayProviderAvailabilityReason = "provider_disabled"
+	GatewayProviderAvailabilityReasonModelDisabled GatewayProviderAvailabilityReason = "model_disabled"
+	GatewayProviderAvailabilityReasonCapabilityDisabled GatewayProviderAvailabilityReason = "capability_disabled"
+	GatewayProviderAvailabilityReasonProviderNotReady GatewayProviderAvailabilityReason = "provider_not_ready"
+	GatewayProviderAvailabilityReasonProviderInactive GatewayProviderAvailabilityReason = "provider_inactive"
+	GatewayProviderAvailabilityReasonInactive GatewayProviderAvailabilityReason = "inactive"
+	GatewayProviderAvailabilityReasonRetired GatewayProviderAvailabilityReason = "retired"
+)
+
+
+type GatewayRoutingStatus string
+
+const (
+	GatewayRoutingStatusActive GatewayRoutingStatus = "active"
+	GatewayRoutingStatusDerankedLvl1 GatewayRoutingStatus = "deranked_lvl1"
+	GatewayRoutingStatusDerankedLvl2 GatewayRoutingStatus = "deranked_lvl2"
+	GatewayRoutingStatusDerankedLvl3 GatewayRoutingStatus = "deranked_lvl3"
+	GatewayRoutingStatusDisabled GatewayRoutingStatus = "disabled"
+)
+
 
 type GatewayWebFetchToolDefinition struct {
 	MaxChars *int `json:"max_chars,omitempty"`
@@ -2136,14 +2187,6 @@ type ModelProviderAvailability struct {
 	ProviderStatus string `json:"provider_status"`
 	SupportedParameters *[]string `json:"supported_parameters,omitempty"`
 	SupportedParametersDetail *map[string]interface{} `json:"supported_parameters_detail,omitempty"`
-}
-
-type ModelsPrivacyScopeNotImplementedResponse struct {
-	Code string `json:"code"`
-	Error string `json:"error"`
-	Message string `json:"message"`
-	Ok string `json:"ok"`
-	PrivacyScope string `json:"privacy_scope"`
 }
 
 type ModerationCategories struct {

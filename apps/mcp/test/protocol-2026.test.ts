@@ -9,7 +9,7 @@ vi.mock("../src/phaseo-api", async (importOriginal) => ({
 	})),
 }));
 
-import worker from "../src/index";
+import worker, { matchesModelProvider, tokenRate } from "../src/index";
 
 const env = {
 	PHASEO_API_BASE_URL: "https://api.phaseo.app",
@@ -17,6 +17,26 @@ const env = {
 };
 
 describe("MCP 2026-07-28 transport", () => {
+	it("uses only routable provider offers when filtering models", () => {
+		const model = {
+			organization: { id: "lab", name: "Example Lab", color: null },
+			offers: [
+				{ provider: { id: "inactive", name: "Inactive Provider" }, routable: false },
+				{ provider: { id: "active", name: "Active Provider" }, routable: true },
+			],
+		} as any;
+		expect(matchesModelProvider(model, "Inactive Provider")).toBe(false);
+		expect(matchesModelProvider(model, "Active Provider")).toBe(true);
+		expect(matchesModelProvider(model, "Example Lab")).toBe(true);
+	});
+
+	it("calculates token rates only for USD meters", () => {
+		const meter = { provider_id: "openai", unit: "token", unit_size: 1_000_000, price_per_unit: "2.5", currency: "USD" };
+		expect(tokenRate(meter)).toBe(0.0000025);
+		expect(tokenRate({ ...meter, currency: "EUR" })).toBeNull();
+		expect(tokenRate({ ...meter, currency: null })).toBeNull();
+	});
+
 	it("discovers the server over the modern stateless HTTP protocol", async () => {
 		const response = await worker.fetch(
 			new Request("https://mcp.phaseo.app/mcp", {

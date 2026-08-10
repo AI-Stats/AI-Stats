@@ -66,6 +66,10 @@ const CIMD_DEFAULT_SCOPES = [
 ] as const;
 const cimdClientCache = new Map<string, { expiresAt: number; client: OAuthClient }>();
 
+export function isReservedOAuthClientName(value: string): boolean {
+	return /\b(?:phaseo|ai[\s_-]*stats)\b/i.test(value.normalize("NFKC"));
+}
+
 export type OAuthActor = {
 	userId: string;
 	email?: string | null;
@@ -461,6 +465,30 @@ function optionalHttpsMetadataUrl(value: unknown): string | null | undefined {
 	}
 }
 
+async function readResponseTextWithinLimit(response: Response, maximumBytes: number): Promise<string | null> {
+	if (!response.body) return "";
+	const reader = response.body.getReader();
+	const chunks: Uint8Array[] = [];
+	let totalBytes = 0;
+	while (true) {
+		const { done, value } = await reader.read();
+		if (done) break;
+		totalBytes += value.byteLength;
+		if (totalBytes > maximumBytes) {
+			await reader.cancel().catch(() => undefined);
+			return null;
+		}
+		chunks.push(value);
+	}
+	const bytes = new Uint8Array(totalBytes);
+	let offset = 0;
+	for (const chunk of chunks) {
+		bytes.set(chunk, offset);
+		offset += chunk.byteLength;
+	}
+	return new TextDecoder().decode(bytes);
+}
+
 async function loadCimdClient(clientId: string): Promise<OAuthClient | null> {
 	const clientUrl = parseCimdClientId(clientId);
 	if (!clientUrl) return null;
@@ -480,15 +508,17 @@ async function loadCimdClient(clientId: string): Promise<OAuthClient | null> {
 	if (!response.ok) return null;
 	const contentLength = Number(response.headers.get("content-length"));
 	if (Number.isFinite(contentLength) && contentLength > CIMD_MAX_DOCUMENT_BYTES) return null;
-	const text = await response.text();
-	if (new TextEncoder().encode(text).byteLength > CIMD_MAX_DOCUMENT_BYTES) return null;
+	const text = await readResponseTextWithinLimit(response, CIMD_MAX_DOCUMENT_BYTES);
+	if (text === null) return null;
 
-	let metadata: Record<string, unknown>;
+	let parsedMetadata: unknown;
 	try {
-		metadata = JSON.parse(text) as Record<string, unknown>;
+		parsedMetadata = JSON.parse(text);
 	} catch {
 		return null;
 	}
+	if (!parsedMetadata || typeof parsedMetadata !== "object" || Array.isArray(parsedMetadata)) return null;
+	const metadata = parsedMetadata as Record<string, unknown>;
 	if (metadata.client_id !== clientId) return null;
 	const name = typeof metadata.client_name === "string" ? metadata.client_name.normalize("NFKC").trim() : "";
 	const redirectUris = Array.isArray(metadata.redirect_uris) ? metadata.redirect_uris : [];
@@ -498,6 +528,7 @@ async function loadCimdClient(clientId: string): Promise<OAuthClient | null> {
 		name.length < 1
 		|| name.length > 100
 		|| /[\u0000-\u001f\u007f]/.test(name)
+		|| isReservedOAuthClientName(name)
 		|| redirectUris.length < 1
 		|| redirectUris.length > 10
 		|| !redirectUris.every(isCimdRedirectUri)

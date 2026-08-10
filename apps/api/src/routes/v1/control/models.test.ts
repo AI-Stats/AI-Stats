@@ -26,6 +26,7 @@ function buildCatalogueModel(overrides: Record<string, unknown> = {}) {
         variant_kind: "standard",
         previous_model_id: null,
         name: "GPT-4o Mini",
+        description: "A compact model for fast text generation.",
         release_date: "2026-01-01",
         deprecation_date: null,
         retirement_date: null,
@@ -76,10 +77,12 @@ function buildCatalogueModel(overrides: Record<string, unknown> = {}) {
         provider_pricing: {},
         provider_endpoint_pricing: {},
         provider_endpoint_capabilities: {},
+        details: {},
         availability: {
             status: "active",
             provider_count: 1,
             active_provider_count: 1,
+            coming_soon_provider_count: 0,
             inactive_provider_count: 0,
         },
         ...overrides,
@@ -162,6 +165,7 @@ describe("handleModels", () => {
             models: [
                 {
                     id: "openai/gpt-4o-mini",
+                    description: "A compact model for fast text generation.",
                     capabilities: {
                         parameters: ["temperature"],
                         parameter_details: {
@@ -199,6 +203,23 @@ describe("handleModels", () => {
         expect(response.status).toBe(200);
         await expect(response.json()).resolves.toMatchObject({
             models: [{ limits: { input_tokens: 128000, output_tokens: 16384 } }],
+        });
+    });
+
+    it("rejects empty and non-positive context-limit details", async () => {
+        fetchCatalogueMock.mockResolvedValue([buildCatalogueModel({
+            details: {
+                input_context_length: null,
+                context_length: "",
+                output_context_length: -1,
+            },
+        })]);
+
+        const response = await handleModels(new Request("https://api.example.com/"));
+
+        expect(response.status).toBe(200);
+        await expect(response.json()).resolves.toMatchObject({
+            models: [{ limits: { input_tokens: null, output_tokens: null } }],
         });
     });
 

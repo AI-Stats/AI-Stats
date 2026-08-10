@@ -65,4 +65,41 @@ describe("OAuth client ID metadata documents", () => {
 		await expect(loadOAuthClient("https://client.example/")).resolves.toBeNull();
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
+
+	it("stops reading metadata once the document exceeds the byte limit", async () => {
+		let pulls = 0;
+		let cancelled = false;
+		const stream = new ReadableStream<Uint8Array>({
+			pull(controller) {
+				pulls += 1;
+				controller.enqueue(new Uint8Array(3_000));
+			},
+			cancel() {
+				cancelled = true;
+			},
+		});
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(stream)));
+
+		await expect(loadOAuthClient("https://large.example/client.json")).resolves.toBeNull();
+		expect(cancelled).toBe(true);
+		expect(pulls).toBeLessThanOrEqual(3);
+	});
+
+	it("rejects JSON metadata that is not an object", async () => {
+		for (const [index, metadata] of [null, [], "client"].entries()) {
+			vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json(metadata)));
+			await expect(loadOAuthClient(`https://shape-${index}.example/client.json`)).resolves.toBeNull();
+		}
+	});
+
+	it("rejects CIMD clients that use reserved Phaseo product names", async () => {
+		const clientId = "https://impersonator.example/client.json";
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({
+			client_id: clientId,
+			client_name: "Official Phaseo MCP",
+			redirect_uris: ["https://impersonator.example/callback"],
+		})));
+
+		await expect(loadOAuthClient(clientId)).resolves.toBeNull();
+	});
 });

@@ -696,6 +696,9 @@ public final class Models {
 		public java.util.List<String> parameters;
 	}
 
+	public static class GatewayCapabilityStatus {
+	}
+
 	public static class GatewayDatetimeToolDefinition {
 		public Object parameters;
 		public String timezone;
@@ -732,7 +735,7 @@ public final class Models {
 		public Boolean routable;
 		public Object routing;
 		public Object status;
-		public String status_reason;
+		public Object status_reason;
 	}
 
 	public static class GatewayModelOrganization {
@@ -753,6 +756,12 @@ public final class Models {
 	}
 
 	public static class GatewayPricingMeter {
+	}
+
+	public static class GatewayProviderAvailabilityReason {
+	}
+
+	public static class GatewayRoutingStatus {
 	}
 
 	public static class GatewayWebFetchToolDefinition {
@@ -965,7 +974,7 @@ public final class Models {
 		public Boolean routable;
 		public Object routing;
 		public Object status;
-		public String status_reason;
+		public Object status_reason;
 	}
 
 	public static class ModelEndpointsResponse {
@@ -1010,14 +1019,6 @@ public final class Models {
 		public Object provider_status;
 		public java.util.List<String> supported_parameters;
 		public Object supported_parameters_detail;
-	}
-
-	public static class ModelsPrivacyScopeNotImplementedResponse {
-		public Object code;
-		public Object error;
-		public String message;
-		public Object ok;
-		public Object privacy_scope;
 	}
 
 	public static class ModerationCategories {
