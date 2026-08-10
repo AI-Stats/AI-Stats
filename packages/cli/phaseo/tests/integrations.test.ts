@@ -3,8 +3,10 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { parse as parseJsonc } from "jsonc-parser";
 import { codexAdapter, renderCodexProfile } from "../src/integrations/adapters/codex.js";
 import { claudeCodeAdapter, renderClaudeSettings } from "../src/integrations/adapters/claude-code.js";
+import { openCodeAdapter, renderOpenCodeConfig } from "../src/integrations/adapters/opencode.js";
 import { applyChanges } from "../src/integrations/files.js";
 import { runIntegrationCommand } from "../src/integrations/index.js";
 import { getIntegrationGatewayCredential, revokeIntegrationGatewayCredential } from "../src/integrations/credential.js";
@@ -54,6 +56,52 @@ test("Claude Code refuses to replace another gateway or credential helper", () =
 	);
 });
 
+test("OpenCode configuration preserves comments and unrelated providers", () => {
+	const before = `{
+	// Keep this user setting.
+	"theme": "system",
+	"provider": {
+		"local": {
+			"npm": "@ai-sdk/openai-compatible",
+			"options": { "baseURL": "http://127.0.0.1:1234/v1" },
+		},
+	},
+}
+`;
+	const rendered = renderOpenCodeConfig("/tmp/opencode.jsonc", before, "openai/gpt-5.6-terra");
+	const config = parseJsonc(rendered) as {
+		theme: string;
+		provider: Record<string, {
+			npm: string;
+			options: Record<string, string>;
+			models: Record<string, unknown>;
+		}>;
+	};
+	assert.match(rendered, /Keep this user setting/);
+	assert.equal(config.theme, "system");
+	assert.equal(config.provider.local.options.baseURL, "http://127.0.0.1:1234/v1");
+	assert.equal(config.provider.phaseo.npm, "@ai-sdk/openai-compatible");
+	assert.equal(config.provider.phaseo.options.baseURL, "https://api.phaseo.app/v1");
+	assert.equal(config.provider.phaseo.options.apiKey, "{env:PHASEO_API_KEY}");
+	assert.deepEqual(config.provider.phaseo.models["openai/gpt-5.6-terra"], { name: "openai/gpt-5.6-terra" });
+	assert.doesNotMatch(rendered, /phaseo_v1_sk_/);
+});
+
+test("OpenCode rejects conflicting providers and provider allowlists", () => {
+	assert.throws(
+		() => renderOpenCodeConfig("/tmp/opencode.json", JSON.stringify({ provider: { phaseo: { npm: "other" } } })),
+		/not managed by Phaseo CLI/,
+	);
+	assert.throws(
+		() => renderOpenCodeConfig("/tmp/opencode.json", JSON.stringify({ disabled_providers: ["phaseo"] })),
+		/remove it from disabled_providers/,
+	);
+	assert.throws(
+		() => renderOpenCodeConfig("/tmp/opencode.json", JSON.stringify({ enabled_providers: ["openai"] })),
+		/add phaseo to that list/,
+	);
+});
+
 test("Codex setup and removal only manage the Phaseo profile", async () => {
 	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-codex-integration-"));
 	const previousCodexHome = process.env.CODEX_HOME;
@@ -89,6 +137,78 @@ test("Claude Code setup and removal preserve unrelated settings", async () => {
 	}
 });
 
+test("OpenCode setup and removal preserve unrelated JSONC settings", async () => {
+	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-opencode-integration-"));
+	const configPath = join(homeDir, ".config", "opencode", "opencode.jsonc");
+	const original = `{
+	// Keep this comment.
+	"theme": "system",
+}
+`;
+	const previousConfig = process.env.OPENCODE_CONFIG;
+	delete process.env.OPENCODE_CONFIG;
+	try {
+		await applyChanges([{ path: configPath, before: null, after: original, description: "fixture" }]);
+		const options = { homeDir, model: "openai/gpt-5.6-terra" };
+		await applyChanges(await openCodeAdapter.planSetup(options));
+		assert.equal((await openCodeAdapter.inspect(options)).status, "configured");
+		const configured = await readFile(configPath, "utf8");
+		assert.match(configured, /Keep this comment/);
+		await applyChanges(await openCodeAdapter.planRemove(options));
+		const removed = await readFile(configPath, "utf8");
+		assert.match(removed, /Keep this comment/);
+		assert.equal((parseJsonc(removed) as Record<string, unknown>).theme, "system");
+		assert.doesNotMatch(removed, /"phaseo"/);
+	} finally {
+		if (previousConfig === undefined) delete process.env.OPENCODE_CONFIG;
+		else process.env.OPENCODE_CONFIG = previousConfig;
+		await rm(homeDir, { recursive: true, force: true });
+	}
+});
+
+test("OpenCode honors an explicit OPENCODE_CONFIG path", async () => {
+	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-opencode-custom-config-"));
+	const configPath = join(homeDir, "custom.jsonc");
+	const previousConfig = process.env.OPENCODE_CONFIG;
+	process.env.OPENCODE_CONFIG = configPath;
+	try {
+		await applyChanges(await openCodeAdapter.planSetup({ homeDir }));
+		assert.equal((await openCodeAdapter.inspect({ homeDir })).configPath, configPath);
+		assert.equal((await openCodeAdapter.inspect({ homeDir })).status, "configured");
+		await applyChanges(await openCodeAdapter.planRemove({ homeDir }));
+	} finally {
+		if (previousConfig === undefined) delete process.env.OPENCODE_CONFIG;
+		else process.env.OPENCODE_CONFIG = previousConfig;
+		await rm(homeDir, { recursive: true, force: true });
+	}
+});
+
+test("OpenCode honors XDG_CONFIG_HOME and prefers JSONC", async () => {
+	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-opencode-xdg-config-"));
+	const jsonPath = join(homeDir, "opencode", "opencode.json");
+	const jsoncPath = join(homeDir, "opencode", "opencode.jsonc");
+	const previousConfig = process.env.OPENCODE_CONFIG;
+	const previousXdgConfigHome = process.env.XDG_CONFIG_HOME;
+	delete process.env.OPENCODE_CONFIG;
+	process.env.XDG_CONFIG_HOME = homeDir;
+	try {
+		await applyChanges([
+			{ path: jsonPath, before: null, after: '{}\n', description: "json fixture" },
+			{ path: jsoncPath, before: null, after: '{}\n', description: "jsonc fixture" },
+		]);
+		await applyChanges(await openCodeAdapter.planSetup({ homeDir }));
+		assert.equal((await openCodeAdapter.inspect({ homeDir })).configPath, jsoncPath);
+		assert.match(await readFile(jsoncPath, "utf8"), /"phaseo"/);
+		assert.doesNotMatch(await readFile(jsonPath, "utf8"), /"phaseo"/);
+	} finally {
+		if (previousConfig === undefined) delete process.env.OPENCODE_CONFIG;
+		else process.env.OPENCODE_CONFIG = previousConfig;
+		if (previousXdgConfigHome === undefined) delete process.env.XDG_CONFIG_HOME;
+		else process.env.XDG_CONFIG_HOME = previousXdgConfigHome;
+		await rm(homeDir, { recursive: true, force: true });
+	}
+});
+
 test("Claude Code removal leaves an unmanaged settings file byte-for-byte unchanged", async () => {
 	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-claude-unmanaged-"));
 	const settingsPath = join(homeDir, ".claude", "settings.json");
@@ -118,7 +238,7 @@ test("Claude Code removal preserves a conflicting Phaseo gateway", async () => {
 test("Claude Code setup rejects the Codex-only model option", async () => {
 	await assert.rejects(
 		runIntegrationCommand(["setup", "claude-code"], { model: "anthropic/claude-sonnet-4.6", "dry-run": true }),
-		/--model is only supported for the Codex integration/,
+		/--model is only supported for the Codex and OpenCode integrations/,
 	);
 });
 

@@ -1,4 +1,4 @@
-export type IntegrationId = "codex" | "claude-code";
+export type IntegrationId = "codex" | "claude-code" | "opencode";
 
 export type IntegrationStatus = "not-installed" | "available" | "configured" | "conflict";
 
