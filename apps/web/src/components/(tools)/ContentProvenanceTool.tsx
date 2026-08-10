@@ -143,7 +143,7 @@ export default function ContentProvenanceTool() {
 							</div>
 							<div>
 								<CardTitle>Check a file</CardTitle>
-								<CardDescription className="mt-1">Upload one image or audio file, up to 20 MB.</CardDescription>
+								<CardDescription className="mt-1">Drop, choose, or paste an image—or upload audio. 20 MB maximum.</CardDescription>
 							</div>
 						</div>
 					</CardHeader>
