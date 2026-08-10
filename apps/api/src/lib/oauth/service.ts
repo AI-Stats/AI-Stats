@@ -1,7 +1,9 @@
 import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 import {
+	CAPABILITIES,
 	DEFAULT_CLI_OAUTH_CAPABILITIES,
 	GATEWAY_ACCESS_SCOPE,
+	IDENTITY_SCOPES,
 	parseStoredScopeList,
 } from "@/lib/authz/capabilities";
 import { resolveActiveKeyPepper, resolveKeyPepperCandidates } from "@/lib/security/keyPepper";
@@ -44,8 +46,25 @@ type OAuthClient = {
 	is_first_party: boolean;
 	beta_status: "private" | "beta" | "public";
 	status: string;
-	registration_source: "first_party" | "dynamic" | "developer";
+	registration_source: "first_party" | "dynamic" | "developer" | "cimd";
 };
+
+const CIMD_MAX_CLIENT_ID_LENGTH = 2048;
+const CIMD_MAX_DOCUMENT_BYTES = 5 * 1024;
+const CIMD_FETCH_TIMEOUT_MS = 10_000;
+const CIMD_CACHE_TTL_MS = 60 * 60 * 1000;
+const CIMD_DEFAULT_SCOPES = [
+	...IDENTITY_SCOPES,
+	GATEWAY_ACCESS_SCOPE,
+	CAPABILITIES.MODELS_READ,
+	CAPABILITIES.PROVIDERS_READ,
+	CAPABILITIES.PRICING_READ,
+	CAPABILITIES.CREDITS_READ,
+	CAPABILITIES.ACTIVITY_READ,
+	CAPABILITIES.ANALYTICS_READ,
+	CAPABILITIES.GENERATIONS_READ,
+] as const;
+const cimdClientCache = new Map<string, { expiresAt: number; client: OAuthClient }>();
 
 export type OAuthActor = {
 	userId: string;
@@ -399,6 +418,124 @@ export async function getSupabaseActor(accessToken: string): Promise<OAuthActor 
 	};
 }
 
+function parseCimdClientId(clientId: string): URL | null {
+	if (!clientId || clientId.length > CIMD_MAX_CLIENT_ID_LENGTH) return null;
+	try {
+		const url = new URL(clientId);
+		if (
+			url.protocol !== "https:"
+			|| url.username
+			|| url.password
+			|| url.hash
+			|| url.pathname === "/"
+		) return null;
+		return url;
+	} catch {
+		return null;
+	}
+}
+
+function isCimdRedirectUri(value: unknown): value is string {
+	if (typeof value !== "string" || value.length > 2048) return false;
+	try {
+		const url = new URL(value);
+		if (url.hash || url.username || url.password) return false;
+		if (url.protocol === "https:") return true;
+		return url.protocol === "http:"
+			&& (url.hostname === "127.0.0.1" || url.hostname === "localhost" || url.hostname === "::1" || url.hostname === "[::1]");
+	} catch {
+		return false;
+	}
+}
+
+function optionalHttpsMetadataUrl(value: unknown): string | null | undefined {
+	if (value === undefined || value === null) return null;
+	if (typeof value !== "string" || value.length > 2048) return undefined;
+	try {
+		const url = new URL(value);
+		return url.protocol === "https:" && !url.username && !url.password && !url.hash
+			? url.toString()
+			: undefined;
+	} catch {
+		return undefined;
+	}
+}
+
+async function loadCimdClient(clientId: string): Promise<OAuthClient | null> {
+	const clientUrl = parseCimdClientId(clientId);
+	if (!clientUrl) return null;
+	const cached = cimdClientCache.get(clientId);
+	if (cached && cached.expiresAt > Date.now()) return cached.client;
+
+	let response: Response;
+	try {
+		response = await fetch(clientUrl, {
+			headers: { Accept: "application/json" },
+			redirect: "error",
+			signal: AbortSignal.timeout(CIMD_FETCH_TIMEOUT_MS),
+		});
+	} catch {
+		return null;
+	}
+	if (!response.ok) return null;
+	const contentLength = Number(response.headers.get("content-length"));
+	if (Number.isFinite(contentLength) && contentLength > CIMD_MAX_DOCUMENT_BYTES) return null;
+	const text = await response.text();
+	if (new TextEncoder().encode(text).byteLength > CIMD_MAX_DOCUMENT_BYTES) return null;
+
+	let metadata: Record<string, unknown>;
+	try {
+		metadata = JSON.parse(text) as Record<string, unknown>;
+	} catch {
+		return null;
+	}
+	if (metadata.client_id !== clientId) return null;
+	const name = typeof metadata.client_name === "string" ? metadata.client_name.normalize("NFKC").trim() : "";
+	const redirectUris = Array.isArray(metadata.redirect_uris) ? metadata.redirect_uris : [];
+	const clientUri = optionalHttpsMetadataUrl(metadata.client_uri);
+	const logoUri = optionalHttpsMetadataUrl(metadata.logo_uri);
+	if (
+		name.length < 1
+		|| name.length > 100
+		|| /[\u0000-\u001f\u007f]/.test(name)
+		|| redirectUris.length < 1
+		|| redirectUris.length > 10
+		|| !redirectUris.every(isCimdRedirectUri)
+		|| clientUri === undefined
+		|| logoUri === undefined
+		|| String(metadata.token_endpoint_auth_method ?? "none") !== "none"
+	) return null;
+	const responseTypes = Array.isArray(metadata.response_types) ? metadata.response_types.map(String) : ["code"];
+	const grantTypes = Array.isArray(metadata.grant_types) ? metadata.grant_types.map(String) : ["authorization_code"];
+	if (
+		!responseTypes.every((value) => value === "code")
+		|| !grantTypes.includes("authorization_code")
+		|| !grantTypes.every((value) => value === "authorization_code" || value === "refresh_token")
+	) return null;
+	const requestedScopes = normalizeScopes(metadata.scope, CIMD_DEFAULT_SCOPES);
+	const allowedScopeSet = new Set<string>(CIMD_DEFAULT_SCOPES);
+	const allowedScopes = requestedScopes.filter((scope) => allowedScopeSet.has(scope));
+	if (allowedScopes.length === 0) return null;
+
+	const client: OAuthClient = {
+		id: clientId,
+		name,
+		description: null,
+		logo_url: logoUri,
+		homepage_url: clientUri,
+		client_type: "public",
+		client_secret_hash: null,
+		redirect_uris: Array.from(new Set(redirectUris as string[])),
+		allowed_scopes: allowedScopes,
+		is_first_party: false,
+		beta_status: "public",
+		status: "active",
+		registration_source: "cimd",
+	};
+	cimdClientCache.set(clientId, { expiresAt: Date.now() + CIMD_CACHE_TTL_MS, client });
+	return client;
+}
+
 export async function loadOAuthClient(clientId: string): Promise<OAuthClient | null> {
 	const supabase = getSupabaseAdmin();
 	const id = clientId.trim();
@@ -452,7 +589,7 @@ export async function loadOAuthClient(clientId: string): Promise<OAuthClient | n
 			.eq("status", "active")
 			.maybeSingle();
 	}
-	if (metadata.error || !metadata.data) return null;
+	if (metadata.error || !metadata.data) return loadCimdClient(id);
 	const row = metadata.data as any;
 	return {
 		id: id === LEGACY_CLI_CLIENT_ID ? LEGACY_CLI_CLIENT_ID : row.client_id,

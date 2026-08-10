@@ -1341,11 +1341,52 @@ type FusionToolDefinition struct {
 	Type string `json:"type"`
 }
 
+type GatewayCapabilities struct {
+	Endpoints *[]string `json:"endpoints,omitempty"`
+	ParameterDetails map[string]interface{} `json:"parameter_details"`
+	Parameters []string `json:"parameters"`
+}
+
 type GatewayDatetimeToolDefinition struct {
 	Parameters *map[string]interface{} `json:"parameters,omitempty"`
 	Timezone *string `json:"timezone,omitempty"`
 	Type string `json:"type"`
 }
+
+type GatewayModalities struct {
+	Input []string `json:"input"`
+	Output []string `json:"output"`
+}
+
+type GatewayModelLifecycle struct {
+	DeprecatedAt *string `json:"deprecated_at"`
+	Message *string `json:"message"`
+	ReleasedAt *string `json:"released_at"`
+	ReplacementId *string `json:"replacement_id"`
+	RetiresAt *string `json:"retires_at"`
+	Status *string `json:"status"`
+}
+
+type GatewayModelLimits struct {
+	InputTokens *int `json:"input_tokens"`
+	OutputTokens *int `json:"output_tokens"`
+}
+
+type GatewayModelOffer struct {
+	Capabilities map[string]interface{} `json:"capabilities"`
+	Effective map[string]interface{} `json:"effective"`
+	Endpoints []string `json:"endpoints"`
+	Modalities map[string]interface{} `json:"modalities"`
+	Model *string `json:"model"`
+	Pricing map[string]interface{} `json:"pricing"`
+	Provider map[string]interface{} `json:"provider"`
+	Routable bool `json:"routable"`
+	Routing map[string]interface{} `json:"routing"`
+	Status string `json:"status"`
+	StatusReason string `json:"status_reason"`
+}
+
+type GatewayModelOrganization = *map[string]interface{}
 
 type GatewayModelsResponse struct {
 	AvailabilityMode string `json:"availability_mode"`
@@ -1353,9 +1394,15 @@ type GatewayModelsResponse struct {
 	Models []map[string]interface{} `json:"models"`
 	Offset int `json:"offset"`
 	Ok bool `json:"ok"`
-	PrivacyScope string `json:"privacy_scope"`
 	Total int `json:"total"`
 }
+
+type GatewayPricing struct {
+	Meters map[string]interface{} `json:"meters"`
+	PricingPlan string `json:"pricing_plan"`
+}
+
+type GatewayPricingMeter = *map[string]interface{}
 
 type GatewayWebFetchToolDefinition struct {
 	MaxChars *int `json:"max_chars,omitempty"`
@@ -2005,82 +2052,58 @@ type ManagementKeyUpdateResponse struct {
 type MessageContentPart = interface{}
 
 type Model struct {
-	Aliases *[]string `json:"aliases,omitempty"`
-	Architecture *map[string]interface{} `json:"architecture,omitempty"`
-	Availability *map[string]interface{} `json:"availability,omitempty"`
-	CanonicalSlug *string `json:"canonical_slug,omitempty"`
-	Created *int `json:"created,omitempty"`
-	DeprecationDate *string `json:"deprecation_date,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Endpoints *[]string `json:"endpoints,omitempty"`
-	Id *string `json:"id,omitempty"`
-	InputTypes *[]string `json:"input_types,omitempty"`
-	Lifecycle *ModelLifecycle `json:"lifecycle,omitempty"`
-	ModelId *string `json:"model_id,omitempty"`
-	Name *string `json:"name,omitempty"`
-	OrganisationColour *string `json:"organisation_colour,omitempty"`
-	OrganisationId *string `json:"organisation_id,omitempty"`
-	OrganisationName *string `json:"organisation_name,omitempty"`
-	OutputTypes *[]string `json:"output_types,omitempty"`
-	PerRequestLimits *map[string]interface{} `json:"per_request_limits,omitempty"`
-	Pricing *map[string]interface{} `json:"pricing,omitempty"`
-	PricingDetail *map[string]interface{} `json:"pricing_detail,omitempty"`
-	Providers *[]map[string]interface{} `json:"providers,omitempty"`
-	ReleaseDate *string `json:"release_date,omitempty"`
-	RetirementDate *string `json:"retirement_date,omitempty"`
-	Status *string `json:"status,omitempty"`
-	SupportedParameters *[]string `json:"supported_parameters,omitempty"`
-	SupportedParametersDetail *map[string]interface{} `json:"supported_parameters_detail,omitempty"`
-	SupportedParams *[]string `json:"supported_params,omitempty"`
-	SupportedParamsDetail *map[string]interface{} `json:"supported_params_detail,omitempty"`
-	TopProvider *map[string]interface{} `json:"top_provider,omitempty"`
-	TopProviderId *string `json:"top_provider_id,omitempty"`
+	Aliases []string `json:"aliases"`
+	Availability map[string]interface{} `json:"availability"`
+	BaseModelId string `json:"base_model_id"`
+	Capabilities map[string]interface{} `json:"capabilities"`
+	Description string `json:"description"`
+	Id string `json:"id"`
+	Lifecycle map[string]interface{} `json:"lifecycle"`
+	Limits map[string]interface{} `json:"limits"`
+	Modalities map[string]interface{} `json:"modalities"`
+	Name string `json:"name"`
+	Offers []map[string]interface{} `json:"offers"`
+	Organization *map[string]interface{} `json:"organization"`
+	Pricing map[string]interface{} `json:"pricing"`
+	Variant string `json:"variant"`
+	Variants map[string]interface{} `json:"variants"`
 }
 
 type ModelAvailability struct {
 	ActiveProviderCount int `json:"active_provider_count"`
+	ComingSoonProviderCount int `json:"coming_soon_provider_count"`
 	InactiveProviderCount int `json:"inactive_provider_count"`
 	ProviderCount int `json:"provider_count"`
 	Status string `json:"status"`
 }
 
 type ModelEndpointCapability struct {
-	AvailabilityReason string `json:"availability_reason"`
-	AvailabilityStatus string `json:"availability_status"`
+	Capabilities map[string]interface{} `json:"capabilities"`
 	CapabilityId string `json:"capability_id"`
-	CapabilityStatus string `json:"capability_status"`
 	Collection string `json:"collection"`
-	EffectiveFrom *string `json:"effective_from,omitempty"`
-	EffectiveTo *string `json:"effective_to,omitempty"`
+	Effective map[string]interface{} `json:"effective"`
 	Endpoint string `json:"endpoint"`
 	Id string `json:"id"`
-	InputModalities []string `json:"input_modalities"`
-	IsActiveGateway bool `json:"is_active_gateway"`
-	ModelRoutingStatus string `json:"model_routing_status"`
-	OutputModalities []string `json:"output_modalities"`
+	Modalities map[string]interface{} `json:"modalities"`
+	Model *string `json:"model"`
 	Pricing map[string]interface{} `json:"pricing"`
-	PricingDetail map[string]interface{} `json:"pricing_detail"`
-	ProviderId string `json:"provider_id"`
-	ProviderModelSlug *string `json:"provider_model_slug,omitempty"`
-	ProviderName *string `json:"provider_name,omitempty"`
-	ProviderRoutingStatus string `json:"provider_routing_status"`
-	ProviderStatus string `json:"provider_status"`
+	Provider map[string]interface{} `json:"provider"`
 	PublicPath string `json:"public_path"`
-	SupportedParameters []string `json:"supported_parameters"`
-	SupportedParametersDetail map[string]interface{} `json:"supported_parameters_detail"`
+	Routable bool `json:"routable"`
+	Routing map[string]interface{} `json:"routing"`
+	Status string `json:"status"`
+	StatusReason string `json:"status_reason"`
 }
 
 type ModelEndpointsResponse struct {
-	Architecture *map[string]interface{} `json:"architecture,omitempty"`
 	AvailabilityMode string `json:"availability_mode"`
-	CanonicalSlug string `json:"canonical_slug"`
-	Created *int `json:"created,omitempty"`
-	Description *string `json:"description,omitempty"`
+	Description string `json:"description"`
 	Endpoints []map[string]interface{} `json:"endpoints"`
 	Id string `json:"id"`
-	ModelId string `json:"model_id"`
-	Name *string `json:"name,omitempty"`
+	Modalities map[string]interface{} `json:"modalities"`
+	Name string `json:"name"`
 	Ok string `json:"ok"`
+	Organization *map[string]interface{} `json:"organization"`
 }
 
 type ModelId = string

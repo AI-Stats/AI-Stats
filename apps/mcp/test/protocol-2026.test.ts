@@ -5,7 +5,7 @@ vi.mock("../src/phaseo-api", async (importOriginal) => ({
 	authenticatePhaseoUser: vi.fn(async () => ({
 		accessToken: "upstream-token",
 		workspaceId: "workspace_1",
-		scopes: ["models:read"],
+		scopes: ["models:read", "pricing:read"],
 	})),
 }));
 
@@ -53,5 +53,55 @@ describe("MCP 2026-07-28 transport", () => {
 		};
 		expect(payload.result?.supportedVersions).toContain("2026-07-28");
 		expect(payload.result?.resultType).toBe("complete");
+	});
+
+	it("lists tools with per-request modern protocol metadata and no session", async () => {
+		const response = await worker.fetch(
+			new Request("https://mcp.phaseo.app/mcp", {
+				method: "POST",
+				headers: {
+					Authorization: "Bearer test-token",
+					"Content-Type": "application/json",
+					Accept: "application/json",
+					Host: "mcp.phaseo.app",
+					"MCP-Protocol-Version": "2026-07-28",
+					"MCP-Method": "tools/list",
+				},
+				body: JSON.stringify({
+					jsonrpc: "2.0",
+					id: 2,
+					method: "tools/list",
+					params: {
+						_meta: {
+							"io.modelcontextprotocol/protocolVersion": "2026-07-28",
+							"io.modelcontextprotocol/clientCapabilities": {},
+						},
+					},
+				}),
+			}),
+			env,
+			{} as ExecutionContext,
+		);
+
+		const body = await response.text();
+		expect(response.status, body).toBe(200);
+		expect(response.headers.get("mcp-session-id")).toBeNull();
+		expect(response.headers.get("cache-control")).toBe("no-store");
+		const payload = JSON.parse(body) as { result?: { tools?: Array<{ name: string }> } };
+		expect(payload.result?.tools?.map((tool) => tool.name)).toEqual(["models_list", "model_get", "cost_estimate"]);
+	});
+
+	it("rejects opaque and insecure non-loopback browser origins", async () => {
+		for (const origin of ["null", "http://client.example"]) {
+			const response = await worker.fetch(
+				new Request("https://mcp.phaseo.app/mcp", {
+					method: "OPTIONS",
+					headers: { Origin: origin },
+				}),
+				env,
+				{} as ExecutionContext,
+			);
+			expect(response.status).toBe(403);
+		}
 	});
 });

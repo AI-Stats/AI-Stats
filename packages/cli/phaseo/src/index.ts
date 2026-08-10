@@ -70,7 +70,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
 			flags.help = true;
 			continue;
 		}
-		if (arg === "-v") {
+		if (arg === "-v" || arg === "-V") {
 			flags.version = true;
 			continue;
 		}
@@ -172,7 +172,7 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 			"phaseo login [--api-url <url>] [--method browser|device] [--browser] [--device-code] [--scopes <csv>] [--json]",
 			"phaseo logout [--json]",
 			"phaseo whoami [--json]",
-			"phaseo version [--json]",
+			"phaseo version | v [--json]",
 			"",
 			"phaseo keys --help",
 			"phaseo workspaces --help",
@@ -208,7 +208,10 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 			"phaseo login [--api-url <url>] [--method browser|device] [--browser] [--device-code] [--scopes <csv>] [--json]",
 		],
 	},
-	version: { usage: ["phaseo version [--json]"] },
+	version: {
+		usage: ["phaseo version [--json]", "phaseo v [--json]"],
+		description: "Show the installed version and compare it with the latest published release.",
+	},
 	curie: {
 		usage: [
 			"phaseo curie run <config.json> [--repeats <n>] [--report <path>] [--base-url <url> --allow-custom-base-url --api-key-env PHASEO_CURIE_API_KEY] [--dry-run] [--json]",
@@ -387,6 +390,7 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 	"webhooks rotate-secret": { usage: ["phaseo webhooks rotate-secret <id> [--show-secret] [--json]"] },
 	"webhooks delete": { usage: ["phaseo webhooks delete <id> [--json]"] },
 	api: {
+		description: "Send an authenticated request when no dedicated Phaseo command is available.",
 		usage: [
 			"phaseo api get <v1-path> [--json]",
 			"phaseo api post <v1-path> --body-json <json> [--json]",
@@ -403,6 +407,7 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 };
 
 export function helpKeyForCommand(command: string[]): string {
+	if (command[0]?.toLowerCase() === "v") return "version";
 	if (command.length >= 2) {
 		const twoPart = `${command[0]} ${command[1]}`;
 		if (twoPart in HELP_ENTRIES) return twoPart;
@@ -418,7 +423,9 @@ export function renderHelp(command: string[]): string {
 	if (key === "root") {
 		lines.push(entry.description ?? "Phaseo CLI", "", "Usage:");
 	} else {
-		lines.push(`Phaseo CLI Help: ${key}`, "", "Usage:");
+		lines.push(`Phaseo CLI Help: ${key}`);
+		if (entry.description) lines.push("", entry.description);
+		lines.push("", "Usage:");
 	}
 	for (const usageLine of entry.usage) {
 		if (usageLine === "") {
@@ -462,15 +469,10 @@ export function renderVersionText(details: {
 	return `${lines.join("\n")}\n`;
 }
 
-async function printVersion(flags: Record<string, string | boolean>, options: { short?: boolean } = {}) {
-	if (options.short) {
-		const info = await getVersionInfo();
-		process.stdout.write(`${CLI_VERSION}  update: ${info.updateCommand}\n`);
-		return;
-	}
+async function printVersion(flags: Record<string, string | boolean>) {
 	const refreshVersion = flagBool(flags, "refresh-version") || flagBool(flags, "check-update");
 	const info = await getVersionInfo({
-		lookupLatest: refreshVersion,
+		lookupLatest: true,
 		forceLatestLookup: refreshVersion,
 	});
 	if (flagBool(flags, "json")) {
@@ -1516,7 +1518,11 @@ export function buildModelsListPath(flags: Record<string, string | boolean>): st
 async function listModels(flags: Record<string, string | boolean>) {
 	const body = await request(buildModelsListPath(flags));
 	if (flagBool(flags, "json")) return printJson(body);
-	printList(body.models ?? body.data ?? [], (model) => `${model.id ?? model.model_id} ${model.name ?? ""}`.trim());
+	printList(body.models ?? [], (model) => {
+		const status = model.availability?.status ?? "unknown";
+		const providers = model.availability?.active_provider_count ?? 0;
+		return `${model.id} ${model.name} ${status} ${providers} active provider${providers === 1 ? "" : "s"}`;
+	});
 }
 
 async function listProviders(flags: Record<string, string | boolean>) {
@@ -1528,10 +1534,25 @@ async function listProviders(flags: Record<string, string | boolean>) {
 async function getModel(id: string | undefined, flags: Record<string, string | boolean>) {
 	if (!id) throw new Error("Model id is required");
 	const body = await request(appendQuery("/models", { id, limit: 1 }));
-	const model = (body.models ?? body.data ?? [])[0];
+	const model = (body.models ?? [])[0];
 	if (!model) throw new Error(`Model not found: ${id}`);
 	if (flagBool(flags, "json")) return printJson(model);
-	process.stdout.write(`${model.id ?? model.model_id}\n${model.name ?? ""}\n`);
+	const input = model.modalities?.input?.join(", ") || "unknown";
+	const output = model.modalities?.output?.join(", ") || "unknown";
+	const inputLimit = model.limits?.input_tokens ?? "unknown";
+	const outputLimit = model.limits?.output_tokens ?? "unknown";
+	process.stdout.write(`${model.id}\n${model.name}\nOrganization: ${model.organization?.name ?? "unknown"}\nStatus: ${model.availability?.status ?? "unknown"}\nModalities: ${input} -> ${output}\nToken limits: ${inputLimit} input, ${outputLimit} output\nActive providers: ${model.availability?.active_provider_count ?? 0}\n`);
+}
+
+export function isCommandGroup(command: string): boolean {
+	return Object.keys(HELP_ENTRIES).some((key) => key.startsWith(`${command} `));
+}
+
+export function unknownCommandMessage(command: string[]): string {
+	const rendered = command.join(" ");
+	const group = command[0] && isCommandGroup(command[0]) ? command[0] : null;
+	const helpCommand = group ? `phaseo ${group} --help` : "phaseo --help";
+	return `Unknown command: ${rendered}\nRun \`${helpCommand}\` for available commands.`;
 }
 
 async function listOrganisations(flags: Record<string, string | boolean>) {
@@ -1725,7 +1746,7 @@ async function main() {
 	try {
 		const [first, second, third, fourth] = parsed.command;
 		if (flagBool(parsed.flags, "version")) {
-			await printVersion(parsed.flags, { short: true });
+			await printVersion(parsed.flags);
 			return;
 		}
 		if (!first) {
@@ -1740,8 +1761,12 @@ async function main() {
 			printHelp(parsed.command);
 			return;
 		}
-		if (first === "version") {
+		if (first === "version" || first.toLowerCase() === "v") {
 			await printVersion(parsed.flags);
+			return;
+		}
+		if (parsed.command.length === 1 && isCommandGroup(first)) {
+			printHelp(parsed.command);
 			return;
 		}
 
@@ -1829,7 +1854,7 @@ async function main() {
 			await maybePrintUpdateNotice(json);
 			return;
 		}
-		throw new Error(`Unknown command: ${parsed.command.join(" ")}`);
+		throw new Error(unknownCommandMessage(parsed.command));
 	} catch (error) {
 		printError(error, { json });
 		process.exitCode = 1;

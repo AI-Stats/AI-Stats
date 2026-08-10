@@ -690,10 +690,52 @@ public final class Models {
 		public Object type;
 	}
 
+	public static class GatewayCapabilities {
+		public java.util.List<String> endpoints;
+		public Object parameter_details;
+		public java.util.List<String> parameters;
+	}
+
 	public static class GatewayDatetimeToolDefinition {
 		public Object parameters;
 		public String timezone;
 		public Object type;
+	}
+
+	public static class GatewayModalities {
+		public java.util.List<String> input;
+		public java.util.List<String> output;
+	}
+
+	public static class GatewayModelLifecycle {
+		public String deprecated_at;
+		public String message;
+		public String released_at;
+		public String replacement_id;
+		public String retires_at;
+		public Object status;
+	}
+
+	public static class GatewayModelLimits {
+		public Integer input_tokens;
+		public Integer output_tokens;
+	}
+
+	public static class GatewayModelOffer {
+		public Object capabilities;
+		public Object effective;
+		public java.util.List<String> endpoints;
+		public Object modalities;
+		public String model;
+		public Object pricing;
+		public Object provider;
+		public Boolean routable;
+		public Object routing;
+		public Object status;
+		public String status_reason;
+	}
+
+	public static class GatewayModelOrganization {
 	}
 
 	public static class GatewayModelsResponse {
@@ -702,8 +744,15 @@ public final class Models {
 		public java.util.List<Object> models;
 		public Integer offset;
 		public Boolean ok;
-		public Object privacy_scope;
 		public Integer total;
+	}
+
+	public static class GatewayPricing {
+		public Object meters;
+		public Object pricing_plan;
+	}
+
+	public static class GatewayPricingMeter {
 	}
 
 	public static class GatewayWebFetchToolDefinition {
@@ -877,81 +926,57 @@ public final class Models {
 
 	public static class Model {
 		public java.util.List<String> aliases;
-		public Object architecture;
 		public Object availability;
-		public String canonical_slug;
-		public Integer created;
-		public String deprecation_date;
+		public String base_model_id;
+		public Object capabilities;
 		public String description;
-		public java.util.List<String> endpoints;
 		public String id;
-		public java.util.List<String> input_types;
-		public Models.ModelLifecycle lifecycle;
-		public String model_id;
+		public Object lifecycle;
+		public Object limits;
+		public Object modalities;
 		public String name;
-		public String organisation_colour;
-		public String organisation_id;
-		public String organisation_name;
-		public java.util.List<String> output_types;
-		public Object per_request_limits;
+		public java.util.List<Object> offers;
+		public Object organization;
 		public Object pricing;
-		public Object pricing_detail;
-		public java.util.List<Object> providers;
-		public String release_date;
-		public String retirement_date;
-		public String status;
-		public java.util.List<String> supported_parameters;
-		public Object supported_parameters_detail;
-		public java.util.List<String> supported_params;
-		public Object supported_params_detail;
-		public Object top_provider;
-		public String top_provider_id;
+		public String variant;
+		public Object variants;
 	}
 
 	public static class ModelAvailability {
 		public Integer active_provider_count;
+		public Integer coming_soon_provider_count;
 		public Integer inactive_provider_count;
 		public Integer provider_count;
 		public Object status;
 	}
 
 	public static class ModelEndpointCapability {
-		public String availability_reason;
-		public Object availability_status;
+		public Object capabilities;
 		public String capability_id;
-		public String capability_status;
 		public Object collection;
-		public String effective_from;
-		public String effective_to;
+		public Object effective;
 		public String endpoint;
 		public String id;
-		public java.util.List<String> input_modalities;
-		public Boolean is_active_gateway;
-		public String model_routing_status;
-		public java.util.List<String> output_modalities;
+		public Object modalities;
+		public String model;
 		public Object pricing;
-		public Object pricing_detail;
-		public String provider_id;
-		public String provider_model_slug;
-		public String provider_name;
-		public String provider_routing_status;
-		public String provider_status;
+		public Object provider;
 		public String public_path;
-		public java.util.List<String> supported_parameters;
-		public Object supported_parameters_detail;
+		public Boolean routable;
+		public Object routing;
+		public Object status;
+		public String status_reason;
 	}
 
 	public static class ModelEndpointsResponse {
-		public Object architecture;
 		public Object availability_mode;
-		public String canonical_slug;
-		public Integer created;
 		public String description;
 		public java.util.List<Object> endpoints;
 		public String id;
-		public String model_id;
+		public Object modalities;
 		public String name;
 		public Object ok;
+		public Object organization;
 	}
 
 	public static class ModelId {

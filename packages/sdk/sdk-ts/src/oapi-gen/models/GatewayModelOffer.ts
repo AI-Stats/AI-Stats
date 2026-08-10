@@ -1,4 +1,4 @@
-export interface ModelEndpointCapability {
+export interface GatewayModelOffer {
   capabilities: {
     endpoints?: string[];
     parameter_details: {
@@ -8,25 +8,11 @@ export interface ModelEndpointCapability {
     };
     parameters: string[];
   };
-  capability_id: string;
-  collection:
-    | "text"
-    | "images"
-    | "video"
-    | "audio"
-    | "embeddings"
-    | "rerank"
-    | "moderation"
-    | "ocr"
-    | "music"
-    | "batch"
-    | "files";
   effective: {
     from: string | null;
     to: string | null;
   };
-  endpoint: string;
-  id: string;
+  endpoints: string[];
   modalities: {
     input: string[];
     output: string[];
@@ -48,7 +34,6 @@ export interface ModelEndpointCapability {
     id: string;
     name: string | null;
   };
-  public_path: string;
   routable: boolean;
   routing: {
     capability: string;

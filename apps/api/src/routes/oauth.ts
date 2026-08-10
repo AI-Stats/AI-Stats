@@ -285,7 +285,7 @@ function canNarrowResourceBoundMcpScopes(
 	resource: string,
 	scopes: string[],
 ): boolean {
-	return client.registration_source === "dynamic"
+	return (client.registration_source === "dynamic" || client.registration_source === "cimd")
 		&& Boolean(resource)
 		&& !isGatewayOAuthResource(resource)
 		&& scopes.length > 0
@@ -312,7 +312,10 @@ export function oauthAuthorizationServerMetadata() {
 		code_challenge_methods_supported: ["S256"],
 		authorization_response_iss_parameter_supported: true,
 		scopes_supported: [...ALL_SUPPORTED_SCOPES],
-		...(isThirdPartyOAuthEnabled() ? { registration_endpoint: `${apiBaseUrl}/oauth/register` } : {}),
+		...(isThirdPartyOAuthEnabled() ? {
+			client_id_metadata_document_supported: true,
+			registration_endpoint: `${apiBaseUrl}/oauth/register`,
+		} : {}),
 	};
 }
 
@@ -323,7 +326,7 @@ oauthRouter.get(
 		if (!actor) return oauthError("access_denied", "User session is required", 401);
 		if (!(await checkOAuthRateLimit(req, "token", `client-metadata:${actor.userId}`))) return rateLimitError();
 		const clientId = new URL(req.url).searchParams.get("client_id")?.trim() ?? "";
-		if (!clientId || clientId.length > 256) {
+		if (!clientId || clientId.length > 2048) {
 			return oauthError("invalid_request", "A valid client_id is required");
 		}
 		const client = await loadOAuthClient(clientId);
@@ -563,7 +566,7 @@ oauthRouter.get(
 		if (!clientId || !redirectUri || !isValidPkceChallenge(codeChallenge) || codeChallengeMethod !== "S256") {
 			return oauthError("invalid_request", "client_id, redirect_uri, and S256 PKCE are required");
 		}
-		if (clientId.length > 256 || redirectUri.length > 2048 || state.length > 2048) {
+		if (clientId.length > 2048 || redirectUri.length > 2048 || state.length > 2048) {
 			return oauthError("invalid_request", "OAuth request parameters are too large");
 		}
 		if (resource && !isProtectedResourceAllowed(resource)) {
@@ -630,7 +633,7 @@ oauthRouter.post(
 		if (!clientId || !redirectUri || !workspaceId || !isValidPkceChallenge(codeChallenge) || codeChallengeMethod !== "S256") {
 			return oauthError("invalid_request", "client_id, redirect_uri, workspace_id, and S256 PKCE are required");
 		}
-		if (clientId.length > 256 || redirectUri.length > 2048 || (state?.length ?? 0) > 2048) {
+		if (clientId.length > 2048 || redirectUri.length > 2048 || (state?.length ?? 0) > 2048) {
 			return oauthError("invalid_request", "OAuth request parameters are too large");
 		}
 		if (resource && !isProtectedResourceAllowed(resource)) {
@@ -648,7 +651,10 @@ oauthRouter.post(
 				: ["openid", "profile", "email", GATEWAY_ACCESS_SCOPE],
 		);
 		const scopes = filterAllowedScopes(client, requestedScopes);
-		if (scopes.length !== requestedScopes.length) {
+		if (
+			scopes.length !== requestedScopes.length
+			&& !canNarrowResourceBoundMcpScopes(client, resource, scopes)
+		) {
 			return oauthError("invalid_scope", "One or more requested scopes are not allowed for this client");
 		}
 		if (requiresGatewayAccessScope(client.id, resource, scopes)) {
