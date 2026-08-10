@@ -7,6 +7,8 @@ import { codexAdapter, renderCodexProfile } from "../src/integrations/adapters/c
 import { claudeCodeAdapter, renderClaudeSettings } from "../src/integrations/adapters/claude-code.js";
 import { applyChanges } from "../src/integrations/files.js";
 import { runIntegrationCommand } from "../src/integrations/index.js";
+import { getIntegrationGatewayCredential, revokeIntegrationGatewayCredential } from "../src/integrations/credential.js";
+import { readSession, writeSession } from "../src/session.js";
 
 test("Codex profile uses the Responses API without embedding a credential", () => {
 	const profile = renderCodexProfile("anthropic/claude-sonnet-4.6");
@@ -125,6 +127,57 @@ test("integration commands reject unexpected positional arguments", async () => 
 		runIntegrationCommand(["setup", "codex", "unexpected"], { "dry-run": true }),
 		/Usage: phaseo integrations/,
 	);
+});
+
+test("browser login provisions and securely reuses a short-lived gateway key", async () => {
+	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-integration-credential-"));
+	const previousBackend = process.env.PHASEO_SESSION_BACKEND;
+	const previousConfigDir = process.env.PHASEO_CONFIG_DIR;
+	const previousApiKey = process.env.PHASEO_API_KEY;
+	const previousFetch = globalThis.fetch;
+	process.env.PHASEO_SESSION_BACKEND = "file";
+	process.env.PHASEO_CONFIG_DIR = homeDir;
+	delete process.env.PHASEO_API_KEY;
+	const requests: Array<{ url: string; method: string }> = [];
+	globalThis.fetch = async (input, init) => {
+		const url = String(input);
+		const method = init?.method ?? "GET";
+		requests.push({ url, method });
+		if (method === "POST" && url.endsWith("/v1/keys")) {
+			return new Response(JSON.stringify({ data: { id: "key_agent", key: "phaseo_v1_sk_agent_secret" } }), {
+				status: 201,
+				headers: { "content-type": "application/json" },
+			});
+		}
+		if (method === "DELETE" && url.endsWith("/v1/keys/key_agent")) {
+			return new Response(null, { status: 204 });
+		}
+		throw new Error(`Unexpected request: ${method} ${url}`);
+	};
+	try {
+		await writeSession({
+			accessToken: "oauth-session-token",
+			refreshToken: "refresh-token",
+			expiresAt: Date.now() + 60 * 60 * 1000,
+			apiUrl: "https://api.phaseo.app",
+		});
+		assert.equal(await getIntegrationGatewayCredential(), "phaseo_v1_sk_agent_secret");
+		assert.equal(await getIntegrationGatewayCredential(), "phaseo_v1_sk_agent_secret");
+		assert.equal(requests.filter((request) => request.method === "POST").length, 1);
+		assert.equal((await readSession())?.integrationGatewayKeyId, "key_agent");
+		assert.equal(await revokeIntegrationGatewayCredential(), true);
+		assert.equal((await readSession())?.integrationGatewayKey, undefined);
+		assert.equal(requests.filter((request) => request.method === "DELETE").length, 1);
+	} finally {
+		globalThis.fetch = previousFetch;
+		if (previousBackend === undefined) delete process.env.PHASEO_SESSION_BACKEND;
+		else process.env.PHASEO_SESSION_BACKEND = previousBackend;
+		if (previousConfigDir === undefined) delete process.env.PHASEO_CONFIG_DIR;
+		else process.env.PHASEO_CONFIG_DIR = previousConfigDir;
+		if (previousApiKey === undefined) delete process.env.PHASEO_API_KEY;
+		else process.env.PHASEO_API_KEY = previousApiKey;
+		await rm(homeDir, { recursive: true, force: true });
+	}
 });
 
 test("transaction rollback removes files created earlier in the plan", async () => {

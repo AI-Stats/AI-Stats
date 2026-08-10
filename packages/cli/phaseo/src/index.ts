@@ -23,6 +23,7 @@ import { createDoctorReport, detectInstalledPackageManager, type DoctorReport } 
 import { getVersionInfo, removeCommandFor, updateCommandFor, updateInvocationFor } from "./release.js";
 import { runCurie } from "./curie.js";
 import { runIntegrationCommand } from "./integrations/index.js";
+import { revokeIntegrationGatewayCredential } from "./integrations/credential.js";
 
 type ParsedArgs = {
 	command: string[];
@@ -580,6 +581,10 @@ async function maybePrintUpdateNotice(json: boolean) {
 	);
 }
 
+export function shouldPrintUpdateNoticeForCommand(command: string[]): boolean {
+	return !(command[0] === "integrations" && command[1] === "credential");
+}
+
 async function request(path: string, options: { method?: HttpMethod; body?: Record<string, unknown> } = {}) {
 	const session = await getSessionAccessToken();
 	return apiFetch(session.apiUrl, path, {
@@ -1103,7 +1108,16 @@ async function login(flags: Record<string, string | boolean>) {
 }
 
 async function logout(flags: Record<string, string | boolean>) {
-	const session = await readSession();
+	let session = await readSession();
+	let integrationCredentialRevoked = false;
+	if (session?.integrationGatewayKeyId) {
+		try {
+			integrationCredentialRevoked = await revokeIntegrationGatewayCredential();
+			session = await readSession();
+		} catch {
+			integrationCredentialRevoked = false;
+		}
+	}
 	let revoked = false;
 	if (session?.refreshToken) {
 		try {
@@ -1115,7 +1129,7 @@ async function logout(flags: Record<string, string | boolean>) {
 	}
 	await clearSession();
 	if (flagBool(flags, "json")) {
-		printJson({ ok: true, logged_in: false, refresh_token_revoked: revoked });
+		printJson({ ok: true, logged_in: false, refresh_token_revoked: revoked, integration_credential_revoked: integrationCredentialRevoked });
 	} else {
 		process.stdout.write(revoked ? "Logged out of Phaseo and revoked the session.\n" : "Logged out of Phaseo.\n");
 	}
@@ -2041,7 +2055,9 @@ async function main() {
 		else if (first === "api" && second === "delete") action = rawApi("DELETE", third, parsed.flags);
 		if (action) {
 			await action;
-			await maybePrintUpdateNotice(json);
+			if (shouldPrintUpdateNoticeForCommand(parsed.command)) {
+				await maybePrintUpdateNotice(json);
+			}
 			return;
 		}
 		throw new Error(unknownCommandMessage(parsed.command));

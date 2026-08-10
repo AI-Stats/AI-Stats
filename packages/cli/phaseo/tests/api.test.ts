@@ -30,6 +30,7 @@ import {
 	renderOneTimeClientSecret,
 	renderModelDetails,
 	renderModelListItem,
+	shouldPrintUpdateNoticeForCommand,
 	unknownCommandMessage,
 	windowsBrowserOpenArgs,
 	validateLoopbackRedirectUri,
@@ -59,6 +60,11 @@ test("normalizes API roots for oauth and v1 endpoints", () => {
 	assert.throws(() => normalizeApiRoot("file:///tmp/phaseo"), /must use HTTPS/);
 	assert.equal(oauthUrl("https://api.example.com", "/token"), "https://api.example.com/oauth/token");
 	assert.equal(v1Url("https://api.example.com", "/me"), "https://api.example.com/v1/me");
+});
+
+test("keeps credential-helper stdout free of update notices", () => {
+	assert.equal(shouldPrintUpdateNoticeForCommand(["integrations", "credential"]), false);
+	assert.equal(shouldPrintUpdateNoticeForCommand(["integrations", "status"]), true);
 });
 
 test("builds browser authorize URLs for PKCE login", () => {

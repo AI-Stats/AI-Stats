@@ -130,7 +130,7 @@ Codex receives a dedicated `phaseo` profile at `~/.codex/phaseo.config.toml`, le
 codex --profile phaseo
 ```
 
-Claude Code is configured through `~/.claude/settings.json` with the Phaseo gateway and a credential helper. Both integrations ask the Phaseo CLI for a short-lived credential, so neither application configuration contains a key. The helper uses `PHASEO_API_KEY` when it is set and otherwise refreshes the session created by `phaseo login`:
+Claude Code is configured through `~/.claude/settings.json` with the Phaseo gateway and a credential helper. Both integrations ask the Phaseo CLI for a short-lived gateway key, so neither application configuration contains a key. The helper uses `PHASEO_API_KEY` when it is set. Otherwise, it uses the session created by `phaseo login` to provision a 24-hour key and keeps that key in the same OS-backed credential store as the session:
 
 ```bash
 phaseo login

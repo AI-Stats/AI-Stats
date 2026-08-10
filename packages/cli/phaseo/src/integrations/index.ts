@@ -1,8 +1,8 @@
 import { homedir } from "node:os";
-import { getSessionAccessToken } from "../api.js";
 import { codexAdapter } from "./adapters/codex.js";
 import { claudeCodeAdapter } from "./adapters/claude-code.js";
 import { applyChanges, renderPlan } from "./files.js";
+import { getIntegrationGatewayCredential } from "./credential.js";
 import type { IntegrationAdapter, IntegrationId } from "./types.js";
 
 const adapters: IntegrationAdapter[] = [codexAdapter, claudeCodeAdapter];
@@ -37,7 +37,7 @@ export async function runIntegrationCommand(
 	}
 
 	if (command === "credential") {
-		const credential = process.env.PHASEO_API_KEY || (await getSessionAccessToken()).accessToken;
+		const credential = await getIntegrationGatewayCredential();
 		process.stdout.write(credential);
 		return;
 	}
