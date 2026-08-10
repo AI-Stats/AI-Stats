@@ -279,7 +279,11 @@ puts response.body
 
 Use polling for your own control loop even if you also enable webhooks. That gives you a direct way to recover if a webhook destination is temporarily unavailable.
 
-Persist and poll with the gateway-owned video `id`. `native_video_id`, when present, is provider-native correlation metadata; do not use it for Phaseo polling, websocket, cancellation, or content URLs.
+Persist and poll with the gateway-owned video `id`. `native_video_id`, when present, is provider-native correlation metadata; do not use it for Phaseo polling, WebSocket, or content URLs.
+
+<Note>
+  Video cancellation is temporarily unavailable. The cancel endpoint returns `501`, and `cancel_url` remains `null` in video responses.
+</Note>
 
 ## 3. Consume webhook deliveries
 
@@ -352,7 +356,7 @@ async def handle_video_webhook(request):
 
 Store `x-phaseo-delivery-key` or the payload `id` before side effects. Return any 2xx status only after your durable state has been updated; non-2xx responses are retried with the same event id and an incremented attempt number.
 
-Webhook subscriptions accept generic `job.*` events or matching `video.*` events. If you omit `events`, Phaseo subscribes the webhook to terminal `job.completed`, `job.failed`, `job.cancelled`, and `job.expired` notifications. If you provide `events`, at least one event must be valid for video jobs; all-invalid or cross-kind-only lists such as `["batch.completed"]` are rejected instead of being broadened silently.
+Webhook subscriptions accept generic `job.*` events or matching `video.*` events. If you omit `events`, Phaseo subscribes the webhook to `job.status_changed` plus terminal `job.completed`, `job.failed`, `job.cancelled`, and `job.expired` notifications. A status-change payload includes `status_change.previous_status` and `status_change.status`. If you provide `events`, at least one event must be valid for video jobs; all-invalid or cross-kind-only lists such as `["batch.completed"]` are rejected instead of being broadened silently.
 
 Webhook callback URLs must use HTTPS. Literal private, loopback, link-local, and wildcard hosts are rejected; `http://localhost`, `http://127.0.0.1`, and `http://[::1]` are accepted only for local development callbacks.
 

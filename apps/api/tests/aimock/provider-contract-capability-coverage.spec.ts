@@ -14,7 +14,7 @@ const inheritedContractByProvider: Record<string, string> = {
     wafer: "openai",
 };
 
-const providersWithDedicatedNativeContractTests = new Set(["elevenlabs"]);
+const providersWithDedicatedNativeContractTests = new Set(["elevenlabs", "fal"]);
 
 function operationCoversCapability(capability: string, serializedOperations: string): boolean {
     if (capability === "text.generate") return /(chat|response|message|text|gemini|anthropic)/i.test(serializedOperations);

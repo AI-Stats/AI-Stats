@@ -15,7 +15,7 @@ export interface ResponsesResponse {
   output?: {
     arguments?: string;
     call_id?: string;
-    content?:
+    content?: (
       | {
           annotations?: {}[];
           text: string;
@@ -37,7 +37,8 @@ export interface ResponsesResponse {
           format?: "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
           mime_type?: string;
           type: "output_audio";
-        }[];
+        }
+    )[];
     name?: string;
     role?: string;
     type?: string;
@@ -45,7 +46,7 @@ export interface ResponsesResponse {
   output_items?: {
     arguments?: string;
     call_id?: string;
-    content?:
+    content?: (
       | {
           annotations?: {}[];
           text: string;
@@ -67,7 +68,8 @@ export interface ResponsesResponse {
           format?: "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
           mime_type?: string;
           type: "output_audio";
-        }[];
+        }
+    )[];
     name?: string;
     role?: string;
     type?: string;

@@ -67,8 +67,14 @@ describe("video-reconciliation provider polling", () => {
 			MINIMAX_BASE_URL: "https://api.minimax.io",
 			ALIBABA_CLOUD_API_KEY: "test-alibaba-cloud-key",
 			ALIBABA_BASE_URL: "https://dashscope-intl.aliyuncs.com",
+			BYTEPLUS_API_KEY: "gateway-byteplus-key",
+			BYTEPLUS_BASE_URL: "https://ark.ap-southeast.bytepluses.com",
+			RUNWAY_API_KEY: "gateway-runway-key",
+			RUNWAY_BASE_URL: "https://api.dev.runwayml.com",
 			NOVITA_API_KEY: "gateway-novita-key",
 			ATLAS_CLOUD_API_KEY: "gateway-atlas-key",
+			FAL_KEY: "gateway-fal-key",
+			FAL_QUEUE_BASE_URL: "https://queue.fal.run",
 			GOOGLE_VERTEX_ACCESS_TOKEN: "gateway-vertex-token",
 			GOOGLE_VERTEX_BASE_URL: "https://api.vertex.example",
 			GOOGLE_VERTEX_PROJECT: "test-project",
@@ -100,10 +106,10 @@ describe("video-reconciliation provider polling", () => {
 		const job = makeBaseJob({
 			videoId: "req_video_xai_1",
 			nativeId,
-			provider: "x-ai",
+			provider: "spacex-ai",
 			model: "x-ai/grok-imagine-video-2026-01-29",
 			meta: {
-				provider: "x-ai",
+				provider: "spacex-ai",
 				keySource: "byok",
 				byokKeyId: "byok_xai_1",
 				resolution: "720p",
@@ -117,11 +123,9 @@ describe("video-reconciliation provider polling", () => {
 			vi.fn().mockResolvedValue({
 				ok: true,
 				json: async () => ({
-					status: "completed",
-					model: "x-ai/grok-imagine-video-2026-01-29",
-					seconds: 12,
-					resolution: "720p",
-					quality: "standard",
+					status: "done",
+					model: "grok-imagine-video",
+					video: { url: "https://vidgen.x.ai/out.mp4", duration: 12 },
 				}),
 			}),
 		);
@@ -131,11 +135,11 @@ describe("video-reconciliation provider polling", () => {
 		expect(loadByokKeyMock).toHaveBeenCalledWith(
 			expect.objectContaining({
 				workspaceId: "team_1",
-				providerId: "x-ai",
+				providerId: "spacex-ai",
 			}),
 		);
 		expect(globalThis.fetch).toHaveBeenCalledWith(
-			`https://x-ai.example/videos/${encodeURIComponent(nativeId)}`,
+			`https://spacex-ai.example/videos/${encodeURIComponent(nativeId)}`,
 			expect.objectContaining({
 				method: "GET",
 				headers: expect.objectContaining({
@@ -146,8 +150,8 @@ describe("video-reconciliation provider polling", () => {
 		expect(result).toEqual(
 			expect.objectContaining({
 				status: "completed",
-				providerId: "x-ai",
-				model: "x-ai/grok-imagine-video-2026-01-29",
+				providerId: "spacex-ai",
+				model: "grok-imagine-video",
 				seconds: 12,
 			}),
 		);
@@ -291,10 +295,10 @@ describe("video-reconciliation provider polling", () => {
 		const result = await fetchVideoProviderStatus(job);
 
 		expect(globalThis.fetch).toHaveBeenCalledWith(
-			`https://ark.byteplus.example/api/v3/contents/generations/tasks/${encodeURIComponent(taskId)}`,
+			`https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks/${encodeURIComponent(taskId)}`,
 			expect.objectContaining({
 				method: "GET",
-				headers: expect.objectContaining({ Authorization: "Bearer gateway-bytedance-key" }),
+				headers: expect.objectContaining({ Authorization: "Bearer gateway-byteplus-key" }),
 			}),
 		);
 		expect(result).toEqual(expect.objectContaining({
@@ -470,5 +474,103 @@ describe("video-reconciliation provider polling", () => {
 				}),
 			}),
 		);
+	});
+
+	it("polls BytePlus with the production BYTEPLUS_API_KEY alias", async () => {
+		const taskId = "byteplus-task-123";
+		const job = makeBaseJob({
+			provider: "byteplus",
+			model: "bytedance/seedance-2.0",
+			meta: { provider: "byteplus", providerTaskId: taskId, keySource: "gateway", seconds: 6, resolution: "720p" },
+		});
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+			ok: true,
+			json: async () => ({
+				status: "succeeded",
+				model: "dreamina-seedance-2-0-260128",
+				duration: 6,
+				resolution: "720p",
+			}),
+		}));
+
+		const result = await fetchVideoProviderStatus(job);
+
+		expect(globalThis.fetch).toHaveBeenCalledWith(
+			`https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks/${taskId}`,
+			expect.objectContaining({ headers: expect.objectContaining({ Authorization: "Bearer gateway-byteplus-key" }) }),
+		);
+		expect(result).toEqual(expect.objectContaining({ status: "completed", providerId: "byteplus", seconds: 6 }));
+	});
+
+	it("polls Runway with the required API version header", async () => {
+		const taskId = "runway-task-123";
+		const job = makeBaseJob({
+			provider: "runway",
+			model: "runway/gen-4.5",
+			meta: { provider: "runway", providerTaskId: taskId, keySource: "gateway", seconds: 5, resolution: "720p" },
+		});
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+			ok: true,
+			json: async () => ({ status: "SUCCEEDED", model: "gen4.5", duration: 5, output: ["https://cdn.runway.test/out.mp4"] }),
+		}));
+
+		const result = await fetchVideoProviderStatus(job);
+
+		expect(globalThis.fetch).toHaveBeenCalledWith(
+			`https://api.dev.runwayml.com/v1/tasks/${taskId}`,
+			expect.objectContaining({ headers: expect.objectContaining({
+				Authorization: "Bearer gateway-runway-key",
+				"X-Runway-Version": "2024-11-06",
+			}) }),
+		);
+		expect(result).toEqual(expect.objectContaining({ status: "completed", providerId: "runway", seconds: 5 }));
+	});
+
+	it("polls Fal using constructed queue URLs and returns the generated video", async () => {
+		const endpoint = "bytedance/seedance-2.0/text-to-video";
+		const requestId = "fal-request-123";
+		const nativeId = encodePrefixedId("falvid_", JSON.stringify({
+			endpoint,
+			requestId,
+			statusUrl: "https://attacker.example/status",
+			responseUrl: "https://attacker.example/response",
+		}));
+		const job = makeBaseJob({
+			nativeId,
+			provider: "fal",
+			model: "bytedance/seedance-2.0",
+			meta: { provider: "fal", keySource: "gateway", seconds: 5, resolution: "720p" },
+		});
+		vi.stubGlobal("fetch", vi.fn()
+			.mockResolvedValueOnce({ ok: true, json: async () => ({ status: "COMPLETED" }) })
+			.mockResolvedValueOnce({ ok: true, json: async () => ({ video: { url: "https://cdn.fal.media/out.mp4" } }) }));
+
+		const result = await fetchVideoProviderStatus(job);
+
+		expect(globalThis.fetch).toHaveBeenNthCalledWith(
+			1,
+			`https://queue.fal.run/${endpoint}/requests/${requestId}/status`,
+			expect.objectContaining({ headers: expect.objectContaining({ Authorization: "Key gateway-fal-key" }) }),
+		);
+		expect(globalThis.fetch).toHaveBeenNthCalledWith(
+			2,
+			`https://queue.fal.run/${endpoint}/requests/${requestId}/response`,
+			expect.any(Object),
+		);
+		expect(result).toEqual(expect.objectContaining({
+			status: "completed",
+			providerId: "fal",
+			metaPatch: expect.objectContaining({ downloadUrl: "https://cdn.fal.media/out.mp4" }),
+		}));
+	});
+
+	it("maps terminal Fal queue failures without fetching a response", async () => {
+		const endpoint = "bytedance/seedance-2.0/fast/text-to-video";
+		const nativeId = encodePrefixedId("falvid_", JSON.stringify({ endpoint, requestId: "fal-failed-1" }));
+		const job = makeBaseJob({ nativeId, provider: "fal", model: "bytedance/seedance-2.0-fast" });
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ status: "FAILED" }) }));
+
+		await expect(fetchVideoProviderStatus(job)).resolves.toEqual(expect.objectContaining({ status: "failed" }));
+		expect(globalThis.fetch).toHaveBeenCalledTimes(1);
 	});
 });
