@@ -1,5 +1,11 @@
 # @phaseo/cli
 
+## 0.2.1
+
+### Patch Changes
+
+- [#1534](https://github.com/phaseoteam/Phaseo/pull/1534) [`af6be51`](https://github.com/phaseoteam/Phaseo/commit/af6be51554e6c21abc0741dedb47a9978cf182c2) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Add installation-aware `update` and `doctor` commands, including PATH shadowing diagnostics, package-manager-specific remediation, and reliable POSIX installation detection.
+
 ## 0.2.0
 
 ### Minor Changes
