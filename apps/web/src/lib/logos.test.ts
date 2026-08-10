@@ -66,6 +66,40 @@ describe("logos", () => {
 		});
 	});
 
+	test("resolves themed Poe logo variants", () => {
+		expect(resolveLogo("poe", { theme: "light" })).toMatchObject({
+			id: "poe",
+			label: "Poe",
+			src: "/logos/poe_light.svg",
+			variant: "light",
+		});
+
+		expect(resolveLogo("poe", { theme: "dark" })).toMatchObject({
+			id: "poe",
+			label: "Poe",
+			src: "/logos/poe_dark.svg",
+			variant: "dark",
+		});
+	});
+
+	test.each([
+		["cline", "/logos/cline_light.svg", "/logos/cline_dark.svg"],
+		["helicone", "/logos/helicone_light.svg", "/logos/helicone_dark.svg"],
+		["ollama", "/logos/ollama_light.svg", "/logos/ollama_dark.svg"],
+		["sarvam", "/logos/sarvam_light.svg", "/logos/sarvam_dark.svg"],
+		["tinfoil", "/logos/tinfoil_light.svg", "/logos/tinfoil_dark.svg"],
+		["v0", "/logos/v0_light.svg", "/logos/v0_dark.svg"],
+	])("resolves themed %s logo variants", (id, lightSrc, darkSrc) => {
+		expect(resolveLogo(id, { theme: "light" })).toMatchObject({
+			src: lightSrc,
+			variant: "light",
+		});
+		expect(resolveLogo(id, { theme: "dark" })).toMatchObject({
+			src: darkSrc,
+			variant: "dark",
+		});
+	});
+
 	test.each([
 		["alibaba-cn", "Alibaba Cloud", "/logos/alibaba-cloud.svg"],
 		["cloudflare-ai-gateway", "Cloudflare AI Gateway", "/logos/cloudflare.svg"],
@@ -76,7 +110,7 @@ describe("logos", () => {
 		["modelscope", "ModelScope", "/logos/modelscope.svg"],
 		["nebius", "Nebius", "/logos/nebius-token-factory_light.svg"],
 		["perplexity-agent", "Perplexity Agent", "/logos/perplexity.svg"],
-		["poe", "Poe", "/logos/poe.svg"],
+		["poe", "Poe", "/logos/poe_light.svg"],
 		["qiniu-ai", "Qiniu AI", "/logos/qiniu.svg"],
 		["siliconflow-cn", "Siliconflow Cn", "/logos/siliconflow.svg"],
 		["submodel", "SubModel", "/logos/submodel.svg"],
@@ -93,7 +127,6 @@ describe("logos", () => {
 	test("resolves additional provider logo coverage", () => {
 		for (const [id, src] of [
 			["aihubmix", "/logos/aihubmix.svg"],
-			["helicone", "/logos/helicone.svg"],
 			["io-net", "/logos/ionet.svg"],
 			["ovhcloud", "/logos/ovhcloud.svg"],
 			["sap-ai-core", "/logos/sap.svg"],

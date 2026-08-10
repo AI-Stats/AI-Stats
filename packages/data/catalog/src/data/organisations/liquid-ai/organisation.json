@@ -2,7 +2,7 @@
   "organisation_id": "liquid-ai",
   "name": "Liquid AI",
   "country_code": "US",
-  "description": "Liquid AI builds efficient, general-purpose foundation models for organisations, publishing models and related resources publicly (e.g., on Hugging Face) alongside their main site.",
+  "description": "Liquid AI is a US AI company headquartered in Cambridge, Massachusetts. It builds efficient, general-purpose foundation models for organisations, publishing models and related resources publicly (e.g., on Hugging Face) alongside its main site.",
   "colour": "#000000",
   "organisation_links": [
     {
@@ -32,10 +32,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_press_release",
+      "url": "https://www.liquid.ai/press/g42-and-liquid-ai-partner-to-deliver-private-local-and-efficient-ai-solutions-to-enterprises-at-scale",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Liquid AI's official press release describes Liquid AI as headquartered in Cambridge, Massachusetts."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; the broader catalogue record was not re-audited."
   }
 }

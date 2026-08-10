@@ -4,29 +4,41 @@ export type PhaseoEnv = Cloudflare.Env & {
 };
 
 export type GatewayMeter = {
-	meter: string;
 	unit: string;
 	unit_size: number;
 	price_per_unit: string;
-	currency: string;
+	currency: string | null;
+	provider_id: string;
 };
 
 export type GatewayModel = {
 	id: string;
 	name: string;
 	description: string | null;
-	organisation: { id: string; name: string | null } | null;
-	architecture: { input_modalities: string[]; output_modalities: string[] };
-	context_length: number | null;
-	top_provider: { context_length: number | null; max_completion_tokens: number | null } | null;
-	supported_parameters: string[];
-	pricing: Record<string, string | null>;
-	providers: Array<{
-		api_provider_id: string;
-		api_provider_name: string | null;
-		supported_parameters: string[];
+	organization: { id: string; name: string | null; color: string | null } | null;
+	modalities: { input: string[]; output: string[] };
+	limits: { input_tokens: number | null; output_tokens: number | null };
+	capabilities: {
+		endpoints: string[];
+		parameters: string[];
+		parameter_details: Record<string, Record<string, unknown>>;
+	};
+	availability: {
+		status: "active" | "coming_soon" | "inactive" | "not_listed";
+		provider_count: number;
+		active_provider_count: number;
+		coming_soon_provider_count: number;
+		inactive_provider_count: number;
+	};
+	pricing: { pricing_plan: "standard"; meters: Record<string, GatewayMeter | null> };
+	offers: Array<{
+		provider: { id: string; name: string | null };
+		model: string | null;
+		status: "active" | "coming_soon" | "inactive";
+		routable: boolean;
+		capabilities: { parameters: string[]; parameter_details: Record<string, Record<string, unknown>> };
+		pricing: { pricing_plan: "standard"; meters: Record<string, GatewayMeter | null> };
 	}>;
-	pricing_details?: { meters?: Record<string, GatewayMeter> };
 };
 
 type ModelsResponse = { ok: boolean; models?: GatewayModel[]; message?: string };

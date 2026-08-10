@@ -22,7 +22,7 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": null,
   "regional_pricing_notes": null,
-  "country_code": null,
+  "country_code": "SE",
   "status": "Active",
   "colour": null,
   "gateway_kind": "catalogue",
@@ -37,6 +37,12 @@
   "api_formats": [],
   "service_tiers": [],
   "sources": [
+    {
+      "kind": "official_company_page",
+      "url": "https://berget.ai/en/contact",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Berget AI's official contact page states that Berget AI was founded in Sweden."
+    },
     {
       "kind": "models.dev",
       "url": "https://models.dev/api.json",

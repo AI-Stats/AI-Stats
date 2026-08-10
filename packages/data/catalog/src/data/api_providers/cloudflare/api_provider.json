@@ -1,7 +1,7 @@
 {
   "api_provider_id": "cloudflare",
   "api_provider_name": "Cloudflare",
-  "description": null,
+  "description": "Cloudflare's AI services are provided by a web-infrastructure company headquartered in San Francisco, California.",
   "link": "https://developers.cloudflare.com/workers-ai/platform/pricing/",
   "country_code": "US",
   "status": "Active",
@@ -20,10 +20,17 @@
   "auth_env": null,
   "api_formats": [],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_company_page",
+      "url": "https://www.cloudflare.com/about/",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Cloudflare's official About page identifies San Francisco as its headquarters and lists 101 Townsend St., San Francisco, CA 94107."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; other provider policy and catalogue fields were not re-audited."
   }
 }

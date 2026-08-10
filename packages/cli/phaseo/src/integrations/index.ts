@@ -1,4 +1,5 @@
 import { homedir } from "node:os";
+import { getSessionAccessToken } from "../api.js";
 import { codexAdapter } from "./adapters/codex.js";
 import { claudeCodeAdapter } from "./adapters/claude-code.js";
 import { applyChanges, renderPlan } from "./files.js";
@@ -27,8 +28,7 @@ export async function runIntegrationCommand(
 	flags: Record<string, string | boolean>,
 ): Promise<void> {
 	if (command === "credential") {
-		const credential = process.env.PHASEO_API_KEY;
-		if (!credential) throw new Error("PHASEO_API_KEY is not set");
+		const credential = process.env.PHASEO_API_KEY || (await getSessionAccessToken()).accessToken;
 		process.stdout.write(credential);
 		return;
 	}
@@ -52,6 +52,9 @@ export async function runIntegrationCommand(
 	}
 
 	const adapter = adapterFor(integration);
+	if (adapter.id !== "codex" && stringFlag(flags, "model")) {
+		throw new Error("--model is only supported for the Codex integration");
+	}
 	const options = { homeDir: homedir(), model: stringFlag(flags, "model") };
 	const changes = command === "setup" ? await adapter.planSetup(options) : await adapter.planRemove(options);
 

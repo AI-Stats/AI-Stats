@@ -12,7 +12,8 @@
   "status": "active",
   "routable": false,
   "sources": [
-    { "kind": "website", "url": "https://fish.audio/developers/", "accessed_at": "2026-08-01T00:00:00Z", "notes": null }
+    { "kind": "website", "url": "https://fish.audio/developers/", "accessed_at": "2026-08-01T00:00:00Z", "notes": null },
+    { "kind": "official_terms", "url": "https://fish.audio/terms/", "accessed_at": "2026-08-09T00:00:00Z", "notes": "Fish.Audio's official terms identify Hanabi AI Inc., a Delaware corporation located in Dover, Delaware, United States, as the services provider." }
   ],
-  "verification": { "status": "verified", "checked_at": "2026-08-01T00:00:00Z", "notes": "Verified against Fish Audio's developer site and documentation." }
+  "verification": { "status": "partial", "checked_at": "2026-08-09T00:00:00Z", "notes": "Location metadata verified from Fish.Audio's official terms; the broader catalogue record was not re-audited." }
 }

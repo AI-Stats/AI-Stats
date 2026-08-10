@@ -1,10 +1,12 @@
 import { join } from "node:path";
-import { readOptionalFile } from "../files.js";
+import { isCommandAvailable, readOptionalFile } from "../files.js";
 import type { FileChange, IntegrationAdapter, IntegrationOptions } from "../types.js";
 
 const BASE_URL = "https://api.phaseo.app";
 const HELPER = "phaseo integrations credential";
+const HELPER_TTL_MS = "300000";
 const MANAGED_PATH = ["env", "ANTHROPIC_BASE_URL"] as const;
+const SHADOWING_CREDENTIALS = ["ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN"] as const;
 
 function settingsPath(options: IntegrationOptions): string {
 	return join(options.homeDir, ".claude", "settings.json");
@@ -31,8 +33,20 @@ function envObject(settings: Record<string, unknown>): Record<string, unknown> {
 export function renderClaudeSettings(path: string, before: string | null): string {
 	const settings = parseSettings(path, before);
 	const env = envObject(settings);
+	if (env.ANTHROPIC_BASE_URL !== undefined && env.ANTHROPIC_BASE_URL !== BASE_URL) {
+		throw new Error("Claude Code already has a different ANTHROPIC_BASE_URL");
+	}
+	if (settings.apiKeyHelper !== undefined && settings.apiKeyHelper !== HELPER) {
+		throw new Error("Claude Code already has a different apiKeyHelper");
+	}
+	for (const key of SHADOWING_CREDENTIALS) {
+		if (env[key] !== undefined && env[key] !== "") {
+			throw new Error(`Claude Code settings already define ${key}; remove it before enabling the Phaseo credential helper`);
+		}
+	}
 	env.ANTHROPIC_BASE_URL = BASE_URL;
-	env.CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY = "1";
+	if (env.CLAUDE_CODE_API_KEY_HELPER_TTL_MS === undefined) env.CLAUDE_CODE_API_KEY_HELPER_TTL_MS = HELPER_TTL_MS;
+	for (const key of SHADOWING_CREDENTIALS) env[key] = "";
 	settings.env = env;
 	settings.apiKeyHelper = HELPER;
 	return `${JSON.stringify(settings, null, 2)}\n`;
@@ -44,22 +58,26 @@ export const claudeCodeAdapter: IntegrationAdapter = {
 	async inspect(options) {
 		const path = settingsPath(options);
 		const current = await readOptionalFile(path);
-		if (current === null) return { id: "claude-code", name: "Claude Code", status: "available", configPath: path, details: [] };
+		if (current === null) {
+			const installed = await isCommandAvailable(["claude", "claude.exe", "claude.cmd", "claude.ps1"]);
+			return { id: "claude-code", name: "Claude Code", status: installed ? "available" : "not-installed", configPath: path, details: [] };
+		}
 		const settings = parseSettings(path, current);
 		const env = envObject(settings);
 		const base = env[MANAGED_PATH[1]];
 		const helper = settings.apiKeyHelper;
-		const configured = base === BASE_URL && helper === HELPER;
-		const conflict = (base !== undefined && base !== BASE_URL) || (helper !== undefined && helper !== HELPER);
+		const credentialsShadowHelper = SHADOWING_CREDENTIALS.some((key) => env[key] !== undefined && env[key] !== "");
+		const configured = base === BASE_URL && helper === HELPER && !credentialsShadowHelper;
+		const conflict = (base !== undefined && base !== BASE_URL) || (helper !== undefined && helper !== HELPER) || credentialsShadowHelper;
 		return {
 			id: "claude-code",
 			name: "Claude Code",
 			status: configured ? "configured" : conflict ? "conflict" : "available",
 			configPath: path,
 			details: configured
-				? ["Gateway model discovery enabled", "Credential source: Phaseo CLI helper"]
+				? ["Phaseo gateway enabled", "Credential source: Phaseo CLI session or PHASEO_API_KEY"]
 				: conflict
-					? ["Existing gateway or apiKeyHelper configuration would be replaced."]
+					? ["Remove the existing gateway or credential setting before setup."]
 					: [],
 		};
 	},
@@ -76,9 +94,26 @@ export const claudeCodeAdapter: IntegrationAdapter = {
 		if (before === null) return [];
 		const settings = parseSettings(path, before);
 		const env = envObject(settings);
-		if (env.ANTHROPIC_BASE_URL === BASE_URL) delete env.ANTHROPIC_BASE_URL;
-		if (env.CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY === "1") delete env.CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY;
-		if (settings.apiKeyHelper === HELPER) delete settings.apiKeyHelper;
+		let changed = false;
+		if (env.ANTHROPIC_BASE_URL === BASE_URL) {
+			delete env.ANTHROPIC_BASE_URL;
+			changed = true;
+		}
+		if (env.CLAUDE_CODE_API_KEY_HELPER_TTL_MS === HELPER_TTL_MS) {
+			delete env.CLAUDE_CODE_API_KEY_HELPER_TTL_MS;
+			changed = true;
+		}
+		for (const key of SHADOWING_CREDENTIALS) {
+			if (env[key] === "") {
+				delete env[key];
+				changed = true;
+			}
+		}
+		if (settings.apiKeyHelper === HELPER) {
+			delete settings.apiKeyHelper;
+			changed = true;
+		}
+		if (!changed) return [];
 		if (Object.keys(env).length === 0) delete settings.env;
 		else settings.env = env;
 		const after = `${JSON.stringify(settings, null, 2)}\n`;

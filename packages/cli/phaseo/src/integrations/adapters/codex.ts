@@ -1,7 +1,5 @@
-import { access } from "node:fs/promises";
-import { constants } from "node:fs";
 import { join } from "node:path";
-import { readOptionalFile } from "../files.js";
+import { isCommandAvailable, readOptionalFile } from "../files.js";
 import type { FileChange, IntegrationAdapter, IntegrationOptions } from "../types.js";
 
 const MARKER = "# Managed by Phaseo CLI";
@@ -23,9 +21,12 @@ model = ${JSON.stringify(model)}
 [model_providers.phaseo]
 name = "Phaseo"
 base_url = "https://api.phaseo.app/v1"
-env_key = "PHASEO_API_KEY"
-env_key_instructions = "Set PHASEO_API_KEY or run phaseo keys create --name Codex"
 wire_api = "responses"
+
+[model_providers.phaseo.auth]
+command = "phaseo"
+args = ["integrations", "credential"]
+refresh_interval_ms = 300000
 `;
 }
 
@@ -35,17 +36,7 @@ export const codexAdapter: IntegrationAdapter = {
 	async inspect(options) {
 		const path = profilePath(options);
 		const current = await readOptionalFile(path);
-		let installed = false;
-		for (const candidate of ["codex", "codex.exe"]) {
-			for (const directory of (process.env.PATH || "").split(process.platform === "win32" ? ";" : ":")) {
-				if (!directory) continue;
-				try {
-					await access(join(directory, candidate), constants.X_OK);
-					installed = true;
-					break;
-				} catch {}
-			}
-		}
+		const installed = await isCommandAvailable(["codex", "codex.exe", "codex.cmd", "codex.ps1"]);
 		const owned = current?.startsWith(MARKER) ?? false;
 		return {
 			id: "codex",
@@ -53,7 +44,7 @@ export const codexAdapter: IntegrationAdapter = {
 			status: owned ? "configured" : current ? "conflict" : installed ? "available" : "not-installed",
 			configPath: path,
 			details: owned
-				? ["Use with: codex --profile phaseo", "Credential source: PHASEO_API_KEY"]
+				? ["Use with: codex --profile phaseo", "Credential source: Phaseo CLI session or PHASEO_API_KEY"]
 				: current
 					? ["A phaseo.config.toml file exists but is not managed by Phaseo."]
 					: [],

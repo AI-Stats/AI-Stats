@@ -22,7 +22,7 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": null,
   "regional_pricing_notes": null,
-  "country_code": null,
+  "country_code": "PL",
   "status": "Active",
   "colour": null,
   "gateway_kind": "catalogue",
@@ -37,6 +37,12 @@
   "api_formats": [],
   "service_tiers": [],
   "sources": [
+    {
+      "kind": "official_company_page",
+      "url": "https://sherlock.cloudferro.com/",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Sherlock's official page identifies CloudFerro as a European company and lists CloudFerro S.A. at an address in Warsaw, Poland."
+    },
     {
       "kind": "models.dev",
       "url": "https://models.dev/api.json",

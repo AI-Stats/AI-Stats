@@ -4,7 +4,7 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": null,
+  "description": "Perplexity Agent is a Perplexity AI service; Perplexity AI, Inc. has its corporate address in San Francisco, California.",
   "link": "https://docs.perplexity.ai/docs/agent-api/models",
   "residency_mode": null,
   "default_execution_regions": null,
@@ -22,7 +22,7 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": null,
   "regional_pricing_notes": null,
-  "country_code": null,
+  "country_code": "US",
   "status": "Active",
   "colour": null,
   "gateway_kind": "catalogue",
@@ -42,11 +42,17 @@
       "url": "https://models.dev/api.json",
       "accessed_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider metadata and model support enrichment; not a Phaseo-routable offer."
+    },
+    {
+      "kind": "official_terms",
+      "url": "https://www.perplexity.ai/es/hub/legal/terms-of-service",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Perplexity AI, Inc.'s official terms list 115 Sansome St., Suite 900, San Francisco, CA 94104."
     }
   ],
   "verification": {
     "status": "partial",
-    "checked_at": "2026-07-23T09:08:52.190Z",
-    "notes": "Imported from the public models.dev provider registry."
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; other provider policy and catalogue fields were not re-audited. Existing provider verification note: Provider metadata and model support enrichment; not a Phaseo-routable offer."
   }
 }

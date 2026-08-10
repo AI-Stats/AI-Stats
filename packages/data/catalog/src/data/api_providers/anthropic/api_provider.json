@@ -3,7 +3,7 @@
   "api_provider_name": "Anthropic",
   "provider_family_id": "anthropic",
   "offer_scope": "global",
-  "description": null,
+  "description": "Anthropic's API is provided by an AI research and deployment company with its corporate address in San Francisco, California.",
   "link": "https://docs.anthropic.com/en/home",
   "residency_mode": "customer_selectable",
   "default_execution_regions": [
@@ -38,10 +38,17 @@
   "auth_env": null,
   "api_formats": [],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_privacy_notice",
+      "url": "https://www-cdn.anthropic.com/8fd65f023a39d74220c5ebff85c788875c05533f.pdf",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Anthropic's official employee/candidate privacy notice lists Anthropic, PBC at 548 Market Street, PMB 90375, San Francisco, CA 94104."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; other provider policy and catalogue fields were not re-audited."
   }
 }

@@ -22,7 +22,7 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": null,
   "regional_pricing_notes": null,
-  "country_code": null,
+  "country_code": "CN",
   "status": "Active",
   "colour": null,
   "gateway_kind": "catalogue",
@@ -37,6 +37,12 @@
   "api_formats": [],
   "service_tiers": [],
   "sources": [
+    {
+      "kind": "official_investor_faq",
+      "url": "https://www.alibabagroup.com/en-US/faqs-corporate-information",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Alibaba Group's official FAQ identifies its principal executive offices in Hangzhou, China; this provider is the China Model Studio route."
+    },
     {
       "kind": "models.dev",
       "url": "https://models.dev/api.json",

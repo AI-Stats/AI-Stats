@@ -1,5 +1,5 @@
 // Purpose: Gateway models catalogue route.
-// Why: Expose rich model metadata with compatibility fields.
+// Why: Expose Phaseo-native model metadata for discovery and routing decisions.
 // How: Loads catalogue rows, enriches each model, and returns paged results.
 
 import { Hono } from "hono";
@@ -23,30 +23,6 @@ import { getEndpointMetadata } from "./endpoint-metadata";
 
 type LifecycleStatus = "active" | "deprecated" | "retired" | null;
 type AvailabilityMode = "active" | "all";
-
-type CompatibilityPricing = {
-    prompt: string | null;
-    completion: string | null;
-    request: string | null;
-    image: string | null;
-    input_cache_read: string | null;
-    input_cache_write: string | null;
-    web_search: string | null;
-};
-
-type CompatibilityArchitecture = {
-    modality: string;
-    input_modalities: string[];
-    output_modalities: string[];
-    tokenizer: string | null;
-    instruct_type: string | null;
-};
-
-type CompatibilityTopProvider = {
-    context_length: number | null;
-    max_completion_tokens: number | null;
-    is_moderated: boolean;
-};
 
 type ModelVariantLink = {
     model_id: string;
@@ -215,90 +191,35 @@ function toUnixSeconds(value: string | null): number | null {
     return Math.floor(parsed / 1000);
 }
 
-function meterToUnitPrice(meter: PricingMeterSummary | null | undefined): string | null {
-    if (!meter) return null;
-    const rawPrice = Number(meter.price_per_unit);
-    if (!Number.isFinite(rawPrice)) return null;
-    const unitSize = Number.isFinite(meter.unit_size) && meter.unit_size > 0 ? meter.unit_size : 1;
-    return String(rawPrice / unitSize);
-}
-
-function inferInstructType(endpoints: string[]): string | null {
-    if (endpoints.some((endpoint) => endpoint === "chat/completions" || endpoint === "messages" || endpoint === "responses")) {
-        return "chat";
+function detailNumber(model: CatalogueModel, names: string[]): number | null {
+    for (const name of names) {
+        const value = model.details?.[name];
+        if (typeof value !== "number" && typeof value !== "string") continue;
+        if (typeof value === "string" && value.trim() === "") continue;
+        const parsed = typeof value === "number" ? value : Number(value);
+        if (Number.isFinite(parsed) && parsed > 0) return parsed;
     }
-    if (endpoints.includes("embeddings")) return "embedding";
-    if (endpoints.includes("moderations")) return "moderation";
-    if (endpoints.some((endpoint) => endpoint.startsWith("images/"))) return "image";
-    if (endpoints.some((endpoint) => endpoint.startsWith("audio/"))) return "audio";
-    if (endpoints.some((endpoint) => endpoint.startsWith("video") || endpoint.startsWith("videos"))) return "video";
     return null;
-}
-
-function inferModality(inputTypes: string[], outputTypes: string[]): string {
-    const normalizedInput = Array.from(
-        new Set(inputTypes.map((value) => value.trim().toLowerCase()).filter((value) => value.length > 0))
-    ).sort();
-    const normalizedOutput = Array.from(
-        new Set(outputTypes.map((value) => value.trim().toLowerCase()).filter((value) => value.length > 0))
-    ).sort();
-    const input = normalizedInput.length ? normalizedInput.join("+") : "unknown";
-    const output = normalizedOutput.length ? normalizedOutput.join("+") : "unknown";
-    return `${input}->${output}`;
-}
-
-function toCompatibilityPricing(pricing: PricingSummary): CompatibilityPricing {
-    const meters = pricing.meters;
-    return {
-        prompt: meterToUnitPrice(meters.input_tokens ?? meters.input_text_tokens),
-        completion: meterToUnitPrice(meters.output_tokens ?? meters.output_text_tokens),
-        request: null,
-        image: meterToUnitPrice(
-            meters.output_image ?? meters.input_image ?? meters.input_image_tokens ?? meters.output_image_tokens
-        ),
-        input_cache_read: meterToUnitPrice(
-            meters.implicit_cached_input_text_tokens ?? meters.cached_read_text_tokens
-        ),
-        input_cache_write: meterToUnitPrice(
-            meters.cached_write_text_tokens ??
-                meters.cached_write_text_tokens_5m ??
-                meters.cached_write_text_tokens_1h
-        ),
-        web_search: meterToUnitPrice(meters.web_search),
-    };
-}
-
-function toCompatibilityArchitecture(model: CatalogueModel): CompatibilityArchitecture {
-    return {
-        modality: inferModality(model.input_types, model.output_types),
-        input_modalities: [...model.input_types],
-        output_modalities: [...model.output_types],
-        tokenizer: null,
-        instruct_type: inferInstructType(model.endpoints),
-    };
-}
-
-function toCompatibilityTopProvider(model: CatalogueModel): CompatibilityTopProvider {
-    return {
-        context_length: null,
-        max_completion_tokens: null,
-        is_moderated: model.endpoints.includes("moderations"),
-    };
 }
 
 function buildDescription(model: CatalogueModel): string {
     if (model.model_id === FREE_ROUTER_MODEL_ID) {
         return "Routes each request to an eligible free model pool with provider-aware balancing.";
     }
-    const explicitDescription = typeof model.description === "string" ? model.description.trim() : "";
-    if (explicitDescription) {
-        return explicitDescription;
-    }
+    const curatedDescription = model.description?.trim();
+    if (curatedDescription) return curatedDescription;
     const displayName = model.name?.trim() || model.model_id;
-    if (!model.endpoints.length) {
-        return `${displayName} via Phaseo Gateway.`;
-    }
-    return `${displayName} via Phaseo Gateway. Supports ${model.endpoints.join(", ")}.`;
+    const organization = model.organisation_name?.trim();
+    const owner = organization ? ` by ${organization}` : "";
+    const input = model.input_types.length ? model.input_types.join(", ") : "unspecified";
+    const output = model.output_types.length ? model.output_types.join(", ") : "unspecified";
+    const availability = model.availability.active_provider_count > 0
+        ? `${model.availability.active_provider_count} active provider${model.availability.active_provider_count === 1 ? "" : "s"}`
+        : model.availability.status.replace(/_/g, " ");
+    const endpoints = model.endpoints.length
+        ? ` Supports ${model.endpoints.join(", ")}.`
+        : "";
+    return `${displayName}${owner} accepts ${input} input and produces ${output} output. ${availability} through Phaseo.${endpoints}`;
 }
 
 function canIncludeFreeRouter(endpoints: string[]): boolean {
@@ -335,11 +256,36 @@ function cloneJsonObject<T>(value: T): T {
     return JSON.parse(JSON.stringify(value ?? {}));
 }
 
-function toRichModelProvider(provider: CatalogueModel["providers"][number]) {
+function toModelOffer(model: CatalogueModel, provider: CatalogueModel["providers"][number]) {
     return {
-        ...provider,
-        supported_parameters: [...provider.params],
-        supported_parameters_detail: cloneJsonObject(provider.params_detail ?? {}),
+        provider: {
+            id: provider.api_provider_id,
+            name: provider.api_provider_name ?? null,
+        },
+        model: provider.provider_model_slug ?? null,
+        status: provider.availability_status,
+        status_reason: provider.availability_reason,
+        routable: provider.is_active_gateway,
+        endpoints: [...(provider.endpoints ?? [])],
+        modalities: {
+            input: provider.input_modalities?.length ? [...provider.input_modalities] : [...model.input_types],
+            output: provider.output_modalities?.length ? [...provider.output_modalities] : [...model.output_types],
+        },
+        capabilities: {
+            parameters: [...(provider.params ?? [])],
+            parameter_details: cloneJsonObject(provider.params_detail ?? {}),
+        },
+        routing: {
+            provider: provider.provider_routing_status,
+            model: provider.model_routing_status,
+            capability: provider.capability_status,
+        },
+        effective: {
+            from: provider.effective_from,
+            to: provider.effective_to,
+        },
+        pricing: model.provider_pricing?.[provider.api_provider_id]
+            ?? scopePricingSummary(model.pricing, new Set([provider.api_provider_id])),
     };
 }
 
@@ -479,6 +425,7 @@ async function buildFreeRouterCatalogueModel(args: {
             endpoints,
             input_types: inputTypes,
             output_types: outputTypes,
+            details: {},
             providers,
             provider_endpoint_capabilities: {},
             supported_params: supportedParams,
@@ -500,6 +447,7 @@ async function buildFreeRouterCatalogueModel(args: {
                 status: "active",
                 provider_count: providers.length,
                 active_provider_count: providers.length,
+                coming_soon_provider_count: 0,
                 inactive_provider_count: 0,
             },
         };
@@ -523,40 +471,31 @@ function buildModelVariants(catalogue: CatalogueModel[]): Map<string, ModelVaria
     return byBaseModel;
 }
 
-function toRichModel(
+function toPhaseoModel(
     model: CatalogueModel,
     replacementModelId: string | null,
     variants: ModelVariantLinks,
 ) {
-    const {
-        previous_model_id: _previousModelId,
-        supported_params_detail: _supportedParamsDetail,
-        provider_pricing: _providerPricing,
-        provider_endpoint_capabilities: _providerEndpointCapabilities,
-        provider_endpoint_pricing: _providerEndpointPricing,
-        ...publicModel
-    } = model;
-    const legacyTopProvider = model.top_provider;
-    const legacyPricing = model.pricing;
     const lifecycleStatus = normalizeLifecycleStatus(model.status, model.deprecation_date, model.retirement_date);
     return {
-        ...publicModel,
         id: model.model_id,
-        canonical_slug: model.model_id,
         base_model_id: model.base_model_id || model.model_id,
-        variant_kind: model.variant_kind || "standard",
+        variant: model.variant_kind || "standard",
         variants,
-        created: toUnixSeconds(model.release_date),
+        name: model.name?.trim() || model.model_id,
         description: buildDescription(model),
-        architecture: toCompatibilityArchitecture(model),
-        providers: model.providers.map(toRichModelProvider),
-        top_provider_id: legacyTopProvider,
-        top_provider: toCompatibilityTopProvider(model),
+        organization: model.organisation_id ? {
+            id: model.organisation_id,
+            name: model.organisation_name,
+            color: model.organisation_colour,
+        } : null,
+        aliases: [...model.aliases],
         lifecycle: {
             status: lifecycleStatus,
-            deprecation_date: model.deprecation_date,
-            retirement_date: model.retirement_date,
-            replacement_model_id: replacementModelId,
+            released_at: model.release_date,
+            deprecated_at: model.deprecation_date,
+            retires_at: model.retirement_date,
+            replacement_id: replacementModelId,
             message: buildLifecycleMessage(
                 lifecycleStatus,
                 model.deprecation_date,
@@ -564,12 +503,28 @@ function toRichModel(
                 replacementModelId
             ),
         },
-        supported_parameters: [...model.supported_params],
-        supported_params_detail: cloneJsonObject(model.supported_params_detail ?? {}),
-        supported_parameters_detail: cloneJsonObject(model.supported_params_detail ?? {}),
-        pricing_detail: legacyPricing,
-        pricing: toCompatibilityPricing(legacyPricing),
-        per_request_limits: null,
+        modalities: {
+            input: [...model.input_types],
+            output: [...model.output_types],
+        },
+        limits: {
+            input_tokens: detailNumber(model, ["input_context_length", "context_length"]),
+            output_tokens: detailNumber(model, ["output_context_length", "max_output_tokens", "max_completion_tokens"]),
+        },
+        capabilities: {
+            endpoints: [...model.endpoints],
+            parameters: [...model.supported_params],
+            parameter_details: cloneJsonObject(model.supported_params_detail ?? {}),
+        },
+        availability: {
+            status: model.availability.status,
+            provider_count: model.availability.provider_count,
+            active_provider_count: model.availability.active_provider_count,
+            coming_soon_provider_count: model.availability.coming_soon_provider_count ?? 0,
+            inactive_provider_count: model.availability.inactive_provider_count,
+        },
+        pricing: cloneJsonObject(model.pricing),
+        offers: model.providers.map((provider) => toModelOffer(model, provider)),
     };
 }
 
@@ -705,7 +660,7 @@ export async function handleModels(req: Request) {
         const models = enrichedCatalogue
             .filter((model) => !modelIds.length || modelIds.includes(model.model_id))
             .map((model) =>
-                toRichModel(
+                toPhaseoModel(
                     model,
                     replacementByPreviousModel.get(model.model_id) ?? null,
                     variantsByBaseModel.get(model.base_model_id || model.model_id) ?? {},
@@ -715,10 +670,10 @@ export async function handleModels(req: Request) {
         const headers = cacheHeaders(cacheOptions);
         if (requestedFormat.format !== "json") {
             const items: FeedItem[] = paged.map((model) => ({
-                id: model.model_id,
-                title: model.name?.trim() || model.model_id,
+                id: model.id,
+                title: model.name,
                 summary: model.description,
-                updatedAt: model.release_date,
+                updatedAt: model.lifecycle.released_at,
             }));
             return buildFeedResponse({
                 url,
@@ -732,7 +687,6 @@ export async function handleModels(req: Request) {
         return json(
             {
                 ok: true,
-                privacy_scope: "shared",
                 availability_mode: availabilityMode,
                 limit,
                 offset,
@@ -852,28 +806,36 @@ export async function handleModelEndpoints(req: Request) {
                     capability_id: capabilityId,
                     public_path: metadata.public_path,
                     collection: metadata.collection,
-                    provider_id: providerId,
-                    provider_name: provider.api_provider_name,
-                    provider_model_slug: provider.provider_model_slug,
-                    input_modalities: provider.input_modalities.length
-                        ? [...provider.input_modalities]
-                        : [...model.input_types],
-                    output_modalities: provider.output_modalities.length
-                        ? [...provider.output_modalities]
-                        : [...model.output_types],
-                    is_active_gateway: provider.is_active_gateway,
-                    availability_status: provider.availability_status,
-                    availability_reason: provider.availability_reason,
-                    provider_status: provider.provider_status,
-                    provider_routing_status: provider.provider_routing_status,
-                    model_routing_status: provider.model_routing_status,
-                    capability_status: provider.capability_status,
-                    effective_from: provider.effective_from,
-                    effective_to: provider.effective_to,
-                    supported_parameters: [...provider.params],
-                    supported_parameters_detail: cloneJsonObject(provider.params_detail ?? {}),
-                    pricing: toCompatibilityPricing(pricing),
-                    pricing_detail: pricing,
+                    provider: {
+                        id: providerId,
+                        name: provider.api_provider_name,
+                    },
+                    model: provider.provider_model_slug,
+                    routable: provider.is_active_gateway,
+                    status: provider.availability_status,
+                    status_reason: provider.availability_reason,
+                    modalities: {
+                        input: provider.input_modalities.length
+                            ? [...provider.input_modalities]
+                            : [...model.input_types],
+                        output: provider.output_modalities.length
+                            ? [...provider.output_modalities]
+                            : [...model.output_types],
+                    },
+                    capabilities: {
+                        parameters: [...provider.params],
+                        parameter_details: cloneJsonObject(provider.params_detail ?? {}),
+                    },
+                    routing: {
+                        provider: provider.provider_routing_status,
+                        model: provider.model_routing_status,
+                        capability: provider.capability_status,
+                    },
+                    effective: {
+                        from: provider.effective_from,
+                        to: provider.effective_to,
+                    },
+                    pricing,
                 };
             });
         });
@@ -882,12 +844,17 @@ export async function handleModelEndpoints(req: Request) {
             {
                 ok: true,
                 id: model.model_id,
-                model_id: model.model_id,
-                canonical_slug: model.model_id,
-                name: model.name,
+                name: model.name?.trim() || model.model_id,
                 description: buildDescription(model),
-                created: toUnixSeconds(model.release_date),
-                architecture: toCompatibilityArchitecture(model),
+                organization: model.organisation_id ? {
+                    id: model.organisation_id,
+                    name: model.organisation_name,
+                    color: model.organisation_colour,
+                } : null,
+                modalities: {
+                    input: [...model.input_types],
+                    output: [...model.output_types],
+                },
                 availability_mode: availabilityMode,
                 endpoints,
             },

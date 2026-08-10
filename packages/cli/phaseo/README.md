@@ -28,10 +28,16 @@ bun add -g @phaseo/cli
 phaseo --version
 phaseo version
 phaseo version --json
+phaseo update --check
+phaseo update
+phaseo doctor
+phaseo doctor --json
 ```
 
 - `phaseo --version` prints the installed CLI version.
-- `phaseo version` prints the current version plus the recommended install/update command for the detected package manager.
+- `phaseo version` prints the current version plus the update command for the package manager that owns the active installation.
+- `phaseo update` updates that installation with the same package manager; `--check` only checks for a newer release.
+- `phaseo doctor` shows the active executable and reports other Phaseo installations shadowed on `PATH`, with precise cleanup commands.
 - interactive CLI commands also check for newer published versions and show an update hint when one is available.
 - set `PHASEO_DISABLE_UPDATE_CHECK=1` if you want to suppress automatic update notices.
 
@@ -124,10 +130,10 @@ Codex receives a dedicated `phaseo` profile at `~/.codex/phaseo.config.toml`, le
 codex --profile phaseo
 ```
 
-Claude Code is configured through `~/.claude/settings.json` with gateway model discovery and a Phaseo credential helper. The helper reads `PHASEO_API_KEY` at request time, so the key is never written into either application configuration:
+Claude Code is configured through `~/.claude/settings.json` with the Phaseo gateway and a credential helper. Both integrations ask the Phaseo CLI for a short-lived credential, so neither application configuration contains a key. The helper uses `PHASEO_API_KEY` when it is set and otherwise refreshes the session created by `phaseo login`:
 
 ```bash
-export PHASEO_API_KEY="phaseo_v1_sk_..."
+phaseo login
 claude
 ```
 

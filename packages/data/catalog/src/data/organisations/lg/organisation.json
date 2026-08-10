@@ -2,7 +2,7 @@
   "organisation_id": "lg",
   "name": "LG",
   "country_code": "KR",
-  "description": "LG is a technology and electronics company. Their mission is to integrate advanced AI models into devices, consumer experiences and automation systems so that intelligence becomes embedded everywhere.",
+  "description": "LG is a technology and electronics company with its corporate office in Seoul, South Korea. Their mission is to integrate advanced AI models into devices, consumer experiences and automation systems so that intelligence becomes embedded everywhere.",
   "colour": "#a50034",
   "organisation_links": [
     {
@@ -32,10 +32,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_company_page",
+      "url": "https://www.lg.com/global/about-lg/corporate-information/",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "LG's current official corporate information page lists LG Twin Tower, 128 Yeoui-daero, Yeongdeungpo-gu, Seoul, Korea as its address."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; the broader catalogue record was not re-audited."
   }
 }
