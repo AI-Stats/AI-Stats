@@ -115,7 +115,7 @@ export default function LowBalanceEmailAlertsClient(props: {
 										Credit threshold
 									</Label>
 									<p className="mt-0.5 text-xs text-muted-foreground">
-										Alert below this balance. Limited to one email every six hours.
+										Alert at or below this balance. Limited to one email every six hours.
 									</p>
 								</div>
 								<div className="w-full shrink-0 sm:w-32">

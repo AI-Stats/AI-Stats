@@ -107,8 +107,30 @@ describe("recordUsageAndCharge", () => {
 
 		expect(enqueueAutoTopUpFailedEmailMock).toHaveBeenCalledWith({
 			workspaceId: "workspace_123",
-			dedupeId: "no_payment_method:req_no_card",
+			dedupeId: expect.stringMatching(/^no_payment_method:workspace_123:\d+$/),
 			reason: "No saved payment method is available for Auto Top-Up.",
 		});
+	});
+
+	it("deduplicates missing payment-method notifications across requests in the cooldown window", async () => {
+		rpcMock.mockResolvedValue({
+			data: {
+				status: "top_up_required",
+				applied: true,
+				already_applied: false,
+				auto_top_up_amount_nanos: 25_000_000_000,
+				auto_top_up_account_id: null,
+				stripe_customer_id: null,
+			},
+			error: null,
+		});
+		const { recordUsageAndCharge } = await import("./persist");
+
+		await recordUsageAndCharge({ requestId: "req_one", workspaceId: "workspace_123", cost_nanos: 123 });
+		await recordUsageAndCharge({ requestId: "req_two", workspaceId: "workspace_123", cost_nanos: 123 });
+
+		const dedupeIds = enqueueAutoTopUpFailedEmailMock.mock.calls.map(([call]) => call.dedupeId);
+		expect(dedupeIds).toHaveLength(2);
+		expect(dedupeIds[0]).toBe(dedupeIds[1]);
 	});
 });

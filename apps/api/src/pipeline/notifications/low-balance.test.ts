@@ -127,6 +127,46 @@ describe("low-balance notifications", () => {
 		expect(state.updateCalls).toHaveLength(0);
 	});
 
+	it("treats a zero threshold as an alert when the balance reaches zero", async () => {
+		const fetchMock = vi.fn(async () => new Response(JSON.stringify({ id: "event_zero" }), { status: 200 }));
+		vi.stubGlobal("fetch", fetchMock);
+		const { enqueueLowBalanceEmail } = await import("./low-balance");
+
+		await enqueueLowBalanceEmail({
+			workspaceId: "ws_1",
+			balanceNanos: 0,
+			settings: {
+				enabled: true,
+				thresholdNanos: 0,
+				lastSentAt: null,
+				lastSentBalanceNanos: null,
+			},
+		});
+
+		expect(fetchMock).toHaveBeenCalledTimes(1);
+		expect(state.updateCalls).toHaveLength(1);
+	});
+
+	it("keeps zero-threshold alerts inside the six-hour cooldown", async () => {
+		const fetchMock = vi.fn();
+		vi.stubGlobal("fetch", fetchMock);
+		const { enqueueLowBalanceEmail } = await import("./low-balance");
+
+		await enqueueLowBalanceEmail({
+			workspaceId: "ws_1",
+			balanceNanos: 0,
+			settings: {
+				enabled: true,
+				thresholdNanos: 0,
+				lastSentAt: new Date().toISOString(),
+				lastSentBalanceNanos: 0,
+			},
+		});
+
+		expect(fetchMock).not.toHaveBeenCalled();
+		expect(state.updateCalls).toHaveLength(0);
+	});
+
 	it("queues the configured template when Resend Automations are disabled", async () => {
 		state.automationsEnabled = "false";
 		const fetchMock = vi.fn();
