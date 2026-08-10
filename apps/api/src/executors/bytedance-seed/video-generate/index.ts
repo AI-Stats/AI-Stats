@@ -162,8 +162,22 @@ function buildSeedanceRequest(ir: IRVideoGenerationRequest, model: string): Reco
 	};
 
 	const content: Array<Record<string, any>> = [{ type: "text", text: ir.prompt }];
-	if (inputImage) content.push({ type: "image_url", image_url: inputImage });
-	if (inputVideo) content.push({ type: "video_url", video_url: inputVideo });
+	for (const reference of ir.inputReferences ?? []) {
+		const url = reference.url ?? normalizeInputSource(reference.raw);
+		if (!url) continue;
+		if (reference.type === "image") {
+			const role = reference.role === "reference" ? "reference_image" : reference.role;
+			content.push({ type: "image_url", image_url: { url }, ...(role ? { role } : {}) });
+		}
+		if (reference.type === "video") content.push({ type: "video_url", video_url: { url } });
+		if (reference.type === "audio") content.push({ type: "audio_url", audio_url: { url } });
+	}
+	if (inputImage && !content.some((entry) => entry.type === "image_url")) {
+		content.push({ type: "image_url", image_url: { url: inputImage } });
+	}
+	if (inputVideo && !content.some((entry) => entry.type === "video_url")) {
+		content.push({ type: "video_url", video_url: { url: inputVideo } });
+	}
 
 	return {
 		model,
@@ -225,7 +239,8 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		ir.aspectRatio ??
 		ir.ratio;
 	const inputVideoSource = normalizeInputSource(ir.inputVideo ?? ir.input?.video);
-	const inputVideoCount = inputVideoSource ? 1 : 0;
+	const referencedVideoCount = (ir.inputReferences ?? []).filter((entry) => entry.type === "video").length;
+	const inputVideoCount = Math.max(referencedVideoCount, inputVideoSource ? 1 : 0);
 	const inputVideoSeconds =
 		toNonNegativeNumber(
 			bytedanceConfig.input_video_seconds ??
@@ -240,7 +255,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		{ providerId: args.providerId, byokMeta: args.byokMeta, forceGatewayKey: args.meta.forceGatewayKey },
 		() => {
 			const bindings = getBindings() as unknown as Record<string, string | undefined>;
-			return bindings.BYTEDANCE_SEED_API_KEY;
+			return bindings.BYTEDANCE_SEED_API_KEY || bindings.BYTEPLUS_API_KEY;
 		},
 	);
 	const requestObject = buildSeedanceRequest(ir, model);

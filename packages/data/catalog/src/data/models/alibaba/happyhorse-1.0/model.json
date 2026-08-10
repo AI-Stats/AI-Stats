@@ -16,7 +16,10 @@
   "family_id": null,
   "links": [
     {"title": "Alibaba Cloud model catalogue", "kind": "documentation", "url": "https://www.alibabacloud.com/help/en/model-studio/video-generate-edit-model"},
-    {"title": "Text-to-video API", "kind": "api_reference", "url": "https://www.alibabacloud.com/help/en/model-studio/happyhorse-text-to-video-api-reference"}
+    {"title": "Text-to-video API", "kind": "api_reference", "url": "https://www.alibabacloud.com/help/en/model-studio/happyhorse-text-to-video-api-reference"},
+    {"title": "Image-to-video API", "kind": "api_reference", "url": "https://www.alibabacloud.com/help/en/model-studio/happyhorse-image-to-video-api-reference"},
+    {"title": "Reference-to-video API", "kind": "api_reference", "url": "https://www.alibabacloud.com/help/en/model-studio/happyhorse-reference-to-video-api-reference"},
+    {"title": "Video edit API", "kind": "api_reference", "url": "https://www.alibabacloud.com/help/en/model-studio/happyhorse-video-edit-api-reference"}
   ],
   "details": [
     {"name": "max_duration_seconds", "value": 15},
@@ -34,8 +37,8 @@
   "capabilities": {"attachment": true, "tool_call": false, "structured_output": false, "temperature": null, "streaming": false, "web_search": false},
   "open_weights": false,
   "sources": [{"kind": "documentation", "url": "https://www.alibabacloud.com/help/en/model-studio/video-generate-edit-model", "accessed_at": "2026-07-28T00:00:00Z", "notes": "Official model IDs and availability."}],
-  "verification": {"status": "verified", "checked_at": "2026-07-28T00:00:00Z", "notes": "Provider catalogue verified; Phaseo routing remains disabled pending adapter compatibility and authenticated smoke tests."},
-  "last_updated": "2026-07-28T00:00:00Z",
+  "verification": {"status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Provider contract and Phaseo t2v, i2v, r2v, and video-edit adapter coverage verified; Alibaba Cloud routing enabled."},
+  "last_updated": "2026-08-10T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

@@ -2,9 +2,12 @@ import { dispatchBackground, getBindings } from "@/runtime/env";
 import {
 	claimAsyncWebhookDelivery,
 	completeAsyncWebhookDelivery,
+	discardPendingAsyncWebhookDelivery,
 	getAsyncOperation,
+	listPendingAsyncWebhookDeliveries,
 	listAsyncOperations,
 	patchAsyncOperationMeta,
+	recordAsyncWebhookDeliveryResult,
 	releaseAsyncWebhookDeliveryClaim,
 	type AsyncOperationRecord,
 } from "@core/async-operations";
@@ -23,13 +26,14 @@ import {
 import { readResponsePreview } from "@core/bounded-stream";
 
 export type SupportedAsyncNotificationKind = "video" | "batch";
-export type AsyncNotificationPhase = "created" | "progress" | "completed" | "failed" | "cancelled" | "expired";
+export type AsyncNotificationPhase = "created" | "status_changed" | "progress" | "completed" | "failed" | "cancelled" | "expired";
 export type AsyncNotificationEventType =
 	| `job.${AsyncNotificationPhase}`
 	| `video.${AsyncNotificationPhase}`
 	| `batch.${AsyncNotificationPhase}`;
 
 const DEFAULT_ASYNC_WEBHOOK_EVENTS: AsyncNotificationEventType[] = [
+	"job.status_changed",
 	"job.completed",
 	"job.failed",
 	"job.cancelled",
@@ -296,7 +300,7 @@ function normalizeIpv4MappedIpv6Suffix(suffix: string): string | null {
 function normalizeWebhookEvent(kind: SupportedAsyncNotificationKind, value: unknown): AsyncNotificationEventType | null {
 	const text = normalizeText(value)?.toLowerCase();
 	if (!text) return null;
-	const supportedPhases: AsyncNotificationPhase[] = ["created", "progress", "completed", "failed", "cancelled", "expired"];
+	const supportedPhases: AsyncNotificationPhase[] = ["created", "status_changed", "progress", "completed", "failed", "cancelled", "expired"];
 	const normalizedText = text === "canceled" ? "cancelled" : text.replace(/\.canceled$/, ".cancelled");
 	const matchPhase = supportedPhases.find((phase) => phase === normalizedText);
 	if (matchPhase) return `job.${matchPhase}`;
@@ -1168,6 +1172,10 @@ export async function dispatchAsyncWebhookEvent(args: {
 	internalId: string;
 	phase: AsyncNotificationPhase;
 	progress?: number | null;
+	deliveryKey?: string | null;
+	eventType?: AsyncNotificationEventType | null;
+	previousStatus?: string | null;
+	currentStatus?: string | null;
 	force?: boolean;
 	baseUrl?: string | null;
 }): Promise<boolean> {
@@ -1176,8 +1184,8 @@ export async function dispatchAsyncWebhookEvent(args: {
 	const meta = (record.meta ?? {}) as AsyncNotificationMeta;
 	const progressBucket = args.phase === "progress" ? normalizeProgressBucket(args.progress ?? null) : null;
 	if (args.phase === "progress" && progressBucket == null) return false;
-	const specificEvent = resolveSpecificEvent(args.kind, args.phase);
-	const deliveryKey = progressBucket != null ? `${specificEvent}:${progressBucket}` : specificEvent;
+	const specificEvent = args.eventType ?? resolveSpecificEvent(args.kind, args.phase);
+	const deliveryKey = normalizeText(args.deliveryKey) ?? (progressBucket != null ? `${specificEvent}:${progressBucket}` : specificEvent);
 	const deliveries =
 		meta.webhookDeliveries && typeof meta.webhookDeliveries === "object" && !Array.isArray(meta.webhookDeliveries)
 			? (meta.webhookDeliveries as Record<string, string>)
@@ -1190,6 +1198,15 @@ export async function dispatchAsyncWebhookEvent(args: {
 		value: meta.webhook,
 	});
 	if (!webhook) {
+		if (args.deliveryKey) {
+			await discardPendingAsyncWebhookDelivery({
+				workspaceId: args.workspaceId,
+				kind: args.kind,
+				internalId: args.internalId,
+				deliveryKey,
+				reason: "Webhook configuration is not available.",
+			});
+		}
 		if (args.force && retryQueue[deliveryKey]) {
 			await markQueuedWebhookRetryUndeliverable({
 				workspaceId: args.workspaceId,
@@ -1205,6 +1222,15 @@ export async function dispatchAsyncWebhookEvent(args: {
 		return false;
 	}
 	if (!isWebhookEventSubscribed({ kind: args.kind, phase: args.phase, configuredEvents: webhook.events })) {
+		if (args.deliveryKey) {
+			await discardPendingAsyncWebhookDelivery({
+				workspaceId: args.workspaceId,
+				kind: args.kind,
+				internalId: args.internalId,
+				deliveryKey,
+				reason: "Webhook does not subscribe to this event.",
+			});
+		}
 		if (args.force && retryQueue[deliveryKey]) {
 			await markQueuedWebhookRetryUndeliverable({
 				workspaceId: args.workspaceId,
@@ -1269,6 +1295,12 @@ export async function dispatchAsyncWebhookEvent(args: {
 			record,
 			progress: progressBucket ?? args.progress ?? null,
 		}),
+		...(args.phase === "status_changed" ? {
+			status_change: {
+				previous_status: normalizeText(args.previousStatus),
+				status: normalizeText(args.currentStatus) ?? toAsyncLifecycleStatus(record.status),
+			},
+		} : {}),
 	};
 	if (!payload.data) {
 		await releaseAsyncWebhookDeliveryClaim({
@@ -1348,11 +1380,15 @@ export async function dispatchAsyncWebhookEvent(args: {
 			attemptNumber,
 			nextRetryAt,
 		});
-		await patchAsyncOperationMeta({
+		await recordAsyncWebhookDeliveryResult({
 			workspaceId: args.workspaceId,
 			kind: args.kind,
 			internalId: args.internalId,
-			metaPatch: {
+			deliveryKey,
+			attempt: attempts.at(-1) as unknown as Record<string, unknown>,
+			retryState: nextRetryAt ? nextRetryQueue[deliveryKey] as unknown as Record<string, unknown> : null,
+			nextRetryAt,
+			telemetryPatch: {
 				webhookAttempts: attempts,
 				webhookRetryQueue: nextRetryQueue,
 				nextWebhookRetryAt: computeNextRetryAtFromQueue(nextRetryQueue),
@@ -1392,19 +1428,22 @@ export async function dispatchAsyncWebhookEvent(args: {
 		error_message: null,
 		response_body_preview: requestResult.bodyPreview,
 	});
-	await patchAsyncOperationMeta({
+	await recordAsyncWebhookDeliveryResult({
 		workspaceId: args.workspaceId,
 		kind: args.kind,
 		internalId: args.internalId,
-		metaPatch: {
-			webhookDeliveries: {
-				...deliveries,
-				[deliveryKey]: nowIso,
-			},
+		deliveryKey,
+		attempt: attempts.at(-1) as unknown as Record<string, unknown>,
+		retryState: null,
+		deliveredAt: nowIso,
+		nextRetryAt: computeNextRetryAtFromQueue(nextRetryQueue),
+		progress: progressBucket,
+		telemetryPatch: {
+			webhookDeliveries: { ...deliveries, [deliveryKey]: nowIso },
 			webhookAttempts: attempts,
 			webhookRetryQueue: nextRetryQueue,
 			nextWebhookRetryAt: computeNextRetryAtFromQueue(nextRetryQueue),
-			...(progressBucket != null ? { lastWebhookProgress: progressBucket, lastWebhookProgressAt: new Date().toISOString() } : {}),
+			...(progressBucket != null ? { lastWebhookProgress: progressBucket, lastWebhookProgressAt: nowIso } : {}),
 			lastWebhookDispatchedAt: nowIso,
 		},
 	});
@@ -1417,6 +1456,10 @@ export function dispatchAsyncWebhookEventInBackground(args: {
 	internalId: string;
 	phase: AsyncNotificationPhase;
 	progress?: number | null;
+	deliveryKey?: string | null;
+	eventType?: AsyncNotificationEventType | null;
+	previousStatus?: string | null;
+	currentStatus?: string | null;
 	force?: boolean;
 	baseUrl?: string | null;
 }) {
@@ -1465,9 +1508,31 @@ export async function runAsyncWebhookRetriesJob(args?: {
 		phase: AsyncNotificationPhase;
 		progress: number | null;
 		nextRetryAt: string;
+		eventType?: AsyncNotificationEventType;
+		previousStatus?: string | null;
+		currentStatus?: string | null;
 	}> = [];
 	let jobsScanned = 0;
 	let pagesScanned = 0;
+
+	const pendingOutbox = await listPendingAsyncWebhookDeliveries(maxDeliveries);
+	for (const entry of pendingOutbox) {
+		const phase = normalizeText(entry.phase) as AsyncNotificationPhase | null;
+		const eventType = normalizeText(entry.eventType) as AsyncNotificationEventType | null;
+		if (!phase || !eventType) continue;
+		dueDeliveries.push({
+			workspaceId: entry.workspaceId,
+			kind: entry.kind,
+			internalId: entry.internalId,
+			deliveryKey: entry.deliveryKey,
+			phase,
+			progress: entry.progress,
+			nextRetryAt: "",
+			eventType,
+			previousStatus: entry.previousStatus,
+			currentStatus: entry.currentStatus,
+		});
+	}
 
 	const collectDueDeliveries = (records: AsyncOperationRecord[]) => {
 		jobsScanned += records.length;
@@ -1494,6 +1559,12 @@ export async function runAsyncWebhookRetriesJob(args?: {
 				}));
 			for (const retry of recordDueDeliveries) {
 				if (dueDeliveries.length >= maxDeliveries) return;
+				if (dueDeliveries.some((entry) =>
+					entry.workspaceId === retry.workspaceId &&
+					entry.kind === retry.kind &&
+					entry.internalId === retry.internalId &&
+					entry.deliveryKey === retry.deliveryKey
+				)) continue;
 				dueDeliveries.push(retry);
 			}
 		}
@@ -1526,6 +1597,10 @@ export async function runAsyncWebhookRetriesJob(args?: {
 			internalId: retry.internalId,
 			phase: retry.phase,
 			progress: retry.progress,
+			deliveryKey: retry.deliveryKey,
+			eventType: retry.eventType,
+			previousStatus: retry.previousStatus,
+			currentStatus: retry.currentStatus,
 			force: true,
 			baseUrl: args?.baseUrl ?? null,
 		});

@@ -2,6 +2,7 @@ import { dispatchVideoWebhookEventInBackground } from "@core/video-user-webhooks
 import { setVideoJobStatus, type VideoJobMeta, type VideoJobRecord } from "@core/video-jobs";
 import { guardAuth } from "@pipeline/before/guards";
 import { err } from "@pipeline/before/http";
+import { fetchVideoProviderStatus } from "@core/video-reconciliation";
 
 import * as videoHelpers from "./videos.helpers";
 
@@ -82,6 +83,44 @@ export async function getVideoByIdHandler(req: Request): Promise<Response> {	con
 			workspace_id: authValue.workspaceId,
 			video_id: id,
 		});
+	}
+	if ((videoRecord.provider ?? videoMeta?.provider) === "fal") {
+		const polled = await fetchVideoProviderStatus(videoRecord);
+		if (!polled) {
+			return err("upstream_error", { reason: "fal_video_status_fetch_failed", video_id: id });
+		}
+		await finalizeVideoStatusIfTerminal({
+			auth: authValue,
+			videoId: id,
+			videoMeta,
+			providerId: "fal",
+			status: polled.status,
+			model: polled.model ?? videoRecord.model,
+			seconds: polled.seconds,
+			metaPatch: polled.metaPatch,
+		});
+		if (isTerminalVideoStatus(polled.status)) {
+			const refreshed = await refreshOwnedVideoJob(authValue, id);
+			if (refreshed) {
+				videoRecord = refreshed.record;
+				videoMeta = refreshed.meta;
+			}
+		}
+		const downloadUrl = normalizeText(polled.metaPatch?.downloadUrl ?? videoMeta?.downloadUrl);
+		return new Response(JSON.stringify(await toPublicVideoResponse({
+			requestUrl: req.url,
+			id,
+			payload: enrichVideoPayloadWithJobMetrics({
+				id,
+				status: polled.status,
+				provider: "fal",
+				model: polled.model ?? videoRecord.model,
+				result: polled.raw,
+				output: downloadUrl ? [{ index: 0, uri: downloadUrl, mime_type: "video/mp4" }] : [],
+			}, videoRecord, videoMeta),
+			record: videoRecord,
+			meta: videoMeta,
+		})), { status: 200, headers: { "Content-Type": "application/json" } });
 	}
 	const vertexOperationName = resolveGoogleVertexOperationName(videoRecord, videoMeta, id);
 	if (vertexOperationName) {

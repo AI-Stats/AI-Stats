@@ -1135,9 +1135,7 @@ paths:
         - Gateway
       operationId: cancelVideo
       summary: Cancel video
-      description: >-
-        Cancels a non-terminal video generation request when the upstream
-        provider supports cancellation.
+      description: Video cancellation is currently disabled across all providers.
       parameters:
         - name: video_id
           in: path
@@ -1146,14 +1144,8 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: Video cancellation response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/VideoGenerationResponse'
         '501':
-          description: Video cancellation is not supported for this provider
+          description: Video cancellation is disabled
           content:
             application/json:
               schema:
@@ -2917,14 +2909,8 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: Video cancellation response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/VideoGenerationResponse'
         '501':
-          description: Video cancellation is not supported for this provider
+          description: Video cancellation is disabled
           content:
             application/json:
               schema:
@@ -6093,6 +6079,14 @@ components:
         duration:
           type: integer
           description: Desired duration in seconds (provider/model dependent).
+        input_video_duration:
+          type: number
+          format: double
+          maximum: 3600
+          exclusiveMinimum: 0
+          description: >-
+            Duration of the source video in seconds. Required when a provider
+            bills source-video duration independently from generated output.
         size:
           type: string
           description: >-
@@ -6153,9 +6147,10 @@ components:
               type: array
               description: >-
                 Optional event subscriptions. Use generic job.* events or
-                matching video.* events, for example video.progress or
-                video.completed. When omitted, terminal job.* events are used.
-                Include job.progress or video.progress explicitly for progress
+                matching video.* events, for example video.status_changed,
+                video.progress, or video.completed. When omitted,
+                job.status_changed and terminal job.* events are used. Include
+                job.progress or video.progress explicitly for progress
                 callbacks. When supplied, at least one event must be valid for
                 video jobs; cross-kind-only or malformed event lists are
                 rejected.
@@ -6337,6 +6332,7 @@ components:
           type: string
           format: uri
           nullable: true
+          description: Reserved for compatibility; currently always null.
         output_access:
           type: string
           enum:
@@ -6461,6 +6457,8 @@ components:
           type: string
           enum:
             - image_url
+            - video_url
+            - audio_url
         role:
           type: string
           enum:
@@ -6478,6 +6476,16 @@ components:
           properties:
             url:
               type: string
+              format: uri
+        media_url:
+          type: object
+          description: Required for video_url and audio_url references.
+          required:
+            - url
+          properties:
+            url:
+              type: string
+              format: uri
     VideoOutputConfig:
       type: object
       properties:
@@ -7104,6 +7112,7 @@ components:
           type: string
           format: uri
           nullable: true
+          description: Reserved for compatibility; currently always null.
         output_file_id:
           type: string
         error_file_id:
@@ -7333,6 +7342,7 @@ components:
       enum:
         - ai21
         - aion-labs
+        - alibaba
         - allenai
         - amazon
         - anthropic
@@ -7374,6 +7384,7 @@ components:
         - prime-intellect
         - qwen
         - relace
+        - runway
         - sourceful
         - spacex-ai
         - stepfun
@@ -9461,6 +9472,8 @@ components:
         - aion-labs/aion-3.0
         - aion-labs/aion-3.0-mini
         - aion-labs/aion-rp-llama-3.1-8b
+        - alibaba/happyhorse-1.0
+        - alibaba/happyhorse-1.1
         - allenai/molmo-2-8b
         - allenai/olmo-3.1-32b
         - anthropic/claude-fable-5
@@ -9569,6 +9582,7 @@ components:
         - google/veo-2
         - google/veo-3.1-fast-preview
         - google/veo-3.1-lite-generate-preview
+        - google/veo-3.1-lite-preview
         - google/veo-3.1-preview
         - ibm/granite-4.1-8b
         - inception/mercury-2
@@ -9853,6 +9867,7 @@ components:
         - qwen/text-embedding-v3
         - qwen/text-embedding-v4
         - qwen/wan2.7-t2v
+        - runway/gen-4.5
         - spacex-ai/grok-4.20-beta-0309
         - spacex-ai/grok-4.20-multi-agent-beta-0309
         - spacex-ai/grok-4.3
@@ -9862,6 +9877,7 @@ components:
         - spacex-ai/grok-imagine-image
         - spacex-ai/grok-imagine-image-quality
         - spacex-ai/grok-imagine-video
+        - spacex-ai/grok-imagine-video-1.5
         - spacex-ai/grok-tts
         - stepfun/step-3.5-flash
         - stepfun/step-3.7-flash

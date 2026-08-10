@@ -107,23 +107,13 @@ describe("google video executor", () => {
 			durationSeconds: 8,
 			aspectRatio: "16:9",
 			size: "1080p",
-			compressionQuality: 80,
 			negativePrompt: "blurry, noisy",
-			numberOfVideos: 2,
+			numberOfVideos: 1,
 			seed: 42,
-			personGeneration: "allow",
+			personGeneration: "allow_adult",
 			generateAudio: true,
-			enhancePrompt: false,
-			outputStorageUri: "gs://bucket/output",
 			inputImage: "gs://bucket/reference-image.png",
-			inputVideo: { gcs_uri: "gs://bucket/input-video.mp4" },
 			lastFrame: "data:image/png;base64,QUJD",
-			referenceImages: [
-				{
-					reference_type: "REFERENCE_TYPE_STYLE",
-					uri: "gs://bucket/style-image.png",
-				},
-			],
 		}));
 
 		mock.restore();
@@ -134,29 +124,22 @@ describe("google video executor", () => {
 		expect(capturedHeaders["x-goog-api-key"]).toBe("test-google-key");
 		expect(capturedBody?.instances?.[0]?.prompt).toBe("A cinematic waterfall in Iceland");
 		expect(capturedBody?.instances?.[0]?.image?.gcsUri).toBe("gs://bucket/reference-image.png");
-		expect(capturedBody?.instances?.[0]?.video?.gcsUri).toBe("gs://bucket/input-video.mp4");
-		expect(capturedBody?.instances?.[0]?.lastFrame?.mimeType).toBe("image/png");
-		expect(capturedBody?.instances?.[0]?.lastFrame?.imageBytes).toBe("QUJD");
-		expect(capturedBody?.instances?.[0]?.referenceImages?.[0]?.referenceType).toBe("REFERENCE_TYPE_STYLE");
-		expect(capturedBody?.instances?.[0]?.referenceImages?.[0]?.image?.gcsUri).toBe("gs://bucket/style-image.png");
+		expect(capturedBody?.instances?.[0]?.lastFrame?.inlineData?.mimeType).toBe("image/png");
+		expect(capturedBody?.instances?.[0]?.lastFrame?.inlineData?.data).toBe("QUJD");
 		expect(capturedBody?.parameters).toMatchObject({
 			durationSeconds: 8,
 			aspectRatio: "16:9",
 			resolution: "1080p",
-			compressionQuality: 80,
 			negativePrompt: "blurry, noisy",
-			numberOfVideos: 2,
+			numberOfVideos: 1,
 			seed: 42,
-			personGeneration: "allow",
-			generateAudio: true,
-			enhancePrompt: false,
-			storageUri: "gs://bucket/output",
+			personGeneration: "allow_adult",
 		});
-		expect(state.reservationCalls[0]).toMatchObject({ seconds: 16 });
+		expect(state.reservationCalls[0]).toMatchObject({ seconds: 8 });
 		expect(saveVideoJobMetaMock).toHaveBeenCalledWith(
 			"team_test",
 			"req_google_video_test",
-			expect.objectContaining({ seconds: 8, outputCount: 2 }),
+			expect.objectContaining({ seconds: 8, outputCount: 1 }),
 			expect.any(String),
 			expect.any(String),
 		);
@@ -195,6 +178,45 @@ describe("google video executor", () => {
 		expect(capturedBody?.instances?.[0]?.image?.uri).toBe("https://example.com/ref.png");
 		expect(capturedBody?.parameters?.resolution).toBe("720p");
 		expect(capturedBody?.parameters?.numberOfVideos).toBe(1);
+	});
+
+	it("maps normalized IR reference images and defaults billable dimensions", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url.includes(":predictLongRunning"),
+			response: jsonResponse({ name: "operations/veo-references", done: false }),
+			onRequest: (call) => { capturedBody = call.bodyJson; },
+		}]);
+		const result = await execute(buildArgs({
+			model: "google/veo-3.1-preview",
+			prompt: "Keep the product consistent across the shot",
+			inputReferences: [
+				{ type: "image", role: "reference", url: "gs://bucket/product.png", referenceType: "asset" },
+			],
+		}));
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(200);
+		expect(capturedBody?.instances?.[0]?.referenceImages?.[0]).toMatchObject({
+			referenceType: "asset",
+			image: { gcsUri: "gs://bucket/product.png" },
+		});
+		expect(capturedBody?.parameters).toMatchObject({ durationSeconds: 8, resolution: "720p", aspectRatio: "16:9" });
+		expect(state.reservationCalls.at(-1)).toMatchObject({ seconds: 8 });
+	});
+
+	it("rejects invalid Veo combinations before provider submission", async () => {
+		const mock = installFetchMock([]);
+		const result = await execute(buildArgs({
+			model: "google/veo-3.1-preview",
+			prompt: "A silent clip",
+			generateAudio: false,
+		}));
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(400);
+		expect(await result.upstream?.clone().json()).toMatchObject({ error: { type: "invalid_request" } });
+		expect(mock.calls).toEqual([]);
 	});
 
 	it("fails the gateway response when Google video metadata cannot be persisted", async () => {

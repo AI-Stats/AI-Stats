@@ -215,6 +215,8 @@ export type GatewayBindings = {
     RUNWAY_API_KEY?: string;
     RUNWAY_BASE_URL?: string;
     RUNWAY_API_VERSION?: string;
+    FAL_KEY?: string;
+    FAL_QUEUE_BASE_URL?: string;
     PERPLEXITY_API_KEY?: string;
     PERPLEXITY_BASE_URL?: string;
     POOLSIDE_API_KEY?: string;

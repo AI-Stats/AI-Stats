@@ -90,6 +90,16 @@ function nativeIdForProviders(
 	return normalizeText(record?.nativeId);
 }
 
+function storedTaskIdForProviders(
+	record: VideoJobRecord | null,
+	meta: VideoJobMeta | null,
+	expectedProviders: string[],
+): string | null {
+	const provider = normalizedProvider(record, meta);
+	if (!provider || !expectedProviders.includes(provider)) return null;
+	return normalizeText(record?.nativeId) ?? normalizeText(meta?.providerTaskId);
+}
+
 export function decodeBytedanceVideoId(videoId: string): string | null {
 	if (!videoId.startsWith(BYTEDANCE_VIDEO_PREFIX)) return null;
 	const b64 = videoId.slice(BYTEDANCE_VIDEO_PREFIX.length).replace(/-/g, "+").replace(/_/g, "/");
@@ -125,14 +135,12 @@ export function resolveGoogleAiStudioOperationName(record: VideoJobRecord | null
 }
 
 export function resolveDashscopeTaskId(record: VideoJobRecord | null, meta: VideoJobMeta | null, videoId: string): string | null {
-	return nativeIdForProviders(record, meta, ["alibaba", "alibaba-cloud", "qwen"]) ??
-		normalizeText(meta?.providerTaskId) ??
+	return storedTaskIdForProviders(record, meta, ["alibaba", "alibaba-cloud", "qwen"]) ??
 		decodeDashscopeTaskId(videoId);
 }
 
 export function resolveXAiNativeId(record: VideoJobRecord | null, meta: VideoJobMeta | null, videoId: string): string | null {
-	return nativeIdForProviders(record, meta, [XAI_PROVIDER_ID]) ??
-		normalizeText(meta?.providerTaskId) ??
+	return storedTaskIdForProviders(record, meta, ["spacex-ai", XAI_PROVIDER_ID, "xai"]) ??
 		decodeXAiVideoId(videoId);
 }
 
@@ -311,11 +319,8 @@ export function resolveRunwayApiVersion(
 	videoMeta: VideoJobMeta | null,
 	bindings: Record<string, string | undefined>,
 ): string | undefined {
-	const model = String(videoMeta?.model ?? "");
-	const forceLegacy = model.toLowerCase().includes("gen3");
-	if (forceLegacy) return "2024-11-06";
 	const configured = String(bindings.RUNWAY_API_VERSION ?? "").trim();
-	return configured.length > 0 ? configured : undefined;
+	return configured.length > 0 ? configured : "2024-11-06";
 }
 
 export async function fetchBytedanceTask(
@@ -324,7 +329,9 @@ export async function fetchBytedanceTask(
 	taskId: string,
 ) {
 	const providerId = String(videoMeta?.provider ?? BYTEDANCE_PROVIDER_ID).trim() || BYTEDANCE_PROVIDER_ID;
-	const key = await resolveVideoProviderKey(auth, videoMeta, providerId, "BYTEDANCE_SEED_API_KEY");
+	const key =
+		await resolveVideoProviderKey(auth, videoMeta, providerId, "BYTEDANCE_SEED_API_KEY") ??
+		await resolveVideoProviderKey(auth, videoMeta, providerId, "BYTEPLUS_API_KEY");
 	if (!key) {
 		return err("upstream_error", {
 			reason: "bytedance_seed_key_missing",

@@ -1396,6 +1396,7 @@ struct VideoGenerationRequest {
 	std::optional<bool> enhance_prompt;
 	std::optional<bool> generate_audio;
 	std::vector<std::map<std::string, std::any>> input_references;
+	std::optional<double> input_video_duration;
 	std::string model;
 	std::string negative_prompt;
 	std::map<std::string, std::any> output;
@@ -1452,6 +1453,7 @@ struct VideoGenerationResponse {
 
 struct VideoInputReference {
 	std::map<std::string, std::any> image_url;
+	std::map<std::string, std::any> media_url;
 	std::string reference_type;
 	std::any role;
 	std::any type;

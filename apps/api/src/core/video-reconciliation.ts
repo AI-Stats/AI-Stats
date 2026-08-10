@@ -34,6 +34,22 @@ const MINIMAX_VIDEO_PREFIX = "mmxvid_";
 const BYTEDANCE_VIDEO_PREFIX = "bdvid_";
 const RUNWAY_VIDEO_PREFIX = "rwyvid_";
 const ATLAS_VIDEO_PREFIX = "atlsvid_";
+const FAL_VIDEO_PREFIX = "falvid_";
+const DEFAULT_FAL_QUEUE_BASE_URL = "https://queue.fal.run";
+
+type FalVideoIdentity = { endpoint: string; requestId: string };
+
+function decodeFalVideoIdentity(value: string | null | undefined): FalVideoIdentity | null {
+	if (!value?.startsWith(FAL_VIDEO_PREFIX)) return null;
+	try {
+		const encoded = value.slice(FAL_VIDEO_PREFIX.length).replace(/-/g, "+").replace(/_/g, "/");
+		const parsed = JSON.parse(atob(encoded + "===".slice((encoded.length + 3) % 4)));
+		if (!toNonEmptyString(parsed?.endpoint) || !toNonEmptyString(parsed?.requestId)) return null;
+		return parsed as FalVideoIdentity;
+	} catch {
+		return null;
+	}
+}
 
 function toNonEmptyString(value: unknown): string | undefined {
 	if (typeof value !== "string") return undefined;
@@ -169,11 +185,8 @@ function resolveStoredProviderTaskId(
 }
 
 function resolveRunwayApiVersion(job: VideoJobRecord, bindings: Record<string, string | undefined>): string | undefined {
-	const model = String(job.model ?? job.meta?.model ?? "");
-	const forceLegacy = model.toLowerCase().includes("gen3");
-	if (forceLegacy) return "2024-11-06";
 	const configured = String(bindings.RUNWAY_API_VERSION ?? "").trim();
-	return configured.length > 0 ? configured : undefined;
+	return configured.length > 0 ? configured : "2024-11-06";
 }
 
 type VideoProviderStatusResult = {
@@ -704,6 +717,7 @@ async function fetchXAiVideoStatus(job: VideoJobRecord): Promise<VideoProviderSt
 			(json as any).seconds ??
 			(json as any).duration_seconds ??
 			(json as any).duration ??
+			(json as any).video?.duration ??
 			job.meta?.seconds,
 		),
 		requestOptions: buildVideoPricingRequestOptions({
@@ -757,11 +771,14 @@ async function fetchBytedanceVideoStatus(job: VideoJobRecord): Promise<VideoProv
 	const taskId = resolveStoredProviderTaskId(job, (value) => decodePrefixedBase64Id(value, BYTEDANCE_VIDEO_PREFIX));
 	if (!taskId) return null;
 	const providerId = String(job.provider ?? "bytedance-seed").trim() || "bytedance-seed";
-	const key = await resolveProviderPollingKey({
+	let key = await resolveProviderPollingKey({
 		job,
 		providerId,
 		defaultEnvKey: "BYTEDANCE_SEED_API_KEY",
 	});
+	if (!key) {
+		key = await resolveProviderPollingKey({ job, providerId, defaultEnvKey: "BYTEPLUS_API_KEY" });
+	}
 	if (!key) return null;
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const baseUrl = String(bindings.BYTEDANCE_SEED_BASE_URL || DEFAULT_BYTEDANCE_BASE_URL).replace(/\/+$/, "");
@@ -901,16 +918,59 @@ async function fetchRunwayVideoStatus(job: VideoJobRecord): Promise<VideoProvide
 	};
 }
 
+async function fetchFalVideoStatus(job: VideoJobRecord): Promise<VideoProviderStatusResult | null> {
+	const identity = decodeFalVideoIdentity(job.nativeId ?? job.meta?.providerTaskId);
+	if (!identity) return null;
+	const key = await resolveProviderPollingKey({ job, providerId: "fal", defaultEnvKey: "FAL_KEY" });
+	if (!key) return null;
+	const bindings = getBindings() as unknown as Record<string, string | undefined>;
+	const baseUrl = String(bindings.FAL_QUEUE_BASE_URL || DEFAULT_FAL_QUEUE_BASE_URL).replace(/\/+$/, "");
+	const requestBase = `${baseUrl}/${identity.endpoint}/requests/${encodeURIComponent(identity.requestId)}`;
+	const headers = { Authorization: `Key ${key}`, Accept: "application/json" };
+	const statusRes = await fetch(`${requestBase}/status`, { headers });
+	if (!statusRes.ok) return null;
+	const statusJson = await statusRes.json().catch(() => null);
+	if (!statusJson || typeof statusJson !== "object") return null;
+	const nativeStatus = String((statusJson as any).status ?? "").toUpperCase();
+	if (nativeStatus === "IN_QUEUE") {
+		return { status: "queued", providerId: "fal", model: job.model ?? undefined, raw: statusJson };
+	}
+	if (nativeStatus === "FAILED" || nativeStatus === "ERROR") {
+		return { status: "failed", providerId: "fal", model: job.model ?? undefined, raw: statusJson };
+	}
+	if (nativeStatus === "CANCELLED" || nativeStatus === "CANCELED") {
+		return { status: "cancelled", providerId: "fal", model: job.model ?? undefined, raw: statusJson };
+	}
+	if (nativeStatus !== "COMPLETED") {
+		return { status: "in_progress", providerId: "fal", model: job.model ?? undefined, raw: statusJson };
+	}
+	const resultRes = await fetch(`${requestBase}/response`, { headers });
+	if (!resultRes.ok) return null;
+	const resultJson = await resultRes.json().catch(() => null);
+	const payload = (resultJson as any)?.data ?? (resultJson as any)?.payload ?? resultJson;
+	const downloadUrl = toNonEmptyString(payload?.video?.url ?? payload?.video_url ?? payload?.url);
+	return {
+		status: downloadUrl ? "completed" : "failed",
+		providerId: "fal",
+		model: job.model ?? undefined,
+		seconds: toPositiveNumber(job.meta?.seconds),
+		requestOptions: buildVideoPricingRequestOptions({ resolution: job.meta?.resolution, quality: job.meta?.quality }),
+		metaPatch: downloadUrl ? { downloadUrl, falEndpoint: identity.endpoint, falRequestId: identity.requestId } : undefined,
+		raw: resultJson,
+	};
+}
+
 export async function fetchVideoProviderStatus(job: VideoJobRecord): Promise<VideoProviderStatusResult | null> {
 	const provider = String(job.provider ?? job.meta?.provider ?? "").trim().toLowerCase();
 	if (provider === "google-ai-studio") return fetchGoogleAiStudioVideoStatus(job);
 	if (provider === "google-vertex") return fetchGoogleVertexVideoStatus(job);
 	if (provider === "alibaba" || provider === "alibaba-cloud" || provider === "qwen") return fetchAlibabaVideoStatus(job);
 	if (provider === "atlascloud" || provider === "atlas-cloud") return fetchAtlasCloudVideoStatus(job);
-	if (provider === "x-ai" || provider === "xai") return fetchXAiVideoStatus(job);
+	if (provider === "spacex-ai" || provider === "x-ai" || provider === "xai") return fetchXAiVideoStatus(job);
 	if (provider === "minimax" || provider === "minimax-lightning") return fetchMiniMaxVideoStatus(job);
 	if (provider === "bytedance-seed" || provider === "byteplus") return fetchBytedanceVideoStatus(job);
 	if (provider === "runway" || provider === "runwayml") return fetchRunwayVideoStatus(job);
+	if (provider === "fal") return fetchFalVideoStatus(job);
 	if (provider === "openai" || isOpenAICompatProvider(provider)) return fetchOpenAiVideoStatus(job, provider || "openai");
 	return null;
 }

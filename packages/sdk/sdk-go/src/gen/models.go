@@ -1594,6 +1594,8 @@ const (
 	KnownModelIdAionLabsAion30 KnownModelId = "aion-labs/aion-3.0"
 	KnownModelIdAionLabsAion30Mini KnownModelId = "aion-labs/aion-3.0-mini"
 	KnownModelIdAionLabsAionRpLlama318b KnownModelId = "aion-labs/aion-rp-llama-3.1-8b"
+	KnownModelIdAlibabaHappyhorse10 KnownModelId = "alibaba/happyhorse-1.0"
+	KnownModelIdAlibabaHappyhorse11 KnownModelId = "alibaba/happyhorse-1.1"
 	KnownModelIdAllenaiMolmo28b KnownModelId = "allenai/molmo-2-8b"
 	KnownModelIdAllenaiOlmo3132b KnownModelId = "allenai/olmo-3.1-32b"
 	KnownModelIdAnthropicClaudeFable5 KnownModelId = "anthropic/claude-fable-5"
@@ -1702,6 +1704,7 @@ const (
 	KnownModelIdGoogleVeo2 KnownModelId = "google/veo-2"
 	KnownModelIdGoogleVeo31FastPreview KnownModelId = "google/veo-3.1-fast-preview"
 	KnownModelIdGoogleVeo31LiteGeneratePreview KnownModelId = "google/veo-3.1-lite-generate-preview"
+	KnownModelIdGoogleVeo31LitePreview KnownModelId = "google/veo-3.1-lite-preview"
 	KnownModelIdGoogleVeo31Preview KnownModelId = "google/veo-3.1-preview"
 	KnownModelIdIbmGranite418b KnownModelId = "ibm/granite-4.1-8b"
 	KnownModelIdInceptionMercury2 KnownModelId = "inception/mercury-2"
@@ -1986,6 +1989,7 @@ const (
 	KnownModelIdQwenTextEmbeddingV3 KnownModelId = "qwen/text-embedding-v3"
 	KnownModelIdQwenTextEmbeddingV4 KnownModelId = "qwen/text-embedding-v4"
 	KnownModelIdQwenWan27T2v KnownModelId = "qwen/wan2.7-t2v"
+	KnownModelIdRunwayGen45 KnownModelId = "runway/gen-4.5"
 	KnownModelIdSpacexAiGrok420Beta0309 KnownModelId = "spacex-ai/grok-4.20-beta-0309"
 	KnownModelIdSpacexAiGrok420MultiAgentBeta0309 KnownModelId = "spacex-ai/grok-4.20-multi-agent-beta-0309"
 	KnownModelIdSpacexAiGrok43 KnownModelId = "spacex-ai/grok-4.3"
@@ -1995,6 +1999,7 @@ const (
 	KnownModelIdSpacexAiGrokImagineImage KnownModelId = "spacex-ai/grok-imagine-image"
 	KnownModelIdSpacexAiGrokImagineImageQuality KnownModelId = "spacex-ai/grok-imagine-image-quality"
 	KnownModelIdSpacexAiGrokImagineVideo KnownModelId = "spacex-ai/grok-imagine-video"
+	KnownModelIdSpacexAiGrokImagineVideo15 KnownModelId = "spacex-ai/grok-imagine-video-1.5"
 	KnownModelIdSpacexAiGrokTts KnownModelId = "spacex-ai/grok-tts"
 	KnownModelIdStepfunStep35Flash KnownModelId = "stepfun/step-3.5-flash"
 	KnownModelIdStepfunStep37Flash KnownModelId = "stepfun/step-3.7-flash"
@@ -2289,6 +2294,7 @@ type OrganisationId string
 const (
 	OrganisationIdAi21 OrganisationId = "ai21"
 	OrganisationIdAionLabs OrganisationId = "aion-labs"
+	OrganisationIdAlibaba OrganisationId = "alibaba"
 	OrganisationIdAllenai OrganisationId = "allenai"
 	OrganisationIdAmazon OrganisationId = "amazon"
 	OrganisationIdAnthropic OrganisationId = "anthropic"
@@ -2330,6 +2336,7 @@ const (
 	OrganisationIdPrimeIntellect OrganisationId = "prime-intellect"
 	OrganisationIdQwen OrganisationId = "qwen"
 	OrganisationIdRelace OrganisationId = "relace"
+	OrganisationIdRunway OrganisationId = "runway"
 	OrganisationIdSourceful OrganisationId = "sourceful"
 	OrganisationIdSpacexAi OrganisationId = "spacex-ai"
 	OrganisationIdStepfun OrganisationId = "stepfun"
@@ -2646,6 +2653,7 @@ type VideoGenerationRequest struct {
 	EnhancePrompt *bool `json:"enhance_prompt,omitempty"`
 	GenerateAudio *bool `json:"generate_audio,omitempty"`
 	InputReferences *[]map[string]interface{} `json:"input_references,omitempty"`
+	InputVideoDuration *float64 `json:"input_video_duration,omitempty"`
 	Model string `json:"model"`
 	NegativePrompt *string `json:"negative_prompt,omitempty"`
 	Output *map[string]interface{} `json:"output,omitempty"`
@@ -2702,6 +2710,7 @@ type VideoGenerationResponse struct {
 
 type VideoInputReference struct {
 	ImageUrl *map[string]interface{} `json:"image_url,omitempty"`
+	MediaUrl *map[string]interface{} `json:"media_url,omitempty"`
 	ReferenceType *string `json:"reference_type,omitempty"`
 	Role *string `json:"role,omitempty"`
 	Type string `json:"type"`

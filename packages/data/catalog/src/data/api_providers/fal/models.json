@@ -1,0 +1,75 @@
+[
+  {
+    "api_model_id": "bytedance/seedance-2.0",
+    "provider_api_model_id": "fal:bytedance/seedance-2.0",
+    "provider_model_slug": "bytedance/seedance-2.0",
+    "internal_model_id": "bytedance/seedance-2.0",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "video,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-04-01T00:00:00",
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id": "video.generate",
+      "status": "coming_soon",
+      "params": {
+        "prompt": { "type": "string" },
+        "duration": { "type": "number", "min": 4, "max": 15 },
+        "resolution": { "type": "string", "enum": ["720p", "1080p"] },
+        "aspect_ratio": { "type": "string" },
+        "input_references": { "type": "array" },
+        "generate_audio": { "type": "boolean" },
+        "seed": { "type": "integer" }
+      },
+      "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null,
+      "attachment": true, "input_modalities": ["text", "image", "video", "audio"],
+      "output_modalities": ["video", "audio"],
+      "modes": ["text-to-video", "image-to-video", "reference-to-video"]
+    }],
+    "routing_status": null, "routable": false,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["fal-queue"], "endpoint": "video.generate", "deployment": null },
+    "sources": [{ "url": "https://fal.ai/models/bytedance/seedance-2.0/text-to-video", "kind": "documentation" }],
+    "verification": { "status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Fal queue endpoints verified for text, image, and reference video generation." },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "bytedance/seedance-2.0-fast",
+    "provider_api_model_id": "fal:bytedance/seedance-2.0-fast",
+    "provider_model_slug": "bytedance/seedance-2.0/fast",
+    "internal_model_id": "bytedance/seedance-2.0-fast",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "video,audio",
+    "context_length": null, "max_output_tokens": null,
+    "effective_from": "2026-04-01T00:00:00", "effective_to": null,
+    "capabilities": [{
+      "capability_id": "video.generate", "status": "coming_soon",
+      "params": {
+        "prompt": { "type": "string" },
+        "duration": { "type": "number", "min": 4, "max": 15 },
+        "resolution": { "type": "string", "enum": ["720p"] },
+        "aspect_ratio": { "type": "string" },
+        "input_references": { "type": "array" },
+        "generate_audio": { "type": "boolean" },
+        "seed": { "type": "integer" }
+      },
+      "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null,
+      "attachment": true, "input_modalities": ["text", "image", "video", "audio"],
+      "output_modalities": ["video", "audio"],
+      "modes": ["text-to-video", "image-to-video", "reference-to-video"]
+    }],
+    "routing_status": null, "routable": false,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["fal-queue"], "endpoint": "video.generate", "deployment": null },
+    "sources": [{ "url": "https://fal.ai/models/bytedance/seedance-2.0/fast/text-to-video", "kind": "documentation" }],
+    "verification": { "status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Fal fast queue endpoints verified for text, image, and reference video generation." },
+    "rate_limits": []
+  }
+]

@@ -2,7 +2,10 @@ export interface VideoInputReference {
   image_url?: {
     url: string;
   };
+  media_url?: {
+    url: string;
+  };
   reference_type?: string;
   role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
-  type: "image_url";
+  type: "image_url" | "video_url" | "audio_url";
 }

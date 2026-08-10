@@ -8,10 +8,14 @@ export interface VideoGenerationRequest {
     image_url?: {
       url: string;
     };
+    media_url?: {
+      url: string;
+    };
     reference_type?: string;
     role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
-    type: "image_url";
+    type: "image_url" | "video_url" | "audio_url";
   }[];
+  input_video_duration?: number;
   model: string;
   negative_prompt?: string;
   output?: {

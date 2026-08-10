@@ -1,6 +1,7 @@
 export type OrganisationIdList =
   | "ai21"
   | "aion-labs"
+  | "alibaba"
   | "allenai"
   | "amazon"
   | "anthropic"
@@ -42,6 +43,7 @@ export type OrganisationIdList =
   | "prime-intellect"
   | "qwen"
   | "relace"
+  | "runway"
   | "sourceful"
   | "spacex-ai"
   | "stepfun"

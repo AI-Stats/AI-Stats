@@ -1392,6 +1392,7 @@ pub struct VideoGenerationRequest {
 	pub enhance_prompt: Option<bool>,
 	pub generate_audio: Option<bool>,
 	pub input_references: Option<Vec<HashMap<String, String>>>,
+	pub input_video_duration: Option<f64>,
 	pub model: String,
 	pub negative_prompt: Option<String>,
 	pub output: Option<HashMap<String, String>>,
@@ -1448,6 +1449,7 @@ pub struct VideoGenerationResponse {
 
 pub struct VideoInputReference {
 	pub image_url: Option<HashMap<String, String>>,
+	pub media_url: Option<HashMap<String, String>>,
 	pub reference_type: Option<String>,
 	pub role: Option<String>,
 	pub r#type: String,

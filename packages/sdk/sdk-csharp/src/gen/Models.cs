@@ -3395,6 +3395,9 @@ public sealed class VideoGenerationRequest
 	[JsonPropertyName("input_references")]
 	public List<Dictionary<string, object>>? InputReferences { get; set; }
 
+	[JsonPropertyName("input_video_duration")]
+	public double? InputVideoDuration { get; set; }
+
 	[JsonPropertyName("model")]
 	public string Model { get; set; }
 
@@ -3552,6 +3555,9 @@ public sealed class VideoInputReference
 {
 	[JsonPropertyName("image_url")]
 	public Dictionary<string, object>? ImageUrl { get; set; }
+
+	[JsonPropertyName("media_url")]
+	public Dictionary<string, object>? MediaUrl { get; set; }
 
 	[JsonPropertyName("reference_type")]
 	public string? ReferenceType { get; set; }

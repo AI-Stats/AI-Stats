@@ -338,6 +338,18 @@ export function computeVideoPricedUsage(args: {
 		requestOptions: args.requestOptions,
 	});
 	const usageMeters: Record<string, number> = { output_video_seconds: args.seconds };
+	const inputImageCount =
+		resolveNumericOption(args.requestOptions ?? {}, "input_image_count") ??
+		resolveNumericOption(args.requestOptions ?? {}, "video_params.input_image_count");
+	const inputVideoSeconds =
+		resolveNumericOption(args.requestOptions ?? {}, "input_video_seconds") ??
+		resolveNumericOption(args.requestOptions ?? {}, "video_params.input_video_seconds");
+	const inputVideoCount =
+		resolveNumericOption(args.requestOptions ?? {}, "input_video_count") ??
+		resolveNumericOption(args.requestOptions ?? {}, "video_params.input_video_count");
+	if (typeof inputImageCount === "number" && inputImageCount > 0) usageMeters.input_image = inputImageCount;
+	if (typeof inputVideoSeconds === "number" && inputVideoSeconds > 0) usageMeters.input_video_seconds = inputVideoSeconds;
+	if (typeof inputVideoCount === "number" && inputVideoCount > 0) usageMeters.input_video_count = inputVideoCount;
 	if (typeof estimatedTotalTokens === "number" && estimatedTotalTokens > 0) {
 		usageMeters.total_tokens = estimatedTotalTokens;
 	}

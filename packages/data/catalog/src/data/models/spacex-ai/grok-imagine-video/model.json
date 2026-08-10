@@ -13,7 +13,13 @@
   "input_types": "text,image,video",
   "output_types": "video",
   "api_model_id": "spacex-ai/grok-imagine-video",
-  "links": [],
+  "links": [
+    {
+      "title": "Video API reference",
+      "kind": "api_reference",
+      "url": "https://docs.x.ai/developers/rest-api-reference/inference/videos"
+    }
+  ],
   "details": [],
   "benchmarks": [
     {
@@ -105,13 +111,20 @@
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "api_reference",
+      "url": "https://docs.x.ai/developers/rest-api-reference/inference/videos",
+      "accessed_at": "2026-08-10T00:00:00Z",
+      "notes": "Official generation, editing, extension, and polling contract."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-10T00:00:00Z",
+    "notes": "Gateway generation and editing request mappings, async persistence, polling, content extraction, and pricing verified against the current API contract."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-10T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

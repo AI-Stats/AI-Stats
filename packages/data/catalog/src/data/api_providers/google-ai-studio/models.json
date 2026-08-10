@@ -4964,14 +4964,54 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "google/veo-3.1-preview",
+    "provider_api_model_id": "google-ai-studio:google/veo-3.1-preview",
+    "provider_model_slug": "veo-3.1-generate-preview",
+    "internal_model_id": "google/veo-3.1-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "video,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-06-30T00:00:00",
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id": "video.generate",
+      "status": "coming_soon",
+      "params": {
+        "prompt": { "type": "string" },
+        "duration": { "type": "enum", "values": [4, 6, 8], "aliases": ["seconds", "duration_seconds"] },
+        "size": { "type": "string", "enum": ["720p", "1080p", "4k"], "aliases": ["resolution"] },
+        "aspect_ratio": { "type": "string", "enum": ["16:9", "9:16"] },
+        "input_references": { "type": "array" },
+        "seed": { "type": "integer" }
+      },
+      "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null,
+      "attachment": true, "input_modalities": ["text", "image", "video"], "output_modalities": ["video", "audio"],
+      "modes": ["text-to-video", "image-to-video", "reference-to-video", "video-extension"]
+    }],
+    "routing_status": null,
+    "routable": false,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["gemini-long-running"], "endpoint": "video.generate", "deployment": null },
+    "sources": [
+      { "url": "https://ai.google.dev/gemini-api/docs/veo", "kind": "api_reference" },
+      { "url": "https://ai.google.dev/gemini-api/docs/pricing", "kind": "pricing" }
+    ],
+    "verification": { "status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Gemini API Veo 3.1 long-running REST contract, polling, media inputs and pricing verified." },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "google/veo-3.1-fast-preview",
     "provider_api_model_id": "google-ai-studio:google/veo-3.1-fast-preview",
     "provider_model_slug": "veo-3.1-fast-generate-preview",
     "internal_model_id": "google/veo-3.1-fast-preview",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "video",
+    "input_modalities": "text,image,video",
+    "output_modalities": "video,audio",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-06-30T00:00:00",
@@ -4980,15 +5020,22 @@
       {
         "capability_id": "video.generate",
         "status": "coming_soon",
-        "params": [],
+        "params": {
+          "prompt": { "type": "string" },
+          "duration": { "type": "enum", "values": [4, 6, 8], "aliases": ["seconds", "duration_seconds"] },
+          "size": { "type": "string", "enum": ["720p", "1080p", "4k"], "aliases": ["resolution"] },
+          "aspect_ratio": { "type": "string", "enum": ["16:9", "9:16"] },
+          "input_references": { "type": "array" },
+          "seed": { "type": "integer" }
+        },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": ["text", "image", "video"],
+        "output_modalities": ["video", "audio"],
+        "modes": ["text-to-video", "image-to-video", "reference-to-video", "video-extension"]
       }
     ],
     "routing_status": null,
@@ -4997,29 +5044,29 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": ["standard"],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["gemini-long-running"],
+      "endpoint": "video.generate",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "url": "https://ai.google.dev/gemini-api/docs/veo", "kind": "api_reference" }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Gemini API Veo 3.1 Fast video contract and pricing verified."
     },
     "rate_limits": []
   },
   {
-    "api_model_id": "google/veo-3.1-lite-generate-preview",
-    "provider_api_model_id": "google-ai-studio:google/veo-3.1-lite-generate-preview",
+    "api_model_id": "google/veo-3.1-lite-preview",
+    "provider_api_model_id": "google-ai-studio:google/veo-3.1-lite-preview",
     "provider_model_slug": "veo-3.1-lite-generate-preview",
     "internal_model_id": "google/veo-3.1-lite-preview",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
-    "output_modalities": "video",
+    "output_modalities": "video,audio",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-06-30T00:00:00",
@@ -5028,15 +5075,22 @@
       {
         "capability_id": "video.generate",
         "status": "coming_soon",
-        "params": [],
+        "params": {
+          "prompt": { "type": "string" },
+          "duration": { "type": "enum", "values": [4, 6, 8], "aliases": ["seconds", "duration_seconds"] },
+          "size": { "type": "string", "enum": ["720p", "1080p"], "aliases": ["resolution"] },
+          "aspect_ratio": { "type": "string", "enum": ["16:9", "9:16"] },
+          "input_image": { "type": "string" },
+          "seed": { "type": "integer" }
+        },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["video", "audio"],
+        "modes": ["text-to-video", "image-to-video"]
       }
     ],
     "routing_status": null,
@@ -5045,17 +5099,17 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": ["standard"],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["gemini-long-running"],
+      "endpoint": "video.generate",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "url": "https://ai.google.dev/gemini-api/docs/veo", "kind": "api_reference" }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Gemini API Veo 3.1 Lite video contract and pricing verified."
     },
     "rate_limits": []
   },
@@ -5171,7 +5225,7 @@
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "active",
+        "status": "inactive",
         "params": {
           "prompt": {
             "type": "string"
@@ -5226,7 +5280,7 @@
     "verification": {
       "status": "unverified",
       "checked_at": null,
-      "notes": null
+      "notes": "Video generation remains disabled on Google AI Studio because long-running operation polling is not reliable with the supported API-key authentication path. Use the Google Vertex provider for Veo."
     },
     "rate_limits": []
   },

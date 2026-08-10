@@ -1,0 +1,53 @@
+[
+  {
+    "api_model_id": "runway/gen-4.5",
+    "provider_api_model_id": "runway:runway/gen-4.5",
+    "provider_model_slug": "gen4.5",
+    "internal_model_id": "runway/gen-4.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-02-10T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "coming_soon",
+        "params": {
+          "prompt": { "type": "string", "max_length": 1000 },
+          "duration": { "type": "number", "min": 2, "max": 10, "aliases": ["seconds", "duration_seconds"] },
+          "size": { "type": "string", "aliases": ["resolution"] },
+          "aspect_ratio": { "type": "string", "enum": ["16:9", "9:16", "1280:720", "720:1280"] },
+          "input_image": { "type": "string" },
+          "seed": { "type": "integer", "min": 0, "max": 4294967295 }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["video"],
+        "modes": ["text-to-video", "image-to-video"]
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["runway-task"], "endpoint": "video.generate", "deployment": null },
+    "sources": [
+      { "url": "https://docs.dev.runwayml.com/api/", "kind": "api_reference" },
+      { "url": "https://docs.dev.runwayml.com/guides/pricing/", "kind": "pricing" }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Official task endpoints, Gen-4.5 modes, duration limits, API version and API pricing verified; gateway contract tests cover text and image modes."
+    },
+    "rate_limits": []
+  }
+]

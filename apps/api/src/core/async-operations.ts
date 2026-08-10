@@ -29,6 +29,18 @@ export type AsyncOperationRecord = {
 	updatedAt: string | null;
 };
 
+export type PendingAsyncWebhookDelivery = {
+	workspaceId: string;
+	kind: "video" | "batch";
+	internalId: string;
+	deliveryKey: string;
+	eventType: string;
+	phase: string;
+	progress: number | null;
+	previousStatus: string | null;
+	currentStatus: string | null;
+};
+
 type AsyncOperationRow = {
 	workspace_id: string;
 	kind: AsyncOperationKind;
@@ -291,6 +303,78 @@ export function releaseAsyncWebhookDeliveryClaim(args: {
 	claimToken: string;
 }): Promise<boolean> {
 	return callWebhookDeliveryRpc("release_gateway_async_webhook_delivery_claim", args);
+}
+
+export async function listPendingAsyncWebhookDeliveries(limit = 100): Promise<PendingAsyncWebhookDelivery[]> {
+	const normalizedLimit = Number.isFinite(limit) ? Math.max(1, Math.min(500, Math.trunc(limit))) : 100;
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_async_webhook_deliveries")
+		.select("workspace_id,kind,internal_id,delivery_key,event_type,phase,progress,previous_status,current_status")
+		.eq("status", "pending")
+		.lte("next_attempt_at", new Date().toISOString())
+		.order("next_attempt_at", { ascending: true })
+		.limit(normalizedLimit);
+	if (error) throw error;
+	return (data ?? []).flatMap((row: any) => {
+		if (row.kind !== "video" && row.kind !== "batch") return [];
+		if (!normalizeText(row.event_type) || !normalizeText(row.phase)) return [];
+		return [{
+			workspaceId: String(row.workspace_id),
+			kind: row.kind,
+			internalId: String(row.internal_id),
+			deliveryKey: String(row.delivery_key),
+			eventType: String(row.event_type),
+			phase: String(row.phase),
+			progress: typeof row.progress === "number" ? row.progress : null,
+			previousStatus: normalizeText(row.previous_status),
+			currentStatus: normalizeText(row.current_status),
+		}];
+	});
+}
+
+export async function recordAsyncWebhookDeliveryResult(args: {
+	workspaceId: string;
+	kind: AsyncOperationKind;
+	internalId: string;
+	deliveryKey: string;
+	attempt: Record<string, unknown>;
+	retryState?: Record<string, unknown> | null;
+	deliveredAt?: string | null;
+	nextRetryAt?: string | null;
+	progress?: number | null;
+	telemetryPatch?: Record<string, unknown>;
+}): Promise<void> {
+	const { error } = await getSupabaseAdmin().rpc("record_gateway_async_webhook_result", {
+		p_workspace_id: args.workspaceId,
+		p_kind: args.kind,
+		p_internal_id: args.internalId,
+		p_delivery_key: args.deliveryKey,
+		p_attempt: args.attempt,
+		p_retry_state: args.retryState ?? null,
+		p_delivered_at: args.deliveredAt ?? null,
+		p_next_retry_at: args.nextRetryAt ?? null,
+		p_progress: args.progress ?? null,
+	});
+	if (error) throw error;
+	invalidateAsyncOperationCache(args.workspaceId, args.kind, args.internalId);
+}
+
+export async function discardPendingAsyncWebhookDelivery(args: {
+	workspaceId: string;
+	kind: AsyncOperationKind;
+	internalId: string;
+	deliveryKey: string;
+	reason: string;
+}): Promise<void> {
+	const { error } = await getSupabaseAdmin()
+		.from("gateway_async_webhook_deliveries")
+		.update({ status: "delivered", last_error: args.reason, updated_at: new Date().toISOString() })
+		.eq("workspace_id", args.workspaceId)
+		.eq("kind", args.kind)
+		.eq("internal_id", args.internalId)
+		.eq("delivery_key", args.deliveryKey)
+		.eq("status", "pending");
+	if (error) throw error;
 }
 
 export async function claimAsyncOperationsForReconciliation(args: {

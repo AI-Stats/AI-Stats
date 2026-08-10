@@ -18,7 +18,15 @@ vi.mock("@core/async-operations", () => ({
 	completeAsyncWebhookDelivery: (...args: any[]) => completeAsyncWebhookDeliveryMock(...args),
 	getAsyncOperation: (...args: any[]) => getAsyncOperationMock(...args),
 	listAsyncOperations: (...args: any[]) => listAsyncOperationsMock(...args),
+	listPendingAsyncWebhookDeliveries: vi.fn(async () => []),
 	patchAsyncOperationMeta: (...args: any[]) => patchAsyncOperationMetaMock(...args),
+	recordAsyncWebhookDeliveryResult: (args: any) => patchAsyncOperationMetaMock({
+		workspaceId: args.workspaceId,
+		kind: args.kind,
+		internalId: args.internalId,
+		metaPatch: args.telemetryPatch,
+	}),
+	discardPendingAsyncWebhookDelivery: vi.fn(async () => undefined),
 	releaseAsyncWebhookDeliveryClaim: (...args: any[]) => releaseAsyncWebhookDeliveryClaimMock(...args),
 }));
 

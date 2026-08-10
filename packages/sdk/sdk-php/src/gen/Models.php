@@ -2465,6 +2465,8 @@ class VideoGenerationRequest
 	public $generate_audio;
 	/** @var array|null */
 	public $input_references;
+	/** @var float|null */
+	public $input_video_duration;
 	/** @var string */
 	public $model;
 	/** @var string|null */
@@ -2573,6 +2575,8 @@ class VideoInputReference
 {
 	/** @var array<string, mixed>|null */
 	public $image_url;
+	/** @var array<string, mixed>|null */
+	public $media_url;
 	/** @var string|null */
 	public $reference_type;
 	/** @var string|null */

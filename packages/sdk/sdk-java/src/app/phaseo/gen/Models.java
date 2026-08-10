@@ -1410,6 +1410,7 @@ public final class Models {
 		public Boolean enhance_prompt;
 		public Boolean generate_audio;
 		public java.util.List<Object> input_references;
+		public Double input_video_duration;
 		public String model;
 		public String negative_prompt;
 		public Object output;
@@ -1466,6 +1467,7 @@ public final class Models {
 
 	public static class VideoInputReference {
 		public Object image_url;
+		public Object media_url;
 		public String reference_type;
 		public Object role;
 		public Object type;

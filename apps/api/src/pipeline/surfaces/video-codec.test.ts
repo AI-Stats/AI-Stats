@@ -82,6 +82,21 @@ describe("video codec (OpenAI edge shape <-> video IR)", () => {
 		expect(ir.outputStorageUri).toBe("gs://bucket/output/");
 	});
 
+	it("decodes source video and audio references without dropping them", () => {
+		const ir = decodeOpenAIVideoRequestToIR({
+			model: "bytedance/seedance-2.0",
+			prompt: "Reference the supplied media",
+			input_video_duration: 8.5,
+			input_references: [
+				{ type: "video_url", role: "source", media_url: { url: "https://example.com/source.mp4" } },
+				{ type: "audio_url", role: "reference", media_url: { url: "https://example.com/music.mp3" } },
+			],
+		});
+		expect(ir.inputVideo).toBe("https://example.com/source.mp4");
+		expect(ir.inputVideoDurationSeconds).toBe(8.5);
+		expect(ir.inputReferences?.map((entry) => entry.type)).toEqual(["video", "audio"]);
+	});
+
 	it("encodes video IR response back to public video job shape", () => {
 		const response = encodeVideoIRToOpenAIResponse(
 			{

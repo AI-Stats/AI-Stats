@@ -111,6 +111,10 @@ describe("x-ai video executor", () => {
 		const result = await execute(buildArgs({
 			model: "x-ai/grok-imagine-video-latest",
 			prompt: "A neon city timelapse",
+			duration: 10,
+			resolution: "1280x720",
+			aspectRatio: "16:9",
+			quality: "high",
 		}));
 
 		mock.restore();
@@ -118,7 +122,10 @@ describe("x-ai video executor", () => {
 		expect(result.upstream?.status).toBe(200);
 		expect(capturedUrl).toContain("/videos/generations");
 		expect(capturedBody?.model).toBe("grok-imagine-video");
-		expect((result as any).ir?.model).toBe("grok-imagine-video");
+		expect(capturedBody).toMatchObject({ duration: 10, resolution: "720p", aspect_ratio: "16:9" });
+		expect(capturedBody).not.toHaveProperty("size");
+		expect(capturedBody).not.toHaveProperty("quality");
+		expect((result as any).ir?.model).toBe("spacex-ai/grok-imagine-video");
 		expect((result as any).ir?.nativeId).toContain("xaivid_");
 		expect(saveVideoJobMetaMock).toHaveBeenCalledWith(
 			"team_test",
@@ -130,6 +137,94 @@ describe("x-ai video executor", () => {
 			"vid_123",
 			"queued",
 		);
+	});
+
+	it("maps a first-frame image to xAI's structured image field", () => {
+		const mapped = __xAiVideoGenerateTestUtils.buildXAiVideoRequest({
+			model: "x-ai/grok-imagine-video",
+			prompt: "Animate the frame",
+			inputReferences: [{ type: "image", role: "first_frame", url: "https://example.com/first.png" }],
+			resolution: "480p",
+		}, "grok-imagine-video");
+
+		expect(mapped).toEqual({
+			endpoint: "/videos/generations",
+			resolution: "480p",
+			seconds: undefined,
+			inputImageCount: 1,
+			inputVideoCount: 0,
+			body: {
+				model: "grok-imagine-video",
+				prompt: "Animate the frame",
+				resolution: "480p",
+				image: { url: "https://example.com/first.png" },
+			},
+		});
+	});
+
+	it("maps reference images and source videos to their current xAI modes", () => {
+		const references = __xAiVideoGenerateTestUtils.buildXAiVideoRequest({
+			model: "x-ai/grok-imagine-video",
+			prompt: "Use both references",
+			inputReferences: [
+				{ type: "image", role: "reference", url: "https://example.com/person.png" },
+				{ type: "image", role: "reference", url: "https://example.com/outfit.png" },
+			],
+		}, "grok-imagine-video");
+		expect(references.body).toMatchObject({
+			reference_images: [
+				{ url: "https://example.com/person.png" },
+				{ url: "https://example.com/outfit.png" },
+			],
+		});
+		expect(references.body).not.toHaveProperty("image");
+
+		const edit = __xAiVideoGenerateTestUtils.buildXAiVideoRequest({
+			model: "x-ai/grok-imagine-video",
+			prompt: "Add a silver necklace",
+			inputReferences: [{ type: "video", role: "source", url: "https://example.com/source.mp4" }],
+			inputVideoDurationSeconds: 6,
+			resolution: "720p",
+		}, "grok-imagine-video");
+		expect(edit).toEqual({
+			endpoint: "/videos/edits",
+			resolution: "720p",
+			seconds: 6,
+			inputImageCount: 0,
+			inputVideoCount: 1,
+			inputVideoSeconds: 6,
+			body: {
+				model: "grok-imagine-video",
+				prompt: "Add a silver necklace",
+				video: { url: "https://example.com/source.mp4" },
+			},
+		});
+	});
+
+	it("enforces Grok Imagine Video 1.5 image-only input and supports 1080p", () => {
+		const mapped = __xAiVideoGenerateTestUtils.buildXAiVideoRequest({
+			model: "spacex-ai/grok-imagine-video-1.5",
+			prompt: "Animate this still frame",
+			duration: 5,
+			resolution: "1080p",
+			inputReferences: [{ type: "image", role: "first_frame", url: "https://example.com/frame.png" }],
+		}, "grok-imagine-video-1.5");
+		expect(mapped).toMatchObject({
+			endpoint: "/videos/generations",
+			resolution: "1080p",
+			seconds: 5,
+			inputImageCount: 1,
+			body: {
+				model: "grok-imagine-video-1.5",
+				image: { url: "https://example.com/frame.png" },
+				resolution: "1080p",
+			},
+		});
+		expect(() => __xAiVideoGenerateTestUtils.buildXAiVideoRequest({
+			model: "spacex-ai/grok-imagine-video-1.5",
+			prompt: "Unsupported text-only request",
+			duration: 5,
+		}, "grok-imagine-video-1.5")).toThrow("requires exactly one first_frame image");
 	});
 
 	it("fails the gateway response when SpaceXAI video metadata cannot be persisted", async () => {
