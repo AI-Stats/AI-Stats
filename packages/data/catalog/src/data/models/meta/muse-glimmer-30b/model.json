@@ -47,25 +47,11 @@
   ],
   "details": [
     {
-      "name": "input_context_length",
-      "value": 131072,
-      "unit": "tokens",
-      "source_link": "https://huggingface.co/meta-models/Muse-Glimmer-30B",
-      "other_info": "Meta reports a context length of 131,072+ tokens."
-    },
-    {
       "name": "parameter_count",
       "value": 29600000000,
       "unit": "parameters",
       "source_link": "https://huggingface.co/meta-models/Muse-Glimmer-30B",
       "other_info": "Approximately 29.6 billion total parameters, including the perception encoder."
-    },
-    {
-      "name": "knowledge_cutoff",
-      "value": "2026-01-04",
-      "unit": null,
-      "source_link": "https://huggingface.co/meta-models/Muse-Glimmer-30B",
-      "other_info": "Knowledge cutoff reported by Meta in the model card."
     }
   ],
   "benchmarks": [
@@ -189,28 +175,28 @@
       "source_link": "https://huggingface.co/meta-models/Muse-Glimmer-30B"
     },
     {
-      "benchmark_id": "vct",
+      "benchmark_id": "vct-percentage",
       "score": 37,
       "is_self_reported": true,
       "other_info": "Preparedness evaluation",
       "source_link": "https://huggingface.co/meta-models/Muse-Glimmer-30B"
     },
     {
-      "benchmark_id": "wmdp",
+      "benchmark_id": "wmdp-bio",
       "score": 86.5,
       "is_self_reported": true,
       "other_info": "Biology subset; preparedness evaluation",
       "source_link": "https://huggingface.co/meta-models/Muse-Glimmer-30B"
     },
     {
-      "benchmark_id": "wmdp",
+      "benchmark_id": "wmdp-chem",
       "score": 75.2,
       "is_self_reported": true,
       "other_info": "Chemistry subset; preparedness evaluation",
       "source_link": "https://huggingface.co/meta-models/Muse-Glimmer-30B"
     },
     {
-      "benchmark_id": "protocolqa",
+      "benchmark_id": "protocolqa-percentage",
       "score": 80.2,
       "is_self_reported": true,
       "other_info": "Lab Bench ProtocolQA; preparedness evaluation",
