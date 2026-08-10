@@ -7533,6 +7533,7 @@ components:
         - balrog-ai
         - bbh
         - bcflv4
+        - beam128k
         - beyondaime
         - bfcl
         - bfcl-overall-fc-v4
@@ -7578,6 +7579,8 @@ components:
         - chest-imagenome-anatomy-iou
         - chexpert-cxr-top5-macro-f1
         - chinese-simpleqa
+        - ci-memories-coverage
+        - ci-memories-violation-rate
         - cl-bench
         - claw-eval
         - cloningscenarios
@@ -7688,6 +7691,7 @@ components:
         - fullstackbench-en
         - fullstackbench-zh
         - functionalmath
+        - gaia2
         - galileo-agent
         - gdp-pdf
         - gdpval-aa
@@ -7729,6 +7733,7 @@ components:
         - hmmt-feb-2026
         - hmmt-feb-26
         - hmmt-nov-2025
+        - hpct
         - hr-bench-4k
         - humaneval
         - humaneval-average
@@ -7809,6 +7814,7 @@ components:
         - mathvista
         - mathvista-mini
         - maxife
+        - mbct
         - mbpp
         - mbpp-evalplus
         - mbpp+
@@ -7944,6 +7950,7 @@ components:
         - os-world
         - osworld-2.0
         - osworld-g
+        - osworld-verified
         - ovbench
         - ovobench
         - paperbench
@@ -7967,6 +7974,7 @@ components:
         - procbench
         - program-bench
         - protocolqa
+        - protocolqa-percentage
         - qasper
         - qmsum
         - qvhighlights
@@ -7997,6 +8005,8 @@ components:
         - simpleqa
         - simpleqa-verified
         - simplevqa
+        - siren-agentdojo-attack-success-rate
+        - siren-agentdojo-utility
         - skillsbench
         - slake-closed-accuracy
         - slake-tokenized-f1
@@ -8061,6 +8071,7 @@ components:
         - v-star
         - vcr-en-easy
         - vct
+        - vct-percentage
         - vending-bench-2
         - vibe
         - vibe-android
@@ -8103,8 +8114,11 @@ components:
         - wide-search
         - widesearch
         - wildbench
+        - wildclawbench
         - winogrande
         - wmdp
+        - wmdp-bio
+        - wmdp-chem
         - wmt23
         - wmt24++
         - wmt24pp-comet
