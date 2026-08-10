@@ -9,7 +9,6 @@
 "@phaseo/ruby-sdk": major
 "@phaseo/cpp-sdk": major
 "@phaseo/rust-sdk": major
-"@phaseo/cli": minor
 "@phaseo/mcp": minor
 ---
 
