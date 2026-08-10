@@ -19,7 +19,8 @@ import {
 import { clearSession, readSession, writeSession } from "./session.js";
 import { printError, printJson, sanitizeTerminalText } from "./output.js";
 import { CLI_VERSION } from "./generated/meta.js";
-import { getVersionInfo } from "./release.js";
+import { createDoctorReport, detectInstalledPackageManager, type DoctorReport } from "./installation.js";
+import { getVersionInfo, removeCommandFor, updateCommandFor, updateInvocationFor } from "./release.js";
 import { runCurie } from "./curie.js";
 
 type ParsedArgs = {
@@ -173,6 +174,8 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 			"phaseo logout [--json]",
 			"phaseo whoami [--json]",
 			"phaseo version | v [--json]",
+			"phaseo update [--check] [--json]",
+			"phaseo doctor [--json]",
 			"",
 			"phaseo keys --help",
 			"phaseo workspaces --help",
@@ -211,6 +214,14 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 	version: {
 		usage: ["phaseo version [--json]", "phaseo v [--json]"],
 		description: "Show the installed version and compare it with the latest published release.",
+	},
+	update: {
+		usage: ["phaseo update [--check] [--json]"],
+		description: "Update the active Phaseo installation with its package manager.",
+	},
+	doctor: {
+		usage: ["phaseo doctor [--json]"],
+		description: "Inspect the active installation and find shadowed Phaseo commands on PATH.",
 	},
 	curie: {
 		usage: [
@@ -480,6 +491,68 @@ async function printVersion(flags: Record<string, string | boolean>) {
 		return;
 	}
 	process.stdout.write(renderVersionText(info));
+}
+
+export function renderDoctorText(report: DoctorReport): string {
+	const manager = report.installation.manager ?? "unknown";
+	const lines = [
+		`Phaseo CLI ${report.version}`,
+		`Package manager: ${manager}`,
+		`Current executable: ${report.installation.currentExecutable}`,
+		`Active PATH command: ${report.path.active ?? "not found"}`,
+	];
+	if (report.installation.updateCommand) lines.push(`Update: ${report.installation.updateCommand}`);
+	if (report.issues.length === 0) {
+		lines.push("Status: healthy");
+	} else {
+		for (const issue of report.issues) {
+			lines.push("", `Warning: ${issue.summary}`);
+			for (const command of issue.remediation) lines.push(`  ${command}`);
+		}
+	}
+	return `${lines.join("\n")}\n`;
+}
+
+async function doctor(flags: Record<string, string | boolean>) {
+	const report = createDoctorReport({
+		version: CLI_VERSION,
+		updateCommandFor,
+		removeCommandFor,
+	});
+	if (flagBool(flags, "json")) return printJson(report);
+	process.stdout.write(renderDoctorText(report));
+}
+
+async function updateCli(flags: Record<string, string | boolean>) {
+	if (flagBool(flags, "check")) {
+		await printVersion({ ...flags, "refresh-version": true });
+		return;
+	}
+	const manager = detectInstalledPackageManager();
+	if (!manager) {
+		throw new Error("Could not determine how this Phaseo CLI was installed. Run `phaseo doctor` for installation details.");
+	}
+	const invocation = updateInvocationFor(manager);
+	const json = flagBool(flags, "json");
+	if (!json) process.stdout.write(`Updating with ${updateCommandFor(manager)}\n`);
+	await new Promise<void>((resolve, reject) => {
+		const useCommandShell = process.platform === "win32";
+		const child = spawn(useCommandShell ? updateCommandFor(manager) : invocation.command, useCommandShell ? [] : invocation.args, {
+			stdio: json ? "ignore" : "inherit",
+			shell: useCommandShell,
+			windowsHide: true,
+		});
+		child.once("error", reject);
+		child.once("exit", (code) => {
+			if (code === 0) resolve();
+			else reject(new Error(`Update failed with exit code ${code ?? "unknown"}. Run: ${updateCommandFor(manager)}`));
+		});
+	});
+	if (json) {
+		printJson({ ok: true, packageManager: manager, command: updateCommandFor(manager) });
+		return;
+	}
+	process.stdout.write("Phaseo CLI updated. Run `phaseo --version` to verify the installed version.\n");
 }
 
 async function maybePrintUpdateNotice(json: boolean) {
@@ -1775,6 +1848,16 @@ async function main() {
 		}
 		if (first === "version" || first.toLowerCase() === "v") {
 			await printVersion(parsed.flags);
+			return;
+		}
+		if (first === "update") {
+			if (second) throw new Error(unknownCommandMessage(parsed.command));
+			await updateCli(parsed.flags);
+			return;
+		}
+		if (first === "doctor") {
+			if (second) throw new Error(unknownCommandMessage(parsed.command));
+			await doctor(parsed.flags);
 			return;
 		}
 		if (parsed.command.length === 1 && isCommandGroup(first)) {
