@@ -216,7 +216,7 @@
         "capabilities": { "type": "array", "items": { "$ref": "#/$defs/capability" } }
         ,"provider_status": {
           "type": ["string", "null"],
-          "enum": [null, "unknown", "coming_soon", "preview", "available", "external", "limited_access", "deprecated", "removed"]
+          "enum": [null, "unknown", "coming_soon", "preview", "available", "limited_access", "deprecated", "removed"]
         },
         "phaseo_status": {
           "type": ["string", "null"],

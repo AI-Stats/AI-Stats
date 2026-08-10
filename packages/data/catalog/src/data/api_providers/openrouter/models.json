@@ -11797,7 +11797,7 @@
         "modes": []
       }
     ],
-    "provider_status": "external",
+    "provider_status": "available",
     "phaseo_status": "unsupported",
     "access_scope": "public",
     "routing_status": "active",
