@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import NextImage from "next/image";
 import { BookOpen, CheckCircle2, ChevronDown, Folder, ImageOff, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -83,6 +84,7 @@ export default function EditAppDialog({
 	const [imageValidation, setImageValidation] = useState<ImageValidationState>(
 		app.image_url ? "validating" : "empty"
 	);
+	const [validatedImageUrl, setValidatedImageUrl] = useState<string | null>(null);
 	const [docsUrl, setDocsUrl] = useState(app.docs_url ?? "");
 	const [categories, setCategories] = useState<AppCategory[]>(
 		parseAppCategories(app.category)
@@ -103,6 +105,8 @@ export default function EditAppDialog({
 		setTitle(app.title);
 		setUrl(app.url && app.url !== "about:blank" ? app.url : "");
 		setImageUrl(app.image_url ?? "");
+		setImageValidation(app.image_url ? "validating" : "empty");
+		setValidatedImageUrl(null);
 		setDocsUrl(app.docs_url ?? "");
 		setCategories(parseAppCategories(app.category));
 	}, [open, app]);
@@ -112,30 +116,41 @@ export default function EditAppDialog({
 		const candidate = imageUrl.trim();
 		if (!candidate) {
 			setImageValidation("empty");
+			setValidatedImageUrl(null);
 			return;
 		}
 
+		let parsed: URL;
 		try {
-			const parsed = new URL(candidate);
+			parsed = new URL(candidate);
 			if (!["http:", "https:"].includes(parsed.protocol)) {
 				setImageValidation("invalid");
+				setValidatedImageUrl(null);
 				return;
 			}
 		} catch {
 			setImageValidation("invalid");
+			setValidatedImageUrl(null);
 			return;
 		}
 
 		let active = true;
 		const image = new Image();
 		setImageValidation("validating");
+		setValidatedImageUrl(null);
 		image.onload = () => {
-			if (active) setImageValidation("valid");
+			if (active) {
+				setValidatedImageUrl(parsed.href);
+				setImageValidation("valid");
+			}
 		};
 		image.onerror = () => {
-			if (active) setImageValidation("invalid");
+			if (active) {
+				setValidatedImageUrl(null);
+				setImageValidation("invalid");
+			}
 		};
-		image.src = candidate;
+		image.src = parsed.href;
 
 		return () => {
 			active = false;
@@ -143,6 +158,12 @@ export default function EditAppDialog({
 			image.onerror = null;
 		};
 	}, [imageUrl, open]);
+
+	const updateImageUrl = (value: string) => {
+		setImageUrl(value);
+		setValidatedImageUrl(null);
+		setImageValidation(value.trim() ? "validating" : "empty");
+	};
 
 	const setCategoryChecked = (category: AppCategory, checked: boolean) => {
 		setCategories((current) => {
@@ -272,7 +293,7 @@ export default function EditAppDialog({
 						<Input
 							id="app-image"
 							value={imageUrl}
-							onChange={(event) => setImageUrl(event.target.value)}
+							onChange={(event) => updateImageUrl(event.target.value)}
 							placeholder="https://example.com/logo.png"
 							aria-invalid={imageValidation === "invalid"}
 						/>
@@ -287,11 +308,14 @@ export default function EditAppDialog({
 									<ImageOff className="size-4" />
 									This URL did not load a valid image.
 								</div>
-							) : imageValidation === "valid" ? (
+							) : imageValidation === "valid" && validatedImageUrl ? (
 								<div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
-									<img
-										src={imageUrl.trim()}
+									<NextImage
+										src={validatedImageUrl}
 										alt="App logo preview"
+										width={32}
+										height={32}
+										unoptimized
 										className="size-8 rounded-lg border border-border/70 bg-muted/40 object-cover"
 									/>
 									<CheckCircle2 className="size-4" />

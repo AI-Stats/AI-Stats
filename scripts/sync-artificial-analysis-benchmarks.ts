@@ -80,6 +80,24 @@ const VARIANT_SUFFIXES = new Set([
 	"xhigh",
 ]);
 
+function reorderClaudeSlug(candidate: string) {
+	if (!candidate.startsWith("claude-")) return null;
+	const remainder = candidate.slice("claude-".length);
+	for (const family of ["opus", "sonnet", "haiku"] as const) {
+		const marker = `-${family}`;
+		const markerIndex = remainder.indexOf(marker);
+		if (markerIndex <= 0) continue;
+		const version = remainder.slice(0, markerIndex);
+		const versionParts = version.split("-");
+		if (!versionParts.every((part) => part.length > 0 && [...part].every((character) => character >= "0" && character <= "9"))) {
+			continue;
+		}
+		const suffix = remainder.slice(markerIndex + marker.length);
+		return `claude-${family}-${version}${suffix}`;
+	}
+	return null;
+}
+
 function slugCandidates(value: string | null | undefined) {
 	const slug = String(value ?? "").toLowerCase();
 	if (!slug) return [];
@@ -91,9 +109,8 @@ function slugCandidates(value: string | null | undefined) {
 		candidates.add(normalized(parts.join("-")));
 	}
 	for (const candidate of [...candidates]) {
-		const claude = candidate.match(/^claude-((?:\d+-?)+)-(opus|sonnet|haiku)(.*)$/);
-		if (claude) {
-			const reordered = `claude-${claude[2]}-${claude[1]}${claude[3]}`;
+		const reordered = reorderClaudeSlug(candidate);
+		if (reordered) {
 			candidates.add(reordered);
 			candidates.add(normalized(reordered));
 		}
