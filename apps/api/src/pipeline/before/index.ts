@@ -161,12 +161,21 @@ function classifyWorkspaceProviderFilterFailure(diagnostics: {
  * - Credit / key checks via RPC
  * - Build PipelineContext (single source of truth for downstream)
  */
+export type BeforeRequestObservabilitySnapshot = {
+    requestPayload: unknown;
+    requestedModel: string | null;
+    model?: string | null;
+};
+
 export async function beforeRequest(
     req: Request,
     endpoint: Endpoint,
     timer: Timer,
     zodSchema: z.ZodTypeAny | null = schemaFor(endpoint),
-    options?: { dynamicRouteModelOverride?: string | null },
+    options?: {
+        dynamicRouteModelOverride?: string | null;
+        onObservabilitySnapshot?: (snapshot: BeforeRequestObservabilitySnapshot) => void;
+    },
 ): Promise<{ ok: true; ctx: PipelineContext } | { ok: false; response: Response }> {
     const requestStartedAtMs = timer.startedAtMs();
 
@@ -212,6 +221,13 @@ export async function beforeRequest(
     );
     if (!j.ok) return j as { ok: false; response: Response };
     let rawBody = j.value;
+    const requestedModel = typeof rawBody?.model === "string" && rawBody.model.trim()
+        ? rawBody.model.trim()
+        : null;
+    options?.onObservabilitySnapshot?.({
+        requestPayload: rawBody,
+        requestedModel,
+    });
     const betaCapabilities = normalizeReturnFlag(
         req.headers.get("x-phaseo-beta-capabilities") ??
         req.headers.get("x-aistats-beta-capabilities") ??
@@ -321,6 +337,11 @@ export async function beforeRequest(
     const m = await timer.span("guardModel", () => guardModel(body, workspaceId, requestId));
     if (!m.ok) return m as { ok: false; response: Response };
     const { model, stream } = m.value;
+    options?.onObservabilitySnapshot?.({
+        requestPayload: rawBody,
+        requestedModel,
+        model,
+    });
 
     const testingMode = await timer.span("resolveTestingMode", () =>
         resolveTestingMode({

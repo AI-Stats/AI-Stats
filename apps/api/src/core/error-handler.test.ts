@@ -425,6 +425,54 @@ describe("handleError", () => {
 		);
 	});
 
+	it("uses the parsed request snapshot after the request body has been consumed", async () => {
+		let capturedAuditArgs: any = null;
+		const requestPayload = {
+			model: "openai/gpt-5-nano",
+			input: "private prompt",
+		};
+		const req = new Request("https://example.test/v1/responses", {
+			method: "POST",
+			headers: { "content-type": "text/plain" },
+			body: JSON.stringify(requestPayload),
+		});
+		await req.text();
+
+		await handleError({
+			stage: "before",
+			res: new Response(JSON.stringify({
+				error: "insufficient_funds",
+				reason: "insufficient_funds",
+				min_usd: 1,
+			}), { status: 402, headers: { "content-type": "application/json" } }),
+			endpoint: "responses",
+			req,
+			requestObservability: {
+				requestPayload,
+				requestedModel: "openai/gpt-5-nano",
+				model: "openai/gpt-5-nano",
+			},
+			auditFailure: async (args) => {
+				capturedAuditArgs = args;
+			},
+		});
+
+		expect(capturedAuditArgs).toMatchObject({
+			model: "openai/gpt-5-nano",
+			requestedModel: "openai/gpt-5-nano",
+			requestPayload,
+			requestMethod: "POST",
+			requestPath: "/v1/responses",
+		});
+		expect(emitGatewayRequestEventMock).toHaveBeenCalledWith(expect.objectContaining({
+			model: "openai/gpt-5-nano",
+			requestedModel: "openai/gpt-5-nano",
+			requestPayload,
+			requestMethod: "POST",
+			requestPath: "/v1/responses",
+		}));
+	});
+
 	it("captures malformed early request payloads for observability", async () => {
 		let capturedAuditArgs: any = null;
 		const upstream = new Response(
