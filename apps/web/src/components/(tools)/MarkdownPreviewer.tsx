@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Streamdown } from "streamdown";
+import { ToolPageHeader } from "@/components/(tools)/ToolPageHeader";
 
 // turn literal "\n" sequences into real newlines
 function decodeEscapedNewlines(input: string) {
@@ -24,13 +25,8 @@ export default function MarkdownPreviewer() {
 	);
 
 	return (
-		<div className="container mx-auto py-8 px-4">
-			<div className="mb-8">
-				<h1 className="text-3xl font-bold mb-2">Markdown Previewer</h1>
-				<p className="text-muted-foreground">
-					Preview and render Markdown content in real-time.
-				</p>
-			</div>
+		<div className="container mx-auto px-4 py-8 sm:py-12">
+			<ToolPageHeader title="Markdown Previewer" description="Preview and render Markdown content in real time." />
 
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 				<Card>
