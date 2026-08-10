@@ -23,10 +23,19 @@ function stringFlag(flags: Record<string, string | boolean>, key: string): strin
 }
 
 export async function runIntegrationCommand(
-	command: string | undefined,
-	integration: string | undefined,
+	args: string[],
 	flags: Record<string, string | boolean>,
 ): Promise<void> {
+	const [command, integration, ...extra] = args;
+	const invalidArgumentCount =
+		(command === "credential" && args.length !== 1) ||
+		((command === "list" || command === "status") && args.length > 2) ||
+		((command === "setup" || command === "remove") && args.length !== 2) ||
+		extra.length > 0;
+	if (invalidArgumentCount) {
+		throw new Error("Usage: phaseo integrations list|status|setup|remove");
+	}
+
 	if (command === "credential") {
 		const credential = process.env.PHASEO_API_KEY || (await getSessionAccessToken()).accessToken;
 		process.stdout.write(credential);
@@ -48,7 +57,7 @@ export async function runIntegrationCommand(
 	}
 
 	if (command !== "setup" && command !== "remove") {
-		throw new Error("Usage: phaseo integrations list|status|setup|remove|credential");
+		throw new Error("Usage: phaseo integrations list|status|setup|remove");
 	}
 
 	const adapter = adapterFor(integration);

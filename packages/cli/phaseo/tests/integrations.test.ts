@@ -54,6 +54,8 @@ test("Claude Code refuses to replace another gateway or credential helper", () =
 
 test("Codex setup and removal only manage the Phaseo profile", async () => {
 	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-codex-integration-"));
+	const previousCodexHome = process.env.CODEX_HOME;
+	process.env.CODEX_HOME = join(homeDir, ".codex");
 	try {
 		const options = { homeDir, model: "openai/gpt-5.6-terra" };
 		await applyChanges(await codexAdapter.planSetup(options));
@@ -63,6 +65,8 @@ test("Codex setup and removal only manage the Phaseo profile", async () => {
 		await applyChanges(await codexAdapter.planRemove(options));
 		await assert.rejects(readFile(join(homeDir, ".codex", "phaseo.config.toml"), "utf8"), { code: "ENOENT" });
 	} finally {
+		if (previousCodexHome === undefined) delete process.env.CODEX_HOME;
+		else process.env.CODEX_HOME = previousCodexHome;
 		await rm(homeDir, { recursive: true, force: true });
 	}
 });
@@ -96,10 +100,30 @@ test("Claude Code removal leaves an unmanaged settings file byte-for-byte unchan
 	}
 });
 
+test("Claude Code removal preserves a conflicting Phaseo gateway", async () => {
+	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-claude-conflict-"));
+	const settingsPath = join(homeDir, ".claude", "settings.json");
+	const original = `${JSON.stringify({ env: { ANTHROPIC_BASE_URL: "https://api.phaseo.app" }, apiKeyHelper: "other-helper" }, null, 2)}\n`;
+	try {
+		await applyChanges([{ path: settingsPath, before: null, after: original, description: "fixture" }]);
+		assert.deepEqual(await claudeCodeAdapter.planRemove({ homeDir }), []);
+		assert.equal(await readFile(settingsPath, "utf8"), original);
+	} finally {
+		await rm(homeDir, { recursive: true, force: true });
+	}
+});
+
 test("Claude Code setup rejects the Codex-only model option", async () => {
 	await assert.rejects(
-		runIntegrationCommand("setup", "claude-code", { model: "anthropic/claude-sonnet-4.6", "dry-run": true }),
+		runIntegrationCommand(["setup", "claude-code"], { model: "anthropic/claude-sonnet-4.6", "dry-run": true }),
 		/--model is only supported for the Codex integration/,
+	);
+});
+
+test("integration commands reject unexpected positional arguments", async () => {
+	await assert.rejects(
+		runIntegrationCommand(["setup", "codex", "unexpected"], { "dry-run": true }),
+		/Usage: phaseo integrations/,
 	);
 });
 
@@ -114,6 +138,20 @@ test("transaction rollback removes files created earlier in the plan", async () 
 			{ path: join(blockingPath, "child"), before: null, after: "fail", description: "fail fixture" },
 		]));
 		await assert.rejects(readFile(createdPath, "utf8"), { code: "ENOENT" });
+	} finally {
+		await rm(homeDir, { recursive: true, force: true });
+	}
+});
+
+test("stale file plans never overwrite newer content", async () => {
+	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-integration-stale-"));
+	const path = join(homeDir, "settings.json");
+	try {
+		await writeFile(path, "original");
+		const plan = [{ path, before: "original", after: "phaseo", description: "update fixture" }];
+		await writeFile(path, "newer");
+		await assert.rejects(applyChanges(plan), /Refusing to apply stale file change/);
+		assert.equal(await readFile(path, "utf8"), "newer");
 	} finally {
 		await rm(homeDir, { recursive: true, force: true });
 	}

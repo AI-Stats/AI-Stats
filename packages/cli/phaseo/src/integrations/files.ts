@@ -34,6 +34,10 @@ export async function applyChanges(changes: FileChange[]): Promise<void> {
 	const applied: Array<{ path: string; before: string | null }> = [];
 	try {
 		for (const change of changes) {
+			const current = await readOptionalFile(change.path);
+			if (current !== change.before) {
+				throw new Error(`Refusing to apply stale file change: ${change.path}`);
+			}
 			await mkdir(dirname(change.path), { recursive: true });
 			if (change.before !== null) {
 				const backup = `${change.path}.phaseo-backup-${Date.now()}`;

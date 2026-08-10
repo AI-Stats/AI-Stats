@@ -93,6 +93,7 @@ export const claudeCodeAdapter: IntegrationAdapter = {
 		const before = await readOptionalFile(path);
 		if (before === null) return [];
 		const settings = parseSettings(path, before);
+		if (settings.apiKeyHelper !== HELPER) return [];
 		const env = envObject(settings);
 		let changed = false;
 		if (env.ANTHROPIC_BASE_URL === BASE_URL) {
@@ -109,10 +110,8 @@ export const claudeCodeAdapter: IntegrationAdapter = {
 				changed = true;
 			}
 		}
-		if (settings.apiKeyHelper === HELPER) {
-			delete settings.apiKeyHelper;
-			changed = true;
-		}
+		delete settings.apiKeyHelper;
+		changed = true;
 		if (!changed) return [];
 		if (Object.keys(env).length === 0) delete settings.env;
 		else settings.env = env;
