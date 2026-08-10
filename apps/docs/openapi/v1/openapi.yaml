@@ -6082,8 +6082,9 @@ components:
         input_video_duration:
           type: number
           format: double
+          minimum: 0
           maximum: 3600
-          exclusiveMinimum: 0
+          exclusiveMinimum: true
           description: >-
             Duration of the source video in seconds. Required when a provider
             bills source-video duration independently from generated output.
@@ -9472,8 +9473,6 @@ components:
         - aion-labs/aion-3.0
         - aion-labs/aion-3.0-mini
         - aion-labs/aion-rp-llama-3.1-8b
-        - alibaba/happyhorse-1.0
-        - alibaba/happyhorse-1.1
         - allenai/molmo-2-8b
         - allenai/olmo-3.1-32b
         - anthropic/claude-fable-5
@@ -9582,7 +9581,6 @@ components:
         - google/veo-2
         - google/veo-3.1-fast-preview
         - google/veo-3.1-lite-generate-preview
-        - google/veo-3.1-lite-preview
         - google/veo-3.1-preview
         - ibm/granite-4.1-8b
         - inception/mercury-2
@@ -9867,7 +9865,6 @@ components:
         - qwen/text-embedding-v3
         - qwen/text-embedding-v4
         - qwen/wan2.7-t2v
-        - runway/gen-4.5
         - spacex-ai/grok-4.20-beta-0309
         - spacex-ai/grok-4.20-multi-agent-beta-0309
         - spacex-ai/grok-4.3
@@ -9877,7 +9874,6 @@ components:
         - spacex-ai/grok-imagine-image
         - spacex-ai/grok-imagine-image-quality
         - spacex-ai/grok-imagine-video
-        - spacex-ai/grok-imagine-video-1.5
         - spacex-ai/grok-tts
         - stepfun/step-3.5-flash
         - stepfun/step-3.7-flash
