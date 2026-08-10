@@ -65,14 +65,21 @@ as $$
     where model.model_slug = lower(p_model_slug)
       and model.hidden = false
       and model.status <> 'disabled'
+      and not exists (
+        select 1
+        from public.v2_model_provider_routes route
+        where route.model_slug = model.model_slug
+      )
     limit 1
   )
-  select coalesce(
-    (select payload from routed_model),
-    (select payload from catalogue_model),
-    '{}'::jsonb
-  )
-  || jsonb_build_object(
+  select case
+    when not exists (select 1 from routed_model)
+      and not exists (select 1 from catalogue_model)
+      then '{}'::jsonb
+    else coalesce(
+      (select payload from routed_model),
+      (select payload from catalogue_model)
+    ) || jsonb_build_object(
     'routes', coalesce((
       select jsonb_agg(to_jsonb(route_row) order by route_row.provider_name, route_row.variant_key)
       from (
@@ -113,7 +120,8 @@ as $$
       cross join lateral (values (variant.execution_region), (variant.data_region)) regions(region)
       where route.model_slug = lower(p_model_slug) and region is not null
     ), '[]'::jsonb)
-  );
+    )
+  end;
 $$;
 
 grant execute on function public.get_v2_model_overview(text, text, text) to anon, authenticated, service_role;

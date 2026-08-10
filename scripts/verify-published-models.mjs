@@ -30,10 +30,16 @@ async function modelIdsForFiles(files) {
 	return [...new Set(ids)].sort();
 }
 
-async function verifyModel(origin, modelId) {
+async function verifyModel(origin, modelId, requestTimeoutMs) {
 	const url = `${origin}/api/_web/models/${encodeURIComponent(modelId)}?projection=variants-v1`;
+	const controller = new AbortController();
+	const timeout = setTimeout(() => controller.abort(), requestTimeoutMs);
 	try {
-		const response = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
+		const response = await fetch(url, {
+			headers: { Accept: "application/json" },
+			cache: "no-store",
+			signal: controller.signal,
+		});
 		if (!response.ok) return { ok: false, detail: `HTTP ${response.status}` };
 		const payload = await response.json();
 		return payload?.model?.model_id === modelId
@@ -41,6 +47,8 @@ async function verifyModel(origin, modelId) {
 			: { ok: false, detail: `unexpected model_id ${JSON.stringify(payload?.model?.model_id)}` };
 	} catch (error) {
 		return { ok: false, detail: error instanceof Error ? error.message : String(error) };
+	} finally {
+		clearTimeout(timeout);
 	}
 }
 
@@ -49,6 +57,7 @@ async function main() {
 	const origin = (argument("origin") ?? process.env.WEB_API_ORIGIN ?? DEFAULT_ORIGIN).replace(/\/+$/, "");
 	const attempts = Number(argument("attempts") ?? 10);
 	const intervalMs = Number(argument("interval-ms") ?? 6_000);
+	const requestTimeoutMs = Number(argument("request-timeout-ms") ?? 10_000);
 	const modelIds = await modelIdsForFiles(changedModelFiles(baseSha));
 
 	if (modelIds.length === 0) {
@@ -58,7 +67,10 @@ async function main() {
 
 	let pending = modelIds;
 	for (let attempt = 1; attempt <= attempts; attempt += 1) {
-		const results = await Promise.all(pending.map(async (modelId) => ({ modelId, ...(await verifyModel(origin, modelId)) })));
+		const results = await Promise.all(pending.map(async (modelId) => ({
+			modelId,
+			...(await verifyModel(origin, modelId, requestTimeoutMs)),
+		})));
 		pending = results.filter((result) => !result.ok).map((result) => result.modelId);
 		for (const result of results) {
 			console.log(`${result.ok ? "Published" : "Pending"}: ${result.modelId}${result.detail ? ` (${result.detail})` : ""}`);
