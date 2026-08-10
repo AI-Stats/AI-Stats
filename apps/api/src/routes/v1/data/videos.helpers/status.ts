@@ -476,9 +476,19 @@ export async function finalizeVideoStatusIfTerminal(args: {
 		(args.requestOptions as any)?.video_params?.ratio,
 		args.videoMeta?.aspectRatio,
 	].find((value): value is string => typeof value === "string" && value.trim().length > 0);
+	const bytedanceCompletionTokens =
+		args.providerId === "bytedance-seed" || args.providerId === "byteplus"
+			? [
+				toFiniteNumber((args.rawPayload as any)?.usage?.completion_tokens),
+				toFiniteNumber((args.rawPayload as any)?.usage?.completionTokens),
+				toFiniteNumber((args.rawPayload as any)?.data?.usage?.completion_tokens),
+				toFiniteNumber((args.rawPayload as any)?.data?.usage?.completionTokens),
+			]
+			: [];
 	const totalTokensCandidate = [
 		toFiniteNumber((args.requestOptions as any)?.total_tokens),
 		toFiniteNumber((args.requestOptions as any)?.video_params?.total_tokens),
+		...bytedanceCompletionTokens,
 		toFiniteNumber((args.rawPayload as any)?.usage?.total_tokens),
 		toFiniteNumber((args.rawPayload as any)?.usage?.totalTokens),
 		toFiniteNumber((args.rawPayload as any)?.data?.usage?.total_tokens),

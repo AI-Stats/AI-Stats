@@ -73,6 +73,8 @@ describe("video-reconciliation provider polling", () => {
 			GOOGLE_VERTEX_BASE_URL: "https://api.vertex.example",
 			GOOGLE_VERTEX_PROJECT: "test-project",
 			GOOGLE_VERTEX_LOCATION: "us-east5",
+			BYTEDANCE_SEED_API_KEY: "gateway-bytedance-key",
+			BYTEDANCE_SEED_BASE_URL: "https://ark.byteplus.example",
 		});
 		openAICompatHeadersMock.mockImplementation((_providerId: string, key: string) => ({
 			Authorization: `Bearer ${key}`,
@@ -254,6 +256,55 @@ describe("video-reconciliation provider polling", () => {
 				seconds: 5,
 			}),
 		);
+	});
+
+	it("uses BytePlus completion tokens and persisted aspect ratio for settlement", async () => {
+		const taskId = "seedance-task-25";
+		const job = makeBaseJob({
+			videoId: "req_video_seedance_25",
+			nativeId: taskId,
+			provider: "byteplus",
+			model: "bytedance/seedance-2.5",
+			meta: {
+				provider: "byteplus",
+				keySource: "gateway",
+				seconds: 8,
+				resolution: "720p",
+				aspectRatio: "21:9",
+			},
+		});
+
+		vi.stubGlobal(
+			"fetch",
+			vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => ({
+					status: "succeeded",
+					model: "dreamina-seedance-2-5-260628",
+					duration: 8,
+					resolution: "720p",
+					usage: { completion_tokens: 345_678 },
+				}),
+			}),
+		);
+
+		const result = await fetchVideoProviderStatus(job);
+
+		expect(globalThis.fetch).toHaveBeenCalledWith(
+			`https://ark.byteplus.example/api/v3/contents/generations/tasks/${encodeURIComponent(taskId)}`,
+			expect.objectContaining({
+				method: "GET",
+				headers: expect.objectContaining({ Authorization: "Bearer gateway-bytedance-key" }),
+			}),
+		);
+		expect(result).toEqual(expect.objectContaining({
+			status: "completed",
+			providerId: "byteplus",
+			requestOptions: expect.objectContaining({
+				aspect_ratio: "21:9",
+				total_tokens: 345_678,
+			}),
+		}));
 	});
 
 	it("polls google-vertex video status using fetchPredictOperation", async () => {

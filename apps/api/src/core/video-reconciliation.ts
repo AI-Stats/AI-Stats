@@ -807,6 +807,10 @@ async function fetchBytedanceVideoStatus(job: VideoJobRecord): Promise<VideoProv
 			"",
 		).trim() || undefined;
 	const totalTokens =
+		toPositiveNumber((json as any).usage?.completion_tokens) ??
+		toPositiveNumber((json as any).usage?.completionTokens) ??
+		toPositiveNumber((json as any).data?.usage?.completion_tokens) ??
+		toPositiveNumber((json as any).data?.usage?.completionTokens) ??
 		toPositiveNumber((json as any).usage?.total_tokens) ??
 		toPositiveNumber((json as any).usage?.totalTokens) ??
 		toPositiveNumber((json as any).data?.usage?.total_tokens) ??
