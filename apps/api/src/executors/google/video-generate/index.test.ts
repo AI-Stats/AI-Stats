@@ -205,6 +205,30 @@ describe("google video executor", () => {
 		expect(state.reservationCalls.at(-1)).toMatchObject({ seconds: 8 });
 	});
 
+	it("includes source-video meters in the reservation", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.includes(":predictLongRunning"),
+			response: jsonResponse({ name: "operations/veo-extension", done: false }),
+		}]);
+		const result = await execute(buildArgs({
+			model: "google/veo-3.1-preview",
+			prompt: "Extend this clip",
+			durationSeconds: 8,
+			resolution: "720p",
+			inputVideoDurationSeconds: 7.5,
+			inputReferences: [{ type: "video", role: "source", url: "https://example.com/source.mp4" }],
+		}));
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(200);
+		expect(state.reservationCalls.at(-1)).toMatchObject({
+			requestOptions: {
+				input_video_count: 1,
+				input_video_seconds: 7.5,
+			},
+		});
+	});
+
 	it("rejects invalid Veo combinations before provider submission", async () => {
 		const mock = installFetchMock([]);
 		const result = await execute(buildArgs({

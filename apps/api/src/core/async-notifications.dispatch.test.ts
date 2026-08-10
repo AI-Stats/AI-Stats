@@ -27,6 +27,7 @@ vi.mock("@core/async-operations", () => ({
 		metaPatch: args.telemetryPatch,
 	}),
 	discardPendingAsyncWebhookDelivery: vi.fn(async () => undefined),
+	markPendingAsyncWebhookDeliveryDelivered: vi.fn(async () => undefined),
 	releaseAsyncWebhookDeliveryClaim: (...args: any[]) => releaseAsyncWebhookDeliveryClaimMock(...args),
 }));
 

@@ -2571,19 +2571,7 @@ class VideoGenerationResponse
 	public $websocket_url;
 }
 
-class VideoInputReference
-{
-	/** @var array<string, mixed>|null */
-	public $image_url;
-	/** @var array<string, mixed>|null */
-	public $media_url;
-	/** @var string|null */
-	public $reference_type;
-	/** @var string|null */
-	public $role;
-	/** @var string */
-	public $type;
-}
+class VideoInputReference { }
 
 class VideoListResponse
 {

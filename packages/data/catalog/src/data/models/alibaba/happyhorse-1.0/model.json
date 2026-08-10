@@ -37,7 +37,7 @@
   "capabilities": {"attachment": true, "tool_call": false, "structured_output": false, "temperature": null, "streaming": false, "web_search": false},
   "open_weights": false,
   "sources": [{"kind": "documentation", "url": "https://www.alibabacloud.com/help/en/model-studio/video-generate-edit-model", "accessed_at": "2026-07-28T00:00:00Z", "notes": "Official model IDs and availability."}],
-  "verification": {"status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Provider contract and Phaseo t2v, i2v, r2v, and video-edit adapter coverage verified; Alibaba Cloud routing enabled."},
+  "verification": {"status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Provider contract and Phaseo t2v, i2v, r2v, and video-edit adapter coverage verified; gateway route remains disabled pending authenticated smoke testing."},
   "last_updated": "2026-08-10T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,

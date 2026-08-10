@@ -46,10 +46,16 @@ function sourceUrl(value: unknown): string | undefined {
 	return text(record.url) ?? text(record.uri) ?? text(record.gcsUri) ?? text(record.gcs_uri);
 }
 
+function referenceSource(entry: NonNullable<IRVideoGenerationRequest["inputReferences"]>[number]): string | undefined {
+	return entry.url ?? sourceUrl(entry.raw) ?? (entry.data
+		? `data:${entry.mimeType ?? "application/octet-stream"};base64,${entry.data}`
+		: undefined);
+}
+
 function references(ir: IRVideoGenerationRequest, type: "image" | "video" | "audio") {
 	return (ir.inputReferences ?? [])
 		.filter((entry) => entry.type === type)
-		.map((entry) => entry.url ?? sourceUrl(entry.raw))
+		.map(referenceSource)
 		.filter((entry): entry is string => Boolean(entry));
 }
 
@@ -101,6 +107,20 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const endpoint = resolveEndpoint(ir, configuredModel);
 	const seconds = positiveNumber(ir.durationSeconds ?? ir.duration ?? ir.seconds);
 	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
+	const allowedResolutions = configuredModel.includes("seedance-2.0/fast") ? ["720p"] : ["720p", "1080p"];
+	if (size && !allowedResolutions.includes(size.toLowerCase())) {
+		return {
+			kind: "completed",
+			ir: undefined,
+			bill: { cost_cents: 0, currency: "USD" },
+			upstream: new Response(JSON.stringify({
+				error: {
+					type: "validation_error",
+					message: `Fal ${configuredModel} resolution must be ${allowedResolutions.join(" or ")}.`,
+				},
+			}), { status: 400, headers: { "Content-Type": "application/json" } }),
+		};
+	}
 	const keyInfo = resolveProviderKey(
 		{ providerId: args.providerId, byokMeta: args.byokMeta, forceGatewayKey: args.meta.forceGatewayKey },
 		() => (getBindings() as unknown as Record<string, string | undefined>).FAL_KEY,
@@ -114,10 +134,16 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			workspaceId: args.workspaceId,
 			videoId: args.requestId,
 			providerId: args.providerId,
-			model: ir.model,
+			model: configuredModel,
 			seconds: seconds ?? null,
 			pricingCard: args.pricingCard,
-			requestOptions: buildVideoPricingRequestOptions({ size, resolution: size, audio: ir.generateAudio }),
+			requestOptions: buildVideoPricingRequestOptions({
+				size,
+				resolution: size,
+				quality: ir.quality,
+				aspectRatio: ir.aspectRatio,
+				audio: ir.generateAudio,
+			}),
 			isByok: keyInfo.source === "byok",
 		});
 		reservationId = reservation.reservationId;
@@ -133,7 +159,17 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				byokKeyId: keyInfo.byokId,
 			};
 		}
-		if (reservation.status === "skip_missing_seconds_or_pricing" || (reservation.amountNanos > 0 && !reservation.held)) {
+		if (reservation.status === "skip_missing_seconds_or_pricing") {
+			return {
+				kind: "completed",
+				ir: undefined,
+				bill: { cost_cents: 0, currency: "USD" },
+				upstream: new Response(JSON.stringify({ error: { type: "missing_billing_dimensions", message: "Video duration and pricing must be resolvable before Fal submission." } }), { status: 400, headers: { "Content-Type": "application/json" } }),
+				keySource: keyInfo.source,
+				byokKeyId: keyInfo.byokId,
+			};
+		}
+		if (reservation.amountNanos > 0 && !reservation.held) {
 			return {
 				kind: "completed",
 				ir: undefined,
@@ -161,6 +197,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	};
 	const input = buildFalInput(ir);
 	const requestBody = JSON.stringify(input);
+	const mappedRequest = (args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest) ? requestBody : undefined;
 	const baseUrl = String((getBindings() as unknown as Record<string, string | undefined>).FAL_QUEUE_BASE_URL || DEFAULT_FAL_QUEUE_BASE_URL).replace(/\/+$/, "");
 	let response: Response;
 	try {
@@ -176,7 +213,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const bill = { cost_cents: 0, currency: "USD", upstream_id: response.headers.get("x-fal-request-id") ?? undefined };
 	if (!response.ok) {
 		await releaseReservation();
-		return { kind: "completed", ir: undefined, bill, upstream: response, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest: args.meta.echoUpstreamRequest ? requestBody : undefined };
+		return { kind: "completed", ir: undefined, bill, upstream: response, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest };
 	}
 
 	const json = await response.clone().json().catch(() => ({} as any));
@@ -201,9 +238,11 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			requestId: args.requestId,
 			sessionId: args.meta.sessionId ?? null,
 			appId: args.meta.appId ?? null,
-			model: ir.model,
+			model: configuredModel,
 			seconds: seconds ?? null,
 			resolution: size ?? null,
+			quality: ir.quality ?? null,
+			aspectRatio: ir.aspectRatio ?? null,
 			audio: ir.generateAudio ?? null,
 			outputAccess: ir.outputAccess ?? "both",
 			webhook: ir.webhook as Record<string, unknown> | null,
@@ -221,7 +260,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const irResponse: IRVideoGenerationResponse = {
 		id: args.requestId,
 		nativeId,
-		model: ir.model,
+		model: configuredModel,
 		provider: "fal",
 		status: "queued",
 		output: [],
@@ -229,7 +268,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0, requests: 1, ...(seconds ? { output_video_seconds: seconds } : {}) } as any,
 		rawResponse: json,
 	};
-	return { kind: "completed", ir: irResponse, bill, upstream: response, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, rawResponse: json };
+	return { kind: "completed", ir: irResponse, bill, upstream: response, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest, rawResponse: json };
 }
 
 export const executor: ProviderExecutor = execute;

@@ -1,4 +1,4 @@
-export type OrganisationIdList =
+export type OrganisationIdList = (
   | "ai21"
   | "aion-labs"
   | "alibaba"
@@ -56,4 +56,5 @@ export type OrganisationIdList =
   | "voyage"
   | "windsurf"
   | "xiaomi"
-  | "z-ai"[];
+  | "z-ai"
+)[];

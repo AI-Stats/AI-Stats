@@ -61,7 +61,8 @@ function isTerminalVideoStatus(status: string): boolean {
 	return status === "completed" || status === "failed" || status === "cancelled" || status === "expired";
 }
 
-export async function getVideoByIdHandler(req: Request): Promise<Response> {	const auth = await guardAuth(req);
+export async function getVideoByIdHandler(req: Request): Promise<Response> {
+	const auth = await guardAuth(req);
 	if (!auth.ok) return (auth as { ok: false; response: Response }).response;
 	const authValue = auth.value as VideoRouteAuth;
 	const id = decodeURIComponent(new URL(req.url).pathname.split("/").pop() ?? "");
@@ -87,7 +88,29 @@ export async function getVideoByIdHandler(req: Request): Promise<Response> {	con
 	if ((videoRecord.provider ?? videoMeta?.provider) === "fal") {
 		const polled = await fetchVideoProviderStatus(videoRecord);
 		if (!polled) {
-			return err("upstream_error", { reason: "fal_video_status_fetch_failed", video_id: id });
+			if (isTerminalVideoStatus(videoRecord.status ?? "")) {
+				const downloadUrl = normalizeText(videoMeta?.downloadUrl);
+				return new Response(JSON.stringify(await toPublicVideoResponse({
+					requestUrl: req.url,
+					id,
+					payload: enrichVideoPayloadWithJobMetrics({
+						id,
+						status: videoRecord.status,
+						provider: "fal",
+						model: videoRecord.model,
+						output: downloadUrl ? [{ index: 0, uri: downloadUrl, mime_type: "video/mp4" }] : [],
+					}, videoRecord, videoMeta),
+					record: videoRecord,
+					meta: videoMeta,
+				})), { status: 200, headers: { "Content-Type": "application/json" } });
+			}
+			return err("upstream_error", {
+				reason: "fal_video_status_fetch_failed",
+				request_id: authValue.requestId,
+				workspace_id: authValue.workspaceId,
+				video_id: id,
+				provider: "fal",
+			});
 		}
 		await finalizeVideoStatusIfTerminal({
 			auth: authValue,

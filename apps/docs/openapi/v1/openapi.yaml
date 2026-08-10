@@ -6450,43 +6450,62 @@ components:
         error:
           nullable: true
     VideoInputReference:
-      type: object
-      required:
-        - type
-      properties:
-        type:
-          type: string
-          enum:
+      oneOf:
+        - type: object
+          required:
+            - type
             - image_url
-            - video_url
-            - audio_url
-        role:
-          type: string
-          enum:
-            - first_frame
-            - last_frame
-            - reference
-            - source
-            - mask
-        reference_type:
-          type: string
-        image_url:
-          type: object
-          required:
-            - url
           properties:
-            url:
+            type:
               type: string
-              format: uri
-        media_url:
-          type: object
-          description: Required for video_url and audio_url references.
+              enum:
+                - image_url
+            role:
+              type: string
+              enum:
+                - first_frame
+                - last_frame
+                - reference
+                - source
+                - mask
+            reference_type:
+              type: string
+            image_url:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                  format: uri
+        - type: object
           required:
-            - url
+            - type
+            - media_url
           properties:
-            url:
+            type:
               type: string
-              format: uri
+              enum:
+                - video_url
+                - audio_url
+            role:
+              type: string
+              enum:
+                - first_frame
+                - last_frame
+                - reference
+                - source
+                - mask
+            reference_type:
+              type: string
+            media_url:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                  format: uri
     VideoOutputConfig:
       type: object
       properties:
@@ -9873,7 +9892,6 @@ components:
         - spacex-ai/grok-code-fast-1
         - spacex-ai/grok-imagine-image
         - spacex-ai/grok-imagine-image-quality
-        - spacex-ai/grok-imagine-video
         - spacex-ai/grok-tts
         - stepfun/step-3.5-flash
         - stepfun/step-3.7-flash

@@ -61,11 +61,11 @@ export function decodeOpenAIVideoRequestToIR(body: any): IRVideoGenerationReques
 	const inputReferences = rawInputReferences
 		.map((item: unknown, index: number) => normalizeVideoInputReference(item, index))
 		.filter((item): item is NormalizedVideoInputReference => Boolean(item));
-	const firstFrame = inputReferences.find((item: any) => item?.role === "first_frame");
-	const sourceVideo = inputReferences.find((item: any) => item?.role === "source" || item?.type === "video");
-	const lastFrame = inputReferences.find((item: any) => item?.role === "last_frame");
+	const firstFrame = inputReferences.find((item: any) => item?.type === "image" && item?.role === "first_frame");
+	const sourceVideo = inputReferences.find((item: any) => item?.type === "video");
+	const lastFrame = inputReferences.find((item: any) => item?.type === "image" && item?.role === "last_frame");
 	const referenceImages = inputReferences
-		.filter((item: any) => item?.role === "reference")
+		.filter((item: any) => item?.type === "image" && item?.role === "reference")
 		.map((item: any) => ({
 			...(item?.reference_type || item?.referenceType
 				? { referenceType: item.reference_type ?? item.referenceType }

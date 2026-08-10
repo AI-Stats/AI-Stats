@@ -329,16 +329,23 @@ export async function fetchBytedanceTask(
 	taskId: string,
 ) {
 	const providerId = String(videoMeta?.provider ?? BYTEDANCE_PROVIDER_ID).trim() || BYTEDANCE_PROVIDER_ID;
-	const key =
-		await resolveVideoProviderKey(auth, videoMeta, providerId, "BYTEDANCE_SEED_API_KEY") ??
-		await resolveVideoProviderKey(auth, videoMeta, providerId, "BYTEPLUS_API_KEY");
+	const bytePlus = providerId.toLowerCase() === "byteplus";
+	const key = bytePlus
+		? await resolveVideoProviderKey(auth, videoMeta, providerId, "BYTEPLUS_API_KEY") ??
+			await resolveVideoProviderKey(auth, videoMeta, providerId, "BYTEDANCE_SEED_API_KEY")
+		: await resolveVideoProviderKey(auth, videoMeta, providerId, "BYTEDANCE_SEED_API_KEY") ??
+			await resolveVideoProviderKey(auth, videoMeta, providerId, "BYTEPLUS_API_KEY");
 	if (!key) {
 		return err("upstream_error", {
 			reason: "bytedance_seed_key_missing",
 		});
 	}
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
-	const baseUrl = String(bindings.BYTEDANCE_SEED_BASE_URL || DEFAULT_BYTEDANCE_BASE_URL).replace(/\/+$/, "");
+	const baseUrl = String(
+		(bytePlus
+			? bindings.BYTEPLUS_BASE_URL || bindings.BYTEDANCE_SEED_BASE_URL
+			: bindings.BYTEDANCE_SEED_BASE_URL || bindings.BYTEPLUS_BASE_URL) || DEFAULT_BYTEDANCE_BASE_URL,
+	).replace(/\/+$/, "");
 	return fetch(`${baseUrl}/api/v3/contents/generations/tasks/${encodeURIComponent(taskId)}`, {
 		method: "GET",
 		headers: {

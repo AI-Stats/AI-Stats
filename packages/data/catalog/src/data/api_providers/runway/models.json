@@ -1,7 +1,7 @@
 [
   {
-    "api_model_id": "runway/gen-4.5",
-    "provider_api_model_id": "runway:runway/gen-4.5",
+    "api_model_id": "gen4.5",
+    "provider_api_model_id": "runway:gen4.5",
     "provider_model_slug": "gen4.5",
     "internal_model_id": "runway/gen-4.5",
     "is_active_gateway": false,

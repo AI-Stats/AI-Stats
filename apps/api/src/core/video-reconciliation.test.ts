@@ -68,7 +68,7 @@ describe("video-reconciliation provider polling", () => {
 			ALIBABA_CLOUD_API_KEY: "test-alibaba-cloud-key",
 			ALIBABA_BASE_URL: "https://dashscope-intl.aliyuncs.com",
 			BYTEPLUS_API_KEY: "gateway-byteplus-key",
-			BYTEDANCE_SEED_BASE_URL: "https://ark.ap-southeast.bytepluses.com",
+			BYTEPLUS_BASE_URL: "https://ark.ap-southeast.bytepluses.com",
 			RUNWAY_API_KEY: "gateway-runway-key",
 			RUNWAY_BASE_URL: "https://api.dev.runwayml.com",
 			NOVITA_API_KEY: "gateway-novita-key",
@@ -295,10 +295,10 @@ describe("video-reconciliation provider polling", () => {
 		const result = await fetchVideoProviderStatus(job);
 
 		expect(globalThis.fetch).toHaveBeenCalledWith(
-			`https://ark.byteplus.example/api/v3/contents/generations/tasks/${encodeURIComponent(taskId)}`,
+			`https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks/${encodeURIComponent(taskId)}`,
 			expect.objectContaining({
 				method: "GET",
-				headers: expect.objectContaining({ Authorization: "Bearer gateway-bytedance-key" }),
+				headers: expect.objectContaining({ Authorization: "Bearer gateway-byteplus-key" }),
 			}),
 		);
 		expect(result).toEqual(expect.objectContaining({

@@ -17,6 +17,7 @@ export type NormalizedGoogleVeoRequest = {
 	firstFrame?: unknown;
 	lastFrame?: unknown;
 	sourceVideo?: unknown;
+	inputVideoDurationSeconds?: number;
 	referenceImages: Array<{ image: unknown; referenceType: string }>;
 	inputImageCount: number;
 };
@@ -62,22 +63,15 @@ export function normalizeGoogleVeoRequest(
 		(reference) => reference.type === "image" && reference.role === "reference",
 	) ?? [];
 	const videoReferences = ir.inputReferences?.filter((reference) => reference.type === "video") ?? [];
-	const firstFrames = defined([
-		ir.inputImage,
-		ir.input?.image,
-		ir.inputReference,
-		...firstFrameReferences.map(sourceValue),
-	]);
-	const lastFrames = defined([
-		ir.lastFrame,
-		ir.input?.lastFrame,
-		...lastFrameReferences.map(sourceValue),
-	]);
-	const sourceVideos = defined([
-		ir.inputVideo,
-		ir.input?.video,
-		...videoReferences.map(sourceValue),
-	]);
+	const firstFrames = defined(firstFrameReferences.length > 0
+		? firstFrameReferences.map(sourceValue)
+		: [ir.inputImage, ir.input?.image, ir.inputReference]);
+	const lastFrames = defined(lastFrameReferences.length > 0
+		? lastFrameReferences.map(sourceValue)
+		: [ir.lastFrame, ir.input?.lastFrame]);
+	const sourceVideos = defined(videoReferences.length > 0
+		? videoReferences.map(sourceValue)
+		: [ir.inputVideo, ir.input?.video]);
 	if (firstFrames.length > 1 || lastFrames.length > 1 || sourceVideos.length > 1) {
 		throw new InvalidGoogleVideoRequestError("Veo 3.1 accepts at most one first frame, last frame, and source video.");
 	}
@@ -85,13 +79,12 @@ export function normalizeGoogleVeoRequest(
 		image: entry.image ?? entry.url ?? entry.uri ?? entry,
 		referenceType: String(entry.referenceType ?? entry.reference_type ?? "asset"),
 	}));
-	const referenceImages = [
-		...legacyReferences,
-		...assetReferences.map((reference) => ({
+	const referenceImages = (assetReferences.length > 0
+		? assetReferences.map((reference) => ({
 			image: sourceValue(reference),
 			referenceType: reference.referenceType ?? "asset",
-		})),
-	].filter((reference) => reference.image != null);
+		}))
+		: legacyReferences).filter((reference) => reference.image != null);
 	if (referenceImages.length > 3) {
 		throw new InvalidGoogleVideoRequestError("Veo 3.1 accepts at most three reference images.");
 	}
@@ -139,6 +132,9 @@ export function normalizeGoogleVeoRequest(
 		...(firstFrames[0] != null ? { firstFrame: firstFrames[0] } : {}),
 		...(lastFrames[0] != null ? { lastFrame: lastFrames[0] } : {}),
 		...(sourceVideos[0] != null ? { sourceVideo: sourceVideos[0] } : {}),
+		...(sourceVideos[0] != null && ir.inputVideoDurationSeconds != null
+			? { inputVideoDurationSeconds: ir.inputVideoDurationSeconds }
+			: {}),
 		referenceImages,
 		inputImageCount: firstFrames.length + lastFrames.length + referenceImages.length,
 	};

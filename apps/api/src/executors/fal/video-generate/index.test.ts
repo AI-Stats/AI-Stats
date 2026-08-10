@@ -21,7 +21,7 @@ beforeAll(() => setupRuntimeFromEnv({
 afterAll(() => teardownTestRuntime());
 beforeEach(() => saveVideoJobMetaMock.mockClear());
 
-function args(inputReferences: any[] = []): ExecutorExecuteArgs {
+function args(inputReferences: any[] = [], meta: Record<string, unknown> = {}): ExecutorExecuteArgs {
 	return {
 		ir: { model: "bytedance/seedance-2.0", prompt: "A cinematic fox", duration: 5, inputReferences },
 		requestId: "req_fal_video",
@@ -32,7 +32,7 @@ function args(inputReferences: any[] = []): ExecutorExecuteArgs {
 		providerModelSlug: "bytedance/seedance-2.0",
 		byokMeta: [],
 		pricingCard: null,
-		meta: {},
+		meta,
 	} as ExecutorExecuteArgs;
 }
 
@@ -49,7 +49,11 @@ describe("Fal video executor", () => {
 		expect(saveVideoJobMetaMock).toHaveBeenCalledWith(
 			"team_test",
 			"req_fal_video",
-			expect.objectContaining({ provider: "fal", providerTaskId: expect.stringMatching(/^falvid_/) }),
+			expect.objectContaining({
+				provider: "fal",
+				providerTaskId: expect.stringMatching(/^falvid_/),
+				model: "bytedance/seedance-2.0",
+			}),
 			expect.stringMatching(/^falvid_/),
 			"queued",
 		);
@@ -65,5 +69,37 @@ describe("Fal video executor", () => {
 		await execute(args([{ type: "video", role: "source", url: "https://example.com/source.mp4" }]));
 		mock.restore();
 		expect(body.video_urls).toEqual(["https://example.com/source.mp4"]);
+	});
+
+	it("preserves inline reference data and returns the mapped request when requested", async () => {
+		let body: any;
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/bytedance/seedance-2.0/reference-to-video"),
+			response: jsonResponse({ request_id: "fal_req_inline" }),
+			onRequest: (call) => { body = call.bodyJson; },
+		}]);
+		const result = await execute(args([{
+			type: "video",
+			role: "source",
+			data: "QUJD",
+			mimeType: "video/mp4",
+		}], { returnUpstreamRequest: true }));
+		mock.restore();
+
+		expect(body.video_urls).toEqual(["data:video/mp4;base64,QUJD"]);
+		expect(JSON.parse((result as any).mappedRequest)).toMatchObject({
+			video_urls: ["data:video/mp4;base64,QUJD"],
+		});
+	});
+
+	it("rejects unpriced 480p before Fal submission", async () => {
+		const request = args();
+		(request.ir as any).resolution = "480p";
+		const mock = installFetchMock([]);
+		const result = await execute(request);
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(400);
+		expect(mock.calls).toEqual([]);
 	});
 });

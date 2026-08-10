@@ -21,16 +21,14 @@ Use webhooks for durable Batch and Video lifecycle notifications. Keep a polling
 
 ## Configure webhooks
 
-Video requests can include a callback URL, subscribed events, and a signing secret:
+Video requests reference a workspace-managed webhook endpoint. Configure its URL and signing secret in Webhook settings so they can be rotated without changing requests:
 
 ```json
 {
   "model": "google/veo-3.1-lite",
   "prompt": "A cinematic sunrise over a mountain lake",
   "webhook": {
-    "url": "https://example.com/api/video-webhook",
-    "events": ["video.status_changed", "video.completed", "video.failed"],
-    "secret": "whsec_your_signing_secret"
+    "endpoint_id": "we_123"
   }
 }
 ```

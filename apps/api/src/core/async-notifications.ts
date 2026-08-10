@@ -3,6 +3,7 @@ import {
 	claimAsyncWebhookDelivery,
 	completeAsyncWebhookDelivery,
 	discardPendingAsyncWebhookDelivery,
+	markPendingAsyncWebhookDeliveryDelivered,
 	getAsyncOperation,
 	listPendingAsyncWebhookDeliveries,
 	listAsyncOperations,
@@ -1182,10 +1183,22 @@ export async function dispatchAsyncWebhookEvent(args: {
 	const record = await getAsyncOperation(args.workspaceId, args.kind, args.internalId);
 	if (!record) return false;
 	const meta = (record.meta ?? {}) as AsyncNotificationMeta;
+	const queuedDeliveryKey = normalizeText(args.deliveryKey);
 	const progressBucket = args.phase === "progress" ? normalizeProgressBucket(args.progress ?? null) : null;
-	if (args.phase === "progress" && progressBucket == null) return false;
+	if (args.phase === "progress" && progressBucket == null) {
+		if (queuedDeliveryKey) {
+			await discardPendingAsyncWebhookDelivery({
+				workspaceId: args.workspaceId,
+				kind: args.kind,
+				internalId: args.internalId,
+				deliveryKey: queuedDeliveryKey,
+				reason: "Webhook progress value is invalid.",
+			});
+		}
+		return false;
+	}
 	const specificEvent = args.eventType ?? resolveSpecificEvent(args.kind, args.phase);
-	const deliveryKey = normalizeText(args.deliveryKey) ?? (progressBucket != null ? `${specificEvent}:${progressBucket}` : specificEvent);
+	const deliveryKey = queuedDeliveryKey ?? (progressBucket != null ? `${specificEvent}:${progressBucket}` : specificEvent);
 	const deliveries =
 		meta.webhookDeliveries && typeof meta.webhookDeliveries === "object" && !Array.isArray(meta.webhookDeliveries)
 			? (meta.webhookDeliveries as Record<string, string>)
@@ -1198,7 +1211,7 @@ export async function dispatchAsyncWebhookEvent(args: {
 		value: meta.webhook,
 	});
 	if (!webhook) {
-		if (args.deliveryKey) {
+		if (queuedDeliveryKey) {
 			await discardPendingAsyncWebhookDelivery({
 				workspaceId: args.workspaceId,
 				kind: args.kind,
@@ -1222,7 +1235,7 @@ export async function dispatchAsyncWebhookEvent(args: {
 		return false;
 	}
 	if (!isWebhookEventSubscribed({ kind: args.kind, phase: args.phase, configuredEvents: webhook.events })) {
-		if (args.deliveryKey) {
+		if (queuedDeliveryKey) {
 			await discardPendingAsyncWebhookDelivery({
 				workspaceId: args.workspaceId,
 				kind: args.kind,
@@ -1246,6 +1259,14 @@ export async function dispatchAsyncWebhookEvent(args: {
 		return false;
 	}
 	if (deliveries[deliveryKey]) {
+		if (queuedDeliveryKey) {
+			await markPendingAsyncWebhookDeliveryDelivered({
+				workspaceId: args.workspaceId,
+				kind: args.kind,
+				internalId: args.internalId,
+				deliveryKey,
+			});
+		}
 		if (retryQueue[deliveryKey]) {
 			const nextRetryQueue = { ...retryQueue };
 			delete nextRetryQueue[deliveryKey];
@@ -1310,6 +1331,15 @@ export async function dispatchAsyncWebhookEvent(args: {
 			deliveryKey,
 			claimToken,
 		}).catch(() => null);
+		if (queuedDeliveryKey) {
+			await discardPendingAsyncWebhookDelivery({
+				workspaceId: args.workspaceId,
+				kind: args.kind,
+				internalId: args.internalId,
+				deliveryKey,
+				reason: "Webhook payload data is not available.",
+			});
+		}
 		return false;
 	}
 	const body = JSON.stringify(payload);
@@ -1436,7 +1466,7 @@ export async function dispatchAsyncWebhookEvent(args: {
 		attempt: attempts.at(-1) as unknown as Record<string, unknown>,
 		retryState: null,
 		deliveredAt: nowIso,
-		nextRetryAt: computeNextRetryAtFromQueue(nextRetryQueue),
+		nextRetryAt: null,
 		progress: progressBucket,
 		telemetryPatch: {
 			webhookDeliveries: { ...deliveries, [deliveryKey]: nowIso },

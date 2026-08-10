@@ -12,7 +12,7 @@
   "license": "Proprietary",
   "input_types": "text,image",
   "output_types": "video",
-  "api_model_id": "runway/gen-4.5",
+  "api_model_id": "gen4.5",
   "family_id": null,
   "links": [
     { "title": "Runway API", "kind": "api_reference", "url": "https://docs.dev.runwayml.com/api/" },
@@ -34,7 +34,7 @@
   "sources": [
     { "kind": "api_reference", "url": "https://docs.dev.runwayml.com/api/", "accessed_at": "2026-08-10T00:00:00Z", "notes": "Text-to-video and image-to-video task contracts." }
   ],
-  "verification": { "status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Gateway mapping, lifecycle polling and pricing route verified against official Runway API documentation." },
+  "verification": { "status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Gateway mapping, lifecycle polling and pricing contract verified against official Runway API documentation; route remains disabled pending authenticated smoke testing." },
   "last_updated": "2026-08-10T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,

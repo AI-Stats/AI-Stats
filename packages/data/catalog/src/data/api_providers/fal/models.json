@@ -34,7 +34,7 @@
     "service_tiers": ["standard"],
     "api": { "formats": ["fal-queue"], "endpoint": "video.generate", "deployment": null },
     "sources": [{ "url": "https://fal.ai/models/bytedance/seedance-2.0/text-to-video", "kind": "documentation" }],
-    "verification": { "status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Fal queue endpoints verified for text, image, and reference video generation." },
+    "verification": { "status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Fal queue endpoints verified for text, image, video, and audio reference conditioning through reference-to-video." },
     "rate_limits": []
   },
   {
@@ -69,7 +69,7 @@
     "service_tiers": ["standard"],
     "api": { "formats": ["fal-queue"], "endpoint": "video.generate", "deployment": null },
     "sources": [{ "url": "https://fal.ai/models/bytedance/seedance-2.0/fast/text-to-video", "kind": "documentation" }],
-    "verification": { "status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Fal fast queue endpoints verified for text, image, and reference video generation." },
+    "verification": { "status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Fal fast queue endpoints verified for text, image, video, and audio reference conditioning through reference-to-video." },
     "rate_limits": []
   }
 ]

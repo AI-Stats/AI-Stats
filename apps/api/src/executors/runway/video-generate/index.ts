@@ -168,7 +168,13 @@ function buildRunwayRequest(ir: IRVideoGenerationRequest, model: string): {
 	if (suppliedSeed != null && (seed == null || seed > 4_294_967_295)) {
 		throw new InvalidRunwayVideoRequestError("Runway seed must be an integer from 0 to 4294967295.");
 	}
-	if (ir.inputReferences?.some((reference) => reference.type !== "image") || ir.inputVideo || ir.input?.video) {
+	if (
+		ir.inputReferences?.some(
+			(reference) => reference.type !== "image" || (reference.role != null && reference.role !== "first_frame"),
+		) ||
+		ir.inputVideo ||
+		ir.input?.video
+	) {
 		throw new InvalidRunwayVideoRequestError("Runway Gen-4.5 accepts at most one first-frame image and no video, audio, or mask input.");
 	}
 	if (ir.lastFrame || ir.input?.lastFrame || ir.referenceImages?.length || ir.input?.referenceImages?.length) {

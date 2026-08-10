@@ -139,6 +139,32 @@ describe("x-ai video executor", () => {
 		);
 	});
 
+	it("reports the routed xAI model when the public request uses a different alias", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/videos/generations"),
+			response: jsonResponse({ id: "vid_routed_15", status: "queued" }),
+			onRequest: (call) => {
+				capturedBody = call.bodyJson;
+			},
+		}]);
+		const args = buildArgs({
+			model: "spacex-ai/grok-imagine-video",
+			prompt: "Use the routed model",
+			duration: 6,
+			resolution: "1080p",
+			inputImage: "https://example.com/first-frame.png",
+		});
+		args.providerModelSlug = "grok-imagine-video-1.5";
+
+		const result = await execute(args);
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(200);
+		expect(capturedBody?.model).toBe("grok-imagine-video-1.5");
+		expect((result as any).ir?.model).toBe("spacex-ai/grok-imagine-video-1.5");
+	});
+
 	it("maps a first-frame image to xAI's structured image field", () => {
 		const mapped = __xAiVideoGenerateTestUtils.buildXAiVideoRequest({
 			model: "x-ai/grok-imagine-video",
@@ -197,8 +223,23 @@ describe("x-ai video executor", () => {
 				model: "grok-imagine-video",
 				prompt: "Add a silver necklace",
 				video: { url: "https://example.com/source.mp4" },
+				resolution: "720p",
 			},
 		});
+	});
+
+	it("rejects explicit unsupported resolution and aspect ratio values", () => {
+		expect(() => __xAiVideoGenerateTestUtils.buildXAiVideoRequest({
+			model: "x-ai/grok-imagine-video",
+			prompt: "Do not downgrade this request",
+			resolution: "1920x1080",
+		}, "grok-imagine-video")).toThrow("resolution must be 480p or 720p");
+
+		expect(() => __xAiVideoGenerateTestUtils.buildXAiVideoRequest({
+			model: "x-ai/grok-imagine-video",
+			prompt: "Do not drop this ratio",
+			aspectRatio: "21:9",
+		}, "grok-imagine-video")).toThrow("Unsupported xAI video aspect ratio");
 	});
 
 	it("enforces Grok Imagine Video 1.5 image-only input and supports 1080p", () => {

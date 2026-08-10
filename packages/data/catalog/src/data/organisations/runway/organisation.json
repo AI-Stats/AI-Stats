@@ -8,7 +8,7 @@
     { "platform": "website", "url": "https://runwayml.com/" }
   ],
   "status": "active",
-  "routable": true,
+  "routable": false,
   "sources": [
     { "kind": "website", "url": "https://runwayml.com/api", "accessed_at": "2026-08-10T00:00:00Z", "notes": "Official API product page." }
   ],

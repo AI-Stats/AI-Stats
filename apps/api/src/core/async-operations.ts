@@ -311,6 +311,11 @@ export async function listPendingAsyncWebhookDeliveries(limit = 100): Promise<Pe
 		.from("gateway_async_webhook_deliveries")
 		.select("workspace_id,kind,internal_id,delivery_key,event_type,phase,progress,previous_status,current_status")
 		.eq("status", "pending")
+		.in("kind", ["video", "batch"])
+		.not("event_type", "is", null)
+		.neq("event_type", "")
+		.not("phase", "is", null)
+		.neq("phase", "")
 		.lte("next_attempt_at", new Date().toISOString())
 		.order("next_attempt_at", { ascending: true })
 		.limit(normalizedLimit);
@@ -354,6 +359,7 @@ export async function recordAsyncWebhookDeliveryResult(args: {
 		p_delivered_at: args.deliveredAt ?? null,
 		p_next_retry_at: args.nextRetryAt ?? null,
 		p_progress: args.progress ?? null,
+		p_telemetry_patch: args.telemetryPatch ?? null,
 	});
 	if (error) throw error;
 	invalidateAsyncOperationCache(args.workspaceId, args.kind, args.internalId);
@@ -368,7 +374,25 @@ export async function discardPendingAsyncWebhookDelivery(args: {
 }): Promise<void> {
 	const { error } = await getSupabaseAdmin()
 		.from("gateway_async_webhook_deliveries")
-		.update({ status: "delivered", last_error: args.reason, updated_at: new Date().toISOString() })
+		.update({ status: "failed", last_error: args.reason, updated_at: new Date().toISOString() })
+		.eq("workspace_id", args.workspaceId)
+		.eq("kind", args.kind)
+		.eq("internal_id", args.internalId)
+		.eq("delivery_key", args.deliveryKey)
+		.eq("status", "pending");
+	if (error) throw error;
+}
+
+export async function markPendingAsyncWebhookDeliveryDelivered(args: {
+	workspaceId: string;
+	kind: AsyncOperationKind;
+	internalId: string;
+	deliveryKey: string;
+}): Promise<void> {
+	const nowIso = new Date().toISOString();
+	const { error } = await getSupabaseAdmin()
+		.from("gateway_async_webhook_deliveries")
+		.update({ status: "delivered", delivered_at: nowIso, updated_at: nowIso })
 		.eq("workspace_id", args.workspaceId)
 		.eq("kind", args.kind)
 		.eq("internal_id", args.internalId)

@@ -771,17 +771,26 @@ async function fetchBytedanceVideoStatus(job: VideoJobRecord): Promise<VideoProv
 	const taskId = resolveStoredProviderTaskId(job, (value) => decodePrefixedBase64Id(value, BYTEDANCE_VIDEO_PREFIX));
 	if (!taskId) return null;
 	const providerId = String(job.provider ?? "bytedance-seed").trim() || "bytedance-seed";
+	const bytePlus = providerId.toLowerCase() === "byteplus";
 	let key = await resolveProviderPollingKey({
 		job,
 		providerId,
-		defaultEnvKey: "BYTEDANCE_SEED_API_KEY",
+		defaultEnvKey: bytePlus ? "BYTEPLUS_API_KEY" : "BYTEDANCE_SEED_API_KEY",
 	});
 	if (!key) {
-		key = await resolveProviderPollingKey({ job, providerId, defaultEnvKey: "BYTEPLUS_API_KEY" });
+		key = await resolveProviderPollingKey({
+			job,
+			providerId,
+			defaultEnvKey: bytePlus ? "BYTEDANCE_SEED_API_KEY" : "BYTEPLUS_API_KEY",
+		});
 	}
 	if (!key) return null;
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
-	const baseUrl = String(bindings.BYTEDANCE_SEED_BASE_URL || DEFAULT_BYTEDANCE_BASE_URL).replace(/\/+$/, "");
+	const baseUrl = String(
+		(bytePlus
+			? bindings.BYTEPLUS_BASE_URL || bindings.BYTEDANCE_SEED_BASE_URL
+			: bindings.BYTEDANCE_SEED_BASE_URL || bindings.BYTEPLUS_BASE_URL) || DEFAULT_BYTEDANCE_BASE_URL,
+	).replace(/\/+$/, "");
 	const res = await fetch(`${baseUrl}/api/v3/contents/generations/tasks/${encodeURIComponent(taskId)}`, {
 		method: "GET",
 		headers: {
@@ -927,7 +936,12 @@ async function fetchFalVideoStatus(job: VideoJobRecord): Promise<VideoProviderSt
 	const baseUrl = String(bindings.FAL_QUEUE_BASE_URL || DEFAULT_FAL_QUEUE_BASE_URL).replace(/\/+$/, "");
 	const requestBase = `${baseUrl}/${identity.endpoint}/requests/${encodeURIComponent(identity.requestId)}`;
 	const headers = { Authorization: `Key ${key}`, Accept: "application/json" };
-	const statusRes = await fetch(`${requestBase}/status`, { headers });
+	let statusRes: Response;
+	try {
+		statusRes = await fetch(`${requestBase}/status`, { headers, signal: AbortSignal.timeout(15_000) });
+	} catch {
+		return null;
+	}
 	if (!statusRes.ok) return null;
 	const statusJson = await statusRes.json().catch(() => null);
 	if (!statusJson || typeof statusJson !== "object") return null;
@@ -944,7 +958,12 @@ async function fetchFalVideoStatus(job: VideoJobRecord): Promise<VideoProviderSt
 	if (nativeStatus !== "COMPLETED") {
 		return { status: "in_progress", providerId: "fal", model: job.model ?? undefined, raw: statusJson };
 	}
-	const resultRes = await fetch(`${requestBase}/response`, { headers });
+	let resultRes: Response;
+	try {
+		resultRes = await fetch(`${requestBase}/response`, { headers, signal: AbortSignal.timeout(15_000) });
+	} catch {
+		return null;
+	}
 	if (!resultRes.ok) return null;
 	const resultJson = await resultRes.json().catch(() => null);
 	const payload = (resultJson as any)?.data ?? (resultJson as any)?.payload ?? resultJson;
@@ -954,7 +973,11 @@ async function fetchFalVideoStatus(job: VideoJobRecord): Promise<VideoProviderSt
 		providerId: "fal",
 		model: job.model ?? undefined,
 		seconds: toPositiveNumber(job.meta?.seconds),
-		requestOptions: buildVideoPricingRequestOptions({ resolution: job.meta?.resolution, quality: job.meta?.quality }),
+		requestOptions: buildVideoPricingRequestOptions({
+			resolution: job.meta?.resolution,
+			quality: job.meta?.quality,
+			aspectRatio: job.meta?.aspectRatio,
+		}),
 		metaPatch: downloadUrl ? { downloadUrl, falEndpoint: identity.endpoint, falRequestId: identity.requestId } : undefined,
 		raw: resultJson,
 	};

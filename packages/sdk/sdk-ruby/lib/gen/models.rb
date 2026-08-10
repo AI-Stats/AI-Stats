@@ -2119,17 +2119,7 @@ module Phaseo
     # @!attribute [rw] websocket_url
     #   @return [String, nil]
     VideoGenerationResponse = Struct.new(:asset, :audio, :billing, :cancel_url, :completed_at, :content_url, :created_at, :download_url, :error, :expires_at, :generation_id, :id, :last_webhook_dispatched_at, :last_webhook_progress, :last_webhook_progress_at, :lifecycle_status, :model, :native_video_id, :next_webhook_retry_at, :object, :output_access, :outputs, :poll_after_seconds, :polling_url, :progress, :progress_source, :provider, :request_id, :seconds, :session_id, :size, :started_at, :status, :usage, :webhook, :websocket_url, keyword_init: true)
-    # @!attribute [rw] image_url
-    #   @return [Hash{String => Object}, nil]
-    # @!attribute [rw] media_url
-    #   @return [Hash{String => Object}, nil]
-    # @!attribute [rw] reference_type
-    #   @return [String, nil]
-    # @!attribute [rw] role
-    #   @return [String, nil]
-    # @!attribute [rw] type
-    #   @return [String]
-    VideoInputReference = Struct.new(:image_url, :media_url, :reference_type, :role, :type, keyword_init: true)
+    VideoInputReference = Object
     # @!attribute [rw] data
     #   @return [Array<Hash{String => Object}>, nil]
     # @!attribute [rw] first_id

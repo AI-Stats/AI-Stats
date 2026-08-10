@@ -70,13 +70,17 @@ function normalizeXAiResolution(value: unknown, model: string): "480p" | "720p" 
 	const dimensions = normalized.match(/^(\d{3,4})x(\d{3,4})$/);
 	if (!dimensions) return undefined;
 	const shortEdge = Math.min(Number(dimensions[1]), Number(dimensions[2]));
-	if (shortEdge >= 1080 && isGrokImagineVideo15(model)) return "1080p";
+	if (shortEdge >= 1080) {
+		if (isGrokImagineVideo15(model)) return "1080p";
+		throw new InvalidXAiVideoRequestError("grok-imagine-video resolution must be 480p or 720p.");
+	}
 	return shortEdge >= 720 ? "720p" : "480p";
 }
 
 function normalizeXAiAspectRatio(value: unknown, size: unknown): string | undefined {
 	const normalized = String(value ?? "").trim();
 	if (new Set(["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]).has(normalized)) return normalized;
+	if (normalized) throw new InvalidXAiVideoRequestError(`Unsupported xAI video aspect ratio: ${normalized}.`);
 	const dimensions = String(size ?? "").trim().toLowerCase().match(/^(\d{3,4})x(\d{3,4})$/);
 	if (!dimensions) return undefined;
 	const width = Number(dimensions[1]);
@@ -144,6 +148,7 @@ function buildXAiVideoRequest(ir: IRVideoGenerationRequest, model: string): {
 		}
 		seconds ??= inputVideoSeconds;
 		body.video = { url: videoUrl };
+		body.resolution = resolution;
 		return {
 			endpoint: "/videos/edits",
 			body,
@@ -233,9 +238,7 @@ function extractVideoOutput(json: any): Array<{ index: number; uri: string | nul
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
 	const ir = args.ir as IRVideoGenerationRequest;
 	const model = normalizeXAiVideoModel(args.providerModelSlug || ir.model || "grok-imagine-video");
-	const publicModel = isGrokImagineVideo15(model)
-		? "spacex-ai/grok-imagine-video-1.5"
-		: "spacex-ai/grok-imagine-video";
+	const publicModel = `spacex-ai/${model}`;
 	const keyInfo = resolveProviderKey(
 		{ providerId: args.providerId, byokMeta: args.byokMeta, forceGatewayKey: args.meta.forceGatewayKey },
 		() => {

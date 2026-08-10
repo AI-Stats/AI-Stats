@@ -174,6 +174,20 @@ describe("runway video executor", () => {
 		expect(mock.calls).toEqual([]);
 	});
 
+	it("rejects non-first-frame image roles before provider submission", async () => {
+		const mock = installFetchMock([]);
+		const result = await execute(buildArgs({
+			model: "gen4.5",
+			prompt: "Use this only as the final frame",
+			duration: 4,
+			inputReferences: [{ type: "image", role: "last_frame", url: "https://example.com/end.png" }],
+		}));
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(400);
+		expect(mock.calls).toEqual([]);
+	});
+
 	it("fails the gateway response when Runway video metadata cannot be persisted", async () => {
 		state.reservationResult = {
 			reservationId: "video_hold:req_runway_video_test",

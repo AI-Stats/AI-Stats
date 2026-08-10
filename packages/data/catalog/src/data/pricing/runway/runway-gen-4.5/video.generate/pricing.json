@@ -1,8 +1,8 @@
 {
-  "key": "runway:runway/gen-4.5:video.generate",
+  "key": "runway:gen4.5:video.generate",
   "api_provider_id": "runway",
   "provider_slug": "runway",
-  "api_model_id": "runway/gen-4.5",
+  "api_model_id": "gen4.5",
   "capability_id": "video.generate",
   "rules": [
     {
@@ -12,6 +12,8 @@
       "price_per_unit": 0.12,
       "currency": "USD",
       "pricing_plan": "standard",
+      "match": [],
+      "conditions": [],
       "note": "12 Runway API credits per second at $0.01 per credit",
       "priority": 100,
       "effective_from": "2026-02-10T00:00:00Z",

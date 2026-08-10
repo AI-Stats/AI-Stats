@@ -1746,7 +1746,7 @@
     "provider_api_model_id": "spacex-ai:spacex-ai/grok-imagine-video",
     "provider_model_slug": "grok-imagine-video",
     "internal_model_id": "spacex-ai/grok-imagine-video",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
     "output_modalities": "video",
@@ -1807,7 +1807,7 @@
       },
       {
         "capability_id": "video.edit",
-        "status": "active",
+        "status": "coming_soon",
         "params": {
           "prompt": {
             "type": "string"
@@ -1838,9 +1838,6 @@
             "aliases": [
               "image_url"
             ]
-          },
-          "seed": {
-            "type": "integer"
           }
         },
         "reasoning": null,
@@ -1853,8 +1850,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1889,7 +1886,7 @@
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "active",
+        "status": "coming_soon",
         "params": {
           "prompt": {
             "type": "string"
@@ -1962,7 +1959,7 @@
 	"verification": {
 	  "status": "verified",
 	  "checked_at": "2026-08-10T00:00:00Z",
-	  "notes": "Image-to-video request mapping, persistence, polling, content extraction, and pricing are covered by the Gateway adapter."
+	  "notes": "Image-to-video request mapping, persistence, polling, content extraction, and pricing are covered by the Gateway adapter. Text is prompt conditioning and the image input remains required; the route is disabled pending authenticated smoke testing."
     },
     "rate_limits": []
   },
@@ -2122,7 +2119,7 @@
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "active",
+        "status": "coming_soon",
         "params": {
           "prompt": { "type": "string" },
           "duration": {
@@ -2180,7 +2177,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-10T00:00:00Z",
-      "notes": "Image-to-video request mapping, persistence, polling, content extraction, and pricing are covered by the Gateway adapter."
+      "notes": "Image-to-video request mapping, persistence, polling, content extraction, and pricing are covered by the Gateway adapter. Text is prompt conditioning and the image input remains required; the route is disabled pending authenticated smoke testing."
     },
     "rate_limits": []
   }

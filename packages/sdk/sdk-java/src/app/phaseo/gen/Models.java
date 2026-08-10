@@ -1466,11 +1466,6 @@ public final class Models {
 	}
 
 	public static class VideoInputReference {
-		public Object image_url;
-		public Object media_url;
-		public String reference_type;
-		public Object role;
-		public Object type;
 	}
 
 	public static class VideoListResponse {

@@ -1994,7 +1994,6 @@ const (
 	KnownModelIdSpacexAiGrokCodeFast1 KnownModelId = "spacex-ai/grok-code-fast-1"
 	KnownModelIdSpacexAiGrokImagineImage KnownModelId = "spacex-ai/grok-imagine-image"
 	KnownModelIdSpacexAiGrokImagineImageQuality KnownModelId = "spacex-ai/grok-imagine-image-quality"
-	KnownModelIdSpacexAiGrokImagineVideo KnownModelId = "spacex-ai/grok-imagine-video"
 	KnownModelIdSpacexAiGrokTts KnownModelId = "spacex-ai/grok-tts"
 	KnownModelIdStepfunStep35Flash KnownModelId = "stepfun/step-3.5-flash"
 	KnownModelIdStepfunStep37Flash KnownModelId = "stepfun/step-3.7-flash"
@@ -2647,7 +2646,7 @@ type VideoGenerationRequest struct {
 	Duration *int `json:"duration,omitempty"`
 	EnhancePrompt *bool `json:"enhance_prompt,omitempty"`
 	GenerateAudio *bool `json:"generate_audio,omitempty"`
-	InputReferences *[]map[string]interface{} `json:"input_references,omitempty"`
+	InputReferences *[]interface{} `json:"input_references,omitempty"`
 	InputVideoDuration *float64 `json:"input_video_duration,omitempty"`
 	Model string `json:"model"`
 	NegativePrompt *string `json:"negative_prompt,omitempty"`
@@ -2703,13 +2702,7 @@ type VideoGenerationResponse struct {
 	WebsocketUrl *string `json:"websocket_url,omitempty"`
 }
 
-type VideoInputReference struct {
-	ImageUrl *map[string]interface{} `json:"image_url,omitempty"`
-	MediaUrl *map[string]interface{} `json:"media_url,omitempty"`
-	ReferenceType *string `json:"reference_type,omitempty"`
-	Role *string `json:"role,omitempty"`
-	Type string `json:"type"`
-}
+type VideoInputReference = interface{}
 
 type VideoListResponse struct {
 	Data *[]map[string]interface{} `json:"data,omitempty"`

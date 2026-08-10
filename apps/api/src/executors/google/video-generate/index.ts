@@ -252,6 +252,8 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				quality,
 				audio: true,
 				input_image_count: normalizedRequest.inputImageCount,
+				input_video_count: normalizedRequest.sourceVideo ? 1 : undefined,
+				input_video_seconds: normalizedRequest.inputVideoDurationSeconds,
 			}),
 			isByok: keyInfo.source === "byok",
 		});

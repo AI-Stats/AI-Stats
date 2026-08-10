@@ -8,6 +8,7 @@ import { setupRuntimeFromEnv, teardownTestRuntime } from "../../../../tests/help
 const saveVideoJobMetaMock = vi.fn(async () => undefined);
 const state = vi.hoisted(() => ({
 	reservationResult: null as Record<string, unknown> | null,
+	reservationCalls: [] as Array<Record<string, unknown>>,
 	releaseCalls: [] as Array<Record<string, unknown>>,
 	saveVideoJobMetaError: null as Error | null,
 }));
@@ -15,14 +16,16 @@ const state = vi.hoisted(() => ({
 vi.mock("@core/video-reservations", () => ({
 	isInsufficientVideoReservationStatus: (status: unknown) =>
 		status === "insufficient_funds" || status === "insufficient_balance",
-	reserveVideoGenerationCredits: vi.fn(async () => (
+	reserveVideoGenerationCredits: vi.fn(async (args: Record<string, unknown>) => {
+		state.reservationCalls.push(args);
+		return (
 		state.reservationResult ?? {
 			reservationId: "video_hold:req_bytedance_video_test",
 			held: false,
 			amountNanos: 0,
 			status: "skip_zero_cost",
-		}
-	)),
+		});
+	}),
 }));
 
 vi.mock("@core/video-jobs", () => ({
@@ -82,8 +85,34 @@ describe("bytedance seed video executor", () => {
 	beforeEach(() => {
 		saveVideoJobMetaMock.mockClear();
 		state.reservationResult = null;
+		state.reservationCalls = [];
 		state.releaseCalls = [];
 		state.saveVideoJobMetaError = null;
+	});
+
+	it("derives input-video seconds from normalized video references", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/api/v3/contents/generations/tasks"),
+			response: jsonResponse({ id: "seedance_reference_task", status: "queued" }),
+		}]);
+		const result = await execute(buildArgs({
+			model: "bytedance-seed/seedance-1-5-pro",
+			prompt: "Use both source clips",
+			duration: 6,
+			inputReferences: [
+				{ type: "video", role: "source", url: "https://example.com/a.mp4" },
+				{ type: "video", role: "reference", url: "https://example.com/b.mp4" },
+			],
+		}));
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(200);
+		expect(state.reservationCalls.at(-1)).toMatchObject({
+			requestOptions: {
+				input_video_count: 2,
+				input_video_seconds: 12,
+			},
+		});
 	});
 
 	it("submits async seedance task and stores upstream task id", async () => {

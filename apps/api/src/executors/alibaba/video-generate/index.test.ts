@@ -290,7 +290,7 @@ describe("alibaba wan video executor", () => {
 		const result = await execute(buildArgs({
 			model: "alibaba/happyhorse-1.0",
 			prompt: "Put the jacket from the image on the subject",
-			inputVideoDurationSeconds: 12,
+			inputVideoDurationSeconds: 12.5,
 			resolution: "720P",
 			providerParams: { watermark: false, audio_setting: "origin" },
 			inputReferences: [
@@ -317,7 +317,7 @@ describe("alibaba wan video executor", () => {
 		expect(saveVideoJobMetaMock).toHaveBeenCalledWith(
 			"team_test",
 			"req_wan_video_test",
-			expect.objectContaining({ inputImageCount: 1, inputVideoCount: 1, seconds: 12 }),
+			expect.objectContaining({ inputImageCount: 1, inputVideoCount: 1, inputVideoSeconds: 12.5, seconds: 12 }),
 			"happyhorse_edit_task",
 			"queued",
 		);

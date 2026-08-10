@@ -723,7 +723,7 @@ export type CreateAnthropicMessageParams = {
         }[];
     temperature?: number;
     tool_choice?: {} | string;
-    tools?:
+    tools?: (
       | {
           description?: string;
           input_schema?: {};
@@ -773,7 +773,8 @@ export type CreateAnthropicMessageParams = {
             max_results?: number;
           };
           type: "phaseo:search_models";
-        }[];
+        }
+    )[];
     top_k?: number;
     top_p?: number;
     usage?: boolean;
@@ -1627,36 +1628,38 @@ export type CreateChatCompletionParams = {
       }[];
       content?:
         | string
-        | {
-            text: string;
-            type: "text";
-          }
-        | {
-            image_url: {
-              url?: string;
-            };
-            type: "image_url";
-          }
-        | {
-            input_audio: {
-              data?: string;
-              format?:
-                "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
-            };
-            type: "input_audio";
-          }
-        | {
-            type: "input_video";
-            video_url: string;
-          }
-        | {
-            function: {
-              arguments?: string;
-              name?: string;
-            };
-            id: string;
-            type: "tool_call";
-          }[];
+        | (
+            | {
+                text: string;
+                type: "text";
+              }
+            | {
+                image_url: {
+                  url?: string;
+                };
+                type: "image_url";
+              }
+            | {
+                input_audio: {
+                  data?: string;
+                  format?:
+                    "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
+                };
+                type: "input_audio";
+              }
+            | {
+                type: "input_video";
+                video_url: string;
+              }
+            | {
+                function: {
+                  arguments?: string;
+                  name?: string;
+                };
+                id: string;
+                type: "tool_call";
+              }
+          )[];
       images?: {
         image_url: {
           url: string;
@@ -1682,7 +1685,7 @@ export type CreateChatCompletionParams = {
     metadata?: {
       [key: string]: string;
     };
-    modalities?: "text" | "image" | "audio"[];
+    modalities?: ("text" | "image" | "audio")[];
     model: string;
     parallel_tool_calls?: boolean;
     presence_penalty?: number;
@@ -1797,7 +1800,7 @@ export type CreateChatCompletionParams = {
       | "gateway:web_search"
       | "gateway:web_fetch"
       | {};
-    tools?:
+    tools?: (
       | {
           function: {
             description?: string;
@@ -1851,7 +1854,8 @@ export type CreateChatCompletionParams = {
             max_results?: number;
           };
           type: "phaseo:search_models";
-        }[];
+        }
+    )[];
     top_logprobs?: number;
     top_p?: number;
     usage?: boolean;
@@ -1881,36 +1885,38 @@ export async function createChatCompletion(
       }[];
       content?:
         | string
-        | {
-            text: string;
-            type: "text";
-          }
-        | {
-            image_url: {
-              url?: string;
-            };
-            type: "image_url";
-          }
-        | {
-            input_audio: {
-              data?: string;
-              format?:
-                "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
-            };
-            type: "input_audio";
-          }
-        | {
-            type: "input_video";
-            video_url: string;
-          }
-        | {
-            function: {
-              arguments?: string;
-              name?: string;
-            };
-            id: string;
-            type: "tool_call";
-          }[];
+        | (
+            | {
+                text: string;
+                type: "text";
+              }
+            | {
+                image_url: {
+                  url?: string;
+                };
+                type: "image_url";
+              }
+            | {
+                input_audio: {
+                  data?: string;
+                  format?:
+                    "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
+                };
+                type: "input_audio";
+              }
+            | {
+                type: "input_video";
+                video_url: string;
+              }
+            | {
+                function: {
+                  arguments?: string;
+                  name?: string;
+                };
+                id: string;
+                type: "tool_call";
+              }
+          )[];
       images?: {
         image_url: {
           url: string;
@@ -1973,36 +1979,44 @@ export async function createChatCompletion(
         }[];
         content?:
           | string
-          | {
-              text: string;
-              type: "text";
-            }
-          | {
-              image_url: {
-                url?: string;
-              };
-              type: "image_url";
-            }
-          | {
-              input_audio: {
-                data?: string;
-                format?:
-                  "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
-              };
-              type: "input_audio";
-            }
-          | {
-              type: "input_video";
-              video_url: string;
-            }
-          | {
-              function: {
-                arguments?: string;
-                name?: string;
-              };
-              id: string;
-              type: "tool_call";
-            }[];
+          | (
+              | {
+                  text: string;
+                  type: "text";
+                }
+              | {
+                  image_url: {
+                    url?: string;
+                  };
+                  type: "image_url";
+                }
+              | {
+                  input_audio: {
+                    data?: string;
+                    format?:
+                      | "wav"
+                      | "mp3"
+                      | "flac"
+                      | "m4a"
+                      | "ogg"
+                      | "pcm16"
+                      | "pcm24";
+                  };
+                  type: "input_audio";
+                }
+              | {
+                  type: "input_video";
+                  video_url: string;
+                }
+              | {
+                  function: {
+                    arguments?: string;
+                    name?: string;
+                  };
+                  id: string;
+                  type: "tool_call";
+                }
+            )[];
         images?: {
           image_url: {
             url: string;
@@ -2074,7 +2088,7 @@ export type CreateEmbeddingParams = {
       | string
       | number[]
       | {
-          content:
+          content: (
             | {
                 text: string;
                 type: "text" | "input_text";
@@ -2112,51 +2126,55 @@ export type CreateEmbeddingParams = {
                   | {
                       url: string;
                     };
-              }[];
+              }
+          )[];
         }
-      | string
-      | number[]
-      | {
-          content:
-            | {
-                text: string;
-                type: "text" | "input_text";
-              }
-            | {
-                image_url?:
-                  | string
-                  | {
-                      url: string;
+      | (
+          | string
+          | number[]
+          | {
+              content: (
+                | {
+                    text: string;
+                    type: "text" | "input_text";
+                  }
+                | {
+                    image_url?:
+                      | string
+                      | {
+                          url: string;
+                        };
+                    type: "image_url" | "input_image" | "image";
+                    url?:
+                      | string
+                      | {
+                          url: string;
+                        };
+                  }
+                | {
+                    input_audio: {
+                      data?: string;
+                      format?: string;
+                      url?: string;
                     };
-                type: "image_url" | "input_image" | "image";
-                url?:
-                  | string
-                  | {
-                      url: string;
-                    };
-              }
-            | {
-                input_audio: {
-                  data?: string;
-                  format?: string;
-                  url?: string;
-                };
-                type: "input_audio";
-              }
-            | {
-                type: "input_video" | "video_url";
-                url?:
-                  | string
-                  | {
-                      url: string;
-                    };
-                video_url?:
-                  | string
-                  | {
-                      url: string;
-                    };
-              }[];
-        }[];
+                    type: "input_audio";
+                  }
+                | {
+                    type: "input_video" | "video_url";
+                    url?:
+                      | string
+                      | {
+                          url: string;
+                        };
+                    video_url?:
+                      | string
+                      | {
+                          url: string;
+                        };
+                  }
+              )[];
+            }
+        )[];
     model: string;
     provider?: {
       allow_fallbacks?: boolean | null;
@@ -2459,16 +2477,18 @@ export type CreateModerationParams = {
     };
     input:
       | string
-      | {
-          text: string;
-          type: "text";
-        }
-      | {
-          image_url: {
-            url?: string;
-          };
-          type: "image_url";
-        }[];
+      | (
+          | {
+              text: string;
+              type: "text";
+            }
+          | {
+              image_url: {
+                url?: string;
+              };
+              type: "image_url";
+            }
+        )[];
     meta?: boolean;
     model: string;
     provider?: {
@@ -2863,7 +2883,7 @@ export type CreateResponseParams = {
     metadata?: {
       [key: string]: string;
     };
-    modalities?: "text" | "image" | "audio"[];
+    modalities?: ("text" | "image" | "audio")[];
     model: string;
     parallel_tool_calls?: boolean;
     previous_response_id?: string;
@@ -2960,7 +2980,7 @@ export type CreateResponseParams = {
       | "gateway:web_search"
       | "gateway:web_fetch"
       | {};
-    tools?:
+    tools?: (
       | {
           function: {
             description?: string;
@@ -3014,7 +3034,8 @@ export type CreateResponseParams = {
             max_results?: number;
           };
           type: "phaseo:search_models";
-        }[];
+        }
+    )[];
     top_p?: number;
     truncation?: "auto" | "disabled";
     usage?: boolean;
@@ -3045,7 +3066,7 @@ export async function createResponse(
   output?: {
     arguments?: string;
     call_id?: string;
-    content?:
+    content?: (
       | {
           annotations?: {}[];
           text: string;
@@ -3067,7 +3088,8 @@ export async function createResponse(
           format?: "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
           mime_type?: string;
           type: "output_audio";
-        }[];
+        }
+    )[];
     name?: string;
     role?: string;
     type?: string;
@@ -3075,7 +3097,7 @@ export async function createResponse(
   output_items?: {
     arguments?: string;
     call_id?: string;
-    content?:
+    content?: (
       | {
           annotations?: {}[];
           text: string;
@@ -3097,7 +3119,8 @@ export async function createResponse(
           format?: "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
           mime_type?: string;
           type: "output_audio";
-        }[];
+        }
+    )[];
     name?: string;
     role?: string;
     type?: string;
@@ -3147,7 +3170,7 @@ export async function createResponse(
     output?: {
       arguments?: string;
       call_id?: string;
-      content?:
+      content?: (
         | {
             annotations?: {}[];
             text: string;
@@ -3169,7 +3192,8 @@ export async function createResponse(
             format?: "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
             mime_type?: string;
             type: "output_audio";
-          }[];
+          }
+      )[];
       name?: string;
       role?: string;
       type?: string;
@@ -3177,7 +3201,7 @@ export async function createResponse(
     output_items?: {
       arguments?: string;
       call_id?: string;
-      content?:
+      content?: (
         | {
             annotations?: {}[];
             text: string;
@@ -3199,7 +3223,8 @@ export async function createResponse(
             format?: "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
             mime_type?: string;
             type: "output_audio";
-          }[];
+          }
+      )[];
       name?: string;
       role?: string;
       type?: string;
@@ -3469,17 +3494,24 @@ export type CreateVideoParams = {
     duration?: number;
     enhance_prompt?: boolean;
     generate_audio?: boolean;
-    input_references?: {
-      image_url?: {
-        url: string;
-      };
-      media_url?: {
-        url: string;
-      };
-      reference_type?: string;
-      role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
-      type: "image_url" | "video_url" | "audio_url";
-    }[];
+    input_references?: (
+      | {
+          image_url: {
+            url: string;
+          };
+          reference_type?: string;
+          role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
+          type: "image_url";
+        }
+      | {
+          media_url: {
+            url: string;
+          };
+          reference_type?: string;
+          role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
+          type: "video_url" | "audio_url";
+        }
+    )[];
     input_video_duration?: number;
     model: string;
     negative_prompt?: string;
@@ -3787,17 +3819,24 @@ export type CreateVideoAliasParams = {
     duration?: number;
     enhance_prompt?: boolean;
     generate_audio?: boolean;
-    input_references?: {
-      image_url?: {
-        url: string;
-      };
-      media_url?: {
-        url: string;
-      };
-      reference_type?: string;
-      role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
-      type: "image_url" | "video_url" | "audio_url";
-    }[];
+    input_references?: (
+      | {
+          image_url: {
+            url: string;
+          };
+          reference_type?: string;
+          role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
+          type: "image_url";
+        }
+      | {
+          media_url: {
+            url: string;
+          };
+          reference_type?: string;
+          role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
+          type: "video_url" | "audio_url";
+        }
+    )[];
     input_video_duration?: number;
     model: string;
     negative_prompt?: string;
@@ -5745,10 +5784,10 @@ export async function listBatchCapabilities(
       endpoint: string;
       mode: "native" | "translated";
     }[];
-    gateway_input_modes?: "file" | "requests"[];
+    gateway_input_modes?: ("file" | "requests")[];
     id?: string;
     name?: string;
-    native_input_modes?: "file" | "requests"[];
+    native_input_modes?: ("file" | "requests")[];
     notes?: string | null;
     status?: "active" | "planned";
   }[];
@@ -5763,10 +5802,10 @@ export async function listBatchCapabilities(
         endpoint: string;
         mode: "native" | "translated";
       }[];
-      gateway_input_modes?: "file" | "requests"[];
+      gateway_input_modes?: ("file" | "requests")[];
       id?: string;
       name?: string;
-      native_input_modes?: "file" | "requests"[];
+      native_input_modes?: ("file" | "requests")[];
       notes?: string | null;
       status?: "active" | "planned";
     }[];
@@ -5800,10 +5839,10 @@ export async function listBatchCapabilitiesAlias(
       endpoint: string;
       mode: "native" | "translated";
     }[];
-    gateway_input_modes?: "file" | "requests"[];
+    gateway_input_modes?: ("file" | "requests")[];
     id?: string;
     name?: string;
-    native_input_modes?: "file" | "requests"[];
+    native_input_modes?: ("file" | "requests")[];
     notes?: string | null;
     status?: "active" | "planned";
   }[];
@@ -5818,10 +5857,10 @@ export async function listBatchCapabilitiesAlias(
         endpoint: string;
         mode: "native" | "translated";
       }[];
-      gateway_input_modes?: "file" | "requests"[];
+      gateway_input_modes?: ("file" | "requests")[];
       id?: string;
       name?: string;
-      native_input_modes?: "file" | "requests"[];
+      native_input_modes?: ("file" | "requests")[];
       notes?: string | null;
       status?: "active" | "planned";
     }[];
@@ -6888,64 +6927,66 @@ export type ListDataModelsParams = {
       | "windsurf"
       | "xiaomi"
       | "z-ai"
-      | "ai21"
-      | "aion-labs"
-      | "alibaba"
-      | "allenai"
-      | "amazon"
-      | "anthropic"
-      | "arcee-ai"
-      | "baidu"
-      | "black-forest-labs"
-      | "bytedance"
-      | "cohere"
-      | "crofai"
-      | "cursor"
-      | "deepseek"
-      | "eleven-labs"
-      | "essential-ai"
-      | "github"
-      | "google"
-      | "ibm"
-      | "inception"
-      | "inclusionai"
-      | "inflection"
-      | "kwaipilot"
-      | "lg"
-      | "liquid-ai"
-      | "meituan"
-      | "meta"
-      | "microsoft"
-      | "mindai"
-      | "minimax"
-      | "mistral"
-      | "moonshotai"
-      | "morph"
-      | "naver-hyperclova"
-      | "nex-agi"
-      | "nous"
-      | "nvidia"
-      | "openai"
-      | "perplexity"
-      | "poe"
-      | "poolside"
-      | "prime-intellect"
-      | "qwen"
-      | "relace"
-      | "runway"
-      | "sourceful"
-      | "spacex-ai"
-      | "stepfun"
-      | "suno"
-      | "tencent"
-      | "thinking-machines"
-      | "upstage"
-      | "venice"
-      | "vercel"
-      | "voyage"
-      | "windsurf"
-      | "xiaomi"
-      | "z-ai"[];
+      | (
+          | "ai21"
+          | "aion-labs"
+          | "alibaba"
+          | "allenai"
+          | "amazon"
+          | "anthropic"
+          | "arcee-ai"
+          | "baidu"
+          | "black-forest-labs"
+          | "bytedance"
+          | "cohere"
+          | "crofai"
+          | "cursor"
+          | "deepseek"
+          | "eleven-labs"
+          | "essential-ai"
+          | "github"
+          | "google"
+          | "ibm"
+          | "inception"
+          | "inclusionai"
+          | "inflection"
+          | "kwaipilot"
+          | "lg"
+          | "liquid-ai"
+          | "meituan"
+          | "meta"
+          | "microsoft"
+          | "mindai"
+          | "minimax"
+          | "mistral"
+          | "moonshotai"
+          | "morph"
+          | "naver-hyperclova"
+          | "nex-agi"
+          | "nous"
+          | "nvidia"
+          | "openai"
+          | "perplexity"
+          | "poe"
+          | "poolside"
+          | "prime-intellect"
+          | "qwen"
+          | "relace"
+          | "runway"
+          | "sourceful"
+          | "spacex-ai"
+          | "stepfun"
+          | "suno"
+          | "tencent"
+          | "thinking-machines"
+          | "upstage"
+          | "venice"
+          | "vercel"
+          | "voyage"
+          | "windsurf"
+          | "xiaomi"
+          | "z-ai"
+        )[];
     status?: string[];
   };
   headers?: Record<string, never>;
@@ -7441,64 +7482,66 @@ export type ListModelsParams = {
       | "windsurf"
       | "xiaomi"
       | "z-ai"
-      | "ai21"
-      | "aion-labs"
-      | "alibaba"
-      | "allenai"
-      | "amazon"
-      | "anthropic"
-      | "arcee-ai"
-      | "baidu"
-      | "black-forest-labs"
-      | "bytedance"
-      | "cohere"
-      | "crofai"
-      | "cursor"
-      | "deepseek"
-      | "eleven-labs"
-      | "essential-ai"
-      | "github"
-      | "google"
-      | "ibm"
-      | "inception"
-      | "inclusionai"
-      | "inflection"
-      | "kwaipilot"
-      | "lg"
-      | "liquid-ai"
-      | "meituan"
-      | "meta"
-      | "microsoft"
-      | "mindai"
-      | "minimax"
-      | "mistral"
-      | "moonshotai"
-      | "morph"
-      | "naver-hyperclova"
-      | "nex-agi"
-      | "nous"
-      | "nvidia"
-      | "openai"
-      | "perplexity"
-      | "poe"
-      | "poolside"
-      | "prime-intellect"
-      | "qwen"
-      | "relace"
-      | "runway"
-      | "sourceful"
-      | "spacex-ai"
-      | "stepfun"
-      | "suno"
-      | "tencent"
-      | "thinking-machines"
-      | "upstage"
-      | "venice"
-      | "vercel"
-      | "voyage"
-      | "windsurf"
-      | "xiaomi"
-      | "z-ai"[];
+      | (
+          | "ai21"
+          | "aion-labs"
+          | "alibaba"
+          | "allenai"
+          | "amazon"
+          | "anthropic"
+          | "arcee-ai"
+          | "baidu"
+          | "black-forest-labs"
+          | "bytedance"
+          | "cohere"
+          | "crofai"
+          | "cursor"
+          | "deepseek"
+          | "eleven-labs"
+          | "essential-ai"
+          | "github"
+          | "google"
+          | "ibm"
+          | "inception"
+          | "inclusionai"
+          | "inflection"
+          | "kwaipilot"
+          | "lg"
+          | "liquid-ai"
+          | "meituan"
+          | "meta"
+          | "microsoft"
+          | "mindai"
+          | "minimax"
+          | "mistral"
+          | "moonshotai"
+          | "morph"
+          | "naver-hyperclova"
+          | "nex-agi"
+          | "nous"
+          | "nvidia"
+          | "openai"
+          | "perplexity"
+          | "poe"
+          | "poolside"
+          | "prime-intellect"
+          | "qwen"
+          | "relace"
+          | "runway"
+          | "sourceful"
+          | "spacex-ai"
+          | "stepfun"
+          | "suno"
+          | "tencent"
+          | "thinking-machines"
+          | "upstage"
+          | "venice"
+          | "vercel"
+          | "voyage"
+          | "windsurf"
+          | "xiaomi"
+          | "z-ai"
+        )[];
     output_modalities?: string[];
     output_types?: string[];
     params?: string[];
@@ -8046,64 +8089,66 @@ export type ListTeamModelsParams = {
       | "windsurf"
       | "xiaomi"
       | "z-ai"
-      | "ai21"
-      | "aion-labs"
-      | "alibaba"
-      | "allenai"
-      | "amazon"
-      | "anthropic"
-      | "arcee-ai"
-      | "baidu"
-      | "black-forest-labs"
-      | "bytedance"
-      | "cohere"
-      | "crofai"
-      | "cursor"
-      | "deepseek"
-      | "eleven-labs"
-      | "essential-ai"
-      | "github"
-      | "google"
-      | "ibm"
-      | "inception"
-      | "inclusionai"
-      | "inflection"
-      | "kwaipilot"
-      | "lg"
-      | "liquid-ai"
-      | "meituan"
-      | "meta"
-      | "microsoft"
-      | "mindai"
-      | "minimax"
-      | "mistral"
-      | "moonshotai"
-      | "morph"
-      | "naver-hyperclova"
-      | "nex-agi"
-      | "nous"
-      | "nvidia"
-      | "openai"
-      | "perplexity"
-      | "poe"
-      | "poolside"
-      | "prime-intellect"
-      | "qwen"
-      | "relace"
-      | "runway"
-      | "sourceful"
-      | "spacex-ai"
-      | "stepfun"
-      | "suno"
-      | "tencent"
-      | "thinking-machines"
-      | "upstage"
-      | "venice"
-      | "vercel"
-      | "voyage"
-      | "windsurf"
-      | "xiaomi"
-      | "z-ai"[];
+      | (
+          | "ai21"
+          | "aion-labs"
+          | "alibaba"
+          | "allenai"
+          | "amazon"
+          | "anthropic"
+          | "arcee-ai"
+          | "baidu"
+          | "black-forest-labs"
+          | "bytedance"
+          | "cohere"
+          | "crofai"
+          | "cursor"
+          | "deepseek"
+          | "eleven-labs"
+          | "essential-ai"
+          | "github"
+          | "google"
+          | "ibm"
+          | "inception"
+          | "inclusionai"
+          | "inflection"
+          | "kwaipilot"
+          | "lg"
+          | "liquid-ai"
+          | "meituan"
+          | "meta"
+          | "microsoft"
+          | "mindai"
+          | "minimax"
+          | "mistral"
+          | "moonshotai"
+          | "morph"
+          | "naver-hyperclova"
+          | "nex-agi"
+          | "nous"
+          | "nvidia"
+          | "openai"
+          | "perplexity"
+          | "poe"
+          | "poolside"
+          | "prime-intellect"
+          | "qwen"
+          | "relace"
+          | "runway"
+          | "sourceful"
+          | "spacex-ai"
+          | "stepfun"
+          | "suno"
+          | "tencent"
+          | "thinking-machines"
+          | "upstage"
+          | "venice"
+          | "vercel"
+          | "voyage"
+          | "windsurf"
+          | "xiaomi"
+          | "z-ai"
+        )[];
     output_types?: string[];
     params?: string[];
     provider?: string[];

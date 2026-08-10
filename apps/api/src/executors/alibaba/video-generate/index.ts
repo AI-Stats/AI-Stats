@@ -229,7 +229,7 @@ function happyHorseRequest(
 				"input_video_duration is required for HappyHorse video editing and must be from 3 to 60 seconds.",
 			);
 		}
-		const derivedOutputSeconds = Math.min(inputVideoSeconds, 15);
+		const derivedOutputSeconds = Math.min(Math.floor(inputVideoSeconds), 15);
 		if (suppliedSeconds != null && suppliedSeconds !== derivedOutputSeconds) {
 			throw new InvalidAlibabaVideoRequestError(
 				`HappyHorse edit duration must equal min(input_video_duration, 15), which is ${derivedOutputSeconds} seconds.`,

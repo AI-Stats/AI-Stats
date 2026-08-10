@@ -4982,7 +4982,7 @@
       "params": {
         "prompt": { "type": "string" },
         "duration": { "type": "enum", "values": [4, 6, 8], "aliases": ["seconds", "duration_seconds"] },
-        "size": { "type": "string", "enum": ["720p", "1080p", "4k"], "aliases": ["resolution"] },
+        "size": { "type": "string", "enum": ["720p", "1080p", "4k"], "default": "720p", "aliases": ["resolution"] },
         "aspect_ratio": { "type": "string", "enum": ["16:9", "9:16"] },
         "input_references": { "type": "array" },
         "seed": { "type": "integer" }
@@ -5023,7 +5023,7 @@
         "params": {
           "prompt": { "type": "string" },
           "duration": { "type": "enum", "values": [4, 6, 8], "aliases": ["seconds", "duration_seconds"] },
-          "size": { "type": "string", "enum": ["720p", "1080p", "4k"], "aliases": ["resolution"] },
+          "size": { "type": "string", "enum": ["720p", "1080p", "4k"], "default": "720p", "aliases": ["resolution"] },
           "aspect_ratio": { "type": "string", "enum": ["16:9", "9:16"] },
           "input_references": { "type": "array" },
           "seed": { "type": "integer" }
@@ -5078,7 +5078,7 @@
         "params": {
           "prompt": { "type": "string" },
           "duration": { "type": "enum", "values": [4, 6, 8], "aliases": ["seconds", "duration_seconds"] },
-          "size": { "type": "string", "enum": ["720p", "1080p"], "aliases": ["resolution"] },
+          "size": { "type": "string", "enum": ["720p", "1080p"], "default": "720p", "aliases": ["resolution"] },
           "aspect_ratio": { "type": "string", "enum": ["16:9", "9:16"] },
           "input_image": { "type": "string" },
           "seed": { "type": "integer" }
