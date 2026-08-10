@@ -2,7 +2,7 @@
   "organisation_id": "suno",
   "name": "Suno",
   "country_code": "US",
-  "description": "Suno is an AI generative-audio company. Their mission is to build models and tools for music and creative audio generation so that creators can generate high-fidelity pieces and new forms of expression via AI.",
+  "description": "Suno is an AI generative-audio company headquartered in Cambridge, Massachusetts. Their mission is to build models and tools for music and creative audio generation so that creators can generate high-fidelity pieces and new forms of expression via AI.",
   "colour": "#FF4B23",
   "organisation_links": [
     {
@@ -28,10 +28,23 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_company_page",
+      "url": "https://suno.com/about/careers",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Suno's official careers page states that the company is headquartered in Cambridge, Massachusetts."
+    },
+    {
+      "kind": "official_terms",
+      "url": "https://suno.com/terms/",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Suno's official terms list a legal contact address at 17 Dunster Street, Cambridge, Massachusetts."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; the broader catalogue record was not re-audited."
   }
 }

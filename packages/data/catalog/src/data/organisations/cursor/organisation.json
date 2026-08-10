@@ -2,7 +2,7 @@
   "organisation_id": "cursor",
   "name": "Cursor",
   "country_code": "US",
-  "description": "Cursor is an AI-assisted coding product built by Anysphere. Its mission is to accelerate software development by integrating state-of-the-art language models into a developer-first IDE experience for editing, navigation, refactoring and agentic code generation.",
+  "description": "Cursor is an AI-assisted coding product built by Anysphere, Inc., whose official terms list an address in San Francisco, California. Its mission is to accelerate software development by integrating state-of-the-art language models into a developer-first IDE experience for editing, navigation, refactoring and agentic code generation.",
   "colour": "#F54E00",
   "organisation_links": [
     {
@@ -28,10 +28,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_terms",
+      "url": "https://cursor.com/en-US/terms-of-service",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Cursor's official terms identify Anysphere, Inc. as the maker of Cursor and list 2261 Market Street, San Francisco, California for notices."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; the source supports a corporate address, not an explicit headquarters claim."
   }
 }

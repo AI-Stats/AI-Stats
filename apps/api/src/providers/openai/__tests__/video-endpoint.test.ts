@@ -121,13 +121,13 @@ describe("OpenAI-compatible video endpoint payload mapping", () => {
 			body: {
 				model: "google/veo-3.1-generate-preview",
 				prompt: "A close-up of ocean waves at sunset.",
+				aspect_ratio: "4:3",
+				duration: 6,
+				generate_audio: true,
+				negative_prompt: "grainy",
+				resolution: "1080p",
 				provider_params: {
-					aspectRatio: "4:3",
 					compressionQuality: 75,
-					durationSeconds: 6,
-					generateAudio: true,
-					negativePrompt: "grainy",
-					resolution: "1080p",
 				},
 			},
 			meta: REQUEST_META,

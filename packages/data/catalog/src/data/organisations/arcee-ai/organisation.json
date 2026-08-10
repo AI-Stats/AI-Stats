@@ -2,7 +2,7 @@
   "organisation_id": "arcee-ai",
   "name": "Arcee AI",
   "country_code": "US",
-  "description": "Arcee AI is an AI model company building domain-specific small language models (SLMs) and generative AI solutions for enterprise use.",
+  "description": "Arcee AI is an AI model company based in San Francisco, California, building domain-specific small language models (SLMs) and generative AI solutions for enterprise use.",
   "colour": "#008C8C",
   "organisation_links": [
     {
@@ -32,10 +32,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_company_blog",
+      "url": "https://www.arcee.ai/blog/arcee-and-the-intellect-1-2",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Arcee AI's official blog describes the company as based in San Francisco, California."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; the broader catalogue record was not re-audited."
   }
 }

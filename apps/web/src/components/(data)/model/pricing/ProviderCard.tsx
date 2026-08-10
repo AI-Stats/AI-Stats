@@ -2863,49 +2863,59 @@ export default function ProviderCard({
 							disableAnimation={disableInspectorAnimation}
 							className="!w-full max-w-none gap-0 overflow-hidden p-0 sm:max-w-none md:!w-[50vw] lg:!w-[48vw] xl:!w-[44vw] 2xl:!w-[42vw] data-[side=right]:sm:max-w-none"
 						>
-					<div className="absolute right-14 top-4 z-10 flex items-center gap-1">
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon-sm"
-							disabled={!previousProviderNavigationItem}
-							aria-label={
-								previousProviderNavigationItem
-									? `Open ${previousProviderNavigationItem.name}`
-									: "No previous provider"
-							}
-							onClick={() => {
-								if (previousProviderNavigationItem) {
-									openInspectorForProvider(previousProviderNavigationItem.id, {
-										disableAnimation: true,
-									});
-								}
-							}}
-						>
-							<ChevronLeft className="h-4 w-4" />
-						</Button>
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon-sm"
-							disabled={!nextProviderNavigationItem}
-							aria-label={
-								nextProviderNavigationItem
-									? `Open ${nextProviderNavigationItem.name}`
-									: "No next provider"
-							}
-							onClick={() => {
-								if (nextProviderNavigationItem) {
-									openInspectorForProvider(nextProviderNavigationItem.id, {
-										disableAnimation: true,
-									});
-								}
-							}}
-						>
-							<ChevronRight className="h-4 w-4" />
-						</Button>
-					</div>
-					<ProviderInspectorSheetHeader className="border-b border-zinc-200/80 px-5 py-4 dark:border-zinc-800">
+							<div className="absolute right-14 top-4 z-10 flex items-center gap-2">
+								<div className="flex items-center gap-1">
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon-sm"
+										disabled={!previousProviderNavigationItem}
+										aria-label={
+											previousProviderNavigationItem
+												? `Open ${previousProviderNavigationItem.name}`
+												: "No previous provider"
+										}
+										onClick={() => {
+											if (previousProviderNavigationItem) {
+												openInspectorForProvider(previousProviderNavigationItem.id, {
+													disableAnimation: true,
+												});
+											}
+										}}
+									>
+										<ChevronLeft className="h-4 w-4" />
+									</Button>
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon-sm"
+										disabled={!nextProviderNavigationItem}
+										aria-label={
+											nextProviderNavigationItem
+												? `Open ${nextProviderNavigationItem.name}`
+												: "No next provider"
+										}
+										onClick={() => {
+											if (nextProviderNavigationItem) {
+												openInspectorForProvider(nextProviderNavigationItem.id, {
+													disableAnimation: true,
+												});
+											}
+										}}
+									>
+										<ChevronRight className="h-4 w-4" />
+									</Button>
+								</div>
+								{currentProviderNavigationIndex >= 0 ? (
+									<span
+										aria-label={`Provider ${currentProviderNavigationIndex + 1} of ${providerNavigationItems.length}`}
+										className="min-w-8 text-right font-sans text-[10px] font-medium tabular-nums text-muted-foreground"
+									>
+										{currentProviderNavigationIndex + 1} / {providerNavigationItems.length}
+									</span>
+								) : null}
+							</div>
+							<ProviderInspectorSheetHeader className="border-b border-zinc-200/80 px-5 py-4 dark:border-zinc-800">
 						<div className="flex min-w-0 items-center gap-3 pr-10">
 							<div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-zinc-200/80 bg-background dark:border-zinc-800">
 								<div className="relative h-7 w-7">

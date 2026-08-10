@@ -4,10 +4,10 @@ export interface BatchProviderCapability {
     endpoint: string;
     mode: "native" | "translated";
   }[];
-  gateway_input_modes?: "file" | "requests"[];
+  gateway_input_modes?: ("file" | "requests")[];
   id?: string;
   name?: string;
-  native_input_modes?: "file" | "requests"[];
+  native_input_modes?: ("file" | "requests")[];
   notes?: string | null;
   status?: "active" | "planned";
 }

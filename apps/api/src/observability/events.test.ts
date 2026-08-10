@@ -946,5 +946,10 @@ describe("emitGatewayRequestEvent", () => {
 		expect(event.model).toBe("openai/gpt-5-nano");
 		expect(event.model_requested).toBe("openai/gpt-5-nano");
 		expect(event.request_payload_redacted_json).toContain("\"model\":\"openai/gpt-5-nano\"");
+		expect(event.request_payload_redacted_json).not.toContain("hello");
+		expect(JSON.parse(String(event.request_payload_redacted_json))).toMatchObject({
+			model: "openai/gpt-5-nano",
+			input: "[redacted 5 chars]",
+		});
 	});
 });

@@ -127,7 +127,7 @@ export interface AnthropicMessagesRequest {
       }[];
   temperature?: number;
   tool_choice?: {} | string;
-  tools?:
+  tools?: (
     | {
         description?: string;
         input_schema?: {};
@@ -177,7 +177,8 @@ export interface AnthropicMessagesRequest {
           max_results?: number;
         };
         type: "phaseo:search_models";
-      }[];
+      }
+  )[];
   top_k?: number;
   top_p?: number;
   usage?: boolean;

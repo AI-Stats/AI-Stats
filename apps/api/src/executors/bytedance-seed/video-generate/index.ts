@@ -162,8 +162,22 @@ function buildSeedanceRequest(ir: IRVideoGenerationRequest, model: string): Reco
 	};
 
 	const content: Array<Record<string, any>> = [{ type: "text", text: ir.prompt }];
-	if (inputImage) content.push({ type: "image_url", image_url: inputImage });
-	if (inputVideo) content.push({ type: "video_url", video_url: inputVideo });
+	for (const reference of ir.inputReferences ?? []) {
+		const url = reference.url ?? normalizeInputSource(reference.raw);
+		if (!url) continue;
+		if (reference.type === "image") {
+			const role = reference.role === "reference" ? "reference_image" : reference.role;
+			content.push({ type: "image_url", image_url: { url }, ...(role ? { role } : {}) });
+		}
+		if (reference.type === "video") content.push({ type: "video_url", video_url: { url } });
+		if (reference.type === "audio") content.push({ type: "audio_url", audio_url: { url } });
+	}
+	if (inputImage && !content.some((entry) => entry.type === "image_url")) {
+		content.push({ type: "image_url", image_url: { url: inputImage } });
+	}
+	if (inputVideo && !content.some((entry) => entry.type === "video_url")) {
+		content.push({ type: "video_url", video_url: { url: inputVideo } });
+	}
 
 	return {
 		model,
@@ -213,13 +227,21 @@ function extractVideoOutput(json: any): Array<{ index: number; uri: string | nul
 
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
 	const ir = args.ir as IRVideoGenerationRequest;
+	const bytePlus = args.providerId.toLowerCase() === "byteplus";
 	const model = args.providerModelSlug || ir.model || "seedance-1-5-pro";
 	const seconds = parseDurationSeconds(ir);
 	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
 	const quality = ir.quality ?? null;
 	const bytedanceConfig = extractBytedanceConfig((ir.rawRequest ?? {}) as Record<string, any>);
+	const aspectRatioForPricing =
+		toNonEmptyString(bytedanceConfig.ratio) ??
+		toNonEmptyString(bytedanceConfig.aspect_ratio) ??
+		toNonEmptyString(bytedanceConfig.aspectRatio) ??
+		ir.aspectRatio ??
+		ir.ratio;
 	const inputVideoSource = normalizeInputSource(ir.inputVideo ?? ir.input?.video);
-	const inputVideoCount = inputVideoSource ? 1 : 0;
+	const referencedVideoCount = (ir.inputReferences ?? []).filter((entry) => entry.type === "video").length;
+	const inputVideoCount = Math.max(referencedVideoCount, inputVideoSource ? 1 : 0);
 	const inputVideoSeconds =
 		toNonNegativeNumber(
 			bytedanceConfig.input_video_seconds ??
@@ -227,14 +249,16 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			bytedanceConfig.video_input_seconds ??
 			bytedanceConfig.videoInputSeconds,
 		) ??
-		(inputVideoSource ? (seconds ?? 1) : 0);
+		(inputVideoCount > 0 ? (seconds ?? 1) * inputVideoCount : 0);
 	const frameRateForPricing =
 		toPositiveNumber(bytedanceConfig.frame_rate ?? bytedanceConfig.frameRate ?? ir.frameRate ?? ir.fps);
 	const keyInfo = resolveProviderKey(
 		{ providerId: args.providerId, byokMeta: args.byokMeta, forceGatewayKey: args.meta.forceGatewayKey },
 		() => {
 			const bindings = getBindings() as unknown as Record<string, string | undefined>;
-			return bindings.BYTEDANCE_SEED_API_KEY;
+			return bytePlus
+				? bindings.BYTEPLUS_API_KEY || bindings.BYTEDANCE_SEED_API_KEY
+				: bindings.BYTEDANCE_SEED_API_KEY || bindings.BYTEPLUS_API_KEY;
 		},
 	);
 	const requestObject = buildSeedanceRequest(ir, model);
@@ -258,6 +282,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			requestOptions: buildVideoPricingRequestOptions({
 				size,
 				resolution: ir.resolution,
+				aspect_ratio: aspectRatioForPricing,
 				quality,
 				seconds: seconds ?? undefined,
 				input_video_count: inputVideoCount,
@@ -368,7 +393,11 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	}
 
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
-	const baseUrl = String(bindings.BYTEDANCE_SEED_BASE_URL || DEFAULT_BYTEDANCE_BASE_URL).replace(/\/+$/, "");
+	const baseUrl = String(
+		(bytePlus
+			? bindings.BYTEPLUS_BASE_URL || bindings.BYTEDANCE_SEED_BASE_URL
+			: bindings.BYTEDANCE_SEED_BASE_URL || bindings.BYTEPLUS_BASE_URL) || DEFAULT_BYTEDANCE_BASE_URL,
+	).replace(/\/+$/, "");
 
 	let res: Response;
 	try {
@@ -443,6 +472,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				model,
 				seconds: seconds ?? null,
 				resolution: size ?? null,
+				aspectRatio: aspectRatioForPricing ?? null,
 				quality,
 				inputVideoCount,
 				inputVideoSeconds,

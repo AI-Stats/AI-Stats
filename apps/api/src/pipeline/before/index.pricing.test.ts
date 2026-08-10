@@ -245,6 +245,42 @@ describe("beforeRequest pricing loss-prevention", () => {
 		expect(result.ok).toBe(true);
 	});
 
+	it("captures parsed model metadata before a context guard failure", async () => {
+		guardJsonMock.mockResolvedValue({
+			ok: true,
+			value: { model: "openai/gpt-5-nano", input: "private prompt" },
+		});
+		guardZodMock.mockReturnValue({
+			ok: true,
+			value: { model: "openai/gpt-5-nano", input: "private prompt" },
+		});
+		guardModelMock.mockReturnValue({
+			ok: true,
+			value: { model: "openai/gpt-5-nano", stream: false },
+		});
+		guardContextMock.mockResolvedValue({
+			ok: false,
+			response: new Response(JSON.stringify({ error: "insufficient_funds" }), { status: 402 }),
+		});
+		const snapshots: unknown[] = [];
+		const req = new Request("https://gateway.local/v1/responses", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ model: "openai/gpt-5-nano", input: "private prompt" }),
+		});
+
+		const result = await beforeRequest(req, "responses", new Timer(), null, {
+			onObservabilitySnapshot: (snapshot) => snapshots.push(snapshot),
+		});
+
+		expect(result.ok).toBe(false);
+		expect(snapshots.at(-1)).toEqual({
+			requestPayload: { model: "openai/gpt-5-nano", input: "private prompt" },
+			requestedModel: "openai/gpt-5-nano",
+			model: "openai/gpt-5-nano",
+		});
+	});
+
 	it("loads workspace policy concurrently with request context", async () => {
 		const provider = providerWithPricingRules(1);
 		let resolveContext!: (value: any) => void;

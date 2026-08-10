@@ -6,7 +6,7 @@
   "description": "Fish Audio's hosted speech generation, transcription, and voice design API.",
   "link": "https://fish.audio/developers/",
   "pricing_source_url": "https://docs.fish.audio/developer-guide/models-pricing/pricing-and-rate-limits",
-  "country_code": null,
+  "country_code": "CN",
   "status": "NotReady",
   "colour": "#FF6B4A",
   "privacy_policy_url": "https://fish.audio/privacy/",
@@ -24,6 +24,12 @@
   "api_formats": [],
   "service_tiers": ["standard", "free"],
   "sources": [
+    {
+      "kind": "official_privacy_notice",
+      "url": "https://fishaudio.org/en/privacy",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Fish Audio's official privacy notice identifies Shanghai Qita Dynamic Technology Co., Ltd. as the operating company and gives a registered address in Shanghai, China."
+    },
     { "kind": "documentation", "url": "https://docs.fish.audio/developer-guide/models-pricing/models-overview", "accessed_at": "2026-08-01T00:00:00Z", "notes": null }
   ],
   "verification": { "status": "verified", "checked_at": "2026-08-01T00:00:00Z", "notes": "Current models and prices verified from official Fish Audio documentation." }

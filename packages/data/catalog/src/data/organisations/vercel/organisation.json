@@ -2,7 +2,7 @@
   "organisation_id": "vercel",
   "name": "Vercel",
   "country_code": "US",
-  "description": "Vercel is a developer cloud platform for building and deploying web experiences (including AI apps), providing tooling and infrastructure for shipping and scaling modern frontends.",
+  "description": "Vercel is a developer cloud platform headquartered in San Francisco, California, for building and deploying web experiences (including AI apps), providing tooling and infrastructure for shipping and scaling modern frontends.",
   "colour": "#000000",
   "organisation_links": [
     {
@@ -28,10 +28,17 @@
   ],
   "status": "active",
   "routable": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_company_event_page",
+      "url": "https://vercel.com/go/builder-day",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Vercel's official Builder Day page identifies its San Francisco headquarters at 201 Mission Street."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Location metadata verified; the broader catalogue record was not re-audited."
   }
 }

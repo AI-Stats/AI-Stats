@@ -22,7 +22,7 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": null,
   "regional_pricing_notes": null,
-  "country_code": null,
+  "country_code": "US",
   "status": "Active",
   "colour": null,
   "gateway_kind": "catalogue",
@@ -37,6 +37,12 @@
   "api_formats": [],
   "service_tiers": [],
   "sources": [
+    {
+      "kind": "official_company_blog",
+      "url": "https://blogs.vultr.com/entrepreneur-of-the-year-2022-florida-award-finalists",
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Vultr's official blog describes its headquarters in West Palm Beach, Florida, United States."
+    },
     {
       "kind": "models.dev",
       "url": "https://models.dev/api.json",

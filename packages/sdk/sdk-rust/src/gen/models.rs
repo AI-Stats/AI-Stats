@@ -686,11 +686,54 @@ pub struct FusionToolDefinition {
 	pub r#type: String,
 }
 
+pub struct GatewayCapabilities {
+	pub endpoints: Option<Vec<String>>,
+	pub parameter_details: HashMap<String, String>,
+	pub parameters: Vec<String>,
+}
+
+pub type GatewayCapabilityStatus = JsonValue;
+
 pub struct GatewayDatetimeToolDefinition {
 	pub parameters: Option<HashMap<String, String>>,
 	pub timezone: Option<String>,
 	pub r#type: String,
 }
+
+pub struct GatewayModalities {
+	pub input: Vec<String>,
+	pub output: Vec<String>,
+}
+
+pub struct GatewayModelLifecycle {
+	pub deprecated_at: Option<String>,
+	pub message: Option<String>,
+	pub released_at: Option<String>,
+	pub replacement_id: Option<String>,
+	pub retires_at: Option<String>,
+	pub status: Option<String>,
+}
+
+pub struct GatewayModelLimits {
+	pub input_tokens: Option<i64>,
+	pub output_tokens: Option<i64>,
+}
+
+pub struct GatewayModelOffer {
+	pub capabilities: HashMap<String, String>,
+	pub effective: HashMap<String, String>,
+	pub endpoints: Vec<String>,
+	pub modalities: HashMap<String, String>,
+	pub model: Option<String>,
+	pub pricing: HashMap<String, String>,
+	pub provider: HashMap<String, String>,
+	pub routable: bool,
+	pub routing: HashMap<String, String>,
+	pub status: String,
+	pub status_reason: String,
+}
+
+pub type GatewayModelOrganization = JsonValue;
 
 pub struct GatewayModelsResponse {
 	pub availability_mode: String,
@@ -698,9 +741,19 @@ pub struct GatewayModelsResponse {
 	pub models: Vec<HashMap<String, String>>,
 	pub offset: i64,
 	pub ok: bool,
-	pub privacy_scope: String,
 	pub total: i64,
 }
+
+pub struct GatewayPricing {
+	pub meters: HashMap<String, String>,
+	pub pricing_plan: String,
+}
+
+pub type GatewayPricingMeter = JsonValue;
+
+pub type GatewayProviderAvailabilityReason = JsonValue;
+
+pub type GatewayRoutingStatus = JsonValue;
 
 pub struct GatewayWebFetchToolDefinition {
 	pub max_chars: Option<i64>,
@@ -870,82 +923,58 @@ pub struct ManagementKeyUpdateResponse {
 pub type MessageContentPart = JsonValue;
 
 pub struct Model {
-	pub aliases: Option<Vec<String>>,
-	pub architecture: Option<HashMap<String, String>>,
-	pub availability: Option<HashMap<String, String>>,
-	pub canonical_slug: Option<String>,
-	pub created: Option<Option<i64>>,
-	pub deprecation_date: Option<Option<String>>,
-	pub description: Option<String>,
-	pub endpoints: Option<Vec<String>>,
-	pub id: Option<String>,
-	pub input_types: Option<Vec<String>>,
-	pub lifecycle: Option<ModelLifecycle>,
-	pub model_id: Option<String>,
-	pub name: Option<Option<String>>,
-	pub organisation_colour: Option<Option<String>>,
-	pub organisation_id: Option<Option<String>>,
-	pub organisation_name: Option<Option<String>>,
-	pub output_types: Option<Vec<String>>,
-	pub per_request_limits: Option<Option<HashMap<String, String>>>,
-	pub pricing: Option<HashMap<String, String>>,
-	pub pricing_detail: Option<HashMap<String, String>>,
-	pub providers: Option<Vec<HashMap<String, String>>>,
-	pub release_date: Option<Option<String>>,
-	pub retirement_date: Option<Option<String>>,
-	pub status: Option<Option<String>>,
-	pub supported_parameters: Option<Vec<String>>,
-	pub supported_parameters_detail: Option<HashMap<String, String>>,
-	pub supported_params: Option<Vec<String>>,
-	pub supported_params_detail: Option<HashMap<String, String>>,
-	pub top_provider: Option<HashMap<String, String>>,
-	pub top_provider_id: Option<Option<String>>,
+	pub aliases: Vec<String>,
+	pub availability: HashMap<String, String>,
+	pub base_model_id: String,
+	pub capabilities: HashMap<String, String>,
+	pub description: String,
+	pub id: String,
+	pub lifecycle: HashMap<String, String>,
+	pub limits: HashMap<String, String>,
+	pub modalities: HashMap<String, String>,
+	pub name: String,
+	pub offers: Vec<HashMap<String, String>>,
+	pub organization: Option<HashMap<String, String>>,
+	pub pricing: HashMap<String, String>,
+	pub variant: String,
+	pub variants: HashMap<String, String>,
 }
 
 pub struct ModelAvailability {
 	pub active_provider_count: i64,
+	pub coming_soon_provider_count: i64,
 	pub inactive_provider_count: i64,
 	pub provider_count: i64,
 	pub status: String,
 }
 
 pub struct ModelEndpointCapability {
-	pub availability_reason: String,
-	pub availability_status: String,
+	pub capabilities: HashMap<String, String>,
 	pub capability_id: String,
-	pub capability_status: String,
 	pub collection: String,
-	pub effective_from: Option<Option<String>>,
-	pub effective_to: Option<Option<String>>,
+	pub effective: HashMap<String, String>,
 	pub endpoint: String,
 	pub id: String,
-	pub input_modalities: Vec<String>,
-	pub is_active_gateway: bool,
-	pub model_routing_status: String,
-	pub output_modalities: Vec<String>,
+	pub modalities: HashMap<String, String>,
+	pub model: Option<String>,
 	pub pricing: HashMap<String, String>,
-	pub pricing_detail: HashMap<String, String>,
-	pub provider_id: String,
-	pub provider_model_slug: Option<Option<String>>,
-	pub provider_name: Option<Option<String>>,
-	pub provider_routing_status: String,
-	pub provider_status: String,
+	pub provider: HashMap<String, String>,
 	pub public_path: String,
-	pub supported_parameters: Vec<String>,
-	pub supported_parameters_detail: HashMap<String, String>,
+	pub routable: bool,
+	pub routing: HashMap<String, String>,
+	pub status: String,
+	pub status_reason: String,
 }
 
 pub struct ModelEndpointsResponse {
-	pub architecture: Option<HashMap<String, String>>,
 	pub availability_mode: String,
-	pub canonical_slug: String,
-	pub created: Option<Option<i64>>,
-	pub description: Option<String>,
+	pub description: String,
 	pub endpoints: Vec<HashMap<String, String>>,
 	pub id: String,
-	pub model_id: String,
-	pub name: Option<Option<String>>,
+	pub modalities: HashMap<String, String>,
+	pub name: String,
 	pub ok: String,
+	pub organization: Option<HashMap<String, String>>,
 }
 
 pub type ModelId = JsonValue;
@@ -978,14 +1007,6 @@ pub struct ModelProviderAvailability {
 	pub provider_status: String,
 	pub supported_parameters: Option<Vec<String>>,
 	pub supported_parameters_detail: Option<HashMap<String, String>>,
-}
-
-pub struct ModelsPrivacyScopeNotImplementedResponse {
-	pub code: String,
-	pub error: String,
-	pub message: String,
-	pub ok: String,
-	pub privacy_scope: String,
 }
 
 pub struct ModerationCategories {
@@ -1370,7 +1391,8 @@ pub struct VideoGenerationRequest {
 	pub duration: Option<i64>,
 	pub enhance_prompt: Option<bool>,
 	pub generate_audio: Option<bool>,
-	pub input_references: Option<Vec<HashMap<String, String>>>,
+	pub input_references: Option<Vec<String>>,
+	pub input_video_duration: Option<f64>,
 	pub model: String,
 	pub negative_prompt: Option<String>,
 	pub output: Option<HashMap<String, String>>,
@@ -1425,12 +1447,7 @@ pub struct VideoGenerationResponse {
 	pub websocket_url: Option<String>,
 }
 
-pub struct VideoInputReference {
-	pub image_url: Option<HashMap<String, String>>,
-	pub reference_type: Option<String>,
-	pub role: Option<String>,
-	pub r#type: String,
-}
+pub type VideoInputReference = JsonValue;
 
 pub struct VideoListResponse {
 	pub data: Option<Vec<HashMap<String, String>>>,

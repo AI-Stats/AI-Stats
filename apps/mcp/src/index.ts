@@ -5,6 +5,8 @@ import * as z from "zod/v4";
 import {
 	authenticatePhaseoUser,
 	type AuthenticatedPhaseoUser,
+	type GatewayMeter,
+	type GatewayModel,
 	type PhaseoEnv,
 	getModel,
 	listModels,
@@ -183,10 +185,28 @@ function normalise(value: string | null | undefined): string {
 	return value?.trim().toLowerCase() ?? "";
 }
 
-function tokenRate(value: string | null | undefined): number | null {
-	if (value === null || value === undefined || value.trim() === "") return null;
-	const rate = Number(value);
-	return Number.isFinite(rate) ? rate : null;
+export function tokenRate(meter: GatewayMeter | null | undefined): number | null {
+	if (!meter) return null;
+	if (meter.currency?.trim().toUpperCase() !== "USD") return null;
+	const price = Number(meter.price_per_unit);
+	const unitSize = Number(meter.unit_size);
+	if (!Number.isFinite(price) || !Number.isFinite(unitSize) || unitSize <= 0) return null;
+	return price / unitSize;
+}
+
+export function matchesModelProvider(
+	model: Pick<GatewayModel, "organization" | "offers">,
+	provider: string | undefined,
+): boolean {
+	if (!provider) return true;
+	const query = normalise(provider);
+	return normalise(model.organization?.name).includes(query)
+		|| model.offers.some((offer) => offer.routable && normalise(offer.provider.name).includes(query));
+}
+
+function tokenRateString(meter: GatewayMeter | null | undefined): string | null {
+	const rate = tokenRate(meter);
+	return rate === null ? null : String(rate);
 }
 
 function modelSummary(model: Awaited<ReturnType<typeof listModels>>[number]) {
@@ -194,14 +214,14 @@ function modelSummary(model: Awaited<ReturnType<typeof listModels>>[number]) {
 		id: model.id,
 		name: model.name,
 		description: model.description,
-		provider: model.organisation?.name ?? null,
-		contextTokens: model.context_length ?? model.top_provider?.context_length ?? null,
-		inputModalities: model.architecture.input_modalities,
-		outputModalities: model.architecture.output_modalities,
-		inputPricePerToken: model.pricing.prompt ?? null,
-		outputPricePerToken: model.pricing.completion ?? null,
-		supportsTools: model.supported_parameters.includes("tools"),
-		availableProviders: model.providers.map((provider) => provider.api_provider_id),
+		provider: model.organization?.name ?? null,
+		contextTokens: model.limits.input_tokens,
+		inputModalities: model.modalities.input,
+		outputModalities: model.modalities.output,
+		inputPricePerToken: tokenRateString(model.pricing.meters.input_tokens ?? model.pricing.meters.input_text_tokens),
+		outputPricePerToken: tokenRateString(model.pricing.meters.output_tokens ?? model.pricing.meters.output_text_tokens),
+		supportsTools: model.capabilities.parameters.includes("tools"),
+		availableProviders: model.offers.filter((offer) => offer.routable).map((offer) => offer.provider.id),
 	};
 }
 
@@ -501,14 +521,14 @@ export function createServer(env: PhaseoEnv, authenticatedUser: AuthenticatedPha
 			try {
 				const queryTerms = normalise(query).split(/\s+/).filter(Boolean);
 				const models = (await listModels(env, 250, { accessToken: authenticatedUser.accessToken })).filter((model) => {
-					const searchable = normalise([model.id, model.name, model.description, model.organisation?.name].filter(Boolean).join(" "));
-					const inputPrice = Number(model.pricing.prompt);
+					const searchable = normalise([model.id, model.name, model.description, model.organization?.name].filter(Boolean).join(" "));
+					const inputPrice = tokenRate(model.pricing.meters.input_tokens ?? model.pricing.meters.input_text_tokens);
 					return (
 						queryTerms.every((term) => searchable.includes(term)) &&
-						(!provider || normalise(model.organisation?.name).includes(normalise(provider))) &&
-						(!modality || model.architecture.input_modalities.map(normalise).includes(modality)) &&
-						(!minimumContextTokens || (model.context_length ?? model.top_provider?.context_length ?? 0) >= minimumContextTokens) &&
-						(maximumInputPricePerMillion === undefined || (Number.isFinite(inputPrice) && inputPrice * 1_000_000 <= maximumInputPricePerMillion))
+						matchesModelProvider(model, provider) &&
+						(!modality || model.modalities.input.map(normalise).includes(modality)) &&
+						(!minimumContextTokens || (model.limits.input_tokens ?? 0) >= minimumContextTokens) &&
+						(maximumInputPricePerMillion === undefined || (inputPrice !== null && inputPrice * 1_000_000 <= maximumInputPricePerMillion))
 					);
 				}).slice(0, limit);
 				const result = models.map(modelSummary);
@@ -594,9 +614,9 @@ export function createServer(env: PhaseoEnv, authenticatedUser: AuthenticatedPha
 			try {
 				const model = await getModel(env, modelId, { accessToken: authenticatedUser.accessToken });
 				if (!model) return { isError: true as const, content: [{ type: "text" as const, text: `No Phaseo model exists with ID "${modelId}".` }] };
-				const inputRate = tokenRate(model.pricing.prompt);
-				const cachedRate = tokenRate(model.pricing.input_cache_read);
-				const outputRate = tokenRate(model.pricing.completion);
+				const inputRate = tokenRate(model.pricing.meters.input_tokens ?? model.pricing.meters.input_text_tokens);
+				const cachedRate = tokenRate(model.pricing.meters.implicit_cached_input_text_tokens ?? model.pricing.meters.cached_read_text_tokens);
+				const outputRate = tokenRate(model.pricing.meters.output_tokens ?? model.pricing.meters.output_text_tokens);
 				if (inputRate === null || outputRate === null || (cachedInputTokens > 0 && cachedRate === null)) {
 					return { isError: true as const, content: [{ type: "text" as const, text: `Phaseo does not currently expose enough token pricing to estimate ${modelId}.` }] };
 				}
@@ -679,9 +699,27 @@ function openAiAppsChallenge(env: PhaseoEnv): Response {
 	});
 }
 
+function isAllowedMcpOrigin(request: Request): boolean {
+	const value = request.headers.get("origin");
+	if (!value) return true;
+	if (value === "null" || value.length > 2048) return false;
+	try {
+		const origin = new URL(value);
+		if (origin.username || origin.password || origin.pathname !== "/" || origin.search || origin.hash) return false;
+		if (origin.protocol === "https:") return true;
+		return origin.protocol === "http:"
+			&& (origin.hostname === "localhost" || origin.hostname === "127.0.0.1" || origin.hostname === "::1" || origin.hostname === "[::1]");
+	} catch {
+		return false;
+	}
+}
+
 export default {
 	async fetch(request: Request, env: PhaseoEnv, ctx: ExecutionContext): Promise<Response> {
 		const url = new URL(request.url);
+		if (url.pathname === "/mcp" && !isAllowedMcpOrigin(request)) {
+			return secureResponse(new Response("Origin is not allowed.", { status: 403 }));
+		}
 		if (request.method === "OPTIONS") return secureResponse(new Response(null, { status: 204 }));
 		if (url.pathname === "/.well-known/openai-apps-challenge") {
 			if (request.method !== "GET" && request.method !== "HEAD") {
@@ -710,6 +748,8 @@ export default {
 			route: "/mcp",
 			legacy: "stateless",
 			allowedHostnames: ["mcp.phaseo.app"],
+			// Origin syntax and scheme are validated above; the handler must remain
+			// interoperable with browser-based MCP hosts on arbitrary HTTPS domains.
 			allowedOriginHostnames: "*",
 			corsOptions: false,
 			authContext: { props: { workspaceId: authenticatedUser.workspaceId } },
