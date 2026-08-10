@@ -468,6 +468,14 @@ export async function finalizeVideoStatusIfTerminal(args: {
 		toFiniteNumber((args.requestOptions as any)?.video_params?.frame_rate),
 		toFiniteNumber(args.videoMeta?.frameRate),
 	].find((value): value is number => value != null && value > 0);
+	const aspectRatioCandidate = [
+		(args.requestOptions as any)?.aspect_ratio,
+		(args.requestOptions as any)?.aspectRatio,
+		(args.requestOptions as any)?.ratio,
+		(args.requestOptions as any)?.video_params?.aspect_ratio,
+		(args.requestOptions as any)?.video_params?.ratio,
+		args.videoMeta?.aspectRatio,
+	].find((value): value is string => typeof value === "string" && value.trim().length > 0);
 	const totalTokensCandidate = [
 		toFiniteNumber((args.requestOptions as any)?.total_tokens),
 		toFiniteNumber((args.requestOptions as any)?.video_params?.total_tokens),
@@ -487,6 +495,7 @@ export async function finalizeVideoStatusIfTerminal(args: {
 	const baseRequestOptions = (args.requestOptions ?? {}) as Record<string, unknown>;
 	const pricingRequestOptions = buildVideoPricingRequestOptions({
 		resolution: args.resolution ?? args.videoMeta?.resolution ?? null,
+		aspect_ratio: aspectRatioCandidate,
 		quality: args.quality ?? args.videoMeta?.quality ?? null,
 		audio: audioCandidate,
 		input_image_count: normalizedInputImageCount,

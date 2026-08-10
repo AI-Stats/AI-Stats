@@ -26,6 +26,7 @@ export type VideoJobMeta = {
 	seconds?: number | null;
 	outputCount?: number | null;
 	resolution?: string | null;
+	aspectRatio?: string | null;
 	quality?: string | null;
 	audio?: boolean | null;
 	inputImageCount?: number | null;
