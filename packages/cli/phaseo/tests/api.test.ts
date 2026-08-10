@@ -213,7 +213,7 @@ test("ignores callback hits until an authorization code is present", () => {
 
 test("renders branded callback states without external assets", () => {
 	const success = renderCallbackPage("success");
-	assert.match(success, /Authorization received/);
+	assert.doesNotMatch(success, /Authorization received/i);
 	assert.match(success, /Return to your terminal/);
 	assert.match(success, /Secure local callback from Phaseo CLI/);
 	assert.match(success, /<svg viewBox="0 0 64 64"/);

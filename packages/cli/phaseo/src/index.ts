@@ -703,7 +703,7 @@ export function inspectCallbackRequest(
 export function renderCallbackPage(state: "pending" | "success" | "error"): string {
 	const copy = state === "success"
 		? {
-			eyebrow: "Authorization received",
+			eyebrow: null,
 			title: "Return to your terminal",
 			description: "Phaseo CLI has received the approval. Your terminal will finish signing you in, and you can close this tab.",
 			statusClass: "success",
@@ -731,7 +731,7 @@ export function renderCallbackPage(state: "pending" | "success" | "error"): stri
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<meta name="color-scheme" content="light dark">
-	<title>${copy.eyebrow} · Phaseo CLI</title>
+	<title>${copy.title} · Phaseo CLI</title>
 	<style>
 		:root{font-family:"Segoe UI",system-ui,sans-serif;color:#18181b;background:#f4f4f5}
 		*{box-sizing:border-box}
@@ -760,7 +760,7 @@ export function renderCallbackPage(state: "pending" | "success" | "error"): stri
 		</header>
 		<section class="content">
 			<div class="status ${copy.statusClass}" aria-hidden="true"><svg viewBox="0 0 24 24">${copy.statusIcon}</svg></div>
-			<p class="eyebrow">${copy.eyebrow}</p>
+			${copy.eyebrow ? `<p class="eyebrow">${copy.eyebrow}</p>` : ""}
 			<h1>${copy.title}</h1>
 			<p class="description">${copy.description}</p>
 		</section>
