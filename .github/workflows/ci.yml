@@ -40,8 +40,50 @@ env:
     NODE_VERSION: 22
 
 jobs:
+    prepare-cli-release:
+        name: Prepare CLI release
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish_cli == true
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  persist-credentials: false
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              with:
+                  version: 10.33.0
+                  run_install: false
+                  standalone: true
+
+            - name: Setup Node.js
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  package-manager-cache: false
+
+            - name: Restore lockfile (guard setup-node cache mutation)
+              run: git checkout -- pnpm-lock.yaml
+
+            - name: Install dependencies
+              run: corepack pnpm install --frozen-lockfile
+
+            - name: Build, test, and pack CLI
+              run: pnpm run validate:cli
+
+            - name: Upload CLI package
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+              with:
+                  name: phaseo-cli-package
+                  path: .tmp/cli-pack/*.tgz
+                  if-no-files-found: error
+                  retention-days: 1
+
     publish-cli:
         name: Publish CLI
+        needs: prepare-cli-release
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish_cli == true
         runs-on: ubuntu-latest
         environment: release
@@ -58,13 +100,6 @@ jobs:
               with:
                   persist-credentials: false
 
-            - name: Setup pnpm
-              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
-              with:
-                  version: 10.33.0
-                  run_install: false
-                  standalone: true
-
             - name: Setup Node.js
               uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
               with:
@@ -72,14 +107,11 @@ jobs:
                   registry-url: https://registry.npmjs.org
                   package-manager-cache: false
 
-            - name: Restore lockfile (guard setup-node cache mutation)
-              run: git checkout -- pnpm-lock.yaml
-
-            - name: Install dependencies
-              run: corepack pnpm install --frozen-lockfile
-
-            - name: Build, test, and pack CLI
-              run: pnpm run validate:cli
+            - name: Download CLI package
+              uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+              with:
+                  name: phaseo-cli-package
+                  path: cli-package
 
             - name: Check CLI release status
               id: cli-npm-release
@@ -117,7 +149,14 @@ jobs:
 
             - name: Publish CLI to npm
               if: steps.cli-npm-release.outputs.should_publish == 'true'
-              run: pnpm --filter @phaseo/cli publish --access public --no-git-checks
+              shell: bash
+              run: |
+                  mapfile -t artifacts < <(find cli-package -maxdepth 1 -type f -name '*.tgz' -print)
+                  if [[ ${#artifacts[@]} -ne 1 ]]; then
+                    echo "::error::Expected exactly one CLI package artifact, found ${#artifacts[@]}"
+                    exit 1
+                  fi
+                  npm publish "${artifacts[0]}" --access public --ignore-scripts
 
     data:
         name: Validate data
