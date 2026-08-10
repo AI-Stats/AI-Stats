@@ -1,5 +1,17 @@
 # @phaseo/cli
 
+## 0.2.0
+
+### Minor Changes
+
+- [#1531](https://github.com/phaseoteam/Phaseo/pull/1531) [`89d937e`](https://github.com/phaseoteam/Phaseo/commit/89d937efad68dfdb6ccd2ce8c7482be9897eddfb) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Replace the legacy models response with the Phaseo-native catalogue, including lifecycle, modality, token-limit, capability, availability, pricing, and provider-offer data.
+
+  Improve command guidance with scoped group help, actionable unknown-command errors, a `v` version alias, published-version checks, and sanitized catalogue output.
+
+### Patch Changes
+
+- [#1286](https://github.com/phaseoteam/Phaseo/pull/1286) [`7be11cd`](https://github.com/phaseoteam/Phaseo/commit/7be11cd461a2cb5243c8e5c3db376cdee879a113) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Add CLI management for gated, explicitly consented data contribution settings.
+
 ## 0.1.2
 
 ### Patch Changes
