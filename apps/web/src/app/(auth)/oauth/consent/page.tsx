@@ -190,11 +190,11 @@ async function ConsentPageContent({ searchParams }: ConsentPageProps) {
 			throw new Error("Authorization server returned an unsafe redirect URL");
 		}
 
-		resolvedClientId =
-			(typeof params.client_id === "string" && params.client_id.trim()) ||
-			(typeof authorizationDetails.client?.id === "string"
-				? authorizationDetails.client.id
-				: undefined);
+		// Authorization details come from the OAuth server and are authoritative.
+		// Never let query parameters replace the client identity used for branding.
+		resolvedClientId = typeof authorizationDetails.client?.id === "string"
+			? authorizationDetails.client.id
+			: undefined;
 		resolvedRedirectUri = authorizationDetails.redirect_uri;
 		requestedScopes = authorizationDetails.scope
 			.split(" ")
