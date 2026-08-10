@@ -16,6 +16,7 @@ import {
 	buildModelsListPath,
 	callbackListenHost,
 	helpKeyForCommand,
+	isCommandGroup,
 	parseArgs,
 	renderVersionText,
 	inspectCallbackRequest,
@@ -25,6 +26,9 @@ import {
 	renderLoginMenu,
 	renderHelp,
 	renderOneTimeClientSecret,
+	renderModelDetails,
+	renderModelListItem,
+	unknownCommandMessage,
 	windowsBrowserOpenArgs,
 	validateLoopbackRedirectUri,
 } from "../src/index.ts";
@@ -199,6 +203,22 @@ test("removes terminal control characters from human-readable errors", () => {
 	assert.equal(sanitizeTerminalText("first\n\tsecond\r\nthird"), "first\n\tsecond\r\nthird");
 });
 
+test("sanitizes API-controlled values in human-readable model output", () => {
+	const model = {
+		id: "model\u001b[31m",
+		name: "Unsafe\u0007 Name",
+		organization: { name: "Lab\u009b" },
+		modalities: { input: ["text\u001b"], output: ["text"] },
+		limits: { input_tokens: 128_000, output_tokens: 4_096 },
+		availability: { status: "active\u001b", active_provider_count: 1 },
+	};
+	const listItem = renderModelListItem(model);
+	const details = renderModelDetails(model);
+	assert.doesNotMatch(listItem, /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/);
+	assert.doesNotMatch(details, /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/);
+	assert.match(details, /Organization: Lab /);
+});
+
 test("only accepts loopback browser callback URLs", () => {
 	assert.equal(
 		validateLoopbackRedirectUri("http://127.0.0.1:8976/callback"),
@@ -232,6 +252,19 @@ test("resolves help text for command groups and leaf commands", () => {
 	assert.match(renderHelp(["endpoints"]), /phaseo endpoints list/);
 	assert.match(renderHelp(["webhooks", "create"]), /--show-secret/);
 	assert.match(renderHelp(["models", "get"]), /phaseo models get <model-id>/);
+	assert.equal(helpKeyForCommand(["v"]), "version");
+	assert.match(renderHelp(["v"]), /compare it with the latest published release/);
+	assert.match(renderHelp(["api"]), /Send an authenticated request/);
+	assert.equal(isCommandGroup("api"), true);
+	assert.equal(isCommandGroup("login"), false);
+	assert.equal(
+		unknownCommandMessage(["api", "fetch"]),
+		"Unknown command: api fetch\nRun `phaseo api --help` for available commands.",
+	);
+	assert.equal(
+		unknownCommandMessage(["wat"]),
+		"Unknown command: wat\nRun `phaseo --help` for available commands.",
+	);
 });
 
 test("builds logs list filters for the API", () => {
@@ -272,6 +305,10 @@ test("treats short and long root flags as flags instead of commands", () => {
 		flags: { version: true },
 	});
 	assert.deepEqual(parseArgs(["-v"]), {
+		command: [],
+		flags: { version: true },
+	});
+	assert.deepEqual(parseArgs(["-V"]), {
 		command: [],
 		flags: { version: true },
 	});
