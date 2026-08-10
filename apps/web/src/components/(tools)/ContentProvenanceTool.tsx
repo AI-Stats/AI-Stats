@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
 	CheckCircle2,
@@ -60,7 +60,7 @@ export default function ContentProvenanceTool() {
 		if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
 	}, []);
 
-	function chooseFile(nextFile?: File) {
+	const chooseFile = useCallback((nextFile?: File) => {
 		setResult(null);
 		setError(null);
 		if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
@@ -86,7 +86,20 @@ export default function ContentProvenanceTool() {
 			previewUrlRef.current = nextPreviewUrl;
 			setPreviewUrl(nextPreviewUrl);
 		}
-	}
+	}, []);
+
+	useEffect(() => {
+		function handlePaste(event: ClipboardEvent) {
+			const pastedImage = Array.from(event.clipboardData?.files ?? [])
+				.find((candidate) => candidate.type.startsWith("image/"));
+			if (!pastedImage) return;
+			event.preventDefault();
+			chooseFile(pastedImage);
+		}
+
+		window.addEventListener("paste", handlePaste);
+		return () => window.removeEventListener("paste", handlePaste);
+	}, [chooseFile]);
 
 	async function checkFile() {
 		if (!file || checking) return;
@@ -176,8 +189,8 @@ export default function ContentProvenanceTool() {
 							) : (
 								<button type="button" onClick={() => inputRef.current?.click()} className="flex flex-col items-center rounded-xl px-4 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
 									<span className="mb-4 rounded-2xl border bg-background p-3 shadow-xs transition-transform group-hover:-translate-y-0.5"><UploadCloud className="size-7 text-primary" /></span>
-									<span className="font-medium hover:text-primary">Drop a file here or choose a file</span>
-									<span className="mt-1 text-sm text-muted-foreground">Images and audio · 20 MB maximum</span>
+									<span className="font-medium hover:text-primary">Drop, choose, or paste an image</span>
+									<span className="mt-1 text-sm text-muted-foreground">Images and audio · Ctrl/Cmd+V · 20 MB maximum</span>
 								</button>
 							)}
 						</div>
