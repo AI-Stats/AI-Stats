@@ -27,7 +27,6 @@ import {
 	MessageSquareMore,
 	Sun,
 	Users,
-	Wrench,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -137,7 +136,6 @@ export default function HeaderClient({
 		{ href: "/api-providers", label: "Providers", icon: Server },
 		{ href: "/apps", label: "Apps", icon: AppWindow },
 		{ href: "/rankings", label: "Rankings", icon: Trophy },
-		{ href: "/tools", label: "Tools", icon: Wrench },
 	];
 	const docsHref = "https://phaseo.app/docs/v1";
 

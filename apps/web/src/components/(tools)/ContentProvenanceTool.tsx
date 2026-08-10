@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import {
 	CheckCircle2,
 	FileAudio,
@@ -47,15 +48,24 @@ function resultLabel(type: string): string {
 
 export default function ContentProvenanceTool() {
 	const inputRef = useRef<HTMLInputElement>(null);
+	const previewUrlRef = useRef<string | null>(null);
 	const [file, setFile] = useState<File | null>(null);
 	const [result, setResult] = useState<ProvenanceResponse | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [checking, setChecking] = useState(false);
 	const [dragging, setDragging] = useState(false);
+	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+	useEffect(() => () => {
+		if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+	}, []);
 
 	function chooseFile(nextFile?: File) {
 		setResult(null);
 		setError(null);
+		if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+		previewUrlRef.current = null;
+		setPreviewUrl(null);
 		if (!nextFile) {
 			setFile(null);
 			return;
@@ -71,6 +81,11 @@ export default function ContentProvenanceTool() {
 			return;
 		}
 		setFile(nextFile);
+		if (nextFile.type.startsWith("image/")) {
+			const nextPreviewUrl = URL.createObjectURL(nextFile);
+			previewUrlRef.current = nextPreviewUrl;
+			setPreviewUrl(nextPreviewUrl);
+		}
 	}
 
 	async function checkFile() {
@@ -124,11 +139,10 @@ export default function ContentProvenanceTool() {
 							type="file"
 							accept="image/*,audio/*"
 							className="sr-only"
+							onClick={(event) => { event.currentTarget.value = ""; }}
 							onChange={(event) => chooseFile(event.target.files?.[0])}
 						/>
-						<button
-							type="button"
-							onClick={() => inputRef.current?.click()}
+						<div
 							onDragEnter={(event) => { event.preventDefault(); setDragging(true); }}
 							onDragOver={(event) => event.preventDefault()}
 							onDragLeave={() => setDragging(false)}
@@ -138,24 +152,44 @@ export default function ContentProvenanceTool() {
 								chooseFile(event.dataTransfer.files?.[0]);
 							}}
 							className={cn(
-								"group flex min-h-52 w-full flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-10 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+								"group relative flex min-h-52 w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed px-6 py-10 text-center transition-colors",
 								dragging ? "border-primary bg-primary/5" : "border-border bg-muted/15 hover:border-primary/50 hover:bg-muted/30",
 							)}
 						>
-							{file ? (
-								<>
-									<div className="mb-4 rounded-2xl border bg-background p-3 shadow-xs"><FileIcon className="size-7 text-primary" /></div>
+							{file && previewUrl ? (
+								<div className="relative min-h-52 w-full">
+									<Image
+										src={previewUrl}
+										alt={`Preview of ${file.name}`}
+										fill
+										unoptimized
+										sizes="(max-width: 1024px) 100vw, 60vw"
+										className="object-contain"
+									/>
+								</div>
+							) : file ? (
+								<button type="button" onClick={() => inputRef.current?.click()} className="flex flex-col items-center rounded-xl px-4 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+									<span className="mb-4 rounded-2xl border bg-background p-3 shadow-xs"><FileIcon className="size-7 text-primary" /></span>
 									<span className="max-w-full truncate font-medium">{file.name}</span>
 									<span className="mt-1 text-sm text-muted-foreground">{formatBytes(file.size)} · Click to replace</span>
-								</>
+								</button>
 							) : (
-								<>
-									<div className="mb-4 rounded-2xl border bg-background p-3 shadow-xs transition-transform group-hover:-translate-y-0.5"><UploadCloud className="size-7 text-primary" /></div>
-									<span className="font-medium">Drop a file here or choose a file</span>
+								<button type="button" onClick={() => inputRef.current?.click()} className="flex flex-col items-center rounded-xl px-4 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+									<span className="mb-4 rounded-2xl border bg-background p-3 shadow-xs transition-transform group-hover:-translate-y-0.5"><UploadCloud className="size-7 text-primary" /></span>
+									<span className="font-medium hover:text-primary">Drop a file here or choose a file</span>
 									<span className="mt-1 text-sm text-muted-foreground">Images and audio · 20 MB maximum</span>
-								</>
+								</button>
 							)}
-						</button>
+						</div>
+						{file && previewUrl ? (
+							<div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-muted/15 px-3 py-2.5">
+								<div className="min-w-0">
+									<p className="truncate text-sm font-medium">{file.name}</p>
+									<p className="text-xs text-muted-foreground">{formatBytes(file.size)}</p>
+								</div>
+								<Button type="button" variant="outline" size="sm" onClick={() => inputRef.current?.click()}>Change image</Button>
+							</div>
+						) : null}
 						{error ? <Alert variant="destructive"><ShieldQuestion className="size-4" /><AlertTitle>Couldn&apos;t check this file</AlertTitle><AlertDescription>{error}</AlertDescription></Alert> : null}
 						<div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
 							<p className="text-xs leading-relaxed text-muted-foreground">Your file is sent to OpenAI for this check. Phaseo does not store it.</p>

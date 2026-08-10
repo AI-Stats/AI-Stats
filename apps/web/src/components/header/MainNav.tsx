@@ -11,7 +11,6 @@ const LINKS = [
 	{ href: "/api-providers", label: "Providers" },
 	{ href: "/apps", label: "Apps" },
 	{ href: "/rankings", label: "Rankings" },
-	{ href: "/tools", label: "Tools" },
 ];
 
 export default function MainNav() {
