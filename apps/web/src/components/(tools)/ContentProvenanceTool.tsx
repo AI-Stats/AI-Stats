@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
 	CheckCircle2,
+	ChevronDown,
 	FileAudio,
 	FileImage,
 	Loader2,
@@ -246,6 +247,17 @@ export default function ContentProvenanceTool() {
 								</div>
 							))}
 						</div>
+						<details className="group mt-4 overflow-hidden rounded-xl border">
+							<summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset [&::-webkit-details-marker]:hidden">
+								<span>View raw response</span>
+								<ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+							</summary>
+							<div className="border-t bg-zinc-950 text-zinc-100">
+								<pre className="max-h-96 overflow-auto p-4 font-mono text-xs leading-5">
+									<code>{JSON.stringify(result, null, 2)}</code>
+								</pre>
+							</div>
+						</details>
 					</CardContent>
 				</Card>
 			) : null}
