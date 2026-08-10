@@ -793,7 +793,24 @@ async function fetchBytedanceVideoStatus(job: VideoJobRecord): Promise<VideoProv
 		toPositiveNumber((json as any).data?.frame_rate) ??
 		toPositiveNumber((json as any).data?.parameters?.frame_rate) ??
 		toPositiveNumber(job.meta?.frameRate);
+	const aspectRatio =
+		String(
+			(json as any).ratio ??
+			(json as any).aspect_ratio ??
+			(json as any).parameters?.ratio ??
+			(json as any).parameters?.aspect_ratio ??
+			(json as any).data?.ratio ??
+			(json as any).data?.aspect_ratio ??
+			(json as any).data?.parameters?.ratio ??
+			(json as any).data?.parameters?.aspect_ratio ??
+			job.meta?.aspectRatio ??
+			"",
+		).trim() || undefined;
 	const totalTokens =
+		toPositiveNumber((json as any).usage?.completion_tokens) ??
+		toPositiveNumber((json as any).usage?.completionTokens) ??
+		toPositiveNumber((json as any).data?.usage?.completion_tokens) ??
+		toPositiveNumber((json as any).data?.usage?.completionTokens) ??
 		toPositiveNumber((json as any).usage?.total_tokens) ??
 		toPositiveNumber((json as any).usage?.totalTokens) ??
 		toPositiveNumber((json as any).data?.usage?.total_tokens) ??
@@ -826,6 +843,7 @@ async function fetchBytedanceVideoStatus(job: VideoJobRecord): Promise<VideoProv
 				(json as any).data?.quality ??
 				(json as any).data?.parameters?.quality ??
 				job.meta?.quality,
+			aspect_ratio: aspectRatio,
 			input_video_seconds: inputVideoSeconds,
 			input_video_count: inputVideoCount,
 			frame_rate: frameRate,

@@ -218,6 +218,12 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
 	const quality = ir.quality ?? null;
 	const bytedanceConfig = extractBytedanceConfig((ir.rawRequest ?? {}) as Record<string, any>);
+	const aspectRatioForPricing =
+		toNonEmptyString(bytedanceConfig.ratio) ??
+		toNonEmptyString(bytedanceConfig.aspect_ratio) ??
+		toNonEmptyString(bytedanceConfig.aspectRatio) ??
+		ir.aspectRatio ??
+		ir.ratio;
 	const inputVideoSource = normalizeInputSource(ir.inputVideo ?? ir.input?.video);
 	const inputVideoCount = inputVideoSource ? 1 : 0;
 	const inputVideoSeconds =
@@ -258,6 +264,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			requestOptions: buildVideoPricingRequestOptions({
 				size,
 				resolution: ir.resolution,
+				aspect_ratio: aspectRatioForPricing,
 				quality,
 				seconds: seconds ?? undefined,
 				input_video_count: inputVideoCount,
@@ -443,6 +450,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				model,
 				seconds: seconds ?? null,
 				resolution: size ?? null,
+				aspectRatio: aspectRatioForPricing ?? null,
 				quality,
 				inputVideoCount,
 				inputVideoSeconds,
