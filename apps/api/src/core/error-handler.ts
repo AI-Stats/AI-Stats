@@ -644,6 +644,8 @@ export async function handleError({
     timingHeader,
     auditFailure,
     req,
+    requestBodyReq,
+    requestObservability,
 }: {
     stage: "before" | "execute",
     res: Response,
@@ -652,6 +654,12 @@ export async function handleError({
     timingHeader?: string,
     auditFailure: (args: any) => Promise<void>,
     req?: Request,
+    requestBodyReq?: Request,
+    requestObservability?: {
+        requestPayload: unknown;
+        requestedModel: string | null;
+        model?: string | null;
+    },
 }): Promise<Response> {
     const headers = new Headers({ "Content-Type": "application/json", "Cache-Control": "no-store" });
     if (timingHeader) {
@@ -746,7 +754,7 @@ export async function handleError({
         };
     })();
     const recoveredRequest = stage === "before"
-        ? await collectRequestObservability(req)
+        ? await collectRequestObservability(requestBodyReq)
         : { requestPayload: null, requestedModel: null };
     const statusCode = res.status ?? (stage === "before" ? 500 : 502);
     const requestedModel =
@@ -754,14 +762,17 @@ export async function handleError({
         normalizeBoundedString((ctx?.rawBody as any)?.model, 256) ??
         normalizeBoundedString((ctx?.body as any)?.model, 256) ??
         normalizeBoundedString(body?.model, 256) ??
+        normalizeBoundedString(requestObservability?.requestedModel, 256) ??
         recoveredRequest.requestedModel;
     const modelForObservability =
         normalizeBoundedString(ctx?.model, 256) ??
         normalizeBoundedString(body?.model, 256) ??
+        normalizeBoundedString(requestObservability?.model, 256) ??
         requestedModel;
     const requestPayloadForObservability =
         ctx?.rawBody ??
         ctx?.body ??
+        requestObservability?.requestPayload ??
         recoveredRequest.requestPayload ??
         null;
     const generationId =
