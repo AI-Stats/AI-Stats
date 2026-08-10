@@ -754,7 +754,7 @@ export async function handleError({
         };
     })();
     const recoveredRequest = stage === "before"
-        ? await collectRequestObservability(requestBodyReq ?? req)
+        ? await collectRequestObservability(requestBodyReq)
         : { requestPayload: null, requestedModel: null };
     const statusCode = res.status ?? (stage === "before" ? 500 : 502);
     const requestedModel =

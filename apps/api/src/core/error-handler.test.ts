@@ -382,7 +382,7 @@ describe("handleError", () => {
 		});
 	});
 
-	it("recovers the requested model from the original before-stage request", async () => {
+	it("recovers the requested model from the bounded before-stage request clone", async () => {
 		let capturedAuditArgs: any = null;
 		const upstream = new Response(
 			JSON.stringify({
@@ -400,12 +400,14 @@ describe("handleError", () => {
 				extra_field: true,
 			}),
 		});
+		const requestBodyReq = req.clone();
 
 		await handleError({
 			stage: "before",
 			res: upstream,
 			endpoint: "responses",
 			req,
+			requestBodyReq,
 			auditFailure: async (args) => {
 				capturedAuditArgs = args;
 			},
@@ -423,6 +425,34 @@ describe("handleError", () => {
 				requestedModel: "openai/gpt-5-nano",
 			}),
 		);
+	});
+
+	it("does not read an uncapped original request when the bounded clone is unavailable", async () => {
+		const req = new Request("https://example.test/v1/responses", {
+			method: "POST",
+			headers: { "content-type": "text/plain" },
+			body: JSON.stringify({ model: "openai/gpt-5-nano", input: "private prompt" }),
+		});
+
+		await handleError({
+			stage: "before",
+			res: new Response(JSON.stringify({
+				error: "unauthorised",
+				reason: "invalid_api_key",
+			}), { status: 401, headers: { "content-type": "application/json" } }),
+			endpoint: "responses",
+			req,
+			auditFailure: async () => {},
+		});
+
+		expect(req.bodyUsed).toBe(false);
+		expect(emitGatewayRequestEventMock).toHaveBeenCalledWith(expect.objectContaining({
+			model: null,
+			requestedModel: null,
+			requestPayload: null,
+			requestMethod: "POST",
+			requestPath: "/v1/responses",
+		}));
 	});
 
 	it("uses the parsed request snapshot after the request body has been consumed", async () => {
@@ -487,12 +517,14 @@ describe("handleError", () => {
 			headers: { "content-type": "application/json" },
 			body: '{"model":"anthropic/claude-sonnet-4","input":"hi",}',
 		});
+		const requestBodyReq = req.clone();
 
 		await handleError({
 			stage: "before",
 			res: upstream,
 			endpoint: "responses",
 			req,
+			requestBodyReq,
 			auditFailure: async (args) => {
 				capturedAuditArgs = args;
 			},
