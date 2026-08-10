@@ -44,6 +44,7 @@ jobs:
         name: Publish CLI
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish_cli == true
         runs-on: ubuntu-latest
+        environment: release
         concurrency:
             group: cli-release-publish
             cancel-in-progress: false
