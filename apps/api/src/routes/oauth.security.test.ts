@@ -172,6 +172,7 @@ vi.mock("@/lib/oauth/service", () => ({
 	}),
 	isValidPkceChallenge: vi.fn((value: string) => /^[A-Za-z0-9_-]{43}$/.test(value)),
 	isFirstPartyCliClient: vi.fn((clientId: string) => clientId === "phaseo_cli" || clientId === "aistats_cli"),
+	isReservedOAuthClientName: vi.fn((value: string) => /\b(?:phaseo|ai[\s_-]*stats)\b/i.test(value.normalize("NFKC"))),
 	isThirdPartyOAuthEnabled: vi.fn(() => true),
 	loadOAuthClient: vi.fn(async () => state.client),
 	makeAuthCodeExpiry: vi.fn(() => "2026-06-10T16:00:00.000Z"),

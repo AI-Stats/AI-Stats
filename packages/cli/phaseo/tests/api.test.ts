@@ -24,6 +24,7 @@ import {
 	nextLoginMenuIndex,
 	prefersDeviceCodeByEnvironment,
 	renderLoginBanner,
+	renderCallbackPage,
 	renderLoginMenu,
 	renderHelp,
 	renderOneTimeClientSecret,
@@ -208,6 +209,18 @@ test("ignores callback hits until an authorization code is present", () => {
 		ok: false,
 		pending: true,
 	});
+});
+
+test("renders branded callback states without external assets", () => {
+	const success = renderCallbackPage("success");
+	assert.doesNotMatch(success, /Authorization received/i);
+	assert.match(success, /Return to your terminal/);
+	assert.match(success, /Secure local callback from Phaseo CLI/);
+	assert.match(success, /<svg viewBox="0 0 64 64"/);
+	assert.doesNotMatch(success, /https?:\/\//);
+
+	assert.match(renderCallbackPage("pending"), /Waiting for authorization/);
+	assert.match(renderCallbackPage("error"), /Authorization not completed/);
 });
 
 test("removes terminal control characters from human-readable errors", () => {

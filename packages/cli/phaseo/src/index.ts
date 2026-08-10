@@ -700,6 +700,76 @@ export function inspectCallbackRequest(
 	return { ok: true, code, state };
 }
 
+export function renderCallbackPage(state: "pending" | "success" | "error"): string {
+	const copy = state === "success"
+		? {
+			eyebrow: null,
+			title: "Return to your terminal",
+			description: "Phaseo CLI has received the approval. Your terminal will finish signing you in, and you can close this tab.",
+			statusClass: "success",
+			statusIcon: "<path d=\"m8.5 12.5 2.25 2.25 4.75-5\"/>",
+		}
+		: state === "error"
+			? {
+				eyebrow: "Authorization not completed",
+				title: "Return to your terminal",
+				description: "Phaseo CLI did not receive approval. Your terminal will show what happened and let you try again.",
+				statusClass: "error",
+				statusIcon: "<path d=\"m9 9 6 6m0-6-6 6\"/>",
+			}
+			: {
+				eyebrow: "Waiting for authorization",
+				title: "Finish in Phaseo",
+				description: "Review the requested permissions and approve or deny access. Keep this tab open while authorization completes.",
+				statusClass: "pending",
+				statusIcon: "<circle cx=\"9\" cy=\"12\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"12\" cy=\"12\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15\" cy=\"12\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/>",
+			};
+
+	return `<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<meta name="color-scheme" content="light dark">
+	<title>${copy.title} · Phaseo CLI</title>
+	<style>
+		:root{font-family:"Segoe UI",system-ui,sans-serif;color:#18181b;background:#f4f4f5}
+		*{box-sizing:border-box}
+		body{min-height:100vh;margin:0;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 20%,#fff 0,#f4f4f5 52%,#e4e4e7 100%)}
+		main{width:min(100%,520px);overflow:hidden;border:1px solid #e4e4e7;border-radius:16px;background:rgba(255,255,255,.92);box-shadow:0 24px 70px rgba(24,24,27,.12)}
+		header{display:flex;align-items:center;gap:12px;padding:20px 22px;border-bottom:1px solid #e4e4e7}
+		.mark{display:grid;place-items:center;width:36px;height:36px;border-radius:8px;background:#18181b;color:#fff}
+		.brand{font-size:14px;font-weight:650;letter-spacing:-.01em}.product{margin-top:2px;color:#71717a;font-size:12px}
+		.content{padding:42px 36px 38px;text-align:center}
+		.status{display:grid;place-items:center;width:52px;height:52px;margin:0 auto 22px;border-radius:999px}
+		.status svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+		.status.success{color:#047857;background:#d1fae5}.status.error{color:#be123c;background:#ffe4e6}.status.pending{color:#52525b;background:#e4e4e7}
+		.eyebrow{margin:0 0 8px;color:#71717a;font-size:12px;font-weight:650;letter-spacing:.08em;text-transform:uppercase}
+		h1{margin:0;color:#18181b;font-size:28px;line-height:1.15;letter-spacing:-.035em}
+		.description{max-width:390px;margin:14px auto 0;color:#52525b;font-size:15px;line-height:1.65}
+		footer{display:flex;align-items:center;justify-content:center;gap:7px;padding:14px 20px;border-top:1px solid #e4e4e7;color:#71717a;font-size:12px}
+		.local{width:7px;height:7px;border-radius:999px;background:#10b981;box-shadow:0 0 0 3px #d1fae5}
+		@media (prefers-color-scheme:dark){:root{color:#fafafa;background:#09090b}body{background:radial-gradient(circle at 50% 20%,#27272a 0,#18181b 48%,#09090b 100%)}main{border-color:#3f3f46;background:rgba(24,24,27,.94);box-shadow:0 24px 70px rgba(0,0,0,.45)}header,footer{border-color:#3f3f46}.mark{background:#fafafa;color:#18181b}.product,.eyebrow,footer{color:#a1a1aa}h1{color:#fafafa}.description{color:#d4d4d8}.status.success{color:#6ee7b7;background:#064e3b}.status.error{color:#fda4af;background:#4c0519}.status.pending{color:#d4d4d8;background:#3f3f46}.local{box-shadow:0 0 0 3px #064e3b}}
+	</style>
+</head>
+<body>
+	<main>
+		<header>
+			<div class="mark" aria-hidden="true"><svg viewBox="0 0 64 64" width="27" height="27"><path fill="currentColor" d="M19.857 56H13V8h6.857v48ZM31.72 8c6.217 0 11.109 1.486 14.675 4.457 3.565 2.971 5.348 7.063 5.348 12.274s-1.783 9.303-5.348 12.275c-3.566 2.971-8.458 4.457-14.675 4.457h-8.435v-5.966h8.23c4.342 0 7.656-.915 9.942-2.743 2.286-1.874 3.429-4.548 3.429-8.023s-1.143-6.125-3.429-7.954c-2.286-1.874-5.6-2.811-9.942-2.811h-8.23V8h8.435Z"/></svg></div>
+			<div><div class="brand">Phaseo</div><div class="product">Command line interface</div></div>
+		</header>
+		<section class="content">
+			<div class="status ${copy.statusClass}" aria-hidden="true"><svg viewBox="0 0 24 24">${copy.statusIcon}</svg></div>
+			${copy.eyebrow ? `<p class="eyebrow">${copy.eyebrow}</p>` : ""}
+			<h1>${copy.title}</h1>
+			<p class="description">${copy.description}</p>
+		</section>
+		<footer><span class="local"></span>Secure local callback from Phaseo CLI</footer>
+	</main>
+</body>
+</html>`;
+}
+
 export function validateLoopbackRedirectUri(value: string): string {
 	const url = new URL(value);
 	const loopback = url.hostname === "127.0.0.1" || url.hostname === "::1" || url.hostname === "[::1]" || url.hostname === "localhost";
@@ -856,13 +926,21 @@ function createCallbackServer(args: { redirectUri: string; expectedState: string
 		if ("pending" in outcome) {
 			res.statusCode = 200;
 			res.setHeader("content-type", "text/html; charset=utf-8");
-			res.end("<!doctype html><html><body style=\"font-family:sans-serif;padding:24px\"><h1>Waiting for Phaseo authorization</h1><p>This browser window can stay open until authorization completes.</p></body></html>");
+			res.setHeader("cache-control", "no-store");
+			res.setHeader("content-security-policy", "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'");
+			res.setHeader("referrer-policy", "no-referrer");
+			res.setHeader("x-content-type-options", "nosniff");
+			res.end(renderCallbackPage("pending"));
 			return;
 		}
 		finish(outcome);
 		res.statusCode = 200;
 		res.setHeader("content-type", "text/html; charset=utf-8");
-		res.end("<!doctype html><html><body style=\"font-family:sans-serif;padding:24px\"><h1>Phaseo login complete</h1><p>You can return to your terminal now.</p></body></html>");
+		res.setHeader("cache-control", "no-store");
+		res.setHeader("content-security-policy", "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'");
+		res.setHeader("referrer-policy", "no-referrer");
+		res.setHeader("x-content-type-options", "nosniff");
+		res.end(renderCallbackPage(outcome.ok ? "success" : "error"));
 	});
 
 	return {
