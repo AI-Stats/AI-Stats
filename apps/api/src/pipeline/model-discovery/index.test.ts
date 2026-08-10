@@ -14,6 +14,7 @@ type SeenModelRow = {
 	model_id: string;
 	model_details: Record<string, unknown>;
 	pricing_details: null;
+	removal_pending?: boolean;
 };
 
 function buildPagedSupabase(rows: SeenModelRow[]) {
@@ -68,5 +69,22 @@ describe("fetchPreviousModelsByProviders", () => {
 
 		expect(state.byProvider.get("exact-provider")?.modelIds).toHaveLength(1_000);
 		expect(supabase.ranges).toEqual([[0, 999], [1_000, 1_999]]);
+	});
+
+	it("loads provisional removals with the provider snapshot", async () => {
+		const supabase = buildPagedSupabase([{
+			provider_id: "provider",
+			model_id: "occasionally-missing-model",
+			model_details: {},
+			pricing_details: null,
+			removal_pending: true,
+		}]);
+		getSupabaseAdminMock.mockReturnValue(supabase.client);
+
+		const state = await fetchPreviousModelsByProviders(["provider"]);
+
+		expect(state.byProvider.get("provider")?.pendingRemovalIds).toEqual(
+			new Set(["occasionally-missing-model"]),
+		);
 	});
 });

@@ -15,6 +15,7 @@ type ProviderSnapshot = {
     fetchedAt: string;
     modelCount: number;
     models: Record<string, unknown>;
+    pendingRemovalIds?: string[];
 };
 
 type DiscoveryState = {
@@ -129,11 +130,17 @@ type SeenModelUpsertRow = {
     pricing_details: unknown;
     last_seen_at: string;
     last_run_id: string;
+    removal_pending: boolean;
 };
 
 type SeenModelDeleteRow = {
     provider_id: string;
     model_id: string;
+};
+
+type SeenProviderState = {
+    modelIds: Set<string>;
+    pendingRemovalIds: Set<string>;
 };
 
 type ApiProviderModelAllowlistRow = {
@@ -395,6 +402,39 @@ function diffSnapshots(previous: ProviderSnapshot | undefined, current: Provider
     };
 }
 
+function stabilizeSnapshotRemovals(
+    previous: ProviderSnapshot | undefined,
+    current: ProviderSnapshot,
+    diff: ProviderDiff | null
+): { snapshot: ProviderSnapshot; diff: ProviderDiff | null } {
+    if (!previous || !diff || diff.removed.length === 0) {
+        return { snapshot: current, diff };
+    }
+
+    const pendingRemovalIds = new Set(previous.pendingRemovalIds ?? []);
+    const confirmed = diff.removed.filter((modelId) => pendingRemovalIds.has(modelId));
+    const provisional = diff.removed.filter((modelId) => !pendingRemovalIds.has(modelId));
+    const models = { ...current.models };
+    for (const modelId of provisional) models[modelId] = previous.models[modelId];
+
+    const stabilizedDiff = {
+        ...diff,
+        currentCount: Object.keys(models).length,
+        removed: confirmed,
+    };
+    return {
+        snapshot: {
+            ...current,
+            modelCount: Object.keys(models).length,
+            models,
+            ...(provisional.length > 0 ? { pendingRemovalIds: provisional } : {}),
+        },
+        diff: stabilizedDiff.added.length === 0 && stabilizedDiff.removed.length === 0 && stabilizedDiff.changed.length === 0
+            ? null
+            : stabilizedDiff,
+    };
+}
+
 function filterDiffByAllowlist(diff: ProviderDiff | null, allowlist: Set<string> | undefined): ProviderDiff | null {
     if (!diff) {
         return null;
@@ -499,10 +539,10 @@ async function updateRunFinish(
 async function loadSeenModelIdsByProvider(
     client: SupabaseAdminClient,
     providerIds: string[]
-): Promise<Map<string, Set<string>>> {
-    const out = new Map<string, Set<string>>();
+): Promise<Map<string, SeenProviderState>> {
+    const out = new Map<string, SeenProviderState>();
     for (const providerId of providerIds) {
-        out.set(providerId, new Set<string>());
+        out.set(providerId, { modelIds: new Set<string>(), pendingRemovalIds: new Set<string>() });
     }
 
     if (providerIds.length === 0) {
@@ -515,7 +555,7 @@ async function loadSeenModelIdsByProvider(
     while (true) {
         const { data, error } = await client
             .from("model_discovery_seen_models")
-            .select("provider_id, model_id")
+            .select("provider_id, model_id, removal_pending")
             .in("provider_id", providerIds)
             .range(from, from + pageSize - 1);
 
@@ -523,7 +563,11 @@ async function loadSeenModelIdsByProvider(
             throw new Error(error.message || "Failed to load model_discovery_seen_models");
         }
 
-        const rows = (data ?? []) as Array<{ provider_id: string | null; model_id: string | null }>;
+        const rows = (data ?? []) as Array<{
+            provider_id: string | null;
+            model_id: string | null;
+            removal_pending?: boolean;
+        }>;
         if (rows.length === 0) {
             break;
         }
@@ -532,7 +576,8 @@ async function loadSeenModelIdsByProvider(
             if (!row.provider_id || !row.model_id) continue;
             const bucket = out.get(row.provider_id);
             if (!bucket) continue;
-            bucket.add(row.model_id);
+            bucket.modelIds.add(row.model_id);
+            if (row.removal_pending === true) bucket.pendingRemovalIds.add(row.model_id);
         }
 
         if (rows.length < pageSize) {
@@ -586,6 +631,26 @@ async function deleteSeenModels(client: SupabaseAdminClient, rows: SeenModelDele
     }
 
     return deletedCount;
+}
+
+async function markPendingSeenModels(client: SupabaseAdminClient, rows: SeenModelDeleteRow[]): Promise<void> {
+    if (rows.length === 0) return;
+    const grouped = new Map<string, string[]>();
+    for (const row of rows) {
+        const modelIds = grouped.get(row.provider_id) ?? [];
+        modelIds.push(row.model_id);
+        grouped.set(row.provider_id, modelIds);
+    }
+    for (const [providerId, modelIds] of grouped) {
+        for (let index = 0; index < modelIds.length; index += UPSERT_BATCH_SIZE) {
+            const { error } = await client
+                .from("model_discovery_seen_models")
+                .update({ removal_pending: true })
+                .eq("provider_id", providerId)
+                .in("model_id", modelIds.slice(index, index + UPSERT_BATCH_SIZE));
+            if (error) throw new Error(error.message || "Failed to mark provisional model removals");
+        }
+    }
 }
 
 async function loadProviders(): Promise<ProviderDefinition[]> {
@@ -818,6 +883,7 @@ async function main(): Promise<void> {
     let apiModelAllowlistByProvider = new Map<string, Set<string>>();
     const upsertRows: SeenModelUpsertRow[] = [];
     const deleteRows: SeenModelDeleteRow[] = [];
+    const pendingRemovalRows: SeenModelDeleteRow[] = [];
     let staleModelsDeleted = 0;
     let runChangeEntries: ProviderChangeEntry[] = [];
     let upstreamIssueEntries: UpstreamDiscoveryIssueEntry[] = [];
@@ -881,7 +947,12 @@ async function main(): Promise<void> {
                 };
 
                 const previousSnapshot = previousState.providers[provider.id];
-                const rawDiff = diffSnapshots(previousSnapshot, currentSnapshot);
+                const fetchedDiff = diffSnapshots(previousSnapshot, currentSnapshot);
+                const { snapshot: stabilizedSnapshot, diff: rawDiff } = stabilizeSnapshotRemovals(
+                    previousSnapshot,
+                    currentSnapshot,
+                    fetchedDiff
+                );
                 if (rawDiff) {
                     const platformInfo = platformInfoByProviderId.get(provider.id) ?? {
                         platformId: provider.id,
@@ -895,7 +966,11 @@ async function main(): Promise<void> {
                 }
 
                 const currentModelIds = new Set(models.map((model) => model.id));
-                const previousSeenIds = seenModelIdsByProvider.get(provider.id) ?? new Set<string>();
+                const previousSeenState = seenModelIdsByProvider.get(provider.id) ?? {
+                    modelIds: new Set<string>(),
+                    pendingRemovalIds: new Set<string>(),
+                };
+                const providerPendingRemovalIds: string[] = [];
                 for (const model of models) {
                     const modelDetails = asRecord(model.payload) ?? { value: model.payload };
                     upsertRows.push({
@@ -906,18 +981,28 @@ async function main(): Promise<void> {
                         pricing_details: extractPricingDetails(modelDetails),
                         last_seen_at: fetchedAt,
                         last_run_id: runId,
+                        removal_pending: false,
                     });
                 }
-                for (const previousId of previousSeenIds) {
+                for (const previousId of previousSeenState.modelIds) {
                     if (!currentModelIds.has(previousId)) {
-                        deleteRows.push({
+                        const row = {
                             provider_id: provider.id,
                             model_id: previousId,
-                        });
+                        };
+                        if (previousSeenState.pendingRemovalIds.has(previousId)) {
+                            deleteRows.push(row);
+                        } else {
+                            pendingRemovalRows.push(row);
+                            providerPendingRemovalIds.push(previousId);
+                        }
                     }
                 }
-                seenModelIdsByProvider.set(provider.id, currentModelIds);
-                nextState.providers[provider.id] = currentSnapshot;
+                seenModelIdsByProvider.set(provider.id, {
+                    modelIds: new Set([...currentModelIds, ...providerPendingRemovalIds]),
+                    pendingRemovalIds: new Set(providerPendingRemovalIds),
+                });
+                nextState.providers[provider.id] = stabilizedSnapshot;
 
                 results.push({
                     providerId: provider.id,
@@ -963,6 +1048,7 @@ async function main(): Promise<void> {
 
         writeJson(STATE_PATH, nextState);
         await upsertSeenModels(db, upsertRows);
+        await markPendingSeenModels(db, pendingRemovalRows);
         staleModelsDeleted = await deleteSeenModels(db, deleteRows);
 
         const runTimestamp = nowIso();
