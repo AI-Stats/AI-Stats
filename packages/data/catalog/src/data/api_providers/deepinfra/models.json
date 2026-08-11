@@ -1831,6 +1831,71 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "nvidia/nemotron-3.5-lightning",
+    "provider_api_model_id": "deepinfra:nvidia/NVIDIA-Nemotron-3.5-Lightning",
+    "provider_model_slug": "nvidia/NVIDIA-Nemotron-3.5-Lightning",
+    "internal_model_id": "nvidia/nemotron-3.5-lightning",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 24576,
+    "effective_from": "2026-08-03T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api",
+        "url": "https://api.deepinfra.com/models/nvidia/NVIDIA-Nemotron-3.5-Lightning",
+        "accessed_at": "2026-08-11T00:00:00Z",
+        "notes": "Official DeepInfra model metadata confirms the public NVIDIA-Nemotron-3.5-Lightning deployment, OpenAI compatibility, tools, structured outputs, 1M context, and 24,576 maximum output tokens."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://deepinfra.com/nvidia/NVIDIA-Nemotron-3.5-Lightning",
+        "accessed_at": "2026-08-11T00:00:00Z",
+        "notes": "Official DeepInfra model page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-11T00:00:00Z",
+      "notes": "Verified against DeepInfra's live public model API and model page."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
     "provider_api_model_id": "deepinfra:nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
     "provider_model_slug": "nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning",
