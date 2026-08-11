@@ -2704,5 +2704,64 @@
       "notes": null
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/nemotron-3.5-lightning",
+    "provider_api_model_id": "nebius-token-factory:nvidia/Nemotron-3_5-Lightning",
+    "provider_model_slug": "nvidia/Nemotron-3_5-Lightning",
+    "internal_model_id": "nvidia/nemotron-3.5-lightning",
+    "is_active_gateway": true,
+    "quantization_scheme": "BF16",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-11T13:22:31",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "us-central1"
+      ],
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-11T13:22:31Z",
+        "notes": "Nebius Token Factory lists the active nvidia/Nemotron-3_5-Lightning flavor in us-central1, with BF16 quantization, 1M context, function calling, and the current model pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-11T13:22:31Z",
+      "notes": "Verified against Nebius Token Factory's live public model catalog."
+    },
+    "rate_limits": []
   }
 ]
