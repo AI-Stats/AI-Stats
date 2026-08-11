@@ -84,6 +84,16 @@ jobs:
               env:
                   NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
                   SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+                  FASTROUTER_API_KEY: ${{ secrets.FASTROUTER_API_KEY }}
+                  KILO_API_KEY: ${{ secrets.KILO_API_KEY }}
+                  NANOGPT_API_KEY: ${{ secrets.NANOGPT_API_KEY }}
+                  NOVITA_API_KEY: ${{ secrets.NOVITA_API_KEY }}
+                  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+                  ORCAROUTER_API_KEY: ${{ secrets.ORCAROUTER_API_KEY }}
+                  PIONEER_API_KEY: ${{ secrets.PIONEER_API_KEY }}
+                  POE_API_KEY: ${{ secrets.POE_API_KEY }}
+                  REQUESTY_API_KEY: ${{ secrets.REQUESTY_API_KEY }}
+                  ZENMUX_API_KEY: ${{ secrets.ZENMUX_API_KEY }}
               run: pnpm --filter @phaseo/web catalog:sync:provider-discovery -- --live --providers="${{ steps.provider-filter.outputs.providers }}"
 
             - name: Validate catalog changes

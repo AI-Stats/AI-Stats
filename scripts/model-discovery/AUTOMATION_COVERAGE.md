@@ -85,6 +85,7 @@ EmpirioLabs and LLM Gateway are watched and can notify on upstream changes, but 
 ## Operational behavior
 
 - The Cloudflare Worker polls provider catalogs, stores snapshots, compares model metadata and price-bearing payloads, and dispatches only affected providers.
+- The repository watcher keeps provider-specific source modules with `fetchModels`, `parseModels`, and a shared canonical translation stage; adding a source is a registry change rather than another endpoint switch in the runner.
 - Repository dispatches start the affected provider sync immediately; a single hourly batch run checks all configured providers as a backstop.
 - The sync creates or updates one shared ready-for-review PR and runs data, pricing, and gateway validation before notification.
 - Documentation sources are fingerprinted even when no structured parser exists, so an upstream page change is still visible in the report and notification path.

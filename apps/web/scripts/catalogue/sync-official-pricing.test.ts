@@ -1,4 +1,4 @@
-import { extractHtmlTableRows, extractOfficialPricing, safeOfficialPricingRules } from "./sync-official-pricing";
+import { anthropicMarkdownCandidates, extractHtmlTableRows, extractOfficialPricing, safeOfficialPricingRules } from "./sync-official-pricing";
 
 describe("official pricing extraction", () => {
 	test("preserves table row and cell boundaries", () => {
@@ -100,6 +100,25 @@ describe("official pricing extraction", () => {
 				input_text_tokens: 0.4,
 				cached_read_text_tokens: 0.04,
 				output_text_tokens: 1.2,
+			},
+		}]);
+	});
+
+	test("extracts Anthropic's official Markdown pricing table with effective dates", () => {
+		expect(anthropicMarkdownCandidates(`
+## Model pricing
+
+| Model | Base Input Tokens | 5m Cache Writes | Cache Hits & Refreshes | Output Tokens |
+| --- | --- | --- | --- | --- |
+| Claude Example 1 | $2 / MTok | $2.50 / MTok | $0.20 / MTok | $10 / MTok |
+| Claude Future starting December 31, 2099 | $3 / MTok | $3 / MTok | $0.30 / MTok | $12 / MTok |
+`, new Date("2026-08-11T00:00:00Z"))).toEqual([{
+			providerModel: "Claude Example 1",
+			meters: {
+				input_text_tokens: 2,
+				cached_write_text_tokens_5m: 2.5,
+				cached_read_text_tokens: 0.2,
+				output_text_tokens: 10,
 			},
 		}]);
 	});

@@ -3,6 +3,8 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { createClient } from "@supabase/supabase-js";
 import { normalizeProviderModelPricing } from "../../../api/src/pipeline/model-discovery/pricing-normalizers";
+import { getProviderSyncProvider, getProviderSyncProviderIds } from "./provider-sync/providers";
+import { parseProviderModelList } from "./provider-sync/provider";
 import type { OfficialPricingReport } from "./sync-official-pricing";
 import {
 	filesNamed,
@@ -60,30 +62,6 @@ const PROVIDERS_ROOT = path.join(DATA_ROOT, "api_providers");
 const PRICING_ROOT = path.join(DATA_ROOT, "pricing");
 const DRY_RUN = process.argv.includes("--dry-run");
 const LIVE_MODE = process.argv.includes("--live");
-
-const LIVE_PROVIDER_ENDPOINTS: Record<string, string> = {
-	fastrouter: "https://go.fastrouter.ai/api/v1/models",
-	kilo: "https://api.kilo.ai/api/gateway/models",
-	"nano-gpt": "https://nano-gpt.com/api/v1/models?detailed=true",
-	"novita-ai": "https://api.novita.ai/openai/models",
-	orcarouter: "https://api.orcarouter.ai/v1/models",
-	poe: "https://api.poe.com/v1/models",
-	pioneer: "https://api.pioneer.ai/v1/models",
-	requesty: "https://router.requesty.ai/v1/models",
-	vercel: "https://ai-gateway.vercel.sh/v1/models",
-	zenmux: "https://zenmux.ai/api/v1/models",
-};
-
-const LIVE_PROVIDER_API_KEY_ENVS: Record<string, string> = {
-	fastrouter: "FASTRAOUTER_API_KEY",
-	"nano-gpt": "NANOGPT_API_KEY",
-	"novita-ai": "NOVITA_API_KEY",
-	orcarouter: "ORCAROUTER_API_KEY",
-	poe: "POE_API_KEY",
-	pioneer: "PIONEER_API_KEY",
-	requesty: "REQUESTY_API_KEY",
-	zenmux: "ZENMUX_API_KEY",
-};
 
 const PRICING_CAPABILITIES = new Set([
 	"text.generate",
@@ -257,42 +235,45 @@ function newProviderModel(providerId: string, canonicalModelId: string, row: Dis
 }
 
 export function parseLiveDiscoveryRows(providerId: string, payload: unknown, accessedAt: string, sourceUrl: string): DiscoveryRow[] {
-	const body = asRecord(payload);
-	const models = Array.isArray(payload) ? payload : Array.isArray(body?.data) ? body.data : [];
-	return models.flatMap((value): DiscoveryRow[] => {
-		const model = asRecord(value);
-		if (!model) return [];
-		const modelId = model?.id ?? model?.model_id;
-		return typeof modelId === "string" && modelId.trim() ? [{
-			provider_id: providerId,
-			model_id: modelId.trim(),
-			model_details: model,
-			last_seen_at: accessedAt,
-			source_url: sourceUrl,
-		}] : [];
-	});
+	return parseProviderModelList(payload).map(({ id, details }) => ({
+		provider_id: providerId,
+		model_id: id,
+		model_details: details,
+		last_seen_at: accessedAt,
+		source_url: sourceUrl,
+	}));
 }
 
 async function fetchLiveDiscoveryRows(): Promise<{ rows: DiscoveryRow[]; errors: string[] }> {
-	const providerIds = PROVIDER_FILTERS ?? Object.keys(LIVE_PROVIDER_ENDPOINTS);
-	const rows: DiscoveryRow[] = [];
-	const errors: string[] = [];
-	for (const providerId of providerIds) {
-		const sourceUrl = LIVE_PROVIDER_ENDPOINTS[providerId];
-		if (!sourceUrl) continue;
+	const providerIds = PROVIDER_FILTERS ?? getProviderSyncProviderIds();
+	const providers = providerIds
+		.map((providerId) => getProviderSyncProvider(providerId))
+		.filter((provider): provider is NonNullable<typeof provider> => provider !== undefined);
+	const results = await Promise.all(providers.map(async (provider) => {
 		try {
-			const headers: Record<string, string> = { accept: "application/json" };
-			const apiKeyEnv = LIVE_PROVIDER_API_KEY_ENVS[providerId];
-			const apiKey = apiKeyEnv ? process.env[apiKeyEnv]?.trim() : undefined;
-			if (apiKey) headers.authorization = `Bearer ${apiKey}`;
-			const response = await fetch(sourceUrl, { headers, signal: AbortSignal.timeout(30_000) });
-			if (!response.ok) throw new Error(`HTTP ${response.status}`);
-			rows.push(...parseLiveDiscoveryRows(providerId, await response.json(), new Date().toISOString(), sourceUrl));
+			const accessedAt = new Date().toISOString();
+			const payload = await provider.fetchModels();
+			return {
+				rows: provider.parseModels(payload).map(({ id, details }) => ({
+					provider_id: provider.id,
+					model_id: id,
+					model_details: details,
+					last_seen_at: accessedAt,
+					source_url: provider.sourceUrl,
+				})),
+				error: null,
+			};
 		} catch (error) {
-			errors.push(`${providerId}: ${error instanceof Error ? error.message : String(error)}`);
+			return {
+				rows: [],
+				error: `${provider.id}: ${error instanceof Error ? error.message : String(error)}`,
+			};
 		}
-	}
-	return { rows, errors };
+	}));
+	return {
+		rows: results.flatMap((result) => result.rows),
+		errors: results.flatMap((result) => result.error ? [result.error] : []),
+	};
 }
 
 async function fetchDiscoveryRows(): Promise<DiscoveryRow[]> {
@@ -352,7 +333,7 @@ function resolveCanonicalModelId(modelId: string, index: Awaited<ReturnType<type
 
 async function main(): Promise<void> {
 	const liveOnlySelection = LIVE_MODE && PROVIDER_FILTERS?.length
-		&& PROVIDER_FILTERS.every((providerId) => LIVE_PROVIDER_ENDPOINTS[providerId]);
+		&& PROVIDER_FILTERS.every((providerId) => getProviderSyncProvider(providerId) !== undefined);
 	const persistedRows = liveOnlySelection ? [] : await fetchDiscoveryRows();
 	const live = LIVE_MODE ? await fetchLiveDiscoveryRows() : { rows: [], errors: [] };
 	const rowsByKey = new Map<string, DiscoveryRow>();

@@ -182,6 +182,65 @@ function horizontalCandidates(tables: string[][][]): OfficialPriceCandidate[] {
 	return candidates;
 }
 
+function markdownText(value: string): string {
+	return value
+		.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+		.replaceAll("**", "")
+		.replaceAll("`", "")
+		.trim();
+}
+
+function effectiveOn(label: string, now: Date): boolean {
+	const through = label.match(/\bthrough ([A-Z][a-z]+ \d{1,2}, \d{4})/i)?.[1];
+	if (through !== undefined && now.getTime() > Date.parse(`${through} 23:59:59 UTC`)) return false;
+	const starting = label.match(/\bstarting ([A-Z][a-z]+ \d{1,2}, \d{4})/i)?.[1];
+	if (starting !== undefined && now.getTime() < Date.parse(`${starting} 00:00:00 UTC`)) return false;
+	return true;
+}
+
+function markdownPrice(value: string): number | null {
+	const match = markdownText(value).match(/\$([\d.]+)\s*\/\s*MTok/i);
+	if (!match) return null;
+	const parsed = Number(match[1]);
+	return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+}
+
+export function anthropicMarkdownCandidates(markdown: string, now = new Date()): OfficialPriceCandidate[] {
+	const section = markdown.split(/^## Model pricing\s*$/m)[1]?.split(/^## /m)[0];
+	if (section === undefined) return [];
+	const rows = section.split("\n")
+		.filter((line) => line.trimStart().startsWith("|"))
+		.map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()));
+	const header = rows[0]?.map(markdownText);
+	if (!header) return [];
+	const indexes = {
+		model: header.indexOf("Model"),
+		input: header.indexOf("Base Input Tokens"),
+		cacheWrite: header.indexOf("5m Cache Writes"),
+		cacheRead: header.indexOf("Cache Hits & Refreshes"),
+		output: header.indexOf("Output Tokens"),
+	};
+	if (Object.values(indexes).some((index) => index < 0)) return [];
+	return rows.slice(2).flatMap((row) => {
+		const providerModel = markdownText(row[indexes.model] ?? "");
+		if (!providerModel || !effectiveOn(providerModel, now)) return [];
+		const input = markdownPrice(row[indexes.input] ?? "");
+		const cacheWrite = markdownPrice(row[indexes.cacheWrite] ?? "");
+		const cacheRead = markdownPrice(row[indexes.cacheRead] ?? "");
+		const output = markdownPrice(row[indexes.output] ?? "");
+		if (input === null || cacheWrite === null || cacheRead === null || output === null) return [];
+		return [{
+			providerModel,
+			meters: {
+				input_text_tokens: input,
+				cached_write_text_tokens_5m: cacheWrite,
+				cached_read_text_tokens: cacheRead,
+				output_text_tokens: output,
+			},
+		}];
+	});
+}
+
 function deepseekCandidates(tables: string[][][]): OfficialPriceCandidate[] {
 	const candidates: OfficialPriceCandidate[] = [];
 	for (const table of tables) {
@@ -365,6 +424,7 @@ function xiaomiCandidates(html: string): OfficialPriceCandidate[] {
 export function extractOfficialPricing(providerId: string, html: string): OfficialPriceCandidate[] {
 	if (providerId === "moonshotai") return moonshotCandidates(html);
 	if (providerId === "xiaomi") return xiaomiCandidates(html);
+	if (providerId === "anthropic" && /^## Model pricing\s*$/m.test(html)) return anthropicMarkdownCandidates(html);
 	const tables = extractHtmlTableRows(html);
 	if (providerId === "cloudflare") return cloudflareCandidates(tables);
 	if (providerId === "deepseek") return deepseekCandidates(tables);
@@ -433,7 +493,10 @@ async function syncProvider(provider: string): Promise<OfficialPricingProviderRe
 	let response: Response;
 	try {
 		response = await fetch(source.sourceUrl, {
-			headers: { "User-Agent": "Phaseo official pricing sync" },
+			headers: {
+				"User-Agent": "Phaseo official pricing sync",
+				...(provider === "anthropic" ? { Accept: "text/markdown" } : {}),
+			},
 			signal: AbortSignal.timeout(30_000),
 		});
 		if (!response.ok) throw new Error(`${source.providerName} pricing source returned HTTP ${response.status}`);
