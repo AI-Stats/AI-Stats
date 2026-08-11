@@ -737,6 +737,7 @@ export const ChatCompletionsSchema = z.object({
         enabled: z.boolean().optional(),
         max_tokens: z.number().int().nonnegative().optional(),
     }).optional(),
+    reasoning_effort: z.enum(["none", "minimal", "low", "medium", "high", "xhigh", "max"]).optional(),
 
 
     frequency_penalty: z.number().min(-2).max(2).optional(),
