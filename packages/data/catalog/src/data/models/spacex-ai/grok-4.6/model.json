@@ -2,11 +2,11 @@
   "model_id": "spacex-ai/grok-4.6",
   "organisation_id": "spacex-ai",
   "name": "Grok 4.6",
-  "status": "Released",
+  "status": "Rumoured",
   "previous_model_id": "spacex-ai/grok-4.5",
   "description": "Grok 4.6 is an xAI chat and reasoning model with text and image input, text output, function calling, structured outputs, and a 500k token context window.",
-  "announced_date": "2026-08-11T00:00:00",
-  "release_date": "2026-08-11T00:00:00",
+  "announced_date": null,
+  "release_date": null,
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
@@ -68,7 +68,7 @@
     },
     {
       "name": "release_observation_note",
-      "value": "Released on 2026-08-11; benchmark results are not yet available."
+      "value": "Announcement and release dates are not yet confirmed; benchmark results are not yet available."
     }
   ],
   "benchmarks": [],
