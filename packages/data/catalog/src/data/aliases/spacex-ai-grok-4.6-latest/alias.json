@@ -1,7 +1,0 @@
-{
-  "alias_slug": "spacex-ai/grok-4.6-latest",
-  "resolved_api_model_id": "spacex-ai/grok-4.6",
-  "channel": "stable",
-  "is_enabled": true,
-  "notes": "Prepared as the provisional latest alias for the Grok 4.6 release; confirm against xAI's published alias before release."
-}
