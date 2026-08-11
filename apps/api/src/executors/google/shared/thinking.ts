@@ -96,5 +96,12 @@ export function resolveGoogleThinkingLevelForEffort(
 	const supported = getSupportedGoogleThinkingLevels(model);
 	if (supported.length === 0) return undefined;
 	if (supported.includes(mapped)) return mapped;
+	if (
+		supported.length === 2 &&
+		supported.includes("MINIMAL") &&
+		supported.includes("HIGH")
+	) {
+		return mapped === "LOW" ? "MINIMAL" : "HIGH";
+	}
 	return supported[supported.length - 1];
 }

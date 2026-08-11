@@ -468,6 +468,7 @@ pub struct ChatCompletionsRequest {
 	pub provider: Option<String>,
 	pub provider_options: Option<HashMap<String, String>>,
 	pub reasoning: Option<HashMap<String, String>>,
+	pub reasoning_effort: Option<String>,
 	pub response_format: Option<String>,
 	pub safety_identifier: Option<Option<String>>,
 	pub seed: Option<i64>,

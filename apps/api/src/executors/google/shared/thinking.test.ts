@@ -38,6 +38,8 @@ describe("google thinking level support", () => {
 			"HIGH",
 		]);
 		expect(resolveGoogleThinkingLevelForEffort("gemma-4-26b-a4b-it", "minimal")).toBe("MINIMAL");
+		expect(resolveGoogleThinkingLevelForEffort("gemma-4-26b-a4b-it", "low")).toBe("MINIMAL");
+		expect(resolveGoogleThinkingLevelForEffort("gemma-4-26b-a4b-it", "medium")).toBe("HIGH");
 		expect(resolveGoogleThinkingLevelForEffort("gemma-4-31b-it", "high")).toBe("HIGH");
 	});
 
