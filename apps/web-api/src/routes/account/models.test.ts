@@ -100,6 +100,31 @@ describe("account model source routes", () => {
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("mutate_v2_admin_pricing_sku"))).toBe(false);
 	});
 
+	it("loads every editable provider-route field for the pricing editor", async () => {
+		const requests: string[] = [];
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			requests.push(url);
+			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "00000000-0000-4000-8000-000000000001" }), { status: 200 });
+			if (url.includes("/rest/v1/users")) return new Response(JSON.stringify({ role: "admin" }), { status: 200, headers: { "content-type": "application/json" } });
+			if (url.includes("/rest/v1/v2_models")) return new Response(JSON.stringify({ model_slug: "openai/gpt-test", name: "GPT Test", lab_slug: "openai" }), { status: 200, headers: { "content-type": "application/json" } });
+			return new Response(JSON.stringify([]), { status: 200, headers: { "content-type": "application/json" } });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/account/models/openai%2Fgpt-test/pricing-editor",
+			{ headers: { authorization: "Bearer session-token" } },
+			{ ENV: "development", SUPABASE_URL: "https://example.supabase.co", SUPABASE_ANON_KEY: "anon-key", SUPABASE_SERVICE_ROLE_KEY: "service-role-key" },
+		);
+
+		expect(response.status).toBe(200);
+		const routeQuery = requests.find((url) => url.includes("/rest/v1/v2_model_provider_routes"));
+		expect(routeQuery).toBeDefined();
+		for (const field of ["input_modalities", "output_modalities", "context_length", "max_output_tokens", "effective_from", "effective_to"]) {
+			expect(routeQuery).toContain(field);
+		}
+	});
+
 	it("routes validated catalogue and model graph writes through the audited V2 RPCs", async () => {
 		const requests: Array<{ url: string; body: string | null }> = [];
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {

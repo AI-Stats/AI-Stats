@@ -339,7 +339,7 @@ accountModelsRouter.get("/:modelId/pricing-editor", async (c) => {
 
 		const routes = await client
 			.from("v2_model_provider_routes")
-			.select("provider_model_id,provider_slug,provider_model_slug,status,routing_enabled,regions")
+			.select("provider_model_id,provider_slug,provider_model_slug,status,routing_enabled,input_modalities,output_modalities,regions,context_length,max_output_tokens,effective_from,effective_to")
 			.eq("model_slug", modelId)
 			.order("provider_slug", { ascending: true });
 		if (routes.error) throw routes.error;

@@ -3,7 +3,7 @@ alter table public.v2_catalogue_admin_changes
   drop constraint if exists v2_catalogue_admin_changes_resource_type_check;
 alter table public.v2_catalogue_admin_changes
   add constraint v2_catalogue_admin_changes_resource_type_check
-  check (resource_type in ('pricing_sku','organisations','providers','benchmarks','subscription-plans','models','model_graph'));
+  check (resource_type in ('pricing_sku','organisations','providers','benchmarks','subscription-plans','models','model_graph','provider_route'));
 alter table public.v2_catalogue_admin_changes
   drop constraint if exists v2_catalogue_admin_changes_action_check;
 alter table public.v2_catalogue_admin_changes
@@ -13,7 +13,7 @@ alter table public.v2_catalogue_source_overrides
   drop constraint if exists v2_catalogue_source_overrides_type_check;
 alter table public.v2_catalogue_source_overrides
   add constraint v2_catalogue_source_overrides_type_check
-  check (source_type in ('pricing_rule','organisations','providers','benchmarks','subscription-plans','models','model'));
+  check (source_type in ('pricing_rule','organisations','providers','benchmarks','subscription-plans','models','model','provider_route'));
 alter table public.v2_catalogue_source_overrides
   drop constraint if exists v2_catalogue_source_overrides_disposition_check;
 alter table public.v2_catalogue_source_overrides
