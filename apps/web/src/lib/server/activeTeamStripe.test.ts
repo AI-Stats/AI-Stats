@@ -97,9 +97,37 @@ describe("requireActiveTeamStripeCustomer", () => {
 			userId: "user_1",
 			userEmail: "owner@example.com",
 		});
+		expect(requireWorkspaceMembership).toHaveBeenCalledWith(
+			expect.anything(),
+			"user_1",
+			"ws_1",
+			["owner", "admin"],
+		);
 		expect(adminUpsert).toHaveBeenCalledWith(
 			{ workspace_id: "ws_1", stripe_customer_id: "cus_test_mode" },
 			{ onConflict: "workspace_id", ignoreDuplicates: false },
+		);
+	});
+
+	it("rejects a workspace member who lacks a billing administrator role", async () => {
+		createClient.mockResolvedValue({
+			auth: {
+				getUser: jest.fn(async () => ({
+					data: { user: { id: "member_1", email: "member@example.com" } },
+					error: null,
+				})),
+			},
+		} as any);
+		getWorkspaceIdFromCookie.mockResolvedValue("ws_1");
+		requireWorkspaceMembership.mockRejectedValue(new Error("Unauthorized"));
+
+		const { requireActiveTeamStripeCustomer } = await import("./activeTeamStripe");
+		await expect(requireActiveTeamStripeCustomer()).rejects.toThrow("unauthorized");
+		expect(requireWorkspaceMembership).toHaveBeenCalledWith(
+			expect.anything(),
+			"member_1",
+			"ws_1",
+			["owner", "admin"],
 		);
 	});
 });

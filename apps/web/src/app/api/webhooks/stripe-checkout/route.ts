@@ -7,6 +7,7 @@ import {
 	sendCreditsPurchasedEvent,
 } from "@/lib/automations/resend-events";
 import { getStripe } from "@/lib/stripe";
+import { readBoundedTextBody } from "@/lib/server/boundedRequestBody";
 
 const TOP_UP_PURPOSES = new Set(["top_up", "top_up_one_off", "auto_top_up", "credits_topup_offsession"]);
 type AppliedCreditRow = { applied?: boolean; before_balance_nanos?: number; after_balance_nanos?: number };
@@ -380,12 +381,18 @@ async function upsertTeamInvoiceFromStripeInvoice(args: {
     if (error) throw error;
 }
 
+const MAX_STRIPE_WEBHOOK_BYTES = 1024 * 1024;
+
 export async function POST(req: Request) {
     const stripe = getStripe();
     const supabase = getSupabase();
 
     // IMPORTANT: read raw body for signature verification
-    const rawBody = await req.text();
+    const boundedBody = await readBoundedTextBody(req, MAX_STRIPE_WEBHOOK_BYTES);
+    if (!boundedBody.ok) {
+        return new Response("Webhook body too large", { status: 413 });
+    }
+    const rawBody = boundedBody.text;
     const signature = req.headers.get("stripe-signature") ?? "";
     const signatureSummary = summarizeStripeSignatureHeader(signature);
 

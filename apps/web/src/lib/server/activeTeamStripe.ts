@@ -203,7 +203,7 @@ export async function requireActiveTeamStripeCustomer(
     }
 
     try {
-        await requireWorkspaceMembership(supabase, user.id, workspaceId);
+        await requireWorkspaceMembership(supabase, user.id, workspaceId, ["owner", "admin"]);
     } catch (error) {
         if (
             error instanceof Error &&
