@@ -1016,5 +1016,72 @@
       "notes": "Provider support imported from models.dev; routing remains disabled."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/nemotron-3.5-lightning",
+    "provider_api_model_id": "nvidia:nvidia/nemotron-3.5-lightning-30b-a3b",
+    "provider_model_slug": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "internal_model_id": "nvidia/nemotron-3.5-lightning",
+    "is_active_gateway": false,
+    "quantization_scheme": "nvfp4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": "https://integrate.api.nvidia.com/v1",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://integrate.api.nvidia.com/v1/models",
+        "accessed_at": "2026-08-11T00:00:00Z",
+        "notes": "NVIDIA's live OpenAI-compatible model registry lists nvidia/nemotron-3.5-lightning-30b-a3b."
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://build.nvidia.com/nvidia/nemotron-3.5-lightning",
+        "accessed_at": "2026-08-11T00:00:00Z",
+        "notes": "NVIDIA hosted NIM API page for Nemotron 3.5 Lightning."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-11T00:00:00Z",
+      "notes": "Verified against NVIDIA's live public model registry on release day; NVIDIA's public registry does not publish token pricing for this model."
+    },
+    "rate_limits": []
   }
 ]
