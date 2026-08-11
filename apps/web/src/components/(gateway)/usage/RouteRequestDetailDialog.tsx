@@ -6,8 +6,51 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import React from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import type { InvestigateGenerationResult } from "@/app/(dashboard)/gateway/usage/server-actions";
 import RequestDetailDialog from "./RequestDetailDialog";
+
+export function RouteRequestDetailErrorDialog({
+	closeHref,
+}: {
+	closeHref: string;
+}) {
+	const router = useRouter();
+
+	return (
+		<Dialog
+			open
+			onOpenChange={(open) => {
+				if (!open) router.push(closeHref);
+			}}
+		>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Request details unavailable</DialogTitle>
+					<DialogDescription>
+						We couldn&apos;t load this request. Try again or return to the
+						request logs.
+					</DialogDescription>
+				</DialogHeader>
+				<DialogFooter>
+					<Button variant="outline" onClick={() => router.refresh()}>
+						Try again
+					</Button>
+					<Button asChild>
+						<Link href={closeHref}>Back to request logs</Link>
+					</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+	);
+}
 
 export default function RouteRequestDetailDialog({
 	detail,
