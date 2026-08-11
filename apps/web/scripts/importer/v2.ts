@@ -8,6 +8,20 @@ import { createHash } from "node:crypto";
 type DbClient = ReturnType<typeof client>;
 
 const PAGE_SIZE = 1_000;
+let catalogueOverrideIndex: Map<string, Set<string>> | null = null;
+
+async function databaseOwnedCatalogueKeys(supa: DbClient) {
+    if (catalogueOverrideIndex) return catalogueOverrideIndex;
+    const rows = await fetchAll(supa, "v2_catalogue_source_overrides", "source_type,source_key,disposition");
+    catalogueOverrideIndex = new Map<string, Set<string>>();
+    for (const row of rows) {
+        if (!['database_managed', 'database', 'suppressed'].includes(String(row.disposition))) continue;
+        const keys = catalogueOverrideIndex.get(String(row.source_type)) ?? new Set<string>();
+        keys.add(String(row.source_key));
+        catalogueOverrideIndex.set(String(row.source_type), keys);
+    }
+    return catalogueOverrideIndex;
+}
 
 function asText(value: unknown): string | null {
     return typeof value === "string" && value.trim() ? value.trim() : null;
@@ -399,7 +413,27 @@ async function upsertChunks(
     rows: Record<string, any>[],
     onConflict: string,
 ) {
-    for (const group of chunk(rows, 500)) {
+    const ownership: Record<string, { sourceTypes: string[]; key: string }> = {
+        v2_labs: { sourceTypes: ["organisations"], key: "lab_slug" },
+        v2_models: { sourceTypes: ["models", "model"], key: "model_slug" },
+        v2_providers: { sourceTypes: ["providers"], key: "provider_slug" },
+        v2_benchmarks: { sourceTypes: ["benchmarks"], key: "benchmark_id" },
+        v2_subscription_plans: { sourceTypes: ["subscription-plans"], key: "plan_uuid" },
+        v2_model_links: { sourceTypes: ["model"], key: "model_slug" },
+        v2_model_details: { sourceTypes: ["model"], key: "model_slug" },
+        v2_benchmark_results: { sourceTypes: ["model"], key: "model_slug" },
+        v2_subscription_plan_models: { sourceTypes: ["model"], key: "model_slug" },
+        v2_model_provider_routes: { sourceTypes: ["model"], key: "model_slug" },
+    };
+    const rule = ownership[table];
+    const filteredRows = rule
+        ? rows.filter(row => !rule.sourceTypes.some(sourceType => (catalogueOverrideIndex ?? new Map()).get(sourceType)?.has(String(row[rule.key]))))
+        : rows;
+    if (rule && catalogueOverrideIndex === null) {
+        const overrides = await databaseOwnedCatalogueKeys(supa);
+        filteredRows.splice(0, filteredRows.length, ...rows.filter(row => !rule.sourceTypes.some(sourceType => overrides.get(sourceType)?.has(String(row[rule.key])))));
+    }
+    for (const group of chunk(filteredRows, 500)) {
         assertOk(
             await supa.from(table).upsert(group, { onConflict }),
             `v2 sync upsert ${table}`,
@@ -914,6 +948,15 @@ export async function syncV2Catalogue(): Promise<void> {
         routing_enabled: routingEnabled,
         routable,
         country_code: asText(row.country_code) ?? "xx",
+        residency_mode: row.residency_mode ?? "unknown",
+        default_execution_regions: row.default_execution_regions ?? null,
+        default_data_regions: row.default_data_regions ?? null,
+        zero_data_retention: row.zero_data_retention ?? "unknown",
+        prompt_training_policy: row.prompt_training_policy ?? "unknown",
+        data_policy_tier: row.data_policy_tier ?? "unknown",
+        data_policy_confidence: row.data_policy_confidence ?? "unknown",
+        data_policy_contract_mode: row.data_policy_contract_mode ?? "none",
+        data_policy_variant: row.data_policy_variant ?? "standard",
         ...(sourceProvider?.stream_cancellation_support !== undefined ? {
             stream_cancellation_support: sourceProvider.stream_cancellation_support,
             stream_cancellation_stops_provider_billing:
@@ -935,11 +978,20 @@ export async function syncV2Catalogue(): Promise<void> {
             link: row.link ?? null,
             colour: row.colour ?? null,
             prompt_training_policy: row.prompt_training_policy ?? null,
+            prompt_training_notes: row.prompt_training_notes ?? null,
+            prompt_training_source_url: row.prompt_training_source_url ?? null,
+            data_policy_tier: row.data_policy_tier ?? null,
+            data_policy_confidence: row.data_policy_confidence ?? null,
+            data_policy_contract_mode: row.data_policy_contract_mode ?? null,
+            data_policy_contract_notes: row.data_policy_contract_notes ?? null,
+            zero_data_retention: row.zero_data_retention ?? null,
             privacy_policy_url: row.privacy_policy_url ?? null,
             terms_of_service_url: row.terms_of_service_url ?? null,
             residency_mode: row.residency_mode ?? null,
             default_execution_regions: row.default_execution_regions ?? null,
             default_data_regions: row.default_data_regions ?? null,
+            residency_source_url: row.residency_source_url ?? null,
+            residency_notes: row.residency_notes ?? null,
             gateway_kind: sourceProvider?.gateway_kind ?? null,
             routable: sourceProvider?.routable ?? null,
             routing_enabled: sourceProvider?.routing_enabled ?? null,
@@ -1218,15 +1270,44 @@ export async function syncV2Catalogue(): Promise<void> {
         });
     }
     const pricingRows = [...pricingRowsByKey.values()];
-    const tierSlugs = [...new Set(pricingRules.map(rule => slug(rule.pricing_plan)))];
+    const canonicalServiceTiers = new Set(["standard", "priority", "batch", "flex"]);
+    const tierSlugs = [...new Set([...pricingRules.map(rule => slug(rule.pricing_plan)), ...canonicalServiceTiers])];
     await upsertChunks(supa, "v2_service_tiers", tierSlugs.map(service_tier_slug => ({
         service_tier_slug,
         display_name: service_tier_slug.split(/[-_.:]+/g).filter(Boolean).map(part => part[0]?.toUpperCase() + part.slice(1)).join(" "),
-        status: "active",
+        status: canonicalServiceTiers.has(service_tier_slug) ? "active" : "disabled",
         metadata: { source: "json", legacy_pricing_plan: service_tier_slug },
     })), "service_tier_slug");
 
-    await upsertChunks(supa, "v2_pricing_skus", pricingRows, "provider_model_id,sku_code,version");
+    const existingDatabaseAuthoredSkus = await fetchAll(
+        supa,
+        "v2_pricing_skus",
+        "sku_id,provider_model_id,sku_code,version,metadata",
+    );
+    const databaseAuthoredSkuKeys = new Set(
+        existingDatabaseAuthoredSkus
+            .filter(row => String(row.metadata?.source ?? "") === "admin")
+            .map(row => `${row.provider_model_id}:${row.sku_code}:${row.version}`),
+    );
+    const pricingSourceOverrides = await fetchAll(
+        supa,
+        "v2_catalogue_source_overrides",
+        "source_type,source_key,disposition",
+    );
+    const databaseOwnedPricingSourceKeys = new Set(
+        pricingSourceOverrides
+            .filter(row => String(row.source_type) === "pricing_rule")
+            .map(row => String(row.source_key)),
+    );
+    await upsertChunks(
+        supa,
+        "v2_pricing_skus",
+        pricingRows.filter(row =>
+            !databaseAuthoredSkuKeys.has(`${row.provider_model_id}:${row.sku_code}:${row.version}`)
+            && !databaseOwnedPricingSourceKeys.has(String(row.metadata?.source_key ?? "")),
+        ),
+        "provider_model_id,sku_code,version",
+    );
 
     const routesForVariants = await fetchAll(supa, "v2_model_provider_routes", "provider_model_id,provider_slug,status,routing_enabled,regions");
     const variantRows = routesForVariants.flatMap(route => {
@@ -1282,13 +1363,16 @@ export async function syncV2Catalogue(): Promise<void> {
         "v2 sync refresh pricing variant links",
     );
 
-    const skuRows = await fetchAll(supa, "v2_pricing_skus", "sku_id,provider_model_id,sku_code,version");
+    const skuRows = await fetchAll(supa, "v2_pricing_skus", "sku_id,provider_model_id,sku_code,version,metadata");
     const skuByCode = new Map(skuRows.map(row => [`${row.provider_model_id}:${row.sku_code}:${row.version}`, row.sku_id]));
     const meterRowsByKey = new Map<string, Record<string, any>>();
     for (const rule of pricingRules) {
+        if (databaseOwnedPricingSourceKeys.has(String(rule.source_key ?? rule.rule_id))) continue;
         const parsed = pricingModelPart(String(rule.model_key ?? ""));
         const providerModel = parsed ? providerModelByApiKey.get(`${parsed.providerSlug}:${parsed.apiModelId}`) : null;
-        const skuId = providerModel ? skuByCode.get(pricingRuleSkuKey.get(String(rule.rule_id)) ?? "") : null;
+        const skuKey = pricingRuleSkuKey.get(String(rule.rule_id)) ?? "";
+        if (databaseAuthoredSkuKeys.has(skuKey)) continue;
+        const skuId = providerModel ? skuByCode.get(skuKey) : null;
         if (!skuId) continue;
         const meter = String(rule.meter ?? "meter");
         const lowerMeter = meter.toLowerCase();
@@ -1344,6 +1428,7 @@ export async function syncV2Catalogue(): Promise<void> {
 
     const desiredSkuKeys = new Set(pricingRows.map(row => `${row.provider_model_id}:${row.sku_code}:${row.version}`));
     const staleSkuIds = skuRows
+        .filter(row => String(row.metadata?.source ?? "") !== "admin")
         .filter(row => !desiredSkuKeys.has(`${row.provider_model_id}:${row.sku_code}:${row.version}`))
         .map(row => String(row.sku_id));
     await deleteByIds(supa, "v2_pricing_skus", "sku_id", staleSkuIds);

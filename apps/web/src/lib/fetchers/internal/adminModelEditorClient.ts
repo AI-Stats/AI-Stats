@@ -39,3 +39,57 @@ export async function createAdminSubscriptionPlan(input: Record<string, unknown>
 		{ method: "POST", body: JSON.stringify(input) },
 	);
 }
+
+export type AdminPricingEditorSource = {
+	model: { model_slug: string; name: string | null; lab_slug: string };
+	routes: Array<{
+		provider_model_id: string;
+		provider_slug: string;
+		provider_model_slug: string;
+		status: string;
+		routing_enabled: boolean;
+		regions: string[];
+		input_modalities: string[];
+		output_modalities: string[];
+		context_length: number | null;
+		max_output_tokens: number | null;
+		effective_from: string | null;
+		effective_to: string | null;
+	}>;
+	skus: Array<Record<string, any> & { sku_id: string; provider_model_id: string }>;
+	meters: Array<Record<string, any> & { sku_id: string; meter_key: string }>;
+	serviceTiers: Array<{ service_tier_slug: string; display_name: string; status: string }>;
+	regions: Array<{ provider_slug: string; region_code: string; display_name: string | null; status: string }>;
+	capabilities: Array<{ provider_model_id: string; capability_id: string; status: string }>;
+	meterDefinitions: Array<{ meter_key: string; display_name: string; modality: string; direction: "input" | "output" | null; unit: string; default_unit_quantity: number; status: string }>;
+	providers: Array<{ provider_slug: string; name: string; status: string; routing_enabled: boolean; routable: boolean; base_url: string | null; metadata: Record<string, unknown> }>;
+};
+
+export async function fetchAdminPricingEditorSource(modelId: string) {
+	const path = `/api/account/models/${encodeURIComponent(modelId)}/pricing-editor` as const;
+	return fetchAccountWebApi<AdminPricingEditorSource>(path, await getBrowserAccessToken());
+}
+
+export async function saveAdminPricingSku(modelId: string, sku: Record<string, unknown>) {
+	return fetchAccountWebApi<{ pricing: Record<string, unknown> }>(
+		`/api/account/models/${encodeURIComponent(modelId)}/pricing-editor`,
+		await getBrowserAccessToken(),
+		{ method: "PUT", body: JSON.stringify(sku) },
+	);
+}
+
+export async function saveAdminProviderRoute(modelId: string, route: Record<string, unknown>) {
+	return fetchAccountWebApi<{ route: Record<string, unknown> }>(
+		`/api/account/models/${encodeURIComponent(modelId)}/provider-routes`,
+		await getBrowserAccessToken(),
+		{ method: "PUT", body: JSON.stringify(route) },
+	);
+}
+
+export async function deleteAdminPricingSku(modelId: string, skuId: string) {
+	return fetchAccountWebApi<{ pricing: Record<string, unknown> }>(
+		`/api/account/models/${encodeURIComponent(modelId)}/pricing-editor/${encodeURIComponent(skuId)}`,
+		await getBrowserAccessToken(),
+		{ method: "DELETE" },
+	);
+}

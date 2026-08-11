@@ -6,22 +6,6 @@
   "capability_id": "text.generate",
   "rules": [
     {
-      "meter": "input_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.2,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Novita lists Step 3.7 Flash at $0.20 per 1M input tokens.",
-      "match": [],
-      "priority": 100,
-      "effective_from": "2026-07-17T00:00:00Z",
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null
-    },
-    {
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
@@ -38,10 +22,26 @@
       "source": null
     },
     {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 2000,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Novita lists Step 3.7 Flash at $0.20 per 1M input tokens.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-17T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 1.15,
+      "price_per_unit": 11500,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Novita lists Step 3.7 Flash at $1.15 per 1M output tokens.",
@@ -60,8 +60,8 @@
   ],
   "sources": [],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-11T04:01:01.895+00:00",
+    "notes": "Pricing synchronized from the provider models API."
   }
 }

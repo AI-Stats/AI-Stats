@@ -19,16 +19,70 @@ function buildSupabaseMock(
     responses: Record<string, QueryResult[]>,
     state: QueryState
 ) {
+    const routeRows: any[] = [];
+    let pricingSkuRows: any[] | null = null;
+    let pricingMeterRows: any[] | null = null;
+
+    function buildPricingRows(legacyRows: any[]) {
+        const skuByKey = new Map<string, any>();
+        const meters: any[] = [];
+
+        for (const row of legacyRows) {
+            const [providerId, modelId, operation] = String(row.model_key ?? "").split(":");
+            const route = routeRows.find(
+                (candidate) =>
+                    candidate.provider_slug === providerId &&
+                    candidate.model_slug === modelId
+            );
+            if (!route || !operation) continue;
+
+            const skuKey = [
+                route.provider_model_id,
+                operation,
+                row.pricing_plan ?? "standard",
+                row.currency ?? "",
+            ].join("|");
+            let sku = skuByKey.get(skuKey);
+            if (!sku) {
+                sku = {
+                    sku_id: `test-sku-${skuByKey.size + 1}`,
+                    provider_model_id: route.provider_model_id,
+                    operation,
+                    service_tier_slug: row.pricing_plan ?? "standard",
+                    currency: row.currency ?? null,
+                    effective_from: row.effective_from ?? null,
+                    effective_to: row.effective_to ?? null,
+                    metadata: {},
+                    description: null,
+                };
+                skuByKey.set(skuKey, sku);
+            }
+
+            meters.push({
+                sku_meter_id: `test-meter-${meters.length + 1}`,
+                sku_id: sku.sku_id,
+                meter_key: row.meter,
+                unit: row.unit,
+                unit_quantity: row.unit_size,
+                price_nanos: Number(row.price_per_unit ?? 0) * 1_000_000_000,
+                meter_order: meters.length,
+                metadata: {},
+            });
+        }
+
+        return { skus: Array.from(skuByKey.values()), meters };
+    }
+
     return {
         from(table: string) {
-			const responseTable = ({
-				v2_models: "data_models",
-				v2_rpc_routes_legacy_shape: "data_api_provider_models",
-				v2_rpc_capabilities_legacy_shape: "data_api_provider_model_capabilities",
-				v2_model_aliases: "data_api_model_aliases",
-				v2_rpc_providers_legacy_shape: "data_api_providers",
-				v2_rpc_pricing_legacy_shape: "data_api_pricing_rules",
-			} as Record<string, string>)[table] ?? table;
+            const responseTable = ({
+                v2_models: "data_models",
+                v2_model_aliases: "data_api_model_aliases",
+                v2_model_provider_routes: "data_api_provider_models",
+                v2_route_capabilities: "data_api_provider_model_capabilities",
+                v2_providers: "data_api_providers",
+                v2_pricing_skus: "data_api_pricing_rules",
+            } as Record<string, string>)[table] ?? table;
             const query = {
                 select(_selection: string) {
                     return query;
@@ -36,10 +90,10 @@ function buildSupabaseMock(
                 eq(_column: string, _value: unknown) {
                     return query;
                 },
-                in(column: string, values: unknown[]) {
-                    if (
-						table === "v2_rpc_capabilities_legacy_shape" &&
-                        column === "provider_api_model_id" &&
+				in(column: string, values: unknown[]) {
+					if (
+						table === "v2_route_capabilities" &&
+						column === "provider_model_id" &&
                         Array.isArray(values) &&
                         values.length === 0
                     ) {
@@ -54,8 +108,65 @@ function buildSupabaseMock(
                     onfulfilled?: ((value: QueryResult) => TResult1 | PromiseLike<TResult1>) | null,
                     onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
                 ) {
-					const queue = responses[responseTable] ?? [];
+                    if (table === "v2_pricing_sku_meters") {
+                        return Promise.resolve({ data: pricingMeterRows ?? [], error: null }).then(
+                            onfulfilled as any,
+                            onrejected as any
+                        );
+                    }
+
+                    const queue = responses[responseTable] ?? [];
                     const next = queue.length ? queue.shift()! : { data: [], error: null };
+                    if (table === "v2_model_provider_routes") {
+                        const data = (next.data ?? []).map((row: any) => ({
+                            provider_model_id: row.provider_api_model_id,
+                            provider_slug: row.provider_id,
+                            model_slug: row.api_model_id ?? row.model_id,
+                            provider_model_slug: row.provider_model_slug,
+                            routing_enabled: row.is_active_gateway,
+                            status: row.routing_status,
+                            input_modalities: row.input_modalities,
+                            output_modalities: row.output_modalities,
+                            effective_from: row.effective_from ?? null,
+                            effective_to: row.effective_to ?? null,
+                        }));
+                        routeRows.push(...data);
+                        return Promise.resolve({ ...next, data }).then(onfulfilled as any, onrejected as any);
+                    }
+                    if (table === "v2_route_capabilities") {
+                        const data = (next.data ?? []).map((row: any) => ({
+                            provider_model_id: row.provider_api_model_id,
+                            capability_id: row.capability_id,
+                            status: row.status,
+                            params: row.params,
+                            effective_from: row.effective_from ?? null,
+                            effective_to: row.effective_to ?? null,
+                        }));
+                        return Promise.resolve({ ...next, data }).then(onfulfilled as any, onrejected as any);
+                    }
+                    if (table === "v2_providers") {
+                        const data = (next.data ?? []).map((row: any) => ({
+                            provider_slug: row.api_provider_id,
+                            name: row.api_provider_name,
+                            metadata: row.link ? { link: row.link } : {},
+                            country_code: row.country_code,
+                            status: row.status,
+                            routing_enabled: row.routing_status === "active",
+                        }));
+                        return Promise.resolve({ ...next, data }).then(onfulfilled as any, onrejected as any);
+                    }
+                    if (table === "v2_pricing_skus") {
+                        if (next.error) {
+                            return Promise.resolve(next).then(onfulfilled as any, onrejected as any);
+                        }
+                        const generated = buildPricingRows(next.data ?? []);
+                        pricingSkuRows = generated.skus;
+                        pricingMeterRows = generated.meters;
+                        return Promise.resolve({ data: pricingSkuRows, error: null }).then(
+                            onfulfilled as any,
+                            onrejected as any
+                        );
+                    }
                     return Promise.resolve(next).then(onfulfilled as any, onrejected as any);
                 },
             };
@@ -521,7 +632,7 @@ describe("fetchCatalogue", () => {
         });
     });
 
-    it("falls back when capability effective window columns are missing from the schema", async () => {
+    it("loads capability effective windows from the V2 route table", async () => {
         const state: QueryState = { emptyCapabilityInCalled: false };
         const responses: Record<string, QueryResult[]> = {
             data_models: [{
@@ -555,24 +666,17 @@ describe("fetchCatalogue", () => {
                 }],
                 error: null,
             }],
-            data_api_provider_model_capabilities: [
-                {
-                    data: null,
-                    error: {
-                        code: "PGRST204",
-						message: "Could not find the 'effective_from' column of 'v2_rpc_capabilities_legacy_shape' in the schema cache",
-                    },
-                },
-                {
-                    data: [{
-                        provider_api_model_id: "pam_1",
-                        capability_id: "responses",
-                        status: "active",
-                        params: { modalities: true },
-                    }],
-                    error: null,
-                },
-            ],
+            data_api_provider_model_capabilities: [{
+                data: [{
+                    provider_api_model_id: "pam_1",
+                    capability_id: "responses",
+                    status: "active",
+                    params: { modalities: true },
+                    effective_from: null,
+                    effective_to: null,
+                }],
+                error: null,
+            }],
             data_api_model_aliases: [{ data: [], error: null }],
             data_api_providers: [{
                 data: [{
@@ -1981,7 +2085,7 @@ describe("fetchCatalogue", () => {
                             link: null,
                             country_code: null,
                             status: "active",
-                            routing_status: "deranked_lvl1",
+                            routing_status: "active",
                         },
                         {
                             api_provider_id: "anthropic",
@@ -2003,7 +2107,7 @@ describe("fetchCatalogue", () => {
 
         const models = await fetchCatalogue({
             availability: "all",
-            providerRoutingStatuses: ["deranked_lvl1"],
+            providerRoutingStatuses: ["active"],
             modelRoutingStatuses: ["active"],
         });
 
@@ -2021,10 +2125,10 @@ describe("fetchCatalogue", () => {
             providers: [
                 {
                     api_provider_id: "openai",
-                    provider_routing_status: "deranked_lvl1",
+                    provider_routing_status: "active",
                     model_routing_status: "active",
                     availability_status: "active",
-                    availability_reason: "deranked_lvl1",
+                    availability_reason: "active",
                     endpoints: ["responses"],
                     params: ["temperature"],
                 },
