@@ -6,22 +6,6 @@
   "capability_id": "text.generate",
   "rules": [
     {
-      "meter": "input_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.06,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Current Novita rate after the free promotion ended on 6 August 2026 at 8:00 AM PT.",
-      "match": [],
-      "priority": 100,
-      "effective_from": "2026-08-06T15:00:00Z",
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash"
-    },
-    {
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
@@ -38,10 +22,26 @@
       "source": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash"
     },
     {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 600,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Current Novita rate after the free promotion ended on 6 August 2026 at 8:00 AM PT.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-06T15:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash"
+    },
+    {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.18,
+      "price_per_unit": 1800,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Current Novita rate after the free promotion ended on 6 August 2026 at 8:00 AM PT.",
@@ -69,8 +69,8 @@
     }
   ],
   "verification": {
-    "status": "verified",
-    "checked_at": "2026-08-06T00:00:00Z",
-    "notes": "Current input, cached-input, and output rates verified from Novita; the expired free variant remains in its historical pricing record."
+    "status": "partial",
+    "checked_at": "2026-08-10T22:31:05.939+00:00",
+    "notes": "Pricing synchronized from the provider models API."
   }
 }

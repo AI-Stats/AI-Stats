@@ -1,5 +1,64 @@
 [
   {
+    "api_model_id": "anthropic/claude-fable-5",
+    "provider_api_model_id": "orcarouter:anthropic/claude-fable-5",
+    "provider_model_slug": "anthropic/claude-fable-5",
+    "internal_model_id": "anthropic/claude-fable-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "anthropic/claude-haiku-4.5",
     "provider_api_model_id": "orcarouter:anthropic/claude-haiku-4.5",
     "provider_model_slug": "anthropic/claude-haiku-4.5",
@@ -49,6 +108,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-haiku-4.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -226,6 +291,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -285,6 +356,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -344,12 +421,136 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4.7"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.8",
+    "provider_api_model_id": "orcarouter:anthropic/claude-opus-4.8",
+    "provider_model_slug": "anthropic/claude-opus-4.8",
+    "internal_model_id": "anthropic/claude-opus-4.8",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-5",
+    "provider_api_model_id": "orcarouter:anthropic/claude-opus-5",
+    "provider_model_slug": "anthropic/claude-opus-5",
+    "internal_model_id": "anthropic/claude-opus-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -462,6 +663,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-sonnet-4.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -521,12 +728,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-sonnet-4.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-sonnet-5",
+    "provider_api_model_id": "orcarouter:anthropic/claude-sonnet-5",
+    "provider_model_slug": "anthropic/claude-sonnet-5",
+    "internal_model_id": "anthropic/claude-sonnet-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -580,12 +852,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v4-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "orcarouter:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek/deepseek-v4-flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 384000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -639,6 +976,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v4-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -698,12 +1041,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-2.5-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2.5-flash-image",
+    "provider_api_model_id": "orcarouter:google/gemini-2.5-flash-image",
+    "provider_model_slug": "google/gemini-2.5-flash-image",
+    "internal_model_id": "google/gemini-2.5-flash-image",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 32768,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -757,6 +1165,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-2.5-flash-lite"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -816,12 +1230,136 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-2.5-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2.5-pro-preview-tts",
+    "provider_api_model_id": "orcarouter:google/gemini-2.5-pro-preview-tts",
+    "provider_model_slug": "google/gemini-2.5-pro-preview-tts",
+    "internal_model_id": "google/gemini-2.5-pro-preview-tts",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3-flash-preview",
+    "provider_api_model_id": "orcarouter:google/gemini-3-flash-preview",
+    "provider_model_slug": "google/gemini-3-flash-preview",
+    "internal_model_id": "google/gemini-3-flash-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -875,12 +1413,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-flash-latest"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3-pro-image-preview",
+    "provider_api_model_id": "orcarouter:google/gemini-3-pro-image-preview",
+    "provider_model_slug": "google/gemini-3-pro-image-preview",
+    "internal_model_id": "google/gemini-3-pro-image-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 65536,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -944,6 +1547,124 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "google/gemini-3.1-flash-image-preview",
+    "provider_api_model_id": "orcarouter:google/gemini-3.1-flash-image-preview",
+    "provider_model_slug": "google/gemini-3.1-flash-image-preview",
+    "internal_model_id": "google/gemini-3.1-flash-image-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 65536,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.1-flash-lite",
+    "provider_api_model_id": "orcarouter:google/gemini-3.1-flash-lite",
+    "provider_model_slug": "google/gemini-3.1-flash-lite",
+    "internal_model_id": "google/gemini-3.1-flash-lite",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "google/gemini-3.1-flash-lite",
     "provider_api_model_id": "orcarouter:google/gemini-3.1-flash-lite",
     "provider_model_slug": "google/gemini-flash-lite-latest",
@@ -993,6 +1714,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-flash-lite-latest"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1052,12 +1779,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-flash-lite-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.1-flash-tts-preview",
+    "provider_api_model_id": "orcarouter:google/gemini-3.1-flash-tts-preview",
+    "provider_model_slug": "google/gemini-3.1-flash-tts-preview",
+    "internal_model_id": "google/gemini-3.1-flash-tts-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1111,12 +1903,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-pro-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.1-pro-preview",
+    "provider_api_model_id": "orcarouter:google/gemini-3.1-pro-preview",
+    "provider_model_slug": "google/gemini-pro-latest",
+    "internal_model_id": "google/gemini-3.1-pro-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1170,12 +2027,667 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-pro-preview-customtools"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.5-flash",
+    "provider_api_model_id": "orcarouter:google/gemini-3.5-flash",
+    "provider_model_slug": "google/gemini-3.5-flash",
+    "internal_model_id": "google/gemini-3.5-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.5-flash-lite",
+    "provider_api_model_id": "orcarouter:google/gemini-3.5-flash-lite",
+    "provider_model_slug": "google/gemini-3.5-flash-lite",
+    "internal_model_id": "google/gemini-3.5-flash-lite",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.6-flash",
+    "provider_api_model_id": "orcarouter:google/gemini-3.6-flash",
+    "provider_model_slug": "google/gemini-3.6-flash",
+    "internal_model_id": "google/gemini-3.6-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-embedding-001",
+    "provider_api_model_id": "orcarouter:google/gemini-embedding-001",
+    "provider_model_slug": "google/gemini-embedding-001",
+    "internal_model_id": "google/gemini-embedding-001",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-embedding-2-preview",
+    "provider_api_model_id": "orcarouter:google/gemini-embedding-2-preview",
+    "provider_model_slug": "google/gemini-embedding-2-preview",
+    "internal_model_id": "google/gemini-embedding-2-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-robotics-er-1.6-preview",
+    "provider_api_model_id": "orcarouter:google/gemini-robotics-er-1.6-preview",
+    "provider_model_slug": "google/gemini-robotics-er-1.6-preview",
+    "internal_model_id": "google/gemini-robotics-er-1.6-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/imagen-4.0-fast-generate-001",
+    "provider_api_model_id": "orcarouter:google/imagen-4.0-fast-generate-001",
+    "provider_model_slug": "google/imagen-4.0-fast-generate-001",
+    "internal_model_id": "google/imagen-4.0-fast-generate-001",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/imagen-4.0-generate-001",
+    "provider_api_model_id": "orcarouter:google/imagen-4.0-generate-001",
+    "provider_model_slug": "google/imagen-4.0-generate-001",
+    "internal_model_id": "google/imagen-4.0-generate-001",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/imagen-4.0-ultra-generate-001",
+    "provider_api_model_id": "orcarouter:google/imagen-4.0-ultra-generate-001",
+    "provider_model_slug": "google/imagen-4.0-ultra-generate-001",
+    "internal_model_id": "google/imagen-4.0-ultra-generate-001",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "meta/muse-spark-1.1",
+    "provider_api_model_id": "orcarouter:meta/muse-spark-1.1",
+    "provider_model_slug": "meta/muse-spark-1.1",
+    "internal_model_id": "meta/muse-spark-1.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "meta/muse-spark-1.2",
+    "provider_api_model_id": "orcarouter:meta/muse-spark-1.2",
+    "provider_model_slug": "meta/muse-spark-1.2",
+    "internal_model_id": "meta/muse-spark-1.2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1229,6 +2741,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1288,6 +2806,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.5-highspeed"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1347,12 +2871,136 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.7"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m3",
+    "provider_api_model_id": "orcarouter:minimax/minimax-m3",
+    "provider_model_slug": "minimax/minimax-m3",
+    "internal_model_id": "minimax/minimax-m3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 512000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-3.5-turbo-16k",
+    "provider_api_model_id": "orcarouter:openai/gpt-3.5-turbo-16k",
+    "provider_model_slug": "openai/gpt-3.5-turbo-16k",
+    "internal_model_id": "openai/gpt-3.5-turbo-16k",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 16385,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1406,6 +3054,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1465,6 +3119,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4-turbo"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1524,6 +3184,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1583,6 +3249,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4.1-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1642,6 +3314,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4.1-nano"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1701,6 +3379,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1760,6 +3444,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o-2024-05-13"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1819,6 +3509,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o-2024-08-06"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1878,12 +3574,254 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-mini-search-preview",
+    "provider_api_model_id": "orcarouter:openai/gpt-4o-mini-search-preview",
+    "provider_model_slug": "openai/gpt-4o-mini-search-preview",
+    "internal_model_id": "openai/gpt-4o-mini-search-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 128000,
+    "max_output_tokens": 16384,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-mini-tts",
+    "provider_api_model_id": "orcarouter:openai/gpt-4o-mini-tts",
+    "provider_model_slug": "openai/gpt-4o-mini-tts",
+    "internal_model_id": "openai/gpt-4o-mini-tts",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-mini-tts-2025-03-20",
+    "provider_api_model_id": "orcarouter:openai/gpt-4o-mini-tts-2025-03-20",
+    "provider_model_slug": "openai/gpt-4o-mini-tts-2025-03-20",
+    "internal_model_id": "openai/gpt-4o-mini-tts-2025-03-20",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-search-preview",
+    "provider_api_model_id": "orcarouter:openai/gpt-4o-search-preview",
+    "provider_model_slug": "openai/gpt-4o-search-preview",
+    "internal_model_id": "openai/gpt-4o-search-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 128000,
+    "max_output_tokens": 16384,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1937,6 +3875,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1996,6 +3940,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2055,6 +4005,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2114,6 +4070,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-nano"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2173,12 +4135,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5-search-api",
+    "provider_api_model_id": "orcarouter:openai/gpt-5-search-api",
+    "provider_model_slug": "openai/gpt-5-search-api",
+    "internal_model_id": "openai/gpt-5-search-api",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -2232,6 +4259,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2291,6 +4324,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.1-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2409,6 +4448,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.1-codex-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2468,6 +4513,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2527,6 +4578,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.2-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2586,6 +4643,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.2-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2645,6 +4708,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.3-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2704,6 +4773,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2763,6 +4838,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2822,6 +4903,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4-nano"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2881,6 +4968,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2940,6 +5033,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2999,12 +5098,726 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.5-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-luna",
+    "provider_api_model_id": "orcarouter:openai/gpt-5.6-luna",
+    "provider_model_slug": "openai/gpt-5.6-luna",
+    "internal_model_id": "openai/gpt-5.6-luna",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-sol",
+    "provider_api_model_id": "orcarouter:openai/gpt-5.6-sol",
+    "provider_model_slug": "openai/gpt-5.6-sol",
+    "internal_model_id": "openai/gpt-5.6-sol",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-terra",
+    "provider_api_model_id": "orcarouter:openai/gpt-5.6-terra",
+    "provider_model_slug": "openai/gpt-5.6-terra",
+    "internal_model_id": "openai/gpt-5.6-terra",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-image-1",
+    "provider_api_model_id": "orcarouter:openai/gpt-image-1",
+    "provider_model_slug": "openai/gpt-image-1",
+    "internal_model_id": "openai/gpt-image-1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-image-1-mini",
+    "provider_api_model_id": "orcarouter:openai/gpt-image-1-mini",
+    "provider_model_slug": "openai/gpt-image-1-mini",
+    "internal_model_id": "openai/gpt-image-1-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-image-1.5",
+    "provider_api_model_id": "orcarouter:openai/gpt-image-1.5",
+    "provider_model_slug": "openai/gpt-image-1.5",
+    "internal_model_id": "openai/gpt-image-1.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-image-2",
+    "provider_api_model_id": "orcarouter:openai/gpt-image-2",
+    "provider_model_slug": "openai/gpt-image-2",
+    "internal_model_id": "openai/gpt-image-2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/text-embedding-3-large",
+    "provider_api_model_id": "orcarouter:openai/text-embedding-3-large",
+    "provider_model_slug": "openai/text-embedding-3-large",
+    "internal_model_id": "openai/text-embedding-3-large",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/text-embedding-3-small",
+    "provider_api_model_id": "orcarouter:openai/text-embedding-3-small",
+    "provider_model_slug": "openai/text-embedding-3-small",
+    "internal_model_id": "openai/text-embedding-3-small",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/text-embedding-ada-002",
+    "provider_api_model_id": "orcarouter:openai/text-embedding-ada-002",
+    "provider_model_slug": "openai/text-embedding-ada-002",
+    "internal_model_id": "openai/text-embedding-ada-002",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/tts-1",
+    "provider_api_model_id": "orcarouter:openai/tts-1",
+    "provider_model_slug": "openai/tts-1",
+    "internal_model_id": "openai/tts-1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/tts-1-hd",
+    "provider_api_model_id": "orcarouter:openai/tts-1-hd",
+    "provider_model_slug": "openai/tts-1-hd",
+    "internal_model_id": "openai/tts-1-hd",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -3058,12 +5871,313 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-max"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-max-preview",
+    "provider_api_model_id": "orcarouter:qwen/qwen3-max-preview",
+    "provider_model_slug": "qwen/qwen3-max-preview",
+    "internal_model_id": "qwen/qwen3-max-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-vl-235b-a22b-instruct",
+    "provider_api_model_id": "orcarouter:qwen/qwen3-vl-235b-a22b-instruct",
+    "provider_model_slug": "qwen/qwen3-vl-235b-a22b-instruct",
+    "internal_model_id": "qwen/qwen3-vl-235b-a22b-instruct",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-vl-235b-a22b-thinking",
+    "provider_api_model_id": "orcarouter:qwen/qwen3-vl-235b-a22b-thinking",
+    "provider_model_slug": "qwen/qwen3-vl-235b-a22b-thinking",
+    "internal_model_id": "qwen/qwen3-vl-235b-a22b-thinking",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 40960,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-vl-8b-instruct",
+    "provider_api_model_id": "orcarouter:qwen/qwen3-vl-8b-instruct",
+    "provider_model_slug": "qwen/qwen3-vl-8b-instruct",
+    "internal_model_id": "qwen/qwen3-vl-8b-instruct",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-vl-8b-thinking",
+    "provider_api_model_id": "orcarouter:qwen/qwen3-vl-8b-thinking",
+    "provider_model_slug": "qwen/qwen3-vl-8b-thinking",
+    "internal_model_id": "qwen/qwen3-vl-8b-thinking",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 40960,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -3117,6 +6231,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-122b-a10b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3176,6 +6296,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-27b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3235,6 +6361,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-35b-a3b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3294,12 +6426,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-397b-a17b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-flash",
+    "provider_api_model_id": "orcarouter:qwen/qwen3.5-flash",
+    "provider_model_slug": "qwen/qwen3.5-flash",
+    "internal_model_id": "qwen/qwen3.5-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -3353,12 +6550,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-plus"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-plus-2026-02-15",
+    "provider_api_model_id": "orcarouter:qwen/qwen3.5-plus-2026-02-15",
+    "provider_model_slug": "qwen/qwen3.5-plus-2026-02-15",
+    "internal_model_id": "qwen/qwen3.5-plus-2026-02-15",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -3412,6 +6674,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.6-35b-a3b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3471,12 +6739,254 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.6-plus"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.7-max",
+    "provider_api_model_id": "orcarouter:qwen/qwen3.7-max",
+    "provider_model_slug": "qwen/qwen3.7-max",
+    "internal_model_id": "qwen/qwen3.7-max",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 64000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.7-plus",
+    "provider_api_model_id": "orcarouter:qwen/qwen3.7-plus",
+    "provider_model_slug": "qwen/qwen3.7-plus",
+    "internal_model_id": "qwen/qwen3.7-plus",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-max",
+    "provider_api_model_id": "orcarouter:qwen/qwen3.8-max",
+    "provider_model_slug": "qwen/qwen3.8-max",
+    "internal_model_id": "qwen/qwen3.8-max",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "tencent/hy3",
+    "provider_api_model_id": "orcarouter:tencent/hy3",
+    "provider_model_slug": "tencent/hy3",
+    "internal_model_id": "tencent/hy3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -3530,6 +7040,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-4.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3589,6 +7105,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-4.5-air"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3648,6 +7170,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-4.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3707,6 +7235,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-4.7"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3766,6 +7300,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3825,12 +7365,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-5.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.2",
+    "provider_api_model_id": "orcarouter:z-ai/glm-5.2",
+    "provider_model_slug": "z-ai/glm-5.2",
+    "internal_model_id": "z-ai/glm-5.2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.orcarouter.ai/v1/models",
+        "accessed_at": "2026-08-11T12:20:02.489Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:02.489Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   }

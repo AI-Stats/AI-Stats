@@ -48,6 +48,110 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "black-forest-labs/flux-1.1-pro",
+    "provider_api_model_id": "siliconflow:black-forest-labs/flux-1.1-pro",
+    "provider_model_slug": "black-forest-labs/FLUX-1.1-pro",
+    "internal_model_id": "black-forest-labs/flux-1.1-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.703+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "black-forest-labs/flux-1.1-pro-ultra",
+    "provider_api_model_id": "siliconflow:black-forest-labs/flux-1.1-pro-ultra",
+    "provider_model_slug": "black-forest-labs/FLUX-1.1-pro-Ultra",
+    "internal_model_id": "black-forest-labs/flux-1.1-pro-ultra",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.703+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "bytedance/seed-oss-36b-instruct",
     "provider_api_model_id": "siliconflow:bytedance/seed-oss-36b-instruct",
     "provider_model_slug": "ByteDance-Seed/Seed-OSS-36B-Instruct",
@@ -461,10 +565,15 @@
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": null,
+      "data": null
+    },
     "service_tiers": [],
     "api": {
-      "formats": ["openai.chat.completions"],
+      "formats": [
+        "openai.chat.completions"
+      ],
       "endpoint": null,
       "deployment": null
     },
@@ -1253,6 +1362,110 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "qwen/qwen-image",
+    "provider_api_model_id": "siliconflow:qwen/qwen-image",
+    "provider_model_slug": "Qwen/Qwen-Image",
+    "internal_model_id": "qwen/qwen-image",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.703+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen-image-edit",
+    "provider_api_model_id": "siliconflow:qwen/qwen-image-edit",
+    "provider_model_slug": "Qwen/Qwen-Image-Edit",
+    "internal_model_id": "qwen/qwen-image-edit",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.703+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "qwen/qwen2.5-72b",
     "provider_api_model_id": "siliconflow:qwen/qwen2.5-72b",
     "provider_model_slug": "Qwen/Qwen2.5-72B-Instruct",
@@ -1667,8 +1880,12 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": ["global"],
-      "data": ["global"]
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -1928,6 +2145,266 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-embedding-0.6b",
+    "provider_api_model_id": "siliconflow:qwen/qwen3-embedding-0.6b",
+    "provider_model_slug": "Qwen/Qwen3-Embedding-0.6B",
+    "internal_model_id": "qwen/qwen3-embedding-0.6b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.703+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-embedding-4b",
+    "provider_api_model_id": "siliconflow:qwen/qwen3-embedding-4b",
+    "provider_model_slug": "Qwen/Qwen3-Embedding-4B",
+    "internal_model_id": "qwen/qwen3-embedding-4b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.703+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-embedding-8b",
+    "provider_api_model_id": "siliconflow:qwen/qwen3-embedding-8b",
+    "provider_model_slug": "Qwen/Qwen3-Embedding-8B",
+    "internal_model_id": "qwen/qwen3-embedding-8b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.703+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-reranker-0.6b",
+    "provider_api_model_id": "siliconflow:qwen/qwen3-reranker-0.6b",
+    "provider_model_slug": "Qwen/Qwen3-Reranker-0.6B",
+    "internal_model_id": "qwen/qwen3-reranker-0.6b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.703+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-reranker-8b",
+    "provider_api_model_id": "siliconflow:qwen/qwen3-reranker-8b",
+    "provider_model_slug": "Qwen/Qwen3-Reranker-8B",
+    "internal_model_id": "qwen/qwen3-reranker-8b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.703+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -2394,8 +2871,12 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": ["global"],
-      "data": ["global"]
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -2449,8 +2930,12 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": ["global"],
-      "data": ["global"]
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {

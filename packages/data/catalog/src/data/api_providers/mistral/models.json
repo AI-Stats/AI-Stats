@@ -8,7 +8,7 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 256000,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": "2026-03-31T00:00:00",
@@ -128,13 +128,65 @@
   {
     "api_model_id": "mistral/codestral-embed",
     "provider_api_model_id": "mistral:mistral/codestral-embed",
+    "provider_model_slug": "codestral-embed",
+    "internal_model_id": "mistral/codestral-embed",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 8192,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:00:58.766+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "mistral/codestral-embed",
+    "provider_api_model_id": "mistral:mistral/codestral-embed",
     "provider_model_slug": "codestral-embed-2505",
     "internal_model_id": "mistral/codestral-embed",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "embeddings",
-    "context_length": null,
+    "context_length": 8192,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -182,7 +234,7 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1060,7 +1112,7 @@
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1186,7 +1238,7 @@
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1312,7 +1364,7 @@
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1432,13 +1484,65 @@
   {
     "api_model_id": "mistral/mistral-embed",
     "provider_api_model_id": "mistral:mistral/mistral-embed",
+    "provider_model_slug": "mistral-embed",
+    "internal_model_id": "mistral/mistral-embed",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 8192,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:00:58.766+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "mistral/mistral-embed",
+    "provider_api_model_id": "mistral:mistral/mistral-embed",
     "provider_model_slug": "mistral-embed-2312",
     "internal_model_id": "mistral/mistral-embed",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "embeddings",
-    "context_length": null,
+    "context_length": 8192,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1612,7 +1716,7 @@
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1738,7 +1842,7 @@
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1864,7 +1968,7 @@
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -2104,6 +2208,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "mistral/mistral-medium-3.5",
+    "provider_api_model_id": "mistral:mistral/mistral-medium-3.5",
+    "provider_model_slug": "mistral-medium-3.5",
+    "internal_model_id": "mistral/mistral-medium-3.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:00:58.766+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -2687,7 +2843,7 @@
     "quantization_scheme": null,
     "input_modalities": "image,file",
     "output_modalities": "text,image",
-    "context_length": null,
+    "context_length": 16384,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -2735,7 +2891,7 @@
     "quantization_scheme": null,
     "input_modalities": "image,file",
     "output_modalities": "text,image",
-    "context_length": null,
+    "context_length": 16384,
     "max_output_tokens": null,
     "effective_from": "2026-06-30T00:00:00",
     "effective_to": null,
@@ -2957,7 +3113,7 @@
     "quantization_scheme": null,
     "input_modalities": "text.audio",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 32768,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -3083,7 +3239,7 @@
     "quantization_scheme": null,
     "input_modalities": "text,audio",
     "output_modalities": "audio_tts",
-    "context_length": null,
+    "context_length": 4096,
     "max_output_tokens": null,
     "effective_from": "2026-03-23T00:00:00",
     "effective_to": null,
@@ -3119,6 +3275,114 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.2",
+    "provider_api_model_id": "mistral:z-ai/glm-5.2",
+    "provider_model_slug": "zai-glm-5-2",
+    "internal_model_id": "z-ai/glm-5.2",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-06T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": 128000,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global",
+        "eu"
+      ],
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "docs",
+        "url": "https://docs.mistral.ai/models/zai-glm-5-2",
+        "accessed_at": "2026-08-11T00:00:00Z",
+        "notes": "Mistral model card documents the zai-glm-5-2 API slug, 1M context, 128k maximum output, supported features, regional availability, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-11T00:00:00Z",
+      "notes": "Verified against the Mistral model card."
     },
     "rate_limits": []
   }
