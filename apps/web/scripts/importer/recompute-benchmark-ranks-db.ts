@@ -19,7 +19,8 @@ type BenchmarkResultRow = {
 };
 
 type BenchmarkMetaRow = {
-	id: string;
+	id?: string;
+	benchmark_id?: string;
 	ascending_order: boolean | null;
 };
 
@@ -60,9 +61,9 @@ async function fetchAllBenchmarkRows(
 	for (const ids of idGroups) {
 		for (let offset = 0; ; offset += PAGE_SIZE) {
 			let query = supa
-				.from("v2_rpc_benchmark_results_legacy_shape")
+				.from("v2_benchmark_results")
 				.select(
-					"id,result_key,model_id,benchmark_id,score,is_self_reported,other_info,source_link,occur_idx,variant,rank",
+					"result_id,result_key,model_slug,benchmark_id,score,is_self_reported,other_info,source_link,occur_idx,variant,rank",
 				)
 				.order("benchmark_id", { ascending: true })
 				.order("id", { ascending: true })
@@ -72,14 +73,14 @@ async function fetchAllBenchmarkRows(
 				query = query.in("benchmark_id", ids);
 			}
 
-			const rows = assertOk(
+			const rawRows = assertOk(
 				await query,
 				"select v2 benchmark results for rank recompute",
-			) as BenchmarkResultRow[];
+			) as Array<Omit<BenchmarkResultRow, "id" | "model_id"> & { result_id: string; model_slug: string }>;
 
-			if (!rows.length) break;
-			out.push(...rows);
-			if (rows.length < PAGE_SIZE) break;
+			if (!rawRows.length) break;
+			out.push(...rawRows.map((row) => ({ ...row, id: row.result_id, model_id: row.model_slug })));
+			if (rawRows.length < PAGE_SIZE) break;
 		}
 	}
 
@@ -96,14 +97,15 @@ async function fetchBenchmarkMeta(
 	for (const ids of chunk(Array.from(new Set(benchmarkIds)), 200)) {
 		const rows = assertOk(
 			await supa
-				.from("v2_rpc_benchmarks_legacy_shape")
-				.select("id,ascending_order")
-				.in("id", ids),
+				.from("v2_benchmarks")
+				.select("benchmark_id,ascending_order")
+				.in("benchmark_id", ids),
 			"select v2 benchmarks for rank recompute",
 		) as BenchmarkMetaRow[];
 
 		for (const row of rows) {
-			out.set(row.id, typeof row.ascending_order === "boolean" ? row.ascending_order : null);
+			const benchmarkId = row.id ?? row.benchmark_id;
+			if (benchmarkId) out.set(benchmarkId, typeof row.ascending_order === "boolean" ? row.ascending_order : null);
 		}
 	}
 
@@ -117,9 +119,9 @@ async function benchmarkIdsForModel(modelId: string): Promise<string[]> {
 	for (let offset = 0; ; offset += PAGE_SIZE) {
 		const page = assertOk(
 			await supa
-				.from("v2_rpc_benchmark_results_legacy_shape")
-				.select("id,benchmark_id")
-				.eq("model_id", modelId)
+				.from("v2_benchmark_results")
+				.select("result_id,benchmark_id")
+				.eq("model_slug", modelId)
 				.order("benchmark_id", { ascending: true })
 				.order("id", { ascending: true })
 				.range(offset, offset + PAGE_SIZE - 1),
