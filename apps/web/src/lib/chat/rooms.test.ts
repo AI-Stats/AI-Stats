@@ -5,6 +5,7 @@ import {
 	filterModelsForRoom,
 	roomIdsFromCapabilities,
 } from "@/lib/chat/rooms";
+import minimaxRoutes from "../../../../../packages/data/catalog/src/data/api_providers/minimax/models.json";
 
 describe("chat room capability mapping", () => {
 	it("keeps video visible and Fusion at the bottom of the room picker", () => {
@@ -57,5 +58,22 @@ describe("chat room capability mapping", () => {
 		expect(filterModelsForRoom(models, "image")).toHaveLength(1);
 		expect(filterModelsForRoom(models, "embeddings")).toHaveLength(1);
 		expect(filterModelsForRoom(models, "realtime")).toHaveLength(1);
+	});
+
+	it("keeps the routable MiniMax Music 2.6 selectors eligible for the Music room", () => {
+		const routes = minimaxRoutes.filter((route) =>
+			["minimax/music-2.6", "minimax/music-2.6-free"].includes(route.api_model_id),
+		);
+		expect(routes).toHaveLength(2);
+		for (const route of routes) {
+			expect(route.is_active_gateway).toBe(true);
+			expect(route.routing_status).toBe("active");
+			expect(route.capabilities).toEqual(expect.arrayContaining([
+				expect.objectContaining({ capability_id: "music.generate", status: "active" }),
+			]));
+			expect(filterModelsForRoom([
+				{ modelId: route.api_model_id, capabilities: ["music.generate"] },
+			], "music")).toHaveLength(1);
+		}
 	});
 });

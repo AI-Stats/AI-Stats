@@ -1267,7 +1267,7 @@
     "capabilities": [
       {
         "capability_id": "music.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -1315,7 +1315,7 @@
     "capabilities": [
       {
         "capability_id": "music.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
         "reasoning": null,
         "tool_call": null,
