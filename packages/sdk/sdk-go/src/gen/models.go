@@ -1137,6 +1137,7 @@ type ChatCompletionsRequest struct {
 	Provider interface{} `json:"provider,omitempty"`
 	ProviderOptions *map[string]interface{} `json:"provider_options,omitempty"`
 	Reasoning *map[string]interface{} `json:"reasoning,omitempty"`
+	ReasoningEffort *string `json:"reasoning_effort,omitempty"`
 	ResponseFormat interface{} `json:"response_format,omitempty"`
 	SafetyIdentifier *string `json:"safety_identifier,omitempty"`
 	Seed *int `json:"seed,omitempty"`
