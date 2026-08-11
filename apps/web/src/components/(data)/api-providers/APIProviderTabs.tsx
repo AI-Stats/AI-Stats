@@ -79,7 +79,7 @@ export default function TabBar({ apiProviderId }: { apiProviderId: string }) {
 			>
 				<div
 					aria-hidden="true"
-					className="pointer-events-none absolute bottom-0 h-0.5 rounded bg-muted-foreground transition-[left,width,opacity] duration-200 ease-out"
+					className="pointer-events-none absolute bottom-0 h-0.5 bg-primary transition-[left,width,opacity] duration-200 ease-out"
 					style={{
 						left: indicator.left,
 						width: indicator.width,
@@ -102,8 +102,8 @@ export default function TabBar({ apiProviderId }: { apiProviderId: string }) {
 							className={cn(
 								"pb-2 px-2 text-sm font-medium transition-colors duration-150",
 								isActive
-									? "text-primary"
-									: "text-muted-foreground hover:text-primary"
+									? "text-foreground"
+									: "text-muted-foreground hover:text-foreground"
 							)}
 						>
 							{t.label}
@@ -115,7 +115,7 @@ export default function TabBar({ apiProviderId }: { apiProviderId: string }) {
 			{/* Mobile */}
 			<div className="md:hidden mb-4">
 				<DropdownMenu>
-					<DropdownMenuTrigger render={<Button className="group w-full p-2 border rounded text-base bg-background text-foreground flex justify-between items-center" />}>
+					<DropdownMenuTrigger render={<Button variant="outline" className="group flex w-full items-center justify-between rounded-md p-2 text-base" />}>
 
 							{tabs.find((t) => t.key === activeKey)?.label ??
 								"Overview"}

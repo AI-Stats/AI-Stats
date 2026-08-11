@@ -1,4 +1,4 @@
-import { asArray, asRecord, defineProvider, fetchJson, normalizeModelEntries } from "./_shared";
+import { asArray, asRecord, defineProvider, fetchJson, getMissingEnvVars, normalizeModelEntries } from "./_shared";
 
 type OpenAICompatProviderConfig = {
     providerId: string;
@@ -40,18 +40,22 @@ export function defineOpenAICompatibleProvider(config: OpenAICompatProviderConfi
         ? config.apiKeyEnv
         : [config.apiKeyEnv];
     const primaryApiKeyEnv = apiKeyEnvCandidates[0];
+    const configuredApiKeyEnv =
+        apiKeyEnvCandidates.find((envName) => getMissingEnvVars([envName]).length === 0) ??
+        primaryApiKeyEnv;
 
     return defineProvider({
         id: config.providerId,
         name: config.name,
         requiredEnv:
             config.baseUrlEnv && !config.baseUrl
-                ? [primaryApiKeyEnv, config.baseUrlEnv]
-                : [primaryApiKeyEnv],
+                ? [configuredApiKeyEnv, config.baseUrlEnv]
+                : [configuredApiKeyEnv],
         async fetchModels() {
-            const key = apiKeyEnvCandidates
-                .map((envName) => process.env[envName])
-                .find((value) => typeof value === "string" && value.trim().length > 0);
+            const apiKeyEnv = apiKeyEnvCandidates.find(
+                (envName) => getMissingEnvVars([envName]).length === 0
+            );
+            const key = apiKeyEnv ? process.env[apiKeyEnv] : undefined;
             const configuredBaseUrl = config.baseUrlEnv ? process.env[config.baseUrlEnv] : undefined;
             const baseUrl = config.baseUrl ?? configuredBaseUrl;
 
@@ -71,9 +75,11 @@ export function defineOpenAICompatibleProvider(config: OpenAICompatProviderConfi
                 },
             });
 
-            const models = asArray(asRecord(payload)?.data).length
-                ? asArray(asRecord(payload)?.data)
-                : asArray(asRecord(payload)?.models);
+            const models = Array.isArray(payload)
+                ? payload
+                : asArray(asRecord(payload)?.data).length
+                    ? asArray(asRecord(payload)?.data)
+                    : asArray(asRecord(payload)?.models);
 
             return normalizeModelEntries(models, (item) => (typeof item.id === "string" ? item.id : null));
         },

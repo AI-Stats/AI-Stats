@@ -163,6 +163,17 @@ export async function runVideoReconciliationJob(args?: {
 					lastReconciledAt: polledAt,
 				},
 			});
+			const nextStatus = String(finalized.status ?? "").toLowerCase();
+			if (currentStatus !== nextStatus) {
+				dispatchVideoWebhookEventInBackground({
+					workspaceId: job.workspaceId,
+					videoId: job.videoId,
+					eventType: "video.status_changed",
+					previousStatus: currentStatus || null,
+					currentStatus: nextStatus || null,
+					deliveryKey: `video.status_changed:${currentStatus || "unknown"}:${nextStatus || "unknown"}`,
+				});
+			}
 			if (finalized.status === "in_progress" && typeof polled.progress === "number") {
 				dispatchVideoWebhookEventInBackground({
 					workspaceId: job.workspaceId,

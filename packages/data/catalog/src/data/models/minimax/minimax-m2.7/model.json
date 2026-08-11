@@ -142,6 +142,14 @@
       "other_info": "Top-1 accuracy 63.4%; cases 703",
       "source_link": "https://github.com/lechmazur/generalization",
       "rank": 5
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 38.9,
+      "is_self_reported": false,
+      "other_info": "MiniMax-M2.7; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/minimax-m2-7",
+      "rank": 80
     }
   ],
   "family_id": null,

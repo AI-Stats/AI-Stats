@@ -130,6 +130,14 @@
       "other_info": null,
       "source_link": "https://example.com/benchmark-image",
       "rank": 12
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 2.7,
+      "is_self_reported": false,
+      "other_info": "Gemini 1.0 Pro; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gemini-1-0-pro",
+      "rank": 535
     }
   ],
   "page_notice": null,

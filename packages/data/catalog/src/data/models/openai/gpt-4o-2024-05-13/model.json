@@ -112,6 +112,14 @@
       "other_info": null,
       "source_link": "https://openai.com/blog/gpt-4o",
       "rank": 107
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 8.4,
+      "is_self_reported": false,
+      "other_info": "GPT-4o (May '24); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gpt-4o-2024-05-13",
+      "rank": 414
     }
   ],
   "page_notice": null,

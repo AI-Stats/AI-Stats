@@ -101,7 +101,16 @@
     }
   ],
   "page_notice": null,
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 58.1,
+      "is_self_reported": false,
+      "other_info": "Qwen3.8 Max; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/qwen3-8-max",
+      "rank": 9
+    }
+  ],
   "family_id": null,
   "model_type": null,
   "knowledge_cutoff": null,

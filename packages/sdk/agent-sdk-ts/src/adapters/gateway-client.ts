@@ -227,7 +227,14 @@ function buildPayload(request: AgentModelRequest<any>, options: GatewayAgentClie
 export function createGatewayAgentClient(
 	options: GatewayAgentClientOptions = {},
 ): AgentModelClient {
-	const client = options.client ?? new Phaseo(options.clientOptions ?? {});
+	const client = options.client ?? new Phaseo({
+		...(options.clientOptions ?? {}),
+		headers: {
+			...(options.clientOptions?.headers ?? {}),
+			"X-Phaseo-Client": "phaseo-agent-typescript",
+			"X-Phaseo-Client-Version": "0.2.0",
+		},
+	});
 
 	return {
 		async generate(request) {

@@ -13,7 +13,13 @@
   "input_types": "text,image,video",
   "output_types": "text",
   "api_model_id": "google/gemma-3-4b",
-  "variants": [{ "model_id": "google/gemma-3-4b:free", "name": "Gemma 3 4B (Free)", "variant_kind": "free" }],
+  "variants": [
+    {
+      "model_id": "google/gemma-3-4b:free",
+      "name": "Gemma 3 4B (Free)",
+      "variant_kind": "free"
+    }
+  ],
   "family_id": "google/gemma-3",
   "links": [
     {
@@ -78,6 +84,14 @@
       "other_info": null,
       "source_link": "https://lmarena.ai/leaderboard/text",
       "rank": 55
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 1,
+      "is_self_reported": false,
+      "other_info": "Gemma 3 4B Instruct; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gemma-3-4b",
+      "rank": 577
     }
   ],
   "page_notice": null,

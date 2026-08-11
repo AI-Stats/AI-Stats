@@ -22,14 +22,6 @@
   ],
   "benchmarks": [
     {
-      "benchmark_id": "aa-intelligence-index-v4",
-      "score": 49.33,
-      "is_self_reported": false,
-      "other_info": "Artificial Analysis structured model metrics",
-      "source_link": "https://artificialanalysis.ai/models/grok-4-20",
-      "rank": 3
-    },
-    {
       "benchmark_id": "gdpval-aa",
       "score": 1186.69875946904,
       "is_self_reported": false,
@@ -156,6 +148,14 @@
       "other_info": "Non-reasoning; Top-1 accuracy 33.4%; cases 703",
       "source_link": "https://github.com/lechmazur/generalization",
       "rank": 2
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 38,
+      "is_self_reported": false,
+      "other_info": "Grok 4.20 0309 v2 (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/grok-4-20",
+      "rank": 85
     }
   ],
   "family_id": null,

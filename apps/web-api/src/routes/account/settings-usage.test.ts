@@ -35,8 +35,10 @@ describe("account usage settings routes", () => {
 	});
 
 	it("returns private logs, upstream, jobs, and session views with metadata", async () => {
+		let requestedExactFacets = false;
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
+			if (url.includes("/rpc/get_gateway_request_facets")) requestedExactFacets = true;
 			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", created_at: "2025-01-01" }), { status: 200 });
 			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
 			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
@@ -47,7 +49,8 @@ describe("account usage settings routes", () => {
 			if (url.includes("gateway_usage_rollup_15m")) return new Response(JSON.stringify([{ canonical_model_id: "openai/gpt-test", provider: "openai" }]), { status: 200 });
 			if (url.includes("gateway_requests")) {
 				if (url.includes("select=session_id")) return new Response(JSON.stringify([{ session_id: "session-1", created_at: "2026-07-17T00:00:00Z", cost_nanos: 1000, app_id: "app-1", model_id: "openai/gpt-test", provider: "openai", end_user_id: "end-user-1" }]), { status: 200 });
-				if (url.includes("select=request_id")) return new Response(JSON.stringify([{ request_id: "request-1", created_at: "2026-07-17T00:00:00Z", endpoint: "chat/completions", model_id: "openai/gpt-test", provider: "openai", app_id: "app-1", success: true, cost_nanos: 1000 }]), { status: 200, headers: { "content-range": "0-0/1" } });
+				if (url.includes("request_id=eq.request-1")) return new Response(JSON.stringify([{ request_id: "request-1", created_at: "2026-07-17T00:00:00Z", endpoint: "chat/completions", model_id: "openai/gpt-test", provider: "openai", app_id: "app-1", success: true, cost_nanos: 1000 }]), { status: 200 });
+				if (url.includes("select=id%2Crequest_id") || url.includes("select=id,request_id")) return new Response(JSON.stringify([{ id: "row-1", request_id: "request-1", created_at: "2026-07-17T00:00:00Z", endpoint: "chat/completions", model_id: "openai/gpt-test", provider: "openai", app_id: "app-1", success: true, cost_nanos: 1000 }]), { status: 200 });
 				return new Response(JSON.stringify([{ model_id: "openai/gpt-test", provider: "openai", app_id: "app-1" }]), { status: 200 });
 			}
 			if (url.includes("/keys")) return new Response(JSON.stringify([{ id: "key-1", name: "Production", prefix: "ph_" }]), { status: 200 });
@@ -69,7 +72,8 @@ describe("account usage settings routes", () => {
 			expect(response.status).toBe(200);
 			expect(response.headers.get("cache-control")).toBe("private, no-store");
 		}
-		await expect(logs.json()).resolves.toMatchObject({ view: "logs", data: { dedupedModels: ["openai/gpt-test"], initialRequestsPage: { data: [{ request_id: "request-1" }], total: 1 }, providerNameEntries: [["openai", "OpenAI"]] } });
+		await expect(logs.json()).resolves.toMatchObject({ view: "logs", data: { dedupedModels: ["openai/gpt-test"], initialRequestsPage: { data: [{ request_id: "request-1" }], pageSize: 50, hasMore: false, nextCursor: null }, providerNameEntries: [["openai", "OpenAI"]] } });
+		expect(requestedExactFacets).toBe(false);
 		await expect(upstream.json()).resolves.toMatchObject({ view: "upstream", data: { availableKeys: [{ id: "key-1", name: "Production" }], upstreamRequests: [{ id: "upstream-1", request_id: "G-test", key_id: "key-1", key_source: "gateway" }], providerMetadataEntries: [["openai", { name: "OpenAI" }]], providerNameEntries: [["openai", "OpenAI"]] } });
 		await expect(jobs.json()).resolves.toMatchObject({ view: "jobs", data: { recentJobs: [{ internal_id: "job-1", webhook: { status: "delivered" } }], jobProviders: ["openai"] } });
 		await expect(sessions.json()).resolves.toMatchObject({ view: "sessions", data: { sessions: [{ session_id: "session-1", request_count: 1, total_cost_nanos: 1000 }], sessionAppIds: ["app-1"] } });

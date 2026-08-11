@@ -15,7 +15,16 @@
   "api_model_id": "qwen/qwen3-max",
   "links": [],
   "details": [],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 24.5,
+      "is_self_reported": false,
+      "other_info": "Qwen3 Max; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/qwen3-max",
+      "rank": 195
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

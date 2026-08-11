@@ -1,5 +1,7 @@
 import ChatPlayground from "@/components/(chat)/ChatPlayground";
 import { fetchFrontendGatewayModels } from "@/lib/fetchers/frontend/fetchFrontendGatewayModels";
+import { fetchChatEffectivePolicy } from "@/lib/fetchers/internal/fetchChatEffectivePolicy";
+import { applyChatEffectivePolicy } from "@/lib/chat/effectivePolicy";
 
 type ChatPlaygroundLoaderProps = {
     modelParam?: string | null;
@@ -18,7 +20,8 @@ export default async function ChatPlaygroundLoader({
     modelParam,
     promptParam,
 }: ChatPlaygroundLoaderProps) {
-    const models = await fetchFrontendGatewayModels();
+	const [catalogue, effectivePolicy] = await Promise.all([fetchFrontendGatewayModels(), fetchChatEffectivePolicy().catch(() => null)]);
+	const models = applyChatEffectivePolicy(catalogue, effectivePolicy);
 	const trimmedModelParam = decodeQueryValue((modelParam ?? "").trim());
 	const modelIdSet = new Set(models.map((m) => m.modelId));
 	let resolvedModelParam: string | null = trimmedModelParam || null;

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { Suspense } from "react";
 import {
 	BarChart3,
+	BookOpen,
 	ChevronDown,
 	ChevronUp,
 	ChevronsUpDown,
@@ -14,6 +16,7 @@ import {
 } from "lucide-react";
 import SettingsPageHeader from "@/components/(gateway)/settings/SettingsPageHeader";
 import SettingsSectionFallback from "@/components/(gateway)/settings/SettingsSectionFallback";
+import { ProductFeedbackButton } from "@/components/feedback/ProductFeedbackButton";
 import {
 	PresetFeedbackDetailDialog,
 	type PresetFeedbackDetail,
@@ -21,6 +24,8 @@ import {
 import { PresetFeedbackFilters } from "@/components/(gateway)/settings/presets/experiments/PresetFeedbackFilters";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PresetComparisonExplorer } from "@/components/(gateway)/settings/presets/experiments/PresetComparisonExplorer";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	Empty,
 	EmptyContent,
@@ -37,7 +42,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { presetExperimentsEnabled } from "@/lib/flags";
 import { cn } from "@/lib/utils";
 import {
 	requireAuthenticatedUser,
@@ -409,7 +413,7 @@ function sortSummaries(
 
 function buildFeedbackHref(
 	filters: Filters,
-	overrides: Partial<Pick<Filters, "sort" | "direction">>,
+	overrides: Partial<Pick<Filters, "sort" | "direction" | "presetQuery">>,
 ): string {
 	const next = { ...filters, ...overrides };
 	const params = new URLSearchParams();
@@ -427,6 +431,22 @@ function buildFeedbackHref(
 	if (next.direction !== DEFAULT_DIRECTION) params.set("direction", next.direction);
 	const query = params.toString();
 	return `/settings/presets/experiments${query ? `?${query}` : ""}`;
+}
+
+function presetDisplayName(preset: Pick<PresetRow, "name" | "slug">): string {
+	const rawName = preset.name.trim().replace(/^@/, "");
+	const slug = (preset.slug ?? "").trim().replace(/^@/, "");
+	if (rawName && (!slug || rawName.toLowerCase() !== slug.toLowerCase())) return rawName;
+	const source = slug || rawName || "Untitled Preset";
+	return source
+		.split(/[-_]+/)
+		.filter(Boolean)
+		.map((word) => {
+			if (word.toLowerCase() === "xs") return "XS";
+			if (/^\d+$/.test(word)) return word;
+			return word.charAt(0).toUpperCase() + word.slice(1);
+		})
+		.join(" ");
 }
 
 async function loadPresetFeedbackData(filters: Filters) {
@@ -499,7 +519,7 @@ async function PresetFeedbackContent({
 }: {
 	searchParams?: Promise<SearchParams>;
 }) {
-	if (!(await presetExperimentsEnabled())) notFound();
+	await connection();
 	const resolvedSearchParams = await searchParams;
 	const parsedFilters = parseFilters(resolvedSearchParams);
 	const data = await loadPresetFeedbackData(parsedFilters).catch((error) => {
@@ -512,9 +532,15 @@ async function PresetFeedbackContent({
 		return (
 			<div className="space-y-6">
 				<SettingsPageHeader
-					title="Preset feedback"
-					description="Compare preset quality from developer feedback APIs, date windows, and metadata cohorts."
-					meta={<Badge variant="outline">Observability</Badge>}
+					title="Preset Feedback"
+					description="Compare preset quality from feedback API events, date windows, and metadata cohorts."
+					meta={<Badge variant="outline">Alpha</Badge>}
+					actions={
+						<ProductFeedbackButton
+							surface="settings_preset_feedback"
+							prompt="Tell us what would make preset feedback analysis more useful."
+						/>
+					}
 				/>
 				<div className="border-y border-border/70 py-8">
 					<p className="text-sm text-muted-foreground">
@@ -535,20 +561,10 @@ async function PresetFeedbackContent({
 	const baselineId =
 		parsedFilters.baselineId && summariesByPreset.has(parsedFilters.baselineId)
 			? parsedFilters.baselineId
-			: allSummaries[0]?.preset.id ?? null;
+			: null;
 	const baseline = baselineId ? summariesByPreset.get(baselineId) ?? null : null;
-	const presetQuery = parsedFilters.presetQuery.toLowerCase();
-	const filteredSummaries = presetQuery
-		? allSummaries.filter((summary) => {
-				const slug = summary.preset.slug ?? "";
-				return (
-					summary.preset.name.toLowerCase().includes(presetQuery) ||
-					slug.toLowerCase().includes(presetQuery)
-				);
-			})
-		: allSummaries;
 	const summaries = sortSummaries(
-		filteredSummaries,
+		allSummaries,
 		parsedFilters.sort,
 		parsedFilters.direction,
 		baseline ? positiveRate(baseline) : null,
@@ -566,18 +582,31 @@ async function PresetFeedbackContent({
 	const cohorts = buildCohorts(visibleFeedback, parsedFilters.metadataKey);
 
 	return (
-		<div className="min-w-0 max-w-full space-y-8 overflow-hidden lg:max-w-[calc(100vw-18rem)]">
+		<div className="min-w-0 max-w-full space-y-7 overflow-hidden lg:max-w-[calc(100vw-18rem)]">
 			<SettingsPageHeader
-				title="Preset feedback"
-				description="Compare response quality from feedback API events across presets, cohorts, and date windows."
-				meta={<Badge variant="outline">Observability</Badge>}
+				title="Preset Feedback"
+				description="Measure how each preset performs using ratings and outcome signals from your application."
+				meta={<Badge variant="outline">Alpha</Badge>}
+				className="sm:flex-col sm:items-stretch xl:flex-row xl:items-start"
 				actions={
-					<Button asChild size="sm" variant="outline">
-						<Link href="/settings/presets/new">
-							<Plus className="h-4 w-4" />
-							Create preset
-						</Link>
-					</Button>
+					<div className="flex flex-wrap items-center justify-start gap-2 xl:justify-end">
+						<Button asChild size="sm" variant="ghost" className="rounded-md">
+							<a href="https://phaseo.app/docs/v1/guides/preset-feedback" target="_blank" rel="noreferrer">
+								<BookOpen className="h-4 w-4" />
+								Documentation
+							</a>
+						</Button>
+						<Button asChild size="sm" variant="outline" className="rounded-md">
+							<Link href="/settings/presets/new">
+								<Plus className="h-4 w-4" />
+								Create preset
+							</Link>
+						</Button>
+						<ProductFeedbackButton
+							surface="settings_preset_feedback"
+							prompt="Tell us what would make preset feedback analysis more useful."
+						/>
+					</div>
 				}
 			/>
 
@@ -616,51 +645,55 @@ async function PresetFeedbackContent({
 							sort: parsedFilters.sort,
 							direction: parsedFilters.direction,
 						}}
-						presets={data.presets}
+						presets={data.presets.map((preset) => ({
+							...preset,
+							displayName: presetDisplayName(preset),
+						}))}
 						baselineId={baselineId}
 						metadataKeys={metadataKeys}
 					/>
 
-					<div className="grid overflow-hidden rounded-lg border border-border/70 bg-background md:grid-cols-4 md:divide-x md:divide-border/70">
+					<div className={cn("grid border-y border-border/70 md:divide-x md:divide-border/70", baseline ? "md:grid-cols-4" : "md:grid-cols-3")}>
 						<MetricStat
 							title="Feedback"
 							value={String(totalFeedback)}
 							detail={`${parsedFilters.from} to ${parsedFilters.to}`}
 						/>
 						<MetricStat
-							title="Positive rate"
+							title="Positive Rate"
 							value={formatRate(totalPositive, totalFeedback)}
 							detail="Thumbs up or correct"
 						/>
 						<MetricStat
-							title="Negative rate"
+							title="Negative Rate"
 							value={formatRate(totalNegative, totalFeedback)}
 							detail="Thumbs down, incorrect, unsafe"
 						/>
-						<MetricStat
-							title="Baseline"
-							value={baseline?.preset.name ?? "None"}
-							detail={
-								baseline && baseline.count > 0
-									? `${formatRate(baseline.positive, baseline.count)} positive`
-									: "No feedback"
-							}
-						/>
+						{baseline ? (
+							<MetricStat
+								title="Baseline"
+								value={presetDisplayName(baseline.preset)}
+								detail={baseline.count > 0 ? `${formatRate(baseline.positive, baseline.count)} positive` : "No feedback"}
+							/>
+						) : null}
 					</div>
 
 					<section className="min-w-0 space-y-3">
-						<div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+						<div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
 							<div className="space-y-1">
 								<h2 className="flex items-center gap-2 text-base font-semibold">
 									<BarChart3 className="h-4 w-4" />
-									Preset comparison
+									Preset Comparison
 								</h2>
 								<p className="max-w-3xl text-sm text-muted-foreground">
-									Sort presets by explicit ratings. Positive means thumbs up or correct; negative means thumbs down, incorrect, or unsafe; baseline delta compares positive-rate percentage points.
+									{baseline
+										? "Sort presets by explicit ratings and compare positive-rate percentage points with the selected baseline."
+										: "Sort presets by explicit ratings. Select an optional baseline above only when you have a deliberate control preset."}
 								</p>
 							</div>
 						</div>
-						<div className="min-w-0 overflow-x-auto rounded-lg border border-border/70">
+						<PresetComparisonExplorer initialQuery={parsedFilters.presetQuery}>
+						<ScrollArea className="min-w-0 w-full border-y border-border/70" scrollBarOrientation="horizontal">
 							<Table wrapInContainer={false} className="min-w-[980px]">
 								<TableHeader className="bg-muted/30">
 									<TableRow>
@@ -675,12 +708,7 @@ async function PresetFeedbackContent({
 											filters={parsedFilters}
 											className="text-right"
 										/>
-										<SortableComparisonHead
-											label="Vs baseline"
-											sortKey="delta"
-											filters={parsedFilters}
-											className="text-right"
-										/>
+						{baseline ? <SortableComparisonHead label="Vs Baseline" sortKey="delta" filters={parsedFilters} className="text-right" /> : null}
 										<SortableComparisonHead
 											label="Positive"
 											sortKey="positive"
@@ -712,7 +740,7 @@ async function PresetFeedbackContent({
 											className="text-right"
 										/>
 										<SortableComparisonHead
-											label="Last feedback"
+											label="Last Feedback"
 											sortKey="last_feedback"
 											filters={parsedFilters}
 											className="text-right"
@@ -722,17 +750,17 @@ async function PresetFeedbackContent({
 								<TableBody>
 									{summaries.length === 0 ? (
 										<TableRow>
-											<TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+											<TableCell colSpan={baseline ? 9 : 8} className="h-24 text-center text-muted-foreground">
 												No presets match the active filters.
 											</TableCell>
 										</TableRow>
 									) : (
 										summaries.map((summary) => (
-											<TableRow key={summary.preset.id}>
+										<TableRow key={summary.preset.id} data-preset-search={`${presetDisplayName(summary.preset)} ${summary.preset.name} ${summary.preset.slug ?? ""}`.toLowerCase()}>
 												<TableCell>
 													<div className="min-w-0">
 														<div className="flex flex-wrap items-center gap-2">
-															<p className="font-medium">{summary.preset.name}</p>
+													<p className="font-medium">{presetDisplayName(summary.preset)}</p>
 															{summary.preset.id === baselineId ? (
 																<Badge variant="secondary">Baseline</Badge>
 															) : null}
@@ -743,11 +771,11 @@ async function PresetFeedbackContent({
 													</div>
 												</TableCell>
 												<TableCell className="text-right">{summary.count}</TableCell>
-												<TableCell className="text-right">
-													{summary.preset.id === baselineId
-														? "Baseline"
-														: formatDelta(positiveRate(summary), baseline ? positiveRate(baseline) : null)}
-												</TableCell>
+											{baseline ? <TableCell className="text-right">
+												{summary.preset.id === baselineId
+													? "Baseline"
+													: formatDelta(positiveRate(summary), baseline ? positiveRate(baseline) : null)}
+											</TableCell> : null}
 												<TableCell className="text-right">
 													{formatRate(summary.positive, summary.count)}
 												</TableCell>
@@ -767,7 +795,8 @@ async function PresetFeedbackContent({
 									)}
 								</TableBody>
 							</Table>
-						</div>
+						</ScrollArea>
+						</PresetComparisonExplorer>
 					</section>
 
 					{parsedFilters.metadataKey ? (
@@ -775,14 +804,14 @@ async function PresetFeedbackContent({
 							<div className="space-y-1">
 								<h2 className="flex items-center gap-2 text-base font-semibold">
 									<SlidersHorizontal className="h-4 w-4" />
-									Cohort breakdown
+									Cohort Breakdown
 								</h2>
 								<p className="text-sm text-muted-foreground">
 									Grouped by <span className="font-mono">{parsedFilters.metadataKey}</span>
 									{parsedFilters.metadataValue ? ` = ${parsedFilters.metadataValue}` : ""}.
 								</p>
 							</div>
-							<div className="min-w-0 overflow-x-auto rounded-lg border border-border/70">
+							<ScrollArea className="min-w-0 w-full border-y border-border/70" scrollBarOrientation="horizontal">
 								{cohorts.length === 0 ? (
 									<div className="px-4 py-8 text-sm text-muted-foreground">
 										No feedback in this window includes that metadata dimension.
@@ -817,7 +846,7 @@ async function PresetFeedbackContent({
 										</TableBody>
 									</Table>
 								)}
-							</div>
+							</ScrollArea>
 						</section>
 					) : null}
 
@@ -825,14 +854,14 @@ async function PresetFeedbackContent({
 						<div className="space-y-1">
 							<h2 className="flex items-center gap-2 text-base font-semibold">
 								<MessageSquareText className="h-4 w-4" />
-								Feedback events
+								Feedback Events
 							</h2>
 							<p className="text-sm text-muted-foreground">
 								Showing the {Math.min(visibleFeedback.length, 50)} most recent of {totalFeedback} loaded rows. Open a row to inspect request, session, cohort metadata, comments, and tags.
 								{data.feedbackTruncated ? " Analysis is capped at the 10,000 most recent matching rows." : ""}
 							</p>
 						</div>
-						<div className="min-w-0 overflow-x-auto rounded-lg border border-border/70">
+						<ScrollArea className="min-w-0 w-full border-y border-border/70" scrollBarOrientation="horizontal">
 							{visibleFeedback.length === 0 ? (
 								<Empty size="compact" className="py-10">
 									<EmptyHeader>
@@ -872,7 +901,14 @@ async function PresetFeedbackContent({
 															</p>
 														</div>
 													</TableCell>
-													<TableCell>{preset?.name ?? "Unknown preset"}</TableCell>
+												<TableCell>
+													{preset ? (
+														<div className="min-w-0">
+															<p className="truncate font-medium">{presetDisplayName(preset)}</p>
+															{preset.slug ? <p className="truncate font-mono text-xs text-muted-foreground">@{preset.slug.replace(/^@/, "")}</p> : null}
+														</div>
+													) : "Unknown Preset"}
+												</TableCell>
 													<TableCell className="max-w-xs truncate text-xs text-muted-foreground">
 														{compactDimensions(row.metadata_dimensions)}
 													</TableCell>
@@ -897,7 +933,7 @@ async function PresetFeedbackContent({
 									</TableBody>
 								</Table>
 							)}
-						</div>
+						</ScrollArea>
 					</section>
 				</>
 			)}
@@ -965,8 +1001,8 @@ function MetricStat({
 	detail: string;
 }) {
 	return (
-		<div className="min-w-0 border-b border-border/70 p-4 last:border-b-0 md:border-b-0">
-			<p className="text-xs font-medium uppercase text-muted-foreground">{title}</p>
+		<div className="min-w-0 border-b border-border/70 px-4 py-3 last:border-b-0 md:border-b-0">
+			<p className="text-sm font-medium text-muted-foreground">{title}</p>
 			<p className="mt-2 truncate text-2xl font-semibold">{value}</p>
 			<p className="mt-1 truncate text-xs text-muted-foreground">{detail}</p>
 		</div>

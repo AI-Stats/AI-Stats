@@ -36,6 +36,13 @@ async function deterministicBase62(seed: string, length: number): Promise<string
 	return output.slice(0, length);
 }
 
+export async function deriveChatGatewayKey(seed: string, workspaceId: string, userId: string): Promise<{ kid: string; secret: string }> {
+	return {
+		kid: await deterministicBase62(`${seed}:kid:${workspaceId}:${userId}`, 12),
+		secret: await deterministicBase62(`${seed}:secret:${workspaceId}:${userId}`, 40),
+	};
+}
+
 async function keyHash(pepper: string, secret: string): Promise<string> {
 	const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pepper), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
 	const digest = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(secret)));
@@ -68,8 +75,7 @@ export async function resolveGatewayKeys(request: Request, env: Env, waitUntil: 
 	const seed = String(env.CHAT_ROUTE_KEY_SEED ?? env.KEY_PEPPER_ACTIVE ?? "").trim();
 	const pepper = String(env.KEY_PEPPER_ACTIVE ?? "").trim();
 	if (!seed || !pepper) return { status: 503, code: "chat_key_configuration_missing", message: "Chat authentication is not configured" };
-	const kid = await deterministicBase62(`${seed}:kid:${workspaceId}`, 12);
-	const secret = await deterministicBase62(`${seed}:secret:${workspaceId}`, 40);
+	const { kid, secret } = await deriveChatGatewayKey(seed, workspaceId, user.id);
 	const apiKey = `phaseo_v1_sk_${kid}_${secret}`;
 	const expectedHash = await keyHash(pepper, secret);
 	const existing = await client.from("keys").select("id,workspace_id,status,hash").eq("kid", kid).maybeSingle();

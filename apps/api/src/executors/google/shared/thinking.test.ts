@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+	getDefaultGoogleThinkingLevel,
 	getSupportedGoogleThinkingLevels,
 	modelSupportsGoogleThinkingLevels,
 	resolveGoogleThinkingLevelForEffort,
@@ -27,6 +28,27 @@ describe("google thinking level support", () => {
 		).toEqual(["MINIMAL", "LOW", "MEDIUM", "HIGH"]);
 	});
 
+	it("uses Gemma 4's supported on/off thinking levels", () => {
+		expect(getSupportedGoogleThinkingLevels("google/gemma-4-26b-a4b:free")).toEqual([
+			"MINIMAL",
+			"HIGH",
+		]);
+		expect(getSupportedGoogleThinkingLevels("gemma-4-31b-it")).toEqual([
+			"MINIMAL",
+			"HIGH",
+		]);
+		expect(resolveGoogleThinkingLevelForEffort("gemma-4-26b-a4b-it", "minimal")).toBe("MINIMAL");
+		expect(resolveGoogleThinkingLevelForEffort("gemma-4-26b-a4b-it", "low")).toBe("MINIMAL");
+		expect(resolveGoogleThinkingLevelForEffort("gemma-4-26b-a4b-it", "medium")).toBe("HIGH");
+		expect(resolveGoogleThinkingLevelForEffort("gemma-4-31b-it", "high")).toBe("HIGH");
+	});
+
+	it("defaults hosted Gemma 4 generation to minimal thinking", () => {
+		expect(getDefaultGoogleThinkingLevel("google/gemma-4-26b-a4b:free")).toBe("MINIMAL");
+		expect(getDefaultGoogleThinkingLevel("gemma-4-31b-it")).toBe("MINIMAL");
+		expect(getDefaultGoogleThinkingLevel("gemini-3.1-pro-preview")).toBeUndefined();
+	});
+
 	it("maps effort values to Google thinking levels", () => {
 		const model = "google/gemini-3.1-flash-image-preview";
 		expect(resolveGoogleThinkingLevelForEffort(model, "minimal")).toBe("MINIMAL");
@@ -37,7 +59,7 @@ describe("google thinking level support", () => {
 		expect(resolveGoogleThinkingLevelForEffort(model, "max")).toBe("HIGH");
 	});
 
-	it("does not use thinking levels for non-Gemini-3 models", () => {
+	it("does not use thinking levels for unsupported models", () => {
 		expect(modelSupportsGoogleThinkingLevels("gemini-2.5-flash")).toBe(false);
 		expect(resolveGoogleThinkingLevelForEffort("gemini-2.5-flash", "medium")).toBeUndefined();
 	});

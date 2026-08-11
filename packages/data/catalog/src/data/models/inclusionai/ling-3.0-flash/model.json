@@ -51,7 +51,16 @@
       "value": "Novita lists $0.06 per 1M input tokens, $0.012 per 1M cached input tokens, and $0.18 per 1M output tokens after the free promotion ended on 6 August 2026 at 8:00 AM PT."
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 37.8,
+      "is_self_reported": false,
+      "other_info": "Ling 3.0 Flash; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/ling-3-0-flash",
+      "rank": 87
+    }
+  ],
   "page_notice": null,
   "model_type": null,
   "knowledge_cutoff": null,

@@ -7,7 +7,6 @@ import { EmptyChartPreview } from "@/components/(rankings)/EmptyChartPreview";
 import {
 	ChartContainer,
 	ChartTooltip,
-	ChartTooltipContent,
 } from "@/components/ui/chart";
 import {
 	assignOrderedSeriesColours,
@@ -272,52 +271,39 @@ export function MarketShareStackedBar({
 						];
 						if (!filteredPayload.length) return null;
 						return (
-							<div className="grid min-w-32 items-start gap-1.5 rounded-lg border border-zinc-200/50 bg-white px-2.5 py-1.5 text-xs shadow-xl dark:border-zinc-800/50 dark:bg-zinc-950">
-								<ChartTooltipContent
-									active={props.active}
-									label={props.label}
-									payload={filteredPayload}
-									className="min-w-0 border-0 bg-transparent p-0 shadow-none"
-									labelFormatter={(lbl) => String(lbl)}
-									formatter={(v, name, item) => {
-										const val = Number(v ?? 0);
-										const seriesKey = String(item?.dataKey ?? name ?? "");
+							<div className="grid min-w-[13rem] items-start gap-1.5 rounded-md bg-popover px-2.5 py-2 text-xs text-popover-foreground shadow-lg ring-1 ring-foreground/10">
+								<div className="font-medium">{String(props.label ?? "")}</div>
+								<div className="grid gap-0.5">
+									{filteredPayload.map((item) => {
+										const val = Number(item?.value ?? 0);
+										const seriesKey = String(item?.dataKey ?? item?.name ?? "");
 										const payload = (item?.payload ?? {}) as Record<string, unknown>;
 										const rawValue = Number(payload[`${seriesKey}__raw`] ?? val);
 										const cfg = seriesStyle[seriesKey];
 										const isHovered = hoveredKey === seriesKey;
 										return (
 											<div
-												className={`flex w-full items-center justify-between rounded-md px-1.5 py-0.5 ${
-													isHovered
-														? "bg-zinc-200/70 dark:bg-zinc-800/70"
-														: ""
+												key={seriesKey}
+												className={`flex items-center gap-1.5 rounded-sm px-1 py-0.5 ${
+													isHovered ? "bg-muted" : ""
 												}`}
 											>
-												<span className="inline-flex min-w-0 items-center gap-1.5">
-													<span
-														className="inline-block shrink-0 rounded-[2px]"
-														style={{
-															backgroundColor: cfg?.color,
-															width: 4,
-															height: 14,
-														}}
-													/>
-													<span
-														className={`truncate ${isHovered ? "font-medium" : ""}`}
-													>
-														{cfg?.label ?? String(name ?? "")}
-													</span>
+												<span
+													className="h-3.5 w-1 shrink-0 rounded-[1px]"
+													style={{ backgroundColor: cfg?.color }}
+												/>
+												<span className="min-w-0 flex-1 truncate">
+													{cfg?.label ?? String(item?.name ?? "")}
 												</span>
-												<span className="ml-auto whitespace-nowrap pl-3 text-right tabular-nums">
+												<span className="whitespace-nowrap pl-3 font-medium tabular-nums">
 													{normalizeToPercent
 														? `${formatPercent(val)} · ${formatNumber(rawValue)}`
 														: formatNumber(val)}
 												</span>
 											</div>
 										);
-									}}
-								/>
+									})}
+								</div>
 							</div>
 						);
 					}}

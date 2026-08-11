@@ -13,7 +13,13 @@
   "input_types": "text,image,video",
   "output_types": "text",
   "api_model_id": "google/gemma-4-31b",
-  "variants": [{ "model_id": "google/gemma-4-31b:free", "name": "Gemma 4 31B (Free)", "variant_kind": "free" }],
+  "variants": [
+    {
+      "model_id": "google/gemma-4-31b:free",
+      "name": "Gemma 4 31B (Free)",
+      "variant_kind": "free"
+    }
+  ],
   "links": [],
   "details": [],
   "benchmarks": [
@@ -144,6 +150,14 @@
       "other_info": "Reasoning; Top-1 accuracy 76.1%; cases 703",
       "source_link": "https://github.com/lechmazur/generalization",
       "rank": 12
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 29.7,
+      "is_self_reported": false,
+      "other_info": "Gemma 4 31B (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gemma-4-31b",
+      "rank": 158
     }
   ],
   "family_id": null,

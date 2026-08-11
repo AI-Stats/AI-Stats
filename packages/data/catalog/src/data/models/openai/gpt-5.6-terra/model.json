@@ -65,7 +65,16 @@
       "value": "Supports the beta multi-agent feature in the Responses API."
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 56.6,
+      "is_self_reported": false,
+      "other_info": "GPT-5.6 Terra (max); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gpt-5-6-terra",
+      "rank": 13
+    }
+  ],
   "page_notice": null,
   "model_type": null,
   "knowledge_cutoff": "2026-02-16T00:00:00",

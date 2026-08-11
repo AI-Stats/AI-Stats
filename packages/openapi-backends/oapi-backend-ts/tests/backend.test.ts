@@ -44,14 +44,30 @@ test("backend-ts emits stable file set", async () => {
 	const files = await backendTs.generate(ir, { outDir: "ignored" });
 	const paths = files.map((file) => file.path);
 	assert.deepEqual(paths, [
+		"client/default.ts",
 		"client/index.ts",
-		"client/widgets.ts",
 		"index.ts",
-		"models/Widget.ts",
-		"models/index.ts"
+		"models/index.ts",
+		"models/Widget.ts"
 	]);
 	const widgetModel = files.find((file) => file.path === "models/Widget.ts");
 	assert.ok(widgetModel?.contents.includes("export interface Widget"));
-	const clientFile = files.find((file) => file.path === "client/widgets.ts");
+	const clientFile = files.find((file) => file.path === "client/default.ts");
 	assert.ok(clientFile?.contents.includes("getWidget"));
+});
+
+test("backend-ts parenthesizes array item unions", async () => {
+	const ir: IR = {
+		version: 1,
+		info: { title: "Example", version: "1.0.0" },
+		models: [{
+			name: "OrganisationIdList",
+			schema: { kind: "array", items: { kind: "enum", values: ["openai", "google"] } },
+		}],
+		operations: [],
+	};
+
+	const files = await backendTs.generate(ir, { outDir: "ignored" });
+	const model = files.find((file) => file.path === "models/OrganisationIdList.ts");
+	assert.match(model?.contents ?? "", /export type OrganisationIdList = \("openai" \| "google"\)\[\];/);
 });

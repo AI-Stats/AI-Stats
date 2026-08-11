@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
 	guardrailRows: [] as Array<Record<string, unknown> | null>,
 	deleteCalls: [] as Array<{ table: string; filters: Array<{ column: string; value: unknown }> }>,
+	policyVersionBumps: [] as string[],
 }));
 
 function json(body: unknown, status = 200, headers: Record<string, string> = {}) {
@@ -96,6 +97,13 @@ vi.mock("@/pipeline/before/guards", () => ({
 	})),
 }));
 
+vi.mock("@/pipeline/before/workspacePolicy", () => ({
+	bumpWorkspacePolicyVersion: vi.fn(async (workspaceId: string) => {
+		state.policyVersionBumps.push(workspaceId);
+		return 1;
+	}),
+}));
+
 vi.mock("@/routes/utils", () => ({
 	json,
 	withRuntime: (handler: (req: Request) => Promise<Response>) => async (c: any) => handler(c.req.raw),
@@ -105,6 +113,7 @@ describe("guardrail management security", () => {
 	beforeEach(() => {
 		state.guardrailRows.length = 0;
 		state.deleteCalls.length = 0;
+		state.policyVersionBumps.length = 0;
 		vi.resetModules();
 	});
 
@@ -136,5 +145,6 @@ describe("guardrail management security", () => {
 			{ column: "workspace_id", value: "ws_attacker" },
 			{ column: "id", value: "gr_owned" },
 		]);
+		expect(state.policyVersionBumps).toEqual(["ws_attacker"]);
 	});
 });

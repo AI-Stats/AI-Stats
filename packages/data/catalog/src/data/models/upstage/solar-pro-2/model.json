@@ -13,9 +13,33 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "upstage/solar-pro-2",
-  "links": [{ "title": "Official model documentation", "kind": "documentation", "url": "https://console.upstage.ai/docs/models/solar-pro-2" }],
-  "details": [{ "name": "parameters", "value": "31B" }, { "name": "languages", "value": "English, Korean, Japanese" }],
-  "benchmarks": [],
+  "links": [
+    {
+      "title": "Official model documentation",
+      "kind": "documentation",
+      "url": "https://console.upstage.ai/docs/models/solar-pro-2"
+    }
+  ],
+  "details": [
+    {
+      "name": "parameters",
+      "value": "31B"
+    },
+    {
+      "name": "languages",
+      "value": "English, Korean, Japanese"
+    }
+  ],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 8.8,
+      "is_self_reported": false,
+      "other_info": "Solar Pro 2 (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/solar-pro-2-reasoning",
+      "rank": 405
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,
@@ -26,8 +50,12 @@
     "output": null
   },
   "modalities": {
-    "input": ["text"],
-    "output": ["text"]
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
   },
   "reasoning": {
     "supported": true,
@@ -42,7 +70,14 @@
     "web_search": null
   },
   "open_weights": null,
-  "sources": [{ "kind": "documentation", "url": "https://console.upstage.ai/docs/models/solar-pro-2", "accessed_at": "2026-08-06T00:00:00Z", "notes": "Official documentation confirms the current dated version, specifications, and capabilities." }],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://console.upstage.ai/docs/models/solar-pro-2",
+      "accessed_at": "2026-08-06T00:00:00Z",
+      "notes": "Official documentation confirms the current dated version, specifications, and capabilities."
+    }
+  ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-06T00:00:00Z",
