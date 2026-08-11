@@ -7,7 +7,7 @@
   "description": "MAI Code 1 Flash is Microsoft's inference-efficient agentic coding model, tailored for GitHub Copilot and Microsoft developer workflows.",
   "announced_date": "2026-06-02T00:00:00",
   "release_date": "2026-06-02T00:00:00",
-  "deprecation_date": null,
+  "deprecation_date": "2026-09-10T00:00:00",
   "retirement_date": null,
   "license": "Proprietary",
   "input_types": "text",
@@ -24,6 +24,11 @@
       "title": "GitHub Copilot Availability",
       "kind": "documentation",
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models"
+    },
+    {
+      "title": "Deprecation Notice",
+      "kind": "documentation",
+      "url": "https://github.blog/changelog/2026-08-11-upcoming-deprecation-of-mai-code-1-flash"
     }
   ],
   "details": [
@@ -74,6 +79,12 @@
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "accessed_at": "2026-08-11T00:00:00",
       "notes": "GitHub lists MAI-Code-1-Flash as generally available in Copilot."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://github.blog/changelog/2026-08-11-upcoming-deprecation-of-mai-code-1-flash",
+      "accessed_at": "2026-08-11T00:00:00",
+      "notes": "GitHub will deprecate MAI-Code-1-Flash across Copilot on September 10, 2026 in favor of MAI-Code-1.1-Flash."
     }
   ],
   "verification": {
@@ -83,6 +94,6 @@
   },
   "last_updated": null,
   "removal_date": null,
-  "replacement_model_id": null,
+  "replacement_model_id": "microsoft/mai-code-1.1-flash",
   "license_url": null
 }
