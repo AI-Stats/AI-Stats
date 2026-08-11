@@ -144,4 +144,10 @@ Report vulnerabilities privately through GitHub Security Advisories or `security
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=phaseoteam/Phaseo&type=Date)](https://star-history.com/#phaseoteam/Phaseo&Date)
+<a href="https://www.star-history.com/?type=date&repos=phaseoteam%2FPhaseo">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=phaseoteam/Phaseo&type=date&theme=dark&legend=top-left&sealed_token=dwcYmLn-7nauxa1NBHvzDXx3yXzBLgKWf29po3bGswiWxYHaNH1vCF1aG1rclilDCh8oxHBOQt935y8HQUjosItu5MlVMC1DMK1icnLjy2lN5UMT8tJyhG8fc_PUyjq853VTVUFU-fG-ma7hcgo669snJpEdtr7gXvMIN7Dnj8SQLrOzASo-1Zlo748R" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=phaseoteam/Phaseo&type=date&legend=top-left&sealed_token=dwcYmLn-7nauxa1NBHvzDXx3yXzBLgKWf29po3bGswiWxYHaNH1vCF1aG1rclilDCh8oxHBOQt935y8HQUjosItu5MlVMC1DMK1icnLjy2lN5UMT8tJyhG8fc_PUyjq853VTVUFU-fG-ma7hcgo669snJpEdtr7gXvMIN7Dnj8SQLrOzASo-1Zlo748R" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=phaseoteam/Phaseo&type=date&legend=top-left&sealed_token=dwcYmLn-7nauxa1NBHvzDXx3yXzBLgKWf29po3bGswiWxYHaNH1vCF1aG1rclilDCh8oxHBOQt935y8HQUjosItu5MlVMC1DMK1icnLjy2lN5UMT8tJyhG8fc_PUyjq853VTVUFU-fG-ma7hcgo669snJpEdtr7gXvMIN7Dnj8SQLrOzASo-1Zlo748R" />
+ </picture>
+</a>
