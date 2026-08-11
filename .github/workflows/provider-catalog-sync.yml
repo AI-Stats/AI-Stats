@@ -6,77 +6,42 @@ on:
     workflow_dispatch:
         inputs:
             providers:
-                description: Comma-separated discovery provider IDs (blank uses the safe pricing set)
+                description: Comma-separated provider IDs (blank checks all providers)
                 required: false
                 type: string
     schedule:
-        - cron: "7,22,37,52 * * * *"
-        - cron: "41 2 * * *"
+        - cron: "7 * * * *"
+
+concurrency:
+    group: provider-catalog-sync
+    cancel-in-progress: false
 
 permissions:
     contents: read
 
 jobs:
-    providers:
-        name: Select providers
+    sync:
+        name: Batch provider catalog sync
         runs-on: ubuntu-latest
-        outputs:
-            matrix: ${{ steps.matrix.outputs.value }}
-            has-providers: ${{ steps.matrix.outputs.has_providers }}
+        timeout-minutes: 60
         steps:
-            - name: Build provider matrix
-              id: matrix
+            - name: Resolve provider filter
+              id: provider-filter
               env:
                   EVENT_NAME: ${{ github.event_name }}
                   MANUAL_PROVIDERS: ${{ inputs.providers }}
                   DISPATCH_PROVIDERS: ${{ toJSON(github.event.client_payload.providers) }}
-                  SCHEDULE: ${{ github.event.schedule }}
-                  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-                  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
               shell: bash
               run: |
                   set -euo pipefail
-                  safe='["ai21","akashml","aion-labs","ambient","anthropic","arcee-ai","atlascloud","baseten","chutes","cloudflare","crofai","crossmodel","deepinfra","deepseek","digitalocean","elevenlabs","empiriolabs","fireworks","gmicloud","groq","huggingface","inception","kilo","llmgateway","moonshotai","nebius-token-factory","nextbit","novita","openai","openrouter","ovhcloud","perplexity","pioneer","spacex-ai","stepfun","together","venice","vercel","voyage","weights-and-biases","xiaomi","z-ai"]'
-                  if [[ "$EVENT_NAME" == "repository_dispatch" ]]; then
-                    providers="$(jq -c 'map(strings | ascii_downcase) | map(select(test("^[a-z0-9][a-z0-9-]*$"))) | unique' <<<"$DISPATCH_PROVIDERS")"
-                  elif [[ -n "${MANUAL_PROVIDERS:-}" ]]; then
-                    providers="$(jq -Rc 'split(",") | map(gsub("^\\s+|\\s+$"; "") | ascii_downcase) | map(select(test("^[a-z0-9][a-z0-9-]*$"))) | unique' <<<"$MANUAL_PROVIDERS")"
-                  elif [[ "$EVENT_NAME" == "schedule" && "$SCHEDULE" != "41 2 * * *" ]]; then
-                    if [[ -z "$NEXT_PUBLIC_SUPABASE_URL" || -z "$SUPABASE_SERVICE_ROLE_KEY" ]]; then
-                      echo "Supabase credentials are required for the incremental provider poll." >&2
-                      exit 1
-                    fi
-                    since="$(date -u -d '35 minutes ago' +'%Y-%m-%dT%H:%M:%SZ')"
-                    runs="$(curl --fail-with-body --retry 3 --get \
-                      --header "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
-                      --header "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
-                      --data-urlencode 'select=summary' \
-                      --data-urlencode "started_at=gte.$since" \
-                      --data-urlencode 'order=started_at.desc' \
-                      --data-urlencode 'limit=100' \
-                      "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/model_discovery_runs")"
-                    providers="$(jq -c '[.[].summary | (.changes[]?.providerId, .pricingMonitor.providerChanges[]?.providerId, .providerApiPricingMonitor.providerChanges[]?.providerId, .pricingTableMonitor.providerChanges[]?.providerId)] | map(select(type == "string") | ascii_downcase) | map(select(test("^[a-z0-9][a-z0-9-]*$"))) | unique' <<<"$runs")"
-                  else
-                    providers="$safe"
+                  providers=""
+                  if [[ "$EVENT_NAME" == "workflow_dispatch" && -n "${MANUAL_PROVIDERS:-}" ]]; then
+                    providers="$(jq -Rc 'split(",") | map(gsub("^\\s+|\\s+$"; "") | ascii_downcase) | map(select(test("^[a-z0-9][a-z0-9-]*$"))) | unique | join(",")' <<<"$MANUAL_PROVIDERS")"
+                  elif [[ "$EVENT_NAME" == "repository_dispatch" && "${DISPATCH_PROVIDERS:-null}" != "null" ]]; then
+                    providers="$(jq -r 'if type == "array" then map(strings | ascii_downcase) | map(select(test("^[a-z0-9][a-z0-9-]*$"))) | unique | join(",") else "" end' <<<"$DISPATCH_PROVIDERS")"
                   fi
-                  count="$(jq 'length' <<<"$providers")"
-                  echo "value=$(jq -cn --argjson providers "$providers" '{provider:$providers}')" >> "$GITHUB_OUTPUT"
-                  if [[ "$count" -gt 0 ]]; then
-                    echo "has_providers=true" >> "$GITHUB_OUTPUT"
-                  else
-                    echo "has_providers=false" >> "$GITHUB_OUTPUT"
-                  fi
+                  echo "providers=$providers" >> "$GITHUB_OUTPUT"
 
-    sync:
-        name: Sync ${{ matrix.provider }}
-        needs: providers
-        if: needs.providers.outputs.has-providers == 'true'
-        runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            max-parallel: 6
-            matrix: ${{ fromJSON(needs.providers.outputs.matrix) }}
-        steps:
             - name: Create GitHub App token
               id: app-token
               uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
@@ -110,13 +75,26 @@ jobs:
               run: pnpm install --frozen-lockfile
 
             - name: Synchronize official provider pricing
-              run: pnpm --filter @phaseo/web catalog:sync:official-pricing -- --provider="${{ matrix.provider }}"
+              run: pnpm --filter @phaseo/web catalog:sync:official-pricing -- --providers="${{ steps.provider-filter.outputs.providers }}"
+
+            - name: Fill missing provider pricing from models.dev
+              run: pnpm --filter @phaseo/web catalog:sync:models-dev-pricing -- --providers="${{ steps.provider-filter.outputs.providers }}"
 
             - name: Synchronize provider discovery state
               env:
                   NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
                   SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-              run: pnpm --filter @phaseo/web catalog:sync:provider-discovery -- --provider="${{ matrix.provider }}"
+                  FASTROUTER_API_KEY: ${{ secrets.FASTROUTER_API_KEY }}
+                  KILO_API_KEY: ${{ secrets.KILO_API_KEY }}
+                  NANOGPT_API_KEY: ${{ secrets.NANOGPT_API_KEY }}
+                  NOVITA_API_KEY: ${{ secrets.NOVITA_API_KEY }}
+                  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+                  ORCAROUTER_API_KEY: ${{ secrets.ORCAROUTER_API_KEY }}
+                  PIONEER_API_KEY: ${{ secrets.PIONEER_API_KEY }}
+                  POE_API_KEY: ${{ secrets.POE_API_KEY }}
+                  REQUESTY_API_KEY: ${{ secrets.REQUESTY_API_KEY }}
+                  ZENMUX_API_KEY: ${{ secrets.ZENMUX_API_KEY }}
+              run: pnpm --filter @phaseo/web catalog:sync:provider-discovery -- --live --providers="${{ steps.provider-filter.outputs.providers }}"
 
             - name: Validate catalog changes
               run: |
@@ -131,23 +109,22 @@ jobs:
               run: |
                   gh label create automation --color 0E8A16 --description "Automated repository change" --force
                   gh label create model-sync --color 1D76DB --description "Automated provider model and pricing sync" --force
-                  gh label create "provider:${{ matrix.provider }}" --color C5DEF5 --description "Provider-specific catalog change" --force
+                  gh label create provider:batch --color C5DEF5 --description "Batched provider catalog change" --force
 
-            - name: Resolve provider branch
+            - name: Resolve batch branch
               id: sync-branch
               env:
                   GH_TOKEN: ${{ steps.app-token.outputs.token }}
-                  PROVIDER: ${{ matrix.provider }}
               shell: bash
               run: |
-                  prefix="automation/provider-catalog-$PROVIDER"
-                  branch="$(gh pr list --state open --json headRefName --jq ".[] | select(.headRefName | startswith(\"$prefix-\")) | .headRefName" | head -n 1)"
+                  prefix="automation/provider-catalog-batch"
+                  branch="$(gh pr list --state open --base main --json headRefName --jq '.[] | select(.headRefName | startswith("automation/provider-catalog-batch-")) | .headRefName' | head -n 1)"
                   if [[ -z "$branch" ]]; then
                     branch="$prefix-$GITHUB_RUN_ID"
                   fi
                   echo "branch=$branch" >> "$GITHUB_OUTPUT"
 
-            - name: Create or update provider pull request
+            - name: Create or update batch pull request
               id: pull-request
               uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1
               with:
@@ -160,20 +137,19 @@ jobs:
                       packages/data/catalog/src/data/api_providers/**
                       packages/data/catalog/src/data/pricing/**
                       packages/data/catalog/src/data/models/**
-                  commit-message: "chore(data): sync ${{ matrix.provider }} catalog"
-                  title: "chore(data): sync ${{ matrix.provider }} catalog"
+                  commit-message: "chore(data): sync provider catalog"
+                  title: "chore(data): sync provider catalog"
                   body-path: apps/web/.sync/provider-catalog-sync.md
                   labels: |
                       automation
                       model-sync
-                      provider:${{ matrix.provider }}
+                      provider:batch
 
             - name: Notify Discord
               if: steps.pull-request.outputs.pull-request-operation != ''
               env:
                   DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
                   PR_URL: ${{ steps.pull-request.outputs.pull-request-url }}
-                  PROVIDER: ${{ matrix.provider }}
                   OPERATION: ${{ steps.pull-request.outputs.pull-request-operation }}
               shell: bash
               run: |
@@ -181,5 +157,5 @@ jobs:
                     echo "DISCORD_WEBHOOK_URL is not configured; skipping notification."
                     exit 0
                   fi
-                  payload="$(jq -cn --arg provider "$PROVIDER" --arg operation "$OPERATION" --arg url "$PR_URL" '{content:("Provider catalog PR " + $operation + " for `" + $provider + "`: " + $url),allowed_mentions:{parse:[]}}')"
+                  payload="$(jq -cn --arg operation "$OPERATION" --arg url "$PR_URL" '{content:("Batched provider catalog PR " + $operation + ": " + $url),allowed_mentions:{parse:[]}}')"
                   curl --fail-with-body --retry 3 --header 'Content-Type: application/json' --data "$payload" "$DISCORD_WEBHOOK_URL"
