@@ -31,7 +31,16 @@
       "value": 108000000000
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 16.9,
+      "is_self_reported": false,
+      "other_info": "GLM-4.6V (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/glm-4-6v-reasoning",
+      "rank": 278
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

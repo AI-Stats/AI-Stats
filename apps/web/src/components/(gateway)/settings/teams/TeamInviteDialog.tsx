@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
 	revealTeamInviteAction,
 	revokeTeamInviteAction,
@@ -74,6 +75,7 @@ export default function TeamInviteDialog({
 	canManageInvite = false,
 	appBaseUrl,
 }: Props) {
+	const router = useRouter();
 	const isCreator = !!currentUserId && currentUserId === invite.creator_user_id;
 	const canManage = canManageInvite || isCreator;
 
@@ -161,7 +163,7 @@ export default function TeamInviteDialog({
 		revealed && appBaseUrl
 			? `${appBaseUrl.replace(/\/$/, "")}/join?i=${
 					invite.id
-			  }&t=${encodeURIComponent(revealed)}`
+				}&t=${encodeURIComponent(revealed)}`
 			: null;
 
 	async function handleReveal() {
@@ -278,8 +280,8 @@ export default function TeamInviteDialog({
 													Math.min(
 														10,
 														revealed.length
-													)
-											  )
+										)
+											)
 										: "*".repeat(10)}
 								</span>
 							</div>
@@ -448,6 +450,7 @@ export default function TeamInviteDialog({
 																false
 															);
 															onOpenChange(false);
+															router.refresh();
 														} catch (err: any) {
 															setRevokeError(
 																err?.message ??

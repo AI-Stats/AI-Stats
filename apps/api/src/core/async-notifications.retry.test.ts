@@ -6,13 +6,23 @@ const patchAsyncOperationMetaMock = vi.fn();
 const claimAsyncWebhookDeliveryMock = vi.fn();
 const completeAsyncWebhookDeliveryMock = vi.fn();
 const releaseAsyncWebhookDeliveryClaimMock = vi.fn();
+const listPendingAsyncWebhookDeliveriesMock = vi.fn();
 
 vi.mock("@core/async-operations", () => ({
 	claimAsyncWebhookDelivery: (...args: any[]) => claimAsyncWebhookDeliveryMock(...args),
 	completeAsyncWebhookDelivery: (...args: any[]) => completeAsyncWebhookDeliveryMock(...args),
 	getAsyncOperation: (...args: any[]) => getAsyncOperationMock(...args),
 	listAsyncOperations: (...args: any[]) => listAsyncOperationsMock(...args),
+	listPendingAsyncWebhookDeliveries: (...args: any[]) => listPendingAsyncWebhookDeliveriesMock(...args),
 	patchAsyncOperationMeta: (...args: any[]) => patchAsyncOperationMetaMock(...args),
+	recordAsyncWebhookDeliveryResult: (args: any) => patchAsyncOperationMetaMock({
+		workspaceId: args.workspaceId,
+		kind: args.kind,
+		internalId: args.internalId,
+		metaPatch: args.telemetryPatch,
+	}),
+	discardPendingAsyncWebhookDelivery: vi.fn(async () => undefined),
+	markPendingAsyncWebhookDeliveryDelivered: vi.fn(async () => undefined),
 	releaseAsyncWebhookDeliveryClaim: (...args: any[]) => releaseAsyncWebhookDeliveryClaimMock(...args),
 }));
 
@@ -44,6 +54,7 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 	beforeEach(() => {
 		getAsyncOperationMock.mockReset();
 		listAsyncOperationsMock.mockReset();
+		listPendingAsyncWebhookDeliveriesMock.mockReset().mockResolvedValue([]);
 		patchAsyncOperationMetaMock.mockReset();
 		claimAsyncWebhookDeliveryMock.mockReset().mockResolvedValue(true);
 		completeAsyncWebhookDeliveryMock.mockReset().mockResolvedValue(true);
@@ -53,6 +64,55 @@ describe("dispatchAsyncWebhookEvent retries", () => {
 
 	afterEach(() => {
 		vi.useRealTimers();
+	});
+
+	it("recovers a durable video status-change event from the outbox", async () => {
+		const record = {
+			workspaceId: "ws_status_change",
+			kind: "video",
+			internalId: "video_status_change",
+			requestId: "req_status_change",
+			sessionId: null,
+			appId: null,
+			provider: "fal",
+			nativeId: "falvid_test",
+			model: "bytedance/seedance-2.0",
+			status: "in_progress",
+			createdAt: "2026-08-10T19:00:00.000Z",
+			updatedAt: "2026-08-10T19:01:00.000Z",
+			meta: {
+				provider: "fal",
+				webhook: { url: "https://receiver.test/video", secret: "whsec_status", events: ["video.status_changed"] },
+			},
+		};
+		getAsyncOperationMock.mockResolvedValue(record);
+		listAsyncOperationsMock.mockResolvedValue([]);
+		listPendingAsyncWebhookDeliveriesMock.mockResolvedValue([{
+			workspaceId: record.workspaceId,
+			kind: "video",
+			internalId: record.internalId,
+			deliveryKey: "video.status_changed:queued:in_progress",
+			eventType: "video.status_changed",
+			phase: "status_changed",
+			progress: null,
+			previousStatus: "queued",
+			currentStatus: "in_progress",
+		}]);
+		const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => {
+			const payload = JSON.parse(String(init?.body));
+			expect(payload.type).toBe("video.status_changed");
+			expect(payload.status_change).toEqual({ previous_status: "queued", status: "in_progress" });
+			return new Response("ok", { status: 200 });
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		const summary = await runAsyncWebhookRetriesJob({ maxDeliveries: 10 });
+
+		expect(summary.deliveriesRetried).toBe(1);
+		expect(fetchMock).toHaveBeenCalledTimes(1);
+		expect(completeAsyncWebhookDeliveryMock).toHaveBeenCalledWith(expect.objectContaining({
+			deliveryKey: "video.status_changed:queued:in_progress",
+		}));
 	});
 
 	it("records a scheduled retry after the first delivery failure", async () => {

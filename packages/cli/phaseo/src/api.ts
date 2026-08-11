@@ -134,6 +134,11 @@ export async function refreshSession(session: Session): Promise<Session> {
 		expiresAt: Date.now() + tokens.expires_in * 1000,
 		apiUrl: session.apiUrl,
 		scope: tokens.scope,
+		...(session.integrationGatewayKey ? {
+			integrationGatewayKey: session.integrationGatewayKey,
+			integrationGatewayKeyId: session.integrationGatewayKeyId,
+			integrationGatewayKeyExpiresAt: session.integrationGatewayKeyExpiresAt,
+		} : {}),
 	};
 	await writeSession(next);
 	return next;

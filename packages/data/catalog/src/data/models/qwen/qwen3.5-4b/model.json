@@ -215,6 +215,14 @@
       "other_info": null,
       "source_link": "https://huggingface.co/Qwen/Qwen3.5-4B",
       "rank": 10
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 20.4,
+      "is_self_reported": false,
+      "other_info": "Qwen3.5 4B (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/qwen3-5-4b",
+      "rank": 233
     }
   ],
   "family_id": null,

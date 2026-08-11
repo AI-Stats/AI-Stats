@@ -19,7 +19,7 @@ from .model_ids import MODEL_IDS, ModelIds
 from .webhooks import compute_async_webhook_signature, verify_async_webhook_signature
 
 DEFAULT_BASE_URL = "https://api.phaseo.app/v1"
-DEFAULT_USER_AGENT = "phaseo-python"
+DEFAULT_USER_AGENT = "phaseo-python/2.0.7"
 
 
 class _ChatCompletionsResource:
@@ -347,7 +347,12 @@ class Phaseo:
 
         host = (base_url or DEFAULT_BASE_URL).rstrip("/")
         self._base_url = host
-        self._headers = {"Authorization": f"Bearer {api_key}", "User-Agent": DEFAULT_USER_AGENT}
+        self._headers = {
+            "Authorization": f"Bearer {api_key}",
+            "User-Agent": DEFAULT_USER_AGENT,
+            "X-Phaseo-Client": "phaseo-python",
+            "X-Phaseo-Client-Version": "2.0.7",
+        }
         self._client = Client(base_url=host, headers=self._headers)
         self._timeout = timeout
         self.chat = _ChatResource(self)

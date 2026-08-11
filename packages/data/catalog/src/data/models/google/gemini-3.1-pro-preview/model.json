@@ -312,6 +312,14 @@
       "other_info": "Top-1 accuracy 91.5%; cases 703",
       "source_link": "https://github.com/lechmazur/generalization",
       "rank": 28
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 47.7,
+      "is_self_reported": false,
+      "other_info": "Gemini 3.1 Pro Preview; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gemini-3-1-pro-preview",
+      "rank": 35
     }
   ],
   "page_notice": null,

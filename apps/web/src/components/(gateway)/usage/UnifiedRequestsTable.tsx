@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useQueryState } from "nuqs";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
 	Table,
 	TableBody,
@@ -13,7 +15,9 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	Tooltip,
@@ -26,9 +30,6 @@ import {
 	HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import {
-	ArrowUpDown,
-	ArrowUp,
-	ArrowDown,
 	ChevronLeft,
 	ChevronRight,
 	ChevronsLeft,
@@ -36,6 +37,11 @@ import {
 	XCircle,
 	Download,
 	AppWindow,
+	Bot,
+	Braces,
+	Package,
+	Terminal,
+	Loader2,
 } from "lucide-react";
 import {
 	fetchPaginatedRequests,
@@ -68,6 +74,7 @@ import {
 	PROVIDER_PROMPT_TRAINING_POLICY_LABELS,
 	normalizeProviderPromptTrainingPolicy,
 } from "@/lib/providers/promptTrainingPolicy";
+import { resolveProviderDisplayName } from "@/lib/providers/providerOffers";
 
 const RequestDetailDialog = dynamic(() => import("./RequestDetailDialog"));
 
@@ -81,6 +88,9 @@ interface UnifiedRequestsTableProps {
 	initialRows: RequestRow[];
 	initialTotal: number;
 	initialTotalPages: number;
+	initialHasMore: boolean;
+	initialNextCursor: { createdAt: string; id: string } | null;
+	initialPageSize: number;
 	detailBasePath?: string;
 	onExportRef?: React.MutableRefObject<
 		((format: "csv" | "pdf") => void) | null
@@ -111,7 +121,13 @@ function getRequestedModelId(row: RequestRow): string | null {
 }
 
 function getRoutedModelId(row: RequestRow): string | null {
-	return normalizeNonEmpty(row.routed_model_id) ?? normalizeNonEmpty(row.model_id);
+	const requested = getRequestedModelId(row);
+	const routed = normalizeNonEmpty(row.routed_model_id) ?? normalizeNonEmpty(row.model_id);
+	if (requested && routed && /(?::free|-free)$/i.test(requested)) {
+		const base = (value: string) => value.replace(/(?::free|-free)$/i, "").toLowerCase();
+		if (base(requested) === base(routed)) return requested;
+	}
+	return routed;
 }
 
 const PHASEO_CHAT_APP_KEYS = new Set([
@@ -132,6 +148,55 @@ function stopRowClick(event: React.MouseEvent<HTMLElement>) {
 	event.stopPropagation();
 }
 
+function getClientSource(row: RequestRow) {
+	if (row.client_source_id) {
+		return {
+			id: row.client_source_id,
+			name: row.client_source_name || row.client_source_id,
+			version: row.client_source_version || null,
+			detection: row.client_source_detection || null,
+			kind: row.client_source_kind || null,
+		};
+	}
+	const metadata = row.detail_metadata;
+	const source = metadata && typeof metadata === "object" && !Array.isArray(metadata)
+		? metadata.client_source
+		: null;
+	if (!source || typeof source !== "object" || Array.isArray(source)) {
+		return null;
+	}
+	const id = typeof source.id === "string" ? source.id : null;
+	if (!id) return null;
+	return {
+		id,
+		name: typeof source.name === "string" ? source.name : id,
+		version: typeof source.version === "string" ? source.version : null,
+		detection: typeof source.detection === "string" ? source.detection : null,
+		kind: typeof source.kind === "string" ? source.kind : null,
+	};
+}
+
+function ClientSourceIcon({ kind }: { kind: string }) {
+	const className = "h-3.5 w-3.5 shrink-0 text-muted-foreground";
+	if (kind === "coding_agent" || kind === "agent_sdk") return <Bot className={className} />;
+	if (kind === "sdk") return <Package className={className} />;
+	if (kind === "http_client") return <Terminal className={className} />;
+	return <Braces className={className} />;
+}
+
+function ClientSourceVisual({ sourceId, kind }: { sourceId: string; kind: string }) {
+	const imageClassName = "h-4 w-4 shrink-0 object-contain";
+	if (sourceId === "codex") return <Logo id="codex" width={16} height={16} className={imageClassName} />;
+	if (sourceId === "claude-code") return <Logo id="claudecode" width={16} height={16} className={imageClassName} />;
+	if (sourceId.includes("typescript")) {
+		return <Image src="/languages/typescript.svg" alt="TypeScript" width={16} height={16} className={imageClassName} />;
+	}
+	if (sourceId.includes("python")) {
+		return <Image src="/languages/python.svg" alt="Python" width={16} height={16} className={imageClassName} />;
+	}
+	return <ClientSourceIcon kind={kind} />;
+}
+
 export default function UnifiedRequestsTable({
 	timeRange,
 	appNames,
@@ -142,6 +207,9 @@ export default function UnifiedRequestsTable({
 	initialRows,
 	initialTotal,
 	initialTotalPages,
+	initialHasMore,
+	initialNextCursor,
+	initialPageSize,
 	detailBasePath,
 	onExportRef,
 }: UnifiedRequestsTableProps) {
@@ -149,19 +217,20 @@ export default function UnifiedRequestsTable({
 		typeof Intl !== "undefined"
 			? Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
 			: "UTC";
-	// URL state for pagination and sorting
+	// Cursor pagination is deliberately ordered newest-first. Supporting arbitrary
+	// sort columns would require a distinct stable cursor and index for each sort.
 	const [page, setPage] = useQueryState("page", {
 		defaultValue: 1,
 		parse: (value) => Math.max(1, parseInt(value || "1", 10)),
 		serialize: (value) => String(value),
 	});
-
-	const [sortField, setSortField] = useQueryState("sort", {
-		defaultValue: "created_at",
-	});
-
-	const [sortDir, setSortDir] = useQueryState("dir", {
-		defaultValue: "desc",
+	const [pageSize, setPageSize] = useQueryState("per_page", {
+		defaultValue: initialPageSize,
+		parse: (value) => {
+			const parsed = Number.parseInt(value || String(initialPageSize), 10);
+			return [25, 50, 100].includes(parsed) ? parsed : initialPageSize;
+		},
+		serialize: (value) => String(value),
 	});
 
 	const [relativeNowMs, setRelativeNowMs] = useState<number | null>(null);
@@ -186,6 +255,30 @@ export default function UnifiedRequestsTable({
 	const [statusFilter] = useQueryState("status");
 	const [requestFilter] = useQueryState("req");
 	const [sessionFilter] = useQueryState("session");
+	const [sourceFilter] = useQueryState("source");
+	const [inputTokensFilter] = useQueryState("input_tokens");
+	const [inputTokensMax] = useQueryState("input_tokens_max");
+	const [inputTokensOperator] = useQueryState("input_tokens_op");
+	const [outputTokensFilter] = useQueryState("output_tokens");
+	const [outputTokensMax] = useQueryState("output_tokens_max");
+	const [outputTokensOperator] = useQueryState("output_tokens_op");
+	const [totalTokensFilter] = useQueryState("total_tokens");
+	const [totalTokensMax] = useQueryState("total_tokens_max");
+	const [totalTokensOperator] = useQueryState("total_tokens_op");
+	const searchParams = useSearchParams();
+	const filterOperators = React.useMemo(() => ({
+		model: searchParams.get("model_op") ?? "is",
+		provider: searchParams.get("provider_op") ?? "is",
+		app: searchParams.get("app_op") ?? "is",
+		endpoint: searchParams.get("endpoint_op") ?? "is",
+		finish: searchParams.get("finish_op") ?? "is",
+		stream: searchParams.get("stream_op") ?? "is",
+		error: searchParams.get("error_op") ?? "is",
+		http: searchParams.get("http_op") ?? "is",
+		key: searchParams.get("key_op") ?? "is",
+		status: searchParams.get("status_op") ?? "is",
+		source: searchParams.get("source_op") ?? "is",
+	}), [searchParams]);
 	const [detailRequestId, setDetailRequestId] = useQueryState("request", {
 		history: "push",
 		shallow: true,
@@ -194,6 +287,12 @@ export default function UnifiedRequestsTable({
 	// Local state
 	const [pageCache, setPageCache] = useState<Map<number, RequestRow[]>>(
 		() => new Map([[initialPage, initialRows]]),
+	);
+	const [pageCursors, setPageCursors] = useState<Map<number, { createdAt: string; id: string } | null>>(
+		() => new Map([[1, null], [2, initialNextCursor]]),
+	);
+	const [hasMoreByPage, setHasMoreByPage] = useState<Map<number, boolean>>(
+		() => new Map([[1, initialHasMore]]),
 	);
 	const [total, setTotal] = useState(initialTotal);
 	const [totalPages, setTotalPages] = useState(initialTotalPages);
@@ -216,9 +315,10 @@ export default function UnifiedRequestsTable({
 	const [dialogOpen, setDialogOpen] = useState(false);
 	// Build cache key from filters
 	const getCacheKey = useCallback(() => {
-		return `${timeRange.from}-${timeRange.to}-${modelFilter}-${providerFilter}-${appFilter}-${endpointFilter}-${finishReasonFilter}-${streamFilter}-${errorCodeFilter}-${statusCodeFilter}-${keyFilter}-${statusFilter}-${requestFilter}-${sessionFilter}-${sortField}-${sortDir}`;
+		return `${timeRange.from}-${timeRange.to}-${pageSize}-${modelFilter}-${providerFilter}-${appFilter}-${endpointFilter}-${finishReasonFilter}-${streamFilter}-${errorCodeFilter}-${statusCodeFilter}-${keyFilter}-${statusFilter}-${requestFilter}-${sessionFilter}-${sourceFilter}-${inputTokensFilter}-${inputTokensMax}-${inputTokensOperator}-${outputTokensFilter}-${outputTokensMax}-${outputTokensOperator}-${totalTokensFilter}-${totalTokensMax}-${totalTokensOperator}-${JSON.stringify(filterOperators)}`;
 	}, [
 		timeRange,
+		pageSize,
 		modelFilter,
 		providerFilter,
 		appFilter,
@@ -231,8 +331,11 @@ export default function UnifiedRequestsTable({
 		statusFilter,
 		requestFilter,
 		sessionFilter,
-		sortField,
-		sortDir,
+		sourceFilter,
+		inputTokensFilter, inputTokensMax, inputTokensOperator,
+		outputTokensFilter, outputTokensMax, outputTokensOperator,
+		totalTokensFilter, totalTokensMax, totalTokensOperator,
+		filterOperators,
 	]);
 
 	const [currentCacheKey, setCurrentCacheKey] = useState(getCacheKey());
@@ -241,6 +344,8 @@ export default function UnifiedRequestsTable({
 	const fetchPage = useCallback(
 		async (pageNum: number, background = false) => {
 			if (inFlightPages.current.has(pageNum)) return null;
+			const cursor = pageNum === 1 ? null : pageCursors.get(pageNum);
+			if (pageNum > 1 && !cursor) return null;
 			inFlightPages.current.add(pageNum);
 
 			if (!background) {
@@ -271,9 +376,21 @@ export default function UnifiedRequestsTable({
 					statusFilter: (statusFilter as any) || "all",
 					requestFilter: requestFilter || null,
 					sessionFilter: sessionFilter || null,
-					page: pageNum,
-					sortField,
-					sortDirection: sortDir as "asc" | "desc",
+					 sourceFilter: sourceFilter || null,
+					filterOperators,
+					inputTokensFilter: inputTokensFilter || null,
+					inputTokensMax: inputTokensMax || null,
+					inputTokensOperator: inputTokensOperator || "gte",
+					outputTokensFilter: outputTokensFilter || null,
+					outputTokensMax: outputTokensMax || null,
+					outputTokensOperator: outputTokensOperator || "gte",
+					totalTokensFilter: totalTokensFilter || null,
+					totalTokensMax: totalTokensMax || null,
+					 totalTokensOperator: totalTokensOperator || "gte",
+					cursor,
+					pageSize,
+					sortField: "created_at",
+					sortDirection: "desc",
 				};
 
 				const result = await fetchPaginatedRequests(params);
@@ -309,10 +426,12 @@ export default function UnifiedRequestsTable({
 					next.set(pageNum, result.data);
 					return next;
 				});
+				setHasMoreByPage((prev) => new Map(prev).set(pageNum, result.hasMore));
+				setPageCursors((prev) => new Map(prev).set(pageNum + 1, result.nextCursor));
 
 				if (!background) {
-					setTotal(result.total);
-					setTotalPages(result.totalPages);
+					setTotal((pageNum - 1) * pageSize + result.data.length);
+					setTotalPages(result.hasMore ? pageNum + 1 : pageNum);
 				}
 
 				return result;
@@ -335,6 +454,7 @@ export default function UnifiedRequestsTable({
 		},
 		[
 			timeRange,
+			pageSize,
 			modelFilter,
 			providerFilter,
 			appFilter,
@@ -347,8 +467,12 @@ export default function UnifiedRequestsTable({
 			statusFilter,
 			requestFilter,
 			sessionFilter,
-			sortField,
-			sortDir,
+			sourceFilter,
+			pageCursors,
+			filterOperators,
+			inputTokensFilter, inputTokensMax, inputTokensOperator,
+			outputTokensFilter, outputTokensMax, outputTokensOperator,
+			totalTokensFilter, totalTokensMax, totalTokensOperator,
 			resolvedModelMetadata,
 		],
 	);
@@ -363,6 +487,8 @@ export default function UnifiedRequestsTable({
 		const newCacheKey = getCacheKey();
 		if (newCacheKey !== currentCacheKey) {
 			setPageCache(new Map());
+			setPageCursors(new Map([[1, null]]));
+			setHasMoreByPage(new Map());
 			setCurrentCacheKey(newCacheKey);
 			setPage(1);
 		}
@@ -382,10 +508,12 @@ export default function UnifiedRequestsTable({
 
 	useEffect(() => {
 		setPageCache(new Map([[initialPage, initialRows]]));
+		setPageCursors(new Map([[1, null], [2, initialNextCursor]]));
+		setHasMoreByPage(new Map([[1, initialHasMore]]));
 		setTotal(initialTotal);
 		setTotalPages(initialTotalPages);
 		setLoading(false);
-	}, [initialPage, initialRows, initialTotal, initialTotalPages]);
+	}, [initialHasMore, initialNextCursor, initialPage, initialRows, initialTotal, initialTotalPages]);
 
 	useEffect(() => registerUsageViewRefresher("logs", refreshCurrentView), [refreshCurrentView]);
 
@@ -412,19 +540,6 @@ export default function UnifiedRequestsTable({
 	// Get current page data from cache
 	const data = pageCache.get(page) || [];
 
-	const handleSort = (field: string) => {
-		if (sortField === field) {
-			// Toggle direction
-			setSortDir(sortDir === "asc" ? "desc" : "asc");
-		} else {
-			// New field, default to descending
-			setSortField(field);
-			setSortDir("desc");
-		}
-		// Reset to page 1 when sorting changes
-		setPage(1);
-	};
-
 	useEffect(() => {
 		if (!detailBasePath || !detailRequestId) return;
 		let cancelled = false;
@@ -450,6 +565,7 @@ export default function UnifiedRequestsTable({
 	}, [data, detailBasePath, detailRequestId]);
 
 	const handleRowClick = useCallback((request: RequestRow) => {
+		if (request.is_sample) return;
 		setSelectedRequest(request);
 		setSelectedDetail(null);
 		setDetailLoading(Boolean(detailBasePath));
@@ -481,7 +597,7 @@ export default function UnifiedRequestsTable({
 					? usageMeters.map((m) => `${m.label}: ${formatUsageNumber(m.value)}`).join(" | ")
 					: "-";
 				const providerLabel = row.provider
-					? providerNames.get(row.provider) || row.provider
+					? resolveProviderDisplayName({ providerId: row.provider, providerName: providerNames.get(row.provider) || resolvedProviderMetadata.get(row.provider)?.name || row.provider })
 					: "-";
 				const appTitle = normalizeNonEmpty(row.app_title);
 				const mappedAppName = normalizeNonEmpty(
@@ -533,19 +649,17 @@ export default function UnifiedRequestsTable({
 		}
 	}, [onExportRef, handleExport]);
 
-	const SortIcon = ({ field }: { field: string }) => {
-		if (sortField !== field) {
-			return <ArrowUpDown className="ml-2 h-4 w-4" />;
-		}
-		return sortDir === "asc" ? (
-			<ArrowUp className="ml-2 h-4 w-4" />
-		) : (
-			<ArrowDown className="ml-2 h-4 w-4" />
-		);
-	};
-
 	return (
 		<div className="space-y-3">
+		{loading && data.length === 0 ? (
+			<div className="flex items-center gap-3 rounded-md border border-border/70 bg-muted/15 px-3 py-2.5 text-sm" role="status" aria-live="polite">
+				<Loader2 className="size-4 shrink-0 animate-spin text-muted-foreground" />
+				<div className="min-w-0">
+					<p className="font-medium text-foreground">Loading requests</p>
+					<p className="truncate text-xs text-muted-foreground">Searching the selected time range and applying your filters.</p>
+				</div>
+			</div>
+		) : null}
 			{loading && data.length === 0 ? (
 				<div className="space-y-3 lg:hidden">
 					{Array.from({ length: 8 }).map((_, i) => (
@@ -573,23 +687,16 @@ export default function UnifiedRequestsTable({
 						);
 						const requestedModelId = getRequestedModelId(row);
 						const routedModelId = getRoutedModelId(row);
-						const routedModelMeta = routedModelId
-							? resolvedModelMetadata.get(routedModelId)
-							: undefined;
-						const routedModelLabel = getModelDisplayName(
-							routedModelId,
-							resolvedModelMetadata,
-						);
 						const rowKey = `mobile-${row.request_id}-${row.created_at}-${requestedModelId ?? "no-requested-model"}-${routedModelId ?? "no-routed-model"}-${row.provider ?? "no-provider"}-${index}`;
-						const modelHref = getModelDetailsHref(row.model_id);
-						const modelMeta = row.model_id
-							? resolvedModelMetadata.get(row.model_id)
+						const modelHref = getModelDetailsHref(routedModelId);
+						const modelMeta = routedModelId
+							? resolvedModelMetadata.get(routedModelId)
 							: undefined;
 						const providerMeta = row.provider
 							? resolvedProviderMetadata.get(row.provider)
 							: undefined;
 						const providerLabel = row.provider
-							? providerNames.get(row.provider) || row.provider
+							? resolveProviderDisplayName({ providerId: row.provider, providerName: providerNames.get(row.provider) || providerMeta?.name || row.provider })
 							: null;
 						const appTitle = normalizeNonEmpty(row.app_title);
 						const mappedAppName = normalizeNonEmpty(
@@ -602,7 +709,7 @@ export default function UnifiedRequestsTable({
 							? `/apps/${encodeURIComponent(row.app_id)}`
 							: null;
 						const modelLabel = getModelDisplayName(
-							row.model_id,
+							routedModelId,
 							resolvedModelMetadata,
 						);
 						const providerPolicyLabel = providerMeta?.promptTrainingPolicy
@@ -662,7 +769,7 @@ export default function UnifiedRequestsTable({
 																label: "Model ID",
 																value: (
 																	<code className="font-mono text-[11px]">
-																		{row.model_id}
+																						{routedModelId}
 																	</code>
 																),
 															},
@@ -678,7 +785,7 @@ export default function UnifiedRequestsTable({
 													>
 														<Link
 															href={modelHref}
-															className="truncate underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+													className="truncate font-medium text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-foreground"
 															onClick={stopRowClick}
 														>
 															{modelLabel}
@@ -702,7 +809,7 @@ export default function UnifiedRequestsTable({
 																label: "Model ID",
 																value: (
 																	<code className="font-mono text-[11px]">
-																		{row.model_id}
+																						{routedModelId}
 																	</code>
 																),
 															},
@@ -719,24 +826,6 @@ export default function UnifiedRequestsTable({
 														<span className="truncate">{modelLabel}</span>
 													</UsageEntityHoverCard>
 												)}
-												{routedModelId &&
-												routedModelId !== row.model_id &&
-												routedModelLabel ? (
-													<div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-														<span>Routed to</span>
-														{routedModelMeta ? (
-															<Logo
-																id={routedModelMeta.organisationId}
-																width={12}
-																height={12}
-																className="flex-shrink-0"
-															/>
-														) : null}
-														<span className="truncate font-medium text-foreground">
-															{routedModelLabel}
-														</span>
-													</div>
-												) : null}
 											</div>
 										</div>
 									</div>
@@ -748,7 +837,7 @@ export default function UnifiedRequestsTable({
 											{row.success ? (
 												<Badge
 													variant="outline"
-													className="bg-green-50 text-green-700 border-green-200"
+											className="border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800/70 dark:bg-emerald-950/40 dark:text-emerald-300"
 												>
 													<CheckCircle2 className="mr-1 h-3 w-3" />
 													Success
@@ -756,7 +845,7 @@ export default function UnifiedRequestsTable({
 											) : (
 												<Badge
 													variant="outline"
-													className="bg-red-50 text-red-700 border-red-200"
+											className="border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800/70 dark:bg-rose-950/40 dark:text-rose-300"
 												>
 													<XCircle className="mr-1 h-3 w-3" />
 													Error
@@ -798,21 +887,11 @@ export default function UnifiedRequestsTable({
 										>
 											<Link
 												href={`/api-providers/${encodeURIComponent(row.provider)}`}
-												className="underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+											className="inline-flex min-w-0 items-center gap-2 font-medium text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-foreground"
 												onClick={stopRowClick}
 											>
-												<Badge
-													variant="outline"
-													className="hover:bg-muted cursor-pointer inline-flex items-center gap-2"
-												>
-													<Logo
-														id={row.provider}
-														width={14}
-														height={14}
-														className="flex-shrink-0"
-													/>
-													<span className="truncate">{providerLabel}</span>
-												</Badge>
+											<Logo id={row.provider} width={14} height={14} className="flex-shrink-0" />
+											<span className="truncate">{providerLabel}</span>
 											</Link>
 										</UsageEntityHoverCard>
 									) : null}
@@ -856,14 +935,10 @@ export default function UnifiedRequestsTable({
 										>
 											<Link
 												href={appHref!}
-												className="underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+												className="inline-flex min-w-0 items-center gap-2 font-medium text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-foreground"
 												onClick={stopRowClick}
 											>
-												<Badge
-													variant="outline"
-													className="hover:bg-muted cursor-pointer inline-flex items-center gap-2"
-												>
-													{isPhaseoChatApp(row) ? (
+												{isPhaseoChatApp(row) ? (
 														<Logo
 															id="phaseo"
 															width={14}
@@ -883,9 +958,8 @@ export default function UnifiedRequestsTable({
 																<AppWindow className="h-3 w-3" />
 															</AvatarFallback>
 														</Avatar>
-													)}
-													<span className="truncate">{appLabel}</span>
-												</Badge>
+												)}
+												<span className="truncate">{appLabel}</span>
 											</Link>
 										</UsageEntityHoverCard>
 									) : null}
@@ -911,98 +985,37 @@ export default function UnifiedRequestsTable({
 
 			{/* Table */}
 			<div className="hidden min-w-0 max-w-full overflow-hidden rounded-md border lg:block">
-				<Table className="min-w-[1180px] whitespace-nowrap text-xs">
+				<ScrollArea
+					className="w-full"
+					scrollBarOrientation="horizontal"
+					keepScrollbarMounted
+					viewportClassName="w-full pb-2"
+				>
+				<Table wrapInContainer={false} className="min-w-[1080px] whitespace-nowrap text-xs">
 					<TableHeader>
 						<TableRow className="h-9">
-							<TableHead className="w-[180px]">
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={() => handleSort("created_at")}
-									className="h-7 px-2 text-xs"
-								>
-									Timestamp
-									<SortIcon field="created_at" />
-								</Button>
-							</TableHead>
+							<TableHead className="w-[180px]">Timestamp</TableHead>
+							<TableHead className="hidden">Requested model</TableHead>
+							<TableHead>Model</TableHead>
 							<TableHead>
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={() => handleSort("requested_model_id")}
-									className="h-7 px-2 text-xs"
-								>
-									Requested model
-									<SortIcon field="requested_model_id" />
-								</Button>
+								Source
 							</TableHead>
-							<TableHead>
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={() => handleSort("routed_model_id")}
-									className="h-7 px-2 text-xs"
-								>
-									Routed model
-									<SortIcon field="routed_model_id" />
-								</Button>
-							</TableHead>
-							<TableHead>
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={() => handleSort("provider")}
-									className="h-7 px-2 text-xs"
-								>
-									Provider
-									<SortIcon field="provider" />
-								</Button>
-							</TableHead>
+							<TableHead>Provider</TableHead>
 							<TableHead>
 								App
 							</TableHead>
-							<TableHead className="text-right">
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={() => handleSort("usage")}
-									className="h-7 px-2 text-xs"
-								>
-									Usage
-									<SortIcon field="usage" />
-								</Button>
-							</TableHead>
-							<TableHead className="text-right">
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={() => handleSort("cost_nanos")}
-									className="h-7 px-2 text-xs"
-								>
-									Cost
-									<SortIcon field="cost_nanos" />
-								</Button>
-							</TableHead>
+							<TableHead className="text-right">Usage</TableHead>
+							<TableHead className="text-right">Cost</TableHead>
 							<TableHead>
 								Finish
 							</TableHead>
-							<TableHead>
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={() => handleSort("success")}
-									className="h-7 px-2 text-xs"
-								>
-									Status
-									<SortIcon field="success" />
-								</Button>
-							</TableHead>
+							<TableHead>Status</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{loading && data.length === 0 ? (
 							<>
-								{Array.from({ length: 25 }).map(
+								{Array.from({ length: Math.min(pageSize, 20) }).map(
 									(_, i) => (
 										<TableRow
 											key={`skeleton-${i}`}
@@ -1011,18 +1024,21 @@ export default function UnifiedRequestsTable({
 											<TableCell className="font-mono text-xs">
 												<div className="h-4 bg-muted rounded w-32" />
 											</TableCell>
-										<TableCell>
-											<div className="h-4 bg-muted rounded w-40" />
-										</TableCell>
-										<TableCell>
+						<TableCell className="hidden">
+							<div className="h-4 bg-muted rounded w-40" />
+						</TableCell>
+						<TableCell>
 											<div className="h-4 bg-muted rounded w-40" />
 										</TableCell>
 										<TableCell>
 											<div className="h-5 bg-muted rounded w-20" />
 										</TableCell>
-											<TableCell>
-												<div className="h-5 bg-muted rounded w-24" />
-											</TableCell>
+						<TableCell>
+											<div className="h-5 bg-muted rounded w-24" />
+										</TableCell>
+										<TableCell>
+											<div className="h-5 bg-muted rounded w-24" />
+										</TableCell>
 											<TableCell className="text-right">
 												<div className="h-4 bg-muted rounded w-24 ml-auto" />
 											</TableCell>
@@ -1042,7 +1058,7 @@ export default function UnifiedRequestsTable({
 						) : data.length === 0 ? (
 							<TableRow>
 								<TableCell
-									colSpan={9}
+									colSpan={10}
 									className="py-10 text-center text-muted-foreground"
 								>
 									No requests found
@@ -1071,7 +1087,7 @@ export default function UnifiedRequestsTable({
 										? resolvedProviderMetadata.get(row.provider)
 										: undefined;
 									const providerLabel = row.provider
-										? providerNames.get(row.provider) || row.provider
+										? resolveProviderDisplayName({ providerId: row.provider, providerName: providerNames.get(row.provider) || providerMeta?.name || row.provider })
 										: null;
 									const appTitle = normalizeNonEmpty(row.app_title);
 									const mappedAppName = normalizeNonEmpty(
@@ -1185,7 +1201,7 @@ export default function UnifiedRequestsTable({
 													</HoverCardContent>
 												</HoverCard>
 											</TableCell>
-											<TableCell className="py-2 font-medium truncate max-w-[200px]">
+											<TableCell className="hidden py-2 font-medium truncate max-w-[200px]">
 												{requestedModelId ? (
 													<div className="flex items-center gap-2">
 														{requestedModelMeta ? (
@@ -1231,7 +1247,7 @@ export default function UnifiedRequestsTable({
 															>
 																<Link
 																	href={requestedModelHref}
-																	className="truncate underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+																	className="truncate font-medium text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-foreground"
 																	onClick={stopRowClick}
 																>
 																	{requestedModelLabel}
@@ -1325,7 +1341,7 @@ export default function UnifiedRequestsTable({
 															>
 																<Link
 																	href={routedModelHref}
-																	className="truncate underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+																	className="truncate font-medium text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-foreground"
 																	onClick={stopRowClick}
 																>
 																	{routedModelLabel}
@@ -1374,6 +1390,29 @@ export default function UnifiedRequestsTable({
 												)}
 											</TableCell>
 											<TableCell className="py-2">
+											{(() => {
+												const source = getClientSource(row);
+												if (!source) return "-";
+												return (
+													<UsageEntityHoverCard
+														title={source.name}
+														subtitle={source.kind === "coding_agent" ? "Coding agent" : source.kind === "sdk" ? "Software development kit" : source.kind === "http_client" ? "HTTP client" : null}
+														visual={<ClientSourceVisual sourceId={source.id} kind={source.kind ?? ""} />}
+														rows={[
+															...(source.version ? [{ label: "Version", value: source.version }] : []),
+															...(source.detection ? [{ label: "Detection", value: source.detection === "declared" ? "Declared by client" : source.detection === "user_agent" ? "User agent" : source.detection }] : []),
+														]}
+													>
+														<span className="inline-flex max-w-[170px] items-center gap-1.5 truncate text-foreground/80">
+															<ClientSourceVisual sourceId={source.id} kind={source.kind ?? ""} />
+																<span className="truncate">{source.name}</span>
+															</span>
+														</UsageEntityHoverCard>
+													);
+												})()}
+											</TableCell>
+											<TableCell className="py-2">
+												<div className="flex min-h-5 items-center">
 												{row.provider ? (
 													<UsageEntityHoverCard
 														title={providerLabel ?? row.provider}
@@ -1400,30 +1439,20 @@ export default function UnifiedRequestsTable({
 													>
 														<Link
 															href={`/api-providers/${encodeURIComponent(row.provider)}`}
-															className="underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+															className="inline-flex min-w-0 max-w-[180px] items-center gap-2 font-medium text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-foreground"
 															onClick={stopRowClick}
 														>
-															<Badge
-																variant="outline"
-																className="hover:bg-muted cursor-pointer inline-flex items-center gap-2"
-															>
-																<Logo
-																	id={row.provider}
-																	width={14}
-																	height={14}
-																	className="flex-shrink-0"
-																/>
-																<span className="truncate">{providerLabel}</span>
-															</Badge>
+															<Logo id={row.provider} width={14} height={14} className="flex-shrink-0" />
+															<span className="truncate">{providerLabel}</span>
 														</Link>
 													</UsageEntityHoverCard>
 												) : (
-													<Badge variant="outline">
-														-
-													</Badge>
+													<span className="text-muted-foreground">-</span>
 												)}
+												</div>
 											</TableCell>
 											<TableCell className="py-2">
+												<div className="flex min-h-5 items-center">
 												{row.app_id ? (
 													<UsageEntityHoverCard
 														title={appLabel ?? "Unknown app"}
@@ -1463,14 +1492,10 @@ export default function UnifiedRequestsTable({
 													>
 														<Link
 															href={appHref!}
-															className="underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+															className="inline-flex min-w-0 max-w-[180px] items-center gap-2 font-medium text-foreground underline decoration-transparent underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-foreground"
 															onClick={stopRowClick}
 														>
-															<Badge
-																variant="outline"
-																className="hover:bg-muted cursor-pointer inline-flex items-center gap-2"
-															>
-																{isPhaseoChatApp(row) ? (
+															{isPhaseoChatApp(row) ? (
 																	<Logo
 																		id="phaseo"
 																		width={14}
@@ -1490,18 +1515,14 @@ export default function UnifiedRequestsTable({
 																			<AppWindow className="h-3 w-3" />
 																		</AvatarFallback>
 																	</Avatar>
-																)}
-																<span className="truncate">
-																	{appLabel}
-																</span>
-															</Badge>
+															)}
+															<span className="truncate">{appLabel}</span>
 														</Link>
 													</UsageEntityHoverCard>
 												) : (
-													<Badge variant="outline">
-														-
-													</Badge>
+													<span className="text-muted-foreground">-</span>
 												)}
+												</div>
 											</TableCell>
 											<TableCell className="py-2 text-right">
 												<Tooltip>
@@ -1530,7 +1551,7 @@ export default function UnifiedRequestsTable({
 													{row.success ? (
 														<Badge
 															variant="outline"
-															className="bg-green-50 text-green-700 border-green-200"
+													className="border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800/70 dark:bg-emerald-950/40 dark:text-emerald-300"
 														>
 															<CheckCircle2 className="mr-1 h-3 w-3" />
 															Success
@@ -1538,7 +1559,7 @@ export default function UnifiedRequestsTable({
 													) : (
 														<Badge
 															variant="outline"
-															className="bg-red-50 text-red-700 border-red-200"
+													className="border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800/70 dark:bg-rose-950/40 dark:text-rose-300"
 														>
 															<XCircle className="mr-1 h-3 w-3" />
 															Error
@@ -1553,11 +1574,23 @@ export default function UnifiedRequestsTable({
 						)}
 					</TableBody>
 				</Table>
+				</ScrollArea>
 			</div>
 
 			{/* Pagination */}
-			{totalPages > 1 ? (
-				<div className="flex items-center justify-center">
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+				<div className="flex items-center gap-2 text-xs text-muted-foreground">
+					<span>Rows per page</span>
+					<Select value={String(pageSize)} onValueChange={(value) => { void setPageSize(Number(value)); void setPage(1); }}>
+						<SelectTrigger size="sm" className="h-8 w-[72px] rounded-md border-border/70 bg-background">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent className="rounded-md">
+							{[25, 50, 100].map((size) => <SelectItem key={size} value={String(size)}>{size}</SelectItem>)}
+						</SelectContent>
+					</Select>
+				</div>
+				{totalPages > 1 ? (
 					<div className="flex items-center gap-1">
 					{/* Quick back to page 1 - only show when page 1 is not visible */}
 					{page > 3 && (
@@ -1609,8 +1642,8 @@ export default function UnifiedRequestsTable({
 						<ChevronRight className="h-4 w-4" />
 					</Button>
 					</div>
-				</div>
-			) : null}
+				) : <span />}
+			</div>
 
 			{/* Detail Dialog */}
 			<RequestDetailDialog

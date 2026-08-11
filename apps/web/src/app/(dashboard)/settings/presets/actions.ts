@@ -45,7 +45,7 @@ export type PresetConfig = {
 	};
 	reasoning?: {
 		enabled: boolean;
-		effort?: "low" | "medium" | "high";
+		effort?: "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max";
 		max_tokens?: number;
 		exclude_from_output?: boolean;
 	};
@@ -82,28 +82,8 @@ function validatePresetName(name: string): void {
 	}
 
 	const trimmedName = name.trim();
-
-	if (!trimmedName.startsWith("@")) {
-		throw new Error("Preset name must start with @");
-	}
-
-	if (trimmedName.length < 2) {
-		throw new Error("Preset name is too short");
-	}
-
-	const validPattern = /^@[a-zA-Z0-9][a-zA-Z0-9_.-]*$/;
-	if (!validPattern.test(trimmedName)) {
-		throw new Error(
-			"Preset name can only contain letters, numbers, hyphens, underscores, and periods after @"
-		);
-	}
-}
-
-function normalizePresetName(name: string): string {
-	if (!name) return "";
-	const trimmed = name.trim();
-	if (!trimmed) return "";
-	return trimmed.startsWith("@") ? trimmed : `@${trimmed}`;
+	if (trimmedName.length > 120) throw new Error("Preset name must be 120 characters or fewer");
+	if (/\p{C}/u.test(trimmedName)) throw new Error("Preset name contains unsupported characters");
 }
 
 function normalizePresetSlug(value: string): string {
@@ -285,7 +265,7 @@ function sanitizeConfig(config: PresetConfig): Record<string, unknown> {
 			enabled: Boolean(reasoning.enabled),
 		};
 
-		if (reasoning.effort && ["low", "medium", "high"].includes(reasoning.effort)) {
+		if (reasoning.effort && ["none", "minimal", "low", "medium", "high", "xhigh", "max"].includes(reasoning.effort)) {
 			sanitizedReasoning.effort = reasoning.effort;
 		}
 		if (typeof reasoning.max_tokens === "number" && reasoning.max_tokens > 0) {
@@ -344,6 +324,19 @@ export async function createPresetAction(input: CreatePresetInput) {
 	return data;
 }
 
+export async function ensureWorkspacePresetPublisherAction(workspaceId: string, handle: string) {
+	const normalized = normalizePresetSlug(handle).replace(/[.:]/g, "-");
+	if (normalized.length < 3 || normalized.length > 40) throw new Error("Publisher handle must be between 3 and 40 characters");
+	const { accessToken } = await getServerAccountContext();
+	if (!accessToken) throw new Error("Unauthorized");
+	await fetchAccountWebApi("/api/account/settings/presets/publisher", accessToken, {
+		method: "PUT",
+		body: JSON.stringify({ workspaceId, handle: normalized }),
+	});
+	revalidatePath("/settings/presets");
+	return { handle: normalized };
+}
+
 export async function forkPresetAction(sourcePresetId: string, sourceVersionId?: string) {
 	if (!sourcePresetId || typeof sourcePresetId !== "string") {
 		throw new Error("Valid preset ID is required");
@@ -355,7 +348,14 @@ export async function forkPresetAction(sourcePresetId: string, sourceVersionId?:
 		throw new Error("WORKSPACE_REQUIRED");
 	}
 	if (!context.accessToken) throw new Error("AUTH_REQUIRED");
-	const data = await fetchAccountWebApi<{ id?: string; name: string }>(`/api/account/settings/presets/${encodeURIComponent(sourcePresetId)}/fork`, context.accessToken, { method: "POST", body: JSON.stringify({ workspaceId, sourceVersionId }) });
+	let data: { id?: string; name: string; slug?: string };
+	try {
+		data = await fetchAccountWebApi<{ id?: string; name: string; slug?: string }>(`/api/account/settings/presets/${encodeURIComponent(sourcePresetId)}/fork`, context.accessToken, { method: "POST", body: JSON.stringify({ workspaceId, sourceVersionId }) });
+	} catch (error) {
+		const code = error instanceof Error ? error.message : "";
+		if (code === "invalid_source_version" || code === "not_public") throw new Error("That preset version is no longer available to fork.");
+		throw error;
+	}
 
 	revalidatePath("/settings/presets");
 	revalidatePresetDataCache(sourcePresetId);
@@ -411,7 +411,13 @@ export async function updatePresetAction(input: UpdatePresetInput) {
 export async function publishPresetVersionAction(id: string, releaseNotes?: string, versionLabel?: string) {
 	if (!id) throw new Error("Valid preset ID is required");
 	const { accessToken } = await getServerAccountContext(); if (!accessToken) throw new Error("Unauthorized");
-	const data = await fetchAccountWebApi<{ version?: { version_number?: number; version_label?: string } }>(`/api/account/settings/presets/${encodeURIComponent(id)}/versions`, accessToken, { method: "POST", body: JSON.stringify({ releaseNotes, versionLabel }) });
+	let data: { version?: { version_number?: number; version_label?: string } };
+	try {
+		data = await fetchAccountWebApi<{ version?: { version_number?: number; version_label?: string } }>(`/api/account/settings/presets/${encodeURIComponent(id)}/versions`, accessToken, { method: "POST", body: JSON.stringify({ releaseNotes, versionLabel }) });
+	} catch (error) {
+		if (error instanceof Error && error.message === "no_draft_changes") throw new Error("Save a draft change before publishing a new version.");
+		throw error;
+	}
 	revalidatePath("/settings/presets"); revalidatePath(`/gateway/marketplace/${id}`); revalidatePresetDataCache(id);
 	return data;
 }
@@ -419,7 +425,14 @@ export async function publishPresetVersionAction(id: string, releaseNotes?: stri
 export async function applyPresetUpstreamVersionAction(id: string, versionId: string) {
 	if (!id || !versionId) throw new Error("Preset and version are required");
 	const { accessToken } = await getServerAccountContext(); if (!accessToken) throw new Error("Unauthorized");
-	await fetchAccountWebApi(`/api/account/settings/presets/${encodeURIComponent(id)}/upstream`, accessToken, { method: "POST", body: JSON.stringify({ versionId }) });
+	try {
+		await fetchAccountWebApi(`/api/account/settings/presets/${encodeURIComponent(id)}/upstream`, accessToken, { method: "POST", body: JSON.stringify({ versionId }) });
+	} catch (error) {
+		const code = error instanceof Error ? error.message : "";
+		if (code === "preset_has_local_draft_changes") throw new Error("Publish or discard your draft changes before applying the upstream version.");
+		if (code === "upstream_version_unavailable") throw new Error("That upstream version is no longer publicly available.");
+		throw error;
+	}
 	revalidatePath("/settings/presets"); revalidatePresetDataCache(id);
 	return { success: true };
 }

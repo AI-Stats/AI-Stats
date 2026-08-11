@@ -254,7 +254,7 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("atlascloud", "video.generation")).toBe(
 			EXECUTORS_BY_PROVIDER["atlascloud"]?.["video.generate"],
 		);
-		expect(resolveProviderExecutor("fal", "video.generation")).toBeNull();
+		expect(resolveProviderExecutor("fal", "video.generation")).toBeTruthy();
 		expect(resolveProviderExecutor("fal-ai", "video.generation")).toBeNull();
 	});
 
@@ -432,8 +432,8 @@ describe("resolveProviderExecutor", () => {
 		expectDisabled("black-forest-labs", "video.generation");
 		expectDisabled("black-forest-labs", "music.generate");
 
-		// Explicitly keep relay provider disabled.
-		expectDisabled("fal", "video.generation");
+		// Fal video generation is wired through its dedicated native executor.
+		expectEnabled("fal", "video.generation");
 		expectDisabled("fal-ai", "video.generation");
 	});
 });

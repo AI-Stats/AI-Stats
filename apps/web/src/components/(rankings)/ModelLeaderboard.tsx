@@ -163,15 +163,16 @@ export function ModelLeaderboard({
 							setShowAll(false);
 						}}
 					>
-						<SelectTrigger className="h-8 w-[150px]">
+						<SelectTrigger className="h-9 min-w-40 shrink-0 rounded-md px-3">
 							<SelectValue placeholder="Range" />
 						</SelectTrigger>
-						<SelectContent>
+						<SelectContent className="min-w-44 rounded-md">
 							{RANGE_OPTIONS.map((option) => (
 								<SelectItem
 									key={option.key}
 									value={option.key}
 									disabled={!dataByRange[option.key]?.length}
+									className="whitespace-nowrap rounded-md"
 								>
 									{option.label}
 								</SelectItem>

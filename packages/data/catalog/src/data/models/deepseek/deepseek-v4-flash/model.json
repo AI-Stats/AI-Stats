@@ -138,6 +138,14 @@
       "other_info": "940 puzzles",
       "source_link": "https://github.com/lechmazur/nyt-connections",
       "rank": 45
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 51.8,
+      "is_self_reported": false,
+      "other_info": "DeepSeek V4 Flash 0731 (Reasoning, Max Effort); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/deepseek-v4-flash",
+      "rank": 27
     }
   ],
   "family_id": null,

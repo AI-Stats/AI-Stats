@@ -203,6 +203,14 @@
       "other_info": "xHigh reasoning; Top-1 accuracy 80.8%; cases 703",
       "source_link": "https://github.com/lechmazur/generalization",
       "rank": 15
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 40.9,
+      "is_self_reported": false,
+      "other_info": "GPT-5.4 mini (xhigh); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gpt-5-4-mini",
+      "rank": 66
     }
   ],
   "page_notice": null,

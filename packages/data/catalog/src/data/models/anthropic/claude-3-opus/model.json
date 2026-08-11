@@ -98,6 +98,14 @@
       "other_info": "Confab 28.2%; non-response 17.2%",
       "source_link": "https://github.com/lechmazur/confabulations",
       "rank": 14
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 11.8,
+      "is_self_reported": false,
+      "other_info": "Claude 3 Opus; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/claude-3-opus",
+      "rank": 349
     }
   ],
   "page_notice": null,

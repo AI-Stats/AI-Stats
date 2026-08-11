@@ -15,7 +15,16 @@
   "api_model_id": "deepseek/deepseek-v3",
   "links": [],
   "details": [],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 14.2,
+      "is_self_reported": false,
+      "other_info": "DeepSeek V3 (Dec '24); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/deepseek-v3",
+      "rank": 313
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

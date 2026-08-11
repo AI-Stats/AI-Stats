@@ -48,6 +48,7 @@ vi.mock("./testingMode", () => ({
 }));
 
 vi.mock("@/executors", () => ({
+	EXECUTORS_BY_PROVIDER: { openai: {} },
 	isProviderCapabilityEnabled: (...args: any[]) => isProviderCapabilityEnabledMock(...args),
 	normalizeCapability: (...args: any[]) => normalizeCapabilityMock(...args),
 }));
@@ -181,7 +182,7 @@ describe("beforeRequest pricing loss-prevention", () => {
 		isProviderCapabilityEnabledMock.mockReturnValue(true);
 		normalizeCapabilityMock.mockImplementation((value: string) => value);
 		resolveCapabilityFromEndpointMock.mockReturnValue("text.generate");
-		fetchWorkspacePolicyMock.mockResolvedValue(null);
+		fetchWorkspacePolicyMock.mockResolvedValue({ dynamicRoute: null });
 		applyWorkspacePolicyMock.mockImplementation((args: any) => ({
 			ok: true,
 			providers: args.providers,
@@ -244,13 +245,49 @@ describe("beforeRequest pricing loss-prevention", () => {
 		expect(result.ok).toBe(true);
 	});
 
+	it("captures parsed model metadata before a context guard failure", async () => {
+		guardJsonMock.mockResolvedValue({
+			ok: true,
+			value: { model: "openai/gpt-5-nano", input: "private prompt" },
+		});
+		guardZodMock.mockReturnValue({
+			ok: true,
+			value: { model: "openai/gpt-5-nano", input: "private prompt" },
+		});
+		guardModelMock.mockReturnValue({
+			ok: true,
+			value: { model: "openai/gpt-5-nano", stream: false },
+		});
+		guardContextMock.mockResolvedValue({
+			ok: false,
+			response: new Response(JSON.stringify({ error: "insufficient_funds" }), { status: 402 }),
+		});
+		const snapshots: unknown[] = [];
+		const req = new Request("https://gateway.local/v1/responses", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ model: "openai/gpt-5-nano", input: "private prompt" }),
+		});
+
+		const result = await beforeRequest(req, "responses", new Timer(), null, {
+			onObservabilitySnapshot: (snapshot) => snapshots.push(snapshot),
+		});
+
+		expect(result.ok).toBe(false);
+		expect(snapshots.at(-1)).toEqual({
+			requestPayload: { model: "openai/gpt-5-nano", input: "private prompt" },
+			requestedModel: "openai/gpt-5-nano",
+			model: "openai/gpt-5-nano",
+		});
+	});
+
 	it("loads workspace policy concurrently with request context", async () => {
 		const provider = providerWithPricingRules(1);
 		let resolveContext!: (value: any) => void;
 		guardContextMock.mockReturnValue(new Promise((resolve) => {
 			resolveContext = resolve;
 		}));
-		fetchWorkspacePolicyMock.mockResolvedValue(null);
+		fetchWorkspacePolicyMock.mockResolvedValue({ dynamicRoute: null });
 
 		const req = new Request("https://gateway.local/v1/responses", {
 			method: "POST",
@@ -384,10 +421,12 @@ describe("beforeRequest pricing loss-prevention", () => {
 		const result = await beforeRequest(req, "responses", new Timer(), null);
 		expect(result.ok).toBe(false);
 		if (result.ok) return;
-		expect(result.response.status).toBe(400);
+		expect(result.response.status).toBe(403);
 		const payload = await result.response.json();
-		expect(payload.error).toBe("validation_error");
-		expect(payload.details?.[0]?.keyword).toBe("model_not_allowed_by_workspace_policy");
+		expect(payload.error).toBe("guardrail_blocked");
+		expect(payload.reason).toBe("model_restricted_by_policy");
+		expect(payload.details?.[0]?.keyword).toBe("model_restricted_by_policy");
+		expect(payload.guardrail).toMatchObject({ type: "route_access", scope: "workspace" });
 	});
 
 	it("rejects request when workspace policy filters out all providers", async () => {
@@ -437,10 +476,65 @@ describe("beforeRequest pricing loss-prevention", () => {
 		const result = await beforeRequest(req, "responses", new Timer(), null);
 		expect(result.ok).toBe(false);
 		if (result.ok) return;
-		expect(result.response.status).toBe(400);
+		expect(result.response.status).toBe(403);
 		const payload = await result.response.json();
-		expect(payload.error).toBe("validation_error");
-		expect(payload.details?.[0]?.keyword).toBe("no_providers_after_workspace_policy_filter");
+		expect(payload.error).toBe("guardrail_blocked");
+		expect(payload.reason).toBe("provider_restricted_by_policy");
+		expect(payload.details?.[0]?.keyword).toBe("no_providers_after_route_access_policy");
+		expect(payload.guardrail).toMatchObject({ type: "route_access", scope: "workspace" });
+	});
+
+	it("identifies data-handling guardrails when privacy rules remove every route", async () => {
+		const provider = providerWithPricingRules(1);
+		guardContextMock.mockResolvedValue({
+			ok: true,
+			value: {
+				context: {
+					pricing: { openai: provider.pricingCard },
+					key: { ok: true, reason: null, resetAt: null },
+					keyLimit: { ok: true, reason: null, resetAt: null },
+					credit: { ok: true, reason: null, resetAt: null },
+					teamSettings: { billingMode: "wallet" },
+				},
+				providers: [provider],
+				resolvedModel: "openai/gpt-4.1-mini",
+				candidateDiagnostics: { totalProviders: 1, supportsEndpointCount: 1, droppedUnsupportedEndpoint: [], droppedMissingAdapter: [], candidateCount: 1 },
+			},
+		});
+		applyWorkspacePolicyMock.mockReturnValue({
+			ok: false,
+			reason: "no_providers",
+			diagnostics: {
+				resolvedModel: "openai/gpt-4.1-mini",
+				allowedApiModels: [],
+				providerAllowlist: [],
+				providerBlocklist: [],
+				requestProviderOnly: [],
+				requestProviderIgnore: [],
+				droppedByPrivacy: [{ providerId: "openai", reason: "zdr_required" }],
+				activeGuardrailIds: [],
+				accountPolicyApplied: true,
+				beforeCount: 1,
+				afterCount: 0,
+			},
+		});
+
+		const result = await beforeRequest(new Request("https://gateway.local/v1/responses", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ model: "openai/gpt-4.1-mini" }),
+		}), "responses", new Timer(), null);
+
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.response.status).toBe(403);
+		const payload = await result.response.json();
+		expect(payload).toMatchObject({
+			error: "guardrail_blocked",
+			reason: "data_handling_policy_no_routes",
+			guardrail: { type: "data_handling", scope: "account_or_workspace" },
+		});
+		expect(payload.details?.[0]?.keyword).toBe("no_routes_after_data_handling_policy");
 	});
 
 	it("blocks request when prompt injection guardrail returns a blocking response", async () => {

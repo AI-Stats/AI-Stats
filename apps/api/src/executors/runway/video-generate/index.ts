@@ -15,7 +15,15 @@ import { asyncVideoJobPersistenceFailureResult } from "@executors/_shared/async-
 import type { ProviderExecutor } from "../../types";
 
 const DEFAULT_RUNWAY_BASE_URL = "https://api.dev.runwayml.com";
+const DEFAULT_RUNWAY_API_VERSION = "2024-11-06";
 const RUNWAY_VIDEO_PREFIX = "rwyvid_";
+
+class InvalidRunwayVideoRequestError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = "InvalidRunwayVideoRequestError";
+	}
+}
 
 function encodeRunwayTaskId(taskId: string): string {
 	const b64 = btoa(taskId).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
@@ -30,6 +38,12 @@ function toPositiveNumber(value: unknown): number | undefined {
 		const parsed = Number(value.trim());
 		if (Number.isFinite(parsed) && parsed > 0) return parsed;
 	}
+	return undefined;
+}
+
+function toNonNegativeInteger(value: unknown): number | undefined {
+	const parsed = typeof value === "string" && value.trim().length > 0 ? Number(value.trim()) : value;
+	if (typeof parsed === "number" && Number.isInteger(parsed) && parsed >= 0) return parsed;
 	return undefined;
 }
 
@@ -97,7 +111,34 @@ function extractRunwayConfig(rawRequest: Record<string, any>): Record<string, an
 	return {};
 }
 
-function buildRunwayRequest(ir: IRVideoGenerationRequest, model: string): Record<string, any> {
+function collectRunwayImages(ir: IRVideoGenerationRequest, runwayConfig: Record<string, any>): string[] {
+	const values: unknown[] = [
+		runwayConfig.image_uri,
+		runwayConfig.imageUri,
+		runwayConfig.prompt_image,
+		runwayConfig.promptImage,
+		ir.inputReference,
+		ir.inputImage,
+		ir.input?.image,
+	];
+	for (const reference of ir.inputReferences ?? []) {
+		if (reference.type === "image") values.push(reference.url ?? reference.raw);
+	}
+	const images: string[] = [];
+	for (const value of values) {
+		const image = normalizeInputSource(value);
+		if (image && !images.includes(image)) images.push(image);
+	}
+	return images;
+}
+
+function buildRunwayRequest(ir: IRVideoGenerationRequest, model: string): {
+	endpoint: "/v1/text_to_video" | "/v1/image_to_video";
+	body: Record<string, any>;
+	seconds: number;
+	ratio: string;
+	inputImageCount: number;
+} {
 	const rawRequest = ((ir.rawRequest ?? {}) as Record<string, any>);
 	const runwayConfig = extractRunwayConfig(rawRequest);
 	const ratio = normalizeRunwayRatio(
@@ -106,30 +147,65 @@ function buildRunwayRequest(ir: IRVideoGenerationRequest, model: string): Record
 		toNonEmptyString(runwayConfig.aspectRatio) ??
 		ir.aspectRatio ??
 		ir.ratio,
-	);
+	) ?? "1280:720";
+	if (ratio !== "1280:720" && ratio !== "720:1280") {
+		throw new InvalidRunwayVideoRequestError("Runway Gen-4.5 ratio must be 16:9 or 9:16.");
+	}
 	const duration = toPositiveNumber(
 		parseDurationSeconds(ir) ??
 		runwayConfig.duration ??
 		runwayConfig.duration_seconds ??
 		runwayConfig.durationSeconds,
-	);
-	const seed = toPositiveNumber(runwayConfig.seed ?? ir.seed);
-	const imageUri = normalizeInputSource(
-		runwayConfig.image_uri ??
-		runwayConfig.imageUri ??
-		ir.inputImage ??
-		ir.inputReference ??
-		ir.input?.image,
-	);
-
-	return {
+	) ?? 5;
+	if (!Number.isInteger(duration) || duration < 2 || duration > 10) {
+		throw new InvalidRunwayVideoRequestError("Runway Gen-4.5 duration must be an integer from 2 to 10 seconds.");
+	}
+	if (ir.prompt.length > 1_000) {
+		throw new InvalidRunwayVideoRequestError("Runway Gen-4.5 prompt must not exceed 1000 characters.");
+	}
+	const suppliedSeed = runwayConfig.seed ?? ir.seed;
+	const seed = toNonNegativeInteger(suppliedSeed);
+	if (suppliedSeed != null && (seed == null || seed > 4_294_967_295)) {
+		throw new InvalidRunwayVideoRequestError("Runway seed must be an integer from 0 to 4294967295.");
+	}
+	if (
+		ir.inputReferences?.some(
+			(reference) => reference.type !== "image" || (reference.role != null && reference.role !== "first_frame"),
+		) ||
+		ir.inputVideo ||
+		ir.input?.video
+	) {
+		throw new InvalidRunwayVideoRequestError("Runway Gen-4.5 accepts at most one first-frame image and no video, audio, or mask input.");
+	}
+	if (ir.lastFrame || ir.input?.lastFrame || ir.referenceImages?.length || ir.input?.referenceImages?.length) {
+		throw new InvalidRunwayVideoRequestError("Runway Gen-4.5 does not accept last-frame or reference-image conditioning.");
+	}
+	const images = collectRunwayImages(ir, runwayConfig);
+	if (images.length > 1) {
+		throw new InvalidRunwayVideoRequestError("Runway Gen-4.5 image-to-video accepts exactly one first-frame image.");
+	}
+	const common = {
 		model,
 		promptText: ir.prompt,
-		...(typeof duration === "number" ? { duration } : {}),
-		...(ratio ? { ratio } : {}),
+		duration,
+		ratio,
 		...(typeof seed === "number" ? { seed } : {}),
-		...(imageUri ? { imageUri } : {}),
 	};
+	return images.length === 1
+		? {
+			endpoint: "/v1/image_to_video",
+			body: { ...common, promptImage: images[0] },
+			seconds: duration,
+			ratio,
+			inputImageCount: 1,
+		}
+		: {
+			endpoint: "/v1/text_to_video",
+			body: common,
+			seconds: duration,
+			ratio,
+			inputImageCount: 0,
+		};
 }
 
 function extractTaskId(json: any): string | undefined {
@@ -167,16 +243,33 @@ function extractVideoOutput(json: any): Array<{ index: number; uri: string | nul
 	return [];
 }
 
-function resolveRunwayApiVersion(rawRequest: Record<string, any>, bindings: Record<string, string | undefined>): string | undefined {
+function resolveRunwayApiVersion(rawRequest: Record<string, any>, bindings: Record<string, string | undefined>): string {
 	const runwayConfig = extractRunwayConfig(rawRequest);
 	return toNonEmptyString(runwayConfig.api_version ?? runwayConfig.apiVersion) ??
-		toNonEmptyString(bindings.RUNWAY_API_VERSION);
+		toNonEmptyString(bindings.RUNWAY_API_VERSION) ??
+		DEFAULT_RUNWAY_API_VERSION;
 }
 
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
 	const ir = args.ir as IRVideoGenerationRequest;
 	const model = args.providerModelSlug || ir.model || "gen4.5";
-	const seconds = parseDurationSeconds(ir);
+	let mapped: ReturnType<typeof buildRunwayRequest>;
+	try {
+		mapped = buildRunwayRequest(ir, model);
+	} catch (error) {
+		if (!(error instanceof InvalidRunwayVideoRequestError)) throw error;
+		return {
+			kind: "completed",
+			ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream: new Response(JSON.stringify({ error: { type: "invalid_request", message: error.message } }), {
+				status: 400,
+				headers: { "Content-Type": "application/json" },
+			}),
+			keySource: "gateway",
+		};
+	}
+	const seconds = mapped.seconds;
 	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
 	const quality = ir.quality ?? null;
 	const keyInfo = resolveProviderKey(
@@ -186,7 +279,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			return bindings.RUNWAY_API_KEY;
 		},
 	);
-	const requestObject = buildRunwayRequest(ir, model);
+	const requestObject = mapped.body;
 	const requestBody = JSON.stringify(requestObject);
 	const mappedRequest = (args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest)
 		? requestBody
@@ -208,6 +301,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				size,
 				resolution: ir.resolution,
 				quality,
+				input_image_count: mapped.inputImageCount,
 			}),
 			isByok: keyInfo.source === "byok",
 		});
@@ -320,11 +414,11 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		Authorization: `Bearer ${keyInfo.key}`,
 		"Content-Type": "application/json",
 	};
-	if (apiVersion) headers["X-Runway-Version"] = apiVersion;
+	headers["X-Runway-Version"] = apiVersion;
 
 	let res: Response;
 	try {
-		res = await fetchUpstream(args, `${baseUrl}/v1/text_to_video`, {
+		res = await fetchUpstream(args, `${baseUrl}${mapped.endpoint}`, {
 			method: "POST",
 			headers,
 			body: requestBody,
@@ -403,6 +497,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				byokKeyId: keyInfo.byokId,
 				providerDispatchedAtMs:
 					args.upstreamTiming?.timingFor(res)?.dispatchAtMs ?? Date.now(),
+				inputImageCount: mapped.inputImageCount,
 			}, taskId ?? encodedId, status);
 		} catch (error) {
 			console.error("runway_video_job_meta_store_failed", {
@@ -442,6 +537,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			totalTokens: 0,
 			requests: 1,
 			...(seconds != null ? { output_video_seconds: seconds } : {}),
+			...(mapped.inputImageCount > 0 ? { input_image: mapped.inputImageCount } : {}),
 		} as any,
 		rawResponse: json,
 	};

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	DropdownMenu,
 	DropdownMenuTrigger,
@@ -21,7 +22,6 @@ import {
 	MoreVertical,
 	OctagonAlert,
 	RefreshCw,
-	SlidersHorizontal,
 	Trash2,
 } from "lucide-react";
 import {
@@ -61,7 +61,6 @@ import UsageItem from "./UsageItem";
 import KeyDetailsItem from "./KeyDetailsItem";
 import EditKeyItem from "./EditKeyItem";
 import DeleteKeyItem from "./DeleteKeyItem";
-import KeyLimitsItem from "./KeyLimitsItem";
 import RotateKeyItem from "./RotateKeyItem";
 import {
 	deleteApiKeyAction,
@@ -70,7 +69,7 @@ import {
 import { toast } from "sonner";
 
 type KeyState = "active" | "disabled" | "limited" | "expired";
-type KeyDialogType = "details" | "edit" | "rotate" | "limits" | "delete";
+type KeyDialogType = "details" | "edit" | "rotate" | "delete";
 type ActiveKeyDialog = { type: KeyDialogType; key: any } | null;
 
 const NANOS_PER_USD = 1_000_000_000;
@@ -79,23 +78,20 @@ function KeyDialogMenuItem({
 	label,
 	Icon,
 	variant,
-	badge,
 	onOpen,
 }: {
 	label: string;
 	Icon: React.ComponentType<{ className?: string }>;
 	variant?: "default" | "destructive";
-	badge?: React.ReactNode;
 	onOpen: () => void;
 }) {
 	return (
-		<DropdownMenuItem variant={variant} render={<div
+		<DropdownMenuItem variant={variant} className="rounded-xl" render={<div
 				className="flex w-full items-center gap-2 text-left"
 				onClick={onOpen} />}>
 
 				<Icon className="mr-2 h-4 w-4" />
 				<span>{label}</span>
-				{badge}
 
 		</DropdownMenuItem>
 	);
@@ -496,15 +492,32 @@ function LimitPillStack({
 
 export default function KeysPanel({ teamsWithKeys }: any) {
 	const router = useRouter();
-	// Ensure teams that have keys are shown first, preserving original relative order.
+	// Ensure teams that have keys are shown first. Within each workspace, keys are
+	// ordered by most recent use; keys without a valid last-used timestamp come last.
 	const sortedTeams = useMemo(() => {
 		if (!Array.isArray(teamsWithKeys)) return teamsWithKeys;
-		// stable partition: keep relative order within groups
 		const withKeys: any[] = [];
 		const withoutKeys: any[] = [];
 		for (const t of teamsWithKeys) {
-			if (t && Array.isArray(t.keys) && t.keys.length > 0)
-				withKeys.push(t);
+			if (t && Array.isArray(t.keys) && t.keys.length > 0) {
+				const keys = t.keys
+					.map((key: any, index: number) => ({ key, index }))
+					.sort((a: { key: any; index: number }, b: { key: any; index: number }) => {
+						const aTime = typeof a.key?.last_used_at === "string"
+							? Date.parse(a.key.last_used_at)
+							: Number.NaN;
+						const bTime = typeof b.key?.last_used_at === "string"
+							? Date.parse(b.key.last_used_at)
+							: Number.NaN;
+						const aValid = Number.isFinite(aTime);
+						const bValid = Number.isFinite(bTime);
+						if (aValid && bValid && aTime !== bTime) return bTime - aTime;
+						if (aValid !== bValid) return aValid ? -1 : 1;
+						return a.index - b.index;
+					})
+					.map(({ key }: { key: any }) => key);
+				withKeys.push({ ...t, keys });
+			}
 			else withoutKeys.push(t);
 		}
 		return [...withKeys, ...withoutKeys];
@@ -521,6 +534,17 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 	const [bulkBusy, setBulkBusy] = useState(false);
 	const openKeyDialog = (type: KeyDialogType, key: any) => {
 		setActiveDialog({ type, key });
+	};
+	const openDetailsFromRow = (event: React.MouseEvent<HTMLElement>, key: any) => {
+		const target = event.target as HTMLElement;
+		if (target.closest("button, a, input, [role='checkbox'], [role='menuitem']")) return;
+		openKeyDialog("details", key);
+	};
+	const openDetailsFromKeyboard = (event: React.KeyboardEvent<HTMLElement>, key: any) => {
+		if (event.target !== event.currentTarget) return;
+		if (event.key !== "Enter" && event.key !== " ") return;
+		event.preventDefault();
+		openKeyDialog("details", key);
 	};
 	const closeKeyDialog = () => setActiveDialog(null);
 	const selectedKeys = allKeys.filter((key: any) => selectedIds.has(String(key.id)));
@@ -683,7 +707,11 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 									return (
 										<div
 											key={k.id}
-											className={`space-y-3 p-3 ${selected ? "bg-muted/40" : ""}`}
+											className={`cursor-pointer space-y-3 p-3 transition-colors hover:bg-muted/30 ${selected ? "bg-muted/40" : ""}`}
+											role="button"
+											tabIndex={0}
+											onClick={(event) => openDetailsFromRow(event, k)}
+											onKeyDown={(event) => openDetailsFromKeyboard(event, k)}
 										>
 											<div className="flex items-start justify-between gap-2">
 											<div className="flex min-w-0 gap-3">
@@ -719,7 +747,7 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 															<MoreVertical className="h-4 w-4" />
 
 													</DropdownMenuTrigger>
-													<DropdownMenuContent side="bottom" align="end" className="w-40">
+												<DropdownMenuContent side="bottom" align="end" className="w-40 rounded-2xl">
 														<KeyDialogMenuItem
 															label="Details"
 															Icon={Info}
@@ -735,12 +763,6 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 															label="Rotate"
 															Icon={RefreshCw}
 															onOpen={() => openKeyDialog("rotate", k)}
-														/>
-														<KeyDialogMenuItem
-															label="Limits"
-															Icon={SlidersHorizontal}
-															badge={<Badge variant="outline" className="ml-auto">Beta</Badge>}
-															onOpen={() => openKeyDialog("limits", k)}
 														/>
 														<KeyDialogMenuItem
 															label="Delete"
@@ -791,7 +813,13 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 								})}
 							</div>
 
-							<Table className="hidden table-fixed lg:table [&_tr:last-child]:border-b-0 [&_th]:px-3 [&_td]:px-3 [&_th]:align-middle [&_td]:align-middle">
+							<ScrollArea
+								className="hidden w-full lg:block"
+								viewportClassName="pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+								scrollBarOrientation="horizontal"
+								keepScrollbarMounted
+							>
+							<Table wrapInContainer={false} className="min-w-[980px] table-fixed [&_tr:last-child]:border-b-0 [&_th]:px-3 [&_td]:px-3 [&_th]:align-middle [&_td]:align-middle">
 								<TableHeader className="bg-muted/30">
 									<TableRow>
 										<TableHead className="w-[3%]">
@@ -830,7 +858,14 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 										const selected = selectedIds.has(keyId);
 
 										return (
-											<TableRow key={k.id} className={selected ? "bg-muted/40" : ""}>
+											<TableRow
+												key={k.id}
+												className={`cursor-pointer transition-colors hover:bg-muted/30 ${selected ? "bg-muted/40" : ""}`}
+												role="button"
+												tabIndex={0}
+												onClick={(event) => openDetailsFromRow(event, k)}
+												onKeyDown={(event) => openDetailsFromKeyboard(event, k)}
+											>
 												<TableCell>
 													<Checkbox
 														checked={selected}
@@ -901,10 +936,10 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 																<MoreVertical />
 
 														</DropdownMenuTrigger>
-														<DropdownMenuContent
-															side="bottom"
-															align="end"
-															className="w-40"
+												<DropdownMenuContent
+													side="bottom"
+													align="end"
+													className="w-40 rounded-2xl"
 														>
 															<KeyDialogMenuItem
 																label="Details"
@@ -923,12 +958,6 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 																onOpen={() => openKeyDialog("rotate", k)}
 															/>
 															<KeyDialogMenuItem
-																label="Limits"
-																Icon={SlidersHorizontal}
-																badge={<Badge variant="outline" className="ml-auto">Beta</Badge>}
-																onOpen={() => openKeyDialog("limits", k)}
-															/>
-															<KeyDialogMenuItem
 																label="Delete"
 																Icon={Trash2}
 																variant="destructive"
@@ -942,6 +971,7 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 									})}
 								</TableBody>
 							</Table>
+							</ScrollArea>
 						</div>
 					)}
 				</div>
@@ -974,17 +1004,6 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 				{activeDialog.type === "rotate" ? (
 					<RotateKeyItem
 						key={`rotate-${activeDialog.key?.id ?? "key"}`}
-						k={activeDialog.key}
-						trigger={false}
-						open
-						onOpenChange={(next) => {
-							if (!next) closeKeyDialog();
-						}}
-					/>
-				) : null}
-				{activeDialog.type === "limits" ? (
-					<KeyLimitsItem
-						key={`limits-${activeDialog.key?.id ?? "key"}`}
 						k={activeDialog.key}
 						trigger={false}
 						open

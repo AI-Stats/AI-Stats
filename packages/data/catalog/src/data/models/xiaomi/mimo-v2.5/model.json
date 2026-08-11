@@ -175,6 +175,14 @@
       "other_info": "1M input tokens; official MiMo-V2.5 model card image",
       "source_link": "https://huggingface.co/XiaomiMiMo/MiMo-V2.5/blob/main/assets/mimo-v2.5-graphwalks.jpeg",
       "rank": 1
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 38,
+      "is_self_reported": false,
+      "other_info": "MiMo-V2.5; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/mimo-v2-5-0424",
+      "rank": 84
     }
   ],
   "family_id": null,

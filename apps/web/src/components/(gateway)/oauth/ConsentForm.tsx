@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import Image from "next/image";
 import {
 	AlertCircle,
 	CheckCircle2,
@@ -14,12 +15,22 @@ import {
 	Wrench,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { isSafeOAuthRedirectUrl } from "@/lib/oauth/safeUrls";
+import {
+	groupConsentScopes,
+	type ConsentScopeGroupKey,
+} from "./consentScopeGroups";
 
 interface ConsentFormProps {
 	oauthApp: any;
@@ -39,7 +50,7 @@ type ScopeMeta = {
 	label: string;
 	description: string;
 	icon: any;
-	tone: "identity" | "read" | "write";
+	tone: "identity" | "read" | "write" | "delete";
 };
 
 const SCOPE_META: Record<string, ScopeMeta> = {
@@ -143,7 +154,7 @@ const SCOPE_META: Record<string, ScopeMeta> = {
 		label: "Delete teams",
 		description: "Lets the app permanently delete team records and their associated configuration.",
 		icon: Users,
-		tone: "write",
+		tone: "delete",
 	},
 	"keys:read": {
 		label: "Read API keys",
@@ -161,7 +172,7 @@ const SCOPE_META: Record<string, ScopeMeta> = {
 		label: "Delete API keys",
 		description: "Lets the app permanently remove API keys for selected teams.",
 		icon: KeyRound,
-		tone: "write",
+		tone: "delete",
 	},
 	"presets:read": {
 		label: "Read presets",
@@ -179,7 +190,7 @@ const SCOPE_META: Record<string, ScopeMeta> = {
 		label: "Delete presets",
 		description: "Lets the app permanently remove saved presets.",
 		icon: Settings2,
-		tone: "write",
+		tone: "delete",
 	},
 	"settings:read": {
 		label: "Read settings",
@@ -209,7 +220,7 @@ const SCOPE_META: Record<string, ScopeMeta> = {
 		label: "Delete guardrails",
 		description: "Lets the app permanently remove guardrails and policy configuration.",
 		icon: Shield,
-		tone: "write",
+		tone: "delete",
 	},
 	"management_keys:read": {
 		label: "Read management keys",
@@ -227,7 +238,7 @@ const SCOPE_META: Record<string, ScopeMeta> = {
 		label: "Delete management keys",
 		description: "Lets the app permanently revoke machine-level management keys.",
 		icon: Wrench,
-		tone: "write",
+		tone: "delete",
 	},
 	"oauth_clients:read": {
 		label: "Read OAuth apps",
@@ -245,26 +256,38 @@ const SCOPE_META: Record<string, ScopeMeta> = {
 		label: "Delete OAuth apps",
 		description: "Lets the app permanently remove OAuth client and integration configuration.",
 		icon: Lock,
-		tone: "write",
+		tone: "delete",
 	},
 };
 
 function fallbackScopeMeta(scope: string): ScopeMeta {
-	const isWrite = /:(write|delete)$/i.test(scope);
+	const isDelete = /:delete$/i.test(scope);
+	const isWrite = /:write$/i.test(scope);
 	return {
 		label: scope,
-		description: isWrite
+		description: isWrite || isDelete
 			? "Lets the app change or manage this resource on your behalf."
 			: "Lets the app read or inspect this resource on your behalf.",
-		icon: isWrite ? Settings2 : Search,
-		tone: isWrite ? "write" : "read",
+		icon: isWrite || isDelete ? Settings2 : Search,
+		tone: isDelete ? "delete" : isWrite ? "write" : "read",
 	};
 }
 
 function scopeToneBadge(tone: ScopeMeta["tone"]) {
 	if (tone === "identity") return { label: "Identity", className: "border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300" };
+	if (tone === "delete") return { label: "Delete", className: "border-rose-300 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300" };
 	if (tone === "write") return { label: "Write", className: "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300" };
 	return { label: "Read", className: "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300" };
+}
+
+function scopeGroupIcon(key: ConsentScopeGroupKey) {
+	if (key === "identity" || key === "guardrails") return Shield;
+	if (key === "gateway" || key === "keys") return KeyRound;
+	if (key === "catalog" || key === "data") return Search;
+	if (key === "workspaces") return Users;
+	if (key === "management-keys") return Wrench;
+	if (key === "oauth-apps") return Lock;
+	return Settings2;
 }
 
 function consentLogoSrc(value: unknown): string | null {
@@ -304,20 +327,24 @@ export default function ConsentForm({
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [unverifiedAcknowledged, setUnverifiedAcknowledged] = useState(false);
+	const isFirstParty = Boolean(oauthApp.is_first_party);
 	const isUnverified = oauthApp.registration_source === "dynamic" && !oauthApp.is_first_party;
 	const logoSrc = consentLogoSrc(oauthApp.logo_url);
 	const redirectHostname = displayHostname(redirectUri);
 
 	const selectedCount = selectedTeamIds.length;
 	const allSelected = selectedCount === teams.length;
-	const normalizedScopes = useMemo(
-		() =>
-			requestedScopes.map((scope) => ({
+	const scopeGroups = useMemo(
+		() => groupConsentScopes(requestedScopes).map((group) => ({
+			...group,
+			scopes: group.scopes.map((scope) => ({
 				scope,
 				...((SCOPE_META[scope] ?? fallbackScopeMeta(scope)) as ScopeMeta),
 			})),
+		})),
 		[requestedScopes],
 	);
+	const permissionCount = scopeGroups.reduce((total, group) => total + group.scopes.length, 0);
 
 	const handleTeamToggle = (teamId: string, checked: boolean) => {
 		setSelectedTeamIds((current) => {
@@ -445,10 +472,29 @@ export default function ConsentForm({
 				</div>
 
 				<div className="flex items-start gap-4">
-					{logoSrc ? (
-						<img
+					{isFirstParty ? (
+						<div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-foreground shadow-sm">
+							<Image
+								src="/logo_dark.svg"
+								alt="Phaseo"
+								width={48}
+								height={48}
+								className="size-12 object-contain dark:hidden"
+							/>
+							<Image
+								src="/logo_light.svg"
+								alt="Phaseo"
+								width={48}
+								height={48}
+								className="hidden size-12 object-contain dark:block"
+							/>
+						</div>
+					) : logoSrc ? (
+						<Image
 							src={logoSrc}
 							alt={oauthApp.name}
+							width={64}
+							height={64}
 							className="size-16 rounded-md object-cover border"
 						/>
 					) : (
@@ -456,8 +502,16 @@ export default function ConsentForm({
 							<Shield className="size-8 text-muted-foreground" />
 						</div>
 					)}
-					<div className="flex-1">
-						<CardTitle className="text-2xl">{oauthApp.name}</CardTitle>
+					<div className="min-w-0 flex-1">
+						<div className="flex flex-wrap items-center gap-2">
+							<CardTitle className="text-2xl">{oauthApp.name}</CardTitle>
+							{isFirstParty ? (
+								<Badge variant="outline" className="gap-1 border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">
+									<CheckCircle2 className="size-3" />
+									Official Phaseo app
+								</Badge>
+							) : null}
+						</div>
 						<CardDescription className="mt-1">
 							wants access to your Phaseo account
 						</CardDescription>
@@ -485,7 +539,7 @@ export default function ConsentForm({
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
 						<AlertDescription className="space-y-2">
-							<p><strong>Unverified application.</strong> Phaseo has not verified this app's identity, owner, or branding.</p>
+							<p><strong>Unverified application.</strong> Phaseo has not verified this app&apos;s identity, owner, or branding.</p>
 							<div className="font-mono text-xs break-all">Client: {clientId ?? oauthApp.client_id ?? "unknown"}</div>
 							{redirectHostname && <div className="text-xs">Authorization returns to: <strong>{redirectHostname}</strong></div>}
 							<label className="flex items-start gap-2 pt-1 text-sm">
@@ -516,10 +570,10 @@ export default function ConsentForm({
 							</p>
 						</div>
 						<div className="flex items-center gap-2">
-							<Button type="button" variant="outline" size="sm" onClick={handleSelectAll} disabled={allSelected}>
+							<Button type="button" variant="outline" size="sm" onClick={handleSelectAll} disabled={allSelected} className="rounded-md">
 								Select all
 							</Button>
-							<Button type="button" variant="ghost" size="sm" onClick={handleClearTeams} disabled={!selectedCount}>
+							<Button type="button" variant="ghost" size="sm" onClick={handleClearTeams} disabled={!selectedCount} className="rounded-md">
 								Clear
 							</Button>
 						</div>
@@ -555,6 +609,7 @@ export default function ConsentForm({
 										type="button"
 										variant={primary ? "default" : "outline"}
 										size="sm"
+										className="rounded-md"
 										disabled={!selected}
 										onClick={() => setPrimaryTeamId(team.id)}
 									>
@@ -572,39 +627,84 @@ export default function ConsentForm({
 				</div>
 
 				<div className="space-y-3">
-					<div>
-						<Label>Requested permissions</Label>
-						<p className="text-xs text-muted-foreground mt-1">
-							Read scopes let the app inspect data. Write scopes let it create, update, or
-							delete resources on your behalf.
+					<div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-end">
+						<div>
+							<Label>Requested permissions</Label>
+							<p className="text-xs text-muted-foreground mt-1">
+								Expand a group to review every permission. Read access is view-only;
+								write and delete access can change your workspace.
+							</p>
+						</div>
+						<p className="shrink-0 text-xs text-muted-foreground sm:text-right">
+							{scopeGroups.length} group{scopeGroups.length === 1 ? "" : "s"} / {permissionCount} permission{permissionCount === 1 ? "" : "s"}
 						</p>
 					</div>
-					<div className="space-y-2">
-						{normalizedScopes.map((scopeInfo) => {
-							const Icon = scopeInfo.icon;
-							const tone = scopeToneBadge(scopeInfo.tone);
+					<Accordion
+						type="multiple"
+						defaultValue={scopeGroups.some((group) => group.key === "identity") ? ["identity"] : []}
+						className="gap-2"
+					>
+						{scopeGroups.map((group) => {
+							const GroupIcon = scopeGroupIcon(group.key);
+							const tones = Array.from(new Set(group.scopes.map((scope) => scope.tone)));
 							return (
-								<div key={scopeInfo.scope} className="flex items-start gap-3 rounded-md border bg-muted/40 p-3">
-									<Icon className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
-									<div className="min-w-0 flex-1">
-										<div className="flex items-center gap-2">
-											<div className="font-medium text-sm">{scopeInfo.label}</div>
-											<Badge variant="outline" className={tone.className}>
-												{tone.label}
-											</Badge>
+								<AccordionItem key={group.key} value={group.key} className="overflow-hidden rounded-md border">
+									<AccordionTrigger className="gap-3 px-4 py-3 hover:bg-muted/40">
+										<div className="flex min-w-0 flex-1 items-start gap-3">
+											<div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
+												<GroupIcon className="size-4 text-muted-foreground" />
+											</div>
+											<div className="min-w-0 flex-1">
+												<div className="flex flex-wrap items-center gap-2">
+													<span>{group.label}</span>
+													<Badge variant="secondary" className="rounded-md font-normal">
+														{group.scopes.length}
+													</Badge>
+													{tones.map((tone) => {
+														const badge = scopeToneBadge(tone);
+														return (
+															<Badge key={tone} variant="outline" className={`${badge.className} rounded-md`}>
+																{badge.label}
+															</Badge>
+														);
+													})}
+												</div>
+												<p className="mt-1 text-xs font-normal text-muted-foreground">
+													{group.description}
+												</p>
+											</div>
 										</div>
-										<div className="text-xs text-muted-foreground mt-1">
-											{scopeInfo.description}
-										</div>
-										<div className="mt-1 font-mono text-[11px] text-muted-foreground/80">
-											{scopeInfo.scope}
-										</div>
-									</div>
-									<CheckCircle2 className="mt-1 size-4 shrink-0 text-green-600" />
-								</div>
+									</AccordionTrigger>
+									<AccordionContent className="space-y-2 px-3 pb-3">
+										{group.scopes.map((scopeInfo) => {
+											const Icon = scopeInfo.icon;
+											const tone = scopeToneBadge(scopeInfo.tone);
+											return (
+												<div key={scopeInfo.scope} className="flex items-start gap-3 rounded-md bg-muted/40 p-3">
+													<Icon className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+													<div className="min-w-0 flex-1">
+														<div className="flex flex-wrap items-center gap-2">
+															<div className="font-medium text-sm">{scopeInfo.label}</div>
+															<Badge variant="outline" className={`${tone.className} rounded-md`}>
+																{tone.label}
+															</Badge>
+														</div>
+														<div className="text-xs text-muted-foreground mt-1">
+															{scopeInfo.description}
+														</div>
+														<div className="mt-1 font-mono text-[11px] text-muted-foreground/80">
+															{scopeInfo.scope}
+														</div>
+													</div>
+													<CheckCircle2 className="mt-1 size-4 shrink-0 text-emerald-600" />
+												</div>
+											);
+										})}
+									</AccordionContent>
+								</AccordionItem>
 							);
 						})}
-					</div>
+					</Accordion>
 				</div>
 
 				<div className="rounded-md border bg-muted/30 p-3">
@@ -624,13 +724,13 @@ export default function ConsentForm({
 			</CardContent>
 
 			<CardFooter className="flex gap-3">
-				<Button variant="outline" onClick={handleDeny} disabled={loading} className="flex-1">
+				<Button variant="outline" onClick={handleDeny} disabled={loading} className="flex-1 rounded-md">
 					Deny
 				</Button>
 				<Button
 					onClick={handleApprove}
 					disabled={loading || !selectedTeamIds.length || !primaryTeamId || (isUnverified && !unverifiedAcknowledged)}
-					className="flex-1"
+					className="flex-1 rounded-md"
 				>
 					{loading ? "Authorizing..." : "Authorize selected teams"}
 				</Button>

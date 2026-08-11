@@ -98,6 +98,62 @@ describe("extractUpstreamUnsupportedParamSignal", () => {
 });
 
 describe("handleError", () => {
+	it("preserves guardrail enforcement metadata on blocked before-stage requests", async () => {
+		let capturedAuditArgs: any = null;
+		const blocked = new Response(
+			JSON.stringify({
+				error: "guardrail_blocked",
+				reason: "prompt_injection_detected",
+				description: "Request blocked by prompt injection guardrail.",
+				request_id: "G-GUARDRAIL-1",
+				workspace_id: "workspace-1",
+				guardrail_enforcement: {
+					source: "prompt_injection",
+					action: "block",
+					guardrail_ids: ["guardrail-1"],
+					detection_count: 1,
+				},
+				guardrail: {
+					type: "content_safety",
+					scope: "workspace",
+				},
+			}),
+			{ status: 403, headers: { "content-type": "application/json" } },
+		);
+
+		const response = await handleError({
+			stage: "before",
+			res: blocked,
+			endpoint: "responses",
+			auditFailure: async (args) => {
+				capturedAuditArgs = args;
+			},
+		});
+
+		const payload = await response.json();
+		expect(payload.guardrail_enforcement).toEqual({
+			source: "prompt_injection",
+			action: "block",
+			guardrail_ids: ["guardrail-1"],
+			detection_count: 1,
+		});
+		expect(payload.guardrail).toEqual({
+			type: "content_safety",
+			scope: "workspace",
+		});
+		expect(capturedAuditArgs?.errorPayload).toMatchObject({
+			guardrail_enforcement: {
+				source: "prompt_injection",
+				action: "block",
+				guardrail_ids: ["guardrail-1"],
+			},
+			guardrail: {
+				type: "content_safety",
+				scope: "workspace",
+			},
+		});
+	});
+
 	it("preserves before-stage system labels from provider candidate gaps", async () => {
 		expect(classifyErrorType({
 			stage: "before",
@@ -382,7 +438,7 @@ describe("handleError", () => {
 		});
 	});
 
-	it("recovers the requested model from the original before-stage request", async () => {
+	it("recovers the requested model from the bounded before-stage request clone", async () => {
 		let capturedAuditArgs: any = null;
 		const upstream = new Response(
 			JSON.stringify({
@@ -400,12 +456,14 @@ describe("handleError", () => {
 				extra_field: true,
 			}),
 		});
+		const requestBodyReq = req.clone();
 
 		await handleError({
 			stage: "before",
 			res: upstream,
 			endpoint: "responses",
 			req,
+			requestBodyReq,
 			auditFailure: async (args) => {
 				capturedAuditArgs = args;
 			},
@@ -425,6 +483,82 @@ describe("handleError", () => {
 		);
 	});
 
+	it("does not read an uncapped original request when the bounded clone is unavailable", async () => {
+		const req = new Request("https://example.test/v1/responses", {
+			method: "POST",
+			headers: { "content-type": "text/plain" },
+			body: JSON.stringify({ model: "openai/gpt-5-nano", input: "private prompt" }),
+		});
+
+		await handleError({
+			stage: "before",
+			res: new Response(JSON.stringify({
+				error: "unauthorised",
+				reason: "invalid_api_key",
+			}), { status: 401, headers: { "content-type": "application/json" } }),
+			endpoint: "responses",
+			req,
+			auditFailure: async () => {},
+		});
+
+		expect(req.bodyUsed).toBe(false);
+		expect(emitGatewayRequestEventMock).toHaveBeenCalledWith(expect.objectContaining({
+			model: null,
+			requestedModel: null,
+			requestPayload: null,
+			requestMethod: "POST",
+			requestPath: "/v1/responses",
+		}));
+	});
+
+	it("uses the parsed request snapshot after the request body has been consumed", async () => {
+		let capturedAuditArgs: any = null;
+		const requestPayload = {
+			model: "openai/gpt-5-nano",
+			input: "private prompt",
+		};
+		const req = new Request("https://example.test/v1/responses", {
+			method: "POST",
+			headers: { "content-type": "text/plain" },
+			body: JSON.stringify(requestPayload),
+		});
+		await req.text();
+
+		await handleError({
+			stage: "before",
+			res: new Response(JSON.stringify({
+				error: "insufficient_funds",
+				reason: "insufficient_funds",
+				min_usd: 1,
+			}), { status: 402, headers: { "content-type": "application/json" } }),
+			endpoint: "responses",
+			req,
+			requestObservability: {
+				requestPayload,
+				requestedModel: "openai/gpt-5-nano",
+				model: "openai/gpt-5-nano",
+			},
+			auditFailure: async (args) => {
+				capturedAuditArgs = args;
+			},
+		});
+
+		expect(capturedAuditArgs).toMatchObject({
+			model: "openai/gpt-5-nano",
+			requestedModel: "openai/gpt-5-nano",
+			requestPayload,
+			requestMethod: "POST",
+			requestPath: "/v1/responses",
+		});
+		expect(emitGatewayRequestEventMock).toHaveBeenCalledWith(expect.objectContaining({
+			model: "openai/gpt-5-nano",
+			requestedModel: "openai/gpt-5-nano",
+			requestPayload,
+			requestMethod: "POST",
+			requestPath: "/v1/responses",
+		}));
+	});
+
 	it("captures malformed early request payloads for observability", async () => {
 		let capturedAuditArgs: any = null;
 		const upstream = new Response(
@@ -439,12 +573,14 @@ describe("handleError", () => {
 			headers: { "content-type": "application/json" },
 			body: '{"model":"anthropic/claude-sonnet-4","input":"hi",}',
 		});
+		const requestBodyReq = req.clone();
 
 		await handleError({
 			stage: "before",
 			res: upstream,
 			endpoint: "responses",
 			req,
+			requestBodyReq,
 			auditFailure: async (args) => {
 				capturedAuditArgs = args;
 			},

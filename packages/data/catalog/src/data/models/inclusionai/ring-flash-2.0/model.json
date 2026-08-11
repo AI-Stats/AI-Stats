@@ -30,7 +30,16 @@
       "value": 100000000000
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 8,
+      "is_self_reported": false,
+      "other_info": "Ring-flash-2.0; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/ring-flash-2-0",
+      "rank": 426
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

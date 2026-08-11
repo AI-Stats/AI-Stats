@@ -23,7 +23,7 @@
   "pricing_source_url": null,
   "regional_pricing_notes": null,
   "country_code": "US",
-  "status": "Active",
+  "status": "external",
   "colour": null,
   "gateway_kind": "aggregator",
   "routable": false,

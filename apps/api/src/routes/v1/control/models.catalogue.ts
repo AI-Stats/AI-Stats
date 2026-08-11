@@ -46,6 +46,12 @@ type PricingRuleRow = {
     effective_to?: string | null;
 };
 
+type ModelDetailRow = {
+    model_slug: string | null;
+    detail_name: string | null;
+    detail_value: unknown;
+};
+
 type ProviderDetails = {
     api_provider_id: string;
     api_provider_name: string | null;
@@ -214,6 +220,7 @@ export type CatalogueModel = {
     endpoints: Endpoint[];
     input_types: string[];
     output_types: string[];
+    details: Record<string, unknown>;
     providers: ProviderInfo[];
     provider_endpoint_capabilities: Record<string, Record<string, ProviderInfo>>;
     supported_params: string[];
@@ -226,6 +233,7 @@ export type CatalogueModel = {
         status: "active" | "coming_soon" | "inactive" | "not_listed";
         provider_count: number;
         active_provider_count: number;
+        coming_soon_provider_count: number;
         inactive_provider_count: number;
     };
 };
@@ -1122,6 +1130,23 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
         return [];
     }
 
+    const detailsByModel = new Map<string, Record<string, unknown>>();
+    for (const modelIdChunk of chunkArray(modelIds, 200)) {
+        const { data, error } = await supabase
+            .from("v2_model_details")
+            .select("model_slug, detail_name, detail_value")
+            .in("model_slug", modelIdChunk);
+        if (error) {
+            throw new Error(`Failed to load model details: ${error.message || "unknown error"}`);
+        }
+        for (const row of (data ?? []) as ModelDetailRow[]) {
+            if (!row.model_slug || !row.detail_name) continue;
+            const details = detailsByModel.get(row.model_slug) ?? {};
+            details[row.detail_name] = row.detail_value;
+            detailsByModel.set(row.model_slug, details);
+        }
+    }
+
     const providerRows: ProviderModelRow[] = [];
     for (const modelIdChunk of chunkArray(modelIds, 200)) {
         let { data, error: providerError }: { data: ProviderModelRow[] | null; error: any } = await supabase
@@ -1725,6 +1750,7 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
             endpoints,
             input_types: [...info.input_types],
             output_types: [...info.output_types],
+            details: { ...(detailsByModel.get(modelId) ?? {}) },
             providers: providerInfos,
             provider_endpoint_capabilities: providerEndpointCapabilities,
             supported_params: supportedParams,
@@ -1737,6 +1763,7 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
                 status: availabilityStatus,
                 provider_count: providerInfos.length,
                 active_provider_count: activeProviderCount,
+                coming_soon_provider_count: comingSoonProviderCount,
                 inactive_provider_count: inactiveProviderCount,
             },
         };

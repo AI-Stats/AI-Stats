@@ -13,12 +13,33 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "upstage/solar-pro-2-preview",
-  "links": [{ "title": "Official model history", "kind": "documentation", "url": "https://console.upstage.ai/docs/models/history" }],
-  "details": [
-    { "name": "parameters", "value": "31B" },
-    { "name": "languages", "value": "English, Korean, Japanese" }
+  "links": [
+    {
+      "title": "Official model history",
+      "kind": "documentation",
+      "url": "https://console.upstage.ai/docs/models/history"
+    }
   ],
-  "benchmarks": [],
+  "details": [
+    {
+      "name": "parameters",
+      "value": "31B"
+    },
+    {
+      "name": "languages",
+      "value": "English, Korean, Japanese"
+    }
+  ],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 12.5,
+      "is_self_reported": false,
+      "other_info": "Solar Pro 2 (Preview) (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/solar-pro-2-preview-reasoning",
+      "rank": 333
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,
@@ -29,8 +50,12 @@
     "output": null
   },
   "modalities": {
-    "input": ["text"],
-    "output": ["text"]
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
   },
   "reasoning": {
     "supported": true,
@@ -45,7 +70,14 @@
     "web_search": null
   },
   "open_weights": null,
-  "sources": [{ "kind": "documentation", "url": "https://console.upstage.ai/docs/models/history", "accessed_at": "2026-08-06T00:00:00Z", "notes": "Official model history confirms the preview release and specifications." }],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://console.upstage.ai/docs/models/history",
+      "accessed_at": "2026-08-06T00:00:00Z",
+      "notes": "Official model history confirms the preview release and specifications."
+    }
+  ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-06T00:00:00Z",

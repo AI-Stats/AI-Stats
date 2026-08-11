@@ -21,16 +21,14 @@ Use webhooks for durable Batch and Video lifecycle notifications. Keep a polling
 
 ## Configure webhooks
 
-Video requests can include a callback URL, subscribed events, and a signing secret:
+Video requests reference a workspace-managed webhook endpoint. Configure its URL and signing secret in Webhook settings so they can be rotated without changing requests:
 
 ```json
 {
   "model": "google/veo-3.1-lite",
   "prompt": "A cinematic sunrise over a mountain lake",
   "webhook": {
-    "url": "https://example.com/api/video-webhook",
-    "events": ["video.completed", "video.failed"],
-    "secret": "whsec_your_signing_secret"
+    "endpoint_id": "we_123"
   }
 }
 ```
@@ -47,7 +45,9 @@ Batch requests use a workspace-managed webhook endpoint so the signing secret re
 
 Create and manage reusable endpoints in [Webhook settings](https://phaseo.app/settings/webhooks).
 
-When no event list is supplied, Phaseo sends terminal `job.completed`, `job.failed`, `job.cancelled`, and `job.expired` events. Subscribe to matching `batch.*` or `video.*` events when you need resource-specific names or progress notifications.
+When no event list is supplied, Phaseo sends `job.status_changed` plus terminal `job.completed`, `job.failed`, `job.cancelled`, and `job.expired` events. Subscribe to matching `batch.*` or `video.*` names when you need resource-specific events, or add `job.progress` / the matching resource event for progress notifications.
+
+Status-change deliveries include `status_change.previous_status` and `status_change.status`. Delivery keys remain stable so consumers can safely deduplicate retries.
 
 ## Verify webhook deliveries
 

@@ -102,6 +102,7 @@ describe("runVideoReconciliationJob", () => {
 		});
 		expect(operationLog).toEqual([
 			"finalize:video_cancel_polled:cancelled",
+			"webhook:video_cancel_polled:video.status_changed",
 			"webhook:video_cancel_polled:video.cancelled",
 		]);
 		expect(summary).toMatchObject({
@@ -302,6 +303,7 @@ describe("runVideoReconciliationJob", () => {
 		});
 		expect(operationLog).toEqual([
 			"finalize:video_expired:expired",
+			"webhook:video_expired:video.status_changed",
 			"webhook:video_expired:video.expired",
 		]);
 		expect(summary).toMatchObject({

@@ -40,35 +40,38 @@ export interface ChatCompletionsRequest {
     }[];
     content?:
       | string
-      | {
-          text: string;
-          type: "text";
-        }
-      | {
-          image_url: {
-            url?: string;
-          };
-          type: "image_url";
-        }
-      | {
-          input_audio: {
-            data?: string;
-            format?: "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
-          };
-          type: "input_audio";
-        }
-      | {
-          type: "input_video";
-          video_url: string;
-        }
-      | {
-          function: {
-            arguments?: string;
-            name?: string;
-          };
-          id: string;
-          type: "tool_call";
-        }[];
+      | (
+          | {
+              text: string;
+              type: "text";
+            }
+          | {
+              image_url: {
+                url?: string;
+              };
+              type: "image_url";
+            }
+          | {
+              input_audio: {
+                data?: string;
+                format?:
+                  "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
+              };
+              type: "input_audio";
+            }
+          | {
+              type: "input_video";
+              video_url: string;
+            }
+          | {
+              function: {
+                arguments?: string;
+                name?: string;
+              };
+              id: string;
+              type: "tool_call";
+            }
+        )[];
     images?: {
       image_url: {
         url: string;
@@ -94,7 +97,7 @@ export interface ChatCompletionsRequest {
   metadata?: {
     [key: string]: string;
   };
-  modalities?: "text" | "image" | "audio"[];
+  modalities?: ("text" | "image" | "audio")[];
   model: string;
   parallel_tool_calls?: boolean;
   presence_penalty?: number;
@@ -180,6 +183,8 @@ export interface ChatCompletionsRequest {
     mode?: "standard" | "pro";
     summary?: "auto" | "concise" | "detailed";
   };
+  reasoning_effort?:
+    "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max";
   response_format?:
     | string
     | {
@@ -209,7 +214,7 @@ export interface ChatCompletionsRequest {
     | "gateway:web_search"
     | "gateway:web_fetch"
     | {};
-  tools?:
+  tools?: (
     | {
         function: {
           description?: string;
@@ -263,7 +268,8 @@ export interface ChatCompletionsRequest {
           max_results?: number;
         };
         type: "phaseo:search_models";
-      }[];
+      }
+  )[];
   top_logprobs?: number;
   top_p?: number;
   usage?: boolean;

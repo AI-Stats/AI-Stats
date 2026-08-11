@@ -38,6 +38,14 @@
       "other_info": "940 puzzles",
       "source_link": "https://github.com/lechmazur/nyt-connections",
       "rank": 59
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 34.4,
+      "is_self_reported": false,
+      "other_info": "Hy3-preview (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/hy3-preview",
+      "rank": 117
     }
   ],
   "family_id": null,

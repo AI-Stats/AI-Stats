@@ -3,7 +3,7 @@
 // Why: Provides a single request lifecycle orchestrator.
 // How: Orchestrates before -> execute -> after with timing hooks.
 
-import { beforeRequest } from "./before";
+import { beforeRequest, type BeforeRequestObservabilitySnapshot } from "./before";
 import type { Endpoint } from "@core/types";
 import { handleError } from "@core/error-handler";
 import { auditFailure } from "./audit";
@@ -70,15 +70,15 @@ export function makeEndpointHandler(opts: { endpoint: Endpoint; schema: any; }) 
         };
         timing.timer.mark("preflight_start");
 
-        // Log the whole request
-        // console.log("Incoming request:", req);
-
-        // Safely log the request body without consuming the original stream
-        // req.clone().text().then(body => console.log("Request body:", body)).catch(err => console.error("Error logging request body:", err));
         const observabilityReq = cloneRequestForEarlyObservability(req);
+        let earlyRequestObservability: BeforeRequestObservabilitySnapshot | undefined;
 
         timing.timer.mark("before_start");
-        const pre = await beforeRequest(req, endpoint, timing.timer, schema);
+        const pre = await beforeRequest(req, endpoint, timing.timer, schema, {
+            onObservabilitySnapshot: (snapshot) => {
+                earlyRequestObservability = snapshot;
+            },
+        });
         const beforeMsRaw = timing.timer.end("before_start");
         const beforeMs = typeof beforeMsRaw === "number"
             ? Math.round(beforeMsRaw * 1000) / 1000
@@ -93,7 +93,9 @@ export function makeEndpointHandler(opts: { endpoint: Endpoint; schema: any; }) 
                 endpoint,
                 timingHeader: timing.timer.serverTiming(),
                 auditFailure,
-                req: observabilityReq,
+                req,
+                requestBodyReq: observabilityReq,
+                requestObservability: earlyRequestObservability,
             });
         }
 
@@ -109,6 +111,7 @@ export function makeEndpointHandler(opts: { endpoint: Endpoint; schema: any; }) 
 			for (const fallbackModel of configuredModelFallbacks(pre.ctx)) {
 				const fallbackReq = requestForModelFallback(req, pre.ctx.rawBody) as unknown as typeof req;
 				const fallbackObservabilityReq = cloneRequestForEarlyObservability(fallbackReq);
+				let fallbackRequestObservability: BeforeRequestObservabilitySnapshot | undefined;
 				const fallbackTimer = new Timer();
 				const fallbackTiming: PipelineTiming = {
 					timer: fallbackTimer,
@@ -121,7 +124,12 @@ export function makeEndpointHandler(opts: { endpoint: Endpoint; schema: any; }) 
 					endpoint,
 					fallbackTiming.timer,
 					schema,
-					{ dynamicRouteModelOverride: fallbackModel },
+					{
+						dynamicRouteModelOverride: fallbackModel,
+						onObservabilitySnapshot: (snapshot) => {
+							fallbackRequestObservability = snapshot;
+						},
+					},
 				);
 				const fallbackBeforeMsRaw = fallbackTiming.timer.end("before_start");
 				if (!fallbackPre.ok) {
@@ -131,7 +139,9 @@ export function makeEndpointHandler(opts: { endpoint: Endpoint; schema: any; }) 
 						endpoint,
 						timingHeader: fallbackTiming.timer.serverTiming(),
 						auditFailure,
-						req: fallbackObservabilityReq,
+						req: fallbackReq,
+						requestBodyReq: fallbackObservabilityReq,
+						requestObservability: fallbackRequestObservability,
 					});
 					continue;
 				}

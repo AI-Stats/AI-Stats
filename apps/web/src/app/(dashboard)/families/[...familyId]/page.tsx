@@ -10,6 +10,8 @@ import {
 	Layers3,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import EntityStickyHeader from "@/components/(data)/EntityStickyHeader";
+import ModelPageToc from "@/components/(data)/model/ModelPageToc";
 import { Badge } from "@/components/ui/badge";
 import type { FamilyModelItem } from "@/lib/fetchers/families/types";
 import { fetchFrontendFamily } from "@/lib/fetchers/frontend/fetchPublicCatalog";
@@ -142,6 +144,7 @@ export default async function Page({
 
 	return (
 		<main className="min-h-screen">
+			<EntityStickyHeader kind="family" id={familyId} name={family.family_name} observeId="family-detail-primary-header" baseHref={`/families/${familyId}`} navigation={[]} />
 			<div className="container mx-auto px-4 py-7 md:py-9">
 				<Link
 					href="/families"
@@ -151,7 +154,7 @@ export default async function Page({
 					All model families
 				</Link>
 
-				<header className="mt-7 grid gap-6 border-b border-border/70 pb-8 lg:grid-cols-[minmax(0,1fr)_minmax(380px,0.65fr)] lg:items-center">
+				<header id="family-detail-primary-header" className="mt-7 scroll-mt-36 grid gap-6 border-b border-border/70 pb-8 lg:grid-cols-[minmax(0,1fr)_minmax(380px,0.65fr)] lg:items-center">
 					<div className="flex items-start gap-4 md:gap-5">
 						<div className="relative flex size-12 shrink-0 items-center justify-center rounded-xl border border-border/70 bg-background md:size-14">
 							{primaryOrganisationId ? (
@@ -221,7 +224,10 @@ export default async function Page({
 					</dl>
 				</header>
 
-				<section className="py-8 md:py-10" aria-labelledby="family-members-heading">
+				<div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-start">
+					<ModelPageToc items={[{ id: "family-detail-primary-header", label: "Overview" }, { id: "family-members", label: "Family Members" }]} className="lg:h-full lg:w-40 lg:shrink-0 xl:w-44" />
+					<div className="min-w-0 flex-1">
+				<section id="family-members" className="scroll-mt-36 py-8 md:py-10" aria-labelledby="family-members-heading">
 					<div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
 						<div>
 							<h2
@@ -288,6 +294,8 @@ export default async function Page({
 						</div>
 					)}
 				</section>
+					</div>
+				</div>
 			</div>
 		</main>
 	);

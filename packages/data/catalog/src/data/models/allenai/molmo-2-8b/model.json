@@ -15,7 +15,16 @@
   "api_model_id": "allenai/molmo-2-8b",
   "links": [],
   "details": [],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 1.6,
+      "is_self_reported": false,
+      "other_info": "Molmo2-8B; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/molmo2-8b",
+      "rank": 565
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

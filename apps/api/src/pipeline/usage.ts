@@ -239,6 +239,7 @@ export function shapeUsageForClient(
         "cached_write_text_tokens_1h",
         "cache_creation",
         "output_image",
+		"input_image",
         "input_image_pixels",
         "output_image_pixels",
         "output_video_seconds",

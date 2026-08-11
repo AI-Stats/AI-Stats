@@ -167,7 +167,13 @@ export default function TeamsAccessPanel({
 	return (
 		<div className="space-y-6">
 			<section className="space-y-4">
-				<div className="flex flex-wrap items-center gap-2">
+				<div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+					<div className="min-w-0">
+						<h2 className="text-sm font-medium">Join Requests</h2>
+						<p className="mt-0.5 text-sm text-muted-foreground">
+							Approve or reject requests to join this workspace.
+						</p>
+					</div>
 					<Badge variant="secondary">
 						{requests.length} pending request{requests.length === 1 ? "" : "s"}
 					</Badge>
@@ -237,9 +243,17 @@ export default function TeamsAccessPanel({
 			</section>
 
 			<section className="space-y-4">
-				<div className="flex flex-wrap items-center gap-2">
-					<Badge variant="outline">{inviteCounts.total} total</Badge>
-					<Badge variant="secondary">{inviteCounts.active} active</Badge>
+				<div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+					<div className="min-w-0">
+						<h2 className="text-sm font-medium">Invites</h2>
+						<p className="mt-0.5 text-sm text-muted-foreground">
+							Reveal, copy, or revoke invite codes for this workspace.
+						</p>
+					</div>
+					<div className="flex flex-wrap items-center gap-2">
+						<Badge variant="outline">{inviteCounts.total} total</Badge>
+						<Badge variant="secondary">{inviteCounts.active} active</Badge>
+					</div>
 				</div>
 				{invites.length === 0 ? (
 					<div className="rounded-lg border border-dashed px-4 py-6 text-sm text-muted-foreground">

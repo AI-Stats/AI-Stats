@@ -679,6 +679,14 @@
       "other_info": "Top-1 accuracy 76.5%; cases 703",
       "source_link": "https://github.com/lechmazur/generalization",
       "rank": 10
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 32.8,
+      "is_self_reported": false,
+      "other_info": "Qwen3.5 122B A10B (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/qwen3-5-122b-a10b",
+      "rank": 129
     }
   ],
   "family_id": null,
