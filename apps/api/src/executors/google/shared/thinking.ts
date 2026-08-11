@@ -13,7 +13,16 @@ const GOOGLE_DEFAULT_GEMINI3_LEVELS: GoogleThinkingLevel[] = [
 	"HIGH",
 ];
 
+const GOOGLE_GEMMA4_LEVELS: GoogleThinkingLevel[] = ["MINIMAL", "HIGH"];
+
+const GOOGLE_GEMMA4_MODELS = new Set([
+	"gemma-4-26b-a4b",
+	"gemma-4-31b",
+]);
+
 const GOOGLE_THINKING_LEVEL_SUPPORT: Record<string, GoogleThinkingLevel[]> = {
+	"gemma-4-26b-a4b": GOOGLE_GEMMA4_LEVELS,
+	"gemma-4-31b": GOOGLE_GEMMA4_LEVELS,
 	"gemini-3-flash-preview": GOOGLE_DEFAULT_GEMINI3_LEVELS,
 	"gemini-3-flash-preview-developer": GOOGLE_DEFAULT_GEMINI3_LEVELS,
 	"gemini-3-pro-preview": GOOGLE_DEFAULT_GEMINI3_LEVELS,
@@ -25,7 +34,7 @@ const GOOGLE_THINKING_LEVEL_SUPPORT: Record<string, GoogleThinkingLevel[]> = {
 };
 
 function normalizeModelName(model: string): string {
-	return normalizeGoogleModelSlug(String(model ?? "").trim());
+	return normalizeGoogleModelSlug(String(model ?? "").trim()).replace(/:free$/i, "");
 }
 
 export function getSupportedGoogleThinkingLevels(model: string): GoogleThinkingLevel[] {
@@ -52,6 +61,11 @@ export function getSupportedGoogleThinkingLevels(model: string): GoogleThinkingL
 
 export function modelSupportsGoogleThinkingLevels(model: string): boolean {
 	return getSupportedGoogleThinkingLevels(model).length > 0;
+}
+
+export function getDefaultGoogleThinkingLevel(model: string): GoogleThinkingLevel | undefined {
+	const normalized = normalizeModelName(model).replace(/-it$/i, "");
+	return GOOGLE_GEMMA4_MODELS.has(normalized) ? "MINIMAL" : undefined;
 }
 
 function effortToThinkingLevel(effort: string): GoogleThinkingLevel | undefined {

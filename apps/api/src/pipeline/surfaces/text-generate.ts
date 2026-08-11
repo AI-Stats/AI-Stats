@@ -54,6 +54,12 @@ import {
 import { fetchGatewayContext } from "../before/context";
 import { buildProviderCandidatesWithDiagnostics } from "../before/utils";
 import type { PipelineContext } from "../before/types";
+import {
+	buildEmptyResponseDiagnostics,
+	emptyResponseMessage,
+	hasUsableIRChatResponse,
+	type EmptyResponseDiagnostics,
+} from "./empty-response";
 
 function createJsonErrorResponse(
 	status: number,
@@ -94,26 +100,18 @@ function extractAssistantText(response: IRChatResponse): string {
 		.trim();
 }
 
-function hasUsableIRChatResponse(response: IRChatResponse | undefined): boolean {
-	if (!response?.choices?.length) return false;
-	return response.choices.some((choice) => {
-		if ((choice.message?.toolCalls?.length ?? 0) > 0) return true;
-		return (choice.message?.content ?? []).some((part) => {
-			if (part.type === "reasoning_text") return false;
-			if (part.type === "text") return part.text.trim().length > 0;
-			return part.type === "image" || part.type === "audio";
-		});
-	});
-}
-
-function emptyProviderResponse(result: { provider?: string; upstream?: Response }): Response {
+function emptyProviderResponse(
+	result: { provider?: string; upstream?: Response },
+	diagnostics: EmptyResponseDiagnostics,
+): Response {
 	return createJsonErrorResponse(
 		502,
 		"google_empty_response",
-		"The provider returned a successful response without any visible output.",
+		emptyResponseMessage(diagnostics),
 		{
 			provider: result.provider ?? null,
 			upstream_status: result.upstream?.status ?? null,
+			empty_response: diagnostics,
 		},
 	);
 }
@@ -814,6 +812,10 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 			exec.result.allowEmptySuccess !== true &&
 			!hasUsableIRChatResponse(exec.result.ir as IRChatResponse | undefined)
 		) {
+			const emptyResponseDiagnostics = buildEmptyResponseDiagnostics(
+				exec.result.ir as IRChatResponse | undefined,
+			);
+			const message = emptyResponseMessage(emptyResponseDiagnostics);
 			await settleNonBillableFailure(pre.ctx, exec.result);
 			await handleFailureAudit(
 				pre.ctx,
@@ -821,14 +823,21 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 				502,
 				"gateway",
 				"google_empty_response",
-				"The provider returned a successful response without any visible output.",
+				message,
 				exec.result.rawResponse,
+				{
+					generation_id: pre.ctx.requestId,
+					status_code: 502,
+					error: "google_empty_response",
+					description: message,
+					empty_response: emptyResponseDiagnostics,
+				},
 			);
 			const header = timing.timer.header();
 			pre.ctx.timing = timing.timer.snapshot();
 			return await handleError({
 				stage: "execute",
-				res: emptyProviderResponse(exec.result),
+				res: emptyProviderResponse(exec.result, emptyResponseDiagnostics),
 				endpoint,
 				ctx: pre.ctx,
 				timingHeader: header || undefined,
@@ -1070,6 +1079,10 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 					followUpResult.allowEmptySuccess !== true &&
 					!hasUsableIRChatResponse(followUpResult.ir as IRChatResponse | undefined)
 				) {
+					const emptyResponseDiagnostics = buildEmptyResponseDiagnostics(
+						followUpResult.ir as IRChatResponse | undefined,
+					);
+					const message = emptyResponseMessage(emptyResponseDiagnostics);
 					await settleNonBillableFailure(pre.ctx, followUpResult);
 					await handleFailureAudit(
 						pre.ctx,
@@ -1077,14 +1090,21 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 						502,
 						"gateway",
 						"google_empty_response",
-						"The provider returned a successful response without any visible output.",
+						message,
 						followUpResult.rawResponse,
+						{
+							generation_id: pre.ctx.requestId,
+							status_code: 502,
+							error: "google_empty_response",
+							description: message,
+							empty_response: emptyResponseDiagnostics,
+						},
 					);
 					const header = timing.timer.header();
 					pre.ctx.timing = timing.timer.snapshot();
 					return await handleError({
 						stage: "execute",
-						res: emptyProviderResponse(followUpResult),
+						res: emptyProviderResponse(followUpResult, emptyResponseDiagnostics),
 						endpoint,
 						ctx: pre.ctx,
 						timingHeader: header || undefined,
