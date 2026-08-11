@@ -14,6 +14,9 @@
     "eu"
   ],
   "zero_data_retention": "unknown",
+  "data_policy_tier": "private",
+  "data_policy_confidence": "maybe",
+  "data_policy_contract_mode": "none",
   "residency_source_url": "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/locations",
   "regional_pricing_mode": "offer_specific",
   "pricing_source_url": "https://cloud.google.com/vertex-ai/generative-ai/pricing",

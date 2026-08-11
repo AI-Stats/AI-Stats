@@ -1276,10 +1276,6 @@ export function buildProviderSections(
     return out;
 }
 
-function getActiveTokenTier(tiers?: TokenTier[] | null): TokenTier | null {
-    return tiers?.find((tier) => tier.isCurrent) ?? tiers?.[0] ?? null;
-}
-
 function createTablePriceCandidate(args: {
     key: string;
     label: string;
@@ -1298,6 +1294,11 @@ function createTablePriceCandidate(args: {
 
 type ProviderTablePriceDirection = "input" | "output" | "cached";
 
+function getBaseTokenTier(tiers?: TokenTier[] | null): TokenTier | null {
+	const activeTiers = (tiers ?? []).filter((tier) => tier.isCurrent);
+	return activeTiers[0] ?? tiers?.[0] ?? null;
+}
+
 function getTablePriceCandidates(
     sections: ProviderSections,
     direction: ProviderTablePriceDirection,
@@ -1307,16 +1308,16 @@ function getTablePriceCandidates(
         modality: "text" | "audio" | "image" | "video" | "embeddings",
         tiers?: TokenTier[] | null,
     ) => {
-        const tier = getActiveTokenTier(tiers);
-        if (!tier) return;
-        candidates.push(
-            createTablePriceCandidate({
-                key: `${direction}-${modality}-tokens`,
-                label: modality,
-                price: tier.per1M,
-                unitLabel: "Per 1M tokens",
-            }),
-        );
+		const tier = getBaseTokenTier(tiers);
+		if (!tier) return;
+		candidates.push(
+			createTablePriceCandidate({
+				key: `${direction}-${modality}-tokens`,
+				label: modality,
+				price: tier.per1M,
+				unitLabel: "Per 1M tokens",
+			}),
+		);
     };
 
     if (direction === "cached") {

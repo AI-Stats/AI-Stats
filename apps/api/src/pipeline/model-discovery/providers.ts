@@ -229,6 +229,13 @@ const NATIVE_DISCOVERY_PROVIDERS: ProviderConfig[] = [
 		authStyle: "optional_bearer",
 	},
 	{
+		providerId: "nano-gpt",
+		providerName: "NanoGPT",
+		modelsEndpoint: "https://nano-gpt.com/api/v1/models?detailed=true",
+		apiKeyEnv: ["NANO_GPT_API_KEY", "NANOGPT_API_KEY"],
+		authStyle: "optional_bearer",
+	},
+	{
 		providerId: "llmgateway",
 		providerName: "LLM Gateway",
 		modelsEndpoint: "https://api.llmgateway.io/v1/models",
@@ -253,6 +260,13 @@ const NATIVE_DISCOVERY_PROVIDERS: ProviderConfig[] = [
 		providerName: "Vercel AI Gateway",
 		modelsEndpoint: "https://ai-gateway.vercel.sh/v1/models",
 		authStyle: "none",
+	},
+	{
+		providerId: "zenmux",
+		providerName: "ZenMux",
+		modelsEndpoint: "https://zenmux.ai/api/v1/models",
+		apiKeyEnv: ["ZENMUX_API_KEY"],
+		authStyle: "optional_bearer",
 	},
 	{
 		providerId: "anthropic",
