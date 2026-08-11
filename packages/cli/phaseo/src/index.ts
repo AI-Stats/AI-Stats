@@ -19,8 +19,11 @@ import {
 import { clearSession, readSession, writeSession } from "./session.js";
 import { printError, printJson, sanitizeTerminalText } from "./output.js";
 import { CLI_VERSION } from "./generated/meta.js";
-import { getVersionInfo } from "./release.js";
+import { createDoctorReport, detectInstalledPackageManager, type DoctorReport } from "./installation.js";
+import { getVersionInfo, removeCommandFor, updateCommandFor, updateInvocationFor } from "./release.js";
 import { runCurie } from "./curie.js";
+import { runIntegrationCommand } from "./integrations/index.js";
+import { revokeIntegrationGatewayCredential } from "./integrations/credential.js";
 
 type ParsedArgs = {
 	command: string[];
@@ -70,7 +73,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
 			flags.help = true;
 			continue;
 		}
-		if (arg === "-v") {
+		if (arg === "-v" || arg === "-V") {
 			flags.version = true;
 			continue;
 		}
@@ -172,7 +175,9 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 			"phaseo login [--api-url <url>] [--method browser|device] [--browser] [--device-code] [--scopes <csv>] [--json]",
 			"phaseo logout [--json]",
 			"phaseo whoami [--json]",
-			"phaseo version [--json]",
+			"phaseo version | v [--json]",
+			"phaseo update [--check] [--json]",
+			"phaseo doctor [--json]",
 			"",
 			"phaseo keys --help",
 			"phaseo workspaces --help",
@@ -192,6 +197,7 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 			"phaseo analytics --help",
 			"phaseo generation --help",
 			"phaseo curie --help",
+			"phaseo integrations --help",
 			"phaseo webhooks --help",
 			"phaseo api --help",
 			"",
@@ -208,7 +214,18 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 			"phaseo login [--api-url <url>] [--method browser|device] [--browser] [--device-code] [--scopes <csv>] [--json]",
 		],
 	},
-	version: { usage: ["phaseo version [--json]"] },
+	version: {
+		usage: ["phaseo version [--json]", "phaseo v [--json]"],
+		description: "Show the installed version and compare it with the latest published release.",
+	},
+	update: {
+		usage: ["phaseo update [--check] [--json]"],
+		description: "Update the active Phaseo installation with its package manager.",
+	},
+	doctor: {
+		usage: ["phaseo doctor [--json]"],
+		description: "Inspect the active installation and find shadowed Phaseo commands on PATH.",
+	},
 	curie: {
 		usage: [
 			"phaseo curie run <config.json> [--repeats <n>] [--report <path>] [--base-url <url> --allow-custom-base-url --api-key-env PHASEO_CURIE_API_KEY] [--dry-run] [--json]",
@@ -216,6 +233,21 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 		description: "Run a local model comparison from a JSON configuration.",
 	},
 	"curie run": { usage: ["phaseo curie run <config.json> [--repeats <n>] [--report <path>] [--base-url <url> --allow-custom-base-url --api-key-env PHASEO_CURIE_API_KEY] [--dry-run] [--json]"] },
+	integrations: {
+		description: "Configure coding agents to use the Phaseo gateway without writing credentials to their configuration.",
+		usage: [
+			"phaseo integrations list [codex|claude-code|opencode] [--json]",
+			"phaseo integrations status [codex|claude-code|opencode] [--json]",
+			"phaseo integrations setup codex [--model <id>] [--dry-run] [--json]",
+			"phaseo integrations setup claude-code [--dry-run] [--json]",
+			"phaseo integrations setup opencode [--model <id>] [--dry-run] [--json]",
+			"phaseo integrations remove <codex|claude-code|opencode> [--dry-run] [--json]",
+		],
+	},
+	"integrations list": { usage: ["phaseo integrations list [codex|claude-code|opencode] [--json]"] },
+	"integrations status": { usage: ["phaseo integrations status [codex|claude-code|opencode] [--json]"] },
+	"integrations setup": { usage: ["phaseo integrations setup codex [--model <id>] [--dry-run] [--json]", "phaseo integrations setup claude-code [--dry-run] [--json]", "phaseo integrations setup opencode [--model <id>] [--dry-run] [--json]"] },
+	"integrations remove": { usage: ["phaseo integrations remove <codex|claude-code|opencode> [--dry-run] [--json]"] },
 	logout: { usage: ["phaseo logout [--json]"] },
 	whoami: { usage: ["phaseo whoami [--json]"] },
 	keys: {
@@ -387,6 +419,7 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 	"webhooks rotate-secret": { usage: ["phaseo webhooks rotate-secret <id> [--show-secret] [--json]"] },
 	"webhooks delete": { usage: ["phaseo webhooks delete <id> [--json]"] },
 	api: {
+		description: "Send an authenticated request when no dedicated Phaseo command is available.",
 		usage: [
 			"phaseo api get <v1-path> [--json]",
 			"phaseo api post <v1-path> --body-json <json> [--json]",
@@ -403,6 +436,7 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 };
 
 export function helpKeyForCommand(command: string[]): string {
+	if (command[0]?.toLowerCase() === "v") return "version";
 	if (command.length >= 2) {
 		const twoPart = `${command[0]} ${command[1]}`;
 		if (twoPart in HELP_ENTRIES) return twoPart;
@@ -418,7 +452,9 @@ export function renderHelp(command: string[]): string {
 	if (key === "root") {
 		lines.push(entry.description ?? "Phaseo CLI", "", "Usage:");
 	} else {
-		lines.push(`Phaseo CLI Help: ${key}`, "", "Usage:");
+		lines.push(`Phaseo CLI Help: ${key}`);
+		if (entry.description) lines.push("", entry.description);
+		lines.push("", "Usage:");
 	}
 	for (const usageLine of entry.usage) {
 		if (usageLine === "") {
@@ -462,15 +498,10 @@ export function renderVersionText(details: {
 	return `${lines.join("\n")}\n`;
 }
 
-async function printVersion(flags: Record<string, string | boolean>, options: { short?: boolean } = {}) {
-	if (options.short) {
-		const info = await getVersionInfo();
-		process.stdout.write(`${CLI_VERSION}  update: ${info.updateCommand}\n`);
-		return;
-	}
+async function printVersion(flags: Record<string, string | boolean>) {
 	const refreshVersion = flagBool(flags, "refresh-version") || flagBool(flags, "check-update");
 	const info = await getVersionInfo({
-		lookupLatest: refreshVersion,
+		lookupLatest: true,
 		forceLatestLookup: refreshVersion,
 	});
 	if (flagBool(flags, "json")) {
@@ -480,6 +511,68 @@ async function printVersion(flags: Record<string, string | boolean>, options: { 
 	process.stdout.write(renderVersionText(info));
 }
 
+export function renderDoctorText(report: DoctorReport): string {
+	const manager = report.installation.manager ?? "unknown";
+	const lines = [
+		`Phaseo CLI ${report.version}`,
+		`Package manager: ${manager}`,
+		`Current executable: ${report.installation.currentExecutable}`,
+		`Active PATH command: ${report.path.active ?? "not found"}`,
+	];
+	if (report.installation.updateCommand) lines.push(`Update: ${report.installation.updateCommand}`);
+	if (report.issues.length === 0) {
+		lines.push("Status: healthy");
+	} else {
+		for (const issue of report.issues) {
+			lines.push("", `Warning: ${issue.summary}`);
+			for (const command of issue.remediation) lines.push(`  ${command}`);
+		}
+	}
+	return `${lines.join("\n")}\n`;
+}
+
+async function doctor(flags: Record<string, string | boolean>) {
+	const report = createDoctorReport({
+		version: CLI_VERSION,
+		updateCommandFor,
+		removeCommandFor,
+	});
+	if (flagBool(flags, "json")) return printJson(report);
+	process.stdout.write(renderDoctorText(report));
+}
+
+async function updateCli(flags: Record<string, string | boolean>) {
+	if (flagBool(flags, "check")) {
+		await printVersion({ ...flags, "refresh-version": true });
+		return;
+	}
+	const manager = detectInstalledPackageManager();
+	if (!manager) {
+		throw new Error("Could not determine how this Phaseo CLI was installed. Run `phaseo doctor` for installation details.");
+	}
+	const invocation = updateInvocationFor(manager);
+	const json = flagBool(flags, "json");
+	if (!json) process.stdout.write(`Updating with ${updateCommandFor(manager)}\n`);
+	await new Promise<void>((resolve, reject) => {
+		const useCommandShell = process.platform === "win32";
+		const child = spawn(useCommandShell ? updateCommandFor(manager) : invocation.command, useCommandShell ? [] : invocation.args, {
+			stdio: json ? "ignore" : "inherit",
+			shell: useCommandShell,
+			windowsHide: true,
+		});
+		child.once("error", reject);
+		child.once("exit", (code) => {
+			if (code === 0) resolve();
+			else reject(new Error(`Update failed with exit code ${code ?? "unknown"}. Run: ${updateCommandFor(manager)}`));
+		});
+	});
+	if (json) {
+		printJson({ ok: true, packageManager: manager, command: updateCommandFor(manager) });
+		return;
+	}
+	process.stdout.write("Phaseo CLI updated. Run `phaseo --version` to verify the installed version.\n");
+}
+
 async function maybePrintUpdateNotice(json: boolean) {
 	if (json || process.env.PHASEO_DISABLE_UPDATE_CHECK === "1") return;
 	const info = await getVersionInfo({ lookupLatest: true });
@@ -487,6 +580,10 @@ async function maybePrintUpdateNotice(json: boolean) {
 	process.stdout.write(
 		`\nUpdate available: ${CLI_VERSION} -> ${info.latestVersion}\nRun: ${info.updateCommand}\n`,
 	);
+}
+
+export function shouldPrintUpdateNoticeForCommand(command: string[]): boolean {
+	return !(command[0] === "integrations" && command[1] === "credential");
 }
 
 async function request(path: string, options: { method?: HttpMethod; body?: Record<string, unknown> } = {}) {
@@ -623,6 +720,76 @@ export function inspectCallbackRequest(
 		return { ok: false, pending: true };
 	}
 	return { ok: true, code, state };
+}
+
+export function renderCallbackPage(state: "pending" | "success" | "error"): string {
+	const copy = state === "success"
+		? {
+			eyebrow: null,
+			title: "Return to your terminal",
+			description: "Phaseo CLI has received the approval. Your terminal will finish signing you in, and you can close this tab.",
+			statusClass: "success",
+			statusIcon: "<path d=\"m8.5 12.5 2.25 2.25 4.75-5\"/>",
+		}
+		: state === "error"
+			? {
+				eyebrow: "Authorization not completed",
+				title: "Return to your terminal",
+				description: "Phaseo CLI did not receive approval. Your terminal will show what happened and let you try again.",
+				statusClass: "error",
+				statusIcon: "<path d=\"m9 9 6 6m0-6-6 6\"/>",
+			}
+			: {
+				eyebrow: "Waiting for authorization",
+				title: "Finish in Phaseo",
+				description: "Review the requested permissions and approve or deny access. Keep this tab open while authorization completes.",
+				statusClass: "pending",
+				statusIcon: "<circle cx=\"9\" cy=\"12\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"12\" cy=\"12\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15\" cy=\"12\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/>",
+			};
+
+	return `<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<meta name="color-scheme" content="light dark">
+	<title>${copy.title} · Phaseo CLI</title>
+	<style>
+		:root{font-family:"Segoe UI",system-ui,sans-serif;color:#18181b;background:#f4f4f5}
+		*{box-sizing:border-box}
+		body{min-height:100vh;margin:0;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 20%,#fff 0,#f4f4f5 52%,#e4e4e7 100%)}
+		main{width:min(100%,520px);overflow:hidden;border:1px solid #e4e4e7;border-radius:16px;background:rgba(255,255,255,.92);box-shadow:0 24px 70px rgba(24,24,27,.12)}
+		header{display:flex;align-items:center;gap:12px;padding:20px 22px;border-bottom:1px solid #e4e4e7}
+		.mark{display:grid;place-items:center;width:36px;height:36px;border-radius:8px;background:#18181b;color:#fff}
+		.brand{font-size:14px;font-weight:650;letter-spacing:-.01em}.product{margin-top:2px;color:#71717a;font-size:12px}
+		.content{padding:42px 36px 38px;text-align:center}
+		.status{display:grid;place-items:center;width:52px;height:52px;margin:0 auto 22px;border-radius:999px}
+		.status svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+		.status.success{color:#047857;background:#d1fae5}.status.error{color:#be123c;background:#ffe4e6}.status.pending{color:#52525b;background:#e4e4e7}
+		.eyebrow{margin:0 0 8px;color:#71717a;font-size:12px;font-weight:650;letter-spacing:.08em;text-transform:uppercase}
+		h1{margin:0;color:#18181b;font-size:28px;line-height:1.15;letter-spacing:-.035em}
+		.description{max-width:390px;margin:14px auto 0;color:#52525b;font-size:15px;line-height:1.65}
+		footer{display:flex;align-items:center;justify-content:center;gap:7px;padding:14px 20px;border-top:1px solid #e4e4e7;color:#71717a;font-size:12px}
+		.local{width:7px;height:7px;border-radius:999px;background:#10b981;box-shadow:0 0 0 3px #d1fae5}
+		@media (prefers-color-scheme:dark){:root{color:#fafafa;background:#09090b}body{background:radial-gradient(circle at 50% 20%,#27272a 0,#18181b 48%,#09090b 100%)}main{border-color:#3f3f46;background:rgba(24,24,27,.94);box-shadow:0 24px 70px rgba(0,0,0,.45)}header,footer{border-color:#3f3f46}.mark{background:#fafafa;color:#18181b}.product,.eyebrow,footer{color:#a1a1aa}h1{color:#fafafa}.description{color:#d4d4d8}.status.success{color:#6ee7b7;background:#064e3b}.status.error{color:#fda4af;background:#4c0519}.status.pending{color:#d4d4d8;background:#3f3f46}.local{box-shadow:0 0 0 3px #064e3b}}
+	</style>
+</head>
+<body>
+	<main>
+		<header>
+			<div class="mark" aria-hidden="true"><svg viewBox="0 0 64 64" width="27" height="27"><path fill="currentColor" d="M19.857 56H13V8h6.857v48ZM31.72 8c6.217 0 11.109 1.486 14.675 4.457 3.565 2.971 5.348 7.063 5.348 12.274s-1.783 9.303-5.348 12.275c-3.566 2.971-8.458 4.457-14.675 4.457h-8.435v-5.966h8.23c4.342 0 7.656-.915 9.942-2.743 2.286-1.874 3.429-4.548 3.429-8.023s-1.143-6.125-3.429-7.954c-2.286-1.874-5.6-2.811-9.942-2.811h-8.23V8h8.435Z"/></svg></div>
+			<div><div class="brand">Phaseo</div><div class="product">Command line interface</div></div>
+		</header>
+		<section class="content">
+			<div class="status ${copy.statusClass}" aria-hidden="true"><svg viewBox="0 0 24 24">${copy.statusIcon}</svg></div>
+			${copy.eyebrow ? `<p class="eyebrow">${copy.eyebrow}</p>` : ""}
+			<h1>${copy.title}</h1>
+			<p class="description">${copy.description}</p>
+		</section>
+		<footer><span class="local"></span>Secure local callback from Phaseo CLI</footer>
+	</main>
+</body>
+</html>`;
 }
 
 export function validateLoopbackRedirectUri(value: string): string {
@@ -781,13 +948,21 @@ function createCallbackServer(args: { redirectUri: string; expectedState: string
 		if ("pending" in outcome) {
 			res.statusCode = 200;
 			res.setHeader("content-type", "text/html; charset=utf-8");
-			res.end("<!doctype html><html><body style=\"font-family:sans-serif;padding:24px\"><h1>Waiting for Phaseo authorization</h1><p>This browser window can stay open until authorization completes.</p></body></html>");
+			res.setHeader("cache-control", "no-store");
+			res.setHeader("content-security-policy", "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'");
+			res.setHeader("referrer-policy", "no-referrer");
+			res.setHeader("x-content-type-options", "nosniff");
+			res.end(renderCallbackPage("pending"));
 			return;
 		}
 		finish(outcome);
 		res.statusCode = 200;
 		res.setHeader("content-type", "text/html; charset=utf-8");
-		res.end("<!doctype html><html><body style=\"font-family:sans-serif;padding:24px\"><h1>Phaseo login complete</h1><p>You can return to your terminal now.</p></body></html>");
+		res.setHeader("cache-control", "no-store");
+		res.setHeader("content-security-policy", "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'");
+		res.setHeader("referrer-policy", "no-referrer");
+		res.setHeader("x-content-type-options", "nosniff");
+		res.end(renderCallbackPage(outcome.ok ? "success" : "error"));
 	});
 
 	return {
@@ -934,7 +1109,16 @@ async function login(flags: Record<string, string | boolean>) {
 }
 
 async function logout(flags: Record<string, string | boolean>) {
-	const session = await readSession();
+	let session = await readSession();
+	let integrationCredentialRevoked = false;
+	if (session?.integrationGatewayKeyId) {
+		try {
+			integrationCredentialRevoked = await revokeIntegrationGatewayCredential();
+			session = await readSession();
+		} catch {
+			integrationCredentialRevoked = false;
+		}
+	}
 	let revoked = false;
 	if (session?.refreshToken) {
 		try {
@@ -946,7 +1130,7 @@ async function logout(flags: Record<string, string | boolean>) {
 	}
 	await clearSession();
 	if (flagBool(flags, "json")) {
-		printJson({ ok: true, logged_in: false, refresh_token_revoked: revoked });
+		printJson({ ok: true, logged_in: false, refresh_token_revoked: revoked, integration_credential_revoked: integrationCredentialRevoked });
 	} else {
 		process.stdout.write(revoked ? "Logged out of Phaseo and revoked the session.\n" : "Logged out of Phaseo.\n");
 	}
@@ -1516,7 +1700,27 @@ export function buildModelsListPath(flags: Record<string, string | boolean>): st
 async function listModels(flags: Record<string, string | boolean>) {
 	const body = await request(buildModelsListPath(flags));
 	if (flagBool(flags, "json")) return printJson(body);
-	printList(body.models ?? body.data ?? [], (model) => `${model.id ?? model.model_id} ${model.name ?? ""}`.trim());
+	printList(body.models ?? [], renderModelListItem);
+}
+
+function terminalValue(value: unknown, fallback = "unknown"): string {
+	return sanitizeTerminalText(String(value ?? fallback));
+}
+
+export function renderModelListItem(model: any): string {
+	const status = model.availability?.status ?? "unknown";
+	const providers = model.availability?.active_provider_count ?? 0;
+	return `${terminalValue(model.id)} ${terminalValue(model.name)} ${terminalValue(status)} ${terminalValue(providers)} active provider${providers === 1 ? "" : "s"}`;
+}
+
+export function renderModelDetails(model: any): string {
+	const input = Array.isArray(model.modalities?.input) && model.modalities.input.length
+		? model.modalities.input.map((value: unknown) => terminalValue(value)).join(", ")
+		: "unknown";
+	const output = Array.isArray(model.modalities?.output) && model.modalities.output.length
+		? model.modalities.output.map((value: unknown) => terminalValue(value)).join(", ")
+		: "unknown";
+	return `${terminalValue(model.id)}\n${terminalValue(model.name)}\nOrganization: ${terminalValue(model.organization?.name)}\nStatus: ${terminalValue(model.availability?.status)}\nModalities: ${input} -> ${output}\nToken limits: ${terminalValue(model.limits?.input_tokens)} input, ${terminalValue(model.limits?.output_tokens)} output\nActive providers: ${terminalValue(model.availability?.active_provider_count, "0")}\n`;
 }
 
 async function listProviders(flags: Record<string, string | boolean>) {
@@ -1528,10 +1732,21 @@ async function listProviders(flags: Record<string, string | boolean>) {
 async function getModel(id: string | undefined, flags: Record<string, string | boolean>) {
 	if (!id) throw new Error("Model id is required");
 	const body = await request(appendQuery("/models", { id, limit: 1 }));
-	const model = (body.models ?? body.data ?? [])[0];
+	const model = (body.models ?? [])[0];
 	if (!model) throw new Error(`Model not found: ${id}`);
 	if (flagBool(flags, "json")) return printJson(model);
-	process.stdout.write(`${model.id ?? model.model_id}\n${model.name ?? ""}\n`);
+	process.stdout.write(renderModelDetails(model));
+}
+
+export function isCommandGroup(command: string): boolean {
+	return Object.keys(HELP_ENTRIES).some((key) => key.startsWith(`${command} `));
+}
+
+export function unknownCommandMessage(command: string[]): string {
+	const rendered = command.join(" ");
+	const group = command[0] && isCommandGroup(command[0]) ? command[0] : null;
+	const helpCommand = group ? `phaseo ${group} --help` : "phaseo --help";
+	return `Unknown command: ${rendered}\nRun \`${helpCommand}\` for available commands.`;
 }
 
 async function listOrganisations(flags: Record<string, string | boolean>) {
@@ -1725,7 +1940,7 @@ async function main() {
 	try {
 		const [first, second, third, fourth] = parsed.command;
 		if (flagBool(parsed.flags, "version")) {
-			await printVersion(parsed.flags, { short: true });
+			await printVersion(parsed.flags);
 			return;
 		}
 		if (!first) {
@@ -1740,8 +1955,22 @@ async function main() {
 			printHelp(parsed.command);
 			return;
 		}
-		if (first === "version") {
+		if (first === "version" || first.toLowerCase() === "v") {
 			await printVersion(parsed.flags);
+			return;
+		}
+		if (first === "update") {
+			if (second) throw new Error(unknownCommandMessage(parsed.command));
+			await updateCli(parsed.flags);
+			return;
+		}
+		if (first === "doctor") {
+			if (second) throw new Error(unknownCommandMessage(parsed.command));
+			await doctor(parsed.flags);
+			return;
+		}
+		if (parsed.command.length === 1 && isCommandGroup(first)) {
+			printHelp(parsed.command);
 			return;
 		}
 
@@ -1813,6 +2042,7 @@ async function main() {
 		else if (first === "analytics" && second === "get") action = analyticsGet(parsed.flags);
 		else if (first === "generation" && second === "get") action = generationGet(parsed.flags);
 		else if (first === "curie" && second === "run") action = runCurie(third, parsed.flags);
+		else if (first === "integrations") action = runIntegrationCommand(parsed.command.slice(1), parsed.flags);
 		else if (first === "webhooks" && second === "list") action = listWebhooks(parsed.flags);
 		else if (first === "webhooks" && second === "create") action = createWebhook(parsed.flags);
 		else if (first === "webhooks" && second === "get") action = getWebhook(third, parsed.flags);
@@ -1826,10 +2056,12 @@ async function main() {
 		else if (first === "api" && second === "delete") action = rawApi("DELETE", third, parsed.flags);
 		if (action) {
 			await action;
-			await maybePrintUpdateNotice(json);
+			if (shouldPrintUpdateNoticeForCommand(parsed.command)) {
+				await maybePrintUpdateNotice(json);
+			}
 			return;
 		}
-		throw new Error(`Unknown command: ${parsed.command.join(" ")}`);
+		throw new Error(unknownCommandMessage(parsed.command));
 	} catch (error) {
 		printError(error, { json });
 		process.exitCode = 1;

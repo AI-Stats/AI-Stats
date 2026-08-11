@@ -200,7 +200,18 @@ export default async function Page({
 					/>
 				</>
 			)}
-			<OrganisationDetailShell organisationId={organisationId}>
+			<OrganisationDetailShell
+				organisationId={organisationId}
+				tocItems={[
+					...(organisation.description
+						? [{ id: "about", label: "About" }]
+						: []),
+					...(organisation.organisation_links?.length
+						? [{ id: "links", label: "Links" }]
+						: []),
+					{ id: "latest-models", label: "Latest Models" },
+				]}
+			>
 				<OrganisationPageContent organisation={organisation} />
 			</OrganisationDetailShell>
 		</>

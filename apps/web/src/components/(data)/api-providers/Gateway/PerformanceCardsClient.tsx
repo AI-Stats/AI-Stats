@@ -198,7 +198,29 @@ function MiniModelLeaderboard({
 	);
 }
 
-export default function PerformanceCardsClient({
+export default function PerformanceCardsClient(props: PerformanceCardsClientProps) {
+	const hasPerformanceData = [
+		...props.throughputData.map((point) => point.avgThroughput),
+		...props.latencyData.map((point) => point.avgLatencyMs),
+		...props.e2eLatencyData.map((point) => point.avgGenerationMs),
+	].some((value) => value != null && Number.isFinite(value));
+	if (hasPerformanceData) return <PerformanceCardsWithData {...props} />;
+	return (
+		<div className="border-y border-border/70">
+			<div className="grid grid-cols-3 divide-x divide-border/70">
+				{[props.summary.throughput, props.summary.latency, props.summary.e2e].map((metric) => (
+					<div key={metric.title} className="min-w-0 px-3 py-4 sm:px-5">
+						<p className="truncate text-xs font-medium text-muted-foreground">{metric.title}</p>
+						<p className="mt-1 text-xl font-semibold tracking-tight">—</p>
+					</div>
+				))}
+			</div>
+			<p className="border-t border-border/70 px-3 py-3 text-sm text-muted-foreground sm:px-5">Performance metrics will appear after this provider serves gateway traffic.</p>
+		</div>
+	);
+}
+
+function PerformanceCardsWithData({
 	throughputData,
 	latencyData,
 	e2eLatencyData,

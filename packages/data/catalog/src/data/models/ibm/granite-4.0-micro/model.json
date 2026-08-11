@@ -111,6 +111,14 @@
       "other_info": "inferred high-confidence family alias from granite-4.0-tiny-preview (score=0.4700; benches=12)",
       "source_link": "https://www.ibm.com/new/announcements/ibm-granite-4-0-tiny-preview-sneak-peek",
       "rank": 18
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 2,
+      "is_self_reported": false,
+      "other_info": "Granite 4.0 Micro; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/granite-4-0-micro",
+      "rank": 556
     }
   ],
   "family_id": null,

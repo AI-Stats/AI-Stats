@@ -206,6 +206,14 @@
       "other_info": "Professional; starred row in Anthropic's launch table",
       "source_link": "https://www-cdn.anthropic.com/images/4zrzovbb/website/1e65982497d7d4891219ed0e83141625a291b860-2600x2870.png",
       "rank": 2
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 62.1,
+      "is_self_reported": false,
+      "other_info": "Claude Fable 5 (Adaptive Reasoning, Max Effort, Opus 4.8 Fallback); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/claude-fable-5",
+      "rank": 3
     }
   ],
   "page_notice": null,

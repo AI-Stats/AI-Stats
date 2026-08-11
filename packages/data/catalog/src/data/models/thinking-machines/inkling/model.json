@@ -65,7 +65,16 @@
       "value": "Hugging Face (weights distribution)"
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 42.3,
+      "is_self_reported": false,
+      "other_info": "Inkling (xhigh); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/inkling",
+      "rank": 54
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

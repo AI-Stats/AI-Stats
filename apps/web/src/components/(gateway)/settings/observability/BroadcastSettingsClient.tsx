@@ -28,6 +28,7 @@ import {
 import {
 	deleteBroadcastDestinationAction,
 	disableBroadcastDestinationAction,
+	enableBroadcastDestinationAction,
 	refreshBroadcastDestinationStatusAction,
 	sendBroadcastSampleTraceAction,
 } from "@/app/(dashboard)/settings/broadcast/actions";
@@ -177,13 +178,6 @@ export default function BroadcastSettingsClient(props: BroadcastSettingsClientPr
 
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end" className="w-56">
-												<DropdownMenuItem render={<Link
-														prefetch={false}
-														href={`/settings/observability/destinations/new/${destination.destinationId}?edit=${destination.id}`} />}>
-
-														Edit Connection
-
-												</DropdownMenuItem>
 												<DropdownMenuItem
 													onClick={() =>
 														runAction(destination.id, async () => {
@@ -216,16 +210,21 @@ export default function BroadcastSettingsClient(props: BroadcastSettingsClientPr
 													Send Sample Trace
 												</DropdownMenuItem>
 												<DropdownMenuItem
-													disabled={!destination.enabled}
 													onClick={() =>
 														runAction(destination.id, async () => {
-															await disableBroadcastDestinationAction(destination.id);
-															setStatus(destination.id, "Disabled");
-															toast.success("Connection disabled");
+															if (destination.enabled) {
+																await disableBroadcastDestinationAction(destination.id);
+																setStatus(destination.id, "Disabled");
+																toast.success("Connection disabled");
+															} else {
+																await enableBroadcastDestinationAction(destination.id);
+																setStatus(destination.id, "Unknown");
+																toast.success("Connection enabled");
+															}
 														})
 													}
 												>
-													Disable Connection
+													{destination.enabled ? "Disable Connection" : "Enable Connection"}
 												</DropdownMenuItem>
 												<DropdownMenuSeparator />
 												<DropdownMenuItem
@@ -276,7 +275,7 @@ export default function BroadcastSettingsClient(props: BroadcastSettingsClientPr
 								</div>
 								<p className="truncate text-sm font-medium">{destination.label}</p>
 							</div>
-							<div className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+							<div className="inline-flex items-center gap-1 text-xs font-medium text-white">
 								<Plus className="h-3.5 w-3.5" />
 								Add Destination
 							</div>

@@ -1178,6 +1178,9 @@ public sealed class ChatCompletionsRequest
 	[JsonPropertyName("reasoning")]
 	public Dictionary<string, object>? Reasoning { get; set; }
 
+	[JsonPropertyName("reasoning_effort")]
+	public string? ReasoningEffort { get; set; }
+
 	[JsonPropertyName("response_format")]
 	public object? ResponseFormat { get; set; }
 
@@ -1704,6 +1707,21 @@ public sealed class FusionToolDefinition
 
 }
 
+public sealed class GatewayCapabilities
+{
+	[JsonPropertyName("endpoints")]
+	public List<string>? Endpoints { get; set; }
+
+	[JsonPropertyName("parameter_details")]
+	public Dictionary<string, object> ParameterDetails { get; set; }
+
+	[JsonPropertyName("parameters")]
+	public List<string> Parameters { get; set; }
+
+}
+
+public sealed class GatewayCapabilityStatus { }
+
 public sealed class GatewayDatetimeToolDefinition
 {
 	[JsonPropertyName("parameters")]
@@ -1716,6 +1734,87 @@ public sealed class GatewayDatetimeToolDefinition
 	public string Type { get; set; }
 
 }
+
+public sealed class GatewayModalities
+{
+	[JsonPropertyName("input")]
+	public List<string> Input { get; set; }
+
+	[JsonPropertyName("output")]
+	public List<string> Output { get; set; }
+
+}
+
+public sealed class GatewayModelLifecycle
+{
+	[JsonPropertyName("deprecated_at")]
+	public string? DeprecatedAt { get; set; }
+
+	[JsonPropertyName("message")]
+	public string? Message { get; set; }
+
+	[JsonPropertyName("released_at")]
+	public string? ReleasedAt { get; set; }
+
+	[JsonPropertyName("replacement_id")]
+	public string? ReplacementId { get; set; }
+
+	[JsonPropertyName("retires_at")]
+	public string? RetiresAt { get; set; }
+
+	[JsonPropertyName("status")]
+	public string? Status { get; set; }
+
+}
+
+public sealed class GatewayModelLimits
+{
+	[JsonPropertyName("input_tokens")]
+	public int? InputTokens { get; set; }
+
+	[JsonPropertyName("output_tokens")]
+	public int? OutputTokens { get; set; }
+
+}
+
+public sealed class GatewayModelOffer
+{
+	[JsonPropertyName("capabilities")]
+	public Dictionary<string, object> Capabilities { get; set; }
+
+	[JsonPropertyName("effective")]
+	public Dictionary<string, object> Effective { get; set; }
+
+	[JsonPropertyName("endpoints")]
+	public List<string> Endpoints { get; set; }
+
+	[JsonPropertyName("modalities")]
+	public Dictionary<string, object> Modalities { get; set; }
+
+	[JsonPropertyName("model")]
+	public string? Model { get; set; }
+
+	[JsonPropertyName("pricing")]
+	public Dictionary<string, object> Pricing { get; set; }
+
+	[JsonPropertyName("provider")]
+	public Dictionary<string, object> Provider { get; set; }
+
+	[JsonPropertyName("routable")]
+	public bool Routable { get; set; }
+
+	[JsonPropertyName("routing")]
+	public Dictionary<string, object> Routing { get; set; }
+
+	[JsonPropertyName("status")]
+	public string Status { get; set; }
+
+	[JsonPropertyName("status_reason")]
+	public string StatusReason { get; set; }
+
+}
+
+public sealed class GatewayModelOrganization { }
 
 public sealed class GatewayModelsResponse
 {
@@ -1734,13 +1833,26 @@ public sealed class GatewayModelsResponse
 	[JsonPropertyName("ok")]
 	public bool Ok { get; set; }
 
-	[JsonPropertyName("privacy_scope")]
-	public string PrivacyScope { get; set; }
-
 	[JsonPropertyName("total")]
 	public int Total { get; set; }
 
 }
+
+public sealed class GatewayPricing
+{
+	[JsonPropertyName("meters")]
+	public Dictionary<string, object> Meters { get; set; }
+
+	[JsonPropertyName("pricing_plan")]
+	public string PricingPlan { get; set; }
+
+}
+
+public sealed class GatewayPricingMeter { }
+
+public sealed class GatewayProviderAvailabilityReason { }
+
+public sealed class GatewayRoutingStatus { }
 
 public sealed class GatewayWebFetchToolDefinition
 {
@@ -2133,94 +2245,49 @@ public sealed class MessageContentPart { }
 public sealed class Model
 {
 	[JsonPropertyName("aliases")]
-	public List<string>? Aliases { get; set; }
-
-	[JsonPropertyName("architecture")]
-	public Dictionary<string, object>? Architecture { get; set; }
+	public List<string> Aliases { get; set; }
 
 	[JsonPropertyName("availability")]
-	public Dictionary<string, object>? Availability { get; set; }
+	public Dictionary<string, object> Availability { get; set; }
 
-	[JsonPropertyName("canonical_slug")]
-	public string? CanonicalSlug { get; set; }
+	[JsonPropertyName("base_model_id")]
+	public string BaseModelId { get; set; }
 
-	[JsonPropertyName("created")]
-	public int? Created { get; set; }
-
-	[JsonPropertyName("deprecation_date")]
-	public string? DeprecationDate { get; set; }
+	[JsonPropertyName("capabilities")]
+	public Dictionary<string, object> Capabilities { get; set; }
 
 	[JsonPropertyName("description")]
-	public string? Description { get; set; }
-
-	[JsonPropertyName("endpoints")]
-	public List<string>? Endpoints { get; set; }
+	public string Description { get; set; }
 
 	[JsonPropertyName("id")]
-	public string? Id { get; set; }
-
-	[JsonPropertyName("input_types")]
-	public List<string>? InputTypes { get; set; }
+	public string Id { get; set; }
 
 	[JsonPropertyName("lifecycle")]
-	public ModelLifecycle? Lifecycle { get; set; }
+	public Dictionary<string, object> Lifecycle { get; set; }
 
-	[JsonPropertyName("model_id")]
-	public string? ModelId { get; set; }
+	[JsonPropertyName("limits")]
+	public Dictionary<string, object> Limits { get; set; }
+
+	[JsonPropertyName("modalities")]
+	public Dictionary<string, object> Modalities { get; set; }
 
 	[JsonPropertyName("name")]
-	public string? Name { get; set; }
+	public string Name { get; set; }
 
-	[JsonPropertyName("organisation_colour")]
-	public string? OrganisationColour { get; set; }
+	[JsonPropertyName("offers")]
+	public List<Dictionary<string, object>> Offers { get; set; }
 
-	[JsonPropertyName("organisation_id")]
-	public string? OrganisationId { get; set; }
-
-	[JsonPropertyName("organisation_name")]
-	public string? OrganisationName { get; set; }
-
-	[JsonPropertyName("output_types")]
-	public List<string>? OutputTypes { get; set; }
-
-	[JsonPropertyName("per_request_limits")]
-	public Dictionary<string, object>? PerRequestLimits { get; set; }
+	[JsonPropertyName("organization")]
+	public Dictionary<string, object>? Organization { get; set; }
 
 	[JsonPropertyName("pricing")]
-	public Dictionary<string, object>? Pricing { get; set; }
+	public Dictionary<string, object> Pricing { get; set; }
 
-	[JsonPropertyName("pricing_detail")]
-	public Dictionary<string, object>? PricingDetail { get; set; }
+	[JsonPropertyName("variant")]
+	public string Variant { get; set; }
 
-	[JsonPropertyName("providers")]
-	public List<Dictionary<string, object>>? Providers { get; set; }
-
-	[JsonPropertyName("release_date")]
-	public string? ReleaseDate { get; set; }
-
-	[JsonPropertyName("retirement_date")]
-	public string? RetirementDate { get; set; }
-
-	[JsonPropertyName("status")]
-	public string? Status { get; set; }
-
-	[JsonPropertyName("supported_parameters")]
-	public List<string>? SupportedParameters { get; set; }
-
-	[JsonPropertyName("supported_parameters_detail")]
-	public Dictionary<string, object>? SupportedParametersDetail { get; set; }
-
-	[JsonPropertyName("supported_params")]
-	public List<string>? SupportedParams { get; set; }
-
-	[JsonPropertyName("supported_params_detail")]
-	public Dictionary<string, object>? SupportedParamsDetail { get; set; }
-
-	[JsonPropertyName("top_provider")]
-	public Dictionary<string, object>? TopProvider { get; set; }
-
-	[JsonPropertyName("top_provider_id")]
-	public string? TopProviderId { get; set; }
+	[JsonPropertyName("variants")]
+	public Dictionary<string, object> Variants { get; set; }
 
 }
 
@@ -2228,6 +2295,9 @@ public sealed class ModelAvailability
 {
 	[JsonPropertyName("active_provider_count")]
 	public int ActiveProviderCount { get; set; }
+
+	[JsonPropertyName("coming_soon_provider_count")]
+	public int ComingSoonProviderCount { get; set; }
 
 	[JsonPropertyName("inactive_provider_count")]
 	public int InactiveProviderCount { get; set; }
@@ -2242,26 +2312,17 @@ public sealed class ModelAvailability
 
 public sealed class ModelEndpointCapability
 {
-	[JsonPropertyName("availability_reason")]
-	public string AvailabilityReason { get; set; }
-
-	[JsonPropertyName("availability_status")]
-	public string AvailabilityStatus { get; set; }
+	[JsonPropertyName("capabilities")]
+	public Dictionary<string, object> Capabilities { get; set; }
 
 	[JsonPropertyName("capability_id")]
 	public string CapabilityId { get; set; }
 
-	[JsonPropertyName("capability_status")]
-	public string CapabilityStatus { get; set; }
-
 	[JsonPropertyName("collection")]
 	public string Collection { get; set; }
 
-	[JsonPropertyName("effective_from")]
-	public string? EffectiveFrom { get; set; }
-
-	[JsonPropertyName("effective_to")]
-	public string? EffectiveTo { get; set; }
+	[JsonPropertyName("effective")]
+	public Dictionary<string, object> Effective { get; set; }
 
 	[JsonPropertyName("endpoint")]
 	public string Endpoint { get; set; }
@@ -2269,66 +2330,42 @@ public sealed class ModelEndpointCapability
 	[JsonPropertyName("id")]
 	public string Id { get; set; }
 
-	[JsonPropertyName("input_modalities")]
-	public List<string> InputModalities { get; set; }
+	[JsonPropertyName("modalities")]
+	public Dictionary<string, object> Modalities { get; set; }
 
-	[JsonPropertyName("is_active_gateway")]
-	public bool IsActiveGateway { get; set; }
-
-	[JsonPropertyName("model_routing_status")]
-	public string ModelRoutingStatus { get; set; }
-
-	[JsonPropertyName("output_modalities")]
-	public List<string> OutputModalities { get; set; }
+	[JsonPropertyName("model")]
+	public string? Model { get; set; }
 
 	[JsonPropertyName("pricing")]
 	public Dictionary<string, object> Pricing { get; set; }
 
-	[JsonPropertyName("pricing_detail")]
-	public Dictionary<string, object> PricingDetail { get; set; }
-
-	[JsonPropertyName("provider_id")]
-	public string ProviderId { get; set; }
-
-	[JsonPropertyName("provider_model_slug")]
-	public string? ProviderModelSlug { get; set; }
-
-	[JsonPropertyName("provider_name")]
-	public string? ProviderName { get; set; }
-
-	[JsonPropertyName("provider_routing_status")]
-	public string ProviderRoutingStatus { get; set; }
-
-	[JsonPropertyName("provider_status")]
-	public string ProviderStatus { get; set; }
+	[JsonPropertyName("provider")]
+	public Dictionary<string, object> Provider { get; set; }
 
 	[JsonPropertyName("public_path")]
 	public string PublicPath { get; set; }
 
-	[JsonPropertyName("supported_parameters")]
-	public List<string> SupportedParameters { get; set; }
+	[JsonPropertyName("routable")]
+	public bool Routable { get; set; }
 
-	[JsonPropertyName("supported_parameters_detail")]
-	public Dictionary<string, object> SupportedParametersDetail { get; set; }
+	[JsonPropertyName("routing")]
+	public Dictionary<string, object> Routing { get; set; }
+
+	[JsonPropertyName("status")]
+	public string Status { get; set; }
+
+	[JsonPropertyName("status_reason")]
+	public string StatusReason { get; set; }
 
 }
 
 public sealed class ModelEndpointsResponse
 {
-	[JsonPropertyName("architecture")]
-	public Dictionary<string, object>? Architecture { get; set; }
-
 	[JsonPropertyName("availability_mode")]
 	public string AvailabilityMode { get; set; }
 
-	[JsonPropertyName("canonical_slug")]
-	public string CanonicalSlug { get; set; }
-
-	[JsonPropertyName("created")]
-	public int? Created { get; set; }
-
 	[JsonPropertyName("description")]
-	public string? Description { get; set; }
+	public string Description { get; set; }
 
 	[JsonPropertyName("endpoints")]
 	public List<Dictionary<string, object>> Endpoints { get; set; }
@@ -2336,14 +2373,17 @@ public sealed class ModelEndpointsResponse
 	[JsonPropertyName("id")]
 	public string Id { get; set; }
 
-	[JsonPropertyName("model_id")]
-	public string ModelId { get; set; }
+	[JsonPropertyName("modalities")]
+	public Dictionary<string, object> Modalities { get; set; }
 
 	[JsonPropertyName("name")]
-	public string? Name { get; set; }
+	public string Name { get; set; }
 
 	[JsonPropertyName("ok")]
 	public string Ok { get; set; }
+
+	[JsonPropertyName("organization")]
+	public Dictionary<string, object>? Organization { get; set; }
 
 }
 
@@ -2426,25 +2466,6 @@ public sealed class ModelProviderAvailability
 
 	[JsonPropertyName("supported_parameters_detail")]
 	public Dictionary<string, object>? SupportedParametersDetail { get; set; }
-
-}
-
-public sealed class ModelsPrivacyScopeNotImplementedResponse
-{
-	[JsonPropertyName("code")]
-	public string Code { get; set; }
-
-	[JsonPropertyName("error")]
-	public string Error { get; set; }
-
-	[JsonPropertyName("message")]
-	public string Message { get; set; }
-
-	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
-
-	[JsonPropertyName("privacy_scope")]
-	public string PrivacyScope { get; set; }
 
 }
 
@@ -3375,7 +3396,10 @@ public sealed class VideoGenerationRequest
 	public bool? GenerateAudio { get; set; }
 
 	[JsonPropertyName("input_references")]
-	public List<Dictionary<string, object>>? InputReferences { get; set; }
+	public List<object>? InputReferences { get; set; }
+
+	[JsonPropertyName("input_video_duration")]
+	public double? InputVideoDuration { get; set; }
 
 	[JsonPropertyName("model")]
 	public string Model { get; set; }
@@ -3530,21 +3554,7 @@ public sealed class VideoGenerationResponse
 
 }
 
-public sealed class VideoInputReference
-{
-	[JsonPropertyName("image_url")]
-	public Dictionary<string, object>? ImageUrl { get; set; }
-
-	[JsonPropertyName("reference_type")]
-	public string? ReferenceType { get; set; }
-
-	[JsonPropertyName("role")]
-	public string? Role { get; set; }
-
-	[JsonPropertyName("type")]
-	public string Type { get; set; }
-
-}
+public sealed class VideoInputReference { }
 
 public sealed class VideoListResponse
 {

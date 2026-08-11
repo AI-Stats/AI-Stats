@@ -55,7 +55,9 @@
     "mindai",
     "morph",
     "thinking-machines",
-    "venice"
+    "venice",
+    "alibaba",
+    "runway"
   ],
   "models": {
     "ai21": [
@@ -541,7 +543,8 @@
       "meta/llama-prompt-guard-2-22m",
       "meta/llama-prompt-guard-2-86m",
       "meta/muse-spark-1.2",
-      "meta/muse-spark-1.2-contributor"
+      "meta/muse-spark-1.2-contributor",
+      "meta/muse-glimmer-30b"
     ],
     "microsoft": [
       "microsoft/phi-1",
@@ -734,7 +737,8 @@
       "nvidia/cosmos3-super-reasoner",
       "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
       "nvidia/nemotron-3-ultra-550b-a55b",
-      "nvidia/nvidia-nemotron-nano-12b-v2-vl"
+      "nvidia/nvidia-nemotron-nano-12b-v2-vl",
+      "nvidia/nemotron-3.5-lightning"
     ],
     "openai": [
       "openai/ada",
@@ -1222,7 +1226,8 @@
       "spacex-ai/grok-imagine-video-1.5-preview",
       "spacex-ai/grok-imagine-video",
       "spacex-ai/grok-imagine-image-quality",
-      "spacex-ai/grok-tts"
+      "spacex-ai/grok-tts",
+      "spacex-ai/grok-imagine-video-1.5"
     ],
     "xiaomi": [
       "xiaomi/mimo-v2-flash",
@@ -1289,6 +1294,13 @@
     "venice": [
       "venice/venice-uncensored",
       "venice/venice-uncensored-1.1"
+    ],
+    "alibaba": [
+      "alibaba/happyhorse-1.0",
+      "alibaba/happyhorse-1.1"
+    ],
+    "runway": [
+      "runway/gen-4.5"
     ]
   },
   "benchmarks": [

@@ -118,6 +118,14 @@
       "other_info": "Top-1 accuracy 66.1%; cases 703",
       "source_link": "https://github.com/lechmazur/generalization",
       "rank": 6
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 18.6,
+      "is_self_reported": false,
+      "other_info": "Trinity Large Thinking; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/trinity-large-thinking",
+      "rank": 253
     }
   ],
   "family_id": null,

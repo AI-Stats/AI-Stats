@@ -105,12 +105,17 @@ function classifyWorkspaceProviderFilterFailure(diagnostics: {
     requestProviderIgnore: string[];
     activeGuardrailIds: string[];
     allowedApiModels: string[];
+	droppedByPrivacy?: unknown[];
+	accountPolicyApplied?: boolean;
     beforeCount: number;
 }): {
+	code: "validation_error" | "guardrail_blocked";
     errorType: "user" | "system";
     errorOrigin: "user" | "gateway";
     operationalKind: string;
     reason: string;
+	description: string;
+	keyword: string;
 } {
     const hasRequestProviderFilter =
         hasItems(diagnostics.requestProviderOnly) ||
@@ -124,23 +129,42 @@ function classifyWorkspaceProviderFilterFailure(diagnostics: {
 
     if (hasRequestProviderFilter && !hasWorkspaceProviderFilter) {
         return {
+			code: "validation_error",
             errorType: "user",
             errorOrigin: "user",
             operationalKind: "request_provider_filter_no_match",
             reason: "request_provider_filter_no_match",
+			description: "The request provider filters did not match any available routes",
+			keyword: "request_provider_filter_no_match",
         };
     }
 
+	if (hasItems(diagnostics.droppedByPrivacy)) {
+		return {
+			code: "guardrail_blocked",
+			errorType: "user",
+			errorOrigin: "user",
+			operationalKind: "data_handling_policy_no_routes",
+			reason: "data_handling_policy_no_routes",
+			description: "No provider routes satisfy the account or workspace data-handling policy",
+			keyword: "no_routes_after_data_handling_policy",
+		};
+	}
+
     if (hasWorkspaceProviderFilter) {
         return {
+			code: "guardrail_blocked",
             errorType: "user",
             errorOrigin: "user",
-            operationalKind: "workspace_policy_no_providers",
-            reason: "workspace_policy_no_providers",
+			operationalKind: "provider_restricted_by_policy",
+			reason: "provider_restricted_by_policy",
+			description: "All provider routes for this model are blocked by an account or workspace guardrail",
+			keyword: "no_providers_after_route_access_policy",
         };
     }
 
     return {
+		code: "validation_error",
         errorType: "system",
         errorOrigin: "gateway",
         operationalKind:
@@ -151,6 +175,8 @@ function classifyWorkspaceProviderFilterFailure(diagnostics: {
             diagnostics.beforeCount > 0
                 ? "gateway_provider_availability_gap"
                 : "gateway_provider_candidate_gap",
+		description: "No gateway provider routes are currently available for this request",
+		keyword: "no_gateway_provider_routes",
     };
 }
 
@@ -161,12 +187,21 @@ function classifyWorkspaceProviderFilterFailure(diagnostics: {
  * - Credit / key checks via RPC
  * - Build PipelineContext (single source of truth for downstream)
  */
+export type BeforeRequestObservabilitySnapshot = {
+    requestPayload: unknown;
+    requestedModel: string | null;
+    model?: string | null;
+};
+
 export async function beforeRequest(
     req: Request,
     endpoint: Endpoint,
     timer: Timer,
     zodSchema: z.ZodTypeAny | null = schemaFor(endpoint),
-    options?: { dynamicRouteModelOverride?: string | null },
+    options?: {
+        dynamicRouteModelOverride?: string | null;
+        onObservabilitySnapshot?: (snapshot: BeforeRequestObservabilitySnapshot) => void;
+    },
 ): Promise<{ ok: true; ctx: PipelineContext } | { ok: false; response: Response }> {
     const requestStartedAtMs = timer.startedAtMs();
 
@@ -212,6 +247,13 @@ export async function beforeRequest(
     );
     if (!j.ok) return j as { ok: false; response: Response };
     let rawBody = j.value;
+    const requestedModel = typeof rawBody?.model === "string" && rawBody.model.trim()
+        ? rawBody.model.trim()
+        : null;
+    options?.onObservabilitySnapshot?.({
+        requestPayload: rawBody,
+        requestedModel,
+    });
     const betaCapabilities = normalizeReturnFlag(
         req.headers.get("x-phaseo-beta-capabilities") ??
         req.headers.get("x-aistats-beta-capabilities") ??
@@ -321,6 +363,11 @@ export async function beforeRequest(
     const m = await timer.span("guardModel", () => guardModel(body, workspaceId, requestId));
     if (!m.ok) return m as { ok: false; response: Response };
     const { model, stream } = m.value;
+    options?.onObservabilitySnapshot?.({
+        requestPayload: rawBody,
+        requestedModel,
+        model,
+    });
 
     const testingMode = await timer.span("resolveTestingMode", () =>
         resolveTestingMode({
@@ -670,15 +717,20 @@ export async function beforeRequest(
         if (workspacePolicyFailure.reason === "model_not_allowed") {
             return {
                 ok: false,
-                response: err("validation_error", {
+                response: err("guardrail_blocked", {
                     model: resolvedModel || model,
-                    reason: "workspace_model_not_allowed",
-                    description: `Model "${resolvedModel || model}" is not allowed by workspace policy`,
-                    error_operational_kind: "workspace_model_not_allowed",
+					reason: "model_restricted_by_policy",
+					description: `Model "${resolvedModel || model}" is blocked by an account or workspace guardrail`,
+					error_operational_kind: "model_restricted_by_policy",
+					guardrail: {
+						type: "route_access",
+						scope: workspacePolicyFailure.diagnostics.accountPolicyApplied ? "account_or_workspace" : "workspace",
+						active_guardrail_ids: workspacePolicyFailure.diagnostics.activeGuardrailIds,
+					},
                     details: [{
-                        message: `Model "${resolvedModel || model}" is not allowed by workspace policy`,
+						message: `Model "${resolvedModel || model}" is blocked by an account or workspace guardrail`,
                         path: ["model"],
-                        keyword: "model_not_allowed_by_workspace_policy",
+						keyword: "model_restricted_by_policy",
                         params: workspacePolicyFailure.diagnostics,
                     }],
                     routing_diagnostics: {
@@ -694,19 +746,24 @@ export async function beforeRequest(
             classifyWorkspaceProviderFilterFailure(workspacePolicyFailure.diagnostics);
         return {
             ok: false,
-            response: err("validation_error", {
+			response: err(providerFilterClassification.code, {
                 model: resolvedModel || model,
                 reason: providerFilterClassification.reason,
-                description: "Workspace and request provider filters resulted in no available providers",
+				description: providerFilterClassification.description,
                 error_type: providerFilterClassification.errorType,
                 error_origin: providerFilterClassification.errorOrigin,
                 error_operational_kind: providerFilterClassification.operationalKind,
                 details: [{
-                    message: "Workspace and request provider filters resulted in no available providers",
+					message: providerFilterClassification.description,
                     path: ["provider"],
-                    keyword: "no_providers_after_workspace_policy_filter",
+					keyword: providerFilterClassification.keyword,
                     params: workspacePolicyFailure.diagnostics,
                 }],
+				guardrail: providerFilterClassification.code === "guardrail_blocked" ? {
+					type: providerFilterClassification.reason === "data_handling_policy_no_routes" ? "data_handling" : "route_access",
+					scope: workspacePolicyFailure.diagnostics.accountPolicyApplied ? "account_or_workspace" : "workspace",
+					active_guardrail_ids: workspacePolicyFailure.diagnostics.activeGuardrailIds,
+				} : undefined,
                 routing_diagnostics: {
                     workspacePolicy: workspacePolicyFailure.diagnostics,
                 },

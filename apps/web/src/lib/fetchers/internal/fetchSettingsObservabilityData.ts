@@ -1,5 +1,6 @@
 import { fetchAccountWebApi } from "@/lib/web-api/client";
 import { getServerAccountContext } from "./serverAccountContext";
+import { resolveAccessibleWorkspaceIdFromCookie } from "@/utils/workspaceCookie";
 
 export type ObservabilityRequestRow = {
 	created_at: string;
@@ -35,8 +36,10 @@ export async function fetchSettingsObservabilityData(args: {
 	previousTo: string;
 }): Promise<SettingsObservabilityData | null> {
 	const context = await getServerAccountContext();
-	if (!context.accessToken || !context.workspaceId) return null;
-	const params = new URLSearchParams({ workspaceId: context.workspaceId, ...args });
+	if (!context.accessToken) return null;
+	const workspaceId = context.workspaceId ?? await resolveAccessibleWorkspaceIdFromCookie();
+	if (!workspaceId) return null;
+	const params = new URLSearchParams({ workspaceId, ...args });
 	return fetchAccountWebApi<SettingsObservabilityData>(
 		`/api/account/settings/usage/observability?${params.toString()}`,
 		context.accessToken,

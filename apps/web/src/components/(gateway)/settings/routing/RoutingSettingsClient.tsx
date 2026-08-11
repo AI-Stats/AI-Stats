@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
 	Select,
 	SelectContent,
@@ -10,6 +10,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import {
 	updateRoutingSettings,
@@ -194,22 +195,33 @@ export default function RoutingSettingsClient({
 		}
 
 		timerRef.current = setTimeout(async () => {
-			const saveSequence = ++saveSequenceRef.current;
-			setSaving(true);
-			try {
-				await toast.promise(
-					updateRoutingSettings({
-						mode,
-						betaChannelEnabled,
-						alphaChannelEnabled,
-						responseHealingEnabled,
-						responseHealingLocked,
-						responseHealingMode,
-					}),
-					{
-						loading: "Updating routing policy...",
-						success: "Routing policy updated",
-						error: "Failed to update routing policy",
+		const saveSequence = ++saveSequenceRef.current;
+		setSaving(true);
+		try {
+			const save = async () => {
+				const result = await updateRoutingSettings({
+					mode,
+					betaChannelEnabled,
+					alphaChannelEnabled,
+					responseHealingEnabled,
+					responseHealingLocked,
+					responseHealingMode,
+				});
+				if (!result.ok) throw new Error(result.error);
+				return result;
+			};
+			await toast.promise(
+				save(),
+				{
+					loading: "Updating routing policy...",
+					success: (result) =>
+						result.gatewayCacheInvalidated
+							? "Routing policy updated"
+							: "Routing policy updated; gateway cache refresh pending",
+						error: (error) =>
+							error instanceof Error && error.message
+								? `Failed to update routing policy: ${error.message}`
+								: "Failed to update routing policy",
 					},
 				);
 				if (saveSequence === saveSequenceRef.current) {
@@ -280,31 +292,37 @@ export default function RoutingSettingsClient({
 	}
 
 	return (
-		<Card>
-			<CardContent className="space-y-6 p-6">
-				<div className="space-y-1">
-					<div className="flex items-center justify-between gap-3">
-						<h2 className="text-lg font-semibold">Routing policy</h2>
-						<span className="text-xs text-muted-foreground">
-							{stateText}
-						</span>
+		<div className="space-y-6">
+			<section className="space-y-3">
+				<div className="flex items-start justify-between gap-4">
+					<div>
+						<h2 className="text-base font-semibold">Provider Routing</h2>
+						<p className="mt-1 text-sm text-muted-foreground">
+							Choose how the Gateway prioritizes providers
+							{teamName ? ` for ${teamName}` : " for this workspace"}.
+						</p>
 					</div>
-					<p className="text-sm text-muted-foreground">
-						Controls how the Gateway prioritizes providers for the active team
-						{teamName ? ` (${teamName})` : ""}.
-					</p>
+					<Badge variant="outline" className="shrink-0 rounded-md font-normal">
+						{stateText}
+					</Badge>
 				</div>
 
-				<div className="grid gap-3 md:grid-cols-[240px_1fr] md:items-center">
-					<label htmlFor="routing-mode" className="text-sm font-medium">
-						Preference
-					</label>
+				<div className="overflow-hidden rounded-md border">
+					<div className="grid gap-3 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(220px,320px)] sm:items-center">
+						<div>
+							<label htmlFor="routing-mode" className="text-sm font-medium">
+								Routing Preference
+							</label>
+							<p className="mt-1 text-sm text-muted-foreground">
+								{activeOption?.description}
+							</p>
+						</div>
 					<Select
 						value={mode}
 						items={ROUTING_OPTIONS}
 						onValueChange={(value) => setMode(value as RoutingMode)}
 					>
-						<SelectTrigger id="routing-mode" className="max-w-sm">
+						<SelectTrigger id="routing-mode" className="w-full rounded-md">
 							<SelectValue placeholder="Select a routing mode" />
 						</SelectTrigger>
 						<SelectContent>
@@ -319,16 +337,13 @@ export default function RoutingSettingsClient({
 							))}
 						</SelectContent>
 					</Select>
-				</div>
-
-				<div className="grid gap-3 md:grid-cols-[240px_1fr] md:items-center">
-					<label htmlFor="beta-channel" className="text-sm font-medium">
-						Beta channel
-					</label>
-					<div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/20 px-3 py-2">
-						<p className="text-sm text-muted-foreground">
-							Allow beta providers in production routing (small canary share).
-						</p>
+					</div>
+					<Separator />
+					<div className="flex items-center justify-between gap-4 px-4 py-3">
+						<div>
+							<label htmlFor="beta-channel" className="text-sm font-medium">Beta Channel</label>
+							<p className="mt-1 text-sm text-muted-foreground">Include beta providers in a small share of production traffic.</p>
+						</div>
 						<Switch
 							id="beta-channel"
 							checked={betaChannelEnabled}
@@ -336,17 +351,15 @@ export default function RoutingSettingsClient({
 							aria-label="Enable beta channel"
 						/>
 					</div>
-				</div>
 
 				{betaChannelEnabled ? (
-					<div className="grid gap-3 md:grid-cols-[240px_1fr] md:items-center">
-						<label htmlFor="alpha-channel" className="text-sm font-medium">
-							Alpha channel
-						</label>
-						<div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/20 px-3 py-2">
-							<p className="text-sm text-muted-foreground">
-								Allow alpha providers inside beta canary traffic.
-							</p>
+					<>
+						<Separator />
+						<div className="flex items-center justify-between gap-4 bg-muted/15 py-2.5 pl-8 pr-4">
+							<div>
+								<label htmlFor="alpha-channel" className="text-sm font-medium">Alpha Channel</label>
+								<p className="mt-1 text-sm text-muted-foreground">Include alpha providers within beta canary traffic.</p>
+							</div>
 							<Switch
 								id="alpha-channel"
 								checked={alphaChannelEnabled}
@@ -354,22 +367,21 @@ export default function RoutingSettingsClient({
 								aria-label="Enable alpha channel"
 							/>
 						</div>
-					</div>
+					</>
 				) : null}
+				</div>
+			</section>
 
-				<div className="grid gap-3 md:grid-cols-[240px_1fr] md:items-center">
-					<label htmlFor="response-healing" className="text-sm font-medium">
-						Default plugins
-					</label>
-					<div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/20 px-3 py-2">
+			<section className="space-y-3">
+				<div>
+					<h2 className="text-base font-semibold">Response Healing</h2>
+					<p className="mt-1 text-sm text-muted-foreground">Set the workspace default for repairing structured model output.</p>
+				</div>
+				<div className="overflow-hidden rounded-md border">
+					<div className="flex items-center justify-between gap-4 px-4 py-3">
 						<div>
-							<p className="text-sm text-muted-foreground">
-								Enable response healing by default for this workspace.
-							</p>
-							<p className="text-xs text-muted-foreground">
-								Requests and presets can still override the plugin by id unless
-								you lock this policy below.
-							</p>
+							<label htmlFor="response-healing" className="text-sm font-medium">Enable by Default</label>
+							<p className="mt-1 text-sm text-muted-foreground">Repair compatible structured-output responses for this workspace.</p>
 						</div>
 						<Switch
 							id="response-healing"
@@ -378,13 +390,16 @@ export default function RoutingSettingsClient({
 							aria-label="Enable default response healing"
 						/>
 					</div>
-				</div>
-
-				<div className="grid gap-3 md:grid-cols-[240px_1fr] md:items-center">
-					<label htmlFor="response-healing-mode" className="text-sm font-medium">
-						Response healing mode
-					</label>
-					<div className="space-y-2 rounded-lg border bg-muted/20 px-3 py-2">
+					<Separator />
+					<div className="grid gap-3 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(220px,320px)] sm:items-center">
+						<div>
+							<label htmlFor="response-healing-mode" className="text-sm font-medium">Healing Mode</label>
+							<p className="mt-1 text-sm text-muted-foreground">
+								{responseHealingMode === "strict"
+									? "Only unwrap already-valid JSON from fences or surrounding text."
+									: "Apply bounded repairs such as trailing-comma cleanup and safe closer recovery."}
+							</p>
+						</div>
 						<Select
 							value={responseHealingMode}
 							items={RESPONSE_HEALING_OPTIONS}
@@ -392,7 +407,7 @@ export default function RoutingSettingsClient({
 								setResponseHealingMode(value as "safe" | "strict")
 							}
 						>
-							<SelectTrigger id="response-healing-mode" className="max-w-sm">
+							<SelectTrigger id="response-healing-mode" className="w-full rounded-md">
 								<SelectValue placeholder="Select a healing mode" />
 							</SelectTrigger>
 							<SelectContent>
@@ -407,28 +422,12 @@ export default function RoutingSettingsClient({
 								))}
 							</SelectContent>
 						</Select>
-						<p className="text-xs text-muted-foreground">
-							{responseHealingMode === "strict"
-								? "Strict mode only unwraps already-valid JSON from fences or surrounding text. It does not apply broader syntactic repair transforms."
-								: "Safe mode applies the full bounded JSON repair path, including trailing-comma cleanup, bare-key quoting, and safe closer recovery."}
-						</p>
 					</div>
-				</div>
-
-				<div className="grid gap-3 md:grid-cols-[240px_1fr] md:items-center">
-					<label htmlFor="response-healing-lock" className="text-sm font-medium">
-						Plugin override lock
-					</label>
-					<div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/20 px-3 py-2">
+					<Separator />
+					<div className="flex items-center justify-between gap-4 px-4 py-3">
 						<div>
-							<p className="text-sm text-muted-foreground">
-								Prevent presets or request-level plugin config from changing the
-								workspace response healing default.
-							</p>
-							<p className="text-xs text-muted-foreground">
-								Use this when you want one workspace-wide structured-output
-								policy.
-							</p>
+							<label htmlFor="response-healing-lock" className="text-sm font-medium">Lock Workspace Policy</label>
+							<p className="mt-1 text-sm text-muted-foreground">Prevent presets and requests from overriding this default.</p>
 						</div>
 						<Switch
 							id="response-healing-lock"
@@ -438,24 +437,14 @@ export default function RoutingSettingsClient({
 						/>
 					</div>
 				</div>
+			</section>
 
-				<div className="rounded-lg border bg-muted/30 p-4">
-					<p className="text-sm font-medium">{activeOption?.label}</p>
-					<p className="text-sm text-muted-foreground">
-						{activeOption?.description}
-					</p>
+			<section className="space-y-3">
+				<div>
+					<h2 className="text-base font-semibold">Routing Preview</h2>
+					<p className="mt-1 text-sm text-muted-foreground">An illustrative distribution for the current policy. Live routing also considers compatibility, health, availability, and failover signals.</p>
 				</div>
-
-				<div className="rounded-xl border bg-background p-4">
-					<div className="mb-3">
-						<h3 className="text-sm font-semibold">
-							Illustrative routing preview
-						</h3>
-						<p className="text-xs text-muted-foreground">
-							Guide only. Live routing also uses compatibility, availability,
-							health and failover signals from the last ~30 minutes.
-						</p>
-					</div>
+				<div className="rounded-md border px-4 py-3">
 					<div className="space-y-3">
 						{previewRows.map((row) => (
 							<div key={row.name} className="space-y-1">
@@ -491,8 +480,7 @@ export default function RoutingSettingsClient({
 						))}
 					</div>
 				</div>
-
-			</CardContent>
-		</Card>
+			</section>
+		</div>
 	);
 }

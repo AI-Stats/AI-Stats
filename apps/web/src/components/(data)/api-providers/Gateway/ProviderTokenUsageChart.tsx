@@ -29,8 +29,8 @@ export default async function ProviderTokenUsageChart({
 	]);
 
 	return (
-		<section className="space-y-2">
-			<h3 className="text-xl font-semibold">Token usage</h3>
+		<section id="token-usage" className="scroll-mt-36 space-y-3">
+			<h2 className="text-xl font-semibold">Token Usage</h2>
 
 			{models.length > 0 && points.length > 0 ? (
 				<ProviderTokenUsageChartClient

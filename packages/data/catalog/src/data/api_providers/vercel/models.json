@@ -1,5 +1,170 @@
 [
   {
+    "api_model_id": "black-forest-labs/flux-3-video",
+    "provider_api_model_id": "vercel:bfl/flux-3-video",
+    "provider_model_slug": "bfl/flux-3-video",
+    "internal_model_id": "black-forest-labs/flux-3-video",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-04T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": false,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": ["global"],
+      "data": ["global"]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_api",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "Live Vercel AI Gateway entry bfl/flux-3-video; pricing is not published in the registry."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Provider identity, release date, and text-to-video modality verified against Vercel's live registry; catalogue-only and not Phaseo-routable."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "bytedance/seedance-2.5",
+    "provider_api_model_id": "vercel:bytedance/seedance-2.5",
+    "provider_model_slug": "bytedance/seedance-2.5",
+    "internal_model_id": "bytedance/seedance-2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,video",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-07T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": false,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": ["global"],
+      "data": ["global"]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_api",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "Live Vercel AI Gateway entry bytedance/seedance-2.5, including video-token pricing with and without video input."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Provider identity, release date, video generation capability, and price schedule verified against Vercel's live registry; catalogue-only and not Phaseo-routable."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "x-ai/grok-voice-think-fast-2.0",
+    "provider_api_model_id": "vercel:xai/grok-voice-think-fast-2.0",
+    "provider_model_slug": "xai/grok-voice-think-fast-2.0",
+    "internal_model_id": "spacex-ai/grok-voice-think-fast-2.0",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,audio",
+    "output_modalities": "text,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-29T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.realtime",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": ["global"],
+      "data": ["global"]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_api",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "Live Vercel AI Gateway entry xai/grok-voice-think-fast-2.0 with realtime text/audio modalities and session pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Vercel provider route verified; canonical model lifecycle was already correct and remains unchanged. Catalogue-only and not Phaseo-routable."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "amazon/nova-2-lite",
     "provider_api_model_id": "vercel:amazon/nova-2-lite",
     "provider_model_slug": "amazon/nova-2-lite",

@@ -383,6 +383,14 @@
       "other_info": null,
       "source_link": null,
       "rank": 8
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 11,
+      "is_self_reported": false,
+      "other_info": "Qwen3 VL 32B Instruct; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/qwen3-vl-32b-instruct",
+      "rank": 361
     }
   ],
   "family_id": null,

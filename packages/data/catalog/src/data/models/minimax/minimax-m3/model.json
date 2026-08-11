@@ -90,6 +90,14 @@
       "other_info": "mini-swe-agent; 20% +/-4%; avg cost $5.57; avg time 57m; out tok 98k",
       "source_link": "https://deepswe.datacurve.ai/",
       "rank": 13
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 45.4,
+      "is_self_reported": false,
+      "other_info": "MiniMax-M3; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/minimax-m3",
+      "rank": 41
     }
   ],
   "page_notice": null,

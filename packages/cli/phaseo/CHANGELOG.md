@@ -1,5 +1,35 @@
 # @phaseo/cli
 
+## 0.2.3
+
+### Patch Changes
+
+- [#1538](https://github.com/phaseoteam/Phaseo/pull/1538) [`cb766c7`](https://github.com/phaseoteam/Phaseo/commit/cb766c71a205d06adbdae7cb44f9c0439a99d65c) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Replace the plain browser-login callback with branded, responsive success, waiting, and denial states.
+
+## 0.2.2
+
+### Patch Changes
+
+- [#1536](https://github.com/phaseoteam/Phaseo/pull/1536) [`b7cb1b9`](https://github.com/phaseoteam/Phaseo/commit/b7cb1b9bac60aeabcbcefd0c495e8a27b073ad66) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Stop CLI login from requesting unsupported feedback scopes, and keep the first-party scope set explicit so new control-plane capabilities cannot silently break authentication.
+
+## 0.2.1
+
+### Patch Changes
+
+- [#1534](https://github.com/phaseoteam/Phaseo/pull/1534) [`af6be51`](https://github.com/phaseoteam/Phaseo/commit/af6be51554e6c21abc0741dedb47a9978cf182c2) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Add installation-aware `update` and `doctor` commands, including PATH shadowing diagnostics, package-manager-specific remediation, and reliable POSIX installation detection.
+
+## 0.2.0
+
+### Minor Changes
+
+- [#1531](https://github.com/phaseoteam/Phaseo/pull/1531) [`89d937e`](https://github.com/phaseoteam/Phaseo/commit/89d937efad68dfdb6ccd2ce8c7482be9897eddfb) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Replace the legacy models response with the Phaseo-native catalogue, including lifecycle, modality, token-limit, capability, availability, pricing, and provider-offer data.
+
+  Improve command guidance with scoped group help, actionable unknown-command errors, a `v` version alias, published-version checks, and sanitized catalogue output.
+
+### Patch Changes
+
+- [#1286](https://github.com/phaseoteam/Phaseo/pull/1286) [`7be11cd`](https://github.com/phaseoteam/Phaseo/commit/7be11cd461a2cb5243c8e5c3db376cdee879a113) Thanks [@DanielButler1](https://github.com/DanielButler1)! - Add CLI management for gated, explicitly consented data contribution settings.
+
 ## 0.1.2
 
 ### Patch Changes

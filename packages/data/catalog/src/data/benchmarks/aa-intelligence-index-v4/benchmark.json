@@ -1,9 +1,9 @@
 {
   "benchmark_id": "aa-intelligence-index-v4",
-  "benchmark_name": "Artificial Analysis Intelligence Index v4",
+  "benchmark_name": "Artificial Analysis Intelligence Index v4.1.1",
   "category": "general",
   "ascending_order": null,
   "type": "numerical",
-  "link": "https://artificialanalysis.ai/models/solar-pro-3",
-  "total_models": 6
+  "link": "https://artificialanalysis.ai/models",
+  "total_models": 583
 }

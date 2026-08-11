@@ -4,7 +4,7 @@
 export interface ResponsesOutputItem {
   arguments?: string;
   call_id?: string;
-  content?:
+  content?: (
     | {
         annotations?: {}[];
         text: string;
@@ -26,7 +26,8 @@ export interface ResponsesOutputItem {
         format?: "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
         mime_type?: string;
         type: "output_audio";
-      }[];
+      }
+  )[];
   name?: string;
   role?: string;
   type?: string;

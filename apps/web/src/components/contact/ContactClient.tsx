@@ -31,6 +31,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Logo } from "@/components/Logo";
+import { ProductFeedbackButton } from "@/components/feedback/ProductFeedbackButton";
 
 type ContactMethod = {
 	key: string;
@@ -465,6 +466,13 @@ export function ContactClient({
 						Private account issues become support tickets. Public bugs, feature
 						requests, and quick questions go to the channel that fits.
 					</p>
+					<div>
+						<ProductFeedbackButton
+							surface="support_page"
+							label="Send Product Feedback"
+							prompt="Tell us what should be clearer, faster, or more useful across Phaseo. For account or billing help, use the support options below."
+						/>
+					</div>
 				</div>
 
 				<div className="rounded-2xl border border-border/60 px-4 py-3 text-sm">

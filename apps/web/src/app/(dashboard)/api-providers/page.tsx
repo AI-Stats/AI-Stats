@@ -24,7 +24,7 @@ async function APIProvidersSection() {
 	const apiProviders =
 		(await fetchFrontendAPIProviders()) as APIProviderCard[];
 
-	return <APIProvidersDisplay providers={apiProviders} showPrimaryHeader={false} />;
+	return <APIProvidersDisplay providers={apiProviders} />;
 }
 
 function APIProvidersFallback() {
@@ -42,13 +42,10 @@ function APIProvidersFallback() {
 
 export default function Page() {
 	return (
-		<main className="flex flex-col">
-			<div className="container mx-auto px-4 py-8 space-y-8">
-				<h1 className="text-xl font-bold">API Providers</h1>
-				<Suspense fallback={<APIProvidersFallback />}>
-					<APIProvidersSection />
-				</Suspense>
-			</div>
+		<main className="flex min-h-0 flex-1 flex-col">
+			<Suspense fallback={<APIProvidersFallback />}>
+				<APIProvidersSection />
+			</Suspense>
 		</main>
 	);
 }

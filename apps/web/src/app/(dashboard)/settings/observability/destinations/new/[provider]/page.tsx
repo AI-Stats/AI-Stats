@@ -43,6 +43,7 @@ export default async function NewBroadcastDestinationPage({
 			<BroadcastDestinationCreateClient
 				destination={destination}
 				teamName={initialData.teamName}
+				workspaceId={initialData.workspaceId}
 				providerOptions={initialData.providerOptions}
 				modelOptions={initialData.modelOptions}
 				keys={initialData.keys}

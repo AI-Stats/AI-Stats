@@ -15,6 +15,28 @@ const env = {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("account policy settings routes", () => {
+	it("returns the private effective Chat policy with assigned member guardrails", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
+			if (url.includes("workspace_member_guardrails")) return new Response(JSON.stringify([{ guardrail_id: "guardrail-1" }]), { status: 200 });
+			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "member" }]), { status: 200 });
+			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ owner_user_id: "owner-1" }]), { status: 200 });
+			if (url.includes("workspace_settings")) return new Response(JSON.stringify([{ provider_restriction_mode: "blocklist", provider_restriction_provider_ids: ["novita"], model_restriction_mode: "none", model_restriction_model_ids: [] }]), { status: 200 });
+			if (url.includes("account_guardrail_settings")) return new Response(JSON.stringify([{ provider_restriction_mode: "none", provider_restriction_provider_ids: [], model_restriction_mode: "blocklist", model_restriction_model_ids: ["qwen/qwen3.8-max"] }]), { status: 200 });
+			if (url.includes("workspace_guardrails")) return new Response(JSON.stringify([{ id: "guardrail-1", name: "Team Safety", enabled: true, provider_restriction_mode: "blocklist", provider_restriction_provider_ids: ["openai"], model_restriction_mode: "none", allowed_api_model_ids: [] }]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request("https://phaseo.app/api/account/settings/chat/effective-policy?workspaceId=workspace-1", { headers: { authorization: "Bearer session-token" } }, env);
+		expect(response.status).toBe(200);
+		expect(response.headers.get("cache-control")).toBe("private, no-store");
+		await expect(response.json()).resolves.toMatchObject({
+			workspace: { provider: { mode: "blocklist", ids: ["novita"] } },
+			account: { model: { mode: "blocklist", ids: ["qwen/qwen3.8-max"] } },
+			guardrails: [{ id: "guardrail-1", name: "Team Safety", provider: { mode: "blocklist", ids: ["openai"] } }],
+		});
+	});
 	it("invalidates every active key after response-healing policy changes", async () => {
 		const invalidated: string[] = [];
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -50,6 +72,53 @@ describe("account policy settings routes", () => {
 			"https://gateway.example.com/v1/keys/key-1/invalidate",
 			"https://gateway.example.com/v1/keys/key-2/invalidate",
 		]);
+	});
+
+	it("persists routing settings when gateway invalidation credentials are unavailable", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
+			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
+			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
+			if (url.includes("workspace_settings")) return new Response(JSON.stringify([]), { status: 200 });
+			if (url.includes("/keys?")) return new Response(JSON.stringify([{ id: "key-1" }]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request("https://phaseo.app/api/account/settings/routing", {
+			method: "PUT",
+			headers: { authorization: "Bearer session-token", "content-type": "application/json" },
+			body: JSON.stringify({ workspaceId: "workspace-1", mode: "price" }),
+		}, { ...env, PHASEO_CONTROL_KEY: undefined, PHASEO_CONTROL_SECRET: undefined });
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toEqual({ ok: true, gatewayCacheInvalidated: false });
+	});
+
+	it("does not publish a duplicate preset version without draft changes", async () => {
+		let publishRpcCalled = false;
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
+			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "member" }]), { status: 200 });
+			if (url.includes("/presets?")) return new Response(JSON.stringify([{
+				workspace_id: "workspace-1", created_by: "user-1", name: "Stable", slug: "stable", description: null,
+				config: { models: ["openai/gpt-test"] }, visibility: "team", draft_name: "Stable", draft_slug: "stable",
+				draft_description: null, draft_config: { models: ["openai/gpt-test"] }, draft_visibility: "team",
+			}]), { status: 200 });
+			if (url.includes("/rpc/publish_preset_version")) publishRpcCalled = true;
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request("https://phaseo.app/api/account/settings/presets/preset-1/versions", {
+			method: "POST",
+			headers: { authorization: "Bearer session-token", "content-type": "application/json" },
+			body: JSON.stringify({ releaseNotes: "No changes" }),
+		}, env);
+
+		expect(response.status).toBe(409);
+		await expect(response.json()).resolves.toEqual({ error: "no_draft_changes" });
+		expect(publishRpcCalled).toBe(false);
 	});
 	it("does not expose upstream versions when the source preset is no longer public", async () => {
 		const requestedUrls: string[] = [];
@@ -134,10 +203,25 @@ describe("account policy settings routes", () => {
 			if (url.includes("workspace_settings")) return new Response(JSON.stringify([{ routing_mode: "latency", response_healing_enabled: true, response_healing_locked: false, response_healing_mode: "strict", alpha_channel_enabled: true, beta_channel_enabled: false }]), { status: 200 });
 			if (url.includes("gateway_dynamic_routes")) return new Response(JSON.stringify([{ id: "route-1", workspace_id: "workspace-1", name: "Production", status: "active", version: 2, config: { cacheAwareRouting: true } }]), { status: 200 });
 			if (url.includes("gateway_dynamic_route_keys")) return new Response(JSON.stringify([{ route_id: "route-1", key_id: "key-1" }]), { status: 200 });
-			if (url.includes("v2_public_provider_health_daily")) return new Response(JSON.stringify([{ provider_slug: "openai", attempt_count: 100, failed_attempts: 12, latency_sum_ms: 450000, latency_count: 100 }]), { status: 200 });
-			if (url.includes("/presets")) return new Response(JSON.stringify([{ id: "preset-1", workspace_id: "workspace-1", name: "Fast" }]), { status: 200 });
+			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([
+				{ provider_id: "openai" },
+				{ provider_id: "anthropic" },
+				{ provider_id: "anthropic-aws" },
+				{ provider_id: "anthropic-us" },
+			]), { status: 200 });
+			if (url.includes("/presets")) return new Response(JSON.stringify([{ id: "preset-1", workspace_id: "workspace-1", name: "@fast", slug: "fast", config: { models: ["openai/gpt-test"] }, visibility: "team", draft_name: "@fast", draft_slug: "fast", draft_config: { models: ["openai/gpt-test"], parameters: { temperature: 0.2 } }, draft_visibility: "team" }]), { status: 200 });
 			if (url.includes("/keys")) return new Response(JSON.stringify([{ id: "key-1", name: "Production", prefix: "ph_", status: "active" }]), { status: 200 });
-			if (url.includes("v2_providers")) return new Response(JSON.stringify([{ api_provider_id: "openai", api_provider_name: "OpenAI", status: "active", routing_enabled: true }]), { status: 200 });
+			if (url.includes("v2_providers")) {
+				const providers = url.includes("provider_family_id")
+					? [
+						{ api_provider_id: "openai", api_provider_name: "OpenAI", provider_family_id: "openai", offer_label: null, offer_scope: "global", status: "active", routable: true, routing_enabled: true },
+						{ api_provider_id: "anthropic", api_provider_name: "Anthropic", provider_family_id: "anthropic", offer_label: null, offer_scope: "global", status: "active", routable: true, routing_enabled: true },
+						{ api_provider_id: "anthropic-aws", api_provider_name: "Anthropic", provider_family_id: "anthropic", offer_label: "AWS", offer_scope: "specialized", status: "active", routable: true, routing_enabled: true },
+						{ api_provider_id: "anthropic-us", api_provider_name: "Anthropic", provider_family_id: "anthropic", offer_label: "US", offer_scope: "regional", status: "active", routable: true, routing_enabled: true },
+					]
+					: [{ api_provider_id: "openai", api_provider_name: "OpenAI", status: "active", routing_enabled: true }];
+				return new Response(JSON.stringify(providers), { status: 200 });
+			}
 			if (url.includes("data_api_provider_models")) return new Response(JSON.stringify([{ provider_id: "openai", api_model_id: "gpt-test", internal_model_id: "openai/gpt-test", is_active_gateway: true }]), { status: 200 });
 			if (url.includes("workspace_guardrails")) return new Response(JSON.stringify([{ id: "guardrail-1", workspace_id: "workspace-1", name: "Default", enabled: true }]), { status: 200 });
 			if (url.includes("key_guardrails")) return new Response(JSON.stringify([{ guardrail_id: "guardrail-1", key_id: "key-1" }]), { status: 200 });
@@ -157,13 +241,24 @@ describe("account policy settings routes", () => {
 			expect(response.headers.get("cloudflare-cdn-cache-control")).toBeNull();
 		}
 		await expect(routing.json()).resolves.toMatchObject({ routingMode: "latency", responseHealingEnabled: true, responseHealingMode: "strict", teamName: "Team One" });
-		await expect(presets.json()).resolves.toMatchObject({ currentUserId: "user-1", teamsWithPresets: [{ id: "workspace-1", presets: [{ id: "preset-1" }] }] });
+		await expect(presets.json()).resolves.toMatchObject({ currentUserId: "user-1", teamsWithPresets: [{ id: "workspace-1", presets: [{ id: "preset-1", hasDraftChanges: true }] }] });
 		await expect(guardrails.json()).resolves.toMatchObject({ guardrails: [{ id: "guardrail-1" }], guardrailKeyIdsByGuardrailId: { "guardrail-1": ["key-1"] }, keys: [{ id: "key-1" }] });
-		await expect(editor.json()).resolves.toMatchObject({ mode: "edit", guardrail: { id: "guardrail-1" }, initialKeyIds: ["key-1"], teamName: "Team One" });
+		const editorBody = await editor.json();
+		expect(editorBody).toMatchObject({
+			mode: "edit",
+			guardrail: { id: "guardrail-1" },
+			initialKeyIds: ["key-1"],
+			teamName: "Team One",
+			providers: [
+				{ id: "openai", name: "OpenAI", familyId: "openai", offerLabel: null, offerScope: "global" },
+				{ id: "anthropic", name: "Anthropic", familyId: "anthropic", offerLabel: null, offerScope: "global" },
+				{ id: "anthropic-aws", name: "Anthropic", familyId: "anthropic", offerLabel: "AWS", offerScope: "specialized" },
+				{ id: "anthropic-us", name: "Anthropic", familyId: "anthropic", offerLabel: "US", offerScope: "regional" },
+			],
+		});
 		await expect(dynamicRoutes.json()).resolves.toMatchObject({
 			routes: [{ id: "route-1", keyIds: ["key-1"] }],
 			providers: [{ id: "openai", name: "OpenAI", status: "active", routingStatus: "active" }],
-			suggestions: [{ providerId: "openai", severity: "warning" }],
 		});
 	});
 

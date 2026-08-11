@@ -14,6 +14,9 @@ export type GatewayGenAiTelemetry = {
 	keyId?: string | null;
 	keyName?: string | null;
 	userId?: string | null;
+	appId?: string | null;
+	appName?: string | null;
+	clientSource?: string | null;
 	endpoint: Endpoint;
 	requestedModel: string;
 	provider?: string | null;
@@ -352,6 +355,12 @@ function commonPhaseoAttributes(args: GatewayGenAiTelemetry): Array<OtlpAttribut
 	return [
 		attr("phaseo.request.id", args.requestId),
 		attr("phaseo.workspace.id", args.workspaceId),
+		attr("phaseo.api_key.id", args.keyId),
+		attr("phaseo.api_key.name", args.keyName),
+		attr("user.id", args.userId),
+		attr("phaseo.app.id", args.appId),
+		attr("phaseo.app.name", args.appName),
+		attr("phaseo.client.source", args.clientSource),
 		attr("phaseo.endpoint", args.endpoint),
 		attr("phaseo.requested_model", args.requestedModel),
 		attr("phaseo.cost.nanos", args.totalNanos),

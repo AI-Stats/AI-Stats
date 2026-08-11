@@ -19,6 +19,24 @@ const SEEDANCE_MIN_TOKENS_720P: Record<number, number> = {
 	6: 216000,
 	7: 259200,
 };
+const SEEDANCE_25_DIMENSIONS = {
+	"480p": {
+		"16:9": { width: 854, height: 480 },
+		"9:16": { width: 480, height: 854 },
+		"4:3": { width: 752, height: 560 },
+		"3:4": { width: 560, height: 752 },
+		"1:1": { width: 640, height: 640 },
+		"21:9": { width: 992, height: 432 },
+	},
+	"720p": {
+		"16:9": { width: 1280, height: 720 },
+		"9:16": { width: 720, height: 1280 },
+		"4:3": { width: 1112, height: 834 },
+		"3:4": { width: 834, height: 1112 },
+		"1:1": { width: 960, height: 960 },
+		"21:9": { width: 1470, height: 630 },
+	},
+} as const;
 
 function normalizeRequestOptions(source?: Record<string, unknown>): Record<string, unknown> {
 	if (!source) return {};
@@ -104,15 +122,64 @@ function parseDimensionsFromSize(value: unknown): { width: number; height: numbe
 	}
 }
 
-function resolveVideoDimensions(source: Record<string, unknown>): { width: number; height: number } | undefined {
-	return (
-		parseDimensionsFromSize(source.size) ??
-		parseDimensionsFromSize(source.resolution) ??
-		parseDimensionsFromSize(source.input_resolution) ??
-		parseDimensionsFromSize((source as any)?.video_params?.size) ??
-		parseDimensionsFromSize((source as any)?.video_params?.resolution) ??
-		parseDimensionsFromSize((source as any)?.video_params?.input_resolution)
-	);
+function isSeedance25Model(model: string): boolean {
+	const normalized = model.trim().toLowerCase();
+	return normalized.includes("seedance-2-5") || normalized.includes("seedance-2.5");
+}
+
+function resolveStringOption(source: Record<string, unknown>, paths: string[]): string | undefined {
+	for (const path of paths) {
+		const [head, tail] = path.split(".", 2);
+		if (!head) continue;
+		const parent = (source as any)?.[head];
+		const value = tail && parent && typeof parent === "object" && !Array.isArray(parent)
+			? (parent as Record<string, unknown>)[tail]
+			: tail
+				? undefined
+				: parent;
+		if (typeof value === "string" && value.trim()) return value.trim();
+	}
+	return undefined;
+}
+
+function resolveSeedance25Dimensions(
+	size: string,
+	aspectRatio: string | undefined,
+): { width: number; height: number } | undefined {
+	const resolution = size.trim().toLowerCase() as keyof typeof SEEDANCE_25_DIMENSIONS;
+	const dimensionsByRatio = SEEDANCE_25_DIMENSIONS[resolution];
+	if (!dimensionsByRatio) return undefined;
+	const ratio = (aspectRatio ?? "16:9").trim() as keyof typeof dimensionsByRatio;
+	return dimensionsByRatio[ratio];
+}
+
+function resolveVideoDimensions(
+	source: Record<string, unknown>,
+	model: string,
+): { width: number; height: number } | undefined {
+	const size = resolveStringOption(source, [
+		"size",
+		"resolution",
+		"input_resolution",
+		"video_params.size",
+		"video_params.resolution",
+		"video_params.input_resolution",
+	]);
+	if (!size) return undefined;
+	const explicitDimensions = parseDimensionsFromSize(size.match(/^\d+\s*[x*]\s*\d+$/i) ? size : undefined);
+	if (explicitDimensions) return explicitDimensions;
+	if (isSeedance25Model(model)) {
+		const aspectRatio = resolveStringOption(source, [
+			"aspect_ratio",
+			"aspectRatio",
+			"ratio",
+			"video_params.aspect_ratio",
+			"video_params.aspectRatio",
+			"video_params.ratio",
+		]);
+		return resolveSeedance25Dimensions(size, aspectRatio);
+	}
+	return parseDimensionsFromSize(size);
 }
 
 function resolveNumericOption(source: Record<string, unknown>, path: string): number | undefined {
@@ -138,12 +205,21 @@ function classifySeedanceResolutionTier(dimensions: { width: number; height: num
 }
 
 function resolveSeedanceMinTokenFloor(args: {
+	model: string;
 	outputSeconds: number;
 	dimensions?: { width: number; height: number };
 	hasInputVideo: boolean;
+	frameRate: number;
 }): number | undefined {
 	if (!args.hasInputVideo || !args.dimensions) return undefined;
 	const roundedSeconds = Math.round(args.outputSeconds);
+	if (isSeedance25Model(args.model)) {
+		if (roundedSeconds < 4 || roundedSeconds > 30) return undefined;
+		const minimumCountedSeconds = Math.ceil((roundedSeconds * 5) / 3);
+		return Math.round(
+			(minimumCountedSeconds * args.dimensions.width * args.dimensions.height * args.frameRate) / 1024,
+		);
+	}
 	if (![4, 5, 6, 7].includes(roundedSeconds)) return undefined;
 	const tier = classifySeedanceResolutionTier(args.dimensions);
 	if (tier === "480p") return SEEDANCE_MIN_TOKENS_480P[roundedSeconds];
@@ -153,6 +229,7 @@ function resolveSeedanceMinTokenFloor(args: {
 
 function resolveEstimatedTotalTokens(args: {
 	seconds: number;
+	model: string;
 	requestOptions?: Record<string, unknown>;
 }): number | undefined {
 	const source = args.requestOptions ?? {};
@@ -163,7 +240,7 @@ function resolveEstimatedTotalTokens(args: {
 		return Math.round(explicitTotalTokens);
 	}
 
-	const dimensions = resolveVideoDimensions(source);
+	const dimensions = resolveVideoDimensions(source, args.model);
 	if (!dimensions) return undefined;
 	const frameRateRaw =
 		resolveNumericOption(source, "frame_rate") ??
@@ -189,9 +266,11 @@ function resolveEstimatedTotalTokens(args: {
 	let estimatedTokens =
 		(combinedSeconds * dimensions.width * dimensions.height * frameRate) / 1024;
 	const minFloor = resolveSeedanceMinTokenFloor({
+		model: args.model,
 		outputSeconds: args.seconds,
 		dimensions,
 		hasInputVideo,
+		frameRate,
 	});
 	if (typeof minFloor === "number") {
 		estimatedTokens = Math.max(estimatedTokens, minFloor);
@@ -249,6 +328,7 @@ export function computeVideoPricedUsage(args: {
 	const estimatedTotalTokens = hasTotalTokensMeter
 		? resolveEstimatedTotalTokens({
 			seconds: args.seconds,
+			model: args.model,
 			requestOptions: args.requestOptions,
 		})
 		: undefined;
@@ -258,6 +338,18 @@ export function computeVideoPricedUsage(args: {
 		requestOptions: args.requestOptions,
 	});
 	const usageMeters: Record<string, number> = { output_video_seconds: args.seconds };
+	const inputImageCount =
+		resolveNumericOption(args.requestOptions ?? {}, "input_image_count") ??
+		resolveNumericOption(args.requestOptions ?? {}, "video_params.input_image_count");
+	const inputVideoSeconds =
+		resolveNumericOption(args.requestOptions ?? {}, "input_video_seconds") ??
+		resolveNumericOption(args.requestOptions ?? {}, "video_params.input_video_seconds");
+	const inputVideoCount =
+		resolveNumericOption(args.requestOptions ?? {}, "input_video_count") ??
+		resolveNumericOption(args.requestOptions ?? {}, "video_params.input_video_count");
+	if (typeof inputImageCount === "number" && inputImageCount > 0) usageMeters.input_image = inputImageCount;
+	if (typeof inputVideoSeconds === "number" && inputVideoSeconds > 0) usageMeters.input_video_seconds = inputVideoSeconds;
+	if (typeof inputVideoCount === "number" && inputVideoCount > 0) usageMeters.input_video_count = inputVideoCount;
 	if (typeof estimatedTotalTokens === "number" && estimatedTotalTokens > 0) {
 		usageMeters.total_tokens = estimatedTotalTokens;
 	}

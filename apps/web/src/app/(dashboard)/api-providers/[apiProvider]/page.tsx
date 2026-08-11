@@ -1,7 +1,11 @@
 import APIProviderDetailShell from "@/components/(data)/api-providers/APIProviderDetailShell";
 import ProviderTokenUsageChart from "@/components/(data)/api-providers/Gateway/ProviderTokenUsageChart";
 import PerformanceCards from "@/components/(data)/api-providers/Gateway/PerformanceCards";
-import { fetchFrontendAPIProviderHeader } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import {
+	fetchFrontendAPIProviderHeader,
+	fetchFrontendAPIProviderModels,
+} from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import ProviderModelsClient from "./models/ProviderModelsClient";
 import type { Metadata } from "next";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import Script from "next/script";
@@ -89,6 +93,8 @@ export default async function Page({
 	const resolved = await params;
 	const apiProvider = resolved.apiProvider;
 	const header = await fetchProviderMeta(apiProvider);
+	if (!header) notFound();
+	const models = await fetchFrontendAPIProviderModels(apiProvider);
 
 	// Generate structured data for the provider page.
 	const generateStructuredData = () => {
@@ -155,14 +161,28 @@ export default async function Page({
 					/>
 				</>
 			)}
-			<APIProviderDetailShell apiProviderId={apiProvider}>
+			<APIProviderDetailShell apiProviderId={apiProvider} tocItems={[{ id: "performance", label: "Performance" }, { id: "token-usage", label: "Token Usage" }, { id: "top-models", label: "Top Models" }, { id: "top-apps", label: "Top Apps" }, { id: "models", label: "Models" }]}>
 				<div className="flex flex-col gap-10 w-full">
-					<section className="space-y-2">
-						<h3 className="text-xl font-semibold">Performance</h3>
+					<section id="performance" className="scroll-mt-36 space-y-3">
+						<h2 className="text-xl font-semibold">Performance</h2>
 						<PerformanceCards params={params} />
 					</section>
 
 					<ProviderTokenUsageChart apiProviderId={apiProvider} />
+
+					<section id="models" className="scroll-mt-36 space-y-4 border-t border-border pt-10">
+						<div className="space-y-1">
+							<h2 className="text-xl font-semibold">Models</h2>
+							<p className="text-sm text-muted-foreground">
+								Browse models available through {header.api_provider_name}.
+							</p>
+						</div>
+						<ProviderModelsClient
+							apiProvider={apiProvider}
+							providerLabel={header.api_provider_name}
+							models={models}
+						/>
+					</section>
 				</div>
 			</APIProviderDetailShell>
 		</>

@@ -1,16 +1,17 @@
 export interface ModelEndpointsResponse {
-  architecture?: {
-    [key: string]: unknown;
-  };
   availability_mode: "active" | "all";
-  canonical_slug: string;
-  created?: number | null;
-  description?: string;
+  description: string;
   endpoints: {
-    availability_reason: string;
-    availability_status: "active" | "coming_soon" | "inactive";
+    capabilities: {
+      endpoints?: string[];
+      parameter_details: {
+        [key: string]: {
+          [key: string]: unknown;
+        };
+      };
+      parameters: string[];
+    };
     capability_id: string;
-    capability_status: string;
     collection:
       | "text"
       | "images"
@@ -23,35 +24,91 @@ export interface ModelEndpointsResponse {
       | "music"
       | "batch"
       | "files";
-    effective_from?: string | null;
-    effective_to?: string | null;
+    effective: {
+      from: string | null;
+      to: string | null;
+    };
     endpoint: string;
     id: string;
-    input_modalities: string[];
-    is_active_gateway: boolean;
-    model_routing_status: string;
-    output_modalities: string[];
+    modalities: {
+      input: string[];
+      output: string[];
+    };
+    model: string | null;
     pricing: {
-      [key: string]: string | null;
-    };
-    pricing_detail: {
-      [key: string]: unknown;
-    };
-    provider_id: string;
-    provider_model_slug?: string | null;
-    provider_name?: string | null;
-    provider_routing_status: string;
-    provider_status: string;
-    public_path: string;
-    supported_parameters: string[];
-    supported_parameters_detail: {
-      [key: string]: {
-        [key: string]: unknown;
+      meters: {
+        [key: string]: {
+          currency: "USD";
+          price_per_unit: string;
+          provider_id: string;
+          unit: string;
+          unit_size: number;
+        } | null;
       };
+      pricing_plan: "standard";
     };
+    provider: {
+      id: string;
+      name: string | null;
+    };
+    public_path: string;
+    routable: boolean;
+    routing: {
+      capability:
+        | "active"
+        | "coming_soon"
+        | "deranked_lvl1"
+        | "deranked_lvl2"
+        | "deranked_lvl3"
+        | "disabled"
+        | "internal_testing";
+      model:
+        | "active"
+        | "deranked_lvl1"
+        | "deranked_lvl2"
+        | "deranked_lvl3"
+        | "disabled";
+      provider:
+        | "active"
+        | "deranked_lvl1"
+        | "deranked_lvl2"
+        | "deranked_lvl3"
+        | "disabled";
+    };
+    status: "active" | "coming_soon" | "inactive";
+    status_reason:
+      | "active"
+      | "preview_only"
+      | "gated"
+      | "access_limited"
+      | "region_limited"
+      | "project_limited"
+      | "paused"
+      | "soft_blocked"
+      | "deranked_lvl1"
+      | "deranked_lvl2"
+      | "deranked_lvl3"
+      | "internal_testing"
+      | "scheduled"
+      | "coming_soon"
+      | "provider_disabled"
+      | "model_disabled"
+      | "capability_disabled"
+      | "provider_not_ready"
+      | "provider_inactive"
+      | "inactive"
+      | "retired";
   }[];
   id: string;
-  model_id: string;
-  name?: string | null;
+  modalities: {
+    input: string[];
+    output: string[];
+  };
+  name: string;
   ok: true;
+  organization: {
+    color: string | null;
+    id: string;
+    name: string | null;
+  } | null;
 }

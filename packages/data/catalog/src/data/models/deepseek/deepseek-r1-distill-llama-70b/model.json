@@ -15,7 +15,16 @@
   "api_model_id": "deepseek/deepseek-r1-distill-llama-70b",
   "links": [],
   "details": [],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 9.8,
+      "is_self_reported": false,
+      "other_info": "DeepSeek R1 Distill Llama 70B; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/deepseek-r1-distill-llama-70b",
+      "rank": 380
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

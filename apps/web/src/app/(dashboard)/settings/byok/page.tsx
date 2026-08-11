@@ -6,7 +6,7 @@ import SettingsPageHeader from "@/components/(gateway)/settings/SettingsPageHead
 import SettingsSectionFallback from "@/components/(gateway)/settings/SettingsSectionFallback";
 import { fetchFrontendAPIProviders } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import { fetchSettingsByokInitialData } from "@/lib/fetchers/internal/fetchSettingsByokInitialData";
-import ByokFallbackToggle from "@/components/(gateway)/settings/byok/ByokFallbackToggle";
+import { MAX_BYOK_KEYS_PER_PROVIDER } from "@/lib/byok/constants";
 
 export const metadata = { title: "BYOK - Settings" };
 
@@ -20,10 +20,13 @@ type KeyEntry = {
 	prefix?: string;
 	suffix?: string;
 	createdAt: string;
+	lastUsedAt: string | null;
 	enabled: boolean;
+	errorMessage: string | null;
 	alwaysUse: boolean;
 	routingMode: "priority" | "fallback";
 	sortOrder: number;
+	verificationStatus: string | null;
 };
 
 type ProviderItem = {
@@ -124,6 +127,7 @@ async function ByokProvidersSection() {
 	}
 
 	const providerCatalog: ProviderItem[] = providerCatalogData
+		.filter((provider) => Number(provider.active_models ?? 0) > 0)
 		.map((provider) => ({
 			id: String(provider.api_provider_id ?? "").trim(),
 			name:
@@ -147,21 +151,6 @@ async function ByokProvidersSection() {
 
 	return (
 		<div className="space-y-4">
-			<Card className="rounded-2xl">
-				<CardHeader className="pb-2">
-					<CardTitle className="text-base">Fallback credentials</CardTitle>
-					<p className="text-xs text-muted-foreground">
-						Priority BYOK keys are tried first, followed by Phaseo-managed providers. Enable this to try fallback BYOK keys last.
-					</p>
-				</CardHeader>
-				<CardContent className="space-y-2">
-					<ByokFallbackToggle initialEnabled={initialData.fallbackEnabled} />
-					<p className="text-xs text-muted-foreground">
-						Key changes are invalidated immediately, but Cloudflare edge propagation can take up to about 60 seconds.
-					</p>
-				</CardContent>
-			</Card>
-
 			<Card className="rounded-2xl">
 				<CardHeader className="pb-2">
 					<CardTitle className="text-base">BYOK monthly usage</CardTitle>
@@ -196,6 +185,12 @@ async function ByokProvidersSection() {
 			<section className="space-y-2">
 				<div className="px-1">
 					<h2 className="text-base font-semibold">Provider keys</h2>
+					<p className="mt-1 text-xs text-muted-foreground">
+						Store and deterministically order up to {MAX_BYOK_KEYS_PER_PROVIDER} credentials per provider. Each request can attempt up to {MAX_BYOK_KEYS_PER_PROVIDER} BYOK credentials across its route.
+					</p>
+					<p className="mt-1 text-xs text-muted-foreground">
+						Batch jobs currently use Phaseo-managed credentials and do not use BYOK keys.
+					</p>
 				</div>
 
 				<div className="rounded-md border divide-y">

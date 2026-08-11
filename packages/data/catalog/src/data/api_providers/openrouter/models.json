@@ -11739,5 +11739,98 @@
       "notes": "Provider support imported from models.dev; routing remains disabled."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "meta/muse-glimmer-30b",
+    "provider_api_model_id": "openrouter:meta/muse-glimmer-30b",
+    "provider_model_slug": "meta/muse-glimmer-30b",
+    "internal_model_id": "meta/muse-glimmer-30b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-10T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "OpenRouter lists response_format and structured_outputs for its Together endpoint."
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "OpenRouter lists response_format and structured_outputs for its Together endpoint."
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "OpenRouter lists tools and tool_choice for its Together endpoint."
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "OpenRouter lists tools and tool_choice for its Together endpoint."
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "provider_status": "available",
+    "phaseo_status": "unsupported",
+    "access_scope": "public",
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://openrouter.ai/api/v1/models/meta/muse-glimmer-30b/endpoints",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "OpenRouter lists Muse Glimmer with Together as its sole upstream endpoint."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Verified against OpenRouter's public models and endpoint APIs; this is an aggregated Together route, not an independent deployment."
+    },
+    "rate_limits": []
   }
 ]

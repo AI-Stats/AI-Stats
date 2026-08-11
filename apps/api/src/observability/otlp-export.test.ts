@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { deliverGatewayOtlpPayload } from "./otlp-export";
+import { deliverGatewayOtlpPayload, deliverGatewayWebhookPayload, filterMetadata, selected } from "./otlp-export";
 
 vi.mock("@core/webhook-endpoints", async (importOriginal) => {
 	const actual = await importOriginal<typeof import("@core/webhook-endpoints")>();
@@ -15,6 +15,83 @@ vi.mock("@core/webhook-endpoints", async (importOriginal) => {
 			return validated;
 		}),
 	};
+});
+
+describe("deliverGatewayWebhookPayload", () => {
+	it("delivers OTLP JSON with configured headers and method", async () => {
+		const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+		vi.stubGlobal("fetch", fetchMock);
+		const payload = { resourceSpans: [] };
+		const result = await deliverGatewayWebhookPayload(payload, {
+			url: "https://hooks.example.com/traces",
+			method: "PUT",
+			headers_json: JSON.stringify({ Authorization: "Bearer secret" }),
+		});
+		expect(result).toMatchObject({ delivered: true, retryable: false, status: 204 });
+		const [url, init] = fetchMock.mock.calls[0] as [URL, RequestInit];
+		expect(url.toString()).toBe("https://hooks.example.com/traces");
+		expect(init).toMatchObject({ method: "PUT", body: JSON.stringify(payload), redirect: "manual" });
+		expect(new Headers(init.headers).get("authorization")).toBe("Bearer secret");
+	});
+
+	it("retries transient webhook failures", async () => {
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("", {
+			status: 429,
+			headers: { "retry-after": "3" },
+		})));
+		const result = await deliverGatewayWebhookPayload(
+			{ resourceSpans: [] },
+			{ url: "https://hooks.example.com/traces" },
+			2,
+		);
+		expect(result).toMatchObject({ delivered: false, retryable: true, status: 429, delayMs: 3_000 });
+	});
+
+	it("rejects private webhook destinations before delivery", async () => {
+		const fetchMock = vi.fn();
+		vi.stubGlobal("fetch", fetchMock);
+		const result = await deliverGatewayWebhookPayload(
+			{ resourceSpans: [] },
+			{ url: "http://127.0.0.1/traces" },
+		);
+		expect(result).toMatchObject({ delivered: false, retryable: false, status: null });
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+});
+
+describe("Broadcast destination selection and metadata", () => {
+	const telemetry = {
+		requestId: "req_1", workspaceId: "ws_1", keyId: "key_selected", endpoint: "chat.completions",
+		requestedModel: "openai/gpt-5", statusCode: 200, success: true, startedAtMs: 1, completedAtMs: 2,
+	} as any;
+	const destination = { id: "dest_1", destination_id: "webhook", destination_config: null } as any;
+
+	it("supports include and exclude API-key targeting", () => {
+		expect(selected({ ...destination, broadcast_destination_keys: [{ key_id: "key_selected", filter_mode: "include" }] }, telemetry, "event_1")).toBe(true);
+		expect(selected({ ...destination, broadcast_destination_keys: [{ key_id: "key_selected", filter_mode: "exclude" }] }, telemetry, "event_1")).toBe(false);
+		expect(selected({ ...destination, broadcast_destination_keys: [
+			{ key_id: "key_selected", filter_mode: "include" },
+			{ key_id: "key_other", filter_mode: "exclude" },
+		] }, telemetry, "event_1")).toBe(true);
+	});
+
+	it("removes disabled metadata families from OTLP attributes", () => {
+		const payload = { resourceSpans: [{ attributes: [
+			{ key: "gen_ai.request.model", value: { stringValue: "gpt-5" } },
+			{ key: "phaseo.cost.nanos", value: { intValue: "10" } },
+			{ key: "phaseo.api_key.id", value: { stringValue: "key_1" } },
+			{ key: "http.route", value: { stringValue: "/v1/chat/completions" } },
+			{ key: "service.name", value: { stringValue: "phaseo-gateway" } },
+		] }] };
+		const filtered = filterMetadata(payload, {
+			...destination,
+			include_generation_metadata: false,
+			include_cost_metadata: false,
+			include_identity_metadata: false,
+			include_request_context: false,
+		}) as any;
+		expect(filtered.resourceSpans[0].attributes.map((attribute: any) => attribute.key)).toEqual(["service.name"]);
+	});
 });
 
 afterEach(() => {

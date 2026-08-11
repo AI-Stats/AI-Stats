@@ -268,6 +268,54 @@ describe("audit request detail persistence", () => {
 		);
 	});
 
+	it("persists pre-model failures with an explicit unknown model", async () => {
+		const gatewayRequestRows: any[] = [];
+		getSupabaseAdminMock.mockReturnValue({
+			rpc: vi.fn(async () => ({ data: "v2_request_event_unknown", error: null })),
+			from: vi.fn((table: string) => {
+				if (table === "gateway_requests") {
+					return {
+						insert: vi.fn((row: any) => {
+							gatewayRequestRows.push(row);
+							return {
+								select: vi.fn(() => ({
+									single: vi.fn(async () => ({
+										data: {
+											id: "row_unknown",
+											created_at: "2026-08-10T19:34:07.000Z",
+											workspace_id: "ws_unknown",
+										},
+										error: null,
+									})),
+								})),
+							};
+						}),
+					};
+				}
+				if (table === "gateway_request_details") {
+					return { insert: vi.fn(async () => ({ error: null })) };
+				}
+				throw new Error(`unexpected table ${table}`);
+			}),
+		});
+
+		await auditFailure({
+			stage: "before",
+			requestId: "req_pre_model_failure",
+			workspaceId: "ws_unknown",
+			endpoint: "responses",
+			statusCode: 401,
+			errorCode: "user:unauthorised",
+			errorMessage: "Unauthorised",
+		});
+
+		expect(gatewayRequestRows).toHaveLength(1);
+		expect(gatewayRequestRows[0]).toEqual(expect.objectContaining({
+			model_id: "unknown",
+			canonical_model_id: "unknown",
+		}));
+	});
+
 	it("keeps rollup sync independent from detail persistence failures", async () => {
 		getSupabaseAdminMock.mockReturnValue({
 			rpc: vi.fn(async () => ({ data: "v2_request_event_3", error: null })),

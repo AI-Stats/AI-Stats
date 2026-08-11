@@ -79,6 +79,14 @@
       "other_info": "inferred high-confidence family alias from qwen3-30b-a3b (score=0.4819; benches=8)",
       "source_link": "https://qwenlm.github.io/blog/qwen3/",
       "rank": 31
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 4.8,
+      "is_self_reported": false,
+      "other_info": "Qwen3 Omni 30B A3B Instruct; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/qwen3-omni-30b-a3b-instruct",
+      "rank": 487
     }
   ],
   "family_id": null,

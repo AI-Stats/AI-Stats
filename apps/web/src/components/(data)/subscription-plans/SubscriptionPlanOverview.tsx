@@ -1,7 +1,5 @@
 import type { SubscriptionPlanDetails } from "@/lib/fetchers/subscription-plans/types";
 import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import SubscriptionPlanFeaturesTable from "./SubscriptionPlanFeaturesTable";
 
 interface SubscriptionPlanOverviewProps {
@@ -18,13 +16,10 @@ export default function SubscriptionPlanOverview({
 	const recentModels = plan.models?.slice(0, 5) ?? [];
 
 	return (
-		<div className="grid gap-6 lg:grid-cols-2">
+		<div className="space-y-10">
 			{/* Features */}
-			<Card>
-				<CardHeader>
-					<CardTitle>Main Features</CardTitle>
-				</CardHeader>
-				<CardContent>
+			<section id="main-features" className="scroll-mt-36 space-y-4">
+				<h2 className="text-xl font-semibold">Main Features</h2>
 					{topFeatures.length > 0 ? (
 						<div className="space-y-3">
 							<SubscriptionPlanFeaturesTable features={topFeatures} />
@@ -42,21 +37,17 @@ export default function SubscriptionPlanOverview({
 							No features information available.
 						</p>
 					)}
-				</CardContent>
-			</Card>
+			</section>
 
 			{/* Models */}
-			<Card>
-				<CardHeader>
-					<CardTitle>Included Models</CardTitle>
-				</CardHeader>
-				<CardContent>
+			<section id="included-models" className="scroll-mt-36 space-y-4">
+				<h2 className="text-xl font-semibold">Included Models</h2>
 					{recentModels.length > 0 ? (
-						<div className="space-y-3">
+						<div className="divide-y divide-border/70 border-y border-border/70">
 							{recentModels.map((modelInfo, index) => (
 								<div
 									key={modelInfo.model_id}
-									className="flex items-center justify-between p-3 border rounded-lg"
+									className="flex items-center justify-between px-1 py-3"
 								>
 									<div className="flex-1">
 										<Link
@@ -87,8 +78,7 @@ export default function SubscriptionPlanOverview({
 							No models information available.
 						</p>
 					)}
-				</CardContent>
-			</Card>
+			</section>
 		</div>
 	);
 }

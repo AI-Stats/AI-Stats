@@ -1,17 +1,21 @@
 import { ReactNode } from "react";
 import Image from "next/image";
-import TabBar from "@/components/(data)/benchmark/BenchmarkTabs";
+import { Trophy } from "lucide-react";
 import type { BenchmarkPage } from "@/lib/fetchers/benchmarks/types";
+import EntityStickyHeader from "@/components/(data)/EntityStickyHeader";
+import ModelPageToc, { type ModelPageTocItem } from "@/components/(data)/model/ModelPageToc";
 import BenchmarkEditButton from "./edit/BenchmarkEditButton";
 
 interface BenchmarkDetailShellProps {
 	benchmark: BenchmarkPage;
 	children: ReactNode;
+	tocItems?: ModelPageTocItem[];
 }
 
 export default async function BenchmarkDetailShell({
 	benchmark,
 	children,
+	tocItems = [],
 }: BenchmarkDetailShellProps) {
 	if (!benchmark) {
 		return (
@@ -56,24 +60,24 @@ export default async function BenchmarkDetailShell({
 	}
 
 	return (
-		<main className="flex min-h-screen flex-col">
-			<div className="container mx-auto px-4 py-8">
-				<div className="mb-8 flex w-full flex-col items-center justify-between gap-2 md:flex-row md:items-start md:gap-0">
-					<div className="flex flex-col items-center gap-4 md:flex-row">
-						<div className="flex flex-col items-center justify-center md:items-start">
-							<h1 className="mb-1 text-center text-3xl font-bold md:text-left">
+		<main className="flex flex-col">
+			<EntityStickyHeader kind="benchmark" id={benchmark.id} name={benchmark.name ?? benchmark.id} observeId="benchmark-detail-primary-header" baseHref={`/benchmarks/${benchmark.id}`} navigation={[]} />
+			<div className="container mx-auto px-4 py-6 md:py-8">
+				<div id="benchmark-detail-primary-header" className="mb-6 flex w-full items-start justify-between gap-4">
+					<div className="flex min-w-0 items-center gap-4">
+						<div className="flex size-14 shrink-0 items-center justify-center rounded-md border border-border/70 bg-card/40">
+							<Trophy className="size-7 text-muted-foreground" />
+						</div>
+						<div className="min-w-0">
+							<h1 className="truncate text-3xl font-bold tracking-tight">
 								{benchmark.name ?? benchmark.id}
 							</h1>
-						</div>
-						<div className="ml-2">
-							<BenchmarkEditButton benchmarkId={benchmark.id} />
+							<p className="mt-1.5 text-sm text-muted-foreground">AI benchmark results and model performance</p>
 						</div>
 					</div>
+					<BenchmarkEditButton benchmarkId={benchmark.id} />
 				</div>
-
-				<TabBar benchmarkId={benchmark.id} />
-
-				<div className="mt-6">{children}</div>
+				<div className="mt-6 min-h-full">{tocItems.length ? <div className="flex flex-col gap-6 lg:flex-row lg:items-start"><ModelPageToc items={tocItems} className="lg:h-full lg:w-40 lg:shrink-0 xl:w-44" /><div className="min-w-0 flex-1">{children}</div></div> : children}</div>
 			</div>
 		</main>
 	);

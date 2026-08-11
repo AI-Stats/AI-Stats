@@ -87,6 +87,14 @@
       "other_info": null,
       "source_link": "https://mistral.ai/news/mistral-small-4",
       "rank": 63
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 19.7,
+      "is_self_reported": false,
+      "other_info": "Mistral Small 4 (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/mistral-small-4",
+      "rank": 240
     }
   ],
   "family_id": null,

@@ -139,6 +139,10 @@ function normalizeUuid(value: unknown): string | null {
 		: null;
 }
 
+function hasInvalidOptionalUuid(value: unknown): boolean {
+	return value !== null && value !== undefined && value !== "" && !normalizeUuid(value);
+}
+
 function normalizeAllowedText(value: unknown, allowed: ReadonlySet<string>): string | null {
 	const text = normalizeText(value, 64);
 	return text && allowed.has(text) ? text : null;
@@ -467,8 +471,13 @@ async function handleCreateFeedback(req: Request) {
 
 	const requestId = normalizeText(body.requestId ?? body.request_id, 128);
 	const sessionId = normalizeText(body.sessionId ?? body.session_id, 128);
-	const presetId = normalizeUuid(body.presetId ?? body.preset_id);
-	const testRunId = normalizeUuid(body.testRunId ?? body.test_run_id);
+	const rawPresetId = body.presetId ?? body.preset_id;
+	const rawTestRunId = body.testRunId ?? body.test_run_id;
+	if (hasInvalidOptionalUuid(rawPresetId) || hasInvalidOptionalUuid(rawTestRunId)) {
+		return json({ error: "bad_request", message: "Invalid preset or test run id" }, 400, { "Cache-Control": "no-store" });
+	}
+	const presetId = normalizeUuid(rawPresetId);
+	const testRunId = normalizeUuid(rawTestRunId);
 	if (!requestId && !sessionId && !presetId && !testRunId) {
 		return json({ error: "bad_request", message: "Feedback must target a request, session, preset, or test run" }, 400, { "Cache-Control": "no-store" });
 	}
@@ -548,7 +557,14 @@ async function handleListFeedback(req: Request) {
 	query = applyMetadataFilters(query, url);
 	query = applyDateFilters(query, dateFilters);
 	const rating = url.searchParams.get("rating")?.trim();
-	if (rating) query = query.eq("rating", rating);
+	if (rating === "unrated") {
+		query = query.is("rating", null);
+	} else if (rating) {
+		if (!FEEDBACK_RATINGS.has(rating)) {
+			return json({ error: "bad_request", message: "Unsupported feedback rating" }, 400, { "Cache-Control": "no-store" });
+		}
+		query = query.eq("rating", rating);
+	}
 
 	const { data, error } = await query;
 	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
@@ -627,8 +643,13 @@ async function handleCreateEvent(req: Request) {
 
 	const requestId = normalizeText(body.requestId ?? body.request_id, 128);
 	const sessionId = normalizeText(body.sessionId ?? body.session_id, 128);
-	const presetId = normalizeUuid(body.presetId ?? body.preset_id);
-	const testRunId = normalizeUuid(body.testRunId ?? body.test_run_id);
+	const rawPresetId = body.presetId ?? body.preset_id;
+	const rawTestRunId = body.testRunId ?? body.test_run_id;
+	if (hasInvalidOptionalUuid(rawPresetId) || hasInvalidOptionalUuid(rawTestRunId)) {
+		return json({ error: "bad_request", message: "Invalid preset or test run id" }, 400, { "Cache-Control": "no-store" });
+	}
+	const presetId = normalizeUuid(rawPresetId);
+	const testRunId = normalizeUuid(rawTestRunId);
 	const eventName = normalizeText(body.event ?? body.eventName ?? body.event_name, 128);
 	if (!eventName) return json({ error: "bad_request", message: "event name is required" }, 400, { "Cache-Control": "no-store" });
 	if (!requestId && !sessionId && !presetId && !testRunId) {
@@ -725,8 +746,13 @@ async function handleCreateTestRun(req: Request) {
 	const auth = authorized.auth;
 	const body = await requireJsonBody(req);
 	if (isResponse(body)) return body;
-	const presetId = normalizeUuid(body.presetId ?? body.preset_id);
-	const baselinePresetId = normalizeUuid(body.baselinePresetId ?? body.baseline_preset_id);
+	const rawPresetId = body.presetId ?? body.preset_id;
+	const rawBaselinePresetId = body.baselinePresetId ?? body.baseline_preset_id;
+	if (hasInvalidOptionalUuid(rawPresetId) || hasInvalidOptionalUuid(rawBaselinePresetId)) {
+		return json({ error: "bad_request", message: "Invalid preset or baseline preset id" }, 400, { "Cache-Control": "no-store" });
+	}
+	const presetId = normalizeUuid(rawPresetId);
+	const baselinePresetId = normalizeUuid(rawBaselinePresetId);
 	const presetError = await ensurePresetAccess(auth, presetId);
 	if (presetError) return presetError;
 	const baselineError = await ensurePresetAccess(auth, baselinePresetId);

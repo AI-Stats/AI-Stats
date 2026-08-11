@@ -101,7 +101,8 @@ export const logoManifest = {
 		color: "/logos/claudecode.svg",
 	},
 	cline: {
-		color: "/logos/cline.svg",
+		light: "/logos/cline_light.svg",
+		dark: "/logos/cline_dark.svg",
 	},
 	cloudflare: {
 		color: "/logos/cloudflare.svg",
@@ -177,7 +178,8 @@ export const logoManifest = {
 		color: "/logos/gitlab.svg",
 	},
 	helicone: {
-		color: "/logos/helicone.svg",
+		light: "/logos/helicone_light.svg",
+		dark: "/logos/helicone_dark.svg",
 	},
 	"google-ai-studio": {
 		light: "/logos/google-ai-studio_light.svg",
@@ -370,7 +372,8 @@ export const logoManifest = {
 		dark: "/logos/openrouter_dark.svg",
 	},
 	ollama: {
-		color: "/logos/ollama.svg",
+		light: "/logos/ollama_light.svg",
+		dark: "/logos/ollama_dark.svg",
 	},
 	openwebui: {
 		light: "/logos/openwebui_light.svg",
@@ -394,7 +397,8 @@ export const logoManifest = {
 		color: "/logos/perplexity.svg",
 	},
 	poe: {
-		color: "/logos/poe.svg",
+		light: "/logos/poe_light.svg",
+		dark: "/logos/poe_dark.svg",
 	},
 	poolside: {
 		light: "/logos/poolside_light.svg",
@@ -430,7 +434,8 @@ export const logoManifest = {
 		color: "/logos/sap.svg",
 	},
 	sarvam: {
-		color: "/logos/sarvam.svg",
+		light: "/logos/sarvam_light.svg",
+		dark: "/logos/sarvam_dark.svg",
 	},
 	scaleway: {
 		color: "/logos/scaleway.svg",
@@ -474,7 +479,8 @@ export const logoManifest = {
 		color: "/logos/together.svg",
 	},
 	tinfoil: {
-		color: "/logos/tinfoil.svg",
+		light: "/logos/tinfoil_light.svg",
+		dark: "/logos/tinfoil_dark.svg",
 	},
 	tinker: {
 		color: "/logos/tinker.svg",
@@ -489,7 +495,8 @@ export const logoManifest = {
 		color: "/logos/ovhcloud.svg",
 	},
 	v0: {
-		color: "/logos/v0.svg",
+		light: "/logos/v0_light.svg",
+		dark: "/logos/v0_dark.svg",
 	},
 	vultr: {
 		color: "/logos/vultr.svg",

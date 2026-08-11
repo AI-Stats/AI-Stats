@@ -21,6 +21,7 @@ import { irPartsToGeminiParts } from "../../google/shared/media";
 import { resolveGoogleModelCandidates } from "../../google/shared/model";
 import { applyGoogleOutputTokenFallback, applyOpenAIUsageFallback } from "../../google/shared/usage-fallback";
 import {
+	getDefaultGoogleThinkingLevel,
 	modelSupportsGoogleThinkingLevels,
 	resolveGoogleThinkingLevelForEffort,
 } from "../../google/shared/thinking";
@@ -147,12 +148,31 @@ async function irToLegacyGemini(
 	if (ir.topK !== undefined) generationConfig.topK = ir.topK;
 	if (ir.stop) generationConfig.stopSequences = Array.isArray(ir.stop) ? ir.stop : [ir.stop];
 
-	if (ir.reasoning?.enabled || ir.reasoning?.effort || ir.reasoning?.maxTokens !== undefined || ir.reasoning?.includeThoughts !== undefined) {
-		const thinkingConfig: any = { includeThoughts: ir.reasoning?.includeThoughts ?? true };
-		const modelName = modelOverride ?? ir.model;
-		if (ir.reasoning?.effort && modelSupportsGoogleThinkingLevels(modelName ?? "")) {
-			const level = resolveGoogleThinkingLevelForEffort(modelName ?? "", ir.reasoning.effort);
-			if (level) thinkingConfig.thinkingLevel = level;
+	const modelName = modelOverride ?? ir.model;
+	const supportsThinkingLevel = modelSupportsGoogleThinkingLevels(modelName ?? "");
+	const defaultThinkingLevel = getDefaultGoogleThinkingLevel(modelName ?? "");
+	const hasRequestedThinkingConfig = Boolean(
+		ir.reasoning?.enabled ||
+		ir.reasoning?.effort ||
+		ir.reasoning?.maxTokens !== undefined ||
+		ir.reasoning?.includeThoughts !== undefined,
+	);
+	if (hasRequestedThinkingConfig || defaultThinkingLevel || (supportsThinkingLevel && ir.reasoning?.enabled === false)) {
+		const explicitlyDisabled = ir.reasoning?.enabled === false || ir.reasoning?.effort === "none";
+		const thinkingConfig: any = {
+			includeThoughts: explicitlyDisabled
+				? false
+				: hasRequestedThinkingConfig
+					? ir.reasoning?.includeThoughts ?? true
+					: false,
+		};
+		if (supportsThinkingLevel) {
+			const requestedLevel = explicitlyDisabled
+				? "MINIMAL"
+				: resolveGoogleThinkingLevelForEffort(modelName ?? "", ir.reasoning?.effort)
+					?? (ir.reasoning?.enabled || Number(ir.reasoning?.maxTokens ?? 0) > 0 ? "HIGH" : undefined)
+					?? defaultThinkingLevel;
+			if (requestedLevel) thinkingConfig.thinkingLevel = requestedLevel;
 		} else if (ir.reasoning?.maxTokens !== undefined) {
 			thinkingConfig.thinkingBudget = ir.reasoning.maxTokens;
 		} else if (ir.reasoning?.enabled) {
