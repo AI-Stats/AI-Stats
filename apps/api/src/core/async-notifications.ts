@@ -1065,6 +1065,9 @@ async function sendAsyncWebhookRequest(args: {
 	const controller = new AbortController();
 	const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 	try {
+		// Deployment configs must retain global_fetch_strictly_public. That makes
+		// this connection use public Internet routing, so a rebinding answer cannot
+		// route fetch() to a zone's private origin or another same-zone Worker.
 		const response = await fetch(validatedUrl.url, {
 			method: "POST",
 			headers,
