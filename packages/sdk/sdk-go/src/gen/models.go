@@ -1991,6 +1991,7 @@ const (
 	KnownModelIdSpacexAiGrok420MultiAgentBeta0309 KnownModelId = "spacex-ai/grok-4.20-multi-agent-beta-0309"
 	KnownModelIdSpacexAiGrok43 KnownModelId = "spacex-ai/grok-4.3"
 	KnownModelIdSpacexAiGrok45 KnownModelId = "spacex-ai/grok-4.5"
+	KnownModelIdSpacexAiGrok46 KnownModelId = "spacex-ai/grok-4.6"
 	KnownModelIdSpacexAiGrokBuild01 KnownModelId = "spacex-ai/grok-build-0.1"
 	KnownModelIdSpacexAiGrokCodeFast1 KnownModelId = "spacex-ai/grok-code-fast-1"
 	KnownModelIdSpacexAiGrokImagineImage KnownModelId = "spacex-ai/grok-imagine-image"
