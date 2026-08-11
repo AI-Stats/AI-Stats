@@ -232,7 +232,7 @@ const NATIVE_DISCOVERY_PROVIDERS: ProviderConfig[] = [
 		providerId: "nano-gpt",
 		providerName: "NanoGPT",
 		modelsEndpoint: "https://nano-gpt.com/api/v1/models?detailed=true",
-		apiKeyEnv: ["NANOGPT_API_KEY"],
+		apiKeyEnv: ["NANO_GPT_API_KEY", "NANOGPT_API_KEY"],
 		authStyle: "optional_bearer",
 	},
 	{
