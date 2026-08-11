@@ -64,16 +64,12 @@ export default async function ModelPricing({
 	modelName?: string | null;
 	creatorOrganisationId?: string | null;
 }) {
-	const showAdminPricingControls = await withOptionalTimeout(
-		isAdminViewer(),
-		false,
-		"admin viewer check"
-	);
-	const [providers, identity] = await Promise.all([
+	const [providers, identity, showAdminPricingControls] = await Promise.all([
 		fetchFrontendModelPricing(modelId),
 		modelStatus !== undefined
 			? Promise.resolve({ status: modelStatus, name: modelName ?? null, organisationId: creatorOrganisationId ?? null })
 			: fetchFrontendModelHeader(modelId, includeHidden).then((header) => ({ status: header?.status ?? null, name: header?.name ?? null, organisationId: header?.organisation_id ?? null })),
+		withOptionalTimeout(isAdminViewer(), false, "admin viewer check"),
 	]);
 	const workspacePrivacySettings: WorkspacePrivacySettings | null =
 		await withOptionalTimeout(
