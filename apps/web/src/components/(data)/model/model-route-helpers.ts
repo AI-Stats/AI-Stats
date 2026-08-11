@@ -13,7 +13,7 @@ import {
 	FREE_ROUTER_NAME,
 	isFreeRouterModelId,
 } from "@/lib/models/freeRouter";
-import { decodeModelRouteSegment } from "@/lib/models/modelHref";
+import { decodeModelRouteSegment, getModelDetailsHref } from "@/lib/models/modelHref";
 
 export type ModelRouteParams = {
 	organisationId: string;
@@ -25,7 +25,8 @@ export function getModelIdFromParams(params: ModelRouteParams): string {
 }
 
 export function getModelPath(modelId: string, tab?: string): string {
-	return tab ? `/models/${modelId}/${tab}` : `/models/${modelId}`;
+	const href = getModelDetailsHref(null, modelId) ?? `/models/${modelId}`;
+	return tab ? `${href}/${tab}` : href;
 }
 
 export function getModelSectionPath(modelId: string, sectionId: string): string {
