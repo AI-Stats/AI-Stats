@@ -501,4 +501,5 @@ export type UsageUpstreamRequestRow = {
 	metadata: unknown;
 };
 type UsageUpstreamPayload = { availableKeys: Array<{ id: string; name: string | null; prefix: string | null }>; modelMetadataEntries: Array<[string, any]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]>; upstreamRequests: UsageUpstreamRequestRow[] };
-export type SettingsUsageLogsInitialData = { signedIn: boolean; workspaceId: string | null } & ({ view: "logs"; data: UsageLogsPayload | null } | { view: "upstream"; data: UsageUpstreamPayload | null } | { view: "jobs"; data: UsageJobsPayload | null } | { view: "sessions"; data: UsageSessionsPayload | null });
+export type SettingsUsageLogsLoadState = "ready" | "unauthorized" | "no_workspace" | "forbidden" | "failed";
+export type SettingsUsageLogsInitialData = { signedIn: boolean; workspaceId: string | null; loadState?: SettingsUsageLogsLoadState } & ({ view: "logs"; data: UsageLogsPayload | null } | { view: "upstream"; data: UsageUpstreamPayload | null } | { view: "jobs"; data: UsageJobsPayload | null } | { view: "sessions"; data: UsageSessionsPayload | null });
