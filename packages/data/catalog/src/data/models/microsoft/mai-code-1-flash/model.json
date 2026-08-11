@@ -2,11 +2,11 @@
   "model_id": "microsoft/mai-code-1-flash",
   "organisation_id": "microsoft",
   "name": "MAI Code 1 Flash",
-  "status": "Announced",
+  "status": "Available",
   "previous_model_id": null,
-  "description": "MAI Code 1 Flash is Microsoft's inference-efficient agentic coding model, tailored for GitHub Copilot, VS Code, and Microsoft developer workflows. This entry tracks the Build 2026 launch announcement.",
+  "description": "MAI Code 1 Flash is Microsoft's inference-efficient agentic coding model, tailored for GitHub Copilot and Microsoft developer workflows.",
   "announced_date": "2026-06-02T00:00:00",
-  "release_date": null,
+  "release_date": "2026-06-02T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
@@ -19,6 +19,11 @@
       "title": "Announcement",
       "kind": "announcement",
       "url": "https://microsoft.ai/news/introducingmai-code-1-flash/"
+    },
+    {
+      "title": "GitHub Copilot Availability",
+      "kind": "documentation",
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models"
     }
   ],
   "details": [
@@ -28,7 +33,7 @@
     },
     {
       "name": "availability",
-      "value": "Microsoft announced MAI Code 1 Flash as deeply integrated into GitHub Copilot and VS Code rather than as a broadly documented standalone API."
+      "value": "Available in GitHub Copilot. No standalone API availability is documented."
     }
   ],
   "benchmarks": [],
@@ -41,12 +46,8 @@
     "output": null
   },
   "modalities": {
-    "input": [
-      "text"
-    ],
-    "output": [
-      "text"
-    ]
+    "input": ["text"],
+    "output": ["text"]
   },
   "reasoning": {
     "supported": null,
@@ -65,14 +66,20 @@
     {
       "kind": "announcement",
       "url": "https://microsoft.ai/news/introducingmai-code-1-flash/",
-      "accessed_at": null,
-      "notes": null
+      "accessed_at": "2026-08-11T00:00:00",
+      "notes": "Microsoft states that the model rolled out through GitHub Copilot."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "accessed_at": "2026-08-11T00:00:00",
+      "notes": "GitHub lists MAI-Code-1-Flash as generally available in Copilot."
     }
   ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-11T00:00:00",
+    "notes": "Release and Copilot availability verified against Microsoft and GitHub documentation; no API provider listing was found."
   },
   "last_updated": null,
   "removal_date": null,
