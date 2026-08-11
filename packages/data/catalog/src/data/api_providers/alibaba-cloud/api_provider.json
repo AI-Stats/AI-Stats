@@ -7,6 +7,7 @@
   "default_execution_regions": null,
   "default_data_regions": null,
   "zero_data_retention": "unknown",
+  "data_retention_days": 0,
   "residency_source_url": "https://www.alibabacloud.com/help/en/model-studio/regions/",
   "residency_notes": "Model Studio's selected region determines the access point and data-storage location, while the service deployment scope determines inference execution. Documented regions include China (Beijing), Singapore, Germany (Frankfurt), Japan (Tokyo), China (Hong Kong), and the US (Virginia); deployment scopes include Global, International, China mainland, China (Hong Kong), US, EU, and Japan. The regional documentation does not make a Zero Data Retention commitment, so retention should be treated as unknown.",
   "data_policy_tier": "private",

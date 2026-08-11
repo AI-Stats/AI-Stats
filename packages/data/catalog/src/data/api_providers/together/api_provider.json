@@ -7,6 +7,7 @@
   "default_execution_regions": null,
   "default_data_regions": null,
   "zero_data_retention": "optional",
+  "data_retention_days": 0,
   "residency_source_url": "https://docs.together.ai/docs/privacy-and-security",
   "residency_notes": "Together's serverless endpoints do not offer region selection. Enterprise and dedicated deployments can support EU-region data residency and private networking. Passthrough models are governed by the upstream provider's data policy, so no single residency guarantee should be inferred for those routes.",
   "data_policy_tier": "trains",

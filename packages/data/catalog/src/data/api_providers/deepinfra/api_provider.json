@@ -7,6 +7,7 @@
   "default_execution_regions": null,
   "default_data_regions": null,
   "zero_data_retention": "unknown",
+  "data_retention_days": 0,
   "residency_source_url": "https://docs.deepinfra.com/account/data-privacy",
   "residency_notes": "DeepInfra documents memory-only handling for standard inference but does not specify a customer-selectable data or execution region or a named account-level Zero Data Retention control. Bulk inference may use encrypted disk temporarily, image outputs may be retained briefly, and Google/Anthropic upstream policies can apply.",
   "data_policy_tier": "private",
