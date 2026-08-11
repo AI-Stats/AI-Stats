@@ -104,6 +104,31 @@ describe("official pricing extraction", () => {
 		}]);
 	});
 
+	test("extracts Cloudflare Workers AI token and audio pricing", () => {
+		expect(extractOfficialPricing("cloudflare", `
+			<table>
+				<tr><th>Model</th><th>Price in Tokens</th><th>Price in Neurons</th></tr>
+				<tr><td>@cf/example/text</td><td>$0.10 per M input tokens $0.20 per M cached input tokens $0.30 per M output tokens</td><td></td></tr>
+			</table>
+			<table>
+				<tr><th>Model</th><th>Price in Tokens</th><th>Price in Neurons</th></tr>
+				<tr><td>@cf/example/whisper</td><td>$0.0005 per audio minute</td><td></td></tr>
+			</table>
+		`)).toEqual([
+			{
+				providerModel: "example/text",
+				capabilityId: "text.generate",
+				meters: { input_text_tokens: 0.1, cached_read_text_tokens: 0.2, output_text_tokens: 0.3 },
+			},
+			{
+				providerModel: "example/whisper",
+				capabilityId: "audio.transcribe",
+				meters: { input_audio_minutes: 0.0005 },
+				ruleOptions: { input_audio_minutes: { unit: "minute", unitSize: 1 } },
+			},
+		]);
+	});
+
 	test("extracts W&B hosted model pricing", () => {
 		expect(extractOfficialPricing("weights-and-biases", `
 			<table data-compare="header-table">
