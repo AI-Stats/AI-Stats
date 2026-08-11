@@ -3964,7 +3964,7 @@ function ChatPlaygroundContent({
 			setTemporaryMode(true);
 			setTemporaryThread({
 				id: TEMP_CHAT_ID,
-				sessionId: generateId(),
+				sessionId: crypto.randomUUID(),
 				title: "Temporary chat",
 				titleLocked: true,
 				modelId: activeThread?.modelId ?? defaultModelId,
