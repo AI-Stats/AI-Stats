@@ -6,10 +6,10 @@
   "capability_id": "text.generate",
   "rules": [
     {
-      "meter": "input_text_tokens",
+      "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 1.65,
+      "price_per_unit": 0.20599999200000002,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Verified from DeepInfra's live model API on 2026-08-03.",
@@ -22,10 +22,10 @@
       "source": "https://api.deepinfra.com/models/Qwen/Qwen3.8-Max"
     },
     {
-      "meter": "cached_read_text_tokens",
+      "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.206,
+      "price_per_unit": 1.6500000000000001,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Verified from DeepInfra's live model API on 2026-08-03.",
@@ -41,7 +41,7 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 4.951,
+      "price_per_unit": 4.9510000000000005,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Verified from DeepInfra's live model API on 2026-08-03.",
@@ -65,8 +65,8 @@
     }
   ],
   "verification": {
-    "status": "verified",
-    "checked_at": "2026-08-03T00:00:00Z",
-    "notes": "DeepInfra API reports 0.000165 cents per input token, 0.0004951 cents per output token, and a cached-input multiplier of 0.12484848."
+    "status": "partial",
+    "checked_at": "2026-08-11T04:15:56.347+00:00",
+    "notes": "Pricing synchronized from the provider models API."
   }
 }
