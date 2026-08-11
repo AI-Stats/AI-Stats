@@ -49,6 +49,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: baidu/ernie-4.5-21b-a3b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -108,6 +114,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: baidu/ernie-4.5-21b-a3b-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -167,6 +179,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: baidu/ernie-4.5-vl-28b-a3b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -226,6 +244,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: baidu/ernie-4.5-vl-28b-a3b-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -285,6 +309,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: baidu/ernie-4.5-vl-424b-a47b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -344,6 +374,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-ocr"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -403,6 +439,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-ocr-2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -462,12 +504,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-prover-v2-671b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-r1",
+    "provider_api_model_id": "novita-ai:deepseek/deepseek-r1",
+    "provider_model_slug": "deepseek/deepseek-r1",
+    "internal_model_id": "deepseek/deepseek-r1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 16000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -521,6 +628,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-r1-distill-llama-70b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -580,6 +693,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-r1-distill-qwen-32b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -639,6 +758,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-r1-turbo"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -698,6 +823,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v3-turbo"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -757,6 +888,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v3.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -816,6 +953,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v3.1-terminus"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -875,6 +1018,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v3.2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -934,6 +1083,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v3.2-exp"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -993,12 +1148,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v4-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "novita-ai:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek/deepseek-v4-flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 393216,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1052,6 +1272,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v4-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1111,12 +1337,136 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: inclusionai/ling-2.6-1t"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-3.0-flash",
+    "provider_api_model_id": "novita-ai:inclusionai/ling-3.0-flash",
+    "provider_model_slug": "inclusionai/ling-3.0-flash",
+    "internal_model_id": "inclusionai/ling-3.0-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-3.0-tiny",
+    "provider_api_model_id": "novita-ai:inclusionai/ling-3.0-tiny",
+    "provider_model_slug": "inclusionai/ling-3.0-tiny",
+    "internal_model_id": "inclusionai/ling-3.0-tiny",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1170,12 +1520,136 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: kwaipilot/kat-coder-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "mindai/macaron-v1-tall",
+    "provider_api_model_id": "novita-ai:mindai/macaron-v1-tall",
+    "provider_model_slug": "mindai/macaron-v1-tall",
+    "internal_model_id": "mindai/macaron-v1-tall",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "mindai/macaron-v1-venti",
+    "provider_api_model_id": "novita-ai:mindai/macaron-v1-venti",
+    "provider_model_slug": "mindai/macaron-v1-venti",
+    "internal_model_id": "mindai/macaron-v1-venti",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 131072,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1229,6 +1703,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1288,6 +1768,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1347,6 +1833,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1406,6 +1898,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.5-highspeed"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1465,12 +1963,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.7"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m3",
+    "provider_api_model_id": "novita-ai:minimax/minimax-m3",
+    "provider_model_slug": "minimax/minimax-m3",
+    "internal_model_id": "minimax/minimax-m3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 131072,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1524,6 +2087,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: mistralai/mistral-nemo"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1583,6 +2152,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1642,6 +2217,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1701,6 +2282,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1760,6 +2347,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2.7-code"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1819,12 +2412,136 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k3"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nex-agi/nex-n2-pro",
+    "provider_api_model_id": "novita-ai:nex-agi/nex-n2-pro",
+    "provider_model_slug": "nex-agi/nex-n2-pro",
+    "internal_model_id": "nex-agi/nex-n2-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 262144,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/nemotron-3-nano-30b-a3b",
+    "provider_api_model_id": "novita-ai:nvidia/nemotron-3-nano-30b-a3b",
+    "provider_model_slug": "nvidia/nemotron-3-nano-30b-a3b",
+    "internal_model_id": "nvidia/nemotron-3-nano-30b-a3b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1878,6 +2595,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-oss-120b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1937,6 +2660,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-oss-20b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1996,6 +2725,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen-mt-plus"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2055,6 +2790,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-235b-a22b-thinking-2507"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2114,6 +2855,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-coder-next"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2173,6 +2920,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-max"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2232,6 +2985,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-next-80b-a3b-instruct"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2291,6 +3050,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-next-80b-a3b-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2350,6 +3115,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-omni-30b-a3b-instruct"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2409,6 +3180,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-omni-30b-a3b-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2468,6 +3245,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-vl-235b-a22b-instruct"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2527,6 +3310,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-vl-235b-a22b-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2586,6 +3375,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-vl-30b-a3b-instruct"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2645,6 +3440,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-vl-30b-a3b-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2704,6 +3505,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-vl-8b-instruct"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2763,6 +3570,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-122b-a10b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2822,6 +3635,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-27b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2881,6 +3700,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-35b-a3b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2940,12 +3765,254 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-397b-a17b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-plus",
+    "provider_api_model_id": "novita-ai:qwen/qwen3.5-plus",
+    "provider_model_slug": "qwen/qwen3.5-plus",
+    "internal_model_id": "qwen/qwen3.5-plus",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-27b",
+    "provider_api_model_id": "novita-ai:qwen/qwen3.6-27b",
+    "provider_model_slug": "qwen/qwen3.6-27b",
+    "internal_model_id": "qwen/qwen3.6-27b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-35b-a3b",
+    "provider_api_model_id": "novita-ai:qwen/qwen3.6-35b-a3b",
+    "provider_model_slug": "qwen/qwen3.6-35b-a3b",
+    "internal_model_id": "qwen/qwen3.6-35b-a3b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-plus",
+    "provider_api_model_id": "novita-ai:qwen/qwen3.6-plus",
+    "provider_model_slug": "qwen/qwen3.6-plus",
+    "internal_model_id": "qwen/qwen3.6-plus",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -2999,12 +4066,195 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.7-max"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-max",
+    "provider_api_model_id": "novita-ai:qwen/qwen3.8-max",
+    "provider_model_slug": "qwen/qwen3.8-max",
+    "internal_model_id": "qwen/qwen3.8-max",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 131072,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "stepfun/step-3.7-flash",
+    "provider_api_model_id": "novita-ai:stepfun/step-3.7-flash",
+    "provider_model_slug": "stepfun/step-3.7-flash",
+    "internal_model_id": "stepfun/step-3.7-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 256000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "tencent/hy3",
+    "provider_api_model_id": "novita-ai:tencent/hy3",
+    "provider_model_slug": "tencent/hy3",
+    "internal_model_id": "tencent/hy3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 262144,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/models",
+        "accessed_at": "2026-08-11T12:20:01.773Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:20:01.773Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   }
