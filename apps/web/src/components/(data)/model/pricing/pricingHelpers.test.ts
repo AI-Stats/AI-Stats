@@ -127,18 +127,15 @@ function makeProviderPricing(): ProviderPricing {
 }
 
 describe("buildProviderSections", () => {
-	test("keeps two conditional context prices in the provider table summary", () => {
+	test("shows only the base conditional context price in the provider table summary", () => {
 		const sections = buildProviderSections(makeProviderPricing(), "standard", new Date("2026-02-01T00:00:00.000Z"));
 		const summary = buildProviderTablePriceSummary(sections, "input");
 
 		expect(summary.primary).toMatchObject({
-			label: "≤ 272k",
+			label: "text",
 			price: 5,
 		});
-		expect(summary.secondary).toMatchObject({
-			label: "> 272k",
-			price: 10,
-		});
+		expect(summary.secondary).toBeNull();
 		expect(summary.extraCount).toBe(0);
 	});
 
