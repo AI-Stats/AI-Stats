@@ -9,7 +9,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 256000,
-    "max_output_tokens": null,
+    "max_output_tokens": 4096,
     "effective_from": "2025-07-03T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -105,7 +105,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 256000,
-    "max_output_tokens": null,
+    "max_output_tokens": 4096,
     "effective_from": "2026-01-08T00:00:00",
     "effective_to": null,
     "capabilities": [
