@@ -35,7 +35,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Plus, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 
 import {
 	type PromptInjectionAction,
@@ -130,15 +130,17 @@ function countEnabledSensitiveInfoRules(
 }
 
 type Props = {
+	canManageGuardrails: boolean;
 	providers: ProviderOption[];
 	activeProviderModels: ActiveProviderModel[];
 	keys: KeyOption[];
 	guardrails: GuardrailRow[];
 	guardrailKeyIdsByGuardrailId: Record<string, string[]>;
+	guardrailMemberIdsByGuardrailId: Record<string, string[]>;
 };
 
 export default function GuardrailsSettingsClient(props: Props) {
-	const { providers, activeProviderModels, keys, guardrails, guardrailKeyIdsByGuardrailId } =
+	const { providers, activeProviderModels, keys, guardrails, guardrailKeyIdsByGuardrailId, guardrailMemberIdsByGuardrailId } =
 		props;
 
 	const providerLabelById = useMemo(() => {
@@ -149,11 +151,13 @@ export default function GuardrailsSettingsClient(props: Props) {
 
 	return (
 		<GuardrailsSection
+			canManageGuardrails={props.canManageGuardrails}
 			providers={providers}
 			activeProviderModels={activeProviderModels}
 			keys={keys}
 			guardrails={guardrails}
 			guardrailKeyIdsByGuardrailId={guardrailKeyIdsByGuardrailId}
+			guardrailMemberIdsByGuardrailId={guardrailMemberIdsByGuardrailId}
 			providerLabelById={providerLabelById}
 		/>
 	);
@@ -273,12 +277,13 @@ function SelectionDialog(props: {
 				</div>
 				<DialogFooter className="gap-2 sm:gap-0">
 					<DialogClose asChild>
-						<Button type="button" variant="outline">
+						<Button type="button" variant="outline" className="rounded-md">
 							Cancel
 						</Button>
 					</DialogClose>
 					<Button
 						type="button"
+						className="rounded-md"
 						onClick={() => {
 							props.onChange(uniqStrings(draft));
 							setOpen(false);
@@ -313,30 +318,17 @@ function parseInteger(value: string): number | null | undefined {
 }
 
 function GuardrailsSection(props: {
+	canManageGuardrails: boolean;
 	providers: ProviderOption[];
 	activeProviderModels: ActiveProviderModel[];
 	keys: KeyOption[];
 	guardrails: GuardrailRow[];
 	guardrailKeyIdsByGuardrailId: Record<string, string[]>;
+	guardrailMemberIdsByGuardrailId: Record<string, string[]>;
 	providerLabelById: Map<string, string>;
 }) {
 	return (
 		<div className="space-y-3">
-			<div className="flex flex-wrap items-start justify-between gap-3">
-				<div className="space-y-1">
-					<h2 className="text-sm font-semibold tracking-tight">Guardrails</h2>
-					<p className="text-sm text-muted-foreground">
-						Additional restrictions you can apply to one or more API keys.
-					</p>
-				</div>
-				<Button asChild type="button">
-					<Link href="/settings/guardrails/new">
-						<Plus className="mr-2 h-4 w-4" />
-						New guardrail
-					</Link>
-				</Button>
-			</div>
-
 			{props.guardrails.length ? (
 				<div className="overflow-hidden rounded-xl border bg-background">
 					<div className="divide-y">
@@ -348,6 +340,7 @@ function GuardrailsSection(props: {
 								activeProviderModels={props.activeProviderModels}
 								keys={props.keys}
 								keyIds={props.guardrailKeyIdsByGuardrailId[g.id] ?? []}
+								memberIds={props.guardrailMemberIdsByGuardrailId[g.id] ?? []}
 								providerLabelById={props.providerLabelById}
 							/>
 						))}
@@ -361,7 +354,7 @@ function GuardrailsSection(props: {
 						</EmptyMedia>
 						<EmptyTitle>No guardrails yet</EmptyTitle>
 						<EmptyDescription>
-							Create one to restrict models/providers and set budgets per key group.
+							Create one to restrict models and providers for members or API keys.
 						</EmptyDescription>
 					</EmptyHeader>
 				</Empty>
@@ -376,6 +369,7 @@ function GuardrailCard(props: {
 	activeProviderModels: ActiveProviderModel[];
 	keys: KeyOption[];
 	keyIds: string[];
+	memberIds: string[];
 	providerLabelById: Map<string, string>;
 }) {
 	const mode = normalizeMode(props.guardrail.provider_restriction_mode);
@@ -447,6 +441,11 @@ function GuardrailCard(props: {
 					)}
 
 					<div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+						<span className="inline-flex items-center gap-2 rounded-md border bg-background px-2 py-1">
+							<span className="font-medium text-foreground">Members</span>
+							<span>{props.memberIds.length}</span>
+						</span>
+
 						<span className="inline-flex items-center gap-2 rounded-md border bg-background px-2 py-1">
 							<span className="font-medium text-foreground">
 								Keys

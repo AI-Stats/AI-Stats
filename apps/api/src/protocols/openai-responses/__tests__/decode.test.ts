@@ -522,6 +522,16 @@ describe("decodeOpenAIResponsesRequest", () => {
 		expect(ir.vendor?.meta).toBeUndefined();
 	});
 
+	it("preserves minimal from nested reasoning effort", () => {
+		const ir = decodeOpenAIResponsesRequest({
+			model: "google/gemma-4-31b:free",
+			input: "Hello",
+			reasoning: { effort: "minimal" },
+		});
+
+		expect(ir.reasoning?.effort).toBe("minimal");
+	});
+
 	it("should omit empty reasoning object", () => {
 		const request = {
 			model: "gpt-4",

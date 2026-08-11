@@ -34,7 +34,16 @@
       "value": "AI Studio describes Gemini 3.6 Flash as balancing speed with intelligence for agentic and multimodal tasks."
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 51.6,
+      "is_self_reported": false,
+      "other_info": "Gemini 3.6 Flash (high); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gemini-3-6-flash",
+      "rank": 28
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

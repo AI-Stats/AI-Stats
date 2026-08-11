@@ -6,6 +6,8 @@ import { withPublicCache } from "@/http/cache";
 const LIVE_CACHE = { edgeTtlSeconds: 15 * 60, staleWhileRevalidateSeconds: 15 * 60, cacheTags: ["web-api-rankings"] } as const;
 const META_CACHE = { edgeTtlSeconds: 60 * 60, staleWhileRevalidateSeconds: 24 * 60 * 60, cacheTags: ["web-api-ranking-metadata"] } as const;
 
+const RANKING_BENCHMARK_IDS = ["aa-intelligence-index-v4"] as const;
+
 function bounded(value: string | undefined, fallback: number, max: number) {
 	const parsed = Math.round(Number(value));
 	return Number.isFinite(parsed) ? Math.max(1, Math.min(max, parsed)) : fallback;
@@ -20,6 +22,20 @@ export const publicRankingsRouter = new Hono<{ Bindings: Env }>();
 publicRankingsRouter.get("/rankings/performance", async (c) => {
 	try { const { data, error } = await getDataClient(c.env).rpc("get_public_model_performance", { p_hours: bounded(c.req.query("hours"), 24, 24 * 30) }); if (error) throw error; return withPublicCache(c.json({ data: data ?? [] }), LIVE_CACHE); }
 	catch (error) { console.error("[web-api/rankings] performance failed", error); return c.json({ error: "ranking_performance_unavailable" }, 503); }
+});
+
+publicRankingsRouter.get("/rankings/fastest-models", async (c) => {
+	try {
+		const { data, error } = await getDataClient(c.env).rpc("get_public_fastest_models", {
+			p_days: bounded(c.req.query("days"), 30, 365),
+			p_limit: bounded(c.req.query("limit"), 20, 100),
+		});
+		if (error) throw error;
+		return withPublicCache(c.json({ data: data ?? [] }), LIVE_CACHE);
+	} catch (error) {
+		console.error("[web-api/rankings] fastest models failed", error);
+		return c.json({ error: "ranking_fastest_models_unavailable" }, 503);
+	}
 });
 
 publicRankingsRouter.get("/rankings/market-share", async (c) => {
@@ -49,11 +65,161 @@ publicRankingsRouter.get("/rankings/modality-timeseries", async (c) => {
 	catch (error) { console.error("[web-api/rankings] modality series failed", error); return c.json({ error: "modality_timeseries_unavailable" }, 503); }
 });
 
+publicRankingsRouter.get("/rankings/text-leaderboard", async (c) => {
+	try {
+		const { data, error } = await getDataClient(c.env).rpc("get_public_text_leaderboard_timeseries", {
+			p_time_range: c.req.query("time_range") || "year",
+			p_top_n: bounded(c.req.query("top_n"), 20, 100),
+		});
+		if (error) throw error;
+		return withPublicCache(c.json({ data: data ?? [] }), LIVE_CACHE);
+	} catch (error) {
+		console.error("[web-api/rankings] text leaderboard failed", error);
+		return c.json({ error: "ranking_text_leaderboard_unavailable" }, 503);
+	}
+});
+
+publicRankingsRouter.get("/rankings/image-inputs", async (c) => {
+	try {
+		const { data, error } = await getDataClient(c.env).rpc("get_public_image_input_timeseries", {
+			p_time_range: c.req.query("time_range") || "year",
+			p_top_n: bounded(c.req.query("top_n"), 20, 100),
+		});
+		if (error) throw error;
+		return withPublicCache(c.json({ data: data ?? [] }), LIVE_CACHE);
+	} catch (error) {
+		console.error("[web-api/rankings] image inputs failed", error);
+		return c.json({ error: "ranking_image_inputs_unavailable" }, 503);
+	}
+});
+
 publicRankingsRouter.get("/rankings/unique-users", async (c) => {
 	try { const { data, error } = await getDataClient(c.env).rpc("get_public_unique_user_timeseries", { p_time_range: c.req.query("time_range") || "year", p_bucket_size: c.req.query("bucket_size") || "week", p_top_n: bounded(c.req.query("top_n"), 10, 100) }); if (error) throw error; return withPublicCache(c.json({ data: data ?? [] }), LIVE_CACHE); }
 	catch (error) { console.error("[web-api/rankings] unique users failed", error); return c.json({ error: "unique_users_unavailable" }, 503); }
 });
 
+publicRankingsRouter.get("/rankings/tool-calls", async (c) => {
+	try {
+		const { data, error } = await getDataClient(c.env).rpc(
+			"get_public_tool_call_timeseries",
+			{
+				p_time_range: c.req.query("time_range") || "year",
+				p_bucket_size: c.req.query("bucket_size") || "week",
+				p_top_n: bounded(c.req.query("top_n"), 10, 100),
+			},
+		);
+		if (error) throw error;
+		return withPublicCache(c.json({ data: data ?? [] }), LIVE_CACHE);
+	} catch (error) {
+		console.error("[web-api/rankings] tool calls failed", error);
+		return c.json({ error: "tool_call_rankings_unavailable" }, 503);
+	}
+});
+
+publicRankingsRouter.get("/rankings/benchmarks", async (c) => {
+	try {
+		const client = getDataClient(c.env);
+		const [benchmarkResult, scoreResult] = await Promise.all([
+			client
+				.from("v2_benchmarks")
+				.select("benchmark_id,name,category,ascending_order,benchmark_type,total_models")
+				.in("benchmark_id", [...RANKING_BENCHMARK_IDS]),
+			client
+				.from("v2_benchmark_results")
+				.select("benchmark_id,model_slug,score_numeric,rank")
+				.in("benchmark_id", [...RANKING_BENCHMARK_IDS])
+				.not("score_numeric", "is", null)
+				.limit(2_000),
+		]);
+		if (benchmarkResult.error) throw benchmarkResult.error;
+		if (scoreResult.error) throw scoreResult.error;
+
+		const modelIds = [...new Set((scoreResult.data ?? []).map((row) => row.model_slug).filter(Boolean))];
+		const modelsResult = modelIds.length
+			? await client
+					.from("v2_models")
+					.select("model_slug,name,lab_slug,lab:v2_labs!v2_models_lab_slug_fkey(name)")
+					.in("model_slug", modelIds)
+					.eq("hidden", false)
+			: { data: [], error: null };
+		if (modelsResult.error) throw modelsResult.error;
+		const models = new Map((modelsResult.data ?? []).map((row) => {
+			const lab = Array.isArray(row.lab) ? row.lab[0] : row.lab;
+			return [row.model_slug, {
+				model_name: row.name ?? row.model_slug,
+				organisation_id: row.lab_slug ?? null,
+				organisation_name: lab?.name ?? row.lab_slug ?? null,
+			}];
+		}));
+		const order = new Map(RANKING_BENCHMARK_IDS.map((id, index) => [id, index]));
+		const benchmarks = (benchmarkResult.data ?? [])
+			.sort((left, right) => (order.get(left.benchmark_id) ?? 99) - (order.get(right.benchmark_id) ?? 99))
+			.map((benchmark) => {
+				const lowerIsBetter = benchmark.ascending_order === true;
+				const bestByModel = new Map<string, { score: number; rank: number | null }>();
+				for (const row of scoreResult.data ?? []) {
+					if (row.benchmark_id !== benchmark.benchmark_id || !models.has(row.model_slug)) continue;
+					const score = Number(row.score_numeric);
+					if (!Number.isFinite(score)) continue;
+					const previous = bestByModel.get(row.model_slug);
+					if (!previous || (lowerIsBetter ? score < previous.score : score > previous.score)) {
+						bestByModel.set(row.model_slug, { score, rank: row.rank ?? null });
+					}
+				}
+				const entries = [...bestByModel.entries()]
+					.map(([modelId, result]) => ({ model_id: modelId, ...models.get(modelId), ...result }))
+					.sort((left, right) => lowerIsBetter ? left.score - right.score : right.score - left.score)
+					.map((entry, index) => ({ ...entry, rank: index + 1 }));
+				return {
+					benchmark_id: benchmark.benchmark_id,
+					name: benchmark.name,
+					category: benchmark.category,
+					benchmark_type: benchmark.benchmark_type,
+					lower_is_better: lowerIsBetter,
+					total_models: benchmark.total_models,
+					entries,
+				};
+			});
+		return withPublicCache(c.json({ benchmarks }), META_CACHE);
+	} catch (error) {
+		console.error("[web-api/rankings] benchmarks failed", error);
+		return c.json({ error: "ranking_benchmarks_unavailable" }, 503);
+	}
+});
+
+
+publicRankingsRouter.get("/rankings/intelligence-index", async (c) => {
+	try {
+		const { data, error } = await getDataClient(c.env).rpc(
+			"get_public_intelligence_index",
+			{ p_limit: bounded(c.req.query("limit"), 20, 100) },
+		);
+		if (error) throw error;
+		const rows = data ?? [];
+		const first = rows[0] ?? null;
+		return withPublicCache(c.json({
+			benchmark: first ? {
+				benchmark_id: first.benchmark_id,
+				name: first.benchmark_name,
+				category: first.category,
+				benchmark_type: first.benchmark_type,
+				lower_is_better: false,
+				total_models: Number(first.total_models ?? rows.length),
+				entries: rows.map((row) => ({
+					model_id: row.model_id,
+					model_name: row.model_name,
+					organisation_id: row.organisation_id,
+					organisation_name: row.organisation_name,
+					score: Number(row.score),
+					rank: Number(row.rank),
+				})),
+			} : null,
+		}), META_CACHE);
+	} catch (error) {
+		console.error("[web-api/rankings] intelligence index failed", error);
+		return c.json({ error: "ranking_intelligence_index_unavailable" }, 503);
+	}
+});
 
 publicRankingsRouter.get("/rankings/geography", async (c) => {
 	const days = bounded(c.req.query("days"), 30, 365);
@@ -63,14 +229,71 @@ publicRankingsRouter.get("/rankings/geography", async (c) => {
 		const { data, error } = await getDataClient(c.env).rpc("get_public_geography_usage", {
 			p_from: from.toISOString(),
 			p_to: to.toISOString(),
-			p_min_requests: 100,
-			p_min_workspaces: 3,
+			p_min_requests: 1,
+			p_min_workspaces: 1,
 		});
 		if (error) throw error;
 		return withPublicCache(c.json({ data: data ?? [], days }), LIVE_CACHE);
 	} catch (error) {
 		console.error("[web-api/rankings] geography failed", error);
 		return c.json({ error: "ranking_geography_unavailable" }, 503);
+	}
+});
+
+publicRankingsRouter.get("/rankings/context-lengths", async (c) => {
+	const days = bounded(c.req.query("days"), 30, 365);
+	try {
+		const { data, error } = await getDataClient(c.env).rpc(
+			"get_public_context_length_distribution",
+			{
+				p_days: days,
+				p_min_requests: 1,
+				p_min_workspaces: 1,
+			},
+		);
+		if (error) throw error;
+		return withPublicCache(c.json({ data: data ?? [], days }), LIVE_CACHE);
+	} catch (error) {
+		console.error("[web-api/rankings] context lengths failed", error);
+		return c.json({ error: "ranking_context_lengths_unavailable" }, 503);
+	}
+});
+
+publicRankingsRouter.get("/rankings/top-apps", async (c) => {
+	const timeRange = c.req.query("time_range")?.trim() || "week";
+	const limit = bounded(c.req.query("limit"), 20, 100);
+	try {
+		const client = getDataClient(c.env);
+		const { data, error } = await client.rpc("get_public_top_apps", {
+			p_time_range: timeRange,
+			p_limit: limit,
+		});
+		if (error) throw error;
+		const rows = (data ?? []) as Array<Record<string, unknown>>;
+		const unresolved = rows
+			.filter((row) => !String(row.app_name ?? "").trim())
+			.map((row) => String(row.app_id ?? "").trim())
+			.filter(Boolean);
+		const names = new Map<string, string>();
+		if (unresolved.length) {
+			const apps = await client
+				.from("api_apps")
+				.select("id,title")
+				.in("id", [...new Set(unresolved)])
+				.eq("is_public", true);
+			if (apps.error) throw apps.error;
+			for (const app of apps.data ?? []) names.set(app.id, String(app.title ?? app.id));
+		}
+		const resolved = rows.map((row) => ({
+			...row,
+			app_name: String(row.app_name ?? "").trim()
+				|| names.get(String(row.app_id ?? "").trim())
+				|| String(row.app_id ?? "").trim(),
+		}));
+		return withPublicCache(c.json({ data: resolved }), LIVE_CACHE);
+	} catch (error) {
+		console.error("[web-api/rankings] top apps failed", error);
+		return c.json({ error: "ranking_top_apps_unavailable" }, 503);
 	}
 });
 

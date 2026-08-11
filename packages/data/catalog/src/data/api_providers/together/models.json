@@ -1476,5 +1476,96 @@
       "notes": "Together documents Kimi K3 as live on serverless and dedicated infrastructure with native vision, JSON mode and function calling."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "meta/muse-glimmer-30b",
+    "provider_api_model_id": "together:meta/muse-glimmer-30b",
+    "provider_model_slug": "meta-models/Muse-Glimmer-30B",
+    "internal_model_id": "meta/muse-glimmer-30b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-10T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Together's live Muse Glimmer route supports response-format constrained output."
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Together's live Muse Glimmer route supports structured outputs."
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Together's model page says Muse Glimmer supports tool calling."
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Together's model page says Muse Glimmer supports tool calling."
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "provider_status": "available",
+    "phaseo_status": "enabled",
+    "access_scope": "public",
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.together.ai/models/muse-glimmer",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "Together publishes the live serverless endpoint identifier, modalities, context window, tool-calling support and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Verified in Together's authenticated model catalog and with a successful chat-completions request on 2026-08-10."
+    },
+    "rate_limits": []
   }
 ]

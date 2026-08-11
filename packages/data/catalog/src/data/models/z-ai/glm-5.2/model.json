@@ -57,7 +57,16 @@
       "value": "Same standard API pricing as GLM-5.1: $1.40 per 1M input tokens, $0.26 per 1M cached input tokens, and $4.40 per 1M output tokens."
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 52.6,
+      "is_self_reported": false,
+      "other_info": "GLM-5.2 (max); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/glm-5-2",
+      "rank": 23
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

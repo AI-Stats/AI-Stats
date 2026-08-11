@@ -70,6 +70,7 @@ async function NewPresetContent() {
 			providers={providers}
 			currentUserId={initialData.currentUserId}
 			currentTeamId={initialData.initialTeamId}
+			workspacePublisher={initialData.workspacePublisher}
 		/>
 	);
 }

@@ -106,11 +106,11 @@ export async function enqueueLowBalanceEmail(args: {
 }): Promise<void> {
 	const { workspaceId, balanceNanos, settings } = args;
 	if (!settings.enabled) return;
-	if (!Number.isFinite(settings.thresholdNanos) || settings.thresholdNanos <= 0) {
+	if (!Number.isFinite(settings.thresholdNanos) || settings.thresholdNanos < 0) {
 		return;
 	}
 	if (!Number.isFinite(balanceNanos)) return;
-	if (balanceNanos >= settings.thresholdNanos) return;
+	if (balanceNanos > settings.thresholdNanos) return;
 
 	// Cooldown: avoid email spam.
 	const now = Date.now();
@@ -124,7 +124,7 @@ export async function enqueueLowBalanceEmail(args: {
 	const wasPreviouslyAbove =
 		typeof lastSentBalanceNanos === "number" &&
 		Number.isFinite(lastSentBalanceNanos) &&
-		lastSentBalanceNanos >= settings.thresholdNanos;
+		lastSentBalanceNanos > settings.thresholdNanos;
 	if (withinCooldown && !wasPreviouslyAbove) {
 		return;
 	}

@@ -8,7 +8,7 @@ export type MarketplacePreset = {
 	forkCount: number;
 	descendantCount: number;
 	canonicalModel: string;
-	publisher: { handle: string; displayName: string };
+	publisher: { handle: string; aliases?: string[]; displayName: string };
 };
 
 export type MarketplacePresetLink = {

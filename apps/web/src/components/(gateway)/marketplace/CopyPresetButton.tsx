@@ -20,14 +20,15 @@ export default function CopyPresetButton({
 	return (
 		<Button
 			variant="default"
+			className="w-full rounded-md"
 			disabled={isPending}
 			onClick={() => {
 				startTransition(async () => {
 					try {
-						await forkPresetAction(sourcePresetId, sourceVersionId);
-						toast.success("Preset copied to your account");
-						router.push("/settings/presets");
-						router.refresh();
+						const copied = await forkPresetAction(sourcePresetId, sourceVersionId);
+						toast.success("Preset copied to your workspace", {
+							action: copied.slug ? { label: "Open Preset", onClick: () => router.push(`/settings/presets/${encodeURIComponent(copied.slug!)}`) } : { label: "View Presets", onClick: () => router.push("/settings/presets") },
+						});
 					} catch (error) {
 						const message = error instanceof Error ? error.message : "";
 						if (message === "AUTH_REQUIRED") {

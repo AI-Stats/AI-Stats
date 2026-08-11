@@ -225,7 +225,7 @@ function tsType(schema: IRSchema): string {
 		case "enum":
 			return schema.values.map((value) => JSON.stringify(value)).join(" | ");
 		case "array":
-			return `${tsType(schema.items)}[]`;
+			return `${schema.items.kind === "enum" || schema.items.kind === "union" || schema.items.kind === "intersection" || schema.items.kind === "nullable" ? `(${tsType(schema.items)})` : tsType(schema.items)}[]`;
 		case "object":
 			return renderObjectType(schema);
 		case "union":

@@ -42,6 +42,14 @@
       "other_info": "940 puzzles",
       "source_link": "https://github.com/lechmazur/nyt-connections",
       "rank": 80
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 26.6,
+      "is_self_reported": false,
+      "other_info": "Ling-2.6-1T; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/ling-2-6-1t",
+      "rank": 175
     }
   ],
   "family_id": null,

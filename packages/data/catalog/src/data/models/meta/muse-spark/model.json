@@ -181,6 +181,14 @@
       "other_info": "Office tasks (Artificial Analysis)",
       "source_link": "https://about.fb.com/news/2026/04/introducing-muse-spark-meta-superintelligence-labs/",
       "rank": 18
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 43.5,
+      "is_self_reported": false,
+      "other_info": "Muse Spark; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/muse-spark",
+      "rank": 49
     }
   ],
   "family_id": null,

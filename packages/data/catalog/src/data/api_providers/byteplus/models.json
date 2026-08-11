@@ -843,6 +843,121 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "bytedance/seedance-2.5",
+    "provider_api_model_id": "byteplus:bytedance/seedance-2.5",
+    "provider_model_slug": "dreamina-seedance-2-5-260628",
+    "internal_model_id": "bytedance/seedance-2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio,video",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-06-28T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number",
+            "min": 4,
+            "max": 30,
+            "aliases": [
+              "seconds",
+              "duration_seconds"
+            ]
+          },
+          "size": {
+            "type": "string",
+            "aliases": [
+              "resolution"
+            ]
+          },
+          "aspect_ratio": {
+            "type": "string"
+          },
+          "input_image": {
+            "type": "string"
+          },
+          "input_video": {
+            "type": "string"
+          },
+          "input_audio": {
+            "type": "string"
+          },
+          "last_frame": {
+            "type": "string"
+          },
+          "generate_audio": {
+            "type": "boolean"
+          },
+          "seed": {
+            "type": "integer"
+          }
+        },
+        "reasoning": false,
+        "tool_call": false,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_console",
+        "url": "https://console.byteplus.com/ark/region:ap-southeast-1/model/detail?name=dreamina-seedance-2-5",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "Authenticated BytePlus ModelArk model card confirms model ID dreamina-seedance-2-5-260628, API support, modalities, pricing, output limits, and rate limits."
+      },
+      {
+        "kind": "provider_website",
+        "url": "https://www.byteplus.com/en/contact-us/ai-seedance2-5-official",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "BytePlus official Seedance 2.5 launch page."
+      },
+      {
+        "kind": "provider_docs",
+        "url": "https://docs.byteplus.com/en/docs/modelark/1520757",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "BytePlus ModelArk asynchronous video generation API documentation."
+      },
+      {
+        "kind": "provider_docs",
+        "url": "https://docs.byteplus.com/en/docs/ModelArk/1544106",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "BytePlus pricing documentation confirms the Seedance 2.5 token rates, formula, minimum-token behavior, and actual-usage settlement."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Direct BytePlus ModelArk availability, exact versioned model ID, video API support, modalities, pricing, token formula, minimum-token behavior, limits, and rate limits verified against the authenticated provider console and current pricing documentation. Phaseo gateway routing is intentionally disabled pending activation."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "bytedance/seedream-2.0-mini",
     "provider_api_model_id": "byteplus:bytedance/seedream-2.0-mini",
     "provider_model_slug": "seedream-2-0-mini",

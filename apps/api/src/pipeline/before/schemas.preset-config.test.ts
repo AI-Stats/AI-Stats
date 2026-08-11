@@ -2,6 +2,13 @@ import { contextSchema, presetConfigSchema } from "./schemas";
 import { describe, expect, it } from "vitest";
 
 describe("presetConfigSchema", () => {
+	it("preserves the full gateway reasoning effort range from presets", () => {
+		for (const effort of ["none", "minimal", "low", "medium", "high", "xhigh", "max"]) {
+			const result = presetConfigSchema.parse({ reasoning: { enabled: true, effort } });
+			expect(result.defaultParams).toEqual({ reasoning: { enabled: true, effort } });
+		}
+	});
+
     it("parses snake_case preset config fields from the web app shape", () => {
         const result = presetConfigSchema.parse({
             system_prompt: "Be terse",

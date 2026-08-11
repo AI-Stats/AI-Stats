@@ -468,6 +468,8 @@ export default function DynamicRoutesStudio({ initialData, demoMode = false }: {
 	const config = selectedRoute?.config ?? newConfig();
 	const routeNodes = useMemo(() => config.nodes ?? [], [config.nodes]);
 	const routeEdges = useMemo(() => config.edges ?? [], [config.edges]);
+	const routeNodesSignature = JSON.stringify(routeNodes);
+	const providerSignature = initialData.providers.map((provider) => `${provider.id}:${provider.name}`).join("|");
 	const selectedNode = routeNodes.find((node) => node.id === selectedNodeId) ?? null;
 
 	const [flowNodes, setFlowNodes] = useState<Node[]>(() => routeNodes.map((node) => ({ id: node.id, type: "workflow", position: node.position ?? { x: 0, y: 0 }, data: { node, summary: summaryFor(node, initialData.providers) }, selected: node.id === selectedNodeId })));
@@ -477,11 +479,27 @@ export default function DynamicRoutesStudio({ initialData, demoMode = false }: {
 	useEffect(() => {
 		// React Flow owns measured dimensions; merge them back when route data changes.
 		// eslint-disable-next-line react-hooks/set-state-in-effect
-		setFlowNodes((current) => routeNodes.map((node) => {
-			const existing = current.find((item) => item.id === node.id);
-			return { ...existing, id: node.id, type: "workflow", position: node.position ?? existing?.position ?? { x: 0, y: 0 }, data: { node, summary: summaryFor(node, initialData.providers) }, selected: node.id === selectedNodeId };
-		}));
-	}, [routeNodes, selectedNodeId, initialData.providers]);
+		setFlowNodes((current) => {
+			const next = routeNodes.map((node) => {
+				const existing = current.find((item) => item.id === node.id);
+				return { ...existing, id: node.id, type: "workflow", position: node.position ?? existing?.position ?? { x: 0, y: 0 }, data: { node, summary: summaryFor(node, initialData.providers) }, selected: node.id === selectedNodeId };
+			});
+			const unchanged = next.length === current.length && next.every((node, index) => {
+				const previous = current[index];
+				return previous?.id === node.id &&
+					previous.type === node.type &&
+					previous.selected === node.selected &&
+					previous.position.x === node.position.x &&
+					previous.position.y === node.position.y &&
+					previous.data.summary === node.data.summary;
+			});
+			return unchanged ? current : next;
+		});
+		// Object identities can change during React Flow measurement without the
+		// persisted route changing. Stable signatures prevent a render loop while
+		// still synchronizing every semantic route/provider update.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [routeNodesSignature, selectedNodeId, providerSignature]);
 	const flowEdges = useMemo<Edge[]>(() => routeEdges.map((edge) => ({ ...edge, sourceHandle: edge.sourceHandle ?? undefined, type: "smoothstep", interactionWidth: 24, markerEnd: { type: MarkerType.ArrowClosed }, style: { strokeWidth: 1.75 } })), [routeEdges]);
 
 	function replaceSelected(update: (route: DynamicRouteRow) => DynamicRouteRow) {
@@ -577,9 +595,12 @@ export default function DynamicRoutesStudio({ initialData, demoMode = false }: {
 
 	function saveRoute() {
 		if (!selectedRoute) return;
-		const saveLocal = () => replaceSelected((route) => ({ ...route, version: route.version + 1, updated_at: new Date().toISOString(), versions: [{ version: route.version + 1, status: "draft", created_at: new Date().toISOString() }, ...(route.versions ?? []).map((version) => version.status === "draft" ? { ...version, status: "superseded" as const } : version)] }));
+		const saveLocal = (nextVersion = selectedRoute.version + 1) => replaceSelected((route) => {
+			const savedAt = new Date().toISOString();
+			return { ...route, version: nextVersion, updated_at: savedAt, versions: [{ version: nextVersion, status: "draft", created_at: savedAt }, ...(route.versions ?? []).filter((version) => version.version !== nextVersion).map((version) => version.status === "draft" ? { ...version, status: "superseded" as const } : version)] };
+		});
 		if (demoMode) { saveLocal(); toast.success("Draft version saved"); return; }
-		startTransition(async () => { try { const [saved] = await Promise.all([updateDynamicRouteAction(selectedRoute.id, { name: selectedRoute.name, description: selectedRoute.description, status: selectedRoute.status, config: selectedRoute.config }), attachDynamicRouteKeysAction(selectedRoute.id, selectedRoute.keyIds)]); replaceSelected((route) => ({ ...route, version: saved.version })); toast.success("Draft version saved"); router.refresh(); } catch (error) { toast.error(error instanceof Error ? error.message : "Could not save route"); } });
+		startTransition(async () => { try { const [saved] = await Promise.all([updateDynamicRouteAction(selectedRoute.id, { name: selectedRoute.name, description: selectedRoute.description, status: selectedRoute.status, config: selectedRoute.config }), attachDynamicRouteKeysAction(selectedRoute.id, selectedRoute.keyIds)]); saveLocal(saved.version); toast.success("Draft version saved"); router.refresh(); } catch (error) { toast.error(error instanceof Error ? error.message : "Could not save route"); } });
 	}
 
 	function deleteRoute() {
@@ -609,7 +630,7 @@ export default function DynamicRoutesStudio({ initialData, demoMode = false }: {
 							<Badge variant="outline" className="h-6 capitalize">{selectedRoute.status}</Badge>
 						</div>
 						<p className="mt-2 max-w-2xl text-xs leading-5 text-muted-foreground">{selectedRoute.description || "No route description"}</p>
-						<div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground"><span>{selectedRoute.keyIds.length} API key{selectedRoute.keyIds.length === 1 ? "" : "s"}</span><span aria-hidden="true">·</span><span>Draft version {selectedRoute.version}</span></div>
+						<div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground"><span>{selectedRoute.keyIds.length} API key{selectedRoute.keyIds.length === 1 ? "" : "s"}</span><span aria-hidden="true">·</span><span>Version {selectedRoute.version}{selectedRoute.deployed_version === selectedRoute.version ? " deployed" : " draft"}</span></div>
 					</div>
 					<div className="flex shrink-0 items-center gap-2"><Button variant="outline" onClick={createRoute} aria-label="New route"><Plus className="size-4" /><span className="hidden sm:inline">New route</span></Button><Button onClick={saveRoute} disabled={isPending}><Save className="size-4" /><span className="sm:hidden">Save</span><span className="hidden sm:inline">Save version</span></Button></div>
 				</div>

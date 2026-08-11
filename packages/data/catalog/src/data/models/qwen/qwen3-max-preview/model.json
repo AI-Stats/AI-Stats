@@ -23,6 +23,14 @@
       "other_info": "win prob 0.57; 95% CI 0.2..0.6",
       "source_link": "https://github.com/lechmazur/writing",
       "rank": 14
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 19.4,
+      "is_self_reported": false,
+      "other_info": "Qwen3 Max (Preview); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/qwen3-max-preview",
+      "rank": 244
     }
   ],
   "family_id": null,

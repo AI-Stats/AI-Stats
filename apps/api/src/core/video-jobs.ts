@@ -26,6 +26,7 @@ export type VideoJobMeta = {
 	seconds?: number | null;
 	outputCount?: number | null;
 	resolution?: string | null;
+	aspectRatio?: string | null;
 	quality?: string | null;
 	audio?: boolean | null;
 	inputImageCount?: number | null;
@@ -140,6 +141,9 @@ function parseVideoJobMeta(value: unknown): VideoJobMeta | null {
 	const outputCount = toNonNegativeInteger(source.outputCount ?? source.output_count);
 	if (outputCount != null && outputCount > 0) out.outputCount = outputCount;
 	if (typeof source.resolution === "string") out.resolution = source.resolution;
+	if (typeof source.aspectRatio === "string") out.aspectRatio = source.aspectRatio;
+	if (typeof source.aspect_ratio === "string") out.aspectRatio = source.aspect_ratio;
+	if (typeof source.ratio === "string") out.aspectRatio = source.ratio;
 	if (typeof source.quality === "string") out.quality = source.quality;
 	if (typeof source.audio === "boolean") out.audio = source.audio;
 	if (typeof source.generateAudio === "boolean") out.audio = source.generateAudio;

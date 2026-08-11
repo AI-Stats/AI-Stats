@@ -757,7 +757,9 @@ def test_get_file_content_downloads_bytes(monkeypatch):
             "https://example.test/files/file_123/content",
             {
                 "Authorization": "Bearer sk_test_123",
-                "User-Agent": "phaseo-python",
+                "User-Agent": "phaseo-python/2.0.7",
+                "X-Phaseo-Client": "phaseo-python",
+                "X-Phaseo-Client-Version": "2.0.7",
             },
             12.5,
         )

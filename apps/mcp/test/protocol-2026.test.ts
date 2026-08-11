@@ -5,11 +5,11 @@ vi.mock("../src/phaseo-api", async (importOriginal) => ({
 	authenticatePhaseoUser: vi.fn(async () => ({
 		accessToken: "upstream-token",
 		workspaceId: "workspace_1",
-		scopes: ["models:read"],
+		scopes: ["models:read", "pricing:read"],
 	})),
 }));
 
-import worker from "../src/index";
+import worker, { matchesModelProvider, tokenRate } from "../src/index";
 
 const env = {
 	PHASEO_API_BASE_URL: "https://api.phaseo.app",
@@ -17,6 +17,26 @@ const env = {
 };
 
 describe("MCP 2026-07-28 transport", () => {
+	it("uses only routable provider offers when filtering models", () => {
+		const model = {
+			organization: { id: "lab", name: "Example Lab", color: null },
+			offers: [
+				{ provider: { id: "inactive", name: "Inactive Provider" }, routable: false },
+				{ provider: { id: "active", name: "Active Provider" }, routable: true },
+			],
+		} as any;
+		expect(matchesModelProvider(model, "Inactive Provider")).toBe(false);
+		expect(matchesModelProvider(model, "Active Provider")).toBe(true);
+		expect(matchesModelProvider(model, "Example Lab")).toBe(true);
+	});
+
+	it("calculates token rates only for USD meters", () => {
+		const meter = { provider_id: "openai", unit: "token", unit_size: 1_000_000, price_per_unit: "2.5", currency: "USD" };
+		expect(tokenRate(meter)).toBe(0.0000025);
+		expect(tokenRate({ ...meter, currency: "EUR" })).toBeNull();
+		expect(tokenRate({ ...meter, currency: null })).toBeNull();
+	});
+
 	it("discovers the server over the modern stateless HTTP protocol", async () => {
 		const response = await worker.fetch(
 			new Request("https://mcp.phaseo.app/mcp", {
@@ -53,5 +73,55 @@ describe("MCP 2026-07-28 transport", () => {
 		};
 		expect(payload.result?.supportedVersions).toContain("2026-07-28");
 		expect(payload.result?.resultType).toBe("complete");
+	});
+
+	it("lists tools with per-request modern protocol metadata and no session", async () => {
+		const response = await worker.fetch(
+			new Request("https://mcp.phaseo.app/mcp", {
+				method: "POST",
+				headers: {
+					Authorization: "Bearer test-token",
+					"Content-Type": "application/json",
+					Accept: "application/json",
+					Host: "mcp.phaseo.app",
+					"MCP-Protocol-Version": "2026-07-28",
+					"MCP-Method": "tools/list",
+				},
+				body: JSON.stringify({
+					jsonrpc: "2.0",
+					id: 2,
+					method: "tools/list",
+					params: {
+						_meta: {
+							"io.modelcontextprotocol/protocolVersion": "2026-07-28",
+							"io.modelcontextprotocol/clientCapabilities": {},
+						},
+					},
+				}),
+			}),
+			env,
+			{} as ExecutionContext,
+		);
+
+		const body = await response.text();
+		expect(response.status, body).toBe(200);
+		expect(response.headers.get("mcp-session-id")).toBeNull();
+		expect(response.headers.get("cache-control")).toBe("no-store");
+		const payload = JSON.parse(body) as { result?: { tools?: Array<{ name: string }> } };
+		expect(payload.result?.tools?.map((tool) => tool.name)).toEqual(["models_list", "model_get", "cost_estimate"]);
+	});
+
+	it("rejects opaque and insecure non-loopback browser origins", async () => {
+		for (const origin of ["null", "http://client.example"]) {
+			const response = await worker.fetch(
+				new Request("https://mcp.phaseo.app/mcp", {
+					method: "OPTIONS",
+					headers: { Origin: origin },
+				}),
+				env,
+				{} as ExecutionContext,
+			);
+			expect(response.status).toBe(403);
+		}
 	});
 });

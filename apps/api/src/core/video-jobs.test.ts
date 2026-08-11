@@ -37,17 +37,18 @@ describe("video-jobs", () => {
 			nativeId: "vid_1",
 			model: "sora-2",
 			status: null,
-			meta: { seconds: 5, quality: "low" },
+			meta: { seconds: 5, aspect_ratio: "21:9", quality: "low" },
 			billedAt: null,
 			createdAt: null,
 			updatedAt: null,
 		});
 
 		const meta = await getVideoJobMeta("team_1", "vid_1");
-		expect(meta).toEqual({
+			expect(meta).toEqual({
 			provider: "openai",
 			model: "sora-2",
 			seconds: 5,
+			aspectRatio: "21:9",
 			quality: "low",
 		});
 	});

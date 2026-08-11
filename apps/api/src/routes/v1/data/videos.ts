@@ -243,6 +243,10 @@ function featureDisabledResponse(): Response {
 	});
 }
 
+function isVideoCancellationEnabled(): boolean {
+	return false;
+}
+
 async function requireVideoFeature(req: Request): Promise<Response | null> {
 	const auth = await guardAuth(req);
 	if (!auth.ok) return (auth as { ok: false; response: Response }).response;
@@ -442,6 +446,14 @@ videosRoutes.post("/:videoId/cancel", withRuntime(async (req) => {
 			workspace_id: authValue.workspaceId,
 		});
 	}
+	if (!isVideoCancellationEnabled()) return err("not_implemented_yet", {
+		reason: "video_cancellation_disabled",
+		message: "Video cancellation is not supported by the Phaseo video API.",
+		request_id: authValue.requestId,
+		workspace_id: authValue.workspaceId,
+		video_id: id,
+	});
+	/* c8 ignore start -- retained temporarily while provider cancellation is disabled */
 	const ownedVideo = await requireOwnedVideoJob(authValue, id);
 	if (ownedVideo instanceof Response) return ownedVideo;
 	const publicStatus = toPublicVideoStatus(ownedVideo.record.status);
@@ -604,6 +616,7 @@ videosRoutes.post("/:videoId/cancel", withRuntime(async (req) => {
 			"Cache-Control": "no-store",
 		},
 	});
+	/* c8 ignore stop */
 }));
 
 videosRoutes.delete("/:videoId", withRuntime(async (req) => {

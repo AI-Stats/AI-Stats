@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import {
 	useCallback,
 	useEffect,
@@ -134,6 +136,7 @@ type ModelOption = {
 	providerAvailability: Record<string, boolean>;
 	releaseDate: string | null;
 	gatewayStatus: "active" | "inactive";
+	chatBlockedReasons: Array<{ source: "workspace" | "account" | "guardrail"; label: string; settingsHref: string }>;
 };
 
 type ModelOptions = {
@@ -1203,6 +1206,7 @@ export function ChatHeader({
 	) =>
 		withComingSoonBadge ||
 		option.gatewayStatus === "inactive" ||
+		option.chatBlockedReasons.length > 0 ||
 		!isModelCapabilityCompatible(option.modelId);
 	const renderModelOptionContent = (
 		option: ModelOption,
@@ -1221,7 +1225,11 @@ export function ChatHeader({
 				{isModelSelected(option.modelId) ? (
 					<CircleCheck className="h-4 w-4 shrink-0 text-foreground/70" />
 				) : null}
-				{withComingSoonBadge ? (
+				{option.chatBlockedReasons.length ? (
+					<Badge variant="destructive" className="h-4 rounded-sm px-1.5 text-[10px] font-medium">
+						Blocked
+					</Badge>
+				) : withComingSoonBadge ? (
 					<Badge
 						variant="outline"
 						className="h-4 rounded-full border-dashed px-1.5 text-[10px] font-medium"
@@ -1435,7 +1443,7 @@ export function ChatHeader({
 						className="w-[min(92vw,560px)] max-w-none sm:max-w-none"
 						commandProps={{ shouldFilter: false }}
 					>
-						<ModelSelectorInput
+					<ModelSelectorInput
 							ref={modelSearchInputRef}
 							data-chat-model-selector-search="true"
 							autoFocus
@@ -1450,7 +1458,15 @@ export function ChatHeader({
 											resolvedActiveBrowseModelId,
 										)
 							}
-						/>
+					/>
+					{Array.from(new Map([...modelOptions.active, ...modelOptions.comingSoon].flatMap((option) => option.chatBlockedReasons).map((reason) => [reason.settingsHref, reason])).values()).length ? (
+						<div className="flex flex-wrap gap-x-3 gap-y-1 border-b px-4 py-2 text-xs text-muted-foreground">
+							<span>Some models are unavailable under your effective Chat policy.</span>
+							{Array.from(new Map([...modelOptions.active, ...modelOptions.comingSoon].flatMap((option) => option.chatBlockedReasons).map((reason) => [reason.settingsHref, reason])).values()).map((reason) => (
+								<Link key={reason.settingsHref} href={reason.settingsHref} className="font-medium text-foreground underline underline-offset-4">{reason.label}</Link>
+							))}
+						</div>
+					) : null}
 						<div className="flex items-center gap-1 border-b border-border px-3 py-2">
 							<Button
 								type="button"

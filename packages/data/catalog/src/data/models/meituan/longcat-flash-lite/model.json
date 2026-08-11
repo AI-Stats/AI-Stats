@@ -15,7 +15,16 @@
   "api_model_id": "meituan/longcat-flash-lite",
   "links": [],
   "details": [],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 17.4,
+      "is_self_reported": false,
+      "other_info": "LongCat Flash Lite; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/longcat-flash-lite",
+      "rank": 270
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

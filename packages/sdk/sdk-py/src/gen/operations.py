@@ -50,7 +50,7 @@ def cancelVideo(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> VideoGenerationResponse:
+) -> Any:
 	path = path or {}
 	resolved_path = f"/videos/{path.get('video_id', '')}/cancel"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
@@ -63,7 +63,7 @@ def cancelVideoAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> VideoGenerationResponse:
+) -> Any:
 	path = path or {}
 	resolved_path = f"/video/generations/{path.get('video_id', '')}/cancel"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)

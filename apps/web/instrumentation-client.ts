@@ -20,6 +20,13 @@ import {
 	PRODUCT_ANALYTICS_EVENT,
 	type ProductAnalyticsPayload,
 } from "@/lib/productAnalytics";
+import {
+	PRODUCT_FEEDBACK_CATEGORY_QUESTION_ID,
+	PRODUCT_FEEDBACK_EVENT,
+	PRODUCT_FEEDBACK_MESSAGE_QUESTION_ID,
+	PRODUCT_FEEDBACK_SURVEY_ID,
+	type ProductFeedbackPayload,
+} from "@/lib/productFeedback";
 
 let posthogInitialized = false;
 let listenersBound = false;
@@ -209,6 +216,38 @@ function bindGlobalErrorListeners() {
 		if (posthogCaptureEnabled) {
 			posthog.capture(payload.event, payload.properties);
 		}
+	});
+
+	window.addEventListener(PRODUCT_FEEDBACK_EVENT, (event) => {
+		const payload = (event as CustomEvent<ProductFeedbackPayload>).detail;
+		if (!payload || !posthogCaptureEnabled || !isAnalyticsCaptureAllowed()) return;
+
+		const shared = {
+			$survey_id: PRODUCT_FEEDBACK_SURVEY_ID,
+			surface: payload.surface,
+			path: payload.path,
+			...payload.context,
+		};
+		if (payload.action === "shown") {
+			posthog.capture("survey shown", shared);
+			return;
+		}
+		if (payload.action === "dismissed") {
+			posthog.capture("survey dismissed", shared);
+			return;
+		}
+
+		posthog.capture("survey sent", {
+			...shared,
+			feedback_reason: payload.reason,
+			$survey_questions: [
+				{ id: PRODUCT_FEEDBACK_CATEGORY_QUESTION_ID, index: 0, question: "Feedback type" },
+				{ id: PRODUCT_FEEDBACK_MESSAGE_QUESTION_ID, index: 1, question: "What should we improve?" },
+			],
+			[`$survey_response_${PRODUCT_FEEDBACK_CATEGORY_QUESTION_ID}`]:
+				payload.category === "issue" ? "Issue" : payload.category === "other" ? "Other" : "Idea",
+			[`$survey_response_${PRODUCT_FEEDBACK_MESSAGE_QUESTION_ID}`]: payload.message,
+		});
 	});
 }
 

@@ -73,5 +73,8 @@ describe("MODEL_DISCOVERY_PROVIDERS", () => {
 			modelsEndpoint: "https://catalog.endpoints.ai.ovh.net/rest/v2/openrouter",
 			authStyle: "none",
 		});
+		expect(providers.get("together")).toMatchObject({
+			modelsEndpoint: "https://api.together.ai/v1/models",
+		});
 	});
 });

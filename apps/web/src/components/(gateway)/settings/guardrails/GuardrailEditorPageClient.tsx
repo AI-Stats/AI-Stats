@@ -2,12 +2,33 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
+import {
+	formatProviderOfferVariantLabel,
+	resolveProviderLogoId,
+	type ProviderOfferScope,
+} from "@/lib/providers/providerOffers";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -27,19 +48,20 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
-import { Check, ChevronLeft, Info, KeyRound, Trash2, X } from "lucide-react";
+	Popover,
+	PopoverContent,
+	PopoverDescription,
+	PopoverHeader,
+	PopoverTitle,
+	PopoverTrigger,
+} from "@/components/ui/popover";
+import { Check, ChevronLeft, Info, KeyRound, Trash2, UserRound, X } from "lucide-react";
 
 import {
 	createGuardrail,
 	deleteGuardrail,
 	setGuardrailKeys,
+	setGuardrailMembers,
 	type SensitiveInfoAction,
 	type SensitiveInfoCustomRulePayload,
 	type SensitiveInfoRulePayload,
@@ -49,7 +71,6 @@ import {
 } from "@/app/(dashboard)/settings/guardrails/actions";
 import {
 	buildGuardrailRestrictionPreview,
-	describeModelRestrictionMode,
 	describeProviderRestrictionMode,
 } from "./guardrailPreview";
 import {
@@ -61,8 +82,23 @@ import {
 } from "./sensitiveInfoPreview";
 
 const NANOS_PER_USD = 1_000_000_000;
+const GUARDRAIL_SECTION_IDS = new Set([
+	"access",
+	"prompt-injection",
+	"sensitive-info",
+	"budgets",
+]);
+const expandedSectionsParser = parseAsArrayOf(parseAsString)
+	.withDefault([])
+	.withOptions({ shallow: true, clearOnDefault: true, history: "replace" });
 
-type ProviderOption = { id: string; name: string };
+type ProviderOption = {
+	id: string;
+	name: string;
+	familyId: string;
+	offerLabel: string | null;
+	offerScope: ProviderOfferScope | null;
+};
 type ActiveProviderModel = {
 	providerId: string;
 	apiModelId: string;
@@ -70,8 +106,15 @@ type ActiveProviderModel = {
 	internalModelName?: string | null;
 	organisationId?: string | null;
 	organisationName?: string | null;
+	providerPolicy?: {
+		zeroDataRetention: string;
+		dataPolicyTier: string;
+		dataPolicyConfidence: string;
+	};
+	capabilities?: Array<{ id: string; dataPolicy: Record<string, unknown> | null }>;
 };
 type KeyOption = { id: string; name: string; prefix: string; status: string };
+type MemberOption = { id: string; name: string; role: string };
 type GuardrailHandlingState = "disabled" | PromptInjectionAction;
 
 type GuardrailRow = {
@@ -113,26 +156,27 @@ function uniqStrings(items: string[]): string[] {
 	return Array.from(new Set(items.filter(Boolean)));
 }
 
-function summarizeModelRestriction(args: {
-	mode: ProviderRestrictionMode;
-	selectedCount: number;
-}): string {
-	if (args.mode === "none") return "all models allowed";
-	if (args.mode === "allowlist") {
-		return args.selectedCount > 0
-			? `${args.selectedCount} models allowlisted`
-			: "no models allowlisted";
-	}
-	return args.selectedCount > 0
-		? `${args.selectedCount} models blocked`
-		: "no models blocked";
-}
-
 function getHandlingState(args: {
 	enabled: boolean;
 	action: PromptInjectionAction | SensitiveInfoAction;
 }): GuardrailHandlingState {
 	return args.enabled ? args.action : "disabled";
+}
+
+function getRestrictionModeLabel(
+	mode: ProviderRestrictionMode,
+	subject: "providers" | "models",
+): string {
+	if (mode === "allowlist") return `Only allow selected ${subject}`;
+	if (mode === "blocklist") return `Allow all except selected ${subject}`;
+	return `Allow all ${subject}`;
+}
+
+function getHandlingLabel(value: GuardrailHandlingState): string {
+	if (value === "disabled") return "Disabled";
+	if (value === "flag") return "Flag matches";
+	if (value === "redact") return "Redact matches";
+	return "Block requests";
 }
 
 function buildModelAvailabilityReason(args: {
@@ -147,18 +191,28 @@ function buildModelAvailabilityReason(args: {
 	if (!args.modelAllowed) {
 		if (args.modelMode === "allowlist") {
 			return args.selectedModelIds.length > 0
-				? "Unavailable because this model is outside the current model allowlist."
-				: "Unavailable because no models were selected in the current model allowlist.";
+				? "Excluded by the model allowlist"
+				: "No models selected in the allowlist";
 		}
 		if (args.modelMode === "blocklist") {
-			return "Unavailable because this model is included in the current model blocklist.";
+			return "Excluded by the model blocklist";
 		}
+	}
+	const reasonCodes = new Set(args.providerStates.map((state) => state.reasonCode));
+	if (reasonCodes.size === 1) {
+		const [reasonCode] = reasonCodes;
+		if (reasonCode === "zdr_required") return "ZDR eligibility is not verified";
+		if (reasonCode === "data_policy_unknown") return "Data policy is unknown";
+		if (reasonCode === "data_policy_unverified") return "Data policy is not confirmed";
+		if (reasonCode === "logging_disabled") return "Prompt or output retention is not allowed";
+		if (reasonCode === "training_disabled") return "Training on prompts or outputs is not allowed";
+		if (reasonCode === "provider_restriction") return "Excluded by provider access rules";
 	}
 	const uniqueReasons = uniqStrings(args.providerStates.map((state) => state.reason));
 	if (uniqueReasons.length === 1) {
-		return uniqueReasons[0] ?? "Unavailable because no provider remains reachable for this model.";
+		return uniqueReasons[0] ?? "No provider remains routable";
 	}
-	return "Unavailable because the current provider rules leave no reachable providers for this model.";
+	return "No provider meets every active rule";
 }
 
 function normalizePromptInjectionAction(value: unknown): PromptInjectionAction {
@@ -232,6 +286,22 @@ function getProviderLogoId(providerId: string): string {
 	return normalized;
 }
 
+function formatProviderIdVariant(providerId: string, familyId: string): string {
+	if (providerId === familyId) return "Standard";
+	const suffix = providerId.startsWith(`${familyId}-`)
+		? providerId.slice(familyId.length + 1)
+		: providerId;
+	return suffix
+		.split("-")
+		.filter(Boolean)
+		.map((part) => {
+			const normalized = part.toLowerCase();
+			if (["aws", "eu", "us"].includes(normalized)) return normalized.toUpperCase();
+			return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+		})
+		.join(" ") || "Standard";
+}
+
 function formatModelPreviewTitle(args: {
 	organisationName: string | null | undefined;
 	organisationId: string | null | undefined;
@@ -274,22 +344,21 @@ const parseInteger = (value: string): number | null | undefined => {
 	return Math.floor(parsed);
 };
 
-function SelectionDialog(props: {
+type SelectionOption = { value: string; label: string; group?: string; variant?: string };
+
+function SelectionCombobox(props: {
 	title: string;
 	description?: string;
-	options: Array<{ value: string; label: string }>;
+	options: SelectionOption[];
 	selected: string[];
 	onChange: (next: string[]) => void;
-	renderLeading?: (opt: { value: string; label: string }) => React.ReactNode;
+	renderLeading?: (opt: SelectionOption) => React.ReactNode;
 	trigger: React.ReactNode;
+	inlineGroups?: boolean;
+	groupActions?: boolean;
 }) {
 	const [open, setOpen] = useState(false);
 	const [query, setQuery] = useState("");
-
-	useEffect(() => {
-		if (!open) return;
-		setQuery("");
-	}, [open]);
 
 	const filtered = useMemo(() => {
 		const q = query.trim().toLowerCase();
@@ -305,6 +374,22 @@ function SelectionDialog(props: {
 	const filteredValues = useMemo(() => filtered.map((opt) => opt.value), [filtered]);
 	const allFilteredSelected =
 		filteredValues.length > 0 && filteredValues.every((value) => selectedSet.has(value));
+	const groupedOptions = useMemo(() => {
+		const groups = new Map<string, SelectionOption[]>();
+		for (const option of props.options) {
+			const group = option.group?.trim() || "";
+			groups.set(group, [...(groups.get(group) ?? []), option]);
+		}
+		return Array.from(groups.entries());
+	}, [props.options]);
+	const inlineFamilies = useMemo(() => {
+		const families = new Map<string, SelectionOption[]>();
+		for (const option of filtered) {
+			const family = option.group?.trim() || option.label;
+			families.set(family, [...(families.get(family) ?? []), option]);
+		}
+		return Array.from(families.entries());
+	}, [filtered]);
 
 	function toggleSelection(value: string) {
 		if (props.selected.includes(value)) {
@@ -315,108 +400,133 @@ function SelectionDialog(props: {
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger asChild>{props.trigger}</DialogTrigger>
-			<DialogContent className="max-w-2xl">
-				<DialogHeader>
-					<DialogTitle>{props.title}</DialogTitle>
-					{props.description ? (
-						<DialogDescription>{props.description}</DialogDescription>
-					) : null}
-				</DialogHeader>
-				<div className="space-y-3">
-					<Input
-						placeholder="Search..."
-						value={query}
-						onChange={(e) => setQuery(e.target.value)}
-					/>
-					<div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
-						<div>{props.selected.length} selected</div>
-						<div className="flex items-center gap-1">
-							{filteredValues.length > 0 ? (
-								<Button
-									type="button"
-									variant="ghost"
-									size="sm"
-									className="h-auto px-2 py-1 text-xs"
-									onClick={() =>
-										props.onChange(
-											allFilteredSelected
-												? props.selected.filter(
-														(value) => !filteredValues.includes(value),
-												  )
-												: uniqStrings([...props.selected, ...filteredValues]),
-										)
-									}
-								>
-									{allFilteredSelected ? "Deselect all" : "Select all"}
-								</Button>
-							) : null}
-							{props.selected.length > 0 ? (
-								<Button
-									type="button"
-									variant="ghost"
-									size="sm"
-									className="h-auto px-2 py-1 text-xs"
-									onClick={() => props.onChange([])}
-								>
-									Clear selection
-								</Button>
-							) : null}
-						</div>
+		<Popover open={open} onOpenChange={(next) => {
+			setOpen(next);
+			if (!next) setQuery("");
+		}}>
+			<PopoverTrigger asChild>{props.trigger}</PopoverTrigger>
+			<PopoverContent align="end" className="w-[min(420px,calc(100vw-2rem))] gap-0 overflow-hidden rounded-xl p-0">
+				<PopoverHeader className="border-b px-3 py-2.5">
+					<div className="flex items-center justify-between gap-3">
+						<PopoverTitle className="text-sm font-medium">{props.title}</PopoverTitle>
+						<span className="text-xs tabular-nums text-muted-foreground">{props.selected.length} selected</span>
 					</div>
-					<div className="max-h-[340px] overflow-y-auto rounded-lg border bg-background">
-						{filtered.length ? (
-							<ul className="divide-y">
-								{filtered.map((opt) => {
+					{props.description ? <PopoverDescription className="sr-only">{props.description}</PopoverDescription> : null}
+				</PopoverHeader>
+				<Command className="rounded-none p-0" shouldFilter={!props.inlineGroups}>
+					<CommandInput
+						placeholder={`Search ${props.title.toLowerCase().replace("select ", "")}...`}
+						value={query}
+						onValueChange={setQuery}
+						wrapperClassName="border-b p-2"
+					/>
+					<CommandList className="max-h-72 p-1">
+						{props.inlineGroups ? (
+							inlineFamilies.length ? (
+								<div className="divide-y">
+									{inlineFamilies.map(([family, options]) => (
+										<div key={family} role="group" aria-label={family} className="flex min-h-10 items-center gap-2 px-2 py-1.5">
+											{props.renderLeading && options[0] ? <span className="shrink-0">{props.renderLeading(options[0])}</span> : null}
+											<span className="min-w-0 flex-1 truncate text-sm font-medium">{family}</span>
+											<div className="flex shrink-0 flex-wrap justify-end gap-1">
+												{options.map((option) => {
+													const checked = selectedSet.has(option.value);
+													return (
+														<button
+															key={option.value}
+															type="button"
+															aria-pressed={checked}
+															onClick={() => toggleSelection(option.value)}
+															className={`inline-flex h-6 items-center gap-1 rounded-md border px-2 text-xs transition-colors ${checked ? "border-foreground bg-foreground text-background" : "border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+														>
+															{checked ? <Check className="size-3" /> : null}
+															{option.variant ?? option.label}
+														</button>
+													);
+												})}
+											</div>
+										</div>
+									))}
+								</div>
+							) : (
+								<div className="py-6 text-center text-sm text-muted-foreground">No matches.</div>
+							)
+						) : (
+							<>
+							<CommandEmpty>No matches.</CommandEmpty>
+							{groupedOptions.map(([group, options]) => {
+								const groupValues = options.map((option) => option.value);
+								const allGroupSelected = groupValues.every((value) => selectedSet.has(value));
+								const anyGroupSelected = groupValues.some((value) => selectedSet.has(value));
+								return (
+							<CommandGroup
+								key={group || "all"}
+								heading={group ? (
+									<div className="flex items-center justify-between gap-2">
+										<span className="truncate">{group}</span>
+										{props.groupActions ? (
+											<span className="flex shrink-0 items-center gap-1">
+												<button
+													type="button"
+													disabled={allGroupSelected}
+													onMouseDown={(event) => event.preventDefault()}
+													onClick={() => props.onChange(uniqStrings([...props.selected, ...groupValues]))}
+													className="h-5 rounded-md px-1.5 text-[11px] font-medium text-foreground hover:bg-muted disabled:opacity-35"
+												>
+													All
+												</button>
+												<button
+													type="button"
+													disabled={!anyGroupSelected}
+													onMouseDown={(event) => event.preventDefault()}
+													onClick={() => props.onChange(props.selected.filter((value) => !groupValues.includes(value)))}
+													className="h-5 rounded-md px-1.5 text-[11px] font-medium text-foreground hover:bg-muted disabled:opacity-35"
+												>
+													Clear
+												</button>
+											</span>
+										) : null}
+									</div>
+								) : undefined}
+							>
+								{options.map((opt) => {
 									const checked = selectedSet.has(opt.value);
 									return (
-										<li key={opt.value}>
-											<button
-												type="button"
-												onClick={() => toggleSelection(opt.value)}
-												className={`flex w-full items-center justify-between gap-3 px-3 py-3 text-left transition-colors ${
-													checked ? "bg-muted/40" : "hover:bg-muted/30"
-												}`}
-											>
-												<div className="min-w-0 flex items-center gap-3">
-													<div
-														className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
-															checked
-																? "border-foreground bg-foreground text-background"
-																: "border-border bg-background text-transparent"
-														}`}
-													>
-														<Check className="h-3.5 w-3.5" />
-													</div>
-													{props.renderLeading ? (
-														<span className="shrink-0">
-															{props.renderLeading(opt)}
-														</span>
-													) : null}
-													<div className="min-w-0">
-														<div className="truncate text-sm font-medium">
-															{opt.label}
-														</div>
-													</div>
-												</div>
-											</button>
-										</li>
+										<CommandItem
+											key={opt.value}
+											value={opt.value}
+											keywords={[opt.label, opt.group ?? ""]}
+											data-checked={checked}
+											onSelect={() => toggleSelection(opt.value)}
+											className="min-h-8 rounded-md px-2 py-1.5 [&>svg:last-child]:hidden"
+										>
+											<span className={`flex size-4 shrink-0 items-center justify-center rounded-sm border ${checked ? "border-foreground bg-foreground text-background" : "border-border text-transparent"}`}>
+												<Check className="size-3" />
+											</span>
+											{props.renderLeading ? <span className="shrink-0">{props.renderLeading(opt)}</span> : null}
+											<span className="min-w-0 flex-1 truncate">{opt.label}</span>
+										</CommandItem>
 									);
 								})}
-							</ul>
-						) : (
-							<div className="p-6 text-sm text-muted-foreground">No matches.</div>
+							</CommandGroup>
+								);
+							})}
+							</>
 						)}
-					</div>
-				</div>
-				<div className="flex justify-end">
-					<Button type="button" variant="outline" onClick={() => setOpen(false)}>
-						Done
+					</CommandList>
+				</Command>
+				<div className="flex items-center justify-between gap-2 border-t px-2 py-1.5">
+					<Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={!props.selected.length} onClick={() => props.onChange([])}>
+						Clear
 					</Button>
+					{filteredValues.length ? (
+						<Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => props.onChange(allFilteredSelected ? props.selected.filter((value) => !filteredValues.includes(value)) : uniqStrings([...props.selected, ...filteredValues]))}>
+							{allFilteredSelected ? "Deselect matches" : "Select matches"}
+						</Button>
+					) : null}
 				</div>
-			</DialogContent>
-		</Dialog>
+			</PopoverContent>
+		</Popover>
 	);
 }
 
@@ -483,6 +593,16 @@ function BoundedSelectionList(props: {
 	heightClassName?: string;
 	compact?: boolean;
 }) {
+	const viewportRef = useRef<HTMLDivElement>(null);
+	// TanStack Virtual intentionally exposes imperative functions tied to the scroll viewport.
+	// eslint-disable-next-line react-hooks/incompatible-library
+	const rowVirtualizer = useVirtualizer({
+		count: props.items.length,
+		getScrollElement: () => viewportRef.current,
+		estimateSize: () => (props.compact ? 49 : 57),
+		overscan: 8,
+	});
+
 	if (!props.items.length) {
 		return (
 			<div className="rounded-lg border border-dashed px-3 py-4 text-sm text-muted-foreground">
@@ -494,14 +614,21 @@ function BoundedSelectionList(props: {
 	return (
 		<ScrollArea
 			className={`rounded-lg border bg-background ${props.heightClassName ?? "h-56"}`}
+			viewportRef={viewportRef}
 		>
-			<ul className="divide-y">
-				{props.items.map((item) => (
+			<ul className="relative" style={{ height: rowVirtualizer.getTotalSize() }}>
+				{rowVirtualizer.getVirtualItems().map((virtualRow) => {
+					const item = props.items[virtualRow.index];
+					if (!item) return null;
+					return (
 					<li
 						key={item.id}
-						className={`flex items-center justify-between px-3 ${
+						data-index={virtualRow.index}
+						ref={rowVirtualizer.measureElement}
+						className={`absolute left-0 top-0 flex w-full items-center justify-between border-b px-3 ${
 							props.compact ? "gap-2.5 py-2" : "gap-3 py-2.5"
 						}`}
+						style={{ transform: `translateY(${virtualRow.start}px)` }}
 					>
 						<div className={`min-w-0 flex items-center ${props.compact ? "gap-2.5" : "gap-3"}`}>
 							{item.leading ? <div className="shrink-0">{item.leading}</div> : null}
@@ -516,7 +643,8 @@ function BoundedSelectionList(props: {
 						</div>
 						{item.trailing ? <div className="shrink-0">{item.trailing}</div> : null}
 					</li>
-				))}
+					);
+				})}
 			</ul>
 		</ScrollArea>
 	);
@@ -530,23 +658,24 @@ function SelectedItemBadges(props: {
 	}>;
 	onRemove: (id: string) => void;
 	empty: string;
+	compact?: boolean;
 }) {
 	if (!props.items.length) {
 		return (
-			<div className="rounded-lg border border-dashed px-3 py-4 text-sm text-muted-foreground">
+			<div className={props.compact ? "text-xs text-muted-foreground" : "rounded-lg border border-dashed px-3 py-4 text-sm text-muted-foreground"}>
 				{props.empty}
 			</div>
 		);
 	}
 
 	return (
-		<div className="flex flex-wrap gap-2">
+		<div className={`flex flex-wrap ${props.compact ? "gap-1.5" : "gap-2"}`}>
 			{props.items.map((item) => (
 				<button
 					key={item.id}
 					type="button"
 					onClick={() => props.onRemove(item.id)}
-					className="group inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1.5 text-sm transition-colors hover:border-rose-200 hover:bg-rose-50"
+					className={`group inline-flex items-center border bg-background transition-colors hover:border-rose-200 hover:bg-rose-50 ${props.compact ? "gap-1.5 rounded-md px-2 py-1 text-xs" : "gap-2 rounded-full px-3 py-1.5 text-sm"}`}
 					aria-label={`Remove ${item.title}`}
 				>
 					<span className="relative flex h-4 w-4 items-center justify-center">
@@ -567,8 +696,8 @@ function SelectedItemBadges(props: {
 function SelectionField(props: {
 	label: string;
 	description: string;
-	dialogTitle: string;
-	dialogDescription?: string;
+	pickerTitle: string;
+	pickerDescription?: string;
 	options: Array<{ value: string; label: string }>;
 	selected: string[];
 	onChange: (next: string[]) => void;
@@ -583,27 +712,32 @@ function SelectionField(props: {
 	renderLeading?: (opt: { value: string; label: string }) => React.ReactNode;
 	disabled?: boolean;
 	accessory?: React.ReactNode;
+	inlineGroups?: boolean;
+	groupActions?: boolean;
 }) {
 	return (
-		<div className="space-y-3">
-			<div className="flex flex-wrap items-start justify-between gap-3">
+		<div className="space-y-2">
+			<div className="flex flex-wrap items-center justify-between gap-3">
 				<div className="space-y-1">
 					<Label>{props.label}</Label>
 					<p className="text-xs text-muted-foreground">{props.description}</p>
 				</div>
-				<SelectionDialog
-					title={props.dialogTitle}
-					description={props.dialogDescription}
+				<SelectionCombobox
+					title={props.pickerTitle}
+					description={props.pickerDescription}
 					options={props.options}
 					selected={props.selected}
 					onChange={props.onChange}
 					renderLeading={props.renderLeading}
+					inlineGroups={props.inlineGroups}
+					groupActions={props.groupActions}
 					trigger={
 						<Button
 							type="button"
 							variant="outline"
+							size="sm"
 							disabled={props.disabled}
-							className="min-w-[160px]"
+							className="h-8 min-w-[148px]"
 						>
 							{props.triggerLabel}
 						</Button>
@@ -615,6 +749,7 @@ function SelectionField(props: {
 				items={props.selectedItems}
 				empty={props.empty}
 				onRemove={props.onRemove}
+				compact
 			/>
 		</div>
 	);
@@ -624,121 +759,214 @@ type PreviewModelProviderState = {
 	providerId: string;
 	accessible: boolean;
 	reason: string;
+	reasonCode: "available" | "provider_restriction" | "model_restriction" | "zdr_required" | "data_policy_unknown" | "data_policy_unverified" | "logging_disabled" | "training_disabled";
 };
 
-type EditorView =
-	| "overview"
-	| "access"
-	| "promptInjection"
-	| "sensitiveInfo"
-	| "budgets";
+function capabilityPrivacyDecision(args: {
+	row: ActiveProviderModel;
+	capability: { id: string; dataPolicy: Record<string, unknown> | null };
+	privacyZdrOnly: boolean;
+	privacyEnableInputOutputLogging: boolean;
+	privacyEnablePaidMayTrain: boolean;
+	privacyEnableFreeMayTrain: boolean;
+}): { accessible: boolean; reason: string; reasonCode: PreviewModelProviderState["reasonCode"] } {
+	const policy = args.capability.dataPolicy;
+	const stateful = ["batch", "files.upload", "files.list", "files.retrieve"].includes(args.capability.id);
+	const tier = String(policy?.tier ?? (stateful ? "logs" : args.row.providerPolicy?.dataPolicyTier ?? "unknown"));
+	const confidence = String(policy?.confidence ?? (stateful ? "confirmed" : args.row.providerPolicy?.dataPolicyConfidence ?? "unknown"));
+	const zdrEligibility = String(policy?.zdrEligibility ?? (stateful
+		? "ineligible"
+		: args.row.providerPolicy?.zeroDataRetention === "default" ? "eligible"
+			: args.row.providerPolicy?.zeroDataRetention === "optional" ? "conditional"
+				: args.row.providerPolicy?.zeroDataRetention === "unsupported" ? "ineligible" : "unknown"));
+
+	if (args.privacyZdrOnly && zdrEligibility !== "eligible") {
+		return {
+			accessible: false,
+			reasonCode: "zdr_required",
+			reason: `${args.capability.id} is not verified as ZDR eligible (${zdrEligibility}).`,
+		};
+	}
+	const privacyRestricted = args.privacyZdrOnly || !args.privacyEnableInputOutputLogging || !args.privacyEnablePaidMayTrain || !args.privacyEnableFreeMayTrain;
+	if (privacyRestricted && tier === "unknown") {
+		return { accessible: false, reasonCode: "data_policy_unknown", reason: `${args.capability.id} has no confirmed data policy.` };
+	}
+	if (privacyRestricted && confidence !== "confirmed") {
+		return { accessible: false, reasonCode: "data_policy_unverified", reason: `${args.capability.id} data policy is ${confidence}, not confirmed.` };
+	}
+	if (!args.privacyEnableInputOutputLogging && tier === "logs") {
+		return { accessible: false, reasonCode: "logging_disabled", reason: `${args.capability.id} may retain prompts or outputs.` };
+	}
+	if ((!args.privacyEnablePaidMayTrain && !args.privacyEnableFreeMayTrain) && tier === "trains") {
+		return { accessible: false, reasonCode: "training_disabled", reason: `${args.capability.id} may train on prompts or outputs.` };
+	}
+	return { accessible: true, reasonCode: "available", reason: `${args.capability.id} meets the current privacy settings.` };
+}
 
 function buildProviderReason(args: {
+	row: ActiveProviderModel;
 	providerId: string;
 	providerAllowed: boolean;
 	modelAllowed: boolean;
 	providerMode: ProviderRestrictionMode;
 	selectedProviderIds: string[];
 	selectedModelIds: string[];
+	privacyZdrOnly: boolean;
+	privacyEnableInputOutputLogging: boolean;
+	privacyEnablePaidMayTrain: boolean;
+	privacyEnableFreeMayTrain: boolean;
+	accountProviderAllowed: boolean;
+	accountModelAllowed: boolean;
 }) {
-	if (args.providerAllowed && args.modelAllowed) {
-		return "Reachable with the current provider and model settings.";
-	}
+	if (!args.accountProviderAllowed) return { reasonCode: "provider_restriction" as const, reason: "Blocked by the account provider rule." };
+	if (!args.accountModelAllowed) return { reasonCode: "model_restriction" as const, reason: "Blocked by the account model rule." };
 	if (!args.providerAllowed) {
 		if (args.providerMode === "allowlist") {
-			return args.selectedProviderIds.length
+			return { reasonCode: "provider_restriction" as const, reason: args.selectedProviderIds.length
 				? "Blocked because this provider is outside the provider allowlist."
-				: "Blocked because no providers were selected in the provider allowlist."
-				;
+				: "Blocked because no providers were selected in the provider allowlist." };
 		}
 		if (args.providerMode === "blocklist") {
-			return "Blocked because this provider is included in the provider blocklist.";
+			return { reasonCode: "provider_restriction" as const, reason: "Blocked because this provider is included in the provider blocklist." };
 		}
 	}
 	if (!args.modelAllowed) {
-		return args.selectedModelIds.length
+		return { reasonCode: "model_restriction" as const, reason: args.selectedModelIds.length
 			? "Blocked because this model is outside the selected model allowlist."
-			: "Blocked by the current model restriction."
-			;
+			: "Blocked by the current model restriction." };
 	}
-	return "Not reachable with the current settings.";
-}
-
-function SettingsGroupRow(props: {
-	title: string;
-	description: string;
-	summary: string;
-	onOpen: () => void;
-}) {
-	return (
-		<button
-			type="button"
-			onClick={props.onOpen}
-			className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left transition-colors hover:bg-muted/30"
-		>
-			<div className="min-w-0">
-				<div className="text-sm font-medium">{props.title}</div>
-				<p className="mt-1 text-sm text-muted-foreground">{props.description}</p>
-			</div>
-			<div className="flex shrink-0 items-center gap-4">
-				<div className="max-w-[340px] text-right text-sm text-muted-foreground">
-					{props.summary}
-				</div>
-				<span className="text-sm font-medium">Open</span>
-			</div>
-		</button>
-	);
-}
-
-function getEditorViewLabel(view: EditorView): string {
-	switch (view) {
-		case "access":
-			return "Access";
-		case "promptInjection":
-			return "Prompt injection";
-		case "sensitiveInfo":
-			return "Sensitive info detection";
-		case "budgets":
-			return "Budget policies";
-		default:
-			return "Overview";
+	const capabilities = args.row?.capabilities?.length ? args.row.capabilities : [{ id: "inference", dataPolicy: null }];
+	const decisions = capabilities.map((capability) => capabilityPrivacyDecision({ ...args, capability }));
+	const available = decisions.filter((decision) => decision.accessible);
+	if (available.length) {
+		const blocked = decisions.length - available.length;
+		return {
+			reasonCode: "available" as const,
+			reason: blocked ? `Reachable for ${available.length} capabilities; ${blocked} excluded by privacy settings.` : "Reachable with the current settings.",
+		};
 	}
-}
-
-function getEditorViewDescription(view: EditorView): string {
-	switch (view) {
-		case "access":
-			return "Control ZDR, privacy eligibility, provider access, model access, and reachable model coverage in one place.";
-		case "promptInjection":
-			return "Choose how prompt-injection detection should inspect and respond to risky inputs.";
-		case "sensitiveInfo":
-			return "Configure built-in and custom sensitive-data handling before requests reach the model.";
-		case "budgets":
-			return "Set request and spend ceilings across daily, weekly, and monthly windows.";
-		default:
-			return "";
-	}
+	return decisions[0] ?? { reasonCode: "data_policy_unknown" as const, reason: "No capability has a confirmed compatible data policy." };
 }
 
 export default function GuardrailEditorPageClient(props: {
+	accountPolicy: import("@/lib/fetchers/internal/settingsTypes").AccountPrivacyPolicy;
 	mode: "create" | "edit";
 	guardrailId: string | null;
 	teamName: string | null;
 	providers: ProviderOption[];
 	activeProviderModels: ActiveProviderModel[];
 	keys: KeyOption[];
+	members: MemberOption[];
 	initialGuardrail: GuardrailRow | null;
 	initialKeyIds: string[];
+	initialMemberIds: string[];
 	backHref: string;
 }) {
 	const router = useRouter();
+	const [expandedSections, setExpandedSections] = useQueryState(
+		"sections",
+		expandedSectionsParser,
+	);
+	const validExpandedSections = useMemo(
+		() => expandedSections.filter((section) => GUARDRAIL_SECTION_IDS.has(section)),
+		[expandedSections],
+	);
+	const activeSection = validExpandedSections[0] ?? null;
+	const activeSectionDetails = activeSection
+		? {
+			access: {
+				title: "Access",
+				description: "Control data handling, provider access, and model access.",
+			},
+			"prompt-injection": {
+				title: "Prompt Injection",
+				description: "Detect and handle prompt injection before a request reaches a model.",
+			},
+			"sensitive-info": {
+				title: "Sensitive Info Detection",
+				description: "Detect and handle sensitive data before it leaves Phaseo.",
+			},
+			budgets: {
+				title: "Budget Policies",
+				description: "Set request and spend limits for this guardrail.",
+			},
+		}[activeSection]
+		: null;
 	const g = props.initialGuardrail;
 
+	const normalizedProviders = useMemo(() => {
+		const activeProviderIds = new Set(props.activeProviderModels.map((row) => row.providerId));
+		const sourceProviders = activeProviderIds.size
+			? props.providers.filter((provider) => activeProviderIds.has(provider.id))
+			: props.providers;
+		const providersByName = new Map<string, ProviderOption[]>();
+		for (const provider of sourceProviders) {
+			const key = String(provider.name ?? provider.id).trim().toLowerCase();
+			providersByName.set(key, [...(providersByName.get(key) ?? []), provider]);
+		}
+		const inferredFamilyByName = new Map<string, string>();
+		for (const [name, providers] of providersByName) {
+			if (providers.length < 2) continue;
+			const base = [...providers].sort((a, b) => a.id.length - b.id.length || a.id.localeCompare(b.id))[0];
+			if (base) inferredFamilyByName.set(name, base.id);
+		}
+		return sourceProviders.map((provider) => {
+			const name = String(provider.name ?? provider.id).trim() || provider.id;
+			const nameKey = name.toLowerCase();
+			const explicitFamilyId = String(provider.familyId ?? "").trim();
+			const scope = String(provider.offerScope ?? "").trim();
+			return {
+				...provider,
+				name,
+				familyId: explicitFamilyId || inferredFamilyByName.get(nameKey) || provider.id,
+				offerLabel: String(provider.offerLabel ?? "").trim() || null,
+				offerScope: (["global", "regional", "specialized"].includes(scope) ? scope : null) as ProviderOfferScope | null,
+			};
+		});
+	}, [props.activeProviderModels, props.providers]);
+	const providerFamilyNameById = useMemo(() => {
+		const names = new Map<string, string>();
+		for (const provider of normalizedProviders) {
+			if (provider.id === provider.familyId || provider.offerScope === "global") {
+				names.set(provider.familyId, provider.name);
+			}
+		}
+		for (const provider of normalizedProviders) {
+			if (!names.has(provider.familyId)) names.set(provider.familyId, provider.name);
+		}
+		return names;
+	}, [normalizedProviders]);
+	const providerById = useMemo(() => new Map(normalizedProviders.map((provider) => [provider.id, provider])), [normalizedProviders]);
 	const providerOptions = useMemo(() => {
-		return [...props.providers]
-			.sort((a, b) => a.name.localeCompare(b.name))
-			.map((p) => ({ value: p.id, label: p.name }));
-	}, [props.providers]);
+		const familyCounts = new Map<string, number>();
+		for (const provider of normalizedProviders) {
+			familyCounts.set(provider.familyId, (familyCounts.get(provider.familyId) ?? 0) + 1);
+		}
+		return normalizedProviders
+			.map((provider) => {
+				const familyName = providerFamilyNameById.get(provider.familyId) ?? provider.name;
+				const hasVariants = (familyCounts.get(provider.familyId) ?? 0) > 1;
+				const variant = provider.offerLabel || provider.offerScope
+					? formatProviderOfferVariantLabel({
+						providerId: provider.id,
+						offerLabel: provider.offerLabel,
+						offerScope: provider.offerScope,
+					})
+					: formatProviderIdVariant(provider.id, provider.familyId);
+				return {
+					value: provider.id,
+					label: hasVariants ? `${familyName} — ${variant}` : provider.name,
+					group: hasVariants ? familyName : undefined,
+					variant,
+					variantOrder: variant === "Standard" ? 0 : 1,
+				};
+			})
+			.sort((a, b) =>
+				(a.group ?? a.label).localeCompare(b.group ?? b.label) ||
+				a.variantOrder - b.variantOrder ||
+				a.label.localeCompare(b.label),
+			);
+	}, [normalizedProviders, providerFamilyNameById]);
 
 	const modelLabelById = useMemo(() => {
 		const map = new Map<string, string>();
@@ -759,10 +987,26 @@ export default function GuardrailEditorPageClient(props: {
 	}, [props.activeProviderModels]);
 
 	const modelOptions = useMemo(() => {
-		return Array.from(modelLabelById.entries())
-			.sort((a, b) => a[1].localeCompare(b[1]))
-			.map(([value, label]) => ({ value, label }));
-	}, [modelLabelById]);
+		const options = new Map<string, SelectionOption>();
+		for (const row of props.activeProviderModels) {
+			if (options.has(row.apiModelId)) continue;
+			const group = row.organisationName?.trim() || row.organisationId?.trim() || "Other";
+			options.set(row.apiModelId, {
+				value: row.apiModelId,
+				label: formatModelPreviewTitle({
+					organisationName: row.organisationName,
+					organisationId: row.organisationId,
+					internalModelName: row.internalModelName,
+					internalModelId: row.internalModelId,
+					apiModelId: row.apiModelId,
+				}),
+				group,
+			});
+		}
+		return Array.from(options.values()).sort((a, b) =>
+			(a.group ?? "").localeCompare(b.group ?? "") || a.label.localeCompare(b.label),
+		);
+	}, [props.activeProviderModels]);
 
 	const keyOptions = useMemo(() => {
 		return props.keys.map((k) => ({
@@ -770,19 +1014,24 @@ export default function GuardrailEditorPageClient(props: {
 			label: k.name,
 		}));
 	}, [props.keys]);
+	const memberOptions = useMemo(() => props.members
+		.map((member) => ({ value: member.id, label: member.name }))
+		.sort((a, b) => a.label.localeCompare(b.label)), [props.members]);
 
 	const providerLabelById = useMemo(() => {
-		return new Map(props.providers.map((provider) => [provider.id, provider.name]));
-	}, [props.providers]);
+		return new Map(providerOptions.map((provider) => [provider.value, provider.label]));
+	}, [providerOptions]);
 	const keyById = useMemo(() => {
 		return new Map(props.keys.map((key) => [key.id, key]));
 	}, [props.keys]);
-	const modelProviderIdsByModelId = useMemo(() => {
-		const map = new Map<string, string[]>();
+	const memberById = useMemo(() => new Map(props.members.map((member) => [member.id, member])), [props.members]);
+	const modelOrganisationByModelId = useMemo(() => {
+		const map = new Map<string, { id: string; name: string }>();
 		for (const row of props.activeProviderModels) {
-			const current = map.get(row.apiModelId) ?? [];
-			current.push(row.providerId);
-			map.set(row.apiModelId, uniqStrings(current).sort((a, b) => a.localeCompare(b)));
+			if (map.has(row.apiModelId)) continue;
+			const fallbackId = row.apiModelId.split("/")[0] || "cloudflare";
+			const id = row.organisationId?.trim() || fallbackId;
+			map.set(row.apiModelId, { id, name: row.organisationName?.trim() || id });
 		}
 		return map;
 	}, [props.activeProviderModels]);
@@ -841,13 +1090,13 @@ export default function GuardrailEditorPageClient(props: {
 			monthlyCostUsd: formatUsdFromNanos(Number(g?.monthly_limit_cost_nanos ?? 0)),
 
 			keyIds: props.initialKeyIds ?? [],
+			memberIds: props.initialMemberIds ?? [],
 		};
-	}, [g, props.initialKeyIds]);
+	}, [g, props.initialKeyIds, props.initialMemberIds]);
 
 	const [form, setForm] = useState(initial);
 	const [saving, setSaving] = useState(false);
 	const [deleting, setDeleting] = useState(false);
-	const [activeView, setActiveView] = useState<EditorView>("overview");
 	const [modelCoverageFilter, setModelCoverageFilter] = useState<
 		"all" | "available" | "unavailable"
 	>("all");
@@ -861,6 +1110,10 @@ export default function GuardrailEditorPageClient(props: {
 				providerRestrictionProviderIds: form.providerRestrictionProviderIds,
 				modelRestrictionMode: form.modelRestrictionMode,
 				allowedApiModelIds: form.allowedApiModelIds,
+				accountProviderRestrictionMode: props.accountPolicy.providerRestrictionMode,
+				accountProviderRestrictionProviderIds: props.accountPolicy.providerRestrictionProviderIds,
+				accountModelRestrictionMode: props.accountPolicy.modelRestrictionMode,
+				accountModelRestrictionModelIds: props.accountPolicy.modelRestrictionModelIds,
 			}),
 		[
 			form.allowedApiModelIds,
@@ -868,6 +1121,7 @@ export default function GuardrailEditorPageClient(props: {
 			form.providerRestrictionMode,
 			form.providerRestrictionProviderIds,
 			props.activeProviderModels,
+			props.accountPolicy,
 			props.providers,
 		],
 	);
@@ -884,13 +1138,23 @@ export default function GuardrailEditorPageClient(props: {
 			})
 			.filter((item): item is NonNullable<typeof item> => Boolean(item));
 	}, [form.keyIds, keyById]);
+	const selectedMemberItems = useMemo(() => form.memberIds
+		.map((memberId) => {
+			const member = memberById.get(memberId);
+			if (!member) return null;
+			return { id: member.id, title: member.name, leading: <UserRound className="h-3.5 w-3.5 text-muted-foreground" /> };
+		})
+		.filter((item): item is NonNullable<typeof item> => Boolean(item)), [form.memberIds, memberById]);
 	const selectedProviderItems = useMemo(() => {
 		return form.providerRestrictionProviderIds.map((providerId) => ({
 			id: providerId,
 			title: providerLabelById.get(providerId) ?? providerId,
 			leading: (
 				<Logo
-					id={getProviderLogoId(providerId)}
+					id={resolveProviderLogoId({
+						providerId,
+						providerFamilyId: providerById.get(providerId)?.familyId,
+					})}
 					alt={`${providerLabelById.get(providerId) ?? providerId} logo`}
 					width={14}
 					height={14}
@@ -898,18 +1162,17 @@ export default function GuardrailEditorPageClient(props: {
 				/>
 			),
 		}));
-	}, [form.providerRestrictionProviderIds, providerLabelById]);
+	}, [form.providerRestrictionProviderIds, providerById, providerLabelById]);
 	const selectedModelItems = useMemo(() => {
 		return form.allowedApiModelIds.map((modelId) => {
-			const providerIds = modelProviderIdsByModelId.get(modelId) ?? [];
-			const primaryProviderId = providerIds[0] ?? "cloudflare";
+			const organisation = modelOrganisationByModelId.get(modelId) ?? { id: "cloudflare", name: "Model organisation" };
 			return {
 				id: modelId,
 				title: modelLabelById.get(modelId) ?? modelId,
 				leading: (
 					<Logo
-						id={getProviderLogoId(primaryProviderId)}
-						alt={`${providerLabelById.get(primaryProviderId) ?? primaryProviderId} logo`}
+						id={getProviderLogoId(organisation.id)}
+						alt={`${organisation.name} logo`}
 						width={14}
 						height={14}
 						className="h-3.5 w-3.5 rounded-sm"
@@ -917,7 +1180,7 @@ export default function GuardrailEditorPageClient(props: {
 				),
 			};
 		});
-	}, [form.allowedApiModelIds, modelLabelById, modelProviderIdsByModelId, providerLabelById]);
+	}, [form.allowedApiModelIds, modelLabelById, modelOrganisationByModelId]);
 	const modelCoverageItems = useMemo(() => {
 		const providerAllowedSet = new Set(restrictionPreview.allowedProviderIds);
 		const selectedModelIdsSet = new Set(form.allowedApiModelIds);
@@ -936,21 +1199,43 @@ export default function GuardrailEditorPageClient(props: {
 						? true
 						: form.modelRestrictionMode === "allowlist"
 							? selectedModelIdsSet.has(modelId)
-							: !selectedModelIdsSet.has(modelId);
-				const providerStates: PreviewModelProviderState[] = rows
+						: !selectedModelIdsSet.has(modelId);
+				const accountModelIds = props.accountPolicy.modelRestrictionModelIds;
+				const accountModelAllowed = props.accountPolicy.modelRestrictionMode === "allowlist"
+					? accountModelIds.includes(modelId)
+					: props.accountPolicy.modelRestrictionMode === "blocklist"
+						? !accountModelIds.includes(modelId)
+						: true;
+				const uniqueRouteRows = Array.from(new Map(rows.map((row) => [row.providerId, row])).values());
+				const providerStates: PreviewModelProviderState[] = uniqueRouteRows
 					.map((row) => {
 						const providerAllowed = providerAllowedSet.has(row.providerId);
+						const accountProviderIds = props.accountPolicy.providerRestrictionProviderIds;
+						const accountProviderAllowed = props.accountPolicy.providerRestrictionMode === "allowlist"
+							? accountProviderIds.includes(row.providerId)
+							: props.accountPolicy.providerRestrictionMode === "blocklist"
+								? !accountProviderIds.includes(row.providerId)
+								: true;
+						const decision = buildProviderReason({
+							row,
+							providerId: row.providerId,
+							providerAllowed,
+							modelAllowed,
+							providerMode: form.providerRestrictionMode,
+							selectedProviderIds: form.providerRestrictionProviderIds,
+							selectedModelIds: form.allowedApiModelIds,
+							privacyZdrOnly: form.privacyZdrOnly,
+							privacyEnableInputOutputLogging: form.privacyEnableInputOutputLogging,
+							privacyEnablePaidMayTrain: form.privacyEnablePaidMayTrain,
+							privacyEnableFreeMayTrain: form.privacyEnableFreeMayTrain,
+							accountProviderAllowed,
+							accountModelAllowed,
+						});
 						return {
 							providerId: row.providerId,
-							accessible: providerAllowed && modelAllowed,
-							reason: buildProviderReason({
-								providerId: row.providerId,
-								providerAllowed,
-								modelAllowed,
-								providerMode: form.providerRestrictionMode,
-								selectedProviderIds: form.providerRestrictionProviderIds,
-								selectedModelIds: form.allowedApiModelIds,
-							}),
+							accessible: providerAllowed && modelAllowed && decision.reasonCode === "available",
+							reason: decision.reason,
+							reasonCode: decision.reasonCode,
 						};
 					})
 					.sort((a, b) => a.providerId.localeCompare(b.providerId));
@@ -964,6 +1249,8 @@ export default function GuardrailEditorPageClient(props: {
 				});
 				return {
 					id: modelId,
+					organisationLabel: primary?.organisationName ?? primary?.organisationId ?? "Other",
+					modelLabel: primary?.internalModelName ?? primary?.internalModelId ?? modelId,
 					title: formatModelPreviewTitle({
 						organisationName: primary?.organisationName ?? null,
 						organisationId: primary?.organisationId ?? null,
@@ -975,8 +1262,8 @@ export default function GuardrailEditorPageClient(props: {
 					available: isAvailable,
 					leading: (
 						<Logo
-							id={getProviderLogoId(primary?.providerId ?? "cloudflare")}
-							alt={`${providerLabelById.get(primary?.providerId ?? "") ?? primary?.providerId ?? "Provider"} logo`}
+							id={getProviderLogoId(primary?.organisationId ?? modelId.split("/")[0] ?? "cloudflare")}
+							alt={`${primary?.organisationName ?? primary?.organisationId ?? "Model organisation"} logo`}
 							width={18}
 							height={18}
 							className="h-[18px] w-[18px] rounded-sm"
@@ -997,7 +1284,10 @@ export default function GuardrailEditorPageClient(props: {
 													className="inline-flex items-center justify-center rounded-md p-1 hover:bg-muted/60"
 												>
 													<Logo
-														id={getProviderLogoId(state.providerId)}
+												id={resolveProviderLogoId({
+													providerId: state.providerId,
+													providerFamilyId: providerById.get(state.providerId)?.familyId,
+												})}
 														alt={`${providerLabel} logo`}
 														width={18}
 														height={18}
@@ -1024,14 +1314,23 @@ export default function GuardrailEditorPageClient(props: {
 					),
 				};
 			})
-			.sort((a, b) => a.title.localeCompare(b.title));
+			.sort((a, b) =>
+				a.organisationLabel.localeCompare(b.organisationLabel) ||
+				a.modelLabel.localeCompare(b.modelLabel),
+			);
 	}, [
 		form.allowedApiModelIds,
 		form.modelRestrictionMode,
+		form.privacyEnableFreeMayTrain,
+		form.privacyEnableInputOutputLogging,
+		form.privacyEnablePaidMayTrain,
+		form.privacyZdrOnly,
 		form.providerRestrictionMode,
 		form.providerRestrictionProviderIds,
+		props.accountPolicy,
 		props.activeProviderModels,
 		providerLabelById,
+		providerById,
 		restrictionPreview.allowedProviderIds,
 	]);
 	const filteredModelCoverageItems = useMemo(() => {
@@ -1044,6 +1343,10 @@ export default function GuardrailEditorPageClient(props: {
 				return modelCoverageItems;
 		}
 	}, [modelCoverageFilter, modelCoverageItems]);
+	const modelCoverageCounts = useMemo(() => ({
+		available: modelCoverageItems.filter((item) => item.available).length,
+		unavailable: modelCoverageItems.filter((item) => !item.available).length,
+	}), [modelCoverageItems]);
 
 	const sensitiveInfoPreview = useMemo(
 		() =>
@@ -1205,6 +1508,10 @@ export default function GuardrailEditorPageClient(props: {
 		set("keyIds", form.keyIds.filter((id) => id !== keyId));
 	}
 
+	function removeSelectedMember(memberId: string) {
+		set("memberIds", form.memberIds.filter((id) => id !== memberId));
+	}
+
 	function removeSelectedProvider(providerId: string) {
 		set(
 			"providerRestrictionProviderIds",
@@ -1326,7 +1633,10 @@ export default function GuardrailEditorPageClient(props: {
 			}
 
 			if (guardrailId) {
-				await setGuardrailKeys(guardrailId, form.keyIds);
+				await Promise.all([
+					setGuardrailKeys(guardrailId, form.keyIds),
+					setGuardrailMembers(guardrailId, form.memberIds),
+				]);
 			}
 
 			toast.success("Guardrail saved", { id: toastId });
@@ -1360,101 +1670,93 @@ export default function GuardrailEditorPageClient(props: {
 	}
 
 	return (
-		<div className="space-y-6">
-			<Alert className="border-sky-200 bg-sky-50 text-sky-950 dark:border-sky-900/60 dark:bg-sky-900/20 dark:text-sky-50">
-				<Info className="text-sky-600 dark:text-sky-300" />
-				<div>
-					<AlertTitle>Beta feature</AlertTitle>
-					<AlertDescription>
-						Guardrails UI ships ahead of full enforcement metadata. Validate critical
-						behavior with a staging key before rolling out broadly.
-					</AlertDescription>
-				</div>
-			</Alert>
+		<div className="space-y-6 [&_[data-slot=button]]:!rounded-md [&_[data-slot=select-trigger]]:!rounded-md">
 			<div className="w-full space-y-6">
+				{activeSection ? (
+					<div className="space-y-4 border-b pb-5">
+						<button
+							type="button"
+							onClick={() => void setExpandedSections([])}
+							className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+						>
+							<ChevronLeft className="h-4 w-4" />
+							<span>Overview / {activeSectionDetails?.title}</span>
+						</button>
+						<div>
+							<h1 className="text-2xl font-semibold tracking-tight">{activeSectionDetails?.title}</h1>
+							<p className="mt-1 text-sm text-muted-foreground">{activeSectionDetails?.description}</p>
+						</div>
+					</div>
+				) : null}
+				{!activeSection ? <>
 				<div className="flex flex-wrap items-center justify-between gap-3">
-					{activeView === "overview" ? (
-						<div className="min-w-0 flex-1">
-							<Label htmlFor="guardrail-name" className="sr-only">
-								Guardrail name
-							</Label>
-							<Input
-								id="guardrail-name"
-								value={form.name}
-								onChange={(e) => set("name", e.target.value)}
-								placeholder="New Guardrail"
-								className="h-auto border-0 bg-transparent px-0 py-0 text-4xl font-semibold tracking-tight shadow-none placeholder:text-muted-foreground/70 focus-visible:ring-0 md:text-3xl"
-							/>
-						</div>
-					) : (
-						<div className="min-w-0">
-							<div className="flex flex-wrap items-center gap-2">
-								<Button
-									type="button"
-									variant="ghost"
-									size="sm"
-									className="h-auto gap-1.5 rounded-md px-2 py-1 text-muted-foreground"
-									onClick={() => setActiveView("overview")}
-								>
-									<ChevronLeft className="h-4 w-4" />
-									Overview
-								</Button>
-								<span className="text-muted-foreground">/</span>
-								<div className="text-2xl font-semibold tracking-tight">
-									{getEditorViewLabel(activeView)}
-								</div>
-							</div>
-							<p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-								{getEditorViewDescription(activeView)}
-							</p>
-						</div>
-					)}
+					<div className="min-w-0 flex-1">
+						<Label htmlFor="guardrail-name" className="sr-only">
+							Guardrail name
+						</Label>
+						<Input
+							id="guardrail-name"
+							value={form.name}
+							onChange={(e) => set("name", e.target.value)}
+							placeholder="New Guardrail"
+							className="h-auto rounded-none border-0 bg-transparent px-0 py-0 text-4xl font-semibold leading-tight tracking-tight shadow-none placeholder:text-muted-foreground/70 focus-visible:ring-0 md:text-3xl"
+						/>
+					</div>
 					<div className="flex flex-wrap items-center gap-2">
-						{activeView === "overview" ? (
-							<>
-								<Button asChild type="button" variant="outline" disabled={saving || deleting}>
-									<Link href={props.backHref}>Cancel</Link>
-								</Button>
-								<Button type="button" onClick={onSave} disabled={saving || deleting}>
-									{saving ? "Saving..." : props.mode === "create" ? "Create" : "Save"}
-								</Button>
-								<div className="flex items-center gap-2 rounded-lg border bg-muted/10 px-3 py-2">
-									<div className="min-w-0">
-										<p className="text-sm font-medium">Enabled</p>
-									</div>
-									<Switch
-										checked={form.enabled}
-										onCheckedChange={(checked) => set("enabled", checked)}
-									/>
-								</div>
-								{props.mode === "edit" ? (
-									<Button
-										type="button"
-										variant="destructive"
-										onClick={onDelete}
-										disabled={saving || deleting}
-									>
-										<Trash2 className="mr-2 h-4 w-4" />
-										Delete
-									</Button>
-								) : null}
-							</>
+						<Button asChild type="button" variant="outline" disabled={saving || deleting} className="rounded-md">
+							<Link href={props.backHref}>Cancel</Link>
+						</Button>
+						<Button type="button" onClick={onSave} disabled={saving || deleting} className="rounded-md">
+							{saving ? "Saving..." : props.mode === "create" ? "Create" : "Save"}
+						</Button>
+						{props.mode === "edit" ? (
+							<Button type="button" variant="destructive" onClick={onDelete} disabled={saving || deleting} className="rounded-md">
+								<Trash2 className="mr-2 h-4 w-4" />
+								Delete
+							</Button>
 						) : null}
 					</div>
 				</div>
 
-				{activeView === "overview" ? (
-					<div className="space-y-6">
+				<div className="space-y-6">
 						<div className="space-y-5">
 							<div className="space-y-3">
 								<Textarea
 									value={form.description}
 									onChange={(e) => set("description", e.target.value)}
 									placeholder="Who is this for? What does it restrict?"
-									className="min-h-0 h-10 resize-none overflow-hidden border-0 bg-transparent px-0 py-2 text-base text-muted-foreground shadow-none placeholder:text-muted-foreground/70 focus-visible:ring-0"
+									className="min-h-0 h-10 resize-none overflow-hidden rounded-none border-0 bg-transparent px-0 py-2 text-base text-muted-foreground shadow-none placeholder:text-muted-foreground/70 focus-visible:ring-0"
 								/>
 							</div>
-							<div className="space-y-3 border-t pt-4">
+							<div className="space-y-4 border-t pt-5">
+								<div>
+									<h2 className="text-sm font-semibold">Status & Assignments</h2>
+									<p className="mt-1 text-sm text-muted-foreground">Enable this guardrail and choose who it protects.</p>
+								</div>
+								<div className="flex items-center justify-between gap-4 py-2">
+									<div>
+										<p className="text-sm font-medium">Enabled</p>
+										<p className="mt-1 text-xs text-muted-foreground">Disabled guardrails remain configured but are not enforced.</p>
+									</div>
+									<Switch checked={form.enabled} onCheckedChange={(checked) => set("enabled", checked)} />
+								</div>
+								<div className="flex flex-wrap items-center justify-between gap-3">
+									<div>
+										<div className="text-sm font-medium">Apply to members</div>
+										<p className="text-xs text-muted-foreground">
+											Enforce this policy on API keys created for selected members.
+										</p>
+									</div>
+									<SelectionCombobox
+										title="Select members"
+										description="Members cannot edit or remove policies assigned by workspace owners or admins."
+										options={memberOptions}
+										selected={form.memberIds}
+										onChange={(next) => set("memberIds", next)}
+										trigger={<Button type="button" variant="outline" size="sm" className="h-8 rounded-md">{form.memberIds.length ? `${form.memberIds.length} selected` : "Select members"}</Button>}
+									/>
+								</div>
+								<SelectedItemBadges items={selectedMemberItems} empty="No members selected yet." onRemove={removeSelectedMember} />
 								<div className="flex flex-wrap items-center justify-between gap-3">
 									<div>
 										<div className="text-sm font-medium">Apply to keys</div>
@@ -1462,14 +1764,14 @@ export default function GuardrailEditorPageClient(props: {
 											Attach this guardrail during creation instead of after the fact.
 										</p>
 									</div>
-									<SelectionDialog
+									<SelectionCombobox
 										title="Select keys"
 										description="Apply this guardrail to one or more keys."
 										options={keyOptions}
 										selected={form.keyIds}
 										onChange={(next) => set("keyIds", next)}
 										trigger={
-											<Button type="button" variant="outline">
+											<Button type="button" variant="outline" size="sm" className="h-8 rounded-md">
 												{form.keyIds.length
 													? `${form.keyIds.length} selected`
 													: "Select keys"}
@@ -1485,69 +1787,46 @@ export default function GuardrailEditorPageClient(props: {
 							</div>
 						</div>
 
-						<Separator />
-
-						<div className="space-y-2">
-							<div className="text-sm font-medium">Configuration groups</div>
-							<p className="text-sm text-muted-foreground">
-								Open one group at a time instead of working through a single long form.
-							</p>
-						</div>
-						<div className="divide-y rounded-xl border bg-background">
-							<SettingsGroupRow
-								title="Access"
-								description="Control ZDR, privacy eligibility, provider access, and model access together."
-								summary={
-									`${privacyRestrictionCount ? `${privacyRestrictionCount} privacy rules active, ` : ""}${describeProviderRestrictionMode(form.providerRestrictionMode)}, ${summarizeModelRestriction({
-										mode: form.modelRestrictionMode,
-										selectedCount: form.allowedApiModelIds.length,
-									})}`
-								}
-								onOpen={() => setActiveView("access")}
-							/>
-							<SettingsGroupRow
-								title="Prompt injection"
-								description="Scan request content for prompt-injection patterns before routing."
-								summary={
-									form.promptInjectionEnabled
-										? `Enabled: ${form.promptInjectionAction}`
-										: "Disabled"
-								}
-								onOpen={() => setActiveView("promptInjection")}
-							/>
-							<SettingsGroupRow
-								title="Sensitive info detection"
-								description="Detect built-in and custom sensitive patterns before the request reaches the model."
-								summary={
-									form.sensitiveInfoEnabled
-										? `${enabledSensitiveInfoRuleCount} rules enabled`
-										: "Disabled"
-								}
-								onOpen={() => setActiveView("sensitiveInfo")}
-							/>
-							<SettingsGroupRow
-								title="Budget policies"
-								description="Apply request and spend ceilings across daily, weekly, and monthly windows."
-								summary={
-									configuredBudgetCount
-										? `${configuredBudgetCount} limits configured`
-										: "No budgets configured"
-								}
-								onOpen={() => setActiveView("budgets")}
-							/>
-						</div>
 					</div>
-				) : null}
 
-				{activeView === "access" ? (
-					<div className="space-y-4">
+				<div>
+					<h2 className="text-sm font-semibold">Configuration Groups</h2>
+					<p className="mt-1 text-sm text-muted-foreground">Configure access, safety, and spending policies.</p>
+				</div>
+				</> : null}
+				<Accordion
+					type="multiple"
+					value={validExpandedSections}
+					onValueChange={(sections) => void setExpandedSections(sections.slice(-1))}
+					className={activeSection ? "space-y-0" : "border-y border-border/70 py-1"}
+				>
+					<AccordionItem value="access" className={activeSection && activeSection !== "access" ? "hidden" : "border-0"}>
+						<AccordionTrigger className={activeSection ? "hidden" : "gap-4 px-4 py-4 hover:bg-muted/20 hover:no-underline [&>svg:last-child]:-rotate-90"}>
+							<div className="min-w-0 flex-1 text-left">
+								<div className="text-sm font-medium">Access</div>
+								<p className="mt-1 text-sm font-normal text-muted-foreground">
+									Control privacy, provider access, and model access.
+								</p>
+							</div>
+							<span className="hidden shrink-0 text-sm font-normal text-muted-foreground md:block">
+								{privacyRestrictionCount ? `${privacyRestrictionCount} privacy rules, ` : ""}{describeProviderRestrictionMode(form.providerRestrictionMode)}
+							</span>
+						</AccordionTrigger>
+						<AccordionContent disableAnimation className="pb-2 pt-0">
+							<div className="space-y-4">
 						<EditorSection
 							title="Access"
 							description="Control privacy eligibility first, then provider and model access."
 							compact
 						>
 							<div className="space-y-6">
-								<div className="divide-y rounded-xl border">
+								<div>
+									<h4 className="text-sm font-semibold">Data handling</h4>
+									<p className="mt-1 text-xs text-muted-foreground">
+										Set the minimum privacy requirements every routed request must meet.
+									</p>
+								</div>
+								<div className="divide-y border-y">
 									<div className="px-3 sm:px-4">
 										<ToggleRow
 											label="Allow paid endpoints that may train on inputs"
@@ -1563,17 +1842,6 @@ export default function GuardrailEditorPageClient(props: {
 											description="Disabling further restricts free models flagged as training-on-inputs."
 											checked={form.privacyEnableFreeMayTrain}
 											onCheckedChange={(checked) => set("privacyEnableFreeMayTrain", checked)}
-											flat
-										/>
-									</div>
-									<div className="px-3 sm:px-4">
-										<ToggleRow
-											label="Allow free endpoints that may publish prompts"
-											description="Disabling further restricts endpoints flagged as publishing prompts."
-											checked={form.privacyEnableFreeMayPublishPrompts}
-											onCheckedChange={(checked) =>
-												set("privacyEnableFreeMayPublishPrompts", checked)
-											}
 											flat
 										/>
 									</div>
@@ -1601,6 +1869,22 @@ export default function GuardrailEditorPageClient(props: {
 
 								<Separator />
 
+								<div>
+									<h4 className="text-sm font-semibold">Route access</h4>
+									<p className="mt-1 text-xs text-muted-foreground">
+										Narrow eligible routes by provider or model.
+									</p>
+								</div>
+								{props.accountPolicy.providerRestrictionMode !== "none" || props.accountPolicy.modelRestrictionMode !== "none" ? (
+									<div className="flex flex-col gap-1.5 rounded-lg border bg-muted/20 px-3 py-2 text-xs sm:flex-row sm:items-center sm:justify-between">
+										<span className="text-muted-foreground">
+											Account Privacy applies first; blocked routes remain unavailable here.
+										</span>
+										<Button asChild type="button" variant="ghost" size="sm" className="h-7 justify-start px-2 sm:justify-center">
+											<Link href="/settings/account/privacy">Review account policy</Link>
+										</Button>
+									</div>
+								) : null}
 								<div className="grid gap-6 xl:grid-cols-2">
 									<div className="space-y-4">
 										<div className="space-y-2">
@@ -1611,8 +1895,8 @@ export default function GuardrailEditorPageClient(props: {
 													set("providerRestrictionMode", value as ProviderRestrictionMode)
 												}
 											>
-												<SelectTrigger>
-													<SelectValue placeholder="Select mode" />
+											<SelectTrigger className="w-full">
+												<SelectValue>{getRestrictionModeLabel(form.providerRestrictionMode, "providers")}</SelectValue>
 												</SelectTrigger>
 												<SelectContent>
 													<SelectItem value="none">Allow all providers</SelectItem>
@@ -1626,17 +1910,17 @@ export default function GuardrailEditorPageClient(props: {
 										<SelectionField
 											label="Providers"
 											description="Choose the providers this guardrail allows or blocks."
-											dialogTitle="Select providers"
-											dialogDescription="Choose providers for this guardrail."
+										pickerTitle="Select providers"
+										pickerDescription="Choose providers for this guardrail."
 											options={providerOptions}
 											selected={form.providerRestrictionProviderIds}
 											onChange={(next) => set("providerRestrictionProviderIds", next)}
 											selectedItems={selectedProviderItems}
 											onRemove={removeSelectedProvider}
-											empty={
-												form.providerRestrictionMode === "none"
-													? "Provider restrictions are disabled."
-													: "No providers selected yet."
+										empty={
+											form.providerRestrictionMode === "none"
+												? "No providers restricted."
+												: "No providers selected yet."
 											}
 											triggerLabel={
 												form.providerRestrictionMode === "none"
@@ -1645,16 +1929,19 @@ export default function GuardrailEditorPageClient(props: {
 														? `${form.providerRestrictionProviderIds.length} selected`
 														: "Choose providers"
 											}
-											disabled={form.providerRestrictionMode === "none"}
-											renderLeading={(opt) => (
+										renderLeading={(opt) => (
 												<Logo
-													id={getProviderLogoId(opt.value)}
+											id={resolveProviderLogoId({
+												providerId: opt.value,
+												providerFamilyId: providerById.get(opt.value)?.familyId,
+											})}
 													alt={`${opt.label} logo`}
 													width={18}
 													height={18}
 													className="h-[18px] w-[18px] rounded-sm"
 												/>
-											)}
+										)}
+										inlineGroups
 											accessory={
 												form.providerRestrictionMode === "allowlist" ? (
 													<div className="flex items-center gap-2 rounded-lg border border-dashed px-3 py-2">
@@ -1681,8 +1968,8 @@ export default function GuardrailEditorPageClient(props: {
 													set("modelRestrictionMode", value as ProviderRestrictionMode)
 												}
 											>
-												<SelectTrigger>
-													<SelectValue placeholder="Select mode" />
+											<SelectTrigger className="w-full">
+												<SelectValue>{getRestrictionModeLabel(form.modelRestrictionMode, "models")}</SelectValue>
 												</SelectTrigger>
 												<SelectContent>
 													<SelectItem value="none">Allow all models</SelectItem>
@@ -1696,17 +1983,17 @@ export default function GuardrailEditorPageClient(props: {
 										<SelectionField
 											label="Models"
 											description="Choose the models this guardrail allows or blocks after provider filtering."
-											dialogTitle="Select models"
-											dialogDescription="Choose models for this guardrail after provider filtering."
+										pickerTitle="Select models"
+										pickerDescription="Choose models for this guardrail after provider filtering."
 											options={modelOptions}
 											selected={form.allowedApiModelIds}
 											onChange={(next) => set("allowedApiModelIds", next)}
 											selectedItems={selectedModelItems}
 											onRemove={removeSelectedModel}
-											empty={
-												form.modelRestrictionMode === "none"
-													? "Model restrictions are disabled."
-													: "No models selected yet."
+										empty={
+											form.modelRestrictionMode === "none"
+												? "No models restricted."
+												: "No models selected yet."
 											}
 											triggerLabel={
 												form.modelRestrictionMode === "none"
@@ -1715,49 +2002,38 @@ export default function GuardrailEditorPageClient(props: {
 														? `${form.allowedApiModelIds.length} selected`
 														: "Choose models"
 											}
-											disabled={form.modelRestrictionMode === "none"}
-											renderLeading={(opt) => {
-												const providerIds = modelProviderIdsByModelId.get(opt.value) ?? [];
-												const primaryProviderId = providerIds[0] ?? "cloudflare";
-												return (
-													<Logo
-														id={getProviderLogoId(primaryProviderId)}
-														alt={`${providerLabelById.get(primaryProviderId) ?? primaryProviderId} logo`}
+										renderLeading={(opt) => {
+											const organisation = modelOrganisationByModelId.get(opt.value) ?? { id: "cloudflare", name: "Model organisation" };
+											return (
+												<Logo
+													id={getProviderLogoId(organisation.id)}
+													alt={`${organisation.name} logo`}
 														width={18}
 														height={18}
 														className="h-[18px] w-[18px] rounded-sm"
 													/>
-												);
-											}}
-										/>
+											);
+										}}
+										groupActions
+									/>
 									</div>
 								</div>
 
 								<Separator />
 
-								<div className="grid gap-3 sm:grid-cols-2">
-									<div className="rounded-xl border bg-muted/10 p-3">
-										<div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-											Provider rule
+								<div className="rounded-xl border bg-muted/10 p-4">
+									<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+										<div>
+											<div className="text-sm font-medium text-muted-foreground">
+												Effective availability
+											</div>
+											<div className="mt-1 text-2xl font-semibold tracking-tight">
+												{modelCoverageCounts.available} of {modelCoverageItems.length} models routable
+											</div>
 										</div>
-										<div className="mt-2 text-sm font-medium">
-											{describeProviderRestrictionMode(form.providerRestrictionMode)}
-										</div>
-										<div className="mt-1 text-xs text-muted-foreground">
-											{restrictionPreview.allowedProviderIds.length} allowed,{" "}
-											{restrictionPreview.blockedProviderIds.length} blocked
-										</div>
-									</div>
-									<div className="rounded-xl border bg-muted/10 p-3">
-										<div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-											Model rule
-										</div>
-										<div className="mt-2 text-sm font-medium">
-											{describeModelRestrictionMode(form.modelRestrictionMode)}
-										</div>
-										<div className="mt-1 text-xs text-muted-foreground">
-											{restrictionPreview.reachableModelIds.length} allowed,{" "}
-											{restrictionPreview.blockedModelIds.length} blocked
+										<div className="text-xs text-muted-foreground sm:text-right">
+											<div>{restrictionPreview.reachableModelIds.length} passed access rules</div>
+											<div>{modelCoverageCounts.unavailable} excluded after all checks</div>
 										</div>
 									</div>
 								</div>
@@ -1776,7 +2052,7 @@ export default function GuardrailEditorPageClient(props: {
 												}`}
 												onClick={() => setModelCoverageFilter("all")}
 											>
-												All
+											All ({modelCoverageItems.length})
 											</Button>
 											<Button
 												type="button"
@@ -1789,7 +2065,7 @@ export default function GuardrailEditorPageClient(props: {
 												}`}
 												onClick={() => setModelCoverageFilter("available")}
 											>
-												Available
+											Available ({modelCoverageCounts.available})
 											</Button>
 											<Button
 												type="button"
@@ -1802,7 +2078,7 @@ export default function GuardrailEditorPageClient(props: {
 												}`}
 												onClick={() => setModelCoverageFilter("unavailable")}
 											>
-												Unavailable
+											Unavailable ({modelCoverageCounts.unavailable})
 											</Button>
 										</div>
 									</div>
@@ -1821,11 +2097,21 @@ export default function GuardrailEditorPageClient(props: {
 								</div>
 							</div>
 						</EditorSection>
-					</div>
-				) : null}
-
-				{activeView === "promptInjection" ? (
-					<div className="space-y-4">
+							</div>
+						</AccordionContent>
+					</AccordionItem>
+					<AccordionItem value="prompt-injection" className={activeSection && activeSection !== "prompt-injection" ? "hidden" : "border-0"}>
+						<AccordionTrigger className={activeSection ? "hidden" : "gap-4 px-4 py-4 hover:bg-muted/20 hover:no-underline [&>svg:last-child]:-rotate-90"}>
+							<div className="min-w-0 flex-1 text-left">
+								<div className="text-sm font-medium">Prompt Injection</div>
+								<p className="mt-1 text-sm font-normal text-muted-foreground">Scan request content before routing.</p>
+							</div>
+							<span className="hidden shrink-0 text-sm font-normal capitalize text-muted-foreground md:block">
+								{form.promptInjectionEnabled ? form.promptInjectionAction : "Disabled"}
+							</span>
+						</AccordionTrigger>
+						<AccordionContent disableAnimation className="pb-2 pt-0">
+							<div className="space-y-4">
 						<EditorSection
 							title="Prompt injection"
 							description="Scan user-supplied request content for common prompt injection patterns before it reaches the model."
@@ -1843,7 +2129,7 @@ export default function GuardrailEditorPageClient(props: {
 									}
 								>
 									<SelectTrigger>
-										<SelectValue placeholder="Select handling" />
+									<SelectValue>{getHandlingLabel(getHandlingState({ enabled: form.promptInjectionEnabled, action: form.promptInjectionAction }))}</SelectValue>
 									</SelectTrigger>
 									<SelectContent>
 										<SelectItem value="disabled">Disabled</SelectItem>
@@ -1858,11 +2144,21 @@ export default function GuardrailEditorPageClient(props: {
 								</p>
 							</div>
 						</EditorSection>
-					</div>
-				) : null}
-
-				{activeView === "sensitiveInfo" ? (
-					<div className="space-y-6">
+							</div>
+						</AccordionContent>
+					</AccordionItem>
+					<AccordionItem value="sensitive-info" className={activeSection && activeSection !== "sensitive-info" ? "hidden" : "border-0"}>
+						<AccordionTrigger className={activeSection ? "hidden" : "gap-4 px-4 py-4 hover:bg-muted/20 hover:no-underline [&>svg:last-child]:-rotate-90"}>
+							<div className="min-w-0 flex-1 text-left">
+								<div className="text-sm font-medium">Sensitive Info Detection</div>
+								<p className="mt-1 text-sm font-normal text-muted-foreground">Detect and handle sensitive data before requests leave Phaseo.</p>
+							</div>
+							<span className="hidden shrink-0 text-sm font-normal text-muted-foreground md:block">
+								{form.sensitiveInfoEnabled ? `${enabledSensitiveInfoRuleCount} rules enabled` : "Disabled"}
+							</span>
+						</AccordionTrigger>
+						<AccordionContent disableAnimation className="pb-2 pt-0">
+							<div className="space-y-6">
 						<EditorSection
 							title="Sensitive info"
 							description="Detect and handle common sensitive data before the request reaches the model."
@@ -1890,7 +2186,7 @@ export default function GuardrailEditorPageClient(props: {
 										}}
 									>
 										<SelectTrigger>
-											<SelectValue placeholder="Select handling" />
+										<SelectValue>{getHandlingLabel(getHandlingState({ enabled: form.sensitiveInfoEnabled, action: form.sensitiveInfoDefaultAction }))}</SelectValue>
 										</SelectTrigger>
 										<SelectContent>
 											<SelectItem value="disabled">Disabled</SelectItem>
@@ -1957,7 +2253,7 @@ export default function GuardrailEditorPageClient(props: {
 															}
 														>
 															<SelectTrigger className="w-[140px]">
-																<SelectValue placeholder="Select handling" />
+														<SelectValue>{getHandlingLabel(getHandlingState({ enabled: form.sensitiveInfoEnabled && currentRule.enabled, action: currentRule.action }))}</SelectValue>
 															</SelectTrigger>
 															<SelectContent>
 																<SelectItem value="disabled">Disabled</SelectItem>
@@ -2089,7 +2385,7 @@ export default function GuardrailEditorPageClient(props: {
 																	}
 																>
 																	<SelectTrigger>
-																		<SelectValue placeholder="Select handling" />
+																		<SelectValue>{getHandlingLabel(getHandlingState({ enabled: form.sensitiveInfoEnabled && rule.enabled, action: rule.action }))}</SelectValue>
 																	</SelectTrigger>
 																	<SelectContent>
 																		<SelectItem value="disabled">Disabled</SelectItem>
@@ -2181,17 +2477,36 @@ export default function GuardrailEditorPageClient(props: {
 								</div>
 							</div>
 						</EditorSection>
-					</div>
-				) : null}
-
-				{activeView === "budgets" ? (
-					<div className="space-y-4">
+							</div>
+						</AccordionContent>
+					</AccordionItem>
+					<AccordionItem value="budgets" className={activeSection && activeSection !== "budgets" ? "hidden" : "border-0"}>
+						<AccordionTrigger className={activeSection ? "hidden" : "gap-4 px-4 py-4 hover:bg-muted/20 hover:no-underline [&>svg:last-child]:-rotate-90"}>
+							<div className="min-w-0 flex-1 text-left">
+								<div className="text-sm font-medium">Budget Policies</div>
+								<p className="mt-1 text-sm font-normal text-muted-foreground">Set request and spend ceilings by time window.</p>
+							</div>
+							<span className="hidden shrink-0 text-sm font-normal text-muted-foreground md:block">
+								{configuredBudgetCount ? `${configuredBudgetCount} limits configured` : "No limits"}
+							</span>
+						</AccordionTrigger>
+						<AccordionContent disableAnimation className="pb-2 pt-0">
+							<div className="space-y-4">
 						<EditorSection
 							title="Budgets"
-							description="Leave a field blank for unlimited. Each window is enforced independently."
+							description="Leave a field blank for unlimited."
 							compact
 						>
 							<div className="space-y-4">
+								<Alert>
+									<Info />
+									<div>
+										<AlertTitle>Aggregate guardrail budgets are not yet enforced</AlertTitle>
+										<AlertDescription>
+											Use API key limits for hard request and spend enforcement while member and workspace aggregation is completed.
+										</AlertDescription>
+									</div>
+								</Alert>
 								<div className="grid gap-4 md:grid-cols-3">
 									<div className="space-y-2">
 										<Label>Daily requests</Label>
@@ -2261,19 +2576,19 @@ export default function GuardrailEditorPageClient(props: {
 								</div>
 							</div>
 						</EditorSection>
-					</div>
-				) : null}
+							</div>
+						</AccordionContent>
+					</AccordionItem>
+				</Accordion>
 
-				{activeView === "overview" ? (
-					<div className="flex justify-end gap-2">
-						<Button asChild type="button" variant="outline" disabled={saving || deleting}>
-							<Link href={props.backHref}>Cancel</Link>
-						</Button>
-						<Button type="button" onClick={onSave} disabled={saving || deleting}>
-							{saving ? "Saving..." : props.mode === "create" ? "Create" : "Save"}
-						</Button>
-					</div>
-				) : null}
+				{activeSection ? <div className="flex justify-end gap-2 border-t pt-4">
+					<Button asChild type="button" variant="outline" disabled={saving || deleting} className="rounded-md">
+						<Link href={props.backHref}>Cancel</Link>
+					</Button>
+					<Button type="button" onClick={onSave} disabled={saving || deleting} className="rounded-md">
+						{saving ? "Saving..." : props.mode === "create" ? "Create" : "Save"}
+					</Button>
+				</div> : null}
 			</div>
 		</div>
 	);

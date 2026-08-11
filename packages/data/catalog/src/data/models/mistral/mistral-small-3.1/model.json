@@ -99,6 +99,14 @@
       "other_info": null,
       "source_link": "https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503",
       "rank": 149
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 14.9,
+      "is_self_reported": false,
+      "other_info": "Mistral Small 3.1; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/mistral-small-3-1",
+      "rank": 299
     }
   ],
   "family_id": null,

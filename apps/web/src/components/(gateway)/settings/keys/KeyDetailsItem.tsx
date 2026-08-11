@@ -1,20 +1,36 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, FileText, Info, Shield } from "lucide-react";
+import {
+	ArrowUpRight,
+	Ban,
+	CheckCircle2,
+	FileText,
+	Info,
+	OctagonAlert,
+	Pencil,
+	Shield,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
+	ProviderInspectorSheet,
+	ProviderInspectorSheetContent,
+	ProviderInspectorSheetDescription,
+	ProviderInspectorSheetHeader,
+	ProviderInspectorSheetTitle,
+} from "@/components/(data)/model/pricing/ProviderInspectorSheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import {
+	HoverCard,
+	HoverCardContent,
+	HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { formatRelativeToNow } from "@/lib/formatRelative";
+import { formatDateTime as formatPreciseDateTime } from "@/lib/gateway/usage/timeFormatting";
+import EditKeyItem from "./EditKeyItem";
 
 const NANOS_PER_USD = 1_000_000_000;
 
@@ -50,6 +66,54 @@ function formatUsdFromNanos(value: unknown) {
 function formatKeyReference(prefix?: string | null) {
 	const ref = typeof prefix === "string" ? prefix.trim() : "";
 	return ref ? `phaseo_v1_sk_...${ref}` : "phaseo_v1_sk_...";
+}
+
+function KeyTimeHover({
+	value,
+	emptyText,
+	userTimeZone,
+	relativeNowMs,
+}: {
+	value?: string | null;
+	emptyText: string;
+	userTimeZone: string;
+	relativeNowMs: number | null;
+}) {
+	if (!value) return <>{emptyText}</>;
+	const date = new Date(value);
+	if (!Number.isFinite(date.getTime())) return <>{emptyText}</>;
+
+	return (
+		<HoverCard>
+			<HoverCardTrigger asChild>
+				<span className="cursor-help underline decoration-dotted underline-offset-2">
+					{formatDateTime(value)}
+				</span>
+			</HoverCardTrigger>
+			<HoverCardContent align="start" className="w-auto">
+				<div className="grid gap-2 text-xs">
+					<div className="grid grid-cols-[120px_1fr] gap-2">
+						<div className="text-muted-foreground">{userTimeZone}</div>
+						<div className="font-mono">{formatPreciseDateTime(date, userTimeZone)}</div>
+					</div>
+					<div className="grid grid-cols-[120px_1fr] gap-2">
+						<div className="text-muted-foreground">UTC</div>
+						<div className="font-mono">{formatPreciseDateTime(date, "UTC")}</div>
+					</div>
+					<div className="grid grid-cols-[120px_1fr] gap-2">
+						<div className="text-muted-foreground">Relative</div>
+						<div className="font-mono">
+							{relativeNowMs ? formatRelativeToNow(date, relativeNowMs) : "-"}
+						</div>
+					</div>
+					<div className="grid grid-cols-[120px_1fr] gap-2">
+						<div className="text-muted-foreground">Timestamp</div>
+						<div className="font-mono">{Math.floor(date.getTime() / 1000)}</div>
+					</div>
+				</div>
+			</HoverCardContent>
+		</HoverCard>
+	);
 }
 
 function normalizeScopes(value: unknown): string[] {
@@ -111,15 +175,17 @@ function DetailRow({
 	label,
 	value,
 	mono = false,
+	truncate = false,
 }: {
 	label: string;
 	value: React.ReactNode;
 	mono?: boolean;
+	truncate?: boolean;
 }) {
 	return (
-		<div className="flex items-start justify-between gap-3 border-b border-border/50 py-2 last:border-b-0">
-			<div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
-			<div className={`max-w-[65%] text-right text-sm ${mono ? "font-mono break-all" : ""}`}>{value}</div>
+		<div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] items-start gap-4 py-2">
+			<div className="text-sm text-muted-foreground">{label}</div>
+			<div className={`min-w-0 text-right text-sm ${mono ? "font-mono" : ""} ${truncate ? "truncate" : mono ? "break-all" : ""}`}>{value}</div>
 		</div>
 	);
 }
@@ -136,12 +202,43 @@ export default function KeyDetailsItem({
 	onOpenChange?: (open: boolean) => void;
 }) {
 	const [internalOpen, setInternalOpen] = useState(false);
+	const [editOpen, setEditOpen] = useState(false);
+	const suppressInspectorDismissRef = useRef(false);
+	const [relativeNowMs, setRelativeNowMs] = useState<number | null>(null);
 	const open = controlledOpen ?? internalOpen;
 	const setOpen = onOpenChange ?? setInternalOpen;
 	const scopes = useMemo(() => normalizeScopes(k?.scopes), [k?.scopes]);
 	const activityHref = `/settings/usage?group=key&key=${encodeURIComponent(String(k?.id ?? ""))}`;
 	const logsHref = `/settings/usage/logs?key=${encodeURIComponent(String(k?.id ?? ""))}`;
 	const stateLabel = keyStateLabel(k);
+	const stateVisual = stateLabel === "Active"
+		? { Icon: CheckCircle2, className: "text-emerald-600 dark:text-emerald-400" }
+		: stateLabel === "Limits reached"
+			? { Icon: OctagonAlert, className: "text-red-600 dark:text-red-400" }
+			: stateLabel === "Expired"
+				? { Icon: Ban, className: "text-amber-600 dark:text-amber-400" }
+				: { Icon: Ban, className: "text-muted-foreground" };
+	const StateIcon = stateVisual.Icon;
+	const userTimeZone = typeof Intl !== "undefined"
+		? Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
+		: "UTC";
+	useEffect(() => {
+		const updateNow = () => setRelativeNowMs(Date.now());
+		updateNow();
+		const interval = window.setInterval(updateNow, 60_000);
+		return () => window.clearInterval(interval);
+	}, []);
+	const handleEditOpenChange = (next: boolean) => {
+		if (next) {
+			suppressInspectorDismissRef.current = true;
+			setEditOpen(true);
+			return;
+		}
+		setEditOpen(false);
+		window.setTimeout(() => {
+			suppressInspectorDismissRef.current = false;
+		}, 150);
+	};
 	const guardrails = Array.isArray(k?.guardrails) ? k.guardrails : [];
 	const guardrailEnforcementSummary =
 		k?.guardrail_enforcement_summary &&
@@ -169,71 +266,91 @@ export default function KeyDetailsItem({
 				</DropdownMenuItem>
 			) : null}
 
-			<Dialog open={open} onOpenChange={setOpen}>
-				<DialogContent className="sm:max-w-2xl">
-					<DialogHeader>
-						<DialogTitle>{k?.name ?? "API Key"}</DialogTitle>
-						<DialogDescription>
+			<ProviderInspectorSheet
+				open={open}
+				onOpenChange={(next) => {
+					if (!next && suppressInspectorDismissRef.current) return;
+					setOpen(next);
+				}}
+			>
+				<ProviderInspectorSheetContent className="!w-full max-w-none gap-0 overflow-hidden p-0 sm:max-w-none md:!w-[50vw] lg:!w-[48vw] xl:!w-[44vw] 2xl:!w-[42vw] data-[side=right]:sm:max-w-none">
+					<ProviderInspectorSheetHeader className="border-b border-zinc-200/80 px-5 py-4 pr-14 dark:border-zinc-800">
+						<div className="min-w-0 pr-8">
+						<ProviderInspectorSheetTitle className="truncate text-base">{k?.name ?? "API Key"}</ProviderInspectorSheetTitle>
+						<ProviderInspectorSheetDescription className="mt-1 font-mono text-[11px]">
+							{formatKeyReference(k?.prefix)}
+						</ProviderInspectorSheetDescription>
+						</div>
+						<ProviderInspectorSheetDescription className="sr-only">
 							Detailed usage, spend, metadata, and guardrail coverage for this key.
-						</DialogDescription>
-					</DialogHeader>
+						</ProviderInspectorSheetDescription>
+					</ProviderInspectorSheetHeader>
 
-					<div className="space-y-6 py-2">
-						<div className="grid gap-3 md:grid-cols-4">
-							<div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-								<div className="text-xs uppercase tracking-wide text-muted-foreground">Status</div>
-								<div className="mt-2 text-lg font-semibold">{stateLabel}</div>
+					<ScrollArea
+						className="min-h-0 flex-1 overscroll-contain"
+						viewportClassName="pb-5 overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+						scrollBarOrientation="vertical"
+						keepScrollbarMounted
+					>
+					<div>
+						<div className="grid grid-cols-2 border-b border-zinc-200/80 px-5 py-4 dark:border-zinc-800 sm:grid-cols-4">
+							<div className="border-r border-zinc-200/80 pr-3 dark:border-zinc-800">
+								<div className="text-xs text-muted-foreground">Status</div>
+								<div className="mt-2 flex items-center gap-2 text-lg font-semibold">
+									<StateIcon aria-hidden="true" className={`size-4 shrink-0 ${stateVisual.className}`} />
+									<span>{stateLabel}</span>
+								</div>
 							</div>
-							<div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-								<div className="text-xs uppercase tracking-wide text-muted-foreground">Requests Today</div>
+							<div className="px-3 sm:border-r sm:border-zinc-200/80 sm:dark:border-zinc-800">
+								<div className="text-xs text-muted-foreground">Requests Today</div>
 								<div className="mt-2 text-lg font-semibold">{formatCount(k?.current_usage_daily)}</div>
 							</div>
-							<div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-								<div className="text-xs uppercase tracking-wide text-muted-foreground">Spend Today</div>
+							<div className="mt-4 border-r border-zinc-200/80 pr-3 dark:border-zinc-800 sm:mt-0 sm:px-3">
+								<div className="text-xs text-muted-foreground">Spend Today</div>
 								<div className="mt-2 text-lg font-semibold">{formatUsdFromNanos(k?.current_usage_daily_cost_nanos)}</div>
 							</div>
-							<div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-								<div className="text-xs uppercase tracking-wide text-muted-foreground">Guardrails</div>
+							<div className="mt-4 pl-3 sm:mt-0">
+								<div className="text-xs text-muted-foreground">Guardrails</div>
 								<div className="mt-2 text-lg font-semibold">{guardrails.length}</div>
 							</div>
 						</div>
 
-						<div className="grid gap-6 md:grid-cols-2">
-							<section className="space-y-2">
+						<div>
+							<section className="border-b border-zinc-200/80 px-5 py-4 dark:border-zinc-800">
 								<div className="flex items-center gap-2 text-sm font-medium">
 									<FileText className="h-4 w-4" />
 									Metadata
 								</div>
-								<div className="rounded-lg border border-border/60 p-3">
-									<DetailRow label="Key ID" value={String(k?.id ?? "Unknown")} mono />
+								<div className="mt-2">
+									<DetailRow label="Key ID" value={String(k?.id ?? "Unknown")} mono truncate />
 									<DetailRow label="Key Ref" value={formatKeyReference(k?.prefix)} mono />
-									<DetailRow label="Created" value={formatDateTime(k?.created_at)} />
-									<DetailRow label="Updated" value={formatDateTime(k?.updated_at)} />
-									<DetailRow label="Last used" value={formatDateTime(k?.last_used_at)} />
-									<DetailRow label="Expires" value={k?.expires_at ? formatDateTime(k.expires_at) : "No expiry"} />
+									<DetailRow label="Created" value={<KeyTimeHover value={k?.created_at} emptyText="Never" userTimeZone={userTimeZone} relativeNowMs={relativeNowMs} />} />
+									<DetailRow label="Updated" value={<KeyTimeHover value={k?.updated_at} emptyText="Never" userTimeZone={userTimeZone} relativeNowMs={relativeNowMs} />} />
+									<DetailRow label="Last Used" value={<KeyTimeHover value={k?.last_used_at} emptyText="Never" userTimeZone={userTimeZone} relativeNowMs={relativeNowMs} />} />
+									<DetailRow label="Expires" value={<KeyTimeHover value={k?.expires_at} emptyText="No expiry" userTimeZone={userTimeZone} relativeNowMs={relativeNowMs} />} />
 								</div>
 							</section>
 
-							<section className="space-y-2">
+							<section className="border-b border-zinc-200/80 px-5 py-4 dark:border-zinc-800">
 								<div className="flex items-center gap-2 text-sm font-medium">
 									<Shield className="h-4 w-4" />
 									Limits
 								</div>
-								<div className="rounded-lg border border-border/60 p-3">
-									<DetailRow label="Daily requests" value={limitText(k?.daily_limit_requests, formatCount)} />
-									<DetailRow label="Weekly requests" value={limitText(k?.weekly_limit_requests, formatCount)} />
-									<DetailRow label="Monthly requests" value={limitText(k?.monthly_limit_requests, formatCount)} />
-									<DetailRow label="Daily spend" value={limitText(k?.daily_limit_cost_nanos, formatUsdFromNanos)} />
-									<DetailRow label="Weekly spend" value={limitText(k?.weekly_limit_cost_nanos, formatUsdFromNanos)} />
-									<DetailRow label="Monthly spend" value={limitText(k?.monthly_limit_cost_nanos, formatUsdFromNanos)} />
+								<div className="mt-2">
+									<DetailRow label="Daily Requests" value={limitText(k?.daily_limit_requests, formatCount)} />
+									<DetailRow label="Weekly Requests" value={limitText(k?.weekly_limit_requests, formatCount)} />
+									<DetailRow label="Monthly Requests" value={limitText(k?.monthly_limit_requests, formatCount)} />
+									<DetailRow label="Daily Spend" value={limitText(k?.daily_limit_cost_nanos, formatUsdFromNanos)} />
+									<DetailRow label="Weekly Spend" value={limitText(k?.weekly_limit_cost_nanos, formatUsdFromNanos)} />
+									<DetailRow label="Monthly Spend" value={limitText(k?.monthly_limit_cost_nanos, formatUsdFromNanos)} />
 								</div>
 							</section>
 						</div>
 
-						<div className="grid gap-6 md:grid-cols-2">
-							<section className="space-y-2">
+						<div>
+							<section className="border-b border-zinc-200/80 px-5 py-4 dark:border-zinc-800">
 								<div className="text-sm font-medium">Scopes</div>
-								<div className="rounded-lg border border-border/60 p-3">
+								<div className="mt-2">
 									{scopes.length > 0 ? (
 										<div className="flex flex-wrap gap-2">
 											{scopes.map((scope) => (
@@ -248,9 +365,9 @@ export default function KeyDetailsItem({
 								</div>
 							</section>
 
-							<section className="space-y-2">
+							<section className="border-b border-zinc-200/80 px-5 py-4 dark:border-zinc-800">
 								<div className="text-sm font-medium">Applied guardrails</div>
-								<div className="rounded-lg border border-border/60 p-3">
+								<div className="mt-2">
 									{guardrails.length > 0 ? (
 										<div className="flex flex-wrap gap-2">
 											{guardrails.map((guardrail: any, index: number) => (
@@ -270,19 +387,19 @@ export default function KeyDetailsItem({
 							</section>
 						</div>
 
-						<section className="space-y-2">
+						<section className="px-5 py-4">
 							<div className="flex items-center justify-between gap-3">
 								<div className="text-sm font-medium">Guardrail activity</div>
 								<div className="text-xs text-muted-foreground">
 									{guardrailEnforcementSummary?.windowLabel ?? "Recent window"}
 								</div>
 							</div>
-							<div className="rounded-lg border border-border/60 p-3">
+							<div className="mt-2">
 								{guardrailEnforcementSummary && guardrailSignalTotal > 0 ? (
 									<div className="space-y-4">
 										<div className="grid gap-3 sm:grid-cols-4">
 											<div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-												<div className="text-xs uppercase tracking-wide text-muted-foreground">
+												<div className="text-xs text-muted-foreground">
 													Blocked
 												</div>
 												<div className="mt-2 text-lg font-semibold">
@@ -290,7 +407,7 @@ export default function KeyDetailsItem({
 												</div>
 											</div>
 											<div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-												<div className="text-xs uppercase tracking-wide text-muted-foreground">
+												<div className="text-xs text-muted-foreground">
 													Redacted
 												</div>
 												<div className="mt-2 text-lg font-semibold">
@@ -298,7 +415,7 @@ export default function KeyDetailsItem({
 												</div>
 											</div>
 											<div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-												<div className="text-xs uppercase tracking-wide text-muted-foreground">
+												<div className="text-xs text-muted-foreground">
 													Flagged
 												</div>
 												<div className="mt-2 text-lg font-semibold">
@@ -306,7 +423,7 @@ export default function KeyDetailsItem({
 												</div>
 											</div>
 											<div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-												<div className="text-xs uppercase tracking-wide text-muted-foreground">
+												<div className="text-xs text-muted-foreground">
 													Last triggered
 												</div>
 												<div className="mt-2 text-sm font-semibold">
@@ -318,7 +435,7 @@ export default function KeyDetailsItem({
 										</div>
 
 										<div className="space-y-2">
-											<div className="text-xs uppercase tracking-wide text-muted-foreground">
+											<div className="text-xs text-muted-foreground">
 												Most active guardrails
 											</div>
 											{Array.isArray(guardrailEnforcementSummary.topGuardrails) &&
@@ -360,9 +477,14 @@ export default function KeyDetailsItem({
 							</div>
 						</section>
 					</div>
+					</ScrollArea>
 
-					<DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-between">
+					<div className="flex flex-col gap-2 border-t border-zinc-200/80 px-5 py-4 dark:border-zinc-800 sm:flex-row">
 						<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+								<Button type="button" onClick={() => handleEditOpenChange(true)}>
+									<Pencil className="size-4" />
+									Edit
+								</Button>
 							<Button asChild variant="outline">
 								<Link href={activityHref}>
 									Activity
@@ -376,12 +498,15 @@ export default function KeyDetailsItem({
 								</Link>
 							</Button>
 						</div>
-						<DialogClose asChild>
-							<Button variant="ghost">Close</Button>
-						</DialogClose>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
+					</div>
+				</ProviderInspectorSheetContent>
+			</ProviderInspectorSheet>
+			<EditKeyItem
+				k={k}
+				trigger={false}
+				open={editOpen}
+				onOpenChange={handleEditOpenChange}
+			/>
 		</>
 	);
 }

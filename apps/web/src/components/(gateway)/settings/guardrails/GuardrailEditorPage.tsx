@@ -31,16 +31,27 @@ export default async function GuardrailEditorPage(props: {
 		);
 	}
 
+	if (!data.canManageGuardrails) {
+		return (
+			<div className="rounded-xl border bg-muted/10 p-6 text-sm text-muted-foreground">
+				Only workspace owners and admins can change guardrails. Assigned policies are enforced automatically for members.
+			</div>
+		);
+	}
+
 	return (
 		<GuardrailEditorPageClient
+			accountPolicy={data.accountPolicy}
 			mode={props.mode}
 			guardrailId={props.guardrailId ?? null}
 			teamName={data.teamName}
 			providers={data.providers}
 			activeProviderModels={data.activeProviderModels}
 			keys={data.keys}
+			members={data.members}
 			initialGuardrail={data.guardrail}
 			initialKeyIds={data.initialKeyIds}
+			initialMemberIds={data.initialMemberIds}
 			backHref="/settings/guardrails"
 		/>
 	);

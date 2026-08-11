@@ -9,6 +9,7 @@ import type { Endpoint } from "@core/types";
 import type { ProviderCandidate } from "./types";
 import type { GatewayContextData } from "./types";
 import type { ProviderCandidateBuildDiagnostics } from "./types";
+import { resolveEffectiveDataPolicy } from "./dataPolicy";
 
 export function formatZodErrors(error: z.ZodError) {
     return error.issues.map((issue) => ({
@@ -49,6 +50,7 @@ export function buildProviderCandidatesWithDiagnostics(
             });
             continue;
         }
+        const effectiveDataPolicy = resolveEffectiveDataPolicy({ endpoint, provider });
         candidates.push({
             providerId: provider.providerId,
             providerFamilyId: provider.providerFamilyId ?? null,
@@ -64,10 +66,15 @@ export function buildProviderCandidatesWithDiagnostics(
             residencyMode: provider.residencyMode ?? null,
             executionRegions: provider.executionRegions ?? null,
             dataRegions: provider.dataRegions ?? null,
-            zeroDataRetention: provider.zeroDataRetention ?? null,
+            zeroDataRetention:
+                effectiveDataPolicy.zdrEligibility === "eligible"
+                    ? "default"
+                    : effectiveDataPolicy.zdrEligibility === "ineligible"
+                      ? "unsupported"
+                      : provider.zeroDataRetention ?? null,
             promptTrainingPolicy: provider.promptTrainingPolicy ?? null,
-            dataPolicyTier: provider.dataPolicyTier ?? null,
-            dataPolicyConfidence: provider.dataPolicyConfidence ?? null,
+            dataPolicyTier: effectiveDataPolicy.tier,
+            dataPolicyConfidence: effectiveDataPolicy.confidence,
             dataPolicyContractMode: provider.dataPolicyContractMode ?? null,
             streamCancellationSupport: provider.streamCancellationSupport ?? "unknown",
             streamCancellationStopsProviderBilling:
@@ -77,6 +84,7 @@ export function buildProviderCandidatesWithDiagnostics(
             streamCancellationEvidenceKind:
                 provider.streamCancellationEvidenceKind ?? "none",
             streamCancellationSourceUrl: provider.streamCancellationSourceUrl ?? null,
+            availabilityPolicy: provider.availabilityPolicy ?? null,
             adapter,
             baseWeight: provider.baseWeight > 0 ? provider.baseWeight : 1,
             byokMeta: provider.byokMeta,
@@ -85,6 +93,7 @@ export function buildProviderCandidatesWithDiagnostics(
             inputModalities: provider.inputModalities ?? null,
             outputModalities: provider.outputModalities ?? null,
             capabilityParams: provider.capabilityParams ?? {},
+            effectiveDataPolicy,
             maxInputTokens: provider.maxInputTokens ?? null,
             maxOutputTokens: provider.maxOutputTokens ?? null,
         });

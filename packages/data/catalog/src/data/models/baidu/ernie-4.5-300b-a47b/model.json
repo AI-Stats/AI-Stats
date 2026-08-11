@@ -184,6 +184,14 @@
       "other_info": "Confab 25.2%; non-response 6.7%",
       "source_link": "https://github.com/lechmazur/confabulations",
       "rank": 33
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 8.9,
+      "is_self_reported": false,
+      "other_info": "ERNIE 4.5 300B A47B; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/ernie-4-5-300b-a47b",
+      "rank": 400
     }
   ],
   "page_notice": null,

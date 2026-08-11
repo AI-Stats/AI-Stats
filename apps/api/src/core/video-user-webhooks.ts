@@ -6,6 +6,7 @@ import {
 
 type VideoWebhookEventType =
 	| "video.created"
+	| "video.status_changed"
 	| "video.progress"
 	| "video.completed"
 	| "video.failed"
@@ -16,6 +17,8 @@ function toPhase(eventType: VideoWebhookEventType): AsyncNotificationPhase {
 	switch (eventType) {
 		case "video.created":
 			return "created";
+		case "video.status_changed":
+			return "status_changed";
 		case "video.progress":
 			return "progress";
 		case "video.completed":
@@ -34,6 +37,9 @@ export async function dispatchVideoWebhookEvent(args: {
 	videoId: string;
 	eventType: VideoWebhookEventType;
 	progress?: number | null;
+	previousStatus?: string | null;
+	currentStatus?: string | null;
+	deliveryKey?: string | null;
 	force?: boolean;
 	baseUrl?: string | null;
 }): Promise<boolean> {
@@ -43,6 +49,9 @@ export async function dispatchVideoWebhookEvent(args: {
 		internalId: args.videoId,
 		phase: toPhase(args.eventType),
 		progress: args.progress,
+		previousStatus: args.previousStatus,
+		currentStatus: args.currentStatus,
+		deliveryKey: args.deliveryKey,
 		force: args.force,
 		baseUrl: args.baseUrl,
 	});
@@ -53,6 +62,9 @@ export function dispatchVideoWebhookEventInBackground(args: {
 	videoId: string;
 	eventType: VideoWebhookEventType;
 	progress?: number | null;
+	previousStatus?: string | null;
+	currentStatus?: string | null;
+	deliveryKey?: string | null;
 	force?: boolean;
 	baseUrl?: string | null;
 }) {
@@ -62,6 +74,9 @@ export function dispatchVideoWebhookEventInBackground(args: {
 		internalId: args.videoId,
 		phase: toPhase(args.eventType),
 		progress: args.progress,
+		previousStatus: args.previousStatus,
+		currentStatus: args.currentStatus,
+		deliveryKey: args.deliveryKey,
 		force: args.force,
 		baseUrl: args.baseUrl,
 	});

@@ -1,5 +1,5 @@
 import { GeographyUsage } from "@/components/(gateway)/usage/GeographyUsage";
-import { fetchFrontendRankingGeography } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import { fetchFrontendRankingGeography } from "@/lib/fetchers/frontend/fetchRankingSections";
 
 export async function PublicGeography() {
 	const result = await fetchFrontendRankingGeography(30).catch(() => ({ data: [], days: 30 }));
@@ -11,11 +11,14 @@ export async function PublicGeography() {
 	}));
 
 	return (
-		<section id="geography" className="mx-auto max-w-[1680px] space-y-4 px-4 pb-16 sm:px-6 lg:px-10">
-			<div className="border-t pt-12">
-				<h2 className="text-2xl font-semibold leading-8">Usage by country</h2>
+		<section
+			id="geography"
+			className="scroll-mt-32 space-y-4 border-t border-border pt-12"
+		>
+			<div>
+				<h2 className="text-2xl font-semibold leading-8">Countries</h2>
 				<p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-					Where Phaseo gateway traffic originated over the last 30 days. Countries only appear after meeting minimum request and workspace thresholds; smaller cohorts are grouped as Other.
+					Where Phaseo gateway traffic originated over the last 30 days, based on the country recorded at the gateway edge.
 				</p>
 			</div>
 			<GeographyUsage rows={rows} publicView />

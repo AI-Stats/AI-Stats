@@ -218,6 +218,14 @@
       "other_info": "Non Reasoning",
       "source_link": "https://huggingface.co/LGAI-EXAONE/EXAONE-4.0-32B",
       "rank": 28
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 10.5,
+      "is_self_reported": false,
+      "other_info": "EXAONE 4.0 32B (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/exaone-4-0-32b-reasoning",
+      "rank": 367
     }
   ],
   "page_notice": null,

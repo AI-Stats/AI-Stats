@@ -140,7 +140,10 @@ const PROVIDER_OVERRIDES: Record<string, ProviderOverride> = {
 		apiKeyEnv: ["TINKER_API_KEY"],
 		baseUrlEnv: ["THINKING_MACHINES_BASE_URL", "TINKER_BASE_URL"],
 	},
-	together: { providerName: "Together" },
+	together: {
+		providerName: "Together",
+		modelsEndpoint: "https://api.together.ai/v1/models",
+	},
 	upstage: { providerName: "Upstage", modelsEndpoint: "https://api.upstage.ai/v1/models" },
 	wafer: { providerName: "Wafer" },
 	venice: { providerName: "Venice" },

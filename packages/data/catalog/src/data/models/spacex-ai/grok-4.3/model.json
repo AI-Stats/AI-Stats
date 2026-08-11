@@ -28,14 +28,6 @@
   ],
   "benchmarks": [
     {
-      "benchmark_id": "aa-intelligence-index-v4",
-      "score": 53,
-      "is_self_reported": false,
-      "other_info": "Artificial Analysis Intelligence Index v4",
-      "source_link": "https://artificialanalysis.ai/articles/xai-launches-grok-4-3-with-improved-agentic-performance-and-lower-pricing",
-      "rank": 2
-    },
-    {
       "benchmark_id": "gdpval-aa",
       "score": 1500,
       "is_self_reported": false,
@@ -82,6 +74,14 @@
       "other_info": "940 puzzles",
       "source_link": "https://github.com/lechmazur/nyt-connections",
       "rank": 36
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 37.9,
+      "is_self_reported": false,
+      "other_info": "Grok 4.3 (high); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/grok-4-3",
+      "rank": 86
     }
   ],
   "family_id": null,

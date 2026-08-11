@@ -119,7 +119,7 @@ export default async function Page({
 	}
 
 	return (
-		<SubscriptionPlanDetailShell planId={planId}>
+		<SubscriptionPlanDetailShell planId={planId} tocItems={[{ id: "main-features", label: "Main Features" }, { id: "included-models", label: "Included Models" }]}>
 			<SubscriptionPlanOverview plan={plan} />
 		</SubscriptionPlanDetailShell>
 	);

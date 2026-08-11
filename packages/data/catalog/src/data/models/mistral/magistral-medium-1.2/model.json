@@ -63,6 +63,14 @@
       "other_info": "inferred version-family alias from magistral-medium",
       "source_link": "https://arxiv.org/pdf/2506.10910",
       "rank": 50
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 18,
+      "is_self_reported": false,
+      "other_info": "Magistral Medium 1.2; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/magistral-medium-2509",
+      "rank": 262
     }
   ],
   "family_id": null,

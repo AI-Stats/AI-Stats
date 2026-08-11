@@ -15,7 +15,6 @@ import {
 	PowerOff,
 } from "lucide-react";
 import { toast } from "sonner";
-import { updateAppAction } from "@/app/(dashboard)/settings/apps/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,6 +38,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	type AppCategory,
 	getAppCategoryLabel,
@@ -77,14 +77,20 @@ function getAttributionHeaders(app: AppItem) {
 
 function AppAvatar({ app }: { app: AppItem }) {
 	const imageLetter = app.title?.trim()?.[0]?.toUpperCase() ?? "A";
+	const [imageFailed, setImageFailed] = useState(false);
+
+	useEffect(() => {
+		setImageFailed(false);
+	}, [app.image_url]);
 
 	return (
 		<div className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-border/70 bg-muted/40">
-			{app.image_url ? (
+			{app.image_url && !imageFailed ? (
 				<img
 					src={app.image_url}
 					alt={app.title}
 					className="size-full object-cover"
+					onError={() => setImageFailed(true)}
 				/>
 			) : (
 				<span className="text-xs font-semibold text-muted-foreground">
@@ -194,11 +200,26 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 	) => {
 		setBusy(app.id, true);
 		try {
-			await toast.promise(updateAppAction(app.id, { [field]: value }), {
+			const updatePromise = (async () => {
+				const response = await fetch(
+					`/api/settings/apps/${encodeURIComponent(app.id)}`,
+					{
+						method: "PUT",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ [field]: value }),
+					},
+				);
+				if (!response.ok) {
+					const payload = await response.json().catch(() => ({})) as { error?: string };
+					throw new Error(payload.error ?? "Unable to update app");
+				}
+			})();
+			toast.promise(updatePromise, {
 				loading: "Updating app...",
 				success: "App updated",
 				error: (err) => err?.message ?? "Failed to update app",
 			});
+			await updatePromise;
 			updateLocal(app.id, { [field]: value });
 		} finally {
 			setBusy(app.id, false);
@@ -284,8 +305,16 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 	return (
 		<>
 			<div className="overflow-hidden rounded-lg border border-border/60 bg-card">
-				<div className="hidden lg:block">
-					<Table className="min-w-[820px] table-fixed text-sm [&_tr:last-child]:border-b-0 [&_td]:px-4 [&_th]:px-4">
+				<ScrollArea
+					className="hidden w-full lg:block"
+					viewportClassName="pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+					scrollBarOrientation="horizontal"
+					keepScrollbarMounted
+				>
+					<Table
+						wrapInContainer={false}
+						className="min-w-[820px] table-fixed text-sm [&_tr:last-child]:border-b-0 [&_td]:px-4 [&_th]:px-4"
+					>
 						<TableHeader className="bg-muted/30">
 							<TableRow>
 								<TableHead className="w-[38%]">App</TableHead>
@@ -380,7 +409,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 							})}
 						</TableBody>
 					</Table>
-				</div>
+				</ScrollArea>
 
 				<div className="divide-y divide-border/60 lg:hidden">
 					{sortedApps.map((app) => {

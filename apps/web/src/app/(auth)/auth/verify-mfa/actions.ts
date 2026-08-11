@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { resolveAccessibleWorkspaceIdFromCookie } from '@/utils/workspaceCookie'
 
 /**
  * Verifies a TOTP MFA challenge during login and upgrades the session to AAL2.
@@ -51,5 +52,6 @@ export async function verifyMFALoginAction(code: string) {
     }
 
     // Session automatically elevated to aal2 by Supabase
+    await resolveAccessibleWorkspaceIdFromCookie()
     return { success: true }
 }

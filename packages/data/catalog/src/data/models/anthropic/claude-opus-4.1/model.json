@@ -155,6 +155,14 @@
       "other_info": "No reasoning; sigma 0.290; games 276; avg points 0.578",
       "source_link": "https://github.com/lechmazur/elimination_game",
       "rank": 9
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 34.5,
+      "is_self_reported": false,
+      "other_info": "Claude 4.1 Opus (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/claude-4-1-opus-thinking",
+      "rank": 114
     }
   ],
   "model_type": null,
