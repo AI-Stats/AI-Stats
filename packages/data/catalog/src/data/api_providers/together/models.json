@@ -1544,7 +1544,7 @@
       "data": null
     },
     "service_tiers": [
-      "serverless"
+      "standard"
     ],
     "api": {
       "formats": [
