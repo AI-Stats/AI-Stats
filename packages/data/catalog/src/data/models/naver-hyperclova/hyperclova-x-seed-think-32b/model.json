@@ -15,7 +15,16 @@
   "api_model_id": "naver-hyperclova/hyperclova-x-seed-think-32b",
   "links": [],
   "details": [],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 17.2,
+      "is_self_reported": false,
+      "other_info": "HyperCLOVA X SEED Think (32B); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/hyperclova-x-seed-think-32b",
+      "rank": 273
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

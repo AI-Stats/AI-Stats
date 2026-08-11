@@ -468,6 +468,7 @@ pub struct ChatCompletionsRequest {
 	pub provider: Option<String>,
 	pub provider_options: Option<HashMap<String, String>>,
 	pub reasoning: Option<HashMap<String, String>>,
+	pub reasoning_effort: Option<String>,
 	pub response_format: Option<String>,
 	pub safety_identifier: Option<Option<String>>,
 	pub seed: Option<i64>,
@@ -1391,7 +1392,8 @@ pub struct VideoGenerationRequest {
 	pub duration: Option<i64>,
 	pub enhance_prompt: Option<bool>,
 	pub generate_audio: Option<bool>,
-	pub input_references: Option<Vec<HashMap<String, String>>>,
+	pub input_references: Option<Vec<String>>,
+	pub input_video_duration: Option<f64>,
 	pub model: String,
 	pub negative_prompt: Option<String>,
 	pub output: Option<HashMap<String, String>>,
@@ -1446,12 +1448,7 @@ pub struct VideoGenerationResponse {
 	pub websocket_url: Option<String>,
 }
 
-pub struct VideoInputReference {
-	pub image_url: Option<HashMap<String, String>>,
-	pub reference_type: Option<String>,
-	pub role: Option<String>,
-	pub r#type: String,
-}
+pub type VideoInputReference = JsonValue;
 
 pub struct VideoListResponse {
 	pub data: Option<Vec<HashMap<String, String>>>,

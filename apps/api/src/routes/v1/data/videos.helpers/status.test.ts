@@ -168,4 +168,38 @@ describe("video status helpers", () => {
 		}));
 		expect(mocks.dispatchVideoWebhookEventInBackground).not.toHaveBeenCalled();
 	});
+
+	it("uses BytePlus completion tokens for terminal settlement", async () => {
+		await finalizeVideoStatusIfTerminal({
+			auth: {
+				requestId: "req_seedance_25",
+				workspaceId: "ws_seedance_25",
+				apiKeyId: "key_seedance_25",
+				apiKeyRef: null,
+				apiKeyKid: null,
+			},
+			videoId: "video_seedance_25",
+			videoMeta: {
+				provider: "byteplus",
+				model: "bytedance/seedance-2.5",
+				seconds: 8,
+				resolution: "720p",
+				aspectRatio: "3:4",
+			},
+			providerId: "byteplus",
+			status: "completed",
+			rawPayload: { usage: { completion_tokens: 456_789 } },
+		});
+
+		expect(mocks.finalizeVideoJob).toHaveBeenCalledWith(expect.objectContaining({
+			requestOptions: expect.objectContaining({
+				aspect_ratio: "3:4",
+				total_tokens: 456_789,
+				video_params: expect.objectContaining({
+					aspect_ratio: "3:4",
+					total_tokens: 456_789,
+				}),
+			}),
+		}));
+	});
 });

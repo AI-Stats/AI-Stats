@@ -1178,6 +1178,9 @@ public sealed class ChatCompletionsRequest
 	[JsonPropertyName("reasoning")]
 	public Dictionary<string, object>? Reasoning { get; set; }
 
+	[JsonPropertyName("reasoning_effort")]
+	public string? ReasoningEffort { get; set; }
+
 	[JsonPropertyName("response_format")]
 	public object? ResponseFormat { get; set; }
 
@@ -3393,7 +3396,10 @@ public sealed class VideoGenerationRequest
 	public bool? GenerateAudio { get; set; }
 
 	[JsonPropertyName("input_references")]
-	public List<Dictionary<string, object>>? InputReferences { get; set; }
+	public List<object>? InputReferences { get; set; }
+
+	[JsonPropertyName("input_video_duration")]
+	public double? InputVideoDuration { get; set; }
 
 	[JsonPropertyName("model")]
 	public string Model { get; set; }
@@ -3548,21 +3554,7 @@ public sealed class VideoGenerationResponse
 
 }
 
-public sealed class VideoInputReference
-{
-	[JsonPropertyName("image_url")]
-	public Dictionary<string, object>? ImageUrl { get; set; }
-
-	[JsonPropertyName("reference_type")]
-	public string? ReferenceType { get; set; }
-
-	[JsonPropertyName("role")]
-	public string? Role { get; set; }
-
-	[JsonPropertyName("type")]
-	public string Type { get; set; }
-
-}
+public sealed class VideoInputReference { }
 
 public sealed class VideoListResponse
 {

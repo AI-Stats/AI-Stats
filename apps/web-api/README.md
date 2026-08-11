@@ -42,7 +42,7 @@ internal data are explicitly outside this Worker’s production route.
 | --- | --- | --- |
 | `GET /api/_web/organisations` | Organisation identities | 1 day + 7-day stale window |
 | `GET /api/_web/benchmarks?sort=coverage` | Benchmark reference list | 1 day + 7-day stale window |
-| `GET /api/_web/api-providers` | Stable provider identity metadata | 1 day + 7-day stale window |
+| `GET /api/_web/api-providers` | Provider identity, coverage, and usage telemetry | 15 minutes + 15-minute stale window |
 | `GET /api/_web/families` and `/:familyId` | Model family reference data | 1 day + 7-day stale window |
 | `GET /api/_web/subscription-plans` and `/:planId` | Public subscription-plan data | 1 day + 7-day stale window |
 | `GET /api/_web/countries` and `/:iso` | Country and public model summaries | 1 day + 7-day stale window |

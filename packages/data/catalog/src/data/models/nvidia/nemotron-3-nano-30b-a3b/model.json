@@ -190,6 +190,14 @@
       "other_info": null,
       "source_link": "https://build.nvidia.com/nvidia/nemotron-3-nano-30b-a3b/modelcard",
       "rank": 34
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 14.5,
+      "is_self_reported": false,
+      "other_info": "NVIDIA Nemotron 3 Nano 30B A3B (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/nvidia-nemotron-3-nano-30b-a3b-reasoning",
+      "rank": 305
     }
   ],
   "family_id": null,

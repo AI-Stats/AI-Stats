@@ -346,12 +346,18 @@
       "url": "https://research.meta.ai/static/muse-glimmer-methodology",
       "accessed_at": "2026-08-10",
       "notes": "Meta's evaluation methodology."
+    },
+    {
+      "kind": "api_reference",
+      "url": "https://www.together.ai/models/muse-glimmer",
+      "accessed_at": "2026-08-10",
+      "notes": "Together publishes and serves Muse Glimmer through its serverless API."
     }
   ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-10T00:00:00",
-    "notes": "Verified against Meta's announcement and canonical Hugging Face repository. No provider entries were added: Meta describes Together AI, Fireworks AI, and OpenRouter availability as coming in the days after launch."
+    "notes": "Verified against Meta's announcement and canonical Hugging Face repository. Together serves the model through its serverless API; OpenRouter exposes Together as its upstream endpoint. No independent Fireworks AI route was found."
   },
   "last_updated": "2026-08-10T00:00:00",
   "removal_date": null,

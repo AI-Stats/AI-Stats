@@ -58,7 +58,6 @@ export const GLOBAL_NAVIGATION_ITEMS: readonly GlobalNavigationItem[] = [
 	{ id: "nav-settings-oauth", title: "OAuth Apps", subtitle: "Manage OAuth applications and grants", href: "/settings/oauth-apps", keywords: ["oauth", "clients", "authorized apps"] },
 	{ id: "nav-settings-broadcast", title: "Broadcast", subtitle: "Configure observability destinations", href: "/settings/broadcast", keywords: ["observability", "telemetry", "destinations"] },
 	{ id: "nav-settings-webhooks", title: "Webhooks", subtitle: "Manage event webhooks", href: "/settings/webhooks", keywords: ["events", "callbacks", "notifications"] },
-	{ id: "nav-settings-sdk", title: "SDKs", subtitle: "Configure and download SDK integrations", href: "/settings/sdk", keywords: ["typescript", "python", "client libraries"] },
 
 	{ id: "nav-help", title: "Help Centre", subtitle: "Find help and support articles", href: "/help", keywords: ["support", "guides", "questions"] },
 	{ id: "nav-blog", title: "Blog", subtitle: "Read Phaseo articles", href: "/blog", keywords: ["articles", "news"] },

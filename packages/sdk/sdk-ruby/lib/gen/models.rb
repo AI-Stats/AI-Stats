@@ -709,6 +709,8 @@ module Phaseo
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] reasoning
     #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] reasoning_effort
+    #   @return [String, nil]
     # @!attribute [rw] response_format
     #   @return [String, Hash{String => Object}, nil]
     # @!attribute [rw] safety_identifier
@@ -743,7 +745,7 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] user_id
     #   @return [String, nil]
-    ChatCompletionsRequest = Struct.new(:debug, :echo_upstream_request, :frequency_penalty, :image_config, :logit_bias, :logprobs, :max_completion_tokens, :max_tokens, :max_tool_calls, :messages, :meta, :metadata, :modalities, :model, :parallel_tool_calls, :presence_penalty, :prompt_cache_key, :provider, :provider_options, :reasoning, :response_format, :safety_identifier, :seed, :service_tier, :session_id, :stop, :store, :stream, :stream_options, :temperature, :tool_choice, :tools, :top_logprobs, :top_p, :usage, :user, :user_id, keyword_init: true)
+    ChatCompletionsRequest = Struct.new(:debug, :echo_upstream_request, :frequency_penalty, :image_config, :logit_bias, :logprobs, :max_completion_tokens, :max_tokens, :max_tool_calls, :messages, :meta, :metadata, :modalities, :model, :parallel_tool_calls, :presence_penalty, :prompt_cache_key, :provider, :provider_options, :reasoning, :reasoning_effort, :response_format, :safety_identifier, :seed, :service_tier, :session_id, :stop, :store, :stream, :stream_options, :temperature, :tool_choice, :tools, :top_logprobs, :top_p, :usage, :user, :user_id, keyword_init: true)
     # @!attribute [rw] choices
     #   @return [Array<Hash{String => Object}>, nil]
     # @!attribute [rw] created
@@ -2017,6 +2019,8 @@ module Phaseo
     #   @return [Boolean, nil]
     # @!attribute [rw] input_references
     #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] input_video_duration
+    #   @return [Float, nil]
     # @!attribute [rw] model
     #   @return [String]
     # @!attribute [rw] negative_prompt
@@ -2043,7 +2047,7 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] webhook
     #   @return [Hash{String => Object}, nil]
-    VideoGenerationRequest = Struct.new(:aspect_ratio, :compression_quality, :duration, :enhance_prompt, :generate_audio, :input_references, :model, :negative_prompt, :output, :person_generation, :prompt, :provider, :provider_params, :resize_mode, :resolution, :sample_count, :seed, :size, :webhook, keyword_init: true)
+    VideoGenerationRequest = Struct.new(:aspect_ratio, :compression_quality, :duration, :enhance_prompt, :generate_audio, :input_references, :input_video_duration, :model, :negative_prompt, :output, :person_generation, :prompt, :provider, :provider_params, :resize_mode, :resolution, :sample_count, :seed, :size, :webhook, keyword_init: true)
     # @!attribute [rw] asset
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] audio
@@ -2117,15 +2121,7 @@ module Phaseo
     # @!attribute [rw] websocket_url
     #   @return [String, nil]
     VideoGenerationResponse = Struct.new(:asset, :audio, :billing, :cancel_url, :completed_at, :content_url, :created_at, :download_url, :error, :expires_at, :generation_id, :id, :last_webhook_dispatched_at, :last_webhook_progress, :last_webhook_progress_at, :lifecycle_status, :model, :native_video_id, :next_webhook_retry_at, :object, :output_access, :outputs, :poll_after_seconds, :polling_url, :progress, :progress_source, :provider, :request_id, :seconds, :session_id, :size, :started_at, :status, :usage, :webhook, :websocket_url, keyword_init: true)
-    # @!attribute [rw] image_url
-    #   @return [Hash{String => Object}, nil]
-    # @!attribute [rw] reference_type
-    #   @return [String, nil]
-    # @!attribute [rw] role
-    #   @return [String, nil]
-    # @!attribute [rw] type
-    #   @return [String]
-    VideoInputReference = Struct.new(:image_url, :reference_type, :role, :type, keyword_init: true)
+    VideoInputReference = Object
     # @!attribute [rw] data
     #   @return [Array<Hash{String => Object}>, nil]
     # @!attribute [rw] first_id

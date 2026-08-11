@@ -88,6 +88,7 @@ describe("runway video executor", () => {
 
 	it("submits async runway task and stores upstream task id", async () => {
 		let capturedBody: any = null;
+		let capturedHeaders: Headers | null = null;
 		const mock = installFetchMock([
 			{
 				match: (url) => url.endsWith("/v1/text_to_video"),
@@ -97,6 +98,7 @@ describe("runway video executor", () => {
 				}),
 				onRequest: (call) => {
 					capturedBody = call.bodyJson;
+					capturedHeaders = new Headers(call.headers);
 				},
 			},
 		]);
@@ -113,6 +115,7 @@ describe("runway video executor", () => {
 		expect(capturedBody?.model).toBe("gen4.5");
 		expect(capturedBody?.promptText).toBe("A studio product shot turning slowly");
 		expect(capturedBody?.ratio).toBe("1280:720");
+		expect(capturedHeaders?.get("X-Runway-Version")).toBe("2024-11-06");
 		expect((result as any).ir?.nativeId).toContain("rwyvid_");
 		expect(saveVideoJobMetaMock).toHaveBeenCalledWith(
 			"team_test",
@@ -124,6 +127,65 @@ describe("runway video executor", () => {
 			"runway_task_123",
 			"in_progress",
 		);
+	});
+
+	it("uses the image-to-video endpoint and promptImage for one first-frame image", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([
+			{
+				match: (url) => url.endsWith("/v1/image_to_video"),
+				response: jsonResponse({ id: "runway_image_task", status: "PENDING" }),
+				onRequest: (call) => {
+					capturedBody = call.bodyJson;
+				},
+			},
+		]);
+
+		const result = await execute(buildArgs({
+			model: "gen4.5",
+			prompt: "The camera moves slowly toward the subject",
+			duration: 4,
+			inputReferences: [{ type: "image", role: "first_frame", url: "https://example.com/start.png" }],
+		}));
+		mock.restore();
+
+		expect(capturedBody).toMatchObject({
+			model: "gen4.5",
+			promptImage: "https://example.com/start.png",
+			duration: 4,
+			ratio: "1280:720",
+		});
+		expect((result as any).ir?.status).toBe("queued");
+		expect((result as any).ir?.usage?.input_image).toBe(1);
+	});
+
+	it("rejects unsupported references before provider submission", async () => {
+		const mock = installFetchMock([]);
+		const result = await execute(buildArgs({
+			model: "gen4.5",
+			prompt: "Transform the source video",
+			duration: 4,
+			inputReferences: [{ type: "video", role: "source", url: "https://example.com/source.mp4" }],
+		}));
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(400);
+		expect(await result.upstream?.clone().json()).toMatchObject({ error: { type: "invalid_request" } });
+		expect(mock.calls).toEqual([]);
+	});
+
+	it("rejects non-first-frame image roles before provider submission", async () => {
+		const mock = installFetchMock([]);
+		const result = await execute(buildArgs({
+			model: "gen4.5",
+			prompt: "Use this only as the final frame",
+			duration: 4,
+			inputReferences: [{ type: "image", role: "last_frame", url: "https://example.com/end.png" }],
+		}));
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(400);
+		expect(mock.calls).toEqual([]);
 	});
 
 	it("fails the gateway response when Runway video metadata cannot be persisted", async () => {

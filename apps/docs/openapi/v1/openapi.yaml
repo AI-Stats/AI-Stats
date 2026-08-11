@@ -1135,9 +1135,7 @@ paths:
         - Gateway
       operationId: cancelVideo
       summary: Cancel video
-      description: >-
-        Cancels a non-terminal video generation request when the upstream
-        provider supports cancellation.
+      description: Video cancellation is currently disabled across all providers.
       parameters:
         - name: video_id
           in: path
@@ -1146,14 +1144,8 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: Video cancellation response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/VideoGenerationResponse'
         '501':
-          description: Video cancellation is not supported for this provider
+          description: Video cancellation is disabled
           content:
             application/json:
               schema:
@@ -2917,14 +2909,8 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: Video cancellation response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/VideoGenerationResponse'
         '501':
-          description: Video cancellation is not supported for this provider
+          description: Video cancellation is disabled
           content:
             application/json:
               schema:
@@ -4290,6 +4276,17 @@ components:
             $ref: '#/components/schemas/ChatMessage'
         reasoning:
           $ref: '#/components/schemas/ReasoningConfig'
+        reasoning_effort:
+          type: string
+          description: OpenAI-compatible alias for `reasoning.effort`.
+          enum:
+            - none
+            - minimal
+            - low
+            - medium
+            - high
+            - xhigh
+            - max
         frequency_penalty:
           type: number
           minimum: -2
@@ -6093,6 +6090,15 @@ components:
         duration:
           type: integer
           description: Desired duration in seconds (provider/model dependent).
+        input_video_duration:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 3600
+          exclusiveMinimum: true
+          description: >-
+            Duration of the source video in seconds. Required when a provider
+            bills source-video duration independently from generated output.
         size:
           type: string
           description: >-
@@ -6153,9 +6159,10 @@ components:
               type: array
               description: >-
                 Optional event subscriptions. Use generic job.* events or
-                matching video.* events, for example video.progress or
-                video.completed. When omitted, terminal job.* events are used.
-                Include job.progress or video.progress explicitly for progress
+                matching video.* events, for example video.status_changed,
+                video.progress, or video.completed. When omitted,
+                job.status_changed and terminal job.* events are used. Include
+                job.progress or video.progress explicitly for progress
                 callbacks. When supplied, at least one event must be valid for
                 video jobs; cross-kind-only or malformed event lists are
                 rejected.
@@ -6337,6 +6344,7 @@ components:
           type: string
           format: uri
           nullable: true
+          description: Reserved for compatibility; currently always null.
         output_access:
           type: string
           enum:
@@ -6453,31 +6461,62 @@ components:
         error:
           nullable: true
     VideoInputReference:
-      type: object
-      required:
-        - type
-      properties:
-        type:
-          type: string
-          enum:
-            - image_url
-        role:
-          type: string
-          enum:
-            - first_frame
-            - last_frame
-            - reference
-            - source
-            - mask
-        reference_type:
-          type: string
-        image_url:
-          type: object
+      oneOf:
+        - type: object
           required:
-            - url
+            - type
+            - image_url
           properties:
-            url:
+            type:
               type: string
+              enum:
+                - image_url
+            role:
+              type: string
+              enum:
+                - first_frame
+                - last_frame
+                - reference
+                - source
+                - mask
+            reference_type:
+              type: string
+            image_url:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                  format: uri
+        - type: object
+          required:
+            - type
+            - media_url
+          properties:
+            type:
+              type: string
+              enum:
+                - video_url
+                - audio_url
+            role:
+              type: string
+              enum:
+                - first_frame
+                - last_frame
+                - reference
+                - source
+                - mask
+            reference_type:
+              type: string
+            media_url:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                  format: uri
     VideoOutputConfig:
       type: object
       properties:
@@ -7104,6 +7143,7 @@ components:
           type: string
           format: uri
           nullable: true
+          description: Reserved for compatibility; currently always null.
         output_file_id:
           type: string
         error_file_id:
@@ -7333,6 +7373,7 @@ components:
       enum:
         - ai21
         - aion-labs
+        - alibaba
         - allenai
         - amazon
         - anthropic
@@ -7374,6 +7415,7 @@ components:
         - prime-intellect
         - qwen
         - relace
+        - runway
         - sourceful
         - spacex-ai
         - stepfun
@@ -9601,6 +9643,7 @@ components:
         - meta/llama-guard-4-12b
         - meta/llama-prompt-guard-2-22m
         - meta/llama-prompt-guard-2-86m
+        - meta/muse-glimmer-30b
         - meta/muse-spark-1.2
         - microsoft/phi-4
         - microsoft/phi-4-mini
@@ -9861,7 +9904,6 @@ components:
         - spacex-ai/grok-code-fast-1
         - spacex-ai/grok-imagine-image
         - spacex-ai/grok-imagine-image-quality
-        - spacex-ai/grok-imagine-video
         - spacex-ai/grok-tts
         - stepfun/step-3.5-flash
         - stepfun/step-3.7-flash

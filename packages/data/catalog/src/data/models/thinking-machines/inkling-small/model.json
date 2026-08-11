@@ -56,7 +56,16 @@
       "value": "Hugging Face"
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 41.2,
+      "is_self_reported": false,
+      "other_info": "Inkling Small; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/inkling-small",
+      "rank": 62
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

@@ -1137,6 +1137,7 @@ type ChatCompletionsRequest struct {
 	Provider interface{} `json:"provider,omitempty"`
 	ProviderOptions *map[string]interface{} `json:"provider_options,omitempty"`
 	Reasoning *map[string]interface{} `json:"reasoning,omitempty"`
+	ReasoningEffort *string `json:"reasoning_effort,omitempty"`
 	ResponseFormat interface{} `json:"response_format,omitempty"`
 	SafetyIdentifier *string `json:"safety_identifier,omitempty"`
 	Seed *int `json:"seed,omitempty"`
@@ -1734,6 +1735,7 @@ const (
 	KnownModelIdMetaLlamaGuard412b KnownModelId = "meta/llama-guard-4-12b"
 	KnownModelIdMetaLlamaPromptGuard222m KnownModelId = "meta/llama-prompt-guard-2-22m"
 	KnownModelIdMetaLlamaPromptGuard286m KnownModelId = "meta/llama-prompt-guard-2-86m"
+	KnownModelIdMetaMuseGlimmer30b KnownModelId = "meta/muse-glimmer-30b"
 	KnownModelIdMetaMuseSpark12 KnownModelId = "meta/muse-spark-1.2"
 	KnownModelIdMicrosoftPhi4 KnownModelId = "microsoft/phi-4"
 	KnownModelIdMicrosoftPhi4Mini KnownModelId = "microsoft/phi-4-mini"
@@ -1994,7 +1996,6 @@ const (
 	KnownModelIdSpacexAiGrokCodeFast1 KnownModelId = "spacex-ai/grok-code-fast-1"
 	KnownModelIdSpacexAiGrokImagineImage KnownModelId = "spacex-ai/grok-imagine-image"
 	KnownModelIdSpacexAiGrokImagineImageQuality KnownModelId = "spacex-ai/grok-imagine-image-quality"
-	KnownModelIdSpacexAiGrokImagineVideo KnownModelId = "spacex-ai/grok-imagine-video"
 	KnownModelIdSpacexAiGrokTts KnownModelId = "spacex-ai/grok-tts"
 	KnownModelIdStepfunStep35Flash KnownModelId = "stepfun/step-3.5-flash"
 	KnownModelIdStepfunStep37Flash KnownModelId = "stepfun/step-3.7-flash"
@@ -2289,6 +2290,7 @@ type OrganisationId string
 const (
 	OrganisationIdAi21 OrganisationId = "ai21"
 	OrganisationIdAionLabs OrganisationId = "aion-labs"
+	OrganisationIdAlibaba OrganisationId = "alibaba"
 	OrganisationIdAllenai OrganisationId = "allenai"
 	OrganisationIdAmazon OrganisationId = "amazon"
 	OrganisationIdAnthropic OrganisationId = "anthropic"
@@ -2330,6 +2332,7 @@ const (
 	OrganisationIdPrimeIntellect OrganisationId = "prime-intellect"
 	OrganisationIdQwen OrganisationId = "qwen"
 	OrganisationIdRelace OrganisationId = "relace"
+	OrganisationIdRunway OrganisationId = "runway"
 	OrganisationIdSourceful OrganisationId = "sourceful"
 	OrganisationIdSpacexAi OrganisationId = "spacex-ai"
 	OrganisationIdStepfun OrganisationId = "stepfun"
@@ -2645,7 +2648,8 @@ type VideoGenerationRequest struct {
 	Duration *int `json:"duration,omitempty"`
 	EnhancePrompt *bool `json:"enhance_prompt,omitempty"`
 	GenerateAudio *bool `json:"generate_audio,omitempty"`
-	InputReferences *[]map[string]interface{} `json:"input_references,omitempty"`
+	InputReferences *[]interface{} `json:"input_references,omitempty"`
+	InputVideoDuration *float64 `json:"input_video_duration,omitempty"`
 	Model string `json:"model"`
 	NegativePrompt *string `json:"negative_prompt,omitempty"`
 	Output *map[string]interface{} `json:"output,omitempty"`
@@ -2700,12 +2704,7 @@ type VideoGenerationResponse struct {
 	WebsocketUrl *string `json:"websocket_url,omitempty"`
 }
 
-type VideoInputReference struct {
-	ImageUrl *map[string]interface{} `json:"image_url,omitempty"`
-	ReferenceType *string `json:"reference_type,omitempty"`
-	Role *string `json:"role,omitempty"`
-	Type string `json:"type"`
-}
+type VideoInputReference = interface{}
 
 type VideoListResponse struct {
 	Data *[]map[string]interface{} `json:"data,omitempty"`

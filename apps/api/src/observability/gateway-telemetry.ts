@@ -34,6 +34,17 @@ function errorMessage(error: unknown): string {
 export async function runGatewayTelemetryPipelines(
 	args: GatewayTelemetryPipelineArgs,
 ): Promise<GatewayTelemetryDelivery[]> {
+	const backgroundDeliveries: GatewayTelemetryDelivery[] = [];
+	if (args.writeOtlp) {
+		backgroundDeliveries.push({ sink: "otlp", delivered: true, error: null });
+		dispatchBackground(args.writeOtlp().catch((error) => {
+			console.error("[observability] background Broadcast enqueue failed", {
+				requestId: args.requestId,
+				workspaceId: args.workspaceId ?? null,
+				error: errorMessage(error),
+			});
+		}));
+	}
 	const sinks: Array<{
 		sink: GatewayTelemetrySink;
 		write: () => Promise<unknown>;
@@ -41,9 +52,6 @@ export async function runGatewayTelemetryPipelines(
 
 	if (args.writeSupabase) {
 		sinks.push({ sink: "supabase", write: args.writeSupabase });
-	}
-	if (args.writeOtlp) {
-		sinks.push({ sink: "otlp", write: args.writeOtlp });
 	}
 	sinks.push({ sink: "axiom", write: args.writeAxiom });
 
@@ -89,5 +97,6 @@ export async function runGatewayTelemetryPipelines(
 		}
 	}
 
-	return deliveries;
+	return [...deliveries, ...backgroundDeliveries];
 }
+import { dispatchBackground } from "@/runtime/env";

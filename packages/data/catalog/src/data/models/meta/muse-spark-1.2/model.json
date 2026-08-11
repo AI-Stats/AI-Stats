@@ -41,7 +41,16 @@
       "other_info": "Available through the Meta Model API standard route, where prompts and completions are not used for training."
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 56.8,
+      "is_self_reported": false,
+      "other_info": "Muse Spark 1.2 (xhigh); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/muse-spark-1-2",
+      "rank": 12
+    }
+  ],
   "family_id": "meta/muse-spark-1.2",
   "model_type": null,
   "knowledge_cutoff": null,

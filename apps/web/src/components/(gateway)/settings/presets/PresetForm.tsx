@@ -15,13 +15,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import {
 	Search,
 	Plus,
-	X,
 	Settings2,
-	AtSign,
+	Check,
+	X,
 	Shield,
 	Sliders,
 	ChevronRight,
@@ -29,14 +28,18 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
-import { createPresetAction } from "@/app/(dashboard)/settings/presets/actions";
+import { createPresetAction, updatePresetAction } from "@/app/(dashboard)/settings/presets/actions";
 import { useRouter } from "next/navigation";
 import type { ModelCard } from "@/lib/fetchers/models/getAllModels";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { SortablePresetList } from "./SortablePresetList";
 
 interface APIProviderCard {
 	api_provider_id: string;
 	api_provider_name: string;
 	country_code: string;
+	active_models: number;
 }
 
 interface PresetFormProps {
@@ -44,23 +47,27 @@ interface PresetFormProps {
 	providers: APIProviderCard[];
 	currentUserId?: string | null;
 	currentTeamId?: string | null;
+	workspacePublisher?: { handle: string | null; canManage: boolean };
+	initialPreset?: any;
 }
 
-type ReasoningEffort = "low" | "medium" | "high";
+type ReasoningEffort = "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max";
 type PresetVisibility = "private" | "team" | "public";
 type PresetRoutingMode = "balanced" | "price" | "latency" | "throughput";
 type ResponseHealingMode = "safe" | "strict";
 type PresetEditorView =
 	| "overview"
-	| "identity"
 	| "defaults"
 	| "plugins"
-	| "models"
 	| "providers"
 	| "parameters"
 	| "reasoning";
 
 const EXCLUDED_STATUSES = ["retired", "rumoured", "deprecated"];
+const VISIBILITY_LABELS: Record<PresetVisibility, string> = { private: "Only Me", team: "Share With Workspace", public: "Publish to Marketplace" };
+const ROUTING_LABELS: Record<PresetRoutingMode, string> = { balanced: "Balanced", price: "Lowest Cost", latency: "Lowest Latency", throughput: "Highest Throughput" };
+const HEALING_LABELS: Record<ResponseHealingMode, string> = { safe: "Safe", strict: "Strict" };
+const REASONING_LABELS: Record<ReasoningEffort, string> = { none: "None", minimal: "Minimal", low: "Low", medium: "Medium", high: "High", xhigh: "Extra High", max: "Maximum" };
 
 const PROVIDER_TO_LOGO_MAP: Record<string, string> = {
 	"openai": "openai",
@@ -87,6 +94,8 @@ const PROVIDER_TO_LOGO_MAP: Record<string, string> = {
 	"together": "together",
 	"hyperbolic": "hyperbolic",
 	"nebius": "nebius-token-factory",
+	"moonshot": "moonshotai",
+	"moonshotai": "moonshotai",
 };
 
 function getProviderLogoId(name: string): string {
@@ -102,16 +111,6 @@ function buildPresetSlugPreview(value: string): string {
 		.replace(/[^a-z0-9._:-]+/g, "-")
 		.replace(/-{2,}/g, "-")
 		.replace(/^[-._:]+|[-._:]+$/g, "");
-}
-
-function moveOrderedItem<T>(items: T[], index: number, direction: -1 | 1): T[] {
-	const nextIndex = index + direction;
-	if (index < 0 || nextIndex < 0 || index >= items.length || nextIndex >= items.length) {
-		return items;
-	}
-	const next = [...items];
-	[next[index], next[nextIndex]] = [next[nextIndex], next[index]];
-	return next;
 }
 
 function parseThresholdInputs(values: {
@@ -208,66 +207,88 @@ export default function PresetForm({
 	providers,
 	currentUserId,
 	currentTeamId,
+	workspacePublisher,
+	initialPreset,
 }: PresetFormProps) {
+	const initialConfig = initialPreset?.config ?? {};
+	const initialProvider = initialConfig.provider ?? {};
+	const initialParameters = initialConfig.parameters ?? {};
+	const initialReasoning = initialConfig.reasoning ?? {};
+	const initialResponseCaching = initialConfig.response_caching ?? {};
+	const initialHealingPlugin = Array.isArray(initialConfig.plugins)
+		? initialConfig.plugins.find((plugin: any) => plugin?.id === "response-healing")
+		: null;
+	const asInputValue = (value: unknown) => value === null || value === undefined ? "" : String(value);
 	const [loading, setLoading] = useState(false);
 	const [activeView, setActiveView] = useState<PresetEditorView>("overview");
 	const [modelSearch, setModelSearch] = useState("");
 	const [providerSearch, setProviderSearch] = useState("");
+	const [blockedProviderSearch, setBlockedProviderSearch] = useState("");
 
-	const [name, setName] = useState("");
-	const [slug, setSlug] = useState("");
-	const [description, setDescription] = useState("");
-	const [systemPrompt, setSystemPrompt] = useState("");
-	const [visibility, setVisibility] = useState<PresetVisibility>("team");
-	const [routingMode, setRoutingMode] = useState<PresetRoutingMode>("balanced");
+	const [name, setName] = useState(String(initialPreset?.name ?? "").replace(/^@+/, ""));
+	const [slug, setSlug] = useState(String(initialPreset?.slug ?? ""));
+	const [slugEdited, setSlugEdited] = useState(() => {
+		const initialName = String(initialPreset?.name ?? "").replace(/^@+/, "");
+		const initialSlug = String(initialPreset?.slug ?? "");
+		return Boolean(initialSlug && initialSlug !== buildPresetSlugPreview(initialName));
+	});
+	const [description, setDescription] = useState(String(initialPreset?.description ?? ""));
+	const [systemPrompt, setSystemPrompt] = useState(String(initialConfig.system_prompt ?? ""));
+	const [visibility, setVisibility] = useState<PresetVisibility>(initialPreset?.visibility ?? "team");
+	const [routingMode, setRoutingMode] = useState<PresetRoutingMode>(initialConfig.routing_mode ?? "balanced");
 	const router = useRouter();
 
-	const [selectedModels, setSelectedModels] = useState<string[]>([]);
+	const [selectedModels, setSelectedModels] = useState<string[]>(Array.isArray(initialConfig.models) ? initialConfig.models : []);
 	const [showModelPicker, setShowModelPicker] = useState(false);
-	const [providerOrder, setProviderOrder] = useState<string[]>([]);
-	const [providerIgnore, setProviderIgnore] = useState<string[]>([]);
+	const [providerOrder, setProviderOrder] = useState<string[]>(Array.isArray(initialProvider.order) ? initialProvider.order : Array.isArray(initialConfig.only_providers) ? initialConfig.only_providers : []);
+	const [providerIgnore, setProviderIgnore] = useState<string[]>(Array.isArray(initialProvider.ignore) ? initialProvider.ignore : Array.isArray(initialConfig.ignore_providers) ? initialConfig.ignore_providers : []);
 	const [showProviderPicker, setShowProviderPicker] = useState(false);
-	const [maxPricePrompt, setMaxPricePrompt] = useState("");
-	const [maxPriceCompletion, setMaxPriceCompletion] = useState("");
-	const [throughputP50, setThroughputP50] = useState("");
-	const [throughputP75, setThroughputP75] = useState("");
-	const [throughputP90, setThroughputP90] = useState("");
-	const [throughputP99, setThroughputP99] = useState("");
-	const [latencyP50, setLatencyP50] = useState("");
-	const [latencyP75, setLatencyP75] = useState("");
-	const [latencyP90, setLatencyP90] = useState("");
-	const [latencyP99, setLatencyP99] = useState("");
-	const [requiredExecutionRegion, setRequiredExecutionRegion] = useState("");
-	const [requiredDataRegion, setRequiredDataRegion] = useState("");
-	const [requireZeroDataRetention, setRequireZeroDataRetention] = useState(false);
+	const [showBlockedProviderPicker, setShowBlockedProviderPicker] = useState(false);
+	const [maxPricePrompt, setMaxPricePrompt] = useState(asInputValue(initialProvider.max_price?.prompt));
+	const [maxPriceCompletion, setMaxPriceCompletion] = useState(asInputValue(initialProvider.max_price?.completion));
+	const [throughputP50, setThroughputP50] = useState(asInputValue(initialProvider.preferred_min_throughput?.p50));
+	const [throughputP75, setThroughputP75] = useState(asInputValue(initialProvider.preferred_min_throughput?.p75));
+	const [throughputP90, setThroughputP90] = useState(asInputValue(initialProvider.preferred_min_throughput?.p90));
+	const [throughputP99, setThroughputP99] = useState(asInputValue(initialProvider.preferred_min_throughput?.p99));
+	const [latencyP50, setLatencyP50] = useState(asInputValue(initialProvider.preferred_max_latency?.p50));
+	const [latencyP75, setLatencyP75] = useState(asInputValue(initialProvider.preferred_max_latency?.p75));
+	const [latencyP90, setLatencyP90] = useState(asInputValue(initialProvider.preferred_max_latency?.p90));
+	const [latencyP99, setLatencyP99] = useState(asInputValue(initialProvider.preferred_max_latency?.p99));
+	const [requiredExecutionRegion, setRequiredExecutionRegion] = useState(String(initialProvider.required_execution_region ?? ""));
+	const [requiredDataRegion, setRequiredDataRegion] = useState(String(initialProvider.required_data_region ?? ""));
+	const [requireZeroDataRetention, setRequireZeroDataRetention] = useState(Boolean(initialProvider.require_zero_data_retention));
 
-	const [temperature, setTemperature] = useState("");
-	const [topP, setTopP] = useState("");
-	const [topK, setTopK] = useState("");
-	const [frequencyPenalty, setFrequencyPenalty] = useState("");
-	const [presencePenalty, setPresencePenalty] = useState("");
-	const [repetitionPenalty, setRepetitionPenalty] = useState("");
-	const [maxTokens, setMaxTokens] = useState("");
-	const [seed, setSeed] = useState("");
+	const [temperature, setTemperature] = useState(asInputValue(initialParameters.temperature));
+	const [topP, setTopP] = useState(asInputValue(initialParameters.top_p));
+	const [topK, setTopK] = useState(asInputValue(initialParameters.top_k));
+	const [frequencyPenalty, setFrequencyPenalty] = useState(asInputValue(initialParameters.frequency_penalty));
+	const [presencePenalty, setPresencePenalty] = useState(asInputValue(initialParameters.presence_penalty));
+	const [repetitionPenalty, setRepetitionPenalty] = useState(asInputValue(initialParameters.repetition_penalty));
+	const [maxTokens, setMaxTokens] = useState(asInputValue(initialParameters.max_tokens));
+	const [seed, setSeed] = useState(asInputValue(initialParameters.seed));
 
-	const [reasoningEnabled, setReasoningEnabled] = useState(false);
-	const [reasoningEffort, setReasoningEffort] = useState<ReasoningEffort>("medium");
-	const [reasoningMaxTokens, setReasoningMaxTokens] = useState("");
-	const [excludeReasoningTokens, setExcludeReasoningTokens] = useState(false);
-	const [responseHealingEnabled, setResponseHealingEnabled] = useState(false);
+	const [reasoningEnabled, setReasoningEnabled] = useState(Boolean(initialReasoning.enabled));
+	const [reasoningEffort, setReasoningEffort] = useState<ReasoningEffort>(initialReasoning.effort ?? "medium");
+	const [reasoningMaxTokens, setReasoningMaxTokens] = useState(asInputValue(initialReasoning.max_tokens));
+	const [excludeReasoningTokens, setExcludeReasoningTokens] = useState(Boolean(initialReasoning.exclude_from_output));
+	const [responseHealingEnabled, setResponseHealingEnabled] = useState(Boolean(initialHealingPlugin && initialHealingPlugin.enabled !== false));
 	const [responseHealingMode, setResponseHealingMode] =
-		useState<ResponseHealingMode>("safe");
-	const [responseCachingEnabled, setResponseCachingEnabled] = useState(false);
-	const [responseCachingTtl, setResponseCachingTtl] = useState("300");
+		useState<ResponseHealingMode>(initialHealingPlugin?.mode === "strict" ? "strict" : "safe");
+	const [responseCachingEnabled, setResponseCachingEnabled] = useState(Boolean(initialResponseCaching.enabled));
+	const [responseCachingTtl, setResponseCachingTtl] = useState(asInputValue(initialResponseCaching.ttl_seconds || 300));
 
 	const activeModels = useMemo(() => {
-		return models.filter(
-			(m) => !EXCLUDED_STATUSES.includes((m.status || "").toLowerCase())
-		);
+		return models
+			.filter((model) => !EXCLUDED_STATUSES.includes((model.status || "").toLowerCase()))
+			.sort((left, right) => {
+				const organisationOrder = (left.organisation_name ?? "\uffff").localeCompare(right.organisation_name ?? "\uffff", undefined, { sensitivity: "base" });
+				return organisationOrder || left.name.localeCompare(right.name, undefined, { sensitivity: "base" });
+			});
 	}, [models]);
 
 	const providerList = useMemo(() => {
 		return providers
+			.filter((provider) => provider.active_models > 0)
 			.map((p) => ({
 				id: p.api_provider_id,
 				name: p.api_provider_name,
@@ -275,6 +296,25 @@ export default function PresetForm({
 			}))
 			.filter((p) => p.id.length > 0);
 	}, [providers]);
+
+	const selectedModelOptions = useMemo(() => selectedModels.map((id) => {
+		const model = activeModels.find((entry) => entry.model_id === id);
+		const organisationName = model?.organisation_name ?? null;
+		return {
+			id,
+			label: model?.name ?? id,
+			icon: organisationName ? <Logo id={model?.organisation_id ?? organisationName} className="h-5 w-5 rounded-sm object-contain" alt={organisationName} width={20} height={20} /> : undefined,
+		};
+	}), [selectedModels, activeModels]);
+
+	const selectedProviderOptions = useMemo(() => providerOrder.map((id) => {
+		const provider = providerList.find((entry) => entry.id === id);
+		return {
+			id,
+			label: provider?.name ?? id,
+			icon: provider ? <Logo id={provider.logoId} className="h-5 w-5 rounded-sm object-contain" alt={provider.name} width={20} height={20} /> : undefined,
+		};
+	}), [providerOrder, providerList]);
 
 	const filteredModels = useMemo(() => {
 		if (!modelSearch.trim()) return activeModels;
@@ -291,6 +331,12 @@ export default function PresetForm({
 		const search = providerSearch.toLowerCase();
 		return providerList.filter((p) => p.name.toLowerCase().includes(search));
 	}, [providerList, providerSearch]);
+
+	const filteredBlockedProviders = useMemo(() => {
+		if (!blockedProviderSearch.trim()) return providerList;
+		const search = blockedProviderSearch.toLowerCase();
+		return providerList.filter((provider) => provider.name.toLowerCase().includes(search));
+	}, [providerList, blockedProviderSearch]);
 
 	const parameterOverrideCount = useMemo(
 		() =>
@@ -366,15 +412,6 @@ export default function PresetForm({
 		? `Response healing (${responseHealingMode})`
 		: "No preset plugins enabled";
 
-	const identitySummary = [
-		`@${buildPresetSlugPreview(slug || name) || "new-preset"}`,
-		visibility === "private"
-			? "Only me"
-			: visibility === "team"
-				? "Workspace"
-				: "Public",
-	].join(", ");
-
 	const requestDefaultsSummary = [
 		`${routingMode} routing`,
 		responseCachingEnabled
@@ -386,16 +423,18 @@ export default function PresetForm({
 	const reasoningSummary = !reasoningEnabled
 		? "Disabled"
 		: `${reasoningEffort} effort${
-				reasoningMaxTokens ? `, max ${reasoningMaxTokens} tokens` : ""
-		  }`;
-
-	const modelsSummary =
-		selectedModels.length > 0
-			? `${selectedModels.length} selected, ${getModelName(selectedModels[0])} default`
-			: "No model configured";
+			reasoningMaxTokens ? `, max ${reasoningMaxTokens} tokens` : ""
+		}`;
 
 	function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
-		setName(e.target.value);
+		const nextName = e.target.value;
+		setName(nextName);
+		if (!slugEdited) setSlug(buildPresetSlugPreview(nextName));
+	}
+
+	function handleSlugChange(e: React.ChangeEvent<HTMLInputElement>) {
+		setSlugEdited(true);
+		setSlug(buildPresetSlugPreview(e.target.value));
 	}
 
 	function toggleArrayItem<T>(array: T[], item: T): T[] {
@@ -405,14 +444,10 @@ export default function PresetForm({
 		return [...array, item];
 	}
 
-	function getModelName(id: string) {
-		const model = activeModels.find((m) => m.model_id === id);
-		return model?.name || id;
-	}
-
 	function getModelOrgInfo(id: string) {
 		const model = activeModels.find((m) => m.model_id === id);
 		return {
+			id: model?.organisation_id || null,
 			name: model?.organisation_name || null,
 			colour: model?.organisation_colour || null,
 		};
@@ -436,7 +471,7 @@ export default function PresetForm({
 			return;
 		}
 		if (!currentUserId || !currentTeamId) {
-			toast.error("You must be signed in and in a workspace to create a preset.");
+			toast.error("You must be signed in and in a workspace to save a preset.");
 			return;
 		}
 
@@ -546,44 +581,64 @@ export default function PresetForm({
 		}
 
 		try {
-			await createPresetAction({
-				name: `@${trimmedName.replace(/^@+/, "")}`,
-				slug: slugPreview,
-				description,
-				visibility,
-				config,
-				creatorUserId: currentUserId,
-				workspaceId: currentTeamId,
-			});
-			toast.success("Preset created");
+			if (initialPreset?.id) {
+				await updatePresetAction({
+					id: initialPreset.id,
+					name: trimmedName,
+					slug: slugPreview,
+					description,
+					visibility,
+					config,
+				});
+				toast.success("Draft saved");
+			} else {
+				await createPresetAction({
+					name: trimmedName,
+					slug: slugPreview,
+					description,
+					visibility,
+					config,
+					creatorUserId: currentUserId,
+					workspaceId: currentTeamId,
+				});
+				toast.success("Preset created");
+			}
 			router.push("/settings/presets");
 			router.refresh();
 		} catch (error) {
-			console.error("Failed to create preset:", error);
-			toast.error(error instanceof Error ? error.message : "Failed to create preset");
+			toast.error(error instanceof Error ? error.message : "Failed to save preset");
 		} finally {
 			setLoading(false);
 		}
 	}
 
 	return (
-		<form onSubmit={onSubmit} className="space-y-8">
+		<form
+			onSubmit={onSubmit}
+			className="space-y-6 [&_[data-slot=button]]:rounded-md [&_[data-slot=select-trigger]]:w-full [&_[data-slot=select-trigger]]:rounded-md"
+		>
 			{activeView === "overview" ? (
 				<>
 					<div className="space-y-6">
-						<div className="flex flex-wrap items-center justify-between gap-3">
-							<div className="min-w-0 flex-1">
-								<Label htmlFor="preset-name" className="sr-only">
-									Preset name
-								</Label>
-								<div className="flex items-center gap-2">
-									<AtSign className="h-6 w-6 shrink-0 text-muted-foreground" />
-									<Input
-										id="preset-name"
-										value={name}
-										onChange={handleNameChange}
-										placeholder="New Preset"
-										className="h-auto border-0 bg-transparent px-0 py-0 text-4xl font-semibold tracking-tight shadow-none placeholder:text-muted-foreground/70 focus-visible:ring-0 md:text-3xl"
+						<div className="flex flex-wrap items-start justify-between gap-4">
+							<div className="min-w-0 flex-1 space-y-1">
+								<Label htmlFor="preset-name" className="sr-only">Preset Name</Label>
+								<input
+									id="preset-name"
+									value={name}
+									onChange={handleNameChange}
+									placeholder="Concise Support Assistant"
+									className="block w-full min-w-0 bg-transparent py-1 text-3xl font-semibold leading-tight tracking-tight outline-none placeholder:text-muted-foreground/70"
+								/>
+								<div className="flex min-w-0 items-center gap-1 font-mono text-sm text-muted-foreground focus-within:text-foreground">
+									<span aria-hidden="true">@</span>
+									<Label htmlFor="preset-slug" className="sr-only">Invocation Slug</Label>
+									<input
+										id="preset-slug"
+										value={slug}
+										onChange={handleSlugChange}
+										placeholder="concise-support-assistant"
+										className="min-w-0 flex-1 bg-transparent py-1 font-mono text-sm outline-none placeholder:text-muted-foreground/60"
 									/>
 								</div>
 							</div>
@@ -592,7 +647,7 @@ export default function PresetForm({
 									<Link href="/settings/presets">Cancel</Link>
 								</Button>
 								<Button type="submit" disabled={loading || !name.trim()}>
-									{loading ? "Saving..." : "Create"}
+									{loading ? "Saving..." : initialPreset ? "Save Draft" : "Create"}
 								</Button>
 							</div>
 						</div>
@@ -609,25 +664,70 @@ export default function PresetForm({
 
 					<Separator />
 
-					<div className="space-y-2">
+					<section className="space-y-3">
+						<div>
+							<h2 className="text-sm font-semibold">Visibility</h2>
+							<p className="mt-1 text-sm text-muted-foreground">Control who can discover and use this preset.</p>
+						</div>
+						<div className="flex flex-col gap-3 border-y py-4 sm:flex-row sm:items-center sm:justify-between">
+							<div>
+								<div className="text-sm font-medium">Preset Access</div>
+								<p className="mt-1 text-xs text-muted-foreground">Private presets are only visible to you. Workspace presets can be used by members. Public presets appear in the marketplace.</p>
+							</div>
+							<Select value={visibility} onValueChange={(value: PresetVisibility) => setVisibility(value)}>
+								<SelectTrigger className="w-full sm:w-56"><SelectValue>{VISIBILITY_LABELS[visibility]}</SelectValue></SelectTrigger>
+								<SelectContent className="rounded-md">
+									<SelectItem value="private">Only Me</SelectItem>
+									<SelectItem value="team">Share With Workspace</SelectItem>
+									<SelectItem value="public">Publish to Marketplace</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+						{visibility === "public" ? (
+							<p className="text-xs text-muted-foreground">
+								This preset will be published to the Marketplace and can be invoked using{" "}
+								<span className="font-mono text-foreground">@{workspacePublisher?.handle ?? "workspace"}/{buildPresetSlugPreview(slug || name) || "preset"}</span>.
+							</p>
+						) : null}
+					</section>
+
+					<section className="space-y-4">
+						<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+							<div>
+								<h2 className="text-sm font-semibold">Models</h2>
+								<p className="mt-1 text-sm text-muted-foreground">Drag to set the default model and fallback order.</p>
+							</div>
+							<div className="flex items-center gap-2">
+								<Popover open={showModelPicker} onOpenChange={setShowModelPicker}>
+									<PopoverTrigger asChild><Button type="button" variant="outline" size="sm" className="rounded-md"><Plus className="mr-2 h-4 w-4" />Add Model</Button></PopoverTrigger>
+									<PopoverContent align="end" className="w-[min(92vw,440px)] gap-0 overflow-hidden rounded-md p-0">
+										<div className="relative border-b p-2"><Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input autoFocus value={modelSearch} onChange={(event) => setModelSearch(event.target.value)} placeholder="Search models..." className="rounded-md pl-9" /></div>
+										<ScrollArea className="h-80">
+											{filteredModels.length ? filteredModels.map((model) => {
+												const orgInfo = getModelOrgInfo(model.model_id);
+												const isSelected = selectedModels.includes(model.model_id);
+								return <button key={model.model_id} type="button" className="grid w-full grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center gap-2 border-b px-3 py-1.5 text-left last:border-b-0 hover:bg-muted/40" onClick={() => setSelectedModels((current) => isSelected ? current.filter((id) => id !== model.model_id) : [...current, model.model_id])}>
+									<span className="flex h-5 w-5 items-center justify-center rounded-sm border">{isSelected ? <Check className="h-3.5 w-3.5" /> : null}</span>
+									{orgInfo.name ? <Logo id={orgInfo.id ?? orgInfo.name} className="h-5 w-5 rounded-sm object-contain" alt={orgInfo.name} width={20} height={20} /> : <span className="h-5 w-5" />}
+									<span className="truncate text-sm font-medium">{model.name}</span>
+									<span className="max-w-32 truncate text-right text-xs text-muted-foreground">{orgInfo.name}</span>
+												</button>;
+											}) : <p className="px-4 py-8 text-center text-sm text-muted-foreground">No matching models</p>}
+										</ScrollArea>
+									</PopoverContent>
+								</Popover>
+								{selectedModels.length ? <Button type="button" variant="ghost" size="sm" onClick={() => setSelectedModels([])}>Clear</Button> : null}
+							</div>
+						</div>
+						<SortablePresetList items={selectedModelOptions} onChange={setSelectedModels} defaultFirst emptyLabel="No models selected yet." />
+					</section>
+
+					<Separator />
+
+					<div>
 						<div className="text-sm font-medium">Configuration groups</div>
-						<p className="text-sm text-muted-foreground">
-							Open one group at a time instead of working through a single long form.
-						</p>
 					</div>
-					<div className="overflow-hidden rounded-xl border border-border/70">
-						<SectionLinkRow
-							title="Identity & Sharing"
-							description="Set the invocation slug and who can use this preset."
-							summary={identitySummary}
-							onClick={() => setActiveView("identity")}
-						/>
-						<SectionLinkRow
-							title="Model Selection"
-							description="Pick the models this preset can use. The first selected model becomes the default."
-							summary={modelsSummary}
-							onClick={() => setActiveView("models")}
-						/>
+					<div className="border-y border-border/70">
 						<SectionLinkRow
 							title="Provider Routing"
 							description="Choose provider fallback order, exclusions, and routing performance thresholds."
@@ -666,58 +766,6 @@ export default function PresetForm({
 				</>
 			) : null}
 
-			{activeView === "identity" ? (
-				<div className="space-y-6">
-					<button
-						type="button"
-						onClick={() => setActiveView("overview")}
-						className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-					>
-						<ChevronLeft className="h-4 w-4" />
-						<span>Overview / Identity & Sharing</span>
-					</button>
-					<FormSection
-						icon={<AtSign className="h-4 w-4" />}
-						title="Identity & Sharing"
-						description="Choose how requests invoke this preset and who can use it."
-						stacked
-					>
-						<div className="space-y-2">
-							<Label>Invocation Slug *</Label>
-							<Input
-								value={slug}
-								onChange={(e) => setSlug(e.target.value)}
-								placeholder={buildPresetSlugPreview(name) || "my-preset-name"}
-							/>
-							<p className="text-xs text-muted-foreground">
-								Requests will reference <span className="font-mono">@{buildPresetSlugPreview(slug || name) || "my-preset-name"}</span>.
-							</p>
-						</div>
-
-						<div className="space-y-2">
-							<Label>Visibility</Label>
-							<Select
-								value={visibility}
-								onValueChange={(value: PresetVisibility) => setVisibility(value)}
-							>
-								<SelectTrigger>
-									<SelectValue placeholder="Select visibility" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="private">Only me</SelectItem>
-									<SelectItem value="team">Share with workspace</SelectItem>
-									<SelectItem value="public">Publish to marketplace</SelectItem>
-								</SelectContent>
-							</Select>
-							<p className="text-xs text-muted-foreground">
-								Private presets are only visible to you. Workspace presets can be used by
-								anyone in the workspace. Public presets appear in the marketplace under your username.
-							</p>
-						</div>
-					</FormSection>
-				</div>
-			) : null}
-
 			{activeView === "defaults" ? (
 				<div className="space-y-6">
 					<button
@@ -741,9 +789,9 @@ export default function PresetForm({
 								onValueChange={(value: PresetRoutingMode) => setRoutingMode(value)}
 							>
 								<SelectTrigger>
-									<SelectValue placeholder="Select routing profile" />
+									<SelectValue>{ROUTING_LABELS[routingMode]}</SelectValue>
 								</SelectTrigger>
-								<SelectContent>
+								<SelectContent className="rounded-md">
 									<SelectItem value="balanced">Balanced</SelectItem>
 									<SelectItem value="price">Lowest cost</SelectItem>
 									<SelectItem value="latency">Lowest latency</SelectItem>
@@ -841,9 +889,9 @@ export default function PresetForm({
 									}
 								>
 									<SelectTrigger>
-										<SelectValue placeholder="Select healing mode" />
+										<SelectValue>{HEALING_LABELS[responseHealingMode]}</SelectValue>
 									</SelectTrigger>
-									<SelectContent>
+									<SelectContent className="rounded-md">
 										<SelectItem value="safe">Safe</SelectItem>
 										<SelectItem value="strict">Strict</SelectItem>
 									</SelectContent>
@@ -859,208 +907,6 @@ export default function PresetForm({
 							</p>
 						</div>
 					)}
-					</FormSection>
-				</div>
-			) : null}
-
-			{activeView === "models" ? (
-				<div className="space-y-6">
-					<button
-						type="button"
-						onClick={() => setActiveView("overview")}
-						className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-					>
-						<ChevronLeft className="h-4 w-4" />
-						<span>Overview / Model Selection</span>
-					</button>
-					<FormSection
-						icon={<Sliders className="h-4 w-4" />}
-						title="Model Selection"
-						description="Select the models this preset should use. The first model becomes the default, and the remaining models stay available in the preset allowlist."
-						stacked
-					>
-						<div className="space-y-3">
-							<div className="flex items-center justify-between gap-3">
-								<div>
-									<div className="text-sm font-medium">Selected models</div>
-									<p className="text-xs text-muted-foreground">
-										The first selected model is the default resolved model for this preset.
-									</p>
-								</div>
-								<div className="flex items-center gap-2">
-									<Button
-										type="button"
-										variant="outline"
-										size="sm"
-										onClick={() => setShowModelPicker((prev) => !prev)}
-									>
-										<Plus className="mr-2 h-4 w-4" />
-										Add model
-									</Button>
-									{selectedModels.length > 0 ? (
-										<Button
-											type="button"
-											variant="ghost"
-											size="sm"
-											onClick={() => setSelectedModels([])}
-										>
-											Clear
-										</Button>
-									) : null}
-								</div>
-							</div>
-							<div className="rounded-lg border p-3">
-								{selectedModels.length > 0 ? (
-									<div className="flex flex-wrap gap-2">
-										{selectedModels.map((id, index) => {
-											const orgInfo = getModelOrgInfo(id);
-											return (
-												<div
-													key={id}
-													className="inline-flex items-center gap-2 rounded-md border bg-background px-2 py-1"
-												>
-													<span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted px-1 text-[11px] font-medium">
-														{index + 1}
-													</span>
-													{orgInfo.name ? (
-														<Logo
-															id={orgInfo.name.toLowerCase().replace(/\s+/g, "-")}
-															className="h-5 w-5 rounded-full"
-															alt={orgInfo.name}
-															width={20}
-															height={20}
-														/>
-													) : null}
-													<span className="max-w-[180px] truncate text-sm font-medium">
-														{getModelName(id)}
-													</span>
-													{index === 0 ? (
-														<Badge variant="secondary" className="h-5 text-[10px]">
-															Default
-														</Badge>
-													) : null}
-													<div className="flex items-center gap-1">
-														<Button
-															type="button"
-															variant="ghost"
-															size="icon"
-															className="h-6 w-6"
-															disabled={index === 0}
-															onClick={() =>
-																setSelectedModels((prev) =>
-																	moveOrderedItem(prev, index, -1),
-																)
-															}
-														>
-															<ChevronLeft className="h-3.5 w-3.5" />
-														</Button>
-														<Button
-															type="button"
-															variant="ghost"
-															size="icon"
-															className="h-6 w-6"
-															disabled={index === selectedModels.length - 1}
-															onClick={() =>
-																setSelectedModels((prev) =>
-																	moveOrderedItem(prev, index, 1),
-																)
-															}
-														>
-															<ChevronRight className="h-3.5 w-3.5" />
-														</Button>
-														<Button
-															type="button"
-															variant="ghost"
-															size="icon"
-															className="h-6 w-6"
-															onClick={() =>
-																setSelectedModels((prev) => prev.filter((modelId) => modelId !== id))
-															}
-														>
-															<X className="h-3.5 w-3.5" />
-														</Button>
-													</div>
-												</div>
-											);
-										})}
-									</div>
-								) : (
-									<p className="text-sm text-muted-foreground">
-										No models selected yet.
-									</p>
-								)}
-							</div>
-						</div>
-
-						{showModelPicker ? (
-							<div className="space-y-3 rounded-lg border p-3">
-								<div className="relative">
-									<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-									<Input
-										value={modelSearch}
-										onChange={(e) => setModelSearch(e.target.value)}
-										placeholder="Search models..."
-										className="pl-9"
-									/>
-								</div>
-								{filteredModels.length > 0 ? (
-									<div className="max-h-96 overflow-y-auto rounded-md border">
-										{filteredModels.map((model) => {
-											const orgInfo = getModelOrgInfo(model.model_id);
-											const selectedIndex = selectedModels.indexOf(model.model_id);
-											const isSelected = selectedIndex >= 0;
-											return (
-												<button
-													key={model.model_id}
-													type="button"
-													className="flex w-full items-center gap-3 border-b px-3 py-3 text-left transition-colors last:border-b-0 hover:bg-muted/20"
-													onClick={() =>
-														setSelectedModels((prev) =>
-															prev.includes(model.model_id)
-																? prev.filter((entry) => entry !== model.model_id)
-																: [...prev, model.model_id],
-														)
-													}
-												>
-													<div className="flex h-5 w-5 items-center justify-center rounded-sm border text-[11px]">
-														{isSelected ? selectedIndex + 1 : null}
-													</div>
-													{orgInfo.name ? (
-														<Logo
-															id={orgInfo.name.toLowerCase().replace(/\s+/g, "-")}
-															className="h-8 w-8 rounded-full"
-															alt={orgInfo.name}
-															width={32}
-															height={32}
-														/>
-													) : null}
-													<div className="min-w-0 flex-1">
-														<div className="truncate text-sm font-medium">{model.name}</div>
-														<div className="flex items-center gap-2 text-xs text-muted-foreground">
-															{orgInfo.name ? <span className="truncate">{orgInfo.name}</span> : null}
-															{model.status && model.status !== "active" ? (
-																<Badge variant="outline" className="h-4 text-[10px]">
-																	{model.status}
-																</Badge>
-															) : null}
-														</div>
-													</div>
-													{isSelected && selectedIndex === 0 ? (
-														<Badge variant="secondary" className="h-5 text-[10px]">
-															Default
-														</Badge>
-													) : null}
-												</button>
-											);
-										})}
-									</div>
-								) : (
-									<p className="py-8 text-center text-sm text-muted-foreground">
-										No models found matching your search.
-									</p>
-								)}
-							</div>
-						) : null}
 					</FormSection>
 				</div>
 			) : null}
@@ -1090,15 +936,24 @@ export default function PresetForm({
 									</p>
 								</div>
 								<div className="flex items-center gap-2">
-									<Button
-										type="button"
-										variant="outline"
-										size="sm"
-										onClick={() => setShowProviderPicker((prev) => !prev)}
-									>
-										<Plus className="mr-2 h-4 w-4" />
-										Select providers
-									</Button>
+									<Popover open={showProviderPicker} onOpenChange={setShowProviderPicker}>
+										<PopoverTrigger asChild>
+											<Button type="button" variant="outline" size="sm" className="rounded-md"><Plus className="mr-2 h-4 w-4" />Select Providers</Button>
+										</PopoverTrigger>
+										<PopoverContent align="end" className="w-[min(92vw,400px)] gap-0 overflow-hidden rounded-md p-0">
+											<div className="relative border-b p-2"><Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input autoFocus value={providerSearch} onChange={(event) => setProviderSearch(event.target.value)} placeholder="Search providers..." className="rounded-md pl-9" /></div>
+											<ScrollArea className="h-72">
+												{filteredProviders.length ? filteredProviders.map((provider) => {
+													const isSelected = providerOrder.includes(provider.id);
+											return <button key={provider.id} type="button" className="flex w-full items-center gap-2 border-b px-3 py-1.5 text-left last:border-b-0 hover:bg-muted/40" onClick={() => setProviderOrder((current) => isSelected ? current.filter((id) => id !== provider.id) : [...current, provider.id])}>
+												<span className="flex h-5 w-5 items-center justify-center rounded-sm border">{isSelected ? <Check className="h-3.5 w-3.5" /> : null}</span>
+												<Logo id={provider.logoId} className="h-5 w-5 rounded-sm object-contain" alt={provider.name} width={20} height={20} />
+														<span className="truncate text-sm font-medium">{provider.name}</span>
+													</button>;
+												}) : <p className="px-4 py-8 text-center text-sm text-muted-foreground">No matching routable providers</p>}
+											</ScrollArea>
+										</PopoverContent>
+									</Popover>
 									{providerOrder.length > 0 ? (
 										<Button
 											type="button"
@@ -1111,165 +966,37 @@ export default function PresetForm({
 									) : null}
 								</div>
 							</div>
-							<div className="rounded-lg border p-3">
-								{providerOrder.length > 0 ? (
-									<div className="flex flex-wrap items-center gap-2">
-										{providerOrder.map((providerId, index) => {
-											const provider = providerList.find((entry) => entry.id === providerId);
-											return (
-												<React.Fragment key={providerId}>
-													<div className="inline-flex items-center gap-2 rounded-md border bg-background px-2 py-1">
-														<span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted px-1 text-[11px] font-medium">
-															{index + 1}
-														</span>
-														{provider ? (
-															<Logo
-																id={provider.logoId}
-																className="h-5 w-5 rounded-full"
-																alt={provider.name}
-																width={20}
-																height={20}
-															/>
-														) : null}
-														<span className="text-sm font-medium">
-															{provider?.name ?? providerId}
-														</span>
-														<div className="flex items-center gap-1">
-															<Button
-																type="button"
-																variant="ghost"
-																size="icon"
-																className="h-6 w-6"
-																disabled={index === 0}
-																onClick={() =>
-																	setProviderOrder((prev) =>
-																		moveOrderedItem(prev, index, -1),
-																	)
-																}
-															>
-																<ChevronLeft className="h-3.5 w-3.5" />
-															</Button>
-															<Button
-																type="button"
-																variant="ghost"
-																size="icon"
-																className="h-6 w-6"
-																disabled={index === providerOrder.length - 1}
-																onClick={() =>
-																	setProviderOrder((prev) =>
-																		moveOrderedItem(prev, index, 1),
-																	)
-																}
-															>
-																<ChevronRight className="h-3.5 w-3.5" />
-															</Button>
-															<Button
-																type="button"
-																variant="ghost"
-																size="icon"
-																className="h-6 w-6"
-																onClick={() =>
-																	setProviderOrder((prev) =>
-																		prev.filter((entry) => entry !== providerId),
-																	)
-																}
-															>
-																<X className="h-3.5 w-3.5" />
-															</Button>
-														</div>
-													</div>
-													{index < providerOrder.length - 1 ? (
-														<ChevronRight className="h-4 w-4 text-muted-foreground" />
-													) : null}
-												</React.Fragment>
-											);
-										})}
-									</div>
-								) : (
-									<p className="text-sm text-muted-foreground">
-										No provider order configured. Any eligible provider may be used.
-									</p>
-								)}
-							</div>
+							<SortablePresetList items={selectedProviderOptions} onChange={setProviderOrder} emptyLabel="No provider order configured. Any eligible provider may be used." />
 						</div>
 
-						{showProviderPicker ? (
-							<div className="space-y-3 rounded-lg border p-3">
-								<div className="relative">
-									<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-									<Input
-										value={providerSearch}
-										onChange={(e) => setProviderSearch(e.target.value)}
-										placeholder="Search providers..."
-										className="pl-9"
-									/>
-								</div>
-								<div className="max-h-80 overflow-y-auto rounded-md border">
-									{filteredProviders.map((provider) => {
-										const selectedIndex = providerOrder.indexOf(provider.id);
-										const isSelected = selectedIndex >= 0;
-										return (
-											<button
-												key={provider.id}
-												type="button"
-												className="flex w-full items-center gap-3 border-b px-3 py-3 text-left transition-colors last:border-b-0 hover:bg-muted/20"
-												onClick={() =>
-													setProviderOrder((prev) =>
-														prev.includes(provider.id)
-															? prev.filter((entry) => entry !== provider.id)
-															: [...prev, provider.id],
-													)
-												}
-											>
-												<div className="flex h-5 w-5 items-center justify-center rounded-sm border text-[11px]">
-													{isSelected ? selectedIndex + 1 : null}
-												</div>
-												<Logo
-													id={provider.logoId}
-													className="h-6 w-6 rounded-full"
-													alt={provider.name}
-													width={24}
-													height={24}
-												/>
-												<span className="text-sm font-medium">{provider.name}</span>
-											</button>
-										);
-									})}
-								</div>
-							</div>
-						) : null}
-
 						<div className="space-y-3">
-							<div className="text-sm font-medium">Blocked providers</div>
-							<p className="text-xs text-muted-foreground">
-								These providers will never be used, even if they support the selected model.
-							</p>
-							<div className="flex flex-wrap gap-2 rounded-lg border p-3">
-								{providerList.map((provider) => {
-									const isIgnored = providerIgnore.includes(provider.id);
-									return (
-										<Button
-											key={`ignore-${provider.id}`}
-											type="button"
-											variant={isIgnored ? "secondary" : "ghost"}
-											size="sm"
-											className="gap-2"
-											onClick={() =>
-												setProviderIgnore((prev) => toggleArrayItem(prev, provider.id))
-											}
-										>
-											<Logo
-												id={provider.logoId}
-												className="h-4 w-4 rounded-full"
-												alt={provider.name}
-												width={16}
-												height={16}
-											/>
-											<span>{provider.name}</span>
-										</Button>
-									);
-								})}
+							<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+								<div><div className="text-sm font-medium">Blocked Providers</div><p className="mt-1 text-xs text-muted-foreground">These providers will never be used, even if they support the selected model.</p></div>
+								<Popover open={showBlockedProviderPicker} onOpenChange={setShowBlockedProviderPicker}>
+								<PopoverTrigger asChild><Button type="button" variant="outline" size="sm" className="rounded-md"><Plus className="mr-2 h-4 w-4" />Select Providers</Button></PopoverTrigger>
+									<PopoverContent align="end" className="w-[min(92vw,400px)] gap-0 overflow-hidden rounded-md p-0">
+										<div className="relative border-b p-2"><Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input autoFocus value={blockedProviderSearch} onChange={(event) => setBlockedProviderSearch(event.target.value)} placeholder="Search providers..." className="rounded-md pl-9" /></div>
+										<ScrollArea className="h-72">
+											{filteredBlockedProviders.map((provider) => {
+												const isBlocked = providerIgnore.includes(provider.id);
+												return <button key={`blocked-picker-${provider.id}`} type="button" className="flex w-full items-center gap-2 border-b px-3 py-1.5 text-left last:border-b-0 hover:bg-muted/40" onClick={() => setProviderIgnore((current) => toggleArrayItem(current, provider.id))}>
+													<span className="flex h-5 w-5 items-center justify-center rounded-sm border">{isBlocked ? <Check className="h-3.5 w-3.5" /> : null}</span>
+													<Logo id={provider.logoId} className="h-5 w-5 rounded-sm object-contain" alt={provider.name} width={20} height={20} />
+													<span className="truncate text-sm font-medium">{provider.name}</span>
+												</button>;
+											})}
+										</ScrollArea>
+									</PopoverContent>
+								</Popover>
 							</div>
+							{providerIgnore.length ? <div className="flex flex-wrap gap-2">{providerIgnore.map((providerId) => {
+								const provider = providerList.find((entry) => entry.id === providerId);
+								return <div key={`blocked-${providerId}`} className="inline-flex items-center gap-2 rounded-md border bg-background px-2 py-1">
+									{provider ? <Logo id={provider.logoId} className="h-4 w-4 rounded-sm object-contain" alt={provider.name} width={16} height={16} /> : null}
+									<span className="text-sm font-medium">{provider?.name ?? providerId}</span>
+									<button type="button" className="rounded-md p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground" onClick={() => setProviderIgnore((current) => current.filter((id) => id !== providerId))} aria-label={`Remove ${provider?.name ?? providerId}`}><X className="h-3.5 w-3.5" /></button>
+								</div>;
+							})}</div> : <p className="text-sm text-muted-foreground">No providers blocked.</p>}
 						</div>
 
 						<div className="space-y-5">
@@ -1290,9 +1017,9 @@ export default function PresetForm({
 											}
 										>
 											<SelectTrigger>
-												<SelectValue placeholder="Any region" />
+											<SelectValue>{requiredExecutionRegion === "eu" ? "EU" : requiredExecutionRegion === "us" ? "US" : "Any Region"}</SelectValue>
 											</SelectTrigger>
-											<SelectContent>
+											<SelectContent className="rounded-md">
 												<SelectItem value="any">Any region</SelectItem>
 												<SelectItem value="eu">EU</SelectItem>
 												<SelectItem value="us">US</SelectItem>
@@ -1308,9 +1035,9 @@ export default function PresetForm({
 											}
 										>
 											<SelectTrigger>
-												<SelectValue placeholder="Any region" />
+											<SelectValue>{requiredDataRegion === "eu" ? "EU" : requiredDataRegion === "us" ? "US" : "Any Region"}</SelectValue>
 											</SelectTrigger>
-											<SelectContent>
+											<SelectContent className="rounded-md">
 												<SelectItem value="any">Any region</SelectItem>
 												<SelectItem value="eu">EU</SelectItem>
 												<SelectItem value="us">US</SelectItem>
@@ -1336,7 +1063,7 @@ export default function PresetForm({
 							<div className="text-sm font-medium">Performance routing</div>
 							<div className="space-y-3 rounded-lg border p-4">
 								<div className="space-y-1">
-									<Label>max_price</Label>
+									<Label>Maximum Price</Label>
 									<p className="text-xs text-muted-foreground">
 										Maximum price per million tokens for prompt and completion before the provider is deprioritized.
 									</p>
@@ -1369,7 +1096,7 @@ export default function PresetForm({
 
 							<div className="space-y-3 rounded-lg border p-4">
 								<div className="space-y-1">
-									<Label>preferred_min_throughput</Label>
+									<Label>Preferred Minimum Throughput</Label>
 									<p className="text-xs text-muted-foreground">
 										Preferred minimum throughput in tokens per second. Endpoints below these thresholds may still be used, but are deprioritized in routing.
 									</p>
@@ -1396,7 +1123,7 @@ export default function PresetForm({
 
 							<div className="space-y-3 rounded-lg border p-4">
 								<div className="space-y-1">
-									<Label>preferred_max_latency</Label>
+									<Label>Preferred Maximum Latency</Label>
 									<p className="text-xs text-muted-foreground">
 										Preferred maximum latency in seconds. Endpoints above these thresholds may still be used, but are deprioritized in routing.
 									</p>
@@ -1608,12 +1335,16 @@ export default function PresetForm({
 										}
 									>
 										<SelectTrigger>
-											<SelectValue placeholder="Select effort level" />
+										<SelectValue>{REASONING_LABELS[reasoningEffort]}</SelectValue>
 										</SelectTrigger>
-										<SelectContent>
+									<SelectContent className="rounded-md">
+											<SelectItem value="none">None</SelectItem>
+											<SelectItem value="minimal">Minimal</SelectItem>
 											<SelectItem value="low">Low</SelectItem>
 											<SelectItem value="medium">Medium</SelectItem>
 											<SelectItem value="high">High</SelectItem>
+											<SelectItem value="xhigh">Extra High</SelectItem>
+											<SelectItem value="max">Maximum</SelectItem>
 										</SelectContent>
 									</Select>
 									<p className="text-xs text-muted-foreground">

@@ -1,5 +1,5 @@
 import { getBindings, getSupabaseAdmin } from "@/runtime/env";
-import { validateWebhookEndpointUrlForDelivery } from "@core/webhook-endpoints";
+import { decryptWebhookSecret, validateWebhookEndpointUrlForDelivery } from "@core/webhook-endpoints";
 import {
 	buildAsyncGenAiOtlpPayload,
 	buildGatewayGenAiOtlpPayload,
@@ -11,11 +11,19 @@ import {
 type Rule = { field: string; condition: string; value: string | null };
 type Destination = {
 	id: string;
+	destination_id: "otel_collector" | "webhook";
 	destination_config: Record<string, unknown> | null;
+	destination_config_ciphertext?: string | null;
+	destination_config_iv?: string | null;
+	destination_config_key_version?: string | null;
 	privacy_exclude_prompts_and_outputs?: boolean | null;
 	sampling_rate?: number | string | null;
 	group_join_operator?: "and" | "or" | null;
-	broadcast_destination_keys?: Array<{ key_id: string }> | null;
+	include_generation_metadata?: boolean | null;
+	include_cost_metadata?: boolean | null;
+	include_identity_metadata?: boolean | null;
+	include_request_context?: boolean | null;
+	broadcast_destination_keys?: Array<{ key_id: string; filter_mode?: "include" | "exclude" | null }> | null;
 	broadcast_destination_rule_groups?: Array<{
 		match_operator?: "and" | "or" | null;
 		broadcast_destination_rules?: Rule[] | null;
@@ -76,6 +84,7 @@ function ruleValues(args: GatewayGenAiTelemetry): Record<string, unknown> {
 		finish_reason: args.finishReason,
 		input: JSON.stringify(args.requestPayload ?? null).slice(0, 16_000),
 		output: JSON.stringify(args.responsePayload ?? null).slice(0, 16_000),
+		token_cost: tokens.total > 0 && args.totalNanos != null ? args.totalNanos / tokens.total : null,
 		total_cost: args.totalNanos,
 		total_tokens: tokens.total,
 		prompt_tokens: tokens.input,
@@ -107,11 +116,16 @@ function matchRule(rule: Rule, values: Record<string, unknown>): boolean {
 	}
 }
 
-function selected(destination: Destination, args: GatewayGenAiTelemetry, eventId: string): boolean {
+export function selected(destination: Destination, args: GatewayGenAiTelemetry, eventId: string): boolean {
 	const keys = destination.broadcast_destination_keys ?? [];
-	if (keys.length && !keys.some((entry) => entry.key_id === args.keyId)) return false;
+	if (keys.length) {
+		const included = keys.filter((entry) => entry.filter_mode !== "exclude");
+		const excluded = keys.filter((entry) => entry.filter_mode === "exclude");
+		if (included.length && !included.some((entry) => entry.key_id === args.keyId)) return false;
+		if (excluded.some((entry) => entry.key_id === args.keyId)) return false;
+	}
 	const rate = Math.max(0, Math.min(1, finite(destination.sampling_rate) ?? 1));
-	if (!stableSample(eventId, destination.id, rate)) return false;
+	if (!stableSample(args.sessionId ?? eventId, destination.id, rate)) return false;
 	const groups = destination.broadcast_destination_rule_groups ?? [];
 	if (!groups.length) return true;
 	const values = ruleValues(args);
@@ -138,15 +152,58 @@ async function destinations(workspaceId: string): Promise<Destination[]> {
 	const { data, error } = await getSupabaseAdmin()
 		.from("workspace_broadcast_destinations")
 		.select(`
-			id,destination_config,privacy_exclude_prompts_and_outputs,sampling_rate,group_join_operator,
-			broadcast_destination_keys(key_id),
+			id,destination_id,destination_config,destination_config_ciphertext,destination_config_iv,destination_config_key_version,privacy_exclude_prompts_and_outputs,sampling_rate,group_join_operator,include_generation_metadata,include_cost_metadata,include_identity_metadata,include_request_context,
+			broadcast_destination_keys(key_id,filter_mode),
 			broadcast_destination_rule_groups(match_operator,broadcast_destination_rules(field,condition,value))
 		`)
 		.eq("workspace_id", workspaceId)
-		.eq("destination_id", "otel_collector")
+		.in("destination_id", ["otel_collector", "webhook"])
 		.eq("enabled", true);
 	if (error) throw new Error(`otel_destinations_load_failed:${error.message}`);
 	return (data ?? []) as Destination[];
+}
+
+function metadataCategory(key: string): "generation" | "cost" | "identity" | "context" | null {
+	if (key.startsWith("phaseo.cost.")) return "cost";
+	if (key === "user.id" || key.startsWith("phaseo.api_key.") || key.startsWith("phaseo.app.") || key.startsWith("phaseo.client.") || key === "phaseo.request.id" || key === "phaseo.workspace.id") return "identity";
+	if (key.startsWith("http.") || key.startsWith("server.") || key.startsWith("phaseo.edge.") || key === "phaseo.endpoint" || key === "phaseo.requested_model" || key === "gen_ai.conversation.id") return "context";
+	if (key.startsWith("gen_ai.") || key.startsWith("phaseo.generation.") || key.startsWith("phaseo.provider.")) return "generation";
+	return null;
+}
+
+export function filterMetadata(payload: unknown, destination: Destination): unknown {
+	const enabled = {
+		generation: destination.include_generation_metadata !== false,
+		cost: destination.include_cost_metadata !== false,
+		identity: destination.include_identity_metadata !== false,
+		context: destination.include_request_context !== false,
+	};
+	const visit = (value: unknown): unknown => {
+		if (Array.isArray(value)) return value.map(visit);
+		if (!value || typeof value !== "object") return value;
+		const output: Record<string, unknown> = {};
+		for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+			if (key === "attributes" && Array.isArray(child)) {
+				output[key] = child.filter((attribute) => {
+					const category = metadataCategory(String(object(attribute).key ?? ""));
+					return !category || enabled[category];
+				}).map(visit);
+			} else output[key] = visit(child);
+		}
+		return output;
+	};
+	return visit(payload);
+}
+
+async function destinationConfig(destination: Destination): Promise<Record<string, unknown>> {
+	if (destination.destination_config_ciphertext && destination.destination_config_iv) {
+		return object(JSON.parse(await decryptWebhookSecret({
+			secretCiphertext: destination.destination_config_ciphertext,
+			secretIv: destination.destination_config_iv,
+			secretKeyVersion: destination.destination_config_key_version,
+		})));
+	}
+	return object(destination.destination_config);
 }
 
 async function enqueuePayloads(args: {
@@ -157,9 +214,8 @@ async function enqueuePayloads(args: {
 }) {
 	if (String(getBindings().OTEL_EXPORT_ENABLED ?? "true").toLowerCase() === "false") return 0;
 	const configured = await destinations(args.workspaceId);
-	const rows = configured
-		.filter((destination) => selected(destination, args.gatewaySelection, args.eventId))
-		.map((destination) => ({
+	const selectedDestinations = configured.filter((destination) => selected(destination, args.gatewaySelection, args.eventId));
+	const rows = selectedDestinations.map((destination) => ({
 			workspace_id: args.workspaceId,
 			destination_id: destination.id,
 			event_id: args.eventId,
@@ -180,7 +236,7 @@ export async function enqueueGatewayOtlpExport(args: GatewayGenAiTelemetry) {
 		eventId: `gateway:${args.requestId}`,
 		workspaceId: args.workspaceId,
 		gatewaySelection: args,
-		build: (destination) => buildGatewayGenAiOtlpPayload(args, buildOptions(destination)),
+		build: (destination) => filterMetadata(buildGatewayGenAiOtlpPayload(args, buildOptions(destination)), destination),
 	});
 }
 
@@ -217,7 +273,7 @@ export async function enqueueAsyncGenAiOtlpExport(args: AsyncGenAiTelemetry & {
 		eventId: `${args.operation}:${identity}:${args.phase}`,
 		workspaceId: args.workspaceId,
 		gatewaySelection: selection,
-		build: (destination) => buildAsyncGenAiOtlpPayload(args, buildOptions(destination)).payload,
+		build: (destination) => filterMetadata(buildAsyncGenAiOtlpPayload(args, buildOptions(destination)).payload, destination),
 	});
 }
 
@@ -377,6 +433,44 @@ export async function deliverGatewayOtlpPayload(
 	};
 }
 
+export async function deliverGatewayWebhookPayload(
+	payload: unknown,
+	config: Record<string, unknown>,
+	attempts = 1,
+) {
+	let target: URL;
+	let requestHeaders: Headers;
+	try {
+		target = new URL(String(config.url ?? "").trim());
+		const validated = await validateWebhookEndpointUrlForDelivery(target.toString());
+		if (validated.ok === false) throw new Error(`Invalid webhook endpoint: ${validated.reason}`);
+		requestHeaders = headers(config);
+	} catch (error) {
+		return { delivered: false, retryable: false, status: null, delayMs: 0, error: error instanceof Error ? error.message : "Invalid webhook destination" };
+	}
+	let response: Response;
+	try {
+		response = await fetch(target, {
+			method: String(config.method ?? "POST").toUpperCase() === "PUT" ? "PUT" : "POST",
+			headers: requestHeaders,
+			body: JSON.stringify(payload),
+			redirect: "manual",
+			signal: AbortSignal.timeout(15_000),
+		});
+	} catch (error) {
+		return { delivered: false, retryable: true, status: null, delayMs: retryDelayMs(attempts, null), error: error instanceof Error ? error.message : "Webhook connection failed" };
+	}
+	await boundedResponse(response);
+	if (response.ok) return { delivered: true, retryable: false, status: response.status, delayMs: 0, error: null };
+	return {
+		delivered: false,
+		retryable: RETRYABLE_STATUS.has(response.status),
+		status: response.status,
+		delayMs: retryDelayMs(attempts, response.headers.get("retry-after")),
+		error: `Webhook endpoint returned ${response.status}`,
+	};
+}
+
 async function updateOutboxRow(
 	client: ReturnType<typeof getSupabaseAdmin>,
 	id: string,
@@ -402,13 +496,13 @@ export async function drainGatewayOtlpOutbox(limit = 100): Promise<{
 	for (const row of rows) {
 		const destinationResult = await client
 			.from("workspace_broadcast_destinations")
-			.select("destination_config,enabled")
+			.select("id,destination_id,destination_config,destination_config_ciphertext,destination_config_iv,destination_config_key_version,enabled")
 			.eq("id", row.destination_id)
 			.maybeSingle();
 		if (destinationResult.error || !destinationResult.data?.enabled) {
 			await updateOutboxRow(client, row.id, {
 				status: "failed",
-				last_error: "OTLP destination unavailable or disabled",
+				last_error: "Broadcast destination unavailable or disabled",
 				lease_expires_at: null,
 				updated_at: new Date().toISOString(),
 			});
@@ -417,11 +511,11 @@ export async function drainGatewayOtlpOutbox(limit = 100): Promise<{
 		}
 		let outcome;
 		try {
-			outcome = await deliverGatewayOtlpPayload(
-				row.payload,
-				object(destinationResult.data.destination_config),
-				row.attempts,
-			);
+			const destination = destinationResult.data as Destination & { enabled: boolean };
+			const config = await destinationConfig(destination);
+			outcome = destination.destination_id === "webhook"
+				? await deliverGatewayWebhookPayload(row.payload, config, row.attempts)
+				: await deliverGatewayOtlpPayload(row.payload, config, row.attempts);
 		} catch (deliveryError) {
 			outcome = {
 				delivered: false,

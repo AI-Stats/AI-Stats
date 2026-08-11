@@ -35,7 +35,16 @@
       "value": "AI Studio describes Gemini 3.5 Flash-Lite as its fastest, most cost-effective 3.5 model for high-throughput execution."
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 37.4,
+      "is_self_reported": false,
+      "other_info": "Gemini 3.5 Flash-Lite; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gemini-3-5-flash-lite",
+      "rank": 90
+    }
+  ],
   "page_notice": null,
   "model_type": null,
   "knowledge_cutoff": "2026-03",

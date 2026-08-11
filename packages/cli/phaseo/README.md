@@ -112,6 +112,46 @@ phaseo webhooks create --url https://example.com/phaseo-events --events batch.co
 phaseo api get /v1/models
 ```
 
+## Coding-agent integrations
+
+Detect and configure supported coding agents to use the Phaseo gateway:
+
+```bash
+phaseo integrations list
+phaseo integrations status codex
+phaseo integrations setup codex --model openai/gpt-5.6-terra --dry-run
+phaseo integrations setup codex --model openai/gpt-5.6-terra
+phaseo integrations setup claude-code
+phaseo integrations setup opencode --model openai/gpt-5.6-terra
+```
+
+Codex receives a dedicated `phaseo` profile at `~/.codex/phaseo.config.toml`, leaving the default profile unchanged:
+
+```bash
+codex --profile phaseo
+```
+
+Claude Code is configured through `~/.claude/settings.json` with the Phaseo gateway and a credential helper. Both integrations ask the Phaseo CLI for a short-lived gateway key, so neither application configuration contains a key. The helper uses `PHASEO_API_KEY` when it is set. Otherwise, it uses the session created by `phaseo login` to provision a 24-hour key and keeps that key in the same OS-backed credential store as the session:
+
+```bash
+phaseo login
+claude
+```
+
+OpenCode receives a `phaseo` provider in `~/.config/opencode/opencode.json` or an existing `opencode.jsonc`. Its configuration references `PHASEO_API_KEY` without storing the key. Start OpenCode from a shell where that variable is available, then select the configured Phaseo model from `/models`:
+
+```bash
+PHASEO_API_KEY="..." opencode --model phaseo/openai/gpt-5.6-terra
+```
+
+Every setup operation supports `--dry-run` and creates a timestamped backup before replacing an existing file. Remove only Phaseo-owned values with:
+
+```bash
+phaseo integrations remove codex
+phaseo integrations remove claude-code
+phaseo integrations remove opencode
+```
+
 ## Local comparison runs
 
 The CLI can execute a small model-and-case matrix from a local JSON file:

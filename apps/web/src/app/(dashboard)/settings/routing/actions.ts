@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { fetchAccountWebApi } from "@/lib/web-api/client";
+import { fetchAccountWebApi, WebApiError } from "@/lib/web-api/client";
 import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountContext";
 import type { DynamicRouteConfig } from "@/lib/fetchers/internal/settingsTypes";
 
@@ -24,14 +24,28 @@ export async function updateRoutingSettings({
 	responseHealingLocked,
 	responseHealingMode,
 }: UpdateRoutingSettingsInput) {
-	const context = await getServerAccountContext();
-	if (!context.accessToken || !context.workspaceId) throw new Error("Missing workspace id");
-	await fetchAccountWebApi("/api/account/settings/routing", context.accessToken, {
-		method: "PUT",
-		body: JSON.stringify({ workspaceId: context.workspaceId, mode, betaChannelEnabled, alphaChannelEnabled, responseHealingEnabled, responseHealingLocked, responseHealingMode }),
-	});
+	try {
+		const context = await getServerAccountContext();
+		if (!context.accessToken || !context.workspaceId) {
+			return { ok: false as const, error: "Select a workspace before changing routing settings." };
+		}
+		const response = await fetchAccountWebApi<{ ok: true; gatewayCacheInvalidated?: boolean }>("/api/account/settings/routing", context.accessToken, {
+			method: "PUT",
+			body: JSON.stringify({ workspaceId: context.workspaceId, mode, betaChannelEnabled, alphaChannelEnabled, responseHealingEnabled, responseHealingLocked, responseHealingMode }),
+		});
 
-	revalidatePath("/settings/routing");
+		revalidatePath("/settings/routing");
+		return { ok: true as const, gatewayCacheInvalidated: response.gatewayCacheInvalidated !== false };
+	} catch (error) {
+		return {
+			ok: false as const,
+			error: error instanceof WebApiError
+				? `${error.detail ?? "The routing service rejected the update."} (${error.status})`
+				: error instanceof Error
+					? error.message
+					: "The routing settings could not be updated.",
+		};
+	}
 }
 
 export async function updateRoutingMode(mode: RoutingMode) {

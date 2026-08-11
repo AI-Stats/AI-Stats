@@ -63,6 +63,14 @@
       "other_info": "5 Shot",
       "source_link": "https://x.ai/news/grok",
       "rank": 108
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 5.8,
+      "is_self_reported": false,
+      "other_info": "Grok-1; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/grok-1",
+      "rank": 477
     }
   ],
   "family_id": null,

@@ -566,7 +566,7 @@ export type IRVideoGenerationRequest = {
 	model: string;
 	prompt: string;
 	inputReferences?: Array<{
-		type: "image" | "video" | "mask";
+		type: "image" | "video" | "audio" | "mask";
 		role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
 		referenceType?: string;
 		url?: string;
@@ -599,6 +599,7 @@ export type IRVideoGenerationRequest = {
 	};
 	inputImage?: string | Record<string, any>;
 	inputVideo?: string | Record<string, any>;
+	inputVideoDurationSeconds?: number;
 	lastFrame?: string | Record<string, any>;
 	referenceImages?: Array<Record<string, any>>;
 	duration?: number;

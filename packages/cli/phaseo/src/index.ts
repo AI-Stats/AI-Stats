@@ -22,6 +22,8 @@ import { CLI_VERSION } from "./generated/meta.js";
 import { createDoctorReport, detectInstalledPackageManager, type DoctorReport } from "./installation.js";
 import { getVersionInfo, removeCommandFor, updateCommandFor, updateInvocationFor } from "./release.js";
 import { runCurie } from "./curie.js";
+import { runIntegrationCommand } from "./integrations/index.js";
+import { revokeIntegrationGatewayCredential } from "./integrations/credential.js";
 
 type ParsedArgs = {
 	command: string[];
@@ -195,6 +197,7 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 			"phaseo analytics --help",
 			"phaseo generation --help",
 			"phaseo curie --help",
+			"phaseo integrations --help",
 			"phaseo webhooks --help",
 			"phaseo api --help",
 			"",
@@ -230,6 +233,21 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 		description: "Run a local model comparison from a JSON configuration.",
 	},
 	"curie run": { usage: ["phaseo curie run <config.json> [--repeats <n>] [--report <path>] [--base-url <url> --allow-custom-base-url --api-key-env PHASEO_CURIE_API_KEY] [--dry-run] [--json]"] },
+	integrations: {
+		description: "Configure coding agents to use the Phaseo gateway without writing credentials to their configuration.",
+		usage: [
+			"phaseo integrations list [codex|claude-code|opencode] [--json]",
+			"phaseo integrations status [codex|claude-code|opencode] [--json]",
+			"phaseo integrations setup codex [--model <id>] [--dry-run] [--json]",
+			"phaseo integrations setup claude-code [--dry-run] [--json]",
+			"phaseo integrations setup opencode [--model <id>] [--dry-run] [--json]",
+			"phaseo integrations remove <codex|claude-code|opencode> [--dry-run] [--json]",
+		],
+	},
+	"integrations list": { usage: ["phaseo integrations list [codex|claude-code|opencode] [--json]"] },
+	"integrations status": { usage: ["phaseo integrations status [codex|claude-code|opencode] [--json]"] },
+	"integrations setup": { usage: ["phaseo integrations setup codex [--model <id>] [--dry-run] [--json]", "phaseo integrations setup claude-code [--dry-run] [--json]", "phaseo integrations setup opencode [--model <id>] [--dry-run] [--json]"] },
+	"integrations remove": { usage: ["phaseo integrations remove <codex|claude-code|opencode> [--dry-run] [--json]"] },
 	logout: { usage: ["phaseo logout [--json]"] },
 	whoami: { usage: ["phaseo whoami [--json]"] },
 	keys: {
@@ -562,6 +580,10 @@ async function maybePrintUpdateNotice(json: boolean) {
 	process.stdout.write(
 		`\nUpdate available: ${CLI_VERSION} -> ${info.latestVersion}\nRun: ${info.updateCommand}\n`,
 	);
+}
+
+export function shouldPrintUpdateNoticeForCommand(command: string[]): boolean {
+	return !(command[0] === "integrations" && command[1] === "credential");
 }
 
 async function request(path: string, options: { method?: HttpMethod; body?: Record<string, unknown> } = {}) {
@@ -1087,7 +1109,16 @@ async function login(flags: Record<string, string | boolean>) {
 }
 
 async function logout(flags: Record<string, string | boolean>) {
-	const session = await readSession();
+	let session = await readSession();
+	let integrationCredentialRevoked = false;
+	if (session?.integrationGatewayKeyId) {
+		try {
+			integrationCredentialRevoked = await revokeIntegrationGatewayCredential();
+			session = await readSession();
+		} catch {
+			integrationCredentialRevoked = false;
+		}
+	}
 	let revoked = false;
 	if (session?.refreshToken) {
 		try {
@@ -1099,7 +1130,7 @@ async function logout(flags: Record<string, string | boolean>) {
 	}
 	await clearSession();
 	if (flagBool(flags, "json")) {
-		printJson({ ok: true, logged_in: false, refresh_token_revoked: revoked });
+		printJson({ ok: true, logged_in: false, refresh_token_revoked: revoked, integration_credential_revoked: integrationCredentialRevoked });
 	} else {
 		process.stdout.write(revoked ? "Logged out of Phaseo and revoked the session.\n" : "Logged out of Phaseo.\n");
 	}
@@ -2011,6 +2042,7 @@ async function main() {
 		else if (first === "analytics" && second === "get") action = analyticsGet(parsed.flags);
 		else if (first === "generation" && second === "get") action = generationGet(parsed.flags);
 		else if (first === "curie" && second === "run") action = runCurie(third, parsed.flags);
+		else if (first === "integrations") action = runIntegrationCommand(parsed.command.slice(1), parsed.flags);
 		else if (first === "webhooks" && second === "list") action = listWebhooks(parsed.flags);
 		else if (first === "webhooks" && second === "create") action = createWebhook(parsed.flags);
 		else if (first === "webhooks" && second === "get") action = getWebhook(third, parsed.flags);
@@ -2024,7 +2056,9 @@ async function main() {
 		else if (first === "api" && second === "delete") action = rawApi("DELETE", third, parsed.flags);
 		if (action) {
 			await action;
-			await maybePrintUpdateNotice(json);
+			if (shouldPrintUpdateNoticeForCommand(parsed.command)) {
+				await maybePrintUpdateNotice(json);
+			}
 			return;
 		}
 		throw new Error(unknownCommandMessage(parsed.command));

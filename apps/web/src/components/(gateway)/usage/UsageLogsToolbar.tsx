@@ -191,6 +191,7 @@ export default function UsageLogsToolbar({
 	const effectivePreset = optimisticRange?.preset ?? preset;
 	const effectiveCustomFrom = optimisticRange?.customFrom ?? customFrom;
 	const effectiveCustomTo = optimisticRange?.customTo ?? customTo;
+	const refreshActive = isRefreshing || isRevalidating || isPending;
 
 	React.useEffect(() => {
 		if (!pendingTargetQuery) return;
@@ -432,13 +433,14 @@ export default function UsageLogsToolbar({
 						variant="outline"
 						size="icon"
 						onClick={() => void handleRefresh()}
-						disabled={isRefreshing || isRevalidating || isPending}
+						disabled={refreshActive}
 						aria-label="Refresh current view"
+						aria-busy={refreshActive}
 					>
 						<RefreshCw
 							className={cn(
-								"h-3 w-3",
-								(isRefreshing || isRevalidating || isPending) && "animate-spin",
+								"size-3.5",
+								refreshActive && "animate-spin [animation-duration:650ms]",
 							)}
 						/>
 					</Button>

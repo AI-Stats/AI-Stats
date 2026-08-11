@@ -5,6 +5,7 @@ import { generatePublicId } from "@pipeline/before/genId";
 import { validateWebhookEndpointUrlForDelivery } from "@core/webhook-endpoints";
 import { sanitizeUrlForLogging } from "@/lib/security/sanitizeUrl";
 import { readResponsePreview } from "@core/bounded-stream";
+import { fetchVideoProviderStatus } from "@core/video-reconciliation";
 
 import * as videoHelpers from "./videos.helpers";
 
@@ -92,7 +93,8 @@ function videoContentUnavailableReason(status: string): "video_generation_failed
 	return "video_not_ready";
 }
 
-export async function getVideoContentHandler(req: Request): Promise<Response> {	const path = new URL(req.url).pathname;
+export async function getVideoContentHandler(req: Request): Promise<Response> {
+	const path = new URL(req.url).pathname;
 	const parts = path.split("/");
 	const id = parts[parts.length - 2] ?? "";
 	if (!id) {
@@ -140,6 +142,56 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {	
 		});
 	}
 	const videoMeta = ownedVideo.meta;
+	if ((ownedVideo.record.provider ?? videoMeta?.provider) === "fal") {
+		const polled = await fetchVideoProviderStatus(ownedVideo.record);
+		const downloadUrl = normalizeText(polled?.metaPatch?.downloadUrl ?? videoMeta?.downloadUrl);
+		if (polled?.status === "failed") {
+			await finalizeVideoStatusIfTerminal({
+				auth: authValue,
+				videoId: id,
+				videoMeta,
+				providerId: "fal",
+				status: "failed",
+				model: ownedVideo.record.model,
+			});
+			return err("upstream_error", { reason: "video_generation_failed", video_id: id });
+		}
+		if (polled?.status === "cancelled") {
+			await finalizeVideoStatusIfTerminal({
+				auth: authValue,
+				videoId: id,
+				videoMeta,
+				providerId: "fal",
+				status: "cancelled",
+				model: ownedVideo.record.model,
+			});
+			return err("not_ready", {
+				reason: "video_cancelled",
+				request_id: authValue.requestId,
+				workspace_id: authValue.workspaceId,
+				video_id: id,
+			});
+		}
+		if (!downloadUrl) return err("not_ready", { reason: "video_not_ready", video_id: id });
+		if (polled?.status === "completed") {
+			await finalizeVideoStatusIfTerminal({
+				auth: authValue,
+				videoId: id,
+				videoMeta,
+				providerId: "fal",
+				status: "completed",
+				model: ownedVideo.record.model,
+				seconds: polled.seconds,
+				metaPatch: polled.metaPatch,
+			});
+		}
+		const content = await fetchProviderVideoUri(downloadUrl);
+		if (!content.ok) return content;
+		return new Response(content.body, {
+			status: content.status,
+			headers: buildContentHeaders(content.headers, { contentDisposition, filename: contentFilename }),
+		});
+	}
 	const vertexOperationName = resolveGoogleVertexOperationName(ownedVideo.record, videoMeta, id);
 	if (vertexOperationName) {
 		const cachedUri =

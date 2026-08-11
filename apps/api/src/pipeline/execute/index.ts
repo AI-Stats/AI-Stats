@@ -6,7 +6,8 @@
 import type { GatewayResponsePayload } from "@core/types";
 import type { ByokKeyMeta, PipelineContext, ProviderAttemptLog } from "../before/types";
 import { Timer } from "../telemetry/timer";
-import { dispatchBackground, ensureRuntimeForBackground } from "@/runtime/env";
+import { dispatchBackground, ensureRuntimeForBackground, getSupabaseAdmin } from "@/runtime/env";
+import { BYOK_KEYS_PER_PROVIDER_LIMIT } from "@/core/byok";
 
 export type PipelineTiming = {
 	timer: Timer;
@@ -100,7 +101,9 @@ const ATTEMPT_PREVIEW_LIMIT = 320;
 const MAX_UPSTREAM_ERROR_BODY_BYTES = 32 * 1024;
 const MAX_RETRYABLE_EXECUTOR_RETRIES = 0;
 const SINGLE_PROVIDER_FAILURE_RETRIES = 0;
-export const MAX_BYOK_CREDENTIAL_ATTEMPTS = 8;
+// Matches the database's per-workspace/provider storage limit. A configured
+// credential must not be silently retained while being impossible to attempt.
+export const MAX_BYOK_CREDENTIAL_ATTEMPTS = BYOK_KEYS_PER_PROVIDER_LIMIT;
 
 export type CredentialAttemptPhase = "priority_byok" | "gateway" | "fallback_byok";
 
@@ -470,7 +473,7 @@ export async function doRequestWithIR(
 	const maxTries = calculateMaxTries(ranked.length, allowFallbacks);
 	const rankedProviders = ranked.slice(0, maxTries);
 	const credentialPlan = buildCredentialAttemptPlan(rankedProviders, {
-		includeFallbackByok: ctx.teamSettings?.byokFallbackEnabled === true,
+		includeFallbackByok: true,
 	});
 	ctx.credentialPlan = credentialPlan.map((entry, index) => ({
 		attempt_number: index + 1,
@@ -498,6 +501,23 @@ export async function doRequestWithIR(
 		);
 
 		if (result.ok) {
+			if (choice.credential.kind === "byok") {
+				const usedKeyId = choice.credential.key.id;
+				dispatchProviderHealthBackground(async () => {
+					const { error } = await getSupabaseAdmin()
+						.from("byok_keys")
+						.update({ last_used_at: new Date().toISOString() })
+						.eq("id", usedKeyId)
+						.eq("workspace_id", ctx.workspaceId);
+					if (error) {
+						console.error("[gateway] Failed to mark BYOK key as used", {
+							workspaceId: ctx.workspaceId,
+							keyId: usedKeyId,
+							error: error.message,
+						});
+					}
+				});
+			}
 			return result;
 		}
 
