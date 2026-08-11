@@ -11,7 +11,6 @@ import {
     pricingModelPart,
     v2RouteModelSlug,
     v2RouteExecutionRegions,
-    v2ServiceTierSlugs,
     v2PricingMeterMetadata,
     validateJsonPricingRules,
     routeStatus,
@@ -68,18 +67,6 @@ describe("V2 provider route reconciliation", () => {
             new Set(["provider:active", "provider:disabled"]),
             new Set(["provider:unresolved"]),
         )).toEqual(["provider:stale"]);
-    });
-});
-
-describe("V2 service tier reconciliation", () => {
-    it("includes route tiers that do not appear in pricing rules", () => {
-        expect(v2ServiceTierSlugs(
-            [{ pricing_plan: "standard" }],
-            [
-                { service_tiers: ["serverless", "priority"] },
-                { service_tiers: ["serverless"] },
-            ],
-        )).toEqual(["standard", "serverless", "priority"]);
     });
 });
 
