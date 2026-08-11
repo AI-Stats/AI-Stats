@@ -1752,6 +1752,72 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "spacex-ai/grok-imagine-image-2.0",
+    "provider_api_model_id": "spacex-ai:spacex-ai/grok-imagine-image-2.0",
+    "provider_model_slug": "grok-imagine-image-2.0",
+    "internal_model_id": "spacex-ai/grok-imagine-image-2.0",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "image",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      },
+      {
+        "capability_id": "image.edit",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": ["us-east-1", "us-west-2"],
+      "data": null
+    },
+    "service_tiers": [],
+    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://docs.x.ai/developers/models/grok-imagine-image-2.0",
+        "accessed_at": "2026-08-11T00:00:00",
+        "notes": "Official xAI model page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-11T00:00:00",
+      "notes": "API slug, modalities, regions and rate limit verified against xAI documentation."
+    },
+    "rate_limits": [
+      { "type": "requests_per_second", "limit": 5, "window": "second", "scope": "model", "notes": null }
+    ]
+  },
+  {
     "api_model_id": "spacex-ai/grok-imagine-video",
     "provider_api_model_id": "spacex-ai:spacex-ai/grok-imagine-video",
     "provider_model_slug": "grok-imagine-video",
