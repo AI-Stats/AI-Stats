@@ -1,0 +1,89 @@
+{
+  "model_id": "qwen/qwen3.8-27b",
+  "organisation_id": "qwen",
+  "name": "Qwen 3.8 27B",
+  "status": "Announced",
+  "previous_model_id": "qwen/qwen3.6-27b",
+  "description": "Qwen 3.8 27B is an announced dense 27-billion-parameter model from the Qwen Team at Alibaba. Qwen plans to release it with open weights, but its release date, license, context limits, modalities, pricing, benchmark results, and hosted availability have not yet been published.",
+  "announced_date": "2026-08-03T00:00:00",
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": null,
+  "output_types": null,
+  "api_model_id": "qwen/qwen3.8-27b",
+  "links": [
+    {
+      "title": "Qwen 3.8 open-weight announcement",
+      "kind": "announcement",
+      "url": "https://x.com/xiong_hui_chen/status/2084695353346117760"
+    },
+    {
+      "title": "Qwen 3.8 ModelScope preview",
+      "kind": "announcement",
+      "url": "https://modelscope.cn/models/Qwen/Qwen3.8-2.4T-A95B"
+    }
+  ],
+  "details": [
+    {
+      "name": "parameter_count",
+      "value": 27000000000,
+      "source_link": "https://modelscope.cn/models/Qwen/Qwen3.8-2.4T-A95B",
+      "other_info": "ModelScope describes Qwen3.8-27B as a dense model."
+    }
+  ],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": {
+    "tone": "info",
+    "markdown": "Qwen 3.8 27B is **announced** for a future open-weight release. Its release date, license, context limits, modalities, pricing, benchmarks, and hosted availability have not yet been published."
+  },
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": null,
+    "output": null
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "announcement",
+      "url": "https://x.com/xiong_hui_chen/status/2084695353346117760",
+      "accessed_at": "2026-08-11",
+      "notes": "Qwen team member Hui Chen announced an upcoming open-weight Qwen3.8-27B release."
+    },
+    {
+      "kind": "announcement",
+      "url": "https://modelscope.cn/models/Qwen/Qwen3.8-2.4T-A95B",
+      "accessed_at": "2026-08-11",
+      "notes": "Official Alibaba ModelScope preview lists Qwen/Qwen3.8-27B as a planned artifact and describes it as a dense 27B model."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-11T00:00:00Z",
+    "notes": "The announcement and planned ModelScope artifact are verified. Unpublished specifications remain null, and the API model ID follows the catalog convention pending an official hosted API slug."
+  },
+  "last_updated": "2026-08-11T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
