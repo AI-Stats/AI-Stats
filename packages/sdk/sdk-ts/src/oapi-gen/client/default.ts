@@ -1771,6 +1771,8 @@ export type CreateChatCompletionParams = {
       mode?: "standard" | "pro";
       summary?: "auto" | "concise" | "detailed";
     };
+    reasoning_effort?:
+      "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max";
     response_format?:
       | string
       | {

@@ -426,6 +426,7 @@ class ChatCompletionsRequest(TypedDict):
 	provider: NotRequired[Union[Literal["openai", "anthropic", "google-ai-studio", "gemini", "mistral", "x-ai", "xai", "groq", "together"], ProviderRoutingOptions]]
 	provider_options: NotRequired[ProviderOptions]
 	reasoning: NotRequired[ReasoningConfig]
+	reasoning_effort: NotRequired[Literal["none", "minimal", "low", "medium", "high", "xhigh", "max"]]
 	response_format: NotRequired[Union[str, Dict[str, Any]]]
 	safety_identifier: NotRequired[Optional[str]]
 	seed: NotRequired[int]
