@@ -19,6 +19,8 @@
   "prompt_training_source_url": "https://docs.tokenfactory.nebius.com/legal/terms-of-service",
   "data_policy_tier": "trains",
   "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "customer_agreement",
+  "data_policy_contract_notes": "The standard public route may train on input/output data; the customer must enable or contract for the ZDR opt-out path.",
   "gateway_kind": null,
   "routable": null,
   "routing_enabled": null,
