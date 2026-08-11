@@ -1132,6 +1132,21 @@ function checkApiProviders(state: ValidationState): string[] {
         ) {
             errors.push(`API provider ${providerId} has invalid data_policy_contract_mode '${String(data.data_policy_contract_mode)}'`);
         }
+		const providerModelsPath = path.join(providersDir, provider, 'models.json');
+		const providerModels = fs.existsSync(providerModelsPath)
+			? safeReadJson(providerModelsPath, errors, 'API provider models')
+			: null;
+		const hasActiveGatewayRoute = Array.isArray(providerModels) && providerModels.some((model: Record<string, unknown>) =>
+			model.is_active_gateway === true && !['disabled', 'retired'].includes(String(model.status ?? '').trim().toLowerCase()),
+		);
+		if (String(data.status ?? '').trim().toLowerCase() === 'active' && hasActiveGatewayRoute) {
+			for (const key of ['country_code', 'prompt_training_policy', 'zero_data_retention', 'residency_mode', 'data_policy_tier', 'data_policy_confidence', 'data_policy_contract_mode']) {
+				const value = (data as Record<string, unknown>)[key];
+				if (value === undefined || value === null || (typeof value === 'string' && !value.trim())) {
+					errors.push(`Active API provider ${providerId} is missing ${key}`);
+				}
+			}
+		}
 		if (data.data_policy_variant === 'zdr') {
 			if (data.offer_scope !== 'specialized') {
 				errors.push(`ZDR provider ${providerId} must use offer_scope 'specialized'`);
