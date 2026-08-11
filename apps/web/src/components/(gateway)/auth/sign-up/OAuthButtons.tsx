@@ -1,12 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { handleOAuthRedirect } from "@/app/(auth)/sign-in/actions";
 import { Logo } from "@/components/Logo";
 import { captureProductEvent } from "@/lib/productAnalytics";
+import { beginOAuthAttempt, type OAuthProviderId } from "../oauthPending";
 
-type SocialProviderId = "google" | "github" | "gitlab";
+type SocialProviderId = OAuthProviderId;
 
 const SOCIAL_PROVIDER_IDS: SocialProviderId[] = ["google", "github", "gitlab"];
 const LAST_AUTH_PROVIDER_STORAGE_KEY = "phaseo:last-auth-provider";
@@ -33,6 +36,14 @@ export default function OAuthButtons({
 }: {
 	returnUrl?: string;
 }) {
+	const [pendingProvider, setPendingProvider] = useState<SocialProviderId | null>(null);
+
+	useEffect(() => {
+		const clearPending = () => setPendingProvider(null);
+		window.addEventListener("pageshow", clearPending);
+		return () => window.removeEventListener("pageshow", clearPending);
+	}, []);
+
 	return (
 		<div className="grid gap-4">
 			<div className="flex items-center gap-2">
@@ -48,7 +59,13 @@ export default function OAuthButtons({
 						<form
 							action={handleOAuthRedirect}
 							key={id}
-							onSubmit={() => {
+							onSubmit={(event) => {
+								const attempt = beginOAuthAttempt(pendingProvider, id);
+								if (!attempt.accepted) {
+									event.preventDefault();
+									return;
+								}
+								setPendingProvider(attempt.pendingProvider);
 								try {
 									window.localStorage.setItem(
 										LAST_AUTH_PROVIDER_STORAGE_KEY,
@@ -72,9 +89,12 @@ export default function OAuthButtons({
 								variant="outline"
 								aria-label={`Continue with ${meta.label}`}
 								className="h-12 w-full justify-center gap-2 px-2"
+								disabled={pendingProvider !== null}
 							>
 								<span className="flex items-center justify-center">
-									{meta.logoId ? (
+									{pendingProvider === id ? (
+										<Spinner aria-label={`Opening ${meta.label}`} />
+									) : meta.logoId ? (
 										<Logo
 											id={meta.logoId}
 											width={18}
