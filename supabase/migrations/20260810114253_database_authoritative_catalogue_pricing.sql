@@ -161,6 +161,21 @@ begin
     raise exception 'at least one pricing meter is required';
   end if;
 
+  if v_sku_id is null then
+    select sku_id into v_sku_id
+    from public.v2_pricing_skus
+    where provider_model_id = v_provider_model_id
+      and sku_code = lower(trim(p_sku->>'sku_code'))
+      and version = coalesce(nullif(trim(p_sku->>'version'), '')::integer, 1);
+    if found then
+      select * into v_existing from public.v2_pricing_skus where sku_id = v_sku_id;
+      select jsonb_build_object(
+        'sku', to_jsonb(v_existing),
+        'meters', coalesce((select jsonb_agg(to_jsonb(meter) order by meter.meter_order, meter.meter_key) from public.v2_pricing_sku_meters meter where meter.sku_id = v_sku_id), '[]'::jsonb)
+      ) into v_before;
+    end if;
+  end if;
+
   v_sku_id := coalesce(v_sku_id, gen_random_uuid());
   insert into public.v2_pricing_skus (
     sku_id,
@@ -182,7 +197,7 @@ begin
     v_sku_id,
     v_provider_model_id,
     lower(trim(p_sku->>'sku_code')),
-    coalesce((p_sku->>'version')::integer, 1),
+    coalesce(nullif(trim(p_sku->>'version'), '')::integer, 1),
     coalesce(nullif(trim(p_sku->>'operation'), ''), 'inference'),
     coalesce(nullif(trim(p_sku->>'status'), ''), 'active'),
     nullif(trim(p_sku->>'region'), ''),
@@ -190,7 +205,7 @@ begin
     trim(p_sku->>'display_name'),
     nullif(trim(p_sku->>'description'), ''),
     upper(coalesce(nullif(trim(p_sku->>'currency'), ''), 'USD')),
-    coalesce((p_sku->>'effective_from')::timestamptz, now()),
+    coalesce(nullif(trim(p_sku->>'effective_from'), '')::timestamptz, now()),
     nullif(p_sku->>'effective_to', '')::timestamptz,
     coalesce(p_sku->'metadata', '{}'::jsonb) || jsonb_build_object(
       'source', 'admin',

@@ -128,7 +128,7 @@ function makeProviderPricing(): ProviderPricing {
 
 describe("buildProviderSections", () => {
 	test("keeps two conditional context prices in the provider table summary", () => {
-		const sections = buildProviderSections(makeProviderPricing(), "standard");
+		const sections = buildProviderSections(makeProviderPricing(), "standard", new Date("2026-02-01T00:00:00.000Z"));
 		const summary = buildProviderTablePriceSummary(sections, "input");
 
 		expect(summary.primary).toMatchObject({

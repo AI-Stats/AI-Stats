@@ -24,7 +24,7 @@ const pricingMeterSchema = z.object({
 	direction: z.enum(["input", "output"]).nullable().optional(),
 	unit: z.string().trim().min(1).max(80),
 	unit_quantity: z.number().finite().positive(),
-	price_nanos: z.number().finite().nonnegative(),
+	price_nanos: z.number().int().nonnegative(),
 	display_label: z.string().trim().min(1).max(120),
 	display_unit: z.string().trim().min(1).max(120),
 	billable: z.boolean().default(true),

@@ -413,25 +413,25 @@ async function upsertChunks(
     rows: Record<string, any>[],
     onConflict: string,
 ) {
-    const ownership: Record<string, { sourceType: string; key: string }> = {
-        v2_labs: { sourceType: "organisations", key: "lab_slug" },
-        v2_models: { sourceType: "models", key: "model_slug" },
-        v2_providers: { sourceType: "providers", key: "provider_slug" },
-        v2_benchmarks: { sourceType: "benchmarks", key: "benchmark_id" },
-        v2_subscription_plans: { sourceType: "subscription-plans", key: "plan_uuid" },
-        v2_model_links: { sourceType: "model", key: "model_slug" },
-        v2_model_details: { sourceType: "model", key: "model_slug" },
-        v2_benchmark_results: { sourceType: "model", key: "model_slug" },
-        v2_subscription_plan_models: { sourceType: "model", key: "model_slug" },
-        v2_model_provider_routes: { sourceType: "model", key: "model_slug" },
+    const ownership: Record<string, { sourceTypes: string[]; key: string }> = {
+        v2_labs: { sourceTypes: ["organisations"], key: "lab_slug" },
+        v2_models: { sourceTypes: ["models", "model"], key: "model_slug" },
+        v2_providers: { sourceTypes: ["providers"], key: "provider_slug" },
+        v2_benchmarks: { sourceTypes: ["benchmarks"], key: "benchmark_id" },
+        v2_subscription_plans: { sourceTypes: ["subscription-plans"], key: "plan_uuid" },
+        v2_model_links: { sourceTypes: ["model"], key: "model_slug" },
+        v2_model_details: { sourceTypes: ["model"], key: "model_slug" },
+        v2_benchmark_results: { sourceTypes: ["model"], key: "model_slug" },
+        v2_subscription_plan_models: { sourceTypes: ["model"], key: "model_slug" },
+        v2_model_provider_routes: { sourceTypes: ["model"], key: "model_slug" },
     };
     const rule = ownership[table];
     const filteredRows = rule
-        ? rows.filter(row => !((catalogueOverrideIndex ?? new Map()).get(rule.sourceType)?.has(String(row[rule.key]))))
+        ? rows.filter(row => !rule.sourceTypes.some(sourceType => (catalogueOverrideIndex ?? new Map()).get(sourceType)?.has(String(row[rule.key]))))
         : rows;
     if (rule && catalogueOverrideIndex === null) {
         const overrides = await databaseOwnedCatalogueKeys(supa);
-        filteredRows.splice(0, filteredRows.length, ...rows.filter(row => !overrides.get(rule.sourceType)?.has(String(row[rule.key]))));
+        filteredRows.splice(0, filteredRows.length, ...rows.filter(row => !rule.sourceTypes.some(sourceType => overrides.get(sourceType)?.has(String(row[rule.key])))));
     }
     for (const group of chunk(filteredRows, 500)) {
         assertOk(
@@ -1349,7 +1349,7 @@ export async function syncV2Catalogue(): Promise<void> {
     const skuByCode = new Map(skuRows.map(row => [`${row.provider_model_id}:${row.sku_code}:${row.version}`, row.sku_id]));
     const meterRowsByKey = new Map<string, Record<string, any>>();
     for (const rule of pricingRules) {
-        if (databaseOwnedPricingSourceKeys.has(String(rule.source_key ?? ""))) continue;
+        if (databaseOwnedPricingSourceKeys.has(String(rule.source_key ?? rule.rule_id))) continue;
         const parsed = pricingModelPart(String(rule.model_key ?? ""));
         const providerModel = parsed ? providerModelByApiKey.get(`${parsed.providerSlug}:${parsed.apiModelId}`) : null;
         const skuKey = pricingRuleSkuKey.get(String(rule.rule_id)) ?? "";

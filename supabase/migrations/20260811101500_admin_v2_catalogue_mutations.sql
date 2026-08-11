@@ -2,11 +2,11 @@
 -- this layer enforces admin identity, atomicity, audit history, and V2-only writes.
 -- phaseo:allow-destructive-migration reason: Admin-authorized catalogue deletion and replacement of model child collections require scoped deletes that are recorded in the V2 audit trail.
 alter table public.v2_catalogue_admin_changes drop constraint if exists v2_catalogue_admin_changes_resource_type_check;
-alter table public.v2_catalogue_admin_changes add constraint v2_catalogue_admin_changes_resource_type_check check (resource_type in ('pricing_sku','organisations','providers','benchmarks','subscription-plans','models','model_graph'));
+alter table public.v2_catalogue_admin_changes add constraint v2_catalogue_admin_changes_resource_type_check check (resource_type in ('pricing_sku','organisations','providers','benchmarks','subscription-plans','models','model_graph','provider_route'));
 alter table public.v2_catalogue_admin_changes drop constraint if exists v2_catalogue_admin_changes_action_check;
 alter table public.v2_catalogue_admin_changes add constraint v2_catalogue_admin_changes_action_check check (action in ('create','update','delete','save'));
 alter table public.v2_catalogue_source_overrides drop constraint if exists v2_catalogue_source_overrides_type_check;
-alter table public.v2_catalogue_source_overrides add constraint v2_catalogue_source_overrides_type_check check (source_type in ('pricing_rule','organisations','providers','benchmarks','subscription-plans','models','model'));
+alter table public.v2_catalogue_source_overrides add constraint v2_catalogue_source_overrides_type_check check (source_type in ('pricing_rule','organisations','providers','benchmarks','subscription-plans','models','model','provider_route'));
 alter table public.v2_catalogue_source_overrides drop constraint if exists v2_catalogue_source_overrides_disposition_check;
 alter table public.v2_catalogue_source_overrides add constraint v2_catalogue_source_overrides_disposition_check check (disposition in ('database_managed','database','suppressed'));
 create or replace function public.mutate_v2_admin_catalogue(
@@ -48,7 +48,11 @@ begin
     end if;
     select to_jsonb(t) into v_after from public.v2_benchmarks t where benchmark_id=p_resource_id;
   elsif p_resource_type = 'subscription-plans' then
-    v_uuid := p_resource_id::uuid;
+    begin
+      v_uuid := p_resource_id::uuid;
+    exception when invalid_text_representation then
+      raise exception 'subscription plan id must be a UUID';
+    end;
     select to_jsonb(t) into v_before from public.v2_subscription_plans t where plan_uuid=v_uuid;
     if p_action='delete' then delete from public.v2_subscription_plans where plan_uuid=v_uuid;
     else
@@ -63,7 +67,19 @@ begin
     else
       insert into public.v2_models(model_slug,lab_slug,name,status,hidden,input_modalities,output_modalities,family_slug,announced_at,released_at,deprecated_at,retired_at,metadata,updated_at)
       values(p_resource_id,p_payload->>'organisationId',p_payload->>'name',lower(coalesce(nullif(p_payload->>'status',''),'active')),coalesce((p_payload->>'hidden')::boolean,false),string_to_array(coalesce(p_payload->>'inputTypes',''),','),string_to_array(coalesce(p_payload->>'outputTypes',''),','),nullif(p_payload->>'familyId',''),nullif(p_payload->>'announcementDate','')::timestamptz,nullif(p_payload->>'releaseDate','')::timestamptz,nullif(p_payload->>'deprecationDate','')::timestamptz,nullif(p_payload->>'retirementDate','')::timestamptz,jsonb_strip_nulls(jsonb_build_object('license',p_payload->>'license','previous_model_id',p_payload->>'previousModelId','source','admin')),now())
-      on conflict(model_slug) do update set lab_slug=coalesce(excluded.lab_slug,public.v2_models.lab_slug),name=excluded.name,status=excluded.status,hidden=excluded.hidden,input_modalities=excluded.input_modalities,output_modalities=excluded.output_modalities,family_slug=excluded.family_slug,announced_at=excluded.announced_at,released_at=excluded.released_at,deprecated_at=excluded.deprecated_at,retired_at=excluded.retired_at,metadata=public.v2_models.metadata||excluded.metadata,updated_at=now();
+      on conflict(model_slug) do update set
+        lab_slug=case when p_payload ? 'organisationId' then excluded.lab_slug else public.v2_models.lab_slug end,
+        name=coalesce(p_payload->>'name',public.v2_models.name),
+        status=case when p_payload ? 'status' then excluded.status else public.v2_models.status end,
+        hidden=case when p_payload ? 'hidden' then excluded.hidden else public.v2_models.hidden end,
+        input_modalities=case when p_payload ? 'inputTypes' then excluded.input_modalities else public.v2_models.input_modalities end,
+        output_modalities=case when p_payload ? 'outputTypes' then excluded.output_modalities else public.v2_models.output_modalities end,
+        family_slug=case when p_payload ? 'familyId' then excluded.family_slug else public.v2_models.family_slug end,
+        announced_at=case when p_payload ? 'announcementDate' then excluded.announced_at else public.v2_models.announced_at end,
+        released_at=case when p_payload ? 'releaseDate' then excluded.released_at else public.v2_models.released_at end,
+        deprecated_at=case when p_payload ? 'deprecationDate' then excluded.deprecated_at else public.v2_models.deprecated_at end,
+        retired_at=case when p_payload ? 'retirementDate' then excluded.retired_at else public.v2_models.retired_at end,
+        metadata=public.v2_models.metadata||excluded.metadata,updated_at=now();
     end if;
     select to_jsonb(t) into v_after from public.v2_models t where model_slug=p_resource_id;
   else raise exception 'unsupported catalogue resource'; end if;
@@ -137,13 +153,34 @@ begin
       case when jsonb_typeof(x->'output_modalities')='array' then array(select jsonb_array_elements_text(x->'output_modalities')) else string_to_array(coalesce(x->>'output_modalities',''),',') end,
       nullif(x->>'context_length','')::integer,nullif(x->>'max_output_tokens','')::integer,nullif(x->>'effective_from','')::timestamptz,nullif(x->>'effective_to','')::timestamptz,
       jsonb_strip_nulls(jsonb_build_object('prompt_training_policy_override',x->>'prompt_training_policy_override','prompt_training_override_notes',x->>'prompt_training_override_notes','prompt_training_override_source_url',x->>'prompt_training_override_source_url','quantization_scheme',x->>'quantization_scheme','source','admin')),now()
-    from jsonb_array_elements(p_payload->'provider_models') x
+    from (
+      select distinct on (
+        case when coalesce(entry.value->>'id','') like 'new-%' or coalesce(entry.value->>'id','')=''
+          then (entry.value->>'provider_id')||':'||p_model_slug||':'||coalesce(nullif(entry.value->>'provider_model_slug',''),entry.value->>'api_model_id')
+          else entry.value->>'id' end
+      ) entry.value
+      from jsonb_array_elements(p_payload->'provider_models') with ordinality entry(value, position)
+      order by
+        case when coalesce(entry.value->>'id','') like 'new-%' or coalesce(entry.value->>'id','')=''
+          then (entry.value->>'provider_id')||':'||p_model_slug||':'||coalesce(nullif(entry.value->>'provider_model_slug',''),entry.value->>'api_model_id')
+          else entry.value->>'id' end,
+        entry.position desc
+    ) deduplicated(x)
     on conflict(provider_model_id) do update set provider_slug=excluded.provider_slug,provider_model_slug=excluded.provider_model_slug,status=excluded.status,routing_enabled=excluded.routing_enabled,input_modalities=excluded.input_modalities,output_modalities=excluded.output_modalities,context_length=excluded.context_length,max_output_tokens=excluded.max_output_tokens,effective_from=excluded.effective_from,effective_to=excluded.effective_to,metadata=public.v2_model_provider_routes.metadata||excluded.metadata,updated_at=now();
-    delete from public.v2_model_provider_routes route where route.model_slug=p_model_slug and not exists (
+    delete from public.v2_model_provider_routes route where route.model_slug=p_model_slug
+      and coalesce(route.metadata->>'source','') in ('json','models.dev') and not exists (
       select 1 from jsonb_array_elements(p_payload->'provider_models') x where route.provider_model_id=case when coalesce(x->>'id','') like 'new-%' or coalesce(x->>'id','')='' then (x->>'provider_id')||':'||p_model_slug||':'||coalesce(nullif(x->>'provider_model_slug',''),x->>'api_model_id') else x->>'id' end
     );
   end if;
   if p_payload ? 'provider_capabilities' then
+    if exists (
+      select 1 from jsonb_array_elements(p_payload->'provider_capabilities') x
+      where not exists (
+        select 1 from public.v2_model_provider_routes route
+        where route.model_slug=p_model_slug and route.provider_slug=x->>'provider_id'
+          and route.provider_model_slug=coalesce(nullif(x->>'provider_model_slug',''),x->>'api_model_id')
+      )
+    ) then raise exception 'provider capability does not match a model route'; end if;
     delete from public.v2_route_capabilities capability using public.v2_model_provider_routes route where capability.provider_model_id=route.provider_model_id and route.model_slug=p_model_slug;
     insert into public.v2_route_capabilities(provider_model_id,capability_id,status,params,effective_from,effective_to,metadata,updated_at)
     select route.provider_model_id,x->>'capability_id',case when x->>'status' like 'deranked_%' then 'degraded' else coalesce(nullif(x->>'status',''),'active') end,coalesce(x->'params','{}'::jsonb),nullif(x->>'effective_from','')::timestamptz,nullif(x->>'effective_to','')::timestamptz,jsonb_build_object('editor_status',x->>'status','source','admin'),now()

@@ -28,6 +28,7 @@ type MeterDraft = {
 	display_unit: string;
 	billable: boolean;
 	meter_order: string;
+	metadata: Record<string, unknown>;
 };
 
 type SkuDraft = {
@@ -80,8 +81,9 @@ const CONDITION_OPERATOR_OPTIONS = [
 	{ value: "neq", label: "does not equal" },
 ] as const;
 
-const nowInput = () => new Date().toISOString().slice(0, 16);
-const toInputDate = (value: unknown) => typeof value === "string" && value ? new Date(value).toISOString().slice(0, 16) : "";
+const toLocalInput = (date: Date) => new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+const nowInput = () => toLocalInput(new Date());
+const toInputDate = (value: unknown) => typeof value === "string" && value ? toLocalInput(new Date(value)) : "";
 const formatOfferDate = (value: string) => value ? new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric" }).format(new Date(value)) : null;
 const formatOfferWindow = (from: string, to: string) => {
 	const fromLabel = formatOfferDate(from);
@@ -93,7 +95,7 @@ const formatOfferWindow = (from: string, to: string) => {
 };
 
 function emptyMeter(): MeterDraft {
-	return { meter_key: "input_tokens", modality: "text", direction: "input", unit: "token", unit_quantity: "1000000", price_usd: "0", display_label: "Input tokens", display_unit: "1M tokens", billable: true, meter_order: "100" };
+	return { meter_key: "input_tokens", modality: "text", direction: "input", unit: "token", unit_quantity: "1000000", price_usd: "0", display_label: "Input tokens", display_unit: "1M tokens", billable: true, meter_order: "100", metadata: {} };
 }
 
 function automaticSkuCode(draft: Pick<SkuDraft, "operation" | "service_tier_slug" | "region" | "effective_from" | "metadata">) {
@@ -188,7 +190,7 @@ function buildSkuDraft(sku: Record<string, any>, meters: Array<Record<string, an
 		effective_to: toInputDate(sku.effective_to),
 		metadata: sku.metadata && typeof sku.metadata === "object" ? sku.metadata : {},
 		meters: meters.map((meter) => ({
-			meter_key: String(meter.meter_key), modality: String(meter.modality ?? "text"), direction: meter.direction === "input" || meter.direction === "output" ? meter.direction : "", unit: String(meter.unit ?? "unit"), unit_quantity: String(meter.unit_quantity ?? 1), price_usd: String(Number(meter.price_nanos ?? 0) / 1_000_000_000), display_label: String(meter.display_label ?? meter.meter_key), display_unit: String(meter.display_unit ?? meter.unit), billable: meter.billable !== false, meter_order: String(meter.meter_order ?? 100),
+			meter_key: String(meter.meter_key), modality: String(meter.modality ?? "text"), direction: meter.direction === "input" || meter.direction === "output" ? meter.direction : "", unit: String(meter.unit ?? "unit"), unit_quantity: String(meter.unit_quantity ?? 1), price_usd: String(Number(meter.price_nanos ?? 0) / 1_000_000_000), display_label: String(meter.display_label ?? meter.meter_key), display_unit: String(meter.display_unit ?? meter.unit), billable: meter.billable !== false, meter_order: String(meter.meter_order ?? 100), metadata: meter.metadata && typeof meter.metadata === "object" ? meter.metadata : {},
 		})),
 	};
 }
@@ -285,14 +287,16 @@ export default function V2PricingEditor({ modelId, focusProviderId }: { modelId:
 		const key = draft.sku_id ?? `new-${index}`;
 		setBusyKey(key);
 		try {
+			const metadata = { ...draft.metadata, match: pricingConditions(draft.metadata).filter((condition) => condition.value !== "") };
 			const result = await saveAdminPricingSku(modelId, {
 				...draft,
+				metadata,
 				version: Number(draft.version),
 				region: draft.region || null,
 				description: draft.description || null,
 				effective_from: new Date(draft.effective_from).toISOString(),
 				effective_to: draft.effective_to ? new Date(draft.effective_to).toISOString() : null,
-				meters: draft.meters.map((meter) => ({ ...meter, direction: meter.direction || null, unit_quantity: Number(meter.unit_quantity), price_nanos: Number(meter.price_usd) * 1_000_000_000, meter_order: Number(meter.meter_order), metadata: {} })),
+				meters: draft.meters.map((meter) => ({ ...meter, direction: meter.direction || null, unit_quantity: Number(meter.unit_quantity), price_nanos: Math.round(Number(meter.price_usd) * 1_000_000_000), meter_order: Number(meter.meter_order), metadata: meter.metadata })),
 			});
 			await revalidateSingleModelApiInfoAction(modelId);
 			const saved = result.pricing as { sku?: Record<string, any>; meters?: Array<Record<string, any>> };
