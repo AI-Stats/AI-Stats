@@ -529,6 +529,7 @@ export function openAIChatToIR(
 		provider,
 		choices,
 		usage: normalizeChatUsage(json.usage),
+		serviceTier: json.usage?.service_tier ?? json.service_tier,
 	};
 }
 
@@ -613,6 +614,13 @@ function normalizeChatUsage(usage: any): IRChatResponse["usage"] {
 		cachedInputTokens,
 		cachedReadTokensAreSubsetOfInput,
 		reasoningTokens,
+		...(
+			typeof usage.service_tier === "string"
+				? { serviceTier: usage.service_tier }
+				: typeof usage.serviceTier === "string"
+					? { serviceTier: usage.serviceTier }
+					: {}
+		),
 		_ext: {
 			inputImageTokens: inputDetails?.input_images,
 			inputAudioTokens: inputDetails?.input_audio,
@@ -645,6 +653,5 @@ function mapFinishReason(reason: string | undefined): any {
 			return "stop";
 	}
 }
-
 
 

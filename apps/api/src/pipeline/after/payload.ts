@@ -752,6 +752,9 @@ function encodeChatUsage(usage: IRUsage) {
         input_tokens: usage.inputTokens,
         output_tokens: usage.outputTokens,
         total_tokens: usage.totalTokens,
+        ...(typeof (usage as any).serviceTier === "string"
+            ? { service_tier: (usage as any).serviceTier }
+            : {}),
         input_details: usage.cachedInputTokens
             ? {
                 cached_tokens: usage.cachedInputTokens,
@@ -929,8 +932,6 @@ export function formatClientPayload(args: {
     if (meta) fallback.meta = meta;
     return attachTopLevelPricing(fallback, usage);
 }
-
-
 
 
 

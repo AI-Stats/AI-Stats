@@ -2,6 +2,18 @@ import { describe, expect, it } from "vitest";
 import { normalizeTextUsageForPricing } from "./text";
 
 describe("normalizeTextUsageForPricing", () => {
+	it("preserves the provider-observed service tier for fallback-safe billing", () => {
+		const usage = normalizeTextUsageForPricing({
+			prompt_tokens: 10,
+			completion_tokens: 5,
+			total_tokens: 15,
+			service_tier: "standard",
+		});
+
+		expect(usage?.service_tier).toBe("standard");
+		expect(usage?.serviceTier).toBe("standard");
+	});
+
 	it("maps Google thoughtsTokenCount to reasoning_tokens", () => {
 		const usage = normalizeTextUsageForPricing({
 			promptTokenCount: 100,

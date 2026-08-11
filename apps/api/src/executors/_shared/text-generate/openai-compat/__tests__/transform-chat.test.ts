@@ -7,6 +7,28 @@ import { describe, expect, it } from "vitest";
 import { irToOpenAIChat, openAIChatToIR } from "../transform-chat";
 
 describe("openAIChatToIR", () => {
+	it("preserves Mistral's observed Priority Tier response", () => {
+		const ir = openAIChatToIR({
+			id: "chatcmpl_mistral_priority",
+			created: 1234567890,
+			model: "zai-glm-5-2",
+			choices: [{
+				index: 0,
+				message: { role: "assistant", content: "Paris" },
+				finish_reason: "stop",
+			}],
+			usage: {
+				prompt_tokens: 10,
+				completion_tokens: 2,
+				total_tokens: 12,
+				service_tier: "priority",
+			},
+		}, "req_mistral_priority", "zai-glm-5-2", "mistral");
+
+		expect(ir.serviceTier).toBe("priority");
+		expect((ir.usage as any)?.serviceTier).toBe("priority");
+	});
+
 	describe("Z.AI Reasoning Extraction", () => {
 		it("should extract reasoning_content from Z.AI response", () => {
 			const zaiResponse = {
@@ -941,4 +963,3 @@ describe("irToOpenAIChat", () => {
 		expect(request.response_format.json_schema.strict).toBe(true);
 	});
 });
-

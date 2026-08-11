@@ -80,6 +80,32 @@ Use `Priority` when you want the provider's premium or higher-priority offer. Ph
 
 Phaseo maps this to the appropriate provider-native control when routing to Anthropic.
 
+### Mistral Priority and EU routing
+
+Mistral Priority Tier requires an eligible Mistral enterprise account. Phaseo maps
+`priority` to Mistral's automatic priority mode and bills the tier reported by Mistral;
+if Mistral falls back to Standard, Standard pricing is used.
+
+GLM 5.2 can be pinned to Mistral's EU regional endpoint with the `mistral-eu`
+provider offer:
+
+```json
+{
+  "model": "z-ai/glm-5.2",
+  "messages": [
+    { "role": "user", "content": "Summarise this incident report." }
+  ],
+  "service_tier": "priority",
+  "provider": {
+    "only": ["mistral-eu"],
+    "required_execution_region": "eu"
+  }
+}
+```
+
+Mistral regional inference applies a 10% price uplift. Batch pricing is available
+on the global Mistral offer, but Mistral does not support Batch on regional endpoints.
+
 ## Flex
 
 Use `Flex` when the provider exposes a lower-cost service tier and you are willing to trade for that pricing mode.
