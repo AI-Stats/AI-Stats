@@ -257,11 +257,23 @@ export async function requireActiveTeamStripeCustomer(
 }
 
 export async function getActiveTeamStripeSummary(): Promise<ActiveTeamStripeSummary> {
-    const { customerId } = await requireActiveTeamStripeCustomer({
-        createIfMissing: false,
-        repairInvalidCustomer: false,
-        roles: ["owner", "admin", "member"],
-    });
+    let customerId: string;
+    try {
+        ({ customerId } = await requireActiveTeamStripeCustomer({
+            createIfMissing: false,
+            repairInvalidCustomer: false,
+            roles: ["owner", "admin", "member"],
+        }));
+    } catch (error) {
+        if (error instanceof Error && error.message === "missing_stripe_customer") {
+            return {
+                customer: { id: "", email: null },
+                defaultPaymentMethodId: null,
+                paymentMethods: [],
+            };
+        }
+        throw error;
+    }
     const stripe = getStripe();
     const [customerResponse, methods] = await Promise.all([
         stripe.customers.retrieve(customerId),

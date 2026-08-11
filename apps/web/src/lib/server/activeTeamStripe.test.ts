@@ -175,4 +175,44 @@ describe("requireActiveTeamStripeCustomer", () => {
 		);
 		expect(createAdminClient).not.toHaveBeenCalled();
 	});
+
+	it("returns a recoverable empty summary for members with an invalid Stripe binding", async () => {
+		const walletQuery: any = {
+			select: jest.fn(() => walletQuery),
+			eq: jest.fn(() => walletQuery),
+			maybeSingle: jest.fn(async () => ({
+				data: { workspace_id: "ws_1", stripe_customer_id: "cus_stale" },
+				error: null,
+			})),
+		};
+		createClient.mockResolvedValue({
+			auth: {
+				getUser: jest.fn(async () => ({
+					data: { user: { id: "member_1", email: "member@example.com" } },
+					error: null,
+				})),
+			},
+			from: jest.fn(() => walletQuery),
+		} as any);
+		getWorkspaceIdFromCookie.mockResolvedValue("ws_1");
+		requireWorkspaceMembership.mockResolvedValue(undefined);
+		getStripe.mockReturnValue({
+			customers: {
+				retrieve: jest.fn(async () => {
+					const error: any = new Error("No such customer: 'cus_stale'");
+					error.code = "resource_missing";
+					error.param = "id";
+					throw error;
+				}),
+			},
+		});
+
+		const { getActiveTeamStripeSummary } = await import("./activeTeamStripe");
+		await expect(getActiveTeamStripeSummary()).resolves.toEqual({
+			customer: { id: "", email: null },
+			defaultPaymentMethodId: null,
+			paymentMethods: [],
+		});
+		expect(createAdminClient).not.toHaveBeenCalled();
+	});
 });

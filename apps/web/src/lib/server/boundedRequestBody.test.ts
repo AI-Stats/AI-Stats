@@ -1,4 +1,4 @@
-import { readBoundedTextBody } from "./boundedRequestBody";
+import { readBoundedTextBody } from "@/lib/server/boundedRequestBody";
 
 describe("readBoundedTextBody", () => {
 	it("rejects a declared oversized body without reading it", async () => {

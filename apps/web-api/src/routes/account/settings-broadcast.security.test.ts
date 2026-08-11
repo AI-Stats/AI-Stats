@@ -1,6 +1,10 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { fetchBroadcastEndpoint } from "./settings-broadcast";
+
+afterEach(() => {
+	vi.unstubAllGlobals();
+});
 
 describe("broadcast destination egress", () => {
 	it("rejects redirects without following them", async () => {
@@ -18,7 +22,6 @@ describe("broadcast destination egress", () => {
 			new URL("https://hooks.example.com"),
 			expect.objectContaining({ method: "POST", redirect: "manual" }),
 		);
-		vi.unstubAllGlobals();
 	});
 
 	it("keeps production and staging fetches on public Internet routing", () => {
