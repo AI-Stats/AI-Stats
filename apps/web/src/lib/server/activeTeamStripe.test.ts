@@ -130,4 +130,49 @@ describe("requireActiveTeamStripeCustomer", () => {
 			["owner", "admin"],
 		);
 	});
+
+	it("allows members to read an existing Stripe summary without repairing bindings", async () => {
+		const walletQuery: any = {
+			select: jest.fn(() => walletQuery),
+			eq: jest.fn(() => walletQuery),
+			maybeSingle: jest.fn(async () => ({
+				data: { workspace_id: "ws_1", stripe_customer_id: "cus_existing" },
+				error: null,
+			})),
+		};
+		createClient.mockResolvedValue({
+			auth: {
+				getUser: jest.fn(async () => ({
+					data: { user: { id: "member_1", email: "member@example.com" } },
+					error: null,
+				})),
+			},
+			from: jest.fn(() => walletQuery),
+		} as any);
+		getWorkspaceIdFromCookie.mockResolvedValue("ws_1");
+		requireWorkspaceMembership.mockResolvedValue(undefined);
+		const retrieve = jest.fn(async () => ({
+			id: "cus_existing",
+			email: "billing@example.com",
+			metadata: { workspace_id: "ws_1" },
+			invoice_settings: { default_payment_method: null },
+		}));
+		getStripe.mockReturnValue({
+			customers: { retrieve },
+			paymentMethods: { list: jest.fn(async () => ({ data: [] })) },
+		});
+
+		const { getActiveTeamStripeSummary } = await import("./activeTeamStripe");
+		await expect(getActiveTeamStripeSummary()).resolves.toMatchObject({
+			customer: { id: "cus_existing", email: "billing@example.com" },
+			paymentMethods: [],
+		});
+		expect(requireWorkspaceMembership).toHaveBeenCalledWith(
+			expect.anything(),
+			"member_1",
+			"ws_1",
+			["owner", "admin", "member"],
+		);
+		expect(createAdminClient).not.toHaveBeenCalled();
+	});
 });

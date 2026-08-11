@@ -15,6 +15,8 @@ type ActiveTeamStripeCustomer = {
 
 type RequireActiveTeamStripeCustomerOptions = {
     createIfMissing?: boolean;
+    repairInvalidCustomer?: boolean;
+    roles?: Array<"owner" | "admin" | "member">;
 };
 
 export type ActiveTeamStripeSummary = {
@@ -128,6 +130,7 @@ async function resolveWorkspaceStripeCustomer(args: {
     name?: string;
     storedCustomerId?: string | null;
     createIfMissing?: boolean;
+    repairInvalidCustomer?: boolean;
 }): Promise<string | null> {
     const storedCustomerId = args.storedCustomerId?.trim() ?? "";
     const stripe = getStripe();
@@ -170,6 +173,10 @@ async function resolveWorkspaceStripeCustomer(args: {
         return null;
     }
 
+    if (args.repairInvalidCustomer === false) {
+        return null;
+    }
+
     const customerId = await findOrCreateStripeCustomer({
         workspaceId: args.workspaceId,
         userId: args.userId,
@@ -203,7 +210,12 @@ export async function requireActiveTeamStripeCustomer(
     }
 
     try {
-        await requireWorkspaceMembership(supabase, user.id, workspaceId, ["owner", "admin"]);
+        await requireWorkspaceMembership(
+            supabase,
+            user.id,
+            workspaceId,
+            options.roles ?? ["owner", "admin"],
+        );
     } catch (error) {
         if (
             error instanceof Error &&
@@ -228,6 +240,7 @@ export async function requireActiveTeamStripeCustomer(
         name: deriveCustomerName(user),
         storedCustomerId: wallet?.stripe_customer_id ?? null,
         createIfMissing: options.createIfMissing ?? false,
+        repairInvalidCustomer: options.repairInvalidCustomer ?? true,
     });
 
     if (!wallet?.workspace_id || !customerId) {
@@ -244,7 +257,11 @@ export async function requireActiveTeamStripeCustomer(
 }
 
 export async function getActiveTeamStripeSummary(): Promise<ActiveTeamStripeSummary> {
-    const { customerId } = await requireActiveTeamStripeCustomer({ createIfMissing: true });
+    const { customerId } = await requireActiveTeamStripeCustomer({
+        createIfMissing: false,
+        repairInvalidCustomer: false,
+        roles: ["owner", "admin", "member"],
+    });
     const stripe = getStripe();
     const [customerResponse, methods] = await Promise.all([
         stripe.customers.retrieve(customerId),
