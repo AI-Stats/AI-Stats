@@ -165,16 +165,20 @@ async function loadApiModelAllowlistByProvider(
 
     while (true) {
         const { data, error } = await client
-            .from("v2_rpc_routes_legacy_shape")
-            .select("provider_id, provider_model_slug, api_model_id")
-            .in("provider_id", uniqueProviderIds)
+            .from("v2_model_provider_routes")
+            .select("provider_slug, provider_model_slug, model_slug")
+            .in("provider_slug", uniqueProviderIds)
             .range(from, from + pageSize - 1);
 
         if (error) {
             throw new Error(error.message || "Failed to load allowlist from V2 provider routes");
         }
 
-        const rows = (data ?? []) as ApiProviderModelAllowlistRow[];
+        const rows = (data ?? []).map((row) => ({
+            provider_id: row.provider_slug,
+            provider_model_slug: row.provider_model_slug,
+            api_model_id: row.model_slug,
+        })) as ApiProviderModelAllowlistRow[];
         if (rows.length === 0) {
             break;
         }

@@ -240,6 +240,58 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "openai/gpt-oss-120b",
+    "provider_api_model_id": "akashml:openai/gpt-oss-120b",
+    "provider_model_slug": "openai/gpt-oss-120b",
+    "internal_model_id": "openai/gpt-oss-120b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:15:54.294+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "qwen/qwen3.5-35b-a3b",
     "provider_api_model_id": "akashml:qwen/qwen3.5-35b-a3b",
     "provider_model_slug": "Qwen/Qwen3.5-35B-A3B",
