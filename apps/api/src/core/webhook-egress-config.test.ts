@@ -6,8 +6,11 @@ describe("webhook egress deployment configuration", () => {
 		"keeps %s on public-only fetch routing",
 		(configName) => {
 			const config = readFileSync(new URL(`../../${configName}`, import.meta.url), "utf8");
-			expect(config).toMatch(
-				/^compatibility_flags\s*=\s*\[[^\]]*"global_fetch_strictly_public"[^\]]*\]/m,
+			const flags = config.match(
+				/^\s*compatibility_flags\s*=\s*\[([^\]]*)\]/m,
+			)?.[1] ?? "";
+			expect(flags).toMatch(
+				/(?:^|,)\s*"global_fetch_strictly_public"\s*(?:,|$)/,
 			);
 		},
 	);
