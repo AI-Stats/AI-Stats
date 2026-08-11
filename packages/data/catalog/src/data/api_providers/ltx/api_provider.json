@@ -1,0 +1,12 @@
+{
+  "api_provider_id": "ltx", "api_provider_name": "LTX", "provider_family_id": null, "offer_label": null, "offer_scope": "specialized",
+  "description": "LTX provides first-party asynchronous APIs for video generation with synchronized audio.", "link": "https://ltx.io",
+  "residency_mode": null, "default_execution_regions": null, "default_data_regions": null, "zero_data_retention": null, "residency_source_url": null,
+  "prompt_training_policy": null, "prompt_training_notes": null, "prompt_training_source_url": null, "user_identifier_policy": null, "user_identifier_notes": null,
+  "privacy_policy_url": "https://ltx.io/privacy-policy", "terms_of_service_url": "https://ltx.io/terms-of-use", "regional_pricing_mode": null, "regional_pricing_uplift_percent": null,
+  "pricing_source_url": "https://docs.ltx.io/pricing", "regional_pricing_notes": null, "country_code": "IL", "status": "Active", "colour": "#7C3AED",
+  "gateway_kind": null, "routable": true, "routing_enabled": true, "sdk_package": null, "api_base_url": "https://api.ltx.io", "docs_url": "https://docs.ltx.io",
+  "auth_env": ["LTX_API_KEY"], "api_formats": ["ltx-v2"], "service_tiers": ["standard"],
+  "sources": [{ "kind": "official_documentation", "url": "https://docs.ltx.io/async-jobs", "accessed_at": "2026-08-11T00:00:00Z" }],
+  "verification": { "status": "verified", "checked_at": "2026-08-11T00:00:00Z", "notes": "Async submission, polling, model support, and pricing verified against official documentation." }
+}

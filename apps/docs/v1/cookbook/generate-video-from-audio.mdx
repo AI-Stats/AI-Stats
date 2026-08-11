@@ -1,0 +1,79 @@
+---
+title: "Generate video from audio"
+icon: "audio-lines"
+description: "Use a source audio track to drive an LTX video generation job."
+---
+
+Use this recipe to generate a video whose timing and performance follow an
+existing audio track. This is useful for dialogue, narration, music, and other
+audio-led scenes; it does not transcribe the audio or create a talking avatar by
+itself.
+
+## 1. Choose an audio-capable model
+
+Audio-to-video is available on these LTX routes:
+
+- `ltx-2-5-fast`
+- `ltx-2-5-pro`
+- `ltx-2-3-pro`
+- `ltx-2-pro` until its published retirement date
+
+Check `GET /v1/videos/models` before production requests because model status
+and supported parameters can change.
+
+## 2. Send the audio input
+
+Provide exactly one `audio_url` reference with the `source` role. Set
+`input_audio_duration` to the source audio length in seconds so Phaseo can
+reserve and settle the correct provider charge.
+
+```bash
+curl https://api.phaseo.app/v1/videos \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "ltx-2-5-pro",
+    "prompt": "A presenter delivers the supplied narration naturally in a modern studio.",
+    "input_audio_duration": 8.5,
+    "input_references": [
+      {
+        "type": "audio_url",
+        "role": "source",
+        "media_url": {
+          "url": "https://example.com/narration.mp3"
+        }
+      }
+    ]
+  }'
+```
+
+The source must be a publicly reachable HTTPS URL. LTX audio inputs must be
+between 2 and 20 seconds.
+
+## 3. Optionally provide a first frame
+
+Add one `image_url` reference with the `first_frame` role when you want to set
+the opening appearance. Do not add a last frame to an LTX audio-driven request.
+
+```json
+{
+  "type": "image_url",
+  "role": "first_frame",
+  "image_url": {
+    "url": "https://example.com/presenter.jpg"
+  }
+}
+```
+
+## 4. Poll or subscribe for completion
+
+The create call returns an async video job. Poll its status URL, or add a
+`webhook` configuration to receive lifecycle events. Download the output only
+after the job reaches `completed`.
+
+## Related guides
+
+- [Choose a video generation model](./choose-a-video-generation-model.mdx)
+- [Use image inputs for video generation](./use-image-inputs-for-video-generation.mdx)
+- [Run async video with webhooks](./async-video-webhooks.mdx)
+- [API Reference: Video generation](../api-reference/endpoint/video-generation.mdx)

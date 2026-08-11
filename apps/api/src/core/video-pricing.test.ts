@@ -50,6 +50,17 @@ function makeSeedanceCard(): PriceCard {
 }
 
 describe("video-pricing", () => {
+	it("prices audio-driven generation by input audio duration only", () => {
+		const card = makeCard([
+			{ pricing_plan: "standard", meter: "output_video_seconds", unit: "second", unit_size: 1, price_per_unit: "0.17", currency: "USD", match: [], priority: 100 },
+			{ pricing_plan: "standard", meter: "input_audio_seconds", unit: "second", unit_size: 1, price_per_unit: "0.17", currency: "USD", match: [{ path: "mode", op: "eq", value: "audio-to-video" }], priority: 110 },
+		]);
+		const priced = computeVideoPricedUsage({ seconds: 10, card, model: "ltx-2-5-pro", requestOptions: { mode: "audio-to-video", input_audio_seconds: 10 } });
+		expect((priced as any)?.pricing?.total_usd_str).toBe("1.7");
+		expect((priced as any)?.input_audio_seconds).toBe(10);
+		expect((priced as any)?.output_video_seconds).toBeUndefined();
+	});
+
 	it("uses output_video_seconds meter when available", () => {
 		const card = makeCard([
 			{
@@ -284,4 +295,3 @@ describe("video-pricing", () => {
 		expect((priced as any)?.pricing?.total_usd_str).toBe("0.7901184");
 	});
 });
-

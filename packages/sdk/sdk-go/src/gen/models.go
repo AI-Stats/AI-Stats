@@ -1721,6 +1721,12 @@ const (
 	KnownModelIdKwaipilotKatCoderProV2 KnownModelId = "kwaipilot/kat-coder-pro-v2"
 	KnownModelIdKwaipilotKatCoderProV25 KnownModelId = "kwaipilot/kat-coder-pro-v2.5"
 	KnownModelIdLiquidAiLfm224bA2b KnownModelId = "liquid-ai/lfm-2-24b-a2b"
+	KnownModelIdLtx23Fast KnownModelId = "ltx-2-3-fast"
+	KnownModelIdLtx23Pro KnownModelId = "ltx-2-3-pro"
+	KnownModelIdLtx25Fast KnownModelId = "ltx-2-5-fast"
+	KnownModelIdLtx25Pro KnownModelId = "ltx-2-5-pro"
+	KnownModelIdLtx2Fast KnownModelId = "ltx-2-fast"
+	KnownModelIdLtx2Pro KnownModelId = "ltx-2-pro"
 	KnownModelIdMeituanLongcat20 KnownModelId = "meituan/longcat-2.0"
 	KnownModelIdMetaLlama370b KnownModelId = "meta/llama-3-70b"
 	KnownModelIdMetaLlama38b KnownModelId = "meta/llama-3-8b"
@@ -2314,6 +2320,7 @@ const (
 	OrganisationIdInflection OrganisationId = "inflection"
 	OrganisationIdKwaipilot OrganisationId = "kwaipilot"
 	OrganisationIdLg OrganisationId = "lg"
+	OrganisationIdLightricks OrganisationId = "lightricks"
 	OrganisationIdLiquidAi OrganisationId = "liquid-ai"
 	OrganisationIdMeituan OrganisationId = "meituan"
 	OrganisationIdMeta OrganisationId = "meta"
@@ -2650,6 +2657,7 @@ type VideoGenerationRequest struct {
 	Duration *int `json:"duration,omitempty"`
 	EnhancePrompt *bool `json:"enhance_prompt,omitempty"`
 	GenerateAudio *bool `json:"generate_audio,omitempty"`
+	InputAudioDuration *float64 `json:"input_audio_duration,omitempty"`
 	InputReferences *[]interface{} `json:"input_references,omitempty"`
 	InputVideoDuration *float64 `json:"input_video_duration,omitempty"`
 	Model string `json:"model"`

@@ -102,6 +102,7 @@ describe("video codec (OpenAI edge shape <-> video IR)", () => {
 		const ir = decodeOpenAIVideoRequestToIR({
 			model: "bytedance/seedance-2.0",
 			prompt: "Use the supplied soundtrack",
+			input_audio_duration: 12.5,
 			input_references: [
 				{ type: "audio_url", role: "source", media_url: { url: "https://example.com/music.mp3" } },
 				{ type: "audio_url", role: "reference", media_url: { url: "https://example.com/voice.mp3" } },
@@ -111,6 +112,7 @@ describe("video codec (OpenAI edge shape <-> video IR)", () => {
 		expect(ir.inputVideo).toBeUndefined();
 		expect(ir.referenceImages).toEqual([]);
 		expect(ir.inputReferences?.map((entry) => entry.type)).toEqual(["audio", "audio"]);
+		expect(ir.inputAudioDurationSeconds).toBe(12.5);
 	});
 
 	it("encodes video IR response back to public video job shape", () => {

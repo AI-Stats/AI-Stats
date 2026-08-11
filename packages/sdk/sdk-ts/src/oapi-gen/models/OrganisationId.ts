@@ -26,6 +26,7 @@ export type OrganisationId =
   | "inflection"
   | "kwaipilot"
   | "lg"
+  | "lightricks"
   | "liquid-ai"
   | "meituan"
   | "meta"

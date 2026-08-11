@@ -48,6 +48,7 @@ const labelOverrides: Partial<Record<KnownLogoId, string>> = {
 	inference: "Inference",
 	kilo: "Kilo Code",
 	lmstudio: "LM Studio",
+	ltx: "LTX",
 	modelscope: "ModelScope",
 	nebius: "Nebius",
 	"google-gemma": "Gemma",

@@ -110,6 +110,10 @@ export function decodeOpenAIVideoRequestToIR(body: any): IRVideoGenerationReques
 			typeof body?.input_video_duration === "number" && Number.isFinite(body.input_video_duration)
 				? body.input_video_duration
 				: undefined,
+		inputAudioDurationSeconds:
+			typeof body?.input_audio_duration === "number" && Number.isFinite(body.input_audio_duration)
+				? body.input_audio_duration
+				: undefined,
 		lastFrame: normalizeReferenceValue(lastFrame),
 		referenceImages,
 		duration: durationSeconds,

@@ -178,6 +178,8 @@ export const BINDING_KEYS: Array<keyof GatewayBindings> = [
     "MODEL_API_KEY",
     "MINIMAX_API_KEY",
     "MINIMAX_BASE_URL",
+    "LTX_API_KEY",
+    "LTX_BASE_URL",
     "MISTRAL_AI_API_KEY",
     "MISTRAL_BASE_URL",
     "MISTRAL_EU_BASE_URL",

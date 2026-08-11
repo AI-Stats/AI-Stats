@@ -6099,6 +6099,16 @@ components:
           description: >-
             Duration of the source video in seconds. Required when a provider
             bills source-video duration independently from generated output.
+        input_audio_duration:
+          type: number
+          format: double
+          minimum: 2
+          maximum: 20
+          description: >-
+            Duration of the source audio in seconds. Required for audio-driven
+            video generation so the gateway can reserve provider charges. The
+            value must describe the audio_url source supplied in
+            input_references, not the requested output duration.
         size:
           type: string
           description: >-
@@ -6134,6 +6144,10 @@ components:
           type: string
         input_references:
           type: array
+          description: >-
+            HTTPS image, audio, or video inputs used to condition generation.
+            Supported types, roles, counts, and combinations depend on the
+            selected model. Check GET /videos/models before submitting a job.
           items:
             $ref: '#/components/schemas/VideoInputReference'
         provider_params:
@@ -6461,6 +6475,10 @@ components:
         error:
           nullable: true
     VideoInputReference:
+      description: >-
+        A typed HTTPS media input. Use image_url for images and media_url for
+        audio or video. Roles describe how the model should use the input;
+        provider and model support varies.
       oneOf:
         - type: object
           required:
@@ -6473,6 +6491,7 @@ components:
                 - image_url
             role:
               type: string
+              description: Intended use of this image by the selected model.
               enum:
                 - first_frame
                 - last_frame
@@ -6489,6 +6508,7 @@ components:
                 url:
                   type: string
                   format: uri
+                  description: Publicly reachable HTTPS image URL.
         - type: object
           required:
             - type
@@ -6501,6 +6521,7 @@ components:
                 - audio_url
             role:
               type: string
+              description: Intended use of this audio or video by the selected model.
               enum:
                 - first_frame
                 - last_frame
@@ -6517,6 +6538,7 @@ components:
                 url:
                   type: string
                   format: uri
+                  description: Publicly reachable HTTPS audio or video URL.
     VideoOutputConfig:
       type: object
       properties:
@@ -7395,6 +7417,7 @@ components:
         - inflection
         - kwaipilot
         - lg
+        - lightricks
         - liquid-ai
         - meituan
         - meta
@@ -9629,6 +9652,12 @@ components:
         - kwaipilot/kat-coder-pro-v2
         - kwaipilot/kat-coder-pro-v2.5
         - liquid-ai/lfm-2-24b-a2b
+        - ltx-2-3-fast
+        - ltx-2-3-pro
+        - ltx-2-5-fast
+        - ltx-2-5-pro
+        - ltx-2-fast
+        - ltx-2-pro
         - meituan/longcat-2.0
         - meta/llama-3-70b
         - meta/llama-3-8b

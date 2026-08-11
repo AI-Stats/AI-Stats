@@ -13,6 +13,12 @@ description: |-
 
 Creates an async video job and returns the job record immediately.
 
+The endpoint supports text prompts and typed media inputs through
+`input_references`. Depending on the selected model, a reference can be an
+image, audio file, or source video. Use `GET /v1/videos/models` to check the
+model's advertised input types, modes, and supported parameters before sending
+the request.
+
 After creating a job:
 
 - use `GET /v1/videos/{video_id}` for status updates
@@ -27,5 +33,7 @@ After creating a job:
 - Phaseo can hold funds up front and later settle or void them when the provider reaches a terminal state.
 - Terminal states include `completed`, `failed`, `cancelled`, and `expired`.
 - Webhook configuration can be included in the create request when you want lifecycle notifications instead of pure polling.
+- Audio-driven jobs require one `audio_url` reference and an accurate `input_audio_duration`; support and duration limits are model-dependent.
+- Reference roles and valid combinations are model-dependent. A model that supports a first frame may not support multiple references, source video, or source audio.
 - Webhook callback URLs must use HTTPS. Literal private, loopback, link-local, and wildcard hosts are rejected; `http://localhost`, `http://127.0.0.1`, and `http://[::1]` are allowed only for local development callbacks.
 - Webhook `events` may use generic `job.*` names or matching `video.*` names. Include `job.progress` or `video.progress` to receive progress notifications when the provider reports progress. If omitted, `job.status_changed` and terminal `job.*` events are used. If supplied, at least one event must be valid for video jobs; cross-kind-only or malformed event lists are rejected.

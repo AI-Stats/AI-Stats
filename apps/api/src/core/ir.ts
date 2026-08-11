@@ -600,6 +600,7 @@ export type IRVideoGenerationRequest = {
 	inputImage?: string | Record<string, any>;
 	inputVideo?: string | Record<string, any>;
 	inputVideoDurationSeconds?: number;
+	inputAudioDurationSeconds?: number;
 	lastFrame?: string | Record<string, any>;
 	referenceImages?: Array<Record<string, any>>;
 	duration?: number;
@@ -930,6 +931,5 @@ export function hasToolCalls(message: IRMessage): boolean {
 export function countTotalTokens(usage?: IRUsage): number {
 	return usage?.totalTokens ?? 0;
 }
-
 
 
