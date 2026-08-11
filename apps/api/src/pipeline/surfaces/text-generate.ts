@@ -824,7 +824,7 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 				"gateway",
 				"google_empty_response",
 				message,
-				exec.result.rawResponse,
+				emptyResponseDiagnostics,
 				{
 					generation_id: pre.ctx.requestId,
 					status_code: 502,
@@ -1091,7 +1091,7 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 						"gateway",
 						"google_empty_response",
 						message,
-						followUpResult.rawResponse,
+						emptyResponseDiagnostics,
 						{
 							generation_id: pre.ctx.requestId,
 							status_code: 502,

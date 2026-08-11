@@ -158,13 +158,15 @@ async function irToLegacyGemini(
 		ir.reasoning?.includeThoughts !== undefined,
 	);
 	if (hasRequestedThinkingConfig || defaultThinkingLevel || (supportsThinkingLevel && ir.reasoning?.enabled === false)) {
+		const explicitlyDisabled = ir.reasoning?.enabled === false || ir.reasoning?.effort === "none";
 		const thinkingConfig: any = {
-			includeThoughts: hasRequestedThinkingConfig
-				? ir.reasoning?.includeThoughts ?? true
-				: false,
+			includeThoughts: explicitlyDisabled
+				? false
+				: hasRequestedThinkingConfig
+					? ir.reasoning?.includeThoughts ?? true
+					: false,
 		};
 		if (supportsThinkingLevel) {
-			const explicitlyDisabled = ir.reasoning?.enabled === false || ir.reasoning?.effort === "none";
 			const requestedLevel = explicitlyDisabled
 				? "MINIMAL"
 				: resolveGoogleThinkingLevelForEffort(modelName ?? "", ir.reasoning?.effort)
