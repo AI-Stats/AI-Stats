@@ -1485,10 +1485,16 @@
     "routing_status": "active",
     "routable": true,
     "regions": {
-      "execution": null,
+      "execution": [
+        "us-east-1",
+        "us-west-2"
+      ],
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard",
+      "priority"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
