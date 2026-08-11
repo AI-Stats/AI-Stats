@@ -410,6 +410,7 @@ export type KnownModelId =
   | "spacex-ai/grok-build-0.1"
   | "spacex-ai/grok-code-fast-1"
   | "spacex-ai/grok-imagine-image"
+  | "spacex-ai/grok-imagine-image-2.0"
   | "spacex-ai/grok-imagine-image-quality"
   | "spacex-ai/grok-tts"
   | "stepfun/step-3.5-flash"
