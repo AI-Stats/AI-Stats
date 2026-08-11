@@ -1,6 +1,26 @@
--- phaseo:allow-destructive-migration reason: Retires stale weekly usage tables after replacing their reader with authoritative V2 data.
--- Replace the stale weekly market-share cache with the authoritative V2 usage
--- projections, then remove the retired weekly tables and their writer.
+-- Reconcile the already-applied production state with the review-safe replay
+-- behavior now recorded in the earlier cleanup migrations.
+revoke usage on schema private from anon, authenticated;
+
+do $migration$
+declare
+  target record;
+begin
+  for target in
+    select c.relname as view_name
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'private'
+      and c.relkind in ('v', 'm')
+      and c.relname like 'v2_rpc_%_compat'
+  loop
+    execute format(
+      'revoke all on private.%I from anon, authenticated',
+      target.view_name
+    );
+  end loop;
+end
+$migration$;
 
 create or replace function public.get_public_market_share_timeseries(
   p_dimension text default 'organization',
@@ -126,54 +146,3 @@ begin
   order by bucketed.time_bucket, bucketed.request_count desc;
 end;
 $function$;
-
-drop function if exists public.refresh_public_usage_rollups(timestamptz);
-
-do $assert$
-begin
-  if exists (
-    select 1
-    from pg_proc p
-    join pg_namespace n on n.oid = p.pronamespace
-    where n.nspname = 'public'
-      and p.prokind = 'f'
-      and pg_get_functiondef(p.oid) ~* 'public\.(public_usage_weekly_models|public_usage_weekly_providers|public_usage_weekly_organisations)\b'
-  ) then
-    raise exception 'A function still references a retired weekly usage table';
-  end if;
-
-  if exists (
-    select 1
-    from pg_class c
-    join pg_namespace n on n.oid = c.relnamespace
-    where c.relkind in ('v', 'm')
-      and pg_get_viewdef(c.oid, true) ~* 'public\.(public_usage_weekly_models|public_usage_weekly_providers|public_usage_weekly_organisations)\b'
-  ) then
-    raise exception 'A view still references a retired weekly usage table';
-  end if;
-
-  if to_regclass('cron.job') is not null then
-    if exists (
-      select 1
-      from cron.job
-      where command ~* 'public\.(public_usage_weekly_models|public_usage_weekly_providers|public_usage_weekly_organisations|refresh_public_usage_rollups)\b'
-    ) then
-      raise exception 'A cron command still references a retired weekly usage table or its writer';
-    end if;
-  end if;
-end
-$assert$;
-
-drop table if exists public.public_usage_weekly_models;
-drop table if exists public.public_usage_weekly_providers;
-drop table if exists public.public_usage_weekly_organisations;
-
-do $assert$
-begin
-  if to_regclass('public.public_usage_weekly_models') is not null
-     or to_regclass('public.public_usage_weekly_providers') is not null
-     or to_regclass('public.public_usage_weekly_organisations') is not null then
-    raise exception 'Retired weekly usage tables still exist after cleanup';
-  end if;
-end
-$assert$;

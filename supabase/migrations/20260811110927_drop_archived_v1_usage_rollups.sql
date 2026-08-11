@@ -1,3 +1,4 @@
+-- phaseo:allow-destructive-migration reason: Deletes archived V1 rollups after verified V2-backed replacements are live.
 -- The pre-V2 usage rollups were archived in private during the V2 cutover.
 -- Their public replacements are backed by v2_public_usage_daily and its views.
 -- Drop without CASCADE so any unexpected dependency aborts this migration.

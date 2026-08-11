@@ -1,10 +1,11 @@
+-- phaseo:allow-destructive-migration reason: Removes public compatibility views after callers move to authoritative V2 sources.
 -- Keep the compatibility projections available only to existing database
 -- functions while removing their public/Data API surface. Application code
 -- must read the V2 tables directly.
 create schema if not exists private;
 
 revoke all on schema private from public;
-grant usage on schema private to anon, authenticated, service_role;
+grant usage on schema private to service_role;
 
 do $migration$
 declare
@@ -38,7 +39,7 @@ begin
       definition
     );
     execute format(
-      'grant select on private.%I to anon, authenticated, service_role',
+      'grant select on private.%I to service_role',
       target_name
     );
   end loop;

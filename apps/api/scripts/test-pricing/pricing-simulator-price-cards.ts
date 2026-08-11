@@ -82,22 +82,60 @@ export async function loadPriceCardsForCombos(combos: Combo[]): Promise<Map<stri
     const models = Array.from(new Set(combos.map((combo) => combo.model)));
     const endpoints = Array.from(new Set(combos.map((combo) => combo.endpoint)));
 
-    const { data, error } = await supabase
-        .from("v2_rpc_pricing_legacy_shape")
-        .select(
-            "rule_id, provider_id, api_model_id, capability_id, pricing_plan, meter, unit, unit_size, price_per_unit, currency, note, priority, effective_from, effective_to, updated_at, match",
-        )
-        .in("provider_id", providers)
-        .in("api_model_id", models)
-        .in("capability_id", endpoints)
-        .lte("effective_from", nowIso)
-        .or(`effective_to.is.null,effective_to.gt.${nowIso}`)
-        .order("priority", { ascending: false })
-        .order("effective_from", { ascending: false });
+    const { data: routeRows, error: routeError } = await supabase
+        .from("v2_model_provider_routes")
+        .select("provider_model_id,provider_slug,model_slug")
+        .in("provider_slug", providers)
+        .in("model_slug", models);
+    if (routeError) throw new Error(`Failed to load provider routes: ${routeError.message}`);
+    const routes = (routeRows ?? []).filter((row) => providers.includes(row.provider_slug) && models.includes(row.model_slug));
+    const routeIds = routes.map((row) => row.provider_model_id).filter(Boolean);
+    if (!routeIds.length) return cards;
 
-    if (error) {
-        throw new Error(`Failed to load price cards: ${error.message}`);
-    }
+    const { data: skuRows, error: skuError } = await supabase
+        .from("v2_pricing_skus")
+        .select("sku_id,provider_model_id,operation,service_tier_slug,currency,effective_from,effective_to,metadata,updated_at")
+        .in("provider_model_id", routeIds)
+        .in("operation", endpoints);
+    if (skuError) throw new Error(`Failed to load pricing SKUs: ${skuError.message}`);
+    const skuIds = (skuRows ?? []).map((row) => row.sku_id).filter(Boolean);
+    if (!skuIds.length) return cards;
+    const { data: meterRows, error: meterError } = await supabase
+        .from("v2_pricing_sku_meters")
+        .select("sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,metadata,updated_at,created_at")
+        .eq("billable", true)
+        .in("sku_id", skuIds);
+    if (meterError) throw new Error(`Failed to load pricing meters: ${meterError.message}`);
+    const routeById = new Map(routes.map((row) => [row.provider_model_id, row]));
+    const skuById = new Map((skuRows ?? []).map((row) => [row.sku_id, row]));
+    const data = (meterRows ?? []).flatMap((meter) => {
+        const sku = skuById.get(meter.sku_id);
+        const route = sku ? routeById.get(sku.provider_model_id) : null;
+        if (!sku || !route) return [];
+        const from = sku.effective_from ? new Date(sku.effective_from) : null;
+        const to = sku.effective_to ? new Date(sku.effective_to) : null;
+        if (from && from > new Date(nowIso)) return [];
+        if (to && to <= new Date(nowIso)) return [];
+        const skuMetadata = sku.metadata && typeof sku.metadata === "object" ? sku.metadata as Record<string, any> : {};
+        const meterMetadata = meter.metadata && typeof meter.metadata === "object" ? meter.metadata as Record<string, any> : {};
+        return [{
+            rule_id: String(meter.sku_meter_id),
+            provider_id: route.provider_slug,
+            api_model_id: route.model_slug,
+            capability_id: sku.operation,
+            pricing_plan: sku.service_tier_slug ?? "standard",
+            meter: meter.meter_key,
+            unit: meter.unit,
+            unit_size: meter.unit_quantity,
+            price_per_unit: Number(meter.price_nanos) / 1_000_000_000,
+            currency: sku.currency,
+            priority: meter.meter_order,
+            effective_from: sku.effective_from ?? new Date(0).toISOString(),
+            effective_to: sku.effective_to ?? null,
+            updated_at: sku.updated_at ?? meter.updated_at ?? meter.created_at ?? nowIso,
+            match: skuMetadata.match ?? meterMetadata.match ?? [],
+        } satisfies RawPricingRow];
+    });
 
     const conditionMap = new Map<string, any[]>((data ?? []).map((row: any) => [String(row.rule_id), Array.isArray(row.match) ? row.match : []]));
 

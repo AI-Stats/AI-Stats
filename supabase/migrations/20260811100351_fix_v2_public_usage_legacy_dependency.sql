@@ -1,3 +1,4 @@
+-- phaseo:allow-destructive-migration reason: Rebuilds the bounded daily aggregate from its authoritative V2 source.
 -- Keep the public-user usage rollup on the V2 observability projection while
 -- sourcing catalogue metadata from the authoritative request row. The V2
 -- compatibility view intentionally does not duplicate these operational

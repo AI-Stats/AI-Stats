@@ -17,29 +17,5 @@ alter default privileges for role postgres in schema public
 alter table public.gateway_requests
   validate constraint gateway_requests_performance_metrics_nonnegative;
 
-alter table public.gateway_requests_2026_03
-  validate constraint gateway_requests_performance_metrics_nonnegative;
-
-alter table public.gateway_requests_2026_04
-  validate constraint gateway_requests_performance_metrics_nonnegative;
-
-alter table public.gateway_requests_2026_05
-  validate constraint gateway_requests_performance_metrics_nonnegative;
-
-alter table public.gateway_requests_2026_06
-  validate constraint gateway_requests_performance_metrics_nonnegative;
-
-alter table public.gateway_requests_2026_07
-  validate constraint gateway_requests_performance_metrics_nonnegative;
-
-alter table public.gateway_requests_2026_08
-  validate constraint gateway_requests_performance_metrics_nonnegative;
-
-alter table public.gateway_requests_2026_09
-  validate constraint gateway_requests_performance_metrics_nonnegative;
-
-alter table public.gateway_requests_default
-  validate constraint gateway_requests_performance_metrics_nonnegative;
-
 alter table public.v2_request_facts
   validate constraint v2_request_facts_performance_metrics_nonnegative;
