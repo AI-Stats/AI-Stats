@@ -1054,6 +1054,7 @@ pub struct ModerationsRequest {
 
 pub struct ModerationsResponse {
 	pub id: Option<String>,
+	pub meta: Option<HashMap<String, String>>,
 	pub model: Option<String>,
 	pub results: Option<Vec<HashMap<String, String>>>,
 }

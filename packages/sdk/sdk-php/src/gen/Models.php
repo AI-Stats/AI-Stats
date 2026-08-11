@@ -1871,6 +1871,8 @@ class ModerationsResponse
 {
 	/** @var string|null */
 	public $id;
+	/** @var array<string, mixed>|null */
+	public $meta;
 	/** @var string|null */
 	public $model;
 	/** @var array|null */

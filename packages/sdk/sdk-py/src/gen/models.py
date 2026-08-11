@@ -948,6 +948,7 @@ class ModerationsRequest(TypedDict):
 
 class ModerationsResponse(TypedDict):
 	id: NotRequired[str]
+	meta: NotRequired[Dict[str, Any]]
 	model: NotRequired[str]
 	results: NotRequired[List[ModerationResult]]
 

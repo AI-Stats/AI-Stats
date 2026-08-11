@@ -1534,11 +1534,13 @@ module Phaseo
     ModerationsRequest = Struct.new(:debug, :input, :meta, :model, :provider, keyword_init: true)
     # @!attribute [rw] id
     #   @return [String, nil]
+    # @!attribute [rw] meta
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] model
     #   @return [String, nil]
     # @!attribute [rw] results
     #   @return [Array<Hash{String => Object}>, nil]
-    ModerationsResponse = Struct.new(:id, :model, :results, keyword_init: true)
+    ModerationsResponse = Struct.new(:id, :meta, :model, :results, keyword_init: true)
     # @!attribute [rw] debug
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] duration

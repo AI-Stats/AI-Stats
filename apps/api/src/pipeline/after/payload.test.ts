@@ -406,6 +406,33 @@ describe("enrichSuccessPayload model selection", () => {
 		expect(body.usage?.pricing_breakdown?.total_nanos).toBe(123_000);
 	});
 
+	it("serializes timing metadata on moderation responses when requested", () => {
+		const body = formatClientPayload({
+			ctx: {
+				endpoint: "moderations",
+				protocol: "openai.moderations",
+				requestId: "req_moderation_timing",
+			} as any,
+			result: { provider: "openai" } as any,
+			payload: {
+				id: "req_moderation_timing",
+				model: "omni-moderation-latest",
+				results: [],
+				meta: {
+					latency_ms: 41,
+					generation_ms: 17,
+				},
+			},
+			includeMeta: true,
+		});
+
+		expect(body).toMatchObject({
+			object: "moderation",
+			id: "req_moderation_timing",
+			meta: { latency_ms: 41, generation_ms: 17 },
+		});
+	});
+
 	it("includes the selected provider on chat completions payloads", () => {
 		const body = formatClientPayload({
 			ctx: {

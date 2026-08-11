@@ -5751,6 +5751,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ModerationResult'
+        meta:
+          type: object
+          description: Included when the request sets meta to true.
+          properties:
+            latency_ms:
+              type: number
+              description: >-
+                Milliseconds from upstream dispatch until the first response
+                byte.
+            generation_ms:
+              type: number
+              description: >-
+                Provider processing milliseconds when reported; otherwise the
+                observed upstream latency.
+          additionalProperties: true
     RerankRequest:
       type: object
       required:
