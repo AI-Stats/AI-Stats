@@ -3,6 +3,7 @@
 // How: Normalize image request options around canonical `size` and compatibility aliases.
 
 type ImageOptionInput = {
+	model?: unknown;
 	size?: unknown;
 	resolution?: unknown;
 	quality?: unknown;
@@ -156,16 +157,21 @@ export function buildImagePricingRequestOptions(
 ): Record<string, unknown> {
 	const inferredVariant = inferImagePricingVariant(usage);
 	const responseInput = usage && typeof usage === "object" ? (usage as ImageOptionInput) : {};
-	const size =
+	const isGrokImagineImage2 = toNonEmptyString(input.model)?.toLowerCase().endsWith("grok-imagine-image-2.0") ?? false;
+	const rawSize =
 		normalizeAutoOption(resolveImageSize(input)) ??
 		normalizeAutoOption(resolveImageSize(responseInput)) ??
-		inferredVariant?.resolution;
-	const quality =
+		inferredVariant?.resolution ??
+		(isGrokImagineImage2 ? "1k" : undefined);
+	const rawQuality =
 		normalizeAutoOption(toNonEmptyString(input.quality) ?? toNonEmptyString(input.image_params?.quality)) ??
 		normalizeAutoOption(
 			toNonEmptyString(responseInput.quality) ?? toNonEmptyString(responseInput.image_params?.quality),
 		) ??
-		inferredVariant?.quality;
+		inferredVariant?.quality ??
+		(isGrokImagineImage2 ? "low" : undefined);
+	const size = isGrokImagineImage2 && /^\d+k$/i.test(rawSize ?? "") ? rawSize?.toLowerCase() : rawSize;
+	const quality = isGrokImagineImage2 ? rawQuality?.toLowerCase() : rawQuality;
 	const providerImageSize = normalizeProviderImageSize(quality);
 	const out: Record<string, unknown> = {};
 
