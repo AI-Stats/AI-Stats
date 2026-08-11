@@ -607,6 +607,34 @@ function formatPolicyValue(value: string | null | undefined): string {
 		.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function formatProviderRegions(value: string[] | null | undefined): string {
+	if (!Array.isArray(value) || value.length === 0) return "Not published";
+	return value.join(", ");
+}
+
+function formatProviderCountry(value: string | null | undefined): string {
+	const normalized = String(value ?? "").trim().toUpperCase();
+	if (!normalized || normalized === "XX") return "Unknown";
+	try {
+		return new Intl.DisplayNames(["en"], { type: "region" }).of(normalized) ?? normalized;
+	} catch {
+		return normalized;
+	}
+}
+
+function formatDataRetentionValue(value: string | null | undefined): string {
+	switch (String(value ?? "").trim().toLowerCase()) {
+		case "private":
+			return "No prompt/output retention by default";
+		case "logs":
+			return "Provider logs may be retained";
+		case "trains":
+			return "May be used for training";
+		default:
+			return "Unknown";
+	}
+}
+
 function getPlanTheme(plan: string) {
 	switch (plan) {
 		case "free":
@@ -2658,10 +2686,35 @@ export default function ProviderCard({
 			value: formatPolicyValue(provider.provider.data_policy_tier),
 		},
 		{
+			label: "Data Retention",
+			value: formatDataRetentionValue(provider.provider.data_policy_tier),
+		},
+		{
 			label: "Residency",
 			value: formatPolicyValue(provider.provider.residency_mode),
 		},
+		{
+			label: "Data Execution",
+			value: formatProviderRegions(provider.provider.default_execution_regions),
+		},
+		{
+			label: "Data Storage",
+			value: formatProviderRegions(provider.provider.default_data_regions),
+		},
+		{
+			label: "HQ / Base country",
+			value: formatProviderCountry(provider.provider.country_code),
+		},
 	];
+	const dataPolicyEvidence =
+		provider.provider.residency_notes ??
+		provider.provider.prompt_training_notes ??
+		provider.provider.data_policy_contract_notes ??
+		null;
+	const dataPolicyEvidenceUrl =
+		provider.provider.residency_source_url ??
+		provider.provider.prompt_training_source_url ??
+		null;
 
 	return (
 		<>
@@ -3281,16 +3334,31 @@ export default function ProviderCard({
 									</h3>
 								</div>
 								<div className="space-y-2">
-									{dataPolicySummary.map((item) => (
+					{dataPolicySummary.map((item) => (
 										<div
 											key={item.label}
 											className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4"
 										>
 											<div className="text-[11px] text-muted-foreground">{item.label}</div>
 											<div className="text-right text-sm font-medium text-foreground">{item.value}</div>
-										</div>
-									))}
-								</div>
+						</div>
+					))}
+				</div>
+				{dataPolicyEvidence ? (
+					<p className="text-xs leading-5 text-muted-foreground">
+						{dataPolicyEvidence}{" "}
+						{dataPolicyEvidenceUrl ? (
+							<Link
+								href={dataPolicyEvidenceUrl}
+								target="_blank"
+								rel="noreferrer"
+								className="font-medium text-foreground underline underline-offset-2"
+							>
+								Source
+							</Link>
+						) : null}
+					</p>
+				) : null}
 								{privacyReasonMeta.length > 0 ? (
 									<div className="border-l-2 border-red-400 pl-3 text-xs text-red-900 dark:text-red-100">
 										<div className="font-semibold">{isWorkspacePrivacyBlocked ? "Blocked by workspace Data Controls" : "Unavailable in Phaseo Chat"}</div>

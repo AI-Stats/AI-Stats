@@ -6,21 +6,6 @@
   "capability_id": "text.generate",
   "rules": [
     {
-      "meter": "input_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.25,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": null,
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null
-    },
-    {
       "meter": "input_audio_tokens",
       "unit": "token",
       "unit_size": 1000000,
@@ -51,10 +36,10 @@
       "source": null
     },
     {
-      "meter": "input_video_tokens",
+      "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.46,
+      "price_per_unit": 2500,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -66,10 +51,10 @@
       "source": null
     },
     {
-      "meter": "output_text_tokens",
+      "meter": "input_video_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.97,
+      "price_per_unit": 0.46,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -94,6 +79,21 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 9700,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
     }
   ],
   "regions": [],
@@ -102,8 +102,8 @@
   ],
   "sources": [],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-11T04:01:01.895+00:00",
+    "notes": "Pricing synchronized from the provider models API."
   }
 }
