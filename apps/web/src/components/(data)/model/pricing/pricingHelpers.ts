@@ -1294,6 +1294,11 @@ function createTablePriceCandidate(args: {
 
 type ProviderTablePriceDirection = "input" | "output" | "cached";
 
+function getBaseTokenTier(tiers?: TokenTier[] | null): TokenTier | null {
+	const activeTiers = (tiers ?? []).filter((tier) => tier.isCurrent);
+	return activeTiers[0] ?? tiers?.[0] ?? null;
+}
+
 function getTablePriceCandidates(
     sections: ProviderSections,
     direction: ProviderTablePriceDirection,
@@ -1303,18 +1308,16 @@ function getTablePriceCandidates(
         modality: "text" | "audio" | "image" | "video" | "embeddings",
         tiers?: TokenTier[] | null,
     ) => {
-		const activeTiers = (tiers ?? []).filter((tier) => tier.isCurrent);
-		const displayTiers = activeTiers.length ? activeTiers : tiers?.slice(0, 1) ?? [];
-		for (const [index, tier] of displayTiers.slice(0, 2).entries()) {
-			candidates.push(
-				createTablePriceCandidate({
-					key: `${direction}-${modality}-tokens-${index}`,
-					label: displayTiers.length > 1 ? tier.label : modality,
-					price: tier.per1M,
-					unitLabel: "Per 1M tokens",
-				}),
-			);
-		}
+		const tier = getBaseTokenTier(tiers);
+		if (!tier) return;
+		candidates.push(
+			createTablePriceCandidate({
+				key: `${direction}-${modality}-tokens`,
+				label: modality,
+				price: tier.per1M,
+				unitLabel: "Per 1M tokens",
+			}),
+		);
     };
 
     if (direction === "cached") {
