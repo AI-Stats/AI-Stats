@@ -15,7 +15,16 @@
   "api_model_id": "bytedance/seed-oss-36b-instruct",
   "links": [],
   "details": [],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 18.5,
+      "is_self_reported": false,
+      "other_info": "Seed-OSS-36B-Instruct; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/seed-oss-36b-instruct",
+      "rank": 256
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

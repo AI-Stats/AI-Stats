@@ -148,6 +148,36 @@ describe("google-vertex video executor", () => {
 		);
 	});
 
+	it("maps normalized IR first, last, and reference images", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url.includes(":predictLongRunning"),
+			response: jsonResponse({
+				name: "projects/test-project/locations/us-east5/publishers/google/models/veo-3.1-generate-preview/operations/vertex-ir-refs",
+				done: false,
+			}),
+			onRequest: (call) => { capturedBody = call.bodyJson; },
+		}]);
+		const result = await execute(buildArgs({
+			model: "google/veo-3.1-preview",
+			prompt: "Keep the subject consistent",
+			durationSeconds: 8,
+			inputReferences: [
+				{ type: "image", role: "first_frame", url: "gs://bucket/first.png" },
+				{ type: "image", role: "last_frame", url: "gs://bucket/last.png" },
+				{ type: "image", role: "reference", url: "gs://bucket/subject.png", referenceType: "asset" },
+			],
+		}));
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(200);
+		expect(capturedBody.instances[0]).toMatchObject({
+			image: { gcsUri: "gs://bucket/first.png" },
+			lastFrame: { gcsUri: "gs://bucket/last.png" },
+			referenceImages: [{ image: { gcsUri: "gs://bucket/subject.png" }, referenceType: "asset" }],
+		});
+	});
+
 	it("fails the gateway response when Vertex video metadata cannot be persisted", async () => {
 		state.reservationResult = {
 			reservationId: "video_hold:req_google_vertex_video_test",

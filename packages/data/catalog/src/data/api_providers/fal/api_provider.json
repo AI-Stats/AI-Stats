@@ -1,0 +1,50 @@
+{
+  "api_provider_id": "fal",
+  "api_provider_name": "fal",
+  "provider_family_id": null,
+  "offer_label": null,
+  "offer_scope": "specialized",
+  "description": "fal provides queue-backed inference APIs for generative media models.",
+  "link": "https://fal.ai/",
+  "residency_mode": null,
+  "default_execution_regions": null,
+  "default_data_regions": null,
+  "zero_data_retention": null,
+  "residency_source_url": null,
+  "prompt_training_policy": null,
+  "prompt_training_notes": null,
+  "prompt_training_source_url": null,
+  "user_identifier_policy": null,
+  "user_identifier_notes": null,
+  "privacy_policy_url": "https://fal.ai/privacy",
+  "terms_of_service_url": "https://fal.ai/terms",
+  "regional_pricing_mode": null,
+  "regional_pricing_uplift_percent": null,
+  "pricing_source_url": "https://fal.ai/models/bytedance/seedance-2.0/text-to-video",
+  "regional_pricing_notes": null,
+  "country_code": "US",
+  "status": "Active",
+  "colour": "#7C3AED",
+  "gateway_kind": null,
+  "routable": true,
+  "routing_enabled": true,
+  "sdk_package": "@fal-ai/client",
+  "api_base_url": "https://queue.fal.run",
+  "docs_url": "https://fal.ai/docs/documentation/model-apis/inference/queue",
+  "auth_env": ["FAL_KEY"],
+  "api_formats": ["fal-queue"],
+  "service_tiers": ["standard"],
+  "sources": [
+    {
+      "kind": "official_documentation",
+      "url": "https://fal.ai/docs/documentation/model-apis/inference/queue",
+      "accessed_at": "2026-08-10T00:00:00Z",
+      "notes": "Queue submission, polling, result retrieval, cancellation, and webhook lifecycle."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-10T00:00:00Z",
+    "notes": "Fal queue lifecycle and Seedance 2.0 endpoint IDs verified against official documentation."
+  }
+}

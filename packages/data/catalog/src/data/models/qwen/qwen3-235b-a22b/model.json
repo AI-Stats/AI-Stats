@@ -300,6 +300,14 @@
       "other_info": "sigma 0.205; games 558; avg points 0.464",
       "source_link": "https://github.com/lechmazur/elimination_game",
       "rank": 39
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 13.5,
+      "is_self_reported": false,
+      "other_info": "Qwen3 235B A22B (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/qwen3-235b-a22b-instruct-reasoning",
+      "rank": 321
     }
   ],
   "family_id": null,

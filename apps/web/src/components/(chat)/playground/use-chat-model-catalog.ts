@@ -91,7 +91,7 @@ export function useChatModelCatalog(args: {
 	const availableProviderIdsByModelId = useMemo(() => {
 		const providerIdsByModelId = new Map<string, string[]>();
 		for (const model of selectableModels) {
-			if (!model.isAvailable) continue;
+			if (!model.isAvailable || model.chatBlockedReasons?.length) continue;
 			const selectorModelId = model.selectorModelId;
 			const existing = providerIdsByModelId.get(selectorModelId) ?? [];
 			if (!existing.includes(model.providerId)) {
@@ -103,15 +103,15 @@ export function useChatModelCatalog(args: {
 	}, [selectableModels]);
 	const defaultModelId =
 		CHAT_DEFAULT_MODEL_IDS.find((modelId) =>
-			selectableModels.some((model) => model.selectorModelId === modelId),
+			selectableModels.some((model) => model.selectorModelId === modelId && !model.chatBlockedReasons?.length),
 		) ??
-		selectableModels[0]?.selectorModelId ??
+		selectableModels.find((model) => !model.chatBlockedReasons?.length)?.selectorModelId ??
 		"";
 	const queryModelId = (modelParam ?? "").trim();
 	const selectableModelIdSet = useMemo(
 		() =>
 			new Set(
-				selectableModels.map(
+				selectableModels.filter((model) => !model.chatBlockedReasons?.length).map(
 					(model) =>
 						selectorModelIdByRawModelId.get(model.modelId) ?? model.modelId,
 				),
@@ -158,12 +158,14 @@ export function useChatModelCatalog(args: {
 						model.providerName ?? formatOrgLabel(model.providerId),
 					],
 					providerAvailability: {
-						[model.providerId]: model.isAvailable,
+						[model.providerId]: model.isAvailable && !model.chatBlockedReasons?.length,
 					},
+					chatBlockedReasons: [...(model.chatBlockedReasons ?? [])],
 					releaseDate,
 					gatewayStatus: model.isAvailable ? "active" : "inactive",
 				});
 			} else {
+				if (model.isAvailable) existing.gatewayStatus = "active";
 				if (!existing.providerIds.includes(model.providerId)) {
 					existing.providerIds.push(model.providerId);
 				}
@@ -174,7 +176,10 @@ export function useChatModelCatalog(args: {
 				}
 				existing.providerAvailability[model.providerId] =
 					existing.providerAvailability[model.providerId] ||
-					model.isAvailable;
+					(model.isAvailable && !model.chatBlockedReasons?.length);
+				for (const reason of model.chatBlockedReasons ?? []) {
+					if (!existing.chatBlockedReasons.some((item) => item.source === reason.source && item.label === reason.label)) existing.chatBlockedReasons.push(reason);
+				}
 				if (!existing.releaseDate && releaseDate) {
 					existing.releaseDate = releaseDate;
 				}
@@ -204,11 +209,9 @@ export function useChatModelCatalog(args: {
 				option.capabilityEndpoints.length > 0
 					? option.capabilityEndpoints
 					: [inferModelCapabilityEndpoint(option.modelId)],
-			gatewayStatus: Object.values(option.providerAvailability).some(
-				Boolean,
-			)
-				? ("active" as const)
-				: ("inactive" as const),
+			chatBlockedReasons: Object.values(option.providerAvailability).some(Boolean)
+				? []
+				: option.chatBlockedReasons,
 		}));
 		const active: ModelOption[] = [];
 		const comingSoon: ModelOption[] = [];
@@ -273,7 +276,7 @@ export function useChatModelCatalog(args: {
 	);
 	const availableModelIdSet = useMemo(
 		() =>
-			new Set(selectableModels.map((model) => model.selectorModelId)),
+			new Set(selectableModels.filter((model) => !model.chatBlockedReasons?.length).map((model) => model.selectorModelId)),
 		[selectableModels],
 	);
 	const successorModelIdByPreviousModelId = useMemo(() => {

@@ -330,6 +330,14 @@
       "other_info": "Minimal Reasoning Effort",
       "source_link": "https://arcprize.org/leaderboard",
       "rank": 101
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 20.1,
+      "is_self_reported": false,
+      "other_info": "GPT-5 nano (high); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gpt-5-nano",
+      "rank": 237
     }
   ],
   "page_notice": null,

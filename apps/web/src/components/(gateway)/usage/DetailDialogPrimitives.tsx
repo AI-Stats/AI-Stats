@@ -153,7 +153,6 @@ export function DetailTimingBar({
 			</div>
 		);
 	}
-
 	return (
 		<div className="space-y-1">
 			<div className="grid gap-2">
@@ -162,28 +161,18 @@ export function DetailTimingBar({
 						.slice(0, index)
 						.reduce((sum, current) => sum + current.duration, 0);
 					const leftPct = (consumedBefore / total) * 100;
-					const widthPct = Math.max((item.duration / total) * 100, 3);
-					const isFirst = index === 0;
-					const isLast = index === safeItems.length - 1;
-					const radiusClass =
-						isFirst && isLast
-							? "rounded-sm"
-							: isFirst
-								? "rounded-l-sm rounded-r-[2px]"
-								: isLast
-									? "rounded-l-[2px] rounded-r-sm"
-									: "rounded-[2px]";
+					const widthPct = Math.max((item.duration / total) * 100, 1);
 					return (
 						<div
 							key={item.key}
-							className="grid grid-cols-[168px_minmax(0,1fr)_72px] items-center gap-3 text-xs"
+							className="grid grid-cols-[minmax(96px,140px)_minmax(120px,1fr)_60px] items-center gap-2.5 text-xs"
 						>
-							<div className="min-w-0 leading-tight text-muted-foreground">
+							<div className="min-w-0 leading-tight text-foreground">
 								{item.label}
 							</div>
-							<div className="h-4 overflow-hidden rounded-sm bg-muted">
+							<div className="relative h-4 overflow-hidden rounded-sm bg-muted/70">
 								<div
-									className={cn("h-4", item.colorClass, radiusClass)}
+									className={cn("flex h-4 items-center justify-center rounded-sm", item.colorClass)}
 									style={{
 										marginLeft: `${leftPct}%`,
 										width: `${Math.min(widthPct, 100 - leftPct)}%`,
@@ -197,11 +186,11 @@ export function DetailTimingBar({
 					);
 				})}
 			</div>
-			<div className="grid grid-cols-[168px_minmax(0,1fr)_72px] items-start gap-3 pt-2 text-xs">
+			<div className="grid grid-cols-[minmax(96px,140px)_minmax(120px,1fr)_60px] items-start gap-2.5 pt-2 text-xs">
 				<div />
 				<div />
-				<div className="pt-0 text-right font-mono text-muted-foreground">
-					<div className="mb-1 border-t" />
+				<div className="text-right font-mono text-muted-foreground">
+					<div className="mb-1 border-t border-border/70" />
 					<div>{formatDuration(total)}</div>
 				</div>
 			</div>

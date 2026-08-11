@@ -20,7 +20,7 @@ import {
 
 import RequestsSection from "@/components/(gateway)/usage/RequestsSection";
 import RouteRequestDetailDialog from "@/components/(gateway)/usage/RouteRequestDetailDialog";
-import { investigateGeneration } from "@/app/(dashboard)/gateway/usage/server-actions";
+import { investigateGeneration, type RequestRow } from "@/app/(dashboard)/gateway/usage/server-actions";
 import { fetchSettingsUsageLogsInitialData } from "@/lib/fetchers/internal/fetchSettingsUsageLogsInitialData";
 
 export const metadata: Metadata = {
@@ -50,8 +50,8 @@ function buildLogsRequestHref(
 	}
 	const query = next.toString();
 	const base = requestId
-		? `/settings/usage/logs/${encodeURIComponent(requestId)}`
-		: "/settings/usage/logs";
+		? `/settings/usage/logs/requests/${encodeURIComponent(requestId)}`
+		: "/settings/usage/logs/requests";
 	return query ? `${base}?${query}` : base;
 }
 
@@ -68,24 +68,78 @@ function parsePositivePage(value: string | undefined): number {
 	return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
 }
 
-export default function Page(props: {
+export default async function Page(props: {
 	searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-	return (
-		<Suspense fallback={<SettingsSectionFallback />}>
-			<UsageLogsContent searchParams={props.searchParams} />
-		</Suspense>
-	);
+	const searchParams = await props.searchParams;
+	const view = parseView(firstSearchParam(searchParams.view));
+	const params = new URLSearchParams();
+	for (const [key, value] of Object.entries(searchParams)) {
+		if (key === "view") continue;
+		if (Array.isArray(value)) value.forEach((item) => params.append(key, item));
+		else if (typeof value === "string") params.set(key, value);
+	}
+	const segment = view === "logs" ? "requests" : view;
+	redirect(`/settings/usage/logs/${segment}${params.size ? `?${params.toString()}` : ""}`);
+}
+
+const SAMPLE_CLIENT_SOURCES = [
+	{ id: "codex", name: "Codex", kind: "coding_agent", version: "0.145.0", detection: "declared" },
+	{ id: "claude-code", name: "Claude Code", kind: "coding_agent", version: "2.1.218", detection: "declared" },
+	{ id: "phaseo-typescript", name: "Phaseo TypeScript SDK", kind: "sdk", version: "2.2.0", detection: "declared" },
+	{ id: "openai-python", name: "OpenAI Python SDK", kind: "sdk", version: "1.99.1", detection: "user_agent" },
+	{ id: "curl", name: "cURL", kind: "http_client", version: "8.12.1", detection: "user_agent" },
+	{ id: "api", name: "Direct API", kind: "api", version: null, detection: "unknown" },
+] as const;
+
+function buildSampleSourceRows(rows: RequestRow[]): RequestRow[] {
+	const base = rows[0] ?? ({
+		request_id: "sample_base", created_at: new Date().toISOString(), endpoint: "responses",
+		model_id: "openai/gpt-5.6-terra", provider: "openai", app_id: null, session_id: null,
+		success: true, status_code: 200, error_code: null, error_message: null, error_payload: null,
+		usage: { input_tokens: 128, output_tokens: 64, total_tokens: 192 }, cost_nanos: 1250000,
+		pricing_lines: [], provider_attempts: [],
+	} as RequestRow);
+
+	return SAMPLE_CLIENT_SOURCES.map((source, index) => ({
+		...base,
+		request_id: `sample_source_${source.id}`,
+		created_at: new Date(Date.now() - index * 70_000).toISOString(),
+		is_sample: true,
+		client_source_id: source.id,
+		client_source_name: source.name,
+		client_source_kind: source.kind,
+		client_source_version: source.version,
+		client_source_detection: source.detection,
+		detail_metadata: { ...(base.detail_metadata ?? {}), client_source: source },
+	}));
+}
+
+export function UsageLogsRoutePage({
+	view,
+	searchParams,
+	jobKind,
+}: {
+	view: UsageLogsViewKey;
+	searchParams: Promise<Record<string, string | string[] | undefined>>;
+	jobKind?: "video" | "batch";
+}) {
+	return <Suspense fallback={<SettingsSectionFallback />}><UsageLogsContent searchParams={searchParams} selectedView={view} forcedJobKind={jobKind} /></Suspense>;
 }
 
 export async function UsageLogsContent({
 	searchParams,
 	selectedRequestId = null,
+	selectedView,
+	forcedJobKind,
 }: {
 	searchParams: Promise<Record<string, string | string[] | undefined>>;
 	selectedRequestId?: string | null;
+	selectedView?: UsageLogsViewKey;
+	forcedJobKind?: "video" | "batch";
 }) {
-	const sp = await searchParams;
+	const rawSearchParams = await searchParams;
+	const sp = selectedView ? { ...rawSearchParams, view: selectedView } : rawSearchParams;
 	const initialData = await fetchSettingsUsageLogsInitialData(sp);
 
 	if (!initialData.signedIn) redirect("/sign-in");
@@ -105,7 +159,7 @@ export async function UsageLogsContent({
 		);
 	}
 
-	const view = parseView(
+	const view = selectedView ?? parseView(
 		typeof sp?.view === "string"
 			? sp?.view
 			: Array.isArray(sp?.view)
@@ -124,6 +178,14 @@ export async function UsageLogsContent({
 	const sessionModelFilter = firstSearchParam(sp?.session_model)?.trim() || null;
 	const sessionProviderFilter = firstSearchParam(sp?.session_provider)?.trim() || null;
 	const logsPage = parsePositivePage(firstSearchParam(sp?.page));
+	const pageTitle = view === "logs" ? "Requests" : view === "upstream" ? "Upstream Requests" : view === "jobs" ? forcedJobKind === "video" ? "Videos" : forcedJobKind === "batch" ? "Batches" : "Jobs" : "Sessions";
+	const pageDescription = view === "logs"
+		? "Inspect gateway requests, routing decisions, usage, and errors."
+		: view === "upstream"
+			? "Inspect each provider attempt made while serving gateway requests."
+			: view === "jobs"
+				? forcedJobKind === "video" ? "Inspect asynchronous video generation jobs." : forcedJobKind === "batch" ? "Inspect asynchronous batch processing jobs." : "Inspect asynchronous video and batch jobs."
+				: "Inspect grouped request activity across apps and models.";
 	const timeRange = resolveUsageTimeRange({
 		preset,
 		customFrom,
@@ -136,9 +198,29 @@ export async function UsageLogsContent({
 
 	if (view === "upstream") {
 		const data = initialData.view === "upstream" ? initialData.data : null;
+		const upstreamRows = data?.upstreamRequests ?? [];
+		const modelFilter = firstSearchParam(sp.model)?.trim() || null;
+		const providerFilter = firstSearchParam(sp.provider)?.trim() || null;
+		const keyFilter = firstSearchParam(sp.key)?.trim() || null;
+		const statusFilter = firstSearchParam(sp.status)?.trim() || "all";
+		const filteredRows = upstreamRows.filter((row) =>
+			(!modelFilter || row.model_id === modelFilter) &&
+			(!providerFilter || row.provider === providerFilter) &&
+			(!keyFilter || row.key_id === keyFilter) &&
+			(statusFilter === "all" || (statusFilter === "success" ? row.success === true : row.success !== true)),
+		);
+		filters = <UsageViewFilters
+			view="upstream"
+			models={Array.from(new Set(upstreamRows.map((row) => row.model_id).filter(Boolean)))}
+			providers={Array.from(new Set(upstreamRows.map((row) => row.provider).filter((value): value is string => Boolean(value))))}
+			providerNames={new Map(data?.providerNameEntries ?? [])}
+			apiKeys={data?.availableKeys ?? []}
+			modelMetadata={new Map(data?.modelMetadataEntries ?? [])}
+			providerMetadata={new Map(data?.providerMetadataEntries ?? [])}
+		/>;
 		content = (
 			<UpstreamRequestsTable
-				rows={data?.upstreamRequests ?? []}
+				rows={filteredRows}
 				modelMetadata={new Map(data?.modelMetadataEntries ?? [])}
 				providerNames={new Map(data?.providerNameEntries ?? [])}
 				providerMetadata={new Map(data?.providerMetadataEntries ?? [])}
@@ -154,6 +236,7 @@ export async function UsageLogsContent({
 		filters = (
 			<UsageViewFilters
 				view="jobs"
+				lockJobKind={Boolean(forcedJobKind)}
 				providers={data.jobProviders}
 				providerNames={providerNames}
 			/>
@@ -172,11 +255,11 @@ export async function UsageLogsContent({
 				variant="logs"
 				timeRange={timeRange}
 				showRefreshButton={false}
-				kindFilter={
+				kindFilter={forcedJobKind ?? (
 					jobKindFilter === "video" || jobKindFilter === "batch"
 						? jobKindFilter
 						: null
-				}
+				)}
 				statusFilter={jobStatusFilter}
 				providerFilter={jobProviderFilter}
 			/>
@@ -220,10 +303,20 @@ export async function UsageLogsContent({
 		const data = initialData.view === "logs" ? initialData.data : null;
 		if (!data) throw new Error("Missing usage logs data");
 		const appNames = new Map(data.appNameEntries);
+		const appMetadata = new Map(data.appNameEntries.map(([id, title]) => [id, { id, title, imageUrl: null }] as const));
 		const providerNames = new Map(data.providerNameEntries);
 		const providerMetadata = new Map(data.providerMetadataEntries);
 		const modelMetadata = new Map(data.modelMetadataEntries);
 		const modelProviders = new Map(data.modelProviderEntries);
+		const showSampleSources = process.env.NODE_ENV !== "production" && firstSearchParam(sp.sampleSources) === "1";
+		const sampleSourceFilter = firstSearchParam(sp.source)?.trim() || null;
+		const sampleRows = showSampleSources
+			? buildSampleSourceRows(data.initialRequestsPage.data).filter((row) => !sampleSourceFilter || row.client_source_id === sampleSourceFilter)
+			: [];
+		const requestRows = [...sampleRows, ...data.initialRequestsPage.data];
+		const clientSources = showSampleSources
+			? Array.from(new Map([...SAMPLE_CLIENT_SOURCES.map((source) => [source.id, { id: source.id, name: source.name }] as const), ...data.clientSources.map((source) => [source.id, source] as const)]).values())
+			: data.clientSources;
 		filters = (
 			<UsageViewFilters
 				view="logs"
@@ -234,6 +327,13 @@ export async function UsageLogsContent({
 				apiKeys={data.availableKeys}
 				modelMetadata={modelMetadata}
 				providerMetadata={providerMetadata}
+				appMetadata={appMetadata}
+				clientSources={clientSources}
+				logAppIds={data.logAppIds}
+				logEndpoints={data.logEndpoints}
+				logFinishReasons={data.logFinishReasons}
+				logErrorCodes={data.logErrorCodes}
+				logStatusCodes={data.logStatusCodes}
 			/>
 		);
 
@@ -244,11 +344,14 @@ export async function UsageLogsContent({
 				providerNames={providerNames}
 				providerMetadata={providerMetadata}
 				modelMetadata={modelMetadata}
-				initialPage={logsPage}
-				initialRows={data.initialRequestsPage.data}
-				initialTotal={data.initialRequestsPage.total}
-				initialTotalPages={data.initialRequestsPage.totalPages}
-				detailBasePath="/settings/usage/logs"
+				initialPage={1}
+				initialRows={requestRows}
+				initialTotal={requestRows.length}
+				initialTotalPages={data.initialRequestsPage.hasMore ? 2 : 1}
+				initialHasMore={data.initialRequestsPage.hasMore}
+				initialNextCursor={data.initialRequestsPage.nextCursor}
+				initialPageSize={data.initialRequestsPage.pageSize ?? 50}
+				detailBasePath="/settings/usage/logs/requests"
 			/>
 		);
 
@@ -284,9 +387,9 @@ export async function UsageLogsContent({
 		<div className="min-w-0 space-y-6">
 			<div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
 				<div>
-					<h1 className="text-2xl font-semibold tracking-tight">Logs</h1>
+					<h1 className="text-2xl font-semibold tracking-tight">{pageTitle}</h1>
 					<p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-						Request-level inspection for gateway calls, async work, and sessions.
+						{pageDescription}
 					</p>
 				</div>
 				<div className="flex min-w-0 flex-wrap items-center gap-2 lg:justify-end">
@@ -299,6 +402,7 @@ export async function UsageLogsContent({
 					/>
 				</div>
 			</div>
+			<div id="usage-log-active-filters" className="empty:hidden" />
 			<div className="min-w-0 max-w-full space-y-4 overflow-hidden">
 				{content}
 			</div>

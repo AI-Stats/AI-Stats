@@ -241,6 +241,7 @@ async function upsertV2RequestFact(args: {
     authMethod?: "api_key" | "oauth" | null;
     nativeResponseId?: string | null;
     userAgent?: string | null;
+    clientSource?: { id: string; name: string; kind: string; version: string | null; detection: string } | null;
     costNanos?: number | null;
     currency?: string | null;
     toolCallCount?: number | null;
@@ -260,6 +261,15 @@ async function upsertV2RequestFact(args: {
     routingSnapshot?: Array<Record<string, unknown>> | null;
     routingDiagnostics?: Record<string, unknown> | null;
 }) {
+	const publicRoutedModel = (() => {
+		const requested = args.requestedModel.trim();
+		const routed = args.routedModel?.trim() ?? "";
+		if (requested && routed && /(?::free|-free)$/i.test(requested)) {
+			const base = (value: string) => value.replace(/(?::free|-free)$/i, "").toLowerCase();
+			if (base(requested) === base(routed)) return requested;
+		}
+		return routed || null;
+	})();
     const toProviderModelId = (provider: unknown, providerModelSlug: unknown): string | null => {
         const providerId = typeof provider === "string" ? provider.trim() : "";
         const modelSlug = typeof providerModelSlug === "string" ? providerModelSlug.trim() : "";
@@ -417,7 +427,7 @@ async function upsertV2RequestFact(args: {
             key_id: args.keyId ?? null,
             endpoint: args.endpoint,
             requested_model_input: args.requestedModel,
-            routed_model_slug: args.routedModel ?? null,
+            routed_model_slug: publicRoutedModel,
             provider: args.provider ?? null,
             provider_model_id: toProviderModelId(args.provider, args.providerModelSlug),
             // The v2 catalogue resolves concrete provider/model routes by the
@@ -446,6 +456,9 @@ async function upsertV2RequestFact(args: {
             auth_method: args.authMethod ?? null,
             native_response_id: args.nativeResponseId ?? null,
             user_agent: args.userAgent ?? null,
+            sdk_name: args.clientSource?.kind === "sdk" || args.clientSource?.kind === "agent_sdk" ? args.clientSource.id : null,
+            sdk_version: args.clientSource?.kind === "sdk" || args.clientSource?.kind === "agent_sdk" ? args.clientSource.version : null,
+            client_version: args.clientSource?.version ?? null,
             cost_nanos: args.costNanos == null ? null : Math.max(0, Math.round(args.costNanos)),
             currency: args.currency ?? null,
             tool_call_count: Math.max(0, Math.round(args.toolCallCount ?? 0)),
@@ -458,10 +471,11 @@ async function upsertV2RequestFact(args: {
             routing_decisions: [...rankedDecisions, ...excludedDecisions],
             safe_metadata: {
                 provider: args.provider ?? null,
-                routed_model: args.routedModel ?? args.requestedModel,
+                routed_model: publicRoutedModel ?? args.requestedModel,
 				cached_input_tokens_are_subset_of_input: cachedInputTokensAreSubset(args.usage),
                 edge_country: args.edgeCountry ? args.edgeCountry.trim().toUpperCase() : null,
                 edge_continent: args.edgeContinent ? args.edgeContinent.trim().toUpperCase() : null,
+                client_source: args.clientSource ?? null,
                 structured_output_success_basis: args.structuredOutputAttempted
                     ? (args.structuredOutputSuccessBasis ?? "unobserved")
                     : null,
@@ -759,6 +773,7 @@ export async function auditSuccess(args: {
     traceData?: Record<string, unknown> | null;
     providerAttempts?: Array<Record<string, unknown>> | null;
     userAgent?: string | null;
+    clientSource?: { id: string; name: string; kind: string; version: string | null; detection: string } | null;
     clientIp?: string | null;
     cfRay?: string | null;
     edgeColo?: string | null;
@@ -931,6 +946,7 @@ export async function auditSuccess(args: {
                     authMethod: args.authMethod ?? null,
                     nativeResponseId: args.nativeResponseId ?? null,
                     userAgent: args.userAgent ?? null,
+                    clientSource: args.clientSource ?? null,
                     costNanos: args.totalNanos ?? (
                         Number.isFinite(args.totalCents)
                             ? Math.round(args.totalCents * 1e7)
@@ -1050,6 +1066,7 @@ type AuditFailureBefore = {
     providerAttempts?: Array<Record<string, unknown>> | null;
     errorPayload?: Record<string, unknown> | null;
     userAgent?: string | null;
+    clientSource?: { id: string; name: string; kind: string; version: string | null; detection: string } | null;
     clientIp?: string | null;
     cfRay?: string | null;
     edgeColo?: string | null;
@@ -1098,6 +1115,7 @@ type AuditFailureExecute = {
     providerAttempts?: Array<Record<string, unknown>> | null;
     errorPayload?: Record<string, unknown> | null;
     userAgent?: string | null;
+    clientSource?: { id: string; name: string; kind: string; version: string | null; detection: string } | null;
     clientIp?: string | null;
     cfRay?: string | null;
     edgeColo?: string | null;
@@ -1133,8 +1151,8 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                 requestId: args.requestId,
                 workspaceId: args.workspaceId ?? null,
                 endpoint: args.endpoint,
-                model: args.model ?? null,
-                canonicalModel: args.requestedModel ?? args.model ?? null,
+                model: args.model ?? args.requestedModel ?? "unknown",
+                canonicalModel: args.requestedModel ?? args.model ?? "unknown",
                 provider: null,
                 stream: false,
                 byok: false,
@@ -1391,6 +1409,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                         endUserId: args.requestUserId ?? null,
                         authMethod: args.authMethod ?? null,
                         userAgent: args.userAgent ?? null,
+                        clientSource: args.clientSource ?? null,
                         currency: args.currency ?? null,
                         toolCallCount: readToolCallCount(args.usage, null),
                         toolCallSucceeded: readToolCallCount(args.usage, null) > 0 ? false : null,

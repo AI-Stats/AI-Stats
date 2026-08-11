@@ -181,7 +181,7 @@ describe('Benchmarks', () => {
     test(`${b} shape`, () => {
       const j = readJson(p);
       expect(typeof j.benchmark_id).toBe('string');
-      expect(typeof j.name).toBe('string');
+      expect(typeof j.benchmark_name).toBe('string');
     });
   }
 });

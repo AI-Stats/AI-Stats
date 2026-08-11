@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { AppWindow, Info, LoaderCircle, XCircle } from "lucide-react";
+import { AppWindow, Bot, Braces, Copy, Database, GraduationCap, Info, ListFilter, LoaderCircle, Package, ShieldCheck, ShieldQuestion, Terminal, XCircle } from "lucide-react";
 import {
 	Dialog,
 	DialogContent,
@@ -12,11 +12,23 @@ import {
 } from "@/components/ui/dialog";
 import { CopyButton } from "@/components/ui/copy-button";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+	ContextMenu,
+	ContextMenuContent,
+	ContextMenuItem,
+	ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+	HoverCard,
+	HoverCardContent,
+	HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import {
 	Table,
 	TableBody,
@@ -36,6 +48,7 @@ import {
 	buildUsageFromNormalizedRequestFields,
 	extractUsageMeters,
 	formatUsageNumber,
+	type UsageMeter,
 } from "./usageMeters";
 import {
 	DetailKeyValueGrid,
@@ -599,7 +612,7 @@ function getConcreteModelParts(args: {
 	apiModelId?: string | null;
 	providerModelSlug?: string | null;
 }): string[] {
-	return [
+	const values = [
 		typeof args.apiModelId === "string" && args.apiModelId.trim().length > 0
 			? args.apiModelId.trim()
 			: null,
@@ -608,6 +621,7 @@ function getConcreteModelParts(args: {
 			? args.providerModelSlug.trim()
 			: null,
 	].filter((value): value is string => Boolean(value));
+	return values.length > 0 ? [values[0]] : [];
 }
 
 function normalizeModelId(value: string | null | undefined): string | null {
@@ -621,7 +635,13 @@ function getRequestedModelId(request: RequestRow): string | null {
 }
 
 function getRoutedModelId(request: RequestRow): string | null {
-	return normalizeModelId(request.routed_model_id) ?? normalizeModelId(request.model_id);
+	const requested = getRequestedModelId(request);
+	const routed = normalizeModelId(request.routed_model_id) ?? normalizeModelId(request.model_id);
+	if (requested && routed && /(?::free|-free)$/i.test(requested)) {
+		const base = (value: string) => value.replace(/(?::free|-free)$/i, "").toLowerCase();
+		if (base(requested) === base(routed)) return requested;
+	}
+	return routed;
 }
 
 function getAttemptStatusTone(
@@ -728,10 +748,10 @@ function buildUsageLogsFilterHref(args: {
 	]) {
 		next.delete(key);
 	}
-	next.set("view", args.view);
 	if (args.requestId) next.set("req", args.requestId);
 	if (args.sessionId) next.set("session", args.sessionId);
-	return `/settings/usage/logs?${next.toString()}`;
+	const path = args.view === "logs" ? "/settings/usage/logs/requests" : "/settings/usage/logs/sessions";
+	return next.size ? `${path}?${next.toString()}` : path;
 }
 
 function buildUsageSummary(usage: any): {
@@ -755,56 +775,19 @@ function buildUsageSummary(usage: any): {
 
 function RequestHeader({
 	request,
-	modelMetadata,
-	providerName,
-	providerMetadata,
 }: {
 	request: RequestRow;
-	modelMetadata?: ModelMetadataMap;
-	providerName?: string | null;
-	providerMetadata?: Map<string, ProviderMetadataEntry>;
 }) {
-	const metadata = modelMetadata ?? new Map();
-	const routedModelId = getRoutedModelId(request);
-	const modelHref = getModelDetailsHref(routedModelId);
-	const modelName = getModelDisplayName(routedModelId ?? null, metadata);
-	const modelMeta = routedModelId ? metadata.get(routedModelId) : undefined;
 	const timestamp = formatWordyDateTime(request.created_at, { includeTime: true });
-	const providerMeta = request.provider ? providerMetadata?.get(request.provider) : undefined;
 	return (
 		<div>
 			<div className="px-5 py-4 sm:px-6 sm:py-5">
 				<div className="pr-10">
 					<DialogTitle className="text-base font-semibold">Generation details</DialogTitle>
-					<div className="mt-3 flex min-w-0 flex-wrap items-center gap-2">
-						{modelHref ? (
-							<Link
-								href={modelHref}
-								className="inline-flex min-w-0 items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-muted/50"
-							>
-								{modelMeta ? <Logo id={modelMeta.organisationId} width={16} height={16} className="shrink-0" /> : null}
-								<span className="truncate">{modelName || routedModelId || "Request"}</span>
-							</Link>
-						) : (
-							<span className="inline-flex min-w-0 items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm font-medium">
-								{modelMeta ? <Logo id={modelMeta.organisationId} width={16} height={16} className="shrink-0" /> : null}
-								<span className="truncate">{modelName || routedModelId || "Request"}</span>
-							</span>
-						)}
-						{request.provider ? (
-							<Link href={`/api-providers/${encodeURIComponent(request.provider)}`} className="inline-flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-muted/50">
-								<Logo id={request.provider} width={16} height={16} className="shrink-0" />
-								{providerName ?? providerMeta?.name ?? request.provider}
-							</Link>
-						) : null}
-						<span className={cn("rounded-md border px-2.5 py-1.5 text-xs font-medium", request.success ? "border-emerald-500/25 text-emerald-600" : "border-rose-500/25 text-rose-600")}>
-							{request.success ? "Success" : "Error"}
-						</span>
-					</div>
-					<div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-						<code className="font-mono">{request.request_id}</code>
-						<span aria-hidden="true">·</span>
+					<div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
 						<span>{timestamp}</span>
+						<span aria-hidden="true">·</span>
+						<CopyableText value={request.request_id} ariaLabel="Copy generation ID" />
 					</div>
 				</div>
 			</div>
@@ -834,15 +817,26 @@ export default function RequestDetailDialog({
 	const metadata = modelMetadata ?? new Map();
 	const normalizedUsage = buildUsageFromNormalizedRequestFields(request.usage, request);
 	const usageMeters = extractUsageMeters(normalizedUsage);
+	const internalUsageMeters = usageMeters.filter(
+		(meter) =>
+			meter.key.includes("quad_tokens") ||
+			meter.key.endsWith("_characters") ||
+			meter.key === "requests",
+	);
+	const nativeUsageMeters = usageMeters.filter(
+		(meter) => !internalUsageMeters.some((internal) => internal.key === meter.key),
+	);
 	const usageSummary = buildUsageSummary(normalizedUsage);
 	const timingLatency = Number(request.latency_ms ?? 0) || 0;
 	const timingGeneration = Number(request.generation_ms ?? 0) || 0;
 	const requestedModelId = getRequestedModelId(request);
 	const routedModelId = getRoutedModelId(request);
+	const requestedModelHref = getModelDetailsHref(requestedModelId);
 	const modelHref = getModelDetailsHref(routedModelId);
 	const modelName = getModelDisplayName(routedModelId ?? null, metadata);
 	const modelMeta = routedModelId ? metadata.get(routedModelId) : undefined;
 	const requestedModelName = getModelDisplayName(requestedModelId ?? null, metadata);
+	const requestedModelMeta = requestedModelId ? metadata.get(requestedModelId) : undefined;
 	const providerMeta = request.provider ? providerMetadata?.get(request.provider) : undefined;
 	const providerPolicyLabel = providerMeta?.promptTrainingPolicy
 		? PROVIDER_PROMPT_TRAINING_POLICY_LABELS[
@@ -886,66 +880,83 @@ export default function RequestDetailDialog({
 					const providerRow = {
 						key: `provider-${attempt.attempt_number ?? index}`,
 						label: (
-							<div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
+							<div className="flex min-w-0 items-center gap-2">
+								{attemptProviderId ? <Logo id={attemptProviderId} width={14} height={14} className="shrink-0" /> : null}
 								{attemptProviderId ? (
-									<Logo
-										id={attemptProviderId}
-										width={14}
-										height={14}
-										className="flex-shrink-0"
-									/>
-								) : null}
-								<div className="min-w-0">
-									<div className="min-w-0 break-words">{attemptProviderName}</div>
-									{attemptModelParts.length > 0 ? (
-										<div className="mt-0.5 flex flex-wrap gap-1">
-											{attemptModelParts.map((value) => (
-												<code
-													key={`${attempt.attempt_number ?? index}-${value}`}
-													className="rounded bg-rose-100 px-1 py-0.5 text-[10px]"
-												>
-													{value}
-												</code>
-											))}
-										</div>
-									) : null}
-									{attemptFinishReason || attemptCostNanos > 0 ? (
-										<div className="mt-0.5 flex flex-wrap gap-x-2 text-[10px] text-muted-foreground">
-											{attemptFinishReason ? (
-												<span>finish: {attemptFinishReason}</span>
-											) : null}
-											{attemptCostNanos > 0 ? (
-												<span>cost: {formatCost(attemptCostNanos)}</span>
-											) : null}
-										</div>
-									) : null}
-								</div>
-								{statusDescription ? (
-									<Tooltip>
-										<TooltipTrigger asChild>
-											<span
-												className={cn(
-													"inline-flex min-w-[38px] flex-shrink-0 items-center justify-center rounded-sm border px-1.5 py-0.5 font-mono text-[10px] font-medium",
-													statusTone.badgeClass,
-												)}
-											>
-												{statusTone.label}
-											</span>
-										</TooltipTrigger>
-										<TooltipContent sideOffset={6} className="max-w-64 text-[11px]">
-											{statusDescription}
-										</TooltipContent>
-									</Tooltip>
+									<Link
+										href={`/api-providers/${encodeURIComponent(attemptProviderId)}`}
+										className="truncate font-medium text-foreground underline decoration-transparent transition-colors hover:decoration-foreground/70"
+									>
+										{attemptProviderName}
+									</Link>
 								) : (
+									<span className="truncate font-medium">{attemptProviderName}</span>
+								)}
+								<HoverCard openDelay={100} closeDelay={100}>
+									<HoverCardTrigger asChild>
 									<span
 										className={cn(
-											"inline-flex min-w-[38px] flex-shrink-0 items-center justify-center rounded-sm border px-1.5 py-0.5 font-mono text-[10px] font-medium",
+											"inline-flex shrink-0 cursor-default items-center justify-center rounded-sm border px-1.5 py-0.5 font-mono text-[10px] font-medium",
 											statusTone.badgeClass,
 										)}
 									>
 										{statusTone.label}
 									</span>
-								)}
+									</HoverCardTrigger>
+									<HoverCardContent
+										align="start"
+										sideOffset={8}
+										className="w-72 rounded-md border border-border/70 p-0 shadow-xl"
+									>
+										<div className="border-b border-border/70 px-3 py-2.5">
+											<div className="flex items-center justify-between gap-3">
+												<span className="text-sm font-semibold">Provider response</span>
+												<span className={cn("rounded-sm border px-1.5 py-0.5 font-mono text-[10px] font-medium", statusTone.badgeClass)}>
+													{statusTone.label}
+												</span>
+											</div>
+											{statusDescription ? (
+												<p className="mt-1 text-xs text-muted-foreground">{statusDescription}</p>
+											) : null}
+										</div>
+										<dl className="grid grid-cols-[88px_minmax(0,1fr)] gap-x-3 gap-y-2 px-3 py-2.5 text-xs">
+											<dt className="text-muted-foreground">Provider</dt>
+											<dd className="min-w-0 truncate text-right font-medium">
+												{attemptProviderId ? (
+													<Link
+														href={`/api-providers/${encodeURIComponent(attemptProviderId)}`}
+														className="text-foreground underline decoration-transparent transition-colors hover:decoration-foreground/70"
+													>
+														{attemptProviderName}
+													</Link>
+												) : attemptProviderName}
+											</dd>
+											{attemptModelParts.length > 0 ? (
+												<>
+													<dt className="text-muted-foreground">Model</dt>
+													<dd
+														className="min-w-0 truncate text-right font-mono text-[11px]"
+														title={attemptModelParts[0]}
+													>
+														{attemptModelParts[0]}
+													</dd>
+												</>
+											) : null}
+											{attemptFinishReason ? (
+												<>
+													<dt className="text-muted-foreground">Finish reason</dt>
+													<dd className="text-right font-medium">{attemptFinishReason}</dd>
+												</>
+											) : null}
+											{attemptCostNanos > 0 ? (
+												<>
+													<dt className="text-muted-foreground">Cost</dt>
+													<dd className="text-right font-mono">{formatCost(attemptCostNanos)}</dd>
+												</>
+											) : null}
+										</dl>
+									</HoverCardContent>
+								</HoverCard>
 							</div>
 						),
 						duration: durationMs,
@@ -965,7 +976,7 @@ export default function RequestDetailDialog({
 							{
 								key: `generation-${attempt.attempt_number ?? index}`,
 								label: (
-									<div className="flex min-w-0 items-center gap-2 pl-5">
+									<div className="flex min-w-0 items-center gap-2">
 										<span className="truncate">Generation</span>
 									</div>
 								),
@@ -984,8 +995,16 @@ export default function RequestDetailDialog({
 								key: "provider-latency",
 								label: (
 									<div className="flex min-w-0 items-center gap-2">
+										{request.provider ? <Logo id={request.provider} width={14} height={14} className="shrink-0" /> : null}
 										<span className="min-w-0 break-words">
-											{providerName ?? request.provider ?? "Provider"}
+											{request.provider ? (
+												<Link
+													href={`/api-providers/${encodeURIComponent(request.provider)}`}
+													className="text-foreground underline decoration-transparent transition-colors hover:decoration-foreground/70"
+												>
+													{providerName ?? request.provider}
+												</Link>
+											) : "Provider"}
 										</span>
 									</div>
 									),
@@ -999,7 +1018,7 @@ export default function RequestDetailDialog({
 								{
 								key: "generation",
 								label: (
-									<div className="flex min-w-0 items-center gap-2 pl-5">
+									<div className="flex min-w-0 items-center gap-2">
 										<span className="min-w-0 break-words">Generation</span>
 									</div>
 								),
@@ -1009,13 +1028,6 @@ export default function RequestDetailDialog({
 						  ]
 						: []),
 			  ];
-	const requestFilterHref = request.request_id
-		? buildUsageLogsFilterHref({
-				searchParams,
-				view: "logs",
-				requestId: request.request_id,
-		  })
-		: null;
 	const sessionFilterHref = request.session_id
 		? buildUsageLogsFilterHref({
 				searchParams,
@@ -1070,6 +1082,7 @@ export default function RequestDetailDialog({
 	const requestDetailItems = [
 		{
 			label: "Routed model",
+			description: "The canonical Phaseo model selected after aliases, presets, and router expansion are resolved.",
 			value: modelHref ? (
 				<UsageEntityHoverCard
 					title={modelName || routedModelId || "-"}
@@ -1115,7 +1128,7 @@ export default function RequestDetailDialog({
 						) : null}
 						<Link
 							href={modelHref}
-							className="min-w-0 truncate underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+							className="min-w-0 truncate text-foreground underline decoration-transparent transition-colors duration-200 hover:text-foreground hover:decoration-foreground/70"
 						>
 							{modelName || routedModelId || "-"}
 						</Link>
@@ -1172,11 +1185,23 @@ export default function RequestDetailDialog({
 		},
 		{
 			label: "Requested model",
+			description: "The exact model ID or alias supplied by the client in the original request.",
 			value: requestedModelId ? (
-				<div className="flex flex-col gap-1">
-					<span>{requestedModelName || requestedModelId}</span>
-					<code className="font-mono text-xs">{requestedModelId}</code>
-				</div>
+				<UsageEntityHoverCard
+					title={requestedModelName || requestedModelId}
+					href={requestedModelHref ?? undefined}
+					visual={requestedModelMeta ? <Logo id={requestedModelMeta.organisationId} width={16} height={16} className="shrink-0" /> : null}
+					rows={[{ label: "Model ID", value: <code className="font-mono text-[11px]">{requestedModelId}</code> }]}
+				>
+					{requestedModelHref ? (
+						<Link href={requestedModelHref} className="inline-flex min-w-0 items-center justify-end gap-2 text-foreground underline decoration-transparent transition-colors hover:decoration-foreground/70">
+							{requestedModelMeta ? <Logo id={requestedModelMeta.organisationId} width={16} height={16} className="shrink-0" /> : null}
+							<span className="truncate">{requestedModelName || requestedModelId}</span>
+						</Link>
+					) : (
+						<span className="truncate">{requestedModelName || requestedModelId}</span>
+					)}
+				</UsageEntityHoverCard>
 			) : (
 				"-"
 			),
@@ -1184,27 +1209,7 @@ export default function RequestDetailDialog({
 		{
 			label: "Request ID",
 			value: request.request_id ? (
-				<div className="flex items-center gap-2">
-					{requestFilterHref ? (
-						<Link
-							href={requestFilterHref}
-							className="min-w-0 truncate font-mono text-xs underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
-						>
-							{request.request_id}
-						</Link>
-					) : (
-						<code className="min-w-0 truncate font-mono text-xs">
-							{request.request_id}
-						</code>
-					)}
-					<CopyButton
-						size="sm"
-						variant="ghost"
-						className="text-muted-foreground hover:text-foreground"
-						content={request.request_id}
-						aria-label="Copy request id"
-					/>
-				</div>
+				<CopyableText value={request.request_id} ariaLabel="Copy request ID" />
 			) : (
 				"-"
 			),
@@ -1212,18 +1217,7 @@ export default function RequestDetailDialog({
 		{
 			label: "Native request ID",
 			value: request.native_response_id ? (
-				<div className="flex items-center gap-2">
-					<code className="min-w-0 truncate font-mono text-xs">
-						{request.native_response_id}
-					</code>
-					<CopyButton
-						size="sm"
-						variant="ghost"
-						className="text-muted-foreground hover:text-foreground"
-						content={request.native_response_id}
-						aria-label="Copy native request id"
-					/>
-				</div>
+				<CopyableText value={request.native_response_id} ariaLabel="Copy native request ID" />
 			) : (
 				"-"
 			),
@@ -1263,7 +1257,7 @@ export default function RequestDetailDialog({
 				>
 					<Link
 						href={`/api-providers/${encodeURIComponent(request.provider)}`}
-						className="inline-flex items-center gap-2 underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+					className="inline-flex items-center gap-2 text-foreground underline decoration-transparent transition-colors duration-200 hover:text-foreground hover:decoration-foreground/70"
 					>
 						<Logo
 							id={request.provider}
@@ -1281,9 +1275,11 @@ export default function RequestDetailDialog({
 		...(concreteSuccessModelParts.length > 0
 			? [
 					{
-						label: "Concrete model",
+						label: "Upstream model ID",
+						description: "The provider-facing model identifier sent upstream for the successful attempt.",
 						value: (
-							<div className="flex flex-wrap gap-2">
+							<div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
+								{modelMeta ? <Logo id={modelMeta.organisationId} width={16} height={16} className="shrink-0" /> : null}
 								{concreteSuccessModelParts.map((value) => (
 									<code
 										key={`concrete-model-${value}`}
@@ -1300,14 +1296,19 @@ export default function RequestDetailDialog({
 		{
 			label: "Endpoint",
 			value: request.endpoint ? (
-				<code className="font-mono text-xs">{request.endpoint}</code>
+				<span>{humanizeEndpoint(request.endpoint)}</span>
 			) : (
 				"-"
 			),
 		},
 		{
 			label: "Data policy",
-			value: providerPolicyLabel ?? "-",
+			value: providerPolicyLabel ? (
+				<span className="inline-flex items-center justify-end gap-2">
+					<DataPolicyIcon policy={providerMeta?.promptTrainingPolicy} />
+					{providerPolicyLabel}
+				</span>
+			) : "-",
 		},
 		{
 			label: "App where used",
@@ -1334,7 +1335,7 @@ export default function RequestDetailDialog({
 					>
 						<Link
 							href={`/apps/${encodeURIComponent(request.app_id)}`}
-							className="underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+							className="text-foreground underline decoration-transparent transition-colors duration-200 hover:text-foreground hover:decoration-foreground/70"
 						>
 							{appName}
 						</Link>
@@ -1346,38 +1347,36 @@ export default function RequestDetailDialog({
 		{
 			label: "Session ID",
 			value: request.session_id ? (
-				<div className="flex items-center gap-2">
-					{sessionFilterHref ? (
-						<Link
-							href={sessionFilterHref}
-							className="min-w-0 truncate font-mono text-xs underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
-						>
-							{request.session_id}
-						</Link>
-					) : (
-						<code className="min-w-0 truncate font-mono text-xs">
-							{request.session_id}
-						</code>
-					)}
-					<CopyButton
-						size="sm"
-						variant="ghost"
-						className="text-muted-foreground hover:text-foreground"
-						content={request.session_id}
-						aria-label="Copy session id"
-					/>
-				</div>
+				<ContextMenu>
+					<ContextMenuTrigger asChild>
+						<CopyableText value={request.session_id} ariaLabel="Copy session ID" />
+					</ContextMenuTrigger>
+					<ContextMenuContent className="w-48 rounded-md">
+						<ContextMenuItem onClick={() => void navigator.clipboard.writeText(request.session_id!)}>
+							<Copy />
+							Copy Session ID
+						</ContextMenuItem>
+						{sessionFilterHref ? (
+							<ContextMenuItem asChild>
+								<Link href={sessionFilterHref}>
+									<ListFilter />
+									Filter by Session
+								</Link>
+							</ContextMenuItem>
+						) : null}
+					</ContextMenuContent>
+				</ContextMenu>
 			) : (
 				"-"
 			),
 		},
 		{
 			label: "Finish reason",
-			value: request.finish_reason || "-",
+			value: request.finish_reason ? humanizeValue(request.finish_reason) : "-",
 		},
 		{
 			label: "Streaming",
-			value: request.stream ? "true" : "false",
+			value: request.stream ? "True" : "False",
 		},
 		{
 			label: "Status code",
@@ -1401,15 +1400,78 @@ export default function RequestDetailDialog({
 			  ]
 			: []),
 	];
+	const selectDetailItems = (labels: string[]) =>
+		labels.flatMap((label) => {
+			const item = requestDetailItems.find((candidate) => candidate.label === label);
+			return item ? [item] : [];
+		});
+	const routingDetailItems = selectDetailItems([
+		"Requested model",
+		"Routed model",
+		"Upstream model ID",
+		"Provider",
+		"Endpoint",
+		"App where used",
+	]);
+	const trainingPolicyItem = requestDetailItems.find((item) => item.label === "Data policy");
+	const dataPolicyItems = [
+		...(trainingPolicyItem
+			? [{
+				...trainingPolicyItem,
+				label: "Data training",
+				description: "Whether the upstream provider may use prompts or completions for model training.",
+			}]
+			: []),
+		{
+			label: "Phaseo data retention",
+			description: "Whether Phaseo retained the gateway request and response payload for this generation.",
+			value: (
+				<span className="inline-flex items-center justify-end gap-2">
+					<Database className="size-3.5 shrink-0 text-muted-foreground" />
+					{ioLog?.retention_until
+						? `Retained Until ${formatWordyDateTime(ioLog.retention_until)}`
+						: "No Retained Payload"}
+				</span>
+			),
+		},
+	];
+	const technicalDetailItems = selectDetailItems([
+		"Request ID",
+		"Native request ID",
+		"Session ID",
+		"Streaming",
+		"Status code",
+		"Finish reason",
+		"Error code",
+		"Error message",
+	]);
+	const requestMetadata = request.detail_metadata && typeof request.detail_metadata === "object" && !Array.isArray(request.detail_metadata)
+		? request.detail_metadata as Record<string, any>
+		: null;
+	const rawUserAgent = typeof request.user_agent === "string"
+		? request.user_agent
+		: typeof requestMetadata?.request?.user_agent === "string"
+			? requestMetadata.request.user_agent
+			: null;
+	technicalDetailItems.push(
+		{
+			label: "Client",
+			value: (
+				<span className="inline-flex items-center justify-end gap-2">
+					<ClientSourceIcon kind={request.client_source_kind ?? "api"} />
+					{request.client_source_name ?? request.client_source_id ?? "Direct API"}
+				</span>
+			),
+		},
+		...(request.client_source_version ? [{ label: "Client version", value: request.client_source_version }] : []),
+		...(request.client_source_kind ? [{ label: "Client type", value: request.client_source_kind.replace(/_/g, " ") }] : []),
+		...(request.client_source_detection ? [{ label: "Detected from", value: request.client_source_detection.replace(/_/g, " ") }] : []),
+		...(rawUserAgent ? [{ label: "User agent", value: <code className="font-mono text-[11px]">{rawUserAgent}</code> }] : []),
+	);
 
 	const detailContent = (
 		<>
-				<RequestHeader
-					request={request}
-					modelMetadata={modelMetadata}
-					providerName={providerName}
-					providerMetadata={providerMetadata}
-				/>
+				<RequestHeader request={request} />
 				{loading ? (
 					<div className="flex items-center gap-2 border-b border-border/70 px-5 py-2 text-xs text-muted-foreground sm:px-6">
 						<LoaderCircle className="size-3.5 animate-spin" />
@@ -1422,8 +1484,15 @@ export default function RequestDetailDialog({
 					</div>
 				) : null}
 
-				<div className={cn("overflow-y-auto p-5 sm:p-6", presentation === "sheet" ? "min-h-0 flex-1" : "max-h-[calc(90vh-110px)]")}>
-					<div className="space-y-6">
+				<ScrollArea
+					className={cn(
+						presentation === "sheet"
+							? "min-h-0 flex-1"
+							: "max-h-[calc(90vh-110px)]",
+					)}
+					viewportClassName="px-5 py-3 sm:px-6"
+				>
+					<div>
 						{!request.success && (request.error_code || request.error_message) ? (
 							<div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm">
 								<div className="mb-2 flex items-center gap-2 font-medium text-rose-900">
@@ -2531,8 +2600,8 @@ export default function RequestDetailDialog({
 							</div>
 						) : null}
 
-						<GenerationSection title="Overview">
-							<DetailKeyValueGrid columns={2} items={requestDetailItems} />
+						<GenerationSection title="Routing details">
+							<DetailRows items={routingDetailItems} />
 						</GenerationSection>
 
 						<GenerationSection title="Performance">
@@ -2549,24 +2618,25 @@ export default function RequestDetailDialog({
 							/>
 						</GenerationSection>
 
-						<GenerationSection title="Provider responses">
+						<GenerationSection title="Provider Responses">
 							<DetailTimingBar items={responseTimelineItems} />
 						</GenerationSection>
 
 						<GenerationSection title="Usage">
 							{usageMeters.length > 0 ? (
-								<DetailKeyValueGrid
-									columns={3}
-									items={usageMeters.map((meter) => ({
-										label: meter.label,
-										value: formatUsageNumber(meter.value),
-									}))}
-								/>
+								<div className="space-y-4">
+									{nativeUsageMeters.length > 0 ? <UsageGroup title="Native" meters={nativeUsageMeters} /> : null}
+									{internalUsageMeters.length > 0 ? <UsageGroup title="Internal measures" meters={internalUsageMeters} /> : null}
+								</div>
 							) : (
 								<div className="text-sm text-muted-foreground">
 									No usage metrics available.
 								</div>
 							)}
+						</GenerationSection>
+
+						<GenerationSection title="Data Policy">
+							<DetailRows items={dataPolicyItems} />
 						</GenerationSection>
 
 						{ioLog ? (
@@ -2587,6 +2657,10 @@ export default function RequestDetailDialog({
 							</GenerationSection>
 						) : null}
 
+						<GenerationSection title="Technical Details">
+							<DetailRows items={technicalDetailItems} />
+						</GenerationSection>
+
 						{request.pricing_lines.length > 0 ? (
 							<GenerationSection title="Pricing">
 								<div className="space-y-2">
@@ -2604,7 +2678,7 @@ export default function RequestDetailDialog({
 							</GenerationSection>
 						) : null}
 					</div>
-				</div>
+				</ScrollArea>
 		</>
 	);
 
@@ -2634,9 +2708,123 @@ export default function RequestDetailDialog({
 
 function GenerationSection({ title, children }: { title: string; children: React.ReactNode }) {
 	return (
-		<section className="border-b border-border/70 py-6 last:border-b-0">
-			<h2 className="mb-4 text-sm font-semibold text-foreground">{title}</h2>
+		<section className="border-b border-border/70 py-2 last:border-b-0">
+			<h2 className="mb-2 text-sm font-semibold text-foreground">{titleCaseLabel(title)}</h2>
 			{children}
 		</section>
+	);
+}
+
+function DetailRows({
+	items,
+}: {
+	items: Array<{ label: string; value: React.ReactNode; description?: string }>;
+}) {
+	return (
+		<div className="space-y-2">
+			{items.map((item) => (
+				<div
+					key={item.label}
+					className="grid min-h-6 min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-4"
+				>
+					<div className="flex items-center gap-1.5 text-[11px] leading-5 text-muted-foreground">
+						<span>{titleCaseLabel(item.label)}</span>
+						{item.description ? (
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<button type="button" className="inline-flex shrink-0 text-muted-foreground/70 hover:text-foreground" aria-label={`About ${item.label}`}>
+										<Info className="size-3" />
+									</button>
+								</TooltipTrigger>
+								<TooltipContent side="top" className="max-w-64 text-xs">
+									{item.description}
+								</TooltipContent>
+							</Tooltip>
+						) : null}
+					</div>
+					<div className="flex min-w-0 max-w-[18rem] justify-end break-words text-right text-sm font-medium text-foreground [&>div]:min-w-0 [&_code]:break-all">
+						{item.value}
+					</div>
+				</div>
+			))}
+		</div>
+	);
+}
+
+function titleCaseLabel(value: string): string {
+	return value.replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function humanizeValue(value: string): string {
+	return titleCaseLabel(value.replace(/[_-]+/g, " "));
+}
+
+function humanizeEndpoint(value: string): string {
+	return titleCaseLabel(
+		value
+			.replace(/^\/?v\d+\//i, "")
+			.replace(/[._/-]+/g, " ")
+			.trim(),
+	);
+}
+
+function ClientSourceIcon({ kind }: { kind: string }) {
+	const className = "size-3.5 shrink-0 text-muted-foreground";
+	if (kind === "coding_agent" || kind === "agent_sdk") return <Bot className={className} />;
+	if (kind === "sdk") return <Package className={className} />;
+	if (kind === "http_client") return <Terminal className={className} />;
+	return <Braces className={className} />;
+}
+
+function DataPolicyIcon({ policy }: { policy: unknown }) {
+	const normalized = normalizeProviderPromptTrainingPolicy(policy);
+	const className = "size-3.5 shrink-0 text-muted-foreground";
+	if (normalized === "may_train") return <GraduationCap className={className} />;
+	if (normalized === "no_train" || normalized === "enterprise_no_train") {
+		return <ShieldCheck className={className} />;
+	}
+	return <ShieldQuestion className={className} />;
+}
+
+function CopyableText({ value, ariaLabel }: { value: string; ariaLabel: string }) {
+	const [copied, setCopied] = React.useState(false);
+	const copy = React.useCallback(() => {
+		void navigator.clipboard
+			.writeText(value)
+			.then(() => {
+				setCopied(true);
+				window.setTimeout(() => setCopied(false), 1500);
+			})
+			.catch(() => setCopied(false));
+	}, [value]);
+
+	return (
+		<button
+			type="button"
+			onClick={copy}
+			className={cn(
+				"min-w-0 max-w-full truncate font-mono text-xs underline decoration-dotted underline-offset-4 transition-colors hover:text-foreground",
+				copied ? "text-emerald-500" : "text-foreground",
+			)}
+			title={copied ? "Copied" : "Click to copy"}
+			aria-label={ariaLabel}
+		>
+			{value}
+			<span className="sr-only" aria-live="polite">{copied ? "Copied" : ""}</span>
+		</button>
+	);
+}
+
+function UsageGroup({ title, meters }: { title: string; meters: UsageMeter[] }) {
+	return (
+		<div>
+			<h3 className="mb-2 text-xs font-medium text-foreground">{title}</h3>
+			<DetailRows
+				items={meters.map((meter) => ({
+					label: meter.label,
+					value: <span className="font-mono">{formatUsageNumber(meter.value)}</span>,
+				}))}
+			/>
+		</div>
 	);
 }

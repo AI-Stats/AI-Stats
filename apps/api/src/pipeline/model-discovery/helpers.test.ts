@@ -3,6 +3,7 @@ import {
 	assertSafeDiscoverySnapshot,
 	buildDiscordMessage,
 	buildProviderApiModelSnapshotDiff,
+	confirmModelRemovals,
 	collapseDiscordProviderChanges,
 	computeDiscordNotificationFingerprint,
 	extractDiscoveredModels,
@@ -314,6 +315,18 @@ describe("extractDiscoveredModels", () => {
 	});
 });
 
+describe("confirmModelRemovals", () => {
+	it("requires the model to be missing from two consecutive successful checks", () => {
+		expect(confirmModelRemovals(
+			["first-miss", "second-miss"],
+			new Set(["second-miss"]),
+		)).toEqual({
+			confirmed: ["second-miss"],
+			provisional: ["first-miss"],
+		});
+	});
+});
+
 describe("buildDiscordMessage", () => {
 	it("collapses regional and endpoint variants into provider families", () => {
 		const collapsed = collapseDiscordProviderChanges([
@@ -420,6 +433,56 @@ describe("extractProviderApiModelSnapshot pricing comparisons", () => {
 		);
 
 		expect(current.pricingFingerprint).not.toBe(previous.pricingFingerprint);
+		expect(buildProviderApiModelSnapshotDiff(previous, current)).toEqual([
+			"input: $0.2 → $0.25 / 1M tokens",
+		]);
+	});
+
+	it("formats multiple canonical meter changes without raw provider payloads", () => {
+		const previous = extractProviderApiModelSnapshot(
+			"openrouter",
+			{ pricing: { prompt: 0.0000005306, completion: 0.0000016676, input_cache_read: 0.00000009854 } },
+			null,
+		);
+		const current = extractProviderApiModelSnapshot(
+			"openrouter",
+			{ pricing: { prompt: 0.0000005166, completion: 0.0000016236, input_cache_read: 0.00000009594 } },
+			null,
+		);
+
+		expect(buildProviderApiModelSnapshotDiff(previous, current)).toEqual([
+			"cached input: $0.09854 → $0.09594 / 1M tokens",
+			"input: $0.5306 → $0.5166 / 1M tokens",
+			"output: $1.6676 → $1.6236 / 1M tokens",
+		]);
+	});
+
+	it("ignores unrelated benchmark changes in provider pricing payloads", () => {
+		const previous = extractProviderApiModelSnapshot(
+			"openrouter",
+			{
+				pricing: { prompt: 0.0000002, completion: 0.0000008 },
+				benchmarks: { design_arena: [{ win_rate: 40 }] },
+			},
+			{
+				pricing: { prompt: 0.0000002, completion: 0.0000008 },
+				benchmarks: { design_arena: [{ win_rate: 40 }] },
+			},
+		);
+		const current = extractProviderApiModelSnapshot(
+			"openrouter",
+			{
+				pricing: { prompt: 0.0000002, completion: 0.0000008 },
+				benchmarks: { design_arena: [{ win_rate: 41 }] },
+			},
+			{
+				pricing: { prompt: 0.0000002, completion: 0.0000008 },
+				benchmarks: { design_arena: [{ win_rate: 41 }] },
+			},
+		);
+
+		expect(current.pricingFingerprint).toBe(previous.pricingFingerprint);
+		expect(buildProviderApiModelSnapshotDiff(previous, current)).toEqual([]);
 	});
 
 	it("detects supplemental non-token price changes", () => {
@@ -435,6 +498,91 @@ describe("extractProviderApiModelSnapshot pricing comparisons", () => {
 		);
 
 		expect(current.pricingFingerprint).not.toBe(previous.pricingFingerprint);
+		expect(buildProviderApiModelSnapshotDiff(previous, current)).toEqual([
+			"per image unit: $0.04 → $0.05",
+		]);
+	});
+
+	it("ignores Hugging Face provider offer ordering and duplicate entries", () => {
+		const previous = extractProviderApiModelSnapshot(
+			"huggingface",
+			{
+				providers: [
+					{ provider: "together", pricing: { input: 1.74, output: 3.48 } },
+					{ provider: "novita", pricing: { input: 1.6, output: 3.2 } },
+				],
+			},
+			null,
+		);
+		const current = extractProviderApiModelSnapshot(
+			"huggingface",
+			{
+				providers: [
+					{ provider: "novita", pricing: { input: 1.6, output: 3.2 } },
+					{ provider: "together", pricing: { input: 1.74, output: 3.48 } },
+					{ provider: "together", pricing: { input: 1.74, output: 3.48 } },
+				],
+			},
+			null,
+		);
+
+		expect(current.pricingFingerprint).toBe(previous.pricingFingerprint);
+		expect(buildProviderApiModelSnapshotDiff(previous, current)).toEqual([]);
+	});
+
+	it("silently migrates legacy anonymous Hugging Face pricing snapshots", () => {
+		const current = extractProviderApiModelSnapshot(
+			"huggingface",
+			{
+				providers: [
+					{ provider: "novita", pricing: { input: 1.6, output: 3.2 } },
+					{ provider: "together", pricing: { input: 1.74, output: 3.48 } },
+				],
+			},
+			null,
+		);
+		const legacy = {
+			contextLength: null,
+			maxCompletionTokens: null,
+			pricingDetails: {
+				providers: [
+					{ pricing: { input: 1.6, output: 3.2 } },
+					{ pricing: { input: 1.74, output: 3.48 } },
+				],
+			},
+			pricingFingerprint: "legacy-fingerprint",
+		};
+
+		expect(buildProviderApiModelSnapshotDiff(legacy, current)).toEqual([]);
+	});
+
+	it("labels Hugging Face backend additions, removals, and price changes", () => {
+		const previous = extractProviderApiModelSnapshot(
+			"huggingface",
+			{
+				providers: [
+					{ provider: "deepinfra", pricing: { input: 1.3, output: 2.6 } },
+					{ provider: "together", pricing: { input: 1.74, output: 3.48 } },
+				],
+			},
+			null,
+		);
+		const current = extractProviderApiModelSnapshot(
+			"huggingface",
+			{
+				providers: [
+					{ provider: "novita", pricing: { input: 0.14, output: 0.4 } },
+					{ provider: "together", pricing: { input: 1.74, output: 3.5 } },
+				],
+			},
+			null,
+		);
+
+		expect(buildProviderApiModelSnapshotDiff(previous, current)).toEqual([
+			"deepinfra: removed (input $1.3, output $2.6 / 1M tokens)",
+			"novita: added (input $0.14, output $0.4 / 1M tokens)",
+			"together output: $3.48 → $3.5 / 1M tokens",
+		]);
 	});
 });
 

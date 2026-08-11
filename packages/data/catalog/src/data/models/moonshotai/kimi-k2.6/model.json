@@ -40,6 +40,14 @@
       "other_info": "940 puzzles",
       "source_link": "https://github.com/lechmazur/nyt-connections",
       "rank": 15
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 45.1,
+      "is_self_reported": false,
+      "other_info": "Kimi K2.6; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/kimi-k2-6",
+      "rank": 43
     }
   ],
   "page_notice": null,

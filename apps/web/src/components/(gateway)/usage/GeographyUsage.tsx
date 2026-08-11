@@ -29,6 +29,62 @@ export function GeographyUsage({
 	publicView?: boolean;
 }) {
 	const maxRequests = Math.max(1, ...rows.map((row) => row.requests));
+	if (publicView) {
+		if (rows.length === 0) {
+			return (
+				<p className="border-y border-border py-8 text-sm text-muted-foreground">
+					Country usage will appear after gateway requests include sufficient geographic metadata.
+				</p>
+			);
+		}
+
+		const split = Math.ceil(rows.length / 2);
+		const columns = [rows.slice(0, split), rows.slice(split)].filter((column) => column.length);
+		return (
+			<div className="grid gap-x-16 gap-y-1 border-y border-border py-4 md:grid-cols-2">
+				{columns.map((column, columnIndex) => (
+					<div key={`country-column-${columnIndex}`} className="space-y-1">
+						{column.map((row, rowIndex) => {
+							const position = columnIndex * split + rowIndex + 1;
+							const isCountry = /^[A-Z]{2}$/.test(row.countryCode);
+							const content = (
+								<>
+									<span className="relative flex size-7 items-center justify-center overflow-hidden rounded-md border bg-background">
+										{isCountry ? (
+											<Image src={`/flags/${row.countryCode.toLowerCase()}.svg`} alt="" fill className="object-cover" />
+										) : (
+											<Globe2 className="size-4 text-muted-foreground" />
+										)}
+									</span>
+									<div className="min-w-0">
+										<p className="truncate font-semibold underline decoration-transparent underline-offset-2 group-hover:decoration-current">
+											{countryName(row.countryCode)}
+										</p>
+										<p className="text-xs text-muted-foreground">{compact(row.requests)} requests</p>
+									</div>
+									<div className="text-right">
+										<p className="font-medium tabular-nums">{compact(row.tokens)} tokens</p>
+										<p className="text-xs tabular-nums text-muted-foreground">{(row.sharePercent ?? 0).toFixed(1)}%</p>
+									</div>
+								</>
+							);
+							return (
+								<div key={row.countryCode} className="grid min-h-14 grid-cols-[2rem_2rem_minmax(0,1fr)_auto] items-center gap-3 py-1.5">
+									<span className="tabular-nums text-muted-foreground">{position}.</span>
+									{isCountry ? (
+										<Link href={`/countries/${row.countryCode.toLowerCase()}`} className="group contents">
+											{content}
+										</Link>
+									) : content}
+								</div>
+							);
+						})}
+					</div>
+				))}
+			</div>
+		);
+	}
+
 	return (
 		<div className="overflow-hidden rounded-xl border bg-card">
 			{rows.length === 0 ? (
@@ -78,3 +134,6 @@ export function GeographyUsage({
 		</div>
 	);
 }
+import Image from "next/image";
+import Link from "next/link";
+import { Globe2 } from "lucide-react";

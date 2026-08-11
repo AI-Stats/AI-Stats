@@ -76,6 +76,21 @@ describe("normalizeIRForProvider", () => {
 		expect(normalized.reasoning?.effort).toBe("max");
 	});
 
+	it("preserves minimal effort for Google provider execution", () => {
+		const ir = baseIr({
+			model: "google/gemma-4-26b-a4b:free",
+			reasoning: { effort: "minimal" },
+		});
+
+		const normalized = normalizeIRForProvider(
+			ir,
+			"google-ai-studio",
+			"openai.chat.completions",
+			{ modelForReasoning: "gemma-4-26b-a4b-it" },
+		);
+		expect(normalized.reasoning?.effort).toBe("minimal");
+	});
+
 	it("defaults OpenAI anthropic.messages requests to minimal reasoning", () => {
 		const ir = baseIr({
 			model: "openai/gpt-5-nano",

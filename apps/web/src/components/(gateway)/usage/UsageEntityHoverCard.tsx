@@ -49,7 +49,7 @@ export default function UsageEntityHoverCard({
 	const trigger = React.cloneElement(children, {
 		className: cn(
 			children.props.className,
-			"cursor-help underline decoration-dotted decoration-muted-foreground/80 underline-offset-4 transition-colors hover:text-primary hover:decoration-current",
+			"cursor-help text-foreground no-underline decoration-1 decoration-foreground underline-offset-2 hover:underline hover:decoration-foreground",
 		),
 	} as React.HTMLAttributes<HTMLElement>);
 

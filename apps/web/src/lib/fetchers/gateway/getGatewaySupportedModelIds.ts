@@ -23,4 +23,5 @@ export type GatewaySupportedModel = {
 	releaseDate: string | null;
 	announcementDate: string | null;
 	isAvailable: boolean;
+	chatBlockedReasons?: Array<{ source: "workspace" | "account" | "guardrail"; label: string; settingsHref: string }>;
 };

@@ -9,16 +9,38 @@ describe("public provider routes", () => {
 	it("returns the enriched provider index with stable caching", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
-			if (url.includes("v2_providers")) return new Response(JSON.stringify([{ provider_slug: "openai", name: "OpenAI", country_code: "US", lab_slug: "openai", status: "active", routable: true, routing_enabled: true, metadata: { colour: "#000", provider_family_id: "openai", offer_scope: "global" } }]), { status: 200 });
-			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([{ provider_slug: "openai", model_slug: "openai/gpt-test:free", provider_model_id: "pm-1", provider_model_slug: "gpt-test", routing_enabled: true, status: "active", effective_from: "2026-01-01T00:00:00Z", effective_to: null, input_modalities: ["text", "image"], output_modalities: ["text"] }]), { status: 200 });
-			if (url.includes("v2_web_public_usage_hourly")) return new Response(JSON.stringify([{ bucket_15m: new Date().toISOString(), provider: "openai", requests: 10, total_tokens: 100 }]), { status: 200 });
-			if (url.includes("v2_models")) return new Response(JSON.stringify([{ model_slug: "openai/gpt-test:free", input_modalities: ["text", "image"], output_modalities: ["text"], variant_kind: "free" }]), { status: 200 });
+			if (url.includes("get_public_provider_index")) return new Response(JSON.stringify([{
+				provider_slug: "openai", provider_name: "OpenAI", colour: "#000", country_code: "US",
+				provider_family_id: "openai", offer_label: null, offer_scope: "global", is_gateway_provider: true,
+				prompt_training_policy: "no_train", data_policy_tier: "private", zero_data_retention: "optional",
+				privacy_policy_url: "https://openai.com/policies/privacy-policy/", terms_of_service_url: "https://openai.com/policies/services-agreement/",
+				total_model_ids: ["openai/gpt-test:free"], active_model_ids: ["openai/gpt-test:free"], free_model_ids: ["openai/gpt-test:free"],
+				requests_24h: 10, tokens_24h: 100, tokens_30d: 100, last_updated_at: "2026-01-01T00:00:00Z",
+				text_input_model_ids: ["openai/gpt-test:free"], text_output_model_ids: ["openai/gpt-test:free"],
+				image_input_model_ids: ["openai/gpt-test:free"], image_output_model_ids: [],
+				video_input_model_ids: [], video_output_model_ids: [], audio_input_model_ids: [], audio_output_model_ids: [],
+				moderation_input_model_ids: [], moderation_output_model_ids: [], embedding_input_model_ids: [], embedding_output_model_ids: [],
+			}]), { status: 200 });
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
 		const response = await app.request("https://phaseo.app/api/_web/api-providers", {}, env);
 		expect(response.status).toBe(200);
-		expect(response.headers.get("cloudflare-cdn-cache-control")).toBe("public, max-age=86400, stale-while-revalidate=604800");
-		await expect(response.json()).resolves.toMatchObject({ providers: [{ api_provider_id: "openai", api_provider_name: "OpenAI", total_models: 1, active_models: 1, free_models: 1, total_daily_tokens: 100, total_monthly_tokens: 100, modality_support: { text: { input: 1, output: 1 }, image: { input: 1, output: 0 } } }] });
+		expect(response.headers.get("cloudflare-cdn-cache-control")).toBe("public, max-age=900, stale-while-revalidate=900");
+		await expect(response.json()).resolves.toMatchObject({ providers: [{ api_provider_id: "openai", api_provider_name: "OpenAI", prompt_training_policy: "no_train", zero_data_retention: "optional", privacy_policy_url: "https://openai.com/policies/privacy-policy/", terms_of_service_url: "https://openai.com/policies/services-agreement/", total_models: 1, active_models: 1, free_models: 1, total_daily_tokens: 100, total_monthly_tokens: 100, modality_support: { text: { input: 1, output: 1 }, image: { input: 1, output: 0 } } }] });
+	});
+
+	it("loads the provider index through one aggregate RPC without raw catalogue reads", async () => {
+		const requestedUrls: string[] = [];
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			requestedUrls.push(url);
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request("https://phaseo.app/api/_web/api-providers", {}, env);
+		expect(response.status).toBe(200);
+		expect(requestedUrls.filter((url) => url.includes("get_public_provider_index"))).toHaveLength(1);
+		expect(requestedUrls.some((url) => url.includes("v2_model_provider_routes") || url.includes("v2_models") || url.includes("v2_providers"))).toBe(false);
 	});
 
 	it("returns parity-shaped top model and app telemetry with the short edge policy", async () => {

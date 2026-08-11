@@ -96,6 +96,14 @@
       "other_info": "DeepPlanning v1.1 | SpaceXAI/Grok-4.1-fast (non-reasoning)",
       "source_link": "https://qwenlm.github.io/Qwen-Agent/en/benchmarks/deepplanning/",
       "rank": 3
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 16.6,
+      "is_self_reported": false,
+      "other_info": "Grok 4 Fast (Non-reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/grok-4-fast",
+      "rank": 283
     }
   ],
   "family_id": null,

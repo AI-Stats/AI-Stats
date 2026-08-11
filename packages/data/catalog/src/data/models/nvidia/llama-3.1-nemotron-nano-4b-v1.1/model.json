@@ -71,6 +71,14 @@
       "other_info": "inferred high-confidence family alias from llama-3.1-nemotron-nano-8b-v1 (score=0.5523; benches=7)",
       "source_link": "https://build.nvidia.com/nvidia/llama-3_1-nemotron-nano-8b-v1/modelcard",
       "rank": 16
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 8.4,
+      "is_self_reported": false,
+      "other_info": "Llama 3.1 Nemotron Nano 4B v1.1 (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/llama-3-1-nemotron-nano-4b-reasoning",
+      "rank": 416
     }
   ],
   "family_id": null,

@@ -16,7 +16,22 @@ const UPDATES_CACHE: PublicCachePolicy = {
 const IDENTITY_CACHE: PublicCachePolicy = { edgeTtlSeconds: 24 * 60 * 60, staleWhileRevalidateSeconds: 7 * 24 * 60 * 60, cacheTags: ["web-api-providers"] };
 const MODALITIES = ["text", "image", "video", "audio", "moderation", "embedding"] as const;
 type Modality = typeof MODALITIES[number];
-type Variant = { id: string; name: string; colour: string | null; country: string; family: string | null; offerLabel: string | null; offerScope: string | null; totalIds: string[]; activeIds: string[]; freeIds: string[]; dailyRequests: number; dailyTokens: number; monthlyTokens: number; updatedAt: string | null; modalities: Record<Modality, { input: string[]; output: string[] }> };
+type Variant = { id: string; name: string; colour: string | null; country: string; family: string | null; offerLabel: string | null; offerScope: string | null; isGatewayProvider: boolean; promptTrainingPolicy: string | null; dataPolicyTier: string | null; zeroDataRetention: string | null; privacyPolicyUrl: string | null; termsOfServiceUrl: string | null; totalIds: string[]; activeIds: string[]; freeIds: string[]; dailyRequests: number; dailyTokens: number; monthlyTokens: number; updatedAt: string | null; modalities: Record<Modality, { input: string[]; output: string[] }> };
+type ProviderIndexRpcRow = {
+	provider_slug: string; provider_name: string; colour: string | null; country_code: string | null;
+	provider_family_id: string | null; offer_label: string | null; offer_scope: string | null; is_gateway_provider: boolean;
+	prompt_training_policy: string | null; data_policy_tier: string | null; zero_data_retention: string | null;
+	privacy_policy_url: string | null; terms_of_service_url: string | null;
+	total_model_ids: string[] | null; active_model_ids: string[] | null; free_model_ids: string[] | null;
+	requests_24h: number | string | null; tokens_24h: number | string | null; tokens_30d: number | string | null;
+	last_updated_at: string | null;
+	text_input_model_ids: string[] | null; text_output_model_ids: string[] | null;
+	image_input_model_ids: string[] | null; image_output_model_ids: string[] | null;
+	video_input_model_ids: string[] | null; video_output_model_ids: string[] | null;
+	audio_input_model_ids: string[] | null; audio_output_model_ids: string[] | null;
+	moderation_input_model_ids: string[] | null; moderation_output_model_ids: string[] | null;
+	embedding_input_model_ids: string[] | null; embedding_output_model_ids: string[] | null;
+};
 
 function providerPolicy(base: PublicCachePolicy, providerId: string): PublicCachePolicy {
 	return { ...base, cacheTags: [...(base.cacheTags ?? []), `web-api-provider-${providerId}`.slice(0, 128)] };
@@ -71,37 +86,44 @@ function providerCards(variants: Variant[]) {
 		const representative = group.find((item) => item.id === key) ?? [...group].sort((a, b) => (a.offerScope === "global" ? 0 : 1) - (b.offerScope === "global" ? 0 : 1) || a.id.localeCompare(b.id))[0];
 		const modalitySupport = Object.fromEntries(MODALITIES.map((name) => [name, { input: new Set(group.flatMap((item) => item.modalities[name].input)).size, output: new Set(group.flatMap((item) => item.modalities[name].output)).size }]));
 		const groupRequests = group.reduce((sum, item) => sum + Math.max(0, item.dailyRequests), 0);
-		return { api_provider_id: representative.id, api_provider_name: ["anthropic-aws", "anthropic-aws-us"].includes(representative.id) ? "Anthropic on AWS" : representative.name, colour: representative.colour, country_code: representative.country, last_updated_at: latest(group.map((item) => item.updatedAt)), total_models: new Set(group.flatMap((item) => item.totalIds)).size, active_models: new Set(group.flatMap((item) => item.activeIds)).size, free_models: new Set(group.flatMap((item) => item.freeIds)).size, total_daily_tokens: group.reduce((sum, item) => sum + Math.max(0, item.dailyTokens), 0), total_monthly_tokens: group.reduce((sum, item) => sum + Math.max(0, item.monthlyTokens), 0), daily_share_pct: totalDailyRequests ? groupRequests / totalDailyRequests * 100 : 0, modality_support: modalitySupport };
+		return { api_provider_id: representative.id, api_provider_name: ["anthropic-aws", "anthropic-aws-us"].includes(representative.id) ? "Anthropic on AWS" : representative.name, colour: representative.colour, country_code: representative.country, is_gateway_provider: group.some((item) => item.isGatewayProvider), prompt_training_policy: representative.promptTrainingPolicy, data_policy_tier: representative.dataPolicyTier, zero_data_retention: representative.zeroDataRetention, privacy_policy_url: representative.privacyPolicyUrl, terms_of_service_url: representative.termsOfServiceUrl, last_updated_at: latest(group.map((item) => item.updatedAt)), total_models: new Set(group.flatMap((item) => item.totalIds)).size, active_models: new Set(group.flatMap((item) => item.activeIds)).size, free_models: new Set(group.flatMap((item) => item.freeIds)).size, total_daily_tokens: group.reduce((sum, item) => sum + Math.max(0, item.dailyTokens), 0), total_monthly_tokens: group.reduce((sum, item) => sum + Math.max(0, item.monthlyTokens), 0), daily_share_pct: totalDailyRequests ? groupRequests / totalDailyRequests * 100 : 0, modality_support: modalitySupport };
 	});
 }
 
 async function providerIndex(env: Env) {
-	const client = getDataClient(env); const now = new Date(); const since = new Date(now.getTime() - 30 * 86_400_000).toISOString();
-	const [providersResult, mappingsResult, modelsResult] = await Promise.all([
-		client.from("v2_providers").select("provider_slug,name,country_code,lab_slug,status,routable,routing_enabled,metadata").order("name", { ascending: true }),
-		client.from("v2_model_provider_routes").select("provider_slug,model_slug,provider_model_id,provider_model_slug,routing_enabled,status,effective_from,effective_to,input_modalities,output_modalities,updated_at"),
-		client.from("v2_models").select("model_slug,input_modalities,output_modalities,variant_kind").eq("hidden", false),
-	]);
-	if (providersResult.error || mappingsResult.error) throw providersResult.error ?? mappingsResult.error;
-	if (modelsResult.error) throw modelsResult.error;
-	const mappings = mappingsResult.data ?? [];
-	const canonical = new Map((modelsResult.data ?? []).map((row) => [row.model_slug, row]));
-	const rollups: Array<Record<string, unknown>> = [];
-	for (let offset = 0, page = 0; page < 8; page += 1, offset += 5000) { const result = await client.from("v2_web_public_usage_hourly").select("bucket_15m,provider,requests,total_tokens").gte("bucket_15m", since).lte("bucket_15m", now.toISOString()).range(offset, offset + 4999); if (result.error) { if (!missingRelation(result.error)) throw result.error; break; } const rows = result.data ?? []; rollups.push(...rows); if (rows.length < 5000) break; }
-	const total = new Map<string, Set<string>>(); const active = new Map<string, Set<string>>(); const free = new Map<string, Set<string>>(); const updated = new Map<string, string | null>(); const input = new Map<string, Record<Modality, Set<string>>>(); const output = new Map<string, Record<Modality, Set<string>>>();
-	const modalitySets = () => Object.fromEntries(MODALITIES.map((key) => [key, new Set<string>()])) as Record<Modality, Set<string>>;
-	for (const row of mappings) {
-		const provider = String(row.provider_slug ?? "").trim(); const modelKey = String(row.model_slug ?? "").trim(); if (!provider || !modelKey) continue;
-		total.set(provider, new Set([...(total.get(provider) ?? []), modelKey])); updated.set(provider, latest([updated.get(provider) ?? null, row.updated_at ?? row.effective_from ?? row.effective_to ?? null]));
-		const canonicalModel = canonical.get(modelKey); const inputs = stringList(row.input_modalities).length ? stringList(row.input_modalities) : stringList(canonicalModel?.input_modalities); const outputs = stringList(row.output_modalities).length ? stringList(row.output_modalities) : stringList(canonicalModel?.output_modalities);
-		const inputSets = input.get(provider) ?? modalitySets(); const outputSets = output.get(provider) ?? modalitySets(); for (const value of inputs) { const key = modality(value); if (key) inputSets[key].add(modelKey); } for (const value of outputs) { const key = modality(value); if (key) outputSets[key].add(modelKey); } input.set(provider, inputSets); output.set(provider, outputSets);
-		if (canonicalModel?.variant_kind === "free" || modelKey.toLowerCase().endsWith(":free")) free.set(provider, new Set([...(free.get(provider) ?? []), modelKey]));
-		if (row.routing_enabled && ["active", "degraded"].includes(String(row.status)) && (!row.effective_from || timeValue(row.effective_from) <= now.getTime()) && (!row.effective_to || timeValue(row.effective_to) > now.getTime())) active.set(provider, new Set([...(active.get(provider) ?? []), modelKey]));
-	}
-	const dailyRequests = new Map<string, number>(); const dailyTokens = new Map<string, number>(); const monthlyTokens = new Map<string, number>(); const dayStart = now.getTime() - 86_400_000;
-	for (const row of rollups) { const provider = String(row.provider ?? "").trim(); if (!provider) continue; const tokens = numeric(row.total_tokens); monthlyTokens.set(provider, (monthlyTokens.get(provider) ?? 0) + tokens); updated.set(provider, latest([updated.get(provider) ?? null, String(row.bucket_15m ?? "") || null])); if (timeValue(row.bucket_15m) >= dayStart) { dailyRequests.set(provider, (dailyRequests.get(provider) ?? 0) + numeric(row.requests)); dailyTokens.set(provider, (dailyTokens.get(provider) ?? 0) + tokens); } }
-	const hidden = new Set(["inception", "inceptron", "nextbit"]);
-	const variants: Variant[] = (providersResult.data ?? []).filter((row) => row.provider_slug && !hidden.has(row.provider_slug.toLowerCase())).map((row) => { const id = row.provider_slug; const inputSets = input.get(id) ?? modalitySets(); const outputSets = output.get(id) ?? modalitySets(); const details = row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata) ? row.metadata as Record<string, unknown> : {}; return { id, name: row.name ?? "", colour: typeof details.colour === "string" ? details.colour : null, country: row.country_code ?? "", family: typeof details.provider_family_id === "string" ? details.provider_family_id : row.lab_slug ?? null, offerLabel: typeof details.offer_label === "string" ? details.offer_label : null, offerScope: typeof details.offer_scope === "string" ? details.offer_scope : null, totalIds: Array.from(total.get(id) ?? []), activeIds: Array.from(active.get(id) ?? []), freeIds: Array.from(free.get(id) ?? []), dailyRequests: dailyRequests.get(id) ?? 0, dailyTokens: dailyTokens.get(id) ?? 0, monthlyTokens: monthlyTokens.get(id) ?? 0, updatedAt: updated.get(id) ?? null, modalities: Object.fromEntries(MODALITIES.map((key) => [key, { input: Array.from(inputSets[key]), output: Array.from(outputSets[key]) }])) as Variant["modalities"] }; });
+	const result = await getDataClient(env).rpc("get_public_provider_index");
+	if (result.error) throw result.error;
+	const rows = (result.data ?? []) as ProviderIndexRpcRow[];
+	const variants: Variant[] = rows.map((row) => ({
+		id: row.provider_slug,
+		name: row.provider_name,
+		colour: row.colour,
+		country: row.country_code ?? "",
+		family: row.provider_family_id,
+		offerLabel: row.offer_label,
+		offerScope: row.offer_scope,
+		isGatewayProvider: row.is_gateway_provider,
+		promptTrainingPolicy: row.prompt_training_policy,
+		dataPolicyTier: row.data_policy_tier,
+		zeroDataRetention: row.zero_data_retention,
+		privacyPolicyUrl: row.privacy_policy_url,
+		termsOfServiceUrl: row.terms_of_service_url,
+		totalIds: row.total_model_ids ?? [],
+		activeIds: row.active_model_ids ?? [],
+		freeIds: row.free_model_ids ?? [],
+		dailyRequests: numeric(row.requests_24h),
+		dailyTokens: numeric(row.tokens_24h),
+		monthlyTokens: numeric(row.tokens_30d),
+		updatedAt: row.last_updated_at,
+		modalities: {
+			text: { input: row.text_input_model_ids ?? [], output: row.text_output_model_ids ?? [] },
+			image: { input: row.image_input_model_ids ?? [], output: row.image_output_model_ids ?? [] },
+			video: { input: row.video_input_model_ids ?? [], output: row.video_output_model_ids ?? [] },
+			audio: { input: row.audio_input_model_ids ?? [], output: row.audio_output_model_ids ?? [] },
+			moderation: { input: row.moderation_input_model_ids ?? [], output: row.moderation_output_model_ids ?? [] },
+			embedding: { input: row.embedding_input_model_ids ?? [], output: row.embedding_output_model_ids ?? [] },
+		},
+	}));
 	return providerCards(variants);
 }
 
@@ -317,7 +339,7 @@ async function recentModels(env: Env, providerId: string, since: string | null, 
 export const publicProvidersRouter = new Hono<{ Bindings: Env }>();
 
 publicProvidersRouter.get("/", async (c) => {
-	try { return withPublicCache(c.json({ providers: await providerIndex(c.env) }), IDENTITY_CACHE); }
+	try { return withPublicCache(c.json({ providers: await providerIndex(c.env) }), TELEMETRY_CACHE); }
 	catch (error) { console.error("[web-api/providers] index failed", error); return c.json({ error: "providers_unavailable" }, 503); }
 });
 

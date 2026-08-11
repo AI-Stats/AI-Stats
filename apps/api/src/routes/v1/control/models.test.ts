@@ -26,6 +26,7 @@ function buildCatalogueModel(overrides: Record<string, unknown> = {}) {
         variant_kind: "standard",
         previous_model_id: null,
         name: "GPT-4o Mini",
+        description: "A compact model for fast text generation.",
         release_date: "2026-01-01",
         deprecation_date: null,
         retirement_date: null,
@@ -76,10 +77,12 @@ function buildCatalogueModel(overrides: Record<string, unknown> = {}) {
         provider_pricing: {},
         provider_endpoint_pricing: {},
         provider_endpoint_capabilities: {},
+        details: {},
         availability: {
             status: "active",
             provider_count: 1,
             active_provider_count: 1,
+            coming_soon_provider_count: 0,
             inactive_provider_count: 0,
         },
         ...overrides,
@@ -150,7 +153,7 @@ describe("handleModels", () => {
         });
     });
 
-    it("returns structured supported parameter metadata alongside legacy parameter arrays", async () => {
+    it("returns structured Phaseo capabilities and provider offers", async () => {
         const response = await handleModels(
             new Request("https://api.example.com/"),
             "shared",
@@ -161,43 +164,62 @@ describe("handleModels", () => {
             ok: true,
             models: [
                 {
-                    model_id: "openai/gpt-4o-mini",
-                    supported_parameters: ["temperature"],
-                    supported_params_detail: {
-                        temperature: {
-                            supported: true,
-                            range: [0, 2],
-                            providers: ["openai"],
-                        },
-                    },
-                    supported_parameters_detail: {
-                        temperature: {
-                            supported: true,
-                            range: [0, 2],
-                            providers: ["openai"],
-                        },
-                    },
-                    providers: [
-                        {
-                            api_provider_id: "openai",
-                            params: ["temperature"],
-                            supported_parameters: ["temperature"],
-                            params_detail: {
-                                temperature: {
-                                    supported: true,
-                                    range: [0, 2],
-                                },
+                    id: "openai/gpt-4o-mini",
+                    description: "A compact model for fast text generation.",
+                    capabilities: {
+                        parameters: ["temperature"],
+                        parameter_details: {
+                            temperature: {
+                                supported: true,
+                                range: [0, 2],
+                                providers: ["openai"],
                             },
-                            supported_parameters_detail: {
+                        },
+                    },
+                    offers: [{
+                        provider: { id: "openai", name: "OpenAI" },
+                        capabilities: {
+                            parameters: ["temperature"],
+                            parameter_details: {
                                 temperature: {
                                     supported: true,
                                     range: [0, 2],
                                 },
                             },
                         },
-                    ],
+                    }],
                 },
             ],
+        });
+    });
+
+    it("returns context limits from canonical model details", async () => {
+        fetchCatalogueMock.mockResolvedValue([buildCatalogueModel({
+            details: { input_context_length: 128000, output_context_length: 16384 },
+        })]);
+
+        const response = await handleModels(new Request("https://api.example.com/"));
+
+        expect(response.status).toBe(200);
+        await expect(response.json()).resolves.toMatchObject({
+            models: [{ limits: { input_tokens: 128000, output_tokens: 16384 } }],
+        });
+    });
+
+    it("rejects empty and non-positive context-limit details", async () => {
+        fetchCatalogueMock.mockResolvedValue([buildCatalogueModel({
+            details: {
+                input_context_length: null,
+                context_length: "",
+                output_context_length: -1,
+            },
+        })]);
+
+        const response = await handleModels(new Request("https://api.example.com/"));
+
+        expect(response.status).toBe(200);
+        await expect(response.json()).resolves.toMatchObject({
+            models: [{ limits: { input_tokens: null, output_tokens: null } }],
         });
     });
 
@@ -273,45 +295,29 @@ describe("handleModels", () => {
             ok: true,
             models: [
                 {
-                    model_id: "spacex-ai/grok-tts",
-                    supported_parameters: ["response_format", "voice"],
-                    supported_params_detail: {
-                        voice: {
-                            supported: true,
-                            type: "enum",
-                            values: ["aurora", "cedar", "orion"],
-                            default: "aurora",
-                            providers: ["spacex-ai"],
-                        },
-                    },
-                    supported_parameters_detail: {
-                        voice: {
-                            supported: true,
-                            type: "enum",
-                            values: ["aurora", "cedar", "orion"],
-                            default: "aurora",
-                            providers: ["spacex-ai"],
-                        },
-                    },
-                    providers: [
-                        {
-                            api_provider_id: "spacex-ai",
-                            params: ["response_format", "voice"],
-                            supported_parameters: ["response_format", "voice"],
-                            params_detail: {
-                                voice: {
-                                    supported: true,
-                                    values: ["aurora", "cedar", "orion"],
-                                },
+                    id: "spacex-ai/grok-tts",
+                    capabilities: {
+                        parameters: ["response_format", "voice"],
+                        parameter_details: {
+                            voice: {
+                                supported: true,
+                                values: ["aurora", "cedar", "orion"],
+                                providers: ["spacex-ai"],
                             },
-                            supported_parameters_detail: {
+                        },
+                    },
+                    offers: [{
+                        provider: { id: "spacex-ai" },
+                        capabilities: {
+                            parameters: ["response_format", "voice"],
+                            parameter_details: {
                                 voice: {
                                     supported: true,
                                     values: ["aurora", "cedar", "orion"],
                                 },
                             },
                         },
-                    ],
+                    }],
                 },
             ],
         });
@@ -389,40 +395,31 @@ describe("handleModels", () => {
             ok: true,
             models: [
                 {
-                    model_id: "openai/sora",
-                    endpoints: ["video.generate"],
-                    supported_parameters: ["duration", "resolution"],
-                    supported_params_detail: {
-                        resolution: {
-                            supported: true,
-                            type: "enum",
-                            values: ["720p", "1080p"],
-                            default: "720p",
-                            providers: ["openai"],
+                    id: "openai/sora",
+                    capabilities: {
+                        endpoints: ["video.generate"],
+                        parameters: ["duration", "resolution"],
+                        parameter_details: {
+                            resolution: {
+                                supported: true,
+                                values: ["720p", "1080p"],
+                                providers: ["openai"],
+                            },
                         },
                     },
-                    supported_parameters_detail: {
-                        duration: {
-                            supported: true,
-                            type: "enum",
-                            values: [4, 8, 12],
-                            default: 4,
-                            providers: ["openai"],
-                        },
-                    },
-                    providers: [
-                        {
-                            api_provider_id: "openai",
-                            endpoints: ["video.generate"],
-                            supported_parameters: ["duration", "resolution"],
-                            supported_parameters_detail: {
+                    offers: [{
+                        provider: { id: "openai" },
+                        endpoints: ["video.generate"],
+                        capabilities: {
+                            parameters: ["duration", "resolution"],
+                            parameter_details: {
                                 resolution: {
                                     supported: true,
                                     values: ["720p", "1080p"],
                                 },
                             },
                         },
-                    ],
+                    }],
                 },
             ],
         });
@@ -491,42 +488,22 @@ describe("handleModels", () => {
             total: 2,
             models: [
                 {
-                    model_id: "phaseo/free",
+                    id: "phaseo/free",
                     name: "Phaseo Free Router",
-                    providers: [
-                        {
-                            api_provider_id: "openai",
-                            params: ["temperature", "top_p"],
-                        },
-                    ],
-                    supported_params_detail: {
-                        temperature: {
-                            supported: true,
-                            range: [0, 2],
-                            providers: ["openai"],
-                        },
-                        top_p: {
-                            supported: true,
-                            providers: ["openai"],
-                        },
-                    },
-                    supported_parameters_detail: {
-                        temperature: {
-                            supported: true,
-                            range: [0, 2],
-                            providers: ["openai"],
-                        },
-                        top_p: {
-                            supported: true,
-                            providers: ["openai"],
-                        },
+                    capabilities: {
+                        parameters: ["temperature", "top_p"],
                     },
                     pricing: {
-                        prompt: "0",
+                        meters: {
+                            input_text_tokens: {
+                                provider_id: "openai",
+                                price_per_unit: "0",
+                            },
+                        },
                     },
                 },
                 {
-                    model_id: "openai/gpt-free-b",
+                    id: "openai/gpt-free-b",
                 },
             ],
         });
@@ -558,7 +535,7 @@ describe("handleModels", () => {
             total: 1,
             models: [
                 {
-                    model_id: "openai/gpt-4o-mini",
+                    id: "openai/gpt-4o-mini",
                 },
             ],
         });
@@ -607,17 +584,16 @@ describe("handleModels", () => {
             availability_mode: "all",
             models: [
                 {
-                    model_id: "openai/gpt-4o-mini",
+                    id: "openai/gpt-4o-mini",
                     availability: {
                         status: "coming_soon",
                     },
-                    providers: [
+                    offers: [
                         {
-                            api_provider_id: "openai",
-                            availability_status: "coming_soon",
-                            availability_reason: "scheduled",
-                            provider_status: "beta",
-                            capability_status: "internal_testing",
+                            provider: { id: "openai" },
+                            status: "coming_soon",
+                            status_reason: "scheduled",
+                            routing: { capability: "internal_testing" },
                         },
                     ],
                 },
@@ -762,13 +738,11 @@ describe("handleModels", () => {
                 endpoint: "responses",
                 public_path: "/v1/responses",
                 collection: "text",
-                provider_id: "provider-a",
-                provider_model_slug: "multimodal-v1",
-                input_modalities: ["text"],
-                output_modalities: ["text"],
-                supported_parameters: ["temperature"],
-                pricing: expect.objectContaining({ prompt: "0.0005" }),
-                pricing_detail: expect.objectContaining({
+                provider: { id: "provider-a", name: "Provider A" },
+                model: "multimodal-v1",
+                modalities: { input: ["text"], output: ["text"] },
+                capabilities: expect.objectContaining({ parameters: ["temperature"] }),
+                pricing: expect.objectContaining({
                     meters: expect.objectContaining({
                         input_tokens: expect.objectContaining({ provider_id: "provider-a" }),
                     }),
@@ -817,10 +791,10 @@ describe("handleModels", () => {
         await expect(response.json()).resolves.toMatchObject({
             availability_mode: "all",
             endpoints: [{
-                availability_status: "coming_soon",
-                availability_reason: "scheduled",
-                capability_status: "coming_soon",
-                is_active_gateway: false,
+                status: "coming_soon",
+                status_reason: "scheduled",
+                routing: { capability: "coming_soon" },
+                routable: false,
             }],
         });
     });
@@ -922,7 +896,7 @@ describe("handleModels", () => {
             total: 1,
             models: [
                 {
-                    model_id: "anthropic/claude-sonnet-4",
+                    id: "anthropic/claude-sonnet-4",
                     name: "Claude Sonnet 4",
                 },
             ],
@@ -938,14 +912,13 @@ describe("handleModels", () => {
         expect(response.status).toBe(200);
         await expect(response.json()).resolves.toMatchObject({
             ok: true,
-            privacy_scope: "shared",
             total: 1,
             models: [
                 {
-                    model_id: "openai/gpt-4o-mini",
+                    id: "openai/gpt-4o-mini",
                     name: "GPT-4o Mini",
                     base_model_id: "openai/gpt-4o-mini",
-                    variant_kind: "standard",
+                    variant: "standard",
                     variants: {
                         standard: {
                             model_id: "openai/gpt-4o-mini",
@@ -979,16 +952,16 @@ describe("handleModels", () => {
         expect(body.models).toHaveLength(2);
         expect(body.models).toEqual(expect.arrayContaining([
             expect.objectContaining({
-                model_id: "poolside/laguna-s-2.1",
-                variant_kind: "standard",
+                id: "poolside/laguna-s-2.1",
+                variant: "standard",
                 variants: {
                     standard: { model_id: "poolside/laguna-s-2.1", name: "Laguna S 2.1" },
                     free: { model_id: "poolside/laguna-s-2.1:free", name: "Laguna S 2.1 (Free)" },
                 },
             }),
             expect.objectContaining({
-                model_id: "poolside/laguna-s-2.1:free",
-                variant_kind: "free",
+                id: "poolside/laguna-s-2.1:free",
+                variant: "free",
                 variants: {
                     standard: { model_id: "poolside/laguna-s-2.1", name: "Laguna S 2.1" },
                     free: { model_id: "poolside/laguna-s-2.1:free", name: "Laguna S 2.1 (Free)" },

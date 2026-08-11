@@ -90,19 +90,19 @@ export function PerformanceLandscapePanel({
 							type="button"
 							variant="outline"
 							size="sm"
-							className="h-9 w-32 justify-between rounded-lg px-4 font-normal text-muted-foreground" />}>
+							className="h-9 min-w-36 shrink-0 justify-between whitespace-nowrap rounded-md px-4 font-normal text-muted-foreground" />}>
 
 							{rangeLabel(range)}
 							<ChevronDown className="ml-2 h-4 w-4 opacity-60" />
 
 					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="min-w-32 rounded-lg">
+					<DropdownMenuContent align="end" className="w-max min-w-40 rounded-md">
 						{RANGE_OPTIONS.map((option) => (
 							<DropdownMenuItem
 								key={option.key}
 								disabled={!resolvedDataByRange[option.key]?.length}
 								onClick={() => setRange(option.key)}
-								className="justify-between gap-6 rounded-lg"
+								className="justify-between gap-6 whitespace-nowrap rounded-md"
 							>
 								<span>{option.label}</span>
 								<span className="flex h-4 w-4 items-center justify-center">
@@ -120,18 +120,18 @@ export function PerformanceLandscapePanel({
 						type="button"
 						variant="outline"
 						size="sm"
-						className="h-9 w-36 justify-between rounded-lg px-4 font-normal text-muted-foreground" />}>
+						className="h-9 min-w-40 shrink-0 justify-between whitespace-nowrap rounded-md px-4 font-normal text-muted-foreground" />}>
 
 						{modeLabel(mode)}
 						<ChevronDown className="ml-2 h-4 w-4 opacity-60" />
 
 				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end" className="min-w-36 rounded-lg">
+				<DropdownMenuContent align="end" className="w-max min-w-44 rounded-md">
 					{MODE_OPTIONS.map((option) => (
 						<DropdownMenuItem
 							key={option.key}
 							onClick={() => setMode(option.key)}
-							className="justify-between gap-6 rounded-lg"
+							className="justify-between gap-6 whitespace-nowrap rounded-md"
 						>
 							<span>{option.label}</span>
 							<span className="flex h-4 w-4 items-center justify-center">

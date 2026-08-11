@@ -72,6 +72,14 @@
       "other_info": null,
       "source_link": "https://mimo.xiaomi.com/mimo-v2-omni",
       "rank": 30
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 35.9,
+      "is_self_reported": false,
+      "other_info": "MiMo-V2-Omni; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/mimo-v2-omni",
+      "rank": 100
     }
   ],
   "family_id": null,

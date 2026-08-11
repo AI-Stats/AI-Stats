@@ -290,6 +290,14 @@
       "other_info": "sigma 0.149; games 1042; avg points 0.561",
       "source_link": "https://github.com/lechmazur/elimination_game",
       "rank": 16
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 27.6,
+      "is_self_reported": false,
+      "other_info": "Claude 3.7 Sonnet (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/claude-3-7-sonnet-thinking",
+      "rank": 171
     }
   ],
   "page_notice": null,

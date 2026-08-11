@@ -34,6 +34,31 @@ describe("VideoGenerationSchema", () => {
 		expect(result.success).toBe(false);
 	});
 
+	it("accepts normalized video and audio references", () => {
+		const parsed = VideoGenerationSchema.parse({
+			model: "bytedance/seedance-2.0",
+			prompt: "Use the supplied motion and soundtrack",
+			input_references: [
+				{ type: "video_url", role: "source", media_url: { url: "https://example.com/source.mp4" } },
+				{ type: "audio_url", role: "reference", media_url: { url: "https://example.com/music.mp3" } },
+			],
+		});
+		expect(parsed.input_references?.map((entry) => entry.type)).toEqual(["video_url", "audio_url"]);
+	});
+
+	it("accepts source-video duration for provider billing", () => {
+		const parsed = VideoGenerationSchema.parse({
+			model: "alibaba/happyhorse-1.0",
+			prompt: "Edit the supplied source video",
+			duration: 8,
+			input_video_duration: 8.5,
+			input_references: [
+				{ type: "video_url", role: "source", media_url: { url: "https://example.com/source.mp4" } },
+			],
+		});
+		expect(parsed.input_video_duration).toBe(8.5);
+	});
+
 	it("rejects legacy input_references shape", () => {
 		const result = VideoGenerationSchema.safeParse({
 			model: "google/veo-3.1",
@@ -67,14 +92,14 @@ describe("VideoGenerationSchema", () => {
 			prompt: "Webhook payload",
 			webhook: {
 				endpoint_id: "whep_video",
-				events: ["completed", "video.failed", "job.cancelled"],
+				events: ["status_changed", "completed", "video.failed", "job.cancelled"],
 			},
 		});
 
 		expect(parsed.webhook).toEqual({
 			endpointId: "whep_video",
 			secret: null,
-			events: ["job.completed", "video.failed", "job.cancelled"],
+			events: ["job.status_changed", "job.completed", "video.failed", "job.cancelled"],
 		});
 	});
 

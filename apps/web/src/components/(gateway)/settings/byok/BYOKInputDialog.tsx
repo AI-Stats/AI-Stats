@@ -4,6 +4,7 @@ import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { Info, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Dialog,
 	DialogContent,
@@ -21,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -43,6 +45,13 @@ type Props = {
 	providerName?: string;
 	triggerLabel?: string;
 	trigger?: React.ReactNode;
+	disabled?: boolean;
+	defaultAlwaysUse?: boolean;
+	modelOptions?: Array<{ value: string; label: string }>;
+	apiKeyOptions?: Array<{ value: string; label: string }>;
+	embedded?: boolean;
+	onCancel?: () => void;
+	onSaved?: () => void;
 	initial?: {
 		id: string;
 		providerId: string;
@@ -52,6 +61,8 @@ type Props = {
 		suffix?: string;
 		enabled?: boolean;
 		always_use?: boolean;
+		allowedModelSlugs?: string[];
+		allowedApiKeyIds?: string[];
 	} | null;
 };
 
@@ -86,6 +97,13 @@ export default function BYOKInputDialog({
 	providerName,
 	triggerLabel = "Set key",
 	trigger,
+	disabled = false,
+	defaultAlwaysUse = false,
+	modelOptions = [],
+	apiKeyOptions = [],
+	embedded = false,
+	onCancel,
+	onSaved,
 	initial = null,
 }: Props) {
 	const activeProviderId = providerId ?? initial?.providerId ?? null;
@@ -99,6 +117,7 @@ export default function BYOKInputDialog({
 	);
 	const [open, setOpen] = useState(false);
 	const [value, setValue] = useState("");
+	const [keyName, setKeyName] = useState(defaultName);
 	const [bedrockUseIam, setBedrockUseIam] = useState(false);
 	const [bedrockApiKey, setBedrockApiKey] = useState("");
 	const [bedrockAccessKeyId, setBedrockAccessKeyId] = useState("");
@@ -110,7 +129,9 @@ export default function BYOKInputDialog({
 		createEmptyAzureDeployment(),
 	]);
 	const [enabled, setEnabled] = useState<boolean>(initial?.enabled ?? true);
-	const [alwaysUse, setAlwaysUse] = useState<boolean>(initial?.always_use ?? false);
+	const [alwaysUse, setAlwaysUse] = useState<boolean>(initial?.always_use ?? defaultAlwaysUse);
+	const [allowedModelSlugs, setAllowedModelSlugs] = useState<string[]>(initial?.allowedModelSlugs ?? []);
+	const [allowedApiKeyIds, setAllowedApiKeyIds] = useState<string[]>(initial?.allowedApiKeyIds ?? []);
 	const [loading, setLoading] = useState(false);
 	const submission = useMemo(() => {
 		const generic = value.trim();
@@ -190,9 +211,10 @@ export default function BYOKInputDialog({
 		if (!submission.value) return null;
 		return validateProviderKeyFormat(activeProviderId, submission.value);
 	}, [activeProviderId, submission.value]);
-	const canSubmit = initial
+	const credentialCanSubmit = initial
 		? (submission.value === null && !submission.error) || (submission.value !== null && !submission.error && Boolean(formatCheck?.ok))
 		: submission.value !== null && !submission.error && Boolean(formatCheck?.ok);
+	const canSubmit = keyName.trim().length > 0 && credentialCanSubmit;
 	const credentialLabel = useMemo(
 		() => getProviderCredentialLabel(activeProviderId),
 		[activeProviderId],
@@ -219,6 +241,7 @@ export default function BYOKInputDialog({
 
 	function resetForm() {
 		setValue("");
+		setKeyName(defaultName);
 		setBedrockUseIam(false);
 		setBedrockApiKey("");
 		setBedrockAccessKeyId("");
@@ -228,13 +251,20 @@ export default function BYOKInputDialog({
 		setCloudflareApiToken("");
 		setAzureDeployments([createEmptyAzureDeployment()]);
 		setEnabled(initial?.enabled ?? true);
-		setAlwaysUse(initial?.always_use ?? false);
+		setAlwaysUse(initial?.always_use ?? defaultAlwaysUse);
+		setAllowedModelSlugs(initial?.allowedModelSlugs ?? []);
+		setAllowedApiKeyIds(initial?.allowedApiKeyIds ?? []);
 	}
 
 	async function onSave(e?: React.FormEvent) {
 		e?.preventDefault();
 		if (submission.error) {
 			toast.error(submission.error);
+			return;
+		}
+		const normalizedName = keyName.trim();
+		if (!normalizedName) {
+			toast.error("Key name is required");
 			return;
 		}
 		if (!initial && !submission.value) {
@@ -254,24 +284,29 @@ export default function BYOKInputDialog({
 			setLoading(true);
 			if (initial && initial.id) {
 				await updateByokKeyAction(initial.id, {
-					name: defaultName,
+					name: normalizedName,
 					value: submission.value ?? undefined,
 					enabled,
 					always_use: alwaysUse,
+					allowedModelSlugs,
+					allowedApiKeyIds,
 				});
 				toast.success(submission.value ? "Key updated and replaced" : "Key updated");
 			} else {
 				await createByokKeyAction(
-					defaultName,
+					normalizedName,
 					providerId as string,
 					submission.value as string,
 					enabled,
 					alwaysUse,
+					allowedModelSlugs,
+					allowedApiKeyIds,
 				);
 				toast.success("Key saved");
 			}
 			setOpen(false);
 			resetForm();
+			onSaved?.();
 		} catch (err: any) {
 			console.error(err);
 			toast.error(err?.message || "Failed to save key");
@@ -280,27 +315,22 @@ export default function BYOKInputDialog({
 		}
 	}
 
-	return (
-		<Dialog open={open} onOpenChange={(nextOpen) => {
-			setOpen(nextOpen);
-			if (nextOpen) resetForm();
-		}}>
-			<DialogTrigger asChild>
-				{trigger ? (
-					trigger
-				) : (
-					<Button variant="outline" size="sm" className="rounded-full" onClick={() => setOpen(true)}>
-						{triggerLabel}
-					</Button>
-				)}
-			</DialogTrigger>
-
-			<DialogContent className="sm:max-w-lg">
-				<DialogHeader>
+	const editor = (
+		<>
+			{embedded ? null : <DialogHeader>
 					<DialogTitle>{initial ? "Manage provider key" : "Set provider key"}</DialogTitle>
-				</DialogHeader>
+				</DialogHeader>}
 
 				<form onSubmit={onSave} className="grid gap-4">
+					<div className="grid gap-2">
+						<Label htmlFor={`byok-key-name-${initial?.id ?? activeProviderId ?? "new"}`}>Key name</Label>
+						<Input
+							id={`byok-key-name-${initial?.id ?? activeProviderId ?? "new"}`}
+							value={keyName}
+							onChange={(event) => setKeyName(event.target.value)}
+							placeholder="Production key"
+						/>
+					</div>
 					{providerModelsHref ? (
 						<div className="text-xs text-muted-foreground">
 							<Link
@@ -522,7 +552,7 @@ export default function BYOKInputDialog({
 								placeholder={initial ? replacePlaceholder : createPlaceholder}
 							/>
 						)}
-						<p className="text-xs text-muted-foreground">{inputInstruction ?? formatHint}</p>
+						{formatCheck ? null : <p className="text-xs text-muted-foreground">{inputInstruction ?? formatHint}</p>}
 						{submission.error ? (
 							<p className="text-xs text-red-600">{submission.error}</p>
 						) : null}
@@ -543,21 +573,49 @@ export default function BYOKInputDialog({
 						<Switch checked={enabled} onCheckedChange={(checked: any) => setEnabled(Boolean(checked))} />
 					</div>
 
-					<div className="space-y-2 rounded-md border p-3">
-						<div className="flex items-center justify-between gap-4">
-							<div className="text-sm font-medium">Priority key</div>
-							<Switch checked={alwaysUse} onCheckedChange={(checked: any) => setAlwaysUse(Boolean(checked))} />
+					{initial ? <div className="space-y-4 rounded-md border p-3">
+						<div>
+							<div className="text-sm font-medium">Key scope</div>
+							<p className="mt-0.5 text-xs text-muted-foreground">Leave a list empty to allow every option.</p>
 						</div>
-						<p className="text-xs text-muted-foreground">
-							Priority keys are tried in order before Phaseo-managed provider credentials.
-						</p>
-						<p className="text-xs text-muted-foreground">
-							When disabled, this key is a fallback and is tried only after the managed provider route is exhausted.
-						</p>
-					</div>
+						<div className="grid gap-4 sm:grid-cols-2">
+							<div className="space-y-2">
+								<div className="flex items-center justify-between text-xs font-medium">
+									<span>Models</span>
+									<span className="text-muted-foreground">{allowedModelSlugs.length ? `${allowedModelSlugs.length} selected` : "All"}</span>
+								</div>
+								<ScrollArea className="h-36 rounded-md border p-2">
+									<div className="space-y-2 pr-2">
+										{modelOptions.map((option) => (
+											<label key={option.value} className="flex cursor-pointer items-center gap-2 text-xs">
+												<Checkbox checked={allowedModelSlugs.includes(option.value)} onCheckedChange={(checked) => setAllowedModelSlugs((current) => checked ? [...current, option.value] : current.filter((value) => value !== option.value))} />
+												<span className="truncate">{option.label}</span>
+											</label>
+										))}
+									</div>
+								</ScrollArea>
+							</div>
+							<div className="space-y-2">
+								<div className="flex items-center justify-between text-xs font-medium">
+									<span>Phaseo API keys</span>
+									<span className="text-muted-foreground">{allowedApiKeyIds.length ? `${allowedApiKeyIds.length} selected` : "All"}</span>
+								</div>
+								<ScrollArea className="h-36 rounded-md border p-2">
+									<div className="space-y-2 pr-2">
+										{apiKeyOptions.length ? apiKeyOptions.map((option) => (
+											<label key={option.value} className="flex cursor-pointer items-center gap-2 text-xs">
+												<Checkbox checked={allowedApiKeyIds.includes(option.value)} onCheckedChange={(checked) => setAllowedApiKeyIds((current) => checked ? [...current, option.value] : current.filter((value) => value !== option.value))} />
+												<span className="truncate">{option.label}</span>
+											</label>
+										)) : <p className="text-xs text-muted-foreground">No API keys available.</p>}
+									</div>
+								</ScrollArea>
+							</div>
+						</div>
+					</div> : null}
 
 					<DialogFooter className="gap-2">
-						<Button variant="outline" type="button" onClick={() => setOpen(false)}>
+						<Button variant="outline" type="button" onClick={() => embedded ? onCancel?.() : setOpen(false)}>
 							Cancel
 						</Button>
 						<Button type="submit" disabled={loading || !canSubmit}>
@@ -565,7 +623,24 @@ export default function BYOKInputDialog({
 						</Button>
 					</DialogFooter>
 				</form>
-			</DialogContent>
+		</>
+	);
+
+	if (embedded) return <div>{editor}</div>;
+
+	return (
+		<Dialog open={open} onOpenChange={(nextOpen) => {
+			setOpen(nextOpen);
+			if (nextOpen) resetForm();
+		}}>
+			<DialogTrigger asChild>
+				{trigger ? trigger : (
+					<Button variant="outline" size="sm" className="rounded-lg" disabled={disabled} onClick={() => setOpen(true)}>
+						{triggerLabel}
+					</Button>
+				)}
+			</DialogTrigger>
+			<DialogContent className="sm:max-w-lg">{editor}</DialogContent>
 		</Dialog>
 	);
 }

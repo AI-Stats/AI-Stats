@@ -41,14 +41,6 @@
   ],
   "benchmarks": [
     {
-      "benchmark_id": "aa-intelligence-index-v4",
-      "score": 61.4,
-      "is_self_reported": false,
-      "other_info": "Adaptive reasoning, max effort; Artificial Analysis Intelligence Index v4",
-      "source_link": "https://artificialanalysis.ai/articles/claude-opus-4-8-analysis-and-benchmarks",
-      "rank": 1
-    },
-    {
       "benchmark_id": "gdpval-aa",
       "score": 1890,
       "is_self_reported": false,
@@ -191,6 +183,14 @@
       "other_info": "High reasoning; 940 puzzles",
       "source_link": "https://github.com/lechmazur/nyt-connections",
       "rank": 12
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 57.3,
+      "is_self_reported": false,
+      "other_info": "Claude Opus 4.8 (Adaptive Reasoning, Max Effort); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/claude-opus-4-8",
+      "rank": 11
     }
   ],
   "family_id": null,
