@@ -90,6 +90,12 @@ import {
 	summarizeProviderLifecycle,
 	type ProviderLifecycleStatusInput,
 } from "@/components/(data)/model/pricing/providerLifecycleStatus";
+import {
+	clearProviderInspector,
+	dispatchProviderInspectorOpen,
+	PROVIDER_INSPECTOR_OPEN_EVENT,
+	type ProviderInspectorOpenDetail,
+} from "@/components/(data)/model/pricing/providerInspectorSync";
 
 const PROVIDER_STATUSES_DOCS_HREF =
 	"https://phaseo.app/docs/v1/guides/provider-statuses";
@@ -101,7 +107,6 @@ const PROVIDER_SHEET_DOCS = {
 	dataRetention:
 		"https://phaseo.app/docs/v1/cookbook/route-only-to-eu-or-zdr-providers",
 } as const;
-const PROVIDER_INSPECTOR_OPEN_EVENT = "ai-stats-provider-inspector-open";
 const PROVIDER_INSPECTOR_STATE_KEY = "__aiStatsOpenProviderInspectorId";
 const PROVIDER_INSPECTOR_SUPPRESS_ANIMATION_KEY =
 	"__aiStatsSuppressProviderInspectorAnimationForId";
@@ -1532,6 +1537,7 @@ export default function ProviderCard({
 	const [expanded, setExpanded] = useState(false);
 	const reduceMotion = useReducedMotion();
 	const [disableInspectorAnimation, setDisableInspectorAnimation] = useState(false);
+	const [inspectorNavigationProviderIds, setInspectorNavigationProviderIds] = useState<string[] | null>(null);
 	const [copiedInspectorValue, setCopiedInspectorValue] = useState<string | null>(null);
 	const inspectorAnimationResetRef = useRef<number | null>(null);
 	const inspectorStateClearRef = useRef<number | null>(null);
@@ -1548,12 +1554,12 @@ export default function ProviderCard({
 
 	useEffect(() => {
 		const handleOpen = (event: Event) => {
-			const detail = (event as CustomEvent<{
-				providerId?: string;
-				disableAnimation?: boolean;
-			}>).detail;
+			const detail = (event as CustomEvent<ProviderInspectorOpenDetail>).detail;
 			const providerId = detail?.providerId;
 			if (!providerId) return;
+			if (detail.navigationProviderIds?.length) {
+				setInspectorNavigationProviderIds(detail.navigationProviderIds);
+			}
 			const isTargetProvider = providerId === inspectorProviderId;
 			if (inspectorStateClearRef.current !== null) {
 				window.clearTimeout(inspectorStateClearRef.current);
@@ -2113,7 +2119,7 @@ export default function ProviderCard({
 		...visibleVariantLabels,
 		hiddenVariantCount > 0 ? `+${hiddenVariantCount} more` : null,
 	].filter((value): value is string => Boolean(value));
-	const providerNavigationItems = Array.from(
+	const defaultProviderNavigationItems = Array.from(
 		new Map(
 			navigationProviders.map((candidate) => [
 				candidate.provider.api_provider_id,
@@ -2126,6 +2132,21 @@ export default function ProviderCard({
 			]),
 		).values(),
 	);
+	const navigationProviderById = new Map(
+		[...comparisonProviders, ...navigationProviders].map((candidate) => [
+			candidate.provider.api_provider_id,
+			{
+				id: candidate.provider.api_provider_id,
+				name: candidate.provider.api_provider_name || candidate.provider.api_provider_id,
+			},
+		]),
+	);
+	const providerNavigationItems = inspectorNavigationProviderIds
+		? inspectorNavigationProviderIds.flatMap((providerId) => {
+			const item = navigationProviderById.get(providerId);
+			return item ? [item] : [];
+		})
+		: defaultProviderNavigationItems;
 	const currentProviderNavigationIndex = providerNavigationItems.findIndex(
 		(item) => item.id === inspectorProviderId,
 	);
@@ -2145,7 +2166,7 @@ export default function ProviderCard({
 			: null;
 	const openInspectorForProvider = (
 		providerId: string,
-		options: { disableAnimation?: boolean } = {},
+		options: { disableAnimation?: boolean; navigationProviderIds?: string[] } = {},
 	) => {
 		const currentOpenProviderId = window[PROVIDER_INSPECTOR_STATE_KEY] ?? null;
 		const suppressAnimationForProviderId =
@@ -2186,19 +2207,26 @@ export default function ProviderCard({
 				}
 			}, 250);
 		}
-		window.dispatchEvent(
-			new CustomEvent(PROVIDER_INSPECTOR_OPEN_EVENT, {
-				detail: { providerId, disableAnimation },
-			}),
+		dispatchProviderInspectorOpen(
+			providerId,
+			disableAnimation,
+			options.navigationProviderIds ?? inspectorNavigationProviderIds ?? navigationProviders.map(
+				(candidate) => candidate.provider.api_provider_id,
+			),
 		);
 	};
 	const toggleExpanded = () => {
 		if (expanded) {
 			window[PROVIDER_INSPECTOR_STATE_KEY] = null;
+			clearProviderInspector(inspectorProviderId);
 			setExpanded(false);
 			return;
 		}
-		openInspectorForProvider(inspectorProviderId);
+		openInspectorForProvider(inspectorProviderId, {
+			navigationProviderIds: navigationProviders.map(
+				(candidate) => candidate.provider.api_provider_id,
+			),
+		});
 	};
 	const handleSummaryRowClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
 		const interactiveTarget = (event.target as HTMLElement).closest(
@@ -2236,6 +2264,7 @@ export default function ProviderCard({
 	};
 	const handleInspectorOpenChange = (open: boolean) => {
 		if (!open && expanded) {
+			clearProviderInspector(inspectorProviderId);
 			const closingProviderId = inspectorProviderId;
 			window[PROVIDER_INSPECTOR_RECENTLY_CLOSED_ID_KEY] = closingProviderId;
 			window[PROVIDER_INSPECTOR_RECENTLY_CLOSED_AT_KEY] = Date.now();

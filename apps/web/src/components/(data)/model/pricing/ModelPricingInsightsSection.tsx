@@ -13,6 +13,7 @@ import {
 	fetchFrontendModelPendingApiReleaseState,
 	fetchFrontendModelPricing,
 	fetchFrontendModelPricingHistory,
+	fetchFrontendModelEffectivePricingDaily,
 	fetchFrontendModelUsageDailyBreakdown,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 
@@ -62,10 +63,7 @@ export default async function ModelPricingInsightsSection({
 		null,
 		"pending API release state"
 	);
-	const providersForDisplay = (providers || []).filter(
-		(provider) =>
-			Array.isArray(provider.provider_models) && provider.provider_models.length > 0,
-	);
+	const providersForDisplay = providers || [];
 	const providerIds = Array.from(
 		new Set(providersForDisplay.map((provider) => provider.provider.api_provider_id)),
 	).sort((a, b) => a.localeCompare(b));
@@ -111,11 +109,11 @@ export default async function ModelPricingInsightsSection({
 		);
 	}
 
-	const [pricingHistoryRules, usageRows] = await Promise.all([
+	const [pricingHistoryRules, usageRows, effectivePricingRows] = await Promise.all([
 		withOptionalPricingTimeout(
 			fetchFrontendModelPricingHistory(modelId, {
 				includeHidden,
-				days: 30,
+				days: 3650,
 			}),
 			[],
 			"pricing history rules"
@@ -125,10 +123,19 @@ export default async function ModelPricingInsightsSection({
 				modelId,
 				providerIds,
 				modelAliases,
-				days: 30,
+				days: 365,
 			}),
 			[],
 			"usage breakdown"
+		),
+		withOptionalPricingTimeout(
+			fetchFrontendModelEffectivePricingDaily({
+				modelId,
+				providerIds,
+				days: 365,
+			}),
+			[],
+			"effective pricing"
 		),
 	]);
 
@@ -144,6 +151,7 @@ export default async function ModelPricingInsightsSection({
 				providers={providersForDisplay}
 				historyRules={pricingHistoryRules}
 				usageRows={usageRows}
+				effectivePricingRows={effectivePricingRows}
 				showPageHeader={showPageHeader}
 			/>
 		</div>
