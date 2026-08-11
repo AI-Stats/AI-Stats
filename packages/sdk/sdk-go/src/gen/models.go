@@ -1811,6 +1811,7 @@ const (
 	KnownModelIdNvidiaNemotron3NanoOmni30bA3bReasoning KnownModelId = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
 	KnownModelIdNvidiaNemotron3Super120bA12b KnownModelId = "nvidia/nemotron-3-super-120b-a12b"
 	KnownModelIdNvidiaNemotron3Ultra550bA55b KnownModelId = "nvidia/nemotron-3-ultra-550b-a55b"
+	KnownModelIdNvidiaNemotron35Lightning KnownModelId = "nvidia/nemotron-3.5-lightning"
 	KnownModelIdNvidiaNvidiaNemotron3Nano30bA3b KnownModelId = "nvidia/nvidia-nemotron-3-nano-30b-a3b"
 	KnownModelIdNvidiaNvidiaNemotronNano12bV2Vl KnownModelId = "nvidia/nvidia-nemotron-nano-12b-v2-vl"
 	KnownModelIdOpenaiBabbage002 KnownModelId = "openai/babbage-002"
