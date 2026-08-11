@@ -98,6 +98,14 @@
       "other_info": "940 puzzles",
       "source_link": "https://github.com/lechmazur/nyt-connections",
       "rank": 61
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 34.5,
+      "is_self_reported": false,
+      "other_info": "MiniMax-M2.5; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/minimax-m2-5",
+      "rank": 115
     }
   ],
   "family_id": null,

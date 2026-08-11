@@ -23,6 +23,7 @@ import type { ProviderCandidateBuildDiagnostics } from "./types";
 import { isFreePriceCard } from "../pricing/free";
 import type { PriceCard } from "../pricing";
 import { parseW3cTraceContext } from "@observability/trace-context";
+import { detectClientAttribution } from "./clientAttribution";
 export { parseW3cTraceContext } from "@observability/trace-context";
 
 const MIN_CREDIT_AMOUNT = 1.0;
@@ -605,6 +606,7 @@ export function makeMeta(input: {
     const debugHeader = input.req.headers.get("x-gateway-debug") ?? input.req.headers.get("x-phaseo-debug");
     const debugEnabled = (normalizeReturnFlag(debugHeader) || Boolean(input.debug?.enabled)) && isDebugAllowed();
     const userAgent = input.req.headers.get("user-agent");
+    const clientSource = detectClientAttribution(input.req.headers);
     const accept = input.req.headers.get("accept");
     const cfRay = input.req.headers.get("cf-ray");
     const edge = getEdgeMeta(input.req);
@@ -667,11 +669,13 @@ export function makeMeta(input: {
         requestUrl,
         requestPath,
         userAgent,
+        clientSource,
         clientIp,
         cfRay,
         edgeColo: edge.colo ?? null,
         edgeCity: edge.city ?? null,
         edgeCountry: edge.country ?? null,
+        edgeRegionCode: edge.regionCode ?? null,
         edgeContinent: edge.continent ?? null,
         edgeAsn: edge.asn ?? null,
         returnMeta: input.returnMeta ?? false,

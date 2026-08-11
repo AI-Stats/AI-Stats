@@ -208,6 +208,14 @@
       "other_info": "64K thinking; sigma 0.311; games 238; avg points 0.504",
       "source_link": "https://github.com/lechmazur/elimination_game",
       "rank": 25
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 33.5,
+      "is_self_reported": false,
+      "other_info": "Kimi K2 Thinking; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/kimi-k2-thinking",
+      "rank": 126
     }
   ],
   "page_notice": null,

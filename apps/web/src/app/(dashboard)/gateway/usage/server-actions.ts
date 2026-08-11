@@ -4,9 +4,11 @@ import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountCo
 import { fetchAccountWebApi } from "@/lib/web-api/client";
 
 export interface RequestRow {
-	request_id: string; created_at: string; endpoint: string | null; model_id: string | null; provider: string | null;
+	id?: string; request_id: string; created_at: string; endpoint: string | null; model_id: string | null; provider: string | null;
 	app_id: string | null; session_id: string | null; success: boolean; status_code: number | null; error_code: string | null;
 	error_message: string | null; error_payload: Record<string, unknown> | null; usage: any; cost_nanos: number | null;
+	client_source_id?: string | null; client_source_name?: string | null; client_source_kind?: string | null;
+	client_source_version?: string | null; client_source_detection?: string | null;
 	pricing_lines: AsyncJobRequestPricingLine[]; provider_attempts: Array<{
 		sequence?: number | null; attempt_number?: number | null; round_number?: number | null;
 		internal_attempt_number?: number | null; provider?: string | null; api_model_id?: string | null;
@@ -20,7 +22,7 @@ export interface RequestRow {
 	usage_total_tokens?: number | null; usage_input_tokens?: number | null; usage_output_tokens?: number | null;
 	[key: string]: any;
 }
-export interface PaginatedRequestsParams { [key: string]: any; page: number; sortField: string; sortDirection: "asc" | "desc" }
+export interface PaginatedRequestsParams { [key: string]: any; cursor?: { createdAt: string; id: string } | null; page?: number; sortField: string; sortDirection: "asc" | "desc" }
 export interface ProviderMetadataEntry { name: string; promptTrainingPolicy: string | null; [key: string]: any }
 export interface AppMetadata { id?: string; title: string; imageUrl: string | null; [key: string]: any }
 export type GatewayIoLog = { status: string; storage_provider: string | null; bytes: number | null; retention_until: string | null; error: string | null; payload: Record<string, unknown> | null; };
@@ -48,7 +50,7 @@ async function operation<T>(name: string, args: unknown[]): Promise<T> {
 	return response.result;
 }
 
-export async function fetchPaginatedRequests(params: PaginatedRequestsParams) { return operation<{ data: RequestRow[]; total: number; page: number; pageSize: number; totalPages: number }>("paginatedRequests", [params]); }
+export async function fetchPaginatedRequests(params: PaginatedRequestsParams) { return operation<{ data: RequestRow[]; hasMore: boolean; nextCursor: { createdAt: string; id: string } | null; pageSize: number }>("paginatedRequests", [params]); }
 export async function fetchOrganizationColors(modelIds: string[]) { return new Map<string, string>(await operation<Array<[string, string]>>("organizationColors", [modelIds])); }
 export async function fetchModelMetadata(modelIds: string[]) { return new Map<string, { organisationId: string; organisationName: string; modelName?: string }>(await operation<Array<[string, { organisationId: string; organisationName: string; modelName?: string }]>>("modelMetadata", [modelIds])); }
 export async function fetchProviderNames(providerIds: string[]) { return new Map<string, string>(await operation<Array<[string, string]>>("providerNames", [providerIds])); }

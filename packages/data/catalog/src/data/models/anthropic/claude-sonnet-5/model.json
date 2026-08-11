@@ -228,6 +228,14 @@
       "other_info": "Zapier leaderboard private held-out tasks; max effort",
       "source_link": "https://www.anthropic.com/claude-sonnet-5-system-card",
       "rank": 4
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 55.3,
+      "is_self_reported": false,
+      "other_info": "Claude Sonnet 5 (Adaptive Reasoning, Max Effort); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/claude-sonnet-5",
+      "rank": 17
     }
   ],
   "page_notice": {

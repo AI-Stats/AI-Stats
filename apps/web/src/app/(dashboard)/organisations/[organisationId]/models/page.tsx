@@ -83,7 +83,7 @@ export default async function Page({
 	if (!models) notFound();
 
 	return (
-		<OrganisationDetailShell organisationId={organisationId}>
+		<OrganisationDetailShell organisationId={organisationId} tab="models">
 			<ModelsDisplay models={models} showStatusHeadings={true} />
 		</OrganisationDetailShell>
 	);

@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import CountryDetailShell from "@/components/(data)/countries/CountryDetailShell";
 import CountryOrganisationCard from "@/components/(data)/countries/CountryOrganisationCard";
+import CountryModelsSection from "@/components/(data)/countries/CountryModelsSection";
 import { ModelCard } from "@/components/(data)/models/Models/ModelCard";
 import { Logo } from "@/components/Logo";
 import {
@@ -93,10 +94,13 @@ export default async function CountryDetailPage({
 	const latestAccent = latestModel?.organisation_colour ?? "hsl(222 89% 53%)";
 
 	return (
-		<CountryDetailShell iso={iso} country={country}>
+		<CountryDetailShell iso={iso} country={country} tocItems={[{ id: "overview", label: "Overview" }, { id: "latest-releases", label: "Latest Releases" }, { id: "organisations", label: "Organisations" }, { id: "models", label: "Models" }]}>
 			<div className="space-y-10">
-				<div className="grid gap-4 md:grid-cols-3">
-					<div className="flex flex-col rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/80">
+				<section
+					id="overview"
+					className="scroll-mt-36 grid overflow-hidden border-y border-border/70 md:grid-cols-3 md:divide-x md:divide-border/70"
+				>
+					<div className="flex flex-col border-b border-border/70 px-4 py-5 md:border-b-0">
 						<div className="flex items-center justify-between">
 							<p className="text-sm font-semibold text-muted-foreground">
 								Active organisations
@@ -106,7 +110,7 @@ export default async function CountryDetailPage({
 							{country.totalOrganisations}
 						</p>
 					</div>
-					<div className="flex flex-col rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/80">
+					<div className="flex flex-col border-b border-border/70 px-4 py-5 md:border-b-0">
 						<div className="flex items-center justify-between">
 							<p className="text-sm font-semibold text-muted-foreground">
 								Models tracked
@@ -116,12 +120,7 @@ export default async function CountryDetailPage({
 							{country.totalModels}
 						</p>
 					</div>
-					<div
-						className="rounded-2xl border-2 bg-white p-5 shadow-sm backdrop-blur dark:bg-zinc-900/80"
-						style={{
-							borderColor: latestAccent,
-						}}
-					>
+					<div className="px-4 py-5">
 						<div className="flex items-center justify-between">
 							<p
 								className="text-sm font-semibold"
@@ -141,7 +140,10 @@ export default async function CountryDetailPage({
 									<Link
 										href={`/organisations/${latestModel.organisation_id}`}
 									>
-										<div className="relative flex h-10 w-10 items-center justify-center rounded-xl border bg-white dark:border-zinc-800 dark:bg-zinc-900">
+										<div
+											className="relative flex h-10 w-10 items-center justify-center rounded-lg border bg-white dark:border-zinc-800 dark:bg-zinc-900"
+											style={{ borderColor: latestAccent }}
+										>
 											<Logo
 												id={latestModel.organisation_id}
 												alt={
@@ -183,9 +185,9 @@ export default async function CountryDetailPage({
 							</p>
 						)}
 					</div>
-				</div>
+				</section>
 
-				<section className="space-y-4">
+				<section id="latest-releases" className="scroll-mt-36 space-y-4">
 					<h2 className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">
 						Latest releases from {country.countryName}
 					</h2>
@@ -202,10 +204,10 @@ export default async function CountryDetailPage({
 								}, new Map<string, typeof modelsToShow>())
 							).map(([label, groupedModels]) => (
 								<div key={label} className="space-y-2">
-									<h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+									<h3 className="text-sm font-medium text-muted-foreground">
 										{label}
 									</h3>
-									<div className="grid gap-4 md:grid-cols-3">
+									<div className="divide-y divide-border/70">
 										{groupedModels.map((model) => (
 											<ModelCard
 												key={model.model_id}
@@ -224,14 +226,14 @@ export default async function CountryDetailPage({
 					)}
 				</section>
 
-				<section className="space-y-4">
+				<section id="organisations" className="scroll-mt-36 space-y-4">
 					<div className="flex items-center justify-between">
 						<h2 className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">
 							Organisations From {country.countryName}
 						</h2>
 					</div>
 					{organisationEntries.length ? (
-						<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+						<div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
 							{organisationEntries.map((organisation) => (
 								<CountryOrganisationCard
 									key={organisation.organisation_id}
@@ -245,6 +247,18 @@ export default async function CountryDetailPage({
 							{country.countryName} yet.
 						</p>
 					)}
+				</section>
+
+				<section id="models" className="scroll-mt-36 space-y-4 border-t border-border pt-10">
+					<div className="space-y-1">
+						<h2 className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">
+							Models From {country.countryName}
+						</h2>
+						<p className="text-sm text-muted-foreground">
+							Browse the complete catalogue, grouped by organisation.
+						</p>
+					</div>
+					<CountryModelsSection models={models} />
 				</section>
 			</div>
 		</CountryDetailShell>

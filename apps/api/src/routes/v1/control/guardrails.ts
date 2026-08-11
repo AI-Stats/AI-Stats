@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
 import { getSupabaseAdmin } from "@/runtime/env";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
+import { bumpWorkspacePolicyVersion } from "@/pipeline/before/workspacePolicy";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { json, withRuntime } from "@/routes/utils";
 import {
@@ -309,6 +310,7 @@ async function handleCreateGuardrail(req: Request) {
 			.select(selectColumns())
 			.maybeSingle();
 		if (error) throw new Error(error.message || "Failed to create guardrail");
+		await bumpWorkspacePolicyVersion(auth.value.workspaceId);
 		return json({ data }, 201, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("guardrails.create", error);
@@ -366,6 +368,7 @@ async function handleUpdateGuardrail(req: Request) {
 			.maybeSingle();
 		if (error) throw new Error(error.message || "Failed to update guardrail");
 		if (!data) return json({ error: "not_found", message: "Guardrail not found" }, 404, { "Cache-Control": "no-store" });
+		await bumpWorkspacePolicyVersion(auth.value.workspaceId);
 		return json({ data }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("guardrails.update", error);
@@ -399,6 +402,7 @@ async function handleDeleteGuardrail(req: Request) {
 			.eq("workspace_id", auth.value.workspaceId)
 			.eq("id", id);
 		if (error) throw new Error(error.message || "Failed to delete guardrail");
+		await bumpWorkspacePolicyVersion(auth.value.workspaceId);
 		return json({ deleted: true }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("guardrails.delete", error);
@@ -441,6 +445,7 @@ async function handleSetGuardrailKeys(req: Request) {
 				.insert(keyIds.map((keyId) => ({ key_id: keyId, guardrail_id: id })));
 			if (error) throw new Error(error.message || "Failed to assign guardrail keys");
 		}
+		await bumpWorkspacePolicyVersion(auth.value.workspaceId);
 		return json({ data: { guardrail_id: id, key_ids: keyIds } }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("guardrails.keys.add", error);
@@ -515,6 +520,7 @@ async function handleAddGuardrailKeys(req: Request) {
 
 		const assignments = await listGuardrailKeyAssignments(auth.value.workspaceId, id);
 		const added = assignments.filter((assignment) => keyIds.includes(assignment.key_id));
+		await bumpWorkspacePolicyVersion(auth.value.workspaceId);
 		return json({ added_count: added.length, data: added }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("guardrails.keys.assign", error);
@@ -551,6 +557,7 @@ async function handleRemoveGuardrailKeys(req: Request) {
 			.in("key_id", keyIds);
 		if (deleteError) throw new Error(deleteError.message || "Failed to remove guardrail keys");
 
+		await bumpWorkspacePolicyVersion(auth.value.workspaceId);
 		return json({ removed_count: count ?? 0 }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("guardrails.keys.remove", error);
@@ -626,6 +633,7 @@ async function handleAddGuardrailMembers(req: Request) {
 
 		const assignments = await listGuardrailMemberAssignments(auth.value.workspaceId, id);
 		const added = assignments.filter((assignment) => userIds.includes(assignment.user_id));
+		await bumpWorkspacePolicyVersion(auth.value.workspaceId);
 		return json({ added_count: added.length, data: added }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("guardrails.members.assign", error);
@@ -663,6 +671,7 @@ async function handleRemoveGuardrailMembers(req: Request) {
 			.in("user_id", userIds);
 		if (deleteError) throw new Error(deleteError.message || "Failed to remove guardrail members");
 
+		await bumpWorkspacePolicyVersion(auth.value.workspaceId);
 		return json({ removed_count: count ?? 0 }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("guardrails.members.remove", error);

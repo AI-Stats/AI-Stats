@@ -225,7 +225,7 @@ export default function ProviderModelsClient({
 		});
 	}, [models, searchQuery, selectedParams]);
 
-	const clearHref = `/api-providers/${apiProvider}/models`;
+	const clearHref = `/api-providers/${apiProvider}#models`;
 
 	function toggleParam(param: string) {
 		if (selectedParams.includes(param)) {

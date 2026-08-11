@@ -19,6 +19,7 @@ import {
 	Sun,
 	Moon,
 	Monitor,
+	MessageSquareMore,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { getLondonInfo, getSupportAvailability } from "@/lib/support/schedule";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
+import { ProductFeedbackDialog } from "@/components/feedback/ProductFeedbackButton";
 
 interface TeamSwitcherProps {
 	user?: any;
@@ -64,6 +66,7 @@ export default function TeamSwitcher({
 	);
 	const [isTeamMenuOpen, setIsTeamMenuOpen] = useState(false);
 	const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+	const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
 	const activeTeam = teams.find((t) => t.id === activeWorkspaceId) ?? teams[0];
 	const currentTheme =
@@ -133,7 +136,7 @@ export default function TeamSwitcher({
 					className="w-56 rounded-lg"
 				>
 					<div>
-						{teams.slice(0, 5).map((t) => {
+						{teams.slice(0, 10).map((t) => {
 							const isActive = t.id === activeWorkspaceId;
 							return (
 								<DropdownMenuItem
@@ -419,6 +422,16 @@ export default function TeamSwitcher({
 							</span>
 						</Link>
 					</DropdownMenuItem>
+					<DropdownMenuItem
+						className="cursor-pointer rounded-lg"
+						onClick={() => {
+							setIsProfileMenuOpen(false);
+							setIsFeedbackOpen(true);
+						}}
+					>
+						<MessageSquareMore className="h-4 w-4" />
+						<span>Send Feedback</span>
+					</DropdownMenuItem>
 
 					<DropdownMenuSeparator />
 
@@ -435,6 +448,12 @@ export default function TeamSwitcher({
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
+			<ProductFeedbackDialog
+				open={isFeedbackOpen}
+				onOpenChange={setIsFeedbackOpen}
+				surface="profile_menu"
+				prompt="Tell us what should be clearer, faster, or more useful across Phaseo."
+			/>
 		</div>
 	);
 }

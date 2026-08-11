@@ -64,6 +64,10 @@ export function buildGuardrailRestrictionPreview(args: {
 	providerRestrictionProviderIds: string[];
 	modelRestrictionMode: ProviderRestrictionMode;
 	allowedApiModelIds: string[];
+	accountProviderRestrictionMode?: ProviderRestrictionMode;
+	accountProviderRestrictionProviderIds?: string[];
+	accountModelRestrictionMode?: ProviderRestrictionMode;
+	accountModelRestrictionModelIds?: string[];
 }): GuardrailRestrictionPreview {
 	const selectedProviderIds = uniqStrings(args.providerRestrictionProviderIds).sort((a, b) =>
 		a.localeCompare(b),
@@ -72,11 +76,18 @@ export function buildGuardrailRestrictionPreview(args: {
 		a.localeCompare(b),
 	);
 	const allProviderIds = normalizeProviderIds(args.providers, selectedProviderIds);
+	const accountProviderIds = uniqStrings(args.accountProviderRestrictionProviderIds ?? []);
+	const accountAllowedProviderIds = args.accountProviderRestrictionMode === "allowlist"
+		? accountProviderIds
+		: args.accountProviderRestrictionMode === "blocklist"
+			? allProviderIds.filter((id) => !accountProviderIds.includes(id))
+			: allProviderIds;
 
-	const allowedProviderIds =
+	const formAllowedProviderIds =
 		args.providerRestrictionMode === "allowlist"
 			? selectedProviderIds
 			: allProviderIds.filter((providerId) => !selectedProviderIds.includes(providerId));
+	const allowedProviderIds = formAllowedProviderIds.filter((id) => accountAllowedProviderIds.includes(id));
 
 	const blockedProviderIds =
 		args.providerRestrictionMode === "blocklist"
@@ -90,16 +101,20 @@ export function buildGuardrailRestrictionPreview(args: {
 	const providerVisibleModelIds = uniqStrings(
 		providerFilteredRoutes.map((route) => route.apiModelId),
 	).sort((a, b) => a.localeCompare(b));
+	const allModelIds = uniqStrings(args.activeProviderModels.map((route) => route.apiModelId))
+		.sort((a, b) => a.localeCompare(b));
+	const accountModelIds = uniqStrings(args.accountModelRestrictionModelIds ?? []);
+	const accountAllowedModelIds = args.accountModelRestrictionMode === "allowlist"
+		? accountModelIds
+		: args.accountModelRestrictionMode === "blocklist"
+			? allModelIds.filter((id) => !accountModelIds.includes(id))
+			: allModelIds;
 
-	const allowedModelIds =
+	const formAllowedModelIds =
 		args.modelRestrictionMode === "allowlist"
 			? selectedModelIds
 			: providerVisibleModelIds.filter((modelId) => !selectedModelIds.includes(modelId));
-
-	const blockedModelIds =
-		args.modelRestrictionMode === "blocklist"
-			? selectedModelIds
-			: providerVisibleModelIds.filter((modelId) => !allowedModelIds.includes(modelId));
+	const allowedModelIds = formAllowedModelIds.filter((id) => accountAllowedModelIds.includes(id));
 
 	const finalRoutes =
 		args.modelRestrictionMode === "none"
@@ -115,10 +130,9 @@ export function buildGuardrailRestrictionPreview(args: {
 		reachableModelIds: uniqStrings(finalRoutes.map((route) => route.apiModelId)).sort((a, b) =>
 			a.localeCompare(b),
 		),
-		blockedModelIds:
-			args.modelRestrictionMode === "none"
-				? []
-				: blockedModelIds,
+		blockedModelIds: allModelIds.filter((modelId) =>
+			!finalRoutes.some((route) => route.apiModelId === modelId),
+		),
 		activeRouteCount: args.activeProviderModels.length,
 		filteredRouteCount: finalRoutes.length,
 	};

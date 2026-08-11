@@ -40,6 +40,14 @@
       "other_info": null,
       "source_link": "https://openai.com/index/gpt-5-1-codex-max/",
       "rank": 32
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 35.6,
+      "is_self_reported": false,
+      "other_info": "GPT-5.1 Codex (high); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gpt-5-1-codex",
+      "rank": 103
     }
   ],
   "page_notice": null,

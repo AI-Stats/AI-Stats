@@ -24,6 +24,14 @@
       "other_info": "GPT-5.1 Codex Mini w/ python",
       "source_link": "https://openai.com/",
       "rank": 178
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 31.3,
+      "is_self_reported": false,
+      "other_info": "GPT-5.1 Codex mini (high); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gpt-5-1-codex-mini",
+      "rank": 143
     }
   ],
   "page_notice": null,

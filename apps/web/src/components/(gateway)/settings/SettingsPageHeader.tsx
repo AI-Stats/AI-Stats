@@ -12,8 +12,8 @@ export default function SettingsPageHeader(props: {
 	const { title, description, meta, actions, className } = props;
 
 	return (
-		<div className={cn("space-y-4", className)}>
-			<div className="min-w-0">
+		<div className={cn("flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between", className)}>
+			<div className="min-w-0 flex-1">
 				<div className="flex flex-wrap items-center gap-2">
 					<h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
 					{meta ? <div className="shrink-0">{meta}</div> : null}
@@ -22,7 +22,7 @@ export default function SettingsPageHeader(props: {
 					<p className="mt-1 text-sm text-muted-foreground">{description}</p>
 				) : null}
 			</div>
-			{actions ? <div className="w-full">{actions}</div> : null}
+			{actions ? <div className="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">{actions}</div> : null}
 		</div>
 	);
 }

@@ -367,6 +367,14 @@
       "other_info": "Thinking; Top-1 accuracy 84.8%; cases 703",
       "source_link": "https://github.com/lechmazur/generalization",
       "rank": 22
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 36,
+      "is_self_reported": false,
+      "other_info": "Kimi K2.5 (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/kimi-k2-5",
+      "rank": 99
     }
   ],
   "family_id": null,

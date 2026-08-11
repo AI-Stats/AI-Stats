@@ -880,6 +880,16 @@ export async function handleError({
     if (body?.routing_diagnostics && typeof body.routing_diagnostics === "object") {
         errorPayload.routing_diagnostics = body.routing_diagnostics;
     }
+    if (
+        body?.guardrail_enforcement &&
+        typeof body.guardrail_enforcement === "object" &&
+        !Array.isArray(body.guardrail_enforcement)
+    ) {
+        errorPayload.guardrail_enforcement = body.guardrail_enforcement;
+    }
+    if (body?.guardrail && typeof body.guardrail === "object" && !Array.isArray(body.guardrail)) {
+        errorPayload.guardrail = body.guardrail;
+    }
     if (body?.provider_failure_diagnostics && typeof body.provider_failure_diagnostics === "object") {
         errorPayload.provider_failure_diagnostics = body.provider_failure_diagnostics;
     }
@@ -1082,6 +1092,9 @@ export async function handleError({
                 workspaceId: auditArgs.workspaceId,
                 keyId: auditArgs.keyId,
                 userId: auditArgs.requestUserId,
+				appId: auditArgs.appId,
+				appName: auditArgs.appName ?? auditArgs.appTitle,
+				clientSource: auditArgs.clientSource,
                 endpoint,
                 requestedModel,
                 provider: providerForAudit,

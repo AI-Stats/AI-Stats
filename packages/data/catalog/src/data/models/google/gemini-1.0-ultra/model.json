@@ -61,6 +61,14 @@
       "other_info": null,
       "source_link": "https://openai.com/index/hello-gpt-4o/",
       "rank": 69
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 4.3,
+      "is_self_reported": false,
+      "other_info": "Gemini 1.0 Ultra; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gemini-1-0-ultra",
+      "rank": 501
     }
   ],
   "page_notice": null,

@@ -12,6 +12,11 @@ import type {
 import { normalizeDynamicRouteConfig, type DynamicRoutePolicy } from "./dynamic-routes";
 
 type ProviderRestrictionMode = "none" | "allowlist" | "blocklist";
+const CHAT_MANAGED_KEY_NAME = "__chat_route_managed_key__";
+
+export function shouldApplyAccountPolicyForKeyName(name: unknown): boolean {
+	return String(name ?? "").trim() === CHAT_MANAGED_KEY_NAME;
+}
 
 export function isOptionalDynamicRouteSchemaUnavailable(error: unknown): boolean {
 	if (!error || typeof error !== "object") return false;
@@ -38,15 +43,34 @@ type WorkspaceSettingsRow = {
 	provider_restriction_mode?: string | null;
 	provider_restriction_provider_ids?: string[] | null;
 	provider_restriction_enforce_allowed?: boolean | null;
+	model_restriction_mode?: string | null;
+	model_restriction_model_ids?: string[] | null;
+};
+
+type AccountGuardrailSettingsRow = {
+	privacy_enable_paid_may_train?: boolean | null;
+	privacy_enable_free_may_train?: boolean | null;
+	privacy_enable_input_output_logging?: boolean | null;
+	privacy_zdr_only?: boolean | null;
+	provider_restriction_mode?: string | null;
+	provider_restriction_provider_ids?: string[] | null;
+	model_restriction_mode?: string | null;
+	model_restriction_model_ids?: string[] | null;
 };
 
 type GuardrailRow = {
 	id: string;
+	privacy_enable_paid_may_train?: boolean | null;
+	privacy_enable_free_may_train?: boolean | null;
+	privacy_enable_input_output_logging?: boolean | null;
+	privacy_zdr_only?: boolean | null;
 	provider_restriction_mode?: string | null;
 	provider_restriction_provider_ids?: string[] | null;
 	provider_restriction_enforce_allowed?: boolean | null;
 	model_restriction_mode?: string | null;
 	allowed_api_model_ids?: string[] | null;
+	prompt_injection_enabled?: boolean | null;
+	prompt_injection_action?: string | null;
 	sensitive_info_enabled?: boolean | null;
 	sensitive_info_default_action?: string | null;
 	sensitive_info_rules?: unknown;
@@ -75,6 +99,7 @@ const workspacePolicyVersionL1 = new Map<string, { value: number; expiresAt: num
 export type WorkspacePolicyDiagnostics = {
 	resolvedModel: string;
 	allowedApiModels: string[];
+	blockedApiModels?: string[];
 	providerAllowlist: string[];
 	providerAllowlistConfigured: boolean;
 	providerBlocklist: string[];
@@ -90,13 +115,17 @@ export type WorkspacePolicyDiagnostics = {
 			| "input_output_logging_disabled"
 			| "paid_training_disabled"
 			| "free_training_disabled"
+			| "zdr_required"
 			| "data_policy_unknown"
 			| "data_policy_unverified";
 		dataPolicyTier: string;
 		dataPolicyConfidence: string;
 		routeCostKind: "free" | "paid" | "unknown";
+		capabilityPolicySource?: "provider" | "capability" | "capability_default";
+		zdrEligibility?: "unknown" | "eligible" | "ineligible" | "conditional";
 	}>;
 	activeGuardrailIds: string[];
+	accountPolicyApplied?: boolean;
 	beforeCount: number;
 	afterCount: number;
 };
@@ -185,6 +214,11 @@ function isWorkspacePolicyLike(value: unknown): value is WorkspacePolicy {
 		Array.isArray(policy.sensitiveInfoRules) &&
 		Array.isArray(policy.sensitiveInfoGuardrailIds) &&
 		policy.sensitiveInfoGuardrailIds.every((item) => typeof item === "string") &&
+		(policy.privacyEnablePaidMayTrain === undefined || typeof policy.privacyEnablePaidMayTrain === "boolean") &&
+		(policy.privacyEnableFreeMayTrain === undefined || typeof policy.privacyEnableFreeMayTrain === "boolean") &&
+		(policy.privacyEnableInputOutputLogging === undefined || typeof policy.privacyEnableInputOutputLogging === "boolean") &&
+		(policy.privacyZdrOnly === undefined || typeof policy.privacyZdrOnly === "boolean") &&
+		(policy.accountPolicyApplied === undefined || typeof policy.accountPolicyApplied === "boolean") &&
 		typeof policy.enforceAllowed === "boolean" &&
 		(policy.dynamicRoute === null || policy.dynamicRoute === undefined || typeof policy.dynamicRoute === "object") &&
 		Array.isArray(policy.activeGuardrailIds) &&
@@ -202,6 +236,11 @@ function cloneWorkspacePolicy(policy: WorkspacePolicy): WorkspacePolicy {
 		promptInjectionGuardrailIds: [...policy.promptInjectionGuardrailIds],
 		sensitiveInfoRules: [...policy.sensitiveInfoRules],
 		sensitiveInfoGuardrailIds: [...policy.sensitiveInfoGuardrailIds],
+		privacyEnablePaidMayTrain: policy.privacyEnablePaidMayTrain ?? true,
+		privacyEnableFreeMayTrain: policy.privacyEnableFreeMayTrain ?? true,
+		privacyEnableInputOutputLogging: policy.privacyEnableInputOutputLogging ?? true,
+		privacyZdrOnly: policy.privacyZdrOnly ?? false,
+		accountPolicyApplied: policy.accountPolicyApplied ?? false,
 		enforceAllowed: policy.enforceAllowed,
 		activeGuardrailIds: [...policy.activeGuardrailIds],
 		dynamicRoute: policy.dynamicRoute
@@ -341,6 +380,7 @@ function extractProviderHints(body: any): ProviderHintSet {
 }
 
 export function buildWorkspacePolicy(args: {
+	accountSettings?: AccountGuardrailSettingsRow | null;
 	globalSettings?: WorkspaceSettingsRow | null;
 	guardrails?: GuardrailRow[];
 	dynamicRoute?: DynamicRoutePolicy | null;
@@ -351,7 +391,26 @@ export function buildWorkspacePolicy(args: {
 	const blockedApiModels = new Set<string>();
 	const sensitiveInfoRules = new Map<string, SensitiveInfoRule>();
 	const sensitiveInfoGuardrailIds: string[] = [];
+	let promptInjectionAction: SensitiveInfoAction | null = null;
+	const promptInjectionGuardrailIds: string[] = [];
+	let privacyEnablePaidMayTrain = true;
+	let privacyEnableFreeMayTrain = true;
+	let privacyEnableInputOutputLogging = true;
+	let privacyZdrOnly = false;
 	let enforceAllowed = false;
+
+	privacyEnablePaidMayTrain = args.accountSettings?.privacy_enable_paid_may_train !== false;
+	privacyEnableFreeMayTrain = args.accountSettings?.privacy_enable_free_may_train !== false;
+	privacyEnableInputOutputLogging = args.accountSettings?.privacy_enable_input_output_logging !== false;
+	privacyZdrOnly = args.accountSettings?.privacy_zdr_only === true;
+	const accountProviderMode = normalizeMode(args.accountSettings?.provider_restriction_mode);
+	const accountProviderIds = normalizeProviderList(args.accountSettings?.provider_restriction_provider_ids ?? []);
+	if (accountProviderMode === "allowlist") providerAllowlist = new Set(accountProviderIds);
+	if (accountProviderMode === "blocklist") accountProviderIds.forEach((id) => providerBlocklist.add(id));
+	const accountModelMode = normalizeMode(args.accountSettings?.model_restriction_mode);
+	const accountModelIds = normalizeStringList(args.accountSettings?.model_restriction_model_ids ?? []);
+	if (accountModelMode === "allowlist") allowedApiModels = new Set(accountModelIds);
+	if (accountModelMode === "blocklist") accountModelIds.forEach((id) => blockedApiModels.add(id));
 
 	const globalMode = normalizeMode(args.globalSettings?.provider_restriction_mode);
 	const globalProviderIds = normalizeProviderList(
@@ -367,8 +426,20 @@ export function buildWorkspacePolicy(args: {
 	if (args.globalSettings?.provider_restriction_enforce_allowed) {
 		enforceAllowed = true;
 	}
+	const globalModelMode = normalizeMode(args.globalSettings?.model_restriction_mode);
+	const globalModelIds = normalizeStringList(args.globalSettings?.model_restriction_model_ids ?? []);
+	if (globalModelMode === "allowlist") {
+		allowedApiModels = intersectAllowlistSets(allowedApiModels, globalModelIds);
+	} else if (globalModelMode === "blocklist") {
+		for (const modelId of globalModelIds) blockedApiModels.add(modelId);
+	}
 
 	for (const guardrail of args.guardrails ?? []) {
+		privacyEnablePaidMayTrain = privacyEnablePaidMayTrain && guardrail.privacy_enable_paid_may_train !== false;
+		privacyEnableFreeMayTrain = privacyEnableFreeMayTrain && guardrail.privacy_enable_free_may_train !== false;
+		privacyEnableInputOutputLogging = privacyEnableInputOutputLogging && guardrail.privacy_enable_input_output_logging !== false;
+		privacyZdrOnly = privacyZdrOnly || guardrail.privacy_zdr_only === true;
+
 		const mode = normalizeMode(guardrail.provider_restriction_mode);
 		const providerIds = normalizeProviderList(
 			guardrail.provider_restriction_provider_ids ?? [],
@@ -392,6 +463,11 @@ export function buildWorkspacePolicy(args: {
 		}
 		if (guardrail.provider_restriction_enforce_allowed) {
 			enforceAllowed = true;
+		}
+		if (guardrail.prompt_injection_enabled) {
+			const action = normalizeAction(guardrail.prompt_injection_action) ?? "flag";
+			promptInjectionAction = mostRestrictiveAction(promptInjectionAction, action);
+			promptInjectionGuardrailIds.push(guardrail.id);
 		}
 
 		if (guardrail.sensitive_info_enabled) {
@@ -429,10 +505,15 @@ export function buildWorkspacePolicy(args: {
 		allowedApiModels:
 			allowedApiModels ? [...allowedApiModels] : null,
 		blockedApiModels: blockedApiModels.size > 0 ? [...blockedApiModels] : null,
-		promptInjectionAction: null,
-		promptInjectionGuardrailIds: [],
+		promptInjectionAction,
+		promptInjectionGuardrailIds,
 		sensitiveInfoRules: [...sensitiveInfoRules.values()],
 		sensitiveInfoGuardrailIds,
+		privacyEnablePaidMayTrain,
+		privacyEnableFreeMayTrain,
+		privacyEnableInputOutputLogging,
+		privacyZdrOnly,
+		accountPolicyApplied: Boolean(args.accountSettings),
 		enforceAllowed,
 		activeGuardrailIds: (args.guardrails ?? []).map((guardrail) => guardrail.id),
 		dynamicRoute: args.dynamicRoute ?? null,
@@ -468,12 +549,18 @@ export async function fetchWorkspacePolicy(args: {
 	}
 
 	const supabase = getSupabaseAdmin();
-	const [settingsResult, keyGuardrailsResult, routeLinkResult] = await Promise.all([
+	const [settingsResult, keyResult, keyGuardrailsResult, routeLinkResult] = await Promise.all([
 		supabase
 			.from("workspace_settings")
 			.select(
-				"provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed",
+				"provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,model_restriction_mode,model_restriction_model_ids",
 			)
+			.eq("workspace_id", args.workspaceId)
+			.maybeSingle(),
+		supabase
+			.from("keys")
+			.select("created_by,oauth_user_id,name")
+			.eq("id", args.apiKeyId)
 			.eq("workspace_id", args.workspaceId)
 			.maybeSingle(),
 		supabase
@@ -490,6 +577,9 @@ export async function fetchWorkspacePolicy(args: {
 	if (settingsResult.error) {
 		throw new Error(`workspace_settings_lookup_failed:${settingsResult.error.message}`);
 	}
+	if (keyResult.error) {
+		throw new Error(`key_principal_lookup_failed:${keyResult.error.message}`);
+	}
 	if (keyGuardrailsResult.error) {
 		throw new Error(`key_guardrails_lookup_failed:${keyGuardrailsResult.error.message}`);
 	}
@@ -504,16 +594,49 @@ export async function fetchWorkspacePolicy(args: {
 		}
 	}
 
-	const guardrailIds = (keyGuardrailsResult.data ?? [])
+	const principalUserId = String(keyResult.data?.oauth_user_id ?? keyResult.data?.created_by ?? "").trim();
+	const appliesPersonalAccountPolicy = shouldApplyAccountPolicyForKeyName(keyResult.data?.name);
+	let memberGuardrailIds: string[] = [];
+	let accountSettings: AccountGuardrailSettingsRow | null = null;
+	if (principalUserId) {
+		const [memberGuardrailsResult, accountSettingsResult] = await Promise.all([
+			supabase
+				.from("workspace_member_guardrails")
+				.select("guardrail_id")
+				.eq("workspace_id", args.workspaceId)
+				.eq("user_id", principalUserId),
+			appliesPersonalAccountPolicy ? supabase
+				.from("account_guardrail_settings")
+				.select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,model_restriction_mode,model_restriction_model_ids")
+				.eq("user_id", principalUserId)
+				.maybeSingle() : Promise.resolve({ data: null, error: null }),
+		]);
+		if (memberGuardrailsResult.error) {
+			throw new Error(`workspace_member_guardrails_lookup_failed:${memberGuardrailsResult.error.message}`);
+		}
+		if (accountSettingsResult.error) {
+			const code = String(accountSettingsResult.error.code ?? "").toUpperCase();
+			if (code !== "42P01" && code !== "PGRST205") {
+				throw new Error(`account_guardrail_settings_lookup_failed:${accountSettingsResult.error.message}`);
+			}
+		} else {
+			accountSettings = accountSettingsResult.data as AccountGuardrailSettingsRow | null;
+		}
+		memberGuardrailIds = (memberGuardrailsResult.data ?? [])
+			.map((row: any) => String(row?.guardrail_id ?? "").trim())
+			.filter(Boolean);
+	}
+
+	const guardrailIds = [...new Set([...(keyGuardrailsResult.data ?? [])
 		.map((row: any) => String(row?.guardrail_id ?? "").trim())
-		.filter(Boolean);
+		.filter(Boolean), ...memberGuardrailIds])];
 
 	let guardrails: GuardrailRow[] = [];
 	if (guardrailIds.length > 0) {
 		const guardrailsResult = await supabase
 			.from("workspace_guardrails")
 			.select(
-				"id,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,model_restriction_mode,allowed_api_model_ids,sensitive_info_enabled,sensitive_info_default_action,sensitive_info_rules",
+				"id,privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,model_restriction_mode,allowed_api_model_ids,prompt_injection_enabled,prompt_injection_action,sensitive_info_enabled,sensitive_info_default_action,sensitive_info_rules",
 			)
 			.eq("workspace_id", args.workspaceId)
 			.eq("enabled", true)
@@ -556,6 +679,7 @@ export async function fetchWorkspacePolicy(args: {
 	}
 
 	const policy = buildWorkspacePolicy({
+		accountSettings,
 		globalSettings: (settingsResult.data ?? null) as WorkspaceSettingsRow | null,
 		guardrails,
 		dynamicRoute,
@@ -591,23 +715,35 @@ export function applyWorkspacePolicy(args: {
 	  } {
 	const workspacePolicy = args.workspacePolicy;
 	const hints = extractProviderHints(args.body);
+	const effectivePrivacy = {
+		privacyEnablePaidMayTrain:
+			args.teamSettings?.privacyEnablePaidMayTrain !== false &&
+			workspacePolicy?.privacyEnablePaidMayTrain !== false,
+		privacyEnableFreeMayTrain:
+			args.teamSettings?.privacyEnableFreeMayTrain !== false &&
+			workspacePolicy?.privacyEnableFreeMayTrain !== false,
+		privacyEnableInputOutputLogging:
+			args.teamSettings?.privacyEnableInputOutputLogging !== false &&
+			workspacePolicy?.privacyEnableInputOutputLogging !== false,
+		privacyZdrOnly:
+			Boolean(args.teamSettings?.privacyZdrOnly) || Boolean(workspacePolicy?.privacyZdrOnly),
+	};
 	const diagnostics: WorkspacePolicyDiagnostics = {
 		resolvedModel: args.resolvedModel,
 		allowedApiModels: workspacePolicy?.allowedApiModels ?? [],
+		blockedApiModels: workspacePolicy?.blockedApiModels ?? [],
 		providerAllowlist: workspacePolicy?.providerAllowlist ?? [],
 		providerAllowlistConfigured: Boolean(workspacePolicy?.providerAllowlist),
 		providerBlocklist: workspacePolicy?.providerBlocklist ?? [],
 		requestProviderOnly: hints.only,
 		requestProviderIgnore: hints.ignore,
-		privacyZdrOnly: Boolean(args.teamSettings?.privacyZdrOnly),
-		privacyEnablePaidMayTrain:
-			args.teamSettings?.privacyEnablePaidMayTrain ?? null,
-		privacyEnableFreeMayTrain:
-			args.teamSettings?.privacyEnableFreeMayTrain ?? null,
-		privacyEnableInputOutputLogging:
-			args.teamSettings?.privacyEnableInputOutputLogging ?? null,
+		privacyZdrOnly: effectivePrivacy.privacyZdrOnly,
+		privacyEnablePaidMayTrain: effectivePrivacy.privacyEnablePaidMayTrain,
+		privacyEnableFreeMayTrain: effectivePrivacy.privacyEnableFreeMayTrain,
+		privacyEnableInputOutputLogging: effectivePrivacy.privacyEnableInputOutputLogging,
 		droppedByPrivacy: [],
 		activeGuardrailIds: workspacePolicy?.activeGuardrailIds ?? [],
+		accountPolicyApplied: workspacePolicy?.accountPolicyApplied ?? false,
 		beforeCount: args.providers.length,
 		afterCount: args.providers.length,
 	};
@@ -668,7 +804,7 @@ export function applyWorkspacePolicy(args: {
 
 	filtered = applyProviderDataPolicySettings({
 		providers: filtered,
-		teamSettings: args.teamSettings ?? null,
+		settings: effectivePrivacy,
 		diagnostics,
 	});
 
@@ -747,17 +883,21 @@ function routeCostKind(pricingCard: PriceCard | null | undefined): ProviderRoute
 
 function applyProviderDataPolicySettings(args: {
 	providers: ProviderCandidate[];
-	teamSettings: TeamSettings | null;
+	settings: {
+		privacyEnableInputOutputLogging: boolean;
+		privacyEnablePaidMayTrain: boolean;
+		privacyEnableFreeMayTrain: boolean;
+		privacyZdrOnly: boolean;
+	};
 	diagnostics: WorkspacePolicyDiagnostics;
 }): ProviderCandidate[] {
-	const settings = args.teamSettings;
-	if (!settings) return args.providers;
+	const settings = args.settings;
 
 	const allowInputOutputLogging = settings.privacyEnableInputOutputLogging !== false;
 	const allowPaidMayTrain = settings.privacyEnablePaidMayTrain !== false;
 	const allowFreeMayTrain = settings.privacyEnableFreeMayTrain !== false;
 
-	if (allowInputOutputLogging && allowPaidMayTrain && allowFreeMayTrain) {
+	if (allowInputOutputLogging && allowPaidMayTrain && allowFreeMayTrain && !settings.privacyZdrOnly) {
 		return args.providers;
 	}
 
@@ -768,7 +908,9 @@ function applyProviderDataPolicySettings(args: {
 		const costKind = routeCostKind(provider.pricingCard);
 		let reason: WorkspacePolicyDiagnostics["droppedByPrivacy"][number]["reason"] | null = null;
 
-		if (tier === "unknown") {
+		if (settings.privacyZdrOnly && provider.zeroDataRetention !== "default") {
+			reason = "zdr_required";
+		} else if (tier === "unknown") {
 			reason = "data_policy_unknown";
 		} else if (confidence !== "confirmed") {
 			reason = "data_policy_unverified";
@@ -783,14 +925,16 @@ function applyProviderDataPolicySettings(args: {
 		}
 
 		if (reason) {
-			args.diagnostics.droppedByPrivacy.push({
-				providerId: provider.providerId,
-				reason,
-				dataPolicyTier: tier,
-				dataPolicyConfidence: confidence,
-				routeCostKind: costKind,
-			});
-			continue;
+		args.diagnostics.droppedByPrivacy.push({
+			providerId: provider.providerId,
+			reason,
+			dataPolicyTier: tier,
+			dataPolicyConfidence: confidence,
+			routeCostKind: costKind,
+			capabilityPolicySource: provider.effectiveDataPolicy?.source,
+			zdrEligibility: provider.effectiveDataPolicy?.zdrEligibility,
+		});
+		continue;
 		}
 
 		filtered.push(provider);

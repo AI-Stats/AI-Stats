@@ -159,6 +159,14 @@
       "other_info": "16K; sigma 0.203; games 586; avg points 0.382",
       "source_link": "https://github.com/lechmazur/elimination_game",
       "rank": 53
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 13.4,
+      "is_self_reported": false,
+      "other_info": "QwQ 32B; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/qwq-32b",
+      "rank": 322
     }
   ],
   "family_id": null,

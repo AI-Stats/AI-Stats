@@ -1,6 +1,5 @@
 import SubscriptionPlanDetailShell from "@/components/(data)/subscription-plans/SubscriptionPlanDetailShell";
 import { fetchFrontendSubscriptionPlan } from "@/lib/fetchers/frontend/fetchPublicCatalog";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
@@ -78,18 +77,15 @@ export default async function Page({
 	}
 
 	return (
-		<SubscriptionPlanDetailShell planId={planId}>
-			<Card>
-				<CardHeader>
-					<CardTitle>All Included Models</CardTitle>
-				</CardHeader>
-				<CardContent>
+		<SubscriptionPlanDetailShell planId={planId} tab="models">
+			<section className="space-y-4">
+				<h2 className="text-xl font-semibold">All Included Models</h2>
 					{plan.models && plan.models.length > 0 ? (
-						<div className="space-y-3">
+						<div className="divide-y divide-border/70 border-y border-border/70">
 							{plan.models.map((modelInfo) => (
 								<div
 									key={modelInfo.model_id}
-									className="flex items-center justify-between p-3 border rounded-lg"
+									className="flex items-center justify-between px-1 py-4"
 								>
 									<div className="flex-1">
 										<Link
@@ -124,8 +120,7 @@ export default async function Page({
 							No models information available.
 						</p>
 					)}
-				</CardContent>
-			</Card>
+			</section>
 		</SubscriptionPlanDetailShell>
 	);
 }

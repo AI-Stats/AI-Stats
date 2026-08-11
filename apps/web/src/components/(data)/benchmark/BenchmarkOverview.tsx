@@ -227,7 +227,8 @@ export default function BenchmarkOverview({
 	};
 
 	return (
-		<div className="space-y-6 pb-12">
+		<div className="space-y-10 pb-12">
+			<section id="summary" className="scroll-mt-36 space-y-6">
 			<div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
 				{/* Left: badges */}
 				<div className="space-y-4">
@@ -264,8 +265,9 @@ export default function BenchmarkOverview({
 			</div>
 
 			<BenchmarkMetrics benchmark={benchmark} />
-			<BenchmarkProgressChart benchmark={benchmark} />
-			<ModelsUsingBenchmark benchmark={benchmark} />
+			</section>
+			<section id="progress" className="scroll-mt-36"><BenchmarkProgressChart benchmark={benchmark} /></section>
+			<section id="model-results" className="scroll-mt-36"><ModelsUsingBenchmark benchmark={benchmark} /></section>
 		</div>
 	);
 }

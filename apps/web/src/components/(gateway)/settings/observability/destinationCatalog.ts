@@ -38,7 +38,7 @@ export type ComingSoonDestination = {
 	fields?: ConfigField[];
 };
 
-export const AVAILABLE_DESTINATIONS: DestinationDefinition[] = [
+const DESTINATION_DEFINITIONS: DestinationDefinition[] = [
 	{
 		id: "arize",
 		label: "Arize AI",
@@ -307,7 +307,16 @@ export const AVAILABLE_DESTINATIONS: DestinationDefinition[] = [
 	},
 ];
 
+const EXECUTABLE_DESTINATION_IDS = new Set<DestinationId>(["otel_collector", "webhook"]);
+
+export const AVAILABLE_DESTINATIONS: DestinationDefinition[] = DESTINATION_DEFINITIONS.filter(
+	(destination) => EXECUTABLE_DESTINATION_IDS.has(destination.id),
+);
+
 export const COMING_SOON_DESTINATIONS: ComingSoonDestination[] = [
+	...DESTINATION_DEFINITIONS
+		.filter((destination) => !EXECUTABLE_DESTINATION_IDS.has(destination.id))
+		.map(({ label, logoId, fields }) => ({ label, logoId, fields })),
 	{
 		label: "Axiom",
 		logoId: "observability-axiom",

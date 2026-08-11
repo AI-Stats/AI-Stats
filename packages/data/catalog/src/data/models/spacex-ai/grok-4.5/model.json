@@ -76,7 +76,16 @@
       "value": "Public availability was observed in xAI docs and the xAI console on 2026-07-08; xAI docs do not expose a separate release-date field."
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 55.8,
+      "is_self_reported": false,
+      "other_info": "Grok 4.5 (high); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/grok-4-5",
+      "rank": 15
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

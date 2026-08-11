@@ -889,6 +889,9 @@ export async function syncV2Catalogue(): Promise<void> {
             .filter(row => Boolean(row.is_active_gateway) && !["disabled", "retired"].includes(String(row.routing_status ?? "").toLowerCase()))
             .map(row => String(row.provider_id)),
     );
+    const providerAvailabilityById = new Map(
+        providers.map(provider => [String(provider.api_provider_id), provider.availability ?? null]),
+    );
     const providerRows = providers.map(row => {
         const sourceProvider = source.providers.get(String(row.api_provider_id));
         const sourceRoutable = typeof sourceProvider?.routable === "boolean" ? sourceProvider.routable : null;
@@ -932,6 +935,8 @@ export async function syncV2Catalogue(): Promise<void> {
             link: row.link ?? null,
             colour: row.colour ?? null,
             prompt_training_policy: row.prompt_training_policy ?? null,
+            privacy_policy_url: row.privacy_policy_url ?? null,
+            terms_of_service_url: row.terms_of_service_url ?? null,
             residency_mode: row.residency_mode ?? null,
             default_execution_regions: row.default_execution_regions ?? null,
             default_data_regions: row.default_data_regions ?? null,
@@ -946,6 +951,10 @@ export async function syncV2Catalogue(): Promise<void> {
             service_tiers: sourceProvider?.service_tiers ?? [],
             sources: sourceProvider?.sources ?? [],
             verification: sourceProvider?.verification ?? null,
+            availability:
+                sourceProvider?.availability ??
+                providerAvailabilityById.get(String(row.provider_family_id ?? "")) ??
+                null,
         },
     }; });
     await upsertChunks(supa, "v2_providers", providerRows, "provider_slug");
@@ -1014,6 +1023,9 @@ export async function syncV2Catalogue(): Promise<void> {
     }
 
     const providerStatusBySlug = new Map(providerRows.map(row => [String(row.provider_slug), String(row.status)]));
+    const providerAvailabilityBySlug = new Map(
+        providerRows.map(row => [String(row.provider_slug), row.metadata.availability ?? null]),
+    );
     const routeRows = providerModels
         .filter(row => modelById.has(canonicalModelSlug(row.model_id ?? row.internal_model_id ?? row.api_model_id)))
         .map(row => {
@@ -1066,6 +1078,10 @@ export async function syncV2Catalogue(): Promise<void> {
                     api: authored?.api ?? null,
                     sources: authored?.sources ?? [],
                     verification: authored?.verification ?? null,
+                    availability:
+                        authored?.availability ??
+                        providerAvailabilityBySlug.get(String(row.provider_id)) ??
+                        null,
                 },
             };
         });

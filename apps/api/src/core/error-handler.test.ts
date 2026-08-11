@@ -98,6 +98,62 @@ describe("extractUpstreamUnsupportedParamSignal", () => {
 });
 
 describe("handleError", () => {
+	it("preserves guardrail enforcement metadata on blocked before-stage requests", async () => {
+		let capturedAuditArgs: any = null;
+		const blocked = new Response(
+			JSON.stringify({
+				error: "guardrail_blocked",
+				reason: "prompt_injection_detected",
+				description: "Request blocked by prompt injection guardrail.",
+				request_id: "G-GUARDRAIL-1",
+				workspace_id: "workspace-1",
+				guardrail_enforcement: {
+					source: "prompt_injection",
+					action: "block",
+					guardrail_ids: ["guardrail-1"],
+					detection_count: 1,
+				},
+				guardrail: {
+					type: "content_safety",
+					scope: "workspace",
+				},
+			}),
+			{ status: 403, headers: { "content-type": "application/json" } },
+		);
+
+		const response = await handleError({
+			stage: "before",
+			res: blocked,
+			endpoint: "responses",
+			auditFailure: async (args) => {
+				capturedAuditArgs = args;
+			},
+		});
+
+		const payload = await response.json();
+		expect(payload.guardrail_enforcement).toEqual({
+			source: "prompt_injection",
+			action: "block",
+			guardrail_ids: ["guardrail-1"],
+			detection_count: 1,
+		});
+		expect(payload.guardrail).toEqual({
+			type: "content_safety",
+			scope: "workspace",
+		});
+		expect(capturedAuditArgs?.errorPayload).toMatchObject({
+			guardrail_enforcement: {
+				source: "prompt_injection",
+				action: "block",
+				guardrail_ids: ["guardrail-1"],
+			},
+			guardrail: {
+				type: "content_safety",
+				scope: "workspace",
+			},
+		});
+	});
+
 	it("preserves before-stage system labels from provider candidate gaps", async () => {
 		expect(classifyErrorType({
 			stage: "before",
