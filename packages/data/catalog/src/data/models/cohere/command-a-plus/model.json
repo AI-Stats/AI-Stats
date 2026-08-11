@@ -37,14 +37,6 @@
   ],
   "benchmarks": [
     {
-      "benchmark_id": "aa-intelligence-index-v4",
-      "score": 37,
-      "is_self_reported": true,
-      "other_info": "Artificial Analysis Intelligence Index score reported by Cohere",
-      "source_link": "https://cohere.com/blog/command-a-plus",
-      "rank": 5
-    },
-    {
       "benchmark_id": "tau-2-telecom",
       "score": 85,
       "is_self_reported": true,
@@ -91,6 +83,14 @@
       "other_info": null,
       "source_link": "https://cohere.com/blog/command-a-plus",
       "rank": 12
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 22.8,
+      "is_self_reported": false,
+      "other_info": "Command A+; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/command-a-plus",
+      "rank": 208
     }
   ],
   "family_id": null,

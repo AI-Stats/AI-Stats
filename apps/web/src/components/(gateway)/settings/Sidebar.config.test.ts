@@ -9,6 +9,7 @@ describe("settings sidebar navigation", () => {
 		expect(personalLabels).toEqual([
 			"Profile",
 			"Account",
+			"Privacy",
 			"Workspaces",
 			"Billing",
 			"Feature Preview",
@@ -20,6 +21,8 @@ describe("settings sidebar navigation", () => {
 		expect(getActiveSettingsNav("/settings/usage/overview")?.item.label).toBe("Usage");
 		expect(getActiveSettingsNav("/settings/usage/logs")?.item.label).toBe("Logs");
 		expect(getActiveSettingsNav("/settings/usage/logs/request-1")?.item.label).toBe("Logs");
+		expect(getActiveSettingsNav("/settings/usage/logs/videos")?.item.label).toBe("Logs");
+		expect(getActiveSettingsNav("/settings/usage/logs/batches")?.item.label).toBe("Logs");
 	});
 
 	it("orders workspace settings by task", () => {
@@ -37,14 +40,16 @@ describe("settings sidebar navigation", () => {
 				heading: "Gateway",
 				items: [
 					"API Keys",
+					"Management Keys",
+					"Broadcast",
 					"Apps",
 					"Routing",
-					"Provider access",
+					"Bring Your Own Key",
 					"Presets",
 					"Safety & privacy",
 				],
 			},
-			{ heading: "Developer", items: ["API & integrations"] },
+			{ heading: "Developer", items: ["OAuth Apps", "Webhooks"] },
 		]);
 	});
 });

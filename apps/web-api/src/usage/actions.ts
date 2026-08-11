@@ -82,7 +82,20 @@ export interface PaginatedRequestsParams {
 	statusFilter?: "all" | "success" | "error";
 	requestFilter?: string | null;
 	sessionFilter?: string | null;
-	page: number;
+	sourceFilter?: string | null;
+	filterOperators?: Record<string, string>;
+	inputTokensFilter?: string | null;
+	inputTokensMax?: string | null;
+	inputTokensOperator?: string;
+	outputTokensFilter?: string | null;
+	outputTokensMax?: string | null;
+	outputTokensOperator?: string;
+	totalTokensFilter?: string | null;
+	totalTokensMax?: string | null;
+	totalTokensOperator?: string;
+	page?: number;
+	pageSize?: number;
+	cursor?: { createdAt: string; id: string } | null;
 	sortField: string;
 	sortDirection: "asc" | "desc";
 }
@@ -143,6 +156,7 @@ export interface NormalizedRequestUsageColumns {
 }
 
 export interface RequestRow extends NormalizedRequestUsageColumns {
+	id?: string;
 	request_id: string;
 	created_at: string;
 	endpoint: string | null;
@@ -341,10 +355,9 @@ async function fetchGatewayIoLog(
 
 export interface PaginatedRequestsResult {
 	data: RequestRow[];
-	total: number;
-	page: number;
 	pageSize: number;
-	totalPages: number;
+	hasMore: boolean;
+	nextCursor: { createdAt: string; id: string } | null;
 }
 
 const NORMALIZED_REQUEST_USAGE_SELECT = `
@@ -518,21 +531,20 @@ export async function fetchPaginatedRequests(
 	if (!workspaceId) {
 		return {
 			data: [],
-			total: 0,
-			page: params.page,
-			pageSize: 100,
-			totalPages: 0,
+			pageSize: 50,
+			hasMore: false,
+			nextCursor: null,
 		};
 	}
 
-	const pageSize = 25;
-	const offset = (params.page - 1) * pageSize;
+	const pageSize = [25, 50, 100].includes(Number(params.pageSize)) ? Number(params.pageSize) : 50;
 
 	// Build query
 	let query = supabase
 		.from("gateway_requests")
 		.select(
 			`
+			id,
                         request_id,
                         created_at,
                         endpoint,
@@ -556,18 +568,17 @@ export async function fetchPaginatedRequests(
 			generation_ms,
 			latency_ms,
 			finish_reason,
-			pricing_lines,
-			provider_attempts,
                         success,
                         status_code,
                         error_code,
-                        error_message,
-                        error_payload,
-                        detail_metadata,
+			client_source_id,
+			client_source_name,
+			client_source_kind,
+			client_source_version,
+			client_source_detection,
                         key_id,
                         throughput
-                `,
-			{ count: "exact" }
+			`
 		)
 		.eq("workspace_id", workspaceId)
 		.gte("created_at", params.timeRange.from)
@@ -576,33 +587,33 @@ export async function fetchPaginatedRequests(
 
 	// Apply filters
 	if (params.modelFilter) {
-		query = query.eq("model_id", params.modelFilter);
+		query = params.filterOperators?.model === "is_not" ? query.neq("model_id", params.modelFilter) : query.eq("model_id", params.modelFilter);
 	}
 	if (params.providerFilter) {
-		query = query.eq("provider", params.providerFilter);
+		query = params.filterOperators?.provider === "is_not" ? query.neq("provider", params.providerFilter) : query.eq("provider", params.providerFilter);
 	}
 	if (params.appFilter) {
-		query = query.eq("app_id", params.appFilter);
+		query = params.filterOperators?.app === "is_not" ? query.neq("app_id", params.appFilter) : query.eq("app_id", params.appFilter);
 	}
 	if (params.endpointFilter) {
-		query = query.eq("endpoint", params.endpointFilter);
+		query = params.filterOperators?.endpoint === "is_not" ? query.neq("endpoint", params.endpointFilter) : query.eq("endpoint", params.endpointFilter);
 	}
 	if (params.finishReasonFilter) {
-		query = query.eq("finish_reason", params.finishReasonFilter);
+		query = params.filterOperators?.finish === "is_not" ? query.neq("finish_reason", params.finishReasonFilter) : query.eq("finish_reason", params.finishReasonFilter);
 	}
 	if (params.streamFilter === "streaming") {
-		query = query.eq("stream", true);
+		query = params.filterOperators?.stream === "is_not" ? query.neq("stream", true) : query.eq("stream", true);
 	} else if (params.streamFilter === "non_streaming") {
-		query = query.eq("stream", false);
+		query = params.filterOperators?.stream === "is_not" ? query.neq("stream", false) : query.eq("stream", false);
 	}
 	if (params.errorCodeFilter) {
-		query = query.eq("error_code", params.errorCodeFilter);
+		query = params.filterOperators?.error === "is_not" ? query.neq("error_code", params.errorCodeFilter) : query.eq("error_code", params.errorCodeFilter);
 	}
 	if (typeof params.statusCodeFilter === "number") {
-		query = query.eq("status_code", params.statusCodeFilter);
+		query = params.filterOperators?.http === "is_not" ? query.neq("status_code", params.statusCodeFilter) : query.eq("status_code", params.statusCodeFilter);
 	}
 	if (params.keyFilter) {
-		query = query.eq("key_id", params.keyFilter);
+		query = params.filterOperators?.key === "is_not" ? query.neq("key_id", params.keyFilter) : query.eq("key_id", params.keyFilter);
 	}
 	if (params.requestFilter) {
 		query = query.eq("request_id", params.requestFilter);
@@ -610,22 +621,37 @@ export async function fetchPaginatedRequests(
 	if (params.sessionFilter) {
 		query = query.eq("session_id", params.sessionFilter);
 	}
+	if (params.sourceFilter) {
+		query = params.filterOperators?.source === "is_not" ? query.neq("client_source_id", params.sourceFilter) : query.eq("client_source_id", params.sourceFilter);
+	}
 	if (params.statusFilter === "success") {
-		query = query.eq("success", true);
+		query = params.filterOperators?.status === "is_not" ? query.neq("success", true) : query.eq("success", true);
 	} else if (params.statusFilter === "error") {
-		query = query.eq("success", false);
+		query = params.filterOperators?.status === "is_not" ? query.neq("success", false) : query.eq("success", false);
+	}
+	for (const { value: rawValue, max: rawMax, operator, column } of [
+		{ value: params.inputTokensFilter, max: params.inputTokensMax, operator: params.inputTokensOperator, column: "usage_input_tokens" },
+		{ value: params.outputTokensFilter, max: params.outputTokensMax, operator: params.outputTokensOperator, column: "usage_output_tokens" },
+		{ value: params.totalTokensFilter, max: params.totalTokensMax, operator: params.totalTokensOperator, column: "usage_total_tokens" },
+	]) {
+		if (!rawValue || !/^\d+$/.test(rawValue)) continue;
+		const value = Number(rawValue);
+		if (operator === "eq") query = query.eq(column, value);
+		else if (operator === "lte") query = query.lte(column, value);
+		else if (operator === "between" && rawMax && /^\d+$/.test(rawMax)) query = query.gte(column, value).lte(column, Number(rawMax));
+		else query = query.gte(column, value);
 	}
 
-	// Apply sorting
-	const sortColumn = params.sortField || "created_at";
-	query = query.order(sortColumn, { ascending: params.sortDirection === "asc" });
+	if (params.cursor?.createdAt && params.cursor.id) {
+		query = query.or(`created_at.lt.${params.cursor.createdAt},and(created_at.eq.${params.cursor.createdAt},id.lt.${params.cursor.id})`);
+	}
+	query = query.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(pageSize + 1);
 
-	// Apply pagination
-	query = query.range(offset, offset + pageSize - 1);
-
-	const { data, error, count } = await query;
+	const { data, error } = await query;
 	let rows = data as any[] | null;
-	let totalCount = count ?? 0;
+	let totalCount = 0;
+	const offset = 0;
+	const sortColumn = "created_at";
 	if (error) {
 		console.warn("Falling back after request app join failed:", error);
 		// Fallback: retry without api_apps embedded relation.
@@ -825,10 +851,9 @@ export async function fetchPaginatedRequests(
 					console.warn("Unable to fetch paginated requests:", minimalError);
 					return {
 						data: [],
-						total: 0,
-						page: params.page,
 						pageSize,
-						totalPages: 0,
+						hasMore: false,
+						nextCursor: null,
 					};
 				}
 				rows = (minimalData as any[]) ?? [];
@@ -843,12 +868,15 @@ export async function fetchPaginatedRequests(
 		}
 	}
 
+	const normalizedRows = (rows ?? []).map((row) => toRequestRow(row));
+	const hasMore = normalizedRows.length > pageSize;
+	const visibleRows = normalizedRows.slice(0, pageSize);
+	const lastRow = visibleRows.at(-1);
 	return {
-		data: (rows ?? []).map((row) => toRequestRow(row)) ?? [],
-		total: totalCount,
-		page: params.page,
+		data: visibleRows,
 		pageSize,
-		totalPages: Math.ceil((totalCount || 0) / pageSize),
+		hasMore,
+		nextCursor: hasMore && lastRow?.id ? { createdAt: lastRow.created_at, id: lastRow.id } : null,
 	};
 }
 

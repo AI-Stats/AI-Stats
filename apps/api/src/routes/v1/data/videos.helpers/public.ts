@@ -450,9 +450,7 @@ export async function toPublicVideoResponse(args: {
 		polling_url: buildVideoPollingUrl(args.requestUrl, args.id),
 		websocket_url: buildAsyncWebSocketUrl(args.requestUrl, "video", args.id),
 		poll_after_seconds: DEFAULT_VIDEO_POLL_SECONDS,
-		cancel_url: (status === "queued" || status === "processing") && isVideoCancelSupportedProvider(rawProvider)
-			? buildVideoCancelUrl(args.requestUrl, args.id)
-			: null,
+		cancel_url: null,
 		generation_id: generationId ?? null,
 		native_video_id: nativeVideoId ?? null,
 		created_at: createdAt,

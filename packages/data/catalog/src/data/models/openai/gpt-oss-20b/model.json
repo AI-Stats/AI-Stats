@@ -535,6 +535,14 @@
       "other_info": null,
       "source_link": "https://openai.com/index/introducing-gpt-oss/",
       "rank": 93
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 15.2,
+      "is_self_reported": false,
+      "other_info": "gpt-oss-20b (high); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gpt-oss-20b",
+      "rank": 292
     }
   ],
   "page_notice": null,

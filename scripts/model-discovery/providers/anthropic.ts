@@ -9,7 +9,7 @@ export default defineProvider({
             url: "https://api.anthropic.com/v1/models",
             init: {
                 headers: {
-                    Authorization: `Bearer ${process.env.ANTHROPIC_API_KEY}`,
+                    "x-api-key": String(process.env.ANTHROPIC_API_KEY),
                     "anthropic-version": "2023-06-01",
                 },
             },

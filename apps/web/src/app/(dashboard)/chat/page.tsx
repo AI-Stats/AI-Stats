@@ -5,6 +5,8 @@ import { buildMetadata } from "@/lib/seo";
 import ChatPlaygroundShell from "@/components/(chat)/ChatPlaygroundShell";
 import ChatPlayground from "@/components/(chat)/ChatPlayground";
 import { fetchFrontendGatewayModels } from "@/lib/fetchers/frontend/fetchFrontendGatewayModels";
+import { fetchChatEffectivePolicy } from "@/lib/fetchers/internal/fetchChatEffectivePolicy";
+import { applyChatEffectivePolicy } from "@/lib/chat/effectivePolicy";
 
 export const metadata: Metadata = buildMetadata({
 	title: "AI Chat",
@@ -32,7 +34,11 @@ export default function ChatPlaygroundPage({ searchParams }: ChatPageProps) {
 }
 
 async function ChatPlaygroundContent({ searchParams }: ChatPageProps) {
-	const models = await fetchFrontendGatewayModels();
+	const [catalogue, effectivePolicy] = await Promise.all([
+		fetchFrontendGatewayModels(),
+		fetchChatEffectivePolicy().catch(() => null),
+	]);
+	const models = applyChatEffectivePolicy(catalogue, effectivePolicy);
 	const resolvedParams = (await searchParams) ?? {};
 	const modelParamRaw = resolvedParams.model;
 	const promptParamRaw = resolvedParams.prompt;

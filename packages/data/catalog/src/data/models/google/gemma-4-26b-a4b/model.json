@@ -13,7 +13,13 @@
   "input_types": "text,image,video",
   "output_types": "text",
   "api_model_id": "google/gemma-4-26b-a4b",
-  "variants": [{ "model_id": "google/gemma-4-26b-a4b:free", "name": "Gemma 4 26B A4B (Free)", "variant_kind": "free" }],
+  "variants": [
+    {
+      "model_id": "google/gemma-4-26b-a4b:free",
+      "name": "Gemma 4 26B A4B (Free)",
+      "variant_kind": "free"
+    }
+  ],
   "links": [],
   "details": [],
   "benchmarks": [
@@ -112,6 +118,14 @@
       "other_info": "Average",
       "source_link": "https://ai.google.dev/gemma/docs/core/model_card_4",
       "rank": 9
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 26.1,
+      "is_self_reported": false,
+      "other_info": "Gemma 4 26B A4B (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gemma-4-26b-a4b",
+      "rank": 179
     }
   ],
   "family_id": null,

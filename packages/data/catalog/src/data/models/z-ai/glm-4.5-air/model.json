@@ -127,6 +127,14 @@
       "other_info": null,
       "source_link": "https://z.ai/blog/glm-4.5",
       "rank": 20
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 16.7,
+      "is_self_reported": false,
+      "other_info": "GLM-4.5-Air; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/glm-4-5-air",
+      "rank": 281
     }
   ],
   "family_id": null,

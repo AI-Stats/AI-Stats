@@ -83,6 +83,16 @@ export async function updateTeamAction(workspaceId: string, name: string) {
 	return data;
 }
 
+export async function updateWorkspacePublisherHandleAction(workspaceId: string, handle: string) {
+	if (!workspaceId || typeof workspaceId !== "string") throw new Error("Missing workspaceId");
+	const { accessToken } = await getServerAccountContext();
+	if (!accessToken) throw new Error("Unauthorized");
+	const data = await fetchAccountWebApi<{ ok: true; handle: string }>("/api/account/settings/presets/publisher", accessToken, { method: "PUT", body: JSON.stringify({ workspaceId, handle }) });
+	revalidateWorkspacePaths();
+	revalidatePath("/settings/presets");
+	return data;
+}
+
 export async function deleteTeamAction(workspaceId: string) {
     if (!workspaceId || typeof workspaceId !== "string") throw new Error("Missing workspaceId");
 

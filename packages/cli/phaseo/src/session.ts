@@ -9,6 +9,9 @@ export type Session = {
 	expiresAt: number;
 	apiUrl: string;
 	scope?: string;
+	integrationGatewayKey?: string;
+	integrationGatewayKeyId?: string;
+	integrationGatewayKeyExpiresAt?: number;
 };
 
 type SessionBackend = "dpapi-file" | "keychain" | "secret-service" | "file" | "unavailable";
@@ -77,6 +80,22 @@ function parseSession(raw: string): Session | null {
 			!parsed.apiUrl
 		) return null;
 		if (parsed.scope !== undefined && typeof parsed.scope !== "string") return null;
+		const integrationFields = [
+			parsed.integrationGatewayKey,
+			parsed.integrationGatewayKeyId,
+			parsed.integrationGatewayKeyExpiresAt,
+		];
+		if (
+			integrationFields.some((value) => value !== undefined) &&
+			(
+				typeof parsed.integrationGatewayKey !== "string" ||
+				!parsed.integrationGatewayKey ||
+				typeof parsed.integrationGatewayKeyId !== "string" ||
+				!parsed.integrationGatewayKeyId ||
+				typeof parsed.integrationGatewayKeyExpiresAt !== "number" ||
+				!Number.isFinite(parsed.integrationGatewayKeyExpiresAt)
+			)
+		) return null;
 		return parsed as Session;
 	} catch {
 		return null;

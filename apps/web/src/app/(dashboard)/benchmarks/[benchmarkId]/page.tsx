@@ -144,7 +144,7 @@ export default async function Page({
 					/>
 				</>
 			)}
-			<BenchmarkDetailShell benchmark={benchmark}>
+			<BenchmarkDetailShell benchmark={benchmark} tocItems={[{ id: "summary", label: "Summary" }, { id: "progress", label: "Progress" }, { id: "model-results", label: "Model Results" }]}>
 				<BenchmarkOverview benchmark={benchmark} />
 			</BenchmarkDetailShell>
 		</>

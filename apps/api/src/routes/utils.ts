@@ -400,7 +400,7 @@ export function withCors(
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
         "Access-Control-Allow-Headers":
-            "Authorization,Content-Type,x-title,http-referer,x-app-id,x-app-name,x-gateway-debug,x-phaseo-debug,X-Phaseo-Strictness,x-phaseo-cache-revalidate",
+            "Authorization,Content-Type,x-title,http-referer,x-app-id,x-app-name,x-phaseo-client,x-phaseo-client-version,x-gateway-debug,x-phaseo-debug,X-Phaseo-Strictness,x-phaseo-cache-revalidate",
         "Access-Control-Max-Age": "86400",
     };
 

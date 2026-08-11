@@ -58,7 +58,7 @@
     },
     {
       "name": "pricing",
-      "value": "Introductory pricing is $2 per 1M input tokens and $10 per 1M output tokens through 2026-08-31, then standard Sonnet pricing of $3 per 1M input tokens and $15 per 1M output tokens."
+      "value": "$2 per 1M input tokens and $10 per 1M output tokens. Anthropic made the launch pricing permanent on 2026-08-10."
     },
     {
       "name": "tokenizer",
@@ -228,9 +228,20 @@
       "other_info": "Zapier leaderboard private held-out tasks; max effort",
       "source_link": "https://www.anthropic.com/claude-sonnet-5-system-card",
       "rank": 4
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 55.3,
+      "is_self_reported": false,
+      "other_info": "Claude Sonnet 5 (Adaptive Reasoning, Max Effort); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/claude-sonnet-5",
+      "rank": 17
     }
   ],
-  "page_notice": null,
+  "page_notice": {
+    "tone": "info",
+    "markdown": "Anthropic has made Claude Sonnet 5's $2 per 1M input tokens and $10 per 1M output tokens pricing permanent. [View the announcement](https://x.com/claudeai/status/2086891169217122586)."
+  },
   "model_type": null,
   "knowledge_cutoff": "January 2026",
   "limits": {

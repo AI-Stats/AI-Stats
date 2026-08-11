@@ -19,7 +19,16 @@
   "api_model_id": "kwaipilot/kat-coder-pro-v1",
   "links": [],
   "details": [],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 28.9,
+      "is_self_reported": false,
+      "other_info": "KAT-Coder-Pro V1; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/kat-coder-pro-v1",
+      "rank": 164
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

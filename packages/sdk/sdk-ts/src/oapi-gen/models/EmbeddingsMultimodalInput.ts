@@ -2,7 +2,7 @@
  * Google multimodal embeddings extension item.
  */
 export interface EmbeddingsMultimodalInput {
-  content:
+  content: (
     | {
         text: string;
         type: "text" | "input_text";
@@ -40,5 +40,6 @@ export interface EmbeddingsMultimodalInput {
           | {
               url: string;
             };
-      }[];
+      }
+  )[];
 }

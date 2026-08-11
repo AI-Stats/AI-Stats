@@ -35,7 +35,16 @@
       "value": 35000000000
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 32.1,
+      "is_self_reported": false,
+      "other_info": "Qwen3.6 35B A3B (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/qwen3-6-35b-a3b",
+      "rank": 133
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

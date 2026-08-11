@@ -13,7 +13,13 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "xiaomi/mimo-v2-flash",
-  "variants": [{ "model_id": "xiaomi/mimo-v2-flash:free", "name": "MiMo V2 Flash (Free)", "variant_kind": "free" }],
+  "variants": [
+    {
+      "model_id": "xiaomi/mimo-v2-flash:free",
+      "name": "MiMo V2 Flash (Free)",
+      "variant_kind": "free"
+    }
+  ],
   "links": [],
   "details": [],
   "benchmarks": [
@@ -136,6 +142,14 @@
       "other_info": null,
       "source_link": "https://mimo.xiaomi.com/blog/mimo-v2-flash",
       "rank": 47
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 34,
+      "is_self_reported": false,
+      "other_info": "MiMo-V2-Flash (Feb 2026); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/mimo-v2-0206",
+      "rank": 121
     }
   ],
   "family_id": null,

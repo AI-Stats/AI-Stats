@@ -13,7 +13,13 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "z-ai/glm-4.7-flash",
-  "variants": [{ "model_id": "z-ai/glm-4.7-flash:free", "name": "GLM 4.7 Flash (Free)", "variant_kind": "free" }],
+  "variants": [
+    {
+      "model_id": "z-ai/glm-4.7-flash:free",
+      "name": "GLM 4.7 Flash (Free)",
+      "variant_kind": "free"
+    }
+  ],
   "links": [],
   "details": [],
   "benchmarks": [
@@ -64,6 +70,14 @@
       "other_info": null,
       "source_link": "https://z.ai/blog/glm-4.7-flash",
       "rank": 4
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 23.3,
+      "is_self_reported": false,
+      "other_info": "GLM-4.7-Flash (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/glm-4-7-flash",
+      "rank": 205
     }
   ],
   "family_id": null,

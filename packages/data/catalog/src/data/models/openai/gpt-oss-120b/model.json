@@ -571,6 +571,14 @@
       "other_info": "sigma 0.210; games 519; avg points 0.462",
       "source_link": "https://github.com/lechmazur/elimination_game",
       "rank": 33
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 24.1,
+      "is_self_reported": false,
+      "other_info": "gpt-oss-120b (high); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gpt-oss-120b",
+      "rank": 198
     }
   ],
   "page_notice": null,

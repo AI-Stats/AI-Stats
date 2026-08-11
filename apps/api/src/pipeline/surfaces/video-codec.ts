@@ -8,7 +8,7 @@ function firstDefined<T>(...values: Array<T | undefined>): T | undefined {
 }
 
 type NormalizedVideoInputReference = {
-	type: "image";
+	type: "image" | "video" | "audio";
 	role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
 	referenceType?: string;
 	url?: string;
@@ -19,7 +19,7 @@ function normalizeVideoInputReference(entry: unknown, index: number): Normalized
 	if (!entry || typeof entry !== "object" || Array.isArray(entry)) return null;
 	const raw = entry as Record<string, any>;
 	const rawType = typeof raw.type === "string" ? raw.type.trim().toLowerCase() : "";
-	if (rawType !== "image_url") return null;
+	if (rawType !== "image_url" && rawType !== "video_url" && rawType !== "audio_url") return null;
 	const roleRaw = typeof raw.role === "string" ? raw.role.trim().toLowerCase() : "";
 	const role =
 		roleRaw === "first_frame" ||
@@ -29,17 +29,15 @@ function normalizeVideoInputReference(entry: unknown, index: number): Normalized
 		roleRaw === "mask"
 			? (roleRaw as NormalizedVideoInputReference["role"])
 			: undefined;
-	const url =
-		typeof raw.image_url?.url === "string" && raw.image_url.url.trim().length > 0
-			? raw.image_url.url.trim()
-			: undefined;
+	const media = rawType === "image_url" ? raw.image_url : raw.media_url;
+	const url = typeof media?.url === "string" && media.url.trim().length > 0 ? media.url.trim() : undefined;
 	const referenceType =
 		typeof raw.reference_type === "string" && raw.reference_type.trim().length > 0
 			? raw.reference_type.trim()
 			: undefined;
 	if (!url) return null;
 	return {
-		type: "image",
+		type: rawType === "video_url" ? "video" : rawType === "audio_url" ? "audio" : "image",
 		role: role ?? (rawType === "image_url" ? (index === 0 ? "first_frame" : "reference") : undefined),
 		referenceType,
 		url,
@@ -63,11 +61,11 @@ export function decodeOpenAIVideoRequestToIR(body: any): IRVideoGenerationReques
 	const inputReferences = rawInputReferences
 		.map((item: unknown, index: number) => normalizeVideoInputReference(item, index))
 		.filter((item): item is NormalizedVideoInputReference => Boolean(item));
-	const firstFrame = inputReferences.find((item: any) => item?.role === "first_frame");
-	const sourceVideo = inputReferences.find((item: any) => item?.role === "source" || item?.type === "video");
-	const lastFrame = inputReferences.find((item: any) => item?.role === "last_frame");
+	const firstFrame = inputReferences.find((item: any) => item?.type === "image" && item?.role === "first_frame");
+	const sourceVideo = inputReferences.find((item: any) => item?.type === "video");
+	const lastFrame = inputReferences.find((item: any) => item?.type === "image" && item?.role === "last_frame");
 	const referenceImages = inputReferences
-		.filter((item: any) => item?.role === "reference")
+		.filter((item: any) => item?.type === "image" && item?.role === "reference")
 		.map((item: any) => ({
 			...(item?.reference_type || item?.referenceType
 				? { referenceType: item.reference_type ?? item.referenceType }
@@ -108,6 +106,10 @@ export function decodeOpenAIVideoRequestToIR(body: any): IRVideoGenerationReques
 		},
 		inputImage: normalizeReferenceValue(firstFrame),
 		inputVideo: normalizeReferenceValue(sourceVideo),
+		inputVideoDurationSeconds:
+			typeof body?.input_video_duration === "number" && Number.isFinite(body.input_video_duration)
+				? body.input_video_duration
+				: undefined,
 		lastFrame: normalizeReferenceValue(lastFrame),
 		referenceImages,
 		duration: durationSeconds,

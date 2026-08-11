@@ -47,31 +47,31 @@ func CancelBatchAlias(client *Client, path map[string]string, query map[string]s
 	return out, nil
 }
 
-func CancelVideo(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (map[string]interface{}, error) {
+func CancelVideo(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (interface{}, error) {
 	resolvedPath := "/videos/" + url.PathEscape(path["video_id"]) + "/cancel"
 	data, err := client.Request("POST", resolvedPath, query, headers, body)
 	if err != nil {
-		var zero map[string]interface{}
+		var zero interface{}
 		return zero, err
 	}
-	var out map[string]interface{}
+	var out interface{}
 	if err := DecodeJSON(data, &out); err != nil {
-		var zero map[string]interface{}
+		var zero interface{}
 		return zero, err
 	}
 	return out, nil
 }
 
-func CancelVideoAlias(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (map[string]interface{}, error) {
+func CancelVideoAlias(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (interface{}, error) {
 	resolvedPath := "/video/generations/" + url.PathEscape(path["video_id"]) + "/cancel"
 	data, err := client.Request("POST", resolvedPath, query, headers, body)
 	if err != nil {
-		var zero map[string]interface{}
+		var zero interface{}
 		return zero, err
 	}
-	var out map[string]interface{}
+	var out interface{}
 	if err := DecodeJSON(data, &out); err != nil {
-		var zero map[string]interface{}
+		var zero interface{}
 		return zero, err
 	}
 	return out, nil

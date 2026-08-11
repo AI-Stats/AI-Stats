@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import SettingsPageHeader from "@/components/(gateway)/settings/SettingsPageHeader";
 import SettingsSectionFallback from "@/components/(gateway)/settings/SettingsSectionFallback";
-import PrivacySettingsClient from "@/components/(gateway)/settings/privacy/PrivacySettingsClient";
+import AccountPrivacySettingsClient from "@/components/(gateway)/settings/account/AccountPrivacySettingsClient";
+import { DataContributionSettingsCard } from "@/components/(gateway)/settings/privacy/DataContributionSettingsCard";
 import { fetchSettingsPrivacyInitialData } from "@/lib/fetchers/internal/fetchSettingsPrivacyInitialData";
-import { gatewayIoLoggingFlag } from "@/lib/flags";
 
 export const metadata = {
 	title: "Privacy - Settings",
@@ -13,8 +13,8 @@ export default function PrivacySettingsPage() {
 	return (
 		<div className="space-y-6">
 			<SettingsPageHeader
-				title="Privacy"
-				description="Configure privacy defaults and provider restrictions for your workspace."
+				title="Data Controls"
+				description="Set the minimum data-handling and route-access policy for this workspace."
 			/>
 			<Suspense fallback={<SettingsSectionFallback />}>
 				<PrivacySettingsContent />
@@ -24,10 +24,7 @@ export default function PrivacySettingsPage() {
 }
 
 async function PrivacySettingsContent() {
-	const [initialData, ioLoggingFeatureEnabled] = await Promise.all([
-		fetchSettingsPrivacyInitialData(),
-		gatewayIoLoggingFlag(),
-	]);
+	const initialData = await fetchSettingsPrivacyInitialData();
 
 	if (!initialData.workspaceId) {
 		return (
@@ -38,13 +35,23 @@ async function PrivacySettingsContent() {
 	}
 
 	return (
-		<PrivacySettingsClient
-			teamName={initialData.teamName}
-			initialGlobal={initialData.initialGlobal}
+		<div className="space-y-8">
+		<AccountPrivacySettingsClient
+			policy={initialData.policy}
 			providers={initialData.providers}
-			activeProviderModels={initialData.activeProviderModels}
-			ioLoggingFeatureEnabled={ioLoggingFeatureEnabled}
-			dataContribution={initialData.dataContribution}
+			models={initialData.models}
+			scope="workspace"
+			workspaceId={initialData.workspaceId}
+			inheritedAccountPolicy={initialData.accountPolicy}
+			workspaceLogStorage={{
+				enabled: initialData.initialGlobal?.io_logging_enabled === true,
+				retentionDays: Math.max(90, Math.min(365, Number(initialData.initialGlobal?.io_logging_retention_days ?? 90))),
+				includeProviderPayloads: initialData.initialGlobal?.io_logging_include_provider_payloads !== false,
+			}}
 		/>
+		{initialData.dataContribution.available ? (
+			<DataContributionSettingsCard initial={initialData.dataContribution} />
+		) : null}
+		</div>
 	);
 }

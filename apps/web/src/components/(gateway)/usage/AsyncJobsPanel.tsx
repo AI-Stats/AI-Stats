@@ -211,10 +211,10 @@ function buildUsageLogsFilterHref(args: {
 	sessionId?: string | null;
 }): string {
 	const next = new URLSearchParams();
-	next.set("view", args.view);
 	if (args.requestId) next.set("req", args.requestId);
 	if (args.sessionId) next.set("session", args.sessionId);
-	return `/settings/usage/logs?${next.toString()}`;
+	const path = args.view === "logs" ? "/settings/usage/logs/requests" : "/settings/usage/logs/sessions";
+	return next.size ? `${path}?${next.toString()}` : path;
 }
 
 function formatMoneyFromNanos(value: number | null | undefined): string {

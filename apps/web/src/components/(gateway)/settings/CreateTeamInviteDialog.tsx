@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
 	Dialog,
 	DialogTrigger,
@@ -53,6 +54,7 @@ export default function CreateTeamInviteDialog({
 	teams: { id: string; name: string }[];
 	defaultWorkspaceId?: string;
 }) {
+	const router = useRouter();
 	const isWorkspaceLocked = teams.length === 1;
 	const preferredTeamId = useMemo(() => {
 		if (!teams?.length) return undefined;
@@ -71,7 +73,6 @@ export default function CreateTeamInviteDialog({
 	const [maxUses, setMaxUses] = useState<number | undefined>(undefined);
 	const [loading, setLoading] = useState(false);
 	const [generatedCode, setGeneratedCode] = useState<string | null>(null);
-	const [inviteCreatedId, setInviteCreatedId] = useState<string | null>(null);
 
 	// teams are passed in as a prop from the page
 
@@ -79,20 +80,9 @@ export default function CreateTeamInviteDialog({
 		setOpen(next);
 		if (next) {
 			setGeneratedCode(null);
-			setInviteCreatedId(null);
 			setSelectedTeam(preferredTeamId);
 		}
 	}
-
-	useEffect(() => {
-		if (!teams?.length) {
-			setSelectedTeam(undefined);
-			return;
-		}
-		if (!selectedTeam || !teams.some((t) => t.id === selectedTeam)) {
-			setSelectedTeam(preferredTeamId);
-		}
-	}, [teams, selectedTeam, preferredTeamId]);
 
 	async function onCreate(e?: React.FormEvent) {
 		e?.preventDefault();
@@ -109,9 +99,9 @@ export default function CreateTeamInviteDialog({
 				code,
 				expiresIn,
 				maxUses ?? null
-			).then((res: any) => {
+			).then(() => {
 				setGeneratedCode(code);
-				setInviteCreatedId(res?.id ?? null);
+				router.refresh();
 			});
 		} catch {
 			toast.error("Failed to create invite");
@@ -152,7 +142,7 @@ export default function CreateTeamInviteDialog({
 										{selectedTeam
 											? teams.find(
 													(x) => x.id === selectedTeam
-											  )?.name
+										)?.name
 											: "Select a workspace"}
 
 								</DropdownMenuTrigger>
@@ -209,7 +199,7 @@ export default function CreateTeamInviteDialog({
 											Math.max(
 												1,
 												Number(e.target.value) || 1
-											)
+									)
 										)
 									}
 								/>
@@ -228,7 +218,7 @@ export default function CreateTeamInviteDialog({
 												: Math.max(
 														0,
 														Number(e.target.value)
-												  )
+												)
 										)
 									}
 								/>
@@ -263,7 +253,7 @@ export default function CreateTeamInviteDialog({
 								size="default"
 								variant="outline"
 								className="mr-2"
-								aria-label="Copy API key"
+								aria-label="Copy invite code"
 							/>
 						</div>
 						<DialogFooter>

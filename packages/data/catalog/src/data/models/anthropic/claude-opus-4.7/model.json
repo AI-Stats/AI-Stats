@@ -284,6 +284,14 @@
       "other_info": "No reasoning; Top-1 accuracy 71.6%; cases 703",
       "source_link": "https://github.com/lechmazur/generalization",
       "rank": 11
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 55,
+      "is_self_reported": false,
+      "other_info": "Claude Opus 4.7 (Adaptive Reasoning, Max Effort); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/claude-opus-4-7",
+      "rank": 18
     }
   ],
   "family_id": null,

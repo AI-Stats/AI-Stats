@@ -207,6 +207,14 @@
       "other_info": null,
       "source_link": "https://qwenlm.github.io/blog/qwen3-next/",
       "rank": 2
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 13.8,
+      "is_self_reported": false,
+      "other_info": "Qwen3 Next 80B A3B Instruct; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/qwen3-next-80b-a3b-instruct",
+      "rank": 317
     }
   ],
   "family_id": null,

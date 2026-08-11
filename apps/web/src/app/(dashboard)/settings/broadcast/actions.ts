@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountContext";
 import { fetchAccountWebApi } from "@/lib/web-api/client";
 
-type BroadcastRuleField = "model" | "provider" | "session_id" | "user_id" | "api_key_name" | "finish_reason" | "input" | "output" | "total_cost" | "total_tokens" | "prompt_tokens" | "completion_tokens";
+type BroadcastRuleField = "model" | "provider" | "session_id" | "user_id" | "api_key_name" | "finish_reason" | "input" | "output" | "token_cost" | "total_cost" | "total_tokens" | "prompt_tokens" | "completion_tokens";
 type BroadcastRuleCondition = "equals" | "not_equals" | "contains" | "not_contains" | "starts_with" | "ends_with" | "exists" | "not_exists" | "matches_regex";
 
 type CreateBroadcastDestinationInput = {
@@ -14,7 +14,12 @@ type CreateBroadcastDestinationInput = {
 	privacyExcludePromptsAndOutputs?: boolean;
 	samplingRate?: number;
 	groupJoin?: "and" | "or";
-	keyIds?: string[];
+	includeKeyIds?: string[];
+	excludeKeyIds?: string[];
+	includeGenerationMetadata?: boolean;
+	includeCostMetadata?: boolean;
+	includeIdentityMetadata?: boolean;
+	includeRequestContext?: boolean;
 	ruleGroups?: Array<{ match: "and" | "or"; rules: Array<{ field: BroadcastRuleField; condition: BroadcastRuleCondition; value?: string }> }>;
 };
 
@@ -42,6 +47,14 @@ export async function disableBroadcastDestinationAction(id: string) {
 	return result;
 }
 
+export async function enableBroadcastDestinationAction(id: string) {
+	if (!id) throw new Error("Missing destination id");
+	const context = await account();
+	const result = await fetchAccountWebApi<{ ok: true }>(`/api/account/settings/broadcast/${encodeURIComponent(id)}/enable`, context.accessToken, { method: "PUT" });
+	refresh();
+	return result;
+}
+
 export async function deleteBroadcastDestinationAction(id: string) {
 	if (!id) throw new Error("Missing destination id");
 	const context = await account();
@@ -63,6 +76,13 @@ export async function sendBroadcastSampleTraceAction(id: string) {
 }
 
 export async function testBroadcastConnectionFromConfigAction(args: { destinationId: string; config: Record<string, string> }) {
-	const context = await account();
-	return fetchAccountWebApi<{ ok: true; status: string; httpStatus: null; endpoint: string; headerCount: number }>("/api/account/settings/broadcast/test-config", context.accessToken, { method: "POST", body: JSON.stringify({ ...args, workspaceId: context.workspaceId }) });
+	try {
+		const context = await account();
+		return await fetchAccountWebApi<{ ok: true; status: string; httpStatus: number | null; endpoint: string; headerCount: number }>("/api/account/settings/broadcast/test-config", context.accessToken, { method: "POST", body: JSON.stringify({ ...args, workspaceId: context.workspaceId }) });
+	} catch (error) {
+		return {
+			ok: false as const,
+			status: error instanceof Error ? error.message : "Connection check failed",
+		};
+	}
 }

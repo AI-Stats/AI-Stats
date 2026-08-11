@@ -129,6 +129,8 @@ type WorkspacePrivacySettings = {
     privacyZdrOnly: boolean;
     providerRestrictionMode: "none" | "allowlist" | "blocklist";
     providerRestrictionProviderIds: string[];
+    accountProviderRestrictionMode?: "none" | "allowlist" | "blocklist";
+    accountProviderRestrictionProviderIds?: string[];
 };
 const DEFAULT_SORT_DIRECTIONS: Record<Exclude<SortOption, "default">, SortDirection> = {
     provider: "asc",
@@ -394,6 +396,12 @@ function getIgnoredPrivacyReasons(
     const reasons: string[] = [];
     const providerId = provider.provider.api_provider_id;
     const providerIds = settings.providerRestrictionProviderIds;
+	const accountProviderIds = settings.accountProviderRestrictionProviderIds ?? [];
+	if (settings.accountProviderRestrictionMode === "allowlist" && !accountProviderIds.includes(providerId)) {
+		reasons.push("Not in account provider allowlist");
+	} else if (settings.accountProviderRestrictionMode === "blocklist" && accountProviderIds.includes(providerId)) {
+		reasons.push("Blocked by account provider restrictions");
+	}
     if (settings.providerRestrictionMode === "allowlist" && providerIds.length) {
         if (!providerIds.includes(providerId)) {
             reasons.push("Not in workspace provider allowlist");
@@ -438,7 +446,9 @@ function matchesPrivacyFilter(
         return getProviderPromptTrainingPolicy(provider) !== "may_train";
     }
     if (!workspacePrivacySettings?.isAuthenticated) return true;
-    return getIgnoredPrivacyReasons(provider, workspacePrivacySettings).length === 0;
+	return getIgnoredPrivacyReasons(provider, workspacePrivacySettings)
+		.filter((reason) => !reason.includes("account provider"))
+		.length === 0;
 }
 
 export default function ModelPricingClient({
@@ -826,10 +836,16 @@ export default function ModelPricingClient({
             }
         }
 
-        return {
-            filteredProviders: sortedProviders.filter((provider) =>
-                matchesPrivacyFilter(provider, privacyFilter, workspacePrivacySettings),
-            ),
+        const filteredProviders = sortedProviders.filter((provider) =>
+			matchesPrivacyFilter(provider, privacyFilter, workspacePrivacySettings),
+		);
+		filteredProviders.sort((a, b) => {
+			const aAccountBlocked = (ignoredReasonMap.get(a.provider.api_provider_id) ?? []).some((reason) => reason.includes("account provider"));
+			const bAccountBlocked = (ignoredReasonMap.get(b.provider.api_provider_id) ?? []).some((reason) => reason.includes("account provider"));
+			return Number(aAccountBlocked) - Number(bAccountBlocked);
+		});
+		return {
+			filteredProviders,
             ignoredProviderReasons: ignoredReasonMap,
         };
     }, [privacyFilter, sortedProviders, workspacePrivacySettings]);

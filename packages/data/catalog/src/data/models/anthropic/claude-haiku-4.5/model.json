@@ -131,6 +131,14 @@
       "other_info": "940 puzzles",
       "source_link": "https://github.com/lechmazur/nyt-connections",
       "rank": 66
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 29.9,
+      "is_self_reported": false,
+      "other_info": "Claude 4.5 Haiku (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/claude-4-5-haiku-reasoning",
+      "rank": 154
     }
   ],
   "page_notice": null,

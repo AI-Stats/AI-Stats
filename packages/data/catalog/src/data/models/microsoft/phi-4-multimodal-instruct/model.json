@@ -178,6 +178,14 @@
       "other_info": null,
       "source_link": "https://huggingface.co/microsoft/Phi-4-multimodal-instruct",
       "rank": 32
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 4.2,
+      "is_self_reported": false,
+      "other_info": "Phi-4 Multimodal Instruct; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/phi-4-multimodal",
+      "rank": 504
     }
   ],
   "page_notice": null,

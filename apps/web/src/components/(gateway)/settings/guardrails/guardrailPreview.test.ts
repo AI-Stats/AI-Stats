@@ -107,4 +107,35 @@ describe("buildGuardrailRestrictionPreview", () => {
 			filteredRouteCount: 2,
 		});
 	});
+
+	test("applies inherited account provider blocks before guardrail rules", () => {
+		const preview = buildGuardrailRestrictionPreview({
+			providers,
+			activeProviderModels,
+			providerRestrictionMode: "none",
+			providerRestrictionProviderIds: [],
+			modelRestrictionMode: "none",
+			allowedApiModelIds: [],
+			accountProviderRestrictionMode: "blocklist",
+			accountProviderRestrictionProviderIds: ["anthropic"],
+		});
+
+		expect(preview.reachableProviderIds).toEqual(["openai", "xai"]);
+		expect(preview.reachableModelIds).toEqual(["gpt-4.1", "grok-4"]);
+	});
+
+	test("intersects inherited account and guardrail model allowlists", () => {
+		const preview = buildGuardrailRestrictionPreview({
+			providers,
+			activeProviderModels,
+			providerRestrictionMode: "none",
+			providerRestrictionProviderIds: [],
+			modelRestrictionMode: "allowlist",
+			allowedApiModelIds: ["claude-sonnet", "gpt-4.1"],
+			accountModelRestrictionMode: "allowlist",
+			accountModelRestrictionModelIds: ["gpt-4.1", "grok-4"],
+		});
+
+		expect(preview.reachableModelIds).toEqual(["gpt-4.1"]);
+	});
 });

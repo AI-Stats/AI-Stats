@@ -68,6 +68,7 @@ type Options = {
   enableDeprecationWarnings?: boolean;
   warningsAsErrors?: boolean;
   logger?: PhaseoLogger;
+  headers?: Record<string, string>;
 };
 
 export type PhaseoLogLevel = "info" | "warn" | "error";
@@ -448,7 +449,12 @@ export class Phaseo {
   constructor(private readonly opts: Options = {}) {
     const apiKey = resolveApiKey(opts.apiKey);
     this.basePath = trimTrailingSlashes(opts.baseUrl ?? DEFAULT_BASE_URL);
-    this.headers = { Authorization: `Bearer ${apiKey}` };
+    this.headers = {
+      Authorization: `Bearer ${apiKey}`,
+      "X-Phaseo-Client": "phaseo-typescript",
+      "X-Phaseo-Client-Version": "2.2.0",
+      ...(opts.headers ?? {}),
+    };
     this.client = new Client({
       baseUrl: this.basePath,
       headers: this.headers,

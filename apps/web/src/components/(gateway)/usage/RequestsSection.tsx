@@ -8,7 +8,6 @@ import ExportDropdown from "./ExportDropdown";
 import InvestigateGeneration from "./UsageHeader/InvestigateGeneration";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { revalidateUsage } from "@/app/(dashboard)/gateway/usage/actions";
 import { runUsageViewRefresh } from "@/lib/gateway/usage/refreshBus";
 import type {
 	ProviderMetadataEntry,
@@ -27,6 +26,9 @@ interface RequestsSectionProps {
 	initialRows: RequestRow[];
 	initialTotal: number;
 	initialTotalPages: number;
+	initialHasMore: boolean;
+	initialNextCursor: { createdAt: string; id: string } | null;
+	initialPageSize: number;
 	detailBasePath?: string;
 }
 
@@ -41,6 +43,9 @@ export default function RequestsSection({
 	initialRows,
 	initialTotal,
 	initialTotalPages,
+	initialHasMore,
+	initialNextCursor,
+	initialPageSize,
 	detailBasePath,
 }: RequestsSectionProps) {
 	const exportRef = useRef<((format: "csv" | "pdf") => void) | null>(null);
@@ -55,12 +60,8 @@ export default function RequestsSection({
 	async function onRefresh() {
 		try {
 			setRefreshing(true);
-			const res = await revalidateUsage("logs");
-			if (res?.ok) {
-				await runUsageViewRefresh("logs");
-			}
-			if (res?.ok) toast.success("Refresh Successful");
-			else toast.error("Refresh Failed");
+			await runUsageViewRefresh("logs");
+			toast.success("Refresh Successful");
 		} catch {
 			toast.error("Refresh Failed");
 		} finally {
@@ -111,6 +112,9 @@ export default function RequestsSection({
 				initialRows={initialRows}
 				initialTotal={initialTotal}
 				initialTotalPages={initialTotalPages}
+				initialHasMore={initialHasMore}
+				initialNextCursor={initialNextCursor}
+				initialPageSize={initialPageSize}
 				detailBasePath={detailBasePath}
 				onExportRef={exportRef}
 			/>

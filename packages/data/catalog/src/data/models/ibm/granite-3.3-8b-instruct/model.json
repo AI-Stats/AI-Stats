@@ -171,6 +171,14 @@
       "other_info": null,
       "source_link": "https://huggingface.co/ibm-granite/granite-3.3-8b-instruct",
       "rank": 7
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 1.3,
+      "is_self_reported": false,
+      "other_info": "Granite 3.3 8B (Non-reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/granite-3-3-8b-instruct",
+      "rank": 568
     }
   ],
   "page_notice": null,

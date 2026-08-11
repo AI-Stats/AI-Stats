@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { canonicalByokProviderId } from "@/lib/byok/providerIds";
 import { validateProviderKeyFormat } from "@/lib/byok/providerKeyValidation";
 import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountContext";
@@ -14,7 +14,8 @@ async function context(): Promise<{ accessToken: string; workspaceId: string }> 
 }
 
 function refresh(): void {
-	revalidatePath("/settings/byok");
+	updateTag("settings-byok");
+	revalidatePath("/settings/byok", "layout");
 }
 
 export async function createByokKeyAction(
@@ -23,6 +24,8 @@ export async function createByokKeyAction(
 	value: string,
 	enabled = true,
 	always_use = false,
+	allowedModelSlugs: string[] = [],
+	allowedApiKeyIds: string[] = [],
 ) {
 	if (!name || !providerId || !value) throw new Error("Missing BYOK key fields");
 	const canonicalProviderId = canonicalByokProviderId(providerId);
@@ -32,7 +35,7 @@ export async function createByokKeyAction(
 	const result = await fetchAccountWebApi<{ id?: string; mode: "created" | "updated" }>(
 		"/api/account/settings/byok",
 		account.accessToken,
-		{ method: "POST", body: JSON.stringify({ name, providerId: canonicalProviderId, value, enabled, always_use, workspaceId: account.workspaceId }) },
+		{ method: "POST", body: JSON.stringify({ name, providerId: canonicalProviderId, value, enabled, always_use, allowedModelSlugs, allowedApiKeyIds, workspaceId: account.workspaceId }) },
 	);
 	refresh();
 	return result;
@@ -40,7 +43,7 @@ export async function createByokKeyAction(
 
 export async function updateByokKeyAction(
 	id: string,
-	updates: { name?: string; value?: string; enabled?: boolean; always_use?: boolean },
+	updates: { name?: string; value?: string; enabled?: boolean; always_use?: boolean; allowedModelSlugs?: string[]; allowedApiKeyIds?: string[] },
 ) {
 	if (!id) throw new Error("Missing id");
 	const account = await context();
