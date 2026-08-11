@@ -155,6 +155,16 @@ function slug(value: unknown, fallback = "standard"): string {
     return normalized || fallback;
 }
 
+export function v2ServiceTierSlugs(
+    pricingRules: Array<{ pricing_plan?: unknown }>,
+    providerModels: Iterable<{ service_tiers?: unknown }>,
+): string[] {
+    return [...new Set([
+        ...pricingRules.map(rule => slug(rule.pricing_plan)),
+        ...[...providerModels].flatMap(model => asTextArray(model.service_tiers).map(tier => slug(tier))),
+    ])];
+}
+
 function stableUuid(value: string): string {
     const hash = createHash("sha256").update(value).digest("hex").slice(0, 32).split("");
     hash[12] = "4";
@@ -1218,7 +1228,7 @@ export async function syncV2Catalogue(): Promise<void> {
         });
     }
     const pricingRows = [...pricingRowsByKey.values()];
-    const tierSlugs = [...new Set(pricingRules.map(rule => slug(rule.pricing_plan)))];
+    const tierSlugs = v2ServiceTierSlugs(pricingRules, source.providerModels.values());
     await upsertChunks(supa, "v2_service_tiers", tierSlugs.map(service_tier_slug => ({
         service_tier_slug,
         display_name: service_tier_slug.split(/[-_.:]+/g).filter(Boolean).map(part => part[0]?.toUpperCase() + part.slice(1)).join(" "),
