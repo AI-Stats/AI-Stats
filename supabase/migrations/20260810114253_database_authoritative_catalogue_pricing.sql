@@ -1,4 +1,5 @@
 -- Database-authored catalogue pricing.
+-- phaseo:allow-destructive-migration reason: Admin-authorized SKU deletion and atomic meter replacement require deleting only the selected V2 pricing records before audited writes.
 --
 -- The public catalogue remains readable through the existing RLS policies, but
 -- mutations are performed only by the backend service role after the web API

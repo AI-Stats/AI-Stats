@@ -1,5 +1,6 @@
 -- Typed server-side catalogue mutations. The web API validates each payload;
 -- this layer enforces admin identity, atomicity, audit history, and V2-only writes.
+-- phaseo:allow-destructive-migration reason: Admin-authorized catalogue deletion and replacement of model child collections require scoped deletes that are recorded in the V2 audit trail.
 alter table public.v2_catalogue_admin_changes drop constraint if exists v2_catalogue_admin_changes_resource_type_check;
 alter table public.v2_catalogue_admin_changes add constraint v2_catalogue_admin_changes_resource_type_check check (resource_type in ('pricing_sku','organisations','providers','benchmarks','subscription-plans','models','model_graph'));
 alter table public.v2_catalogue_admin_changes drop constraint if exists v2_catalogue_admin_changes_action_check;

@@ -1,3 +1,4 @@
+-- phaseo:allow-destructive-migration reason: The expanded admin mutation function retains explicitly requested V2 resource deletion while recording before and after state in the audit trail.
 alter table public.v2_catalogue_admin_changes
   drop constraint if exists v2_catalogue_admin_changes_resource_type_check;
 alter table public.v2_catalogue_admin_changes
