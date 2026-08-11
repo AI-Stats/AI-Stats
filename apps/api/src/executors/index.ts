@@ -154,6 +154,7 @@ const CAPABILITY_ALIASES: Record<string, Capability> = {
 	"images.edits": "image.edit",
 	"image.edits": "image.edit",
 	"audio.generate": "audio.speech",
+	"audio/speech": "audio.speech",
 	"audio.transcribe": "audio.transcription",
 	"audio.translation": "audio.translations",
 	"audio.translate": "audio.translations",
@@ -355,7 +356,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	"z-ai": { "text.generate": zAiText },
 	zai: { "text.generate": zaiText },
 	xiaomi: { "text.generate": xiaomiText, "image.generate": nonTextAdapterExecutor, "image.edit": nonTextAdapterExecutor, "audio.speech": nonTextAdapterExecutor, "audio.transcription": nonTextAdapterExecutor, "audio.translations": nonTextAdapterExecutor, "video.generate": nonTextAdapterExecutor },
-	mistral: { "text.generate": mistralText, embeddings: openaiEmbeddings, moderations: openaiModerations, ocr: nonTextAdapterExecutor },
+	mistral: { "text.generate": mistralText, embeddings: openaiEmbeddings, moderations: openaiModerations, "audio.speech": nonTextAdapterExecutor, ocr: nonTextAdapterExecutor },
 	"moonshot-ai": { "text.generate": moonshotText },
 	moonshotai: { "text.generate": moonshotText },
 	"moonshot-ai-turbo": { "text.generate": moonshotText },
@@ -411,5 +412,3 @@ export function isProviderCapabilityEnabled(providerId: string, capability: stri
 	if (provider?.[normalizedCapability]) return true;
 	return false;
 }
-
-

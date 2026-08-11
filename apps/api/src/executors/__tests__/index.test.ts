@@ -304,6 +304,8 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("google-vertex", "audio.transcription")).toBeTruthy();
 		expect(resolveProviderExecutor("google-vertex", "video.generation")).toBeTruthy();
 		expect(resolveProviderExecutor("mistral", "ocr")).toBeTruthy();
+		expect(resolveProviderExecutor("mistral", "audio.speech")).toBeTruthy();
+		expect(resolveProviderExecutor("mistral", "audio/speech")).toBeTruthy();
 		expect(resolveProviderExecutor("suno", "music.generate")).toBeTruthy();
 		expect(resolveProviderExecutor("elevenlabs", "music.generate")).toBeTruthy();
 		expect(resolveProviderExecutor("minimax", "music.generate")).toBeTruthy();
