@@ -779,5 +779,15 @@ describe("decodeOpenAIChatRequest cache options", () => {
 			maxTokens: 1200,
 		});
 	});
+
+	it("preserves minimal from the reasoning_effort alias", () => {
+		const ir = decodeOpenAIChatRequest({
+			model: "google/gemma-4-26b-a4b:free",
+			messages: [{ role: "user", content: "Hello" }],
+			reasoning_effort: "minimal",
+		});
+
+		expect(ir.reasoning?.effort).toBe("minimal");
+	});
 });
 

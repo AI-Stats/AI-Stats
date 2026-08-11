@@ -709,6 +709,8 @@ module Phaseo
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] reasoning
     #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] reasoning_effort
+    #   @return [String, nil]
     # @!attribute [rw] response_format
     #   @return [String, Hash{String => Object}, nil]
     # @!attribute [rw] safety_identifier
@@ -743,7 +745,7 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] user_id
     #   @return [String, nil]
-    ChatCompletionsRequest = Struct.new(:debug, :echo_upstream_request, :frequency_penalty, :image_config, :logit_bias, :logprobs, :max_completion_tokens, :max_tokens, :max_tool_calls, :messages, :meta, :metadata, :modalities, :model, :parallel_tool_calls, :presence_penalty, :prompt_cache_key, :provider, :provider_options, :reasoning, :response_format, :safety_identifier, :seed, :service_tier, :session_id, :stop, :store, :stream, :stream_options, :temperature, :tool_choice, :tools, :top_logprobs, :top_p, :usage, :user, :user_id, keyword_init: true)
+    ChatCompletionsRequest = Struct.new(:debug, :echo_upstream_request, :frequency_penalty, :image_config, :logit_bias, :logprobs, :max_completion_tokens, :max_tokens, :max_tool_calls, :messages, :meta, :metadata, :modalities, :model, :parallel_tool_calls, :presence_penalty, :prompt_cache_key, :provider, :provider_options, :reasoning, :reasoning_effort, :response_format, :safety_identifier, :seed, :service_tier, :session_id, :stop, :store, :stream, :stream_options, :temperature, :tool_choice, :tools, :top_logprobs, :top_p, :usage, :user, :user_id, keyword_init: true)
     # @!attribute [rw] choices
     #   @return [Array<Hash{String => Object}>, nil]
     # @!attribute [rw] created

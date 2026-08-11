@@ -2,6 +2,35 @@ import { describe, expect, it } from "vitest";
 import { AnthropicMessagesSchema, ChatCompletionsSchema, ResponsesSchema } from "../schemas";
 
 describe("text request schema validation", () => {
+	it("accepts minimal reasoning effort on public text request shapes", () => {
+		const chatNested = ChatCompletionsSchema.safeParse({
+			model: "google/gemma-4-26b-a4b:free",
+			messages: [{ role: "user", content: "hello" }],
+			reasoning: { effort: "minimal" },
+		});
+		const chatAlias = ChatCompletionsSchema.safeParse({
+			model: "google/gemma-4-26b-a4b:free",
+			messages: [{ role: "user", content: "hello" }],
+			reasoning_effort: "minimal",
+		});
+		const responses = ResponsesSchema.safeParse({
+			model: "google/gemma-4-31b:free",
+			input: "hello",
+			reasoning: { effort: "minimal" },
+		});
+		const messages = AnthropicMessagesSchema.safeParse({
+			model: "google/gemma-4-31b:free",
+			max_tokens: 32,
+			messages: [{ role: "user", content: "hello" }],
+			reasoning: { effort: "minimal" },
+		});
+
+		expect(chatNested.success).toBe(true);
+		expect(chatAlias.success).toBe(true);
+		expect(responses.success).toBe(true);
+		expect(messages.success).toBe(true);
+	});
+
 	it("accepts chat streaming when tools are present", () => {
 		const parsed = ChatCompletionsSchema.safeParse({
 			model: "gpt-4.1",

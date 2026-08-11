@@ -472,6 +472,7 @@ struct ChatCompletionsRequest {
 	std::any provider;
 	std::map<std::string, std::any> provider_options;
 	std::map<std::string, std::any> reasoning;
+	std::any reasoning_effort;
 	std::any response_format;
 	std::optional<std::string> safety_identifier;
 	std::optional<int> seed;
