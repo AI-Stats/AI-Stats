@@ -27,7 +27,7 @@ export default function AppsSettingsPage() {
 							target="_blank"
 							rel="noreferrer"
 						>
-							Request attribution docs
+							Request Attribution Docs
 							<ArrowUpRight className="ml-1 h-4 w-4" />
 						</Link>
 					</Button>

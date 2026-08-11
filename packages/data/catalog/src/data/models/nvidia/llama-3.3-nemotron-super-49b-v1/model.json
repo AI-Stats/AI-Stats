@@ -121,6 +121,14 @@
       "other_info": null,
       "source_link": "https://build.nvidia.com/nvidia/llama-3_3-nemotron-super-49b-v1/modelcard",
       "rank": 5
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 12.2,
+      "is_self_reported": false,
+      "other_info": "Llama 3.3 Nemotron Super 49B v1 (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/llama-3-3-nemotron-super-49b-reasoning",
+      "rank": 343
     }
   ],
   "family_id": null,

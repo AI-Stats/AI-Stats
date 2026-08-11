@@ -63,6 +63,14 @@
       "other_info": null,
       "source_link": "https://www.inceptionlabs.ai/blog/introducing-mercury-2",
       "rank": 8
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 21.9,
+      "is_self_reported": false,
+      "other_info": "Mercury 2; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/mercury-2",
+      "rank": 218
     }
   ],
   "family_id": null,

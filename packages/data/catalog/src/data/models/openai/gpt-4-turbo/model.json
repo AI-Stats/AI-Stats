@@ -40,6 +40,14 @@
       "other_info": "Confab 26.7%; non-response 30.1%",
       "source_link": "https://github.com/lechmazur/confabulations",
       "rank": 7
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 7.7,
+      "is_self_reported": false,
+      "other_info": "GPT-4 Turbo; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gpt-4-turbo",
+      "rank": 433
     }
   ],
   "page_notice": null,

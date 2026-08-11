@@ -66,6 +66,8 @@ export type ByokKeyMeta = {
     alwaysUse: boolean;
 	routingMode?: "priority" | "fallback";
 	sortOrder?: number;
+	allowedModelSlugs?: string[] | null;
+	allowedApiKeyIds?: string[] | null;
     /**
      * When gateway context preloads a decrypted BYOK key, we keep it here to
      * avoid re-fetching from the database inside each adapter.
@@ -155,6 +157,23 @@ export type RoutingStatus =
 
 export type CapabilityRoutingStatus = RoutingStatus | "internal_testing" | "coming_soon";
 
+export type DataPolicyTier = "unknown" | "private" | "logs" | "trains";
+export type ZdrEligibility = "unknown" | "eligible" | "ineligible" | "conditional";
+export type DataRetentionMode = "unknown" | "none" | "transient" | "fixed" | "until_deleted";
+
+export type EffectiveDataPolicy = {
+    tier: DataPolicyTier;
+    confidence: "unknown" | "confirmed" | "maybe";
+    zdrEligibility: ZdrEligibility;
+    retentionMode: DataRetentionMode;
+    retentionDays: number | null;
+    source: "provider" | "capability" | "capability_default";
+    reason: string | null;
+    evidenceUrl: string | null;
+};
+
+export type RouteAvailabilityPolicy = import("@/lib/config/routeAvailability").RouteAvailabilityPolicy;
+
 /**
  * Snapshot of a provider's configuration and capabilities
  * Returned from the RPC call for gateway context
@@ -204,6 +223,7 @@ export type GatewayProviderSnapshot = {
     streamCancellationUsageRecovery?: "authoritative" | "unknown" | null;
     streamCancellationEvidenceKind?: "provider" | "aggregator" | "none" | null;
     streamCancellationSourceUrl?: string | null;
+    availabilityPolicy?: RouteAvailabilityPolicy | null;
     supportsEndpoint: boolean;
     baseWeight: number;
     byokMeta: ByokKeyMeta[];
@@ -211,6 +231,7 @@ export type GatewayProviderSnapshot = {
     inputModalities?: string[] | null;
     outputModalities?: string[] | null;
     capabilityParams?: Record<string, any>;
+    effectiveDataPolicy?: EffectiveDataPolicy;
     maxInputTokens?: number | null;
     maxOutputTokens?: number | null;
 };
@@ -360,6 +381,7 @@ export type ProviderCandidate = {
     streamCancellationUsageRecovery?: "authoritative" | "unknown" | null;
     streamCancellationEvidenceKind?: "provider" | "aggregator" | "none" | null;
     streamCancellationSourceUrl?: string | null;
+    availabilityPolicy?: RouteAvailabilityPolicy | null;
     adapter: ProviderAdapter;
     baseWeight: number;
     byokMeta: ByokKeyMeta[];
@@ -368,6 +390,7 @@ export type ProviderCandidate = {
     inputModalities?: string[] | null;
     outputModalities?: string[] | null;
     capabilityParams?: Record<string, any>;
+    effectiveDataPolicy?: EffectiveDataPolicy;
     maxInputTokens?: number | null;
     maxOutputTokens?: number | null;
 };
@@ -479,6 +502,11 @@ export type WorkspacePolicy = {
     promptInjectionGuardrailIds: string[];
     sensitiveInfoRules: SensitiveInfoRule[];
     sensitiveInfoGuardrailIds: string[];
+	privacyEnablePaidMayTrain?: boolean;
+	privacyEnableFreeMayTrain?: boolean;
+	privacyEnableInputOutputLogging?: boolean;
+	privacyZdrOnly?: boolean;
+	accountPolicyApplied?: boolean;
     enforceAllowed: boolean;
     activeGuardrailIds: string[];
     dynamicRoute?: import("./dynamic-routes").DynamicRoutePolicy | null;

@@ -1746,7 +1746,7 @@
     "provider_api_model_id": "spacex-ai:spacex-ai/grok-imagine-video",
     "provider_model_slug": "grok-imagine-video",
     "internal_model_id": "spacex-ai/grok-imagine-video",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
     "output_modalities": "video",
@@ -1771,13 +1771,20 @@
             ]
           },
           "size": {
-            "type": "string",
+			"type": "enum",
+			"values": [
+			  "480p",
+			  "720p"
+			],
             "aliases": [
               "resolution"
             ]
           },
-          "quality": {
-            "type": "string"
+		  "aspect_ratio": {
+			"type": "string",
+			"aliases": [
+			  "ratio"
+			]
           },
           "input_reference": {
             "type": "string",
@@ -1785,8 +1792,8 @@
               "image_url"
             ]
           },
-          "seed": {
-            "type": "integer"
+		  "input_references": {
+			"type": "array"
           }
         },
         "reasoning": null,
@@ -1831,134 +1838,6 @@
             "aliases": [
               "image_url"
             ]
-          },
-          "seed": {
-            "type": "integer"
-          }
-        },
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "spacex-ai/grok-imagine-video-1.5-preview",
-    "provider_api_model_id": "spacex-ai:spacex-ai/grok-imagine-video-1.5-preview",
-    "provider_model_slug": "grok-imagine-video-1.5-preview",
-    "internal_model_id": "spacex-ai/grok-imagine-video-1.5-preview",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,video",
-    "output_modalities": "video",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-05-30T00:00:00",
-    "effective_to": "2026-06-17T00:00:00",
-    "capabilities": [
-      {
-        "capability_id": "video.generate",
-        "status": "active",
-        "params": {
-          "prompt": {
-            "type": "string"
-          },
-          "duration": {
-            "type": "number",
-            "min": 1,
-            "aliases": [
-              "seconds",
-              "duration_seconds"
-            ]
-          },
-          "size": {
-            "type": "string",
-            "aliases": [
-              "resolution"
-            ]
-          },
-          "quality": {
-            "type": "string"
-          },
-          "input_reference": {
-            "type": "string",
-            "aliases": [
-              "image_url"
-            ]
-          },
-          "seed": {
-            "type": "integer"
-          }
-        },
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      },
-      {
-        "capability_id": "video.edit",
-        "status": "active",
-        "params": {
-          "prompt": {
-            "type": "string"
-          },
-          "duration": {
-            "type": "number",
-            "min": 1,
-            "aliases": [
-              "seconds",
-              "duration_seconds"
-            ]
-          },
-          "size": {
-            "type": "enum",
-            "values": [
-              "480p",
-              "720p"
-            ],
-            "aliases": [
-              "resolution"
-            ]
-          },
-          "quality": {
-            "type": "string"
-          },
-          "input_reference": {
-            "type": "string",
-            "aliases": [
-              "image_url"
-            ]
-          },
-          "seed": {
-            "type": "integer"
           }
         },
         "reasoning": null,
@@ -1988,6 +1867,99 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "spacex-ai/grok-imagine-video-1.5-preview",
+    "provider_api_model_id": "spacex-ai:spacex-ai/grok-imagine-video-1.5-preview",
+    "provider_model_slug": "grok-imagine-video-1.5-preview",
+    "internal_model_id": "spacex-ai/grok-imagine-video-1.5-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-05-30T00:00:00",
+    "effective_to": "2026-06-17T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "coming_soon",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number",
+            "min": 1,
+            "aliases": [
+              "seconds",
+              "duration_seconds"
+            ]
+          },
+          "size": {
+			"type": "enum",
+			"values": [
+			  "480p",
+			  "720p",
+			  "1080p"
+			],
+            "aliases": [
+              "resolution"
+            ]
+          },
+		  "aspect_ratio": {
+			"type": "string",
+			"aliases": [
+			  "ratio"
+			]
+          },
+          "input_reference": {
+            "type": "string",
+            "aliases": [
+              "image_url"
+            ]
+          },
+		  "input_references": {
+			"type": "array"
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+		"attachment": true,
+		"input_modalities": ["text", "image"],
+		"output_modalities": ["video"],
+		"modes": ["image-to-video"]
+	  }
+	],
+	"routing_status": null,
+	"routable": false,
+	"regions": {
+	  "execution": ["us-east-1", "us-west-2"],
+	  "data": ["us-east-1", "us-west-2"]
+	},
+	"service_tiers": ["standard"],
+	"api": {
+	  "formats": ["xai.async.video"],
+	  "endpoint": "/v1/videos/generations",
+	  "deployment": "regional"
+	},
+	"sources": [
+	  {
+		"kind": "documentation",
+		"url": "https://docs.x.ai/developers/models/grok-imagine-video-1.5",
+		"accessed_at": "2026-08-10T00:00:00Z",
+		"notes": "Official modalities, aliases, regions, and pricing."
+	  }
+	],
+	"verification": {
+	  "status": "verified",
+	  "checked_at": "2026-08-10T00:00:00Z",
+	  "notes": "Image-to-video request mapping, persistence, polling, content extraction, and pricing are covered by the Gateway adapter. Text is prompt conditioning and the image input remains required; the route is disabled pending authenticated smoke testing."
     },
     "rate_limits": []
   },
@@ -2138,7 +2110,7 @@
     "internal_model_id": "spacex-ai/grok-imagine-video-1.5",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video",
+    "input_modalities": "text,image",
     "output_modalities": "video",
     "context_length": null,
     "max_output_tokens": null,
@@ -2147,112 +2119,65 @@
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "active",
+        "status": "coming_soon",
         "params": {
-          "prompt": {
-            "type": "string"
-          },
+          "prompt": { "type": "string" },
           "duration": {
             "type": "number",
             "min": 1,
-            "aliases": [
-              "seconds",
-              "duration_seconds"
-            ]
-          },
-          "size": {
-            "type": "string",
-            "aliases": [
-              "resolution"
-            ]
-          },
-          "quality": {
-            "type": "string"
-          },
-          "input_reference": {
-            "type": "string",
-            "aliases": [
-              "image_url"
-            ]
-          },
-          "seed": {
-            "type": "integer"
-          }
-        },
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      },
-      {
-        "capability_id": "video.edit",
-        "status": "active",
-        "params": {
-          "prompt": {
-            "type": "string"
-          },
-          "duration": {
-            "type": "number",
-            "min": 1,
-            "aliases": [
-              "seconds",
-              "duration_seconds"
-            ]
+            "max": 15,
+            "aliases": ["seconds", "duration_seconds"]
           },
           "size": {
             "type": "enum",
-            "values": [
-              "480p",
-              "720p"
-            ],
-            "aliases": [
-              "resolution"
-            ]
+            "values": ["480p", "720p", "1080p"],
+            "default": "480p",
+            "aliases": ["resolution"]
           },
-          "quality": {
-            "type": "string"
+          "aspect_ratio": {
+            "type": "string",
+            "aliases": ["ratio"]
           },
           "input_reference": {
             "type": "string",
-            "aliases": [
-              "image_url"
-            ]
+            "aliases": ["image_url"]
           },
-          "seed": {
-            "type": "integer"
-          }
+          "input_references": { "type": "array" }
         },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["video"],
+        "modes": ["image-to-video"]
       }
     ],
     "routing_status": null,
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": ["us-east-1", "us-west-2"],
+      "data": ["us-east-1", "us-west-2"]
     },
-    "service_tiers": [],
+    "service_tiers": ["standard"],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": ["xai.async.video"],
+      "endpoint": "/v1/videos/generations",
+      "deployment": "regional"
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://docs.x.ai/developers/models/grok-imagine-video-1.5",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "Official modalities, aliases, regions, and pricing."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Image-to-video request mapping, persistence, polling, content extraction, and pricing are covered by the Gateway adapter. Text is prompt conditioning and the image input remains required; the route is disabled pending authenticated smoke testing."
     },
     "rate_limits": []
   }

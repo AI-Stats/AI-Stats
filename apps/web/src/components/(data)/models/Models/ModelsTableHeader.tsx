@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import {
 	Search,
 	Grid as GridIcon,
-	Table as TableIcon,
+	Table2 as TableIcon,
 	Filter,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

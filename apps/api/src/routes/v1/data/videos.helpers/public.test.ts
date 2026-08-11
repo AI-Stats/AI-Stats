@@ -222,7 +222,7 @@ describe("public video response helper", () => {
 			status: "processing",
 			lifecycle_status: "running",
 			progress: 35,
-			cancel_url: "https://api.phaseo.app/v1/videos/G-hold/cancel",
+			cancel_url: null,
 			billing: {
 				currency: "usd",
 				estimated_provider_cost: "0.23",

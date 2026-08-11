@@ -16,6 +16,7 @@ import ModelDescriptionPanel from "./ModelDescriptionPanel";
 import ModelPageNotice from "./ModelPageNotice";
 import ModelStickyHeader from "./ModelStickyHeader";
 import ModelStatusBanner from "./overview/ModelStatusBanner";
+import AccountPolicyNotice from "../AccountPolicyNotice";
 import { resolveModelDescription } from "@/lib/models/modelDescription";
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
 import type { ModelOverviewHeader } from "@/lib/fetchers/models/getModelOverviewHeader";
@@ -126,6 +127,7 @@ export default async function ModelDetailShell({
 			/>
 
 			<div className="container mx-auto px-4 py-8">
+				<AccountPolicyNotice kind="model" id={modelId} />
 				{modelPageNotice ? (
 					<div className="mb-6">
 						<ModelPageNotice notice={modelPageNotice} />

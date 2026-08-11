@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { EmptyChartPreview } from "@/components/(rankings)/EmptyChartPreview";
+import { RankingMetricLeaderboard } from "@/components/(rankings)/RankingMetricLeaderboard";
 import { UsageStackedBar } from "@/components/(rankings)/UsageStackedBar";
 import { LazyRenderOnVisible } from "@/components/(rankings)/LazyRenderOnVisible";
 import type { TimeseriesData } from "@/lib/fetchers/rankings/getRankingsData";
@@ -63,6 +65,7 @@ function EmptyChartPlaceholder({ section }: { section: ModalitySectionData }) {
 		<EmptyChartPreview
 			title={`No weekly ${section.label.toLowerCase()} usage yet`}
 			description="This chart appears once public gateway aggregates expose enough data."
+			heightClassName="h-[280px]"
 		/>
 	);
 }
@@ -91,7 +94,7 @@ function TopChart({
 		return (
 			<div className="space-y-3">
 				<div className="space-y-1">
-					<h3 className="text-xl font-semibold">{section.chartTitle}</h3>
+					<h2 className="text-xl font-semibold">{section.chartTitle}</h2>
 					<p className="text-sm text-muted-foreground">
 						{section.chartDescription}
 					</p>
@@ -104,7 +107,7 @@ function TopChart({
 	return (
 		<div className="space-y-3">
 			<div className="space-y-1">
-				<h3 className="text-xl font-semibold">{section.chartTitle}</h3>
+				<h2 className="text-xl font-semibold">{section.chartTitle}</h2>
 				<p className="text-sm text-muted-foreground">
 					{section.chartDescription}
 				</p>
@@ -118,6 +121,7 @@ function TopChart({
 				leaderboardTitle={`${section.label} Leaderboard`}
 				leaderboardDescription={`Compare ${section.label.toLowerCase()} models across the selected usage period.`}
 				valueUnit={valueUnit}
+				showScaleToggle={section.id === "text"}
 			/>
 		</div>
 	);
@@ -133,19 +137,46 @@ function ModalitySection({
 	logoIdMap: Record<string, string | null>;
 	organisationNameMap: Record<string, string | null>;
 }) {
+	const latestBucket = section.primaryTimeseries.reduce<Date | null>(
+		(latest, row) => {
+			const parsed = new Date(row.bucket);
+			if (Number.isNaN(parsed.getTime())) return latest;
+			return !latest || parsed > latest ? parsed : latest;
+		},
+		null,
+	);
+	const updatedThrough = latestBucket?.toLocaleDateString("en-GB", {
+		day: "numeric",
+		month: "short",
+		year: "numeric",
+		timeZone: "UTC",
+	});
+	const availableMetrics = section.metrics.filter((metric) => metric.entries.length);
+
 	return (
 		<section
 			id={section.id}
-			className="scroll-mt-24 space-y-6 border-t border-border pt-12 first:border-t-0 first:pt-0"
+			className="scroll-mt-32 space-y-6 border-t border-border pt-12 first:border-t-0 first:pt-0"
 		>
 			<div className="space-y-2">
-				<h2 className="text-3xl font-semibold">
+				<h1 className="text-3xl font-semibold">
 					{section.title}
-				</h2>
+				</h1>
 				<p className="max-w-4xl text-sm leading-6 text-muted-foreground">
 					{section.description}
 				</p>
+				<div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+					{updatedThrough ? <span>Week of {updatedThrough}</span> : null}
+					{updatedThrough ? <span aria-hidden="true">·</span> : null}
+					<Link
+						href="/methodology"
+						className="underline decoration-transparent underline-offset-2 transition-colors hover:text-foreground hover:decoration-current"
+					>
+						Methodology
+					</Link>
+				</div>
 			</div>
+			{section.primaryTimeseries.length ? (
 			<LazyRenderOnVisible minHeight={720}>
 				<TopChart
 					section={section}
@@ -154,6 +185,26 @@ function ModalitySection({
 					organisationNameMap={organisationNameMap}
 				/>
 			</LazyRenderOnVisible>
+			) : (
+				<TopChart
+					section={section}
+					nameMap={nameMap}
+					logoIdMap={logoIdMap}
+					organisationNameMap={organisationNameMap}
+				/>
+			)}
+			{section.id !== "text" && availableMetrics.length ? (
+				<div className="grid gap-10 border-t border-border pt-10 lg:grid-cols-2 lg:gap-16">
+					{availableMetrics.map((metric) => (
+						<RankingMetricLeaderboard
+							key={metric.id}
+							title={metric.title}
+							description={metric.description}
+							entries={metric.entries}
+						/>
+					))}
+				</div>
+			) : null}
 		</section>
 	);
 }

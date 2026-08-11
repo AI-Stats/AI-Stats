@@ -115,7 +115,7 @@ describe("videosRoutes lifecycle routes", () => {
 		vi.clearAllMocks();
 	});
 
-	it("cancels active OpenAI videos through the provider and releases billing via finalization", async () => {
+	it("rejects cancellation for active OpenAI videos", async () => {
 		state.ownedVideo = {
 			record: {
 				videoId: "video_cancel",
@@ -156,39 +156,19 @@ describe("videosRoutes lifecycle routes", () => {
 			VIDEO_API_ENABLED: "true",
 		});
 
-		expect(response.status).toBe(200);
+		expect(response.status).toBe(501);
 		expect(await response.json()).toMatchObject({
-			id: "video_cancel",
-			object: "video",
-			status: "cancelled",
-			lifecycle_status: "cancelled",
-			provider: "openai",
-			model: "sora-2",
+			error: "not_implemented_yet",
+			reason: "video_cancellation_disabled",
+			video_id: "video_cancel",
 		});
-		expect(videoHelpers.cancelOpenAIVideo).toHaveBeenCalledWith(
-			expect.any(Request),
-			expect.objectContaining({
-				requestId: "req_video_lifecycle_test",
-				workspaceId: "ws_video_lifecycle_test",
-			}),
-			"openai",
-			"video_native",
-			expect.objectContaining({
-				provider: "openai",
-				model: "sora-2",
-			}),
-		);
-		expect(videoHelpers.finalizeVideoStatusIfTerminal).toHaveBeenCalledWith(expect.objectContaining({
-			videoId: "video_cancel",
-			providerId: "openai",
-			status: "cancelled",
-			model: "sora-2",
-			seconds: 4,
-			resolution: "720p",
-		}));
+		expect(videoHelpers.cancelOpenAIVideo).not.toHaveBeenCalled();
+		expect(videoHelpers.cancelDashscopeTask).not.toHaveBeenCalled();
+		expect(videoHelpers.cancelRunwayTask).not.toHaveBeenCalled();
+		expect(videoHelpers.finalizeVideoStatusIfTerminal).not.toHaveBeenCalled();
 	});
 
-	it("cancels active DashScope videos through the async task cancel endpoint", async () => {
+	it("rejects cancellation for active DashScope videos", async () => {
 		state.ownedVideo = {
 			record: {
 				videoId: "video_dashscope",
@@ -213,34 +193,19 @@ describe("videosRoutes lifecycle routes", () => {
 			VIDEO_API_ENABLED: "true",
 		});
 
-		expect(response.status).toBe(200);
+		expect(response.status).toBe(501);
 		expect(await response.json()).toMatchObject({
-			id: "video_dashscope",
-			status: "cancelled",
-			provider: "alibaba",
+			error: "not_implemented_yet",
+			reason: "video_cancellation_disabled",
+			video_id: "video_dashscope",
 		});
-		expect(videoHelpers.cancelDashscopeTask).toHaveBeenCalledWith(
-			expect.objectContaining({
-				requestId: "req_video_lifecycle_test",
-				workspaceId: "ws_video_lifecycle_test",
-			}),
-			expect.objectContaining({
-				provider: "alibaba",
-				providerTaskId: "wan_task_123",
-			}),
-			"wan_task_123",
-		);
-		expect(videoHelpers.finalizeVideoStatusIfTerminal).toHaveBeenCalledWith(expect.objectContaining({
-			videoId: "video_dashscope",
-			providerId: "alibaba",
-			status: "cancelled",
-			model: "wan2.5-t2v-preview",
-			seconds: 5,
-			resolution: "720p",
-		}));
+		expect(videoHelpers.cancelOpenAIVideo).not.toHaveBeenCalled();
+		expect(videoHelpers.cancelDashscopeTask).not.toHaveBeenCalled();
+		expect(videoHelpers.cancelRunwayTask).not.toHaveBeenCalled();
+		expect(videoHelpers.finalizeVideoStatusIfTerminal).not.toHaveBeenCalled();
 	});
 
-	it("cancels active Runway videos through the task delete endpoint", async () => {
+	it("rejects cancellation for active Runway videos", async () => {
 		state.ownedVideo = {
 			record: {
 				videoId: "video_runway",
@@ -265,34 +230,19 @@ describe("videosRoutes lifecycle routes", () => {
 			VIDEO_API_ENABLED: "true",
 		});
 
-		expect(response.status).toBe(200);
+		expect(response.status).toBe(501);
 		expect(await response.json()).toMatchObject({
-			id: "video_runway",
-			status: "cancelled",
-			provider: "runway",
+			error: "not_implemented_yet",
+			reason: "video_cancellation_disabled",
+			video_id: "video_runway",
 		});
-		expect(videoHelpers.cancelRunwayTask).toHaveBeenCalledWith(
-			expect.objectContaining({
-				requestId: "req_video_lifecycle_test",
-				workspaceId: "ws_video_lifecycle_test",
-			}),
-			expect.objectContaining({
-				provider: "runway",
-				providerTaskId: "rwy_task_123",
-			}),
-			"rwy_task_123",
-		);
-		expect(videoHelpers.finalizeVideoStatusIfTerminal).toHaveBeenCalledWith(expect.objectContaining({
-			videoId: "video_runway",
-			providerId: "runway",
-			status: "cancelled",
-			model: "gen4.5",
-			seconds: 6,
-			resolution: "720p",
-		}));
+		expect(videoHelpers.cancelOpenAIVideo).not.toHaveBeenCalled();
+		expect(videoHelpers.cancelDashscopeTask).not.toHaveBeenCalled();
+		expect(videoHelpers.cancelRunwayTask).not.toHaveBeenCalled();
+		expect(videoHelpers.finalizeVideoStatusIfTerminal).not.toHaveBeenCalled();
 	});
 
-	it("returns already-cancelled videos idempotently without cancelling upstream again", async () => {
+	it("rejects cancellation even when the stored video is already cancelled", async () => {
 		state.ownedVideo = {
 			record: {
 				videoId: "video_cancelled_again",
@@ -317,24 +267,19 @@ describe("videosRoutes lifecycle routes", () => {
 			VIDEO_API_ENABLED: "true",
 		});
 
-		expect(response.status).toBe(200);
+		expect(response.status).toBe(501);
 		expect(await response.json()).toMatchObject({
-			id: "video_cancelled_again",
-			object: "video",
-			status: "cancelled",
-			lifecycle_status: "cancelled",
-			provider: "openai",
-			model: "sora-2",
-			cancel_url: null,
+			error: "not_implemented_yet",
+			reason: "video_cancellation_disabled",
+			video_id: "video_cancelled_again",
 		});
 		expect(videoHelpers.cancelOpenAIVideo).not.toHaveBeenCalled();
 		expect(videoHelpers.cancelDashscopeTask).not.toHaveBeenCalled();
 		expect(videoHelpers.cancelRunwayTask).not.toHaveBeenCalled();
 		expect(videoHelpers.finalizeVideoStatusIfTerminal).not.toHaveBeenCalled();
-		expect(videoHelpers.refreshOwnedVideoJob).not.toHaveBeenCalled();
 	});
 
-	it("rejects ambiguous legacy cancel records without defaulting to OpenAI", async () => {
+	it("rejects ambiguous legacy cancel records with the global disabled response", async () => {
 		state.ownedVideo = {
 			record: {
 				videoId: "video_ambiguous_cancel",
@@ -357,12 +302,10 @@ describe("videosRoutes lifecycle routes", () => {
 		expect(response.status).toBe(501);
 		expect(await response.json()).toMatchObject({
 			error: "not_implemented_yet",
-			reason: "video_cancel_provider_not_supported",
+			reason: "video_cancellation_disabled",
 			request_id: "req_video_lifecycle_test",
 			workspace_id: "ws_video_lifecycle_test",
 			video_id: "video_ambiguous_cancel",
-			provider: null,
-			native_video_id: "provider-task-123",
 		});
 		expect(videoHelpers.cancelOpenAIVideo).not.toHaveBeenCalled();
 		expect(videoHelpers.cancelDashscopeTask).not.toHaveBeenCalled();

@@ -1,5 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { resolveGatewayBaseUrlForEnvironment } from "@/chat/proxy";
+import { deriveChatGatewayKey, resolveGatewayBaseUrlForEnvironment } from "@/chat/proxy";
+
+describe("deriveChatGatewayKey", () => {
+	it("creates a stable, distinct managed key for each user in a workspace", async () => {
+		const first = await deriveChatGatewayKey("seed", "workspace-1", "user-1");
+		const repeat = await deriveChatGatewayKey("seed", "workspace-1", "user-1");
+		const second = await deriveChatGatewayKey("seed", "workspace-1", "user-2");
+
+		expect(first).toEqual(repeat);
+		expect(first).not.toEqual(second);
+		expect(first.kid).toHaveLength(12);
+		expect(first.secret).toHaveLength(40);
+	});
+});
 
 describe("resolveGatewayBaseUrlForEnvironment", () => {
 	it("uses only the configured gateway in production", () => {

@@ -99,6 +99,14 @@
       "other_info": null,
       "source_link": "https://qwenlm.github.io/blog/qwq-32b-preview/",
       "rank": 18
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 9.1,
+      "is_self_reported": false,
+      "other_info": "QwQ 32B-Preview; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/QwQ-32B-Preview",
+      "rank": 394
     }
   ],
   "family_id": null,

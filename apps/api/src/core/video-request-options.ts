@@ -6,6 +6,9 @@ type VideoOptionInput = {
 	size?: unknown;
 	resolution?: unknown;
 	input_resolution?: unknown;
+	aspect_ratio?: unknown;
+	aspectRatio?: unknown;
+	ratio?: unknown;
 	seconds?: unknown;
 	duration_seconds?: unknown;
 	duration?: unknown;
@@ -24,6 +27,9 @@ type VideoOptionInput = {
 		size?: unknown;
 		resolution?: unknown;
 		input_resolution?: unknown;
+		aspect_ratio?: unknown;
+		aspectRatio?: unknown;
+		ratio?: unknown;
 		seconds?: unknown;
 		duration_seconds?: unknown;
 		duration?: unknown;
@@ -99,6 +105,17 @@ export function resolveVideoResolution(input: VideoOptionInput): string | undefi
 	return resolveVideoSize(input);
 }
 
+export function resolveVideoAspectRatio(input: VideoOptionInput): string | undefined {
+	return (
+		toNonEmptyString(input.aspect_ratio) ??
+		toNonEmptyString(input.aspectRatio) ??
+		toNonEmptyString(input.ratio) ??
+		toNonEmptyString(input.video_params?.aspect_ratio) ??
+		toNonEmptyString(input.video_params?.aspectRatio) ??
+		toNonEmptyString(input.video_params?.ratio)
+	);
+}
+
 export function resolveVideoSeconds(input: VideoOptionInput): number | undefined {
 	return (
 		toPositiveNumber(input.seconds) ??
@@ -158,6 +175,7 @@ export function resolveTotalTokens(input: VideoOptionInput): number | undefined 
 
 export function buildVideoPricingRequestOptions(input: VideoOptionInput): Record<string, unknown> {
 	const size = resolveVideoSize(input);
+	const aspectRatio = resolveVideoAspectRatio(input);
 	const seconds = resolveVideoSeconds(input);
 	const quality = toNonEmptyString(input.quality) ?? toNonEmptyString(input.video_params?.quality);
 	const audio = toBoolean(input.audio) ?? toBoolean(input.video_params?.audio);
@@ -176,6 +194,18 @@ export function buildVideoPricingRequestOptions(input: VideoOptionInput): Record
 		out.resolution = size;
 		out.input_resolution = size;
 		out.video_params = { resolution: size, input_resolution: size };
+	}
+
+	if (aspectRatio) {
+		out.aspect_ratio = aspectRatio;
+		out.ratio = aspectRatio;
+		const videoParams =
+			out.video_params && typeof out.video_params === "object"
+				? (out.video_params as Record<string, unknown>)
+				: {};
+		videoParams.aspect_ratio = aspectRatio;
+		videoParams.ratio = aspectRatio;
+		out.video_params = videoParams;
 	}
 
 	if (quality) {

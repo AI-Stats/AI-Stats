@@ -120,13 +120,13 @@ export function AppsUsageList({
 								type="button"
 								variant="outline"
 								size="sm"
-								className="h-9 w-32 justify-between rounded-lg px-4 font-normal text-muted-foreground" />}>
+								className="h-9 min-w-36 shrink-0 justify-between whitespace-nowrap rounded-md px-4 font-normal text-muted-foreground" />}>
 
 								{rangeLabel(range)}
 								<ChevronDown className="ml-2 h-4 w-4 opacity-60" />
 
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="min-w-32 rounded-lg">
+						<DropdownMenuContent align="end" className="w-max min-w-40 rounded-md">
 							{RANGE_OPTIONS.map((option) => (
 								<DropdownMenuItem
 									key={option.key}
@@ -135,7 +135,7 @@ export function AppsUsageList({
 										setRange(option.key);
 										setShowAll(false);
 									}}
-									className="justify-between gap-6 rounded-lg"
+									className="justify-between gap-6 whitespace-nowrap rounded-md"
 								>
 									<span>{option.label}</span>
 									<span className="flex h-4 w-4 items-center justify-center">

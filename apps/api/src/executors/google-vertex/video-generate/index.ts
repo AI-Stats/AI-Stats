@@ -85,6 +85,13 @@ function normalizeReferenceImages(value: unknown): Array<Record<string, any>> | 
 	return out.length ? out : undefined;
 }
 
+function normalizedReferenceValue(reference: NonNullable<IRVideoGenerationRequest["inputReferences"]>[number]): unknown {
+	if (reference.url) return reference.url;
+	if (reference.raw) return reference.raw;
+	if (reference.data) return `data:${reference.mimeType ?? "application/octet-stream"};base64,${reference.data}`;
+	return undefined;
+}
+
 function irToVertexVideoRequest(ir: IRVideoGenerationRequest): any {
 	const durationSeconds = toGoogleVideoDurationSeconds(ir);
 	const aspectRatio = ir.aspectRatio ?? ir.ratio;
@@ -99,10 +106,32 @@ function irToVertexVideoRequest(ir: IRVideoGenerationRequest): any {
 			: typeof ir.numberOfVideos === "number"
 				? ir.numberOfVideos
 				: undefined;
-	const inputImage = normalizeGoogleMediaSource(ir.inputImage ?? ir.input?.image ?? ir.inputReference);
-	const inputVideo = normalizeGoogleMediaSource(ir.inputVideo ?? ir.input?.video);
-	const lastFrame = normalizeGoogleMediaSource(ir.lastFrame ?? ir.input?.lastFrame);
-	const referenceImages = normalizeReferenceImages(ir.referenceImages ?? ir.input?.referenceImages);
+	const normalizedFirstFrame = ir.inputReferences?.find(
+		(reference) => reference.type === "image" && (reference.role === "first_frame" || reference.role == null),
+	);
+	const normalizedLastFrame = ir.inputReferences?.find(
+		(reference) => reference.type === "image" && reference.role === "last_frame",
+	);
+	const normalizedSourceVideo = ir.inputReferences?.find((reference) => reference.type === "video");
+	const normalizedAssetReferences = ir.inputReferences
+		?.filter((reference) => reference.type === "image" && reference.role === "reference")
+		.map((reference) => ({
+			image: normalizedReferenceValue(reference),
+			referenceType: reference.referenceType ?? "asset",
+		})) ?? [];
+	const inputImage = normalizeGoogleMediaSource(
+		ir.inputImage ?? ir.input?.image ?? ir.inputReference ?? (normalizedFirstFrame ? normalizedReferenceValue(normalizedFirstFrame) : undefined),
+	);
+	const inputVideo = normalizeGoogleMediaSource(
+		ir.inputVideo ?? ir.input?.video ?? (normalizedSourceVideo ? normalizedReferenceValue(normalizedSourceVideo) : undefined),
+	);
+	const lastFrame = normalizeGoogleMediaSource(
+		ir.lastFrame ?? ir.input?.lastFrame ?? (normalizedLastFrame ? normalizedReferenceValue(normalizedLastFrame) : undefined),
+	);
+	const referenceImages = normalizeReferenceImages([
+		...(ir.referenceImages ?? ir.input?.referenceImages ?? []),
+		...normalizedAssetReferences,
+	]);
 	const parameters: Record<string, any> = {
 		...providerParams,
 		...(typeof durationSeconds === "number" ? { durationSeconds } : {}),

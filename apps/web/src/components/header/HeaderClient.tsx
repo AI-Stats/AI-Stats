@@ -24,6 +24,7 @@ import {
 	AppWindow,
 	Trophy,
 	MessageSquare,
+	MessageSquareMore,
 	Sun,
 	Users,
 } from "lucide-react";
@@ -45,6 +46,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CurrentUserAvatar } from "@/components/ui/current-user-avatar";
 import { getSupportAvailability } from "@/lib/support/schedule";
+import { ProductFeedbackDialog } from "@/components/feedback/ProductFeedbackButton";
 
 interface HeaderProps {
 	isLoggedIn: boolean;
@@ -88,6 +90,7 @@ export default function HeaderClient({
 	);
 	const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 	const [isMobileTeamDialogOpen, setIsMobileTeamDialogOpen] = useState(false);
+	const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 	const activeTeam = teams.find((team) => team.id === activeWorkspaceId) ?? teams[0];
 
 	useEffect(() => {
@@ -234,6 +237,7 @@ export default function HeaderClient({
 		}
 
 		return (
+			<>
 			<DropdownMenu
 				open={isMobileNavOpen}
 				onOpenChange={(open) => {
@@ -449,6 +453,16 @@ export default function HeaderClient({
 										</span>
 									</Link>
 								</DropdownMenuItem>
+								<DropdownMenuItem
+									className="cursor-pointer rounded-lg text-sm"
+									onClick={() => {
+										setIsMobileNavOpen(false);
+										setIsFeedbackOpen(true);
+									}}
+								>
+									<MessageSquareMore className="h-4 w-4" />
+									<span>Send Feedback</span>
+								</DropdownMenuItem>
 								<DropdownMenuItem asChild className="cursor-pointer rounded-lg text-sm">
 									<Link href={docsHref} target="_blank" rel="noreferrer">
 										<BookOpenText className="h-4 w-4" />
@@ -548,6 +562,13 @@ export default function HeaderClient({
 					)}
 				</DropdownMenuContent>
 			</DropdownMenu>
+			<ProductFeedbackDialog
+				open={isFeedbackOpen}
+				onOpenChange={setIsFeedbackOpen}
+				surface="profile_menu_mobile"
+				prompt="Tell us what should be clearer, faster, or more useful across Phaseo."
+			/>
+			</>
 		);
 	}
 

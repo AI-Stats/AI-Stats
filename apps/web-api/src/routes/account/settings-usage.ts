@@ -46,7 +46,7 @@ function usageTimeRange(request: Request) {
 		else if (unit === "mo") from.setMonth(from.getMonth() - amount);
 		else from.setFullYear(from.getFullYear() - amount);
 	} else {
-		const durations: Record<string, number> = { live: 5 / 60, past_15m: .25, past_30m: .5, past_hour: 1, past_3h: 3, past_24h: 24, past_2d: 48, last_7d: 168, last_30d: 720, last_90d: 2160 };
+		const durations: Record<string, number> = { live: 5 / 60, past_15m: .25, past_30m: .5, past_hour: 1, past_3h: 3, past_24h: 24, past_2d: 48, last_7d: 168, last_30d: 720, last_90d: 2160, past_1y: 8760 };
 		from.setTime(now.getTime() - (durations[preset] ?? 24) * 3_600_000);
 	}
 	return { from: from.toISOString(), to: now.toISOString() };
@@ -323,23 +323,80 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 		const metadata = await metadataForIds(context, { models: modelIds, providers: providerIds, apps: appIds });
 		return c.json({ data: { appMetadataEntries: metadata.appMetadataEntries, modelMetadataEntries: metadata.modelMetadataEntries, providerMetadataEntries: metadata.providerMetadataEntries, providerNameEntries: metadata.providerNameEntries, sessionAppIds: appIds, sessionModelIds: modelIds, sessionProviderIds: providerIds, sessions }, signedIn: true, view, workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
 	}
-	const page = Math.max(1, Number.parseInt(stringParam(url, "page") ?? "1", 10) || 1); const pageSize = 25; const offset = (page - 1) * pageSize;
-	let requestQuery = context.client.from("gateway_requests").select("request_id,created_at,endpoint,model_id,requested_model_id,routed_model_id,provider,native_response_id,stream,session_id,app_id,usage,cost_nanos,generation_ms,latency_ms,finish_reason,pricing_lines,provider_attempts,success,status_code,error_code,error_message,error_payload,detail_metadata,key_id,throughput", { count: "exact" }).eq("workspace_id", workspaceId).gte("created_at", timeRange.from).lte("created_at", timeRange.to).not("endpoint", "in", '("video.generation","batch","music.generate")');
-	for (const [param, column] of [["model", "model_id"], ["provider", "provider"], ["key", "key_id"], ["req", "request_id"], ["session", "session_id"]] as const) { const value = stringParam(url, param); if (value) requestQuery = requestQuery.eq(column, value); }
-	const status = stringParam(url, "status"); if (status === "success") requestQuery = requestQuery.eq("success", true); else if (status === "error") requestQuery = requestQuery.eq("success", false);
-	const sort = ["created_at", "cost_nanos", "latency_ms", "generation_ms", "status_code"].includes(stringParam(url, "sort") ?? "") ? stringParam(url, "sort")! : "created_at";
-	const requestsResult = await requestQuery.order(sort, { ascending: stringParam(url, "dir") === "asc" }).range(offset, offset + pageSize - 1);
+	const page = 1;
+	const requestedPageSize = Number.parseInt(stringParam(url, "per_page") ?? "50", 10);
+	const pageSize = [25, 50, 100].includes(requestedPageSize) ? requestedPageSize : 50;
+	let requestQuery = context.client.from("gateway_requests").select("id,request_id,created_at,endpoint,model_id,requested_model_id,routed_model_id,provider,native_response_id,stream,session_id,app_id,usage,usage_input_tokens,usage_output_tokens,usage_total_tokens,cost_nanos,generation_ms,latency_ms,finish_reason,success,status_code,error_code,client_source_id,client_source_name,client_source_kind,client_source_version,client_source_detection,key_id,throughput").eq("workspace_id", workspaceId).gte("created_at", timeRange.from).lte("created_at", timeRange.to).not("endpoint", "in", '("video.generation","batch","music.generate")');
+	for (const [param, column, operatorParam = `${param}_op`] of [
+		["model", "model_id"], ["provider", "provider"], ["app", "app_id"],
+		["endpoint", "endpoint"], ["finish_reason", "finish_reason", "finish_op"],
+		["error_code", "error_code", "error_op"], ["http_status", "status_code", "http_op"],
+		["key", "key_id"], ["req", "request_id"], ["session", "session_id"],
+	] as const) {
+		const value = stringParam(url, param);
+		if (value) requestQuery = stringParam(url, operatorParam) === "is_not"
+			? requestQuery.neq(column, value)
+			: requestQuery.eq(column, value);
+	}
+	const status = stringParam(url, "status");
+	if (status === "success" || status === "error") {
+		const statusValue = status === "success";
+		requestQuery = stringParam(url, "status_op") === "is_not"
+			? requestQuery.neq("success", statusValue)
+			: requestQuery.eq("success", statusValue);
+	}
+	const stream = stringParam(url, "stream");
+	if (stream === "streaming" || stream === "non_streaming") {
+		const streamValue = stream === "streaming";
+		requestQuery = stringParam(url, "stream_op") === "is_not"
+			? requestQuery.neq("stream", streamValue)
+			: requestQuery.eq("stream", streamValue);
+	}
+	const source = stringParam(url, "source");
+	if (source) {
+		requestQuery = stringParam(url, "source_op") === "is_not"
+			? requestQuery.neq("client_source_id", source)
+			: requestQuery.eq("client_source_id", source);
+	}
+	for (const [param, maxParam, operatorParam, column] of [
+		["input_tokens", "input_tokens_max", "input_tokens_op", "usage_input_tokens"],
+		["output_tokens", "output_tokens_max", "output_tokens_op", "usage_output_tokens"],
+		["total_tokens", "total_tokens_max", "total_tokens_op", "usage_total_tokens"],
+	] as const) {
+		const rawValue = stringParam(url, param);
+		if (!rawValue || !/^\d+$/.test(rawValue)) continue;
+		const value = Number(rawValue);
+		const operator = stringParam(url, operatorParam) ?? "gte";
+		if (operator === "eq") requestQuery = requestQuery.eq(column, value);
+		else if (operator === "lte") requestQuery = requestQuery.lte(column, value);
+		else if (operator === "between") {
+			const rawMax = stringParam(url, maxParam);
+			if (rawMax && /^\d+$/.test(rawMax)) requestQuery = requestQuery.gte(column, value).lte(column, Number(rawMax));
+		} else requestQuery = requestQuery.gte(column, value);
+	}
+	const requestsResult = await requestQuery.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(pageSize + 1);
 	if (requestsResult.error) return c.json({ error: "usage_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const [uniqueResult, rollupResult, keysResult] = await Promise.all([
-		context.client.from("gateway_requests").select("model_id,provider,app_id").eq("workspace_id", workspaceId).gte("created_at", timeRange.from).lte("created_at", timeRange.to).not("endpoint", "in", '("video.generation","batch","music.generate")'),
-		context.client.from("v2_web_private_usage_daily").select("canonical_model_id,provider").eq("workspace_id", workspaceId).gte("bucket_15m", timeRange.from).lte("bucket_15m", timeRange.to),
+	const [rollupResult, keysResult] = await Promise.all([
+		context.client.from("v2_web_private_usage_daily").select("canonical_model_id,provider,app_id").eq("workspace_id", workspaceId).gte("bucket_15m", timeRange.from).lte("bucket_15m", timeRange.to),
 		context.client.from("keys").select("id,name,prefix").eq("workspace_id", workspaceId).neq("status", "deleted").neq("name", "__chat_route_managed_key__").order("created_at", { ascending: true }),
 	]);
-	const models = Array.from(new Set([...(uniqueResult.data ?? []).map((row) => row.model_id), ...(rollupResult.data ?? []).map((row) => row.canonical_model_id)].filter(Boolean))); const providers = Array.from(new Set([...(uniqueResult.data ?? []).map((row) => row.provider), ...(rollupResult.data ?? []).map((row) => row.provider)].filter(Boolean))); const apps = Array.from(new Set((uniqueResult.data ?? []).map((row) => row.app_id).filter(Boolean)));
-	const providerSets = new Map<string, Set<string>>(); for (const row of [...(uniqueResult.data ?? []).map((r) => ({ model: r.model_id, provider: r.provider })), ...(rollupResult.data ?? []).map((r) => ({ model: r.canonical_model_id, provider: r.provider }))]) if (row.model && row.provider) providerSets.set(row.model, new Set([...(providerSets.get(row.model) ?? []), row.provider]));
+	const requestRows = requestsResult.data ?? [];
+	const hasMoreRequests = requestRows.length > pageSize;
+	const visibleRequestRows = requestRows.slice(0, pageSize);
+	const values = <T,>(selector: (row: (typeof visibleRequestRows)[number]) => T | null | undefined) => Array.from(new Set(visibleRequestRows.map(selector).filter((value): value is T => value != null && value !== "")));
+	const models = Array.from(new Set([...values((row) => row.model_id), ...(rollupResult.data ?? []).map((row) => row.canonical_model_id)].filter(Boolean)));
+	const providers = Array.from(new Set([...values((row) => row.provider), ...(rollupResult.data ?? []).map((row) => row.provider)].filter(Boolean)));
+	const apps = Array.from(new Set([...values((row) => row.app_id), ...(rollupResult.data ?? []).map((row) => row.app_id)].filter(Boolean)));
+	const providerSets = new Map<string, Set<string>>(); for (const row of rollupResult.data ?? []) if (row.canonical_model_id && row.provider) providerSets.set(row.canonical_model_id, new Set([...(providerSets.get(row.canonical_model_id) ?? []), row.provider]));
 	const metadata = await metadataForIds(context, { models, providers, apps });
-	const total = requestsResult.count ?? 0;
-	return c.json({ data: { appNameEntries: metadata.appNameEntries, availableKeys: keysResult.data ?? [], dedupedModels: models, dedupedProviders: providers, initialRequestsPage: { data: requestsResult.data ?? [], total, page, pageSize, totalPages: Math.ceil(total / pageSize) }, modelMetadataEntries: metadata.modelMetadataEntries, modelProviderEntries: Array.from(providerSets.entries()).map(([id, values]) => [id, Array.from(values)]), providerMetadataEntries: metadata.providerMetadataEntries, providerNameEntries: metadata.providerNameEntries }, signedIn: true, view, workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
+	const lastRequestRow = visibleRequestRows.at(-1);
+	const nextRequestCursor = hasMoreRequests && lastRequestRow ? { createdAt: lastRequestRow.created_at, id: lastRequestRow.id } : null;
+	const clientSources = values((row) => row.client_source_id).map((id) => ({ id, name: visibleRequestRows.find((row) => row.client_source_id === id)?.client_source_name ?? id }));
+	const logEndpoints = values((row) => row.endpoint);
+	const logFinishReasons = values((row) => row.finish_reason);
+	const logErrorCodes = values((row) => row.error_code);
+	const logStatusCodes = values((row) => row.status_code).map(Number).filter(Number.isFinite).sort((a, b) => a - b);
+	return c.json({ data: { appNameEntries: metadata.appNameEntries, availableKeys: keysResult.data ?? [], clientSources, dedupedModels: models, dedupedProviders: providers, logAppIds: apps, logEndpoints, logFinishReasons, logErrorCodes, logStatusCodes, initialRequestsPage: { data: visibleRequestRows, page, pageSize, hasMore: hasMoreRequests, nextCursor: nextRequestCursor }, modelMetadataEntries: metadata.modelMetadataEntries, modelProviderEntries: Array.from(providerSets.entries()).map(([id, values]) => [id, Array.from(values)]), providerMetadataEntries: metadata.providerMetadataEntries, providerNameEntries: metadata.providerNameEntries }, signedIn: true, view, workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsUsageRouter.get("/usage/alerts", async (c) => {

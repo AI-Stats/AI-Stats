@@ -44,6 +44,12 @@ const e2eLatencyChartConfig: ChartConfig = {
 	},
 };
 
+function formatDateTick(timestamp: string) {
+	const date = new Date(timestamp);
+	if (Number.isNaN(date.getTime())) return timestamp;
+	return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
 interface LatencyChartProps {
 	data: Array<{ timestamp: string; avgLatencyMs: number | null }>;
 	onHoverBucket?: (timestamp: string | null) => void;
@@ -101,7 +107,7 @@ export function LatencyChart({
 			<ResponsiveContainer width="100%" height="100%">
 				<LineChart
 					data={chartData}
-					margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+					margin={{ top: 0, right: 4, bottom: 0, left: 0 }}
 					syncId={syncId}
 					syncMethod="value"
 					onMouseMove={(state: any) => {
@@ -121,14 +127,19 @@ export function LatencyChart({
 					<XAxis
 						dataKey="timestamp"
 						padding={{ left: 0, right: 0 }}
-						hide
+						axisLine={false}
+						tickLine={false}
+						tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
+						tickFormatter={(value) => formatDateTick(String(value))}
+						minTickGap={24}
+						interval="preserveStartEnd"
 					/>
 					<YAxis
 						axisLine={false}
 						tickLine={false}
 						tick={{
 							fontSize: 12,
-							fill: "hsl(var(--muted-foreground))",
+							fill: "var(--muted-foreground)",
 						}}
 						tickFormatter={(value) => `${value}ms`}
 					/>
@@ -227,7 +238,7 @@ export function ThroughputChart({
 			<ResponsiveContainer width="100%" height="100%">
 				<LineChart
 					data={chartData}
-					margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+					margin={{ top: 0, right: 4, bottom: 0, left: 0 }}
 					syncId={syncId}
 					syncMethod="value"
 					onMouseMove={(state: any) => {
@@ -247,14 +258,19 @@ export function ThroughputChart({
 					<XAxis
 						dataKey="timestamp"
 						padding={{ left: 0, right: 0 }}
-						hide
+						axisLine={false}
+						tickLine={false}
+						tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
+						tickFormatter={(value) => formatDateTick(String(value))}
+						minTickGap={24}
+						interval="preserveStartEnd"
 					/>
 					<YAxis
 						axisLine={false}
 						tickLine={false}
 						tick={{
 							fontSize: 12,
-							fill: "hsl(var(--muted-foreground))",
+							fill: "var(--muted-foreground)",
 						}}
 						tickFormatter={(value) => `${value}t/s`}
 					/>
@@ -353,7 +369,7 @@ export function E2ELatencyChart({
 			<ResponsiveContainer width="100%" height="100%">
 				<LineChart
 					data={chartData}
-					margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+					margin={{ top: 0, right: 4, bottom: 0, left: 0 }}
 					syncId={syncId}
 					syncMethod="value"
 					onMouseMove={(state: any) => {
@@ -373,14 +389,19 @@ export function E2ELatencyChart({
 					<XAxis
 						dataKey="timestamp"
 						padding={{ left: 0, right: 0 }}
-						hide
+						axisLine={false}
+						tickLine={false}
+						tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
+						tickFormatter={(value) => formatDateTick(String(value))}
+						minTickGap={24}
+						interval="preserveStartEnd"
 					/>
 					<YAxis
 						axisLine={false}
 						tickLine={false}
 						tick={{
 							fontSize: 12,
-							fill: "hsl(var(--muted-foreground))",
+							fill: "var(--muted-foreground)",
 						}}
 						tickFormatter={(value) => `${value}ms`}
 					/>

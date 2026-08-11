@@ -129,6 +129,14 @@
       "other_info": "Confab 18.3%; non-response 7.8%",
       "source_link": "https://github.com/lechmazur/confabulations",
       "rank": 51
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 17.2,
+      "is_self_reported": false,
+      "other_info": "o1-preview; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/o1-preview",
+      "rank": 274
     }
   ],
   "page_notice": null,

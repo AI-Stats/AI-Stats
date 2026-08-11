@@ -1135,9 +1135,7 @@ paths:
         - Gateway
       operationId: cancelVideo
       summary: Cancel video
-      description: >-
-        Cancels a non-terminal video generation request when the upstream
-        provider supports cancellation.
+      description: Video cancellation is currently disabled across all providers.
       parameters:
         - name: video_id
           in: path
@@ -1146,14 +1144,8 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: Video cancellation response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/VideoGenerationResponse'
         '501':
-          description: Video cancellation is not supported for this provider
+          description: Video cancellation is disabled
           content:
             application/json:
               schema:
@@ -2917,14 +2909,8 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: Video cancellation response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/VideoGenerationResponse'
         '501':
-          description: Video cancellation is not supported for this provider
+          description: Video cancellation is disabled
           content:
             application/json:
               schema:
@@ -3774,147 +3760,316 @@ components:
           example: US
     Model:
       type: object
+      required:
+        - id
+        - base_model_id
+        - variant
+        - variants
+        - name
+        - description
+        - organization
+        - aliases
+        - lifecycle
+        - modalities
+        - limits
+        - capabilities
+        - availability
+        - pricing
+        - offers
       properties:
         id:
           type: string
-        canonical_slug:
+        base_model_id:
           type: string
-        model_id:
+        variant:
           type: string
+        variants:
+          type: object
+          additionalProperties:
+            type: object
+            required:
+              - model_id
+              - name
+            properties:
+              model_id:
+                type: string
+              name:
+                type: string
         name:
           type: string
-          nullable: true
         description:
           type: string
-        created:
-          type: integer
-          nullable: true
-        release_date:
-          type: string
-          nullable: true
-        deprecation_date:
-          type: string
-          nullable: true
-        retirement_date:
-          type: string
-          nullable: true
-        status:
-          type: string
-          nullable: true
-        availability:
-          $ref: '#/components/schemas/ModelAvailability'
-        lifecycle:
-          $ref: '#/components/schemas/ModelLifecycle'
-        organisation_id:
-          type: string
-          nullable: true
-        organisation_name:
-          type: string
-          nullable: true
-        organisation_colour:
-          type: string
-          nullable: true
+        organization:
+          $ref: '#/components/schemas/GatewayModelOrganization'
         aliases:
           type: array
           items:
             type: string
+        lifecycle:
+          $ref: '#/components/schemas/GatewayModelLifecycle'
+        modalities:
+          $ref: '#/components/schemas/GatewayModalities'
+        limits:
+          $ref: '#/components/schemas/GatewayModelLimits'
+        capabilities:
+          $ref: '#/components/schemas/GatewayCapabilities'
+        availability:
+          $ref: '#/components/schemas/ModelAvailability'
+        pricing:
+          $ref: '#/components/schemas/GatewayPricing'
+        offers:
+          type: array
+          items:
+            $ref: '#/components/schemas/GatewayModelOffer'
+      additionalProperties: false
+    GatewayModelOrganization:
+      type: object
+      nullable: true
+      required:
+        - id
+        - name
+        - color
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+    GatewayModelLifecycle:
+      type: object
+      required:
+        - status
+        - released_at
+        - deprecated_at
+        - retires_at
+        - replacement_id
+        - message
+      properties:
+        status:
+          type: string
+          enum:
+            - active
+            - deprecated
+            - retired
+          nullable: true
+        released_at:
+          type: string
+          nullable: true
+        deprecated_at:
+          type: string
+          nullable: true
+        retires_at:
+          type: string
+          nullable: true
+        replacement_id:
+          type: string
+          nullable: true
+        message:
+          type: string
+          nullable: true
+    GatewayModalities:
+      type: object
+      required:
+        - input
+        - output
+      properties:
+        input:
+          type: array
+          items:
+            type: string
+        output:
+          type: array
+          items:
+            type: string
+    GatewayModelLimits:
+      type: object
+      required:
+        - input_tokens
+        - output_tokens
+      properties:
+        input_tokens:
+          type: integer
+          nullable: true
+          minimum: 0
+          exclusiveMinimum: true
+        output_tokens:
+          type: integer
+          nullable: true
+          minimum: 0
+          exclusiveMinimum: true
+    GatewayCapabilities:
+      type: object
+      required:
+        - parameters
+        - parameter_details
+      properties:
         endpoints:
           type: array
           items:
             type: string
-        input_types:
+        parameters:
           type: array
           items:
             type: string
-        output_types:
-          type: array
-          items:
-            type: string
-        providers:
-          type: array
-          items:
-            $ref: '#/components/schemas/ModelProviderAvailability'
-        supported_params:
-          type: array
-          items:
-            type: string
-        supported_params_detail:
+        parameter_details:
           $ref: '#/components/schemas/SupportedParameterDetails'
-        supported_parameters:
-          type: array
-          items:
-            type: string
-        supported_parameters_detail:
-          $ref: '#/components/schemas/SupportedParameterDetails'
-        architecture:
+    GatewayPricingMeter:
+      type: object
+      nullable: true
+      required:
+        - provider_id
+        - unit
+        - unit_size
+        - price_per_unit
+        - currency
+      properties:
+        provider_id:
+          type: string
+        unit:
+          type: string
+        unit_size:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+        price_per_unit:
+          type: string
+        currency:
+          type: string
+          enum:
+            - USD
+    GatewayPricing:
+      type: object
+      required:
+        - pricing_plan
+        - meters
+      properties:
+        pricing_plan:
+          type: string
+          enum:
+            - standard
+        meters:
           type: object
+          additionalProperties:
+            $ref: '#/components/schemas/GatewayPricingMeter'
+    GatewayProviderAvailabilityReason:
+      type: string
+      enum:
+        - active
+        - preview_only
+        - gated
+        - access_limited
+        - region_limited
+        - project_limited
+        - paused
+        - soft_blocked
+        - deranked_lvl1
+        - deranked_lvl2
+        - deranked_lvl3
+        - internal_testing
+        - scheduled
+        - coming_soon
+        - provider_disabled
+        - model_disabled
+        - capability_disabled
+        - provider_not_ready
+        - provider_inactive
+        - inactive
+        - retired
+    GatewayRoutingStatus:
+      type: string
+      enum:
+        - active
+        - deranked_lvl1
+        - deranked_lvl2
+        - deranked_lvl3
+        - disabled
+    GatewayCapabilityStatus:
+      type: string
+      enum:
+        - active
+        - coming_soon
+        - deranked_lvl1
+        - deranked_lvl2
+        - deranked_lvl3
+        - disabled
+        - internal_testing
+    GatewayModelOffer:
+      type: object
+      required:
+        - provider
+        - model
+        - status
+        - status_reason
+        - routable
+        - endpoints
+        - modalities
+        - capabilities
+        - routing
+        - effective
+        - pricing
+      properties:
+        provider:
+          type: object
+          required:
+            - id
+            - name
           properties:
-            modality:
+            id:
               type: string
-            input_modalities:
-              type: array
-              items:
-                type: string
-            output_modalities:
-              type: array
-              items:
-                type: string
-            tokenizer:
+            name:
               type: string
               nullable: true
-            instruct_type:
-              type: string
-              nullable: true
-        top_provider_id:
+        model:
           type: string
           nullable: true
-        top_provider:
+        status:
+          type: string
+          enum:
+            - active
+            - coming_soon
+            - inactive
+        status_reason:
+          $ref: '#/components/schemas/GatewayProviderAvailabilityReason'
+        routable:
+          type: boolean
+        endpoints:
+          type: array
+          items:
+            type: string
+        modalities:
+          $ref: '#/components/schemas/GatewayModalities'
+        capabilities:
+          $ref: '#/components/schemas/GatewayCapabilities'
+        routing:
           type: object
+          required:
+            - provider
+            - model
+            - capability
           properties:
-            context_length:
-              type: integer
+            provider:
+              $ref: '#/components/schemas/GatewayRoutingStatus'
+            model:
+              $ref: '#/components/schemas/GatewayRoutingStatus'
+            capability:
+              $ref: '#/components/schemas/GatewayCapabilityStatus'
+        effective:
+          type: object
+          required:
+            - from
+            - to
+          properties:
+            from:
+              type: string
               nullable: true
-            max_completion_tokens:
-              type: integer
+            to:
+              type: string
               nullable: true
-            is_moderated:
-              type: boolean
         pricing:
-          type: object
-          properties:
-            prompt:
-              type: string
-              nullable: true
-            completion:
-              type: string
-              nullable: true
-            request:
-              type: string
-              nullable: true
-            image:
-              type: string
-              nullable: true
-            input_cache_read:
-              type: string
-              nullable: true
-            input_cache_write:
-              type: string
-              nullable: true
-            web_search:
-              type: string
-              nullable: true
-        pricing_detail:
-          type: object
-          properties:
-            pricing_plan:
-              type: string
-            meters:
-              type: object
-              additionalProperties: true
-        per_request_limits:
-          type: object
-          nullable: true
-          additionalProperties: true
+          $ref: '#/components/schemas/GatewayPricing'
     ModelLifecycle:
       type: object
       properties:
@@ -3943,6 +4098,7 @@ components:
         - status
         - provider_count
         - active_provider_count
+        - coming_soon_provider_count
         - inactive_provider_count
       properties:
         status:
@@ -3956,6 +4112,9 @@ components:
           type: integer
           minimum: 0
         active_provider_count:
+          type: integer
+          minimum: 0
+        coming_soon_provider_count:
           type: integer
           minimum: 0
         inactive_provider_count:
@@ -3992,29 +4151,7 @@ components:
             - coming_soon
             - inactive
         availability_reason:
-          type: string
-          enum:
-            - active
-            - preview_only
-            - gated
-            - access_limited
-            - region_limited
-            - project_limited
-            - paused
-            - soft_blocked
-            - deranked_lvl1
-            - deranked_lvl2
-            - deranked_lvl3
-            - internal_testing
-            - scheduled
-            - coming_soon
-            - provider_disabled
-            - model_disabled
-            - capability_disabled
-            - provider_not_ready
-            - provider_inactive
-            - inactive
-            - retired
+          $ref: '#/components/schemas/GatewayProviderAvailabilityReason'
         provider_status:
           type: string
           enum:
@@ -4029,31 +4166,11 @@ components:
             - paused
             - soft_blocked
         provider_routing_status:
-          type: string
-          enum:
-            - active
-            - deranked_lvl1
-            - deranked_lvl2
-            - deranked_lvl3
-            - disabled
+          $ref: '#/components/schemas/GatewayRoutingStatus'
         model_routing_status:
-          type: string
-          enum:
-            - active
-            - deranked_lvl1
-            - deranked_lvl2
-            - deranked_lvl3
-            - disabled
+          $ref: '#/components/schemas/GatewayRoutingStatus'
         capability_status:
-          type: string
-          enum:
-            - active
-            - coming_soon
-            - deranked_lvl1
-            - deranked_lvl2
-            - deranked_lvl3
-            - disabled
-            - internal_testing
+          $ref: '#/components/schemas/GatewayCapabilityStatus'
         effective_from:
           type: string
           nullable: true
@@ -4159,6 +4276,17 @@ components:
             $ref: '#/components/schemas/ChatMessage'
         reasoning:
           $ref: '#/components/schemas/ReasoningConfig'
+        reasoning_effort:
+          type: string
+          description: OpenAI-compatible alias for `reasoning.effort`.
+          enum:
+            - none
+            - minimal
+            - low
+            - medium
+            - high
+            - xhigh
+            - max
         frequency_penalty:
           type: number
           minimum: -2
@@ -5962,6 +6090,15 @@ components:
         duration:
           type: integer
           description: Desired duration in seconds (provider/model dependent).
+        input_video_duration:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 3600
+          exclusiveMinimum: true
+          description: >-
+            Duration of the source video in seconds. Required when a provider
+            bills source-video duration independently from generated output.
         size:
           type: string
           description: >-
@@ -6022,9 +6159,10 @@ components:
               type: array
               description: >-
                 Optional event subscriptions. Use generic job.* events or
-                matching video.* events, for example video.progress or
-                video.completed. When omitted, terminal job.* events are used.
-                Include job.progress or video.progress explicitly for progress
+                matching video.* events, for example video.status_changed,
+                video.progress, or video.completed. When omitted,
+                job.status_changed and terminal job.* events are used. Include
+                job.progress or video.progress explicitly for progress
                 callbacks. When supplied, at least one event must be valid for
                 video jobs; cross-kind-only or malformed event lists are
                 rejected.
@@ -6206,6 +6344,7 @@ components:
           type: string
           format: uri
           nullable: true
+          description: Reserved for compatibility; currently always null.
         output_access:
           type: string
           enum:
@@ -6322,31 +6461,62 @@ components:
         error:
           nullable: true
     VideoInputReference:
-      type: object
-      required:
-        - type
-      properties:
-        type:
-          type: string
-          enum:
-            - image_url
-        role:
-          type: string
-          enum:
-            - first_frame
-            - last_frame
-            - reference
-            - source
-            - mask
-        reference_type:
-          type: string
-        image_url:
-          type: object
+      oneOf:
+        - type: object
           required:
-            - url
+            - type
+            - image_url
           properties:
-            url:
+            type:
               type: string
+              enum:
+                - image_url
+            role:
+              type: string
+              enum:
+                - first_frame
+                - last_frame
+                - reference
+                - source
+                - mask
+            reference_type:
+              type: string
+            image_url:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                  format: uri
+        - type: object
+          required:
+            - type
+            - media_url
+          properties:
+            type:
+              type: string
+              enum:
+                - video_url
+                - audio_url
+            role:
+              type: string
+              enum:
+                - first_frame
+                - last_frame
+                - reference
+                - source
+                - mask
+            reference_type:
+              type: string
+            media_url:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                  format: uri
     VideoOutputConfig:
       type: object
       properties:
@@ -6973,6 +7143,7 @@ components:
           type: string
           format: uri
           nullable: true
+          description: Reserved for compatibility; currently always null.
         output_file_id:
           type: string
         error_file_id:
@@ -7202,6 +7373,7 @@ components:
       enum:
         - ai21
         - aion-labs
+        - alibaba
         - allenai
         - amazon
         - anthropic
@@ -7243,6 +7415,7 @@ components:
         - prime-intellect
         - qwen
         - relace
+        - runway
         - sourceful
         - spacex-ai
         - stepfun
@@ -7402,6 +7575,7 @@ components:
         - balrog-ai
         - bbh
         - bcflv4
+        - beam128k
         - beyondaime
         - bfcl
         - bfcl-overall-fc-v4
@@ -7447,6 +7621,8 @@ components:
         - chest-imagenome-anatomy-iou
         - chexpert-cxr-top5-macro-f1
         - chinese-simpleqa
+        - ci-memories-coverage
+        - ci-memories-violation-rate
         - cl-bench
         - claw-eval
         - cloningscenarios
@@ -7557,6 +7733,7 @@ components:
         - fullstackbench-en
         - fullstackbench-zh
         - functionalmath
+        - gaia2
         - galileo-agent
         - gdp-pdf
         - gdpval-aa
@@ -7598,6 +7775,7 @@ components:
         - hmmt-feb-2026
         - hmmt-feb-26
         - hmmt-nov-2025
+        - hpct
         - hr-bench-4k
         - humaneval
         - humaneval-average
@@ -7678,6 +7856,7 @@ components:
         - mathvista
         - mathvista-mini
         - maxife
+        - mbct
         - mbpp
         - mbpp-evalplus
         - mbpp+
@@ -7813,6 +7992,7 @@ components:
         - os-world
         - osworld-2.0
         - osworld-g
+        - osworld-verified
         - ovbench
         - ovobench
         - paperbench
@@ -7836,6 +8016,7 @@ components:
         - procbench
         - program-bench
         - protocolqa
+        - protocolqa-percentage
         - qasper
         - qmsum
         - qvhighlights
@@ -7866,6 +8047,8 @@ components:
         - simpleqa
         - simpleqa-verified
         - simplevqa
+        - siren-agentdojo-attack-success-rate
+        - siren-agentdojo-utility
         - skillsbench
         - slake-closed-accuracy
         - slake-tokenized-f1
@@ -7930,6 +8113,7 @@ components:
         - v-star
         - vcr-en-easy
         - vct
+        - vct-percentage
         - vending-bench-2
         - vibe
         - vibe-android
@@ -7972,8 +8156,11 @@ components:
         - wide-search
         - widesearch
         - wildbench
+        - wildclawbench
         - winogrande
         - wmdp
+        - wmdp-bio
+        - wmdp-chem
         - wmt23
         - wmt24++
         - wmt24pp-comet
@@ -8663,7 +8850,6 @@ components:
       type: object
       required:
         - ok
-        - privacy_scope
         - availability_mode
         - limit
         - offset
@@ -8673,12 +8859,6 @@ components:
         ok:
           type: boolean
           example: true
-        privacy_scope:
-          type: string
-          enum:
-            - shared
-            - team
-          example: shared
         availability_mode:
           type: string
           enum:
@@ -8712,20 +8892,16 @@ components:
         - capability_id
         - public_path
         - collection
-        - provider_id
-        - is_active_gateway
-        - availability_status
-        - availability_reason
-        - provider_status
-        - provider_routing_status
-        - model_routing_status
-        - capability_status
-        - input_modalities
-        - output_modalities
-        - supported_parameters
-        - supported_parameters_detail
+        - provider
+        - model
+        - routable
+        - status
+        - status_reason
+        - modalities
+        - capabilities
+        - routing
+        - effective
         - pricing
-        - pricing_detail
       properties:
         id:
           type: string
@@ -8753,70 +8929,73 @@ components:
             - music
             - batch
             - files
-        provider_id:
-          type: string
-          example: openai
-        provider_name:
-          type: string
-          nullable: true
-          example: OpenAI
-        provider_model_slug:
+        provider:
+          type: object
+          required:
+            - id
+            - name
+          properties:
+            id:
+              type: string
+              example: openai
+            name:
+              type: string
+              nullable: true
+              example: OpenAI
+        model:
           type: string
           nullable: true
           example: gpt-5.4-mini
-        input_modalities:
-          type: array
-          items:
-            type: string
-        output_modalities:
-          type: array
-          items:
-            type: string
-        is_active_gateway:
+        routable:
           type: boolean
-        availability_status:
+        status:
           type: string
           enum:
             - active
             - coming_soon
             - inactive
-        availability_reason:
-          type: string
-        provider_status:
-          type: string
-        provider_routing_status:
-          type: string
-        model_routing_status:
-          type: string
-        capability_status:
-          type: string
-        effective_from:
-          type: string
-          nullable: true
-        effective_to:
-          type: string
-          nullable: true
-        supported_parameters:
-          type: array
-          items:
-            type: string
-        supported_parameters_detail:
-          $ref: '#/components/schemas/SupportedParameterDetails'
+        status_reason:
+          $ref: '#/components/schemas/GatewayProviderAvailabilityReason'
+        modalities:
+          $ref: '#/components/schemas/GatewayModalities'
+        capabilities:
+          $ref: '#/components/schemas/GatewayCapabilities'
+        routing:
+          type: object
+          required:
+            - provider
+            - model
+            - capability
+          properties:
+            provider:
+              $ref: '#/components/schemas/GatewayRoutingStatus'
+            model:
+              $ref: '#/components/schemas/GatewayRoutingStatus'
+            capability:
+              $ref: '#/components/schemas/GatewayCapabilityStatus'
+        effective:
+          type: object
+          required:
+            - from
+            - to
+          properties:
+            from:
+              type: string
+              nullable: true
+            to:
+              type: string
+              nullable: true
         pricing:
-          type: object
-          additionalProperties:
-            type: string
-            nullable: true
-        pricing_detail:
-          type: object
-          additionalProperties: true
+          $ref: '#/components/schemas/GatewayPricing'
     ModelEndpointsResponse:
       type: object
       required:
         - ok
         - id
-        - model_id
-        - canonical_slug
+        - name
+        - description
+        - organization
+        - modalities
         - availability_mode
         - endpoints
       properties:
@@ -8826,21 +9005,14 @@ components:
             - true
         id:
           type: string
-        model_id:
-          type: string
-        canonical_slug:
-          type: string
         name:
           type: string
-          nullable: true
         description:
           type: string
-        created:
-          type: integer
-          nullable: true
-        architecture:
-          type: object
-          additionalProperties: true
+        organization:
+          $ref: '#/components/schemas/GatewayModelOrganization'
+        modalities:
+          $ref: '#/components/schemas/GatewayModalities'
         availability_mode:
           type: string
           enum:
@@ -8922,36 +9094,6 @@ components:
         max_offset:
           type: integer
           minimum: 0
-      additionalProperties: true
-    ModelsPrivacyScopeNotImplementedResponse:
-      type: object
-      required:
-        - ok
-        - error
-        - code
-        - message
-        - privacy_scope
-      properties:
-        ok:
-          type: boolean
-          enum:
-            - false
-          example: false
-        error:
-          type: string
-          enum:
-            - not_implemented
-          example: not_implemented
-        code:
-          type: string
-          enum:
-            - models_privacy_scope_not_implemented
-        message:
-          type: string
-        privacy_scope:
-          type: string
-          enum:
-            - team
       additionalProperties: true
     AnalyticsNotImplementedResponse:
       type: object
@@ -9501,6 +9643,7 @@ components:
         - meta/llama-guard-4-12b
         - meta/llama-prompt-guard-2-22m
         - meta/llama-prompt-guard-2-86m
+        - meta/muse-glimmer-30b
         - meta/muse-spark-1.2
         - microsoft/phi-4
         - microsoft/phi-4-mini
@@ -9604,10 +9747,8 @@ components:
         - openai/gpt-5-pro
         - openai/gpt-5.1
         - openai/gpt-5.2
-        - openai/gpt-5.2-chat
         - openai/gpt-5.2-codex
         - openai/gpt-5.2-pro
-        - openai/gpt-5.3-chat
         - openai/gpt-5.3-codex
         - openai/gpt-5.4
         - openai/gpt-5.4-mini
@@ -9763,7 +9904,6 @@ components:
         - spacex-ai/grok-code-fast-1
         - spacex-ai/grok-imagine-image
         - spacex-ai/grok-imagine-image-quality
-        - spacex-ai/grok-imagine-video
         - spacex-ai/grok-tts
         - stepfun/step-3.5-flash
         - stepfun/step-3.7-flash

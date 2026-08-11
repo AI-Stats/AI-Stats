@@ -145,6 +145,14 @@
       "other_info": "Medium reasoning; sigma 0.171; games 798; avg points 0.510",
       "source_link": "https://github.com/lechmazur/elimination_game",
       "rank": 32
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 23.9,
+      "is_self_reported": false,
+      "other_info": "o1; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/o1",
+      "rank": 201
     }
   ],
   "page_notice": null,

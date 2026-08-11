@@ -647,13 +647,13 @@ const MATRIX_SECTIONS: MatrixSection[] = [
 		rows: [
 			{
 				feature: "Client SDKs",
-				featureHref: "/settings/sdk",
+				featureHref: "https://phaseo.app/docs/v1/sdk-reference/typescript/overview",
 				free: { type: "included", inlineText: "TypeScript, Python, Go, Java, C#, PHP, Ruby, Rust, C++" },
 				payg: { type: "included", inlineText: "TypeScript, Python, Go, Java, C#, PHP, Ruby, Rust, C++" },
 			},
 			{
 				feature: "Agent SDKs",
-				featureHref: "/settings/sdk",
+				featureHref: "https://phaseo.app/docs/v1/sdk-reference/typescript/agent-sdk-overview",
 				free: { type: "included", inlineText: "TypeScript, Python, Go, C#, PHP, Ruby" },
 				payg: { type: "included", inlineText: "TypeScript, Python, Go, C#, PHP, Ruby" },
 			},

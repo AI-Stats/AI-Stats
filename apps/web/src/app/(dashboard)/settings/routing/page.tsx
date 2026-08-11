@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import RoutingSettingsClient from "@/components/(gateway)/settings/routing/RoutingSettingsClient";
 import SettingsSectionFallback from "@/components/(gateway)/settings/SettingsSectionFallback";
+import SettingsPageHeader from "@/components/(gateway)/settings/SettingsPageHeader";
 import { fetchSettingsRoutingInitialData } from "@/lib/fetchers/internal/fetchSettingsRoutingInitialData";
 
 export const metadata = {
@@ -10,12 +11,10 @@ export const metadata = {
 export default function RoutingSettingsPage() {
 	return (
 		<div className="space-y-6">
-			<header>
-				<h1 className="text-2xl font-bold">Routing</h1>
-				<p className="mt-2 text-sm text-muted-foreground">
-					Tune the workspace defaults used when a request does not enter a dynamic route.
-				</p>
-			</header>
+			<SettingsPageHeader
+				title="Routing"
+				description="Set the workspace defaults used when a request does not match a dynamic route."
+			/>
 			<Suspense fallback={<SettingsSectionFallback />}>
 				<RoutingSettingsContent />
 			</Suspense>

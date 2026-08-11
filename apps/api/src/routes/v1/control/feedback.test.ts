@@ -343,6 +343,25 @@ describe("feedback control routes", () => {
 		expect(state.insertCalls).toHaveLength(0);
 	});
 
+	it("rejects malformed optional preset identifiers instead of silently dropping them", async () => {
+		const response = await feedbackRoutes.request("https://api.example.com/", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				requestId: "gen_123",
+				presetId: "not-a-uuid",
+				rating: "correct",
+			}),
+		});
+
+		expect(response.status).toBe(400);
+		await expect(response.json()).resolves.toMatchObject({
+			error: "bad_request",
+			message: "Invalid preset or test run id",
+		});
+		expect(state.insertCalls).toHaveLength(0);
+	});
+
 	it("rejects unsupported test run statuses before database insertion", async () => {
 		const response = await presetTestRunsRoutes.request("https://api.example.com/", {
 			method: "POST",
@@ -549,6 +568,24 @@ describe("feedback control routes", () => {
 				}),
 			]),
 		);
+	});
+
+	it("filters unrated feedback with a null rating and rejects unknown ratings", async () => {
+		const unrated = await feedbackRoutes.request("https://api.example.com/?rating=unrated");
+		expect(unrated.status).toBe(200);
+		expect(state.queryCalls).toContainEqual({
+			table: "gateway_feedback",
+			method: "is",
+			args: ["rating", null],
+		});
+
+		state.queryCalls.length = 0;
+		const invalid = await feedbackRoutes.request("https://api.example.com/?rating=mostly_good");
+		expect(invalid.status).toBe(400);
+		await expect(invalid.json()).resolves.toMatchObject({
+			error: "bad_request",
+			message: "Unsupported feedback rating",
+		});
 	});
 
 	it("summarizes feedback by indexed metadata dimensions in SQL", async () => {

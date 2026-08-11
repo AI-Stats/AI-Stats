@@ -21,9 +21,25 @@ describe("runGatewayTelemetryPipelines", () => {
 		expect(writeAxiom).toHaveBeenCalledOnce();
 		expect(deliveries).toEqual([
 			{ sink: "supabase", delivered: true, error: null },
-			{ sink: "otlp", delivered: true, error: null },
 			{ sink: "axiom", delivered: true, error: null },
+			{ sink: "otlp", delivered: true, error: null },
 		]);
+	});
+
+	it("does not wait for Broadcast enqueueing before completing request telemetry", async () => {
+		let resolveBroadcast!: () => void;
+		const broadcastPending = new Promise<void>((resolve) => { resolveBroadcast = resolve; });
+		const pipeline = runGatewayTelemetryPipelines({
+			requestId: "req_background",
+			writeOtlp: () => broadcastPending,
+			writeAxiom: async () => undefined,
+		});
+
+		await expect(pipeline).resolves.toEqual([
+			{ sink: "axiom", delivered: true, error: null },
+			{ sink: "otlp", delivered: true, error: null },
+		]);
+		resolveBroadcast();
 	});
 
 	it("still delivers Axiom and reports when Supabase fails", async () => {

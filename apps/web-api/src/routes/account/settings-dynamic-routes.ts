@@ -120,64 +120,25 @@ async function invalidateKeys(c: any, keyIds: string[]) {
 	await Promise.allSettled([...new Set(keyIds)].map((keyId) => invalidateGatewayKey(c.env, keyId)));
 }
 
-type HealthAggregate = {
-	attempts: number;
-	failures: number;
-	latencySumMs: number;
-	latencyCount: number;
-};
-
-function buildSuggestions(rows: any[], providerNames: Map<string, string>) {
-	const aggregates = new Map<string, HealthAggregate>();
-	for (const row of rows) {
-		const id = String(row.provider_slug ?? "").trim();
-		if (!id) continue;
-		const current = aggregates.get(id) ?? { attempts: 0, failures: 0, latencySumMs: 0, latencyCount: 0 };
-		current.attempts += Number(row.attempt_count ?? 0) || 0;
-		current.failures += Number(row.failed_attempts ?? 0) || 0;
-		current.latencySumMs += Number(row.latency_sum_ms ?? 0) || 0;
-		current.latencyCount += Number(row.latency_count ?? 0) || 0;
-		aggregates.set(id, current);
-	}
-	return [...aggregates.entries()].flatMap(([providerId, value]) => {
-		if (value.attempts < 20) return [];
-		const failureRate = value.failures / Math.max(1, value.attempts);
-		const avgLatencyMs = value.latencyCount > 0 ? value.latencySumMs / value.latencyCount : 0;
-		if (failureRate < 0.05 && avgLatencyMs < 3_000) return [];
-		const reasons = [
-			...(failureRate >= 0.05 ? [`${(failureRate * 100).toFixed(1)}% failed attempts`] : []),
-			...(avgLatencyMs >= 3_000 ? [`${Math.round(avgLatencyMs)} ms average latency`] : []),
-		];
-		return [{
-			providerId,
-			providerName: providerNames.get(providerId) ?? providerId,
-			severity: failureRate >= 0.15 || avgLatencyMs >= 8_000 ? "critical" : "warning",
-			failureRate,
-			avgLatencyMs,
-			attempts: value.attempts,
-			message: `${providerNames.get(providerId) ?? providerId} is underperforming: ${reasons.join(" and ")}. Consider moving it later in the fallback order.`,
-		}];
-	}).sort((left, right) =>
-		(right.failureRate + right.avgLatencyMs / 100_000) - (left.failureRate + left.avgLatencyMs / 100_000),
-	).slice(0, 8);
-}
-
 export const accountSettingsDynamicRoutesRouter = new Hono<{ Bindings: Env }>();
 
 accountSettingsDynamicRoutesRouter.get("/dynamic-routes", async (c) => {
 	const workspaceId = c.req.query("workspaceId")?.trim();
-	if (!workspaceId) return c.json({ workspaceId: null, routes: [], keys: [], providers: [], suggestions: [] }, 200, PRIVATE_NO_STORE_HEADERS);
+	if (!workspaceId) return c.json({ workspaceId: null, routes: [], keys: [], providers: [] }, 200, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1_000).toISOString().slice(0, 10);
-	const [routesResult, linksResult, keysResult, providersResult, healthResult] = await Promise.all([
+	const [routesResult, linksResult, keysResult, providersResult] = await Promise.all([
 		context.client.from("gateway_dynamic_routes").select("id,workspace_id,name,slug,description,status,version,deployed_version,config,created_at,updated_at").eq("workspace_id", workspaceId).order("updated_at", { ascending: false }),
 		context.client.from("gateway_dynamic_route_keys").select("route_id,key_id"),
 		context.client.from("keys").select("id,name,prefix,status").eq("workspace_id", workspaceId).neq("status", "deleted").neq("name", "__chat_route_managed_key__").order("created_at", { ascending: false }),
-		context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name,status,routing_enabled").order("name", { ascending: true }),
-		context.client.from("v2_public_provider_health_daily").select("provider_slug,attempt_count,failed_attempts,latency_sum_ms,latency_count").gte("usage_date", since),
+		context.client.from("v2_providers")
+			.select("api_provider_id:provider_slug,api_provider_name:name,status,routing_enabled")
+			.eq("routable", true)
+			.eq("routing_enabled", true)
+			.in("status", ["active", "degraded"])
+			.order("name", { ascending: true }),
 	]);
-	if ([routesResult, linksResult, keysResult, providersResult, healthResult].some((result) => result.error)) {
+	if ([routesResult, linksResult, keysResult, providersResult].some((result) => result.error)) {
 		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
 	const routeIds = new Set((routesResult.data ?? []).map((route) => route.id));
@@ -195,7 +156,6 @@ accountSettingsDynamicRoutesRouter.get("/dynamic-routes", async (c) => {
 		if (!routeIds.has(row.route_id)) continue;
 		keyIdsByRoute.set(row.route_id, [...(keyIdsByRoute.get(row.route_id) ?? []), row.key_id]);
 	}
-	const providerNames = new Map((providersResult.data ?? []).map((provider) => [provider.api_provider_id, provider.api_provider_name ?? provider.api_provider_id]));
 	return c.json({
 		workspaceId,
 		routes: (routesResult.data ?? []).map((route) => {
@@ -215,7 +175,6 @@ accountSettingsDynamicRoutesRouter.get("/dynamic-routes", async (c) => {
 			status: provider.status,
 			routingStatus: provider.routing_enabled ? "active" : "disabled",
 		})),
-		suggestions: buildSuggestions(healthResult.data ?? [], providerNames),
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 

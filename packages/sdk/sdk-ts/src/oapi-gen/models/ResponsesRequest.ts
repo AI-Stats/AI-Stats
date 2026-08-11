@@ -37,7 +37,7 @@ export interface ResponsesRequest {
   metadata?: {
     [key: string]: string;
   };
-  modalities?: "text" | "image" | "audio"[];
+  modalities?: ("text" | "image" | "audio")[];
   model: string;
   parallel_tool_calls?: boolean;
   previous_response_id?: string;
@@ -134,7 +134,7 @@ export interface ResponsesRequest {
     | "gateway:web_search"
     | "gateway:web_fetch"
     | {};
-  tools?:
+  tools?: (
     | {
         function: {
           description?: string;
@@ -188,7 +188,8 @@ export interface ResponsesRequest {
           max_results?: number;
         };
         type: "phaseo:search_models";
-      }[];
+      }
+  )[];
   top_p?: number;
   truncation?: "auto" | "disabled";
   usage?: boolean;
