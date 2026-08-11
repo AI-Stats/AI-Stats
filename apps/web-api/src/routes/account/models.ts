@@ -113,6 +113,42 @@ async function fetchAllRows<T>(fetchPage: (from: number, to: number) => PromiseL
 	}
 }
 
+async function fetchPricingSourceRows(client: ReturnType<typeof getDataClient>, providerRows: any[]): Promise<any[]> {
+	const [skus, meters] = await Promise.all([
+		fetchAllRows<any>((from, to) => client.from("v2_pricing_skus").select("sku_id,provider_model_id,operation,service_tier_slug,currency,effective_from,effective_to,metadata,description").range(from, to)),
+		fetchAllRows<any>((from, to) => client.from("v2_pricing_sku_meters").select("sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,metadata").eq("billable", true).range(from, to)),
+	]);
+	const routes = new Map(providerRows.map((row) => [String(row.provider_api_model_id ?? ""), row]));
+	const skuById = new Map(skus.map((sku) => [String(sku.sku_id ?? ""), sku]));
+	return meters.flatMap((meter) => {
+		const sku = skuById.get(String(meter.sku_id ?? ""));
+		const route = sku ? routes.get(String(sku.provider_model_id ?? "")) : null;
+		if (!sku || !route) return [];
+		const skuMetadata = sku.metadata && typeof sku.metadata === "object" ? sku.metadata : {};
+		const meterMetadata = meter.metadata && typeof meter.metadata === "object" ? meter.metadata : {};
+		return [{
+			rule_id: String(meter.sku_meter_id),
+			provider_id: route.provider_id,
+			api_model_id: route.api_model_id,
+			model_key: `${route.provider_id}:${route.api_model_id}:${sku.operation}`,
+			capability_id: sku.operation,
+			pricing_plan: sku.service_tier_slug ?? "standard",
+			meter: meter.meter_key,
+			unit: meter.unit,
+			unit_size: meter.unit_quantity,
+			price_per_unit: Number(meter.price_nanos) / 1_000_000_000,
+			currency: sku.currency,
+			priority: meter.meter_order,
+			effective_from: sku.effective_from,
+			effective_to: sku.effective_to,
+			match: skuMetadata.match ?? meterMetadata.match ?? [],
+			billing_timestamp_basis: skuMetadata.billing_timestamp_basis ?? "request_start",
+			time_windows: skuMetadata.time_windows ?? [],
+			note: meterMetadata.note ?? sku.description ?? null,
+		}];
+	});
+}
+
 accountModelsRouter.get("/audit/source", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
@@ -120,16 +156,16 @@ accountModelsRouter.get("/audit/source", async (c) => {
 	if (!client) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	try {
 		const includeHidden = c.req.query("includeHidden") === "true";
-		const [models, providerRows, benchmarkRows, pricingRows] = await Promise.all([
+		const [models, providerRows, benchmarkRows] = await Promise.all([
 			fetchAllRows<any>((from, to) => {
 				let query = client.from("v2_models").select("model_id:model_slug,name,release_date:released_at,retirement_date:retired_at,status,hidden,input_types:input_modalities,output_types:output_modalities,organisation:v2_labs(lab_slug,name)").order("released_at", { ascending: false });
 				if (!includeHidden) query = query.eq("hidden", false);
 				return query.range(from, to);
 			}),
-			fetchAllRows<any>((from, to) => client.from("v2_rpc_routes_legacy_shape").select("provider_api_model_id,model_id,provider_id,api_model_id,is_active_gateway,effective_from,effective_to").range(from, to)),
-			fetchAllRows<any>((from, to) => client.from("v2_rpc_benchmark_results_legacy_shape").select("model_id,id").range(from, to)),
-			fetchAllRows<any>((from, to) => client.from("v2_rpc_pricing_legacy_shape").select("model_key,meter,price_per_unit,unit_size,effective_from,effective_to").range(from, to)),
+			fetchAllRows<any>((from, to) => client.from("v2_model_provider_routes").select("provider_api_model_id:provider_model_id,model_id:model_slug,provider_id:provider_slug,api_model_id:model_slug,is_active_gateway:routing_enabled,effective_from,effective_to").range(from, to)),
+			fetchAllRows<any>((from, to) => client.from("v2_benchmark_results").select("model_id:model_slug,id:result_id").range(from, to)),
 		]);
+		const pricingRows = await fetchPricingSourceRows(client, providerRows);
 		return c.json({ models, providerRows, benchmarkRows, pricingRows }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) {
 		console.error("[web-api/account/models] audit source failed", { error });
@@ -143,10 +179,8 @@ accountModelsRouter.get("/provider-audit/source", async (c) => {
 	const client = await requireAdmin(c.req.raw, c.env);
 	if (!client) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	try {
-		const [providerModels, pricingRules] = await Promise.all([
-			fetchAllRows<any>((from, to) => client.from("v2_rpc_routes_legacy_shape").select("provider_api_model_id,provider_id,api_model_id,provider_model_slug,internal_model_id,is_active_gateway,routing_status,provider_availability_status,phaseo_status,access_scope,effective_from,effective_to").range(from, to)),
-			fetchAllRows<any>((from, to) => client.from("v2_rpc_pricing_legacy_shape").select("model_key,effective_from,effective_to").range(from, to)),
-		]);
+		const providerModels = await fetchAllRows<any>((from, to) => client.from("v2_model_provider_routes").select("provider_api_model_id:provider_model_id,provider_id:provider_slug,api_model_id:model_slug,provider_model_slug,internal_model_id:model_slug,is_active_gateway:routing_enabled,routing_status:status,provider_availability_status,phaseo_status,access_scope,effective_from,effective_to").range(from, to));
+		const pricingRules = await fetchPricingSourceRows(client, providerModels);
 		return c.json({ providerModels, pricingRules }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) {
 		console.error("[web-api/account/models] provider audit source failed", { error });

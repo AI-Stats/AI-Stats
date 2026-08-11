@@ -1,87 +1,5 @@
 [
   {
-    "api_model_id": "x-ai/grok-voice-think-fast-2.0",
-    "provider_api_model_id": "spacex-ai:x-ai/grok-voice-think-fast-2.0",
-    "provider_model_slug": "grok-voice-think-fast-2.0",
-    "internal_model_id": "spacex-ai/grok-voice-think-fast-2.0",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,audio",
-    "output_modalities": "text,audio",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-07-29T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "audio.realtime",
-        "status": "active",
-        "params": [
-          {
-            "param_id": "reasoning_effort",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": "high",
-            "notes": "Supported values: high, none"
-          },
-          {
-            "param_id": "tools",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": "Supports file search, web search, X search, MCP and function tools"
-          }
-        ],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": [
-        "us-east-1"
-      ],
-      "data": [
-        "us-east-1"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [
-        "openai-realtime"
-      ],
-      "endpoint": "wss://api.x.ai/v1/realtime",
-      "deployment": null
-    },
-    "sources": [
-      {
-        "type": "announcement",
-        "url": "https://x.ai/news/grok-voice-think-fast-2"
-      },
-      {
-        "type": "docs",
-        "url": "https://docs.x.ai/developers/model-capabilities/audio/voice-agent"
-      },
-      {
-        "type": "pricing",
-        "url": "https://docs.x.ai/developers/pricing"
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-07-29T00:00:00Z",
-      "notes": "Model slug, endpoint, capabilities and pricing verified against xAI documentation; gateway-disabled pending authenticated realtime validation."
-    },
-    "rate_limits": []
-  },
-  {
     "api_model_id": "spacex-ai/grok-2-vision",
     "provider_api_model_id": "spacex-ai:spacex-ai/grok-2-vision",
     "provider_model_slug": "grok-2-vision-1212",
@@ -1384,6 +1302,146 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "spacex-ai/grok-build-0.1",
+    "provider_api_model_id": "spacex-ai:spacex-ai/grok-build-0.1",
+    "provider_model_slug": "grok-build-0.1",
+    "internal_model_id": "spacex-ai/grok-build-0.1",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": null,
+    "effective_from": "2026-05-15T19:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "spacex-ai/grok-code-fast-1",
     "provider_api_model_id": "spacex-ai:spacex-ai/grok-code-fast-1",
     "provider_model_slug": "grok-code-fast-1-0825",
@@ -1532,7 +1590,7 @@
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "image",
-    "context_length": null,
+    "context_length": 8000,
     "max_output_tokens": null,
     "effective_from": "2026-01-29T00:00:00",
     "effective_to": null,
@@ -1552,54 +1610,6 @@
       },
       {
         "capability_id": "image.edit",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "spacex-ai/grok-tts",
-    "provider_api_model_id": "spacex-ai:spacex-ai/grok-tts",
-    "provider_model_slug": "grok-tts",
-    "internal_model_id": "spacex-ai/grok-tts",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "audio_tts",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-05-11T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "audio.speech",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -1689,7 +1699,7 @@
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "image",
-    "context_length": null,
+    "context_length": 8000,
     "max_output_tokens": null,
     "effective_from": "2026-05-06T00:00:00",
     "effective_to": null,
@@ -1771,20 +1781,20 @@
             ]
           },
           "size": {
-			"type": "enum",
-			"values": [
-			  "480p",
-			  "720p"
-			],
+            "type": "enum",
+            "values": [
+              "480p",
+              "720p"
+            ],
             "aliases": [
               "resolution"
             ]
           },
-		  "aspect_ratio": {
-			"type": "string",
-			"aliases": [
-			  "ratio"
-			]
+          "aspect_ratio": {
+            "type": "string",
+            "aliases": [
+              "ratio"
+            ]
           },
           "input_reference": {
             "type": "string",
@@ -1792,8 +1802,8 @@
               "image_url"
             ]
           },
-		  "input_references": {
-			"type": "array"
+          "input_references": {
+            "type": "array"
           }
         },
         "reasoning": null,
@@ -1871,6 +1881,118 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "spacex-ai/grok-imagine-video-1.5",
+    "provider_api_model_id": "spacex-ai:spacex-ai/grok-imagine-video-1.5",
+    "provider_model_slug": "grok-imagine-video-1.5",
+    "internal_model_id": "spacex-ai/grok-imagine-video-1.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-06-17T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "coming_soon",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number",
+            "min": 1,
+            "max": 15,
+            "aliases": [
+              "seconds",
+              "duration_seconds"
+            ]
+          },
+          "size": {
+            "type": "enum",
+            "values": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "default": "480p",
+            "aliases": [
+              "resolution"
+            ]
+          },
+          "aspect_ratio": {
+            "type": "string",
+            "aliases": [
+              "ratio"
+            ]
+          },
+          "input_reference": {
+            "type": "string",
+            "aliases": [
+              "image_url"
+            ]
+          },
+          "input_references": {
+            "type": "array"
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "video"
+        ],
+        "modes": [
+          "image-to-video"
+        ]
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": [
+        "us-east-1",
+        "us-west-2"
+      ],
+      "data": [
+        "us-east-1",
+        "us-west-2"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "xai.async.video"
+      ],
+      "endpoint": "/v1/videos/generations",
+      "deployment": "regional"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://docs.x.ai/developers/models/grok-imagine-video-1.5",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "Official modalities, aliases, regions, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Image-to-video request mapping, persistence, polling, content extraction, and pricing are covered by the Gateway adapter. Text is prompt conditioning and the image input remains required; the route is disabled pending authenticated smoke testing."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "spacex-ai/grok-imagine-video-1.5-preview",
     "provider_api_model_id": "spacex-ai:spacex-ai/grok-imagine-video-1.5-preview",
     "provider_model_slug": "grok-imagine-video-1.5-preview",
@@ -1900,21 +2022,21 @@
             ]
           },
           "size": {
-			"type": "enum",
-			"values": [
-			  "480p",
-			  "720p",
-			  "1080p"
-			],
+            "type": "enum",
+            "values": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
             "aliases": [
               "resolution"
             ]
           },
-		  "aspect_ratio": {
-			"type": "string",
-			"aliases": [
-			  "ratio"
-			]
+          "aspect_ratio": {
+            "type": "string",
+            "aliases": [
+              "ratio"
+            ]
           },
           "input_reference": {
             "type": "string",
@@ -1922,157 +2044,82 @@
               "image_url"
             ]
           },
-		  "input_references": {
-			"type": "array"
+          "input_references": {
+            "type": "array"
           }
         },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-		"attachment": true,
-		"input_modalities": ["text", "image"],
-		"output_modalities": ["video"],
-		"modes": ["image-to-video"]
-	  }
-	],
-	"routing_status": null,
-	"routable": false,
-	"regions": {
-	  "execution": ["us-east-1", "us-west-2"],
-	  "data": ["us-east-1", "us-west-2"]
-	},
-	"service_tiers": ["standard"],
-	"api": {
-	  "formats": ["xai.async.video"],
-	  "endpoint": "/v1/videos/generations",
-	  "deployment": "regional"
-	},
-	"sources": [
-	  {
-		"kind": "documentation",
-		"url": "https://docs.x.ai/developers/models/grok-imagine-video-1.5",
-		"accessed_at": "2026-08-10T00:00:00Z",
-		"notes": "Official modalities, aliases, regions, and pricing."
-	  }
-	],
-	"verification": {
-	  "status": "verified",
-	  "checked_at": "2026-08-10T00:00:00Z",
-	  "notes": "Image-to-video request mapping, persistence, polling, content extraction, and pricing are covered by the Gateway adapter. Text is prompt conditioning and the image input remains required; the route is disabled pending authenticated smoke testing."
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "video"
+        ],
+        "modes": [
+          "image-to-video"
+        ]
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": [
+        "us-east-1",
+        "us-west-2"
+      ],
+      "data": [
+        "us-east-1",
+        "us-west-2"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "xai.async.video"
+      ],
+      "endpoint": "/v1/videos/generations",
+      "deployment": "regional"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://docs.x.ai/developers/models/grok-imagine-video-1.5",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "Official modalities, aliases, regions, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Image-to-video request mapping, persistence, polling, content extraction, and pricing are covered by the Gateway adapter. Text is prompt conditioning and the image input remains required; the route is disabled pending authenticated smoke testing."
     },
     "rate_limits": []
   },
   {
-    "api_model_id": "spacex-ai/grok-build-0.1",
-    "provider_api_model_id": "spacex-ai:spacex-ai/grok-build-0.1",
-    "provider_model_slug": "grok-build-0.1",
-    "internal_model_id": "spacex-ai/grok-build-0.1",
+    "api_model_id": "spacex-ai/grok-tts",
+    "provider_api_model_id": "spacex-ai:spacex-ai/grok-tts",
+    "provider_model_slug": "grok-tts",
+    "internal_model_id": "spacex-ai/grok-tts",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "text",
-    "context_length": 256000,
+    "input_modalities": "text",
+    "output_modalities": "audio_tts",
+    "context_length": null,
     "max_output_tokens": null,
-    "effective_from": "2026-05-15T19:00:00",
+    "effective_from": "2026-05-11T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.speech",
         "status": "active",
-        "params": [
-          {
-            "param_id": "include_reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "logprobs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "seed",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tool_choice",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tools",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_logprobs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
-        ],
+        "params": [],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2104,80 +2151,84 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "spacex-ai/grok-imagine-video-1.5",
-    "provider_api_model_id": "spacex-ai:spacex-ai/grok-imagine-video-1.5",
-    "provider_model_slug": "grok-imagine-video-1.5",
-    "internal_model_id": "spacex-ai/grok-imagine-video-1.5",
+    "api_model_id": "x-ai/grok-voice-think-fast-2.0",
+    "provider_api_model_id": "spacex-ai:x-ai/grok-voice-think-fast-2.0",
+    "provider_model_slug": "grok-voice-think-fast-2.0",
+    "internal_model_id": "spacex-ai/grok-voice-think-fast-2.0",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "video",
+    "input_modalities": "text,audio",
+    "output_modalities": "text,audio",
     "context_length": null,
     "max_output_tokens": null,
-    "effective_from": "2026-06-17T00:00:00",
+    "effective_from": "2026-07-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "video.generate",
-        "status": "coming_soon",
-        "params": {
-          "prompt": { "type": "string" },
-          "duration": {
-            "type": "number",
-            "min": 1,
-            "max": 15,
-            "aliases": ["seconds", "duration_seconds"]
+        "capability_id": "audio.realtime",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "reasoning_effort",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "high",
+            "notes": "Supported values: high, none"
           },
-          "size": {
-            "type": "enum",
-            "values": ["480p", "720p", "1080p"],
-            "default": "480p",
-            "aliases": ["resolution"]
-          },
-          "aspect_ratio": {
-            "type": "string",
-            "aliases": ["ratio"]
-          },
-          "input_reference": {
-            "type": "string",
-            "aliases": ["image_url"]
-          },
-          "input_references": { "type": "array" }
-        },
-        "reasoning": null,
-        "tool_call": null,
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Supports file search, web search, X search, MCP and function tools"
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
         "structured_output": null,
         "temperature": null,
-        "attachment": true,
-        "input_modalities": ["text", "image"],
-        "output_modalities": ["video"],
-        "modes": ["image-to-video"]
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
     ],
     "routing_status": null,
     "routable": false,
     "regions": {
-      "execution": ["us-east-1", "us-west-2"],
-      "data": ["us-east-1", "us-west-2"]
+      "execution": [
+        "us-east-1"
+      ],
+      "data": [
+        "us-east-1"
+      ]
     },
-    "service_tiers": ["standard"],
+    "service_tiers": [],
     "api": {
-      "formats": ["xai.async.video"],
-      "endpoint": "/v1/videos/generations",
-      "deployment": "regional"
+      "formats": [
+        "openai-realtime"
+      ],
+      "endpoint": "wss://api.x.ai/v1/realtime",
+      "deployment": null
     },
     "sources": [
       {
-        "kind": "documentation",
-        "url": "https://docs.x.ai/developers/models/grok-imagine-video-1.5",
-        "accessed_at": "2026-08-10T00:00:00Z",
-        "notes": "Official modalities, aliases, regions, and pricing."
+        "type": "announcement",
+        "url": "https://x.ai/news/grok-voice-think-fast-2"
+      },
+      {
+        "type": "docs",
+        "url": "https://docs.x.ai/developers/model-capabilities/audio/voice-agent"
+      },
+      {
+        "type": "pricing",
+        "url": "https://docs.x.ai/developers/pricing"
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-10T00:00:00Z",
-      "notes": "Image-to-video request mapping, persistence, polling, content extraction, and pricing are covered by the Gateway adapter. Text is prompt conditioning and the image input remains required; the route is disabled pending authenticated smoke testing."
+      "checked_at": "2026-07-29T00:00:00Z",
+      "notes": "Model slug, endpoint, capabilities and pricing verified against xAI documentation; gateway-disabled pending authenticated realtime validation."
     },
     "rate_limits": []
   }
