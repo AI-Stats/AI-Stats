@@ -471,6 +471,7 @@ public final class Models {
 		public Object provider;
 		public Object provider_options;
 		public Object reasoning;
+		public Object reasoning_effort;
 		public Object response_format;
 		public String safety_identifier;
 		public Integer seed;

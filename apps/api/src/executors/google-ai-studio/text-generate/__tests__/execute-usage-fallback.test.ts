@@ -160,6 +160,95 @@ describe("google-ai-studio execute usage fallback", () => {
 		expect(mock.calls[0]?.bodyJson?.contents?.[0]?.role).toBe("user");
 	});
 
+	it("defaults Gemma 4 to minimal thinking so short output budgets retain a final answer", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1beta/models/gemma-4-26b-a4b-it:generateContent"),
+			response: new Response(JSON.stringify({
+				candidates: [{
+					content: { parts: [{ text: "OK" }] },
+					finishReason: "STOP",
+				}],
+			}), {
+				status: 200,
+				headers: { "Content-Type": "application/json" },
+			}),
+		}]);
+
+		const result = await executor(buildArgs(
+			{ model: "google/gemma-4-26b-a4b:free", maxTokens: 32 },
+			{ providerModelSlug: "gemma-4-26b-a4b-it" },
+		));
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).toEqual({
+			includeThoughts: false,
+			thinkingLevel: "MINIMAL",
+		});
+		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).not.toHaveProperty("thinkingBudget");
+	});
+
+	it("maps explicit Gemma 4 reasoning effort to thinkingLevel instead of thinkingBudget", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1beta/models/gemma-4-31b-it:generateContent"),
+			response: new Response(JSON.stringify({
+				candidates: [{
+					content: { parts: [{ text: "OK" }] },
+					finishReason: "STOP",
+				}],
+			}), {
+				status: 200,
+				headers: { "Content-Type": "application/json" },
+			}),
+		}]);
+
+		const result = await executor(buildArgs(
+			{
+				model: "google/gemma-4-31b:free",
+				reasoning: { enabled: true, effort: "minimal", includeThoughts: false },
+			},
+			{ providerModelSlug: "gemma-4-31b-it" },
+		));
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).toEqual({
+			includeThoughts: false,
+			thinkingLevel: "MINIMAL",
+		});
+		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).not.toHaveProperty("thinkingBudget");
+	});
+
+	it("does not request thoughts when Gemma 4 reasoning is disabled", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1beta/models/gemma-4-26b-a4b-it:generateContent"),
+			response: new Response(JSON.stringify({
+				candidates: [{
+					content: { parts: [{ text: "OK" }] },
+					finishReason: "STOP",
+				}],
+			}), {
+				status: 200,
+				headers: { "Content-Type": "application/json" },
+			}),
+		}]);
+
+		const result = await executor(buildArgs(
+			{
+				model: "google/gemma-4-26b-a4b:free",
+				reasoning: { effort: "none", includeThoughts: true },
+			},
+			{ providerModelSlug: "gemma-4-26b-a4b-it" },
+		));
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).toEqual({
+			includeThoughts: false,
+			thinkingLevel: "MINIMAL",
+		});
+	});
+
 	it("estimates completion tokens when upstream usage reports prompt-only counts", async () => {
 		const payload = {
 			id: "v1_usage_fallback",

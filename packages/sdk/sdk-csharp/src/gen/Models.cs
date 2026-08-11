@@ -1178,6 +1178,9 @@ public sealed class ChatCompletionsRequest
 	[JsonPropertyName("reasoning")]
 	public Dictionary<string, object>? Reasoning { get; set; }
 
+	[JsonPropertyName("reasoning_effort")]
+	public string? ReasoningEffort { get; set; }
+
 	[JsonPropertyName("response_format")]
 	public object? ResponseFormat { get; set; }
 

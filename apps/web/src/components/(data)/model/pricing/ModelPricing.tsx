@@ -1,5 +1,7 @@
 import React from "react";
-import { CircleAlert } from "lucide-react";
+import Link from "next/link";
+import { CircleAlert, Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
 	fetchFrontendModelHeader,
 	fetchFrontendModelProviderRoutingHealth,
@@ -144,6 +146,16 @@ export default async function ModelPricing({
 	if (!providersForDisplay.length) {
 		return (
 			<div className="space-y-4">
+				{includeInternalProviders ? (
+					<div className="flex justify-end">
+						<Button asChild size="sm" variant="outline">
+							<Link href={`/internal/data/models/edit/${modelId}?tab=pricing`}>
+								<Pencil className="mr-1 h-3.5 w-3.5" />
+								Add pricing
+							</Link>
+						</Button>
+					</div>
+				) : null}
 				{showHeader ? (
 					<h2 className="text-2xl font-semibold tracking-tight text-foreground">
 						Providers
@@ -189,6 +201,16 @@ export default async function ModelPricing({
 
 	return (
 		<div className="space-y-4">
+			{includeInternalProviders ? (
+				<div className="flex justify-end">
+					<Button asChild size="sm" variant="outline">
+						<Link href={`/internal/data/models/edit/${modelId}?tab=pricing`}>
+							<Pencil className="mr-1 h-3.5 w-3.5" />
+							Edit pricing
+						</Link>
+					</Button>
+				</div>
+			) : null}
 			{showPendingApiBanner ? (
 				<ModelPendingApiReleaseBanner
 					modelName={identity.name ?? "This model"}

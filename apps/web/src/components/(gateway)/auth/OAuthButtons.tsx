@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { handleOAuthRedirect } from "@/app/(auth)/sign-in/actions";
 import { Logo } from "@/components/Logo";
 
@@ -52,7 +53,9 @@ function OAuthSubmitButton({
 				</span>
 			) : null}
 			<span className="flex items-center justify-center">
-				{meta.logoId ? (
+				{pending ? (
+					<Spinner aria-label={`Opening ${meta.label}`} />
+				) : meta.logoId ? (
 					<Logo
 						id={meta.logoId}
 						width={18}
@@ -83,7 +86,7 @@ function OAuthSubmitButton({
 				)}
 			</span>
 			<span className="hidden text-sm min-[360px]:inline">
-				{pending ? "Connecting..." : meta.label}
+				{meta.label}
 			</span>
 		</Button>
 	);
