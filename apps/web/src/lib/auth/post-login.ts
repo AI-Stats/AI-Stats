@@ -10,6 +10,7 @@ import {
 } from "@/lib/automations/resend-events";
 import { ensureWorkspaceStripeWallet } from "@/lib/server/activeTeamStripe";
 import type { createClient } from "@/utils/supabase/server";
+import { setActiveWorkspaceCookie } from "@/utils/workspaceCookie";
 import { shouldRedirectToOnboardingAfterLogin } from "@/lib/auth/post-login-onboarding";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -456,6 +457,7 @@ export async function finalizePostLogin(
 		displayName,
 	});
 	const workspaceId = provisionedTeam.workspaceId;
+	await setActiveWorkspaceCookie(workspaceId);
 
 	try {
 		await ensureWalletRow(
