@@ -44,6 +44,7 @@ const PROVIDER_QUIRKS: Record<string, ProviderQuirks> = {
 	zai: zaiQuirks,
 	deepseek: deepseekQuirks,
 	mistral: mistralQuirks,
+	"mistral-eu": mistralQuirks,
 	"moonshot-ai": moonshotQuirks,
 	moonshotai: moonshotQuirks,
 	"moonshot-ai-turbo": moonshotQuirks,
@@ -83,5 +84,4 @@ export function getProviderQuirks(providerId?: string | null): ProviderQuirks {
 }
 
 export type { ProviderQuirks } from "./types";
-
 

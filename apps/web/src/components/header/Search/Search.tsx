@@ -63,6 +63,7 @@ import {
 interface Props {
 	className?: string;
 	mobileGhost?: boolean;
+	initiallyOpen?: boolean;
 }
 
 type SearchableItem = PaletteItem;
@@ -618,7 +619,11 @@ function SearchEmptyState({
 	);
 }
 
-export default function Search({ className, mobileGhost = false }: Props) {
+export default function Search({
+	className,
+	mobileGhost = false,
+	initiallyOpen = false,
+}: Props) {
 	const router = useRouter();
 	const pathname = usePathname() ?? "/";
 	const { resolvedTheme, setTheme } = useTheme();
@@ -627,7 +632,7 @@ export default function Search({ className, mobileGhost = false }: Props) {
 	const inputValueRef = useRef("");
 	const awaySinceRef = useRef<number | null>(null);
 	const searchGenerationRef = useRef(1);
-	const [open, setOpen] = useState(false);
+	const [open, setOpen] = useState(initiallyOpen);
 	const [query, setQuery] = useState("");
 	const [activeRowIndex, setActiveRowIndex] = useState(0);
 	const {

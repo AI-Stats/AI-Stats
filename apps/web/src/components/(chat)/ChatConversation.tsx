@@ -813,9 +813,7 @@ export function ChatConversation({
 								scrollViewportRef={scrollViewportRef}
 								responseLayout={responseLayout}
 								modelOrderIds={selectedModelIds}
-								modelOptions={modelOptions}
-								selectedModelIds={selectedModelIds}
-								onAddModelSet={onAddModelSet}
+								onSelectPrompt={handleSelectEvaluationPrompt}
 								temporaryMode={temporaryMode}
 							/>
 						</MessageScroller.Content>

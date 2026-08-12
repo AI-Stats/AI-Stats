@@ -7,6 +7,7 @@
   "default_execution_regions": null,
   "default_data_regions": null,
   "zero_data_retention": "default",
+  "data_retention_days": 0,
   "residency_source_url": "https://www.cerebras.ai/privacy-policy",
   "residency_notes": "Cerebras says it does not retain inputs and outputs from its training, inference, and chatbot services. It does not publish a fixed inference region; personal data may be stored and processed in the United States and other countries, and service logs are deleted when no longer needed.",
   "data_policy_tier": "private",

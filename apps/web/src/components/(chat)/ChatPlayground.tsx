@@ -25,6 +25,7 @@ import {
 	deleteChat,
 	getAllChatTags,
 	getAllChats,
+	getChatThreadSessionId,
 	normalizeChatTags,
 	upsertChat,
 	upsertChatTags,
@@ -1265,6 +1266,7 @@ function ChatPlaygroundContent({
 				});
 			const requestBody: Record<string, unknown> = {
 				model: requestExecutionModelId,
+				session_id: getChatThreadSessionId(thread),
 			};
 			let requestUsesGatewayDatetimeServerTool = false;
 			let requestServerToolInputs = new Map<
@@ -3962,6 +3964,7 @@ function ChatPlaygroundContent({
 			setTemporaryMode(true);
 			setTemporaryThread({
 				id: TEMP_CHAT_ID,
+				sessionId: crypto.randomUUID(),
 				title: "Temporary chat",
 				titleLocked: true,
 				modelId: activeThread?.modelId ?? defaultModelId,

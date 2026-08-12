@@ -124,6 +124,7 @@ import { executor as runwayVideo } from "./runway/video-generate";
 import { executor as minimaxMusic } from "./minimax/music-generate";
 import { executor as atlasCloudVideo } from "./atlascloud/video-generate";
 import { executor as falVideo } from "./fal/video-generate";
+import { executor as ltxVideo } from "./ltx/video-generate";
 
 type Capability =
 	| "text.generate"
@@ -353,10 +354,12 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	runway: { "video.generate": runwayVideo },
 	runwayml: { "video.generate": runwayVideo },
 	fal: { "video.generate": falVideo },
+	ltx: { "video.generate": ltxVideo },
 	"z-ai": { "text.generate": zAiText },
 	zai: { "text.generate": zaiText },
 	xiaomi: { "text.generate": xiaomiText, "image.generate": nonTextAdapterExecutor, "image.edit": nonTextAdapterExecutor, "audio.speech": nonTextAdapterExecutor, "audio.transcription": nonTextAdapterExecutor, "audio.translations": nonTextAdapterExecutor, "video.generate": nonTextAdapterExecutor },
 	mistral: { "text.generate": mistralText, embeddings: openaiEmbeddings, moderations: openaiModerations, "audio.speech": nonTextAdapterExecutor, ocr: nonTextAdapterExecutor },
+	"mistral-eu": { "text.generate": mistralText },
 	"moonshot-ai": { "text.generate": moonshotText },
 	moonshotai: { "text.generate": moonshotText },
 	"moonshot-ai-turbo": { "text.generate": moonshotText },

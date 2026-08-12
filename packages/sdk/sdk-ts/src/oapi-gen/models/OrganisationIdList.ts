@@ -23,6 +23,7 @@ export type OrganisationIdList = (
   | "inflection"
   | "kwaipilot"
   | "lg"
+  | "lightricks"
   | "liquid-ai"
   | "meituan"
   | "meta"

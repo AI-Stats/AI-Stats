@@ -170,6 +170,16 @@ export function normalizeTextUsageForPricing(
 	if (cachedReadAsSubset && typeof cachedReadTokens === "number") {
 		(meters as Record<string, any>).cached_read_tokens_are_subset_of_input = true;
 	}
+	const observedServiceTier =
+		typeof usageRaw.service_tier === "string"
+			? usageRaw.service_tier
+			: typeof usageRaw.serviceTier === "string"
+				? usageRaw.serviceTier
+				: undefined;
+	if (observedServiceTier) {
+		meters.service_tier = observedServiceTier;
+		meters.serviceTier = observedServiceTier;
+	}
 
 	return meters;
 }

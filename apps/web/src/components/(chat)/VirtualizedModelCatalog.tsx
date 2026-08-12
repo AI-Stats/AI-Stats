@@ -57,6 +57,7 @@ type VirtualizedModelCatalogProps<T> = {
 	renderItem: (item: T) => ReactNode;
 	estimateItemSize?: number;
 	emptyContent?: ReactNode;
+	maxHeightPx?: number;
 };
 
 export function VirtualizedModelCatalog<T>({
@@ -69,6 +70,7 @@ export function VirtualizedModelCatalog<T>({
 	renderItem,
 	estimateItemSize = 36,
 	emptyContent = "No models found.",
+	maxHeightPx,
 }: VirtualizedModelCatalogProps<T>) {
 	const [scrollViewport, setScrollViewport] =
 		useState<HTMLDivElement | null>(null);
@@ -110,7 +112,11 @@ export function VirtualizedModelCatalog<T>({
 			className="max-h-[70vh]"
 			viewportClassName="p-3"
 			viewportRef={setScrollViewport}
-			style={{ height: `min(70vh, ${virtualizer.getTotalSize() + 24}px)` }}
+			style={{
+				height: maxHeightPx
+					? `min(70vh, ${maxHeightPx}px, ${virtualizer.getTotalSize() + 24}px)`
+					: `min(70vh, ${virtualizer.getTotalSize() + 24}px)`,
+			}}
 		>
 			<div
 				role="listbox"
@@ -148,7 +154,7 @@ export function VirtualizedModelCatalog<T>({
 											: undefined
 									}
 									className={cn(
-										"relative flex min-h-8 cursor-default select-none items-center gap-2 rounded-md px-2 py-1 text-sm outline-hidden",
+										"relative flex min-h-8 cursor-default select-none items-center gap-2 rounded-md px-2 py-1 text-sm outline-hidden transition-colors hover:bg-muted hover:text-foreground",
 										"data-[selected=true]:bg-muted data-[selected=true]:text-foreground",
 										isItemDisabled(row.item) &&
 											"pointer-events-none opacity-50",

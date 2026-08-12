@@ -20,6 +20,21 @@ describe("providerOffers", () => {
         ).toBe("aws");
     });
 
+    test("resolves regional and specialized provider logos through their catalog IDs", () => {
+        expect(
+            resolveProviderLogoId({
+                providerId: "nebius-token-factory-fast",
+                providerFamilyId: "nebius-token-factory",
+            }),
+        ).toBe("nebius-token-factory");
+        expect(
+            resolveProviderLogoId({
+                providerId: "openai-eu",
+                providerFamilyId: "openai",
+            }),
+        ).toBe("openai");
+    });
+
     test("uses the Claude Platform for AWS product name", () => {
         expect(
             resolveProviderDisplayName({

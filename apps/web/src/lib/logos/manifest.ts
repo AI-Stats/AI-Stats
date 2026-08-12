@@ -257,6 +257,14 @@ export const logoManifest = {
 		light: "/logos/lmstudio_light.svg",
 		dark: "/logos/lmstudio_dark.svg",
 	},
+	ltx: {
+		light: "/logos/ltx_light.svg",
+		dark: "/logos/ltx_dark.svg",
+	},
+	lightricks: {
+		light: "/logos/ltx_light.svg",
+		dark: "/logos/ltx_dark.svg",
+	},
 	mancer: {
 		color: "/logos/mancer.svg",
 	},

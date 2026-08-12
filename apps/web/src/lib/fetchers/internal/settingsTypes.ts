@@ -53,7 +53,7 @@ export type DataContributionClassifier = {
 	slug: string;
 	name: string;
 	description: string | null;
-	kind: "openrouter_task" | "custom";
+	kind: "phaseo_task" | "custom";
 	instructions: string;
 	categories: Record<string, string[]>;
 	model: string;
