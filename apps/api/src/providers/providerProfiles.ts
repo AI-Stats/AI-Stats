@@ -128,6 +128,23 @@ const PROVIDER_PROFILES: ProviderProfile[] = [
 		},
 	},
 	{
+		id: "mistral",
+		text: {
+			paramPolicy: {
+				supportedParams: ["service_tier"],
+			},
+		},
+	},
+	{
+		id: "mistral-eu",
+		textOnly: true,
+		text: {
+			paramPolicy: {
+				supportedParams: ["service_tier"],
+			},
+		},
+	},
+	{
 		id: "arcee-ai",
 		aliases: ["arcee"],
 		textOnly: true,
