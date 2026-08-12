@@ -256,6 +256,7 @@
       "deepseek/deepseek-v4-flash",
       "deepseek/deepseek-v4-flash-0731",
       "deepseek/deepseek-v4-pro",
+      "deepseek/deepseek-v4-pro-0813",
       "deepseek/deepseek-vl2",
       "deepseek/deepseek-vl2-small",
       "deepseek/deepseek-vl2-tiny",
@@ -1226,7 +1227,8 @@
       "spacex-ai/grok-imagine-image-quality",
       "spacex-ai/grok-tts",
       "spacex-ai/grok-imagine-video-1.5",
-      "spacex-ai/grok-imagine-image-2.0"
+      "spacex-ai/grok-imagine-image-2.0",
+      "spacex-ai/grok-4.6"
     ],
     "xiaomi": [
       "xiaomi/mimo-v2-flash",

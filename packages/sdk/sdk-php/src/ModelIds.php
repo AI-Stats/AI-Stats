@@ -1217,6 +1217,9 @@ final class ModelIds
     /** Model ID: spacex-ai/grok-4.5. Model page: https://phaseo.app/models/spacex-ai/grok-4.5 */
     public const SPACEX_AI_GROK_4_5 = 'spacex-ai/grok-4.5';
 
+    /** Model ID: spacex-ai/grok-4.6. Model page: https://phaseo.app/models/spacex-ai/grok-4.6 */
+    public const SPACEX_AI_GROK_4_6 = 'spacex-ai/grok-4.6';
+
     /** Model ID: spacex-ai/grok-build-0.1. Model page: https://phaseo.app/models/spacex-ai/grok-build-0.1 */
     public const SPACEX_AI_GROK_BUILD_0_1 = 'spacex-ai/grok-build-0.1';
 
