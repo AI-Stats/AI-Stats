@@ -957,6 +957,7 @@ function safeParsePinned(value: string | null): Record<string, boolean> {
 
 type AudioRoomProps = {
 	models: GatewaySupportedModel[];
+	modelsLoadFailed?: boolean;
 	roomId?: AudioRoomId;
 	initialMode?: AudioMode;
 	allowedModes?: AudioMode[];
@@ -974,6 +975,7 @@ function modeSupportFromModes(modes: AudioMode[]): AudioModeSupport {
 
 export function AudioRoom({
 	models,
+	modelsLoadFailed = false,
 	roomId = "speech",
 	initialMode = "speech",
 	allowedModes = ["speech"],
@@ -2062,6 +2064,17 @@ export function AudioRoom({
 			(isAudioSourceMode &&
 				(showAudioUrlInput || audioUrlInput.trim() || audioFile)),
 	);
+	const hasEligibleModels = filteredModels.length > 0;
+	const emptyStateTitle = modelsLoadFailed
+		? "Music models couldn't load"
+		: mode === "music" && !hasEligibleModels
+			? "No music models available"
+			: "Start a new conversation";
+	const emptyStateDescription = modelsLoadFailed
+		? "Refresh the page to try loading the model catalogue again."
+		: mode === "music" && !hasEligibleModels
+			? "No routable music providers are available right now."
+			: modeEmptyDescription(mode);
 
 	return (
 		<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -2134,9 +2147,9 @@ export function AudioRoom({
 					{activeEntries.length === 0 ? (
 						<div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-muted/40 px-6 py-12 text-center">
 							<div>
-								<p className="text-base font-semibold">Start a new conversation</p>
+								<p className="text-base font-semibold">{emptyStateTitle}</p>
 								<p className="text-sm text-muted-foreground">
-									{modeEmptyDescription(mode)}
+									{emptyStateDescription}
 								</p>
 							</div>
 						</div>
@@ -2623,4 +2636,3 @@ export function AudioRoom({
 		</div>
 	);
 }
-

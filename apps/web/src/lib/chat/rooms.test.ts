@@ -6,6 +6,7 @@ import {
 	roomIdsFromCapabilities,
 } from "@/lib/chat/rooms";
 import minimaxRoutes from "../../../../../packages/data/catalog/src/data/api_providers/minimax/models.json";
+import sunoRoutes from "../../../../../packages/data/catalog/src/data/api_providers/suno/models.json";
 
 describe("chat room capability mapping", () => {
 	it("keeps video visible and Fusion at the bottom of the room picker", () => {
@@ -74,6 +75,25 @@ describe("chat room capability mapping", () => {
 			expect(filterModelsForRoom([
 				{ modelId: route.api_model_id, capabilities: ["music.generate"] },
 			], "music")).toHaveLength(1);
+		}
+	});
+
+	it("keeps unavailable music providers out of the available catalogue", () => {
+		const sunoMusicRoutes = sunoRoutes.filter((route) =>
+			route.capabilities.some(
+				(capability) => capability.capability_id === "music.generate",
+			),
+		);
+		expect(sunoMusicRoutes.length).toBeGreaterThan(1);
+		for (const route of sunoMusicRoutes) {
+			expect(route.is_active_gateway).toBe(false);
+			expect(route.routable).toBe(false);
+			expect(route.capabilities).toEqual(expect.arrayContaining([
+				expect.objectContaining({
+					capability_id: "music.generate",
+					status: "coming_soon",
+				}),
+			]));
 		}
 	});
 });
