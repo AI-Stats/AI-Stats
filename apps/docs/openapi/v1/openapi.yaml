@@ -6105,10 +6105,9 @@ components:
           minimum: 2
           maximum: 20
           description: >-
-            Duration of the source audio in seconds. Required for audio-driven
-            video generation so the gateway can reserve provider charges. The
-            value must describe the audio_url source supplied in
-            input_references, not the requested output duration.
+            Declared source-audio duration in seconds, used for provider range
+            validation. Providers that do not report authoritative usage may
+            bill at their supported input-duration ceiling.
         size:
           type: string
           description: >-

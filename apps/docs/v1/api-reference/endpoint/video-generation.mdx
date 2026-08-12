@@ -33,7 +33,7 @@ After creating a job:
 - Phaseo can hold funds up front and later settle or void them when the provider reaches a terminal state.
 - Terminal states include `completed`, `failed`, `cancelled`, and `expired`.
 - Webhook configuration can be included in the create request when you want lifecycle notifications instead of pure polling.
-- Audio-driven jobs require one `audio_url` reference and an accurate `input_audio_duration`; support and duration limits are model-dependent.
+- Audio-driven jobs require one `audio_url` reference and an accurate `input_audio_duration`; support and duration limits are model-dependent. LTX jobs are billed at its 20-second input ceiling because LTX does not return authoritative duration or usage.
 - Reference roles and valid combinations are model-dependent. A model that supports a first frame may not support multiple references, source video, or source audio.
 - Webhook callback URLs must use HTTPS. Literal private, loopback, link-local, and wildcard hosts are rejected; `http://localhost`, `http://127.0.0.1`, and `http://[::1]` are allowed only for local development callbacks.
 - Webhook `events` may use generic `job.*` names or matching `video.*` names. Include `job.progress` or `video.progress` to receive progress notifications when the provider reports progress. If omitted, `job.status_changed` and terminal `job.*` events are used. If supplied, at least one event must be valid for video jobs; cross-kind-only or malformed event lists are rejected.

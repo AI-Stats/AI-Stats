@@ -20,6 +20,16 @@ describe("LTX audio-to-video request mapping", () => {
 		expect(mapped.body).toMatchObject({ audio_uri: "https://example.com/speech.mp3", image_uri: "https://example.com/presenter.jpg", model: "ltx-2-5-pro" });
 	});
 
+	it("does not trust the declared audio duration for billing", () => {
+		const mapped = buildLtxVideoRequest(request({
+			inputAudioDurationSeconds: 2,
+			inputReferences: [{ type: "audio", role: "source", url: "https://example.com/twenty-seconds.mp3" }],
+		}), "ltx-2-5-pro");
+
+		expect(mapped.seconds).toBe(2);
+		expect(mapped.inputAudioSeconds).toBe(20);
+	});
+
 	it("requires a declared, billable audio duration", () => {
 		expect(() => buildLtxVideoRequest(request({ inputReferences: [{ type: "audio", role: "source", url: "https://example.com/speech.mp3" }] }), "ltx-2-5-pro"))
 			.toThrow("input_audio_duration is required");
