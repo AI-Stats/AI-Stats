@@ -65,4 +65,28 @@ describe("GPT-5.6 Sol catalogue billing", () => {
 		expect(result.lines.find((line) => line.dimension === "input_text_tokens")?.unit_price_usd).toBe(inputRate);
 		expect(result.lines.find((line) => line.dimension === "output_text_tokens")?.unit_price_usd).toBe(outputRate);
 	});
+
+	it.each([
+		[272_000, "8.720000000", "10.000000000", "60.000000000"],
+		[272_001, "14.440020000", "20.000000000", "90.000000000"],
+	])(
+		"switches Priority pricing only above 272K input tokens (%i)",
+		(inputTokens, total, inputRate, outputRate) => {
+			const result = computeBillSummary(
+				{
+					input_tokens: inputTokens,
+					input_text_tokens: inputTokens,
+					output_tokens: 100_000,
+					output_text_tokens: 100_000,
+				},
+				canonicalCard,
+				{},
+				"priority",
+			);
+
+			expect(result.cost_usd_str).toBe(total);
+			expect(result.lines.find((line) => line.dimension === "input_text_tokens")?.unit_price_usd).toBe(inputRate);
+			expect(result.lines.find((line) => line.dimension === "output_text_tokens")?.unit_price_usd).toBe(outputRate);
+		},
+	);
 });

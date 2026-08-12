@@ -564,11 +564,11 @@
       "price_per_unit": 5,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -582,7 +582,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -597,11 +597,11 @@
       "price_per_unit": 0.5,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -615,7 +615,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -630,11 +630,11 @@
       "price_per_unit": 6.25,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -648,7 +648,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -663,11 +663,11 @@
       "price_per_unit": 30,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -681,7 +681,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -696,11 +696,11 @@
       "price_per_unit": 10,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -714,7 +714,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -729,11 +729,11 @@
       "price_per_unit": 1,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -747,7 +747,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -762,11 +762,11 @@
       "price_per_unit": 12.5,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -780,7 +780,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -795,11 +795,11 @@
       "price_per_unit": 45,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -813,7 +813,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -828,11 +828,11 @@
       "price_per_unit": 2.5,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -846,7 +846,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -861,11 +861,11 @@
       "price_per_unit": 0.25,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -879,7 +879,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -894,11 +894,11 @@
       "price_per_unit": 3.125,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -912,7 +912,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -927,11 +927,11 @@
       "price_per_unit": 15,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -945,7 +945,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -960,11 +960,11 @@
       "price_per_unit": 5,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -978,7 +978,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -993,11 +993,11 @@
       "price_per_unit": 0.5,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1011,7 +1011,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1026,11 +1026,11 @@
       "price_per_unit": 6.25,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1044,7 +1044,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1059,11 +1059,11 @@
       "price_per_unit": 22.5,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1077,7 +1077,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1092,11 +1092,11 @@
       "price_per_unit": 10,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "Short context Fast mode pricing for requests below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "note": "Short context Fast mode pricing for requests at or below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1110,7 +1110,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1125,11 +1125,11 @@
       "price_per_unit": 1,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "Short context Fast mode pricing for requests below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "note": "Short context Fast mode pricing for requests at or below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1143,7 +1143,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1158,11 +1158,11 @@
       "price_per_unit": 12.5,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "Short context Fast mode pricing for requests below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "note": "Short context Fast mode pricing for requests at or below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1176,7 +1176,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1191,11 +1191,11 @@
       "price_per_unit": 60,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "Short context Fast mode pricing for requests below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "note": "Short context Fast mode pricing for requests at or below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1209,7 +1209,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1224,11 +1224,11 @@
       "price_per_unit": 20,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "Long context Fast mode pricing for requests with at least 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "note": "Long context Fast mode pricing for requests above 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1242,7 +1242,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1257,11 +1257,11 @@
       "price_per_unit": 2,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "Long context Fast mode pricing for requests with at least 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "note": "Long context Fast mode pricing for requests above 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1275,7 +1275,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1290,11 +1290,11 @@
       "price_per_unit": 25,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "Long context Fast mode pricing for requests with at least 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "note": "Long context Fast mode pricing for requests above 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1308,7 +1308,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1323,11 +1323,11 @@
       "price_per_unit": 90,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "Long context Fast mode pricing for requests with at least 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "note": "Long context Fast mode pricing for requests above 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1341,7 +1341,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
