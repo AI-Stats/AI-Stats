@@ -812,6 +812,9 @@ namespace PhaseoSdk
         public const string SpacexAiGrok43 = "spacex-ai/grok-4.3";
         /// <summary>Model ID: <c>spacex-ai/grok-4.5</c>. Model page: https://phaseo.app/models/spacex-ai/grok-4.5</summary>
         public const string SpacexAiGrok45 = "spacex-ai/grok-4.5";
+
+        /// <summary>Model ID: <c>spacex-ai/grok-4.6</c>. Model page: https://phaseo.app/models/spacex-ai/grok-4.6</summary>
+        public const string SpacexAiGrok46 = "spacex-ai/grok-4.6";
         /// <summary>Model ID: <c>spacex-ai/grok-build-0.1</c>. Model page: https://phaseo.app/models/spacex-ai/grok-build-0.1</summary>
         public const string SpacexAiGrokBuild01 = "spacex-ai/grok-build-0.1";
         /// <summary>Model ID: <c>spacex-ai/grok-code-fast-1</c>. Model page: https://phaseo.app/models/spacex-ai/grok-code-fast-1</summary>

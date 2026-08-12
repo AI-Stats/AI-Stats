@@ -1216,6 +1216,10 @@ const (
 	// Model ID: spacex-ai/grok-4.5
 	// Model page: https://phaseo.app/models/spacex-ai/grok-4.5
 	ModelIDSpacexAiGrok45 gen.ModelId = "spacex-ai/grok-4.5"
+
+	// Model ID: spacex-ai/grok-4.6
+	// Model page: https://phaseo.app/models/spacex-ai/grok-4.6
+	ModelIDSpacexAiGrok46 gen.ModelId = "spacex-ai/grok-4.6"
 	// Model ID: spacex-ai/grok-build-0.1
 	// Model page: https://phaseo.app/models/spacex-ai/grok-build-0.1
 	ModelIDSpacexAiGrokBuild01 gen.ModelId = "spacex-ai/grok-build-0.1"

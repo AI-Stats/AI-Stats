@@ -1212,6 +1212,10 @@ pub mod model_ids {
     /// Model ID: `spacex-ai/grok-4.5`.
     /// Model page: https://phaseo.app/models/spacex-ai/grok-4.5
     pub const SPACEX_AI_GROK_4_5: &str = "spacex-ai/grok-4.5";
+
+    /// Model ID: `spacex-ai/grok-4.6`.
+    /// Model page: https://phaseo.app/models/spacex-ai/grok-4.6
+    pub const SPACEX_AI_GROK_4_6: &str = "spacex-ai/grok-4.6";
     /// Model ID: `spacex-ai/grok-build-0.1`.
     /// Model page: https://phaseo.app/models/spacex-ai/grok-build-0.1
     pub const SPACEX_AI_GROK_BUILD_0_1: &str = "spacex-ai/grok-build-0.1";
