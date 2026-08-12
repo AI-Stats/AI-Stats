@@ -15,7 +15,7 @@ export function RoomErrorNotice({ error, className }: RoomErrorNoticeProps) {
 		<div
 			role="alert"
 			className={cn(
-				"rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2",
+				"rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2",
 				className,
 			)}
 		>
@@ -43,4 +43,3 @@ export function RoomErrorNotice({ error, className }: RoomErrorNoticeProps) {
 		</div>
 	);
 }
-

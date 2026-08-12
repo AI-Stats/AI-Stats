@@ -73,6 +73,8 @@ import {
 	RoomComposerSurface,
 	RoomComposerToolsMenu,
 } from "@/components/(chat)/RoomComposer";
+import { RoomWorkingIndicator } from "@/components/(chat)/RoomWorkingIndicator";
+import { RoomEmptyState } from "@/components/(chat)/RoomEmptyState";
 import {
 	ArrowUpRight,
 	Check,
@@ -1156,8 +1158,9 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 					{label}
 				</p>
 				{items.map((conversation) => (
-					<SidebarMenuItem key={conversation.id} className="w-full overflow-hidden">
+					<SidebarMenuItem key={conversation.id} className="mb-1 w-full overflow-hidden last:mb-0">
 						<SidebarMenuButton
+							className="rounded-md"
 							isActive={activeConversationId === conversation.id}
 							onClick={() => {
 								setActiveConversationId(conversation.id);
@@ -1174,7 +1177,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 									<MoreHorizontal className="h-4 w-4" />
 
 							</DropdownMenuTrigger>
-							<DropdownMenuContent side="right" className="rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
+							<DropdownMenuContent side="right" className="rounded-md [&_[data-slot=dropdown-menu-item]]:rounded-md">
 								<DropdownMenuItem
 									onClick={() => {
 										void renameConversation(conversation);
@@ -1395,17 +1398,19 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 				</div>
 			</header>
 
-			<main className="min-h-0 flex-1 overflow-auto overscroll-contain px-4 py-5 md:px-6">
-				<div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
+			<main className="flex min-h-0 flex-1 flex-col overflow-auto overscroll-contain px-4 py-5 md:px-6">
+				<div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5">
 					{activeEntries.length === 0 ? (
-						<div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-muted/40 px-6 py-12 text-center">
-							<div>
-								<p className="text-base font-semibold">Start a new conversation</p>
-								<p className="text-sm text-muted-foreground">
-									Submit text or an image to run moderation.
-								</p>
-							</div>
-						</div>
+						<RoomEmptyState
+							description="What content would you like to check?"
+							suggestions={[
+							{ label: "Check a support reply", prompt: "I understand this is frustrating. Let me help you resolve the issue." },
+							{ label: "Review community content", prompt: "Review this community post for content policy concerns." },
+							{ label: "Test a borderline phrase", prompt: "Evaluate this text and explain which safety categories may apply." },
+							{ label: "Check marketing copy", prompt: "Review this promotional copy for potentially unsafe or misleading language." },
+						]}
+							onSelectPrompt={setText}
+						/>
 					) : (
 						activeEntries.map((entry) => {
 							const resolvedModel =
@@ -1513,7 +1518,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 								<div key={entry.id} className="space-y-3">
 									<div className="ml-auto w-full max-w-2xl">
 										{isEditing ? (
-											<div className="grid gap-3 rounded-2xl bg-foreground px-4 py-3 text-sm text-background">
+										<div className="grid gap-3 rounded-md bg-foreground px-4 py-3 text-sm text-background">
 												<Textarea
 													value={editingValue}
 													onChange={(event) =>
@@ -1545,7 +1550,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 												</div>
 											</div>
 										) : (
-											<div className="rounded-2xl bg-foreground px-4 py-3 text-sm text-background">
+										<div className="rounded-md bg-foreground px-4 py-3 text-sm text-background">
 												{entry.text ? (
 													<p className="whitespace-pre-wrap">{entry.text}</p>
 												) : null}
@@ -1621,7 +1626,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 											/>
 											<span className="truncate">{modelLabel}</span>
 										</Link>
-										<div className="space-y-3 rounded-2xl border border-border bg-card p-3">
+								<div className="space-y-3 rounded-md border border-border bg-card p-3">
 											<div className="flex items-center justify-end">
 												<span
 													className={`rounded-full px-2 py-1 text-xs font-medium ${
@@ -1691,7 +1696,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 																					: "Image Only"}
 
 																	</DropdownMenuTrigger>
-																	<DropdownMenuContent align="end" className="w-28 rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
+																<DropdownMenuContent align="end" className="w-28 rounded-md [&_[data-slot=dropdown-menu-item]]:rounded-md">
 																		<DropdownMenuItem
 																			onClick={() =>
 																				setCategoryViewByEntryId((prev) => ({
@@ -1927,7 +1932,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 								}
 							}}
 							rows={1}
-							placeholder="Text to moderate..."
+							placeholder="Moderate anything"
 							className={cn(
 								"resize-none border-0 !bg-transparent shadow-none focus-visible:ring-0 dark:!bg-transparent",
 								showImageUrlInput || imageUrl.trim() || imageFile || error
@@ -2004,7 +2009,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 								}}
 								disabled={isLoading || !modelId || !selectedModelEnabled}
 							>
-								{isLoading ? "Moderating..." : "Moderate"}
+								{isLoading ? <RoomWorkingIndicator label="Moderating..." /> : "Moderate"}
 							</Button>
 						</div>
 					</RoomComposerSurface>
