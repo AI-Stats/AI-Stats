@@ -1,6 +1,8 @@
 alter table public.workspace_classifiers
   drop constraint if exists workspace_classifiers_kind_check;
 
+-- phaseo:allow-destructive-migration reason: the rollup refresh replaces derived rows within its requested date window
+
 update public.workspace_classifiers
 set
   kind = 'phaseo_task',

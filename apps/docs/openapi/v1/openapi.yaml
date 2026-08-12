@@ -9703,7 +9703,6 @@ components:
         - mistral/mistral-large-3
         - mistral/mistral-medium-3.0
         - mistral/mistral-medium-3.1
-        - mistral/mistral-medium-3.5
         - mistral/mistral-moderation
         - mistral/mistral-moderation-2
         - mistral/mistral-nemo
@@ -9720,7 +9719,6 @@ components:
         - moonshotai/kimi-k2-instruct-0905
         - moonshotai/kimi-k2-thinking
         - moonshotai/kimi-k2.5
-        - moonshotai/kimi-k2.5-lightning
         - moonshotai/kimi-k2.6
         - moonshotai/kimi-k2.7-code
         - moonshotai/kimi-k3
