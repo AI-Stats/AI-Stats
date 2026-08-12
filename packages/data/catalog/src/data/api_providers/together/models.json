@@ -3664,15 +3664,15 @@
     "sources": [
       {
         "kind": "provider_models",
-        "url": null,
+        "url": "https://www.together.ai/pricing",
         "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Together provider model discovery reported Qwen/Qwen3.8-2.4T-A95B; direct Together documentation, route behavior and pricing remain to be verified."
+        "notes": "Together provider model discovery reported Qwen/Qwen3.8-2.4T-A95B; Together's pricing page publishes serverless token rates, while route behavior remains to be verified."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Provider availability observed; disabled until Together documentation, endpoint behavior and pricing are verified."
+      "notes": "Provider availability and pricing verified; routing remains disabled until Together endpoint behavior is verified."
     },
     "rate_limits": []
   }
