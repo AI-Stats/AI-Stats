@@ -1582,6 +1582,9 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/qwen3.7-plus-2026-05-26
     QWEN_QWEN3_7_PLUS_2026_05_26: Final[str] = "qwen/qwen3.7-plus-2026-05-26"
 
+    # Model ID: qwen/qwen3.8-2.4t-a95b
+    # Model page: https://phaseo.app/models/qwen/qwen3.8-2.4t-a95b
+    QWEN_QWEN3_8_2_4T_A95B: Final[str] = "qwen/qwen3.8-2.4t-a95b"
     # Model ID: qwen/qwen3.8-max
     # Model page: https://phaseo.app/models/qwen/qwen3.8-max
     QWEN_QWEN3_8_MAX: Final[str] = "qwen/qwen3.8-max"

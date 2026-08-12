@@ -1186,6 +1186,9 @@ const (
 	// Model ID: qwen/qwen3.7-plus-2026-05-26
 	// Model page: https://phaseo.app/models/qwen/qwen3.7-plus-2026-05-26
 	ModelIDQwenQwen37Plus20260526 gen.ModelId = "qwen/qwen3.7-plus-2026-05-26"
+	// Model ID: qwen/qwen3.8-2.4t-a95b
+	// Model page: https://phaseo.app/models/qwen/qwen3.8-2.4t-a95b
+	ModelIDQwenQwen3824tA95b gen.ModelId = "qwen/qwen3.8-2.4t-a95b"
 	// Model ID: qwen/qwen3.8-max
 	// Model page: https://phaseo.app/models/qwen/qwen3.8-max
 	ModelIDQwenQwen38Max gen.ModelId = "qwen/qwen3.8-max"
