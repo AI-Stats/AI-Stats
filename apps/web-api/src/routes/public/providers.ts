@@ -16,11 +16,11 @@ const UPDATES_CACHE: PublicCachePolicy = {
 const IDENTITY_CACHE: PublicCachePolicy = { edgeTtlSeconds: 24 * 60 * 60, staleWhileRevalidateSeconds: 7 * 24 * 60 * 60, cacheTags: ["web-api-providers"] };
 const MODALITIES = ["text", "image", "video", "audio", "moderation", "embedding"] as const;
 type Modality = typeof MODALITIES[number];
-type Variant = { id: string; name: string; colour: string | null; country: string; family: string | null; offerLabel: string | null; offerScope: string | null; isGatewayProvider: boolean; promptTrainingPolicy: string | null; dataPolicyTier: string | null; zeroDataRetention: string | null; privacyPolicyUrl: string | null; termsOfServiceUrl: string | null; totalIds: string[]; activeIds: string[]; freeIds: string[]; dailyRequests: number; dailyTokens: number; monthlyTokens: number; updatedAt: string | null; modalities: Record<Modality, { input: string[]; output: string[] }> };
+type Variant = { id: string; name: string; colour: string | null; country: string; family: string | null; offerLabel: string | null; offerScope: string | null; isGatewayProvider: boolean; promptTrainingPolicy: string | null; dataPolicyTier: string | null; zeroDataRetention: string | null; dataRetentionDays: number | null; privacyPolicyUrl: string | null; termsOfServiceUrl: string | null; totalIds: string[]; activeIds: string[]; freeIds: string[]; dailyRequests: number; dailyTokens: number; monthlyTokens: number; updatedAt: string | null; modalities: Record<Modality, { input: string[]; output: string[] }> };
 type ProviderIndexRpcRow = {
 	provider_slug: string; provider_name: string; colour: string | null; country_code: string | null;
 	provider_family_id: string | null; offer_label: string | null; offer_scope: string | null; is_gateway_provider: boolean;
-	prompt_training_policy: string | null; data_policy_tier: string | null; zero_data_retention: string | null;
+	prompt_training_policy: string | null; data_policy_tier: string | null; zero_data_retention: string | null; data_retention_days: number | null;
 	privacy_policy_url: string | null; terms_of_service_url: string | null;
 	total_model_ids: string[] | null; active_model_ids: string[] | null; free_model_ids: string[] | null;
 	requests_24h: number | string | null; tokens_24h: number | string | null; tokens_30d: number | string | null;
@@ -86,7 +86,7 @@ function providerCards(variants: Variant[]) {
 		const representative = group.find((item) => item.id === key) ?? [...group].sort((a, b) => (a.offerScope === "global" ? 0 : 1) - (b.offerScope === "global" ? 0 : 1) || a.id.localeCompare(b.id))[0];
 		const modalitySupport = Object.fromEntries(MODALITIES.map((name) => [name, { input: new Set(group.flatMap((item) => item.modalities[name].input)).size, output: new Set(group.flatMap((item) => item.modalities[name].output)).size }]));
 		const groupRequests = group.reduce((sum, item) => sum + Math.max(0, item.dailyRequests), 0);
-		return { api_provider_id: representative.id, api_provider_name: ["anthropic-aws", "anthropic-aws-us"].includes(representative.id) ? "Anthropic on AWS" : representative.name, colour: representative.colour, country_code: representative.country, is_gateway_provider: group.some((item) => item.isGatewayProvider), prompt_training_policy: representative.promptTrainingPolicy, data_policy_tier: representative.dataPolicyTier, zero_data_retention: representative.zeroDataRetention, privacy_policy_url: representative.privacyPolicyUrl, terms_of_service_url: representative.termsOfServiceUrl, last_updated_at: latest(group.map((item) => item.updatedAt)), total_models: new Set(group.flatMap((item) => item.totalIds)).size, active_models: new Set(group.flatMap((item) => item.activeIds)).size, free_models: new Set(group.flatMap((item) => item.freeIds)).size, total_daily_tokens: group.reduce((sum, item) => sum + Math.max(0, item.dailyTokens), 0), total_monthly_tokens: group.reduce((sum, item) => sum + Math.max(0, item.monthlyTokens), 0), daily_share_pct: totalDailyRequests ? groupRequests / totalDailyRequests * 100 : 0, modality_support: modalitySupport };
+		return { api_provider_id: representative.id, api_provider_name: ["anthropic-aws", "anthropic-aws-us"].includes(representative.id) ? "Anthropic on AWS" : representative.name, colour: representative.colour, country_code: representative.country, is_gateway_provider: group.some((item) => item.isGatewayProvider), prompt_training_policy: representative.promptTrainingPolicy, data_policy_tier: representative.dataPolicyTier, zero_data_retention: representative.zeroDataRetention, data_retention_days: representative.dataRetentionDays, privacy_policy_url: representative.privacyPolicyUrl, terms_of_service_url: representative.termsOfServiceUrl, last_updated_at: latest(group.map((item) => item.updatedAt)), total_models: new Set(group.flatMap((item) => item.totalIds)).size, active_models: new Set(group.flatMap((item) => item.activeIds)).size, free_models: new Set(group.flatMap((item) => item.freeIds)).size, total_daily_tokens: group.reduce((sum, item) => sum + Math.max(0, item.dailyTokens), 0), total_monthly_tokens: group.reduce((sum, item) => sum + Math.max(0, item.monthlyTokens), 0), daily_share_pct: totalDailyRequests ? groupRequests / totalDailyRequests * 100 : 0, modality_support: modalitySupport };
 	});
 }
 
@@ -106,6 +106,7 @@ async function providerIndex(env: Env) {
 		promptTrainingPolicy: row.prompt_training_policy,
 		dataPolicyTier: row.data_policy_tier,
 		zeroDataRetention: row.zero_data_retention,
+		dataRetentionDays: row.data_retention_days,
 		privacyPolicyUrl: row.privacy_policy_url,
 		termsOfServiceUrl: row.terms_of_service_url,
 		totalIds: row.total_model_ids ?? [],

@@ -1351,6 +1351,7 @@
 									"v1/cookbook/choose-a-video-generation-model",
 									"v1/cookbook/generate-and-download-a-video-from-text",
 									"v1/cookbook/use-image-inputs-for-video-generation",
+									"v1/cookbook/generate-video-from-audio",
 									"v1/cookbook/send-provider-specific-video-options",
 									"v1/cookbook/async-video-webhooks",
 									"v1/cookbook/async-batch-webhooks"

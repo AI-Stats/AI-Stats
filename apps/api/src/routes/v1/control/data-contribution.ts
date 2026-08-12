@@ -14,7 +14,7 @@ import {
 import {
 	ALLOWED_CLASSIFIER_MODELS,
 	ensureStarterClassifier,
-	OPENROUTER_TASK_CATEGORIES,
+	STARTER_TASK_CATEGORIES,
 	STARTER_CLASSIFIER_SLUG,
 } from "@/pipeline/classification/classifier-worker";
 import {
@@ -248,7 +248,7 @@ async function getOverview(req: Request) {
 				},
 				classifiers: classifiers.data ?? [],
 				analytics: analytics.data ?? [],
-				starterCategories: OPENROUTER_TASK_CATEGORIES,
+				starterCategories: STARTER_TASK_CATEGORIES,
 			},
 		}, 200, { "Cache-Control": "no-store" });
 	} catch (error) {

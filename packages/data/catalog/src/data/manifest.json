@@ -57,7 +57,8 @@
     "thinking-machines",
     "venice",
     "alibaba",
-    "runway"
+    "runway",
+    "lightricks"
   ],
   "models": {
     "ai21": [
@@ -135,8 +136,7 @@
       "anthropic/claude-sonnet-4.6",
       "anthropic/claude-sonnet-5",
       "anthropic/claude-fable-5",
-      "anthropic/claude-opus-4.7",
-      "anthropic/claude-opus-4.7-fast"
+      "anthropic/claude-opus-4.7"
     ],
     "arcee-ai": [
       "arcee-ai/trinity-large",
@@ -263,8 +263,7 @@
       "deepseek/deepseek-r1",
       "deepseek/deepseek-r1-turbo",
       "deepseek/deepseek-v3",
-      "deepseek/deepseek-v3-turbo",
-      "deepseek/deepseek-v4-pro-lightning"
+      "deepseek/deepseek-v3-turbo"
     ],
     "eleven-labs": [
       "eleven-labs/eleven-english-sts-v2",
@@ -1193,7 +1192,6 @@
       "windsurf/swe-1-mini",
       "windsurf/swe-1.5",
       "windsurf/swe-1.6",
-      "windsurf/swe-1.6-fast",
       "windsurf/swe-grep"
     ],
     "spacex-ai": [
@@ -1227,7 +1225,8 @@
       "spacex-ai/grok-imagine-video",
       "spacex-ai/grok-imagine-image-quality",
       "spacex-ai/grok-tts",
-      "spacex-ai/grok-imagine-video-1.5"
+      "spacex-ai/grok-imagine-video-1.5",
+      "spacex-ai/grok-imagine-image-2.0"
     ],
     "xiaomi": [
       "xiaomi/mimo-v2-flash",
@@ -1288,7 +1287,6 @@
     ],
     "thinking-machines": [
       "thinking-machines/inkling",
-      "thinking-machines/inkling-64k",
       "thinking-machines/inkling-small"
     ],
     "venice": [
@@ -1301,6 +1299,14 @@
     ],
     "runway": [
       "runway/gen-4.5"
+    ],
+    "lightricks": [
+      "lightricks/ltx-2.3-fast",
+      "lightricks/ltx-2.3-pro",
+      "lightricks/ltx-2.5-fast",
+      "lightricks/ltx-2.5-pro",
+      "lightricks/ltx-2-fast",
+      "lightricks/ltx-2-pro"
     ]
   },
   "benchmarks": [

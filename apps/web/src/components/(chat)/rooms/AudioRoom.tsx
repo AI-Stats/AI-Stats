@@ -86,6 +86,8 @@ import {
 	RoomComposerSurface,
 	RoomComposerToolsMenu,
 } from "@/components/(chat)/RoomComposer";
+import { RoomWorkingIndicator } from "@/components/(chat)/RoomWorkingIndicator";
+import { RoomEmptyState } from "@/components/(chat)/RoomEmptyState";
 import {
 	ArrowUpRight,
 	Check,
@@ -1870,8 +1872,9 @@ export function AudioRoom({
 					{label}
 				</p>
 				{items.map((conversation) => (
-					<SidebarMenuItem key={conversation.id} className="w-full overflow-hidden">
+					<SidebarMenuItem key={conversation.id} className="mb-1 w-full overflow-hidden last:mb-0">
 						<SidebarMenuButton
+							className="rounded-md"
 							isActive={activeConversationId === conversation.id}
 							onClick={() => {
 								setActiveConversationId(conversation.id);
@@ -1888,7 +1891,7 @@ export function AudioRoom({
 									<MoreHorizontal className="h-4 w-4" />
 
 							</DropdownMenuTrigger>
-							<DropdownMenuContent side="right" className="rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
+							<DropdownMenuContent side="right" className="rounded-md [&_[data-slot=dropdown-menu-item]]:rounded-md">
 								<DropdownMenuItem
 									onClick={() => {
 										void renameConversation(conversation);
@@ -2065,11 +2068,11 @@ export function AudioRoom({
 				(showAudioUrlInput || audioUrlInput.trim() || audioFile)),
 	);
 	const hasEligibleModels = filteredModels.length > 0;
-	const emptyStateTitle = modelsLoadFailed
+	const emptyStateTitle: string | undefined = modelsLoadFailed
 		? "Music models couldn't load"
 		: mode === "music" && !hasEligibleModels
 			? "No music models available"
-			: "Start a new conversation";
+			: undefined;
 	const emptyStateDescription = modelsLoadFailed
 		? "Refresh the page to try loading the model catalogue again."
 		: mode === "music" && !hasEligibleModels
@@ -2142,17 +2145,33 @@ export function AudioRoom({
 				</div>
 			</header>
 
-			<main className="min-h-0 flex-1 overflow-auto overscroll-contain px-4 py-5 md:px-6">
-				<div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
+			<main className="flex min-h-0 flex-1 flex-col overflow-auto overscroll-contain px-4 py-5 md:px-6">
+				<div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5">
 					{activeEntries.length === 0 ? (
-						<div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-muted/40 px-6 py-12 text-center">
-							<div>
-								<p className="text-base font-semibold">{emptyStateTitle}</p>
-								<p className="text-sm text-muted-foreground">
-									{emptyStateDescription}
-								</p>
-							</div>
-						</div>
+						<RoomEmptyState
+							title={emptyStateTitle}
+							description={emptyStateDescription}
+							suggestions={
+								modelsLoadFailed || !hasEligibleModels
+									? []
+									: mode === "speech"
+									? [
+											{ label: "Narrate an introduction", prompt: "Welcome. Today, we're exploring an idea that could change how we work." },
+											{ label: "Read a calm reflection", prompt: "Take a slow breath, settle into the moment, and let the day unfold." },
+											{ label: "Voice a product update", prompt: "Here's what we've shipped this week, and why it matters." },
+											{ label: "Tell a short story", prompt: "At the edge of the city, one light remained on long after midnight." },
+										]
+									: mode === "music"
+										? [
+												{ label: "Ambient focus", prompt: "Warm ambient electronic music for deep focus, gentle pulse, no vocals" },
+												{ label: "Cinematic opening", prompt: "A restrained cinematic opening that gradually builds with strings and piano" },
+												{ label: "Late-night jazz", prompt: "Intimate late-night jazz with brushed drums, upright bass, and soft piano" },
+												{ label: "Bright indie theme", prompt: "An optimistic indie theme with crisp guitars and an energetic rhythm" },
+											]
+										: []
+							}
+							onSelectPrompt={setTextInput}
+						/>
 					) : (
 						activeEntries.map((entry) => {
 						const resolvedModel =
@@ -2199,7 +2218,7 @@ export function AudioRoom({
 									{entry.inputText ? (
 										<div className="ml-auto w-full max-w-[85%]">
 											{isEditing ? (
-												<div className="grid gap-3 rounded-2xl bg-foreground px-4 py-3 text-sm text-background">
+											<div className="grid gap-3 rounded-md bg-foreground px-4 py-3 text-sm text-background">
 													<Textarea
 														value={editingValue}
 														onChange={(event) =>
@@ -2231,7 +2250,7 @@ export function AudioRoom({
 													</div>
 												</div>
 											) : (
-												<div className="rounded-2xl bg-foreground px-4 py-3 text-sm text-background">
+											<div className="rounded-md bg-foreground px-4 py-3 text-sm text-background">
 													<p className="whitespace-pre-wrap">{entry.inputText}</p>
 													{entry.mode === "music" && entry.musicLyrics ? (
 														<div className="mt-3 border-t border-white/20 pt-3">
@@ -2327,7 +2346,11 @@ export function AudioRoom({
 												</MediaPlayer>
 											) : pendingEntry ? (
 												<div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-xs text-muted-foreground">
-													<Loader2 className="h-3.5 w-3.5 animate-spin" />
+											<RoomWorkingIndicator
+												label={modeBusyLabel(entry.mode)}
+												size={16}
+												showLabel={false}
+											/>
 													<span>{modeBusyLabel(entry.mode)}</span>
 												</div>
 											) : entry.text ? null : (
@@ -2453,7 +2476,7 @@ export function AudioRoom({
 									}
 								}}
 								rows={1}
-								placeholder="Type text to generate speech..."
+								placeholder="Generate speech from anything"
 								className="order-1 min-h-9 w-full resize-none border-0 !bg-transparent px-2 py-2 shadow-none focus-visible:ring-0 sm:order-2 sm:flex-1 dark:!bg-transparent"
 							/>
 						) : mode === "music" ? (
@@ -2468,7 +2491,7 @@ export function AudioRoom({
 										}
 									}}
 									rows={audioComposerExpanded ? 3 : 1}
-									placeholder="Describe the music style, mood, instruments, and structure..."
+									placeholder="Generate music from anything"
 									className={cn(
 										"resize-none border-0 !bg-transparent shadow-none focus-visible:ring-0 dark:!bg-transparent",
 										audioComposerExpanded
@@ -2485,7 +2508,7 @@ export function AudioRoom({
 										value={musicLyricsInput}
 										onChange={(event) => setMusicLyricsInput(event.target.value)}
 										rows={3}
-										placeholder="Add lyrics to generate a vocal track. Leave empty for instrumental."
+										placeholder="Add any lyrics (optional)"
 										className="min-h-[72px] max-h-40 overflow-y-auto resize-none border-0 bg-transparent px-1 py-1 shadow-none focus-visible:ring-0"
 									/>
 								</div>
@@ -2598,9 +2621,9 @@ export function AudioRoom({
 								}}
 								disabled={isLoading || !modelId || !selectedModelEnabled}
 							>
-								{isLoading
-									? <Loader2 className="h-4 w-4 animate-spin" />
-									: modeActionLabel(mode)}
+								{isLoading ? (
+									<RoomWorkingIndicator label={modeBusyLabel(mode)} />
+								) : modeActionLabel(mode)}
 							</Button>
 						</div>
 					</RoomComposerSurface>

@@ -19,6 +19,7 @@
   "terms_of_service_url": "https://fireworks.ai/terms-of-service",
   "prompt_training_policy": "no_train",
   "zero_data_retention": "default",
+  "data_retention_days": 0,
   "prompt_training_notes": "Fireworks says open-model inference prompts and generations exist only in volatile memory and are not persistently logged without explicit opt-in; metadata is still logged and prompt caching may use volatile memory. Its Responses API stores conversation data by default for up to 30 days unless store=false is sent. No training opt-out action is needed unless an account has previously opted in.",
   "prompt_training_source_url": "https://docs.fireworks.ai/guides/security_compliance/data_handling",
   "gateway_kind": null,

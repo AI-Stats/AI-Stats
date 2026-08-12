@@ -4,6 +4,7 @@ export interface VideoGenerationRequest {
   duration?: number;
   enhance_prompt?: boolean;
   generate_audio?: boolean;
+  input_audio_duration?: number;
   input_references?: (
     | {
         image_url: {

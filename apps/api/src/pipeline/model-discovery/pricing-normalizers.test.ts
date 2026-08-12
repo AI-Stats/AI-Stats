@@ -77,7 +77,7 @@ describe("normalizeProviderModelPricing", () => {
 		});
 	});
 
-	it("normalizes OpenRouter-compatible aggregator pricing", () => {
+	it("normalizes external aggregator pricing", () => {
 		expect(normalizeProviderModelPricing("openrouter", {
 			pricing: {
 				prompt: "0.0000004",
@@ -97,7 +97,7 @@ describe("normalizeProviderModelPricing", () => {
 		});
 	});
 
-	it("normalizes OpenRouter multimodal pricing meters", () => {
+	it("normalizes external-provider multimodal pricing meters", () => {
 		expect(normalizeProviderModelPricing("openrouter", {
 			pricing: {
 				prompt: "0.0000003",

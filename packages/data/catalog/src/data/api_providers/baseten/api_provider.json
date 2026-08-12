@@ -7,6 +7,7 @@
   "default_execution_regions": null,
   "default_data_regions": null,
   "zero_data_retention": "default",
+  "data_retention_days": 0,
   "residency_source_url": "https://docs.baseten.co/deployment/regional-environments",
   "residency_notes": "Baseten does not store model inputs or outputs by default for synchronous inference. Regional environments require Baseten configuration and expose a regional endpoint that keeps inference within the designated region; standard endpoints do not provide that guarantee. Async inputs are temporarily stored until processed, while outputs are not stored.",
   "pricing_source_url": "https://www.baseten.co/pricing",

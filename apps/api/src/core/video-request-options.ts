@@ -17,6 +17,8 @@ type VideoOptionInput = {
 	input_image_count?: unknown;
 	input_video_seconds?: unknown;
 	input_video_count?: unknown;
+	input_audio_seconds?: unknown;
+	mode?: unknown;
 	frame_rate?: unknown;
 	total_tokens?: unknown;
 	sample_count?: unknown;
@@ -38,6 +40,8 @@ type VideoOptionInput = {
 		input_image_count?: unknown;
 		input_video_seconds?: unknown;
 		input_video_count?: unknown;
+		input_audio_seconds?: unknown;
+		mode?: unknown;
 		frame_rate?: unknown;
 		total_tokens?: unknown;
 		sample_count?: unknown;
@@ -184,6 +188,8 @@ export function buildVideoPricingRequestOptions(input: VideoOptionInput): Record
 		toNonNegativeNumber(input.video_params?.input_image_count);
 	const inputVideoSeconds = resolveInputVideoSeconds(input);
 	const inputVideoCount = resolveInputVideoCount(input);
+	const inputAudioSeconds = toNonNegativeNumber(input.input_audio_seconds) ?? toNonNegativeNumber(input.video_params?.input_audio_seconds);
+	const mode = toNonEmptyString(input.mode) ?? toNonEmptyString(input.video_params?.mode);
 	const frameRate = resolveFrameRate(input);
 	const totalTokens = resolveTotalTokens(input);
 	const out: Record<string, unknown> = {};
@@ -272,6 +278,10 @@ export function buildVideoPricingRequestOptions(input: VideoOptionInput): Record
 		videoParams.input_video_count = normalizedCount;
 		out.video_params = videoParams;
 	}
+	if (typeof inputAudioSeconds === "number") {
+		out.input_audio_seconds = inputAudioSeconds;
+	}
+	if (mode) out.mode = mode;
 
 	if (typeof frameRate === "number") {
 		const normalizedFrameRate = Math.max(1, Math.trunc(frameRate));
