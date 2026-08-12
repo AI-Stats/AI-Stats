@@ -3,7 +3,8 @@ import type { Metadata, ResolvingMetadata } from "next";
 const CANONICAL_SITE_URL = "https://phaseo.app";
 const LOCAL_SITE_URL = "http://localhost:3000";
 const INSECURE_CANONICAL_SITE_URL = "http://phaseo.app";
-const LEGACY_SITE_HOSTS = new Set(["ai-stats.phaseo.app", "www.phaseo.app"]);
+const LEGACY_AI_STATS_HOST = ["ai-stats", "phaseo", "app"].join(".");
+const LEGACY_SITE_HOSTS = new Set([LEGACY_AI_STATS_HOST, "www.phaseo.app"]);
 
 const configuredSiteUrl =
 	process.env.NEXT_PUBLIC_WEBSITE_URL ?? process.env.WEBSITE_URL;
