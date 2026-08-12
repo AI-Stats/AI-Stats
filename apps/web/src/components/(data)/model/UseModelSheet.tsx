@@ -22,12 +22,14 @@ export function UseModelSheet({
 	modelName,
 	gatewayMetadata,
 	compact = false,
+	triggerId,
 	className,
 }: {
 	modelId: string;
 	modelName: string;
 	gatewayMetadata?: ModelGatewayMetadata | null;
 	compact?: boolean;
+	triggerId?: string;
 	className?: string;
 }) {
 	const [open, setOpen] = useState(false);
@@ -64,9 +66,10 @@ export function UseModelSheet({
 	return (
 		<ProviderInspectorSheet open={open} onOpenChange={handleOpenChange}>
 			<Button
+				id={triggerId}
 				variant="default"
 				size={compact ? "icon-sm" : "sm"}
-				className={cn("rounded-lg", className)}
+				className={cn("scroll-mt-28 rounded-lg", className)}
 				aria-label={compact ? `Use ${modelName}` : undefined}
 				aria-expanded={open}
 				onClick={() => handleOpenChange(true)}

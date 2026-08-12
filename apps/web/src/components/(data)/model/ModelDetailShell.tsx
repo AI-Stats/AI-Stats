@@ -198,7 +198,7 @@ export default async function ModelDetailShell({
 								Compare
 							</Link>
 						</Button>
-						{canChat ? <UseModelSheet modelId={modelId} modelName={header.name} gatewayMetadata={gatewayMetadata} className="col-span-2 w-full min-w-[8.5rem] justify-center sm:w-auto sm:flex-1 md:flex-none" /> : null}
+						{canChat ? <UseModelSheet modelId={modelId} modelName={header.name} gatewayMetadata={gatewayMetadata} triggerId="quickstart" className="col-span-2 w-full min-w-[8.5rem] justify-center sm:w-auto sm:flex-1 md:flex-none" /> : null}
 					</div>
 				</div>
 

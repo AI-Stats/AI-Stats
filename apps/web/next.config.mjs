@@ -109,7 +109,7 @@ const nextConfig = {
       },
       {
         source: "/models/:organisation/:model/pricing",
-        destination: "/models/:organisation/:model",
+        destination: "/models/:organisation/:model#pricing",
         permanent: true,
       },
       {

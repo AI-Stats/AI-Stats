@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
 import type { ModelGatewayMetadata } from "@/lib/fetchers/models/getModelGatewayMetadata";
 import type {
@@ -569,10 +570,7 @@ export default function ModelFaqSection({
 
 	return (
 		<section id="faq" className="scroll-mt-28 space-y-4 border-t border-border/60 pt-5">
-			<script
-				type="application/ld+json"
-				dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-			/>
+			<JsonLdScript id="model-faq-json-ld" data={faqSchema} />
 			<h2 className="text-xl font-semibold tracking-tight">
 				Frequently Asked Questions
 			</h2>
