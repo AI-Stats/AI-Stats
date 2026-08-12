@@ -359,8 +359,8 @@ export default function ProviderTokenUsageChartClient({
 								: `Showing ${aggregateRangeLabel} aggregate | Total ${formatCompact(activeTotalTokens)}`}
 						</div>
 
-					<div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-						<section className="space-y-3">
+					<div className="space-y-8">
+						<section id="top-models" className="scroll-mt-36 space-y-3">
 							<h3 className="text-xl font-semibold">Top Models</h3>
 							<div className="overflow-x-auto">
 								<table className="w-full min-w-[480px] text-sm">
@@ -422,7 +422,7 @@ export default function ProviderTokenUsageChartClient({
 							</div>
 						</section>
 
-						<section className="space-y-3">
+						<section id="top-apps" className="scroll-mt-36 space-y-3">
 							<h3 className="text-xl font-semibold">Top Apps</h3>
 							<div className="overflow-x-auto">
 								<table className="w-full min-w-[560px] text-sm">

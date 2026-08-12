@@ -15,6 +15,10 @@ function key(id: string, routingMode: "priority" | "fallback", sortOrder: number
 }
 
 describe("credential attempt plan", () => {
+	it("keeps the executable limit aligned with the stored per-provider capacity", () => {
+		expect(MAX_BYOK_CREDENTIAL_ATTEMPTS).toBe(32);
+	});
+
 	it("tries ordered priority keys, ranked managed providers, then ordered fallback keys", () => {
 		const providerA = {
 			candidate: {
@@ -97,6 +101,8 @@ describe("credential attempt plan", () => {
 		const plan = buildCredentialAttemptPlan([provider]);
 
 		expect(plan.filter((attempt) => attempt.phase === "priority_byok")).toHaveLength(3);
-		expect(plan.filter((attempt) => attempt.phase === "fallback_byok")).toHaveLength(5);
+		expect(plan.filter((attempt) => attempt.phase === "fallback_byok")).toHaveLength(
+			Math.min(20, MAX_BYOK_CREDENTIAL_ATTEMPTS - 3),
+		);
 	});
 });

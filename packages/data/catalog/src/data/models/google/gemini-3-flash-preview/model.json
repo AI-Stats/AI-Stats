@@ -243,6 +243,14 @@
       "other_info": "940 puzzles",
       "source_link": "https://github.com/lechmazur/nyt-connections",
       "rank": 20
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 38.7,
+      "is_self_reported": false,
+      "other_info": "Gemini 3 Flash Preview (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gemini-3-flash-reasoning",
+      "rank": 82
     }
   ],
   "page_notice": null,

@@ -48,7 +48,16 @@
       "value": "NVIDIA unveiled Nemotron 3 Ultra on June 1, 2026 as a new open model for long-running agents, and DigitalOcean now lists hosted inference support for the model."
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 38.3,
+      "is_self_reported": false,
+      "other_info": "Nemotron 3 Ultra 550B A55B (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/nvidia-nemotron-3-ultra-550b-a55b",
+      "rank": 83
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

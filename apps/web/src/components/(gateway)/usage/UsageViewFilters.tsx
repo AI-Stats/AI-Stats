@@ -1,21 +1,47 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { useQueryState } from "nuqs";
-import { Check, ListFilter, X } from "lucide-react";
+import {
+	Activity,
+	ArrowLeft,
+	Bot,
+	Box,
+	Check,
+	CircleCheck,
+	CircleX,
+	Cloud,
+	Code2,
+	Gauge,
+	Globe2,
+	Hash,
+	KeyRound,
+	ListFilter,
+	Loader2,
+	MonitorSmartphone,
+	Plus,
+	Radio,
+	Route,
+	Server,
+	X,
+} from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from "@/components/ui/command";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { shortenIdentifier } from "@/lib/gateway/usage/timeFormatting";
 import type {
 	AppMetadata,
@@ -28,90 +54,189 @@ type FilterOption = {
 	value: string;
 	label: string;
 	logoId?: string | null;
+	count?: number;
+	group?: string;
+};
+
+// Client source is a finite gateway-owned taxonomy, unlike models and
+// providers, so the complete set remains discoverable without scanning the
+// request log to calculate exact counts.
+const SOURCE_LANGUAGE_LABELS = {
+	typescript: "TypeScript", python: "Python", go: "Go", java: "Java",
+	csharp: "C#", cpp: "C++", php: "PHP", ruby: "Ruby", rust: "Rust",
+} as const;
+const SUPPORTED_CLIENT_SOURCES: ReadonlyArray<FilterOption> = [
+	{ value: "api", label: "Direct API", group: "API clients" },
+	{ value: "codex", label: "Codex", logoId: "codex", group: "Coding agents" },
+	{ value: "claude-code", label: "Claude Code", logoId: "claudecode", group: "Coding agents" },
+	...(["typescript", "python", "go", "java", "csharp", "cpp", "php", "ruby", "rust"] as const).map((language) => ({ value: `phaseo-${language}`, label: `Phaseo ${SOURCE_LANGUAGE_LABELS[language]} SDK`, logoId: "phaseo", group: "Phaseo SDKs" })),
+	...(["typescript", "python", "go", "java", "csharp", "php", "ruby", "rust"] as const).map((language) => ({ value: `phaseo-agent-${language}`, label: `Phaseo Agent ${SOURCE_LANGUAGE_LABELS[language]} SDK`, logoId: "phaseo", group: "Phaseo Agent SDKs" })),
+	{ value: "openai-typescript", label: "OpenAI TypeScript SDK", logoId: "openai", group: "Compatible SDKs" },
+	{ value: "openai-python", label: "OpenAI Python SDK", logoId: "openai", group: "Compatible SDKs" },
+	{ value: "anthropic-typescript", label: "Anthropic TypeScript SDK", logoId: "anthropic", group: "Compatible SDKs" },
+	{ value: "anthropic-python", label: "Anthropic Python SDK", logoId: "anthropic", group: "Compatible SDKs" },
+	{ value: "curl", label: "cURL", group: "HTTP clients" },
+	{ value: "httpie", label: "HTTPie", group: "HTTP clients" },
+	{ value: "postman", label: "Postman", group: "HTTP clients" },
+	{ value: "insomnia", label: "Insomnia", group: "HTTP clients" },
+	{ value: "axios", label: "Axios", group: "HTTP clients" },
+	{ value: "python-requests", label: "Python Requests", logoId: "python", group: "HTTP clients" },
+];
+
+const OPERATOR_LABELS: Record<string, string> = {
+	is: "is",
+	is_not: "is not",
+	eq: "equals",
+	gte: "at least",
+	lte: "at most",
+	between: "between",
+};
+
+function NumericFilterEditor({ label, initialValue, initialMax, initialOperator, onApply }: {
+	label: string;
+	initialValue: string;
+	initialMax: string;
+	initialOperator: string;
+	onApply: (value: string, max: string, operator: string) => void;
+}) {
+	const [value, setValue] = React.useState(initialValue);
+	const [max, setMax] = React.useState(initialMax);
+	const [operator, setOperator] = React.useState(initialOperator || "gte");
+	const valid = /^\d+$/.test(value) && (operator !== "between" || (/^\d+$/.test(max) && Number(max) >= Number(value)));
+	return (
+		<div className="space-y-3 p-3">
+			<div className="grid grid-cols-2 gap-1 rounded-md bg-muted/40 p-1">
+				{["gte", "lte", "eq", "between"].map((item) => (
+					<button key={item} type="button" onClick={() => setOperator(item)} className={`h-8 rounded-md px-2 text-xs ${operator === item ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"}`}>
+						{OPERATOR_LABELS[item]}
+					</button>
+				))}
+			</div>
+			<div className="flex items-center gap-2">
+				<input inputMode="numeric" pattern="[0-9]*" value={value} onChange={(event) => setValue(event.target.value.replace(/\D/g, ""))} placeholder="0" aria-label={`${label} value`} className="h-9 min-w-0 flex-1 rounded-md border bg-background px-3 text-sm outline-none focus-visible:border-ring" />
+				{operator === "between" ? <><span className="text-xs text-muted-foreground">and</span><input inputMode="numeric" pattern="[0-9]*" value={max} onChange={(event) => setMax(event.target.value.replace(/\D/g, ""))} placeholder="0" aria-label={`${label} maximum`} className="h-9 min-w-0 flex-1 rounded-md border bg-background px-3 text-sm outline-none focus-visible:border-ring" /></> : null}
+			</div>
+			<Button type="button" size="sm" className="w-full rounded-md" disabled={!valid} onClick={() => onApply(value, max, operator)}>Apply Filter</Button>
+		</div>
+	);
+}
+
+const FILTER_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+	source: MonitorSmartphone,
+	model: Bot,
+	provider: Cloud,
+	app: Box,
+	endpoint: Route,
+	finish: CircleCheck,
+	stream: Radio,
+	error: CircleX,
+	http: Globe2,
+	key: KeyRound,
+	status: Activity,
+	kind: Code2,
+	session: Hash,
+	latency: Gauge,
+	throughput: Gauge,
+	generation: Server,
+	input_tokens: Gauge,
+	output_tokens: Gauge,
+	total_tokens: Gauge,
 };
 
 function FilterChip({
 	label,
 	value,
 	onClear,
+	filterKey = label.toLowerCase().replaceAll(" ", "_"),
+	valueLogoId,
+	onValueClick,
+	valueOptions,
+	activeValue,
+	onValueSelect,
+	operatorOptions = ["is", "is_not"],
+	defaultOperator = "is",
 }: {
 	label: string;
 	value: React.ReactNode;
 	onClear: () => void;
+	filterKey?: string;
+	valueLogoId?: string | null;
+	onValueClick?: () => void;
+	valueOptions?: FilterOption[];
+	activeValue?: string;
+	onValueSelect?: (value: string) => void | Promise<unknown>;
+	operatorOptions?: string[];
+	defaultOperator?: string;
 }) {
+	const [operator, setOperator] = useQueryState(`${filterKey}_op`, {
+		defaultValue: defaultOperator,
+		shallow: false,
+	});
+	const [valuePickerOpen, setValuePickerOpen] = React.useState(false);
+	const FilterIcon = FILTER_ICONS[filterKey] ?? ListFilter;
 	return (
-		<Button
-			type="button"
-			variant="outline"
-			size="sm"
-			onClick={onClear}
-			className="h-9 gap-2 rounded-md px-3 text-xs"
-		>
-			<span className="text-muted-foreground">{label}</span>
-			<span className="max-w-[180px] truncate text-foreground">{value}</span>
-			<X className="h-3 w-3" />
-		</Button>
-	);
-}
-
-function FilterOptionRow({
-	option,
-	active,
-	onSelect,
-}: {
-	option: FilterOption;
-	active: boolean;
-	onSelect: () => void;
-}) {
-	return (
-		<DropdownMenuItem onClick={onSelect} className="gap-2">
-			{option.logoId ? (
-				<Logo
-					id={option.logoId}
-					width={14}
-					height={14}
-					className="rounded-sm"
-				/>
-			) : null}
-			<span className="min-w-0 flex-1 truncate">{option.label}</span>
-			{active ? <Check className="h-3.5 w-3.5" /> : null}
-		</DropdownMenuItem>
-	);
-}
-
-function FilterSubmenu({
-	label,
-	options,
-	activeValue,
-	allLabel,
-	onSelect,
-}: {
-	label: string;
-	options: FilterOption[];
-	activeValue: string;
-	allLabel: string;
-	onSelect: (value: string) => void;
-}) {
-	return (
-		<DropdownMenuSub>
-			<DropdownMenuSubTrigger>{label}</DropdownMenuSubTrigger>
-			<DropdownMenuSubContent className="w-[280px]">
-				<DropdownMenuLabel>{label}</DropdownMenuLabel>
-				<DropdownMenuItem onClick={() => onSelect("")} className="gap-2">
-					<span className="flex-1">{allLabel}</span>
-					{!activeValue ? <Check className="h-3.5 w-3.5" /> : null}
-				</DropdownMenuItem>
-				<DropdownMenuSeparator />
-				{options.map((option) => (
-					<FilterOptionRow
-						key={option.value}
-						option={option}
-						active={activeValue === option.value}
-						onSelect={() => onSelect(option.value)}
-					/>
-				))}
-			</DropdownMenuSubContent>
-		</DropdownMenuSub>
+		<div className="inline-flex h-8 max-w-full items-stretch overflow-hidden rounded-md border border-border/70 bg-muted/20 text-xs">
+			<span className="inline-flex items-center gap-1.5 rounded-l-md rounded-r-none border-r border-border/70 px-2 text-foreground">
+				<FilterIcon className="size-3.5 text-muted-foreground" />
+				{label}
+			</span>
+			<Popover>
+				<PopoverTrigger asChild>
+					<button data-settings-segment type="button" className="inline-flex h-full appearance-none items-center rounded-none border-r border-border/70 px-2 text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:bg-muted focus-visible:outline-none focus-visible:ring-0">
+						{OPERATOR_LABELS[operator] ?? operator}
+					</button>
+				</PopoverTrigger>
+				<PopoverContent align="start" className="w-36 gap-0 rounded-md p-1">
+					{operatorOptions.map((nextOperator) => (
+						<button key={nextOperator} type="button" onClick={() => void setOperator(nextOperator)} className="flex h-8 w-full items-center rounded-sm px-2 text-left text-xs hover:bg-muted">
+							<span className="flex-1">{OPERATOR_LABELS[nextOperator] ?? nextOperator}</span>
+							{operator === nextOperator ? <Check className="size-3.5" /> : null}
+						</button>
+					))}
+				</PopoverContent>
+			</Popover>
+			{valueOptions && onValueSelect ? (
+				<Popover open={valuePickerOpen} onOpenChange={setValuePickerOpen}>
+					<PopoverTrigger asChild>
+						<button data-settings-segment type="button" className="inline-flex min-w-0 max-w-[min(320px,50vw)] appearance-none items-center gap-1.5 rounded-none px-2 text-foreground hover:bg-muted">
+							{valueLogoId ? <Logo id={valueLogoId} width={14} height={14} className="shrink-0 rounded-sm" /> : null}
+							<span className="truncate">{value}</span>
+						</button>
+					</PopoverTrigger>
+					<PopoverContent side="bottom" align="start" sideOffset={6} className="w-[320px] gap-0 overflow-hidden rounded-md p-0">
+						<Command className="rounded-md">
+							<CommandInput placeholder={`Search ${label.toLowerCase()}…`} />
+							<CommandList className="max-h-none overflow-hidden">
+								<ScrollArea className="h-[320px]" keepScrollbarMounted viewportClassName="pr-2">
+									<CommandEmpty>No matching options.</CommandEmpty>
+									<CommandGroup>
+										{valueOptions.map((option) => (
+											<CommandItem key={option.value} value={`${option.label} ${option.value}`} data-checked={activeValue === option.value} onSelect={() => { void onValueSelect(option.value); setValuePickerOpen(false); }}>
+												{option.logoId ? <Logo id={option.logoId} width={14} height={14} className="shrink-0 rounded-sm" /> : null}
+								<span className="min-w-0 flex-1 truncate">{option.label}</span>
+											</CommandItem>
+										))}
+									</CommandGroup>
+								</ScrollArea>
+							</CommandList>
+						</Command>
+					</PopoverContent>
+				</Popover>
+			) : onValueClick ? (
+				<button data-settings-segment type="button" onClick={onValueClick} className="inline-flex min-w-0 max-w-[min(320px,50vw)] appearance-none items-center gap-1.5 rounded-none px-2 text-foreground hover:bg-muted">
+					{valueLogoId ? <Logo id={valueLogoId} width={14} height={14} className="shrink-0 rounded-sm" /> : null}
+					<span className="truncate">{value}</span>
+				</button>
+			) : (
+				<span className="inline-flex min-w-0 max-w-[min(320px,50vw)] items-center gap-1.5 px-2 text-foreground">
+					{valueLogoId ? <Logo id={valueLogoId} width={14} height={14} className="shrink-0 rounded-sm" /> : null}
+					<span className="truncate">{value}</span>
+				</span>
+			)}
+			<button data-settings-segment type="button" onClick={onClear} className="inline-flex h-full appearance-none items-center rounded-l-none rounded-r-md border-l border-border/70 px-2 text-muted-foreground hover:bg-muted hover:text-foreground" aria-label={`Clear ${label} filter`}>
+				<X className="size-3" />
+			</button>
+		</div>
 	);
 }
 
@@ -124,6 +249,7 @@ export default function UsageViewFilters({
 	logFinishReasons = [],
 	logErrorCodes = [],
 	logStatusCodes = [],
+	clientSources = [],
 	modelProviders = new Map(),
 	providerNames = new Map(),
 	apiKeys = [],
@@ -133,6 +259,7 @@ export default function UsageViewFilters({
 	sessionAppIds = [],
 	sessionModelIds = [],
 	sessionProviderIds = [],
+	lockJobKind = false,
 }: {
 	view: UsageLogsViewKey;
 	models?: string[];
@@ -142,6 +269,7 @@ export default function UsageViewFilters({
 	logFinishReasons?: string[];
 	logErrorCodes?: string[];
 	logStatusCodes?: number[];
+	clientSources?: Array<{ id: string; name: string }>;
 	modelProviders?: Map<string, string[]>;
 	providerNames?: Map<string, string>;
 	apiKeys?: { id: string; name: string | null; prefix: string | null }[];
@@ -151,27 +279,74 @@ export default function UsageViewFilters({
 	sessionAppIds?: string[];
 	sessionModelIds?: string[];
 	sessionProviderIds?: string[];
+	lockJobKind?: boolean;
 }) {
-	const [modelFilter, setModelFilter] = useQueryState("model", { defaultValue: "" });
-	const [providerFilter, setProviderFilter] = useQueryState("provider", { defaultValue: "" });
-	const [appFilter, setAppFilter] = useQueryState("app", { defaultValue: "" });
-	const [endpointFilter, setEndpointFilter] = useQueryState("endpoint", { defaultValue: "" });
-	const [finishReasonFilter, setFinishReasonFilter] = useQueryState("finish_reason", { defaultValue: "" });
-	const [streamFilter, setStreamFilter] = useQueryState("stream", { defaultValue: "all" });
-	const [errorCodeFilter, setErrorCodeFilter] = useQueryState("error_code", { defaultValue: "" });
-	const [statusCodeFilter, setStatusCodeFilter] = useQueryState("http_status", { defaultValue: "" });
-	const [keyFilter, setKeyFilter] = useQueryState("key", { defaultValue: "" });
-	const [statusFilter, setStatusFilter] = useQueryState("status", { defaultValue: "all" });
-	const [requestFilter, setRequestFilter] = useQueryState("req", { defaultValue: "" });
-	const [sessionFilter, setSessionFilter] = useQueryState("session", { defaultValue: "" });
+	const [filtersPending, startFilterTransition] = React.useTransition();
+	const queryOptions = { shallow: false, startTransition: startFilterTransition } as const;
+	const [modelFilter, setModelFilter] = useQueryState("model", { ...queryOptions, defaultValue: "" });
+	const [providerFilter, setProviderFilter] = useQueryState("provider", { ...queryOptions, defaultValue: "" });
+	const [appFilter, setAppFilter] = useQueryState("app", { ...queryOptions, defaultValue: "" });
+	const [endpointFilter, setEndpointFilter] = useQueryState("endpoint", { ...queryOptions, defaultValue: "" });
+	const [finishReasonFilter, setFinishReasonFilter] = useQueryState("finish_reason", { ...queryOptions, defaultValue: "" });
+	const [streamFilter, setStreamFilter] = useQueryState("stream", { ...queryOptions, defaultValue: "all" });
+	const [errorCodeFilter, setErrorCodeFilter] = useQueryState("error_code", { ...queryOptions, defaultValue: "" });
+	const [statusCodeFilter, setStatusCodeFilter] = useQueryState("http_status", { ...queryOptions, defaultValue: "" });
+	const [keyFilter, setKeyFilter] = useQueryState("key", { ...queryOptions, defaultValue: "" });
+	const [statusFilter, setStatusFilter] = useQueryState("status", { ...queryOptions, defaultValue: "all" });
+	const [requestFilter, setRequestFilter] = useQueryState("req", { ...queryOptions, defaultValue: "" });
+	const [sessionFilter, setSessionFilter] = useQueryState("session", { ...queryOptions, defaultValue: "" });
+	const [sourceFilter, setSourceFilter] = useQueryState("source", { ...queryOptions, defaultValue: "" });
+	const [inputTokensFilter, setInputTokensFilter] = useQueryState("input_tokens", { ...queryOptions, defaultValue: "" });
+	const [inputTokensMax, setInputTokensMax] = useQueryState("input_tokens_max", { ...queryOptions, defaultValue: "" });
+	const [inputTokensOperator, setInputTokensOperator] = useQueryState("input_tokens_op", { ...queryOptions, defaultValue: "gte" });
+	const [outputTokensFilter, setOutputTokensFilter] = useQueryState("output_tokens", { ...queryOptions, defaultValue: "" });
+	const [outputTokensMax, setOutputTokensMax] = useQueryState("output_tokens_max", { ...queryOptions, defaultValue: "" });
+	const [outputTokensOperator, setOutputTokensOperator] = useQueryState("output_tokens_op", { ...queryOptions, defaultValue: "gte" });
+	const [totalTokensFilter, setTotalTokensFilter] = useQueryState("total_tokens", { ...queryOptions, defaultValue: "" });
+	const [totalTokensMax, setTotalTokensMax] = useQueryState("total_tokens_max", { ...queryOptions, defaultValue: "" });
+	const [totalTokensOperator, setTotalTokensOperator] = useQueryState("total_tokens_op", { ...queryOptions, defaultValue: "gte" });
 
-	const [jobKindFilter, setJobKindFilter] = useQueryState("job_kind", { defaultValue: "" });
-	const [jobStatusFilter, setJobStatusFilter] = useQueryState("job_status", { defaultValue: "" });
-	const [jobProviderFilter, setJobProviderFilter] = useQueryState("job_provider", { defaultValue: "" });
+	const [jobKindFilter, setJobKindFilter] = useQueryState("job_kind", { defaultValue: "", shallow: false });
+	const [jobStatusFilter, setJobStatusFilter] = useQueryState("job_status", { defaultValue: "", shallow: false });
+	const [jobProviderFilter, setJobProviderFilter] = useQueryState("job_provider", { defaultValue: "", shallow: false });
 
-	const [sessionAppFilter, setSessionAppFilter] = useQueryState("session_app", { defaultValue: "" });
-	const [sessionModelFilter, setSessionModelFilter] = useQueryState("session_model", { defaultValue: "" });
-	const [sessionProviderFilter, setSessionProviderFilter] = useQueryState("session_provider", { defaultValue: "" });
+	const [sessionAppFilter, setSessionAppFilter] = useQueryState("session_app", { defaultValue: "", shallow: false });
+	const [sessionModelFilter, setSessionModelFilter] = useQueryState("session_model", { defaultValue: "", shallow: false });
+	const [sessionProviderFilter, setSessionProviderFilter] = useQueryState("session_provider", { defaultValue: "", shallow: false });
+	const [pickerOpen, setPickerOpen] = React.useState(false);
+	const [selectedFilterType, setSelectedFilterType] = React.useState<string | null>(null);
+	const pickerViewportRef = React.useRef<HTMLDivElement | null>(null);
+	const pickerScrollPositions = React.useRef(new Map<string, number>());
+	const [filterBarTarget, setFilterBarTarget] = React.useState<HTMLElement | null>(null);
+	const changeSelectedFilterType = React.useCallback((next: string | null) => {
+		if (pickerViewportRef.current) {
+			pickerScrollPositions.current.set(selectedFilterType ?? "root", pickerViewportRef.current.scrollTop);
+		}
+		setSelectedFilterType(next);
+	}, [selectedFilterType]);
+	React.useLayoutEffect(() => {
+		if (!pickerOpen) return;
+		const frame = requestAnimationFrame(() => {
+			if (pickerViewportRef.current) {
+				pickerViewportRef.current.scrollTop = pickerScrollPositions.current.get(selectedFilterType ?? "root") ?? 0;
+			}
+		});
+		return () => cancelAnimationFrame(frame);
+	}, [pickerOpen, selectedFilterType]);
+	React.useEffect(() => {
+		const syncFilterBarTarget = () => {
+			const nextTarget = document.getElementById("usage-log-active-filters");
+			setFilterBarTarget((currentTarget) =>
+				currentTarget === nextTarget ? currentTarget : nextTarget,
+			);
+		};
+
+		syncFilterBarTarget();
+		const observer = new MutationObserver(syncFilterBarTarget);
+		observer.observe(document.body, { childList: true, subtree: true });
+
+		return () => observer.disconnect();
+	}, []);
 
 	const modelOptions = React.useMemo(() => {
 		return models
@@ -240,6 +415,23 @@ export default function UsageViewFilters({
 		}));
 	}, [logStatusCodes]);
 
+	const clientSourceOptions = React.useMemo(() => {
+		const discoveredSources = new Map(clientSources.map((source) => [source.id, source.name]));
+		const supportedIds = new Set(SUPPORTED_CLIENT_SOURCES.map((source) => source.value));
+		return [
+			...SUPPORTED_CLIENT_SOURCES.map((source) => ({
+				...source,
+				label: discoveredSources.get(source.value) ?? source.label,
+			})),
+			...clientSources
+				.filter((source) => !supportedIds.has(source.id))
+				.map((source) => ({
+					value: source.id,
+					label: source.name,
+				})),
+		];
+	}, [clientSources]);
+
 	const sessionAppOptions = React.useMemo(() => {
 		return sessionAppIds
 			.map((appId) => ({
@@ -295,16 +487,24 @@ export default function UsageViewFilters({
 		{ value: "cancelled", label: "Cancelled" },
 		{ value: "expired", label: "Expired" },
 	];
+	const editFilterValue = (filterId: string) => {
+		changeSelectedFilterType(filterId);
+		setPickerOpen(true);
+	};
 
 	const activeChips: React.ReactNode[] = [];
 
-	if (view === "logs") {
+	if (view === "logs" || view === "upstream") {
 		if (modelFilter) {
 			activeChips.push(
 				<FilterChip
 					key="model"
 					label="Model"
 					value={getModelDisplayName(modelFilter, modelMetadata)}
+					valueLogoId={modelMetadata.get(modelFilter)?.organisationId}
+					valueOptions={modelOptions}
+					activeValue={modelFilter}
+					onValueSelect={setModelFilter}
 					onClear={() => setModelFilter("")}
 				/>,
 			);
@@ -314,6 +514,10 @@ export default function UsageViewFilters({
 				<FilterChip
 					key="provider"
 					label="Provider"
+					valueLogoId={providerFilter}
+					valueOptions={providerOptions}
+					activeValue={providerFilter}
+					onValueSelect={setProviderFilter}
 					value={
 						providerNames.get(providerFilter) ??
 						providerMetadata.get(providerFilter)?.name ??
@@ -323,37 +527,41 @@ export default function UsageViewFilters({
 				/>,
 			);
 		}
-		if (appFilter) {
+		if (view === "logs" && appFilter) {
 			activeChips.push(
 				<FilterChip
 					key="app"
 					label="App"
 					value={appMetadata.get(appFilter)?.title?.trim() || appFilter}
+					onValueClick={() => editFilterValue("app")}
 					onClear={() => setAppFilter("")}
 				/>,
 			);
 		}
-		if (endpointFilter) {
+		if (view === "logs" && endpointFilter) {
 			activeChips.push(
 				<FilterChip
 					key="endpoint"
 					label="Endpoint"
 					value={<code className="font-mono text-[11px]">{endpointFilter}</code>}
+					onValueClick={() => editFilterValue("endpoint")}
 					onClear={() => setEndpointFilter("")}
 				/>,
 			);
 		}
-		if (finishReasonFilter) {
+		if (view === "logs" && finishReasonFilter) {
 			activeChips.push(
 				<FilterChip
 					key="finish-reason"
 					label="Finish"
+					filterKey="finish"
 					value={finishReasonFilter}
+					onValueClick={() => editFilterValue("finish")}
 					onClear={() => setFinishReasonFilter("")}
 				/>,
 			);
 		}
-		if (streamFilter !== "all") {
+		if (view === "logs" && streamFilter !== "all") {
 			activeChips.push(
 				<FilterChip
 					key="stream"
@@ -363,26 +571,31 @@ export default function UsageViewFilters({
 							? "Streaming only"
 							: "Non-streaming only"
 					}
+					onValueClick={() => editFilterValue("stream")}
 					onClear={() => setStreamFilter("all")}
 				/>,
 			);
 		}
-		if (errorCodeFilter) {
+		if (view === "logs" && errorCodeFilter) {
 			activeChips.push(
 				<FilterChip
 					key="error-code"
 					label="Error"
+					filterKey="error"
 					value={<code className="font-mono text-[11px]">{errorCodeFilter}</code>}
+					onValueClick={() => editFilterValue("error")}
 					onClear={() => setErrorCodeFilter("")}
 				/>,
 			);
 		}
-		if (statusCodeFilter) {
+		if (view === "logs" && statusCodeFilter) {
 			activeChips.push(
 				<FilterChip
 					key="status-code"
 					label="HTTP"
+					filterKey="http"
 					value={<code className="font-mono text-[11px]">{statusCodeFilter}</code>}
+					onValueClick={() => editFilterValue("http")}
 					onClear={() => setStatusCodeFilter("")}
 				/>,
 			);
@@ -393,7 +606,7 @@ export default function UsageViewFilters({
 				apiKeys.find((key) => key.id === keyFilter)?.prefix ||
 				keyFilter.slice(0, 8);
 			activeChips.push(
-				<FilterChip key="key" label="Key" value={keyLabel} onClear={() => setKeyFilter("")} />,
+				<FilterChip key="key" label="Key" value={keyLabel} onValueClick={() => editFilterValue("key")} onClear={() => setKeyFilter("")} />,
 			);
 		}
 		if (statusFilter !== "all") {
@@ -402,11 +615,12 @@ export default function UsageViewFilters({
 					key="status"
 					label="Status"
 					value={statusFilter === "success" ? "Successful only" : "Errors only"}
+					onValueClick={() => editFilterValue("status")}
 					onClear={() => setStatusFilter("all")}
 				/>,
 			);
 		}
-		if (requestFilter) {
+		if (view === "logs" && requestFilter) {
 			activeChips.push(
 				<FilterChip
 					key="req"
@@ -416,7 +630,7 @@ export default function UsageViewFilters({
 				/>,
 			);
 		}
-		if (sessionFilter) {
+		if (view === "logs" && sessionFilter) {
 			activeChips.push(
 				<FilterChip
 					key="session"
@@ -426,15 +640,46 @@ export default function UsageViewFilters({
 				/>,
 			);
 		}
+		if (view === "logs" && sourceFilter) {
+			activeChips.push(
+				<FilterChip
+					key="source"
+					label="Source"
+					value={clientSourceOptions.find((source) => source.value === sourceFilter)?.label ?? sourceFilter}
+					onValueClick={() => editFilterValue("source")}
+					onClear={() => setSourceFilter("")}
+				/>,
+			);
+		}
+		for (const tokenFilter of [
+			{ key: "input_tokens", label: "Input Tokens", value: inputTokensFilter, max: inputTokensMax, operator: inputTokensOperator, clear: () => { void setInputTokensFilter(""); void setInputTokensMax(""); } },
+			{ key: "output_tokens", label: "Output Tokens", value: outputTokensFilter, max: outputTokensMax, operator: outputTokensOperator, clear: () => { void setOutputTokensFilter(""); void setOutputTokensMax(""); } },
+			{ key: "total_tokens", label: "Total Tokens", value: totalTokensFilter, max: totalTokensMax, operator: totalTokensOperator, clear: () => { void setTotalTokensFilter(""); void setTotalTokensMax(""); } },
+		]) {
+			if (!tokenFilter.value) continue;
+			activeChips.push(
+				<FilterChip
+					key={tokenFilter.key}
+					filterKey={tokenFilter.key}
+					label={tokenFilter.label}
+					value={tokenFilter.operator === "between" ? `${tokenFilter.value} and ${tokenFilter.max}` : tokenFilter.value}
+					operatorOptions={["gte", "lte", "eq", "between"]}
+					defaultOperator="gte"
+					onValueClick={() => editFilterValue(tokenFilter.key)}
+					onClear={tokenFilter.clear}
+				/>,
+			);
+		}
 	}
 
 	if (view === "jobs") {
-		if (jobKindFilter) {
+		if (!lockJobKind && jobKindFilter) {
 			activeChips.push(
 				<FilterChip
 					key="job-kind"
 					label="Kind"
 					value={jobKindFilter === "video" ? "Video" : "Batch"}
+					onValueClick={() => editFilterValue("kind")}
 					onClear={() => setJobKindFilter("")}
 				/>,
 			);
@@ -445,6 +690,7 @@ export default function UsageViewFilters({
 					key="job-status"
 					label="Status"
 					value={jobStatusOptions.find((option) => option.value === jobStatusFilter)?.label ?? jobStatusFilter}
+					onValueClick={() => editFilterValue("status")}
 					onClear={() => setJobStatusFilter("")}
 				/>,
 			);
@@ -454,6 +700,10 @@ export default function UsageViewFilters({
 				<FilterChip
 					key="job-provider"
 					label="Provider"
+					valueLogoId={jobProviderFilter}
+					valueOptions={providerOptions}
+					activeValue={jobProviderFilter}
+					onValueSelect={setJobProviderFilter}
 					value={
 						providerNames.get(jobProviderFilter) ??
 						providerMetadata.get(jobProviderFilter)?.name ??
@@ -472,6 +722,7 @@ export default function UsageViewFilters({
 					key="session-app"
 					label="App"
 					value={appMetadata.get(sessionAppFilter)?.title?.trim() || sessionAppFilter}
+					onValueClick={() => editFilterValue("app")}
 					onClear={() => setSessionAppFilter("")}
 				/>,
 			);
@@ -482,6 +733,10 @@ export default function UsageViewFilters({
 					key="session-model"
 					label="Model"
 					value={getModelDisplayName(sessionModelFilter, modelMetadata)}
+					valueLogoId={modelMetadata.get(sessionModelFilter)?.organisationId}
+					valueOptions={sessionModelOptions}
+					activeValue={sessionModelFilter}
+					onValueSelect={setSessionModelFilter}
 					onClear={() => setSessionModelFilter("")}
 				/>,
 			);
@@ -491,6 +746,10 @@ export default function UsageViewFilters({
 				<FilterChip
 					key="session-provider"
 					label="Provider"
+					valueLogoId={sessionProviderFilter}
+					valueOptions={sessionProviderOptions}
+					activeValue={sessionProviderFilter}
+					onValueSelect={setSessionProviderFilter}
 					value={
 						providerNames.get(sessionProviderFilter) ??
 						providerMetadata.get(sessionProviderFilter)?.name ??
@@ -512,152 +771,126 @@ export default function UsageViewFilters({
 		}
 	}
 
+	type FilterPicker = { id: string; label: string; options: FilterOption[]; activeValue: string; onSelect: (value: string) => void | Promise<unknown>; kind?: "numeric"; maxValue?: string; operator?: string; onNumericApply?: (value: string, max: string, operator: string) => void };
+	const filterPickers: FilterPicker[] = view === "logs"
+		? [
+			{ id: "source", label: "Source", options: clientSourceOptions, activeValue: sourceFilter, onSelect: setSourceFilter },
+			{ id: "model", label: "Model", options: modelOptions, activeValue: modelFilter, onSelect: setModelFilter },
+			{ id: "provider", label: "Provider", options: providerOptions, activeValue: providerFilter, onSelect: setProviderFilter },
+			{ id: "app", label: "App", options: logAppOptions, activeValue: appFilter, onSelect: setAppFilter },
+			{ id: "endpoint", label: "Endpoint", options: endpointOptions, activeValue: endpointFilter, onSelect: setEndpointFilter },
+			{ id: "finish", label: "Finish Reason", options: finishReasonOptions, activeValue: finishReasonFilter, onSelect: setFinishReasonFilter },
+			{ id: "stream", label: "Stream", options: streamOptions, activeValue: streamFilter === "all" ? "" : streamFilter, onSelect: (value) => setStreamFilter(value || "all") },
+			{ id: "error", label: "Error Code", options: errorCodeOptions, activeValue: errorCodeFilter, onSelect: setErrorCodeFilter },
+			{ id: "http", label: "HTTP Status", options: statusCodeOptions, activeValue: statusCodeFilter, onSelect: setStatusCodeFilter },
+			{ id: "key", label: "API Key", options: keyOptions, activeValue: keyFilter, onSelect: setKeyFilter },
+			{ id: "status", label: "Status", options: statusOptions, activeValue: statusFilter === "all" ? "" : statusFilter, onSelect: (value) => setStatusFilter(value || "all") },
+			{ id: "input_tokens", label: "Input Tokens", kind: "numeric", options: [], activeValue: inputTokensFilter, maxValue: inputTokensMax, operator: inputTokensOperator, onSelect: setInputTokensFilter, onNumericApply: (value, max, operator) => { void setInputTokensFilter(value); void setInputTokensMax(max); void setInputTokensOperator(operator); setPickerOpen(false); } },
+			{ id: "output_tokens", label: "Output Tokens", kind: "numeric", options: [], activeValue: outputTokensFilter, maxValue: outputTokensMax, operator: outputTokensOperator, onSelect: setOutputTokensFilter, onNumericApply: (value, max, operator) => { void setOutputTokensFilter(value); void setOutputTokensMax(max); void setOutputTokensOperator(operator); setPickerOpen(false); } },
+			{ id: "total_tokens", label: "Total Tokens", kind: "numeric", options: [], activeValue: totalTokensFilter, maxValue: totalTokensMax, operator: totalTokensOperator, onSelect: setTotalTokensFilter, onNumericApply: (value, max, operator) => { void setTotalTokensFilter(value); void setTotalTokensMax(max); void setTotalTokensOperator(operator); setPickerOpen(false); } },
+		]
+		: view === "upstream"
+			? [
+				{ id: "model", label: "Model", options: modelOptions, activeValue: modelFilter, onSelect: setModelFilter },
+				{ id: "provider", label: "Provider", options: providerOptions, activeValue: providerFilter, onSelect: setProviderFilter },
+				{ id: "key", label: "API Key", options: keyOptions, activeValue: keyFilter, onSelect: setKeyFilter },
+				{ id: "status", label: "Status", options: statusOptions, activeValue: statusFilter === "all" ? "" : statusFilter, onSelect: (value) => setStatusFilter(value || "all") },
+			]
+			: view === "jobs"
+				? [
+					...(!lockJobKind ? [{ id: "kind", label: "Kind", options: jobKindOptions, activeValue: jobKindFilter, onSelect: setJobKindFilter }] : []),
+					{ id: "status", label: "Status", options: jobStatusOptions, activeValue: jobStatusFilter, onSelect: setJobStatusFilter },
+					{ id: "provider", label: "Provider", options: providerOptions, activeValue: jobProviderFilter, onSelect: setJobProviderFilter },
+				]
+				: [
+					{ id: "app", label: "App", options: sessionAppOptions, activeValue: sessionAppFilter, onSelect: setSessionAppFilter },
+					{ id: "model", label: "Model", options: sessionModelOptions, activeValue: sessionModelFilter, onSelect: setSessionModelFilter },
+					{ id: "provider", label: "Provider", options: sessionProviderOptions, activeValue: sessionProviderFilter, onSelect: setSessionProviderFilter },
+				];
+	const selectedPicker = filterPickers.find((picker) => picker.id === selectedFilterType) ?? null;
+	const SelectedFilterIcon = selectedPicker ? (FILTER_ICONS[selectedPicker.id] ?? ListFilter) : null;
+	const selectedOptionGroups = selectedPicker
+		? Array.from(new Set(selectedPicker.options.map((option) => option.group ?? "")))
+		: [];
+	const pickerRowCount = selectedPicker?.options.length ?? filterPickers.length;
+	const pickerListHeight = Math.min(320, Math.max(48, pickerRowCount * 32 + Math.max(1, selectedOptionGroups.length) * 28));
+	const clearAll = () => {
+		for (const picker of filterPickers) void picker.onSelect("");
+		if (view === "logs" || view === "sessions") void setSessionFilter("");
+		if (view === "logs") void setRequestFilter("");
+	};
+
 	return (
-		<div className="flex flex-wrap items-center justify-end gap-2">
-			<DropdownMenu>
-				<DropdownMenuTrigger render={<Button
-						type="button"
-						variant="outline"
-						className="h-9 gap-2 rounded-md px-3 text-xs font-medium" />}>
-
-						<ListFilter className="h-3.5 w-3.5" />
-						Add filter
-
-				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end" className="w-[260px]">
-					<DropdownMenuLabel>Filters</DropdownMenuLabel>
-					<DropdownMenuSeparator />
-
-					{view === "logs" ? (
-						<>
-							<FilterSubmenu
-								label="Model"
-								options={modelOptions}
-								activeValue={modelFilter}
-								allLabel="All models"
-								onSelect={setModelFilter}
-							/>
-							<FilterSubmenu
-								label="Provider"
-								options={providerOptions}
-								activeValue={providerFilter}
-								allLabel="All providers"
-								onSelect={setProviderFilter}
-							/>
-							<FilterSubmenu
-								label="App"
-								options={logAppOptions}
-								activeValue={appFilter}
-								allLabel="All apps"
-								onSelect={setAppFilter}
-							/>
-							<FilterSubmenu
-								label="Endpoint"
-								options={endpointOptions}
-								activeValue={endpointFilter}
-								allLabel="All endpoints"
-								onSelect={setEndpointFilter}
-							/>
-							<FilterSubmenu
-								label="Finish reason"
-								options={finishReasonOptions}
-								activeValue={finishReasonFilter}
-								allLabel="All finish reasons"
-								onSelect={setFinishReasonFilter}
-							/>
-							<FilterSubmenu
-								label="Stream"
-								options={streamOptions}
-								activeValue={streamFilter === "all" ? "" : streamFilter}
-								allLabel="All request modes"
-								onSelect={(value) => setStreamFilter(value || "all")}
-							/>
-							<FilterSubmenu
-								label="Error code"
-								options={errorCodeOptions}
-								activeValue={errorCodeFilter}
-								allLabel="All error codes"
-								onSelect={setErrorCodeFilter}
-							/>
-							<FilterSubmenu
-								label="HTTP status"
-								options={statusCodeOptions}
-								activeValue={statusCodeFilter}
-								allLabel="All status codes"
-								onSelect={setStatusCodeFilter}
-							/>
-							<FilterSubmenu
-								label="Key"
-								options={keyOptions}
-								activeValue={keyFilter}
-								allLabel="All keys"
-								onSelect={setKeyFilter}
-							/>
-							<FilterSubmenu
-								label="Status"
-								options={statusOptions}
-								activeValue={statusFilter === "all" ? "" : statusFilter}
-								allLabel="All requests"
-								onSelect={(value) => setStatusFilter(value || "all")}
-							/>
-						</>
-					) : null}
-
-					{view === "jobs" ? (
-						<>
-							<FilterSubmenu
-								label="Kind"
-								options={jobKindOptions}
-								activeValue={jobKindFilter}
-								allLabel="All job types"
-								onSelect={setJobKindFilter}
-							/>
-							<FilterSubmenu
-								label="Status"
-								options={jobStatusOptions}
-								activeValue={jobStatusFilter}
-								allLabel="All statuses"
-								onSelect={setJobStatusFilter}
-							/>
-							<FilterSubmenu
-								label="Provider"
-								options={providerOptions}
-								activeValue={jobProviderFilter}
-								allLabel="All providers"
-								onSelect={setJobProviderFilter}
-							/>
-						</>
-					) : null}
-
-					{view === "sessions" ? (
-						<>
-							<FilterSubmenu
-								label="App"
-								options={sessionAppOptions}
-								activeValue={sessionAppFilter}
-								allLabel="All apps"
-								onSelect={setSessionAppFilter}
-							/>
-							<FilterSubmenu
-								label="Model"
-								options={sessionModelOptions}
-								activeValue={sessionModelFilter}
-								allLabel="All models"
-								onSelect={setSessionModelFilter}
-							/>
-							<FilterSubmenu
-								label="Provider"
-								options={sessionProviderOptions}
-								activeValue={sessionProviderFilter}
-								allLabel="All providers"
-								onSelect={setSessionProviderFilter}
-							/>
-						</>
-					) : null}
-				</DropdownMenuContent>
-			</DropdownMenu>
-
-			{activeChips}
+		<div className="flex min-w-0 items-center">
+			<Popover open={pickerOpen} onOpenChange={(open) => {
+				if (!open && pickerViewportRef.current) pickerScrollPositions.current.set(selectedFilterType ?? "root", pickerViewportRef.current.scrollTop);
+				setPickerOpen(open);
+				if (!open) setSelectedFilterType(null);
+			}}>
+				<PopoverTrigger asChild>
+					<Button type="button" variant="outline" className="h-9 gap-2 rounded-md px-3 text-xs font-medium">
+						<ListFilter className="size-3.5" />
+						Add Filter
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent align="end" className="w-[320px] gap-0 overflow-hidden rounded-md! p-0">
+					<Command className="rounded-md!">
+						{selectedPicker?.kind !== "numeric" ? <CommandInput placeholder={selectedPicker ? `Search ${selectedPicker.label.toLowerCase()}…` : "Search filters…"} /> : null}
+						{selectedPicker ? (
+							<button type="button" onClick={() => changeSelectedFilterType(null)} className="mt-1 flex h-10 w-full shrink-0 items-center gap-2 rounded-md border-b border-border/70 px-3 text-left text-xs font-medium hover:bg-muted/60">
+								<ArrowLeft className="size-3.5" />
+								{SelectedFilterIcon ? <SelectedFilterIcon className="size-3.5 text-muted-foreground" /> : null}
+								{selectedPicker.label}
+							</button>
+						) : null}
+						<CommandList className="max-h-none overflow-hidden">
+							{selectedPicker?.kind === "numeric" && selectedPicker.onNumericApply ? (
+								<NumericFilterEditor label={selectedPicker.label} initialValue={selectedPicker.activeValue} initialMax={selectedPicker.maxValue ?? ""} initialOperator={selectedPicker.operator ?? "gte"} onApply={selectedPicker.onNumericApply} />
+							) : <ScrollArea style={{ height: pickerListHeight }} viewportRef={pickerViewportRef} viewportClassName="pr-2">
+								<CommandEmpty>No matching {selectedPicker ? "options" : "filters"}.</CommandEmpty>
+								{selectedPicker ? (
+									(selectedOptionGroups.length ? selectedOptionGroups : [""]).map((group) => (
+										<CommandGroup key={group || "options"} heading={group || undefined}>
+											{selectedPicker.options.filter((option) => (option.group ?? "") === group).map((option) => (
+												<CommandItem className="rounded-md" key={option.value} value={`${option.label} ${option.value}`} data-checked={selectedPicker.activeValue === option.value} onSelect={() => { void selectedPicker.onSelect(option.value); setPickerOpen(false); }}>
+													{option.logoId ? <Logo id={option.logoId} width={14} height={14} className="shrink-0 rounded-sm" /> : null}
+													<span className="min-w-0 flex-1 truncate">{option.label}</span>
+												</CommandItem>
+											))}
+										</CommandGroup>
+									))
+								) : <CommandGroup heading="Filters">{filterPickers.map((picker) => {
+									const FilterIcon = FILTER_ICONS[picker.id] ?? ListFilter;
+									return <CommandItem className="rounded-md" key={picker.id} value={picker.label} onSelect={() => changeSelectedFilterType(picker.id)}>
+										<FilterIcon />
+										<span className="flex-1">{picker.label}</span>
+										{picker.activeValue ? <Check className="size-3.5 opacity-100" /> : null}
+									</CommandItem>;
+								})}</CommandGroup>}
+							</ScrollArea>}
+						</CommandList>
+					</Command>
+				</PopoverContent>
+			</Popover>
+			{filterBarTarget && (activeChips.length > 0 || filtersPending)
+				? createPortal(
+						<div className="flex w-full flex-wrap items-center gap-2 rounded-sm border border-border/70 bg-muted/15 p-2">
+							{activeChips}
+							{filtersPending ? (
+								<span className="ml-auto inline-flex h-7 items-center gap-2 px-2 text-xs text-muted-foreground" role="status" aria-live="polite">
+									<Loader2 className="size-3.5 animate-spin" />
+									Updating requests…
+								</span>
+							) : activeChips.length > 0 ? (
+								<>
+									<button type="button" className="ml-auto px-2 text-xs text-muted-foreground hover:text-foreground" onClick={clearAll}>Clear</button>
+									<button type="button" className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground" onClick={() => setPickerOpen(true)} aria-label="Add another filter"><Plus className="size-3.5" /></button>
+								</>
+							) : null}
+						</div>,
+						filterBarTarget,
+					)
+				: null}
 		</div>
 	);
 }

@@ -1,0 +1,107 @@
+{
+  "model_id": "black-forest-labs/flux-3-video",
+  "organisation_id": "black-forest-labs",
+  "name": "FLUX 3 Video",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "FLUX 3 Video is Black Forest Labs' early-access audiovisual generation model. It supports text-to-video, image-to-video, video-to-video, video continuation, keyframe-controlled generation, multilingual dialogue, and native audio in clips up to 20 seconds.",
+  "announced_date": "2026-07-23T00:00:00",
+  "release_date": "2026-07-23T00:00:00",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image,video,audio",
+  "output_types": "video,audio",
+  "api_model_id": "black-forest-labs/flux-3-video",
+  "family_id": "black-forest-labs/flux-3",
+  "links": [
+    {
+      "title": "FLUX 3 announcement",
+      "kind": "announcement",
+      "url": "https://bfl.ai/blog/flux-3"
+    },
+    {
+      "title": "FLUX 3 models",
+      "kind": "documentation",
+      "url": "https://bfl.ai/models"
+    },
+    {
+      "title": "Vercel AI Gateway model listing",
+      "kind": "provider",
+      "url": "https://ai-gateway.vercel.sh/v1/models"
+    }
+  ],
+  "details": [
+    {
+      "name": "maximum_video_duration",
+      "value": 20,
+      "unit": "seconds",
+      "source_link": "https://bfl.ai/blog/flux-3"
+    },
+    {
+      "name": "early_access",
+      "value": true,
+      "source_link": "https://bfl.ai/blog/flux-3"
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": {
+    "tone": "info",
+    "markdown": "FLUX 3 Video is in **early access**. Public API and private-weight availability may be limited while Black Forest Labs completes its rollout."
+  },
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*",
+      "video/*",
+      "audio/*"
+    ],
+    "output": [
+      "video/*",
+      "audio/*"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": null,
+    "web_search": false
+  },
+  "open_weights": false,
+  "sources": [
+    {
+      "kind": "announcement",
+      "url": "https://bfl.ai/blog/flux-3",
+      "accessed_at": "2026-08-10",
+      "notes": "Official family announcement, early-access status, modalities, supported generation workflows, native audio, maximum duration, and rollout plan."
+    },
+    {
+      "kind": "provider_api",
+      "url": "https://ai-gateway.vercel.sh/v1/models",
+      "accessed_at": "2026-08-10",
+      "notes": "Vercel lists bfl/flux-3-video as a video model released on 2026-08-04; route is recorded as catalogue-only."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-10T00:00:00Z",
+    "notes": "Verified against Black Forest Labs' announcement and Vercel's live model registry."
+  },
+  "last_updated": "2026-08-10T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

@@ -13,20 +13,76 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "upstage/solar-mini",
-  "links": [{ "title": "Official model documentation", "kind": "documentation", "url": "https://console.upstage.ai/docs/models/solar-mini" }],
-  "details": [{ "name": "parameters", "value": "10.7B" }, { "name": "languages", "value": "English, Korean, Japanese" }],
-  "benchmarks": [],
+  "links": [
+    {
+      "title": "Official model documentation",
+      "kind": "documentation",
+      "url": "https://console.upstage.ai/docs/models/solar-mini"
+    }
+  ],
+  "details": [
+    {
+      "name": "parameters",
+      "value": "10.7B"
+    },
+    {
+      "name": "languages",
+      "value": "English, Korean, Japanese"
+    }
+  ],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 6,
+      "is_self_reported": false,
+      "other_info": "Solar Mini; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/solar-mini",
+      "rank": 474
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,
   "knowledge_cutoff": "2024-09-30",
-  "limits": { "context": 32768, "input": 32768, "output": null },
-  "modalities": { "input": ["text"], "output": ["text"] },
-  "reasoning": { "supported": false, "options": [] },
-  "capabilities": { "attachment": false, "tool_call": true, "structured_output": true, "temperature": true, "streaming": true, "web_search": null },
+  "limits": {
+    "context": 32768,
+    "input": 32768,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
+    "web_search": null
+  },
   "open_weights": false,
-  "sources": [{ "kind": "documentation", "url": "https://console.upstage.ai/docs/models/solar-mini", "accessed_at": "2026-08-06T00:00:00Z", "notes": "Official documentation confirms the current dated version, parameter count, context, cutoff, languages, and capabilities." }],
-  "verification": { "status": "verified", "checked_at": "2026-08-06T00:00:00Z", "notes": "Verified against official Upstage documentation." },
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://console.upstage.ai/docs/models/solar-mini",
+      "accessed_at": "2026-08-06T00:00:00Z",
+      "notes": "Official documentation confirms the current dated version, parameter count, context, cutoff, languages, and capabilities."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-06T00:00:00Z",
+    "notes": "Verified against official Upstage documentation."
+  },
   "last_updated": "2026-08-06T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,

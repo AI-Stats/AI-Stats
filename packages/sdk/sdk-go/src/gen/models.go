@@ -490,6 +490,7 @@ const (
 	BenchmarkIdBalrogAi BenchmarkId = "balrog-ai"
 	BenchmarkIdBbh BenchmarkId = "bbh"
 	BenchmarkIdBcflv4 BenchmarkId = "bcflv4"
+	BenchmarkIdBeam128k BenchmarkId = "beam128k"
 	BenchmarkIdBeyondaime BenchmarkId = "beyondaime"
 	BenchmarkIdBfcl BenchmarkId = "bfcl"
 	BenchmarkIdBfclOverallFcV4 BenchmarkId = "bfcl-overall-fc-v4"
@@ -535,6 +536,8 @@ const (
 	BenchmarkIdChestImagenomeAnatomyIou BenchmarkId = "chest-imagenome-anatomy-iou"
 	BenchmarkIdChexpertCxrTop5MacroF1 BenchmarkId = "chexpert-cxr-top5-macro-f1"
 	BenchmarkIdChineseSimpleqa BenchmarkId = "chinese-simpleqa"
+	BenchmarkIdCiMemoriesCoverage BenchmarkId = "ci-memories-coverage"
+	BenchmarkIdCiMemoriesViolationRate BenchmarkId = "ci-memories-violation-rate"
 	BenchmarkIdClBench BenchmarkId = "cl-bench"
 	BenchmarkIdClawEval BenchmarkId = "claw-eval"
 	BenchmarkIdCloningscenarios BenchmarkId = "cloningscenarios"
@@ -645,6 +648,7 @@ const (
 	BenchmarkIdFullstackbenchEn BenchmarkId = "fullstackbench-en"
 	BenchmarkIdFullstackbenchZh BenchmarkId = "fullstackbench-zh"
 	BenchmarkIdFunctionalmath BenchmarkId = "functionalmath"
+	BenchmarkIdGaia2 BenchmarkId = "gaia2"
 	BenchmarkIdGalileoAgent BenchmarkId = "galileo-agent"
 	BenchmarkIdGdpPdf BenchmarkId = "gdp-pdf"
 	BenchmarkIdGdpvalAa BenchmarkId = "gdpval-aa"
@@ -686,6 +690,7 @@ const (
 	BenchmarkIdHmmtFeb2026 BenchmarkId = "hmmt-feb-2026"
 	BenchmarkIdHmmtFeb26 BenchmarkId = "hmmt-feb-26"
 	BenchmarkIdHmmtNov2025 BenchmarkId = "hmmt-nov-2025"
+	BenchmarkIdHpct BenchmarkId = "hpct"
 	BenchmarkIdHrBench4k BenchmarkId = "hr-bench-4k"
 	BenchmarkIdHumaneval BenchmarkId = "humaneval"
 	BenchmarkIdHumanevalAverage BenchmarkId = "humaneval-average"
@@ -766,6 +771,7 @@ const (
 	BenchmarkIdMathvista BenchmarkId = "mathvista"
 	BenchmarkIdMathvistaMini BenchmarkId = "mathvista-mini"
 	BenchmarkIdMaxife BenchmarkId = "maxife"
+	BenchmarkIdMbct BenchmarkId = "mbct"
 	BenchmarkIdMbpp BenchmarkId = "mbpp"
 	BenchmarkIdMbppEvalplus BenchmarkId = "mbpp-evalplus"
 	BenchmarkIdMbpp2 BenchmarkId = "mbpp+"
@@ -901,6 +907,7 @@ const (
 	BenchmarkIdOsWorld BenchmarkId = "os-world"
 	BenchmarkIdOsworld20 BenchmarkId = "osworld-2.0"
 	BenchmarkIdOsworldG BenchmarkId = "osworld-g"
+	BenchmarkIdOsworldVerified BenchmarkId = "osworld-verified"
 	BenchmarkIdOvbench BenchmarkId = "ovbench"
 	BenchmarkIdOvobench BenchmarkId = "ovobench"
 	BenchmarkIdPaperbench BenchmarkId = "paperbench"
@@ -924,6 +931,7 @@ const (
 	BenchmarkIdProcbench BenchmarkId = "procbench"
 	BenchmarkIdProgramBench BenchmarkId = "program-bench"
 	BenchmarkIdProtocolqa BenchmarkId = "protocolqa"
+	BenchmarkIdProtocolqaPercentage BenchmarkId = "protocolqa-percentage"
 	BenchmarkIdQasper BenchmarkId = "qasper"
 	BenchmarkIdQmsum BenchmarkId = "qmsum"
 	BenchmarkIdQvhighlights BenchmarkId = "qvhighlights"
@@ -954,6 +962,8 @@ const (
 	BenchmarkIdSimpleqa BenchmarkId = "simpleqa"
 	BenchmarkIdSimpleqaVerified BenchmarkId = "simpleqa-verified"
 	BenchmarkIdSimplevqa BenchmarkId = "simplevqa"
+	BenchmarkIdSirenAgentdojoAttackSuccessRate BenchmarkId = "siren-agentdojo-attack-success-rate"
+	BenchmarkIdSirenAgentdojoUtility BenchmarkId = "siren-agentdojo-utility"
 	BenchmarkIdSkillsbench BenchmarkId = "skillsbench"
 	BenchmarkIdSlakeClosedAccuracy BenchmarkId = "slake-closed-accuracy"
 	BenchmarkIdSlakeTokenizedF1 BenchmarkId = "slake-tokenized-f1"
@@ -1018,6 +1028,7 @@ const (
 	BenchmarkIdVStar BenchmarkId = "v-star"
 	BenchmarkIdVcrEnEasy BenchmarkId = "vcr-en-easy"
 	BenchmarkIdVct BenchmarkId = "vct"
+	BenchmarkIdVctPercentage BenchmarkId = "vct-percentage"
 	BenchmarkIdVendingBench2 BenchmarkId = "vending-bench-2"
 	BenchmarkIdVibe BenchmarkId = "vibe"
 	BenchmarkIdVibeAndroid BenchmarkId = "vibe-android"
@@ -1060,8 +1071,11 @@ const (
 	BenchmarkIdWideSearch BenchmarkId = "wide-search"
 	BenchmarkIdWidesearch BenchmarkId = "widesearch"
 	BenchmarkIdWildbench BenchmarkId = "wildbench"
+	BenchmarkIdWildclawbench BenchmarkId = "wildclawbench"
 	BenchmarkIdWinogrande BenchmarkId = "winogrande"
 	BenchmarkIdWmdp BenchmarkId = "wmdp"
+	BenchmarkIdWmdpBio BenchmarkId = "wmdp-bio"
+	BenchmarkIdWmdpChem BenchmarkId = "wmdp-chem"
 	BenchmarkIdWmt23 BenchmarkId = "wmt23"
 	BenchmarkIdWmt24 BenchmarkId = "wmt24++"
 	BenchmarkIdWmt24ppComet BenchmarkId = "wmt24pp-comet"
@@ -1123,6 +1137,7 @@ type ChatCompletionsRequest struct {
 	Provider interface{} `json:"provider,omitempty"`
 	ProviderOptions *map[string]interface{} `json:"provider_options,omitempty"`
 	Reasoning *map[string]interface{} `json:"reasoning,omitempty"`
+	ReasoningEffort *string `json:"reasoning_effort,omitempty"`
 	ResponseFormat interface{} `json:"response_format,omitempty"`
 	SafetyIdentifier *string `json:"safety_identifier,omitempty"`
 	Seed *int `json:"seed,omitempty"`
@@ -1341,11 +1356,65 @@ type FusionToolDefinition struct {
 	Type string `json:"type"`
 }
 
+type GatewayCapabilities struct {
+	Endpoints *[]string `json:"endpoints,omitempty"`
+	ParameterDetails map[string]interface{} `json:"parameter_details"`
+	Parameters []string `json:"parameters"`
+}
+
+type GatewayCapabilityStatus string
+
+const (
+	GatewayCapabilityStatusActive GatewayCapabilityStatus = "active"
+	GatewayCapabilityStatusComingSoon GatewayCapabilityStatus = "coming_soon"
+	GatewayCapabilityStatusDerankedLvl1 GatewayCapabilityStatus = "deranked_lvl1"
+	GatewayCapabilityStatusDerankedLvl2 GatewayCapabilityStatus = "deranked_lvl2"
+	GatewayCapabilityStatusDerankedLvl3 GatewayCapabilityStatus = "deranked_lvl3"
+	GatewayCapabilityStatusDisabled GatewayCapabilityStatus = "disabled"
+	GatewayCapabilityStatusInternalTesting GatewayCapabilityStatus = "internal_testing"
+)
+
+
 type GatewayDatetimeToolDefinition struct {
 	Parameters *map[string]interface{} `json:"parameters,omitempty"`
 	Timezone *string `json:"timezone,omitempty"`
 	Type string `json:"type"`
 }
+
+type GatewayModalities struct {
+	Input []string `json:"input"`
+	Output []string `json:"output"`
+}
+
+type GatewayModelLifecycle struct {
+	DeprecatedAt *string `json:"deprecated_at"`
+	Message *string `json:"message"`
+	ReleasedAt *string `json:"released_at"`
+	ReplacementId *string `json:"replacement_id"`
+	RetiresAt *string `json:"retires_at"`
+	Status *string `json:"status"`
+}
+
+type GatewayModelLimits struct {
+	InputTokens *int `json:"input_tokens"`
+	OutputTokens *int `json:"output_tokens"`
+}
+
+type GatewayModelOffer struct {
+	Capabilities map[string]interface{} `json:"capabilities"`
+	Effective map[string]interface{} `json:"effective"`
+	Endpoints []string `json:"endpoints"`
+	Modalities map[string]interface{} `json:"modalities"`
+	Model *string `json:"model"`
+	Pricing map[string]interface{} `json:"pricing"`
+	Provider map[string]interface{} `json:"provider"`
+	Routable bool `json:"routable"`
+	Routing map[string]interface{} `json:"routing"`
+	Status string `json:"status"`
+	StatusReason string `json:"status_reason"`
+}
+
+type GatewayModelOrganization = *map[string]interface{}
 
 type GatewayModelsResponse struct {
 	AvailabilityMode string `json:"availability_mode"`
@@ -1353,9 +1422,53 @@ type GatewayModelsResponse struct {
 	Models []map[string]interface{} `json:"models"`
 	Offset int `json:"offset"`
 	Ok bool `json:"ok"`
-	PrivacyScope string `json:"privacy_scope"`
 	Total int `json:"total"`
 }
+
+type GatewayPricing struct {
+	Meters map[string]interface{} `json:"meters"`
+	PricingPlan string `json:"pricing_plan"`
+}
+
+type GatewayPricingMeter = *map[string]interface{}
+
+type GatewayProviderAvailabilityReason string
+
+const (
+	GatewayProviderAvailabilityReasonActive GatewayProviderAvailabilityReason = "active"
+	GatewayProviderAvailabilityReasonPreviewOnly GatewayProviderAvailabilityReason = "preview_only"
+	GatewayProviderAvailabilityReasonGated GatewayProviderAvailabilityReason = "gated"
+	GatewayProviderAvailabilityReasonAccessLimited GatewayProviderAvailabilityReason = "access_limited"
+	GatewayProviderAvailabilityReasonRegionLimited GatewayProviderAvailabilityReason = "region_limited"
+	GatewayProviderAvailabilityReasonProjectLimited GatewayProviderAvailabilityReason = "project_limited"
+	GatewayProviderAvailabilityReasonPaused GatewayProviderAvailabilityReason = "paused"
+	GatewayProviderAvailabilityReasonSoftBlocked GatewayProviderAvailabilityReason = "soft_blocked"
+	GatewayProviderAvailabilityReasonDerankedLvl1 GatewayProviderAvailabilityReason = "deranked_lvl1"
+	GatewayProviderAvailabilityReasonDerankedLvl2 GatewayProviderAvailabilityReason = "deranked_lvl2"
+	GatewayProviderAvailabilityReasonDerankedLvl3 GatewayProviderAvailabilityReason = "deranked_lvl3"
+	GatewayProviderAvailabilityReasonInternalTesting GatewayProviderAvailabilityReason = "internal_testing"
+	GatewayProviderAvailabilityReasonScheduled GatewayProviderAvailabilityReason = "scheduled"
+	GatewayProviderAvailabilityReasonComingSoon GatewayProviderAvailabilityReason = "coming_soon"
+	GatewayProviderAvailabilityReasonProviderDisabled GatewayProviderAvailabilityReason = "provider_disabled"
+	GatewayProviderAvailabilityReasonModelDisabled GatewayProviderAvailabilityReason = "model_disabled"
+	GatewayProviderAvailabilityReasonCapabilityDisabled GatewayProviderAvailabilityReason = "capability_disabled"
+	GatewayProviderAvailabilityReasonProviderNotReady GatewayProviderAvailabilityReason = "provider_not_ready"
+	GatewayProviderAvailabilityReasonProviderInactive GatewayProviderAvailabilityReason = "provider_inactive"
+	GatewayProviderAvailabilityReasonInactive GatewayProviderAvailabilityReason = "inactive"
+	GatewayProviderAvailabilityReasonRetired GatewayProviderAvailabilityReason = "retired"
+)
+
+
+type GatewayRoutingStatus string
+
+const (
+	GatewayRoutingStatusActive GatewayRoutingStatus = "active"
+	GatewayRoutingStatusDerankedLvl1 GatewayRoutingStatus = "deranked_lvl1"
+	GatewayRoutingStatusDerankedLvl2 GatewayRoutingStatus = "deranked_lvl2"
+	GatewayRoutingStatusDerankedLvl3 GatewayRoutingStatus = "deranked_lvl3"
+	GatewayRoutingStatusDisabled GatewayRoutingStatus = "disabled"
+)
+
 
 type GatewayWebFetchToolDefinition struct {
 	MaxChars *int `json:"max_chars,omitempty"`
@@ -1490,7 +1603,6 @@ const (
 	KnownModelIdAnthropicClaudeOpus45 KnownModelId = "anthropic/claude-opus-4.5"
 	KnownModelIdAnthropicClaudeOpus46 KnownModelId = "anthropic/claude-opus-4.6"
 	KnownModelIdAnthropicClaudeOpus47 KnownModelId = "anthropic/claude-opus-4.7"
-	KnownModelIdAnthropicClaudeOpus47Fast KnownModelId = "anthropic/claude-opus-4.7-fast"
 	KnownModelIdAnthropicClaudeOpus48 KnownModelId = "anthropic/claude-opus-4.8"
 	KnownModelIdAnthropicClaudeOpus5 KnownModelId = "anthropic/claude-opus-5"
 	KnownModelIdAnthropicClaudeSonnet45 KnownModelId = "anthropic/claude-sonnet-4.5"
@@ -1546,7 +1658,6 @@ const (
 	KnownModelIdDeepseekDeepseekV4Flash KnownModelId = "deepseek/deepseek-v4-flash"
 	KnownModelIdDeepseekDeepseekV4Flash0731 KnownModelId = "deepseek/deepseek-v4-flash-0731"
 	KnownModelIdDeepseekDeepseekV4Pro KnownModelId = "deepseek/deepseek-v4-pro"
-	KnownModelIdDeepseekDeepseekV4ProLightning KnownModelId = "deepseek/deepseek-v4-pro-lightning"
 	KnownModelIdElevenLabsElevenFlashV2 KnownModelId = "eleven-labs/eleven-flash-v2"
 	KnownModelIdElevenLabsElevenFlashV25 KnownModelId = "eleven-labs/eleven-flash-v2.5"
 	KnownModelIdElevenLabsElevenMultilingualV2 KnownModelId = "eleven-labs/eleven-multilingual-v2"
@@ -1608,6 +1719,12 @@ const (
 	KnownModelIdKwaipilotKatCoderProV2 KnownModelId = "kwaipilot/kat-coder-pro-v2"
 	KnownModelIdKwaipilotKatCoderProV25 KnownModelId = "kwaipilot/kat-coder-pro-v2.5"
 	KnownModelIdLiquidAiLfm224bA2b KnownModelId = "liquid-ai/lfm-2-24b-a2b"
+	KnownModelIdLtx23Fast KnownModelId = "ltx-2-3-fast"
+	KnownModelIdLtx23Pro KnownModelId = "ltx-2-3-pro"
+	KnownModelIdLtx25Fast KnownModelId = "ltx-2-5-fast"
+	KnownModelIdLtx25Pro KnownModelId = "ltx-2-5-pro"
+	KnownModelIdLtx2Fast KnownModelId = "ltx-2-fast"
+	KnownModelIdLtx2Pro KnownModelId = "ltx-2-pro"
 	KnownModelIdMeituanLongcat20 KnownModelId = "meituan/longcat-2.0"
 	KnownModelIdMetaLlama370b KnownModelId = "meta/llama-3-70b"
 	KnownModelIdMetaLlama38b KnownModelId = "meta/llama-3-8b"
@@ -1622,6 +1739,7 @@ const (
 	KnownModelIdMetaLlamaGuard412b KnownModelId = "meta/llama-guard-4-12b"
 	KnownModelIdMetaLlamaPromptGuard222m KnownModelId = "meta/llama-prompt-guard-2-22m"
 	KnownModelIdMetaLlamaPromptGuard286m KnownModelId = "meta/llama-prompt-guard-2-86m"
+	KnownModelIdMetaMuseGlimmer30b KnownModelId = "meta/muse-glimmer-30b"
 	KnownModelIdMetaMuseSpark12 KnownModelId = "meta/muse-spark-1.2"
 	KnownModelIdMicrosoftPhi4 KnownModelId = "microsoft/phi-4"
 	KnownModelIdMicrosoftPhi4Mini KnownModelId = "microsoft/phi-4-mini"
@@ -1654,7 +1772,6 @@ const (
 	KnownModelIdMistralMistralLarge3 KnownModelId = "mistral/mistral-large-3"
 	KnownModelIdMistralMistralMedium30 KnownModelId = "mistral/mistral-medium-3.0"
 	KnownModelIdMistralMistralMedium31 KnownModelId = "mistral/mistral-medium-3.1"
-	KnownModelIdMistralMistralMedium35 KnownModelId = "mistral/mistral-medium-3.5"
 	KnownModelIdMistralMistralModeration KnownModelId = "mistral/mistral-moderation"
 	KnownModelIdMistralMistralModeration2 KnownModelId = "mistral/mistral-moderation-2"
 	KnownModelIdMistralMistralNemo KnownModelId = "mistral/mistral-nemo"
@@ -1671,7 +1788,6 @@ const (
 	KnownModelIdMoonshotaiKimiK2Instruct0905 KnownModelId = "moonshotai/kimi-k2-instruct-0905"
 	KnownModelIdMoonshotaiKimiK2Thinking KnownModelId = "moonshotai/kimi-k2-thinking"
 	KnownModelIdMoonshotaiKimiK25 KnownModelId = "moonshotai/kimi-k2.5"
-	KnownModelIdMoonshotaiKimiK25Lightning KnownModelId = "moonshotai/kimi-k2.5-lightning"
 	KnownModelIdMoonshotaiKimiK26 KnownModelId = "moonshotai/kimi-k2.6"
 	KnownModelIdMoonshotaiKimiK27Code KnownModelId = "moonshotai/kimi-k2.7-code"
 	KnownModelIdMoonshotaiKimiK3 KnownModelId = "moonshotai/kimi-k3"
@@ -1697,6 +1813,7 @@ const (
 	KnownModelIdNvidiaNemotron3NanoOmni30bA3bReasoning KnownModelId = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
 	KnownModelIdNvidiaNemotron3Super120bA12b KnownModelId = "nvidia/nemotron-3-super-120b-a12b"
 	KnownModelIdNvidiaNemotron3Ultra550bA55b KnownModelId = "nvidia/nemotron-3-ultra-550b-a55b"
+	KnownModelIdNvidiaNemotron35Lightning KnownModelId = "nvidia/nemotron-3.5-lightning"
 	KnownModelIdNvidiaNvidiaNemotron3Nano30bA3b KnownModelId = "nvidia/nvidia-nemotron-3-nano-30b-a3b"
 	KnownModelIdNvidiaNvidiaNemotronNano12bV2Vl KnownModelId = "nvidia/nvidia-nemotron-nano-12b-v2-vl"
 	KnownModelIdOpenaiBabbage002 KnownModelId = "openai/babbage-002"
@@ -1725,10 +1842,8 @@ const (
 	KnownModelIdOpenaiGpt5Pro KnownModelId = "openai/gpt-5-pro"
 	KnownModelIdOpenaiGpt51 KnownModelId = "openai/gpt-5.1"
 	KnownModelIdOpenaiGpt52 KnownModelId = "openai/gpt-5.2"
-	KnownModelIdOpenaiGpt52Chat KnownModelId = "openai/gpt-5.2-chat"
 	KnownModelIdOpenaiGpt52Codex KnownModelId = "openai/gpt-5.2-codex"
 	KnownModelIdOpenaiGpt52Pro KnownModelId = "openai/gpt-5.2-pro"
-	KnownModelIdOpenaiGpt53Chat KnownModelId = "openai/gpt-5.3-chat"
 	KnownModelIdOpenaiGpt53Codex KnownModelId = "openai/gpt-5.3-codex"
 	KnownModelIdOpenaiGpt54 KnownModelId = "openai/gpt-5.4"
 	KnownModelIdOpenaiGpt54Mini KnownModelId = "openai/gpt-5.4-mini"
@@ -1883,8 +1998,8 @@ const (
 	KnownModelIdSpacexAiGrokBuild01 KnownModelId = "spacex-ai/grok-build-0.1"
 	KnownModelIdSpacexAiGrokCodeFast1 KnownModelId = "spacex-ai/grok-code-fast-1"
 	KnownModelIdSpacexAiGrokImagineImage KnownModelId = "spacex-ai/grok-imagine-image"
+	KnownModelIdSpacexAiGrokImagineImage20 KnownModelId = "spacex-ai/grok-imagine-image-2.0"
 	KnownModelIdSpacexAiGrokImagineImageQuality KnownModelId = "spacex-ai/grok-imagine-image-quality"
-	KnownModelIdSpacexAiGrokImagineVideo KnownModelId = "spacex-ai/grok-imagine-video"
 	KnownModelIdSpacexAiGrokTts KnownModelId = "spacex-ai/grok-tts"
 	KnownModelIdStepfunStep35Flash KnownModelId = "stepfun/step-3.5-flash"
 	KnownModelIdStepfunStep37Flash KnownModelId = "stepfun/step-3.7-flash"
@@ -1893,7 +2008,6 @@ const (
 	KnownModelIdTencentHy3Preview KnownModelId = "tencent/hy3-preview"
 	KnownModelIdTencentHy3Free KnownModelId = "tencent/hy3:free"
 	KnownModelIdThinkingMachinesInkling KnownModelId = "thinking-machines/inkling"
-	KnownModelIdThinkingMachinesInkling64k KnownModelId = "thinking-machines/inkling-64k"
 	KnownModelIdThinkingMachinesInklingSmall KnownModelId = "thinking-machines/inkling-small"
 	KnownModelIdUpstageSolarMini KnownModelId = "upstage/solar-mini"
 	KnownModelIdUpstageSolarPro2 KnownModelId = "upstage/solar-pro-2"
@@ -2007,82 +2121,58 @@ type ManagementKeyUpdateResponse struct {
 type MessageContentPart = interface{}
 
 type Model struct {
-	Aliases *[]string `json:"aliases,omitempty"`
-	Architecture *map[string]interface{} `json:"architecture,omitempty"`
-	Availability *map[string]interface{} `json:"availability,omitempty"`
-	CanonicalSlug *string `json:"canonical_slug,omitempty"`
-	Created *int `json:"created,omitempty"`
-	DeprecationDate *string `json:"deprecation_date,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Endpoints *[]string `json:"endpoints,omitempty"`
-	Id *string `json:"id,omitempty"`
-	InputTypes *[]string `json:"input_types,omitempty"`
-	Lifecycle *ModelLifecycle `json:"lifecycle,omitempty"`
-	ModelId *string `json:"model_id,omitempty"`
-	Name *string `json:"name,omitempty"`
-	OrganisationColour *string `json:"organisation_colour,omitempty"`
-	OrganisationId *string `json:"organisation_id,omitempty"`
-	OrganisationName *string `json:"organisation_name,omitempty"`
-	OutputTypes *[]string `json:"output_types,omitempty"`
-	PerRequestLimits *map[string]interface{} `json:"per_request_limits,omitempty"`
-	Pricing *map[string]interface{} `json:"pricing,omitempty"`
-	PricingDetail *map[string]interface{} `json:"pricing_detail,omitempty"`
-	Providers *[]map[string]interface{} `json:"providers,omitempty"`
-	ReleaseDate *string `json:"release_date,omitempty"`
-	RetirementDate *string `json:"retirement_date,omitempty"`
-	Status *string `json:"status,omitempty"`
-	SupportedParameters *[]string `json:"supported_parameters,omitempty"`
-	SupportedParametersDetail *map[string]interface{} `json:"supported_parameters_detail,omitempty"`
-	SupportedParams *[]string `json:"supported_params,omitempty"`
-	SupportedParamsDetail *map[string]interface{} `json:"supported_params_detail,omitempty"`
-	TopProvider *map[string]interface{} `json:"top_provider,omitempty"`
-	TopProviderId *string `json:"top_provider_id,omitempty"`
+	Aliases []string `json:"aliases"`
+	Availability map[string]interface{} `json:"availability"`
+	BaseModelId string `json:"base_model_id"`
+	Capabilities map[string]interface{} `json:"capabilities"`
+	Description string `json:"description"`
+	Id string `json:"id"`
+	Lifecycle map[string]interface{} `json:"lifecycle"`
+	Limits map[string]interface{} `json:"limits"`
+	Modalities map[string]interface{} `json:"modalities"`
+	Name string `json:"name"`
+	Offers []map[string]interface{} `json:"offers"`
+	Organization *map[string]interface{} `json:"organization"`
+	Pricing map[string]interface{} `json:"pricing"`
+	Variant string `json:"variant"`
+	Variants map[string]interface{} `json:"variants"`
 }
 
 type ModelAvailability struct {
 	ActiveProviderCount int `json:"active_provider_count"`
+	ComingSoonProviderCount int `json:"coming_soon_provider_count"`
 	InactiveProviderCount int `json:"inactive_provider_count"`
 	ProviderCount int `json:"provider_count"`
 	Status string `json:"status"`
 }
 
 type ModelEndpointCapability struct {
-	AvailabilityReason string `json:"availability_reason"`
-	AvailabilityStatus string `json:"availability_status"`
+	Capabilities map[string]interface{} `json:"capabilities"`
 	CapabilityId string `json:"capability_id"`
-	CapabilityStatus string `json:"capability_status"`
 	Collection string `json:"collection"`
-	EffectiveFrom *string `json:"effective_from,omitempty"`
-	EffectiveTo *string `json:"effective_to,omitempty"`
+	Effective map[string]interface{} `json:"effective"`
 	Endpoint string `json:"endpoint"`
 	Id string `json:"id"`
-	InputModalities []string `json:"input_modalities"`
-	IsActiveGateway bool `json:"is_active_gateway"`
-	ModelRoutingStatus string `json:"model_routing_status"`
-	OutputModalities []string `json:"output_modalities"`
+	Modalities map[string]interface{} `json:"modalities"`
+	Model *string `json:"model"`
 	Pricing map[string]interface{} `json:"pricing"`
-	PricingDetail map[string]interface{} `json:"pricing_detail"`
-	ProviderId string `json:"provider_id"`
-	ProviderModelSlug *string `json:"provider_model_slug,omitempty"`
-	ProviderName *string `json:"provider_name,omitempty"`
-	ProviderRoutingStatus string `json:"provider_routing_status"`
-	ProviderStatus string `json:"provider_status"`
+	Provider map[string]interface{} `json:"provider"`
 	PublicPath string `json:"public_path"`
-	SupportedParameters []string `json:"supported_parameters"`
-	SupportedParametersDetail map[string]interface{} `json:"supported_parameters_detail"`
+	Routable bool `json:"routable"`
+	Routing map[string]interface{} `json:"routing"`
+	Status string `json:"status"`
+	StatusReason string `json:"status_reason"`
 }
 
 type ModelEndpointsResponse struct {
-	Architecture *map[string]interface{} `json:"architecture,omitempty"`
 	AvailabilityMode string `json:"availability_mode"`
-	CanonicalSlug string `json:"canonical_slug"`
-	Created *int `json:"created,omitempty"`
-	Description *string `json:"description,omitempty"`
+	Description string `json:"description"`
 	Endpoints []map[string]interface{} `json:"endpoints"`
 	Id string `json:"id"`
-	ModelId string `json:"model_id"`
-	Name *string `json:"name,omitempty"`
+	Modalities map[string]interface{} `json:"modalities"`
+	Name string `json:"name"`
 	Ok string `json:"ok"`
+	Organization *map[string]interface{} `json:"organization"`
 }
 
 type ModelId = string
@@ -2115,14 +2205,6 @@ type ModelProviderAvailability struct {
 	ProviderStatus string `json:"provider_status"`
 	SupportedParameters *[]string `json:"supported_parameters,omitempty"`
 	SupportedParametersDetail *map[string]interface{} `json:"supported_parameters_detail,omitempty"`
-}
-
-type ModelsPrivacyScopeNotImplementedResponse struct {
-	Code string `json:"code"`
-	Error string `json:"error"`
-	Message string `json:"message"`
-	Ok string `json:"ok"`
-	PrivacyScope string `json:"privacy_scope"`
 }
 
 type ModerationCategories struct {
@@ -2211,6 +2293,7 @@ type OrganisationId string
 const (
 	OrganisationIdAi21 OrganisationId = "ai21"
 	OrganisationIdAionLabs OrganisationId = "aion-labs"
+	OrganisationIdAlibaba OrganisationId = "alibaba"
 	OrganisationIdAllenai OrganisationId = "allenai"
 	OrganisationIdAmazon OrganisationId = "amazon"
 	OrganisationIdAnthropic OrganisationId = "anthropic"
@@ -2232,6 +2315,7 @@ const (
 	OrganisationIdInflection OrganisationId = "inflection"
 	OrganisationIdKwaipilot OrganisationId = "kwaipilot"
 	OrganisationIdLg OrganisationId = "lg"
+	OrganisationIdLightricks OrganisationId = "lightricks"
 	OrganisationIdLiquidAi OrganisationId = "liquid-ai"
 	OrganisationIdMeituan OrganisationId = "meituan"
 	OrganisationIdMeta OrganisationId = "meta"
@@ -2252,6 +2336,7 @@ const (
 	OrganisationIdPrimeIntellect OrganisationId = "prime-intellect"
 	OrganisationIdQwen OrganisationId = "qwen"
 	OrganisationIdRelace OrganisationId = "relace"
+	OrganisationIdRunway OrganisationId = "runway"
 	OrganisationIdSourceful OrganisationId = "sourceful"
 	OrganisationIdSpacexAi OrganisationId = "spacex-ai"
 	OrganisationIdStepfun OrganisationId = "stepfun"
@@ -2567,7 +2652,9 @@ type VideoGenerationRequest struct {
 	Duration *int `json:"duration,omitempty"`
 	EnhancePrompt *bool `json:"enhance_prompt,omitempty"`
 	GenerateAudio *bool `json:"generate_audio,omitempty"`
-	InputReferences *[]map[string]interface{} `json:"input_references,omitempty"`
+	InputAudioDuration *float64 `json:"input_audio_duration,omitempty"`
+	InputReferences *[]interface{} `json:"input_references,omitempty"`
+	InputVideoDuration *float64 `json:"input_video_duration,omitempty"`
 	Model string `json:"model"`
 	NegativePrompt *string `json:"negative_prompt,omitempty"`
 	Output *map[string]interface{} `json:"output,omitempty"`
@@ -2622,12 +2709,7 @@ type VideoGenerationResponse struct {
 	WebsocketUrl *string `json:"websocket_url,omitempty"`
 }
 
-type VideoInputReference struct {
-	ImageUrl *map[string]interface{} `json:"image_url,omitempty"`
-	ReferenceType *string `json:"reference_type,omitempty"`
-	Role *string `json:"role,omitempty"`
-	Type string `json:"type"`
-}
+type VideoInputReference = interface{}
 
 type VideoListResponse struct {
 	Data *[]map[string]interface{} `json:"data,omitempty"`

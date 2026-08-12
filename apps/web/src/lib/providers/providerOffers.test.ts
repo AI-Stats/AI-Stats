@@ -20,13 +20,28 @@ describe("providerOffers", () => {
         ).toBe("aws");
     });
 
-    test("normalizes Anthropic on AWS provider names", () => {
+    test("resolves regional and specialized provider logos through their catalog IDs", () => {
+        expect(
+            resolveProviderLogoId({
+                providerId: "nebius-token-factory-fast",
+                providerFamilyId: "nebius-token-factory",
+            }),
+        ).toBe("nebius-token-factory");
+        expect(
+            resolveProviderLogoId({
+                providerId: "openai-eu",
+                providerFamilyId: "openai",
+            }),
+        ).toBe("openai");
+    });
+
+    test("uses the Claude Platform for AWS product name", () => {
         expect(
             resolveProviderDisplayName({
                 providerId: "anthropic-aws",
                 providerName: "Anthropic",
             }),
-        ).toBe("Anthropic on AWS");
+        ).toBe("Claude Platform for AWS");
         expect(
             formatProviderOfferDisplayName({
                 providerId: "anthropic-aws-us",
@@ -34,7 +49,7 @@ describe("providerOffers", () => {
                 offerLabel: "AWS US",
                 offerScope: "regional",
             }),
-        ).toBe("Anthropic on AWS (US)");
+        ).toBe("Claude Platform for AWS (US)");
     });
 
     test("formats regional offers with bracketed regions", () => {

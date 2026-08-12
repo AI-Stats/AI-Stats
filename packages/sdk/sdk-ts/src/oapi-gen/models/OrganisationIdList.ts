@@ -1,6 +1,7 @@
-export type OrganisationIdList =
+export type OrganisationIdList = (
   | "ai21"
   | "aion-labs"
+  | "alibaba"
   | "allenai"
   | "amazon"
   | "anthropic"
@@ -22,6 +23,7 @@ export type OrganisationIdList =
   | "inflection"
   | "kwaipilot"
   | "lg"
+  | "lightricks"
   | "liquid-ai"
   | "meituan"
   | "meta"
@@ -42,6 +44,7 @@ export type OrganisationIdList =
   | "prime-intellect"
   | "qwen"
   | "relace"
+  | "runway"
   | "sourceful"
   | "spacex-ai"
   | "stepfun"
@@ -54,4 +57,5 @@ export type OrganisationIdList =
   | "voyage"
   | "windsurf"
   | "xiaomi"
-  | "z-ai"[];
+  | "z-ai"
+)[];

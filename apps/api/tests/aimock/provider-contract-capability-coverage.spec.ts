@@ -8,13 +8,14 @@ const contractsRoot = path.resolve(import.meta.dirname, "../../../../packages/te
 const inheritedContractByProvider: Record<string, string> = {
     ambient: "openai",
     baidu: "openai",
+    "mistral-eu": "mistral",
     "meta-contributor": "meta",
     streamlake: "openai",
     switchpoint: "openai",
     wafer: "openai",
 };
 
-const providersWithDedicatedNativeContractTests = new Set(["elevenlabs"]);
+const providersWithDedicatedNativeContractTests = new Set(["elevenlabs", "fal"]);
 
 function operationCoversCapability(capability: string, serializedOperations: string): boolean {
     if (capability === "text.generate") return /(chat|response|message|text|gemini|anthropic)/i.test(serializedOperations);

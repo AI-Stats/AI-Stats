@@ -98,7 +98,8 @@ describe("OAuth service helpers", () => {
 		expect(assertRedirectAllowed(thirdPartyClient, "http://127.0.0.1:8976/callback")).toBe(false);
 	});
 
-	it("grants the first-party CLI full control-plane capability coverage by default", () => {
+	it("grants the first-party CLI its supported control-plane scopes by default", () => {
+		expect(CLI_DEFAULT_SCOPES).toHaveLength(31);
 		expect(CLI_DEFAULT_SCOPES).toContain("keys:write");
 		expect(CLI_DEFAULT_SCOPES).toContain("keys:delete");
 		expect(CLI_DEFAULT_SCOPES).toContain("workspaces:write");
@@ -106,6 +107,8 @@ describe("OAuth service helpers", () => {
 		expect(CLI_DEFAULT_SCOPES).toContain("guardrails:write");
 		expect(CLI_DEFAULT_SCOPES).toContain("management_keys:write");
 		expect(CLI_DEFAULT_SCOPES).toContain("oauth_clients:write");
+		expect(CLI_DEFAULT_SCOPES).not.toContain("feedback:read");
+		expect(CLI_DEFAULT_SCOPES).not.toContain("feedback:write");
 	});
 
 	it("generates user codes in the expected format and alphabet", () => {

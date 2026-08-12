@@ -546,234 +546,15 @@ export type CancelVideoParams = {
 };
 
 /**
- * Cancels a non-terminal video generation request when the upstream provider supports cancellation.
+ * Video cancellation is currently disabled across all providers.
  */
 export async function cancelVideo(
   client: Client,
   args: CancelVideoParams = {},
-): Promise<{
-  asset?: {
-    bytes?: number;
-    duration_seconds?: number;
-    height?: number;
-    id?: string;
-    mime_type?: string;
-    sha256?: string;
-    width?: number;
-  } | null;
-  audio?: boolean;
-  billing?: {
-    billable?: boolean;
-    billed_at?: string;
-    charge_reason?: string | null;
-    charged?: boolean | null;
-    currency?: string;
-    estimated_nanos?: number | null;
-    estimated_provider_cost?: string | null;
-    estimated_user_cost?: string | null;
-    reservation_id?: string | null;
-    reservation_status?: string | null;
-    reserved_nanos?: number | null;
-    settled_provider_cost?: string | null;
-    settled_user_cost?: string | null;
-    state?: "pending" | "estimated" | "settled" | "void";
-    total_nanos?: number | null;
-    [key: string]: unknown;
-  };
-  cancel_url?: string | null;
-  completed_at?: number | string | null;
-  content_url?: string;
-  created_at?: number | string;
-  download_url?: string | null;
-  error?: unknown | null;
-  expires_at?: number | null;
-  generation_id?: string | null;
-  id?: string;
-  last_webhook_dispatched_at?: string | null;
-  last_webhook_progress?: number | null;
-  last_webhook_progress_at?: string | null;
-  lifecycle_status?:
-    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
-  model?: string;
-  native_video_id?: string | null;
-  next_webhook_retry_at?: string | null;
-  object?: string;
-  output_access?: "bytes" | "signed_url" | "both";
-  outputs?: {
-    bytes_available?: boolean;
-    content_url?: string;
-    download_url?: string;
-    expires_at?: number;
-    index?: number;
-    mime_type?: string;
-  }[];
-  poll_after_seconds?: number;
-  polling_url?: string;
-  progress?: number | null;
-  progress_source?: string;
-  provider?: string;
-  request_id?: string;
-  seconds?: number;
-  session_id?: string;
-  size?: string;
-  started_at?: number | string | null;
-  status?:
-    "queued" | "processing" | "completed" | "failed" | "cancelled" | "expired";
-  usage?: {
-    cost?: number;
-    is_byok?: boolean;
-    [key: string]: unknown;
-  };
-  webhook?: {
-    attempts?: {
-      attempt_number?: number;
-      delivered_at?: string | null;
-      delivery_key?: string;
-      error_message?: string | null;
-      event_type?: string;
-      id?: string;
-      max_attempts?: number;
-      next_retry_at?: string | null;
-      response_body_preview?: string | null;
-      response_status?: number | null;
-      status?: "delivered" | "scheduled_retry" | "failed_permanently";
-      tried_at?: string;
-    }[];
-    delivery?: {
-      delivered_event_types?: string[];
-      delivered_events?: number;
-      last_attempt_at?: string | null;
-      last_attempt_status?:
-        "delivered" | "scheduled_retry" | "failed_permanently" | null;
-      last_delivered_at?: string | null;
-      last_error_message?: string | null;
-      last_failure_at?: string | null;
-      last_response_status?: number | null;
-      next_retry_at?: string | null;
-      pending_retries?: number;
-      total_attempts?: number;
-    };
-    events?: string[];
-    has_secret?: boolean;
-    url?: string | null;
-  };
-  websocket_url?: string;
-}> {
+): Promise<unknown> {
   const { path, query, headers, body } = args;
   const resolvedPath = `/videos/${encodeURIComponent(String(path?.["video_id"]))}/cancel`;
-  return client.request<{
-    asset?: {
-      bytes?: number;
-      duration_seconds?: number;
-      height?: number;
-      id?: string;
-      mime_type?: string;
-      sha256?: string;
-      width?: number;
-    } | null;
-    audio?: boolean;
-    billing?: {
-      billable?: boolean;
-      billed_at?: string;
-      charge_reason?: string | null;
-      charged?: boolean | null;
-      currency?: string;
-      estimated_nanos?: number | null;
-      estimated_provider_cost?: string | null;
-      estimated_user_cost?: string | null;
-      reservation_id?: string | null;
-      reservation_status?: string | null;
-      reserved_nanos?: number | null;
-      settled_provider_cost?: string | null;
-      settled_user_cost?: string | null;
-      state?: "pending" | "estimated" | "settled" | "void";
-      total_nanos?: number | null;
-      [key: string]: unknown;
-    };
-    cancel_url?: string | null;
-    completed_at?: number | string | null;
-    content_url?: string;
-    created_at?: number | string;
-    download_url?: string | null;
-    error?: unknown | null;
-    expires_at?: number | null;
-    generation_id?: string | null;
-    id?: string;
-    last_webhook_dispatched_at?: string | null;
-    last_webhook_progress?: number | null;
-    last_webhook_progress_at?: string | null;
-    lifecycle_status?:
-      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
-    model?: string;
-    native_video_id?: string | null;
-    next_webhook_retry_at?: string | null;
-    object?: string;
-    output_access?: "bytes" | "signed_url" | "both";
-    outputs?: {
-      bytes_available?: boolean;
-      content_url?: string;
-      download_url?: string;
-      expires_at?: number;
-      index?: number;
-      mime_type?: string;
-    }[];
-    poll_after_seconds?: number;
-    polling_url?: string;
-    progress?: number | null;
-    progress_source?: string;
-    provider?: string;
-    request_id?: string;
-    seconds?: number;
-    session_id?: string;
-    size?: string;
-    started_at?: number | string | null;
-    status?:
-      | "queued"
-      | "processing"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
-    usage?: {
-      cost?: number;
-      is_byok?: boolean;
-      [key: string]: unknown;
-    };
-    webhook?: {
-      attempts?: {
-        attempt_number?: number;
-        delivered_at?: string | null;
-        delivery_key?: string;
-        error_message?: string | null;
-        event_type?: string;
-        id?: string;
-        max_attempts?: number;
-        next_retry_at?: string | null;
-        response_body_preview?: string | null;
-        response_status?: number | null;
-        status?: "delivered" | "scheduled_retry" | "failed_permanently";
-        tried_at?: string;
-      }[];
-      delivery?: {
-        delivered_event_types?: string[];
-        delivered_events?: number;
-        last_attempt_at?: string | null;
-        last_attempt_status?:
-          "delivered" | "scheduled_retry" | "failed_permanently" | null;
-        last_delivered_at?: string | null;
-        last_error_message?: string | null;
-        last_failure_at?: string | null;
-        last_response_status?: number | null;
-        next_retry_at?: string | null;
-        pending_retries?: number;
-        total_attempts?: number;
-      };
-      events?: string[];
-      has_secret?: boolean;
-      url?: string | null;
-    };
-    websocket_url?: string;
-  }>({
+  return client.request<unknown>({
     method: "POST",
     path: resolvedPath,
     query,
@@ -797,229 +578,10 @@ export type CancelVideoAliasParams = {
 export async function cancelVideoAlias(
   client: Client,
   args: CancelVideoAliasParams = {},
-): Promise<{
-  asset?: {
-    bytes?: number;
-    duration_seconds?: number;
-    height?: number;
-    id?: string;
-    mime_type?: string;
-    sha256?: string;
-    width?: number;
-  } | null;
-  audio?: boolean;
-  billing?: {
-    billable?: boolean;
-    billed_at?: string;
-    charge_reason?: string | null;
-    charged?: boolean | null;
-    currency?: string;
-    estimated_nanos?: number | null;
-    estimated_provider_cost?: string | null;
-    estimated_user_cost?: string | null;
-    reservation_id?: string | null;
-    reservation_status?: string | null;
-    reserved_nanos?: number | null;
-    settled_provider_cost?: string | null;
-    settled_user_cost?: string | null;
-    state?: "pending" | "estimated" | "settled" | "void";
-    total_nanos?: number | null;
-    [key: string]: unknown;
-  };
-  cancel_url?: string | null;
-  completed_at?: number | string | null;
-  content_url?: string;
-  created_at?: number | string;
-  download_url?: string | null;
-  error?: unknown | null;
-  expires_at?: number | null;
-  generation_id?: string | null;
-  id?: string;
-  last_webhook_dispatched_at?: string | null;
-  last_webhook_progress?: number | null;
-  last_webhook_progress_at?: string | null;
-  lifecycle_status?:
-    "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
-  model?: string;
-  native_video_id?: string | null;
-  next_webhook_retry_at?: string | null;
-  object?: string;
-  output_access?: "bytes" | "signed_url" | "both";
-  outputs?: {
-    bytes_available?: boolean;
-    content_url?: string;
-    download_url?: string;
-    expires_at?: number;
-    index?: number;
-    mime_type?: string;
-  }[];
-  poll_after_seconds?: number;
-  polling_url?: string;
-  progress?: number | null;
-  progress_source?: string;
-  provider?: string;
-  request_id?: string;
-  seconds?: number;
-  session_id?: string;
-  size?: string;
-  started_at?: number | string | null;
-  status?:
-    "queued" | "processing" | "completed" | "failed" | "cancelled" | "expired";
-  usage?: {
-    cost?: number;
-    is_byok?: boolean;
-    [key: string]: unknown;
-  };
-  webhook?: {
-    attempts?: {
-      attempt_number?: number;
-      delivered_at?: string | null;
-      delivery_key?: string;
-      error_message?: string | null;
-      event_type?: string;
-      id?: string;
-      max_attempts?: number;
-      next_retry_at?: string | null;
-      response_body_preview?: string | null;
-      response_status?: number | null;
-      status?: "delivered" | "scheduled_retry" | "failed_permanently";
-      tried_at?: string;
-    }[];
-    delivery?: {
-      delivered_event_types?: string[];
-      delivered_events?: number;
-      last_attempt_at?: string | null;
-      last_attempt_status?:
-        "delivered" | "scheduled_retry" | "failed_permanently" | null;
-      last_delivered_at?: string | null;
-      last_error_message?: string | null;
-      last_failure_at?: string | null;
-      last_response_status?: number | null;
-      next_retry_at?: string | null;
-      pending_retries?: number;
-      total_attempts?: number;
-    };
-    events?: string[];
-    has_secret?: boolean;
-    url?: string | null;
-  };
-  websocket_url?: string;
-}> {
+): Promise<unknown> {
   const { path, query, headers, body } = args;
   const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}/cancel`;
-  return client.request<{
-    asset?: {
-      bytes?: number;
-      duration_seconds?: number;
-      height?: number;
-      id?: string;
-      mime_type?: string;
-      sha256?: string;
-      width?: number;
-    } | null;
-    audio?: boolean;
-    billing?: {
-      billable?: boolean;
-      billed_at?: string;
-      charge_reason?: string | null;
-      charged?: boolean | null;
-      currency?: string;
-      estimated_nanos?: number | null;
-      estimated_provider_cost?: string | null;
-      estimated_user_cost?: string | null;
-      reservation_id?: string | null;
-      reservation_status?: string | null;
-      reserved_nanos?: number | null;
-      settled_provider_cost?: string | null;
-      settled_user_cost?: string | null;
-      state?: "pending" | "estimated" | "settled" | "void";
-      total_nanos?: number | null;
-      [key: string]: unknown;
-    };
-    cancel_url?: string | null;
-    completed_at?: number | string | null;
-    content_url?: string;
-    created_at?: number | string;
-    download_url?: string | null;
-    error?: unknown | null;
-    expires_at?: number | null;
-    generation_id?: string | null;
-    id?: string;
-    last_webhook_dispatched_at?: string | null;
-    last_webhook_progress?: number | null;
-    last_webhook_progress_at?: string | null;
-    lifecycle_status?:
-      "pending" | "running" | "completed" | "failed" | "cancelled" | "expired";
-    model?: string;
-    native_video_id?: string | null;
-    next_webhook_retry_at?: string | null;
-    object?: string;
-    output_access?: "bytes" | "signed_url" | "both";
-    outputs?: {
-      bytes_available?: boolean;
-      content_url?: string;
-      download_url?: string;
-      expires_at?: number;
-      index?: number;
-      mime_type?: string;
-    }[];
-    poll_after_seconds?: number;
-    polling_url?: string;
-    progress?: number | null;
-    progress_source?: string;
-    provider?: string;
-    request_id?: string;
-    seconds?: number;
-    session_id?: string;
-    size?: string;
-    started_at?: number | string | null;
-    status?:
-      | "queued"
-      | "processing"
-      | "completed"
-      | "failed"
-      | "cancelled"
-      | "expired";
-    usage?: {
-      cost?: number;
-      is_byok?: boolean;
-      [key: string]: unknown;
-    };
-    webhook?: {
-      attempts?: {
-        attempt_number?: number;
-        delivered_at?: string | null;
-        delivery_key?: string;
-        error_message?: string | null;
-        event_type?: string;
-        id?: string;
-        max_attempts?: number;
-        next_retry_at?: string | null;
-        response_body_preview?: string | null;
-        response_status?: number | null;
-        status?: "delivered" | "scheduled_retry" | "failed_permanently";
-        tried_at?: string;
-      }[];
-      delivery?: {
-        delivered_event_types?: string[];
-        delivered_events?: number;
-        last_attempt_at?: string | null;
-        last_attempt_status?:
-          "delivered" | "scheduled_retry" | "failed_permanently" | null;
-        last_delivered_at?: string | null;
-        last_error_message?: string | null;
-        last_failure_at?: string | null;
-        last_response_status?: number | null;
-        next_retry_at?: string | null;
-        pending_retries?: number;
-        total_attempts?: number;
-      };
-      events?: string[];
-      has_secret?: boolean;
-      url?: string | null;
-    };
-    websocket_url?: string;
-  }>({
+  return client.request<unknown>({
     method: "POST",
     path: resolvedPath,
     query,
@@ -1161,7 +723,7 @@ export type CreateAnthropicMessageParams = {
         }[];
     temperature?: number;
     tool_choice?: {} | string;
-    tools?:
+    tools?: (
       | {
           description?: string;
           input_schema?: {};
@@ -1211,7 +773,8 @@ export type CreateAnthropicMessageParams = {
             max_results?: number;
           };
           type: "phaseo:search_models";
-        }[];
+        }
+    )[];
     top_k?: number;
     top_p?: number;
     usage?: boolean;
@@ -2065,36 +1628,38 @@ export type CreateChatCompletionParams = {
       }[];
       content?:
         | string
-        | {
-            text: string;
-            type: "text";
-          }
-        | {
-            image_url: {
-              url?: string;
-            };
-            type: "image_url";
-          }
-        | {
-            input_audio: {
-              data?: string;
-              format?:
-                "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
-            };
-            type: "input_audio";
-          }
-        | {
-            type: "input_video";
-            video_url: string;
-          }
-        | {
-            function: {
-              arguments?: string;
-              name?: string;
-            };
-            id: string;
-            type: "tool_call";
-          }[];
+        | (
+            | {
+                text: string;
+                type: "text";
+              }
+            | {
+                image_url: {
+                  url?: string;
+                };
+                type: "image_url";
+              }
+            | {
+                input_audio: {
+                  data?: string;
+                  format?:
+                    "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
+                };
+                type: "input_audio";
+              }
+            | {
+                type: "input_video";
+                video_url: string;
+              }
+            | {
+                function: {
+                  arguments?: string;
+                  name?: string;
+                };
+                id: string;
+                type: "tool_call";
+              }
+          )[];
       images?: {
         image_url: {
           url: string;
@@ -2120,7 +1685,7 @@ export type CreateChatCompletionParams = {
     metadata?: {
       [key: string]: string;
     };
-    modalities?: "text" | "image" | "audio"[];
+    modalities?: ("text" | "image" | "audio")[];
     model: string;
     parallel_tool_calls?: boolean;
     presence_penalty?: number;
@@ -2206,6 +1771,8 @@ export type CreateChatCompletionParams = {
       mode?: "standard" | "pro";
       summary?: "auto" | "concise" | "detailed";
     };
+    reasoning_effort?:
+      "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max";
     response_format?:
       | string
       | {
@@ -2235,7 +1802,7 @@ export type CreateChatCompletionParams = {
       | "gateway:web_search"
       | "gateway:web_fetch"
       | {};
-    tools?:
+    tools?: (
       | {
           function: {
             description?: string;
@@ -2289,7 +1856,8 @@ export type CreateChatCompletionParams = {
             max_results?: number;
           };
           type: "phaseo:search_models";
-        }[];
+        }
+    )[];
     top_logprobs?: number;
     top_p?: number;
     usage?: boolean;
@@ -2319,36 +1887,38 @@ export async function createChatCompletion(
       }[];
       content?:
         | string
-        | {
-            text: string;
-            type: "text";
-          }
-        | {
-            image_url: {
-              url?: string;
-            };
-            type: "image_url";
-          }
-        | {
-            input_audio: {
-              data?: string;
-              format?:
-                "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
-            };
-            type: "input_audio";
-          }
-        | {
-            type: "input_video";
-            video_url: string;
-          }
-        | {
-            function: {
-              arguments?: string;
-              name?: string;
-            };
-            id: string;
-            type: "tool_call";
-          }[];
+        | (
+            | {
+                text: string;
+                type: "text";
+              }
+            | {
+                image_url: {
+                  url?: string;
+                };
+                type: "image_url";
+              }
+            | {
+                input_audio: {
+                  data?: string;
+                  format?:
+                    "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
+                };
+                type: "input_audio";
+              }
+            | {
+                type: "input_video";
+                video_url: string;
+              }
+            | {
+                function: {
+                  arguments?: string;
+                  name?: string;
+                };
+                id: string;
+                type: "tool_call";
+              }
+          )[];
       images?: {
         image_url: {
           url: string;
@@ -2411,36 +1981,44 @@ export async function createChatCompletion(
         }[];
         content?:
           | string
-          | {
-              text: string;
-              type: "text";
-            }
-          | {
-              image_url: {
-                url?: string;
-              };
-              type: "image_url";
-            }
-          | {
-              input_audio: {
-                data?: string;
-                format?:
-                  "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
-              };
-              type: "input_audio";
-            }
-          | {
-              type: "input_video";
-              video_url: string;
-            }
-          | {
-              function: {
-                arguments?: string;
-                name?: string;
-              };
-              id: string;
-              type: "tool_call";
-            }[];
+          | (
+              | {
+                  text: string;
+                  type: "text";
+                }
+              | {
+                  image_url: {
+                    url?: string;
+                  };
+                  type: "image_url";
+                }
+              | {
+                  input_audio: {
+                    data?: string;
+                    format?:
+                      | "wav"
+                      | "mp3"
+                      | "flac"
+                      | "m4a"
+                      | "ogg"
+                      | "pcm16"
+                      | "pcm24";
+                  };
+                  type: "input_audio";
+                }
+              | {
+                  type: "input_video";
+                  video_url: string;
+                }
+              | {
+                  function: {
+                    arguments?: string;
+                    name?: string;
+                  };
+                  id: string;
+                  type: "tool_call";
+                }
+            )[];
         images?: {
           image_url: {
             url: string;
@@ -2512,7 +2090,7 @@ export type CreateEmbeddingParams = {
       | string
       | number[]
       | {
-          content:
+          content: (
             | {
                 text: string;
                 type: "text" | "input_text";
@@ -2550,51 +2128,55 @@ export type CreateEmbeddingParams = {
                   | {
                       url: string;
                     };
-              }[];
+              }
+          )[];
         }
-      | string
-      | number[]
-      | {
-          content:
-            | {
-                text: string;
-                type: "text" | "input_text";
-              }
-            | {
-                image_url?:
-                  | string
-                  | {
-                      url: string;
+      | (
+          | string
+          | number[]
+          | {
+              content: (
+                | {
+                    text: string;
+                    type: "text" | "input_text";
+                  }
+                | {
+                    image_url?:
+                      | string
+                      | {
+                          url: string;
+                        };
+                    type: "image_url" | "input_image" | "image";
+                    url?:
+                      | string
+                      | {
+                          url: string;
+                        };
+                  }
+                | {
+                    input_audio: {
+                      data?: string;
+                      format?: string;
+                      url?: string;
                     };
-                type: "image_url" | "input_image" | "image";
-                url?:
-                  | string
-                  | {
-                      url: string;
-                    };
-              }
-            | {
-                input_audio: {
-                  data?: string;
-                  format?: string;
-                  url?: string;
-                };
-                type: "input_audio";
-              }
-            | {
-                type: "input_video" | "video_url";
-                url?:
-                  | string
-                  | {
-                      url: string;
-                    };
-                video_url?:
-                  | string
-                  | {
-                      url: string;
-                    };
-              }[];
-        }[];
+                    type: "input_audio";
+                  }
+                | {
+                    type: "input_video" | "video_url";
+                    url?:
+                      | string
+                      | {
+                          url: string;
+                        };
+                    video_url?:
+                      | string
+                      | {
+                          url: string;
+                        };
+                  }
+              )[];
+            }
+        )[];
     model: string;
     provider?: {
       allow_fallbacks?: boolean | null;
@@ -2897,16 +2479,18 @@ export type CreateModerationParams = {
     };
     input:
       | string
-      | {
-          text: string;
-          type: "text";
-        }
-      | {
-          image_url: {
-            url?: string;
-          };
-          type: "image_url";
-        }[];
+      | (
+          | {
+              text: string;
+              type: "text";
+            }
+          | {
+              image_url: {
+                url?: string;
+              };
+              type: "image_url";
+            }
+        )[];
     meta?: boolean;
     model: string;
     provider?: {
@@ -3301,7 +2885,7 @@ export type CreateResponseParams = {
     metadata?: {
       [key: string]: string;
     };
-    modalities?: "text" | "image" | "audio"[];
+    modalities?: ("text" | "image" | "audio")[];
     model: string;
     parallel_tool_calls?: boolean;
     previous_response_id?: string;
@@ -3398,7 +2982,7 @@ export type CreateResponseParams = {
       | "gateway:web_search"
       | "gateway:web_fetch"
       | {};
-    tools?:
+    tools?: (
       | {
           function: {
             description?: string;
@@ -3452,7 +3036,8 @@ export type CreateResponseParams = {
             max_results?: number;
           };
           type: "phaseo:search_models";
-        }[];
+        }
+    )[];
     top_p?: number;
     truncation?: "auto" | "disabled";
     usage?: boolean;
@@ -3483,7 +3068,7 @@ export async function createResponse(
   output?: {
     arguments?: string;
     call_id?: string;
-    content?:
+    content?: (
       | {
           annotations?: {}[];
           text: string;
@@ -3505,7 +3090,8 @@ export async function createResponse(
           format?: "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
           mime_type?: string;
           type: "output_audio";
-        }[];
+        }
+    )[];
     name?: string;
     role?: string;
     type?: string;
@@ -3513,7 +3099,7 @@ export async function createResponse(
   output_items?: {
     arguments?: string;
     call_id?: string;
-    content?:
+    content?: (
       | {
           annotations?: {}[];
           text: string;
@@ -3535,7 +3121,8 @@ export async function createResponse(
           format?: "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
           mime_type?: string;
           type: "output_audio";
-        }[];
+        }
+    )[];
     name?: string;
     role?: string;
     type?: string;
@@ -3585,7 +3172,7 @@ export async function createResponse(
     output?: {
       arguments?: string;
       call_id?: string;
-      content?:
+      content?: (
         | {
             annotations?: {}[];
             text: string;
@@ -3607,7 +3194,8 @@ export async function createResponse(
             format?: "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
             mime_type?: string;
             type: "output_audio";
-          }[];
+          }
+      )[];
       name?: string;
       role?: string;
       type?: string;
@@ -3615,7 +3203,7 @@ export async function createResponse(
     output_items?: {
       arguments?: string;
       call_id?: string;
-      content?:
+      content?: (
         | {
             annotations?: {}[];
             text: string;
@@ -3637,7 +3225,8 @@ export async function createResponse(
             format?: "wav" | "mp3" | "flac" | "m4a" | "ogg" | "pcm16" | "pcm24";
             mime_type?: string;
             type: "output_audio";
-          }[];
+          }
+      )[];
       name?: string;
       role?: string;
       type?: string;
@@ -3907,14 +3496,26 @@ export type CreateVideoParams = {
     duration?: number;
     enhance_prompt?: boolean;
     generate_audio?: boolean;
-    input_references?: {
-      image_url?: {
-        url: string;
-      };
-      reference_type?: string;
-      role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
-      type: "image_url";
-    }[];
+    input_audio_duration?: number;
+    input_references?: (
+      | {
+          image_url: {
+            url: string;
+          };
+          reference_type?: string;
+          role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
+          type: "image_url";
+        }
+      | {
+          media_url: {
+            url: string;
+          };
+          reference_type?: string;
+          role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
+          type: "video_url" | "audio_url";
+        }
+    )[];
+    input_video_duration?: number;
     model: string;
     negative_prompt?: string;
     output?: {
@@ -4221,14 +3822,26 @@ export type CreateVideoAliasParams = {
     duration?: number;
     enhance_prompt?: boolean;
     generate_audio?: boolean;
-    input_references?: {
-      image_url?: {
-        url: string;
-      };
-      reference_type?: string;
-      role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
-      type: "image_url";
-    }[];
+    input_audio_duration?: number;
+    input_references?: (
+      | {
+          image_url: {
+            url: string;
+          };
+          reference_type?: string;
+          role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
+          type: "image_url";
+        }
+      | {
+          media_url: {
+            url: string;
+          };
+          reference_type?: string;
+          role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
+          type: "video_url" | "audio_url";
+        }
+    )[];
+    input_video_duration?: number;
     model: string;
     negative_prompt?: string;
     output?: {
@@ -6175,10 +5788,10 @@ export async function listBatchCapabilities(
       endpoint: string;
       mode: "native" | "translated";
     }[];
-    gateway_input_modes?: "file" | "requests"[];
+    gateway_input_modes?: ("file" | "requests")[];
     id?: string;
     name?: string;
-    native_input_modes?: "file" | "requests"[];
+    native_input_modes?: ("file" | "requests")[];
     notes?: string | null;
     status?: "active" | "planned";
   }[];
@@ -6193,10 +5806,10 @@ export async function listBatchCapabilities(
         endpoint: string;
         mode: "native" | "translated";
       }[];
-      gateway_input_modes?: "file" | "requests"[];
+      gateway_input_modes?: ("file" | "requests")[];
       id?: string;
       name?: string;
-      native_input_modes?: "file" | "requests"[];
+      native_input_modes?: ("file" | "requests")[];
       notes?: string | null;
       status?: "active" | "planned";
     }[];
@@ -6230,10 +5843,10 @@ export async function listBatchCapabilitiesAlias(
       endpoint: string;
       mode: "native" | "translated";
     }[];
-    gateway_input_modes?: "file" | "requests"[];
+    gateway_input_modes?: ("file" | "requests")[];
     id?: string;
     name?: string;
-    native_input_modes?: "file" | "requests"[];
+    native_input_modes?: ("file" | "requests")[];
     notes?: string | null;
     status?: "active" | "planned";
   }[];
@@ -6248,10 +5861,10 @@ export async function listBatchCapabilitiesAlias(
         endpoint: string;
         mode: "native" | "translated";
       }[];
-      gateway_input_modes?: "file" | "requests"[];
+      gateway_input_modes?: ("file" | "requests")[];
       id?: string;
       name?: string;
-      native_input_modes?: "file" | "requests"[];
+      native_input_modes?: ("file" | "requests")[];
       notes?: string | null;
       status?: "active" | "planned";
     }[];
@@ -7262,6 +6875,7 @@ export type ListDataModelsParams = {
     organisation?:
       | "ai21"
       | "aion-labs"
+      | "alibaba"
       | "allenai"
       | "amazon"
       | "anthropic"
@@ -7283,6 +6897,7 @@ export type ListDataModelsParams = {
       | "inflection"
       | "kwaipilot"
       | "lg"
+      | "lightricks"
       | "liquid-ai"
       | "meituan"
       | "meta"
@@ -7303,6 +6918,7 @@ export type ListDataModelsParams = {
       | "prime-intellect"
       | "qwen"
       | "relace"
+      | "runway"
       | "sourceful"
       | "spacex-ai"
       | "stepfun"
@@ -7316,62 +6932,67 @@ export type ListDataModelsParams = {
       | "windsurf"
       | "xiaomi"
       | "z-ai"
-      | "ai21"
-      | "aion-labs"
-      | "allenai"
-      | "amazon"
-      | "anthropic"
-      | "arcee-ai"
-      | "baidu"
-      | "black-forest-labs"
-      | "bytedance"
-      | "cohere"
-      | "crofai"
-      | "cursor"
-      | "deepseek"
-      | "eleven-labs"
-      | "essential-ai"
-      | "github"
-      | "google"
-      | "ibm"
-      | "inception"
-      | "inclusionai"
-      | "inflection"
-      | "kwaipilot"
-      | "lg"
-      | "liquid-ai"
-      | "meituan"
-      | "meta"
-      | "microsoft"
-      | "mindai"
-      | "minimax"
-      | "mistral"
-      | "moonshotai"
-      | "morph"
-      | "naver-hyperclova"
-      | "nex-agi"
-      | "nous"
-      | "nvidia"
-      | "openai"
-      | "perplexity"
-      | "poe"
-      | "poolside"
-      | "prime-intellect"
-      | "qwen"
-      | "relace"
-      | "sourceful"
-      | "spacex-ai"
-      | "stepfun"
-      | "suno"
-      | "tencent"
-      | "thinking-machines"
-      | "upstage"
-      | "venice"
-      | "vercel"
-      | "voyage"
-      | "windsurf"
-      | "xiaomi"
-      | "z-ai"[];
+      | (
+          | "ai21"
+          | "aion-labs"
+          | "alibaba"
+          | "allenai"
+          | "amazon"
+          | "anthropic"
+          | "arcee-ai"
+          | "baidu"
+          | "black-forest-labs"
+          | "bytedance"
+          | "cohere"
+          | "crofai"
+          | "cursor"
+          | "deepseek"
+          | "eleven-labs"
+          | "essential-ai"
+          | "github"
+          | "google"
+          | "ibm"
+          | "inception"
+          | "inclusionai"
+          | "inflection"
+          | "kwaipilot"
+          | "lg"
+          | "lightricks"
+          | "liquid-ai"
+          | "meituan"
+          | "meta"
+          | "microsoft"
+          | "mindai"
+          | "minimax"
+          | "mistral"
+          | "moonshotai"
+          | "morph"
+          | "naver-hyperclova"
+          | "nex-agi"
+          | "nous"
+          | "nvidia"
+          | "openai"
+          | "perplexity"
+          | "poe"
+          | "poolside"
+          | "prime-intellect"
+          | "qwen"
+          | "relace"
+          | "runway"
+          | "sourceful"
+          | "spacex-ai"
+          | "stepfun"
+          | "suno"
+          | "tencent"
+          | "thinking-machines"
+          | "upstage"
+          | "venice"
+          | "vercel"
+          | "voyage"
+          | "windsurf"
+          | "xiaomi"
+          | "z-ai"
+        )[];
     status?: string[];
   };
   headers?: Record<string, never>;
@@ -7558,18 +7179,19 @@ export async function listModelEndpoints(
   client: Client,
   args: ListModelEndpointsParams = {},
 ): Promise<{
-  architecture?: {
-    [key: string]: unknown;
-  };
   availability_mode: "active" | "all";
-  canonical_slug: string;
-  created?: number | null;
-  description?: string;
+  description: string;
   endpoints: {
-    availability_reason: string;
-    availability_status: "active" | "coming_soon" | "inactive";
+    capabilities: {
+      endpoints?: string[];
+      parameter_details: {
+        [key: string]: {
+          [key: string]: unknown;
+        };
+      };
+      parameters: string[];
+    };
     capability_id: string;
-    capability_status: string;
     collection:
       | "text"
       | "images"
@@ -7582,53 +7204,110 @@ export async function listModelEndpoints(
       | "music"
       | "batch"
       | "files";
-    effective_from?: string | null;
-    effective_to?: string | null;
+    effective: {
+      from: string | null;
+      to: string | null;
+    };
     endpoint: string;
     id: string;
-    input_modalities: string[];
-    is_active_gateway: boolean;
-    model_routing_status: string;
-    output_modalities: string[];
+    modalities: {
+      input: string[];
+      output: string[];
+    };
+    model: string | null;
     pricing: {
-      [key: string]: string | null;
-    };
-    pricing_detail: {
-      [key: string]: unknown;
-    };
-    provider_id: string;
-    provider_model_slug?: string | null;
-    provider_name?: string | null;
-    provider_routing_status: string;
-    provider_status: string;
-    public_path: string;
-    supported_parameters: string[];
-    supported_parameters_detail: {
-      [key: string]: {
-        [key: string]: unknown;
+      meters: {
+        [key: string]: {
+          currency: "USD";
+          price_per_unit: string;
+          provider_id: string;
+          unit: string;
+          unit_size: number;
+        } | null;
       };
+      pricing_plan: "standard";
     };
+    provider: {
+      id: string;
+      name: string | null;
+    };
+    public_path: string;
+    routable: boolean;
+    routing: {
+      capability:
+        | "active"
+        | "coming_soon"
+        | "deranked_lvl1"
+        | "deranked_lvl2"
+        | "deranked_lvl3"
+        | "disabled"
+        | "internal_testing";
+      model:
+        | "active"
+        | "deranked_lvl1"
+        | "deranked_lvl2"
+        | "deranked_lvl3"
+        | "disabled";
+      provider:
+        | "active"
+        | "deranked_lvl1"
+        | "deranked_lvl2"
+        | "deranked_lvl3"
+        | "disabled";
+    };
+    status: "active" | "coming_soon" | "inactive";
+    status_reason:
+      | "active"
+      | "preview_only"
+      | "gated"
+      | "access_limited"
+      | "region_limited"
+      | "project_limited"
+      | "paused"
+      | "soft_blocked"
+      | "deranked_lvl1"
+      | "deranked_lvl2"
+      | "deranked_lvl3"
+      | "internal_testing"
+      | "scheduled"
+      | "coming_soon"
+      | "provider_disabled"
+      | "model_disabled"
+      | "capability_disabled"
+      | "provider_not_ready"
+      | "provider_inactive"
+      | "inactive"
+      | "retired";
   }[];
   id: string;
-  model_id: string;
-  name?: string | null;
+  modalities: {
+    input: string[];
+    output: string[];
+  };
+  name: string;
   ok: true;
+  organization: {
+    color: string | null;
+    id: string;
+    name: string | null;
+  } | null;
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = `/models/${encodeURIComponent(String(path?.["author"]))}/${encodeURIComponent(String(path?.["slug"]))}/endpoints`;
   return client.request<{
-    architecture?: {
-      [key: string]: unknown;
-    };
     availability_mode: "active" | "all";
-    canonical_slug: string;
-    created?: number | null;
-    description?: string;
+    description: string;
     endpoints: {
-      availability_reason: string;
-      availability_status: "active" | "coming_soon" | "inactive";
+      capabilities: {
+        endpoints?: string[];
+        parameter_details: {
+          [key: string]: {
+            [key: string]: unknown;
+          };
+        };
+        parameters: string[];
+      };
       capability_id: string;
-      capability_status: string;
       collection:
         | "text"
         | "images"
@@ -7641,37 +7320,93 @@ export async function listModelEndpoints(
         | "music"
         | "batch"
         | "files";
-      effective_from?: string | null;
-      effective_to?: string | null;
+      effective: {
+        from: string | null;
+        to: string | null;
+      };
       endpoint: string;
       id: string;
-      input_modalities: string[];
-      is_active_gateway: boolean;
-      model_routing_status: string;
-      output_modalities: string[];
+      modalities: {
+        input: string[];
+        output: string[];
+      };
+      model: string | null;
       pricing: {
-        [key: string]: string | null;
-      };
-      pricing_detail: {
-        [key: string]: unknown;
-      };
-      provider_id: string;
-      provider_model_slug?: string | null;
-      provider_name?: string | null;
-      provider_routing_status: string;
-      provider_status: string;
-      public_path: string;
-      supported_parameters: string[];
-      supported_parameters_detail: {
-        [key: string]: {
-          [key: string]: unknown;
+        meters: {
+          [key: string]: {
+            currency: "USD";
+            price_per_unit: string;
+            provider_id: string;
+            unit: string;
+            unit_size: number;
+          } | null;
         };
+        pricing_plan: "standard";
       };
+      provider: {
+        id: string;
+        name: string | null;
+      };
+      public_path: string;
+      routable: boolean;
+      routing: {
+        capability:
+          | "active"
+          | "coming_soon"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled"
+          | "internal_testing";
+        model:
+          | "active"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled";
+        provider:
+          | "active"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled";
+      };
+      status: "active" | "coming_soon" | "inactive";
+      status_reason:
+        | "active"
+        | "preview_only"
+        | "gated"
+        | "access_limited"
+        | "region_limited"
+        | "project_limited"
+        | "paused"
+        | "soft_blocked"
+        | "deranked_lvl1"
+        | "deranked_lvl2"
+        | "deranked_lvl3"
+        | "internal_testing"
+        | "scheduled"
+        | "coming_soon"
+        | "provider_disabled"
+        | "model_disabled"
+        | "capability_disabled"
+        | "provider_not_ready"
+        | "provider_inactive"
+        | "inactive"
+        | "retired";
     }[];
     id: string;
-    model_id: string;
-    name?: string | null;
+    modalities: {
+      input: string[];
+      output: string[];
+    };
+    name: string;
     ok: true;
+    organization: {
+      color: string | null;
+      id: string;
+      name: string | null;
+    } | null;
   }>({
     method: "GET",
     path: resolvedPath,
@@ -7697,6 +7432,7 @@ export type ListModelsParams = {
     organisation?:
       | "ai21"
       | "aion-labs"
+      | "alibaba"
       | "allenai"
       | "amazon"
       | "anthropic"
@@ -7718,6 +7454,7 @@ export type ListModelsParams = {
       | "inflection"
       | "kwaipilot"
       | "lg"
+      | "lightricks"
       | "liquid-ai"
       | "meituan"
       | "meta"
@@ -7738,6 +7475,7 @@ export type ListModelsParams = {
       | "prime-intellect"
       | "qwen"
       | "relace"
+      | "runway"
       | "sourceful"
       | "spacex-ai"
       | "stepfun"
@@ -7751,62 +7489,67 @@ export type ListModelsParams = {
       | "windsurf"
       | "xiaomi"
       | "z-ai"
-      | "ai21"
-      | "aion-labs"
-      | "allenai"
-      | "amazon"
-      | "anthropic"
-      | "arcee-ai"
-      | "baidu"
-      | "black-forest-labs"
-      | "bytedance"
-      | "cohere"
-      | "crofai"
-      | "cursor"
-      | "deepseek"
-      | "eleven-labs"
-      | "essential-ai"
-      | "github"
-      | "google"
-      | "ibm"
-      | "inception"
-      | "inclusionai"
-      | "inflection"
-      | "kwaipilot"
-      | "lg"
-      | "liquid-ai"
-      | "meituan"
-      | "meta"
-      | "microsoft"
-      | "mindai"
-      | "minimax"
-      | "mistral"
-      | "moonshotai"
-      | "morph"
-      | "naver-hyperclova"
-      | "nex-agi"
-      | "nous"
-      | "nvidia"
-      | "openai"
-      | "perplexity"
-      | "poe"
-      | "poolside"
-      | "prime-intellect"
-      | "qwen"
-      | "relace"
-      | "sourceful"
-      | "spacex-ai"
-      | "stepfun"
-      | "suno"
-      | "tencent"
-      | "thinking-machines"
-      | "upstage"
-      | "venice"
-      | "vercel"
-      | "voyage"
-      | "windsurf"
-      | "xiaomi"
-      | "z-ai"[];
+      | (
+          | "ai21"
+          | "aion-labs"
+          | "alibaba"
+          | "allenai"
+          | "amazon"
+          | "anthropic"
+          | "arcee-ai"
+          | "baidu"
+          | "black-forest-labs"
+          | "bytedance"
+          | "cohere"
+          | "crofai"
+          | "cursor"
+          | "deepseek"
+          | "eleven-labs"
+          | "essential-ai"
+          | "github"
+          | "google"
+          | "ibm"
+          | "inception"
+          | "inclusionai"
+          | "inflection"
+          | "kwaipilot"
+          | "lg"
+          | "lightricks"
+          | "liquid-ai"
+          | "meituan"
+          | "meta"
+          | "microsoft"
+          | "mindai"
+          | "minimax"
+          | "mistral"
+          | "moonshotai"
+          | "morph"
+          | "naver-hyperclova"
+          | "nex-agi"
+          | "nous"
+          | "nvidia"
+          | "openai"
+          | "perplexity"
+          | "poe"
+          | "poolside"
+          | "prime-intellect"
+          | "qwen"
+          | "relace"
+          | "runway"
+          | "sourceful"
+          | "spacex-ai"
+          | "stepfun"
+          | "suno"
+          | "tencent"
+          | "thinking-machines"
+          | "upstage"
+          | "venice"
+          | "vercel"
+          | "voyage"
+          | "windsurf"
+          | "xiaomi"
+          | "z-ai"
+        )[];
     output_modalities?: string[];
     output_types?: string[];
     params?: string[];
@@ -7832,62 +7575,104 @@ export async function listModels(
   availability_mode: "active" | "all";
   limit: number;
   models: {
-    aliases?: string[];
-    architecture?: {
-      input_modalities?: string[];
-      instruct_type?: string | null;
-      modality?: string;
-      output_modalities?: string[];
-      tokenizer?: string | null;
-    };
-    availability?: {
+    aliases: string[];
+    availability: {
       active_provider_count: number;
+      coming_soon_provider_count: number;
       inactive_provider_count: number;
       provider_count: number;
       status: "active" | "coming_soon" | "inactive" | "not_listed";
     };
-    canonical_slug?: string;
-    created?: number | null;
-    deprecation_date?: string | null;
-    description?: string;
-    endpoints?: string[];
-    id?: string;
-    input_types?: string[];
-    lifecycle?: {
-      deprecation_date?: string | null;
-      message?: string | null;
-      replacement_model_id?: string | null;
-      retirement_date?: string | null;
-      status?: "active" | "deprecated" | "retired" | null;
-    };
-    model_id?: string;
-    name?: string | null;
-    organisation_colour?: string | null;
-    organisation_id?: string | null;
-    organisation_name?: string | null;
-    output_types?: string[];
-    per_request_limits?: {
-      [key: string]: unknown;
-    } | null;
-    pricing?: {
-      completion?: string | null;
-      image?: string | null;
-      input_cache_read?: string | null;
-      input_cache_write?: string | null;
-      prompt?: string | null;
-      request?: string | null;
-      web_search?: string | null;
-    };
-    pricing_detail?: {
-      meters?: {
-        [key: string]: unknown;
+    base_model_id: string;
+    capabilities: {
+      endpoints?: string[];
+      parameter_details: {
+        [key: string]: {
+          [key: string]: unknown;
+        };
       };
-      pricing_plan?: string;
+      parameters: string[];
     };
-    providers?: {
-      api_provider_id: string;
-      api_provider_name?: string | null;
-      availability_reason:
+    description: string;
+    id: string;
+    lifecycle: {
+      deprecated_at: string | null;
+      message: string | null;
+      released_at: string | null;
+      replacement_id: string | null;
+      retires_at: string | null;
+      status: "active" | "deprecated" | "retired" | null;
+    };
+    limits: {
+      input_tokens: number | null;
+      output_tokens: number | null;
+    };
+    modalities: {
+      input: string[];
+      output: string[];
+    };
+    name: string;
+    offers: {
+      capabilities: {
+        endpoints?: string[];
+        parameter_details: {
+          [key: string]: {
+            [key: string]: unknown;
+          };
+        };
+        parameters: string[];
+      };
+      effective: {
+        from: string | null;
+        to: string | null;
+      };
+      endpoints: string[];
+      modalities: {
+        input: string[];
+        output: string[];
+      };
+      model: string | null;
+      pricing: {
+        meters: {
+          [key: string]: {
+            currency: "USD";
+            price_per_unit: string;
+            provider_id: string;
+            unit: string;
+            unit_size: number;
+          } | null;
+        };
+        pricing_plan: "standard";
+      };
+      provider: {
+        id: string;
+        name: string | null;
+      };
+      routable: boolean;
+      routing: {
+        capability:
+          | "active"
+          | "coming_soon"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled"
+          | "internal_testing";
+        model:
+          | "active"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled";
+        provider:
+          | "active"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled";
+      };
+      status: "active" | "coming_soon" | "inactive";
+      status_reason:
         | "active"
         | "preview_only"
         | "gated"
@@ -7909,83 +7694,34 @@ export async function listModels(
         | "provider_inactive"
         | "inactive"
         | "retired";
-      availability_status: "active" | "coming_soon" | "inactive";
-      capability_status:
-        | "active"
-        | "coming_soon"
-        | "deranked_lvl1"
-        | "deranked_lvl2"
-        | "deranked_lvl3"
-        | "disabled"
-        | "internal_testing";
-      effective_from?: string | null;
-      effective_to?: string | null;
-      endpoints: string[];
-      input_modalities?: string[];
-      is_active_gateway: boolean;
-      model_routing_status:
-        | "active"
-        | "deranked_lvl1"
-        | "deranked_lvl2"
-        | "deranked_lvl3"
-        | "disabled";
-      output_modalities?: string[];
-      params: string[];
-      params_detail?: {
-        [key: string]: {
-          [key: string]: unknown;
-        };
-      };
-      provider_model_slug?: string | null;
-      provider_routing_status:
-        | "active"
-        | "deranked_lvl1"
-        | "deranked_lvl2"
-        | "deranked_lvl3"
-        | "disabled";
-      provider_status:
-        | "active"
-        | "beta"
-        | "alpha"
-        | "not_ready"
-        | "gated"
-        | "access_limited"
-        | "region_limited"
-        | "project_limited"
-        | "paused"
-        | "soft_blocked";
-      supported_parameters?: string[];
-      supported_parameters_detail?: {
-        [key: string]: {
-          [key: string]: unknown;
-        };
-      };
     }[];
-    release_date?: string | null;
-    retirement_date?: string | null;
-    status?: string | null;
-    supported_parameters?: string[];
-    supported_parameters_detail?: {
+    organization: {
+      color: string | null;
+      id: string;
+      name: string | null;
+    } | null;
+    pricing: {
+      meters: {
+        [key: string]: {
+          currency: "USD";
+          price_per_unit: string;
+          provider_id: string;
+          unit: string;
+          unit_size: number;
+        } | null;
+      };
+      pricing_plan: "standard";
+    };
+    variant: string;
+    variants: {
       [key: string]: {
-        [key: string]: unknown;
+        model_id: string;
+        name: string;
       };
     };
-    supported_params?: string[];
-    supported_params_detail?: {
-      [key: string]: {
-        [key: string]: unknown;
-      };
-    };
-    top_provider?: {
-      context_length?: number | null;
-      is_moderated?: boolean;
-      max_completion_tokens?: number | null;
-    };
-    top_provider_id?: string | null;
   }[];
   offset: number;
   ok: boolean;
-  privacy_scope: "shared" | "team";
   total: number;
 }> {
   const { path, query, headers, body } = args;
@@ -7994,62 +7730,104 @@ export async function listModels(
     availability_mode: "active" | "all";
     limit: number;
     models: {
-      aliases?: string[];
-      architecture?: {
-        input_modalities?: string[];
-        instruct_type?: string | null;
-        modality?: string;
-        output_modalities?: string[];
-        tokenizer?: string | null;
-      };
-      availability?: {
+      aliases: string[];
+      availability: {
         active_provider_count: number;
+        coming_soon_provider_count: number;
         inactive_provider_count: number;
         provider_count: number;
         status: "active" | "coming_soon" | "inactive" | "not_listed";
       };
-      canonical_slug?: string;
-      created?: number | null;
-      deprecation_date?: string | null;
-      description?: string;
-      endpoints?: string[];
-      id?: string;
-      input_types?: string[];
-      lifecycle?: {
-        deprecation_date?: string | null;
-        message?: string | null;
-        replacement_model_id?: string | null;
-        retirement_date?: string | null;
-        status?: "active" | "deprecated" | "retired" | null;
-      };
-      model_id?: string;
-      name?: string | null;
-      organisation_colour?: string | null;
-      organisation_id?: string | null;
-      organisation_name?: string | null;
-      output_types?: string[];
-      per_request_limits?: {
-        [key: string]: unknown;
-      } | null;
-      pricing?: {
-        completion?: string | null;
-        image?: string | null;
-        input_cache_read?: string | null;
-        input_cache_write?: string | null;
-        prompt?: string | null;
-        request?: string | null;
-        web_search?: string | null;
-      };
-      pricing_detail?: {
-        meters?: {
-          [key: string]: unknown;
+      base_model_id: string;
+      capabilities: {
+        endpoints?: string[];
+        parameter_details: {
+          [key: string]: {
+            [key: string]: unknown;
+          };
         };
-        pricing_plan?: string;
+        parameters: string[];
       };
-      providers?: {
-        api_provider_id: string;
-        api_provider_name?: string | null;
-        availability_reason:
+      description: string;
+      id: string;
+      lifecycle: {
+        deprecated_at: string | null;
+        message: string | null;
+        released_at: string | null;
+        replacement_id: string | null;
+        retires_at: string | null;
+        status: "active" | "deprecated" | "retired" | null;
+      };
+      limits: {
+        input_tokens: number | null;
+        output_tokens: number | null;
+      };
+      modalities: {
+        input: string[];
+        output: string[];
+      };
+      name: string;
+      offers: {
+        capabilities: {
+          endpoints?: string[];
+          parameter_details: {
+            [key: string]: {
+              [key: string]: unknown;
+            };
+          };
+          parameters: string[];
+        };
+        effective: {
+          from: string | null;
+          to: string | null;
+        };
+        endpoints: string[];
+        modalities: {
+          input: string[];
+          output: string[];
+        };
+        model: string | null;
+        pricing: {
+          meters: {
+            [key: string]: {
+              currency: "USD";
+              price_per_unit: string;
+              provider_id: string;
+              unit: string;
+              unit_size: number;
+            } | null;
+          };
+          pricing_plan: "standard";
+        };
+        provider: {
+          id: string;
+          name: string | null;
+        };
+        routable: boolean;
+        routing: {
+          capability:
+            | "active"
+            | "coming_soon"
+            | "deranked_lvl1"
+            | "deranked_lvl2"
+            | "deranked_lvl3"
+            | "disabled"
+            | "internal_testing";
+          model:
+            | "active"
+            | "deranked_lvl1"
+            | "deranked_lvl2"
+            | "deranked_lvl3"
+            | "disabled";
+          provider:
+            | "active"
+            | "deranked_lvl1"
+            | "deranked_lvl2"
+            | "deranked_lvl3"
+            | "disabled";
+        };
+        status: "active" | "coming_soon" | "inactive";
+        status_reason:
           | "active"
           | "preview_only"
           | "gated"
@@ -8071,83 +7849,34 @@ export async function listModels(
           | "provider_inactive"
           | "inactive"
           | "retired";
-        availability_status: "active" | "coming_soon" | "inactive";
-        capability_status:
-          | "active"
-          | "coming_soon"
-          | "deranked_lvl1"
-          | "deranked_lvl2"
-          | "deranked_lvl3"
-          | "disabled"
-          | "internal_testing";
-        effective_from?: string | null;
-        effective_to?: string | null;
-        endpoints: string[];
-        input_modalities?: string[];
-        is_active_gateway: boolean;
-        model_routing_status:
-          | "active"
-          | "deranked_lvl1"
-          | "deranked_lvl2"
-          | "deranked_lvl3"
-          | "disabled";
-        output_modalities?: string[];
-        params: string[];
-        params_detail?: {
-          [key: string]: {
-            [key: string]: unknown;
-          };
-        };
-        provider_model_slug?: string | null;
-        provider_routing_status:
-          | "active"
-          | "deranked_lvl1"
-          | "deranked_lvl2"
-          | "deranked_lvl3"
-          | "disabled";
-        provider_status:
-          | "active"
-          | "beta"
-          | "alpha"
-          | "not_ready"
-          | "gated"
-          | "access_limited"
-          | "region_limited"
-          | "project_limited"
-          | "paused"
-          | "soft_blocked";
-        supported_parameters?: string[];
-        supported_parameters_detail?: {
-          [key: string]: {
-            [key: string]: unknown;
-          };
-        };
       }[];
-      release_date?: string | null;
-      retirement_date?: string | null;
-      status?: string | null;
-      supported_parameters?: string[];
-      supported_parameters_detail?: {
+      organization: {
+        color: string | null;
+        id: string;
+        name: string | null;
+      } | null;
+      pricing: {
+        meters: {
+          [key: string]: {
+            currency: "USD";
+            price_per_unit: string;
+            provider_id: string;
+            unit: string;
+            unit_size: number;
+          } | null;
+        };
+        pricing_plan: "standard";
+      };
+      variant: string;
+      variants: {
         [key: string]: {
-          [key: string]: unknown;
+          model_id: string;
+          name: string;
         };
       };
-      supported_params?: string[];
-      supported_params_detail?: {
-        [key: string]: {
-          [key: string]: unknown;
-        };
-      };
-      top_provider?: {
-        context_length?: number | null;
-        is_moderated?: boolean;
-        max_completion_tokens?: number | null;
-      };
-      top_provider_id?: string | null;
     }[];
     offset: number;
     ok: boolean;
-    privacy_scope: "shared" | "team";
     total: number;
   }>({
     method: "GET",
@@ -8312,6 +8041,7 @@ export type ListTeamModelsParams = {
     organisation?:
       | "ai21"
       | "aion-labs"
+      | "alibaba"
       | "allenai"
       | "amazon"
       | "anthropic"
@@ -8333,6 +8063,7 @@ export type ListTeamModelsParams = {
       | "inflection"
       | "kwaipilot"
       | "lg"
+      | "lightricks"
       | "liquid-ai"
       | "meituan"
       | "meta"
@@ -8353,6 +8084,7 @@ export type ListTeamModelsParams = {
       | "prime-intellect"
       | "qwen"
       | "relace"
+      | "runway"
       | "sourceful"
       | "spacex-ai"
       | "stepfun"
@@ -8366,62 +8098,67 @@ export type ListTeamModelsParams = {
       | "windsurf"
       | "xiaomi"
       | "z-ai"
-      | "ai21"
-      | "aion-labs"
-      | "allenai"
-      | "amazon"
-      | "anthropic"
-      | "arcee-ai"
-      | "baidu"
-      | "black-forest-labs"
-      | "bytedance"
-      | "cohere"
-      | "crofai"
-      | "cursor"
-      | "deepseek"
-      | "eleven-labs"
-      | "essential-ai"
-      | "github"
-      | "google"
-      | "ibm"
-      | "inception"
-      | "inclusionai"
-      | "inflection"
-      | "kwaipilot"
-      | "lg"
-      | "liquid-ai"
-      | "meituan"
-      | "meta"
-      | "microsoft"
-      | "mindai"
-      | "minimax"
-      | "mistral"
-      | "moonshotai"
-      | "morph"
-      | "naver-hyperclova"
-      | "nex-agi"
-      | "nous"
-      | "nvidia"
-      | "openai"
-      | "perplexity"
-      | "poe"
-      | "poolside"
-      | "prime-intellect"
-      | "qwen"
-      | "relace"
-      | "sourceful"
-      | "spacex-ai"
-      | "stepfun"
-      | "suno"
-      | "tencent"
-      | "thinking-machines"
-      | "upstage"
-      | "venice"
-      | "vercel"
-      | "voyage"
-      | "windsurf"
-      | "xiaomi"
-      | "z-ai"[];
+      | (
+          | "ai21"
+          | "aion-labs"
+          | "alibaba"
+          | "allenai"
+          | "amazon"
+          | "anthropic"
+          | "arcee-ai"
+          | "baidu"
+          | "black-forest-labs"
+          | "bytedance"
+          | "cohere"
+          | "crofai"
+          | "cursor"
+          | "deepseek"
+          | "eleven-labs"
+          | "essential-ai"
+          | "github"
+          | "google"
+          | "ibm"
+          | "inception"
+          | "inclusionai"
+          | "inflection"
+          | "kwaipilot"
+          | "lg"
+          | "lightricks"
+          | "liquid-ai"
+          | "meituan"
+          | "meta"
+          | "microsoft"
+          | "mindai"
+          | "minimax"
+          | "mistral"
+          | "moonshotai"
+          | "morph"
+          | "naver-hyperclova"
+          | "nex-agi"
+          | "nous"
+          | "nvidia"
+          | "openai"
+          | "perplexity"
+          | "poe"
+          | "poolside"
+          | "prime-intellect"
+          | "qwen"
+          | "relace"
+          | "runway"
+          | "sourceful"
+          | "spacex-ai"
+          | "stepfun"
+          | "suno"
+          | "tencent"
+          | "thinking-machines"
+          | "upstage"
+          | "venice"
+          | "vercel"
+          | "voyage"
+          | "windsurf"
+          | "xiaomi"
+          | "z-ai"
+        )[];
     output_types?: string[];
     params?: string[];
     provider?: string[];
@@ -8445,62 +8182,104 @@ export async function listTeamModels(
   availability_mode: "active" | "all";
   limit: number;
   models: {
-    aliases?: string[];
-    architecture?: {
-      input_modalities?: string[];
-      instruct_type?: string | null;
-      modality?: string;
-      output_modalities?: string[];
-      tokenizer?: string | null;
-    };
-    availability?: {
+    aliases: string[];
+    availability: {
       active_provider_count: number;
+      coming_soon_provider_count: number;
       inactive_provider_count: number;
       provider_count: number;
       status: "active" | "coming_soon" | "inactive" | "not_listed";
     };
-    canonical_slug?: string;
-    created?: number | null;
-    deprecation_date?: string | null;
-    description?: string;
-    endpoints?: string[];
-    id?: string;
-    input_types?: string[];
-    lifecycle?: {
-      deprecation_date?: string | null;
-      message?: string | null;
-      replacement_model_id?: string | null;
-      retirement_date?: string | null;
-      status?: "active" | "deprecated" | "retired" | null;
-    };
-    model_id?: string;
-    name?: string | null;
-    organisation_colour?: string | null;
-    organisation_id?: string | null;
-    organisation_name?: string | null;
-    output_types?: string[];
-    per_request_limits?: {
-      [key: string]: unknown;
-    } | null;
-    pricing?: {
-      completion?: string | null;
-      image?: string | null;
-      input_cache_read?: string | null;
-      input_cache_write?: string | null;
-      prompt?: string | null;
-      request?: string | null;
-      web_search?: string | null;
-    };
-    pricing_detail?: {
-      meters?: {
-        [key: string]: unknown;
+    base_model_id: string;
+    capabilities: {
+      endpoints?: string[];
+      parameter_details: {
+        [key: string]: {
+          [key: string]: unknown;
+        };
       };
-      pricing_plan?: string;
+      parameters: string[];
     };
-    providers?: {
-      api_provider_id: string;
-      api_provider_name?: string | null;
-      availability_reason:
+    description: string;
+    id: string;
+    lifecycle: {
+      deprecated_at: string | null;
+      message: string | null;
+      released_at: string | null;
+      replacement_id: string | null;
+      retires_at: string | null;
+      status: "active" | "deprecated" | "retired" | null;
+    };
+    limits: {
+      input_tokens: number | null;
+      output_tokens: number | null;
+    };
+    modalities: {
+      input: string[];
+      output: string[];
+    };
+    name: string;
+    offers: {
+      capabilities: {
+        endpoints?: string[];
+        parameter_details: {
+          [key: string]: {
+            [key: string]: unknown;
+          };
+        };
+        parameters: string[];
+      };
+      effective: {
+        from: string | null;
+        to: string | null;
+      };
+      endpoints: string[];
+      modalities: {
+        input: string[];
+        output: string[];
+      };
+      model: string | null;
+      pricing: {
+        meters: {
+          [key: string]: {
+            currency: "USD";
+            price_per_unit: string;
+            provider_id: string;
+            unit: string;
+            unit_size: number;
+          } | null;
+        };
+        pricing_plan: "standard";
+      };
+      provider: {
+        id: string;
+        name: string | null;
+      };
+      routable: boolean;
+      routing: {
+        capability:
+          | "active"
+          | "coming_soon"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled"
+          | "internal_testing";
+        model:
+          | "active"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled";
+        provider:
+          | "active"
+          | "deranked_lvl1"
+          | "deranked_lvl2"
+          | "deranked_lvl3"
+          | "disabled";
+      };
+      status: "active" | "coming_soon" | "inactive";
+      status_reason:
         | "active"
         | "preview_only"
         | "gated"
@@ -8522,83 +8301,34 @@ export async function listTeamModels(
         | "provider_inactive"
         | "inactive"
         | "retired";
-      availability_status: "active" | "coming_soon" | "inactive";
-      capability_status:
-        | "active"
-        | "coming_soon"
-        | "deranked_lvl1"
-        | "deranked_lvl2"
-        | "deranked_lvl3"
-        | "disabled"
-        | "internal_testing";
-      effective_from?: string | null;
-      effective_to?: string | null;
-      endpoints: string[];
-      input_modalities?: string[];
-      is_active_gateway: boolean;
-      model_routing_status:
-        | "active"
-        | "deranked_lvl1"
-        | "deranked_lvl2"
-        | "deranked_lvl3"
-        | "disabled";
-      output_modalities?: string[];
-      params: string[];
-      params_detail?: {
-        [key: string]: {
-          [key: string]: unknown;
-        };
-      };
-      provider_model_slug?: string | null;
-      provider_routing_status:
-        | "active"
-        | "deranked_lvl1"
-        | "deranked_lvl2"
-        | "deranked_lvl3"
-        | "disabled";
-      provider_status:
-        | "active"
-        | "beta"
-        | "alpha"
-        | "not_ready"
-        | "gated"
-        | "access_limited"
-        | "region_limited"
-        | "project_limited"
-        | "paused"
-        | "soft_blocked";
-      supported_parameters?: string[];
-      supported_parameters_detail?: {
-        [key: string]: {
-          [key: string]: unknown;
-        };
-      };
     }[];
-    release_date?: string | null;
-    retirement_date?: string | null;
-    status?: string | null;
-    supported_parameters?: string[];
-    supported_parameters_detail?: {
+    organization: {
+      color: string | null;
+      id: string;
+      name: string | null;
+    } | null;
+    pricing: {
+      meters: {
+        [key: string]: {
+          currency: "USD";
+          price_per_unit: string;
+          provider_id: string;
+          unit: string;
+          unit_size: number;
+        } | null;
+      };
+      pricing_plan: "standard";
+    };
+    variant: string;
+    variants: {
       [key: string]: {
-        [key: string]: unknown;
+        model_id: string;
+        name: string;
       };
     };
-    supported_params?: string[];
-    supported_params_detail?: {
-      [key: string]: {
-        [key: string]: unknown;
-      };
-    };
-    top_provider?: {
-      context_length?: number | null;
-      is_moderated?: boolean;
-      max_completion_tokens?: number | null;
-    };
-    top_provider_id?: string | null;
   }[];
   offset: number;
   ok: boolean;
-  privacy_scope: "shared" | "team";
   total: number;
 }> {
   const { path, query, headers, body } = args;
@@ -8607,62 +8337,104 @@ export async function listTeamModels(
     availability_mode: "active" | "all";
     limit: number;
     models: {
-      aliases?: string[];
-      architecture?: {
-        input_modalities?: string[];
-        instruct_type?: string | null;
-        modality?: string;
-        output_modalities?: string[];
-        tokenizer?: string | null;
-      };
-      availability?: {
+      aliases: string[];
+      availability: {
         active_provider_count: number;
+        coming_soon_provider_count: number;
         inactive_provider_count: number;
         provider_count: number;
         status: "active" | "coming_soon" | "inactive" | "not_listed";
       };
-      canonical_slug?: string;
-      created?: number | null;
-      deprecation_date?: string | null;
-      description?: string;
-      endpoints?: string[];
-      id?: string;
-      input_types?: string[];
-      lifecycle?: {
-        deprecation_date?: string | null;
-        message?: string | null;
-        replacement_model_id?: string | null;
-        retirement_date?: string | null;
-        status?: "active" | "deprecated" | "retired" | null;
-      };
-      model_id?: string;
-      name?: string | null;
-      organisation_colour?: string | null;
-      organisation_id?: string | null;
-      organisation_name?: string | null;
-      output_types?: string[];
-      per_request_limits?: {
-        [key: string]: unknown;
-      } | null;
-      pricing?: {
-        completion?: string | null;
-        image?: string | null;
-        input_cache_read?: string | null;
-        input_cache_write?: string | null;
-        prompt?: string | null;
-        request?: string | null;
-        web_search?: string | null;
-      };
-      pricing_detail?: {
-        meters?: {
-          [key: string]: unknown;
+      base_model_id: string;
+      capabilities: {
+        endpoints?: string[];
+        parameter_details: {
+          [key: string]: {
+            [key: string]: unknown;
+          };
         };
-        pricing_plan?: string;
+        parameters: string[];
       };
-      providers?: {
-        api_provider_id: string;
-        api_provider_name?: string | null;
-        availability_reason:
+      description: string;
+      id: string;
+      lifecycle: {
+        deprecated_at: string | null;
+        message: string | null;
+        released_at: string | null;
+        replacement_id: string | null;
+        retires_at: string | null;
+        status: "active" | "deprecated" | "retired" | null;
+      };
+      limits: {
+        input_tokens: number | null;
+        output_tokens: number | null;
+      };
+      modalities: {
+        input: string[];
+        output: string[];
+      };
+      name: string;
+      offers: {
+        capabilities: {
+          endpoints?: string[];
+          parameter_details: {
+            [key: string]: {
+              [key: string]: unknown;
+            };
+          };
+          parameters: string[];
+        };
+        effective: {
+          from: string | null;
+          to: string | null;
+        };
+        endpoints: string[];
+        modalities: {
+          input: string[];
+          output: string[];
+        };
+        model: string | null;
+        pricing: {
+          meters: {
+            [key: string]: {
+              currency: "USD";
+              price_per_unit: string;
+              provider_id: string;
+              unit: string;
+              unit_size: number;
+            } | null;
+          };
+          pricing_plan: "standard";
+        };
+        provider: {
+          id: string;
+          name: string | null;
+        };
+        routable: boolean;
+        routing: {
+          capability:
+            | "active"
+            | "coming_soon"
+            | "deranked_lvl1"
+            | "deranked_lvl2"
+            | "deranked_lvl3"
+            | "disabled"
+            | "internal_testing";
+          model:
+            | "active"
+            | "deranked_lvl1"
+            | "deranked_lvl2"
+            | "deranked_lvl3"
+            | "disabled";
+          provider:
+            | "active"
+            | "deranked_lvl1"
+            | "deranked_lvl2"
+            | "deranked_lvl3"
+            | "disabled";
+        };
+        status: "active" | "coming_soon" | "inactive";
+        status_reason:
           | "active"
           | "preview_only"
           | "gated"
@@ -8684,83 +8456,34 @@ export async function listTeamModels(
           | "provider_inactive"
           | "inactive"
           | "retired";
-        availability_status: "active" | "coming_soon" | "inactive";
-        capability_status:
-          | "active"
-          | "coming_soon"
-          | "deranked_lvl1"
-          | "deranked_lvl2"
-          | "deranked_lvl3"
-          | "disabled"
-          | "internal_testing";
-        effective_from?: string | null;
-        effective_to?: string | null;
-        endpoints: string[];
-        input_modalities?: string[];
-        is_active_gateway: boolean;
-        model_routing_status:
-          | "active"
-          | "deranked_lvl1"
-          | "deranked_lvl2"
-          | "deranked_lvl3"
-          | "disabled";
-        output_modalities?: string[];
-        params: string[];
-        params_detail?: {
-          [key: string]: {
-            [key: string]: unknown;
-          };
-        };
-        provider_model_slug?: string | null;
-        provider_routing_status:
-          | "active"
-          | "deranked_lvl1"
-          | "deranked_lvl2"
-          | "deranked_lvl3"
-          | "disabled";
-        provider_status:
-          | "active"
-          | "beta"
-          | "alpha"
-          | "not_ready"
-          | "gated"
-          | "access_limited"
-          | "region_limited"
-          | "project_limited"
-          | "paused"
-          | "soft_blocked";
-        supported_parameters?: string[];
-        supported_parameters_detail?: {
-          [key: string]: {
-            [key: string]: unknown;
-          };
-        };
       }[];
-      release_date?: string | null;
-      retirement_date?: string | null;
-      status?: string | null;
-      supported_parameters?: string[];
-      supported_parameters_detail?: {
+      organization: {
+        color: string | null;
+        id: string;
+        name: string | null;
+      } | null;
+      pricing: {
+        meters: {
+          [key: string]: {
+            currency: "USD";
+            price_per_unit: string;
+            provider_id: string;
+            unit: string;
+            unit_size: number;
+          } | null;
+        };
+        pricing_plan: "standard";
+      };
+      variant: string;
+      variants: {
         [key: string]: {
-          [key: string]: unknown;
+          model_id: string;
+          name: string;
         };
       };
-      supported_params?: string[];
-      supported_params_detail?: {
-        [key: string]: {
-          [key: string]: unknown;
-        };
-      };
-      top_provider?: {
-        context_length?: number | null;
-        is_moderated?: boolean;
-        max_completion_tokens?: number | null;
-      };
-      top_provider_id?: string | null;
     }[];
     offset: number;
     ok: boolean;
-    privacy_scope: "shared" | "team";
     total: number;
   }>({
     method: "GET",

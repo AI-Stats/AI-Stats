@@ -1,9 +1,8 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import { Activity, BarChart3, ExternalLink } from "lucide-react";
+import { Activity, BarChart3 } from "lucide-react";
 import AppUsageChart from "@/components/(data)/apps/AppUsageChart";
+import AppDetailShell from "@/components/(data)/apps/AppDetailShell";
 import { ModelLeaderboard } from "@/components/(rankings)/ModelLeaderboard";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	Card,
 	CardDescription,
@@ -84,7 +83,8 @@ function getModelLookupVariants(modelId: string): string[] {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
 	const { appId } = await params;
 	const app = await fetchFrontendAppDetails(appId);
-	const path = app ? getAppPath(app.slug) : `/apps/${encodeURIComponent(appId)}`;
+	const canonicalAppId = app?.slug?.trim() || app?.id || appId;
+	const path = app ? getAppPath(canonicalAppId) : `/apps/${encodeURIComponent(appId)}`;
 
 	if (!app) {
 		return buildMetadata({
@@ -131,8 +131,9 @@ export default async function Page({ params }: PageProps) {
 		);
 	}
 
-	if (app.slug !== appId) {
-		permanentRedirect(getAppPath(app.slug));
+	const canonicalAppId = app.slug?.trim() || app.id;
+	if (canonicalAppId !== appId) {
+		permanentRedirect(getAppPath(canonicalAppId));
 	}
 
 	const rows4w = await fetchFrontendAppUsage(app.id, "4w");
@@ -291,45 +292,10 @@ export default async function Page({ params }: PageProps) {
 			};
 		});
 
-	const appUrl = app.url && app.url !== "about:blank" ? app.url : null;
-	const appInitial = app.title?.trim()?.[0]?.toUpperCase() ?? "A";
-
 	return (
-		<div className="container mx-auto py-8 space-y-10">
-			<section className="space-y-4">
-				<div className="flex items-center gap-4">
-					<Avatar className="h-16 w-16 rounded-2xl border border-border/60">
-						{app.image_url ? (
-							<AvatarImage src={app.image_url} alt={app.title} className="object-cover" />
-						) : null}
-						<AvatarFallback className="rounded-2xl text-lg font-semibold">
-							{appInitial}
-						</AvatarFallback>
-					</Avatar>
-					<div className="space-y-2">
-						<h1 className="text-3xl font-bold tracking-tight">
-							{appUrl ? (
-								<Link
-									href={appUrl}
-									target="_blank"
-									rel="noreferrer"
-									className="group inline-flex items-center gap-2"
-								>
-									<span>{app.title}</span>
-									<ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
-								</Link>
-							) : (
-								app.title
-							)}
-						</h1>
-						<p className="text-sm text-muted-foreground">
-							Public usage trends and model distribution across the last 4 weeks.
-						</p>
-					</div>
-				</div>
-			</section>
-
-			<section className="space-y-3">
+		<AppDetailShell appId={canonicalAppId} app={app} tocItems={[{ id: "usage", label: "Usage Over Time" }, { id: "model-leaderboard", label: "Model Leaderboard" }]}>
+			<div className="space-y-10">
+			<section id="usage" className="scroll-mt-36 space-y-3">
 				<div className="flex items-center gap-2">
 					<Activity className="h-5 w-5 text-muted-foreground" />
 					<h2 className="text-xl font-semibold leading-8">Usage Over Time</h2>
@@ -342,7 +308,7 @@ export default async function Page({ params }: PageProps) {
 				/>
 			</section>
 
-			<section className="space-y-3">
+			<section id="model-leaderboard" className="scroll-mt-36 space-y-3">
 				<div className="flex items-center gap-2">
 					<BarChart3 className="h-5 w-5 text-muted-foreground" />
 					<h2 className="text-xl font-semibold leading-8">Model Usage Leaderboard</h2>
@@ -356,6 +322,7 @@ export default async function Page({ params }: PageProps) {
 					showRangeControls={false}
 				/>
 			</section>
-		</div>
+			</div>
+		</AppDetailShell>
 	);
 }

@@ -13,7 +13,13 @@
   "input_types": "text,image,video",
   "output_types": "text",
   "api_model_id": "google/gemma-3-27b",
-  "variants": [{ "model_id": "google/gemma-3-27b:free", "name": "Gemma 3 27B (Free)", "variant_kind": "free" }],
+  "variants": [
+    {
+      "model_id": "google/gemma-3-27b:free",
+      "name": "Gemma 3 27B (Free)",
+      "variant_kind": "free"
+    }
+  ],
   "family_id": "google/gemma-3",
   "links": [
     {
@@ -86,6 +92,14 @@
       "other_info": "Confab 66.3%; non-response 14.2%",
       "source_link": "https://github.com/lechmazur/confabulations",
       "rank": 1
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 7.4,
+      "is_self_reported": false,
+      "other_info": "Gemma 3 27B Instruct; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/gemma-3-27b",
+      "rank": 440
     }
   ],
   "page_notice": null,

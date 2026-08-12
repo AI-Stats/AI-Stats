@@ -18,14 +18,13 @@ import { Input } from "@/components/ui/input";
 import {
 	Search,
 	Grid as GridIcon,
-	Table as TableIcon,
+	Table2 as TableIcon,
 	Layers3,
 	SlidersHorizontal,
 	Activity,
 	ArrowDownCircle,
 	ArrowUpDown,
 	BadgeAlert,
-	ChevronUp,
 	Binary,
 	Captions,
 	CircleDot,
@@ -163,8 +162,6 @@ const CONTEXT_LENGTH_STOPS = [
 	0, 4_000, 8_000, 16_000, 32_000, 64_000, 128_000, 256_000, 512_000, 1_000_000,
 ] as const;
 
-const SCROLL_TOP_VISIBILITY_THRESHOLD = 320;
-const SCROLL_TOP_ANIMATION_DURATION_MS = 700;
 const MOBILE_FILTER_FAB_VISIBILITY_THRESHOLD = 240;
 const OUTPUT_MODALITY_DISPLAY_ORDER = [
 	"text",
@@ -871,7 +868,7 @@ function OutputModalityButtonRow({
 						? cn(
 								"bg-muted text-foreground hover:bg-muted",
 								tone.badgeClassName,
-								"border-transparent hover:border-transparent",
+								"border-0 hover:border-0",
 							)
 						: "text-muted-foreground hover:text-foreground",
 				)}
@@ -1056,11 +1053,9 @@ function ModelsDisplayContent({
 	});
 	const [sort, setSort] = useQueryState("sort", sortParser);
 	const selectedSort = normalizeSortOption(sort);
-	const [showScrollTopButton, setShowScrollTopButton] = useState(false);
 	const [showMobileFilterFab, setShowMobileFilterFab] = useState(false);
 	const [isMobileViewport, setIsMobileViewport] = useState(false);
 	const [sidebarCountsReady, setSidebarCountsReady] = useState(false);
-	const scrollTopAnimationFrameRef = useRef<number | null>(null);
 
 	useEffect(() => {
 		const frame = window.requestAnimationFrame(() => {
@@ -1083,12 +1078,8 @@ function ModelsDisplayContent({
 	useEffect(() => {
 		const updateVisibility = () => {
 			const scrollY = window.scrollY;
-			const shouldShow = scrollY > SCROLL_TOP_VISIBILITY_THRESHOLD;
 			const shouldShowMobileFab =
 				scrollY > MOBILE_FILTER_FAB_VISIBILITY_THRESHOLD;
-			setShowScrollTopButton((current) =>
-				current === shouldShow ? current : shouldShow,
-			);
 			setShowMobileFilterFab((current) =>
 				current === shouldShowMobileFab ? current : shouldShowMobileFab,
 			);
@@ -1097,52 +1088,6 @@ function ModelsDisplayContent({
 		updateVisibility();
 		window.addEventListener("scroll", updateVisibility, { passive: true });
 		return () => window.removeEventListener("scroll", updateVisibility);
-	}, []);
-
-	useEffect(
-		() => () => {
-			if (scrollTopAnimationFrameRef.current !== null) {
-				window.cancelAnimationFrame(scrollTopAnimationFrameRef.current);
-				scrollTopAnimationFrameRef.current = null;
-			}
-		},
-		[],
-	);
-
-	const handleScrollToTop = useCallback(() => {
-		if (scrollTopAnimationFrameRef.current !== null) {
-			window.cancelAnimationFrame(scrollTopAnimationFrameRef.current);
-			scrollTopAnimationFrameRef.current = null;
-		}
-
-		// Prefer the browser's native smooth scroll (typically less janky with virtualization).
-		if ("scrollBehavior" in document.documentElement.style) {
-			window.scrollTo({ top: 0, behavior: "smooth" });
-			return;
-		}
-
-		const startY = window.scrollY;
-		if (startY <= 0) return;
-		const startTime = performance.now();
-		const duration = SCROLL_TOP_ANIMATION_DURATION_MS;
-
-		const easeInOutCubic = (t: number): number =>
-			t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-		const animate = (now: number) => {
-			const elapsed = now - startTime;
-			const progress = Math.min(1, elapsed / duration);
-			const eased = easeInOutCubic(progress);
-			window.scrollTo(0, Math.round(startY * (1 - eased)));
-			if (progress < 1) {
-				scrollTopAnimationFrameRef.current =
-					window.requestAnimationFrame(animate);
-				return;
-			}
-			scrollTopAnimationFrameRef.current = null;
-		};
-
-		scrollTopAnimationFrameRef.current = window.requestAnimationFrame(animate);
 	}, []);
 
 	const pathname = usePathname();
@@ -2298,19 +2243,6 @@ function ModelsDisplayContent({
 				) : null}
 			</Button>
 
-			<button
-				type="button"
-				aria-label="Scroll to top"
-				onClick={handleScrollToTop}
-				className={cn(
-					"group fixed bottom-6 right-9 z-40 inline-flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-background/95 text-foreground shadow-sm backdrop-blur transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95",
-					showScrollTopButton
-						? "translate-y-0 opacity-100"
-						: "pointer-events-none translate-y-3 opacity-0",
-				)}
-			>
-				<ChevronUp className="h-6 w-6 transition-transform duration-500 ease-out group-hover:-translate-y-1" />
-			</button>
 		</div>
 	);
 }

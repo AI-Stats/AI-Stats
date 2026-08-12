@@ -2,14 +2,20 @@
 
 import React from "react";
 import {
+	ArrowDown,
+	ArrowUp,
+	ArrowUpDown,
 	Copy,
 	Crown,
+	LogOut,
 	MoreHorizontal,
 	ShieldIcon,
 	User,
+	UserCog,
 	UserRoundX,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -56,6 +62,7 @@ interface Member {
 	role?: string;
 	display_name?: string | null;
 	spend_30d_nanos?: number | null;
+	is_sample?: boolean;
 }
 
 interface Props {
@@ -70,7 +77,13 @@ interface Props {
 		newRole?: string
 	) => void;
 	personalTeamId?: string | null;
+	samplePreview?: boolean;
 }
+
+const ROLE_OPTIONS = [
+	{ value: "admin", label: "Admin" },
+	{ value: "member", label: "Member" },
+];
 
 function roleRank(role?: string) {
 	switch ((role || "").toLowerCase()) {
@@ -137,6 +150,7 @@ export default function TeamsMembers({
 	onRemoveMember,
 	onUpdateMemberRole,
 	personalTeamId,
+	samplePreview = false,
 }: Props) {
 	const router = useRouter();
 	const [selectedMember, setSelectedMember] = React.useState<Member | null>(
@@ -146,11 +160,36 @@ export default function TeamsMembers({
 	const [confirmOpen, setConfirmOpen] = React.useState(false);
 	const [selectedRole, setSelectedRole] = React.useState<string>("member");
 	const [loading, setLoading] = React.useState(false);
+	const [spendSort, setSpendSort] = React.useState<"none" | "asc" | "desc">(
+		"none",
+	);
+	const [sampleRoleOverrides, setSampleRoleOverrides] = React.useState<
+		Record<string, string>
+	>({});
+	const [hiddenSampleMemberIds, setHiddenSampleMemberIds] = React.useState<
+		Set<string>
+	>(new Set());
 
 	const sortedMembers = React.useMemo(() => {
 		if (!activeWorkspaceId) return [];
-		const list = (membersByTeam[activeWorkspaceId] || []).slice();
+		const list = (membersByTeam[activeWorkspaceId] || [])
+			.filter(
+				(member) =>
+					!member.is_sample || !hiddenSampleMemberIds.has(member.user_id),
+			)
+			.map((member) =>
+				member.is_sample && sampleRoleOverrides[member.user_id]
+					? { ...member, role: sampleRoleOverrides[member.user_id] }
+					: member,
+			);
 		list.sort((a, b) => {
+			if (spendSort !== "none") {
+				const spendDifference =
+					Number(a.spend_30d_nanos ?? 0) - Number(b.spend_30d_nanos ?? 0);
+				if (spendDifference !== 0) {
+					return spendSort === "asc" ? spendDifference : -spendDifference;
+				}
+			}
 			const rankDiff = roleRank(a.role) - roleRank(b.role);
 			if (rankDiff !== 0) return rankDiff;
 			const nameA = (a.display_name ?? a.user_id ?? "").toLowerCase();
@@ -158,7 +197,13 @@ export default function TeamsMembers({
 			return nameA.localeCompare(nameB);
 		});
 		return list;
-	}, [activeWorkspaceId, membersByTeam]);
+	}, [
+		activeWorkspaceId,
+		hiddenSampleMemberIds,
+		membersByTeam,
+		sampleRoleOverrides,
+		spendSort,
+	]);
 
 	const count = sortedMembers.length;
 	const currentUserRole = React.useMemo(() => {
@@ -211,17 +256,20 @@ export default function TeamsMembers({
 					selectedMember?.display_name ??
 					selectedMember?.user_id ??
 					"this member"
-			  }?`;
-
-	React.useEffect(() => {
-		if (!selectedMember) return;
-		setSelectedRole(
-			selectedMember.role === "" ? "__none" : selectedMember.role || "member"
-		);
-	}, [selectedMember]);
+				}?`;
 
 	const saveRole = async () => {
 		if (!activeWorkspaceId || !selectedMember || !canEditSelectedRole) return;
+		if (selectedMember.is_sample) {
+			setSampleRoleOverrides((current) => ({
+				...current,
+				[selectedMember.user_id]: selectedRole,
+			}));
+			toast.success(`Updated ${selectedMember.display_name}'s sample role.`);
+			setRoleDialogOpen(false);
+			setSelectedMember(null);
+			return;
+		}
 		try {
 			setLoading(true);
 			if (onUpdateMemberRole) {
@@ -249,28 +297,24 @@ export default function TeamsMembers({
 		}
 	};
 
-	const updateRoleDirect = async (member: Member, nextRole: "admin" | "member") => {
-		if (!activeWorkspaceId) return;
-		try {
-			setLoading(true);
-			await updateMemberRole(activeWorkspaceId, member.user_id, nextRole);
-			toast.success(
-				`${member.display_name ?? member.user_id} is now ${nextRole}.`
-			);
-			router.refresh();
-		} catch (error: any) {
-			toast.error(error?.message ?? "Unable to update the member role right now.");
-		} finally {
-			setLoading(false);
-		}
-	};
-
 	const confirmRevoke = async () => {
 		if (!activeWorkspaceId || !selectedMember) return;
 		if (!canLeaveTeam && !canRevokeSelectedMember) {
 			toast.error(
 				"You can't revoke access for members with a higher role than yours."
 			);
+			return;
+		}
+		if (selectedMember.is_sample) {
+			setHiddenSampleMemberIds((current) => {
+				const next = new Set(current);
+				next.add(selectedMember.user_id);
+				return next;
+			});
+			toast.success(`Removed sample member ${selectedMember.display_name}.`);
+			setConfirmOpen(false);
+			setRoleDialogOpen(false);
+			setSelectedMember(null);
 			return;
 		}
 
@@ -313,6 +357,7 @@ export default function TeamsMembers({
 	};
 
 	const openRoleEditor = (member: Member) => {
+		setSelectedRole(member.role === "" ? "__none" : member.role || "member");
 		setSelectedMember(member);
 		setRoleDialogOpen(true);
 	};
@@ -331,12 +376,34 @@ export default function TeamsMembers({
 		}
 	};
 
+	const cycleSpendSort = () => {
+		setSpendSort((current) =>
+			current === "none" ? "desc" : current === "desc" ? "asc" : "none",
+		);
+	};
+
 	return (
 		<section className="space-y-4">
 			<div className="flex flex-wrap items-center gap-2">
 				<Badge variant="secondary">
 					{count} member{count === 1 ? "" : "s"}
 				</Badge>
+				{samplePreview ? (
+					<>
+						<Badge variant="outline">Sample preview</Badge>
+						<Button asChild variant="ghost" size="sm" className="ml-auto">
+							<Link
+								href={
+									activeWorkspaceId
+										? `/settings/workspaces/members?workspaceId=${encodeURIComponent(activeWorkspaceId)}`
+										: "/settings/workspaces/members"
+								}
+							>
+								Hide Samples
+							</Link>
+						</Button>
+					</>
+				) : null}
 			</div>
 
 			{!activeWorkspaceId ? (
@@ -354,7 +421,40 @@ export default function TeamsMembers({
 								<TableRow>
 									<TableHead className="w-[40%] px-4">Member</TableHead>
 									<TableHead className="w-[18%] px-4">Role</TableHead>
-									<TableHead className="w-[22%] px-4">Spend (30d)</TableHead>
+									<TableHead
+										className="w-[22%] px-2"
+										aria-sort={
+											spendSort === "asc"
+												? "ascending"
+												: spendSort === "desc"
+													? "descending"
+													: "none"
+										}
+									>
+										<Button
+											type="button"
+											variant="ghost"
+											size="sm"
+											className="h-7 gap-1.5 px-2 text-muted-foreground hover:text-foreground"
+											onClick={cycleSpendSort}
+											aria-label={`Sort by 30-day spend${
+												spendSort === "none"
+													? ""
+													: spendSort === "desc"
+														? ", currently descending"
+														: ", currently ascending"
+											}`}
+										>
+											Spend (30d)
+											{spendSort === "asc" ? (
+												<ArrowUp />
+											) : spendSort === "desc" ? (
+												<ArrowDown />
+											) : (
+												<ArrowUpDown />
+											)}
+										</Button>
+									</TableHead>
 									<TableHead className="w-[20%] px-4 text-right">
 										Actions
 									</TableHead>
@@ -382,15 +482,6 @@ export default function TeamsMembers({
 										(isCurrent && canLeaveCurrentRow) ||
 										(!isCurrent && isCurrentUserOwner && !isHigherRole);
 									const canOpenEditDialog = canEditMemberRole;
-									const canPromoteToAdmin =
-										isCurrentUserOwner && !isOwner && memberRole !== "admin";
-									const canDemoteToMember =
-										isCurrentUserOwner && !isOwner && memberRole !== "member";
-									const hasManagementActions =
-										canOpenEditDialog ||
-										canPromoteToAdmin ||
-										canDemoteToMember ||
-										canRemoveMember;
 									return (
 										<TableRow key={member.user_id}>
 											<TableCell className="px-4 py-3">
@@ -398,9 +489,11 @@ export default function TeamsMembers({
 													<div className="truncate font-medium">
 														{member.display_name ?? member.user_id}
 													</div>
-													{isCurrent ? (
+													{isCurrent || member.is_sample ? (
 														<div className="mt-1">
-															<Badge variant="outline">You</Badge>
+															<Badge variant="outline">
+																{isCurrent ? "You" : "Sample"}
+															</Badge>
 														</div>
 													) : null}
 												</div>
@@ -425,35 +518,18 @@ export default function TeamsMembers({
 															<MoreHorizontal className="h-4 w-4" />
 
 													</DropdownMenuTrigger>
-													<DropdownMenuContent align="end">
-														{canOpenEditDialog ? (
-															<DropdownMenuItem
-																onClick={() => openRoleEditor(member)}
-															>
-																Edit
-															</DropdownMenuItem>
-														) : null}
-														{canPromoteToAdmin ? (
-															<DropdownMenuItem
-																onClick={() =>
-																	void updateRoleDirect(member, "admin")
-																}
-															>
-																Make admin
-															</DropdownMenuItem>
-														) : null}
-														{canDemoteToMember ? (
-															<DropdownMenuItem
-																onClick={() =>
-																	void updateRoleDirect(member, "member")
-																}
-															>
-																Make member
-															</DropdownMenuItem>
-														) : null}
-														{hasManagementActions ? (
-															<DropdownMenuSeparator />
-														) : null}
+											<DropdownMenuContent align="end" className="w-44">
+												{canOpenEditDialog ? (
+													<DropdownMenuItem
+														onClick={() => openRoleEditor(member)}
+													>
+														<UserCog />
+														Change Role
+													</DropdownMenuItem>
+												) : null}
+												{canOpenEditDialog ? (
+													<DropdownMenuSeparator />
+												) : null}
 														<DropdownMenuItem
 															onClick={() => void copyUserId(member.user_id)}
 														>
@@ -463,13 +539,18 @@ export default function TeamsMembers({
 														{canRemoveMember ? (
 															<>
 																<DropdownMenuSeparator />
-																<DropdownMenuItem
-																	onClick={() => openRemovalDialog(member)}
-																	className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
-																>
-																	{isCurrent && canLeaveCurrentRow
-																		? "Leave workspace"
-																		: "Remove"}
+														<DropdownMenuItem
+															onClick={() => openRemovalDialog(member)}
+															variant="destructive"
+														>
+															{isCurrent && canLeaveCurrentRow ? (
+																<LogOut />
+															) : (
+																<UserRoundX />
+															)}
+															{isCurrent && canLeaveCurrentRow
+																? "Leave workspace"
+																: "Remove Member"}
 																</DropdownMenuItem>
 															</>
 														) : null}
@@ -518,14 +599,19 @@ export default function TeamsMembers({
 						) : (
 							<Select
 								value={selectedRole}
+								items={ROLE_OPTIONS}
 								onValueChange={(value) => setSelectedRole(value)}
 							>
 								<SelectTrigger className="w-full">
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="admin">Admin</SelectItem>
-									<SelectItem value="member">Member</SelectItem>
+									<SelectItem value="admin" label="Admin">
+										Admin
+									</SelectItem>
+									<SelectItem value="member" label="Member">
+										Member
+									</SelectItem>
 								</SelectContent>
 							</Select>
 						)}

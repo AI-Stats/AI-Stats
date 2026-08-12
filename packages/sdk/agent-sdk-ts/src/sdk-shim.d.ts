@@ -4,6 +4,7 @@ declare module "@phaseo/sdk" {
 		baseUrl?: string;
 		timeoutMs?: number;
 		fetchImpl?: typeof fetch;
+		headers?: Record<string, string>;
 	};
 
 		export type ResponsesRequest = {

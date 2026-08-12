@@ -8,9 +8,20 @@ export type ProductAnalyticsEventMap = {
 	};
 	credits_checkout_started: {
 		amount_usd: number;
+		country_code: string;
 		currency: "usd";
 		mode: "oneoff" | "pay_and_save";
 		payment_method: "new" | "saved";
+	};
+	credits_purchase_location_reviewed: {
+		country_code: string;
+		restricted_model_count: number;
+		region_restricted_model_count: number;
+	};
+	credits_purchase_location_acknowledged: {
+		country_code: string;
+		restricted_model_count: number;
+		region_restricted_model_count: number;
 	};
 	credits_payment_succeeded: {
 		amount_usd: number;
@@ -36,6 +47,22 @@ export type ProductAnalyticsEventMap = {
 	onboarding_finished: {
 		completed_step_count: number;
 		outcome: "completed" | "skipped";
+	};
+	quickstart_opened: {
+		model_id: string;
+		surface: "model_page";
+	};
+	quickstart_api_key_clicked: { model_id: string };
+	quickstart_code_copied: {
+		code_kind: "api_key_environment" | "request";
+		endpoint: string;
+		language: string;
+		model_id: string;
+	};
+	quickstart_endpoint_selected: { endpoint: string; model_id: string };
+	quickstart_model_id_copied: {
+		model_id: string;
+		selected_model_id: string;
 	};
 };
 

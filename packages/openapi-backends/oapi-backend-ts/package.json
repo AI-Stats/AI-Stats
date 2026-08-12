@@ -19,7 +19,7 @@
 	},
 	"dependencies": {
 		"@phaseo/oapi-core": "workspace:*",
-		"prettier": "^3.9.5"
+		"prettier": "^3.9.6"
 	},
 	"devDependencies": {
 		"@types/node": "^26.1.2",

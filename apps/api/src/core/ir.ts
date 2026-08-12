@@ -566,7 +566,7 @@ export type IRVideoGenerationRequest = {
 	model: string;
 	prompt: string;
 	inputReferences?: Array<{
-		type: "image" | "video" | "mask";
+		type: "image" | "video" | "audio" | "mask";
 		role?: "first_frame" | "last_frame" | "reference" | "source" | "mask";
 		referenceType?: string;
 		url?: string;
@@ -599,6 +599,8 @@ export type IRVideoGenerationRequest = {
 	};
 	inputImage?: string | Record<string, any>;
 	inputVideo?: string | Record<string, any>;
+	inputVideoDurationSeconds?: number;
+	inputAudioDurationSeconds?: number;
 	lastFrame?: string | Record<string, any>;
 	referenceImages?: Array<Record<string, any>>;
 	duration?: number;
@@ -929,6 +931,5 @@ export function hasToolCalls(message: IRMessage): boolean {
 export function countTotalTokens(usage?: IRUsage): number {
 	return usage?.totalTokens ?? 0;
 }
-
 
 

@@ -14,6 +14,11 @@ on:
                 required: false
                 type: boolean
                 default: false
+            publish_cli:
+                description: "Publish only the committed @phaseo/cli version to npm"
+                required: false
+                type: boolean
+                default: false
             importer_mode:
                 description: "Explicit production importer action"
                 required: false
@@ -35,6 +40,124 @@ env:
     NODE_VERSION: 22
 
 jobs:
+    prepare-cli-release:
+        name: Prepare CLI release
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish_cli == true
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  persist-credentials: false
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
+              with:
+                  version: 10.33.0
+                  run_install: false
+                  standalone: true
+
+            - name: Setup Node.js
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  package-manager-cache: false
+
+            - name: Restore lockfile (guard setup-node cache mutation)
+              run: git checkout -- pnpm-lock.yaml
+
+            - name: Install dependencies
+              run: corepack pnpm install --frozen-lockfile
+
+            - name: Build, test, and pack CLI
+              run: pnpm run validate:cli
+
+            - name: Upload CLI package
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+              with:
+                  name: phaseo-cli-package
+                  path: .tmp/cli-pack/*.tgz
+                  if-no-files-found: error
+                  retention-days: 1
+
+    publish-cli:
+        name: Publish CLI
+        needs: prepare-cli-release
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish_cli == true
+        runs-on: ubuntu-latest
+        environment: release
+        concurrency:
+            group: cli-release-publish
+            cancel-in-progress: false
+        permissions:
+            contents: read
+            id-token: write
+        env:
+            NPM_CONFIG_PROVENANCE: true
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  persist-credentials: false
+
+            - name: Setup Node.js
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+              with:
+                  node-version: 24
+                  registry-url: https://registry.npmjs.org
+                  package-manager-cache: false
+
+            - name: Download CLI package
+              uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+              with:
+                  name: phaseo-cli-package
+                  path: cli-package
+
+            - name: Check CLI release status
+              id: cli-npm-release
+              run: |
+                  node --input-type=module <<'NODE'
+                  import fs from "node:fs";
+                  import packageJson from "./packages/cli/phaseo/package.json" with { type: "json" };
+
+                  const packagePath = encodeURIComponent(packageJson.name);
+                  const versionPath = encodeURIComponent(packageJson.version);
+                  const response = await fetch(`https://registry.npmjs.org/${packagePath}/${versionPath}`);
+
+                  if (response.status !== 200 && response.status !== 404) {
+                    throw new Error(`npm registry returned ${response.status} while checking ${packageJson.name}@${packageJson.version}`);
+                  }
+
+                  const shouldPublish = response.status === 404;
+                  fs.appendFileSync(
+                    process.env.GITHUB_OUTPUT,
+                    `package=${packageJson.name}\nversion=${packageJson.version}\nshould_publish=${shouldPublish}\n`,
+                  );
+
+                  const status = shouldPublish ? "is missing from" : "already exists on";
+                  console.log(`${packageJson.name}@${packageJson.version} ${status} npm`);
+                  NODE
+
+            - name: Force pure OIDC npm auth context
+              if: steps.cli-npm-release.outputs.should_publish == 'true'
+              run: |
+                  echo "NODE_AUTH_TOKEN=" >> "$GITHUB_ENV"
+                  echo "NPM_TOKEN=" >> "$GITHUB_ENV"
+                  oidc_npmrc="$RUNNER_TEMP/oidc-only.npmrc"
+                  printf "registry=https://registry.npmjs.org\nalways-auth=false\n" > "$oidc_npmrc"
+                  echo "NPM_CONFIG_USERCONFIG=$oidc_npmrc" >> "$GITHUB_ENV"
+
+            - name: Publish CLI to npm
+              if: steps.cli-npm-release.outputs.should_publish == 'true'
+              shell: bash
+              run: |
+                  mapfile -t artifacts < <(find cli-package -maxdepth 1 -type f -name '*.tgz' -print)
+                  if [[ ${#artifacts[@]} -ne 1 ]]; then
+                    echo "::error::Expected exactly one CLI package artifact, found ${#artifacts[@]}"
+                    exit 1
+                  fi
+                  npm publish "${artifacts[0]}" --access public --ignore-scripts
+
     data:
         name: Validate data
         runs-on: ubuntu-latest
@@ -42,7 +165,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
               with:
                   version: 10.33.0
                   run_install: false
@@ -93,7 +216,7 @@ jobs:
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-            - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706
+            - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d
               id: filter
               with:
                   filters: |
@@ -199,7 +322,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
               with:
                   version: 10.33.0
                   run_install: false
@@ -245,7 +368,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
               with:
                   version: 10.33.0
                   run_install: false
@@ -298,7 +421,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
               with:
                   version: 10.33.0
                   run_install: false
@@ -326,7 +449,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
               with:
                   version: 10.33.0
                   run_install: false
@@ -358,8 +481,11 @@ jobs:
         needs:
             - data
             - check-paths
+            - migrate-production
         if: >-
-            always() && needs.data.result == 'success' && github.ref == 'refs/heads/main' &&
+            always() && needs.data.result == 'success' &&
+            (needs.migrate-production.result == 'success' || needs.migrate-production.result == 'skipped') &&
+            github.ref == 'refs/heads/main' &&
             ((github.event_name == 'push' && needs.check-paths.outputs.data-changed == 'true') ||
             (github.event_name == 'workflow_dispatch' && inputs.importer_mode != 'skip'))
         env:
@@ -372,7 +498,7 @@ jobs:
                   persist-credentials: false
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
               with:
                   version: 10.33.0
                   run_install: false
@@ -397,8 +523,19 @@ jobs:
                   restore-keys: |
                       importer-state-main-
 
+            - name: Validate importer configuration
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  missing=()
+                  [ -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ] && missing+=("SUPABASE_SERVICE_ROLE_KEY")
+                  [ -z "${NEXT_PUBLIC_SUPABASE_URL:-}" ] && missing+=("NEXT_PUBLIC_SUPABASE_URL")
+                  if [ "${#missing[@]}" -gt 0 ]; then
+                    echo "::error::Missing importer secret(s): ${missing[*]}"
+                    exit 1
+                  fi
+
             - name: Run importer (all sections)
-              if: ${{ env.SUPABASE_SERVICE_ROLE_KEY != '' && env.NEXT_PUBLIC_SUPABASE_URL != '' }}
               env:
                   SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
                   NEXT_PUBLIC_SUPABASE_URL: ${{ env.NEXT_PUBLIC_SUPABASE_URL }}
@@ -431,6 +568,12 @@ jobs:
                   done
                   echo "Importer failed after 3 attempts"
                   exit 1
+
+            - name: Verify changed models are publicly available
+              if: github.event_name == 'push'
+              env:
+                  IMPORT_BASE_SHA: ${{ github.event.before }}
+              run: node scripts/verify-published-models.mjs
 
             - name: Save importer hash state
               if: success() && inputs.importer_mode != 'dry-run'
@@ -562,7 +705,7 @@ jobs:
                   fetch-depth: 0
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
               with:
                   version: 10.33.0
                   run_install: false
@@ -631,7 +774,7 @@ jobs:
                   python -m pip install -e packages/sdk/sdk-py
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
               with:
                   version: 10.33.0
                   run_install: false
@@ -660,7 +803,7 @@ jobs:
                   persist-credentials: false
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
               with:
                   version: 10.33.0
                   run_install: false
@@ -692,7 +835,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
               with:
                   version: 10.33.0
                   run_install: false
@@ -770,7 +913,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
               with:
                   version: 10.33.0
                   run_install: false
@@ -872,7 +1015,7 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
               with:
                   version: 10.33.0
                   run_install: false
@@ -986,7 +1129,7 @@ jobs:
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
             - name: Setup pnpm
-              uses: pnpm/action-setup@6fed91f804570c1144bfe1911c348642cb986bd4
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
               with:
                   version: 10.33.0
                   run_install: false
@@ -1089,7 +1232,7 @@ jobs:
                   private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
               with:
                   version: 10.33.0
                   run_install: false
@@ -1114,6 +1257,7 @@ jobs:
 
             - name: Preflight publishable npm packages
               run: |
+                  pnpm --filter @phaseo/cli run build
                   pnpm --filter @phaseo/agent-sdk run build
                   pnpm --filter @phaseo/sdk run build
                   pnpm --filter @phaseo/ai-sdk-provider run build
@@ -1149,6 +1293,38 @@ jobs:
                   commitMode: github-api
               env:
                   GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+            - name: Restore committed CLI release state
+              run: git restore --source=HEAD --staged --worktree -- packages/cli/phaseo
+
+            - name: Check CLI release status
+              id: cli-npm-release
+              run: |
+                  node --input-type=module <<'NODE'
+                  import fs from "node:fs";
+                  import packageJson from "./packages/cli/phaseo/package.json" with { type: "json" };
+
+                  const packagePath = encodeURIComponent(packageJson.name);
+                  const versionPath = encodeURIComponent(packageJson.version);
+                  const response = await fetch(`https://registry.npmjs.org/${packagePath}/${versionPath}`);
+
+                  if (response.status !== 200 && response.status !== 404) {
+                    throw new Error(`npm registry returned ${response.status} while checking ${packageJson.name}@${packageJson.version}`);
+                  }
+
+                  const shouldPublish = response.status === 404;
+                  fs.appendFileSync(
+                    process.env.GITHUB_OUTPUT,
+                    `package=${packageJson.name}\nversion=${packageJson.version}\nshould_publish=${shouldPublish}\n`,
+                  );
+
+                  const status = shouldPublish ? "is missing from" : "already exists on";
+                  console.log(`${packageJson.name}@${packageJson.version} ${status} npm`);
+                  NODE
+
+            - name: Publish CLI to npm
+              if: steps.cli-npm-release.outputs.should_publish == 'true'
+              run: pnpm --filter @phaseo/cli publish --access public --no-git-checks
 
             - name: Restore committed TypeScript SDK release state
               run: git restore --source=HEAD --staged --worktree -- packages/sdk/sdk-ts packages/sdk/agent-sdk-ts

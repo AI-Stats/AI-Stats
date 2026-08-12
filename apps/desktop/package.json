@@ -36,7 +36,7 @@
 		"@vitejs/plugin-react": "6.0.4",
 		"electron": "42.7.1",
 		"eslint": "^10.7.0",
-		"globals": "^17.4.0",
+		"globals": "^17.9.0",
 		"lucide-react": "^1.17.0",
 		"react": "19.2.7",
 		"react-dom": "19.2.7",

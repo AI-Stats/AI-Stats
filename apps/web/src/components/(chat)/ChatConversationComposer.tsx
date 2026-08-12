@@ -669,7 +669,7 @@ function ComposerModelSelectField({
 					data-chat-composer-nested-popover="true"
 					align="start"
 					sideOffset={6}
-					className="w-[min(30rem,calc(100vw-2rem))] gap-1 rounded-2xl p-1"
+					className="w-[min(30rem,calc(100vw-2rem))] gap-1 rounded-md p-1"
 				>
 					<div className="p-1">
 						<Input
@@ -790,7 +790,7 @@ function ComposerTimezoneSelectField({
 					data-chat-composer-nested-popover="true"
 					align="start"
 					sideOffset={6}
-					className="w-[min(24rem,calc(100vw-2rem))] gap-1 rounded-2xl p-1"
+					className="w-[min(24rem,calc(100vw-2rem))] gap-1 rounded-md p-1"
 				>
 					<div className="p-1">
 						<Input
@@ -2946,7 +2946,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 		>
 			<div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
 				{queuedPrompts.length > 0 ? (
-					<div className="rounded-2xl border border-border bg-card/95 p-1.5">
+					<div className="rounded-md border border-border bg-card/95 p-1.5">
 						<div className="grid gap-0.5">
 							{queuedPrompts.map((prompt) => {
 								const label =
@@ -3067,7 +3067,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 												"active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 												composerExpanded
 													? "h-10 w-auto max-w-[13rem] rounded-full px-3 sm:max-w-[14.5rem]"
-													: "h-[4.25rem] w-[14.75rem] rounded-2xl px-4 sm:w-60",
+													: "h-[4.25rem] w-[14.75rem] rounded-md px-4 sm:w-60",
 											)}
 											onClick={() =>
 												onSelectEvaluationPrompt(item.prompt)
@@ -3173,7 +3173,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 					<div
 						data-chat-composer-surface="true"
 						className={cn(
-							"rounded-2xl border border-border bg-card shadow-sm transition-colors duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none",
+							"rounded-md border border-border bg-card shadow-sm transition-colors duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none",
 							composerExpanded
 								? "flex flex-col px-3 py-2"
 								: "flex flex-col gap-1 px-2 py-1 sm:flex-row sm:items-center",

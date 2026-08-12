@@ -2,8 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { configDirPath } from "./session.js";
 import { CLI_PACKAGE_NAME, CLI_VERSION } from "./generated/meta.js";
-
-type PackageManager = "npm" | "pnpm" | "yarn" | "bun";
+import { detectInstalledPackageManager, type PackageManager } from "./installation.js";
 
 type UpdateCheckCache = {
 	checkedAt: number;
@@ -47,12 +46,11 @@ export function compareVersions(a: string, b: string): number {
 	return 0;
 }
 
-export function detectPackageManager(env: NodeJS.ProcessEnv = process.env): PackageManager {
-	const userAgent = String(env.npm_config_user_agent ?? "").toLowerCase();
-	if (userAgent.startsWith("pnpm/")) return "pnpm";
-	if (userAgent.startsWith("yarn/")) return "yarn";
-	if (userAgent.startsWith("bun/")) return "bun";
-	return "npm";
+export function detectPackageManager(
+	env: NodeJS.ProcessEnv = process.env,
+	entryPath: string | undefined = process.argv[1],
+): PackageManager {
+	return detectInstalledPackageManager(entryPath, env) ?? "npm";
 }
 
 export function installCommandFor(manager: PackageManager): string {
@@ -67,6 +65,24 @@ export function updateCommandFor(manager: PackageManager): string {
 	if (manager === "yarn") return "yarn global add @phaseo/cli@latest";
 	if (manager === "bun") return "bun add -g @phaseo/cli@latest";
 	return "npm install -g @phaseo/cli@latest";
+}
+
+export function removeCommandFor(manager: PackageManager): string {
+	if (manager === "pnpm") return "pnpm remove -g @phaseo/cli";
+	if (manager === "yarn") return "yarn global remove @phaseo/cli";
+	if (manager === "bun") return "bun remove -g @phaseo/cli";
+	return "npm uninstall -g @phaseo/cli";
+}
+
+export function updateInvocationFor(manager: PackageManager, platform: NodeJS.Platform = process.platform): {
+	command: string;
+	args: string[];
+} {
+	const command = platform === "win32" ? `${manager}.cmd` : manager;
+	if (manager === "pnpm") return { command, args: ["add", "-g", "@phaseo/cli@latest"] };
+	if (manager === "yarn") return { command, args: ["global", "add", "@phaseo/cli@latest"] };
+	if (manager === "bun") return { command, args: ["add", "-g", "@phaseo/cli@latest"] };
+	return { command, args: ["install", "-g", "@phaseo/cli@latest"] };
 }
 
 async function readUpdateCache(): Promise<UpdateCheckCache | null> {

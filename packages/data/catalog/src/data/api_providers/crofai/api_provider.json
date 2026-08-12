@@ -9,6 +9,10 @@
   "default_execution_regions": null,
   "default_data_regions": null,
   "zero_data_retention": "default",
+  "data_retention_days": 0,
+  "data_policy_tier": "private",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "residency_source_url": "https://crof.ai/privacy",
   "residency_notes": "CrofAI publicly states it does not store prompts or responses and processes conversations in real time only.",
   "prompt_training_policy": "no_train",
@@ -32,7 +36,10 @@
   "docs_url": "https://crof.ai/docs",
   "auth_env": null,
   "api_formats": [],
-  "service_tiers": [],
+  "service_tiers": [
+    "standard",
+    "priority"
+  ],
   "sources": [],
   "verification": {
     "status": "unverified",

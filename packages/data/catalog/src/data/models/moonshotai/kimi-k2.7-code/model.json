@@ -53,7 +53,16 @@
       "value": true
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 43,
+      "is_self_reported": false,
+      "other_info": "Kimi K2.7 Code; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/kimi-k2-7-code",
+      "rank": 51
+    }
+  ],
   "page_notice": null,
   "model_type": null,
   "knowledge_cutoff": null,

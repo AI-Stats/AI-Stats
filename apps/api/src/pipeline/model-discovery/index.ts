@@ -7,6 +7,7 @@ import {
 	asRecord,
 	assertSafeDiscoverySnapshot,
 	buildProviderApiModelSnapshotDiff,
+	confirmModelRemovals,
 	computeDiscordNotificationFingerprint,
 	computeConfiguredModelCoverageFingerprint,
 	diffModelIds,
@@ -210,6 +211,7 @@ type SupabaseSeenModelRow = {
 	model_id: string;
 	model_details?: unknown;
 	pricing_details?: unknown;
+	removal_pending?: boolean;
 };
 
 type ConfiguredProviderModelRow = {
@@ -259,21 +261,29 @@ const PROVIDER_API_PRICING_WATCH_PROVIDER_IDS = new Set<string>([
 	"empiriolabs",
 	"nebius-token-factory",
 	"elevenlabs",
+	"fastrouter",
 	"gmicloud",
 	"groq",
 	"huggingface",
 	"inception",
 	"kilo",
 	"llmgateway",
+	"nano-gpt",
 	"nextbit",
 	"novita",
+	"novita-ai",
 	"openrouter",
+	"orcarouter",
 	"ovhcloud",
 	"spacex-ai",
 	"together",
 	"venice",
 	"vercel",
 	"weights-and-biases",
+	"pioneer",
+	"poe",
+	"requesty",
+	"zenmux",
 ]);
 
 const PROVIDERS: ProviderConfig[] = MODEL_DISCOVERY_PROVIDERS;
@@ -461,6 +471,7 @@ type SeenModelUpsertRow = {
 	pricing_details: unknown;
 	last_seen_at: string;
 	last_run_id: string;
+	removal_pending: boolean;
 };
 
 type SeenModelDeleteRow = {
@@ -468,8 +479,11 @@ type SeenModelDeleteRow = {
 	model_id: string;
 };
 
+type SeenModelPendingRemovalRow = SeenModelDeleteRow;
+
 type PreviousProviderModels = {
 	modelIds: string[];
+	pendingRemovalIds: Set<string>;
 	pricingByModelId: Map<string, string | null>;
 	providerApiSnapshotByModelId: Map<string, ProviderApiModelSnapshot>;
 };
@@ -484,6 +498,7 @@ export async function fetchPreviousModelsByProviders(providerIds: string[]): Pro
 	for (const providerId of providerIds) {
 		map.set(providerId, {
 			modelIds: [],
+			pendingRemovalIds: new Set<string>(),
 			pricingByModelId: new Map<string, string | null>(),
 			providerApiSnapshotByModelId: new Map<string, ProviderApiModelSnapshot>(),
 		});
@@ -497,7 +512,7 @@ export async function fetchPreviousModelsByProviders(providerIds: string[]): Pro
 	for (let offset = 0; ; offset += SEEN_MODELS_PAGE_SIZE) {
 		const { data, error } = await supabase
 			.from("model_discovery_seen_models")
-			.select("provider_id,model_id,model_details,pricing_details")
+			.select("provider_id,model_id,model_details,pricing_details,removal_pending")
 			.in("provider_id", providerIds)
 			.order("provider_id", { ascending: true })
 			.order("model_id", { ascending: true })
@@ -519,6 +534,7 @@ export async function fetchPreviousModelsByProviders(providerIds: string[]): Pro
 		const state = map.get(row.provider_id);
 		if (!state) continue;
 		state.modelIds.push(row.model_id);
+		if (row.removal_pending === true) state.pendingRemovalIds.add(row.model_id);
 		const pricingDetails = row.pricing_details ?? null;
 		const fingerprint = toPricingFingerprint(pricingDetails);
 		state.pricingByModelId.set(row.model_id, fingerprint);
@@ -585,6 +601,27 @@ async function deleteRemovedModels(rows: SeenModelDeleteRow[]): Promise<number> 
 	return deletedCount;
 }
 
+export async function markPendingModelRemovals(rows: SeenModelPendingRemovalRow[]): Promise<void> {
+	if (rows.length === 0) return;
+	const supabase = getSupabaseAdmin();
+	const modelIdsByProvider = new Map<string, string[]>();
+	for (const row of rows) {
+		const modelIds = modelIdsByProvider.get(row.provider_id) ?? [];
+		modelIds.push(row.model_id);
+		modelIdsByProvider.set(row.provider_id, modelIds);
+	}
+	for (const [providerId, modelIds] of modelIdsByProvider) {
+		for (let index = 0; index < modelIds.length; index += UPSERT_BATCH_SIZE) {
+			const { error } = await supabase
+				.from("model_discovery_seen_models")
+				.update({ removal_pending: true, last_seen_at: new Date().toISOString() })
+				.eq("provider_id", providerId)
+				.in("model_id", modelIds.slice(index, index + UPSERT_BATCH_SIZE));
+			if (error) throw new Error(error.message || "Failed to mark provisional model removals");
+		}
+	}
+}
+
 async function pruneOldRows(cutoffIso: string): Promise<number> {
 	const supabase = getSupabaseAdmin();
 	const { data, error } = await supabase
@@ -646,6 +683,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 		};
 		const upsertRows: SeenModelUpsertRow[] = [];
 		const deleteRows: SeenModelDeleteRow[] = [];
+		const pendingRemovalRows: SeenModelPendingRemovalRow[] = [];
 		const discoveredModelIdsByProvider = new Map<string, string[]>();
 		const previousState = await fetchPreviousModelsByProviders(providers.map((provider) => provider.providerId));
 		const providerApiPricingChangesByProvider = new Map<string, PricingProviderChange>();
@@ -678,7 +716,12 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 				const previousModelIds = previousProviderState?.modelIds ?? [];
 				assertSafeDiscoverySnapshot(provider.providerId, previousModelIds, currentModelIds);
 				discoveredModelIdsByProvider.set(provider.providerId, currentModelIds);
-				const { added, removed } = diffModelIds(previousModelIds, currentModelIds);
+				const modelIdDiff = diffModelIds(previousModelIds, currentModelIds);
+				const { confirmed: removed, provisional: provisionalRemovals } = confirmModelRemovals(
+					modelIdDiff.removed,
+					previousProviderState?.pendingRemovalIds ?? new Set<string>(),
+				);
+				const added = modelIdDiff.added;
 
 				const nowIso = new Date().toISOString();
 				let providerModelsWithPricing = 0;
@@ -695,7 +738,11 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 						pricing_details: model.pricingDetails,
 						last_seen_at: nowIso,
 						last_run_id: runId,
+						removal_pending: false,
 					});
+				}
+				for (const modelId of provisionalRemovals) {
+					pendingRemovalRows.push({ provider_id: provider.providerId, model_id: modelId });
 				}
 				if (PROVIDER_API_PRICING_WATCH_PROVIDER_IDS.has(provider.providerId) && providerModelsWithPricing === 0) {
 					providerApiProvidersWithoutPricing.add(provider.providerId);
@@ -964,6 +1011,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 		let staleModelsDeleted = 0;
 		if (!persistenceDeferredReason) {
 			await upsertCurrentModels(upsertRows);
+			await markPendingModelRemovals(pendingRemovalRows);
 			await deleteRemovedModels(deleteRows);
 			if (shouldPrune) {
 				staleModelsDeleted = await pruneOldRows(staleCutoff);

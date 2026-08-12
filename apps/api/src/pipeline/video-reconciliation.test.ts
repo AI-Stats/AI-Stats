@@ -102,6 +102,7 @@ describe("runVideoReconciliationJob", () => {
 		});
 		expect(operationLog).toEqual([
 			"finalize:video_cancel_polled:cancelled",
+			"webhook:video_cancel_polled:video.status_changed",
 			"webhook:video_cancel_polled:video.cancelled",
 		]);
 		expect(summary).toMatchObject({
@@ -161,6 +162,62 @@ describe("runVideoReconciliationJob", () => {
 			jobsCancelled: 0,
 			jobsExpired: 0,
 		});
+	});
+
+	it("repairs stale LTX audio billing metadata on terminal retries", async () => {
+		listPendingVideoJobsMock.mockResolvedValue([makeJob({
+			videoId: "video_ltx_audio_terminal_retry",
+			provider: "ltx",
+			model: "ltx-2-5-pro",
+			status: "completed",
+			meta: {
+				provider: "ltx",
+				model: "ltx-2-5-pro",
+				seconds: 2,
+				resolution: "1920x1080",
+				inputAudioSeconds: 2,
+				ltxEndpoint: "audio-to-video",
+			},
+		})]);
+		finalizeVideoJobMock.mockResolvedValue({ status: "completed", charged: true, reason: "charged" });
+
+		await runVideoReconciliationJob({ limit: 10, concurrency: 1 });
+
+		expect(finalizeVideoJobMock).toHaveBeenCalledWith(expect.objectContaining({
+			videoId: "video_ltx_audio_terminal_retry",
+			seconds: 2,
+			requestOptions: expect.objectContaining({
+				input_audio_seconds: 20,
+				mode: "audio-to-video",
+			}),
+		}));
+	});
+
+	it("repairs missing LTX audio duration metadata on terminal retries", async () => {
+		listPendingVideoJobsMock.mockResolvedValue([makeJob({
+			videoId: "video_ltx_audio_missing_duration",
+			provider: "ltx",
+			model: "ltx-2-5-pro",
+			status: "completed",
+			meta: {
+				provider: "ltx",
+				model: "ltx-2-5-pro",
+				seconds: 2,
+				resolution: "1920x1080",
+				ltxEndpoint: "audio-to-video",
+			},
+		})]);
+		finalizeVideoJobMock.mockResolvedValue({ status: "completed", charged: true, reason: "charged" });
+
+		await runVideoReconciliationJob({ limit: 10, concurrency: 1 });
+
+		expect(finalizeVideoJobMock).toHaveBeenCalledWith(expect.objectContaining({
+			videoId: "video_ltx_audio_missing_duration",
+			requestOptions: expect.objectContaining({
+				input_audio_seconds: 20,
+				mode: "audio-to-video",
+			}),
+		}));
 	});
 
 	it("dispatches progress webhooks from in-progress provider polling", async () => {
@@ -302,6 +359,7 @@ describe("runVideoReconciliationJob", () => {
 		});
 		expect(operationLog).toEqual([
 			"finalize:video_expired:expired",
+			"webhook:video_expired:video.status_changed",
 			"webhook:video_expired:video.expired",
 		]);
 		expect(summary).toMatchObject({

@@ -194,7 +194,7 @@ export function ChatRequestErrorNotice({
 								Show error details
 							</TooltipContent>
 						</Tooltip>
-						<PopoverContent align="end" className="w-80 gap-3 rounded-2xl">
+						<PopoverContent align="end" className="w-80 gap-3 rounded-md">
 							<PopoverHeader>
 								<PopoverTitle className="text-sm">
 									Chat request failed

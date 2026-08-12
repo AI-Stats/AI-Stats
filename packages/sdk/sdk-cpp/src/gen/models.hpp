@@ -472,6 +472,7 @@ struct ChatCompletionsRequest {
 	std::any provider;
 	std::map<std::string, std::any> provider_options;
 	std::map<std::string, std::any> reasoning;
+	std::any reasoning_effort;
 	std::any response_format;
 	std::optional<std::string> safety_identifier;
 	std::optional<int> seed;
@@ -690,11 +691,54 @@ struct FusionToolDefinition {
 	std::any type;
 };
 
+struct GatewayCapabilities {
+	std::vector<std::string> endpoints;
+	std::map<std::string, std::any> parameter_details;
+	std::vector<std::string> parameters;
+};
+
+using GatewayCapabilityStatus = std::any;
+
 struct GatewayDatetimeToolDefinition {
 	std::map<std::string, std::any> parameters;
 	std::string timezone;
 	std::any type;
 };
+
+struct GatewayModalities {
+	std::vector<std::string> input;
+	std::vector<std::string> output;
+};
+
+struct GatewayModelLifecycle {
+	std::optional<std::string> deprecated_at;
+	std::optional<std::string> message;
+	std::optional<std::string> released_at;
+	std::optional<std::string> replacement_id;
+	std::optional<std::string> retires_at;
+	std::optional<std::any> status;
+};
+
+struct GatewayModelLimits {
+	std::optional<int> input_tokens;
+	std::optional<int> output_tokens;
+};
+
+struct GatewayModelOffer {
+	std::map<std::string, std::any> capabilities;
+	std::map<std::string, std::any> effective;
+	std::vector<std::string> endpoints;
+	std::map<std::string, std::any> modalities;
+	std::optional<std::string> model;
+	std::map<std::string, std::any> pricing;
+	std::map<std::string, std::any> provider;
+	bool routable;
+	std::map<std::string, std::any> routing;
+	std::any status;
+	std::any status_reason;
+};
+
+using GatewayModelOrganization = std::any;
 
 struct GatewayModelsResponse {
 	std::any availability_mode;
@@ -702,9 +746,19 @@ struct GatewayModelsResponse {
 	std::vector<std::map<std::string, std::any>> models;
 	int offset;
 	bool ok;
-	std::any privacy_scope;
 	int total;
 };
+
+struct GatewayPricing {
+	std::map<std::string, std::any> meters;
+	std::any pricing_plan;
+};
+
+using GatewayPricingMeter = std::any;
+
+using GatewayProviderAvailabilityReason = std::any;
+
+using GatewayRoutingStatus = std::any;
 
 struct GatewayWebFetchToolDefinition {
 	std::optional<int> max_chars;
@@ -875,81 +929,57 @@ using MessageContentPart = std::any;
 
 struct Model {
 	std::vector<std::string> aliases;
-	std::map<std::string, std::any> architecture;
 	std::map<std::string, std::any> availability;
-	std::string canonical_slug;
-	std::optional<int> created;
-	std::optional<std::string> deprecation_date;
+	std::string base_model_id;
+	std::map<std::string, std::any> capabilities;
 	std::string description;
-	std::vector<std::string> endpoints;
 	std::string id;
-	std::vector<std::string> input_types;
-	std::optional<ModelLifecycle> lifecycle;
-	std::string model_id;
-	std::optional<std::string> name;
-	std::optional<std::string> organisation_colour;
-	std::optional<std::string> organisation_id;
-	std::optional<std::string> organisation_name;
-	std::vector<std::string> output_types;
-	std::optional<std::map<std::string, std::any>> per_request_limits;
+	std::map<std::string, std::any> lifecycle;
+	std::map<std::string, std::any> limits;
+	std::map<std::string, std::any> modalities;
+	std::string name;
+	std::vector<std::map<std::string, std::any>> offers;
+	std::optional<std::map<std::string, std::any>> organization;
 	std::map<std::string, std::any> pricing;
-	std::map<std::string, std::any> pricing_detail;
-	std::vector<std::map<std::string, std::any>> providers;
-	std::optional<std::string> release_date;
-	std::optional<std::string> retirement_date;
-	std::optional<std::string> status;
-	std::vector<std::string> supported_parameters;
-	std::map<std::string, std::any> supported_parameters_detail;
-	std::vector<std::string> supported_params;
-	std::map<std::string, std::any> supported_params_detail;
-	std::map<std::string, std::any> top_provider;
-	std::optional<std::string> top_provider_id;
+	std::string variant;
+	std::map<std::string, std::any> variants;
 };
 
 struct ModelAvailability {
 	int active_provider_count;
+	int coming_soon_provider_count;
 	int inactive_provider_count;
 	int provider_count;
 	std::any status;
 };
 
 struct ModelEndpointCapability {
-	std::string availability_reason;
-	std::any availability_status;
+	std::map<std::string, std::any> capabilities;
 	std::string capability_id;
-	std::string capability_status;
 	std::any collection;
-	std::optional<std::string> effective_from;
-	std::optional<std::string> effective_to;
+	std::map<std::string, std::any> effective;
 	std::string endpoint;
 	std::string id;
-	std::vector<std::string> input_modalities;
-	bool is_active_gateway;
-	std::string model_routing_status;
-	std::vector<std::string> output_modalities;
+	std::map<std::string, std::any> modalities;
+	std::optional<std::string> model;
 	std::map<std::string, std::any> pricing;
-	std::map<std::string, std::any> pricing_detail;
-	std::string provider_id;
-	std::optional<std::string> provider_model_slug;
-	std::optional<std::string> provider_name;
-	std::string provider_routing_status;
-	std::string provider_status;
+	std::map<std::string, std::any> provider;
 	std::string public_path;
-	std::vector<std::string> supported_parameters;
-	std::map<std::string, std::any> supported_parameters_detail;
+	bool routable;
+	std::map<std::string, std::any> routing;
+	std::any status;
+	std::any status_reason;
 };
 
 struct ModelEndpointsResponse {
-	std::map<std::string, std::any> architecture;
 	std::any availability_mode;
-	std::string canonical_slug;
-	std::optional<int> created;
 	std::string description;
 	std::vector<std::map<std::string, std::any>> endpoints;
 	std::string id;
-	std::string model_id;
-	std::optional<std::string> name;
+	std::map<std::string, std::any> modalities;
+	std::string name;
 	std::any ok;
+	std::optional<std::map<std::string, std::any>> organization;
 };
 
 using ModelId = std::any;
@@ -982,14 +1012,6 @@ struct ModelProviderAvailability {
 	std::any provider_status;
 	std::vector<std::string> supported_parameters;
 	std::map<std::string, std::any> supported_parameters_detail;
-};
-
-struct ModelsPrivacyScopeNotImplementedResponse {
-	std::any code;
-	std::any error;
-	std::string message;
-	std::any ok;
-	std::any privacy_scope;
 };
 
 struct ModerationCategories {
@@ -1374,7 +1396,9 @@ struct VideoGenerationRequest {
 	std::optional<int> duration;
 	std::optional<bool> enhance_prompt;
 	std::optional<bool> generate_audio;
-	std::vector<std::map<std::string, std::any>> input_references;
+	std::optional<double> input_audio_duration;
+	std::vector<std::any> input_references;
+	std::optional<double> input_video_duration;
 	std::string model;
 	std::string negative_prompt;
 	std::map<std::string, std::any> output;
@@ -1429,12 +1453,7 @@ struct VideoGenerationResponse {
 	std::string websocket_url;
 };
 
-struct VideoInputReference {
-	std::map<std::string, std::any> image_url;
-	std::string reference_type;
-	std::any role;
-	std::any type;
-};
+using VideoInputReference = std::any;
 
 struct VideoListResponse {
 	std::vector<std::map<std::string, std::any>> data;

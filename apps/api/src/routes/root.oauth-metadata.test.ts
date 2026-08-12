@@ -6,6 +6,7 @@ const bindings = {
 	SUPABASE_URL: "https://test.supabase.co",
 	SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
 	GATEWAY_CACHE: {} as KVNamespace,
+	PHASEO_THIRD_PARTY_OAUTH_ENABLED: "true",
 } as any;
 
 const executionContext = {
@@ -31,6 +32,7 @@ describe("OAuth server metadata", () => {
 				authorization_endpoint: "https://api.phaseo.app/oauth/authorize",
 				token_endpoint: "https://api.phaseo.app/oauth/token",
 				code_challenge_methods_supported: ["S256"],
+				client_id_metadata_document_supported: true,
 			}),
 		);
 	});

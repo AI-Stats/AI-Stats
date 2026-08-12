@@ -135,6 +135,14 @@
       "other_info": "sigma 0.171; games 792; avg points 0.475",
       "source_link": "https://github.com/lechmazur/elimination_game",
       "rank": 43
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 7.8,
+      "is_self_reported": false,
+      "other_info": "Grok 2 (Dec '24); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/grok-2-1212",
+      "rank": 432
     }
   ],
   "family_id": null,

@@ -19,11 +19,14 @@ describe("public marketplace routes", () => {
 			if (url.includes("/preset_versions?")) {
 				return new Response(JSON.stringify([{ id: "version-1", version_number: 1, version_label: "1.0.0", versioning_method: "semver", release_notes: "Initial", created_at: "2026-07-14T00:00:00.000Z" }]), { status: 200 });
 			}
-			if (url.includes("/users?")) {
+			if (url.includes("/workspace_publisher_handle_aliases?")) {
+				return new Response(JSON.stringify([{ workspace_id: "workspace-1", handle: "old-author" }]), { status: 200 });
+			}
+			if (url.includes("/workspaces?")) {
 				return new Response(JSON.stringify([{
-					user_id: "user-1",
-					display_name: "Preset Author",
-					public_profile_slug: "author",
+					id: "workspace-1",
+					name: "Preset Author",
+					publisher_handle: "author",
 				}]), { status: 200 });
 			}
 			if (url.includes("select=id%2Cname&")) {
@@ -43,6 +46,7 @@ describe("public marketplace routes", () => {
 					created_at: "2026-07-14T00:00:00.000Z",
 					source_preset_id: "source-1",
 					created_by: "user-1",
+					workspace_id: "workspace-1",
 				}]), { status: 200 });
 			}
 			return new Response(JSON.stringify([{
@@ -53,6 +57,7 @@ describe("public marketplace routes", () => {
 				created_at: "2026-07-14T00:00:00.000Z",
 				source_preset_id: "source-1",
 				created_by: "user-1",
+				workspace_id: "workspace-1",
 			}]), { status: 200 });
 		}));
 
@@ -69,7 +74,7 @@ describe("public marketplace routes", () => {
 			expect(response.headers.get("cache-tag")).toContain("web-api-marketplace");
 		}
 		await expect(list.json()).resolves.toMatchObject({
-			presets: [{ id: "preset-1", name: "Public preset", forkCount: 7, descendantCount: 12, canonicalModel: "@author/public-preset", publisher: { handle: "author", displayName: "Preset Author" } }],
+			presets: [{ id: "preset-1", name: "Public preset", forkCount: 7, descendantCount: 12, canonicalModel: "@author/public-preset", publisher: { handle: "author", aliases: ["old-author"], displayName: "Preset Author" } }],
 		});
 		await expect(detail.json()).resolves.toMatchObject({
 			preset: { id: "preset-1", slug: "public-preset", visibility: "public", forkCount: 7, descendantCount: 12, canonicalModel: "@author/public-preset", publisher: { handle: "author" } },

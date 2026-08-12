@@ -10,8 +10,13 @@ import { resolveProviderKey } from "@providers/keys";
 import { saveVideoJobMeta } from "@core/video-jobs";
 import { isInsufficientVideoReservationStatus, reserveVideoGenerationCredits } from "@core/video-reservations";
 import { releaseWalletReservation } from "@core/wallet-reservations";
-import { buildVideoPricingRequestOptions, resolveVideoOutputCount, resolveVideoSize } from "@core/video-request-options";
+import { buildVideoPricingRequestOptions } from "@core/video-request-options";
 import { asyncVideoJobPersistenceFailureResult } from "@executors/_shared/async-job-persistence";
+import {
+	InvalidGoogleVideoRequestError,
+	normalizeGoogleVeoRequest,
+	type NormalizedGoogleVeoRequest,
+} from "@providers/google-video/request";
 import type { ProviderExecutor } from "../../types";
 
 const GOOGLE_VIDEO_BASE = "https://generativelanguage.googleapis.com";
@@ -52,23 +57,6 @@ function resolveGoogleVideoAuth(rawCredential: string): GoogleVideoAuth {
 	return { kind: "api_key", value: trimmed };
 }
 
-function toDurationSeconds(ir: IRVideoGenerationRequest): number | undefined {
-	if (typeof ir.durationSeconds === "number" && Number.isFinite(ir.durationSeconds) && ir.durationSeconds > 0) {
-		return ir.durationSeconds;
-	}
-	if (typeof ir.duration === "number" && Number.isFinite(ir.duration) && ir.duration > 0) {
-		return ir.duration;
-	}
-	if (typeof ir.seconds === "number" && Number.isFinite(ir.seconds) && ir.seconds > 0) {
-		return ir.seconds;
-	}
-	if (typeof ir.seconds === "string" && ir.seconds.trim().length > 0) {
-		const parsed = Number(ir.seconds.trim());
-		if (Number.isFinite(parsed) && parsed > 0) return parsed;
-	}
-	return undefined;
-}
-
 function toNonEmptyString(value: unknown): string | undefined {
 	if (typeof value !== "string") return undefined;
 	const trimmed = value.trim();
@@ -82,8 +70,10 @@ function normalizeGoogleMediaSource(value: unknown): Record<string, any> | undef
 		const dataUrlMatch = trimmed.match(/^data:([^;]+);base64,(.+)$/);
 		if (dataUrlMatch) {
 			return {
-				mimeType: dataUrlMatch[1],
-				imageBytes: dataUrlMatch[2],
+				inlineData: {
+					mimeType: dataUrlMatch[1],
+					data: dataUrlMatch[2],
+				},
 			};
 		}
 		if (trimmed.startsWith("gs://")) {
@@ -132,37 +122,24 @@ function normalizeReferenceImages(value: unknown): Array<Record<string, any>> | 
 	return out.length ? out : undefined;
 }
 
-function irToGoogleVideoRequest(ir: IRVideoGenerationRequest): any {
-	const durationSeconds = toDurationSeconds(ir);
-	const aspectRatio = ir.aspectRatio ?? ir.ratio;
-	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
+function irToGoogleVideoRequest(ir: IRVideoGenerationRequest, normalized: NormalizedGoogleVeoRequest): any {
 	const providerParams =
 		ir.providerParams && typeof ir.providerParams === "object" && !Array.isArray(ir.providerParams)
 			? { ...(ir.providerParams as Record<string, any>) }
 			: {};
-	const numberOfVideos =
-		typeof ir.numberOfVideos === "number"
-			? ir.numberOfVideos
-			: typeof ir.sampleCount === "number"
-				? ir.sampleCount
-				: undefined;
-	const inputImage = normalizeGoogleMediaSource(ir.inputImage ?? ir.input?.image ?? ir.inputReference);
-	const inputVideo = normalizeGoogleMediaSource(ir.inputVideo ?? ir.input?.video);
-	const lastFrame = normalizeGoogleMediaSource(ir.lastFrame ?? ir.input?.lastFrame);
-	const referenceImages = normalizeReferenceImages(ir.referenceImages ?? ir.input?.referenceImages);
+	const inputImage = normalizeGoogleMediaSource(normalized.firstFrame);
+	const inputVideo = normalizeGoogleMediaSource(normalized.sourceVideo);
+	const lastFrame = normalizeGoogleMediaSource(normalized.lastFrame);
+	const referenceImages = normalizeReferenceImages(normalized.referenceImages);
 	const parameters: Record<string, any> = {
 		...providerParams,
-		...(typeof durationSeconds === "number" ? { durationSeconds } : {}),
-		...(aspectRatio ? { aspectRatio } : {}),
-		...(size ? { resolution: size } : {}),
-		...(typeof ir.compressionQuality === "number" ? { compressionQuality: ir.compressionQuality } : {}),
+		durationSeconds: normalized.seconds,
+		aspectRatio: normalized.aspectRatio,
+		resolution: normalized.resolution,
 		...(ir.negativePrompt ? { negativePrompt: ir.negativePrompt } : {}),
-		...(typeof numberOfVideos === "number" ? { numberOfVideos } : {}),
+		numberOfVideos: normalized.outputCount,
 		...(typeof ir.seed === "number" ? { seed: ir.seed } : {}),
 		...(ir.personGeneration ? { personGeneration: ir.personGeneration } : {}),
-		...(typeof ir.generateAudio === "boolean" ? { generateAudio: ir.generateAudio } : {}),
-		...(typeof ir.enhancePrompt === "boolean" ? { enhancePrompt: ir.enhancePrompt } : {}),
-		...(ir.outputStorageUri ? { storageUri: ir.outputStorageUri } : {}),
 	};
 	const instance: Record<string, any> = { prompt: ir.prompt };
 	if (inputImage) instance.image = inputImage;
@@ -223,22 +200,38 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const ir = args.ir as IRVideoGenerationRequest;
 	const rawModel = args.providerModelSlug || ir.model || "veo-3.1-generate-preview";
 	const model = normalizeGoogleModelName(rawModel);
-	const modelForMeta = typeof rawModel === "string" && rawModel.trim().length > 0 ? rawModel.trim() : model;
+	const modelForMeta = typeof ir.model === "string" && ir.model.trim().length > 0 ? ir.model.trim() : model;
+	let normalizedRequest: NormalizedGoogleVeoRequest;
+	try {
+		normalizedRequest = normalizeGoogleVeoRequest(ir, model);
+	} catch (error) {
+		if (!(error instanceof InvalidGoogleVideoRequestError)) throw error;
+		return {
+			kind: "completed",
+			ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream: new Response(JSON.stringify({ error: { type: "invalid_request", message: error.message } }), {
+				status: 400,
+				headers: { "Content-Type": "application/json" },
+			}),
+			keySource: "gateway",
+		};
+	}
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const keyInfo = resolveProviderKey(
 		{ providerId: args.providerId, byokMeta: args.byokMeta, forceGatewayKey: args.meta.forceGatewayKey },
 		() => bindings.GOOGLE_AI_STUDIO_API_KEY,
 	);
 
-	const requestBodyObject = irToGoogleVideoRequest(ir);
+	const requestBodyObject = irToGoogleVideoRequest(ir, normalizedRequest);
 	const requestBody = JSON.stringify(requestBodyObject);
 	const mappedRequest = (args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest)
 		? requestBody
 		: undefined;
-	const requestedSeconds = toDurationSeconds(ir) ?? null;
-	const outputCount = resolveVideoOutputCount({ sampleCount: ir.sampleCount, numberOfVideos: ir.numberOfVideos });
+	const requestedSeconds = normalizedRequest.seconds;
+	const outputCount = normalizedRequest.outputCount;
 	const reservedOutputSeconds = requestedSeconds == null ? null : requestedSeconds * outputCount;
-	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
+	const size = normalizedRequest.resolution;
 	const quality = ir.quality ?? null;
 	let reservationId: string | null = null;
 	let reservationStatus: string | null = null;
@@ -257,7 +250,10 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				size,
 				resolution: ir.resolution,
 				quality,
-				audio: ir.generateAudio,
+				audio: true,
+				input_image_count: normalizedRequest.inputImageCount,
+				input_video_count: normalizedRequest.sourceVideo ? 1 : undefined,
+				input_video_seconds: normalizedRequest.inputVideoDurationSeconds,
 			}),
 			isByok: keyInfo.source === "byok",
 		});
@@ -471,11 +467,12 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				sessionId: args.meta.sessionId ?? null,
 				appId: args.meta.appId ?? null,
 				model: modelForMeta,
-				seconds: toDurationSeconds(ir) ?? null,
+				seconds: normalizedRequest.seconds,
 				outputCount,
 				resolution: size ?? null,
 				quality,
-				audio: typeof ir.generateAudio === "boolean" ? ir.generateAudio : null,
+				audio: true,
+				inputImageCount: normalizedRequest.inputImageCount,
 				outputAccess: ir.outputAccess ?? "both",
 				webhook: ir.webhook as Record<string, unknown> | null,
 				reservationId,

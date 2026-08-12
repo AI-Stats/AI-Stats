@@ -1,68 +1,16 @@
 [
   {
-    "api_model_id": "google/gemini-3.1-flash-live-preview",
-    "provider_api_model_id": "google-ai-studio:google/gemini-3.1-flash-live-preview",
-    "provider_model_slug": "gemini-3.1-flash-live-preview",
-    "internal_model_id": "google/gemini-3.1-flash-live-preview",
-    "is_active_gateway": true,
+    "api_model_id": "google/deep-research-max-preview-04-2026",
+    "provider_api_model_id": "google-ai-studio:google/deep-research-max-preview-04-2026",
+    "provider_model_slug": "deep-research-max-preview-04-2026",
+    "internal_model_id": "google/deep-research-max-preview-04-2026",
+    "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,audio",
-    "output_modalities": "text,audio",
+    "input_modalities": null,
+    "output_modalities": null,
     "context_length": null,
     "max_output_tokens": null,
-    "effective_from": "2026-03-01T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "audio.realtime",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3.5-flash-lite",
-    "provider_api_model_id": "google-ai-studio:google/gemini-3.5-flash-lite",
-    "provider_model_slug": "gemini-3.5-flash-lite",
-    "internal_model_id": "google/gemini-3.5-flash-lite",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,video,audio",
-    "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-07-21T00:00:00",
+    "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
@@ -80,7 +28,97 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:00:58.34+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/deep-research-preview-04-2026",
+    "provider_api_model_id": "google-ai-studio:google/deep-research-preview-04-2026",
+    "provider_model_slug": "deep-research-preview-04-2026",
+    "internal_model_id": "google/deep-research-preview-04-2026",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:00:58.34+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2-0-flash-live-001",
+    "provider_api_model_id": "google-ai-studio:google/gemini-2-0-flash-live-001",
+    "provider_model_slug": "gemini-2-0-flash-live-001",
+    "internal_model_id": "google/gemini-2.0-flash-live-001",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-04-09T00:00:00",
+    "effective_to": "2025-12-09T00:00:00",
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -100,35 +138,191 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "google/gemini-3.6-flash",
-    "provider_api_model_id": "google-ai-studio:google/gemini-3.6-flash",
-    "provider_model_slug": "gemini-3.6-flash",
-    "internal_model_id": "google/gemini-3.6-flash",
-    "is_active_gateway": true,
+    "api_model_id": "google/gemini-2-0-flash-preview-image-generation",
+    "provider_api_model_id": "google-ai-studio:google/gemini-2-0-flash-preview-image-generation",
+    "provider_model_slug": "gemini-2.0-flash-preview-image-generation",
+    "internal_model_id": "google/gemini-2.0-flash-preview-image-generation",
+    "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video,audio",
-    "output_modalities": "text",
+    "input_modalities": null,
+    "output_modalities": null,
     "context_length": null,
     "max_output_tokens": null,
-    "effective_from": "2026-07-21T00:00:00",
+    "effective_from": "2025-05-07T00:00:00",
+    "effective_to": "2025-11-14T00:00:00",
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2-5-flash-exp-native-audio-thinking-dialog",
+    "provider_api_model_id": "google-ai-studio:google/gemini-2-5-flash-exp-native-audio-thinking-dialog",
+    "provider_model_slug": "gemini-2-5-flash-exp-native-audio-thinking-dialog",
+    "internal_model_id": "google/gemini-2.5-flash-exp-native-audio-thinking-dialog",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2-5-flash-native-audio-latest",
+    "provider_api_model_id": "google-ai-studio:google/gemini-2-5-flash-native-audio-latest",
+    "provider_model_slug": "gemini-2.5-flash-native-audio-latest",
+    "internal_model_id": "google/gemini-2.5-flash-native-audio-preview-2025-12-12",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "audio",
+    "output_modalities": "audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-06-30T00:00:00",
+    "effective_to": null,
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2-5-flash-native-audio-preview",
+    "provider_api_model_id": "google-ai-studio:google/gemini-2-5-flash-native-audio-preview",
+    "provider_model_slug": "gemini-2-5-flash-native-audio-preview",
+    "internal_model_id": "google/gemini-2.5-flash-native-audio-preview-2025-09-03",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-03-25T00:00:00",
+    "effective_to": null,
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2-5-flash-preview-tts",
+    "provider_api_model_id": "google-ai-studio:google/gemini-2-5-flash-preview-tts",
+    "provider_model_slug": "gemini-2.5-flash-preview-tts",
+    "internal_model_id": "google/gemini-2.5-flash-preview-tts-2025-12-10",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-03-25T00:00:00",
+    "effective_to": null,
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2-5-pro-preview-tts",
+    "provider_api_model_id": "google-ai-studio:google/gemini-2-5-pro-preview-tts",
+    "provider_model_slug": "gemini-2.5-pro-preview-tts",
+    "internal_model_id": "google/gemini-2.5-pro-preview-tts",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-03-25T00:00:00",
+    "effective_to": null,
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -372,64 +566,16 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "google/gemini-2.5-flash-image",
-    "provider_api_model_id": "google-ai-studio:google/gemini-2.5-flash-image",
-    "provider_model_slug": "gemini-2.5-flash-image",
-    "internal_model_id": "google/gemini-2.5-flash-image",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2025-10-02T00:00:00",
-    "effective_to": "2026-04-30T00:00:00",
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-2.5-flash-lite-preview-2025-06-17",
-    "provider_api_model_id": "google-ai-studio:google/gemini-2.5-flash-lite-preview-2025-06-17",
-    "provider_model_slug": "gemini-2.5-flash-lite-preview-06-17",
-    "internal_model_id": "google/gemini-2.5-flash-lite-preview-2025-06-17",
+    "api_model_id": "google/gemini-2.5-flash",
+    "provider_api_model_id": "google-ai-studio:google/gemini-2.5-flash",
+    "provider_model_slug": "gemini-2.5-flash",
+    "internal_model_id": "google/gemini-2.5-flash",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
     "effective_from": "2025-06-17T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -546,6 +692,54 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "google/gemini-2.5-flash-image",
+    "provider_api_model_id": "google-ai-studio:google/gemini-2.5-flash-image",
+    "provider_model_slug": "gemini-2.5-flash-image",
+    "internal_model_id": "google/gemini-2.5-flash-image",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-10-02T00:00:00",
+    "effective_to": "2026-04-30T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "google/gemini-2.5-flash-lite",
     "provider_api_model_id": "google-ai-studio:google/gemini-2.5-flash-lite",
     "provider_model_slug": "gemini-2.5-flash-lite",
@@ -557,6 +751,132 @@
     "context_length": 1048576,
     "max_output_tokens": 65536,
     "effective_from": "2025-07-22T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2.5-flash-lite-preview-2025-06-17",
+    "provider_api_model_id": "google-ai-studio:google/gemini-2.5-flash-lite-preview-2025-06-17",
+    "provider_model_slug": "gemini-2.5-flash-lite-preview-06-17",
+    "internal_model_id": "google/gemini-2.5-flash-lite-preview-2025-06-17",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-06-17T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
@@ -810,132 +1130,6 @@
     "max_output_tokens": null,
     "effective_from": "2025-05-20T00:00:00",
     "effective_to": "2025-07-15T00:00:00",
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [
-          {
-            "param_id": "include_reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "seed",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tool_choice",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tools",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
-        ],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-2.5-flash",
-    "provider_api_model_id": "google-ai-studio:google/gemini-2.5-flash",
-    "provider_model_slug": "gemini-2.5-flash",
-    "internal_model_id": "google/gemini-2.5-flash",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,video,audio",
-    "output_modalities": "text",
-    "context_length": 1048576,
-    "max_output_tokens": 65536,
-    "effective_from": "2025-06-17T00:00:00",
-    "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1428,89 +1622,113 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "google/gemini-2-0-flash-live-001",
-    "provider_api_model_id": "google-ai-studio:google/gemini-2-0-flash-live-001",
-    "provider_model_slug": "gemini-2-0-flash-live-001",
-    "internal_model_id": "google/gemini-2.0-flash-live-001",
-    "is_active_gateway": false,
+    "api_model_id": "google/gemini-3-flash-preview",
+    "provider_api_model_id": "google-ai-studio:google/gemini-3-flash-preview",
+    "provider_model_slug": "gemini-3-flash-preview",
+    "internal_model_id": "google/gemini-3-flash-preview",
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
     "context_length": null,
     "max_output_tokens": null,
-    "effective_from": "2025-04-09T00:00:00",
-    "effective_to": "2025-12-09T00:00:00",
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-2-0-flash-preview-image-generation",
-    "provider_api_model_id": "google-ai-studio:google/gemini-2-0-flash-preview-image-generation",
-    "provider_model_slug": "gemini-2.0-flash-preview-image-generation",
-    "internal_model_id": "google/gemini-2.0-flash-preview-image-generation",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2025-05-07T00:00:00",
-    "effective_to": "2025-11-14T00:00:00",
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-2-5-flash-exp-native-audio-thinking-dialog",
-    "provider_api_model_id": "google-ai-studio:google/gemini-2-5-flash-exp-native-audio-thinking-dialog",
-    "provider_model_slug": "gemini-2-5-flash-exp-native-audio-thinking-dialog",
-    "internal_model_id": "google/gemini-2.5-flash-exp-native-audio-thinking-dialog",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-03-25T00:00:00",
+    "effective_from": "2025-12-17T00:00:00",
     "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -1530,153 +1748,142 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "google/gemini-2-5-flash-native-audio-preview",
-    "provider_api_model_id": "google-ai-studio:google/gemini-2-5-flash-native-audio-preview",
-    "provider_model_slug": "gemini-2-5-flash-native-audio-preview",
-    "internal_model_id": "google/gemini-2.5-flash-native-audio-preview-2025-09-03",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-2-5-flash-native-audio-latest",
-    "provider_api_model_id": "google-ai-studio:google/gemini-2-5-flash-native-audio-latest",
-    "provider_model_slug": "gemini-2.5-flash-native-audio-latest",
-    "internal_model_id": "google/gemini-2.5-flash-native-audio-preview-2025-12-12",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "audio",
-    "output_modalities": "audio",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-06-30T00:00:00",
-    "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-2-5-flash-preview-tts",
-    "provider_api_model_id": "google-ai-studio:google/gemini-2-5-flash-preview-tts",
-    "provider_model_slug": "gemini-2.5-flash-preview-tts",
-    "internal_model_id": "google/gemini-2.5-flash-preview-tts-2025-12-10",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-2-5-pro-preview-tts",
-    "provider_api_model_id": "google-ai-studio:google/gemini-2-5-pro-preview-tts",
-    "provider_model_slug": "gemini-2.5-pro-preview-tts",
-    "internal_model_id": "google/gemini-2.5-pro-preview-tts",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3.1-flash-image-preview",
-    "provider_api_model_id": "google-ai-studio:google/gemini-3.1-flash-image-preview",
-    "provider_model_slug": "gemini-3.1-flash-image-preview",
-    "internal_model_id": "google/gemini-3.1-flash-image-preview",
+    "api_model_id": "google/gemini-3-pro-image",
+    "provider_api_model_id": "google-ai-studio:google/gemini-3-pro-image",
+    "provider_model_slug": "gemini-3-pro-image",
+    "internal_model_id": "google/gemini-3-pro-image",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text,image",
-    "context_length": 65536,
-    "max_output_tokens": 32768,
-    "effective_from": "2026-02-26T00:00:00",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-05-28T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      },
+      {
+        "capability_id": "images.generations",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3-pro-image-preview",
+    "provider_api_model_id": "google-ai-studio:google/gemini-3-pro-image-preview",
+    "provider_model_slug": "gemini-3-pro-image-preview",
+    "internal_model_id": "google/gemini-3-pro-image-preview",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text,image",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-11-20T00:00:00",
     "effective_to": "2026-06-25T00:00:00",
     "capabilities": [
       {
@@ -1760,6 +1967,132 @@
         "capability_id": "images.generations",
         "status": "active",
         "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3-pro-preview",
+    "provider_api_model_id": "google-ai-studio:google/gemini-3-pro-preview",
+    "provider_model_slug": "gemini-3-pro-preview",
+    "internal_model_id": "google/gemini-3-pro-preview",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-11-18T00:00:00",
+    "effective_to": "2026-03-09T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1916,21 +2249,270 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "google/gemini-3.1-flash-tts-preview",
-    "provider_api_model_id": "google-ai-studio:google/gemini-3.1-flash-tts-preview",
-    "provider_model_slug": "gemini-3.1-flash-tts-preview",
-    "internal_model_id": "google/gemini-3.1-flash-tts-preview",
+    "api_model_id": "google/gemini-3.1-flash-image-preview",
+    "provider_api_model_id": "google-ai-studio:google/gemini-3.1-flash-image-preview",
+    "provider_model_slug": "gemini-3.1-flash-image-preview",
+    "internal_model_id": "google/gemini-3.1-flash-image-preview",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "audio_tts",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-04-15T00:00:00",
+    "input_modalities": "text,image",
+    "output_modalities": "text,image",
+    "context_length": 65536,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-02-26T00:00:00",
+    "effective_to": "2026-06-25T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      },
+      {
+        "capability_id": "images.generations",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.1-flash-lite",
+    "provider_api_model_id": "google-ai-studio:google/gemini-3.1-flash-lite",
+    "provider_model_slug": "gemini-3.1-flash-lite",
+    "internal_model_id": "google/gemini-3.1-flash-lite",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-05-07T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.1-flash-lite-image",
+    "provider_api_model_id": "google-ai-studio:google/gemini-3.1-flash-lite-image",
+    "provider_model_slug": "gemini-3.1-flash-lite-image",
+    "internal_model_id": "google/gemini-3.1-flash-lite-image",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text,image",
+    "context_length": 65536,
+    "max_output_tokens": 4096,
+    "effective_from": "2026-06-23T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.speech",
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      },
+      {
+        "capability_id": "images.generations",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -2076,86 +2658,75 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "google/gemini-3.1-flash-lite",
-    "provider_api_model_id": "google-ai-studio:google/gemini-3.1-flash-lite",
-    "provider_model_slug": "gemini-3.1-flash-lite",
-    "internal_model_id": "google/gemini-3.1-flash-lite",
+    "api_model_id": "google/gemini-3.1-flash-live-preview",
+    "provider_api_model_id": "google-ai-studio:google/gemini-3.1-flash-live-preview",
+    "provider_model_slug": "gemini-3.1-flash-live-preview",
+    "internal_model_id": "google/gemini-3.1-flash-live-preview",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text,image,audio,video",
-    "output_modalities": "text",
-    "context_length": 1048576,
-    "max_output_tokens": 65536,
-    "effective_from": "2026-05-07T00:00:00",
+    "input_modalities": "text,audio",
+    "output_modalities": "text,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-03-01T00:00:00",
+    "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.realtime",
         "status": "active",
-        "params": [
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "seed",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tools",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tool_choice",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
-        ],
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.1-flash-tts-preview",
+    "provider_api_model_id": "google-ai-studio:google/gemini-3.1-flash-tts-preview",
+    "provider_model_slug": "gemini-3.1-flash-tts-preview",
+    "internal_model_id": "google/gemini-3.1-flash-tts-preview",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio_tts",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-04-15T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.speech",
+        "status": "active",
+        "params": [],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2411,132 +2982,6 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "google/gemini-3-flash-preview",
-    "provider_api_model_id": "google-ai-studio:google/gemini-3-flash-preview",
-    "provider_model_slug": "gemini-3-flash-preview",
-    "internal_model_id": "google/gemini-3-flash-preview",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,video,audio",
-    "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2025-12-17T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [
-          {
-            "param_id": "include_reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "seed",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tool_choice",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tools",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
-        ],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
     "api_model_id": "google/gemini-3.5-flash",
     "provider_api_model_id": "google-ai-studio:google/gemini-3.5-flash",
     "provider_model_slug": "gemini-3.5-flash",
@@ -2663,351 +3108,167 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "google/gemini-3-pro-image-preview",
-    "provider_api_model_id": "google-ai-studio:google/gemini-3-pro-image-preview",
-    "provider_model_slug": "gemini-3-pro-image-preview",
-    "internal_model_id": "google/gemini-3-pro-image-preview",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "text,image",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2025-11-20T00:00:00",
-    "effective_to": "2026-06-25T00:00:00",
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [
-          {
-            "param_id": "include_reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "seed",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
-        ],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      },
-      {
-        "capability_id": "images.generations",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3-pro-image",
-    "provider_api_model_id": "google-ai-studio:google/gemini-3-pro-image",
-    "provider_model_slug": "gemini-3-pro-image",
-    "internal_model_id": "google/gemini-3-pro-image",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "text,image",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-05-28T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [
-          {
-            "param_id": "include_reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "seed",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
-        ],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      },
-      {
-        "capability_id": "images.generations",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3-pro-preview",
-    "provider_api_model_id": "google-ai-studio:google/gemini-3-pro-preview",
-    "provider_model_slug": "gemini-3-pro-preview",
-    "internal_model_id": "google/gemini-3-pro-preview",
+    "api_model_id": "google/gemini-3.5-flash-lite",
+    "provider_api_model_id": "google-ai-studio:google/gemini-3.5-flash-lite",
+    "provider_model_slug": "gemini-3.5-flash-lite",
+    "internal_model_id": "google/gemini-3.5-flash-lite",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
     "context_length": null,
     "max_output_tokens": null,
-    "effective_from": "2025-11-18T00:00:00",
-    "effective_to": "2026-03-09T00:00:00",
+    "effective_from": "2026-07-21T00:00:00",
+    "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [
-          {
-            "param_id": "include_reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "seed",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tool_choice",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tools",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
-        ],
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.5-live-translate-preview",
+    "provider_api_model_id": "google-ai-studio:google/gemini-3.5-live-translate-preview",
+    "provider_model_slug": "gemini-3.5-live-translate-preview",
+    "internal_model_id": "google/gemini-3.5-live-translate-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "audio",
+    "output_modalities": "audio,text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-06-09T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.translations",
+        "status": "coming_soon",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.5-pro",
+    "provider_api_model_id": "google-ai-studio:google/gemini-3.5-pro",
+    "provider_model_slug": "gemini-3.5-pro",
+    "internal_model_id": "google/gemini-3.5-pro",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-05-19T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "coming_soon",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.6-flash",
+    "provider_api_model_id": "google-ai-studio:google/gemini-3.6-flash",
+    "provider_model_slug": "gemini-3.6-flash",
+    "internal_model_id": "google/gemini-3.6-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-21T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -3050,6 +3311,54 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2025-05-20T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.embed",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-embedding-2",
+    "provider_api_model_id": "google-ai-studio:google/gemini-embedding-2",
+    "provider_model_slug": "gemini-embedding-2",
+    "internal_model_id": "google/gemini-embedding-2",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio,video",
+    "output_modalities": "embeddings",
+    "context_length": 8192,
+    "max_output_tokens": null,
+    "effective_from": "2026-04-22T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
@@ -3131,6 +3440,81 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-omni-flash-preview",
+    "provider_api_model_id": "google-ai-studio:google/gemini-omni-flash-preview",
+    "provider_model_slug": "gemini-omni-flash-preview",
+    "internal_model_id": "google/gemini-omni-flash-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "video",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-06-30T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "inactive",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number",
+            "min": 1,
+            "aliases": [
+              "seconds",
+              "duration_seconds"
+            ]
+          },
+          "size": {
+            "type": "string",
+            "aliases": [
+              "resolution"
+            ]
+          },
+          "aspect_ratio": {
+            "type": "string"
+          },
+          "input_image": {
+            "type": "string"
+          },
+          "input_video": {
+            "type": "string"
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": "Video generation remains disabled on Google AI Studio because long-running operation polling is not reliable with the supported API-key authentication path. Use the Google Vertex provider for Veo."
     },
     "rate_limits": []
   },
@@ -4279,286 +4663,6 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "google/imagen-3-0-generate-002",
-    "provider_api_model_id": "google-ai-studio:google/imagen-3-0-generate-002",
-    "provider_model_slug": "imagen-3-0-generate-002",
-    "internal_model_id": "google/imagen-3.0-generate-002",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2025-01-29T00:00:00",
-    "effective_to": "2025-11-10T00:00:00",
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/imagen-4-0-fast-generate-001",
-    "provider_api_model_id": "google-ai-studio:google/imagen-4-0-fast-generate-001",
-    "provider_model_slug": "imagen-4.0-fast-generate-001",
-    "internal_model_id": "google/imagen-4.0-fast-generate-001",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2025-08-14T00:00:00",
-    "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/imagen-4-0-generate-001",
-    "provider_api_model_id": "google-ai-studio:google/imagen-4-0-generate-001",
-    "provider_model_slug": "imagen-4.0-generate-001",
-    "internal_model_id": "google/imagen-4.0-generate-001",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2025-08-14T00:00:00",
-    "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/imagen-4-0-ultra-generate-001",
-    "provider_api_model_id": "google-ai-studio:google/imagen-4-0-ultra-generate-001",
-    "provider_model_slug": "imagen-4.0-ultra-generate-001",
-    "internal_model_id": "google/imagen-4.0-ultra-generate-001",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2025-08-14T00:00:00",
-    "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/learnlm-2-0-flash-experimental",
-    "provider_api_model_id": "google-ai-studio:google/learnlm-2-0-flash-experimental",
-    "provider_model_slug": "learnlm-2-0-flash-experimental",
-    "internal_model_id": "google/learnlm-2.0-flash-experimental",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2025-04-17T00:00:00",
-    "effective_to": "2025-11-17T00:00:00",
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/lyria-3-pro-preview",
-    "provider_api_model_id": "google-ai-studio:google/lyria-3-pro-preview",
-    "provider_model_slug": "lyria-3-pro-preview",
-    "internal_model_id": "",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "text,audio_music",
-    "context_length": 131072,
-    "max_output_tokens": null,
-    "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/lyria-3-clip-preview",
-    "provider_api_model_id": "google-ai-studio:google/lyria-3-clip-preview",
-    "provider_model_slug": "lyria-3-clip-preview",
-    "internal_model_id": "",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "text,audio_music",
-    "context_length": 131072,
-    "max_output_tokens": null,
-    "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
     "api_model_id": "google/gemma-4-26b-a4b:free",
     "canonical_model_id": "google/gemma-4-26b-a4b:free",
     "provider_api_model_id": "google-ai-studio:google/gemma-4-26b-a4b:free",
@@ -4841,21 +4945,253 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "google/gemini-embedding-2",
-    "provider_api_model_id": "google-ai-studio:google/gemini-embedding-2",
-    "provider_model_slug": "gemini-embedding-2",
-    "internal_model_id": "google/gemini-embedding-2",
+    "api_model_id": "google/imagen-3-0-generate-002",
+    "provider_api_model_id": "google-ai-studio:google/imagen-3-0-generate-002",
+    "provider_model_slug": "imagen-3-0-generate-002",
+    "internal_model_id": "google/imagen-3.0-generate-002",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-01-29T00:00:00",
+    "effective_to": "2025-11-10T00:00:00",
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/imagen-4-0-fast-generate-001",
+    "provider_api_model_id": "google-ai-studio:google/imagen-4-0-fast-generate-001",
+    "provider_model_slug": "imagen-4.0-fast-generate-001",
+    "internal_model_id": "google/imagen-4.0-fast-generate-001",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-08-14T00:00:00",
+    "effective_to": null,
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/imagen-4-0-generate-001",
+    "provider_api_model_id": "google-ai-studio:google/imagen-4-0-generate-001",
+    "provider_model_slug": "imagen-4.0-generate-001",
+    "internal_model_id": "google/imagen-4.0-generate-001",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-08-14T00:00:00",
+    "effective_to": null,
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/imagen-4-0-ultra-generate-001",
+    "provider_api_model_id": "google-ai-studio:google/imagen-4-0-ultra-generate-001",
+    "provider_model_slug": "imagen-4.0-ultra-generate-001",
+    "internal_model_id": "google/imagen-4.0-ultra-generate-001",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-08-14T00:00:00",
+    "effective_to": null,
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/learnlm-2-0-flash-experimental",
+    "provider_api_model_id": "google-ai-studio:google/learnlm-2-0-flash-experimental",
+    "provider_model_slug": "learnlm-2-0-flash-experimental",
+    "internal_model_id": "google/learnlm-2.0-flash-experimental",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-04-17T00:00:00",
+    "effective_to": "2025-11-17T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/lyria-3-clip-preview",
+    "provider_api_model_id": "google-ai-studio:google/lyria-3-clip-preview",
+    "provider_model_slug": "lyria-3-clip-preview",
+    "internal_model_id": "",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text,image,audio,video",
-    "output_modalities": "embeddings",
-    "context_length": 8192,
+    "input_modalities": "text,image",
+    "output_modalities": "text,audio_music",
+    "context_length": 131072,
     "max_output_tokens": null,
-    "effective_from": "2026-04-22T00:00:00",
+    "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.embed",
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/lyria-3-pro-preview",
+    "provider_api_model_id": "google-ai-studio:google/lyria-3-pro-preview",
+    "provider_model_slug": "lyria-3-pro-preview",
+    "internal_model_id": "",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text,audio_music",
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": "2026-03-25T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -4970,215 +5306,27 @@
     "internal_model_id": "google/veo-3.1-fast-preview",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "video",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-06-30T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "video.generate",
-        "status": "coming_soon",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/veo-3.1-lite-generate-preview",
-    "provider_api_model_id": "google-ai-studio:google/veo-3.1-lite-generate-preview",
-    "provider_model_slug": "veo-3.1-lite-generate-preview",
-    "internal_model_id": "google/veo-3.1-lite-preview",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "video",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-06-30T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "video.generate",
-        "status": "coming_soon",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3.5-live-translate-preview",
-    "provider_api_model_id": "google-ai-studio:google/gemini-3.5-live-translate-preview",
-    "provider_model_slug": "gemini-3.5-live-translate-preview",
-    "internal_model_id": "google/gemini-3.5-live-translate-preview",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "audio",
-    "output_modalities": "audio,text",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-06-09T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "audio.translations",
-        "status": "coming_soon",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3.5-pro",
-    "provider_api_model_id": "google-ai-studio:google/gemini-3.5-pro",
-    "provider_model_slug": "gemini-3.5-pro",
-    "internal_model_id": "google/gemini-3.5-pro",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,video,audio",
-    "output_modalities": "text",
-    "context_length": 1048576,
-    "max_output_tokens": 65536,
-    "effective_from": "2026-05-19T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "coming_soon",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-omni-flash-preview",
-    "provider_api_model_id": "google-ai-studio:google/gemini-omni-flash-preview",
-    "provider_model_slug": "gemini-omni-flash-preview",
-    "internal_model_id": "google/gemini-omni-flash-preview",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
     "input_modalities": "text,image,video",
-    "output_modalities": "video",
-    "context_length": 1048576,
-    "max_output_tokens": 65536,
+    "output_modalities": "video,audio",
+    "context_length": null,
+    "max_output_tokens": null,
     "effective_from": "2026-06-30T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "active",
+        "status": "coming_soon",
         "params": {
           "prompt": {
             "type": "string"
           },
           "duration": {
-            "type": "number",
-            "min": 1,
+            "type": "enum",
+            "values": [
+              4,
+              6,
+              8
+            ],
             "aliases": [
               "seconds",
               "duration_seconds"
@@ -5186,28 +5334,50 @@
           },
           "size": {
             "type": "string",
+            "enum": [
+              "720p",
+              "1080p",
+              "4k"
+            ],
+            "default": "720p",
             "aliases": [
               "resolution"
             ]
           },
           "aspect_ratio": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "16:9",
+              "9:16"
+            ]
           },
-          "input_image": {
-            "type": "string"
+          "input_references": {
+            "type": "array"
           },
-          "input_video": {
-            "type": "string"
+          "seed": {
+            "type": "integer"
           }
         },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "video",
+          "audio"
+        ],
+        "modes": [
+          "text-to-video",
+          "image-to-video",
+          "reference-to-video",
+          "video-extension"
+        ]
       }
     ],
     "routing_status": null,
@@ -5216,78 +5386,246 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": [
+        "gemini-long-running"
+      ],
+      "endpoint": "video.generate",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://ai.google.dev/gemini-api/docs/veo",
+        "kind": "api_reference"
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Gemini API Veo 3.1 Fast video contract and pricing verified."
     },
     "rate_limits": []
   },
   {
-    "api_model_id": "google/gemini-3.1-flash-lite-image",
-    "provider_api_model_id": "google-ai-studio:google/gemini-3.1-flash-lite-image",
-    "provider_model_slug": "gemini-3.1-flash-lite-image",
-    "internal_model_id": "google/gemini-3.1-flash-lite-image",
-    "is_active_gateway": true,
+    "api_model_id": "google/veo-3.1-lite-preview",
+    "provider_api_model_id": "google-ai-studio:google/veo-3.1-lite-preview",
+    "provider_model_slug": "veo-3.1-lite-generate-preview",
+    "internal_model_id": "google/veo-3.1-lite-preview",
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
-    "output_modalities": "text,image",
-    "context_length": 65536,
-    "max_output_tokens": 4096,
-    "effective_from": "2026-06-23T00:00:00",
+    "output_modalities": "video,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-06-30T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
+        "capability_id": "video.generate",
+        "status": "coming_soon",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "enum",
+            "values": [
+              4,
+              6,
+              8
+            ],
+            "aliases": [
+              "seconds",
+              "duration_seconds"
+            ]
+          },
+          "size": {
+            "type": "string",
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "default": "720p",
+            "aliases": [
+              "resolution"
+            ]
+          },
+          "aspect_ratio": {
+            "type": "string",
+            "enum": [
+              "16:9",
+              "9:16"
+            ]
+          },
+          "input_image": {
+            "type": "string"
+          },
+          "seed": {
+            "type": "integer"
+          }
+        },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      },
-      {
-        "capability_id": "images.generations",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "video",
+          "audio"
+        ],
+        "modes": [
+          "text-to-video",
+          "image-to-video"
+        ]
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": [
+        "gemini-long-running"
+      ],
+      "endpoint": "video.generate",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://ai.google.dev/gemini-api/docs/veo",
+        "kind": "api_reference"
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Gemini API Veo 3.1 Lite video contract and pricing verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/veo-3.1-preview",
+    "provider_api_model_id": "google-ai-studio:google/veo-3.1-preview",
+    "provider_model_slug": "veo-3.1-generate-preview",
+    "internal_model_id": "google/veo-3.1-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "video,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-06-30T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "coming_soon",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "enum",
+            "values": [
+              4,
+              6,
+              8
+            ],
+            "aliases": [
+              "seconds",
+              "duration_seconds"
+            ]
+          },
+          "size": {
+            "type": "string",
+            "enum": [
+              "720p",
+              "1080p",
+              "4k"
+            ],
+            "default": "720p",
+            "aliases": [
+              "resolution"
+            ]
+          },
+          "aspect_ratio": {
+            "type": "string",
+            "enum": [
+              "16:9",
+              "9:16"
+            ]
+          },
+          "input_references": {
+            "type": "array"
+          },
+          "seed": {
+            "type": "integer"
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "video",
+          "audio"
+        ],
+        "modes": [
+          "text-to-video",
+          "image-to-video",
+          "reference-to-video",
+          "video-extension"
+        ]
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "gemini-long-running"
+      ],
+      "endpoint": "video.generate",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://ai.google.dev/gemini-api/docs/veo",
+        "kind": "api_reference"
+      },
+      {
+        "url": "https://ai.google.dev/gemini-api/docs/pricing",
+        "kind": "pricing"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Gemini API Veo 3.1 long-running REST contract, polling, media inputs and pricing verified."
     },
     "rate_limits": []
   }

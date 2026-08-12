@@ -58,15 +58,6 @@ const previewData: SettingsDynamicRoutesInitialData = {
 		{ id: "google-ai-studio", name: "Google AI Studio", status: "active" },
 		{ id: "groq", name: "Groq", status: "active" },
 	],
-	suggestions: [{
-		providerId: "google-ai-studio",
-		providerName: "Google AI Studio",
-		severity: "warning",
-		failureRate: 0.083,
-		avgLatencyMs: 3280,
-		attempts: 241,
-		message: "8.3% of requests failed and average latency reached 3.28s over the last 7 days.",
-	}],
 };
 
 export const metadata = { title: "Dynamic routing preview" };

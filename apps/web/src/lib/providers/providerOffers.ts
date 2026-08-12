@@ -3,8 +3,12 @@ export type ProviderOfferScope = "global" | "regional" | "specialized";
 const PRIORITY_SUFFIXES = ["-lightning", "-turbo", "-fast"] as const;
 const REGIONAL_SUFFIXES = ["-eu", "-us"] as const;
 const KNOWN_PROVIDER_DISPLAY_NAME_OVERRIDES = new Map<string, string>([
-    ["anthropic-aws", "Anthropic on AWS"],
-    ["anthropic-aws-us", "Anthropic on AWS"],
+    ["openai", "OpenAI"],
+    ["openai-eu", "OpenAI"],
+    ["anthropic", "Anthropic"],
+    ["anthropic-us", "Anthropic"],
+    ["anthropic-aws", "Claude Platform for AWS"],
+    ["anthropic-aws-us", "Claude Platform for AWS"],
 ]);
 const KNOWN_PROVIDER_LOGO_ID_OVERRIDES = new Map<string, string>([
     ["anthropic-aws", "aws"],

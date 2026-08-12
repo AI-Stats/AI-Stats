@@ -1,6 +1,5 @@
 import SubscriptionPlanDetailShell from "@/components/(data)/subscription-plans/SubscriptionPlanDetailShell";
 import { fetchFrontendSubscriptionPlan } from "@/lib/fetchers/frontend/fetchPublicCatalog";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import SubscriptionPlanFeaturesTable from "@/components/(data)/subscription-plans/SubscriptionPlanFeaturesTable";
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
@@ -81,12 +80,9 @@ export default async function Page({
 	}
 
 	return (
-		<SubscriptionPlanDetailShell planId={planId}>
-			<Card>
-				<CardHeader>
-					<CardTitle>All Features</CardTitle>
-				</CardHeader>
-				<CardContent>
+		<SubscriptionPlanDetailShell planId={planId} tab="features">
+			<section className="space-y-4">
+				<h2 className="text-xl font-semibold">All Features</h2>
 					{plan.features && plan.features.length > 0 ? (
 						<SubscriptionPlanFeaturesTable
 							features={plan.features}
@@ -96,8 +92,7 @@ export default async function Page({
 							No features information available.
 						</p>
 					)}
-				</CardContent>
-			</Card>
+			</section>
 		</SubscriptionPlanDetailShell>
 	);
 }

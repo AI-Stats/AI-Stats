@@ -105,7 +105,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1048576,
-    "max_output_tokens": null,
+    "max_output_tokens": 262144,
     "effective_from": "2026-04-27T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -480,6 +480,61 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "moonshotai/kimi-k3",
+    "provider_api_model_id": "baseten:moonshotai/kimi-k3",
+    "provider_model_slug": "moonshotai/Kimi-K3",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 262144,
+    "effective_from": "2026-07-27T15:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.baseten.co/talk-to-us/kimi-k3-waitlist/",
+        "kind": "announcement",
+        "accessed_at": "2026-07-26T00:00:00Z",
+        "notes": "Baseten promises Kimi K3 on Model APIs and Dedicated Inference the same day the weights drop."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-27T00:00:00Z",
+      "notes": "Baseten's Kimi K3 Model API card shows the route live at $3.00 per 1M input tokens, $0.30 per 1M cached input tokens, and $15.00 per 1M output tokens, with limits of 100,000 tokens and 15 requests per minute."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "nvidia/nemotron-3-super-120b-a12b",
     "provider_api_model_id": "baseten:nvidia/nemotron-3-super-120b-a12b",
     "provider_model_slug": "nvidia/Nemotron-120B-A12B",
@@ -738,7 +793,7 @@
     "input_modalities": "text,image,audio",
     "output_modalities": "text",
     "context_length": 1000000,
-    "max_output_tokens": null,
+    "max_output_tokens": 32768,
     "effective_from": "2026-07-30T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -991,7 +1046,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1048576,
-    "max_output_tokens": null,
+    "max_output_tokens": 262144,
     "effective_from": "2026-06-16T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -1030,20 +1085,17 @@
     "rate_limits": []
   },
   {
-    "api_model_id":"z-ai/glm-5.2-fast","provider_api_model_id":"baseten:z-ai/glm-5.2-fast","provider_model_slug":"zai-org/GLM-5.2-Fast","internal_model_id":"z-ai/glm-5.2","is_active_gateway":false,"quantization_scheme":null,"input_modalities":"text","output_modalities":"text","context_length":1048576,"max_output_tokens":null,"effective_from":"2026-07-24T00:00:00","effective_to":null,"capabilities":[{"capability_id":"text.generate","status":"active","params":[],"reasoning":true,"tool_call":true,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],"routing_status":null,"routable":false,"regions":{"execution":null,"data":null},"service_tiers":[],"api":{"formats":[],"endpoint":null,"deployment":null},"sources":[{"url":"https://www.baseten.co/library/glm-52-fast/","kind":"documentation"},{"url":"https://www.baseten.co/pricing/","kind":"pricing"}],"verification":{"status":"verified","checked_at":"2026-07-26T00:00:00Z","notes":"Hidden provider sibling used when a canonical z-ai/glm-5.2 request selects Phaseo's priority service tier; Baseten serves it at zai-org/GLM-5.2-Fast."},"rate_limits":[]
-  },
-  {
-    "api_model_id": "moonshotai/kimi-k3",
-    "provider_api_model_id": "baseten:moonshotai/kimi-k3",
-    "provider_model_slug": "moonshotai/Kimi-K3",
-    "internal_model_id": "moonshotai/kimi-k3",
-    "is_active_gateway": true,
+    "api_model_id": "z-ai/glm-5.2-fast",
+    "provider_api_model_id": "baseten:z-ai/glm-5.2-fast",
+    "provider_model_slug": "zai-org/GLM-5.2-Fast",
+    "internal_model_id": "z-ai/glm-5.2",
+    "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image",
+    "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1048576,
-    "max_output_tokens": null,
-    "effective_from": "2026-07-27T15:00:00Z",
+    "max_output_tokens": 262144,
+    "effective_from": "2026-07-24T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
@@ -1051,17 +1103,17 @@
         "status": "active",
         "params": [],
         "reasoning": true,
-        "tool_call": null,
+        "tool_call": true,
         "structured_output": null,
         "temperature": null,
-        "attachment": true,
+        "attachment": null,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1074,16 +1126,85 @@
     },
     "sources": [
       {
-        "url": "https://www.baseten.co/talk-to-us/kimi-k3-waitlist/",
-        "kind": "announcement",
-        "accessed_at": "2026-07-26T00:00:00Z",
-        "notes": "Baseten promises Kimi K3 on Model APIs and Dedicated Inference the same day the weights drop."
+        "url": "https://www.baseten.co/library/glm-52-fast/",
+        "kind": "documentation"
+      },
+      {
+        "url": "https://www.baseten.co/pricing/",
+        "kind": "pricing"
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-07-27T00:00:00Z",
-      "notes": "Baseten's Kimi K3 Model API card shows the route live at $3.00 per 1M input tokens, $0.30 per 1M cached input tokens, and $15.00 per 1M output tokens, with limits of 100,000 tokens and 15 requests per minute."
+      "checked_at": "2026-07-26T00:00:00Z",
+      "notes": "Hidden provider sibling used when a canonical z-ai/glm-5.2 request selects Phaseo's priority service tier; Baseten serves it at zai-org/GLM-5.2-Fast."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "baseten:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek/deepseek-v4-flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
   }

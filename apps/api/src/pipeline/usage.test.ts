@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import { shapeUsageForClient, stripUsagePricing } from "./usage";
 
 describe("shapeUsageForClient", () => {
+	it("preserves the input-image billing meter", () => {
+		const shaped = shapeUsageForClient({ input_image: 2, requests: 1 });
+		expect(shaped.input_image).toBe(2);
+	});
 	it("preserves multimodal token details and exposes top-level token meters", () => {
 		const shaped = shapeUsageForClient({
 			input_tokens: 66,

@@ -5,10 +5,12 @@
 
 import { dispatchBackground, getSupabaseAdmin, getCache } from "@/runtime/env";
 import { getProviderResidencyMetadata } from "@/lib/config/providerResidency";
+import { parseRouteAvailabilityPolicy } from "@/lib/config/routeAvailability";
 import { getTextMany, keyVersionToken } from "@/core/kv";
 import { gatewayCreditCacheKey } from "@/core/gateway-credit-cache";
 import { isDataContributionAccessEnabled } from "@/core/feature-flags";
 import { bytesToString, decryptBYOK } from "@pipeline/byok/decrypt";
+import { BYOK_KEYS_PER_PROVIDER_LIMIT, isByokKeyEligible } from "@/core/byok";
 import { contextSchema } from "./schemas";
 import { loadPriceCard } from "@pipeline/pricing";
 import { getContextCapabilityCandidates } from "./context.capability-aliases";
@@ -137,6 +139,8 @@ async function fetchFreshCreditContext(args: {
 async function hydrateByokKeys(
 	context: GatewayContextData,
 	workspaceId: string,
+	requestedModel: string,
+	apiKeyId: string,
 ): Promise<GatewayContextData> {
 	const providerIds = Array.from(new Set(
 		(context.providers ?? []).map((provider) => provider.providerId).filter(Boolean),
@@ -171,25 +175,27 @@ async function hydrateByokKeys(
 		};
 	}
 
-	const maxKeysPerModePerProvider = 8;
+	const maxKeysPerProvider = BYOK_KEYS_PER_PROVIDER_LIMIT;
 	const rowsByProvider = new Map<string, any[]>();
 	for (const row of data as any[]) {
+		if (!isByokKeyEligible({ allowedModelSlugs: row.allowed_model_slugs, allowedApiKeyIds: row.allowed_api_key_ids, requestedModel, apiKeyId })) continue;
 		const providerRows = rowsByProvider.get(String(row.provider_id)) ?? [];
 		providerRows.push(row);
 		rowsByProvider.set(String(row.provider_id), providerRows);
 	}
 	const selectedRows = Array.from(rowsByProvider.values())
-		.flatMap((providerRows) => (["priority", "fallback"] as const).flatMap((mode) =>
-			providerRows
+		.flatMap((providerRows) => {
+			const orderedRows = (["priority", "fallback"] as const).flatMap((mode) =>
+				providerRows
 				.filter((row) => {
 					const rowMode = row.routing_mode === "priority" || row.routing_mode === "fallback"
 						? row.routing_mode
 						: row.always_use ? "priority" : "fallback";
 					return rowMode === mode;
 				})
-				.sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0) || String(a.id).localeCompare(String(b.id)))
-				.slice(0, maxKeysPerModePerProvider)
-		));
+				.sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0) || String(a.id).localeCompare(String(b.id))));
+			return orderedRows.slice(0, maxKeysPerProvider);
+		});
 
 	const decrypted = await Promise.all(selectedRows.map(async (row) => {
 		try {
@@ -211,6 +217,8 @@ async function hydrateByokKeys(
 					? row.routing_mode
 					: legacyPriority ? "priority" : "fallback",
 				sortOrder: Number.isFinite(Number(row.sort_order)) ? Number(row.sort_order) : 0,
+				allowedModelSlugs: Array.isArray(row.allowed_model_slugs) ? row.allowed_model_slugs.map(String) : null,
+				allowedApiKeyIds: Array.isArray(row.allowed_api_key_ids) ? row.allowed_api_key_ids.map(String) : null,
 				key,
 				value: key,
 			} satisfies ByokKeyMeta;
@@ -258,6 +266,7 @@ type FreeRouterProviderModelRow = {
     provider_model_slug: string | null;
     api_model_id: string | null;
     model_id?: string | null;
+    metadata?: Record<string, unknown> | null;
     routing_status: string | null;
     input_modalities: unknown;
     output_modalities: unknown;
@@ -585,7 +594,7 @@ async function fetchTestingProviderSnapshots(args: {
     const byApiModelResult = await supabase
         .from("v2_model_provider_routes")
         .select(
-            "provider_api_model_id:provider_model_id,provider_id:provider_slug,provider_model_slug,is_active_gateway:routing_enabled,routing_status:status,provider_availability_status,phaseo_status,access_scope,effective_from,effective_to,input_modalities,output_modalities"
+            "provider_api_model_id:provider_model_id,provider_id:provider_slug,provider_model_slug,is_active_gateway:routing_enabled,routing_status:status,provider_availability_status,phaseo_status,access_scope,effective_from,effective_to,input_modalities,output_modalities,metadata"
         )
         .in("model_slug", modelCandidates)
         .eq("access_scope", "internal")
@@ -729,6 +738,7 @@ async function fetchTestingProviderSnapshots(args: {
             executionRegions: residency.executionRegions,
             dataRegions: residency.dataRegions,
             zeroDataRetention: residency.zeroDataRetention,
+            availabilityPolicy: parseRouteAvailabilityPolicy(row?.metadata?.availability),
             supportsEndpoint: true,
             baseWeight: 1,
             byokMeta: byokByProvider.get(providerId) ?? [],
@@ -756,7 +766,7 @@ async function fetchFreeRouterProviderPool(args: {
     const { data: rows, error } = await supabase
         .from("v2_model_provider_routes")
         .select(
-            "provider_api_model_id:provider_model_id,provider_id:provider_slug,provider_model_slug,api_model_id:model_slug,model_id:model_slug,is_active_gateway:routing_enabled,routing_status:status,effective_from,effective_to,input_modalities,output_modalities"
+            "provider_api_model_id:provider_model_id,provider_id:provider_slug,provider_model_slug,api_model_id:model_slug,model_id:model_slug,is_active_gateway:routing_enabled,routing_status:status,effective_from,effective_to,input_modalities,output_modalities,metadata"
         )
         .eq("routing_enabled", true)
         .in("status", ["active", "degraded"])
@@ -871,6 +881,7 @@ async function fetchFreeRouterProviderPool(args: {
             executionRegions: residency.executionRegions,
             dataRegions: residency.dataRegions,
             zeroDataRetention: residency.zeroDataRetention,
+            availabilityPolicy: parseRouteAvailabilityPolicy(row.metadata?.availability),
             supportsEndpoint: true,
             baseWeight: 1,
             byokMeta: [],
@@ -1012,7 +1023,7 @@ export async function fetchGatewayContext(args: {
                             cacheStatus,
                             totalMs: round3(performance.now() - fetchStartedAt),
                         },
-					}, args.workspaceId);
+					}, args.workspaceId, args.model, args.apiKeyId);
                 }
             }
         } catch {
@@ -1026,7 +1037,7 @@ export async function fetchGatewayContext(args: {
 		const inflight = contextInflight.get(inflightKey);
 		if (inflight) {
 			return inflight.then((value) =>
-				hydrateByokKeys(cloneGatewayContextData(value), args.workspaceId),
+				hydrateByokKeys(cloneGatewayContextData(value), args.workspaceId, args.model, args.apiKeyId),
 			);
         }
     }
@@ -1322,7 +1333,7 @@ export async function fetchGatewayContext(args: {
             const providerStatusQuery = providerIds.length
                 ? supabase
                     .from("v2_providers")
-                    .select("provider_slug,status,routing_enabled,provider_family_slug,offer_scope,offer_label,residency_mode,default_execution_regions,default_data_regions,zero_data_retention,prompt_training_policy,data_policy_tier,data_policy_confidence,data_policy_contract_mode,data_policy_variant,stream_cancellation_support,stream_cancellation_stops_provider_billing,stream_cancellation_usage_recovery,stream_cancellation_evidence_kind,stream_cancellation_source_url")
+                    .select("provider_slug,status,routing_enabled,provider_family_slug,offer_scope,offer_label,residency_mode,default_execution_regions,default_data_regions,zero_data_retention,prompt_training_policy,data_policy_tier,data_policy_confidence,data_policy_contract_mode,data_policy_variant,stream_cancellation_support,stream_cancellation_stops_provider_billing,stream_cancellation_usage_recovery,stream_cancellation_evidence_kind,stream_cancellation_source_url,metadata")
                     .in("provider_slug", providerIds)
                 : Promise.resolve({ data: [], error: null } as any);
 
@@ -1450,6 +1461,7 @@ export async function fetchGatewayContext(args: {
             const streamCancellationUsageRecoveryByProvider = new Map<string, GatewayProviderSnapshot["streamCancellationUsageRecovery"]>();
             const streamCancellationEvidenceKindByProvider = new Map<string, GatewayProviderSnapshot["streamCancellationEvidenceKind"]>();
             const streamCancellationSourceUrlByProvider = new Map<string, string | null>();
+            const availabilityPolicyByProvider = new Map<string, GatewayProviderSnapshot["availabilityPolicy"]>();
 			const normalizeRegions = (value: unknown): string[] | null =>
 				Array.isArray(value)
 					? value.map(String).map((region) => region.trim().toLowerCase()).filter(Boolean)
@@ -1558,6 +1570,10 @@ export async function fetchGatewayContext(args: {
                             ? row.stream_cancellation_source_url
                             : null,
                     );
+                    availabilityPolicyByProvider.set(
+                        providerId,
+                        parseRouteAvailabilityPolicy(row?.metadata?.availability),
+                    );
                 }
             }
 
@@ -1654,6 +1670,10 @@ export async function fetchGatewayContext(args: {
                         streamCancellationSourceUrlByProvider.get(provider.providerId) ??
                         provider.streamCancellationSourceUrl ??
                         null,
+                    availabilityPolicy:
+                        provider.availabilityPolicy ??
+                        availabilityPolicyByProvider.get(provider.providerId) ??
+                        null,
                 };
             });
         } catch (error) {
@@ -1725,7 +1745,7 @@ export async function fetchGatewayContext(args: {
     }
 
     try {
-		return await hydrateByokKeys(await dbLoader, args.workspaceId);
+		return await hydrateByokKeys(await dbLoader, args.workspaceId, args.model, args.apiKeyId);
     } finally {
         if (inflightKey && contextInflight.get(inflightKey) === dbLoader) {
             contextInflight.delete(inflightKey);

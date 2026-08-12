@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyWorkspacePolicy, buildWorkspacePolicy, isOptionalDynamicRouteSchemaUnavailable } from "./workspacePolicy";
+import { applyWorkspacePolicy, buildWorkspacePolicy, isOptionalDynamicRouteSchemaUnavailable, shouldApplyAccountPolicyForKeyName } from "./workspacePolicy";
 
 function candidate(args: {
     providerId: string;
@@ -77,6 +77,63 @@ function candidate(args: {
 }
 
 describe("applyWorkspacePolicy", () => {
+	it("applies personal account policy only to the managed Chat key", () => {
+		expect(shouldApplyAccountPolicyForKeyName("__chat_route_managed_key__")).toBe(true);
+		expect(shouldApplyAccountPolicyForKeyName("Production API")).toBe(false);
+		expect(shouldApplyAccountPolicyForKeyName(null)).toBe(false);
+	});
+	it("keeps account route blocks when workspace guardrails allow other routes", () => {
+		const policy = buildWorkspacePolicy({
+			accountSettings: { provider_restriction_mode: "blocklist", provider_restriction_provider_ids: ["openai"], model_restriction_mode: "blocklist", model_restriction_model_ids: ["test/model"] },
+			globalSettings: { provider_restriction_mode: "none" },
+			guardrails: [{ id: "guardrail", provider_restriction_mode: "none", allowed_api_model_ids: [] }],
+		});
+		expect(policy.providerBlocklist).toEqual(["openai"]);
+		expect(policy.blockedApiModels).toEqual(["test/model"]);
+		expect(policy.accountPolicyApplied).toBe(true);
+	});
+
+	it("applies workspace-wide model restrictions before scoped guardrails", () => {
+		const policy = buildWorkspacePolicy({
+			globalSettings: {
+				model_restriction_mode: "blocklist",
+				model_restriction_model_ids: ["openai/gpt-5"],
+			},
+			guardrails: [],
+		});
+
+		expect(policy.blockedApiModels).toEqual(["openai/gpt-5"]);
+	});
+
+	it("combines account and guardrail privacy settings in the stricter direction", () => {
+		const policy = buildWorkspacePolicy({
+			accountSettings: { privacy_enable_input_output_logging: false, privacy_zdr_only: true },
+			guardrails: [{ id: "guardrail", privacy_enable_input_output_logging: true, privacy_zdr_only: false }],
+		});
+		expect(policy.privacyEnableInputOutputLogging).toBe(false);
+		expect(policy.privacyZdrOnly).toBe(true);
+	});
+
+	it("intersects account allowlists with workspace guardrail allowlists", () => {
+		const policy = buildWorkspacePolicy({
+			accountSettings: {
+				provider_restriction_mode: "allowlist",
+				provider_restriction_provider_ids: ["openai", "anthropic"],
+				model_restriction_mode: "allowlist",
+				model_restriction_model_ids: ["openai/gpt-5", "anthropic/claude"],
+			},
+			guardrails: [{
+				id: "guardrail",
+				provider_restriction_mode: "allowlist",
+				provider_restriction_provider_ids: ["anthropic"],
+				model_restriction_mode: "allowlist",
+				allowed_api_model_ids: ["anthropic/claude"],
+			}],
+		});
+		expect(policy.providerAllowlist).toEqual(["anthropic"]);
+		expect(policy.allowedApiModels).toEqual(["anthropic/claude"]);
+	});
+
 	it("treats an explicit empty provider allowlist as deny all", () => {
 		const result = applyWorkspacePolicy({
 			providers: [
@@ -218,7 +275,7 @@ describe("applyWorkspacePolicy", () => {
 				privacyEnableInputOutputLogging: false,
 				privacyEnablePaidMayTrain: false,
 				privacyEnableFreeMayTrain: false,
-				privacyZdrOnly: true,
+				privacyZdrOnly: false,
 				billingMode: "wallet",
 			},
 		});
@@ -229,6 +286,35 @@ describe("applyWorkspacePolicy", () => {
 			expect.objectContaining({ providerId: "unknown", reason: "data_policy_unknown" }),
 			expect.objectContaining({ providerId: "unverified", reason: "data_policy_unverified" }),
 		]);
+	});
+
+	it("enforces ZDR-only routing", () => {
+		const result = applyWorkspacePolicy({
+			providers: [
+				candidate({ providerId: "optional-zdr", apiModelId: "test/model", dataPolicyTier: "private", dataPolicyConfidence: "confirmed" }),
+				{ ...candidate({ providerId: "default-zdr", apiModelId: "test/model", dataPolicyTier: "private", dataPolicyConfidence: "confirmed" }), zeroDataRetention: "default" },
+			],
+			resolvedModel: "test/model",
+			body: {},
+			workspacePolicy: {
+				providerAllowlist: null,
+				providerBlocklist: null,
+				allowedApiModels: null,
+				blockedApiModels: null,
+				promptInjectionAction: null,
+				promptInjectionGuardrailIds: [],
+				sensitiveInfoRules: [],
+				sensitiveInfoGuardrailIds: [],
+				privacyZdrOnly: true,
+				enforceAllowed: false,
+				activeGuardrailIds: [],
+			},
+		});
+
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.providers.map((provider) => provider.providerId)).toEqual(["default-zdr"]);
+		expect(result.diagnostics.droppedByPrivacy[0]).toMatchObject({ providerId: "optional-zdr", reason: "zdr_required" });
 	});
 
     it("filters phaseo/free providers by concrete allowed model ids", () => {
@@ -358,6 +444,33 @@ describe("applyWorkspacePolicy", () => {
             "anthropic/claude-sonnet-4",
         ]);
     });
+
+	it("merges prompt-injection and privacy guardrails by the strictest policy", () => {
+		const policy = buildWorkspacePolicy({
+			guardrails: [
+				{
+					id: "gr_flag",
+					prompt_injection_enabled: true,
+					prompt_injection_action: "flag",
+					privacy_enable_paid_may_train: false,
+				},
+				{
+					id: "gr_block",
+					prompt_injection_enabled: true,
+					prompt_injection_action: "block",
+					privacy_enable_input_output_logging: false,
+					privacy_zdr_only: true,
+				},
+			] as any,
+		});
+
+		expect(policy.promptInjectionAction).toBe("block");
+		expect(policy.promptInjectionGuardrailIds).toEqual(["gr_flag", "gr_block"]);
+		expect(policy.privacyEnablePaidMayTrain).toBe(false);
+		expect(policy.privacyEnableFreeMayTrain).toBe(true);
+		expect(policy.privacyEnableInputOutputLogging).toBe(false);
+		expect(policy.privacyZdrOnly).toBe(true);
+	});
 
     it("merges sensitive info rules by most restrictive action", () => {
         const policy = buildWorkspacePolicy({

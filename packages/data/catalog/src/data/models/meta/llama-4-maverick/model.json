@@ -144,6 +144,14 @@
       "other_info": "940 puzzles",
       "source_link": "https://github.com/lechmazur/nyt-connections",
       "rank": 74
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 14.5,
+      "is_self_reported": false,
+      "other_info": "Llama 4 Maverick; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/llama-4-maverick",
+      "rank": 303
     }
   ],
   "page_notice": null,

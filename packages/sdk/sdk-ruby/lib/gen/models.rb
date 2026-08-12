@@ -709,6 +709,8 @@ module Phaseo
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] reasoning
     #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] reasoning_effort
+    #   @return [String, nil]
     # @!attribute [rw] response_format
     #   @return [String, Hash{String => Object}, nil]
     # @!attribute [rw] safety_identifier
@@ -743,7 +745,7 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] user_id
     #   @return [String, nil]
-    ChatCompletionsRequest = Struct.new(:debug, :echo_upstream_request, :frequency_penalty, :image_config, :logit_bias, :logprobs, :max_completion_tokens, :max_tokens, :max_tool_calls, :messages, :meta, :metadata, :modalities, :model, :parallel_tool_calls, :presence_penalty, :prompt_cache_key, :provider, :provider_options, :reasoning, :response_format, :safety_identifier, :seed, :service_tier, :session_id, :stop, :store, :stream, :stream_options, :temperature, :tool_choice, :tools, :top_logprobs, :top_p, :usage, :user, :user_id, keyword_init: true)
+    ChatCompletionsRequest = Struct.new(:debug, :echo_upstream_request, :frequency_penalty, :image_config, :logit_bias, :logprobs, :max_completion_tokens, :max_tokens, :max_tool_calls, :messages, :meta, :metadata, :modalities, :model, :parallel_tool_calls, :presence_penalty, :prompt_cache_key, :provider, :provider_options, :reasoning, :reasoning_effort, :response_format, :safety_identifier, :seed, :service_tier, :session_id, :stop, :store, :stream, :stream_options, :temperature, :tool_choice, :tools, :top_logprobs, :top_p, :usage, :user, :user_id, keyword_init: true)
     # @!attribute [rw] choices
     #   @return [Array<Hash{String => Object}>, nil]
     # @!attribute [rw] created
@@ -1019,6 +1021,14 @@ module Phaseo
     # @!attribute [rw] type
     #   @return [String]
     FusionToolDefinition = Struct.new(:parameters, :type, keyword_init: true)
+    # @!attribute [rw] endpoints
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] parameter_details
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] parameters
+    #   @return [Array<String>]
+    GatewayCapabilities = Struct.new(:endpoints, :parameter_details, :parameters, keyword_init: true)
+    GatewayCapabilityStatus = Object
     # @!attribute [rw] parameters
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] timezone
@@ -1026,6 +1036,53 @@ module Phaseo
     # @!attribute [rw] type
     #   @return [String]
     GatewayDatetimeToolDefinition = Struct.new(:parameters, :timezone, :type, keyword_init: true)
+    # @!attribute [rw] input
+    #   @return [Array<String>]
+    # @!attribute [rw] output
+    #   @return [Array<String>]
+    GatewayModalities = Struct.new(:input, :output, keyword_init: true)
+    # @!attribute [rw] deprecated_at
+    #   @return [String, nil]
+    # @!attribute [rw] message
+    #   @return [String, nil]
+    # @!attribute [rw] released_at
+    #   @return [String, nil]
+    # @!attribute [rw] replacement_id
+    #   @return [String, nil]
+    # @!attribute [rw] retires_at
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    GatewayModelLifecycle = Struct.new(:deprecated_at, :message, :released_at, :replacement_id, :retires_at, :status, keyword_init: true)
+    # @!attribute [rw] input_tokens
+    #   @return [Integer, nil]
+    # @!attribute [rw] output_tokens
+    #   @return [Integer, nil]
+    GatewayModelLimits = Struct.new(:input_tokens, :output_tokens, keyword_init: true)
+    # @!attribute [rw] capabilities
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] effective
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] endpoints
+    #   @return [Array<String>]
+    # @!attribute [rw] modalities
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] model
+    #   @return [String, nil]
+    # @!attribute [rw] pricing
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] provider
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] routable
+    #   @return [Boolean]
+    # @!attribute [rw] routing
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] status_reason
+    #   @return [String]
+    GatewayModelOffer = Struct.new(:capabilities, :effective, :endpoints, :modalities, :model, :pricing, :provider, :routable, :routing, :status, :status_reason, keyword_init: true)
+    GatewayModelOrganization = Object
     # @!attribute [rw] availability_mode
     #   @return [String]
     # @!attribute [rw] limit
@@ -1036,11 +1093,17 @@ module Phaseo
     #   @return [Integer]
     # @!attribute [rw] ok
     #   @return [Boolean]
-    # @!attribute [rw] privacy_scope
-    #   @return [String]
     # @!attribute [rw] total
     #   @return [Integer]
-    GatewayModelsResponse = Struct.new(:availability_mode, :limit, :models, :offset, :ok, :privacy_scope, :total, keyword_init: true)
+    GatewayModelsResponse = Struct.new(:availability_mode, :limit, :models, :offset, :ok, :total, keyword_init: true)
+    # @!attribute [rw] meters
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] pricing_plan
+    #   @return [String]
+    GatewayPricing = Struct.new(:meters, :pricing_plan, keyword_init: true)
+    GatewayPricingMeter = Object
+    GatewayProviderAvailabilityReason = Object
+    GatewayRoutingStatus = Object
     # @!attribute [rw] max_chars
     #   @return [Integer, nil]
     # @!attribute [rw] parameters
@@ -1265,67 +1328,39 @@ module Phaseo
     ManagementKeyUpdateResponse = Struct.new(:message, :ok, keyword_init: true)
     MessageContentPart = Object
     # @!attribute [rw] aliases
-    #   @return [Array<String>, nil]
-    # @!attribute [rw] architecture
-    #   @return [Hash{String => Object}, nil]
+    #   @return [Array<String>]
     # @!attribute [rw] availability
-    #   @return [Hash{String => Object}, nil]
-    # @!attribute [rw] canonical_slug
-    #   @return [String, nil]
-    # @!attribute [rw] created
-    #   @return [Integer, nil]
-    # @!attribute [rw] deprecation_date
-    #   @return [String, nil]
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] base_model_id
+    #   @return [String]
+    # @!attribute [rw] capabilities
+    #   @return [Hash{String => Object}]
     # @!attribute [rw] description
-    #   @return [String, nil]
-    # @!attribute [rw] endpoints
-    #   @return [Array<String>, nil]
+    #   @return [String]
     # @!attribute [rw] id
-    #   @return [String, nil]
-    # @!attribute [rw] input_types
-    #   @return [Array<String>, nil]
+    #   @return [String]
     # @!attribute [rw] lifecycle
-    #   @return [ModelLifecycle, nil]
-    # @!attribute [rw] model_id
-    #   @return [String, nil]
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] limits
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] modalities
+    #   @return [Hash{String => Object}]
     # @!attribute [rw] name
-    #   @return [String, nil]
-    # @!attribute [rw] organisation_colour
-    #   @return [String, nil]
-    # @!attribute [rw] organisation_id
-    #   @return [String, nil]
-    # @!attribute [rw] organisation_name
-    #   @return [String, nil]
-    # @!attribute [rw] output_types
-    #   @return [Array<String>, nil]
-    # @!attribute [rw] per_request_limits
+    #   @return [String]
+    # @!attribute [rw] offers
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] organization
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] pricing
-    #   @return [Hash{String => Object}, nil]
-    # @!attribute [rw] pricing_detail
-    #   @return [Hash{String => Object}, nil]
-    # @!attribute [rw] providers
-    #   @return [Array<Hash{String => Object}>, nil]
-    # @!attribute [rw] release_date
-    #   @return [String, nil]
-    # @!attribute [rw] retirement_date
-    #   @return [String, nil]
-    # @!attribute [rw] status
-    #   @return [String, nil]
-    # @!attribute [rw] supported_parameters
-    #   @return [Array<String>, nil]
-    # @!attribute [rw] supported_parameters_detail
-    #   @return [Hash{String => Object}, nil]
-    # @!attribute [rw] supported_params
-    #   @return [Array<String>, nil]
-    # @!attribute [rw] supported_params_detail
-    #   @return [Hash{String => Object}, nil]
-    # @!attribute [rw] top_provider
-    #   @return [Hash{String => Object}, nil]
-    # @!attribute [rw] top_provider_id
-    #   @return [String, nil]
-    Model = Struct.new(:aliases, :architecture, :availability, :canonical_slug, :created, :deprecation_date, :description, :endpoints, :id, :input_types, :lifecycle, :model_id, :name, :organisation_colour, :organisation_id, :organisation_name, :output_types, :per_request_limits, :pricing, :pricing_detail, :providers, :release_date, :retirement_date, :status, :supported_parameters, :supported_parameters_detail, :supported_params, :supported_params_detail, :top_provider, :top_provider_id, keyword_init: true)
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] variant
+    #   @return [String]
+    # @!attribute [rw] variants
+    #   @return [Hash{String => Object}]
+    Model = Struct.new(:aliases, :availability, :base_model_id, :capabilities, :description, :id, :lifecycle, :limits, :modalities, :name, :offers, :organization, :pricing, :variant, :variants, keyword_init: true)
     # @!attribute [rw] active_provider_count
+    #   @return [Integer]
+    # @!attribute [rw] coming_soon_provider_count
     #   @return [Integer]
     # @!attribute [rw] inactive_provider_count
     #   @return [Integer]
@@ -1333,75 +1368,55 @@ module Phaseo
     #   @return [Integer]
     # @!attribute [rw] status
     #   @return [String]
-    ModelAvailability = Struct.new(:active_provider_count, :inactive_provider_count, :provider_count, :status, keyword_init: true)
-    # @!attribute [rw] availability_reason
-    #   @return [String]
-    # @!attribute [rw] availability_status
-    #   @return [String]
+    ModelAvailability = Struct.new(:active_provider_count, :coming_soon_provider_count, :inactive_provider_count, :provider_count, :status, keyword_init: true)
+    # @!attribute [rw] capabilities
+    #   @return [Hash{String => Object}]
     # @!attribute [rw] capability_id
-    #   @return [String]
-    # @!attribute [rw] capability_status
     #   @return [String]
     # @!attribute [rw] collection
     #   @return [String]
-    # @!attribute [rw] effective_from
-    #   @return [String, nil]
-    # @!attribute [rw] effective_to
-    #   @return [String, nil]
+    # @!attribute [rw] effective
+    #   @return [Hash{String => Object}]
     # @!attribute [rw] endpoint
     #   @return [String]
     # @!attribute [rw] id
     #   @return [String]
-    # @!attribute [rw] input_modalities
-    #   @return [Array<String>]
-    # @!attribute [rw] is_active_gateway
-    #   @return [Boolean]
-    # @!attribute [rw] model_routing_status
-    #   @return [String]
-    # @!attribute [rw] output_modalities
-    #   @return [Array<String>]
+    # @!attribute [rw] modalities
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] model
+    #   @return [String, nil]
     # @!attribute [rw] pricing
     #   @return [Hash{String => Object}]
-    # @!attribute [rw] pricing_detail
+    # @!attribute [rw] provider
     #   @return [Hash{String => Object}]
-    # @!attribute [rw] provider_id
-    #   @return [String]
-    # @!attribute [rw] provider_model_slug
-    #   @return [String, nil]
-    # @!attribute [rw] provider_name
-    #   @return [String, nil]
-    # @!attribute [rw] provider_routing_status
-    #   @return [String]
-    # @!attribute [rw] provider_status
-    #   @return [String]
     # @!attribute [rw] public_path
     #   @return [String]
-    # @!attribute [rw] supported_parameters
-    #   @return [Array<String>]
-    # @!attribute [rw] supported_parameters_detail
+    # @!attribute [rw] routable
+    #   @return [Boolean]
+    # @!attribute [rw] routing
     #   @return [Hash{String => Object}]
-    ModelEndpointCapability = Struct.new(:availability_reason, :availability_status, :capability_id, :capability_status, :collection, :effective_from, :effective_to, :endpoint, :id, :input_modalities, :is_active_gateway, :model_routing_status, :output_modalities, :pricing, :pricing_detail, :provider_id, :provider_model_slug, :provider_name, :provider_routing_status, :provider_status, :public_path, :supported_parameters, :supported_parameters_detail, keyword_init: true)
-    # @!attribute [rw] architecture
-    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] status_reason
+    #   @return [String]
+    ModelEndpointCapability = Struct.new(:capabilities, :capability_id, :collection, :effective, :endpoint, :id, :modalities, :model, :pricing, :provider, :public_path, :routable, :routing, :status, :status_reason, keyword_init: true)
     # @!attribute [rw] availability_mode
     #   @return [String]
-    # @!attribute [rw] canonical_slug
-    #   @return [String]
-    # @!attribute [rw] created
-    #   @return [Integer, nil]
     # @!attribute [rw] description
-    #   @return [String, nil]
+    #   @return [String]
     # @!attribute [rw] endpoints
     #   @return [Array<Hash{String => Object}>]
     # @!attribute [rw] id
     #   @return [String]
-    # @!attribute [rw] model_id
-    #   @return [String]
+    # @!attribute [rw] modalities
+    #   @return [Hash{String => Object}]
     # @!attribute [rw] name
-    #   @return [String, nil]
+    #   @return [String]
     # @!attribute [rw] ok
     #   @return [String]
-    ModelEndpointsResponse = Struct.new(:architecture, :availability_mode, :canonical_slug, :created, :description, :endpoints, :id, :model_id, :name, :ok, keyword_init: true)
+    # @!attribute [rw] organization
+    #   @return [Hash{String => Object}, nil]
+    ModelEndpointsResponse = Struct.new(:availability_mode, :description, :endpoints, :id, :modalities, :name, :ok, :organization, keyword_init: true)
     ModelId = Object
     # @!attribute [rw] deprecation_date
     #   @return [String, nil]
@@ -1453,17 +1468,6 @@ module Phaseo
     # @!attribute [rw] supported_parameters_detail
     #   @return [Hash{String => Object}, nil]
     ModelProviderAvailability = Struct.new(:api_provider_id, :api_provider_name, :availability_reason, :availability_status, :capability_status, :effective_from, :effective_to, :endpoints, :input_modalities, :is_active_gateway, :model_routing_status, :output_modalities, :params, :params_detail, :provider_model_slug, :provider_routing_status, :provider_status, :supported_parameters, :supported_parameters_detail, keyword_init: true)
-    # @!attribute [rw] code
-    #   @return [String]
-    # @!attribute [rw] error
-    #   @return [String]
-    # @!attribute [rw] message
-    #   @return [String]
-    # @!attribute [rw] ok
-    #   @return [String]
-    # @!attribute [rw] privacy_scope
-    #   @return [String]
-    ModelsPrivacyScopeNotImplementedResponse = Struct.new(:code, :error, :message, :ok, :privacy_scope, keyword_init: true)
     # @!attribute [rw] harassment
     #   @return [Boolean, nil]
     # @!attribute [rw] harassment_threatening
@@ -2013,8 +2017,12 @@ module Phaseo
     #   @return [Boolean, nil]
     # @!attribute [rw] generate_audio
     #   @return [Boolean, nil]
+    # @!attribute [rw] input_audio_duration
+    #   @return [Float, nil]
     # @!attribute [rw] input_references
     #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] input_video_duration
+    #   @return [Float, nil]
     # @!attribute [rw] model
     #   @return [String]
     # @!attribute [rw] negative_prompt
@@ -2041,7 +2049,7 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] webhook
     #   @return [Hash{String => Object}, nil]
-    VideoGenerationRequest = Struct.new(:aspect_ratio, :compression_quality, :duration, :enhance_prompt, :generate_audio, :input_references, :model, :negative_prompt, :output, :person_generation, :prompt, :provider, :provider_params, :resize_mode, :resolution, :sample_count, :seed, :size, :webhook, keyword_init: true)
+    VideoGenerationRequest = Struct.new(:aspect_ratio, :compression_quality, :duration, :enhance_prompt, :generate_audio, :input_audio_duration, :input_references, :input_video_duration, :model, :negative_prompt, :output, :person_generation, :prompt, :provider, :provider_params, :resize_mode, :resolution, :sample_count, :seed, :size, :webhook, keyword_init: true)
     # @!attribute [rw] asset
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] audio
@@ -2115,15 +2123,7 @@ module Phaseo
     # @!attribute [rw] websocket_url
     #   @return [String, nil]
     VideoGenerationResponse = Struct.new(:asset, :audio, :billing, :cancel_url, :completed_at, :content_url, :created_at, :download_url, :error, :expires_at, :generation_id, :id, :last_webhook_dispatched_at, :last_webhook_progress, :last_webhook_progress_at, :lifecycle_status, :model, :native_video_id, :next_webhook_retry_at, :object, :output_access, :outputs, :poll_after_seconds, :polling_url, :progress, :progress_source, :provider, :request_id, :seconds, :session_id, :size, :started_at, :status, :usage, :webhook, :websocket_url, keyword_init: true)
-    # @!attribute [rw] image_url
-    #   @return [Hash{String => Object}, nil]
-    # @!attribute [rw] reference_type
-    #   @return [String, nil]
-    # @!attribute [rw] role
-    #   @return [String, nil]
-    # @!attribute [rw] type
-    #   @return [String]
-    VideoInputReference = Struct.new(:image_url, :reference_type, :role, :type, keyword_init: true)
+    VideoInputReference = Object
     # @!attribute [rw] data
     #   @return [Array<Hash{String => Object}>, nil]
     # @!attribute [rw] first_id

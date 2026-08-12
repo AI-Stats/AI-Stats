@@ -13,7 +13,13 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "tencent/hy3",
-  "variants": [{ "model_id": "tencent/hy3:free", "name": "Hy3 (Free)", "variant_kind": "free" }],
+  "variants": [
+    {
+      "model_id": "tencent/hy3:free",
+      "name": "Hy3 (Free)",
+      "variant_kind": "free"
+    }
+  ],
   "links": [
     {
       "title": "Website",
@@ -35,7 +41,16 @@
       "value": "Novita provider discovery listed Hy3 as tencent/hy3 with 262144 context and 262144 max output on 2026-07-06."
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 42.2,
+      "is_self_reported": false,
+      "other_info": "Hy3; Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/hy3",
+      "rank": 55
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

@@ -7,6 +7,7 @@ import {
 	sendCreditsPurchasedEvent,
 } from "@/lib/automations/resend-events";
 import { getStripe } from "@/lib/stripe";
+import { readBoundedTextBody } from "@/lib/server/boundedRequestBody";
 
 const TOP_UP_PURPOSES = new Set(["top_up", "top_up_one_off", "auto_top_up", "credits_topup_offsession"]);
 type AppliedCreditRow = { applied?: boolean; before_balance_nanos?: number; after_balance_nanos?: number };
@@ -264,6 +265,53 @@ function getSupabase() {
     });
 }
 
+async function enqueueAutoTopUpFailureFromWebhook(args: {
+    supabase: ReturnType<typeof getSupabase>;
+    paymentIntent: Stripe.PaymentIntent;
+}): Promise<void> {
+    const workspaceId = readTeamIdFromPaymentIntent(args.paymentIntent);
+    if (!workspaceId) return;
+
+    const { data: settings, error: settingsError } = await args.supabase
+        .from("workspace_settings")
+        .select("auto_top_up_failure_email_enabled")
+        .eq("workspace_id", workspaceId)
+        .maybeSingle();
+    if (settingsError || settings?.auto_top_up_failure_email_enabled === false) return;
+
+    const { data: workspace, error: workspaceError } = await args.supabase
+        .from("workspaces")
+        .select("name,owner_user_id")
+        .eq("id", workspaceId)
+        .maybeSingle();
+    if (workspaceError || !workspace?.owner_user_id) return;
+
+    const { data: owner, error: ownerError } = await args.supabase.auth.admin.getUserById(workspace.owner_user_id);
+    const email = String(owner?.user?.email ?? "").trim();
+    if (ownerError || !email) return;
+
+    const reason = String(
+        args.paymentIntent.last_payment_error?.message ?? "The saved payment method could not be charged.",
+    ).slice(0, 500);
+    const { error: enqueueError } = await args.supabase.from("email_outbox").upsert(
+        {
+            dedupe_key: `auto_top_up_failed:${args.paymentIntent.id}`,
+            kind: "auto_top_up_failed",
+            template: "auto_top_up_failed",
+            to_email: email,
+            subject: "Auto Top-Up failed",
+            workspace_id: workspaceId,
+            user_id: workspace.owner_user_id,
+            payload: {
+                workspace_name: String(workspace.name ?? "your workspace"),
+                reason,
+            },
+        },
+        { onConflict: "dedupe_key", ignoreDuplicates: true },
+    );
+    if (enqueueError) throw enqueueError;
+}
+
 /* Fees: Reverse-engineer the original amount from the total received, then apply the flat top-up fee. */
 function computeNetAndFeeFromGross(grossNanos: number, feePct: number) {
     const minFeeNanos = 1_000_000_000; // $1 in nanos
@@ -380,12 +428,18 @@ async function upsertTeamInvoiceFromStripeInvoice(args: {
     if (error) throw error;
 }
 
+const MAX_STRIPE_WEBHOOK_BYTES = 1024 * 1024;
+
 export async function POST(req: Request) {
     const stripe = getStripe();
     const supabase = getSupabase();
 
     // IMPORTANT: read raw body for signature verification
-    const rawBody = await req.text();
+    const boundedBody = await readBoundedTextBody(req, MAX_STRIPE_WEBHOOK_BYTES);
+    if (!boundedBody.ok) {
+        return new Response("Webhook body too large", { status: 413 });
+    }
+    const rawBody = boundedBody.text;
     const signature = req.headers.get("stripe-signature") ?? "";
     const signatureSummary = summarizeStripeSignatureHeader(signature);
 
@@ -611,6 +665,10 @@ export async function POST(req: Request) {
                     .update({ status: "Failed", event_time: new Date().toISOString() })
                     .eq("ref_type", "Stripe_Payment_Intent")
                     .eq("ref_id", pi.id);
+
+                if (purpose === "auto_top_up" || purpose === "credits_topup_offsession") {
+                    await enqueueAutoTopUpFailureFromWebhook({ supabase, paymentIntent: pi });
+                }
                 break;
             }
 

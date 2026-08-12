@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import {
 	fetchFrontendModelHeader,
+	fetchFrontendModelGatewayMetadata,
 	fetchFrontendModelOverview,
 	fetchFrontendModelPageNotice,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
@@ -15,7 +16,9 @@ import ModelIdentifierControl from "./ModelIdentifierControl";
 import ModelDescriptionPanel from "./ModelDescriptionPanel";
 import ModelPageNotice from "./ModelPageNotice";
 import ModelStickyHeader from "./ModelStickyHeader";
+import { UseModelSheet } from "./UseModelSheet";
 import ModelStatusBanner from "./overview/ModelStatusBanner";
+import AccountPolicyNotice from "../AccountPolicyNotice";
 import { resolveModelDescription } from "@/lib/models/modelDescription";
 import type { ModelOverviewPage } from "@/lib/fetchers/models/getModel";
 import type { ModelOverviewHeader } from "@/lib/fetchers/models/getModelOverviewHeader";
@@ -71,7 +74,7 @@ export default async function ModelDetailShell({
 	modelOverview: prefetchedModelOverview,
 }: ModelDetailShellProps) {
 	const isFreeRouter = isFreeRouterModelId(modelId);
-	const [header, modelOverview, modelPageNotice] = isFreeRouter
+	const [header, modelOverview, modelPageNotice, gatewayMetadata] = isFreeRouter
 		? [
 				{
 					model_id: FREE_ROUTER_MODEL_ID,
@@ -87,6 +90,7 @@ export default async function ModelDetailShell({
 				},
 				null,
 				null,
+				null,
 			]
 		: await Promise.all([
 				prefetchedHeader ?? fetchFrontendModelHeader(modelId, includeHidden).catch(() => null),
@@ -94,6 +98,7 @@ export default async function ModelDetailShell({
 					? Promise.resolve(prefetchedModelOverview)
 					: fetchFrontendModelOverview(modelId).catch(() => null),
 				fetchFrontendModelPageNotice(modelId, includeHidden).catch(() => null),
+				fetchFrontendModelGatewayMetadata(modelId).catch(() => null),
 			]);
 
 	if (!header) {
@@ -123,9 +128,11 @@ export default async function ModelDetailShell({
 				modelName={header.name}
 				observeId="model-detail-primary-header"
 				canChat={canChat}
+				gatewayMetadata={gatewayMetadata}
 			/>
 
 			<div className="container mx-auto px-4 py-8">
+				<AccountPolicyNotice kind="model" id={modelId} />
 				{modelPageNotice ? (
 					<div className="mb-6">
 						<ModelPageNotice notice={modelPageNotice} />
@@ -176,7 +183,7 @@ export default async function ModelDetailShell({
 						</div>
 					</div>
 
-					<div className="flex w-full flex-row gap-2 md:mt-0 md:ml-6 md:w-auto md:flex-col">
+					<div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-row sm:flex-wrap md:mt-0 md:ml-6 md:w-auto md:flex-nowrap md:items-center">
 						{canChat ? (
 							<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg md:flex-none">
 								<Link href={`/chat?model=${modelId}`}>
@@ -191,6 +198,7 @@ export default async function ModelDetailShell({
 								Compare
 							</Link>
 						</Button>
+						{canChat ? <UseModelSheet modelId={modelId} modelName={header.name} gatewayMetadata={gatewayMetadata} triggerId="quickstart" className="col-span-2 w-full min-w-[8.5rem] justify-center sm:w-auto sm:flex-1 md:flex-none" /> : null}
 					</div>
 				</div>
 

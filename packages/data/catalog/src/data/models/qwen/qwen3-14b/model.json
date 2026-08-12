@@ -63,6 +63,14 @@
       "other_info": "inferred family alias from qwen3-max (score=0.3333; benches=6)",
       "source_link": "https://qwenlm.github.io/blog/qwen3/",
       "rank": 16
+    },
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 10.4,
+      "is_self_reported": false,
+      "other_info": "Qwen3 14B (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/qwen3-14b-instruct-reasoning",
+      "rank": 370
     }
   ],
   "family_id": null,

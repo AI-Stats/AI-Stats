@@ -845,6 +845,8 @@ class ChatCompletionsRequest
 	public $provider_options;
 	/** @var array<string, mixed>|null */
 	public $reasoning;
+	/** @var string|null */
+	public $reasoning_effort;
 	/** @var string|array<string, mixed>|null */
 	public $response_format;
 	/** @var string|null */
@@ -1229,6 +1231,18 @@ class FusionToolDefinition
 	public $type;
 }
 
+class GatewayCapabilities
+{
+	/** @var array|null */
+	public $endpoints;
+	/** @var array<string, mixed> */
+	public $parameter_details;
+	/** @var array */
+	public $parameters;
+}
+
+class GatewayCapabilityStatus { }
+
 class GatewayDatetimeToolDefinition
 {
 	/** @var array<string, mixed>|null */
@@ -1238,6 +1252,66 @@ class GatewayDatetimeToolDefinition
 	/** @var string */
 	public $type;
 }
+
+class GatewayModalities
+{
+	/** @var array */
+	public $input;
+	/** @var array */
+	public $output;
+}
+
+class GatewayModelLifecycle
+{
+	/** @var string|null */
+	public $deprecated_at;
+	/** @var string|null */
+	public $message;
+	/** @var string|null */
+	public $released_at;
+	/** @var string|null */
+	public $replacement_id;
+	/** @var string|null */
+	public $retires_at;
+	/** @var string|null */
+	public $status;
+}
+
+class GatewayModelLimits
+{
+	/** @var int|null */
+	public $input_tokens;
+	/** @var int|null */
+	public $output_tokens;
+}
+
+class GatewayModelOffer
+{
+	/** @var array<string, mixed> */
+	public $capabilities;
+	/** @var array<string, mixed> */
+	public $effective;
+	/** @var array */
+	public $endpoints;
+	/** @var array<string, mixed> */
+	public $modalities;
+	/** @var string|null */
+	public $model;
+	/** @var array<string, mixed> */
+	public $pricing;
+	/** @var array<string, mixed> */
+	public $provider;
+	/** @var bool */
+	public $routable;
+	/** @var array<string, mixed> */
+	public $routing;
+	/** @var string */
+	public $status;
+	/** @var string */
+	public $status_reason;
+}
+
+class GatewayModelOrganization { }
 
 class GatewayModelsResponse
 {
@@ -1251,11 +1325,23 @@ class GatewayModelsResponse
 	public $offset;
 	/** @var bool */
 	public $ok;
-	/** @var string */
-	public $privacy_scope;
 	/** @var int */
 	public $total;
 }
+
+class GatewayPricing
+{
+	/** @var array<string, mixed> */
+	public $meters;
+	/** @var string */
+	public $pricing_plan;
+}
+
+class GatewayPricingMeter { }
+
+class GatewayProviderAvailabilityReason { }
+
+class GatewayRoutingStatus { }
 
 class GatewayWebFetchToolDefinition
 {
@@ -1547,72 +1633,44 @@ class MessageContentPart { }
 
 class Model
 {
-	/** @var array|null */
+	/** @var array */
 	public $aliases;
-	/** @var array<string, mixed>|null */
-	public $architecture;
-	/** @var array<string, mixed>|null */
+	/** @var array<string, mixed> */
 	public $availability;
-	/** @var string|null */
-	public $canonical_slug;
-	/** @var int|null */
-	public $created;
-	/** @var string|null */
-	public $deprecation_date;
-	/** @var string|null */
+	/** @var string */
+	public $base_model_id;
+	/** @var array<string, mixed> */
+	public $capabilities;
+	/** @var string */
 	public $description;
-	/** @var array|null */
-	public $endpoints;
-	/** @var string|null */
+	/** @var string */
 	public $id;
-	/** @var array|null */
-	public $input_types;
-	/** @var ModelLifecycle|null */
+	/** @var array<string, mixed> */
 	public $lifecycle;
-	/** @var string|null */
-	public $model_id;
-	/** @var string|null */
+	/** @var array<string, mixed> */
+	public $limits;
+	/** @var array<string, mixed> */
+	public $modalities;
+	/** @var string */
 	public $name;
-	/** @var string|null */
-	public $organisation_colour;
-	/** @var string|null */
-	public $organisation_id;
-	/** @var string|null */
-	public $organisation_name;
-	/** @var array|null */
-	public $output_types;
+	/** @var array */
+	public $offers;
 	/** @var array<string, mixed>|null */
-	public $per_request_limits;
-	/** @var array<string, mixed>|null */
+	public $organization;
+	/** @var array<string, mixed> */
 	public $pricing;
-	/** @var array<string, mixed>|null */
-	public $pricing_detail;
-	/** @var array|null */
-	public $providers;
-	/** @var string|null */
-	public $release_date;
-	/** @var string|null */
-	public $retirement_date;
-	/** @var string|null */
-	public $status;
-	/** @var array|null */
-	public $supported_parameters;
-	/** @var array<string, mixed>|null */
-	public $supported_parameters_detail;
-	/** @var array|null */
-	public $supported_params;
-	/** @var array<string, mixed>|null */
-	public $supported_params_detail;
-	/** @var array<string, mixed>|null */
-	public $top_provider;
-	/** @var string|null */
-	public $top_provider_id;
+	/** @var string */
+	public $variant;
+	/** @var array<string, mixed> */
+	public $variants;
 }
 
 class ModelAvailability
 {
 	/** @var int */
 	public $active_provider_count;
+	/** @var int */
+	public $coming_soon_provider_count;
 	/** @var int */
 	public $inactive_provider_count;
 	/** @var int */
@@ -1623,76 +1681,56 @@ class ModelAvailability
 
 class ModelEndpointCapability
 {
-	/** @var string */
-	public $availability_reason;
-	/** @var string */
-	public $availability_status;
+	/** @var array<string, mixed> */
+	public $capabilities;
 	/** @var string */
 	public $capability_id;
 	/** @var string */
-	public $capability_status;
-	/** @var string */
 	public $collection;
-	/** @var string|null */
-	public $effective_from;
-	/** @var string|null */
-	public $effective_to;
+	/** @var array<string, mixed> */
+	public $effective;
 	/** @var string */
 	public $endpoint;
 	/** @var string */
 	public $id;
-	/** @var array */
-	public $input_modalities;
-	/** @var bool */
-	public $is_active_gateway;
-	/** @var string */
-	public $model_routing_status;
-	/** @var array */
-	public $output_modalities;
+	/** @var array<string, mixed> */
+	public $modalities;
+	/** @var string|null */
+	public $model;
 	/** @var array<string, mixed> */
 	public $pricing;
 	/** @var array<string, mixed> */
-	public $pricing_detail;
-	/** @var string */
-	public $provider_id;
-	/** @var string|null */
-	public $provider_model_slug;
-	/** @var string|null */
-	public $provider_name;
-	/** @var string */
-	public $provider_routing_status;
-	/** @var string */
-	public $provider_status;
+	public $provider;
 	/** @var string */
 	public $public_path;
-	/** @var array */
-	public $supported_parameters;
+	/** @var bool */
+	public $routable;
 	/** @var array<string, mixed> */
-	public $supported_parameters_detail;
+	public $routing;
+	/** @var string */
+	public $status;
+	/** @var string */
+	public $status_reason;
 }
 
 class ModelEndpointsResponse
 {
-	/** @var array<string, mixed>|null */
-	public $architecture;
 	/** @var string */
 	public $availability_mode;
 	/** @var string */
-	public $canonical_slug;
-	/** @var int|null */
-	public $created;
-	/** @var string|null */
 	public $description;
 	/** @var array */
 	public $endpoints;
 	/** @var string */
 	public $id;
+	/** @var array<string, mixed> */
+	public $modalities;
 	/** @var string */
-	public $model_id;
-	/** @var string|null */
 	public $name;
 	/** @var string */
 	public $ok;
+	/** @var array<string, mixed>|null */
+	public $organization;
 }
 
 class ModelId { }
@@ -1751,20 +1789,6 @@ class ModelProviderAvailability
 	public $supported_parameters;
 	/** @var array<string, mixed>|null */
 	public $supported_parameters_detail;
-}
-
-class ModelsPrivacyScopeNotImplementedResponse
-{
-	/** @var string */
-	public $code;
-	/** @var string */
-	public $error;
-	/** @var string */
-	public $message;
-	/** @var string */
-	public $ok;
-	/** @var string */
-	public $privacy_scope;
 }
 
 class ModerationCategories
@@ -2441,8 +2465,12 @@ class VideoGenerationRequest
 	public $enhance_prompt;
 	/** @var bool|null */
 	public $generate_audio;
+	/** @var float|null */
+	public $input_audio_duration;
 	/** @var array|null */
 	public $input_references;
+	/** @var float|null */
+	public $input_video_duration;
 	/** @var string */
 	public $model;
 	/** @var string|null */
@@ -2547,17 +2575,7 @@ class VideoGenerationResponse
 	public $websocket_url;
 }
 
-class VideoInputReference
-{
-	/** @var array<string, mixed>|null */
-	public $image_url;
-	/** @var string|null */
-	public $reference_type;
-	/** @var string|null */
-	public $role;
-	/** @var string */
-	public $type;
-}
+class VideoInputReference { }
 
 class VideoListResponse
 {
