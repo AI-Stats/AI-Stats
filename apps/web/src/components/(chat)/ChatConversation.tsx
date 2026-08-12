@@ -5,6 +5,7 @@ import type { ChangeEvent } from "react";
 import { MessageScroller } from "@shadcn/react/message-scroller";
 import { ChatConversationComposer } from "@/components/(chat)/ChatConversationComposer";
 import { ChatConversationMessages } from "@/components/(chat)/ChatConversationMessages";
+import { appendChatSelectionPrompt } from "@/components/(chat)/chatSelectionActions";
 import type { ChatRequestErrorDetails } from "@/components/(chat)/ChatRequestErrorNotice";
 import {
 	shouldResetComposerForConversationChange,
@@ -153,6 +154,15 @@ export function ChatConversation({
 }: ChatConversationProps) {
 	const isUnified = mode === "unified";
 	const [composer, setComposer] = useState("");
+	const handleSelectionAction = useCallback((prompt: string) => {
+		setComposer((current) => appendChatSelectionPrompt(current, prompt));
+		requestAnimationFrame(() => {
+			const input = document.querySelector<HTMLTextAreaElement>(
+				"[data-chat-composer-input='true']",
+			);
+			input?.focus();
+		});
+	}, []);
 	const [editingId, setEditingId] = useState<string | null>(null);
 	const [editingValue, setEditingValue] = useState("");
 	const [metadataOpenId, setMetadataOpenId] = useState<string | null>(null);
@@ -817,6 +827,7 @@ export function ChatConversation({
 								selectedModelIds={selectedModelIds}
 								onAddModelSet={onAddModelSet}
 								temporaryMode={temporaryMode}
+								onSelectionAction={handleSelectionAction}
 							/>
 						</MessageScroller.Content>
 					</MessageScroller.Viewport>

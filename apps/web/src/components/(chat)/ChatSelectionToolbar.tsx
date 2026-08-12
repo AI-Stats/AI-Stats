@@ -1,0 +1,155 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import {
+	CheckCheck,
+	MessageCircleQuestion,
+	Scissors,
+	SlidersHorizontal,
+	Sparkles,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+	buildChatSelectionPrompt,
+	type ChatSelectionAction,
+} from "./chatSelectionActions";
+
+type SelectionState = {
+	text: string;
+	left: number;
+	top: number;
+};
+
+const VIEWPORT_MARGIN = 12;
+
+function getAssistantSelection(): SelectionState | null {
+	const selection = window.getSelection();
+	if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
+		return null;
+	}
+
+	const text = selection.toString().trim();
+	if (!text) return null;
+
+	const anchorElement =
+		selection.anchorNode instanceof Element
+			? selection.anchorNode
+			: selection.anchorNode?.parentElement;
+	const focusElement =
+		selection.focusNode instanceof Element
+			? selection.focusNode
+			: selection.focusNode?.parentElement;
+	const anchorContent = anchorElement?.closest<HTMLElement>(
+		"[data-chat-assistant-content='true']",
+	);
+	const focusContent = focusElement?.closest<HTMLElement>(
+		"[data-chat-assistant-content='true']",
+	);
+	if (!anchorContent || anchorContent !== focusContent) return null;
+
+	const range = selection.getRangeAt(0);
+	const rects = Array.from(range.getClientRects()).filter(
+		(rect) => rect.width > 0 || rect.height > 0,
+	);
+	const lastRect = rects.at(-1) ?? range.getBoundingClientRect();
+	return {
+		text,
+		left: Math.min(
+			Math.max(lastRect.left + lastRect.width / 2, VIEWPORT_MARGIN),
+			window.innerWidth - VIEWPORT_MARGIN,
+		),
+		top: Math.min(lastRect.bottom + 8, window.innerHeight - VIEWPORT_MARGIN),
+	};
+}
+
+type ChatSelectionToolbarProps = {
+	onAction: (prompt: string) => void;
+};
+
+export function ChatSelectionToolbar({ onAction }: ChatSelectionToolbarProps) {
+	const [selection, setSelection] = useState<SelectionState | null>(null);
+	const selectingWithPointerRef = useRef(false);
+
+	const dismiss = useCallback(() => {
+		setSelection(null);
+		window.getSelection()?.removeAllRanges();
+	}, []);
+
+	useEffect(() => {
+		const updateSelection = () => setSelection(getAssistantSelection());
+		const handleSelectionChange = () => {
+			if (!selectingWithPointerRef.current) updateSelection();
+		};
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === "Escape") dismiss();
+		};
+		const handlePointerDown = (event: PointerEvent) => {
+			if ((event.target as Element | null)?.closest("[data-chat-selection-toolbar]")) {
+				return;
+			}
+			selectingWithPointerRef.current = true;
+			setSelection(null);
+		};
+		const handlePointerUp = () => {
+			if (!selectingWithPointerRef.current) return;
+			selectingWithPointerRef.current = false;
+			updateSelection();
+		};
+		const handlePointerCancel = () => {
+			selectingWithPointerRef.current = false;
+		};
+
+		document.addEventListener("selectionchange", handleSelectionChange);
+		document.addEventListener("pointerdown", handlePointerDown);
+		document.addEventListener("pointerup", handlePointerUp);
+		document.addEventListener("pointercancel", handlePointerCancel);
+		document.addEventListener("keydown", handleKeyDown);
+		window.addEventListener("resize", updateSelection);
+		window.addEventListener("scroll", updateSelection, true);
+		return () => {
+			document.removeEventListener("selectionchange", handleSelectionChange);
+			document.removeEventListener("pointerdown", handlePointerDown);
+			document.removeEventListener("pointerup", handlePointerUp);
+			document.removeEventListener("pointercancel", handlePointerCancel);
+			document.removeEventListener("keydown", handleKeyDown);
+			window.removeEventListener("resize", updateSelection);
+			window.removeEventListener("scroll", updateSelection, true);
+		};
+	}, [dismiss]);
+
+	if (!selection) return null;
+
+	const applyAction = (action: ChatSelectionAction) => {
+		onAction(buildChatSelectionPrompt(action, selection.text));
+		dismiss();
+	};
+
+	return createPortal(
+		<div
+			data-chat-selection-toolbar
+			role="toolbar"
+			aria-label="Actions for selected assistant text"
+			className="fixed z-50 flex max-w-[calc(100vw-1.5rem)] -translate-x-1/2 items-center gap-0.5 overflow-x-auto rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-lg"
+			style={{ left: selection.left, top: selection.top }}
+			onPointerDown={(event) => event.preventDefault()}
+		>
+			<Button size="xs" variant="ghost" onClick={() => applyAction("explain")}>
+				<MessageCircleQuestion /> Explain
+			</Button>
+			<Button size="xs" variant="ghost" onClick={() => applyAction("improve")}>
+				<Sparkles /> Improve
+			</Button>
+			<Button size="xs" variant="ghost" onClick={() => applyAction("shorten")}>
+				<Scissors /> Shorten
+			</Button>
+			<Button size="xs" variant="ghost" onClick={() => applyAction("change-tone")}>
+				<SlidersHorizontal /> Change tone
+			</Button>
+			<Button size="xs" variant="ghost" onClick={() => applyAction("fix-grammar")}>
+				<CheckCheck /> Fix grammar
+			</Button>
+		</div>,
+		document.body,
+	);
+}
