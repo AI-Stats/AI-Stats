@@ -466,6 +466,7 @@ export function presentUsageForClient(usage: any, ctx?: { endpoint?: PipelineCon
         shaped.server_tool_use && typeof shaped.server_tool_use === "object"
             ? shaped.server_tool_use
             : undefined;
+    const serviceTier = shaped.service_tier ?? shaped.serviceTier;
 
     const pricing = (() => {
         const p = shaped.pricing ?? shaped.pricing_breakdown;
@@ -488,6 +489,7 @@ export function presentUsageForClient(usage: any, ctx?: { endpoint?: PipelineCon
         if (Object.keys(inputDetails).length) out.prompt_tokens_details = inputDetails;
         if (Object.keys(outputDetails).length) out.completion_tokens_details = outputDetails;
         if (serverToolUse) out.server_tool_use = serverToolUse;
+        if (typeof serviceTier === "string") out.service_tier = serviceTier;
         if (pricing) out.pricing = pricing;
         return out;
     }
@@ -507,6 +509,7 @@ export function presentUsageForClient(usage: any, ctx?: { endpoint?: PipelineCon
     if (Object.keys(inputDetails).length) out.input_tokens_details = inputDetails;
     if (Object.keys(outputDetails).length) out.output_tokens_details = outputDetails;
     if (serverToolUse) out.server_tool_use = serverToolUse;
+    if (typeof serviceTier === "string") out.service_tier = serviceTier;
     if (pricing) out.pricing_breakdown = pricing;
     return out;
 }
@@ -650,8 +653,9 @@ function buildChatCompletionsPayload(
     if (nativeResponseId == null) {
         delete body.nativeResponseId;
     }
-    if ("service_tier" in (payload ?? {}) || ctx.body?.service_tier) {
-        body.service_tier = payload?.service_tier ?? ctx.body?.service_tier ?? null;
+    const observedServiceTier = (ir?.usage as any)?.serviceTier ?? ir?.serviceTier;
+    if (observedServiceTier || "service_tier" in (payload ?? {}) || ctx.body?.service_tier) {
+        body.service_tier = observedServiceTier ?? payload?.service_tier ?? ctx.body?.service_tier ?? null;
     }
     if ("system_fingerprint" in (payload ?? {})) {
         body.system_fingerprint = payload?.system_fingerprint ?? null;
@@ -932,8 +936,6 @@ export function formatClientPayload(args: {
     if (meta) fallback.meta = meta;
     return attachTopLevelPricing(fallback, usage);
 }
-
-
 
 
 

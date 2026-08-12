@@ -110,6 +110,12 @@ describe("openAICompatUrl", () => {
 		setupRuntimeFromEnv({
 			MISTRAL_AI_API_KEY: "test-mistral-key",
 		} as any);
+		const resolved = resolveOpenAICompatKey({
+			providerId: "mistral-eu",
+			byokMeta: [],
+		} as any);
+		expect(resolved.key).toBe("test-mistral-key");
+		expect(resolved.source).toBe("gateway");
 
 		expect(openAICompatUrl("mistral-eu", "/chat/completions")).toBe(
 			"https://api.eu.mistral.ai/v1/chat/completions",

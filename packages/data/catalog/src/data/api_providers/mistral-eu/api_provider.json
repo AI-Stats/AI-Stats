@@ -10,9 +10,7 @@
   "default_execution_regions": [
     "eu"
   ],
-  "default_data_regions": [
-    "eu"
-  ],
+  "default_data_regions": [],
   "zero_data_retention": "optional",
   "residency_source_url": "https://docs.mistral.ai/inference/regional-inference",
   "residency_notes": "Regional inference controls inference processing location only. Mistral documents that control-plane data can still be handled outside the selected geography.",
