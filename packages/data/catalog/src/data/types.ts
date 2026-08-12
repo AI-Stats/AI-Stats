@@ -207,7 +207,7 @@ export interface Model {
     release_date: string | null;
     deprecation_date: string | null;
     retirement_date: string | null;
-    open_router_model_id: string | null; // Added for OpenRouter compatibility
+    open_router_model_id: string | null; // External provider model mapping
     input_context_length: number | null;
     output_context_length: number | null;
     license: string | null;

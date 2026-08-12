@@ -32,7 +32,10 @@
   "docs_url": "https://crof.ai/docs",
   "auth_env": null,
   "api_formats": [],
-  "service_tiers": [],
+  "service_tiers": [
+    "standard",
+    "priority"
+  ],
   "sources": [],
   "verification": {
     "status": "unverified",
