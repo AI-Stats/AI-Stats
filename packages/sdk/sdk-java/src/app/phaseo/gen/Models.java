@@ -471,6 +471,7 @@ public final class Models {
 		public Object provider;
 		public Object provider_options;
 		public Object reasoning;
+		public Object reasoning_effort;
 		public Object response_format;
 		public String safety_identifier;
 		public Integer seed;
@@ -1409,6 +1410,7 @@ public final class Models {
 		public Integer duration;
 		public Boolean enhance_prompt;
 		public Boolean generate_audio;
+		public Double input_audio_duration;
 		public java.util.List<Object> input_references;
 		public Double input_video_duration;
 		public String model;

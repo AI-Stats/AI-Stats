@@ -480,6 +480,54 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "bytedance/seed-translation",
+    "provider_api_model_id": "byteplus:bytedance/seed-translation",
+    "provider_model_slug": "seed-translation-250915",
+    "internal_model_id": "bytedance/seed-translation",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 4000,
+    "max_output_tokens": 3000,
+    "effective_from": "2026-03-25T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "bytedance/seedance-1.0-pro",
     "provider_api_model_id": "byteplus:bytedance/seedance-1.0-pro",
     "provider_model_slug": "seedance-1-0-pro-250528",
@@ -588,8 +636,8 @@
     "internal_model_id": "bytedance/seedance-2.0",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video",
-    "output_modalities": "video",
+    "input_modalities": "text,image,audio,video",
+    "output_modalities": "video,audio",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-01-28T00:00:00",
@@ -628,6 +676,12 @@
           "input_video": {
             "type": "string"
           },
+          "input_audio": {
+            "type": "string"
+          },
+          "input_references": {
+            "type": "array"
+          },
           "last_frame": {
             "type": "string"
           },
@@ -642,10 +696,10 @@
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": ["text", "image", "video", "audio"],
+        "output_modalities": ["video", "audio"],
+        "modes": ["text-to-video", "image-to-video", "reference-to-video"]
       }
     ],
     "routing_status": "active",
@@ -675,8 +729,8 @@
     "internal_model_id": "bytedance/seedance-2.0-fast",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video",
-    "output_modalities": "video",
+    "input_modalities": "text,image,audio,video",
+    "output_modalities": "video,audio",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-01-28T00:00:00",
@@ -715,6 +769,12 @@
           "input_video": {
             "type": "string"
           },
+          "input_audio": {
+            "type": "string"
+          },
+          "input_references": {
+            "type": "array"
+          },
           "last_frame": {
             "type": "string"
           },
@@ -729,10 +789,10 @@
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": ["text", "image", "video", "audio"],
+        "output_modalities": ["video", "audio"],
+        "modes": ["text-to-video", "image-to-video", "reference-to-video"]
       }
     ],
     "routing_status": "active",
@@ -762,8 +822,8 @@
     "internal_model_id": "bytedance/seedance-2.0-mini-260615",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video",
-    "output_modalities": "video",
+    "input_modalities": "text,image,audio,video",
+    "output_modalities": "video,audio",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-06-15T00:00:00",
@@ -802,6 +862,12 @@
           "input_video": {
             "type": "string"
           },
+          "input_audio": {
+            "type": "string"
+          },
+          "input_references": {
+            "type": "array"
+          },
           "last_frame": {
             "type": "string"
           },
@@ -816,10 +882,10 @@
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": ["text", "image", "video", "audio"],
+        "output_modalities": ["video", "audio"],
+        "modes": ["text-to-video", "image-to-video", "reference-to-video"]
       }
     ],
     "routing_status": "active",
@@ -890,6 +956,9 @@
           "input_audio": {
             "type": "string"
           },
+          "input_references": {
+            "type": "array"
+          },
           "last_frame": {
             "type": "string"
           },
@@ -905,9 +974,9 @@
         "structured_output": null,
         "temperature": null,
         "attachment": true,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "input_modalities": ["text", "image", "video", "audio"],
+        "output_modalities": ["video", "audio"],
+        "modes": ["text-to-video", "image-to-video", "reference-to-video"]
       }
     ],
     "routing_status": "active",
@@ -1157,17 +1226,17 @@
     ]
   },
   {
-    "api_model_id": "bytedance/seed-translation",
-    "provider_api_model_id": "byteplus:bytedance/seed-translation",
-    "provider_model_slug": "seed-translation-250915",
-    "internal_model_id": "bytedance/seed-translation",
-    "is_active_gateway": true,
+    "api_model_id": "deepseek/deepseek-v3",
+    "provider_api_model_id": "byteplus:deepseek/deepseek-v3",
+    "provider_model_slug": "deepseek-v3",
+    "internal_model_id": "deepseek/deepseek-v3",
+    "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 4000,
-    "max_output_tokens": 3000,
-    "effective_from": "2026-03-25T00:00:00",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
@@ -1185,10 +1254,14 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -1198,9 +1271,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "partial",
+      "checked_at": "2026-08-11T04:15:55.492+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   }

@@ -913,7 +913,7 @@ export function ChatHeader({
 			<ContextMenu key={modelId}>
 				<ContextMenuTrigger asChild>
 					<div
-						className="relative shrink-0 rounded-2xl"
+						className="relative shrink-0 rounded-md"
 					>
 						<Button
 							variant="ghost"
@@ -921,7 +921,7 @@ export function ChatHeader({
 							onClick={() => handleOpenModelSettings(modelId)}
 							aria-label={`${label}. Right click for model actions.`}
 							className={cn(
-								"h-7 max-w-[220px] gap-1.5 rounded-2xl pl-2",
+								"h-7 max-w-[220px] gap-1.5 rounded-md pl-2",
 								!modelEnabled && "opacity-55",
 								canRemoveModel ? "pr-7" : "pr-2",
 							)}
@@ -938,7 +938,7 @@ export function ChatHeader({
 						{canRemoveModel ? (
 							<button
 								type="button"
-								className="absolute right-1 top-1/2 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+								className="absolute right-1 top-1/2 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
 								onClick={(event) => {
 									event.preventDefault();
 									event.stopPropagation();
@@ -1428,7 +1428,7 @@ export function ChatHeader({
 							aria-label="Add model"
 							title="Add model (Ctrl/Cmd+Shift+M)"
 							className={cn(
-								"h-8 gap-1.5",
+								"h-8 gap-1.5 rounded-md",
 								selectedModelIds.length === 0 ? "px-2 text-xs" : "w-8 px-0",
 							)}
 						>
@@ -1577,7 +1577,7 @@ export function ChatHeader({
 								</div>
 							</TooltipContent>
 						</Tooltip>
-						<DropdownMenuContent align="end" sideOffset={8} className="w-72 rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
+						<DropdownMenuContent align="end" sideOffset={8} className="w-72 rounded-md [&_[data-slot=dropdown-menu-item]]:rounded-md">
 							<DropdownMenuItem
 								onClick={() => onResponseLayoutChange("sequential")}
 								className="items-start gap-2"

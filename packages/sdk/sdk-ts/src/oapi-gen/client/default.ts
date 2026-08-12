@@ -1771,6 +1771,8 @@ export type CreateChatCompletionParams = {
       mode?: "standard" | "pro";
       summary?: "auto" | "concise" | "detailed";
     };
+    reasoning_effort?:
+      "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max";
     response_format?:
       | string
       | {
@@ -3494,6 +3496,7 @@ export type CreateVideoParams = {
     duration?: number;
     enhance_prompt?: boolean;
     generate_audio?: boolean;
+    input_audio_duration?: number;
     input_references?: (
       | {
           image_url: {
@@ -3819,6 +3822,7 @@ export type CreateVideoAliasParams = {
     duration?: number;
     enhance_prompt?: boolean;
     generate_audio?: boolean;
+    input_audio_duration?: number;
     input_references?: (
       | {
           image_url: {
@@ -6893,6 +6897,7 @@ export type ListDataModelsParams = {
       | "inflection"
       | "kwaipilot"
       | "lg"
+      | "lightricks"
       | "liquid-ai"
       | "meituan"
       | "meta"
@@ -6952,6 +6957,7 @@ export type ListDataModelsParams = {
           | "inflection"
           | "kwaipilot"
           | "lg"
+          | "lightricks"
           | "liquid-ai"
           | "meituan"
           | "meta"
@@ -7448,6 +7454,7 @@ export type ListModelsParams = {
       | "inflection"
       | "kwaipilot"
       | "lg"
+      | "lightricks"
       | "liquid-ai"
       | "meituan"
       | "meta"
@@ -7507,6 +7514,7 @@ export type ListModelsParams = {
           | "inflection"
           | "kwaipilot"
           | "lg"
+          | "lightricks"
           | "liquid-ai"
           | "meituan"
           | "meta"
@@ -8055,6 +8063,7 @@ export type ListTeamModelsParams = {
       | "inflection"
       | "kwaipilot"
       | "lg"
+      | "lightricks"
       | "liquid-ai"
       | "meituan"
       | "meta"
@@ -8114,6 +8123,7 @@ export type ListTeamModelsParams = {
           | "inflection"
           | "kwaipilot"
           | "lg"
+          | "lightricks"
           | "liquid-ai"
           | "meituan"
           | "meta"

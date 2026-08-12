@@ -56,11 +56,28 @@ describe("Mistral quirks", () => {
 		});
 	});
 
+	it("maps Phaseo service tiers to Mistral Priority Tier controls", () => {
+		for (const [requested, expected] of [
+			["priority", "auto"],
+			["fast", "auto"],
+			["standard", "standard_only"],
+			["auto", "auto"],
+			["standard_only", "standard_only"],
+		] as const) {
+			const request: Record<string, any> = { service_tier: requested };
+			mistralQuirks.transformRequest?.({ request, ir: {} as any });
+			expect(request.service_tier).toBe(expected);
+		}
+
+		const unsupported: Record<string, any> = { service_tier: "flex" };
+		mistralQuirks.transformRequest?.({ request: unsupported, ir: {} as any });
+		expect(unsupported.service_tier).toBeUndefined();
+	});
+
 	it("drops unsupported OpenAI-only fields on chat payloads", () => {
 		const request: Record<string, any> = {
 			model: "mistral-large-latest",
 			messages: [{ role: "user", content: "hello" }],
-			service_tier: "default",
 			prompt_cache_key: "cache_1",
 			safety_identifier: "safe_1",
 			background: true,
@@ -70,7 +87,6 @@ describe("Mistral quirks", () => {
 
 		mistralQuirks.transformRequest?.({ request, ir: {} as any });
 
-		expect(request.service_tier).toBeUndefined();
 		expect(request.prompt_cache_key).toBeUndefined();
 		expect(request.safety_identifier).toBeUndefined();
 		expect(request.background).toBeUndefined();

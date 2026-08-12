@@ -4,12 +4,12 @@
   "name": "Qwen 3.8 Max",
   "status": "Available",
   "previous_model_id": "qwen/qwen3.8-max-preview",
-  "description": "Qwen 3.8 Max is Qwen's proprietary 2.4-trillion-parameter mixture-of-experts flagship for long-horizon coding and professional work. It supports native text, image and video understanding, a 1M-token context window, reasoning, function calling, structured outputs, caching, batches and web search.",
+  "description": "Qwen 3.8 Max is Qwen's 2.4-trillion-parameter mixture-of-experts flagship for long-horizon coding and professional work, with 95 billion active parameters. Qwen Cloud adds native text, image and video understanding, a 1M-token context window, reasoning, function calling, structured outputs, caching, batches and web search; Qwen also publishes the text-only Qwen3.8-2.4T-A95B weights for self-hosting.",
   "announced_date": "2026-08-03T00:00:00",
   "release_date": "2026-08-03T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
-  "license": "Proprietary",
+  "license": "Qwen3.8-Max License",
   "input_types": [
     "text",
     "image",
@@ -29,14 +29,24 @@
       "title": "DashScope API reference",
       "kind": "api_reference",
       "url": "https://docs.qwencloud.com/api-reference/chat/dashscope"
+    },
+    {
+      "title": "Qwen3.8-2.4T-A95B weights",
+      "kind": "weights",
+      "url": "https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B"
     }
   ],
   "details": [
     {
       "name": "parameter_count",
       "value": 2400000000000,
-      "source_link": "https://www.qwencloud.com/models/qwen3.8-max",
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B",
       "other_info": "2.4T total parameters; Qwen describes the model as a mixture-of-experts flagship."
+    },
+    {
+      "name": "active_parameter_count",
+      "value": 95000000000,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B"
     },
     {
       "name": "input_context_length",
@@ -145,7 +155,7 @@
     "streaming": true,
     "web_search": true
   },
-  "open_weights": false,
+  "open_weights": true,
   "sources": [
     {
       "kind": "release",
@@ -158,15 +168,27 @@
       "url": "https://docs.qwencloud.com/api-reference/chat/dashscope",
       "accessed_at": "2026-08-03T00:00:00",
       "notes": "Official DashScope chat API parameter reference."
+    },
+    {
+      "kind": "weights",
+      "url": "https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official post-trained text-only weights with 2.4T total and 95B active parameters, 262,144 native context extensible to 1,010,000 tokens, and configurable reasoning effort."
+    },
+    {
+      "kind": "license",
+      "url": "https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B/blob/main/LICENSE",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Custom Qwen3.8-Max license; qualifying large consumer products have attribution requirements, and qualifying Model-as-a-Service or AI Work Assistant businesses require a separate commercial license."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-03T00:00:00",
-    "notes": "Verified against the official Qwen Cloud model page and API reference."
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Verified against the official Qwen Cloud model page and API reference plus the official Qwen open-weight repository and license."
   },
-  "last_updated": "2026-08-03T00:00:00",
+  "last_updated": "2026-08-12T00:00:00",
   "removal_date": null,
   "replacement_model_id": null,
-  "license_url": null
+  "license_url": "https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B/blob/main/LICENSE"
 }

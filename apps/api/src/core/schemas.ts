@@ -737,6 +737,7 @@ export const ChatCompletionsSchema = z.object({
         enabled: z.boolean().optional(),
         max_tokens: z.number().int().nonnegative().optional(),
     }).optional(),
+    reasoning_effort: z.enum(["none", "minimal", "low", "medium", "high", "xhigh", "max"]).optional(),
 
 
     frequency_penalty: z.number().min(-2).max(2).optional(),
@@ -1213,6 +1214,8 @@ const VIDEO_PROVIDER_CONTROLLED_KEYS = new Set([
 	"inputvideoduration",
 	"input_video_duration_seconds",
 	"inputvideodurationseconds",
+	"input_audio_duration",
+	"inputaudioduration",
 	"seconds",
 	"size",
 	"resolution",
@@ -1261,6 +1264,7 @@ export const VideoGenerationSchema = z.object({
 	prompt: z.string().min(1),
 	duration: z.number().int().positive().max(120).optional(),
 	input_video_duration: z.number().positive().max(3600).optional(),
+	input_audio_duration: z.number().min(2).max(20).optional(),
 	size: z.string().min(1).optional(),
 	resolution: z.string().min(1).optional(),
 	aspect_ratio: z.string().min(1).optional(),

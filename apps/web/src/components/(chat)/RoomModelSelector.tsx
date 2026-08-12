@@ -462,13 +462,13 @@ export function RoomModelSelector({
 		const modelEnabled = modelEnabledById?.[modelId] !== false;
 		const canRemoveModel = Boolean(onRemoveModel);
 		return (
-			<div key={modelId} className="relative shrink-0 rounded-2xl">
+			<div key={modelId} className="relative shrink-0 rounded-md">
 				<Button
 					variant="ghost"
 					size="sm"
 					onClick={() => onOpenModelSettingsForModel?.(modelId)}
 					className={cn(
-						"h-8 max-w-[220px] gap-1.5 rounded-2xl pl-2",
+						"h-8 max-w-[220px] gap-1.5 rounded-md pl-2",
 						!modelEnabled && "opacity-55",
 						canRemoveModel ? "pr-7" : "pr-2",
 					)}
@@ -478,14 +478,14 @@ export function RoomModelSelector({
 						alt={label}
 						width={14}
 						height={14}
-						className="shrink-0 rounded"
+						className="shrink-0 rounded-none"
 					/>
 					<span className="truncate text-xs">{label}</span>
 				</Button>
 				{canRemoveModel ? (
 					<button
 						type="button"
-						className="absolute right-1 top-1/2 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+						className="absolute right-1 top-1/2 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
 						onClick={(event) => {
 							event.preventDefault();
 							event.stopPropagation();
@@ -610,7 +610,7 @@ export function RoomModelSelector({
 						variant="ghost"
 						size="sm"
 						className={cn(
-							"h-8 gap-1.5 rounded-2xl",
+							"h-8 gap-1.5 rounded-md",
 							selectedModelIds.length === 0 ? "px-2 text-xs" : "w-8 px-0",
 						)}
 					>

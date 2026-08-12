@@ -1178,6 +1178,9 @@ public sealed class ChatCompletionsRequest
 	[JsonPropertyName("reasoning")]
 	public Dictionary<string, object>? Reasoning { get; set; }
 
+	[JsonPropertyName("reasoning_effort")]
+	public string? ReasoningEffort { get; set; }
+
 	[JsonPropertyName("response_format")]
 	public object? ResponseFormat { get; set; }
 
@@ -3391,6 +3394,9 @@ public sealed class VideoGenerationRequest
 
 	[JsonPropertyName("generate_audio")]
 	public bool? GenerateAudio { get; set; }
+
+	[JsonPropertyName("input_audio_duration")]
+	public double? InputAudioDuration { get; set; }
 
 	[JsonPropertyName("input_references")]
 	public List<object>? InputReferences { get; set; }

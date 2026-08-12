@@ -845,6 +845,8 @@ class ChatCompletionsRequest
 	public $provider_options;
 	/** @var array<string, mixed>|null */
 	public $reasoning;
+	/** @var string|null */
+	public $reasoning_effort;
 	/** @var string|array<string, mixed>|null */
 	public $response_format;
 	/** @var string|null */
@@ -2463,6 +2465,8 @@ class VideoGenerationRequest
 	public $enhance_prompt;
 	/** @var bool|null */
 	public $generate_audio;
+	/** @var float|null */
+	public $input_audio_duration;
 	/** @var array|null */
 	public $input_references;
 	/** @var float|null */

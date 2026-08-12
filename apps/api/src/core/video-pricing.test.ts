@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import type { PriceCard } from "@pipeline/pricing/types";
 import { computeVideoPricedUsage } from "./video-pricing";
@@ -13,6 +15,14 @@ function makeCard(rules: Array<Record<string, unknown>>): PriceCard {
 		version: null,
 		rules: rules as any,
 	};
+}
+
+function loadLtxCard(model: string): PriceCard {
+	const pricingPath = path.resolve(
+		process.cwd(),
+		`../../packages/data/catalog/src/data/pricing/ltx/${model}/video.generate/pricing.json`,
+	);
+	return JSON.parse(fs.readFileSync(pricingPath, "utf8")) as PriceCard;
 }
 
 function makeSeedanceCard(): PriceCard {
@@ -50,6 +60,36 @@ function makeSeedanceCard(): PriceCard {
 }
 
 describe("video-pricing", () => {
+	it("prices LTX requests from the canonical catalogue card", () => {
+		const card = loadLtxCard("ltx-2-5-pro");
+		const textVideo = computeVideoPricedUsage({
+			seconds: 10,
+			card,
+			model: "ltx-2-5-pro",
+			requestOptions: { resolution: "1920x1080" },
+		});
+		const audioVideo = computeVideoPricedUsage({
+			seconds: 10,
+			card,
+			model: "ltx-2-5-pro",
+			requestOptions: { mode: "audio-to-video", resolution: "1920x1080", input_audio_seconds: 10 },
+		});
+
+		expect((textVideo as any)?.pricing?.total_usd_str).toBe("1.7");
+		expect((audioVideo as any)?.pricing?.total_usd_str).toBe("1.7");
+	});
+
+	it("prices audio-driven generation by input audio duration only", () => {
+		const card = makeCard([
+			{ pricing_plan: "standard", meter: "output_video_seconds", unit: "second", unit_size: 1, price_per_unit: "0.17", currency: "USD", match: [], priority: 100 },
+			{ pricing_plan: "standard", meter: "input_audio_seconds", unit: "second", unit_size: 1, price_per_unit: "0.17", currency: "USD", match: [{ path: "mode", op: "eq", value: "audio-to-video" }], priority: 110 },
+		]);
+		const priced = computeVideoPricedUsage({ seconds: 10, card, model: "ltx-2-5-pro", requestOptions: { mode: "audio-to-video", input_audio_seconds: 10 } });
+		expect((priced as any)?.pricing?.total_usd_str).toBe("1.7");
+		expect((priced as any)?.input_audio_seconds).toBe(10);
+		expect((priced as any)?.output_video_seconds).toBeUndefined();
+	});
+
 	it("uses output_video_seconds meter when available", () => {
 		const card = makeCard([
 			{
@@ -284,4 +324,3 @@ describe("video-pricing", () => {
 		expect((priced as any)?.pricing?.total_usd_str).toBe("0.7901184");
 	});
 });
-

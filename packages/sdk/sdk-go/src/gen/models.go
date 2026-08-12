@@ -1137,6 +1137,7 @@ type ChatCompletionsRequest struct {
 	Provider interface{} `json:"provider,omitempty"`
 	ProviderOptions *map[string]interface{} `json:"provider_options,omitempty"`
 	Reasoning *map[string]interface{} `json:"reasoning,omitempty"`
+	ReasoningEffort *string `json:"reasoning_effort,omitempty"`
 	ResponseFormat interface{} `json:"response_format,omitempty"`
 	SafetyIdentifier *string `json:"safety_identifier,omitempty"`
 	Seed *int `json:"seed,omitempty"`
@@ -1602,7 +1603,6 @@ const (
 	KnownModelIdAnthropicClaudeOpus45 KnownModelId = "anthropic/claude-opus-4.5"
 	KnownModelIdAnthropicClaudeOpus46 KnownModelId = "anthropic/claude-opus-4.6"
 	KnownModelIdAnthropicClaudeOpus47 KnownModelId = "anthropic/claude-opus-4.7"
-	KnownModelIdAnthropicClaudeOpus47Fast KnownModelId = "anthropic/claude-opus-4.7-fast"
 	KnownModelIdAnthropicClaudeOpus48 KnownModelId = "anthropic/claude-opus-4.8"
 	KnownModelIdAnthropicClaudeOpus5 KnownModelId = "anthropic/claude-opus-5"
 	KnownModelIdAnthropicClaudeSonnet45 KnownModelId = "anthropic/claude-sonnet-4.5"
@@ -1658,7 +1658,6 @@ const (
 	KnownModelIdDeepseekDeepseekV4Flash KnownModelId = "deepseek/deepseek-v4-flash"
 	KnownModelIdDeepseekDeepseekV4Flash0731 KnownModelId = "deepseek/deepseek-v4-flash-0731"
 	KnownModelIdDeepseekDeepseekV4Pro KnownModelId = "deepseek/deepseek-v4-pro"
-	KnownModelIdDeepseekDeepseekV4ProLightning KnownModelId = "deepseek/deepseek-v4-pro-lightning"
 	KnownModelIdElevenLabsElevenFlashV2 KnownModelId = "eleven-labs/eleven-flash-v2"
 	KnownModelIdElevenLabsElevenFlashV25 KnownModelId = "eleven-labs/eleven-flash-v2.5"
 	KnownModelIdElevenLabsElevenMultilingualV2 KnownModelId = "eleven-labs/eleven-multilingual-v2"
@@ -1720,6 +1719,12 @@ const (
 	KnownModelIdKwaipilotKatCoderProV2 KnownModelId = "kwaipilot/kat-coder-pro-v2"
 	KnownModelIdKwaipilotKatCoderProV25 KnownModelId = "kwaipilot/kat-coder-pro-v2.5"
 	KnownModelIdLiquidAiLfm224bA2b KnownModelId = "liquid-ai/lfm-2-24b-a2b"
+	KnownModelIdLtx23Fast KnownModelId = "ltx-2-3-fast"
+	KnownModelIdLtx23Pro KnownModelId = "ltx-2-3-pro"
+	KnownModelIdLtx25Fast KnownModelId = "ltx-2-5-fast"
+	KnownModelIdLtx25Pro KnownModelId = "ltx-2-5-pro"
+	KnownModelIdLtx2Fast KnownModelId = "ltx-2-fast"
+	KnownModelIdLtx2Pro KnownModelId = "ltx-2-pro"
 	KnownModelIdMeituanLongcat20 KnownModelId = "meituan/longcat-2.0"
 	KnownModelIdMetaLlama370b KnownModelId = "meta/llama-3-70b"
 	KnownModelIdMetaLlama38b KnownModelId = "meta/llama-3-8b"
@@ -1767,7 +1772,6 @@ const (
 	KnownModelIdMistralMistralLarge3 KnownModelId = "mistral/mistral-large-3"
 	KnownModelIdMistralMistralMedium30 KnownModelId = "mistral/mistral-medium-3.0"
 	KnownModelIdMistralMistralMedium31 KnownModelId = "mistral/mistral-medium-3.1"
-	KnownModelIdMistralMistralMedium35 KnownModelId = "mistral/mistral-medium-3.5"
 	KnownModelIdMistralMistralModeration KnownModelId = "mistral/mistral-moderation"
 	KnownModelIdMistralMistralModeration2 KnownModelId = "mistral/mistral-moderation-2"
 	KnownModelIdMistralMistralNemo KnownModelId = "mistral/mistral-nemo"
@@ -1784,7 +1788,6 @@ const (
 	KnownModelIdMoonshotaiKimiK2Instruct0905 KnownModelId = "moonshotai/kimi-k2-instruct-0905"
 	KnownModelIdMoonshotaiKimiK2Thinking KnownModelId = "moonshotai/kimi-k2-thinking"
 	KnownModelIdMoonshotaiKimiK25 KnownModelId = "moonshotai/kimi-k2.5"
-	KnownModelIdMoonshotaiKimiK25Lightning KnownModelId = "moonshotai/kimi-k2.5-lightning"
 	KnownModelIdMoonshotaiKimiK26 KnownModelId = "moonshotai/kimi-k2.6"
 	KnownModelIdMoonshotaiKimiK27Code KnownModelId = "moonshotai/kimi-k2.7-code"
 	KnownModelIdMoonshotaiKimiK3 KnownModelId = "moonshotai/kimi-k3"
@@ -1810,6 +1813,7 @@ const (
 	KnownModelIdNvidiaNemotron3NanoOmni30bA3bReasoning KnownModelId = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
 	KnownModelIdNvidiaNemotron3Super120bA12b KnownModelId = "nvidia/nemotron-3-super-120b-a12b"
 	KnownModelIdNvidiaNemotron3Ultra550bA55b KnownModelId = "nvidia/nemotron-3-ultra-550b-a55b"
+	KnownModelIdNvidiaNemotron35Lightning KnownModelId = "nvidia/nemotron-3.5-lightning"
 	KnownModelIdNvidiaNvidiaNemotron3Nano30bA3b KnownModelId = "nvidia/nvidia-nemotron-3-nano-30b-a3b"
 	KnownModelIdNvidiaNvidiaNemotronNano12bV2Vl KnownModelId = "nvidia/nvidia-nemotron-nano-12b-v2-vl"
 	KnownModelIdOpenaiBabbage002 KnownModelId = "openai/babbage-002"
@@ -1995,6 +1999,7 @@ const (
 	KnownModelIdSpacexAiGrokBuild01 KnownModelId = "spacex-ai/grok-build-0.1"
 	KnownModelIdSpacexAiGrokCodeFast1 KnownModelId = "spacex-ai/grok-code-fast-1"
 	KnownModelIdSpacexAiGrokImagineImage KnownModelId = "spacex-ai/grok-imagine-image"
+	KnownModelIdSpacexAiGrokImagineImage20 KnownModelId = "spacex-ai/grok-imagine-image-2.0"
 	KnownModelIdSpacexAiGrokImagineImageQuality KnownModelId = "spacex-ai/grok-imagine-image-quality"
 	KnownModelIdSpacexAiGrokTts KnownModelId = "spacex-ai/grok-tts"
 	KnownModelIdStepfunStep35Flash KnownModelId = "stepfun/step-3.5-flash"
@@ -2004,7 +2009,6 @@ const (
 	KnownModelIdTencentHy3Preview KnownModelId = "tencent/hy3-preview"
 	KnownModelIdTencentHy3Free KnownModelId = "tencent/hy3:free"
 	KnownModelIdThinkingMachinesInkling KnownModelId = "thinking-machines/inkling"
-	KnownModelIdThinkingMachinesInkling64k KnownModelId = "thinking-machines/inkling-64k"
 	KnownModelIdThinkingMachinesInklingSmall KnownModelId = "thinking-machines/inkling-small"
 	KnownModelIdUpstageSolarMini KnownModelId = "upstage/solar-mini"
 	KnownModelIdUpstageSolarPro2 KnownModelId = "upstage/solar-pro-2"
@@ -2312,6 +2316,7 @@ const (
 	OrganisationIdInflection OrganisationId = "inflection"
 	OrganisationIdKwaipilot OrganisationId = "kwaipilot"
 	OrganisationIdLg OrganisationId = "lg"
+	OrganisationIdLightricks OrganisationId = "lightricks"
 	OrganisationIdLiquidAi OrganisationId = "liquid-ai"
 	OrganisationIdMeituan OrganisationId = "meituan"
 	OrganisationIdMeta OrganisationId = "meta"
@@ -2648,6 +2653,7 @@ type VideoGenerationRequest struct {
 	Duration *int `json:"duration,omitempty"`
 	EnhancePrompt *bool `json:"enhance_prompt,omitempty"`
 	GenerateAudio *bool `json:"generate_audio,omitempty"`
+	InputAudioDuration *float64 `json:"input_audio_duration,omitempty"`
 	InputReferences *[]interface{} `json:"input_references,omitempty"`
 	InputVideoDuration *float64 `json:"input_video_duration,omitempty"`
 	Model string `json:"model"`

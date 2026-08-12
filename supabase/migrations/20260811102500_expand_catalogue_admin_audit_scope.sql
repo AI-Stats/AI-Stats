@@ -1,0 +1,3 @@
+-- Catalogue audit constraints and mutation functions are finalized by
+-- 20260811101500_admin_v2_catalogue_mutations.sql. This retained migration
+-- marker prevents the historical version from being reused.

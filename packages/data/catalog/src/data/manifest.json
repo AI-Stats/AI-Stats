@@ -57,7 +57,8 @@
     "thinking-machines",
     "venice",
     "alibaba",
-    "runway"
+    "runway",
+    "lightricks"
   ],
   "models": {
     "ai21": [
@@ -135,8 +136,7 @@
       "anthropic/claude-sonnet-4.6",
       "anthropic/claude-sonnet-5",
       "anthropic/claude-fable-5",
-      "anthropic/claude-opus-4.7",
-      "anthropic/claude-opus-4.7-fast"
+      "anthropic/claude-opus-4.7"
     ],
     "arcee-ai": [
       "arcee-ai/trinity-large",
@@ -256,6 +256,7 @@
       "deepseek/deepseek-v4-flash",
       "deepseek/deepseek-v4-flash-0731",
       "deepseek/deepseek-v4-pro",
+      "deepseek/deepseek-v4-pro-0813",
       "deepseek/deepseek-vl2",
       "deepseek/deepseek-vl2-small",
       "deepseek/deepseek-vl2-tiny",
@@ -263,8 +264,7 @@
       "deepseek/deepseek-r1",
       "deepseek/deepseek-r1-turbo",
       "deepseek/deepseek-v3",
-      "deepseek/deepseek-v3-turbo",
-      "deepseek/deepseek-v4-pro-lightning"
+      "deepseek/deepseek-v3-turbo"
     ],
     "eleven-labs": [
       "eleven-labs/eleven-english-sts-v2",
@@ -737,7 +737,8 @@
       "nvidia/cosmos3-super-reasoner",
       "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
       "nvidia/nemotron-3-ultra-550b-a55b",
-      "nvidia/nvidia-nemotron-nano-12b-v2-vl"
+      "nvidia/nvidia-nemotron-nano-12b-v2-vl",
+      "nvidia/nemotron-3.5-lightning"
     ],
     "openai": [
       "openai/ada",
@@ -1192,7 +1193,6 @@
       "windsurf/swe-1-mini",
       "windsurf/swe-1.5",
       "windsurf/swe-1.6",
-      "windsurf/swe-1.6-fast",
       "windsurf/swe-grep"
     ],
     "spacex-ai": [
@@ -1218,7 +1218,6 @@
       "spacex-ai/grok-4.20-multi-agent-beta",
       "spacex-ai/grok-4.3",
       "spacex-ai/grok-4.5",
-      "spacex-ai/grok-4.6",
       "spacex-ai/grok-build-0.1",
       "spacex-ai/grok-code-fast-1",
       "spacex-ai/grok-imagine-image",
@@ -1227,7 +1226,9 @@
       "spacex-ai/grok-imagine-video",
       "spacex-ai/grok-imagine-image-quality",
       "spacex-ai/grok-tts",
-      "spacex-ai/grok-imagine-video-1.5"
+      "spacex-ai/grok-imagine-video-1.5",
+      "spacex-ai/grok-imagine-image-2.0",
+      "spacex-ai/grok-4.6"
     ],
     "xiaomi": [
       "xiaomi/mimo-v2-flash",
@@ -1288,7 +1289,6 @@
     ],
     "thinking-machines": [
       "thinking-machines/inkling",
-      "thinking-machines/inkling-64k",
       "thinking-machines/inkling-small"
     ],
     "venice": [
@@ -1301,6 +1301,14 @@
     ],
     "runway": [
       "runway/gen-4.5"
+    ],
+    "lightricks": [
+      "lightricks/ltx-2.3-fast",
+      "lightricks/ltx-2.3-pro",
+      "lightricks/ltx-2.5-fast",
+      "lightricks/ltx-2.5-pro",
+      "lightricks/ltx-2-fast",
+      "lightricks/ltx-2-pro"
     ]
   },
   "benchmarks": [
@@ -2078,7 +2086,9 @@
     "openai-gpt-latest",
     "openai-gpt-mini-latest",
     "openai-gpt-nano-latest",
-    "openai-gpt-pro-latest"
+    "openai-gpt-pro-latest",
+    "spacex-ai-grok-4.5-latest",
+    "spacex-ai-grok-build-latest"
   ],
   "families": [
     "ai21-jamba-1.5",
@@ -2914,7 +2924,6 @@
     "spacex-ai:text.generate:spacex-ai-grok-4.1-thinking",
     "spacex-ai:text.generate:spacex-ai-grok-4.3",
     "spacex-ai:text.generate:spacex-ai-grok-4.5",
-    "spacex-ai:text.generate:spacex-ai-grok-4.6",
     "spacex-ai:text.generate:spacex-ai-grok-4.20-beta-0309",
     "spacex-ai:text.generate:spacex-ai-grok-4.20-multi-agent-beta-0309",
     "spacex-ai:text.generate:spacex-ai-grok-code-fast-1",

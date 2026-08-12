@@ -52,6 +52,10 @@
       "value": "reasoning,function_calling,structured_outputs"
     },
     {
+      "name": "aliases",
+      "value": "grok-4.5-latest,grok-build-latest"
+    },
+    {
       "name": "regions",
       "value": "us-east-1,us-west-2"
     },

@@ -472,6 +472,7 @@ struct ChatCompletionsRequest {
 	std::any provider;
 	std::map<std::string, std::any> provider_options;
 	std::map<std::string, std::any> reasoning;
+	std::any reasoning_effort;
 	std::any response_format;
 	std::optional<std::string> safety_identifier;
 	std::optional<int> seed;
@@ -1395,6 +1396,7 @@ struct VideoGenerationRequest {
 	std::optional<int> duration;
 	std::optional<bool> enhance_prompt;
 	std::optional<bool> generate_audio;
+	std::optional<double> input_audio_duration;
 	std::vector<std::any> input_references;
 	std::optional<double> input_video_duration;
 	std::string model;

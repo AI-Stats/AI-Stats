@@ -2,11 +2,11 @@
   "model_id": "spacex-ai/grok-4.6",
   "organisation_id": "spacex-ai",
   "name": "Grok 4.6",
-  "status": "Rumoured",
+  "status": "Available",
   "previous_model_id": "spacex-ai/grok-4.5",
-  "description": "Grok 4.6 is an xAI chat and reasoning model with text and image input, text output, function calling, structured outputs, and a 500k token context window.",
-  "announced_date": null,
-  "release_date": null,
+  "description": "Grok 4.6 is SpaceXAI's frontier model for coding, agentic tasks, and knowledge work. It supports text and image input, a 500k-token context window, configurable reasoning, function calling, structured outputs, and xAI's server-side web search, X search, and code execution tools.",
+  "announced_date": "2026-07-24T00:00:00",
+  "release_date": "2026-08-12T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
@@ -15,9 +15,14 @@
   "api_model_id": "spacex-ai/grok-4.6",
   "links": [
     {
-      "title": "Grok 4.6 model documentation",
+      "title": "Grok 4.6 developer overview",
       "kind": "api_reference",
-      "url": "https://docs.x.ai/developers/models/grok-4.6"
+      "url": "https://docs.x.ai/developers/grok-4-6"
+    },
+    {
+      "title": "Grok 4.6 announcement",
+      "kind": "announcement",
+      "url": "https://x.ai/news/grok-4-6"
     },
     {
       "title": "xAI API pricing",
@@ -32,7 +37,7 @@
     },
     {
       "name": "input_context_length",
-      "value": "500000"
+      "value": 500000
     },
     {
       "name": "input_modalities",
@@ -43,42 +48,26 @@
       "value": "text"
     },
     {
-      "name": "capabilities",
-      "value": "reasoning,function_calling,structured_outputs"
+      "name": "rate_limits",
+      "value": "150 requests/sec, 7200 requests/min, 50000000 tokens/min"
     },
     {
-      "name": "aliases",
-      "value": "grok-latest"
+      "name": "pricing",
+      "value": "Short context below 200k prompt tokens: $2.00 input, $0.50 cached input, and $6.00 output per 1M tokens. Long context at or above 200k prompt tokens: $4.00 input, $1.00 cached input, and $12.00 output per 1M tokens. Priority Processing is 2x the applicable standard tier."
     },
     {
       "name": "regions",
       "value": "us-east-1,us-west-2"
-    },
-    {
-      "name": "rate_limits",
-      "value": "150 requests/sec, 50000000 tokens/min"
-    },
-    {
-      "name": "pricing",
-      "value": "Standard pricing up to 200k context: $2.00 input, $0.50 cached input, $6.00 output per 1M tokens. Higher-context pricing above 200k context: $4.00 input, $1.00 cached input, $12.00 output per 1M tokens. Priority Processing is 2x the applicable standard tier."
-    },
-    {
-      "name": "higher_context_pricing",
-      "value": "Requests above the 200k context threshold use higher-context pricing: $4.00 input, $1.00 cached input, and $12.00 output per 1M tokens."
-    },
-    {
-      "name": "release_observation_note",
-      "value": "Announcement and release dates are not yet confirmed; benchmark results are not yet available."
     }
   ],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
   "model_type": null,
-  "knowledge_cutoff": null,
+  "knowledge_cutoff": "2026-02-01T00:00:00",
   "limits": {
-    "context": null,
-    "input": null,
+    "context": 500000,
+    "input": 500000,
     "output": null
   },
   "modalities": {
@@ -91,38 +80,49 @@
     ]
   },
   "reasoning": {
-    "supported": null,
-    "options": []
+    "supported": true,
+    "options": [
+      "low",
+      "medium",
+      "high",
+      "xhigh"
+    ]
   },
   "capabilities": {
-    "attachment": null,
-    "tool_call": null,
-    "structured_output": null,
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": true,
     "temperature": null,
-    "streaming": null,
-    "web_search": null
+    "streaming": true,
+    "web_search": true
   },
-  "open_weights": null,
+  "open_weights": false,
   "sources": [
     {
       "kind": "api_reference",
-      "url": "https://docs.x.ai/developers/models/grok-4.6",
-      "accessed_at": null,
-      "notes": null
+      "url": "https://docs.x.ai/developers/grok-4-6",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official model slug, context, knowledge cutoff, modalities, reasoning levels, API formats, tools, and headline token pricing."
+    },
+    {
+      "kind": "announcement",
+      "url": "https://x.ai/news/grok-4-6",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official Grok 4.6 launch announcement."
     },
     {
       "kind": "pricing",
       "url": "https://docs.x.ai/developers/pricing",
-      "accessed_at": null,
-      "notes": null
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official short- and long-context token prices plus Priority Processing terms."
     }
   ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Verified against the official Grok 4.6 developer overview, launch announcement, and xAI pricing documentation."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-12T00:00:00",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

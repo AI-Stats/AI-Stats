@@ -63,6 +63,7 @@ describe("resolveOpenAICompatRoute", () => {
 		expect(resolveOpenAICompatRoute("zai", "glm-4.6")).toBe("chat");
 		expect(resolveOpenAICompatRoute("xiaomi", "MiMo-7B-RL")).toBe("chat");
 		expect(resolveOpenAICompatRoute("mistral", "mistral-large-latest")).toBe("chat");
+		expect(resolveOpenAICompatRoute("mistral-eu", "zai-glm-5-2")).toBe("chat");
 		expect(resolveOpenAICompatRoute("meta", "muse-spark-1.2")).toBe("responses");
 		expect(resolveOpenAICompatRoute("moonshot-ai", "kimi-k2")).toBe("chat");
 		expect(resolveOpenAICompatRoute("novitaai", "deepseek/deepseek-r1-turbo")).toBe("chat");
@@ -101,6 +102,23 @@ describe("openAICompatUrl", () => {
 
 		expect(openAICompatUrl("openai-eu", "/chat/completions")).toBe(
 			"https://api.openai.com/v1/chat/completions",
+		);
+	});
+
+	it("builds the Mistral EU regional chat-completions endpoint", () => {
+		teardownTestRuntime();
+		setupRuntimeFromEnv({
+			MISTRAL_AI_API_KEY: "test-mistral-key",
+		} as any);
+		const resolved = resolveOpenAICompatKey({
+			providerId: "mistral-eu",
+			byokMeta: [],
+		} as any);
+		expect(resolved.key).toBe("test-mistral-key");
+		expect(resolved.source).toBe("gateway");
+
+		expect(openAICompatUrl("mistral-eu", "/chat/completions")).toBe(
+			"https://api.eu.mistral.ai/v1/chat/completions",
 		);
 	});
 

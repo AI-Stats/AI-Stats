@@ -4195,7 +4195,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for params.
+          description: Compatibility alias for params.
           items:
             type: string
         params_detail:
@@ -4276,6 +4276,17 @@ components:
             $ref: '#/components/schemas/ChatMessage'
         reasoning:
           $ref: '#/components/schemas/ReasoningConfig'
+        reasoning_effort:
+          type: string
+          description: OpenAI-compatible alias for `reasoning.effort`.
+          enum:
+            - none
+            - minimal
+            - low
+            - medium
+            - high
+            - xhigh
+            - max
         frequency_penalty:
           type: number
           minimum: -2
@@ -6088,6 +6099,15 @@ components:
           description: >-
             Duration of the source video in seconds. Required when a provider
             bills source-video duration independently from generated output.
+        input_audio_duration:
+          type: number
+          format: double
+          minimum: 2
+          maximum: 20
+          description: >-
+            Declared source-audio duration in seconds, used for provider range
+            validation. Providers that do not report authoritative usage may
+            bill at their supported input-duration ceiling.
         size:
           type: string
           description: >-
@@ -6123,6 +6143,10 @@ components:
           type: string
         input_references:
           type: array
+          description: >-
+            HTTPS image, audio, or video inputs used to condition generation.
+            Supported types, roles, counts, and combinations depend on the
+            selected model. Check GET /videos/models before submitting a job.
           items:
             $ref: '#/components/schemas/VideoInputReference'
         provider_params:
@@ -6450,6 +6474,10 @@ components:
         error:
           nullable: true
     VideoInputReference:
+      description: >-
+        A typed HTTPS media input. Use image_url for images and media_url for
+        audio or video. Roles describe how the model should use the input;
+        provider and model support varies.
       oneOf:
         - type: object
           required:
@@ -6462,6 +6490,7 @@ components:
                 - image_url
             role:
               type: string
+              description: Intended use of this image by the selected model.
               enum:
                 - first_frame
                 - last_frame
@@ -6478,6 +6507,7 @@ components:
                 url:
                   type: string
                   format: uri
+                  description: Publicly reachable HTTPS image URL.
         - type: object
           required:
             - type
@@ -6490,6 +6520,7 @@ components:
                 - audio_url
             role:
               type: string
+              description: Intended use of this audio or video by the selected model.
               enum:
                 - first_frame
                 - last_frame
@@ -6506,6 +6537,7 @@ components:
                 url:
                   type: string
                   format: uri
+                  description: Publicly reachable HTTPS audio or video URL.
     VideoOutputConfig:
       type: object
       properties:
@@ -6598,7 +6630,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -6628,7 +6660,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -6663,7 +6695,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -6693,7 +6725,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -7384,6 +7416,7 @@ components:
         - inflection
         - kwaipilot
         - lg
+        - lightricks
         - liquid-ai
         - meituan
         - meta
@@ -9500,7 +9533,6 @@ components:
         - anthropic/claude-opus-4.5
         - anthropic/claude-opus-4.6
         - anthropic/claude-opus-4.7
-        - anthropic/claude-opus-4.7-fast
         - anthropic/claude-opus-4.8
         - anthropic/claude-opus-5
         - anthropic/claude-sonnet-4.5
@@ -9556,7 +9588,6 @@ components:
         - deepseek/deepseek-v4-flash
         - deepseek/deepseek-v4-flash-0731
         - deepseek/deepseek-v4-pro
-        - deepseek/deepseek-v4-pro-lightning
         - eleven-labs/eleven-flash-v2
         - eleven-labs/eleven-flash-v2.5
         - eleven-labs/eleven-multilingual-v2
@@ -9618,6 +9649,12 @@ components:
         - kwaipilot/kat-coder-pro-v2
         - kwaipilot/kat-coder-pro-v2.5
         - liquid-ai/lfm-2-24b-a2b
+        - ltx-2-3-fast
+        - ltx-2-3-pro
+        - ltx-2-5-fast
+        - ltx-2-5-pro
+        - ltx-2-fast
+        - ltx-2-pro
         - meituan/longcat-2.0
         - meta/llama-3-70b
         - meta/llama-3-8b
@@ -9665,7 +9702,6 @@ components:
         - mistral/mistral-large-3
         - mistral/mistral-medium-3.0
         - mistral/mistral-medium-3.1
-        - mistral/mistral-medium-3.5
         - mistral/mistral-moderation
         - mistral/mistral-moderation-2
         - mistral/mistral-nemo
@@ -9682,7 +9718,6 @@ components:
         - moonshotai/kimi-k2-instruct-0905
         - moonshotai/kimi-k2-thinking
         - moonshotai/kimi-k2.5
-        - moonshotai/kimi-k2.5-lightning
         - moonshotai/kimi-k2.6
         - moonshotai/kimi-k2.7-code
         - moonshotai/kimi-k3
@@ -9708,6 +9743,7 @@ components:
         - nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
         - nvidia/nemotron-3-super-120b-a12b
         - nvidia/nemotron-3-ultra-550b-a55b
+        - nvidia/nemotron-3.5-lightning
         - nvidia/nvidia-nemotron-3-nano-30b-a3b
         - nvidia/nvidia-nemotron-nano-12b-v2-vl
         - openai/babbage-002
@@ -9893,6 +9929,7 @@ components:
         - spacex-ai/grok-build-0.1
         - spacex-ai/grok-code-fast-1
         - spacex-ai/grok-imagine-image
+        - spacex-ai/grok-imagine-image-2.0
         - spacex-ai/grok-imagine-image-quality
         - spacex-ai/grok-tts
         - stepfun/step-3.5-flash
@@ -9902,7 +9939,6 @@ components:
         - tencent/hy3-preview
         - tencent/hy3:free
         - thinking-machines/inkling
-        - thinking-machines/inkling-64k
         - thinking-machines/inkling-small
         - upstage/solar-mini
         - upstage/solar-pro-2
