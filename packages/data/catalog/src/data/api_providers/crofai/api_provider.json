@@ -9,6 +9,7 @@
   "default_execution_regions": null,
   "default_data_regions": null,
   "zero_data_retention": "default",
+  "data_retention_days": 0,
   "data_policy_tier": "private",
   "data_policy_confidence": "confirmed",
   "data_policy_contract_mode": "none",

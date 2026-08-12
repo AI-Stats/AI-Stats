@@ -1067,6 +1067,13 @@ function checkApiProviders(state: ValidationState): string[] {
             errors.push(`API provider ${providerId} has invalid zero_data_retention '${String(data.zero_data_retention)}'`);
         }
         if (
+            data.data_retention_days !== undefined &&
+            data.data_retention_days !== null &&
+            (!Number.isInteger(data.data_retention_days) || data.data_retention_days < 0)
+        ) {
+            errors.push(`API provider ${providerId} has invalid data_retention_days '${String(data.data_retention_days)}'`);
+        }
+        if (
             data.stream_cancellation_support !== undefined &&
             data.stream_cancellation_support !== null &&
             !['supported', 'unsupported', 'unknown'].includes(String(data.stream_cancellation_support))
@@ -1145,6 +1152,9 @@ function checkApiProviders(state: ValidationState): string[] {
 				if (value === undefined || value === null || (typeof value === 'string' && !value.trim())) {
 					errors.push(`Active API provider ${providerId} is missing ${key}`);
 				}
+			}
+			if (data.zero_data_retention === 'default' && data.data_retention_days !== 0) {
+				errors.push(`Active ZDR provider ${providerId} must set data_retention_days to 0`);
 			}
 		}
 		if (data.data_policy_variant === 'zdr') {
