@@ -524,9 +524,55 @@ export default function ModelFaqSection({
 				]
 			: []),
 	];
+	const faqSchema = {
+		"@context": "https://schema.org",
+		"@type": "FAQPage",
+		mainEntity: [
+			{
+				"@type": "Question",
+				name: `What is ${modelName}?`,
+				acceptedAnswer: {
+					"@type": "Answer",
+					text: `${modelName} is ${getStatusDescription(model.status)} from ${organisationName}.`,
+				},
+			},
+			...(inputContextLength || outputContextLength
+				? [{
+					"@type": "Question",
+					name: `What is the context length of ${modelName}?`,
+					acceptedAnswer: {
+						"@type": "Answer",
+						text: `${inputContextLength ? `${modelName} has a recorded input context length of ${inputContextLength.toLocaleString("en-US")} tokens` : `${modelName} does not have an input context length recorded`}${outputContextLength ? ` and a recorded maximum output length of ${outputContextLength.toLocaleString("en-US")} tokens` : ""}.`,
+					},
+				}]
+				: []),
+			{
+				"@type": "Question",
+				name: `What providers serve ${modelName}, and can I use it via API?`,
+				acceptedAnswer: {
+					"@type": "Answer",
+					text: `${isGatewayActive && activeProviderCount > 0 ? `${modelName} is available through the Phaseo API, with ${activeProviderCount} active ${activeProviderCount === 1 ? "provider" : "providers"} currently recorded.` : `${modelName} is not currently marked as active in the Phaseo Gateway.`}${faqProviders.visible.length > 0 ? ` Recorded providers include ${joinNaturalList(faqProviders.visible.map((provider) => provider.name))}${faqProviders.remainingCount > 0 ? ` and ${faqProviders.remainingCount} more` : ""}.` : ""}`,
+				},
+			},
+			{
+				"@type": "Question",
+				name: `Does ${modelName} support tool calling?`,
+				acceptedAnswer: { "@type": "Answer", text: capabilityAnswer({ modelName, label: "tool calling", support: toolCallingSupport, isGatewayActive }) },
+			},
+			{
+				"@type": "Question",
+				name: `Does ${modelName} support structured outputs?`,
+				acceptedAnswer: { "@type": "Answer", text: capabilityAnswer({ modelName, label: "structured outputs", support: structuredOutputSupport, isGatewayActive }) },
+			},
+		],
+	};
 
 	return (
 		<section id="faq" className="scroll-mt-28 space-y-4 border-t border-border/60 pt-5">
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+			/>
 			<h2 className="text-xl font-semibold tracking-tight">
 				Frequently Asked Questions
 			</h2>

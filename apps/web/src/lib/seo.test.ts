@@ -13,6 +13,14 @@ describe("resolveSiteUrl", () => {
 		);
 	});
 
+	it.each([
+		"https://ai-stats.phaseo.app",
+		"https://ai-stats.phaseo.app/",
+		"https://www.phaseo.app/",
+	])("consolidates legacy production host %s", (siteUrl) => {
+		expect(resolveSiteUrl(siteUrl)).toBe("https://phaseo.app");
+	});
+
 	it("preserves explicitly configured non-legacy hosts", () => {
 		expect(resolveSiteUrl("https://preview.phaseo.app/")).toBe(
 			"https://preview.phaseo.app",
