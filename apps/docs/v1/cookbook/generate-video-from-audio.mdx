@@ -25,7 +25,9 @@ and supported parameters can change.
 
 Provide exactly one `audio_url` reference with the `source` role. Set
 `input_audio_duration` to the source audio length in seconds so Phaseo can
-reserve and settle the correct provider charge.
+validate it against the model's supported range. Because LTX does not return
+authoritative duration or usage, LTX audio-to-video jobs are currently reserved
+and settled at the 20-second input ceiling.
 
 ```bash
 curl https://api.phaseo.app/v1/videos \
