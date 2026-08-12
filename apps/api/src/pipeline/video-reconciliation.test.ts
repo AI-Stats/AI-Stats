@@ -164,6 +164,35 @@ describe("runVideoReconciliationJob", () => {
 		});
 	});
 
+	it("preserves authoritative LTX audio billing metadata on terminal retries", async () => {
+		listPendingVideoJobsMock.mockResolvedValue([makeJob({
+			videoId: "video_ltx_audio_terminal_retry",
+			provider: "ltx",
+			model: "ltx-2-5-pro",
+			status: "completed",
+			meta: {
+				provider: "ltx",
+				model: "ltx-2-5-pro",
+				seconds: 2,
+				resolution: "1920x1080",
+				inputAudioSeconds: 20,
+				ltxEndpoint: "audio-to-video",
+			},
+		})]);
+		finalizeVideoJobMock.mockResolvedValue({ status: "completed", charged: true, reason: "charged" });
+
+		await runVideoReconciliationJob({ limit: 10, concurrency: 1 });
+
+		expect(finalizeVideoJobMock).toHaveBeenCalledWith(expect.objectContaining({
+			videoId: "video_ltx_audio_terminal_retry",
+			seconds: 2,
+			requestOptions: expect.objectContaining({
+				input_audio_seconds: 20,
+				mode: "audio-to-video",
+			}),
+		}));
+	});
+
 	it("dispatches progress webhooks from in-progress provider polling", async () => {
 		const operationLog: string[] = [];
 		listPendingVideoJobsMock.mockResolvedValue([makeJob({ videoId: "video_progress_polled" })]);

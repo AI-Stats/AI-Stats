@@ -101,6 +101,8 @@ export async function runVideoReconciliationJob(args?: {
 					requestOptions: buildVideoPricingRequestOptions({
 						resolution: job.meta?.resolution,
 						quality: job.meta?.quality,
+						input_audio_seconds: job.meta?.inputAudioSeconds,
+						mode: job.meta?.ltxEndpoint,
 					}),
 					isByok: job.meta?.keySource === "byok",
 					metaPatch: {
