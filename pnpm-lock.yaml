@@ -914,17 +914,17 @@ importers:
     dependencies:
       '@raycast/api':
         specifier: ^1.104.21
-        version: 1.104.22(@types/node@26.1.2)(@types/react@19.2.17)
+        version: 1.104.22(@types/node@22.19.17)(@types/react@19.2.17)
       '@raycast/utils':
         specifier: ^2.2.7
-        version: 2.2.7(@raycast/api@1.104.22(@types/node@26.1.2)(@types/react@19.2.17))(react@19.2.7)
+        version: 2.2.7(@raycast/api@1.104.22(@types/node@22.19.17)(@types/react@19.2.17))(react@19.2.7)
     devDependencies:
       '@raycast/eslint-config':
         specifier: ^2.1.1
         version: 2.2.0(eslint@10.7.0(jiti@2.7.0))(prettier@3.9.6)(typescript@6.0.3)
       '@types/node':
-        specifier: 26.1.2
-        version: 26.1.2
+        specifier: 22.19.17
+        version: 22.19.17
       '@types/react':
         specifier: 19.2.17
         version: 19.2.17
@@ -20301,16 +20301,16 @@ snapshots:
 
   '@radix-ui/rect@1.1.3': {}
 
-  '@raycast/api@1.104.22(@types/node@26.1.2)(@types/react@19.2.17)':
+  '@raycast/api@1.104.22(@types/node@22.19.17)(@types/react@19.2.17)':
     dependencies:
       '@oclif/core': 4.11.14
       '@oclif/plugin-autocomplete': 3.2.53
       '@oclif/plugin-help': 6.2.53
-      '@oclif/plugin-not-found': 3.2.88(@types/node@26.1.2)
+      '@oclif/plugin-not-found': 3.2.88(@types/node@22.19.17)
       esbuild: 0.25.12
       react: 19.0.0
     optionalDependencies:
-      '@types/node': 26.1.2
+      '@types/node': 22.19.17
       '@types/react': 19.2.17
     transitivePeerDependencies:
       - supports-color
@@ -20336,9 +20336,9 @@ snapshots:
       - supports-color
       - typescript
 
-  '@raycast/utils@2.2.7(@raycast/api@1.104.22(@types/node@26.1.2)(@types/react@19.2.17))(react@19.2.7)':
+  '@raycast/utils@2.2.7(@raycast/api@1.104.22(@types/node@22.19.17)(@types/react@19.2.17))(react@19.2.7)':
     dependencies:
-      '@raycast/api': 1.104.22(@types/node@26.1.2)(@types/react@19.2.17)
+      '@raycast/api': 1.104.22(@types/node@22.19.17)(@types/react@19.2.17)
       dequal: 2.0.3
     optionalDependencies:
       react: 19.2.7
