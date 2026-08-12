@@ -1727,6 +1727,7 @@ function checkSubscriptionPlans(state: ValidationState): string[] {
             errors.push(`Subscription plan ${planId} missing organisation_id`);
         }
         const planModels = Array.isArray(data.models) ? data.models : [];
+        const seenModelIds = new Set<string>();
         for (const entry of planModels) {
             const modelId = typeof entry?.model_id === 'string' ? entry.model_id : '';
             if (!modelId) {
@@ -1736,6 +1737,10 @@ function checkSubscriptionPlans(state: ValidationState): string[] {
             if (!state.modelIds.has(modelId)) {
                 errors.push(`Subscription plan ${planId} references unknown model ${modelId}`);
             }
+            if (seenModelIds.has(modelId)) {
+                errors.push(`Subscription plan ${planId} contains duplicate model ${modelId}`);
+            }
+            seenModelIds.add(modelId);
         }
     }
     return errors;
