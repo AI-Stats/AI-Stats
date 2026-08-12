@@ -22,7 +22,7 @@ const baseThread: ChatThread = {
 describe("chat IndexedDB normalization", () => {
     it("uses a thread ID as the stable session ID for existing conversations", () => {
         const firstRequestSessionId = getChatThreadSessionId(baseThread);
-        const subsequentRequestSessionId = getChatThreadSessionId({
+        const threadWithMessages: ChatThread = {
             ...baseThread,
             messages: [{
                 id: "message_1",
@@ -30,7 +30,8 @@ describe("chat IndexedDB normalization", () => {
                 content: "Hello",
                 createdAt: "2026-07-03T12:01:00.000Z",
             }],
-        });
+        };
+        const subsequentRequestSessionId = getChatThreadSessionId(threadWithMessages);
 
         expect(firstRequestSessionId).toBe("chat_1");
         expect(subsequentRequestSessionId).toBe(firstRequestSessionId);
