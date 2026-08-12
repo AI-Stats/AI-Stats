@@ -265,7 +265,7 @@ After the batch substrate is merged, the smallest production-worthy slice is:
 
 1. Rebase the video path on the generic reconciliation lease and atomic settlement changes.
 2. Add a provider-price-card coverage gate to `/videos/models` and routing so unpriced managed providers are excluded.
-3. Add OpenRouter-compatible `callback_url` and `frame_images` normalization without removing Phaseo's richer `webhook` object.
+3. Add `callback_url` and `frame_images` normalization without removing Phaseo's richer `webhook` object.
 4. Split provider cost and customer charge fields in async metadata and public billing summaries.
 5. Run deterministic tests for OpenAI per-second/resolution, Veo audio tiers, MiniMax fixed bundles, and Seedance terminal-token repricing.
 

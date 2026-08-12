@@ -826,10 +826,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "anthropic/claude-opus-4.7-fast",
+    "api_model_id": "anthropic/claude-opus-4.7",
     "provider_api_model_id": "openrouter:anthropic/claude-opus-4.7-fast",
     "provider_model_slug": "anthropic/claude-opus-4.7-fast",
-    "internal_model_id": "anthropic/claude-opus-4.7-fast",
+    "internal_model_id": "anthropic/claude-opus-4.7",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,pdf",
@@ -863,7 +863,9 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "priority"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,

@@ -4195,7 +4195,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for params.
+          description: Compatibility alias for params.
           items:
             type: string
         params_detail:
@@ -6631,7 +6631,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -6661,7 +6661,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -6696,7 +6696,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -6726,7 +6726,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -9534,7 +9534,6 @@ components:
         - anthropic/claude-opus-4.5
         - anthropic/claude-opus-4.6
         - anthropic/claude-opus-4.7
-        - anthropic/claude-opus-4.7-fast
         - anthropic/claude-opus-4.8
         - anthropic/claude-opus-5
         - anthropic/claude-sonnet-4.5
@@ -9590,7 +9589,6 @@ components:
         - deepseek/deepseek-v4-flash
         - deepseek/deepseek-v4-flash-0731
         - deepseek/deepseek-v4-pro
-        - deepseek/deepseek-v4-pro-lightning
         - eleven-labs/eleven-flash-v2
         - eleven-labs/eleven-flash-v2.5
         - eleven-labs/eleven-multilingual-v2
@@ -9705,7 +9703,6 @@ components:
         - mistral/mistral-large-3
         - mistral/mistral-medium-3.0
         - mistral/mistral-medium-3.1
-        - mistral/mistral-medium-3.5
         - mistral/mistral-moderation
         - mistral/mistral-moderation-2
         - mistral/mistral-nemo
@@ -9722,7 +9719,6 @@ components:
         - moonshotai/kimi-k2-instruct-0905
         - moonshotai/kimi-k2-thinking
         - moonshotai/kimi-k2.5
-        - moonshotai/kimi-k2.5-lightning
         - moonshotai/kimi-k2.6
         - moonshotai/kimi-k2.7-code
         - moonshotai/kimi-k3
@@ -9943,7 +9939,6 @@ components:
         - tencent/hy3-preview
         - tencent/hy3:free
         - thinking-machines/inkling
-        - thinking-machines/inkling-64k
         - thinking-machines/inkling-small
         - upstage/solar-mini
         - upstage/solar-pro-2
