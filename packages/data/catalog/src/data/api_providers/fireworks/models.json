@@ -1806,10 +1806,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "qwen/qwen3.8-max",
-    "provider_api_model_id": "fireworks:qwen/qwen3.8-max",
+    "api_model_id": "qwen/qwen3.8-2.4t-a95b",
+    "provider_api_model_id": "fireworks:qwen/qwen3.8-2.4t-a95b",
     "provider_model_slug": "accounts/fireworks/models/qwen3p8-max",
-    "internal_model_id": "qwen/qwen3.8-max",
+    "internal_model_id": "qwen/qwen3.8-2.4t-a95b",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
