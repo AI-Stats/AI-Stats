@@ -1876,10 +1876,10 @@
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": ["text", "image", "video"],
+        "output_modalities": ["video"],
+        "modes": ["text-to-video", "image-to-video", "reference-to-video", "video-edit"]
       },
       {
         "capability_id": "video.edit",

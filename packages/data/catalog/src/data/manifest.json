@@ -57,7 +57,8 @@
     "thinking-machines",
     "venice",
     "alibaba",
-    "runway"
+    "runway",
+    "lightricks"
   ],
   "models": {
     "ai21": [
@@ -1302,6 +1303,14 @@
     ],
     "runway": [
       "runway/gen-4.5"
+    ],
+    "lightricks": [
+      "lightricks/ltx-2.3-fast",
+      "lightricks/ltx-2.3-pro",
+      "lightricks/ltx-2.5-fast",
+      "lightricks/ltx-2.5-pro",
+      "lightricks/ltx-2-fast",
+      "lightricks/ltx-2-pro"
     ]
   },
   "benchmarks": [

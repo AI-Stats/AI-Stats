@@ -1,0 +1,203 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LTX Phaseo contract",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/v2/text-to-video": {
+      "post": {
+        "operationId": "ltx_text_to_video",
+        "x-phaseo-capability": "video.generate",
+        "description": "Submit asynchronous LTX text-to-video generation.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "model": {
+                    "type": "string"
+                  },
+                  "prompt": {
+                    "type": "string"
+                  },
+                  "duration": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "resolution": {
+                    "type": "string"
+                  },
+                  "fps": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "model",
+                  "prompt"
+                ],
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Deterministic mock success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Provider validation error"
+          },
+          "429": {
+            "description": "Provider rate limit"
+          },
+          "500": {
+            "description": "Provider failure"
+          }
+        }
+      }
+    },
+    "/v2/image-to-video": {
+      "post": {
+        "operationId": "ltx_image_to_video",
+        "x-phaseo-capability": "video.generate",
+        "description": "Submit asynchronous LTX image-to-video generation.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "model": {
+                    "type": "string"
+                  },
+                  "prompt": {
+                    "type": "string"
+                  },
+                  "image_uri": {
+                    "type": "string"
+                  },
+                  "duration": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "resolution": {
+                    "type": "string"
+                  },
+                  "fps": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "model",
+                  "prompt",
+                  "image_uri"
+                ],
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Deterministic mock success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Provider validation error"
+          },
+          "429": {
+            "description": "Provider rate limit"
+          },
+          "500": {
+            "description": "Provider failure"
+          }
+        }
+      }
+    },
+    "/v2/audio-to-video": {
+      "post": {
+        "operationId": "ltx_audio_to_video",
+        "x-phaseo-capability": "video.generate",
+        "description": "Submit asynchronous LTX audio-to-video generation.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "model": {
+                    "type": "string"
+                  },
+                  "prompt": {
+                    "type": "string"
+                  },
+                  "audio_uri": {
+                    "type": "string"
+                  },
+                  "image_uri": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "model",
+                  "prompt",
+                  "audio_uri"
+                ],
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Deterministic mock success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Provider validation error"
+          },
+          "429": {
+            "description": "Provider rate limit"
+          },
+          "500": {
+            "description": "Provider failure"
+          }
+        }
+      }
+    }
+  }
+}

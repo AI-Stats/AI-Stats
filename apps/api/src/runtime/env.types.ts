@@ -165,6 +165,8 @@ export type GatewayBindings = {
     MODEL_API_KEY?: string;
     MINIMAX_API_KEY?: string;
     MINIMAX_BASE_URL?: string;
+    LTX_API_KEY?: string;
+    LTX_BASE_URL?: string;
     MISTRAL_AI_API_KEY?: string;
     MISTRAL_BASE_URL?: string;
     MISTRAL_EU_BASE_URL?: string;
