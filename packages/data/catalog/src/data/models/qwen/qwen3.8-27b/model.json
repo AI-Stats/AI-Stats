@@ -6,7 +6,7 @@
   "previous_model_id": "qwen/qwen3.6-27b",
   "description": "Qwen 3.8 27B is an announced dense 27-billion-parameter vision-language model from the Qwen Team at Alibaba. Its open-weight release is scheduled for August 14, 2026, with native image and video understanding and controllable reasoning.",
   "announced_date": "2026-08-03T00:00:00",
-  "release_date": "2026-08-14T00:00:00",
+  "release_date": null,
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
