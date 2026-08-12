@@ -24,6 +24,7 @@
     "us"
   ],
   "zero_data_retention": "optional",
+  "data_retention_days": 30,
   "residency_source_url": "https://platform.claude.com/docs/en/manage-claude/data-residency",
   "residency_notes": "Anthropic supports global or US-only inference via inference_geo on supported 4.6+ models. Workspace geo is currently US-only.",
   "prompt_training_policy": "no_train",
@@ -36,6 +37,9 @@
   "regional_pricing_mode": "offer_specific",
   "pricing_source_url": "https://platform.claude.com/docs/en/about-claude/pricing",
   "regional_pricing_notes": "Default Anthropic pricing applies on the global endpoint. US-only inference is modeled as a separate Anthropic US offer with a 1.1x rate on supported 4.6+ models.",
+  "data_policy_tier": "logs",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "customer_agreement",
   "country_code": "US",
   "status": "Active",
   "colour": "#CC785C",

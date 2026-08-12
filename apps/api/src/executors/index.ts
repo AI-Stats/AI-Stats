@@ -356,6 +356,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	zai: { "text.generate": zaiText },
 	xiaomi: { "text.generate": xiaomiText, "image.generate": nonTextAdapterExecutor, "image.edit": nonTextAdapterExecutor, "audio.speech": nonTextAdapterExecutor, "audio.transcription": nonTextAdapterExecutor, "audio.translations": nonTextAdapterExecutor, "video.generate": nonTextAdapterExecutor },
 	mistral: { "text.generate": mistralText, embeddings: openaiEmbeddings, moderations: openaiModerations, ocr: nonTextAdapterExecutor },
+	"mistral-eu": { "text.generate": mistralText },
 	"moonshot-ai": { "text.generate": moonshotText },
 	moonshotai: { "text.generate": moonshotText },
 	"moonshot-ai-turbo": { "text.generate": moonshotText },
@@ -411,5 +412,4 @@ export function isProviderCapabilityEnabled(providerId: string, capability: stri
 	if (provider?.[normalizedCapability]) return true;
 	return false;
 }
-
 

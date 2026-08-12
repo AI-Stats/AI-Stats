@@ -455,6 +455,32 @@ describe("enrichSuccessPayload model selection", () => {
 		expect(body.provider_id).toBe("minimax");
 	});
 
+	it("returns the observed Standard tier after a Priority fallback", () => {
+		const body = formatClientPayload({
+			ctx: {
+				endpoint: "chat.completions",
+				protocol: "openai.chat.completions",
+				requestId: "req_mistral_fallback",
+				model: "z-ai/glm-5.2",
+				body: { service_tier: "priority" },
+				meta: {},
+			} as any,
+			result: {
+				provider: "mistral",
+				ir: {
+					serviceTier: "standard",
+					choices: [],
+					usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2, serviceTier: "standard" },
+				},
+			} as any,
+			payload: { service_tier: "priority", choices: [] },
+			includeMeta: false,
+		});
+
+		expect(body.service_tier).toBe("standard");
+		expect(body.usage?.service_tier).toBe("standard");
+	});
+
 	it("removes generic raw Responses tool_call items from client payloads", async () => {
 		const ctx: any = {
 			endpoint: "responses",

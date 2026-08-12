@@ -520,6 +520,7 @@ export function openAIChatToIR(
 	if (!json.id) {
 		console.warn(`[ID-VALIDATION] Provider ${provider} did not return response ID in OpenAI Chat format`);
 	}
+	const observedServiceTier = json.usage?.service_tier ?? json.service_tier;
 
 	return {
 		id: requestId,
@@ -528,11 +529,12 @@ export function openAIChatToIR(
 		model,
 		provider,
 		choices,
-		usage: normalizeChatUsage(json.usage),
+		usage: normalizeChatUsage(json.usage, observedServiceTier),
+		serviceTier: observedServiceTier,
 	};
 }
 
-function normalizeChatUsage(usage: any): IRChatResponse["usage"] {
+function normalizeChatUsage(usage: any, observedServiceTier?: unknown): IRChatResponse["usage"] {
 	if (!usage || typeof usage !== "object") return undefined;
 
 	const inputDetails = usage.input_tokens_details ?? usage.prompt_tokens_details;
@@ -613,6 +615,13 @@ function normalizeChatUsage(usage: any): IRChatResponse["usage"] {
 		cachedInputTokens,
 		cachedReadTokensAreSubsetOfInput,
 		reasoningTokens,
+		...(
+			typeof observedServiceTier === "string"
+				? { serviceTier: observedServiceTier }
+				: typeof usage.serviceTier === "string"
+					? { serviceTier: usage.serviceTier }
+					: {}
+		),
 		_ext: {
 			inputImageTokens: inputDetails?.input_images,
 			inputAudioTokens: inputDetails?.input_audio,
@@ -645,6 +654,3 @@ function mapFinishReason(reason: string | undefined): any {
 			return "stop";
 	}
 }
-
-
-

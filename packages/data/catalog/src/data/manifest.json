@@ -737,7 +737,8 @@
       "nvidia/cosmos3-super-reasoner",
       "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
       "nvidia/nemotron-3-ultra-550b-a55b",
-      "nvidia/nvidia-nemotron-nano-12b-v2-vl"
+      "nvidia/nvidia-nemotron-nano-12b-v2-vl",
+      "nvidia/nemotron-3.5-lightning"
     ],
     "openai": [
       "openai/ada",
@@ -1226,7 +1227,8 @@
       "spacex-ai/grok-imagine-video",
       "spacex-ai/grok-imagine-image-quality",
       "spacex-ai/grok-tts",
-      "spacex-ai/grok-imagine-video-1.5"
+      "spacex-ai/grok-imagine-video-1.5",
+      "spacex-ai/grok-imagine-image-2.0"
     ],
     "xiaomi": [
       "xiaomi/mimo-v2-flash",
