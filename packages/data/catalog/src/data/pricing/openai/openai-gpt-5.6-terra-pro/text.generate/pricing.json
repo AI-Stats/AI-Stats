@@ -744,14 +744,30 @@
       "price_per_unit": 4,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
-      "match": [],
+      "note": "Short context Fast mode pricing for requests below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
       "effective_to": null,
       "region": null,
       "cache_duration_seconds": null,
-      "conditions": [],
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
@@ -761,14 +777,30 @@
       "price_per_unit": 0.4,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
-      "match": [],
+      "note": "Short context Fast mode pricing for requests below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
       "effective_to": null,
       "region": null,
       "cache_duration_seconds": null,
-      "conditions": [],
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
@@ -778,14 +810,30 @@
       "price_per_unit": 5,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
-      "match": [],
+      "note": "Short context Fast mode pricing for requests below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
       "effective_to": null,
       "region": null,
       "cache_duration_seconds": null,
-      "conditions": [],
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
@@ -795,14 +843,162 @@
       "price_per_unit": 24,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
-      "match": [],
+      "note": "Short context Fast mode pricing for requests below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
       "effective_to": null,
       "region": null,
       "cache_duration_seconds": null,
-      "conditions": [],
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://developers.openai.com/api/docs/pricing"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 8,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Long context Fast mode pricing for requests with at least 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://developers.openai.com/api/docs/pricing"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.8,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Long context Fast mode pricing for requests with at least 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://developers.openai.com/api/docs/pricing"
+    },
+    {
+      "meter": "cached_write_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 10,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Long context Fast mode pricing for requests with at least 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://developers.openai.com/api/docs/pricing"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 36,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Long context Fast mode pricing for requests with at least 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "source": "https://developers.openai.com/api/docs/pricing"
     }
   ],
