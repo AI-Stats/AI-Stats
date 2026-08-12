@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
 	CheckCheck,
@@ -14,14 +14,14 @@ import {
 	buildChatSelectionPrompt,
 	type ChatSelectionAction,
 } from "./chatSelectionActions";
+import {
+	getChatSelectionToolbarPosition,
+	type ChatSelectionAnchor,
+} from "./chatSelectionPosition";
 
-type SelectionState = {
+type SelectionState = ChatSelectionAnchor & {
 	text: string;
-	left: number;
-	top: number;
 };
-
-const VIEWPORT_MARGIN = 12;
 
 function getAssistantSelection(): SelectionState | null {
 	const selection = window.getSelection();
@@ -55,11 +55,9 @@ function getAssistantSelection(): SelectionState | null {
 	const lastRect = rects.at(-1) ?? range.getBoundingClientRect();
 	return {
 		text,
-		left: Math.min(
-			Math.max(lastRect.left + lastRect.width / 2, VIEWPORT_MARGIN),
-			window.innerWidth - VIEWPORT_MARGIN,
-		),
-		top: Math.min(lastRect.bottom + 8, window.innerHeight - VIEWPORT_MARGIN),
+		anchorLeft: lastRect.left + lastRect.width / 2,
+		anchorTop: lastRect.top,
+		anchorBottom: lastRect.bottom,
 	};
 }
 
@@ -69,7 +67,9 @@ type ChatSelectionToolbarProps = {
 
 export function ChatSelectionToolbar({ onAction }: ChatSelectionToolbarProps) {
 	const [selection, setSelection] = useState<SelectionState | null>(null);
+	const [position, setPosition] = useState({ left: 0, top: 0 });
 	const selectingWithPointerRef = useRef(false);
+	const toolbarRef = useRef<HTMLDivElement>(null);
 
 	const dismiss = useCallback(() => {
 		setSelection(null);
@@ -118,6 +118,18 @@ export function ChatSelectionToolbar({ onAction }: ChatSelectionToolbarProps) {
 		};
 	}, [dismiss]);
 
+	useLayoutEffect(() => {
+		if (!selection || !toolbarRef.current) return;
+		const toolbarRect = toolbarRef.current.getBoundingClientRect();
+		setPosition(
+			getChatSelectionToolbarPosition(
+				selection,
+				{ width: toolbarRect.width, height: toolbarRect.height },
+				{ width: window.innerWidth, height: window.innerHeight },
+			),
+		);
+	}, [selection]);
+
 	if (!selection) return null;
 
 	const applyAction = (action: ChatSelectionAction) => {
@@ -127,11 +139,12 @@ export function ChatSelectionToolbar({ onAction }: ChatSelectionToolbarProps) {
 
 	return createPortal(
 		<div
+			ref={toolbarRef}
 			data-chat-selection-toolbar
 			role="toolbar"
 			aria-label="Actions for selected assistant text"
 			className="fixed z-50 flex max-w-[calc(100vw-1.5rem)] -translate-x-1/2 items-center gap-0.5 overflow-x-auto rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-lg"
-			style={{ left: selection.left, top: selection.top }}
+			style={{ left: position.left, top: position.top }}
 			onPointerDown={(event) => event.preventDefault()}
 		>
 			<Button size="xs" variant="ghost" onClick={() => applyAction("explain")}>
