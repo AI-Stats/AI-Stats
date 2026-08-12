@@ -1182,9 +1182,6 @@ pub mod model_ids {
     /// Model ID: `qwen/qwen3.7-plus-2026-05-26`.
     /// Model page: https://phaseo.app/models/qwen/qwen3.7-plus-2026-05-26
     pub const QWEN_QWEN3_7_PLUS_2026_05_26: &str = "qwen/qwen3.7-plus-2026-05-26";
-    /// Model ID: `qwen/qwen3.8-2.4t-a95b`.
-    /// Model page: https://phaseo.app/models/qwen/qwen3.8-2.4t-a95b
-    pub const QWEN_QWEN3_8_2_4T_A95B: &str = "qwen/qwen3.8-2.4t-a95b";
     /// Model ID: `qwen/qwen3.8-max`.
     /// Model page: https://phaseo.app/models/qwen/qwen3.8-max
     pub const QWEN_QWEN3_8_MAX: &str = "qwen/qwen3.8-max";
