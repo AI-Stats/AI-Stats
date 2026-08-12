@@ -4,14 +4,14 @@
   "name": "Qwen 3.8 27B",
   "status": "Announced",
   "previous_model_id": "qwen/qwen3.6-27b",
-  "description": "Qwen 3.8 27B is an announced dense 27-billion-parameter model from the Qwen Team at Alibaba. Qwen plans to release it with open weights, but its release date, license, context limits, modalities, pricing, benchmark results, and hosted availability have not yet been published.",
+  "description": "Qwen 3.8 27B is an announced dense 27-billion-parameter vision-language model from the Qwen Team at Alibaba. Its open-weight release is scheduled for August 14, 2026, with native image and video understanding and controllable reasoning.",
   "announced_date": "2026-08-03T00:00:00",
-  "release_date": null,
+  "release_date": "2026-08-14T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": null,
-  "output_types": null,
+  "input_types": "text,image,video",
+  "output_types": "text",
   "api_model_id": "qwen/qwen3.8-27b",
   "links": [
     {
@@ -20,16 +20,21 @@
       "url": "https://x.com/xiong_hui_chen/status/2084695353346117760"
     },
     {
-      "title": "Qwen 3.8 ModelScope preview",
-      "kind": "announcement",
-      "url": "https://modelscope.cn/models/Qwen/Qwen3.8-2.4T-A95B"
+      "title": "Qwen 3.8 27B ModelScope preview",
+      "kind": "release",
+      "url": "https://modelscope.cn/models/Qwen/Qwen3.8-27B"
+    },
+    {
+      "title": "Qwen 3.8 27B weights",
+      "kind": "weights",
+      "url": "https://huggingface.co/Qwen/Qwen3.8-27B"
     }
   ],
   "details": [
     {
       "name": "parameter_count",
       "value": 27000000000,
-      "source_link": "https://modelscope.cn/models/Qwen/Qwen3.8-2.4T-A95B",
+      "source_link": "https://modelscope.cn/models/Qwen/Qwen3.8-27B",
       "other_info": "ModelScope describes Qwen3.8-27B as a dense model."
     }
   ],
@@ -37,7 +42,7 @@
   "family_id": null,
   "page_notice": {
     "tone": "info",
-    "markdown": "Qwen 3.8 27B is **announced** for a future open-weight release. Its release date, license, context limits, modalities, pricing, benchmarks, and hosted availability have not yet been published."
+    "markdown": "Qwen 3.8 27B is **announced** for an open-weight release on August 14, 2026. The ModelScope preview confirms native image and video understanding and controllable reasoning; its license, context limits, pricing, benchmarks, and hosted API availability have not yet been published."
   },
   "model_type": null,
   "knowledge_cutoff": null,
@@ -47,11 +52,17 @@
     "output": null
   },
   "modalities": {
-    "input": null,
-    "output": null
+    "input": [
+      "text",
+      "image/*",
+      "video/*"
+    ],
+    "output": [
+      "text"
+    ]
   },
   "reasoning": {
-    "supported": null,
+    "supported": true,
     "options": []
   },
   "capabilities": {
@@ -71,18 +82,18 @@
       "notes": "Qwen team member Hui Chen announced an upcoming open-weight Qwen3.8-27B release."
     },
     {
-      "kind": "announcement",
-      "url": "https://modelscope.cn/models/Qwen/Qwen3.8-2.4T-A95B",
-      "accessed_at": "2026-08-11",
-      "notes": "Official Alibaba ModelScope preview lists Qwen/Qwen3.8-27B as a planned artifact and describes it as a dense 27B model."
+      "kind": "release",
+      "url": "https://modelscope.cn/models/Qwen/Qwen3.8-27B",
+      "accessed_at": "2026-08-12",
+      "notes": "Official Alibaba ModelScope pre-release page schedules Qwen3.8-27B for August 14, 2026 at 15:00 UTC and confirms a dense native vision-language model with image and video understanding and controllable reasoning."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-11T00:00:00Z",
-    "notes": "The announcement and planned ModelScope artifact are verified. Unpublished specifications remain null, and the API model ID follows the catalog convention pending an official hosted API slug."
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "The announcement, scheduled release date, planned ModelScope artifact, modalities, and reasoning support are verified. The Hugging Face URL is reserved but not public as of this check. Unpublished specifications remain null, and the API model ID follows the catalog convention pending an official hosted API slug."
   },
-  "last_updated": "2026-08-11T00:00:00Z",
+  "last_updated": "2026-08-12T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null
