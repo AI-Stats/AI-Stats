@@ -1699,6 +1699,32 @@ function checkPricing(state: ValidationState): string[] {
     return errors;
 }
 
+export function checkSubscriptionPlanModels(
+    planId: string,
+    planModels: unknown[],
+    modelIds: ReadonlySet<string>,
+): string[] {
+    const errors: string[] = [];
+    const seenModelIds = new Set<string>();
+    for (const entry of planModels) {
+        const modelId = typeof (entry as { model_id?: unknown })?.model_id === 'string'
+            ? (entry as { model_id: string }).model_id
+            : '';
+        if (!modelId) {
+            errors.push(`Subscription plan ${planId} has a model entry without model_id`);
+            continue;
+        }
+        if (!modelIds.has(modelId)) {
+            errors.push(`Subscription plan ${planId} references unknown model ${modelId}`);
+        }
+        if (seenModelIds.has(modelId)) {
+            errors.push(`Subscription plan ${planId} contains duplicate model ${modelId}`);
+        }
+        seenModelIds.add(modelId);
+    }
+    return errors;
+}
+
 function checkSubscriptionPlans(state: ValidationState): string[] {
     const errors: string[] = [];
     const plansDir = path.join(DATA_ROOT, 'subscription_plans');
@@ -1727,21 +1753,7 @@ function checkSubscriptionPlans(state: ValidationState): string[] {
             errors.push(`Subscription plan ${planId} missing organisation_id`);
         }
         const planModels = Array.isArray(data.models) ? data.models : [];
-        const seenModelIds = new Set<string>();
-        for (const entry of planModels) {
-            const modelId = typeof entry?.model_id === 'string' ? entry.model_id : '';
-            if (!modelId) {
-                errors.push(`Subscription plan ${planId} has a model entry without model_id`);
-                continue;
-            }
-            if (!state.modelIds.has(modelId)) {
-                errors.push(`Subscription plan ${planId} references unknown model ${modelId}`);
-            }
-            if (seenModelIds.has(modelId)) {
-                errors.push(`Subscription plan ${planId} contains duplicate model ${modelId}`);
-            }
-            seenModelIds.add(modelId);
-        }
+        errors.push(...checkSubscriptionPlanModels(planId, planModels, state.modelIds));
     }
     return errors;
 }
