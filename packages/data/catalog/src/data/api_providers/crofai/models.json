@@ -29,16 +29,9 @@
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
+    "regions": { "execution": null, "data": null },
     "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
+    "api": { "formats": [], "endpoint": null, "deployment": null },
     "sources": [],
     "verification": {
       "status": "unverified",
@@ -144,10 +137,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "deepseek/deepseek-v4-pro-lightning",
+    "api_model_id": "deepseek/deepseek-v4-pro",
     "provider_api_model_id": "crofai:deepseek-v4-pro-lightning",
     "provider_model_slug": "deepseek-v4-pro-lightning",
-    "internal_model_id": "deepseek/deepseek-v4-pro-lightning",
+    "internal_model_id": "deepseek/deepseek-v4-pro",
     "is_active_gateway": true,
     "quantization_scheme": "Q8_0",
     "input_modalities": "text",
@@ -177,7 +170,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "priority"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -192,10 +187,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "deepseek/deepseek-v4-pro-lightning",
+    "api_model_id": "deepseek/deepseek-v4-pro",
     "provider_api_model_id": "crofai:deepseek-v4-pro-lightning",
     "provider_model_slug": "deepseek-v4-pro-lightning",
-    "internal_model_id": "deepseek/deepseek-v4-pro-lightning",
+    "internal_model_id": "deepseek/deepseek-v4-pro",
     "is_active_gateway": true,
     "quantization_scheme": "Q8_0",
     "input_modalities": "text",
@@ -225,7 +220,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "priority"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -317,9 +314,16 @@
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": null,
+      "data": null
+    },
     "service_tiers": [],
-    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
     "sources": [
       {
         "kind": "pricing",
@@ -1296,7 +1300,7 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "moonshotai/kimi-k2.5-lightning",
+    "api_model_id": "moonshotai/kimi-k2.5",
     "provider_api_model_id": "crofai:kimi-k2.5-lightning",
     "provider_model_slug": "kimi-k2.5-lightning",
     "internal_model_id": "moonshotai/kimi-k2.5",
@@ -1329,7 +1333,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "priority"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -1809,7 +1815,7 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": ["standard", "flex"],
+    "service_tiers": ["standard"],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -1864,7 +1870,7 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": ["flex"],
+    "service_tiers": ["standard"],
     "api": {
       "formats": [],
       "endpoint": null,
