@@ -167,6 +167,7 @@ export type GatewayBindings = {
     MINIMAX_BASE_URL?: string;
     MISTRAL_AI_API_KEY?: string;
     MISTRAL_BASE_URL?: string;
+    MISTRAL_EU_BASE_URL?: string;
     ELEVENLABS_API_KEY?: string;
     ELEVEN_LABS_API_KEY?: string;
     ELEVENLABS_BASE_URL?: string;

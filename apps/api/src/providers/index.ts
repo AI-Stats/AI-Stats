@@ -47,6 +47,7 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     "bytedance-seed": createOpenAICompatibleAdapter("bytedance-seed"),
     byteplus: createOpenAICompatibleAdapter("byteplus"),
     mistral: createOpenAICompatibleAdapter("mistral"),
+    "mistral-eu": createOpenAICompatibleAdapter("mistral-eu"),
     sakana: createOpenAICompatibleAdapter("sakana"),
     elevenlabs: ElevenLabsAdapter,
     suno: SunoAdapter,
@@ -221,4 +222,3 @@ export function adapterFor(providerId: string, endpoint: Endpoint): ProviderAdap
 export function adapterById(providerId: string): ProviderAdapter | null {
     return ADAPTERS[providerId] ?? null;
 }
-

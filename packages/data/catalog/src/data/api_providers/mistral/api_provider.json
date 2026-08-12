@@ -30,18 +30,34 @@
   "docs_url": "https://docs.mistral.ai/",
   "auth_env": null,
   "api_formats": [],
-  "service_tiers": [],
+  "service_tiers": [
+    "standard",
+    "batch",
+    "priority"
+  ],
   "sources": [
     {
       "kind": "official_legal_notice",
       "url": "https://legal.mistral.ai/legal-notice",
       "accessed_at": "2026-08-09T00:00:00Z",
       "notes": "Mistral AI SAS's official legal notice lists its registered offices at 15 Rue des Halles, 75001 Paris, France."
+    },
+    {
+      "kind": "docs",
+      "url": "https://docs.mistral.ai/inference/priority-tier",
+      "accessed_at": "2026-08-11T00:00:00Z",
+      "notes": "Documents Mistral Priority Tier request semantics, fallback behavior, eligibility, SLA, and 1.75x pricing."
+    },
+    {
+      "kind": "pricing",
+      "url": "https://mistral.ai/pricing/api/",
+      "accessed_at": "2026-08-11T00:00:00Z",
+      "notes": "Documents the 50% Batch API discount and prompt-cache pricing."
     }
   ],
   "verification": {
-    "status": "partial",
+    "status": "verified",
     "checked_at": "2026-08-09T00:00:00Z",
-    "notes": "Location metadata verified; other provider policy and catalogue fields were not re-audited."
+    "notes": "Provider location, service tiers, and pricing controls verified from Mistral's legal notice, documentation, and pricing page."
   }
 }
