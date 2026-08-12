@@ -5,7 +5,6 @@ import { applyServiceTierRouting } from "./serviceTierRouting";
 const queryState = vi.hoisted(() => ({
     providerRows: [] as any[],
     capabilityRows: [] as any[],
-    providerFilters: {} as Record<string, unknown>,
 }));
 
 const loadPriceCardMock = vi.hoisted(() => vi.fn());
@@ -13,52 +12,26 @@ const loadPriceCardMock = vi.hoisted(() => vi.fn());
 vi.mock("@/runtime/env", () => ({
     getSupabaseAdmin: () => ({
         from: (table: string) => {
-            if (table === "data_api_provider_models") {
-                return {
-                    select: () => {
-                        const builder: any = {
-                            eq: (_column: string, _value: unknown) => builder,
-                        };
-                        builder.eq = (column: string, value: unknown) => {
-                            queryState.providerFilters[column] = value;
-                            if (column === "is_active_gateway") {
-                                const rows = queryState.providerRows.filter((row) =>
-                                    Object.entries(queryState.providerFilters).every(
-                                        ([filterColumn, filterValue]) =>
-                                            row[filterColumn as keyof typeof row] === filterValue,
-                                    ),
-                                );
-                                return Promise.resolve({
-                                    data: rows,
-                                    error: null,
-                                });
-                            }
-                            return builder;
-                        };
-                        return builder;
-                    },
+            if (table === "v2_model_provider_routes" || table === "v2_route_capabilities") {
+                const rows = table === "v2_model_provider_routes"
+                    ? queryState.providerRows.map((row) => ({
+                        ...row,
+                        provider_model_id: row.provider_model_id ?? row.provider_api_model_id,
+                        model_slug: row.model_slug ?? row.api_model_id,
+                        routing_enabled: row.routing_enabled ?? row.is_active_gateway,
+                    }))
+                    : queryState.capabilityRows.map((row) => ({
+                        ...row,
+                        provider_model_id: row.provider_model_id ?? row.provider_api_model_id,
+                    }));
+                const builder: any = {
+                    select: () => builder,
+                    eq: () => builder,
+                    in: () => builder,
+                    or: () => builder,
+                    then: (resolve: (value: unknown) => unknown) => resolve({ data: rows, error: null }),
                 };
-            }
-
-            if (table === "data_api_provider_model_capabilities") {
-                return {
-                    select: () => {
-                        const builder: any = {
-                            eq: (_column: string, _value: unknown) => builder,
-                            in: (_column: string, _value: unknown) => builder,
-                        };
-                        builder.in = (column: string, _value: unknown) => {
-                            if (column === "provider_api_model_id") {
-                                return Promise.resolve({
-                                    data: queryState.capabilityRows,
-                                    error: null,
-                                });
-                            }
-                            return builder;
-                        };
-                        return builder;
-                    },
-                };
+                return builder;
             }
 
             throw new Error(`Unexpected table: ${table}`);
@@ -104,6 +77,7 @@ function makeCandidate(args: {
     pricingCard: PriceCard | null;
     offerScope?: "global" | "regional" | "specialized" | null;
     offerLabel?: string | null;
+    capabilityParams?: Record<string, any>;
 }): any {
     return {
         providerId: args.providerId,
@@ -113,7 +87,7 @@ function makeCandidate(args: {
         pricingCard: args.pricingCard,
         offerScope: args.offerScope ?? null,
         offerLabel: args.offerLabel ?? null,
-        capabilityParams: {},
+        capabilityParams: args.capabilityParams ?? {},
         maxInputTokens: null,
         maxOutputTokens: null,
     };
@@ -123,7 +97,6 @@ describe("applyServiceTierRouting", () => {
     beforeEach(() => {
         queryState.providerRows = [];
         queryState.capabilityRows = [];
-        queryState.providerFilters = {};
         loadPriceCardMock.mockReset();
     });
 
@@ -163,6 +136,37 @@ describe("applyServiceTierRouting", () => {
             },
         ]);
         expect(loadPriceCardMock).not.toHaveBeenCalled();
+    });
+
+    it("keeps Mistral reference Priority pricing non-routable without an explicit capability", async () => {
+        const pricingCard = makeCard({
+            provider: "mistral",
+            model: "mistral/mistral-large-3",
+            plans: ["standard", "priority"],
+        });
+        const withoutEntitlement = makeCandidate({
+            providerId: "mistral",
+            apiModelId: "mistral/mistral-large-3",
+            pricingCard,
+        });
+        const enabledModel = makeCandidate({
+            providerId: "mistral",
+            apiModelId: "z-ai/glm-5.2",
+            pricingCard,
+            capabilityParams: { service_tier: {} },
+        });
+
+        const result = await applyServiceTierRouting({
+            candidates: [withoutEntitlement, enabledModel],
+            body: { service_tier: "priority" },
+            capability: "text.generate",
+        });
+
+        expect(result.candidates.map((candidate) => candidate.apiModelId)).toEqual(["z-ai/glm-5.2"]);
+        expect(result.diagnostics.droppedProviders).toMatchObject([{
+            apiModelId: "mistral/mistral-large-3",
+            reason: "service_tier_priority_unsupported",
+        }]);
     });
 
     it("does not treat text speed as a service tier alias", async () => {
