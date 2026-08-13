@@ -39,6 +39,7 @@ export async function fetchModelPricingSources(
 	env: Env,
 	modelIds: string[],
 	includeInternal = false,
+	includeExpiredPricing = false,
 ): Promise<ModelPricingSource> {
 	const variants = uniqueModelVariants(modelIds);
 	if (variants.length === 0) return { providerRows: [], pricingRows: [] };
@@ -130,7 +131,7 @@ export async function fetchModelPricingSources(
 		const route = sku ? routeMap.get(id(sku.provider_model_id)) : null;
 		if (!sku || !route || id(sku.status) === "disabled") return [];
 		const effectiveTo = sku.effective_to ? Date.parse(String(sku.effective_to)) : Number.POSITIVE_INFINITY;
-		if (now >= effectiveTo) return [];
+		if (!includeExpiredPricing && now >= effectiveTo) return [];
 		const priceNanos = Number(meter.price_nanos);
 		if (!Number.isFinite(priceNanos)) return [];
 		return [{
