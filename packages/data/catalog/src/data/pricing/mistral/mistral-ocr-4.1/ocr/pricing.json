@@ -1,8 +1,8 @@
 {
-  "key": "mistral:mistral/ocr-4:ocr",
+  "key": "mistral:mistral/ocr-4.1:ocr",
   "api_provider_id": "mistral",
   "provider_slug": "mistral",
-  "api_model_id": "mistral/ocr-4",
+  "api_model_id": "mistral/ocr-4.1",
   "capability_id": "ocr",
   "rules": [
     {
@@ -15,7 +15,7 @@
       "note": "Mistral prices OCR 4 at $4 per 1,000 pages.",
       "match": [],
       "priority": 100,
-      "effective_from": "2026-06-30T00:00:00Z",
+      "effective_from": "2026-08-13T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -28,10 +28,10 @@
       "price_per_unit": 2,
       "currency": "USD",
       "pricing_plan": "batch",
-      "note": "Mistral batch processing is billed at a 50% discount from standard OCR 4 page pricing.",
+      "note": "Mistral's 50% Batch API discount reduces OCR 4 pricing to $2 per 1,000 pages.",
       "match": [],
       "priority": 100,
-      "effective_from": "2026-06-30T00:00:00Z",
+      "effective_from": "2026-08-13T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -39,16 +39,13 @@
     }
   ],
   "regions": [],
-  "service_tiers": [
-    "standard",
-    "batch"
-  ],
+  "service_tiers": ["standard", "batch"],
   "sources": [
     {
       "kind": "pricing",
       "url": "https://mistral.ai/pricing/api/",
       "accessed_at": "2026-08-13T00:00:00Z",
-      "notes": "Mistral documents Batch processing at a 50% discount; eligibility depends on the model and Batch endpoint."
+      "notes": "Mistral lists OCR at $4 per 1,000 pages and Batch processing at a 50% discount."
     }
   ],
   "verification": {

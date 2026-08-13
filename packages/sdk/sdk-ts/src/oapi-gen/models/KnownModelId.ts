@@ -197,6 +197,7 @@ export type KnownModelId =
   | "mistral/mistral-small-3.2"
   | "mistral/mistral-small-4"
   | "mistral/mixtral-8x7b"
+  | "mistral/ocr-4.1"
   | "mistral/pixtral-large"
   | "moonshotai/kimi-k2"
   | "moonshotai/kimi-k2-0905"

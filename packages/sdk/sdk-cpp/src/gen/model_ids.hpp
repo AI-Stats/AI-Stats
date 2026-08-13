@@ -570,6 +570,9 @@ inline constexpr std::string_view MISTRAL_MISTRAL_SMALL_4 = "mistral/mistral-sma
 // Model ID: mistral/mixtral-8x7b
 // Model page: https://phaseo.app/models/mistral/mixtral-8x7b
 inline constexpr std::string_view MISTRAL_MIXTRAL_8X7B = "mistral/mixtral-8x7b";
+// Model ID: mistral/ocr-4.1
+// Model page: https://phaseo.app/models/mistral/ocr-4.1
+inline constexpr std::string_view MISTRAL_OCR_4_1 = "mistral/ocr-4.1";
 // Model ID: mistral/pixtral-large
 // Model page: https://phaseo.app/models/mistral/pixtral-large
 inline constexpr std::string_view MISTRAL_PIXTRAL_LARGE = "mistral/pixtral-large";
@@ -1623,6 +1626,7 @@ inline constexpr std::array<std::string_view, 475> ALL = {
 	MISTRAL_MISTRAL_SMALL_3_2,
 	MISTRAL_MISTRAL_SMALL_4,
 	MISTRAL_MIXTRAL_8X7B,
+	MISTRAL_OCR_4_1,
 	MISTRAL_PIXTRAL_LARGE,
 	MOONSHOTAI_KIMI_K2,
 	MOONSHOTAI_KIMI_K2_0905,

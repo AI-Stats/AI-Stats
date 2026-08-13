@@ -762,6 +762,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/mistral/mixtral-8x7b
     MISTRAL_MIXTRAL_8X7B: Final[str] = "mistral/mixtral-8x7b"
 
+    # Model ID: mistral/ocr-4.1
+    # Model page: https://phaseo.app/models/mistral/ocr-4.1
+    MISTRAL_OCR_4_1: Final[str] = "mistral/ocr-4.1"
+
     # Model ID: mistral/pixtral-large
     # Model page: https://phaseo.app/models/mistral/pixtral-large
     MISTRAL_PIXTRAL_LARGE: Final[str] = "mistral/pixtral-large"
@@ -2108,6 +2112,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.MISTRAL_MISTRAL_SMALL_3_2,
         ModelIds.MISTRAL_MISTRAL_SMALL_4,
         ModelIds.MISTRAL_MIXTRAL_8X7B,
+        ModelIds.MISTRAL_OCR_4_1,
         ModelIds.MISTRAL_PIXTRAL_LARGE,
         ModelIds.MOONSHOTAI_KIMI_K2,
         ModelIds.MOONSHOTAI_KIMI_K2_0905,

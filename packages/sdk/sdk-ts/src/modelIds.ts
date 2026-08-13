@@ -379,6 +379,8 @@ export const ModelIds = {
   MISTRAL_MISTRAL_SMALL_4: "mistral/mistral-small-4",
   /** Model ID: `mistral/mixtral-8x7b`. Model page: https://phaseo.app/models/mistral/mixtral-8x7b */
   MISTRAL_MIXTRAL_8X7B: "mistral/mixtral-8x7b",
+  /** Model ID: `mistral/ocr-4.1`. Model page: https://phaseo.app/models/mistral/ocr-4.1 */
+  MISTRAL_OCR_4_1: "mistral/ocr-4.1",
   /** Model ID: `mistral/pixtral-large`. Model page: https://phaseo.app/models/mistral/pixtral-large */
   MISTRAL_PIXTRAL_LARGE: "mistral/pixtral-large",
   /** Model ID: `moonshotai/kimi-k2`. Model page: https://phaseo.app/models/moonshotai/kimi-k2 */

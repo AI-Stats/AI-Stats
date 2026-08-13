@@ -571,6 +571,9 @@ public final class ModelIds {
     /** Model ID: <code>mistral/mixtral-8x7b</code>. Model page: https://phaseo.app/models/mistral/mixtral-8x7b */
     public static final String MISTRAL_MIXTRAL_8X7B = "mistral/mixtral-8x7b";
 
+    /** Model ID: <code>mistral/ocr-4.1</code>. Model page: https://phaseo.app/models/mistral/ocr-4.1 */
+    public static final String MISTRAL_OCR_4_1 = "mistral/ocr-4.1";
+
     /** Model ID: <code>mistral/pixtral-large</code>. Model page: https://phaseo.app/models/mistral/pixtral-large */
     public static final String MISTRAL_PIXTRAL_LARGE = "mistral/pixtral-large";
 

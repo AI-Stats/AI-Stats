@@ -382,6 +382,8 @@ namespace PhaseoSdk
         public const string MistralMistralSmall4 = "mistral/mistral-small-4";
         /// <summary>Model ID: <c>mistral/mixtral-8x7b</c>. Model page: https://phaseo.app/models/mistral/mixtral-8x7b</summary>
         public const string MistralMixtral8x7b = "mistral/mixtral-8x7b";
+        /// <summary>Model ID: <c>mistral/ocr-4.1</c>. Model page: https://phaseo.app/models/mistral/ocr-4.1</summary>
+        public const string MistralOcr41 = "mistral/ocr-4.1";
         /// <summary>Model ID: <c>mistral/pixtral-large</c>. Model page: https://phaseo.app/models/mistral/pixtral-large</summary>
         public const string MistralPixtralLarge = "mistral/pixtral-large";
         /// <summary>Model ID: <c>moonshotai/kimi-k2</c>. Model page: https://phaseo.app/models/moonshotai/kimi-k2</summary>
