@@ -57,6 +57,7 @@ export function applyReasoningParams(args: {
 	ir: IRChatRequest;
 	request: any;
 	providerId?: string;
+	providerModelSlug?: string | null;
 }): void {
 	const reasoning = args.ir.reasoning;
 	if (!reasoning) return;
@@ -98,9 +99,13 @@ export function applyReasoningParams(args: {
 
 	if (config.mode === "enabled") {
 		const field = config.field ?? "thinking";
+		const deepseekModel = args.providerModelSlug ?? args.ir.model;
 		if (
 			args.providerId === "deepseek" &&
-			args.ir.model === "deepseek/deepseek-v4-pro-0813" &&
+			(
+				deepseekModel === "deepseek-v4-pro" ||
+				deepseekModel === "deepseek-v4-flash"
+			) &&
 			typeof reasoning.effort === "string" &&
 			reasoning.effort !== "none" &&
 			args.request.reasoning_effort == null
