@@ -659,6 +659,7 @@
       "mistral/mixtral-8x7b",
       "mistral/ocr-3",
       "mistral/ocr-4",
+      "mistral/ocr-4.1",
       "mistral/pixtral-12b",
       "mistral/pixtral-large",
       "mistral/voxtral-mini",

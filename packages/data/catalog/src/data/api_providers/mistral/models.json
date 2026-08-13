@@ -2964,7 +2964,7 @@
         "context_length":  16384,
         "max_output_tokens":  null,
         "effective_from":  "2026-06-30T00:00:00",
-        "effective_to":  null,
+        "effective_to":  "2026-08-13T00:00:00",
         "capabilities":  [
                              {
                                  "capability_id":  "ocr",
@@ -3007,6 +3007,71 @@
                              "status":  "unverified",
                              "checked_at":  null,
                              "notes":  null
+                         },
+        "rate_limits":  [
+
+                        ]
+    },
+    {
+        "api_model_id":  "mistral/ocr-4.1",
+        "provider_api_model_id":  "mistral:mistral/ocr-4.1",
+        "provider_model_slug":  "mistral-ocr-latest",
+        "internal_model_id":  "mistral/ocr-4.1",
+        "is_active_gateway":  true,
+        "quantization_scheme":  null,
+        "input_modalities":  "image,file",
+        "output_modalities":  "text,image",
+        "context_length":  16384,
+        "max_output_tokens":  null,
+        "effective_from":  "2026-08-13T00:00:00",
+        "effective_to":  null,
+        "capabilities":  [
+                             {
+                                 "capability_id":  "ocr",
+                                 "status":  "active",
+                                 "params":  [
+
+                                            ],
+                                 "reasoning":  null,
+                                 "tool_call":  null,
+                                 "structured_output":  null,
+                                 "temperature":  null,
+                                 "attachment":  null,
+                                 "input_modalities":  null,
+                                 "output_modalities":  null,
+                                 "modes":  [
+
+                                           ]
+                             }
+                         ],
+        "routing_status":  null,
+        "routable":  true,
+        "regions":  {
+                        "execution":  null,
+                        "data":  null
+                    },
+        "service_tiers":  [
+
+                          ],
+        "api":  {
+                    "formats":  [
+
+                                ],
+                    "endpoint":  null,
+                    "deployment":  null
+                },
+        "sources":  [
+                        {
+                            "kind":  "announcement",
+                            "url":  "https://console.mistral.ai/build/document-ai/ocr-playground",
+                            "accessed_at":  "2026-08-13T00:00:00Z",
+                            "notes":  "Mistral announced that mistral-ocr-latest now points to OCR 4.1."
+                        }
+                    ],
+        "verification":  {
+                             "status":  "verified",
+                             "checked_at":  "2026-08-13T00:00:00Z",
+                             "notes":  "Alias update supplied in Mistral's OCR 4.1 announcement."
                          },
         "rate_limits":  [
 
