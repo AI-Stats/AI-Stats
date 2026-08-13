@@ -48,6 +48,10 @@
       "value": 500
     },
     {
+      "name": "reasoning_effort",
+      "value": "Supports low, high, and max. High is the default; medium and xhigh map to high."
+    },
+    {
       "name": "pricing",
       "value": "$0.003625 cached input, $0.435 uncached input, and $0.87 output per 1M tokens."
     }
@@ -72,7 +76,11 @@
   },
   "reasoning": {
     "supported": true,
-    "options": []
+    "options": [
+      "low",
+      "high",
+      "max"
+    ]
   },
   "capabilities": {
     "attachment": false,
@@ -95,14 +103,26 @@
       "url": "https://api-docs.deepseek.com/guides/responses_api/",
       "accessed_at": "2026-08-12T00:00:00Z",
       "notes": "Official Responses API guide; the pricing matrix now marks Responses API support for V4 Pro."
+    },
+    {
+      "kind": "api_reference",
+      "url": "https://api-docs.deepseek.com/guides/thinking_mode/",
+      "accessed_at": "2026-08-13T00:00:00Z",
+      "notes": "Official thinking-mode request format and effort control."
+    },
+    {
+      "kind": "changelog",
+      "url": "https://api-docs.deepseek.com/updates/#date-2026-08-13",
+      "accessed_at": "2026-08-13T00:00:00Z",
+      "notes": "The V4 Pro GA update adds low, high, and max thinking effort levels."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "Verified against DeepSeek's official live pricing and API documentation."
+    "checked_at": "2026-08-13T00:00:00Z",
+    "notes": "Verified against DeepSeek's official live pricing, thinking-mode, and API documentation."
   },
-  "last_updated": "2026-08-12T00:00:00",
+  "last_updated": "2026-08-13T00:00:00",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

@@ -98,6 +98,18 @@ export function applyReasoningParams(args: {
 
 	if (config.mode === "enabled") {
 		const field = config.field ?? "thinking";
+		if (
+			args.providerId === "deepseek" &&
+			args.ir.model === "deepseek/deepseek-v4-pro-0813" &&
+			typeof reasoning.effort === "string" &&
+			reasoning.effort !== "none" &&
+			args.request.reasoning_effort == null
+		) {
+			args.request.reasoning_effort =
+				reasoning.effort === "low" || reasoning.effort === "max"
+					? reasoning.effort
+					: "high";
+		}
 		if (args.request[field] == null) {
 			const format = config.format ?? "type";
 			const resolvedEnabled = enabled ?? true;
@@ -125,8 +137,7 @@ export function applyReasoningParams(args: {
 			}
 		}
 		return;
-	}
-
+}
 	const field = config.field ?? "reasoning";
 	if (args.request[field] == null || typeof args.request[field] !== "object") {
 		args.request[field] = {};
@@ -160,4 +171,3 @@ export function applyReasoningParams(args: {
 		target[maxKey] = reasoning.maxTokens;
 	}
 }
-
