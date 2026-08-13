@@ -1686,6 +1686,7 @@ const (
 	KnownModelIdGoogleGemini35FlashLite KnownModelId = "google/gemini-3.5-flash-lite"
 	KnownModelIdGoogleGemini35Pro KnownModelId = "google/gemini-3.5-pro"
 	KnownModelIdGoogleGemini36Flash KnownModelId = "google/gemini-3.6-flash"
+	KnownModelIdGoogleGemini37Flash KnownModelId = "google/gemini-3.7-flash"
 	KnownModelIdGoogleGeminiEmbedding001 KnownModelId = "google/gemini-embedding-001"
 	KnownModelIdGoogleGeminiEmbedding2 KnownModelId = "google/gemini-embedding-2"
 	KnownModelIdGoogleGeminiEmbedding2Preview KnownModelId = "google/gemini-embedding-2-preview"
