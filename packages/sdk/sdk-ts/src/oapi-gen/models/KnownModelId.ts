@@ -72,6 +72,7 @@ export type KnownModelId =
   | "deepseek/deepseek-v4-flash"
   | "deepseek/deepseek-v4-flash-0731"
   | "deepseek/deepseek-v4-pro"
+  | "deepseek/deepseek-v4-pro-0813"
   | "eleven-labs/eleven-flash-v2"
   | "eleven-labs/eleven-flash-v2.5"
   | "eleven-labs/eleven-multilingual-v2"
