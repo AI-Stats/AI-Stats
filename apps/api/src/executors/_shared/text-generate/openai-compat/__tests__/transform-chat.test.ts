@@ -955,6 +955,7 @@ describe("irToOpenAIChat", () => {
 	});
 
 	it.each([
+		["minimal", "low"],
 		["medium", "high"],
 		["xhigh", "high"],
 		["none", undefined],
@@ -998,7 +999,7 @@ describe("irToOpenAIChat", () => {
 				content: [{ type: "text", text: "Solve this" }],
 			}],
 			stream: false,
-			reasoning: { effort: "low" },
+			reasoning: { effort: "minimal" },
 		} as any, "deepseek-v4-flash", "deepseek");
 
 		expect(request.reasoning_effort).toBe("low");
