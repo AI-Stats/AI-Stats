@@ -169,7 +169,7 @@
             "notes": "Thinking is enabled by default."
           },
           {
-            "param_id": "reasoning_effort",
+            "param_id": "reasoning.effort",
             "provider_min": null,
             "provider_max": null,
             "provider_default": "medium",

@@ -113,6 +113,21 @@ describe("providerSupportsParam", () => {
 		).toBe(true);
 	});
 
+	it("recognizes Baseten reasoning effort through its canonical capability path", () => {
+		const candidate = {
+			providerId: "baseten",
+			capabilityParams: {
+				"reasoning.effort": {},
+			},
+		} as any;
+
+		expect(
+			providerSupportsParam(candidate, "reasoning.effort", {
+				assumeSupportedOnMissingConfig: false,
+			}),
+		).toBe(true);
+	});
+
 	it("does not mark always-supported params as unsupported", () => {
 		const candidate = {
 			providerId: "openai",
