@@ -954,6 +954,27 @@ describe("irToOpenAIChat", () => {
 		expect(request.reasoning_effort).toBe("max");
 	});
 
+	it.each([
+		["medium", "high"],
+		["xhigh", "high"],
+		["none", undefined],
+	] as const)("maps DeepSeek V4 Pro 0813 effort %s", (effort, expected) => {
+		const request = irToOpenAIChat({
+			model: "deepseek/deepseek-v4-pro-0813",
+			messages: [{
+				role: "user",
+				content: [{ type: "text", text: "Solve this" }],
+			}],
+			stream: false,
+			reasoning: { effort },
+		} as any, "deepseek-v4-pro", "deepseek");
+
+		expect(request.thinking).toEqual({
+			type: effort === "none" ? "disabled" : "enabled",
+		});
+		expect(request.reasoning_effort).toBe(expected);
+	});
+
 	it("does not add V4 Pro 0813 effort control to older DeepSeek models", () => {
 		const request = irToOpenAIChat({
 			model: "deepseek/deepseek-v3.2",
