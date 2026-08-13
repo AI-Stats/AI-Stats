@@ -23,7 +23,13 @@ describe("chat API targets", () => {
 	});
 
 	it("fails safely to the public API when staging is not configured", () => {
-		expect(inferChatApiTarget("staging", null, "")).toBe("default");
+		expect(
+			inferChatApiTarget(
+				"staging",
+				"https://stale-staging.example.com/v1",
+				"",
+			),
+		).toBe("default");
 		expect(resolveChatApiBaseUrl("staging", "", "")).toBe(
 			"https://api.phaseo.app/v1",
 		);

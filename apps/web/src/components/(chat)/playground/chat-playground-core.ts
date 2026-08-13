@@ -257,10 +257,11 @@ export function inferChatApiTarget(
 	storedBaseUrl: string | null,
 	stagingBaseUrl = STAGING_CHAT_API_BASE_URL,
 ): ChatApiTarget {
+	if (storedTarget === "staging" && !stagingBaseUrl) {
+		return "default";
+	}
 	if (storedTarget && CHAT_API_TARGETS.has(storedTarget as ChatApiTarget)) {
-		if (storedTarget !== "staging" || stagingBaseUrl) {
-			return storedTarget as ChatApiTarget;
-		}
+		return storedTarget as ChatApiTarget;
 	}
 	const normalizedBaseUrl = (storedBaseUrl ?? "")
 		.trim()
