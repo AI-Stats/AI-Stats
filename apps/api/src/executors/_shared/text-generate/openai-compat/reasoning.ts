@@ -111,8 +111,10 @@ export function applyReasoningParams(args: {
 			args.request.reasoning_effort == null
 		) {
 			args.request.reasoning_effort =
-				reasoning.effort === "low" || reasoning.effort === "max"
-					? reasoning.effort
+				reasoning.effort === "minimal"
+					? "low"
+					: reasoning.effort === "low" || reasoning.effort === "max"
+						? reasoning.effort
 					: "high";
 		}
 		if (args.request[field] == null) {
