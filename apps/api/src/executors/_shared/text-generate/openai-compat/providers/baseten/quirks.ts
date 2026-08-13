@@ -19,6 +19,13 @@ export const basetenQuirks: ProviderQuirks = {
 		// Baseten does not accept service_tier as an upstream request parameter.
 		delete request.service_tier;
 
+		if (
+			typeof ir.reasoning?.effort === "string" &&
+			request.reasoning_effort == null
+		) {
+			request.reasoning_effort = ir.reasoning.effort;
+		}
+
 		const enabled = resolveReasoningEnabled(ir.reasoning);
 		if (typeof enabled !== "boolean") return;
 
@@ -30,4 +37,3 @@ export const basetenQuirks: ProviderQuirks = {
 		};
 	},
 };
-
