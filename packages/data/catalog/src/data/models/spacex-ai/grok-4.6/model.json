@@ -5,7 +5,7 @@
   "status": "Available",
   "previous_model_id": "spacex-ai/grok-4.5",
   "description": "Grok 4.6 is SpaceXAI's frontier model for coding, agentic tasks, and knowledge work. It supports text and image input, a 500k-token context window, configurable reasoning, function calling, structured outputs, and xAI's server-side web search, X search, and code execution tools.",
-  "announced_date": "2026-07-24T00:00:00",
+  "announced_date": "2026-08-12T00:00:00",
   "release_date": "2026-08-12T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
@@ -17,7 +17,7 @@
     {
       "title": "Grok 4.6 developer overview",
       "kind": "api_reference",
-      "url": "https://docs.x.ai/developers/grok-4-6"
+      "url": "https://docs.x.ai/developers/models/grok-4.6"
     },
     {
       "title": "Grok 4.6 announcement",
@@ -100,26 +100,26 @@
   "sources": [
     {
       "kind": "api_reference",
-      "url": "https://docs.x.ai/developers/grok-4-6",
-      "accessed_at": "2026-08-12T00:00:00Z",
+      "url": "https://docs.x.ai/developers/models/grok-4.6",
+      "accessed_at": "2026-08-13T00:00:00Z",
       "notes": "Official model slug, context, knowledge cutoff, modalities, reasoning levels, API formats, tools, and headline token pricing."
     },
     {
       "kind": "announcement",
       "url": "https://x.ai/news/grok-4-6",
-      "accessed_at": "2026-08-12T00:00:00Z",
+      "accessed_at": "2026-08-13T00:00:00Z",
       "notes": "Official Grok 4.6 launch announcement."
     },
     {
       "kind": "pricing",
       "url": "https://docs.x.ai/developers/pricing",
-      "accessed_at": "2026-08-12T00:00:00Z",
+      "accessed_at": "2026-08-13T00:00:00Z",
       "notes": "Official short- and long-context token prices plus Priority Processing terms."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
+    "checked_at": "2026-08-13T00:00:00Z",
     "notes": "Verified against the official Grok 4.6 developer overview, launch announcement, and xAI pricing documentation."
   },
   "last_updated": "2026-08-12T00:00:00",
