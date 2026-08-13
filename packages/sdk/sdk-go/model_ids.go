@@ -571,6 +571,9 @@ const (
 	// Model ID: mistral/mixtral-8x7b
 	// Model page: https://phaseo.app/models/mistral/mixtral-8x7b
 	ModelIDMistralMixtral8x7b gen.ModelId = "mistral/mixtral-8x7b"
+	// Model ID: mistral/ocr-4.1
+	// Model page: https://phaseo.app/models/mistral/ocr-4.1
+	ModelIDMistralOcr41 gen.ModelId = "mistral/ocr-4.1"
 	// Model ID: mistral/pixtral-large
 	// Model page: https://phaseo.app/models/mistral/pixtral-large
 	ModelIDMistralPixtralLarge gen.ModelId = "mistral/pixtral-large"
@@ -1629,6 +1632,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMistralMistralSmall32,
 	ModelIDMistralMistralSmall4,
 	ModelIDMistralMixtral8x7b,
+	ModelIDMistralOcr41,
 	ModelIDMistralPixtralLarge,
 	ModelIDMoonshotaiKimiK2,
 	ModelIDMoonshotaiKimiK20905,

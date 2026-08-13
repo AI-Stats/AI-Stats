@@ -567,6 +567,9 @@ pub mod model_ids {
     /// Model ID: `mistral/mixtral-8x7b`.
     /// Model page: https://phaseo.app/models/mistral/mixtral-8x7b
     pub const MISTRAL_MIXTRAL_8X7B: &str = "mistral/mixtral-8x7b";
+    /// Model ID: `mistral/ocr-4.1`.
+    /// Model page: https://phaseo.app/models/mistral/ocr-4.1
+    pub const MISTRAL_OCR_4_1: &str = "mistral/ocr-4.1";
     /// Model ID: `mistral/pixtral-large`.
     /// Model page: https://phaseo.app/models/mistral/pixtral-large
     pub const MISTRAL_PIXTRAL_LARGE: &str = "mistral/pixtral-large";
@@ -1625,6 +1628,7 @@ pub mod model_ids {
         MISTRAL_MISTRAL_SMALL_3_2,
         MISTRAL_MISTRAL_SMALL_4,
         MISTRAL_MIXTRAL_8X7B,
+        MISTRAL_OCR_4_1,
         MISTRAL_PIXTRAL_LARGE,
         MOONSHOTAI_KIMI_K2,
         MOONSHOTAI_KIMI_K2_0905,
