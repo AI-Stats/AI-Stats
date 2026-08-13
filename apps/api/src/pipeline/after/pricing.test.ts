@@ -85,11 +85,13 @@ const TTS_CARD: PriceCard = {
 
 function loadActiveCatalogPriceCard(pricingPath: string, nowIso = "2026-07-01T00:00:00.000Z"): PriceCard {
 	const raw = JSON.parse(fs.readFileSync(pricingPath, "utf8"));
+	const nowMs = Date.parse(nowIso);
 	const rules = raw.rules
 		.filter((rule: Record<string, unknown>) => {
 			const effectiveFrom = typeof rule.effective_from === "string" ? rule.effective_from : null;
 			const effectiveTo = typeof rule.effective_to === "string" ? rule.effective_to : null;
-			return (!effectiveFrom || effectiveFrom <= nowIso) && (!effectiveTo || effectiveTo > nowIso);
+			return (!effectiveFrom || Date.parse(effectiveFrom) <= nowMs)
+				&& (!effectiveTo || Date.parse(effectiveTo) > nowMs);
 		})
 		.map((rule: Record<string, unknown>): PriceRule => ({
 			id: `${String(raw.api_provider_id)}:${String(raw.api_model_id)}:${String(rule.pricing_plan)}:${String(rule.meter)}`,

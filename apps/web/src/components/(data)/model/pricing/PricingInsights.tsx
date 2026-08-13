@@ -34,6 +34,7 @@ import { Logo } from "@/components/Logo";
 import {
 	buildProviderSections,
 	buildProviderTablePriceSummary,
+	calculateDailyAveragePricingMeterPrice,
 	fmtUSD,
 } from "@/components/(data)/model/pricing/pricingHelpers";
 import { assignSeriesColours, keyForSeries } from "@/components/(rankings)/chart-colors";
@@ -144,6 +145,7 @@ const CACHED_WRITE_TEXT_1H_METER_PREFERENCE = [
 	"cached_write_text_tokens",
 	"cached_write_tokens",
 ] as const;
+const dailyAveragePricePer1MCache = new WeakMap<ModelPricingHistoryRule, number>();
 
 function formatPercent(value: number | null): string {
 	if (value == null || !Number.isFinite(value)) return "--";
@@ -364,7 +366,17 @@ function getPriceForMeter(
 	meterPreference: readonly string[],
 	timestampMs: number,
 ): number | null {
-	return chooseRuleForTimestamp(rules, meterPreference, timestampMs)?.pricePer1MUnits ?? null;
+	const rule = chooseRuleForTimestamp(rules, meterPreference, timestampMs);
+	if (!rule) return null;
+	if (!rule.timeWindows?.length) return rule.pricePer1MUnits;
+	const cached = dailyAveragePricePer1MCache.get(rule);
+	if (cached !== undefined) return cached;
+	const average = calculateDailyAveragePricingMeterPrice({
+		price_per_unit: String(rule.pricePerUnit),
+		time_windows: rule.timeWindows,
+	}) * (1_000_000 / rule.unitSize);
+	dailyAveragePricePer1MCache.set(rule, average);
+	return average;
 }
 
 function calculateEffectiveInputPricePer1M(args: {
@@ -929,7 +941,8 @@ export default function PricingInsights({
 						<h2 className="text-lg font-semibold">Pricing</h2>
 						<p className="text-xs text-muted-foreground">
 							List prices are current provider rates. Effective prices are weighted
-							by observed gateway traffic over the last 30 days.
+							by observed gateway traffic over the last 30 days. Time-windowed
+							rates use their daily schedule average.
 						</p>
 					</div>
 					{availablePlans.length > 1 && onPlanChange ? (
