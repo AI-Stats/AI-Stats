@@ -64,6 +64,23 @@ describe("Baseten quirks", () => {
 		expect(request.chat_template_args).toEqual({
 			enable_thinking: true,
 		});
+		expect(request.reasoning_effort).toBe("high");
+	});
+
+	it("forwards lower reasoning efforts for faster DeepSeek responses", () => {
+		const request: Record<string, unknown> = {};
+		const ir: any = {
+			reasoning: {
+				effort: "minimal",
+			},
+		};
+
+		basetenQuirks.transformRequest?.({ request, ir });
+
+		expect(request.reasoning_effort).toBe("minimal");
+		expect(request.chat_template_args).toEqual({
+			enable_thinking: true,
+		});
 	});
 
 	it("preserves existing chat_template_args keys", () => {
@@ -106,4 +123,3 @@ describe("Baseten quirks", () => {
 		expect(request.service_tier).toBeUndefined();
 	});
 });
-
