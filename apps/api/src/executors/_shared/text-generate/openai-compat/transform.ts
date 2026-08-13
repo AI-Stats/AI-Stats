@@ -168,7 +168,7 @@ export function irToOpenAIResponses(
 		}
 
 		// Apply reasoning params - Xiaomi not configured, so this won't add anything
-		applyReasoningParams({ ir, request, providerId });
+		applyReasoningParams({ ir, request, providerId, providerModelSlug });
 
 		// Xiaomi-specific format: chat_template_kwargs.enable_thinking
 		// Xiaomi uses a nested parameter instead of the standard reasoning field
@@ -291,7 +291,7 @@ export function irToOpenAIResponses(
 	}
 
 	// Add reasoning configuration
-	applyReasoningParams({ ir, request, providerId });
+	applyReasoningParams({ ir, request, providerId, providerModelSlug });
 
 	// Add response format
 	// For Responses API: use text.format instead of response_format
@@ -958,5 +958,4 @@ function normalizeUsage(usage: any): IRUsage | undefined {
 		},
 	};
 }
-
 
