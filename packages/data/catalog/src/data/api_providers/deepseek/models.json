@@ -501,6 +501,13 @@
             "notes": null
           },
           {
+            "param_id": "reasoning_effort",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "high",
+            "notes": "Native values are low, high, and max. High is the default; for compatibility, medium and xhigh map to high."
+          },
+          {
             "param_id": "response_format",
             "provider_min": null,
             "provider_max": null,
@@ -588,6 +595,18 @@
         "url": "https://api-docs.deepseek.com/quick_start/pricing/",
         "accessed_at": "2026-07-31T00:00:00Z",
         "notes": "Official model version, limits and API format availability."
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://api-docs.deepseek.com/guides/thinking_mode/",
+        "accessed_at": "2026-08-13T00:00:00Z",
+        "notes": "Thinking-mode request format and effort control."
+      },
+      {
+        "kind": "changelog",
+        "url": "https://api-docs.deepseek.com/updates/#date-2026-08-13",
+        "accessed_at": "2026-08-13T00:00:00Z",
+        "notes": "The V4 update confirms low, high, and max thinking effort levels for V4 Flash and V4 Pro."
       }
     ],
     "verification": {

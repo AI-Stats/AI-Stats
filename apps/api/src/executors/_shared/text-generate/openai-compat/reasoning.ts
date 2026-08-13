@@ -100,7 +100,10 @@ export function applyReasoningParams(args: {
 		const field = config.field ?? "thinking";
 		if (
 			args.providerId === "deepseek" &&
-			args.ir.model === "deepseek/deepseek-v4-pro-0813" &&
+			(
+				args.ir.model === "deepseek/deepseek-v4-pro-0813" ||
+				args.ir.model === "deepseek/deepseek-v4-flash-0731"
+			) &&
 			typeof reasoning.effort === "string" &&
 			reasoning.effort !== "none" &&
 			args.request.reasoning_effort == null

@@ -975,6 +975,21 @@ describe("irToOpenAIChat", () => {
 		expect(request.reasoning_effort).toBe(expected);
 	});
 
+	it("forwards native effort control for DeepSeek V4 Flash 0731", () => {
+		const request = irToOpenAIChat({
+			model: "deepseek/deepseek-v4-flash-0731",
+			messages: [{
+				role: "user",
+				content: [{ type: "text", text: "Solve this" }],
+			}],
+			stream: false,
+			reasoning: { effort: "max" },
+		} as any, "deepseek-v4-flash", "deepseek");
+
+		expect(request.thinking).toEqual({ type: "enabled" });
+		expect(request.reasoning_effort).toBe("max");
+	});
+
 	it("does not add V4 Pro 0813 effort control to older DeepSeek models", () => {
 		const request = irToOpenAIChat({
 			model: "deepseek/deepseek-v3.2",
