@@ -1528,6 +1528,15 @@ export function calculateDailyAveragePricingMeterPrice(
     return total / (24 * 60);
 }
 
+export function getUtcPricingScheduleTimes(
+    windows: PricingTimeWindow[]
+): string[] {
+    return [...new Set([
+        "00:00",
+        ...windows.flatMap((window) => [window.start_time, window.end_time]),
+    ])].filter((time) => parseUtcMinute(time) !== null).sort();
+}
+
 export function formatPricingTimeWindow(window: PricingTimeWindow): string {
     return `${window.label} ${window.start_time}-${window.end_time} UTC`;
 }

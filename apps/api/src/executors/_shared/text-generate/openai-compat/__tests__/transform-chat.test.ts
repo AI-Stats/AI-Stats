@@ -939,6 +939,36 @@ describe("irToOpenAIChat", () => {
 		expect(request.response_format).toEqual({ type: "json_object" });
 	});
 
+	it("forwards DeepSeek thinking effort with the thinking toggle", () => {
+		const request = irToOpenAIChat({
+			model: "deepseek/deepseek-v4-pro-0813",
+			messages: [{
+				role: "user",
+				content: [{ type: "text", text: "Solve this" }],
+			}],
+			stream: false,
+			reasoning: { effort: "max" },
+		} as any, "deepseek-v4-pro", "deepseek");
+
+		expect(request.thinking).toEqual({ type: "enabled" });
+		expect(request.reasoning_effort).toBe("max");
+	});
+
+	it("does not add V4 Pro 0813 effort control to older DeepSeek models", () => {
+		const request = irToOpenAIChat({
+			model: "deepseek/deepseek-v3.2",
+			messages: [{
+				role: "user",
+				content: [{ type: "text", text: "Solve this" }],
+			}],
+			stream: false,
+			reasoning: { effort: "max" },
+		} as any, "deepseek-v3.2", "deepseek");
+
+		expect(request.thinking).toEqual({ type: "enabled" });
+		expect(request.reasoning_effort).toBeUndefined();
+	});
+
 	it("maps Kimi K3 reasoning and preserves assistant reasoning_content", () => {
 		const request = irToOpenAIChat({
 			model: "moonshotai/kimi-k3",
