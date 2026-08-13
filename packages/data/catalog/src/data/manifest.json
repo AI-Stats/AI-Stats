@@ -1229,7 +1229,8 @@
       "spacex-ai/grok-tts",
       "spacex-ai/grok-imagine-video-1.5",
       "spacex-ai/grok-imagine-image-2.0",
-      "spacex-ai/grok-4.6"
+      "spacex-ai/grok-4.6",
+      "spacex-ai/grok-4.7"
     ],
     "xiaomi": [
       "xiaomi/mimo-v2-flash",
