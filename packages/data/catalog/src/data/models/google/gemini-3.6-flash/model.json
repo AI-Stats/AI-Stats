@@ -76,7 +76,7 @@
     "streaming": null,
     "web_search": null
   },
-  "open_weights": null,
+  "open_weights": false,
   "sources": [
     {
       "kind": "pricing",

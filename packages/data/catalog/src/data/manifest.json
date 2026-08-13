@@ -422,7 +422,8 @@
       "google/lyria-3-clip-preview",
       "google/lyria-3-pro-preview",
       "google/gemma-4-26b-a4b:free",
-      "google/gemma-4-31b:free"
+      "google/gemma-4-31b:free",
+      "google/gemini-3.7-flash"
     ],
     "ibm": [
       "ibm/granite-20b-code-instruct-8k",
