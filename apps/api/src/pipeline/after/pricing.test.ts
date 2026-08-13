@@ -631,4 +631,44 @@ describe("after/pricing calculatePricing", () => {
 		);
 		expect(card?.model).toBe("anthropic/claude-opus-5-fast");
 	});
+
+	it("reloads pricing when provider acceptance crosses the cached card boundary", async () => {
+		const oldCard = {
+			...TTS_CARD,
+			provider: "deepseek",
+			model: "deepseek/deepseek-v4-pro-0813",
+			effective_to: "2026-08-16T16:00:00Z",
+		};
+		const newCard = {
+			...oldCard,
+			effective_from: "2026-08-16T16:00:00Z",
+			effective_to: null,
+		};
+		loadPriceCardMock.mockResolvedValue(newCard);
+
+		const card = await loadProviderPricing(
+			{
+				model: "deepseek/deepseek-v4-pro-0813",
+				capability: "text.generate",
+				pricing: { "deepseek:deepseek/deepseek-v4-pro-0813": oldCard },
+				meta: { upstreamStartMs: Date.parse("2026-08-16T16:00:00.001Z") },
+			} as any,
+			{
+				provider: "deepseek",
+				apiModelId: "deepseek/deepseek-v4-pro-0813",
+				pricingKey: "deepseek:deepseek/deepseek-v4-pro-0813",
+				generationTimeMs: 0,
+				kind: "completed",
+				bill: { usage: {} } as any,
+				upstream: new Response(null, { status: 200 }),
+			},
+		);
+
+		expect(loadPriceCardMock).toHaveBeenCalledWith(
+			"deepseek",
+			"deepseek/deepseek-v4-pro-0813",
+			"text.generate",
+		);
+		expect(card).toBe(newCard);
+	});
 });
