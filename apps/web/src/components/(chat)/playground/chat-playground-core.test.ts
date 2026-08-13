@@ -4,9 +4,37 @@ import {
 	buildServerToolDefinitions,
 	estimatePromptTokenCount,
 	getChangedSettings,
+	inferChatApiTarget,
 	isGeneratedDefaultSystemPrompt,
 	normalizeServerTools,
+	resolveChatApiBaseUrl,
 } from "./chat-playground-core";
+
+describe("chat API targets", () => {
+	const stagingBaseUrl = "https://staging.example.com/v1";
+
+	it("restores and resolves a configured staging target", () => {
+		expect(inferChatApiTarget("staging", null, stagingBaseUrl)).toBe(
+			"staging",
+		);
+		expect(resolveChatApiBaseUrl("staging", "", stagingBaseUrl)).toBe(
+			stagingBaseUrl,
+		);
+	});
+
+	it("fails safely to the public API when staging is not configured", () => {
+		expect(
+			inferChatApiTarget(
+				"staging",
+				"https://stale-staging.example.com/v1",
+				"",
+			),
+		).toBe("default");
+		expect(resolveChatApiBaseUrl("staging", "", "")).toBe(
+			"https://api.phaseo.app/v1",
+		);
+	});
+});
 
 describe("getChangedSettings", () => {
 	it("uses the provider display name instead of the stored provider id", () => {
