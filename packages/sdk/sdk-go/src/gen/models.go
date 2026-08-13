@@ -1783,6 +1783,7 @@ const (
 	KnownModelIdMistralMistralSmall32 KnownModelId = "mistral/mistral-small-3.2"
 	KnownModelIdMistralMistralSmall4 KnownModelId = "mistral/mistral-small-4"
 	KnownModelIdMistralMixtral8x7b KnownModelId = "mistral/mixtral-8x7b"
+	KnownModelIdMistralOcr41 KnownModelId = "mistral/ocr-4.1"
 	KnownModelIdMistralPixtralLarge KnownModelId = "mistral/pixtral-large"
 	KnownModelIdMoonshotaiKimiK2 KnownModelId = "moonshotai/kimi-k2"
 	KnownModelIdMoonshotaiKimiK20905 KnownModelId = "moonshotai/kimi-k2-0905"
