@@ -66,6 +66,39 @@ describe("Z.AI Quirks", () => {
 			});
 			expect(request.reasoning_effort).toBe("high");
 		});
+
+		it.each([
+			["none", "low"],
+			["minimal", "low"],
+			["low", "low"],
+			["medium", "high"],
+			["high", "high"],
+			["xhigh", "max"],
+			["max", "max"],
+		])("maps GLM-5.3 effort %s to %s", (effort, expected) => {
+			const request: Record<string, any> = { model: "glm-5.3" };
+			zaiQuirks.transformRequest!({
+				request,
+				ir: { reasoning: { effort } } as any,
+			});
+
+			expect(request.thinking).toEqual({
+				type: "enabled",
+				clear_thinking: false,
+			});
+			expect(request.reasoning_effort).toBe(expected);
+		});
+
+		it("maps disabled thinking to low for GLM-5.3", () => {
+			const request: Record<string, any> = { model: "glm-5.3[1m]" };
+			zaiQuirks.transformRequest!({
+				request,
+				ir: { reasoning: { enabled: false } } as any,
+			});
+
+			expect(request.thinking.type).toBe("enabled");
+			expect(request.reasoning_effort).toBe("low");
+		});
 	});
 
 	describe("normalizeResponse", () => {
