@@ -1,8 +1,8 @@
 {
-  "key": "arcee-ai:deepseek/deepseek-v4-flash:text.generate",
+  "key": "arcee-ai:deepseek/deepseek-v4-flash-0731:text.generate",
   "api_provider_id": "arcee-ai",
   "provider_slug": "arcee-ai",
-  "api_model_id": "deepseek/deepseek-v4-flash",
+  "api_model_id": "deepseek/deepseek-v4-flash-0731",
   "capability_id": "text.generate",
   "rules": [
     {
