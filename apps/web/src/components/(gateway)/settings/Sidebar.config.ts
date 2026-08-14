@@ -13,7 +13,6 @@ import {
 	KeyRound,
 	RadioTower,
 	ShieldCheck,
-	Shield,
 	User,
 	UserCog,
 	UserKey,
@@ -81,12 +80,6 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 					{ href: "/settings/authorized-apps", label: "Connected Apps" },
 					{ href: "/settings/account/danger", label: "Danger Zone" },
 				],
-			},
-			{
-				href: "/settings/account/privacy",
-				label: "Privacy",
-				icon: Shield,
-				match: ["/settings/account/privacy"],
 			},
 			{
 				href: "/settings/account/workspaces",
@@ -246,7 +239,7 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				match: ["/settings/guardrails", "/settings/privacy"],
 				children: [
 					{ href: "/settings/guardrails", label: "Guardrails", badge: "Beta" },
-					{ href: "/settings/privacy", label: "Data Controls" },
+					{ href: "/settings/privacy", label: "Privacy" },
 				],
 			},
 		],

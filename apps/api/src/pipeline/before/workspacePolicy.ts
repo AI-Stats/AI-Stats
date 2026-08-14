@@ -12,11 +12,6 @@ import type {
 import { normalizeDynamicRouteConfig, type DynamicRoutePolicy } from "./dynamic-routes";
 
 type ProviderRestrictionMode = "none" | "allowlist" | "blocklist";
-const CHAT_MANAGED_KEY_NAME = "__chat_route_managed_key__";
-
-export function shouldApplyAccountPolicyForKeyName(name: unknown): boolean {
-	return String(name ?? "").trim() === CHAT_MANAGED_KEY_NAME;
-}
 
 export function isOptionalDynamicRouteSchemaUnavailable(error: unknown): boolean {
 	if (!error || typeof error !== "object") return false;
@@ -40,20 +35,13 @@ export function isOptionalDynamicRouteSchemaUnavailable(error: unknown): boolean
 }
 
 type WorkspaceSettingsRow = {
-	provider_restriction_mode?: string | null;
-	provider_restriction_provider_ids?: string[] | null;
-	provider_restriction_enforce_allowed?: boolean | null;
-	model_restriction_mode?: string | null;
-	model_restriction_model_ids?: string[] | null;
-};
-
-type AccountGuardrailSettingsRow = {
 	privacy_enable_paid_may_train?: boolean | null;
 	privacy_enable_free_may_train?: boolean | null;
 	privacy_enable_input_output_logging?: boolean | null;
 	privacy_zdr_only?: boolean | null;
 	provider_restriction_mode?: string | null;
 	provider_restriction_provider_ids?: string[] | null;
+	provider_restriction_enforce_allowed?: boolean | null;
 	model_restriction_mode?: string | null;
 	model_restriction_model_ids?: string[] | null;
 };
@@ -380,7 +368,6 @@ function extractProviderHints(body: any): ProviderHintSet {
 }
 
 export function buildWorkspacePolicy(args: {
-	accountSettings?: AccountGuardrailSettingsRow | null;
 	globalSettings?: WorkspaceSettingsRow | null;
 	guardrails?: GuardrailRow[];
 	dynamicRoute?: DynamicRoutePolicy | null;
@@ -399,18 +386,10 @@ export function buildWorkspacePolicy(args: {
 	let privacyZdrOnly = false;
 	let enforceAllowed = false;
 
-	privacyEnablePaidMayTrain = args.accountSettings?.privacy_enable_paid_may_train !== false;
-	privacyEnableFreeMayTrain = args.accountSettings?.privacy_enable_free_may_train !== false;
-	privacyEnableInputOutputLogging = args.accountSettings?.privacy_enable_input_output_logging !== false;
-	privacyZdrOnly = args.accountSettings?.privacy_zdr_only === true;
-	const accountProviderMode = normalizeMode(args.accountSettings?.provider_restriction_mode);
-	const accountProviderIds = normalizeProviderList(args.accountSettings?.provider_restriction_provider_ids ?? []);
-	if (accountProviderMode === "allowlist") providerAllowlist = new Set(accountProviderIds);
-	if (accountProviderMode === "blocklist") accountProviderIds.forEach((id) => providerBlocklist.add(id));
-	const accountModelMode = normalizeMode(args.accountSettings?.model_restriction_mode);
-	const accountModelIds = normalizeStringList(args.accountSettings?.model_restriction_model_ids ?? []);
-	if (accountModelMode === "allowlist") allowedApiModels = new Set(accountModelIds);
-	if (accountModelMode === "blocklist") accountModelIds.forEach((id) => blockedApiModels.add(id));
+	privacyEnablePaidMayTrain = args.globalSettings?.privacy_enable_paid_may_train !== false;
+	privacyEnableFreeMayTrain = args.globalSettings?.privacy_enable_free_may_train !== false;
+	privacyEnableInputOutputLogging = args.globalSettings?.privacy_enable_input_output_logging !== false;
+	privacyZdrOnly = args.globalSettings?.privacy_zdr_only === true;
 
 	const globalMode = normalizeMode(args.globalSettings?.provider_restriction_mode);
 	const globalProviderIds = normalizeProviderList(
@@ -513,7 +492,7 @@ export function buildWorkspacePolicy(args: {
 		privacyEnableFreeMayTrain,
 		privacyEnableInputOutputLogging,
 		privacyZdrOnly,
-		accountPolicyApplied: Boolean(args.accountSettings),
+		accountPolicyApplied: false,
 		enforceAllowed,
 		activeGuardrailIds: (args.guardrails ?? []).map((guardrail) => guardrail.id),
 		dynamicRoute: args.dynamicRoute ?? null,
@@ -553,7 +532,7 @@ export async function fetchWorkspacePolicy(args: {
 		supabase
 			.from("workspace_settings")
 			.select(
-				"provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,model_restriction_mode,model_restriction_model_ids",
+				"privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,model_restriction_mode,model_restriction_model_ids",
 			)
 			.eq("workspace_id", args.workspaceId)
 			.maybeSingle(),
@@ -595,32 +574,15 @@ export async function fetchWorkspacePolicy(args: {
 	}
 
 	const principalUserId = String(keyResult.data?.oauth_user_id ?? keyResult.data?.created_by ?? "").trim();
-	const appliesPersonalAccountPolicy = shouldApplyAccountPolicyForKeyName(keyResult.data?.name);
 	let memberGuardrailIds: string[] = [];
-	let accountSettings: AccountGuardrailSettingsRow | null = null;
 	if (principalUserId) {
-		const [memberGuardrailsResult, accountSettingsResult] = await Promise.all([
-			supabase
-				.from("workspace_member_guardrails")
-				.select("guardrail_id")
-				.eq("workspace_id", args.workspaceId)
-				.eq("user_id", principalUserId),
-			appliesPersonalAccountPolicy ? supabase
-				.from("account_guardrail_settings")
-				.select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,model_restriction_mode,model_restriction_model_ids")
-				.eq("user_id", principalUserId)
-				.maybeSingle() : Promise.resolve({ data: null, error: null }),
-		]);
+		const memberGuardrailsResult = await supabase
+			.from("workspace_member_guardrails")
+			.select("guardrail_id")
+			.eq("workspace_id", args.workspaceId)
+			.eq("user_id", principalUserId);
 		if (memberGuardrailsResult.error) {
 			throw new Error(`workspace_member_guardrails_lookup_failed:${memberGuardrailsResult.error.message}`);
-		}
-		if (accountSettingsResult.error) {
-			const code = String(accountSettingsResult.error.code ?? "").toUpperCase();
-			if (code !== "42P01" && code !== "PGRST205") {
-				throw new Error(`account_guardrail_settings_lookup_failed:${accountSettingsResult.error.message}`);
-			}
-		} else {
-			accountSettings = accountSettingsResult.data as AccountGuardrailSettingsRow | null;
 		}
 		memberGuardrailIds = (memberGuardrailsResult.data ?? [])
 			.map((row: any) => String(row?.guardrail_id ?? "").trim())
@@ -679,7 +641,6 @@ export async function fetchWorkspacePolicy(args: {
 	}
 
 	const policy = buildWorkspacePolicy({
-		accountSettings,
 		globalSettings: (settingsResult.data ?? null) as WorkspaceSettingsRow | null,
 		guardrails,
 		dynamicRoute,

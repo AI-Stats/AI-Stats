@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyWorkspacePolicy, buildWorkspacePolicy, isOptionalDynamicRouteSchemaUnavailable, shouldApplyAccountPolicyForKeyName } from "./workspacePolicy";
+import { applyWorkspacePolicy, buildWorkspacePolicy, isOptionalDynamicRouteSchemaUnavailable } from "./workspacePolicy";
 
 function candidate(args: {
     providerId: string;
@@ -77,20 +77,14 @@ function candidate(args: {
 }
 
 describe("applyWorkspacePolicy", () => {
-	it("applies personal account policy only to the managed Chat key", () => {
-		expect(shouldApplyAccountPolicyForKeyName("__chat_route_managed_key__")).toBe(true);
-		expect(shouldApplyAccountPolicyForKeyName("Production API")).toBe(false);
-		expect(shouldApplyAccountPolicyForKeyName(null)).toBe(false);
-	});
-	it("keeps account route blocks when workspace guardrails allow other routes", () => {
+	it("keeps workspace route blocks when scoped guardrails allow other routes", () => {
 		const policy = buildWorkspacePolicy({
-			accountSettings: { provider_restriction_mode: "blocklist", provider_restriction_provider_ids: ["openai"], model_restriction_mode: "blocklist", model_restriction_model_ids: ["test/model"] },
-			globalSettings: { provider_restriction_mode: "none" },
+			globalSettings: { provider_restriction_mode: "blocklist", provider_restriction_provider_ids: ["openai"], model_restriction_mode: "blocklist", model_restriction_model_ids: ["test/model"] },
 			guardrails: [{ id: "guardrail", provider_restriction_mode: "none", allowed_api_model_ids: [] }],
 		});
 		expect(policy.providerBlocklist).toEqual(["openai"]);
 		expect(policy.blockedApiModels).toEqual(["test/model"]);
-		expect(policy.accountPolicyApplied).toBe(true);
+		expect(policy.accountPolicyApplied).toBe(false);
 	});
 
 	it("applies workspace-wide model restrictions before scoped guardrails", () => {
@@ -105,18 +99,36 @@ describe("applyWorkspacePolicy", () => {
 		expect(policy.blockedApiModels).toEqual(["openai/gpt-5"]);
 	});
 
-	it("combines account and guardrail privacy settings in the stricter direction", () => {
+	it("combines workspace and guardrail privacy settings in the stricter direction", () => {
 		const policy = buildWorkspacePolicy({
-			accountSettings: { privacy_enable_input_output_logging: false, privacy_zdr_only: true },
+			globalSettings: { privacy_enable_input_output_logging: false, privacy_zdr_only: true },
 			guardrails: [{ id: "guardrail", privacy_enable_input_output_logging: true, privacy_zdr_only: false }],
 		});
 		expect(policy.privacyEnableInputOutputLogging).toBe(false);
 		expect(policy.privacyZdrOnly).toBe(true);
 	});
 
-	it("intersects account allowlists with workspace guardrail allowlists", () => {
+	it("loads every data-handling rule from the workspace baseline", () => {
 		const policy = buildWorkspacePolicy({
-			accountSettings: {
+			globalSettings: {
+				privacy_enable_paid_may_train: false,
+				privacy_enable_free_may_train: false,
+				privacy_enable_input_output_logging: false,
+				privacy_zdr_only: true,
+			},
+		});
+
+		expect(policy).toMatchObject({
+			privacyEnablePaidMayTrain: false,
+			privacyEnableFreeMayTrain: false,
+			privacyEnableInputOutputLogging: false,
+			privacyZdrOnly: true,
+		});
+	});
+
+	it("intersects workspace allowlists with scoped guardrail allowlists", () => {
+		const policy = buildWorkspacePolicy({
+			globalSettings: {
 				provider_restriction_mode: "allowlist",
 				provider_restriction_provider_ids: ["openai", "anthropic"],
 				model_restriction_mode: "allowlist",
