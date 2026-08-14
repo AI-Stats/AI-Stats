@@ -1,0 +1,95 @@
+{
+  "key": "z-ai:z-ai/glm-5.3:text.generate",
+  "api_provider_id": "z-ai",
+  "provider_slug": "z-ai",
+  "api_model_id": "z-ai/glm-5.3",
+  "capability_id": "text.generate",
+  "rules": [
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 1.4,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Provisional reference price inherited from GLM-5.2; Z.AI has not separately published GLM-5.3 API pricing.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-14T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "pricing",
+        "url": "https://docs.z.ai/guides/overview/pricing",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "GLM-5.3 is not listed; rate is provisional parity with the current GLM-5.2 standard API price."
+      }
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.26,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Provisional reference price inherited from GLM-5.2; Z.AI has not separately published GLM-5.3 API pricing. Cached input storage is listed as limited-time free.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-14T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "pricing",
+        "url": "https://docs.z.ai/guides/overview/pricing",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "GLM-5.3 is not listed; rate is provisional parity with the current GLM-5.2 cached-input price."
+      }
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 4.4,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Provisional reference price inherited from GLM-5.2; Z.AI has not separately published GLM-5.3 API pricing.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-14T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "pricing",
+        "url": "https://docs.z.ai/guides/overview/pricing",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "GLM-5.3 is not listed; rate is provisional parity with the current GLM-5.2 output price."
+      }
+    }
+  ],
+  "regions": [],
+  "service_tiers": [
+    "standard"
+  ],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://docs.z.ai/guides/overview/pricing",
+      "accessed_at": "2026-08-14T00:00:00Z",
+      "notes": "GLM-5.3 is not listed in the official table; provisional rates mirror GLM-5.2 pending a separate GLM-5.3 API price."
+    },
+    {
+      "kind": "docs",
+      "url": "https://docs.z.ai/guides/llm/glm-5.3",
+      "accessed_at": "2026-08-14T00:00:00Z",
+      "notes": "The official GLM-5.3 guide says the API is coming soon and confirms Coding Plan availability."
+    }
+  ],
+  "verification": {
+    "status": "unverified",
+    "checked_at": "2026-08-14T00:00:00Z",
+    "notes": "The official GLM-5.3 guide does not publish API prices. Rates are intentionally provisional parity with GLM-5.2 and must be replaced when Z.AI publishes a GLM-5.3 price."
+  }
+}
