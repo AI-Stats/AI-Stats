@@ -86,20 +86,6 @@ as $$
     union all
     select * from preview_routes
   ),
-  capability_rows as (
-    select
-      capability.provider_model_id,
-      array_agg(distinct capability.capability_id order by capability.capability_id)
-        filter (where capability.status <> 'disabled') as capabilities,
-      array_agg(distinct parameter.key order by parameter.key)
-        filter (where parameter.key is not null) as supported_parameters
-    from public.v2_route_capabilities capability
-    left join lateral jsonb_object_keys(
-      case when jsonb_typeof(capability.params) = 'object' then capability.params else '{}'::jsonb end
-    ) parameter(key) on true
-    where capability.status <> 'disabled'
-    group by capability.provider_model_id
-  ),
   route_modalities as (
     select
       route.model_slug,
@@ -109,6 +95,18 @@ as $$
     left join lateral unnest(route.input_modalities) input(input_modality) on true
     left join lateral unnest(route.output_modalities) output(output_modality) on true
     group by route.model_slug
+  ),
+  pricing_routes as (
+    select distinct route.model_slug, route.provider_model_id
+    from eligible_routes route
+    union
+    select distinct route.model_slug, route.provider_model_id
+    from display_routes route
+    where not exists (
+      select 1
+      from eligible_routes eligible
+      where eligible.model_slug = route.model_slug
+    )
   ),
   pricing_rows as (
     select
@@ -129,7 +127,7 @@ as $$
       ) as pricing_detail_rows
     from public.v2_pricing_skus sku
     join public.v2_pricing_sku_meters meter on meter.sku_id = sku.sku_id
-    join public.v2_model_provider_routes route on route.provider_model_id = sku.provider_model_id
+    join pricing_routes route on route.provider_model_id = sku.provider_model_id
     where sku.status <> 'disabled'
       and (p_service_tier is null or sku.service_tier_slug = lower(p_service_tier))
       and sku.effective_from <= now()
@@ -165,6 +163,7 @@ as $$
       array_agg(distinct route.provider_name order by route.provider_name) filter (
         where route.route_status = 'active'
           and route.route_routing_enabled
+          and route.provider_status not in ('disabled', 'deprecated')
           and route.provider_routing_enabled
           and route.variant_routing_enabled
       ) as active_provider_names,
@@ -179,10 +178,10 @@ as $$
         'service_tier', route.service_tier_slug,
         'execution_region', route.execution_region,
         'data_region', route.data_region,
-        'is_active', route.route_status = 'active' and route.route_routing_enabled and route.provider_routing_enabled and route.variant_routing_enabled,
+        'is_active', route.route_status = 'active' and route.route_routing_enabled and route.provider_status not in ('disabled', 'deprecated') and route.provider_routing_enabled and route.variant_routing_enabled,
         'status', case
           when route.provider_availability_status = 'coming_soon' then 'coming_soon'
-          when route.route_status = 'active' and route.route_routing_enabled and route.provider_routing_enabled and route.variant_routing_enabled then 'active'
+          when route.route_status = 'active' and route.route_routing_enabled and route.provider_status not in ('disabled', 'deprecated') and route.provider_routing_enabled and route.variant_routing_enabled then 'active'
           else 'inactive'
         end
       )) as provider_details
