@@ -250,6 +250,7 @@
 											"v1/model-migrations/index",
 											"v1/model-migrations/anthropic-claude-opus-5",
 											"v1/model-migrations/openai-migrating-to-gpt-5-6",
+											"v1/model-migrations/openai-deprecations",
 											"v1/model-migrations/anthropic-claude-opus-4-1-to-4-8",
 											"v1/model-migrations/anthropic-claude-opus-4-6-to-4-7",
 											"v1/model-migrations/mistral-small-3-2-to-mistral-small-4",
