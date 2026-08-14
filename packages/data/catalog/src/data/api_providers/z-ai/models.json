@@ -1615,13 +1615,13 @@
         "kind": "pricing",
         "url": "https://docs.z.ai/guides/overview/pricing",
         "accessed_at": "2026-08-14T00:00:00Z",
-        "notes": "Official pricing table checked at launch; GLM-5.3 was not listed."
+        "notes": "Official pricing table checked at launch; GLM-5.3 was not listed. Phaseo uses provisional GLM-5.2 parity pricing separately and keeps this route non-routable."
       }
     ],
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-14T00:00:00Z",
-      "notes": "Coming-soon placeholder only. No standard API availability date or pay-as-you-go pricing has been published; the route remains non-routable."
+      "notes": "Coming-soon placeholder only. The official GLM-5.3 guide says the API is coming soon; provisional GLM-5.2 parity pricing is displayed separately, and the route remains non-routable."
     },
     "rate_limits": []
   }
