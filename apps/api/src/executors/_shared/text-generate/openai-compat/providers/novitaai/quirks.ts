@@ -31,6 +31,7 @@ function normalizeNovitaModel(value: unknown): string {
 	// Gateway model IDs may include provider prefix (novitaai/<model-id>).
 	if (trimmed.startsWith("novitaai/")) return trimmed.slice("novitaai/".length);
 	if (trimmed.startsWith("novita-ai/")) return trimmed.slice("novita-ai/".length);
+	if (trimmed.startsWith("novita/")) return trimmed.slice("novita/".length);
 	return trimmed;
 }
 
@@ -84,4 +85,3 @@ export const novitaQuirks: ProviderQuirks = {
 		};
 	},
 };
-

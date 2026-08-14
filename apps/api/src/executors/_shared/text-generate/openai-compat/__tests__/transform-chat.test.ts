@@ -540,6 +540,20 @@ describe("openAIChatToIR", () => {
 			]);
 		});
 
+		it("maps DeepSeek insufficient_system_resource to an error finish", () => {
+			const ir = openAIChatToIR({
+				id: "chatcmpl_resource",
+				model: "deepseek-v4-pro",
+				choices: [{
+					index: 0,
+					message: { role: "assistant", content: "partial" },
+					finish_reason: "insufficient_system_resource",
+				}],
+			}, "req_resource", "deepseek-v4-pro", "deepseek");
+
+			expect(ir.choices[0].finishReason).toBe("error");
+		});
+
 		it("extracts DeepSeek reasoning from message.reasoning_content", () => {
 			const response = {
 				id: "chatcmpl_deepseek",
@@ -559,6 +573,8 @@ describe("openAIChatToIR", () => {
 				],
 				usage: {
 					prompt_tokens: 5,
+					prompt_cache_hit_tokens: 4,
+					prompt_cache_miss_tokens: 1,
 					completion_tokens: 5,
 					total_tokens: 10,
 				},
@@ -569,6 +585,8 @@ describe("openAIChatToIR", () => {
 				{ type: "reasoning_text", text: "chain-of-thought" },
 				{ type: "text", text: "final" },
 			]);
+			expect(ir.usage?.cachedInputTokens).toBe(4);
+			expect(ir.usage?.cachedReadTokensAreSubsetOfInput).toBe(true);
 		});
 
 		it("extracts Novita reasoning from message.reasoning_content", () => {
@@ -635,7 +653,123 @@ describe("openAIChatToIR", () => {
 	});
 });
 
+describe("Perplexity Sonar response metadata", () => {
+	it("preserves citations, search results, images, related questions, and usage meters", () => {
+		const response = {
+			id: "pplx-1",
+			created: 1,
+			model: "sonar-deep-research",
+			choices: [{ index: 0, message: { role: "assistant", content: "Grounded answer" }, finish_reason: "stop" }],
+			citations: ["https://example.com/source"],
+			search_results: [{ title: "Source", url: "https://example.com/source", source: "web" }],
+			images: [{ image_url: "https://example.com/image.jpg" }],
+			related_questions: ["What next?"],
+			usage: {
+				prompt_tokens: 10,
+				completion_tokens: 20,
+				total_tokens: 30,
+				citation_tokens: 7,
+				num_search_queries: 3,
+				search_context_size: "high",
+				cost: { total_cost: 0.12 },
+			},
+		};
+
+		const ir = openAIChatToIR(response, "req-pplx", "sonar-deep-research", "perplexity");
+		expect(ir.citations).toEqual(["https://example.com/source"]);
+		expect(ir.searchResults).toEqual(response.search_results);
+		expect(ir.images).toEqual(response.images);
+		expect(ir.relatedQuestions).toEqual(["What next?"]);
+		expect(ir.choices[0].message.content[0]).toMatchObject({
+			type: "text",
+			annotations: [{ type: "url_citation", url: "https://example.com/source", title: "Source" }],
+		});
+		expect(ir.usage?._ext).toMatchObject({
+			citationTokens: 7,
+			numSearchQueries: 3,
+			searchContextSize: "high",
+			providerCost: { total_cost: 0.12 },
+			serverToolUse: { web_search_requests: 3 },
+		});
+	});
+});
+
+describe("Mistral chat request contract", () => {
+	it("emits documented reasoning, caching, and Mistral-specific controls", () => {
+		const request = irToOpenAIChat({
+			model: "mistral-large-latest",
+			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
+			stream: false,
+			reasoning: { effort: "xhigh" },
+			promptCacheKey: "shared-prefix",
+			vendor: {
+				mistral: {
+					n: 2,
+					prediction: { type: "content", content: "known suffix" },
+					safe_prompt: true,
+					prompt_mode: "reasoning",
+					guardrails: [{ name: "policy" }],
+				},
+			},
+		} as any, undefined, "mistral");
+
+		expect(request).toMatchObject({
+			reasoning_effort: "xhigh",
+			prompt_cache_key: "shared-prefix",
+			n: 2,
+			prediction: { type: "content", content: "known suffix" },
+			safe_prompt: true,
+			prompt_mode: "reasoning",
+			guardrails: [{ name: "policy" }],
+		});
+	});
+});
+
+describe("Moonshot chat extensions", () => {
+	it("restores prediction and partial-mode message fields", () => {
+		const request = irToOpenAIChat({
+			model: "kimi-k2.6",
+			messages: [
+				{ role: "user", content: [{ type: "text", text: "write code" }] },
+				{ role: "assistant", content: [{ type: "text", text: "```ts\n" }] },
+			],
+			stream: false,
+			vendor: { moonshot: {
+				prediction: { type: "content", content: "known output" },
+				message_fields: [{ name: "caller" }, { partial: true }],
+			} },
+		} as any, undefined, "moonshotai");
+
+		expect(request.prediction).toEqual({ type: "content", content: "known output" });
+		expect(request.messages[0].name).toBe("caller");
+		expect(request.messages[1].partial).toBe(true);
+	});
+});
+
 describe("irToOpenAIChat", () => {
+	it("passes current OpenAI Chat audio, cache, verbosity, and prompt breakpoint fields", () => {
+		const request = irToOpenAIChat({
+			model: "openai/gpt-4o-audio-preview",
+			messages: [{
+				role: "user",
+				content: [{
+					type: "text",
+					text: "Say hello",
+					cacheControl: { type: "prompt_cache_breakpoint", mode: "explicit" },
+				}],
+			}],
+			stream: false,
+			modalities: ["text", "audio"],
+			audioConfig: { format: "wav", voice: "alloy" },
+			promptCacheOptions: { mode: "explicit", ttl: "30m" },
+			textVerbosity: "low",
+		} as any, "gpt-4o-audio-preview", "openai-eu");
+
+		expect(request.audio).toEqual({ format: "wav", voice: "alloy" });
+		expect(request.prompt_cache_options).toEqual({ mode: "explicit", ttl: "30m" });
+		expect(request.verbosity).toBe("low");
+		expect(request.messages[0].content[0].prompt_cache_breakpoint).toEqual({ mode: "explicit" });
+	});
 	it("preserves cache_control markers for explicit cache providers", () => {
 		const request = irToOpenAIChat({
 			model: "qwen/qwen3.7-max",
@@ -912,7 +1046,7 @@ describe("irToOpenAIChat", () => {
 		expect(request.max_tokens).toBeUndefined();
 	});
 
-	it("maps DeepSeek assistant reasoning_content and keeps json_object response_format", () => {
+	it("omits stale DeepSeek reasoning_content on non-tool turns and keeps json_object response_format", () => {
 		const request = irToOpenAIChat({
 			model: "deepseek/deepseek-chat",
 			messages: [
@@ -935,7 +1069,7 @@ describe("irToOpenAIChat", () => {
 		} as any, "deepseek-chat", "deepseek");
 
 		expect(request.messages[0].content).toBe("answer");
-		expect(request.messages[0].reasoning_content).toBe("analysis");
+		expect(request.messages[0].reasoning_content).toBeUndefined();
 		expect(request.response_format).toEqual({ type: "json_object" });
 	});
 
@@ -974,7 +1108,7 @@ describe("irToOpenAIChat", () => {
 		expect(request.messages[0].content).toBe("prior answer");
 		expect(request.messages[0].reasoning_content).toBe("prior reasoning");
 		expect(request.messages[1].content[0].type).toBe("video_url");
-		expect(request.reasoning_effort).toBe("max");
+		expect(request.reasoning_effort).toBe("low");
 		expect(request.max_completion_tokens).toBe(131072);
 		expect(request.max_tokens).toBeUndefined();
 		expect(request.response_format.type).toBe("json_schema");

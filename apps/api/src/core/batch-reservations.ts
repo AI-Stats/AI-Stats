@@ -43,7 +43,9 @@ const TEXT_BATCH_ENDPOINTS: Record<string, ReadonlySet<string>> = {
 	"google-ai-studio": new Set(["/v1/generatecontent"]),
 	mistral: new Set(["/v1/chat/completions"]),
 	together: new Set(["/v1/chat/completions"]),
+	"alibaba-cloud": new Set(["/v1/chat/completions", "/v1/embeddings"]),
 	groq: new Set(["/v1/chat/completions"]),
+	ovhcloud: new Set(["/v1/chat/completions", "/v1/responses", "/v1/embeddings"]),
 };
 
 const UNBOUNDED_BATCH_KEYS = new Set([
@@ -128,6 +130,24 @@ function maximumOutputTokens(body: Record<string, unknown>): number {
 	throw new Error("batch_max_output_tokens_required");
 }
 
+function withOvhcloudBatchDiscount(providerId: string, card: Awaited<ReturnType<typeof loadPriceCard>>) {
+	if (providerId !== "ovhcloud" || !card || !Array.isArray((card as any).rules)) return card;
+	return {
+		...(card as any),
+		rules: (card as any).rules.map((rule: any) => {
+			const plan = String(rule?.pricing_plan ?? "standard").toLowerCase();
+			if (plan !== "standard") return rule;
+			const price = Number(rule?.price_per_unit ?? 0);
+			return {
+				...rule,
+				pricing_plan: "batch",
+				price_per_unit: Number.isFinite(price) ? price / 2 : rule?.price_per_unit,
+				note: rule?.note ?? "OVHcloud Batch API 50% discount",
+			};
+		}),
+	};
+}
+
 async function quotedRequestCost(providerId: string, request: BatchReservationRequest): Promise<{
 	reservedNanos: number;
 	inputTokenUpperBound: number;
@@ -150,8 +170,11 @@ async function quotedRequestCost(providerId: string, request: BatchReservationRe
 		if (card) break;
 	}
 	if (!card) throw new Error("batch_reservation_price_card_missing");
+	card = withOvhcloudBatchDiscount(providerId, card);
 	const inputTokensUpperBound = estimateInputTokenUpperBound(body);
-	const outputTokensUpperBound = maximumOutputTokens(body);
+	const outputTokensUpperBound = normalizeBatchEndpoint(request.endpoint) === "/v1/embeddings"
+		? 0
+		: maximumOutputTokens(body);
 	const priced = computeBill({
 		input_tokens: inputTokensUpperBound,
 		output_tokens: outputTokensUpperBound,
@@ -181,7 +204,7 @@ export async function reserveBatchCredits(args: {
 	estimate: BatchReservationEstimate;
 }> {
 	if (args.requests.length === 0) throw new Error("batch_reservation_requests_required");
-	if (args.requests.length > 10_000) throw new Error("batch_request_limit_exceeded");
+	if (args.requests.length > (args.providerId === "ovhcloud" ? 50_000 : 10_000)) throw new Error("batch_request_limit_exceeded");
 	let reservedNanos = 0;
 	let inputTokenUpperBound = 0;
 	let outputTokenUpperBound = 0;

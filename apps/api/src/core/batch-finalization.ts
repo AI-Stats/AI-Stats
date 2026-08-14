@@ -23,6 +23,7 @@ import { saveBatchRequestRows, type BatchRequestRowInput } from "@core/batch-req
 import {
 	batchText,
 	fetchProviderBatchOutputEntries,
+	fetchProviderFileText,
 	OPENAI_BATCH_PROVIDER_ID,
 } from "@core/batch-provider-adapters";
 import { computeBill } from "@pipeline/pricing/engine";
@@ -36,8 +37,6 @@ import { computeVideoPricedUsage } from "@core/video-pricing";
 import { buildVideoPricingRequestOptions, resolveVideoSeconds } from "@core/video-request-options";
 import { setKeyVersion } from "@core/kv";
 
-const OPENAI_PROVIDER_ID = "openai";
-const OPENAI_BASE_URL = "https://api.openai.com";
 const BATCH_CAPTURE_REQUEST_ID_PREFIX = "batch_capture";
 
 type BatchUsageAggregate = {
@@ -135,11 +134,6 @@ function hasPositivePricingRule(card: Awaited<ReturnType<typeof loadPriceCard>>)
 	return rules.some((rule: any) => (toFiniteNumber(rule?.price_per_unit) ?? 0) > 0);
 }
 
-function resolveOpenAiBaseUrl(bindings: Record<string, string | undefined>): string {
-	const base = String(bindings.OPENAI_BASE_URL || OPENAI_BASE_URL).replace(/\/+$/, "");
-	return /\/v1$/i.test(base) ? base : `${base}/v1`;
-}
-
 function normalizeBatchEndpointPath(endpoint: unknown): string | null {
 	const text = normalizeText(endpoint);
 	if (!text) return null;
@@ -233,30 +227,6 @@ async function emitBatchFinalizationTelemetry(args: {
 		batchId: args.batchId,
 		error: error instanceof Error ? error.message : String(error),
 	}));
-}
-
-async function fetchOpenAiFileText(fileIdRaw: string): Promise<string> {
-	const fileId = normalizeText(fileIdRaw);
-	if (!fileId) throw new Error("missing_output_file_id");
-	const bindings = getBindings() as unknown as Record<string, string | undefined>;
-	const keyInfo = resolveProviderKey(
-		{ providerId: OPENAI_PROVIDER_ID, byokMeta: [] },
-		() => bindings.OPENAI_API_KEY,
-	);
-	const response = await fetch(
-		`${resolveOpenAiBaseUrl(bindings)}/files/${encodeURIComponent(fileId)}/content`,
-		{
-			method: "GET",
-			headers: {
-				Authorization: `Bearer ${keyInfo.key}`,
-			},
-		},
-	);
-	if (!response.ok) {
-		const preview = await response.text().catch(() => "");
-		throw new Error(`openai_batch_output_fetch_failed_${response.status}:${preview.slice(0, 200)}`);
-	}
-	return response.text();
 }
 
 function parseJsonLines(text: string): any[] {
@@ -491,6 +461,25 @@ async function resolveBatchPriceCard(args: {
 					if (derived && Array.isArray((derived as any).rules)) {
 						return { capability, pricingPlan: "batch", card: derived };
 					}
+				}
+				if (card && args.providerId === "ovhcloud" && Array.isArray((card as any)?.rules)) {
+					return {
+						capability,
+						pricingPlan: "batch",
+						card: {
+							...(card as any),
+							rules: (card as any).rules.map((rule: any) => {
+								if (String(rule?.pricing_plan ?? "standard").toLowerCase() !== "standard") return rule;
+								const price = Number(rule?.price_per_unit ?? 0);
+								return {
+									...rule,
+									pricing_plan: "batch",
+									price_per_unit: Number.isFinite(price) ? price / 2 : rule?.price_per_unit,
+									note: rule?.note ?? "OVHcloud Batch API 50% discount",
+								};
+							}),
+						},
+					};
 				}
 			}
 		}
@@ -749,7 +738,7 @@ async function computeBatchSettlement(meta: BatchJobMeta, status: string): Promi
 		(isVideoBatchEndpoint(meta.endpoint) || isImageBatchEndpoint(meta.endpoint)) &&
 		normalizeText(meta.inputFileId)
 	) {
-		const inputText = await fetchOpenAiFileText(String(meta.inputFileId));
+		const inputText = await fetchProviderFileText(providerId, String(meta.inputFileId));
 		for (const inputEntry of parseJsonLines(inputText)) {
 			const customId = extractCustomId(inputEntry);
 			if (customId) inputEntriesByCustomId.set(customId, inputEntry);

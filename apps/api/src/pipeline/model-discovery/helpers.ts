@@ -1167,6 +1167,10 @@ export async function fetchProviderModels(provider: ProviderConfig, apiKey?: str
 				if (!apiKey) throw new Error(`${provider.providerId} api key missing`);
 				headers["Authorization"] = `Api-Key ${apiKey}`;
 				break;
+			case "x_api_key":
+				if (!apiKey) throw new Error(`${provider.providerId} api key missing`);
+				headers["X-Api-Key"] = apiKey;
+				break;
 			case "optional_bearer":
 				if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
 				break;

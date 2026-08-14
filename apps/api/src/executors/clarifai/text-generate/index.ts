@@ -13,7 +13,11 @@ export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChat
 }
 
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
-	return executeOpenAIWire(args);
+	const mcpServers = (args.ir.vendor as any)?.clarifai?.mcp_servers;
+	return executeOpenAIWire(args, {
+		// Clarifai documents mcp_servers as a Chat Completions extension.
+		forceChat: Array.isArray(mcpServers) && mcpServers.length > 0,
+	});
 }
 
 export function postprocess(ir: IRChatRequest): IRChatRequest {

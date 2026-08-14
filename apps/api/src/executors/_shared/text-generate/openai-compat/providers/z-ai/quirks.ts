@@ -9,6 +9,11 @@ import type { ProviderQuirks } from "../../quirks/types";
 
 export const zaiQuirks: ProviderQuirks = {
 	transformRequest: ({ request, ir }) => {
+		const zaiOptions = (ir.vendor as any)?.zai;
+		if (typeof zaiOptions?.tool_stream === "boolean") {
+			request.tool_stream = zaiOptions.tool_stream;
+		}
+
 		// Z.AI chat compatibility docs do not define a "developer" role.
 		// Normalize it to "system" before upstream dispatch.
 		if (Array.isArray(request.messages)) {
@@ -121,5 +126,4 @@ export const zaiQuirks: ProviderQuirks = {
 		}
 	},
 };
-
 

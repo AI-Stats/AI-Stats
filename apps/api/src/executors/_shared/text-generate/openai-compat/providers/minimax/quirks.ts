@@ -199,6 +199,38 @@ export const minimaxQuirks: ProviderQuirks = {
 	 */
 	transformRequest: ({ request, ir }) => {
 		applyJsonSchemaFallback(request);
+		// Current MiniMax Chat/Responses OpenAPI does not accept structured-output formats.
+		// The shared fallback has already injected the JSON schema as an instruction.
+		delete request.response_format;
+		if (request.text?.format?.type !== "text") delete request.text;
+		const isChatRequest = Array.isArray(request.messages);
+		const isM3 = String(request.model ?? ir.model ?? "").toLowerCase().includes("minimax-m3");
+		const minimaxOptions = (ir.vendor as any)?.minimax;
+
+		if (isChatRequest && isM3 && ir.reasoning) {
+			const disabled = ir.reasoning.enabled === false || ir.reasoning.effort === "none";
+			const enabled = ir.reasoning.enabled === true || (
+				typeof ir.reasoning.effort === "string" && ir.reasoning.effort !== "none"
+			);
+			if (disabled || enabled) {
+				request.thinking = { type: disabled ? "disabled" : "adaptive" };
+			}
+		}
+		if (isChatRequest && minimaxOptions?.reasoning_split !== undefined) {
+			request.reasoning_split = minimaxOptions.reasoning_split;
+		}
+		if (isChatRequest && request.tool_choice !== undefined && !["none", "auto"].includes(request.tool_choice)) {
+			delete request.tool_choice;
+		}
+		// The Chat Completions API names this content part video_url.
+		if (isChatRequest) {
+			for (const message of request.messages) {
+				if (!Array.isArray(message?.content)) continue;
+				message.content = message.content.map((part: any) => part?.type === "input_video"
+					? { ...part, type: "video_url" }
+					: part);
+			}
+		}
 
 		// MiniMax compatibility docs do not define a "developer" role.
 		// Normalize it to "system" before upstream dispatch.
@@ -454,5 +486,3 @@ export const minimaxQuirks: ProviderQuirks = {
 		response[outputKey] = normalizedItems;
 	},
 };
-
-

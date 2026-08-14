@@ -34,11 +34,11 @@ function buildContext(args: {
 describe("applyNebiusRegionalModelAllowlist", () => {
     it("keeps allowed EU North 1 model", () => {
         const parsed = buildContext({
-            resolvedModel: "nvidia/nemotron-3-super-120b-a12b",
+            resolvedModel: "qwen/qwen3-32b",
             providers: [
                 buildProvider({
                     providerId: "nebius-token-factory-eu-north-1",
-                    providerModelSlug: "nvidia/nemotron-3-super-120b-a12b",
+                    providerModelSlug: "Qwen/Qwen3-32B",
                 }),
             ],
             pricing: {
@@ -48,13 +48,29 @@ describe("applyNebiusRegionalModelAllowlist", () => {
 
         const filtered = applyNebiusRegionalModelAllowlist({
             parsed,
-            requestedModel: "nvidia/nemotron-3-super-120b-a12b",
+            requestedModel: "qwen/qwen3-32b",
         });
 
         expect(filtered.providers).toHaveLength(1);
         expect(filtered.providers[0]?.providerId).toBe("nebius-token-factory-eu-north-1");
         expect(filtered.pricing["nebius-token-factory-eu-north-1"]).toBeDefined();
     });
+
+	it("drops Nemotron Super from EU North after its move to US Central", () => {
+		const parsed = buildContext({
+			resolvedModel: "nvidia/nemotron-3-super-120b-a12b",
+			providers: [buildProvider({
+				providerId: "nebius-token-factory-eu-north-1",
+				providerModelSlug: "nvidia/nemotron-3-super-120b-a12b",
+			})],
+			pricing: { "nebius-token-factory-eu-north-1": { provider: "nebius-token-factory-eu-north-1" } },
+		});
+		const filtered = applyNebiusRegionalModelAllowlist({
+			parsed,
+			requestedModel: "nvidia/nemotron-3-super-120b-a12b",
+		});
+		expect(filtered.providers).toHaveLength(0);
+	});
 
     it("drops disallowed regional Nebius model and matching pricing", () => {
         const parsed = buildContext({
@@ -150,4 +166,3 @@ describe("applyNebiusRegionalModelAllowlist", () => {
         expect(filtered.providers[0]?.providerId).toBe("nebius-token-factory-us-central-1");
     });
 });
-

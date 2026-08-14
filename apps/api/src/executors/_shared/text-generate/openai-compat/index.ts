@@ -66,7 +66,9 @@ async function sleep(ms: number): Promise<void> {
 
 export type OpenAIWirePolicy = {
 	forceChat?: boolean;
+	useClientStreamingMode?: boolean;
 	transientRetries?: 0 | 1;
+	urlProviderId?: string;
 };
 
 export async function executeOpenAIWire(
@@ -95,11 +97,12 @@ export async function executeOpenAIWire(
 			? irToOpenAIResponses(args.ir, modelForRouting, args.providerId, args.capabilityParams)
 			: irToOpenAIChat(args.ir, modelForRouting, args.providerId, args.capabilityParams);
 
+		const upstreamStream = policy.useClientStreamingMode ? args.ir.stream : true;
 		const payload: Record<string, any> = {
 			...requestPayload,
-			stream: true,
+			stream: upstreamStream,
 		};
-		if (targetRoute === "chat") {
+		if (targetRoute === "chat" && upstreamStream && args.providerId !== "ai21" && args.providerId !== "mancer") {
 			payload.stream_options = {
 				...(payload.stream_options ?? {}),
 				include_usage: true,
@@ -134,9 +137,15 @@ export async function executeOpenAIWire(
 		}
 
 		const fetchStartMs = Date.now();
-		const response = await fetchUpstream(args, openAICompatUrl(args.providerId, endpointForRoute(targetRoute)), {
+		const bytePlusMcpBeta = args.providerId === "byteplus"
+			&& Array.isArray(sanitized.request.tools)
+			&& sanitized.request.tools.some((tool: any) => tool?.type === "mcp");
+		const response = await fetchUpstream(args, openAICompatUrl(policy.urlProviderId ?? args.providerId, endpointForRoute(targetRoute)), {
 			method: "POST",
-			headers: openAICompatHeaders(args.providerId, keyInfo.key, upstreamTestHeaders(args.meta)),
+			headers: openAICompatHeaders(args.providerId, keyInfo.key, {
+				...upstreamTestHeaders(args.meta),
+				...(bytePlusMcpBeta ? { "ark-beta-mcp": "true" } : {}),
+			}),
 			body: requestBody,
 		});
 
@@ -239,7 +248,7 @@ export async function executeOpenAIWire(
 		cost_cents: 0,
 		currency: "USD",
 		usage: undefined,
-		upstream_id: res.headers.get("x-request-id") || undefined,
+		upstream_id: res.headers.get("x-request-id") || res.headers.get("inference-id") || undefined,
 		finish_reason: null,
 	};
 	if (!res.ok) {
@@ -252,6 +261,32 @@ export async function executeOpenAIWire(
 			keySource: keyInfo.source,
 			byokKeyId: keyInfo.byokId,
 			mappedRequest,
+			timing: {
+				requestBuildMs,
+				upstreamFetchStartMs,
+				upstreamHeadersMs,
+				transientRetryDelayMs,
+			},
+		};
+	}
+
+	const upstreamIsStreaming = attempt.request.stream === true;
+	if (!upstreamIsStreaming) {
+		const json = await res.json();
+		const ir = route === "responses"
+			? openAIResponsesToIR(json, args.requestId, modelForRouting, args.providerId)
+			: openAIChatToIR(json, args.requestId, modelForRouting, args.providerId);
+		const usageMeters = normalizeTextUsageForPricing(ir?.usage ?? json?.usage);
+		if (usageMeters) bill.usage = usageMeters;
+		return {
+			kind: "completed",
+			ir,
+			bill,
+			upstream: res,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+			mappedRequest,
+			rawResponse: json,
 			timing: {
 				requestBuildMs,
 				upstreamFetchStartMs,
@@ -1011,5 +1046,3 @@ function accumulateChatCompletion(finalResponse: any, payload: any): any {
 
 	return response;
 }
-
-

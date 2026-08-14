@@ -100,6 +100,30 @@ describe("batch credit reservations", () => {
 		expect(loadPriceCardMock).toHaveBeenCalledWith("spacex-ai", "grok-4.3", "text.generate");
 	});
 
+	it("quotes OVHcloud embeddings with its documented 50% Batch discount", async () => {
+		loadPriceCardMock.mockResolvedValue({
+			provider: "ovhcloud",
+			model: "qwen/qwen3-embedding-8b",
+			rules: [{ pricing_plan: "standard", price_per_unit: 0.1 }],
+		});
+		await reserveBatchCredits({
+			workspaceId: "ws_1",
+			apiKeyId: "key_1",
+			requestId: "req_ovh_embeddings",
+			providerId: "ovhcloud",
+			requests: [{
+				endpoint: "/v1/embeddings",
+				body: { model: "qwen/qwen3-embedding-8b", input: ["bonjour"] },
+			}],
+		});
+		expect(computeBillMock).toHaveBeenCalledWith(
+			expect.objectContaining({ output_tokens: 0 }),
+			expect.objectContaining({ rules: [expect.objectContaining({ pricing_plan: "batch", price_per_unit: 0.05 })] }),
+			expect.objectContaining({ pricing_plan: "batch" }),
+			"batch",
+		);
+	});
+
 	it("rejects endpoints, methods, and paid dimensions that the estimate cannot bound", async () => {
 		for (const request of [
 			{ endpoint: "/v1/embeddings", body: { model: "gpt-4.1-mini", input: "hello", max_output_tokens: 1 } },

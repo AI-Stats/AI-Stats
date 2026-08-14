@@ -84,7 +84,12 @@ function extractInputReferenceCandidate(value: unknown): string | undefined {
 	return undefined;
 }
 
-function resolveInputReferenceValue(ir: IRVideoGenerationRequest): string | undefined {
+function resolveInputReferenceValue(ir: IRVideoGenerationRequest): string | Blob | Record<string, any> | undefined {
+	if (typeof Blob !== "undefined" && ir.inputReference instanceof Blob) return ir.inputReference;
+	if (ir.inputReference && typeof ir.inputReference === "object" && !Array.isArray(ir.inputReference)) {
+		const nativeReference = ir.inputReference as Record<string, any>;
+		if (typeof nativeReference.file_id === "string" || typeof nativeReference.image_url === "string") return nativeReference;
+	}
 	return extractInputReferenceCandidate(ir.inputReference) ??
 		extractInputReferenceCandidate(ir.inputImage) ??
 		extractInputReferenceCandidate(ir.input?.image);
@@ -95,9 +100,8 @@ function buildOpenAiVideoJsonRequest(args: {
 	model: string;
 	seconds?: string;
 	size?: string;
-	inputReference?: string;
 }): Record<string, any> {
-	const { ir, model, seconds, size, inputReference } = args;
+	const { ir, model, seconds, size } = args;
 	const request: Record<string, any> = {
 		model,
 		prompt: ir.prompt,
@@ -109,35 +113,18 @@ function buildOpenAiVideoJsonRequest(args: {
 		if (normalizedSeconds != null) request.seconds = normalizedSeconds;
 	}
 	if (request.size == null && size) request.size = size;
-	if (request.seed == null && typeof ir.seed === "number") request.seed = ir.seed;
-	if (request.negative_prompt == null && ir.negativePrompt) request.negative_prompt = ir.negativePrompt;
-	if (request.aspect_ratio == null && ir.aspectRatio) request.aspect_ratio = ir.aspectRatio;
-	if (request.generate_audio == null && typeof ir.generateAudio === "boolean") request.generate_audio = ir.generateAudio;
-
-	if (request.input == null && ir.input && typeof ir.input === "object") {
-		request.input = {
-			...(ir.input.image ? { image: ir.input.image } : {}),
-			...(ir.input.video ? { video: ir.input.video } : {}),
-			...(ir.input.lastFrame ? { last_frame: ir.input.lastFrame } : {}),
-			...(ir.input.referenceImages ? { reference_images: ir.input.referenceImages } : {}),
-		};
-	}
-	if (request.input_image == null && ir.inputImage) request.input_image = ir.inputImage;
-	if (request.input_video == null && ir.inputVideo) request.input_video = ir.inputVideo;
-	if (request.last_frame == null && ir.lastFrame) request.last_frame = ir.lastFrame;
-	if (request.reference_images == null && ir.referenceImages) request.reference_images = ir.referenceImages;
-	if (request.input_reference == null && inputReference) request.input_reference = inputReference;
-	if (request.callback_url == null && ir.callbackUrl) request.callback_url = ir.callbackUrl;
-
 	return request;
 }
 
 async function resolveInputReferenceBlob(
-	refValue: string,
+	refValue: string | Blob,
 	mimeTypeHint?: string,
 	upstreamTiming?: ExecutorUpstreamTiming,
 ): Promise<{ blob: Blob; name: string } | null> {
-	const ref = refValue?.trim();
+	if (typeof Blob !== "undefined" && refValue instanceof Blob) {
+		return { blob: refValue, name: typeof (refValue as File).name === "string" ? (refValue as File).name : "reference" };
+	}
+	const ref = typeof refValue === "string" ? refValue.trim() : "";
 	if (!ref) return null;
 	let mimeType = mimeTypeHint ?? "application/octet-stream";
 	let fileBlob: Blob | null = null;
@@ -199,6 +186,7 @@ function openAiVideoToIR(
 	const status = mapOpenAiVideoStatus(json?.status);
 	const seconds =
 		(typeof json?.seconds === "number" ? json.seconds : undefined) ??
+		(typeof json?.seconds === "string" ? json.seconds : undefined) ??
 		(typeof json?.duration_seconds === "number" ? json.duration_seconds : undefined) ??
 		requestedSeconds;
 
@@ -220,6 +208,16 @@ function openAiVideoToIR(
 		model,
 		provider,
 		status,
+		progress: typeof json?.progress === "number" ? json.progress : undefined,
+		createdAt: typeof json?.created_at === "number" ? json.created_at : undefined,
+		completedAt: typeof json?.completed_at === "number" ? json.completed_at : null,
+		expiresAt: typeof json?.expires_at === "number" ? json.expires_at : null,
+		error: json?.error && typeof json.error === "object" ? json.error : null,
+		prompt: typeof json?.prompt === "string" ? json.prompt : null,
+		remixedFromVideoId: typeof json?.remixed_from_video_id === "string" ? json.remixed_from_video_id : null,
+		seconds: seconds != null ? String(seconds) : undefined,
+		size: typeof json?.size === "string" ? json.size : undefined,
+		quality: typeof json?.quality === "string" ? json.quality : undefined,
 		output,
 		result: json,
 		usage,
@@ -372,39 +370,27 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		model,
 		seconds,
 		size,
-		inputReference,
 	});
 
 	try {
-		if (inputReference) {
-			const form = new FormData();
-			form.append("model", String(jsonBody.model ?? model));
-			form.append("prompt", String(jsonBody.prompt ?? ir.prompt));
-			if (jsonBody.seconds != null) form.append("seconds", String(jsonBody.seconds));
-			if (jsonBody.size != null) form.append("size", String(jsonBody.size));
-			if (jsonBody.quality != null) form.append("quality", String(jsonBody.quality));
-			if (jsonBody.seed != null) form.append("seed", String(jsonBody.seed));
-			if (jsonBody.aspect_ratio != null) form.append("aspect_ratio", String(jsonBody.aspect_ratio));
-			if (jsonBody.negative_prompt != null) form.append("negative_prompt", String(jsonBody.negative_prompt));
-			if (jsonBody.callback_url != null) form.append("callback_url", String(jsonBody.callback_url));
-			if (jsonBody.generate_audio != null) form.append("generate_audio", String(Boolean(jsonBody.generate_audio)));
-			if (jsonBody.input != null) form.append("input", JSON.stringify(jsonBody.input));
-			if (jsonBody.input_image != null) form.append("input_image", JSON.stringify(jsonBody.input_image));
-			if (jsonBody.input_video != null) form.append("input_video", JSON.stringify(jsonBody.input_video));
-			if (jsonBody.last_frame != null) form.append("last_frame", JSON.stringify(jsonBody.last_frame));
-			if (jsonBody.reference_images != null) form.append("reference_images", JSON.stringify(jsonBody.reference_images));
+		if (inputReference && typeof inputReference === "object" && !(inputReference instanceof Blob)) {
+			requestBody = JSON.stringify({ ...jsonBody, input_reference: inputReference });
+			if (mappedRequestEnabled) mappedRequest = requestBody;
+		} else {
+		const form = new FormData();
+		form.append("model", String(jsonBody.model ?? model));
+		form.append("prompt", String(jsonBody.prompt ?? ir.prompt));
+		if (jsonBody.seconds != null) form.append("seconds", String(jsonBody.seconds));
+		if (jsonBody.size != null) form.append("size", String(jsonBody.size));
+		if (typeof inputReference === "string" || inputReference instanceof Blob) {
 			const resolved = await resolveInputReferenceBlob(inputReference, ir.inputReferenceMimeType, args.upstreamTiming);
 			if (resolved) {
 				form.append("input_reference", resolved.blob, resolved.name);
 			}
-			requestBody = form;
-			delete (headers as any)["Content-Type"];
-			if (mappedRequestEnabled) {
-				mappedRequest = JSON.stringify({ ...jsonBody, input_reference: "[multipart]" });
-			}
-		} else {
-			requestBody = JSON.stringify(jsonBody);
-			if (mappedRequestEnabled) mappedRequest = JSON.stringify(jsonBody);
+		}
+		requestBody = form;
+		delete (headers as any)["Content-Type"];
+		if (mappedRequestEnabled) mappedRequest = JSON.stringify({ ...jsonBody, ...(inputReference ? { input_reference: "[multipart]" } : {}) });
 		}
 	} catch (requestBuildErr) {
 		await releaseReservationOnFailure();

@@ -1,16 +1,55 @@
 import { describe, expect, it } from "vitest";
+import { setupRuntimeFromEnv, teardownTestRuntime } from "../../tests/helpers/runtime";
 
 import {
 	buildProviderCancelPath,
+	buildProviderBatchApiUrl,
 	buildProviderFileMetadataPath,
+	FILE_BACKED_JSONL_BATCH_PROVIDERS,
 	extractGoogleInlineResponses,
 	extractGoogleResponseFileName,
+	extractMistralInlineOutputs,
 	normalizeProviderBatchPayload,
 	normalizeProviderBatchStatus,
+	parseProviderBatchInputEntries,
 	parseProviderBatchListPage,
 } from "./batch-provider-adapters";
 
 describe("batch provider status normalization", () => {
+	it("uses Alibaba Cloud's OpenAI-compatible Files and Batch lifecycle", () => {
+		setupRuntimeFromEnv({
+			DASHSCOPE_API_KEY: "test-dashscope-key",
+			ALIBABA_BASE_URL: "https://workspace.ap-southeast-1.maas.aliyuncs.com",
+		} as any);
+		expect(FILE_BACKED_JSONL_BATCH_PROVIDERS.has("alibaba-cloud")).toBe(true);
+		expect(buildProviderBatchApiUrl("alibaba-cloud", "/files")).toBe(
+			"https://workspace.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/files",
+		);
+		expect(buildProviderCancelPath("alibaba-cloud", "batch_123")).toBe("/batches/batch_123/cancel");
+		teardownTestRuntime();
+	});
+	it("uses OVHcloud's OpenAI-compatible Files and Batch lifecycle", () => {
+		setupRuntimeFromEnv({ OVH_AI_ENDPOINTS_ACCESS_TOKEN: "test-ovh-key" } as any);
+		expect(FILE_BACKED_JSONL_BATCH_PROVIDERS.has("ovhcloud")).toBe(true);
+		expect(buildProviderBatchApiUrl("ovhcloud", "/files")).toBe("https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/files");
+		expect(buildProviderBatchApiUrl("ovhcloud", "/batches")).toBe("https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/batches");
+		expect(buildProviderCancelPath("ovhcloud", "batch_123")).toBe("/batches/batch_123/cancel");
+		expect(normalizeProviderBatchStatus("ovhcloud", "canceled")).toBe("cancelled");
+		teardownTestRuntime();
+	});
+	it("uses Parasail's distinct Batch host and file-backed lifecycle", () => {
+		setupRuntimeFromEnv({ PARASAIL_API_KEY: "test-parasail-key" } as any);
+		expect(buildProviderBatchApiUrl("parasail", "/batches")).toBe("https://api.saas.parasail.io/v1/batches");
+		expect(buildProviderBatchApiUrl("parasail", "/files/file_123/content")).toBe("https://api.saas.parasail.io/v1/files/file_123/content");
+		expect(FILE_BACKED_JSONL_BATCH_PROVIDERS.has("parasail")).toBe(true);
+		expect(buildProviderCancelPath("parasail", "batch_123")).toBe("/batches/batch_123/cancel");
+		teardownTestRuntime();
+	});
+	it("extracts Mistral inline result rows without confusing missing outputs", () => {
+		expect(extractMistralInlineOutputs({ outputs: [{ custom_id: "row-1", response: { body: {} } }] }))
+			.toEqual([{ custom_id: "row-1", response: { body: {} } }]);
+		expect(extractMistralInlineOutputs({ output_file: "file-result" })).toBeNull();
+	});
 	it("uses provider-specific cancellation paths", () => {
 		expect(buildProviderCancelPath("x-ai", "batch_123")).toBe("/batches/batch_123:cancel");
 		expect(buildProviderCancelPath("openai", "batch_123")).toBe("/batches/batch_123/cancel");
@@ -26,13 +65,26 @@ describe("batch provider status normalization", () => {
 			"cancelling",
 			"cancelled",
 		];
-		for (const provider of ["openai", "groq", "together"]) {
+		for (const provider of ["openai", "groq", "together", "moonshotai"]) {
 			for (const status of statuses) {
 				expect(normalizeProviderBatchStatus(provider, status.toUpperCase())).toBe(status);
 			}
 			expect(normalizeProviderBatchStatus(provider, "canceled")).toBe("cancelled");
 			expect(normalizeProviderBatchStatus(provider, "queued")).toBe("queued");
 		}
+	});
+
+	it("unwraps Together's create envelope while preserving warnings", () => {
+		expect(normalizeProviderBatchPayload("together", {
+			job: { id: "batch_together", status: "VALIDATING", input_file_id: "file_input" },
+			warning: "accepted with warning",
+		})).toMatchObject({
+			id: "batch_together",
+			native_batch_id: "batch_together",
+			status: "validating",
+			input_file_id: "file_input",
+			warning: "accepted with warning",
+		});
 	});
 
 	it("normalizes Anthropic processing_status values and ended outcomes from request counts", () => {
@@ -154,6 +206,15 @@ describe("batch provider status normalization", () => {
 				status: raw,
 			}).status).toBe(normalized);
 		}
+		const partialFailure = normalizeProviderBatchPayload("mistral", {
+			id: "batch_mistral",
+			status: "SUCCESS",
+			total_requests: 5,
+			completed_requests: 5,
+			succeeded_requests: 3,
+			failed_requests: 2,
+		});
+		expect(partialFailure.request_counts).toEqual({ total: 5, completed: 5, failed: 2 });
 	});
 
 	it("normalizes xAI batch state counters and explicit statuses", () => {
@@ -201,4 +262,23 @@ describe("batch provider status normalization", () => {
 			nextPageToken: "gemini-next",
 		})).toEqual({ candidates: [geminiOperation], nextCursor: "gemini-next" });
 	});
+
+	it("parses Kimi's OpenAI-compatible batch list cursor", () => {
+		const batch = { id: "batch_kimi" };
+		expect(parseProviderBatchListPage("moonshotai", {
+			data: [batch],
+			has_more: true,
+		})).toEqual({ candidates: [batch], nextCursor: "batch_kimi" });
+	});
+
+	it("preserves OpenAI JSONL request invariants for pre-dispatch validation", () => {
+		expect(parseProviderBatchInputEntries([
+			JSON.stringify({ custom_id: "row-1", method: "POST", url: "/v1/moderations", body: { model: "omni-moderation-latest", input: "hello" } }),
+			JSON.stringify({ custom_id: "row-2", method: "POST", url: "/v1/moderations", body: { model: "omni-moderation-latest", input: "world" } }),
+		].join("\n"))).toEqual([
+			{ customId: "row-1", method: "POST", endpoint: "/v1/moderations", body: { model: "omni-moderation-latest", input: "hello" } },
+			{ customId: "row-2", method: "POST", endpoint: "/v1/moderations", body: { model: "omni-moderation-latest", input: "world" } },
+		]);
+	});
+
 });

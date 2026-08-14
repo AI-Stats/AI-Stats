@@ -76,7 +76,9 @@ function mapEditBody(args: ProviderExecuteArgs): { request: BytePlusImageRequest
 		request: {
 			model,
 			prompt: body.prompt,
-			image: body.image,
+			// BytePlus's JSON edit API accepts string references only; multipart
+			// Blob inputs are handled by file-capable providers such as OpenAI.
+			image: body.image as string | string[],
 			size: body.size,
 			n: supportsMultipleOutputs(model) ? body.n : undefined,
 			response_format: body.response_format,

@@ -8,11 +8,14 @@ export const OPENAI_BATCH_PROVIDER_ID = "openai";
 export const ANTHROPIC_BATCH_PROVIDER_ID = "anthropic";
 export const GOOGLE_AI_STUDIO_BATCH_PROVIDER_ID = "google-ai-studio";
 export const MISTRAL_BATCH_PROVIDER_ID = "mistral";
+export const MOONSHOT_BATCH_PROVIDER_ID = "moonshotai";
 export const X_AI_BATCH_PROVIDER_ID = "x-ai";
+export const PARASAIL_BATCH_PROVIDER_ID = "parasail";
+export const OVHCLOUD_BATCH_PROVIDER_ID = "ovhcloud";
 export const JSON_BATCH_CONTENT_TYPE = "application/json";
-export const FILE_BACKED_JSONL_BATCH_PROVIDERS = new Set(["openai", "groq", "together"]);
-const MAX_BATCH_RESULT_ENTRIES = 10_000;
-const MAX_BATCH_OUTPUT_BYTES = 100 * 1024 * 1024;
+export const FILE_BACKED_JSONL_BATCH_PROVIDERS = new Set(["openai", "groq", "together", "alibaba-cloud", "moonshotai", "parasail", "ovhcloud"]);
+const MAX_BATCH_RESULT_ENTRIES = 50_000;
+const MAX_BATCH_OUTPUT_BYTES = 512 * 1024 * 1024;
 const MAX_BATCH_OUTPUT_LINE_CHARS = 8 * 1024 * 1024;
 const X_AI_BATCH_RESULTS_PAGE_SIZE = 1_000;
 
@@ -126,6 +129,10 @@ export function extractGoogleResponseFileName(payload: any): string | null {
 	);
 }
 
+export function extractMistralInlineOutputs(payload: any): any[] | null {
+	return Array.isArray(payload?.outputs) ? payload.outputs : null;
+}
+
 function normalizeGoogleFileName(fileIdRaw: string): string {
 	const fileId = batchText(fileIdRaw);
 	if (!fileId) throw new Error("missing_output_file_id");
@@ -172,7 +179,15 @@ export async function parseUpstreamJson(response: Response): Promise<any | null>
 function buildProviderBaseUrl(providerId: string, bindings: Record<string, string | undefined>): string {
 	if (providerId === ANTHROPIC_BATCH_PROVIDER_ID) return String(bindings.ANTHROPIC_BASE_URL || "https://api.anthropic.com/v1").replace(/\/+$/, "");
 	if (providerId === GOOGLE_AI_STUDIO_BATCH_PROVIDER_ID) return String(bindings.GOOGLE_AI_STUDIO_BASE_URL || "https://generativelanguage.googleapis.com/v1beta").replace(/\/+$/, "");
+	if (providerId === PARASAIL_BATCH_PROVIDER_ID) return String(bindings.PARASAIL_BATCH_BASE_URL || "https://api.saas.parasail.io/v1").replace(/\/+$/, "");
 	return "";
+}
+
+export function buildProviderBatchApiUrl(providerId: string, endpointPath: string): string {
+	const bindings = getBindings() as unknown as Record<string, string | undefined>;
+	return providerId === PARASAIL_BATCH_PROVIDER_ID
+		? `${buildProviderBaseUrl(providerId, bindings)}${endpointPath}`
+		: openAICompatUrl(providerId, endpointPath);
 }
 
 export async function fetchProviderBatchApi(providerId: string, args: {
@@ -224,7 +239,8 @@ export async function fetchProviderBatchApi(providerId: string, args: {
 	const headers = new Headers(openAICompatHeaders(providerId, keyInfo.key));
 	if (args.contentType) headers.set("Content-Type", args.contentType);
 	if (!args.contentType) headers.delete("Content-Type");
-	return fetch(openAICompatUrl(providerId, args.endpointPath), {
+	const url = buildProviderBatchApiUrl(providerId, args.endpointPath);
+	return fetch(url, {
 		method: args.method,
 		headers,
 		body: args.body ?? undefined,
@@ -320,6 +336,12 @@ export function extractProviderBatchId(providerId: string, payload: any): { publ
 
 export function normalizeProviderBatchPayload(providerId: string, payload: any): any {
 	if (!payload || typeof payload !== "object" || Array.isArray(payload)) return payload;
+	if (providerId === "together" && payload.job && typeof payload.job === "object" && !Array.isArray(payload.job)) {
+		return {
+			...normalizeProviderBatchPayload(providerId, payload.job),
+			...(typeof payload.warning === "string" ? { warning: payload.warning } : {}),
+		};
+	}
 	const ids = extractProviderBatchId(providerId, payload);
 	const status = normalizeProviderBatchStatus(
 		providerId,
@@ -339,7 +361,7 @@ export function normalizeProviderBatchPayload(providerId: string, payload: any):
 		out.error_file_id = batchText(payload.error_file) ?? batchText(payload.error_file_id) ?? null;
 		out.request_counts = {
 			total: toBatchFiniteNumber(payload.total_requests),
-			completed: toBatchFiniteNumber(payload.succeeded_requests ?? payload.completed_requests),
+			completed: toBatchFiniteNumber(payload.completed_requests ?? payload.succeeded_requests),
 			failed: toBatchFiniteNumber(payload.failed_requests),
 		};
 	}
@@ -495,7 +517,7 @@ export function parseProviderBatchListPage(providerId: string, payload: any): {
 					: Array.isArray(payload)
 						? payload
 						: [];
-	if (providerId === OPENAI_BATCH_PROVIDER_ID) {
+	if (providerId === OPENAI_BATCH_PROVIDER_ID || providerId === MOONSHOT_BATCH_PROVIDER_ID || providerId === OVHCLOUD_BATCH_PROVIDER_ID) {
 		return {
 			candidates,
 			nextCursor: payload?.has_more === true && candidates.length > 0
@@ -519,9 +541,11 @@ export async function findProviderBatchByGatewayMetadata(args: {
 }): Promise<any | null> {
 	if (
 		args.providerId !== OPENAI_BATCH_PROVIDER_ID &&
+		args.providerId !== MOONSHOT_BATCH_PROVIDER_ID &&
 		args.providerId !== MISTRAL_BATCH_PROVIDER_ID &&
 		args.providerId !== GOOGLE_AI_STUDIO_BATCH_PROVIDER_ID &&
 		args.providerId !== X_AI_BATCH_PROVIDER_ID
+		&& args.providerId !== OVHCLOUD_BATCH_PROVIDER_ID
 	) return null;
 	let cursor: string | null = null;
 	for (let page = 0; page < 10; page += 1) {
@@ -595,10 +619,17 @@ export async function fetchProviderFileText(providerId: string, fileIdRaw: strin
 	return text + decoder.decode();
 }
 
-export function parseProviderBatchInputEntries(text: string): Array<{ body: unknown; endpoint?: string | null }> {
-	return parseJsonLines(text, MAX_BATCH_RESULT_ENTRIES).map((entry) => ({
+export function parseProviderBatchInputEntries(text: string, maxEntries = MAX_BATCH_RESULT_ENTRIES): Array<{
+	body: unknown;
+	customId?: string | null;
+	endpoint?: string | null;
+	method?: string | null;
+}> {
+	return parseJsonLines(text, maxEntries).map((entry) => ({
 		body: entry?.body ?? entry?.request ?? entry?.params,
+		customId: batchText(entry?.custom_id ?? entry?.customId),
 		endpoint: batchText(entry?.url ?? entry?.endpoint),
+		method: batchText(entry?.method),
 	}));
 }
 
@@ -826,6 +857,22 @@ export async function fetchProviderBatchOutputEntries(meta: BatchJobMeta): Promi
 		const responseFileName = extractGoogleResponseFileName(payload);
 		if (!responseFileName) throw new Error("missing_output_file_id");
 		return fetchProviderFileJsonLines(providerId, responseFileName);
+	}
+	if (providerId === MISTRAL_BATCH_PROVIDER_ID) {
+		const response = await fetchProviderBatchApi(providerId, {
+			endpointPath: `/batch/jobs/${encodeURIComponent(nativeBatchId)}?inline=true`,
+			method: "GET",
+		});
+		if (!response.ok) {
+			const preview = await readResponsePreview(response, 200).catch(() => "");
+			throw new Error(`${providerId}_batch_results_fetch_failed_${response.status}:${preview.slice(0, 200)}`);
+		}
+		const payload = await parseUpstreamJson(response);
+		const inlineOutputs = extractMistralInlineOutputs(payload);
+		if (inlineOutputs) return normalizeOutputEntries(providerId, inlineOutputs);
+		const responseFileId = batchText(payload?.output_file);
+		if (responseFileId) return fetchProviderFileJsonLines(providerId, responseFileId);
+		throw new Error("missing_output_file_id");
 	}
 
 	const resultsPath = buildProviderResultsPath(providerId, nativeBatchId);

@@ -15,6 +15,10 @@ function isVoyageProvider(providerId: string): boolean {
 	return providerId === "voyage" || providerId === "voyageai";
 }
 
+function isNebiusProvider(providerId: string): boolean {
+	return providerId.startsWith("nebius-token-factory");
+}
+
 function normalizeModelName(model?: string | null): string {
 	if (!model) return "";
 	const trimmed = model.trim();
@@ -141,7 +145,44 @@ function buildRequestBody(ir: IREmbeddingsRequest, args: ExecutorExecuteArgs): R
 	// Most OpenAI-compatible providers reject unknown provider_options fields.
 	delete encoded.provider_options;
 
-	if (args.providerId === "mistral") {
+	if (args.providerId === "perplexity") {
+		const model = normalizeModelName(encoded.model).toLowerCase();
+		if (model.startsWith("pplx-embed-context-")) {
+			throw new Error("perplexity_contextualized_embeddings_require_native_schema");
+		}
+		if (model !== "pplx-embed-v1-0.6b" && model !== "pplx-embed-v1-4b") {
+			throw new Error("perplexity_embedding_model_unsupported");
+		}
+		const input = encoded.input;
+		const validInput =
+			typeof input === "string"
+				? input.length > 0
+				: Array.isArray(input) && input.length > 0 && input.length <= 512 &&
+					input.every((value: unknown) => typeof value === "string" && value.length > 0);
+		if (!validInput) {
+			throw new Error("perplexity_embeddings_text_input_required");
+		}
+		const encoding = encoded.encoding_format ?? "base64_int8";
+		if (encoding !== "base64_int8" && encoding !== "base64_binary") {
+			throw new Error("perplexity_embeddings_encoding_format_unsupported");
+		}
+		const maxDimensions = model.endsWith("0.6b") ? 1024 : 2560;
+		if (
+			encoded.dimensions !== undefined &&
+			(!Number.isInteger(encoded.dimensions) || encoded.dimensions < 128 || encoded.dimensions > maxDimensions)
+		) {
+			throw new Error("perplexity_embeddings_dimensions_out_of_range");
+		}
+		encoded.encoding_format = encoding;
+		delete encoded.user;
+	}
+
+	if (args.providerId === "morpheus") {
+		const sessionId = ir.providerOptions?.morpheus?.sessionId;
+		if (sessionId !== undefined) encoded.session_id = sessionId;
+	}
+
+	if (args.providerId === "mistral" || args.providerId === "mistral-eu") {
 		const mistralOptions = ir.providerOptions?.mistral;
 		if (typeof ir.dimensions === "number") {
 			encoded.output_dimension = ir.dimensions;
@@ -150,12 +191,44 @@ function buildRequestBody(ir: IREmbeddingsRequest, args: ExecutorExecuteArgs): R
 		if (mistralOptions?.outputDtype) {
 			encoded.output_dtype = mistralOptions.outputDtype;
 		}
+		if (ir.metadata !== undefined) {
+			encoded.metadata = ir.metadata;
+		}
 	}
 
 	if (args.providerId === "cohere") {
 		// Cohere OpenAI compatibility supports only input/model/encoding_format.
 		delete encoded.dimensions;
 		delete encoded.user;
+	}
+	if (args.providerId === "together") {
+		// Together's native embeddings schema accepts only model and text input.
+		// Do not leak OpenAI-only optional fields into its strict request model.
+		delete encoded.dimensions;
+		delete encoded.encoding_format;
+		delete encoded.user;
+	}
+	if (args.providerId === "novita" || args.providerId === "novitaai") {
+		// Novita's public embeddings contract accepts only input, model and encoding_format.
+		delete encoded.dimensions;
+		delete encoded.user;
+	}
+
+	if (isNebiusProvider(args.providerId) && ir.serviceTier) {
+		encoded.service_tier = ir.serviceTier;
+	}
+
+	if (args.providerId === "fireworks") {
+		const fireworksOptions = ir.providerOptions?.fireworks;
+		if (fireworksOptions?.promptTemplate !== undefined) {
+			encoded.prompt_template = fireworksOptions.promptTemplate;
+		}
+		if (fireworksOptions?.returnLogits !== undefined) {
+			encoded.return_logits = fireworksOptions.returnLogits;
+		}
+		if (fireworksOptions?.normalize !== undefined) {
+			encoded.normalize = fireworksOptions.normalize;
+		}
 	}
 
 	if (isVoyageProvider(args.providerId)) {
@@ -262,6 +335,26 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	});
 
 	const json = await res.clone().json().catch(() => null);
+	const bill = {
+		cost_cents: 0,
+		currency: "USD" as const,
+		usage: undefined as any,
+		upstream_id: res.headers.get("x-request-id"),
+		finish_reason: null,
+	};
+	if (!res.ok) {
+		return {
+			kind: "completed",
+			upstream: res,
+			ir: undefined,
+			bill,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+			mappedRequest,
+			rawResponse: json ?? null,
+		};
+	}
+
 	const responseIr = json ? decodeOpenAIEmbeddingsResponse(json) : {
 		object: "list",
 		model: ir.model,
@@ -272,14 +365,6 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	ir.rawRequest = requestBody;
 
 	const usageMeters = usageToMeters(responseIr.usage);
-	const bill = {
-		cost_cents: 0,
-		currency: "USD" as const,
-		usage: undefined as any,
-		upstream_id: res.headers.get("x-request-id"),
-		finish_reason: null,
-	};
-
 	bill.usage = usageMeters;
 
 	return {

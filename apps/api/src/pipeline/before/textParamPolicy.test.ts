@@ -27,7 +27,7 @@ describe("textParamPolicy", () => {
 
 	it("applies provider override rules from code", () => {
 		expect(
-			resolveProviderParamSupportOverride("cerebras", "presence_penalty"),
+			resolveProviderParamSupportOverride("cohere", "stream_options"),
 		).toBe(false);
 		expect(
 			resolveProviderParamSupportOverride("openai", "provider_options.openai.context_management"),
@@ -83,14 +83,14 @@ describe("textParamPolicy", () => {
 describe("providerSupportsParam", () => {
 	it("honors code-first overrides before metadata", () => {
 		const candidate = {
-			providerId: "cerebras",
+			providerId: "cohere",
 			capabilityParams: {
-				presence_penalty: {},
+				stream_options: {},
 			},
 		} as any;
 
 		expect(
-			providerSupportsParam(candidate, "presence_penalty", {
+			providerSupportsParam(candidate, "stream_options", {
 				assumeSupportedOnMissingConfig: false,
 			}),
 		).toBe(false);

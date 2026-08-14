@@ -6,6 +6,5 @@ export const CLOUDFLARE_OPENAI_COMPAT_CONFIGS = {
 		baseUrlEnv: "CLOUDFLARE_AI_GATEWAY_BASE_URL",
 		apiKeyEnv: "CLOUDFLARE_API_TOKEN",
 		pathPrefix: "",
-		supportsResponses: false,
 	},
 } satisfies Record<string, OpenAICompatConfig>;
