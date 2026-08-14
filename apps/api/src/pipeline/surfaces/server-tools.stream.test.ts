@@ -14,6 +14,77 @@ function buildSseStream(frames: string[]): ReadableStream<Uint8Array> {
 }
 
 describe("consumeTextProtocolStreamToIR", () => {
+	it("materializes fragmented Anthropic tool arguments by content block index", async () => {
+		const stream = buildSseStream([
+			`event: message_start\ndata: ${JSON.stringify({
+				type: "message_start",
+				message: { id: "msg_tool", model: "test-model", usage: { input_tokens: 4, output_tokens: 0 } },
+			})}\n\n`,
+			`event: content_block_start\ndata: ${JSON.stringify({
+				type: "content_block_start",
+				index: 2,
+				content_block: { type: "tool_use", id: "call_weather", name: "get_weather", input: {} },
+			})}\n\n`,
+			`event: content_block_delta\ndata: ${JSON.stringify({
+				type: "content_block_delta",
+				index: 2,
+				delta: { type: "input_json_delta", partial_json: "{\"city\":" },
+			})}\n\n`,
+			`event: content_block_delta\ndata: ${JSON.stringify({
+				type: "content_block_delta",
+				index: 2,
+				delta: { type: "input_json_delta", partial_json: "\"London\"}" },
+			})}\n\n`,
+			`event: content_block_stop\ndata: ${JSON.stringify({ type: "content_block_stop", index: 2 })}\n\n`,
+			`event: message_delta\ndata: ${JSON.stringify({
+				type: "message_delta",
+				delta: { stop_reason: "tool_use", stop_sequence: null },
+				usage: { output_tokens: 8 },
+			})}\n\n`,
+			`event: message_stop\ndata: ${JSON.stringify({ type: "message_stop" })}\n\n`,
+		]);
+
+		const consumed = await consumeTextProtocolStreamToIR({
+			protocol: "anthropic.messages",
+			stream,
+			requestId: "req_anthropic_tool",
+			model: "openai/gpt-5.6-luna",
+			provider: "openai",
+		});
+
+		expect(consumed.ir.choices[0]?.message?.toolCalls).toEqual([{
+			id: "call_weather",
+			name: "get_weather",
+			arguments: "{\"city\":\"London\"}",
+		}]);
+	});
+
+	it("preserves populated Anthropic tool input from the block start", async () => {
+		const stream = buildSseStream([
+			`event: content_block_start\ndata: ${JSON.stringify({
+				type: "content_block_start",
+				index: 0,
+				content_block: { type: "tool_use", id: "call_calc", name: "calc", input: { a: 1 } },
+			})}\n\n`,
+			`event: content_block_stop\ndata: ${JSON.stringify({ type: "content_block_stop", index: 0 })}\n\n`,
+			`event: message_stop\ndata: ${JSON.stringify({ type: "message_stop" })}\n\n`,
+		]);
+
+		const consumed = await consumeTextProtocolStreamToIR({
+			protocol: "anthropic.messages",
+			stream,
+			requestId: "req_anthropic_populated_tool",
+			model: "anthropic/claude-sonnet-4.5",
+			provider: "anthropic",
+		});
+
+		expect(consumed.ir.choices[0]?.message?.toolCalls).toEqual([{
+			id: "call_calc",
+			name: "calc",
+			arguments: "{\"a\":1}",
+		}]);
+	});
+
 	it("deduplicates Responses function-call item and argument events for one provider call", async () => {
 		const stream = buildSseStream([
 			`event: response.output_item.added\ndata: ${JSON.stringify({
