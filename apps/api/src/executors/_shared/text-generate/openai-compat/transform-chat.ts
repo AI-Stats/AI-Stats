@@ -126,7 +126,7 @@ export function irToOpenAIChat(
 	if (ir.logprobs !== undefined) request.logprobs = ir.logprobs;
 	if (ir.topLogprobs !== undefined) request.top_logprobs = ir.topLogprobs;
 
-	applyReasoningParams({ ir, request, providerId });
+	applyReasoningParams({ ir, request, providerId, providerModelSlug: model });
 
 	// Tools
 	if (ir.tools && ir.tools.length > 0) {

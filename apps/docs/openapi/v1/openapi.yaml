@@ -9588,6 +9588,7 @@ components:
         - deepseek/deepseek-v4-flash
         - deepseek/deepseek-v4-flash-0731
         - deepseek/deepseek-v4-pro
+        - deepseek/deepseek-v4-pro-0813
         - eleven-labs/eleven-flash-v2
         - eleven-labs/eleven-flash-v2.5
         - eleven-labs/eleven-multilingual-v2
@@ -9615,6 +9616,7 @@ components:
         - google/gemini-3.5-flash-lite
         - google/gemini-3.5-pro
         - google/gemini-3.6-flash
+        - google/gemini-3.7-flash
         - google/gemini-embedding-001
         - google/gemini-embedding-2
         - google/gemini-embedding-2-preview
@@ -9711,6 +9713,7 @@ components:
         - mistral/mistral-small-3.2
         - mistral/mistral-small-4
         - mistral/mixtral-8x7b
+        - mistral/ocr-4.1
         - mistral/pixtral-large
         - moonshotai/kimi-k2
         - moonshotai/kimi-k2-0905
@@ -9925,6 +9928,7 @@ components:
         - spacex-ai/grok-4.20-multi-agent-beta-0309
         - spacex-ai/grok-4.3
         - spacex-ai/grok-4.5
+        - spacex-ai/grok-4.6
         - spacex-ai/grok-build-0.1
         - spacex-ai/grok-code-fast-1
         - spacex-ai/grok-imagine-image

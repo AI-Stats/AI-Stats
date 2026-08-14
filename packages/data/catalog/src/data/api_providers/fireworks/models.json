@@ -517,6 +517,65 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "deepseek/deepseek-v4-pro-0813",
+    "provider_api_model_id": "fireworks:deepseek/deepseek-v4-pro-0813",
+    "provider_model_slug": "accounts/fireworks/models/deepseek-v4-pro-0813",
+    "internal_model_id": "deepseek/deepseek-v4-pro-0813",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1064960,
+    "max_output_tokens": 384000,
+    "effective_from": "2026-08-13T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://fireworks.ai/models/deepseek-ai/deepseek-v4-pro-0813",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "Official model page confirming the dated model path, serverless availability, pricing, and feature support."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-14T00:00:00Z",
+      "notes": "Verified against Fireworks' published DeepSeek V4 Pro 0813 model page."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "meta/llama-3-8b",
     "provider_api_model_id": "fireworks:meta/llama-3-8b",
     "provider_model_slug": "accounts/fireworks/models/llama-v3-8b-instruct",
@@ -1802,6 +1861,61 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-2.4t-a95b",
+    "provider_api_model_id": "fireworks:qwen/qwen3.8-2.4t-a95b",
+    "provider_model_slug": "accounts/fireworks/models/qwen3p8-max",
+    "internal_model_id": "qwen/qwen3.8-2.4t-a95b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-05T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": false,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": "on_demand"
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://fireworks.ai/models/fireworks/qwen3p8-max",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Fireworks lists accounts/fireworks/models/qwen3p8-max as a ready 2.41T-parameter base model with 262k context for on-demand deployment; serverless, function calling, and image input are not supported."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Verified against the Fireworks model page. The deployment is on-demand only and is therefore not gateway-routable."
     },
     "rate_limits": []
   },

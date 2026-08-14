@@ -143,7 +143,7 @@ export default async function ModelDetailShell({
 
 				<div
 					id="model-detail-primary-header"
-					className="mb-5 flex w-full flex-col gap-4 md:flex-row md:items-start md:justify-between"
+					className="mb-5 flex w-full flex-col gap-4 xl:flex-row xl:items-start xl:justify-between"
 				>
 					<div className="flex w-full items-start gap-4">
 						<div className="flex shrink-0 items-center justify-center">
@@ -183,22 +183,22 @@ export default async function ModelDetailShell({
 						</div>
 					</div>
 
-					<div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-row sm:flex-wrap md:mt-0 md:ml-6 md:w-auto md:flex-nowrap md:items-center">
+					<div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-row sm:flex-wrap xl:mt-0 xl:ml-6 xl:w-auto xl:flex-nowrap xl:items-center">
 						{canChat ? (
-							<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg md:flex-none">
+							<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg xl:flex-none">
 								<Link href={`/chat?model=${modelId}`}>
 									<MessageSquare className="h-4 w-4" />
 									Chat
 								</Link>
 							</Button>
 						) : null}
-						<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg md:flex-none">
+						<Button asChild variant="outline" size="sm" className="flex-1 justify-center rounded-lg xl:flex-none">
 							<Link href={`/compare?models=${modelId}`}>
 								<Scale className="h-4 w-4" />
 								Compare
 							</Link>
 						</Button>
-						{canChat ? <UseModelSheet modelId={modelId} modelName={header.name} gatewayMetadata={gatewayMetadata} triggerId="quickstart" className="col-span-2 w-full min-w-[8.5rem] justify-center sm:w-auto sm:flex-1 md:flex-none" /> : null}
+						{canChat ? <UseModelSheet modelId={modelId} modelName={header.name} gatewayMetadata={gatewayMetadata} triggerId="quickstart" className="col-span-2 w-full min-w-[8.5rem] justify-center sm:w-auto sm:flex-1 xl:flex-none" /> : null}
 					</div>
 				</div>
 

@@ -4597,5 +4597,103 @@
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/nemotron-3.5-lightning",
+    "provider_api_model_id": "venice:nvidia-nemotron-3-5-lightning-30b-a3b",
+    "provider_model_slug": "nvidia-nemotron-3-5-lightning-30b-a3b",
+    "internal_model_id": "nvidia/nemotron-3.5-lightning",
+    "is_active_gateway": true,
+    "quantization_scheme": "fp4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": 32768,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "max_output_tokens": 32768,
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.venice.ai/api/v1/models",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Venice's public models API lists nvidia-nemotron-3-5-lightning-30b-a3b with 1M context, FP4 quantization, reasoning, structured responses and Venice pricing metadata."
+      },
+      {
+        "kind": "model_card",
+        "url": "https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "NVIDIA model card for the NVFP4 deployment weights."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Verified against Venice's public models API and NVIDIA's official model card."
+    },
+    "rate_limits": []
   }
 ]

@@ -259,6 +259,7 @@
       "deepseek/deepseek-v4-flash",
       "deepseek/deepseek-v4-flash-0731",
       "deepseek/deepseek-v4-pro",
+      "deepseek/deepseek-v4-pro-0813",
       "deepseek/deepseek-vl2",
       "deepseek/deepseek-vl2-small",
       "deepseek/deepseek-vl2-tiny",
@@ -425,7 +426,8 @@
       "google/lyria-3-clip-preview",
       "google/lyria-3-pro-preview",
       "google/gemma-4-26b-a4b:free",
-      "google/gemma-4-31b:free"
+      "google/gemma-4-31b:free",
+      "google/gemini-3.7-flash"
     ],
     "ibm": [
       "ibm/granite-20b-code-instruct-8k",
@@ -661,6 +663,7 @@
       "mistral/mixtral-8x7b",
       "mistral/ocr-3",
       "mistral/ocr-4",
+      "mistral/ocr-4.1",
       "mistral/pixtral-12b",
       "mistral/pixtral-large",
       "mistral/voxtral-mini",
@@ -1124,7 +1127,8 @@
       "qwen/qwq-plus",
       "qwen/text-embedding-v3",
       "qwen/text-embedding-v4",
-      "qwen/wan2.7-t2v"
+      "qwen/wan2.7-t2v",
+      "qwen/qwen3.8-2.4t-a95b"
     ],
     "relace": [
       "relace/relace-search"
@@ -1238,6 +1242,8 @@
       "spacex-ai/grok-tts",
       "spacex-ai/grok-imagine-video-1.5",
       "spacex-ai/grok-imagine-image-2.0",
+      "spacex-ai/grok-4.6",
+      "spacex-ai/grok-4.7",
       "spacex-ai/grok-transcribe"
     ],
     "xiaomi": [

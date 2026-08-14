@@ -123,7 +123,20 @@ phaseo integrations setup codex --model openai/gpt-5.6-terra --dry-run
 phaseo integrations setup codex --model openai/gpt-5.6-terra
 phaseo integrations setup claude-code
 phaseo integrations setup opencode --model openai/gpt-5.6-terra
+phaseo integrations setup deepseek-harness
+phaseo integrations setup pi
+phaseo integrations setup openclaw
+phaseo integrations setup hermes
+phaseo integrations setup aider
+phaseo integrations setup cline
+phaseo integrations setup roo-code
+phaseo integrations setup kilo-code
+phaseo integrations setup continue
+phaseo integrations setup cursor
+phaseo integrations setup zed
 ```
+
+Hermes setup is automatic and uses Hermes' supported plaintext `~/.hermes/.env` credential store. Phaseo CLI records the previous non-secret model settings so removal can restore them.
 
 Codex receives a dedicated `phaseo` profile at `~/.codex/phaseo.config.toml`, leaving the default profile unchanged:
 
@@ -131,25 +144,32 @@ Codex receives a dedicated `phaseo` profile at `~/.codex/phaseo.config.toml`, le
 codex --profile phaseo
 ```
 
-Claude Code is configured through `~/.claude/settings.json` with the Phaseo gateway and a credential helper. Both integrations ask the Phaseo CLI for a short-lived gateway key, so neither application configuration contains a key. The helper uses `PHASEO_API_KEY` when it is set. Otherwise, it uses the session created by `phaseo login` to provision a 24-hour key and keeps that key in the same OS-backed credential store as the session:
+Setup creates one non-expiring gateway key per integration with a descriptive name such as `Phaseo CLI: Codex API Key`. The CLI retains each key in the OS credential store and revokes it when that integration is removed. Codex and Claude Code use credential helpers, so their application configuration never contains the key:
 
 ```bash
 phaseo login
 claude
 ```
 
-OpenCode receives a `phaseo` provider in `~/.config/opencode/opencode.json` or an existing `opencode.jsonc`. Its configuration references `PHASEO_API_KEY` without storing the key. Start OpenCode from a shell where that variable is available, then select the configured Phaseo model from `/models`:
+OpenCode receives a `phaseo` provider in `~/.config/opencode/opencode.json` or an existing `opencode.jsonc`. Its configuration references `PHASEO_API_KEY` without storing the key. Copy the dedicated key intentionally, store it in your preferred environment/secret manager, then start OpenCode:
 
 ```bash
-PHASEO_API_KEY="..." opencode --model phaseo/openai/gpt-5.6-terra
+phaseo integrations credential opencode
 ```
 
-Every setup operation supports `--dry-run` and creates a timestamped backup before replacing an existing file. Remove only Phaseo-owned values with:
+DeepSeek Harness receives a Phaseo provider and default model in `$DSH_HOME/cordis.patch.yml` (or `~/.dsh/cordis.patch.yml`). The managed block includes the Phaseo base URL and OpenAI Completions protocol while preserving unrelated Harness patches. Copy its dedicated key into **Settings > Models**; Harness stores it in its write-only `$DSH_HOME/.credentials.yaml` store:
+
+```bash
+phaseo integrations credential deepseek-harness
+```
+
+Every setup operation supports `--dry-run`. Writes are transactional and roll back if setup fails; successful setup does not leave backup files behind. Remove only Phaseo-owned values with:
 
 ```bash
 phaseo integrations remove codex
 phaseo integrations remove claude-code
 phaseo integrations remove opencode
+phaseo integrations remove deepseek-harness
 ```
 
 ## Local comparison runs

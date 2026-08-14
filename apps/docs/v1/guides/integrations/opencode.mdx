@@ -6,11 +6,6 @@ description: "Connect OpenCode to the Phaseo Gateway with a custom OpenAI-compat
 
 OpenCode can call Phaseo through a custom OpenAI-compatible provider. Use this setup when you want OpenCode model selection, usage, and routing to go through one Phaseo API key.
 
-## Prerequisites
-
-- A Phaseo API key.
-- OpenCode installed locally.
-
 ## 1) Configure OpenCode
 
 Use the Phaseo CLI to add a global provider without writing a key into the OpenCode configuration:
@@ -19,17 +14,17 @@ Use the Phaseo CLI to add a global provider without writing a key into the OpenC
 phaseo integrations setup opencode --model openai/gpt-5.6-terra
 ```
 
-The command preserves unrelated OpenCode settings and supports `--dry-run`. It updates an existing global `opencode.jsonc` when present, otherwise it uses `~/.config/opencode/opencode.json`.
+The command creates a non-expiring `Phaseo CLI: OpenCode API Key`, preserves unrelated OpenCode settings, and supports `--dry-run`. It updates an existing global `opencode.jsonc` when present, otherwise it uses `~/.config/opencode/opencode.json`.
 
-## 2) Set your API key
+## 2) Copy the generated API key
+
+OpenCode does not provide an executable credential helper. Reveal the dedicated key intentionally, then save it as `PHASEO_API_KEY` in your shell profile or secret manager:
 
 ```bash
-export PHASEO_API_KEY="your_phaseo_api_key"
+phaseo integrations credential opencode
 ```
 
-```powershell
-$env:PHASEO_API_KEY = "your_phaseo_api_key"
-```
+The CLI stores its own copy in the OS credential store and revokes the key when you run `phaseo integrations remove opencode`.
 
 ## Manual configuration
 

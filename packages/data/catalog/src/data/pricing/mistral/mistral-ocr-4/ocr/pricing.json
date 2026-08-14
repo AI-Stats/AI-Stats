@@ -12,7 +12,7 @@
       "price_per_unit": 4,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Mistral pricing lists OCR 4 at $4 per 1,000 pages.",
+      "note": "Mistral prices OCR 4 at $4 per 1,000 pages.",
       "match": [],
       "priority": 100,
       "effective_from": "2026-06-23T00:00:00Z",
@@ -25,7 +25,7 @@
       "meter": "input_pages",
       "unit": "page",
       "unit_size": 1000,
-      "price_per_unit": 1,
+      "price_per_unit": 2,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Document AI annotations cost $5 per 1,000 pages in total, a $1 uplift over base OCR 4.",
@@ -79,13 +79,13 @@
     {
       "kind": "pricing",
       "url": "https://mistral.ai/pricing/api/",
-      "accessed_at": "2026-08-12T00:00:00Z",
-      "notes": "OCR 4 is $4 per 1,000 pages and Document AI is $5 per 1,000 pages; Batch processing is discounted by 50%."
+      "accessed_at": "2026-08-13T00:00:00Z",
+      "notes": "Mistral documents Batch processing at a 50% discount; eligibility depends on the model and Batch endpoint."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "Verified OCR 4, Document AI annotation, and published Batch discount pricing against Mistral's first-party pricing page."
+    "checked_at": "2026-08-13T00:00:00Z",
+    "notes": "Standard OCR and Batch API prices verified against Mistral's official pricing page."
   }
 }

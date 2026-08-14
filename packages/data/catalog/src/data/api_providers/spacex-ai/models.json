@@ -1402,6 +1402,155 @@
                         ]
     },
     {
+        "api_model_id": "spacex-ai/grok-4.6",
+        "provider_api_model_id": "spacex-ai:spacex-ai/grok-4.6",
+        "provider_model_slug": "grok-4.6",
+        "internal_model_id": "spacex-ai/grok-4.6",
+        "is_active_gateway": true,
+        "quantization_scheme": null,
+        "input_modalities": "text,image",
+        "output_modalities": "text",
+        "context_length": 500000,
+        "max_output_tokens": null,
+        "effective_from": "2026-08-12T00:00:00Z",
+        "effective_to": null,
+        "capabilities": [
+            {
+                "capability_id": "text.generate",
+                "status": "active",
+                "params": [
+                    {
+                        "param_id": "include_reasoning",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": null,
+                        "notes": null
+                    },
+                    {
+                        "param_id": "max_tokens",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": null,
+                        "notes": "xAI documents no text output limit for Grok 4.6."
+                    },
+                    {
+                        "param_id": "reasoning",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": "high",
+                        "notes": "Supported reasoning efforts are low, medium, high, and xhigh."
+                    },
+                    {
+                        "param_id": "response_format",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": null,
+                        "notes": null
+                    },
+                    {
+                        "param_id": "service_tier",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": "standard",
+                        "notes": "Priority Processing is available at 2x standard token prices."
+                    },
+                    {
+                        "param_id": "structured_outputs",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": null,
+                        "notes": null
+                    },
+                    {
+                        "param_id": "tool_choice",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": null,
+                        "notes": null
+                    },
+                    {
+                        "param_id": "tools",
+                        "provider_min": null,
+                        "provider_max": null,
+                        "provider_default": null,
+                        "notes": "Supports function calling plus xAI web search, X search, and code execution tools."
+                    }
+                ],
+                "reasoning": true,
+                "tool_call": true,
+                "structured_output": true,
+                "temperature": null,
+                "attachment": true,
+                "input_modalities": null,
+                "output_modalities": null,
+                "modes": []
+            }
+        ],
+        "routing_status": "active",
+        "routable": true,
+        "regions": {
+            "execution": [
+                "us-east-1",
+                "us-west-2"
+            ],
+            "data": null
+        },
+        "service_tiers": [
+            "standard",
+            "priority"
+        ],
+        "api": {
+            "formats": [
+                "openai.chat.completions",
+                "openai.responses"
+            ],
+            "endpoint": null,
+            "deployment": null
+        },
+        "sources": [
+            {
+                "kind": "api_reference",
+                "url": "https://docs.x.ai/developers/grok-4-6",
+                "accessed_at": "2026-08-12T00:00:00Z",
+                "notes": "Official model slug, limits, modalities, reasoning efforts, APIs, and tools."
+            },
+            {
+                "kind": "pricing",
+                "url": "https://docs.x.ai/developers/pricing",
+                "accessed_at": "2026-08-12T00:00:00Z",
+                "notes": "Official token prices and Priority Processing terms."
+            }
+        ],
+        "verification": {
+            "status": "verified",
+            "checked_at": "2026-08-12T00:00:00Z",
+            "notes": "Verified against the official Grok 4.6 developer overview and xAI pricing documentation."
+        },
+        "rate_limits": [
+            {
+                "type": "requests_per_second",
+                "limit": 150,
+                "window": "second",
+                "scope": "model",
+                "notes": null
+            },
+            {
+                "type": "requests_per_minute",
+                "limit": 7200,
+                "window": "minute",
+                "scope": "model",
+                "notes": null
+            },
+            {
+                "type": "tokens_per_minute",
+                "limit": 50000000,
+                "window": "minute",
+                "scope": "model",
+                "notes": null
+            }
+        ]
+    },
+    {
         "api_model_id":  "spacex-ai/grok-build-0.1",
         "provider_api_model_id":  "spacex-ai:spacex-ai/grok-build-0.1",
         "provider_model_slug":  "grok-build-0.1",

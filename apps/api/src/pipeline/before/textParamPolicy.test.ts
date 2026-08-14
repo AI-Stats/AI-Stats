@@ -56,6 +56,7 @@ describe("textParamPolicy", () => {
 		const body = {
 			model: "openai/gpt-5.4-nano",
 			messages: [{ role: "user", content: "Hello" }],
+			store: false,
 			stream: true,
 			stream_options: { include_usage: true },
 		};
@@ -103,6 +104,21 @@ describe("providerSupportsParam", () => {
 				reasoning: {
 					effort: {},
 				},
+			},
+		} as any;
+
+		expect(
+			providerSupportsParam(candidate, "reasoning.effort", {
+				assumeSupportedOnMissingConfig: false,
+			}),
+		).toBe(true);
+	});
+
+	it("recognizes Baseten reasoning effort through its canonical capability path", () => {
+		const candidate = {
+			providerId: "baseten",
+			capabilityParams: {
+				"reasoning.effort": {},
 			},
 		} as any;
 

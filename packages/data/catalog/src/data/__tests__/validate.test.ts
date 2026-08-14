@@ -5,6 +5,7 @@ import {
     checkApiProviderModelEntrySafety,
     checkPreviousModelReference,
     checkPricingEntrySafety,
+    checkSubscriptionPlanModels,
     isMajorError,
 } from '@/data/validate';
 
@@ -43,6 +44,21 @@ describe('model lineage reference checks', () => {
             previousModelExists: true,
             previousModelOrganisationId: 'openai',
         })[0]).toContain('from a different organisation');
+    });
+});
+
+describe('subscription plan model checks', () => {
+    test('duplicate model IDs are rejected before import', () => {
+        expect(checkSubscriptionPlanModels(
+            'example-plan',
+            [
+                { model_id: 'example/model' },
+                { model_id: 'example/model' },
+            ],
+            new Set(['example/model']),
+        )).toEqual([
+            'Subscription plan example-plan contains duplicate model example/model',
+        ]);
     });
 });
 

@@ -81,11 +81,27 @@ describe("Baseten quirks", () => {
 
 		basetenQuirks.transformRequest?.({ request, ir: {} as any });
 
-		expect(request.messages[0].content).toEqual([
+			expect(request.messages[0].content).toEqual([
 			{ type: "audio_url", audio_url: { url: "https://example.com/a.wav" } },
 			{ type: "audio_url", audio_url: { url: "data:audio/wav;base64,UklGRg==" } },
 			{ type: "video_url", video_url: { url: "https://example.com/v.mp4" } },
 		]);
+	});
+
+	it("forwards lower reasoning efforts for faster DeepSeek responses", () => {
+		const request: Record<string, unknown> = {};
+		const ir: any = {
+			reasoning: {
+				effort: "minimal",
+			},
+		};
+
+		basetenQuirks.transformRequest?.({ request, ir });
+
+		expect(request.reasoning_effort).toBe("minimal");
+		expect(request.chat_template_args).toEqual({
+			enable_thinking: true,
+		});
 	});
 
 	it("preserves existing chat_template_args keys", () => {
