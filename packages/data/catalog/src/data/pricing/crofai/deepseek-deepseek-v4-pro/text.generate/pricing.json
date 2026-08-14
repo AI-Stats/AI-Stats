@@ -212,10 +212,17 @@
     "standard",
     "priority"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_notice",
+      "url": null,
+      "accessed_at": null,
+      "notes": "CrofAI Discord notice supplied by the maintainer: the seven listed routes were scheduled for removal at 13:30 CDT on 8/13/2026."
+    }
+  ],
   "verification": {
-    "status": "unverified",
+    "status": "verified",
     "checked_at": null,
-    "notes": null
+    "notes": "Retirement boundary is taken from the provider notice rather than inferred from a later live API observation."
   }
 }
