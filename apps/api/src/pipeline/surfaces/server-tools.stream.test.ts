@@ -36,6 +36,22 @@ describe("consumeTextProtocolStreamToIR", () => {
 				delta: { type: "input_json_delta", partial_json: "\"London\"}" },
 			})}\n\n`,
 			`event: content_block_stop\ndata: ${JSON.stringify({ type: "content_block_stop", index: 2 })}\n\n`,
+			`event: content_block_start\ndata: ${JSON.stringify({
+				type: "content_block_start",
+				index: 5,
+				content_block: { type: "tool_use", id: "call_time", name: "get_time", input: {} },
+			})}\n\n`,
+			`event: content_block_delta\ndata: ${JSON.stringify({
+				type: "content_block_delta",
+				index: 5,
+				delta: { type: "input_json_delta", partial_json: "{\"timezone\":" },
+			})}\n\n`,
+			`event: content_block_delta\ndata: ${JSON.stringify({
+				type: "content_block_delta",
+				index: 5,
+				delta: { type: "input_json_delta", partial_json: "\"UTC\"}" },
+			})}\n\n`,
+			`event: content_block_stop\ndata: ${JSON.stringify({ type: "content_block_stop", index: 5 })}\n\n`,
 			`event: message_delta\ndata: ${JSON.stringify({
 				type: "message_delta",
 				delta: { stop_reason: "tool_use", stop_sequence: null },
@@ -52,11 +68,18 @@ describe("consumeTextProtocolStreamToIR", () => {
 			provider: "openai",
 		});
 
-		expect(consumed.ir.choices[0]?.message?.toolCalls).toEqual([{
-			id: "call_weather",
-			name: "get_weather",
-			arguments: "{\"city\":\"London\"}",
-		}]);
+		expect(consumed.ir.choices[0]?.message?.toolCalls).toEqual([
+			{
+				id: "call_weather",
+				name: "get_weather",
+				arguments: "{\"city\":\"London\"}",
+			},
+			{
+				id: "call_time",
+				name: "get_time",
+				arguments: "{\"timezone\":\"UTC\"}",
+			},
+		]);
 	});
 
 	it("preserves populated Anthropic tool input from the block start", async () => {
