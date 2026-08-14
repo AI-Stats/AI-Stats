@@ -82,14 +82,15 @@ describe("openai video executor", () => {
 	});
 
 	it("forwards OpenAI Sora request fields and omits quality", async () => {
-		let capturedBody: any = null;
+		let capturedBody: FormData | null = null;
 		const mock = installFetchMock([
 			{
-				match: (url) => url.includes("/videos"),
-				response: jsonResponse({ id: "vid_openai_1", status: "queued" }),
-				onRequest: (call) => {
-					capturedBody = call.bodyJson;
+				match: (url, init) => {
+					if (!url.includes("/videos")) return false;
+					capturedBody = init?.body as FormData;
+					return true;
 				},
+				response: jsonResponse({ id: "vid_openai_1", status: "queued" }),
 			},
 		]);
 
@@ -104,13 +105,32 @@ describe("openai video executor", () => {
 		mock.restore();
 
 		expect(result.upstream?.status).toBe(200);
-		expect(capturedBody).toMatchObject({
-			model: "openai/sora-2",
-			prompt: "A storm over the ocean",
-			seconds: "8",
-			size: "1280x720",
-		});
-		expect(capturedBody?.quality).toBeUndefined();
+		expect(capturedBody).toBeInstanceOf(FormData);
+		expect(capturedBody?.get("model")).toBe("openai/sora-2");
+		expect(capturedBody?.get("prompt")).toBe("A storm over the ocean");
+		expect(capturedBody?.get("seconds")).toBe("8");
+		expect(capturedBody?.get("size")).toBe("1280x720");
+		expect(capturedBody?.get("quality")).toBeNull();
+	});
+
+	it("preserves the OpenAI video lifecycle fields in IR", async () => {
+		const mock = installFetchMock([{ match: (url) => url.includes("/videos"), response: jsonResponse({
+			id: "video_native", object: "video", model: "sora-2", status: "in_progress", progress: 42,
+			created_at: 1_712_697_600, completed_at: null, expires_at: null, error: null,
+			prompt: "A storm", remixed_from_video_id: null, seconds: "8", size: "1280x720", quality: "standard",
+		}) }]);
+		const result = await execute(buildArgs({ model: "sora-2", prompt: "A storm", seconds: "8", size: "1280x720" }));
+		mock.restore();
+		expect(result.ir).toMatchObject({ nativeId: "video_native", status: "in_progress", progress: 42, createdAt: 1_712_697_600, seconds: "8", size: "1280x720", quality: "standard" });
+	});
+
+	it("sends JSON input_reference objects as JSON rather than multipart", async () => {
+		let body: any;
+		const mock = installFetchMock([{ match: (url) => url.includes("/videos"), response: jsonResponse({ id: "video_json", status: "queued" }), onRequest: (call) => { body = call.bodyJson; } }]);
+		const result = await execute(buildArgs({ model: "sora-2-pro", prompt: "Reference a file", seconds: "20", size: "1920x1080", inputReference: { file_id: "file_123" } }));
+		mock.restore();
+		expect(result.upstream?.status).toBe(200);
+		expect(body).toMatchObject({ model: "sora-2-pro", seconds: "20", size: "1920x1080", input_reference: { file_id: "file_123" } });
 	});
 
 	it("maps input_image object to multipart input_reference", async () => {

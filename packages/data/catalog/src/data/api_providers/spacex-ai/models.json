@@ -2669,5 +2669,28 @@
         "rate_limits":  [
 
                         ]
+    },
+    {
+        "api_model_id": "spacex-ai/grok-transcribe",
+        "provider_api_model_id": "spacex-ai:spacex-ai/grok-transcribe",
+        "provider_model_slug": "grok-transcribe",
+        "internal_model_id": "spacex-ai/grok-transcribe",
+        "is_active_gateway": true,
+        "quantization_scheme": null,
+        "input_modalities": "audio",
+        "output_modalities": "text",
+        "context_length": null,
+        "max_output_tokens": null,
+        "effective_from": "2026-07-23T00:00:00",
+        "effective_to": null,
+        "capabilities": [{ "capability_id": "audio.transcription", "status": "active", "params": ["language", "keywords", "diarize"], "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null, "attachment": true, "input_modalities": ["audio"], "output_modalities": ["text"], "modes": [] }],
+        "routing_status": "active",
+        "routable": true,
+        "regions": { "execution": ["us-east-1"], "data": ["us-east-1"] },
+        "service_tiers": [],
+        "api": { "formats": ["xai.stt"], "endpoint": "/v1/stt", "deployment": "regional" },
+        "sources": [{ "kind": "documentation", "url": "https://docs.x.ai/developers/model-capabilities/audio/speech-to-text", "accessed_at": "2026-08-12T00:00:00Z", "notes": "REST multipart schema, 500 MB limit, formats, languages, word timestamps, diarization and keyterms." }],
+        "verification": { "status": "verified", "checked_at": "2026-08-12T00:00:00Z", "notes": "REST speech-to-text route and usage verified against current first-party docs." },
+        "rate_limits": [{ "requests": 10, "window": "second", "scope": "provider_model", "source": "https://docs.x.ai/developers/models/speech-to-text" }]
     }
 ]

@@ -79,6 +79,26 @@ describe("resolveProviderModelsEndpoint", () => {
 });
 
 describe("fetchProviderModels", () => {
+	it("uses Reka's X-Api-Key header for model discovery", async () => {
+		const fetchMock = installFetchMock([{
+			match: (url) => url === "https://api.reka.ai/v1/models",
+			response: jsonResponse([{ id: "reka-flash" }, { id: "reka-edge-2603" }]),
+		}]);
+		try {
+			const models = await fetchProviderModels({
+				providerId: "reka",
+				providerName: "Reka",
+				modelsEndpoint: "https://api.reka.ai/v1/models",
+				authStyle: "x_api_key",
+			}, "test-reka-key");
+			expect(models.map((model) => model.id)).toEqual(["reka-edge-2603", "reka-flash"]);
+			expect(fetchMock.calls[0]?.headers["X-Api-Key"]).toBe("test-reka-key");
+			expect(fetchMock.calls[0]?.headers.Authorization).toBeUndefined();
+		} finally {
+			fetchMock.restore();
+		}
+	});
+
 	it("uses DigitalOcean model_id instead of the internal catalog UUID", async () => {
 		const fetchMock = installFetchMock([{
 			match: (url) => url.includes("/v2/gen-ai/models/catalog"),

@@ -26,15 +26,40 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://novita.ai/docs/guides/introduction",
-  "auth_env": null,
-  "api_formats": [],
+  "api_base_url": "https://api.novita.ai/openai/v1",
+  "docs_url": "https://novita.ai/docs/api-reference/model-apis-llm-create-chat-completion",
+  "auth_env": "NOVITA_API_KEY",
+  "api_formats": ["openai.chat.completions", "openai.embeddings", "openai.rerank"],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://novita.ai/docs/api-reference/model-apis-llm-create-chat-completion",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official Chat Completions request, response, streaming, multimodal, tool, structured-output, reasoning, usage, and authentication contract."
+    },
+    {
+      "kind": "provider_docs",
+      "url": "https://novita.ai/docs/api-reference/api-reference-overview",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official endpoint inventory distinguishes OpenAI-compatible LLM APIs from native image, audio, video, and Batch APIs."
+    },
+    {
+      "kind": "provider_docs",
+      "url": "https://novita.ai/docs/api-reference/model-apis-llm-create-embeddings",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official embeddings request, response, model, encoding and token-usage contract."
+    },
+    {
+      "kind": "provider_docs",
+      "url": "https://novita.ai/docs/api-reference/model-apis-llm-create-rerank",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official rerank request, response, model, relevance-score and token-usage contract."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Canonical hosted Chat transport and authentication verified; native media endpoints require dedicated adapters."
   }
 }

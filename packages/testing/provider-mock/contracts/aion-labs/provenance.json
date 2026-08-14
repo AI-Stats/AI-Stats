@@ -1,7 +1,7 @@
 {
-  "sourceUrl": "https://docs.aionlabs.ai/",
+  "sourceUrl": "https://api.aionlabs.ai/docs/api-reference/",
   "reconstruction": "openai-compatible-reference-overlay",
   "baseContract": "openai",
-  "bundleSha256": "99a10d45e5ffa7d2de6079e53b7905186c0845f235f9b88773861bc0dd30642a",
+  "bundleSha256": "eeae94deaa25b622e9b9d288263b8b8b568c41d1c9a8c112be3c9aa6d831b592",
   "gatewayPathPrefix": "/v1"
 }

@@ -18,6 +18,7 @@ import { normalizeOpenAIContent } from "../shared/normalizeContent";
 import {
 	normalizeImageConfig,
 	normalizeModalities,
+	normalizeThinkingConfig,
 	normalizeOpenAIToolChoice,
 	normalizeProviderGeoPreferences,
 	normalizeResponseFormat,
@@ -32,29 +33,26 @@ type OpenAIContextManagementConfig = {
 
 function normalizeOpenAIContextManagement(
 	req: ResponsesRequest,
-): OpenAIContextManagementConfig | undefined {
+): OpenAIContextManagementConfig[] | undefined {
+	const direct = (req as any).context_management;
 	const openaiProviderOptions = (req as any).provider_options?.openai;
-	if (!openaiProviderOptions || typeof openaiProviderOptions !== "object") {
-		return undefined;
-	}
+	const raw = direct ?? openaiProviderOptions?.context_management;
+	const entries = Array.isArray(raw) ? raw : raw ? [raw] : [];
+	const normalized = entries.flatMap((entry: any) => {
+		if (!entry || typeof entry !== "object" || entry.type !== "compaction") return [];
+		return [{
+			type: "compaction" as const,
+			...(typeof entry.compact_threshold === "number"
+				? { compact_threshold: entry.compact_threshold }
+				: {}),
+		}];
+	});
+	return normalized.length > 0 ? normalized : undefined;
+}
 
-	const rawContextManagement = openaiProviderOptions.context_management;
-	if (!rawContextManagement || typeof rawContextManagement !== "object") {
-		return undefined;
-	}
-
-	if ((rawContextManagement as any).type !== "compaction") {
-		return undefined;
-	}
-
-	const compactThreshold = (rawContextManagement as any).compact_threshold;
-
-	return {
-		type: "compaction",
-		...(typeof compactThreshold === "number"
-			? { compact_threshold: compactThreshold }
-			: {}),
-	};
+function isAllowedToolsChoice(value: unknown): value is Record<string, any> {
+	return Boolean(value && typeof value === "object" && !Array.isArray(value)
+		&& (value as any).type === "allowed_tools");
 }
 
 /**
@@ -156,7 +154,7 @@ export function decodeOpenAIResponsesRequest(req: ResponsesRequest): IRChatReque
 					}
 				}
 				// Function call item (assistant tool call)
-				else if (item.type === "function_call") {
+				else if (item.type === "function_call" || item.type === "custom_tool_call") {
 					flushPendingUserParts();
 					// Find or create assistant message for this tool call
 					let lastAssistant = messages[messages.length - 1];
@@ -176,11 +174,14 @@ export function decodeOpenAIResponsesRequest(req: ResponsesRequest): IRChatReque
 					lastAssistant.toolCalls.push({
 						id: item.call_id || `call_${Date.now()}`,
 						name: item.name,
-						arguments: item.arguments || "{}",
+						arguments: item.type === "custom_tool_call"
+							? (item.input || "")
+							: (item.arguments || "{}"),
+						...(item.type === "custom_tool_call" ? { type: "custom" as const } : {}),
 					});
 				}
 				// Function call output (tool result)
-				else if (item.type === "function_call_output") {
+				else if (item.type === "function_call_output" || item.type === "custom_tool_call_output") {
 					flushPendingUserParts();
 					// Create tool result message
 					messages.push({
@@ -193,6 +194,7 @@ export function decodeOpenAIResponsesRequest(req: ResponsesRequest): IRChatReque
 									: item.output == null
 										? ""
 										: JSON.stringify(item.output),
+								...(item.type === "custom_tool_call_output" ? { type: "custom" as const } : {}),
 							},
 						],
 					});
@@ -208,6 +210,9 @@ export function decodeOpenAIResponsesRequest(req: ResponsesRequest): IRChatReque
 
 	// Transform tool choice
 	const toolChoice = normalizeOpenAIToolChoice(req.tool_choice);
+	const rawOpenAIToolChoice = isAllowedToolsChoice(req.tool_choice)
+		? { ...(req.tool_choice as Record<string, any>) }
+		: undefined;
 
 	// Transform reasoning
 	const reasoningCandidate: IRReasoning | undefined = req.reasoning
@@ -215,21 +220,41 @@ export function decodeOpenAIResponsesRequest(req: ResponsesRequest): IRChatReque
 			effort: req.reasoning.effort,
 			mode: req.reasoning.mode ?? undefined,
 			summary: req.reasoning.summary || undefined,
+			context: req.reasoning.context ?? undefined,
 			enabled: req.reasoning.enabled ?? undefined,
 			maxTokens: req.reasoning.max_tokens ?? undefined,
 		}
 		: undefined;
-	const reasoning: IRReasoning | undefined =
-		reasoningCandidate && Object.values(reasoningCandidate).some((value) => value !== undefined)
-			? reasoningCandidate
-			: undefined;
+	const reasoningFromThinking = normalizeThinkingConfig((req as any).thinking);
+	const mergedReasoningCandidate = {
+		...(reasoningFromThinking ?? {}),
+		...(reasoningCandidate ?? {}),
+	};
+	const normalizedReasoningCandidate = Object.values(mergedReasoningCandidate).some((value) => value !== undefined)
+		? mergedReasoningCandidate
+		: undefined;
+	const supportsTopLevelReasoningEffort = /^(?:aion-labs|meta)\//i.test(String(req.model ?? ""));
+	const reasoningEffortAlias = supportsTopLevelReasoningEffort && typeof (req as any).reasoning_effort === "string"
+		? (req as any).reasoning_effort
+		: undefined;
+	const reasoning: IRReasoning | undefined = normalizedReasoningCandidate || reasoningEffortAlias
+		? {
+			...(normalizedReasoningCandidate ?? {}),
+			...(reasoningEffortAlias !== undefined ? { effort: reasoningEffortAlias } : {}),
+		}
+		: undefined;
 	const vendor = {
 		...(openAIContextManagement
 			? {
 				openai: {
 					context_management: openAIContextManagement,
+					...(rawOpenAIToolChoice ? { tool_choice: rawOpenAIToolChoice } : {}),
 				},
 			}
+			: rawOpenAIToolChoice ? { openai: { tool_choice: rawOpenAIToolChoice } } : {}),
+		...(((req as any).venice_parameters ?? (req as any).provider_options?.venice)
+			&& typeof ((req as any).venice_parameters ?? (req as any).provider_options?.venice) === "object"
+			? { venice: { ...((req as any).venice_parameters ?? (req as any).provider_options.venice) } }
 			: {}),
 	};
 
@@ -280,6 +305,10 @@ export function decodeOpenAIResponsesRequest(req: ResponsesRequest): IRChatReque
 		userId: (req as any).user,
 		promptCacheKey: (req as any).prompt_cache_key,
 		promptCacheRetention: providerCacheOptions.promptCacheRetention,
+		promptCacheOptions: (req as any).prompt_cache_options
+			?? (req as any).provider_options?.openai?.prompt_cache_options,
+		textVerbosity: (req as any).text?.verbosity,
+		contextManagement: openAIContextManagement,
 		anthropicCacheControl: providerCacheOptions.anthropicCacheControl,
 		googleCachedContent: providerCacheOptions.googleCachedContent,
 		safetyIdentifier: (req as any).safety_identifier,
@@ -290,11 +319,15 @@ export function decodeOpenAIResponsesRequest(req: ResponsesRequest): IRChatReque
 }
 
 function decodeOpenAITool(tool: any): IRTool {
-	if (isOpenAINativeWebSearchTool(tool)) {
+	if (isOpenAINativeWebSearchTool(tool) || (typeof tool?.type === "string" && tool.type !== "function")) {
 		return {
-			name: tool.type,
+			name: extractToolNameOrType(tool.custom ?? tool) ?? tool.type,
 			type: tool.type,
-			description: typeof tool.description === "string" ? tool.description : undefined,
+			description: typeof tool.description === "string"
+				? tool.description
+				: typeof tool.custom?.description === "string"
+					? tool.custom.description
+					: undefined,
 			parameters: {},
 			raw: { ...tool },
 		};
@@ -307,9 +340,3 @@ function decodeOpenAITool(tool: any): IRTool {
 		strict: tool.strict ?? tool.function?.strict,
 	};
 }
-
-
-
-
-
-

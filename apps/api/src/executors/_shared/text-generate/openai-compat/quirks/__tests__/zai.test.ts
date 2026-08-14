@@ -4,6 +4,9 @@
 
 // Z.AI Quirks Tests
 import { describe, expect, it } from "vitest";
+import { decodeOpenAIChatRequest } from "@protocols/openai-chat/decode";
+import { supportsAdapterBackedCapability } from "@providers/capabilities";
+import { getProviderProfile } from "@providers/providerProfiles";
 import { zaiQuirks } from "../../providers/z-ai/quirks";
 
 describe("Z.AI Quirks", () => {
@@ -185,5 +188,26 @@ describe("Z.AI Quirks", () => {
 			expect(response.output[0].type).toBe("reasoning");
 			expect(response.output[1].type).toBe("message");
 		});
+	});
+});
+
+describe("Z.AI audited gateway contract", () => {
+	it("preserves the documented streaming tool-call switch through IR", () => {
+		const ir = decodeOpenAIChatRequest({
+			model: "glm-5.1",
+			messages: [{ role: "user", content: "weather" }],
+			stream: true,
+			tool_stream: true,
+		} as any);
+		const request: Record<string, any> = { messages: [] };
+		zaiQuirks.transformRequest?.({ request, ir });
+		expect(request.tool_stream).toBe(true);
+	});
+
+	it("shares the audited text policy across aliases without claiming native media adapters", () => {
+		expect(getProviderProfile("zai")?.id).toBe("z-ai");
+		expect(getProviderProfile("z-ai")?.text?.normalize?.maxTemperature).toBe(1);
+		expect(supportsAdapterBackedCapability("z-ai", "video.generate")).toBe(false);
+		expect(supportsAdapterBackedCapability("zai", "audio.transcription")).toBe(false);
 	});
 });

@@ -24,15 +24,18 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://www.aionlabs.ai/",
-  "auth_env": null,
-  "api_formats": [],
+  "api_base_url": "https://api.aionlabs.ai/v1",
+  "docs_url": "https://api.aionlabs.ai/docs/api-reference/",
+  "auth_env": "AION_LABS_API_KEY",
+  "api_formats": [
+    "openai_chat",
+    "openai_responses"
+  ],
   "service_tiers": [],
   "sources": [],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12",
+    "notes": "Verified against the official API reference. Both provider IDs use the same Aion Labs OpenAI-compatible API."
   }
 }

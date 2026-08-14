@@ -25,15 +25,22 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
+  "api_base_url": "https://api.cerebras.ai/v1",
   "docs_url": "https://inference-docs.cerebras.ai/",
-  "auth_env": null,
-  "api_formats": [],
+  "auth_env": ["CEREBRAS_API_KEY"],
+  "api_formats": ["openai.chat.completions"],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://inference-docs.cerebras.ai/api-reference/chat-completions",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official Chat Completions API reference under the default v2 behavior."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Endpoint, bearer authentication, Chat request contract, reasoning, tools, streaming, usage, and errors checked against official Cerebras references."
   }
 }

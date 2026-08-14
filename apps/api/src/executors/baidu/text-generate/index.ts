@@ -12,8 +12,19 @@ export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChat
 	return cherryPickIRParams(ir, args.capabilityParams);
 }
 
+export function shouldForceQianfanChat(rawRequest: unknown): boolean {
+	return Boolean(
+		rawRequest &&
+		typeof rawRequest === "object" &&
+		!Array.isArray(rawRequest) &&
+		Array.isArray((rawRequest as Record<string, unknown>).messages) &&
+		!("input" in rawRequest),
+	);
+}
+
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
-	return executeOpenAIWire(args, { transientRetries: 1 });
+	const forceChat = shouldForceQianfanChat(args.ir.rawRequest);
+	return executeOpenAIWire(args, { forceChat, transientRetries: 1 });
 }
 
 export function postprocess(ir: IRChatRequest): IRChatRequest {

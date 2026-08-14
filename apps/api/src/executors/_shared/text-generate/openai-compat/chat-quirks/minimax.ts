@@ -6,7 +6,7 @@ import type { ChatQuirk } from "./types";
 
 export const minimaxChatQuirk: ChatQuirk = {
 	id: "minimax",
-	matches: (providerId) => providerId === "minimax",
+	matches: (providerId) => providerId === "minimax" || providerId === "minimax-lightning",
 	onResponse: ({ choice }) => {
 		const reasoning = choice?.message?.reasoning_content;
 		if (typeof reasoning === "string" && reasoning.length > 0) {
@@ -15,4 +15,3 @@ export const minimaxChatQuirk: ChatQuirk = {
 		return null;
 	},
 };
-

@@ -61,7 +61,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1048576,
-    "max_output_tokens": 1048576,
+    "max_output_tokens": null,
     "effective_from": "2026-07-30T00:00:00Z",
     "effective_to": null,
     "capabilities": [
@@ -819,12 +819,12 @@
     "provider_api_model_id": "morph:morph-kimik3-fast",
     "provider_model_slug": "morph-kimik3-fast",
     "internal_model_id": "moonshotai/kimi-k3",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 1048576,
-    "max_output_tokens": 1048576,
+    "max_output_tokens": null,
     "effective_from": "2026-07-30T00:00:00Z",
     "effective_to": null,
     "capabilities": [
@@ -955,38 +955,38 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
     "service_tiers": [
-      "priority"
+      "standard"
     ],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["openai-chat-completions"],
+      "endpoint": "/v1/chat/completions",
       "deployment": null
     },
     "sources": [
       {
         "url": "https://www.morphllm.com/api/models/json",
         "kind": "documentation",
-        "accessed_at": "2026-07-30T00:00:00Z",
-        "notes": "Official live Morph model feed."
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Morph's current public model and pricing pages list the latency-tuned Kimi K3 endpoint."
       },
       {
         "url": "https://www.morphllm.com/pricing",
         "kind": "pricing",
-        "accessed_at": "2026-07-30T00:00:00Z",
+        "accessed_at": "2026-08-12T00:00:00Z",
         "notes": "Official Morph pricing page."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-07-30T00:00:00Z",
-      "notes": "Catalogued with Morph's published pricing source, but Morph's live model feed reports is_ready=false; no Phaseo price card or gateway routing is exposed until it becomes ready."
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Morph's current public pricing and model documentation list morph-kimik3-fast as available at standard per-token pricing."
     },
     "rate_limits": []
   },
@@ -2041,7 +2041,8 @@
       "data": null
     },
     "service_tiers": [
-      "standard"
+      "standard",
+      "flex"
     ],
     "api": {
       "formats": [],
@@ -2066,6 +2067,58 @@
       "status": "verified",
       "checked_at": "2026-07-30T00:00:00Z",
       "notes": "Present in Morph's official live model feed. Corrects the previous Hugging Face slug, which was not the Morph API identifier."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m2.7",
+    "provider_api_model_id": "morph:morph-minimax27-230b",
+    "provider_model_slug": "morph-minimax27-230b",
+    "internal_model_id": "minimax/minimax-m2.7",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 200704,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["max_tokens", "temperature", "top_p", "top_k", "min_p", "frequency_penalty", "presence_penalty", "repetition_penalty", "stop", "seed", "logit_bias", "logprobs", "top_logprobs", "tools", "structured_outputs", "include_reasoning"],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": ["openai-chat-completions"],
+      "endpoint": "/v1/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.morphllm.com/llms.txt",
+        "kind": "documentation",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Morph lists morph-minimax27-230b among its current OpenAI-compatible fast models."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Verified provider model ID, 196K context, OpenAI-compatible capability, and pricing against Morph's first-party documentation."
     },
     "rate_limits": []
   }

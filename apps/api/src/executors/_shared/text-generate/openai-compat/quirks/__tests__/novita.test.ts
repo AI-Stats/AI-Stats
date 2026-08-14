@@ -126,6 +126,18 @@ describe("Novita quirks", () => {
 		expect(request.enable_thinking).toBe(true);
 	});
 
+	it("accepts the canonical novita provider prefix for reasoning controls", () => {
+		const request: Record<string, any> = {
+			model: "novita/deepseek/deepseek-v3.1",
+			messages: [{ role: "user", content: "hello" }],
+		};
+		novitaQuirks.transformRequest?.({
+			request,
+			ir: { reasoning: { enabled: true } } as any,
+		});
+		expect(request.enable_thinking).toBe(true);
+	});
+
 	it("extracts reasoning_content into IR reasoning parts", () => {
 		const extracted = novitaQuirks.extractReasoning?.({
 			rawContent: "Final answer",
@@ -143,4 +155,3 @@ describe("Novita quirks", () => {
 		});
 	});
 });
-

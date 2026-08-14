@@ -32,10 +32,12 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
+  "api_base_url": "https://ai.nahcrof.com/v1",
   "docs_url": "https://crof.ai/docs",
-  "auth_env": null,
-  "api_formats": [],
+  "auth_env": "CROFAI_API_KEY",
+  "api_formats": [
+    "openai_chat"
+  ],
   "service_tiers": [
     "standard",
     "priority"
@@ -43,7 +45,7 @@
   "sources": [],
   "verification": {
     "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "checked_at": "2026-08-12",
+    "notes": "Current first-party home and pricing pages verify the chat endpoint, Bearer authentication, model slugs, context/output limits, reasoning/tool labels, and vision flags. The documentation page does not expose a detailed parameter reference."
   }
 }

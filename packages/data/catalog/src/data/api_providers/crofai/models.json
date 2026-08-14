@@ -728,7 +728,7 @@
     "provider_api_model_id": "crofai:greg",
     "provider_model_slug": "greg",
     "internal_model_id": "crofai/greg",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "greg",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -751,8 +751,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -824,7 +824,7 @@
     "provider_api_model_id": "crofai:greg-1",
     "provider_model_slug": "greg-1",
     "internal_model_id": "crofai/greg-1",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "Q4_0",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -847,8 +847,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -872,7 +872,7 @@
     "provider_api_model_id": "crofai:greg-1-super",
     "provider_model_slug": "greg-1-super",
     "internal_model_id": "crofai/greg-1-super",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "Q4_0",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -895,8 +895,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null

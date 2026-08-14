@@ -28,15 +28,28 @@
   "routable": false,
   "routing_enabled": false,
   "sdk_package": null,
-  "api_base_url": null,
+  "api_base_url": "https://llm.chutes.ai/v1",
   "docs_url": "https://chutes.ai/docs",
-  "auth_env": null,
-  "api_formats": [],
+  "auth_env": ["CHUTES_API_KEY"],
+  "api_formats": ["openai.chat.completions"],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://chutes.ai/docs/models/vonkaiser-nemotron-3-nano-omni-30b-tee",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official shared-gateway multimodal Chat Completions contract."
+    },
+    {
+      "kind": "api",
+      "url": "https://llm.chutes.ai/v1/models",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official live public model and capability metadata."
+    }
+  ],
   "verification": {
-    "status": "partial",
+    "status": "verified",
     "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "Provider identity and official public pages verified; integration remains disabled."
+    "notes": "Endpoint, authentication, models, sampling, reasoning, multimodal content, streaming, tools, structured outputs, usage, and errors checked against official Chutes sources."
   }
 }

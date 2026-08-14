@@ -482,7 +482,7 @@
   {
     "api_model_id": "meta/llama-3.3-70b",
     "provider_api_model_id": "nebius-token-factory:meta/llama-3.3-70b",
-    "provider_model_slug": "Meta/Llama-3.3-70B-Instruct",
+    "provider_model_slug": "meta-llama/Llama-3.3-70B-Instruct",
     "internal_model_id": "meta/llama-3.3-70b",
     "is_active_gateway": true,
     "quantization_scheme": "FP8",
@@ -510,20 +510,25 @@
     "routing_status": "active",
     "routable": true,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": ["eu-north1"],
+      "data": ["eu-north1"]
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": ["openai.chat.completions", "openai.responses"],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1",
+      "deployment": "public"
     },
-    "sources": [],
+    "sources": [{
+      "kind": "api",
+      "url": "https://tokenfactory.nebius.com/api/public/models_info",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Live catalog reports EU North 1 placement and Responses API support."
+    }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Model slug, region, and supported protocols verified against the live Nebius model catalog."
     },
     "rate_limits": []
   },
@@ -1270,14 +1275,14 @@
     "provider_api_model_id": "nebius-token-factory:nvidia/nemotron-3-nano-30b-a3b",
     "provider_model_slug": "nemotron-3-nano-30b-a3b",
     "internal_model_id": "nvidia/nemotron-3-nano-30b-a3b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-12T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1293,8 +1298,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1318,65 +1323,13 @@
     "provider_api_model_id": "nebius-token-factory:nvidia/nemotron-3-nano-omni",
     "provider_model_slug": "nvidia/Nemotron-3-Nano-Omni",
     "internal_model_id": "nvidia/nemotron-3-nano-omni",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T03:45:55.336+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
-    "provider_api_model_id": "nebius-token-factory:nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
-    "provider_model_slug": "nemotron-3-nano-omni-30b-a3b-reasoning",
-    "internal_model_id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video,audio",
+    "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": 256000,
+    "context_length": 262144,
     "max_output_tokens": null,
-    "effective_from": "2026-04-28T00:00:00",
+    "effective_from": "2026-04-24T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
@@ -1395,6 +1348,63 @@
     ],
     "routing_status": "active",
     "routable": true,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": ["openai.chat.completions", "openai.responses"],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1",
+      "deployment": "public"
+    },
+    "sources": [{
+      "kind": "api",
+      "url": "https://tokenfactory.nebius.com/api/public/models_info",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Live catalog reports the current slug, EU North 1 placement, image input, and Responses API support."
+    }],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Verified against the live Nebius model catalog."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+    "provider_api_model_id": "nebius-token-factory:nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+    "provider_model_slug": "nemotron-3-nano-omni-30b-a3b-reasoning",
+    "internal_model_id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": null,
+    "effective_from": "2026-04-28T00:00:00",
+    "effective_to": "2026-08-12T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -2482,50 +2492,68 @@
     "provider_api_model_id": "nebius-token-factory:qwen/qwen3-embedding-8b",
     "provider_model_slug": "Qwen/Qwen3-Embedding-8B",
     "internal_model_id": "qwen/qwen3-embedding-8b",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
+    "input_modalities": "text",
+    "output_modalities": "embedding",
+    "context_length": 40960,
     "max_output_tokens": null,
-    "effective_from": null,
+    "effective_from": "2025-06-05T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "embeddings",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "encoding_format", "provider_min": null, "provider_max": null, "provider_default": "float", "notes": "Supports float and base64." },
+          { "param_id": "dimensions", "provider_min": 1, "provider_max": 4096, "provider_default": 4096, "notes": "Maximum output dimension from the live model catalog." },
+          { "param_id": "user", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
+          { "param_id": "service_tier", "provider_min": null, "provider_max": null, "provider_default": "auto", "notes": "Supports auto, default, flex, over-limit, and no-limit response tiers." }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
         "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
+        "input_modalities": ["text"],
+        "output_modalities": ["embedding"],
         "modes": []
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
-        "global"
+        "eu-north1"
       ],
       "data": [
-        "global"
+        "eu-north1"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": ["auto", "default", "flex"],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": ["openai.embeddings"],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/embeddings",
+      "deployment": "public"
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Live catalog reports the exact model ID, embedding type, EU North 1 placement, 40,960-token context, 4,096 dimensions, and $0.01/M input token price."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://docs.tokenfactory.nebius.com/api-reference/inference/create-embeddings",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Documents the request, response, encoding, dimensions, service tier, usage, and error contract."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T03:45:55.336+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Current public embedding model, route, region, dimensions, and price verified against first-party sources."
     },
     "rate_limits": []
   },
@@ -3073,6 +3101,54 @@
       "status": "verified",
       "checked_at": "2026-08-11T13:22:31Z",
       "notes": "Verified against Nebius Token Factory's live public model catalog."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-reranker-8b",
+    "provider_api_model_id": "nebius-token-factory:qwen/qwen3-reranker-8b",
+    "provider_model_slug": "Qwen/Qwen3-Reranker-8B",
+    "internal_model_id": "qwen/qwen3-reranker-8b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "rerank",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id": "rerank",
+      "status": "active",
+      "params": ["query", "documents", "user", "service_tier"],
+      "reasoning": false,
+      "tool_call": false,
+      "structured_output": false,
+      "temperature": false,
+      "attachment": false,
+      "input_modalities": ["text"],
+      "output_modalities": ["rerank"],
+      "modes": []
+    }],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": ["standard", "flex"],
+    "api": {
+      "formats": ["openai.rerank"],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/rerank",
+      "deployment": "public"
+    },
+    "sources": [{
+      "kind": "api_reference",
+      "url": "https://docs.tokenfactory.nebius.com/api-reference/inference/rerank-documents",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Current first-party OpenAPI documents the native route and Qwen/Qwen3-Reranker-8B model. The public models_info feed does not expose placement or a fast flavor."
+    }],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Native route, model slug, request fields, response shape, usage, and validation errors verified; region intentionally unspecified."
     },
     "rate_limits": []
   }

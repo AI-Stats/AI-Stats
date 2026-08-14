@@ -87,6 +87,8 @@ export function cherryPickIRParams(
 					return "frequencyPenalty";
 				case "presence_penalty":
 					return "presencePenalty";
+				case "repetition_penalty":
+					return "repetitionPenalty";
 				case "tools":
 					return "tools";
 				case "tool_choice":
@@ -96,6 +98,7 @@ export function cherryPickIRParams(
 				case "max_tool_calls":
 					return "maxToolCalls";
 				case "response_format":
+				case "structured_outputs":
 					return "responseFormat";
 				case "modalities":
 					return "modalities";
@@ -190,6 +193,4 @@ export function buildTextExecutor(args: {
 		return result;
 	};
 }
-
-
 

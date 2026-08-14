@@ -2,7 +2,7 @@
   "api_provider_id": "nebius-token-factory-fast",
   "api_provider_name": "Nebius Token Factory (Fast)",
   "description": null,
-  "link": "https://nebius.com/docs",
+  "link": "https://docs.tokenfactory.nebius.com/",
   "residency_mode": "provider_managed",
   "default_execution_regions": ["EU", "US", "IL"],
   "default_data_regions": ["EU", "US", "IL"],
@@ -26,15 +26,28 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://nebius.com/docs",
-  "auth_env": null,
-  "api_formats": [],
-  "service_tiers": [],
-  "sources": [],
+  "api_base_url": "https://api.tokenfactory.nebius.com/v1",
+  "docs_url": "https://docs.tokenfactory.nebius.com/ai-models-inference/overview",
+  "auth_env": "NEBIUS_API_KEY",
+  "api_formats": ["openai.chat.completions", "openai.responses"],
+  "service_tiers": ["fast"],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://docs.tokenfactory.nebius.com/ai-models-inference/overview",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Documents the Fast flavor and the required -fast model suffix."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://docs.tokenfactory.nebius.com/api-reference/inference/create-a-response",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Documents native Responses API support."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Verified shared API host, Fast suffix semantics, and Chat/Responses transport."
   }
 }

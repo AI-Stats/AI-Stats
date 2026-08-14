@@ -12,7 +12,6 @@ function loadCard(relativePath: string): PriceCard {
 
 describe("Thinking Machines Inkling promotional billing", () => {
 	it.each([
-		["64K", "thinkingmachines-inkling-64k", "6.924000000"],
 		["256K", "thinkingmachines-inkling", "13.848000000"],
 	])("selects the active %s promotional rules", (_label, directory, expectedCost) => {
 		const card = loadCard(

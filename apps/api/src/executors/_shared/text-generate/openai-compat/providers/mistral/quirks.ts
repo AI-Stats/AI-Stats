@@ -5,7 +5,6 @@
 import type { ProviderQuirks } from "../../quirks/types";
 
 const MISTRAL_UNSUPPORTED_CHAT_FIELDS = [
-	"prompt_cache_key",
 	"safety_identifier",
 	"background",
 	"modalities",
@@ -47,7 +46,8 @@ export const mistralQuirks: ProviderQuirks = {
 			delete request.service_tier;
 		}
 
-		// Mistral chat schema does not support these OpenAI-specific controls.
+		// Mistral supports prompt_cache_key natively. Drop only OpenAI-specific
+		// controls that are absent from Mistral's Chat Completion schema.
 		// Drop these proactively so /responses-surface requests convert cleanly to chat.
 		for (const key of MISTRAL_UNSUPPORTED_CHAT_FIELDS) {
 			delete request[key];
