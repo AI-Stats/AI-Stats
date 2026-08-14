@@ -14,7 +14,7 @@ import { continueAdapter } from "../src/integrations/adapters/continue.js";
 import { zedAdapter } from "../src/integrations/adapters/zed.js";
 import { applyChanges } from "../src/integrations/files.js";
 import { runIntegrationCommand } from "../src/integrations/index.js";
-import { getIntegrationGatewayCredential, revokeIntegrationGatewayCredential } from "../src/integrations/credential.js";
+import { getIntegrationGatewayCredential, getLegacyIntegrationGatewayCredential, revokeIntegrationGatewayCredential } from "../src/integrations/credential.js";
 import { readSession, writeSession } from "../src/session.js";
 
 test("Codex profile uses the Responses API without embedding a credential", () => {
@@ -35,7 +35,7 @@ test("Pi extension registers Phaseo with a command-backed credential", async () 
 
 	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-pi-integration-"));
 	try {
-		await applyChanges(await piAdapter.planSetup({ homeDir, model: "anthropic/claude-sonnet-4.6" }));
+		await applyChanges(await piAdapter.planSetup({ homeDir, model: "openai/gpt-5.6-terra" }));
 		assert.equal((await piAdapter.inspect({ homeDir })).status, "configured");
 		await applyChanges(await piAdapter.planRemove({ homeDir }));
 		assert.notEqual((await piAdapter.inspect({ homeDir })).status, "configured");
@@ -377,6 +377,60 @@ test("browser login provisions and securely reuses a named non-expiring integrat
 		assert.equal(await revokeIntegrationGatewayCredential("codex"), true);
 		assert.equal((await readSession())?.integrationGatewayCredentials?.codex, undefined);
 		assert.equal(requests.filter((request) => request.method === "DELETE").length, 1);
+	} finally {
+		globalThis.fetch = previousFetch;
+		if (previousBackend === undefined) delete process.env.PHASEO_SESSION_BACKEND;
+		else process.env.PHASEO_SESSION_BACKEND = previousBackend;
+		if (previousConfigDir === undefined) delete process.env.PHASEO_CONFIG_DIR;
+		else process.env.PHASEO_CONFIG_DIR = previousConfigDir;
+		if (previousApiKey === undefined) delete process.env.PHASEO_API_KEY;
+		else process.env.PHASEO_API_KEY = previousApiKey;
+		await rm(homeDir, { recursive: true, force: true });
+	}
+});
+
+test("legacy credential helpers remain supported and bulk revocation clears every integration key", async () => {
+	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-legacy-integration-credential-"));
+	const previousBackend = process.env.PHASEO_SESSION_BACKEND;
+	const previousConfigDir = process.env.PHASEO_CONFIG_DIR;
+	const previousApiKey = process.env.PHASEO_API_KEY;
+	const previousFetch = globalThis.fetch;
+	process.env.PHASEO_SESSION_BACKEND = "file";
+	process.env.PHASEO_CONFIG_DIR = homeDir;
+	delete process.env.PHASEO_API_KEY;
+	let keyNumber = 0;
+	const deleted: string[] = [];
+	globalThis.fetch = async (input, init) => {
+		const url = String(input);
+		const method = init?.method ?? "GET";
+		if (method === "POST" && url.endsWith("/v1/keys")) {
+			keyNumber += 1;
+			return new Response(JSON.stringify({ data: { id: `key_${keyNumber}`, key: `phaseo_v1_sk_${keyNumber}` } }), {
+				status: 201,
+				headers: { "content-type": "application/json" },
+			});
+		}
+		if (method === "DELETE") {
+			deleted.push(url);
+			return new Response(null, { status: 204 });
+		}
+		throw new Error(`Unexpected request: ${method} ${url}`);
+	};
+	try {
+		await writeSession({
+			accessToken: "oauth-session-token",
+			refreshToken: "refresh-token",
+			expiresAt: Date.now() + 60 * 60 * 1000,
+			apiUrl: "https://api.phaseo.app",
+		});
+		assert.equal(await getLegacyIntegrationGatewayCredential(), "phaseo_v1_sk_1");
+		assert.equal(await getLegacyIntegrationGatewayCredential(), "phaseo_v1_sk_1");
+		assert.equal(await getIntegrationGatewayCredential("codex"), "phaseo_v1_sk_2");
+		assert.equal(await revokeIntegrationGatewayCredential(), true);
+		const session = await readSession();
+		assert.equal(session?.integrationGatewayKeyId, undefined);
+		assert.deepEqual(session?.integrationGatewayCredentials, {});
+		assert.deepEqual(deleted.map((url) => url.split("/").at(-1)).sort(), ["key_1", "key_2"]);
 	} finally {
 		globalThis.fetch = previousFetch;
 		if (previousBackend === undefined) delete process.env.PHASEO_SESSION_BACKEND;

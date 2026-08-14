@@ -11,7 +11,7 @@ import { zedAdapter } from "./adapters/zed.js";
 import { aiderAdapter } from "./adapters/aider.js";
 import { continueAdapter } from "./adapters/continue.js";
 import { applyChanges, renderPlan } from "./files.js";
-import { getIntegrationGatewayCredential, revokeIntegrationGatewayCredential } from "./credential.js";
+import { getIntegrationGatewayCredential, getLegacyIntegrationGatewayCredential, revokeIntegrationGatewayCredential } from "./credential.js";
 import type { IntegrationAdapter, IntegrationId } from "./types.js";
 
 const adapters: IntegrationAdapter[] = [codexAdapter, claudeCodeAdapter, openCodeAdapter, deepSeekHarnessAdapter, piAdapter, openClawAdapter, hermesAdapter, aiderAdapter, continueAdapter, zedAdapter, ...guidedAdapters];
@@ -55,7 +55,7 @@ export async function runIntegrationCommand(
 ): Promise<void> {
 	const [command, integration, ...extra] = args;
 	const invalidArgumentCount =
-		(command === "credential" && args.length !== 2) ||
+		(command === "credential" && args.length !== 1 && args.length !== 2) ||
 		((command === "list" || command === "status") && args.length > 2) ||
 		((command === "setup" || command === "remove") && args.length !== 2) ||
 		extra.length > 0;
@@ -64,6 +64,10 @@ export async function runIntegrationCommand(
 	}
 
 	if (command === "credential") {
+		if (!integration) {
+			process.stdout.write(await getLegacyIntegrationGatewayCredential());
+			return;
+		}
 		const adapter = adapterFor(integration);
 		const credential = await getIntegrationGatewayCredential(adapter.id);
 		process.stdout.write(credential);

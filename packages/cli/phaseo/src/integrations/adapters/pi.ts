@@ -38,14 +38,14 @@ export const piAdapter: IntegrationAdapter = {
 	async inspect(options) {
 		const path = extensionPath(options);
 		const current = await readOptionalFile(path);
-		const expected = renderPiExtension();
+		const managed = current?.startsWith("// Managed by Phaseo CLI.") ?? false;
 		const installed = await isCommandAvailable(["pi", "pi.exe", "pi.cmd"]);
 		return {
 			id: "pi",
 			name: "Pi",
-			status: current === expected ? "configured" : current !== null ? "conflict" : installed ? "available" : "not-installed",
+			status: managed ? "configured" : current !== null ? "conflict" : installed ? "available" : "not-installed",
 			configPath: path,
-			details: current === expected ? ["Phaseo provider extension installed", "Credential source: Phaseo CLI session"] : [],
+			details: managed ? ["Phaseo provider extension installed", "Credential source: Phaseo CLI session"] : [],
 		};
 	},
 	async planSetup(options) {

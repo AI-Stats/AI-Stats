@@ -1114,7 +1114,7 @@ async function login(flags: Record<string, string | boolean>) {
 async function logout(flags: Record<string, string | boolean>) {
 	let session = await readSession();
 	let integrationCredentialRevoked = false;
-	if (session?.integrationGatewayKeyId) {
+	if (session?.integrationGatewayKeyId || Object.keys(session?.integrationGatewayCredentials ?? {}).length > 0) {
 		try {
 			integrationCredentialRevoked = await revokeIntegrationGatewayCredential();
 			session = await readSession();
