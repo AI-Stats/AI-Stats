@@ -26,15 +26,22 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
+  "api_base_url": "https://inference.baseten.co/v1",
   "docs_url": "https://docs.baseten.co/",
-  "auth_env": null,
+  "auth_env": "BASETEN_API_KEY",
   "api_formats": [],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://docs.baseten.co/reference/inference-api/chat-completions",
+      "title": "Baseten Chat Completions",
+      "kind": "official_docs",
+      "checked_at": "2026-08-12T00:00:00.000Z"
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00.000Z",
+    "notes": "Official Baseten reference confirms the Model APIs base URL, Chat Completions route, and BASETEN_API_KEY authorization."
   }
 }

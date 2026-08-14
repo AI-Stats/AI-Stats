@@ -24,15 +24,17 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://infermatic.ai/models/",
-  "auth_env": null,
-  "api_formats": [],
+  "api_base_url": "https://api.totalgpt.ai/v1",
+  "docs_url": "https://ui.infermatic.ai/docs",
+  "auth_env": "INFERMATIC_API_KEY",
+  "api_formats": [
+    "openai_chat"
+  ],
   "service_tiers": [],
   "sources": [],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12",
+    "notes": "Verified against Infermatic's current first-party API documentation and troubleshooting reference."
   }
 }

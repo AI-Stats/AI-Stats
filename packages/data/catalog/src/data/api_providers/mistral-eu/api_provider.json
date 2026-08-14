@@ -35,9 +35,10 @@
   "sdk_package": null,
   "api_base_url": "https://api.eu.mistral.ai",
   "docs_url": "https://docs.mistral.ai/inference/regional-inference",
-  "auth_env": "MISTRAL_AI_API_KEY",
+  "auth_env": "MISTRAL_API_KEY",
   "api_formats": [
-    "openai.chat.completions"
+    "openai.chat.completions",
+    "openai.embeddings"
   ],
   "service_tiers": [
     "standard",

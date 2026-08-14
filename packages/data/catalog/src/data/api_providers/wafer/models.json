@@ -6,7 +6,7 @@
     "internal_model_id": "z-ai/glm-5.1",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "",
+    "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 202752,
     "max_output_tokens": null,
@@ -17,7 +17,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -54,7 +54,7 @@
     "internal_model_id": "z-ai/glm-5.2",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "",
+    "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1048576,
     "max_output_tokens": null,
@@ -65,7 +65,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -102,7 +102,7 @@
     "internal_model_id": "moonshotai/kimi-k2.6",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "",
+    "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": null,
@@ -113,7 +113,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -148,7 +148,7 @@
     "provider_api_model_id": "wafer:MiniMax-M3",
     "provider_model_slug": "MiniMax-M3",
     "internal_model_id": "minimax/minimax-m3",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "",
     "output_modalities": "text",
@@ -159,7 +159,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -171,8 +171,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -198,7 +198,7 @@
     "internal_model_id": "z-ai/glm-5.2",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "",
+    "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1048576,
     "max_output_tokens": null,
@@ -209,7 +209,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -244,7 +244,7 @@
     "provider_api_model_id": "wafer:Qwen3.5-397B-A17B",
     "provider_model_slug": "Qwen3.5-397B-A17B",
     "internal_model_id": "qwen/qwen3.5-397b-a17b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "",
     "output_modalities": "text",
@@ -255,7 +255,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -267,8 +267,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -296,8 +296,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": 262144,
+    "context_length": 1048576,
+    "max_output_tokens": null,
     "effective_from": "2026-07-29T00:00:00Z",
     "effective_to": null,
     "capabilities": [
@@ -347,15 +347,15 @@
   },
   {
     "api_model_id": "moonshotai/kimi-k3-fast",
-    "provider_api_model_id": "wafer:Kimi-K3-Fast",
-    "provider_model_slug": "Kimi-K3-Fast",
+    "provider_api_model_id": "wafer:kimi-k3-fast",
+    "provider_model_slug": "kimi-k3-fast",
     "internal_model_id": "moonshotai/kimi-k3",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": 262144,
+    "context_length": 1048576,
+    "max_output_tokens": null,
     "effective_from": "2026-07-30T00:00:00Z",
     "effective_to": null,
     "capabilities": [
@@ -404,10 +404,10 @@
   },
   {
     "api_model_id": "deepseek/deepseek-v4-flash-0731",
-    "provider_api_model_id": "wafer:deepseek/deepseek-v4-flash-0731",
-    "provider_model_slug": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "wafer:DeepSeek-V4-Flash-0731-Fast",
+    "provider_model_slug": "DeepSeek-V4-Flash-0731-Fast",
     "internal_model_id": "deepseek/deepseek-v4-flash-0731",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "unknown",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -418,7 +418,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "disabled",
+        "status": "active",
         "params": [
           "reasoning",
           "include_reasoning",
@@ -439,7 +439,7 @@
           "top_logprobs",
           "reasoning_effort"
         ],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -449,8 +449,8 @@
         "modes": []
       }
     ],
-    "routing_status": "disabled",
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -464,15 +464,15 @@
     "sources": [
       {
         "kind": "provider_models",
-        "url": null,
+        "url": "https://app.wafer.ai/models",
         "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "notes": "Official Wafer model catalogue and quick start document the DeepSeek-V4-Flash-0731-Fast slug, reasoning control, 1,048,576-token context, and serverless pricing."
       }
     ],
     "verification": {
-      "status": "partial",
+      "status": "verified",
       "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "notes": "Verified against Wafer's first-party model catalogue on 2026-08-12."
     },
     "rate_limits": []
   }

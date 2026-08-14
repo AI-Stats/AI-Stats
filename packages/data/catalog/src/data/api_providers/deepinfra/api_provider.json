@@ -26,15 +26,21 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://deepinfra.com/docs/",
-  "auth_env": null,
-  "api_formats": [],
-  "service_tiers": [],
+  "api_base_url": "https://api.deepinfra.com/v1/openai",
+  "docs_url": "https://docs.deepinfra.com/chat/overview",
+  "auth_env": "DEEPINFRA_API_KEY",
+  "api_formats": [
+    "openai_chat"
+  ],
+  "service_tiers": [
+    "default",
+    "priority",
+    "flex"
+  ],
   "sources": [],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12",
+    "notes": "Verified against DeepInfra's current Chat documentation and live first-party OpenAPI specification."
   }
 }

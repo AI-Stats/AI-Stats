@@ -8,6 +8,6 @@
   "pricing_source_url": "https://docs.ltx.io/pricing", "regional_pricing_notes": null, "country_code": "IL", "status": "Active", "colour": "#7C3AED",
   "gateway_kind": null, "routable": true, "routing_enabled": true, "sdk_package": null, "api_base_url": "https://api.ltx.io", "docs_url": "https://docs.ltx.io",
   "auth_env": ["LTX_API_KEY"], "api_formats": ["ltx-v2"], "service_tiers": ["standard"],
-  "sources": [{ "kind": "official_documentation", "url": "https://docs.ltx.io/async-jobs", "accessed_at": "2026-08-11T00:00:00Z" }],
-  "verification": { "status": "verified", "checked_at": "2026-08-11T00:00:00Z", "notes": "Async submission, polling, model support, and pricing verified against official documentation." }
+  "sources": [{ "kind": "official_documentation", "url": "https://docs.ltx.io/async-jobs", "accessed_at": "2026-08-12T00:00:00Z" }],
+  "verification": { "status": "verified", "checked_at": "2026-08-12T00:00:00Z", "notes": "Async text/image/audio-to-video submission, polling, synchronized-audio output, model support, and source-duration pricing verified against official documentation." }
 }

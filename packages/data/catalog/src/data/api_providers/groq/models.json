@@ -148,18 +148,18 @@
     "provider_api_model_id": "groq:meta/llama-4-scout",
     "provider_model_slug": "meta-llama/llama-4-scout-17b-16e-instruct",
     "internal_model_id": "meta/llama-4-scout",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 131072,
     "max_output_tokens": 8192,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-07-17T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -171,8 +171,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -552,13 +552,61 @@
     "provider_api_model_id": "groq:qwen/qwen3-32b",
     "provider_model_slug": "qwen/qwen3-32b",
     "internal_model_id": "qwen/qwen3-32b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
     "context_length": 131072,
     "max_output_tokens": 40960,
     "effective_from": "2026-03-25T00:00:00",
+    "effective_to": "2026-07-17T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-27b",
+    "provider_api_model_id": "groq:qwen/qwen3.6-27b",
+    "provider_model_slug": "qwen/qwen3.6-27b",
+    "internal_model_id": "qwen/qwen3.6-27b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 16384,
+    "effective_from": "2026-06-16T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
@@ -596,57 +644,9 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "qwen/qwen3.6-27b",
-    "provider_api_model_id": "groq:qwen/qwen3.6-27b",
-    "provider_model_slug": "qwen/qwen3.6-27b",
-    "internal_model_id": "qwen/qwen3.6-27b",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 131072,
-    "max_output_tokens": 16384,
-    "effective_from": "2026-06-16T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
     "api_model_id": "minimax/minimax-m2.7",
     "provider_api_model_id": "groq:minimax/minimax-m2.7",
-    "provider_model_slug": "minimax/minimax-m2.7",
+    "provider_model_slug": "minimaxai/minimax-m2.7",
     "internal_model_id": "minimax/minimax-m2.7",
     "is_active_gateway": false,
     "quantization_scheme": "unknown",

@@ -184,7 +184,71 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          {
+            "param_id": "max_output_tokens",
+            "provider_min": 1,
+            "provider_max": 32768,
+            "provider_default": null,
+            "notes": "Responses API field."
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": 1,
+            "provider_max": 32768,
+            "provider_default": null,
+            "notes": "Chat Completions API field."
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stream",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": false,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "OpenAI-format tool definitions are supported on Chat Completions."
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "medium",
+            "notes": "reasoning_effort supports none, low, medium, or high only on Aion 2.0."
+          },
+          {
+            "param_id": "reasoning_split",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": true,
+            "notes": "Separates model reasoning from visible response text."
+          },
+          {
+            "param_id": "metadata",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -227,12 +291,26 @@
     "context_length": 131072,
     "max_output_tokens": 32768,
     "effective_from": "2026-03-10T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-14T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
         "params": [
+          {
+            "param_id": "max_output_tokens",
+            "provider_min": 1,
+            "provider_max": 32768,
+            "provider_default": null,
+            "notes": "Responses API field."
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": 1,
+            "provider_max": 32768,
+            "provider_default": null,
+            "notes": "Chat Completions API field."
+          },
           {
             "param_id": "temperature",
             "provider_min": null,
@@ -241,14 +319,35 @@
             "notes": null
           },
           {
-            "param_id": "max_tokens",
+            "param_id": "stop",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
             "notes": null
           },
           {
-            "param_id": "top_p",
+            "param_id": "stream",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": false,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "OpenAI-format tool definitions are supported on Chat Completions."
+          },
+          {
+            "param_id": "reasoning_split",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": true,
+            "notes": "Aion 2.5 is a reasoning model, but reasoning_effort is documented only for Aion 2.0."
+          },
+          {
+            "param_id": "metadata",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,
@@ -305,15 +404,15 @@
         "params": [
           {
             "param_id": "max_output_tokens",
-            "provider_min": null,
-            "provider_max": null,
+            "provider_min": 1,
+            "provider_max": 32768,
             "provider_default": null,
             "notes": "Responses API field."
           },
           {
             "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
+            "provider_min": 1,
+            "provider_max": 32768,
             "provider_default": null,
             "notes": "Chat Completions API field."
           },
@@ -410,15 +509,15 @@
         "params": [
           {
             "param_id": "max_output_tokens",
-            "provider_min": null,
-            "provider_max": null,
+            "provider_min": 1,
+            "provider_max": 32768,
             "provider_default": null,
             "notes": "Responses API field."
           },
           {
             "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
+            "provider_min": 1,
+            "provider_max": 32768,
             "provider_default": null,
             "notes": "Chat Completions API field."
           },
@@ -514,11 +613,18 @@
         "status": "active",
         "params": [
           {
-            "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
+            "param_id": "max_output_tokens",
+            "provider_min": 1,
+            "provider_max": 32768,
             "provider_default": null,
-            "notes": null
+            "notes": "Responses API field."
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": 1,
+            "provider_max": 32768,
+            "provider_default": null,
+            "notes": "Chat Completions API field."
           },
           {
             "param_id": "temperature",
@@ -528,7 +634,28 @@
             "notes": null
           },
           {
-            "param_id": "top_p",
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stream",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": false,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "OpenAI-format tool definitions are supported on Chat Completions."
+          },
+          {
+            "param_id": "metadata",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,

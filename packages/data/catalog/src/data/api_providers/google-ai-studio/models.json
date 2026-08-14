@@ -5143,7 +5143,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "music.generate",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -5191,7 +5191,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "music.generate",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -5304,7 +5304,7 @@
     "provider_api_model_id": "google-ai-studio:google/veo-3.1-fast-preview",
     "provider_model_slug": "veo-3.1-fast-generate-preview",
     "internal_model_id": "google/veo-3.1-fast-preview",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
     "output_modalities": "video,audio",
@@ -5315,7 +5315,7 @@
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": {
           "prompt": {
             "type": "string"
@@ -5380,8 +5380,8 @@
         ]
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -5414,7 +5414,7 @@
     "provider_api_model_id": "google-ai-studio:google/veo-3.1-lite-preview",
     "provider_model_slug": "veo-3.1-lite-generate-preview",
     "internal_model_id": "google/veo-3.1-lite-preview",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "video,audio",
@@ -5425,7 +5425,7 @@
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": {
           "prompt": {
             "type": "string"
@@ -5486,8 +5486,8 @@
         ]
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -5520,7 +5520,7 @@
     "provider_api_model_id": "google-ai-studio:google/veo-3.1-preview",
     "provider_model_slug": "veo-3.1-generate-preview",
     "internal_model_id": "google/veo-3.1-preview",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
     "output_modalities": "video,audio",
@@ -5531,7 +5531,7 @@
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": {
           "prompt": {
             "type": "string"
@@ -5596,8 +5596,8 @@
         ]
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null

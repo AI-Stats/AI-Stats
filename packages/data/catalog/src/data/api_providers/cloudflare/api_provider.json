@@ -24,9 +24,9 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://developers.cloudflare.com/workers-ai/platform/pricing/",
-  "auth_env": null,
+  "api_base_url": "https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1",
+  "docs_url": "https://developers.cloudflare.com/workers-ai/configuration/open-ai-compatibility/",
+  "auth_env": "CLOUDFLARE_API_TOKEN",
   "api_formats": [],
   "service_tiers": [],
   "sources": [
@@ -35,11 +35,17 @@
       "url": "https://www.cloudflare.com/about/",
       "accessed_at": "2026-08-09T00:00:00Z",
       "notes": "Cloudflare's official About page identifies San Francisco as its headquarters and lists 101 Townsend St., San Francisco, CA 94107."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://developers.cloudflare.com/workers-ai/configuration/open-ai-compatibility/",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official Workers AI OpenAI-compatible endpoint, account scope, authentication, and supported API surfaces."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-09T00:00:00Z",
-    "notes": "Location metadata verified; other provider policy and catalogue fields were not re-audited."
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Official Workers AI documentation confirms the account-scoped OpenAI-compatible base URL, bearer API-token authentication, and Chat Completions support."
   }
 }
