@@ -182,7 +182,9 @@
 											"v1/guides/integrations/claude-code",
 											"v1/guides/integrations/codex",
 											"v1/guides/integrations/deepseek-harness",
-											"v1/guides/integrations/opencode"
+											"v1/guides/integrations/opencode",
+											"v1/guides/integrations/pi",
+											"v1/guides/integrations/prime-agent"
 											,"v1/guides/integrations/aider"
 											,"v1/guides/integrations/continue"
 											,"v1/guides/integrations/cline"

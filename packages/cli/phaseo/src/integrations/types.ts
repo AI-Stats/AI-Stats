@@ -4,6 +4,7 @@ export type IntegrationId =
 	| "opencode"
 	| "deepseek-harness"
 	| "pi"
+	| "prime-agent"
 	| "hermes"
 	| "aider"
 	| "cline"
@@ -31,9 +32,19 @@ export type FileChange = {
 	description: string;
 };
 
+export type IntegrationModel = {
+	id: string;
+	name: string;
+	contextWindow?: number;
+	maxOutputTokens?: number;
+	reasoning?: boolean;
+	input?: Array<"text" | "image">;
+};
+
 export type IntegrationOptions = {
 	homeDir: string;
 	model?: string;
+	models?: IntegrationModel[];
 };
 
 export interface IntegrationAdapter {
@@ -43,6 +54,7 @@ export interface IntegrationAdapter {
 	inspect(options: IntegrationOptions): Promise<IntegrationInspection>;
 	planSetup(options: IntegrationOptions): Promise<FileChange[]>;
 	planRemove(options: IntegrationOptions): Promise<FileChange[]>;
+	planCredential?(options: IntegrationOptions, credential: string): Promise<FileChange[]>;
 	setupInstructions?(options: IntegrationOptions): string[];
 	removeInstructions?(options: IntegrationOptions): string[];
 	applySetup?(options: IntegrationOptions): Promise<void>;

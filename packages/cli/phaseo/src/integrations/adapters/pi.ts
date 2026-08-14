@@ -10,7 +10,24 @@ function extensionPath(options: IntegrationOptions): string {
 	return join(options.homeDir, ".pi", "agent", "extensions", "phaseo.ts");
 }
 
-export function renderPiExtension(model = DEFAULT_MODEL): string {
+function renderModels(model: string, models?: IntegrationOptions["models"]): string {
+	const catalog = models?.length ? [...models] : [{ id: model, name: model, reasoning: true, input: ["text", "image"] as Array<"text" | "image"> }];
+	if (!catalog.some((entry) => entry.id === model)) catalog.unshift({ id: model, name: model, reasoning: true, input: ["text"] });
+	const selectedIndex = catalog.findIndex((entry) => entry.id === model);
+	if (selectedIndex > 0) catalog.unshift(...catalog.splice(selectedIndex, 1));
+	return JSON.stringify(catalog.map((entry) => ({
+		id: entry.id,
+		name: `${entry.name} via Phaseo`,
+		reasoning: entry.reasoning ?? false,
+		input: entry.input ?? ["text"],
+		cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+		contextWindow: entry.contextWindow ?? 128000,
+		maxTokens: entry.maxOutputTokens ?? 16384,
+	})), null, 2).replace(/^/gm, "\t\t");
+}
+
+export function renderPiExtension(model = DEFAULT_MODEL, models?: IntegrationOptions["models"]): string {
+	const renderedModels = renderModels(model, models);
 	return `// Managed by Phaseo CLI. Run \`phaseo integrations remove pi\` to remove.\n` +
 		`import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";\n\n` +
 		`export default function (pi: ExtensionAPI) {\n` +
@@ -19,15 +36,7 @@ export function renderPiExtension(model = DEFAULT_MODEL): string {
 		`\t\tbaseUrl: "${BASE_URL}",\n` +
 		`\t\tapiKey: "${API_KEY_COMMAND}",\n` +
 		`\t\tapi: "openai-completions",\n` +
-		`\t\tmodels: [{\n` +
-		`\t\t\tid: "${model}",\n` +
-		`\t\t\tname: "${model} via Phaseo",\n` +
-		`\t\t\treasoning: true,\n` +
-		`\t\t\tinput: ["text", "image"],\n` +
-		`\t\t\tcost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },\n` +
-		`\t\t\tcontextWindow: 200000,\n` +
-		`\t\t\tmaxTokens: 16384,\n` +
-		`\t\t}],\n` +
+		`\t\tmodels: ${renderedModels.trimStart()},\n` +
 		`\t});\n` +
 		`}\n`;
 }
@@ -51,7 +60,7 @@ export const piAdapter: IntegrationAdapter = {
 	async planSetup(options) {
 		const path = extensionPath(options);
 		const before = await readOptionalFile(path);
-		const after = renderPiExtension(options.model);
+		const after = renderPiExtension(options.model, options.models);
 		if (before !== null && before !== after) throw new Error(`${path} already exists and is not managed by Phaseo CLI`);
 		return before === after ? [] : [{ path, before, after, description: "Install the Phaseo provider extension for Pi" }];
 	},

@@ -1,0 +1,45 @@
+---
+title: "Pi"
+icon: "terminal"
+description: "Install Pi and connect its model catalog to the Phaseo Gateway."
+---
+
+## Set up with the Phaseo CLI
+
+```bash
+phaseo login
+phaseo pi
+```
+
+Setup installs Pi when needed and writes a managed provider extension to `~/.pi/agent/extensions/phaseo.ts`. The extension exposes every active Phaseo text model compatible with Chat Completions and resolves its dedicated API key from the Phaseo CLI at request time.
+
+Choose an initial model or configure only one model when needed:
+
+```bash
+phaseo pi --model anthropic/claude-sonnet-4.6
+phaseo pi --catalog default
+```
+
+Use `--skip-install` when Pi is managed separately, and `--dry-run` to preview installation and file changes.
+
+## Start and verify
+
+```bash
+pi
+```
+
+Open `/model`, choose the `phaseo` provider, and send a small prompt. Remove only the managed extension and revoke its dedicated key with:
+
+```bash
+phaseo integrations remove pi
+```
+
+## Manual credential access
+
+The generated extension uses Pi's command-backed key syntax:
+
+```text
+!phaseo integrations credential pi
+```
+
+No plaintext key is written to the extension.

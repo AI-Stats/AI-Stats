@@ -6,16 +6,20 @@ import test from "node:test";
 import { parse as parseJsonc } from "jsonc-parser";
 import { codexAdapter, renderCodexProfile } from "../src/integrations/adapters/codex.js";
 import { claudeCodeAdapter, renderClaudeSettings } from "../src/integrations/adapters/claude-code.js";
-import { deepSeekHarnessAdapter, renderDeepSeekHarnessPatch } from "../src/integrations/adapters/deepseek-harness.js";
-import { openCodeAdapter, renderOpenCodeConfig } from "../src/integrations/adapters/opencode.js";
+import { deepSeekHarnessAdapter, renderDeepSeekHarnessCredential, renderDeepSeekHarnessPatch } from "../src/integrations/adapters/deepseek-harness.js";
+import { openCodeAdapter, renderOpenCodeAuth, renderOpenCodeConfig } from "../src/integrations/adapters/opencode.js";
 import { piAdapter, renderPiExtension } from "../src/integrations/adapters/pi.js";
+import { primeAgentAdapter, renderPrimeAgentModels } from "../src/integrations/adapters/prime-agent.js";
+import { renderOpenClawProvider } from "../src/integrations/adapters/openclaw.js";
 import { aiderAdapter } from "../src/integrations/adapters/aider.js";
 import { continueAdapter } from "../src/integrations/adapters/continue.js";
 import { zedAdapter } from "../src/integrations/adapters/zed.js";
 import { applyChanges } from "../src/integrations/files.js";
-import { runIntegrationCommand } from "../src/integrations/index.js";
+import { isPrimarySetupName, runIntegrationCommand } from "../src/integrations/index.js";
 import { getIntegrationGatewayCredential, getLegacyIntegrationGatewayCredential, revokeIntegrationGatewayCredential } from "../src/integrations/credential.js";
 import { readSession, writeSession } from "../src/session.js";
+import { fetchIntegrationModels, toIntegrationModel } from "../src/integrations/catalog.js";
+import { installInvocationFor } from "../src/integrations/installer.js";
 
 test("Codex profile uses the Responses API without embedding a credential", () => {
 	const profile = renderCodexProfile("anthropic/claude-sonnet-4.6");
@@ -28,9 +32,13 @@ test("Codex profile uses the Responses API without embedding a credential", () =
 });
 
 test("Pi extension registers Phaseo with a command-backed credential", async () => {
-	const extension = renderPiExtension("anthropic/claude-sonnet-4.6");
+	const extension = renderPiExtension("anthropic/claude-sonnet-4.6", [
+		{ id: "anthropic/claude-sonnet-4.6", name: "Claude Sonnet 4.6", contextWindow: 200_000, maxOutputTokens: 64_000, reasoning: true, input: ["text", "image"] },
+		{ id: "openai/gpt-test", name: "GPT Test", reasoning: false, input: ["text"] },
+	]);
 	assert.match(extension, /pi\.registerProvider\("phaseo"/);
 	assert.match(extension, /!phaseo integrations credential pi/);
+	assert.match(extension, /"openai\/gpt-test"/);
 	assert.doesNotMatch(extension, /phaseo_v1_sk_/);
 
 	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-pi-integration-"));
@@ -42,6 +50,42 @@ test("Pi extension registers Phaseo with a command-backed credential", async () 
 	} finally {
 		await rm(homeDir, { recursive: true, force: true });
 	}
+});
+
+test("Prime Agent configuration preserves other providers and exposes every model", async () => {
+	const path = "/tmp/models.json";
+	const before = '{"providers":{"local":{"baseUrl":"http://localhost:11434/v1"}},"keep":true}\n';
+	const rendered = renderPrimeAgentModels(path, before, "openai/gpt-test", [
+		{ id: "anthropic/claude-sonnet-4.6", name: "Claude Sonnet 4.6", reasoning: true, input: ["text", "image"] },
+		{ id: "openai/gpt-test", name: "GPT Test", contextWindow: 128_000, maxOutputTokens: 32_000 },
+	]);
+	const config = JSON.parse(rendered);
+	assert.equal(config.keep, true);
+	assert.equal(config.providers.local.baseUrl, "http://localhost:11434/v1");
+	assert.equal(config.providers.phaseo.apiKey, "!phaseo integrations credential prime-agent");
+	assert.deepEqual(config.providers.phaseo.models.map((model: { id: string }) => model.id), ["openai/gpt-test", "anthropic/claude-sonnet-4.6"]);
+	assert.throws(() => renderPrimeAgentModels(path, '{"providers":{"phaseo":{"baseUrl":"https://other.example"}}}\n'), /not managed by Phaseo CLI/);
+
+	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-prime-agent-integration-"));
+	try {
+		const options = { homeDir, model: "openai/gpt-test" };
+		await applyChanges(await primeAgentAdapter.planSetup(options));
+		assert.equal((await primeAgentAdapter.inspect(options)).status, "configured");
+		await applyChanges(await primeAgentAdapter.planRemove(options));
+		assert.deepEqual(JSON.parse(await readFile(join(homeDir, ".prime", "agent", "models.json"), "utf8")), {});
+	} finally {
+		await rm(homeDir, { recursive: true, force: true });
+	}
+});
+
+test("OpenClaw provider exposes every catalog model", () => {
+	const provider = renderOpenClawProvider([
+		{ id: "model/a", name: "Model A", contextWindow: 128000, reasoning: true, input: ["text", "image"] },
+		{ id: "model/b", name: "Model B" },
+	]);
+	assert.deepEqual(provider.models.map((model) => model.id), ["model/a", "model/b"]);
+	assert.equal(provider.models[0]?.contextWindow, 128000);
+	assert.deepEqual(provider.models[0]?.input, ["text", "image"]);
 });
 
 test("Aider and Continue refuse to overwrite existing user configuration", async () => {
@@ -146,9 +190,27 @@ test("OpenCode configuration preserves comments and unrelated providers", () => 
 	assert.equal(config.provider.local.options.baseURL, "http://127.0.0.1:1234/v1");
 	assert.equal(config.provider.phaseo.npm, "@ai-sdk/openai-compatible");
 	assert.equal(config.provider.phaseo.options.baseURL, "https://api.phaseo.app/v1");
-	assert.equal(config.provider.phaseo.options.apiKey, "{env:PHASEO_API_KEY}");
+	assert.equal(config.provider.phaseo.options.apiKey, undefined);
 	assert.deepEqual(config.provider.phaseo.models["openai/gpt-5.6-terra"], { name: "openai/gpt-5.6-terra" });
 	assert.doesNotMatch(rendered, /phaseo_v1_sk_/);
+});
+
+test("OpenCode receives every catalog model with token limits", () => {
+	const rendered = renderOpenCodeConfig("/tmp/opencode.json", null, "openai/gpt-5.6-terra", [
+		{ id: "anthropic/claude-sonnet-4.6", name: "Claude Sonnet 4.6", contextWindow: 200_000, maxOutputTokens: 64_000 },
+		{ id: "openai/gpt-5.6-terra", name: "GPT-5.6 Terra", contextWindow: 400_000 },
+	]);
+	const config = JSON.parse(rendered);
+	assert.deepEqual(Object.keys(config.provider.phaseo.models), ["openai/gpt-5.6-terra", "anthropic/claude-sonnet-4.6"]);
+	assert.deepEqual(config.provider.phaseo.models["anthropic/claude-sonnet-4.6"].limit, { context: 200_000, output: 64_000 });
+});
+
+test("OpenCode credential setup preserves other providers and marks Phaseo ownership", () => {
+	const rendered = renderOpenCodeAuth("/tmp/auth.json", '{"other":{"type":"api","key":"keep"}}\n', "phaseo-secret");
+	const auth = JSON.parse(rendered);
+	assert.deepEqual(auth.other, { type: "api", key: "keep" });
+	assert.deepEqual(auth.phaseo, { type: "api", key: "phaseo-secret", metadata: { managedBy: "phaseo-cli" } });
+	assert.throws(() => renderOpenCodeAuth("/tmp/auth.json", '{"phaseo":{"type":"api","key":"user"}}\n', "phaseo-secret"), /unmanaged phaseo credential/);
 });
 
 test("OpenCode rejects conflicting providers and provider allowlists", () => {
@@ -177,6 +239,109 @@ test("DeepSeek Harness configuration preserves unrelated patches", () => {
 	assert.doesNotMatch(rendered, /phaseo_v1_sk_/);
 });
 
+test("DeepSeek Harness receives every catalog model", () => {
+	const rendered = renderDeepSeekHarnessPatch("/tmp/cordis.patch.yml", null, "openai/gpt-5.6-terra", [
+		{ id: "anthropic/claude-sonnet-4.6", name: "Claude Sonnet 4.6" },
+		{ id: "openai/gpt-5.6-terra", name: "GPT-5.6 Terra" },
+	]);
+	assert.match(rendered, /- id: "anthropic\/claude-sonnet-4\.6"/);
+	assert.match(rendered, /- id: "openai\/gpt-5\.6-terra"/);
+	assert.match(rendered, /model: "openai\/gpt-5\.6-terra"/);
+});
+
+test("DeepSeek Harness credential setup preserves YAML and refuses unmanaged keys", () => {
+	const rendered = renderDeepSeekHarnessCredential("/tmp/.credentials.yaml", "OTHER_KEY: keep\n", "phaseo-secret");
+	assert.match(rendered, /OTHER_KEY: keep/);
+	assert.match(rendered, /# Managed by Phaseo CLI\nPHASEO_API_KEY: phaseo-secret/);
+	assert.throws(
+		() => renderDeepSeekHarnessCredential("/tmp/.credentials.yaml", "PHASEO_API_KEY: user-secret\n", "phaseo-secret"),
+		/unmanaged PHASEO_API_KEY/,
+	);
+});
+
+test("catalog filtering keeps only active text chat-completions models", () => {
+	assert.deepEqual(toIntegrationModel({
+		id: "openai/gpt-test",
+		name: "GPT Test",
+		lifecycle: { status: "active" },
+		modalities: { input: ["text", "image"], output: ["text"] },
+		limits: { input_tokens: 128_000, output_tokens: 16_000 },
+		capabilities: { endpoints: ["chat.completions", "responses"] },
+		availability: { status: "active", active_provider_count: 2 },
+	}), { id: "openai/gpt-test", name: "GPT Test", contextWindow: 128_000, maxOutputTokens: 16_000, reasoning: false, input: ["text", "image"] });
+	assert.equal(toIntegrationModel({
+		id: "openai/inactive",
+		modalities: { input: ["text"], output: ["text"] },
+		capabilities: { endpoints: ["chat.completions"] },
+		availability: { status: "inactive", active_provider_count: 0 },
+	}), null);
+});
+
+test("catalog sync paginates through every compatible model", async () => {
+	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-model-catalog-"));
+	const previousBackend = process.env.PHASEO_SESSION_BACKEND;
+	const previousConfigDir = process.env.PHASEO_CONFIG_DIR;
+	const previousFetch = globalThis.fetch;
+	process.env.PHASEO_SESSION_BACKEND = "file";
+	process.env.PHASEO_CONFIG_DIR = homeDir;
+	const model = (index: number) => ({
+		id: `provider/model-${String(index).padStart(3, "0")}`,
+		name: `Model ${index}`,
+		lifecycle: { status: "active" },
+		modalities: { input: ["text"], output: ["text"] },
+		limits: { input_tokens: 128_000, output_tokens: 16_000 },
+		capabilities: { endpoints: ["chat.completions"] },
+		availability: { status: "active", active_provider_count: 1 },
+	});
+	const requests: string[] = [];
+	globalThis.fetch = async (input) => {
+		const url = new URL(String(input));
+		requests.push(url.toString());
+		assert.equal(url.searchParams.get("availability"), "active");
+		assert.equal(url.searchParams.get("endpoints"), "chat.completions");
+		assert.equal(url.searchParams.get("input_types"), "text");
+		assert.equal(url.searchParams.get("output_types"), "text");
+		const offset = Number(url.searchParams.get("offset"));
+		const page = offset === 0 ? Array.from({ length: 250 }, (_, index) => model(index)) : [model(250)];
+		return new Response(JSON.stringify({ ok: true, total: 251, models: page }), {
+			status: 200,
+			headers: { "content-type": "application/json" },
+		});
+	};
+	try {
+		await writeSession({
+			accessToken: "oauth-session-token",
+			refreshToken: "refresh-token",
+			expiresAt: Date.now() + 60 * 60 * 1000,
+			apiUrl: "https://api.phaseo.app",
+		});
+		const models = await fetchIntegrationModels("opencode");
+		assert.equal(models.length, 251);
+		assert.equal(requests.length, 2);
+		assert.match(requests[1] ?? "", /offset=250/);
+	} finally {
+		globalThis.fetch = previousFetch;
+		if (previousBackend === undefined) delete process.env.PHASEO_SESSION_BACKEND;
+		else process.env.PHASEO_SESSION_BACKEND = previousBackend;
+		if (previousConfigDir === undefined) delete process.env.PHASEO_CONFIG_DIR;
+		else process.env.PHASEO_CONFIG_DIR = previousConfigDir;
+		await rm(homeDir, { recursive: true, force: true });
+	}
+});
+
+test("primary harness installers use supported global package commands", () => {
+	assert.deepEqual(installInvocationFor("codex", "pnpm"), { command: "pnpm", args: ["add", "-g", "@openai/codex"] });
+	assert.deepEqual(installInvocationFor("claude-code", "npm"), { command: "npm", args: ["install", "-g", "@anthropic-ai/claude-code"] });
+	assert.deepEqual(installInvocationFor("opencode", "bun"), { command: "bun", args: ["install", "-g", "opencode-ai"] });
+	assert.deepEqual(installInvocationFor("deepseek-harness", "yarn"), { command: "yarn", args: ["global", "add", "@deepseek-ai/dsh"] });
+	assert.deepEqual(installInvocationFor("pi", "npm"), { command: "npm", args: ["install", "-g", "--ignore-scripts", "@earendil-works/pi-coding-agent"] });
+	assert.deepEqual(installInvocationFor("prime-agent", "npm"), { command: "sh", args: ["-c", "curl -fsSL https://app.primeintellect.ai/prime-agent/install.sh | sh"] });
+	assert.deepEqual(installInvocationFor("hermes", "npm"), process.platform === "win32"
+		? { command: "powershell.exe", args: ["-NoProfile", "-Command", "& ([scriptblock]::Create((irm https://hermes-agent.nousresearch.com/install.ps1))) -SkipSetup"] }
+		: { command: "sh", args: ["-c", "curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --skip-setup"] });
+	assert.deepEqual(installInvocationFor("openclaw", "npm"), { command: "npm", args: ["install", "-g", "openclaw@latest"] });
+});
+
 test("DeepSeek Harness setup and removal preserve unrelated patches", async () => {
 	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-deepseek-harness-integration-"));
 	const dshHome = join(homeDir, ".dsh");
@@ -185,10 +350,14 @@ test("DeepSeek Harness setup and removal preserve unrelated patches", async () =
 	delete process.env.DSH_HOME;
 	try {
 		await applyChanges([{ path: configPath, before: null, after: "- id: unrelated\n", description: "fixture" }]);
-		await applyChanges(await deepSeekHarnessAdapter.planSetup({ homeDir, model: "anthropic/claude-sonnet-4.6" }));
+		const options = { homeDir, model: "anthropic/claude-sonnet-4.6" };
+		await applyChanges(await deepSeekHarnessAdapter.planSetup(options));
+		await applyChanges(await deepSeekHarnessAdapter.planCredential?.(options, "phaseo-secret") ?? []);
 		assert.equal((await deepSeekHarnessAdapter.inspect({ homeDir })).status, "configured");
-		await applyChanges(await deepSeekHarnessAdapter.planRemove({ homeDir }));
+		assert.match(await readFile(join(dshHome, ".credentials.yaml"), "utf8"), /PHASEO_API_KEY: phaseo-secret/);
+		await applyChanges(await deepSeekHarnessAdapter.planRemove(options));
 		assert.equal(await readFile(configPath, "utf8"), "- id: unrelated\n");
+		assert.doesNotMatch(await readFile(join(dshHome, ".credentials.yaml"), "utf8"), /PHASEO_API_KEY/);
 	} finally {
 		if (previousDshHome === undefined) delete process.env.DSH_HOME;
 		else process.env.DSH_HOME = previousDshHome;
@@ -240,12 +409,16 @@ test("OpenCode setup and removal preserve unrelated JSONC settings", async () =>
 }
 `;
 	const previousConfig = process.env.OPENCODE_CONFIG;
+	const previousXdgDataHome = process.env.XDG_DATA_HOME;
 	delete process.env.OPENCODE_CONFIG;
+	process.env.XDG_DATA_HOME = homeDir;
 	try {
 		await applyChanges([{ path: configPath, before: null, after: original, description: "fixture" }]);
 		const options = { homeDir, model: "openai/gpt-5.6-terra" };
 		await applyChanges(await openCodeAdapter.planSetup(options));
+		await applyChanges(await openCodeAdapter.planCredential?.(options, "phaseo-secret") ?? []);
 		assert.equal((await openCodeAdapter.inspect(options)).status, "configured");
+		assert.equal(JSON.parse(await readFile(join(homeDir, "opencode", "auth.json"), "utf8")).phaseo.key, "phaseo-secret");
 		const configured = await readFile(configPath, "utf8");
 		assert.match(configured, /Keep this comment/);
 		await applyChanges(await openCodeAdapter.planRemove(options));
@@ -253,9 +426,12 @@ test("OpenCode setup and removal preserve unrelated JSONC settings", async () =>
 		assert.match(removed, /Keep this comment/);
 		assert.equal((parseJsonc(removed) as Record<string, unknown>).theme, "system");
 		assert.doesNotMatch(removed, /"phaseo"/);
+		assert.equal(JSON.parse(await readFile(join(homeDir, "opencode", "auth.json"), "utf8")).phaseo, undefined);
 	} finally {
 		if (previousConfig === undefined) delete process.env.OPENCODE_CONFIG;
 		else process.env.OPENCODE_CONFIG = previousConfig;
+		if (previousXdgDataHome === undefined) delete process.env.XDG_DATA_HOME;
+		else process.env.XDG_DATA_HOME = previousXdgDataHome;
 		await rm(homeDir, { recursive: true, force: true });
 	}
 });
@@ -264,7 +440,9 @@ test("OpenCode honors an explicit OPENCODE_CONFIG path", async () => {
 	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-opencode-custom-config-"));
 	const configPath = join(homeDir, "custom.jsonc");
 	const previousConfig = process.env.OPENCODE_CONFIG;
+	const previousXdgDataHome = process.env.XDG_DATA_HOME;
 	process.env.OPENCODE_CONFIG = configPath;
+	process.env.XDG_DATA_HOME = homeDir;
 	try {
 		await applyChanges(await openCodeAdapter.planSetup({ homeDir }));
 		assert.equal((await openCodeAdapter.inspect({ homeDir })).configPath, configPath);
@@ -273,6 +451,8 @@ test("OpenCode honors an explicit OPENCODE_CONFIG path", async () => {
 	} finally {
 		if (previousConfig === undefined) delete process.env.OPENCODE_CONFIG;
 		else process.env.OPENCODE_CONFIG = previousConfig;
+		if (previousXdgDataHome === undefined) delete process.env.XDG_DATA_HOME;
+		else process.env.XDG_DATA_HOME = previousXdgDataHome;
 		await rm(homeDir, { recursive: true, force: true });
 	}
 });
@@ -283,8 +463,10 @@ test("OpenCode honors XDG_CONFIG_HOME and prefers JSONC", async () => {
 	const jsoncPath = join(homeDir, "opencode", "opencode.jsonc");
 	const previousConfig = process.env.OPENCODE_CONFIG;
 	const previousXdgConfigHome = process.env.XDG_CONFIG_HOME;
+	const previousXdgDataHome = process.env.XDG_DATA_HOME;
 	delete process.env.OPENCODE_CONFIG;
 	process.env.XDG_CONFIG_HOME = homeDir;
+	process.env.XDG_DATA_HOME = homeDir;
 	try {
 		await applyChanges([
 			{ path: jsonPath, before: null, after: '{}\n', description: "json fixture" },
@@ -299,6 +481,8 @@ test("OpenCode honors XDG_CONFIG_HOME and prefers JSONC", async () => {
 		else process.env.OPENCODE_CONFIG = previousConfig;
 		if (previousXdgConfigHome === undefined) delete process.env.XDG_CONFIG_HOME;
 		else process.env.XDG_CONFIG_HOME = previousXdgConfigHome;
+		if (previousXdgDataHome === undefined) delete process.env.XDG_DATA_HOME;
+		else process.env.XDG_DATA_HOME = previousXdgDataHome;
 		await rm(homeDir, { recursive: true, force: true });
 	}
 });
@@ -329,10 +513,10 @@ test("Claude Code removal preserves a conflicting Phaseo gateway", async () => {
 	}
 });
 
-test("Claude Code setup rejects the Codex-only model option", async () => {
+test("Claude Code setup rejects model selection", async () => {
 	await assert.rejects(
 		runIntegrationCommand(["setup", "claude-code"], { model: "anthropic/claude-sonnet-4.6", "dry-run": true }),
-		/--model is only supported for the Codex, OpenCode, and DeepSeek Harness integrations/,
+		/--model is not supported for the Claude Code integration/,
 	);
 });
 
@@ -340,6 +524,24 @@ test("integration commands reject unexpected positional arguments", async () => 
 	await assert.rejects(
 		runIntegrationCommand(["setup", "codex", "unexpected"], { "dry-run": true }),
 		/Usage: phaseo integrations/,
+	);
+});
+
+test("one-command setup is limited to the primary harnesses", async () => {
+	assert.equal(isPrimarySetupName("claude"), true);
+	assert.equal(isPrimarySetupName("dsh"), true);
+	assert.equal(isPrimarySetupName("openclaw"), true);
+	assert.equal(isPrimarySetupName("aider"), false);
+	await assert.rejects(
+		runIntegrationCommand(["setup", "aider"], { "dry-run": true }, { primaryOnly: true }),
+		/Phaseo direct setup currently supports codex, claude-code, hermes, opencode, pi, prime-agent, deepseek-harness, and openclaw/,
+	);
+});
+
+test("model catalog flags are limited to catalog-backed harnesses", async () => {
+	await assert.rejects(
+		runIntegrationCommand(["setup", "codex"], { catalog: "all", "dry-run": true }),
+		/only supported for OpenCode, DeepSeek Harness, Pi, Prime Agent, and OpenClaw/,
 	);
 });
 
