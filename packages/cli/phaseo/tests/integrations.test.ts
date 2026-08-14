@@ -61,9 +61,15 @@ test("Aider and Continue refuse to overwrite existing user configuration", async
 test("Zed setup preserves unrelated JSONC settings", async () => {
 	const homeDir = await mkdtemp(join(tmpdir(), "phaseo-zed-integration-"));
 	const previousAppData = process.env.APPDATA;
+	const previousXdgConfigHome = process.env.XDG_CONFIG_HOME;
 	process.env.APPDATA = homeDir;
+	process.env.XDG_CONFIG_HOME = homeDir;
 	try {
-		const path = join(homeDir, "Zed", "settings.json");
+		const path = process.platform === "win32"
+			? join(homeDir, "Zed", "settings.json")
+			: process.platform === "darwin"
+				? join(homeDir, "Library", "Application Support", "Zed", "settings.json")
+				: join(homeDir, "zed", "settings.json");
 		await applyChanges([{ path, before: null, after: '{\n  // Keep me\n  "theme": "One Dark"\n}\n', description: "fixture" }]);
 		await applyChanges(await zedAdapter.planSetup({ homeDir, model: "anthropic/claude-sonnet-4.6" }));
 		const configured = await readFile(path, "utf8");
@@ -74,6 +80,8 @@ test("Zed setup preserves unrelated JSONC settings", async () => {
 	} finally {
 		if (previousAppData === undefined) delete process.env.APPDATA;
 		else process.env.APPDATA = previousAppData;
+		if (previousXdgConfigHome === undefined) delete process.env.XDG_CONFIG_HOME;
+		else process.env.XDG_CONFIG_HOME = previousXdgConfigHome;
 		await rm(homeDir, { recursive: true, force: true });
 	}
 });
