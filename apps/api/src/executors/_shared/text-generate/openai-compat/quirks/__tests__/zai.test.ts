@@ -50,6 +50,23 @@ describe("Z.AI Quirks", () => {
 			});
 		});
 
+		it("maps GLM-5.2 reasoning effort to its high/max contract", () => {
+			const request: Record<string, any> = {};
+			zaiQuirks.transformRequest!({
+				request,
+				model: "glm-5.2",
+				ir: { reasoning: { effort: "xhigh" } } as any,
+			});
+			expect(request.reasoning_effort).toBe("max");
+
+			zaiQuirks.transformRequest!({
+				request,
+				model: "glm-5.2",
+				ir: { reasoning: { effort: "low" } } as any,
+			});
+			expect(request.reasoning_effort).toBe("high");
+		});
+
 		it.each([
 			["none", "low"],
 			["minimal", "low"],

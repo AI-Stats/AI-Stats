@@ -112,7 +112,19 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -161,6 +173,13 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [
+          "max_tokens",
+          "temperature",
+          "stop",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
           {
             "param_id": "reasoning",
             "provider_min": null,
@@ -172,8 +191,8 @@
             "param_id": "reasoning.effort",
             "provider_min": null,
             "provider_max": null,
-            "provider_default": "medium",
-            "notes": "Baseten accepts none, minimal, low, medium, high, xhigh, and max for DeepSeek V4 Pro."
+            "provider_default": "high",
+            "notes": "Baseten documents none, low, high, and max for DeepSeek V4 Pro 0813."
           }
         ],
         "reasoning": true,
@@ -491,7 +510,20 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -587,7 +619,19 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
         "reasoning": true,
         "tool_call": null,
         "structured_output": null,
@@ -747,7 +791,20 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -795,7 +852,21 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1144,7 +1215,21 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "structured_outputs",
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
