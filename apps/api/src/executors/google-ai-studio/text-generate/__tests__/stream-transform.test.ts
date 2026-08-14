@@ -14,6 +14,15 @@ async function readStreamText(stream: ReadableStream<Uint8Array>): Promise<strin
 	return await new Response(stream).text();
 }
 
+function parseSseEvents(output: string): Array<{ event: string; data: any }> {
+	return output.split(/\n\n/).flatMap((frame) => {
+		const event = frame.split("\n").find((line) => line.startsWith("event: "))?.slice(7);
+		const data = frame.split("\n").find((line) => line.startsWith("data: "))?.slice(6);
+		if (!event || !data || data === "[DONE]") return [];
+		return [{ event, data: JSON.parse(data) }];
+	});
+}
+
 function baseArgs(overrides?: Record<string, any>): any {
 	return {
 		ir: {
@@ -181,13 +190,29 @@ describe("google-ai-studio stream transform", () => {
 			protocol: "openai.responses",
 		})));
 
-		expect(output).toContain("event: response.output_item.added");
-		expect(output).toContain("event: response.function_call_arguments.delta");
-		expect(output).toContain("event: response.function_call_arguments.done");
-		expect(output).toContain("event: response.output_item.done");
-		expect(output).toContain("\"name\":\"gateway_datetime\"");
-		expect(output).toContain("\\\"timezone\\\":\\\"Europe/London\\\"");
-		expect(output).toContain("\"status\":\"completed\"");
+		const events = parseSseEvents(output);
+		const eventNames = events.map((event) => event.event);
+		const expectedOrder = [
+			"response.output_item.added",
+			"response.function_call_arguments.delta",
+			"response.function_call_arguments.done",
+			"response.output_item.done",
+		];
+		expect(eventNames.filter((event) => expectedOrder.includes(event))).toEqual(expectedOrder);
+
+		const added = events.find((event) => event.event === "response.output_item.added")?.data;
+		const done = events.find((event) => event.event === "response.output_item.done")?.data;
+		expect(added?.item).toMatchObject({
+			type: "function_call",
+			name: "gateway_datetime",
+		});
+		expect(done?.item).toMatchObject({
+			type: "function_call",
+			id: added?.item?.id,
+			name: "gateway_datetime",
+			arguments: "{\"timezone\":\"Europe/London\"}",
+			status: "completed",
+		});
 		expect(output).not.toContain("google_empty_response");
 	});
 
