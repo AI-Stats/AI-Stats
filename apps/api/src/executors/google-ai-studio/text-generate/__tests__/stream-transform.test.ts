@@ -152,6 +152,45 @@ describe("google-ai-studio stream transform", () => {
 		expect(output).toContain("\"arguments\":\"{\\\"city\\\":\\\"SF\\\"}\"");
 	});
 
+	it("converts legacy Gemini candidate functionCall parts to responses events", async () => {
+		const upstream = makeGoogleSseStream([
+			{
+				candidates: [{
+					index: 0,
+					content: {
+						role: "model",
+						parts: [{
+							functionCall: {
+								name: "gateway_datetime",
+								args: { timezone: "Europe/London" },
+							},
+						}],
+					},
+					finishReason: "STOP",
+				}],
+				usageMetadata: {
+					promptTokenCount: 20,
+					candidatesTokenCount: 5,
+					totalTokenCount: 25,
+				},
+			},
+		]);
+
+		const output = await readStreamText(transformStream(upstream, baseArgs({
+			endpoint: "responses",
+			protocol: "openai.responses",
+		})));
+
+		expect(output).toContain("event: response.output_item.added");
+		expect(output).toContain("event: response.function_call_arguments.delta");
+		expect(output).toContain("event: response.function_call_arguments.done");
+		expect(output).toContain("event: response.output_item.done");
+		expect(output).toContain("\"name\":\"gateway_datetime\"");
+		expect(output).toContain("\\\"timezone\\\":\\\"Europe/London\\\"");
+		expect(output).toContain("\"status\":\"completed\"");
+		expect(output).not.toContain("google_empty_response");
+	});
+
 	it("emits reasoning_content deltas for Interactions thought summaries", async () => {
 		const upstream = makeGoogleSseStream([
 			{
