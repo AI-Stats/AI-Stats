@@ -2530,7 +2530,7 @@
         "eu-north1"
       ]
     },
-    "service_tiers": ["auto", "default", "flex"],
+    "service_tiers": [],
     "api": {
       "formats": ["openai.embeddings"],
       "endpoint": "https://api.tokenfactory.nebius.com/v1/embeddings",
@@ -3133,7 +3133,7 @@
     "routing_status": "active",
     "routable": true,
     "regions": { "execution": null, "data": null },
-    "service_tiers": ["standard", "flex"],
+    "service_tiers": [],
     "api": {
       "formats": ["openai.rerank"],
       "endpoint": "https://api.tokenfactory.nebius.com/v1/rerank",
