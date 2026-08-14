@@ -273,4 +273,24 @@ describe("MiniMax quirks", () => {
 		minimaxQuirks.transformStreamChunk?.({ chunk: finalChunk, accumulated });
 		expect(finalChunk.choices[0].message.reasoning_content).toBe("reasoning extended");
 	});
+
+	it("does not duplicate the same reasoning emitted through multiple MiniMax fields", () => {
+		const accumulated: any = { requestId: "req_minimax" };
+		const chunk: any = {
+			object: "chat.completion.chunk",
+			choices: [{
+				index: 0,
+				delta: {
+					content: "<think>The user is greeting casually.</think>",
+					reasoning_content: "The user is greeting casually.",
+					reasoning_details: [{ type: "text", text: "The user is greeting casually." }],
+				},
+			}],
+		};
+
+		minimaxQuirks.transformStreamChunk?.({ chunk, accumulated });
+
+		expect(chunk.choices[0].delta.content).toBe("");
+		expect(chunk.choices[0].delta.reasoning_content).toBe("The user is greeting casually.");
+	});
 });

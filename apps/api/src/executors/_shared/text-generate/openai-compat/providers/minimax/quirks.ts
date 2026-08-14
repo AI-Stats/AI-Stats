@@ -265,6 +265,14 @@ export const minimaxQuirks: ProviderQuirks = {
 			};
 			if (!stateMap.has(idx)) stateMap.set(idx, state);
 
+			const reasoningDeltas: string[] = [];
+			const addReasoningDelta = (value: unknown) => {
+				if (typeof value !== "string" || value.length === 0) return;
+				if (!reasoningDeltas.includes(value)) reasoningDeltas.push(value);
+			};
+
+			addReasoningDelta(choice.delta?.reasoning_content);
+
 			if (typeof choice.delta?.content === "string") {
 				const { mainDelta, reasoningDelta } = processAionThinkStreamDelta(state.thinkState, choice.delta.content);
 				choice.delta.content = mainDelta;
@@ -272,14 +280,8 @@ export const minimaxQuirks: ProviderQuirks = {
 					state.contentChunks.push(mainDelta);
 				}
 				if (reasoningDelta.length > 0) {
-					state.reasoningChunks.push(reasoningDelta);
-					choice.delta.reasoning_content =
-						`${choice.delta.reasoning_content ?? ""}${reasoningDelta}`;
+					addReasoningDelta(reasoningDelta);
 				}
-			}
-
-			if (typeof choice.delta?.reasoning_content === "string") {
-				state.reasoningChunks.push(choice.delta.reasoning_content);
 			}
 
 			if (Array.isArray(choice.delta?.reasoning_details)) {
@@ -294,11 +296,16 @@ export const minimaxQuirks: ProviderQuirks = {
 					}
 					state.reasoningDetailsSoFar = detailsText;
 					if (deltaText.length > 0) {
-						state.reasoningChunks.push(deltaText);
-						choice.delta.reasoning_content =
-							`${choice.delta.reasoning_content ?? ""}${deltaText}`;
+						addReasoningDelta(deltaText);
 					}
 				}
+			}
+
+			if (reasoningDeltas.length > 0) {
+				const reasoningDelta = reasoningDeltas.join("");
+				choice.delta ??= {};
+				choice.delta.reasoning_content = reasoningDelta;
+				state.reasoningChunks.push(reasoningDelta);
 			}
 
 			if (isFinal) {
@@ -454,5 +461,4 @@ export const minimaxQuirks: ProviderQuirks = {
 		response[outputKey] = normalizedItems;
 	},
 };
-
 
