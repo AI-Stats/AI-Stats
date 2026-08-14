@@ -153,6 +153,24 @@ describe("openai video executor", () => {
 		expect(body).toMatchObject({ model: "sora-2-pro", seconds: "20", size: "1920x1080", input_reference: { file_id: "file_123" } });
 	});
 
+	it("accepts legacy workspace-owned OpenAI files without key source metadata", async () => {
+		state.batchFileMeta = { provider: "openai" };
+		const mock = installFetchMock([{
+			match: (url) => url.includes("/videos"),
+			response: jsonResponse({ id: "video_legacy_file", status: "queued" }),
+		}]);
+		const result = await execute(buildArgs({
+			model: "sora-2",
+			prompt: "Use a legacy workspace-owned file",
+			seconds: "8",
+			inputReference: { file_id: "file_legacy" },
+		}));
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(200);
+		expect(state.batchFileMetaCalls).toEqual([["team_test", "file_legacy"]]);
+	});
+
 	it("rejects an unowned gateway file before reserving credits or calling OpenAI", async () => {
 		const mock = installFetchMock([
 			{ match: (url) => url.includes("/videos"), response: jsonResponse({ id: "should_not_run" }) },

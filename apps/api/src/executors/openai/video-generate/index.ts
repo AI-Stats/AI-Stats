@@ -294,7 +294,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			};
 		}
 
-		if (ownedFile?.provider !== "openai" || ownedFile.keySource !== "gateway") {
+		if (ownedFile?.provider !== "openai" || ownedFile.keySource === "byok") {
 			const upstream = new Response(
 				JSON.stringify({
 					error: {
