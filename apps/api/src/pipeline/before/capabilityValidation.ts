@@ -5,7 +5,11 @@
 import type { Endpoint } from "@core/types";
 import type { ParamRoutingDiagnostics, ProviderCandidate } from "./types";
 import { err } from "./http";
-import { providerSupportsParam, extractRequestedParams, getUnknownTopLevelParams } from "./paramCapabilities";
+import {
+	providerParamSupportStatus,
+	extractRequestedParams,
+	getUnknownTopLevelParams,
+} from "./paramCapabilities";
 import { isAlwaysSupportedParam } from "./textParamPolicy";
 import { validateProviderDocsCompliance } from "./providerDocsValidation";
 import { getEffectiveRoutingHints } from "../requestRouting";
@@ -26,7 +30,7 @@ type StageValidationResult =
 
 type ProviderSupportInfo = {
 	providerId: string;
-	supported: boolean;
+	status: "supported" | "unsupported" | "unknown";
 };
 
 type ParameterSupportResult =
@@ -66,7 +70,7 @@ function buildDroppedProviders(args: {
 			const unsupportedParams = args.requestedParams.filter((param) => {
 				const supportRow = args.supportMap[param] ?? [];
 				const info = supportRow.find((entry) => entry.providerId === providerId);
-				return info ? !info.supported : false;
+				return info?.status === "unsupported";
 			});
 			return { providerId, unsupportedParams };
 		});
@@ -78,10 +82,13 @@ function buildPerParamSupport(
 	return Object.entries(supportMap).map(([param, supportRows]) => ({
 		param,
 		supportedProviders: supportRows
-			.filter((entry) => entry.supported)
+			.filter((entry) => entry.status === "supported")
 			.map((entry) => entry.providerId),
 		unsupportedProviders: supportRows
-			.filter((entry) => !entry.supported)
+			.filter((entry) => entry.status === "unsupported")
+			.map((entry) => entry.providerId),
+		unknownProviders: supportRows
+			.filter((entry) => entry.status === "unknown")
 			.map((entry) => entry.providerId),
 	}));
 }
@@ -118,7 +125,7 @@ function preferProvidersByRequestedParams(args: {
 		for (const param of args.requestedParams) {
 			const rows = args.supportMap[param] ?? [];
 			const support = rows.find((row) => row.providerId === provider.providerId);
-			if (support && !support.supported) unsupported += 1;
+			if (support?.status === "unsupported") unsupported += 1;
 		}
 		unsupportedCountByProvider.set(provider.providerId, unsupported);
 	}
@@ -154,7 +161,7 @@ function filterProvidersForRequiredParams(args: {
 			if (isAlwaysSupportedParam(args.endpoint, param)) return true;
 			const rows = args.supportMap[param] ?? [];
 			const match = rows.find((row) => row.providerId === provider.providerId);
-			return match ? match.supported : false;
+			return match?.status !== "unsupported";
 		}),
 	);
 }
@@ -176,10 +183,11 @@ function filterProvidersByCapability(
 	providers: ProviderCandidate[],
 	paramPath: string,
 ): ProviderCandidate[] {
-	return providers.filter((provider) =>
-		providerSupportsParam(provider, paramPath, {
-			assumeSupportedOnMissingConfig: false,
-		}),
+	return providers.filter(
+		(provider) =>
+			providerParamSupportStatus(provider, paramPath, {
+				assumeSupportedOnMissingConfig: false,
+			}) !== "unsupported",
 	);
 }
 
@@ -242,9 +250,11 @@ function validateParameterSupport(args: {
 	for (const param of requested) {
 		supportMap[param] = args.providers.map((provider) => ({
 			providerId: provider.providerId,
-			supported:
-				isAlwaysSupportedParam(args.endpoint, param) ||
-				providerSupportsParam(provider, param, { assumeSupportedOnMissingConfig: false }),
+			status: isAlwaysSupportedParam(args.endpoint, param)
+				? "supported"
+				: providerParamSupportStatus(provider, param, {
+					assumeSupportedOnMissingConfig: false,
+				}),
 		}));
 	}
 

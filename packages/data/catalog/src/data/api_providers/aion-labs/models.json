@@ -184,7 +184,16 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "response_format",
+          "tools",
+          "tool_choice"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -358,7 +367,12 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "top_p",
+          "response_format",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -463,7 +477,12 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "top_p",
+          "response_format",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
