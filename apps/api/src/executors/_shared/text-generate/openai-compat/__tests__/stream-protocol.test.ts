@@ -19,6 +19,20 @@ async function readStreamText(stream: ReadableStream<Uint8Array>): Promise<strin
 	return await new Response(stream).text();
 }
 
+async function readWithTimeout<T>(reader: ReadableStreamDefaultReader<T>, message: string) {
+	let timeout: ReturnType<typeof setTimeout> | undefined;
+	try {
+		return await Promise.race([
+			reader.read(),
+			new Promise<never>((_, reject) => {
+				timeout = setTimeout(() => reject(new Error(message)), 100);
+			}),
+		]);
+	} finally {
+		if (timeout) clearTimeout(timeout);
+	}
+}
+
 function parseSseJsonFrames(text: string): any[] {
 	const out: any[] = [];
 	for (const frame of text.split(/\n\n/)) {
@@ -163,10 +177,7 @@ async function expectTextBeforeCompletion(
 			: '"text":"Hello"';
 	let beforeCompletion = "";
 	while (!beforeCompletion.includes(marker)) {
-		const next = await Promise.race([
-			reader.read(),
-			new Promise<never>((_, reject) => setTimeout(() => reject(new Error(`timed out for ${protocol}`)), 100)),
-		]);
+		const next = await readWithTimeout(reader, `timed out for ${protocol}`);
 		if (next.done) throw new Error(`stream ended before live ${protocol} text`);
 		beforeCompletion += decoder.decode(next.value, { stream: true });
 	}
@@ -405,10 +416,7 @@ describe("resolveStreamForProtocol", () => {
 		const decoder = new TextDecoder();
 		let beforeCompletion = "";
 		while (!beforeCompletion.includes('"text":"Hello"')) {
-			const next = await Promise.race([
-				reader.read(),
-				new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timed out waiting for live delta")), 100)),
-			]);
+			const next = await readWithTimeout(reader, "timed out waiting for live delta");
 			if (next.done) throw new Error("stream ended before live delta");
 			beforeCompletion += decoder.decode(next.value, { stream: true });
 		}
@@ -425,6 +433,99 @@ describe("resolveStreamForProtocol", () => {
 			afterCompletion += decoder.decode(next.value, { stream: true });
 		}
 		expect(afterCompletion).toContain("event: message_stop");
+	});
+
+	it("keeps one ordered anthropic tool block across Responses item aliases", async () => {
+		const upstream = makeSseResponse([
+			{ event: "response.created", data: { response: { id: "resp_tool", model: "test-model" } } },
+			{
+				event: "response.reasoning_text.delta",
+				data: { item_id: "reasoning_1", output_index: 0, delta: "Checking." },
+			},
+			{
+				event: "response.output_item.added",
+				data: {
+					output_index: 1,
+					item: { id: "item_1", call_id: "call_1", type: "function_call", name: "lookup" },
+				},
+			},
+			{
+				event: "response.function_call_arguments.delta",
+				data: { item_id: "item_1", output_index: 1, delta: "{\"city\":\"SF\"}" },
+			},
+			{ event: "response.output_item.done", data: { output_index: 1, item: { id: "item_1", call_id: "call_1" } } },
+			{
+				event: "response.completed",
+				data: { response: { id: "resp_tool", status: "completed", usage: { input_tokens: 2, output_tokens: 3 } } },
+			},
+		]);
+		const stream = resolveStreamForProtocol(
+			upstream,
+			baseArgs({ endpoint: "messages", protocol: "anthropic.messages" }),
+			"responses",
+		);
+		const frames = parseSseJsonFrames(await readStreamText(stream));
+		const toolStarts = frames.filter((frame) => frame.type === "content_block_start" && frame.content_block?.type === "tool_use");
+		expect(toolStarts).toHaveLength(1);
+		expect(toolStarts[0].content_block).toMatchObject({ id: "call_1", name: "lookup" });
+		expect(frames.filter((frame) => frame.delta?.type === "input_json_delta")).toHaveLength(1);
+		const eventTypes = frames.map((frame) => frame.type);
+		expect(eventTypes).toEqual([
+			"message_start",
+			"content_block_start",
+			"content_block_delta",
+			"content_block_stop",
+			"content_block_start",
+			"content_block_delta",
+			"content_block_stop",
+			"message_delta",
+			"message_stop",
+		]);
+		expect(frames.find((frame) => frame.type === "message_delta")).toMatchObject({
+			delta: { stop_reason: "tool_use" },
+			usage: { input_tokens: 2, output_tokens: 3 },
+		});
+	});
+
+	it("does not replay streamed text from the completed Responses output", async () => {
+		const upstream = makeSseResponse([
+			{ event: "response.created", data: { response: { id: "resp_text", model: "test-model" } } },
+			{ event: "response.output_text.delta", data: { item_id: "message_1", output_index: 0, delta: "Hello" } },
+			{ event: "response.output_text.done", data: { item_id: "message_1", output_index: 0 } },
+			{
+				event: "response.completed",
+				data: {
+					response: {
+						id: "resp_text",
+						status: "completed",
+						output: [{ id: "message_1", type: "message", content: [{ type: "output_text", text: "Hello" }] }],
+					},
+				},
+			},
+		]);
+		const frames = parseSseJsonFrames(await readStreamText(resolveStreamForProtocol(
+			upstream,
+			baseArgs({ endpoint: "messages", protocol: "anthropic.messages" }),
+			"responses",
+		)));
+		expect(frames.filter((frame) => frame.delta?.type === "text_delta")).toHaveLength(1);
+	});
+
+	it("terminates anthropic messages when a Responses stream closes early", async () => {
+		const upstream = makeSseResponse([
+			{ event: "response.created", data: { response: { id: "resp_partial", model: "test-model" } } },
+			{ event: "response.output_text.delta", data: { item_id: "message_1", output_index: 0, delta: "Partial" } },
+		]);
+		const frames = parseSseJsonFrames(await readStreamText(resolveStreamForProtocol(
+			upstream,
+			baseArgs({ endpoint: "messages", protocol: "anthropic.messages" }),
+			"responses",
+		)));
+		expect(frames.slice(-3).map((frame) => frame.type)).toEqual([
+			"content_block_stop",
+			"message_delta",
+			"message_stop",
+		]);
 	});
 
 	it("converts chat-chunk stream to anthropic messages stream on responses route", async () => {

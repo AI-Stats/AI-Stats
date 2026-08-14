@@ -472,14 +472,37 @@ function transformResponsesStreamToAnthropic(
 			let messageStarted = false;
 			let nextBlockIndex = 0;
 			let terminalEmitted = false;
-			const blocks = new Map<string, {
+			let latestResponse: any = null;
+			type AnthropicBlock = {
 				index: number;
 				type: "text" | "thinking" | "tool_use";
 				open: boolean;
 				emittedContent: boolean;
 				toolId?: string;
 				toolName?: string;
-			}>();
+			};
+			const blocksByAlias = new Map<string, AnthropicBlock>();
+			const blocks: AnthropicBlock[] = [];
+			let activeBlock: AnthropicBlock | null = null;
+
+			const aliasesFor = (value: {
+				id?: unknown;
+				itemId?: unknown;
+				callId?: unknown;
+				outputIndex?: unknown;
+			}) => {
+				const aliases: string[] = [];
+				const add = (prefix: string, candidate: unknown) => {
+					if (candidate !== undefined && candidate !== null && candidate !== "") {
+						aliases.push(`${prefix}:${String(candidate)}`);
+					}
+				};
+				add("id", value.id);
+				add("id", value.itemId);
+				add("call", value.callId);
+				add("output", value.outputIndex);
+				return aliases;
+			};
 
 			const ensureMessageStart = (response?: any) => {
 				if (messageStarted) return;
@@ -500,17 +523,23 @@ function transformResponsesStreamToAnthropic(
 			};
 
 			const ensureBlock = (
-				key: string,
+				aliases: string[],
 				type: "text" | "thinking" | "tool_use",
 				tool?: { id?: string; name?: string },
 			) => {
-				const existing = blocks.get(key);
+				const existing = aliases.map((alias) => blocksByAlias.get(alias)).find(Boolean);
 				if (existing) {
+					for (const alias of aliases) blocksByAlias.set(alias, existing);
 					if (tool?.id) existing.toolId = tool.id;
 					if (tool?.name) existing.toolName = tool.name;
+					if (activeBlock !== existing) {
+						if (activeBlock) stopBlock(activeBlock);
+						activeBlock = existing.open ? existing : null;
+					}
 					return existing;
 				}
 				ensureMessageStart();
+				if (activeBlock) stopBlock(activeBlock);
 				const block = {
 					index: nextBlockIndex++,
 					type,
@@ -519,7 +548,9 @@ function transformResponsesStreamToAnthropic(
 					toolId: tool?.id,
 					toolName: tool?.name,
 				};
-				blocks.set(key, block);
+				blocks.push(block);
+				for (const alias of aliases) blocksByAlias.set(alias, block);
+				activeBlock = block;
 				emit(controller, "content_block_start", {
 					type: "content_block_start",
 					index: block.index,
@@ -537,14 +568,15 @@ function transformResponsesStreamToAnthropic(
 				return block;
 			};
 
-			const stopBlock = (block: { index: number; open: boolean }) => {
+			function stopBlock(block: { index: number; open: boolean }) {
 				if (!block.open) return;
 				block.open = false;
+				if (activeBlock === block) activeBlock = null;
 				emit(controller, "content_block_stop", {
 					type: "content_block_stop",
 					index: block.index,
 				});
-			};
+			}
 
 			const finishMessage = (response: any) => {
 				if (terminalEmitted) return;
@@ -560,8 +592,7 @@ function transformResponsesStreamToAnthropic(
 					const itemType = String(item?.type ?? "").toLowerCase();
 					if (itemType === "reasoning" || itemType === "message") {
 						const blockType = itemType === "reasoning" ? "thinking" : "text";
-						const key = `${blockType}:${item?.id ?? outputIndex}`;
-						const block = ensureBlock(key, blockType);
+						const block = ensureBlock(aliasesFor({ id: item?.id, outputIndex }), blockType);
 						if (!block.emittedContent) {
 							const text = extractOutputText(item?.content);
 							if (text) {
@@ -582,7 +613,11 @@ function transformResponsesStreamToAnthropic(
 					if (itemType === "function_call" || itemType === "tool_call") {
 						hasToolUse = true;
 						const toolId = item?.call_id ?? item?.id ?? `tool_${outputIndex}`;
-						const block = ensureBlock(`tool:${toolId}`, "tool_use", {
+						const block = ensureBlock(aliasesFor({
+							id: item?.id,
+							callId: item?.call_id,
+							outputIndex,
+						}), "tool_use", {
 							id: toolId,
 							name: item?.name ?? "tool",
 						});
@@ -598,7 +633,8 @@ function transformResponsesStreamToAnthropic(
 					}
 				}
 
-				for (const block of blocks.values()) stopBlock(block);
+				for (const block of blocks) stopBlock(block);
+				hasToolUse ||= blocks.some((block) => block.type === "tool_use");
 				const usage = normalizeUsageToAnthropic(response?.usage);
 				emit(controller, "message_delta", {
 					type: "message_delta",
@@ -631,12 +667,15 @@ function transformResponsesStreamToAnthropic(
 
 						const normalizedEvent = normalizeResponsesEvent(event);
 						if (normalizedEvent === "response.created") {
-							ensureMessageStart(payload?.response ?? payload);
+							latestResponse = payload?.response ?? payload;
+							ensureMessageStart(latestResponse);
 							continue;
 						}
 						if (normalizedEvent === "response.output_text.delta" && typeof payload?.delta === "string") {
-							const key = `text:${payload?.item_id ?? payload?.output_index ?? 0}`;
-							const block = ensureBlock(key, "text");
+							const block = ensureBlock(aliasesFor({
+								itemId: payload?.item_id,
+								outputIndex: payload?.output_index ?? 0,
+							}), "text");
 							emit(controller, "content_block_delta", {
 								type: "content_block_delta",
 								index: block.index,
@@ -646,8 +685,10 @@ function transformResponsesStreamToAnthropic(
 							continue;
 						}
 						if (normalizedEvent === "response.reasoning_text.delta" && typeof payload?.delta === "string") {
-							const key = `thinking:${payload?.item_id ?? payload?.output_index ?? 0}`;
-							const block = ensureBlock(key, "thinking");
+							const block = ensureBlock(aliasesFor({
+								itemId: payload?.item_id,
+								outputIndex: payload?.output_index ?? 0,
+							}), "thinking");
 							emit(controller, "content_block_delta", {
 								type: "content_block_delta",
 								index: block.index,
@@ -661,13 +702,22 @@ function transformResponsesStreamToAnthropic(
 							const itemType = String(item?.type ?? "").toLowerCase();
 							if (itemType === "function_call" || itemType === "tool_call") {
 								const toolId = item?.call_id ?? item?.id ?? payload?.item_id;
-								ensureBlock(`tool:${toolId}`, "tool_use", { id: toolId, name: item?.name });
+								ensureBlock(aliasesFor({
+									id: item?.id,
+									itemId: payload?.item_id,
+									callId: item?.call_id,
+									outputIndex: payload?.output_index,
+								}), "tool_use", { id: toolId, name: item?.name });
 							}
 							continue;
 						}
 						if (normalizedEvent === "response.function_call_arguments.delta" && typeof payload?.delta === "string") {
 							const toolId = payload?.call_id ?? payload?.item_id ?? payload?.output_index ?? 0;
-							const block = ensureBlock(`tool:${toolId}`, "tool_use", { id: payload?.call_id });
+							const block = ensureBlock(aliasesFor({
+								itemId: payload?.item_id,
+								callId: payload?.call_id,
+								outputIndex: payload?.output_index,
+							}), "tool_use", { id: payload?.call_id ?? toolId });
 							emit(controller, "content_block_delta", {
 								type: "content_block_delta",
 								index: block.index,
@@ -676,16 +726,38 @@ function transformResponsesStreamToAnthropic(
 							block.emittedContent = true;
 							continue;
 						}
-						if (normalizedEvent === "response.completed") {
-							finishMessage(payload?.response ?? payload);
+						if (
+							normalizedEvent === "response.output_text.done" ||
+							normalizedEvent === "response.reasoning_text.done" ||
+							normalizedEvent === "response.output_item.done"
+						) {
+							const item = payload?.item;
+							const block = aliasesFor({
+								id: item?.id,
+								itemId: payload?.item_id,
+								callId: item?.call_id ?? payload?.call_id,
+								outputIndex: payload?.output_index,
+							}).map((alias) => blocksByAlias.get(alias)).find(Boolean);
+							if (block) stopBlock(block);
 							continue;
 						}
-						if (!normalizedEvent && payload?.object === "response") finishMessage(payload);
+						if (normalizedEvent === "response.completed") {
+							latestResponse = payload?.response ?? payload;
+							finishMessage(latestResponse);
+							continue;
+						}
+						if (!normalizedEvent && payload?.object === "response") {
+							latestResponse = payload;
+							finishMessage(payload);
+						}
 					}
 				}
 			} catch (err) {
 				console.error("openai compat responses->anthropic stream transform failed:", err);
 			} finally {
+				if (messageStarted && !terminalEmitted) {
+					finishMessage({ ...latestResponse, status: "incomplete" });
+				}
 				controller.close();
 			}
 		},

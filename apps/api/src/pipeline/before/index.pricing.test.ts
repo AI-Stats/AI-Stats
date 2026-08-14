@@ -374,6 +374,9 @@ describe("beforeRequest pricing loss-prevention", () => {
 		expect(timer.serverTiming()).not.toContain("context_credit_refresh");
 		expect(timer.serverTiming()).not.toContain("context_rpc");
 		expect(timer.serverTiming()).not.toContain("context_cache_write");
+		const serverTiming = timer.attachTo(new Response()).headers.get("Server-Timing");
+		expect(serverTiming).toContain("context_total;dur=28.500");
+		expect(serverTiming).toContain("context_cache_read;dur=21.750");
 	});
 
 	it("rejects request when pricing card has zero rules", async () => {
@@ -383,6 +386,7 @@ describe("beforeRequest pricing loss-prevention", () => {
 			value: {
 				context: {
 					pricing: { openai: provider.pricingCard },
+					contextTelemetry: { totalMs: 12.5, cacheReadMs: 8.25 },
 					key: { ok: true, reason: null, resetAt: null },
 					keyLimit: { ok: true, reason: null, resetAt: null },
 					credit: { ok: true, reason: null, resetAt: null },
@@ -405,7 +409,8 @@ describe("beforeRequest pricing loss-prevention", () => {
 			headers: { "content-type": "application/json" },
 			body: JSON.stringify({ model: "openai/gpt-4.1-mini" }),
 		});
-		const result = await beforeRequest(req, "responses", new Timer(), null);
+		const timer = new Timer();
+		const result = await beforeRequest(req, "responses", timer, null);
 		expect(result.ok).toBe(false);
 		if (result.ok) return;
 		expect(result.response.status).toBe(400);
@@ -426,6 +431,7 @@ describe("beforeRequest pricing loss-prevention", () => {
 			dropped: [{ providerId: "openai", reason: "pricing_missing" }],
 		});
 		expect(payload.missing_pricing_providers).toEqual(["openai"]);
+		expect(timer.attachTo(new Response()).headers.get("Server-Timing")).toContain("context_total;dur=12.500");
 	});
 
 	it("rejects request when workspace policy blocks the resolved model", async () => {
@@ -843,4 +849,3 @@ describe("beforeRequest pricing loss-prevention", () => {
 		expect((result.ctx as any).guardrailEnforcement?.source).toBe("sensitive_info");
 	});
 });
-
