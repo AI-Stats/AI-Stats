@@ -126,15 +126,29 @@ function createOpenAIChatMount(): Mountable {
     return {
         setJournal(nextJournal) { journal = nextJournal; },
         async handleRequest(req: IncomingMessage, res: ServerResponse, pathname: string) {
-            const route = pathname.endsWith("/chat/completions")
+            const route = pathname.endsWith("/chat/completions") || pathname.endsWith("/sonar")
                 ? "/chat/completions"
                 : pathname.endsWith("/responses")
                     ? "/responses"
+                    : pathname.endsWith("/embeddings")
+                        ? "/embeddings"
                     : null;
             if (!route || req.method !== "POST") return false;
             const body = JSON.parse(await readIncomingBody(req)) as Record<string, any>;
             const headers = flattenHeaders(req.headers as Record<string, string | string[] | undefined>);
             const serialized = JSON.stringify(body);
+			if (route === "/embeddings") {
+				const response = {
+					object: "list",
+					model: body.model,
+					data: [{ object: "embedding", index: 0, embedding: [0.11, 0.22, 0.33, 0.44] }],
+					usage: { prompt_tokens: 4, total_tokens: 4 },
+				};
+				journal?.add({ method: req.method, path: req.url ?? pathname, headers, body, service: "embedding", response: { status: 200, fixture: null } });
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(JSON.stringify(response));
+				return true;
+			}
             const prompt = serialized.includes("[aimock-tool] weather")
                 ? "[aimock-tool] weather"
                 : serialized.includes("[aimock-structured] person")
@@ -453,6 +467,11 @@ function buildAimockBindings(): Partial<GatewayBindings> {
         GOOGLE_BASE_URL: AIMOCK_BASE_URL,
         GOOGLE_VERTEX_PROJECT: "aimock-project",
         GOOGLE_VERTEX_LOCATION: "us-east5",
+		AMAZON_BEDROCK_API_KEY: "test-bedrock-key",
+		AMAZON_BEDROCK_MANTLE_BASE_URL: `${AIMOCK_BASE_URL}/anthropic/v1`,
+		ANTHROPIC_AWS_API_KEY: "test-anthropic-aws-key",
+		ANTHROPIC_AWS_BASE_URL: `${AIMOCK_BASE_URL}/anthropic`,
+		ANTHROPIC_AWS_WORKSPACE_ID: "wrkspc_aimock",
         NODE_ENV: "test",
     };
 
@@ -467,6 +486,17 @@ function buildAimockBindings(): Partial<GatewayBindings> {
                 : AIMOCK_BASE_URL;
         }
     }
+
+	for (const name of [
+		"AMBIENT_BASE_URL",
+		"PERPLEXITY_BASE_URL",
+		"RELACE_BASE_URL",
+		"SAMBANOVA_BASE_URL",
+		"SCALEWAY_BASE_URL",
+		"XIAOMI_MIMO_BASE_URL",
+	]) {
+		bindings[name] = `${AIMOCK_BASE_URL}/v1/openai`;
+	}
 
     return bindings as Partial<GatewayBindings>;
 }

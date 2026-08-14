@@ -44,7 +44,8 @@ export type GatewayBindings = {
     AXIOM_DETAIL_SAMPLE_RATE?: string;
     AXIOM_SLOW_REQUEST_MS?: string;
     AXIOM_LOG_FAILURE_COOLDOWN_MS?: string;
-    OPENAI_API_KEY?: string;
+	OPENAI_API_KEY?: string;
+	OPENAI_EU_BASE_URL?: string;
     OPENAI_BASE_URL?: string;
     OPENAI_WEBHOOK_SECRET?: string;
     OPENAI_VIDEO_WEBHOOK_SECRET?: string;
@@ -55,7 +56,10 @@ export type GatewayBindings = {
     GOOGLE_VIDEO_OAUTH_BEARER_TOKEN?: string;
     GOOGLE_AI_STUDIO_BASE_URL?: string;
     GOOGLE_BASE_URL?: string;
-    ANTHROPIC_API_KEY?: string;
+	ANTHROPIC_API_KEY?: string;
+	ANTHROPIC_AWS_API_KEY?: string;
+	ANTHROPIC_AWS_BASE_URL?: string;
+	ANTHROPIC_AWS_WORKSPACE_ID?: string;
     ANTHROPIC_BASE_URL?: string;
     X_AI_API_KEY?: string;
     XAI_BASE_URL?: string;
@@ -155,7 +159,9 @@ export type GatewayBindings = {
     INFERENCE_NET_API_KEY?: string;
     INFERENCE_NET_BASE_URL?: string;
     IONROUTER_API_KEY?: string;
-    IONROUTER_BASE_URL?: string;
+	IONROUTER_BASE_URL?: string;
+	IONROUTER_KIMI_BASE_URL?: string;
+	IONROUTER_MINIMAX_BASE_URL?: string;
     LIQUID_API_KEY?: string;
     LIQUID_BASE_URL?: string;
     LIQUID_AI_API_KEY?: string;
