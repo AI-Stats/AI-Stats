@@ -57,7 +57,11 @@ function isGeminiImageModelName(value: string): boolean {
 
 function isGeminiInteractionsModelName(value: string): boolean {
 	const normalized = String(value ?? "").toLowerCase();
-	return normalized.includes("gemini-3.6-flash") || normalized.includes("gemini-3.5-flash");
+	return (
+		normalized.includes("gemini-3.7-flash") ||
+		normalized.includes("gemini-3.6-flash") ||
+		normalized.includes("gemini-3.5-flash")
+	);
 }
 
 function hasUsableIRResponse(response: IRChatResponse | undefined): boolean {
