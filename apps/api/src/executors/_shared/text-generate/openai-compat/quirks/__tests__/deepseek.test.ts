@@ -61,12 +61,12 @@ describe("DeepSeek quirks", () => {
 
 		deepseekQuirks.transformRequest?.({
 			request,
-			ir: { reasoning: { effort: "xhigh" } } as any,
+			ir: { model: "deepseek-v4-pro", reasoning: { effort: "xhigh" } } as any,
 		});
 
 		expect(request.user_id).toBe("tenant-123");
 		expect(request.user).toBeUndefined();
-		expect(request.reasoning_effort).toBe("max");
+		expect(request.reasoning_effort).toBe("high");
 		expect(request.tool_choice).toBeUndefined();
 		expect(request.parallel_tool_calls).toBeUndefined();
 		expect(request.seed).toBeUndefined();

@@ -38,10 +38,21 @@ export const deepseekQuirks: ProviderQuirks = {
 		}
 		delete request.user;
 
+		const model = String(ir.model ?? "").toLowerCase();
 		const effort = ir.reasoning?.effort;
-		if (effort && effort !== "none") {
-			request.reasoning_effort = effort === "xhigh" || effort === "max" ? "max" : "high";
+		if (
+			(model.includes("deepseek-v4-pro") || model.includes("deepseek-v4-flash")) &&
+			typeof effort === "string" &&
+			effort !== "none" &&
+			request.reasoning_effort == null
+		) {
+			request.reasoning_effort = effort === "minimal"
+				? "low"
+				: effort === "low" || effort === "max"
+					? effort
+					: "high";
 		}
+
 		if (request.thinking?.type === "enabled") {
 			// DeepSeek's official agent integration notes that thinking-mode tool
 			// requests reject tool_choice even though non-thinking Chat accepts it.
@@ -157,4 +168,3 @@ function normalizeDeepSeekUsage(response: any): void {
 		};
 	}
 }
-
