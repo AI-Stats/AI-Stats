@@ -55,13 +55,9 @@ function isGeminiImageModelName(value: string): boolean {
 	);
 }
 
-function isGeminiInteractionsModelName(value: string): boolean {
+function supportsInteractionsThinkingLevels(value: string): boolean {
 	const normalized = String(value ?? "").toLowerCase();
-	return (
-		normalized.includes("gemini-3.7-flash") ||
-		normalized.includes("gemini-3.6-flash") ||
-		normalized.includes("gemini-3.5-flash")
-	);
+	return modelSupportsGoogleThinkingLevels(value) || normalized.includes("gemini-2.5");
 }
 
 function hasUsableIRResponse(response: IRChatResponse | undefined): boolean {
@@ -313,14 +309,8 @@ export async function irToGemini(
 	const request: any = {
 		model: modelOverride ?? ir.model,
 		input,
-		store: ir.store === false
-			? false
-			: Boolean(ir.store || previousInteractionId || ir.background || (ir.tools?.length ?? 0) > 0),
+		store: Boolean(ir.store === true || previousInteractionId || ir.background),
 	};
-
-	if (ir.googleCachedContent !== undefined) {
-		request.cached_content = ir.googleCachedContent;
-	}
 
 	if (previousInteractionId) {
 		request.previous_interaction_id = previousInteractionId;
@@ -334,34 +324,40 @@ export async function irToGemini(
 
 	const generationConfig: any = {};
 
-	const isCurrentGeminiModel = isGeminiInteractionsModelName(modelOverride ?? ir.model);
-	if (!isCurrentGeminiModel && ir.temperature !== undefined) generationConfig.temperature = ir.temperature;
 	if (ir.maxTokens !== undefined) generationConfig.max_output_tokens = ir.maxTokens;
-	if (!isCurrentGeminiModel && ir.topP !== undefined) generationConfig.top_p = ir.topP;
 	if (ir.seed !== undefined) generationConfig.seed = ir.seed;
-	if (ir.frequencyPenalty !== undefined) generationConfig.frequency_penalty = ir.frequencyPenalty;
-	if (ir.presencePenalty !== undefined) generationConfig.presence_penalty = ir.presencePenalty;
 	if (ir.stop) {
 		generationConfig.stop_sequences = Array.isArray(ir.stop) ? ir.stop : [ir.stop];
 	}
 
-	if (
+	const hasRequestedThinkingConfig = Boolean(
 		ir.reasoning?.enabled ||
 		ir.reasoning?.effort ||
 		(ir.reasoning?.maxTokens !== undefined) ||
-		(ir.reasoning?.includeThoughts !== undefined)
-	) {
+		(ir.reasoning?.includeThoughts !== undefined),
+	);
+	const defaultThinkingLevel = getDefaultGoogleThinkingLevel(modelOverride ?? ir.model);
+	if (hasRequestedThinkingConfig || defaultThinkingLevel) {
 		const modelName = modelOverride ?? ir.model;
-		const supportsThinkingLevel = modelSupportsGoogleThinkingLevels(modelName ?? "");
-		if (ir.reasoning?.effort && supportsThinkingLevel) {
-			const level = resolveGoogleThinkingLevelForEffort(modelName ?? "", ir.reasoning.effort);
+		const supportsThinkingLevel = supportsInteractionsThinkingLevels(modelName ?? "");
+		const explicitlyDisabled = ir.reasoning?.enabled === false || ir.reasoning?.effort === "none";
+		if (supportsThinkingLevel) {
+			const level = explicitlyDisabled
+				? "MINIMAL"
+				: resolveGoogleThinkingLevelForEffort(modelName ?? "", ir.reasoning?.effort)
+					?? (String(modelName ?? "").toLowerCase().includes("gemini-2.5")
+						? ({ minimal: "MINIMAL", low: "LOW", medium: "MEDIUM", high: "HIGH", xhigh: "HIGH", max: "HIGH" } as const)[ir.reasoning?.effort as "minimal" | "low" | "medium" | "high" | "xhigh" | "max"]
+						: undefined)
+					?? (ir.reasoning?.enabled ? "HIGH" : undefined)
+					?? getDefaultGoogleThinkingLevel(modelName ?? "");
 			if (level) generationConfig.thinking_level = level.toLowerCase();
 		}
-		else if (ir.reasoning?.enabled && supportsThinkingLevel) {
-			generationConfig.thinking_level = "high";
-		}
 
-		generationConfig.thinking_summaries = ir.reasoning?.includeThoughts === false ? "none" : "auto";
+		generationConfig.thinking_summaries = explicitlyDisabled ||
+			ir.reasoning?.includeThoughts === false ||
+			(!hasRequestedThinkingConfig && defaultThinkingLevel)
+			? "none"
+			: "auto";
 	}
 
 	const responseFormatEntries: any[] = [];
@@ -402,7 +398,6 @@ export async function irToGemini(
 			.filter((mode) => mode === "text" || mode === "image" || mode === "audio");
 		if (mapped.length > 0) {
 			mappedResponseModalities = mapped;
-			request.response_modalities = mapped;
 		}
 	}
 
@@ -471,8 +466,10 @@ export async function irToGemini(
 				generationConfig.tool_choice = "any";
 			} else if (typeof ir.toolChoice === "object" && "name" in ir.toolChoice) {
 				generationConfig.tool_choice = {
-					type: "function",
-					name: ir.toolChoice.name,
+					allowed_tools: {
+						mode: "any",
+						tools: [ir.toolChoice.name],
+					},
 				};
 			}
 			request.generation_config = generationConfig;
@@ -1035,6 +1032,24 @@ export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChat
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
 	const { ir, providerId, providerModelSlug, requestId, pricingCard, meta } = args;
 	const bindings = getBindings() as any;
+	if (ir.googleCachedContent !== undefined) {
+		return {
+			kind: "completed",
+			ir: undefined,
+			upstream: new Response(JSON.stringify({
+				error: {
+					code: "google_interactions_explicit_cache_unsupported",
+					message: "Explicit cached content is not supported by the Google Interactions API.",
+					type: "invalid_request_error",
+					param: "cached_content",
+				},
+			}), {
+				status: 400,
+				headers: { "Content-Type": "application/json" },
+			}),
+			bill: { cost_cents: 0, currency: "USD" },
+		};
+	}
 
 	// Resolve API key: prefer decrypted BYOK for this provider, else use gateway keys.
 	const keyInfo = resolveProviderKey(args, () => {
@@ -1043,9 +1058,8 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 
 	// Determine model candidates (must be in URL, not body)
 	const requestedModel = providerModelSlug || ir.model || "gemini-2.0-flash-exp";
-	const isInteractionsRequest =
-		(args.protocol as string) === "google.interactions" ||
-		isGeminiInteractionsModelName(requestedModel);
+	// Google AI Studio text generation uses the Interactions API exclusively.
+	const isInteractionsRequest = true;
 	const forceSyntheticStream = Boolean(ir.stream) && (
 		isGeminiImageModelName(requestedModel) ||
 		isInteractionsRequest
