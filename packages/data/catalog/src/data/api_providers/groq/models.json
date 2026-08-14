@@ -611,8 +611,7 @@
           "stop",
           "seed",
           "response_format",
-          "logprobs",
-          "top_logprobs"
+          "logprobs"
         ],
         "reasoning": null,
         "tool_call": null,

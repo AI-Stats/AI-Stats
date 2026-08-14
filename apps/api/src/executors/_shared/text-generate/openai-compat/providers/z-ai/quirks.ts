@@ -8,7 +8,7 @@
 import type { ProviderQuirks } from "../../quirks/types";
 
 export const zaiQuirks: ProviderQuirks = {
-	transformRequest: ({ request, ir }) => {
+	transformRequest: ({ request, ir, model }) => {
 		// Z.AI chat compatibility docs do not define a "developer" role.
 		// Normalize it to "system" before upstream dispatch.
 		if (Array.isArray(request.messages)) {
@@ -35,6 +35,23 @@ export const zaiQuirks: ProviderQuirks = {
 				type: "disabled",
 				clear_thinking: false,
 			};
+		}
+
+		// GLM-5.2 accepts only high/max reasoning levels. Preserve the
+		// requested intent while mapping the generic lower levels to high.
+		if (String(model ?? "").toLowerCase() === "glm-5.2") {
+			const effort = ir.reasoning?.effort;
+			if (typeof effort === "string") {
+				request.reasoning_effort = effort === "none"
+					? "none"
+					: effort === "max" || effort === "xhigh"
+						? "max"
+						: "high";
+			} else if (ir.reasoning?.enabled === false) {
+				request.reasoning_effort = "none";
+			} else if (ir.reasoning?.enabled === true) {
+				request.reasoning_effort = "max";
+			}
 		}
 	},
 
@@ -121,5 +138,4 @@ export const zaiQuirks: ProviderQuirks = {
 		}
 	},
 };
-
 

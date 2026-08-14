@@ -11,10 +11,15 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const DATA_ROOT = path.resolve("packages/data/catalog/src/data/api_providers");
 const API_ROOT = "https://openrouter.ai/api/v1";
 const DEFAULT_CONCURRENCY = 8;
+const { gatewayMappedParamIds } = await import(pathToFileURL(
+	path.resolve("apps/api/src/pipeline/before/textParamPolicy.ts"),
+).href);
+const GATEWAY_PARAM_IDS = gatewayMappedParamIds();
 
 const PROVIDER_ALIASES = {
 	"anthropic-aws": ["amazonbedrock"],
@@ -30,7 +35,10 @@ const PARAM_ALIASES = {
 // Do not advertise upstream fields until the gateway has an IR mapping for
 // them. The catalog describes parameters users can send through Phaseo, not
 // every field an upstream endpoint happens to accept.
-const PARAM_EXCLUSIONS = new Set(["prediction"]);
+const PARAM_EXCLUSIONS_BY_PROVIDER_MODEL = new Map([
+	["groq:qwen/qwen3-32b", new Set(["logprobs", "top_logprobs"])],
+	["z-ai:*", new Set(["top_k"])],
+]);
 
 function normalize(value) {
 	return String(value ?? "")
@@ -60,7 +68,7 @@ function parseArgs(argv) {
 		else if (arg === "--concurrency") args.concurrency = Math.max(1, Number(argv[++index]) || DEFAULT_CONCURRENCY);
 		else if (arg === "--help" || arg === "-h") {
 			console.log([
-				"Usage: node scripts/sync-provider-parameter-overlays.mjs [options]",
+				"Usage: pnpm data:sync-provider-params [options]",
 				"",
 				"Default mode reports matching endpoint parameters without changing files.",
 				"  --write                 Merge reported parameters into catalog files",
@@ -115,7 +123,14 @@ function endpointPath(modelId) {
 	return `${API_ROOT}/models/${encodedId}/endpoints`;
 }
 
-function endpointParameters(providerId, endpoints) {
+function isExcludedParam(providerId, modelId, param) {
+	if (!GATEWAY_PARAM_IDS.has(param)) return true;
+	if (PARAM_EXCLUSIONS_BY_PROVIDER_MODEL.get(`${providerId}:${modelId}`)?.has(param)) return true;
+	if (PARAM_EXCLUSIONS_BY_PROVIDER_MODEL.get(`${providerId}:*`)?.has(param)) return true;
+	return false;
+}
+
+function endpointParameters(providerId, modelId, endpoints) {
 	const matching = endpoints.filter((endpoint) =>
 		epochIsHealthy(endpoint) && providerMatches(providerId, endpoint) && Array.isArray(endpoint.supported_parameters),
 	);
@@ -126,13 +141,13 @@ function endpointParameters(providerId, endpoints) {
 	let result = new Set(
 		matching[0].supported_parameters
 			.map(canonicalParam)
-			.filter((param) => !PARAM_EXCLUSIONS.has(param)),
+			.filter((param) => !isExcludedParam(providerId, modelId, param)),
 	);
 	for (const endpoint of matching.slice(1)) {
 		const current = new Set(
 			endpoint.supported_parameters
 				.map(canonicalParam)
-				.filter((param) => !PARAM_EXCLUSIONS.has(param)),
+				.filter((param) => !isExcludedParam(providerId, modelId, param)),
 		);
 		result = new Set([...result].filter((param) => current.has(param)));
 	}
@@ -223,7 +238,7 @@ async function main() {
 		const modelId = entry.row.api_model_id || entry.row.internal_model_id;
 		const result = endpointMap.get(modelId);
 		if (!result) continue;
-		const params = endpointParameters(entry.providerId, result.endpoints);
+		const params = endpointParameters(entry.providerId, modelId, result.endpoints);
 		if (!params?.length) continue;
 		const capability = entry.row.capabilities?.find((item) => item.capability_id === "text.generate");
 		if (!capability) continue;
@@ -261,7 +276,13 @@ async function main() {
 				const capability = row?.capabilities?.find((item) => item.capability_id === "text.generate");
 				if (capability) capability.params = update.mergedParams;
 			}
-			await fs.writeFile(file, `${JSON.stringify(rows, null, 2)}\n`);
+			const temporaryFile = `${file}.${process.pid}.${Date.now()}.tmp`;
+			try {
+				await fs.writeFile(temporaryFile, `${JSON.stringify(rows, null, 2)}\n`);
+				await fs.rename(temporaryFile, file);
+			} finally {
+				await fs.rm(temporaryFile, { force: true });
+			}
 		}
 	}
 

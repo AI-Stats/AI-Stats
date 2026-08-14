@@ -72,8 +72,7 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          },
-          "top_k"
+          }
         ],
         "reasoning": null,
         "tool_call": null,
@@ -171,8 +170,7 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          },
-          "top_k"
+          }
         ],
         "reasoning": null,
         "tool_call": null,
@@ -319,7 +317,6 @@
             "provider_default": null,
             "notes": null
           },
-          "top_k",
           "response_format"
         ],
         "reasoning": null,
@@ -466,8 +463,7 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          },
-          "top_k"
+          }
         ],
         "reasoning": null,
         "tool_call": null,
@@ -565,8 +561,7 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          },
-          "top_k"
+          }
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1100,8 +1095,7 @@
             "notes": null
           },
           "reasoning",
-          "include_reasoning",
-          "top_k"
+          "include_reasoning"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1300,8 +1294,7 @@
           },
           "reasoning",
           "include_reasoning",
-          "response_format",
-          "top_k"
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1410,8 +1403,8 @@
             "param_id": "reasoning",
             "provider_min": null,
             "provider_max": null,
-            "provider_default": "high",
-            "notes": "Z.AI GLM-5.2 supports reasoning_effort high and max; gateway maps generic lower efforts to high and xhigh/max to max."
+            "provider_default": "max",
+            "notes": "GLM-5.2 accepts reasoning_effort max, xhigh, high, medium, low, minimal, and none; the gateway maps xhigh to max and lower efforts to the nearest supported level."
           },
           {
             "param_id": "response_format",
@@ -1456,7 +1449,6 @@
             "notes": null
           },
           "include_reasoning",
-          "top_k",
           "reasoning_effort"
         ],
         "reasoning": null,
