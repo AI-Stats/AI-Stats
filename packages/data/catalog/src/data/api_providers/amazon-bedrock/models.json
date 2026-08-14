@@ -1401,11 +1401,6 @@
           "include_reasoning",
           "max_tokens",
           "stop",
-          "tool_choice",
-          "tools",
-          "structured_outputs",
-          "response_format",
-          "verbosity",
           "reasoning_effort"
         ],
         "reasoning": null,

@@ -2668,8 +2668,7 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          },
-          "prediction"
+          }
         ],
         "reasoning": null,
         "tool_call": null,
@@ -2908,8 +2907,7 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          },
-          "prediction"
+          }
         ],
         "reasoning": null,
         "tool_call": null,
@@ -3096,8 +3094,7 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          },
-          "prediction"
+          }
         ],
         "reasoning": null,
         "tool_call": null,
@@ -3492,8 +3489,7 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          },
-          "prediction"
+          }
         ],
         "reasoning": null,
         "tool_call": null,

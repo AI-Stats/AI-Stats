@@ -27,6 +27,11 @@ const PARAM_ALIASES = {
 	max_completion_tokens: "max_tokens",
 };
 
+// Do not advertise upstream fields until the gateway has an IR mapping for
+// them. The catalog describes parameters users can send through Phaseo, not
+// every field an upstream endpoint happens to accept.
+const PARAM_EXCLUSIONS = new Set(["prediction"]);
+
 function normalize(value) {
 	return String(value ?? "")
 		.toLowerCase()
@@ -118,9 +123,17 @@ function endpointParameters(providerId, endpoints) {
 
 	// If a provider exposes multiple healthy deployments, use the intersection
 	// so a parameter is not claimed unless every matching deployment accepts it.
-	let result = new Set(matching[0].supported_parameters.map(canonicalParam));
+	let result = new Set(
+		matching[0].supported_parameters
+			.map(canonicalParam)
+			.filter((param) => !PARAM_EXCLUSIONS.has(param)),
+	);
 	for (const endpoint of matching.slice(1)) {
-		const current = new Set(endpoint.supported_parameters.map(canonicalParam));
+		const current = new Set(
+			endpoint.supported_parameters
+				.map(canonicalParam)
+				.filter((param) => !PARAM_EXCLUSIONS.has(param)),
+		);
 		result = new Set([...result].filter((param) => current.has(param)));
 	}
 	return [...result];
