@@ -2668,7 +2668,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "prediction"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -2907,7 +2908,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "prediction"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -3094,7 +3096,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "prediction"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -3489,7 +3492,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "prediction"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4333,7 +4337,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4713,7 +4718,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4903,7 +4909,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5093,7 +5100,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5335,7 +5343,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5918,7 +5927,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6354,7 +6364,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6573,7 +6584,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6776,7 +6790,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6952,7 +6969,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7302,7 +7322,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7482,7 +7505,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7662,7 +7688,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7833,7 +7862,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8004,7 +8035,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8175,7 +8208,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8346,7 +8381,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8517,7 +8554,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8688,7 +8727,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -10315,7 +10356,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -11213,7 +11256,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning"
         ],
         "reasoning": null,
         "tool_call": null,

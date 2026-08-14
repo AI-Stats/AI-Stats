@@ -72,7 +72,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "top_k"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -170,7 +171,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "top_k"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -316,7 +318,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "top_k",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -462,7 +466,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "top_k"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -560,7 +565,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "top_k"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1092,7 +1098,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "top_k"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1288,7 +1297,11 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "response_format",
+          "top_k"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1441,7 +1454,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "top_k",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,

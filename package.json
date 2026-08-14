@@ -63,6 +63,7 @@
 		"data:probe-model-endpoints": "node internal/fetch-provider-model-endpoints.mjs",
 		"data:check-new-models:test": "tsx scripts/model-discovery/validate-providers.ts",
 		"data:check-new-models:test:watch": "tsx watch scripts/model-discovery/validate-providers.ts",
+		"data:sync-provider-params": "node scripts/sync-provider-parameter-overlays.mjs",
 		"data:sync-manifest": "tsx scripts/sync-catalog-manifest.ts",
 		"data:check-manifest": "tsx scripts/sync-catalog-manifest.ts --check",
 		"data:test-sampling-params": "node scripts/test-sampling-params.js",
