@@ -25,6 +25,11 @@
       "url": "https://x.ai/news/grok-4-6"
     },
     {
+      "title": "Model Card",
+      "kind": "model_card",
+      "url": "https://media.x.ai/v1/website/card-4p6-4cd2dc57.pdf"
+    },
+    {
       "title": "xAI API pricing",
       "kind": "pricing",
       "url": "https://docs.x.ai/developers/pricing"
