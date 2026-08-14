@@ -877,7 +877,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemini-2.5-flash-lite-preview-2025-06-17",
     "provider_model_slug": "gemini-2.5-flash-lite-preview-06-17",
     "internal_model_id": "google/gemini-2.5-flash-lite-preview-2025-06-17",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
@@ -1003,7 +1003,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemini-2.5-flash-lite-preview-2025-09-25",
     "provider_model_slug": "gemini-2.5-flash-lite-preview-09-2025",
     "internal_model_id": "google/gemini-2.5-flash-lite-preview-2025-09-25",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
@@ -2574,7 +2574,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemini-3.1-flash-lite-preview",
     "provider_model_slug": "gemini-3.1-flash-lite-preview",
     "internal_model_id": "google/gemini-3.1-flash-lite-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,audio,video",
     "output_modalities": "text",
@@ -3254,7 +3254,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemini-3.5-pro",
     "provider_model_slug": "gemini-3.5-pro",
     "internal_model_id": "google/gemini-3.5-pro",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
@@ -3808,7 +3808,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemini-robotics-er-2-preview",
     "provider_model_slug": "gemini-robotics-er-2-preview",
     "internal_model_id": "google/gemini-robotics-er-2-preview",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
@@ -3909,8 +3909,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -3938,8 +3938,8 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-07-30T00:00:00Z",
-      "notes": "Catalogued but gateway-disabled pending a Gemini Interactions API executor."
+      "checked_at": "2026-08-14T00:00:00Z",
+      "notes": "Verified live through the Gemini Interactions API for text, image input, structured output, function calls, streaming, and usage."
     },
     "rate_limits": []
   },

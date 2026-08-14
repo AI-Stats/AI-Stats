@@ -190,6 +190,7 @@ function createOpenAIChatMount(): Mountable {
 
 function createGoogleInteractionsMount(): Mountable {
     let journal: Journal | null = null;
+    const sequenceCalls = new Map<string, number>();
     return {
         setJournal(nextJournal) { journal = nextJournal; },
         async handleRequest(req: IncomingMessage, res: ServerResponse, pathname: string) {
@@ -197,14 +198,25 @@ function createGoogleInteractionsMount(): Mountable {
             const body = JSON.parse(await readIncomingBody(req)) as Record<string, any>;
             const headers = flattenHeaders(req.headers as Record<string, string | string[] | undefined>);
             const serialized = JSON.stringify(body);
-            const prompt = serialized.includes("[aimock-tool] weather")
-                ? "[aimock-tool] weather"
+            const prompt = serialized.includes("[aimock-sequence] weather")
+                ? "[aimock-sequence] weather"
+                : serialized.includes("[aimock-tool] weather")
+                    ? "[aimock-tool] weather"
                 : serialized.includes("[aimock-structured] person")
                     ? "[aimock-structured] person"
                     : "[aimock-chat] hello";
-            const tool = prompt === "[aimock-tool] weather" ? body.tools?.[0] : undefined;
+            const testId = headers["x-test-id"] ?? "";
+            const sequenceCall = prompt === "[aimock-sequence] weather"
+                ? (sequenceCalls.get(testId) ?? 0) + 1
+                : 0;
+            if (sequenceCall) sequenceCalls.set(testId, sequenceCall);
+            const tool = prompt === "[aimock-tool] weather" || (prompt === "[aimock-sequence] weather" && sequenceCall === 1)
+                ? body.tools?.[0]
+                : undefined;
             const content = prompt === "[aimock-structured] person"
                 ? JSON.stringify({ name: "Ava", city: "London" })
+                : prompt === "[aimock-sequence] weather"
+                    ? "AIMock workflow completed."
                 : "Hello from AIMock via Phaseo.";
             const payload = {
                 id: "interaction_cross_provider",

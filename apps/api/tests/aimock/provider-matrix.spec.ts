@@ -505,7 +505,11 @@ describe("AIMock provider matrix", () => {
                     testId,
                 });
                 const firstToolCalls = first.encoded?.choices?.[0]?.message?.tool_calls;
-                expect(Array.isArray(firstToolCalls) ? firstToolCalls.length : 0).toBeGreaterThan(0);
+                const firstRequest = getAimock().getRequests()[0];
+                expect(
+                    Array.isArray(firstToolCalls) ? firstToolCalls.length : 0,
+                    JSON.stringify({ first, firstRequest }, null, 2),
+                ).toBeGreaterThan(0);
                 expect(firstToolCalls?.[0]?.function?.name).toBe("get_weather");
 
                 const second = await executeTextProtocol({
