@@ -236,18 +236,21 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 	integrations: {
 		description: "Configure coding agents to use the Phaseo gateway without writing credentials to their configuration.",
 		usage: [
-			"phaseo integrations list [codex|claude-code|opencode] [--json]",
-			"phaseo integrations status [codex|claude-code|opencode] [--json]",
+			"phaseo integrations list [integration] [--json]",
+			"phaseo integrations status [integration] [--json]",
 			"phaseo integrations setup codex [--model <id>] [--dry-run] [--json]",
 			"phaseo integrations setup claude-code [--dry-run] [--json]",
 			"phaseo integrations setup opencode [--model <id>] [--dry-run] [--json]",
-			"phaseo integrations remove <codex|claude-code|opencode> [--dry-run] [--json]",
+			"phaseo integrations setup deepseek-harness [--model <id>] [--dry-run] [--json]",
+			"phaseo integrations setup <pi|openclaw|hermes|aider|cline|roo-code|kilo-code|continue|cursor|zed> [--model <id>] [--dry-run] [--json]",
+			"phaseo integrations credential <integration>",
+			"phaseo integrations remove <integration> [--dry-run] [--json]",
 		],
 	},
-	"integrations list": { usage: ["phaseo integrations list [codex|claude-code|opencode] [--json]"] },
-	"integrations status": { usage: ["phaseo integrations status [codex|claude-code|opencode] [--json]"] },
-	"integrations setup": { usage: ["phaseo integrations setup codex [--model <id>] [--dry-run] [--json]", "phaseo integrations setup claude-code [--dry-run] [--json]", "phaseo integrations setup opencode [--model <id>] [--dry-run] [--json]"] },
-	"integrations remove": { usage: ["phaseo integrations remove <codex|claude-code|opencode> [--dry-run] [--json]"] },
+	"integrations list": { usage: ["phaseo integrations list [integration] [--json]"] },
+	"integrations status": { usage: ["phaseo integrations status [integration] [--json]"] },
+	"integrations setup": { usage: ["phaseo integrations setup <integration> [--model <id>] [--dry-run] [--json]"] },
+	"integrations remove": { usage: ["phaseo integrations remove <integration> [--dry-run] [--json]"] },
 	logout: { usage: ["phaseo logout [--json]"] },
 	whoami: { usage: ["phaseo whoami [--json]"] },
 	keys: {
@@ -1111,7 +1114,7 @@ async function login(flags: Record<string, string | boolean>) {
 async function logout(flags: Record<string, string | boolean>) {
 	let session = await readSession();
 	let integrationCredentialRevoked = false;
-	if (session?.integrationGatewayKeyId) {
+	if (session?.integrationGatewayKeyId || Object.keys(session?.integrationGatewayCredentials ?? {}).length > 0) {
 		try {
 			integrationCredentialRevoked = await revokeIntegrationGatewayCredential();
 			session = await readSession();

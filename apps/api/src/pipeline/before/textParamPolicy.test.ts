@@ -56,6 +56,7 @@ describe("textParamPolicy", () => {
 		const body = {
 			model: "openai/gpt-5.4-nano",
 			messages: [{ role: "user", content: "Hello" }],
+			store: false,
 			stream: true,
 			stream_options: { include_usage: true },
 		};
