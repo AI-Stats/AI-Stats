@@ -1,0 +1,39 @@
+---
+title: "OpenAI Deprecations"
+description: "OpenAI model and platform deprecations tracked in the AI Stats catalog."
+icon: "/icons/brands/openai.svg"
+---
+
+# OpenAI Deprecations
+
+OpenAI publishes deprecation dates and recommended replacements on its [API deprecations page](https://developers.openai.com/api/docs/deprecations). Use this page as a migration checklist, then validate the replacement against your production prompts, tools, latency, and cost envelope.
+
+## Model deprecations
+
+| Deprecated model family | Deprecation date | Shutdown date | Recommended replacement |
+| --- | --- | --- | --- |
+| `gpt-realtime`, `gpt-audio`, `gpt-realtime-mini`, `gpt-audio-mini` | July 20, 2026 | January 20, 2027 | `openai/gpt-realtime-2.1`, `openai/gpt-realtime-2.1-mini`, or `openai/gpt-audio-1.5` |
+| `gpt-4o-mini-transcribe-2025-03-20` | July 20, 2026 | January 20, 2027 | `openai/gpt-4o-mini-transcribe` |
+| GPT-5 and o3 dated snapshots | June 11, 2026 | December 11, 2026 | `openai/gpt-5.6-sol`, `openai/gpt-5.6-terra`, or `openai/gpt-5.6-luna` |
+| `gpt-image-1-mini`, `gpt-image-1.5`, `chatgpt-image-latest` | June 2, 2026 | December 1, 2026 | `openai/gpt-image-2` |
+| Legacy GPT-3.5, GPT-4, GPT-4.1 nano, GPT-4o, o1, o3-mini, and o4-mini snapshots | April 22, 2026 | October 23, 2026 | See the model-specific recommendations on OpenAI's deprecations page |
+| Sora 2 models | March 24, 2026 | September 24, 2026 | No replacement announced |
+
+The catalog records these lifecycle dates on the affected OpenAI model entries, including replacement model IDs where OpenAI provides one. The dates apply to the provider snapshots named by OpenAI; the catalog may expose those snapshots through a canonical model ID.
+
+## Platform deprecations
+
+OpenAI also lists product-level migrations that are not model records:
+
+- Reusable prompts are scheduled to shut down on November 30, 2026. Move prompt content into application code.
+- The Evals platform becomes read-only on October 31, 2026 and shuts down on November 30, 2026. OpenAI recommends migrating to Promptfoo.
+- Agent Builder shuts down on November 30, 2026. Migrate to the Agents SDK or ChatGPT Workspace Agents.
+
+## Migration checklist
+
+1. Replace the deprecated model or product in a staging environment.
+2. Re-run representative evaluations, especially structured outputs, tool calls, audio quality, and long-context tasks.
+3. Compare latency and spend under production-like concurrency.
+4. Canary the replacement with an explicit rollback route before the shutdown date.
+
+For the authoritative dates, full snapshot mapping, and endpoint-specific guidance, see [OpenAI's API deprecations documentation](https://developers.openai.com/api/docs/deprecations).
