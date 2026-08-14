@@ -56,6 +56,6 @@
   },
   "last_updated": null,
   "removal_date": null,
-  "replacement_model_id": null,
+  "replacement_model_id": "openai/gpt-image-2",
   "license_url": null
 }

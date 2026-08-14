@@ -9,7 +9,7 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 1.74,
+      "price_per_unit": 1.32,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Baseten DeepSeek V4 Model API rate",
@@ -25,7 +25,7 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.145,
+      "price_per_unit": 0.132,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Baseten DeepSeek V4 Model API cached-input rate",
@@ -41,7 +41,7 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 3.48,
+      "price_per_unit": 3.96,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Baseten DeepSeek V4 Model API rate",
@@ -62,13 +62,13 @@
     {
       "kind": "pricing",
       "url": "https://www.baseten.co/products/model-apis/",
-      "accessed_at": "2026-08-13T00:00:00Z",
+      "accessed_at": "2026-08-14T00:00:00Z",
       "notes": "Official Baseten Model API pricing table."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-13T00:00:00Z",
+    "checked_at": "2026-08-14T00:00:00Z",
     "notes": "Verified against Baseten's live Model API pricing table."
   }
 }
