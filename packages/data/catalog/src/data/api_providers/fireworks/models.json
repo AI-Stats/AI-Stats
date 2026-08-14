@@ -517,65 +517,6 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "deepseek/deepseek-v4-pro-0813",
-    "provider_api_model_id": "fireworks:deepseek/deepseek-v4-pro-0813",
-    "provider_model_slug": "accounts/fireworks/models/deepseek-v4-pro-0813",
-    "internal_model_id": "deepseek/deepseek-v4-pro-0813",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 1048576,
-    "max_output_tokens": 384000,
-    "effective_from": "2026-08-13T15:45:41Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": null,
-        "temperature": true,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [
-      "standard"
-    ],
-    "api": {
-      "formats": [
-        "openai.chat.completions"
-      ],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "api_reference",
-        "url": "https://fireworks.ai/models/fireworks/deepseek-v4-pro",
-        "accessed_at": "2026-08-13T00:00:00Z",
-        "notes": "Official serverless V4 Pro model page for pricing, context length, and feature support; provider discovery supplied the dated 0813 model path."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-13T00:00:00Z",
-      "notes": "The dated model path was detected by provider discovery and mapped to Fireworks' current serverless DeepSeek V4 Pro listing."
-    },
-    "rate_limits": []
-  },
-  {
     "api_model_id": "meta/llama-3-8b",
     "provider_api_model_id": "fireworks:meta/llama-3-8b",
     "provider_model_slug": "accounts/fireworks/models/llama-v3-8b-instruct",
