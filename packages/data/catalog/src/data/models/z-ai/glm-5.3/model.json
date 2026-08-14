@@ -1,0 +1,110 @@
+{
+  "model_id": "z-ai/glm-5.3",
+  "organisation_id": "z-ai",
+  "name": "GLM 5.3",
+  "status": "Available",
+  "previous_model_id": "z-ai/glm-5.2",
+  "description": "GLM 5.3 is Z.AI's frontier coding and agentic model, with low, high, and max reasoning effort levels and a 1M-token context window on the GLM Coding Plan.",
+  "announced_date": "2026-08-14",
+  "release_date": "2026-08-14",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "z-ai/glm-5.3",
+  "links": [
+    {
+      "title": "Announcement",
+      "kind": "announcement",
+      "url": "https://z.ai/blog/glm-5.3"
+    },
+    {
+      "title": "Coding Plan model guide",
+      "kind": "docs",
+      "url": "https://docs.z.ai/devpack/latest-model"
+    }
+  ],
+  "details": [
+    {
+      "name": "availability",
+      "value": "Available as glm-5.3 to GLM Coding Plan Lite, Pro, and Max users. Z.AI's standard pay-as-you-go API reference and pricing table did not yet list GLM-5.3 at launch."
+    },
+    {
+      "name": "context_length",
+      "value": "1,000,000 tokens on Coding Plan endpoints; use the glm-5.3[1m] model suffix in supported coding agents."
+    },
+    {
+      "name": "reasoning_effort",
+      "value": "Always reasons. Supports low, high, and max efforts, with max as the default. minimal/light/low map to low; medium/high map to high; xhigh/max/ultra map to max. Disabling thinking maps to low rather than turning reasoning off."
+    },
+    {
+      "name": "weights",
+      "value": "Z.AI announced that open weights are planned after a two-week safety evaluation and hardening period; weights and their final licence were not available at launch."
+    }
+  ],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": "GLM-5.3 is currently documented for Z.AI's subscription Coding Plan. Standard pay-as-you-go API pricing has not yet been published.",
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 1000000,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": [
+      "low",
+      "high",
+      "max"
+    ]
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": null,
+    "temperature": true,
+    "streaming": true,
+    "web_search": null
+  },
+  "open_weights": false,
+  "sources": [
+    {
+      "kind": "announcement",
+      "url": "https://z.ai/blog/glm-5.3",
+      "accessed_at": "2026-08-14",
+      "notes": "Launch announcement and reasoning-effort behaviour."
+    },
+    {
+      "kind": "docs",
+      "url": "https://docs.z.ai/devpack/latest-model",
+      "accessed_at": "2026-08-14",
+      "notes": "Coding Plan availability, model IDs, 1M context suffix, and effort mappings."
+    },
+    {
+      "kind": "docs",
+      "url": "https://docs.z.ai/guides/overview/pricing",
+      "accessed_at": "2026-08-14",
+      "notes": "Checked at launch; no standard pay-as-you-go GLM-5.3 price was listed."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-14",
+    "notes": "Verified against Z.AI's launch post and Coding Plan documentation. Pay-as-you-go availability remains unverified."
+  },
+  "last_updated": "2026-08-14",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
