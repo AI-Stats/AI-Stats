@@ -8,6 +8,7 @@ const KEY_NAMES: Record<IntegrationId, string> = {
 	opencode: "Phaseo CLI: OpenCode API Key",
 	"deepseek-harness": "Phaseo CLI: DeepSeek Harness API Key",
 	pi: "Phaseo CLI: Pi API Key",
+	"prime-agent": "Phaseo CLI: Prime Agent API Key",
 	hermes: "Phaseo CLI: Hermes Agent API Key",
 	aider: "Phaseo CLI: Aider API Key",
 	cline: "Phaseo CLI: Cline API Key",
@@ -100,6 +101,11 @@ export async function getIntegrationGatewayCredential(integration: IntegrationId
 		throw error;
 	}
 	return key;
+}
+
+export async function hasIntegrationGatewayCredential(integration: IntegrationId): Promise<boolean> {
+	if (process.env.PHASEO_API_KEY) return true;
+	return Boolean((await readSession())?.integrationGatewayCredentials?.[integration]);
 }
 
 export async function revokeIntegrationGatewayCredential(integration?: IntegrationId): Promise<boolean> {

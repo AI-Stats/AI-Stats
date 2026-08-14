@@ -5,21 +5,40 @@ import { deepSeekHarnessAdapter } from "./adapters/deepseek-harness.js";
 import { openCodeAdapter } from "./adapters/opencode.js";
 import { guidedAdapters } from "./adapters/guided.js";
 import { piAdapter } from "./adapters/pi.js";
+import { primeAgentAdapter } from "./adapters/prime-agent.js";
 import { openClawAdapter } from "./adapters/openclaw.js";
 import { hermesAdapter } from "./adapters/hermes.js";
 import { zedAdapter } from "./adapters/zed.js";
 import { aiderAdapter } from "./adapters/aider.js";
 import { continueAdapter } from "./adapters/continue.js";
 import { applyChanges, renderPlan } from "./files.js";
-import { getIntegrationGatewayCredential, getLegacyIntegrationGatewayCredential, revokeIntegrationGatewayCredential } from "./credential.js";
-import type { IntegrationAdapter, IntegrationId } from "./types.js";
+import { getIntegrationGatewayCredential, getLegacyIntegrationGatewayCredential, hasIntegrationGatewayCredential, revokeIntegrationGatewayCredential } from "./credential.js";
+import { fetchIntegrationModels, supportsModelCatalog } from "./catalog.js";
+import { harnessInstallPlan, installHarness, isPrimaryHarness, renderInstallInvocation } from "./installer.js";
+import { createSpinner, terminalUi } from "../output.js";
+import type { IntegrationAdapter, IntegrationId, IntegrationOptions } from "./types.js";
 
-const adapters: IntegrationAdapter[] = [codexAdapter, claudeCodeAdapter, openCodeAdapter, deepSeekHarnessAdapter, piAdapter, openClawAdapter, hermesAdapter, aiderAdapter, continueAdapter, zedAdapter, ...guidedAdapters];
+const adapters: IntegrationAdapter[] = [codexAdapter, claudeCodeAdapter, openCodeAdapter, deepSeekHarnessAdapter, piAdapter, primeAgentAdapter, openClawAdapter, hermesAdapter, aiderAdapter, continueAdapter, zedAdapter, ...guidedAdapters];
 
 function adapterFor(value: string | undefined): IntegrationAdapter {
-	const adapter = adapters.find((entry) => entry.id === value);
+	const aliases: Record<string, IntegrationId> = {
+		claude: "claude-code",
+		deepseek: "deepseek-harness",
+		prime: "prime-agent",
+		dsh: "deepseek-harness",
+	};
+	const normalized = value ? aliases[value] ?? value : value;
+	const adapter = adapters.find((entry) => entry.id === normalized);
 	if (!adapter) throw new Error(`Unknown integration: ${value || "(missing)"}. Supported: ${adapters.map((entry) => entry.id).join(", ")}`);
 	return adapter;
+}
+
+export function isPrimarySetupName(value: string): boolean {
+	try {
+		return isPrimaryHarness(adapterFor(value).id);
+	} catch {
+		return false;
+	}
 }
 
 function isTrue(value: string | boolean | undefined): boolean {
@@ -52,7 +71,9 @@ function printRemoveInstructions(adapter: IntegrationAdapter, options: { homeDir
 export async function runIntegrationCommand(
 	args: string[],
 	flags: Record<string, string | boolean>,
+	commandOptions: { installMissing?: boolean; primaryOnly?: boolean } = {},
 ): Promise<void> {
+	const ui = terminalUi();
 	const [command, integration, ...extra] = args;
 	const invalidArgumentCount =
 		(command === "credential" && args.length !== 1 && args.length !== 2) ||
@@ -93,17 +114,107 @@ export async function runIntegrationCommand(
 	}
 
 	const adapter = adapterFor(integration);
-	if (adapter.id === "claude-code" && stringFlag(flags, "model")) {
-		throw new Error("--model is only supported for the Codex, OpenCode, and DeepSeek Harness integrations");
+	if (commandOptions.primaryOnly && !isPrimaryHarness(adapter.id)) {
+		throw new Error("Phaseo direct setup currently supports codex, claude-code, hermes, opencode, pi, prime-agent, deepseek-harness, and openclaw");
 	}
-	const options = { homeDir: homedir(), model: stringFlag(flags, "model") };
-	const changes = command === "setup" ? await adapter.planSetup(options) : await adapter.planRemove(options);
+	if (adapter.id === "claude-code" && stringFlag(flags, "model")) {
+		throw new Error("--model is not supported for the Claude Code integration");
+	}
+	const catalog = stringFlag(flags, "catalog");
+	if (catalog !== undefined && catalog !== "all" && catalog !== "default") {
+		throw new Error("--catalog must be all or default");
+	}
+	if (catalog !== undefined && !supportsModelCatalog(adapter.id)) {
+		throw new Error("--catalog is only supported for OpenCode, DeepSeek Harness, Pi, Prime Agent, and OpenClaw");
+	}
+	const json = isTrue(flags.json);
+	const dryRun = isTrue(flags["dry-run"]);
+	const interactive = !json && !dryRun && Boolean(process.stderr.isTTY);
 
-	if (isTrue(flags.json)) {
+	let catalogWarning: string | undefined;
+	let models: IntegrationOptions["models"];
+	if (command === "setup" && supportsModelCatalog(adapter.id) && catalog !== "default") {
+		const spinner = createSpinner("Syncing compatible models", { enabled: interactive });
+		try {
+			models = await fetchIntegrationModels(adapter.id);
+			if (models.length === 0) {
+				spinner.stop();
+				catalogWarning = "No compatible active models were returned; configured the default model only.";
+			} else spinner.succeed(`Synced ${models.length} compatible models`);
+		} catch (error) {
+			spinner.stop();
+			catalogWarning = `Could not sync the model catalog; configured the default model only. ${error instanceof Error ? error.message : String(error)}`;
+		}
+	}
+	const options: IntegrationOptions = { homeDir: homedir(), model: stringFlag(flags, "model"), models };
+	let changes = command === "setup" ? await adapter.planSetup(options) : await adapter.planRemove(options);
+	const installPlan = command === "setup" && commandOptions.installMissing ? await harnessInstallPlan(adapter.id) : null;
+
+	if (dryRun) {
+		if (json) {
+			process.stdout.write(`${JSON.stringify({
+				integration: adapter.id as IntegrationId,
+				action: command,
+				dryRun: true,
+				install: installPlan ? renderInstallInvocation(installPlan) : null,
+				modelCount: models?.length ? models.length : 1,
+				warning: catalogWarning,
+				changes: changes.map(({ path, description, before, after }) => ({
+					path,
+					description,
+					operation: after === null ? "delete" : before === null ? "create" : "update",
+				})),
+				credentials: command === "setup" && adapter.planCredential ? "stored automatically during setup" : undefined,
+				instructions: command === "setup" ? adapter.setupInstructions?.(options) ?? [] : [],
+				cleanupInstructions: command === "remove" ? adapter.removeInstructions?.(options) ?? [] : [],
+			}, null, 2)}\n`);
+			return;
+		}
+		process.stdout.write(`${ui.info(`Preview · ${adapter.name}`)}\n`);
+		if (installPlan) process.stdout.write(`${ui.heading("Install")}\n  ${renderInstallInvocation(installPlan)}\n`);
+		process.stdout.write(renderPlan(changes));
+		if (catalogWarning) process.stdout.write(`${ui.warning(catalogWarning)}\n`);
+		if (command === "setup") printSetupInstructions(adapter, options);
+		else printRemoveInstructions(adapter, options);
+		return;
+	}
+
+	if (installPlan) {
+		const spinner = createSpinner(`Installing ${adapter.name}`, { enabled: interactive });
+		if (!json && !spinner.active) process.stdout.write(`${ui.progress(`Installing ${adapter.name}`)}\n  ${ui.dim(renderInstallInvocation(installPlan))}\n`);
+		try {
+			await installHarness(installPlan, { quiet: json, capture: spinner.active });
+			spinner.succeed(`${adapter.name} installed`);
+		} catch (error) {
+			spinner.fail(`Could not install ${adapter.name}`);
+			throw error;
+		}
+	}
+
+	let provisionedCredential = false;
+	if (command === "setup") {
+		const spinner = createSpinner("Preparing a dedicated credential", { enabled: interactive });
+		try {
+			const credentialExisted = await hasIntegrationGatewayCredential(adapter.id);
+			const credential = await getIntegrationGatewayCredential(adapter.id);
+			provisionedCredential = !credentialExisted;
+			if (adapter.planCredential) changes = [...changes, ...await adapter.planCredential(options, credential)];
+			spinner.succeed(credentialExisted ? "Reused the existing credential" : "Created a dedicated credential");
+		} catch (error) {
+			spinner.fail("Could not prepare the credential");
+			if (provisionedCredential) await revokeIntegrationGatewayCredential(adapter.id).catch(() => undefined);
+			throw error;
+		}
+	}
+
+	if (json) {
 		process.stdout.write(`${JSON.stringify({
 			integration: adapter.id as IntegrationId,
 			action: command,
-			dryRun: isTrue(flags["dry-run"]),
+			dryRun: false,
+			install: installPlan ? renderInstallInvocation(installPlan) : null,
+			modelCount: models?.length ? models.length : 1,
+			warning: catalogWarning,
 			changes: changes.map(({ path, description, before, after }) => ({
 				path,
 				description,
@@ -112,39 +223,33 @@ export async function runIntegrationCommand(
 			instructions: command === "setup" ? adapter.setupInstructions?.(options) ?? [] : [],
 			cleanupInstructions: command === "remove" ? adapter.removeInstructions?.(options) ?? [] : [],
 		}, null, 2)}\n`);
-		if (isTrue(flags["dry-run"])) return;
 	} else {
 		process.stdout.write(renderPlan(changes));
-		if (isTrue(flags["dry-run"])) {
-			if (command === "setup") printSetupInstructions(adapter, options);
-			else printRemoveInstructions(adapter, options);
-			return;
-		}
+		if (catalogWarning) process.stdout.write(`${ui.warning(catalogWarning)}\n`);
 	}
 
-	if (command === "setup") await getIntegrationGatewayCredential(adapter.id);
+	const configurationSpinner = createSpinner(command === "setup" ? `Configuring ${adapter.name}` : `Removing ${adapter.name} configuration`, { enabled: interactive });
 	try {
 		await applyChanges(changes);
 		if (command === "setup") await adapter.applySetup?.(options);
 		else await adapter.applyRemove?.(options);
+		configurationSpinner.succeed(command === "setup" ? `${adapter.name} configured` : `${adapter.name} configuration removed`);
 	} catch (error) {
-		if (command === "setup") await revokeIntegrationGatewayCredential(adapter.id).catch(() => undefined);
+		configurationSpinner.fail(command === "setup" ? `Could not configure ${adapter.name}` : `Could not remove ${adapter.name}`);
+		if (provisionedCredential) await revokeIntegrationGatewayCredential(adapter.id).catch(() => undefined);
 		throw error;
 	}
 	if (command === "remove") await revokeIntegrationGatewayCredential(adapter.id);
-	if (!isTrue(flags.json)) {
+	if (!json) {
 		const outcome = command === "remove"
 			? "disconnected"
 			: adapter.setupInstructions && !adapter.setupIsAutomatic
 				? "ready to finish in the application"
 				: "configured";
-		process.stdout.write(`${adapter.name} is now ${outcome}.\n`);
+		process.stdout.write(`${ui.success(`${adapter.name} is now ${outcome}.`)}\n`);
 	}
-	if (command === "setup" && !isTrue(flags.json) && (adapter.id === "opencode" || adapter.id === "deepseek-harness")) {
-		process.stdout.write(`Copy its API key with: phaseo integrations credential ${adapter.id}\n`);
-	}
-	if (command === "setup" && !isTrue(flags.json) && adapter.setupInstructions) {
+	if (command === "setup" && !json && adapter.setupInstructions) {
 		printSetupInstructions(adapter, options);
 	}
-	if (command === "remove" && !isTrue(flags.json)) printRemoveInstructions(adapter, options);
+	if (command === "remove" && !json) printRemoveInstructions(adapter, options);
 }
