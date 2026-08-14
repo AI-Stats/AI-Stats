@@ -3,6 +3,7 @@ import {
 	extractRequestedParams,
 	getUnknownTopLevelParams,
 	getUnsupportedParamsForProvider,
+	providerParamSupportStatus,
 	providerSupportsParam,
 } from "./paramCapabilities";
 import {
@@ -82,6 +83,30 @@ describe("textParamPolicy", () => {
 });
 
 describe("providerSupportsParam", () => {
+	it("distinguishes unknown metadata from explicit unsupported overrides", () => {
+		expect(
+			providerParamSupportStatus(
+				{ providerId: "openai", capabilityParams: {} } as any,
+				"temperature",
+			),
+		).toBe("unknown");
+		expect(
+			providerParamSupportStatus(
+				{ providerId: "cerebras", capabilityParams: {} } as any,
+				"presence_penalty",
+			),
+		).toBe("unsupported");
+	});
+
+	it("keeps provider_options scoped to the named provider", () => {
+		expect(
+			providerParamSupportStatus(
+				{ providerId: "anthropic", capabilityParams: {} } as any,
+				"provider_options.openai.context_management",
+			),
+		).toBe("unsupported");
+	});
+
 	it("honors code-first overrides before metadata", () => {
 		const candidate = {
 			providerId: "cerebras",
@@ -129,7 +154,7 @@ describe("providerSupportsParam", () => {
 		).toBe(true);
 	});
 
-	it("does not mark always-supported params as unsupported", () => {
+	it("does not mark always-supported or unknown params as unsupported", () => {
 		const candidate = {
 			providerId: "openai",
 			capabilityParams: {},
@@ -142,6 +167,6 @@ describe("providerSupportsParam", () => {
 			assumeSupportedOnMissingConfig: false,
 		});
 
-		expect(unsupported).toEqual(["temperature"]);
+		expect(unsupported).toEqual([]);
 	});
 });
