@@ -41,7 +41,7 @@ describe("validateCapabilities", () => {
 			workspaceId: "team_test",
 			providers: [
 				provider("openai", { stream: {}, tools: {}, max_tokens: {} }, 4096),
-				provider("provider-without-tools-stream-combo", { stream: {}, max_tokens: {} }, 4096),
+				provider("provider-with-unknown-tools-support", { stream: {}, max_tokens: {} }, 4096),
 			],
 			model: "openai/gpt-5-nano",
 		});
@@ -49,7 +49,10 @@ describe("validateCapabilities", () => {
 		expect(result.ok).toBe(true);
 		if (result.ok) {
 			expect(result.requestedParams).toContain("tools");
-			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai"]);
+			expect(result.providers.map((p: any) => p.providerId)).toEqual([
+				"openai",
+				"provider-with-unknown-tools-support",
+			]);
 		}
 	});
 
@@ -80,7 +83,7 @@ describe("validateCapabilities", () => {
 		}
 	});
 
-	it("does not hard-reject when provider capability metadata does not list a requested param", async () => {
+	it("treats missing provider parameter metadata as unknown", async () => {
 		const result = validateCapabilities({
 			endpoint: "chat.completions",
 			rawBody: {
@@ -107,7 +110,8 @@ describe("validateCapabilities", () => {
 			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai", "anthropic"]);
 			const support = result.paramRoutingDiagnostics.perParamSupport.find((item) => item.param === "temperature");
 			expect(support?.supportedProviders).toEqual([]);
-			expect(support?.unsupportedProviders).toEqual(["openai", "anthropic"]);
+			expect(support?.unsupportedProviders).toEqual([]);
+			expect(support?.unknownProviders).toEqual(["openai", "anthropic"]);
 		}
 	});
 
@@ -117,20 +121,20 @@ describe("validateCapabilities", () => {
 			rawBody: {
 				model: "openai/gpt-4o-mini",
 				messages: [{ role: "user", content: "hello" }],
-				temperature: 0.2,
+				presence_penalty: 0.2,
 				max_tokens: 32,
 			},
 			body: {
 				model: "openai/gpt-4o-mini",
 				messages: [{ role: "user", content: "hello" }],
-				temperature: 0.2,
+				presence_penalty: 0.2,
 				max_tokens: 32,
 			},
 			requestId: "req_routing_filter",
 			workspaceId: "team_test",
 			providers: [
-				provider("openai", { temperature: {}, max_tokens: {} }, 4096),
-				provider("anthropic", { top_p: {}, max_tokens: {} }, 4096),
+				provider("openai", { presence_penalty: {}, max_tokens: {} }, 4096),
+				provider("cerebras", { top_p: {}, max_tokens: {} }, 4096),
 			],
 			model: "openai/gpt-4o-mini",
 		});
@@ -138,13 +142,13 @@ describe("validateCapabilities", () => {
 		expect(result.ok).toBe(true);
 		if (result.ok) {
 			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai"]);
-			expect(result.requestedParams).toEqual(["temperature", "max_tokens"]);
+			expect(result.requestedParams).toEqual(["max_tokens", "presence_penalty"]);
 			expect(result.paramRoutingDiagnostics.providerCountBefore).toBe(2);
 			expect(result.paramRoutingDiagnostics.providerCountAfter).toBe(1);
 			expect(result.paramRoutingDiagnostics.droppedProviders).toEqual([
 				{
-					providerId: "anthropic",
-					unsupportedParams: ["temperature"],
+					providerId: "cerebras",
+					unsupportedParams: ["presence_penalty"],
 				},
 			]);
 		}
@@ -362,7 +366,7 @@ describe("validateCapabilities", () => {
 		}
 	});
 
-	it("prefers providers that explicitly support image_config", () => {
+	it("keeps providers with unknown image_config support eligible", () => {
 		const result = validateCapabilities({
 			endpoint: "responses",
 			rawBody: {
@@ -393,11 +397,11 @@ describe("validateCapabilities", () => {
 		expect(result.ok).toBe(true);
 		if (result.ok) {
 			expect(result.requestedParams).toContain("image_config");
-			expect(result.providers.map((p: any) => p.providerId)).toEqual(["google-ai-studio"]);
+			expect(result.providers.map((p: any) => p.providerId)).toEqual(["google-ai-studio", "openai"]);
 		}
 	});
 
-	it("treats native web search tools as a web_search_options capability request", () => {
+	it("keeps providers with unknown native web search support eligible", () => {
 		const result = validateCapabilities({
 			endpoint: "responses",
 			rawBody: {
@@ -424,11 +428,11 @@ describe("validateCapabilities", () => {
 		expect(result.ok).toBe(true);
 		if (result.ok) {
 			expect(result.requestedParams).toContain("web_search_options");
-			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai"]);
+			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai", "provider-without-web-search"]);
 		}
 	});
 
-	it("accepts explicit web_search_options and routes by that capability", () => {
+	it("keeps providers with unknown explicit web search support eligible", () => {
 		const result = validateCapabilities({
 			endpoint: "responses",
 			rawBody: {
@@ -457,11 +461,11 @@ describe("validateCapabilities", () => {
 		expect(result.ok).toBe(true);
 		if (result.ok) {
 			expect(result.requestedParams).toContain("web_search_options");
-			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai"]);
+			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai", "provider-without-web-search"]);
 		}
 	});
 
-	it("accepts explicit web_search_options on the messages surface", () => {
+	it("keeps providers with unknown messages web search support eligible", () => {
 		const result = validateCapabilities({
 			endpoint: "messages",
 			rawBody: {
@@ -492,11 +496,11 @@ describe("validateCapabilities", () => {
 		expect(result.ok).toBe(true);
 		if (result.ok) {
 			expect(result.requestedParams).toContain("web_search_options");
-			expect(result.providers.map((p: any) => p.providerId)).toEqual(["anthropic"]);
+			expect(result.providers.map((p: any) => p.providerId)).toEqual(["anthropic", "provider-without-web-search"]);
 		}
 	});
 
-	it("treats native anthropic web search tools as a web_search_options capability request", () => {
+	it("keeps providers with unknown native anthropic web search support eligible", () => {
 		const result = validateCapabilities({
 			endpoint: "messages",
 			rawBody: {
@@ -525,7 +529,7 @@ describe("validateCapabilities", () => {
 		expect(result.ok).toBe(true);
 		if (result.ok) {
 			expect(result.requestedParams).toContain("web_search_options");
-			expect(result.providers.map((p: any) => p.providerId)).toEqual(["anthropic"]);
+			expect(result.providers.map((p: any) => p.providerId)).toEqual(["anthropic", "provider-without-web-search"]);
 		}
 	});
 
@@ -726,7 +730,7 @@ describe("validateCapabilities", () => {
 		}
 	});
 
-	it("hard-filters providers when routing.require_parameters is enabled", () => {
+	it("keeps providers with unknown support when require_parameters is enabled", () => {
 		const result = validateCapabilities({
 			endpoint: "chat.completions",
 			rawBody: {
@@ -758,7 +762,7 @@ describe("validateCapabilities", () => {
 
 		expect(result.ok).toBe(true);
 		if (result.ok) {
-			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai"]);
+			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai", "anthropic"]);
 		}
 	});
 
@@ -791,7 +795,7 @@ describe("validateCapabilities", () => {
 		}
 	});
 
-	it("filters providers that do not support response_format", () => {
+	it("keeps providers with unknown response_format support eligible", () => {
 		const result = validateCapabilities({
 			endpoint: "chat.completions",
 			rawBody: {
@@ -815,11 +819,11 @@ describe("validateCapabilities", () => {
 
 		expect(result.ok).toBe(true);
 		if (result.ok) {
-			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai"]);
+			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai", "anthropic"]);
 		}
 	});
 
-	it("filters providers that do not support structured outputs", () => {
+	it("keeps providers with unknown structured-output support eligible", () => {
 		const result = validateCapabilities({
 			endpoint: "responses",
 			rawBody: {
@@ -865,7 +869,7 @@ describe("validateCapabilities", () => {
 
 		expect(result.ok).toBe(true);
 		if (result.ok) {
-			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai"]);
+			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai", "anthropic"]);
 		}
 	});
 });

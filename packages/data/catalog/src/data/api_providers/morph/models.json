@@ -584,7 +584,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "response_format",
+          "tool_choice"
         ],
         "reasoning": true,
         "tool_call": true,
@@ -760,7 +763,11 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "response_format",
+          "tool_choice",
+          "reasoning_effort"
         ],
         "reasoning": true,
         "tool_call": true,
@@ -1387,7 +1394,11 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "response_format",
+          "structured_outputs",
+          "logprobs",
+          "top_logprobs"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1821,7 +1832,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "response_format",
+          "tool_choice"
         ],
         "reasoning": true,
         "tool_call": true,
@@ -2004,7 +2018,11 @@
             "provider_max": null,
             "provider_default": null,
             "notes": "Morph supports standby on GLM-5.2 at standard per-token rates."
-          }
+          },
+          "reasoning",
+          "response_format",
+          "tool_choice",
+          "reasoning_effort"
         ],
         "reasoning": true,
         "tool_call": true,

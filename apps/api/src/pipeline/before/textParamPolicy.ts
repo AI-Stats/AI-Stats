@@ -381,6 +381,29 @@ export function textEndpointRegistryFor(
 	return null;
 }
 
+/**
+ * Returns the canonical parameter IDs understood by the gateway's text
+ * endpoint mapping registry. Data tooling uses this to avoid advertising
+ * upstream-only fields that cannot be represented in the IR.
+ */
+export function gatewayMappedParamIds(): Set<string> {
+	const ids = new Set<string>();
+	for (const endpoint of ["chat.completions", "responses", "messages"] as const) {
+		const registry = TEXT_ENDPOINT_REGISTRY[endpoint];
+		for (const canonical of Object.values(registry.keyToCanonicalParam)) ids.add(canonical);
+	}
+	for (const id of [
+		"include_reasoning",
+		"reasoning.effort",
+		"reasoning.enabled",
+		"reasoning.mode",
+		"reasoning_effort",
+		"structured_outputs",
+		"verbosity",
+	]) ids.add(id);
+	return ids;
+}
+
 export function expandCapabilityParamAliases(rootParam: string): string[] {
 	return CAPABILITY_PARAM_ALIASES[rootParam] ?? [rootParam];
 }

@@ -672,7 +672,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1217,7 +1218,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -2098,7 +2102,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -2259,7 +2266,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -2308,7 +2317,23 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "structured_outputs"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2356,7 +2381,23 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tool_choice",
+          "tools",
+          "response_format",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2404,7 +2445,25 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "response_format",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
@@ -2467,7 +2526,25 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -3054,7 +3131,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -3103,7 +3182,23 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
         "reasoning": true,
         "tool_call": true,
         "structured_output": null,
@@ -4637,7 +4732,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4791,7 +4889,11 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4952,7 +5054,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5098,7 +5203,15 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5259,7 +5372,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5560,7 +5675,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5714,7 +5830,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "response_format",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6197,7 +6315,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6358,7 +6479,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "response_format",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6659,7 +6783,24 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
@@ -6824,7 +6965,11 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6978,7 +7123,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "response_format",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7818,7 +7966,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7972,7 +8122,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8889,7 +9041,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -9974,7 +10128,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tools",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -10645,7 +10802,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -10806,7 +10966,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -11128,7 +11291,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -11757,7 +11923,25 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -12015,7 +12199,22 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "response_format",
+          "tools",
+          "tool_choice"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -12063,7 +12262,22 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "response_format",
+          "tools",
+          "tool_choice"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -12265,7 +12479,21 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -12425,7 +12653,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -12586,7 +12817,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -12747,7 +12981,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -13230,7 +13467,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -13307,7 +13546,19 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tool_choice",
+          "response_format",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,

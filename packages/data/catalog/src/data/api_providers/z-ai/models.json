@@ -316,7 +316,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1092,7 +1093,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1288,7 +1291,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1397,8 +1403,8 @@
             "param_id": "reasoning",
             "provider_min": null,
             "provider_max": null,
-            "provider_default": "high",
-            "notes": "Z.AI GLM-5.2 supports reasoning_effort high and max; gateway maps generic lower efforts to high and xhigh/max to max."
+            "provider_default": "max",
+            "notes": "GLM-5.2 accepts reasoning_effort max, xhigh, high, medium, low, minimal, and none; the gateway maps xhigh to max and lower efforts to the nearest supported level."
           },
           {
             "param_id": "response_format",
@@ -1441,7 +1447,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1561,6 +1569,67 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "z-ai:z-ai/glm-5.3",
+    "provider_model_slug": "glm-5.3",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "coming_soon",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "announcement",
+        "url": "https://z.ai/blog/glm-5.3",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "GLM-5.3 launch announcement; standard pay-as-you-go API availability and launch date were not announced."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://docs.z.ai/guides/overview/pricing",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "Official pricing table checked at launch; GLM-5.3 was not listed."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-14T00:00:00Z",
+      "notes": "Coming-soon placeholder only. No standard API availability date or pay-as-you-go pricing has been published; the route remains non-routable."
     },
     "rate_limits": []
   }

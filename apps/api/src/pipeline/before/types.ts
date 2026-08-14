@@ -404,6 +404,7 @@ export type ParamRoutingDiagnostics = {
         param: string;
         supportedProviders: string[];
         unsupportedProviders: string[];
+        unknownProviders: string[];
     }>;
     droppedProviders: Array<{
         providerId: string;

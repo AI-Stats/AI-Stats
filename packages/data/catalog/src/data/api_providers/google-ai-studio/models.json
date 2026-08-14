@@ -708,7 +708,14 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "structured_outputs"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1715,7 +1722,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1827,7 +1835,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "tools",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -2203,7 +2213,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -2328,7 +2339,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -2452,7 +2464,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -2501,7 +2516,16 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2625,7 +2649,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -2837,7 +2864,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -2949,7 +2979,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -3075,7 +3108,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -3124,7 +3158,19 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tool_choice",
+          "tools",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -3268,7 +3314,19 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tool_choice",
+          "tools",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -3312,14 +3370,51 @@
     "max_output_tokens": null,
     "effective_from": "2026-08-13T00:00:00",
     "effective_to": null,
-    "capabilities": [{ "capability_id": "text.generate", "status": "active", "params": [], "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null, "attachment": null, "input_modalities": null, "output_modalities": null, "modes": [] }],
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tool_choice",
+          "tools",
+          "reasoning_effort"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
     "routing_status": "active",
     "routable": true,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": null,
+      "data": null
+    },
     "service_tiers": [],
-    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
     "sources": [],
-    "verification": { "status": "unverified", "checked_at": null, "notes": "Provisionally enabled pending Google upstream availability." },
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": "Provisionally enabled pending Google upstream availability."
+    },
     "rate_limits": []
   },
   {
@@ -5168,7 +5263,13 @@
       {
         "capability_id": "music.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -5216,7 +5317,13 @@
       {
         "capability_id": "music.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,

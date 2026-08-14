@@ -322,7 +322,12 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "frequency_penalty",
+          "presence_penalty",
+          "logit_bias",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -574,7 +579,12 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "frequency_penalty",
+          "presence_penalty",
+          "logit_bias"
         ],
         "reasoning": null,
         "tool_call": null,
