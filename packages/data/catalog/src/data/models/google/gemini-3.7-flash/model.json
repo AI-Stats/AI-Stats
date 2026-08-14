@@ -15,6 +15,16 @@
   "api_model_id": "google/gemini-3.7-flash",
   "links": [
     {
+      "title": "Official announcement",
+      "kind": "announcement",
+      "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-3-7-flash/"
+    },
+    {
+      "title": "Gemini API pricing",
+      "kind": "pricing",
+      "url": "https://ai.google.dev/gemini-api/docs/pricing"
+    },
+    {
       "title": "Launch report",
       "kind": "announcement",
       "url": "https://x.com/synthwavedd/status/2087823376941301944"
@@ -28,15 +38,12 @@
   "details": [
     {
       "name": "pricing",
-      "value": "$0.75 input, $0.075 cached input, and $3.75 output per 1M tokens at standard rates. Batch and flex are $0.375 input and $1.875 output. Priority is $1.35 input and $6.75 output. Cached-image, Batch video-input, and Priority video-input rates are provisional cross-modality assumptions. Cache storage is $0.50 per 1M token-hours."
+      "value": "Introductory Standard pricing is $0.75 input, $0.075 cached input, and $3.75 output per 1M tokens through December 31, 2026. Standard pricing doubles to $1.50 input, $0.15 cached input, and $7.50 output on January 1, 2027. Batch and Flex remain 50% of Standard; Priority is priced at 1.8x Standard."
     }
   ],
   "benchmarks": [],
   "family_id": null,
-  "page_notice": {
-    "tone": "info",
-    "markdown": "We have provisionally added Gemini 3.7 Flash ahead of Google's public launch. Its routes are ready and will come online when Google enables the model. Published pricing is verified against Google Cloud SKUs."
-  },
+  "page_notice": null,
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
@@ -64,6 +71,18 @@
   "sources": [
     {
       "kind": "pricing",
+      "url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "accessed_at": "2026-08-14T00:00:00Z",
+      "notes": "Official introductory and January 1, 2027 pricing schedule."
+    },
+    {
+      "kind": "announcement",
+      "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-3-7-flash/",
+      "accessed_at": "2026-08-14T00:00:00Z",
+      "notes": "Official launch announcement and introductory pricing expiry."
+    },
+    {
+      "kind": "pricing",
       "url": "https://cloud.google.com/skus?filter=3.7%20Flash&currency=USD",
       "accessed_at": "2026-08-13T00:00:00Z",
       "notes": "Official global SKUs for standard, batch, flex, priority, cached-input, and cache-storage pricing."
@@ -76,11 +95,11 @@
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-13T00:00:00Z",
-    "notes": "Pricing is verified against official Google Cloud SKUs; model launch details still await official Google confirmation."
+    "status": "verified",
+    "checked_at": "2026-08-14T00:00:00Z",
+    "notes": "Launch and pricing schedule verified against Google's official announcement and Gemini API documentation."
   },
-  "last_updated": "2026-08-13T00:00:00",
+  "last_updated": "2026-08-14T00:00:00",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null
