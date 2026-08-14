@@ -52,6 +52,62 @@ type PricingRuleRow = {
 	updated_at: string | null;
 };
 
+async function loadV2PricingRows(): Promise<PricingRuleRow[]> {
+	const supabase = getSupabaseAdmin();
+	const routes: Array<{ provider_model_id: string; provider_slug: string; model_slug: string }> = [];
+	for (let offset = 0; ; offset += 1000) {
+		const { data, error } = await supabase
+			.from("v2_model_provider_routes")
+			.select("provider_model_id,provider_slug,model_slug")
+			.range(offset, offset + 999);
+		if (error) throw new Error(error.message || "Failed to load V2 pricing routes");
+		routes.push(...((data ?? []) as typeof routes));
+		if (!data || data.length < 1000) break;
+	}
+	const routeById = new Map(routes.map((route) => [route.provider_model_id, route]));
+	const skus: Array<Record<string, any>> = [];
+	for (let offset = 0; ; offset += 1000) {
+		const { data, error } = await supabase
+			.from("v2_pricing_skus")
+			.select("sku_id,provider_model_id,operation,service_tier_slug,currency,effective_from,effective_to,updated_at")
+			.range(offset, offset + 999);
+		if (error) throw new Error(error.message || "Failed to load V2 pricing SKUs");
+		skus.push(...(data ?? []));
+		if (!data || data.length < 1000) break;
+	}
+	const meters: Array<Record<string, any>> = [];
+	for (let offset = 0; ; offset += 1000) {
+		const { data, error } = await supabase
+			.from("v2_pricing_sku_meters")
+			.select("sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,updated_at,created_at,billable")
+			.eq("billable", true)
+			.range(offset, offset + 999);
+		if (error) throw new Error(error.message || "Failed to load V2 pricing meters");
+		meters.push(...(data ?? []));
+		if (!data || data.length < 1000) break;
+	}
+	const skuById = new Map(skus.map((sku) => [sku.sku_id, sku]));
+	return meters.flatMap((meter) => {
+		const sku = skuById.get(meter.sku_id);
+		const route = sku ? routeById.get(sku.provider_model_id) : null;
+		if (!sku || !route) return [];
+		const updatedAt = Math.max(Date.parse(String(sku.updated_at ?? 0)), Date.parse(String(meter.updated_at ?? meter.created_at ?? 0)));
+		return [{
+			rule_id: String(meter.sku_meter_id),
+			provider_id: route.provider_slug,
+			api_model_id: route.model_slug,
+			capability_id: sku.operation,
+			pricing_plan: sku.service_tier_slug ?? "standard",
+			meter: meter.meter_key,
+			price_per_unit: Number(meter.price_nanos) / 1_000_000_000,
+			currency: sku.currency,
+			effective_from: sku.effective_from ?? null,
+			effective_to: sku.effective_to ?? null,
+			updated_at: Number.isFinite(updatedAt) ? new Date(updatedAt).toISOString() : null,
+		} satisfies PricingRuleRow];
+	});
+}
+
 type PricingProviderChange = {
 	providerId: string;
 	updates: number;
@@ -1111,6 +1167,10 @@ export async function fetchProviderModels(provider: ProviderConfig, apiKey?: str
 				if (!apiKey) throw new Error(`${provider.providerId} api key missing`);
 				headers["Authorization"] = `Api-Key ${apiKey}`;
 				break;
+			case "x_api_key":
+				if (!apiKey) throw new Error(`${provider.providerId} api key missing`);
+				headers["X-Api-Key"] = apiKey;
+				break;
 			case "optional_bearer":
 				if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
 				break;
@@ -1345,65 +1405,24 @@ export async function loadLatestPricingTableState(source?: string): Promise<Pric
 }
 
 export async function fetchLatestPricingUpdatedAt(): Promise<string | null> {
-	const supabase = getSupabaseAdmin();
-	const { data, error } = await supabase
-		.from("v2_rpc_pricing_legacy_shape")
-		.select("updated_at")
-		.not("updated_at", "is", null)
-		.order("updated_at", { ascending: false })
-		.limit(1);
-
-	if (error) throw new Error(error.message || "Failed to load latest pricing updated_at");
-	const row = (data ?? [])[0] as { updated_at?: string | null } | undefined;
-	if (!row || typeof row.updated_at !== "string" || !row.updated_at.trim()) return null;
-	return row.updated_at;
+	const rows = await loadV2PricingRows();
+	return rows.reduce<string | null>((latest, row) => {
+		if (!row.updated_at) return latest;
+		return !latest || row.updated_at > latest ? row.updated_at : latest;
+	}, null);
 }
 
 export async function fetchPricingRuleIdsAtTimestamp(updatedAt: string): Promise<string[]> {
-	const supabase = getSupabaseAdmin();
-	const rows: PricingRuleRow[] = [];
-	let from = 0;
-	while (rows.length < MAX_PRICING_ROWS) {
-		const to = from + PRICING_PAGE_SIZE - 1;
-		const { data, error } = await supabase
-			.from("v2_rpc_pricing_legacy_shape")
-			.select("rule_id,provider_id,api_model_id,capability_id,pricing_plan,meter,price_per_unit,currency,effective_from,effective_to,updated_at")
-			.eq("updated_at", updatedAt)
-			.order("rule_id", { ascending: true })
-			.range(from, to);
-		if (error) throw new Error(error.message || "Failed to load pricing ids at checkpoint timestamp");
-		const chunk = (data ?? []) as PricingRuleRow[];
-		if (chunk.length === 0) break;
-		rows.push(...chunk);
-		if (chunk.length < PRICING_PAGE_SIZE) break;
-		from += PRICING_PAGE_SIZE;
-	}
+	const rows = (await loadV2PricingRows()).filter((row) => row.updated_at === updatedAt).slice(0, MAX_PRICING_ROWS);
 	return rows.map((row) => pricingRuleIdentity(row)).sort((a, b) => a.localeCompare(b));
 }
 
 export async function fetchPricingRowsSince(sinceInclusive: string): Promise<PricingRuleRow[]> {
-	const supabase = getSupabaseAdmin();
-	const rows: PricingRuleRow[] = [];
-	let from = 0;
-
-	while (rows.length < MAX_PRICING_ROWS) {
-		const to = from + PRICING_PAGE_SIZE - 1;
-		const { data, error } = await supabase
-			.from("v2_rpc_pricing_legacy_shape")
-			.select("rule_id,provider_id,api_model_id,capability_id,pricing_plan,meter,price_per_unit,currency,effective_from,effective_to,updated_at")
-			.gte("updated_at", sinceInclusive)
-			.order("updated_at", { ascending: true })
-			.range(from, to);
-
-		if (error) throw new Error(error.message || "Failed to fetch pricing changes");
-		const chunk = (data ?? []) as PricingRuleRow[];
-		if (chunk.length === 0) break;
-		rows.push(...chunk);
-		if (chunk.length < PRICING_PAGE_SIZE) break;
-		from += PRICING_PAGE_SIZE;
-	}
-
-	return rows.length > MAX_PRICING_ROWS ? rows.slice(0, MAX_PRICING_ROWS) : rows;
+	const since = Date.parse(sinceInclusive);
+	if (!Number.isFinite(since)) return [];
+	return (await loadV2PricingRows())
+		.filter((row) => row.updated_at && Date.parse(row.updated_at) >= since)
+		.slice(0, MAX_PRICING_ROWS);
 }
 
 export async function loadConfiguredProviderModelIds(providerIds: string[]): Promise<Map<string, Set<string>>> {
@@ -1421,15 +1440,19 @@ export async function loadConfiguredProviderModelIds(providerIds: string[]): Pro
 	while (true) {
 		const to = from + PRICING_PAGE_SIZE - 1;
 		const { data, error } = await supabase
-			.from("v2_rpc_routes_legacy_shape")
-			.select("provider_id,provider_model_slug,api_model_id")
-			.in("provider_id", lookupProviderIds)
+			.from("v2_model_provider_routes")
+			.select("provider_slug,provider_model_slug,model_slug")
+			.in("provider_slug", lookupProviderIds)
 			.range(from, to);
 		if (error) {
 			throw new Error(error.message || "Failed to load configured provider models");
 		}
 
-		const rows = (data ?? []) as ConfiguredProviderModelRow[];
+		const rows = (data ?? []).map((row) => ({
+			provider_id: row.provider_slug,
+			provider_model_slug: row.provider_model_slug,
+			api_model_id: row.model_slug,
+		})) as ConfiguredProviderModelRow[];
 		if (rows.length === 0) break;
 
 		for (const row of rows) {

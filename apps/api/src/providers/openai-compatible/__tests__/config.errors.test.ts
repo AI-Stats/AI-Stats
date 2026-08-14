@@ -17,18 +17,15 @@ afterAll(() => {
 describe("resolveOpenAICompatConfig errors", () => {
 	it("throws a coded error when provider base URL configuration is missing", () => {
 		teardownTestRuntime();
-		setupRuntimeFromEnv({
-			AMAZON_BEDROCK_API_KEY: "test-bedrock-key",
-			AMAZON_BEDROCK_BASE_URL: "",
-		} as any);
+		setupRuntimeFromEnv({ LIQUID_API_KEY: "test-liquid-key", LIQUID_BASE_URL: "" } as any);
 
-		expect(() => resolveOpenAICompatConfig("amazon-bedrock")).toThrowError(
-			"amazon-bedrock_base_url_missing",
+		expect(() => resolveOpenAICompatConfig("liquid")).toThrowError(
+			"liquid_base_url_missing",
 		);
 		try {
-			resolveOpenAICompatConfig("amazon-bedrock");
+			resolveOpenAICompatConfig("liquid");
 		} catch (error) {
-			expect((error as any)?.code).toBe("amazon-bedrock_base_url_missing");
+			expect((error as any)?.code).toBe("liquid_base_url_missing");
 		}
 	});
 });

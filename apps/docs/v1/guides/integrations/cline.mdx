@@ -1,0 +1,63 @@
+---
+title: "Cline"
+description: "Connect Cline to Phaseo through its OpenAI-compatible provider."
+---
+
+Phaseo CLI creates and manages Cline's dedicated key. Cline stores credentials in VS Code's secure secret storage, so the final entry happens in the extension UI.
+
+## Create the credential
+
+```bash
+phaseo login
+phaseo integrations setup cline --model anthropic/claude-sonnet-4.6
+```
+
+## Configure Cline
+
+1. Open the Cline panel in VS Code.
+2. Select the settings icon, or select the provider beneath the chat box.
+3. Choose **OpenAI Compatible**.
+4. Enter these values:
+
+| Cline field | Value |
+| --- | --- |
+| Base URL | `https://api.phaseo.app/v1` |
+| API Key | Output of `phaseo integrations credential cline` |
+| Model ID | `anthropic/claude-sonnet-4.6` or the model printed by setup |
+
+5. Save the provider. If your version shows **Verify**, select it.
+6. Select the configured model for the next task.
+
+## Verify
+
+Ask Cline to reply with `PHASEO_CLINE_OK`, then confirm the request appears in Phaseo activity.
+
+## Remove
+
+Delete or switch away from the Phaseo provider in Cline, then run:
+
+```bash
+phaseo integrations remove cline
+```
+
+The CLI cannot clear VS Code's private extension storage, but removal revokes the stored key.
+
+## Troubleshooting
+
+### Verification fails
+
+Keep the Base URL exactly as shown, including `/v1`, and paste a newly retrieved key without quotes or whitespace.
+
+### The model list is empty
+
+Enter the Phaseo model ID manually. Model discovery is not required.
+
+### Chat works but tools fail
+
+Choose a Phaseo model with tool-calling support. Connectivity and model tool support are separate checks.
+
+## Related
+
+- [Cline OpenAI-compatible configuration](https://docs.cline.bot/enterprise-solutions/configuration/remote-configuration/openai-compatible/member-configuration)
+- [Coding Assistants](./coding-assistants.mdx)
+- [Models](../../api-reference/endpoint/models.mdx)

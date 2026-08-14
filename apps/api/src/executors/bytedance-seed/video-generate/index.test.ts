@@ -145,6 +145,8 @@ describe("bytedance seed video executor", () => {
 			type: "text",
 			text: "A street market at night",
 		});
+		expect(capturedBody).toMatchObject({ duration: 6, resolution: "720p" });
+		expect(capturedBody.parameters).toBeUndefined();
 		expect((result as any).ir?.nativeId).toContain("bdvid_");
 		expect(saveVideoJobMetaMock).toHaveBeenCalledWith(
 			"team_test",

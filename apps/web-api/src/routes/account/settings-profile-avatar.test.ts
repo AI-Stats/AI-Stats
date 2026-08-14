@@ -131,6 +131,45 @@ describe("profile avatar routes", () => {
 		expect(put).not.toHaveBeenCalled();
 	});
 
+	it("cancels a lengthless upload as soon as it exceeds the byte limit", async () => {
+		stubSupabase();
+		const { bucket, put } = fakeBucket();
+		const cancel = vi.fn();
+		let chunkIndex = 0;
+		const chunks = [
+			PNG_BYTES,
+			new Uint8Array(5 * 1024 * 1024),
+			new Uint8Array([0xff]),
+		];
+		const body = new ReadableStream<Uint8Array>({
+			pull(controller) {
+				const chunk = chunks[chunkIndex++];
+				if (chunk) controller.enqueue(chunk);
+				else controller.close();
+			},
+			cancel,
+		});
+		const request = new Request(
+			"https://phaseo.app/api/account/settings/profile/avatar",
+			{
+				method: "POST",
+				body,
+				headers: { authorization: "Bearer token", "content-type": "image/png" },
+				duplex: "half",
+			} as RequestInit & { duplex: "half" },
+		);
+
+		const response = await app.fetch(
+			request,
+			{ ...baseEnv, PROFILE_AVATARS_BUCKET: bucket },
+			{ waitUntil: vi.fn(), passThroughOnException: vi.fn(), props: {} } as unknown as ExecutionContext,
+		);
+
+		expect(response.status).toBe(413);
+		expect(cancel).toHaveBeenCalledWith("request_body_too_large");
+		expect(put).not.toHaveBeenCalled();
+	});
+
 	it("uses a same-origin fallback URL outside production", async () => {
 		stubSupabase();
 		const { bucket } = fakeBucket();

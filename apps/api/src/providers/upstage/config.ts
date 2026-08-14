@@ -4,8 +4,9 @@ export const UPSTAGE_OPENAI_COMPAT_CONFIGS = {
 	upstage: {
 		providerId: "upstage",
 		baseUrl: "https://api.upstage.ai",
-		pathPrefix: "/v1/solar",
+		pathPrefix: "/v1",
 		apiKeyEnv: "UPSTAGE_API_KEY",
 		baseUrlEnv: "UPSTAGE_BASE_URL",
+		supportsResponses: false,
 	},
 } satisfies Record<string, OpenAICompatConfig>;

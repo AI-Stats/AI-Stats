@@ -47,6 +47,7 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     "bytedance-seed": createOpenAICompatibleAdapter("bytedance-seed"),
     byteplus: createOpenAICompatibleAdapter("byteplus"),
     mistral: createOpenAICompatibleAdapter("mistral"),
+    "mistral-eu": createOpenAICompatibleAdapter("mistral-eu"),
     sakana: createOpenAICompatibleAdapter("sakana"),
     elevenlabs: ElevenLabsAdapter,
     suno: SunoAdapter,
@@ -62,6 +63,7 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     cohere: createOpenAICompatibleAdapter("cohere"),
     crofai: CrofAIAdapter,
     tensorix: TensorixAdapter,
+	tensorx: createOpenAICompatibleAdapter("tensorx"),
     voyage: createOpenAICompatibleAdapter("voyage"),
     voyageai: createOpenAICompatibleAdapter("voyageai"),
     crusoe: createOpenAICompatibleAdapter("crusoe"),
@@ -114,7 +116,6 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     perplexity: createOpenAICompatibleAdapter("perplexity"),
     liquid: createOpenAICompatibleAdapter("liquid"),
     "liquid-ai": createOpenAICompatibleAdapter("liquid-ai"),
-    sourceful: createOpenAICompatibleAdapter("sourceful"),
     streamlake: createOpenAICompatibleAdapter("streamlake"),
     switchpoint: createOpenAICompatibleAdapter("switchpoint"),
     relace: createOpenAICompatibleAdapter("relace"),
@@ -221,4 +222,3 @@ export function adapterFor(providerId: string, endpoint: Endpoint): ProviderAdap
 export function adapterById(providerId: string): ProviderAdapter | null {
     return ADAPTERS[providerId] ?? null;
 }
-

@@ -74,13 +74,19 @@ const OPENAI_PROVIDER_ID = "openai";
 const ANTHROPIC_PROVIDER_ID = "anthropic";
 const GOOGLE_AI_STUDIO_PROVIDER_ID = "google-ai-studio";
 const MISTRAL_PROVIDER_ID = "mistral";
+const MOONSHOT_PROVIDER_ID = "moonshotai";
 const X_AI_PROVIDER_ID = "x-ai";
-const FILE_BACKED_JSONL_BATCH_PROVIDERS = new Set(["openai", "groq", "together"]);
+const PARASAIL_PROVIDER_ID = "parasail";
+const OVHCLOUD_PROVIDER_ID = "ovhcloud";
+const FILE_BACKED_JSONL_BATCH_PROVIDERS = new Set(["openai", "groq", "together", "alibaba-cloud", MOONSHOT_PROVIDER_ID, PARASAIL_PROVIDER_ID, OVHCLOUD_PROVIDER_ID]);
 const JSON_BATCH_CONTENT_TYPE = "application/json";
 const MAX_BATCH_CUSTOM_ID_BYTES = 512;
 const MAX_BATCH_REQUESTS = 10_000;
+const MAX_OPENAI_BATCH_REQUESTS = 50_000;
+const MAX_MOONSHOT_BATCH_REQUESTS = 1_000_000;
+const MAX_MOONSHOT_BATCH_FILE_BYTES = 100 * 1024 * 1024;
 const GATEWAY_BATCH_ID_PREFIX = "batch_";
-const MAX_BATCH_CREATE_BODY_BYTES = 20 * 1024 * 1024;
+const MAX_BATCH_CREATE_BODY_BYTES = 200 * 1024 * 1024;
 const DEFAULT_BATCH_MAX_OUTPUT_TOKENS = 16_384;
 
 class ProviderBatchPreDispatchError extends Error {
@@ -269,6 +275,30 @@ const BATCH_ENDPOINT_ALIASES = new Map<string, string>([
 	["/v1/messages", "/v1/messages"],
 	["/embeddings", "/v1/embeddings"],
 	["/v1/embeddings", "/v1/embeddings"],
+	["/fim/completions", "/v1/fim/completions"],
+	["/v1/fim/completions", "/v1/fim/completions"],
+	["/completions", "/v1/completions"],
+	["/v1/completions", "/v1/completions"],
+	["/moderations", "/v1/moderations"],
+	["/v1/moderations", "/v1/moderations"],
+	["/chat/moderations", "/v1/chat/moderations"],
+	["/v1/chat/moderations", "/v1/chat/moderations"],
+	["/ocr", "/v1/ocr"],
+	["/v1/ocr", "/v1/ocr"],
+	["/classifications", "/v1/classifications"],
+	["/v1/classifications", "/v1/classifications"],
+	["/chat/classifications", "/v1/chat/classifications"],
+	["/v1/chat/classifications", "/v1/chat/classifications"],
+	["/conversations", "/v1/conversations"],
+	["/v1/conversations", "/v1/conversations"],
+	["/audio/transcriptions", "/v1/audio/transcriptions"],
+	["/v1/audio/transcriptions", "/v1/audio/transcriptions"],
+	["/images/generations", "/v1/images/generations"],
+	["/v1/images/generations", "/v1/images/generations"],
+	["/images/edits", "/v1/images/edits"],
+	["/v1/images/edits", "/v1/images/edits"],
+	["/videos", "/v1/videos"],
+	["/v1/videos", "/v1/videos"],
 	["/generatecontent", "/v1/generateContent"],
 	["/v1/generatecontent", "/v1/generateContent"],
 ]);
@@ -430,6 +460,22 @@ function normalizeRequestBodyForProvider(
 	const model = rowModel ?? inheritedModel;
 	if (!model) throw new Error("missing_model");
 	validateBatchBodyForEndpoint(endpoint, record);
+	if (providerId === MOONSHOT_PROVIDER_ID) {
+		const {
+			temperature: _temperature,
+			top_p: _topP,
+			n: _n,
+			presence_penalty: _presencePenalty,
+			frequency_penalty: _frequencyPenalty,
+			...supported
+		} = record;
+		return {
+			...supported,
+			model: providerNativeModelId(providerId, model),
+			max_output_tokens: undefined,
+			max_tokens: record.max_tokens ?? record.max_output_tokens ?? DEFAULT_BATCH_MAX_OUTPUT_TOKENS,
+		};
+	}
 	if (providerId === GOOGLE_AI_STUDIO_PROVIDER_ID) {
 		const generationConfig = record.generationConfig && typeof record.generationConfig === "object" && !Array.isArray(record.generationConfig)
 			? record.generationConfig as Record<string, unknown>
@@ -495,7 +541,12 @@ async function normalizeBatchRequests(providerId: string, payload: Record<string
 				? payload.items
 				: []
 		: [];
-	if (requests.length > MAX_BATCH_REQUESTS || promptItems.length > MAX_BATCH_REQUESTS) {
+	const maxRequests = providerId === OPENAI_PROVIDER_ID || providerId === PARASAIL_PROVIDER_ID || providerId === OVHCLOUD_PROVIDER_ID
+		? MAX_OPENAI_BATCH_REQUESTS
+		: providerId === MOONSHOT_PROVIDER_ID
+			? MAX_MOONSHOT_BATCH_REQUESTS
+			: MAX_BATCH_REQUESTS;
+	if (requests.length > maxRequests || promptItems.length > maxRequests) {
 		throw new Error("batch_request_limit_exceeded");
 	}
 	const out: NormalizedBatchRequest[] = [];
@@ -547,6 +598,11 @@ async function normalizeBatchRequests(providerId: string, payload: Record<string
 	}
 	const seen = new Set<string>();
 	for (const row of out) {
+		if (row.method.toUpperCase() !== "POST") throw new Error("batch_method_not_supported");
+		const rowEndpoint = normalizeBatchEndpoint(row.url);
+		if (!rowEndpoint || rowEndpoint !== endpoint) throw new Error("batch_mixed_endpoints_not_supported");
+		row.method = "POST";
+		row.url = endpoint;
 		if (new TextEncoder().encode(row.customId).byteLength > MAX_BATCH_CUSTOM_ID_BYTES) {
 			throw new Error("batch_custom_id_too_long");
 		}
@@ -571,10 +627,15 @@ export function batchPolicyEndpoint(value: unknown): Endpoint | null {
 	if (!normalized) return null;
 	const path = normalized.replace(/^\/v1(?=\/|$)/i, "").toLowerCase();
 	if (path === "/chat/completions") return "chat.completions";
+	if (path === "/completions") return "chat.completions";
 	if (path === "/messages") return "messages";
 	if (path === "/generatecontent") return "responses";
 	if (path === "/embeddings") return "embeddings";
 	if (path === "/moderations") return "moderations";
+	if (path === "/chat/moderations" || path === "/classifications" || path === "/chat/classifications") return "moderations";
+	if (path === "/fim/completions") return "chat.completions";
+	if (path === "/ocr") return "ocr";
+	if (path === "/conversations") return "responses";
 	if (path === "/images/generations") return "images.generations";
 	if (path === "/images/edits") return "images.edits";
 	if (path === "/audio/speech") return "audio.speech";
@@ -764,12 +825,19 @@ function extractProviderBatchId(providerId: string, payload: any): { publicId: s
 }
 
 function normalizeProviderBatchPayload(providerId: string, payload: any): any {
+	if (providerId === "together" && payload?.job && typeof payload.job === "object" && !Array.isArray(payload.job)) {
+		return {
+			...normalizeProviderBatchPayloadShared(providerId, payload.job),
+			...(typeof payload.warning === "string" ? { warning: payload.warning } : {}),
+		};
+	}
 	return normalizeProviderBatchPayloadShared(providerId, payload);
 }
 
 function buildProviderBaseUrl(providerId: string, bindings: Record<string, string | undefined>): string {
 	if (providerId === ANTHROPIC_PROVIDER_ID) return String(bindings.ANTHROPIC_BASE_URL || "https://api.anthropic.com/v1").replace(/\/+$/, "");
 	if (providerId === GOOGLE_AI_STUDIO_PROVIDER_ID) return String(bindings.GOOGLE_AI_STUDIO_BASE_URL || "https://generativelanguage.googleapis.com/v1beta").replace(/\/+$/, "");
+	if (providerId === PARASAIL_PROVIDER_ID) return String(bindings.PARASAIL_BATCH_BASE_URL || "https://api.saas.parasail.io/v1").replace(/\/+$/, "");
 	return "";
 }
 
@@ -830,7 +898,10 @@ async function fetchProviderBatchApi(providerId: string, args: {
 	if (args.contentType) headers.set("Content-Type", args.contentType);
 	if (!args.contentType) headers.delete("Content-Type");
 	if (args.idempotencyKey) headers.set("Idempotency-Key", args.idempotencyKey);
-	return fetch(openAICompatUrl(providerId, args.endpointPath), {
+	const url = providerId === PARASAIL_PROVIDER_ID
+		? `${buildProviderBaseUrl(providerId, bindings)}${args.endpointPath}`
+		: openAICompatUrl(providerId, args.endpointPath);
+	return fetch(url, {
 		method: args.method,
 		headers,
 		body: args.body ?? undefined,
@@ -865,7 +936,7 @@ async function uploadProviderBatchInputFile(providerId: string, args: {
 		`aistats-batch-${args.requestId}.jsonl`,
 	);
 	const upstream = await fetchProviderBatchApi(providerId, {
-		endpointPath: "/files",
+		endpointPath: providerId === "together" ? "/files/upload" : "/files",
 		method: "POST",
 		body: form,
 	});
@@ -974,8 +1045,17 @@ function completionWindowToHours(value: unknown): number | null {
 	if (!text) return null;
 	const match = text.match(/^(\d+)\s*h(?:ours?)?$/i);
 	if (match) return Number(match[1]);
+	const days = text.match(/^(\d+)\s*d(?:ays?)?$/i);
+	if (days) return Number(days[1]) * 24;
 	const numeric = Number(text);
 	return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
+}
+
+function validateMoonshotBatchModels(models: string[]): boolean {
+	return models.every((model) => {
+		const native = providerNativeModelId(MOONSHOT_PROVIDER_ID, model).toLowerCase();
+		return native === "kimi-k2.5" || native === "kimi-k2.6";
+	});
 }
 
 function buildProviderBatchCreate(providerId: string, args: {
@@ -991,6 +1071,7 @@ function buildProviderBatchCreate(providerId: string, args: {
 		const model = extractBatchModel(args.payload, args.requestRows);
 		const body: Record<string, unknown> = {
 			endpoint: toText(args.payload.endpoint) ?? "/v1/chat/completions",
+			...(toText(args.payload.agent_id) ? { agent_id: toText(args.payload.agent_id) } : {}),
 			...(model ? { model: providerNativeModelId(providerId, model) } : {}),
 			...(args.payload.metadata && typeof args.payload.metadata === "object" && !Array.isArray(args.payload.metadata)
 				? { metadata: args.payload.metadata }
@@ -1604,6 +1685,110 @@ async function handleCreate(req: Request) {
 	});
 	if (providerResolution.ok === false) return providerResolution.response;
 	const providerId = providerResolution.providerId;
+	if (providerId === OPENAI_PROVIDER_ID) {
+		const completionWindow = toText(payload.completion_window) ?? "24h";
+		if (completionWindow !== "24h") {
+			return err("validation_error", {
+				reason: "openai_batch_completion_window_unsupported",
+				message: "OpenAI Batch currently supports only a 24h completion window.",
+				request_id: requestId,
+				workspace_id: auth.workspaceId,
+			});
+		}
+		payload.completion_window = completionWindow;
+		upstreamPayload.completion_window = completionWindow;
+		const outputExpiry = payload.output_expires_after;
+		if (outputExpiry !== undefined) {
+			const expiry = outputExpiry && typeof outputExpiry === "object" && !Array.isArray(outputExpiry)
+				? outputExpiry as Record<string, unknown>
+				: null;
+			if (!expiry || expiry.anchor !== "created_at" || !Number.isInteger(expiry.seconds) || Number(expiry.seconds) < 3_600 || Number(expiry.seconds) > 2_592_000) {
+				return err("validation_error", { reason: "invalid_openai_batch_output_expiry", request_id: requestId, workspace_id: auth.workspaceId });
+			}
+		}
+		if (payload.metadata !== undefined) {
+			const metadata = payload.metadata;
+			if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
+				return err("validation_error", { reason: "invalid_batch_metadata", request_id: requestId, workspace_id: auth.workspaceId });
+			}
+			const entries = Object.entries(metadata);
+			if (entries.length > 16 || entries.some(([key, value]) => key.length > 64 || typeof value !== "string" || value.length > 512)) {
+				return err("validation_error", { reason: "invalid_batch_metadata", request_id: requestId, workspace_id: auth.workspaceId });
+			}
+		}
+	}
+	if (providerId === "together") {
+		const completionWindow = toText(payload.completion_window) ?? "24h";
+		if (completionWindow !== "24h") {
+			return err("validation_error", {
+				reason: "together_batch_completion_window_unsupported",
+				message: "Together Batch supports only its fixed 24h completion window.",
+				request_id: requestId,
+				workspace_id: auth.workspaceId,
+			});
+		}
+		payload.completion_window = completionWindow;
+		upstreamPayload.completion_window = completionWindow;
+	}
+	if (providerId === "alibaba-cloud") {
+		const completionWindow = toText(payload.completion_window) ?? "24h";
+		if (completionWindow !== "24h") {
+			return err("validation_error", {
+				reason: "alibaba_cloud_batch_completion_window_unsupported",
+				message: "Alibaba Cloud Model Studio Batch supports only a 24h completion window.",
+				request_id: requestId,
+				workspace_id: auth.workspaceId,
+			});
+		}
+		payload.completion_window = completionWindow;
+		upstreamPayload.completion_window = completionWindow;
+	}
+	if (providerId === MOONSHOT_PROVIDER_ID) {
+		const completionWindow = toText(payload.completion_window) ?? "24h";
+		const hours = completionWindowToHours(completionWindow);
+		if (hours == null || hours < 12 || hours > 168) {
+			return err("validation_error", {
+				reason: "moonshot_batch_completion_window_unsupported",
+				message: "Kimi Batch completion_window must be between 12 hours and 7 days.",
+				request_id: requestId,
+				workspace_id: auth.workspaceId,
+			});
+		}
+		payload.completion_window = completionWindow;
+		upstreamPayload.completion_window = completionWindow;
+		if (payload.metadata !== undefined) {
+			const metadata = payload.metadata;
+			if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
+				return err("validation_error", { reason: "invalid_batch_metadata", request_id: requestId, workspace_id: auth.workspaceId });
+			}
+			const entries = Object.entries(metadata);
+			if (entries.length > 16 || entries.some(([key, value]) => key.length > 64 || typeof value !== "string" || value.length > 512)) {
+				return err("validation_error", { reason: "invalid_batch_metadata", request_id: requestId, workspace_id: auth.workspaceId });
+			}
+		}
+		const declaredModels = extractRawBatchModels(payload);
+		if (declaredModels.length > 0 && !validateMoonshotBatchModels(declaredModels)) {
+			return err("validation_error", {
+				reason: "moonshot_batch_model_unsupported",
+				message: "Kimi Batch currently supports only kimi-k2.5 and kimi-k2.6.",
+				request_id: requestId,
+				workspace_id: auth.workspaceId,
+			});
+		}
+	}
+	if (providerId === OVHCLOUD_PROVIDER_ID) {
+		const completionWindow = toText(payload.completion_window) ?? "48h";
+		if (!new Set(["24h", "48h", "72h"]).has(completionWindow)) {
+			return err("validation_error", {
+				reason: "ovhcloud_batch_completion_window_unsupported",
+				message: "OVHcloud Batch completion_window must be 24h, 48h, or 72h.",
+				request_id: requestId,
+				workspace_id: auth.workspaceId,
+			});
+		}
+		payload.completion_window = completionWindow;
+		upstreamPayload.completion_window = completionWindow;
+	}
 	const modelScopeError = validateProviderNativeBatchModelScope({
 		providerId,
 		payload,
@@ -1638,8 +1823,32 @@ async function handleCreate(req: Request) {
 	let policyRows: NormalizedBatchRequest[] = requestRows ?? [];
 	if (inputMode.mode === "file" && directInputFileId) {
 		try {
-			const parsedEntries = parseProviderBatchInputEntries(await fetchProviderFileText(providerId, directInputFileId));
-			if (parsedEntries.length > MAX_BATCH_REQUESTS) throw new Error("batch_request_limit_exceeded");
+			const parsedEntries = parseProviderBatchInputEntries(
+				await fetchProviderFileText(
+					providerId,
+					directInputFileId,
+					providerId === MOONSHOT_PROVIDER_ID ? MAX_MOONSHOT_BATCH_FILE_BYTES : undefined,
+				),
+				providerId === MOONSHOT_PROVIDER_ID ? MAX_MOONSHOT_BATCH_REQUESTS : undefined,
+			);
+			const maxRequests = providerId === OPENAI_PROVIDER_ID
+				? MAX_OPENAI_BATCH_REQUESTS
+				: providerId === MOONSHOT_PROVIDER_ID
+					? MAX_MOONSHOT_BATCH_REQUESTS
+					: MAX_BATCH_REQUESTS;
+			if (parsedEntries.length > maxRequests) throw new Error("batch_request_limit_exceeded");
+			if (providerId === OPENAI_PROVIDER_ID || providerId === MOONSHOT_PROVIDER_ID) {
+				const declaredEndpoint = resolveBatchEndpoint(providerId, payload);
+				const seenCustomIds = new Set<string>();
+				for (const entry of parsedEntries) {
+					if (!entry.customId) throw new Error("batch_custom_id_required");
+					if (seenCustomIds.has(entry.customId)) throw new Error("duplicate_custom_id");
+					seenCustomIds.add(entry.customId);
+					if ((entry.method ?? "").toUpperCase() !== "POST") throw new Error("batch_method_not_supported");
+					if (!entry.endpoint || normalizeBatchEndpoint(entry.endpoint) !== declaredEndpoint) throw new Error("batch_mixed_endpoints_not_supported");
+					if (!entry.body || typeof entry.body !== "object" || Array.isArray(entry.body)) throw new Error("invalid_request_body");
+				}
+			}
 			reservationRequests = parsedEntries.map((entry) => ({
 				...entry,
 				endpoint: entry.endpoint ?? toText(payload.endpoint),
@@ -1680,6 +1889,25 @@ async function handleCreate(req: Request) {
 				workspace_id: auth.workspaceId,
 				provider: providerId,
 				models: nativeModels,
+			});
+		}
+		if (providerId === MOONSHOT_PROVIDER_ID && !validateMoonshotBatchModels(nativeModels)) {
+			return err("validation_error", {
+				reason: "moonshot_batch_model_unsupported",
+				message: "Kimi Batch currently supports only kimi-k2.5 and kimi-k2.6.",
+				request_id: requestId,
+				workspace_id: auth.workspaceId,
+			});
+		}
+	}
+	if (providerId === MOONSHOT_PROVIDER_ID && inputMode.mode === "file") {
+		const fixedParameterKeys = ["temperature", "top_p", "n", "presence_penalty", "frequency_penalty"];
+		if (policyRows.some((row) => row.body && typeof row.body === "object" && fixedParameterKeys.some((key) => (row.body as Record<string, unknown>)[key] !== undefined))) {
+			return err("validation_error", {
+				reason: "moonshot_batch_fixed_parameters_not_allowed",
+				message: "Kimi Batch fixes sampling parameters; remove temperature, top_p, n, presence_penalty, and frequency_penalty from input rows.",
+				request_id: requestId,
+				workspace_id: auth.workspaceId,
 			});
 		}
 	}
@@ -1803,13 +2031,11 @@ async function handleCreate(req: Request) {
 	const metadata = payload.metadata && typeof payload.metadata === "object" && !Array.isArray(payload.metadata)
 		? payload.metadata as Record<string, unknown>
 		: {};
-	const submissionMetadata = {
-		...metadata,
-		phaseo_batch_id: batchId,
-		phaseo_request_id: requestId,
-	};
+	const submissionMetadata: Record<string, unknown> = { ...metadata };
+	if (Object.keys(submissionMetadata).length < 16) submissionMetadata.phaseo_batch_id = batchId;
+	if (Object.keys(submissionMetadata).length < 16) submissionMetadata.phaseo_request_id = requestId;
 	payload.metadata = submissionMetadata;
-	if (providerId === OPENAI_PROVIDER_ID || providerId === MISTRAL_PROVIDER_ID) {
+	if (providerId === OPENAI_PROVIDER_ID || providerId === MISTRAL_PROVIDER_ID || providerId === MOONSHOT_PROVIDER_ID) {
 		upstreamPayload.metadata = submissionMetadata;
 	}
 	if (!toText(upstreamPayload.endpoint)) {
@@ -2202,8 +2428,10 @@ async function handleRetrieve(req: Request, id: string) {
 
 	const nativeBatchId = resolveBatchProviderNativeId({ batchId, meta });
 	const providerId = meta.provider || OPENAI_PROVIDER_ID;
+	const requestedInline = new URL(req.url).searchParams.get("inline") === "true";
+	const retrievePath = buildProviderRetrievePath(providerId, nativeBatchId);
 	const upstream = await fetchProviderBatchApi(providerId, {
-		endpointPath: buildProviderRetrievePath(providerId, nativeBatchId),
+		endpointPath: providerId === MISTRAL_PROVIDER_ID && requestedInline ? `${retrievePath}?inline=true` : retrievePath,
 		method: "GET",
 	});
 	const upstreamJson = normalizeProviderBatchPayload(providerId, await parseUpstreamJson(upstream));

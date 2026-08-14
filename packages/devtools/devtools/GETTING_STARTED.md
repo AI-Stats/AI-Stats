@@ -390,4 +390,4 @@ fs.writeFileSync('telemetry.json', json);
 | **Multi-language** | ✓ (TS, Py, Go, etc.) | ✗ (Node.js only) | ✓ |
 | **Offline** | ✓ | ✓ | ✗ |
 
-Inspired by OpenRouter's excellent devtools pattern, Phaseo Devtools brings the same developer experience to 400+ AI models across all major providers.
+Phaseo Devtools provides a consistent developer experience across 400+ AI models and all major providers.

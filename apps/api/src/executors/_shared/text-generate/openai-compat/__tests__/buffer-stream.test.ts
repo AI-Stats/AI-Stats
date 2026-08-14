@@ -100,6 +100,7 @@ describe("bufferStreamToIR", () => {
 		expect(buffered.ir.choices[0]?.message?.toolCalls).toEqual([
 			{
 				id: "call_weather",
+				type: "function",
 				name: "get_weather",
 				arguments: "{\"city\":\"London\"}",
 			},

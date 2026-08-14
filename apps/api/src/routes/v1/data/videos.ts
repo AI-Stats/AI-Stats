@@ -129,6 +129,7 @@ const {
 	fetchBytedanceTask,
 	fetchRunwayTask,
 	cancelRunwayTask,
+	cancelFalTask,
 	extractAtlasPredictionPayload,
 	fetchAtlasPrediction,
 	mapMiniMaxVideoStatus,
@@ -273,12 +274,21 @@ videosRoutes.get("/", withRuntime(async (req) => {
 	const url = new URL(req.url);
 	const limit = parseVideoListLimit(url);
 	const statuses = parseVideoListStatuses(url);
+	const order = url.searchParams.get("order") === "asc" ? "asc" : "desc";
+	const after = normalizeText(url.searchParams.get("after"));
 	const records = await listTeamVideoJobs({
 		workspaceId: authValue.workspaceId,
-		limit,
+		limit: 101,
 		statuses: statuses.length > 0 ? statuses : undefined,
 	});
-	const data = await Promise.all(records.map((record) =>
+	const ordered = [...records].sort((a, b) => {
+		const delta = Date.parse(a.createdAt ?? "") - Date.parse(b.createdAt ?? "");
+		return order === "asc" ? delta : -delta;
+	});
+	const afterIndex = after ? ordered.findIndex((record) => record.videoId === after) : -1;
+	const pageCandidates = afterIndex >= 0 ? ordered.slice(afterIndex + 1) : ordered;
+	const pageRecords = pageCandidates.slice(0, limit);
+	const data = await Promise.all(pageRecords.map((record) =>
 		toPublicVideoResponse({
 			requestUrl: req.url,
 			id: record.videoId,
@@ -304,7 +314,7 @@ videosRoutes.get("/", withRuntime(async (req) => {
 		data,
 		first_id: typeof data[0]?.id === "string" ? data[0].id : null,
 		last_id: typeof data[data.length - 1]?.id === "string" ? data[data.length - 1].id : null,
-		has_more: false,
+		has_more: pageCandidates.length > pageRecords.length,
 	}), {
 		status: 200,
 		headers: {
@@ -523,7 +533,7 @@ videosRoutes.post("/:videoId/cancel", withRuntime(async (req) => {
 		}
 		upstreamFailureReason = "dashscope_task_cancel_failed";
 		upstream = await cancelDashscopeTask(authValue, ownedVideo.meta, cancellationTargetId);
-	} else if (normalizedProvider === RUNWAY_PROVIDER_ID) {
+	} else if (normalizedProvider === RUNWAY_PROVIDER_ID || normalizedProvider === "runwayml") {
 		cancellationTargetId = resolveRunwayTaskId(ownedVideo.record, ownedVideo.meta, id);
 		if (!cancellationTargetId) {
 			return err("validation_error", {
@@ -536,6 +546,10 @@ videosRoutes.post("/:videoId/cancel", withRuntime(async (req) => {
 		}
 		upstreamFailureReason = "runway_task_cancel_failed";
 		upstream = await cancelRunwayTask(authValue, ownedVideo.meta, cancellationTargetId);
+	} else if (normalizedProvider === "fal") {
+		cancellationTargetId = normalizeText(ownedVideo.record.nativeId) ?? normalizeText(ownedVideo.meta?.providerTaskId) ?? id;
+		upstreamFailureReason = "fal_queue_cancel_failed";
+		upstream = await cancelFalTask(authValue, ownedVideo.meta, cancellationTargetId);
 	} else {
 		return err("not_implemented_yet", {
 			reason: "video_cancel_provider_not_supported",
@@ -634,12 +648,7 @@ videosRoutes.delete("/:videoId", withRuntime(async (req) => {
 	const ownedVideo = await requireOwnedVideoJob(authValue, id);
 	if (ownedVideo instanceof Response) return ownedVideo;
 	const publicStatus = toPublicVideoStatus(ownedVideo.record.status);
-	if (
-		publicStatus !== "completed" &&
-		publicStatus !== "failed" &&
-		publicStatus !== "cancelled" &&
-		publicStatus !== "expired"
-	) {
+	if (publicStatus !== "completed" && publicStatus !== "failed") {
 		return err("validation_error", {
 			reason: "video_delete_requires_terminal_status",
 			request_id: authValue.requestId,
@@ -648,18 +657,29 @@ videosRoutes.delete("/:videoId", withRuntime(async (req) => {
 			status: publicStatus,
 		});
 	}
+	const openAiCompatProviderId = resolveOpenAiCompatVideoProviderForFallback(ownedVideo.record, ownedVideo.meta);
+	if (openAiCompatProviderId === OPENAI_PROVIDER_ID) {
+		const nativeId = normalizeText(ownedVideo.record.nativeId) ?? normalizeText(ownedVideo.meta?.providerTaskId) ?? id;
+		const upstream = await proxyOpenAIVideoRequest(
+			req,
+			authValue,
+			openAiCompatProviderId,
+			`/videos/${encodeURIComponent(nativeId)}`,
+			"DELETE",
+			{ videoMeta: ownedVideo.meta },
+		);
+		if (!(upstream instanceof Response) || !upstream.ok) return upstream;
+	}
 	await setVideoJobStatus(authValue.workspaceId, id, ownedVideo.record.status === "cancelled" ? "cancelled" : (ownedVideo.record.status === "completed" ? "completed" : (ownedVideo.record.status === "expired" ? "expired" : "failed")), {
 		tombstoned: true,
 		tombstonedAt: new Date().toISOString(),
 	});
 	return new Response(JSON.stringify({
 		id,
-		object: "video",
+		object: "video.deleted",
 		deleted: true,
 	}), {
 		status: 200,
 		headers: { "Content-Type": "application/json" },
 	});
 }));
-
-

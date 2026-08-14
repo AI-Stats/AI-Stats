@@ -6,6 +6,8 @@ import { MessageSquare, Scale } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import type { ModelGatewayMetadata } from "@/lib/fetchers/models/getModelGatewayMetadata";
+import { UseModelSheet } from "./UseModelSheet";
 
 function useStickyHeaderVisibility(observeId: string) {
 	const [visible, setVisible] = useState(false);
@@ -49,6 +51,7 @@ export default function ModelStickyHeader({
 	modelName,
 	observeId,
 	canChat = true,
+	gatewayMetadata,
 }: {
 	modelId: string;
 	organisationId: string;
@@ -56,6 +59,7 @@ export default function ModelStickyHeader({
 	modelName: string;
 	observeId: string;
 	canChat?: boolean;
+	gatewayMetadata?: ModelGatewayMetadata | null;
 }) {
 	const visible = useStickyHeaderVisibility(observeId);
 
@@ -123,6 +127,10 @@ export default function ModelStickyHeader({
 									<Scale className="h-4 w-4" />
 								</Link>
 							</Button>
+							{canChat ? <UseModelSheet modelId={modelId} modelName={modelName} gatewayMetadata={gatewayMetadata} className="hidden h-8 px-2.5 text-[13px] sm:inline-flex" /> : null}
+							{canChat ? (
+								<UseModelSheet modelId={modelId} modelName={modelName} gatewayMetadata={gatewayMetadata} compact className="sm:hidden" />
+							) : null}
 						</div>
 					</div>
 				</div>

@@ -4,6 +4,26 @@ description: "Recent product updates, SDK changes, and model releases across Pha
 rss: true
 ---
 
+<Update label="August 13, 2026" tags={["Model Releases","Provider Coverage","Pricing"]}>
+
+### Model Releases
+
+![Gemini 3.7 Flash model release artwork](../images/model-releases/2026-08-13--google--gemini-3.7-flash.png)
+
+- [Google: Gemini 3.7 Flash](https://phaseo.app/models/google/gemini-3.7-flash)
+- [Mistral: OCR 4.1](https://phaseo.app/models/mistral/ocr-4.1)
+
+### Pricing and Provider Coverage
+
+- Provisionally added Google AI Studio and Vertex AI routes for Gemini 3.7 Flash with a 13 August 2026 release date. The routes are ready and will come online when Google enables the model upstream.
+- Standard pricing is $0.75 per million input tokens, $0.075 per million cached input tokens, and $3.75 per million output tokens. Cached-image, Batch video-input, and Priority video-input rates are provisional cross-modality assumptions pending dedicated SKUs.
+- Batch and Flex pricing is $0.375 per million input tokens and $1.875 per million output tokens. Priority pricing is $1.35 per million input tokens and $6.75 per million output tokens, with published cached-input rates varying by tier and modality.
+- Google also lists cache storage at $0.50 per million token-hours. Phaseo records this in the pricing source notes until storage-duration usage is available as a billable meter.
+- Added OCR 4.1 with improved bounding boxes, reference-page structure, complex-page block recall, quote preservation, checkbox recognition, and right-to-left table parsing. Mistral's `mistral-ocr-latest` alias now resolves to OCR 4.1 through the gateway.
+- Mistral prices OCR 4 at $4 per 1,000 pages, or $2 through the Batch API. Document AI is $5 per 1,000 pages, while OCR 3 remains available at $2 per 1,000 pages.
+
+</Update>
+
 <Update label="July 31, 2026" tags={["Model Releases","Provider Coverage","Pricing"]}>
 
 ### Model and API Updates

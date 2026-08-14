@@ -98,6 +98,55 @@ describe("resolveStreamForProtocol", () => {
 		expect(output).toContain("\"type\":\"message\"");
 	});
 
+	it("preserves Perplexity citations and search billing in the completed Responses event", async () => {
+		const upstream = makeSseResponse([{
+			data: {
+				id: "pplx_stream_1",
+				object: "chat.completion.chunk",
+				created: 1710000000,
+				model: "sonar-deep-research",
+				choices: [{ index: 0, delta: { content: "Grounded" }, finish_reason: "stop" }],
+				citations: ["https://example.com/source"],
+				search_results: [{ title: "Source", url: "https://example.com/source", source: "web" }],
+				usage: {
+					prompt_tokens: 3,
+					completion_tokens: 2,
+					total_tokens: 5,
+					citation_tokens: 7,
+					num_search_queries: 2,
+					search_context_size: "high",
+					cost: { total_cost: 0.04 },
+				},
+			},
+		}, "[DONE]"]);
+
+		const stream = resolveStreamForProtocol(
+			upstream,
+			baseArgs({
+				providerId: "perplexity",
+				providerModelSlug: "sonar-deep-research",
+				endpoint: "responses",
+				protocol: "openai.responses",
+			}),
+			"chat",
+		);
+
+		const frames = parseSseJsonFrames(await readStreamText(stream));
+		const completed = frames.find((frame) => frame?.response?.status === "completed")?.response;
+		expect(completed.citations).toEqual(["https://example.com/source"]);
+		expect(completed.search_results).toHaveLength(1);
+		expect(completed.output[0].content[0].annotations[0]).toMatchObject({
+			type: "url_citation",
+			url: "https://example.com/source",
+		});
+		expect(completed.usage).toMatchObject({
+			citation_tokens: 7,
+			num_search_queries: 2,
+			search_context_size: "high",
+			cost: { total_cost: 0.04 },
+		});
+	});
+
 	it("converts responses stream to anthropic messages stream for /messages protocol", async () => {
 		const upstream = makeSseResponse([
 			{

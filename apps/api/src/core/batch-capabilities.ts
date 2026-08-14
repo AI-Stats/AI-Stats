@@ -41,8 +41,31 @@ export const BATCH_PROVIDER_CAPABILITIES: BatchProviderCapability[] = [
 			{ endpoint: "/v1/chat/completions", mode: "native" },
 			{ endpoint: "/v1/responses", mode: "native" },
 			{ endpoint: "/v1/embeddings", mode: "native" },
+			{ endpoint: "/v1/completions", mode: "native" },
+			{ endpoint: "/v1/moderations", mode: "native" },
+			{ endpoint: "/v1/images/generations", mode: "native" },
+			{ endpoint: "/v1/images/edits", mode: "native" },
+			{ endpoint: "/v1/videos", mode: "native" },
 		],
 		notes: "Gateway requests are converted into a provider batch JSONL file before submission.",
+	},
+	{
+		providerId: "ovhcloud",
+		displayName: "OVHcloud AI Endpoints",
+		nativeInputModes: ["file"],
+		gatewayInputModes: ["file", "requests"],
+		documentationUrl: "https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-batch-mode",
+		status: "active",
+		previewReadiness: "validated",
+		reconciliationMode: "polling",
+		submissionRecovery: "metadata_lookup",
+		endpoints: [
+			{ endpoint: "/v1/chat/completions", mode: "native" },
+			{ endpoint: "/v1/responses", mode: "native" },
+			{ endpoint: "/v1/embeddings", mode: "native" },
+		],
+		supportsMultipleModelsPerBatch: true,
+		notes: "OpenAI-compatible Batch and Files API. JSONL files are limited to 200 MB and 50,000 unique custom_id rows; at most five batches may be in progress. Completion windows are 24h, 48h, or 72h and output/error files expire after 15 days.",
 	},
 	{
 		providerId: "anthropic",
@@ -61,6 +84,19 @@ export const BATCH_PROVIDER_CAPABILITIES: BatchProviderCapability[] = [
 		supportsMultipleModelsPerBatch: true,
 	},
 	{
+		providerId: "scaleway",
+		displayName: "Scaleway Generative APIs",
+		nativeInputModes: ["file"],
+		gatewayInputModes: [],
+		documentationUrl: "https://www.scaleway.com/en/docs/generative-apis/how-to/use-batch-processing/",
+		status: "planned",
+		previewReadiness: "blocked",
+		reconciliationMode: "polling",
+		submissionRecovery: "manual_review",
+		endpoints: [{ endpoint: "/v1/chat/completions", mode: "native" }],
+		notes: "Native batches require an S3 Object Storage object URL as input_file_id; the bucket must be in the same Scaleway Project and grant scw-managed-genapi-batch GetObject/PutObject. The gateway cannot expose this until it has an owned S3 URL/file bridge. Scaleway limits files to 200 MB and 50,000 unique custom_id rows, requires one POST endpoint and model per file, supports only completion_window=24h, writes separate output/error JSONL objects, and applies a 50% batch discount.",
+	},
+	{
 		providerId: "google-ai-studio",
 		displayName: "Google Gemini",
 		nativeInputModes: ["file", "requests"],
@@ -74,7 +110,39 @@ export const BATCH_PROVIDER_CAPABILITIES: BatchProviderCapability[] = [
 			{ endpoint: "/v1/generateContent", mode: "native" },
 			{ endpoint: "/v1/chat/completions", mode: "translated" },
 		],
-		notes: "Gemini requests are submitted to the native Batch API. File-backed Gemini batches require Google Files API integration.",
+		notes: "Gemini generateContent requests are submitted to the native Batch API. Inline requests must stay under 20 MB; file-backed jobs use JSONL through the Google Files API (up to 2 GB), target completion within 24 hours, are non-idempotent, and cost 50% of interactive inference. Google now also exposes a separate createEmbeddings Batch API; the gateway does not yet translate public embeddings batches into that distinct resource shape.",
+	},
+	{
+		providerId: "google-vertex",
+		displayName: "Google Vertex AI",
+		nativeInputModes: ["file"],
+		gatewayInputModes: [],
+		documentationUrl: "https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/batch-prediction-gemini",
+		status: "planned",
+		previewReadiness: "blocked",
+		reconciliationMode: "polling",
+		submissionRecovery: "manual_review",
+		endpoints: [
+			{ endpoint: "/v1/generateContent", mode: "native" },
+			{ endpoint: "/v1/embeddings", mode: "native" },
+		],
+		notes: "Vertex AI batch inference uses regional BatchPredictionJob/Gen AI batch resources with Google Cloud Storage or BigQuery input and output owned by the same Google Cloud project. The gateway cannot expose this safely until it has an ADC-authenticated GCS/BigQuery file bridge and regional job lifecycle adapter.",
+	},
+	{
+		providerId: "google-vertex-eu",
+		displayName: "Google Vertex AI EU",
+		nativeInputModes: ["file"],
+		gatewayInputModes: [],
+		documentationUrl: "https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/batch-prediction-gemini",
+		status: "planned",
+		previewReadiness: "blocked",
+		reconciliationMode: "polling",
+		submissionRecovery: "manual_review",
+		endpoints: [
+			{ endpoint: "/v1/generateContent", mode: "native" },
+			{ endpoint: "/v1/embeddings", mode: "native" },
+		],
+		notes: "Vertex AI batch inference is region-scoped and requires Google Cloud Storage or BigQuery resources compatible with the selected EU location and project. The gateway has no ADC-authenticated regional storage/job bridge, so EU batch submission remains explicitly blocked.",
 	},
 	{
 		providerId: "x-ai",
@@ -86,21 +154,68 @@ export const BATCH_PROVIDER_CAPABILITIES: BatchProviderCapability[] = [
 		previewReadiness: "blocked",
 		reconciliationMode: "polling",
 		submissionRecovery: "metadata_lookup",
-		endpoints: [{ endpoint: "/v1/responses", mode: "native" }],
+		endpoints: [
+			{ endpoint: "/v1/chat/completions", mode: "native" },
+			{ endpoint: "/v1/responses", mode: "native" },
+			{ endpoint: "/v1/images/generations", mode: "native" },
+			{ endpoint: "/v1/images/edits", mode: "native" },
+			{ endpoint: "/v1/videos/generations", mode: "native" },
+			{ endpoint: "/v1/videos", mode: "native" },
+			{ endpoint: "/v1/videos/edits", mode: "native" },
+			{ endpoint: "/v1/videos/extensions", mode: "native" },
+		],
 		supportsMultipleModelsPerBatch: true,
-		notes: "Requests use xAI's create-batch and add-requests workflow. Production access returned 403 in the latest live matrix.",
+		notes: "Requests use xAI's create-batch and add-requests workflow, with paginated partial results and POST /batches/{id}:cancel. JSONL Files input is native but not exposed through gateway file mode. Production access returned 403 in the latest live matrix, so preview remains blocked. grok-4.5 is explicitly unsupported.",
 	},
 	{
 		providerId: "mistral",
 		displayName: "Mistral",
 		nativeInputModes: ["file", "requests"],
 		gatewayInputModes: ["file", "requests"],
-		documentationUrl: "https://docs.mistral.ai/studio-api/batch-processing",
+		documentationUrl: "https://docs.mistral.ai/studio/batch-processing",
+		status: "active",
+		previewReadiness: "validated",
+		reconciliationMode: "polling",
+		submissionRecovery: "metadata_lookup",
+		endpoints: [
+			{ endpoint: "/v1/chat/completions", mode: "native" },
+			{ endpoint: "/v1/embeddings", mode: "native" },
+			{ endpoint: "/v1/fim/completions", mode: "native" },
+			{ endpoint: "/v1/moderations", mode: "native" },
+			{ endpoint: "/v1/chat/moderations", mode: "native" },
+			{ endpoint: "/v1/ocr", mode: "native" },
+			{ endpoint: "/v1/classifications", mode: "native" },
+			{ endpoint: "/v1/chat/classifications", mode: "native" },
+			{ endpoint: "/v1/conversations", mode: "native" },
+			{ endpoint: "/v1/audio/transcriptions", mode: "native" },
+		],
+		notes: "Inline batches support fewer than 10,000 requests; file-backed batches support up to 1,000,000 requests and use Mistral Files with purpose=batch.",
+	},
+	{
+		providerId: "mistral-eu",
+		displayName: "Mistral EU",
+		nativeInputModes: [],
+		gatewayInputModes: [],
+		documentationUrl: "https://docs.mistral.ai/inference/regional-inference",
+		status: "planned",
+		previewReadiness: "blocked",
+		reconciliationMode: "polling",
+		submissionRecovery: "manual_review",
+		endpoints: [],
+		notes: "Mistral explicitly excludes Batch and Files from regional endpoints.",
+	},
+	{
+		providerId: "moonshotai",
+		displayName: "Moonshot AI / Kimi",
+		nativeInputModes: ["file"],
+		gatewayInputModes: ["file", "requests"],
+		documentationUrl: "https://platform.kimi.ai/docs/guide/use-batch-api",
 		status: "active",
 		previewReadiness: "validated",
 		reconciliationMode: "polling",
 		submissionRecovery: "metadata_lookup",
 		endpoints: [{ endpoint: "/v1/chat/completions", mode: "native" }],
+		notes: "Native input is a non-empty JSONL file up to 100 MB. Gateway inline requests are converted to a purpose=batch file. Only kimi-k2.5 and kimi-k2.6 are supported, with one model per batch and a 12h–7d completion window.",
 	},
 	{
 		providerId: "groq",
@@ -129,6 +244,53 @@ export const BATCH_PROVIDER_CAPABILITIES: BatchProviderCapability[] = [
 		endpoints: [{ endpoint: "/v1/chat/completions", mode: "native" }],
 		supportsMultipleModelsPerBatch: true,
 		notes: "Gateway requests are converted into a provider batch JSONL file before submission.",
+	},
+	{
+		providerId: "alibaba-cloud",
+		displayName: "Alibaba Cloud Model Studio",
+		nativeInputModes: ["file"],
+		gatewayInputModes: ["file", "requests"],
+		documentationUrl: "https://www.alibabacloud.com/help/en/model-studio/batch-interfaces-compatible-with-openai/",
+		status: "active",
+		previewReadiness: "experimental",
+		reconciliationMode: "polling",
+		submissionRecovery: "manual_review",
+		endpoints: [
+			{ endpoint: "/v1/chat/completions", mode: "native" },
+			{ endpoint: "/v1/embeddings", mode: "native" },
+		],
+		supportsMultipleModelsPerBatch: true,
+		notes: "OpenAI-compatible Files and Batch lifecycle with purpose=batch JSONL input and a fixed 24h completion window. API keys and hosts are region-specific.",
+	},
+	{
+		providerId: "nebius-token-factory",
+		displayName: "Nebius Token Factory",
+		nativeInputModes: [],
+		gatewayInputModes: [],
+		documentationUrl: "https://docs.tokenfactory.nebius.com/data-lab/batch-inference",
+		status: "planned",
+		previewReadiness: "blocked",
+		reconciliationMode: "polling",
+		submissionRecovery: "manual_review",
+		endpoints: [],
+		notes: "Nebius removed the legacy OpenAI-compatible /v1/batches routes from its current OpenAPI. Its live batch surface is Data Lab datasets plus operations, which requires a distinct dataset/operation adapter and is fixed to EU North 1. Files remain available for batch and fine-tuning artifacts, but are not sufficient to submit a current native batch.",
+	},
+	{
+		providerId: "parasail",
+		displayName: "Parasail",
+		nativeInputModes: ["file"],
+		gatewayInputModes: ["file", "requests"],
+		documentationUrl: "https://docs.parasail.io/parasail-docs/batch/api-reference",
+		status: "active",
+		previewReadiness: "validated",
+		reconciliationMode: "polling",
+		submissionRecovery: "metadata_lookup",
+		endpoints: [
+			{ endpoint: "/v1/chat/completions", mode: "native" },
+			{ endpoint: "/v1/embeddings", mode: "native" },
+		],
+		supportsMultipleModelsPerBatch: true,
+		notes: "OpenAI-compatible JSONL Batch and Files API on the distinct https://api.saas.parasail.io/v1 host. Standard files allow 50,000 rows and 100 MB. Parasail's separate 500 MB batch image generation/editing format is intentionally not exposed until its custom image-row schema has a dedicated gateway adapter.",
 	},
 ];
 
@@ -168,6 +330,7 @@ function normalizeProviderId(value: unknown): string | null {
 	if (trimmed === "google" || trimmed === "gemini") return "google-ai-studio";
 	if (trimmed === "xai") return "x-ai";
 	if (trimmed === "together-ai" || trimmed === "togetherai") return "together";
+	if (trimmed === "moonshot-ai" || trimmed === "moonshot-ai-turbo" || trimmed === "moonshotai-turbo") return "moonshotai";
 	return trimmed;
 }
 
@@ -190,6 +353,9 @@ function providerFromModelPrefix(model: string): string | null {
 			return "google-ai-studio";
 		case "mistral":
 			return "mistral";
+		case "moonshotai":
+		case "moonshot-ai":
+			return "moonshotai";
 		case "x-ai":
 		case "xai":
 		case "spacex-ai":
@@ -227,6 +393,7 @@ export function resolveBatchProvidersFromModel(model: unknown): string[] {
 	}
 	if (slug.startsWith("claude-")) return ["anthropic"];
 	if (slug.startsWith("gemini-")) return ["google-ai-studio"];
+	if (slug.startsWith("kimi-") || slug.startsWith("moonshot-v1-")) return ["moonshotai"];
 	if (
 		slug.startsWith("mistral-") ||
 		slug.startsWith("codestral-") ||
@@ -325,7 +492,8 @@ export function resolveBatchInputMode(payload: Record<string, unknown>): BatchIn
 }
 
 export function getBatchProviderCapability(providerId: string): BatchProviderCapability | null {
-	return CAPABILITIES_BY_PROVIDER.get(providerId.trim().toLowerCase()) ?? null;
+	const normalized = normalizeProviderId(providerId);
+	return normalized ? CAPABILITIES_BY_PROVIDER.get(normalized) ?? null : null;
 }
 
 export function providerSupportsMultipleModelsPerBatch(providerId: string): boolean {

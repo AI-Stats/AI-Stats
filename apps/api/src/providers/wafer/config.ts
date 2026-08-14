@@ -7,5 +7,6 @@ export const WAFER_OPENAI_COMPAT_CONFIGS = {
 		pathPrefix: "/v1",
 		apiKeyEnv: "WAFER_API_KEY",
 		baseUrlEnv: "WAFER_BASE_URL",
+		supportsResponses: false,
 	},
 } satisfies Record<string, OpenAICompatConfig>;

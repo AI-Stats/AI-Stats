@@ -8,8 +8,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 32678,
+    "max_output_tokens": 8192,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -48,6 +48,58 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "deepseek/deepseek-v3",
+    "provider_api_model_id": "digitalocean:deepseek/deepseek-v3",
+    "provider_model_slug": "deepseek-v3",
+    "internal_model_id": "deepseek/deepseek-v3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 163840,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:45:54.186+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "deepseek/deepseek-v3.2",
     "provider_api_model_id": "digitalocean:deepseek-3.2",
     "provider_model_slug": "deepseek-3.2",
@@ -56,8 +108,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 163840,
+    "max_output_tokens": 32768,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -104,8 +156,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 1048576,
+    "max_output_tokens": 384000,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -144,6 +196,58 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "digitalocean:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek-v4-flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 209715,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:45:54.186+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "deepseek/deepseek-v4-pro",
     "provider_api_model_id": "digitalocean:deepseek-v4-pro",
     "provider_model_slug": "deepseek-v4-pro",
@@ -152,8 +256,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 1048576,
+    "max_output_tokens": 384000,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -200,8 +304,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 256000,
+    "max_output_tokens": 8192,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -248,8 +352,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 128000,
+    "max_output_tokens": 4096,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -296,8 +400,8 @@
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 128000,
+    "max_output_tokens": 16384,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -344,8 +448,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 65536,
+    "max_output_tokens": 13107,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -392,7 +496,7 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
@@ -440,8 +544,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 262144,
+    "max_output_tokens": 52429,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -488,8 +592,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 262144,
+    "max_output_tokens": 52429,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -599,8 +703,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 65536,
+    "max_output_tokens": 13107,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -647,8 +751,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 1000000,
+    "max_output_tokens": 32768,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -743,8 +847,8 @@
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 128000,
+    "max_output_tokens": 16384,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -791,8 +895,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 128000,
+    "max_output_tokens": 4096,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -839,8 +943,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 128000,
+    "max_output_tokens": 4096,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -887,8 +991,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 32768,
+    "max_output_tokens": 6554,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -935,8 +1039,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 262144,
+    "max_output_tokens": 52429,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -1031,8 +1135,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "audio",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 32768,
+    "max_output_tokens": 1,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -1079,8 +1183,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 131072,
+    "max_output_tokens": 26214,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -1115,6 +1219,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-2.4t-a95b",
+    "provider_api_model_id": "digitalocean:qwen3.8-max",
+    "provider_model_slug": "qwen3.8-max",
+    "internal_model_id": "qwen/qwen3.8-2.4t-a95b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Provider model slug qwen3.8-max was reported from the DigitalOcean models feed; routing remains disabled pending gateway integration and publication in the provider documentation."
     },
     "rate_limits": []
   },
@@ -1167,6 +1323,58 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "xiaomi/mimo-v2.5-pro",
+    "provider_api_model_id": "digitalocean:xiaomi/mimo-v2.5-pro",
+    "provider_model_slug": "mimo-v2.5-pro",
+    "internal_model_id": "xiaomi/mimo-v2.5-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 52429,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:45:54.186+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "z-ai/glm-5",
     "provider_api_model_id": "digitalocean:glm-5",
     "provider_model_slug": "glm-5",
@@ -1175,8 +1383,8 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 64000,
+    "max_output_tokens": 12800,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -1215,6 +1423,58 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "z-ai/glm-5.1",
+    "provider_api_model_id": "digitalocean:z-ai/glm-5.1",
+    "provider_model_slug": "glm-5.1",
+    "internal_model_id": "z-ai/glm-5.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 163840,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:45:54.186+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "z-ai/glm-5.2",
     "provider_api_model_id": "digitalocean:glm-5.2",
     "provider_model_slug": "glm-5.2",
@@ -1224,7 +1484,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 262144,
-    "max_output_tokens": null,
+    "max_output_tokens": 52429,
     "effective_from": "2026-06-16T00:00:00",
     "effective_to": null,
     "capabilities": [

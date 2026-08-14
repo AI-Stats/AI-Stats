@@ -9,7 +9,6 @@ describe("settings sidebar navigation", () => {
 		expect(personalLabels).toEqual([
 			"Profile",
 			"Account",
-			"Privacy",
 			"Workspaces",
 			"Billing",
 			"Feature Preview",
@@ -33,23 +32,24 @@ describe("settings sidebar navigation", () => {
 				items: group.items.map((item) => item.label),
 			}));
 
-		expect(workspaceGroups).toEqual([
-			{ heading: "Workspace", items: ["Settings"] },
-			{ heading: "Observe", items: ["Usage", "Logs"] },
-			{
-				heading: "Gateway",
-				items: [
-					"API Keys",
-					"Management Keys",
-					"Broadcast",
-					"Apps",
-					"Routing",
-					"Bring Your Own Key",
-					"Presets",
-					"Safety & privacy",
-				],
-			},
-			{ heading: "Developer", items: ["OAuth Apps", "Webhooks"] },
-		]);
+		expect(workspaceGroups).toEqual([{
+			heading: undefined,
+			items: [
+				"Settings",
+				"API Keys",
+				"Usage",
+				"Logs",
+				"Routing",
+				"Guardrails",
+				"Privacy",
+				"Bring Your Own Key",
+				"Presets",
+				"Apps",
+				"Management Keys",
+				"Broadcast",
+				"OAuth Apps",
+				"Webhooks",
+			],
+		}]);
 	});
 });

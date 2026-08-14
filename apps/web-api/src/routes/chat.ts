@@ -76,6 +76,7 @@ chatRouter.post("/realtime/session", async (c) => {
 
 	const baseUrl = resolveGatewayBaseUrlForEnvironment({
 		configuredBaseUrl: c.env.AI_STATS_GATEWAY_URL ?? c.env.PHASEO_GATEWAY_URL,
+		stagingBaseUrl: c.env.STAGING_GATEWAY_BASE_URL,
 		environment: c.env.ENV,
 	});
 	if (!baseUrl) return realtimeError(500, "gateway_not_configured", "Realtime gateway is not configured.");

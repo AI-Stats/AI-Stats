@@ -3,6 +3,37 @@ import { decodeOpenAIEmbeddingsRequest, decodeOpenAIEmbeddingsResponse } from ".
 import { encodeOpenAIEmbeddingsRequest, encodeOpenAIEmbeddingsResponse } from "../encode";
 
 describe("openai embeddings protocol adapters", () => {
+	it("preserves Nebius service tier through request and response IR", () => {
+		const request = decodeOpenAIEmbeddingsRequest({
+			model: "Qwen/Qwen3-Embedding-8B",
+			input: "hello",
+			service_tier: "flex",
+		} as any);
+		expect(request.serviceTier).toBe("flex");
+
+		const response = decodeOpenAIEmbeddingsResponse({
+			object: "list",
+			model: "Qwen/Qwen3-Embedding-8B",
+			data: [{ object: "embedding", index: 0, embedding: [0.1] }],
+			usage: { prompt_tokens: 1, total_tokens: 1 },
+			service_tier: "default",
+		});
+		expect(encodeOpenAIEmbeddingsResponse(response).service_tier).toBe("default");
+	});
+	it("decodes Mistral metadata and quantized-output controls", () => {
+		const ir = decodeOpenAIEmbeddingsRequest({
+			model: "mistral-embed",
+			input: ["one", "two"],
+			encoding_format: "base64",
+			dimensions: 256,
+			metadata: { tenant: "eu-customer" },
+			provider_options: { mistral: { output_dtype: "int8" } },
+		} as any);
+
+		expect(ir.metadata).toEqual({ tenant: "eu-customer" });
+		expect(ir.dimensions).toBe(256);
+		expect(ir.providerOptions?.mistral?.outputDtype).toBe("int8");
+	});
 	it("decodes token arrays and provider options", () => {
 		const ir = decodeOpenAIEmbeddingsRequest({
 			model: "openai/text-embedding-3-large",
@@ -117,14 +148,25 @@ describe("openai embeddings protocol adapters", () => {
 		});
 		const encoded = encodeOpenAIEmbeddingsResponse(ir);
 
-		expect(encoded.usage).toMatchObject({
-			input_tokens: 120,
+		expect(encoded.usage).toEqual({
+			prompt_tokens: 120,
 			total_tokens: 120,
-			embedding_tokens: 120,
-			input_tokens_details: {
-				input_images: 64,
-				input_audio: 8,
-			},
+		});
+	});
+
+	it("preserves OpenAI base64 embeddings and emits the documented usage shape", () => {
+		const ir = decodeOpenAIEmbeddingsResponse({
+			object: "list",
+			model: "text-embedding-3-small",
+			data: [{ object: "embedding", index: 0, embedding: "AACAPwAAAMA=" }],
+			usage: { prompt_tokens: 2, total_tokens: 2 },
+		});
+
+		expect(encodeOpenAIEmbeddingsResponse(ir)).toEqual({
+			object: "list",
+			model: "text-embedding-3-small",
+			data: [{ object: "embedding", index: 0, embedding: "AACAPwAAAMA=" }],
+			usage: { prompt_tokens: 2, total_tokens: 2 },
 		});
 	});
 });

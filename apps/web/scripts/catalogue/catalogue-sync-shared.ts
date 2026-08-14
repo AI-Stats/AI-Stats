@@ -3,6 +3,12 @@ import path from "node:path";
 
 export type JsonObject = Record<string, any>;
 
+export type PricingRuleOptions = {
+	unit?: string;
+	unitSize?: number;
+	note?: string | null;
+};
+
 type ChangeReport = { changedFiles: string[] };
 
 export function normalized(value: unknown): string {
@@ -43,15 +49,15 @@ export async function writeJsonIfChanged(
 	return true;
 }
 
-export function pricingRule(meter: string, price: number, currency = "USD"): JsonObject {
+export function pricingRule(meter: string, price: number, currency = "USD", options: PricingRuleOptions = {}): JsonObject {
 	return {
 		meter,
-		unit: "token",
-		unit_size: 1_000_000,
+		unit: options.unit ?? "token",
+		unit_size: options.unitSize ?? 1_000_000,
 		price_per_unit: price,
 		currency,
 		pricing_plan: "standard",
-		note: null,
+		note: options.note ?? null,
 		match: [],
 		priority: 100,
 		region: null,
@@ -76,6 +82,7 @@ export function safePricingRules(pricing: JsonObject): boolean {
 export function mergeSimplePricing(
 	pricing: JsonObject,
 	meters: Record<string, number>,
+	ruleOptions: Record<string, PricingRuleOptions> = {},
 ): { value: JsonObject; changed: boolean } {
 	if (!safePricingRules(pricing)) return { value: pricing, changed: false };
 	let changed = false;
@@ -83,7 +90,7 @@ export function mergeSimplePricing(
 	for (const [meter, price] of Object.entries(meters)) {
 		const current = byMeter.get(meter);
 		if (!current) {
-			(pricing.rules as JsonObject[]).push(pricingRule(meter, price));
+			(pricing.rules as JsonObject[]).push(pricingRule(meter, price, "USD", ruleOptions[meter]));
 			changed = true;
 		} else if (Number(current.price_per_unit) !== price) {
 			current.price_per_unit = price;

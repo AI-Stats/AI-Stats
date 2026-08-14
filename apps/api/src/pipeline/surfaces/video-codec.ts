@@ -76,11 +76,14 @@ export function decodeOpenAIVideoRequestToIR(body: any): IRVideoGenerationReques
 
 	const canonicalSize = firstDefined(body?.size, body?.resolution);
 	const sampleCountRaw = body?.sample_count;
-	const durationSecondsRaw = body?.duration;
+	const durationSecondsRaw = body?.seconds ?? body?.duration;
 	const durationSeconds =
 		typeof durationSecondsRaw === "number" && Number.isFinite(durationSecondsRaw)
 			? durationSecondsRaw
+			: typeof durationSecondsRaw === "string" && Number.isFinite(Number(durationSecondsRaw))
+				? Number(durationSecondsRaw)
 			: undefined;
+	const nativeInputReference = body?.input_reference;
 
 	return {
 		model: body?.model,
@@ -96,7 +99,7 @@ export function decodeOpenAIVideoRequestToIR(body: any): IRVideoGenerationReques
 		outputAccess: body?.output?.access ?? "both",
 		webhook: body?.webhook,
 		seconds: durationSeconds,
-		inputReference: normalizeReferenceValue(firstFrame),
+		inputReference: nativeInputReference ?? normalizeReferenceValue(firstFrame),
 		inputReferenceMimeType: firstFrame?.mime_type ?? firstFrame?.mimeType,
 		input: {
 			image: normalizeReferenceValue(firstFrame),
@@ -109,6 +112,10 @@ export function decodeOpenAIVideoRequestToIR(body: any): IRVideoGenerationReques
 		inputVideoDurationSeconds:
 			typeof body?.input_video_duration === "number" && Number.isFinite(body.input_video_duration)
 				? body.input_video_duration
+				: undefined,
+		inputAudioDurationSeconds:
+			typeof body?.input_audio_duration === "number" && Number.isFinite(body.input_audio_duration)
+				? body.input_audio_duration
 				: undefined,
 		lastFrame: normalizeReferenceValue(lastFrame),
 		referenceImages,
@@ -146,13 +153,24 @@ export function encodeVideoIRToOpenAIResponse(
 			: ir.status === "failed"
 				? "failed"
 				: ir.status === "cancelled"
-					? "cancelled"
+					? "failed"
 					: ir.status === "in_progress"
 						? "in_progress"
-						: "pending";
+						: "queued";
 	return {
 		id: requestId,
-		polling_url: `/v1/videos/${encodeURIComponent(requestId)}`,
+		object: "video",
+		model: ir.model,
 		status,
+		progress: ir.progress ?? (status === "completed" ? 100 : 0),
+		created_at: ir.createdAt,
+		completed_at: ir.completedAt ?? null,
+		expires_at: ir.expiresAt ?? null,
+		error: ir.error ?? null,
+		prompt: ir.prompt ?? null,
+		remixed_from_video_id: ir.remixedFromVideoId ?? null,
+		seconds: ir.seconds,
+		size: ir.size,
+		...(ir.quality ? { quality: ir.quality } : {}),
 	};
 }

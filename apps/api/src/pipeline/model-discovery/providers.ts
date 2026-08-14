@@ -11,6 +11,7 @@ export type ProviderAuthStyle =
 	| "clarifai_key"
 	| "elevenlabs"
 	| "api_key_authorization"
+	| "x_api_key"
 	| "optional_bearer"
 	| "none";
 
@@ -96,8 +97,12 @@ const PROVIDER_OVERRIDES: Record<string, ProviderOverride> = {
 	"google-vertex": { providerName: "Google Vertex", disabled: true },
 	"google-vertex-eu": { providerName: "Google Vertex EU", disabled: true },
 	groq: { providerName: "Groq" },
-	"inference-net": { providerName: "Inference.net" },
+	"inference-net": {
+		providerName: "Inference.net",
+		apiKeyEnv: ["INFERENCE_API_KEY", "INFERENCE_NET_API_KEY"],
+	},
 	ionrouter: { providerName: "IonRouter" },
+	"liquid-ai": { providerName: "Liquid AI", disabled: true },
 	moonshotai: { providerName: "Moonshot AI", apiKeyEnv: ["MOONSHOT_AI_API_KEY"] },
 	mara: { providerName: "MARA" },
 	"moonshotai-turbo": { providerName: "Moonshot AI Turbo", apiKeyEnv: ["MOONSHOT_AI_API_KEY"] },
@@ -128,9 +133,8 @@ const PROVIDER_OVERRIDES: Record<string, ProviderOverride> = {
 	"perceptron": { providerName: "Perceptron" },
 	perplexity: { providerName: "Perplexity" },
 	poolside: { providerName: "Poolside" },
-	reka: { providerName: "Reka" },
+	reka: { providerName: "Reka", authStyle: "x_api_key" },
 	sambanova: { providerName: "SambaNova" },
-	sourceful: { providerName: "Sourceful" },
 	stepfun: { providerName: "StepFun" },
 	// StreamLake exposes endpoint-bound models and its public list API requires an undocumented Action parameter.
 	streamlake: { providerName: "StreamLake", disabled: true },
@@ -229,6 +233,13 @@ const NATIVE_DISCOVERY_PROVIDERS: ProviderConfig[] = [
 		authStyle: "optional_bearer",
 	},
 	{
+		providerId: "nano-gpt",
+		providerName: "NanoGPT",
+		modelsEndpoint: "https://nano-gpt.com/api/v1/models?detailed=true",
+		apiKeyEnv: ["NANO_GPT_API_KEY", "NANOGPT_API_KEY"],
+		authStyle: "optional_bearer",
+	},
+	{
 		providerId: "llmgateway",
 		providerName: "LLM Gateway",
 		modelsEndpoint: "https://api.llmgateway.io/v1/models",
@@ -253,6 +264,13 @@ const NATIVE_DISCOVERY_PROVIDERS: ProviderConfig[] = [
 		providerName: "Vercel AI Gateway",
 		modelsEndpoint: "https://ai-gateway.vercel.sh/v1/models",
 		authStyle: "none",
+	},
+	{
+		providerId: "zenmux",
+		providerName: "ZenMux",
+		modelsEndpoint: "https://zenmux.ai/api/v1/models",
+		apiKeyEnv: ["ZENMUX_API_KEY"],
+		authStyle: "optional_bearer",
 	},
 	{
 		providerId: "anthropic",

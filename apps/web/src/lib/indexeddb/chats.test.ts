@@ -1,4 +1,5 @@
 import {
+	getChatThreadSessionId,
     normalizeChatTags,
     normalizeChatThread,
     type ChatThread,
@@ -19,6 +20,31 @@ const baseThread: ChatThread = {
 };
 
 describe("chat IndexedDB normalization", () => {
+    it("uses a thread ID as the stable session ID for existing conversations", () => {
+        const firstRequestSessionId = getChatThreadSessionId(baseThread);
+        const threadWithMessages: ChatThread = {
+            ...baseThread,
+            messages: [{
+                id: "message_1",
+                role: "user",
+                content: "Hello",
+                createdAt: "2026-07-03T12:01:00.000Z",
+            }],
+        };
+        const subsequentRequestSessionId = getChatThreadSessionId(threadWithMessages);
+
+        expect(firstRequestSessionId).toBe("chat_1");
+        expect(subsequentRequestSessionId).toBe(firstRequestSessionId);
+        expect(getChatThreadSessionId({ ...baseThread, id: "chat_2" })).toBe("chat_2");
+    });
+
+    it("keeps a dedicated temporary-chat session ID stable", () => {
+        const temporaryThread = { id: "temp-chat", sessionId: "session_temporary_1" };
+
+        expect(getChatThreadSessionId(temporaryThread)).toBe("session_temporary_1");
+        expect(getChatThreadSessionId({ ...temporaryThread })).toBe("session_temporary_1");
+    });
+
     it("drops malformed imported tags that are not arrays", () => {
         const thread = normalizeChatThread({
             ...baseThread,

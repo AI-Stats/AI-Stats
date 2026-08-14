@@ -159,16 +159,16 @@
     ]
   },
   "reasoning": {
-    "supported": null,
-    "options": []
+    "supported": true,
+    "options": ["high", "xhigh"]
   },
   "capabilities": {
-    "attachment": null,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
-    "web_search": null
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": false,
+    "streaming": true,
+    "web_search": true
   },
   "open_weights": null,
   "sources": [
@@ -204,11 +204,11 @@
     }
   ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Current model ID, 1M context, image input, protocols, reasoning levels, tool calling, structured outputs, and built-in web search verified."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-12T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

@@ -33,6 +33,7 @@ describe("MODEL_DISCOVERY_PROVIDERS", () => {
 		expect(providerIds.has("arcee")).toBe(false);
 		expect(providerIds.has("atlas-cloud")).toBe(false);
 		expect(providerIds.has("liquid")).toBe(false);
+		expect(providerIds.has("liquid-ai")).toBe(false);
 		expect(providerIds.has("moonshot-ai")).toBe(false);
 		expect(providerIds.has("novitaai")).toBe(false);
 		expect(providerIds.has("voyage")).toBe(false);
@@ -75,6 +76,11 @@ describe("MODEL_DISCOVERY_PROVIDERS", () => {
 		});
 		expect(providers.get("together")).toMatchObject({
 			modelsEndpoint: "https://api.together.ai/v1/models",
+		});
+		expect(providers.get("reka")).toMatchObject({
+			baseUrl: "https://api.reka.ai",
+			pathPrefix: "/v1",
+			authStyle: "x_api_key",
 		});
 	});
 });
