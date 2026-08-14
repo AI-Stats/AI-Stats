@@ -124,6 +124,21 @@ describe("batch credit reservations", () => {
 		);
 	});
 
+	it.each([
+		["moonshotai", "/v1/chat/completions", "kimi-k2.6"],
+		["parasail", "/v1/chat/completions", "parasail-chat"],
+		["parasail", "/v1/embeddings", "parasail-embed"],
+	])("accepts %s reservation endpoint %s", async (providerId, endpoint, model) => {
+		loadPriceCardMock.mockResolvedValue({ provider: providerId, model, rules: [] });
+		await expect(reserveBatchCredits({
+			workspaceId: "ws_1",
+			apiKeyId: "key_1",
+			requestId: `req_${providerId}_${endpoint}`,
+			providerId,
+			requests: [{ endpoint, body: { model, input: "hello", max_tokens: 8 } }],
+		})).resolves.toMatchObject({ held: true });
+	});
+
 	it("rejects endpoints, methods, and paid dimensions that the estimate cannot bound", async () => {
 		for (const request of [
 			{ endpoint: "/v1/embeddings", body: { model: "gpt-4.1-mini", input: "hello", max_output_tokens: 1 } },

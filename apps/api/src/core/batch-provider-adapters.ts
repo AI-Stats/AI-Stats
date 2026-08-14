@@ -361,7 +361,7 @@ export function normalizeProviderBatchPayload(providerId: string, payload: any):
 		out.error_file_id = batchText(payload.error_file) ?? batchText(payload.error_file_id) ?? null;
 		out.request_counts = {
 			total: toBatchFiniteNumber(payload.total_requests),
-			completed: toBatchFiniteNumber(payload.completed_requests ?? payload.succeeded_requests),
+			completed: toBatchFiniteNumber(payload.succeeded_requests ?? payload.completed_requests),
 			failed: toBatchFiniteNumber(payload.failed_requests),
 		};
 	}

@@ -46,6 +46,8 @@ const TEXT_BATCH_ENDPOINTS: Record<string, ReadonlySet<string>> = {
 	"alibaba-cloud": new Set(["/v1/chat/completions", "/v1/embeddings"]),
 	groq: new Set(["/v1/chat/completions"]),
 	ovhcloud: new Set(["/v1/chat/completions", "/v1/responses", "/v1/embeddings"]),
+	moonshotai: new Set(["/v1/chat/completions"]),
+	parasail: new Set(["/v1/chat/completions", "/v1/embeddings"]),
 };
 
 const UNBOUNDED_BATCH_KEYS = new Set([

@@ -214,7 +214,7 @@ describe("batch provider status normalization", () => {
 			succeeded_requests: 3,
 			failed_requests: 2,
 		});
-		expect(partialFailure.request_counts).toEqual({ total: 5, completed: 5, failed: 2 });
+		expect(partialFailure.request_counts).toEqual({ total: 5, completed: 3, failed: 2 });
 	});
 
 	it("normalizes xAI batch state counters and explicit statuses", () => {

@@ -703,6 +703,7 @@ async function computeBatchSettlement(meta: BatchJobMeta, status: string): Promi
 	const supportsNativeResults =
 		providerId === "anthropic" ||
 		providerId === "google-ai-studio" ||
+		providerId === "mistral" ||
 		providerId === "x-ai";
 	if (!outputFileId && !supportsNativeResults) {
 		if (status === "completed") return { ok: false, reason: "missing_output_file" };
