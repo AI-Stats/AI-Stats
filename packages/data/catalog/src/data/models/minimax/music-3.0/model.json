@@ -26,6 +26,11 @@
       "url": "https://platform.minimax.io/docs/release-notes/models"
     },
     {
+      "title": "Weights",
+      "kind": "weights",
+      "url": "https://huggingface.co/MiniMaxAI/MiniMax-Music3"
+    },
+    {
       "title": "Pay-as-you-go Pricing",
       "kind": "pricing",
       "url": "https://platform.minimax.io/docs/guides/pricing-paygo"
