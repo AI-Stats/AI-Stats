@@ -1,10 +1,26 @@
 {
-  "key": "baseten:deepseek/deepseek-v4-pro-0813:text.generate",
-  "api_provider_id": "baseten",
-  "provider_slug": "baseten",
+  "key": "fireworks:deepseek/deepseek-v4-pro-0813:text.generate",
+  "api_provider_id": "fireworks",
+  "provider_slug": "fireworks",
   "api_model_id": "deepseek/deepseek-v4-pro-0813",
   "capability_id": "text.generate",
   "rules": [
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.044,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Fireworks DeepSeek V4 Pro 0813 cached-input rate",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-13T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://fireworks.ai/models/deepseek-ai/deepseek-v4-pro-0813"
+    },
     {
       "meter": "input_text_tokens",
       "unit": "token",
@@ -12,30 +28,14 @@
       "price_per_unit": 1.32,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Baseten DeepSeek V4 Model API rate",
+      "note": "Fireworks DeepSeek V4 Pro 0813 input rate",
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-13T14:49:29Z",
+      "effective_from": "2026-08-13T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": "https://www.baseten.co/products/model-apis/"
-    },
-    {
-      "meter": "cached_read_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.132,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Baseten DeepSeek V4 Model API cached-input rate",
-      "match": [],
-      "priority": 100,
-      "effective_from": "2026-08-13T14:49:29Z",
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": "https://www.baseten.co/products/model-apis/"
+      "source": "https://fireworks.ai/models/deepseek-ai/deepseek-v4-pro-0813"
     },
     {
       "meter": "output_text_tokens",
@@ -44,14 +44,14 @@
       "price_per_unit": 3.96,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Baseten DeepSeek V4 Model API rate",
+      "note": "Fireworks DeepSeek V4 Pro 0813 output rate",
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-13T14:49:29Z",
+      "effective_from": "2026-08-13T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": "https://www.baseten.co/products/model-apis/"
+      "source": "https://fireworks.ai/models/deepseek-ai/deepseek-v4-pro-0813"
     }
   ],
   "regions": [],
@@ -61,14 +61,14 @@
   "sources": [
     {
       "kind": "pricing",
-      "url": "https://www.baseten.co/products/model-apis/",
+      "url": "https://fireworks.ai/models/deepseek-ai/deepseek-v4-pro-0813",
       "accessed_at": "2026-08-14T00:00:00Z",
-      "notes": "Official Baseten Model API pricing table."
+      "notes": "Official Fireworks DeepSeek V4 Pro 0813 model and pricing page."
     }
   ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-14T00:00:00Z",
-    "notes": "Verified against Baseten's live Model API pricing table."
+    "notes": "Verified against Fireworks' published DeepSeek V4 Pro 0813 rate card."
   }
 }
