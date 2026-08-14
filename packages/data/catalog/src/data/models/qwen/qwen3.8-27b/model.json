@@ -2,14 +2,14 @@
   "model_id": "qwen/qwen3.8-27b",
   "organisation_id": "qwen",
   "name": "Qwen 3.8 27B",
-  "status": "Announced",
+  "status": "Available",
   "previous_model_id": "qwen/qwen3.6-27b",
-  "description": "Qwen 3.8 27B is an announced dense 27-billion-parameter vision-language model from the Qwen Team at Alibaba. Its open-weight release is scheduled for August 14, 2026, with native image and video understanding and controllable reasoning.",
+  "description": "Qwen 3.8 27B is a dense 27.8-billion-parameter open-weight vision-language model from the Qwen Team at Alibaba. It supports text, image and video inputs, a 262,144-token native context window extendable to 1 million tokens, tool use and controllable reasoning.",
   "announced_date": "2026-08-03T00:00:00",
-  "release_date": null,
+  "release_date": "2026-08-14T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
-  "license": null,
+  "license": "Apache 2.0",
   "input_types": "text,image,video",
   "output_types": "text",
   "api_model_id": "qwen/qwen3.8-27b",
@@ -20,7 +20,7 @@
       "url": "https://x.com/xiong_hui_chen/status/2084695353346117760"
     },
     {
-      "title": "Qwen 3.8 27B ModelScope preview",
+      "title": "Qwen 3.8 27B ModelScope release",
       "kind": "release",
       "url": "https://modelscope.cn/models/Qwen/Qwen3.8-27B"
     },
@@ -33,22 +33,193 @@
   "details": [
     {
       "name": "parameter_count",
-      "value": 27000000000,
-      "source_link": "https://modelscope.cn/models/Qwen/Qwen3.8-27B",
-      "other_info": "ModelScope describes Qwen3.8-27B as a dense model."
+      "value": 27781427952,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "other_info": "Exact BF16 parameter count reported by the Hugging Face repository."
+    },
+    {
+      "name": "input_context_length",
+      "value": 262144,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "other_info": "Native context length; the model card says it is extendable to 1,000,000 tokens."
+    },
+    {
+      "name": "extended_context_length",
+      "value": 1000000,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B"
+    },
+    {
+      "name": "hidden_dimension",
+      "value": 5120,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B"
+    },
+    {
+      "name": "layer_count",
+      "value": 64,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B"
     }
   ],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "terminal-bench-2.1",
+      "score": 73,
+      "is_self_reported": true,
+      "other_info": "Terminus harness",
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "swe-bench-pro",
+      "score": 61.7,
+      "is_self_reported": true,
+      "other_info": null,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "nl2repo-bench",
+      "score": 42.3,
+      "is_self_reported": true,
+      "other_info": null,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "deepswe",
+      "score": 42.2,
+      "is_self_reported": true,
+      "other_info": "DeepSWE 1.1",
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "jobbench",
+      "score": 33.4,
+      "is_self_reported": true,
+      "other_info": null,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "agents-last-exam",
+      "score": 42.9,
+      "is_self_reported": true,
+      "other_info": "Pass@1: 20.4; reported aggregate score: 42.9",
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "ifbench",
+      "score": 79.5,
+      "is_self_reported": true,
+      "other_info": null,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "gpqa-diamond",
+      "score": 89.2,
+      "is_self_reported": true,
+      "other_info": null,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "humanitys-last-exam",
+      "score": 30.8,
+      "is_self_reported": true,
+      "other_info": "HLE",
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "livecodebench-v6",
+      "score": 90.3,
+      "is_self_reported": true,
+      "other_info": null,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "osworld-verified",
+      "score": 84.3,
+      "is_self_reported": true,
+      "other_info": null,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "androidworld",
+      "score": 81.9,
+      "is_self_reported": true,
+      "other_info": null,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "vision2web",
+      "score": 62.9,
+      "is_self_reported": true,
+      "other_info": null,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "mathvision",
+      "score": 94.6,
+      "is_self_reported": true,
+      "other_info": "With CI; without CI: 90.0",
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "babyvision",
+      "score": 85.6,
+      "is_self_reported": true,
+      "other_info": "With CI; without CI: 65.7",
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "charxiv-rq",
+      "score": 90.2,
+      "is_self_reported": true,
+      "other_info": "With CI; without CI: 83.7",
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "omnidocbench-1.5",
+      "score": 91.1,
+      "is_self_reported": true,
+      "other_info": null,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "realworldqa",
+      "score": 85.9,
+      "is_self_reported": true,
+      "other_info": null,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    },
+    {
+      "benchmark_id": "erqa",
+      "score": 65.5,
+      "is_self_reported": true,
+      "other_info": null,
+      "source_link": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "rank": null
+    }
+  ],
   "family_id": null,
-  "page_notice": {
-    "tone": "info",
-    "markdown": "Qwen 3.8 27B is **announced** for an open-weight release on August 14, 2026. The ModelScope preview confirms native image and video understanding and controllable reasoning; its license, context limits, pricing, benchmarks, and hosted API availability have not yet been published."
-  },
+  "page_notice": null,
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": null,
-    "input": null,
+    "context": 262144,
+    "input": 262144,
     "output": null
   },
   "modalities": {
@@ -63,17 +234,21 @@
   },
   "reasoning": {
     "supported": true,
-    "options": []
+    "options": [
+      "low",
+      "medium",
+      "xhigh"
+    ]
   },
   "capabilities": {
-    "attachment": null,
-    "tool_call": null,
+    "attachment": true,
+    "tool_call": true,
     "structured_output": null,
     "temperature": null,
     "streaming": null,
     "web_search": null
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
       "kind": "announcement",
@@ -84,17 +259,23 @@
     {
       "kind": "release",
       "url": "https://modelscope.cn/models/Qwen/Qwen3.8-27B",
-      "accessed_at": "2026-08-12",
-      "notes": "Official Alibaba ModelScope pre-release page schedules Qwen3.8-27B for August 14, 2026 at 15:00 UTC and confirms a dense native vision-language model with image and video understanding and controllable reasoning."
+      "accessed_at": "2026-08-14",
+      "notes": "Official Alibaba ModelScope release page for Qwen3.8-27B."
+    },
+    {
+      "kind": "weights",
+      "url": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "accessed_at": "2026-08-14",
+      "notes": "Official Apache-2.0 model card and BF16 weights, including architecture, native context length, reasoning controls and self-reported benchmark results."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "The announcement, scheduled release date, planned ModelScope artifact, modalities, and reasoning support are verified. The Hugging Face URL is reserved but not public as of this check. Unpublished specifications remain null, and the API model ID follows the catalog convention pending an official hosted API slug."
+    "checked_at": "2026-08-14T00:00:00Z",
+    "notes": "Release status, Apache 2.0 weights, architecture, parameter count, native context length, modalities, reasoning controls and benchmark results are verified against the official Hugging Face repository. Hosted Qwen Cloud availability remains forthcoming."
   },
-  "last_updated": "2026-08-12T00:00:00Z",
+  "last_updated": "2026-08-14T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
-  "license_url": null
+  "license_url": "https://huggingface.co/Qwen/Qwen3.8-27B/blob/main/LICENSE"
 }
