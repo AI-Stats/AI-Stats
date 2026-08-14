@@ -303,16 +303,21 @@ function createBedrockMantleMessagesMount(): Mountable {
             if (pathname !== "/messages" || req.method !== "POST") return false;
             const body = JSON.parse(await readIncomingBody(req)) as Record<string, any>;
             const headers = flattenHeaders(req.headers as Record<string, string | string[] | undefined>);
-            const text = JSON.stringify(body).includes("[aimock-structured] person")
+            const serialized = JSON.stringify(body);
+            const tool = serialized.includes("[aimock-tool] weather") ? body.tools?.[0] : undefined;
+            const text = serialized.includes("[aimock-structured] person")
                 ? JSON.stringify({ name: "Ava", city: "London" })
                 : "Hello from AIMock via Phaseo.";
+            const content = tool
+                ? [{ type: "tool_use", id: "toolu_aimock_weather", name: tool.name, input: { city: "London", unit: "celsius" } }]
+                : [{ type: "text", text }];
             const payload = {
                 id: "msg_bedrock_mantle_aimock",
                 type: "message",
                 role: "assistant",
                 model: body.model,
-                content: [{ type: "text", text }],
-                stop_reason: "end_turn",
+                content,
+                stop_reason: tool ? "tool_use" : "end_turn",
                 stop_sequence: null,
                 usage: { input_tokens: 4, output_tokens: 3 },
             };
@@ -324,10 +329,12 @@ function createBedrockMantleMessagesMount(): Mountable {
             }
             const events = [
                 { type: "message_start", message: { ...payload, content: [], stop_reason: null, usage: { input_tokens: 4, output_tokens: 0 } } },
-                { type: "content_block_start", index: 0, content_block: { type: "text", text: "" } },
-                { type: "content_block_delta", index: 0, delta: { type: "text_delta", text } },
+                { type: "content_block_start", index: 0, content_block: tool ? { type: "tool_use", id: "toolu_aimock_weather", name: tool.name, input: {} } : { type: "text", text: "" } },
+                tool
+                    ? { type: "content_block_delta", index: 0, delta: { type: "input_json_delta", partial_json: JSON.stringify({ city: "London", unit: "celsius" }) } }
+                    : { type: "content_block_delta", index: 0, delta: { type: "text_delta", text } },
                 { type: "content_block_stop", index: 0 },
-                { type: "message_delta", delta: { stop_reason: "end_turn", stop_sequence: null }, usage: { output_tokens: 3 } },
+                { type: "message_delta", delta: { stop_reason: tool ? "tool_use" : "end_turn", stop_sequence: null }, usage: { output_tokens: 3 } },
                 { type: "message_stop" },
             ];
             res.writeHead(200, { "Content-Type": "text/event-stream" });
