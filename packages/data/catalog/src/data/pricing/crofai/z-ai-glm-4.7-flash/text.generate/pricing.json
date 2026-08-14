@@ -67,7 +67,7 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-05-11T00:00:00Z",
-      "effective_to": "2026-08-14T20:02:16Z",
+      "effective_to": "2026-08-13T18:30:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -84,7 +84,7 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-05-11T00:00:00Z",
-      "effective_to": "2026-08-14T20:02:16Z",
+      "effective_to": "2026-08-13T18:30:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -101,7 +101,7 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-05-11T00:00:00Z",
-      "effective_to": "2026-08-14T20:02:16Z",
+      "effective_to": "2026-08-13T18:30:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -112,10 +112,17 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_notice",
+      "url": null,
+      "accessed_at": null,
+      "notes": "CrofAI Discord notice supplied by the maintainer: the seven listed routes were scheduled for removal at 13:30 CDT on 8/13/2026."
+    }
+  ],
   "verification": {
-    "status": "unverified",
+    "status": "verified",
     "checked_at": null,
-    "notes": null
+    "notes": "Retirement boundary is taken from the provider notice rather than inferred from a later live API observation."
   }
 }
