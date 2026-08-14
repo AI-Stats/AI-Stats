@@ -5,6 +5,7 @@ import type { IntegrationAdapter, IntegrationOptions } from "../types.js";
 const DEFAULT_MODEL = "anthropic/claude-sonnet-4.6";
 const BASE_URL = "https://api.phaseo.app/v1";
 const API_KEY_COMMAND = "!phaseo integrations credential pi";
+const MANAGED_MARKER = "// Managed by Phaseo CLI.";
 
 function extensionPath(options: IntegrationOptions): string {
 	return join(options.homeDir, ".pi", "agent", "extensions", "phaseo.ts");
@@ -28,7 +29,7 @@ function renderModels(model: string, models?: IntegrationOptions["models"]): str
 
 export function renderPiExtension(model = DEFAULT_MODEL, models?: IntegrationOptions["models"]): string {
 	const renderedModels = renderModels(model, models);
-	return `// Managed by Phaseo CLI. Run \`phaseo integrations remove pi\` to remove.\n` +
+	return `${MANAGED_MARKER} Run \`phaseo integrations remove pi\` to remove.\n` +
 		`import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";\n\n` +
 		`export default function (pi: ExtensionAPI) {\n` +
 		`\tpi.registerProvider("phaseo", {\n` +
@@ -47,7 +48,7 @@ export const piAdapter: IntegrationAdapter = {
 	async inspect(options) {
 		const path = extensionPath(options);
 		const current = await readOptionalFile(path);
-		const managed = current?.startsWith("// Managed by Phaseo CLI.") ?? false;
+		const managed = current?.startsWith(MANAGED_MARKER) ?? false;
 		const installed = await isCommandAvailable(["pi", "pi.exe", "pi.cmd"]);
 		return {
 			id: "pi",
@@ -61,13 +62,13 @@ export const piAdapter: IntegrationAdapter = {
 		const path = extensionPath(options);
 		const before = await readOptionalFile(path);
 		const after = renderPiExtension(options.model, options.models);
-		if (before !== null && before !== after) throw new Error(`${path} already exists and is not managed by Phaseo CLI`);
+		if (before !== null && !before.startsWith(MANAGED_MARKER)) throw new Error(`${path} already exists and is not managed by Phaseo CLI`);
 		return before === after ? [] : [{ path, before, after, description: "Install the Phaseo provider extension for Pi" }];
 	},
 	async planRemove(options) {
 		const path = extensionPath(options);
 		const before = await readOptionalFile(path);
-		if (before === null || !before.startsWith("// Managed by Phaseo CLI.")) return [];
+		if (before === null || !before.startsWith(MANAGED_MARKER)) return [];
 		return [{ path, before, after: null, description: "Remove the Phaseo provider extension from Pi" }];
 	},
 };

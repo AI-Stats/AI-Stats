@@ -54,6 +54,8 @@ export function openClawModels(model: string, models?: IntegrationModel[]): Inte
 	if (!catalog.some((entry) => entry.id === model)) {
 		catalog.unshift({ id: model, name: `${model} via Phaseo`, reasoning: true, input: ["text", "image"] });
 	}
+	const selectedIndex = catalog.findIndex((entry) => entry.id === model);
+	if (selectedIndex > 0) catalog.unshift(...catalog.splice(selectedIndex, 1));
 	return catalog;
 }
 

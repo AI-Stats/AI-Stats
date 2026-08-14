@@ -79,6 +79,11 @@ test("spinner animates only when explicitly enabled and clears its line", () => 
 	output = "";
 	createSpinner("Hidden", { enabled: false, stream: stream as Pick<NodeJS.WriteStream, "write"> }).succeed();
 	assert.equal(output, "");
+
+	const dumb = createSpinner("Hidden", { enabled: true, env: { TERM: "dumb" }, stream: stream as Pick<NodeJS.WriteStream, "write"> });
+	assert.equal(dumb.active, false);
+	dumb.succeed();
+	assert.equal(output, "");
 });
 
 test("normalizes API roots for oauth and v1 endpoints", () => {

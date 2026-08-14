@@ -74,7 +74,7 @@ All commands support `--help`, and most commands support `--json` for agent-frie
 
 ## Terminal output
 
-Phaseo uses colour, visual status markers, and ephemeral spinners for long-running setup work in an interactive terminal. Spinners write to `stderr` and clear themselves when each operation completes. Redirected output, pipes, `TERM=dumb`, and environments with `NO_COLOR` set receive deterministic plain text without animation. `--json` always emits decoration-free structured output suitable for agents and automation. Set `FORCE_COLOR=1` to retain colour when a terminal wrapper does not expose TTY support.
+Phaseo uses colour, visual status markers, and ephemeral spinners for long-running setup work in an interactive terminal. Spinners write to `stderr` and clear themselves when each operation completes. Non-TTY `stderr` and `TERM=dumb` disable animation; `NO_COLOR` disables colour. `--json` always emits decoration-free structured output suitable for agents and automation. Set `FORCE_COLOR=1` to retain colour when a terminal wrapper does not expose TTY support.
 
 ## Common Commands
 

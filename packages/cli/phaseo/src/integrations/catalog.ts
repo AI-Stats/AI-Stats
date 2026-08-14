@@ -2,6 +2,7 @@ import { apiFetch, getSessionAccessToken } from "../api.js";
 import type { IntegrationId, IntegrationModel } from "./types.js";
 
 const PAGE_SIZE = 250;
+const MAX_CATALOG_MODELS = 5000;
 const CATALOG_INTEGRATIONS = new Set<IntegrationId>(["opencode", "deepseek-harness", "pi", "prime-agent", "openclaw"]);
 
 type GatewayModel = {
@@ -64,13 +65,14 @@ export async function fetchIntegrationModels(integration: IntegrationId): Promis
 		}
 		const page = Array.isArray(body?.models) ? body.models as GatewayModel[] : [];
 		total = typeof body?.total === "number" && Number.isFinite(body.total) ? body.total : offset + page.length;
+		if (total > MAX_CATALOG_MODELS) throw new Error("The Phaseo model catalog is too large to sync in one setup operation");
 		for (const value of page) {
 			const model = toIntegrationModel(value);
 			if (model) models.push(model);
 		}
 		if (page.length < PAGE_SIZE) break;
 		offset += page.length;
-		if (offset < total && offset > 5000) throw new Error("The Phaseo model catalog is too large to sync in one setup operation");
+		if (offset < total && offset >= MAX_CATALOG_MODELS) throw new Error("The Phaseo model catalog is too large to sync in one setup operation");
 	}
 
 	return [...new Map(models.map((model) => [model.id, model])).values()]

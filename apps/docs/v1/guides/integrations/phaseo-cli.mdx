@@ -74,7 +74,7 @@ Remote and non-interactive environments automatically prefer device code.
 
 ## Terminal output
 
-Interactive terminals receive Phaseo's colour, hierarchy, and ephemeral setup spinners. Spinners use `stderr` and clear their line when work completes. Pipes, redirected output, `TERM=dumb`, and `NO_COLOR` receive deterministic plain text without animation. Commands using `--json` always return decoration-free structured output for agents and automation. Use `FORCE_COLOR=1` only when a terminal wrapper supports colour but does not report itself as a TTY.
+Interactive terminals receive Phaseo's colour, hierarchy, and ephemeral setup spinners. Spinners use `stderr` and clear their line when work completes. Non-TTY `stderr` and `TERM=dumb` disable animation; `NO_COLOR` disables colour. Commands using `--json` always return decoration-free structured output for agents and automation. Use `FORCE_COLOR=1` only when a terminal wrapper supports colour but does not report itself as a TTY.
 
 ## Confirm who you are
 

@@ -50,7 +50,8 @@ export function terminalUi(options: TerminalOptions = {}) {
 
 export function createSpinner(label: string, options: SpinnerOptions = {}) {
 	const stream = options.stream ?? process.stderr;
-	const enabled = options.enabled ?? Boolean(process.stderr.isTTY);
+	const env = options.env ?? process.env;
+	const enabled = (options.enabled ?? Boolean(process.stderr.isTTY)) && env.TERM !== "dumb";
 	const frames = options.frames?.length ? options.frames : ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 	const ui = terminalUi({ ...options, isTTY: enabled });
 	let index = 0;

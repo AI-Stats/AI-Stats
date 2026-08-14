@@ -47,6 +47,10 @@ function hasManagedProviderShape(provider: JsonObject): boolean {
 		isObject(provider.models);
 }
 
+function isLegacyManagedProvider(provider: JsonObject): boolean {
+	return hasManagedProviderShape(provider) && isObject(provider.options) && provider.options.apiKey === API_KEY_REFERENCE;
+}
+
 function assertProviderEnabled(config: JsonObject): void {
 	if (Array.isArray(config.disabled_providers) && config.disabled_providers.includes(PROVIDER_ID)) {
 		throw new Error("OpenCode disables the phaseo provider; remove it from disabled_providers before setup");
@@ -93,7 +97,7 @@ export function renderOpenCodeConfig(
 	const config = parseConfig(path, before);
 	assertProviderEnabled(config);
 	const current = phaseoProvider(config);
-	if (current && (!owned || !hasManagedProviderShape(current))) {
+	if (current && ((!owned && !isLegacyManagedProvider(current)) || !hasManagedProviderShape(current))) {
 		throw new Error(`${path} already defines a phaseo provider that is not managed by Phaseo CLI`);
 	}
 

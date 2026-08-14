@@ -12,7 +12,7 @@ Sign in once, then install and configure one of the primary harnesses:
 
 ```bash
 phaseo login
-phaseo <codex|claude|hermes|opencode|pi|prime-agent|dsh|openclaw>
+phaseo codex
 ```
 
 This command installs the harness when it is missing, creates its dedicated key, and writes its Phaseo configuration. OpenCode, DeepSeek Harness, Pi, and Prime Agent also receive every active text model compatible with Chat Completions. Use `--skip-install`, `--catalog default`, or `--dry-run` when you need narrower behavior.
@@ -20,7 +20,7 @@ This command installs the harness when it is missing, creates its dedicated key,
 Use the lower-level command for other integrations or when installation is managed separately:
 
 ```bash
-phaseo integrations setup <integration>
+phaseo integrations setup codex
 ```
 
 Supported integration names are `codex`, `claude-code`, `opencode`, `deepseek-harness`, `pi`, `openclaw`, `hermes`, `aider`, `cline`, `roo-code`, `kilo-code`, `continue`, `cursor`, and `zed`.
@@ -28,14 +28,14 @@ Supported integration names are `codex`, `claude-code`, `opencode`, `deepseek-ha
 The CLI creates a separate, non-expiring API key named for that assistant. It configures Aider and Continue automatically on clean installations, and writes Zed's provider/model settings automatically. For assistants that keep secrets exclusively in an editor UI, it prints the exact remaining fields, links the dedicated guide, and lets you copy only that assistant's key:
 
 ```bash
-phaseo integrations credential <integration>
+phaseo integrations credential codex
 ```
 
 Preview any file changes before setup, and disconnect cleanly later:
 
 ```bash
-phaseo integrations setup <integration> --dry-run
-phaseo integrations remove <integration>
+phaseo integrations setup codex --dry-run
+phaseo integrations remove codex
 ```
 
 Removal deletes Phaseo-owned configuration and revokes that assistant's key. It does not remove unrelated settings.

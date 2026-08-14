@@ -45,6 +45,10 @@ test("Pi extension registers Phaseo with a command-backed credential", async () 
 	try {
 		await applyChanges(await piAdapter.planSetup({ homeDir, model: "openai/gpt-5.6-terra" }));
 		assert.equal((await piAdapter.inspect({ homeDir })).status, "configured");
+		await assert.doesNotReject(piAdapter.planSetup({ homeDir, model: "openai/gpt-5.6-terra", models: [
+			{ id: "openai/gpt-5.6-terra", name: "GPT-5.6 Terra" },
+			{ id: "anthropic/claude-sonnet-4.6", name: "Claude Sonnet 4.6" },
+		] }));
 		await applyChanges(await piAdapter.planRemove({ homeDir }));
 		assert.notEqual((await piAdapter.inspect({ homeDir })).status, "configured");
 	} finally {
@@ -91,6 +95,11 @@ test("OpenClaw provider exposes every catalog model", () => {
 test("OpenClaw preserves an explicitly requested model outside the catalog", () => {
 	const models = openClawModels("preview/custom", [{ id: "model/a", name: "Model A" }]);
 	assert.deepEqual(models.map((model) => model.id), ["preview/custom", "model/a"]);
+});
+
+test("OpenClaw prioritizes an explicitly requested model already in the catalog", () => {
+	const models = openClawModels("model/b", [{ id: "model/a" }, { id: "model/b" }]);
+	assert.deepEqual(models.map((model) => model.id), ["model/b", "model/a"]);
 });
 
 test("Aider and Continue refuse to overwrite existing user configuration", async () => {
@@ -239,6 +248,15 @@ test("OpenCode requires credential-store ownership before updating an existing p
 	assert.doesNotThrow(() => renderOpenCodeConfig("/tmp/opencode.json", existing, undefined, undefined, true));
 });
 
+test("OpenCode migrates its legacy environment-backed provider", () => {
+	const legacy = JSON.stringify({ provider: { phaseo: {
+		npm: "@ai-sdk/openai-compatible", name: "Phaseo",
+		options: { baseURL: "https://api.phaseo.app/v1", apiKey: "{env:PHASEO_API_KEY}" },
+		models: { "model/a": { name: "Model A" } },
+	} } });
+	assert.doesNotThrow(() => renderOpenCodeConfig("/tmp/opencode.json", legacy));
+});
+
 test("DeepSeek Harness configuration preserves unrelated patches", () => {
 	const before = `- id: unrelated\n  config:\n    enabled: true\n`;
 	const rendered = renderDeepSeekHarnessPatch("/tmp/cordis.patch.yml", before, "anthropic/claude-sonnet-4.6");
@@ -330,6 +348,15 @@ test("catalog sync paginates through every compatible model", async () => {
 		assert.equal(models.length, 251);
 		assert.equal(requests.length, 2);
 		assert.match(requests[1] ?? "", /offset=250/);
+
+		globalThis.fetch = async () => new Response(JSON.stringify({ ok: true, total: 5000, models: [] }), {
+			status: 200, headers: { "content-type": "application/json" },
+		});
+		assert.deepEqual(await fetchIntegrationModels("opencode"), []);
+		globalThis.fetch = async () => new Response(JSON.stringify({ ok: true, total: 5001, models: [] }), {
+			status: 200, headers: { "content-type": "application/json" },
+		});
+		await assert.rejects(fetchIntegrationModels("opencode"), /catalog is too large/);
 	} finally {
 		globalThis.fetch = previousFetch;
 		if (previousBackend === undefined) delete process.env.PHASEO_SESSION_BACKEND;
