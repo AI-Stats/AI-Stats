@@ -7,7 +7,11 @@ import { setupTestRuntime, teardownTestRuntime } from "../../../../tests/helpers
 
 const state = vi.hoisted(() => ({
 	reservationResult: null as Record<string, unknown> | null,
+	reservationCalls: [] as Array<unknown[]>,
 	releaseCalls: [] as Array<Record<string, unknown>>,
+	batchFileMeta: null as Record<string, unknown> | null,
+	batchFileMetaError: null as Error | null,
+	batchFileMetaCalls: [] as Array<unknown[]>,
 	saveVideoJobMetaError: null as Error | null,
 	saveVideoJobMetaCalls: [] as Array<unknown[]>,
 }));
@@ -15,14 +19,23 @@ const state = vi.hoisted(() => ({
 vi.mock("@core/video-reservations", () => ({
 	isInsufficientVideoReservationStatus: (status: unknown) =>
 		status === "insufficient_funds" || status === "insufficient_balance",
-	reserveVideoGenerationCredits: vi.fn(async () => (
-		state.reservationResult ?? {
+	reserveVideoGenerationCredits: vi.fn(async (...args: unknown[]) => {
+		state.reservationCalls.push(args);
+		return state.reservationResult ?? {
 			reservationId: "video_hold:req_openai_video_test",
 			held: false,
 			amountNanos: 0,
 			status: "skip_zero_cost",
-		}
-	)),
+		};
+	}),
+}));
+
+vi.mock("@core/batch-jobs", () => ({
+	getBatchFileMeta: vi.fn(async (...args: unknown[]) => {
+		state.batchFileMetaCalls.push(args);
+		if (state.batchFileMetaError) throw state.batchFileMetaError;
+		return state.batchFileMeta;
+	}),
 }));
 
 vi.mock("@core/wallet-reservations", () => ({
@@ -48,7 +61,7 @@ vi.mock("@core/video-jobs", () => ({
 	}),
 }));
 
-function buildArgs(ir: IRVideoGenerationRequest): ExecutorExecuteArgs {
+function buildArgs(ir: IRVideoGenerationRequest, overrides: Partial<ExecutorExecuteArgs> = {}): ExecutorExecuteArgs {
 	return {
 		ir,
 		requestId: "req_openai_video_test",
@@ -62,6 +75,7 @@ function buildArgs(ir: IRVideoGenerationRequest): ExecutorExecuteArgs {
 		byokMeta: [],
 		pricingCard: null,
 		meta: {},
+		...overrides,
 	} as ExecutorExecuteArgs;
 }
 
@@ -76,7 +90,11 @@ afterAll(() => {
 describe("openai video executor", () => {
 	beforeEach(() => {
 		state.reservationResult = null;
+		state.reservationCalls = [];
 		state.releaseCalls = [];
+		state.batchFileMeta = null;
+		state.batchFileMetaError = null;
+		state.batchFileMetaCalls = [];
 		state.saveVideoJobMetaError = null;
 		state.saveVideoJobMetaCalls = [];
 	});
@@ -125,12 +143,99 @@ describe("openai video executor", () => {
 	});
 
 	it("sends JSON input_reference objects as JSON rather than multipart", async () => {
+		state.batchFileMeta = { provider: "openai", keySource: "gateway" };
 		let body: any;
 		const mock = installFetchMock([{ match: (url) => url.includes("/videos"), response: jsonResponse({ id: "video_json", status: "queued" }), onRequest: (call) => { body = call.bodyJson; } }]);
 		const result = await execute(buildArgs({ model: "sora-2-pro", prompt: "Reference a file", seconds: "20", size: "1920x1080", inputReference: { file_id: "file_123" } }));
 		mock.restore();
 		expect(result.upstream?.status).toBe(200);
+		expect(state.batchFileMetaCalls).toEqual([["team_test", "file_123"]]);
 		expect(body).toMatchObject({ model: "sora-2-pro", seconds: "20", size: "1920x1080", input_reference: { file_id: "file_123" } });
+	});
+
+	it("rejects an unowned gateway file before reserving credits or calling OpenAI", async () => {
+		const mock = installFetchMock([
+			{ match: (url) => url.includes("/videos"), response: jsonResponse({ id: "should_not_run" }) },
+		]);
+
+		const result = await execute(buildArgs({
+			model: "sora-2",
+			prompt: "Use another workspace's file",
+			seconds: "8",
+			inputReference: { file_id: "file_other_workspace" },
+		}));
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(404);
+		expect(await result.upstream?.clone().json()).toMatchObject({
+			error: { type: "file_not_found_or_not_owned" },
+		});
+		expect(state.batchFileMetaCalls).toEqual([["team_test", "file_other_workspace"]]);
+		expect(state.reservationCalls).toEqual([]);
+		expect(mock.calls).toEqual([]);
+	});
+
+	it("rejects gateway files registered for another provider or key source", async () => {
+		for (const fileMeta of [
+			{ provider: "mistral", keySource: "gateway" },
+			{ provider: "openai", keySource: "byok" },
+		]) {
+			state.batchFileMeta = fileMeta;
+			const result = await execute(buildArgs({
+				model: "sora-2",
+				prompt: "Use mismatched file metadata",
+				seconds: "8",
+				inputReference: { file_id: "file_mismatch" },
+			}));
+			expect(result.upstream?.status).toBe(404);
+		}
+		expect(state.reservationCalls).toEqual([]);
+	});
+
+	it("fails closed when gateway file ownership cannot be checked", async () => {
+		state.batchFileMetaError = new Error("ownership store unavailable");
+		const result = await execute(buildArgs({
+			model: "sora-2",
+			prompt: "Use a file while ownership storage is unavailable",
+			seconds: "8",
+			inputReference: { file_id: "file_unknown" },
+		}));
+
+		expect(result.upstream?.status).toBe(503);
+		expect(await result.upstream?.clone().json()).toMatchObject({
+			error: { type: "file_ownership_unavailable" },
+		});
+		expect(state.reservationCalls).toEqual([]);
+	});
+
+	it("allows BYOK file IDs without consulting gateway ownership metadata", async () => {
+		let body: any;
+		const mock = installFetchMock([{
+			match: (url) => url.includes("/videos"),
+			response: jsonResponse({ id: "video_byok", status: "queued" }),
+			onRequest: (call) => { body = call.bodyJson; },
+		}]);
+		const result = await execute(buildArgs({
+			model: "sora-2",
+			prompt: "Use a file owned by the BYOK account",
+			seconds: "8",
+			inputReference: { file_id: "file_byok" },
+		}, {
+			byokMeta: [{
+				id: "byok_openai",
+				providerId: "openai",
+				fingerprintSha256: "fingerprint",
+				keyVersion: null,
+				alwaysUse: true,
+				key: "sk-byok-test",
+			}],
+		}));
+		mock.restore();
+
+		expect(result.upstream?.status).toBe(200);
+		expect(result.keySource).toBe("byok");
+		expect(state.batchFileMetaCalls).toEqual([]);
+		expect(body.input_reference).toEqual({ file_id: "file_byok" });
 	});
 
 	it("maps input_image object to multipart input_reference", async () => {

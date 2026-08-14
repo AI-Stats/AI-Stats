@@ -10,6 +10,7 @@ import { resolveProviderKey } from "@providers/keys";
 import { openAICompatHeaders, openAICompatUrl } from "@providers/openai-compatible/config";
 import { upstreamTestHeaders } from "@providers/shared/testing";
 import { saveVideoJobMeta } from "@core/video-jobs";
+import { getBatchFileMeta } from "@core/batch-jobs";
 import { isInsufficientVideoReservationStatus, reserveVideoGenerationCredits } from "@core/video-reservations";
 import { releaseWalletReservation } from "@core/wallet-reservations";
 import { buildVideoPricingRequestOptions, resolveVideoSize } from "@core/video-request-options";
@@ -93,6 +94,17 @@ function resolveInputReferenceValue(ir: IRVideoGenerationRequest): string | Blob
 	return extractInputReferenceCandidate(ir.inputReference) ??
 		extractInputReferenceCandidate(ir.inputImage) ??
 		extractInputReferenceCandidate(ir.input?.image);
+}
+
+function extractInputReferenceFileId(value: unknown): string | null {
+	if (
+		!value ||
+		typeof value !== "object" ||
+		Array.isArray(value) ||
+		(typeof Blob !== "undefined" && value instanceof Blob)
+	) return null;
+	const fileId = (value as Record<string, unknown>).file_id;
+	return typeof fileId === "string" && fileId.trim().length > 0 ? fileId.trim() : null;
 }
 
 function buildOpenAiVideoJsonRequest(args: {
@@ -236,6 +248,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
 	const quality = ir.quality ?? ((ir.rawRequest as any)?.quality ?? null);
 	const inputReference = resolveInputReferenceValue(ir);
+	const inputReferenceFileId = extractInputReferenceFileId(inputReference);
 	const mappedRequestEnabled = Boolean(args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest);
 	const secondsForMeta = seconds != null ? Number(seconds) : null;
 	let reservationId: string | null = null;
@@ -243,6 +256,71 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	let reservedNanos: number | null = null;
 	let reservationGateError: { status: number; type: string; message: string } | null = null;
 	let mappedRequest: string | undefined;
+
+	if (inputReferenceFileId && keyInfo.source === "gateway") {
+		let ownedFile;
+		try {
+			ownedFile = await getBatchFileMeta(args.workspaceId, inputReferenceFileId);
+		} catch (ownershipErr) {
+			console.error("openai_video_input_file_ownership_check_failed", {
+				error: ownershipErr,
+				workspaceId: args.workspaceId,
+				requestId: args.requestId,
+				fileId: inputReferenceFileId,
+			});
+			const upstream = new Response(
+				JSON.stringify({
+					error: {
+						type: "file_ownership_unavailable",
+						message: "Unable to verify ownership of the OpenAI video input file.",
+					},
+				}),
+				{ status: 503, headers: { "Content-Type": "application/json" } },
+			);
+			return {
+				kind: "completed",
+				ir: undefined,
+				bill: {
+					cost_cents: 0,
+					currency: "USD",
+					usage: undefined as any,
+					upstream_id: undefined,
+					finish_reason: null,
+				},
+				upstream,
+				keySource: keyInfo.source,
+				byokKeyId: keyInfo.byokId,
+				mappedRequest,
+			};
+		}
+
+		if (ownedFile?.provider !== "openai" || ownedFile.keySource !== "gateway") {
+			const upstream = new Response(
+				JSON.stringify({
+					error: {
+						type: "file_not_found_or_not_owned",
+						message: "The OpenAI video input file was not found or is not owned by this workspace.",
+					},
+				}),
+				{ status: 404, headers: { "Content-Type": "application/json" } },
+			);
+			return {
+				kind: "completed",
+				ir: undefined,
+				bill: {
+					cost_cents: 0,
+					currency: "USD",
+					usage: undefined as any,
+					upstream_id: undefined,
+					finish_reason: null,
+				},
+				upstream,
+				keySource: keyInfo.source,
+				byokKeyId: keyInfo.byokId,
+				mappedRequest,
+			};
+		}
+	}
 
 	try {
 		const reserved = await reserveVideoGenerationCredits({
