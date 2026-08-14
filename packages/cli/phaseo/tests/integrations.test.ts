@@ -10,7 +10,7 @@ import { deepSeekHarnessAdapter, renderDeepSeekHarnessCredential, renderDeepSeek
 import { openCodeAdapter, renderOpenCodeAuth, renderOpenCodeConfig } from "../src/integrations/adapters/opencode.js";
 import { piAdapter, renderPiExtension } from "../src/integrations/adapters/pi.js";
 import { primeAgentAdapter, renderPrimeAgentModels } from "../src/integrations/adapters/prime-agent.js";
-import { renderOpenClawProvider } from "../src/integrations/adapters/openclaw.js";
+import { openClawModels, renderOpenClawProvider } from "../src/integrations/adapters/openclaw.js";
 import { aiderAdapter } from "../src/integrations/adapters/aider.js";
 import { continueAdapter } from "../src/integrations/adapters/continue.js";
 import { zedAdapter } from "../src/integrations/adapters/zed.js";
@@ -86,6 +86,11 @@ test("OpenClaw provider exposes every catalog model", () => {
 	assert.deepEqual(provider.models.map((model) => model.id), ["model/a", "model/b"]);
 	assert.equal(provider.models[0]?.contextWindow, 128000);
 	assert.deepEqual(provider.models[0]?.input, ["text", "image"]);
+});
+
+test("OpenClaw preserves an explicitly requested model outside the catalog", () => {
+	const models = openClawModels("preview/custom", [{ id: "model/a", name: "Model A" }]);
+	assert.deepEqual(models.map((model) => model.id), ["preview/custom", "model/a"]);
 });
 
 test("Aider and Continue refuse to overwrite existing user configuration", async () => {
@@ -226,6 +231,12 @@ test("OpenCode rejects conflicting providers and provider allowlists", () => {
 		() => renderOpenCodeConfig("/tmp/opencode.json", JSON.stringify({ enabled_providers: ["openai"] })),
 		/add phaseo to that list/,
 	);
+});
+
+test("OpenCode requires credential-store ownership before updating an existing provider", () => {
+	const existing = renderOpenCodeConfig("/tmp/opencode.json", null);
+	assert.throws(() => renderOpenCodeConfig("/tmp/opencode.json", existing), /not managed by Phaseo CLI/);
+	assert.doesNotThrow(() => renderOpenCodeConfig("/tmp/opencode.json", existing, undefined, undefined, true));
 });
 
 test("DeepSeek Harness configuration preserves unrelated patches", () => {
@@ -444,10 +455,12 @@ test("OpenCode honors an explicit OPENCODE_CONFIG path", async () => {
 	process.env.OPENCODE_CONFIG = configPath;
 	process.env.XDG_DATA_HOME = homeDir;
 	try {
-		await applyChanges(await openCodeAdapter.planSetup({ homeDir }));
-		assert.equal((await openCodeAdapter.inspect({ homeDir })).configPath, configPath);
-		assert.equal((await openCodeAdapter.inspect({ homeDir })).status, "configured");
-		await applyChanges(await openCodeAdapter.planRemove({ homeDir }));
+		const options = { homeDir };
+		await applyChanges(await openCodeAdapter.planSetup(options));
+		await applyChanges(await openCodeAdapter.planCredential?.(options, "phaseo-secret") ?? []);
+		assert.equal((await openCodeAdapter.inspect(options)).configPath, configPath);
+		assert.equal((await openCodeAdapter.inspect(options)).status, "configured");
+		await applyChanges(await openCodeAdapter.planRemove(options));
 	} finally {
 		if (previousConfig === undefined) delete process.env.OPENCODE_CONFIG;
 		else process.env.OPENCODE_CONFIG = previousConfig;

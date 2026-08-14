@@ -37,7 +37,7 @@ function phaseoProvider(config: JsonObject): JsonObject | null {
 	return provider;
 }
 
-function isManagedProvider(provider: JsonObject): boolean {
+function hasManagedProviderShape(provider: JsonObject): boolean {
 	const options = provider.options;
 	return provider.npm === PROVIDER_PACKAGE &&
 		provider.name === "Phaseo" &&
@@ -88,11 +88,12 @@ export function renderOpenCodeConfig(
 	before: string | null,
 	model = DEFAULT_MODEL,
 	models?: IntegrationOptions["models"],
+	owned = false,
 ): string {
 	const config = parseConfig(path, before);
 	assertProviderEnabled(config);
 	const current = phaseoProvider(config);
-	if (current && !isManagedProvider(current)) {
+	if (current && (!owned || !hasManagedProviderShape(current))) {
 		throw new Error(`${path} already defines a phaseo provider that is not managed by Phaseo CLI`);
 	}
 
@@ -164,10 +165,10 @@ function renderRemovedAuth(path: string, before: string): string | null {
 	return `${JSON.stringify(auth, null, 2)}\n`;
 }
 
-function renderRemovedConfig(path: string, before: string): string | null {
+function renderRemovedConfig(path: string, before: string, owned: boolean): string | null {
 	const config = parseConfig(path, before);
 	const current = phaseoProvider(config);
-	if (!current || !isManagedProvider(current)) return null;
+	if (!owned || !current || !hasManagedProviderShape(current)) return null;
 	const providers = config.provider as JsonObject;
 	const removalPath = Object.keys(providers).length === 1 ? ["provider"] : ["provider", PROVIDER_ID];
 	return withTrailingNewline(setJsoncValue(before, removalPath, undefined));
@@ -193,6 +194,8 @@ export const openCodeAdapter: IntegrationAdapter = {
 	async inspect(options) {
 		const path = await configPath(options);
 		const current = await readOptionalFile(path);
+		const auth = parseAuth(authPath(options), await readOptionalFile(authPath(options)));
+		const owned = isManagedAuth(auth[PROVIDER_ID]);
 		const installed = await isCommandAvailable(["opencode", "opencode.exe", "opencode.cmd", "opencode.ps1"]);
 		if (current === null) {
 			return { id: "opencode", name: "OpenCode", status: installed ? "available" : "not-installed", configPath: path, details: [] };
@@ -201,7 +204,7 @@ export const openCodeAdapter: IntegrationAdapter = {
 		const provider = phaseoProvider(config);
 		const disabled = Array.isArray(config.disabled_providers) && config.disabled_providers.includes(PROVIDER_ID);
 		const excluded = Array.isArray(config.enabled_providers) && !config.enabled_providers.includes(PROVIDER_ID);
-		const configured = provider !== null && isManagedProvider(provider) && !disabled && !excluded;
+		const configured = provider !== null && owned && hasManagedProviderShape(provider) && !disabled && !excluded;
 		const conflict = provider !== null || disabled || excluded;
 		const models = provider && isObject(provider.models) ? Object.keys(provider.models) : [];
 		return {
@@ -219,7 +222,8 @@ export const openCodeAdapter: IntegrationAdapter = {
 	async planSetup(options) {
 		const path = await configPath(options);
 		const before = await readOptionalFile(path);
-		const after = renderOpenCodeConfig(path, before, options.model, options.models);
+		const auth = parseAuth(authPath(options), await readOptionalFile(authPath(options)));
+		const after = renderOpenCodeConfig(path, before, options.model, options.models, isManagedAuth(auth[PROVIDER_ID]));
 		if (before === after) return [];
 		return [{ path, before, after, description: "Configure the Phaseo OpenCode provider" }];
 	},
@@ -235,14 +239,16 @@ export const openCodeAdapter: IntegrationAdapter = {
 	},
 	async planRemove(options) {
 		const changes = [];
+		const credentialsPath = authPath(options);
+		const credentialsBefore = await readOptionalFile(credentialsPath);
+		const auth = parseAuth(credentialsPath, credentialsBefore);
+		const owned = isManagedAuth(auth[PROVIDER_ID]);
 		const path = await configPath(options);
 		const before = await readOptionalFile(path);
 		if (before !== null) {
-			const after = renderRemovedConfig(path, before);
+			const after = renderRemovedConfig(path, before, owned);
 			if (after !== null && after !== before) changes.push({ path, before, after, description: "Remove the Phaseo OpenCode provider" });
 		}
-		const credentialsPath = authPath(options);
-		const credentialsBefore = await readOptionalFile(credentialsPath);
 		if (credentialsBefore !== null) {
 			const credentialsAfter = renderRemovedAuth(credentialsPath, credentialsBefore);
 			if (credentialsAfter !== null && credentialsAfter !== credentialsBefore) {

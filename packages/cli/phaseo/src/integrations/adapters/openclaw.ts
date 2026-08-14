@@ -49,6 +49,14 @@ export function renderOpenClawProvider(models: IntegrationModel[]) {
 	};
 }
 
+export function openClawModels(model: string, models?: IntegrationModel[]): IntegrationModel[] {
+	const catalog = models?.length ? [...models] : [];
+	if (!catalog.some((entry) => entry.id === model)) {
+		catalog.unshift({ id: model, name: `${model} via Phaseo`, reasoning: true, input: ["text", "image"] });
+	}
+	return catalog;
+}
+
 export const openClawAdapter: IntegrationAdapter = {
 	id: "openclaw",
 	name: "OpenClaw",
@@ -79,7 +87,7 @@ export const openClawAdapter: IntegrationAdapter = {
 		const script = process.argv[1];
 		if (!script) throw new Error("Cannot determine the installed Phaseo CLI entry point");
 		const secretProvider = { source: "exec", command: process.execPath, args: [script, "integrations", "credential", "openclaw"], jsonOnly: false };
-		const models = options.models?.length ? options.models : [{ id: options.model ?? DEFAULT_MODEL, name: `${options.model ?? DEFAULT_MODEL} via Phaseo`, reasoning: true, input: ["text", "image"] as ("text" | "image")[] }];
+		const models = openClawModels(options.model ?? DEFAULT_MODEL, options.models);
 		const provider = renderOpenClawProvider(models);
 		await run(["config", "set", "secrets.providers.phaseo_cli", JSON.stringify(secretProvider), "--strict-json"]);
 		try {
