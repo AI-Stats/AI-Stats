@@ -989,6 +989,20 @@ export async function beforeRequest(
         }
         : undefined;
     const contextTelemetry = context.contextTelemetry ?? null;
+    const contextTimingSpans = {
+        context_total: contextTelemetry?.totalMs,
+        context_key_version: contextTelemetry?.keyVersionMs,
+        context_cache_read: contextTelemetry?.cacheReadMs,
+        context_credit_refresh: contextTelemetry?.creditRefreshMs,
+        context_rpc: contextTelemetry?.rpcMs,
+        context_enrich: contextTelemetry?.enrichMs,
+        context_cache_write: contextTelemetry?.cacheWriteMs,
+    };
+    for (const [name, durationMs] of Object.entries(contextTimingSpans)) {
+        if (typeof durationMs === "number") {
+            timer.record(name, durationMs);
+        }
+    }
     const meta: RequestMeta = makeMeta({
         endpoint,
         apiKeyId,

@@ -459,7 +459,7 @@ function transformResponsesStreamToAnthropic(
 	const encoder = new TextEncoder();
 	let buf = "";
 
-	const emit = async (
+	const emit = (
 		controller: ReadableStreamDefaultController<Uint8Array>,
 		eventName: string,
 		payload: any,
@@ -469,7 +469,148 @@ function transformResponsesStreamToAnthropic(
 
 	return new ReadableStream<Uint8Array>({
 		async start(controller) {
-			let finalResponse: any = null;
+			let messageStarted = false;
+			let nextBlockIndex = 0;
+			let terminalEmitted = false;
+			const blocks = new Map<string, {
+				index: number;
+				type: "text" | "thinking" | "tool_use";
+				open: boolean;
+				emittedContent: boolean;
+				toolId?: string;
+				toolName?: string;
+			}>();
+
+			const ensureMessageStart = (response?: any) => {
+				if (messageStarted) return;
+				messageStarted = true;
+				emit(controller, "message_start", {
+					type: "message_start",
+					message: {
+						id: response?.nativeResponseId ?? response?.id ?? args.requestId,
+						type: "message",
+						role: "assistant",
+						model: response?.model ?? args.providerModelSlug ?? args.ir.model,
+						content: [],
+						stop_reason: null,
+						stop_sequence: null,
+						usage: normalizeUsageToAnthropic(response?.usage),
+					},
+				});
+			};
+
+			const ensureBlock = (
+				key: string,
+				type: "text" | "thinking" | "tool_use",
+				tool?: { id?: string; name?: string },
+			) => {
+				const existing = blocks.get(key);
+				if (existing) {
+					if (tool?.id) existing.toolId = tool.id;
+					if (tool?.name) existing.toolName = tool.name;
+					return existing;
+				}
+				ensureMessageStart();
+				const block = {
+					index: nextBlockIndex++,
+					type,
+					open: true,
+					emittedContent: false,
+					toolId: tool?.id,
+					toolName: tool?.name,
+				};
+				blocks.set(key, block);
+				emit(controller, "content_block_start", {
+					type: "content_block_start",
+					index: block.index,
+					content_block: type === "tool_use"
+						? {
+							type: "tool_use",
+							id: block.toolId ?? `tool_${args.requestId}_${block.index}`,
+							name: block.toolName ?? "tool",
+							input: {},
+						}
+						: type === "thinking"
+							? { type: "thinking", thinking: "" }
+							: { type: "text", text: "" },
+				});
+				return block;
+			};
+
+			const stopBlock = (block: { index: number; open: boolean }) => {
+				if (!block.open) return;
+				block.open = false;
+				emit(controller, "content_block_stop", {
+					type: "content_block_stop",
+					index: block.index,
+				});
+			};
+
+			const finishMessage = (response: any) => {
+				if (terminalEmitted) return;
+				terminalEmitted = true;
+				ensureMessageStart(response);
+
+				const outputItems = Array.isArray(response?.output)
+					? response.output
+					: (Array.isArray(response?.output_items) ? response.output_items : []);
+				let hasToolUse = false;
+				for (let outputIndex = 0; outputIndex < outputItems.length; outputIndex += 1) {
+					const item = outputItems[outputIndex];
+					const itemType = String(item?.type ?? "").toLowerCase();
+					if (itemType === "reasoning" || itemType === "message") {
+						const blockType = itemType === "reasoning" ? "thinking" : "text";
+						const key = `${blockType}:${item?.id ?? outputIndex}`;
+						const block = ensureBlock(key, blockType);
+						if (!block.emittedContent) {
+							const text = extractOutputText(item?.content);
+							if (text) {
+								emit(controller, "content_block_delta", {
+									type: "content_block_delta",
+									index: block.index,
+									delta: blockType === "thinking"
+										? { type: "thinking_delta", thinking: text }
+										: { type: "text_delta", text },
+								});
+								block.emittedContent = true;
+							}
+						}
+						stopBlock(block);
+						continue;
+					}
+
+					if (itemType === "function_call" || itemType === "tool_call") {
+						hasToolUse = true;
+						const toolId = item?.call_id ?? item?.id ?? `tool_${outputIndex}`;
+						const block = ensureBlock(`tool:${toolId}`, "tool_use", {
+							id: toolId,
+							name: item?.name ?? "tool",
+						});
+						if (!block.emittedContent && typeof item?.arguments === "string" && item.arguments.length > 0) {
+							emit(controller, "content_block_delta", {
+								type: "content_block_delta",
+								index: block.index,
+								delta: { type: "input_json_delta", partial_json: item.arguments },
+							});
+							block.emittedContent = true;
+						}
+						stopBlock(block);
+					}
+				}
+
+				for (const block of blocks.values()) stopBlock(block);
+				const usage = normalizeUsageToAnthropic(response?.usage);
+				emit(controller, "message_delta", {
+					type: "message_delta",
+					delta: {
+						stop_reason: mapResponsesStatusToAnthropicStopReason(response, hasToolUse),
+						stop_sequence: null,
+					},
+					usage,
+				});
+				emit(controller, "message_stop", { type: "message_stop" });
+			};
+
 			try {
 				while (true) {
 					const { value, done } = await reader.read();
@@ -489,125 +630,59 @@ function transformResponsesStreamToAnthropic(
 						}
 
 						const normalizedEvent = normalizeResponsesEvent(event);
-						if (normalizedEvent === "response.completed") {
-							finalResponse = payload?.response ?? payload;
+						if (normalizedEvent === "response.created") {
+							ensureMessageStart(payload?.response ?? payload);
 							continue;
 						}
-
-						if (!normalizedEvent && payload?.object === "response") {
-							finalResponse = payload;
+						if (normalizedEvent === "response.output_text.delta" && typeof payload?.delta === "string") {
+							const key = `text:${payload?.item_id ?? payload?.output_index ?? 0}`;
+							const block = ensureBlock(key, "text");
+							emit(controller, "content_block_delta", {
+								type: "content_block_delta",
+								index: block.index,
+								delta: { type: "text_delta", text: payload.delta },
+							});
+							block.emittedContent = true;
+							continue;
 						}
+						if (normalizedEvent === "response.reasoning_text.delta" && typeof payload?.delta === "string") {
+							const key = `thinking:${payload?.item_id ?? payload?.output_index ?? 0}`;
+							const block = ensureBlock(key, "thinking");
+							emit(controller, "content_block_delta", {
+								type: "content_block_delta",
+								index: block.index,
+								delta: { type: "thinking_delta", thinking: payload.delta },
+							});
+							block.emittedContent = true;
+							continue;
+						}
+						if (normalizedEvent === "response.output_item.added") {
+							const item = payload?.item;
+							const itemType = String(item?.type ?? "").toLowerCase();
+							if (itemType === "function_call" || itemType === "tool_call") {
+								const toolId = item?.call_id ?? item?.id ?? payload?.item_id;
+								ensureBlock(`tool:${toolId}`, "tool_use", { id: toolId, name: item?.name });
+							}
+							continue;
+						}
+						if (normalizedEvent === "response.function_call_arguments.delta" && typeof payload?.delta === "string") {
+							const toolId = payload?.call_id ?? payload?.item_id ?? payload?.output_index ?? 0;
+							const block = ensureBlock(`tool:${toolId}`, "tool_use", { id: payload?.call_id });
+							emit(controller, "content_block_delta", {
+								type: "content_block_delta",
+								index: block.index,
+								delta: { type: "input_json_delta", partial_json: payload.delta },
+							});
+							block.emittedContent = true;
+							continue;
+						}
+						if (normalizedEvent === "response.completed") {
+							finishMessage(payload?.response ?? payload);
+							continue;
+						}
+						if (!normalizedEvent && payload?.object === "response") finishMessage(payload);
 					}
 				}
-
-				if (!finalResponse) return;
-
-				const outputItems = Array.isArray(finalResponse?.output)
-					? finalResponse.output
-					: (Array.isArray(finalResponse?.output_items) ? finalResponse.output_items : []);
-				const usage = normalizeUsageToAnthropic(finalResponse?.usage);
-				const messageId = finalResponse?.nativeResponseId ?? finalResponse?.id ?? args.requestId;
-				const model = finalResponse?.model ?? args.providerModelSlug ?? args.ir.model;
-
-				await emit(controller, "message_start", {
-					type: "message_start",
-					message: {
-						id: messageId,
-						type: "message",
-						role: "assistant",
-						model,
-						content: [],
-						stop_reason: null,
-						stop_sequence: null,
-						usage,
-					},
-				});
-
-				let blockIndex = 0;
-				let hasToolUse = false;
-
-				for (const item of outputItems) {
-					const type = String(item?.type ?? "").toLowerCase();
-
-					if (type === "reasoning") {
-						const text = extractOutputText(item?.content);
-						const idx = blockIndex++;
-						await emit(controller, "content_block_start", {
-							type: "content_block_start",
-							index: idx,
-							content_block: { type: "thinking", thinking: "" },
-						});
-						if (text) {
-							await emit(controller, "content_block_delta", {
-								type: "content_block_delta",
-								index: idx,
-								delta: { type: "thinking_delta", thinking: text },
-							});
-						}
-						await emit(controller, "content_block_stop", {
-							type: "content_block_stop",
-							index: idx,
-						});
-						continue;
-					}
-
-					if (type === "message") {
-						const content = Array.isArray(item?.content) ? item.content : [];
-						for (const part of content) {
-							const text = extractTextPart(part);
-							if (!text) continue;
-							const idx = blockIndex++;
-							await emit(controller, "content_block_start", {
-								type: "content_block_start",
-								index: idx,
-								content_block: { type: "text", text: "" },
-							});
-							await emit(controller, "content_block_delta", {
-								type: "content_block_delta",
-								index: idx,
-								delta: { type: "text_delta", text },
-							});
-							await emit(controller, "content_block_stop", {
-								type: "content_block_stop",
-								index: idx,
-							});
-						}
-						continue;
-					}
-
-					if (type === "function_call" || type === "tool_call") {
-						hasToolUse = true;
-						const idx = blockIndex++;
-						await emit(controller, "content_block_start", {
-							type: "content_block_start",
-							index: idx,
-							content_block: {
-								type: "tool_use",
-								id: item?.call_id ?? item?.id ?? `tool_${idx}`,
-								name: item?.name ?? "tool",
-								input: parseFunctionArguments(item?.arguments),
-							},
-						});
-						await emit(controller, "content_block_stop", {
-							type: "content_block_stop",
-							index: idx,
-						});
-					}
-				}
-
-				const stopReason = mapResponsesStatusToAnthropicStopReason(finalResponse, hasToolUse);
-				await emit(controller, "message_delta", {
-					type: "message_delta",
-					delta: {
-						stop_reason: stopReason,
-						stop_sequence: null,
-					},
-					usage: {
-						input_tokens: usage.input_tokens,
-						output_tokens: usage.output_tokens,
-					},
-				});
-				await emit(controller, "message_stop", { type: "message_stop" });
 			} catch (err) {
 				console.error("openai compat responses->anthropic stream transform failed:", err);
 			} finally {
@@ -649,23 +724,6 @@ function extractTextPart(part: any): string {
 	if (typeof part.text === "string") return part.text;
 	if (part.type === "output_text" && typeof part.text === "string") return part.text;
 	return "";
-}
-
-function parseFunctionArguments(argumentsRaw: unknown): Record<string, any> {
-	if (argumentsRaw && typeof argumentsRaw === "object" && !Array.isArray(argumentsRaw)) {
-		return argumentsRaw as Record<string, any>;
-	}
-	if (typeof argumentsRaw === "string" && argumentsRaw.length > 0) {
-		try {
-			const parsed = JSON.parse(argumentsRaw);
-			if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-				return parsed as Record<string, any>;
-			}
-		} catch {
-			// ignore parse errors
-		}
-	}
-	return {};
 }
 
 function mapResponsesStatusToAnthropicStopReason(
