@@ -45,7 +45,7 @@
   ],
   "benchmarks": [],
   "family_id": null,
-  "page_notice": "GLM-5.3 is currently documented for Z.AI's subscription Coding Plan. Standard pay-as-you-go API pricing has not yet been published.",
+  "page_notice": "GLM-5.3 is currently available through Z.AI's subscription Coding Plan. Standard pay-as-you-go API access and pricing are not yet available, and the announced open weights have not yet been released.",
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
