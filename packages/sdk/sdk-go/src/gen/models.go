@@ -1728,8 +1728,6 @@ const (
 	KnownModelIdLtx23Pro KnownModelId = "ltx-2-3-pro"
 	KnownModelIdLtx25Fast KnownModelId = "ltx-2-5-fast"
 	KnownModelIdLtx25Pro KnownModelId = "ltx-2-5-pro"
-	KnownModelIdLtx2Fast KnownModelId = "ltx-2-fast"
-	KnownModelIdLtx2Pro KnownModelId = "ltx-2-pro"
 	KnownModelIdMeituanLongcat20 KnownModelId = "meituan/longcat-2.0"
 	KnownModelIdMetaLlama370b KnownModelId = "meta/llama-3-70b"
 	KnownModelIdMetaLlama38b KnownModelId = "meta/llama-3-8b"

@@ -60,6 +60,10 @@ describe("MODEL_DISCOVERY_PROVIDERS", () => {
 			modelsEndpoint: "https://api.ambient.xyz/v1/models",
 			authStyle: "none",
 		});
+		expect(providers.get("cerebras")).toMatchObject({
+			modelsEndpoint: "https://api.cerebras.ai/public/v1/models",
+			authStyle: "none",
+		});
 		expect(providers.get("cloudflare")).toMatchObject({
 			modelsEndpoint: expect.stringContaining("{accountId}"),
 			modelsEndpointParams: {

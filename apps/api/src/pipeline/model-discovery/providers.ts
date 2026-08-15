@@ -71,7 +71,11 @@ const PROVIDER_OVERRIDES: Record<string, ProviderOverride> = {
 	},
 	baseten: { providerName: "Baseten", authStyle: "api_key_authorization" },
 	byteplus: { providerName: "BytePlus", apiKeyEnv: ["BYTEPLUS_API_KEY", "BYTEDANCE_SEED_API_KEY", "ARK_API_KEY"] },
-	cerebras: { providerName: "Cerebras" },
+	cerebras: {
+		providerName: "Cerebras",
+		modelsEndpoint: "https://api.cerebras.ai/public/v1/models",
+		authStyle: "none",
+	},
 	chutes: { providerName: "Chutes", authStyle: "none" },
 	clarifai: { providerName: "Clarifai", authStyle: "clarifai_key" },
 	cloudflare: {
