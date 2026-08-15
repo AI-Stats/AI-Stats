@@ -142,8 +142,6 @@ export type KnownModelId =
   | "ltx-2-3-pro"
   | "ltx-2-5-fast"
   | "ltx-2-5-pro"
-  | "ltx-2-fast"
-  | "ltx-2-pro"
   | "meituan/longcat-2.0"
   | "meta/llama-3-70b"
   | "meta/llama-3-8b"
