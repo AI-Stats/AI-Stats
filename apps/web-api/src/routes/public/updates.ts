@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { withPublicCache } from "@/http/cache";
+import { listModelEventRows } from "@/repositories/updates";
 
 const DEFAULT_LIMIT = 60;
 const MAX_LIMIT = 100;
@@ -137,30 +137,7 @@ async function fetchModelEventRows(
 	env: Env,
 	organisationId?: string,
 ): Promise<Array<Record<string, unknown>>> {
-	let query = getDataClient(env)
-		.from("v2_models")
-		.select("model_slug,name,lab_slug,announced_at,released_at,deprecated_at,retired_at,lab:v2_labs!v2_models_lab_slug_fkey(lab_slug,name)")
-		.eq("hidden", false)
-		.or("announced_at.not.is.null,released_at.not.is.null,deprecated_at.not.is.null,retired_at.not.is.null");
-	if (organisationId) query = query.eq("lab_slug", organisationId);
-	const { data, error } = await query;
-	if (error) throw error;
-	return (data ?? []).map((row) => {
-		const lab = Array.isArray(row.lab) ? row.lab[0] : row.lab;
-		return {
-			model_id: row.model_slug,
-			name: row.name,
-			organisation_id: row.lab_slug,
-			announcement_date: row.announced_at,
-			release_date: row.released_at,
-			deprecation_date: row.deprecated_at,
-			retirement_date: row.retired_at,
-			organisation: lab ? {
-				organisation_id: lab.lab_slug,
-				name: lab.name,
-			} : null,
-		};
-	});
+	return listModelEventRows(env, organisationId);
 }
 
 export const publicUpdatesRouter = new Hono<{ Bindings: Env }>();

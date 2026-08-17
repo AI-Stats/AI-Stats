@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { revalidatePath } from "next/cache";
 import { getStripe } from "@/lib/stripe";
 import { requireActiveTeamStripeCustomer } from "@/lib/server/activeTeamStripe";
-import { createClient } from "@/utils/supabase/server";
+import { findWalletPaymentSettings, updateWalletPaymentSettings } from "@/lib/database/repositories/billing";
 
 type PaymentMethodSummary = {
     id: string;
@@ -196,21 +196,14 @@ export async function DELETE(request: Request) {
 
         await stripe.paymentMethods.detach(paymentMethodId);
 
-        const supabase = await createClient();
-        const { data: wallet } = await supabase
-            .from("wallets")
-            .select("auto_top_up_enabled, auto_top_up_account_id")
-            .eq("workspace_id", workspaceId)
-            .maybeSingle();
+        const wallet = await findWalletPaymentSettings(workspaceId);
 
-        if (wallet?.auto_top_up_account_id === paymentMethodId) {
-            await supabase
-                .from("wallets")
-                .update({
-                    auto_top_up_account_id: nextDefaultId,
-                    auto_top_up_enabled: nextDefaultId ? (wallet?.auto_top_up_enabled ?? false) : false,
-                })
-                .eq("workspace_id", workspaceId);
+        if (wallet?.autoTopUpAccountId === paymentMethodId) {
+            await updateWalletPaymentSettings({
+				workspaceId,
+				autoTopUpAccountId: nextDefaultId,
+				autoTopUpEnabled: nextDefaultId ? wallet.autoTopUpEnabled : false,
+			});
             revalidatePath("/settings/credits");
         }
 

@@ -1,6 +1,19 @@
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import { getBindings, getSupabaseAdmin } from "@/runtime/env";
+import { getBindings } from "@/runtime/env";
+import { getIdentityUserById } from "@/runtime/identity";
+import {
+	createOAuthAuthorizationCode,
+	createOAuthClient,
+	createOAuthDeviceCode,
+	findOAuthAuthorizationCode,
+	findOAuthDeviceByDeviceCode,
+	findOAuthDeviceByUserCode,
+	findWorkspaceMemberships,
+	hasWorkspaceMembership,
+	enforceOAuthDevicePollInterval,
+	transitionPendingOAuthDevice,
+} from "@/repositories/oauth";
 import { ALL_SUPPORTED_SCOPES, GATEWAY_ACCESS_SCOPE } from "@/lib/authz/capabilities";
 import { checkOAuthRateLimit } from "@/lib/oauth/rateLimit";
 import { authenticateManagement } from "@/pipeline/before/auth";
@@ -19,7 +32,7 @@ import {
 	getApiBaseUrl,
 	getIssuer,
 	getLocalJwks,
-	getSupabaseActor,
+	getOAuthRequestActor,
 	hashOAuthSecret,
 	hashOAuthSecretCandidates,
 	hasActiveOAuthWorkspaceAccess,
@@ -233,10 +246,8 @@ function hasUnsafeMetadataCharacters(value: string): boolean {
 	return /[\u0000-\u001F\u007F]/.test(value);
 }
 
-async function requireSupabaseActor(req: Request) {
-	const token = bearerToken(req);
-	if (!token) return null;
-	return getSupabaseActor(token);
+async function requireOAuthActor(req: Request) {
+	return getOAuthRequestActor(req);
 }
 
 function isDynamicClientRedirectUriAllowed(value: unknown): value is string {
@@ -323,7 +334,7 @@ export function oauthAuthorizationServerMetadata() {
 oauthRouter.get(
 	"/client-metadata",
 	withRuntime(async (req) => {
-		const actor = await requireSupabaseActor(req);
+		const actor = await requireOAuthActor(req);
 		if (!actor) return oauthError("access_denied", "User session is required", 401);
 		if (!(await checkOAuthRateLimit(req, "token", `client-metadata:${actor.userId}`))) return rateLimitError();
 		const clientId = new URL(req.url).searchParams.get("client_id")?.trim() ?? "";
@@ -449,20 +460,23 @@ oauthRouter.post(
 		}
 		const clientId = crypto.randomUUID();
 		const safeRedirectUris = Array.from(new Set(redirectUris as string[]));
-		const { error } = await getSupabaseAdmin().from("oauth_clients").insert({
+		try {
+			await createOAuthClient({
 			id: clientId,
 			name: clientName,
 			description: clientDescription || null,
-			logo_url: typeof body.logo_uri === "string" ? body.logo_uri : null,
-			homepage_url: typeof body.client_uri === "string" ? body.client_uri : null,
-			client_type: "public",
-			redirect_uris: safeRedirectUris,
-			allowed_scopes: grantedScopes,
-			is_first_party: false,
-			beta_status: "public",
+			logoUrl: typeof body.logo_uri === "string" ? body.logo_uri : null,
+			homepageUrl: typeof body.client_uri === "string" ? body.client_uri : null,
+			clientType: "public",
+			redirectUris: safeRedirectUris,
+			allowedScopes: grantedScopes,
+			isFirstParty: false,
+			betaStatus: "public",
 			status: "active",
-		});
-		if (error) return oauthError("server_error", "Failed to register OAuth client", 500);
+			});
+		} catch {
+			return oauthError("server_error", "Failed to register OAuth client", 500);
+		}
 
 		return json({
 			client_id: clientId,
@@ -519,17 +533,17 @@ oauthRouter.post(
 
 		const deviceCode = createOpaqueCode();
 		const userCode = createUserCode();
-		const supabase = getSupabaseAdmin();
-		const { error } = await supabase.from("oauth_device_codes").insert({
-			device_code_hash: await hashOAuthSecret(deviceCode),
-			user_code_hash: await hashOAuthSecret(normalizeUserCode(userCode)),
-			client_id: client.id,
+		try {
+			await createOAuthDeviceCode({
+			deviceCodeHash: await hashOAuthSecret(deviceCode),
+			userCodeHash: await hashOAuthSecret(normalizeUserCode(userCode)),
+			clientId: client.id,
 			scopes,
 			status: "pending",
-			interval_seconds: defaultDeviceIntervalSeconds(),
-			expires_at: makeDeviceCodeExpiry(),
-		});
-		if (error) {
+			intervalSeconds: defaultDeviceIntervalSeconds(),
+			expiresAt: makeDeviceCodeExpiry(),
+			});
+		} catch (error) {
 			return oauthStorageError("oauth.device_code.insert", error);
 		}
 
@@ -608,7 +622,7 @@ oauthRouter.get(
 oauthRouter.post(
 	"/authorize/approve",
 	withRuntime(async (req) => {
-		const actor = await requireSupabaseActor(req);
+		const actor = await requireOAuthActor(req);
 		if (!actor) return oauthError("access_denied", "User session is required", 401);
 		if (!(await checkOAuthRateLimit(req, "token", `authorize-approve:${actor.userId}`))) return rateLimitError();
 
@@ -662,18 +676,12 @@ oauthRouter.post(
 			return oauthError("invalid_scope", `${GATEWAY_ACCESS_SCOPE} is required for third-party OAuth`);
 		}
 		const selectedWorkspaceIds = Array.from(new Set([...workspaceIds, workspaceId]));
-		const supabase = getSupabaseAdmin();
-		const memberships = await supabase
-			.from("workspace_members")
-			.select("workspace_id")
-			.eq("user_id", actor.userId)
-			.in("workspace_id", selectedWorkspaceIds);
-		if (memberships.error) {
-			return oauthStorageError("oauth.authorization.memberships", memberships.error);
+		let grantedWorkspaceIds: Set<string>;
+		try {
+			grantedWorkspaceIds = new Set(await findWorkspaceMemberships(actor.userId, selectedWorkspaceIds));
+		} catch (error) {
+			return oauthStorageError("oauth.authorization.memberships", error);
 		}
-		const grantedWorkspaceIds = new Set(
-			(memberships.data ?? []).map((row: { workspace_id?: unknown }) => String(row.workspace_id ?? "").trim()).filter(Boolean),
-		);
 		if (!selectedWorkspaceIds.every((candidate) => grantedWorkspaceIds.has(candidate))) {
 			return oauthError("access_denied", "User is not a member of one or more selected workspaces", 403);
 		}
@@ -685,19 +693,22 @@ oauthRouter.post(
 			scopes,
 		});
 		const code = createOpaqueCode();
-		const insert = await supabase.from("oauth_authorization_codes").insert({
-			code_hash: await hashOAuthSecret(code),
-			client_id: client.id,
-			user_id: actor.userId,
-			workspace_id: workspaceId,
-			redirect_uri: redirectUri,
+		try {
+			await createOAuthAuthorizationCode({
+			codeHash: await hashOAuthSecret(code),
+			clientId: client.id,
+			userId: actor.userId,
+			workspaceId,
+			redirectUri,
 			scopes,
-			code_challenge: codeChallenge,
-			code_challenge_method: codeChallengeMethod,
+			codeChallenge,
+			codeChallengeMethod,
 			...(resource ? { resource } : {}),
-			expires_at: makeAuthCodeExpiry(),
-		});
-		if (insert.error) return oauthStorageError("oauth.authorization_code.insert", insert.error);
+			expiresAt: makeAuthCodeExpiry(),
+			});
+		} catch (error) {
+			return oauthStorageError("oauth.authorization_code.insert", error);
+		}
 
 		return json({ redirect_url: authorizationSuccessUrl(redirectUri, code, state) }, 200, { "Cache-Control": "no-store" });
 	}),
@@ -706,7 +717,7 @@ oauthRouter.post(
 oauthRouter.post(
 	"/device/activate",
 	withRuntime(async (req) => {
-		const actor = await requireSupabaseActor(req);
+		const actor = await requireOAuthActor(req);
 		if (!actor) return oauthError("access_denied", "User session is required", 401);
 		if (!(await checkOAuthRateLimit(req, "strict", `device-activate:${actor.userId}`))) return rateLimitError();
 
@@ -722,17 +733,16 @@ oauthRouter.post(
 		const workspaceId = String(body.workspace_id ?? "").trim();
 		if (!userCode) return oauthError("invalid_request", "user_code is required");
 
-		const supabase = getSupabaseAdmin();
-		const { data: device, error } = await supabase
-			.from("oauth_device_codes")
-			.select("id, client_id, scopes, status, expires_at")
-			.in("user_code_hash", await hashOAuthSecretCandidates(userCode))
-			.maybeSingle();
-		if (error) return oauthStorageError("oauth.device_activation.lookup", error);
-		if (!device || Date.parse(String(device.expires_at)) <= Date.now()) {
+		let device: Awaited<ReturnType<typeof findOAuthDeviceByUserCode>>;
+		try {
+			device = await findOAuthDeviceByUserCode(await hashOAuthSecretCandidates(userCode));
+		} catch (error) {
+			return oauthStorageError("oauth.device_activation.lookup", error);
+		}
+		if (!device || Date.parse(device.expiresAt) <= Date.now()) {
 			return oauthError("expired_token", "Device code was not found or has expired", 400);
 		}
-		const client = await loadOAuthClient(String(device.client_id));
+		const client = await loadOAuthClient(device.clientId);
 		if (!client) return oauthError("invalid_client", "OAuth client is unavailable", 400);
 		if (!isFirstPartyCliClient(client.id)) {
 			return oauthError("invalid_client", "Device authorization is only available to the Phaseo CLI", 400);
@@ -758,46 +768,40 @@ oauthRouter.post(
 			return oauthError("invalid_grant", "Device code is no longer pending");
 		}
 		if (action === "deny") {
-			const deny = await supabase
-				.from("oauth_device_codes")
-				.update({ status: "denied", denied_at: new Date().toISOString(), user_id: actor.userId })
-				.eq("id", device.id)
-				.eq("status", "pending")
-				.select("id")
-				.maybeSingle();
-			if (deny.error) return oauthStorageError("oauth.device_activation.deny", deny.error);
-			if (!deny.data) return oauthError("invalid_grant", "Device code is no longer pending");
+			let denied: boolean;
+			try {
+				denied = await transitionPendingOAuthDevice(device.id, {
+					status: "denied",
+					deniedAt: new Date().toISOString(),
+					userId: actor.userId,
+				});
+			} catch (error) {
+				return oauthStorageError("oauth.device_activation.deny", error);
+			}
+			if (!denied) return oauthError("invalid_grant", "Device code is no longer pending");
 			return json({ ok: true }, 200, { "Cache-Control": "no-store" });
 		}
 		if (action !== "approve" || !workspaceId) {
 			return oauthError("invalid_request", "action must be lookup, approve, or deny");
 		}
 
-		const membership = await supabase
-			.from("workspace_members")
-			.select("workspace_id")
-			.eq("workspace_id", workspaceId)
-			.eq("user_id", actor.userId)
-			.maybeSingle();
-		if (membership.error || !membership.data) {
+		if (!(await hasWorkspaceMembership(actor.userId, workspaceId))) {
 			return oauthError("access_denied", "User is not a member of the selected workspace", 403);
 		}
 		const scopes = Array.isArray(device.scopes) ? device.scopes.map(String) : [];
 		await ensureGrant({ userId: actor.userId, workspaceId, clientId: client.id, scopes });
-		const approve = await supabase
-			.from("oauth_device_codes")
-			.update({
+		let approved: boolean;
+		try {
+			approved = await transitionPendingOAuthDevice(device.id, {
 				status: "approved",
-				approved_at: new Date().toISOString(),
-				user_id: actor.userId,
-				workspace_id: workspaceId,
-			})
-			.eq("id", device.id)
-			.eq("status", "pending")
-			.select("id")
-			.maybeSingle();
-		if (approve.error) return oauthStorageError("oauth.device_activation.approve", approve.error);
-		if (!approve.data) return oauthError("invalid_grant", "Device code is no longer pending");
+				approvedAt: new Date().toISOString(),
+				userId: actor.userId,
+				workspaceId,
+			});
+		} catch (error) {
+			return oauthStorageError("oauth.device_activation.approve", error);
+		}
+		if (!approved) return oauthError("invalid_grant", "Device code is no longer pending");
 		return json({ ok: true }, 200, { "Cache-Control": "no-store" });
 	}),
 );
@@ -815,39 +819,40 @@ oauthRouter.post(
 		if (!(await checkOAuthRateLimit(req, "token", grantType || "unknown-grant"))) {
 			return rateLimitError(grantType === "urn:ietf:params:oauth:grant-type:device_code" ? "slow_down" : undefined);
 		}
-		const supabase = getSupabaseAdmin();
-
 		if (grantType === "urn:ietf:params:oauth:grant-type:device_code") {
 			const deviceCode = String(body.device_code ?? "").trim();
 			const clientId = String(body.client_id ?? CLI_CLIENT_ID).trim();
 			if (!deviceCode) return oauthError("invalid_request", "device_code is required");
-			const { data, error } = await supabase
-				.from("oauth_device_codes")
-				.select("id, client_id, user_id, workspace_id, scopes, status, expires_at, consumed_at")
-				.in("device_code_hash", await hashOAuthSecretCandidates(deviceCode))
-				.eq("client_id", clientId)
-				.maybeSingle();
-			if (error) return oauthStorageError("oauth.device_token.lookup", error);
-			if (!data || Date.parse(String(data.expires_at)) <= Date.now()) {
+			let data: Awaited<ReturnType<typeof findOAuthDeviceByDeviceCode>>;
+			try {
+				data = await findOAuthDeviceByDeviceCode(await hashOAuthSecretCandidates(deviceCode), clientId);
+			} catch (error) {
+				return oauthStorageError("oauth.device_token.lookup", error);
+			}
+			if (!data || Date.parse(data.expiresAt) <= Date.now()) {
 				return oauthError("expired_token", "Device code has expired");
 			}
-			if (!isFirstPartyCliClient(String(data.client_id))) {
+			if (!isFirstPartyCliClient(data.clientId)) {
 				return oauthError("invalid_grant", "Device authorization is only available to the Phaseo CLI");
 			}
 			if (data.status === "denied") return oauthError("access_denied", "The user denied this device request");
 			if (data.status !== "approved") {
-				const poll = await supabase.rpc("enforce_oauth_device_poll_interval", { p_device_id: data.id });
-				if (poll.error) return oauthStorageError("oauth.device_token.poll", poll.error);
-				if (poll.data === "slow_down") {
+				let poll: "ok" | "slow_down" | "invalid";
+				try {
+					poll = await enforceOAuthDevicePollInterval(data.id);
+				} catch (error) {
+					return oauthStorageError("oauth.device_token.poll", error);
+				}
+				if (poll === "slow_down") {
 					return oauthError("slow_down", "Device token polling is too frequent", 400);
 				}
 				return oauthError("authorization_pending", "Authorization is still pending");
 			}
-			if (data.consumed_at) return oauthError("invalid_grant", "Device code has already been consumed");
+			if (data.consumedAt) return oauthError("invalid_grant", "Device code has already been consumed");
 			if (!(await hasActiveOAuthWorkspaceAccess({
-				userId: String(data.user_id),
-				workspaceId: String(data.workspace_id),
-				clientId: String(data.client_id),
+				userId: String(data.userId),
+				workspaceId: String(data.workspaceId),
+				clientId: data.clientId,
 			}))) {
 				return oauthError("invalid_grant", "Device authorization is no longer valid");
 			}
@@ -855,9 +860,9 @@ oauthRouter.post(
 				const tokens = await issueTokenPairForGrant(
 					{ type: "device_code", id: String(data.id) },
 					{
-						userId: String(data.user_id),
-						workspaceId: String(data.workspace_id),
-						clientId: String(data.client_id),
+						userId: String(data.userId),
+						workspaceId: String(data.workspaceId),
+						clientId: data.clientId,
 						scopes: Array.isArray(data.scopes) ? data.scopes.map(String) : [],
 					},
 				);
@@ -865,7 +870,7 @@ oauthRouter.post(
 				return json(tokens, 200, { "Cache-Control": "no-store" });
 			} catch (error) {
 				console.error("oauth_device_token_issue_failed", {
-					clientId: String(data.client_id),
+					clientId: data.clientId,
 					message: error instanceof Error ? error.message : String(error),
 				});
 				return oauthError("server_error", "Failed to issue OAuth token", 500);
@@ -888,33 +893,16 @@ oauthRouter.post(
 				return oauthError("invalid_client", "OAuth client authentication failed", 401);
 			}
 			const requestedResource = String(body.resource ?? "").trim();
-			let { data, error } = await supabase
-				.from("oauth_authorization_codes")
-				.select("id, client_id, user_id, workspace_id, redirect_uri, scopes, code_challenge, code_challenge_method, resource, expires_at, used_at")
-				.in("code_hash", await hashOAuthSecretCandidates(code))
-				.eq("client_id", client.id)
-				.maybeSingle();
-			// During a rolling deployment, non-resource clients remain compatible
-			// with the schema from immediately before OAuth resource indicators.
-			if (
-				error &&
-				!requestedResource &&
-				/(?:resource.*column|column.*resource|resource.*schema cache)/i.test(error.message)
-			) {
-				const legacyResult = await supabase
-					.from("oauth_authorization_codes")
-					.select("id, client_id, user_id, workspace_id, redirect_uri, scopes, code_challenge, code_challenge_method, expires_at, used_at")
-					.in("code_hash", await hashOAuthSecretCandidates(code))
-					.eq("client_id", client.id)
-					.maybeSingle();
-				data = legacyResult.data ? { ...legacyResult.data, resource: null } : null;
-				error = legacyResult.error;
+			let data: Awaited<ReturnType<typeof findOAuthAuthorizationCode>>;
+			try {
+				data = await findOAuthAuthorizationCode(await hashOAuthSecretCandidates(code), client.id);
+			} catch (error) {
+				return oauthStorageError("oauth.authorization_code.lookup", error);
 			}
-			if (error) return oauthStorageError("oauth.authorization_code.lookup", error);
-			if (!data || data.used_at || Date.parse(String(data.expires_at)) <= Date.now()) {
+			if (!data || data.usedAt || Date.parse(data.expiresAt) <= Date.now()) {
 				return oauthError("invalid_grant", "Authorization code is invalid or expired");
 			}
-			if (String(data.redirect_uri) !== redirectUri) {
+			if (data.redirectUri !== redirectUri) {
 				return oauthError("invalid_grant", "redirect_uri does not match");
 			}
 			const resource = requestedResource;
@@ -924,22 +912,22 @@ oauthRouter.post(
 			}
 			if (!(await verifyPkce({
 				codeVerifier: verifier,
-				codeChallenge: String(data.code_challenge),
-				method: String(data.code_challenge_method),
+				codeChallenge: data.codeChallenge,
+				method: data.codeChallengeMethod,
 			}))) {
 				return oauthError("invalid_grant", "PKCE verification failed");
 			}
 			if (!(await hasActiveOAuthWorkspaceAccess({
-				userId: String(data.user_id),
-				workspaceId: String(data.workspace_id),
-				clientId: String(data.client_id),
+				userId: data.userId,
+				workspaceId: data.workspaceId,
+				clientId: data.clientId,
 			}))) {
 				return oauthError("invalid_grant", "OAuth workspace access is no longer active");
 			}
 			const tokenInput = {
-				userId: String(data.user_id),
-				workspaceId: String(data.workspace_id),
-				clientId: String(data.client_id),
+				userId: data.userId,
+				workspaceId: data.workspaceId,
+				clientId: data.clientId,
 				scopes: Array.isArray(data.scopes) ? data.scopes.map(String) : [],
 				...(grantedResource ? { resource: grantedResource } : {}),
 			};
@@ -1075,20 +1063,13 @@ oauthRouter.get(
 		if (!scopes.includes("openid")) {
 			return oauthError("insufficient_scope", "Token requires openid", 403);
 		}
-		const { data } = await getSupabaseAdmin().auth.admin.getUserById(auth.userId);
+		const { data } = await getIdentityUserById(auth.userId);
 		const user = data?.user;
-		const metadata = (user?.user_metadata ?? {}) as Record<string, unknown>;
-		const name =
-			typeof metadata.full_name === "string"
-				? metadata.full_name
-				: typeof metadata.name === "string"
-					? metadata.name
-					: null;
 		return json(
 			{
 				sub: auth.userId,
 				email: scopes.includes("email") ? user?.email ?? null : undefined,
-				name: scopes.includes("profile") ? name : undefined,
+				name: scopes.includes("profile") ? user?.name ?? null : undefined,
 				workspace_id: auth.workspaceId,
 				client_id: auth.oauthClientId,
 				resource: auth.oauthResource ?? undefined,

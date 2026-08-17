@@ -3,7 +3,6 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
 import {
 	configuredAuthOriginsFromEnv,
 	resolveAuthCallbackUrl,
@@ -19,6 +18,8 @@ import {
 	type StartSsoInput,
 } from "@/lib/auth/sso";
 import { samlSsoFlag } from "@/lib/flags";
+import { getBetterAuth } from "@/lib/auth/betterAuth";
+import { requireServerIdentity } from "@/lib/auth/serverIdentity";
 
 const OAUTH_PROVIDERS = ["google", "github", "gitlab"] as const;
 type OAuthProvider = (typeof OAUTH_PROVIDERS)[number];
@@ -64,88 +65,67 @@ function buildRedirect(pathname: string, params: Record<string, string | undefin
 	return `${url.pathname}${url.search}`;
 }
 
+function betterAuthPostLoginPath(returnUrl?: string): string {
+	return buildRedirect("/auth/callback", {
+		returnUrl,
+		type: "better-auth",
+	});
+}
+
 // react-doctor-disable-next-line
 export async function handleOAuthRedirect(formData: FormData) {
-	const supabase = await createClient();
 	const rawProvider = String(formData.get("provider") ?? "google").toLowerCase();
 	if (!(OAUTH_PROVIDERS as readonly string[]).includes(rawProvider)) {
 		redirect("/error?message=Authentication failed");
 	}
 	const provider = rawProvider as OAuthProvider;
 	const safeReturnUrl = await resolveSafeReturnUrl(formData);
-	const redirectTo = await resolveAuthCallbackUrl(safeReturnUrl);
-
-	const { data, error } = await supabase.auth.signInWithOAuth({
-		provider: provider as any,
-		options: { redirectTo },
-	});
-
-	if (error || !data?.url) {
-		redirect("/error?message=Authentication failed");
-	}
-	redirect(data.url as any);
+	const result = await getBetterAuth().api.signInSocial({
+			body: {
+				callbackURL: betterAuthPostLoginPath(safeReturnUrl),
+				provider,
+			},
+			headers: await headers(),
+		});
+	if (!result.url) redirect("/error?message=Authentication failed");
+	redirect(result.url);
 }
 
 // react-doctor-disable-next-line
 export async function handlePasswordSignIn(formData: FormData) {
-	const supabase = await createClient();
 	const email = String(formData.get("email") ?? "").trim();
 	const password = String(formData.get("password") ?? "");
 	const safeReturnUrl = await resolveSafeReturnUrl(formData);
-
-	const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-	if (error) {
-		redirect(
-			buildRedirect("/sign-in", {
-				error: "auth-failed",
-				returnUrl: safeReturnUrl,
-			}),
-		);
-	}
-
-	let redirectPath = safeReturnUrl ?? "/";
-	let errorRedirectUrl: string | null = null;
-	try {
-		const result = await finalizePostLogin({
-			supabaseUser: supabase,
-			user: data.user,
-			session: data.session,
-			returnUrl: safeReturnUrl ?? "/",
-			source: "server_action",
-		});
-		redirectPath = result.redirectPath;
-	} catch (postLoginError) {
-		console.error("Failed to finalize post-login state after password sign-in", {
-			error:
-				postLoginError instanceof Error
-					? postLoginError.message
-					: String(postLoginError),
-		});
-		errorRedirectUrl = `/error?message=${encodeURIComponent(
-			"Your account was authenticated, but we could not finish setting up your workspace. Please contact support.",
-		)}`;
-	}
-	if (errorRedirectUrl) redirect(errorRedirectUrl);
-	redirect(redirectPath);
+	let requiresTwoFactor = false;
+		const postLoginPath = betterAuthPostLoginPath(safeReturnUrl);
+		try {
+			const result = await getBetterAuth().api.signInEmail({
+				body: { email, password, callbackURL: postLoginPath },
+				headers: await headers(),
+			});
+			requiresTwoFactor = Boolean(
+				(result as typeof result & { twoFactorRedirect?: boolean })
+					.twoFactorRedirect,
+			);
+		} catch {
+			redirect(
+				buildRedirect("/sign-in", {
+					error: "auth-failed",
+					returnUrl: safeReturnUrl,
+				}),
+			);
+		}
+		if (requiresTwoFactor) {
+			redirect(buildRedirect("/auth/verify-mfa", { returnUrl: postLoginPath }));
+		}
+	redirect(postLoginPath);
 }
 
 /** Completes server-side provisioning after a browser passkey ceremony. */
 export async function completePasskeySignIn(returnUrl?: string) {
-	const supabase = await createClient();
-	const {
-		data: { user },
-	} = await supabase.auth.getUser();
-	if (!user) {
-		throw new Error("Passkey sign-in did not create a session");
-	}
-
-	const {
-		data: { session },
-	} = await supabase.auth.getSession();
+	const { user } = await requireServerIdentity();
 	const result = await finalizePostLogin({
-		supabaseUser: supabase,
 		user,
-		session,
 		returnUrl: sanitizeReturnUrl(returnUrl, "/"),
 		source: "server_action",
 	});
@@ -160,7 +140,6 @@ export async function startSsoSignIn(input: StartSsoInput) {
 			`/error?message=${encodeURIComponent("Single sign-on is not enabled yet.")}`,
 		);
 	}
-	const supabase = await createClient();
 	const returnUrl = sanitizeReturnUrl(input.returnUrl, "/");
 	const safeReturnUrl = returnUrl === "/" ? undefined : returnUrl;
 	const redirectTo = await resolveAuthCallbackUrl(safeReturnUrl);
@@ -174,60 +153,26 @@ export async function startSsoSignIn(input: StartSsoInput) {
 	}
 	if (errorRedirectUrl) redirect(errorRedirectUrl);
 	if (!request) redirect("/error?message=Authentication failed");
-
-	if (request.kind === "oauth") {
-		let data:
-			| Awaited<ReturnType<typeof supabase.auth.signInWithOAuth>>["data"]
-			| undefined;
-		let error:
-			| Awaited<ReturnType<typeof supabase.auth.signInWithOAuth>>["error"]
-			| undefined;
+	let url: string | undefined;
 		try {
-			({ data, error } = await supabase.auth.signInWithOAuth(
-				request.params as any,
-			));
+			const result = await getBetterAuth().api.signInSSO({
+				body: {
+					callbackURL: betterAuthPostLoginPath(safeReturnUrl),
+					...(request.kind === "oauth"
+						? { providerId: request.params.provider }
+						: "providerId" in request.params
+							? { providerId: request.params.providerId }
+							: { domain: request.params.domain }),
+				},
+				headers: await headers(),
+			});
+			url = result.url;
 		} catch (error) {
-			return redirect(
-				`/error?message=${encodeURIComponent(
-					mapSsoAuthErrorMessage(error),
-				)}`,
-			);
+			errorRedirectUrl = `/error?message=${encodeURIComponent(mapSsoAuthErrorMessage(error))}`;
 		}
-		if (error || !data?.url) {
-			return redirect(
-				`/error?message=${encodeURIComponent(
-					mapSsoAuthErrorMessage(error),
-				)}`,
-			);
-		}
-		return redirect(data.url as any);
-	}
-
-	let data:
-		| Awaited<ReturnType<typeof supabase.auth.signInWithSSO>>["data"]
-		| undefined;
-	let error:
-		| Awaited<ReturnType<typeof supabase.auth.signInWithSSO>>["error"]
-		| undefined;
-	try {
-		({ data, error } = await supabase.auth.signInWithSSO(
-			request.params as any,
-		));
-	} catch (error) {
-		return redirect(
-			`/error?message=${encodeURIComponent(
-				mapSsoAuthErrorMessage(error),
-				)}`,
-			);
-	}
-	if (error || !data?.url) {
-		return redirect(
-			`/error?message=${encodeURIComponent(
-				mapSsoAuthErrorMessage(error),
-			)}`,
-		);
-	}
-	return redirect(data.url as any);
+		if (errorRedirectUrl) redirect(errorRedirectUrl);
+		if (!url) redirect("/error?message=Authentication failed");
+	redirect(url);
 }
 
 // react-doctor-disable-next-line
@@ -243,16 +188,13 @@ export async function handleEnterpriseSsoRedirect(formData: FormData) {
 
 // react-doctor-disable-next-line
 export async function forgotPasswordAction(email: string) {
-	const supabase = await createClient();
 	const authOrigin = await resolveAuthOrigin();
-
-	const { error } = await supabase.auth.resetPasswordForEmail(email, {
-		redirectTo: `${authOrigin}/auth/reset-password`,
-	});
-
-	if (error) {
-		throw new Error("Failed to send password reset email");
-	}
-
+	await getBetterAuth().api.requestPasswordReset({
+			body: {
+				email,
+				redirectTo: `${authOrigin}/auth/reset-password`,
+			},
+			headers: await headers(),
+		});
 	return { success: true };
 }

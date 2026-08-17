@@ -115,7 +115,7 @@ export async function emitGatewayOperationalFailure(args: {
 }
 
 export async function emitGatewayTelemetryDeliveryFailure(args: {
-    sink: "supabase";
+    sink: "database";
     requestId: string;
     workspaceId: string | null;
     error: string;
@@ -136,4 +136,3 @@ export async function emitGatewayTelemetryDeliveryFailure(args: {
         telemetry_sink: args.sink,
     });
 }
-

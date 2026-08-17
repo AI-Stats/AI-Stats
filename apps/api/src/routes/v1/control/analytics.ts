@@ -6,7 +6,7 @@
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
 import { withRuntime, json } from "../../utils";
-import { getSupabaseAdmin } from "@/runtime/env";
+import { countAnalyticsFacts, loadAnalyticsFactsPage, loadAnalyticsProviderNames } from "@/repositories/analytics";
 import { guardAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { requireCapability } from "./route-helpers";
@@ -178,40 +178,15 @@ async function loadAnalyticsFactRows(args: {
     startIso: string;
     endIso: string;
 }): Promise<AnalyticsFactRow[]> {
-    const supabase = getSupabaseAdmin();
     const rows: AnalyticsFactRow[] = [];
-	const countResult = await supabase
-		.from("v2_request_facts")
-		.select("request_event_id", { count: "exact", head: true })
-		.eq("workspace_id", args.workspaceId)
-		.gte("occurred_at", args.startIso)
-		.lt("occurred_at", args.endIso);
-	if (countResult.error) {
-		throw new Error(countResult.error.message || "Failed to count v2 analytics request facts");
-	}
-	if (countResult.count == null) {
-		throw new Error("Failed to count v2 analytics request facts");
-	}
-	if (countResult.count > ANALYTICS_FACT_MAX_ROWS) {
+	const count = await countAnalyticsFacts(args.workspaceId, args.startIso, args.endIso);
+	if (count > ANALYTICS_FACT_MAX_ROWS) {
 		throw new AnalyticsFactLimitError(
 			"Analytics range contains too many requests; select a single date"
 		);
 	}
     for (let offset = 0; offset < ANALYTICS_FACT_MAX_ROWS; offset += ANALYTICS_FACT_PAGE_SIZE) {
-        const { data, error } = await supabase
-            .from("v2_request_facts")
-            .select(
-                "occurred_at,endpoint,requested_model_slug,routed_model_slug,provider_model_id,cost_nanos,byok,v2_request_usage(meter_key,quantity)"
-            )
-            .eq("workspace_id", args.workspaceId)
-            .gte("occurred_at", args.startIso)
-            .lt("occurred_at", args.endIso)
-            .order("occurred_at", { ascending: true })
-			.range(offset, offset + ANALYTICS_FACT_PAGE_SIZE - 1);
-        if (error) {
-            throw new Error(error.message || "Failed to load v2 analytics request facts");
-        }
-        const page = (data ?? []) as AnalyticsFactRow[];
+		const page = await loadAnalyticsFactsPage({ ...args, limit: ANALYTICS_FACT_PAGE_SIZE, offset }) as AnalyticsFactRow[];
 		rows.push(...page);
         if (page.length < ANALYTICS_FACT_PAGE_SIZE) break;
     }
@@ -221,14 +196,9 @@ async function loadAnalyticsFactRows(args: {
 async function loadProviderNames(providerModelIds: string[]): Promise<Map<string, string>> {
     const names = new Map<string, string>();
     if (providerModelIds.length === 0) return names;
-    const supabase = getSupabaseAdmin();
     for (let offset = 0; offset < providerModelIds.length; offset += 200) {
-        const { data, error } = await supabase
-            .from("v2_model_provider_routes")
-            .select("provider_model_id,provider_slug")
-            .in("provider_model_id", providerModelIds.slice(offset, offset + 200));
-        if (error) throw new Error(error.message || "Failed to load analytics provider names");
-        for (const row of data ?? []) {
+		const data = await loadAnalyticsProviderNames(providerModelIds.slice(offset, offset + 200));
+		for (const row of data) {
             if (row.provider_model_id && row.provider_slug) names.set(row.provider_model_id, row.provider_slug);
         }
     }
@@ -353,7 +323,6 @@ async function handleAnalytics(req: Request) {
 export const analyticsRoutes = new Hono<Env>();
 
 analyticsRoutes.get("/", withRuntime(handleAnalytics));
-
 
 
 

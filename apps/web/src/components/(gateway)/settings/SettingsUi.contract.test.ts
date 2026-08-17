@@ -53,7 +53,7 @@ describe("settings UI contracts", () => {
 		expect(headerSource).toContain('className="size-9');
 		expect(searchSource).toContain("mobileGhost &&");
 		expect(searchSource).toContain("border-transparent bg-transparent");
-		expect(searchSource).toContain("lg:border-zinc-200/80");
+		expect(searchSource).toContain("xl:border-border xl:bg-background");
 		expect(menuSource).toContain("<Sheet");
 		expect(menuSource).toContain('side="left"');
 		expect(menuSource).toContain("<Collapsible");
@@ -190,7 +190,7 @@ describe("settings UI contracts", () => {
 		expect(editorSource).toContain("const [expandedSections, setExpandedSections] = useQueryState(");
 		expect(editorSource).toContain('"sections",');
 		expect(editorSource).toContain("value={validExpandedSections}");
-		expect(editorSource).toContain("onValueChange={(sections) => void setExpandedSections(sections)}");
+		expect(editorSource).toContain("onValueChange={(sections) => void setExpandedSections(sections.slice(-1))}");
 		expect(editorSource).toContain("groupActions");
 	});
 });

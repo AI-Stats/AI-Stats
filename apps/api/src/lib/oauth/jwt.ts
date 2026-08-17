@@ -14,7 +14,7 @@
 
 export interface JWTClaims {
 	// Standard claims
-	iss: string; // Issuer (Supabase project URL)
+	iss: string; // Authorization-server issuer URL
 	sub: string; // Subject (user ID)
 	aud: string | string[]; // Audience
 	exp: number; // Expiration time

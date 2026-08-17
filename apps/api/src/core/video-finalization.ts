@@ -5,7 +5,7 @@
 import { loadPriceCard } from "@pipeline/pricing/loader";
 import { recordUsageAndCharge } from "@pipeline/pricing/persist";
 import { applyByokServiceFee } from "@pipeline/pricing/byok-fee";
-import { getSupabaseAdmin } from "@/runtime/env";
+import { findLatestVideoGatewayRequest, updateVideoGatewayRequest } from "@/repositories/video-finalization";
 import { emitGatewayOperationalFailure } from "@/observability/axiom";
 import {
 	getVideoJobMeta,
@@ -19,7 +19,6 @@ import { captureWalletReservation, releaseWalletReservation } from "@core/wallet
 import { VIDEO_RESERVATION_PREFIX } from "@core/video-reservations";
 import { buildVideoPricingRequestOptions, resolveVideoOutputCount } from "@core/video-request-options";
 import { computeVideoPricedUsage } from "@core/video-pricing";
-import { syncWorkspaceUsageRollupForRequest } from "@core/workspace-usage-rollups";
 
 const VIDEO_CAPTURE_REQUEST_ID_PREFIX = "video_capture";
 const GATEWAY_REQUEST_SYNC_MAX_ATTEMPTS = 3;
@@ -258,18 +257,9 @@ async function syncGatewayRequestFromVideoFinalization(args: {
 	const requestId = normalizeOptionalText(args.requestId);
 	if (!requestId) return "skipped_no_request_id";
 
-	const supabase = getSupabaseAdmin();
 	for (let attempt = 1; attempt <= GATEWAY_REQUEST_SYNC_MAX_ATTEMPTS; attempt += 1) {
 		try {
-			const { data: rows, error: readError } = await supabase
-				.from("gateway_requests")
-				.select("id,created_at,usage,pricing_lines")
-				.eq("workspace_id", args.workspaceId)
-				.eq("request_id", requestId)
-				.order("created_at", { ascending: false })
-				.limit(1);
-			if (readError) throw readError;
-			const row = Array.isArray(rows) ? rows[0] : null;
+			const row = await findLatestVideoGatewayRequest(args.workspaceId, requestId);
 			if (!row) {
 				if (attempt < GATEWAY_REQUEST_SYNC_MAX_ATTEMPTS) {
 					await wait(GATEWAY_REQUEST_SYNC_RETRY_MS * attempt);
@@ -302,11 +292,8 @@ async function syncGatewayRequestFromVideoFinalization(args: {
 				usage.costUsd = Math.max(0, costUsd);
 			}
 
-			const updatePatch: Record<string, unknown> = { usage };
 			const costNanos = toFiniteNumber(args.costNanos);
-			if (costNanos != null) updatePatch.cost_nanos = Math.max(0, Math.round(costNanos));
 			const durationMs = toFiniteNumber(args.durationMs);
-			if (durationMs != null) updatePatch.generation_ms = Math.max(0, Math.round(durationMs));
 
 			const pricingLines =
 				Array.isArray(args.pricingLines) && args.pricingLines.length > 0
@@ -314,16 +301,15 @@ async function syncGatewayRequestFromVideoFinalization(args: {
 					: Array.isArray(row.pricing_lines)
 						? row.pricing_lines
 						: [];
-			updatePatch.pricing_lines = pricingLines;
-
-			const { data: updatedRows, error: updateError } = await supabase
-				.from("gateway_requests")
-				.update(updatePatch)
-				.eq("id", row.id)
-				.eq("workspace_id", args.workspaceId)
-				.select("id");
-			if (updateError) throw updateError;
-			if (!Array.isArray(updatedRows) || updatedRows.length === 0) {
+			const updated = await updateVideoGatewayRequest({
+				id: row.id,
+				workspaceId: args.workspaceId,
+				usage,
+				costNanos: costNanos == null ? null : Math.max(0, Math.round(costNanos)),
+				generationMs: durationMs == null ? null : Math.max(0, Math.round(durationMs)),
+				pricingLines,
+			});
+			if (!updated) {
 				console.warn("video_gateway_request_sync_no_rows_updated", {
 					workspaceId: args.workspaceId,
 					requestId,
@@ -335,23 +321,6 @@ async function syncGatewayRequestFromVideoFinalization(args: {
 					continue;
 				}
 				return "not_found";
-			}
-			try {
-				await syncWorkspaceUsageRollupForRequest({
-					requestRowId: row.id,
-					requestCreatedAt: row.created_at,
-					workspaceId: args.workspaceId,
-					context: "video_finalization",
-				});
-			} catch (syncError) {
-				console.error("video_gateway_request_rollup_sync_failed", {
-					error: syncError,
-					workspaceId: args.workspaceId,
-					requestId,
-					gatewayRequestId: row.id,
-					attempt,
-				});
-				return "error";
 			}
 			return "updated";
 		} catch (error) {

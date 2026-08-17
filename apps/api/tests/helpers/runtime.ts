@@ -1,4 +1,27 @@
 import { configureRuntime, clearRuntime, type GatewayBindings } from "@/runtime/env";
+import { BINDING_KEYS } from "@/runtime/env.binding-keys";
+
+const TEST_CREDENTIAL_SUFFIXES = ["_API_KEY", "_PAT", "_SECRET_KEY"];
+const TEST_TOKEN_BINDINGS = new Set([
+	"AZURE_OPENAI_AUTH_TOKEN",
+	"DIGITALOCEAN_TOKEN",
+	"FRIENDLI_TOKEN",
+	"GOOGLE_VERTEX_ACCESS_TOKEN",
+	"OVH_AI_ENDPOINTS_ACCESS_TOKEN",
+	"AWS_BEARER_TOKEN_BEDROCK",
+]);
+
+function createTestCredentialBindings(): Partial<GatewayBindings> {
+	return Object.fromEntries(BINDING_KEYS
+		.filter((key) => TEST_CREDENTIAL_SUFFIXES.some((suffix) => String(key).endsWith(suffix)) || [
+			"FAL_KEY",
+			"RUNWAYML_API_SECRET",
+			"OVH_AI_ENDPOINTS_ACCESS_TOKEN",
+			"AWS_ACCESS_KEY_ID",
+			"AWS_SECRET_ACCESS_KEY",
+		].includes(String(key)) || TEST_TOKEN_BINDINGS.has(String(key)))
+		.map((key) => [key, `test-${String(key).toLowerCase().replaceAll("_", "-")}`])) as Partial<GatewayBindings>;
+}
 
 function createMemoryKv(): KVNamespace {
     const store = new Map<string, { value: string; expiresAt?: number }>();
@@ -50,8 +73,8 @@ export function setupTestRuntime() {
     if (configured) return;
     configured = true;
     configureRuntime({
-        SUPABASE_URL: "https://example.supabase.co",
-        SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
+		...createTestCredentialBindings(),
+		PLANETSCALE_HYPERDRIVE: { connectionString: "postgresql://phaseo:test@localhost/phaseo" } as Hyperdrive,
         GATEWAY_CACHE: createMemoryKv(),
         OPENAI_API_KEY: "test-openai-key",
         GOOGLE_AI_STUDIO_API_KEY: "test-google-key",
@@ -156,8 +179,7 @@ export function setupTestRuntime() {
 
 export function setupRuntimeFromEnv(env: Partial<GatewayBindings>) {
     configureRuntime({
-        SUPABASE_URL: env.SUPABASE_URL ?? "https://example.supabase.co",
-        SUPABASE_SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY ?? "test-service-role-key",
+		PLANETSCALE_HYPERDRIVE: env.PLANETSCALE_HYPERDRIVE ?? { connectionString: "postgresql://phaseo:test@localhost/phaseo" } as Hyperdrive,
         GATEWAY_CACHE: env.GATEWAY_CACHE ?? createMemoryKv(),
         NODE_ENV: env.NODE_ENV ?? "test",
         ...env,

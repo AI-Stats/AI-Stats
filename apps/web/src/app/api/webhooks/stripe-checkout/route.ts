@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { createClient } from "@supabase/supabase-js";
 import { sendBillingDiscordWebhook } from "@/lib/automations/billingDiscord";
 import {
 	deriveFirstName,
@@ -8,9 +7,21 @@ import {
 } from "@/lib/automations/resend-events";
 import { getStripe } from "@/lib/stripe";
 import { readBoundedTextBody } from "@/lib/server/boundedRequestBody";
+import { applyPaymentIntentCredit, applyWalletDelta } from "@/lib/billing/walletRepository";
+import {
+    createPaymentIntentProcessingLedger,
+    enqueueAutoTopUpFailure,
+    findLedgerEntry,
+    getWalletBalance,
+    getWorkspaceTier,
+    markPaymentIntentFailed,
+    markRefundLedgerSucceeded,
+    resolveWalletAttribution,
+    syncRefundLedger,
+    updateRefundStatus,
+} from "@/lib/database/repositories/billing";
 
 const TOP_UP_PURPOSES = new Set(["top_up", "top_up_one_off", "auto_top_up", "credits_topup_offsession"]);
-type AppliedCreditRow = { applied?: boolean; before_balance_nanos?: number; after_balance_nanos?: number };
 
 function readPaymentIntentPurpose(pi: Stripe.PaymentIntent): string | null {
     const raw = typeof pi.metadata?.purpose === "string" ? pi.metadata.purpose.trim() : "";
@@ -99,103 +110,23 @@ async function resolveCheckoutSessionIdForPaymentIntent(
     }
 }
 
-type WalletAttributionRow = {
-    workspace_id: string;
-    stripe_customer_id: string | null;
-    balance_nanos?: number | null;
-};
-
 async function resolveWalletForTopUpPaymentIntent(args: {
-    supabase: ReturnType<typeof getSupabase>;
     paymentIntentId: string;
     stripeCustomerId: string | null;
     metadataTeamId: string | null;
-    includeBalance?: boolean;
-}): Promise<WalletAttributionRow | null> {
-    const { supabase, paymentIntentId, stripeCustomerId, metadataTeamId, includeBalance = false } = args;
-    const walletSelect = includeBalance
-        ? "workspace_id,stripe_customer_id,balance_nanos"
-        : "workspace_id,stripe_customer_id";
-
-    async function resolveByWorkspaceId(workspaceId: string): Promise<WalletAttributionRow | null> {
-        const { data: byWorkspaceWalletRaw, error: byWorkspaceErr } = await supabase
-            .from("wallets")
-            .select(walletSelect as any)
-            .eq("workspace_id", workspaceId)
-            .maybeSingle();
-        if (byWorkspaceErr) throw byWorkspaceErr;
-        const byWorkspaceWallet = (byWorkspaceWalletRaw ?? null) as WalletAttributionRow | null;
-        if (!byWorkspaceWallet?.workspace_id) return null;
-
-        if (!stripeCustomerId || byWorkspaceWallet.stripe_customer_id === stripeCustomerId) {
-            if (!stripeCustomerId) {
-                console.warn("[stripe-webhook] Resolved wallet without customer via metadata workspace_id fallback", {
-                    paymentIntentId,
-                    workspaceId: byWorkspaceWallet.workspace_id,
-                });
-            }
-            return byWorkspaceWallet;
-        }
-
-        const updateQuery = supabase
-            .from("wallets")
-            .update({ stripe_customer_id: stripeCustomerId })
-            .eq("workspace_id", byWorkspaceWallet.workspace_id);
-        if (byWorkspaceWallet.stripe_customer_id) {
-            updateQuery.eq("stripe_customer_id", byWorkspaceWallet.stripe_customer_id);
-        } else {
-            updateQuery.is("stripe_customer_id", null);
-        }
-
-        const { error: backfillErr } = await updateQuery;
-        if (backfillErr) {
-            console.warn("[stripe-webhook] Failed to refresh wallet stripe_customer_id from metadata fallback", {
-                paymentIntentId,
-                workspaceId: byWorkspaceWallet.workspace_id,
-                existingCustomerId: byWorkspaceWallet.stripe_customer_id,
-                newCustomerId: stripeCustomerId,
-                error: backfillErr.message,
-            });
-            return byWorkspaceWallet;
-        }
-
-        console.log("[stripe-webhook] Refreshed wallet stripe_customer_id from metadata fallback", {
-            paymentIntentId,
-            workspaceId: byWorkspaceWallet.workspace_id,
-            previousCustomerId: byWorkspaceWallet.stripe_customer_id,
-            newCustomerId: stripeCustomerId,
+}) {
+    const wallet = await resolveWalletAttribution({
+        workspaceId: args.metadataTeamId,
+        stripeCustomerId: args.stripeCustomerId,
+    });
+    if (!wallet) {
+        console.warn("[stripe-webhook] Could not uniquely attribute payment intent to a wallet", {
+            paymentIntentId: args.paymentIntentId,
+            stripeCustomerId: args.stripeCustomerId,
+            workspaceId: args.metadataTeamId,
         });
-        return { ...byWorkspaceWallet, stripe_customer_id: stripeCustomerId };
     }
-
-    if (metadataTeamId) {
-        const byWorkspaceWallet = await resolveByWorkspaceId(metadataTeamId);
-        if (byWorkspaceWallet?.workspace_id) {
-            return byWorkspaceWallet;
-        }
-    }
-
-    if (!stripeCustomerId) return null;
-
-    const { data: byCustomerWalletRaw, error: byCustomerErr } = await supabase
-        .from("wallets")
-        .select(walletSelect as any)
-        .eq("stripe_customer_id", stripeCustomerId)
-        .maybeSingle();
-
-    if (byCustomerErr) {
-        if (byCustomerErr.code === "PGRST116") {
-            console.warn("[stripe-webhook] Multiple wallets share stripe_customer_id; workspace metadata required", {
-                paymentIntentId,
-                stripeCustomerId,
-                workspaceId: metadataTeamId,
-            });
-            return null;
-        }
-        throw byCustomerErr;
-    }
-
-    return (byCustomerWalletRaw ?? null) as WalletAttributionRow | null;
+    return wallet;
 }
 
 async function ensureReusablePaymentMethod(
@@ -226,17 +157,19 @@ async function ensureReusablePaymentMethod(
     }
 }
 
-function getWebhookSecret(): string {
-    const raw = process.env.STRIPE_WEBHOOK_SECRET;
-    const secret = typeof raw === "string" ? raw.trim().replace(/^["']|["']$/g, "") : "";
-    if (!secret) throw new Error("Stripe webhook signing secret missing");
-    return secret;
+function getWebhookSecrets(): string[] {
+    const secrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_TEST_WEBHOOK_SECRET]
+        .map((raw) => typeof raw === "string" ? raw.trim().replace(/^["']|["']$/g, "") : "")
+        .filter(Boolean);
+    const uniqueSecrets = [...new Set(secrets)];
+    if (uniqueSecrets.length === 0) throw new Error("Stripe webhook signing secret missing");
+    return uniqueSecrets;
 }
 
-function redactSecret(secret: string): string {
-    if (!secret) return "<empty>";
-    if (secret.length <= 12) return `${secret.slice(0, 4)}...`;
-    return `${secret.slice(0, 7)}...${secret.slice(-4)}`;
+function getConfiguredWebhookSecretCount(): number {
+    return [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_TEST_WEBHOOK_SECRET]
+        .map((raw) => typeof raw === "string" ? raw.trim().replace(/^["']|["']$/g, "") : "")
+        .filter(Boolean).length;
 }
 
 function summarizeStripeSignatureHeader(signature: string) {
@@ -254,62 +187,13 @@ function summarizeStripeSignatureHeader(signature: string) {
     };
 }
 
-function getSupabase() {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!supabaseUrl || !supabaseServiceRoleKey) {
-        throw new Error("Supabase env not set");
-    }
-    return createClient(supabaseUrl, supabaseServiceRoleKey, {
-        auth: { autoRefreshToken: false, persistSession: false },
-    });
-}
-
-async function enqueueAutoTopUpFailureFromWebhook(args: {
-    supabase: ReturnType<typeof getSupabase>;
-    paymentIntent: Stripe.PaymentIntent;
-}): Promise<void> {
-    const workspaceId = readTeamIdFromPaymentIntent(args.paymentIntent);
+async function enqueueAutoTopUpFailureFromWebhook(paymentIntent: Stripe.PaymentIntent): Promise<void> {
+    const workspaceId = readTeamIdFromPaymentIntent(paymentIntent);
     if (!workspaceId) return;
-
-    const { data: settings, error: settingsError } = await args.supabase
-        .from("workspace_settings")
-        .select("auto_top_up_failure_email_enabled")
-        .eq("workspace_id", workspaceId)
-        .maybeSingle();
-    if (settingsError || settings?.auto_top_up_failure_email_enabled === false) return;
-
-    const { data: workspace, error: workspaceError } = await args.supabase
-        .from("workspaces")
-        .select("name,owner_user_id")
-        .eq("id", workspaceId)
-        .maybeSingle();
-    if (workspaceError || !workspace?.owner_user_id) return;
-
-    const { data: owner, error: ownerError } = await args.supabase.auth.admin.getUserById(workspace.owner_user_id);
-    const email = String(owner?.user?.email ?? "").trim();
-    if (ownerError || !email) return;
-
     const reason = String(
-        args.paymentIntent.last_payment_error?.message ?? "The saved payment method could not be charged.",
+        paymentIntent.last_payment_error?.message ?? "The saved payment method could not be charged.",
     ).slice(0, 500);
-    const { error: enqueueError } = await args.supabase.from("email_outbox").upsert(
-        {
-            dedupe_key: `auto_top_up_failed:${args.paymentIntent.id}`,
-            kind: "auto_top_up_failed",
-            template: "auto_top_up_failed",
-            to_email: email,
-            subject: "Auto Top-Up failed",
-            workspace_id: workspaceId,
-            user_id: workspace.owner_user_id,
-            payload: {
-                workspace_name: String(workspace.name ?? "your workspace"),
-                reason,
-            },
-        },
-        { onConflict: "dedupe_key", ignoreDuplicates: true },
-    );
-    if (enqueueError) throw enqueueError;
+    await enqueueAutoTopUpFailure({ workspaceId, paymentIntentId: paymentIntent.id, reason });
 }
 
 /* Fees: Reverse-engineer the original amount from the total received, then apply the flat top-up fee. */
@@ -339,100 +223,10 @@ function mapStripeRefundStatus(status?: string | null): "Pending" | "Succeeded" 
     return "Pending";
 }
 
-function mapStripeInvoiceStatus(
-    status?: Stripe.Invoice.Status | null
-): "draft" | "open" | "paid" | "void" | "uncollectible" {
-    const normalized = String(status ?? "").toLowerCase();
-    if (normalized === "open") return "open";
-    if (normalized === "paid") return "paid";
-    if (normalized === "void") return "void";
-    if (normalized === "uncollectible") return "uncollectible";
-    return "draft";
-}
-
-function invoiceMetadataValue(invoice: Stripe.Invoice, key: string): string | null {
-    const raw = invoice.metadata?.[key];
-    return typeof raw === "string" && raw.trim().length > 0 ? raw.trim() : null;
-}
-
-function unixToIso(value?: number | null): string | null {
-    if (value == null || !Number.isFinite(Number(value))) return null;
-    return new Date(Number(value) * 1000).toISOString();
-}
-
-async function upsertTeamInvoiceFromStripeInvoice(args: {
-    supabase: ReturnType<typeof getSupabase>;
-    invoice: Stripe.Invoice;
-    forceStatus?: "draft" | "open" | "paid" | "void" | "uncollectible";
-}) {
-    const { supabase, invoice, forceStatus } = args;
-    const stripeInvoiceId = invoice.id;
-    if (!stripeInvoiceId) return;
-
-    const { data: existing } = await supabase
-        .from("workspace_invoices")
-        .select("workspace_id,period_start,period_end")
-        .eq("stripe_invoice_id", stripeInvoiceId)
-        .maybeSingle();
-
-    const workspaceId =
-        existing?.workspace_id ??
-        invoiceMetadataValue(invoice, "workspace_id");
-    if (!workspaceId) {
-        console.warn("[stripe-webhook] invoice event missing workspace_id metadata", {
-            stripeInvoiceId,
-            eventStatus: invoice.status ?? null,
-        });
-        return;
-    }
-
-    const periodStart =
-        existing?.period_start ??
-        invoiceMetadataValue(invoice, "period_start") ??
-        invoiceMetadataValue(invoice, "cycle_start") ??
-        unixToIso((invoice as any).period_start);
-    const periodEnd =
-        existing?.period_end ??
-        invoiceMetadataValue(invoice, "period_end") ??
-        invoiceMetadataValue(invoice, "cycle_end") ??
-        unixToIso((invoice as any).period_end);
-
-    if (!periodStart || !periodEnd) {
-        console.warn("[stripe-webhook] invoice event missing period metadata", {
-            stripeInvoiceId,
-            workspaceId,
-        });
-        return;
-    }
-
-    const status = forceStatus ?? mapStripeInvoiceStatus(invoice.status);
-    const amountNanos = Number(invoice.amount_due ?? invoice.total ?? 0) * 10_000_000;
-    const row = {
-        workspace_id: workspaceId,
-        period_start: periodStart,
-        period_end: periodEnd,
-        amount_nanos: Math.max(0, Number.isFinite(amountNanos) ? amountNanos : 0),
-        currency: "USD",
-        status,
-        stripe_invoice_id: stripeInvoiceId,
-        stripe_invoice_number: invoice.number ?? null,
-        due_at: unixToIso(invoice.due_date),
-        issued_at: unixToIso(invoice.status_transitions?.finalized_at),
-        paid_at: unixToIso(invoice.status_transitions?.paid_at),
-        updated_at: new Date().toISOString(),
-    };
-
-    const { error } = await supabase.from("workspace_invoices").upsert([row], {
-        onConflict: "workspace_id,period_start,period_end",
-    });
-    if (error) throw error;
-}
-
 const MAX_STRIPE_WEBHOOK_BYTES = 1024 * 1024;
 
 export async function POST(req: Request) {
-    const stripe = getStripe();
-    const supabase = getSupabase();
+    const defaultStripe = getStripe();
 
     // IMPORTANT: read raw body for signature verification
     const boundedBody = await readBoundedTextBody(req, MAX_STRIPE_WEBHOOK_BYTES);
@@ -445,22 +239,26 @@ export async function POST(req: Request) {
 
     let event: Stripe.Event;
     try {
-        const webhookSecret = getWebhookSecret();
-        event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+        let verificationError: unknown;
+        let verifiedEvent: Stripe.Event | undefined;
+        for (const webhookSecret of getWebhookSecrets()) {
+            try {
+                verifiedEvent = defaultStripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+                break;
+            } catch (error) {
+                verificationError = error;
+            }
+        }
+        if (!verifiedEvent) throw verificationError ?? new Error("Stripe signature verification failed");
+        event = verifiedEvent;
     } catch (err: any) {
-        const configuredSecret = process.env.STRIPE_WEBHOOK_SECRET ?? "";
-        const normalizedSecret =
-            typeof configuredSecret === "string"
-                ? configuredSecret.trim().replace(/^["']|["']$/g, "")
-                : "";
         console.error("[stripe-webhook] Signature verification failed", {
             error: err?.message ?? String(err),
             bodyLength: rawBody.length,
             hasStripeSignatureHeader: signatureSummary.present,
             signatureTimestamp: signatureSummary.timestamp,
             signatureV1Count: signatureSummary.v1Count,
-            configuredSecretLength: normalizedSecret.length,
-            configuredSecretPreview: redactSecret(normalizedSecret),
+            configuredSecretCount: getConfiguredWebhookSecretCount(),
         });
         return NextResponse.json(
             { message: `Webhook Error: ${err?.message || String(err)}` },
@@ -468,11 +266,9 @@ export async function POST(req: Request) {
         );
     }
 
-    async function upsertLedger(row: any) {
-        return supabase.from("credit_ledger").upsert([row], {
-            onConflict: "ref_type,ref_id",
-        });
-    }
+    const stripe = event.livemode === false && process.env.TEST_STRIPE_SECRET_KEY
+        ? getStripe({ testMode: true })
+        : defaultStripe;
 
     try {
         switch (event.type) {
@@ -485,35 +281,19 @@ export async function POST(req: Request) {
                 const metadataTeamId = readTeamIdFromPaymentIntent(pi);
 
                 const wallet = await resolveWalletForTopUpPaymentIntent({
-                    supabase,
                     paymentIntentId: pi.id,
                     stripeCustomerId,
                     metadataTeamId,
-                    includeBalance: true,
                 });
 
-                if (!wallet?.workspace_id) break;
+                if (!wallet?.workspaceId) break;
 
-                const beforeBalanceNanos = Number(wallet.balance_nanos ?? 0);
-
-                await supabase
-                    .from("credit_ledger")
-                    .upsert(
-                        [
-                            {
-                                workspace_id: wallet.workspace_id,
-                                kind: toLedgerKind(purpose),
-                                amount_nanos: 0,
-                                before_balance_nanos: beforeBalanceNanos,
-                                after_balance_nanos: beforeBalanceNanos,
-                                ref_type: "Stripe_Payment_Intent",
-                                ref_id: pi.id,
-                                status: "Processing",
-                                event_time: new Date().toISOString(),
-                            },
-                        ],
-                        { onConflict: "ref_type,ref_id", ignoreDuplicates: true as any }
-                    );
+                await createPaymentIntentProcessingLedger({
+                    workspaceId: wallet.workspaceId,
+                    paymentIntentId: pi.id,
+                    kind: toLedgerKind(purpose),
+                    balanceNanos: Number(wallet.balanceNanos ?? 0),
+                });
 
                 break;
             }
@@ -535,36 +315,24 @@ export async function POST(req: Request) {
                 const metadataTeamId = readTeamIdFromPaymentIntent(pi);
 
                 const wallet = await resolveWalletForTopUpPaymentIntent({
-                    supabase,
                     paymentIntentId: pi.id,
                     stripeCustomerId,
                     metadataTeamId,
                 });
 
-                if (!wallet?.workspace_id) break;
+                if (!wallet?.workspaceId) break;
 
                 const grossCents = Number(pi.amount_received ?? pi.amount ?? 0);
                 // Stripe amounts are in cents; convert to nanos (1 USD = 1e9 nanos).
                 const grossNanos = grossCents * 10_000_000;
 
-                // Fetch the team's CURRENT tier from database (includes instant upgrades)
-                const { data: teamData, error: teamErr } = await supabase
-                    .from('workspaces')
-                    .select('tier')
-                    .eq('id', wallet.workspace_id)
-                    .single();
-
-                if (teamErr) {
-                    console.error(`[stripe-webhook] Failed to fetch team tier:`, teamErr);
-                }
-
                 // PAYG top-up fee is now a flat 5% across tiers.
-                const tier = teamData?.tier ?? 'basic';
+                const tier = await getWorkspaceTier(wallet.workspaceId);
                 const feePct = 5.0;
 
-                console.log(`[stripe-webhook] Workspace ${wallet.workspace_id} tier: ${tier}, fee: ${feePct}%`);
+                console.log(`[stripe-webhook] Workspace ${wallet.workspaceId} tier: ${tier}, fee: ${feePct}%`);
 
-                if (paymentMethodId && stripeCustomerId) {
+                if (purpose === "top_up" && paymentMethodId && stripeCustomerId) {
                     try {
                         await ensureReusablePaymentMethod(stripe, stripeCustomerId, paymentMethodId);
                     } catch (pmErr) {
@@ -579,17 +347,13 @@ export async function POST(req: Request) {
 
                 const { netNanos, feeNanos } = computeNetAndFeeFromGross(grossNanos, feePct);
                 const kind = toLedgerKind(purpose);
-                const { data: appliedRows, error: applyErr } = await supabase.rpc("stripe_apply_payment_intent_credit", {
-                    p_workspace_id: wallet.workspace_id,
-                    p_payment_intent_id: pi.id,
-                    p_kind: kind,
-                    p_amount_nanos: netNanos,
-                    p_event_time: new Date().toISOString(),
+                const applied = await applyPaymentIntentCredit({
+                    workspaceId: wallet.workspaceId,
+                    paymentIntentId: pi.id,
+                    kind,
+                    amountNanos: netNanos,
+                    eventTime: new Date().toISOString(),
                 });
-
-                if (applyErr) throw applyErr;
-
-                const applied = (appliedRows?.[0] as AppliedCreditRow | undefined) ?? { applied: false };
 
                 if (!applied.applied) {
                     console.log("[stripe-webhook] Duplicate payment_intent.succeeded ignored", {
@@ -613,7 +377,7 @@ export async function POST(req: Request) {
                 const creditedAtIso = new Date().toISOString();
                 const checkoutSessionId = await resolveCheckoutSessionIdForPaymentIntent(stripe, pi.id);
                 const creditsPurchasedPayload = {
-                    workspaceId: wallet.workspace_id,
+                    workspaceId: wallet.workspaceId,
                     paymentIntentId: pi.id,
                     firstName: customerIdentity.firstName,
                     checkoutSessionId,
@@ -631,7 +395,7 @@ export async function POST(req: Request) {
                     } catch (error) {
                         console.error("[stripe-webhook] Failed sending credits.purchased event", {
                             paymentIntentId: pi.id,
-                            workspaceId: wallet.workspace_id,
+                            workspaceId: wallet.workspaceId,
                             checkoutSessionId: checkoutSessionId ?? null,
                             error: error instanceof Error ? error.message : String(error),
                         });
@@ -646,7 +410,7 @@ export async function POST(req: Request) {
                 } catch (error) {
                     console.error("[stripe-webhook] Failed sending billing Discord webhook", {
                         paymentIntentId: pi.id,
-                        workspaceId: wallet.workspace_id,
+                        workspaceId: wallet.workspaceId,
                         checkoutSessionId: checkoutSessionId ?? null,
                         error: error instanceof Error ? error.message : String(error),
                     });
@@ -660,14 +424,10 @@ export async function POST(req: Request) {
                 const purpose = readPaymentIntentPurpose(pi);
                 if (!purpose || !TOP_UP_PURPOSES.has(purpose)) break;
 
-                await supabase
-                    .from("credit_ledger")
-                    .update({ status: "Failed", event_time: new Date().toISOString() })
-                    .eq("ref_type", "Stripe_Payment_Intent")
-                    .eq("ref_id", pi.id);
+                await markPaymentIntentFailed(pi.id);
 
                 if (purpose === "auto_top_up" || purpose === "credits_topup_offsession") {
-                    await enqueueAutoTopUpFailureFromWebhook({ supabase, paymentIntent: pi });
+                    await enqueueAutoTopUpFailureFromWebhook(pi);
                 }
                 break;
             }
@@ -677,14 +437,9 @@ export async function POST(req: Request) {
                 const piId = (refund.payment_intent as string) ?? null;
                 if (!piId) break;
 
-                const { data: piLedger } = await supabase
-                    .from("credit_ledger")
-                    .select("workspace_id, amount_nanos")
-                    .eq("ref_type", "Stripe_Payment_Intent")
-                    .eq("ref_id", piId)
-                    .maybeSingle();
+                const piLedger = await findLedgerEntry("Stripe_Payment_Intent", piId);
 
-                const workspaceId = piLedger?.workspace_id ?? null;
+                const workspaceId = piLedger?.workspaceId ?? null;
                 if (!workspaceId) {
                     console.warn("[stripe-webhook] refund.created: no matching payment ledger entry", {
                         refundId: refund.id,
@@ -693,7 +448,7 @@ export async function POST(req: Request) {
                     break;
                 }
 
-                const originalNetNanos = Number(piLedger?.amount_nanos ?? 0);
+                const originalNetNanos = Number(piLedger?.amountNanos ?? 0);
 
                 const pi = await stripe.paymentIntents.retrieve(piId);
                 const originalGrossCents = Number(pi.amount_received ?? pi.amount ?? 0) || 0;
@@ -706,96 +461,48 @@ export async function POST(req: Request) {
                 const negativeNetNanos = -refundNetNanos;
                 const mappedStatus = mapStripeRefundStatus(refund.status);
 
-                // Read current wallet balance for a more accurate placeholder
-                const { data: currentWallet } = await supabase
-                    .from("wallets")
-                    .select("balance_nanos")
-                    .eq("workspace_id", workspaceId)
-                    .maybeSingle();
-                const currentBalance = Number(currentWallet?.balance_nanos ?? 0);
-
-                // Insert only if missing. Do not overwrite existing rows from API path.
-                await supabase.from("credit_ledger").upsert(
-                    [
-                        {
-                            workspace_id: workspaceId,
-                            kind: "refund",
-                            amount_nanos: negativeNetNanos,
-                            before_balance_nanos: currentBalance,
-                            after_balance_nanos: currentBalance,
-                            ref_type: "Stripe_Refund",
-                            ref_id: refund.id,
-                            status: mappedStatus,
-                            event_time: new Date().toISOString(),
-                            source_ref_type: "Stripe_Payment_Intent",
-                            source_ref_id: piId,
-                        },
-                    ],
-                    {
-                        onConflict: "ref_type,ref_id",
-                        ignoreDuplicates: true,
-                    }
-                );
-
-                // Always align mutable fields without touching before/after balances.
-                await supabase
-                    .from("credit_ledger")
-                    .update({
-                        status: mappedStatus,
-                        amount_nanos: negativeNetNanos,
-                        source_ref_type: "Stripe_Payment_Intent",
-                        source_ref_id: piId,
-                        event_time: new Date().toISOString(),
-                    })
-                    .eq("ref_type", "Stripe_Refund")
-                    .eq("ref_id", refund.id);
+                const currentBalance = await getWalletBalance(workspaceId);
+                await syncRefundLedger({
+                    workspaceId,
+                    refundId: refund.id,
+                    paymentIntentId: piId,
+                    amountNanos: negativeNetNanos,
+                    status: mappedStatus,
+                    balanceNanos: currentBalance,
+                });
 
                 if (mappedStatus === "Succeeded") {
-                    const { data: refRow } = await supabase
-                        .from("credit_ledger")
-                        .select("workspace_id, amount_nanos, before_balance_nanos, after_balance_nanos, status")
-                        .eq("ref_type", "Stripe_Refund")
-                        .eq("ref_id", refund.id)
-                        .maybeSingle();
+                    const refRow = await findLedgerEntry("Stripe_Refund", refund.id);
 
                     const priorStatus = String(refRow?.status ?? "").toLowerCase();
-                    const priorBefore = Number(refRow?.before_balance_nanos ?? 0);
-                    const priorAfter = Number(refRow?.after_balance_nanos ?? 0);
+                    const priorBefore = Number(refRow?.beforeBalanceNanos ?? 0);
+                    const priorAfter = Number(refRow?.afterBalanceNanos ?? 0);
                     const alreadyApplied = priorStatus === "succeeded" && priorBefore !== priorAfter;
 
                     if (!alreadyApplied) {
-                        const applyTeamId = refRow?.workspace_id ?? workspaceId;
-                        const applyDeltaNanos = Number(refRow?.amount_nanos ?? negativeNetNanos);
+                        const applyTeamId = refRow?.workspaceId ?? workspaceId;
+                        const applyDeltaNanos = Number(refRow?.amountNanos ?? negativeNetNanos);
 
                         if (applyTeamId && applyDeltaNanos < 0) {
-                            const { data: deltaRows, error: deltaErr } = await supabase.rpc("wallet_apply_delta", {
-                                p_workspace_id: applyTeamId,
-                                p_delta_nanos: applyDeltaNanos,
-                            });
-
-                            if (deltaErr) {
+                            let balanceResult;
+                            try {
+                                balanceResult = await applyWalletDelta(applyTeamId, applyDeltaNanos);
+                            } catch (deltaErr) {
                                 console.error("[stripe-webhook] wallet_apply_delta failed for refund.created", {
                                     refundId: refund.id,
                                     workspaceId: applyTeamId,
-                                    error: deltaErr.message,
+                                    error: deltaErr instanceof Error ? deltaErr.message : String(deltaErr),
                                 });
                                 throw deltaErr;
                             }
-
-                            const balanceResult = deltaRows?.[0] ?? {};
                             const beforeBalanceNanos = Number(balanceResult.before_balance_nanos ?? priorBefore);
                             const afterBalanceNanos = Number(balanceResult.after_balance_nanos ?? priorAfter);
 
-                            await supabase
-                                .from("credit_ledger")
-                                .update({
-                                    before_balance_nanos: beforeBalanceNanos,
-                                    after_balance_nanos: afterBalanceNanos,
-                                    status: "Succeeded",
-                                    event_time: new Date().toISOString(),
-                                })
-                                .eq("ref_type", "Stripe_Refund")
-                                .eq("ref_id", refund.id);
+                            await markRefundLedgerSucceeded({
+                                refundId: refund.id,
+                                beforeBalanceNanos,
+                                afterBalanceNanos,
+                            });
                         }
                     }
                 }
@@ -806,134 +513,51 @@ export async function POST(req: Request) {
             case "refund.updated": {
                 const refund = event.data.object as Stripe.Refund;
                 const status = refund.status as string | undefined;
-                const { data: existingRefundRow } = await supabase
-                    .from("credit_ledger")
-                    .select("workspace_id, amount_nanos, before_balance_nanos, after_balance_nanos, status")
-                    .eq("ref_type", "Stripe_Refund")
-                    .eq("ref_id", refund.id)
-                    .maybeSingle();
+                const existingRefundRow = await findLedgerEntry("Stripe_Refund", refund.id);
 
                 const priorStatus = String(existingRefundRow?.status ?? "").toLowerCase();
-                const priorBefore = Number(existingRefundRow?.before_balance_nanos ?? 0);
-                const priorAfter = Number(existingRefundRow?.after_balance_nanos ?? 0);
+                const priorBefore = Number(existingRefundRow?.beforeBalanceNanos ?? 0);
+                const priorAfter = Number(existingRefundRow?.afterBalanceNanos ?? 0);
                 const alreadyApplied = priorStatus === "succeeded" && priorBefore !== priorAfter;
 
-                await supabase
-                    .from("credit_ledger")
-                    .update({
-                        status:
-                            status === "succeeded"
-                                ? "Succeeded"
-                                : status === "failed"
-                                    ? "Failed"
-                                    : status === "canceled"
-                                        ? "Canceled"
-                                        : status,
-                        event_time: new Date().toISOString(),
-                    })
-                    .eq("ref_type", "Stripe_Refund")
-                    .eq("ref_id", refund.id);
+                await updateRefundStatus(
+                    refund.id,
+                    status === "succeeded"
+                        ? "Succeeded"
+                        : status === "failed"
+                            ? "Failed"
+                            : status === "canceled"
+                                ? "Canceled"
+                                : String(status ?? "Pending"),
+                );
 
                 if (status === "succeeded" && !alreadyApplied) {
-                    let workspaceId = existingRefundRow?.workspace_id ?? null;
-                    let refundNetNegativeNanos = Number(existingRefundRow?.amount_nanos ?? 0);
-
-                    if (!workspaceId) {
-                        const { data: fallbackRow } = await supabase
-                            .from("credit_ledger")
-                            .select("workspace_id, amount_nanos")
-                            .eq("ref_type", "Stripe_Refund")
-                            .eq("ref_id", refund.id)
-                            .maybeSingle();
-                        workspaceId = fallbackRow?.workspace_id ?? null;
-                        refundNetNegativeNanos = Number(fallbackRow?.amount_nanos ?? 0);
-                    }
+                    const workspaceId = existingRefundRow?.workspaceId ?? null;
+                    const refundNetNegativeNanos = Number(existingRefundRow?.amountNanos ?? 0);
 
                     if (workspaceId && refundNetNegativeNanos < 0) {
-                        // Use atomic RPC to prevent race conditions with concurrent balance changes
-                        const { data: deltaRows, error: deltaErr } = await supabase.rpc("wallet_apply_delta", {
-                            p_workspace_id: workspaceId,
-                            p_delta_nanos: refundNetNegativeNanos,
-                        });
-
-                        if (deltaErr) {
+                        let balanceResult;
+                        try {
+                            balanceResult = await applyWalletDelta(workspaceId, refundNetNegativeNanos);
+                        } catch (deltaErr) {
                             console.error("[stripe-webhook] wallet_apply_delta failed for refund", {
                                 refundId: refund.id,
                                 workspaceId,
-                                error: deltaErr.message,
+                                error: deltaErr instanceof Error ? deltaErr.message : String(deltaErr),
                             });
                             throw deltaErr;
                         }
-
-                        const balanceResult = deltaRows?.[0] ?? {};
                         const beforeBalanceNanos = Number(balanceResult.before_balance_nanos ?? 0);
                         const afterBalanceNanos = Number(balanceResult.after_balance_nanos ?? 0);
 
-                        await supabase
-                            .from("credit_ledger")
-                            .update({
-                                before_balance_nanos: beforeBalanceNanos,
-                                after_balance_nanos: afterBalanceNanos,
-                                status: "Succeeded",
-                                event_time: new Date().toISOString(),
-                            })
-                            .eq("ref_type", "Stripe_Refund")
-                            .eq("ref_id", refund.id);
+                        await markRefundLedgerSucceeded({
+                            refundId: refund.id,
+                            beforeBalanceNanos,
+                            afterBalanceNanos,
+                        });
                     }
                 }
 
-                break;
-            }
-
-            case "invoice.created":
-            case "invoice.finalized":
-            case "invoice.updated": {
-                const invoice = event.data.object as Stripe.Invoice;
-                await upsertTeamInvoiceFromStripeInvoice({
-                    supabase,
-                    invoice,
-                });
-                break;
-            }
-
-            case "invoice.paid":
-            case "invoice.payment_succeeded": {
-                const invoice = event.data.object as Stripe.Invoice;
-                await upsertTeamInvoiceFromStripeInvoice({
-                    supabase,
-                    invoice,
-                    forceStatus: "paid",
-                });
-                break;
-            }
-
-            case "invoice.payment_failed": {
-                const invoice = event.data.object as Stripe.Invoice;
-                await upsertTeamInvoiceFromStripeInvoice({
-                    supabase,
-                    invoice,
-                    forceStatus: "open",
-                });
-                break;
-            }
-
-            case "invoice.marked_uncollectible": {
-                const invoice = event.data.object as Stripe.Invoice;
-                await upsertTeamInvoiceFromStripeInvoice({
-                    supabase,
-                    invoice,
-                    forceStatus: "uncollectible",
-                });
-                break;
-            }
-
-            case "invoice.voided": {
-                const invoice = event.data.object as Stripe.Invoice;
-                await upsertTeamInvoiceFromStripeInvoice({
-                    supabase,
-                    invoice,
-                    forceStatus: "void",
-                });
                 break;
             }
 

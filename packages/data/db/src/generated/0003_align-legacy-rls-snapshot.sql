@@ -1,0 +1,1 @@
+-- Schema snapshot alignment only. The RLS policy and auth-default DDL was applied by 0002.

@@ -5,8 +5,6 @@ import { installFetchMock } from "../../../../tests/helpers/mock-fetch";
 import { setupRuntimeFromEnv, teardownTestRuntime } from "../../../../tests/helpers/runtime";
 import { execute } from "./index";
 
-vi.mock("@supabase/supabase-js", () => ({ createClient: () => ({}) }));
-
 beforeAll(() => setupRuntimeFromEnv({ NEBIUS_API_KEY: "nebius-test" } as any));
 afterAll(teardownTestRuntime);
 

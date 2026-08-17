@@ -8,15 +8,22 @@ const runBatchProviderWebhookReplayJobMock = vi.fn();
 const runVideoReconciliationJobMock = vi.fn();
 const drainEmailOutboxMock = vi.fn();
 const runModelDiscoveryJobMock = vi.fn();
-const oauthCleanupRpcMock = vi.fn();
+const processAnalyticsOutboxMock = vi.fn();
+const cleanupExpiredOAuthArtifactsMock = vi.fn();
 const runGatewayIoRetentionBillingJobMock = vi.fn();
 const pruneExpiredDataContributionsMock = vi.fn();
 const runPaymentMethodExpiryNotificationJobMock = vi.fn();
+const runRealtimeSessionReconciliationJobMock = vi.fn();
+const runDataContributionClassifierJobMock = vi.fn();
+const drainGatewayOtlpOutboxMock = vi.fn();
 
 vi.mock("@/runtime/env", () => ({
 	clearRuntime: (...args: unknown[]) => clearRuntimeMock(...args),
 	configureRuntime: (...args: unknown[]) => configureRuntimeMock(...args),
-	getSupabaseAdmin: () => ({ rpc: (...args: unknown[]) => oauthCleanupRpcMock(...args) }),
+}));
+
+vi.mock("@/repositories/analytics-outbox", () => ({
+	processAnalyticsOutbox: (...args: unknown[]) => processAnalyticsOutboxMock(...args),
 }));
 
 vi.mock("@/core/async-notifications", () => ({
@@ -61,6 +68,24 @@ vi.mock("@/pipeline/classification/data-contribution", () => ({
 		pruneExpiredDataContributionsMock(...args),
 }));
 
+vi.mock("@core/realtime-sessions", () => ({
+	runRealtimeSessionReconciliationJob: (...args: unknown[]) =>
+		runRealtimeSessionReconciliationJobMock(...args),
+}));
+
+vi.mock("@/pipeline/classification/classifier-worker", () => ({
+	runDataContributionClassifierJob: (...args: unknown[]) =>
+		runDataContributionClassifierJobMock(...args),
+}));
+
+vi.mock("@/observability/otlp-export", () => ({
+	drainGatewayOtlpOutbox: (...args: unknown[]) => drainGatewayOtlpOutboxMock(...args),
+}));
+
+vi.mock("@/repositories/oauth", () => ({
+	cleanupExpiredOAuthArtifacts: (...args: unknown[]) => cleanupExpiredOAuthArtifactsMock(...args),
+}));
+
 import { handleScheduledEvent } from "./index";
 
 function scheduledEventAt(iso: string): ScheduledController {
@@ -81,11 +106,16 @@ describe("handleScheduledEvent", () => {
 		runVideoReconciliationJobMock.mockReset();
 		drainEmailOutboxMock.mockReset();
 		runModelDiscoveryJobMock.mockReset();
-		oauthCleanupRpcMock.mockReset();
+		processAnalyticsOutboxMock.mockReset();
+		cleanupExpiredOAuthArtifactsMock.mockReset();
 		runGatewayIoRetentionBillingJobMock.mockReset();
 		pruneExpiredDataContributionsMock.mockReset();
 		runPaymentMethodExpiryNotificationJobMock.mockReset();
-		oauthCleanupRpcMock.mockResolvedValue({ error: null });
+		runRealtimeSessionReconciliationJobMock.mockReset();
+		runDataContributionClassifierJobMock.mockReset();
+		drainGatewayOtlpOutboxMock.mockReset();
+		processAnalyticsOutboxMock.mockResolvedValue({ selected: 0, private_grains: 0, public_daily_grains: 0, public_hourly_grains: 0 });
+		cleanupExpiredOAuthArtifactsMock.mockResolvedValue(undefined);
 		runAsyncWebhookRetriesJobMock.mockResolvedValue({
 			startedAt: "2026-06-10T00:05:00.000Z",
 			finishedAt: "2026-06-10T00:05:01.000Z",
@@ -112,6 +142,9 @@ describe("handleScheduledEvent", () => {
 		});
 		pruneExpiredDataContributionsMock.mockResolvedValue({ deleted: 0, failed: 0 });
 		runPaymentMethodExpiryNotificationJobMock.mockResolvedValue({ checked: 0, enqueued: 0, failed: 0 });
+		runRealtimeSessionReconciliationJobMock.mockResolvedValue({ scanned: 0, completed: 0, failed: 0 });
+		runDataContributionClassifierJobMock.mockResolvedValue({ processed: 0, failed: 0 });
+		drainGatewayOtlpOutboxMock.mockResolvedValue({ claimed: 0, delivered: 0, failed: 0 });
 	});
 
 	it("runs async webhook retries on five-minute core job ticks by default", async () => {
@@ -129,10 +162,8 @@ describe("handleScheduledEvent", () => {
 		expect(runBatchProviderWebhookReplayJobMock).toHaveBeenCalledWith({ limit: 100 });
 		expect(configureRuntimeMock).toHaveBeenCalledWith(env);
 		expect(clearRuntimeMock).toHaveBeenCalled();
-		expect(oauthCleanupRpcMock).toHaveBeenCalledWith("cleanup_expired_oauth_artifacts");
-		expect(oauthCleanupRpcMock).toHaveBeenCalledWith("process_v2_analytics_outbox", {
-			p_limit: 250,
-		});
+		expect(cleanupExpiredOAuthArtifactsMock).toHaveBeenCalledTimes(1);
+		expect(processAnalyticsOutboxMock).toHaveBeenCalledWith(250);
 		expect(runModelDiscoveryJobMock).not.toHaveBeenCalled();
 		expect(pruneExpiredDataContributionsMock).toHaveBeenCalledWith(1000);
 	});
@@ -143,9 +174,7 @@ describe("handleScheduledEvent", () => {
 			{ V2_ANALYTICS_OUTBOX_LIMIT: "900" } as any,
 		);
 
-		expect(oauthCleanupRpcMock).toHaveBeenCalledWith("process_v2_analytics_outbox", {
-			p_limit: 900,
-		});
+		expect(processAnalyticsOutboxMock).toHaveBeenCalledWith(900);
 	});
 
 	it("skips async webhook retries when explicitly disabled", async () => {

@@ -7,22 +7,22 @@
 -- - UI/display markup percentage is always 5.00
 -- ============================================================================
 
-alter table public.workspaces
+alter table app.workspaces
   add column if not exists tier text default 'basic';
 
-alter table public.workspaces
+alter table app.workspaces
   add column if not exists tier_updated_at timestamptz default now();
 
-alter table public.workspaces
+alter table app.workspaces
   add column if not exists consecutive_low_spend_months integer default 0;
 
-alter table public.workspaces
+alter table app.workspaces
   add column if not exists enterprise_lock_through_month date null;
 
-alter table public.workspaces
+alter table app.workspaces
   add column if not exists tier_low_streak_evaluated_month date null;
 
-update public.workspaces
+update app.workspaces
 set
   tier = 'basic',
   tier_updated_at = now(),
@@ -52,7 +52,7 @@ security definer
 set search_path = public
 as $$
 begin
-  update public.workspaces
+  update app.workspaces
   set
     tier = 'basic',
     tier_updated_at = coalesce(tier_updated_at, now()),
@@ -107,7 +107,7 @@ declare
   v_next_month_start_ts timestamptz := ((date_trunc('month', now() at time zone 'UTC') + interval '1 month') at time zone 'UTC');
 begin
   select exists(
-    select 1 from public.workspaces w where w.id = p_workspace_id
+    select 1 from app.workspaces w where w.id = p_workspace_id
   )
   into v_exists;
 
@@ -117,12 +117,12 @@ begin
 
   select coalesce(w.tier_updated_at, now())
   into v_tier_updated_at
-  from public.workspaces w
+  from app.workspaces w
   where w.id = p_workspace_id;
 
   select coalesce(sum(gr.cost_nanos), 0)::bigint
   into v_current_month_nanos
-  from public.gateway_requests gr
+  from observability.gateway_requests gr
   where gr.workspace_id = p_workspace_id
     and gr.success is true
     and gr.created_at >= v_current_month_start_ts
@@ -130,7 +130,7 @@ begin
 
   select coalesce(sum(gr.cost_nanos), 0)::bigint
   into v_prev_month_nanos
-  from public.gateway_requests gr
+  from observability.gateway_requests gr
   where gr.workspace_id = p_workspace_id
     and gr.success is true
     and gr.created_at >= v_prev_month_start_ts

@@ -1085,7 +1085,7 @@ export async function handleError({
     await runGatewayTelemetryPipelines({
         requestId: auditArgs.requestId,
         workspaceId: auditArgs.workspaceId,
-        writeSupabase: () => auditFailure(auditArgs),
+        writeDatabase: () => auditFailure(auditArgs),
         writeOtlp: auditArgs.workspaceId
             ? () => enqueueGatewayOtlpExport({
                 requestId: auditArgs.requestId,
@@ -1161,7 +1161,6 @@ export async function handleError({
     });
     return new Response(JSON.stringify(errorPayload), { status: statusCode, headers });
 }
-
 
 
 

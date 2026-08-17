@@ -3,7 +3,8 @@
 
 import type { AuthSuccess } from "@pipeline/before/auth";
 import type { GatewayBindings } from "@/runtime/env.types";
-import { getBindings, getSupabaseAdmin } from "@/runtime/env";
+import { getBindings } from "@/runtime/env";
+import { findWorkspaceOwnerUserId } from "@/repositories/management";
 
 const DEFAULT_BATCH_API_GATE = "gateway_batch_api";
 const DEFAULT_VIDEO_API_GATE = "gateway_video_api";
@@ -78,19 +79,13 @@ export function getDataContributionFeatureGateName(bindings: Partial<GatewayBind
 	return normalizeText(bindings.STATSIG_DATA_CONTRIBUTION_GATE) ?? DEFAULT_DATA_CONTRIBUTION_GATE;
 }
 
-async function resolveWorkspaceOwnerUserId(workspaceId: string): Promise<string | null> {
+async function resolveCachedWorkspaceOwnerUserId(workspaceId: string): Promise<string | null> {
 	const now = Date.now();
 	const cached = workspaceOwnerCache.get(workspaceId);
 	if (cached && cached.expiresAt > now) return cached.userId;
 
 	try {
-		const { data, error } = await getSupabaseAdmin()
-			.from("workspaces")
-			.select("owner_user_id")
-			.eq("id", workspaceId)
-			.maybeSingle();
-		if (error) throw error;
-		const userId = normalizeText((data as { owner_user_id?: unknown } | null)?.owner_user_id);
+		const userId = normalizeText(await findWorkspaceOwnerUserId(workspaceId));
 		workspaceOwnerCache.set(workspaceId, { userId, expiresAt: now + WORKSPACE_OWNER_CACHE_TTL_MS });
 		return userId;
 	} catch (error) {
@@ -111,7 +106,7 @@ async function isStatsigGateEnabled(
 	const statsigKey = resolveStatsigServerKey(bindings);
 	if (!statsigKey) return isLocalTestBypass(bindings);
 
-	const userId = normalizeText(subject.userId) ?? await resolveWorkspaceOwnerUserId(subject.workspaceId);
+	const userId = normalizeText(subject.userId) ?? await resolveCachedWorkspaceOwnerUserId(subject.workspaceId);
 	if (!userId) return false;
 
 	const user = {

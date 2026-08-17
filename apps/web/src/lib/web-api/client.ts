@@ -17,6 +17,19 @@ function getWebApiOrigin(): string {
 	return (process.env.WEB_API_ORIGIN ?? DEFAULT_WEB_API_ORIGIN).replace(/\/+$/, "");
 }
 
+async function serverCookieHeader(): Promise<string | null> {
+	if (typeof window !== "undefined") return null;
+	try {
+		const { cookies } = await import("next/headers");
+		const values = (await cookies()).getAll();
+		return values.length
+			? values.map(({ name, value }) => `${name}=${value}`).join("; ")
+			: null;
+	} catch {
+		return null;
+	}
+}
+
 async function readJsonPayload<T>(
 	response: Response,
 	path: string,
@@ -77,6 +90,7 @@ export async function fetchAccountWebApi<T>(
 	accessToken?: string | null,
 	init: RequestInit = {},
 ): Promise<T> {
+	const cookie = accessToken ? null : await serverCookieHeader();
 	const response = await fetch(`${getWebApiOrigin()}${path}`, {
 		...init,
 		headers: {
@@ -84,6 +98,7 @@ export async function fetchAccountWebApi<T>(
 			...(init.body ? { "Content-Type": "application/json" } : {}),
 			...init.headers,
 			...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+			...(cookie ? { Cookie: cookie } : {}),
 		},
 		cache: "no-store",
 	});
@@ -107,9 +122,10 @@ export async function fetchInternalWebApi<T>(
 	accessToken: string | null,
 	init: RequestInit = {},
 ): Promise<T> {
+	const cookie = accessToken ? null : await serverCookieHeader();
 	const response = await fetch(`${getWebApiOrigin()}${path}`, {
 		...init,
-		headers: { Accept: "application/json", ...(init.body ? { "Content-Type": "application/json" } : {}), ...init.headers, ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}) },
+		headers: { Accept: "application/json", ...(init.body ? { "Content-Type": "application/json" } : {}), ...init.headers, ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}), ...(cookie ? { Cookie: cookie } : {}) },
 		cache: "no-store",
 	});
 	const payload = await readJsonPayload<T>(response, path);
@@ -122,9 +138,10 @@ export async function fetchInternalWebApiResponse(
 	accessToken: string | null,
 	init: RequestInit = {},
 ): Promise<Response> {
+	const cookie = accessToken ? null : await serverCookieHeader();
 	return fetch(`${getWebApiOrigin()}${path}`, {
 		...init,
-		headers: { Accept: "application/json", ...(init.body ? { "Content-Type": "application/json" } : {}), ...init.headers, ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}) },
+		headers: { Accept: "application/json", ...(init.body ? { "Content-Type": "application/json" } : {}), ...init.headers, ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}), ...(cookie ? { Cookie: cookie } : {}) },
 		cache: "no-store",
 	});
 }
@@ -133,9 +150,10 @@ export async function fetchInternalWebApiResponse(
 export async function fetchChatWebApi(path: `/api/chat/${string}`, init: RequestInit = {}): Promise<Response> {
 	const { getBrowserAccessToken } = await import("@/lib/fetchers/internal/accountAuthClient");
 	const accessToken = await getBrowserAccessToken();
-	return fetch(`${getWebApiOrigin()}${path}`, {
+	return fetch(path, {
 		...init,
 		headers: { ...init.headers, ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}) },
 		cache: "no-store",
+		credentials: "same-origin",
 	});
 }

@@ -1,10 +1,8 @@
 export type Env = {
+  CUTOVER_WRITE_FREEZE?: string;
   ENV: "development" | "preview" | "staging" | "production";
-	SUPABASE_URL?: string;
-	SUPABASE_ANON_KEY?: string;
-	NEXT_PUBLIC_SUPABASE_URL?: string;
-	NEXT_PUBLIC_SUPABASE_ANON_KEY?: string;
-	SUPABASE_SERVICE_ROLE_KEY?: string;
+	PLANETSCALE_HYPERDRIVE?: { connectionString: string };
+	BETTER_AUTH_URL?: string;
 	REVALIDATION_SECRET?: string;
 	INVITE_ENCRYPTION_KEY?: string;
 	HMAC_ENCRYPTION_KEY?: string;

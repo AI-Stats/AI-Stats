@@ -1,4 +1,7 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { webCacheGenerations } from "@phaseo/db/schema";
+import { eq } from "@phaseo/db/query";
+import { createDatabase } from "@/data/db";
+import type { Env } from "@/env";
 
 export type CacheGeneration = {
 	scope: string;
@@ -7,26 +10,20 @@ export type CacheGeneration = {
 };
 
 export async function getCacheGeneration(
-	db: SupabaseClient,
+	env: Env,
 	scope: string,
 ): Promise<CacheGeneration> {
-	const result = await db
-		.from("web_cache_generations")
-		.select("generation,updated_at")
-		.eq("scope", scope)
-		.maybeSingle();
-
-	if (result.error) {
+	const { db, client } = createDatabase(env);
+	try {
+		const [result] = await db.select({ generation: webCacheGenerations.generation, updatedAt: webCacheGenerations.updatedAt }).from(webCacheGenerations).where(eq(webCacheGenerations.scope, scope)).limit(1);
+		return { scope, generation: Math.max(1, Number(result?.generation ?? 1)), updatedAt: result?.updatedAt ?? null };
+	} catch (error) {
 		console.warn("web_cache_generation_unavailable", {
 			scope,
-			code: result.error.code,
+			error: error instanceof Error ? error.message : String(error),
 		});
 		return { scope, generation: 1, updatedAt: null };
+	} finally {
+		await client.end({ timeout: 1 });
 	}
-
-	return {
-		scope,
-		generation: Math.max(1, Number(result.data?.generation ?? 1)),
-		updatedAt: result.data?.updated_at ?? null,
-	};
 }

@@ -5,8 +5,8 @@ const state = vi.hoisted(() => ({
 	rows: [] as Array<Record<string, unknown>>,
 	count: 0,
 	detail: null as Record<string, unknown> | null,
-	filters: [] as Array<{ method: string; column?: string; value?: unknown }>,
-	selectedFields: [] as string[],
+	listCalls: [] as Array<{ filters: Record<string, unknown>; limit: number; offset: number }>,
+	detailCalls: [] as Array<{ workspaceId: string; requestId: string }>,
 }));
 
 function json(body: unknown, status = 200, headers: Record<string, string> = {}) {
@@ -16,51 +16,15 @@ function json(body: unknown, status = 200, headers: Record<string, string> = {})
 	});
 }
 
-function buildQuery() {
-	const query: any = {
-		select(fields: string) {
-			state.selectedFields.push(fields);
-			return query;
-		},
-		eq(column: string, value: unknown) {
-			state.filters.push({ method: "eq", column, value });
-			return query;
-		},
-		gte(column: string, value: unknown) {
-			state.filters.push({ method: "gte", column, value });
-			return query;
-		},
-		lte(column: string, value: unknown) {
-			state.filters.push({ method: "lte", column, value });
-			return query;
-		},
-		order(column: string) {
-			state.filters.push({ method: "order", column });
-			return query;
-		},
-		range(from: number, to: number) {
-			state.filters.push({ method: "range", value: [from, to] });
-			return query;
-		},
-		limit(value: number) {
-			state.filters.push({ method: "limit", value });
-			return query;
-		},
-		maybeSingle: async () => ({ data: state.detail, error: null }),
-		then(resolve: (value: unknown) => unknown, reject: (reason: unknown) => unknown) {
-			return Promise.resolve({ data: state.rows, error: null, count: state.count }).then(resolve, reject);
-		},
-	};
-	return query;
-}
-
-vi.mock("@/runtime/env", () => ({
-	getSupabaseAdmin: () => ({
-		from: (table: string) => {
-			if (table !== "gateway_requests") throw new Error(`Unexpected table: ${table}`);
-			return buildQuery();
-		},
-	}),
+vi.mock("@/repositories/activity-logs", () => ({
+	listActivityLogs: async (filters: Record<string, unknown>, limit: number, offset: number) => {
+		state.listCalls.push({ filters, limit, offset });
+		return { rows: state.rows, total: state.count };
+	},
+	findActivityLog: async (workspaceId: string, requestId: string) => {
+		state.detailCalls.push({ workspaceId, requestId });
+		return state.detail;
+	},
 }));
 
 vi.mock("@/pipeline/before/guards", () => ({
@@ -90,8 +54,8 @@ describe("logs routes", () => {
 		}];
 		state.count = 1;
 		state.detail = state.rows[0];
-		state.filters.length = 0;
-		state.selectedFields.length = 0;
+		state.listCalls.length = 0;
+		state.detailCalls.length = 0;
 		vi.resetModules();
 	});
 
@@ -105,24 +69,16 @@ describe("logs routes", () => {
 		expect(body.limit).toBe(10);
 		expect(body.offset).toBe(5);
 		expect(body.data[0].error_message).toBeUndefined();
-		expect(state.filters).toEqual(expect.arrayContaining([
-			{ method: "eq", column: "workspace_id", value: "ws_1" },
-			{ method: "eq", column: "provider", value: "openai" },
-			{ method: "eq", column: "model_id", value: "gpt-5-mini" },
-			{ method: "eq", column: "endpoint", value: "/v1/responses" },
-			{ method: "eq", column: "request_id", value: "req_1" },
-			{ method: "eq", column: "key_id", value: "key_1" },
-			{ method: "eq", column: "session_id", value: "session_1" },
-			{ method: "eq", column: "error_code", value: "upstream_error" },
-			{ method: "gte", column: "status_code", value: 500 },
-			{ method: "lte", column: "status_code", value: 599 },
-			{ method: "range", value: [5, 14] },
-		]));
-		expect(state.selectedFields[0]).not.toContain("*");
-		expect(state.selectedFields[0]).not.toContain("request_payload");
-		expect(state.selectedFields[0]).not.toContain("trace_data");
-		expect(state.selectedFields[0]).not.toContain("error_message");
-		expect(state.selectedFields[0]).not.toContain("session_id");
+		expect(state.listCalls).toEqual([{
+			filters: expect.objectContaining({
+				workspaceId: "ws_1", provider: "openai", model: "gpt-5-mini",
+				endpoint: "/v1/responses", requestId: "req_1", keyId: "key_1",
+				sessionId: "session_1", errorCode: "upstream_error",
+				status: { kind: "status_range", lower: 500, upper: 599 },
+			}),
+			limit: 10,
+			offset: 5,
+		}]);
 	});
 
 	it("rejects invalid time and status filters", async () => {
@@ -150,11 +106,7 @@ describe("logs routes", () => {
 		expect(response.status).toBe(200);
 		expect(body.data.request_id).toBe("req_1");
 		expect(body.data.error_message).toBeUndefined();
-		expect(state.filters).toEqual(expect.arrayContaining([
-			{ method: "eq", column: "workspace_id", value: "ws_1" },
-			{ method: "eq", column: "request_id", value: "req_1" },
-			{ method: "limit", value: 1 },
-		]));
+		expect(state.detailCalls).toEqual([{ workspaceId: "ws_1", requestId: "req_1" }]);
 	});
 
 	it("requires the relevant OAuth scope", async () => {

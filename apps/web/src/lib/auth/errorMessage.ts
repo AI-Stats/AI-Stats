@@ -1,14 +1,43 @@
 export const DEFAULT_AUTH_ERROR_MESSAGE = 'We could not complete the sign-in flow. Please try again.'
 
+export type PostLoginError = { code: string; message: string }
+
+export function classifyPostLoginError(error: unknown): PostLoginError {
+    const detail = (error instanceof Error ? error.message : String(error ?? '')).toLowerCase()
+    if (detail.includes('listfactors') || detail.includes('authenticatorassurance') || detail.includes('mfa')) {
+        return {
+            code: 'security_check_failed',
+            message: 'You are signed in, but Phaseo could not finish checking your account security settings. Please retry sign-in.',
+        }
+    }
+    if (detail.includes('provision_personal_workspace') || detail.includes('workspace')) {
+        return {
+            code: 'workspace_setup_failed',
+            message: 'You are signed in, but Phaseo could not load your workspace. Please retry sign-in. Your account and data are safe.',
+        }
+    }
+    if (detail.includes('connection') || detail.includes('database') || detail.includes('timeout')) {
+        return {
+            code: 'account_data_unavailable',
+            message: 'You are signed in, but account data is temporarily unavailable. Please wait a moment and retry.',
+        }
+    }
+    return {
+        code: 'post_login_failed',
+        message: 'You are signed in, but Phaseo could not finish loading your account. Please retry sign-in.',
+    }
+}
+
 export function normalizeAuthErrorMessage(message: string | null | undefined): string {
     const trimmed = String(message ?? '').trim()
     if (!trimmed) return DEFAULT_AUTH_ERROR_MESSAGE
     return trimmed.slice(0, 240)
 }
 
-export function buildAuthErrorRedirectUrl(requestUrl: string, message?: string | null): URL {
+export function buildAuthErrorRedirectUrl(requestUrl: string, message?: string | null, code?: string | null): URL {
     const url = new URL('/error', requestUrl)
     url.searchParams.set('message', normalizeAuthErrorMessage(message))
+    if (code) url.searchParams.set('code', code.slice(0, 80))
     return url
 }
 

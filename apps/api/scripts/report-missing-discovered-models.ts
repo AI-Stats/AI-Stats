@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createClient } from "@supabase/supabase-js";
+import { selectImportRows } from "@phaseo/db/import-service";
 
 type SourceMode = "json" | "db";
 type DiscoveredRow = { provider_id: string; model_id: string };
@@ -16,7 +16,6 @@ const API_ROOT = path.resolve(SCRIPT_DIR, "..");
 const REPO_ROOT = path.resolve(API_ROOT, "..", "..");
 const API_PROVIDERS_DIR = path.join(REPO_ROOT, "apps", "web", "src", "data", "api_providers");
 const DISCOVERY_STATE_PATH = path.join(REPO_ROOT, "scripts", "model-discovery", "state", "provider-model-snapshots.json");
-const WRANGLER_TOML_PATH = path.join(API_ROOT, "wrangler.toml");
 const PAGE_SIZE = 1000;
 
 const PROVIDER_ALIASES: Record<string, string> = {
@@ -103,28 +102,6 @@ function loadLocalEnvFiles(): void {
 	}
 }
 
-function resolveSupabaseUrl(): string {
-	const direct = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
-	if (direct && direct.trim()) return direct.trim();
-
-	if (fs.existsSync(WRANGLER_TOML_PATH)) {
-		const raw = fs.readFileSync(WRANGLER_TOML_PATH, "utf-8");
-		const match = raw.match(/^\s*SUPABASE_URL\s*=\s*"([^"]+)"/m);
-		if (match?.[1]) return match[1].trim();
-	}
-
-	throw new Error("Missing SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL)");
-}
-
-function createSupabaseAdmin() {
-	const supabaseUrl = resolveSupabaseUrl();
-	const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-	if (!serviceRole) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
-	return createClient(supabaseUrl, serviceRole, {
-		auth: { autoRefreshToken: false, persistSession: false },
-	});
-}
-
 function ensureProviderSet(map: Map<string, Set<string>>, providerId: string): Set<string> {
 	const key = canonicalProviderId(providerId);
 	const existing = map.get(key);
@@ -170,18 +147,16 @@ async function loadConfiguredFromJson(): Promise<Map<string, Set<string>>> {
 }
 
 async function loadConfiguredFromDb(): Promise<Map<string, Set<string>>> {
-	const supabase = createSupabaseAdmin();
 	const out = new Map<string, Set<string>>();
 	let from = 0;
 
 	while (true) {
-		const { data, error } = await supabase
-		.from("v2_model_provider_routes")
-			.select("provider_slug, provider_model_slug, model_slug")
-			.range(from, from + PAGE_SIZE - 1);
-		if (error) throw new Error(error.message || "Failed loading V2 provider routes");
-
-		const rows = (data ?? []) as ConfiguredDbRow[];
+		const rows = await selectImportRows({
+			table: "v2_model_provider_routes",
+			columns: "provider_slug,provider_model_slug,model_slug",
+			offset: from,
+			limit: PAGE_SIZE,
+		}) as ConfiguredDbRow[];
 		if (rows.length === 0) break;
 		for (const row of rows) {
 			const providerId = row.provider_slug;
@@ -204,18 +179,16 @@ async function loadConfiguredFromDb(): Promise<Map<string, Set<string>>> {
 }
 
 async function loadDiscoveredFromDb(): Promise<DiscoveredRow[]> {
-	const supabase = createSupabaseAdmin();
 	const out: DiscoveredRow[] = [];
 	let from = 0;
 
 	while (true) {
-		const { data, error } = await supabase
-			.from("model_discovery_seen_models")
-			.select("provider_id, model_id")
-			.range(from, from + PAGE_SIZE - 1);
-		if (error) throw new Error(error.message || "Failed loading model_discovery_seen_models");
-
-		const rows = (data ?? []) as Array<{ provider_id: unknown; model_id: unknown }>;
+		const rows = await selectImportRows({
+			table: "model_discovery_seen_models",
+			columns: "provider_id,model_id",
+			offset: from,
+			limit: PAGE_SIZE,
+		}) as Array<{ provider_id: unknown; model_id: unknown }>;
 		if (rows.length === 0) break;
 
 		for (const row of rows) {

@@ -1,6 +1,14 @@
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import { getBindings, getSupabaseAdmin } from "@/runtime/env";
+import { getBindings } from "@/runtime/env";
+import {
+	createManagementKey,
+	deleteManagementKey,
+	findManagementKey,
+	listManagementKeys,
+	updateManagementKey,
+} from "@/repositories/management-keys";
+import { findWorkspaceOwnerUserId } from "@/repositories/management";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES, parseStoredScopeList } from "@/lib/authz/capabilities";
 import {
@@ -36,47 +44,12 @@ type ManagementKeyRow = Record<string, unknown> & {
 const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 250;
 
-function selectColumns(): string {
-	return [
-		"id",
-		"workspace_id",
-		"name",
-		"prefix",
-		"status",
-		"scopes",
-		"created_by",
-		"created_at",
-		"updated_at",
-		"last_used_at",
-		"expires_at",
-		"soft_blocked",
-		"daily_limit_requests",
-		"weekly_limit_requests",
-		"monthly_limit_requests",
-		"daily_limit_cost_nanos",
-		"weekly_limit_cost_nanos",
-		"monthly_limit_cost_nanos",
-	].join(", ");
-}
-
 function parseOptionalExpiry(raw: unknown): string | null | undefined {
 	if (raw === undefined) return undefined;
 	if (raw === null || String(raw).trim() === "") return null;
 	const parsed = new Date(String(raw));
 	if (Number.isNaN(parsed.getTime())) throw new Error("expires_at must be a valid ISO-8601 datetime or null");
 	return parsed.toISOString();
-}
-
-function normalizeLimitPatch(body: Record<string, unknown>): Record<string, unknown> {
-	const patch: Record<string, unknown> = {};
-	if (body.dailyRequests !== undefined) patch.daily_limit_requests = body.dailyRequests;
-	if (body.weeklyRequests !== undefined) patch.weekly_limit_requests = body.weeklyRequests;
-	if (body.monthlyRequests !== undefined) patch.monthly_limit_requests = body.monthlyRequests;
-	if (body.dailyCostNanos !== undefined) patch.daily_limit_cost_nanos = body.dailyCostNanos;
-	if (body.weeklyCostNanos !== undefined) patch.weekly_limit_cost_nanos = body.weeklyCostNanos;
-	if (body.monthlyCostNanos !== undefined) patch.monthly_limit_cost_nanos = body.monthlyCostNanos;
-	if (body.softBlocked !== undefined) patch.soft_blocked = body.softBlocked;
-	return patch;
 }
 
 function resolveManagementKeyScopes(body: Record<string, unknown>) {
@@ -165,22 +138,19 @@ async function issueManagementKey(args: {
 	await enforceWorkspaceKeyLimit(args.workspaceId);
 	const generated = generateManagementKey();
 	const hash = await hmacSecret(generated.secret, pepper);
-	const { data, error } = await getSupabaseAdmin()
-		.from("management_keys")
-		.insert({
-			workspace_id: args.workspaceId,
+	const createdBy = args.createdBy ?? await findWorkspaceOwnerUserId(args.workspaceId);
+	if (!createdBy) throw new Error("Workspace owner not found");
+	const data = await createManagementKey({
+			workspaceId: args.workspaceId,
 			name: args.name,
 			kid: generated.kid,
 			hash,
 			prefix: generated.prefix,
 			status: args.paused ? "paused" : "active",
 			scopes: args.scopes,
-			expires_at: args.expiresAt,
-			created_by: args.createdBy,
-		})
-		.select(selectColumns())
-		.maybeSingle();
-	if (error) throw new Error(error.message || "Failed to create management key");
+			expiresAt: args.expiresAt,
+			createdBy,
+		});
 
 	return {
 		...formatManagementKey(data as unknown as ManagementKeyRow),
@@ -201,14 +171,8 @@ async function handleListManagementKeys(req: Request) {
 	const offset = parseOffset(url.searchParams.get("offset"));
 	const limit = parsePositiveInt(url.searchParams.get("limit"), DEFAULT_LIMIT, MAX_LIMIT);
 	try {
-		const { data, error } = await getSupabaseAdmin()
-			.from("management_keys")
-			.select(selectColumns())
-			.eq("workspace_id", auth.value.workspaceId)
-			.order("created_at", { ascending: false })
-			.range(offset, offset + limit - 1);
-		if (error) throw new Error(error.message || "Failed to list management keys");
-		return json({ data: (data ?? []).map((row) => formatManagementKey(row as unknown as ManagementKeyRow)) }, 200, { "Cache-Control": "no-store" });
+		const data = await listManagementKeys(auth.value.workspaceId, limit, offset);
+		return json({ data: data.map((row) => formatManagementKey(row as unknown as ManagementKeyRow)) }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("management_keys.list", error);
 	}
@@ -254,17 +218,6 @@ async function handleCreateManagementKey(req: Request) {
 }
 
 
-async function findManagementKey(workspaceId: string, id: string): Promise<ManagementKeyRow | null> {
-	const { data, error } = await getSupabaseAdmin()
-		.from("management_keys")
-		.select(selectColumns())
-		.eq("workspace_id", workspaceId)
-		.eq("id", id)
-		.maybeSingle();
-	if (error) throw new Error(error.message || "Failed to fetch management key");
-	return (data as unknown as ManagementKeyRow | null) ?? null;
-}
-
 async function handleGetManagementKey(req: Request) {
 	const auth = await guardManagementAuth(req, { useKvCache: false });
 	if (!auth.ok) return (auth as GuardErr).response;
@@ -296,7 +249,8 @@ async function handleUpdateManagementKey(req: Request) {
 	if (isResponse(body)) return body;
 
 	try {
-		const patch: Record<string, unknown> = normalizeLimitPatch(body);
+		const patch: Record<string, unknown> = {};
+		if (typeof body.softBlocked === "boolean") patch.softBlocked = body.softBlocked;
 		if (typeof body.name === "string") patch.name = body.name.trim();
 		if (typeof body.paused === "boolean") patch.status = body.paused ? "paused" : "active";
 		if (body.scopes !== undefined || body.template !== undefined) {
@@ -314,19 +268,12 @@ async function handleUpdateManagementKey(req: Request) {
 			patch.scopes = scopes.value;
 		}
 		if (typeof body.expires_at !== "undefined" || typeof body.expiresAt !== "undefined") {
-			patch.expires_at = parseOptionalExpiry(body.expires_at ?? body.expiresAt);
+			patch.expiresAt = parseOptionalExpiry(body.expires_at ?? body.expiresAt);
 		}
 		if (Object.keys(patch).length === 0) {
 			return json({ error: "bad_request", message: "No supported management key fields were provided" }, 400, { "Cache-Control": "no-store" });
 		}
-		const { data, error } = await getSupabaseAdmin()
-			.from("management_keys")
-			.update(patch)
-			.eq("workspace_id", auth.value.workspaceId)
-			.eq("id", id)
-			.select(selectColumns())
-			.maybeSingle();
-		if (error) throw new Error(error.message || "Failed to update management key");
+		const data = await updateManagementKey(auth.value.workspaceId, id, patch);
 		if (!data) return json({ error: "not_found", message: "Management key not found" }, 404, { "Cache-Control": "no-store" });
 		return json({ data: formatManagementKey(data as unknown as ManagementKeyRow) }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
@@ -344,15 +291,8 @@ async function handleDeleteManagementKey(req: Request) {
 	const id = parsePathId(new URL(req.url), "management-keys");
 	if (!id) return json({ error: "bad_request", message: "Management key id is required" }, 400, { "Cache-Control": "no-store" });
 	try {
-		const { data, error } = await getSupabaseAdmin()
-			.from("management_keys")
-			.delete()
-			.eq("workspace_id", auth.value.workspaceId)
-			.eq("id", id)
-			.select("id")
-			.maybeSingle();
-		if (error) throw new Error(error.message || "Failed to delete management key");
-		if (!data) return json({ error: "not_found", message: "Management key not found" }, 404, { "Cache-Control": "no-store" });
+		const deleted = await deleteManagementKey(auth.value.workspaceId, id);
+		if (!deleted) return json({ error: "not_found", message: "Management key not found" }, 404, { "Cache-Control": "no-store" });
 		return json({ deleted: true }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("management_keys.delete", error);

@@ -5,8 +5,6 @@ import { installFetchMock } from "../../../../tests/helpers/mock-fetch";
 import { setupRuntimeFromEnv, teardownTestRuntime } from "../../../../tests/helpers/runtime";
 import { executor } from "./index";
 
-vi.mock("@supabase/supabase-js", () => ({ createClient: () => ({}) }));
-
 beforeAll(() => setupRuntimeFromEnv({ GROQ_API_KEY: "gsk-test" } as any));
 afterAll(teardownTestRuntime);
 

@@ -527,8 +527,7 @@ export default function PrivacySettingsClient(props: {
 			const saveSeq = ++globalSaveSeqRef.current;
 			setSavingGlobal(true);
 			try {
-				await toast.promise(
-					updateGlobalGuardrailsSettings({
+				const savePromise = updateGlobalGuardrailsSettings({
 						privacyEnablePaidMayTrain: global.privacyEnablePaidMayTrain,
 						privacyEnableFreeMayTrain: global.privacyEnableFreeMayTrain,
 						privacyEnableFreeMayPublishPrompts:
@@ -547,13 +546,16 @@ export default function PrivacySettingsClient(props: {
 							global.providerRestrictionProviderIds,
 						providerRestrictionEnforceAllowed:
 							global.providerRestrictionEnforceAllowed,
-					}),
+					});
+				toast.promise(
+					savePromise,
 					{
 						loading: "Saving privacy settings...",
 						success: "Privacy settings updated",
 						error: "Failed to update privacy settings",
 					},
 				);
+				await savePromise;
 				if (saveSeq === globalSaveSeqRef.current) {
 					setSavedGlobal(global);
 				}
@@ -923,4 +925,3 @@ export default function PrivacySettingsClient(props: {
 		</div>
 	);
 }
-

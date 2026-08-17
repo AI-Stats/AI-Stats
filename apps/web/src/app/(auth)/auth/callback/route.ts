@@ -1,12 +1,13 @@
-import { createClient } from "@/utils/supabase/server";
 import { after, NextResponse } from "next/server";
 import {
 	DEFAULT_AUTH_ERROR_MESSAGE,
 	buildAuthErrorRedirectUrl,
+	classifyPostLoginError,
 	resolveCallbackErrorMessage,
 } from "@/lib/auth/errorMessage";
 import { sanitizeReturnUrl } from "@/lib/auth/return-url";
 import { finalizePostLogin } from "@/lib/auth/post-login";
+import { getServerIdentity } from "@/lib/auth/serverIdentity";
 
 function buildHashPreservingAuthErrorResponse(requestUrl: string) {
 	const fallbackUrl = buildAuthErrorRedirectUrl(
@@ -64,7 +65,6 @@ function buildHashPreservingAuthErrorResponse(requestUrl: string) {
 
 export async function GET(request: Request) {
 	const url = new URL(request.url);
-	const code = url.searchParams.get("code");
 	const type = url.searchParams.get("type");
 	const returnUrl = sanitizeReturnUrl(url.searchParams.get("returnUrl"), "/");
 	const callbackErrorMessage = resolveCallbackErrorMessage(url);
@@ -80,39 +80,11 @@ export async function GET(request: Request) {
 		);
 	}
 
-	const supabaseUser = await createClient();
-
-	if (type !== "email") {
-		if (!code) {
-			console.error("Auth callback missing code", {
-				search: url.search,
-			});
-			return buildHashPreservingAuthErrorResponse(request.url);
-		}
-
-		const { error: exchangeErr } =
-			await supabaseUser.auth.exchangeCodeForSession(code);
-		if (exchangeErr) {
-			console.error("Auth code exchange failed", {
-				message: exchangeErr.message,
-				status: (exchangeErr as { status?: number }).status,
-				code: (exchangeErr as { code?: string }).code,
-			});
-			return NextResponse.redirect(
-				buildAuthErrorRedirectUrl(
-					request.url,
-					exchangeErr.message || DEFAULT_AUTH_ERROR_MESSAGE,
-				),
-			);
-		}
-	}
-
-	const {
-		data: { user },
-	} = await supabaseUser.auth.getUser();
+	const identity = await getServerIdentity();
+	const user = identity?.user;
 	if (!user?.id) {
 		console.error("Auth callback missing authenticated user after session exchange");
-		if (type === "email") {
+		if (type === "email" || type === "better-auth") {
 			return buildHashPreservingAuthErrorResponse(request.url);
 		}
 		return NextResponse.redirect(
@@ -120,29 +92,26 @@ export async function GET(request: Request) {
 		);
 	}
 
-	const {
-		data: { session },
-	} = await supabaseUser.auth.getSession();
-
 	try {
 		const result = await finalizePostLogin({
-			supabaseUser,
 			user,
-			session,
 			returnUrl,
 			source: "auth_callback",
 			deferTask: (task) => after(task),
 		});
 		return NextResponse.redirect(new URL(result.redirectPath, url));
 	} catch (error) {
+		const publicError = classifyPostLoginError(error);
 		console.error("Failed to finalize post-login state during auth callback", {
 			userId: user.id,
+			code: publicError.code,
 			error: error instanceof Error ? error.message : String(error),
 		});
 		return NextResponse.redirect(
 			buildAuthErrorRedirectUrl(
 				request.url,
-				"Your account was created, but we could not finish setting up your workspace. Please contact support.",
+				publicError.message,
+				publicError.code,
 			),
 		);
 	}

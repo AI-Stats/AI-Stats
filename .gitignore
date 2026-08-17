@@ -58,3 +58,5 @@ packages/sdk/sdk-ruby/*.gem
 
 # Entire local agent/session metadata
 /.entire/
+
+.vercel

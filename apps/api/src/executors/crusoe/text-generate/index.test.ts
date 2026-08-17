@@ -6,8 +6,6 @@ import { setupRuntimeFromEnv, teardownTestRuntime } from "../../../../tests/help
 import { openAIChatToIR } from "@executors/_shared/text-generate/openai-compat/transform-chat";
 import { executor } from "./index";
 
-vi.mock("@supabase/supabase-js", () => ({ createClient: () => ({}) }));
-
 function args(ir: IRChatRequest): ExecutorExecuteArgs {
 	return {
 		ir,

@@ -1,6 +1,6 @@
 # Cloudflare end-to-end gateway performance testing
 
-This harness measures the deployed gateway through Cloudflare without sending paid model requests. It consists of a dedicated gateway Worker, a dedicated stateless synthetic upstream Worker, production Supabase reads through an allowlisted performance workspace, isolated operational bindings, and a streaming load client.
+This harness measures the deployed gateway through Cloudflare without sending paid model requests. It consists of a dedicated gateway Worker, a dedicated stateless synthetic upstream Worker, PlanetScale reads through Cloudflare Hyperdrive and an allowlisted performance workspace, isolated operational bindings, and a streaming load client.
 
 ## What it measures
 
@@ -13,12 +13,12 @@ The synthetic upstream is deliberately reached over its public HTTPS URL. That i
 - No Durable Object is used. Scenarios are stateless, and the `flaky-25` result is selected deterministically from the request ID.
 - The upstream accepts no inference request unless its bearer token matches the `PERF_UPSTREAM_TOKEN` secret.
 - Delay and frame controls are capped. The Worker cannot be turned into an unbounded sleep or response generator.
-- The perf gateway uses the existing `Performance Testing` workspace and API key in production Supabase. Every request is forced into internally-authorized testing mode.
+- The perf gateway uses the existing `Performance Testing` workspace and API key in the PlanetScale staging target. Every request is forced into internally-authorized testing mode.
 - Testing-mode requests calculate pricing for observability but never charge credits or persist into production gateway usage tables.
 - The deployed perf gateway is restricted to synchronous text-generation endpoints; async video and batch reservation paths are rejected.
 - The perf gateway uses a separate Worker name, KV namespace, R2 bucket, and synthetic provider credentials.
 - Discovery, reconciliation, email, pricing monitor, and invoicing jobs are disabled in the perf config.
-- Production Supabase is intentionally used so authentication, context, pricing, and provider-candidate reads follow the real path. The workspace allowlist and internal test token fail closed before context execution.
+- PlanetScale through the dedicated `PLANETSCALE_HYPERDRIVE` binding is intentionally used so authentication, context, pricing, and provider-candidate reads follow the real path. The workspace allowlist and internal test token fail closed before context execution.
 - Never use production KV. Synthetic failures must not contaminate production breaker, health, or context-cache state.
 
 ## Deploy the synthetic upstream
@@ -36,8 +36,8 @@ Keep the token for the perf gateway provider secrets. The deployed Worker expose
 ## Prepare the gateway preview
 
 1. Copy `apps/api/wrangler.perf.example.jsonc` to `apps/api/wrangler.perf.jsonc`.
-2. The committed template already references the dedicated `GATEWAY_CACHE_PERF` KV namespace, perf R2 bucket, production Supabase URL, and allowlisted `Performance Testing` workspace.
-3. Set `SUPABASE_SERVICE_ROLE_KEY`, `GATEWAY_INTERNAL_TEST_TOKEN`, `KEY_PEPPER_ACTIVE`, Axiom credentials, and each enabled provider key as secrets on `phaseo-gateway-perf`. Use the same random token as the synthetic upstream for provider keys.
+2. The committed template already references the dedicated `GATEWAY_CACHE_PERF` KV namespace, perf R2 bucket, PlanetScale Hyperdrive configuration, and allowlisted `Performance Testing` workspace.
+3. Set `GATEWAY_INTERNAL_TEST_TOKEN`, `KEY_PEPPER_ACTIVE`, Axiom credentials, and each enabled provider key as secrets on `phaseo-gateway-perf`. Use the same random token as the synthetic upstream for provider keys.
 4. The provider base URLs point at the deployed `phaseo-perf-upstream` Worker. Change their scenario suffixes to construct a test cohort.
 
 Example secrets:
@@ -47,7 +47,6 @@ $token | pnpm exec wrangler secret put OPENAI_API_KEY --config wrangler.perf.jso
 $token | pnpm exec wrangler secret put GROQ_API_KEY --config wrangler.perf.jsonc
 $token | pnpm exec wrangler secret put DEEPINFRA_API_KEY --config wrangler.perf.jsonc
 $token | pnpm exec wrangler secret put TOGETHER_API_KEY --config wrangler.perf.jsonc
-pnpm exec wrangler secret put SUPABASE_SERVICE_ROLE_KEY --config wrangler.perf.jsonc
 pnpm exec wrangler secret put GATEWAY_INTERNAL_TEST_TOKEN --config wrangler.perf.jsonc
 pnpm exec wrangler secret put KEY_PEPPER_ACTIVE --config wrangler.perf.jsonc
 ```

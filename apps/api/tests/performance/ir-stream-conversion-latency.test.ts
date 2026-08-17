@@ -144,8 +144,6 @@ describe.skipIf(process.env.RUN_STREAM_PERF !== "1")("IR and stream conversion l
 	it("measures compact request-wide-event assembly without network I/O", async () => {
 		configureRuntime({
 			NODE_ENV: "test",
-			SUPABASE_URL: "https://example.supabase.co",
-			SUPABASE_SERVICE_ROLE_KEY: "benchmark-service-role",
 			AXIOM_API_KEY: "benchmark",
 			AXIOM_DATASET: "benchmark",
 			AXIOM_SUCCESS_SAMPLE_RATE: "1",

@@ -3,6 +3,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
+const explicitlyRequestedOptInSuite = process.argv.some((argument) =>
+	argument.includes(".live.spec.ts") ||
+	argument.includes("tests/providers/") ||
+	argument.includes("tests\\providers\\") ||
+	argument.includes("tests/aimock/") ||
+	argument.includes("tests\\aimock\\"),
+);
 
 export default defineConfig({
     resolve: {
@@ -22,6 +29,11 @@ export default defineConfig({
         hookTimeout: 60000,
         maxConcurrency: 1,
         include: ["tests/**/*.spec.ts", "tests/**/*.test.ts", "src/**/*.test.ts"],
+		exclude: explicitlyRequestedOptInSuite ? [] : [
+			"tests/integration/**/*.live.spec.ts",
+			"tests/providers/**",
+			"tests/aimock/**",
+		],
         setupFiles: [path.join(rootDir, "tests", "setup.ts")],
         reporters: [
             "default",

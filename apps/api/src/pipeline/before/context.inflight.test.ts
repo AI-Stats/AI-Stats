@@ -28,61 +28,26 @@ const runtime = vi.hoisted(() => {
         pricing: {},
     };
 
-    const rpc = vi.fn(async () => {
+    const fetchRequestContext = vi.fn(async () => {
         await new Promise((resolve) => setTimeout(resolve, 20));
-        return { data: [contextPayload], error: null };
-    });
-    const from = vi.fn((table: string) => {
-        if (table === "workspace_settings") {
-            return {
-                select: () => ({
-                    eq: () => ({
-                        maybeSingle: async () => ({
-                            data: {
-                                routing_mode: null,
-                                byok_fallback_enabled: null,
-                                beta_channel_enabled: false,
-                                alpha_channel_enabled: false,
-                                cache_aware_routing_enabled: true,
-                            },
-                            error: null,
-                        }),
-                    }),
-                }),
-            };
-        }
-        if (table === "workspaces") {
-            return {
-                select: () => ({
-                    eq: () => ({
-                        maybeSingle: async () => ({
-                            data: { billing_mode: "wallet" },
-                            error: null,
-                        }),
-                    }),
-                }),
-            };
-        }
-        if (table === "data_api_providers") {
-            return {
-                select: () => ({
-                    in: async () => ({ data: [], error: null }),
-                }),
-            };
-        }
-        throw new Error(`Unexpected table: ${table}`);
+        return contextPayload;
     });
 
     return {
         store,
         cache,
-        supabase: { rpc, from },
+        fetchRequestContext,
     };
 });
 
 vi.mock("@/runtime/env", () => ({
     getCache: () => runtime.cache as unknown as KVNamespace,
-    getSupabaseAdmin: () => runtime.supabase,
+}));
+
+vi.mock("@/repositories/gateway-context", () => ({
+    fetchRequestContext: (args: Record<string, unknown>) => runtime.fetchRequestContext(args),
+    loadWorkspaceEnrichment: async () => ({ settings: { routing_mode: null, byok_fallback_enabled: false, beta_channel_enabled: false, alpha_channel_enabled: false, cache_aware_routing_enabled: true }, workspace: { billing_mode: "wallet" }, providers: [] }),
+    findWallet: async () => null, listByokKeys: async () => [], listRoutes: async () => [], listCapabilities: async () => [], listModels: async () => [], listProviders: async () => [],
 }));
 
 describe("fetchGatewayContext inflight dedupe", () => {
@@ -91,8 +56,7 @@ describe("fetchGatewayContext inflight dedupe", () => {
         runtime.cache.get.mockClear();
         runtime.cache.put.mockClear();
         runtime.cache.delete.mockClear();
-        runtime.supabase.rpc.mockClear();
-        runtime.supabase.from.mockClear();
+        runtime.fetchRequestContext.mockClear();
         vi.resetModules();
     });
 
@@ -115,8 +79,8 @@ describe("fetchGatewayContext inflight dedupe", () => {
         ]);
 
 		// One shared loader fetches both text-capability variants. Without inflight
-		// dedupe, the two concurrent callers would issue four RPCs.
-		expect(runtime.supabase.rpc).toHaveBeenCalledTimes(2);
+		// dedupe, the two concurrent callers would issue four repository reads.
+		expect(runtime.fetchRequestContext).toHaveBeenCalledTimes(2);
         expect(a.workspaceId).toBe("team_inflight");
         expect(b.workspaceId).toBe("team_inflight");
         expect(c.workspaceId).toBe("team_inflight");

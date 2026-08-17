@@ -2,6 +2,9 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { parseSseJson, readSseFrames } from "../helpers/sse";
 import { resolveGatewayApiKeyFromEnv } from "../helpers/gatewayKey";
 import { extractResponseText, parseJsonLoose, serializeError, writeResultsReport } from "./active-providers.live.helpers";
+import { createNodeDatabase } from "@phaseo/db/node";
+import { v2ModelProviderRoutes, v2RouteCapabilities } from "@phaseo/db/schema";
+import { and, eq, gt, inArray, isNull, lte, or } from "@phaseo/db/query";
 
 const DEFAULT_ACTIVE_PROVIDERS = ["openai", "anthropic", "cohere", "arcee-ai", "x-ai", "google-ai-studio", "deepseek", "deepinfra", "mistral", "minimax", "qwen", "z-ai", "moonshot-ai", "moonshot-ai-turbo", "alibaba", "together", "xiaomi"] as const;
 
@@ -22,7 +25,6 @@ const LIVE_NOVITA_PROVIDER_ONLY = (process.env.LIVE_NOVITA_PROVIDER_ONLY ?? "1")
 const LIVE_NOVITA_TESTING_MODE = (process.env.LIVE_NOVITA_TESTING_MODE ?? "0").trim() !== "0";
 const INTERNAL_TEST_TOKEN = (process.env.LIVE_INTERNAL_TEST_TOKEN ?? process.env.GATEWAY_INTERNAL_TEST_TOKEN ?? "").trim();
 const LIVE_DISCOVERY_HTTP_TIMEOUT_MS = Number(process.env.LIVE_DISCOVERY_HTTP_TIMEOUT_MS ?? "25000");
-const LIVE_SUPABASE_IN_CHUNK_SIZE = Number(process.env.LIVE_SUPABASE_IN_CHUNK_SIZE ?? "120");
 
 const LIVE_PROVIDER_ALIASES: Record<string, string> = { arcee: "arcee-ai", "arcee-ai": "arcee-ai", xai: "x-ai", "x-ai": "x-ai", novita: "novitaai", "novita-ai": "novitaai" };
 
@@ -426,12 +428,6 @@ function fetchTimeoutMs(): number {
         : 25_000;
 }
 
-function supabaseInChunkSize(): number {
-    return Number.isFinite(LIVE_SUPABASE_IN_CHUNK_SIZE) && LIVE_SUPABASE_IN_CHUNK_SIZE > 0
-        ? Math.floor(LIVE_SUPABASE_IN_CHUNK_SIZE)
-        : 120;
-}
-
 function providerList(): string[] {
     const normalizeAll = (values: string[]): string[] =>
         Array.from(new Set(values.map(normalizeLiveProviderId).filter(Boolean)));
@@ -679,69 +675,38 @@ async function fetchTextGenerateModelsByProvider(targetProviders: string[]): Pro
     return result;
 }
 
-async function fetchTextGenerateModelsByProviderFromSupabase(targetProviders: string[]): Promise<Map<string, string[]>> {
-    const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!supabaseUrl || !supabaseKey) {
-        throw new Error("Supabase env vars missing for fallback discovery");
-    }
-
-    const { createClient } = await import("@supabase/supabase-js");
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-        auth: { persistSession: false },
-    });
-    const now = new Date();
-
-    const providerModelsRes = await supabase
-        .from("data_api_provider_models")
-        .select("provider_api_model_id,provider_id,api_model_id,internal_model_id,is_active_gateway,effective_from,effective_to")
-        .in("provider_id", targetProviders)
-        .eq("is_active_gateway", true);
-    if (providerModelsRes.error) {
-        throw new Error(providerModelsRes.error.message);
-    }
-
-    const providerModels = (providerModelsRes.data ?? []).filter((row: any) => {
-        if (!row?.provider_api_model_id || !row?.provider_id || (!row?.api_model_id && !row?.internal_model_id)) return false;
-        const from = row.effective_from ? new Date(row.effective_from) : null;
-        const to = row.effective_to ? new Date(row.effective_to) : null;
-        if (from && Number.isFinite(from.getTime()) && now < from) return false;
-        if (to && Number.isFinite(to.getTime()) && now >= to) return false;
-        return true;
-    });
-
-    const providerModelIds = providerModels.map((row: any) => row.provider_api_model_id);
-    if (!providerModelIds.length) return new Map<string, string[]>();
-
-    const supportedProviderModelIds = new Set<string>();
-    const chunkSize = supabaseInChunkSize();
-    for (let index = 0; index < providerModelIds.length; index += chunkSize) {
-        const chunk = providerModelIds.slice(index, index + chunkSize);
-        const capabilitiesRes = await supabase
-            .from("data_api_provider_model_capabilities")
-            .select("provider_api_model_id,capability_id,status")
-            .in("provider_api_model_id", chunk)
-            .eq("capability_id", "text.generate")
-            .in("status", ["active", "deranked"]);
-        if (capabilitiesRes.error) {
-            throw new Error(capabilitiesRes.error.message);
+async function fetchTextGenerateModelsByProviderFromPlanetScale(targetProviders: string[]): Promise<Map<string, string[]>> {
+    const connectionString = process.env.PLANETSCALE_DATABASE_URL;
+    if (!connectionString) throw new Error("PLANETSCALE_DATABASE_URL is required for fallback discovery");
+    const { db, pool } = createNodeDatabase({ connectionString, max: 1 });
+    try {
+        const now = new Date().toISOString();
+        const rows = await db.select({
+            providerId: v2ModelProviderRoutes.providerSlug,
+            modelId: v2ModelProviderRoutes.modelSlug,
+        }).from(v2ModelProviderRoutes).innerJoin(v2RouteCapabilities, and(
+            eq(v2RouteCapabilities.providerModelId, v2ModelProviderRoutes.providerModelId),
+            eq(v2RouteCapabilities.capabilityId, "text.generate"),
+            inArray(v2RouteCapabilities.status, ["active", "degraded"]),
+            or(isNull(v2RouteCapabilities.effectiveFrom), lte(v2RouteCapabilities.effectiveFrom, now)),
+            or(isNull(v2RouteCapabilities.effectiveTo), gt(v2RouteCapabilities.effectiveTo, now)),
+        )).where(and(
+            inArray(v2ModelProviderRoutes.providerSlug, targetProviders),
+            eq(v2ModelProviderRoutes.routingEnabled, true),
+            inArray(v2ModelProviderRoutes.status, ["active", "degraded"]),
+            or(isNull(v2ModelProviderRoutes.effectiveFrom), lte(v2ModelProviderRoutes.effectiveFrom, now)),
+            or(isNull(v2ModelProviderRoutes.effectiveTo), gt(v2ModelProviderRoutes.effectiveTo, now)),
+        ));
+        const out = new Map<string, string[]>();
+        for (const row of rows) {
+            const existing = out.get(row.providerId) ?? [];
+            if (!existing.includes(row.modelId)) existing.push(row.modelId);
+            out.set(row.providerId, existing);
         }
-        for (const row of (capabilitiesRes.data ?? []) as Array<{ provider_api_model_id?: string }>) {
-            if (!row?.provider_api_model_id) continue;
-            supportedProviderModelIds.add(row.provider_api_model_id);
-        }
+        return out;
+    } finally {
+        await pool.end();
     }
-
-    const out = new Map<string, string[]>();
-    for (const row of providerModels) {
-        if (!supportedProviderModelIds.has(row.provider_api_model_id)) continue;
-        const existing = out.get(row.provider_id) ?? [];
-        const modelId = row.api_model_id ?? row.internal_model_id;
-        if (!modelId) continue;
-        if (!existing.includes(modelId)) existing.push(modelId);
-        out.set(row.provider_id, existing);
-    }
-    return out;
 }
 
 function extractUsage(payload: any): any {
@@ -896,8 +861,8 @@ describeLive("Live Active Providers low-cost smoke", () => {
         try {
             discovered = await fetchTextGenerateModelsByProvider(discoveryProviders);
         } catch (err) {
-            console.warn(`[live-discovery] /v1/models failed, falling back to Supabase: ${String((err as any)?.message ?? err)}`);
-            discovered = await fetchTextGenerateModelsByProviderFromSupabase(discoveryProviders);
+            console.warn(`[live-discovery] /v1/models failed, falling back to PlanetScale: ${String((err as any)?.message ?? err)}`);
+            discovered = await fetchTextGenerateModelsByProviderFromPlanetScale(discoveryProviders);
         }
         const unresolvedProviders = discoveryProviders.filter((providerId) => {
             const candidates = providerModelCandidates(discovered, providerId);
@@ -905,17 +870,17 @@ describeLive("Live Active Providers low-cost smoke", () => {
         });
         if (unresolvedProviders.length) {
             try {
-                const supabaseDiscovered = await fetchTextGenerateModelsByProviderFromSupabase(unresolvedProviders);
-                mergeDiscoveredModels(discovered, supabaseDiscovered);
+                const databaseDiscovered = await fetchTextGenerateModelsByProviderFromPlanetScale(unresolvedProviders);
+                mergeDiscoveredModels(discovered, databaseDiscovered);
                 const resolvedCount = unresolvedProviders.filter((providerId) => {
                     const candidates = providerModelCandidates(discovered, providerId);
                     return candidates.length > 0;
                 }).length;
                 if (resolvedCount > 0) {
-                    console.log(`[live-discovery] supplemented ${resolvedCount}/${unresolvedProviders.length} providers from Supabase fallback`);
+                    console.log(`[live-discovery] supplemented ${resolvedCount}/${unresolvedProviders.length} providers from PlanetScale fallback`);
                 }
             } catch (err) {
-                console.warn(`[live-discovery] Supabase supplement failed: ${String((err as any)?.message ?? err)}`);
+                console.warn(`[live-discovery] PlanetScale supplement failed: ${String((err as any)?.message ?? err)}`);
             }
         }
         for (const providerId of providers) {

@@ -16,11 +16,13 @@ import {
 	normalizeLiveEnv,
 	requireLiveEnv,
 	resolveLiveWorkspaceId,
-	supabaseAdminRest,
 	waitForBatchWebhook,
 	webhookHeader,
 	type LiveBatchWebhookFixture,
 } from "./batch-live-webhook.helpers";
+import { gatewayAsyncOperations, gatewayRequestCharges, gatewayWalletReservations } from "@phaseo/db/schema";
+import { and, eq } from "@phaseo/db/query";
+import { withLiveDatabase } from "./live-database.helpers";
 
 const LIVE_BATCH_PROVIDER_MATRIX_RUN =
 	(process.env.LIVE_BATCH_PROVIDER_MATRIX_RUN ?? "0").trim() === "1";
@@ -119,37 +121,44 @@ const PROVIDER_CASES: ProviderCase[] = [
 ];
 
 async function readAsyncOperation(workspaceId: string, batchId: string): Promise<AsyncOperationRow | null> {
-	const rows = await supabaseAdminRest<AsyncOperationRow[]>({
-		pathname:
-			`gateway_async_operations?select=workspace_id,internal_id,native_id,provider,model,status,billed_at,last_reconcile_error,meta` +
-			`&workspace_id=eq.${encodeURIComponent(workspaceId)}` +
-			`&kind=eq.batch` +
-			`&internal_id=eq.${encodeURIComponent(batchId)}` +
-			`&limit=1`,
-	});
-	return rows[0] ?? null;
+	return withLiveDatabase(async (db) => (await db.select({
+		workspace_id: gatewayAsyncOperations.workspaceId,
+		internal_id: gatewayAsyncOperations.internalId,
+		native_id: gatewayAsyncOperations.nativeId,
+		provider: gatewayAsyncOperations.provider,
+		model: gatewayAsyncOperations.model,
+		status: gatewayAsyncOperations.status,
+		billed_at: gatewayAsyncOperations.billedAt,
+		last_reconcile_error: gatewayAsyncOperations.lastReconcileError,
+		meta: gatewayAsyncOperations.meta,
+	}).from(gatewayAsyncOperations).where(and(
+		eq(gatewayAsyncOperations.workspaceId, workspaceId),
+		eq(gatewayAsyncOperations.kind, "batch"),
+		eq(gatewayAsyncOperations.internalId, batchId),
+	)).limit(1))[0] ?? null);
 }
 
 async function readWalletReservation(workspaceId: string, reservationId: string): Promise<WalletReservationRow | null> {
-	const rows = await supabaseAdminRest<WalletReservationRow[]>({
-		pathname:
-			`gateway_wallet_reservations?select=reservation_id,amount_nanos,status,settled_amount_nanos` +
-			`&workspace_id=eq.${encodeURIComponent(workspaceId)}` +
-			`&reservation_id=eq.${encodeURIComponent(reservationId)}` +
-			`&limit=1`,
-	});
-	return rows[0] ?? null;
+	return withLiveDatabase(async (db) => (await db.select({
+		reservation_id: gatewayWalletReservations.reservationId,
+		amount_nanos: gatewayWalletReservations.amountNanos,
+		status: gatewayWalletReservations.status,
+		settled_amount_nanos: gatewayWalletReservations.settledAmountNanos,
+	}).from(gatewayWalletReservations).where(and(
+		eq(gatewayWalletReservations.workspaceId, workspaceId),
+		eq(gatewayWalletReservations.reservationId, reservationId),
+	)).limit(1))[0] ?? null);
 }
 
 async function readBatchFallbackCharge(workspaceId: string, batchId: string): Promise<GatewayChargeRow | null> {
-	const rows = await supabaseAdminRest<GatewayChargeRow[]>({
-		pathname:
-			`gateway_request_charges?select=request_id,cost_nanos,status` +
-			`&workspace_id=eq.${encodeURIComponent(workspaceId)}` +
-			`&request_id=eq.${encodeURIComponent(`batch_capture:${batchId}`)}` +
-			`&limit=1`,
-	});
-	return rows[0] ?? null;
+	return withLiveDatabase(async (db) => (await db.select({
+		request_id: gatewayRequestCharges.requestId,
+		cost_nanos: gatewayRequestCharges.costNanos,
+		status: gatewayRequestCharges.status,
+	}).from(gatewayRequestCharges).where(and(
+		eq(gatewayRequestCharges.workspaceId, workspaceId),
+		eq(gatewayRequestCharges.requestId, `batch_capture:${batchId}`),
+	)).limit(1))[0] ?? null);
 }
 
 async function waitForBilledBatch(workspaceId: string, batchId: string, provider: string): Promise<AsyncOperationRow> {
@@ -205,7 +214,7 @@ describeLive("Batch provider live matrix", () => {
 
 	beforeAll(async () => {
 		requireGatewayApiKey();
-		requireLiveEnv("SUPABASE_SERVICE_ROLE_KEY");
+		requireLiveEnv("PLANETSCALE_DATABASE_URL");
 		workspaceId = await resolveLiveWorkspaceId();
 		if (VERIFY_WEBHOOK) {
 			webhookFixture = await createLiveBatchWebhookFixture(workspaceId);

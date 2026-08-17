@@ -1,12 +1,13 @@
 import { Hono } from "hono";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
+import { createWorkspaceGuardrail, deleteWorkspaceGuardrail, listActiveWorkspaceKeyIds, replaceGuardrailKeys, replaceGuardrailMembers, updateWorkspaceGuardrail, upsertGlobalGuardrail, validateRoutableModels } from "@/repositories/guardrails";
 import { requireAccountWorkspace } from "./context";
 
 type GuardrailPayload = Record<string, any>;
 
 function guardrailRow(payload: GuardrailPayload, includeName = true): Record<string, unknown> {
-	const row: Record<string, unknown> = { updated_at: new Date().toISOString() };
+	const row: Record<string, unknown> = { updatedAt: new Date().toISOString() };
 	if (includeName) {
 		const name = String(payload.name ?? "").trim();
 		if (!name) throw new Error("Name is required");
@@ -15,22 +16,22 @@ function guardrailRow(payload: GuardrailPayload, includeName = true): Record<str
 		row.enabled = payload.enabled ?? true;
 	}
 	const fields: Array<[string, string]> = [
-		["privacyEnablePaidMayTrain", "privacy_enable_paid_may_train"],
-		["privacyEnableFreeMayTrain", "privacy_enable_free_may_train"],
-		["privacyEnableFreeMayPublishPrompts", "privacy_enable_free_may_publish_prompts"],
-		["privacyEnableInputOutputLogging", "privacy_enable_input_output_logging"],
-		["privacyZdrOnly", "privacy_zdr_only"],
-		["providerRestrictionMode", "provider_restriction_mode"],
-		["providerRestrictionProviderIds", "provider_restriction_provider_ids"],
-		["providerRestrictionEnforceAllowed", "provider_restriction_enforce_allowed"],
-		["modelRestrictionMode", "model_restriction_mode"],
-		["modelRestrictionModelIds", "model_restriction_model_ids"],
-		["allowedApiModelIds", "allowed_api_model_ids"],
-		["promptInjectionEnabled", "prompt_injection_enabled"],
-		["promptInjectionAction", "prompt_injection_action"],
-		["sensitiveInfoEnabled", "sensitive_info_enabled"],
-		["sensitiveInfoDefaultAction", "sensitive_info_default_action"],
-		["sensitiveInfoRules", "sensitive_info_rules"],
+		["privacyEnablePaidMayTrain", "privacyEnablePaidMayTrain"],
+		["privacyEnableFreeMayTrain", "privacyEnableFreeMayTrain"],
+		["privacyEnableFreeMayPublishPrompts", "privacyEnableFreeMayPublishPrompts"],
+		["privacyEnableInputOutputLogging", "privacyEnableInputOutputLogging"],
+		["privacyZdrOnly", "privacyZdrOnly"],
+		["providerRestrictionMode", "providerRestrictionMode"],
+		["providerRestrictionProviderIds", "providerRestrictionProviderIds"],
+		["providerRestrictionEnforceAllowed", "providerRestrictionEnforceAllowed"],
+		["modelRestrictionMode", "modelRestrictionMode"],
+		["modelRestrictionModelIds", "modelRestrictionModelIds"],
+		["allowedApiModelIds", "allowedApiModelIds"],
+		["promptInjectionEnabled", "promptInjectionEnabled"],
+		["promptInjectionAction", "promptInjectionAction"],
+		["sensitiveInfoEnabled", "sensitiveInfoEnabled"],
+		["sensitiveInfoDefaultAction", "sensitiveInfoDefaultAction"],
+		["sensitiveInfoRules", "sensitiveInfoRules"],
 	];
 	for (const [input, column] of fields) if (payload[input] !== undefined) row[column] = payload[input];
 	const ioLoggingUpdated =
@@ -38,29 +39,43 @@ function guardrailRow(payload: GuardrailPayload, includeName = true): Record<str
 		typeof payload.ioLoggingRetentionDays === "number" ||
 		typeof payload.ioLoggingIncludeProviderPayloads === "boolean";
 	if (typeof payload.ioLoggingEnabled === "boolean") {
-		row.io_logging_enabled = payload.ioLoggingEnabled;
+		row.ioLoggingEnabled = payload.ioLoggingEnabled;
 	}
 	if (typeof payload.ioLoggingRetentionDays === "number") {
-		row.io_logging_retention_days = Math.max(
+		row.ioLoggingRetentionDays = Math.max(
 			90,
 			Math.min(365, Math.trunc(payload.ioLoggingRetentionDays)),
 		);
 	}
 	if (typeof payload.ioLoggingIncludeProviderPayloads === "boolean") {
-		row.io_logging_include_provider_payloads =
+		row.ioLoggingIncludeProviderPayloads =
 			payload.ioLoggingIncludeProviderPayloads;
 	}
-	if (ioLoggingUpdated) row.io_logging_updated_at = row.updated_at;
+	if (ioLoggingUpdated) row.ioLoggingUpdatedAt = row.updatedAt;
 	if (includeName) {
 		const budgets = payload.budgets ?? {};
 		Object.assign(row, {
-			daily_limit_requests: budgets.dailyRequests ?? 0,
-			weekly_limit_requests: budgets.weeklyRequests ?? 0,
-			monthly_limit_requests: budgets.monthlyRequests ?? 0,
-			daily_limit_cost_nanos: budgets.dailyCostNanos ?? 0,
-			weekly_limit_cost_nanos: budgets.weeklyCostNanos ?? 0,
-			monthly_limit_cost_nanos: budgets.monthlyCostNanos ?? 0,
+			dailyLimitRequests: budgets.dailyRequests ?? 0,
+			weeklyLimitRequests: budgets.weeklyRequests ?? 0,
+			monthlyLimitRequests: budgets.monthlyRequests ?? 0,
+			dailyLimitCostNanos: budgets.dailyCostNanos ?? 0,
+			weeklyLimitCostNanos: budgets.weeklyCostNanos ?? 0,
+			monthlyLimitCostNanos: budgets.monthlyCostNanos ?? 0,
 		});
+	}
+	if (includeName) {
+		delete row.modelRestrictionModelIds;
+		delete row.ioLoggingEnabled;
+		delete row.ioLoggingRetentionDays;
+		delete row.ioLoggingIncludeProviderPayloads;
+		delete row.ioLoggingUpdatedAt;
+	} else {
+		delete row.allowedApiModelIds;
+		delete row.promptInjectionEnabled;
+		delete row.promptInjectionAction;
+		delete row.sensitiveInfoEnabled;
+		delete row.sensitiveInfoDefaultAction;
+		delete row.sensitiveInfoRules;
 	}
 	return row;
 }
@@ -73,13 +88,12 @@ async function adminContext(c: any, workspaceId: unknown) {
 export const accountSettingsGuardrailsRouter = new Hono<{ Bindings: Env }>();
 
 async function invalidateWorkspaceKeys(c: any, context: any): Promise<void> {
-	const keys = await context.client.from("keys").select("id").eq("workspace_id", context.workspaceId).neq("status", "deleted");
-	if (keys.error) return;
+	const keyIds = await listActiveWorkspaceKeyIds(c.env, context.workspaceId).catch(() => []);
 	const origin = String(c.env.GATEWAY_API_ORIGIN ?? "http://localhost:8787").replace(/\/$/, "");
 	const controlKey = c.env.PHASEO_CONTROL_KEY;
 	const controlSecret = c.env.PHASEO_CONTROL_SECRET;
 	if (!controlKey || !controlSecret) return;
-	await Promise.allSettled((keys.data ?? []).map((key: any) => fetch(`${origin}/v1/keys/${encodeURIComponent(String(key.id))}/invalidate`, {
+	await Promise.allSettled(keyIds.map((keyId) => fetch(`${origin}/v1/keys/${encodeURIComponent(keyId)}/invalidate`, {
 		method: "POST",
 		headers: { authorization: `Bearer ${controlKey}`, "x-control-secret": controlSecret },
 	})));
@@ -98,21 +112,12 @@ accountSettingsGuardrailsRouter.put("/guardrails/global", async (c) => {
 			? [...new Set(body.modelRestrictionModelIds.map(String).map((value) => value.trim()).filter(Boolean))]
 			: [];
 		if (requestedModels.length) {
-			const models = await context.client
-				.from("v2_model_provider_routes")
-				.select("model_slug")
-				.in("model_slug", requestedModels)
-				.eq("routing_enabled", true)
-				.in("status", ["active", "degraded"]);
-			if (models.error) throw models.error;
-			const validModels = new Set((models.data ?? []).map((row) => String(row.model_slug)));
-			if (requestedModels.some((model) => !validModels.has(model))) {
+			if (!await validateRoutableModels(c.env, requestedModels)) {
 				return c.json({ error: "invalid_route_restriction" }, 400, PRIVATE_NO_STORE_HEADERS);
 			}
 			body.modelRestrictionModelIds = requestedModels;
 		}
-		const result = await context.client.from("workspace_settings").upsert({ workspace_id: context.workspaceId, ...guardrailRow(body, false) }, { onConflict: "workspace_id" });
-		if (result.error) throw result.error;
+		await upsertGlobalGuardrail(c.env, context.workspaceId, guardrailRow(body, false) as any);
 		scheduleInvalidation(c, context);
 		return c.json({ success: true }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) { return c.json({ error: error instanceof Error ? error.message : "guardrail_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS); }
@@ -123,10 +128,9 @@ accountSettingsGuardrailsRouter.post("/guardrails", async (c) => {
 	const context = await adminContext(c, body.workspaceId);
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	try {
-		const result = await context.client.from("workspace_guardrails").insert({ workspace_id: context.workspaceId, ...guardrailRow(body) }).select("id").maybeSingle();
-		if (result.error) throw result.error;
+		const result = await createWorkspaceGuardrail(c.env, { workspaceId: context.workspaceId, ...guardrailRow(body) } as any);
 		scheduleInvalidation(c, context);
-		return c.json({ id: result.data?.id }, 200, PRIVATE_NO_STORE_HEADERS);
+		return c.json({ id: result?.id }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) { return c.json({ error: error instanceof Error ? error.message : "guardrail_write_failed" }, 409, PRIVATE_NO_STORE_HEADERS); }
 });
 
@@ -135,8 +139,7 @@ accountSettingsGuardrailsRouter.put("/guardrails/:guardrailId", async (c) => {
 	const context = await adminContext(c, body.workspaceId);
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	try {
-		const result = await context.client.from("workspace_guardrails").update(guardrailRow(body)).eq("id", c.req.param("guardrailId")).eq("workspace_id", context.workspaceId);
-		if (result.error) throw result.error;
+		await updateWorkspaceGuardrail(c.env, c.req.param("guardrailId"), context.workspaceId, guardrailRow(body) as any);
 		scheduleInvalidation(c, context);
 		return c.json({ success: true }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) { return c.json({ error: error instanceof Error ? error.message : "guardrail_write_failed" }, 409, PRIVATE_NO_STORE_HEADERS); }
@@ -146,8 +149,8 @@ accountSettingsGuardrailsRouter.delete("/guardrails/:guardrailId", async (c) => 
 	const body: GuardrailPayload = await c.req.json<GuardrailPayload>().catch(() => ({}));
 	const context = await adminContext(c, body.workspaceId);
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const result = await context.client.from("workspace_guardrails").delete().eq("id", c.req.param("guardrailId")).eq("workspace_id", context.workspaceId);
-	if (result.error) return c.json({ error: "guardrail_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
+	try { await deleteWorkspaceGuardrail(c.env, c.req.param("guardrailId"), context.workspaceId); }
+	catch { return c.json({ error: "guardrail_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS); }
 	scheduleInvalidation(c, context);
 	return c.json({ success: true }, 200, PRIVATE_NO_STORE_HEADERS);
 });
@@ -158,20 +161,10 @@ accountSettingsGuardrailsRouter.put("/guardrails/:guardrailId/keys", async (c) =
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const guardrailId = c.req.param("guardrailId");
 	const keyIds = Array.isArray(body.keyIds) ? [...new Set(body.keyIds.map(String).filter(Boolean))] : [];
-	const guardrail = await context.client.from("workspace_guardrails").select("id").eq("id", guardrailId).eq("workspace_id", context.workspaceId).maybeSingle();
-	if (guardrail.error || !guardrail.data) return c.json({ error: "Guardrail not found" }, 404, PRIVATE_NO_STORE_HEADERS);
-	if (keyIds.length) {
-		const keys = await context.client.from("keys").select("id,workspace_id,status").in("id", keyIds);
-		if (keys.error) return c.json({ error: "guardrail_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
-		const valid = new Map((keys.data ?? []).map((key) => [key.id, key]));
-		if (keyIds.some((id) => valid.get(id)?.workspace_id !== context.workspaceId || String(valid.get(id)?.status).toLowerCase() === "deleted")) return c.json({ error: "One or more keys do not belong to this workspace" }, 409, PRIVATE_NO_STORE_HEADERS);
-	}
-	const removed = await context.client.from("key_guardrails").delete().eq("guardrail_id", guardrailId);
-	if (removed.error) return c.json({ error: "guardrail_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
-	if (keyIds.length) {
-		const inserted = await context.client.from("key_guardrails").insert(keyIds.map((keyId) => ({ key_id: keyId, guardrail_id: guardrailId })));
-		if (inserted.error) return c.json({ error: "guardrail_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
+	let result; try { result = await replaceGuardrailKeys(c.env, { guardrailId, workspaceId: context.workspaceId, keyIds }); }
+	catch { return c.json({ error: "guardrail_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	if (result === "guardrail_not_found") return c.json({ error: "Guardrail not found" }, 404, PRIVATE_NO_STORE_HEADERS);
+	if (result === "invalid_keys") return c.json({ error: "One or more keys do not belong to this workspace" }, 409, PRIVATE_NO_STORE_HEADERS);
 	scheduleInvalidation(c, context);
 	return c.json({ success: true }, 200, PRIVATE_NO_STORE_HEADERS);
 });
@@ -182,20 +175,10 @@ accountSettingsGuardrailsRouter.put("/guardrails/:guardrailId/members", async (c
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const guardrailId = c.req.param("guardrailId");
 	const userIds = Array.isArray(body.userIds) ? [...new Set(body.userIds.map(String).filter(Boolean))] : [];
-	const guardrail = await context.client.from("workspace_guardrails").select("id").eq("id", guardrailId).eq("workspace_id", context.workspaceId).maybeSingle();
-	if (guardrail.error || !guardrail.data) return c.json({ error: "Guardrail not found" }, 404, PRIVATE_NO_STORE_HEADERS);
-	if (userIds.length) {
-		const members = await context.client.from("workspace_members").select("user_id").eq("workspace_id", context.workspaceId).in("user_id", userIds);
-		if (members.error) return c.json({ error: "guardrail_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
-		const validIds = new Set((members.data ?? []).map((member: any) => String(member.user_id)));
-		if (userIds.some((id) => !validIds.has(id))) return c.json({ error: "One or more users do not belong to this workspace" }, 409, PRIVATE_NO_STORE_HEADERS);
-	}
-	const removed = await context.client.from("workspace_member_guardrails").delete().eq("workspace_id", context.workspaceId).eq("guardrail_id", guardrailId);
-	if (removed.error) return c.json({ error: "guardrail_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
-	if (userIds.length) {
-		const inserted = await context.client.from("workspace_member_guardrails").insert(userIds.map((userId) => ({ workspace_id: context.workspaceId, user_id: userId, guardrail_id: guardrailId })));
-		if (inserted.error) return c.json({ error: "guardrail_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
+	let result; try { result = await replaceGuardrailMembers(c.env, { guardrailId, workspaceId: context.workspaceId, userIds }); }
+	catch { return c.json({ error: "guardrail_write_failed" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	if (result === "guardrail_not_found") return c.json({ error: "Guardrail not found" }, 404, PRIVATE_NO_STORE_HEADERS);
+	if (result === "invalid_members") return c.json({ error: "One or more users do not belong to this workspace" }, 409, PRIVATE_NO_STORE_HEADERS);
 	scheduleInvalidation(c, context);
 	return c.json({ success: true }, 200, PRIVATE_NO_STORE_HEADERS);
 });

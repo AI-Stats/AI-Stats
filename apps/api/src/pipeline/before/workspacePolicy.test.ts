@@ -596,8 +596,8 @@ describe("applyWorkspacePolicy", () => {
 describe("isOptionalDynamicRouteSchemaUnavailable", () => {
 	it("allows a rollout fallback when the dynamic-route link table is absent", () => {
 		expect(isOptionalDynamicRouteSchemaUnavailable({
-			code: "PGRST205",
-			message: "Could not find the table 'public.gateway_dynamic_route_keys' in the schema cache",
+			code: "42P01",
+			message: 'relation "gateway_dynamic_route_keys" does not exist',
 		})).toBe(true);
 	});
 
@@ -614,8 +614,8 @@ describe("isOptionalDynamicRouteSchemaUnavailable", () => {
 			message: 'permission denied for table gateway_dynamic_route_keys',
 		})).toBe(false);
 		expect(isOptionalDynamicRouteSchemaUnavailable({
-			code: "PGRST205",
-			message: "Could not find the table 'public.workspace_guardrails' in the schema cache",
+			code: "42P01",
+			message: 'relation "workspace_guardrails" does not exist',
 		})).toBe(false);
 	});
 });

@@ -16,8 +16,7 @@ import {
     InputOTPGroup,
     InputOTPSlot,
 } from '@/components/ui/input-otp'
-import { verifyMFALoginAction } from './actions'
-import { createClient } from '@/utils/supabase/client'
+import { signOutMFAAction, verifyMFALoginAction } from './actions'
 import { toast } from 'sonner'
 import { Loader2, ShieldCheck, LogOut } from 'lucide-react'
 
@@ -66,8 +65,7 @@ function VerifyMFAContent() {
     }
 
     const handleSignOut = async () => {
-        const supabase = createClient()
-        await supabase.auth.signOut()
+        await signOutMFAAction()
         router.push('/sign-in')
     }
 

@@ -4,7 +4,8 @@
 // How: Runs one deterministic model discovery shard per cron invocation.
 
 import type { GatewayBindings } from "@/runtime/env";
-import { clearRuntime, configureRuntime, getSupabaseAdmin } from "@/runtime/env";
+import { clearRuntime, configureRuntime } from "@/runtime/env";
+import { processAnalyticsOutbox } from "@/repositories/analytics-outbox";
 import {
 	DEFAULT_MODEL_DISCOVERY_SHARD_SIZE,
 	getModelDiscoveryShardCount,
@@ -22,6 +23,7 @@ import { runRealtimeSessionReconciliationJob } from "@core/realtime-sessions";
 import { runDataContributionClassifierJob } from "@/pipeline/classification/classifier-worker";
 import { pruneExpiredDataContributions } from "@/pipeline/classification/data-contribution";
 import { drainGatewayOtlpOutbox } from "@/observability/otlp-export";
+import { cleanupExpiredOAuthArtifacts } from "@/repositories/oauth";
 
 const MODEL_DISCOVERY_TICKS_PER_DAY = Array.from({ length: 24 }, (_value, hour) =>
 	60 / getModelDiscoveryStepMinutesUtc(hour),
@@ -340,8 +342,7 @@ async function handleGatewayIoRetentionBillingScheduledEvent(
 async function handleOAuthCleanupScheduledEvent(env: GatewayBindings): Promise<void> {
 	configureRuntime(env);
 	try {
-		const { error } = await getSupabaseAdmin().rpc("cleanup_expired_oauth_artifacts");
-		if (error) throw new Error(error.message || "Failed to clean up expired OAuth artifacts");
+		await cleanupExpiredOAuthArtifacts();
 	} finally {
 		clearRuntime();
 	}
@@ -352,12 +353,8 @@ async function handleV2AnalyticsOutboxScheduledEvent(env: GatewayBindings): Prom
 	const limit = toInt(env.V2_ANALYTICS_OUTBOX_LIMIT, 250);
 	configureRuntime(env);
 	try {
-		const { data, error } = await getSupabaseAdmin().rpc("process_v2_analytics_outbox", {
-			p_limit: limit,
-		});
-		if (error) throw new Error(error.message || "Failed to process v2 analytics outbox");
-		const selected = Number((data as any)?.selected ?? 0);
-		if (selected > 0) console.log("v2_analytics_outbox_completed", data);
+		const summary = await processAnalyticsOutbox(limit);
+		if (summary.selected > 0) console.log("v2_analytics_outbox_completed", summary);
 	} finally {
 		clearRuntime();
 	}

@@ -1,4 +1,6 @@
-import { getBindings, getSupabaseAdmin } from "@/runtime/env";
+import * as ioRetentionRepository from "@/repositories/io-retention-billing";
+import { getBindings } from "@/runtime/env";
+import { getIdentityUserById } from "@/runtime/identity";
 
 type WorkspaceRetentionRow = {
 	workspace_id: string;
@@ -130,12 +132,7 @@ async function enqueueRetentionWarning(args: {
 }): Promise<boolean> {
 	if (!shouldQueueWarning(args.workspace, args.kind, args.now)) return false;
 
-	const supabase = getSupabaseAdmin();
-	const { data: workspaceRow } = await supabase
-		.from("workspaces")
-		.select("id,name,owner_user_id")
-		.eq("id", args.workspace.workspace_id)
-		.maybeSingle();
+	const workspaceRow = await ioRetentionRepository.getWorkspace(args.workspace.workspace_id);
 
 	const ownerUserId = (workspaceRow as any)?.owner_user_id ?? null;
 	if (!ownerUserId) return false;
@@ -143,9 +140,9 @@ async function enqueueRetentionWarning(args: {
 	let ownerEmail: string | null = null;
 	let ownerMetadata: Record<string, unknown> | null = null;
 	try {
-		const userRes = await (supabase as any).auth.admin.getUserById(ownerUserId);
+		const userRes = await getIdentityUserById(ownerUserId);
 		ownerEmail = userRes?.data?.user?.email ?? null;
-		ownerMetadata = (userRes?.data?.user?.user_metadata ?? null) as Record<string, unknown> | null;
+		ownerMetadata = userRes?.data?.user?.name ? { name: userRes.data.user.name } : null;
 	} catch {
 		ownerEmail = null;
 		ownerMetadata = null;
@@ -161,13 +158,14 @@ async function enqueueRetentionWarning(args: {
 			? "I/O log retention billing paused"
 			: "I/O log extended retention suspended";
 
-	const { error } = await supabase.from("email_outbox").insert({
+	try {
+		await ioRetentionRepository.enqueueWarning({
 		kind: `io_retention_${args.kind}`,
 		template: `io_retention_${args.kind}`,
-		to_email: ownerEmail,
+		toEmail: ownerEmail,
 		subject,
-		workspace_id: args.workspace.workspace_id,
-		user_id: ownerUserId,
+		workspaceId: args.workspace.workspace_id,
+		userId: ownerUserId,
 		payload: {
 			user_first_name: deriveFirstNameFromMetadata(ownerMetadata),
 			workspace_id: args.workspace.workspace_id,
@@ -179,25 +177,17 @@ async function enqueueRetentionWarning(args: {
 			retention_days: toInt(args.workspace.io_logging_retention_days, 90, 30, 365),
 			grace_until: args.graceUntil,
 		},
-	} as any);
-
-	if (error) {
+		warningKind: args.kind,
+		warnedAt: args.now.toISOString(),
+	});
+	} catch (error) {
 		console.warn("[io-retention] failed to enqueue warning", {
 			workspaceId: args.workspace.workspace_id,
 			kind: args.kind,
-			error: error.message,
+			error: error instanceof Error ? error.message : String(error),
 		});
 		return false;
 	}
-
-	await supabase
-		.from("workspace_settings")
-		.update({
-			io_logging_last_billing_warning_at: args.now.toISOString(),
-			io_logging_last_billing_warning_kind: args.kind,
-			updated_at: args.now.toISOString(),
-		} as any)
-		.eq("workspace_id", args.workspace.workspace_id);
 
 	return true;
 }
@@ -210,23 +200,8 @@ async function pruneSuspendedExtendedRetention(args: {
 	const bucket = getBindings().GATEWAY_IO_LOGS_BUCKET;
 	if (!bucket) return 0;
 
-	const supabase = getSupabaseAdmin();
 	const cutoff = subtractDays(args.asOf, INCLUDED_RETENTION_DAYS);
-	const { data, error } = await supabase
-		.from("gateway_io_logs")
-		.select("id,io_log_object_key")
-		.eq("workspace_id", args.workspaceId)
-		.eq("io_log_status", "stored")
-		.not("io_log_object_key", "is", null)
-		.lt("created_at", cutoff)
-		.order("created_at", { ascending: true })
-		.limit(args.limit);
-
-	if (error) {
-		throw new Error(`io_retention_prune_select_error:${error.message ?? "unknown"}`);
-	}
-
-	const rows = (data ?? []) as Array<{ id: string; io_log_object_key: string | null }>;
+	const rows = await ioRetentionRepository.listPrunableLogs(args.workspaceId, cutoff, args.limit);
 	let deleted = 0;
 	const deletedIds: string[] = [];
 	for (const row of rows) {
@@ -245,14 +220,7 @@ async function pruneSuspendedExtendedRetention(args: {
 	}
 
 	if (deletedIds.length > 0) {
-		await supabase
-			.from("gateway_io_logs")
-			.update({
-				io_log_status: "deleted",
-				io_log_error: "extended_retention_suspended",
-				io_log_retention_until: args.asOf.toISOString(),
-			} as any)
-			.in("id", deletedIds);
+		await ioRetentionRepository.markLogsDeleted(deletedIds, args.asOf.toISOString());
 	}
 
 	return deleted;
@@ -280,7 +248,6 @@ export async function runGatewayIoRetentionBillingJob(options?: {
 		1,
 		5000,
 	);
-	const supabase = getSupabaseAdmin();
 	const summary: GatewayIoRetentionBillingSummary = {
 		processed: 0,
 		charged: 0,
@@ -292,33 +259,13 @@ export async function runGatewayIoRetentionBillingJob(options?: {
 		failed: 0,
 	};
 
-	const { data, error } = await supabase
-		.from("workspace_settings")
-		.select("workspace_id,io_logging_enabled,io_logging_retention_days,io_logging_billing_status,io_logging_grace_until,io_logging_last_billing_warning_at,io_logging_last_billing_warning_kind,io_logging_price_per_million_units_nanos")
-		.eq("io_logging_enabled", true)
-		.gt("io_logging_retention_days", INCLUDED_RETENTION_DAYS)
-		.order("io_logging_last_billed_at", { ascending: true, nullsFirst: true })
-		.limit(limit);
-
-	if (error) {
-		throw new Error(`io_retention_workspace_fetch_error:${error.message ?? "unknown"}`);
-	}
-
-	const workspaces = (data ?? []) as WorkspaceRetentionRow[];
+	const workspaces = await ioRetentionRepository.listExtendedRetentionWorkspaces(limit) as WorkspaceRetentionRow[];
 	for (const workspace of workspaces) {
 		summary.processed += 1;
 		try {
-			const { data: usageData, error: usageError } = await supabase.rpc(
-				"gateway_io_retention_usage_snapshot",
-				{
-					p_workspace_id: workspace.workspace_id,
-					p_as_of: asOf.toISOString(),
-					p_included_days: INCLUDED_RETENTION_DAYS,
-					p_event_unit_bytes: EVENT_UNIT_BYTES,
-				},
-			);
-			if (usageError) throw usageError;
-			const usage = (Array.isArray(usageData) ? usageData[0] : usageData) as RetentionUsageSnapshot | null;
+			const usage = await ioRetentionRepository.usageSnapshot(
+				workspace.workspace_id, asOf.toISOString(), INCLUDED_RETENTION_DAYS, EVENT_UNIT_BYTES,
+			) as RetentionUsageSnapshot;
 			const eventUnits = Math.max(0, toFiniteNumber(usage?.event_units));
 			const billableBytes = Math.max(0, toFiniteNumber(usage?.billable_bytes));
 			const objectCount = Math.max(0, toFiniteNumber(usage?.object_count));
@@ -334,21 +281,11 @@ export async function runGatewayIoRetentionBillingJob(options?: {
 				pricePerMillionUnitsNanos: pricePerMillion,
 			});
 
-			const { data: chargeData, error: chargeError } = await supabase.rpc(
-				"gateway_io_retention_charge_once",
-				{
-					p_workspace_id: workspace.workspace_id,
-					p_billing_date: toDateStringUtc(asOf),
-					p_amount_nanos: amountNanos,
-					p_event_units: Math.trunc(eventUnits),
-					p_billable_bytes: Math.trunc(billableBytes),
-					p_object_count: Math.trunc(objectCount),
-					p_grace_days: graceDays,
-				},
-			);
-			if (chargeError) throw chargeError;
-
-			const charge = (Array.isArray(chargeData) ? chargeData[0] : chargeData) as RetentionChargeResult | null;
+			const charge = await ioRetentionRepository.chargeOnce({
+				workspaceId: workspace.workspace_id, billingDate: toDateStringUtc(asOf), amountNanos,
+				eventUnits: Math.trunc(eventUnits), billableBytes: Math.trunc(billableBytes),
+				objectCount: Math.trunc(objectCount), graceDays,
+			}) as RetentionChargeResult;
 			const status = String(charge?.status ?? "skipped");
 			if (status === "charged" || status === "already_charged") {
 				summary.charged += 1;

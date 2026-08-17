@@ -69,11 +69,13 @@ export default function EditManagementKeyItem({
 	trigger = true,
 	open: controlledOpen,
 	onOpenChange,
+	onChanged,
 }: {
 	k: any;
 	trigger?: boolean;
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
+	onChanged?: () => Promise<unknown> | unknown;
 }) {
 	const [open, setOpen] = useState(false);
 	const dialogOpen = controlledOpen ?? open;
@@ -106,7 +108,7 @@ export default function EditManagementKeyItem({
 		}
 		const promise = Promise.all(updates);
 		try {
-			await toast.promise(promise, {
+			toast.promise(promise, {
 				loading: "Saving management API key...",
 				success: "Management API key updated",
 				error: (err) => {
@@ -115,6 +117,8 @@ export default function EditManagementKeyItem({
 					return message;
 				},
 			});
+			await promise;
+			await onChanged?.();
 			setDialogOpen(false);
 		} finally {
 			setLoading(false);
@@ -208,4 +212,3 @@ export default function EditManagementKeyItem({
 		</Dialog>
 	);
 }
-

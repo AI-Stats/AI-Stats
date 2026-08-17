@@ -17,6 +17,7 @@ echo ""
 API_BASE_URL="${API_BASE_URL:-https://api.phaseo.app}"
 WEB_BASE_URL="${WEB_BASE_URL:-https://phaseo.app}"
 API_KEY="${API_KEY:-}"
+TOKEN_URL="${OAUTH_TOKEN_URL:-$API_BASE_URL/oauth/token}"
 
 # Colors
 RED='\033[0;31m'
@@ -134,7 +135,7 @@ echo ""
 echo "🎫 Test 4: Exchange Code for Tokens"
 echo "------------------------------------"
 
-TOKEN_RESPONSE=$(curl -s -X POST "$SUPABASE_URL/auth/v1/oauth/token" \
+TOKEN_RESPONSE=$(curl -s -X POST "$TOKEN_URL" \
   -H "Content-Type: application/json" \
   -d '{
     "grant_type": "authorization_code",
@@ -205,7 +206,7 @@ echo ""
 echo "🔄 Test 7: Refresh Access Token"
 echo "--------------------------------"
 
-REFRESH_RESPONSE=$(curl -s -X POST "$SUPABASE_URL/auth/v1/oauth/token" \
+REFRESH_RESPONSE=$(curl -s -X POST "$TOKEN_URL" \
   -H "Content-Type: application/json" \
   -d '{
     "grant_type": "refresh_token",

@@ -1,9 +1,10 @@
 import { Hono } from "hono";
 import { requireUser } from "@/auth/requireUser";
-import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
 import { normaliseCountryCode } from "@/lib/countryCodes";
+import { getAccountProfile, getOAuthConsentContext, listAccountWorkspaces, listAllWorkspaces, setDefaultWorkspace, updateOnboardingProfile, validateOAuthConsentSelection } from "@/repositories/account-auth";
+import { getWorkspaceAccess } from "@/repositories/workspace-access";
 
 function cookieValue(request: Request, name: string): string | null {
 	for (const segment of (request.headers.get("cookie") ?? "").split(";")) {
@@ -45,64 +46,38 @@ accountAuthRouter.get("/status", async (c) => {
 	if (!user) {
 		return c.json({ isAdmin: false, role: null, signedIn: false }, 200, PRIVATE_NO_STORE_HEADERS);
 	}
-	const { data, error } = await getDataClient(c.env)
-		.from("users")
-		.select("role")
-		.eq("user_id", user.id)
-		.maybeSingle();
-	if (error) {
+	try {
+		const data = await getAccountProfile(c.env, user.id);
+		return c.json({ isAdmin: String(data?.role ?? "").toLowerCase() === "admin", role: data?.role ?? null, signedIn: true }, 200, PRIVATE_NO_STORE_HEADERS);
+	} catch (error) {
 		console.error("[web-api/account/auth] status failed", { userId: user.id, error });
 		return c.json({ error: "auth_status_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
-	return c.json({
-		isAdmin: String(data?.role ?? "").toLowerCase() === "admin",
-		role: data?.role ?? null,
-		signedIn: true,
-	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountAuthRouter.get("/onboarding", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ signedIn: false, user: null, workspaces: [] }, 200, PRIVATE_NO_STORE_HEADERS);
-	const client = getDataClient(c.env);
-	const [countryUserResult, workspacesResult] = await Promise.all([
-		client.from("users").select("onboarding_state,onboarding_completed_at,default_workspace_id,declared_country_code,country_declared_at").eq("user_id", user.id).maybeSingle(),
-		client.from("workspace_members").select("workspace_id,role,workspaces(id,name)").eq("user_id", user.id).in("role", ["owner", "admin"]),
-	]);
-	let userResult = countryUserResult;
-	let countryStorageAvailable = true;
-	if (countryUserResult.error && isMissingCountryColumn(countryUserResult.error)) {
-		countryStorageAvailable = false;
-		userResult = await client.from("users").select("onboarding_state,onboarding_completed_at,default_workspace_id").eq("user_id", user.id).maybeSingle() as typeof countryUserResult;
-	}
-	if (userResult.error || workspacesResult.error) return c.json({ error: "onboarding_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	return c.json({ signedIn: true, user: userResult.data ?? null, workspaces: workspacesResult.data ?? [], countryStorageAvailable }, 200, PRIVATE_NO_STORE_HEADERS);
+	try {
+		const [profile, workspaces] = await Promise.all([getAccountProfile(c.env, user.id), listAccountWorkspaces(c.env, user.id)]);
+		return c.json({ signedIn: true, user: profile ? { onboarding_state: profile.onboardingState, onboarding_completed_at: profile.onboardingCompletedAt, default_workspace_id: profile.defaultWorkspaceId, declared_country_code: profile.declaredCountryCode, country_declared_at: profile.countryDeclaredAt } : null, workspaces: workspaces.filter((workspace) => ["owner", "admin"].includes(String(workspace.role))), countryStorageAvailable: true }, 200, PRIVATE_NO_STORE_HEADERS);
+	} catch { return c.json({ error: "onboarding_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 });
 
 accountAuthRouter.get("/workspace", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ signedIn: false, workspaceId: null }, 200, PRIVATE_NO_STORE_HEADERS);
-	const client = getDataClient(c.env);
-	const requested = String(c.req.query("requested") ?? "").trim();
-	const requestedRoles = String(c.req.query("roles") ?? "").split(",").map((value) => value.trim().toLowerCase()).filter(Boolean);
-	const [userResult, membershipsResult, ownedResult] = await Promise.all([
-		client.from("users").select("default_workspace_id").eq("user_id", user.id).maybeSingle(),
-		client.from("workspace_members").select("workspace_id,role").eq("user_id", user.id).order("workspace_id", { ascending: true }),
-		client.from("workspaces").select("id").eq("owner_user_id", user.id).order("id", { ascending: true }),
-	]);
-	if (userResult.error || membershipsResult.error || ownedResult.error) return c.json({ error: "workspace_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const roleAllowed = (role: string) => requestedRoles.length === 0 || requestedRoles.includes(role) || (role === "owner" && requestedRoles.includes("admin"));
-	const accessible = new Set([
-		...(membershipsResult.data ?? []).filter((row) => roleAllowed(String(row.role ?? "member").toLowerCase())).map((row) => String(row.workspace_id ?? "")),
-		...((roleAllowed("owner") ? ownedResult.data : []) ?? []).map((row) => String(row.id ?? "")),
-	].filter(Boolean));
-	const defaultWorkspaceId = String(userResult.data?.default_workspace_id ?? "").trim();
-	const workspaceId = (requested && accessible.has(requested) ? requested : null) ?? (defaultWorkspaceId && accessible.has(defaultWorkspaceId) ? defaultWorkspaceId : null) ?? [...accessible].sort()[0] ?? null;
-	if (workspaceId && workspaceId !== defaultWorkspaceId && c.req.query("persist") === "1") {
-		const update = await client.from("users").update({ default_workspace_id: workspaceId }).eq("user_id", user.id);
-		if (update.error) return c.json({ error: "workspace_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
-	return c.json({ signedIn: true, userId: user.id, workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
+	try {
+		const requested = String(c.req.query("requested") ?? "").trim();
+		const requestedRoles = String(c.req.query("roles") ?? "").split(",").map((value) => value.trim().toLowerCase()).filter(Boolean);
+		const [profile, memberships] = await Promise.all([getAccountProfile(c.env, user.id), listAccountWorkspaces(c.env, user.id)]);
+		const roleAllowed = (role: string) => requestedRoles.length === 0 || requestedRoles.includes(role) || (role === "owner" && requestedRoles.includes("admin"));
+		const accessible = memberships.filter((workspace) => roleAllowed(String(workspace.role))).map((workspace) => workspace.id);
+		const defaultWorkspaceId = String(profile?.defaultWorkspaceId ?? "");
+		const workspaceId = (requested && accessible.includes(requested) ? requested : null) ?? (defaultWorkspaceId && accessible.includes(defaultWorkspaceId) ? defaultWorkspaceId : null) ?? accessible.sort()[0] ?? null;
+		if (workspaceId && workspaceId !== defaultWorkspaceId && c.req.query("persist") === "1") await setDefaultWorkspace(c.env, user.id, workspaceId);
+		return c.json({ signedIn: true, userId: user.id, workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
+	} catch { return c.json({ error: "workspace_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 });
 
 accountAuthRouter.get("/workspace-access", async (c) => {
@@ -110,29 +85,22 @@ accountAuthRouter.get("/workspace-access", async (c) => {
 	if (!user) return c.json({ allowed: false, role: null, userId: null }, 401, PRIVATE_NO_STORE_HEADERS);
 	const workspaceId = String(c.req.query("workspaceId") ?? "").trim();
 	if (!workspaceId) return c.json({ allowed: false, role: null, userId: user.id }, 400, PRIVATE_NO_STORE_HEADERS);
-	const client = getDataClient(c.env);
-	const [membership, workspace] = await Promise.all([
-		client.from("workspace_members").select("role").eq("user_id", user.id).eq("workspace_id", workspaceId).maybeSingle(),
-		client.from("workspaces").select("owner_user_id").eq("id", workspaceId).maybeSingle(),
-	]);
-	if (membership.error || workspace.error) return c.json({ error: "workspace_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const role = workspace.data?.owner_user_id === user.id ? "owner" : String(membership.data?.role ?? "").toLowerCase() || null;
-	const requestedRoles = String(c.req.query("roles") ?? "").split(",").map((value) => value.trim().toLowerCase()).filter(Boolean);
-	const allowed = Boolean(role) && (requestedRoles.length === 0 || requestedRoles.includes(role!) || (role === "owner" && requestedRoles.includes("admin")));
-	return c.json({ allowed, role, userId: user.id }, allowed ? 200 : 403, PRIVATE_NO_STORE_HEADERS);
+	try {
+		const access = await getWorkspaceAccess(c.env, user.id, workspaceId);
+		const role = access?.role ?? null;
+		const requestedRoles = String(c.req.query("roles") ?? "").split(",").map((value) => value.trim().toLowerCase()).filter(Boolean);
+		const allowed = Boolean(role) && (requestedRoles.length === 0 || requestedRoles.includes(role!) || (role === "owner" && requestedRoles.includes("admin")));
+		return c.json({ allowed, role, userId: user.id }, allowed ? 200 : 403, PRIVATE_NO_STORE_HEADERS);
+	} catch { return c.json({ error: "workspace_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 });
 
 accountAuthRouter.get("/workspaces", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ workspaces: [] }, 401, PRIVATE_NO_STORE_HEADERS);
-	const result = await getDataClient(c.env).from("workspace_members").select("role,workspace_id,workspaces:workspaces(id,name,slug)").eq("user_id", user.id);
-	if (result.error) return c.json({ error: "workspace_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const workspaces = (result.data ?? []).flatMap((row) => {
-		const workspace = Array.isArray(row.workspaces) ? row.workspaces[0] : row.workspaces;
-		if (!workspace?.id) return [];
-		return [{ id: String(workspace.id), name: String(workspace.name ?? workspace.slug ?? workspace.id), role: String(row.role ?? "member") }];
-	});
-	return c.json({ workspaces }, 200, PRIVATE_NO_STORE_HEADERS);
+	try {
+		const workspaces = (await listAccountWorkspaces(c.env, user.id)).map((workspace) => ({ id: workspace.id, name: workspace.name || workspace.slug || workspace.id, role: workspace.role }));
+		return c.json({ workspaces }, 200, PRIVATE_NO_STORE_HEADERS);
+	} catch { return c.json({ error: "workspace_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 });
 
 accountAuthRouter.post("/test-key", async (c) => {
@@ -156,15 +124,8 @@ accountAuthRouter.get("/oauth-consent", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
 	const clientId = String(c.req.query("clientId") ?? "").trim();
-	const client = getDataClient(c.env);
-	const [metadata, firstParty, memberships] = await Promise.all([
-		clientId ? client.from("oauth_app_metadata").select("*").eq("client_id", clientId).eq("status", "active").maybeSingle() : Promise.resolve({ data: null, error: null }),
-		clientId ? client.from("oauth_clients").select("id,name,description,logo_url,homepage_url,redirect_uris,status").eq("id", clientId).eq("status", "active").maybeSingle() : Promise.resolve({ data: null, error: null }),
-		client.from("workspace_members").select("workspace_id,teams:workspaces(id,name)").eq("user_id", user.id),
-	]);
-	if (metadata.error || firstParty.error || memberships.error) return c.json({ error: "oauth_consent_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const workspaces = (memberships.data ?? []).flatMap((row) => { const team = Array.isArray(row.teams) ? row.teams[0] : row.teams; return team?.id ? [{ id: String(team.id), name: String(team.name ?? team.id) }] : []; });
-	return c.json({ appMetadata: metadata.data ?? null, firstPartyClient: firstParty.data ?? null, workspaces }, 200, PRIVATE_NO_STORE_HEADERS);
+	try { return c.json(await getOAuthConsentContext(c.env, user.id, clientId), 200, PRIVATE_NO_STORE_HEADERS); }
+	catch { return c.json({ error: "oauth_consent_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 });
 
 accountAuthRouter.post("/oauth-consent/validate", async (c) => {
@@ -174,13 +135,9 @@ accountAuthRouter.post("/oauth-consent/validate", async (c) => {
 	const clientId = String(body.clientId ?? "").trim();
 	const workspaceIds = [...new Set((Array.isArray(body.workspaceIds) ? body.workspaceIds : []).map(String).map((value) => value.trim()).filter(Boolean))];
 	if (!clientId || !workspaceIds.length) return c.json({ error: "Select at least one team to authorize" }, 400, PRIVATE_NO_STORE_HEADERS);
-	const client = getDataClient(c.env);
-	const membership = await client.from("workspace_members").select("workspace_id").eq("user_id", user.id).in("workspace_id", workspaceIds);
-	if (membership.error || new Set((membership.data ?? []).map((row) => String(row.workspace_id))).size !== workspaceIds.length) return c.json({ error: "You don't have permission to authorize for one or more selected teams" }, 403, PRIVATE_NO_STORE_HEADERS);
-	if (clientId !== "phaseo_cli") {
-		const app = await client.from("oauth_app_metadata").select("id").eq("client_id", clientId).eq("status", "active").maybeSingle();
-		if (app.error || !app.data) return c.json({ error: "OAuth application not found or inactive" }, 404, PRIVATE_NO_STORE_HEADERS);
-	}
+	const validation = await validateOAuthConsentSelection(c.env, user.id, clientId, workspaceIds);
+	if (!validation.allowed) return c.json({ error: "You don't have permission to authorize for one or more selected teams" }, 403, PRIVATE_NO_STORE_HEADERS);
+	if (!validation.appFound) return c.json({ error: "OAuth application not found or inactive" }, 404, PRIVATE_NO_STORE_HEADERS);
 	return c.json({ valid: true }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -188,136 +145,52 @@ accountAuthRouter.put("/onboarding", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
 	const body: Record<string, unknown> = await c.req.json<Record<string, unknown>>().catch(() => ({}));
-	const client = getDataClient(c.env);
-	let existing = await client.from("users").select("onboarding_state,declared_country_code").eq("user_id", user.id).maybeSingle();
-	let countryStorageAvailable = true;
-	if (existing.error && isMissingCountryColumn(existing.error)) {
-		countryStorageAvailable = false;
-		existing = await client.from("users").select("onboarding_state").eq("user_id", user.id).maybeSingle() as typeof existing;
-	}
-	if (existing.error) return c.json({ error: "onboarding_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const hasCountryInput = Object.prototype.hasOwnProperty.call(body, "countryCode");
-	const countryCode = hasCountryInput ? normaliseCountryCode(body.countryCode) : null;
-	if (hasCountryInput && !countryCode) {
-		return c.json({ error: "invalid_country_code" }, 400, PRIVATE_NO_STORE_HEADERS);
-	}
-	const existingCountry = normaliseCountryCode(existing.data?.declared_country_code);
-	if (
-		countryStorageAvailable &&
-		(body.status === "completed" || body.status === "skipped") &&
-		!(countryCode ?? existingCountry)
-	) {
-		return c.json({ error: "country_required" }, 400, PRIVATE_NO_STORE_HEADERS);
-	}
-	const current = existing.data?.onboarding_state && typeof existing.data.onboarding_state === "object" && !Array.isArray(existing.data.onboarding_state) ? existing.data.onboarding_state as Record<string, unknown> : {};
-	const next: Record<string, unknown> = { ...current, updatedAt: new Date().toISOString() };
-	for (const key of ["workspaceId", "selectedModelId", "selectedKeyId", "createdKeyId", "keyPrefix"] as const) if (Object.prototype.hasOwnProperty.call(body, key)) next[key] = body[key];
-	if (["started", "completed", "skipped"].includes(String(body.status))) next.status = body.status;
-	if (Array.isArray(body.completedSteps)) next.completedSteps = Array.from(new Set([...(Array.isArray(current.completedSteps) ? current.completedSteps : []), ...body.completedSteps].map((value) => String(value ?? "").trim()).filter((value) => /^[a-z0-9_-]+$/i.test(value))));
-	const update: Record<string, unknown> = { onboarding_state: next, updated_at: new Date().toISOString() };
-	if (countryStorageAvailable && countryCode) {
-		update.declared_country_code = countryCode;
-		update.country_declared_at = new Date().toISOString();
-	}
-	if (body.status === "completed" || body.status === "skipped") update.onboarding_completed_at = new Date().toISOString();
-	const result = await client.from("users").update(update).eq("user_id", user.id);
-	if (result.error) return c.json({ error: "onboarding_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	return c.json({ state: next }, 200, PRIVATE_NO_STORE_HEADERS);
+	try {
+		const existing = await getAccountProfile(c.env, user.id);
+		const hasCountryInput = Object.prototype.hasOwnProperty.call(body, "countryCode");
+		const countryCode = hasCountryInput ? normaliseCountryCode(body.countryCode) : null;
+		if (hasCountryInput && !countryCode) return c.json({ error: "invalid_country_code" }, 400, PRIVATE_NO_STORE_HEADERS);
+		const existingCountry = normaliseCountryCode(existing?.declaredCountryCode);
+		if ((body.status === "completed" || body.status === "skipped") && !(countryCode ?? existingCountry)) return c.json({ error: "country_required" }, 400, PRIVATE_NO_STORE_HEADERS);
+		const current = existing?.onboardingState && typeof existing.onboardingState === "object" && !Array.isArray(existing.onboardingState) ? existing.onboardingState as Record<string, unknown> : {};
+		const next: Record<string, unknown> = { ...current, updatedAt: new Date().toISOString() };
+		for (const key of ["workspaceId", "selectedModelId", "selectedKeyId", "createdKeyId", "keyPrefix"] as const) if (Object.prototype.hasOwnProperty.call(body, key)) next[key] = body[key];
+		if (["started", "completed", "skipped"].includes(String(body.status))) next.status = body.status;
+		if (Array.isArray(body.completedSteps)) next.completedSteps = Array.from(new Set([...(Array.isArray(current.completedSteps) ? current.completedSteps : []), ...body.completedSteps].map((value) => String(value ?? "").trim()).filter((value) => /^[a-z0-9_-]+$/i.test(value))));
+		const now = new Date().toISOString();
+		await updateOnboardingProfile(c.env, user.id, { onboardingState: next, ...((body.status === "completed" || body.status === "skipped") ? { onboardingCompletedAt: now } : {}), ...(countryCode ? { declaredCountryCode: countryCode, countryDeclaredAt: now } : {}) });
+		return c.json({ state: next }, 200, PRIVATE_NO_STORE_HEADERS);
+	} catch { return c.json({ error: "onboarding_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 });
 
 accountAuthRouter.get("/statsig", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
-	if (!user) {
-		return c.json({
-			signedIn: false,
-			profile: { betaOptIn: false, betaFeatures: {} },
-		}, 200, PRIVATE_NO_STORE_HEADERS);
-	}
-	const { data, error } = await getDataClient(c.env)
-		.from("users")
-		.select("beta_opt_in,beta_features,role")
-		.eq("user_id", user.id)
-		.maybeSingle();
-	if (error) {
+	if (!user) return c.json({ signedIn: false, profile: { betaOptIn: false, betaFeatures: {} } }, 200, PRIVATE_NO_STORE_HEADERS);
+	try {
+		const data = await getAccountProfile(c.env, user.id);
+		const isAdmin = String(data?.role ?? "").toLowerCase() === "admin";
+		const betaFeatures = normalizeBetaFeatures(data?.betaFeatures);
+		if (isAdmin) betaFeatures.chat_realtime_voice = true; else delete betaFeatures.chat_realtime_voice;
+		return c.json({ signedIn: true, user: { id: user.id, email: user.email }, profile: { betaOptIn: Boolean(data?.betaOptIn) || isAdmin, betaFeatures } }, 200, PRIVATE_NO_STORE_HEADERS);
+	} catch (error) {
 		console.error("[web-api/account/auth] statsig failed", { userId: user.id, error });
 		return c.json({ error: "auth_statsig_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
-	const isAdmin = String(data?.role ?? "").toLowerCase() === "admin";
-	const betaFeatures = normalizeBetaFeatures(data?.beta_features);
-	if (isAdmin) betaFeatures.chat_realtime_voice = true;
-	else delete betaFeatures.chat_realtime_voice;
-	return c.json({
-		signedIn: true,
-		user: { id: user.id, email: user.email },
-		profile: {
-			betaOptIn: Boolean(data?.beta_opt_in) || isAdmin,
-			betaFeatures,
-		},
-	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountAuthRouter.get("/header", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
-	if (!user) {
-		return c.json({ isLoggedIn: false, teams: [] }, 200, PRIVATE_NO_STORE_HEADERS);
-	}
+	if (!user) return c.json({ isLoggedIn: false, teams: [] }, 200, PRIVATE_NO_STORE_HEADERS);
 	try {
-		const client = getDataClient(c.env);
-		const [userResult, membershipResult, ownedResult] = await Promise.all([
-			client.from("users").select("default_workspace_id,role,display_name").eq("user_id", user.id).maybeSingle(),
-			client.from("workspace_members").select("workspace_id").eq("user_id", user.id),
-			client.from("workspaces").select("id").eq("owner_user_id", user.id),
-		]);
-		for (const result of [userResult, membershipResult, ownedResult]) {
-			if (result.error) throw result.error;
-		}
-		const defaultWorkspaceId = String(userResult.data?.default_workspace_id ?? "").trim();
-		const role = String(userResult.data?.role ?? "").trim();
-		const workspaceIds = Array.from(new Set([
-			...(membershipResult.data ?? []).map((row) => String(row.workspace_id ?? "").trim()),
-			...(ownedResult.data ?? []).map((row) => String(row.id ?? "").trim()),
-			defaultWorkspaceId,
-		].filter(Boolean)));
-		let teams: Array<{ id: string; name: string }> = [];
-		if (workspaceIds.length > 0) {
-			const { data, error } = await client
-				.from("workspaces")
-				.select("id,name")
-				.in("id", workspaceIds);
-			if (error) throw error;
-			teams = (data ?? [])
-				.map((row) => ({ id: String(row.id ?? ""), name: String(row.name ?? "").trim() }))
-				.filter((team) => team.id && team.name);
-		}
-		if (teams.length === 0 && ["admin", "editor"].includes(role.toLowerCase())) {
-			const { data, error } = await client.from("workspaces").select("id,name");
-			if (error) throw error;
-			teams = (data ?? [])
-				.map((row) => ({ id: String(row.id ?? ""), name: String(row.name ?? "").trim() }))
-				.filter((team) => team.id && team.name);
-		}
-		teams.sort((left, right) => {
-			if (left.id === defaultWorkspaceId) return -1;
-			if (right.id === defaultWorkspaceId) return 1;
-			return left.name.localeCompare(right.name);
-		});
-		const currentTeamId =
-			cookieValue(c.req.raw, "activeWorkspaceId") ??
-			(defaultWorkspaceId || undefined);
-		const displayName = String(userResult.data?.display_name ?? "").trim()
-			|| metadataString(user.userMetadata, ["full_name", "name"]);
-		return c.json({
-			isLoggedIn: true,
-			user: {
-				id: user.id,
-				email: user.email,
-				displayName,
-				avatarUrl: metadataString(user.userMetadata, ["avatar_url", "picture", "picture_url"]),
-			},
-			teams,
-			...(currentTeamId ? { currentTeamId } : {}),
-			...(role ? { userRole: role } : {}),
-		}, 200, PRIVATE_NO_STORE_HEADERS);
+		const [profile, accessible] = await Promise.all([getAccountProfile(c.env, user.id), listAccountWorkspaces(c.env, user.id)]);
+		const role = String(profile?.role ?? "");
+		const defaultWorkspaceId = String(profile?.defaultWorkspaceId ?? "");
+		let teams = accessible.map((workspace) => ({ id: workspace.id, name: workspace.name }));
+		if (!teams.length && ["admin", "editor"].includes(role.toLowerCase())) teams = await listAllWorkspaces(c.env);
+		teams.sort((left, right) => left.id === defaultWorkspaceId ? -1 : right.id === defaultWorkspaceId ? 1 : left.name.localeCompare(right.name));
+		const currentTeamId = cookieValue(c.req.raw, "activeWorkspaceId") ?? (defaultWorkspaceId || undefined);
+		const displayName = String(profile?.displayName ?? "").trim() || metadataString(user.userMetadata, ["full_name", "name"]);
+		return c.json({ isLoggedIn: true, user: { id: user.id, email: user.email, displayName, avatarUrl: metadataString(user.userMetadata, ["avatar_url", "picture", "picture_url"]) }, teams, ...(currentTeamId ? { currentTeamId } : {}), ...(role ? { userRole: role } : {}) }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) {
 		console.error("[web-api/account/auth] header failed", { userId: user.id, error });
 		return c.json({ error: "auth_header_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);

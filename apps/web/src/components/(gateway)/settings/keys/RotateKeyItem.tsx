@@ -56,11 +56,13 @@ export default function RotateKeyItem({
 	trigger = true,
 	open: controlledOpen,
 	onOpenChange,
+	onChanged,
 }: {
 	k: any;
 	trigger?: boolean;
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
+	onChanged?: () => Promise<unknown> | unknown;
 }) {
 	const [internalOpen, setInternalOpen] = useState(false);
 	const open = controlledOpen ?? internalOpen;
@@ -110,6 +112,7 @@ export default function RotateKeyItem({
 			});
 			setNewPlaintext(result?.plaintext ?? null);
 			setOldExpiryApplied(result?.previousKeyExpiresAt ?? expiresAtIso);
+			void onChanged?.();
 			toast.success("Key rotated", { id: toastId });
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Failed to rotate key";

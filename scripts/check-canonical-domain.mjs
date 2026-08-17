@@ -18,6 +18,8 @@ const trackedFiles = execFileSync("git", ["ls-files", "-z"], {
 	.split("\0")
 	.filter(Boolean);
 
+const historicalSnapshotPrefixes = ["artifacts/migration-assessment/"];
+
 function decodeUtf16BigEndian(contents) {
 	const swapped = Buffer.allocUnsafe(contents.length);
 	for (let index = 0; index + 1 < contents.length; index += 2) {
@@ -56,6 +58,7 @@ function decodeTrackedText(contents) {
 const violations = [];
 
 for (const path of trackedFiles) {
+	if (historicalSnapshotPrefixes.some((prefix) => path.startsWith(prefix))) continue;
 	const text = decodeTrackedText(readFileSync(path));
 	if (text === null) continue;
 

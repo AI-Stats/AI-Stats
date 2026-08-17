@@ -91,7 +91,7 @@ function videoPricingRows() {
 	];
 }
 
-function buildSupabaseAdminMock() {
+function buildLegacyQueryMock() {
 	return {
 		from(table: string) {
 			if (table === "v2_model_provider_routes") {
@@ -221,9 +221,62 @@ vi.mock("@/runtime/env", () => ({
 		GOOGLE_VERTEX_PROJECT: "test-project",
 		GOOGLE_VERTEX_LOCATION: "us-east5",
 		GATEWAY_PUBLIC_BASE_URL: "https://api.phaseo.app",
-	KEY_PEPPER_ACTIVE: "test-video-secret",
+		KEY_PEPPER_ACTIVE: "test-video-secret",
 	}),
-	getSupabaseAdmin: () => buildSupabaseAdminMock(),
+}));
+
+vi.mock("@/repositories/pricing", () => ({
+	loadActivePriceRows: vi.fn(async () => ({
+		routes: [{
+			providerModelId: "pm-veo-lite",
+			modelSlug: "google/veo-3.1-lite-generate-preview",
+			providerModelSlug: "veo-3.1-lite-generate-preview",
+		}],
+		skus: [{
+			skuId: "sku-veo-lite",
+			providerModelId: "pm-veo-lite",
+			serviceTierSlug: "standard",
+			operation: "video.generate",
+			status: "active",
+			currency: "USD",
+			effectiveFrom: "2026-01-01T00:00:00.000Z",
+			effectiveTo: null,
+			metadata: { match: [{ path: "video_params.resolution", op: "eq", value: "720p" }] },
+			updatedAt: "2026-06-10T00:00:00.000Z",
+		}],
+		meters: [{
+			skuMeterId: "meter-veo-lite",
+			skuId: "sku-veo-lite",
+			meterKey: "output_video_seconds",
+			unit: "second",
+			unitQuantity: "1",
+			priceNanos: "30000000",
+			meterOrder: 1,
+			metadata: {},
+			updatedAt: "2026-06-10T00:00:00.000Z",
+		}],
+	})),
+}));
+
+vi.mock("@/repositories/video-finalization", () => ({
+	findLatestVideoGatewayRequest: vi.fn(async (workspaceId: string, requestId: string) => {
+		const row = state.gatewayRequests.get(requestId);
+		if (!row || row.workspace_id !== workspaceId) return null;
+		return { id: row.id, created_at: row.created_at, usage: row.usage, pricing_lines: row.pricing_lines };
+	}),
+	updateVideoGatewayRequest: vi.fn(async (args: Record<string, unknown>) => {
+		const row = Array.from(state.gatewayRequests.values()).find(
+			(candidate) => candidate.id === args.id && candidate.workspace_id === args.workspaceId,
+		);
+		if (!row) return false;
+		Object.assign(row, {
+			usage: args.usage,
+			cost_nanos: args.costNanos,
+			generation_ms: args.generationMs,
+			pricing_lines: args.pricingLines,
+		});
+		return true;
+	}),
 }));
 
 vi.mock("@pipeline/before/guards", () => ({

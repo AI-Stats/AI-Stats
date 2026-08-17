@@ -171,14 +171,12 @@ const nextConfig = {
           source: "/.well-known/agent-skills/index.json",
           destination: "/.well-known/agent-skills",
         },
-      ],
-      afterFiles: [
+        // These must run before Next resolves App Router routes. In preview
+        // deployments an unmatched /api/_web request can otherwise fall
+        // through to the application's HTML not-found response, which causes
+        // browser-side JSON consumers such as the models catalogue to fail.
         ...(webApiOrigin
           ? [
-              {
-                source: "/api/_web/:path*",
-                destination: `${webApiOrigin}/api/_web/:path*`,
-              },
               {
                 source: "/api/account/:path*",
                 destination: `${webApiOrigin}/api/account/:path*`,
@@ -193,6 +191,8 @@ const nextConfig = {
               },
             ]
           : []),
+      ],
+      afterFiles: [
         ...docsProxyRewrites,
         {
           source: "/ingest/static/:path*",

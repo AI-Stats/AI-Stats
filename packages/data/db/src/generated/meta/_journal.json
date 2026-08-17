@@ -1,0 +1,69 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1786832800726,
+      "tag": "0000_closed_kree",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786904093333,
+      "tag": "0001_special_network",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786913668706,
+      "tag": "0002_remove-legacy-rls",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786914382365,
+      "tag": "0003_align-legacy-rls-snapshot",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786916159315,
+      "tag": "0004_remove-supabase-context-functions",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786952927758,
+      "tag": "0005_namespace-domains",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786957200000,
+      "tag": "0006_consolidate_gateway_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1786959000000,
+      "tag": "0007_repair_function_namespaces",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1786962600000,
+      "tag": "0008_create_gateway_io_retention_billing_runs",
+      "breakpoints": true
+    }
+  ]
+}

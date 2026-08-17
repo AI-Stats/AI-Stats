@@ -1,13 +1,18 @@
 "use server";
 
 import { apiBaseUrl } from "@/lib/oauth/apiBaseUrl";
-import { createClient } from "@/utils/supabase/server";
+import {
+	listUserWorkspaceIds,
+	revokeUserAuthorization,
+} from "@/lib/database/repositories/oauth";
+import { headers } from "next/headers";
+import { getServerIdentity } from "@/lib/auth/serverIdentity";
 
 /**
  * OAuth Consent Server Actions
  *
  * These actions handle the user consent flow for OAuth authorization.
- * They integrate with Supabase's OAuth 2.1 server to approve or deny
+ * They integrate with Phaseo's OAuth 2.1 server to approve or deny
  * authorization requests.
  */
 
@@ -39,13 +44,13 @@ interface RegisteredOAuthClient {
 }
 
 async function loadRegisteredOAuthClient(
-	accessToken: string,
+	authHeaders: HeadersInit,
 	clientId: string,
 ): Promise<RegisteredOAuthClient | null> {
 	const response = await fetch(
 		`${apiBaseUrl()}/oauth/client-metadata?client_id=${encodeURIComponent(clientId)}`,
 		{
-			headers: { Authorization: `Bearer ${accessToken}` },
+			headers: authHeaders,
 			cache: "no-store",
 		},
 	);
@@ -60,68 +65,32 @@ async function loadRegisteredOAuthClient(
 	};
 }
 
+async function gatewayActorHeaders(): Promise<HeadersInit | null> {
+	const cookie = (await headers()).get("cookie")?.trim();
+	return cookie ? { Cookie: cookie } : null;
+}
+
 /**
  * Approve OAuth authorization request
  *
  * This action:
  * 1. Validates user has permission for the team
  * 2. Records authorization in oauth_authorizations table
- * 3. Generates authorization code via Supabase OAuth
+ * 3. Generates an authorization code via the Phaseo OAuth service
  * 4. Returns redirect URL with code to send user back to app
  */
 export async function approveAuthorizationAction(
 	input: ApproveAuthorizationInput
 ): Promise<ConsentResult> {
 	try {
-		const supabase = await createClient();
-		const oauthClient = supabase.auth.oauth as any;
-
-		// Get current user
-		const {
-			data: { user },
-			error: userError,
-		} = await supabase.auth.getUser();
-
-		if (userError || !user) {
+		const user = (await getServerIdentity())?.user;
+		if (!user) {
 			return { error: "Unauthorized" };
 		}
-
 		let resolvedClientId = input.client_id?.trim() || null;
 		let scopes = (input.scopes ?? []).filter(
 			(scope): scope is string => typeof scope === "string" && scope.trim().length > 0
 		);
-
-		if (input.authorization_id) {
-			const { data: details, error: detailsError } =
-				await oauthClient.getAuthorizationDetails(input.authorization_id);
-
-			if (detailsError || !details) {
-				return {
-					error:
-						detailsError?.message ||
-						"OAuth authorization request not found or expired",
-				};
-			}
-
-			if ("redirect_url" in details && details.redirect_url) {
-				return {
-					data: {
-						redirect_url: details.redirect_url,
-						authorization_id: input.authorization_id,
-					},
-				};
-			}
-
-			if (!resolvedClientId && typeof details.client?.id === "string") {
-				resolvedClientId = details.client.id;
-			}
-			if (typeof details.scope === "string" && details.scope.trim().length > 0) {
-				scopes = details.scope
-					.split(" ")
-					.map((scope: string) => scope.trim())
-					.filter((scope: string) => scope.length > 0);
-			}
-		}
 
 		if (!resolvedClientId) {
 			return {
@@ -157,22 +126,11 @@ export async function approveAuthorizationAction(
 		}
 
 		// Verify user is a member of every selected team
-		const { data: memberships, error: membershipError } = await supabase
-			.from("workspace_members")
-			.select("workspace_id")
-			.eq("user_id", user.id)
-			.in("workspace_id", selectedWorkspaceIds);
-
 		const grantedWorkspaceIds = new Set(
-			(memberships ?? [])
-				.map((membership: { workspace_id?: unknown }) =>
-					String(membership.workspace_id ?? "").trim()
-				)
-				.filter(Boolean)
+			await listUserWorkspaceIds(user.id, selectedWorkspaceIds)
 		);
 
 		if (
-			membershipError ||
 			!selectedWorkspaceIds.every((workspaceId) => grantedWorkspaceIds.has(workspaceId))
 		) {
 			return {
@@ -188,13 +146,11 @@ export async function approveAuthorizationAction(
 			};
 		}
 
-		const {
-			data: { session },
-		} = await supabase.auth.getSession();
-		if (!session?.access_token) {
+		const actorHeaders = await gatewayActorHeaders();
+		if (!actorHeaders) {
 			return { error: "Unauthorized" };
 		}
-		if (!(await loadRegisteredOAuthClient(session.access_token, resolvedClientId))) {
+		if (!(await loadRegisteredOAuthClient(actorHeaders, resolvedClientId))) {
 			return { error: "OAuth application not found or inactive" };
 		}
 
@@ -202,7 +158,7 @@ export async function approveAuthorizationAction(
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				Authorization: `Bearer ${session.access_token}`,
+				...actorHeaders,
 			},
 			body: JSON.stringify({
 				client_id: resolvedClientId,
@@ -257,31 +213,8 @@ export async function denyAuthorizationAction(input: {
 	state?: string;
 }): Promise<ConsentResult> {
 	try {
-		const supabase = await createClient();
-		const { data: { user } } = await supabase.auth.getUser();
+		const user = (await getServerIdentity())?.user;
 		if (!user) return { error: "Unauthorized" };
-
-		if (input.authorization_id) {
-			const oauthClient = supabase.auth.oauth as any;
-			const { data: redirectData, error } = await oauthClient.denyAuthorization(
-				input.authorization_id,
-				{ skipBrowserRedirect: true }
-			);
-
-			if (error || !redirectData?.redirect_url) {
-				return {
-					error:
-						error?.message || "Failed to deny authorization request",
-				};
-			}
-
-			return {
-				data: {
-					redirect_url: redirectData.redirect_url,
-					authorization_id: input.authorization_id,
-				},
-			};
-		}
 
 		const clientId = input.client_id?.trim();
 		if (!input.redirect_uri || !clientId) {
@@ -291,9 +224,9 @@ export async function denyAuthorizationAction(input: {
 			};
 		}
 
-		const { data: { session } } = await supabase.auth.getSession();
-		if (!session?.access_token) return { error: "Unauthorized" };
-		const registeredClient = await loadRegisteredOAuthClient(session.access_token, clientId);
+		const actorHeaders = await gatewayActorHeaders();
+		if (!actorHeaders) return { error: "Unauthorized" };
+		const registeredClient = await loadRegisteredOAuthClient(actorHeaders, clientId);
 		const registeredRedirectUris = registeredClient?.redirect_uris ?? [];
 		let isCliLoopback = false;
 		if (clientId === "phaseo_cli" || clientId === "aistats_cli") {
@@ -347,26 +280,13 @@ export async function revokeAuthorizationAction(
 	authorizationId: string
 ): Promise<ConsentResult> {
 	try {
-		const supabase = await createClient();
-
-		// Get current user
-		const {
-			data: { user },
-			error: userError,
-		} = await supabase.auth.getUser();
-
-		if (userError || !user) {
+		const user = (await getServerIdentity())?.user;
+		if (!user) {
 			return { error: "Unauthorized" };
 		}
 
 		// Revoke authorization (set revoked_at timestamp)
-		const { error: revokeError } = await supabase
-			.from("oauth_authorizations")
-			.update({ revoked_at: new Date().toISOString() })
-			.eq("id", authorizationId)
-			.eq("user_id", user.id); // Ensure user owns this authorization
-
-		if (revokeError) throw revokeError;
+		await revokeUserAuthorization(authorizationId, user.id);
 
 		return { data: {} };
 	} catch {

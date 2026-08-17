@@ -38,6 +38,13 @@ function cancelVideoAlias(Client $client, ?array $path = null, ?array $query = n
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function connectRealtimeSessionRelay(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/audio/realtime/sessions/{$path["session_id"]}/relay";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function createAnthropicMessage(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -105,6 +112,13 @@ function createOcr(Client $client, ?array $path = null, ?array $query = null, ?a
 {
 	$path = $path ?? [];
 	$resolvedPath = "/ocr";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function createRealtimeSession(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/audio/realtime/sessions";
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
@@ -204,6 +218,20 @@ function deleteWorkspace(Client $client, ?array $path = null, ?array $query = nu
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces/{$path["id"]}";
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
+function extendRealtimeSessionReservation(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/audio/realtime/sessions/{$path["session_id"]}/extend";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function finalizeRealtimeSession(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/audio/realtime/sessions/{$path["session_id"]}/finalize";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
 function generateMusic(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
@@ -500,6 +528,13 @@ function listWorkspaces(Client $client, ?array $path = null, ?array $query = nul
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function markRealtimeSessionConnected(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/audio/realtime/sessions/{$path["session_id"]}/connected";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function openAsyncJobWebSocket(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -568,6 +603,13 @@ function updateApiKey(Client $client, ?array $path = null, ?array $query = null,
 	$path = $path ?? [];
 	$resolvedPath = "/keys/{$path["id"]}";
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateRealtimeSessionUsage(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/audio/realtime/sessions/{$path["session_id"]}/usage";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
 function updateWorkspace(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)

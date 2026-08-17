@@ -12,6 +12,22 @@ export type ChatErrorPayload = Error & {
 	rawPayload?: Record<string, unknown> | null;
 };
 
+const CHAT_SESSION_ERROR_CODES = new Set([
+	"unauthorized",
+	"unauthenticated",
+	"credentials_missing",
+	"bearer_session_not_found",
+	"bearer_session_lookup_failed",
+	"better_auth_session_missing_user",
+	"better_auth_session_request_failed",
+]);
+
+export function isChatSessionAuthenticationError(error: ChatErrorPayload): boolean {
+	if (error.status !== 401) return false;
+	const code = error.code?.trim().toLowerCase() ?? "";
+	return CHAT_SESSION_ERROR_CODES.has(code) || code.startsWith("better_auth_session_rejected_");
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }

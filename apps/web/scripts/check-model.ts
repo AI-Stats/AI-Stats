@@ -1,26 +1,35 @@
-import { createAdminClient } from "../src/utils/supabase/admin";
+import { createNodeDatabaseForSchema } from "@phaseo/db/node-core";
+import { gatewayRequests } from "@phaseo/db/schema";
+import { desc, ilike } from "@phaseo/db/query";
+import { Pool } from "pg";
 
-const client = createAdminClient();
+const connectionString = process.env.PLANETSCALE_DATABASE_URL ?? process.env.DATABASE_URL;
+if (!connectionString) throw new Error("PLANETSCALE_DATABASE_URL is required");
+
+const pool = new Pool({ connectionString, max: 1 });
+const db = createNodeDatabaseForSchema(pool, { gatewayRequests });
 
 async function main() {
-  const { data } = await client
-    .from("v2_web_gateway_requests")
-    .select("model_id, success, created_at")
-    .order("created_at", { ascending: false })
-    .limit(5);
+	const recent = await db.select({
+		modelId: gatewayRequests.modelId,
+		success: gatewayRequests.success,
+		createdAt: gatewayRequests.createdAt,
+	}).from(gatewayRequests).orderBy(desc(gatewayRequests.createdAt)).limit(5);
 
-  console.log("Recent gateway_requests:");
-  console.log(JSON.stringify(data, null, 2));
+	console.log("Recent gateway requests:");
+	console.log(JSON.stringify(recent, null, 2));
 
-  // Also check for the specific model
-  const { data: modelData } = await client
-    .from("v2_web_gateway_requests")
-    .select("model_id, success, created_at")
-    .ilike("model_id", "%gpt-5-nano%")
-    .limit(5);
+	const matching = await db.select({
+		modelId: gatewayRequests.modelId,
+		success: gatewayRequests.success,
+		createdAt: gatewayRequests.createdAt,
+	}).from(gatewayRequests)
+		.where(ilike(gatewayRequests.modelId, "%gpt-5-nano%"))
+		.orderBy(desc(gatewayRequests.createdAt))
+		.limit(5);
 
-  console.log("\nWith 'gpt-5-nano':");
-  console.log(JSON.stringify(modelData, null, 2));
+	console.log("\nWith 'gpt-5-nano':");
+	console.log(JSON.stringify(matching, null, 2));
 }
 
-main().catch(console.error);
+main().finally(() => pool.end()).catch(console.error);

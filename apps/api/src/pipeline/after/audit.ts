@@ -332,7 +332,7 @@ export async function handleFailureAudit(
     await runGatewayTelemetryPipelines({
         requestId: ctx.requestId,
         workspaceId: ctx.workspaceId,
-        writeSupabase: shouldPersistGatewayAudit(ctx) ? () => auditFailure({
+        writeDatabase: shouldPersistGatewayAudit(ctx) ? () => auditFailure({
             stage: "execute",
             requestId: ctx.requestId,
             workspaceId: ctx.workspaceId,
@@ -591,7 +591,7 @@ export async function handleSuccessAudit(
     await runGatewayTelemetryPipelines({
         requestId: ctx.requestId,
         workspaceId: ctx.workspaceId,
-        writeSupabase: shouldPersistGatewayAudit(ctx) ? () => auditSuccess({
+        writeDatabase: shouldPersistGatewayAudit(ctx) ? () => auditSuccess({
             requestId: ctx.requestId,
             workspaceId: ctx.workspaceId,
             provider: result.provider,

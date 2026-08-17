@@ -1,14 +1,16 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const mocks = vi.hoisted(() => ({ loadSearchCatalogue: vi.fn(), getCacheGeneration: vi.fn() }));
+vi.mock("@/repositories/search", () => ({ loadSearchCatalogue: mocks.loadSearchCatalogue }));
+vi.mock("@/cache/generations", () => ({ getCacheGeneration: mocks.getCacheGeneration }));
 import app from "@/index";
 
 const env = {
 	ENV: "development" as const,
-	SUPABASE_URL: "https://example.supabase.co",
-	SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 };
 
-afterEach(() => {
-	vi.unstubAllGlobals();
+beforeEach(() => {
+	vi.clearAllMocks();
 });
 
 describe("frontend search route", () => {
@@ -22,20 +24,11 @@ describe("frontend search route", () => {
 			c: [],
 			v: 7,
 		};
-		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
-			const url = String(input);
-			let value: unknown[];
-			if (url.includes("v2_models")) value = [{ model_slug: "openai/gpt-test", name: "GPT Test", lab_slug: "openai", released_at: "2026-07-01", lab: { name: "OpenAI" } }];
-			else if (url.includes("v2_labs")) value = [{ lab_slug: "openai", name: "OpenAI" }];
-			else if (url.includes("v2_providers")) value = [{ provider_slug: "openai", name: "OpenAI" }];
-			else if (url.includes("web_cache_generations")) value = [{ generation: 7, updated_at: null }];
-			else value = [];
-			return new Response(JSON.stringify(value), {
-				status: 200,
-				headers: { "content-type": "application/json" },
-			});
+		mocks.loadSearchCatalogue.mockResolvedValue({
+			models: [{ model_slug: "openai/gpt-test", name: "GPT Test", lab_slug: "openai", released_at: "2026-07-01", announced_at: null, lab_name: "OpenAI" }],
+			organisations: [{ lab_slug: "openai", name: "OpenAI" }], benchmarks: [], providers: [{ provider_slug: "openai", name: "OpenAI" }],
 		});
-		vi.stubGlobal("fetch", fetchMock);
+		mocks.getCacheGeneration.mockResolvedValue({ scope: "search", generation: 7, updatedAt: null });
 
 		const response = await app.request(
 			"https://phaseo.app/api/_web/search",
@@ -44,7 +37,8 @@ describe("frontend search route", () => {
 		);
 
 		expect(response.status).toBe(200);
-		expect(fetchMock).toHaveBeenCalledTimes(5);
+		expect(mocks.loadSearchCatalogue).toHaveBeenCalledWith(env);
+		expect(mocks.getCacheGeneration).toHaveBeenCalledWith(env, "search");
 		expect(response.headers.get("cache-control")).toBe(
 			"public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
 		);
@@ -56,14 +50,7 @@ describe("frontend search route", () => {
 	});
 
 	it("serves a short edge-cached browser generation marker", async () => {
-		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
-			expect(String(input)).toContain("/rest/v1/web_cache_generations");
-			return new Response(JSON.stringify({ generation: 9, updated_at: "2026-07-17T22:00:00.000Z" }), {
-				status: 200,
-				headers: { "content-type": "application/json" },
-			});
-		});
-		vi.stubGlobal("fetch", fetchMock);
+		mocks.getCacheGeneration.mockResolvedValue({ scope: "search", generation: 9, updatedAt: "2026-07-17T22:00:00.000Z" });
 
 		const response = await app.request(
 			"https://phaseo.app/api/_web/cache-generation/search",

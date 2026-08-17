@@ -14,6 +14,98 @@ servers:
 security:
   - BearerAuth: []
 paths:
+  /audio/realtime/sessions:
+    post:
+      operationId: createRealtimeSession
+      tags:
+        - Audio
+      summary: Create a realtime audio session
+      description: >-
+        Creates a short-lived, metered realtime session and returns the relay
+        connection details.
+      responses:
+        '201':
+          description: Realtime session created
+  /audio/realtime/sessions/{session_id}/relay:
+    get:
+      operationId: connectRealtimeSessionRelay
+      tags:
+        - Audio
+      summary: Connect to a realtime audio relay
+      description: Upgrades the request to the authenticated realtime WebSocket relay.
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '101':
+          description: WebSocket protocol switched
+  /audio/realtime/sessions/{session_id}/connected:
+    post:
+      operationId: markRealtimeSessionConnected
+      tags:
+        - Audio
+      summary: Mark a realtime session connected
+      x-phaseo-internal: true
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session updated
+  /audio/realtime/sessions/{session_id}/extend:
+    post:
+      operationId: extendRealtimeSessionReservation
+      tags:
+        - Audio
+      summary: Extend a realtime session reservation
+      x-phaseo-internal: true
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Reservation extended
+  /audio/realtime/sessions/{session_id}/usage:
+    post:
+      operationId: updateRealtimeSessionUsage
+      tags:
+        - Audio
+      summary: Update realtime session usage
+      x-phaseo-internal: true
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Usage updated
+  /audio/realtime/sessions/{session_id}/finalize:
+    post:
+      operationId: finalizeRealtimeSession
+      tags:
+        - Audio
+      summary: Finalize a realtime session
+      x-phaseo-internal: true
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session finalized and settled
   /models:
     get:
       x-beta: true

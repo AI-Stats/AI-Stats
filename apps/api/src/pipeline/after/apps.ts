@@ -3,7 +3,7 @@
 // Why: Keeps post-execution side-effects consistent.
 // How: Resolves app attribution and persists app metadata.
 
-import { getSupabaseAdmin } from "@/runtime/env";
+import { upsertLoggingApp } from "@/repositories/apps";
 const ENSURE_APP_ID_L1_TTL_MS = 5_000;
 
 type EnsureAppIdCacheEntry = {
@@ -183,7 +183,6 @@ export async function ensureAppId(params: {
     if (inflight) return inflight;
 
     const loader = (async (): Promise<string | null> => {
-        const supabase = getSupabaseAdmin();
         const nowIso = new Date().toISOString();
         const inferredTitle = deriveInferredTitle({
             appName,
@@ -192,13 +191,13 @@ export async function ensureAppId(params: {
             normalizedAppId,
         });
         const payload = {
-            workspace_id: workspaceId,
-            app_key,
-            title: inferredTitle,
-            url: identityUrl,
-            is_active: true,
-            last_seen: nowIso,
-            updated_at: nowIso,
+			workspaceId,
+			appKey: app_key,
+			title: inferredTitle,
+			url: identityUrl,
+			isActive: true,
+			lastSeen: nowIso,
+			updatedAt: nowIso,
             meta: {
                 referer: referer ?? null,
                 appTitle: appTitle ?? null,
@@ -208,66 +207,14 @@ export async function ensureAppId(params: {
             },
         };
 
-        const findExistingId = async (): Promise<string | null> => {
-            const { data, error } = await supabase
-                .from("api_apps")
-                .select("id")
-                .eq("workspace_id", workspaceId)
-                .eq("app_key", app_key)
-                .order("last_seen", { ascending: false })
-                .limit(1);
-            if (error) {
-                console.error("ensureAppId lookup error:", error);
-                return null;
-            }
-            const first = Array.isArray(data) ? data[0] : null;
-            return typeof first?.id === "string" ? first.id : null;
-        };
-
-        const existingId = await findExistingId();
-        if (existingId) {
-            const { error: updateError } = await supabase
-                .from("api_apps")
-                .update({
-                    title: payload.title,
-                    url: payload.url,
-                    is_active: true,
-                    last_seen: nowIso,
-                    updated_at: nowIso,
-                    meta: payload.meta,
-                })
-                .eq("id", existingId)
-                .eq("workspace_id", workspaceId);
-            if (updateError) {
-                console.error("ensureAppId update error:", updateError);
-            }
-            writeEnsureAppIdL1(cacheKey, existingId);
-            return existingId;
-        }
-
-        const { data: inserted, error: insertError } = await supabase
-            .from("api_apps")
-            .insert(payload)
-            .select("id")
-            .single();
-
-        if (!insertError && inserted?.id) {
-            writeEnsureAppIdL1(cacheKey, inserted.id);
-            return inserted.id;
-        }
-
-        if (insertError) {
-            const code = String((insertError as { code?: unknown } | null)?.code ?? "");
-            if (code === "23505") {
-                const racedId = await findExistingId();
-                if (racedId) {
-                    writeEnsureAppIdL1(cacheKey, racedId);
-                    return racedId;
-                }
-            }
-            console.error("ensureAppId insert error:", insertError);
-        }
-        return null;
+		try {
+			const id = await upsertLoggingApp(payload);
+			writeEnsureAppIdL1(cacheKey, id);
+			return id;
+		} catch (error) {
+			console.error("ensureAppId upsert error:", error);
+			return null;
+		}
     })();
 
     ensureAppIdInflight.set(cacheKey, loader);
@@ -279,8 +226,6 @@ export async function ensureAppId(params: {
         }
     }
 }
-
-
 
 
 

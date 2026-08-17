@@ -4,7 +4,7 @@ import type { SignInModel } from "@/lib/fetchers/landing/sign-in/types";
 import { fetchFrontendSignInMainModels } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 
 export default async function KeyModels() {
-	// If consumer didn't provide data, fetch main models by ID from Supabase
+	// If the consumer did not provide data, fetch main models by ID from the catalogue API.
 	let models: SignInModel[] = [];
 
 	// Default model ids to display on the sign-in page

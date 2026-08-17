@@ -11,8 +11,8 @@ const loadPriceCardMock = vi.fn();
 const computeBillMock = vi.fn();
 const applyByokServiceFeeMock = vi.fn();
 const recordUsageAndChargeMock = vi.fn();
-const getSupabaseAdminMock = vi.fn();
-const syncWorkspaceUsageRollupForRequestMock = vi.fn();
+const findLatestVideoGatewayRequestMock = vi.fn();
+const updateVideoGatewayRequestMock = vi.fn();
 
 vi.mock("@core/video-jobs", () => ({
 	setVideoJobStatus: (...args: unknown[]) => setVideoJobStatusMock(...args),
@@ -43,12 +43,9 @@ vi.mock("@pipeline/pricing/persist", () => ({
 	recordUsageAndCharge: (...args: unknown[]) => recordUsageAndChargeMock(...args),
 }));
 
-vi.mock("@/runtime/env", () => ({
-	getSupabaseAdmin: (...args: unknown[]) => getSupabaseAdminMock(...args),
-}));
-
-vi.mock("@core/workspace-usage-rollups", () => ({
-	syncWorkspaceUsageRollupForRequest: (...args: unknown[]) => syncWorkspaceUsageRollupForRequestMock(...args),
+vi.mock("@/repositories/video-finalization", () => ({
+	findLatestVideoGatewayRequest: (...args: unknown[]) => findLatestVideoGatewayRequestMock(...args),
+	updateVideoGatewayRequest: (...args: unknown[]) => updateVideoGatewayRequestMock(...args),
 }));
 
 import { finalizeVideoJob } from "./video-finalization";
@@ -66,8 +63,8 @@ describe("video-finalization", () => {
 		computeBillMock.mockReset();
 		applyByokServiceFeeMock.mockReset();
 		recordUsageAndChargeMock.mockReset();
-		getSupabaseAdminMock.mockReset();
-		syncWorkspaceUsageRollupForRequestMock.mockReset();
+		findLatestVideoGatewayRequestMock.mockReset().mockResolvedValue(null);
+		updateVideoGatewayRequestMock.mockReset().mockResolvedValue(true);
 
 		setVideoJobStatusMock.mockResolvedValue(undefined);
 		getVideoJobMetaMock.mockResolvedValue({
@@ -80,7 +77,6 @@ describe("video-finalization", () => {
 		});
 		isVideoJobBilledMock.mockResolvedValue(false);
 		markVideoJobBilledMock.mockResolvedValue(undefined);
-		syncWorkspaceUsageRollupForRequestMock.mockResolvedValue(undefined);
 	});
 
 	it("does not legacy-charge when reservation is already released", async () => {
@@ -259,14 +255,6 @@ describe("video-finalization", () => {
 			status: "captured",
 			amountNanos: 150_000_000,
 		});
-		const limitMock = vi.fn().mockResolvedValue({ data: [], error: null });
-		const orderMock = vi.fn(() => ({ limit: limitMock }));
-		const secondEqMock = vi.fn(() => ({ order: orderMock }));
-		const firstEqMock = vi.fn(() => ({ eq: secondEqMock }));
-		const selectMock = vi.fn(() => ({ eq: firstEqMock }));
-		const fromMock = vi.fn(() => ({ select: selectMock }));
-		getSupabaseAdminMock.mockReturnValue({ from: fromMock });
-
 		const result = await finalizeVideoJob({
 			workspaceId: "team_capture_sync_missing",
 			videoId: "video_capture_sync_missing",
@@ -296,8 +284,7 @@ describe("video-finalization", () => {
 				reservationStatus: "captured",
 			}),
 		);
-		expect(fromMock).toHaveBeenCalledWith("gateway_requests");
-		expect(limitMock).toHaveBeenCalledTimes(3);
+		expect(findLatestVideoGatewayRequestMock).toHaveBeenCalledTimes(3);
 		expect(markVideoJobBilledMock).not.toHaveBeenCalled();
 		expect(recordUsageAndChargeMock).not.toHaveBeenCalled();
 	});

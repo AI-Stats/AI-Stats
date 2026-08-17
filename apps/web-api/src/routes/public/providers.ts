@@ -1,7 +1,8 @@
 import { Hono } from "hono";
-import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { withPublicCache, type PublicCachePolicy } from "@/http/cache";
+import { listProviderIndexRows } from "@/repositories/provider-index";
+import { getProviderAppMetadata, getProviderModelNames, getProviderRecentTokens, listProviderRecentModels, listProviderRollups, listProviderTopApps, listProviderTopModels, loadProviderModelCatalogue } from "@/repositories/provider-telemetry";
 
 const TELEMETRY_CACHE: PublicCachePolicy = {
 	edgeTtlSeconds: 15 * 60,
@@ -91,9 +92,7 @@ function providerCards(variants: Variant[]) {
 }
 
 async function providerIndex(env: Env) {
-	const result = await getDataClient(env).rpc("get_public_provider_index");
-	if (result.error) throw result.error;
-	const rows = (result.data ?? []) as ProviderIndexRpcRow[];
+	const rows = await listProviderIndexRows(env) as ProviderIndexRpcRow[];
 	const variants: Variant[] = rows.map((row) => ({
 		id: row.provider_slug,
 		name: row.provider_name,
@@ -136,7 +135,8 @@ type RecentModel = {
 	data_models?: Record<string, unknown> | null;
 };
 
-type RollupRow = { bucket_15m: string; canonical_model_id: string | null; requests: number | null; success_requests: number | null; total_tokens: number | null; latency_sum_ms: number | null; latency_samples: number | null; throughput_sum: number | null; throughput_samples: number | null };
+type NumericValue = number | string | null;
+type RollupRow = { bucket_15m: string; canonical_model_id: string | null; app_id?: string | null; requests: NumericValue; success_requests: NumericValue; total_tokens: NumericValue; latency_sum_ms: NumericValue; latency_samples: NumericValue; throughput_sum: NumericValue; throughput_samples: NumericValue };
 type Aggregate = { requests: number; successRequests: number; totalTokens: number; latencySum: number; latencySamples: number; throughputSum: number; throughputSamples: number };
 
 function emptyAggregate(): Aggregate { return { requests: 0, successRequests: 0, totalTokens: 0, latencySum: 0, latencySamples: 0, throughputSum: 0, throughputSamples: 0 }; }
@@ -150,23 +150,8 @@ function mergeAggregate(target: Aggregate, row: RollupRow) {
 }
 
 async function providerRollups(env: Env, providerId: string, hours: number, now: Date): Promise<RollupRow[]> {
-	const rows: RollupRow[] = [];
-	const client = getDataClient(env);
 	const fromIso = new Date(now.getTime() - hours * 3_600_000).toISOString();
-	for (let offset = 0, page = 0; page < 8; page += 1, offset += 5000) {
-		const result = await client.from("v2_web_public_usage_hourly")
-			.select("bucket_15m,canonical_model_id,requests,success_requests,total_tokens,latency_sum_ms,latency_samples,throughput_sum,throughput_samples")
-			.eq("provider", providerId).gte("bucket_15m", fromIso).lte("bucket_15m", now.toISOString())
-			.order("bucket_15m", { ascending: true }).range(offset, offset + 4999);
-		if (result.error) {
-			if (missingRelation(result.error)) return [];
-			throw result.error;
-		}
-		const batch = (result.data ?? []) as RollupRow[];
-		rows.push(...batch);
-		if (batch.length < 5000) break;
-	}
-	return rows;
+	return listProviderRollups(env, providerId, fromIso, now.toISOString()) as Promise<RollupRow[]>;
 }
 
 function metricLeaders(stats: Map<string, Aggregate> | undefined, labels: Map<string, string>, metric: "throughput" | "latency", limit = 5) {
@@ -185,9 +170,7 @@ async function buildProviderMetrics(env: Env, providerId: string, hours: number)
 	const empty = { summary: { uptimePct: null, avgLatencyMs: null, avgThroughput: null, avgGenerationMs: null, requests24h: 0, successful24h: 0 }, timeseries: { latency: [], throughput: [] }, dailyModelLeaderboards: {} };
 	if (!rows.length) return empty;
 	const modelIds = Array.from(new Set(rows.map((row) => String(row.canonical_model_id ?? "").trim()).filter(Boolean)));
-	const labelResult = modelIds.length ? await getDataClient(env).from("v2_models").select("model_slug,name").in("model_slug", modelIds) : { data: [], error: null };
-	if (labelResult.error) throw labelResult.error;
-	const labels = new Map((labelResult.data ?? []).map((row) => [String(row.model_slug), String(row.name ?? row.model_slug)]));
+	const labels = await getProviderModelNames(env, modelIds);
 	const totals = emptyAggregate();
 	const days = new Map<string, Aggregate>();
 	const dayModels = new Map<string, Map<string, Aggregate>>();
@@ -220,26 +203,14 @@ function calendarDays(days: number) {
 
 async function tokenRollups(args: { env: Env; providerId: string; idColumn: "canonical_model_id" | "app_id"; ids?: string[]; since: string; to: string; maxPages: number }) {
 	if (args.ids && !args.ids.length) return [];
-	const rows: Array<Record<string, unknown>> = [];
-	for (let offset = 0, page = 0; page < args.maxPages; page += 1, offset += 5000) {
-		let query = getDataClient(args.env).from("v2_web_public_usage_hourly").select(`bucket_15m,${args.idColumn},total_tokens`).eq("provider", args.providerId)
-			.gte("bucket_15m", args.since).lte("bucket_15m", args.to).order("bucket_15m", { ascending: true }).range(offset, offset + 4999);
-		if (args.ids?.length) query = query.in(args.idColumn, args.ids);
-		const result = await query;
-		if (result.error) {
-			if (missingRelation(result.error)) return [];
-			throw result.error;
-		}
-		const pageRows = (result.data ?? []) as Array<Record<string, unknown>>; rows.push(...pageRows);
-		if (pageRows.length < 5000) break;
-	}
-	return rows;
+	const rows = await listProviderRollups(args.env, args.providerId, args.since, args.to);
+	return rows.filter((row) => !args.ids?.length || args.ids.includes(String(args.idColumn === "canonical_model_id" ? row.canonical_model_id : row.app_id)));
 }
 
 async function modelTokenSeries(env: Env, providerId: string, days: number, topLimit: number) {
 	const window = calendarDays(days);
-	const topResult = await getDataClient(env).rpc("get_top_models_stats_tokens", { p_provider: providerId, p_since: window.since.toISOString(), p_limit: Math.min(100, Math.max(topLimit * 5, topLimit)) });
-	const preferred = topResult.error ? [] : (topResult.data ?? []).map((row) => String(row.model_id ?? "").trim()).filter(Boolean);
+	const topRows = await listProviderTopModels(env, providerId, window.since.toISOString(), Math.min(100, Math.max(topLimit * 5, topLimit)));
+	const preferred = topRows.map((row) => String(row.model_id ?? "").trim()).filter(Boolean);
 	let rows = await tokenRollups({ env, providerId, idColumn: "canonical_model_id", ids: preferred, since: window.since.toISOString(), to: window.now.toISOString(), maxPages: 8 });
 	if (!rows.length) rows = await tokenRollups({ env, providerId, idColumn: "canonical_model_id", since: window.since.toISOString(), to: window.now.toISOString(), maxPages: 4 });
 	const totals = new Map<string, number>(); const daily = new Map<string, Map<string, number>>();
@@ -249,17 +220,14 @@ async function modelTokenSeries(env: Env, providerId: string, days: number, topL
 		totals.set(id, (totals.get(id) ?? 0) + tokens); const values = daily.get(day) ?? new Map<string, number>(); values.set(id, (values.get(id) ?? 0) + tokens); daily.set(day, values);
 	}
 	const ids = Array.from(totals.entries()).sort((left, right) => right[1] - left[1]).slice(0, topLimit).map(([id]) => id);
-	const namesResult = ids.length ? await getDataClient(env).from("v2_models").select("model_slug,name").in("model_slug", ids) : { data: [], error: null };
-	if (namesResult.error) throw namesResult.error;
-	const names = new Map((namesResult.data ?? []).map((row) => [String(row.model_slug), String(row.name ?? row.model_slug)]));
+	const names = await getProviderModelNames(env, ids);
 	const models = ids.map((modelId) => ({ modelId, modelName: names.get(modelId) ?? modelId, totalTokens: Math.round(totals.get(modelId) ?? 0) }));
 	return { models, points: window.buckets.flatMap((bucket) => models.map((model) => ({ bucket, modelId: model.modelId, tokens: Math.round(daily.get(bucket)?.get(model.modelId) ?? 0) }))) };
 }
 
 async function appTokenSeries(env: Env, providerId: string, days: number, topLimit: number) {
 	const window = calendarDays(days); const period = days <= 1 ? "day" : days <= 7 ? "week" : "month"; const periodDays = period === "month" ? 30 : period === "week" ? 7 : 1;
-	const topResult = await getDataClient(env).rpc("get_top_apps_stats", { p_provider: providerId, p_since: new Date(Date.now() - periodDays * 86_400_000).toISOString(), p_limit: Math.max(topLimit * 5, topLimit) });
-	const topRows = topResult.error ? [] : (topResult.data ?? []).filter((row) => !unknownApp(String(row.app_id ?? ""), row.title));
+	const topRows = (await listProviderTopApps(env, providerId, new Date(Date.now() - periodDays * 86_400_000).toISOString(), Math.max(topLimit * 5, topLimit))).filter((row) => !unknownApp(String(row.app_id ?? ""), row.title));
 	const preferred = topRows.map((row) => String(row.app_id ?? "").trim()).filter(Boolean);
 	let rows = await tokenRollups({ env, providerId, idColumn: "app_id", ids: preferred, since: window.since.toISOString(), to: window.now.toISOString(), maxPages: 8 });
 	if (!rows.length) rows = await tokenRollups({ env, providerId, idColumn: "app_id", since: window.since.toISOString(), to: window.now.toISOString(), maxPages: 4 });
@@ -270,9 +238,7 @@ async function appTokenSeries(env: Env, providerId: string, days: number, topLim
 		totals.set(id, (totals.get(id) ?? 0) + tokens); const values = daily.get(day) ?? new Map<string, number>(); values.set(id, (values.get(id) ?? 0) + tokens); daily.set(day, values);
 	}
 	const ids = Array.from(totals.entries()).sort((left, right) => right[1] - left[1]).slice(0, topLimit).map(([id]) => id);
-	const metaResult = ids.length ? await getDataClient(env).from("api_apps").select("id,title,url,image_url").in("id", ids).eq("is_public", true) : { data: [], error: null };
-	if (metaResult.error) throw metaResult.error;
-	const meta = new Map((metaResult.data ?? []).map((row) => [String(row.id), row])); const topMeta = new Map(topRows.map((row) => [String(row.app_id), row]));
+	const meta = await getProviderAppMetadata(env, ids); const topMeta = new Map(topRows.map((row) => [String(row.app_id), row]));
 	const apps = ids.filter((appId) => meta.has(appId)).map((appId) => {
 		const primary = topMeta.get(appId) as Record<string, unknown> | undefined; const fallback = meta.get(appId); const title = String(primary?.title ?? fallback?.title ?? appId).trim() || appId;
 		const primaryUrl = typeof primary?.url === "string" ? primary.url : null;
@@ -295,46 +261,7 @@ function lifecycleDate(model: RecentModel): string | null {
 }
 
 async function recentModels(env: Env, providerId: string, since: string | null, limit: number): Promise<RecentModel[]> {
-	const client = getDataClient(env);
-	const providerResult = await client.from("v2_model_provider_routes")
-		.select("model_slug,provider_model_slug,created_at,routing_enabled,status").eq("provider_slug", providerId);
-	if (providerResult.error) throw providerResult.error;
-	const modelIds = Array.from(new Set((providerResult.data ?? []).map((row) => row.model_slug).filter((id): id is string => Boolean(id))));
-	const modelResult = modelIds.length
-		? await client.from("v2_models").select("model_slug,name,lab_slug,released_at,announced_at,lab:v2_labs!v2_models_lab_slug_fkey(lab_slug,name)").in("model_slug", modelIds)
-		: { data: [], error: null };
-	if (modelResult.error) throw modelResult.error;
-	const details = new Map((modelResult.data ?? []).map((row) => [row.model_slug, {
-		name: row.name ?? null,
-		organisation_id: row.lab_slug ?? null,
-		release_date: row.released_at ?? null,
-		announcement_date: row.announced_at ?? null,
-		organisation: row.lab ?? null,
-	}]));
-	const merged = new Map<string, RecentModel>();
-	for (const row of providerResult.data ?? []) {
-		const key = row.model_slug;
-		if (!key || !row.provider_model_slug || !row.created_at) continue;
-		const next: RecentModel = {
-			model_id: key,
-			api_model_id: row.provider_model_slug,
-			created_at: row.created_at,
-			is_active_gateway: Boolean(row.routing_enabled && ["active", "degraded"].includes(String(row.status))),
-			data_models: details.get(row.model_slug) ?? null,
-		};
-		const previous = merged.get(key);
-		if (!previous) { merged.set(key, next); continue; }
-		if (timeValue(next.created_at) > timeValue(previous.created_at)) {
-			previous.created_at = next.created_at;
-			previous.api_model_id = next.api_model_id;
-		}
-		previous.is_active_gateway ||= next.is_active_gateway;
-		if (!previous.data_models && next.data_models) previous.data_models = next.data_models;
-	}
-	return Array.from(merged.values())
-		.filter((model) => !since || timeValue(lifecycleDate(model)) >= timeValue(since))
-		.sort((left, right) => timeValue(lifecycleDate(right)) - timeValue(lifecycleDate(left)) || timeValue(right.created_at) - timeValue(left.created_at) || left.model_id.localeCompare(right.model_id))
-		.slice(0, limit);
+	return listProviderRecentModels(env, providerId, since, limit) as Promise<RecentModel[]>;
 }
 
 export const publicProvidersRouter = new Hono<{ Bindings: Env }>();
@@ -348,21 +275,8 @@ publicProvidersRouter.get("/:providerId/top-models", async (c) => {
 	const providerId = c.req.param("providerId");
 	const count = boundedInt(c.req.query("count"), 6, 50);
 	try {
-		const client = getDataClient(c.env);
-		const result = await client.rpc("get_top_models_stats_tokens", {
-			p_provider: providerId,
-			p_since: new Date(Date.now() - 86_400_000).toISOString(),
-			p_limit: count,
-		});
-		if (result.error) {
-			if (missingRelation(result.error)) return withPublicCache(c.json({ models: [] }), providerPolicy(TELEMETRY_CACHE, providerId));
-			throw result.error;
-		}
-		const ids = (result.data ?? []).map((row) => row.model_id).filter((id): id is string => Boolean(id));
-		const visibility = ids.length ? await client.from("v2_models").select("model_slug,hidden").in("model_slug", ids) : { data: [], error: null };
-		if (visibility.error) throw visibility.error;
-		const hidden = new Set((visibility.data ?? []).filter((row) => row.hidden).map((row) => row.model_slug));
-		const models = (result.data ?? []).filter((row) => !hidden.has(row.model_id)).map((row) => ({
+		const rows = await listProviderTopModels(c.env, providerId, new Date(Date.now() - 86_400_000).toISOString(), count);
+		const models = rows.map((row) => ({
 			model_id: row.model_id,
 			model_name: row.model_name,
 			request_count: Number(row.request_count),
@@ -383,21 +297,8 @@ publicProvidersRouter.get("/:providerId/top-apps", async (c) => {
 	const count = boundedInt(c.req.query("count"), 20, 100);
 	const days = period === "month" ? 30 : period === "week" ? 7 : 1;
 	try {
-		const client = getDataClient(c.env);
-		const result = await client.rpc("get_top_apps_stats", { p_provider: providerId, p_since: new Date(Date.now() - days * 86_400_000).toISOString(), p_limit: count });
-		if (result.error) {
-			if (missingRelation(result.error)) return withPublicCache(c.json({ apps: [] }), providerPolicy(TELEMETRY_CACHE, providerId));
-			throw result.error;
-		}
-		const rows = (result.data ?? []).filter((row) => !unknownApp(String(row.app_id ?? ""), row.title));
-		const ids = rows.map((row) => String(row.app_id ?? "")).filter(Boolean);
-		const appResult = ids.length ? await client.from("api_apps").select("id,title,url,image_url").in("id", ids).eq("is_public", true) : { data: [], error: null };
-		if (appResult.error) throw appResult.error;
-		const publicApps = new Map((appResult.data ?? []).map((row) => [row.id, row]));
-		const apps = rows.flatMap((row) => {
-			const app = publicApps.get(row.app_id);
-			return app ? [{ app_id: row.app_id, title: app.title || row.title || row.app_id, url: app.url || row.url || null, image_url: app.image_url ?? null, total_tokens: Number(row.total_tokens) }] : [];
-		});
+		const rows = await listProviderTopApps(c.env, providerId, new Date(Date.now() - days * 86_400_000).toISOString(), count);
+		const apps = rows.filter((row) => !unknownApp(row.app_id, row.title)).map((row) => ({ ...row, total_tokens: Number(row.total_tokens) }));
 		return withPublicCache(c.json({ apps }), providerPolicy(TELEMETRY_CACHE, providerId));
 	} catch (error) {
 		console.error("[web-api/providers] top apps failed", { providerId, error });
@@ -409,13 +310,12 @@ publicProvidersRouter.get("/:providerId/updates", async (c) => {
 	const providerId = c.req.param("providerId");
 	const since = new Date(Date.now() - 7 * 86_400_000).toISOString();
 	try {
-		const [recent, added, tokensResult] = await Promise.all([
+		const [recent, added, recentTokens] = await Promise.all([
 			recentModels(c.env, providerId, null, 5),
 			recentModels(c.env, providerId, since, 5),
-			getDataClient(c.env).rpc("get_provider_token_usage", { provider_id: providerId, since_ts: since }),
+			getProviderRecentTokens(c.env, providerId, since),
 		]);
-		if (tokensResult.error) throw tokensResult.error;
-		return withPublicCache(c.json({ newModels: added, recentModels: recent, recentTokens: Number(tokensResult.data?.[0]?.total_tokens ?? 0) }), providerPolicy(UPDATES_CACHE, providerId));
+		return withPublicCache(c.json({ newModels: added, recentModels: recent, recentTokens }), providerPolicy(UPDATES_CACHE, providerId));
 	} catch (error) {
 		console.error("[web-api/providers] updates failed", { providerId, error });
 		return c.json({ error: "provider_updates_unavailable" }, 503);
@@ -449,27 +349,13 @@ publicProvidersRouter.get("/:providerId/models", async (c) => {
 	const providerId = c.req.param("providerId");
 	if (["inception", "inceptron", "nextbit"].includes(providerId.toLowerCase())) return withPublicCache(c.json({ models: [] }), providerPolicy(UPDATES_CACHE, providerId));
 	try {
-		const client = getDataClient(c.env);
-		const providerResult = await client.from("v2_model_provider_routes")
-			.select("provider_model_id,provider_model_slug,model_slug,routing_enabled,status,input_modalities,output_modalities,created_at")
-			.eq("provider_slug", providerId)
-			.order("created_at", { ascending: false });
-		if (providerResult.error) throw providerResult.error;
-		const providerRows = providerResult.data ?? [];
+		const sources = await loadProviderModelCatalogue(c.env, providerId);
+		const providerRows = sources.routes;
 		const providerModelIds = providerRows.map((row) => row.provider_model_id).filter((id): id is string => Boolean(id));
 		const modelIds = Array.from(new Set(providerRows.map((row) => row.model_slug).filter((id): id is string => Boolean(id))));
-		const [capsResult, modelsResult, skusResult] = await Promise.all([
-			providerModelIds.length ? client.from("v2_route_capabilities").select("provider_model_id,capability_id,params,status").in("provider_model_id", providerModelIds) : Promise.resolve({ data: [], error: null }),
-			modelIds.length ? client.from("v2_models").select("model_slug,name,released_at,announced_at,hidden").in("model_slug", modelIds).eq("hidden", false) : Promise.resolve({ data: [], error: null }),
-			providerModelIds.length ? client.from("v2_pricing_skus").select("sku_id,provider_model_id,service_tier_slug,status,effective_from,effective_to").in("provider_model_id", providerModelIds) : Promise.resolve({ data: [], error: null }),
-		]);
-		if (capsResult.error || modelsResult.error || skusResult.error) throw capsResult.error ?? modelsResult.error ?? skusResult.error;
-		const skuIds = (skusResult.data ?? []).map((row) => row.sku_id).filter((id): id is string => Boolean(id));
-		const metersResult = skuIds.length
-			? await client.from("v2_pricing_sku_meters").select("sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order").in("sku_id", skuIds)
-			: { data: [], error: null };
-		if (metersResult.error) throw metersResult.error;
-		const visible = new Set((modelsResult.data ?? []).map((row) => row.model_slug)); const modelMeta = new Map((modelsResult.data ?? []).map((row) => [row.model_slug, row]));
+		const capsResult = { data: sources.capabilities }; const skusResult = { data: sources.skus }; const metersResult = { data: sources.meters };
+		const modelMeta = new Map(providerRows.map((row) => [row.model_slug, { model_slug: row.model_slug, name: row.model.name, released_at: row.model.released_at, announced_at: row.model.announced_at }]));
+		const visible = new Set(modelMeta.keys());
 		const capabilities = new Map<string, string[]>(); const params = new Map<string, string[]>();
 		for (const cap of capsResult.data ?? []) {
 			if (cap.status === "disabled" || !cap.provider_model_id || !cap.capability_id) continue;

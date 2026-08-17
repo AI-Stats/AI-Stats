@@ -3,24 +3,24 @@ import { describe, expect, it, vi } from "vitest";
 import { runGatewayTelemetryPipelines } from "./gateway-telemetry";
 
 describe("runGatewayTelemetryPipelines", () => {
-	it("delivers Supabase and Axiom independently", async () => {
-		const writeSupabase = vi.fn(async () => undefined);
+	it("delivers the database and Axiom independently", async () => {
+		const writeDatabase = vi.fn(async () => undefined);
 		const writeOtlp = vi.fn(async () => undefined);
 		const writeAxiom = vi.fn(async () => undefined);
 
 		const deliveries = await runGatewayTelemetryPipelines({
 			requestId: "req_1",
 			workspaceId: "ws_1",
-			writeSupabase,
+			writeDatabase,
 			writeOtlp,
 			writeAxiom,
 		});
 
-		expect(writeSupabase).toHaveBeenCalledOnce();
+		expect(writeDatabase).toHaveBeenCalledOnce();
 		expect(writeOtlp).toHaveBeenCalledOnce();
 		expect(writeAxiom).toHaveBeenCalledOnce();
 		expect(deliveries).toEqual([
-			{ sink: "supabase", delivered: true, error: null },
+			{ sink: "database", delivered: true, error: null },
 			{ sink: "axiom", delivered: true, error: null },
 			{ sink: "otlp", delivered: true, error: null },
 		]);
@@ -42,7 +42,7 @@ describe("runGatewayTelemetryPipelines", () => {
 		resolveBroadcast();
 	});
 
-	it("still delivers Axiom and reports when Supabase fails", async () => {
+	it("still delivers Axiom and reports when the database fails", async () => {
 		const writeAxiom = vi.fn(async () => undefined);
 		const onDeliveryFailure = vi.fn(async () => undefined);
 		const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
@@ -50,7 +50,7 @@ describe("runGatewayTelemetryPipelines", () => {
 		const deliveries = await runGatewayTelemetryPipelines({
 			requestId: "req_2",
 			workspaceId: "ws_2",
-			writeSupabase: async () => {
+			writeDatabase: async () => {
 				throw new Error("database unavailable");
 			},
 			writeAxiom,
@@ -59,13 +59,13 @@ describe("runGatewayTelemetryPipelines", () => {
 
 		expect(writeAxiom).toHaveBeenCalledOnce();
 		expect(onDeliveryFailure).toHaveBeenCalledWith({
-			sink: "supabase",
+			sink: "database",
 			requestId: "req_2",
 			workspaceId: "ws_2",
 			error: "database unavailable",
 		});
 		expect(deliveries[0]).toEqual({
-			sink: "supabase",
+			sink: "database",
 			delivered: false,
 			error: "database unavailable",
 		});
@@ -73,12 +73,12 @@ describe("runGatewayTelemetryPipelines", () => {
 		consoleError.mockRestore();
 	});
 
-	it("does not attempt Supabase persistence for testing-mode requests", async () => {
+	it("does not attempt database persistence for testing-mode requests", async () => {
 		const writeAxiom = vi.fn(async () => undefined);
 
 		const deliveries = await runGatewayTelemetryPipelines({
 			requestId: "req_perf",
-			writeSupabase: null,
+			writeDatabase: null,
 			writeAxiom,
 		});
 

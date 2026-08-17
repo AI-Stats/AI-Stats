@@ -1,12 +1,11 @@
 import type { InternalAuthHeaderData } from "@/lib/fetchers/internal/authTypes";
-import { createClient } from "@/utils/supabase/server";
 import { fetchAccountWebApi } from "@/lib/web-api/client";
+import { getServerIdentity } from "@/lib/auth/serverIdentity";
 
 export async function fetchInternalAuthHeaderData(): Promise<InternalAuthHeaderData> {
-	const supabase = await createClient();
-	const { data } = await supabase.auth.getSession();
+	const identity = await getServerIdentity();
 	return fetchAccountWebApi<InternalAuthHeaderData>(
 		"/api/account/auth/header",
-		data.session?.access_token,
+		identity?.session.token,
 	);
 }

@@ -185,15 +185,8 @@ jobs:
             - name: Validate canonical Phaseo domain
               run: pnpm run validate:domains
 
-            - name: Validate unique Supabase migration versions
-              shell: bash
-              run: |
-                  duplicates="$(find supabase/migrations -maxdepth 1 -type f -name '*.sql' -printf '%f\n' | sed -E 's/^([0-9]+)_.*/\1/' | sort | uniq -d)"
-                  if [[ -n "$duplicates" ]]; then
-                    echo "::error::Duplicate Supabase migration version(s):"
-                    echo "$duplicates"
-                    exit 1
-                  fi
+            - name: Reject legacy database runtime dependencies
+              run: pnpm run validate:no-supabase-runtime
 
             - name: Install dependencies
               run: corepack pnpm install --frozen-lockfile
@@ -222,9 +215,9 @@ jobs:
                   filters: |
                       data: 'packages/data/catalog/src/data/**'
                       migrations:
-                          - 'supabase/migrations/**'
-                          - 'supabase/config.toml'
-                          - 'scripts/validate-supabase-migrations.mjs'
+                          - 'packages/data/db/src/generated/*.sql'
+                          - 'packages/data/db/src/generated/meta/**'
+                          - 'packages/data/db/src/schema.ts'
 
     migration-validation:
         name: Validate database migration policy
@@ -241,10 +234,20 @@ jobs:
               with:
                   fetch-depth: 0
 
-            - name: Validate migration history
-              env:
-                  MIGRATION_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
-              run: node scripts/validate-supabase-migrations.mjs "${MIGRATION_BASE_SHA}"
+            - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
+              with:
+                  version: 10.33.0
+                  run_install: false
+
+            - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: pnpm
+
+            - run: corepack pnpm install --frozen-lockfile
+
+            - name: Validate Drizzle migration history
+              run: pnpm --filter @phaseo/db db:check
 
     migrate-production:
         name: Apply production database migrations
@@ -267,52 +270,36 @@ jobs:
         permissions:
             contents: read
         env:
-            SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-            SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-            SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
-            SUPABASE_YES: "true"
+            PLANETSCALE_MIGRATION_DATABASE_URL: ${{ secrets.PLANETSCALE_MIGRATION_DATABASE_URL }}
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+            - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
+              with:
+                  version: 10.33.0
+                  run_install: false
+
+            - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: pnpm
+
+            - run: corepack pnpm install --frozen-lockfile
 
             - name: Validate production migration configuration
               shell: bash
               run: |
                   set -euo pipefail
-                  missing=()
-                  [ -z "${SUPABASE_ACCESS_TOKEN:-}" ] && missing+=("SUPABASE_ACCESS_TOKEN")
-                  [ -z "${SUPABASE_DB_PASSWORD:-}" ] && missing+=("SUPABASE_DB_PASSWORD")
-                  [ -z "${SUPABASE_PROJECT_ID:-}" ] && missing+=("SUPABASE_PROJECT_ID")
-                  if [ "${#missing[@]}" -gt 0 ]; then
-                    echo "::error::Missing production-database environment secret(s): ${missing[*]}"
+                  if [ -z "${PLANETSCALE_MIGRATION_DATABASE_URL:-}" ]; then
+                    echo "::error::Missing PLANETSCALE_MIGRATION_DATABASE_URL"
                     exit 1
                   fi
 
-            - name: Link production project
-              shell: bash
-              run: |
-                  set -euo pipefail
-                  npx --yes supabase@2.111.0 link \
-                    --project-ref "${SUPABASE_PROJECT_ID}" \
-                    --password "${SUPABASE_DB_PASSWORD}"
-
-            - name: Preview pending production migrations
-              shell: bash
-              run: |
-                  set -euo pipefail
-                  npx --yes supabase@2.111.0 db push \
-                    --linked \
-                    --include-all \
-                    --dry-run \
-                    --password "${SUPABASE_DB_PASSWORD}"
+            - name: Validate Drizzle migration history
+              run: pnpm --filter @phaseo/db db:check
 
             - name: Apply pending production migrations
-              shell: bash
-              run: |
-                  set -euo pipefail
-                  npx --yes supabase@2.111.0 db push \
-                    --linked \
-                    --include-all \
-                    --password "${SUPABASE_DB_PASSWORD}"
+              run: pnpm --filter @phaseo/db exec drizzle-kit migrate
 
     openapi-lint:
         name: OpenAPI lint
@@ -489,8 +476,7 @@ jobs:
             ((github.event_name == 'push' && needs.check-paths.outputs.data-changed == 'true') ||
             (github.event_name == 'workflow_dispatch' && inputs.importer_mode != 'skip'))
         env:
-            SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-            NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+            PLANETSCALE_DATABASE_URL: ${{ secrets.PLANETSCALE_DATABASE_URL }}
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
               with:
@@ -528,17 +514,13 @@ jobs:
               run: |
                   set -euo pipefail
                   missing=()
-                  [ -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ] && missing+=("SUPABASE_SERVICE_ROLE_KEY")
-                  [ -z "${NEXT_PUBLIC_SUPABASE_URL:-}" ] && missing+=("NEXT_PUBLIC_SUPABASE_URL")
+                  [ -z "${PLANETSCALE_DATABASE_URL:-}" ] && missing+=("PLANETSCALE_DATABASE_URL")
                   if [ "${#missing[@]}" -gt 0 ]; then
                     echo "::error::Missing importer secret(s): ${missing[*]}"
                     exit 1
                   fi
 
             - name: Run importer (all sections)
-              env:
-                  SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
-                  NEXT_PUBLIC_SUPABASE_URL: ${{ env.NEXT_PUBLIC_SUPABASE_URL }}
               shell: bash
               run: |
                   set -euo pipefail
@@ -584,7 +566,7 @@ jobs:
 
             - name: Check importer state update
               id: importer-state-change
-              if: success() && inputs.importer_mode != 'dry-run' && env.SUPABASE_SERVICE_ROLE_KEY != '' && env.NEXT_PUBLIC_SUPABASE_URL != ''
+              if: success() && inputs.importer_mode != 'dry-run' && env.PLANETSCALE_DATABASE_URL != ''
               shell: bash
               run: |
                   set -euo pipefail
@@ -939,7 +921,6 @@ jobs:
                   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
                   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
                   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-                  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
               if: ${{ env.VERCEL_PROJECT_ID != '' }}
               run: |
                   git_branch="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"

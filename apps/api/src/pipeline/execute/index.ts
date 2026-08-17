@@ -6,8 +6,9 @@
 import type { GatewayResponsePayload } from "@core/types";
 import type { ByokKeyMeta, PipelineContext, ProviderAttemptLog } from "../before/types";
 import { Timer } from "../telemetry/timer";
-import { dispatchBackground, ensureRuntimeForBackground, getSupabaseAdmin } from "@/runtime/env";
+import { dispatchBackground, ensureRuntimeForBackground } from "@/runtime/env";
 import { BYOK_KEYS_PER_PROVIDER_LIMIT } from "@/core/byok";
+import { touchByokKeyLastUsed } from "@/repositories/gateway-context";
 
 export type PipelineTiming = {
 	timer: Timer;
@@ -504,16 +505,13 @@ export async function doRequestWithIR(
 			if (choice.credential.kind === "byok") {
 				const usedKeyId = choice.credential.key.id;
 				dispatchProviderHealthBackground(async () => {
-					const { error } = await getSupabaseAdmin()
-						.from("byok_keys")
-						.update({ last_used_at: new Date().toISOString() })
-						.eq("id", usedKeyId)
-						.eq("workspace_id", ctx.workspaceId);
-					if (error) {
+					try {
+						await touchByokKeyLastUsed({ id: usedKeyId, workspaceId: ctx.workspaceId });
+					} catch (error) {
 						console.error("[gateway] Failed to mark BYOK key as used", {
 							workspaceId: ctx.workspaceId,
 							keyId: usedKeyId,
-							error: error.message,
+							error: error instanceof Error ? error.message : String(error),
 						});
 					}
 				});
@@ -1152,6 +1150,5 @@ async function attemptProviderWithIR(
 		return { ok: false };
 	}
 }
-
 
 

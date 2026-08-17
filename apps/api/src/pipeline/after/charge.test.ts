@@ -77,7 +77,7 @@ describe("recordUsageAndChargeOnce", () => {
 
 	it("retries an idempotent charge after a transient persistence failure", async () => {
 		recordUsageAndChargeMock
-			.mockRejectedValueOnce(new Error("temporary_supabase_failure"))
+			.mockRejectedValueOnce(new Error("temporary_database_failure"))
 			.mockResolvedValueOnce(undefined);
 		const ctx: any = {
 			requestId: "req_charge_retry",
@@ -96,4 +96,3 @@ describe("recordUsageAndChargeOnce", () => {
 		expect(ctx.meta.__usageChargeRecorded).toBe(true);
 	});
 });
-

@@ -461,8 +461,6 @@ function buildRecordConfig(): RecordConfig | undefined {
 
 function buildAimockBindings(): Partial<GatewayBindings> {
     const bindings: Record<string, string | KVNamespace> = {
-        SUPABASE_URL: "https://example.supabase.co",
-        SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
         OPENAI_API_KEY: envValue("OPENAI_API_KEY", "test-openai-key"),
         OPENAI_BASE_URL: AIMOCK_BASE_URL,
         X_AI_API_KEY: envValue("X_AI_API_KEY", "test-xai-key"),

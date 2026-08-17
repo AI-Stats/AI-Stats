@@ -1,15 +1,13 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
 import { apiBaseUrl } from "@/lib/oauth/apiBaseUrl";
+import { headers } from "next/headers";
 
 async function callDeviceActivation(body: Record<string, unknown>) {
-	const supabase = await createClient();
-	const {
-		data: { session },
-	} = await supabase.auth.getSession();
-	if (!session?.access_token) {
+	const cookie = (await headers()).get("cookie")?.trim();
+	const authHeaders: HeadersInit | null = cookie ? { Cookie: cookie } : null;
+	if (!authHeaders) {
 		throw new Error("Unauthorized");
 	}
 
@@ -17,7 +15,7 @@ async function callDeviceActivation(body: Record<string, unknown>) {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
-			Authorization: `Bearer ${session.access_token}`,
+			...authHeaders,
 		},
 		body: JSON.stringify(body),
 		cache: "no-store",

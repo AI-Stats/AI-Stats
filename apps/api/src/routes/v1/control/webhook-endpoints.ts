@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import type { Env } from "@/runtime/types";
-import { clearRuntime, configureRuntime, getSupabaseAdmin } from "@/runtime/env";
+import { clearRuntime, configureRuntime } from "@/runtime/env";
+import { createWebhookEndpoint, deleteWebhookEndpoint, findWebhookEndpoint, listWebhookEndpoints, updateWebhookEndpoint } from "@/repositories/webhook-endpoints";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
 import {
@@ -172,18 +173,10 @@ app.get("/", async (c) => {
 	const limit = Math.max(1, Math.min(PAGE_SIZE, Number(url.searchParams.get("limit") ?? PAGE_SIZE) || PAGE_SIZE));
 	const offset = Math.max(0, Number(url.searchParams.get("offset") ?? 0) || 0);
 	const includeDeleted = url.searchParams.get("include_deleted") === "true";
-	let query = getSupabaseAdmin()
-		.from("gateway_webhook_endpoints")
-		.select("*")
-		.eq("workspace_id", auth.workspaceId)
-		.order("created_at", { ascending: false })
-		.range(offset, offset + limit - 1);
-	if (!includeDeleted) query = query.neq("status", "deleted");
-	const { data, error } = await query;
-	if (error) throw new Error(error.message ?? "Failed to list webhook endpoints");
+	const data = await listWebhookEndpoints({ workspaceId: auth.workspaceId, includeDeleted, limit, offset });
 	return json({
 		object: "list",
-		data: Array.isArray(data) ? data.map((row) => toPublicWebhookEndpoint(row as Record<string, unknown>)) : [],
+		data: data.map((row) => toPublicWebhookEndpoint(row as Record<string, unknown>)),
 	});
 });
 
@@ -199,22 +192,17 @@ app.post("/", async (c) => {
 	if (endpointUrl instanceof Response) return endpointUrl;
 	const signingSecret = generateWebhookSigningSecret();
 	const encrypted = await encryptWebhookSecret(signingSecret);
-	const { data, error } = await getSupabaseAdmin()
-		.from("gateway_webhook_endpoints")
-		.insert({
-			workspace_id: auth.workspaceId,
+	const data = await createWebhookEndpoint({
+			workspaceId: auth.workspaceId,
 			name: parsed.data.name,
 			url: endpointUrl,
 			events: normalizeWebhookEndpointEvents(parsed.data.events),
-			secret_ciphertext: encrypted.secretCiphertext,
-			secret_iv: encrypted.secretIv,
-			secret_hash: encrypted.secretHash,
-			secret_key_version: encrypted.secretKeyVersion,
-			created_by: auth.userId,
-		})
-		.select("*")
-		.single();
-	if (error) throw new Error(error.message ?? "Failed to create webhook endpoint");
+			secretCiphertext: encrypted.secretCiphertext,
+			secretIv: encrypted.secretIv,
+			secretHash: encrypted.secretHash,
+			secretKeyVersion: encrypted.secretKeyVersion,
+			createdBy: auth.userId,
+		});
 	return json({
 		...toPublicWebhookEndpoint(data as Record<string, unknown>),
 		signing_secret: signingSecret,
@@ -227,14 +215,8 @@ app.get("/:id", async (c) => {
 	if (permissionError) return permissionError;
 	if (!auth.workspaceId) return validationError("workspace_id_required");
 	const id = c.req.param("id");
-	const { data, error } = await getSupabaseAdmin()
-		.from("gateway_webhook_endpoints")
-		.select("*")
-		.eq("workspace_id", auth.workspaceId)
-		.eq("id", id)
-		.maybeSingle();
-	if (error) throw new Error(error.message ?? "Failed to load webhook endpoint");
-	if (!data || String((data as any).status ?? "") === "deleted") return notFound();
+	const data = await findWebhookEndpoint(auth.workspaceId, id);
+	if (!data) return notFound();
 	return json(toPublicWebhookEndpoint(data as Record<string, unknown>));
 });
 
@@ -246,9 +228,7 @@ app.patch("/:id", async (c) => {
 	const body = await c.req.json().catch(() => null);
 	const parsed = updateWebhookEndpointSchema.safeParse(body);
 	if (!parsed.success) return validationError("Invalid webhook endpoint payload.", parsed.error.issues);
-	const patch: Record<string, unknown> = {
-		updated_at: new Date().toISOString(),
-	};
+	const patch: Parameters<typeof updateWebhookEndpoint>[2] = {};
 	if (parsed.data.name !== undefined) patch.name = parsed.data.name;
 	if (parsed.data.url !== undefined) {
 		const endpointUrl = await normalizeEndpointUrlOrError(parsed.data.url);
@@ -257,15 +237,7 @@ app.patch("/:id", async (c) => {
 	}
 	if (parsed.data.events !== undefined) patch.events = normalizeWebhookEndpointEvents(parsed.data.events);
 	if (parsed.data.status !== undefined) patch.status = parsed.data.status;
-	const { data, error } = await getSupabaseAdmin()
-		.from("gateway_webhook_endpoints")
-		.update(patch)
-		.eq("workspace_id", auth.workspaceId)
-		.eq("id", c.req.param("id"))
-		.neq("status", "deleted")
-		.select("*")
-		.maybeSingle();
-	if (error) throw new Error(error.message ?? "Failed to update webhook endpoint");
+	const data = await updateWebhookEndpoint(auth.workspaceId, c.req.param("id"), patch);
 	if (!data) return notFound();
 	return json(toPublicWebhookEndpoint(data as Record<string, unknown>));
 });
@@ -277,21 +249,12 @@ app.post("/:id/rotate-secret", async (c) => {
 	if (!auth.workspaceId) return validationError("workspace_id_required");
 	const signingSecret = generateWebhookSigningSecret();
 	const encrypted = await encryptWebhookSecret(signingSecret);
-	const { data, error } = await getSupabaseAdmin()
-		.from("gateway_webhook_endpoints")
-		.update({
-			secret_ciphertext: encrypted.secretCiphertext,
-			secret_iv: encrypted.secretIv,
-			secret_hash: encrypted.secretHash,
-			secret_key_version: encrypted.secretKeyVersion,
-			updated_at: new Date().toISOString(),
-		})
-		.eq("workspace_id", auth.workspaceId)
-		.eq("id", c.req.param("id"))
-		.neq("status", "deleted")
-		.select("*")
-		.maybeSingle();
-	if (error) throw new Error(error.message ?? "Failed to rotate webhook endpoint secret");
+	const data = await updateWebhookEndpoint(auth.workspaceId, c.req.param("id"), {
+			secretCiphertext: encrypted.secretCiphertext,
+			secretIv: encrypted.secretIv,
+			secretHash: encrypted.secretHash,
+			secretKeyVersion: encrypted.secretKeyVersion,
+		});
 	if (!data) return notFound();
 	return json({
 		...toPublicWebhookEndpoint(data as Record<string, unknown>),
@@ -304,20 +267,7 @@ app.delete("/:id", async (c) => {
 	const permissionError = await requireWebhookPermission(auth, CAPABILITIES.SETTINGS_WRITE);
 	if (permissionError) return permissionError;
 	if (!auth.workspaceId) return validationError("workspace_id_required");
-	const { data, error } = await getSupabaseAdmin()
-		.from("gateway_webhook_endpoints")
-		.update({
-			status: "deleted",
-			deleted_at: new Date().toISOString(),
-			updated_at: new Date().toISOString(),
-		})
-		.eq("workspace_id", auth.workspaceId)
-		.eq("id", c.req.param("id"))
-		.neq("status", "deleted")
-		.select("id")
-		.maybeSingle();
-	if (error) throw new Error(error.message ?? "Failed to delete webhook endpoint");
-	if (!data) return notFound();
+	if (!await deleteWebhookEndpoint(auth.workspaceId, c.req.param("id"))) return notFound();
 	return json({ id: c.req.param("id"), object: "webhook_endpoint", deleted: true });
 });
 

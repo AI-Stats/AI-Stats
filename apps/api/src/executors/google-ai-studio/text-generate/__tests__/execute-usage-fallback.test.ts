@@ -5,10 +5,6 @@ import { executor } from "../index";
 import { installFetchMock } from "../../../../../tests/helpers/mock-fetch";
 import { setupTestRuntime, teardownTestRuntime } from "../../../../../tests/helpers/runtime";
 
-vi.mock("@supabase/supabase-js", () => ({
-	createClient: () => ({}),
-}));
-
 function buildArgs(
 	overrides?: Partial<IRChatRequest>,
 	options?: {

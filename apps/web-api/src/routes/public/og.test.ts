@@ -1,11 +1,10 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+vi.mock("@/repositories/og", () => ({ findOgPayload: vi.fn(async () => ({ id: "openai/gpt-test", name: "GPT Test", logoId: "openai", badge: "Available" })) }));
 import app from "@/index";
-const env = { ENV: "development" as const, SUPABASE_URL: "https://example.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "key" };
-afterEach(() => vi.unstubAllGlobals());
+const env = { ENV: "development" as const };
 
 describe("public OG payload", () => {
 	it("loads visible model metadata without exposing hidden rows", async () => {
-		vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify([{ model_slug: "openai/gpt-test", name: "GPT Test", lab_slug: "openai", status: "Available" }]), { status: 200 })));
 		const response = await app.request("https://phaseo.app/api/_web/og?kind=models&id=openai%2Fgpt-test", {}, env);
 		expect(response.status).toBe(200);
 		expect(response.headers.get("cache-tag")).toBe("web-api-og");

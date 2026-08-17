@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
 import { useInitialChatAuth } from "@/components/(chat)/ChatAuthProvider";
+import { betterAuthClient } from "@/lib/auth/betterAuthClient";
 
 export type ChatUser = {
 	id: string;
@@ -50,24 +50,11 @@ export function useChatAuth() {
 			setAuthLoading(false);
 			return;
 		}
-		const supabase = createClient();
-		const { data: listener } = supabase.auth.onAuthStateChange((event) => {
-			if (event === "SIGNED_OUT") {
-				setAuthUser(null);
-				setUserRole(null);
-			}
-			if (event === "SIGNED_IN" && !initialAuth?.isLoggedIn) {
-				window.location.reload();
-			}
-		});
-		return () => {
-			listener.subscription.unsubscribe();
-		};
+		return;
 	}, [initialAuth?.isLoggedIn]);
 
 	const handleSignOut = useCallback(async () => {
-		const supabase = createClient();
-		await supabase.auth.signOut();
+		await betterAuthClient.signOut();
 		setAuthUser(null);
 		setUserRole(null);
 		window.location.href = "/sign-in";

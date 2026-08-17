@@ -1,27 +1,30 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const getSupabaseAdminMock = vi.fn();
+const insertGatewayRequestMock = vi.hoisted(() => vi.fn());
+const ingestV2GatewayRequestMock = vi.hoisted(() => vi.fn());
 const ensureRuntimeForBackgroundMock = vi.fn();
 const isLocalTestingModeEnabledMock = vi.fn();
 const ensureAppIdMock = vi.fn();
-const syncWorkspaceUsageRollupForRequestMock = vi.fn();
 const resolveGatewayIoLoggingPolicyMock = vi.fn();
 const persistGatewayIoLogMock = vi.fn();
 const persistGatewayUpstreamRequestsMock = vi.fn();
 
 vi.mock("@/runtime/env", () => ({
-	getSupabaseAdmin: (...args: any[]) => getSupabaseAdminMock(...args),
 	ensureRuntimeForBackground: (...args: any[]) => ensureRuntimeForBackgroundMock(...args),
 	isLocalTestingModeEnabled: (...args: any[]) => isLocalTestingModeEnabledMock(...args),
 }));
 
-vi.mock("../after/apps", () => ({
-	ensureAppId: (...args: any[]) => ensureAppIdMock(...args),
+vi.mock("@/repositories/audit", () => ({
+	insertGatewayRequest: async (row: Record<string, unknown>) => {
+		return insertGatewayRequestMock(row);
+	},
+	ingestV2GatewayRequest: async (event: Record<string, unknown>) => {
+		return ingestV2GatewayRequestMock(event);
+	},
 }));
 
-vi.mock("@core/workspace-usage-rollups", () => ({
-	syncWorkspaceUsageRollupForRequest: (...args: any[]) =>
-		syncWorkspaceUsageRollupForRequestMock(...args),
+vi.mock("../after/apps", () => ({
+	ensureAppId: (...args: any[]) => ensureAppIdMock(...args),
 }));
 
 vi.mock("./io-logging", () => ({
@@ -35,13 +38,15 @@ vi.mock("./upstream-requests", () => ({
 
 import { auditFailure, auditSuccess } from "./index";
 
-describe("audit request detail persistence", () => {
+describe("audit persistence", () => {
 	beforeEach(() => {
-		getSupabaseAdminMock.mockReset();
+		insertGatewayRequestMock.mockReset();
+		ingestV2GatewayRequestMock.mockReset();
+		insertGatewayRequestMock.mockResolvedValue({ id: "row_1", created_at: "2026-05-05T12:00:00.000Z", workspace_id: "ws_1" });
+		ingestV2GatewayRequestMock.mockResolvedValue("v2_request_event_1");
 		ensureRuntimeForBackgroundMock.mockReset();
 		isLocalTestingModeEnabledMock.mockReset();
 		ensureAppIdMock.mockReset();
-		syncWorkspaceUsageRollupForRequestMock.mockReset();
 		resolveGatewayIoLoggingPolicyMock.mockReset();
 		persistGatewayIoLogMock.mockReset();
 		persistGatewayUpstreamRequestsMock.mockReset();
@@ -49,7 +54,6 @@ describe("audit request detail persistence", () => {
 		ensureRuntimeForBackgroundMock.mockReturnValue(() => {});
 		isLocalTestingModeEnabledMock.mockReturnValue(false);
 		ensureAppIdMock.mockResolvedValue("app_resolved");
-		syncWorkspaceUsageRollupForRequestMock.mockResolvedValue(undefined);
 		resolveGatewayIoLoggingPolicyMock.mockResolvedValue({
 			featureEnabled: true,
 			captureEnabled: true,
@@ -58,44 +62,12 @@ describe("audit request detail persistence", () => {
 		persistGatewayIoLogMock.mockResolvedValue(undefined);
 	});
 
-	it("stores replay-ready details for successful requests", async () => {
+	it("stores request facts in Postgres and replay payloads in R2", async () => {
 		const gatewayRequestRows: any[] = [];
-		const detailRows: any[] = [];
 
-		getSupabaseAdminMock.mockReturnValue({
-			rpc: vi.fn(async () => ({ data: "v2_request_event_1", error: null })),
-			from: vi.fn((table: string) => {
-				if (table === "gateway_requests") {
-					return {
-						insert: vi.fn((row: any) => {
-							gatewayRequestRows.push(row);
-							return {
-								select: vi.fn(() => ({
-									single: vi.fn(async () => ({
-										data: {
-											id: "row_1",
-											created_at: "2026-05-05T12:00:00.000Z",
-											workspace_id: "ws_1",
-										},
-										error: null,
-									})),
-								})),
-							};
-						}),
-					};
-				}
-
-				if (table === "gateway_request_details") {
-					return {
-						insert: vi.fn(async (row: any) => {
-							detailRows.push(row);
-							return { error: null };
-						}),
-					};
-				}
-
-				throw new Error(`unexpected table ${table}`);
-			}),
+		insertGatewayRequestMock.mockImplementation(async (row) => {
+			gatewayRequestRows.push(row);
+			return { id: "row_1", created_at: "2026-05-05T12:00:00.000Z", workspace_id: "ws_1" };
 		});
 
 		await auditSuccess({
@@ -151,60 +123,22 @@ describe("audit request detail persistence", () => {
 		);
 		expect(gatewayRequestRows[0].usage_input_quad_tokens).toBeGreaterThan(0);
 		expect(gatewayRequestRows[0].usage_output_quad_tokens).toBeGreaterThan(0);
-		expect(detailRows).toHaveLength(1);
-		expect(detailRows[0]).toEqual(
-			expect.objectContaining({
-				request_id: "req_success_1",
-				workspace_id: "ws_1",
-				request_payload: {
-					model: "openai/gpt-5-nano",
-					messages: [{ role: "user", content: "hello" }],
-				},
-				request_content: [{ role: "user", content: "hello" }],
-				metadata: expect.objectContaining({ replay_supported: true }),
-			}),
-		);
+		expect(persistGatewayIoLogMock).toHaveBeenCalledOnce();
+		expect(persistGatewayIoLogMock).toHaveBeenCalledWith(expect.objectContaining({
+			requestId: "req_success_1",
+			workspaceId: "ws_1",
+			requestPayload: expect.objectContaining({ model: "openai/gpt-5-nano" }),
+		}), expect.any(Object));
 	});
 
-	it("stores replay-ready details for execute-stage failures", async () => {
+	it("stores failed request facts in Postgres and replay payloads in R2", async () => {
 		const gatewayRequestRows: any[] = [];
-		const detailRows: any[] = [];
 
-		getSupabaseAdminMock.mockReturnValue({
-			rpc: vi.fn(async () => ({ data: "v2_request_event_2", error: null })),
-			from: vi.fn((table: string) => {
-				if (table === "gateway_requests") {
-					return {
-						insert: vi.fn((row: any) => {
-							gatewayRequestRows.push(row);
-							return {
-								select: vi.fn(() => ({
-									single: vi.fn(async () => ({
-										data: {
-											id: "row_2",
-											created_at: "2026-05-05T12:05:00.000Z",
-											workspace_id: "ws_2",
-										},
-										error: null,
-									})),
-								})),
-							};
-						}),
-					};
-				}
-
-				if (table === "gateway_request_details") {
-					return {
-						insert: vi.fn(async (row: any) => {
-							detailRows.push(row);
-							return { error: null };
-						}),
-					};
-				}
-
-				throw new Error(`unexpected table ${table}`);
-			}),
+		insertGatewayRequestMock.mockImplementationOnce(async (row) => {
+			gatewayRequestRows.push(row);
+			return { id: "row_2", created_at: "2026-05-05T12:05:00.000Z", workspace_id: "ws_2" };
 		});
+		ingestV2GatewayRequestMock.mockResolvedValueOnce("v2_request_event_2");
 
 		await auditFailure({
 			stage: "execute",
@@ -249,55 +183,16 @@ describe("audit request detail persistence", () => {
 				],
 			}),
 		);
-		expect(detailRows).toHaveLength(1);
-		expect(detailRows[0]).toEqual(
-			expect.objectContaining({
-				request_id: "req_failure_1",
-				workspace_id: "ws_2",
-				success: false,
-				request_payload: {
-					model: "openai/gpt-5.4-nano",
-					input: [{ role: "user", content: "retry me" }],
-				},
-				request_content: [{ role: "user", content: "retry me" }],
-				metadata: expect.objectContaining({
-					replay_supported: true,
-					stage: "execute",
-				}),
-			}),
-		);
+		expect(persistGatewayIoLogMock).toHaveBeenCalledOnce();
 	});
 
 	it("persists pre-model failures with an explicit unknown model", async () => {
 		const gatewayRequestRows: any[] = [];
-		getSupabaseAdminMock.mockReturnValue({
-			rpc: vi.fn(async () => ({ data: "v2_request_event_unknown", error: null })),
-			from: vi.fn((table: string) => {
-				if (table === "gateway_requests") {
-					return {
-						insert: vi.fn((row: any) => {
-							gatewayRequestRows.push(row);
-							return {
-								select: vi.fn(() => ({
-									single: vi.fn(async () => ({
-										data: {
-											id: "row_unknown",
-											created_at: "2026-08-10T19:34:07.000Z",
-											workspace_id: "ws_unknown",
-										},
-										error: null,
-									})),
-								})),
-							};
-						}),
-					};
-				}
-				if (table === "gateway_request_details") {
-					return { insert: vi.fn(async () => ({ error: null })) };
-				}
-				throw new Error(`unexpected table ${table}`);
-			}),
+		insertGatewayRequestMock.mockImplementationOnce(async (row) => {
+			gatewayRequestRows.push(row);
+			return { id: "row_unknown", created_at: "2026-08-10T19:34:07.000Z", workspace_id: "ws_unknown" };
 		});
+		ingestV2GatewayRequestMock.mockResolvedValueOnce("v2_request_event_unknown");
 
 		await auditFailure({
 			stage: "before",
@@ -316,97 +211,14 @@ describe("audit request detail persistence", () => {
 		}));
 	});
 
-	it("keeps rollup sync independent from detail persistence failures", async () => {
-		getSupabaseAdminMock.mockReturnValue({
-			rpc: vi.fn(async () => ({ data: "v2_request_event_3", error: null })),
-			from: vi.fn((table: string) => {
-				if (table === "gateway_requests") {
-					return {
-						insert: vi.fn(() => ({
-							select: vi.fn(() => ({
-								single: vi.fn(async () => ({
-									data: {
-										id: "row_3",
-										created_at: "2026-05-05T12:10:00.000Z",
-										workspace_id: "ws_3",
-									},
-									error: null,
-								})),
-							})),
-						})),
-					};
-				}
-
-				if (table === "gateway_request_details") {
-					return {
-						insert: vi.fn(async () => ({
-							error: { message: "details insert failed" },
-						})),
-					};
-				}
-
-				throw new Error(`unexpected table ${table}`);
-			}),
-		});
-
-		await expect(
-			auditSuccess({
-				requestId: "req_success_2",
-				workspaceId: "ws_3",
-				provider: "openai",
-				model: "openai/gpt-5-nano",
-				endpoint: "chat.completions",
-				stream: false,
-				byok: false,
-				usagePriced: { prompt_tokens: 2, completion_tokens: 1, pricing: { lines: [] } },
-				totalCents: 0.001,
-				totalNanos: 1000000,
-				currency: "USD",
-				statusCode: 200,
-				requestPayload: {
-					model: "openai/gpt-5-nano",
-					messages: [{ role: "user", content: "hello" }],
-				},
-				gatewayResponse: { id: "resp_2", output_text: "hi" },
-				providerRequest: { model: "openai/gpt-5-nano" },
-				providerResponse: { id: "chatcmpl_2" },
-				detailMetadata: { replay_supported: true },
-			}),
-		).resolves.toBeUndefined();
-
-		expect(syncWorkspaceUsageRollupForRequestMock).toHaveBeenCalledWith({
-			requestRowId: "row_3",
-			requestCreatedAt: "2026-05-05T12:10:00.000Z",
-			workspaceId: "ws_3",
-			context: "audit_success",
-		});
-	});
-
-	it("keeps payload details out of Supabase and R2 when I/O logging is not explicitly enabled", async () => {
+	it("keeps payload details out of Postgres and R2 when I/O logging is not explicitly enabled", async () => {
 		resolveGatewayIoLoggingPolicyMock.mockResolvedValue({
 			featureEnabled: true,
 			captureEnabled: false,
 			settings: { enabled: false, retentionDays: 90, includeProviderPayloads: true },
 		});
-		const fromMock = vi.fn((table: string) => {
-			if (table !== "gateway_requests") throw new Error(`unexpected table ${table}`);
-			return {
-				insert: vi.fn(() => ({
-					select: vi.fn(() => ({
-						single: vi.fn(async () => ({
-							data: {
-								id: "row_no_io",
-								created_at: "2026-05-05T12:12:00.000Z",
-								workspace_id: "ws_no_io",
-							},
-							error: null,
-						})),
-					})),
-				})),
-			};
-		});
-		const rpcMock = vi.fn(async () => ({ data: "request-event-id", error: null }));
-		getSupabaseAdminMock.mockReturnValue({ from: fromMock, rpc: rpcMock });
+		insertGatewayRequestMock.mockResolvedValueOnce({ id: "row_no_io", created_at: "2026-05-05T12:12:00.000Z", workspace_id: "ws_no_io" });
+		ingestV2GatewayRequestMock.mockResolvedValueOnce("request-event-id");
 
 		await auditSuccess({
 			requestId: "req_no_io",
@@ -463,17 +275,15 @@ describe("audit request detail persistence", () => {
 			},
 		});
 
-		expect(fromMock).toHaveBeenCalledTimes(1);
-		expect(fromMock).toHaveBeenCalledWith("gateway_requests");
+		expect(insertGatewayRequestMock).toHaveBeenCalledOnce();
 		expect(persistGatewayUpstreamRequestsMock).toHaveBeenCalledWith(
 			expect.objectContaining({
 				requestId: "req_no_io",
 				provider: "openai",
 			}),
 		);
-		expect(rpcMock).toHaveBeenCalledOnce();
-		expect(rpcMock.mock.calls[0]?.[0]).toBe("ingest_v2_gateway_request_with_routing");
-		const event = rpcMock.mock.calls[0]?.[1]?.p_event;
+		expect(ingestV2GatewayRequestMock).toHaveBeenCalledOnce();
+		const event = ingestV2GatewayRequestMock.mock.calls[0]?.[0];
 		expect(event).toEqual(expect.objectContaining({
 			request_id: "req_no_io",
 			workspace_id: "ws_no_io",
@@ -518,40 +328,18 @@ describe("audit request detail persistence", () => {
 		expect(persistGatewayIoLogMock).not.toHaveBeenCalled();
 	});
 
-	it("falls back to atomic V2 ingestion while the routing RPC is not yet available", async () => {
+	it("passes the complete atomic V2 event to the repository", async () => {
 		resolveGatewayIoLoggingPolicyMock.mockResolvedValue({
 			featureEnabled: true,
 			captureEnabled: false,
 			settings: { enabled: false, retentionDays: 90, includeProviderPayloads: true },
 		});
-		const fromMock = vi.fn(() => ({
-			insert: vi.fn(() => ({
-				select: vi.fn(() => ({
-					single: vi.fn(async () => ({
-						data: {
-							id: "row_rpc_fallback",
-							created_at: "2026-05-05T12:13:00.000Z",
-							workspace_id: "ws_rpc_fallback",
-						},
-						error: null,
-					})),
-				})),
-			})),
-		}));
-		const rpcMock = vi.fn(async (rpc: string) => rpc === "ingest_v2_gateway_request_with_routing"
-			? {
-				data: null,
-				error: {
-					code: "PGRST202",
-					message: "Could not find the function public.ingest_v2_gateway_request_with_routing(p_event)",
-				},
-			}
-			: { data: "request-event-id", error: null });
-		getSupabaseAdminMock.mockReturnValue({ from: fromMock, rpc: rpcMock });
+		insertGatewayRequestMock.mockResolvedValueOnce({ id: "row_atomic", created_at: "2026-05-05T12:13:00.000Z", workspace_id: "ws_atomic" });
+		ingestV2GatewayRequestMock.mockResolvedValueOnce("request-event-id");
 
 		await auditSuccess({
-			requestId: "req_rpc_fallback",
-			workspaceId: "ws_rpc_fallback",
+			requestId: "req_atomic_event",
+			workspaceId: "ws_atomic",
 			provider: "openai",
 			model: "openai/gpt-5-nano",
 			endpoint: "chat.completions",
@@ -563,151 +351,31 @@ describe("audit request detail persistence", () => {
 			statusCode: 200,
 		});
 
-		expect(rpcMock).toHaveBeenCalledTimes(2);
-		expect(rpcMock.mock.calls[0]?.[0]).toBe("ingest_v2_gateway_request_with_routing");
-		expect(rpcMock.mock.calls[1]?.[0]).toBe("ingest_v2_gateway_request");
-		expect(rpcMock.mock.calls[1]?.[1]?.p_event).not.toHaveProperty("routing_decisions");
-		expect(rpcMock.mock.calls[1]?.[1]?.p_event).toEqual(expect.objectContaining({
-			request_id: "req_rpc_fallback",
-			workspace_id: "ws_rpc_fallback",
+		expect(ingestV2GatewayRequestMock).toHaveBeenCalledTimes(1);
+		expect(ingestV2GatewayRequestMock.mock.calls[0]?.[0]).toEqual(expect.objectContaining({
+			request_id: "req_atomic_event",
+			workspace_id: "ws_atomic",
 			usage_meters: expect.any(Array),
+			routing_decisions: expect.any(Array),
 		}));
 	});
 
-	it("disables request detail persistence in local testing mode when the detail table is missing", async () => {
-		isLocalTestingModeEnabledMock.mockReturnValue(true);
-		const detailInsertMock = vi
-			.fn()
-			.mockResolvedValueOnce({
-				error: {
-					code: "PGRST205",
-					message:
-						"Could not find the table 'public.gateway_request_details' in the schema cache",
-				},
-			})
-			.mockResolvedValue({ error: null });
-
-		getSupabaseAdminMock.mockReturnValue({
-			rpc: vi.fn(async () => ({ data: "v2_request_event_4", error: null })),
-			from: vi.fn((table: string) => {
-				if (table === "gateway_requests") {
-					return {
-						insert: vi.fn(() => ({
-							select: vi.fn(() => ({
-								single: vi.fn(async () => ({
-									data: {
-										id: "row_4",
-										created_at: "2026-05-05T12:15:00.000Z",
-										workspace_id: "ws_4",
-									},
-									error: null,
-								})),
-							})),
-						})),
-					};
-				}
-
-				if (table === "gateway_request_details") {
-					return {
-						insert: detailInsertMock,
-					};
-				}
-
-				throw new Error(`unexpected table ${table}`);
-			}),
-		});
-
-		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-
-		await auditSuccess({
-			requestId: "req_success_local_missing_details_1",
-			workspaceId: "ws_4",
-			provider: "openai",
-			model: "openai/gpt-5-nano",
-			endpoint: "chat.completions",
-			stream: false,
-			byok: false,
-			usagePriced: { prompt_tokens: 2, completion_tokens: 1, pricing: { lines: [] } },
-			totalCents: 0.001,
-			totalNanos: 1000000,
-			currency: "USD",
-			statusCode: 200,
-			requestPayload: { model: "openai/gpt-5-nano", messages: [{ role: "user", content: "hello" }] },
-			gatewayResponse: { id: "resp_3", output_text: "hi" },
-			providerRequest: { model: "openai/gpt-5-nano" },
-			providerResponse: { id: "chatcmpl_3" },
-		});
-
-		await auditSuccess({
-			requestId: "req_success_local_missing_details_2",
-			workspaceId: "ws_4",
-			provider: "openai",
-			model: "openai/gpt-5-nano",
-			endpoint: "chat.completions",
-			stream: false,
-			byok: false,
-			usagePriced: { prompt_tokens: 2, completion_tokens: 1, pricing: { lines: [] } },
-			totalCents: 0.001,
-			totalNanos: 1000000,
-			currency: "USD",
-			statusCode: 200,
-			requestPayload: { model: "openai/gpt-5-nano", messages: [{ role: "user", content: "hello again" }] },
-			gatewayResponse: { id: "resp_4", output_text: "hi again" },
-			providerRequest: { model: "openai/gpt-5-nano" },
-			providerResponse: { id: "chatcmpl_4" },
-		});
-
-		expect(detailInsertMock).toHaveBeenCalledTimes(1);
-		expect(warnSpy).toHaveBeenCalledWith(
-			"[audit] gateway_request_details not available in local testing mode; skipping request detail persistence."
-		);
-
-		warnSpy.mockRestore();
-	});
-
-	it("combines legacy column fallbacks before retrying the audit insert", async () => {
+	it("rejects schema drift instead of silently dropping audit columns", async () => {
 		const attemptedRows: any[] = [];
 		resolveGatewayIoLoggingPolicyMock.mockResolvedValue({
 			featureEnabled: true,
 			captureEnabled: false,
 			settings: { enabled: false, retentionDays: 90, includeProviderPayloads: false },
 		});
-
-		getSupabaseAdminMock.mockReturnValue({
-			rpc: vi.fn(async () => ({ data: "v2_request_event_legacy", error: null })),
-			from: vi.fn((table: string) => {
-				if (table !== "gateway_requests") throw new Error(`unexpected table ${table}`);
-				return {
-					insert: vi.fn((row: any) => ({
-						select: vi.fn(() => ({
-							single: vi.fn(async () => {
-								attemptedRows.push(row);
-								const errors = [
-									{ code: "PGRST204", message: "Could not find provider_ttft_ms on gateway_requests" },
-									{ code: "PGRST204", message: "Could not find usage_total_tokens on gateway_requests" },
-									{ code: "PGRST204", message: "Could not find error_payload on gateway_requests" },
-								];
-								const error = errors[attemptedRows.length - 1] ?? null;
-								return {
-									data: error
-										? null
-										: {
-											id: "row_legacy",
-											created_at: "2026-08-05T10:00:00.000Z",
-											workspace_id: "ws_legacy",
-										},
-									error,
-								};
-							}),
-						})),
-					})),
-				};
-			}),
+		insertGatewayRequestMock.mockImplementation(async (row) => {
+			attemptedRows.push(row);
+			throw new Error("column provider_ttft_ms does not exist on gateway_requests");
 		});
+		ingestV2GatewayRequestMock.mockResolvedValueOnce("v2_request_event_strict");
 
-		await auditSuccess({
-			requestId: "req_legacy_columns",
-			workspaceId: "ws_legacy",
+		await expect(auditSuccess({
+			requestId: "req_strict_schema",
+			workspaceId: "ws_strict",
 			provider: "openai",
 			model: "openai/gpt-5-nano",
 			endpoint: "chat.completions",
@@ -719,26 +387,9 @@ describe("audit request detail persistence", () => {
 			currency: "USD",
 			statusCode: 200,
 			providerTtftMs: 120,
-			gatewayTtftMs: 140,
-			outputSpeedTps: 30,
-			tpotMs: 33,
-			itlMs: 33,
-			phaseoOverheadMs: 20,
-		});
+		})).rejects.toThrow("database_audit_success_insert");
 
-		expect(attemptedRows).toHaveLength(4);
-		expect(attemptedRows[0]).toEqual(expect.objectContaining({
-			provider_ttft_ms: 120,
-			usage_total_tokens: 3,
-			error_payload: null,
-		}));
-		expect(attemptedRows[1]).not.toHaveProperty("provider_ttft_ms");
-		expect(attemptedRows[1]).toHaveProperty("usage_total_tokens", 3);
-		expect(attemptedRows[2]).not.toHaveProperty("provider_ttft_ms");
-		expect(attemptedRows[2]).not.toHaveProperty("usage_total_tokens");
-		expect(attemptedRows[2]).toHaveProperty("error_payload", null);
-		expect(attemptedRows[3]).not.toHaveProperty("provider_ttft_ms");
-		expect(attemptedRows[3]).not.toHaveProperty("usage_total_tokens");
-		expect(attemptedRows[3]).not.toHaveProperty("error_payload");
+		expect(attemptedRows).toHaveLength(3);
+		for (const row of attemptedRows) expect(row).toHaveProperty("provider_ttft_ms", 120);
 	});
 });

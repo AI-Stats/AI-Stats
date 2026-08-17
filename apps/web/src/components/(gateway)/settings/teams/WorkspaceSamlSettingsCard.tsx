@@ -60,9 +60,9 @@ export default function WorkspaceSamlSettingsCard({
 		providerId.trim() !== initialProviderId.trim() ||
 		domains.trim() !== initialDomains.trim();
 
-	const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
-	const metadataUrl = supabaseUrl
-		? `${supabaseUrl}/auth/v1/sso/saml/metadata`
+	const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
+	const metadataUrl = appUrl && providerId.trim()
+		? `${appUrl}/api/auth/sso/saml2/sp/metadata?providerId=${encodeURIComponent(providerId.trim())}`
 		: null;
 
 	async function copyMetadataUrl() {
@@ -152,7 +152,7 @@ export default function WorkspaceSamlSettingsCard({
 				</div>
 
 				<div className="grid gap-2">
-					<Label htmlFor="samlProviderId">Supabase SSO provider ID</Label>
+					<Label htmlFor="samlProviderId">Better Auth SSO provider ID</Label>
 					<Input
 						id="samlProviderId"
 						value={providerId}

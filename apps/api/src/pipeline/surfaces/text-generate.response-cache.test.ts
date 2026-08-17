@@ -8,6 +8,7 @@ const decodeProtocolMock = vi.fn();
 const encodeProtocolMock = vi.fn();
 const doRequestWithIRMock = vi.fn();
 const finalizeRequestMock = vi.fn();
+const settleNonBillableFailureMock = vi.fn();
 const handleSuccessAuditMock = vi.fn();
 const getResponseCacheMock = vi.fn();
 const ensureRuntimeForBackgroundMock = vi.fn();
@@ -30,6 +31,7 @@ vi.mock("../execute", () => ({
 
 vi.mock("../after", () => ({
 	finalizeRequest: (...args: any[]) => finalizeRequestMock(...args),
+	settleNonBillableFailure: (...args: any[]) => settleNonBillableFailureMock(...args),
 }));
 
 vi.mock("../after/audit", () => ({
@@ -147,6 +149,7 @@ describe("runTextGeneratePipeline response cache", () => {
 			pendingBackground.push(promise);
 		});
 		handleSuccessAuditMock.mockResolvedValue(undefined);
+		settleNonBillableFailureMock.mockResolvedValue(undefined);
 	});
 
 	it("returns cached responses without executing providers", async () => {
@@ -282,7 +285,17 @@ describe("runTextGeneratePipeline response cache", () => {
 		doRequestWithIRMock.mockResolvedValue({
 			result: {
 				kind: "completed",
-				ir: { id: "ir_123" },
+				ir: {
+					id: "ir_123",
+					created: 1_700_000_000,
+					model: "openai/gpt-5.4-nano",
+					provider: "openai",
+					choices: [{
+						index: 0,
+						message: { role: "assistant", content: [{ type: "text", text: "hello" }] },
+						finishReason: "stop",
+					}],
+				},
 				upstream: new Response(JSON.stringify({ ok: true }), { status: 200 }),
 				provider: "openai",
 				generationTimeMs: 4,

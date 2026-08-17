@@ -4,7 +4,6 @@ import { installFetchMock, jsonResponse } from "../../../../tests/helpers/mock-f
 import { setupRuntimeFromEnv, teardownTestRuntime } from "../../../../tests/helpers/runtime";
 import { executor } from "./index";
 
-vi.mock("@supabase/supabase-js", () => ({ createClient: () => ({}) }));
 beforeAll(() => setupRuntimeFromEnv({ SAMBANOVA_API_KEY: "sn-test" } as any));
 afterAll(teardownTestRuntime);
 

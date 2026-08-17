@@ -1,11 +1,15 @@
 import { Hono } from "hono";
-import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { buildModelsPageFacets, fetchModelsPageCatalogue } from "@/models/page-catalogue";
 import { composeGatewayMetadata, fetchGatewayMetadataSource } from "@/models/gateway-metadata";
-import { fetchModelPricingSources } from "@/models/pricing";
+import { composeModelPricing, fetchModelPricingSources } from "@/models/pricing";
 import { buildFreeRouterCatalogueRow, fetchFreeRouterOverview } from "@/models/free-router";
 import { withPublicCache, type PublicCachePolicy } from "@/http/cache";
+import { listActiveModelAliases } from "@/repositories/model-aliases";
+import { findPublicModelIdentity, getModelAvailability, getModelNotice, getModelTimeline, getProviderMetadata, getProviderRegions, getProviderStatuses, listCatalogPricingRules, listModelBenchmarks, listModelIdentifiers, listModelSubscriptionPlans, listPublicCatalogueModels, listPublicModelVariants, listRecentProviderHealthStates, resolvePublicModel, type ModelVariantSummary } from "@/repositories/models";
+import { getModelRealtimeStats, getModelTokenTrajectory, listModelApps, listModelPerformanceColos, listModelUsageDaily } from "@/repositories/model-usage";
+import { getModelPerformanceBundle, getModelProviderHealthRows } from "@/repositories/model-performance";
+import { listGatewayMonitorRows } from "@/repositories/model-monitor";
 
 const CACHE_PROFILES = {
 	catalogue: {
@@ -219,32 +223,11 @@ function numberOrNull(value: unknown): number | null {
 	return Number.isFinite(number) ? number : null;
 }
 
-function median(values: number[]): number | null {
-	if (values.length === 0) return null;
-	const sorted = [...values].sort((left, right) => left - right);
-	const middle = Math.floor(sorted.length / 2);
-	return sorted.length % 2 === 0
-		? (sorted[middle - 1] + sorted[middle]) / 2
-		: sorted[middle];
-}
-
-function outputTokens(usage: unknown): number | null {
-	if (!usage || typeof usage !== "object" || Array.isArray(usage)) return null;
-	const record = usage as Record<string, unknown>;
-	for (const key of [
-		"output_tokens",
-		"completion_tokens",
-		"generated_tokens",
-		"response_tokens",
-		"outputTokens",
-		"completionTokens",
-		"total_tokens",
-		"totalTokens",
-	]) {
-		const value = numberOrNull(record[key]);
-		if (value != null && value > 0) return value;
-	}
-	return null;
+function dateOnly(value: unknown): string | undefined {
+	if (value == null || value === "") return undefined;
+	const text = String(value);
+	const match = /^(\d{4}-\d{2}-\d{2})/.exec(text);
+	return match?.[1] ?? text;
 }
 
 const USAGE_INTEGER_FIELDS: Record<string, string> = {
@@ -260,18 +243,7 @@ function mapUsageDailyRow(row: Record<string, unknown>) {
 }
 
 async function modelAliases(env: Env, modelId: string): Promise<string[]> {
-	const aliases = new Set([modelId]);
-	const client = getDataClient(env);
-	const [routeResult, aliasResult] = await Promise.all([
-		client.from("v2_model_provider_routes").select("model_slug,provider_model_id,provider_model_slug").eq("model_slug", modelId),
-		client.from("v2_model_aliases").select("alias_slug,model_slug").eq("model_slug", modelId).eq("enabled", true),
-	]);
-	for (const result of [routeResult, aliasResult]) {
-		if (result.error) throw result.error;
-	}
-	for (const row of routeResult.data ?? []) for (const value of [row.model_slug, row.provider_model_id, row.provider_model_slug]) { const id = normalisedId(value); if (id) aliases.add(id); }
-	for (const row of aliasResult.data ?? []) { const id = normalisedId(row.alias_slug); if (id) aliases.add(id); }
-	return [...aliases];
+	return listModelIdentifiers(env, modelId);
 }
 
 function benchmarkType(value: unknown): "percentage" | "numerical" | null { const normalized = String(value ?? "").trim().toLowerCase(); return ["percentage", "percent", "pct", "%"].includes(normalized) ? "percentage" : ["numerical", "numeric", "number"].includes(normalized) ? "numerical" : null; }
@@ -295,85 +267,21 @@ function normalisedId(value: unknown): string | null {
 	return id.length > 0 ? id : null;
 }
 
-async function resolveNoticeApiModelId(env: Env, modelId: string): Promise<string | null> {
-	const client = getDataClient(env);
-	const [aliasResult, modelResult, routeIdResult, routeSlugResult] = await Promise.all([
-		client.from("v2_model_aliases").select("model_slug").eq("alias_slug", modelId).eq("enabled", true).maybeSingle(),
-		client.from("v2_models").select("model_slug").eq("model_slug", modelId).eq("hidden", false).maybeSingle(),
-		client.from("v2_model_provider_routes").select("model_slug").eq("provider_model_id", modelId).limit(1),
-		client.from("v2_model_provider_routes").select("model_slug").eq("provider_model_slug", modelId).limit(1),
-	]);
-	for (const result of [aliasResult, modelResult, routeIdResult, routeSlugResult]) {
-		if (result.error) throw result.error;
-	}
-	return normalisedId(aliasResult.data?.model_slug)
-		?? normalisedId(modelResult.data?.model_slug)
-		?? normalisedId(routeIdResult.data?.[0]?.model_slug)
-		?? normalisedId(routeSlugResult.data?.[0]?.model_slug)
-		?? null;
-}
-
 type ModelsCatalogueVersion = "v1" | "v2";
 
 async function fetchProviderExecutionRegions(env: Env, providerIds: string[]) {
-	const regionsByProvider = new Map<string, string[]>();
-	if (providerIds.length === 0) return regionsByProvider;
-	const { data, error } = await getDataClient(env).rpc("get_v2_provider_region_map", {
-		p_provider_slugs: providerIds,
-	});
-	if (error) throw error;
-	for (const row of (data ?? []) as Record<string, unknown>[]) {
-		const providerId = String(row.provider_slug ?? "").trim();
-		if (!providerId) continue;
-		const regions = toStringList(row.regions)
-			.map((region) => region.toLowerCase())
-			.filter(Boolean);
-		regionsByProvider.set(providerId, [...new Set(regions)]);
-	}
-	return regionsByProvider;
+	return getProviderRegions(env, providerIds);
 }
 
 async function fetchProviderStatuses(env: Env, providerIds: string[]) {
-	const statusesByProvider = new Map<string, string>();
-	const normalizedProviderIds = [
-		...new Set(
-			providerIds
-				.map((providerId) => providerId.trim().toLowerCase())
-				.filter(Boolean),
-		),
-	];
-	if (normalizedProviderIds.length === 0) return statusesByProvider;
-	const { data, error } = await getDataClient(env)
-		.from("v2_providers")
-		.select("provider_slug,status")
-		.in("provider_slug", normalizedProviderIds);
-	if (error) throw error;
-	for (const row of data ?? []) {
-		const providerId = String(row.provider_slug ?? "").trim();
-		const status = String(row.status ?? "").trim().toLowerCase();
-		if (providerId && status) statusesByProvider.set(providerId, status);
-	}
-	return statusesByProvider;
+	return getProviderStatuses(env, providerIds);
 }
 
 export async function fetchGatewayMonitorRows(
 	env: Env,
 	_catalogueVersion: ModelsCatalogueVersion = "v2",
 ): Promise<Map<string, Record<string, unknown>[]>> {
-	const client = getDataClient(env);
-	const rows: Record<string, unknown>[] = [];
-	// The compatibility monitor RPC is already backed by the canonical V2
-	// catalogue and emits the legacy page shape used by both API versions.
-	const rpcName = "get_monitor_model_rows";
-	for (let offset = 0; ; offset += 1000) {
-		const { data, error } = await client
-			.rpc(rpcName, { p_include_hidden: false })
-			.range(offset, offset + 999);
-		if (error) throw error;
-		const page = (data ?? []) as Record<string, unknown>[];
-		rows.push(...page.filter((row) => String(row.capability_status ?? "").toLowerCase() !== "internal_testing"));
-		if (page.length < 1000) break;
-	}
+	const rows = await listGatewayMonitorRows(env);
 	const providerIds = Array.from(
 		new Set(
 			rows
@@ -445,8 +353,8 @@ export async function fetchGatewayMonitorRows(
 			supportedParameters: supportedParameters(params),
 			effectiveFrom: row.effective_from ?? undefined,
 			tier: row.is_free_variant ? "free" : String(row.pricing_tier ?? "standard"),
-			added: row.model_release_date ?? undefined,
-			retired: row.model_retirement_date ?? undefined,
+			added: dateOnly(row.model_release_date),
+			retired: dateOnly(row.model_retirement_date),
 			weeklyTokensModel: numberOrNull(row.weekly_tokens_model),
 			weeklyTokensModelProvider: numberOrNull(row.weekly_tokens_model_provider),
 			weeklyThroughputModel: numberOrNull(row.weekly_throughput_model),
@@ -638,29 +546,13 @@ function v2ModelStatus(value: unknown): string {
 	return "Withheld";
 }
 
-type ModelVariantSummary = {
-	model_id: string;
-	name: string;
-	variant_kind: string;
-};
-
 async function fetchModelVariants(
 	env: Env,
 	modelId: string,
-): Promise<ModelVariantSummary[]> {
+): Promise<Awaited<ReturnType<typeof listPublicModelVariants>>> {
 	const currentModelId = modelId.trim();
 	if (!currentModelId) return [];
-	const result = await getDataClient(env).rpc("get_v2_model_variants", {
-		p_model_slug: currentModelId,
-	});
-	if (result.error) throw result.error;
-
-	return (result.data ?? [])
-		.map((model) => ({
-			model_id: String(model.model_id),
-			name: String(model.name),
-			variant_kind: String(model.variant_kind ?? "standard"),
-		}));
+	return listPublicModelVariants(env, currentModelId);
 }
 
 function v2ModelPageShape(
@@ -772,42 +664,8 @@ publicModelsRouter.get("/", async (c) => {
 			c.env,
 			catalogueVersion,
 		);
-		const table = "v2_models";
-		const select = "model_slug,lab_slug,name,description,status,released_at,announced_at,updated_at,input_modalities,output_modalities,organisation:v2_labs!v2_models_lab_slug_fkey(name,metadata)";
-		const createQuery = () => {
-			let query = getDataClient(c.env)
-				.from(table)
-				.select(select, { count: "exact" })
-				.eq("hidden", false)
-				.order("name", {
-					ascending: true,
-				});
-			query = query.neq("status", "disabled");
-			if (search) {
-				query = query.ilike(
-					"name",
-					`%${search.replace(/[\\%_]/g, "\\$&")}%`,
-				);
-			}
-			return query;
-		};
-
-		// Supabase returns at most 1,000 rows per REST request. Assemble a larger
-		// requested page here so callers still receive one canonical API response.
-		const databasePageSize = 1_000;
-		const rows: Record<string, unknown>[] = [];
-		let count = 0;
-		for (let pageOffset = offset; pageOffset < offset + limit; pageOffset += databasePageSize) {
-			const { data, error, count: pageCount } = await createQuery().range(
-				pageOffset,
-				Math.min(pageOffset + databasePageSize - 1, offset + limit - 1),
-			);
-			if (error) throw error;
-			if (pageOffset === offset) count = pageCount ?? 0;
-			const page = (data ?? []) as Record<string, unknown>[];
-			rows.push(...page);
-			if (page.length < databasePageSize) break;
-		}
+		const catalogue = await listPublicCatalogueModels(c.env, { search, limit, offset });
+		const rows = catalogue.rows as Record<string, unknown>[];
 
 		const models = rows.map((model) => ({
 			...model,
@@ -831,13 +689,13 @@ publicModelsRouter.get("/", async (c) => {
 				gatewayRowsByModelId.get(String(model.model_slug ?? model.model_id ?? "")) ?? [],
 		}));
 		const response = withPublicCache(
-			c.json({ models, total: count, limit, offset, catalogue_version: catalogueVersion }),
+			c.json({ models, total: catalogue.total, limit, offset, catalogue_version: catalogueVersion }),
 			cataloguePolicy(catalogueVersion),
 		);
 		await storeCatalogueInCache(c.req.raw, response);
 		return response;
 	} catch (error) {
-		console.error("[web-api/models] catalogue failed", error);
+		console.error("[web-api/models] catalogue failed", error, error instanceof Error ? error.cause : undefined);
 		return c.json({ error: "models_unavailable" }, 503);
 	}
 });
@@ -858,19 +716,7 @@ publicModelsRouter.get("/provider-routing-health", async (c) => {
 	const nowMs = Date.now();
 	const sinceIso = new Date(nowMs - windowHours * 60 * 60 * 1000).toISOString();
 	try {
-		const rows: Array<Record<string, unknown>> = [];
-		for (let offset = 0; offset < 20_000; offset += 1_000) {
-			const { data, error } = await getDataClient(c.env)
-				.from("gateway_provider_health_states")
-				.select("provider_id,breaker_state,is_deranked,open_until_ms,updated_at")
-				.in("provider_id", providerIds)
-				.gte("updated_at", sinceIso)
-				.order("updated_at", { ascending: false })
-				.range(offset, offset + 999);
-			if (error) throw error;
-			rows.push(...((data ?? []) as Array<Record<string, unknown>>));
-			if ((data?.length ?? 0) < 1_000) break;
-		}
+		const rows = await listRecentProviderHealthStates(c.env, providerIds, sinceIso);
 		const providers = Object.fromEntries(providerIds.map((providerId) => {
 			const matches = rows.filter((row) => row.provider_id === providerId);
 			const openCount = matches.filter((row) => row.breaker_state === "open").length;
@@ -896,23 +742,10 @@ publicModelsRouter.get("/provider-routing-health", async (c) => {
 /** Public standard-rate rows used to enrich catalogue-only model cards. */
 publicModelsRouter.get("/catalog-pricing-rules", async (c) => {
 	try {
-		const client = getDataClient(c.env);
-		const skus = await client.from("v2_pricing_skus").select("sku_id,provider_model_id,service_tier_slug,effective_from,effective_to,description").neq("status", "disabled");
-		if (skus.error) throw skus.error;
-		const skuIds = (skus.data ?? []).map((row) => row.sku_id);
-		const routeIds = [...new Set((skus.data ?? []).map((row) => row.provider_model_id))];
-		const [meters, routes] = await Promise.all([
-			skuIds.length ? client.from("v2_pricing_sku_meters").select("sku_id,meter_key,unit,unit_quantity,price_nanos").in("sku_id", skuIds) : Promise.resolve({ data: [], error: null }),
-			routeIds.length ? client.from("v2_model_provider_routes").select("provider_model_id,provider_slug,model_slug").in("provider_model_id", routeIds) : Promise.resolve({ data: [], error: null }),
-		]);
-		if (meters.error) throw meters.error;
-		if (routes.error) throw routes.error;
-		const skuById = new Map((skus.data ?? []).map((row) => [row.sku_id, row]));
-		const routeById = new Map((routes.data ?? []).map((row) => [row.provider_model_id, row]));
-		const rows = (meters.data ?? []).flatMap((meter) => {
-			const sku = skuById.get(meter.sku_id); const route = sku ? routeById.get(sku.provider_model_id) : null;
-			const priceNanos = Number(meter.price_nanos); if (!sku || !route || !Number.isFinite(priceNanos)) return [];
-			return [{ model_key: `${route.provider_slug}:${route.model_slug}`, pricing_plan: sku.service_tier_slug ?? "standard", meter: meter.meter_key, note: sku.description ?? null, unit: meter.unit, unit_size: Number(meter.unit_quantity ?? 1), price_per_unit: priceNanos / 1_000_000_000, effective_from: sku.effective_from, effective_to: sku.effective_to }];
+		const pricingRows = await listCatalogPricingRules(c.env);
+		const rows = pricingRows.flatMap((row) => {
+			const priceNanos = Number(row.price_nanos); if (!Number.isFinite(priceNanos)) return [];
+			return [{ model_key: `${row.provider_slug}:${row.model_slug}`, pricing_plan: row.service_tier_slug ?? "standard", meter: row.meter_key, note: row.description ?? null, unit: row.unit, unit_size: Number(row.unit_quantity ?? 1), price_per_unit: priceNanos / 1_000_000_000, effective_from: row.effective_from, effective_to: row.effective_to }];
 		});
 		return withPublicCache(c.json({ rules: rows }), sectionPolicy("catalogPricing"));
 	} catch (error) {
@@ -934,30 +767,13 @@ publicModelsRouter.get("/free-router-overview", async (c) => {
 publicModelsRouter.get("/:modelId", async (c) => {
 	const modelId = c.req.param("modelId");
 	try {
-		const client = getDataClient(c.env);
-		const v2Result = await client.rpc("get_v2_model_overview", {
-			p_model_slug: modelId,
-			p_region: c.req.query("region")?.trim().toLowerCase() || null,
-			p_service_tier: c.req.query("service_tier")?.trim().toLowerCase() || null,
-		});
-		if (v2Result.error && !/could not find|does not exist|PGRST202/i.test(v2Result.error.message ?? "")) throw v2Result.error;
-		const v2Overview = v2Result.data as Record<string, unknown> | null;
-		if (v2Overview?.model_id) {
-			const canonicalModelId = String(v2Overview.model_id);
-			const [identityResult, aliasesResult, variants] = await Promise.all([
-				client.rpc("get_v2_model_identity", { p_model_slug: canonicalModelId }),
-				client.rpc("get_v2_model_aliases", { p_model_slug: canonicalModelId }),
-				fetchModelVariants(c.env, canonicalModelId),
-			]);
-			if (identityResult.error) throw identityResult.error;
-			if (aliasesResult.error) throw aliasesResult.error;
-			const aliases = (aliasesResult.data ?? [])
-				.map((row: Record<string, unknown>) => String(row.alias_slug ?? "").trim())
-				.filter(Boolean);
-			const identity = identityResult.data as Record<string, unknown> | null;
-			return withPublicCache(c.json({ model: v2ModelPageShape(v2Overview, aliases, identity ?? {}, variants) }), sectionPolicy("overview", modelId));
-		}
-		return notFound(c);
+		const resolution = await resolvePublicModel(c.env, modelId); if (!resolution.canonicalModelId) return notFound(c);
+		const canonicalModelId = resolution.canonicalModelId;
+		const [identity, aliasRows, variants] = await Promise.all([findPublicModelIdentity(c.env, canonicalModelId), listActiveModelAliases(c.env, canonicalModelId), fetchModelVariants(c.env, canonicalModelId)]);
+		if (!identity) return notFound(c);
+		const aliases = aliasRows.map((row) => row.alias_slug).filter(Boolean);
+		const overview = { model_id: identity.model_slug, name: identity.name, description: identity.description, organisation_id: identity.lab_slug, organisation_name: identity.lab_name, primary_date: identity.released_at ?? identity.announced_at, gateway_status: identity.catalogue_status, gateway_input_modalities: identity.input_modalities, gateway_output_modalities: identity.output_modalities, context_lengths: [] };
+		return withPublicCache(c.json({ model: v2ModelPageShape(overview, aliases, identity, variants) }), sectionPolicy("overview", modelId));
 	} catch (error) {
 		console.error("[web-api/models] overview failed", { modelId, error });
 		return c.json({ error: "model_unavailable" }, 503);
@@ -972,41 +788,8 @@ publicModelsRouter.get("/:modelId/realtime", async (c) => {
 		const aliases = await modelAliases(c.env, modelId);
 		const now = new Date();
 		const sinceIso = new Date(now.getTime() - windowMinutes * 60_000).toISOString();
-		const rows: Array<Record<string, unknown>> = [];
-		for (let offset = 0; ; offset += 5_000) {
-			const { data, error } = await getDataClient(c.env)
-				.from("v2_web_gateway_requests")
-				.select("latency_ms,throughput,generation_ms,usage")
-				.in("model_id", aliases)
-				.gte("created_at", sinceIso)
-				.lte("created_at", now.toISOString())
-				.order("created_at", { ascending: true })
-				.range(offset, offset + 4_999);
-			if (error) throw error;
-			rows.push(...((data ?? []) as Array<Record<string, unknown>>));
-			if ((data?.length ?? 0) < 5_000) break;
-		}
-		const latencies: number[] = [];
-		const throughputs: number[] = [];
-		for (const row of rows) {
-			const latency = numberOrNull(row.latency_ms);
-			if (latency != null && latency > 0) latencies.push(latency);
-			const directThroughput = numberOrNull(row.throughput);
-			if (directThroughput != null && directThroughput > 0) {
-				throughputs.push(directThroughput);
-				continue;
-			}
-			const generationMs = numberOrNull(row.generation_ms);
-			const tokens = outputTokens(row.usage);
-			if (generationMs != null && generationMs > 0 && tokens != null) {
-				throughputs.push((tokens * 1_000) / generationMs);
-			}
-		}
-		return withPublicCache(c.json({ stats: {
-			requestsInWindow: rows.length,
-			latencyP50Ms: median(latencies),
-			throughputP50TokPerSec: median(throughputs),
-		} }), sectionPolicy("realtime", modelId));
+		const stats = await getModelRealtimeStats(c.env, aliases, sinceIso, now.toISOString());
+		return withPublicCache(c.json({ stats }), sectionPolicy("realtime", modelId));
 	} catch (error) {
 		console.error("[web-api/models] realtime stats failed", { modelId, error });
 		return c.json({ error: "model_realtime_unavailable" }, 503);
@@ -1016,19 +799,10 @@ publicModelsRouter.get("/:modelId/realtime", async (c) => {
 publicModelsRouter.get("/:modelId/token-trajectory", async (c) => {
 	const modelId = c.req.param("modelId");
 	try {
-		const client = getDataClient(c.env);
-		const { data: model, error: modelError } = await client
-			.from("v2_models")
-			.select("model_slug")
-			.eq("model_slug", modelId)
-			.eq("hidden", false)
-			.maybeSingle();
-		if (modelError) throw modelError;
-		if (!model) return notFound(c);
-		const { data, error } = await client.rpc("get_model_token_trajectory", { p_model_id: modelId });
-		if (error) throw error;
-		const row = (data?.[0] ?? null) as Record<string, unknown> | null;
+		const row = await getModelTokenTrajectory(c.env, modelId);
 		if (!row?.release_date) {
+			const identity = await findPublicModelIdentity(c.env, modelId);
+			if (!identity) return notFound(c);
 			return withPublicCache(c.json({ trajectory: null }), sectionPolicy("trajectory", modelId));
 		}
 		const points = Array.isArray(row.points) ? row.points as Array<Record<string, unknown>> : [];
@@ -1056,34 +830,24 @@ publicModelsRouter.get("/:modelId/header", async (c) => {
 		return withPublicCache(c.json({ header: { model_id: "phaseo/free", name: "Phaseo Free Router", organisation_id: "phaseo", organisation: { name: "Phaseo", country_code: "" }, aliases: [], status: "Available", hidden: false } }), sectionPolicy("overview", modelId));
 	}
 	try {
-		const client = getDataClient(c.env);
-		const v2Result = await client.rpc("get_v2_model_overview", {
-			p_model_slug: modelId,
-			p_region: c.req.query("region")?.trim().toLowerCase() || null,
-			p_service_tier: c.req.query("service_tier")?.trim().toLowerCase() || null,
-		});
-		if (v2Result.error && !/could not find|does not exist|PGRST202/i.test(v2Result.error.message ?? "")) throw v2Result.error;
-		const v2Overview = v2Result.data as Record<string, unknown> | null;
-		if (v2Overview?.model_id) {
-			const [identityResult, aliasesResult] = await Promise.all([
-				client.rpc("get_v2_model_identity", { p_model_slug: String(v2Overview.model_id) }),
-				client.rpc("get_v2_model_aliases", { p_model_slug: String(v2Overview.model_id) }),
-			]);
-			if (identityResult.error) throw identityResult.error;
-			if (aliasesResult.error) throw aliasesResult.error;
-			const model = v2ModelPageShape(v2Overview, (aliasesResult.data ?? []).map((row: Record<string, unknown>) => String(row.alias_slug ?? "").trim()).filter(Boolean), (identityResult.data as Record<string, unknown> | null) ?? {});
-			return withPublicCache(c.json({ header: {
-				model_id: model.model_id,
-				name: model.name,
-				organisation_id: model.organisation_id,
-				organisation: model.organisation,
-				aliases: model.aliases,
-				family_id: model.family_id ?? undefined,
-				status: model.status,
-				hidden: false,
-			} }), sectionPolicy("overview", modelId));
-		}
-		return notFound(c);
+		const resolution = await resolvePublicModel(c.env, modelId);
+		const canonicalModelId = resolution.canonicalModelId;
+		if (!canonicalModelId) return notFound(c);
+		const [identity, aliasRows] = await Promise.all([
+			findPublicModelIdentity(c.env, canonicalModelId),
+			listActiveModelAliases(c.env, canonicalModelId),
+		]);
+		if (!identity) return notFound(c);
+		return withPublicCache(c.json({ header: {
+			model_id: identity.model_slug,
+			name: identity.name,
+			organisation_id: identity.lab_slug,
+			organisation: { name: identity.lab_name, country_code: identity.lab_country_code },
+			aliases: aliasRows.map((row) => row.alias_slug),
+			family_id: identity.family_slug ?? undefined,
+			status: v2ModelStatus(identity.catalogue_status ?? identity.status),
+			hidden: false,
+		} }), sectionPolicy("overview", modelId));
 	} catch (error) {
 		console.error("[web-api/models] header failed", { modelId, error });
 		return c.json({ error: "model_header_unavailable" }, 503);
@@ -1095,13 +859,10 @@ publicModelsRouter.get("/:modelId/canonical", async (c) => {
 	const unresolved = { requestedModelId, canonicalModelId: null, internalModelId: null, source: "unresolved" as const };
 	if (!requestedModelId) return withPublicCache(c.json({ resolution: unresolved }), sectionPolicy("overview"));
 	try {
-		const client = getDataClient(c.env);
-		const v2Result = await client.rpc("get_v2_model_resolution", { p_requested_slug: requestedModelId });
-		const v2Resolution = v2Result.data as Record<string, unknown> | null;
-		if (!v2Result.error && v2Resolution && v2Resolution.canonicalModelId) {
-			return withPublicCache(c.json({ resolution: v2Resolution }), sectionPolicy("overview", requestedModelId));
+		const resolution = await resolvePublicModel(c.env, requestedModelId);
+		if (resolution.canonicalModelId) {
+			return withPublicCache(c.json({ resolution }), sectionPolicy("overview", requestedModelId));
 		}
-		if (v2Result.error && !/could not find|does not exist|PGRST202/i.test(v2Result.error.message ?? "")) throw v2Result.error;
 		return withPublicCache(c.json({ resolution: unresolved }), sectionPolicy("overview", requestedModelId));
 	} catch (error) {
 		console.error("[web-api/models] canonical resolution failed", { requestedModelId, error });
@@ -1112,22 +873,15 @@ publicModelsRouter.get("/:modelId/canonical", async (c) => {
 publicModelsRouter.get("/:modelId/availability", async (c) => {
 	const modelId = c.req.param("modelId");
 	try {
-		const client = getDataClient(c.env);
-		const v2Result = await client.rpc("get_v2_model_availability", {
-			p_model_slug: modelId,
-			p_region: c.req.query("region")?.trim().toLowerCase() || null,
-			p_service_tier: c.req.query("service_tier")?.trim().toLowerCase() || "standard",
+		const availability = await getModelAvailability(c.env, {
+			modelSlug: modelId,
+			region: c.req.query("region"),
+			serviceTier: c.req.query("service_tier")?.trim().toLowerCase() || "standard",
 		});
-		const v2AvailabilityPayload = v2Result.data as Record<string, unknown> | Array<Record<string, unknown>> | null;
-		const v2Availability = Array.isArray(v2AvailabilityPayload) ? v2AvailabilityPayload[0] : v2AvailabilityPayload;
-		if (!v2Result.error && v2Availability && "is_gateway_active" in v2Availability) {
-			return withPublicCache(c.json({ availability: {
-				isGatewayActive: Boolean(v2Availability.is_gateway_active),
-				activeProviderCount: Number(v2Availability.active_provider_count ?? 0),
-			} }), sectionPolicy("catalogue", modelId));
-		}
-		if (v2Result.error && !/could not find|does not exist|PGRST202/i.test(v2Result.error.message ?? "")) throw v2Result.error;
-		return withPublicCache(c.json({ availability: { isGatewayActive: false, activeProviderCount: 0 } }), sectionPolicy("catalogue", modelId));
+		return withPublicCache(c.json({ availability: {
+			isGatewayActive: availability.is_gateway_active,
+			activeProviderCount: availability.active_provider_count,
+		} }), sectionPolicy("catalogue", modelId));
 	} catch (error) {
 		console.error("[web-api/models] availability failed", { modelId, error });
 		return c.json({ error: "model_availability_unavailable" }, 503);
@@ -1138,11 +892,9 @@ publicModelsRouter.get("/:modelId/usage-daily", async (c) => {
 	const modelId = c.req.param("modelId");
 	try {
 		const days = Math.max(1, Math.min(365, parseBoundedInt(c.req.query("days"), 30, 365))); const now = new Date(); const defaultSince = new Date(now); defaultSince.setUTCDate(defaultSince.getUTCDate() - days);
-		const providerIds = [...new Set((c.req.query("provider_ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))]; const client = getDataClient(c.env);
-		const v2 = await client.rpc("get_v2_model_usage_daily", { p_model_slug: modelId, p_provider_ids: providerIds.length ? providerIds.sort() : null, p_since: c.req.query("since")?.slice(0, 10) || defaultSince.toISOString().slice(0, 10), p_until: c.req.query("until")?.slice(0, 10) || now.toISOString().slice(0, 10) });
-		if (v2.error) throw v2.error;
-		if (!Array.isArray(v2.data)) throw new Error("V2 usage query returned an invalid payload");
-		return withPublicCache(c.json({ rows: (v2.data as Array<Record<string, unknown>>).map(mapUsageDailyRow), source: "v2" }), sectionPolicy("usageDaily", modelId));
+		const providerIds = [...new Set((c.req.query("provider_ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))];
+		const rows = await listModelUsageDaily(c.env, { modelSlug: modelId, providerIds, since: c.req.query("since")?.slice(0, 10) || defaultSince.toISOString().slice(0, 10), until: c.req.query("until")?.slice(0, 10) || now.toISOString().slice(0, 10) });
+		return withPublicCache(c.json({ rows: rows.map(mapUsageDailyRow), source: "v2" }), sectionPolicy("usageDaily", modelId));
 	} catch (error) { console.error("[web-api/models] usage daily failed", { modelId, error }); return c.json({ error: "model_usage_daily_unavailable" }, 503); }
 });
 
@@ -1153,12 +905,8 @@ publicModelsRouter.get("/:modelId/provider-health", async (c) => {
 	if (!providerIds.length) return withPublicCache(c.json({ rows: [] }), sectionPolicy("providerHealth", modelId));
 	try {
 		const windowDays = Math.max(1, Math.min(90, parseBoundedInt(c.req.query("window_days"), 3, 90)));
-		const v2 = await getDataClient(c.env).rpc("get_v2_model_provider_health_metrics", { p_model_slug: modelId, p_window_days: windowDays, p_percentile: percentile / 100 });
-		if (!v2.error && Array.isArray(v2.data)) {
-			const rows = (v2.data as Array<Record<string, unknown>>).filter((row) => providerIds.includes(String(row.provider_id ?? "")));
-			return withPublicCache(c.json({ rows, source: "v2" }), sectionPolicy("providerHealth", modelId));
-		}
-		throw v2.error ?? new Error("V2 provider health query returned an invalid payload");
+		const rows = (await getModelProviderHealthRows(c.env, modelId, windowDays, percentile / 100)).filter((row) => providerIds.includes(String(row.provider_id ?? "")));
+		return withPublicCache(c.json({ rows, source: "v2" }), sectionPolicy("providerHealth", modelId));
 	} catch (error) { console.error("[web-api/models] provider health failed", { modelId, error }); return c.json({ error: "model_provider_health_unavailable" }, 503); }
 });
 
@@ -1199,21 +947,7 @@ publicModelsRouter.get("/:modelId/gateway-metadata", async (c) => {
 publicModelsRouter.get("/:modelId/notice", async (c) => {
 	const modelId = c.req.param("modelId");
 	try {
-		const apiModelId = await resolveNoticeApiModelId(c.env, modelId);
-		if (!apiModelId) {
-			return withPublicCache(c.json({ notice: null }), sectionPolicy("notice", modelId));
-		}
-		const { data, error } = await getDataClient(c.env)
-			.from("v2_model_page_notices")
-			.select("api_model_id:model_slug,tone,markdown")
-			.eq("model_slug", apiModelId)
-			.maybeSingle();
-		if (error) throw error;
-		const tone = String(data?.tone ?? "").trim();
-		const markdown = String(data?.markdown ?? "").trim();
-		const notice = data && apiModelId && markdown && ["info", "warning", "critical"].includes(tone)
-			? { apiModelId, tone, markdown }
-			: null;
+		const notice = await getModelNotice(c.env, modelId);
 		return withPublicCache(c.json({ notice }), sectionPolicy("notice", modelId));
 	} catch (error) {
 		console.error("[web-api/models] notice failed", { modelId, error });
@@ -1224,13 +958,9 @@ publicModelsRouter.get("/:modelId/notice", async (c) => {
 publicModelsRouter.get("/:modelId/apps", async (c) => {
 	const modelId = c.req.param("modelId"); const limit = Math.max(1, Math.min(100, parseBoundedInt(c.req.query("limit"), 24, 100)));
 	try {
-		const client = getDataClient(c.env);
-		const v2 = await client.rpc("get_v2_model_apps", { p_model_slug: modelId, p_limit: limit });
-		if (!v2.error && Array.isArray(v2.data)) {
-			const apps = (v2.data as Array<Record<string, unknown>>).map((row) => { const appId = String(row.app_id ?? "").trim(); return appId ? { appId, title: String(row.title ?? appId).trim() || appId, imageUrl: typeof row.image_url === "string" && row.image_url.trim() ? row.image_url.trim() : null, url: typeof row.url === "string" && row.url.trim() ? row.url.trim() : null, lastSeen: typeof row.last_seen === "string" && row.last_seen.trim() ? row.last_seen : null, totalRequests: Math.max(0, Math.round(Number(row.requests ?? 0) || 0)), successfulRequests: Math.max(0, Math.round(Number(row.success_requests ?? 0) || 0)), totalTokens: Math.max(0, Math.round(Number(row.total_tokens ?? 0) || 0)) } : null; }).filter((row): row is NonNullable<typeof row> => Boolean(row));
-			return withPublicCache(c.json({ apps, source: "v2" }), sectionPolicy("apps", modelId));
-		}
-		throw v2.error ?? new Error("V2 apps query returned an invalid payload");
+		const rows = await listModelApps(c.env, modelId, limit);
+		const apps = rows.map((row) => { const appId = String(row.app_id ?? "").trim(); return appId ? { appId, title: String(row.title ?? appId).trim() || appId, imageUrl: typeof row.image_url === "string" && row.image_url.trim() ? row.image_url.trim() : null, url: typeof row.url === "string" && row.url.trim() ? row.url.trim() : null, lastSeen: typeof row.last_seen === "string" && row.last_seen.trim() ? row.last_seen : null, totalRequests: Math.max(0, Math.round(Number(row.requests ?? 0) || 0)), successfulRequests: Math.max(0, Math.round(Number(row.success_requests ?? 0) || 0)), totalTokens: Math.max(0, Math.round(Number(row.total_tokens ?? 0) || 0)) } : null; }).filter((row): row is NonNullable<typeof row> => Boolean(row));
+		return withPublicCache(c.json({ apps, source: "v2" }), sectionPolicy("apps", modelId));
 	} catch (error) { console.error("[web-api/models] apps failed", { modelId, error }); return c.json({ error: "model_apps_unavailable" }, 503); }
 });
 
@@ -1238,19 +968,15 @@ publicModelsRouter.get("/:modelId/apps", async (c) => {
 publicModelsRouter.get("/:modelId/benchmarks", async (c) => {
 	const modelId = c.req.param("modelId");
 	try {
-		const client = getDataClient(c.env);
-		const v2 = await client.rpc("get_v2_model_benchmarks", { p_model_slug: modelId });
-		if (!v2.error && (v2.data == null || Array.isArray(v2.data))) {
-			const results = ((v2.data ?? []) as Array<Record<string, unknown>>).map((row) => ({
+		const rows = await listModelBenchmarks(c.env, modelId);
+		const results = rows.map((row) => ({
 				id: row.result_id, benchmark_id: row.benchmark_id, score: row.score, score_numeric: row.score_numeric,
 				is_self_reported: row.is_self_reported, other_info: row.other_info, source_link: row.source_link,
 				created_at: row.created_at, updated_at: row.updated_at, rank: row.result_rank, occur_idx: row.occur_idx,
 				variant: row.variant, result_key: row.result_key,
 				benchmark: { id: row.benchmark_id, name: row.benchmark_name, category: row.category, link: row.link, total_models: row.total_models, ascending_order: row.ascending_order, type: row.benchmark_type },
 			}));
-			return withPublicCache(c.json({ modelId, results, highlights: benchmarkHighlights(results), source: "v2" }), sectionPolicy("benchmarks", modelId));
-		}
-		throw v2.error ?? new Error("V2 benchmark query returned an invalid payload");
+		return withPublicCache(c.json({ modelId, results, highlights: benchmarkHighlights(results), source: "v2" }), sectionPolicy("benchmarks", modelId));
 	} catch (error) {
 		console.error("[web-api/models] benchmarks failed", { modelId, error });
 		return c.json({ error: "benchmarks_unavailable" }, 503);
@@ -1260,36 +986,8 @@ publicModelsRouter.get("/:modelId/benchmarks", async (c) => {
 publicModelsRouter.get("/:modelId/timeline", async (c) => {
 	const modelId = c.req.param("modelId");
 	try {
-		const client = getDataClient(c.env);
-		const { data: model, error } = await client
-			.from("v2_models")
-			.select("model_slug,name,previous_model_slug,announced_at,released_at,deprecated_at,retired_at")
-			.eq("model_slug", modelId)
-			.eq("hidden", false)
-			.maybeSingle();
-		if (error) throw error;
-		if (!model) return notFound(c);
-		const [previousResult, futureResult] = await Promise.all([
-			model.previous_model_slug
-				? client.from("v2_models").select("model_slug,name,announced_at,released_at").eq("model_slug", model.previous_model_slug).eq("hidden", false).maybeSingle()
-				: Promise.resolve({ data: null, error: null }),
-			client.from("v2_models").select("model_slug,name,announced_at,released_at").eq("previous_model_slug", modelId).eq("hidden", false),
-		]);
-		if (previousResult.error) throw previousResult.error;
-		if (futureResult.error) throw futureResult.error;
-		const events: Array<Record<string, string>> = [];
-		for (const [date, eventName] of [[model.announced_at, "Announced"], [model.released_at, "Released"], [model.deprecated_at, "Deprecated"], [model.retired_at, "Retired"]] as const) {
-			if (date) events.push({ date, eventType: "ModelEvent", eventName });
-		}
-		const previous = previousResult.data;
-		const previousDate = previous?.released_at ?? previous?.announced_at;
-		if (previous && previousDate) events.push({ date: previousDate, eventType: "PreviousModel", modelId: previous.model_slug, modelName: previous.name ?? previous.model_slug });
-		const future = (futureResult.data ?? [])
-			.map((candidate) => ({ candidate, date: candidate.released_at ?? candidate.announced_at }))
-			.filter((entry): entry is { candidate: NonNullable<typeof entry.candidate>; date: string } => Boolean(entry.date))
-			.sort((left, right) => left.date.localeCompare(right.date))[0];
-		if (future) events.push({ date: future.date, eventType: "FutureModel", modelId: future.candidate.model_slug, modelName: future.candidate.name ?? future.candidate.model_slug });
-		events.sort((left, right) => right.date.localeCompare(left.date));
+		const events = await getModelTimeline(c.env, modelId);
+		if (!events) return notFound(c);
 		return withPublicCache(c.json({ events }), sectionPolicy("timeline", modelId));
 	} catch (error) {
 		console.error("[web-api/models] timeline failed", { modelId, error });
@@ -1300,18 +998,14 @@ publicModelsRouter.get("/:modelId/timeline", async (c) => {
 publicModelsRouter.get("/:modelId/subscription-plans", async (c) => {
 	const modelId = c.req.param("modelId");
 	try {
-		const client = getDataClient(c.env);
-		const v2 = await client.rpc("get_v2_model_subscription_plans", { p_model_slug: modelId });
-		if (!v2.error && (v2.data == null || Array.isArray(v2.data))) {
+		const rows = await listModelSubscriptionPlans(c.env, modelId);
 			const grouped = new Map<string, Record<string, unknown>>();
-			for (const row of (v2.data ?? []) as Array<Record<string, unknown>>) {
+			for (const row of rows) {
 				const planId = String(row.plan_id ?? "").trim(); if (!planId) continue;
 				const plan = grouped.get(planId) ?? { plan_id: planId, plan_uuid: row.plan_uuid, name: row.name, organisation_id: row.lab_slug, description: row.description, link: row.link, other_info: row.other_info, created_at: row.created_at, updated_at: row.updated_at, organisation: row.lab_slug ? { organisation_id: row.lab_slug, name: row.lab_slug } : null, prices: [], model_info: { model_info: row.model_info, rate_limit: row.rate_limit, other_info: row.model_other_info } };
-				(plan.prices as Array<Record<string, unknown>>).push({ price: row.price, currency: row.currency, frequency: row.frequency }); grouped.set(planId, plan);
+				(plan.prices as Array<Record<string, unknown>>).push({ price: row.price == null ? null : Number(row.price), currency: row.currency, frequency: row.frequency }); grouped.set(planId, plan);
 			}
 			return withPublicCache(c.json({ subscription_plans: Array.from(grouped.values()), source: "v2" }), sectionPolicy("subscriptions", modelId));
-		}
-		throw v2.error ?? new Error("V2 subscription query returned an invalid payload");
 	} catch (error) {
 		console.error("[web-api/models] subscription plans failed", { modelId, error });
 		return c.json({ error: "model_subscription_plans_unavailable" }, 503);
@@ -1322,44 +1016,12 @@ publicModelsRouter.get("/:modelId/subscription-plans", async (c) => {
 publicModelsRouter.get("/:modelId/pricing", async (c) => {
 	const modelId = c.req.param("modelId");
 	try {
-		const client = getDataClient(c.env);
 		const requestedServiceTier = c.req.query("service_tier")?.trim().toLowerCase() || null;
-		const v2PricingPromise = client.rpc("get_v2_model_pricing", {
-			p_model_slug: modelId,
-			p_region: c.req.query("region")?.trim().toLowerCase() || null,
-			p_service_tier: requestedServiceTier,
-		});
-		const standardPricingPromise = requestedServiceTier === null
-			? client.rpc("get_v2_model_pricing", {
-				p_model_slug: modelId,
-				p_region: c.req.query("region")?.trim().toLowerCase() || null,
-				p_service_tier: "standard",
-			})
-			: Promise.resolve(null);
-		const [v2Pricing, standardPricing] = await Promise.all([
-			v2PricingPromise,
-			standardPricingPromise,
-		]);
-		if (!v2Pricing.error && Array.isArray(v2Pricing.data)) {
-			const providers = requestedServiceTier === null
-				&& standardPricing
-				&& !standardPricing.error
-				&& Array.isArray(standardPricing.data)
-				? mergeStandardPricingAvailability(
-					v2Pricing.data as Array<Record<string, unknown>>,
-					standardPricing.data as Array<Record<string, unknown>>,
-				)
-				: v2Pricing.data as Array<Record<string, unknown>>;
-			if (c.req.query("shape") === "source") {
-				return withPublicCache(c.json({
-					modelId,
-					provider_rows: providers.map((row) => row.provider).filter(Boolean),
-					pricing_rules: providers.flatMap((row) => Array.isArray(row.pricing_rules) ? row.pricing_rules : []),
-				}), sectionPolicy("pricing", modelId));
-			}
-			return withPublicCache(c.json({ modelId, providers }), sectionPolicy("pricing", modelId));
-		}
-		throw v2Pricing.error ?? new Error("V2 pricing query returned an invalid payload");
+		const source = await fetchModelPricingSources(c.env, [modelId]);
+		const pricingRows = requestedServiceTier ? source.pricingRows.filter((row) => String(row.pricing_plan ?? "standard").toLowerCase() === requestedServiceTier) : source.pricingRows;
+		const providers = composeModelPricing(source.providerRows, pricingRows);
+		if (c.req.query("shape") === "source") return withPublicCache(c.json({ modelId, provider_rows: source.providerRows, pricing_rules: pricingRows }), sectionPolicy("pricing", modelId));
+		return withPublicCache(c.json({ modelId, providers }), sectionPolicy("pricing", modelId));
 	} catch (error) {
 		console.error("[web-api/models] pricing failed", { modelId, error });
 		return c.json({ error: "pricing_unavailable" }, 503);
@@ -1370,15 +1032,11 @@ publicModelsRouter.get("/:modelId/pricing", async (c) => {
 publicModelsRouter.get("/:modelId/performance/colos", async (c) => {
 	const modelId = c.req.param("modelId");
 	try {
-		const client = getDataClient(c.env);
-		const result = await client.rpc("get_v2_model_performance_colos", { p_model_slug: modelId });
-		if (result.error && !/could not find|does not exist|PGRST202/i.test(result.error.message ?? "")) throw result.error;
-		const colos = Array.isArray(result.data)
-			? (result.data as Array<Record<string, unknown>>).map((row) => ({
+		const rows = await listModelPerformanceColos(c.env, modelId);
+		const colos = rows.map((row) => ({
 				colo: String(row.cloudflare_colo ?? "").trim().toUpperCase(),
 				requests: Number(row.request_count ?? 0),
-			})).filter((row) => /^[A-Z0-9]{3}$/.test(row.colo))
-			: [];
+			})).filter((row) => /^[A-Z0-9]{3}$/.test(row.colo));
 		return withPublicCache(c.json({ modelId, colos }), sectionPolicy("performance", modelId));
 	} catch (error) {
 		console.error("[web-api/models] performance colos failed", { modelId, error });
@@ -1398,34 +1056,18 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 		? c.req.query("context")
 		: "all";
 	try {
-		const client = getDataClient(c.env);
-		const [v2, health, cachedInput] = await Promise.all([
-			client.rpc("get_v2_model_performance_metrics", {
-				p_model_slug: modelId,
-				p_cloudflare_colo: cloudflareColo,
-				p_percentile: percentile / 100,
-				p_stream_mode: streamMode,
-				p_context_bucket: contextBucket,
-			}),
-			client.rpc("get_v2_model_provider_health_metrics", { p_model_slug: modelId, p_window_days: 3, p_percentile: percentile / 100 }),
-			client.rpc("get_v2_model_cached_input_metrics", {
-				p_model_slug: modelId,
-				p_cloudflare_colo: cloudflareColo,
-				p_stream_mode: streamMode,
-				p_context_bucket: contextBucket,
-			}),
-		]);
+		const bundle = await getModelPerformanceBundle(c.env, { modelSlug: modelId, cloudflareColo, streamMode: streamMode ?? "all", percentile: percentile / 100 });
+		const v2 = { data: bundle.performance };
+		const health = { data: bundle.health };
+		const cachedInput = { data: bundle.cachedInput };
 		let performance: Record<string, any> | null = null;
-		if (!v2.error && v2.data && !Array.isArray(v2.data) && typeof v2.data === "object") {
+		if (v2.data && !Array.isArray(v2.data) && typeof v2.data === "object") {
 			performance = v2.data as Record<string, any>;
-		} else if (v2.error && !/could not find|does not exist|PGRST202/i.test(v2.error.message ?? "")) {
-			throw v2.error;
-		} else throw v2.error ?? new Error("V2 performance query returned an invalid payload");
+		} else throw new Error("V2 performance query returned an invalid payload");
 		if (
 			!cloudflareColo &&
 			streamMode === "all" &&
 			contextBucket === "all" &&
-			!health.error &&
 			Array.isArray(health.data) &&
 			health.data.length > 0 &&
 			performance
@@ -1453,18 +1095,12 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 			...(performance.provider_uptime_24h ?? []).map((value: Record<string, unknown>) => String(value.provider ?? "")),
 			...(performance.provider_daily_7d ?? []).map((value: Record<string, unknown>) => String(value.provider ?? "")),
 		].map((provider) => provider.trim().toLowerCase()).filter(Boolean))];
-		const providerMetadata = providerSlugs.length > 0
-			? await client.from("v2_providers").select("provider_slug,metadata").in("provider_slug", providerSlugs)
-			: { data: [], error: null };
-		if (providerMetadata.error) throw providerMetadata.error;
-		const providerColors = new Map((providerMetadata.data ?? []).map((row) => {
-			const metadata = row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata)
-				? row.metadata as Record<string, unknown>
-				: {};
+		const providerMetadata = await getProviderMetadata(c.env, providerSlugs);
+		const providerColors = new Map([...providerMetadata].map(([providerSlug, metadata]) => {
 			const color = typeof metadata.colour === "string" && metadata.colour.trim()
 				? metadata.colour.trim()
 				: null;
-			return [String(row.provider_slug).trim().toLowerCase(), color] as const;
+			return [providerSlug, color] as const;
 		}));
 		const providerColor = (provider: unknown) => providerColors.get(String(provider ?? "").trim().toLowerCase()) ?? null;
 		const number = (value: unknown) => { const parsed = Number(value); return value == null || !Number.isFinite(parsed) ? null : parsed; };
@@ -1487,17 +1123,7 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 				.filter((provider) => provider.requests > 0)
 				.map((provider) => provider.provider),
 		).size;
-		const percentileSeries = sevenDayProviderCount === 1
-			? await client.rpc("get_v2_model_provider_percentile_series_v2", {
-				p_model_slug: modelId,
-				p_cloudflare_colo: cloudflareColo,
-				p_stream_mode: streamMode,
-				p_context_bucket: contextBucket,
-			})
-			: { data: [], error: null };
-		if (percentileSeries.error && !/could not find|does not exist|PGRST202/i.test(percentileSeries.error.message ?? "")) {
-			throw percentileSeries.error;
-		}
+		const percentileSeries = { data: sevenDayProviderCount === 1 ? bundle.percentileSeries : [] };
 		const successSeries = (performance.hourly_24h ?? []).map((value: Record<string, unknown>) => ({ bucket: value.bucket ?? "", overallSuccessPct: number(value.success_pct), worstProviderSuccessPct: providerCount > 1 ? number(value.worst_provider_success_pct) : null, providerCount, requests: Number(value.requests ?? 0) }));
 		const timeOfDay = (performance.time_of_day_5d ?? []).map((value: Record<string, unknown>) => ({ hour: Number(value.hour ?? 0), avgThroughput: number(value.avg_throughput), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), sampleCount: Number(value.sample_count ?? 0) }));
 		const providerPercentileDaily7d = (Array.isArray(percentileSeries.data) ? percentileSeries.data : []).map((value: Record<string, unknown>) => {

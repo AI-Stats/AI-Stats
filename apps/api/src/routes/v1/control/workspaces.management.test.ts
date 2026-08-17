@@ -34,134 +34,35 @@ function json(body: unknown, status = 200, headers: Record<string, string> = {})
 	});
 }
 
-function buildWorkspacesSupabaseMock() {
-	return {
-		from(table: string) {
-			if (table === "workspaces") {
-				const query: any = {
-					select: () => query,
-					eq: () => query,
-					or: () => query,
-					order: () => query,
-					range: () => query,
-					maybeSingle: async () => ({
-						data: state.workspaces.shift() ?? null,
-						error: null,
-					}),
-					insert: (payload: Record<string, unknown>) => {
-						state.workspacesInserted.push(payload);
-						return {
-							select: () => ({
-								maybeSingle: async () => ({
-									data: state.workspaces.shift() ?? null,
-									error: null,
-								}),
-							}),
-						};
-					},
-					update: (_payload: Record<string, unknown>) => {
-						let eqCount = 0;
-						const updater: any = {
-							eq: () => {
-								eqCount += 1;
-								return eqCount >= 2 ? Promise.resolve({ error: null }) : updater;
-							},
-						};
-						return updater;
-					},
-					delete: () => {
-						const filters: Array<{ column: string; value: unknown }> = [];
-						const deleter: any = {
-							eq: (column: string, value: unknown) => {
-								filters.push({ column, value });
-								if (filters.length >= 2) {
-									for (const filter of filters) {
-										state.deletes.push({ table, column: filter.column, value: filter.value });
-									}
-									return Promise.resolve({ error: null });
-								}
-								return deleter;
-							},
-						};
-						return deleter;
-					},
-				};
-				return query;
-			}
+vi.mock("@/repositories/management", () => ({
+	findWorkspaceOwnerUserId: vi.fn(async () => {
+		const row = state.workspaces.shift();
+		return typeof row?.owner_user_id === "string" ? row.owner_user_id : null;
+	}),
+}));
 
-			if (table === "users") {
-				return {
-					select: () => ({
-						eq: () => ({
-							maybeSingle: async () => ({
-								data: state.users.shift() ?? null,
-								error: null,
-							}),
-						}),
-					}),
-				};
-			}
-
-			if (table === "workspace_members" || table === "wallets") {
-				return {
-					upsert: async (payload?: Record<string, unknown>) => {
-						if (table === "workspace_members" && payload) {
-							state.workspaceMembersUpserts.push(payload);
-						}
-						return { error: table === "workspace_members" ? state.workspaceMembersUpsertError : null };
-					},
-					delete: () => ({
-						eq: async (column: string, value: unknown) => {
-							state.deletes.push({ table, column, value });
-							return { error: null };
-						},
-					}),
-				};
-			}
-
-			if (table === "workspace_settings") {
-				return {
-					upsert: async (payload: Record<string, unknown>) => {
-						state.workspaceSettingsUpserts.push(payload);
-						return { error: state.workspaceSettingsUpsertError };
-					},
-					delete: () => ({
-						eq: async (column: string, value: unknown) => {
-							state.deletes.push({ table, column, value });
-							return { error: null };
-						},
-					}),
-				};
-			}
-
-			if (table === "workspace_invites" || table === "workspace_join_requests" || table === "management_keys") {
-				return {
-					delete: () => ({
-						eq: async (column: string, value: unknown) => {
-							state.deletes.push({ table, column, value });
-							return { error: null };
-						},
-					}),
-				};
-			}
-
-			if (table === "keys") {
-				return {
-					select: () => ({
-						eq: () => ({
-							neq: async () => ({ count: state.keyCount, error: null }),
-						}),
-					}),
-				};
-			}
-
-			throw new Error(`Unexpected table: ${table}`);
-		},
-	};
-}
-
-vi.mock("@/runtime/env", () => ({
-	getSupabaseAdmin: () => buildWorkspacesSupabaseMock(),
+vi.mock("@/repositories/workspaces", () => ({
+	findWorkspaceById: vi.fn(async () => state.workspaces.shift() ?? null),
+	isDefaultWorkspaceForUser: vi.fn(async () => {
+		const row = state.users.shift();
+		return row?.default_workspace_id === state.guardManagementAuthResult?.value.workspaceId;
+	}),
+	createWorkspaceWithOwner: vi.fn(async (payload: Record<string, unknown>) => {
+		state.workspacesInserted.push(payload);
+		if (state.workspaceSettingsUpsertError) throw new Error(state.workspaceSettingsUpsertError.message);
+		return state.workspaces.shift() ?? null;
+	}),
+	deleteWorkspaceByOwner: vi.fn(async (workspaceId: string, ownerUserId: string) => {
+		state.deletes.push({ table: "workspaces", column: "id", value: workspaceId });
+		state.deletes.push({ table: "workspaces", column: "owner_user_id", value: ownerUserId });
+		return true;
+	}),
+	updateWorkspaceByOwner: vi.fn(async () => state.workspaces.shift() ?? null),
+	countActiveWorkspaceKeys: vi.fn(async () => state.keyCount),
+	findExistingUserIds: vi.fn(async () => new Set()),
+	upsertWorkspaceMembers: vi.fn(async () => undefined),
+	findWorkspaceMemberRoles: vi.fn(async () => []),
+	removeWorkspaceMembers: vi.fn(async () => 0),
 }));
 
 vi.mock("@/pipeline/before/guards", () => ({
@@ -242,10 +143,7 @@ describe("management workspace routes", () => {
 			workspaceId: "ws_new",
 			userId: "user_1",
 		});
-		expect(state.workspaceSettingsUpserts[0]).toMatchObject({
-			workspace_id: "ws_new",
-			routing_mode: "balanced",
-		});
+		expect(state.workspacesInserted[0]).toMatchObject({ name: "Production", slug: "production", ownerUserId: "user_1" });
 		expect(body.data).toMatchObject({
 			id: "ws_new",
 			name: "Production",
@@ -280,10 +178,6 @@ describe("management workspace routes", () => {
 		expect(response.status).toBe(503);
 		expect(body.error).toBe("stripe_not_configured");
 		expect(state.deletes).toEqual([
-			{ table: "workspace_settings", column: "workspace_id", value: "ws_new" },
-			{ table: "workspace_members", column: "workspace_id", value: "ws_new" },
-			{ table: "wallets", column: "workspace_id", value: "ws_new" },
-			{ table: "management_keys", column: "workspace_id", value: "ws_new" },
 			{ table: "workspaces", column: "id", value: "ws_new" },
 			{ table: "workspaces", column: "owner_user_id", value: "user_1" },
 		]);
@@ -313,19 +207,8 @@ describe("management workspace routes", () => {
 
 		expect(response.status).toBe(500);
 		expect(body.error).toBe("failed");
-		expect(state.workspaceMembersUpserts[0]).toMatchObject({
-			workspace_id: "ws_new",
-			user_id: "user_1",
-			role: "owner",
-		});
-		expect(state.deletes).toEqual([
-			{ table: "workspace_settings", column: "workspace_id", value: "ws_new" },
-			{ table: "workspace_members", column: "workspace_id", value: "ws_new" },
-			{ table: "wallets", column: "workspace_id", value: "ws_new" },
-			{ table: "management_keys", column: "workspace_id", value: "ws_new" },
-			{ table: "workspaces", column: "id", value: "ws_new" },
-			{ table: "workspaces", column: "owner_user_id", value: "user_1" },
-		]);
+		expect(state.workspaceMembersUpserts).toEqual([]);
+		expect(state.deletes).toEqual([]);
 	});
 
 	it("blocks renaming the personal workspace", async () => {
@@ -432,12 +315,6 @@ describe("management workspace routes", () => {
 		expect(response.status).toBe(200);
 		expect(body).toEqual({ deleted: true });
 		expect(state.deletes).toEqual([
-			{ table: "workspace_members", column: "workspace_id", value: "ws_prod" },
-			{ table: "workspace_invites", column: "workspace_id", value: "ws_prod" },
-			{ table: "workspace_join_requests", column: "workspace_id", value: "ws_prod" },
-			{ table: "workspace_settings", column: "workspace_id", value: "ws_prod" },
-			{ table: "wallets", column: "workspace_id", value: "ws_prod" },
-			{ table: "management_keys", column: "workspace_id", value: "ws_prod" },
 			{ table: "workspaces", column: "id", value: "ws_prod" },
 			{ table: "workspaces", column: "owner_user_id", value: "user_1" },
 		]);

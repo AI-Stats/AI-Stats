@@ -38,12 +38,8 @@ async function KeysContent({
 			: Array.isArray(sp?.workspace_id)
 				? sp?.workspace_id?.[0]
 				: undefined;
-	const {
-		currentUserId,
-		initialWorkspaceId,
-		teamsWithKeys,
-		workspaces,
-	} = await fetchSettingsKeysInitialData(preferredWorkspaceId);
+	const initialData = await fetchSettingsKeysInitialData(preferredWorkspaceId);
+	const { currentUserId, initialWorkspaceId, workspaces } = initialData;
 
 	return (
 		<div className="space-y-6">
@@ -71,9 +67,7 @@ async function KeysContent({
 				}
 			/>
 			<KeysPanel
-				teamsWithKeys={teamsWithKeys}
-				initialTeamId={initialWorkspaceId}
-				currentUserId={currentUserId}
+				initialData={initialData}
 			/>
 		</div>
 	);

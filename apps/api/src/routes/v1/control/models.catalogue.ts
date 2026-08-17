@@ -2,7 +2,8 @@
 // Why: Keeps /models route handler slim and reusable.
 // How: Pulls model metadata, providers, capabilities, and pricing summaries.
 
-import { getSupabaseAdmin } from "@/runtime/env";
+import { loadCatalogueMetadata } from "@/repositories/catalogue";
+import { loadCataloguePricingRows } from "@/repositories/pricing";
 import type { Endpoint } from "@core/types";
 import {
     normalizeCapabilityStatus,
@@ -1066,19 +1067,10 @@ function getTopProvider(providerMeters: Map<string, Map<string, number>>): strin
 }
 
 export async function fetchCatalogue(filter: CatalogueFilters): Promise<CatalogueModel[]> {
-    const supabase = getSupabaseAdmin();
+    const catalogueMetadata = await loadCatalogueMetadata();
     const availabilityMode = filter.availability ?? "active";
     const includeNonRoutable = availabilityMode === "all";
-    const modelQuery = supabase
-        .from("v2_models")
-        .select(
-            "model_id:model_slug, base_model_id:base_model_slug, variant_kind, previous_model_id:previous_model_slug, name, description, release_date:released_at, deprecation_date:deprecated_at, retirement_date:retired_at, status, organisation_id:lab_slug, input_types:input_modalities, output_types:output_modalities, organisation:v2_labs(lab_slug, name, country_code, metadata)"
-        )
-        .eq("hidden", false);
-    const { data: modelRows, error: modelError } = await modelQuery;
-    if (modelError) {
-        throw new Error(`Failed to load model metadata: ${modelError.message || "unknown error"}`);
-    }
+    const modelRows = catalogueMetadata.models;
 
     const baseModels = new Map<
         string,
@@ -1102,7 +1094,12 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
 
     for (const model of modelRows ?? []) {
         if (!model?.model_id) continue;
-        const organisation = Array.isArray(model.organisation) ? model.organisation[0] : model.organisation;
+        const organisation = model.organisation_slug ? {
+            lab_slug: model.organisation_slug,
+            name: model.organisation_name,
+            country_code: model.organisation_country_code,
+            metadata: model.organisation_metadata,
+        } : null;
         baseModels.set(model.model_id, {
             model_id: model.model_id,
             base_model_id: model.base_model_id ?? model.model_id,
@@ -1136,15 +1133,8 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
     }
 
     const detailsByModel = new Map<string, Record<string, unknown>>();
-    for (const modelIdChunk of chunkArray(modelIds, 200)) {
-        const { data, error } = await supabase
-            .from("v2_model_details")
-            .select("model_slug, detail_name, detail_value")
-            .in("model_slug", modelIdChunk);
-        if (error) {
-            throw new Error(`Failed to load model details: ${error.message || "unknown error"}`);
-        }
-        for (const row of (data ?? []) as ModelDetailRow[]) {
+    {
+        for (const row of catalogueMetadata.details as ModelDetailRow[]) {
             if (!row.model_slug || !row.detail_name) continue;
             const details = detailsByModel.get(row.model_slug) ?? {};
             details[row.detail_name] = row.detail_value;
@@ -1152,75 +1142,19 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
         }
     }
 
-    const providerRows: ProviderModelRow[] = [];
-    for (const modelIdChunk of chunkArray(modelIds, 200)) {
-        let { data, error: providerError }: { data: any[] | null; error: any } = await supabase
-            .from("v2_model_provider_routes")
-            .select(
-                "provider_model_id, provider_slug, model_slug, provider_model_slug, routing_enabled, status, input_modalities, output_modalities, effective_from, effective_to"
-            )
-            .in("model_slug", modelIdChunk);
-
-        if (providerError) {
-            throw new Error(`Failed to load provider models: ${providerError.message || "unknown error"}`);
-        }
-
-        const chunkRows = (data ?? []).map((row) => ({
-            provider_api_model_id: row.provider_model_id,
-            provider_id: row.provider_slug,
-            api_model_id: row.model_slug,
-            model_id: row.model_slug,
-            provider_model_slug: row.provider_model_slug,
-            is_active_gateway: row.routing_enabled,
-            routing_status: row.status,
-            input_modalities: row.input_modalities,
-            output_modalities: row.output_modalities,
-            effective_from: row.effective_from ?? null,
-            effective_to: row.effective_to ?? null,
-        })) as ProviderModelRow[];
-        providerRows.push(...chunkRows);
-    }
+    const providerRows = catalogueMetadata.routes as ProviderModelRow[];
 
     const providerModelIds = providerRows
         .map((row) => row.provider_api_model_id)
         .filter((id): id is string => Boolean(id));
-    let capabilityRows: CapabilityRow[] = [];
-    for (const providerModelIdChunk of chunkArray(providerModelIds, 200)) {
-        const { data: capabilityRowsRaw, error: capabilityError } = await supabase
-            .from("v2_route_capabilities")
-            .select("provider_model_id, capability_id, status, params, effective_from, effective_to")
-            .in("provider_model_id", providerModelIdChunk);
-
-        if (capabilityError) {
-            throw new Error(`Failed to load provider capabilities: ${capabilityError.message || "unknown error"}`);
-        }
-        capabilityRows.push(...(capabilityRowsRaw ?? []).map((row) => ({
-            provider_api_model_id: row.provider_model_id,
-            capability_id: row.capability_id,
-            status: row.status,
-            params: row.params,
-            effective_from: row.effective_from ?? null,
-            effective_to: row.effective_to ?? null,
-        })) as CapabilityRow[]);
-    }
+    const capabilityRows = catalogueMetadata.capabilities as CapabilityRow[];
 
     const aliasMap = new Map<string, string[]>();
     const apiModelIds = Array.from(
         new Set(providerRows.map((row) => row.api_model_id).filter(Boolean))
     );
     if (apiModelIds.length) {
-        const aliases: Array<{ alias_slug: string | null; api_model_id: string | null }> = [];
-        for (const apiModelIdChunk of chunkArray(apiModelIds as string[], 200)) {
-            const { data, error: aliasError } = await supabase
-                .from("v2_model_aliases")
-                .select("alias_slug, api_model_id:model_slug")
-                .eq("enabled", true)
-                .in("model_slug", apiModelIdChunk);
-            if (aliasError) {
-                throw new Error(`Failed to load model aliases: ${aliasError.message || "unknown error"}`);
-            }
-            aliases.push(...((data ?? []) as Array<{ alias_slug: string | null; api_model_id: string | null }>));
-        }
+        const aliases = catalogueMetadata.aliases as Array<{ alias_slug: string | null; api_model_id: string | null }>;
         const aliasByApiModel = new Map<string, string[]>();
         for (const alias of aliases) {
             if (!alias?.api_model_id || !alias?.alias_slug) continue;
@@ -1268,24 +1202,16 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
 
     const providerMap = new Map<string, ProviderDetails>();
     if (providerIdSet.size) {
-        const providerDetails: ProviderDetails[] = [];
-        for (const providerIdChunk of chunkArray(Array.from(providerIdSet), 200)) {
-            const { data, error: providerDetailsError } = await supabase
-                .from("v2_providers")
-                .select("provider_slug, name, metadata, country_code, status, routing_enabled")
-                .in("provider_slug", providerIdChunk);
-            if (providerDetailsError) {
-                throw new Error(`Failed to load provider metadata: ${providerDetailsError.message || "unknown error"}`);
-            }
-            providerDetails.push(...(data ?? []).map((row) => ({
-                api_provider_id: row.provider_slug,
-                api_provider_name: row.name,
-                link: row.metadata?.link ?? null,
-                country_code: row.country_code ?? null,
-                status: row.status ?? null,
-                routing_status: row.routing_enabled ? "active" : "disabled",
-            })) as ProviderDetails[]);
-        }
+        const providerDetails = catalogueMetadata.providers.map((row) => ({
+            api_provider_id: row.api_provider_id,
+            api_provider_name: row.api_provider_name,
+            link: row.metadata && typeof row.metadata === "object"
+                ? (row.metadata as Record<string, any>).link ?? null
+                : null,
+            country_code: row.country_code ?? null,
+            status: row.status ?? null,
+            routing_status: row.routing_enabled ? "active" : "disabled",
+        })) as ProviderDetails[];
         for (const provider of providerDetails) {
             if (!provider?.api_provider_id) continue;
             providerMap.set(provider.api_provider_id, {
@@ -1299,47 +1225,28 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
         }
     }
 
-    const skuRows: PricingSkuRow[] = [];
-    for (const providerModelIdChunk of chunkArray(Array.from(new Set(providerModelIds)), 200)) {
-        const { data, error: skuError } = await supabase
-            .from("v2_pricing_skus")
-            .select("sku_id,provider_model_id,operation,service_tier_slug,currency,effective_from,effective_to,metadata,description")
-            .in("provider_model_id", providerModelIdChunk);
-        if (skuError) throw new Error(`Failed to load pricing SKUs: ${skuError.message || "unknown error"}`);
-        skuRows.push(...(data ?? []) as PricingSkuRow[]);
-    }
-    const skuIds = (skuRows ?? []).map((row) => row.sku_id).filter(Boolean);
-    const meterRows: PricingMeterRow[] = [];
-    for (const skuIdChunk of chunkArray(Array.from(new Set(skuIds)), 200)) {
-        const { data, error: meterError } = await supabase
-            .from("v2_pricing_sku_meters")
-            .select("sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,metadata")
-            .eq("billable", true)
-            .in("sku_id", skuIdChunk);
-        if (meterError) throw new Error(`Failed to load pricing meters: ${meterError.message || "unknown error"}`);
-        meterRows.push(...(data ?? []) as PricingMeterRow[]);
-    }
+    const { skus: skuRows, meters: meterRows } = await loadCataloguePricingRows(providerModelIds);
     const routeByProviderModel = new Map(providerRows.map((row) => [row.provider_api_model_id, row]));
-    const skuById = new Map((skuRows ?? []).map((row) => [row.sku_id, row]));
-    const pricingRows = (meterRows ?? []).flatMap((meter) => {
-        const sku = skuById.get(meter.sku_id);
-        const route = sku ? routeByProviderModel.get(sku.provider_model_id) : null;
+    const skuById = new Map(skuRows.map((row) => [row.skuId, row]));
+    const pricingRows = meterRows.flatMap((meter) => {
+        const sku = skuById.get(meter.skuId);
+        const route = sku ? routeByProviderModel.get(sku.providerModelId) : null;
         if (!sku || !route) return [];
         const skuMetadata = sku.metadata && typeof sku.metadata === "object" ? sku.metadata as Record<string, any> : {};
         const meterMetadata = meter.metadata && typeof meter.metadata === "object" ? meter.metadata as Record<string, any> : {};
         return [{
             model_key: `${route.provider_id}:${route.api_model_id}:${sku.operation}`,
             capability_id: sku.operation,
-            pricing_plan: sku.service_tier_slug ?? "standard",
-            meter: meter.meter_key,
+            pricing_plan: sku.serviceTierSlug ?? "standard",
+            meter: meter.meterKey,
             unit: meter.unit,
-            unit_size: meter.unit_quantity,
-            price_per_unit: Number(meter.price_nanos) / 1_000_000_000,
+            unit_size: Number(meter.unitQuantity),
+            price_per_unit: Number(meter.priceNanos) / 1_000_000_000,
             currency: sku.currency,
-            effective_from: sku.effective_from ?? null,
-            effective_to: sku.effective_to ?? null,
-            rule_id: meter.sku_meter_id,
-            priority: meter.meter_order,
+            effective_from: sku.effectiveFrom ?? null,
+            effective_to: sku.effectiveTo ?? null,
+            rule_id: meter.skuMeterId,
+            priority: meter.meterOrder,
 			match: skuMetadata.match ?? meterMetadata.match ?? [],
 			note: meterMetadata.note ?? sku.description ?? null,
 		} as PricingRuleRow];

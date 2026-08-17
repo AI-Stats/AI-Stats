@@ -33,105 +33,8 @@ function json(body: unknown, status = 200, headers: Record<string, string> = {})
 	});
 }
 
-function buildSupabaseMock() {
-	return {
-		auth: {
-			admin: {
-				getUserById: vi.fn(async (userId: string) => ({
-					data: {
-						user: state.userLookup[userId]
-							? {
-								email: state.userLookup[userId].email,
-								user_metadata: state.userLookup[userId].user_metadata ?? {},
-							}
-							: null,
-					},
-				})),
-			},
-		},
-		from(table: string) {
-			if (table === "keys" || table === "management_keys") {
-				const rows = table === "keys" ? state.keysRows : state.managementKeysRows;
-				let eqColumn = "";
-				let eqValue: unknown = null;
-				return {
-					select: () => ({
-						eq: (column: string, value: unknown) => {
-							eqColumn = column;
-							eqValue = value;
-							return Promise.resolve({
-								data: rows.filter((row) => row[eqColumn] === eqValue),
-								error: null,
-							});
-						},
-					}),
-					update: (payload: Record<string, unknown>) => {
-						const filters: Array<{ column: string; value: unknown }> = [];
-						const target = table === "keys" ? state.keyUpdates : state.managementKeyUpdates;
-						const updateError = table === "keys" ? state.keyUpdateError : state.managementKeyUpdateError;
-						target.push({ payload, filters });
-						const updater: any = {
-							eq: (column: string, value: unknown) => {
-								filters.push({ column, value });
-								return filters.length >= 2 ? Promise.resolve({ error: updateError }) : updater;
-							},
-						};
-						return updater;
-					},
-				};
-			}
-
-			if (table === "workspaces") {
-				return {
-					select: () => ({
-						eq: (_column: string, value: unknown) => ({
-							maybeSingle: async () => ({
-								data: state.workspacesById[String(value)] ?? null,
-								error: null,
-							}),
-						}),
-					}),
-				};
-			}
-
-			if (table === "workspace_members") {
-				return {
-					select: () => ({
-						eq: (_column: string, value: unknown) => Promise.resolve({
-							data: state.workspaceMembersById[String(value)] ?? [],
-							error: null,
-						}),
-					}),
-				};
-			}
-
-			if (table === "security_key_reports") {
-				return {
-					insert: async (payload: Record<string, unknown>) => {
-						state.reportInserts.push(payload);
-						return { error: null };
-					},
-				};
-			}
-
-			if (table === "email_outbox") {
-				return {
-					insert: async (payload: Record<string, unknown> | Array<Record<string, unknown>>) => {
-						const rows = Array.isArray(payload) ? payload : [payload];
-						state.emailOutboxInserts.push(...rows);
-						return { error: null };
-					},
-				};
-			}
-
-			throw new Error(`Unexpected table: ${table}`);
-		},
-	};
-}
-
 vi.mock("@/runtime/env", () => ({
 	getBindings: () => state.bindings,
-	getSupabaseAdmin: () => buildSupabaseMock(),
 	getCache: () => ({
 		get: vi.fn(async (key: string) => state.cacheGetValues.get(key) ?? null),
 		put: vi.fn(async (key: string, value: string, options?: { expirationTtl?: number }) => {
@@ -143,6 +46,35 @@ vi.mock("@/runtime/env", () => ({
 			state.cacheGetValues.delete(key);
 		}),
 	}),
+}));
+
+vi.mock("@/repositories/security", () => ({
+	loadSecurityKeyCandidates: vi.fn(async (table: string, kid: string) =>
+		(table === "keys" ? state.keysRows : state.managementKeysRows).filter((row) => row.kid === kid)),
+	revokeSecurityKey: vi.fn(async (table: string, id: string, workspaceId: string, revokedAt: string) => {
+		const target = table === "keys" ? state.keyUpdates : state.managementKeyUpdates;
+		const error = table === "keys" ? state.keyUpdateError : state.managementKeyUpdateError;
+		if (error) throw new Error(error.message);
+		target.push({
+			payload: { status: "compromised", soft_blocked: true, revoked_at: revokedAt, revoked_reason: "public_leak_report" },
+			filters: [{ column: "id", value: id }, { column: "workspace_id", value: workspaceId }],
+		});
+	}),
+	loadSecurityNotificationRecipients: vi.fn(async (workspaceId: string) => {
+		const workspace = state.workspacesById[workspaceId];
+		return {
+			workspace: workspace ? { name: workspace.name, ownerUserId: workspace.owner_user_id } : null,
+			members: (state.workspaceMembersById[workspaceId] ?? []).map((row) => ({ userId: row.user_id, role: row.role })),
+		};
+	}),
+	insertSecurityEmails: vi.fn(async (rows: Array<Record<string, unknown>>) => { state.emailOutboxInserts.push(...rows); }),
+	insertSecurityReport: vi.fn(async (payload: Record<string, unknown>) => { state.reportInserts.push(payload); }),
+}));
+
+vi.mock("@/runtime/identity", () => ({
+	getIdentityUserById: vi.fn(async (userId: string) => ({
+		data: { user: state.userLookup[userId] ? { email: state.userLookup[userId].email, name: state.userLookup[userId].user_metadata?.first_name } : null },
+	})),
 }));
 
 vi.mock("@/routes/utils", () => ({
@@ -256,7 +188,7 @@ describe("public leaked key reports", () => {
 		expect(state.emailOutboxInserts[0]).toMatchObject({
 			kind: "security_leaked_key",
 			template: "security_leaked_key",
-			workspace_id: "ws_1",
+			workspaceId: "ws_1",
 			payload: expect.objectContaining({
 				workspace_name: "Acme",
 				key_preview: "phaseo_v1_sk_kid123...cret",

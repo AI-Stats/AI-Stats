@@ -2,8 +2,8 @@
 // Why: Keeps stage-specific logic isolated and testable.
 // How: Exposes helpers used by before/execute/after orchestration.
 
-import { getSupabaseAdmin } from "@/runtime/env";
-import type { PriceCard, PriceRule, PricingTimeWindow } from "./types";
+import { loadActivePriceRows } from "@/repositories/pricing";
+import type { PriceCard, PriceRule, PricingDimensionKey, PricingTimeWindow } from "./types";
 
 const PRICING_L1_TTL_MS = 60_000;
 const PRICING_L1_NEGATIVE_TTL_MS = 15_000;
@@ -54,54 +54,20 @@ export async function loadPriceCard(provider: string, model: string, endpoint: s
     if (inflight) return inflight;
 
     const loader = (async (): Promise<PriceCard | null> => {
-        const nowIso = new Date().toISOString();
-        const supabase = getSupabaseAdmin();
-        const [byCanonical, byProviderSlug] = await Promise.all([
-            supabase.from("v2_model_provider_routes")
-                .select("provider_model_id,model_slug,provider_model_slug")
-                .eq("provider_slug", provider).eq("model_slug", model)
-                .in("status", ["active", "degraded"]).eq("routing_enabled", true),
-            supabase.from("v2_model_provider_routes")
-                .select("provider_model_id,model_slug,provider_model_slug")
-                .eq("provider_slug", provider).eq("provider_model_slug", model)
-                .in("status", ["active", "degraded"]).eq("routing_enabled", true),
-        ]);
-        if (byCanonical.error || byProviderSlug.error) return null;
-        const routes = new Map<string, Record<string, any>>();
-        for (const row of [...(byCanonical.data ?? []), ...(byProviderSlug.data ?? [])]) {
-            if (row.provider_model_id) routes.set(String(row.provider_model_id), row);
-        }
-        const routeIds = [...routes.keys()];
-        if (!routeIds.length) {
+        const { routes, skus: skuRows, meters: meterRows } = await loadActivePriceRows(provider, model, endpoint);
+        if (!routes.length) {
             writePricingL1(cacheKey, null, PRICING_L1_NEGATIVE_TTL_MS);
             return null;
         }
-
-        const { data: skuRows, error: skuError } = await supabase
-            .from("v2_pricing_skus")
-            .select("sku_id,provider_model_id,service_tier_slug,operation,status,currency,effective_from,effective_to,metadata,updated_at")
-            .in("provider_model_id", routeIds)
-            .eq("operation", endpoint)
-            .eq("status", "active")
-            .lte("effective_from", nowIso)
-            .or(`effective_to.is.null,effective_to.gt.${nowIso}`)
-            .order("effective_from", { ascending: false });
-        if (skuError || !skuRows?.length) {
+        if (!skuRows.length) {
             writePricingL1(cacheKey, null, PRICING_L1_NEGATIVE_TTL_MS);
             return null;
         }
-        const skuIds = skuRows.map((row) => String(row.sku_id));
-        const { data: meterRows, error: meterError } = await supabase
-            .from("v2_pricing_sku_meters")
-            .select("sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,metadata,updated_at")
-            .in("sku_id", skuIds)
-            .eq("billable", true)
-            .order("meter_order", { ascending: true });
-        if (meterError || !meterRows?.length) {
+        if (!meterRows.length) {
             writePricingL1(cacheKey, null, PRICING_L1_NEGATIVE_TTL_MS);
             return null;
         }
-        const skuById = new Map(skuRows.map((row) => [String(row.sku_id), row]));
+        const skuById = new Map(skuRows.map((row) => [row.skuId, row]));
 
         const normalizeTimeWindows = (value: unknown): PricingTimeWindow[] => {
             if (!Array.isArray(value)) return [];
@@ -121,24 +87,24 @@ export async function loadPriceCard(provider: string, model: string, endpoint: s
             return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
         };
 
-        const rules: PriceRule[] = (meterRows as any[]).flatMap((meter) => {
-            const sku = skuById.get(String(meter.sku_id));
+        const rules: PriceRule[] = meterRows.flatMap((meter) => {
+            const sku = skuById.get(meter.skuId);
             if (!sku) return [];
-            const skuMetadata = sku.metadata && typeof sku.metadata === "object" ? sku.metadata : {};
-            const meterMetadata = meter.metadata && typeof meter.metadata === "object" ? meter.metadata : {};
-            const priceNanos = Number(meter.price_nanos);
+            const skuMetadata = sku.metadata && typeof sku.metadata === "object" ? sku.metadata as Record<string, any> : {};
+            const meterMetadata = meter.metadata && typeof meter.metadata === "object" ? meter.metadata as Record<string, any> : {};
+            const priceNanos = Number(meter.priceNanos);
             if (!Number.isFinite(priceNanos)) return [];
             return [{
-            id: String(meter.sku_meter_id),
-            pricing_plan: sku.service_tier_slug ?? "standard",
-            meter: meter.meter_key,
+            id: meter.skuMeterId,
+            pricing_plan: sku.serviceTierSlug ?? "standard",
+            meter: meter.meterKey as PricingDimensionKey,
             unit: meter.unit,
-            unit_size: Number(meter.unit_quantity ?? 1),
+            unit_size: Number(meter.unitQuantity ?? 1),
             price_per_unit:
                 String(priceNanos / 1_000_000_000),
             currency: sku.currency ?? "USD",
             match: Array.isArray(skuMetadata.match) ? skuMetadata.match : Array.isArray(meterMetadata.match) ? meterMetadata.match : [],
-            priority: Number(meterMetadata.priority ?? meter.meter_order ?? 100),
+            priority: Number(meterMetadata.priority ?? meter.meterOrder ?? 100),
             included_quantity: normalizeIncludedQuantity(
                 meterMetadata.included_quantity ?? skuMetadata.included_quantity
             ),
@@ -148,17 +114,17 @@ export async function loadPriceCard(provider: string, model: string, endpoint: s
         });
 
         const version = new Date(
-            Math.max(...[...skuRows, ...meterRows].map((r: any) => new Date(r.updated_at).getTime()))
+            Math.max(...[...skuRows, ...meterRows].map((r) => new Date(r.updatedAt).getTime()))
         ).toISOString();
         const effectiveFromValues = skuRows
-            .map((r: any) => r.effective_from)
+            .map((r) => r.effectiveFrom)
             .filter(Boolean)
             .map((value: string) => new Date(value).getTime())
             .filter((value: number) => Number.isFinite(value));
         const effective_from = effectiveFromValues.length
             ? new Date(Math.min(...effectiveFromValues)).toISOString()
             : null;
-        const effToVals = skuRows.map((r: any) => r.effective_to).filter(Boolean);
+        const effToVals = skuRows.map((r) => r.effectiveTo).filter((value): value is string => Boolean(value));
         const effective_to = effToVals.length
             ? new Date(
                   Math.min(...effToVals.map((x: string) => new Date(x).getTime()))

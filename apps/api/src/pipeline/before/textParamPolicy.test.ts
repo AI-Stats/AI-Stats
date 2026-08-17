@@ -83,7 +83,7 @@ describe("textParamPolicy", () => {
 });
 
 describe("providerSupportsParam", () => {
-	it("distinguishes unknown metadata from explicit unsupported overrides", () => {
+	it("keeps absent parameter metadata unknown unless an override is explicit", () => {
 		expect(
 			providerParamSupportStatus(
 				{ providerId: "openai", capabilityParams: {} } as any,
@@ -95,7 +95,7 @@ describe("providerSupportsParam", () => {
 				{ providerId: "cerebras", capabilityParams: {} } as any,
 				"presence_penalty",
 			),
-		).toBe("unsupported");
+		).toBe("unknown");
 	});
 
 	it("keeps provider_options scoped to the named provider", () => {

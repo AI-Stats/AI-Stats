@@ -1,7 +1,19 @@
 import {
 	createChatStreamTextError,
+	isChatSessionAuthenticationError,
 	parseChatStreamErrorFrame,
 } from "./chat-request-errors";
+
+describe("isChatSessionAuthenticationError", () => {
+	it("recognizes session validation failures", () => {
+		expect(isChatSessionAuthenticationError(Object.assign(new Error(), { status: 401, code: "bearer_session_not_found" }))).toBe(true);
+		expect(isChatSessionAuthenticationError(Object.assign(new Error(), { status: 401, code: "better_auth_session_rejected_401" }))).toBe(true);
+	});
+
+	it("does not treat a downstream gateway rejection as a signed-out user", () => {
+		expect(isChatSessionAuthenticationError(Object.assign(new Error(), { status: 401, code: "unauthorised" }))).toBe(false);
+	});
+});
 
 describe("parseChatStreamErrorFrame", () => {
 	it("extracts OpenAI response.failed stream errors", () => {

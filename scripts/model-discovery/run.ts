@@ -1,13 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { createAdminClient } from "../../apps/web/src/utils/supabase/admin";
+import {
+    deleteImportRows,
+    selectImportRows,
+    updateImportRows,
+    upsertImportRows,
+} from "../../packages/data/db/src/import-service";
 import { getProviderDiscoveryRule } from "./providers/discovery-policy";
 import type { ProviderDefinition, ProviderModel } from "./providers/_shared";
 import { asRecord, getMissingEnvVars, sortKeysDeep } from "./providers/_shared";
 import { syncUpstreamDiscoveryIssues, type UpstreamDiscoveryIssueEntry } from "./github-issues";
 
-type SupabaseAdminClient = ReturnType<typeof createAdminClient>;
+type DiscoveryDatabaseSession = undefined;
 
 type ProviderSnapshot = {
     providerId: string;
@@ -154,7 +159,7 @@ function canonicalModelKey(value: string): string {
 }
 
 async function loadApiModelAllowlistByProvider(
-    client: SupabaseAdminClient,
+    client: DiscoveryDatabaseSession,
     providerIds: string[]
 ): Promise<Map<string, Set<string>>> {
     const map = new Map<string, Set<string>>();
@@ -164,17 +169,16 @@ async function loadApiModelAllowlistByProvider(
     let from = 0;
 
     while (true) {
-        const { data, error } = await client
-            .from("v2_model_provider_routes")
-            .select("provider_slug, provider_model_slug, model_slug")
-            .in("provider_slug", uniqueProviderIds)
-            .range(from, from + pageSize - 1);
+		void client;
+		const data = await selectImportRows({
+			table: "v2_model_provider_routes",
+			columns: "provider_slug,provider_model_slug,model_slug",
+			inFilter: { column: "provider_slug", values: uniqueProviderIds },
+			offset: from,
+			limit: pageSize,
+		});
 
-        if (error) {
-            throw new Error(error.message || "Failed to load allowlist from V2 provider routes");
-        }
-
-        const rows = (data ?? []).map((row) => ({
+        const rows = data.map((row) => ({
             provider_id: row.provider_slug,
             provider_model_slug: row.provider_model_slug,
             api_model_id: row.model_slug,
@@ -477,12 +481,13 @@ function extractPricingDetails(modelPayload: Record<string, unknown>): unknown {
 }
 
 async function insertRunStart(
-    client: SupabaseAdminClient,
+    client: DiscoveryDatabaseSession,
     runId: string,
     startedAtIso: string,
     providersTotal: number
 ): Promise<void> {
-    const { error } = await client.from("model_discovery_runs").insert({
+	void client;
+    await upsertImportRows("model_discovery_runs", [{
         id: runId,
         trigger: "scheduled",
         source: "github-actions:check-new-models",
@@ -490,15 +495,11 @@ async function insertRunStart(
         status: "running",
         started_at: startedAtIso,
         providers_total: providersTotal,
-    });
-
-    if (error) {
-        throw new Error(error.message || "Failed to insert model_discovery_runs start row");
-    }
+    }], ["id"]);
 }
 
 async function updateRunFinish(
-    client: SupabaseAdminClient,
+    client: DiscoveryDatabaseSession,
     runId: string,
     status: RunStatus,
     summary: {
@@ -533,15 +534,12 @@ async function updateRunFinish(
         },
         error: errorMessage ?? null,
     };
-    const { error } = await client.from("model_discovery_runs").update(payload).eq("id", runId);
-
-    if (error) {
-        throw new Error(error.message || "Failed to update model_discovery_runs finish row");
-    }
+	void client;
+	await updateImportRows("model_discovery_runs", payload, [{ column: "id", value: runId }]);
 }
 
 async function loadSeenModelIdsByProvider(
-    client: SupabaseAdminClient,
+    client: DiscoveryDatabaseSession,
     providerIds: string[]
 ): Promise<Map<string, SeenProviderState>> {
     const out = new Map<string, SeenProviderState>();
@@ -557,17 +555,14 @@ async function loadSeenModelIdsByProvider(
     let from = 0;
 
     while (true) {
-        const { data, error } = await client
-            .from("model_discovery_seen_models")
-            .select("provider_id, model_id, removal_pending")
-            .in("provider_id", providerIds)
-            .range(from, from + pageSize - 1);
-
-        if (error) {
-            throw new Error(error.message || "Failed to load model_discovery_seen_models");
-        }
-
-        const rows = (data ?? []) as Array<{
+		void client;
+		const rows = await selectImportRows({
+			table: "model_discovery_seen_models",
+			columns: "provider_id,model_id,removal_pending",
+			inFilter: { column: "provider_id", values: providerIds },
+			offset: from,
+			limit: pageSize,
+		}) as Array<{
             provider_id: string | null;
             model_id: string | null;
             removal_pending?: boolean;
@@ -594,20 +589,16 @@ async function loadSeenModelIdsByProvider(
     return out;
 }
 
-async function upsertSeenModels(client: SupabaseAdminClient, rows: SeenModelUpsertRow[]): Promise<void> {
+async function upsertSeenModels(client: DiscoveryDatabaseSession, rows: SeenModelUpsertRow[]): Promise<void> {
     if (rows.length === 0) return;
     for (let index = 0; index < rows.length; index += UPSERT_BATCH_SIZE) {
         const batch = rows.slice(index, index + UPSERT_BATCH_SIZE);
-        const { error } = await client
-            .from("model_discovery_seen_models")
-            .upsert(batch, { onConflict: "provider_id,model_id" });
-        if (error) {
-            throw new Error(error.message || "Failed to upsert model_discovery_seen_models");
-        }
+		void client;
+		await upsertImportRows("model_discovery_seen_models", batch, ["provider_id", "model_id"]);
     }
 }
 
-async function deleteSeenModels(client: SupabaseAdminClient, rows: SeenModelDeleteRow[]): Promise<number> {
+async function deleteSeenModels(client: DiscoveryDatabaseSession, rows: SeenModelDeleteRow[]): Promise<number> {
     if (rows.length === 0) return 0;
     const grouped = new Map<string, string[]>();
 
@@ -621,23 +612,19 @@ async function deleteSeenModels(client: SupabaseAdminClient, rows: SeenModelDele
     for (const [providerId, modelIds] of grouped.entries()) {
         for (let index = 0; index < modelIds.length; index += UPSERT_BATCH_SIZE) {
             const batch = modelIds.slice(index, index + UPSERT_BATCH_SIZE);
-            const { data, error } = await client
-                .from("model_discovery_seen_models")
-                .delete()
-                .eq("provider_id", providerId)
-                .in("model_id", batch)
-                .select("model_id");
-            if (error) {
-                throw new Error(error.message || "Failed to delete from model_discovery_seen_models");
-            }
-            deletedCount += Array.isArray(data) ? data.length : 0;
+			void client;
+			deletedCount += await deleteImportRows({
+				table: "model_discovery_seen_models",
+				filters: [{ column: "provider_id", value: providerId }],
+				inFilter: { column: "model_id", values: batch },
+			});
         }
     }
 
     return deletedCount;
 }
 
-async function markPendingSeenModels(client: SupabaseAdminClient, rows: SeenModelDeleteRow[]): Promise<void> {
+async function markPendingSeenModels(client: DiscoveryDatabaseSession, rows: SeenModelDeleteRow[]): Promise<void> {
     if (rows.length === 0) return;
     const grouped = new Map<string, string[]>();
     for (const row of rows) {
@@ -647,12 +634,13 @@ async function markPendingSeenModels(client: SupabaseAdminClient, rows: SeenMode
     }
     for (const [providerId, modelIds] of grouped) {
         for (let index = 0; index < modelIds.length; index += UPSERT_BATCH_SIZE) {
-            const { error } = await client
-                .from("model_discovery_seen_models")
-                .update({ removal_pending: true, last_seen_at: nowIso() })
-                .eq("provider_id", providerId)
-                .in("model_id", modelIds.slice(index, index + UPSERT_BATCH_SIZE));
-            if (error) throw new Error(error.message || "Failed to mark provisional model removals");
+			void client;
+			await updateImportRows(
+				"model_discovery_seen_models",
+				{ removal_pending: true, last_seen_at: nowIso() },
+				[{ column: "provider_id", value: providerId }],
+				{ column: "model_id", values: modelIds.slice(index, index + UPSERT_BATCH_SIZE) },
+			);
         }
     }
 }
@@ -910,7 +898,7 @@ async function main(): Promise<void> {
             .filter((provider) => provider.isInactiveByPolicy)
             .map((provider) => [provider.providerId, provider.inactiveReason])
     );
-    const db = createAdminClient();
+    const db = undefined;
     const seenModelIdsByProvider = await loadSeenModelIdsByProvider(db, providers.map((provider) => provider.id));
     await insertRunStart(db, runId, runStartedAtIso, providers.length);
 
