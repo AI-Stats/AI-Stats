@@ -8,23 +8,17 @@ OpenCode can call Phaseo through a custom OpenAI-compatible provider. Use this s
 
 ## 1) Configure OpenCode
 
-Use the Phaseo CLI to add a global provider without writing a key into the OpenCode configuration:
+Use the Phaseo CLI to install OpenCode when needed, add a global provider, sync all compatible Phaseo models, and store a dedicated key in OpenCode's credential store:
 
 ```bash
-phaseo integrations setup opencode --model openai/gpt-5.6-terra
+phaseo opencode --model openai/gpt-5.6-terra
 ```
 
-The command creates a non-expiring `Phaseo CLI: OpenCode API Key`, preserves unrelated OpenCode settings, and supports `--dry-run`. It updates an existing global `opencode.jsonc` when present, otherwise it uses `~/.config/opencode/opencode.json`.
+The command creates a non-expiring `Phaseo CLI: OpenCode API Key`, preserves unrelated OpenCode settings and credentials, and supports `--dry-run`. It updates an existing global `opencode.jsonc` when present, otherwise it uses `~/.config/opencode/opencode.json`.
 
-## 2) Copy the generated API key
+Use `--catalog default` to configure only the selected model, or `--skip-install` when OpenCode is managed separately.
 
-OpenCode does not provide an executable credential helper. Reveal the dedicated key intentionally, then save it as `PHASEO_API_KEY` in your shell profile or secret manager:
-
-```bash
-phaseo integrations credential opencode
-```
-
-The CLI stores its own copy in the OS credential store and revokes the key when you run `phaseo integrations remove opencode`.
+The CLI retains its own copy in the OS credential store and revokes the key when you run `phaseo integrations remove opencode`.
 
 ## Manual configuration
 
@@ -60,7 +54,7 @@ Create or update `opencode.json` in your project, or your global OpenCode config
 
 Add or remove models from the `models` object to match the Phaseo model ids you want in OpenCode.
 
-## 3) Start OpenCode
+## 2) Start OpenCode
 
 Restart OpenCode after editing the config, then choose the Phaseo model from `/models`.
 
@@ -74,7 +68,7 @@ phaseo integrations remove opencode
 
 - Run a small prompt before using file-editing workflows.
 - If a model is rejected, confirm the exact id with the [Models endpoint](../../api-reference/endpoint/models.mdx).
-- If authentication fails, confirm `PHASEO_API_KEY` is set in the same shell that starts OpenCode.
+- If authentication fails, rerun `phaseo opencode` and check `opencode auth list`.
 
 ## Add docs context
 

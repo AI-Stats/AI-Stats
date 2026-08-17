@@ -9,6 +9,7 @@ const NOVITA_ENABLE_THINKING_MODELS = new Set<string>([
 	"deepseek/deepseek-v3.1",
 	"deepseek/deepseek-v3.1-terminus",
 	"deepseek/deepseek-v3.2-exp",
+	"deepseek/deepseek-v4-pro-0813",
 ]);
 
 const NOVITA_SEPARATE_REASONING_MODELS = new Set<string>([

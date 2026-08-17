@@ -39,11 +39,24 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "announcement",
+        "url": null,
+        "accessed_at": "2026-08-15T00:00:00Z",
+        "notes": "Cerebras customer announcement schedules removal from the shared tier during the first week of September 2026; no exact retirement timestamp was provided."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.cerebras.ai/public/v1/models",
+        "accessed_at": "2026-08-15T00:00:00Z",
+        "notes": "The model remains available in the public Cerebras catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "partial",
+      "checked_at": "2026-08-15T00:00:00Z",
+      "notes": "Currently active; scheduled shared-tier removal is recorded without inventing an exact effective_to date."
     },
     "rate_limits": []
   },
@@ -52,18 +65,18 @@
     "provider_api_model_id": "cerebras:meta/llama-3.1-8b",
     "provider_model_slug": "llama3.1-8b",
     "internal_model_id": "meta/llama-3.1-8b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP16",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 32000,
     "max_output_tokens": 8000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-05-27T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "logprobs",
@@ -153,8 +166,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -165,11 +178,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "deprecation",
+        "url": "https://inference-docs.cerebras.ai/support/deprecation",
+        "accessed_at": "2026-08-15T00:00:00Z",
+        "notes": "Cerebras lists llama3.1-8b as fully deprecated on May 27, 2026."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-15T00:00:00Z",
+      "notes": "Retirement verified against the Cerebras deprecations page and the model is absent from the public models endpoint."
     },
     "rate_limits": []
   },
@@ -364,18 +384,18 @@
     "provider_api_model_id": "cerebras:qwen/qwen3-235b-a22b-2507",
     "provider_model_slug": "qwen-3-235b-a22b-instruct-2507",
     "internal_model_id": "qwen/qwen3-235b-a22b-2507",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP16",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 131000,
     "max_output_tokens": 40000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-05-27T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "logprobs",
@@ -465,8 +485,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -477,11 +497,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "deprecation",
+        "url": "https://inference-docs.cerebras.ai/support/deprecation",
+        "accessed_at": "2026-08-15T00:00:00Z",
+        "notes": "Cerebras lists qwen-3-235b-a22b-instruct-2507 as fully deprecated on May 27, 2026."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-15T00:00:00Z",
+      "notes": "Retirement verified against the Cerebras deprecations page and the model is absent from the public models endpoint."
     },
     "rate_limits": []
   },

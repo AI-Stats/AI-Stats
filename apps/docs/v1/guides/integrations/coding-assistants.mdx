@@ -6,28 +6,36 @@ description: "Add Phaseo as a model provider in Cursor, VS Code, Codex, Claude C
 
 Use this guide to add Phaseo as the model provider in coding assistants that support custom OpenAI-compatible or Anthropic-compatible endpoints.
 
-## Set up with Phaseo CLI
+## Set up with the Phaseo CLI
 
-Sign in once, then run setup for the assistant you use:
+Sign in once, then install and configure one of the primary harnesses:
 
 ```bash
 phaseo login
-phaseo integrations setup <integration>
+phaseo codex
+```
+
+This command installs the harness when it is missing, creates its dedicated key, and writes its Phaseo configuration. OpenCode, DeepSeek Harness, Pi, and Prime Agent also receive every active text model compatible with Chat Completions. Use `--skip-install`, `--catalog default`, or `--dry-run` when you need narrower behavior.
+
+Use the lower-level command for other integrations or when installation is managed separately:
+
+```bash
+phaseo integrations setup codex
 ```
 
 Supported integration names are `codex`, `claude-code`, `opencode`, `deepseek-harness`, `pi`, `openclaw`, `hermes`, `aider`, `cline`, `roo-code`, `kilo-code`, `continue`, `cursor`, and `zed`.
 
-The CLI creates a separate, non-expiring API key named for that assistant. It now configures Aider and Continue automatically on clean installations, and writes Zed's provider/model settings automatically. For assistants that keep secrets exclusively in an editor UI, it prints the exact remaining fields, links the dedicated guide, and lets you copy only that assistant's key:
+The CLI creates a separate, non-expiring API key named for that assistant. It configures Aider and Continue automatically on clean installations, and writes Zed's provider/model settings automatically. For assistants that keep secrets exclusively in an editor UI, it prints the exact remaining fields, links the dedicated guide, and lets you copy only that assistant's key:
 
 ```bash
-phaseo integrations credential <integration>
+phaseo integrations credential codex
 ```
 
 Preview any file changes before setup, and disconnect cleanly later:
 
 ```bash
-phaseo integrations setup <integration> --dry-run
-phaseo integrations remove <integration>
+phaseo integrations setup codex --dry-run
+phaseo integrations remove codex
 ```
 
 Removal deletes Phaseo-owned configuration and revokes that assistant's key. It does not remove unrelated settings.
@@ -126,11 +134,11 @@ aider --model openai/openai/gpt-5-nano
 
 Aider often expects OpenAI-compatible custom models to be prefixed with `openai/`. Because Phaseo model ids already include provider prefixes, the full Aider model string may look like `openai/openai/gpt-5-nano`.
 
-## Pi, OpenClaw, and Hermes Agent
+## Pi, Prime Agent, OpenClaw, and Hermes Agent
 
-`phaseo integrations setup pi` installs a dedicated Pi extension that registers Phaseo and resolves its key from the Phaseo CLI at runtime. `phaseo integrations setup openclaw` registers an OpenClaw custom provider plus an exec-backed SecretRef, without placing the API key in `openclaw.json`. Both setups are removed automatically by their matching `phaseo integrations remove` command.
+`phaseo pi` installs Pi and a dedicated provider extension that resolves its key from the Phaseo CLI at runtime. `phaseo prime-agent` installs Prime Agent on macOS or Linux and writes a command-backed provider to `~/.prime/agent/models.json`. Both receive the compatible Phaseo model catalog. `phaseo openclaw` installs OpenClaw and registers the compatible model catalog plus an exec-backed SecretRef, without placing the API key in `openclaw.json`.
 
-`phaseo integrations setup hermes` automatically configures the current Nous Research coding assistant. It saves the previous Hermes model settings, configures Phaseo as the custom endpoint, and uses Hermes' official `hermes config set` command to place the dedicated key in `~/.hermes/.env` as `OPENAI_API_KEY`. Hermes deliberately uses this plaintext file for provider credentials; protect it like any other API-key file. Removal restores the previous model settings, removes `OPENAI_API_KEY`, deletes Phaseo's recovery state, and revokes the key.
+`phaseo hermes` installs and configures the current Nous Research agent. It saves the previous Hermes model settings, configures Phaseo as the custom endpoint, and uses Hermes' official `hermes config set` command to place the dedicated key in `~/.hermes/.env` as `OPENAI_API_KEY`. Hermes deliberately uses this plaintext file for provider credentials; protect it like any other API-key file. Removal restores the previous model settings, removes `OPENAI_API_KEY`, deletes Phaseo's recovery state, and revokes the key.
 
 ## Zed
 

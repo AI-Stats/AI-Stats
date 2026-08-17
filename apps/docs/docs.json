@@ -182,7 +182,9 @@
 											"v1/guides/integrations/claude-code",
 											"v1/guides/integrations/codex",
 											"v1/guides/integrations/deepseek-harness",
-											"v1/guides/integrations/opencode"
+											"v1/guides/integrations/opencode",
+											"v1/guides/integrations/pi",
+											"v1/guides/integrations/prime-agent"
 											,"v1/guides/integrations/aider"
 											,"v1/guides/integrations/continue"
 											,"v1/guides/integrations/cline"
@@ -1415,6 +1417,7 @@
 								"icon": "calendar-days",
 								"pages": [
 									"v1/changelog",
+									"v1/changelog/2026-07",
 									"v1/changelog/2026-06",
 									"v1/changelog/2026-05",
 									"v1/changelog/2026-04",

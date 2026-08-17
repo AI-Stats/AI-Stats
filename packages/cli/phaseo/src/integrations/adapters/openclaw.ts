@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { isCommandAvailable } from "../files.js";
-import type { IntegrationAdapter } from "../types.js";
+import type { IntegrationAdapter, IntegrationModel } from "../types.js";
 
 const DEFAULT_MODEL = "anthropic/claude-sonnet-4.6";
 
@@ -34,6 +34,31 @@ async function unset(path: string): Promise<void> {
 	});
 }
 
+export function renderOpenClawProvider(models: IntegrationModel[]) {
+	return {
+		baseUrl: "https://api.phaseo.app/v1",
+		apiKey: { source: "exec", provider: "phaseo_cli", id: "value" },
+		api: "openai-completions",
+		models: models.map((model) => ({
+			id: model.id,
+			name: model.name ?? `${model.id} via Phaseo`,
+			reasoning: model.reasoning ?? false,
+			input: model.input ?? ["text"],
+			...(model.contextWindow ? { contextWindow: model.contextWindow } : {}),
+		})),
+	};
+}
+
+export function openClawModels(model: string, models?: IntegrationModel[]): IntegrationModel[] {
+	const catalog = models?.length ? [...models] : [];
+	if (!catalog.some((entry) => entry.id === model)) {
+		catalog.unshift({ id: model, name: `${model} via Phaseo`, reasoning: true, input: ["text", "image"] });
+	}
+	const selectedIndex = catalog.findIndex((entry) => entry.id === model);
+	if (selectedIndex > 0) catalog.unshift(...catalog.splice(selectedIndex, 1));
+	return catalog;
+}
+
 export const openClawAdapter: IntegrationAdapter = {
 	id: "openclaw",
 	name: "OpenClaw",
@@ -64,13 +89,8 @@ export const openClawAdapter: IntegrationAdapter = {
 		const script = process.argv[1];
 		if (!script) throw new Error("Cannot determine the installed Phaseo CLI entry point");
 		const secretProvider = { source: "exec", command: process.execPath, args: [script, "integrations", "credential", "openclaw"], jsonOnly: false };
-		const model = options.model ?? DEFAULT_MODEL;
-		const provider = {
-			baseUrl: "https://api.phaseo.app/v1",
-			apiKey: { source: "exec", provider: "phaseo_cli", id: "value" },
-			api: "openai-completions",
-			models: [{ id: model, name: `${model} via Phaseo`, reasoning: true, input: ["text", "image"], contextWindow: 200000, maxTokens: 16384 }],
-		};
+		const models = openClawModels(options.model ?? DEFAULT_MODEL, options.models);
+		const provider = renderOpenClawProvider(models);
 		await run(["config", "set", "secrets.providers.phaseo_cli", JSON.stringify(secretProvider), "--strict-json"]);
 		try {
 			await run(["config", "set", "models.providers.phaseo", JSON.stringify(provider), "--strict-json"]);

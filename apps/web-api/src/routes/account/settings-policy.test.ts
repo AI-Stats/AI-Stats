@@ -63,7 +63,6 @@ describe("account policy settings routes", () => {
 			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "member" }]), { status: 200 });
 			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ owner_user_id: "owner-1" }]), { status: 200 });
 			if (url.includes("workspace_settings")) return new Response(JSON.stringify([{ provider_restriction_mode: "blocklist", provider_restriction_provider_ids: ["novita"], model_restriction_mode: "none", model_restriction_model_ids: [] }]), { status: 200 });
-			if (url.includes("account_guardrail_settings")) return new Response(JSON.stringify([{ provider_restriction_mode: "none", provider_restriction_provider_ids: [], model_restriction_mode: "blocklist", model_restriction_model_ids: ["qwen/qwen3.8-max"] }]), { status: 200 });
 			if (url.includes("workspace_guardrails")) return new Response(JSON.stringify([{ id: "guardrail-1", name: "Team Safety", enabled: true, provider_restriction_mode: "blocklist", provider_restriction_provider_ids: ["openai"], model_restriction_mode: "none", allowed_api_model_ids: [] }]), { status: 200 });
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
@@ -73,7 +72,10 @@ describe("account policy settings routes", () => {
 		expect(response.headers.get("cache-control")).toBe("private, no-store");
 		await expect(response.json()).resolves.toMatchObject({
 			workspace: { provider: { mode: "blocklist", ids: ["novita"] } },
-			account: { model: { mode: "blocklist", ids: ["qwen/qwen3.8-max"] } },
+			account: {
+				provider: { mode: "none", ids: [] },
+				model: { mode: "blocklist", ids: ["qwen/qwen3.8-max"] },
+			},
 			guardrails: [{ id: "guardrail-1", name: "Team Safety", provider: { mode: "blocklist", ids: ["openai"] } }],
 		});
 	});

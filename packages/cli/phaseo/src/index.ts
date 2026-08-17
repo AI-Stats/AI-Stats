@@ -17,12 +17,12 @@ import {
 	startDeviceLogin,
 } from "./api.js";
 import { clearSession, readSession, writeSession } from "./session.js";
-import { printError, printJson, sanitizeTerminalText } from "./output.js";
+import { printError, printJson, sanitizeTerminalText, terminalUi, type TerminalOptions } from "./output.js";
 import { CLI_VERSION } from "./generated/meta.js";
 import { createDoctorReport, detectInstalledPackageManager, type DoctorReport } from "./installation.js";
 import { getVersionInfo, removeCommandFor, updateCommandFor, updateInvocationFor } from "./release.js";
 import { runCurie } from "./curie.js";
-import { runIntegrationCommand } from "./integrations/index.js";
+import { isPrimarySetupName, runIntegrationCommand } from "./integrations/index.js";
 import { revokeIntegrationGatewayCredential } from "./integrations/credential.js";
 
 type ParsedArgs = {
@@ -173,6 +173,7 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 		description: "Phaseo CLI",
 		usage: [
 			"phaseo login [--api-url <url>] [--method browser|device] [--browser] [--device-code] [--scopes <csv>] [--json]",
+			"phaseo <codex|claude|hermes|opencode|pi|prime-agent|dsh|openclaw> [--model <id>] [--catalog all|default] [--skip-install] [--dry-run] [--json]",
 			"phaseo logout [--json]",
 			"phaseo whoami [--json]",
 			"phaseo version | v [--json]",
@@ -209,6 +210,10 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 			"  PHASEO_API_URL  Override API root, defaults to https://api.phaseo.app",
 		],
 	},
+	setup: {
+		description: "Install and configure a coding harness with a dedicated Phaseo key and compatible model catalog.",
+		usage: ["phaseo setup <codex|claude|hermes|opencode|pi|prime-agent|dsh|openclaw> [--model <id>] [--catalog all|default] [--skip-install] [--dry-run] [--json]"],
+	},
 	login: {
 		usage: [
 			"phaseo login [--api-url <url>] [--method browser|device] [--browser] [--device-code] [--scopes <csv>] [--json]",
@@ -240,16 +245,19 @@ const HELP_ENTRIES: Record<string, HelpEntry> = {
 			"phaseo integrations status [integration] [--json]",
 			"phaseo integrations setup codex [--model <id>] [--dry-run] [--json]",
 			"phaseo integrations setup claude-code [--dry-run] [--json]",
-			"phaseo integrations setup opencode [--model <id>] [--dry-run] [--json]",
-			"phaseo integrations setup deepseek-harness [--model <id>] [--dry-run] [--json]",
-			"phaseo integrations setup <pi|openclaw|hermes|aider|cline|roo-code|kilo-code|continue|cursor|zed> [--model <id>] [--dry-run] [--json]",
+			"phaseo integrations setup opencode [--model <id>] [--catalog all|default] [--dry-run] [--json]",
+			"phaseo integrations setup deepseek-harness [--model <id>] [--catalog all|default] [--dry-run] [--json]",
+			"phaseo integrations setup pi [--model <id>] [--catalog all|default] [--dry-run] [--json]",
+			"phaseo integrations setup prime-agent [--model <id>] [--catalog all|default] [--dry-run] [--json]",
+			"phaseo integrations setup openclaw [--model <id>] [--catalog all|default] [--dry-run] [--json]",
+			"phaseo integrations setup <hermes|aider|cline|roo-code|kilo-code|continue|cursor|zed> [--model <id>] [--dry-run] [--json]",
 			"phaseo integrations credential <integration>",
 			"phaseo integrations remove <integration> [--dry-run] [--json]",
 		],
 	},
 	"integrations list": { usage: ["phaseo integrations list [integration] [--json]"] },
 	"integrations status": { usage: ["phaseo integrations status [integration] [--json]"] },
-	"integrations setup": { usage: ["phaseo integrations setup <integration> [--model <id>] [--dry-run] [--json]"] },
+	"integrations setup": { usage: ["phaseo integrations setup <integration> [--model <id>] [--catalog all|default] [--dry-run] [--json]"] },
 	"integrations remove": { usage: ["phaseo integrations remove <integration> [--dry-run] [--json]"] },
 	logout: { usage: ["phaseo logout [--json]"] },
 	whoami: { usage: ["phaseo whoami [--json]"] },
@@ -448,16 +456,17 @@ export function helpKeyForCommand(command: string[]): string {
 	return "root";
 }
 
-export function renderHelp(command: string[]): string {
+export function renderHelp(command: string[], terminalOptions: TerminalOptions = {}): string {
 	const key = helpKeyForCommand(command);
 	const entry = HELP_ENTRIES[key] ?? HELP_ENTRIES.root;
+	const ui = terminalUi(terminalOptions);
 	const lines: string[] = [];
 	if (key === "root") {
-		lines.push(entry.description ?? "Phaseo CLI", "", "Usage:");
+		lines.push(ui.brand(entry.description ?? "Phaseo CLI"), ui.dim("One gateway. Every model."), "", ui.heading("Usage"));
 	} else {
-		lines.push(`Phaseo CLI Help: ${key}`);
+		lines.push(`${ui.brand("Phaseo CLI")} ${ui.dim("·")} ${ui.accent(key)}`);
 		if (entry.description) lines.push("", entry.description);
-		lines.push("", "Usage:");
+		lines.push("", ui.heading("Usage"));
 	}
 	for (const usageLine of entry.usage) {
 		if (usageLine === "") {
@@ -651,8 +660,9 @@ function loginOptionIndex(method: LoginMethod): number {
 	return LOGIN_METHOD_OPTIONS.findIndex((option) => option.value === method);
 }
 
-export function renderLoginBanner(): string {
-	return [
+export function renderLoginBanner(terminalOptions: TerminalOptions = {}): string {
+	const ui = terminalUi(terminalOptions);
+	const wordmark = [
 		"  _____  _                          ",
 		" |  __ \\| |                         ",
 		" | |__) | |__   __ _ ___  ___  ___  ",
@@ -660,11 +670,8 @@ export function renderLoginBanner(): string {
 		" | |    | | | | (_| \\__ \\  __/ (_) |",
 		" |_|    |_| |_|\\__,_|___/\\___|\\___/ ",
 		"                                    ",
-		"                                    ",
-		"",
-		"Phaseo CLI",
-		"Workspace control, keys, and routing tools from your terminal.",
 	].join("\n");
+	return [ui.brand(wordmark), "", ui.heading("Phaseo CLI"), ui.dim("Workspace control, keys, and routing tools from your terminal.")].join("\n");
 }
 
 export function renderLoginMenu(selectedIndex: number, defaultMethod: LoginMethod): string {
@@ -2045,6 +2052,8 @@ async function main() {
 		else if (first === "analytics" && second === "get") action = analyticsGet(parsed.flags);
 		else if (first === "generation" && second === "get") action = generationGet(parsed.flags);
 		else if (first === "curie" && second === "run") action = runCurie(third, parsed.flags);
+		else if (first === "setup") action = runIntegrationCommand(["setup", ...parsed.command.slice(1)], parsed.flags, { installMissing: !flagBool(parsed.flags, "skip-install"), primaryOnly: true });
+		else if (isPrimarySetupName(first)) action = runIntegrationCommand(["setup", ...parsed.command], parsed.flags, { installMissing: !flagBool(parsed.flags, "skip-install"), primaryOnly: true });
 		else if (first === "integrations") action = runIntegrationCommand(parsed.command.slice(1), parsed.flags);
 		else if (first === "webhooks" && second === "list") action = listWebhooks(parsed.flags);
 		else if (first === "webhooks" && second === "create") action = createWebhook(parsed.flags);

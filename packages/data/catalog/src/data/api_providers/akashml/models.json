@@ -424,6 +424,61 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "qwen/qwen3.8-27b",
+    "provider_api_model_id": "akashml:qwen/qwen3.8-27b",
+    "provider_model_slug": "Qwen/Qwen3.8-27B",
+    "internal_model_id": "qwen/qwen3.8-27b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-15T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.akashml.com/v1/models",
+        "accessed_at": "2026-08-15T00:00:00Z",
+        "notes": "Authenticated provider-model availability observation supplied by the maintainer; public pricing and capability metadata are not yet published."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-15T00:00:00Z",
+      "notes": "Provider slug and availability were observed; routing remains disabled until AkashML publishes pricing and route capability metadata."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "z-ai/glm-5.2",
     "provider_api_model_id": "akashml:z-ai/glm-5.2",
     "provider_model_slug": "zai-org/GLM-5.2",

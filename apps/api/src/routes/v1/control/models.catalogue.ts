@@ -47,6 +47,29 @@ type PricingRuleRow = {
     effective_to?: string | null;
 };
 
+type PricingSkuRow = {
+    sku_id: string;
+    provider_model_id: string;
+    operation: string;
+    service_tier_slug: string | null;
+    currency: string | null;
+    effective_from: string | null;
+    effective_to: string | null;
+    metadata: unknown;
+    description: string | null;
+};
+
+type PricingMeterRow = {
+    sku_meter_id: string;
+    sku_id: string;
+    meter_key: string;
+    unit: string;
+    unit_quantity: number | string;
+    price_nanos: number | string;
+    meter_order: number | null;
+    metadata: unknown;
+};
+
 type ModelDetailRow = {
     model_slug: string | null;
     detail_name: string | null;
