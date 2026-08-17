@@ -332,7 +332,7 @@ export async function POST(req: Request) {
 
                 console.log(`[stripe-webhook] Workspace ${wallet.workspaceId} tier: ${tier}, fee: ${feePct}%`);
 
-                if (paymentMethodId && stripeCustomerId) {
+                if (purpose === "top_up" && paymentMethodId && stripeCustomerId) {
                     try {
                         await ensureReusablePaymentMethod(stripe, stripeCustomerId, paymentMethodId);
                     } catch (pmErr) {

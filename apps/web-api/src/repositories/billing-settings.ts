@@ -39,7 +39,7 @@ export async function loadWorkspaceCreditSettings(env: Env, workspaceId: string,
 			db.select({ eventTime: creditLedger.eventTime }).from(creditLedger).where(and(
 				eq(creditLedger.workspaceId, workspaceId),
 				eq(creditLedger.refType, "Stripe_Payment_Intent"),
-				inArray(creditLedger.status, ["paid", "succeeded"]),
+				inArray(creditLedger.status, ["Paid", "paid", "Succeeded", "succeeded"]),
 				gt(creditLedger.amountNanos, 0),
 			)).orderBy(desc(creditLedger.eventTime)).limit(1),
 			db.select({ obfuscateInfo: users.obfuscateInfo, declaredCountryCode: users.declaredCountryCode })

@@ -43,7 +43,9 @@ const mockGetWorkspaceTier = jest.mocked(getWorkspaceTier);
 const mockSendCreditsPurchasedEvent = jest.mocked(sendCreditsPurchasedEvent);
 const mockSendBillingDiscordWebhook = jest.mocked(sendBillingDiscordWebhook);
 const mockCustomersRetrieve = jest.fn();
+const mockCustomersUpdate = jest.fn();
 const mockCheckoutSessionsList = jest.fn();
+const mockPaymentMethodsAttach = jest.fn();
 const stripeForSignatures = new Stripe("sk_test_namespace_audit", { apiVersion: "2026-06-24.dahlia" });
 
 const webhookSecret = "whsec_namespace_audit";
@@ -67,9 +69,9 @@ describe("Stripe checkout webhook", () => {
 		delete process.env.TEST_STRIPE_SECRET_KEY;
 		mockGetStripe.mockReturnValue({
 			webhooks: stripeForSignatures.webhooks,
-			customers: { retrieve: mockCustomersRetrieve, update: jest.fn() },
+			customers: { retrieve: mockCustomersRetrieve, update: mockCustomersUpdate },
 			checkout: { sessions: { list: mockCheckoutSessionsList } },
-			paymentMethods: { attach: jest.fn() },
+			paymentMethods: { attach: mockPaymentMethodsAttach },
 		} as unknown as Stripe);
 		mockResolveWalletAttribution.mockResolvedValue({
 			workspaceId,
@@ -125,7 +127,7 @@ describe("Stripe checkout webhook", () => {
 				amount_received: 500,
 				currency: "usd",
 				customer: "cus_test",
-				payment_method: null,
+				payment_method: "pm_one_off",
 				metadata: { purpose: "top_up_one_off", workspace_id: workspaceId },
 			} },
 		}));
@@ -141,6 +143,35 @@ describe("Stripe checkout webhook", () => {
 		}));
 		expect(mockSendCreditsPurchasedEvent).toHaveBeenCalledTimes(1);
 		expect(mockSendBillingDiscordWebhook).toHaveBeenCalledTimes(1);
+		expect(mockPaymentMethodsAttach).not.toHaveBeenCalled();
+		expect(mockCustomersUpdate).not.toHaveBeenCalled();
+	});
+
+	it("attaches and defaults the payment method for pay-and-save top-ups", async () => {
+		const response = await POST(signedRequest({
+			id: "evt_test_save_card",
+			object: "event",
+			type: "payment_intent.succeeded",
+			data: { object: {
+				id: "pi_test_save_card",
+				object: "payment_intent",
+				status: "succeeded",
+				amount: 500,
+				amount_received: 500,
+				currency: "usd",
+				customer: "cus_test",
+				payment_method: "pm_save_card",
+				metadata: { purpose: "top_up", workspace_id: workspaceId },
+			} },
+		}));
+
+		expect(response.status).toBe(200);
+		expect(mockPaymentMethodsAttach).toHaveBeenCalledWith("pm_save_card", {
+			customer: "cus_test",
+		});
+		expect(mockCustomersUpdate).toHaveBeenCalledWith("cus_test", {
+			invoice_settings: { default_payment_method: "pm_save_card" },
+		});
 	});
 
 	it("rejects an invalid Stripe signature before touching the wallet", async () => {
