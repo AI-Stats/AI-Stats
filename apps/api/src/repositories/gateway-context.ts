@@ -1,4 +1,4 @@
-import { byokKeys, keys, presets, v2ModelAliases, v2ModelProviderRoutes, v2Models, v2Providers, v2RouteCapabilities, wallets, workspaceSettings, workspaces } from "@phaseo/db/schema";
+import { byokKeys, keys, presets, v2ModelAliases, v2ModelProviderRoutes, v2Models, v2Providers, v2RouteCapabilities, wallets, workspacePublisherHandleAliases, workspaceSettings, workspaces } from "@phaseo/db/schema";
 import { and, eq, inArray, or, sql } from "@phaseo/db/query";
 
 import { createDatabase } from "@/runtime/db";
@@ -150,6 +150,21 @@ export function presetAccessPredicate(apiKeyCreatorId: string) {
 	);
 }
 
+export function parsePresetReference(model: string): {
+	publisherHandle: string | null;
+	slug: string;
+} | null {
+	if (!model.startsWith("@")) return null;
+	const reference = model.slice(1).trim();
+	if (!reference) return null;
+	const parts = reference.split("/");
+	if (parts.length === 1) return { publisherHandle: null, slug: parts[0]! };
+	if (parts.length === 2 && parts[0] && parts[1]) {
+		return { publisherHandle: parts[0], slug: parts[1] };
+	}
+	return null;
+}
+
 export async function fetchRequestContext(args: { workspaceId: string; model: string; endpoint: string; apiKeyId: string }) {
 	return withDatabase(async (db) => {
 		const [key] = await db.select().from(keys).where(eq(keys.id, args.apiKeyId)).limit(1);
@@ -160,8 +175,36 @@ export async function fetchRequestContext(args: { workspaceId: string; model: st
 		let baseModel = args.model;
 		let preset: Record<string, unknown> | null = null;
 		if (baseModel.startsWith("@")) {
-			const slug = baseModel.slice(1);
-			const [row] = await db.select({ id: presets.id, name: presets.name, slug: presets.slug, description: presets.description, config: presets.config, visibility: presets.visibility }).from(presets).where(and(eq(presets.workspaceId, args.workspaceId), sql`coalesce(nullif(${presets.slug},''),regexp_replace(${presets.name},'^@',''))=${slug}`, sql`${presets.archivedAt} is null`, presetAccessPredicate(key.createdBy))).limit(1);
+			const reference = parsePresetReference(baseModel);
+			if (!reference) throw new Error("preset_not_found");
+
+			let presetWorkspaceId = args.workspaceId;
+			if (reference.publisherHandle) {
+				const normalizedHandle = reference.publisherHandle.toLowerCase();
+				const [publisher] = await db.select({ id: workspaces.id })
+					.from(workspaces)
+					.leftJoin(
+						workspacePublisherHandleAliases,
+						eq(workspacePublisherHandleAliases.workspaceId, workspaces.id),
+					)
+					.where(or(
+						sql`lower(${workspaces.publisherHandle}) = ${normalizedHandle}`,
+						sql`lower(${workspacePublisherHandleAliases.handle}) = ${normalizedHandle}`,
+					))
+					.limit(1);
+				if (!publisher) throw new Error("preset_not_found");
+				presetWorkspaceId = publisher.id;
+			}
+
+			const access = reference.publisherHandle
+				? eq(presets.visibility, "public")
+				: presetAccessPredicate(key.createdBy);
+			const [row] = await db.select({ id: presets.id, name: presets.name, slug: presets.slug, description: presets.description, config: presets.config, visibility: presets.visibility }).from(presets).where(and(
+				eq(presets.workspaceId, presetWorkspaceId),
+				sql`lower(coalesce(nullif(${presets.slug},''),regexp_replace(${presets.name},'^@','')))=${reference.slug.toLowerCase()}`,
+				sql`${presets.archivedAt} is null`,
+				access,
+			)).limit(1);
 			if (!row) throw new Error("preset_not_found");
 			preset = row;
 			const config = row.config && typeof row.config === "object" && !Array.isArray(row.config) ? row.config as Record<string, any> : {};
