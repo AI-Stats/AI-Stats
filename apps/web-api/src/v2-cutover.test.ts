@@ -103,4 +103,17 @@ describe("V2 catalogue and analytics cutover", () => {
 			expect(repositorySource, repositoryPath).toMatch(/gatewayRequests|gateway_requests/);
 		}
 	});
+
+	it("reads upstream usage logs from the canonical gateway attempt table", () => {
+		const repositoryPath = join(process.cwd(), "src", "repositories", "usage-observability.ts");
+		const source = readFileSync(repositoryPath, "utf8");
+		const functionSource = source.slice(
+			source.indexOf("export async function loadUpstreamAttempts"),
+			source.indexOf("type RequestStringColumn"),
+		);
+
+		expect(functionSource).toContain("observability.gateway_upstream_requests");
+		expect(functionSource).not.toContain("observability.v2_request_facts");
+		expect(functionSource).not.toContain("observability.v2_request_attempts");
+	});
 });

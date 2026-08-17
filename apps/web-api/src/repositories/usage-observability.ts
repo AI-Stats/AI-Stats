@@ -92,23 +92,13 @@ export async function getAvailableUsageKeys(env:Env,workspaceId:string){const{db
 export async function loadRecentJobs(env:Env,input:{workspaceId:string;from:string;to:string;kind?:string|null;status?:string|null;provider?:string|null}){const{db,client}=createDatabase(env);try{const rows=await db.select().from(gatewayAsyncOperations).where(and(eq(gatewayAsyncOperations.workspaceId,input.workspaceId),inArray(gatewayAsyncOperations.kind,["video","batch"]),sql`${gatewayAsyncOperations.internalId} not like '__file__:%'`,gte(gatewayAsyncOperations.createdAt,input.from),lte(gatewayAsyncOperations.createdAt,input.to),input.kind?eq(gatewayAsyncOperations.kind,input.kind):undefined,input.status?eq(gatewayAsyncOperations.status,input.status):undefined,input.provider?eq(gatewayAsyncOperations.provider,input.provider):undefined)).orderBy(desc(gatewayAsyncOperations.updatedAt)).limit(50);return rows.map((row)=>{const meta=row.meta&&typeof row.meta==="object"&&!Array.isArray(row.meta)?row.meta as Record<string,unknown>:{};return{kind:row.kind,internal_id:row.internalId,request_id:row.requestId,session_id:row.sessionId,app_id:row.appId,provider:row.provider,model:row.model,status:row.status,billed_at:row.billedAt,created_at:row.createdAt,updated_at:row.updatedAt,meta,...meta,webhook:meta.webhook??null};});}finally{await client.end({timeout:1});}}
 
 export async function loadUpstreamAttempts(env:Env,input:{workspaceId:string;from:string;to:string}){const{db,client}=createDatabase(env);try{const rows=await db.execute<Record<string,unknown>>(sql`
-	select attempt.attempt_id id,coalesce(attempt.started_at,fact.occurred_at) created_at,fact.request_event_id gateway_request_id,fact.request_id,
-		attempt.attempt_number sequence,1 round_number,attempt.attempt_number,attempt.attempt_number attempt_count,null::int internal_attempt_number,'upstream' stage,fact.endpoint,
-		coalesce(fact.routed_model_slug,fact.requested_model_slug,fact.requested_model_input) model_id,
-		coalesce(nullif(attempt.safe_metadata->>'provider',''),route.provider_slug,split_part(coalesce(attempt.provider_model_id,fact.provider_model_id),':',1)) provider,
-		nullif(regexp_replace(coalesce(attempt.provider_model_id,fact.provider_model_id),'^[^:]+:',''),'') api_model_id,
-		nullif(regexp_replace(coalesce(attempt.provider_model_id,fact.provider_model_id),'^[^:]+:',''),'') provider_model_slug,
-		attempt.status_code,null::text status_text,attempt.success,case when attempt.success then 'success' else coalesce(attempt.failure_class,'error') end outcome,
-		case when jsonb_typeof(attempt.safe_metadata->'retryable')='boolean' then (attempt.safe_metadata->>'retryable')::boolean end retryable,
-		attempt.attempt_number>1 fallback_attempted,coalesce((attempt.safe_metadata->>'was_probe')::boolean,false) was_probe,
-		case when attempt.safe_metadata->>'key_source'='byok' or fact.byok then 'byok' else 'gateway' end key_source,fact.key_id,attempt.upstream_response_id native_response_id,
-		null::text provider_finish_reason,null::text finish_reason,attempt.latency_ms duration_ms,attempt.latency_ms,fact.generation_ms,fact.gateway_total_ms total_ms,
-		'{}'::jsonb usage,fact.cost_nanos,fact.currency,coalesce(attempt.error_code,fact.error_code) error_code,attempt.failure_class error_type,null::text error_message,
-		null::jsonb request_payload,null::jsonb response_payload,coalesce(attempt.safe_metadata,'{}'::jsonb)||jsonb_build_object('throughput',fact.throughput) metadata
-	from observability.v2_request_facts fact join observability.v2_request_attempts attempt on attempt.request_event_id=fact.request_event_id
-	left join catalog.v2_model_provider_routes route on route.provider_model_id=coalesce(attempt.provider_model_id,fact.provider_model_id)
-	where fact.workspace_id=${input.workspaceId}::uuid and fact.occurred_at>=${input.from}::timestamptz and fact.occurred_at<=${input.to}::timestamptz
-	order by fact.occurred_at desc,attempt.attempt_number asc limit 500
+	select upstream.*,
+		count(*) over (partition by upstream.gateway_request_id, upstream.gateway_request_created_at)::int as attempt_count
+	from observability.gateway_upstream_requests upstream
+	where upstream.workspace_id=${input.workspaceId}::uuid
+		and upstream.created_at>=${input.from}::timestamptz
+		and upstream.created_at<=${input.to}::timestamptz
+	order by upstream.created_at desc,upstream.sequence asc limit 500
 `);return[...rows];}finally{await client.end({timeout:1});}}
 
 type RequestStringColumn="model"|"provider"|"app"|"endpoint"|"finishReason"|"errorCode"|"statusCode"|"key"|"requestId"|"session"|"source";
